@@ -27,6 +27,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.util.WCPSConstants;
 
 public class RangeCoverageExpr implements IRasNode, ICoverageInfo {
     
@@ -43,18 +44,18 @@ public class RangeCoverageExpr implements IRasNode, ICoverageInfo {
 
         components = new ArrayList<IRasNode>();
 
-        if (node.getNodeName().equals("rangeConstructor"))
+        if (node.getNodeName().equals(WCPSConstants.MSG_RANGE_CONSTRUCTOR))
             node = node.getFirstChild();
 
-        if (node.getNodeName().equals("#text"))
+        if (node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT))
                 node = node.getNextSibling();
 
         while (node != null) {
-            if (node.getNodeName().equals("#text")) {
+            if (node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
                 node = node.getNextSibling();
                 continue;
             }
-            if (node.getNodeName().equals("component")) {
+            if (node.getNodeName().equals(WCPSConstants.MSG_COMPONENT)) {
                 RangeComponent elem = new RangeComponent(node, xq);
                 info = elem.getCoverageInfo();
                 components.add(elem);

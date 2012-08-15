@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.exceptions.ExceptionCode;
+import petascope.util.WCPSConstants;
 
 public class ScaleCoverageExpr implements IRasNode, ICoverageInfo {
     
@@ -54,37 +55,37 @@ public class ScaleCoverageExpr implements IRasNode, ICoverageInfo {
         while (child != null) {
             nodeName = child.getNodeName();
 
-            if (nodeName.equals("#text")) {
+            if (nodeName.equals("#" + WCPSConstants.MSG_TEXT)) {
                 child = child.getNextSibling();
                 continue;
             }
 
-            if (nodeName.equals("axis")) {
+            if (nodeName.equals(WCPSConstants.MSG_AXIS)) {
                 // Start a new axis and save it
-                log.trace("  axis");
+                log.trace("  " + WCPSConstants.MSG_AXIS);
                 elem = new DimensionIntervalElement(child, xq, coverageInfo);
                 axisList.add(elem);
                 child = elem.getNextNode();
-            } else if (nodeName.equals("name")) {
-                log.trace("  field interpolation");
+            } else if (nodeName.equals(WCPSConstants.MSG_NAME)) {
+                log.trace("  " + WCPSConstants.MSG_FIELD_INTERPOLATION);
                 fieldInterp = new FieldInterpolationElement(child, xq);
                 child = fieldInterp.getNextNode();
             } else {
                 // has to be the coverage expression
                 try {
-                    log.trace("  coverage expression");
+                    log.trace("  " + WCPSConstants.MSG_COVERAGE_EXPR);
                     coverageExprType = new CoverageExpr(child, xq);
                     coverageInfo = coverageExprType.getCoverageInfo();
                     child = child.getNextSibling();
                 } catch (WCPSException ex) {
-                    log.error("  unknown node for ScaleCoverageExpr expression:" + child.getNodeName());
-                    throw new WCPSException(ExceptionCode.InvalidMetadata, "Unknown node for ScaleCoverageExpr expression:" + child.getNodeName());
+                    log.error(" " + WCPSConstants.ERRTXT_UNKNOWN_NODE_FOR_SCALE_COV + child.getNodeName());
+                    throw new WCPSException(ExceptionCode.InvalidMetadata, WCPSConstants.ERRTXT_UNKNOWN_NODE_FOR_SCALE_COV + child.getNodeName());
                 }
             }
         }
 
         dims = coverageInfo.getNumDimensions();
-        log.trace("  number of dimensions: " + dims);
+        log.trace("  " + WCPSConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
         dim = new String[dims];
 
         for (int j = 0; j < dims; ++j) {
@@ -94,7 +95,7 @@ public class ScaleCoverageExpr implements IRasNode, ICoverageInfo {
 
         Iterator<DimensionIntervalElement> i = axisList.iterator();
 
-        log.trace("  axis List count:" + axisList.size());
+        log.trace("  " + WCPSConstants.MSG_AXIS_LIST_COUNT + ":" + axisList.size());
         DimensionIntervalElement axis;
         int axisId;
         int axisLo, axisHi;
@@ -102,13 +103,13 @@ public class ScaleCoverageExpr implements IRasNode, ICoverageInfo {
         while (i.hasNext()) {
             axis = i.next();
             axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
-            log.trace("    axis ID: " + axisId);
-            log.trace("    axis name: " + axis.getAxisName());
+            log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_ID + ": " + axisId);
+            log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName());
 
             axisLo = Integer.parseInt(axis.getLowCoord());
             axisHi = Integer.parseInt(axis.getHighCoord());
             dim[axisId] = axisLo + ":" + axisHi;
-            log.trace("    axis coords: " + dim[axisId]);
+            log.trace("    " + WCPSConstants.MSG_AXIS_COORDS + ": " + dim[axisId]);
             
             coverageInfo.setCellDimension(axisId,
                     new CellDomainElement(
@@ -118,7 +119,7 @@ public class ScaleCoverageExpr implements IRasNode, ICoverageInfo {
     }
 
     public String toRasQL() {
-        String result = "scale( " + coverageExprType.toRasQL() + ", [";
+        String result = WCPSConstants.MSG_SCALE + "( " + coverageExprType.toRasQL() + ", [";
 
         for (int j = 0; j < dims; ++j) {
             if (j > 0) {

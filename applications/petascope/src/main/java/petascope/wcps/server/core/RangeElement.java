@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
+import petascope.util.WCPSConstants;
 
 public class RangeElement implements Cloneable {
     
@@ -39,21 +40,24 @@ public class RangeElement implements Cloneable {
     public RangeElement(String name, String type, String uom) throws WCPSException {
         if ((name == null) || (type == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    "Invalid range element: Element name and type cannot be null");
+                    WCPSConstants.ERRTXT_INVALID_RANGE_TYPE_P1 + 
+                    WCPSConstants.ERRTXT_INVALID_RANGE_TYPE_P2);
         }
 
         if (name.equals("")) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    "Invalid range element: Element name cannot be empty");
+                    WCPSConstants.ERRTXT_INVALID_RANGE_TYPE_P1 + 
+                    WCPSConstants.ERRTXT_INVALID_RANGE_TYPE_P3);
         }
 
-        if (!(type.equals("boolean") || type.equals("char") || type.equals("unsigned char")
-                || type.equals("short") || type.equals("unsigned short") || type.equals("int")
-                || type.equals("unsigned int") || type.equals("long")
-                || type.equals("unsigned long") || type.equals("float")
-                || type.equals("double") || type.equals("complex") || type.equals("complex2"))) {
+        if (!(type.equals(WCPSConstants.MSG_BOOLEAN) || type.equals(WCPSConstants.MSG_CHAR) || type.equals("unsigned char")
+                || type.equals(WCPSConstants.MSG_SHORT) || type.equals(WCPSConstants.MSG_UNSIGNED_SHORT) || type.equals("int")
+                || type.equals(WCPSConstants.MSG_UNSIGNED_INT) || type.equals(WCPSConstants.MSG_LONG)
+                || type.equals(WCPSConstants.MSG_UNSIGNED_LONG) || type.equals(WCPSConstants.MSG_FLOAT)
+                || type.equals(WCPSConstants.MSG_DOUBLE) || type.equals(WCPSConstants.MSG_COMPLEX) || type.equals(WCPSConstants.MSG_COMPLEX + "2"))) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    "Invalid range element: Invalid element type:" + type);
+                    WCPSConstants.ERRTXT_INVALID_RANGE_TYPE_P1 + 
+                    WCPSConstants.ERRTXT_INVALID_RANGE_TYPE_P4 + type);
         }
 
         this.name = name;
@@ -72,7 +76,7 @@ public class RangeElement implements Cloneable {
             return new RangeElement(new String(name), new String(type), new String(uom));
         } catch (WCPSException ime) {
             throw new RuntimeException(
-                    "Invalid metadata while cloning RangeElement. This is a software bug in WCPS.",
+                    WCPSConstants.ERRTXT_INVALID_METADATA_CLONING_RAN,
                     ime);
         }
 
@@ -94,75 +98,76 @@ public class RangeElement implements Cloneable {
     }
 
     public boolean isBoolean() {
-        return type.equals("boolean");
+        return type.equals(WCPSConstants.MSG_BOOLEAN);
 
     }
 
     public static boolean isBoolean(String type) {
-        return type.equals("boolean");
+        return type.equals(WCPSConstants.MSG_BOOLEAN);
 
     }
 
     public boolean isComplex() {
-        return type.equals("complex") || type.equals("complex2");
+        return type.equals(WCPSConstants.MSG_COMPLEX) || type.equals(WCPSConstants.MSG_COMPLEX + "2");
 
     }
 
     public static boolean isComplex(String type) {
-        return type.equals("complex") || type.equals("complex2");
+        return type.equals(WCPSConstants.MSG_COMPLEX) || type.equals(WCPSConstants.MSG_COMPLEX+ "2");
 
     }
 
     public boolean isIntegral() {
-        return type.equals("char") || type.equals("short") || type.equals("unsigned short")
-                || type.equals("int") || type.equals("unsigned int") || type.equals("long")
-                || type.equals("unsigend long");
+        return type.equals(WCPSConstants.MSG_CHAR) || type.equals(WCPSConstants.MSG_SHORT) || type.equals(WCPSConstants.MSG_UNSIGNED_SHORT)
+                || type.equals(WCPSConstants.MSG_INT) || type.equals(WCPSConstants.MSG_UNSIGNED_INT) || type.equals(WCPSConstants.MSG_LONG)
+                || type.equals(WCPSConstants.MSG_UNSIGNED_LONG);
 
     }
 
     public static boolean isIntegral(String type) {
-        return type.equals("char") || type.equals("short") || type.equals("unsigned short")
-                || type.equals("int") || type.equals("unsigned int") || type.equals("long")
-                || type.equals("unsigend long");
+        return type.equals(WCPSConstants.MSG_CHAR) || type.equals(WCPSConstants.MSG_SHORT) || type.equals(WCPSConstants.MSG_UNSIGNED_SHORT)
+                || type.equals(WCPSConstants.MSG_INT) || type.equals(WCPSConstants.MSG_UNSIGNED_INT) || type.equals(WCPSConstants.MSG_LONG)
+                || type.equals(WCPSConstants.MSG_UNSIGNED_LONG);
 
     }
 
     public boolean isFloating() {
-        return type.equals("float") || type.equals("double");
+        return type.equals(WCPSConstants.MSG_FLOAT) || type.equals(WCPSConstants.MSG_DOUBLE);
 
     }
 
     public static boolean isFloating(String type) {
-        return type.equals("float") || type.equals("double");
+        return type.equals(WCPSConstants.MSG_FLOAT) || type.equals(WCPSConstants.MSG_DOUBLE);
 
     }
 
     public boolean isNumeric() {
-        return type.equals("char") || type.equals("short") || type.equals("unsigned short")
-                || type.equals("int") || type.equals("unsigned int") || type.equals("long")
-                || type.equals("unsigend long") || type.equals("float")
-                || type.equals("double") || type.equals("complex")
-                || type.equals("complex2");
+        return type.equals(WCPSConstants.MSG_CHAR) || type.equals(WCPSConstants.MSG_SHORT) || type.equals(WCPSConstants.MSG_UNSIGNED_SHORT)
+                || type.equals(WCPSConstants.MSG_INT) || type.equals(WCPSConstants.MSG_UNSIGNED_INT) || type.equals(WCPSConstants.MSG_LONG)
+                || type.equals(WCPSConstants.MSG_UNSIGNED_LONG) || type.equals(WCPSConstants.MSG_FLOAT)
+                || type.equals(WCPSConstants.MSG_DOUBLE) || type.equals(WCPSConstants.MSG_COMPLEX)
+                || type.equals(WCPSConstants.MSG_COMPLEX + "2");
 
     }
 
     public static boolean isNumeric(String type) {
-        return type.equals("char") || type.equals("short") || type.equals("unsigned short")
-                || type.equals("int") || type.equals("unsigned int") || type.equals("long")
-                || type.equals("unsigend long") || type.equals("float")
-                || type.equals("double") || type.equals("complex")
-                || type.equals("complex2");
+        return type.equals(WCPSConstants.MSG_CHAR) || type.equals(WCPSConstants.MSG_SHORT) || type.equals(WCPSConstants.MSG_UNSIGNED_SHORT)
+                || type.equals(WCPSConstants.MSG_INT) || type.equals(WCPSConstants.MSG_UNSIGNED_INT) || type.equals(WCPSConstants.MSG_LONG)
+                || type.equals(WCPSConstants.MSG_UNSIGNED_LONG) || type.equals(WCPSConstants.MSG_FLOAT)
+                || type.equals(WCPSConstants.MSG_DOUBLE) || type.equals(WCPSConstants.MSG_COMPLEX)
+                || type.equals(WCPSConstants.MSG_COMPLEX + "2");
 
     }
 
     public void setType(String type) throws WCPSException {
-        if (!(type.equals("boolean") || type.equals("char") || type.equals("unsigned char")
-                || type.equals("short") || type.equals("unsigned short") || type.equals("int")
-                || type.equals("unsigned int") || type.equals("long")
-                || type.equals("unsigned long") || type.equals("float")
-                || type.equals("double") || type.equals("complex") || type.equals("complex2"))) {
+        if (!(type.equals(WCPSConstants.MSG_BOOLEAN) || type.equals(WCPSConstants.MSG_CHAR) || type.equals("unsigned char")
+                || type.equals(WCPSConstants.MSG_SHORT) || type.equals(WCPSConstants.MSG_UNSIGNED_SHORT) || type.equals("int")
+                || type.equals(WCPSConstants.MSG_UNSIGNED_INT) || type.equals(WCPSConstants.MSG_LONG)
+                || type.equals(WCPSConstants.MSG_UNSIGNED_LONG) || type.equals(WCPSConstants.MSG_FLOAT)
+                || type.equals(WCPSConstants.MSG_DOUBLE) || type.equals(WCPSConstants.MSG_COMPLEX) || type.equals(WCPSConstants.MSG_COMPLEX + "2"))) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    "Invalid range element: Invalid element type:" + type);
+                    WCPSConstants.ERRTXT_INVALID_RANGE_TYPE_P1 + 
+                    WCPSConstants.ERRTXT_INVALID_RANGE_TYPE_P4 + type);
         }
 
         this.type = type;
@@ -170,7 +175,7 @@ public class RangeElement implements Cloneable {
     }
 
     public String toString() {
-        String r = "Range Element { Name '" + name + "', Type '" + type + "'}";
+        String r = WCPSConstants.MSG_RANGE_ELEMENT + " { " + WCPSConstants.MSG_NAME + " '" + name + "', " + WCPSConstants.MSG_TYPE + " '" + type + "'}";
         return r;
     }
 }

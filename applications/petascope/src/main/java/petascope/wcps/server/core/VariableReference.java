@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.util.WCPSConstants;
 
 public class VariableReference implements IRasNode {
     
@@ -34,18 +35,18 @@ public class VariableReference implements IRasNode {
     private String translatedName;
 
     public VariableReference(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#text")) {
+        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         log.trace(node.getNodeName());
 
-        if (node != null && node.getNodeName().equals("variableRef")) {
+        if (node != null && node.getNodeName().equals(WCPSConstants.MSG_VARIABLE_REF)) {
             name = node.getTextContent();
             translatedName = xq.getReferenceVariableName(name);
-            log.trace("  variable " + name + " has been renamed into " + translatedName);
+            log.trace("  " + WCPSConstants.MSG_VARIABLE + " " + name + " " + WCPSConstants.MSG_HAS_BEEN_RENAMED+ " " + translatedName);
         } else {
-            log.error("  no variable reference found");
-            throw new WCPSException("Could not find any variable reference");
+            log.error("  " + WCPSConstants.ERRTXT_NOT_VAR_REF_FOUND);
+            throw new WCPSException(WCPSConstants.ERRTXT_COULD_NOT_FIND_ANY_VAR_REF);
         }
     }
 

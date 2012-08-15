@@ -23,6 +23,7 @@ package petascope.wcps.server.core;
 
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
+import petascope.util.WCPSConstants;
 
 /**
  * Represents a WGS Coordinate Reference System (CRS) and its bounding box.
@@ -34,17 +35,17 @@ import petascope.exceptions.WCPSException;
 @Deprecated
 public class Wgs84Crs implements Cloneable {
 
-    private String name = "WGS84";
+    private String name = WCPSConstants.MSG_WGS84;
     private Double low1, high1, low2, high2;
     private Double offset1, offset2;        // precomputed world-to-crs offsets
 
     public Wgs84Crs(Double l1, Double h1, Double l2, Double h2, Double o1, Double o2) throws WCPSException {
         if ((l1 == null) || (h1 == null) || (l2 == null) || (h2 == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    "Invalid WGS 84 bounding box: null element encountered.");
+                    WCPSConstants.ERRTXT_INVALID_WGS84_BBOX);
         }
         if ((o1 == null) || (o2 == null)) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata, "Invalid WGS 84 offsets: null element encountered.");
+            throw new WCPSException(ExceptionCode.InvalidMetadata, WCPSConstants.ERRTXT_INVALID_WGS84_BBOX);
         }
 
         low1 = l1;
@@ -67,9 +68,9 @@ public class Wgs84Crs implements Cloneable {
     }
 
     public String toString() {
-        String d = "CRS '" + getName() + "' { Bounding Box [X(" + getLow1() + ", " + getHigh1() + "), "
-                + "Y(" + getLow2() + ", " + getHigh2() + ")], "
-                + "Offsets [X(" + getOffset1() + "), Y(" + getOffset2() + ")]}";
+        String d = WCPSConstants.MSG_CRS_C + " '" + getName() + "' { " + WCPSConstants.MSG_BOUNDING_BOX + " [" + WCPSConstants.MSG_X + "(" + getLow1() + ", " + getHigh1() + "), "
+                + WCPSConstants.MSG_Y + "(" + getLow2() + ", " + getHigh2() + ")], "
+                + WCPSConstants.MSG_OFFSETS + " [" + WCPSConstants.MSG_X + "(" + getOffset1() + "), " + WCPSConstants.MSG_Y + "(" + getOffset2() + ")]}";
         return d;
     }
 

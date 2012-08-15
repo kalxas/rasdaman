@@ -27,6 +27,7 @@ import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.CrsUtil;
+import petascope.util.WCPSConstants;
 
 // TODO: implement class MetadataScalarExprType
 public class MetadataScalarExpr implements IRasNode {
@@ -44,7 +45,7 @@ public class MetadataScalarExpr implements IRasNode {
         log.trace(nodeName);
         
         Node child = node.getFirstChild();
-        while (child != null && child.getNodeName().equals("#text")) {
+        while (child != null && child.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
             child = child.getNextSibling();
         }
         
@@ -54,7 +55,7 @@ public class MetadataScalarExpr implements IRasNode {
         child = child.getNextSibling();
         
         op = nodeName;
-        if (nodeName.equals("DomainMetadata")) {
+        if (nodeName.equals(WCPSConstants.MSG_DOMAIN_METADATA_CAMEL)) {
             AxisName axis = new AxisName(child, xq);
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
             DomainElement domainElement = coverageInfo.getDomainElement(axisIndex);
@@ -65,15 +66,15 @@ public class MetadataScalarExpr implements IRasNode {
                 lo = domainElement.getNumLo().toString();
                 hi = domainElement.getNumHi().toString();
             }
-        } else if (nodeName.equals("imageCrsDomain")) {
+        } else if (nodeName.equals(WCPSConstants.MSG_IMAGE_CRSDOMAIN)) {
             AxisName axis = new AxisName(child, xq);
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
             CellDomainElement cellDomain = coverageInfo.getCellDomainElement(axisIndex);
             lo = cellDomain.getLo().toString();
             hi = cellDomain.getHi().toString();
-        } else if (!nodeName.equals("identifier") && 
-                   !nodeName.equals("imageCrs")) {
-            throw new WCPSException("No metadata node: " + nodeName);
+        } else if (!nodeName.equals(WCPSConstants.MSG_SET_IDENTIFIER ) && 
+                   !nodeName.equals(WCPSConstants.MSG_IMAGE_CRS2)) {
+            throw new WCPSException(WCPSConstants.ERRTXT_NO_METADATA_NODE + nodeName);
         }
     }
 

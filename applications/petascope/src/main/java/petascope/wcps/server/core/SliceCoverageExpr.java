@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import petascope.util.Pair;
+import petascope.util.WCPSConstants;
 import petascope.util.WcsUtil;
 
 public class SliceCoverageExpr implements IRasNode, ICoverageInfo {
@@ -54,33 +55,33 @@ public class SliceCoverageExpr implements IRasNode, ICoverageInfo {
         while (child != null) {
             nodeName = child.getNodeName();
 
-            if (nodeName.equals("#text")) {
+            if (nodeName.equals("#" + WCPSConstants.MSG_TEXT)) {
                 child = child.getNextSibling();
                 continue;
             }
 
-            if (nodeName.equals("axis")) {
+            if (nodeName.equals(WCPSConstants.MSG_AXIS)) {
                 // Start a new axis and save it
-                log.trace("  axis");
+                log.trace("  " + WCPSConstants.MSG_AXIS);
                 elem = new DimensionPointElement(child, xq, coverageInfo);
                 axisList.add(elem);
                 child = elem.getNextNode();
             } else {
                 try {
-                    log.trace("  coverage");
+                    log.trace("  " + WCPSConstants.MSG_COVERAGE);
                     coverageExprType = new CoverageExpr(child, xq);
                     coverageInfo = coverageExprType.getCoverageInfo();
                     child = child.getNextSibling();
                     continue;
                 } catch (WCPSException e) {
-                    log.error("  expected coverage node, got " + nodeName);
-                    throw new WCPSException("Unknown node for SliceCoverage expression:" + child.getNodeName());
+                    log.error("  " + WCPSConstants.ERRTXT_EXPECTED_COVERAGE_NODE_GOT + " " + nodeName);
+                    throw new WCPSException(WCPSConstants.ERRTXT_UNKNOWN_NODE_FOR_SLICE_COV + ":" + child.getNodeName());
                 }
             }
         }
 
         dims = coverageInfo.getNumDimensions();
-        log.trace("  number of dimensions: " + dims);
+        log.trace("  " + WCPSConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
         dim = new String[dims];
 
         for (int j = 0; j < dims; ++j) {
@@ -105,7 +106,8 @@ public class SliceCoverageExpr implements IRasNode, ICoverageInfo {
             } catch (NumberFormatException e) {
                 slicingPosInt = 1;
             }
-            log.trace("  slice at axis id: " + axisId + ", axis name: " + axis.getAxisName() + ", slicing position: " + slicingPosInt);
+            log.trace("  " + WCPSConstants.MSG_SLICE_AT_AXIS_ID + ": " + axisId + ", " + WCPSConstants.MSG_AXIS + 
+                    " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName() + ", " + WCPSConstants.MSG_SLICING_POSITION2 + ": " + slicingPosInt);
             coverageInfo.setCellDimension(
                     axisId,
                     new CellDomainElement(

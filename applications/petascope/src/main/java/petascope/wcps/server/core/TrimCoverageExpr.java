@@ -30,6 +30,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.util.Pair;
+import petascope.util.WCPSConstants;
 import petascope.util.WcsUtil;
 
 public class TrimCoverageExpr implements IRasNode, ICoverageInfo {
@@ -55,34 +56,34 @@ public class TrimCoverageExpr implements IRasNode, ICoverageInfo {
         while (child != null) {
             nodeName = child.getNodeName();
 
-            if (nodeName.equals("#text")) {
+            if (nodeName.equals("#" + WCPSConstants.MSG_TEXT)) {
                 child = child.getNextSibling();
                 continue;
             }
 
-            if (nodeName.equals("axis")) {
+            if (nodeName.equals(WCPSConstants.MSG_AXIS)) {
                 // Start a new axis and save it
-                log.trace("  axis");
+                log.trace("  " + WCPSConstants.MSG_AXIS);
                 elem = new DimensionIntervalElement(child, xq, coverageInfo);
                 axisList.add(elem);
                 child = elem.getNextNode();
             } else {
                 try {
-                    log.trace("  coverage");
+                    log.trace("  " + WCPSConstants.MSG_COVERAGE);
                     coverageExprType = new CoverageExpr(child, xq);
                     coverageInfo = coverageExprType.getCoverageInfo();
                     child = child.getNextSibling();
                     continue;
                 } catch (WCPSException e) {
-                    log.error("  expected coverage node, got " + nodeName);
-                    throw new WCPSException("Unknown node for TrimCoverage expression:" + child.getNodeName());
+                    log.error("  " + WCPSConstants.ERRTXT_EXPECTED_COVERAGE_NODE_GOT + " " + nodeName);
+                    throw new WCPSException(WCPSConstants.ERRTXT_UNKNOWN_NODE_FOR_TRIM_COV + ":" + child.getNodeName());
                 }
             }
         }
         
         // Afterward
         dims = coverageInfo.getNumDimensions();
-        log.trace("  number of dimensions: " + dims);
+        log.trace("  " + WCPSConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
         dim = new String[dims];
 
         for (int j = 0; j < dims; ++j) {
@@ -92,7 +93,7 @@ public class TrimCoverageExpr implements IRasNode, ICoverageInfo {
 
         Iterator<DimensionIntervalElement> i = axisList.iterator();
 
-        log.trace("  axis list count: " + axisList.size());
+        log.trace("  " + WCPSConstants.MSG_AXIS_LIST_COUNT + ": " + axisList.size());
         DimensionIntervalElement axis;
         int axisId;
         int axisLo, axisHi;
@@ -100,13 +101,13 @@ public class TrimCoverageExpr implements IRasNode, ICoverageInfo {
         while (i.hasNext()) {
             axis = i.next();
             axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
-            log.trace("    axis ID: " + axisId);
-            log.trace("    axis name: " + axis.getAxisName());
+            log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_ID + ": " + axisId);
+            log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName());
 
             axisLo = Integer.parseInt(axis.getLowCoord());
             axisHi = Integer.parseInt(axis.getHighCoord());
             dim[axisId] = axisLo + ":" + axisHi;
-            log.trace("    axis coords: " + dim[axisId]);
+            log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_COORDS + ": " + dim[axisId]);
             coverageInfo.setCellDimension(
                     axisId,
                     new CellDomainElement(

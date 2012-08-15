@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.util.Pair;
+import petascope.util.WCPSConstants;
 
 // TODO: Implement class SubsetOperation
 public class SubsetOperationCoverageExpr implements IRasNode, ICoverageInfo {
@@ -38,32 +39,32 @@ public class SubsetOperationCoverageExpr implements IRasNode, ICoverageInfo {
     public SubsetOperationCoverageExpr(Node node, XmlQuery xq)
             throws WCPSException {
 
-        while ((node != null) && node.getNodeName().equals("#text")) {
+        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
 
         if (node == null) {
-            throw new WCPSException("SubsetOperationCoverageExpr parsing error!");
+            throw new WCPSException(WCPSConstants.ERRTXT_SUBSET_OP_COV_EXPR);
         }
 
         String nodeName = node.getNodeName();
         log.trace(nodeName);
 
-        if (nodeName.equals("trim")) {
-            log.trace("  trim child");
+        if (nodeName.equals(WCPSConstants.MSG_TRIM)) {
+            log.trace("  " + WCPSConstants.MSG_TRIM + " " + WCPSConstants.MSG_CHILD);
             child = new TrimCoverageExpr(node, xq);
             info = ((TrimCoverageExpr) child).getCoverageInfo();
-        } else if (nodeName.equals("extend")) {
-            log.trace("  extend child");
+        } else if (nodeName.equals(WCPSConstants.MSG_EXTEND)) {
+            log.trace("  " + WCPSConstants.MSG_EXTEND + " " + WCPSConstants.MSG_CHILD);
             child = new ExtendCoverageExpr(node, xq);
             info = ((ExtendCoverageExpr) child).getCoverageInfo();
-        } else if (nodeName.equals("slice")) {
-            log.trace("  slice child");
+        } else if (nodeName.equals(WCPSConstants.MSG_SLICE)) {
+            log.trace("  " + WCPSConstants.MSG_SLICE + " " + WCPSConstants.MSG_CHILD);
             child = new SliceCoverageExpr(node, xq);
             info = ((SliceCoverageExpr) child).getCoverageInfo();
         } else {
-            log.error("  failed to match SubsetOperation: " + nodeName);
-            throw new WCPSException("Failed to match SubsetOperation: " + nodeName);
+            log.error("  " + WCPSConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);
+            throw new WCPSException(WCPSConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);
         }
     }
 

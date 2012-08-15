@@ -35,6 +35,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.PetascopeException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import petascope.util.WCPSConstants;
 
 public class ScalarExpr implements IRasNode, ICoverageInfo {
     
@@ -46,7 +47,7 @@ public class ScalarExpr implements IRasNode, ICoverageInfo {
     private double dvalue;
 
     public ScalarExpr(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#text")) {
+        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         
@@ -59,7 +60,7 @@ public class ScalarExpr implements IRasNode, ICoverageInfo {
         if (child == null) {
             try {
                 child = new MetadataScalarExpr(node, xq);
-                log.trace("  matched metadata scalar expression.");
+                log.trace(WCPSConstants.MSG_MATCHED_METADATA_SCALAR_EXPR);
             } catch (WCPSException e) {
                 child = null;
             }
@@ -69,7 +70,7 @@ public class ScalarExpr implements IRasNode, ICoverageInfo {
         if (child == null) {
             try {
                 child = new BooleanScalarExpr(node, xq);
-                log.trace("  matched boolean scalar expression.");
+                log.trace(WCPSConstants.MSG_MATCHED_BOOLEAN_SCALAR_EXPR);
             } catch (WCPSException e) {
                 child = null;
             }
@@ -81,7 +82,7 @@ public class ScalarExpr implements IRasNode, ICoverageInfo {
                 child = new NumericScalarExpr(node, xq);
                 singleNumericValue = ((NumericScalarExpr) child).isSingleValue();
                 dvalue = ((NumericScalarExpr) child).getSingleValue();
-                log.trace("  matched numeric scalar expression.");
+                log.trace(WCPSConstants.MSG_MATCHED_NUMERIC_SCALAR_EXPR);
             } catch (WCPSException e) {
                 child = null;
             }
@@ -91,7 +92,7 @@ public class ScalarExpr implements IRasNode, ICoverageInfo {
         if (child == null) {
             try {
                 child = new ReduceScalarExpr(node, xq);
-                log.trace("  matched reduce scalar expression.");
+                log.trace(WCPSConstants.MSG_MATCHED_REDUCE_SCALAR_EXPR);
             } catch (WCPSException e) {
                 child = null;
             }
@@ -101,7 +102,7 @@ public class ScalarExpr implements IRasNode, ICoverageInfo {
         if (child == null) {
             try {
                 child = new StringScalarExpr(node, xq);
-                log.trace("  matched string scalar expression.");
+                log.trace(WCPSConstants.MSG_MATCHED_STRING_SCALAR_EXPR);
             } catch (WCPSException e) {
                 child = null;
             }
@@ -109,8 +110,8 @@ public class ScalarExpr implements IRasNode, ICoverageInfo {
 
         // Error check
         if (child == null) {
-            log.error("  invalid coverage Expression, next node: " + node.getNodeName());
-            throw new WCPSException("Invalid coverage Expression, next node: " + node.getNodeName());
+            log.error("  " + WCPSConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
+            throw new WCPSException(WCPSConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
         }
 
         Metadata meta = createScalarExprMetadata(xq);
@@ -137,9 +138,9 @@ public class ScalarExpr implements IRasNode, ICoverageInfo {
         nullSet.add(nullDefault);
         //HashSet<InterpolationMethod> interpolationSet = new HashSet<InterpolationMethod>();
         Set<InterpolationMethod> interpolationSet = new HashSet<InterpolationMethod>();
-        InterpolationMethod interpolationDefault = new InterpolationMethod("none", "none");
+        InterpolationMethod interpolationDefault = new InterpolationMethod(WCPSConstants.MSG_NONE, WCPSConstants.MSG_NONE);
         interpolationSet.add(interpolationDefault);
-        String coverageName = "scalarExpr";
+        String coverageName = WCPSConstants.MSG_SCALAR_EXPR;
         List<DomainElement> domainList = new LinkedList<DomainElement>();
 
         // Build domain metadata
@@ -151,7 +152,7 @@ public class ScalarExpr implements IRasNode, ICoverageInfo {
         DomainElement domain = new DomainElement(AxisTypes.X_AXIS, AxisTypes.X_AXIS, 1.0, 1.0, null, null, crsset, allowedAxes, null);
         domainList.add(domain);
         // "unsigned int" is default datatype
-        rangeList.add(new RangeElement("dynamic_type", "unsigned int", null));
+        rangeList.add(new RangeElement(WCPSConstants.MSG_DYNAMIC_TYPE, WCPSConstants.MSG_UNSIGNED_INT, null));
 
         try {
             /** NOTE(campalani): nullSet and interpolationSet need to be declared
@@ -160,7 +161,7 @@ public class ScalarExpr implements IRasNode, ICoverageInfo {
              */            
             Metadata metadata = new Metadata(cellDomainList, rangeList, nullSet,
                     nullDefault, interpolationSet, interpolationDefault,
-                        coverageName, "GridCoverage", domainList, null);
+                        coverageName, WCPSConstants.MSG_GRID_COVERAGE, domainList, null);
             return metadata;
         } catch (PetascopeException ex) {
             throw (WCPSException) ex;

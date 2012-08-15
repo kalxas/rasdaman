@@ -26,6 +26,7 @@ import org.w3c.dom.*;
 import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.util.WCPSConstants;
 
 public class RangeField implements IRasNode {
     
@@ -34,21 +35,21 @@ public class RangeField implements IRasNode {
     private String type;
 
     public RangeField(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#text")) {
+        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         log.trace(node.getNodeName());
 
         if (node == null) {
-            throw new WCPSException("RangeFieldType parsing error!");
+            throw new WCPSException(WCPSConstants.ERRTXT_RANGE_FIELD_TYPE);
         }
 
         String nodeName = node.getNodeName();
 
-        if (nodeName.equals("type")) {
+        if (nodeName.equals(WCPSConstants.MSG_TYPE)) {
             this.type = node.getTextContent();
 
-            log.trace("  range field type: " + type);
+            log.trace(WCPSConstants.MSG_RANGE_RANGE_FILED_TYPE + type);
         }
     }
 

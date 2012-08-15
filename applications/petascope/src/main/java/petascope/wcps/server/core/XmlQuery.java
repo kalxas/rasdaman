@@ -30,6 +30,7 @@ import java.util.Iterator;
 import petascope.core.IDynamicMetadataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.util.WCPSConstants;
 
 /**
  *
@@ -60,7 +61,7 @@ public class XmlQuery implements IRasNode {
     private HashMap<String, Integer> varDimension;
     // VariableNewName is used to translate the old var name into the multi-dim var name
     private HashMap<String, String> variableTranslator;
-    private String varPrefix = "i_";
+    private String varPrefix = WCPSConstants.MSG_I + "_";
     private char varSuffix = 'i';
 
     public String getMimeType() {
@@ -85,24 +86,24 @@ public class XmlQuery implements IRasNode {
     }
 
     public void startParsing(Node node) throws WCPSException, PetascopeException {
-        log.debug("Processing XML Request: " + node.getNodeName());
+        log.debug(WCPSConstants.DEBUGTXT_PROCESSING_XML_REQUEST + ": " + node.getNodeName());
 
         Node x = node.getFirstChild();
 
 
         while (x != null) {
-            if (x.getNodeName().equals("#text")) {
+            if (x.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
                 x = x.getNextSibling();
                 continue;
             }
 
-            log.info("The current node is: " + x.getNodeName());
+            log.info(WCPSConstants.MSG_THE_CURRENT_NODE + ": " + x.getNodeName());
 
-            if (x.getNodeName().equals("coverageIterator")) {
+            if (x.getNodeName().equals(WCPSConstants.MSG_COVERAGE_ITERATOR)) {
                 iterators.add(new CoverageIterator(x, this));
-            } else if (x.getNodeName().equals("where")) {
+            } else if (x.getNodeName().equals(WCPSConstants.MSG_WHERE)) {
                 where = new BooleanScalarExpr(x.getFirstChild(), this);
-            } else if (x.getNodeName().equals("encode")) {
+            } else if (x.getNodeName().equals(WCPSConstants.MSG_ENCODE)) {
                 EncodeDataExpr encode;
 
                 encode = new EncodeDataExpr(x, this);
@@ -111,7 +112,7 @@ public class XmlQuery implements IRasNode {
             } else {
                 // It has to be a scalar Expr 
                 coverageExpr = new ScalarExpr(x, this);
-                mime = "text/plain";
+                mime = WCPSConstants.MSG_TEXT_PLAIN;
             }
 
             x = x.getNextSibling();
@@ -158,7 +159,7 @@ public class XmlQuery implements IRasNode {
             }
         }
 
-        throw new WCPSException("Iterator " + iteratorName + " not defined");
+        throw new WCPSException(WCPSConstants.MSG_ITERATOR + " " + iteratorName + " " + WCPSConstants.ERRTXT_NOT_DEFINED);
     }
 
     public boolean isDynamicCoverage(String coverageName) {
@@ -221,7 +222,7 @@ public class XmlQuery implements IRasNode {
             result = coverageExpr.toRasQL();
         } else {
             // rasql query
-            result = "select " + coverageExpr.toRasQL() + " from ";
+            result = WCPSConstants.MSG_SELECT + " " + coverageExpr.toRasQL() + " " + WCPSConstants.MSG_FROM + " ";
             Iterator<CoverageIterator> it = iterators.iterator();
             boolean first = true;
 
@@ -236,7 +237,7 @@ public class XmlQuery implements IRasNode {
             }
 
             if (where != null) {
-                result += " where " + where.toRasQL();
+                result += " " + WCPSConstants.MSG_WHERE+ " " + where.toRasQL();
             }
         }
 

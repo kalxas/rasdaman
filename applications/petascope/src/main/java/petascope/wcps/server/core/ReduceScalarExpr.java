@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.util.WCPSConstants;
 
 public class ReduceScalarExpr implements IRasNode {
     
@@ -35,34 +36,34 @@ public class ReduceScalarExpr implements IRasNode {
 
     public ReduceScalarExpr(Node node, XmlQuery xq) throws WCPSException {
         log.trace(node.getNodeName());
-        if (node.getNodeName().equals("reduce")) {
+        if (node.getNodeName().equals(WCPSConstants.MSG_REDUCE)) {
             node = node.getFirstChild();
         }
-        while ((node != null) && node.getNodeName().equals("#text")) {
+        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
 
         String nodeName = node.getNodeName();
 
-        if (nodeName.equals("all") || nodeName.equals("some") || nodeName.equals("count")
-                || nodeName.equals("add") || nodeName.equals("avg") || nodeName.equals("min")
-                || nodeName.equals("max")) {
+        if (nodeName.equals(WCPSConstants.MSG_ALL) || nodeName.equals(WCPSConstants.MSG_SOME) || nodeName.equals(WCPSConstants.MSG_COUNT)
+                || nodeName.equals(WCPSConstants.MSG_ADD) || nodeName.equals(WCPSConstants.MSG_AVG) || nodeName.equals(WCPSConstants.MSG_MIN)
+                || nodeName.equals(WCPSConstants.MSG_MAX)) {
             op = nodeName;
 
-            if (!op.equals("all") && !op.equals("some")) {
-                op = op + "_cells";
+            if (!op.equals(WCPSConstants.MSG_ALL) && !op.equals(WCPSConstants.MSG_SOME)) {
+                op = op + "_" + WCPSConstants.MSG_CELLS;
             }
-            log.trace("  reduce operation: " + op);
+            log.trace(WCPSConstants.MSG_REDUCE_OPERATION + op);
 
             node = node.getFirstChild();
 
-            while ((node != null) && (node.getNodeName().equals("#text"))) {
+            while ((node != null) && (node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT))) {
                 node = node.getNextSibling();
             }
 
             expr = new CoverageExpr(node, xq);
         } else {
-            throw new WCPSException("invalid ReduceScalarExprType node: " + nodeName);
+            throw new WCPSException(WCPSConstants.ERRTXT_INVALID_REDUCE_SCALAR_EXPR + nodeName);
         }
     }
 

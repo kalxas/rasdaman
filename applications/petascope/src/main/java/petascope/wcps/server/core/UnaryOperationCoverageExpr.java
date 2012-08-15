@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.util.WCPSConstants;
 
 public class UnaryOperationCoverageExpr implements IRasNode, ICoverageInfo {
     
@@ -40,38 +41,38 @@ public class UnaryOperationCoverageExpr implements IRasNode, ICoverageInfo {
         String nodeName = node.getNodeName();
         log.trace(nodeName);
 
-        if (nodeName.equals("unaryPlus")) {
+        if (nodeName.equals(WCPSConstants.MSG_UNARY_PLUS)) {
             operation = "+";
             child = new CoverageExpr(node.getFirstChild(), xq);
-        } else if (nodeName.equals("unaryMinus")) {
+        } else if (nodeName.equals(WCPSConstants.MSG_UNARY_MINUS)) {
             operation = "-";
             child = new CoverageExpr(node.getFirstChild(), xq);
-        } else if (nodeName.equals("sqrt") || nodeName.equals("abs")
-                || nodeName.equals("exp") || nodeName.equals("log") || nodeName.equals("ln")
-                || nodeName.equals("sin") || nodeName.equals("cos") || nodeName.equals("tan")
-                || nodeName.equals("sinh") || nodeName.equals("cosh")
-                || nodeName.equals("tanh") || nodeName.equals("arcsin")
-                || nodeName.equals("arccos") || nodeName.equals("arctan")
-                || nodeName.equals("not") || nodeName.equals("re") || nodeName.equals("im")) {
+        } else if (nodeName.equals(WCPSConstants.MSG_SQRT) || nodeName.equals(WCPSConstants.MSG_ABS)
+                || nodeName.equals(WCPSConstants.MSG_EXP) || nodeName.equals(WCPSConstants.MSG_LOG) || nodeName.equals(WCPSConstants.MSG_LN)
+                || nodeName.equals(WCPSConstants.MSG_SIN) || nodeName.equals(WCPSConstants.MSG_COS) || nodeName.equals(WCPSConstants.MSG_TAN)
+                || nodeName.equals(WCPSConstants.MSG_SINH) || nodeName.equals(WCPSConstants.MSG_COSH)
+                || nodeName.equals(WCPSConstants.MSG_TANH) || nodeName.equals(WCPSConstants.MSG_ARCSIN)
+                || nodeName.equals(WCPSConstants.MSG_ARCCOS) || nodeName.equals(WCPSConstants.MSG_ARCTAN)
+                || nodeName.equals(WCPSConstants.MSG_NOT) || nodeName.equals(WCPSConstants.MSG_RE) || nodeName.equals(WCPSConstants.MSG_IM)) {
             operation = nodeName;
             child = new CoverageExpr(node.getFirstChild(), xq);
-        } else if (nodeName.equals("bit")) {
-            operation = "bit";
+        } else if (nodeName.equals(WCPSConstants.MSG_BIT)) {
+            operation = WCPSConstants.MSG_BIT;
             Node c = node.getFirstChild();
 
             while (c != null) {
-                if (c.getNodeName().equals("#text")) {
+                if (c.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
                     c = c.getNextSibling();
                     continue;
                 }
 
-                if (c.getNodeName().equals("bitIndex")) {
+                if (c.getNodeName().equals(WCPSConstants.MSG_BITINDEX)) {
                     try {
                         params = c.getFirstChild().getNodeValue();
                         int i = Integer.parseInt(params);
-                        log.trace("Found bitIndex = " + params);
+                        log.trace(WCPSConstants.MSG_FOUND_BITINDEX + " = " + params);
                     } catch (NumberFormatException e) {
-                        throw new WCPSException("Invalid Number as bitIndex: " + params);
+                        throw new WCPSException(WCPSConstants.ERRTXT_INVALID_NUMBER_AS_BITINDEX + ": " + params);
                     }
                 } else {
                     child = new CoverageExpr(c, xq);
@@ -79,18 +80,18 @@ public class UnaryOperationCoverageExpr implements IRasNode, ICoverageInfo {
 
                 c = c.getNextSibling();
             }
-        } else if (nodeName.equals("cast")) {
-            operation = "cast";
+        } else if (nodeName.equals(WCPSConstants.MSG_CAST)) {
+            operation = WCPSConstants.MSG_CAST;
             Node c = node.getFirstChild();
 
             while (c != null) {
-                log.trace("  child name: " + c.getNodeName());
-                if (c.getNodeName().equals("#text")) {
+                log.trace("  " + WCPSConstants.MSG_CHILD + " " + WCPSConstants.MSG_NAME + ": " + c.getNodeName());
+                if (c.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
                     c = c.getNextSibling();
                     continue;
                 }
 
-                if (c.getNodeName().equals("type")) {
+                if (c.getNodeName().equals(WCPSConstants.MSG_TYPE)) {
                     RangeField typeNode = new RangeField(c, xq);
                     params = typeNode.toRasQL();
                 } else {
@@ -99,17 +100,17 @@ public class UnaryOperationCoverageExpr implements IRasNode, ICoverageInfo {
 
                 c = c.getNextSibling();
             }
-        } else if (nodeName.equals("fieldSelect")) {
-            operation = "select";
+        } else if (nodeName.equals(WCPSConstants.MSG_FIELD_SELECT)) {
+            operation = WCPSConstants.MSG_SELECT;
             Node c = node.getFirstChild();
 
             while (c != null) {
-                if (c.getNodeName().equals("#text")) {
+                if (c.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
                     c = c.getNextSibling();
                     continue;
                 }
 
-                if (c.getNodeName().equals("field")) {
+                if (c.getNodeName().equals(WCPSConstants.MSG_FIELD)) {
                     FieldName nameNode = new FieldName(c.getFirstChild(), xq);
                     params = nameNode.toRasQL();
                 } else {
@@ -119,11 +120,11 @@ public class UnaryOperationCoverageExpr implements IRasNode, ICoverageInfo {
                 c = c.getNextSibling();
             }
         } else {
-            throw new WCPSException("Unknown unary operation: " + nodeName);
+            throw new WCPSException(WCPSConstants.ERRTXT_UNKNOWN_UNARY_OP + ": " + nodeName);
         }
 
         info = new CoverageInfo(child.getCoverageInfo());
-        log.trace("  operation: " + operation);
+        log.trace("  " + WCPSConstants.MSG_OPERATION + ": " + operation);
     }
 
     public CoverageInfo getCoverageInfo() {
@@ -131,27 +132,27 @@ public class UnaryOperationCoverageExpr implements IRasNode, ICoverageInfo {
     }
 
     public String toRasQL() {
-        if (operation.equals("sqrt") || operation.equals("abs") || operation.equals("exp")
-                || operation.equals("log") || operation.equals("ln") || operation.equals("sin")
-                || operation.equals("cos") || operation.equals("tan")
-                || operation.equals("sinh") || operation.equals("cosh")
-                || operation.equals("tanh") || operation.equals("arcsin")
-                || operation.equals("arccos") || operation.equals("arctan")
-                || operation.equals("not") || operation.equals("+") || operation.equals("-")) {
+        if (operation.equals(WCPSConstants.MSG_SQRT) || operation.equals(WCPSConstants.MSG_ABS) || operation.equals(WCPSConstants.MSG_EXP)
+                || operation.equals(WCPSConstants.MSG_LOG) || operation.equals(WCPSConstants.MSG_LN) || operation.equals(WCPSConstants.MSG_SIN)
+                || operation.equals(WCPSConstants.MSG_COS) || operation.equals(WCPSConstants.MSG_TAN)
+                || operation.equals(WCPSConstants.MSG_SIN) || operation.equals(WCPSConstants.MSG_COS)
+                || operation.equals(WCPSConstants.MSG_TANH) || operation.equals(WCPSConstants.MSG_ARCSIN)
+                || operation.equals(WCPSConstants.MSG_ARCCOS) || operation.equals(WCPSConstants.MSG_ARCTAN)
+                || operation.equals(WCPSConstants.MSG_NOT) || operation.equals("+") || operation.equals("-")) {
             return operation + "(" + child.toRasQL() + ")";
-        } else if (operation.equals("cast")) {
+        } else if (operation.equals(WCPSConstants.MSG_CAST)) {
             // Use rasql's direct "type-casting" facility for constant scalar expressions
             // For example, (char)1 does not work, but 1c is a valid expression.
-            if (child.isScalarExpr() && params.equals("char"))
-                return child.toRasQL() + "c";
+            if (child.isScalarExpr() && params.equals(WCPSConstants.MSG_CHAR))
+                return child.toRasQL() + WCPSConstants.MSG_C;
             else
                 return "(" + params + ")(" + child.toRasQL() + ")";
-        } else if (operation.equals("select")) {
+        } else if (operation.equals(WCPSConstants.MSG_SELECT)) {
             return "(" + child.toRasQL() + ")." + params;
-        } else if (operation.equals("bit")) {
-            return "bit(" + child.toRasQL() + "," + params + ")";
+        } else if (operation.equals(WCPSConstants.MSG_BIT)) {
+            return WCPSConstants.MSG_BIT + "(" + child.toRasQL() + "," + params + ")";
         }
 
-        return " error ";
+        return " " + WCPSConstants.ERRTXT_ERROR + " ";
     }
 }

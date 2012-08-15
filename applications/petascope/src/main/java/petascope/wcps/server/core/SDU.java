@@ -26,6 +26,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import petascope.util.WCPSConstants;
 
 /**
  * This is a static utility class, which provides encoding and decoding of various datatypes
@@ -90,7 +91,7 @@ public class SDU {
         Iterator<String> i = strings.iterator();
 
         while (i.hasNext()) {
-            booleans.add(new Boolean(i.next().equals("true")));
+            booleans.add(new Boolean(i.next().equals(WCPSConstants.MSG_TRUE)));
         }
 
         return booleans;

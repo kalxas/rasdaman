@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.util.WCPSConstants;
 
 public class StringScalarExpr implements IRasNode {
     
@@ -34,31 +35,31 @@ public class StringScalarExpr implements IRasNode {
     private CoverageExpr cov;
 
     public StringScalarExpr(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && (node.getNodeName().equals("#text"))) {
+        while ((node != null) && (node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT))) {
             node = node.getNextSibling();
         }
         log.trace(node.getNodeName());
 
-        if (node.getNodeName().equals("stringIdentifier")) {
+        if (node.getNodeName().equals(WCPSConstants.MSG_STING_IDENTIFIER)) {
             Node child = node.getFirstChild();
             cov = new CoverageExpr(child, xq);
-            op = "id";
-        } else if (node.getNodeName().equals("stringConstant")) {
-            op = "constant";
+            op = WCPSConstants.MSG_ID_LOWERCASE;
+        } else if (node.getNodeName().equals(WCPSConstants.MSG_STING_CONSTANT)) {
+            op = WCPSConstants.MSG_CONSTANT;
             string = node.getNodeValue();
         } else {
-            throw new WCPSException("Unknown String expr node: " + node.getNodeName());
+            throw new WCPSException(WCPSConstants.ERRTXT_UNKNOWN_STRING_NODE_EXPR + ": " + node.getNodeName());
         }
         
-        log.trace("  operation: " + op + ", value: " + string);
+        log.trace("  " + WCPSConstants.MSG_OPERATION + ": " + op + ", " + WCPSConstants.MSG_VALUE + ": " + string);
     }
 
     public String toRasQL() {
         String result = "";
-        if (op.equals("constant")) {
+        if (op.equals(WCPSConstants.MSG_CONSTANT)) {
             result = string;
         }
-        if (op.equals("id")) {
+        if (op.equals(WCPSConstants.MSG_ID_LOWERCASE)) {
             result = cov.toRasQL();
         }
 

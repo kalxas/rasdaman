@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.util.WCPSConstants;
 
 public class NumericScalarExpr implements IRasNode {
     
@@ -38,7 +39,7 @@ public class NumericScalarExpr implements IRasNode {
     public NumericScalarExpr(Node node, XmlQuery xq) throws WCPSException {
         twoChildren = false;
 
-        while ((node != null) && node.getNodeName().equals("#text")) {
+        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         String nodeName = node.getNodeName();
@@ -47,39 +48,39 @@ public class NumericScalarExpr implements IRasNode {
 
         op = "";
 
-        if (nodeName.equals("numericConstant")) {
+        if (nodeName.equals(WCPSConstants.MSG_NUMERIC_CONSTANT)) {
             twoChildren = false;
             op = code(nodeName);
             value = node.getFirstChild().getNodeValue();
             try {
                 dvalue = Double.parseDouble(value);
             } catch (NumberFormatException e) {
-                throw new WCPSException("Could not understand constant: " + value);
+                throw new WCPSException(WCPSConstants.ERRTXT_COULD_NOT_UNDERSTAND_CONST + value);
             }
-        } else if (nodeName.equals("complexConstant")
-                || nodeName.equals("condense")
-                || nodeName.equals("reduce")) {
+        } else if (nodeName.equals(WCPSConstants.MSG_COMPLEX_CONSTANT)
+                || nodeName.equals(WCPSConstants.MSG_CONDENSE)
+                || nodeName.equals(WCPSConstants.MSG_REDUCE)) {
             op = code(nodeName);
             twoChildren = false;
-            if (nodeName.equals("complexConstant")) {
+            if (nodeName.equals(WCPSConstants.MSG_COMPLEX_CONSTANT)) {
                 first = new ComplexConstant(node, xq);
             }
-            if (nodeName.equals("condense")) {
+            if (nodeName.equals(WCPSConstants.MSG_CONDENSE)) {
                 first = new CondenseScalarExpr(node, xq);
             }
-            if (nodeName.equals("reduce")) {
+            if (nodeName.equals(WCPSConstants.MSG_REDUCE)) {
                 first = new ReduceScalarExpr(node, xq);
             }
-        } else if (nodeName.equals("numericUnaryMinus") 
-                || nodeName.equals("numericSqrt")
-                || nodeName.equals("numericAbs")) {
+        } else if (nodeName.equals(WCPSConstants.MSG_NUMERIC_UNARY_MINUS) 
+                || nodeName.equals(WCPSConstants.MSG_NUMERIC_SQRT)
+                || nodeName.equals(WCPSConstants.MSG_NUMERIC_ABS)) {
             op = code(nodeName);
             twoChildren = false;
             first = new NumericScalarExpr(node.getFirstChild(), xq);
-        } else if (nodeName.equals("numericAdd")
-                || nodeName.equals("numericMinus")
-                || nodeName.equals("numericMult")
-                || nodeName.equals("numericDiv")) {
+        } else if (nodeName.equals(WCPSConstants.MSG_NUMERIC_ADD)
+                || nodeName.equals(WCPSConstants.MSG_NUMERIC_MINUS)
+                || nodeName.equals(WCPSConstants.MSG_NUMERIC_MULT)
+                || nodeName.equals(WCPSConstants.MSG_NUMERIC_DIV)) {
             try {
                 op = code(nodeName);
                 twoChildren = true;
@@ -87,47 +88,47 @@ public class NumericScalarExpr implements IRasNode {
                 first = new NumericScalarExpr(child, xq);
                 second = new NumericScalarExpr(child.getNextSibling(), xq);
             } catch (WCPSException e) {
-                log.error("Failed to parse a numeric expression pair !");
+                log.error(WCPSConstants.ERRTXT_FAILED_PARSE_NUM_EXPR);
             }
-        } else if (nodeName.equals("variableRef")) {
+        } else if (nodeName.equals(WCPSConstants.MSG_VARIABLE_REF)) {
             try {
                 op = code(nodeName);
                 twoChildren = false;
                 first = new VariableReference(node, xq);
-                log.trace("Matched variable reference: " + first.toRasQL());
+                log.trace(WCPSConstants.MSG_MATCHING_VAR_REF + first.toRasQL());
             } catch (WCPSException e) {
-                log.error("Failed to match variable reference: "
+                log.error(WCPSConstants.ERRTXT_FAILED_MATCH_VAR_REF
                         + e.toString());
             }
         } else {
-            throw new WCPSException("Unexpected Numeric Scalar Expression node : "
+            throw new WCPSException(WCPSConstants.ERRTXT_UNEXPECTED_NUM_SCALAR_EXPR
                     + node.getNodeName());
         }
-        log.trace("  operation: " + op + ", binary: " + twoChildren);
+        log.trace("  " + WCPSConstants.MSG_OPERATION + ": " + op + ", " + WCPSConstants.MSG_BINARY + ": " + twoChildren);
     }
 
     public String toRasQL() {
         String result = "";
         if (twoChildren == false)
         {
-            if (op.equals("variable")) {
+            if (op.equals(WCPSConstants.MSG_VARIABLE)) {
                 result = first.toRasQL();
-            } else if (op.equals("value")) {
+            } else if (op.equals(WCPSConstants.MSG_VALUE)) {
                 result = value;
             } else if (op.equals("-")) {
                     result = "-" + first.toRasQL();
-            } else if (op.equals("sqrt")) {
-                    result = "sqrt(" + first.toRasQL() + ")";
-            } else if (op.equals("child")) {
+            } else if (op.equals(WCPSConstants.MSG_SQRT)) {
+                    result = WCPSConstants.MSG_SQRT + "(" + first.toRasQL() + ")";
+            } else if (op.equals(WCPSConstants.MSG_CHILD)) {
                 result = first.toRasQL();
-            } else if (op.equals("abs")) {
-                result = "abs(" + first.toRasQL() + ")";
+            } else if (op.equals(WCPSConstants.MSG_ABS)) {
+                result = WCPSConstants.MSG_ABS + "(" + first.toRasQL() + ")";
             }
         }else if (twoChildren == true) {
             result = "(" + first.toRasQL() + ")" + op
                     + "(" + second.toRasQL() + ")";
         } else {
-            return " error ";
+            return " " + WCPSConstants.ERRTXT_ERROR + " ";
         }
 
         return result;
@@ -135,40 +136,40 @@ public class NumericScalarExpr implements IRasNode {
 
     private String code(String name) {
         String op = "";
-        if (name.equals("numericConstant")) {
-            op = "value";
+        if (name.equals(WCPSConstants.MSG_NUMERIC_CONSTANT)) {
+            op = WCPSConstants.MSG_VALUE;
         }
-        if (name.equals("numericUnaryMinus") || name.equals("numericMinus")) {
+        if (name.equals(WCPSConstants.MSG_NUMERIC_UNARY_MINUS) || name.equals(WCPSConstants.MSG_NUMERIC_MINUS)) {
             op = "-";
         }
-        if (name.equals("numericAdd")) {
+        if (name.equals(WCPSConstants.MSG_NUMERIC_ADD)) {
             op = "+";
         }
-        if (name.equals("numericMult")) {
+        if (name.equals(WCPSConstants.MSG_NUMERIC_MULT)) {
             op = "*";
         }
-        if (name.equals("numericDiv")) {
+        if (name.equals(WCPSConstants.MSG_NUMERIC_DIV)) {
             op = "/";
         }
-        if (name.equals("numericSqrt")) {
-            op = "sqrt";
+        if (name.equals(WCPSConstants.MSG_NUMERIC_SQRT)) {
+            op = WCPSConstants.MSG_SQRT;
         }
-        if (name.equals("numericAbs")) {
-            op  = "abs";
+        if (name.equals(WCPSConstants.MSG_NUMERIC_ABS)) {
+            op  = WCPSConstants.MSG_ABS;
         }
-        if (name.equals("condense") || name.equals("reduce")
-                || name.equals("complexConstant")) {
-            op = "child";
+        if (name.equals(WCPSConstants.MSG_CONDENSE) || name.equals(WCPSConstants.MSG_REDUCE)
+                || name.equals(WCPSConstants.MSG_COMPLEX_CONSTANT)) {
+            op = WCPSConstants.MSG_CHILD;
         }
-        if (name.equals("variableRef")) {
-            op = "variable";
+        if (name.equals(WCPSConstants.MSG_VARIABLE_REF)) {
+            op = WCPSConstants.MSG_VARIABLE;
         }
 
         return op;
     }
 
     public boolean isSingleValue() {
-        return op.equals("value");
+        return op.equals(WCPSConstants.MSG_VALUE);
     }
 
     public double getSingleValue() {

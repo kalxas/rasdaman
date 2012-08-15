@@ -23,13 +23,14 @@ package petascope.wcps.server.core;
 
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.util.WCPSConstants;
 
 // TODO: Implement class SetMetadataCoverageExprType
 public class SetMetadataCoverageExpr implements IRasNode, ICoverageInfo {
 
     public SetMetadataCoverageExpr(Node node, XmlQuery xq)
             throws WCPSException {
-        throw new WCPSException("Method not implemented");
+        throw new WCPSException(WCPSConstants.MSG_METHOD_NOT_IMPL);
     }
 
     public String toRasQL() {
