@@ -35,90 +35,99 @@ Rj.namespace('Rj.Widget');
 
 Rj.Widget.Knob = new JS.Class(Rj.Widget.InputWidget, {
     
-    /**
+  /**
      * Standard class constructor
-     * @param <string> label - the initial label displayed under the knob
-     * @param <array> selectOpts - an array with the values displayed on the knob
-     * @param <int> dialRadius - the knob radius
-     * @param <int> smallTick - the interval delimited by the small ticks
-     * @param <int> largeTick - the interval delimited by the large ticks
-     * @param <int> minVal - the smallest value displayed on the knob
-     * @param <int> maxVal - the largest values displayed on the knob
-     * @param <int> knobVal - the initial value of the knob
-     * @param <bool> snap - if true, the knob will jump only between large ticks
-     * @param <int> minAngle - the angle at which the ticks begin
-     * @param <int> maxAngle - the angle at which the ticks end
-     * @param <int> offsetX - the X distance from canvance where the knob is position
-     * @param <int> offsetY - the Y distance from canvance where the knob is position
-     * @param <int> canvasWidth - the width of the canvas in which the knob is displayed
-     * @param <int> canvasHeight - the height of the canvas in which the knob is displayed
-     * @param <string> color - the color of the tickes and the text
+     * @param <int> min - the starting point of the knob
+     * @param <int> max - the ending point of the knob
+     * @param <int> value - the initial value of the knob
+     * @param <bool> reverse - the values will be in reversed order
+     * @param <int> snap - the number of degrees at which the knob is snapped to 0
      */
-    initialize: function( minVal, maxVal, selectOpts, label, dialRadius, smallTick, largeTick, knobVal, snap, minAngle, maxAngle, offsetX, offsetY, canvasWidth, canvasHeight, color){
-        this.minVal = minVal;
-        this.maxVal = maxVal;
-        this.dialRadius = dialRadius || 40;
-        this.smallTick = smallTick || 4;
-        this.largeTick = largeTick || 20;
-        this.label = label || this.minVal;
-        this.knobVal = knobVal || 0;
-        this.snap = snap || false;
-        this.selectOpts = selectOpts || null;
-        this.minAngle = minAngle || 0;
-        this.maxAngle = maxAngle || 0;
-        this.offsetX = offsetX || 80;
-        this.offsetY = offsetY || 80;
-        this.canvasWidth = canvasWidth || 200;
-        this.canvasHeight = canvasHeight || 200;
-        this.color = color || "#777";
-        this.callSuper(this.knobVal);
-    },
+  initialize: function(min, max, value, reverse, snap){
+    this.min = min || 0;
+    this.max = max || 100;
+    this.snap = snap || 1;
+    this.reverse = reverse || false;
+    this.id = '';
+    this.callSuper();
+    this.value = value || 0;
+    console.log(this.value);
+  },
     
-    /**
-     * Standard getter for the knobVal attribute
+  /**
+     * Standard getter for the value attribute
      */
-    getValue: function(){
-        return this.knobVal;
-    },
+  getValue: function(){
+    return this.value;
+  },
     
-    /**
+  /**
      * @override Rj.Widget.BaseWidget.renderTo
      * @event knobchange - fires when the knob value is changed
      */
-    renderTo: function(selector){
-        var r = Raphael(selector, this.canvasWidth, this.canvasHeight);
-        var knob = new wso2vis.ctrls.Knob().dialRadius(this.dialRadius).smallTick(this.smallTick) .largeTick(this.largeTick).startVal(this.knobVal).snap(this.snap);
-        if (this.selectOpts){
-            knob = knob.selectOpts(this.selectOpts);
+  renderTo: function(selector){
+    this.id = selector;
+    var self = this;
+    var colors = [
+    '26e000','2fe300','37e700','45ea00','51ef00',
+    '61f800','6bfb00','77ff02','80ff05','8cff09',
+    '93ff0b','9eff09','a9ff07','c2ff03','d7ff07',
+    'f2ff0a','fff30a','ffdc09','ffce0a','ffc30a',
+    'ffb509','ffa808','ff9908','ff8607','ff7005',
+    'ff5f04','ff4f03','f83a00','ee2b00','e52000'
+    ];
+	
+    var rad2deg = 180/Math.PI;
+    var deg = 0;
+    var bars = $('#' + this.id);
+    bars.addClass('knobBars');
+    bars.append("<div id = 'knobControl' class = 'knobControl'></div>");
+        
+    for(var i=0;i<colors.length;i++){
+      deg = i*12;
+      // Create the colorbars
+      $('<div class="colorBar">').css({
+        backgroundColor: '#'+colors[i],
+        transform:'rotate('+deg+'deg)',
+        top: -Math.sin(deg/rad2deg)*80+100,
+        left: Math.cos((180 - deg)/rad2deg)*80+100
+      }).appendTo(bars);
+    }
+    $('<div class="knobLabel">').css({
+      padding: '200px 0 0 100px'
+    }).appendTo(bars);
+    $('.knobLabel').html(self.value);
+    var colorBars = bars.find('.colorBar');
+    var numBars = 0, lastNum = -1;
+    if(self.reverse){
+      var transVal = 360 - Math.round((self.value-self.min)*360/(self.max - self.min))%360;
+    }
+    else{
+      transVal = Math.round((self.value-self.min)*360/(self.max - self.min))%360;
+    }
+    console.log(self);
+    $('#knobControl').knobKnob({
+      snap : self.snap,
+      value: transVal,
+      turn : function(ratio){
+        numBars = Math.round(colorBars.length*ratio);
+        this.value = Math.round(ratio*360);        
+        if(self.reverse){          
+          self.value = self.max - Math.round(this.value*(self.max-self.min)/360);
         }
         else{
-            knob = knob.minVal(this.minVal).maxVal(this.maxVal);
+          self.value = Math.round(this.value*(self.max-self.min)/360) + self.min;
         }
-        if(this.minAngle){
-            knob = knob.minAngle(this.minAngle);
+        $('.knobLabel').html(self.value);
+        // Update the dom only when the number of active bars
+        // changes, instead of on every move			
+        if(numBars == lastNum){
+          return false;
         }
-        if(this.maxAngle){
-            knob = knob.maxAngle(this.maxAngle);
-        }
-        knob.create(r,this.offsetX,this.offsetY);
-        var knobLabel = new wso2vis.ctrls.Label() .text(this.label) .create(r, this.offsetX, this.offsetY + 2*this.dialRadius);
-        var self = this;
-        knob.onChange = function(val){
-            self.knobVal = val;
-            if(self.selectOpts){
-                knobLabel.update(self.selectOpts[Math.round(val)]);
-            }
-            else{
-                knobLabel.update(val != 0? Math.round(val) : "0");
-            }
-            self.fireEvent("knobchange", self.knobVal);
-        }
-        //setting colors of text and ticks
-        $("#" + selector).find("path").each(function(){
-            $(this).attr("stroke", self.color)
-            });
-        $("#" + selector).find("text").each(function(){
-            $(this).attr("stroke", self.color)
-            });
-    }
+        lastNum = numBars;		
+        colorBars.removeClass('active').slice(0, numBars).addClass('active');
+        self.fireEvent("knobchange", self.value);
+      }
+    });
+  }
 })

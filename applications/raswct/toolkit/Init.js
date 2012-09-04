@@ -27,15 +27,15 @@
  * @author Alex Dumitru <m.dumitru@jacobs-university.de>
  * @author Vlad Merticariu <v.merticariu@jacobs-university.de>
  * @package raswct
- * @version 1.0.0
+ * @version 2.0.0
  */
 
 TOOLKIT_PATH = "";
 
 Rj = {
-  version : "1.0.0",
+  version : "2.0.0",
   versionDetail : {
-    major : 1,
+    major : 2,
     minor : 0,
     patch : 0
   }
@@ -44,61 +44,73 @@ Rj = {
 JS.Packages(function() {
   with(this) {
     
+
+    file(TOOLKIT_PATH + '../lib/jqueryui/js/jquery-1.6.2.min.js', TOOLKIT_PATH + '../lib/charts/jquery.jqplot.min.js', TOOLKIT_PATH + '../lib/gritter/gritter.js', TOOLKIT_PATH + '../lib/gauges/raphael.js', TOOLKIT_PATH + '../lib/gauges/transform.js' + TOOLKIT_PATH + '../lib/gauges/flipCounter.js', TOOLKIT_PATH + '../lib/gauges/justgage.1.0.1.min.js', TOOLKIT_PATH + '../lib/gauges/jgauge-0.3.0a3.js').provides("jQuery");
+
+    file(TOOLKIT_PATH + 'Util.js')
+    .provides('Rj.Util').requires('JS.Class', "jQuery");
+
     file(TOOLKIT_PATH + 'Query/BaseQuery.js')
-    .provides('Rj.Query.BaseQuery').requires('JS.Class');
-    
+    .provides('Rj.Query.BaseQuery').requires('JS.Class', 'Rj.Util');
+
     file(TOOLKIT_PATH + 'Query/SelectQuery.js')
     .provides('Rj.Query.SelectQuery').requires('JS.Class', 'Rj.Query.BaseQuery');
-    
+
     file(TOOLKIT_PATH + 'Query/UrlQuery.js')
-    .provides('Rj.Query.UrlQuery').requires('JS.Class');    
-    
+    .provides('Rj.Query.UrlQuery').requires('JS.Class', 'Rj.Util');
+
     file(TOOLKIT_PATH + 'Query/QueryExecutor.js')
     .provides('Rj.Executor.QueryExecutor').requires('JS.Class', 'JS.Deferrable', 'Rj.Query.BaseQuery', 'Rj.Query.UrlQuery', 'Rj.Query.SelectQuery');
-    
+
     file(TOOLKIT_PATH + "Widgets/BaseWidget.js")
     .provides('Rj.Widget.BaseWidget').requires('Rj.Query.SelectQuery', 'Rj.Query.UrlQuery', 'Rj.Executor.QueryExecutor');
 
     file(TOOLKIT_PATH + "Widgets/InputWidget.js")
     .provides('Rj.Widget.InputWidget').requires('Rj.Widget.BaseWidget');
-    
+
     file(TOOLKIT_PATH + "Widgets/TextWidget.js")
-    .provides('Rj.Widget.TextWidget').requires('Rj.Widget.InputWidget');    
-    
+    .provides('Rj.Widget.TextWidget').requires('Rj.Widget.InputWidget');
+
     file(TOOLKIT_PATH + "Widgets/SliderWidget.js")
-    .provides('Rj.Widget.SliderWidget').requires('Rj.Widget.InputWidget');        
+    .provides('Rj.Widget.SliderWidget').requires('Rj.Widget.InputWidget');
 
     file(TOOLKIT_PATH + "Widgets/OutputWidget.js")
     .provides('Rj.Widget.OutputWidget').requires('Rj.Widget.BaseWidget');
-    
+
     file(TOOLKIT_PATH + "Widgets/BaseChart.js")
-    .provides('Rj.Widget.BaseChart').requires('Rj.Widget.OutputWidget');    
-    
+    .provides('Rj.Widget.BaseChart').requires('Rj.Widget.OutputWidget');
+
     file(TOOLKIT_PATH + "Widgets/LinearZoomDiagram.js")
     .provides("Rj.Widget.LinearZoomDiagram").requires('Rj.Widget.BaseChart');
-    
+
     file(TOOLKIT_PATH + "Widgets/LinearDiagram.js")
-    .provides("Rj.Widget.LinearDiagram").requires('Rj.Widget.BaseChart');    
-    
+    .provides("Rj.Widget.LinearDiagram").requires('Rj.Widget.BaseChart');
+
     file(TOOLKIT_PATH + "Widgets/ScatterDiagram.js")
-    .provides("Rj.Widget.ScatterDiagram").requires('Rj.Widget.BaseChart');        
-    
+    .provides("Rj.Widget.ScatterDiagram").requires('Rj.Widget.BaseChart');
+
     file(TOOLKIT_PATH + "Widgets/AreaDiagram.js")
-    .provides("Rj.Widget.AreaDiagram").requires('Rj.Widget.BaseChart', "Rj.Widget.ScatterDiagram", "Rj.Widget.LinearDiagram");            
+    .provides("Rj.Widget.AreaDiagram").requires('Rj.Widget.BaseChart', "Rj.Widget.ScatterDiagram", "Rj.Widget.LinearDiagram");
+
+    file(TOOLKIT_PATH + "Widgets/BarDiagram.js")
+    .provides("Rj.Widget.BarDiagram").requires('Rj.Widget.BaseChart', "Rj.Widget.ScatterDiagram", "Rj.Widget.LinearDiagram");
 
     file(TOOLKIT_PATH + "Widgets/LayerWidget.js")
-    .provides("Rj.Widget.LayerWidget").requires('Rj.Widget.OutputWidget');            
-    
+    .provides("Rj.Widget.LayerWidget").requires('Rj.Widget.OutputWidget');
+
     file(TOOLKIT_PATH + "Widgets/MapWidget.js")
-    .provides("Rj.Widget.MapWidget").requires('Rj.Widget.LayerWidget', 'Rj.Widget.OutputWidget');                
-    
+    .provides("Rj.Widget.MapWidget").requires('Rj.Widget.LayerWidget', 'Rj.Widget.OutputWidget');
+
     file(TOOLKIT_PATH + "Widgets/Knob.js")
-    .provides("Rj.Widget.Knob").requires('Rj.Widget.InputWidget');    
-    
-     file(TOOLKIT_PATH + "Widgets/LedDisplay.js")
-    .provides("Rj.Widget.LedDisplay").requires('Rj.Widget.OutputWidget');     
-    
-     file(TOOLKIT_PATH + "Widgets/Gauge.js")
-    .provides("Rj.Widget.Gauge").requires('Rj.Widget.OutputWidget');  
+    .provides("Rj.Widget.Knob").requires('Rj.Widget.InputWidget');
+
+    file(TOOLKIT_PATH + "Widgets/LedDisplay.js")
+    .provides("Rj.Widget.LedDisplay").requires('Rj.Widget.OutputWidget');
+
+    file(TOOLKIT_PATH + "Widgets/Gauge.js")
+    .provides("Rj.Widget.Gauge").requires('Rj.Widget.OutputWidget');
+ 
+    file(TOOLKIT_PATH + "Widgets/JGauge.js")
+    .provides("Rj.Widget.JGauge").requires('Rj.Widget.OutputWidget');  
     }
 });

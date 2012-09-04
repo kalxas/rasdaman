@@ -1,23 +1,23 @@
 /*
-* This file is part of rasdaman community.
-*
-* Rasdaman community is free software: you can redistribute it and/or modify
-* it under the terms of the GNU Lesser General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Rasdaman community is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public License
-* along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
-*
-* Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann / rasdaman GmbH.
-*
-* For more information please see <http://www.rasdaman.org>
-* or contact Peter Baumann via <baumann@rasdaman.com>.
+ * This file is part of rasdaman community.
+ *
+ * Rasdaman community is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Rasdaman community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann / rasdaman GmbH.
+ *
+ * For more information please see <http://www.rasdaman.org>
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
 /
 
 /**
@@ -38,34 +38,18 @@ Rj.Widget.Gauge = new JS.Class(Rj.Widget.OutputWidget, {
     /**
      * Standard class constructor
      * @param <BaseQuery> query - the query that this widget will be able to modify
-     * @param <float> value - the initial value displayed
-     * @param <int> count - the number of digits of the display
-     * @param <float> scale - float between 0 and 1 to scale the display
-     * @param <int> offsetX - the X distance from canvas
-     * @param <int> offsetY - the Y distance from canvas
-     * @param <int> canvasWidth - the width of the canvas
-     * @param <int> canvasHeight - the height of the canvas
+     * @param <int> value - the initial value displayed
+     * @param <string> labelSuffix - the string displayed after the label value
+     * @param <bool> taco - sets a custom display
      */
-    initialize: function(query, minVal, maxVal, value, dialRadius, smallTick, largeTick, minAngle, maxAngle, offsetX, offsetY, canvasWidth, canvasHeight, textColor, pathColor){
+    initialize: function(query, value, labelSuffix, taco ){
         this.query = query;
-        this.minVal = minVal;
-        this.maxVal = maxVal;
-        this.dialRadius = dialRadius || 100;
-        this.smallTick = smallTick || 1;
-        this.largeTick = largeTick || 10;
-        this.minVal = minVal || 0;
-        this.maxVal = maxVal || 100;
+        this.taco = taco || false;
+        this.labelSuffix = labelSuffix || "";
+        this.id = '';
         this.value = value || 0;
-        this.minAngle = minAngle || 0;
-        this.maxAngle = maxAngle || 0;
-        this.offsetX = offsetX || 160;
-        this.offsetY = offsetY || 135;
-        this.canvasWidth = canvasWidth || 350;
-        this.canvasHeight = canvasHeight || 250;
-        this.id = "";
-        this.callSuper(query, null);
-        this.textColor = textColor || "#000";
-        this.pathColor = pathColor || "#777";
+        this.initGauge = null;
+        this.callSuper();
     },
     
     /**
@@ -82,7 +66,10 @@ Rj.Widget.Gauge = new JS.Class(Rj.Widget.OutputWidget, {
      */
     setValue: function(value){
         this.value = value;  
-        this.fireEvent("gaugechange", this.value);
+        //this.fireEvent("gaugechange", this.value);
+        if(this.initGauge){
+            this.initGauge.setValue(value);
+        }
     },
     
     /**
@@ -90,34 +77,36 @@ Rj.Widget.Gauge = new JS.Class(Rj.Widget.OutputWidget, {
      */
     renderTo: function(selector){
         this.id = selector;
-        var r = new Raphael(this.id, this.canvasWidth, this.canvasHeight);
-        var gauge =new wso2vis.ctrls.CGauge() .dialRadius(this.dialRadius) .smallTick(this.smallTick) .largeTick(this.largeTick) .minVal(this.minVal) .maxVal(this.maxVal) 
-        .ltlen(18) .stlen(15) .needleCenterRadius(10) .needleBottom(20)	       
-        if(this.minAngle){
-            gauge = gauge.minAngle(this.minAngle);
+        $("#" + this.id).addClass("jgauge");
+        this.initGauge = new jGauge();
+        if(this.taco){
+            this.initGauge.label.suffix = this.labelSuffix; 
+            this.initGauge.autoPrefix = autoPrefix.si; // Use SI prefixing (i.e. 1k = 1000).
+            this.initGauge.imagePath = '../../../' + TOOLKIT_PATH + 'raswct/bin/img/jgauge_face_taco.png';
+            this.initGauge.segmentStart = -225
+            this.initGauge.segmentEnd = 45
+            this.initGauge.width = 170;
+            this.initGauge.height = 170;
+            this.initGauge.needle.imagePath = '../../../' + TOOLKIT_PATH + 'raswct/bin/img/jgauge_needle_taco.png';
+            this.initGauge.needle.xOffset = 0;
+            this.initGauge.needle.yOffset = 0;
+            this.initGauge.label.yOffset = 55;
+            this.initGauge.label.color = '#fff';
+            this.initGauge.label.precision = 0; // 0 decimals (whole numbers).
+            this.initGauge.ticks.labelRadius = 45;
+            this.initGauge.ticks.labelColor = '#0ce';
+            this.initGauge.ticks.start = 200;
+            this.initGauge.ticks.end = 800;
+            this.initGauge.ticks.count = 7;
+            this.initGauge.ticks.color = 'rgba(0, 0, 0, 0)';
+            this.initGauge.range.color = 'rgba(0, 0, 0, 0)';
         }
-        if(this.maxAngle){
-            gauge = gauge.maxAngle(this.maxAngle);
+        else{
+            this.initGauge.label.suffix =this.labelSuffix;
         }
-        gauge = gauge.create(r, this.offsetX, this.offsetY);		
-        gauge.setValue(this.value);
-        //setting colors of text and ticks
-        var self = this;
-        var paths = $("#" + this.id).find("path");
-        var i = 0;
-        paths.each(function(){
-            $(this).attr("stroke", self.pathColor);
-            i++;
-            if(i+1 == paths.size()){
-                return false;
-            }    
-        });
-        $("#" + this.id).find("text").each(function(){
-            $(this).attr("stroke", self.textColor)
-        });
-        this.addListener("gauge", "gaugechange", function(value){
-            gauge.setValue(value);
-        });
+        this.initGauge.id = this.id;
+        this.initGauge.init();
+        this.initGauge.setValue(this.value);
     }
     
 })

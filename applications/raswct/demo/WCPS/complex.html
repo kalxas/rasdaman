@@ -1,38 +1,12 @@
-<!--
-* This file is part of rasdaman community.
-*
-* Rasdaman community is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Rasdaman community is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
-*
-* Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
-rasdaman GmbH.
-*
-* For more information please see <http://www.rasdaman.org>
-* or contact Peter Baumann via <baumann@rasdaman.com>.
--->
-<!--
-To change this template, choose Tools | Templates
-and open the template in the editor.
--->
 <!DOCTYPE html>
 <html>
   <head>
     <title>1D Diagram Demo</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     
-    <script type="text/javascript" src="../../bin/toolkit.js"></script>    
+    <script type="text/javascript" src="../../bin/raswct.js"></script>
     <script type="text/javascript" src="multipleDemo.js"></script>
-    <link rel="stylesheet" href="../../bin/toolkit.css" />
+    <link rel="stylesheet" href="../../bin/raswct.css" />
   </head>
   <body>
     <label for="coverage_id">Coverage Id:</label>    
@@ -42,10 +16,11 @@ and open the template in the editor.
     <input type="checkbox" value="NN3_4" class="nns" />NN3_4
     <input type="checkbox" value="NN3_5" class="nns" />NN3_5
     <br /><br/>
-    <select id="change-diagram-2">
+    <select id="change-diagram">
       <option value ="LinearDiagram">Linear Diagram</option>
       <option value="AreaDiagram">Area Diagram</option>
       <option value="ScatterDiagram">Scattered Diagram</option>
+      <option value="BarDiagram">Bar Diagram</option>
     </select>
     <div id="chartPlace">
       <!-- The chart will go here -->

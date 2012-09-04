@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <script type="text/javascript" src="../../bin/raswct.js"></script>
+        <script type="text/javascript" src="gauges.js"></script>
+        <link rel="stylesheet" href="../../bin/raswct.css">
+    </head>
+    <body>
+        <div style="width: 400px;">Use the knob to set the interval at which the value of t is changed:<br/><br/>
+        <div id="knob"></div>
+        </div><br/>
+        <div style="margin: -270px 0 0 450px;">The value of the index t is randomly changed every <span id="sec">8</span> seconds.<br/><br/>Query:<br/>
+            <textarea id="query" rows="5" cols="40">for t1 in (NN3_3) 
+return 
+encode (t1 [t(0)], "csv")
+            </textarea>
+        </div>
+        <div style="margin-top: 30px; margin: -110px 0 0 900px;">Exact value:
+        <div id = "led"></div>
+        </div>
+        <div style="margin-top: 200px; margin-bottom: -20px;">Trimmed value to the first 2 digits:
+            <div id = "gauge"></div><br/>
+        </div>
+        <div style="margin:0 0 0 400px">
+        Approximative value:
+            <div id="gaugeTaco"></div>
+        </div>
+        <div>
+            <div id="jgauge" style="width: 200px; height: 160px; "></div>
+        </div>
+        <div>
+            <div id="jgauge2" style="width: 400px; height: 320px; margin: -240px 0 0 700px"></div>
+        </div>
+        
+    </body>
+</html>

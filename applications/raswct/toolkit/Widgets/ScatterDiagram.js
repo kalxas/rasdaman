@@ -34,18 +34,17 @@ Rj.namespace('Rj.Widget');
 Rj.Widget.ScatterDiagram = new JS.Class(Rj.Widget.BaseChart, {
   
   /**
-   * @param <BaseQuery> query - the Query that is used to retrieve the data
-   * @param <string> selector - any valid CSS3 or xPath selector that will identify the div in which the graph is placed
    * @param <string> title - the title of this diagram
    * @param <string> xAxisTitle - the title of the x Axis
    * @param <string> yAxisTitle - the title of the y Axis
    */
-  initialize: function(query, selector, title, xAxisTitle, yAxisTitle){
-    this.callSuper(query, selector, title, xAxisTitle, yAxisTitle);    
+  initialize: function(title, xAxisTitle, yAxisTitle){
+    this.callSuper(title, xAxisTitle, yAxisTitle);    
     this.processed = false;
   },
   
   configure : function(cfg){
+    this.callSuper();
     this.cfg.seriesDefaults = this.cfg.seriesDefaults || {};
     this.cfg.seriesDefaults.renderer = jQuery.jqplot.LineRenderer;    
     this.cfg.seriesDefaults.showLine = false;        

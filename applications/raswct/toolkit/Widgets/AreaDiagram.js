@@ -34,18 +34,18 @@ Rj.namespace('Rj.Widget');
 Rj.Widget.AreaDiagram = new JS.Class(Rj.Widget.BaseChart, {
   
   /**
-   * @param <BaseQuery> query - the Query that is used to retrieve the data
-   * @param <string> selector - any valid CSS3 or xPath selector that will identify the div in which the graph is placed
    * @param <string> title - the title of this diagram
    * @param <string> xAxisTitle - the title of the x Axis
    * @param <string> yAxisTitle - the title of the y Axis
+   * @param <array> seriesColors - an array of colors of the series. The colors are assigned in the order given
    */
-  initialize: function(query, selector, title, xAxisTitle, yAxisTitle){
-    this.callSuper(query, selector, title, xAxisTitle, yAxisTitle);    
+  initialize: function(title, xAxisTitle, yAxisTitle, seriesColors){
+    this.callSuper(title, xAxisTitle, yAxisTitle, seriesColors);    
     this.processed = false;
   },
   
   configure : function(cfg){
+    this.callSuper();
     this.cfg.seriesDefaults = this.cfg.seriesDefaults || {};
     this.cfg.seriesDefaults.renderer = jQuery.jqplot.LineRenderer;    
     this.cfg.seriesDefaults.fill = true;   

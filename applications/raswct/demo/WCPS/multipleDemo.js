@@ -1,84 +1,95 @@
-/*
-* This file is part of rasdaman community.
-*
-* Rasdaman community is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* Rasdaman community is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
-*
-* Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
-rasdaman GmbH.
-*
-* For more information please see <http://www.rasdaman.org>
-* or contact Peter Baumann via <baumann@rasdaman.com>.
-*/
-
 /**
  * Demonstration of diagram widgets
  * @author Alex Dumitru <m.dumitru@jacobs-university.de>
  * @author Vlad Merticariu <v.merticariu@jacobs-university.de>
  * @version 1.0.0
  */
-jQuery(document).ready(function(){       
-var changeSource = function(source, type){
-  console.log(type);
-  //Initialize the query - we are using an URL Query object
-  var query = new Rj.Query.UrlQuery("multipleWcpsParser.php", 'GET', {
-    'coverageId': source
-  });
-  //Create the widget
-  var title = source.replace('NN3', 'ts').replace('_', '_00');
-  var diagram = new Rj.Widget[type](query, "#chartPlace", title);          
-  /**
-           * Get the diagram axis and labels after the data is loaded.
-           * @see event datapreload
-           */
-  diagram.addListener('wcps','datapreload', function(response){
-    //Process the xAxis and yAxis values
-    
-    var series = [];
-    for(var i = 0; i < response.data.length; i++){
-      var values = [];
-      for(var j = 0; j < response.data[i].length; j++){
-        values.push([j, parseInt(response.data[i][j])]);
-      }
-      series.push(values);
-    }
-      console.log(series);
-    return {
-      data : series
-    }
-  //Configure the widget labels
-  });
-  diagram.loadData(true);
+CoverageDiagramDisplay = function(dType, selector){
+  this.diagramType = dType;
+  this.initiated = false;
+  console.log(Rj.Widget)
+  this.diagram = new Rj.Widget[this.diagramType]("Diagram Example", "XAxis", "YAxis", ["#000", "#ABC", "#DEF", "#777", "#555"]);
+  this.coverageIndexes = {};
+  this.selector = selector;  
+  this.series = [];
 }
 
-  changeSource("NN3_1,NN3_2", $("#change-diagram-2").val());
+CoverageDiagramDisplay.prototype.getCoverages = function(){
+  var covs = []
+  for(var index in this.coverageIndexes){
+    covs.push(index);
+  }
+  return covs;
+}
+
+CoverageDiagramDisplay.prototype.addCoverage = function(coverageId){
+  var query = new Rj.Query.UrlQuery("wcpsParser.php", Rj.Constants.UrlQuery.GET, {
+    coverageId : coverageId
+  });
+  var self = this;
+  var exec = new Rj.Executor.QueryExecutor(query);
+  exec.callback(function(response){
+    var diagramData = [] 
+    var ticks = [];
+    var processedResp = JSON.parse(response);
+    for(var i = 0; i < processedResp.data.length; i++){
+      diagramData.push([i, parseInt(processedResp.data[i], 10)]);
+      ticks.push(i.toString());
+    }
+    if(self.diagramType == "BarChart"){
+      self.diagram.setTicks(ticks);
+    }
+    var index = self.diagram.addDataSeries(diagramData, coverageId);
+    self.coverageIndexes[coverageId] = index;
+    if(!self.initiated){
+      self.createChart();
+      self.initiated = true;
+    }
+  })
+};
+
+CoverageDiagramDisplay.prototype.changeType = function(dType){
+  $(this.selector).html("");
+  var coverages = this.getCoverages();
+  this.diagramType = dType;
+  this.diagram = new Rj.Widget[dType];
+  this.initiated = false;
+  for(var i = 0; i < coverages.length; i++){
+    this.addCoverage(coverages[i]);
+  }
+  
+}
+
+CoverageDiagramDisplay.prototype.removeCoverage = function(coverageId){
+  this.diagram.removeDataSeries(this.coverageIndexes[coverageId], false);
+  delete this.coverageIndexes[coverageId];
+};
+
+CoverageDiagramDisplay.prototype.createChart = function(){
+  this.diagram.renderTo(this.selector);    
+};
+
+(function($){
     
-  $('.nns').click(function(){
-    var sources = [];
-    $('.nns').each(function(){
-      if($(this).attr('checked')){
-        sources.push($(this).val());
+  $(document).ready(function(){
+    var covDisp = new CoverageDiagramDisplay("LinearDiagram", "#chartPlace");
+    covDisp.addCoverage("NN3_1");
+    covDisp.addCoverage("NN3_2");    
+    $(".nns").click(function(){
+      var selected = $(this).attr('checked') ? true : false;
+      if(selected){
+        covDisp.addCoverage($(this).val());        
       }
-    })
-    changeSource(sources.toString(), $("#change-diagram-2").val());
-  })
-  $("#change-diagram-2").change(function(){
-    var sources = [];
-    $('.nns').each(function(){
-      if($(this).attr('checked')){
-        sources.push($(this).val());
+      else{
+        covDisp.removeCoverage($(this).val());
       }
+    });  
+    
+    $("#change-diagram").change(function(){
+      var val = $(this).val();
+      covDisp.changeType(val);      
     })
-    changeSource(sources.toString(), $(this).val());
+        
   })
-})
+    
+})(jQuery);

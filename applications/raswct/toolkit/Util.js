@@ -78,7 +78,8 @@ Rj.currentId = 1;
  */
 Rj.getId = function(selector){
   if(!jQuery(selector).attr('id')){
-    jQuery(selector).attr('id', 'rj-' + Rj.currentId);    
+    jQuery(selector).attr('id', 'rj-' + Rj.currentId);
+    Rj.currentId += 1;
   }
   return jQuery(selector).attr('id');
 }
