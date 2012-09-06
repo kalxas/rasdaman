@@ -89,6 +89,11 @@
 USER=rasadmin
 PASSWD=rasadmin
 
+# script directory
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
 # load metadata db connection info (see ./rasgeo/README)
   CONNECT_FILE="$HOME/.rasdaman/rasconnect"
       HOST_KEY=host
@@ -237,7 +242,7 @@ TIFF_FORMAT='image/tiff'
 #BLANK_FORMAT='application/vnd.ogc.se_blank'
 # Format list must use colons ';' as separator, see  petascope.wms.WmsConfig.java::buildWMSFormatsList()
 WMS_FORMATS="$JPEG_FORMAT;$PNG_FORMAT;$TIFF_FORMAT"  
-WMS_SERVICE_INSERT="$( locate add_wms_service.sh )"
+WMS_SERVICE_INSERT="$SCRIPT_DIR/add_wms_service.sh"
 # PSQL return values
   PG_INSERT_OK="INSERT 0 1"
 PG_SELECT_NULL="(0 rows)"
