@@ -74,7 +74,7 @@ public class ConstructCoverageExpr implements IRasNode, ICoverageInfo {
                     throw new WCPSException(WCPSConstants.ERRTXT_CANNOT_BUILD_COVERAGE);
                 }
                 // And only then start parsing the "values" section 
-                values = new ScalarExpr(node, xq);
+                values = new CoverageExpr(node, xq);
             }
 
             node = node.getNextSibling();

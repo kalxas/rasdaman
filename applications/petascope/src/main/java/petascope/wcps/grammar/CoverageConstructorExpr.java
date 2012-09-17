@@ -31,10 +31,10 @@ import petascope.util.WCPSConstants;
 public class CoverageConstructorExpr implements IParseTreeNode {
 
     AxisIteratorList alist;
-    ScalarExpr expr;
+    CoverageExpr expr;
     String name;
 
-    public CoverageConstructorExpr(String name, AxisIteratorList alist, ScalarExpr expr) {
+    public CoverageConstructorExpr(String name, AxisIteratorList alist, CoverageExpr expr) {
         this.name = name;
         this.alist = alist;
         alist.setTag(WCPSConstants.MSG_AXIS_ITERATOR);

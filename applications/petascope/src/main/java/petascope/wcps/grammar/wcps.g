@@ -159,8 +159,22 @@ coverageConstantExpr returns[CoverageConstantExpr value]
 constantList returns[ConstantList value]
     : c=constant { $value = new ConstantList($c.value); } (SEMICOLON c=constant { $value.add($c.value); })*
     ;
+
+coverageAtomConstructor returns[CoverageExpr value]
+    : e5=subsetExpr  { $value = new CoverageExpr($e5.value); }
+    | e2=unaryInducedExpr { $value = $e2.value; }
+    | e4=scaleExpr { $value = new CoverageExpr($e4.value); }
+    | e3=crsTransformExpr { $value = new CoverageExpr($e3.value); }
+    | e1=coverageAtom { $value = $e1.value; }
+    | e6=scalarExpr { $value = new CoverageExpr($e6.value); }
+    | e7=coverageVariable { $value = new CoverageExpr($e7.value); }
+    | e8=coverageConstantExpr { $value = new CoverageExpr($e8.value); }
+    | e9=coverageConstructorExpr  { $value = new CoverageExpr($e9.value); }
+    | e10=setMetaDataExpr  { $value = new CoverageExpr($e10.value); }
+    | e11=rangeConstructorExpr  { $value = new CoverageExpr($e11.value); }
+    ;
 coverageConstructorExpr returns[CoverageConstructorExpr value]
-	: COVERAGE coverage=coverageName OVER ail=axisIteratorList VALUES se=scalarExpr
+	: COVERAGE coverage=coverageName OVER ail=axisIteratorList VALUES se=coverageAtomConstructor
 		{ $value = new CoverageConstructorExpr($coverage.value, $ail.value, $se.value); }
 	;
 setMetaDataExpr returns[SetMetaDataExpr value]
