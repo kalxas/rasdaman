@@ -94,7 +94,7 @@ public class NumericScalarExpr implements IParseTreeNode {
             function = WCPSConstants.MSG_NUMERIC_ADD;
         } else if (op.equals(WCPSConstants.MSG_MINUS)) {
             function = WCPSConstants.MSG_NUMERIC_MINUS;
-        } else if (op.equals(WCPSConstants.MSG_MULT)) {
+        } else if (op.equals(WCPSConstants.MSG_STAR)) {
             function = WCPSConstants.MSG_NUMERIC_MULT;
         } else if (op.equals(WCPSConstants.MSG_DIV)) {
             function = WCPSConstants.MSG_NUMERIC_DIV;
