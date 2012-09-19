@@ -1,0 +1,43 @@
+--------------
+= WCPS tests =
+--------------
+
+This directory holds WCPS tests. Variables like Tomcat port, host, etc. may need
+to be adapted in test.cfg before running the tests. To run the tests, execute:
+
+./test.sh
+
+Do not execute "sh test.sh" as the script is written for bash, and sh is often
+linked to a restricted version of bash like dash, or similar.
+
+The output from each test is written to the output directory.
+
+
+------------
+= Testdata =
+------------
+
+The following coverages are available for the tests:
+
++----------+-----+-------+-----------------+-------+-----------------+------+
+| coverage | dim | type  | pixel extent    | axes  | geo-boundingbox | CRS  |
++----------+-----+-------+-----------------+-------+-----------------+------+
+| rgb      | 2D  | rgb   | 0:399,0:343     | x/y   |        -        |  -   |
+| mr       | 2D  | char  | 0:255,0:210     | x/y   |        -        |  -   |
+| eobstest | 3D  | short | 0:5,0:100,0:231 | t/x/y | 25,-40 - 75,75  | 4326 |
++----------+-----+-------+-----------------+-------+-----------------+------+
+
+These coverages are automatically inserted if necessary
+
+
+----------------
+= Adding tests =
+----------------
+
+To add new tests to the test suite, simply add new WCPS queries to the queries
+directory. Please adhere to the naming convention, continuing from the last
+number:
+
+WCPS abstract: number-meaningful_name.test
+rasql        : number-meaningful_name.rasql
+WCPS XML     : number-meaningful_name.xml

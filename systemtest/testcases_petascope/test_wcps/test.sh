@@ -56,7 +56,6 @@ mkdir -p "$OUTPUT_PATH"
 #
 # variables
 #
-COLLS="rgb mr"
 failed=0
 total=0
 
@@ -97,14 +96,8 @@ check_postgres
 check_rasdaman
 check_wget
 
-raserase_colls
-
-while [ 1 -eq 1 ]; do
-  $RASIMPORT -f "$TESTDATA_PATH"/rgb.png -coll rgb -t RGBImage:RGBSet && break
-done
-while [ 1 -eq 1 ]; do
-  $RASIMPORT -f "$TESTDATA_PATH"/mr_1.png -coll mr && break
-done
+# run import if necessary
+import_data
 
 mkdir -p "$OUTPUT_PATH"
 pushd "$QUERIES_PATH" > /dev/null
@@ -114,7 +107,7 @@ for f in *.test; do
   [ -f "$f" ] || continue
   
   # test single file
-  #[ "$f" == "21-just_exponent.test" ] || continue
+  #[ "$f" == "48-slice_scale.test" ] || continue
 
   # test header
   loge ""
