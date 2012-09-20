@@ -46,7 +46,7 @@ public class RangeComponent implements IRasNode, ICoverageInfo {
 
         String nodeName = node.getNodeName();
         log.trace(nodeName);
-        if (nodeName.equals(WCPSConstants.MSG_COMPLEX_CONSTANT))
+        if (nodeName.equals(WCPSConstants.MSG_COMPONENT))
             node = node.getFirstChild();
             
         while (node != null)

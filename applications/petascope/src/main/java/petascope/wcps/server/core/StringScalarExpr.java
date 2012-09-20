@@ -40,11 +40,11 @@ public class StringScalarExpr implements IRasNode {
         }
         log.trace(node.getNodeName());
 
-        if (node.getNodeName().equals(WCPSConstants.MSG_STING_IDENTIFIER)) {
+        if (node.getNodeName().equals(WCPSConstants.MSG_STRING_IDENTIFIER)) {
             Node child = node.getFirstChild();
             cov = new CoverageExpr(child, xq);
             op = WCPSConstants.MSG_ID_LOWERCASE;
-        } else if (node.getNodeName().equals(WCPSConstants.MSG_STING_CONSTANT)) {
+        } else if (node.getNodeName().equals(WCPSConstants.MSG_STRING_CONSTANT)) {
             op = WCPSConstants.MSG_CONSTANT;
             string = node.getNodeValue();
         } else {

@@ -57,9 +57,9 @@ public interface WCPSConstants {
     public static final String MSG_BINARY_OP                    = "binaryOp";
     public static final String MSG_BINARY                       = "binary";
     public static final String MSG_BIT                          = "bit";
-    public static final String MSG_BITINDEX                          = "bitIndex";
+    public static final String MSG_BITINDEX                     = "bitIndex";
     public static final String MSG_BINARY_OP_SUCCESS            = "binary Operation SUCCESS";
-    public static final String MSG_BOOLEAN                  = "boolean";
+    public static final String MSG_BOOLEAN                      = "boolean";
     public static final String MSG_BOOLEAN_AND                  = "booleanAnd";
     public static final String MSG_BOOLEAN_OR                   = "booleanOr";
     public static final String MSG_BOOLEAN_XOR                  = "booleanXor";
@@ -277,8 +277,8 @@ public interface WCPSConstants {
     public static final String MSG_STORE                        = "store";
     public static final String MSG_STRLOW                       = "StrLow";
     public static final String MSG_STRHI                        = "StrHi";
-    public static final String MSG_STING_CONSTANT               = "stringConstant";
-    public static final String MSG_STING_IDENTIFIER             = "stringIdentifier";
+    public static final String MSG_STRING_CONSTANT               = "stringConstant";
+    public static final String MSG_STRING_IDENTIFIER             = "stringIdentifier";
     public static final String MSG_SRS_NAME                     = "srsName";
     public static final String MSG_SCALARS                      = "scalars";
     public static final String MSG_TAN                          = "tan";
@@ -314,7 +314,7 @@ public interface WCPSConstants {
     public static final String MSG_WCPS_LOADING_PARSING_XML     = "WCPS: Loading and parsing XML Schema ...";
     public static final String MSG_WCPS_FINISHED_LOADING_SCHEMA = "WCPS: Finished loading the schema.";
     public static final String MSG_WHERE                        = "where";
-    public static final String MSG_WGS84                       = "WGS84";
+    public static final String MSG_WGS84                        = "WGS84";
     public static final String MSG_X                            = "X";
     public static final String MSG_XML_HEADER                   = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
     public static final String MSG_XMLNS                        = "xmlns=\"http://www.opengis.net/wcps/1.0\" service=\"WCPS\" version=\"1.0.0\"";

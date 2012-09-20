@@ -51,7 +51,7 @@ public class CondenseOperation implements IRasNode {
             shortOp = WCPSConstants.MSG_STAR;
         }
         if (name.equals(WCPSConstants.MSG_OP_MIN)) {
-            shortOp = WCPSConstants.MSG_MINUS_S;
+            shortOp = WCPSConstants.MSG_MIN;
         }
         if (name.equals(WCPSConstants.MSG_OP_MAX)) {
             shortOp = WCPSConstants.MSG_MAX;

@@ -35,21 +35,21 @@ public class StringScalarExpr implements IParseTreeNode {
 
     public StringScalarExpr(String val) {
         this.val = val;
-        this.function = WCPSConstants.MSG_STING_CONSTANT;
+        this.function = WCPSConstants.MSG_STRING_CONSTANT;
     }
 
     public StringScalarExpr(String op, CoverageExpr cov) {
         this.cov = cov;
-        function = WCPSConstants.MSG_STING_IDENTIFIER;
+        function = WCPSConstants.MSG_STRING_IDENTIFIER;
         this.op = op;
     }
 
     public String toXML() {
         String result = "<" + function + ">";
 
-        if (function.equals(WCPSConstants.MSG_STING_CONSTANT)) {
+        if (function.equals(WCPSConstants.MSG_STRING_CONSTANT)) {
             result += val;
-        } else if (function.equals(WCPSConstants.MSG_STING_IDENTIFIER)) {
+        } else if (function.equals(WCPSConstants.MSG_STRING_IDENTIFIER)) {
             result += cov.toXML();
         }
 

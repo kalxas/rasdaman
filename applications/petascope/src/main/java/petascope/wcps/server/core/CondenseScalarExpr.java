@@ -75,7 +75,7 @@ public class CondenseScalarExpr implements IRasNode {
     }
 
     public String toRasQL() {
-        String result = WCPSConstants.MSG_CONDENSE + " " + op.toRasQL() + " " + WCPSConstants.MSG_OVER;
+        String result = WCPSConstants.MSG_CONDENSE + " " + op.toRasQL() + " " + WCPSConstants.MSG_OVER + " ";
         result += axisIteratorString;
         if (where != null) {
             result += where.toRasQL();
