@@ -263,6 +263,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
         break;
 
     case ctype_rgb:
+        RMInit::logOut << "ctype_rgb" << endl;
         spp = 3;
         bps = 8;
         pixelAdd = 3*height;
@@ -287,6 +288,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
         break;
 
     case ctype_struct:
+        RMInit::logOut << "ctype_struct" << endl;
         // check first if it's 4 char bands
         {
             r_Structure_Type *st = (r_Structure_Type*) desc.srcType;
@@ -407,6 +409,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
                 *rowPtr++ = srcPtr[2];
             }
         }
+        break;
         case ctype_struct:
         {
             for (i=0; i<width; i++, srcPtr += pixelAdd)

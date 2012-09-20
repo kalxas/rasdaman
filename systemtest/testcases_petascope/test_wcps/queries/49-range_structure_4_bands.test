@@ -1,0 +1,9 @@
+for c in ( rgb )
+return
+encode(
+{
+  red:   c.red;
+  green: c.green;
+  blue:  c.blue;
+  alpha: c.blue
+}, "png")
