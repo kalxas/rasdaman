@@ -31,6 +31,7 @@ rasdaman GmbH.
 */
 static const char rcsiddirix[] = "@(#)dirix, SDirIndexLogic: $Id: sdirindexlogic.cc,v 1.10 2002/06/15 18:27:49 coman Exp $";
 
+#include "config.h"
 #include <iostream>
 #include "raslib/rmdebug.hh"
 #include "indexmgr/sdirindexlogic.hh"

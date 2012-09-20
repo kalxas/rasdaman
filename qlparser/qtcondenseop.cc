@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtCondenseOp: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtcondenseop.cc,v 1.18 2003/12/27 20:51:28 rasdev Exp $";
 
+#include "config.h"
 #include "raslib/rmdebug.hh"
 
 #include "qlparser/qtcondenseop.hh"

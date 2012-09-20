@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)raslib, r_Point: $Id: point.cc,v 1.22 2002/08/28 11:58:13 coman Exp $";
 
+#include "config.h"
 #include "point.hh"
 
 #include <string.h>

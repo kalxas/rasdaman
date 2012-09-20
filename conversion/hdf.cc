@@ -39,6 +39,7 @@ rasdaman GmbH.
  * Both definitions are similar
  */
 
+#include "config.h"
 #ifdef HAVE_HDF
 
 #define HAVE_INT8

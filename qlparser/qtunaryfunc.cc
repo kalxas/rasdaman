@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtIntervalLoOp, QtIntervalHiOp, QtSDom: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtunaryfunc.cc,v 1.11 2003/12/27 20:51:28 rasdev Exp $";
 
+#include "config.h"
 #include "qlparser/qtunaryfunc.hh"
 #include "qlparser/qtintervaldata.hh"
 #include "qlparser/qtatomicdata.hh"

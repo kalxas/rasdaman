@@ -41,6 +41,7 @@ static const char rcsid[] = "@(#)reladminif,SQLError: $Id: sqlerror.ec,v 1.4 200
 
 // #define SQLCA_STORAGE_CLASS extern
 
+#include "config.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

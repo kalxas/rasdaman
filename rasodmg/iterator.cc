@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsiditerator[] = "@(#)rasodmg, r_Iterator: $Id: iterator.cc,v 1.18 2002/08/23 11:18:44 schatz Exp $";
 
+#include "config.h"
 #include <iostream>
 using namespace std;
 

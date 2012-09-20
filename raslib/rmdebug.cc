@@ -32,6 +32,7 @@
 
 static const char rcsid[] = "@(#)raslib, RMDebug: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/rmdebug.cc,v 1.33 2005/12/02 14:51:55 rasdev Exp $";
 
+#include "config.h"
 #include <iostream>
 using namespace std;
 

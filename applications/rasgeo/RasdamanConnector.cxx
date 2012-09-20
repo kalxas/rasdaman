@@ -24,6 +24,7 @@
  * Contributed to rasdaman by Alexander Herzig, Landcare Research New Zealand
  */
 
+#include "config.h"
 #include "RasdamanConnector.h"
 #include <fstream>
 #include <unistd.h>

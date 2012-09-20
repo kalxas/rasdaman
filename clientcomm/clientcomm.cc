@@ -34,6 +34,7 @@ static const char rcsid[] = "@(#)clientcomm, ClientComm: $Id: clientcomm.cc,v 1.
 
 using namespace std;
 
+#include "config.h"
 #include "clientcomm/clientcomm.hh"
 #include "clientcomm/rpcclientcomm.hh"
 #include "rnprotocol/rnpclientcomm.hh"

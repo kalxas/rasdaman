@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtPointOp: $Id: qtpointop.cc,v 1.7 2002/06/05 18:18:17 coman Exp $";
 
+#include "config.h"
 #include "raslib/rmdebug.hh"
 
 #include "qlparser/qtpointop.hh"

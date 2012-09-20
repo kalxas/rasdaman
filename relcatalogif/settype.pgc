@@ -34,6 +34,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+#include "config.h"
 #include "debug-srv.hh"
 
 // general embedded SQL related definitions

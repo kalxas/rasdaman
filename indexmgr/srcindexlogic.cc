@@ -30,6 +30,7 @@ rasdaman GmbH.
 
 static const char rcsiddirix[] = "@(#)dirix, SRCIndexLogic: $Id: srcindexlogic.cc,v 1.8 2002/09/19 11:38:25 hoefner Exp $";
 
+#include "config.h"
 #include <iostream>
 #include <math.h>
 #include "raslib/rmdebug.hh"

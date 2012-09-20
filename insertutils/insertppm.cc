@@ -50,6 +50,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)cachetamgr,readppm: $Header: /home/rasdev/CVS-repository/rasdaman/insertutils/insertppm.cc,v 1.67 2006/01/17 07:36:25 rasdev Exp $";
 
+#include "config.h"
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #ifdef __GNUG__

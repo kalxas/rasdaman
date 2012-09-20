@@ -34,6 +34,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 // for trace macros
 #define DEBUG_MAIN
 #include "debug-clt.hh"

@@ -1,5 +1,6 @@
 BEGIN			{
 			print "//patched by awk 1";
+			print "#include \"config.h\""
 			print "#include \"raslib/error.hh\""
 			print "#include \"servercomm/servercomm.hh\""
 			print "#include <new>"

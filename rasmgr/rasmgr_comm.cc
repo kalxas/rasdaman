@@ -34,6 +34,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include "rasmgr_comm.hh"
 
 #ifdef X86

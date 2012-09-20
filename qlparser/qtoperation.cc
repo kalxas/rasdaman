@@ -33,6 +33,7 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)qlparser, QtOperation: $Id: qtoperation.cc,v 1.17 2002/06/05 18:18:17 coman Exp $";
 
 
+#include "config.h"
 #include "qlparser/qtoperation.hh"
 
 #include <iostream>

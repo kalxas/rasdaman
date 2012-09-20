@@ -38,6 +38,7 @@ rasdaman GmbH.
 // general embedded SQL related definitions
 EXEC SQL include "../reladminif/sqlglobals.h";
 
+#include "config.h"
 #include "mddtype.hh"
 #include "raslib/rmdebug.hh"
 #include "reladminif/sqlerror.hh"

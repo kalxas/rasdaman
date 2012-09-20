@@ -29,6 +29,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtStringData: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtstringdata.cc,v 1.8 2003/12/27 20:51:28 rasdev Exp $";
 
+#include "config.h"
 #include "qlparser/qtstringdata.hh"
 
 #include <iostream>

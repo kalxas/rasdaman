@@ -36,6 +36,7 @@ using namespace std;
 
 using namespace std;
 
+#include "config.h"
 #include "raslib/rmdebug.hh"
 #include "raslib/minterval.hh"
 #include "raslib/odmgtypes.hh"

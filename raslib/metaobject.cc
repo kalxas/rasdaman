@@ -21,6 +21,7 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 static const char rcsid[] = "@(#)raslib, r_Meta_Object: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/metaobject.cc,v 1.7 2003/12/27 23:01:21 rasdev Exp $";
 

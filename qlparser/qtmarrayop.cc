@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtMarrayOp: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtmarrayop.cc,v 1.19 2003/12/27 20:51:28 rasdev Exp $";
 
+#include "config.h"
 #include "raslib/rmdebug.hh"
 
 #include "qlparser/qtmarrayop.hh"

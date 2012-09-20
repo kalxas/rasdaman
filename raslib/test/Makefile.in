@@ -17,25 +17,24 @@
 
 #
 # This file is part of rasdaman community.
-#
+# 
 # Rasdaman community is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
+# it under the terms of the GNU Lesser General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
-#
+# 
 # Rasdaman community is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
+# GNU Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public License
 # along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
-#
-# Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
-# rasdaman GmbH.
-#
+# 
+# Copyright 2003 - 2010 Peter Baumann / rasdaman GmbH.
+# 
 # For more information please see <http://www.rasdaman.org>
-# or contact Peter Baumann via <baumann@rasdaman.com>. 
+# or contact Peter Baumann via <baumann@rasdaman.com>.
 # 
 # MAKEFILE FOR:
 # 
@@ -81,6 +80,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ac_prog_ecpg.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am_test_endian_OBJECTS = test_endian.$(OBJEXT)
@@ -158,7 +158,7 @@ test_timer_LDADD = $(LDADD)
 test_timer_DEPENDENCIES = ../../rasodmg/librasodmg.a \
 	../../clientcomm/libclientcomm.a ../libraslib.a \
 	../../conversion/libconversion.a ../../network/libnetwork.a
-DEFAULT_INCLUDES = -I.@am__isrc@
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -394,9 +394,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu raslib/test/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign raslib/test/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu raslib/test/Makefile
+	  $(AUTOMAKE) --foreign raslib/test/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

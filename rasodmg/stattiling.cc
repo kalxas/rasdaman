@@ -35,6 +35,7 @@ rasdaman GmbH.
 #pragma warning( disable : 4018 )
 #endif
 
+#include "config.h"
 #include "rasodmg/interesttiling.hh"
 #include "rasodmg/alignedtiling.hh"
 #include "rasodmg/stattiling.hh"

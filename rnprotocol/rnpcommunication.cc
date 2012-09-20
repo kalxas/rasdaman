@@ -28,6 +28,7 @@ rasdaman GmbH.
  *
  ****************************************************************************/
 
+#include "config.h"
 #include <assert.h>
 #include <rnpcommunication.hh>
 

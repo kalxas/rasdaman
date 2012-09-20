@@ -37,6 +37,7 @@ rasdaman GmbH.
 // this file is a temporary file, used to keep rasmgr_rascontrol things as long as we check each one
 // here are the unchecked things!!
 
+#include "config.h"
 #include "debug-srv.hh"
 #include "raslib/rminit.hh"
 #include "rasmgr_rascontrol.hh"

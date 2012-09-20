@@ -30,6 +30,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include "raslib/oid.hh"
 
 #ifdef __VISUALC__

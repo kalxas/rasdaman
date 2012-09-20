@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, ParseInfo: $Id: parseinfo.cc,v 1.6 2002/06/19 14:36:23 coman Exp $";
 
+#include "config.h"
 #include <iostream>
 using namespace std;
 

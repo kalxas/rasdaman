@@ -31,6 +31,7 @@ rasdaman GmbH.
  *
 \*/
 
+#include "config.h"
 #include "rasmgr_dbm.hh"
 #include "rasmgr_srv.hh"
 #include "rasmgr_users.hh"

@@ -31,6 +31,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 
 static const char rcsid[] = "@(#)persmddobj, PersMDDObj: $Id: mddobj.cc,v 1.26 2005/07/06 22:43:20 rasdev Exp $";

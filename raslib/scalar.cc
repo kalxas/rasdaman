@@ -30,6 +30,7 @@
  *
 */
 
+#include "config.h"
 #ifdef __VISUALC__
 #include <strstrea.h>
 #else

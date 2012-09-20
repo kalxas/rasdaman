@@ -31,6 +31,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 // Because of NT port
 #include <string.h>
 #ifdef __VISUALC__

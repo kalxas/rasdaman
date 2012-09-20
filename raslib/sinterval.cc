@@ -32,6 +32,7 @@
 
 static const char rcsid[] = "@(#)raslib, r_Sinterval: $Id: sinterval.cc,v 1.29 2002/08/19 11:11:25 coman Exp $";
 
+#include "config.h"
 #include "sinterval.hh"
 
 #include <string>

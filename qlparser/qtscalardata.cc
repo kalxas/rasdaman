@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtScalarData: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtscalardata.cc,v 1.17 2005/07/06 22:48:34 rasdev Exp $";
 
+#include "config.h"
 #include "qlparser/qtscalardata.hh"
 
 #include "relcatalogif/basetype.hh"

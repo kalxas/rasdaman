@@ -33,6 +33,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+#include "config.h"
 #include <openssl/evp.h>
 
 #include "rnpclientcomm.hh"

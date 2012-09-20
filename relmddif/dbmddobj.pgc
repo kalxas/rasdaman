@@ -33,6 +33,7 @@ rasdaman GmbH.
  ************************************************************/
 
 
+#include "config.h"
 #include "reladminif/oidif.hh"
 #include "reladminif/dbref.hh"
 #include "reladminif/sqlerror.hh"

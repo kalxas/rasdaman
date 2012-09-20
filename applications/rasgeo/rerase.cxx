@@ -25,6 +25,7 @@
  */
 
 
+#include "config.h"
 #include "nmlog.h"
 #include <sstream>
 #include <string>

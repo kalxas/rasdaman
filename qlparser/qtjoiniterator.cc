@@ -31,6 +31,7 @@ rasdaman GmbH.
  ************************************************************/
 
 
+#include "config.h"
 #include "raslib/rmdebug.hh"
 
 #include "qlparser/qtjoiniterator.hh"

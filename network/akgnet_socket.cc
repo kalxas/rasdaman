@@ -30,6 +30,7 @@ rasdaman GmbH.
  *
  */
 
+#include "config.h"
 #include <assert.h>
 #include <akgnet_socket.hh>
 

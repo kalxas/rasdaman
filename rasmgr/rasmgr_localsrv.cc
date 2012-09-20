@@ -36,6 +36,7 @@ rasdaman GmbH.
 
 using namespace std;
 
+#include "config.h"
 #include "rasmgr_localsrv.hh"
 #include "rasmgr_master.hh"
 #include "rasmgr_srv.hh"

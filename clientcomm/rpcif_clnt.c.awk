@@ -1,4 +1,5 @@
 BEGIN                 { nodebug = 0;
+			print"#include \"config.h\"";
 			print"#include <stdio.h>";
 			print"#include \"raslib/error.hh\"";
 			print"#include \"raslib/rminit.hh\"";

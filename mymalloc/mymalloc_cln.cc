@@ -26,6 +26,7 @@ rasdaman GmbH.
 
 //using std::bad_alloc; // added for gcc3 -- PB 2005-feb-13
 
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 
 // added throw to be conformant with mymalloc_svc -- PB 2005-feb-01

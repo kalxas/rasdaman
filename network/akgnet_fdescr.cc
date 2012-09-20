@@ -30,6 +30,7 @@ rasdaman GmbH.
  *
  */
 
+#include "config.h"
 #include <akgnet_fdescr.hh>
 
 akg::FileDescriptor::FileDescriptor() throw()

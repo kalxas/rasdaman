@@ -21,8 +21,10 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
+#include "config.h"
 #include <iostream>
 #include <vector>
+#include "config.h"
 #include "raslib/dlist.hh"
 #include "raslib/minterval.hh"
 

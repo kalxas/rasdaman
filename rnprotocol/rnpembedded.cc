@@ -27,6 +27,7 @@ rasdaman GmbH.
  *
  ****************************************************************************/
 
+#include "config.h"
 #include <rnpembedded.hh>
 #include <assert.h>
 

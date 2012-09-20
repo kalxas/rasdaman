@@ -23,10 +23,12 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)raslib, r_Collection_Type: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/collectiontype.cc,v 1.6 2003/12/27 23:01:21 rasdev Exp $";
 
+#include "config.h"
 #include "raslib/collectiontype.hh"
 #include "raslib/rminit.hh"
 #include "raslib/error.hh"
 
+#include "config.h"
 
 r_Collection_Type::r_Collection_Type()
     :   r_Type(),

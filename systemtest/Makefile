@@ -77,48 +77,52 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ac_prog_ecpg.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 SOURCES =
 DIST_SOURCES =
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/rasdaman/rasdaman/missing --run aclocal-1.10
+ACLOCAL = ${SHELL} /home/rasdaman/rasdaman/missing --run aclocal-1.11
 ALLOCA = 
 AMTAR = ${SHELL} /home/rasdaman/rasdaman/missing --run tar
 AUTOCONF = ${SHELL} /home/rasdaman/rasdaman/missing --run autoconf
 AUTOHEADER = ${SHELL} /home/rasdaman/rasdaman/missing --run autoheader
-AUTOMAKE = ${SHELL} /home/rasdaman/rasdaman/missing --run automake-1.10
+AUTOMAKE = ${SHELL} /home/rasdaman/rasdaman/missing --run automake-1.11
 AWK = gawk
-BASEDBCXXFLAGS =  -I/usr/include/postgresql 
+BASEDBCXXFLAGS =  -I/usr/include/pgsql  
 BASEDBLDFLAGS = -L/usr/lib -lpq -lz -lecpg -lnsl
 CC = gcc
 CCDEPMODE = depmode=gcc3
 CFLAGS = -g -O2
-CLIENTCXXFLAGS =  -O2
+CLIENTCXXFLAGS =  -I /usr/include/  -O2 
 CLIENTLDFLAGS = 
 CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS =  -O2 -I/home/rasdaman/rasdaman -I/home/rasdaman/rasdaman/debug -I/home/rasdaman/rasdaman/include -DSHARE_DATA_DIR=\"$(pkgdatadir)/\" -DCONFDIR=\"$(sysconfdir)/\" -DBINDIR=\"$(bindir)/\" -DLOGDIR=\"$(logdir)/\"
+CXXFLAGS =  -I /usr/include/  -O2  -I/home/rasdaman/rasdaman -I/home/rasdaman/rasdaman/debug -I/home/rasdaman/rasdaman/include -DSHARE_DATA_DIR=\"$(pkgdatadir)/\" -DCONFDIR=\"$(sysconfdir)/\" -DBINDIR=\"$(bindir)/\" -DLOGDIR=\"$(logdir)/\"
 CYGPATH_W = echo
 DB2_CPPLIBS = 
 DB2_INC = 
 DB2_INSTANCEPATH = 
 DBIF_INC = 
-DEFS = -DPACKAGE_NAME=\"Rasdaman\" -DPACKAGE_TARNAME=\"rasdaman\" -DPACKAGE_VERSION=\"8.0.0\" -DPACKAGE_STRING=\"Rasdaman\ 8.0.0\" -DPACKAGE_BUGREPORT=\"baumann@rasdaman.com\" -DPACKAGE_URL=\"\" -DPACKAGE=\"rasdaman\" -DVERSION=\"8.0.0\" -DYYTEXT_POINTER=1 -DHAVE_LIBCRYPT=1 -DHAVE_LIBCRYPTO=1 -DHAVE_LIBDL=1 -DHAVE_LIBFL=1 -DHAVE_LIBJPEG=1 -DHAVE_LIBNCURSES=1 -DHAVE_LIBPNG=1 -DHAVE_LIBNETPBM=1 -DHAVE_LIBREADLINE=1 -DHAVE_LIBTIFF=1 -DHAVE_LIBZ=1 -DHAVE_DIRENT_H=1 -DSTDC_HEADERS=1 -DHAVE_SYS_WAIT_H=1 -DHAVE_SYS_TYPES_H=1 -DHAVE_SYS_STAT_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_MEMORY_H=1 -DHAVE_STRINGS_H=1 -DHAVE_INTTYPES_H=1 -DHAVE_STDINT_H=1 -DHAVE_UNISTD_H=1 -DHAVE_ARPA_INET_H=1 -DHAVE_FCNTL_H=1 -DHAVE_FLOAT_H=1 -DHAVE_LIMITS_H=1 -DHAVE_MALLOC_H=1 -DHAVE_MEMORY_H=1 -DHAVE_NETDB_H=1 -DHAVE_NETINET_IN_H=1 -DHAVE_STDLIB_H=1 -DHAVE_STRING_H=1 -DHAVE_STRINGS_H=1 -DHAVE_SYS_SOCKET_H=1 -DHAVE_SYS_TIME_H=1 -DHAVE_UNISTD_H=1 -DHAVE_VALUES_H=1 -DHAVE__BOOL=1 -DHAVE_STDBOOL_H=1 -Drestrict=__restrict -DTIME_WITH_SYS_TIME=1 -DHAVE_ALLOCA_H=1 -DHAVE_ALLOCA=1 -DHAVE_MBSTATE_T=1 -DHAVE_FORK=1 -DHAVE_VFORK=1 -DHAVE_WORKING_VFORK=1 -DHAVE_WORKING_FORK=1 -DHAVE_STDLIB_H=1 -DHAVE_MALLOC=1 -DHAVE_SYS_TIME_H=1 -DHAVE_UNISTD_H=1 -DHAVE_ALARM=1 -DHAVE_STDLIB_H=1 -DHAVE_REALLOC=1 -DHAVE_SYS_SELECT_H=1 -DHAVE_SYS_SOCKET_H=1 -DSELECT_TYPE_ARG1=int -DSELECT_TYPE_ARG234=\(fd_set\ \*\) -DSELECT_TYPE_ARG5=\(struct\ timeval\ \*\) -DRETSIGTYPE=void -DLSTAT_FOLLOWS_SLASHED_SYMLINK=1 -DHAVE_STRFTIME=1 -DHAVE_VPRINTF=1 -DHAVE_ALARM=1 -DHAVE_BZERO=1 -DHAVE_DUP2=1 -DHAVE_FLOOR=1 -DHAVE_GETCWD=1 -DHAVE_GETHOSTBYADDR=1 -DHAVE_GETHOSTBYNAME=1 -DHAVE_GETHOSTNAME=1 -DHAVE_GETPASS=1 -DHAVE_GETTIMEOFDAY=1 -DHAVE_INET_NTOA=1 -DHAVE_LOCALTIME_R=1 -DHAVE_MEMMOVE=1 -DHAVE_MEMSET=1 -DHAVE_MKDIR=1 -DHAVE_PATHCONF=1 -DHAVE_POW=1 -DHAVE_RINT=1 -DHAVE_SELECT=1 -DHAVE_SOCKET=1 -DHAVE_SQRT=1 -DHAVE_STRCASECMP=1 -DHAVE_STRCHR=1 -DHAVE_STRDUP=1 -DHAVE_STRERROR=1 -DHAVE_STRNCASECMP=1 -DHAVE_STRRCHR=1 -DHAVE_STRSTR=1 -DHAVE_STRTOL=1 -DHAVE_STRTOUL=1 -DHAVE_POSTGRESQL=1 -DBASEDB_PGSQL=1 -DHAVE_LIBPQ=1 -DHAVE_LIBPGTYPES=1 -D__NO_MATH_INLINES=1 -DRMANVERSION=8000 -DBASEDBSTRING=\"pgsql\" -DEARLY_TEMPLATE=1 -DLITTLE_ENDIAN=1 -DCPPSTDLIB=1 -DX86=1 -DRASARCHITECTURE=\"X86\" -DRASSCHEMAVERSION=5 -DNOPRE=1 -DNO_in_addr_t=1 -DCOMPDATE=\"21.04.2011\ 13:33:13\"
+DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 ECHO_C = 
 ECHO_N = -n
 ECHO_T = 
 ECPG = /usr/bin/ecpg
-EGREP = /bin/grep -E
+EGREP = /usr/bin/grep -E
 EMBEDDEDSQLEXT = pgc
 EMBEDDEDSQLOUT = cc
 EMBEDDEDSQLPRECOMPILER = /usr/bin/ecpg -o
 EXEEXT = 
 GCJ_OPTS = 
-GREP = /bin/grep
+GDAL_CONFIG = /usr/bin/gdal-config
+GDAL_CXXFLAGS = -I/usr/include/gdal
+GDAL_LDFLAGS = -L/usr/lib -lgdal
+GREP = /usr/bin/grep
 INFORMIX_INC = 
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
@@ -134,7 +138,7 @@ LEX = flex
 LEXLIB = -lfl
 LEX_OUTPUT_ROOT = lex.yy
 LIBOBJS = 
-LIBS = -lpgtypes -lpq -lz -ltiff -lreadline -lnetpbm -lpng -lncurses -ljpeg -lfl -ldl -lcrypto -lcrypt 
+LIBS = -lpgtypes -lpq -lz -ltiff -lstoragemgr -lreadline -lnetpbm -lpng -lncurses -ljpeg -lfl -ldl -ldf -lcrypto -lcrypt 
 LN_S = ln -s
 LTLIBOBJS = 
 MAKEINFO = ${SHELL} /home/rasdaman/rasdaman/missing --run makeinfo
@@ -147,27 +151,27 @@ ORA_PROCPPFLAGS =
 PACKAGE = rasdaman
 PACKAGE_BUGREPORT = baumann@rasdaman.com
 PACKAGE_NAME = Rasdaman
-PACKAGE_STRING = Rasdaman 8.0.0
+PACKAGE_STRING = Rasdaman 8.3.1
 PACKAGE_TARNAME = rasdaman
 PACKAGE_URL = 
-PACKAGE_VERSION = 8.0.0
+PACKAGE_VERSION = 8.3.1
 PATH_SEPARATOR = :
 PG_CONFIG = /usr/bin/pg_config
-POSTGRESQL_CFLAGS = -I/usr/include/postgresql
+POSTGRESQL_CFLAGS = -I/usr/include/pgsql
 POSTGRESQL_LDFLAGS = -L/usr/lib -lpq
-POSTGRESQL_VERSION = 8.4.7
+POSTGRESQL_VERSION = 9.1.3
 POW_LIB = 
 RANLIB = ranlib
 RASMGR_PORT = 7001
 REL_STATIC_LIBS = 
 RMANBASE = /home/rasdaman/rasdaman
 RPCGEN = /usr/bin/rpcgen
-SED = /bin/sed
+SED = /usr/bin/sed
 SET_MAKE = 
-SHELL = /bin/bash
+SHELL = /bin/sh
 STATICBASEDBFLAGS = -L/usr/lib -lpq -lz -lecpg
 STRIP = 
-VERSION = 8.0.0
+VERSION = 8.3.1
 XMKMF = 
 YACC = bison
 abs_builddir = /home/rasdaman/rasdaman/systemtest
@@ -179,8 +183,8 @@ ac_ct_CXX = g++
 am__include = include
 am__leading_dot = .
 am__quote = 
-am__tar = ${AMTAR} chof - "$$tardir"
-am__untar = ${AMTAR} xf -
+am__tar = tar --format=posix -chf - "$$tardir"
+am__untar = tar -xf -
 bindir = ${exec_prefix}/bin
 build_alias = 
 builddir = .
@@ -193,17 +197,17 @@ host_alias =
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = $(SHELL) /home/rasdaman/rasdaman/install-sh
+install_sh = ${SHELL} /home/rasdaman/rasdaman/install-sh
 libdir = ${exec_prefix}/lib
-libexecdir = ${exec_prefix}/libexec
+libexecdir = ${exec_prefix}/lib
 localedir = ${datarootdir}/locale
 localstatedir = ${prefix}/var
-logdir = /usr/local/rasdaman/log
+logdir = NONE/log
 mandir = ${datarootdir}/man
 mkdir_p = /bin/mkdir -p
 oldincludedir = /usr/include
 pdfdir = ${docdir}
-prefix = /usr/local/rasdaman
+prefix = /usr/local
 program_transform_name = s,x,x,
 psdir = ${docdir}
 sbindir = ${exec_prefix}/sbin
@@ -214,6 +218,8 @@ target_alias =
 top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
+wardir = ${pkgdatadir}/war
+wpswar = 
 
 ########################### Targets ##############################
 TESTSEQUENCE = $(shell ls -d testcases_mandatory/* \
@@ -232,9 +238,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu systemtest/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign systemtest/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu systemtest/Makefile
+	  $(AUTOMAKE) --foreign systemtest/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -399,8 +405,10 @@ uninstall-am:
 .PHONY: check
 check:
 	for testcase in ${TESTSEQUENCE}; do\
-		 PATH=${bindir}:${PATH}   $$testcase/*.sh; \
-               PROGTEST=$${testcase}/*.sh;\
+		 RMANBASE=${RMANBASE}\
+		 PATH=${bindir}:${PATH}\
+		 PROGTEST=$${testcase}/*.sh;\
+     $$testcase/*.sh;\
 		 if [ $$? -ne 0 ]; \
 		 then\
 			echo $${PROGTEST} ... FAIL>>log;\
@@ -414,7 +422,7 @@ check:
 
 clean:
 	for testcase in ${TESTSEQUENCE}; do \
-               PATH=${bindir}:${PATH}   rm -rf $${testcase}/log*; \
+               PATH=${bindir}:${PATH}   rm -rf $${testcase}/log* $${testcase}/failed_cases; \
         done;
 
 ######################## Dependencies ############################

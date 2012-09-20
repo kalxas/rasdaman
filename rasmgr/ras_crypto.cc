@@ -33,6 +33,7 @@ rasdaman GmbH.
  *          None
 */
 
+#include "config.h"
 #include "ras_crypto.hh"
 
 #if defined(SOLARIS)

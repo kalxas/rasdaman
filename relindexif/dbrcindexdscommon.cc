@@ -32,6 +32,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 #include "dbrcindexds.hh"
 #include "reladminif/objectbroker.hh"

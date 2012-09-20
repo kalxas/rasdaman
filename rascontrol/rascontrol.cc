@@ -33,6 +33,7 @@ rasdaman GmbH.
  * - should normalize cmd interpretation with rasmgr: strcmp vs strncmp
 */
 
+#include "config.h"
 #define DEBUG_MAIN      // to allocate static vars for trace macros
 #include "debug-clt.hh"
 

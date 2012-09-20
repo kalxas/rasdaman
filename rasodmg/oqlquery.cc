@@ -33,6 +33,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)rasodmg, r_OQL_Query and r_oql_execute(): $Id: oqlquery.cc,v 1.25 2002/08/28 12:21:57 coman Exp $";
 
+#include "config.h"
 #include "rasodmg/oqlquery.hh"
 
 #include <string.h>

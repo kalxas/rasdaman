@@ -33,6 +33,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include "debug-clt.hh"
 
 #include "globals.hh"

@@ -30,6 +30,7 @@ rasdaman GmbH.
  *
  */
 
+#include "config.h"
 #include "debug.hh"
 
 #include <akgnet_server.hh>

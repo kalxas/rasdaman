@@ -36,6 +36,7 @@ rasdaman GmbH.
 
 using namespace std;
 
+#include "config.h"
 #include "rasmgr_users.hh"
 #include "ras_crypto.hh"
 #include "rasmgr_host.hh"

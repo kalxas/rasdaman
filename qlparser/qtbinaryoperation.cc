@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtBinaryOperation: $Id: qtbinaryoperation.cc,v 1.25 2002/04/12 09:51:53 coman Exp $";
 
+#include "config.h"
 #include "qlparser/qtbinaryoperation.hh"
 #include "qlparser/qtconst.hh"
 

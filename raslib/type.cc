@@ -23,6 +23,7 @@
 
 static const char rcsid[] = "@(#)raslib, r_Type: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/type.cc,v 1.17 2003/12/27 23:01:21 rasdev Exp $";
 
+#include "config.h"
 #include <ctype.h>   //  for isalpha()
 #include <string.h> //  for strncmp()
 

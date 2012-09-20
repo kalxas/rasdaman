@@ -103,6 +103,7 @@ AC_FUNC_STRTOD
 AC_FUNC_VPRINTF
 AC_CHECK_FUNCS([alarm bzero clock_gettime dup2 floor getcwd gethostbyaddr gethostbyname gethostname getpass gettimeofday inet_ntoa localtime_r memmove memset mkdir pathconf pow rint select socket sqrt strcasecmp strchr strdup strerror strncasecmp strrchr strstr strtol strtoul])
 
+AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile
                  catalogmgr/Makefile         
                  relblobif/Makefile
@@ -163,7 +164,7 @@ AH_TEMPLATE([LITTLE_ENDIAN], [The host system uses little endian encoding.])
 AH_TEMPLATE([CPPSTDLIB], [Use the std.])    
 AH_TEMPLATE([RASARCHITECTURE], [The name of the architecture for which the system is compiling.])    
 AH_TEMPLATE([X86], [Compile for a X86 based system.])
-AH_TEMPLATE([NO_in_addr_t], [Don't use addr_t.])
+AH_TEMPLATE([NO_in_addr_t], [Do not use addr_t.])
 AH_TEMPLATE([COMPDATE], [Date of the build (of the configure not the actual build)])
 AH_TEMPLATE([BASEDBSTRING], [Name of the database that supports the compiled version of rasdaman.])    
 AH_TEMPLATE([RASSCHEMAVERSION], [The version of the schema the database uses.])
@@ -232,7 +233,7 @@ AC_ARG_WITH([default-basedb],
             [with_default_basedb=check])
 AC_ARG_ENABLE([debug],
               [AS_HELP_STRING([--enable-debug],
-                              [this feature enables generation of binaries that contain extra code for debug output. The output is usually very verbose. It's not recommended for production use.])],
+                              [this feature enables generation of binaries that contain extra code for debug output. The output is usually very verbose. It is not recommended for production use.])],
               [RMANDEBUG=on],
               [RMANDEBUG=])
 
@@ -383,7 +384,7 @@ AC_DEFINE([CPPSTDLIB])
 AC_DEFINE([X86]) # Currently, but the code supports multiple platforms
 AC_DEFINE([RASARCHITECTURE], ["X86"])
 AC_DEFINE([RASSCHEMAVERSION], [5])
-AC_DEFINE([NOPRE])
+AC_DEFINE([NOPRE], [], [Description])
 # if not on DEC Alpha
 BASEDBLDFLAGS+=" -lnsl"
 STATICBASEDBLDFLAGS+=" -lnsl"

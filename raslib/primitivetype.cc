@@ -23,6 +23,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)raslib, r_Primitive_Type: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/primitivetype.cc,v 1.26 2003/12/27 23:01:21 rasdev Exp $";
 
+#include "config.h"
 #include "raslib/primitivetype.hh"
 #include "raslib/rminit.hh"
 #include "raslib/rmdebug.hh"

@@ -40,6 +40,7 @@ rasdaman GmbH.
 // Implementation
 //**************************************************************
 
+#include "config.h"
 #include "symtab.hh"
 
 // constructor

@@ -45,6 +45,7 @@ rasdaman GmbH.
  *
  ****************************************************************************/
 
+#include "config.h"
 #include "sstoragelayout.hh"
 #include <stdlib.h>
 #include "raslib/rmdebug.hh"

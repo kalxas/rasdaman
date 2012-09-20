@@ -24,6 +24,7 @@
  * Contributed to rasdaman by Alexander Herzig, Landcare Research New Zealand
  */
 
+#include "config.h"
 #include "RasdamanHelper2.h"
 #define ctxrhelper "RasdamanHelper2"
 

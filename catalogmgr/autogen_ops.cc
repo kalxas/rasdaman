@@ -30,6 +30,7 @@ rasdaman GmbH.
  ************************************************************/
 
 
+#include "config.h"
 #include <cmath>
 #include <cerrno>
 

@@ -34,6 +34,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)catalogif,TypeFactory: $Header: /home/rasdev/CVS-repository/rasdaman/catalogmgr/typefactory.cc,v 1.19 2003/12/20 23:41:27 rasdev Exp $";
 
+#include "config.h"
 #include <vector>
 #include <algorithm>
 #include <map>

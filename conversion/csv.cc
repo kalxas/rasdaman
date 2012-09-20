@@ -46,6 +46,7 @@ rasdaman GmbH.
 #define STRUCT_DELIMITER_CLOSE "\""
 #define STRUCT_DELIMITER_ELEMENT " "
 
+#include "config.h"
 #include "conversion/csv.hh"
 #include "raslib/error.hh"
 #include "raslib/rminit.hh"

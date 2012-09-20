@@ -21,6 +21,7 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 /*------------------------------------------------------------------------*/
 /*  http-error.c - HTTP Error message handling.                           */

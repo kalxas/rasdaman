@@ -34,6 +34,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)reladminif,TransactionIf: $Id: transactionif.ec,v 1.6 2003/12/27 23:11:43 rasdev Exp $";
 
+#include "config.h"
 #include "debug.hh"
 
 // general embedded SQL related definitions

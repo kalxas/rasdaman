@@ -30,6 +30,7 @@ rasdaman GmbH.
  *      No Comments
 */
 
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 static const char rcsid[] = "@(#)manager, ServerComm: $Id: manager.cc,v 1.92 2005/09/03 21:05:14 rasdev Exp $";
 

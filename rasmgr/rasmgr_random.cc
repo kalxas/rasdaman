@@ -33,6 +33,7 @@ rasdaman GmbH.
  *          None
  *
 */
+#include "config.h"
 #include "rasmgr_users.hh"
 #include "raslib/rminit.hh"
 

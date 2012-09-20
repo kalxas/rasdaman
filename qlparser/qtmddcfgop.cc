@@ -31,6 +31,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+#include "config.h"
 #include "qlparser/qtmddcfgop.hh"
 #include "qlparser/qtconst.hh"
 #include "qlparser/qtmddconfig.hh"

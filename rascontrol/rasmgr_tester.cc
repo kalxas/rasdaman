@@ -32,6 +32,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include "debug-clt.hh"
 #include "rascontrol.hh"
 #include "rasmgr_tester.hh"

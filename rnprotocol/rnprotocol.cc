@@ -27,6 +27,7 @@ rasdaman GmbH.
  *
  ****************************************************************************/
 
+#include "config.h"
 #include <rnprotocol.hh>
 #include <assert.h>
 

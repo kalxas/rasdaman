@@ -23,6 +23,7 @@
 
 static const char rcsid[] = "@(#)raslib, r_Sinterval_Type: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/sintervaltype.cc,v 1.6 2003/12/27 23:01:21 rasdev Exp $";
 
+#include "config.h"
 #include "raslib/sintervaltype.hh"
 
 r_Sinterval_Type::r_Sinterval_Type()

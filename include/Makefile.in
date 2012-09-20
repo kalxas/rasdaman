@@ -69,6 +69,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ac_prog_ecpg.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 SOURCES =
@@ -136,6 +137,8 @@ EMBEDDEDSQLPRECOMPILER = @EMBEDDEDSQLPRECOMPILER@
 EXEEXT = @EXEEXT@
 GCJ_OPTS = @GCJ_OPTS@
 GDAL_CONFIG = @GDAL_CONFIG@
+GDAL_CXXFLAGS = @GDAL_CXXFLAGS@
+GDAL_LDFLAGS = @GDAL_LDFLAGS@
 GREP = @GREP@
 INFORMIX_INC = @INFORMIX_INC@
 INSTALL = @INSTALL@
@@ -232,6 +235,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+wardir = @wardir@
+wpswar = @wpswar@
 include_HEADERS = *.h *.hh
 all: all-am
 
@@ -245,9 +250,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu include/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign include/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu include/Makefile
+	  $(AUTOMAKE) --foreign include/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

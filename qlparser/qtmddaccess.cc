@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtMDDAccess: $Id: qtmddaccess.cc,v 1.30 2002/04/23 16:22:41 purify Exp $";
 
+#include "config.h"
 #include "raslib/rmdebug.hh"
 
 #include "qlparser/qtmddaccess.hh"

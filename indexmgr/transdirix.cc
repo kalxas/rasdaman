@@ -33,6 +33,7 @@ rasdaman GmbH.
 */
 static const char rcsid[] = "@(#)transdirix, TransDirIx: $Id: transdirix.cc,v 1.17 2002/05/16 16:26:10 coman Exp $";
 
+#include "config.h"
 #include <iostream>
 #include "indexmgr/keyobject.hh"
 #include "indexmgr/transdirix.hh"

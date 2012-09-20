@@ -74,6 +74,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ac_prog_ecpg.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -112,7 +113,7 @@ am_librasodmg_a_OBJECTS = collection.$(OBJEXT) set.$(OBJEXT) \
 	interesttiling.$(OBJEXT) stattiling.$(OBJEXT) \
 	partinsert.$(OBJEXT) polygon.$(OBJEXT) polycutout.$(OBJEXT)
 librasodmg_a_OBJECTS = $(am_librasodmg_a_OBJECTS)
-DEFAULT_INCLUDES = -I.@am__isrc@
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -167,6 +168,8 @@ EMBEDDEDSQLPRECOMPILER = @EMBEDDEDSQLPRECOMPILER@
 EXEEXT = @EXEEXT@
 GCJ_OPTS = @GCJ_OPTS@
 GDAL_CONFIG = @GDAL_CONFIG@
+GDAL_CXXFLAGS = @GDAL_CXXFLAGS@
+GDAL_LDFLAGS = @GDAL_LDFLAGS@
 GREP = @GREP@
 INFORMIX_INC = @INFORMIX_INC@
 INSTALL = @INSTALL@
@@ -263,6 +266,8 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
+wardir = @wardir@
+wpswar = @wpswar@
 AM_CXXFLAGS = @CLIENTCXXFLAGS@
 AM_LDFLAGS = @CLIENTLDFLAGS@
 lib_LIBRARIES = librasodmg.a
@@ -301,9 +306,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu rasodmg/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign rasodmg/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu rasodmg/Makefile
+	  $(AUTOMAKE) --foreign rasodmg/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

@@ -31,6 +31,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include <iostream>
 
 #include "mddcolliter.hh"

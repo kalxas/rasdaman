@@ -36,6 +36,7 @@ rasdaman GmbH.
 
 using namespace std;
 
+#include "config.h"
 #include "globals.hh"       // DEFAULT_HOSTNAME, DEFAULT_PORT, RASMGR_CONF_FILE
 
 #include "rasmgr_config.hh"

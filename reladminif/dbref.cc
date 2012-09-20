@@ -33,6 +33,7 @@ rasdaman GmbH.
  ************************************************************/
 
 
+#include "config.h"
 #include "dbref.hh"
 #include <iostream>
 #include <stdio.h>

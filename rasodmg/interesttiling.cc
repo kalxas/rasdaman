@@ -30,6 +30,7 @@ rasdaman GmbH.
  *      None
 */
 
+#include "config.h"
 #include "rasodmg/interesttiling.hh"
 #include "rasodmg/alignedtiling.hh"
 #include "rasodmg/dirdecompose.hh"

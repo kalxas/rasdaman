@@ -35,6 +35,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include "conversion/convertor.hh"
 #include "conversion/memfs.hh"
 #include "raslib/error.hh"

@@ -32,6 +32,7 @@ rasdaman GmbH.
  *   uses embedded SQL
  *
  *****************************************************************************/
+#include "config.h"
 #include <string.h>
 #include "oidif.hh"
 #include "adminif.hh"

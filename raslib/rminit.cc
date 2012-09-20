@@ -32,6 +32,7 @@
 
 static const char rcsid[] = "@(#)raslib, RMInit: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/rminit.cc,v 1.36 2005/09/09 16:14:24 rasdev Exp $";
 
+#include "config.h"
 #include "raslib/rminit.hh"
 
 #include "raslib/error.hh"

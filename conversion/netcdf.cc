@@ -32,6 +32,7 @@ rasdaman GmbH.
  * Provides functions to convert data to NETCDF and back.
  */
 
+#include "config.h"
 #ifdef HAVE_NETCDF
 
 #include "conversion/netcdf.hh"

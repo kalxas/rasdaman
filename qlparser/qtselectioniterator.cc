@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtSelectionIterator: $Id: qtselectioniterator.cc,v 1.24 2001/08/07 12:00:12 barbat Exp $";
 
+#include "config.h"
 #include "raslib/rmdebug.hh"
 
 #include "qlparser/qtselectioniterator.hh"

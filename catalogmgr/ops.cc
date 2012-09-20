@@ -22,6 +22,7 @@ rasdaman GmbH.
 */
 static const char rcsid[] = "@(#)catalogif,ops.cc: $Header: /home/rasdev/CVS-repository/rasdaman/catalogmgr/ops.cc,v 1.67 2003/12/20 23:41:27 rasdev Exp $";
 
+#include "config.h"
 #include <limits.h>
 #include <string.h> // memcpy()
 #ifdef __APPLE__

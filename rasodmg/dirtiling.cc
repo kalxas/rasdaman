@@ -35,6 +35,7 @@ rasdaman GmbH.
 #pragma warning( disable : 4018 )
 #endif
 
+#include "config.h"
 #include "rasodmg/dirtiling.hh"
 #include "rasodmg/dirdecompose.hh"
 #include "rasodmg/alignedtiling.hh"

@@ -33,6 +33,7 @@
  *
 */
 
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 
 #include "raslib/storageman.hh"

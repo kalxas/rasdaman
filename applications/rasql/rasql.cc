@@ -37,6 +37,7 @@
 
 static const char rasql_rcsid[] = "@(#)rasql,rasql.cc: $Id: rasql.cc,v 1.3 2006/11/06 21:59:01 rasdev Exp $";
 
+#include "config.h"
 #ifndef RMANVERSION
 #error "Please specify RMANVERSION variable!"
 #endif

@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsidgarray[] = "@(#)rasodmg, r_GMarray: $Id: gmarray.cc,v 1.45 2003/12/27 23:02:56 rasdev Exp $";
 
+#include "config.h"
 #include <vector>
 
 #ifdef __VISUALC__

@@ -36,6 +36,7 @@ using namespace std;
 
 using namespace std;
 
+#include "config.h"
 #include "qlparser/qtmintervaldata.hh"
 
 #include <iostream>

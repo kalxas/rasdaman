@@ -32,6 +32,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+#include "config.h"
 #include "srvrasmgrcomm.hh"
 #include<stdio.h>
 #include<errno.h>

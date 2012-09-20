@@ -38,6 +38,7 @@ using namespace std;
 
 using namespace std;
 
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 
 #include "raslib/error.hh"

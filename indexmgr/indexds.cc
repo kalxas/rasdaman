@@ -20,5 +20,6 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
+#include "config.h"
 #include "indexds.hh"
 

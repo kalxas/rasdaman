@@ -33,6 +33,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)raslib, mddtypes: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/mddtypes.cc,v 1.26 2005/09/03 20:33:10 rasdev Exp $";
 
+#include "config.h"
 
 
 #ifdef AIX

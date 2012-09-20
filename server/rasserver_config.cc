@@ -23,6 +23,7 @@ rasdaman GmbH.
 
 using namespace std;
 
+#include "config.h"
 #include <unistd.h>
 #include <netdb.h>
 #include <sys/stat.h>

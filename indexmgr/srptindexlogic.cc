@@ -21,6 +21,7 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
+#include "config.h"
 #include "indexmgr/srptindexlogic.hh"
 #include "raslib/rmdebug.hh"
 #include "tilemgr/tile.hh"

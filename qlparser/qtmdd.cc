@@ -33,6 +33,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtMDD: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtmdd.cc,v 1.44 2003/12/27 20:51:28 rasdev Exp $";
 
+#include "config.h"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtscalardata.hh"
 #include "qlparser/qtmintervaldata.hh"

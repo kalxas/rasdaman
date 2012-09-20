@@ -23,6 +23,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)raslib, r_Point_Type: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/pointtype.cc,v 1.6 2003/12/27 23:01:21 rasdev Exp $";
 
+#include "config.h"
 #include "raslib/pointtype.hh"
 
 r_Point_Type::r_Point_Type()

@@ -40,6 +40,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include "rasodmg/polygon.hh"
 
 #include <set>

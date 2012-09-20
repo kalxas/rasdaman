@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtConversion: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtconversion.cc,v 1.36 2003/12/27 20:51:28 rasdev Exp $";
 
+#include "config.h"
 #include "raslib/rmdebug.hh"
 #include "raslib/basetype.hh"
 #include "raslib/structuretype.hh"

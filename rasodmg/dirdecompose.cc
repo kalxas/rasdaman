@@ -31,6 +31,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include "rasodmg/dirdecompose.hh"
 #include <string.h>
 

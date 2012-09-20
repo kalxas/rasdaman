@@ -31,6 +31,7 @@ rasdaman GmbH.
  * CHANGE HISTORY (append further entries):
  */
 
+#include "config.h"
 #ifdef __APPLE__
 #include <sys/malloc.h>
 #else

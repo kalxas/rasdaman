@@ -33,6 +33,7 @@ rasdaman GmbH.
 
 using namespace std;
 
+#include "config.h"
 #include "server/createinitmdd.hh"
 #include <iomanip>
 #include "reladminif/objectbroker.hh"

@@ -48,6 +48,7 @@ I have considered them so because of the usual coordinates of tiffs
 
 static const char rcsid[] = "@(#)rasodmg, r_PolygonCutOut: $Id: polycutout.cc,v 1.11 2002/10/09 09:58:05 hoefner Exp $";
 
+#include "config.h"
 #include "rasodmg/polycutout.hh"
 #include "rasodmg/marray.hh"
 #include "raslib/miter.hh"

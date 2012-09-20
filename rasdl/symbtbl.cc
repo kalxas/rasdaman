@@ -32,6 +32,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+#include "config.h"
 #include "symbtbl.hh"
 
 #include "raslib/rmdebug.hh"

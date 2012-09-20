@@ -30,6 +30,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/oql.y,v 1.95 2006/01/03 00:21:40 rasdev Exp $";
 
+#include "config.h"
 #include "qlparser/qtconversion.hh"
 #include "qlparser/qtmarrayop.hh"
 #include "qlparser/qtcondense.hh"

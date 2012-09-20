@@ -35,6 +35,7 @@ rasdaman GmbH.
 /*------------------------------------------------------------------------*/
 
 
+#include "config.h"
 #include   "defs.h"
 #include   "protos.h"
 #include   "server.h"

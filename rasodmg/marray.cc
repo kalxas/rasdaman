@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsidmarray[] = "@(#)rasodmg, r_Marray: $Id: marray.cc,v 1.36 2002/08/23 11:18:44 schatz Exp $";
 
+#include "config.h"
 #include "rasodmg/marray.hh"
 
 #ifdef __VISUALC__

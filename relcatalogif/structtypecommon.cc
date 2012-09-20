@@ -1,3 +1,4 @@
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 // This is -*- C++ -*-
 /*

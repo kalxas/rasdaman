@@ -74,6 +74,7 @@ am__aclocal_m4_deps = $(top_srcdir)/m4/ac_prog_ecpg.m4 \
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
+CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
@@ -118,7 +119,7 @@ am_libraslib_a_OBJECTS = sinterval.$(OBJEXT) dlist.$(OBJEXT) \
 	storageman.$(OBJEXT) endian.$(OBJEXT) flatbasetype.$(OBJEXT) \
 	complex.$(OBJEXT) complextype.$(OBJEXT) shhopt.$(OBJEXT)
 libraslib_a_OBJECTS = $(am_libraslib_a_OBJECTS)
-DEFAULT_INCLUDES = -I.@am__isrc@
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 am__mv = mv -f
@@ -330,7 +331,7 @@ libraslib_a_SOURCES = sinterval.hh dlist.hh point.hh minterval.hh error.hh \
                      oid.cc scalar.cc primitive.cc structure.cc miter.cc mddtypes.cc \
                      miterd.cc mitera.cc memblockvec.cc parseparams.cc storageman.cc \
                      endian.cc flatbasetype.cc complex.cc complextype.cc shhopt.c \
-                     complex.icc complextype.icc error.icc minterval.icc miterd.icc miterf.icc \
+                     error.icc minterval.icc miterd.icc miterf.icc \
                      miter.icc oid.icc point.icc rmdebug.icc sinterval.icc \
                      rmdebug.hh rm.hh odmgtypes.hh miterf.hh template_inst.hh
 
@@ -348,9 +349,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu raslib/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign raslib/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu raslib/Makefile
+	  $(AUTOMAKE) --foreign raslib/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \

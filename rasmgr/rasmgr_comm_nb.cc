@@ -39,6 +39,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include <time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

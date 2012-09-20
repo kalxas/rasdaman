@@ -32,6 +32,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtUnaryInduce: $Id: qtunaryinduce.cc,v 1.47 2002/08/19 11:13:27 coman Exp $";
 
+#include "config.h"
 #include "raslib/rmdebug.hh"
 
 #include "qlparser/qtunaryinduce.hh"

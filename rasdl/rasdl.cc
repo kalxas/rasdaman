@@ -38,9 +38,12 @@ rasdaman GmbH.
 
 static const char rasdl_rcsid[] = "@(#)rasdl,rasdl.cc: $Id: rasdl.cc,v 1.48 2007/02/21 19:47:28 rasdev Exp $";
 
+#include "config.h"
 #define DEBUG
 #define DEBUG_MAIN
 #include "debug/debug.hh"
+
+#include "config.h"
 
 //#ifndef RMANVERSION
 //#error "Please specify RMANVERSION variable!"

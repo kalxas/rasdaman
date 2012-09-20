@@ -33,6 +33,7 @@ rasdaman GmbH.
  ***********************************************************************/
 
 // mainly for ostringstream:
+#include "config.h"
 #include <iostream>
 #include <string>
 #include <sstream>

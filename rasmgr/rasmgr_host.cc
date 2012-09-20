@@ -31,6 +31,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include "rasmgr_host.hh"
 #include "rasmgr_srv.hh"
 #include "rasmgr_master.hh"

@@ -21,7 +21,7 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-
+#include "config.h"
 #include "clientcomm/clnt_control/clnt_control.h"
 #include "clientcomm/rpcif.h"
 

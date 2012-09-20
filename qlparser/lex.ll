@@ -30,6 +30,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, lexer: $Id: oql.l,v 1.64 2005/07/06 22:48:34 rasdev Exp $";
 
+#include "config.h"
 #include "qlparser/qtoperation.hh"
 #include "qlparser/querytree.hh"
 #include "qlparser/qtmddaccess.hh"

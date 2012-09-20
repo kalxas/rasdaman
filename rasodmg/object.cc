@@ -30,6 +30,7 @@ rasdaman GmbH.
  *      None
 */
 
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 
 static const char rcsid[] = "@(#)rasodmg, r_Object: $Id: object.cc,v 1.37 2002/08/19 14:09:32 schatz Exp $";

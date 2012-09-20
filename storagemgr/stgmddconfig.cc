@@ -22,6 +22,7 @@ rasdaman GmbH.
 */
 
 
+#include "config.h"
 #include "storagemgr/stgmddconfig.hh"
 
 using namespace std;

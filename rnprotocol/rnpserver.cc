@@ -32,6 +32,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+#include "config.h"
 #include <iostream>
 #include <signal.h>
 #include "rnpserver.hh"

@@ -40,6 +40,7 @@ static const char rcsid[] = "@(#)rasodmg, r_Transaction: $Id: transaction.cc,v 1
 #endif
 #endif
 
+#include "config.h"
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
 

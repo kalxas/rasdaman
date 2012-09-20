@@ -30,6 +30,7 @@ rasdaman GmbH.
  *
  */
 
+#include "config.h"
 #include <akgnet_commbuffer.hh>
 #include <string>
 #include <assert.h>

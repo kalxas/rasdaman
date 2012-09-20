@@ -39,6 +39,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)qlparser, QtMintervalSelect, QtShift: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/qtbinaryfunc.cc,v 1.37 2005/09/03 20:17:55 rasdev Exp $";
 
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 
 #include "mymalloc/mymalloc.h"

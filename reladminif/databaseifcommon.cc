@@ -35,6 +35,7 @@ rasdaman GmbH.
  ***********************************************************************/
 
 
+#include "config.h"
 #include <string.h>
 #ifdef __APPLE__
 #include <sys/malloc.h>

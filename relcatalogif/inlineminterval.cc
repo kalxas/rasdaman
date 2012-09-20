@@ -28,6 +28,7 @@ rasdaman GmbH.
  * 27-May-99    webbasan    Added prefix "RAS_" to tablenames.
  */
 
+#include "config.h"
 #include "inlineminterval.hh"
 #include "raslib/rmdebug.hh"
 

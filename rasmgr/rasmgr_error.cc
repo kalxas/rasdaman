@@ -31,6 +31,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include "rasmgr_error.hh"
 
 #include "debug-srv.hh"

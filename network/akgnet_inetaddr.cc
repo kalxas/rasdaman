@@ -30,6 +30,7 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
 #include <akgnet_inetaddr.hh>
 #include <arpa/inet.h>
 #include <string.h>

@@ -34,6 +34,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)conversion,r_Conv_int16: $Id: int16.cc,v 1.8 2002/10/01 09:16:38 coman Exp $";
 
+#include "config.h"
 #include "conversion/int16.hh"
 
 #include <float.h>

@@ -23,11 +23,14 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)raslib, r_Type: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/basetype.cc,v 1.4 2003/12/27 23:01:21 rasdev Exp $";
 
+#include "config.h"
 #include <ctype.h>   //  for isalpha()
 #include <string.h> //  for strncmp()
 
 #include "raslib/basetype.hh"
 #include "raslib/attribute.hh"
+
+#include "config.h"
 
 r_Base_Type::r_Base_Type()
     :   r_Type(),

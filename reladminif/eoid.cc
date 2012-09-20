@@ -31,6 +31,7 @@ rasdaman GmbH.
  *
  **********************************************************************/
 
+#include "config.h"
 #include "eoid.hh"
 #include "externs.h"
 #include "adminif.hh"

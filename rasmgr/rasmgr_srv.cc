@@ -30,6 +30,7 @@ rasdaman GmbH.
  *          None
 */
 
+#include "config.h"
 #include "rasmgr_srv.hh"
 #include "rasmgr_localsrv.hh"
 #include "rasmgr_comm.hh"

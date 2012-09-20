@@ -32,6 +32,7 @@ rasdaman GmbH.
  * - temporary, for debugging
  */
 
+#include "config.h"
 #include "raslib/rminit.hh"
 #include "debug.hh"
 

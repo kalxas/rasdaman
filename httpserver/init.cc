@@ -21,6 +21,7 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 /*------------------------------------------------------------------------*/
 /*  init.c - Functions to setup the server.                               */

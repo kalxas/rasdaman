@@ -43,6 +43,7 @@ rasdaman GmbH.
 
 
 
+#include "config.h"
 #include <vector>
 #include "raslib/dlist.hh"
 //#include "rasodmg/stattiling.hh"

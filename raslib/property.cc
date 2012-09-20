@@ -23,6 +23,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)raslib, r_Meta_Object: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/property.cc,v 1.7 2003/12/27 23:01:21 rasdev Exp $";
 
+#include "config.h"
 #include "raslib/property.hh"
 #include "raslib/basetype.hh"
 #include "raslib/rminit.hh"

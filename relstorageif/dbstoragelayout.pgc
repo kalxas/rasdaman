@@ -32,6 +32,7 @@ rasdaman GmbH.
  *
  ****************************************************************************/
 
+#include "config.h"
 #include "reladminif/sqlerror.hh"
 #include "raslib/rmdebug.hh"
 #include "reladminif/externs.h"

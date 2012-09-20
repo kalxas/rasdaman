@@ -23,6 +23,7 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)raslib, r_Oid_Type: $Header: /home/rasdev/CVS-repository/rasdaman/raslib/oidtype.cc,v 1.6 2003/12/27 23:01:21 rasdev Exp $";
 
+#include "config.h"
 #include "raslib/oidtype.hh"
 
 r_Oid_Type::r_Oid_Type()

@@ -32,6 +32,7 @@ rasdaman GmbH.
 */
 static const char rcsid[] = "@(#)mddobjix, MDDObjIx: $Id: mddobjix.cc,v 1.30 2002/07/24 14:33:51 hoefner Exp $";
 
+#include "config.h"
 #include <iostream>
 #include <math.h>
 

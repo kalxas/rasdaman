@@ -27,6 +27,7 @@ rasdaman GmbH.
  *   Code common to all DBMS interface implementations
  */
 
+#include "config.h"
 #include <iostream>
 
 #include "transactionif.hh"

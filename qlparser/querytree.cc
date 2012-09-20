@@ -36,6 +36,7 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)qlparser, QueryTree: $Id: querytree.cc,v 1.52 2005/06/28 08:42:13 rasdev Exp $";
 
 
+#include "config.h"
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
 #else

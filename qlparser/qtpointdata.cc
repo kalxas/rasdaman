@@ -36,6 +36,7 @@ using namespace std;
 
 using namespace std;
 
+#include "config.h"
 #include "qlparser/qtpointdata.hh"
 #include <cstring>
 // deprecated, not any longer available -- PB 2005-jan-14

@@ -25,6 +25,7 @@
  */
 
 // general includes
+#include "config.h"
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>

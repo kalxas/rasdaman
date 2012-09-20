@@ -35,6 +35,7 @@ using namespace std;
 
 static const char rcsid[] = "@(#)raslib, RasqlError: $Id: rasql_error.cc,v 1.1 2003/12/27 19:30:23 rasdev Exp $";
 
+#include "config.h"
 #include <exception>
 #include <cstring>
 

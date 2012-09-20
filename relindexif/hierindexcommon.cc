@@ -33,6 +33,7 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+#include "config.h"
 #include <cstring>
 
 #include "mymalloc/mymalloc.h"

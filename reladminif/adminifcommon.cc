@@ -32,6 +32,7 @@ rasdaman GmbH.
  *
  ***********************************************************************/
 
+#include "config.h"
 #include <string.h>
 #if defined(DECALPHA) || defined(LINUX) || defined(AIX) || defined(SOLARIS)
 //#include <algorith.h>

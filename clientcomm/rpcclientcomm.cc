@@ -32,6 +32,7 @@ rasdaman GmbH.
  *          None
 */
 
+#include "config.h"
 #include "mymalloc/mymalloc.h"
 
 static const char rcsid[] = "@(#)clientcomm, RpcClientComm: $Id: rpcclientcomm.cc,v 1.11 2005/09/09 16:16:29 rasdev Exp $";
