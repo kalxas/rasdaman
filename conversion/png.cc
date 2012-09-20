@@ -55,6 +55,7 @@ rasdaman GmbH.
 #include "conversion/memfs.hh"
 
 #include "raslib/parseparams.hh"
+#include "raslib/structuretype.hh"
 
 
 // transparency keyword in option string (cf. PNG standard):
@@ -285,6 +286,40 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
         }
         break;
 
+    case ctype_struct:
+        // check first if it's 4 char bands
+        {
+            r_Structure_Type *st = (r_Structure_Type*) desc.srcType;
+            r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
+            int bands = 0;
+            while (iter != st->defines_attribute_end())
+            {
+                ++bands;
+                if (!(*iter).type_of().type_id() == r_Type::CHAR)
+                {
+                    RMInit::logOut << "Error: the PNG convertor expects bands of type char" << endl;
+                    throw r_Error(r_Error::r_Error_General);
+                }
+                iter++;
+            }
+            if (bands > 4)
+            {
+                RMInit::logOut << "Error: the PNG convertor can not handle " << bands << " bands, only up 1, 3, and 4 bands are allowed." << endl;
+                throw r_Error(r_Error::r_Error_General);
+            }
+        }
+        
+        spp = 4;
+        bps = 8;
+        pixelAdd = 4*height;
+        lineAdd = 4;
+        colourType = PNG_COLOR_TYPE_RGBA;
+        sig_bit.red = 8;
+        sig_bit.green = 8;
+        sig_bit.blue = 8;
+        sig_bit.alpha = 8;
+        break;
+
     default:
         RMInit::logOut << "Error: " << method_convertTo << ": Unknown base type." << endl;
         throw r_Error(r_Error::r_Error_General);
@@ -370,6 +405,16 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
                 *rowPtr++ = srcPtr[0];
                 *rowPtr++ = srcPtr[1];
                 *rowPtr++ = srcPtr[2];
+            }
+        }
+        case ctype_struct:
+        {
+            for (i=0; i<width; i++, srcPtr += pixelAdd)
+            {
+                *rowPtr++ = srcPtr[0];
+                *rowPtr++ = srcPtr[1];
+                *rowPtr++ = srcPtr[2];
+                *rowPtr++ = srcPtr[3];
             }
         }
         break;
