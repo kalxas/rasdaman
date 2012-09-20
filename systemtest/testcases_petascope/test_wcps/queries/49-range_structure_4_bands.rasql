@@ -1,1 +1,1 @@
-select csv(scale( (c) [2,*:*,*:*], [0:20,0:20] )) from eobstest AS c
+select png((((c).red) * {1c,0c,0c,0c} + ((c).green) * {0c,1c,0c,0c} + ((c).blue) * {0c,0c,1c,0c} + ((c).blue) * {0c,0c,0c,1c})) from rgb AS c

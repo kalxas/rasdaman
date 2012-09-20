@@ -131,38 +131,40 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 contents.appendChild(cs);
                 /** Append Native Bbox **/
                 Bbox bbox = meta.read(coverageId).getBbox();
-                c = new Element(LABEL_BBOX, NAMESPACE_OWS);
-                // lower-left + upper-right coords
-                cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
-                cc.appendChild(bbox.getLow1() + " " + bbox.getLow2());
-                c.appendChild(cc);
-                cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
-                cc.appendChild(bbox.getHigh1() + " " + bbox.getHigh2());
-                c.appendChild(cc);
-                // dimensions and crs attributes
-                Attribute crs = new Attribute(ATT_CRS, bbox.getCrsName());
-                Attribute dimensions = new Attribute(ATT_DIMENSIONS, "" + "2"); //+   meta.read(coverageId).getCellDomainList().size());
-                c.addAttribute(crs);
-                c.addAttribute(dimensions);
-                cs.appendChild(c);
-                /** WGS84 Bbox (for 2D EPSG-defined CRSs only, currently) **/
-                if (bbox.hasWgs84Bbox()) {
-                    
-                    c = new Element(LABEL_WGS84_BBOX, NAMESPACE_WCS);
+                if (bbox != null) {
+                    c = new Element(LABEL_BBOX, NAMESPACE_OWS);
                     // lower-left + upper-right coords
-                    cc = new Element(ATT_LOWERCORNER, NAMESPACE_WCS);
-                    cc.appendChild(bbox.getWgs84Low1() + " " + bbox.getWgs84Low2());
+                    cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
+                    cc.appendChild(bbox.getLow1() + " " + bbox.getLow2());
                     c.appendChild(cc);
-                    cc = new Element(ATT_UPPERCORNER, NAMESPACE_WCS);
-                    cc.appendChild(bbox.getWgs84High1() + " " + bbox.getWgs84High2());
+                    cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
+                    cc.appendChild(bbox.getHigh1() + " " + bbox.getHigh2());
                     c.appendChild(cc);
                     // dimensions and crs attributes
-                    crs = new Attribute(ATT_CRS, CrsUtil.WGS84_URI);
-                    dimensions = new Attribute(ATT_DIMENSIONS, "2");
+                    Attribute crs = new Attribute(ATT_CRS, bbox.getCrsName());
+                    Attribute dimensions = new Attribute(ATT_DIMENSIONS, "" + "2"); //+   meta.read(coverageId).getCellDomainList().size());
                     c.addAttribute(crs);
                     c.addAttribute(dimensions);
                     cs.appendChild(c);
-                    
+                    /** WGS84 Bbox (for 2D EPSG-defined CRSs only, currently) **/
+                    if (bbox.hasWgs84Bbox()) {
+
+                        c = new Element(LABEL_WGS84_BBOX, NAMESPACE_WCS);
+                        // lower-left + upper-right coords
+                        cc = new Element(ATT_LOWERCORNER, NAMESPACE_WCS);
+                        cc.appendChild(bbox.getWgs84Low1() + " " + bbox.getWgs84Low2());
+                        c.appendChild(cc);
+                        cc = new Element(ATT_UPPERCORNER, NAMESPACE_WCS);
+                        cc.appendChild(bbox.getWgs84High1() + " " + bbox.getWgs84High2());
+                        c.appendChild(cc);
+                        // dimensions and crs attributes
+                        crs = new Attribute(ATT_CRS, CrsUtil.WGS84_URI);
+                        dimensions = new Attribute(ATT_DIMENSIONS, "2");
+                        c.addAttribute(crs);
+                        c.addAttribute(dimensions);
+                        cs.appendChild(c);
+
+                    }
                 }
             }
         } catch (PetascopeException ex) {

@@ -203,6 +203,8 @@ public class CRSExtension implements Extension {
         // If subsettingCrs is CRS:1, need to check cellDomains instead of geo-Bbox.
         boolean cellSpace = subsettingCrs.equals(CrsUtil.IMAGE_CRS);
         
+        if (subset == null) return true;
+        
         // X axis
         if (subset.getDimension().equals(AxisTypes.X_AXIS)) {
             if (subset != null) {
