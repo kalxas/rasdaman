@@ -469,9 +469,9 @@ public class DbMetadataSource implements IMetadataSource {
             while (r.next()) {
                 cell = new CellDomainElement(BigInteger.valueOf(r.getInt("lo")), BigInteger.valueOf(r.getInt("hi")), r.getString("name"));
                 cellDomain.add(cell);
-                if (X == null) {
+                if (X == null && cell.getName().equalsIgnoreCase("x")) {
                     X = cell;
-                } else if (X != null && Y == null) {
+                } else if (Y == null && cell.getName().equalsIgnoreCase("y")) {
                     Y = cell;
                 } else {
                     twoDCoverage = false;

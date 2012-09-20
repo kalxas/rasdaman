@@ -23,8 +23,10 @@ package petascope.wcps.server.core;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
@@ -84,7 +86,7 @@ public class ScaleCoverageExpr implements IRasNode, ICoverageInfo {
             }
         }
 
-        dims = coverageInfo.getNumDimensions();
+        dims = axisList.size();
         log.trace("  " + WCPSConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
         dim = new String[dims];
 
@@ -97,7 +99,7 @@ public class ScaleCoverageExpr implements IRasNode, ICoverageInfo {
 
         log.trace("  " + WCPSConstants.MSG_AXIS_LIST_COUNT + ":" + axisList.size());
         DimensionIntervalElement axis;
-        int axisId;
+        int axisId, scaleId = 0;
         int axisLo, axisHi;
 
         while (i.hasNext()) {
@@ -108,8 +110,9 @@ public class ScaleCoverageExpr implements IRasNode, ICoverageInfo {
 
             axisLo = Integer.parseInt(axis.getLowCoord());
             axisHi = Integer.parseInt(axis.getHighCoord());
-            dim[axisId] = axisLo + ":" + axisHi;
-            log.trace("    " + WCPSConstants.MSG_AXIS_COORDS + ": " + dim[axisId]);
+            dim[scaleId] = axisLo + ":" + axisHi;
+            log.trace("    " + WCPSConstants.MSG_AXIS_COORDS + ": " + dim[scaleId]);
+            ++scaleId;
             
             coverageInfo.setCellDimension(axisId,
                     new CellDomainElement(
