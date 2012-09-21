@@ -47,7 +47,7 @@ rasserver_LDADD=../servercomm/libservercomm.a ../qlparser/libqlparser.a ../conve
                 ../relcatalogif/librelcatalogif.a ../indexmgr/libindexmgr.a ../relblobif/librelblobif.a \
                 ../relindexif/librelindexif.a ../httpserver/libhttpserver.a \
                 ../network/libnetwork.a ../commline/libcommline.a \
-                ../relcatalogif/librelcatalogif.a ../raslib/libraslib.a @BASEDBLDFLAGS@
+                ../relcatalogif/librelcatalogif.a ../raslib/libraslib.a @BASEDBLDFLAGS@ @GDAL_LDFLAGS@
 
 SUBDIRS = ../relblobif ../relindexif ../relmddif ../relcatalogif ../reladminif ../relstorageif \
           ../indexmgr ../catalogmgr ../tilemgr ../storagemgr ../commline ../network \

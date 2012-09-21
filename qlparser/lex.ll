@@ -221,6 +221,7 @@ int string_yyinput( char* buf, int max_size )
 "vff"                                    { SETTOKEN( VFF, commandToken, VFF ) }
 "tor"                                    { SETTOKEN( TOR, commandToken, TOR ) }
 "dem"                                    { SETTOKEN( DEM, commandToken, DEM ) }
+"encode"                                 { SETTOKEN( ENCODE, commandToken, ENCODE ) }
 
 "inv_tiff"                                   { SETTOKEN( INV_TIFF, commandToken, INV_TIFF ) }
 "inv_bmp"                                    { SETTOKEN( INV_BMP, commandToken, INV_BMP ) }

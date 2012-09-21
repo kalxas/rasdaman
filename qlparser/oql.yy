@@ -58,6 +58,7 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "servercomm/servercomm.hh"
 #include "qlparser/parseinfo.hh"
 #include "qlparser/qtmddcfgop.hh"
+#include "qlparser/qtencode.hh"
 #include "rasodmg/dirdecompose.hh"
 
 extern ServerComm::ClientTblElt* currentClientTblElt;
@@ -210,7 +211,7 @@ struct QtUpdateSpecElement
 			 TILING ALIGNED REGULAR DIRECTIONAL
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
 			 STRCT COMPLEX RE IM TIFF BMP HDF NETCDF CSV JPEG PNG VFF TOR DEM INV_TIFF INV_BMP INV_HDF INV_NETCDF
-			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM
+			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM ENCODE
 
 %left COLON VALUES USING WHERE
 %left OVERLAY
@@ -1436,6 +1437,29 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	  FREESTACK($1)
 	  FREESTACK($2)
 	  FREESTACK($4)
+	}
+	| ENCODE LRPAR generalExp COMMA StringLit RRPAR
+	{
+	  $$ = new QtEncode( $3, $5.value );
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->removeDynamicObject( $3 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($4)
+	  FREESTACK($6)
+	}
+	| ENCODE LRPAR generalExp COMMA StringLit COMMA StringLit RRPAR
+	{
+	  $$ = new QtEncode( $3, $5.value, $7.value );
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->removeDynamicObject( $3 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($4)
+	  FREESTACK($6)
+	  FREESTACK($8)
 	};
 	
 

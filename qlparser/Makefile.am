@@ -39,7 +39,7 @@ AM_LFLAGS=-i -I
 YACC = bison 
 # -d generates token definitions in .h file
 AM_YFLAGS=-d -y
-AM_CXXFLAGS=@BASEDBCXXFLAGS@
+AM_CXXFLAGS=@BASEDBCXXFLAGS@ @GDAL_CXXFLAGS@
 AM_CFLAGS=$(CXXFLAGS)
 libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
                       symtab.cc symtab.hh \
@@ -87,8 +87,9 @@ libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
                       qtnode.cc qtnode.hh qtnode.icc \
                       querytree.cc querytree.hh querytree.icc \
                       qtexecute.hh qtdelete.icc \
-					  qtmddconfig.hh qtmddconfig.cc \
-					  qtmddcfgop.hh qtmddcfgop.cc
+                      qtmddconfig.hh qtmddconfig.cc \
+                      qtmddcfgop.hh qtmddcfgop.cc \
+                      qtencode.hh qtencode.cc
 
 EXTRA_libqlparser_a_SOURCES = autogen_qtui.hh autogen_qtui.icc autogen_qtui.cc
 
