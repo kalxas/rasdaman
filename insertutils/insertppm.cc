@@ -79,7 +79,7 @@ using namespace std;
 #include "raslib/error.hh"
 
 // this is for inhouse debug macros; not needed for standalone compilation
-#ifdef RMANDEBUG || DEBUG
+#if defined(RMANDEBUG) || defined(DEBUG)
 #define DEBUG_MAIN
 #include "debug.hh"
 #endif
