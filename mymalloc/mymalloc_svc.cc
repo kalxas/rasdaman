@@ -74,7 +74,7 @@ void* mymalloc(size_t size) // throw(bad_alloc) // FIXME: gcc3 doesn't like it, 
             throw bad_alloc();
         }
     }
-#endif OLD_VERSION
+#endif /* OLD_VERSION */
 
     return p;
 }
