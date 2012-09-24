@@ -47,6 +47,7 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)reladminif,DatabaseIf: $Id: databaseif.ec,v 1.9 2003/12/27 23:11:43 rasdev Exp $";
 
 #include "config.h"
+#include <stdlib.h>
 #include "debug/debug.hh"
 
 // general embedded SQL related definitions
@@ -125,13 +126,13 @@ DatabaseIf::connect() throw (r_Error)
     strcpy((char *)&user, globalDbUser);
     strcpy((char *)&passwd, globalDbPasswd);
 
-    TALK("user " << globalDbUser << ", pass: " << globalDbPasswd);
+    //TALK("user " << globalDbUser << ", pass: " << globalDbPasswd);
 
     if (strlen(globalDbUser) > 0)
     {
         if (strlen(globalDbPasswd) > 0)
         {
-            TALK( "EXEC SQL CONNECT TO " << id << " USER " << globalDbUser << " USING secret_pass" );
+            TALK( "EXEC SQL CONNECT TO " << id << " USER " << globalDbUser << " USING ***********" );
             EXEC SQL CONNECT TO :id AS rasdaConn USER :user USING :passwd;
         }
         else
@@ -153,15 +154,42 @@ DatabaseIf::connect() throw (r_Error)
         generateException();
     }
 
+    // FIXME: Alan: added check to separate host from dbname, complete parsing of connectid should be implemented
+    char *parsed_host = (char *)malloc(sizeof(char)*STRING_MAXLEN);
+    char parsed_dbname[STRING_MAXLEN] = "";
+
+    if ( NULL != strstr(globalConnectId,"@") )
+    {
+        char *safeTokenizer=(char*)malloc(sizeof(char)*STRING_MAXLEN);
+        strncpy(safeTokenizer,globalConnectId,STRING_MAXLEN - 1);
+
+        char *tokenAt=strtok(safeTokenizer, "@");
+        strncpy(parsed_dbname,tokenAt,STRING_MAXLEN - 1);
+        tokenAt=strtok(NULL, "@");
+        strncpy(parsed_host,tokenAt,STRING_MAXLEN - 1);
+        // TODO: Alan - Parse port
+        free( safeTokenizer);
+    }
+    else
+    {
+        free(parsed_host);
+        parsed_host=NULL;
+        strncpy(parsed_dbname,globalConnectId,STRING_MAXLEN - 1);
+    }
+    
+
     if (strlen(globalDbUser) > 0)
     {
         if (strlen(globalDbPasswd) > 0)
-            pgConn = PQsetdbLogin(NULL,NULL,NULL,NULL,globalConnectId,globalDbUser,globalDbPasswd);
+            pgConn = PQsetdbLogin(parsed_host,NULL,NULL,NULL,parsed_dbname,globalDbUser,globalDbPasswd);
         else
-            pgConn = PQsetdbLogin(NULL,NULL,NULL,NULL,globalConnectId,globalDbUser,NULL);
+            pgConn = PQsetdbLogin(parsed_host,NULL,NULL,NULL,parsed_dbname,globalDbUser,NULL);
     }
     else
-        pgConn = PQsetdb(NULL,NULL,NULL,NULL,globalConnectId);
+    {
+        pgConn = PQsetdb(parsed_host,NULL,NULL,NULL,parsed_dbname);
+    }
+    if (parsed_host != NULL) { free (parsed_host); }
     if (pgConn == NULL || PQstatus(pgConn) == CONNECTION_BAD)
     {
         RMDBGMIDDLE(4, RMDebug::module_adminif, "DatabaseIf", "Error: cannot obtain libpq connection" );
@@ -171,6 +199,7 @@ DatabaseIf::connect() throw (r_Error)
 
     LEAVE( "DatabaseIf::connect, SQLCODE=" << SQLCODE << ", PQstatus=" << PQstatus(pgConn) );
     RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "connect()");
+
 }
 
 void

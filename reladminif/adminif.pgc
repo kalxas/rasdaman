@@ -46,6 +46,9 @@ EXEC SQL include sqlglobals.h;
 #include "objectbroker.hh"
 
 extern char globalConnectId[256];
+extern char globalDbUser[255];
+extern char globalDbPasswd[255];
+
 const char AdminIf::dbmsName[SYSTEMNAME_MAXLEN]="PostgreSQL";
 
 AdminIf::AdminIf() throw (r_Error)
@@ -55,12 +58,33 @@ AdminIf::AdminIf() throw (r_Error)
 
     EXEC SQL BEGIN DECLARE SECTION;
         char    id[STRING_MAXLEN];
+        char    user[STRING_MAXLEN];
+        char    passwd[STRING_MAXLEN];
     EXEC SQL END DECLARE SECTION;
 
     strncpy((char *)&id, globalConnectId, sizeof(id)-1);
 
-    TALK( "EXEC SQL CONNECT TO " << id );
-    EXEC SQL CONNECT TO :id;
+    //Check if a user and password has been provided for connection
+    if ( strlen(globalDbUser) > 0 )
+    {
+        strncpy((char *)&user, globalDbUser, sizeof(user)-1);
+        if ( strlen(globalDbPasswd) > 0 )
+        {
+            strncpy((char *)&passwd, globalDbPasswd, sizeof(passwd)-1);
+            TALK( "EXEC SQL CONNECT TO " << id << "USER" << user << "USING" << passwd);
+            EXEC SQL CONNECT TO :id USER :user USING :passwd;
+        }
+        else
+        {
+            TALK( "EXEC SQL CONNECT TO " << id << "USER" << user );
+            EXEC SQL CONNECT TO :id USER :user;
+        }
+    }
+    else
+    {
+        TALK( "EXEC SQL CONNECT TO " << id );
+        EXEC SQL CONNECT TO :id;
+    }
 
     if (check("AdminIf Connect\0"))
     {
