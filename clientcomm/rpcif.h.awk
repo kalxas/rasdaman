@@ -56,4 +56,6 @@
                                        next; }
 /bool_t xdr_GetElementRes()/         { print "#ifdef __cplusplus\n  extern \"C\" {bool_t xdr_GetElementRes(); }\n#else\n  bool_t xdr_GetElementRes();\n#endif";
                                        next; } 
+/_RPCIF\.H_H_RPCGEN/                 { sub(/_RPCIF\.H_H_RPCGEN/, "_RPCIF_H_H_RPCGEN"); print;
+	                               next;}
                                      { print $0; }

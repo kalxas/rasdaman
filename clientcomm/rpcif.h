@@ -3,8 +3,8 @@
  * It was generated using rpcgen.
  */
 
-#ifndef _RPCIF.H_H_RPCGEN
-#define _RPCIF.H_H_RPCGEN
+#ifndef _RPCIF_H_H_RPCGEN
+#define _RPCIF_H_H_RPCGEN
 
 #include <rpc/rpc.h>
 
@@ -839,4 +839,4 @@ extern bool_t xdr_RPCOIdEntry ();
 }
 #endif
 
-#endif /* !_RPCIF.H_H_RPCGEN */
+#endif /* !_RPCIF_H_H_RPCGEN */
