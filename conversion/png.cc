@@ -209,10 +209,10 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
 
 // fix compiling with newer versions of libpng (1.4 and newer) -- DM 18-oct-2011
 // http://www.libpng.org/pub/png/src/libpng-1.2.x-to-1.4.x-summary.txt
-#ifndef PNG_1_2_X || PNG_1_0_X // libpng12
-#define trans_vals trans_color
-#else // libpng14+
+#if defined(PNG_1_2_X) || defined(PNG_1_0_X) // libpng12
 #define trans_vals trans_values
+#else // libpng14+
+#define trans_vals trans_color
 #endif
 
     // Depth and sample format and transparency
