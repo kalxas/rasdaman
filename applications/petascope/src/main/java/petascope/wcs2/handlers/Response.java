@@ -21,6 +21,8 @@
  */
 package petascope.wcs2.handlers;
 
+import petascope.wcs2.extensions.FormatExtension;
+
 /**
  * Bean holding the response from executing a request operation.
  *
@@ -37,7 +39,7 @@ public class Response {
     }
 
     public Response(String xml) {
-        this(null, xml, null);
+        this(null, xml, FormatExtension.MIME_GML);
     }
 
     public Response(byte[] data, String xml, String mimeType) {
