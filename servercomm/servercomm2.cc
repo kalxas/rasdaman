@@ -37,6 +37,7 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "mymalloc/mymalloc.h"
+#include <byteswap.h>
 
 static const char rcsid[] = "@(#)servercomm2, ServerComm: $Id: servercomm2.cc,v 1.121 2005/09/07 23:23:31 rasdev Exp $";
 
@@ -3032,15 +3033,19 @@ ServerComm::getNextElement( unsigned long   callingClientId,
 
                             case QT_FLOAT:
                             {
-                                r_Float tmp = *(r_Float*)buffer;
-                                *(r_Float*)buffer = r_Endian::swap(tmp);
+				uint32_t value = bswap_32(*(uint32_t*)buffer);
+				// use memcpy because older (<4.5?) gcc versions
+				// choke if we assign to buffer directly
+				memcpy(buffer, &value, sizeof(uint32_t));
                             }
                             break;
 
                             case QT_DOUBLE:
                             {
-                                r_Double tmp = *(r_Double*)buffer;
-                                *(r_Double*)buffer = r_Endian::swap(tmp);
+                                uint64_t value = bswap_64(*(uint64_t*)buffer);
+                                // use memcpy because older (<4.5?) gcc versions
+                                // choke if we assign to buffer directly
+				memcpy(buffer, &value, sizeof(uint64_t));
                             }
                             break;
 
