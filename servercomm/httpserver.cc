@@ -523,7 +523,7 @@ HttpServer::printServerStatus( ostream& s )
 
 //For future, to make this shit nicer
 
-#ifdef LITTLE_ENDIAN
+#ifdef IS_LITTLE_ENDIAN
 const int systemEndianess = 1;
 #else
 const int systemEndianess = 0;

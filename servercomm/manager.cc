@@ -1830,7 +1830,7 @@ RPCFUNCTIONDEF( rpcgetserverendian_1, int * )
 
     static int result;
 
-#ifdef LITTLE_ENDIAN
+#ifdef IS_LITTLE_ENDIAN
     result = 1;
 #else
     result = 0;

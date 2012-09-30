@@ -6,9 +6,6 @@
 /* If defined we are compiling over PostgreSQL */
 #undef BASEDB_PGSQL
 
-/* The host system uses big endian encoding. */
-#undef BIG_ENDIAN
-
 /* Define to 1 if the `closedir' function returns void instead of `int'. */
 #undef CLOSEDIR_VOID
 
@@ -359,8 +356,11 @@
 /* Define to 1 if the system has the type `_Bool'. */
 #undef HAVE__BOOL
 
-/* */
-#undef LITTLE_ENDIAN
+/* The host system uses big endian encoding. */
+#undef IS_BIG_ENDIAN
+
+/* The host system uses little endian encoding. */
+#undef IS_LITTLE_ENDIAN
 
 /* Define to 1 if `lstat' dereferences a symlink specified with a trailing
    slash. */
@@ -372,7 +372,7 @@
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 #undef NO_MINUS_C_MINUS_O
 
-/* Don not use addr_t. */
+/* Do not use addr_t. */
 #undef NO_in_addr_t
 
 /* Name of package */

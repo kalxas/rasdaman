@@ -70,7 +70,7 @@ extern "C" {
     /* Internally visible structs and declarations */
 
     /* 0 for LSB, 1 for MSB */
-#ifdef LITTLE_ENDIAN
+#ifdef IS_LITTLE_ENDIAN
 #define MACHINE_BYTE_ORDER  0
 #else
 #define MACHINE_BYTE_ORDER  1

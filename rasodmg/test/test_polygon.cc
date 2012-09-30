@@ -511,7 +511,7 @@ parseBgr()
         //set value figure
         if(indexFigure%sizeBgrMin)
         {
-#if defined(LITTLE_ENDIAN)
+#if defined(IS_LITTLE_ENDIAN)
             rBgr[indexFigure/sizeBgrMin]=rBgr[indexFigure/sizeBgrMin] * 16 + hexval[indexHexFig];
 #else
             rBgr[indexFigure/sizeBgrMin]=rBgr[indexFigure/sizeBgrMin]+ hexval[indexHexFig] * 16;

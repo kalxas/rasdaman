@@ -108,7 +108,7 @@ HexCodec::convertTo(const string& figureStr) throw(ImportError)
         //set value figure
         if(idxFig % hexPerByte)
         {
-#if defined(LITTLE_ENDIAN)
+#if defined(IS_LITTLE_ENDIAN)
             hexStr[idxHex] = hexStr[idxHex] * hexBase + hexVal[idxHexFig];
 #else
             hexStr[idxHex] = hexStr[idxHex] + hexVal[idxHexFig] * hexBase;
@@ -141,7 +141,7 @@ HexCodec::convertFrom(const string& hexaStr) throw(ImportError)
             idxHexStr < sizeHexStr;
             idxHexStr++)
     {
-#if defined(LITTLE_ENDIAN)
+#if defined(IS_LITTLE_ENDIAN)
         figStr[idxFigStr++] = hexFig[hexStr[idxHexStr] / hexBase];
         figStr[idxFigStr++] = hexFig[hexStr[idxHexStr] % hexBase];
 #else

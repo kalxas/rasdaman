@@ -303,7 +303,7 @@ r_Double r_Endian::swap( r_Double val )
 
 r_Endian::r_Endianness r_Endian::get_endianness( void )
 {
-#ifdef LITTLE_ENDIAN
+#ifdef IS_LITTLE_ENDIAN
     return r_Endian_Little;
 #else
     return r_Endian_Big;
