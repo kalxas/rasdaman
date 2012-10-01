@@ -10,6 +10,9 @@ UPDATE ps_format SET gdalid = 'JPEG', description = 'JPEG JFIF (.jpg)' WHERE nam
 UPDATE ps_format SET gdalid = 'PNG', description = 'Portable Network Graphics (.png)' WHERE name = 'png';
 UPDATE ps_format SET gdalid = 'GTiff', description = 'TIFF / BigTIFF / GeoTIFF (.tif)' WHERE name = 'tif' OR name = 'tiff';
 
+-- Making sure that the auto-incremented id is up to date
+SELECT setval('ps_format_id_seq', (SELECT MAX(id) FROM ps_format));
+
 -- Add new entries
 INSERT INTO ps_format(name,mimetype,gdalid,description) VALUES ('gtiff', 'image/tiff', 'GTiff', 'TIFF / BigTIFF / GeoTIFF (.tif)');
 INSERT INTO ps_format(name,mimetype,gdalid,description) VALUES ('aaigrid', 'image/x-aaigrid', 'AAIGrid', 'Arc/Info ASCII Grid');
@@ -142,11 +145,9 @@ INSERT INTO ps_format(name,mimetype,gdalid,description) VALUES ('zmap', 'applica
 CREATE TABLE ps_metadata (
   id serial NOT NULL,
   coverage int NOT NULL,
-  isBinary bool NOT NULL,
-  textMetadata text,
-  binaryMetadata bytea, 
+  metadata text,
 	primary key (id),
-	foreign key (coverage) references ps_coverage (id)
+	foreign key (coverage) references ps_coverage (id) on delete cascade
 );
 
 
