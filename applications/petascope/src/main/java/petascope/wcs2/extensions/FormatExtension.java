@@ -38,6 +38,7 @@ public interface FormatExtension extends  Extension {
     String MIME_MULTIPART = "multipart/mixed";
     String MIME_GML = "application/gml+xml";
     String MIME_TIFF = "image/tiff";
+    String MIME_JP2 = "image/jp2";
     
     String CSV_ENCODING = "csv";
     String TIFF_ENCODING = "tiff";

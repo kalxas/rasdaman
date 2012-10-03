@@ -24,12 +24,12 @@ package petascope.wcs2.extensions;
 /**
  * Return coverage as GML + GeoTIFF.
  *
- * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
+ * @author <a href="mailto:m.rusu@jacobs-university.de">Mihaela Rusu</a>
  */
-public class MultipartGeotiffFormatExtension extends MultipartFormatExtension {
+public class MultipartJPEG2000FormatExtension extends MultipartFormatExtension {
     
     @Override
     public String getExtensionIdentifier() {
-        return ExtensionsRegistry.GEOTIFF_IDENTIFIER;
+        return ExtensionsRegistry.JPEG2000_IDENTIFIER;
     }
 }
