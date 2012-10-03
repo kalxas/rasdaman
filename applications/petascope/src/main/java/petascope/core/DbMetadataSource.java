@@ -1035,6 +1035,38 @@ public class DbMetadataSource implements IMetadataSource {
                     "Metadata database error", sqle);
         }
     }
+    
+    /**
+     * Given the CoverageID; returns image metadata
+     * @param coverageId
+     * @return textual metadata
+     * @throws PetascopeException
+     */
+    public String getImageMetadata(String coverageId) throws PetascopeException {
+        Statement s = null;
+        try {
+            ensureConnection();
+            s = conn.createStatement();
+            ResultSet r = s.executeQuery("SELECT metadata FROM ps_metadata WHERE coverage in "
+                     + "(SELECT id FROM ps_coverage WHERE name = '" + coverageId + "')");
+            if (r.next()) {
+                return r.getString("metadata");
+            } else {
+                return "";
+            }
+        } catch (SQLException sqle) {
+            throw new PetascopeException(ExceptionCode.ResourceError,
+                    "Error retrieving metadata for coverage " + coverageId, sqle);
+        } finally {
+            if (s != null) {
+                try {
+                    s.close();
+                } catch (SQLException f) {
+                }
+            }
+            close();
+        }
+    }
 
     /** Insert metadata for a new coverage.
      *

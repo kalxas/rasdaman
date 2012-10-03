@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.handlers;
 
+import petascope.exceptions.PetascopeException;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.DescribeCoverageRequest;
 import nu.xom.Document;
@@ -79,6 +80,17 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
             }
             if (exc != null) {
                 continue;
+            }
+            String metadata = "";
+            try {
+                metadata = meta.getImageMetadata(coverageId);
+            } catch (PetascopeException p) {
+                throw new WCSException(ExceptionCode.ResourceError, p);
+            }
+            if (!metadata.isEmpty()) {
+                descr = descr.replace("{metadata}", "<gmlcov:metadata>" + metadata + "</gmlcov:metadata>"); 
+            } else {
+                descr = descr.replace("{metadata}", ""); 
             }
             try {
                 root.appendChild(XMLUtil.buildDocument(null, descr).getRootElement().copy());

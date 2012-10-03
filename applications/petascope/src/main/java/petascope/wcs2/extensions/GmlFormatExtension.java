@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
 import petascope.core.Metadata;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.Pair;
@@ -68,14 +69,32 @@ public class GmlFormatExtension extends AbstractFormatExtension {
         CRSExtension crsExtension = (CRSExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.CRS_IDENTIFIER);
         crsExtension.handle(request, m, meta);
         
+        String metadata = "";
+        try {
+            metadata = meta.getImageMetadata(request.getCoverageId());
+        } catch (PetascopeException p) {
+            throw new WCSException(ExceptionCode.ResourceError, p);
+        }
+        
         if (m.getCoverageType().equals(GetCoverageRequest.MULTIPOINT_COVERAGE)) {
-            return handleMultiPoint(request, request.getCoverageId(), meta, m);
+            Response r = handleMultiPoint(request, request.getCoverageId(), meta, m);
+            String xml = r.getXml();
+            if (!metadata.isEmpty()) {
+                xml = xml.replace("{metadata}", "<gmlcov:metadata>" + metadata + "</gmlcov:metadata>");
+            } else {
+                xml = xml.replace("{metadata}", "");
+            }
+            return new Response(r.getData(), xml, r.getMimeType());
         }
         
         setBounds(request, m, meta);
         String gml = WcsUtil.getGML(m, Templates.GRID_COVERAGE, true);
         gml = addCoverageData(gml, request, meta, m);
-        
+        if (!metadata.isEmpty()) {
+            gml = gml.replace("{metadata}", "<gmlcov:metadata>" + metadata + "</gmlcov:metadata>");
+        } else {
+            gml = gml.replace("{metadata}", "");
+        }
         return new Response(gml);
     }
     
