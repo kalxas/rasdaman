@@ -35,7 +35,7 @@ public class InterpolationMethod implements Cloneable {
     public InterpolationMethod(String interpolationType, String nullResistance) throws WCPSException
             {
         if ((interpolationType == null)
-                || !(interpolationType.equals(WCPSConstants.MSG_NEAREST) || interpolationType.equals("linear")
+                || !(interpolationType.equals(WCPSConstants.MSG_NEAREST) || interpolationType.equals(WCPSConstants.MSG_LINEAR)
                 || interpolationType.equals(WCPSConstants.MSG_CUBIC )
                 || interpolationType.equals(WCPSConstants.MSG_QUADRATIC)
                 || interpolationType.equals(WCPSConstants.MSG_NONE))) {

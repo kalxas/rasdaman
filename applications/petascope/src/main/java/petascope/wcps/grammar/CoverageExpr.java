@@ -103,22 +103,22 @@ public class CoverageExpr implements IParseTreeNode {
         // AND, OR, XOR stay the same
 
         if (op.equals("=")) {
-            op = "equals";
+            op = WCPSConstants.MSG_EQUALS;
         }
         if (op.equals("<")) {
-            op = "lessThan";
+            op = WCPSConstants.MSG_LESS_THAN;
         }
         if (op.equals(">")) {
-            op = "greaterThan";
+            op = WCPSConstants.MSG_GREATER_THAN;
         }
         if (op.equals("<=")) {
-            op = "lessOrEqual";
+            op = WCPSConstants.MSG_LESS_OR_EQUAL;
         }
         if (op.equals(">=")) {
-            op = "greaterOrEqual";
+            op = WCPSConstants.MSG_GREATER_OR_EQUAL;
         }
         if (op.equals("!=")) {
-            op = "notEqual";
+            op = WCPSConstants.MSG_NOT_EQUALS;
         }
 
         // OVERLAY stays the same

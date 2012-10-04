@@ -166,6 +166,7 @@ public interface WCPSConstants {
     public static final String MSG_ITERATOR                     = "iterator";
     public static final String MSG_ITERATORVAR                  = "iteratorVar";
     public static final String MSG_ITERATOR_VARIABLE            = "iterator variable";
+    public static final String MSG_LINEAR                       = "linear";
     public static final String MSG_LN                           = "ln";
     public static final String MSG_LOG                          = "log";
     public static final String MSG_LONG                         = "long";
@@ -185,6 +186,10 @@ public interface WCPSConstants {
     public static final String MSG_MATCHING_VAR_REF             = "Matched variable reference: ";
     public static final String MSG_MARRAY                       = "marray";
     public static final String MSG_MAX                          = "max";
+    public static final String MSG_METADATA_DRIVER              = "metadata_driver";
+    public static final String MSG_METADATA_PASS                = "metadata_pass";
+    public static final String MSG_METADATA_URL                 = "metadata_url";
+    public static final String MSG_METADATA_USER                = "metadata_user";
     public static final String MSG_METHOD_NOT_IMPL              = "Method not implemented";
     public static final String MSG_MIME                         = "mime";
     public static final String MSG_MIN                          = "min";
@@ -219,6 +224,7 @@ public interface WCPSConstants {
     public static final String MSG_IN                           = "in";
     public static final String MSG_NOT                          = "not";
     public static final String MSG_OFFSETS                      = "Offsets";
+    public static final String MSG_OGC                          = "ogc";
     public static final String MSG_OR                           = "or";
     public static final String MSG_OP1                          = "op1";
     public static final String MSG_OP2                          = "op2";
@@ -248,6 +254,8 @@ public interface WCPSConstants {
     public static final String MSG_RANGE_CONSTRUCTOR            = "rangeConstructor";
     public static final String MSG_RANGE_RANGE_FILED_TYPE       = "  range field type: ";
     public static final String MSG_RANGE_ELEMENT                = "Range Element";
+    public static final String MSG_RASSERVICE                   = "RASSERVICE";
+    public static final String MSG_RASSERVICE_URL               = "http://kahlua.eecs.jacobs-university.de:9001";
     public static final String MSG_RAW                          = "raw";
     public static final String MSG_REDUCE                       = "reduce";
     public static final String MSG_REDUCE_OPERATION             = "  reduce operation: ";
@@ -257,11 +265,13 @@ public interface WCPSConstants {
     public static final String MSG_SCALE                        = "scale";
     public static final String MSG_SCALAR_EXPR                  = "scalarExpr";
     public static final String MSG_SELECT                       = "select";
+    public static final String MSG_SERVLET_HTMLPATH                 = "/templates/wcps-servlet.html";
     public static final String MSG_SET_IDENTIFIER               = "setIdentifier";
     public static final String MSG_SET_CRSSET                   = "setCrsSet";
     public static final String MSG_SET_INTERPOLATION_DEFAULT    = "setInterpolationDefault";
     public static final String MSG_SET_INTERPOLATION_SET        = "setInterpolationSet";
     public static final String MSG_SET_NULL_SET                 = "setNullSet";
+    public static final String MSG_SET_SETTING_PROPERTIES       = "settings.properties";
     public static final String MSG_SHORT                        = "short";
     public static final String MSG_SIN                          = "sin";
     public static final String MSG_SINH                         = "sinh";
@@ -311,11 +321,15 @@ public interface WCPSConstants {
     public static final String MSG_VAR                          = "var";
     public static final String MSG_VARIABLE                     = "variable";
     public static final String MSG_VARIABLE_REF                 = "variableRef";
+    public static final String MSG_WCPS                         = "wcps";
+    public static final String MSG_WCPS_COVERAGES               = "wcpsProcessCoverages.xsd";
     public static final String MSG_WCPS_LOADING_PARSING_XML     = "WCPS: Loading and parsing XML Schema ...";
     public static final String MSG_WCPS_FINISHED_LOADING_SCHEMA = "WCPS: Finished loading the schema.";
+    public static final String MSG_WCPS_PROCESS_COVERAGE_XSD    = "/xml/ogc/wcps/1.0.0/wcpsProcessCoverages.xsd";
     public static final String MSG_WHERE                        = "where";
     public static final String MSG_WGS84                        = "WGS84";
     public static final String MSG_X                            = "X";
+    public static final String MSG_XML                          = "xml";
     public static final String MSG_XML_HEADER                   = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>";
     public static final String MSG_XMLNS                        = "xmlns=\"http://www.opengis.net/wcps/1.0\" service=\"WCPS\" version=\"1.0.0\"";
     public static final String MSG_XML_SYNTAX                   = "xmlSyntax";

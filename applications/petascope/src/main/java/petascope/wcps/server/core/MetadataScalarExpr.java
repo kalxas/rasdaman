@@ -80,11 +80,11 @@ public class MetadataScalarExpr implements IRasNode {
 
     public String toRasQL() {
         String ret = "";
-        if (op.equals("identifier")) {
+        if (op.equals(WCPSConstants.MSG_IDENTIFIER)) {
             ret = coverageInfo.getCoverageName();
-        } else if (op.equals("imageCrs")) {
+        } else if (op.equals(WCPSConstants.MSG_IMAGE_CRS)) {
             ret = CrsUtil.IMAGE_CRS;
-        } else if (op.equals("DomainMetadata") || op.equals("imageCrsDomain")) {
+        } else if (op.equals(WCPSConstants.MSG_DOMAIN_METADATA) || op.equals(WCPSConstants.MSG_IMAGE_CRSDOMAIN)) {
             ret = "(" + lo + "," + hi + ")";
         }
         return ret;

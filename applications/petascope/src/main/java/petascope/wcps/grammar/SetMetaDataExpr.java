@@ -103,7 +103,7 @@ public class SetMetaDataExpr implements IParseTreeNode {
             }
 
             result = "<" + WCPSConstants.MSG_SET_NULL_SET + ">" + result + "</" + WCPSConstants.MSG_SET_NULL_SET + ">";
-        } else if (function.equalsIgnoreCase("setInterpolationDefault")) {
+        } else if (function.equalsIgnoreCase(WCPSConstants.MSG_SET_INTERPOLATION_DEFAULT)) {
             result += expr.toXML();
             result += "<" + WCPSConstants.MSG_FIELD + ">" + field + "</" + WCPSConstants.MSG_FIELD + ">";
             result += param.toXML();
