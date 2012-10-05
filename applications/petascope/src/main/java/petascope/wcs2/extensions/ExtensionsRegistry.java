@@ -62,7 +62,9 @@ public class ExtensionsRegistry {
         registerExtension(new KVPProtocolExtension());
         registerExtension(new GmlFormatExtension());
         registerExtension(new GeotiffFormatExtension());
+        registerExtension(new JPEG2000FormatExtension());
         registerExtension(new MultipartGeotiffFormatExtension());
+        registerExtension(new MultipartJPEG2000FormatExtension());
         registerExtension(new CRSExtension());
         // Add crs.discrete.coverage and crs.gridded.coverage extensions ?
     }

@@ -31,7 +31,7 @@ import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
 
 /**
- * Return coverage as GML + GeoTIFF.
+ * Common class for multipart image extensions.
  *
  * @author <a href="mailto:m.rusu@jacobs-university.de">Mihaela Rusu</a>
  */
@@ -50,7 +50,7 @@ public class MultipartFormatExtension extends  GmlFormatExtension {
         // get gml response, but without the {coverageData} replaced
         Response gml = super.handle(req, meta);
         // get the GeoTIFF file
-        Response tiff = ExtensionsRegistry.getFormatExtension(false, req.getFormat()).handle(req, meta);
+        Response image = ExtensionsRegistry.getFormatExtension(false, req.getFormat()).handle(req, meta);
         // return multipart response
         String xml = gml.getXml().replace("{coverageData}",
                    "<File>"
@@ -58,7 +58,7 @@ public class MultipartFormatExtension extends  GmlFormatExtension {
                 + "<fileStructure>Record Interleaved</fileStructure>"
                 + "<mimeType>" + req.getFormat() + "</mimeType>"
                 + "</File>");
-        return new Response(tiff.getData(), xml, req.getFormat());
+        return new Response(image.getData(), xml, req.getFormat());
     }
 
     @Override
