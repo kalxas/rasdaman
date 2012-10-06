@@ -340,6 +340,7 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
     RMDBCLASS("QtEncode", "convertTileToDataset( Tile*, int, r_Type*  )", "qlparser", __FILE__, __LINE__)
 
     r_Bytes   typeSize = ((r_Primitive_Type*) bandType)->size();
+    bool  isNotBoolean = ((r_Primitive_Type*) bandType)->type_id() != r_Type::BOOL;
     r_Minterval domain = tile->getDomain();
     if (domain.dimension() != 2)
     {
@@ -390,7 +391,17 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
             {
                 col_offset = ((row + height * col) * nBands * typeSize + band);
                 src = tileCells + col_offset;
-                memcpy(dst, src, typeSize);
+                if (isNotBoolean)
+                {
+                    memcpy(dst, src, typeSize);
+                }
+                else
+                {
+                    if (src[0] == 1)
+                        dst[0] = 255;
+                    else
+                        dst[0] = 0;
+                }
             }
 
         CPLErr error =
@@ -447,6 +458,9 @@ QtEncode::getGdalType(r_Type* rasType)
     GDALDataType ret = GDT_Unknown;
     switch (rasType->type_id())
     {
+    case r_Type::BOOL:
+        ret = GDT_Byte;
+        break;
     case r_Type::CHAR:
         ret = GDT_Byte;
         break;
