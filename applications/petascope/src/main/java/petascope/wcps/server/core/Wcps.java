@@ -52,7 +52,7 @@ public class Wcps {
     private static Logger log = LoggerFactory.getLogger(Wcps.class);
 
     private DocumentBuilder wcpsDocumentBuilder;
-    private IDynamicMetadataSource dynamicMetadataSource;
+    private static IDynamicMetadataSource dynamicMetadataSource;
 
     public Wcps(File pcSchema, IMetadataSource metadataSource) throws WCPSException, PetascopeException {
         try {
@@ -66,7 +66,7 @@ public class Wcps {
             wcpsDocumentBuilder = dbconfig.newDocumentBuilder();
             log.info(WCPSConstants.MSG_WCPS_FINISHED_LOADING_SCHEMA);
             
-            this.dynamicMetadataSource = new DynamicMetadataSource(metadataSource);
+            dynamicMetadataSource = new DynamicMetadataSource(metadataSource);
             
         } catch (Exception e) {
             throw new WCPSException(
@@ -75,7 +75,7 @@ public class Wcps {
     }
 
     public Wcps(IMetadataSource metadataSource) throws ParserConfigurationException, PetascopeException {
-        this.dynamicMetadataSource = new DynamicMetadataSource(metadataSource);
+        dynamicMetadataSource = new DynamicMetadataSource(metadataSource);
         wcpsDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
@@ -121,5 +121,9 @@ public class Wcps {
         } catch (PetascopeException ex) {
             throw (WCPSException) ex;
         }
+    }
+
+    public static IDynamicMetadataSource getDynamicMetadataSource() {
+        return dynamicMetadataSource;
     }
 }

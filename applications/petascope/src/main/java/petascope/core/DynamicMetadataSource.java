@@ -84,6 +84,21 @@ public class DynamicMetadataSource implements IDynamicMetadataSource {
     public String formatToMimetype(String format) {
         return metadataSource.formatToMimetype(format);
     }
+    
+    @Override
+    public String mimetypeToFormat(String mime) {
+        return metadataSource.formatToMimetype(mime);
+    }
+
+    @Override
+    public String formatToGdalid(String format) {
+        return metadataSource.formatToGdalid(format);
+    }
+
+    @Override
+    public String gdalidToFormat(String gdalid) {
+        return metadataSource.gdalidToFormat(gdalid);
+    }
 
     @Override
     public Metadata read(String coverageName) throws PetascopeException {

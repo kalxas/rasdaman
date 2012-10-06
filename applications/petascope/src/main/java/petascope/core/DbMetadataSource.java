@@ -74,6 +74,7 @@ public class DbMetadataSource implements IMetadataSource {
     private Map<Integer, String> interpolationTypes;
     private Map<Integer, String> nullResistances;
     private Map<String, String> supportedFormats;
+    private Map<String, String> gdalFormatsIds; // GDAL code -> format name
 
     /* Contents of static tables (reversed, for easy access if you
     know the something's name and want to find out its id) */
@@ -83,6 +84,7 @@ public class DbMetadataSource implements IMetadataSource {
     private Map<String, Integer> revInterpolationTypes;
     private Map<String, Integer> revNullResistances;
     private Map<String, String> revSupportedFormats;    // Not used
+    private Map<String, String> revGdalFormatsIds; // format name -> GDAL code
 
     /* Database access info */
     private String driver;
@@ -173,13 +175,17 @@ public class DbMetadataSource implements IMetadataSource {
                 revCrss.put(r.getString("name"), r.getInt("id"));
             }
 
+            gdalFormatsIds = new HashMap<String, String>();
+            revGdalFormatsIds = new HashMap<String, String>();
             supportedFormats = new HashMap<String, String>();
             revSupportedFormats = new HashMap<String, String>();
-            r = s.executeQuery("SELECT name, mimetype FROM PS_Format");
+            r = s.executeQuery("SELECT name, mimetype, gdalid FROM PS_Format");
 
             while (r.next()) {
                 supportedFormats.put(r.getString("name"), r.getString("mimetype"));
                 revSupportedFormats.put(r.getString("mimetype"), r.getString("name"));
+                gdalFormatsIds.put(r.getString("gdalid"), r.getString("name"));
+                revGdalFormatsIds.put(r.getString("name"), r.getString("gdalid"));
             }
 
             s.close();
@@ -1367,9 +1373,19 @@ public class DbMetadataSource implements IMetadataSource {
     }
 
     /* Translate a mime-type to a format name, if known to rasdaman. */
+    @Override
     public String mimetypeToFormat(String mime) {
-        log.debug(revSupportedFormats.toString());
         return revSupportedFormats.get(mime);
+    }
+
+    @Override
+    public String formatToGdalid(String format) {
+        return revGdalFormatsIds.get(format);
+    }
+
+    @Override
+    public String gdalidToFormat(String gdalid) {
+        return gdalFormatsIds.get(gdalid);
     }
 
     /**

@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.core.IDynamicMetadataSource;
 import petascope.util.WCPSConstants;
 
 // This is the equivalent of the "ProcessingExprType" complex XML type.
@@ -79,13 +80,41 @@ public class EncodeDataExpr implements IRasNode {
     public String toRasQL() {
         // TODO: cjucovschi - implement store
 
-        String result;
+        String result = "";
+        IDynamicMetadataSource metadataSource = Wcps.getDynamicMetadataSource();
 
         if (format.equals(WCPSConstants.MSG_RAW)) {
             result = coverageExprType.toRasQL();
         } else {
-            result = format + "(" + coverageExprType.toRasQL();
+            // check if there is a gdal id, it may be a rasdaman specific format like CSV
+            boolean encode = true;
+            String gdalid = metadataSource.formatToGdalid(format);
+            if (gdalid == null) {
+                String frmt = metadataSource.gdalidToFormat(format);
+                if (frmt == null) {
+                    // we don't use the encode function but a rasdaman format function
+                    encode = false;
+                } else {
+                    gdalid = format;
+                }
+            }
+            
+            // determine function name either encode() or csv() (and similar)
+            if (encode) {
+                result = WCPSConstants.MSG_ENCODE;
+            } else {
+                result = format;
+            }
+            
+            // first parameter to function
+            result += "(" + coverageExprType.toRasQL();
+            
+            // second parameter has to be the gdal format name, in case of encode()
+            if (encode) {
+                result += ", \"" + gdalid + "\"";
+            }
 
+            // finally extra parameters to the encoding function
             if (extraParams != null) {
                 extraParams = '"' + extraParams + '"';
                 result = result + ", " + extraParams;
@@ -94,7 +123,6 @@ public class EncodeDataExpr implements IRasNode {
             result = result + ")";
         }
 
-        log.trace(WCPSConstants.MSG_RETURNING_ENCODE_EXPR + ":" + result);
         return result;
     }
 }

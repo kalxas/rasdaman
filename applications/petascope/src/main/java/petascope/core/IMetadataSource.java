@@ -36,6 +36,9 @@ public interface IMetadataSource {
     Set<String> coverages() throws PetascopeException;
 
     String formatToMimetype(String format);
+    String mimetypeToFormat(String mime);
+    String formatToGdalid(String format);
+    String gdalidToFormat(String gdalid);
 
     Metadata read(String coverageName) throws PetascopeException;
 
