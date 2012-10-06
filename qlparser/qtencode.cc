@@ -58,6 +58,7 @@ using namespace std;
 #define PARAM_YMAX "ymax"
 
 #define PARAM_CRS  "crs"
+#define PARAM_METADATA "metadata"
 
 QtEncode::QtEncode(QtOperation *mddOp, char* formatIn) throw (r_Error)
 : QtUnaryOperation(mddOp), format(formatIn), fParams(NULL)
@@ -80,16 +81,30 @@ QtEncode::~QtEncode()
 void
 QtEncode::initParams(char* paramsIn)
 {
-    fParams = CSLTokenizeString2(paramsIn, ";",
+    // replace escaped characters
+    string params("");
+    int i = 0;
+    while (paramsIn[i] != '\0')
+    {
+        char curr = paramsIn[i];
+        char next = paramsIn[i+1];
+        ++i;
+        
+        if (curr == '\\' && (next == '"' || next == '\'' || next == '\\'))
+            continue;
+        params += curr;
+    }
+    
+    fParams = CSLTokenizeString2(params.c_str(), ";",
                                 CSLT_STRIPLEADSPACES |
-                                CSLT_STRIPENDSPACES |
-                                CSLT_HONOURSTRINGS);
+                                CSLT_STRIPENDSPACES );
     
     setDouble(PARAM_XMIN, &gParams.xmin);
     setDouble(PARAM_XMAX, &gParams.xmax);
     setDouble(PARAM_YMIN, &gParams.ymin);
     setDouble(PARAM_YMAX, &gParams.ymax);
     setString(PARAM_CRS,  &gParams.crs);
+    setString(PARAM_METADATA, &gParams.metadata);
 }
 
 void
@@ -446,6 +461,13 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
             srs.exportToWkt(&wkt);
             hMemDS->SetProjection(wkt);
         }
+    }
+    
+    if (gParams.metadata != "")
+    {
+        char** metadata = NULL;
+        metadata = CSLAddNameValue(metadata, "metadata", gParams.metadata.c_str());
+        hMemDS->SetMetadata(metadata);
     }
 
     free(datasetCells);

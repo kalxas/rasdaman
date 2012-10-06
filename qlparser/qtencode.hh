@@ -114,6 +114,7 @@ private:
         double ymin;
 
         std::string crs;        // string representation of the coordinate reference system
+        std::string metadata;   // further metadata of the result
     };
     
     GenericParams gParams;
