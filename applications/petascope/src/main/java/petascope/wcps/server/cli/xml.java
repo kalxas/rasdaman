@@ -61,12 +61,12 @@ public class xml {
         try {
             Properties dbParams = new Properties();
 
-            dbParams.load(new FileInputStream(WCPSConstants.MSG_SET_SETTING_PROPERTIES));
+            dbParams.load(new FileInputStream(WCPSConstants.DBPARAM_SETTING_PROPERTIES));
             metadataSource =
-                    new DbMetadataSource(dbParams.getProperty(WCPSConstants.MSG_METADATA_DRIVER),
-                    dbParams.getProperty(WCPSConstants.MSG_METADATA_URL),
-                    dbParams.getProperty(WCPSConstants.MSG_METADATA_USER),
-                    dbParams.getProperty(WCPSConstants.MSG_METADATA_PASS), false);
+                    new DbMetadataSource(dbParams.getProperty(WCPSConstants.DBPARAM_METADATA_DRIVER),
+                    dbParams.getProperty(WCPSConstants.DBPARAM_METADATA_URL),
+                    dbParams.getProperty(WCPSConstants.DBPARAM_METADATA_USER),
+                    dbParams.getProperty(WCPSConstants.DBPARAM_METADATA_PASS), false);
             wcps = new Wcps(pcSchemaFile, metadataSource);
         } catch (Exception e) {
             System.err.println("WCPS: could not initialize WCPS:");
@@ -125,7 +125,7 @@ public class xml {
         String result = null;
 
         try {
-            ProcessCoveragesRequest r = wcps.pcPrepare(WCPSConstants.MSG_RASSERVICE_URL,
+            ProcessCoveragesRequest r = wcps.pcPrepare("http://kahlua.eecs.jacobs-university.de:9001",
                     WCPSConstants.MSG_RASSERVICE, is);
             System.err.println("Request " + i);
             String rasql = r.getRasqlQuery();

@@ -186,10 +186,6 @@ public interface WCPSConstants {
     public static final String MSG_MATCHING_VAR_REF             = "Matched variable reference: ";
     public static final String MSG_MARRAY                       = "marray";
     public static final String MSG_MAX                          = "max";
-    public static final String MSG_METADATA_DRIVER              = "metadata_driver";
-    public static final String MSG_METADATA_PASS                = "metadata_pass";
-    public static final String MSG_METADATA_URL                 = "metadata_url";
-    public static final String MSG_METADATA_USER                = "metadata_user";
     public static final String MSG_METHOD_NOT_IMPL              = "Method not implemented";
     public static final String MSG_MIME                         = "mime";
     public static final String MSG_MIN                          = "min";
@@ -255,7 +251,6 @@ public interface WCPSConstants {
     public static final String MSG_RANGE_RANGE_FILED_TYPE       = "  range field type: ";
     public static final String MSG_RANGE_ELEMENT                = "Range Element";
     public static final String MSG_RASSERVICE                   = "RASSERVICE";
-    public static final String MSG_RASSERVICE_URL               = "http://kahlua.eecs.jacobs-university.de:9001";
     public static final String MSG_RAW                          = "raw";
     public static final String MSG_REDUCE                       = "reduce";
     public static final String MSG_REDUCE_OPERATION             = "  reduce operation: ";
@@ -271,7 +266,6 @@ public interface WCPSConstants {
     public static final String MSG_SET_INTERPOLATION_DEFAULT    = "setInterpolationDefault";
     public static final String MSG_SET_INTERPOLATION_SET        = "setInterpolationSet";
     public static final String MSG_SET_NULL_SET                 = "setNullSet";
-    public static final String MSG_SET_SETTING_PROPERTIES       = "settings.properties";
     public static final String MSG_SHORT                        = "short";
     public static final String MSG_SIN                          = "sin";
     public static final String MSG_SINH                         = "sinh";
@@ -337,6 +331,15 @@ public interface WCPSConstants {
     public static final String MSG_Y01                          = "Y01";
     public static final String MSG_Y23                          = "Y23";
        
+    /**
+     * DBParam messages  
+     */
+    public static final String DBPARAM_SETTING_PROPERTIES           = "settings.properties";
+    public static final String DBPARAM_METADATA_DRIVER              = "metadata_driver";
+    public static final String DBPARAM_METADATA_PASS                = "metadata_pass";
+    public static final String DBPARAM_METADATA_URL                 = "metadata_url";
+    public static final String DBPARAM_METADATA_USER                = "metadata_user";
+    
     /**
      * Error messages  
      */
