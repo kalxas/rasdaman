@@ -113,6 +113,7 @@ AC_CONFIG_FILES([Makefile
                  reladminif/Makefile
                  relstorageif/Makefile
                  indexmgr/Makefile
+                 indexmgr/test/Makefile
                  tilemgr/Makefile
                  storagemgr/Makefile
                  commline/Makefile

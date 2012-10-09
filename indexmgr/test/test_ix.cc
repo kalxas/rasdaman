@@ -34,12 +34,15 @@ rasdaman GmbH.
 */
 
 #include <stdlib.h>
-#include <iostream.h>
-#include <vector.h>
+#include <string.h>
+#include <iostream>
+#include <vector>
 
 #include "raslib/minterval.hh"
 #include "raslib/sinterval.hh"
 #include "raslib/rmdebug.hh"
+
+using namespace std;
 
 
 #include <math.h>
@@ -263,16 +266,17 @@ createTilesDomains( ofstream& outRndPopFile, // file for test_populate
     r_Minterval tile(dim);
     const unsigned tileLength = 3;
     r_Minterval totalGrid( dim );
-    for (int i = 0; i <  dim -1; i++ )
+    int i;
+    for ( i = 0; i <  dim -1; i++ )
     {
-        tile[i].set_interval( r_Range( 0 ), tileLength-1 );
-        totalGrid[i].set_interval( r_Range( 0 ), n-1 );
+        tile[i].set_interval( r_Range( 0 ), r_Range( tileLength-1 ) );
+        totalGrid[i].set_interval( r_Range( 0 ), r_Range( n-1 ) );
     }
     long n1 = pow(n,dim-1);
     n1 = ntg/n1;
     cout << "Number of tiles in direction d (n1)  == " << n1 << endl;
-    tile[dim-1].set_interval( r_Range( 0 ), tileLength-1 );
-    totalGrid[dim-1].set_interval( r_Range( 0 ), n1-1 );
+    tile[dim-1].set_interval( r_Range( 0 ), r_Range( tileLength-1 ) );
+    totalGrid[dim-1].set_interval( r_Range( 0 ), r_Range( n1-1 ) );
 
     long ntg1;
     calculateGrid( tile, totalGrid, ntg1, tgIntsVec );
