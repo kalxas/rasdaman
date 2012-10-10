@@ -70,6 +70,7 @@ QtIntervalOp::isCommutative() const
 QtData*
 QtIntervalOp::evaluate( QtDataList* inputList )
 {
+    startTimer("QtIntervalOp");
     QtData* returnValue = NULL;
     QtData* operand1 = NULL;
     QtData* operand2 = NULL;
@@ -228,6 +229,8 @@ QtIntervalOp::evaluate( QtDataList* inputList )
         if( operand1 ) operand1->deleteRef();
         if( operand2 ) operand2->deleteRef();
     }
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -237,7 +240,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
 void
 QtIntervalOp::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtIntervalOp Object " << getNodeType() << endl;
+    s << SPACE_STR(tab).c_str() << "QtIntervalOp Object " << getNodeType() << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree( tab, s, mode );
 }

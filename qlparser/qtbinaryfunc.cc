@@ -90,6 +90,7 @@ QtData*
 QtShift::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtShift", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtShift");
 
     QtData* returnValue = NULL;
     QtData* operand1 = NULL;
@@ -155,6 +156,8 @@ QtShift::evaluate( QtDataList* inputList )
         if( operand1 ) operand1->deleteRef();
         if( operand2 ) operand2->deleteRef();
     }
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -164,7 +167,7 @@ QtShift::evaluate( QtDataList* inputList )
 void
 QtShift::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtShift Object " << getNodeType() << endl;
+    s << SPACE_STR(tab).c_str() << "QtShift Object " << getNodeType() << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree( tab, s, mode );
 }
@@ -359,6 +362,7 @@ QtData*
 QtExtend::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtExtend", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtExtend");
 
     QtData* returnValue = NULL; // operation result
     QtData* operand1 = NULL;    // 1st operand: MDD expression
@@ -531,6 +535,7 @@ QtExtend::evaluate( QtDataList* inputList )
         //  newTransTile->printStatus(99,RMInit::logOut);
     }
 
+    stopTimer();
     // RMInit::logOut << "QtExtend::evaluate( QtDataList* ) - done." << endl;
     return returnValue;
 }
@@ -592,7 +597,7 @@ QtExtend::extendGetCornerTiles( r_Minterval outerDomain, r_Minterval innerDomain
 void
 QtExtend::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtExtend Object " << getNodeType() << endl;
+    s << SPACE_STR(tab).c_str() << "QtExtend Object " << getNodeType() << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree( tab, s, mode );
 }
@@ -802,6 +807,7 @@ QtData*
 QtScale::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtScale", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtScale");
 
     QtData* returnValue = NULL;
     QtData* operand1 = NULL;
@@ -1029,6 +1035,8 @@ QtScale::evaluate( QtDataList* inputList )
     // delete the old operands
     if( operand1 ) operand1->deleteRef();
     if( operand2 ) operand2->deleteRef();
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -1037,7 +1045,7 @@ QtScale::evaluate( QtDataList* inputList )
 void
 QtScale::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtScale Object " << getNodeType() << endl;
+    s << SPACE_STR(tab).c_str() << "QtScale Object " << getNodeType() << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree( tab, s, mode );
 }

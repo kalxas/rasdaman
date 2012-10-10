@@ -130,6 +130,7 @@ QtEncode::setString(char* paramName, string* value)
 QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
 {
     RMDBCLASS("QtEncode", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__)
+    startTimer("QtEncode");
 
     QtData* returnValue = NULL;
     QtData* operand = NULL;
@@ -161,6 +162,8 @@ QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
     }
     else
         RMInit::logOut << "Error: QtEncode::evaluate() - operand is not provided." << std::endl;
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -345,7 +348,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
 void
 QtEncode::printTree(int tab, ostream& s, QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtEncode Object: to " << format << endl;
+    s << SPACE_STR(tab).c_str() << "QtEncode Object: to " << format << getEvaluationTime() << endl;
 
     QtUnaryOperation::printTree(tab, s, mode);
 }

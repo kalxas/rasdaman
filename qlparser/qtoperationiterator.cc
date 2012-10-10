@@ -149,6 +149,7 @@ QtOperationIterator::printTree( int tab, ostream& s, QtChildType mode )
 
     s << SPACE_STR(tab).c_str() << "QtOperationIterator Object: type " << flush;
     dataStreamType.printStatus( s );
+    s << getEvaluationTime();
     s << endl;
 
     if( mode != QtNode::QT_DIRECT_CHILDS )
@@ -197,6 +198,7 @@ QtNode::QtDataList*
 QtOperationIterator::next()
 {
     RMDBCLASS( "QtOperationIterator", "next()", "qlparser", __FILE__, __LINE__ )
+    resumeTimer();
 
     QtDataList* returnValue = NULL;
 
@@ -262,6 +264,9 @@ QtOperationIterator::next()
             returnValue = resultList;
         }
     }
+    
+    pauseTimer();
+    
     return returnValue;
 }
 

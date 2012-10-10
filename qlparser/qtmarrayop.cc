@@ -100,6 +100,7 @@ QtData*
 QtMarrayOp::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtMarrayOp", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtMarrayOp");
 
     QtData* returnValue = NULL;
     QtData* operand1 = NULL;
@@ -220,6 +221,8 @@ QtMarrayOp::evaluate( QtDataList* inputList )
     if( operand1 ) operand1->deleteRef();
 }
 
+stopTimer();
+
 return returnValue;
 }
 
@@ -228,7 +231,7 @@ return returnValue;
 void
 QtMarrayOp::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtMarrayOp Object " << getNodeType() << endl;
+    s << SPACE_STR(tab).c_str() << "QtMarrayOp Object " << getNodeType() << getEvaluationTime() << endl;
 
     s << SPACE_STR(tab).c_str() << "Iterator Name: " << iteratorName.c_str() << endl;
 

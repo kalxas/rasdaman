@@ -103,6 +103,8 @@ int
 QtInsert::evaluate()
 {
     RMDBCLASS("QtInsert", "evaluate()", "qlparser", __FILE__, __LINE__)
+    startTimer("QtInsert");
+            
     QtMddCfgOp* configOp = NULL;
     QtMDDConfig* mddConfig = NULL;
     // empty data list for evaluation of insert expression including constant
@@ -325,6 +327,8 @@ QtInsert::evaluate()
     // delete dummy tupel vector
     delete nextTupel;
     nextTupel = NULL;
+    
+    stopTimer();
 
     return 0;
 }
@@ -360,7 +364,7 @@ QtInsert::getChilds(QtChildType flag)
 void
 QtInsert::printTree(int tab, std::ostream& s, QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtInsert Object" << std::endl;
+    s << SPACE_STR(tab).c_str() << "QtInsert Object" << getEvaluationTime() << std::endl;
 
     if (mode != QtNode::QT_DIRECT_CHILDS)
     {

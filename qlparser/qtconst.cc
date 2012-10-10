@@ -163,6 +163,7 @@ QtData*
 QtConst::evaluate( QtDataList* /*inputList*/ )
 {
     RMDBCLASS( "QtConst", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtConst");
 
     QtData* returnValue = NULL;
 
@@ -172,6 +173,8 @@ QtConst::evaluate( QtDataList* /*inputList*/ )
         returnValue = dataObj;
     }
 
+    stopTimer();
+    
     return returnValue;
 }
 
@@ -191,6 +194,7 @@ QtConst::printTree( int tab, ostream& s, QtChildType /*mode*/ )
     else
         s << "<no data object>";
 
+    s << getEvaluationTime();
     s << endl;
 }
 

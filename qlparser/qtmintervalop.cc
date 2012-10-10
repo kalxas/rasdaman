@@ -66,6 +66,7 @@ QtData*
 QtMintervalOp::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtMintervalOp", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtMintervalOp");
 
     QtData*     returnValue = NULL;
     QtDataList* operandList = NULL;
@@ -155,6 +156,8 @@ QtMintervalOp::evaluate( QtDataList* inputList )
             }
         }
     }
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -164,7 +167,7 @@ QtMintervalOp::evaluate( QtDataList* inputList )
 void
 QtMintervalOp::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtMintervalOp Object " << getNodeType() << endl;
+    s << SPACE_STR(tab).c_str() << "QtMintervalOp Object " << getNodeType() << getEvaluationTime() << endl;
 
     QtNaryOperation::printTree( tab, s, mode );
 }

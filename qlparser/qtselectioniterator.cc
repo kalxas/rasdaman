@@ -147,6 +147,7 @@ QtSelectionIterator::printTree( int tab, ostream& s, QtChildType mode )
 {
     s << SPACE_STR(tab).c_str() << "QtSelectionIterator Object: type " << flush;
     dataStreamType.printStatus( s );
+    s << getEvaluationTime();
     s << endl;
 
     if( mode != QtNode::QT_DIRECT_CHILDS )
@@ -183,6 +184,7 @@ QtNode::QtDataList*
 QtSelectionIterator::next()
 {
     RMDBGENTER( 1, RMDebug::module_qlparser, "QtSelectionIterator", "QtSelectionIterator::next()" )
+    resumeTimer();
 
     QtDataList* returnValue = NULL;
 
@@ -239,6 +241,7 @@ QtSelectionIterator::next()
         returnValue = actualTupel;
     }
 
+    pauseTimer();
     RMDBGEXIT( 1, RMDebug::module_qlparser, "QtSelectionIterator", "QtSelectionIterator::next()" )
 
     return returnValue;

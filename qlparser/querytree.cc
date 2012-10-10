@@ -246,8 +246,13 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
         oncRootNode->close();
 
         returnValue = resultData;
-    }
 
+#ifdef RMANBENCHMARK
+        RMInit::logOut << "Evaluated query tree:" << endl;
+        rootNode->printTree(2, RMInit::logOut);
+#endif
+    }
+    
     return returnValue;
 }
 
@@ -275,6 +280,11 @@ QueryTree::evaluateUpdate() throw (r_Error,ParseInfo)
 
         // evaluate the update query
         executeNode->evaluate();
+
+#ifdef RMANBENCHMARK
+        RMInit::logOut << "Evaluated query tree:" << endl;
+        rootNode->printTree(2, RMInit::logOut);
+#endif
     }
 }
 

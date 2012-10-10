@@ -419,6 +419,7 @@ QtBinaryInduce::computeBinaryOp( QtScalarData* operand1, QtScalarData* operand2,
 QtData*
 QtBinaryInduce::evaluate( QtDataList* inputList )
 {
+    startTimer("QtBinaryInduce");
     QtData* returnValue = NULL;
     QtData* operand1 = NULL;
     QtData* operand2 = NULL;
@@ -431,6 +432,7 @@ QtBinaryInduce::evaluate( QtDataList* inputList )
         if( operand1 ) operand1->deleteRef();
         if( operand2 ) operand2->deleteRef();
     }
+    stopTimer();
     return returnValue;
 }
 
@@ -609,7 +611,7 @@ QtPlus::getUniqueOrder( const QtNode::QtNodeType ID )
 void
 QtPlus::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtPlus Object " << getNodeType() << endl;
+    s << SPACE_STR(tab).c_str() << "QtPlus Object " << getNodeType() << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -658,7 +660,7 @@ QtMinus::isCommutative() const
 void
 QtMinus::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtMinus Object " << getNodeType() << endl;
+    s << SPACE_STR(tab).c_str() << "QtMinus Object " << getNodeType() << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -729,7 +731,7 @@ QtMult::getUniqueOrder( const QtNode::QtNodeType ID )
 void
 QtMult::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtMult Object " << getNodeType() << endl;
+    s << SPACE_STR(tab).c_str() << "QtMult Object " << getNodeType() << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -778,7 +780,7 @@ QtDiv::isCommutative() const
 void
 QtDiv::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtDiv Object " << getNodeType() << endl;
+    s << SPACE_STR(tab).c_str() << "QtDiv Object " << getNodeType() << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }

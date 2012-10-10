@@ -138,6 +138,10 @@ int QtNode::maxim[QtNodes];
 int QtNode::child_range[QtNodes+1];
 
 bool QtNode::MinMaxDone = false;
+    
+#ifdef RMANBENCHMARK
+    long QtNode::timerCounter = 0;
+#endif
 
 QtNode::QtNode()
     : parent(NULL)
@@ -147,6 +151,10 @@ QtNode::QtNode()
         MinMaxDone = true;
         SetMinMax();
     }
+    
+#ifdef RMANBENCHMARK
+    evaluationTimer = NULL;
+#endif 
 }
 
 
@@ -158,11 +166,20 @@ QtNode::QtNode( QtNode* node )
         MinMaxDone = true;
         SetMinMax();
     }
+    
+#ifdef RMANBENCHMARK
+    evaluationTimer = NULL;
+#endif 
 }
 
 
 QtNode::~QtNode()
 {
+#ifdef RMANBENCHMARK
+    if (evaluationTimer) {
+        delete evaluationTimer;
+    }
+#endif 
 }
 
 bool
@@ -325,6 +342,67 @@ QtNode::SetMinMax()
     set_child_range(arr);
     //numbering the nodes
     num_node(arr, QtRoot);
+}
+
+
+void
+QtNode::startTimer(char* name)
+{
+#ifdef RMANBENCHMARK
+    if (!evaluationTimer)
+    {
+        evaluationTimer = new RMTimer(name, "evaluate");
+        evaluationTimer->start();
+    }
+#endif
+}
+
+void
+QtNode::stopTimer()
+{
+#ifdef RMANBENCHMARK
+    if (evaluationTimer)
+    {
+        evaluationTimer->setOutput(0);
+        evaluationTimer->stop();
+    }
+#endif
+}
+
+void
+QtNode::pauseTimer()
+{
+#ifdef RMANBENCHMARK
+    if (evaluationTimer)
+    {
+        evaluationTimer->pause();
+    }
+#endif
+}
+
+void
+QtNode::resumeTimer()
+{
+#ifdef RMANBENCHMARK
+    if (evaluationTimer)
+    {
+        evaluationTimer->resume();
+    }
+#endif
+}
+
+char*
+QtNode::getEvaluationTime()
+{
+#ifdef RMANBENCHMARK
+    if (evaluationTimer)
+    {
+        char* ret = (char*) malloc(20);
+        sprintf(ret, " - %d usecs", evaluationTimer->getTime());
+        return ret;
+    }
+#endif
+    return "";
 }
 
 

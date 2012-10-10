@@ -115,6 +115,7 @@ void
 QtIterator::open()
 {
     RMDBCLASS( "QtIterator", "open()", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtIterator");
 
     if( inputs )
     {
@@ -138,6 +139,8 @@ QtIterator::close()
         for( i=inputs->begin(); i!=inputs->end(); i++ )
             (*i)->close();
     }
+    
+    stopTimer();
 }
 
 

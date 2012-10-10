@@ -275,6 +275,7 @@ QtData*
 QtDomainOperation::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtDomainOperation", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtDomainOperation");
 
     QtData* returnValue = NULL;
 
@@ -836,6 +837,8 @@ QtDomainOperation::evaluate( QtDataList* inputList )
         throw parseInfo;
     }
     }
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -846,6 +849,7 @@ QtDomainOperation::printTree( int tab, ostream& s, QtChildType mode )
 {
     s << SPACE_STR(tab).c_str() << "QtDomainOperation Object: type " << flush;
     dataStreamType.printStatus( s );
+    s << getEvaluationTime();
     s << endl;
 
     if( mintervalOp )

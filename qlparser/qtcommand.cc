@@ -72,6 +72,7 @@ int
 QtCommand::evaluate()
 {
     RMDBGENTER(2, RMDebug::module_qlparser, "QtCommand", "evaluate()")
+    startTimer("QtCommand");
 
     switch( command )
     {
@@ -133,6 +134,8 @@ QtCommand::evaluate()
             break;
         }
     }
+    
+    stopTimer();
 
     RMDBGEXIT(2, RMDebug::module_qlparser, "QtCommand", "evaluate()")
 
@@ -157,6 +160,8 @@ QtCommand::printTree( int tab, std::ostream& s, QtChildType mode )
     default:
         s << "<command unknown>";
     }
+    
+    s << getEvaluationTime();
 
     s << std::endl;
 }

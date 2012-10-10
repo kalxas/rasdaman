@@ -191,6 +191,7 @@ QtData*
 QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
 {
     RMDBCLASS( "QtVariable", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtVariable");
 
     RMDBGENTER( 2, RMDebug::module_qlparser, "QtVariable", "QtVariable::evaluate() - " << iteratorName.c_str() << endl )
 
@@ -318,6 +319,9 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
     {
         RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtVariable", "Error: QtVariable::evaluate() - the input list is empty." )
     }
+    
+    stopTimer();
+    
     return returnValue;
 }
 
@@ -327,7 +331,7 @@ QtVariable::printTree( int tab, ostream& s, QtChildType /*mode*/ )
 {
     s << SPACE_STR(tab).c_str() << "QtVariable Object: type " << flush;
     dataStreamType.printStatus( s );
-    s << " name |" << iteratorName.c_str() << "|" /* << " pos " << dataIndex */ << endl;
+    s << " name |" << iteratorName.c_str() << "|" << getEvaluationTime() /* << " pos " << dataIndex */ << endl;
 
     if( loadDomain.dimension() > 0 )
     {

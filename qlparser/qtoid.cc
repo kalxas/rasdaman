@@ -57,6 +57,7 @@ QtData*
 QtOId::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtOId", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtOid");
 
     QtData* returnValue = NULL;
     QtData* operand = NULL;
@@ -119,6 +120,8 @@ QtOId::evaluate( QtDataList* inputList )
     }
     else
         RMInit::logOut << "Error: QtOId::evaluate() - operand is not provided." << std::endl;
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -128,7 +131,7 @@ QtOId::evaluate( QtDataList* inputList )
 void
 QtOId::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtOId Object: " << std::endl;
+    s << SPACE_STR(tab).c_str() << "QtOId Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree( tab, s, mode );
 }

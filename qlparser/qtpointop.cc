@@ -65,6 +65,7 @@ QtData*
 QtPointOp::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtPointOp", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtPointOp");
 
     QtData*     returnValue = NULL;
     QtDataList* operandList = NULL;
@@ -131,6 +132,8 @@ QtPointOp::evaluate( QtDataList* inputList )
             }
         }
     }
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -140,7 +143,7 @@ QtPointOp::evaluate( QtDataList* inputList )
 void
 QtPointOp::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtPointOp Object " << getNodeType() << std::endl;
+    s << SPACE_STR(tab).c_str() << "QtPointOp Object " << getNodeType() << getEvaluationTime() << std::endl;
 
     QtNaryOperation::printTree( tab, s, mode );
 }

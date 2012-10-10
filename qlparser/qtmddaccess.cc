@@ -85,6 +85,7 @@ void
 QtMDDAccess::open()
 {
     RMDBCLASS( "QtMDDAccess", "open()", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtMDDAccess");
 
     // delete an existing iterator
     if( mddIter )
@@ -100,6 +101,8 @@ QtMDDAccess::open()
     //  mddIter->getElement()->printStatus();
 
     mddIter->reset();
+    
+    pauseTimer();
 }
 
 
@@ -107,6 +110,7 @@ QtNode::QtDataList*
 QtMDDAccess::next()
 {
     RMDBCLASS( "QtMDDAccess", "next()", "qlparser", __FILE__, __LINE__ )
+    resumeTimer();
 
     QtDataList* returnValue = NULL;
     MDDObj* ptr = NULL;
@@ -145,6 +149,8 @@ QtMDDAccess::next()
         returnValue = dataList;
     }
 
+    pauseTimer();
+    
     return returnValue;
 }
 
@@ -160,6 +166,8 @@ QtMDDAccess::close()
         delete mddIter;
         mddIter=NULL;
     }
+    
+    stopTimer();
 
     // This is now done in ServerComm::ClientTblElt::releaseTransferStructures().
     //
@@ -184,6 +192,7 @@ QtMDDAccess::printTree( int tab, ostream& s, QtChildType /*mode*/ )
 {
     s << SPACE_STR(tab).c_str() << "QtMDDAccess Object: type " << flush;
     dataStreamType.printStatus( s );
+    s << getEvaluationTime();
     s << endl;
 
     s << SPACE_STR(tab).c_str() << collectionName.c_str()

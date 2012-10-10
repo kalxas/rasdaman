@@ -85,6 +85,7 @@ QtJoinIterator::printTree( int tab, ostream& s, QtChildType mode )
 {
     s << SPACE_STR(tab).c_str() << "QtJoinIterator Object: type " << flush;
     dataStreamType.printStatus( s );
+    s << getEvaluationTime();
     s << endl;
 
     QtIterator::printTree( tab, s, mode );
@@ -105,6 +106,7 @@ void
 QtJoinIterator::open()
 {
     RMDBCLASS( "QtJoinIterator", "open()", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtJoinIterator");
 
     QtIterator::open();
 
@@ -157,6 +159,7 @@ QtJoinIterator::open()
         // called for the first time.
         // (*inputs)[0]->reset();
     }
+    pauseTimer();
 }
 
 
@@ -164,7 +167,7 @@ QtNode::QtDataList*
 QtJoinIterator::next()
 {
     RMDBCLASS( "QtJoinIterator", "next()", "qlparser", __FILE__, __LINE__ )
-
+    resumeTimer();
 
     QtDataList* returnValue = NULL;
 
@@ -260,6 +263,8 @@ QtJoinIterator::next()
                 }
         }
     }
+    
+    pauseTimer();
 
     return returnValue;
 }
@@ -282,6 +287,8 @@ QtJoinIterator::close()
     }
 
     QtIterator::close();
+    
+    stopTimer();
 }
 
 

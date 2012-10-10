@@ -154,6 +154,7 @@ QtData*
 QtConversion::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtConversion", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtConversion");
 
     QtData* returnValue = NULL;
     QtData* operand = NULL;
@@ -508,6 +509,8 @@ QtConversion::evaluate( QtDataList* inputList )
     }
     else
         RMInit::logOut << "Error: QtConversion::evaluate() - operand is not provided." << std::endl;
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -585,6 +588,7 @@ QtConversion::printTree( int tab, ostream& s, QtChildType mode )
         break;
     }
 
+    s << getEvaluationTime();
     s << std::endl;
 
     QtUnaryOperation::printTree( tab, s, mode );

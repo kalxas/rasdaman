@@ -99,6 +99,7 @@ int
 QtUpdate::evaluate()
 {
     RMDBCLASS( "QtUpdate", "evaluate()", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtUpdate");
 
     // Test, if all necessary operands are available.
     if( updateTarget && updateSource && input )
@@ -628,6 +629,8 @@ QtUpdate::evaluate()
     }
     else
         RMInit::logOut << "Error: QtUpdate::evaluate() - at least one operand branch is invalid." << endl;
+    
+    stopTimer();
 
     return 0;
 }
@@ -712,7 +715,7 @@ QtUpdate::getChilds( QtChildType flag )
 void
 QtUpdate::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtUpdate Object" << endl;
+    s << SPACE_STR(tab).c_str() << "QtUpdate Object" << getEvaluationTime() << endl;
 
     if( mode != QtNode::QT_DIRECT_CHILDS )
     {

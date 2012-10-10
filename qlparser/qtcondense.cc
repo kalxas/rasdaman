@@ -291,7 +291,7 @@ QtCondense::checkType( QtTypeTuple* typeTuple )
 void
 QtCondense::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << getClassName() << " object" << endl;
+    s << SPACE_STR(tab).c_str() << getClassName() << " object" << getEvaluationTime() << endl;
 
     QtUnaryOperation::printTree( tab, s, mode );
 }
@@ -332,6 +332,7 @@ QtData*
 QtSome::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtSome", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("Qt");
 
     QtData* returnValue = NULL;
     r_ULong dummy=0; // needed for conversion to and from CULong
@@ -422,6 +423,7 @@ QtSome::evaluate( QtDataList* inputList )
     if( operand ) operand->deleteRef();
 }
 
+stopTimer();
 return returnValue;
 }
 
@@ -446,6 +448,7 @@ QtData*
 QtAll::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtAll", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtAll");
 
     QtData* returnValue = NULL;
     r_ULong dummy=0; // needed for conversion to and from CULong
@@ -532,6 +535,8 @@ QtAll::evaluate( QtDataList* inputList )
     if( operand ) operand->deleteRef();
 }
 
+stopTimer();
+
 return returnValue;
 }
 
@@ -556,9 +561,11 @@ QtData*
 QtCountCells::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtCountCells", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtCountCells");
     r_Minterval dummyint;
     QtData* returnValue = QtCondense::computeFullCondense( inputList, dummyint );
-
+    stopTimer();
+    
     return returnValue;
 }
 
@@ -583,9 +590,11 @@ QtData*
 QtAddCells::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtAddCells", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtAddCells");
     r_Minterval dummyint;
 
     QtData* returnValue = QtCondense::computeFullCondense( inputList, dummyint );
+    stopTimer();
 
     return returnValue;
 }
@@ -611,6 +620,7 @@ QtData*
 QtAvgCells::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtAvgCells", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtAvgCells");
 
     // domain for condensing operation
     r_Minterval areaOp;
@@ -664,6 +674,7 @@ QtAvgCells::evaluate( QtDataList* inputList )
             scalarDataResult->printStatus( RMInit::dbgOut ); \
             RMInit::dbgOut << endl; )
 
+    stopTimer();
     return scalarDataResult;
 }
 
@@ -687,9 +698,12 @@ QtData*
 QtMinCells::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtMinCells", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtMinCells");
     r_Minterval dummyint;
 
     QtData* returnValue = QtCondense::computeFullCondense( inputList, dummyint );
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -715,9 +729,12 @@ QtData*
 QtMaxCells::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtMaxCells", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtMaxCells");
     r_Minterval dummyint;
 
     QtData* returnValue = QtCondense::computeFullCondense( inputList, dummyint );
+    
+    stopTimer();
 
     return returnValue;
 }

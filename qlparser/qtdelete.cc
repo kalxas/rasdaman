@@ -67,6 +67,7 @@ int
 QtDelete::evaluate()
 {
     RMDBCLASS( "QtDelete", "evaluate()", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtDelete");
 
     QtNode::QtDataList* nextTupel=NULL;
 
@@ -142,6 +143,8 @@ QtDelete::evaluate()
     }
 
     input->close();
+    
+    stopTimer();
 
     return 0;
 }
@@ -177,7 +180,7 @@ QtDelete::getChilds( QtChildType flag )
 void
 QtDelete::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtDelete Object" << std::endl;
+    s << SPACE_STR(tab).c_str() << "QtDelete Object" << getEvaluationTime() << std::endl;
 
     if( mode != QtNode::QT_DIRECT_CHILDS )
     {

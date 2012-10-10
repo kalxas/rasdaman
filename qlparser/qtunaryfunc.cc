@@ -53,6 +53,7 @@ QtData*
 QtIntervalLoOp::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtIntervalLoOp", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtIntervalLoOp");
 
     QtData* returnValue = NULL;
     QtData* operand = NULL;
@@ -100,6 +101,8 @@ QtIntervalLoOp::evaluate( QtDataList* inputList )
     {
         RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtIntervalLoOp", "Information: QtIntervalLoOp::evaluate() - operand is not provided." )
     }
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -109,7 +112,7 @@ QtIntervalLoOp::evaluate( QtDataList* inputList )
 void
 QtIntervalLoOp::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtIntervalLoOp Object: " << std::endl;
+    s << SPACE_STR(tab).c_str() << "QtIntervalLoOp Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree( tab, s, mode );
 }
@@ -176,6 +179,7 @@ QtData*
 QtIntervalHiOp::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtIntervalHiOp", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtIntervalHiOp");
 
     QtData* returnValue = NULL;
     QtData* operand = NULL;
@@ -222,6 +226,8 @@ QtIntervalHiOp::evaluate( QtDataList* inputList )
     {
         RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtIntervalHiOp", "Information: QtIntervalHiOp::evaluate() - operand is not provided." )
     }
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -231,7 +237,7 @@ QtIntervalHiOp::evaluate( QtDataList* inputList )
 void
 QtIntervalHiOp::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtIntervalHiOp Object: " << std::endl;
+    s << SPACE_STR(tab).c_str() << "QtIntervalHiOp Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree( tab, s, mode );
 }
@@ -298,6 +304,7 @@ QtData*
 QtSDom::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtSDom", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtSDom");
 
     QtData* returnValue = NULL;
     QtData* operand = NULL;
@@ -329,6 +336,8 @@ QtSDom::evaluate( QtDataList* inputList )
     {
         RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtSDom", "Information: QtSDom::evaluate() - operand is not provided." )
     }
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -361,7 +370,7 @@ QtSDom::optimizeLoad( QtTrimList* trimList )
 void
 QtSDom::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtSDom Object: " << std::endl;
+    s << SPACE_STR(tab).c_str() << "QtSDom Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree( tab, s, mode );
 }

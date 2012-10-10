@@ -313,6 +313,7 @@ QtNot::QtNot( QtOperation* initInput )
 QtData*
 QtNot::evaluate( QtDataList* inputList )
 {
+    startTimer("QtNot");
     QtData* returnValue = NULL;
     QtData* operand = NULL;
 
@@ -323,6 +324,9 @@ QtNot::evaluate( QtDataList* inputList )
         // delete old operand
         if( operand ) operand->deleteRef();
     }
+    
+    stopTimer();
+    
     return returnValue;
 }
 
@@ -331,7 +335,7 @@ QtNot::evaluate( QtDataList* inputList )
 void
 QtNot::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtNot Object" << endl;
+    s << SPACE_STR(tab).c_str() << "QtNot Object" << getEvaluationTime() << endl;
 
     QtUnaryInduce::printTree( tab+2, s, mode );
 }
@@ -496,6 +500,7 @@ QtData*
 QtDot::evaluate( QtDataList* inputList )
 {
     RMDBCLASS( "QtDot", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+    startTimer("QtDot");
 
     QtData* returnValue = NULL;
     QtData* operand = NULL;
@@ -614,6 +619,8 @@ QtDot::evaluate( QtDataList* inputList )
         // delete old operand
         if( operand ) operand->deleteRef();
     }
+    
+    stopTimer();
 
     return returnValue;
 }
@@ -624,9 +631,9 @@ void
 QtDot::printTree( int tab, ostream& s, QtChildType mode )
 {
     if( elementNo == -1 )
-        s << SPACE_STR(tab).c_str() << "QtDot Object: access " << elementName.c_str() << endl;
+        s << SPACE_STR(tab).c_str() << "QtDot Object: access " << elementName.c_str() << getEvaluationTime() << endl;
     else
-        s << SPACE_STR(tab).c_str() << "QtDot Object: access no " << elementNo << endl;
+        s << SPACE_STR(tab).c_str() << "QtDot Object: access no " << elementNo << getEvaluationTime() << endl;
 
     QtUnaryInduce::printTree( tab+2, s, mode );
 }
@@ -755,6 +762,8 @@ QtCast::QtCast(QtOperation* initInput, cast_types t):
 
 QtData* QtCast::evaluate(QtDataList* inputList)
 {
+    startTimer("QtCast");
+    
     QtData* returnValue = NULL;
     QtData* operand = NULL;
 
@@ -763,6 +772,9 @@ QtData* QtCast::evaluate(QtDataList* inputList)
 
     // delete old operand
     if(operand) operand->deleteRef();
+    
+    stopTimer();
+    
     return returnValue;
 }
 
@@ -775,7 +787,7 @@ void QtCast::printTree(int tab, ostream& s, QtChildType mode)
     };
     s << SPACE_STR(tab).c_str() << "QtCastObject "
       << getNodeType()
-      << "<" << type_name[castType] << ">"
+      << "<" << type_name[castType] << ">" << getEvaluationTime()
       << endl;
     QtUnaryInduce::printTree( tab + 2, s, mode );
 }
@@ -870,6 +882,8 @@ QtRealPartOp::QtRealPartOp(QtOperation* initInput): QtUnaryInduce(initInput) {}
 
 QtData* QtRealPartOp::evaluate(QtDataList* inputList)
 {
+    startTimer("QtRealPartOp");
+    
     QtData* returnValue = NULL;
     QtData* operand = NULL;
 
@@ -877,12 +891,15 @@ QtData* QtRealPartOp::evaluate(QtDataList* inputList)
         returnValue = computeOp( operand, Ops::OP_REALPART );
     // delete old operand
     if(operand) operand->deleteRef();
+    
+    stopTimer();
+    
     return returnValue;
 }
 
 void QtRealPartOp::printTree(int tab, ostream& s, QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtRealPartOpObject " << getNodeType() << endl;
+    s << SPACE_STR(tab).c_str() << "QtRealPartOpObject " << getNodeType() << getEvaluationTime() << endl;
     QtUnaryInduce::printTree( tab + 2, s, mode );
 }
 
@@ -963,6 +980,8 @@ QtImaginarPartOp::QtImaginarPartOp(QtOperation* initInput): QtUnaryInduce(initIn
 
 QtData* QtImaginarPartOp::evaluate(QtDataList* inputList)
 {
+    startTimer("QtImaginaryPartOp");
+    
     QtData* returnValue = NULL;
     QtData* operand = NULL;
 
@@ -970,12 +989,15 @@ QtData* QtImaginarPartOp::evaluate(QtDataList* inputList)
         returnValue = computeOp( operand, Ops::OP_IMAGINARPART );
     // delete old operand
     if(operand) operand->deleteRef();
+    
+    stopTimer();
+    
     return returnValue;
 }
 
 void QtImaginarPartOp::printTree(int tab, ostream& s, QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtImaginarPartObject " << getNodeType() << endl;
+    s << SPACE_STR(tab).c_str() << "QtImaginarPartObject " << getNodeType() << getEvaluationTime() << endl;
     QtUnaryInduce::printTree( tab + 2, s, mode );
 }
 
