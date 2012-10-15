@@ -1,6 +1,8 @@
 #ifndef _QTNODE_
 #define _QTNODE_
 
+#include "config.h"
+
 #ifndef CPPSTDLIB
 #include <vector.h>        // STL<ToolKit>
 #include <list.h>          // STL<ToolKit>
@@ -311,6 +313,22 @@ protected:
     /// attribute for parser info
     ParseInfo parseInfo;
 
+    /// start node timer (called at evaluation time)
+    void startTimer(char* name);
+    /// stop timer (at end of evaluation)
+    void stopTimer();
+    /// pause
+    void pauseTimer();
+    /// resume
+    void resumeTimer();
+    
+    /// get elapsed time if timer was started, returns a string e.g. "15 usecs"
+    char* getEvaluationTime();
+
+#ifdef RMANBENCHMARK
+    RMTimer *evaluationTimer;
+#endif
+
 private:
     /// pointer to its parent
     QtNode* parent;
@@ -345,7 +363,10 @@ private:
 
     /// sets min max values once child_range is set up, for subtree with x as root
     void num_node (const QtNodePair *arr, enum QtNodeType x);
-
+    
+#ifdef RMANBENCHMARK
+    static long timerCounter;
+#endif
 };
 
 
