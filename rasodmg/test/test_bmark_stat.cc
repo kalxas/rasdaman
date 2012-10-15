@@ -51,6 +51,16 @@ rasdaman GmbH.
      [200:510, 350:500]
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
+#ifdef EARLY_TEMPLATE
+#define __EXECUTABLE__
+#ifdef __GNUG__
+#include "raslib/template_inst.hh"
+#endif
+#endif
+
 
 #include <iostream>
 
@@ -64,8 +74,8 @@ rasdaman GmbH.
 #include "rasodmg/set.hh"
 #include "rasodmg/marray.hh"
 #include "rasodmg/tiling.hh"
+#include "rasodmg/alignedtiling.hh"
 #include "rasodmg/database.hh"
-#include "rasodmg/odmgtypes.hh"
 #include "rasodmg/stattiling.hh"
 #include "rasodmg/transaction.hh"
 #include "rasodmg/storagelayout.hh"
@@ -87,7 +97,7 @@ char* dbase_name;
 char* colect_name;
 int   cube_i;
 
-DList<r_Access>  stat_info;
+vector<r_Access>  stat_info;
 unsigned int     border_threshold;
 double           interesting_threshold;
 unsigned long    tile_size;
@@ -157,7 +167,7 @@ void read_data()
         if (sscanf(buf, "%s", buf2) == 1)
         {
             r_Minterval inter(buf);
-            stat_info += inter;
+            stat_info.push_back(inter);
             ++count;
 
             cout << "*";
@@ -184,17 +194,17 @@ void insert_datacube()
     r_Minterval                                   domain;
 
     domain = r_Minterval(3);
-    domain << r_Sinterval(0L, SIZE_X)
-           << r_Sinterval(0L, SIZE_Y)
-           << r_Sinterval(0L, SIZE_Z);
+    domain << r_Sinterval((r_Range) 0L, (r_Range) SIZE_X)
+           << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Y)
+           << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Z);
 
 
     // For alligned tiling (Regular tiling)
 
     r_Minterval block_config(3);
-    block_config << r_Sinterval(0L, SIZE_X)
-                 << r_Sinterval(0L, SIZE_Y)
-                 << r_Sinterval(0L, SIZE_Z);
+    block_config << r_Sinterval((r_Range) 0L, (r_Range) SIZE_X)
+                 << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Y)
+                 << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Z);
 
     unsigned long ts;
     switch (cube_i)
@@ -217,22 +227,17 @@ void insert_datacube()
     }
 
     r_Aligned_Tiling til_reg(block_config, ts);
-    r_Stat_Tiling til_stat(border_threshold, interesting_threshold, tile_size);
-
-    if (cube_i > 3)
-    {
-        til_stat.update_stat_information(stat_info);
-    }
+    r_Stat_Tiling til_stat((r_Dimension) 3, stat_info, tile_size, border_threshold, interesting_threshold);
 
 
     // Domain storage layout
 
     // This is a hack due to problems with the pointers
-    r_Domain_Storage_Layout* dsl[2];
-    r_Domain_Storage_Layout* use;
+    r_Storage_Layout* dsl[2];
+    r_Storage_Layout* use;
 
-    dsl[0] = new r_Domain_Storage_Layout(domain, &til_reg);
-    dsl[1] = new r_Domain_Storage_Layout(domain, &til_stat);
+    dsl[0] = new r_Storage_Layout(&til_reg);
+    dsl[1] = new r_Storage_Layout(&til_stat);
 
     if (cube_i<4)
         use = dsl[0];

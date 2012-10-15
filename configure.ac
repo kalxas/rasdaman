@@ -123,6 +123,7 @@ AC_CONFIG_FILES([Makefile
                  clientcomm/Makefile
                  servercomm/Makefile
                  rasodmg/Makefile
+                 rasodmg/test/Makefile
                  qlparser/Makefile
                  conversion/Makefile
                  mddmgr/Makefile

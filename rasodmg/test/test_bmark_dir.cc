@@ -33,6 +33,16 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
+#ifdef EARLY_TEMPLATE
+#define __EXECUTABLE__
+#ifdef __GNUG__
+#include "raslib/template_inst.hh"
+#endif
+#endif
+
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,13 +51,14 @@ rasdaman GmbH.
 #include "rasodmg/database.hh"
 #include "rasodmg/set.hh"
 #include "rasodmg/marray.hh"
-#include "rasodmg/odmgtypes.hh"
 #include "rasodmg/storagelayout.hh"
 #include "rasodmg/tiling.hh"
 #include "rasodmg/dirtiling.hh"
+#include "rasodmg/alignedtiling.hh"
 #include "rasodmg/dirdecompose.hh"
 #include "rasodmg/storagelayout.hh"
-#include "raslib/oid.hh"
+
+using namespace std;
 
 #define TOTAL_DAYS          (365L * 2L)
 #define TOTAL_PRODUCTS      (60L)
@@ -93,21 +104,21 @@ void insert_datacube()
     r_Ref< r_Set< r_Ref< r_Marray<r_ULong> > > >  cube_set;
     // r_Ref< r_Marray<r_ULong> >                 cube[TOTAL_CUBES];
     r_Minterval                                   domain, block_config;
-    r_Domain_Storage_Layout*                      dsl[TOTAL_CUBES];
+    r_Storage_Layout*                             dsl[TOTAL_CUBES];
     r_OId                                         oid[TOTAL_CUBES];
 
     domain = r_Minterval(3);
-    domain << r_Sinterval(1L, TOTAL_DAYS)
-           << r_Sinterval(1L, TOTAL_PRODUCTS)
-           << r_Sinterval(1L, TOTAL_STORES);
+    domain << r_Sinterval((r_Range)1L, (r_Range)TOTAL_DAYS)
+           << r_Sinterval((r_Range)1L, (r_Range)TOTAL_PRODUCTS)
+           << r_Sinterval((r_Range)1L, (r_Range)TOTAL_STORES);
 
 
     // For alligned tiling (Regular tiling)
 
     block_config = r_Minterval(3);
-    block_config << r_Sinterval(0L, TOTAL_DAYS)
-                 << r_Sinterval(0L, TOTAL_PRODUCTS)
-                 << r_Sinterval(0L, TOTAL_STORES);
+    block_config << r_Sinterval((r_Range)0L, (r_Range)TOTAL_DAYS)
+                 << r_Sinterval((r_Range)0L, (r_Range)TOTAL_PRODUCTS)
+                 << r_Sinterval((r_Range)0L, (r_Range)TOTAL_STORES);
 
     r_Aligned_Tiling* til_reg_32k = new r_Aligned_Tiling(block_config, S_32K);
     r_Aligned_Tiling* til_reg_64k = new r_Aligned_Tiling(block_config, S_64K);
@@ -117,30 +128,34 @@ void insert_datacube()
 
     // For directional tiling
 
-    r_Dir_Decompose decomp[3];
-    decomp[0] << 1 << 365 << 730;
-    decomp[1] << 1 <<  27 <<  42 << 60;
-    decomp[2] << 1 <<  27 <<  35 << 41 << 59 << 73 << 89 << 97 << 100;
+    vector<r_Dir_Decompose> decomp;
+    r_Dir_Decompose a, b, c;
+    a << 1 << 365 << 730;
+    b << 1 <<  27 <<  42 << 60;
+    c << 1 <<  27 <<  35 << 41 << 59 << 73 << 89 << 97 << 100;
+    decomp.push_back(a);
+    decomp.push_back(b);
+    decomp.push_back(c);
 
-    r_Dir_Tiling* til_dir_32k = new r_Dir_Tiling(3, decomp, S_32K);
-    r_Dir_Tiling* til_dir_64k = new r_Dir_Tiling(3, decomp, S_64K);
-    r_Dir_Tiling* til_dir_128k = new r_Dir_Tiling(3, decomp, S_128K);
-    r_Dir_Tiling* til_dir_256k = new r_Dir_Tiling(3, decomp, S_256K);
-    r_Dir_Tiling* til_dir_Unlk = new r_Dir_Tiling(3, decomp, S_256K, r_Dir_Tiling::WITHOUT_SUBTILING);
+    r_Dir_Tiling* til_dir_32k = new r_Dir_Tiling((r_Dimension)3, decomp, S_32K);
+    r_Dir_Tiling* til_dir_64k = new r_Dir_Tiling((r_Dimension)3, decomp, S_64K);
+    r_Dir_Tiling* til_dir_128k = new r_Dir_Tiling((r_Dimension)3, decomp, S_128K);
+    r_Dir_Tiling* til_dir_256k = new r_Dir_Tiling((r_Dimension)3, decomp, S_256K);
+    r_Dir_Tiling* til_dir_Unlk = new r_Dir_Tiling((r_Dimension)3, decomp, S_256K, r_Dir_Tiling::WITHOUT_SUBTILING);
 
 
     // Domain storage layouts
 
-    dsl[0] = new r_Domain_Storage_Layout(domain, til_reg_32k);
-    dsl[1] = new r_Domain_Storage_Layout(domain, til_reg_64k);
-    dsl[2] = new r_Domain_Storage_Layout(domain, til_reg_128k);
-    dsl[3] = new r_Domain_Storage_Layout(domain, til_reg_256k);
+    dsl[0] = new r_Storage_Layout(til_reg_32k);
+    dsl[1] = new r_Storage_Layout(til_reg_64k);
+    dsl[2] = new r_Storage_Layout(til_reg_128k);
+    dsl[3] = new r_Storage_Layout(til_reg_256k);
 
-    dsl[4] = new r_Domain_Storage_Layout(domain, til_dir_32k);
-    dsl[5] = new r_Domain_Storage_Layout(domain, til_dir_64k);
-    dsl[6] = new r_Domain_Storage_Layout(domain, til_dir_128k);
-    dsl[7] = new r_Domain_Storage_Layout(domain, til_dir_256k);
-    dsl[8] = new r_Domain_Storage_Layout(domain, til_dir_Unlk);
+    dsl[4] = new r_Storage_Layout(til_dir_32k);
+    dsl[5] = new r_Storage_Layout(til_dir_64k);
+    dsl[6] = new r_Storage_Layout(til_dir_128k);
+    dsl[7] = new r_Storage_Layout(til_dir_256k);
+    dsl[8] = new r_Storage_Layout(til_dir_Unlk);
 
 
     for (int i=0; i< TOTAL_CUBES ; i++)
@@ -188,7 +203,7 @@ void insert_datacube()
             //  {
             // cube[i] =
             cube1 =
-                new(&db, "ULong_3D_Cube") r_Marray<r_ULong>(domain, 1L /* &init */, dsl[i]);
+                new(&db, "ULongCube") r_Marray<r_ULong>(domain, 1L /* &init */, dsl[i]);
 
             // cube_set->insert_element(cube[i]);
             // oid[i] = cube[i].get_oid();
@@ -236,8 +251,8 @@ void insert_datacube()
     cout << "Inserted data resume" << endl;
     cout << "====================" << endl;
 
-    //    for (int k=0; k<TOTAL_CUBES; k++)
-    //  cout << "  Cube[" << k << "]:  " << oid[k] << endl;
+    for (int k=0; k<TOTAL_CUBES; k++)
+      cout << "  Cube[" << k << "]:  " << oid[k] << endl;
 }
 
 int main(int argc, char* argv[])

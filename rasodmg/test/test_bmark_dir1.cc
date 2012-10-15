@@ -33,6 +33,16 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
+#ifdef EARLY_TEMPLATE
+#define __EXECUTABLE__
+#ifdef __GNUG__
+#include "raslib/template_inst.hh"
+#endif
+#endif
+
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,12 +51,11 @@ rasdaman GmbH.
 #include "rasodmg/database.hh"
 #include "rasodmg/set.hh"
 #include "rasodmg/marray.hh"
-#include "raslib/odmgtypes.hh"
+#include "rasodmg/alignedtiling.hh"
 #include "rasodmg/tiling.hh"
 #include "rasodmg/dirtiling.hh"
 #include "rasodmg/dirdecompose.hh"
 #include "rasodmg/storagelayout.hh"
-#include "raslib/oid.hh"
 
 #define YEARS               (2L)
 
@@ -95,19 +104,19 @@ void insert_datacube()
     r_Ref< r_Set< r_Ref< r_Marray<r_ULong> > > >  cube_set;
     // r_Ref< r_Marray<r_ULong> >                 cube[TOTAL_CUBES];
     r_Minterval                                   domain, block_config;
-    r_Domain_Storage_Layout*                      dsl[TOTAL_CUBES];
+    r_Storage_Layout*                             dsl[TOTAL_CUBES];
     r_OId                                         oid[TOTAL_CUBES];
 
     domain = r_Minterval(3);
-    domain << r_Sinterval(1L, TOTAL_DAYS)
-           << r_Sinterval(1L, TOTAL_PRODUCTS)
-           << r_Sinterval(1L, TOTAL_STORES);
+    domain << r_Sinterval((r_Range)1L, (r_Range)TOTAL_DAYS)
+           << r_Sinterval((r_Range)1L, (r_Range)TOTAL_PRODUCTS)
+           << r_Sinterval((r_Range)1L, (r_Range)TOTAL_STORES);
 
 
     block_config = r_Minterval(3);
-    block_config << r_Sinterval(0L, TOTAL_DAYS)
-                 << r_Sinterval(0L, TOTAL_PRODUCTS)
-                 << r_Sinterval(0L, TOTAL_STORES);
+    block_config << r_Sinterval((r_Range)0L, (r_Range)TOTAL_DAYS)
+                 << r_Sinterval((r_Range)0L, (r_Range)TOTAL_PRODUCTS)
+                 << r_Sinterval((r_Range)0L, (r_Range)TOTAL_STORES);
 
     // Each storage object must have an own dynamic tiling obj or else the client
     // ( and server ) crashes because memory is released for a non heap memory free
@@ -121,7 +130,11 @@ void insert_datacube()
 
     // For directional tiling
 
-    r_Dir_Decompose decomp[3];
+    vector<r_Dir_Decompose> decomp;
+    r_Dir_Decompose a, b, c;
+    decomp.push_back(a);
+    decomp.push_back(b);
+    decomp.push_back(c);
 
     //                Jan  Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dez
     unsigned int daysMonth[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -144,13 +157,18 @@ void insert_datacube()
     decomp[2] << 1 <<  27 <<  35 << 41 << 59 << 73 << 89 << 97 << 100;
 
 
-    r_Dir_Tiling* til_dir_32k = new r_Dir_Tiling(3, decomp, S_32K);
-    r_Dir_Tiling* til_dir_64k = new r_Dir_Tiling(3, decomp, S_64K);
-    r_Dir_Tiling* til_dir_128k = new r_Dir_Tiling(3, decomp, S_128K);
-    r_Dir_Tiling* til_dir_256k = new r_Dir_Tiling(3, decomp, S_256K);
+    r_Dir_Tiling* til_dir_32k = new r_Dir_Tiling((r_Dimension)3, decomp, S_32K);
+    r_Dir_Tiling* til_dir_64k = new r_Dir_Tiling((r_Dimension)3, decomp, S_64K);
+    r_Dir_Tiling* til_dir_128k = new r_Dir_Tiling((r_Dimension)3, decomp, S_128K);
+    r_Dir_Tiling* til_dir_256k = new r_Dir_Tiling((r_Dimension)3, decomp, S_256K);
 
 
-    r_Dir_Decompose decomp1[3];
+
+    vector<r_Dir_Decompose> decomp1;
+    r_Dir_Decompose e, f, g;
+    decomp1.push_back(e);
+    decomp1.push_back(f);
+    decomp1.push_back(g);
 
     ix = 0;
     decomp1[0] << 1;
@@ -171,23 +189,23 @@ void insert_datacube()
     // << 1 << 1 + 26 << 27 + 8 << 35 + 6 << 41 + 18 << 59 + 14 << 73 + 16 << 89 + 8 << 97 + 3;
     decomp1[2] << 1 <<  27 <<  35 << 41 << 59 << 73 << 89 << 97 << 100;
 
-    r_Dir_Tiling* til_dir1_32k = new r_Dir_Tiling(3, decomp1, S_32K);
-    r_Dir_Tiling* til_dir1_64k = new r_Dir_Tiling(3, decomp1, S_64K);
+    r_Dir_Tiling* til_dir1_32k = new r_Dir_Tiling((r_Dimension)3, decomp1, S_32K);
+    r_Dir_Tiling* til_dir1_64k = new r_Dir_Tiling((r_Dimension)3, decomp1, S_64K);
 
     // Domain storage layouts
 
-    dsl[0] = new r_Domain_Storage_Layout(domain, til_reg_32k);
-    dsl[1] = new r_Domain_Storage_Layout(domain, til_reg_64k);
-    dsl[2] = new r_Domain_Storage_Layout(domain, til_reg_128k);
-    dsl[3] = new r_Domain_Storage_Layout(domain, til_reg_256k);
+    dsl[0] = new r_Storage_Layout(til_reg_32k);
+    dsl[1] = new r_Storage_Layout(til_reg_64k);
+    dsl[2] = new r_Storage_Layout(til_reg_128k);
+    dsl[3] = new r_Storage_Layout(til_reg_256k);
 
-    dsl[4] = new r_Domain_Storage_Layout(domain, til_dir_32k);
-    dsl[5] = new r_Domain_Storage_Layout(domain, til_dir_64k);
-    dsl[6] = new r_Domain_Storage_Layout(domain, til_dir_128k);
-    dsl[7] = new r_Domain_Storage_Layout(domain, til_dir_256k);
+    dsl[4] = new r_Storage_Layout(til_dir_32k);
+    dsl[5] = new r_Storage_Layout(til_dir_64k);
+    dsl[6] = new r_Storage_Layout(til_dir_128k);
+    dsl[7] = new r_Storage_Layout(til_dir_256k);
 
-    dsl[8] = new r_Domain_Storage_Layout(domain, til_dir1_32k);
-    dsl[9] = new r_Domain_Storage_Layout(domain, til_dir1_64k);
+    dsl[8] = new r_Storage_Layout(til_dir1_32k);
+    dsl[9] = new r_Storage_Layout(til_dir1_64k);
 
 
     for (int i= 0 ; i< TOTAL_CUBES ; i++)
@@ -236,7 +254,7 @@ void insert_datacube()
             // cube[i] =
             cout << "domain == " << domain << endl;
             cube1 =
-                new(&db, "ULong_3D_Cube") r_Marray<r_ULong>(domain, 1L/* &init */, dsl[i]);
+                new(&db, "ULongCube") r_Marray<r_ULong>(domain, 1L/* &init */, dsl[i]);
 
             // cube_set->insert_element(cube[i]);
             // oid[i] = cube[i].get_oid();
@@ -252,11 +270,12 @@ void insert_datacube()
             cout << "  Spatial domain: " << cube1->spatial_domain( ) << endl;
             cout << "  Type length: " << cube1->get_type_length( ) << endl;
             cout << "  Storage Layout:  ";
+            r_Bytes tileSize = ((r_Size_Tiling*) dsl[i]->get_tiling())->get_tile_size();
             if( i < 4 )
-                cout << "regular; tile size " << dsl[i]->get_tile_size( ) << endl;
+                cout << "regular; tile size " << tileSize << endl;
             else
             {
-                cout << "directional; tile size " << dsl[i]->get_tile_size( ) << endl;
+                cout << "directional; tile size " << tileSize << endl;
                 cout << "Dir decompose:  ";
                 for ( int j = 0; j < 3 ; j++ )
                 {

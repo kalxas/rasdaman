@@ -31,6 +31,8 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)rasodmg/test,SystemUpdate: $Id: system_update.cc,v 1.21 2003/12/27 23:02:58 rasdev Exp $";
 
+#include "config.h"
+
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #include "raslib/template_inst.hh"

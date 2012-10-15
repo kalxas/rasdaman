@@ -51,6 +51,16 @@ rasdaman GmbH.
      [200:510, 350:500]
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
+#ifdef EARLY_TEMPLATE
+#define __EXECUTABLE__
+#ifdef __GNUG__
+#include "raslib/template_inst.hh"
+#endif
+#endif
+
 
 #include <iostream>
 #include <stdio.h>
@@ -62,7 +72,7 @@ rasdaman GmbH.
 #include "raslib/sinterval.hh"
 
 char* filename;
-DList<r_Access> stat_info;
+vector<r_Access> stat_info;
 unsigned int border_threshold;
 double interesting_threshold;
 unsigned long tile_size;
@@ -115,7 +125,7 @@ void read_data()
         if (sscanf(buf, "%s", buf2) == 1)
         {
             r_Minterval inter(buf);
-            stat_info += inter;
+            stat_info.push_back(inter);
             ++count;
 
             cout << "*";
@@ -136,15 +146,15 @@ void read_data()
 
 void test_tiling()
 {
-    r_Stat_Tiling tiling(border_threshold, interesting_threshold, tile_size);
-    tiling.update_stat_information(stat_info);
+    r_Stat_Tiling tiling((r_Dimension) 2, stat_info, tile_size, border_threshold, interesting_threshold);
 
-    DList<r_Minterval>* tiles = tiling.compute_tiles(*domain, 1);
+    vector<r_Minterval>* tiles = tiling.compute_tiles(*domain, 1);
 
     cout << endl << "Tiles: " << endl;
-    while (!tiles->is_empty())
+    vector<r_Minterval>::iterator it;
+    for (it = tiles->begin(); it != tiles->end(); it++)
     {
-        r_Minterval inter = tiles->get_first(TRUE);
+        r_Minterval inter = *it;
         cout << "  " << inter << endl;
     }
 

@@ -29,8 +29,18 @@ rasdaman GmbH.
  *          None
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
+#ifdef EARLY_TEMPLATE
+#define __EXECUTABLE__
+#ifdef __GNUG__
+#include "raslib/template_inst.hh"
+#endif
+#endif
+
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 #ifdef __VISUALC__
 #define __EXECUTABLE__
@@ -40,7 +50,6 @@ rasdaman GmbH.
 #include "rasodmg/database.hh"
 #include "rasodmg/set.hh"
 #include "rasodmg/marray.hh"
-#include "raslib/odmgtypes.hh"
 #include "rasodmg/storagelayout.hh"
 #include "rasodmg/alignedtiling.hh"
 #include "rasodmg/dirdecompose.hh"
@@ -135,7 +144,8 @@ int main( int argc, char** argv )
     r_Ref< r_Marray<r_ULong> >                   image1, image2, image3, image4;
     r_Minterval                                  domain, domain2;
 
-    domain  = r_Minterval(2) << r_Sinterval( 0, 100 ) << r_Sinterval( 0, 100 );
+    domain  = r_Minterval(2) << r_Sinterval((r_Range) 0, (r_Range) 100 )
+                             << r_Sinterval((r_Range) 0, (r_Range) 100 );
 
     // Default storage layout
     r_Storage_Layout* sl1 = new r_Storage_Layout;

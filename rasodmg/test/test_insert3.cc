@@ -29,9 +29,14 @@ rasdaman GmbH.
  *      None
  */
 
+#include "config.h"
+
+/// RASDAMAN includes
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
+#ifdef __GNUG__
 #include "raslib/template_inst.hh"
+#endif
 #endif
 
 #ifdef __VISUALC__
@@ -313,7 +318,7 @@ void printUsage(char* name)
     std::cout << "         -testbed                                ... turn on output for testbed.default(default off)" << std::endl;
     std::cout << std::endl << std::endl;
 
-    std::cout << "Report bugs to <support@active­knowledge.com>" << std::endl;
+    std::cout << "Report bugs to <support@activeï¿½knowledge.com>" << std::endl;
 }
 
 r_Tiling*
@@ -548,7 +553,7 @@ int main( int argc, char** argv )
                 cin  >> high;
                 std::cout << high << " ); " ;
 
-                domain << r_Sinterval( low, high );
+                domain << r_Sinterval((r_Range) low, (r_Range) high );
             }
 
             std::cout << std::endl;

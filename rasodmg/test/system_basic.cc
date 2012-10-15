@@ -31,18 +31,18 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)rasodmg/test,SystemBasic: $Id: system_basic.cc,v 1.37 2002/10/09 09:58:05 hoefner Exp $";
 
-#ifdef TESTBASIC
+#include "config.h"
+
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #include "raslib/template_inst.hh"
-#endif
 #endif
 
 #include "system_basic.hh"
 
 #include <iostream>
 #include <iomanip>
-#include <string>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <math.h>
@@ -78,8 +78,8 @@ static const char rcsid[] = "@(#)rasodmg/test,SystemBasic: $Id: system_basic.cc,
 #include "conversion/convfactory.hh"
 #include "conversion/convertor.hh"
 
-#include "exportutils/hexcodec.cc"
-#include "exportutils/error.cc"
+#include "hexcodec.hh"
+#include "import_error.hh"
 
 void
 fast_scale_process_primitive_type(const r_Primitive_Type *primType, char *dest, const char *src, const r_Minterval &destIv, const r_Minterval &srcIv, const r_Minterval &iterDom, unsigned int type_len, unsigned int length, r_Scale_Function func);

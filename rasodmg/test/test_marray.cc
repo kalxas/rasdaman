@@ -29,9 +29,14 @@ rasdaman GmbH.
  *      None
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
+#ifdef __GNUG__
 #include "raslib/template_inst.hh"
+#endif
 #endif
 
 #include <iostream>
@@ -67,7 +72,9 @@ int main()
 
     cout << "Initialization of Marray<int, [0:2,3:5,6:8]> with init function:" << endl;
     r_Minterval domain(3);
-    domain << r_Sinterval(0,2) << r_Sinterval(3,5) << r_Sinterval(6,8);
+    domain << r_Sinterval((r_Range) 0, (r_Range) 2)
+           << r_Sinterval((r_Range) 3, (r_Range) 5)
+           << r_Sinterval((r_Range) 6, (r_Range) 8);
     r_Marray<int> a( domain, &initFunction );
     cout << "OK" << endl;
     a.print_status( cout );
@@ -90,12 +97,16 @@ int main()
 
     cout << endl << "Triming operator:" << endl;
     cout << "trim a[1:3, 4:6, 7:9]" << endl;
-    r_Marray<int> c = a[ r_Minterval(3) << r_Sinterval(1,3) << r_Sinterval(4,6) << r_Sinterval(7,9) ];
+    r_Marray<int> c = a[ r_Minterval(3) << r_Sinterval((r_Range) 1, (r_Range) 3) 
+                                        << r_Sinterval((r_Range) 4, (r_Range) 6)
+                                        << r_Sinterval((r_Range) 7, (r_Range) 9) ];
     c.print_status( cout );
 
     cout << "Initialization of Marray<char, [0:2,0:2,0:2]> with 'A'" << endl;
     r_Minterval domain2(3);
-    domain2 << r_Sinterval(0,2) << r_Sinterval(0,2) << r_Sinterval(0,2);
+    domain2 << r_Sinterval((r_Range) 0, (r_Range) 2)
+            << r_Sinterval((r_Range) 0, (r_Range) 2)
+            << r_Sinterval((r_Range) 0, (r_Range) 2);
     r_Marray<char> a_char( domain2, 'A' );
     cout << "OK" << endl;
     a_char.print_status( cout );

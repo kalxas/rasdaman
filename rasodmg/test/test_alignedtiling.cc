@@ -29,19 +29,27 @@ rasdaman GmbH.
  *      None
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
+#ifdef EARLY_TEMPLATE
+#define __EXECUTABLE__
+#ifdef __GNUG__
+#include "raslib/template_inst.hh"
+#endif
+#endif
+
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 #ifdef __VISUALC__
 #define __EXECUTABLE__
 #endif
-// #include "clientcomm/clientcomm.hh"
 #include "rasodmg/ref.hh"
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
 #include "rasodmg/set.hh"
 #include "rasodmg/marray.hh"
-#include "rasodmg/odmgtypes.hh"
 #include "raslib/minterval.hh"
 #include "rasodmg/alignedtiling.hh"
 #ifdef __VISUALC__
@@ -114,7 +122,7 @@ int main( int argc, char** argv )
     cout << "Object domain : " << *domain << ", cell size " << cell_size << endl;
 
     r_Minterval result_tile =
-        storeOptions.compute_tile_domain(cell_size, *domain);
+        storeOptions.compute_tile_domain(*domain, cell_size);
 
     cout << "Tiling Options resulting tile :" << result_tile << endl;
 

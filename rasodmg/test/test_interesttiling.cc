@@ -31,6 +31,16 @@ rasdaman GmbH.
  *          None
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
+#ifdef EARLY_TEMPLATE
+#define __EXECUTABLE__
+#ifdef __GNUG__
+#include "raslib/template_inst.hh"
+#endif
+#endif
+
 
 #include <iostream>
 #include <stdio.h>
@@ -46,35 +56,34 @@ rasdaman GmbH.
 int main()
 {
     r_Minterval domain(2);
-    domain << r_Sinterval(0L, 500L) << r_Sinterval(0L, 600L);
+    domain << r_Sinterval((r_Range) 0L, (r_Range) 500L) << r_Sinterval((r_Range) 0L, (r_Range) 600L);
 
     r_Minterval int1(2);
-    int1 << r_Sinterval(0L, 100L) << r_Sinterval(0L, 500L);
+    int1 << r_Sinterval((r_Range) 0L, (r_Range) 100L) << r_Sinterval((r_Range) 0L, (r_Range) 500L);
 
     r_Minterval int2(2);
-    int2 << r_Sinterval(200L, 400L) << r_Sinterval(100L, 200L);
+    int2 << r_Sinterval((r_Range) 200L, (r_Range) 400L) << r_Sinterval((r_Range) 100L, (r_Range) 200L);
 
     r_Minterval int3(2);
-    int3 << r_Sinterval(250L, 450L) << r_Sinterval(150L, 250L);
+    int3 << r_Sinterval((r_Range) 250L, (r_Range) 450L) << r_Sinterval((r_Range) 150L, (r_Range) 250L);
 
     r_Minterval int4(2);
-    int4 << r_Sinterval(300L, 500L) << r_Sinterval(400L, 550L);
+    int4 << r_Sinterval((r_Range) 300L, (r_Range) 500L) << r_Sinterval((r_Range) 400L, (r_Range) 550L);
 
-    DList<r_Minterval> iareas;
-    iareas += int1;
-    iareas += int2;
-    iareas += int3;
-    iareas += int4;
+    vector<r_Minterval> iareas;
+    iareas.push_back(int1);
+    iareas.push_back(int2);
+    iareas.push_back(int3);
+    iareas.push_back(int4);
 
-    r_Interest_Tiling tiling(iareas, r_Interest_Tiling::REGROUP_AND_SUBTILING,
-                             50000);
+    r_Interest_Tiling tiling((r_Dimension) 3, iareas, 50000, r_Interest_Tiling::REGROUP_AND_SUBTILING);
 
-    DList<r_Minterval>* tiles = tiling.compute_tiles(domain, 1);
+    vector<r_Minterval>* tiles = tiling.compute_tiles(domain, 1);
 
     cout << "Domain: " << domain << endl << endl;
     cout << "Interest Areas: " << endl;
-    DListIterator<r_Minterval> it_areas = iareas.create_iterator();
-    for (; it_areas.not_done(); it_areas++)
+    vector<r_Minterval>::iterator it_areas = iareas.begin();
+    for (; it_areas != iareas.end(); it_areas++)
     {
         r_Minterval inter = *it_areas;
         cout << "   " << inter << endl;
@@ -82,8 +91,8 @@ int main()
 
     cout << "Tiles:  " << endl;
 
-    DListIterator<r_Minterval> it = tiles->create_iterator();
-    for (; it.not_done(); it++)
+    vector<r_Minterval>::iterator it = tiles->begin();
+    for (; it != tiles->end(); it++)
     {
         r_Minterval inter = *it;
         cout << "   " << inter << endl;

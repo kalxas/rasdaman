@@ -31,6 +31,8 @@ rasdaman GmbH.
  *
  ************************************************************/
 
+#include "config.h"
+
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #include "raslib/template_inst.hh"
@@ -39,13 +41,13 @@ rasdaman GmbH.
 #ifdef __VISUALC__
 #include <strstrea.h>
 #else
-#include <strstream.h>
+#include <strstream>
 #endif
 
 #include <iostream>
-#include <iomanip.h>
-#include <string.h>
-#include <fstream.h>
+#include <iomanip>
+#include <cstring>
+#include <fstream>
 
 #include <math.h>
 

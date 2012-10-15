@@ -52,15 +52,27 @@ rasdaman GmbH.
      are specified, one for 40% of the patterns, another for 60%.
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
+#ifdef EARLY_TEMPLATE
+#define __EXECUTABLE__
+#ifdef __GNUG__
+#include "raslib/template_inst.hh"
+#endif
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#include <fstream.h>
+#include <fstream>
 #include <time.h>
 #include "raslib/minterval.hh"
 #include "raslib/sinterval.hh"
 #include "raslib/dlist.hh"
+
+using namespace std;
 
 const int BUF_SIZE = 200;
 
@@ -82,7 +94,7 @@ struct IArea
     }
 };
 
-DList<IArea*> IAreas;
+vector<IArea*> IAreas;
 
 void parse(int argc, char** argv)
 {
@@ -159,7 +171,7 @@ void get_specification()
         {
             r_Minterval area(buf2);
             IArea* ia = new IArea(area, perc);
-            IAreas += ia;
+            IAreas.push_back(ia);
 
             cout << "*";
         }
@@ -177,7 +189,7 @@ void generate_patterns()
     srand((unsigned int) time(NULL));
 
 
-    DListIterator<IArea*> it = IAreas.create_iterator();
+    vector<IArea*>::iterator it = IAreas.begin();
 
     ofstream os(out_filename);
     if (!os)
@@ -186,7 +198,7 @@ void generate_patterns()
         exit(0);
     }
 
-    while (it.not_done())
+    while (it != IAreas.end())
     {
         IArea* ia = *it;
         ++it;

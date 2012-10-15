@@ -29,13 +29,18 @@ rasdaman GmbH.
  *      None
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
+#ifdef __GNUG__
 #include "raslib/template_inst.hh"
+#endif
 #endif
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 #ifdef __VISUALC__
 #define __EXECUTABLE__
@@ -132,7 +137,8 @@ int main( int argc, char** argv )
            image5, image6, transImage;
     r_Minterval                                  domain, domain2;
 
-    domain  = r_Minterval(2) << r_Sinterval( 0, 10 ) << r_Sinterval( 0, 10 );
+    domain  = r_Minterval(2) << r_Sinterval((r_Range) 0, (r_Range) 10 )
+                             << r_Sinterval((r_Range) 0, (r_Range) 10 );
 
     db.set_servername( serverName );
 

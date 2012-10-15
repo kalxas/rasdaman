@@ -46,6 +46,8 @@ rasdaman GmbH.
  *     print usage and exit
  */
 
+#include "config.h"
+
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #ifdef __GNUG__
@@ -147,7 +149,7 @@ void printUsage()
     cout << "For example:" << endl;
     cout << "defconv " << paramSrcFileName << " " << fileNameSrc << " " << paramSrcFormat << " " << format_name_bmp <<" "
          << paramDestFileName << " " << fileNameDest  << " " << paramDestFormat <<" " << format_name_tiff << endl;
-    cout << "Report bugs to liviu.coman@active­knowledge.com" << endl;
+    cout << "Report bugs to liviu.coman@activeï¿½knowledge.com" << endl;
 
 }
 

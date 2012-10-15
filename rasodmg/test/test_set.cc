@@ -29,9 +29,14 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
+#ifdef __GNUG__
 #include "raslib/template_inst.hh"
+#endif
 #endif
 
 #include <iostream>
@@ -39,19 +44,30 @@ rasdaman GmbH.
 
 int main()
 {
-    int v,x,y,z;
-
-    v = 100;
-    x = 200;
-    y = 100;
-    z = 300;
+    r_Minterval domainV(1);
+    domainV << r_Sinterval((r_Range) 0, (r_Range) 100);
+    r_GMarray* v = new r_GMarray(domainV, 1);
+    
+    r_Minterval domainX(1);
+    domainX << r_Sinterval((r_Range) 0, (r_Range) 200);
+    r_GMarray* x = new r_GMarray(domainX, 1);
+    
+    r_Minterval domainY(1);
+    domainY << r_Sinterval((r_Range) 0, (r_Range) 300);
+    r_GMarray* y = new r_GMarray(domainY, 1);
+    
+    r_Minterval domainZ(1);
+    domainZ << r_Sinterval((r_Range) 0, (r_Range) 400);
+    r_GMarray* z = new r_GMarray(domainZ, 1);
+    
+    r_GMarray* next = new r_GMarray();
 
     cout << endl << endl;
     cout << "Set Examples" << endl;
     cout << "=============" << endl << endl;
 
     cout << "Creating r_Set of type int." << endl;
-    r_Set<int> a;
+    r_Set<r_GMarray*> a;
 
     cout << "Cardinality of empty set 'a': " << a.cardinality() << endl << endl;
 
@@ -69,29 +85,29 @@ int main()
 
     cout << "Cardinality of collection 'a' after four inserts: " << a.cardinality() << endl << endl;
 
-    cout << "Does 'a' contain element '100' (1=TRUE/0=FALSE)? " << a.contains_element(100) << endl;
+    cout << "Does 'a' contain element '100' (1=TRUE/0=FALSE)? " << a.contains_element(x) << endl;
 
-    cout << "Does 'a' contain element '500' (1=TRUE/0=FALSE)? " << a.contains_element(500) << endl << endl;
+    cout << "Does 'a' contain element '500' (1=TRUE/0=FALSE)? " << a.contains_element(next) << endl << endl;
 
     cout << "Now removing element 'x=200' from 'a'." << endl;
     a.remove_element(x);
     cout << "Cardinality of 'a' now: " << a.cardinality() << endl << endl;
 
     cout << "Now removing element '100' from 'a'." << endl;
-    a.remove_element(100);
+    a.remove_element(x);
     cout << "Cardinality of 'a' now: " << a.cardinality() << endl << endl;
 
     cout << "Now removing (non-existing) element '500' from 'a'." << endl;
-    a.remove_element(500);
+    a.remove_element(next);
     cout << "Cardinality of 'a' now: " << a.cardinality() << endl << endl;
 
     cout << "Testing assignment operator on r_Sets." << endl << "(creating r_Set 'b' that is equal to 'a'.)" <<endl;
-    r_Set<int> b;
+    r_Set<r_GMarray*> b;
     b = a;
     cout << "Cardinality of 'b': " << b.cardinality() << endl << endl;
 
     cout << "Testing copy constructor of r_Set." << endl << "(creating r_Set 'c' that is equal to 'a'.)" <<endl;
-    r_Set<int> c(a);
+    r_Set<r_GMarray*> c(a);
     cout << "Cardinality of 'c': " << c.cardinality() << endl << endl;
 
     cout << "Now removing all elements from 'a'." << endl;

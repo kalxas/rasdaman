@@ -45,12 +45,16 @@ rasdaman GmbH.
  *     print usage and exit
  */
 
+#include "config.h"
+
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #ifdef __GNUG__
 #include "raslib/template_inst.hh"
 #endif
 #endif
+
+#include <cstring>
 
 #include "defutil.hh"
 
@@ -133,7 +137,7 @@ void printUsage()
     cout << "For example:" << endl;
     cout << "defdiff " << paramSrcFileName << " " << fileNameSrc << " " << paramSrcFormat << " " << format_name_bmp <<" "
          << paramDestFileName << " " << fileNameDest  << " " << paramDestFormat <<" " << format_name_tiff << endl;
-    cout << "Report bugs to liviu.coman@active­knowledge.com" << endl;
+    cout << "Report bugs to liviu.coman@activeï¿½knowledge.com" << endl;
 
 }
 

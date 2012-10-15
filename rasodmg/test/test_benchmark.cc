@@ -29,6 +29,8 @@ rasdaman GmbH.
  *          None
 */
 
+#include "config.h"
+
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #include "raslib/template_inst.hh"
@@ -37,12 +39,12 @@ rasdaman GmbH.
 #ifdef __VISUALC__
 #include <strstrea.h>
 #else
-#include <strstream.h>
+#include <strstream>
 #endif
 
 #include <iostream>
-#include <fstream.h>
-#include <string.h>
+#include <fstream>
+#include <cstring>
 
 #include "rasodmg/transaction.hh"
 #include "rasodmg/database.hh"
@@ -53,7 +55,9 @@ rasdaman GmbH.
 #include "rasodmg/oqlquery.hh"
 
 #include "raslib/type.hh"
+extern "C" {
 #include "raslib/shhopt.h"
+}
 #include "raslib/rmdebug.hh"
 
 #include <sys/time.h>
@@ -249,10 +253,12 @@ int main( int argc, char** argv )
     char baseName[255];
     char fileName[255];
 
+    void* help = (void*)printUsage;
+    
     optStruct testBenchmarkOpt[] =
     {
         /* short long           type        var/func        special    */
-        { 'h',   "help",        OPT_FLAG,   printUsage,     OPT_CALLFUNC },
+        { 'h',   "help",        OPT_FLAG,   help,           OPT_CALLFUNC },
         { 'n',   "nrepeat",     OPT_INT,    &numExec,       0 },
         { 'e',   "readeach",    OPT_INT,    &readEach,      0 },
         { 0, 0, OPT_END, 0, 0 }  /* no more options */

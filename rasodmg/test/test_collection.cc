@@ -29,9 +29,14 @@ rasdaman GmbH.
  *          None
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
+#ifdef __GNUG__
 #include "raslib/template_inst.hh"
+#endif
 #endif
 
 #include <iostream>
@@ -74,8 +79,8 @@ int main()
     cout << "Cardinality of collection 'a' after four inserts: " << a.cardinality() << endl << endl;
 
     cout << "Elements: " << flush;
-    for( iter = a.create_iterator(); iter.not_done(); iter++ )
-        cout << (*iter) << ", " << flush;
+//    for( iter = a.create_iterator(); iter.not_done(); iter++ )
+//        cout << (*iter) << ", " << flush;
     cout << endl;
 
     cout << "Does 'a' contain element '100' (1=TRUE/0=FALSE)? " << a.contains_element(&y) << endl;
@@ -95,8 +100,8 @@ int main()
     cout << "Cardinality of 'a' now: " << a.cardinality() << endl << endl;
 
     cout << "Elements: " << flush;
-    for( iter = a.create_iterator(); iter.not_done(); iter++ )
-        cout << (*iter) << ", " << flush;
+//    for( iter = a.create_iterator(); iter.not_done(); iter++ )
+//        cout << (*iter) << ", " << flush;
     cout << endl;
 
     cout << "Testing assignment operator on r_Collections." << endl << "(creating r_Collection 'b' that is equal to 'a'.)" <<endl;

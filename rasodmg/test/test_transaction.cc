@@ -21,12 +21,18 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-#include <iostream>
-#include <stdio.h>
+#include "config.h"
 
+/// RASDAMAN includes
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
+#ifdef __GNUG__
+#include "raslib/template_inst.hh"
 #endif
+#endif
+
+#include <iostream>
+#include <stdio.h>
 
 #include "rasodmg/database.hh"
 #include "rasodmg/transaction.hh"

@@ -29,6 +29,16 @@ rasdaman GmbH.
  *      None
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
+#ifdef EARLY_TEMPLATE
+#define __EXECUTABLE__
+#ifdef __GNUG__
+#include "raslib/template_inst.hh"
+#endif
+#endif
+
 #include <iostream>
 
 #include "rasodmg/marray.hh"

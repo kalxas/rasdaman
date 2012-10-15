@@ -31,6 +31,16 @@ rasdaman GmbH.
  *          None
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
+#ifdef EARLY_TEMPLATE
+#define __EXECUTABLE__
+#ifdef __GNUG__
+#include "raslib/template_inst.hh"
+#endif
+#endif
+
 
 #include <iostream>
 #include <stdio.h>
@@ -50,8 +60,10 @@ int main(int argc, char* argv[])
 
     // Create a domain decomposition
 
-    r_Dir_Decompose decomp[2];
-    decomp[0] << 0 << 50 << 200 << 600 << 700 << 950 << 999;
+    vector<r_Dir_Decompose> decomp;
+    r_Dir_Decompose a;
+    a << 0 << 50 << 200 << 600 << 700 << 950 << 999;
+    decomp.push_back(a);
 
     r_Dir_Tiling tiling(2, decomp, tilesize);
     tiling.print_status(cout);
@@ -61,21 +73,22 @@ int main(int argc, char* argv[])
     // Create a domain and an image
 
     r_Minterval domain(2);
-    domain << r_Sinterval(0L, 999L) << r_Sinterval(0L, 99L);
+    domain << r_Sinterval((r_Range) 0L, (r_Range) 999L)
+           << r_Sinterval((r_Range) 0L, (r_Range) 99L);
 
     r_Marray<char> image(domain);
 
     // Compute tiles
 
-    DList<r_Minterval>* tiles = tiling.compute_tiles(domain, sizeof(char));
+    vector<r_Minterval>* tiles = tiling.compute_tiles(domain, sizeof(char));
 
     // Output the information
 
     cout << "Domain: " << domain << endl << endl;
     cout << "Tiles:  " << endl;
 
-    DListIterator<r_Minterval> it = tiles->create_iterator();
-    for (; it.not_done(); it++)
+    vector<r_Minterval>::iterator it;
+    for (it = tiles->begin(); it != tiles->end(); it++)
     {
         r_Minterval inter = *it;
         cout << "   " << inter << endl;

@@ -29,9 +29,14 @@ rasdaman GmbH.
  *          None
  */
 
+#include "config.h"
+
+/// RASDAMAN includes
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
+#ifdef __GNUG__
 #include "raslib/template_inst.hh"
+#endif
 #endif
 
 #ifdef __VISUALC__
@@ -41,7 +46,7 @@ rasdaman GmbH.
 #endif
 
 #include <stdio.h>
-#include <string.h>
+#include <cstring>
 #include <sstream>
 #include <fstream>
 

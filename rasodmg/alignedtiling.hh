@@ -150,8 +150,6 @@ public:
 
     static const char* description;
 
-protected:
-
     /// determines the individual tiles domains
     r_Minterval compute_tile_domain(const r_Minterval& dom, r_Bytes cell_size) const;
     /**
@@ -172,6 +170,8 @@ protected:
        To be used before splitting a tile with domain {\tt dom} (typically,
        containing all the cells belonging to an {\ttr_Marray} object).
     */
+
+protected:
 
     ///  tile configuration
     r_Minterval tile_config;

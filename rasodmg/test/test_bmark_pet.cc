@@ -33,6 +33,16 @@ rasdaman GmbH.
  *
 */
 
+#include "config.h"
+
+/// RASDAMAN includes
+#ifdef EARLY_TEMPLATE
+#define __EXECUTABLE__
+#ifdef __GNUG__
+#include "raslib/template_inst.hh"
+#endif
+#endif
+
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,13 +51,11 @@ rasdaman GmbH.
 #include "rasodmg/database.hh"
 #include "rasodmg/set.hh"
 #include "rasodmg/marray.hh"
-#include "rasodmg/odmgtypes.hh"
 #include "rasodmg/storagelayout.hh"
 #include "rasodmg/tiling.hh"
 #include "rasodmg/dirtiling.hh"
 #include "rasodmg/dirdecompose.hh"
 #include "rasodmg/storagelayout.hh"
-#include "raslib/oid.hh"
 #include "include/basictypes.hh"
 
 #define S_32K               (32  * 1024L)
@@ -84,23 +92,23 @@ void insert_datacube( )
 
     r_Ref< r_Set< r_Ref< r_Marray<r_Short> > > >  cube_set;
     r_Minterval                                   domain[TOTAL_CUBES];
-    r_Domain_Storage_Layout*                      dsl[TOTAL_CUBES];
+    r_Storage_Layout*                      dsl[TOTAL_CUBES];
     r_OId                                         oid[TOTAL_CUBES];
 
     for (int i = 0; i < TOTAL_CUBES; i++)
     {
         domain[i] = r_Minterval(3);
-        domain[i] << r_Sinterval(0L, SIZE_X - 1 )
-                  << r_Sinterval(0L, SIZE_Y - 1)
-                  << r_Sinterval(0L, SIZE_Z - 1);
+        domain[i] << r_Sinterval((r_Range) 0L, (r_Range) SIZE_X - 1 )
+                  << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Y - 1)
+                  << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Z - 1);
     }
 
     // For aligned tiling (Regular tiling)
 
     r_Minterval block_config(3);
-    block_config << r_Sinterval(0L, SIZE_X)
-                 << r_Sinterval(0L, SIZE_Y)
-                 << r_Sinterval(0L, SIZE_Z);
+    block_config << r_Sinterval((r_Range) 0L, (r_Range) SIZE_X)
+                 << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Y)
+                 << r_Sinterval((r_Range) 0L, (r_Range) SIZE_Z);
 
     r_Aligned_Tiling* til_reg_32k = new r_Aligned_Tiling(block_config, S_32K);
     r_Aligned_Tiling* til_reg_64k = new r_Aligned_Tiling(block_config, S_64K);
@@ -116,28 +124,28 @@ void insert_datacube( )
     r_Minterval interest2_2("[63:151,75:140,11:133]");
 
 
-    DList<r_Minterval> areas1;
-    areas1 += interest1_1;
-    areas1 += interest1_2;
-    DList<r_Minterval> areas2;
-    areas2 += interest2_1;
-    areas2 += interest2_2;
+    vector<r_Minterval> areas1;
+    areas1.push_back(interest1_1);
+    areas1.push_back(interest1_2);
+    vector<r_Minterval> areas2;
+    areas2.push_back(interest2_1);
+    areas2.push_back(interest2_2);
 
     r_Interest_Tiling* til_int1 =
-        new r_Interest_Tiling(areas1, r_Interest_Tiling::NO_LIMIT);
+        new r_Interest_Tiling((r_Dimension)3, areas1, r_Interest_Tiling::NO_LIMIT);
     r_Interest_Tiling* til_int2 =
-        new r_Interest_Tiling(areas2, r_Interest_Tiling::NO_LIMIT);
+        new r_Interest_Tiling((r_Dimension)3, areas2, r_Interest_Tiling::NO_LIMIT);
 
     // Domain storage layouts
 
-    dsl[0] = new r_Domain_Storage_Layout(domain[0], til_reg_32k);
-    dsl[1] = new r_Domain_Storage_Layout(domain[1], til_reg_64k);
-    dsl[2] = new r_Domain_Storage_Layout(domain[2], til_reg_128k);
-    dsl[3] = new r_Domain_Storage_Layout(domain[3], til_reg_256k);
+    dsl[0] = new r_Storage_Layout(til_reg_32k);
+    dsl[1] = new r_Storage_Layout(til_reg_64k);
+    dsl[2] = new r_Storage_Layout(til_reg_128k);
+    dsl[3] = new r_Storage_Layout(til_reg_256k);
 
-    dsl[4] = new r_Domain_Storage_Layout(domain[4], til_int1);
-    dsl[5] = new r_Domain_Storage_Layout(domain[5], til_int2);
-    dsl[6] = new r_Domain_Storage_Layout(domain[6], til_reg_64k1);
+    dsl[4] = new r_Storage_Layout(til_int1);
+    dsl[5] = new r_Storage_Layout(til_int2);
+    dsl[6] = new r_Storage_Layout(til_reg_64k1);
 
 
     // Create cubes
@@ -145,7 +153,7 @@ void insert_datacube( )
     r_Database db;
     db.set_servername(server_name);
 
-    for ( i=0; i< TOTAL_CUBES ; i++)
+    for ( int i=0; i< TOTAL_CUBES ; i++)
     {
         r_Transaction trans;
 

@@ -31,6 +31,8 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)rasodmg/test,SystemInsert: $Id: system_insert.cc,v 1.10 2002/03/13 13:48:17 coman Exp $";
 
+#include "config.h"
+
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #include "raslib/template_inst.hh"
@@ -56,6 +58,7 @@ SystemInsert::doStuff(int argc, const char** argv)
     RMInit::dbgOut.rdbuf(cout.rdbuf());
     RMDebug::level = 10;
     r_Base_Type* conversionType = 0;
+    int optionValueIndex = -1;
     int retval = 0;
 
     if ((argc == 1) || checkArguments(argc, argv, "-h", optionValueIndex) || checkArguments(argc, argv, "--help", optionValueIndex))
@@ -64,7 +67,7 @@ SystemInsert::doStuff(int argc, const char** argv)
     }
     else
     {
-        retval = readArgs(argc, argv);
+        retval = SystemBasic::parseParams(argc, argv);
         /*
         what can we do:
             create mdd:

@@ -31,6 +31,8 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)rasodmg/test,SystemCompare: $Id: system_compare.cc,v 1.3 2002/07/16 07:42:36 hoefner Exp $";
 
+#include "config.h"
+
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #include "raslib/template_inst.hh"
@@ -46,6 +48,10 @@ static const char rcsid[] = "@(#)rasodmg/test,SystemCompare: $Id: system_compare
 #include "rasodmg/storagelayout.hh"
 #include "rasodmg/oqlquery.hh"
 #include "clientcomm/clientcomm.hh"
+
+#include <strstream>
+
+using namespace std;
 
 int main(int argc, const char** argv)
 {
@@ -122,23 +128,25 @@ SystemCompare::doCompare()
     memset(queryBufferS, 0, QUERYBUFFERLENGTH * sizeof(char));
     if (mddOIdDef)
     {
-        std::ostrstream stream(queryBufferS, QUERYBUFFERLENGTH);
+        ostrstream stream(queryBufferS, QUERYBUFFERLENGTH);
         stream << "SELECT A" << mddDomain << " FROM " << collName << " AS A WHERE oid(A) = " << mddOId;
     }
     else
     {
-        std::ostrstream stream(queryBufferS, QUERYBUFFERLENGTH);
+        ostrstream stream(queryBufferS, QUERYBUFFERLENGTH);
         stream << "SELECT A" << mddDomain << " FROM " << collName << " AS A";
     }
     r_Storage_Layout* stl = new r_Storage_Layout(theTiling->clone());
     char* typeStructure = NULL;
     r_Ref<r_GMarray> selectedMDD;
     r_Set< r_Ref_Any > result;
+    
+    r_Type* tempType = NULL;
     r_Marray_Type* mddType = NULL;
     try
     {
         openTransaction(false);
-        typeStructure = db.communication->getTypeStructure(mddTypeName, ClientComm::r_MDDType_Type);
+        tempType = db.get_type_schema(mddTypeName, r_Database::MARRAY);
         ta.abort();
         db.close();
     }
@@ -150,7 +158,6 @@ SystemCompare::doCompare()
     }
     try
     {
-        r_Type* tempType = r_Type::get_any_type(typeStructure);
         if (tempType->isMarrayType())
         {
             mddType = (r_Marray_Type*)tempType;
@@ -195,10 +202,10 @@ SystemCompare::doCompare()
                     if (polygonDefined)
                     {
                         polygon.setMArray(*selectedMDD);
-                        if (foreGroundDef)
-                            polygon.fillMArrayInside(foreGround);
-                        if (backGroundDef)
-                            polygon.fillMArrayOutside(backGround);
+//                        if (foreGroundDef)
+//                            polygon.fillMArrayInside(foreGround);
+//                        if (backGroundDef)
+//                            polygon.fillMArrayOutside(backGround);
                     }
                     if (retval == 0)
                     {
@@ -242,10 +249,10 @@ SystemCompare::doCompare()
                 if (polygonDefined)
                 {
                     polygon.setMArray(*selectedMDD);
-                    if (foreGroundDef)
-                        polygon.fillMArrayInside(foreGround);
-                    if (backGroundDef)
-                        polygon.fillMArrayOutside(backGround);
+//                    if (foreGroundDef)
+//                        polygon.fillMArrayInside(foreGround);
+//                    if (backGroundDef)
+//                        polygon.fillMArrayOutside(backGround);
                 }
                 if (retval == 0)
                 {

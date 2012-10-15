@@ -29,13 +29,18 @@ rasdaman GmbH.
  *      None
  */
 
+#include "config.h"
+
+/// RASDAMAN includes
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
+#ifdef __GNUG__
 #include "raslib/template_inst.hh"
+#endif
 #endif
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 #include "raslib/type.hh"
 
@@ -150,7 +155,7 @@ printUsage(char* name)
 
     std::cout << std::endl  << std::endl;
 
-    std::cout << "Report bugs to <support@active­knowledge.com>" << std::endl;
+    std::cout << "Report bugs to <support@activeï¿½knowledge.com>" << std::endl;
 }
 
 int main( int argc, char** argv )
