@@ -54,6 +54,9 @@ SETTINGS=@sysconfdir@/petascope.properties
 # petascope updateN.sql scripts
 SCRIPT_DIR=@pkgdatadir@/petascope
 
+# petascopedb tables
+PS_DBUPDATE=ps_dbupdates
+
 # ------------------------------------------------------------------------------
 # functions
 # ------------------------------------------------------------------------------
@@ -150,7 +153,7 @@ check_postgres
 psql -U $PS_USER -p $PS_PORT --list 2>&1 | egrep "\b$PS_DB\b" > /dev/null
 if [ $? -ne 0 ]; then
   logn "no petascope database found, creating... "
-  createdb $PS_DB > /dev/null
+  $CREATEDB $PS_DB > /dev/null
   feedback
 fi
 
@@ -158,15 +161,15 @@ fi
 #
 # determine the update number
 #
-$PSQL -c 'select * from ps_dbupdates' > /dev/null 2>&1
+$PSQL -c "select * from $PS_DBUPDATE" > /dev/null 2>&1
 if [ $? -ne 0 ]; then
   # create from scratch
 	counter=0
 else
   # update from the last update number
-	counter=`$PSQL -c 'select update from ps_dbupdates where id=1' | head -n 3 | tail -n 1 | awk '{print $1}'`
+	counter=`$PSQL -c "select update from $PS_DBUPDATE where id=1" | head -n 3 | tail -n 1 | awk '{print $1}'`
 	if [ "$counter" -ne "$counter" ] 2>/dev/null; then
-    error "couldn't determine last update from the ps_dbupdates table"
+    error "couldn't determine last update from the $PS_DBUPDATE table"
   fi
 fi
 
@@ -178,7 +181,8 @@ log "executing updates:"
 updated=0
 while [ -f "$SCRIPT_DIR/update$counter.sql" ]; do
   logn "  update $counter... "
-	$PSQL --set ON_ERROR_STOP=on < "$SCRIPT_DIR/update$counter.sql" > /dev/null 2>&1
+        # Note for future .sql files: do not add manual BEGIN/COMMIT transactions, they are handled by psql
+	$PSQL --set ON_ERROR_STOP=on --single-transaction -f "$SCRIPT_DIR/update$counter.sql" > /dev/null 2>&1
 	# Check if the update was successful
 	ret=$?
 	if [ "$ret" -ne 0 ]; then
@@ -193,7 +197,7 @@ done
 # save the last update number
 #
 if [ $updated -eq 1 ]; then
-  $PSQL -c "update ps_dbupdates set update=$counter where id=1" > /dev/null 2>&1
+  $PSQL -c "update $PS_DBUPDATE set update=$counter where id=1" > /dev/null 2>&1
   log "updated database to update $((counter-1))"
 else
   log "database already up-to-date, nothing to update."
