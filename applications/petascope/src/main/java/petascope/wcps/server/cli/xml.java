@@ -40,6 +40,8 @@ public class xml {
 
     private static Wcps wcps;
     private static DbMetadataSource metadataSource;
+    private static String rasserviceURL;
+
 
     private static void initMetadata() {
         File cwd = new File(".");
@@ -76,24 +78,14 @@ public class xml {
     }
 
     public static void main(String[] args) {
-        if (args.length < 1) {
-            System.err.println("WCPS CLI: no input files");
-
-            System.err.println("\nWCPS CLI Usage: java wcps.server.cli.xml input.xml");
-            System.err.println("Where input.xml contains a ProcessCoverages Request ");
-//            System.exit(1);
-
-            args = new String[1];
-            args[0] = "test/testcases-wcps_dollar/25.test.xml";
-        }
-        if (args.length > 1) {
+        if (args.length > 2) {
             System.err.println("WCPS: no input files");
             System.exit(1);
         }
 
         initMetadata();
-
-        for (int i = 0; i < args.length; i++) {
+        rasserviceURL = args[0]; 
+        for (int i = 1; i < args.length; i++) {
             File fileIn = null;
             InputSource is = null;
 
@@ -125,7 +117,7 @@ public class xml {
         String result = null;
 
         try {
-            ProcessCoveragesRequest r = wcps.pcPrepare("http://kahlua.eecs.jacobs-university.de:9001",
+            ProcessCoveragesRequest r = wcps.pcPrepare(rasserviceURL,
                     WCPSConstants.MSG_RASSERVICE, is);
             System.err.println("Request " + i);
             String rasql = r.getRasqlQuery();
