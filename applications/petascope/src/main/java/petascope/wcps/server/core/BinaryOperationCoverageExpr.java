@@ -102,6 +102,13 @@ public class BinaryOperationCoverageExpr implements IRasNode, ICoverageInfo {
     }
 
     public String toRasQL() {
-        return "((" + first.toRasQL() + ")" + operation + "(" + second.toRasQL() + "))";
+        String ret = "";
+        if (operation.equals(WCPSConstants.MSG_OVERLAY)) {
+            // overlay is reversed in rasql
+            ret = "((" + second.toRasQL() + ")" + operation + "(" + first.toRasQL() + "))";
+        } else {
+            ret = "((" + first.toRasQL() + ")" + operation + "(" + second.toRasQL() + "))";
+        }
+        return ret;
     }
 }
