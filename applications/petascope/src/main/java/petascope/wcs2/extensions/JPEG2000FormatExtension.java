@@ -41,7 +41,7 @@ import petascope.wcs2.parsers.GetCoverageRequest;
 public class JPEG2000FormatExtension extends AbstractFormatExtension{
     @Override
     public boolean canHandle(GetCoverageRequest req) {
-        return !req.isMultipart() && MIME_JP2.equals(req.getFormat());
+        return !req.isMultipart() && getMimeType().equals(req.getFormat());
         //return true;
     }
 
@@ -72,14 +72,18 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension{
 
         RasQueryResult res = new RasQueryResult(p.fst);
         if (res.getMdds().isEmpty()) {
-            return new Response(null, null, MIME_JP2);
+            return new Response(null, null, getMimeType());
         } else {
-            return new Response(res.getMdds().get(0), null, MIME_JP2);
+            return new Response(res.getMdds().get(0), null, getMimeType());
         }
     }
 
     @Override
     public String getExtensionIdentifier() {
         return ExtensionsRegistry.JPEG2000_IDENTIFIER;
-    }    
+    }
+
+    public String getMimeType() {
+        return MIME_JP2;
+    }
 }

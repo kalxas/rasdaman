@@ -92,6 +92,8 @@ public interface XMLSymbols {
     // wcs crs-extension
     String LABEL_CRS_METADATA = "CrsMetadata";
     String LABEL_CRS = "CRS";
+    String LABEL_EXTENSION = "Extension";
+    String LABEL_FORMAT_SUPPORTED = "formatSupported";
 
     // ows
     String LABEL_SERVICE_IDENTIFICATION = "ServiceIdentification";
@@ -148,4 +150,12 @@ public interface XMLSymbols {
     XPathContext CTX_XML = new XPathContext(PREFIX_XML, NAMESPACE_XML);
     XPathContext CTX_WCS = new XPathContext(PREFIX_WCS, NAMESPACE_WCS);
     XPathContext CTX_CRS = new XPathContext(PREFIX_CRS, NAMESPACE_CRS);
+
+    // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Schema locations
+    //
+    // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    String SCHEMA_LOCATION_WCS = "http://schemas.opengis.net/wcs/2.0/wcsAll.xsd";
 }

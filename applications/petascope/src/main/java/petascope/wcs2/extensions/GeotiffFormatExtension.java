@@ -42,7 +42,7 @@ public class GeotiffFormatExtension extends  AbstractFormatExtension {
 
     @Override
     public boolean canHandle(GetCoverageRequest req) {
-        return !req.isMultipart() && MIME_TIFF.equals(req.getFormat());
+        return !req.isMultipart() && getMimeType().equals(req.getFormat());
         //return true;
     }
 
@@ -73,14 +73,18 @@ public class GeotiffFormatExtension extends  AbstractFormatExtension {
 
         RasQueryResult res = new RasQueryResult(p.fst);
         if (res.getMdds().isEmpty()) {
-            return new Response(null, null, MIME_TIFF);
+            return new Response(null, null, getMimeType());
         } else {
-            return new Response(res.getMdds().get(0), null, MIME_TIFF);
+            return new Response(res.getMdds().get(0), null, getMimeType());
         }
     }
 
     @Override
     public String getExtensionIdentifier() {
         return ExtensionsRegistry.GEOTIFF_IDENTIFIER;
+    }
+
+    public String getMimeType() {
+        return MIME_TIFF;
     }
 }

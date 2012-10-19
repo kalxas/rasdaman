@@ -59,7 +59,7 @@ public abstract class AbstractRequestHandler<T extends Request> implements Reque
         root.setNamespaceURI(NAMESPACE_WCS);
 
         root.addAttribute(new Attribute(PREFIX_XSI + ":" + ATT_SCHEMA_LOCATION,
-                NAMESPACE_XSI, NAMESPACE_WCS + " " + "wcsAll.xsd"));
+                NAMESPACE_XSI, NAMESPACE_WCS + " " + SCHEMA_LOCATION_WCS));
 
         return new Document(root);
     }

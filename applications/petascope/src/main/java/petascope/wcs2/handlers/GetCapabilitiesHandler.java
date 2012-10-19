@@ -27,7 +27,9 @@ import nu.xom.Attribute;
 import petascope.util.Pair;
 import petascope.wcs2.templates.Templates;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import petascope.exceptions.PetascopeException;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -43,6 +45,8 @@ import petascope.wcs2.Wcs2Servlet;
 import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcps.server.core.Bbox;
 import static petascope.util.XMLSymbols.*;
+import petascope.wcs2.extensions.Extension;
+import petascope.wcs2.extensions.FormatExtension;
 
 /**
  * GetCapabilities operation for The Web Coverage Service 2.0
@@ -99,7 +103,24 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         // ServiceMetadata
         Element serviceMetadata = Templates.getXmlTemplate(Templates.SERVICE_METADATA);
         if (serviceMetadata != null) {
+            // add supported formats
+            //: [Req6 /req/core/serviceMetadata-structure]
+            //: [Req9 /req/core/formats-supported]
+            Set<String> mimeTypes = new HashSet<String>();
+            for (Extension extension : ExtensionsRegistry.getExtensions()) {
+                if (extension instanceof FormatExtension) {
+                    mimeTypes.add(((FormatExtension) extension).getMimeType());
+                }
+            }
+            for (String mimeType : mimeTypes) {
+                Element formatSupported = new Element(PREFIX_WCS + ":" + LABEL_FORMAT_SUPPORTED, NAMESPACE_WCS);
+                formatSupported.appendChild(mimeType);
+                serviceMetadata.appendChild(formatSupported);
+            }
+            //:~
+            
             //: CRS [Req9: /req/crs/wcsServiceMetadata-outputCrs]
+            Element crsExtension = new Element(PREFIX_WCS + ":" + LABEL_EXTENSION, NAMESPACE_WCS);
             Element crsMetadata = new Element(PREFIX_CRS + ":" + LABEL_CRS_METADATA, NAMESPACE_CRS);
             Element supportedCrs;
             for (Integer code : CrsUtil.SUPPORTED_EPSG) {
@@ -107,7 +128,8 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 supportedCrs.appendChild(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, code));
                 crsMetadata.appendChild(supportedCrs);
             }
-            serviceMetadata.appendChild(crsMetadata);
+            crsExtension.appendChild(crsMetadata);
+            serviceMetadata.appendChild(crsExtension);
             //:~
             root.appendChild(serviceMetadata.copy());
         }
@@ -146,7 +168,11 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                     c.addAttribute(crs);
                     c.addAttribute(dimensions);
                     cs.appendChild(c);
-                    /** WGS84 Bbox (for 2D EPSG-defined CRSs only, currently) **/
+                    
+                    /**
+                     * Doesn't conform to WCS 2.0.1 so commented out -- DM 2012-oct-19
+                     * 
+                    // WGS84 Bbox (for 2D EPSG-defined CRSs only, currently)
                     if (bbox.hasWgs84Bbox()) {
 
                         c = new Element(LABEL_WGS84_BBOX, NAMESPACE_WCS);
@@ -165,6 +191,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                         cs.appendChild(c);
 
                     }
+                    */
                 }
             }
         } catch (PetascopeException ex) {

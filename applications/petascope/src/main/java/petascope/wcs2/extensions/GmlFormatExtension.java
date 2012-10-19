@@ -56,7 +56,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
     @Override
     public boolean canHandle(GetCoverageRequest req) {
-        return req.getFormat() == null || (!req.isMultipart() && MIME_GML.equals(req.getFormat()));
+        return req.getFormat() == null || (!req.isMultipart() && getMimeType().equals(req.getFormat()));
         //return false;
     }
 
@@ -183,5 +183,9 @@ public class GmlFormatExtension extends AbstractFormatExtension {
     @Override
     public String getExtensionIdentifier() {
         return ExtensionsRegistry.ENCODING_IDENTIFIER;
+    }
+
+    public String getMimeType() {
+        return MIME_GML;
     }
 }

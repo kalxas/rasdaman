@@ -61,4 +61,9 @@ public interface FormatExtension extends  Extension {
      * @return response encoded in the respective format
      */
     Response handle(GetCoverageRequest req, DbMetadataSource meta) throws WCSException;
+    
+    /**
+     * @return the mime-type of the particular format handled by this extension
+     */
+    String getMimeType();
 }
