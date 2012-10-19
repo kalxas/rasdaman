@@ -270,9 +270,9 @@ public class WcsUtil {
         } else if (type.equals("usnigned long")) {
             return Pair.of("0", "18446744073709551615");
         } else if (type.equals("float")) {
-            return Pair.of("+/-3.4e-38", "+/-3.4e+38");
+            return Pair.of(-Float.MAX_VALUE + "", Float.MAX_VALUE + "");
         } else if (type.equals("double")) {
-            return Pair.of("+/-1.7e- 308", "+/-1.7e+308");
+            return Pair.of(-Double.MAX_VALUE + "", Double.MAX_VALUE + "");
         }
         return Pair.of("", "");
     }

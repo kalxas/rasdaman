@@ -209,7 +209,14 @@ public class GetCoverageMetadata {
         }
 
         public String getFieldName() {
-            return fieldName;
+            String ret = fieldName;
+            if (fieldName == null) {
+                ret = "field";
+            } else if (!fieldName.matches("^[a-zA-Z]+.*")) {
+                // field name has to start with a letter
+                ret = "field" + fieldName;
+            }
+            return ret;
         }
 
         public String getDescription() {
@@ -221,7 +228,7 @@ public class GetCoverageMetadata {
         }
 
         public String getComponentName() {
-            return componentName;
+            return getFieldName();
         }
 
         public String getNilValues() {
