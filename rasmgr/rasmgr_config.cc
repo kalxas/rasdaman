@@ -229,6 +229,7 @@ bool Configuration::saveConfigFile()
             ofs<<" -user " << xx.getUser();
         if (strlen(xx.getPasswd()) > 0)
             ofs<<" -passwd " << xx.getPasswd();
+        ofs<<std::endl;
     }
     //rasservers
     for(i=0; i<rasManager.countServers(); i++)
