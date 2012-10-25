@@ -89,6 +89,11 @@ private:
     const char *Conventions;
     const char *Institution;
     char *variable;
+    
+    // for supporting more than one variable 
+    char **vars;
+    int varsSize;
+    void getVars(void);
 };
 
 #endif

@@ -8,7 +8,7 @@
  *
  * Rasdaman community is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTrABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
@@ -41,6 +41,8 @@ rasdaman GmbH.
 #include "raslib/rminit.hh"
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
+#include "raslib/attribute.hh"
+#include "raslib/structuretype.hh"
 
 #include "netcdfcpp.h"
 #include "raslib/odmgtypes.hh"
@@ -54,6 +56,8 @@ rasdaman GmbH.
 #include <cmath>
 
 #define DEFAULT_VAR "data"
+#define VARIABLE_SEPARATOR_CHAR ';'
+#define VARIABLE_SEPARATOR_STR ";"
 #define VALID_MIN "valid_min"
 #define VALID_MAX "valid_max"
 #define VALID_MIN_BYTE 0
@@ -72,9 +76,35 @@ void r_Conv_NETCDF::initNETCDF(void)
     Institution = "rasdaman.org, Jacobs University Bremen";
 
     variable = NULL;
+    vars = NULL;
     if (params == NULL)
         params = new r_Parse_Params();
-    params->add("var", &variable, r_Parse_Params::param_type_string);
+    params->add("vars", &variable, r_Parse_Params::param_type_string);
+    varsSize = 0;
+    RMInit::logOut << " done." << endl;
+}
+
+void r_Conv_NETCDF::getVars(void)
+{
+    RMInit::logOut << "separating the vars option...";
+    if (variable != NULL)
+    {
+        // count nr of variables in the options string
+        int occ = 0; 
+        for (int i = 0; variable[i]; i++)
+            occ += (variable[i] == VARIABLE_SEPARATOR_CHAR);
+        // separate the variables and save them in 'vars'
+        vars = new char*[occ + 1];
+        char *b = variable;   
+        char *result = NULL; 
+        result = strtok( b, VARIABLE_SEPARATOR_STR );
+        while( result != NULL )
+        {
+            vars[varsSize] = strdup(result);
+            varsSize++;
+            result = strtok( NULL, VARIABLE_SEPARATOR_STR );
+        }
+    }
     RMInit::logOut << " done." << endl;
 }
 
@@ -83,12 +113,14 @@ r_Conv_NETCDF::r_Conv_NETCDF(const char *src, const r_Minterval &interv, const r
     : r_Convert_Memory(src, interv, tp, true)
 {
     initNETCDF();
+    /* added support for multiple variables and commented out this check -- MR 2012-oct-20 
     /// ToDo: Can be hacked by dividing it to its basic component. Or by using CXX-4 which is in the development phase
     if (tp->isStructType())
     {
         RMInit::logOut << "r_Conv_NETCD::r_Conv_NETCDF(): structured types not supported." << endl;
         throw r_Error(r_Error::r_Error_General);
     }
+    */
 }
 
 /// constructor using convert_type_e shortcut
@@ -106,6 +138,18 @@ r_Conv_NETCDF::~r_Conv_NETCDF(void)
     {
         delete [] variable;
         variable = NULL;
+    }
+    for (int i = 0; i < varsSize; i++) 
+    {
+        if (vars[i] != NULL)
+        {
+            delete [] vars[i];
+        }
+    }
+    if (vars != NULL)
+    {
+        delete [] vars;
+        vars = NULL;
     }
 }
 
@@ -127,6 +171,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     {
         RMInit::logOut << "options: " << options << endl;
         params->process(options);
+        getVars();
     }
 
     strncpy(fileName, tmpnam(NULL), 256);
@@ -136,7 +181,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     NcFile dataFile(fileName, NcFile::Replace);
     if (!dataFile.is_valid())
     {
-        RMInit::logOut << "r_Conv_NETCDF::convertTo(): unable to open output file." << endl;
+        RMInit::logOut << "Error: unable to open output file." << endl;
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -146,7 +191,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     const NcDim* dims[dimNo];
     if (dimSizes == NULL)
     {
-        RMInit::logOut << "r_Conv_NETCDF::convertTo(): out of memory error!" << endl;
+        RMInit::logOut << "Error: out of memory." << endl;
         throw r_Error(r_Error::r_Error_MemoryAllocation);
     }
     for (int i = 0; i < dimNo; i++)
@@ -167,10 +212,16 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
 
     // Define a netCDF variable. The type of the variable depends on rasdaman type
     char* varName = DEFAULT_VAR;
-    if (variable != NULL)
+    if (variable != NULL && varsSize == 1)
     {
         varName = variable;
     }
+    if (desc.baseType != ctype_struct && varsSize > 1)
+    {
+        RMInit::logOut << "Error: mismatch in #variables between query and MDD object type." << endl;
+        throw r_Error(r_Error::r_Error_QueryParameterCountInvalid);        
+    }
+    
     switch (desc.baseType)
     {
     case ctype_int8:
@@ -193,7 +244,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         short *data = new short[dataSize];
         if (data == NULL)
         {
-            RMInit::logOut << "r_Conv_NETCDF::convertTo(): out of memory error!" << endl;
+            RMInit::logOut << "Error: out of memory." << endl;
             throw r_Error(r_Error::r_Error_MemoryAllocation);
         }
         for (int i = 0; i < dataSize; i++, val++)
@@ -220,7 +271,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         int *data = new int[dataSize];
         if (data == NULL)
         {
-            RMInit::logOut << "r_Conv_NETCDF::convertTo(): out of memory error!" << endl;
+            RMInit::logOut << "Error: out of memory." << endl;
             throw r_Error(r_Error::r_Error_MemoryAllocation);
         }
         for (int i = 0; i < dataSize; i++, val++)
@@ -248,7 +299,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         float *data = new float[dataSize];
         if (data == NULL)
         {
-            RMInit::logOut << "r_Conv_NETCDF::convertTo(): out of memory error!" << endl;
+            RMInit::logOut << "Error: out of memory." << endl;
             throw r_Error(r_Error::r_Error_MemoryAllocation);
         }
         for (int i = 0; i < dataSize; i++, val++)
@@ -280,9 +331,200 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         ncVar->add_att("missing_value", "NaN");
         break;
     }
+    case ctype_struct:
+    { 
+        r_Structure_Type *st = (r_Structure_Type*) desc.srcType;
+        if (st == NULL)
+        {
+            RMInit::logOut << "Error: MDD object type could not be cast to struct." << endl;
+            throw r_Error(r_Error::r_Error_RefInvalid);         
+        }
+        if (varsSize > st->count_elements()) 
+        {
+            RMInit::logOut << "Error: mismatch in #variables between query and MDD object type." << endl;
+            throw r_Error(r_Error::r_Error_QueryParameterCountInvalid);        
+        }
+        int structSize = 0; // size of the struct type, used for offset computation in memcpy
+        int allMatch = 0; // check if all variables have a match in struct attributes
+        if (variable == NULL)
+        {
+            vars = new char*[st->count_elements()];
+            if (vars == NULL)
+            {
+                RMInit::logOut << "Error: out of memory." << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            varsSize = 0;
+        }
+        
+        for (r_Structure_Type::attribute_iterator ite(st->defines_attribute_begin()); ite != st->defines_attribute_end(); ite++) 
+        {
+            r_Primitive_Type *pt = (r_Primitive_Type*) &(*ite).type_of(); 
+            structSize += pt->size(); 
+            if (variable == NULL)
+            {
+                vars[varsSize] = strdup((*ite).name());
+                varsSize++;    
+                allMatch++;        
+            }
+            else
+            {
+                int i = 0;
+                while ((i < varsSize) && (strcmp(vars[i], (*ite).name()) != 0))
+                {
+                    i++;
+                }
+                if (i < varsSize) 
+                {
+                    allMatch++;
+                }
+            }      
+        }
+        if (allMatch != varsSize) 
+        {
+            RMInit::logOut << "Error: not all specified variables are attributes of the MDD object type." << endl;
+            throw r_Error(r_Error::r_Error_General);            
+        }        
+
+        for (int i = 0;  i < varsSize; i++)
+        {
+            int offset = 0; // offset of the attribute within the struct type    
+            r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
+            while (iter != st->defines_attribute_end() && (strcmp((*iter).name(),vars[i]) != 0))
+            {   
+                r_Primitive_Type *pt = (r_Primitive_Type*) &(*iter).type_of();
+                offset += pt->size();
+                iter++;
+            }
+            if (iter != st->defines_attribute_end()) 
+            {                    
+                varName = vars[i];
+                switch ((*iter).type_of().type_id())
+                {
+                    case r_Type::OCTET:
+                    {
+                        char * buff = new char[dataSize];
+                        if (buff == NULL)
+                        {
+                            RMInit::logOut << "Error: out of memory." << endl;
+                            throw r_Error(r_Error::r_Error_MemoryAllocation);
+                        }
+                        for (int j = 0; j < dataSize; j++) 
+                        {
+                            memcpy(&buff[j], desc.src + j*structSize + offset, sizeof(char));
+                        }
+                        r_Octet *val = (r_Octet*) buff;
+                        NcVar *ncVar = dataFile.add_var(varName, ncByte, dimNo, dims);
+                        ncVar->put(val, dimSizes); 
+                        delete [] buff;                   
+                        break;
+                    }
+                    case r_Type::CHAR:
+                    {
+                        char * buff = new char[dataSize];
+                        if (buff == NULL)
+                        {
+                            RMInit::logOut << "Error: out of memory." << endl;
+                            throw r_Error(r_Error::r_Error_MemoryAllocation);
+                        }
+                        for (int j = 0; j < dataSize; j++) 
+                        {
+                            memcpy(&buff[j], desc.src + j*structSize + offset, sizeof(char));
+                        }
+                        r_Char *val = (r_Char*) buff;
+                        NcVar *ncVar = dataFile.add_var(varName, ncChar, dimNo, dims);
+                        ncVar->put((const char*)val, dimSizes); 
+                        delete [] buff;                   
+                        break;
+                    }
+                    case r_Type::USHORT:
+                    case r_Type::SHORT:
+                    {
+                        short * buff = new short[dataSize];
+                        if (buff == NULL)
+                        {
+                            RMInit::logOut << "Error: out of memory." << endl;
+                            throw r_Error(r_Error::r_Error_MemoryAllocation);
+                        }
+                        for (int j = 0; j < dataSize; j++) 
+                        {
+                            memcpy(&buff[j], desc.src + j*structSize + offset, sizeof(short));
+                        }                
+                        r_Short *val = (r_Short*) buff;
+                        NcVar *ncVar = dataFile.add_var(varName, ncShort, dimNo, dims);
+                        ncVar->put(val, dimSizes);    
+                        delete [] buff;                
+                        break;
+                    }                
+                    case r_Type::ULONG:
+                    case r_Type::LONG:
+                    {
+                        int * buff = new int[dataSize];
+                        if (buff == NULL)
+                        {
+                            RMInit::logOut << "Error: out of memory." << endl;
+                            throw r_Error(r_Error::r_Error_MemoryAllocation);
+                        }
+                        for (int j = 0; j < dataSize; j++) 
+                        {
+                            memcpy(&buff[j], desc.src + j*structSize + offset, sizeof(int));
+                        }                
+                        r_Long *val = (r_Long*) buff;
+                        NcVar *ncVar = dataFile.add_var(varName, ncInt, dimNo, dims);
+                        ncVar->put(val, dimSizes);       
+                        delete [] buff;             
+                        break;
+                    }                
+                    case r_Type::FLOAT:
+                    {
+                        float * buff = new float[dataSize];
+                        if (buff == NULL)
+                        {
+                            RMInit::logOut << "Error: out of memory." << endl;
+                            throw r_Error(r_Error::r_Error_MemoryAllocation);
+                        }
+                        for (int j = 0; j < dataSize; j++) 
+                        {
+                            memcpy(&buff[j], desc.src + j*structSize + offset, sizeof(float));
+                        }                
+                        r_Float *val = (r_Float*) buff;
+                        NcVar *ncVar = dataFile.add_var(varName, ncFloat, dimNo, dims);
+                        ncVar->put(val, dimSizes);   
+                        delete [] buff;                 
+                        break;
+                    }                
+                    case r_Type::DOUBLE:
+                    {
+                        double * buff = new double[dataSize];
+                        if (buff == NULL)
+                        {
+                            RMInit::logOut << "Error: out of memory." << endl;
+                            throw r_Error(r_Error::r_Error_MemoryAllocation);
+                        }
+                        for (int j = 0; j < dataSize; j++) 
+                        {
+                            memcpy(&buff[j], desc.src + j*structSize + offset, sizeof(double));
+                        }       
+                        r_Double *val = (r_Double*) buff;
+                        NcVar *ncVar = dataFile.add_var(varName, ncDouble, dimNo, dims);
+                        ncVar->put(val, dimSizes);     
+                        delete [] buff;               
+                        break;
+                    }              
+                    default:
+                    {
+                        RMInit::logOut << "Error: this type is not supported " << desc.baseType << "." << endl;
+                        throw r_Error(r_Error::r_Error_General);                
+                    }
+                }             
+            }                               
+   
+        }  
+        break;
+    }    
     default:
     {
-        RMInit::logOut << "This Type is not supported" << desc.baseType << endl;
+        RMInit::logOut << "Error: this type is not supported " << desc.baseType << "." << endl;
         throw r_Error(r_Error::r_Error_General);
     }
     }
@@ -295,7 +537,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     // Pass the NetCDF file as a stream of char
     if ((fp = fopen(fileName, "rb")) == NULL)
     {
-        RMInit::logOut << "r_Conv_NETCDF::convertTo(): unable to read back file." << endl;
+        RMInit::logOut << "Error: unable to read back file." << endl;
         throw r_Error(r_Error::r_Error_General);
     }
     // Get the file size
@@ -335,6 +577,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
     if (options != NULL)
     {
         params->process(options);
+        getVars();
     }
 
     const char* src = desc.src;
@@ -352,7 +595,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
     NcFile dataFile(tmpFile, NcFile::ReadOnly);
     if (!dataFile.is_valid())
     {
-        RMInit::logOut << "r_Conv_NETCDF::convertFrom(): Can not open the file" << endl;
+        RMInit::logOut << "Error: Can not open the file." << endl;
         throw r_Error(r_Error::r_Error_General);
     }
 
@@ -377,169 +620,406 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         it = dimNames.find(var->name());
         if (it == dimNames.end() && var->num_dims() > 0)
         {
-            if (variable == NULL || strcmp(var->name(), variable) == 0)
+            if (variable == NULL) 
             {
                 varNames.insert(var->name());
-                if (variable != NULL)
-                    break;
+            }
+            else 
+            {
+                int i = 0;
+                while ((i < varsSize) && (strcmp(var->name(), vars[i]) != 0))
+                {
+                    i++;
+                }
+                if (i < varsSize) 
+                {
+                    varNames.insert(var->name());
+                }
             }
         }
     }
     if (varNames.empty())
     {
-        RMInit::logOut << "r_Conv_NETCDF::convertFrom(): no variable found to import." << endl;
+        RMInit::logOut << "Error: no variable found to import." << endl;
         throw r_Error(r_Error::r_Error_General);
     }
-
-    it = varNames.begin();
-    string varName = *it;
-    NcVar *var = dataFile.get_var(varName.c_str());
-    numDims = var->num_dims();
-    dimSizes = new long[numDims];
-    for (int i = 0; i < numDims; i++)
+    
+    if (varsSize == 1) 
     {
-        NcDim *dim = var->get_dim(i);
-        if (dim->is_unlimited())
+        string varName = variable;
+        NcVar *var = dataFile.get_var(varName.c_str());
+        numDims = var->num_dims();
+        dimSizes = new long[numDims];
+        if (dimSizes == NULL)
         {
-            RMInit::logOut << "r_Conv_NETCDF::convertFrom(): unlimited dimensions can not be handled" << endl;
+            RMInit::logOut << "Error: out of memory." << endl;
+            throw r_Error(r_Error::r_Error_MemoryAllocation);
+        }
+        for (int i = 0; i < numDims; i++)
+        {
+            NcDim *dim = var->get_dim(i);
+            if (dim->is_unlimited())
+            {
+                RMInit::logOut << "Error: unlimited dimensions can not be handled." << endl;
+                throw r_Error(r_Error::r_Error_General);
+            }
+            dimSizes[i] = dim->size();
+            dataSize *= dim->size();
+        }
+        switch (var->type())
+        {
+        case ncByte:
+        case ncChar:
+        {
+            char *data = new char[dataSize];
+            if (data == NULL)
+            {
+                RMInit::logOut << "Error: out of memory." << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            var->get(&data[0], dimSizes);
+
+            desc.destInterv = r_Minterval(numDims);
+            // Ignore NetCDF dim interval and assume it always starts at zero
+            // ToDo: Add a parse object to allow the user to control the dim interval, i.e. start at 0 or not
+            for (int i = 0; i < numDims; i++)
+                desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) dimSizes[i] - 1);
+
+            if ((desc.dest = (char*) mystore.storage_alloc(dataSize)) == NULL)
+            {
+                RMInit::logOut << "Error: out of memory" << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            memcpy(desc.dest, data, dataSize * sizeof (char));
+            desc.destType = get_external_type(ctype_char);
+            delete [] data;
+            break;
+        }
+        case ncShort:
+        {
+            short *data = new short[dataSize];
+            if (data == NULL)
+            {
+                RMInit::logOut << "Error: out of memory." << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            var->get(&data[0], dimSizes);
+
+            desc.destInterv = r_Minterval(numDims);
+            for (int i = 0; i < numDims; i++)
+                desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) dimSizes[i] - 1);
+
+            if ((desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof (short))) == NULL)
+            {
+                RMInit::logOut << "Error: out of memory." << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            memcpy(desc.dest, data, dataSize * sizeof (short));
+            desc.destType = get_external_type(ctype_int16);
+            delete [] data;
+            break;
+        }
+        case ncInt:
+        {
+            int *data = new int[dataSize];
+            if (data == NULL)
+            {
+                RMInit::logOut << "Error: out of memory." << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            var->get(&data[0], dimSizes);
+
+            desc.destInterv = r_Minterval(numDims);
+            for (int i = 0; i < numDims; i++)
+                desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) dimSizes[i] - 1);
+
+            if ((desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof (int))) == NULL)
+            {
+                RMInit::logOut << "Error: out of memory." << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            memcpy(desc.dest, data, dataSize * sizeof (int));
+            desc.destType = get_external_type(ctype_int32);
+            delete [] data;
+            break;
+        }
+        case ncFloat:
+        {
+            float *data = new float[dataSize];
+            if (data == NULL)
+            {
+                RMInit::logOut << "Error: out of memory." << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            var->get(&data[0], dimSizes);
+
+            desc.destInterv = r_Minterval(numDims);
+            for (int i = 0; i < numDims; i++)
+                desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) dimSizes[i] - 1);
+
+            if ((desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof (float))) == NULL)
+            {
+                RMInit::logOut << "Error: out of memory." << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            memcpy(desc.dest, data, dataSize * sizeof (float));
+            desc.destType = get_external_type(ctype_float32);
+            delete [] data;
+            break;
+        }
+        case ncDouble:
+        {
+            double *data = new double[dataSize];
+            if (data == NULL)
+            {
+                RMInit::logOut << "Error: out of memory." << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            var->get(&data[0], dimSizes);
+
+            desc.destInterv = r_Minterval(numDims);
+            for (int i = 0; i < numDims; i++)
+                desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) dimSizes[i] - 1);
+
+            if ((desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof (double))) == NULL)
+            {
+                RMInit::logOut << "Error: out of memory" << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            memcpy(desc.dest, data, dataSize * sizeof (double));
+            desc.destType = get_external_type(ctype_float64);
+            delete [] data;
+            break;
+        }
+        default:
+        {
+            RMInit::logOut << "Error: this type is not supported" << desc.baseType << "." << endl;
             throw r_Error(r_Error::r_Error_General);
         }
-        dimSizes[i] = dim->size();
-        dataSize *= dim->size();
-    }
-    switch (var->type())
-    {
-    case ncByte:
-    case ncChar:
-    {
-        char *data = new char[dataSize];
-        if (data == NULL)
-        {
-            RMInit::logOut << "r_Conv_NETCDF::convertFrom(): out of memory error!" << endl;
-            throw r_Error(r_Error::r_Error_MemoryAllocation);
-        }
-        var->get(&data[0], dimSizes);
 
+        }    
+    }
+    else
+    {   
+        // if no variable is specified, try to import all
+        if (variable == NULL) 
+        {            
+            vars = new char*[varNames.size()];
+            if (vars == NULL)
+            {
+                RMInit::logOut << "Error: out of memory." << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            varsSize = 0;
+            for (it = varNames.begin(); it != varNames.end(); it++) 
+            {
+                vars[varsSize] = strdup((*it).c_str());
+                varsSize++;
+            }
+        }
+        desc.baseType = ctype_struct;
+        int structSize = 0; // size of the struct type, used for offset computations in memcpy
+        stringstream destType(stringstream::out); // build the struct type string
+        destType << "struct { ";
+        for (int i = 0; i < varsSize; i++) 
+        {    
+            if (varNames.find(vars[i]) == varNames.end())
+            {
+                RMInit::logOut << "Error: variable " << vars[i] << " not present in the file." << endl;
+                throw r_Error(r_Error::r_Error_General);        
+            }  
+            NcVar *var = dataFile.get_var(vars[i]);
+            if (i > 0)
+                destType << ", ";
+            switch (var->type()) 
+            {
+                case ncByte:
+                case ncChar:
+                    structSize += sizeof(char);
+                    destType << "char";
+                    break;
+                case ncDouble:
+                    structSize += sizeof(double);
+                    destType << "double";
+                    break;
+                case ncFloat:
+                    structSize += sizeof(float);
+                    destType << "float";
+                    break;
+                case ncInt:
+                    structSize += sizeof(int);
+                    destType << "long";
+                    break;
+                case ncShort:
+                    structSize += sizeof(short);
+                    destType << "short";
+                    break;
+                default:
+                {
+                    RMInit::logOut << "Error: this type is not supported." << var->type() << endl;
+                    throw r_Error(r_Error::r_Error_General);
+                }
+            }
+
+        
+            numDims = var->num_dims();
+            int firstDim; // get the dimensionality of first variable to import and check if all other have the same dimensionality
+            if (i == 0) 
+            {
+                firstDim = numDims;
+                dimSizes = new long[numDims];    
+                if (dimSizes == NULL)
+                {
+                    RMInit::logOut << "Error: out of memory." << endl;
+                    throw r_Error(r_Error::r_Error_MemoryAllocation);
+                }            
+            }
+            else 
+            {
+                if (numDims != firstDim) {
+                    RMInit::logOut << "Error: variables have different dimesionalities." << endl;
+                    throw r_Error(r_Error::r_Error_General);                 
+                }
+            }
+            for (int j = 0; j < numDims; j++)
+            {
+                NcDim *dim = var->get_dim(j);
+                if (dim->is_unlimited())
+                {
+                    RMInit::logOut << "Error: unlimited dimensions can not be handled." << endl;
+                    throw r_Error(r_Error::r_Error_General);
+                }
+                else 
+                {
+                    if (i == 0) 
+                    {
+                        dimSizes[j] = dim->size();
+                        dataSize *= dim->size();
+                    }                
+                    else if (dim->size() != dimSizes[j])
+                    {
+                        RMInit::logOut << "Error: variables have different dimesionalities." << endl;
+                        throw r_Error(r_Error::r_Error_General);                      
+                    }
+                }
+            }         
+        } 
+
+        destType << " }";
+        desc.destType = r_Type::get_any_type(destType.str().c_str());
+        if ((desc.dest = (char*) mystore.storage_alloc(dataSize * structSize)) == NULL)
+        {
+            RMInit::logOut << "Error: out of memory." << endl;
+            throw r_Error(r_Error::r_Error_MemoryAllocation);
+        }            
+           
+        int offset = 0; // offset of the attribute within the struct type
+        for (int i = 0; i < varsSize; i++) 
+        {   
+            NcVar *var = dataFile.get_var(vars[i]);
+            switch (var->type()) 
+            {
+                case ncShort:
+                {
+                    short *data = new short[dataSize];
+                    if (data == NULL)
+                    {
+                        RMInit::logOut << "Error: out of memory." << endl;
+                        throw r_Error(r_Error::r_Error_MemoryAllocation);
+                    }
+                    var->get(&data[0], dimSizes);
+
+                    for (int j = 0; j < dataSize; j++) 
+                        memcpy(desc.dest + j * structSize + offset, &data[j], sizeof(short));
+                                                         
+                    delete [] data;
+                    offset += sizeof(short);
+                    break;
+                }
+                case ncInt:
+                {
+                    int *data = new int[dataSize];
+                    if (data == NULL)
+                    {
+                        RMInit::logOut << "Error: out of memory." << endl;
+                        throw r_Error(r_Error::r_Error_MemoryAllocation);
+                    }
+                    var->get(&data[0], dimSizes);
+
+                    for (int j = 0; j < dataSize; j++) 
+                        memcpy(desc.dest + j * structSize + offset, &data[j], sizeof(int));
+                   
+                    delete [] data;
+                    offset += sizeof(int);
+                    break;
+                }
+                case ncDouble:
+                {
+                    double *data = new double[dataSize];
+                    if (data == NULL)
+                    {
+                        RMInit::logOut << "Error: out of memory." << endl;
+                        throw r_Error(r_Error::r_Error_MemoryAllocation);
+                    }
+                    var->get(&data[0], dimSizes);
+
+                    for (int j = 0; j < dataSize; j++) 
+                        memcpy(desc.dest + j * structSize + offset, &data[j], sizeof(double));
+                   
+                    delete [] data;
+                    offset += sizeof(double);
+                    break;
+                }
+                case ncFloat:
+                {
+                    float *data = new float[dataSize];
+                    if (data == NULL)
+                    {
+                        RMInit::logOut << "Error: out of memory." << endl;
+                        throw r_Error(r_Error::r_Error_MemoryAllocation);
+                    }
+                    var->get(&data[0], dimSizes);
+
+                    for (int j = 0; j < dataSize; j++) 
+                        memcpy(desc.dest + j * structSize + offset, &data[j], sizeof(float));
+                   
+                    delete [] data;
+                    offset += sizeof(float);
+                    break;
+                }
+                case ncByte:
+                case ncChar:
+                {
+                    char *data = new char[dataSize];
+                    if (data == NULL)
+                    {
+                        RMInit::logOut << "Error: out of memory." << endl;
+                        throw r_Error(r_Error::r_Error_MemoryAllocation);
+                    }
+                    var->get(&data[0], dimSizes);
+
+                    for (int j = 0; j < dataSize; j++) 
+                        memcpy(desc.dest + j * structSize + offset, &data[j], sizeof(char));
+                   
+                    delete [] data;
+                    offset += sizeof(char);
+                    break;
+                }
+                default:
+                {
+                    RMInit::logOut << "Error: this type is not supported." << endl;
+                    throw r_Error(r_Error::r_Error_General);
+                }                                
+            
+            }
+            
+        }
+        
         desc.destInterv = r_Minterval(numDims);
-        // Ignor NetCDF dim interval and assume it always starts at zero
-        // ToDo: Add a parse object to allow the user to control the dim interval, i.e. start at 0 or not
         for (int i = 0; i < numDims; i++)
             desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) dimSizes[i] - 1);
-
-        if ((desc.dest = (char*) mystore.storage_alloc(dataSize)) == NULL)
-        {
-            RMInit::logOut << "r_Conv_NETCDF::convertFrom(): out of memory error!" << endl;
-            throw r_Error(r_Error::r_Error_MemoryAllocation);
-        }
-        memcpy(desc.dest, data, dataSize * sizeof (char));
-        desc.destType = get_external_type(ctype_char);
-        delete [] data;
-        break;
+        
     }
-    case ncShort:
-    {
-        short *data = new short[dataSize];
-        if (data == NULL)
-        {
-            RMInit::logOut << "r_Conv_NETCDF::convertFrom(): out of memory error!" << endl;
-            throw r_Error(r_Error::r_Error_MemoryAllocation);
-        }
-        var->get(&data[0], dimSizes);
-
-        desc.destInterv = r_Minterval(numDims);
-        for (int i = 0; i < numDims; i++)
-            desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) dimSizes[i] - 1);
-
-        if ((desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof (short))) == NULL)
-        {
-            RMInit::logOut << "r_Conv_NETCDF::convertFrom(): out of memory error!" << endl;
-            throw r_Error(r_Error::r_Error_MemoryAllocation);
-        }
-        memcpy(desc.dest, data, dataSize * sizeof (short));
-        desc.destType = get_external_type(ctype_int16);
-        delete [] data;
-        break;
-    }
-    case ncInt:
-    {
-        int *data = new int[dataSize];
-        if (data == NULL)
-        {
-            RMInit::logOut << "r_Conv_NETCDF::convertFrom(): out of memory error!" << endl;
-            throw r_Error(r_Error::r_Error_MemoryAllocation);
-        }
-        var->get(&data[0], dimSizes);
-
-        desc.destInterv = r_Minterval(numDims);
-        for (int i = 0; i < numDims; i++)
-            desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) dimSizes[i] - 1);
-
-        if ((desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof (int))) == NULL)
-        {
-            RMInit::logOut << "r_Conv_NETCDF::convertFrom(): out of memory error!" << endl;
-            throw r_Error(r_Error::r_Error_MemoryAllocation);
-        }
-        memcpy(desc.dest, data, dataSize * sizeof (int));
-        desc.destType = get_external_type(ctype_int32);
-        delete [] data;
-        break;
-    }
-    case ncFloat:
-    {
-        float *data = new float[dataSize];
-        if (data == NULL)
-        {
-            RMInit::logOut << "r_Conv_NETCDF::convertFrom(): out of memory error!" << endl;
-            throw r_Error(r_Error::r_Error_MemoryAllocation);
-        }
-        var->get(&data[0], dimSizes);
-
-        desc.destInterv = r_Minterval(numDims);
-        for (int i = 0; i < numDims; i++)
-            desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) dimSizes[i] - 1);
-
-        if ((desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof (float))) == NULL)
-        {
-            RMInit::logOut << "r_Conv_NETCDF::convertFrom(): out of memory error!" << endl;
-            throw r_Error(r_Error::r_Error_MemoryAllocation);
-        }
-        memcpy(desc.dest, data, dataSize * sizeof (float));
-        desc.destType = get_external_type(ctype_float32);
-        delete [] data;
-        break;
-    }
-    case ncDouble:
-    {
-        double *data = new double[dataSize];
-        if (data == NULL)
-        {
-            RMInit::logOut << "r_Conv_NETCDF::convertFrom(): out of memory error!" << endl;
-            throw r_Error(r_Error::r_Error_MemoryAllocation);
-        }
-        var->get(&data[0], dimSizes);
-
-        desc.destInterv = r_Minterval(numDims);
-        for (int i = 0; i < numDims; i++)
-            desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) dimSizes[i] - 1);
-
-        if ((desc.dest = (char*) mystore.storage_alloc(dataSize * sizeof (double))) == NULL)
-        {
-            RMInit::logOut << "r_Conv_NETCDF::convertFrom(): out of memory error!" << endl;
-            throw r_Error(r_Error::r_Error_MemoryAllocation);
-        }
-        memcpy(desc.dest, data, dataSize * sizeof (double));
-        desc.destType = get_external_type(ctype_float64);
-        delete [] data;
-        break;
-    }
-    default:
-    {
-        RMInit::logOut << "This Type is not supported" << desc.baseType << endl;
-        throw r_Error(r_Error::r_Error_General);
-    }
-
-    }
-
     if (desc.srcInterv.dimension() == 2)
         // this means it was explicitly specified, so we shouldn't override it
         desc.destInterv = desc.srcInterv;
