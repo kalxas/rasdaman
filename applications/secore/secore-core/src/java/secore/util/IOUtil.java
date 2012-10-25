@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,9 @@ import org.slf4j.LoggerFactory;
 public class IOUtil {
 
   private static Logger log = LoggerFactory.getLogger(IOUtil.class);
+  
+  // absolute path to the SECORE database dir
+  private static String secoreDbDir = null;
 
   public static String getFilename(String path) {
     int ind = path.lastIndexOf(File.separator);
@@ -99,5 +103,29 @@ public class IOUtil {
     } else {
       throw new IOException("Failed opening file " + fileName);
     }
+  }
+  
+  /**
+   * Determine SECORE database dir: $CATALINA_HOME/webapps/.secoredb
+   * This is where Tomcat/other servlet servers would always have access.
+   * 
+   * @return the db dir, or null in case of an error
+   */
+  public static String getDbDir() {
+    if (secoreDbDir == null) {
+      File indexFile;
+      try {
+        // get path to $CATALINA_HOME/webapps/def/index.jsp
+        indexFile = IOUtil.findFile(Constants.INDEX_FILE);
+        // get path to $CATALINA_HOME/webapps/
+        File webappsDir = indexFile.getParentFile().getParentFile();
+        // return $CATALINA_HOME/webapps/.secoredb
+        secoreDbDir = webappsDir.getAbsolutePath() +
+            File.separator + Constants.SECORE_DB_DIR;
+      } catch (Exception ex) {
+        log.warn("Couldn't determine the database directory for SECORE.", ex);
+      }
+    }
+    return secoreDbDir;
   }
 }

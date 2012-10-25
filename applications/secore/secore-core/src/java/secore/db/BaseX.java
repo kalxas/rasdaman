@@ -37,6 +37,7 @@ import org.basex.core.cmd.Set;
 import org.basex.core.cmd.XQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.util.Constants;
 
 /**
  * BaseX backend.
@@ -58,6 +59,13 @@ public class BaseX implements Database {
   public boolean open() {
     context = new Context();
     try {
+      // determine configuration directory in which to put the database
+      String secoreDbDir = IOUtil.getDbDir();
+      if (secoreDbDir != null) {
+        new Set(Constants.DBPATH_BASEX_PROPERTY, secoreDbDir).execute(context);
+        log.debug("Secore database directory: " + secoreDbDir);
+      }
+
       new Set("CREATEFILTER", "*" + XML_EXTENSION).execute(context);
       new Open(GML_DB).execute(context);
       new CreateIndex(TEXT_INDEX_TYPE).execute(context);

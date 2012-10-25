@@ -68,4 +68,8 @@ public interface Constants {
   String NAME_LABEL = "name";
   String IDENTIFIER_LABEL = "identifier";
   String METADATA_LABEL = "metaDataProperty";
+  
+  // constants related to the secore database location
+  String DBPATH_BASEX_PROPERTY = "dbpath";
+  String SECORE_DB_DIR = ".secoredb";
 }
