@@ -22,6 +22,7 @@
 package petascope.util;
 
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import javax.xml.bind.JAXBException;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
@@ -63,17 +64,31 @@ public class WcsUtil {
     }
 
     /**
-     * Convert csv format from rasdaman into a tupleList format, for including in a gml:DataBlock
+     * Transforms a csv output returned by rasdaman server into a csv format
+     * accepted by the gml:tupleList according to section 19.3.8 of the
+     * OGC GML standard version 3.2.1
+     * @param csv - a csv input like {b1 b2 ... bn, b1 b2 ... bn, ...}, {...}
+     * where each {...} represents a dimension and each sequence b1 ... bn n bands
+     * @return csv string of form b1 b2 .. bn, b1 b2 ... bn, ...
+     */
+    protected static String rasCsvToTupleList(String csv) {
+        return csv.replace("{", "").replace("}","");
+    }
+
+    /**
+     * Convert csv format from rasdaman into a tupleList format, for including
+     * in a gml:DataBlock
      *
      * @param csv coverage in csv format
      * @return tupleList representation
      */
     public static String csv2tupleList(String csv) {
-        return csv; // FIXME
+        return rasCsvToTupleList(csv); // FIXME
     }
 
     /**
-     * Convert spatial domain of the form [band1][band2]..., where band1 is of the form [low:high, low:high,...]
+     * Convert spatial domain of the form [band1][band2]..., where band1 is of
+     * the form [low:high, low:high,...]
      *
      * @param sdom spatial domain as retreived from rasdaman with sdom(coverage)
      * @return (low, high) bound
@@ -200,8 +215,8 @@ public class WcsUtil {
         //Wgs84Crs crs = m.getCrs();
         Bbox bbox = m.getBbox();
         if (bbox != null) {
-            return " srsName=\"" + bbox.getCrsName() + "\" " +
-                    "srsDimension=\"" + m.getGridDimension() + "\"";
+            return " srsName=\"" + bbox.getCrsName() + "\" "
+                    + "srsDimension=\"" + m.getGridDimension() + "\"";
         } else {
             return "";
         }
@@ -215,7 +230,7 @@ public class WcsUtil {
             return CrsUtil.IMAGE_CRS;
         }
     }
-    
+
     private static String getLowerCorner(GetCoverageMetadata m) {
         Bbox bbox = m.getBbox();
         if (bbox != null) {
@@ -224,7 +239,7 @@ public class WcsUtil {
             return "";
         }
     }
-        
+
     private static String getUpperCorner(GetCoverageMetadata m) {
         Bbox bbox = m.getBbox();
         if (bbox != null) {
@@ -276,7 +291,7 @@ public class WcsUtil {
         }
         return Pair.of("", "");
     }
-    
+
     /**
      * @return the minimum interval from a and b
      */
@@ -299,7 +314,7 @@ public class WcsUtil {
         }
         Integer ah = toInt(as, 1);
         Integer bh = toInt(bs, 1);
-        
+
         Integer rl = al;
         if (rl > bl) {
             rl = bl;
@@ -308,10 +323,10 @@ public class WcsUtil {
         if (rh > bh) {
             rh = bh;
         }
-        
+
         return toStr(rl) + ":" + toStr(rh);
     }
-    
+
     private static String toStr(Integer i) {
         if (i == Integer.MAX_VALUE) {
             return "*";
@@ -319,7 +334,7 @@ public class WcsUtil {
             return i.toString();
         }
     }
-    
+
     private static Integer toInt(String[] s, int i) {
         if (s[i].equals("*")) {
             return Integer.MAX_VALUE;

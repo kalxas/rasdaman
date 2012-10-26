@@ -21,6 +21,8 @@
  */
 package petascope.wcs2.extensions;
 
+import com.sun.org.apache.xpath.internal.axes.AxesWalker;
+import java.util.ArrayList;
 import java.util.Iterator;
 import petascope.core.DbMetadataSource;
 import petascope.core.Metadata;
@@ -163,11 +165,15 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @param cov coverage metadata
      * @return (WCPS query in abstract syntax, axes)
      */
-    protected Pair<String, String> constructWcpsQuery(GetCoverageRequest req, Metadata cov, String format, String params) {
+    protected Pair<String, String> constructWcpsQuery(GetCoverageRequest req, Metadata cov, String format, String params) throws WCSException {
         String axes = "";
+        //keep a list of the axes defined in the coverage
+        ArrayList<String> axesList = new ArrayList<String>();
         Iterator<DomainElement> dit = cov.getDomainIterator();
         while (dit.hasNext()) {
-            axes += dit.next().getName() + " ";
+            String axis = dit.next().getName();
+            axes += axis + " ";
+            axesList.add(axis);
         }
         String proc = "c";
 
@@ -181,6 +187,12 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             String dim = subset.getDimension();
             DomainElement de = cov.getDomainByName(dim);
 
+            //Check if the supplied axis is in the coverage axes and throw exception if not
+            if(!axesList.contains(dim)){
+                throw new WCSException(ExceptionCode.InvalidAxisLabel, 
+                        "The axis label " + dim + " was not found in the list of available axes");
+            }
+            
             String crs = CrsUtil.IMAGE_CRS;
             // Subset-CRS might be embedded in a trimmig spec (~WCPS, e.g. KVP req) or with subsettingCrs attribute:
             if (subset.getCrs() != null || (req.getCRS().size() == 1 && req.getCRS().get(0).getSubsettingCrs() != null))
@@ -192,7 +204,9 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                         trim.getTrimLow() + ":" + trim.getTrimHigh() + ")})";
             } else if (subset instanceof DimensionSlice) {
                 DimensionSlice slice = (DimensionSlice) subset;
-                proc = "slice(" + proc + ",{" + dim + ":\"" + crs + "\" (" + slice.getSlicePoint() + ")})";
+                proc = "slice(" + proc + ",{" + dim + ":\"" + crs + "\" (" + slice.getSlicePoint() + ")})";                
+                log.debug("Dimension" + dim);
+                log.debug(axes);
                 axes = axes.replaceFirst(dim + " ?", ""); // remove axis
             }
         }

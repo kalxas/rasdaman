@@ -156,6 +156,8 @@ public class ExceptionCode {
     public static final ExceptionCode NodeParsingNotImplemented = new ExceptionCode("NodeParsingNotImplemented", null, 0);
     public static final ExceptionCode NoSuchCoverage = new ExceptionCode("NoSuchCoverage",
             "One of the identifiers passed does not match with any of the coverages offered by this server. Locator: List of violating coverage identifiers", 404);
+    public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel", 
+            "The dimension subsetting operation specified an axis label that does not exist in the Envelope", 404);    
     public static final ExceptionCode NotEnoughStorage = new ExceptionCode("NotEnoughStorage", null, 0);
     public static final ExceptionCode OperationNotSupported = new ExceptionCode("OperationNotSupported",
             "Request is for an operation that is not supported by this server. Locator: Name of operation not supported", 501);
