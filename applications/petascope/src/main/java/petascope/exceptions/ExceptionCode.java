@@ -135,12 +135,18 @@ public class ExceptionCode {
     public static final ExceptionCode InternalSqlError = new ExceptionCode("InternalSqlError", null, 0);
     public static final ExceptionCode InvalidEncodingSyntax = new ExceptionCode("InvalidEncodingSyntax",
             "Document received does not conform with protocol syntax", 400);
+    public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel", 
+            "The dimension subsetting operation specified an axis label that does not exist in the Envelope" +
+            "or has been used more than once in the GetCoverage request.", 404);
     public static final ExceptionCode InvalidMetadata = new ExceptionCode("InvalidMetadata", null, 0);
     public static final ExceptionCode InvalidParameterValue = new ExceptionCode("InvalidParameterValue",
             "Operation request contains an invalid parameter value", 400);
     public static final ExceptionCode InvalidPropertyValue = new ExceptionCode("InvalidPropertyValue", null, 0);
     public static final ExceptionCode InvalidRequest = new ExceptionCode("InvalidRequest", null, 0);
     public static final ExceptionCode InvalidServiceConfiguration = new ExceptionCode("InvalidServiceConfiguration", null, 0);
+    public static final ExceptionCode InvalidSubsetting = new ExceptionCode("InvalidSubsetting",
+            "Operation request contains an invalid subsetting value; either a trim or slice parameter value " +
+            "is outside the extent of the coverage or, in a trim operation, a lower bound is above the upper bound.", 404);
     public static final ExceptionCode InvalidTemporalMetadata = new ExceptionCode("InvalidTemporalMetadata", null, 0);
     public static final ExceptionCode InvalidUpdateSequence = new ExceptionCode("InvalidUpdateSequence",
             "Value of (optional) updateSequence parameter in GetCapabilities operation request "
@@ -156,8 +162,6 @@ public class ExceptionCode {
     public static final ExceptionCode NodeParsingNotImplemented = new ExceptionCode("NodeParsingNotImplemented", null, 0);
     public static final ExceptionCode NoSuchCoverage = new ExceptionCode("NoSuchCoverage",
             "One of the identifiers passed does not match with any of the coverages offered by this server. Locator: List of violating coverage identifiers", 404);
-    public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel", 
-            "The dimension subsetting operation specified an axis label that does not exist in the Envelope", 404);    
     public static final ExceptionCode NotEnoughStorage = new ExceptionCode("NotEnoughStorage", null, 0);
     public static final ExceptionCode OperationNotSupported = new ExceptionCode("OperationNotSupported",
             "Request is for an operation that is not supported by this server. Locator: Name of operation not supported", 501);

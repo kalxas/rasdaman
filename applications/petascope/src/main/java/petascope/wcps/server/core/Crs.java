@@ -158,7 +158,7 @@ public class Crs implements IRasNode {
         // Put in order to prevent call error
         if (coordHi < coordLo) {
             log.error(WCPSConstants.ERRTXT_ARGUMENT_HIGH_IS_LOWER_P1 + ": " + coordHi + "<" + coordLo + " " + WCPSConstants.ERRTXT_ARGUMENT_HIGH_IS_LOWER_P2);
-            throw new WCSException(ExceptionCode.NoApplicableCode, WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ":" + meta.getCoverageName());
+            throw new WCSException(ExceptionCode.InvalidSubsetting, WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ":" + meta.getCoverageName());
         }
         
         // Convert domain-space values to cell-space indices
