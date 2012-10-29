@@ -39,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import petascope.wms.Globals;
 import petascope.wms.WmsServlet;
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
 
 // import rasj.*;
 
@@ -47,8 +46,6 @@ public class WMSException extends Exception
 {
     private static final Logger log = LoggerFactory.getLogger(WMSException.class);
     // --- constants -------------------------------------
-    
-    private static final String srcFileVersion = "CVS version information: $Source: /home/rasdev/CVS-repository/rasdaman/rasgeo/WMS/WMSException.java,v $ $Revision: 1.2 $";
     
     /// maximum number of digits we expect from an error number as typed into properties file
     private static final int MAX_DIGITS = 5;
