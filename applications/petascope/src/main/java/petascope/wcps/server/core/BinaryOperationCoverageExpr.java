@@ -95,6 +95,7 @@ public class BinaryOperationCoverageExpr implements IRasNode, ICoverageInfo {
         info = new CoverageInfo(((ICoverageInfo) pair).getCoverageInfo());
         first = pair.getFirst();
         second = pair.getSecond();
+
     }
 
     public CoverageInfo getCoverageInfo() {

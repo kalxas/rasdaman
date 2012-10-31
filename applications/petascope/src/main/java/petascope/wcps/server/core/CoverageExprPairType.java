@@ -34,13 +34,11 @@ public class CoverageExprPairType implements IRasNode, ICoverageInfo {
     public CoverageExprPairType(Node node, XmlQuery xq)
             throws WCPSException {
         String nodeName = node.getNodeName();
-        boolean firstCov = false, secondCov = false;
 
         try {
             first = new ScalarExpr(node, xq);
         } catch (WCPSException ex) {
             first = new CoverageExpr(node, xq);
-            firstCov = true;
         }
 
         node = node.getNextSibling();
@@ -48,12 +46,10 @@ public class CoverageExprPairType implements IRasNode, ICoverageInfo {
             second = new ScalarExpr(node, xq);
         } catch (WCPSException ex) {
             second = new CoverageExpr(node, xq);
-            secondCov = true;
         }
         
-        if (firstCov) {
-            info = new CoverageInfo(((ICoverageInfo) first).getCoverageInfo());
-        } else if (secondCov) {
+        info = new CoverageInfo(((ICoverageInfo) first).getCoverageInfo());
+        if(info == null){
             info = new CoverageInfo(((ICoverageInfo) second).getCoverageInfo());
         }
     }
