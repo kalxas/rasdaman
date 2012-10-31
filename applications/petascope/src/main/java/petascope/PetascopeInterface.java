@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -71,6 +72,7 @@ import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.templates.Templates;
 import petascope.wcst.server.WcstServer;
+
 
 /** 
  * This servlet is a unified entry-point for all the PetaScope services.
@@ -585,9 +587,15 @@ public class PetascopeInterface extends HttpServlet {
                 
                 RasQueryResult res = new RasQueryResult(processCoverageRequest.execute());
                 if (!res.getMdds().isEmpty() || !res.getScalars().isEmpty()) {
+                    final PrintStream printStream = new PrintStream(webOut);
                     for (String s : res.getScalars()) {
-                        webOut.write(s.getBytes());
+                        printStream.print(s);
                     }
+                    printStream.close(); 
+// should avoid the String.getBytes() method for OutputStream, because that uses the default encoding of the JVM, which can't be reliably predicted in a portable way.
+//                    for (String s : res.getScalars()) {
+//                        webOut.write(s.getBytes());
+//                    }
                     for (byte[] bs : res.getMdds()) {
                         webOut.write(bs);
 
