@@ -34,6 +34,8 @@
 
 static const char rcsid[] = "@(#)inittools,initpyramid.cc: $Id: initpyramid.cc,v 1.10 2009/01/26 16:25:58 rasdev Exp $";
 
+#include "config.h"
+
 // this program's version number
 #define INITGEO_VERSION "1.1"
 

@@ -24,6 +24,8 @@ using namespace std;
 
 static const char rcsid[] = "@(#)raslib, ImportError: $Id: import_error.cc,v 1.3 2005/07/06 23:21:44 rasdev Exp $";
 
+#include "config.h"
+
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #include "raslib/template_inst.hh"

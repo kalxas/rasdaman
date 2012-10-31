@@ -34,6 +34,8 @@
 
 static const char rcsid[] = "@(#)rasgeo/rasgeo_util,RasgeoUtil: $Id: rasgeo_util.cc,v 1.8 2006/01/17 09:18:33 rasdev Exp $";
 
+#include "config.h"
+
 #ifdef EARLY_TEMPLATE
 #define __EXECUTABLE__
 #include "raslib/template_inst.hh"

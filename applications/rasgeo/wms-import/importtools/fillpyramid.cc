@@ -32,6 +32,8 @@
 
 static const char rcsid[] = "@(#)rasodmg/test,ImportOrtho: $Id: fillpyramid.cc,v 1.9 2007/05/09 12:39:14 rasdev Exp $";
 
+#include "config.h"
+
 #ifndef RMANVERSION
 #error "Please specify RMANVERSION variable!"
 #endif
