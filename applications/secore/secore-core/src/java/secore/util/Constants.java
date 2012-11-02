@@ -71,5 +71,5 @@ public interface Constants {
   
   // constants related to the secore database location
   String DBPATH_BASEX_PROPERTY = "dbpath";
-  String SECORE_DB_DIR = ".secoredb";
+  String SECORE_DB_DIR = "secoredb";
 }
