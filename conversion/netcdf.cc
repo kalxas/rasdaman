@@ -604,21 +604,14 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
     int numVars = dataFile.num_vars();
 
     // Get a set of dimension names. This is used to get all the variables that are not dimensions
-    set<string> dimNames;
     set<string> varNames;
     set<string>::iterator it;
-    for (int i = 0; i < numDims; i++)
-    {
-        NcDim *dim = dataFile.get_dim(i);
-        dimNames.insert(dim->name());
-    }
 
     // Get a set of variable names that are not dimensions. and defined by all dimensions
     for (int i = 0; i < numVars; i++)
     {
         NcVar *var = dataFile.get_var(i);
-        it = dimNames.find(var->name());
-        if (it == dimNames.end() && var->num_dims() > 0)
+        if (var->num_dims() > 0)
         {
             if (variable == NULL) 
             {
