@@ -158,6 +158,9 @@ CC="gcc -L%{_libdir}/hdf -I/usr/include/netpbm -fpermissive -g -O2" CXX="g++ -L%
     --with-wardir=/var/lib/tomcat6/webapps
 sed -i 's/^metadata_user=.\+/metadata_user=rasdaman/' applications/petascope/src/main/resources/petascope.properties
 sed -i 's/^metadata_pass=.\+/metadata_pass=/' applications/petascope/src/main/resources/petascope.properties
+cp applications/petascope/src/main/webapp/WEB-INF/web.xml.in applications/petascope/src/main/webapp/WEB-INF/web.xml
+sed -i 's#@confdir@#%{_sysconfdir}/rasdaman#' applications/petascope/src/main/webapp/WEB-INF/web.xml
+
 make DESTDIR=%{buildroot}
 
 %install
