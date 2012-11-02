@@ -142,13 +142,14 @@ AC_CONFIG_FILES([Makefile
                  applications/raswct/Makefile
                  applications/petascope/Makefile
                  applications/petascope/src/main/db/Makefile
+                 applications/secore/Makefile
                  bin/Makefile
                  manuals_and_examples/Makefile
                  manuals_and_examples/examples/c++/Makefile
                  insertutils/Makefile
-		 include/Makefile
-		 java/Makefile
-		 systemtest/Makefile
+                 include/Makefile
+                 java/Makefile
+                 systemtest/Makefile
           ])
 
 # --------------- Header Template Definitions ----------------------

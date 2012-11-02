@@ -1,4 +1,5 @@
 # -*-Makefile-*-
+#
 # This file is part of rasdaman community.
 #
 # Rasdaman community is free software: you can redistribute it and/or modify
@@ -19,17 +20,15 @@
 #
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
-#
-# MAKEFILE FOR:
-#   rasdaman applications
-#   does nothing but distribute any make call into all subdirs
-#
+# 
+# MAKEFILE FOR:  
+#   petascope
+# 
 # COMMENTS:
-#
+# 
 ##################################################################
 
-if ENABLE_JAVA
-    JAVA_DIR = petascope raswct petascope/src/main/db secore
-endif
+all: install
 
-SUBDIRS=rasql rview rasgeo $(JAVA_DIR)
+install:
+	./deploy $(DESTDIR)$(wardir)

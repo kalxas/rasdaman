@@ -51,21 +51,35 @@ WEB=secore-web
 # we want /def/... URLs but do not want to modify Tomcat config
 TARGET_SERVICE=def
 
-# deployment targets
+# optional argument passed to the script, indicating where should
+# the war file be deployed. The Makefile passes this argument.
+WARDIR="$1"
+
+# deployment targets: take first argument to script if given,
+# otherwise use CATALINA_HOME.
 # (no prob if CATALINA_HOME undefined, will catch later)
-WEBAPPS=$CATALINA_HOME/webapps
+if [ -n "$WARDIR" ]
+then
+  WEBAPPS="$WARDIR"
+else
+  WEBAPPS=$CATALINA_HOME/webapps
+fi
 TARGET_WAR=$WEBAPPS/$TARGET_SERVICE.war
 TARGET_EXPANDED=$WEBAPPS/$TARGET_SERVICE
 
 # - plausi checks -----------------------------------------
 
-# Tomcat env var set?
-if [ ! -d $CATALINA_HOME ]
+# webapps directory exists?
+if [ ! -d $WEBAPPS ]
 then
-	panic "CATALINA_HOME not set, cannot find Tomcat"
+	panic "The given deployment directory does not exist: $WEBAPPS"
+fi
+if [ ! -w "$WEBAPPS" ]
+then
+  panic "User $USER can not write to the deployment directory: $WEBAPPS"
 fi
 
-# war file or directory preexisting?
+# war file or directory preexisting? -> backup
 if [ -f $TARGET_WAR ]
 then
 	echo "existing servlet $TARGET_WAR will be moved to $TARGET_WAR.bak"
