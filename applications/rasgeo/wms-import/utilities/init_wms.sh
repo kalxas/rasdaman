@@ -266,6 +266,10 @@ then
 	echo "$ME: ERROR: $WMS_SERVICE_INSERT is not executable."
 	exit $RC_ERROR
 fi
+if [ ! $(which dc) ]; then
+  echo "$ME: ERROR: dc is not found, please install."
+  exit $RC_ERROR
+fi
 
 # check number of parameters
 if [ $# -lt $MIN_ARGS -o $# -gt $MAX_ARGS ]
