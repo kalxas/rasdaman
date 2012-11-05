@@ -24,6 +24,7 @@ package petascope.wcs2.extensions;
 import com.sun.org.apache.xpath.internal.axes.AxesWalker;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import petascope.core.DbMetadataSource;
 import petascope.core.Metadata;
 import petascope.exceptions.ExceptionCode;
@@ -69,8 +70,67 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 // TODO: can be done better with Minterval instead of sdom2bounds
                 Pair<String, String> bounds = WcsUtil.sdom2bounds(res.getScalars().get(0));
                 m.setAxisLabels(pair.snd);
+                
+                // Update **pixel-domain** bounds
                 m.setLow(bounds.fst);
                 m.setHigh(bounds.snd);
+                
+                // Update **domain** bounds
+                String lowerDom = "";
+                String upperDom = "";
+                boolean domUpdated;
+                Iterator<DomainElement> domsIt   = m.getMetadata().getDomainIterator();
+                DomainElement domain;
+                List<DimensionSubset>   subsList = request.getSubsets();
+                while (domsIt.hasNext()) {
+                    // Check if one subset trims on /this/ dimension:
+                    // Order and quantity of subsets not necessarily coincide with domain of the coverage
+                    // (e.g. single subset on Y over a nD coverage)
+                    domUpdated = false;
+                    domain     = domsIt.next();
+                    Iterator<DimensionSubset> subsIt = subsList.iterator();
+                    DimensionSubset subset;
+                    while (subsIt.hasNext()) {
+                        subset = subsIt.next();
+                        if (subset.getDimension().equals(domain.getType())) {
+                            try {
+                                // Compare subset with domain borders and update
+                                if (subset instanceof DimensionTrim) {
+                                    lowerDom += Math.max(
+                                            Double.parseDouble(((DimensionTrim)subset).getTrimLow()),
+                                            domain.getNumLo())  + " ";
+                                    upperDom += Math.min(
+                                            Double.parseDouble(((DimensionTrim)subset).getTrimHigh()),
+                                            domain.getNumHi()) + " ";
+                                } else if (subset instanceof DimensionSlice) {
+                                    lowerDom += Math.max(
+                                            Double.parseDouble(((DimensionSlice)subset).getSlicePoint()),
+                                            domain.getNumLo()) + " ";
+                                    upperDom += Math.min(
+                                            Double.parseDouble(((DimensionSlice)subset).getSlicePoint()),
+                                            domain.getNumHi()) + " ";
+                                } else {
+                                    throw new WCSException(ExceptionCode.InternalComponentError,
+                                        "Subset '" + subset + "' is not recognized as trim nor slice.");
+                                }
+                                // flag: if no subsets has updated the bounds, then need to append the bbox value
+                                domUpdated = true;
+                            } catch (NumberFormatException ex) {
+                                String message = "Error while casting a subset to numeric format for comparison.";
+                                log.error(message);
+                                throw new WCSException(ExceptionCode.InvalidRequest, message);
+                            }
+                        }
+                    } // END subsets iterator
+                    if (!domUpdated) {
+                        // This dimension is not involved in any subset: use bbox bounds
+                        lowerDom += domain.getNumLo() + " ";
+                        upperDom += domain.getNumHi() + " ";
+                    }
+                } // END domains iterator
+                // Update coverage info
+                m.setDomLow(lowerDom);
+                m.setDomHigh(upperDom);
             }
         }
     }

@@ -38,7 +38,6 @@ import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.RangeElement;
 import petascope.wcps.server.core.SDU;
-import petascope.wcps.server.core.Wgs84Crs;
 
 /**
  * This class holds the GetCoverage response data.
@@ -50,8 +49,14 @@ public class GetCoverageMetadata {
     private final Metadata metadata;
     private final String coverageId;
     private String coverageType;
-    private String axisLabels, uomLabels, low, high;
-    private String gridType, gridId;
+    private String axisLabels;
+    private String uomLabels;
+    private String low;     // Grid lower bound (px)
+    private String high;    // Grid upper bound (px)
+    private String domLow;  // Domain request lower bound
+    private String domHigh; // Domain request upper bound
+    private String gridType;
+    private String gridId;
     private Integer gridDimension;
     private List<RangeField> rangeFields;
     //private Wgs84Crs crs;
@@ -59,7 +64,9 @@ public class GetCoverageMetadata {
 
     public GetCoverageMetadata(GetCoverageRequest request, DbMetadataSource meta) throws WCSException {
         coverageId = request.getCoverageId();
-        axisLabels = uomLabels = low = high = "";
+        axisLabels = uomLabels = "";
+        low = high = "";
+        domLow = domHigh = "";
         gridType = gridId = "";
 
         if (!meta.existsCoverageName(coverageId)) {
@@ -77,8 +84,10 @@ public class GetCoverageMetadata {
             DomainElement dom = dit.next();
             CellDomainElement cell = cdit.next();
             axisLabels += dom.getName() + " ";
-            low += cell.getLo() + " ";
+            low  += cell.getLo() + " ";
             high += cell.getHi() + " ";
+            domLow  += dom.getNumLo() + " ";
+            domHigh += dom.getNumHi() + " ";
             if (dom.getUom() != null) {
                 uomLabels += dom.getUom() + " ";
             }
@@ -130,6 +139,13 @@ public class GetCoverageMetadata {
         return low.trim();
     }
 
+    public String getDomHigh() {
+        return domHigh.trim();
+    }
+
+    public String getDomLow() {
+        return domLow.trim();
+    }
     public List<RangeField> getRangeFields() {
         return rangeFields;
     }
@@ -142,9 +158,6 @@ public class GetCoverageMetadata {
         return metadata;
     }
 
-    //public Wgs84Crs getCrs() {
-    //    return crs;
-    //}
     public Bbox getBbox() {
         return bbox;
     }
@@ -154,14 +167,22 @@ public class GetCoverageMetadata {
         setGridDimension(axisLabels.split(" +").length);
     }
 
+    // Update pixel bounds of the grid (upon trimming and slicing)
     public void setHigh(String high) {
         this.high = high;
     }
-
     public void setLow(String low) {
         this.low = low;
     }
-
+    
+    // Update bounds of coverage (upon trimming and slicing)
+    public void setDomHigh(String high) {
+        this.domHigh = high;
+    }
+    public void setDomLow(String low) {
+        this.domLow = low;
+    }
+    
     public void setGridDimension(Integer gridDimension) {
         this.gridDimension = gridDimension;
     }

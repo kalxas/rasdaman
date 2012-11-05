@@ -379,7 +379,9 @@ public class Metadata implements Cloneable {
 
     }
 
-    public List<CellDomainElement> getCellDomainList(){return cellDomain;}
+    public List<CellDomainElement> getCellDomainList() {
+        return cellDomain;
+    }
 
     public Iterator<DomainElement> getDomainIterator() {
         return domain.iterator();

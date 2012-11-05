@@ -231,22 +231,15 @@ public class WcsUtil {
         }
     }
 
+    /* [DescribeCoveage]: gml:boundedBy element filled with bbox of the coverage 
+     * [GetCoveage]:      gml:boundedBy element filled with requested subset of the coverage
+     * Bounds are updated by petascope.wcs2.extensions.AbstractFormatExtension.setBounds()
+     */
     private static String getLowerCorner(GetCoverageMetadata m) {
-        Bbox bbox = m.getBbox();
-        if (bbox != null) {
-            return bbox.getLow1() + " " + bbox.getLow2();
-        } else {
-            return "";
-        }
+        return m.getDomLow();
     }
-
     private static String getUpperCorner(GetCoverageMetadata m) {
-        Bbox bbox = m.getBbox();
-        if (bbox != null) {
-            return bbox.getHigh1() + " " + bbox.getHigh2();
-        } else {
-            return "";
-        }
+        return m.getDomHigh();
     }
 
     private static String getAdditions(GetCoverageMetadata m) {

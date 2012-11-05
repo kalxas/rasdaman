@@ -25,8 +25,6 @@ import petascope.exceptions.PetascopeException;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.DescribeCoverageRequest;
 import nu.xom.Document;
-import petascope.core.Metadata;
-import petascope.util.Pair;
 import petascope.util.XMLUtil;
 import petascope.wcs2.templates.Templates;
 import java.io.IOException;
