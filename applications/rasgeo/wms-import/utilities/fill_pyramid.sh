@@ -27,11 +27,17 @@
 #
 # SYNTAX
 	ME="$( basename $0 )"
+	ARG_TASPLIT='--tasplit'
 	USAGE="
-	usage: $ME <collName>
+	usage: $ME <collName> [$ARG_TASPLIT]
 	where
-		<collName> must be an existing collection in rasdaman with an associated pyramid.
+		<collName> 	must be an existing collection in rasdaman with an associated pyramid.
+		$ARG_TASPLIT	split transaction into small units (saves main memory). 
 	"
+
+	# In case the usage changes, consequently adjust these values:
+	MIN_ARGS=1
+	MAX_ARGS=2
 #
 # DESCRIPTION
 #       Given a precedently initialized WMS layer (empty pyramid creation and metadata push to
@@ -152,14 +158,23 @@ PG_SELECT_NULL="(0 rows)"
 echo "$ME: Using databases {$RASDB_NAME,$PETADB_NAME}@$RAS_HOST:$PG_PORT."
 
 # check number of parameters
-if [ $# -lt 1 -o $# -gt 1 ]
+if [ $# -lt $MIN_ARGS -o $# -gt $MAX_ARGS ]
 then
 	echo "$USAGE"
 	exit $RC_ERROR
 fi
 
 # get parameters and check them
+echo -en "\n$ME: Parsing arguments... "
 COLLNAME=$1
+TASPLIT=''
+if [ "$2" = "$ARG_TASPLIT" ]; then 
+	TASPLIT="$2"
+else 
+	echo "$ME: unknown argument '$2'."
+	echo "$USAGE"
+	exit $RC_ERROR
+fi
 
 # Check existence of rasdaman collection 
 collExists=0
@@ -254,8 +269,8 @@ fi
 
 # Now it ispossible to call the executable that populates/updates the pyramid content:
 ARG_VERBOSE='-v'
-echo "$ME: executing '$IMPORT_BIN $ARG_VERBOSE $ARG_COLLNAME $COLLNAME $ARG_MDDDOMAIN [$PIXEL_XMIN:$PIXEL_XMAX,$PIXEL_YMIN:$PIXEL_YMAX] $ARG_MDDTYPE $mddType $ARG_SCALELEVELS $levelsString $ARG_USER $USER $ARG_PASSWD $PASSWD'"...
-"$IMPORT_BIN" $ARG_VERBOSE "$ARG_COLLNAME" "$COLLNAME" "$ARG_MDDDOMAIN" "[$PIXEL_XMIN:$PIXEL_XMAX,$PIXEL_YMIN:$PIXEL_YMAX]" $ARG_MDDTYPE $mddType $ARG_SCALELEVELS "$levelsString" $ARG_USER $USER $ARG_PASSWD $PASSWD
+echo "$ME: executing '$IMPORT_BIN $TASPLIT $ARG_VERBOSE $ARG_COLLNAME $COLLNAME $ARG_MDDDOMAIN [$PIXEL_XMIN:$PIXEL_XMAX,$PIXEL_YMIN:$PIXEL_YMAX] $ARG_MDDTYPE $mddType $ARG_SCALELEVELS $levelsString $ARG_USER $USER $ARG_PASSWD $PASSWD'"...
+"$IMPORT_BIN" $TASPLIT $ARG_VERBOSE "$ARG_COLLNAME" "$COLLNAME" "$ARG_MDDDOMAIN" "[$PIXEL_XMIN:$PIXEL_XMAX,$PIXEL_YMIN:$PIXEL_YMAX]" $ARG_MDDTYPE $mddType $ARG_SCALELEVELS "$levelsString" $ARG_USER $USER $ARG_PASSWD $PASSWD
 
 echo 
 echo "$ME: done."

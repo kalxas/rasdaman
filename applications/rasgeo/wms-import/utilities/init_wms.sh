@@ -37,11 +37,14 @@
 	USAGE="
 	usage: $ME <layerName> <collName> <crs> [$PYRAMID_ARG <pyramidLevels>] [$HOST_ARG <host>] [$PORT_ARG <port>]
 	where
-		<layerName> is the arbitrary name for the /new/ WMS layer;
-		<collName> must be an existing collection in rasdaman (but not already a published WMS coverage);
-		<crs> is the 2D Coordinate Reference System and must be expressed as AUTHORITY:CODE (e.g. EPSG:4326);
-		<pyramidLevels> must be a string of colon-separated scale factors, one for each pyramid. Default is '$LEVELS_STRING'. Each scale factor must be twice the previous one.
-		<host:port> of the WMS (->Petascope): important for for pluggin the WMS service into client softwares [default localhost:8080]. Argument are considered if this is the first WMS layer that is added, hence no WMS service has previously been defined.
+		<layerName>	the arbitrary name for the /new/ WMS layer;
+		<collName> 	must be an existing collection in rasdaman (but not already a published WMS coverage);
+		<crs> 		the 2D Coordinate Reference System and must be expressed as AUTHORITY:CODE (e.g. EPSG:4326);
+		<pyramidLevels> must be a string of colon-separated scale factors, one for each pyramid. 
+				Default is '$LEVELS_STRING'. Each scale factor must be twice the previous one.
+		<host:port> 	of the WMS (->Petascope): important for for pluggin the WMS service into client softwares [default localhost:8080]. 
+				Argument are considered if this is the first WMS layer that is added, 
+				hence no WMS service has previously been defined.
 	"
 	# In case the usage changes, consequently adjust these values:
 	MIN_ARGS=3
