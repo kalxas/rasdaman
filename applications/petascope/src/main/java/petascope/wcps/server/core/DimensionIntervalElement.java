@@ -177,30 +177,26 @@ public class DimensionIntervalElement implements IRasNode, ICoverageInfo {
 
     /* If input coordinates are geo-, convert them to pixel coordinates. */
     private void convertToPixelCoordinates() {
-        //if (meta.getCrs() == null && crs != null && crs.getName().equals(DomainElement.WGS84_CRS)) {
         if (meta.getBbox() == null && crs != null) {
             throw new RuntimeException(WCPSConstants.MSG_COVERAGE + " '" + meta.getCoverageName()
                     //+ "' is not georeferenced with 'EPSG:4326' coordinate system.");
                     + "' " + WCPSConstants.ERRTXT_IS_NOT_GEOREFERENCED);
         }
         if (counter == 2 && crs != null && domain1.isSingleValue() && domain2.isSingleValue()) {
-            //if (crs.getName().equals(DomainElement.WGS84_CRS)) {
-                //log.debug("CRS is '{}' and should be equal to '{}'", crs.getName(), DomainElement.WGS84_CRS);
-                log.debug(WCPSConstants.DEBUGTXT_REQUESTED_SUBSETTING, crs.getName(), meta.getBbox().getCrsName());
-                try {
-                    this.transformedCoordinates = true;
-                    // Convert to pixel coordinates
-                    Double val1 = domain1.getSingleValue();
-                    Double val2 = domain2.getSingleValue();
-                    String axisName = axis.toRasQL(); //.toUpperCase();
-                    int[] pCoord = crs.convertToPixelIndices(meta, axisName, val1, val2);
-                    coord1 = pCoord[0];
-                    coord2 = pCoord[1];
-                } catch (WCSException e) {
-                    this.transformedCoordinates = false;
-                    log.error(WCPSConstants.ERRTXT_ERROR_WHILE_TRANSFORMING);
-                }
-            //}
+            log.debug(WCPSConstants.DEBUGTXT_REQUESTED_SUBSETTING, crs.getName(), meta.getBbox().getCrsName());
+            try {
+                this.transformedCoordinates = true;
+                // Convert to pixel coordinates
+                Double val1 = domain1.getSingleValue();
+                Double val2 = domain2.getSingleValue();
+                String axisName = axis.toRasQL(); //.toUpperCase();
+                int[] pCoord = crs.convertToPixelIndices(meta, axisName, val1, val2);
+                coord1 = pCoord[0];
+                coord2 = pCoord[1];
+            } catch (WCSException e) {
+                this.transformedCoordinates = false;
+                log.error(WCPSConstants.ERRTXT_ERROR_WHILE_TRANSFORMING);
+            }
         }
     }
 

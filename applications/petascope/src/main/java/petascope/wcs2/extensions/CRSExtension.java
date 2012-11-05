@@ -88,8 +88,7 @@ public class CRSExtension implements Extension {
                                 log.info("Subset(s) defined in pixel coordinates: no CRS reprojection need to be made.");
                                 
                             } else if (request.getCRS().get(0).getSubsettingCrs() == null ||
-                                    request.getCRS().get(0).getSubsettingCrs().equals(m.getBbox().getCrsName())) {
-                                //if(!crs.getName().equals(DomainElement.WGS84_CRS)) {
+                                    CrsUtil.CrsUri.areEquivalent(request.getCRS().get(0).getSubsettingCrs(), m.getBbox().getCrsName())) {
                                 log.info("Requested CRS (" + request.getCRS().get(0).getSubsettingCrs() + ") and native CRS coincide: no tranform needed.");
                                 // Req7: /req/crs/getCoverage-subsettingCrs-default
                                 if (request.getCRS().get(0).getSubsettingCrs()==null)
@@ -120,7 +119,7 @@ public class CRSExtension implements Extension {
                                 // If only one subsetting was set in the request, fill the other dimension with bbox values (transformed in subsettingCrs)
                                 if (subX[0] == null || subY[0] == null) {
                                     crsTool = new CrsUtil(m.getBbox().getCrsName(), request.getCRS().get(0).getSubsettingCrs());
-                                    temp = crsTool.transform(m.getBbox().getLow1(), m.getBbox().getLow2(), m.getBbox().getHigh1(), m.getBbox().getHigh2());
+                                    temp = crsTool.transform(new double[] {m.getBbox().getLow1(), m.getBbox().getLow2(), m.getBbox().getHigh1(), m.getBbox().getHigh2()});
                                     subX = (subX[0]==null) ? new String[] {"" + temp.get(0), "" + temp.get(2)} : subX;
                                     subY = (subY[0]==null) ? new String[] {"" + temp.get(1), "" + temp.get(3)} : subY;
                                 }
@@ -130,7 +129,7 @@ public class CRSExtension implements Extension {
                                 // Now all values are filled: transform
                                 crsTool = new CrsUtil(request.getCRS().get(0).getSubsettingCrs(), m.getBbox().getCrsName());
                                 // crsTool.transform(xMin,yMin,xMax,yMax):
-                                temp = crsTool.transform(subX[0], subY[0], subX[1], subY[1]);
+                                temp = crsTool.transform(new String[] {subX[0], subY[0], subX[1], subY[1]});
 
                                 // Update dimension intervals nodes: one dimension might not be trimmed/sliced!
                                 if (xSubset != null) {

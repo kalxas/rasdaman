@@ -157,7 +157,7 @@ public class convertGetCoverage {
             if (crsName != null) {
                 if (crsName.equals(CrsUtil.IMAGE_CRS)) {
                     log.trace("CRS: NATIVE_IMAGE_CRS");
-                } else if (crsName.equals(CrsUtil.WGS84_URI)) {
+                } else if (CrsUtil.CrsUri.areEquivalent(crsName, CrsUtil.WGS84_URI)) {
                     log.trace("CRS: WGS84");
                 } else {
                     throw new WCSException(ExceptionCode.InvalidParameterValue, "BoundingBox.crs. Explanation: "

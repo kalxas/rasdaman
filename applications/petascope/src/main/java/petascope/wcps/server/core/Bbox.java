@@ -94,15 +94,15 @@ public class Bbox implements Cloneable {
         hasWgs84Bbox = false;
         
         // Get WGS84 bounding box (GetCapabilites WCS 2.0)
-        if (crsName.equals(CrsUtil.WGS84_URI)) {
+        if (CrsUtil.CrsUri.areEquivalent(crsName, CrsUtil.WGS84_URI)) {
             WGS84low1 = low1;   WGS84high1 = high1;
             WGS84low2 = low2;   WGS84high2 = high2;
             hasWgs84Bbox = true;
-        } else if (CrsUtil.extractAuthority(crsName) != null &&
-                CrsUtil.extractAuthority(crsName).equals(CrsUtil.EPSG_AUTH)) {
+        } else if (CrsUtil.CrsUri.getAuthority(crsName) != null &&
+                CrsUtil.CrsUri.getAuthority(crsName).equals(CrsUtil.EPSG_AUTH)) {
             try {
                 CrsUtil crsTool = new CrsUtil(crsName, CrsUtil.WGS84_URI);
-                List<Double> temp = crsTool.transform(low1, low2, high1, high2);
+                List<Double> temp = crsTool.transform(new double[] {low1, low2, high1, high2});
                 WGS84low1 = temp.get(0);    WGS84high1 = temp.get(2);
                 WGS84low2 = temp.get(1);    WGS84high2 = temp.get(3);
                 hasWgs84Bbox = true;

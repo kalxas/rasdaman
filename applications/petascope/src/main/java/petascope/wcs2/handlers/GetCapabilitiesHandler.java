@@ -121,13 +121,10 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             
             //: CRS [Req9: /req/crs/wcsServiceMetadata-outputCrs]
             Element crsExtension = new Element(PREFIX_WCS + ":" + LABEL_EXTENSION, NAMESPACE_WCS);
-            Element crsMetadata = new Element(PREFIX_CRS + ":" + LABEL_CRS_METADATA, NAMESPACE_CRS);
-            Element supportedCrs;
-            for (Integer code : CrsUtil.SUPPORTED_EPSG) {
-                supportedCrs = new Element(PREFIX_CRS + ":" + ATT_SUPPORTED_CRS, NAMESPACE_CRS);
-                supportedCrs.appendChild(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, code));
-                crsMetadata.appendChild(supportedCrs);
-            }
+            Element crsMetadata  = new Element(PREFIX_CRS + ":" + LABEL_CRS_METADATA, NAMESPACE_CRS);
+            Element supportedCrs = new Element(PREFIX_CRS + ":" + ATT_SUPPORTED_CRS, NAMESPACE_CRS);
+            supportedCrs.appendChild(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH));
+            crsMetadata.appendChild(supportedCrs);
             crsExtension.appendChild(crsMetadata);
             serviceMetadata.appendChild(crsExtension);
             //:~

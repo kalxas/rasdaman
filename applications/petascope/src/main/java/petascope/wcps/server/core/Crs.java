@@ -30,6 +30,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.AxisTypes;
+import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
 
 public class Crs implements IRasNode {
@@ -50,7 +51,7 @@ public class Crs implements IRasNode {
         if (node != null && node.getNodeName().equals(WCPSConstants.MSG_SRS_NAME)) {
             String val = node.getTextContent();
             this.crsName = val;
-            //if (crsName.equals(DomainElement.IMAGE_CRS) || crsName.equals(DomainElement.WGS84_CRS)) {
+            //if (crsName.equals(DomainElement.IMAGE_CRS) || CrsUtil.CrsUri.areEquivalent(crsName, DomainElement.WGS84_CRS) {
                 log.trace("  " + WCPSConstants.MSG_FOUND_CRS + ": " + crsName);
             //} else {
             //    throw new WCPSException("Invalid CRS: '" + crsName + "'");
@@ -77,7 +78,7 @@ public class Crs implements IRasNode {
         Bbox bbox = meta.getBbox();
         long px0 = -1, px1 = -1, py0 = -1, py1 = -1;
         // Convert bounding box values to pixel coordinates
-        //if (crsName.equals(DomainElement.WGS84_CRS)) {
+        //if (CrsUtil.CrsUri.areEquivalent(crsName, DomainElement.WGS84_CRS)) {
             //log.trace("Converting WGS84 axis {} interval to pixel coordinates ...", axisName);
             log.trace(WCPSConstants.MSG_CONVERTING_CURELY_AXIS, bbox.getCrsName(), axisName);
             /* Image coordinates */

@@ -106,7 +106,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"subsettingCrs\" parameters in the request: must be unique.");
         else {
             subCrs = ListUtil.head(list);
-            if (!(subCrs == null) && !CrsUtil.isValidCrsCode(subCrs))
+            if (!(subCrs == null) && !CrsUtil.CrsUri.isValid(subCrs))
                 throw new WCSException(ExceptionCode.NotASubsettingCrs, "subsettingCrs " + subCrs + " is not valid.");
             if (!(subCrs == null) && !CrsUtil.isSupportedCrsCode(subCrs))
                 throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, "subsettingCrs " + subCrs + " is not supported.");
@@ -117,7 +117,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"outputCrs\" parameters in the request: must be unique.");
         else {
             outCrs = ListUtil.head(list);
-            if (!(outCrs == null) && !CrsUtil.isValidCrsCode(outCrs))
+            if (!(outCrs == null) && !CrsUtil.CrsUri.isValid(outCrs))
                 throw new WCSException(ExceptionCode.NotAnOutputCrs, "outputCrs " + outCrs + " is not valid.");
             if (!(outCrs == null) && !CrsUtil.isSupportedCrsCode(outCrs))
                 throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, "outputCrs " + outCrs + " is not supported.");

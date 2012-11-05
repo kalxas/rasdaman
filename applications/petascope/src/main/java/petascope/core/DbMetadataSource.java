@@ -21,7 +21,9 @@
  */
 package petascope.core;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -577,19 +579,29 @@ public class DbMetadataSource implements IMetadataSource {
                     o2 = Double.parseDouble(off2);
                 }
                 /* Compute axis offsets if not predefined */
-                /* FIXME: each offset should have a x and a y component!
-                 *  They define the rotation of the grid.
-                 *  ps_crsdetails should have room for 4 offset values,
-                 *  however this table is going to be deprecated and I suggest
-                 *  to add 2 offset values in ps_domain. 
-                 */
-                 if (o1 == null && o2 == null) {
-                    o1 = (h1 - l1) / (double) (x1 - x0);
-                    o2 = (h2 - l2) / (double) (y1 - y0);
+                if (o1 == null && o2 == null) {
+                    // Use BigDecimals to avoid finite arithemtic rounding issues of Doubles
+                    // X
+                    BigDecimal maxBD = BigDecimal.valueOf(h1);
+                    BigDecimal minBD = BigDecimal.valueOf(l1);
+                    BigDecimal dimBD = BigDecimal.valueOf(x1 - x0);
+                    BigDecimal diffBD = maxBD.subtract(minBD);
+                    BigDecimal resBDx = diffBD.divide(dimBD, RoundingMode.UP);
+                    // Y
+                    maxBD = BigDecimal.valueOf(h1);
+                    minBD = BigDecimal.valueOf(l1);
+                    dimBD = BigDecimal.valueOf(x1 - x0);
+                    diffBD = maxBD.subtract(minBD);
+                    BigDecimal resBDy = diffBD.divide(dimBD, RoundingMode.UP);
+                    
+                    o1 = resBDx.doubleValue();
+                    o2 = resBDy.doubleValue();
+                    
                     log.debug("Calculated CRS axis offsets. For X: {}, for Y: {}", o1, o2);
                     log.debug(X.toString());
                     log.debug(Y.toString());
                 }
+                
                 
                 // Read CRS specification of X axis (=Y) of this coverage and create the BBOX:
                 String crsName = null;

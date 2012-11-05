@@ -91,14 +91,14 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                             if (subCrs == null) subCrs = getText(attr);
                             else throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"subsettingCrs\" parameters in the request: must be unique.");
                             // check validity of CRS specification
-                            if (!CrsUtil.isValidCrsCode(subCrs)) throw new WCSException(ExceptionCode.NotASubsettingCrs, "subsettingCrs \"" + subCrs + "\" is not valid.");
+                            if (!CrsUtil.CrsUri.isValid(subCrs)) throw new WCSException(ExceptionCode.NotASubsettingCrs, "subsettingCrs \"" + subCrs + "\" is not valid.");
                             if (!CrsUtil.isSupportedCrsCode(subCrs)) throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, "subsettingCrs " + subCrs + " is not supported.");
                         }
                         else if (attr.getLocalName().equals(ATT_OUTPUT_CRS)) {
                             if (outCrs == null) outCrs = getText(attr);
                             else throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"outputCrs\" parameters in the request: must be unique.");
                             // check validity of CRS specification
-                            if (!CrsUtil.isValidCrsCode(outCrs)) throw new WCSException(ExceptionCode.NotAnOutputCrs, "outputCrs \"" + outCrs + "\" is not valid.");
+                            if (!CrsUtil.CrsUri.isValid(outCrs)) throw new WCSException(ExceptionCode.NotAnOutputCrs, "outputCrs \"" + outCrs + "\" is not valid.");
                             if (!CrsUtil.isSupportedCrsCode(outCrs)) throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, "outputCrs " + outCrs + " is not supported.");
                         }
                         else log.warn("\"" + attr.getLocalName() + "\" unknown attribute of CRS element while parsing XML GetCoverage request");
