@@ -186,6 +186,15 @@ initdb(){
 # Initializes/updates the petascope database
 #
 initpetascopedb(){
+  # create petascope user in postgres
+  $SU -l postgres -c "createuser -SRd tomcat6"
+  RETVAL=$?
+  if [[ $RETVAL != 0 ]]
+  then
+    echo $"creating petascope user in postgres failed"
+    exit $!
+  fi
+
   $SU -l rasdaman -s "$rasshell" -c "update_petascopedb.sh"
 }
 

@@ -1,7 +1,7 @@
-%global rasdir /var/lib/rasdaman
+%global rasdir %{_sharedstatedir}/rasdaman
 Name:           rasdaman
 Version:        8.3.1
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        rasdaman - Raster Data Manager
 
 Group:          Applications/Databases
@@ -32,19 +32,9 @@ BuildRequires: gdal-devel
 BuildRequires: java-1.6.0-openjdk-devel
 
 Requires(pre): /usr/sbin/useradd
+Requires(pre): shadow-utils
 Requires(post): chkconfig
-Requires: libtiff
-Requires: hdf
-Requires: libjpeg
-Requires: ncurses
-Requires: readline
-Requires: zlib
-Requires: libpng
-Requires: netpbm
-Requires: openssl
 Requires: postgresql-server
-Requires: netcdf
-Requires: gdal
 
 Provides: rasserver
 
@@ -67,7 +57,7 @@ is under work.
 %package devel
 Summary:        rasdaman headers
 Group:          Development/Libraries
-Requires:       %{name} = %{version}-%{release}
+Requires:       %{name}%{?_isa} = %{version}-%{release}
 
 %description devel
 Files needed for rasdaman development.
@@ -91,6 +81,7 @@ is under work, see our planning.
 Summary:        Documentation for rasdaman
 Group:          Applications/Databases
 Requires:       %{name} = %{version}-%{release}
+BuildArch:      noarch
 
 %description docs
 The rasdaman-docs package includes documentation for rasdaman in html format.
@@ -99,14 +90,17 @@ The rasdaman-docs package includes documentation for rasdaman in html format.
 Summary:        Documentation for rasdaman
 Group:          Applications/Databases
 Requires:       %{name} = %{version}-%{release}
+BuildArch:      noarch
 
 %description examples
 The rasdaman-examples package includes examples for rasdaman.
 
 %package petascope
 Summary:        Petascope is an add-in to the rasdaman
-Group:          Graphics
+Group:          Applications/Databases
 Requires:       %{name} = %{version}-%{release}
+Requires:       tomcat6
+BuildArch:      noarch
 
 %description petascope
 Petascope is an add-in to the rasdaman raster server providing making it a geo raster data with open, interoperable OGC standards-based interfaces.
@@ -114,7 +108,7 @@ Petascope is an add-in to the rasdaman raster server providing making it a geo r
 %package rasdaview
 Summary:        WxWidgets based GUI client for rasdaman
 Group:          Graphics
-Requires:       %{name} = %{version}-%{release}
+Requires:       %{name}%{?_isa} = %{version}-%{release}
 
 %description rasdaview
 The rasdaman-rasdaview package installs GUI client for rasdaman. It is based on WxWidgets.
@@ -122,7 +116,7 @@ The rasdaman-rasdaview package installs GUI client for rasdaman. It is based on 
 %package rasgeo
 Summary:        rasgeo is an add-in for GDAL-based image file import
 Group:          Applications/Databases
-Requires:       %{name} = %{version}-%{release} gdal
+Requires:       %{name}%{?_isa} = %{version}-%{release} gdal
 
 %description rasgeo
 The rasgeo package is an add-in for GDAL-based image file import. It uses GDAL.
@@ -131,6 +125,7 @@ The rasgeo package is an add-in for GDAL-based image file import. It uses GDAL.
 Summary:        Rasdaman Web Client Toolkit based on JavaScript
 Group:          Applications/Databases
 Requires:       %{name} = %{version}-%{release}
+BuildArch:      noarch
 
 %description raswct
 raswct is a Web Client Toolkit based on JavaScript. The main purpose of this toolkit is to 
@@ -142,7 +137,10 @@ allow developers to create user interfaces for displaying data from a raster dat
 %build
 mv configure.ac configure.ac.dirty
 cat configure.ac.dirty | grep -v wms-import > configure.ac
+sed -i 's#    JAVA_DIR = petascope raswct petascope/src/main/db secore#    JAVA_DIR = petascope raswct petascope/src/main/db#' applications/Makefile.am
+
 autoreconf -fi
+
 CC="gcc -L%{_libdir}/hdf -I/usr/include/netpbm -fpermissive -g -O2" CXX="g++ -L%{_libdir}/hdf -I/usr/include/gdal -I/usr/include/netpbm -fpermissive -g -O2" \
 	./configure \
 		--prefix=/usr \
@@ -155,28 +153,23 @@ CC="gcc -L%{_libdir}/hdf -I/usr/include/netpbm -fpermissive -g -O2" CXX="g++ -L%
 	  --with-netcdf \
 		--with-pic \
 		--with-docs \
-    --with-wardir=/var/lib/tomcat6/webapps
-sed -i 's/^metadata_user=.\+/metadata_user=rasdaman/' applications/petascope/src/main/resources/petascope.properties
+    --with-wardir=%{_sharedstatedir}/tomcat6/webapps
+sed -i 's/^metadata_user=.\+/metadata_user=tomcat6/' applications/petascope/src/main/resources/petascope.properties
 sed -i 's/^metadata_pass=.\+/metadata_pass=/' applications/petascope/src/main/resources/petascope.properties
-cp applications/petascope/src/main/webapp/WEB-INF/web.xml.in applications/petascope/src/main/webapp/WEB-INF/web.xml
-sed -i 's#@confdir@#%{_sysconfdir}/rasdaman#' applications/petascope/src/main/webapp/WEB-INF/web.xml
+sed -i 's#@confdir@#%{_sysconfdir}/rasdaman#' applications/petascope/src/main/webapp/WEB-INF/web.xml.in
 
-make DESTDIR=%{buildroot}
+make %{?_smp_mflags} DESTDIR=%{buildroot}
 
 %install
 rm -rf %{buildroot}
 
-mkdir -p %{buildroot}/var/lib/tomcat6/webapps
+mkdir -p %{buildroot}%{_sharedstatedir}/tomcat6/webapps
 make install DESTDIR=%{buildroot}
 
 # install SYSV init stuff
-mkdir -p %{buildroot}/etc/rc.d/init.d
+mkdir -p %{buildroot}%{_initddir}
 sed 's/^RASVERSION=.*$/RASVERSION=%{version}/' < %{SOURCE1} > %{_sourcedir}/rasdaman.init
-install -m 755 %{_sourcedir}/rasdaman.init %{buildroot}/etc/rc.d/init.d/rasdaman
-
-# Change hostname in rasmgr.conf to localhost
-bhostname=`hostname`
-cat %{buildroot}%{_bindir}/rasmgr.conf | sed -e "s/$bhostname/localhost/g" > %{buildroot}%{_sysconfdir}/rasdaman/rasmgr.conf
+install -m 755 %{_sourcedir}/rasdaman.init %{buildroot}%{_initddir}/rasdaman
 
 # Remove unpackaged files
 rm %{buildroot}%{_bindir}/rasmgr.conf
@@ -186,7 +179,7 @@ rm -f %{buildroot}%{_bindir}/stop_rasdaman.sh
 
 # Create home for our user
 install -d -m 700 %{buildroot}%{rasdir}
-cp %{buildroot}%{_datadir}/rasdaman/examples/rasdl/basictypes.dl %{buildroot}%{rasdir}
+cp -a %{buildroot}%{_datadir}/rasdaman/examples/rasdl/basictypes.dl %{buildroot}%{rasdir}
 
 # Move includes from topdir to subdir
 mkdir %{buildroot}%{_includedir}/rasdaman
@@ -205,7 +198,7 @@ mkdir -p %{buildroot}%{_libdir}/rasdaview/bin
 mv %{buildroot}%{_bindir}/labels.txt %{buildroot}%{_libdir}/rasdaview/bin
 mv %{buildroot}%{_bindir}/rview %{buildroot}%{_libdir}/rasdaview/bin/rasdaview.bin
 mv %{buildroot}%{_bindir}/../.rviewrc %{buildroot}%{_libdir}/rasdaview
-cp %{buildroot}%{_datadir}/rasdaman/errtxts* %{buildroot}%{_libdir}/rasdaview/bin
+cp -a %{buildroot}%{_datadir}/rasdaman/errtxts* %{buildroot}%{_libdir}/rasdaview/bin
 
 echo "#!/bin/bash" > %{buildroot}%{_bindir}/rasdaview
 echo "cd %{_libdir}/rasdaview/bin" >> %{buildroot}%{_bindir}/rasdaview
@@ -218,7 +211,10 @@ rm -rf %{buildroot}
 
 %pre
 # Add the "rasdaman" user
-/usr/sbin/useradd -c "Rasdaman" -s /sbin/nologin -r -d %{rasdir} rasdaman 2> /dev/null || :
+getent group rasdaman >/dev/null || groupadd -r rasdaman
+getent passwd rasdaman >/dev/null || \
+    useradd -r -g rasdaman -d %{rasdir} -s /sbin/nologin -c "Rasdaman" rasdaman
+exit 0
 
 %preun
 # If not upgrading
@@ -234,18 +230,6 @@ chkconfig --add rasdaman
 # If upgrading
 if [ $1 -ge 1 ] ; then
 	/sbin/service rasdaman condrestart >/dev/null 2>&1 || :
-fi
-# If not upgrading
-# For SELinux we need to use 'runuser' not 'su'
-if [ -x /sbin/runuser ]
-then
-    SU=runuser
-else
-    SU=su
-fi
-if [ $1 = 0 ] ; then
-	userdel rasdaman >/dev/null 2>&1 || :
-	groupdel rasdaman >/dev/null 2>&1 || :
 fi
 
 %files
@@ -263,7 +247,7 @@ fi
 %{_datadir}/rasdaman/errtxts*
 %attr(700,rasdaman,rasdaman) %dir %{rasdir}
 %attr(644,rasdaman,rasdaman) %config(noreplace) %{rasdir}/basictypes.dl
-%{_sysconfdir}/rc.d/init.d/rasdaman
+%{_initddir}/rasdaman
 
 %files devel
 %defattr(-,root,root,-)
@@ -302,7 +286,7 @@ fi
 %files petascope
 %defattr(-,root,root,-)
 %{_datadir}/rasdaman/petascope/*
-/var/lib/tomcat6/webapps/petascope.war
+%{_sharedstatedir}/tomcat6/webapps/petascope.war
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/petascope.properties
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/log4j.properties
 %{_bindir}/petascope_insertdemo.sh
@@ -324,61 +308,71 @@ fi
 
 %changelog
 
-* Mon Jul 26  2012 Konstantin Kozlov <mackoel@gmail.com> - 8.3.1
+* Mon Nov 05  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.1-2
+
+- Use macros for common directories
+- Set documentation, examples, raswct, petascope packages to noarch build
+- Use concurrency when running make
+- Fix user/group creation, and don't delete the user on package uninstall
+- Add tomcat as dependency for petascope
+- Petascope is run by tomcat so use this user to connect to postgres
+- Add {?_isa} to sub-packages
+
+* Mon Jul 26  2012 Konstantin Kozlov <mackoel@gmail.com> - 8.3.1-1
 
 - Added gdal to Requires
 
-* Wed Jul 11  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.1
+* Wed Jul 11  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.1-1
 
 - Moved petascope settings files to /etc/rasdaman
 - Split update_db.sh into update_petascopedb.sh and petascope_insertdemo.sh
 
-* Fri Jun 29  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.1
+* Fri Jun 29  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.1-0
 
 - insertdemo.sh renamed to rasdaman_insertdemo.sh in trunk
 
-* Sun Feb 26  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.0
+* Sun Feb 26  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.0-2
 
 - Rename the init script from rasmgr to rasdaman
 
-* Sun Jan 29  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.0
+* Sun Jan 29  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.0-1
 
 - Move rasview to rasdaview
 - Add raswct
 
-* Sun Jan 22  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.0
+* Sun Jan 22  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.0-0
 
 - New rasdaman version
 - Move petascope install to a deploy target
 
-* Sat Dec 17  2011 Dimitar Misev <misev@rasdaman.com> - 8.2.1
+* Sat Dec 17  2011 Dimitar Misev <misev@rasdaman.com> - 8.2.1-4
 
 - Move petascope to applications directory
 - Fixed the all target in petascope's Makefile
 - Remove compression
 
-* Fri Dec 09  2011 Konstantin Kozlov <kozlov@spbcas.ru> - 8.2.1
+* Fri Dec 09  2011 Konstantin Kozlov <kozlov@spbcas.ru> - 8.2.1-3
 
 - Merged with upstream
 - Add rasgeo
 
-* Thu Nov 02  2011 Konstantin Kozlov <kozlov@spbcas.ru> - 8.2.1
+* Thu Nov 02  2011 Konstantin Kozlov <kozlov@spbcas.ru> - 8.2.1-2
 
 - Merged with upstream.
 - Added rview, petascope packages.
 
-* Fri Oct 21  2011 Dimitar Misev <d.misev@jacobs-university.de> - 8.2.1
+* Fri Oct 21  2011 Dimitar Misev <d.misev@jacobs-university.de> - 8.2.1-1
 
 - Support for rview
 
-* Thu Jul 30  2011 Konstantin Kozlov <kozlov@spbcas.ru> - 8.2.1
+* Thu Jul 30  2011 Konstantin Kozlov <kozlov@spbcas.ru> - 8.2.1-0
 
 - Merge with upstream.
 
-* Thu Jul 12  2011 Konstantin Kozlov <kozlov@spbcas.ru> - 8.0.0
+* Thu Jul 12  2011 Konstantin Kozlov <kozlov@spbcas.ru> - 8.0.0-1
 
 - Docs and examples packages. Fix for SL6
 
-* Thu Feb 17  2011 Konstantin Kozlov <kozlov@spbcas.ru> - 8.0.0
+* Thu Feb 17  2011 Konstantin Kozlov <kozlov@spbcas.ru> - 8.0.0-0
 
 - Initial spec
