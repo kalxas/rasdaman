@@ -139,6 +139,7 @@ AC_CONFIG_FILES([Makefile
                  applications/rasgeo/Makefile
                  applications/rasgeo/wms-import/inittools/Makefile
                  applications/rasgeo/wms-import/importtools/Makefile
+                 applications/rasgeo/wms-import/utilities/Makefile
                  applications/raswct/Makefile
                  applications/petascope/Makefile
                  applications/petascope/src/main/db/Makefile

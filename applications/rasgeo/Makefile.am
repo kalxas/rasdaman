@@ -44,12 +44,13 @@ raserase_LDADD = ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
               ../../network/libnetwork.a @GDAL_LDFLAGS@
 
 SUBDIRS= ../../rasodmg ../../clientcomm \
-         ../../raslib ../../conversion ../../commline ../../network
+         ../../raslib ../../conversion ../../commline ../../network \
+	 wms-import/importtools wms-import/inittools wms-import/utilities
          
 setupdb:
 	psql -d RASBASE -f createEmptyNM_META.sql
 	
-install:
+install-data-hook:
 	cp rasimport raserase $(DESTDIR)$(bindir)
 
 connectfile:
