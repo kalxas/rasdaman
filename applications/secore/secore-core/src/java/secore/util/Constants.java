@@ -60,6 +60,7 @@ public interface Constants {
   String SYNONYMS_FILE = "synonyms.jsp";
   String INDEX_FILE = "index.jsp";
   String DEMO_FILE = "demo.jsp";
+  String IOUTIL_CLASS = "IOUtil.class";
   
   String NAMESPACE_GML = "http://www.opengis.net/gml";
   String NAMESPACE_XLINK = "http://www.w3.org/1999/xlink";

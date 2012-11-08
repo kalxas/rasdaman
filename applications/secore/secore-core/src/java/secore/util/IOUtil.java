@@ -71,6 +71,19 @@ public class IOUtil {
 
     return null;
   }
+  
+  /**
+   * Convert URL to string, removing any URI schemes.
+   */
+  public static String urlToString(URL url) throws URISyntaxException {
+      String ret = url.toString();
+      int ind = -1;
+      while ((ind = ret.indexOf(':')) != -1 &&
+             !ret.substring(0, ind).contains(File.separator)) {
+        ret = ret.substring(ind + 1);
+      }
+      return ret;
+  }
 
   /**
    * Find a file in currentDir or its parent directories
@@ -82,7 +95,7 @@ public class IOUtil {
    */
   public static File findFile(String fileName, URL currentDir, int depth) {
     try {
-      return findFile(fileName, new File(currentDir.toURI()), depth);
+      return findFile(fileName, new File(urlToString(currentDir)), depth);
     } catch (URISyntaxException ex) {
       log.warn("URI error", ex);
       return null;
@@ -97,7 +110,7 @@ public class IOUtil {
    * @throws IOException in case the file was not found
    */
   public static File findFile(String fileName) throws IOException {
-    File f = IOUtil.findFile(fileName, IOUtil.class.getClassLoader().getResource(""), 5);
+    File f = IOUtil.findFile(fileName, IOUtil.class.getResource(Constants.IOUTIL_CLASS), 7);
     if (f != null) {
       return f;
     } else {
