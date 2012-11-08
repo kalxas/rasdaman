@@ -28,7 +28,6 @@
 # 
 ##################################################################
 
-all: install
-
-install:
+install-data-hook:
+	mkdir -p $(DESTDIR)$(wardir)
 	./deploy $(DESTDIR)$(wardir)
