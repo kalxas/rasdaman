@@ -992,6 +992,7 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.ows-v_1_0_0-schema-1.0-SNAPSHOT.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.nanoxml-2.2.3.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.xmlunit-1.3.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${file.reference.org-netbeans-modules-java-j2seproject-copylibstask.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.secore.conf}" todir="${build.web.dir}//etc"/>
         <copyfiles files="${file.reference.etc-gml}" todir="${build.web.dir}//etc/gml"/>
         <copyfiles files="${file.reference.log4j.properties}" todir="${build.web.dir}//etc"/>
@@ -1009,6 +1010,7 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.ows-v_1_0_0-schema-1.0-SNAPSHOT.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.nanoxml-2.2.3.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.xmlunit-1.3.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.org-netbeans-modules-java-j2seproject-copylibstask.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.secore.conf}" todir="${build.web.dir}//etc"/>
         <copyfiles files="${file.reference.etc-gml}" todir="${build.web.dir}//etc/gml"/>
         <copyfiles files="${file.reference.log4j.properties}" todir="${build.web.dir}//etc"/>
