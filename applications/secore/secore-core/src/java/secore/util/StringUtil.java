@@ -138,7 +138,7 @@ public class StringUtil {
     // set params
     String[] pairs = null;
     if (uri.contains(HTTP_PREFIX)) {
-      // special case for crs-compound
+      // special case for crs-compound/equal
       while ((ind = uri.indexOf(HTTP_PREFIX, HTTP_PREFIX.length() + 5)) != -1) {
         String key = uri.substring(0, ind);
         if (key.matches(".+&\\d+=")) {
@@ -175,10 +175,29 @@ public class StringUtil {
   private static void addParam(ResolveRequest req, String param) throws SecoreException {
     if (param.matches("\\d+=.+")) {
       String[] tmp = param.split(KEY_VALUE_SEPARATOR);
-      req.addParam(tmp[0], tmp[1]);
+      // In case of compounding or equality testing && 1+ URLs are KV-paired,
+      // then need to *re-merge* the remaining components of the split, otherwise
+      // only the first KV pair is added as parameter.
+      req.addParam(tmp[0], join(tmp, 1, tmp.length, KEY_VALUE_SEPARATOR));
     } else {
       req.addParam(param, null);
     }
+  }
+  
+  /**
+   * Joins strings of an array in a specified range (within the size of the array) and with a specified separator.
+   * @param array     Array of Strings
+   * @param start     Lower bound of the range
+   * @param end       Upper bound of the range
+   * @param separator The separator String
+   * @return          The joined String
+   */
+  private static String join(String[] array, int start, int end, String separator) {
+    String joined = "";
+    for (int i = Math.max(start, 0);  i < Math.min(end, array.length); i++) {
+      joined += (joined.isEmpty() ? "" : separator) + array[i];
+    }
+    return joined;
   }
 
   /**
