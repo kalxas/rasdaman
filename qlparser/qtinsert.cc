@@ -46,7 +46,6 @@ rasdaman GmbH.
 #include "config.h"
 #include <vector>
 #include "raslib/dlist.hh"
-//#include "rasodmg/stattiling.hh"
 #include "rasodmg/interesttiling.hh"
 #include "rasodmg/dirdecompose.hh"
 
@@ -73,16 +72,19 @@ extern ServerComm::ClientTblElt* currentClientTblElt;
 const QtNode::QtNodeType QtInsert::nodeType = QtNode::QT_INSERT;
 
 QtInsert::QtInsert(const std::string& initCollectionName, QtOperation* initSource)
-    : QtExecute(), collectionName(initCollectionName), source(initSource)
-{
+    : QtExecute(), collectionName(initCollectionName), source(initSource), dataToInsert(NULL), stgLayout(NULL) {
     source->setParent(this);
-    stgLayout = NULL;
 }
 
 QtInsert::QtInsert(const std::string& initCollectionName, QtOperation* initSource, QtOperation* storage)
-    : QtExecute(), collectionName(initCollectionName), source(initSource), stgLayout(storage)
-{
+    : QtExecute(), collectionName(initCollectionName), source(initSource), stgLayout(storage), dataToInsert(NULL) {
     source->setParent(this);
+}
+
+/// constructor getting name of collection and data to insert
+QtInsert::QtInsert (const std::string& initCollectionName, QtData* data )
+    : QtExecute(), collectionName(initCollectionName), dataToInsert(data), source(NULL), stgLayout(NULL) {
+    RMInit::logOut << "Creating QtInsert with provided data to insert " << data->getTypeStructure() << endl;
 }
 
 QtInsert::~QtInsert()
@@ -97,6 +99,10 @@ QtInsert::~QtInsert()
         delete stgLayout;
         stgLayout = NULL;
     }
+    if (dataToInsert)
+    {
+        dataToInsert = NULL;
+    }
 }
 
 int
@@ -104,18 +110,29 @@ QtInsert::evaluate()
 {
     RMDBCLASS("QtInsert", "evaluate()", "qlparser", __FILE__, __LINE__)
     startTimer("QtInsert");
-            
+      
     QtMddCfgOp* configOp = NULL;
     QtMDDConfig* mddConfig = NULL;
-    // empty data list for evaluation of insert expression including constant
-    QtNode::QtDataList* nextTupel = new QtNode::QtDataList(0);
-    if (stgLayout)
-    {
-        configOp = (QtMddCfgOp*) stgLayout;
-        mddConfig = configOp->getMddConfig();
+    QtData* sourceData = NULL;
+    QtNode::QtDataList* nextTupel = NULL;
+    if (dataToInsert) {
+        RMInit::logOut << "Source data provided" << endl;
+        sourceData = dataToInsert;
     }
-    // get the operands
-    QtData* sourceData = source->evaluate(nextTupel);
+    else
+    {
+        // empty data list for evaluation of insert expression including constant
+        nextTupel = new QtNode::QtDataList(0);
+        if (stgLayout)
+        {
+            configOp = (QtMddCfgOp*) stgLayout;
+            mddConfig = configOp->getMddConfig();
+        }
+        // get the operands
+        sourceData = source->evaluate(nextTupel);
+    
+        RMInit::logOut << "Evaluated source data" << endl;
+    }
 
     if (sourceData)
     {
@@ -156,6 +173,9 @@ QtInsert::evaluate()
         //
         // check MDD and collection type for compatibility
         //
+        const MDDBaseType *sourceBaseType = sourceObj->getMDDBaseType();
+        const MDDType *targetMDDType = persColl->getCollectionType()->getMDDType();
+
         int cellSize;
         RMDBGIF(3, RMDebug::module_qlparser, "QtInsert",  \
                 char* collTypeStructure = persColl->getCollectionType()->getTypeStructure();  \
@@ -166,10 +186,34 @@ QtInsert::evaluate()
                 free(collTypeStructure); collTypeStructure = NULL;  \
                 free(mddTypeStructure); mddTypeStructure = NULL;)
         cellSize = (int)sourceObj->getMDDBaseType()->getBaseType()->getSize();
+        
         // bug fix: "insert into" found claimed non-existing type mismatch -- PB 2003-aug-25, based on fix by K.Hahn
         // if( !persColl->getCollectionType()->compatibleWith( (Type*) sourceObj->getMDDBaseType() ) )
-        if (!((MDDType*) sourceObj->getMDDBaseType())->compatibleWith(persColl->getCollectionType()->getMDDType()))
+//        if (!((MDDType*) sourceObj->getMDDBaseType())->compatibleWith(persColl->getCollectionType()->getMDDType())) {
+        
+        // fix PB's bug fix (above) - the else is the old code, which is wrong but removing it
+        // will break backwards compatibility - rasql always inserts GreyString data when inv_* functions are used.
+        // so to fix this in QtMDD there's a flag which tells if the data is from a conversion function -- DM 2011-aug-08
+        
+        // check if the types of the MDD to be inserted and the target collection are compatible
+        bool compatible = false;
+        if (dataToInsert)
         {
+          compatible = targetMDDType->compatibleWith(sourceBaseType);
+        }
+        else
+        {
+            if (sourceMDD->isFromConversion())
+            {
+                compatible = true;
+            }
+            else
+            {
+                compatible = targetMDDType->compatibleWith(sourceBaseType);
+            }
+        }
+        
+        if (!compatible) {
             // free resources
             persColl->releaseAll();
             delete persColl;
@@ -223,7 +267,8 @@ QtInsert::evaluate()
                 if (sourceData) sourceData->deleteRef();
                 delete sourceTiles;
                 sourceTiles = NULL;
-                delete nextTupel;
+                if (nextTupel)
+                    delete nextTupel;
                 nextTupel = NULL;
                 persColl->releaseAll();
                 delete persColl;
@@ -303,7 +348,8 @@ QtInsert::evaluate()
 
             // delete dynamic data
             if (sourceData) sourceData->deleteRef();
-            delete nextTupel;
+            if (nextTupel)
+                delete nextTupel;
             nextTupel = NULL;
             persColl->releaseAll();
             delete persColl;
@@ -325,7 +371,8 @@ QtInsert::evaluate()
     if (sourceData) sourceData->deleteRef();
 
     // delete dummy tupel vector
-    delete nextTupel;
+	if (nextTupel)
+        delete nextTupel;
     nextTupel = NULL;
     
     stopTimer();
@@ -372,6 +419,11 @@ QtInsert::printTree(int tab, std::ostream& s, QtChildType mode)
         {
             s << SPACE_STR(tab).c_str() << "source : " << std::endl;
             source->printTree(tab + 2, s);
+        }
+        else if (dataToInsert)
+        {
+            s << SPACE_STR(tab) << "data to insert : " << std::endl << SPACE_STR(tab+2);
+            dataToInsert->printStatus(s);
         }
         else
             s << SPACE_STR(tab).c_str() << "no source" << std::endl;
@@ -424,6 +476,16 @@ QtInsert::checkType()
         if (inputType.getDataType() != QT_MDD)
         {
             RMInit::logOut << "Error: QtInsert::checkType() - insert expression must be of type r_Marray<T>" << std::endl;
+            parseInfo.setErrorNo(960);
+            throw parseInfo;
+        }
+    }
+    else if (dataToInsert)
+    {
+
+        // get input type
+        if (dataToInsert->getDataType() != QT_MDD) {
+            RMInit::logOut << "Error: QtInsert::checkType() - inserted data must be of type r_Marray<T>" << std::endl;
             parseInfo.setErrorNo(960);
             throw parseInfo;
         }

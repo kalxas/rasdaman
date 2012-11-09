@@ -61,7 +61,8 @@ extern MDDColl* mddConstants;
 
 QtMDD::QtMDD( MDDObj* ptr )
     : QtData(),
-      mddObject( ptr )
+      mddObject( ptr ),
+      fromConversion( false )
 {
     if( ptr && ptr->isPersistent() )
         setLifetime( QtData::QT_PERSISTENT );
@@ -75,7 +76,8 @@ QtMDD::QtMDD( MDDObj* ptr )
 
 QtMDD::QtMDD( MDDObj* ptr, string name )
     : QtData( name ),
-      mddObject( ptr )
+      mddObject( ptr ),
+      fromConversion( false )
 {
     if( ptr && ptr->isPersistent() )
         setLifetime( QtData::QT_PERSISTENT );
@@ -88,7 +90,7 @@ QtMDD::QtMDD( MDDObj* ptr, string name )
 
 
 QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
-    : QtData(), mddObject(0)
+    : QtData(), mddObject(0), fromConversion( false )
 {
     list< QtScalarData* >::iterator         elemIter;
     QtScalarData*                           scalarElem=NULL;
@@ -198,7 +200,8 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
 
 QtMDD::QtMDD( int constantNo )
     : QtData(),
-      mddObject( NULL )
+      mddObject( NULL ),
+      fromConversion( false )
 {
     RMDBGONCE(2, RMDebug::module_qlparser, "QtMDD", "QtMDD() - constant no " << constantNo )
 
@@ -235,7 +238,8 @@ QtMDD::QtMDD( int constantNo )
 
 QtMDD::QtMDD( const QtMDD& obj )
     : QtData( obj ),
-      mddObject( obj.mddObject )
+      mddObject( obj.mddObject ),
+      fromConversion( false )
 {
 }
 
@@ -314,7 +318,7 @@ void
 QtMDD::printStatus( ostream& stream ) const
 {
     if( mddObject )
-        stream << "MDD object: load domain: " << loadDomain << endl;
+        stream << "MDD object: load domain: " << loadDomain << ", from conversion: " << fromConversion << endl;
     else
         stream << "<no object>" << endl;
 

@@ -409,9 +409,10 @@ r_OQL_Query::is_retrieval_query() const
 {
     int returnValue = 0;
 
-    if( parameterizedQueryString )
-        returnValue = strstr( parameterizedQueryString, "select" ) ||
-                      strstr( parameterizedQueryString, "SELECT" );
+    if (parameterizedQueryString)
+        returnValue =
+           (strstr(parameterizedQueryString, "select") || strstr(parameterizedQueryString, "SELECT")) &&
+           (!strstr(parameterizedQueryString, "into") && !strstr(parameterizedQueryString, "INTO"));
 
     return returnValue;
 }

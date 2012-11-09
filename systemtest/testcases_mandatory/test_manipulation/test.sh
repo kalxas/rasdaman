@@ -56,6 +56,7 @@ DATABASE=RASBASE
 RASQL="rasql --quiet"
 RASDL="rasdl"
 TEST_COLLECTION="test_tmp"
+TMP_COLLECTION="test_tmp2"
 
   CODE_OK=0
   CODE_FAIL=255
@@ -153,6 +154,34 @@ else
 	echo update MDD from collection $TEST_COLLECTION  unsuccessfully ... | tee -a $LOG
 	NUM_FAIL=$(($NUM_FAIL + 1))
 fi
+
+echo testing SELECT INTO a new collection ... | tee -a $LOG
+if $RASQL -q "select c / 2 into $TMP_COLLECTION from $TEST_COLLECTION as c" --user $USERNAME --passwd $PASSWORD
+then
+	sdom1=`$RASQL -q "select sdom(c) from $TMP_COLLECTION as c" --out string`
+	sdom2=`$RASQL -q "select sdom(c) from $TEST_COLLECTION as c" --out string`
+	if [ "$sdom1" == "$sdom2" ]; then
+		echo select into $TMP_COLLECTIO  successfully ... | tee -a $LOG
+		NUM_SUC=$(($NUM_SUC + 1))
+	else
+		echo select into $TMP_COLLECTION  unsuccessfully ... | tee -a $LOG
+		NUM_FAIL=$(($NUM_FAIL + 1))
+	fi
+else
+	echo select into $TMP_COLLECTION  unsuccessfully ... | tee -a $LOG
+	NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+
+echo dropping collection $TMP_COLLECTION... | tee -a $LOG
+if $RASQL -q "drop collection $TMP_COLLECTION" --user $USERNAME --passwd $PASSWORD
+then
+	echo drop collection $TMP_COLLECTION successfully ... | tee -a $LOG
+	NUM_SUC=$(($NUM_SUC + 1))
+else
+	echo drop collection $TMP_COLLECTION unsuccessfully ... | tee -a $LOG
+	NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+
 
 
 echo deleting MDD from collection ... | tee -a $LOG

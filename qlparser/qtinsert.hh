@@ -5,6 +5,7 @@
 #include "qlparser/qtoperation.hh"
 #include "qlparser/qtmddconfig.hh"
 #include "qlparser/qtmddcfgop.hh"
+#include "qlparser/qtdata.hh"
 #include "storagemgr/sstoragelayout.hh"
 
 #include "rasodmg/stattiling.hh"
@@ -60,6 +61,9 @@ public:
 
     QtInsert(const std::string& initCollectionName, QtOperation* initSource, QtOperation* storage);
 
+    /// constructor getting name of collection and data to insert
+    QtInsert (const std::string& initCollectionName, QtData* data );
+
     /// virtual destructor
     virtual ~QtInsert();
 
@@ -105,6 +109,9 @@ public:
 private:
     /// insert expression
     QtOperation* source;
+ 
+    /// insert data
+    QtData* dataToInsert;
 
     // Storage and Tiling type
     QtOperation* stgLayout;

@@ -243,7 +243,7 @@ struct QtUpdateSpecElement
 %type <integerToken>          intLitExp
 %type <operationValue>        condenseOpLit 
 %type <castTypes>	      castType
-%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp  
+%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp 
 //%type <identifierToken>       namedCollection collectionIterator typeName attributeIdent pyrName 
 %type <identifierToken>       namedCollection collectionIterator typeName attributeIdent
 			      marrayVariable condenseVariable
@@ -278,6 +278,7 @@ qlfile: query
 query: createExp
 	| dropExp
 	| selectExp
+	| selectIntoExp
 	| updateExp
 	| insertExp
 	| deleteExp
@@ -343,6 +344,117 @@ dropExp: DROP COLLECTION namedCollection
 	  FREESTACK($1)
 	  FREESTACK($2)
 	  FREESTACK($3)
+	};
+
+selectIntoExp:
+	SELECT generalExp INTO namedCollection FROM collectionList WHERE generalExp     
+	{
+	  try {
+	    accessControl.wantToWrite();
+  	  }
+	  catch(...) {
+	    // save the parse error info and stop the parser
+            if ( parseError ) delete parseError;
+            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+                                        $1.info->getLineNo(), $1.info->getColumnNo() );
+            FREESTACK($1)
+            FREESTACK($3)
+	    FREESTACK($5)
+	    FREESTACK($7)
+	    QueryTree::symtab.wipe();
+            YYABORT;
+	  }
+
+	  for( QtIterator::QtONCStreamList::iterator iter=$6->begin(); iter!=$6->end(); iter++ )
+	    parseQueryTree->removeDynamicObject( *iter );
+	    
+	  // create a JoinIterator
+	  QtJoinIterator* ji = new QtJoinIterator();
+	  ji->setStreamInputs( $6 );
+	  parseQueryTree->removeDynamicObject( $6 );
+	  
+	  // create a QtONCStreamList and add the Join Iterator
+	  QtIterator::QtONCStreamList* inputListS = new QtIterator::QtONCStreamList(1);
+	  (*inputListS)[0] = ji;
+	  
+	  // create a SelectionIterator
+	  QtSelectionIterator* si = new QtSelectionIterator();
+	  si->setStreamInputs( inputListS );
+	  si->setParseInfo( *($7.info) );
+	  si->setConditionTree( $8 );
+	  parseQueryTree->removeDynamicObject( $8 );
+	  
+	  // create a QtONCStreamList and add the Selection Iterator
+	  QtIterator::QtONCStreamList* inputListO = new QtIterator::QtONCStreamList(1);
+	  (*inputListO)[0] = si;
+	  
+	  // create a OperationIterator and set its inputs
+	  QtOperationIterator* oi = new QtOperationIterator();
+	  oi->setStreamInputs( inputListO );
+	  oi->setParseInfo( *($1.info) );
+	  oi->setOperationTree( $2 );
+	  parseQueryTree->removeDynamicObject( $2 );
+
+	  // And finally create a QtCommand that creates the final collection
+	  QtCommand* commandNode = new QtCommand( QtCommand::QT_CREATE_COLLECTION_FROM_QUERY_RESULT, $4.value, oi );
+
+	  commandNode->setParseInfo( *($3.info) );
+	  
+	  // set QtCommand create node  as root of the Query Tree
+	  parseQueryTree->setRoot( commandNode );
+	  
+	  FREESTACK($1)
+	  FREESTACK($3)
+	  FREESTACK($5)
+	  FREESTACK($7)
+	}
+	| 
+	SELECT generalExp INTO namedCollection FROM collectionList
+	{
+	  try {
+	    accessControl.wantToWrite();
+  	  }
+	  catch(...) {
+	    // save the parse error info and stop the parser
+            if ( parseError ) delete parseError;
+            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+                                        $1.info->getLineNo(), $1.info->getColumnNo() );
+            FREESTACK($1)
+            FREESTACK($3)
+	    FREESTACK($5)
+	    QueryTree::symtab.wipe();
+            YYABORT;
+	  }
+	
+	  for( QtIterator::QtONCStreamList::iterator iter=$6->begin(); iter!=$6->end(); iter++ )
+	    parseQueryTree->removeDynamicObject( *iter );
+	  
+	  // create a JoinIterator
+	  QtJoinIterator* ji = new QtJoinIterator();
+	  ji->setStreamInputs( $6 );
+	  parseQueryTree->removeDynamicObject( $6 );
+	  
+	  // create a QtONCStreamList and add the Join Iterator
+	  QtIterator::QtONCStreamList* inputList = new QtIterator::QtONCStreamList(1);
+	  (*inputList)[0] = ji;
+	  
+	  // create a OperationIterator and set its inputs
+	  QtOperationIterator* oi = new QtOperationIterator();
+	  oi->setStreamInputs( inputList );
+	  oi->setParseInfo( *($1.info) );
+	  oi->setOperationTree( $2 );
+	  parseQueryTree->removeDynamicObject( $2 );
+	  
+	  // And finally create a QtCommand that creates the final collection
+	  QtCommand* commandNode = new QtCommand( QtCommand::QT_CREATE_COLLECTION_FROM_QUERY_RESULT, $4.value, oi );
+	  commandNode->setParseInfo( *($3.info) );
+	  
+	  // set QtCommand create node  as root of the Query Tree
+	  parseQueryTree->setRoot( commandNode );
+	  
+	  FREESTACK($1)
+	  FREESTACK($3)
+	  FREESTACK($5)
 	};
 
 selectExp: SELECT resultList FROM collectionList WHERE generalExp     

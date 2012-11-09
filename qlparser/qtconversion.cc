@@ -499,6 +499,7 @@ QtConversion::evaluate( QtDataList* inputList )
 
         // create a new QtMDD object as carrier object for the transient MDD object
         returnValue = new QtMDD( (MDDObj*)resultMDD );
+        ((QtMDD*)returnValue)->setFromConversion(true);
 
         // delete base type schema
         delete baseSchema;

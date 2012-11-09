@@ -93,7 +93,10 @@ void RasServerEntry::compat_connectNewClient(const char *capability)
     char client[256];
     strcpy( client, "unknown" );
 
-#if 0 // client table is a relict from 1-process, multi-user rasdaman;
+    // reverted the below to execute the #if part instead of the #else
+    // details at: http://kahlua.eecs.jacobs-university.de/trac/rasdaman/ticket/239
+    // DM 2012-nov-10
+#if 1 // client table is a relict from 1-process, multi-user rasdaman;
     // now it conflicts with rasmgr dispatcher mimics, so we disable -- PB 2005-sep-01
     currentClientContext = new ClientTblElt( client, ++(clientCount) );
     currentClientIdx    = clientCount;
@@ -129,7 +132,10 @@ void RasServerEntry::compat_disconnectClient()
     // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
     RMInit::logOut << "Request: disconnect..." << flush;
 
-#if 0 // 
+    // reverted the below to execute the #if part instead of the #else
+    // details at: http://kahlua.eecs.jacobs-university.de/trac/rasdaman/ticket/239
+    // DM 2012-nov-10
+#if 1 // 
     deleteClientTblEntry( currentClientIdx );
     currentClientIdx = -1;
 #else

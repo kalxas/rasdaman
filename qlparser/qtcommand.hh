@@ -2,6 +2,8 @@
 #define __QTCOMMAND_HH___
 
 #include "qlparser/qtexecute.hh"
+#include "qlparser/qtoperationiterator.hh"
+#include "qlparser/querytree.hh"
 
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -51,7 +53,8 @@ public:
     enum QtCommandType
     {
         QT_DROP_COLLECTION,
-        QT_CREATE_COLLECTION
+        QT_CREATE_COLLECTION,
+        QT_CREATE_COLLECTION_FROM_QUERY_RESULT
     };
 
     /// constructor getting command, collection and type name (create collection)
@@ -59,6 +62,9 @@ public:
 
     /// constructor getting command and collection name (drop collection)
     QtCommand( QtCommandType initCommand, const std::string& initCollection );
+
+    /// constructor getting command, collection name and query tree node (create collection from query result)
+    QtCommand( QtCommandType initCommand, const std::string& initCollection, QtOperationIterator* collection);
 
     /// method for evaluating the node
     virtual int evaluate();
@@ -76,6 +82,22 @@ public:
     virtual void checkType();
 
 private:
+
+    /// create a collection
+    void createCollection(std::string collectionName, std::string typeName);
+
+    /// drop a given collection
+    void dropCollection(std::string collectionName);
+    
+    /// Creates a datatype from query results. Returns the type name of the new collection.
+    std::string getSelectedDataType(std::vector<QtData*>* data);
+
+    /// Inserts evaluated "data" into the given collection
+    void insertIntoCollection(std::vector<QtData*>* data, std::string collectionName);
+
+    /// Returns true if a collection exists with the given name
+    bool collectionExists(std::string collectionName);
+    
     /// command type
     QtCommandType command;
 
@@ -87,6 +109,9 @@ private:
 
     /// type name for create collection
     std::string typeName;
+
+    /// query tree operation; its results will be inserted into a new collection
+    QtOperationIterator *childNode;
 };
 
 #include "qlparser/qtcommand.icc"

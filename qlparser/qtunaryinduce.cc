@@ -97,6 +97,8 @@ QtUnaryInduce::computeOp( QtData* operand, Ops::OpType operation )
         const BaseType* resultCellType = (BaseType*)(Ops::getResultType( operation, mdd->getCellType() ));
 
         returnValue = computeUnaryMDDOp( mdd, resultCellType, operation);
+        
+        ((QtMDD*) returnValue)->setFromConversion(mdd->isFromConversion());
     }
     else if( operand->isScalarData() )
     {
@@ -132,6 +134,7 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
     // iterator for tiles
 
     // create MDDObj for result
+  // this should rather be MDDDomainType? -- DM 2011-aug-12
     MDDBaseType* mddBaseType = new MDDBaseType( "tmp", resultBaseType );
     TypeFactory::addTempType( mddBaseType );
 
@@ -768,7 +771,10 @@ QtData* QtCast::evaluate(QtDataList* inputList)
     QtData* operand = NULL;
 
     if(getOperand(inputList, operand))
+    {
         returnValue = computeOp( operand, getOp(castType));
+        
+    }
 
     // delete old operand
     if(operand) operand->deleteRef();

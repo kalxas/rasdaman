@@ -93,6 +93,10 @@ public:
     inline const r_Minterval& getLoadDomain() const;
     /// write method for loadDomain
     inline void setLoadDomain( r_Minterval& newLoadDomain );
+    /// is the MDD data result from a conversion function
+    inline const bool isFromConversion() const;
+    /// set whether the MDD data is result from a conversion function
+    inline void setFromConversion( bool newFromConversion );
 
     /// returns a null-terminated string describing the type structure
     virtual char* getTypeStructure() const;
@@ -127,6 +131,9 @@ private:
 
     /// pointer to the MDDObj object
     MDDObj* mddObject;
+    
+    /// is it the result of a conversion function
+    bool fromConversion;
 
     /// load domain
     r_Minterval loadDomain;

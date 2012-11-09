@@ -48,6 +48,7 @@ static const char rcsid[] = "@(#)qlparser, QtMarrayOp: $Header: /home/rasdev/CVS
 #include "catalogmgr/typefactory.hh"
 
 #include "catalogmgr/algebraops.hh"
+#include "relcatalogif/mdddimensiontype.hh"
 
 #include <iostream>
 #ifndef CPPSTDLIB
@@ -161,7 +162,8 @@ QtMarrayOp::evaluate( QtDataList* inputList )
 
     // determine types
     BaseType*    cellType    = (BaseType*)   input2->getDataStreamType().getType();
-    MDDBaseType* mddBaseType = (MDDBaseType*)dataStreamType.getType();
+    MDDDimensionType* mddBaseType = new MDDDimensionType( "tmp", cellType, domain.dimension() );
+    TypeFactory::addTempType( mddBaseType );
 
     // create tile for result
     Tile* resTile = new Tile( domain, cellType );
