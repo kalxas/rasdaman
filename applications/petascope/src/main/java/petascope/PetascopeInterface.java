@@ -224,6 +224,8 @@ public class PetascopeInterface extends HttpServlet {
         /* Process the request */
         try {
             try {
+                httpResponse.setHeader("Access-Control-Allow-Origin", "*");
+                
                 requestBody = IOUtils.toString(httpRequest.getReader());
 
                 log.trace("POST Request length: {}", httpRequest.getContentLength());

@@ -118,6 +118,7 @@ public class WcpsServlet extends HttpServlet {
         
         try {
             String xmlRequest = null;
+            response.setHeader("Access-Control-Allow-Origin", "*");
             
             if (ServletFileUpload.isMultipartContent(request)) {
                 @SuppressWarnings("unchecked")
