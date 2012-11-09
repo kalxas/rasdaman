@@ -42,7 +42,7 @@ public interface FormatExtension extends  Extension {
     
     String CSV_ENCODING = "csv";
     String TIFF_ENCODING = "tiff";
-    String JP2_ENCODING = "jp2";
+    String JP2_ENCODING = "jpeg2000";
     String PNG_ENCODING = "png";
     
     /**
