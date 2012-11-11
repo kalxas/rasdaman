@@ -112,6 +112,10 @@ private:
 
     /// query tree operation; its results will be inserted into a new collection
     QtOperationIterator *childNode;
+    
+    /// temporary type prefixes
+    static const std::string tmpSetTypePrefix;
+    static const std::string tmpMddTypePrefix;
 };
 
 #include "qlparser/qtcommand.icc"

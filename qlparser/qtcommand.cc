@@ -45,13 +45,14 @@ static const char rcsid[] = "@(#)qlparser, QtCommand: $Header: /home/rasdev/CVS-
 
 #include <iostream>
 
-
 using namespace std;
 
 extern ServerComm::ClientTblElt* currentClientTblElt;
 
 const QtNode::QtNodeType QtCommand::nodeType = QtNode::QT_COMMAND;
 
+const string QtCommand::tmpMddTypePrefix = string("tmpMdd-");
+const string QtCommand::tmpSetTypePrefix = string("tmpSet-");
 
 
 QtCommand::QtCommand( QtCommandType initCommand, const std::string& initCollection, const std::string& initType )
@@ -96,18 +97,10 @@ void QtCommand::dropCollection(string collectionName)
         }
         
         // if this collection was created using a SELECT INTO statement, then delete the temporary datatypes as well
-        string setName = string("tmpSet-") + collectionName;
-        string mddName = string("tmpMdd-") + collectionName;
-        const SetType* setType = TypeFactory::mapSetType(setName.c_str());
-        const MDDType* mddType = TypeFactory::mapMDDType(mddName.c_str());
-        if (setType)
-        {
-            TypeFactory::deleteSetType(setName.c_str());
-        }
-        if (mddType)
-        {
-            TypeFactory::deleteMDDType(mddName.c_str());
-        }
+        string setName = tmpSetTypePrefix + collectionName;
+        string mddName = tmpMddTypePrefix + collectionName;
+        TypeFactory::deleteTmpSetType(setName.c_str());
+        TypeFactory::deleteTmpMDDType(mddName.c_str());
     }
 }
 
@@ -188,8 +181,8 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
     MDDType *mddType = NULL;
     SetType *setType = NULL;
 
-    string setTypeName = string("tmpSet-") + collectionName;
-    string mddTypeName = string("tmpMdd-") + collectionName;
+    string setTypeName = tmpSetTypePrefix + collectionName;
+    string mddTypeName = tmpMddTypePrefix + collectionName;
 
     if (firstResult->getDataType() == QT_MDD)
     {
@@ -233,6 +226,7 @@ void QtCommand::insertIntoCollection(vector<QtData*>* data, string collectionNam
         QueryTree *query = new QueryTree(insertNode);
         try
         {
+            RMInit::logOut << endl << "inserting into new collection...";
             RMInit::logOut << "checking semantics...";
             query->checkSemantics();
             RMInit::logOut << "evaluating update...";
@@ -303,6 +297,7 @@ QtCommand::evaluate()
             vector<QtData*>* data = NULL;
             try
             {
+                RMInit::logOut << endl << "evaluating select sub-query...";
                 RMInit::logOut << "checking semantics...";
                 selectTree->checkSemantics();
                 RMInit::logOut << "evaluating retrieval...";
@@ -324,9 +319,9 @@ QtCommand::evaluate()
             }
             
 
-            if (data == NULL || data->size() == 0)
+            if (data == NULL)
             {
-                RMInit::logOut << "Error: the SELECT sub-query returned no results." << endl;
+                RMInit::logOut << "Error: evaluating the SELECT sub-query failed." << endl;
                 throw r_Error(r_Error::r_Error_QueryExecutionFailed, 242);
             }
             else

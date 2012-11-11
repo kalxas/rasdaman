@@ -59,6 +59,9 @@ static const char rcsid[] = "@(#)rasodmg, r_OQL_Query and r_oql_execute(): $Id: 
 #include "raslib/rmdebug.hh"
 #include "clientcomm/clientcomm.hh"
 
+#include <algorithm>
+#include <string>
+
 #ifdef OQLQUERY_NOT_SET
 #undef __EXECUTABLE__
 #endif
@@ -410,9 +413,15 @@ r_OQL_Query::is_retrieval_query() const
     int returnValue = 0;
 
     if (parameterizedQueryString)
-        returnValue =
-           (strstr(parameterizedQueryString, "select") || strstr(parameterizedQueryString, "SELECT")) &&
-           (!strstr(parameterizedQueryString, "into") && !strstr(parameterizedQueryString, "INTO"));
+    {
+        // convert string to upper case
+        std::string upperCaseQueryString(parameterizedQueryString);
+        std::transform(upperCaseQueryString.begin(), upperCaseQueryString.end(), upperCaseQueryString.begin(), ::toupper);
+        
+        // it is retrieval if it's a SELECT but not SELECT INTO expression
+        returnValue = upperCaseQueryString.find("SELECT ") != std::string::npos &&
+                      upperCaseQueryString.find(" INTO ") == std::string::npos;
+    }
 
     return returnValue;
 }

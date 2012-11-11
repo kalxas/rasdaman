@@ -56,7 +56,7 @@ DATABASE=RASBASE
 RASQL="rasql --quiet"
 RASDL="rasdl"
 TEST_COLLECTION="test_tmp"
-TMP_COLLECTION="test_tmp2"
+TMP_COLLECTION="test_tmp_select_into"
 
   CODE_OK=0
   CODE_FAIL=255

@@ -84,7 +84,6 @@ QtInsert::QtInsert(const std::string& initCollectionName, QtOperation* initSourc
 /// constructor getting name of collection and data to insert
 QtInsert::QtInsert (const std::string& initCollectionName, QtData* data )
     : QtExecute(), collectionName(initCollectionName), dataToInsert(data), source(NULL), stgLayout(NULL) {
-    RMInit::logOut << "Creating QtInsert with provided data to insert " << data->getTypeStructure() << endl;
 }
 
 QtInsert::~QtInsert()
@@ -264,12 +263,15 @@ QtInsert::evaluate()
                 RMInit::logOut << "Error: QtInsert::evaluate() - type not persistent" << std::endl;
 
                 // delete dynamic data
-                if (sourceData) sourceData->deleteRef();
+                if (sourceData)
+                    sourceData->deleteRef();
                 delete sourceTiles;
                 sourceTiles = NULL;
                 if (nextTupel)
+                {
                     delete nextTupel;
-                nextTupel = NULL;
+                    nextTupel = NULL;
+                }
                 persColl->releaseAll();
                 delete persColl;
                 persColl = NULL;
@@ -349,8 +351,10 @@ QtInsert::evaluate()
             // delete dynamic data
             if (sourceData) sourceData->deleteRef();
             if (nextTupel)
+            {
                 delete nextTupel;
-            nextTupel = NULL;
+                nextTupel = NULL;
+            }
             persColl->releaseAll();
             delete persColl;
             persColl = NULL;
@@ -368,12 +372,15 @@ QtInsert::evaluate()
         RMInit::logOut << "Error: QtInsert::evaluate() - insert data is invalid." << std::endl;
 
     // delete source operand
-    if (sourceData) sourceData->deleteRef();
+    if (sourceData)
+        sourceData->deleteRef();
 
     // delete dummy tupel vector
 	if (nextTupel)
+    {
         delete nextTupel;
-    nextTupel = NULL;
+        nextTupel = NULL;
+    }
     
     stopTimer();
 

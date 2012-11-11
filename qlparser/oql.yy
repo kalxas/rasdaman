@@ -354,14 +354,15 @@ selectIntoExp:
   	  }
 	  catch(...) {
 	    // save the parse error info and stop the parser
-            if ( parseError ) delete parseError;
+            if ( parseError )
+                delete parseError;
             parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
-	    FREESTACK($5)
-	    FREESTACK($7)
-	    QueryTree::symtab.wipe();
+            FREESTACK($5)
+            FREESTACK($7)
+            QueryTree::symtab.wipe();
             YYABORT;
 	  }
 
@@ -416,13 +417,14 @@ selectIntoExp:
   	  }
 	  catch(...) {
 	    // save the parse error info and stop the parser
-            if ( parseError ) delete parseError;
+            if ( parseError )
+                delete parseError;
             parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
                                         $1.info->getLineNo(), $1.info->getColumnNo() );
             FREESTACK($1)
             FREESTACK($3)
-	    FREESTACK($5)
-	    QueryTree::symtab.wipe();
+            FREESTACK($5)
+            QueryTree::symtab.wipe();
             YYABORT;
 	  }
 	
