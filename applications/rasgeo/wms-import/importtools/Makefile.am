@@ -39,8 +39,5 @@ fillpyramid_LDADD = ../../../../rasodmg/librasodmg.a ../../../../clientcomm/libc
               ../../../../conversion/libconversion.a ../../../../commline/libcommline.a \
               ../../../../network/libnetwork.a
 
-install:
-	cp fillpyramid $(RMANHOME)/bin
-
 SUBDIRS= ../../../../rasodmg ../../../../clientcomm \
          ../../../../raslib ../../../../conversion ../../../../commline ../../../../network
