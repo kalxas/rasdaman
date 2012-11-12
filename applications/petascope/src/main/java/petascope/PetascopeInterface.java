@@ -593,11 +593,6 @@ public class PetascopeInterface extends HttpServlet {
                     for (String s : res.getScalars()) {
                         printStream.print(s);
                     }
-                    printStream.close(); 
-// should avoid the String.getBytes() method for OutputStream, because that uses the default encoding of the JVM, which can't be reliably predicted in a portable way.
-//                    for (String s : res.getScalars()) {
-//                        webOut.write(s.getBytes());
-//                    }
                     for (byte[] bs : res.getMdds()) {
                         webOut.write(bs);
 
