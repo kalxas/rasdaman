@@ -85,6 +85,23 @@ r_Conv_CSV::~r_Conv_CSV(void)
 {
 }
 
+/**
+ * The format written to the stream is of the following format:
+ * Each dimension is surrounded by braces {} and points are separated by a comma
+ * while each band value in a point is delimited by a space
+ * 
+ * Example:
+ * For a rgb image: 
+ *   {100 210 222, 50 10 25},
+ *   {120 314 523, 25 30 45} 
+ * For a grey cube of [0:2,0:2,0:2]
+ *   {{6,2,2},{2,2,32},{2,32,2}},
+ *   {{2,1,2},{2,7,22},{12,2,42}},
+ *   {{12,26,62},{23,2,21},{2,2,2}}
+ * 
+ * Please note that the implementation of the tupleList GML elements in Petascope is dependent 
+ * on this format so on change update RasUtil as well.
+ */
 template <class baseType, class castType>
 void r_Conv_CSV::print(std::ofstream &f, baseType* val, int *dims, int dim)
 {
