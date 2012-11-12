@@ -68,3 +68,8 @@ applications/raswct/bin
 glassfish-web.xml
 sun-web.xml
 web.xml
+fillpyramid
+initpyramid
+config.h
+*~
+stamp-h1
