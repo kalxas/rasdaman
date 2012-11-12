@@ -1,7 +1,7 @@
 %global rasdir %{_sharedstatedir}/rasdaman
 Name:           rasdaman
 Version:        8.3.1
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        rasdaman - Raster Data Manager
 
 Group:          Applications/Databases
@@ -135,8 +135,6 @@ allow developers to create user interfaces for displaying data from a raster dat
 %setup -q
 
 %build
-mv configure.ac configure.ac.dirty
-cat configure.ac.dirty | grep -v wms-import > configure.ac
 sed -i 's#    JAVA_DIR = petascope raswct petascope/src/main/db secore#    JAVA_DIR = petascope raswct petascope/src/main/db#' applications/Makefile.am
 
 autoreconf -fi
@@ -301,12 +299,22 @@ fi
 %defattr(-,root,root,-)
 %{_bindir}/rasimport
 %{_bindir}/raserase
+%{_bindir}/fillpyramid
+%{_bindir}/initpyramid
+%{_bindir}/add_wms_service.sh
+%{_bindir}/drop_wms.sh
+%{_bindir}/fill_pyramid.sh
+%{_bindir}/init_wms.sh
 
 %files raswct
 %defattr(-,root,root,-)
 %{_datadir}/rasdaman/raswct
 
 %changelog
+
+* Mon Nov 12  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.1-3
+
+- Add WMS import tools to the rasgeo package
 
 * Mon Nov 05  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.1-2
 
