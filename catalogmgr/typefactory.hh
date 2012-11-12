@@ -186,6 +186,16 @@ public:
     delete a mdd type in the current DBMS.
     */
 
+    static void deleteTmpSetType(const char* typeName);
+    /*@Doc:
+    delete a temporary set type in the current DBMS, created by a select into
+    */
+
+    static void deleteTmpMDDType(const char* typeName);
+    /*@Doc:
+    delete a temporary mdd type in the current DBMS, created by a select into
+    */
+
     static TypeIterator<StructType> createStructIter();
     /*@Doc:
         Note that get_element returns a pointer to a StructType!

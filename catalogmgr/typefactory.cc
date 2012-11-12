@@ -459,6 +459,44 @@ TypeFactory::deleteSetType(const char* typeName)
     RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteSetType(" << typeName << ") END");
 }
 
+void
+TypeFactory::deleteTmpMDDType(const char* typeName)
+{
+    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteTmpMDDType(" << typeName << ")");
+    const MDDType* resultType = mapMDDType(typeName);  //is ok because only short for find
+    if (resultType)
+    {
+        DBObjectId toKill(resultType->getOId());
+        toKill->setPersistent(false);
+        toKill->setCached(false);
+        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "will be deleted from db");
+    }
+    else
+    {
+        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "is not in map");
+    }
+    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteTmpMDDType(" << typeName << ") END");
+}
+
+void
+TypeFactory::deleteTmpSetType(const char* typeName)
+{
+    RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteTmpSetType(" << typeName << ")");
+    const DBObject* resultType = (SetType*)mapSetType(typeName);//is ok because only short for find
+    if (resultType)
+    {
+        DBObjectId toKill(resultType->getOId());
+        toKill->setPersistent(false);
+        toKill->setCached(false);
+        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "will be deleted from db");
+    }
+    else
+    {
+        RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "is not in map");
+    }
+    RMDBGEXIT(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteTmpSetType(" << typeName << ") END");
+}
+
 const Type*
 TypeFactory::ensurePersistence(Type* type)
 {
