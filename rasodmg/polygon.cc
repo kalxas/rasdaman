@@ -46,6 +46,7 @@ rasdaman GmbH.
 #include <set>
 #include <algorithm>
 #include <math.h>
+#include <limits.h>
 
 #if defined(SOLARIS)
 #include <strings.h>
@@ -61,13 +62,6 @@ using std::sort;
 #include "debug/debug.hh"
 
 static const char rcsid[] = "@(#)rasodmg, r_Polygon: $Header: /home/rasdev/CVS-repository/rasdaman/rasodmg/polygon.cc,v 1.28 2003/12/27 23:02:56 rasdev Exp $";
-
-#ifndef LONG_MAX
-const int LONG_MAX = (1<<31) - 1;
-#endif
-#ifndef LONG_MIN
-const int LONG_MIN = (1<<31);  // due to overflow
-#endif
 
 // ------------------------------------------------------------------
 // r_Edge
@@ -488,10 +482,10 @@ r_Polygon::getBoundingBox() const throw(r_Error)
     }
 
     r_Minterval retVal(2);
-    r_Range minX = LONG_MAX;
-    r_Range maxX = LONG_MIN;
-    r_Range minY = LONG_MAX;
-    r_Range maxY = LONG_MIN;
+    r_Range minX = INT_MAX;
+    r_Range maxX = INT_MIN;
+    r_Range minY = INT_MAX;
+    r_Range maxY = INT_MIN;
     r_Range currMinX=0, currMaxX=0, currMinY=0, currMaxY=0;
     std::vector<r_Edge>::const_iterator iter, iterEnd;
 
