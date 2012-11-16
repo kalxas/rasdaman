@@ -57,7 +57,7 @@ void yyreset();
 
 unsigned int lineNo   = 1;
 unsigned int columnNo = 1;
-void llerror( char* s );
+void llerror(const char* s);
 int  yyparse( );
 
 int string_yyinput( char* buf, int max_size )
@@ -319,12 +319,12 @@ $[0-9]+                                  { llerror("unresolved query parameter")
                                            SETSTRTOKEN( StringLit, stringToken, &(yytext[1]) )
 					 }
 
-0x[0-f]+[cC]                             { SETINTTOKEN( strtoul( yytext, (char**)NULL, 16 ), 0, 1 ) }
-0x[0-f]+"us"|"US"                        { SETINTTOKEN( strtoul( yytext, (char**)NULL, 16 ), 0, 2 ) }
-0x[0-f]+"ul"|"UL"                        { SETINTTOKEN( strtoul( yytext, (char**)NULL, 16 ), 0, 4 ) }
--?0x[0-f]+[oO]                           { SETINTTOKEN( strtol ( yytext, (char**)NULL, 16 ), 1, 1 ) }
--?0x[0-f]+[sS]                           { SETINTTOKEN( strtol ( yytext, (char**)NULL, 16 ), 1, 2 ) }
--?0x[0-f]+[lL]?                          { SETINTTOKEN( strtol ( yytext, (char**)NULL, 16 ), 1, 4 ) }
+0x[0-9A-Fa-f]+[cC]                             { SETINTTOKEN( strtoul( yytext, (char**)NULL, 16 ), 0, 1 ) }
+0x[0-9A-Fa-f]+"us"|"US"                        { SETINTTOKEN( strtoul( yytext, (char**)NULL, 16 ), 0, 2 ) }
+0x[0-9A-Fa-f]+"ul"|"UL"                        { SETINTTOKEN( strtoul( yytext, (char**)NULL, 16 ), 0, 4 ) }
+-?0x[0-9A-Fa-f]+[oO]                           { SETINTTOKEN( strtol ( yytext, (char**)NULL, 16 ), 1, 1 ) }
+-?0x[0-9A-Fa-f]+[sS]                           { SETINTTOKEN( strtol ( yytext, (char**)NULL, 16 ), 1, 2 ) }
+-?0x[0-9A-Fa-f]+[lL]?                          { SETINTTOKEN( strtol ( yytext, (char**)NULL, 16 ), 1, 4 ) }
 
 [0-9]+[cC]	                         { SETINTTOKEN( strtoul( yytext, (char**)NULL, 10 ), 0, 1 ) }
 [0-9]+"us"|"US"	                         { SETINTTOKEN( strtoul( yytext, (char**)NULL, 10 ), 0, 2 ) }
@@ -356,7 +356,7 @@ void yyreset()
 }
 
 
-void llerror( char* s )
+void llerror(const char* s)
 {
    RMInit::logOut << "Lex error: line " << lineNo << ", " << s << " at " << yytext << std::endl;
 }
