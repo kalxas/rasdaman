@@ -212,7 +212,7 @@ DatabaseIf::checkCompatibility() throw (r_Error)
         long rasver1;               // rasdaman version as stored in db
         long schemaver1;            // schema version as stored in db
         char* arch1[SIZE_ARCH_RASADMIN];    // used for reading architecture from db
-        char *myArchitecture = RASARCHITECTURE; // used for architecture selection
+        const char *myArchitecture = RASARCHITECTURE; // used for architecture selection
     EXEC SQL END DECLARE SECTION;
 
     TALK( "EXEC SQL SELECT ServerVersion, IFVersion INTO :rasver1, :schemaver1 FROM RAS_ADMIN WHERE Architecture = " << myArchitecture );
