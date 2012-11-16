@@ -3046,8 +3046,10 @@ int RpcClientComm::setTransferFormat( r_Data_Format format, const char* formatPa
 
     params->clientID = getClientID();
     params->format = (unsigned short)format;
-    if (transferFormatParams == NULL)
-        params->formatParams = "";
+    if (transferFormatParams == NULL) {
+	(char*) mymalloc(sizeof(char));
+        strcpy(params->formatParams, "");
+    }
     else
         params->formatParams = transferFormatParams;
 
@@ -3103,8 +3105,10 @@ int RpcClientComm::setStorageFormat( r_Data_Format format, const char *formatPar
 
     params->clientID = getClientID();
     params->format = (unsigned short)format;
-    if (storageFormatParams == NULL)
-        params->formatParams = "";
+    if (storageFormatParams == NULL) {
+	(char*) mymalloc(sizeof(char));
+        strcpy(params->formatParams, "");
+    }
     else
         params->formatParams = storageFormatParams;
 
