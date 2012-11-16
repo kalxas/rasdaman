@@ -96,8 +96,8 @@ private:
     GDALDataset* convertTileToDataset(Tile* sourceTile, int nBands, r_Type* bandType);
     
     void initParams(char* params);
-    void setDouble(char* paramName, double* value);
-    void setString(char* paramName, std::string* value);
+    void setDouble(const char* paramName, double* value);
+    void setString(const char* paramName, std::string* value);
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType = QT_ENCODE;

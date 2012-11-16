@@ -346,7 +346,7 @@ QtNode::SetMinMax()
 
 
 void
-QtNode::startTimer(char* name)
+QtNode::startTimer(const char* name)
 {
 #ifdef RMANBENCHMARK
     if (!evaluationTimer)
@@ -391,14 +391,14 @@ QtNode::resumeTimer()
 #endif
 }
 
-char*
+std::string
 QtNode::getEvaluationTime()
 {
 #ifdef RMANBENCHMARK
     if (evaluationTimer)
     {
-        char* ret = (char*) malloc(20);
-        sprintf(ret, " - %d usecs", evaluationTimer->getTime());
+        std::string ret;
+        ret = " - " + evaluationTimer->getTime() + " usecs";
         return ret;
     }
 #endif

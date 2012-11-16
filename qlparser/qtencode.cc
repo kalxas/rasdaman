@@ -108,7 +108,7 @@ QtEncode::initParams(char* paramsIn)
 }
 
 void
-QtEncode::setDouble(char* paramName, double* value)
+QtEncode::setDouble(const char* paramName, double* value)
 {
     int ind;
     if ((ind = CSLFindName(fParams, paramName)) != -1)
@@ -118,7 +118,7 @@ QtEncode::setDouble(char* paramName, double* value)
 }
 
 void
-QtEncode::setString(char* paramName, string* value)
+QtEncode::setString(const char* paramName, string* value)
 {
     int ind;
     if ((ind = CSLFindName(fParams, paramName)) != -1)

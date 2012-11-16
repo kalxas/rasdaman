@@ -87,7 +87,7 @@ void SymbolTable<T>::storeSymbol( const std::string& symbol, T value )
 template <class T>
 T SymbolTable<T>::getSymbol( const std::string& symbol )
 {
-    T retVal=NULL;
+    T retVal = 0;
 
     // find if locally declared
     if ( !(STVars.find(symbol) == STVars.end()) )

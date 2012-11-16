@@ -513,7 +513,7 @@ QtExtend::evaluate( QtDataList* inputList )
             Tile* newTransTile = new Tile( *domainIter, currentMDDObj->getCellType() );
             resultMDD->insertTile( newTransTile );
         }
-#endif 0
+#endif // 0
 
         // --- 3: package into MDD object & finalize -----------------------------
 
@@ -592,7 +592,7 @@ QtExtend::extendGetCornerTiles( r_Minterval outerDomain, r_Minterval innerDomain
 
     // RMInit::logOut << "QtExtend::extendGetCornerTiles() done." << endl;
 }
-#endif 1
+#endif // 1
 
 void
 QtExtend::printTree( int tab, ostream& s, QtChildType mode )
@@ -718,7 +718,7 @@ QtExtend::optimizeLoad( QtTrimList* trimList )
 
         // point is not needed anymore
         operand->deleteRef();
-#endif 0 // not yet sure what to do -- PB 2005-06-18
+#endif // 0 not yet sure what to do -- PB 2005-06-18
 
         input1->optimizeLoad( trimList );
     }

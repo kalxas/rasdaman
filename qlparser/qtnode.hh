@@ -314,7 +314,7 @@ protected:
     ParseInfo parseInfo;
 
     /// start node timer (called at evaluation time)
-    void startTimer(char* name);
+    void startTimer(const char* name);
     /// stop timer (at end of evaluation)
     void stopTimer();
     /// pause
@@ -323,7 +323,7 @@ protected:
     void resumeTimer();
     
     /// get elapsed time if timer was started, returns a string e.g. "15 usecs"
-    char* getEvaluationTime();
+    std::string getEvaluationTime();
 
 #ifdef RMANBENCHMARK
     RMTimer *evaluationTimer;
