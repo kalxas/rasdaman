@@ -84,9 +84,9 @@ RMINITGLOBALS('C');
 
 bool initialization();
 
-extern unsigned long maxTransferBufferSize = 4000000;
-extern char*         dbSchema = 0;
-extern int           noTimeOut = 0;
+unsigned long maxTransferBufferSize = 4000000;
+char*         dbSchema = NULL;
+int           noTimeOut = 0;
 
 // here the id string for connecting to the RDBMS is stored (used by rel* modules).
 // FIXME: bad hack -- PB 2003-oct-12
