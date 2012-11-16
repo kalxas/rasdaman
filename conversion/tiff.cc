@@ -936,7 +936,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
     if (desc.baseType == ctype_struct)
     {
         // construct and set the structure type
-        char* bt = NULL;
+        string bt;
         if (sampleType != NULL)
             bt = sampleType;
         else
