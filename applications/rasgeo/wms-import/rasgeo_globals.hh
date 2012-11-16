@@ -73,11 +73,7 @@
 #include "rasodmg/polygon.hh"
 #include "rasodmg/polycutout.hh"
 
-
-/// program exit codes
-#define EXIT_SUCCESS    0
 #define EXIT_USAGE  2
-#define EXIT_FAILURE    -1
 
 /// log output indentation
 #define LOG_INDENT "   "
@@ -204,7 +200,7 @@ const string help_input = string( "inputformat, one of " )
 
 // tiling based on tile byte size (used with 2-D rasgeo tools)
 #define PARAM_TILING    "tiling"
-#define DEFAULT_TILING tiling_name_sizetiling
+#define DEFAULT_TILING_STR tiling_name_sizetiling
 #define DEFAULT_TILING      131072
 
 const string help_tiling = string( "<tiling-name> tiling strategy, one of: " ) +
