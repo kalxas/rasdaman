@@ -145,7 +145,7 @@ r_Convertor::get_storage_handler( ) const
     return mystore;
 }
 
-char* r_Convertor::type_to_string( int ctype ) throw(r_Error)
+std::string r_Convertor::type_to_string( int ctype ) throw(r_Error)
 {
     switch (ctype)
     {
@@ -183,7 +183,7 @@ char* r_Convertor::type_to_string( int ctype ) throw(r_Error)
 
 r_Type *r_Convertor::get_external_type( int ctype ) throw(r_Error)
 {
-    return r_Type::get_any_type(type_to_string(ctype));
+    return r_Type::get_any_type(type_to_string(ctype).c_str());
 }
 
 

@@ -200,7 +200,7 @@ public:
     //@}
 
     /// get a string representation of the internal type
-    static char* type_to_string( int ctype ) throw(r_Error);
+    static std::string type_to_string( int ctype ) throw(r_Error);
 
     /// get a r_Type from an internal type
     static r_Type *get_external_type( int ctype ) throw(r_Error);
