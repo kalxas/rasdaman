@@ -162,23 +162,23 @@ extern   const char   *error_token;
                      MARRAY
 
 /* types of nonterminals */
-%type<dummyValue>    model,specification,definition;
-%type <Literal>      literal,primary_expr
-%type <element>      member,member_list
+%type<dummyValue>    model specification definition
+%type <Literal>      literal primary_expr
+%type <element>      member member_list
 %type <Symbol>       scoped_name
 // enum_name
-%type <Type>         type_spec,simple_type_spec,type_declarator,
-                     floating_pt_type,integer_type,signed_int,signed_long_int,
-                     signed_short_int,unsigned_int,unsigned_long_int,
-                     unsigned_short_int,char_type,boolean_type,octet_type,complex1_type,complex2_type,
-                     struct_type,marray_type, type_dcl,constr_type_spec,
-                     opt_marray_base,collection_type,base_type_spec,
+%type <Type>         type_spec simple_type_spec type_declarator
+                     floating_pt_type integer_type signed_int signed_long_int 
+                     signed_short_int unsigned_int unsigned_long_int 
+                     unsigned_short_int char_type boolean_type octet_type complex1_type complex2_type 
+                     struct_type marray_type type_dcl constr_type_spec 
+                     opt_marray_base collection_type base_type_spec 
                      template_type_spec
-%type <Declarator>   declarator,declarators,simple_declarator
+%type <Declarator>   declarator declarators simple_declarator
 
 %type   <dimension>      dimension_spec
 %type   <domainSpec>     opt_spatial_domain
-%type   <domain>         spatial_domain,dimension_spec_list
+%type   <domain>         spatial_domain dimension_spec_list
 
 %%
 
@@ -192,7 +192,7 @@ specification         : definition
                       | definition specification
 
 /*(2)*/
-definition            : type_dcl   SEMI { $$ = NULL; }
+definition            : type_dcl   SEMI { $$ = 0; }
 
 /*(11)*/
 /*<Symbol>*/
