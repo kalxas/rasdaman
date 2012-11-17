@@ -483,11 +483,15 @@ r_Error::setErrorTextOnNumber()
 
         if (found)
             result = iter->second;
-        else
-            result = "(no explanation text available for this error code.)";
+        else {
+	    char str[] = "(no explanation text available for this error code.)";
+	    result = str;
+	}
     }
-    else    // no, there is no spoon -err- list
-        result = "(no explanation text available - cannot find/load file with standard error messages.)";
+    else {   // no, there is no spoon -err- list
+        char str[] = "(no explanation text available - cannot find/load file with standard error messages.)";
+        result = str;
+    }
 
     errorText = new char[strlen(result) + 1];
     if (errorText == NULL)
