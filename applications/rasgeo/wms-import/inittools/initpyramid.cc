@@ -102,10 +102,6 @@ using std::ostringstream;
 // separator between levels input parameter
 #define LEVEL_SEPARATOR ':'
 
-// Global variables
-#define RMANVERSION '8.3'
-#define COMPDATE '08 May 2012'
-
 /*
  * --------------------------------------------------------------------------------------------------
  */

@@ -61,7 +61,7 @@ ImportError::~ImportError()
 const char*
 ImportError::what()
 {
-    char *errorMsg;
+    const char *errorMsg;
     switch (importErrno)
     {
     case  EXCEPTIONEXECUTEQUERY:

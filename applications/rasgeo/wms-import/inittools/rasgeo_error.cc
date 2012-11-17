@@ -59,7 +59,7 @@ InitError::~InitError()
 const char*
 InitError::what()
 {
-    char *errorMsg;
+    const char *errorMsg;
     TALK( "error code is: " << errorCode );
     switch (errorCode)
     {

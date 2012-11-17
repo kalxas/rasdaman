@@ -39,5 +39,5 @@ signalHandler(int sig);
 void
 installSignalHandlers();
 
-#endif _RASGEO_SIGNAL_HH_
+#endif // _RASGEO_SIGNAL_HH_
 

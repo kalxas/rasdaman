@@ -293,7 +293,7 @@ parseParams(int argc, char** argv) throw (ImportError, r_Error)
             }
         }
         else    // set default: size tiling
-#endif SOMETIME_LATER
+#endif // SOMETIME_LATER
         {
             stringstream s;
             s << DEFAULT_TILING;
