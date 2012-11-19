@@ -88,7 +88,7 @@ public interface XMLSymbols {
     String LABEL_SLICE_POINT = "SlicePoint";
     String LABEL_WGS84_BBOX = "Wgs84BoundingBox";
     String LABEL_BBOX = "BoundingBox";
-    String LABEL_BUONDEDBY = "BoundedBy";
+    String LABEL_BOUNDEDBY = "BoundedBy";
     // wcs crs-extension
     String LABEL_CRS_METADATA = "CrsMetadata";
     String LABEL_CRS = "CRS";
