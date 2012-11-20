@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.logging.Logger;
 
 /**
  * String utilities.
@@ -38,7 +39,7 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class StringUtil {
-
+    
     /**
      * Remove leading/trailing spaces and any newlines.
      *
@@ -180,8 +181,7 @@ public class StringUtil {
             return null;
         }
         String decoded = encodedText;
-        if (contentType != null && contentType.equals("application/x-www-form-urlencoded") && encodedText.
-                indexOf(" ") == -1) {
+        if (contentType == null || (contentType.equals("application/x-www-form-urlencoded") && encodedText.indexOf(" ") == -1)) {
             try {
                 decoded = URLDecoder.decode(encodedText, "UTF-8");
             } catch (UnsupportedEncodingException ex) {

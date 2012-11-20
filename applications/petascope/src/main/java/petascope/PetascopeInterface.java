@@ -235,7 +235,6 @@ public class PetascopeInterface extends HttpServlet {
                 Map<String, String> params = buildParameterDictionary(requestBody);
                 Map<String, String> paramMap = buildParameterMap(httpRequest);
                 log.trace("Request parameters : {}", params);
-                request = StringUtil.urldecode(params.get("request"), httpRequest.getContentType());
 
                 // GET interface processing
                 String service = paramMap.get("service");
@@ -270,8 +269,8 @@ public class PetascopeInterface extends HttpServlet {
                         }
                         
                         // handle request
-                        handleWcsRequest(version, paramMap.get("request"),
-                                httpRequest.getQueryString(), false, httpResponse);
+                        request = StringUtil.urldecode(httpRequest.getQueryString(), httpRequest.getContentType());
+                        handleWcsRequest(version, paramMap.get("request"), request, false, httpResponse);
                         return;
                     }
                 }
