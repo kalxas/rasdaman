@@ -56,3 +56,12 @@ dist_log_DATA=empty
 # excluded for the moment, contains nothing that is delivered:
 # exportutils 
 
+
+#
+# generate version header from git repo information
+#
+BUILT_SOURCES = version
+version:
+	echo '#define RMANVERSION "'`(git describe 2>/dev/null || echo v8.3.1) | sed s/-[0-9]*//1`'"' > version.h.tmp
+	test -f version.h && cmp version.h.tmp version.h || mv version.h.tmp version.h
+	rm -f version.h.tmp 2>/dev/null   

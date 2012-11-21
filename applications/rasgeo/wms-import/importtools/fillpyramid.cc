@@ -33,7 +33,7 @@
 static const char rcsid[] = "@(#)rasodmg/test,ImportOrtho: $Id: fillpyramid.cc,v 1.9 2007/05/09 12:39:14 rasdev Exp $";
 
 #include "config.h"
-
+#include "version.h"
 #ifndef RMANVERSION
 #error "Please specify RMANVERSION variable!"
 #endif
@@ -514,7 +514,7 @@ int main(int argc, char** argv)
 
     int retval = EXIT_SUCCESS;
 
-    cout << argv[0] << ": rasdaman map image import tool v2.0. rasdaman v" << RMANVERSION/1000 << " -- generated on " << COMPDATE << ".\n";
+    cout << argv[0] << ": rasdaman map image import tool v2.0. rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << ".\n";
 
     try
     {

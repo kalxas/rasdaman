@@ -4,7 +4,6 @@
 AC_PREREQ(2.61)
 # CAVEAT: in the following two lines keep version numbers in sync!
 AC_INIT(Rasdaman, 8.3.1, baumann@rasdaman.com)
-RMANVERSION=8310
 AM_INIT_AUTOMAKE([1.9 tar-pax])
 # Define CXXFLAGS before AC_PROG_CXX or it will automatically add -g -O2 on some systems
 CXXFLAGS=
@@ -159,7 +158,6 @@ AH_TEMPLATE([DEBUG], [Enables debug functionality])
 AH_TEMPLATE([RMANDEBUG], [Enables debug functionality])
 AH_TEMPLATE([HAVE_HDF], [Checks whether HDF4 is installed])
 AH_TEMPLATE([HAVE_NETCDF], [Checks whether NetCDF is installed])
-AH_TEMPLATE([RMANVERSION], [The version of Rasdaman currently compiled])
 AH_TEMPLATE([BASEDB_PGSQL], [If defined we are compiling over PostgreSQL])
 AH_TEMPLATE([__NO_MATH_INLINES], [Used by some performance implementaion of math libraries.])   
 AH_TEMPLATE([EARLY_TEMPLATE], [When set allows templates to be instantiated earlier.])    
@@ -380,7 +378,6 @@ AS_IF([test "x$RMANDEBUG" != x],
        CXXFLAGS+=" -O2 "
       ])
 # CXXFLAGS+= -fPIC  ???NEEDED???
-AC_DEFINE_UNQUOTED([RMANVERSION], [$RMANVERSION])
 AC_DEFINE_UNQUOTED([BASEDBSTRING], ["$BASEDBSTRING"])
 AC_DEFINE([EARLY_TEMPLATE])    
 AC_C_BIGENDIAN([AC_DEFINE([IS_BIG_ENDIAN])], [AC_DEFINE([IS_LITTLE_ENDIAN])])

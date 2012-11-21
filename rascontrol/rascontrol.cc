@@ -34,6 +34,7 @@ rasdaman GmbH.
 */
 
 #include "config.h"
+#include "version.h"
 #define DEBUG_MAIN      // to allocate static vars for trace macros
 #include "debug-clt.hh"
 
@@ -84,7 +85,7 @@ int main(int argc, char **argv)
     // /*for debug only: */ config.printDebugInfo(); return 0;
     if(config.beQuiet()==false)
     {
-        std::cout << "rascontrol: rasdaman server remote control utility. rasdaman v" << RMANVERSION / 1000. << " -- generated on " << COMPDATE << "." << std::endl;
+        std::cout << "rascontrol: rasdaman server remote control utility. rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << std::endl;
         std::cout << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH." << std::endl
                   << "Rasdaman community is free software: you can redistribute it and/or modify "
                   "it under the terms of the GNU General Public License as published by "

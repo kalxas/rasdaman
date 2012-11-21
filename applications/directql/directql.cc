@@ -36,7 +36,7 @@ rasdaman GmbH.
 
 
 static const char rasql_rcsid[] = "@(#)rasql,rasql.cc: $Id: rasql.cc,v 1.3 2006/11/06 21:59:01 rasdev Exp $";
-
+#include "version.h"
 #ifndef RMANVERSION
 #error "Please specify RMANVERSION variable!"
 #endif
@@ -972,7 +972,7 @@ int main(int argc, char** argv)
         parseParams( argc, argv );
 
         // put LOG after parsing parameters to respect a '--quiet'
-        LOG( argv[0] << ": rasdaman query tool v1.0, rasdaman v" << RMANVERSION/1000 << " -- generated on " << COMPDATE << "." << endl );
+        LOG( argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << endl );
 
         openDatabase();
         doStuff( argc, argv );

@@ -35,6 +35,7 @@ rasdaman GmbH.
 */
 
 #include "config.h"
+#include "version.h"
 #include <iostream>
 
 #include "rasmgr.hh"
@@ -86,8 +87,8 @@ int main(int argc, char** argv, char** envp)
 
     ENTER( "main." );
 
-    cout << "rasmgr: rasdaman server manager tool. rasdaman v"
-         << RMANVERSION / 1000. << " -- generated on " << COMPDATE << "." << std::endl
+    cout << "rasmgr: rasdaman server manager tool. rasdaman "
+         << RMANVERSION << " -- generated on " << COMPDATE << "." << std::endl
          << "Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann, rasdaman GmbH.\n"
          << "Rasdaman community is free software: you can redistribute it and/or modify "
          "it under the terms of the GNU General Public License as published by "

@@ -35,7 +35,7 @@
 static const char rcsid[] = "@(#)inittools,initpyramid.cc: $Id: initpyramid.cc,v 1.10 2009/01/26 16:25:58 rasdev Exp $";
 
 #include "config.h"
-
+#include "version.h"
 // this program's version number
 #define INITGEO_VERSION "1.1"
 
@@ -755,7 +755,7 @@ int main(int argc, char** argv)
 
     int retval = EXIT_SUCCESS;
 
-    cout << argv[0] << ": rasdaman map initialization tool v1.0. rasdaman v" << RMANVERSION/1000 << " -- generated on " << COMPDATE << ".\n";
+    cout << argv[0] << ": rasdaman map initialization tool v1.0. rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << ".\n";
 
     try
     {

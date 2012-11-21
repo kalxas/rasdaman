@@ -250,7 +250,7 @@ RPCFUNCTIONDEF( rpcgetserverversion_1, int* )
 {
     freeDynamicRPCData();
 
-    rpcServerVersionRes.serverVersionNo       = RMANVERSION / 1000.0;
+    rpcServerVersionRes.serverVersionNo       = DatabaseIf::rmanverToLong() / 1000.0;
     rpcServerVersionRes.rpcInterfaceVersionNo = RPCVERSION / 1000.0;
 
     return &rpcServerVersionRes;

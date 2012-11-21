@@ -46,9 +46,14 @@ rasdaman GmbH.
 
 static const char rcsid[] = "@(#)reladminif,DatabaseIf: $Id: databaseif.ec,v 1.9 2003/12/27 23:11:43 rasdev Exp $";
 
-#include "config.h"
+#include <iostream>
 #include <stdlib.h>
+#include <string.h>
+#include "config.h"
+#include "version.h"
 #include "debug/debug.hh"
+
+using namespace std;
 
 // general embedded SQL related definitions
 EXEC SQL include sqlglobals.h;
@@ -297,7 +302,7 @@ DatabaseIf::checkCompatibility() throw (r_Error)
         }
 #if 0 // do not check against release, v6 has same schema as v5! -- PB 2005-sep-18
         // check only against major release number -- PB 2003-sep-08
-        if (rasver1/1000 != RMANVERSION/1000)
+        if (rasver1/1000 != DatabaseIf::rmanverToLong()/1000)
         {
             RMInit::logOut << "The Database is incompatible with the current RasServer." << std::endl \
                            << "The database was generated with:" << std::endl \
@@ -806,7 +811,7 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
             generateException();
 
         id = RASSCHEMAVERSION;
-        idd = RMANVERSION;
+        idd = DatabaseIf::rmanverToLong();
         (void) strncpy( name, RASARCHITECTURE, (size_t) sizeof(name) );
 
         TALK( "EXEC SQL INSERT INTO RAS_ADMIN (IFVersion, Architecture, ServerVersion) VALUES (" << id << ", " << name << ", " << idd << ")" );
@@ -1370,5 +1375,27 @@ DatabaseIf::destroyDB(const char* dbName) throw(r_Error)
 
     LEAVE( "DatabaseIf::destroyDB" );
     RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "destroyDB(" << dbName << ")");
+}
+
+long
+DatabaseIf::rmanverToLong()
+{
+	string s(RMANVERSION);
+	string versionstr;
+	string final;
+	int i;
+	int c;
+	long longver;
+	size_t first = s.find_first_of("0123456789");
+	size_t last = s.find_first_of("-");
+	versionstr = s.substr(first, last - first);
+	for (i = 0, c = 0; i < versionstr.length(); i++) {
+		if (versionstr[i] != '.') {
+			final[c] = versionstr[i];
+			c++;
+		}
+	}
+	longver = atol(final.c_str()) * 10;
+	return longver;
 }
 

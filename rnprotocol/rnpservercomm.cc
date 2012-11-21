@@ -35,6 +35,7 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "config.h"
+#include "version.h"
 #ifndef RMANVERSION
 #error "Please specify RMANVERSION variable!"
 #endif

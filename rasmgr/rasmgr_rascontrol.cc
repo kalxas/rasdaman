@@ -36,6 +36,7 @@ rasdaman GmbH.
 
 using namespace std;
 
+#include "version.h"
 #include "config.h"
 #include "globals.hh"           // DEFAULT_PORT
 #include "rasmgr_rascontrol.hh"
@@ -228,7 +229,7 @@ void RasControl::listVersion()
     // Version 1.3 with "list srv -x" and "-hostname" parameter
     // Version 1.4 with migration of command line options from v5.0 to v5.1
     // Version 1.5 with new cmds, bug fixes in socket communication
-    sprintf(answBuffer,"rasdaman v%1f (rasmgr v1.5, compiled on %s)", RMANVERSION/1000, COMPDATE);
+    sprintf(answBuffer,"rasdaman %s (rasmgr v1.5, compiled on %s)", RMANVERSION, COMPDATE);
 
 
 #ifdef INCLUDE_HIDDEN_COMMANDS

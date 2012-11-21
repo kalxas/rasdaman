@@ -31,7 +31,7 @@ rasdaman GmbH.
  ************************************************************/
 
 static const char rcsid[] = "@(#)exportutils,ExportData: $Id: exporttif.cc,v 1.1 2003/12/27 21:44:18 rasdev Exp $";
-
+#include "version.h"
 #ifndef RMANVERSION
 #error "Please specify RMANVERSION variable!"
 #endif
@@ -132,7 +132,7 @@ int main(int argc, char** argv)
 
     int retval = EXIT_FAILURE;
 
-    cout << argv[0] << ": rasdaman test 'failure upon multiple db open' for rasdaman v" << RMANVERSION/1000 << " -- generated on " << COMPDATE << endl;
+    cout << argv[0] << ": rasdaman test 'failure upon multiple db open' for rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << endl;
 
     try
     {

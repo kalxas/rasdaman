@@ -35,6 +35,7 @@ rasdaman GmbH.
 */
 
 #include "config.h"
+#include "version.h"
 // for trace macros
 #define DEBUG_MAIN
 #include "debug-clt.hh"
@@ -69,7 +70,7 @@ char encrNewPass2[35];
 
 int main(int argc, char **argv)
 {
-    cout << "raspasswd: rasdaman password utility. rasdaman v" << RMANVERSION / 1000. << " -- generated on " << COMPDATE << "." <<endl;
+    cout << "raspasswd: rasdaman password utility. rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." <<endl;
     std::cout << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH." << std::endl
               << "Rasdaman community is free software: you can redistribute it and/or modify "
               "it under the terms of the GNU General Public License as published by "

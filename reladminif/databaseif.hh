@@ -154,6 +154,12 @@ public:
         checks if counters are ok.
     */
 
+    static long rmanverToLong();
+    /*@Doc:
+        Extract the version number from the git-describe output and
+        convert it to long by removing the dots.        
+    */	
+
 protected:
     friend class TransactionIf;
 
