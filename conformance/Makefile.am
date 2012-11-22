@@ -34,8 +34,7 @@
 
 
 ########################### Targets ##############################
-TESTSEQUENCE = $(shell ls -d ./* \
-                                           )
+TESTSEQUENCE = $(shell) ls -d ./* 
 # general system test
 .PHONY: ogc-check
 ogc-check:

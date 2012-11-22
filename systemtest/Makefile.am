@@ -34,9 +34,9 @@
 
 
 ########################### Targets ##############################
-TESTSEQUENCE = $(shell ls -d testcases_mandatory/* \
+TESTSEQUENCE = $(shell) ls -d testcases_mandatory/* \
                              testcases_open/* \
-                             testcases_fixed/*)
+                             testcases_fixed/*
 # general system test
 .PHONY: check
 check:
