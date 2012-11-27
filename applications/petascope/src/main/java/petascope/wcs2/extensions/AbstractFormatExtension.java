@@ -21,7 +21,6 @@
  */
 package petascope.wcs2.extensions;
 
-import com.sun.org.apache.xpath.internal.axes.AxesWalker;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
