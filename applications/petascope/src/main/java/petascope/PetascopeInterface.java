@@ -286,6 +286,7 @@ public class PetascopeInterface extends HttpServlet {
                     log.debug("Received Abstract Syntax Request via GET: \n\t\t{}", request2);
                     request2 = RasUtil.abstractWCPStoXML(request2);
                 }
+                request = StringUtil.urldecode(params.get("request"), httpRequest.getContentType());
                 if (request == null && request2 != null) {
                     request = request2;
                 }
