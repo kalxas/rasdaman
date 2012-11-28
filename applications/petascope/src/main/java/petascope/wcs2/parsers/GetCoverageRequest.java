@@ -22,9 +22,11 @@
 package petascope.wcs2.parsers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import petascope.util.ListUtil;
+import petascope.util.Pair;
 import petascope.wcs2.extensions.FormatExtension;
 
 /**
@@ -109,6 +111,7 @@ public class GetCoverageRequest extends BaseRequest {
     private final boolean multipart;
     private final List<DimensionSubset> subsets;
     private final List<CRS> crsExt;    // use List to allow lazy init of final CRS
+    private final Scaling scale;
 
     public GetCoverageRequest(String coverageId) {
         this(coverageId, FormatExtension.MIME_GML, false);
@@ -120,6 +123,7 @@ public class GetCoverageRequest extends BaseRequest {
         this.multipart = multipart;
         this.subsets = new ArrayList<DimensionSubset>();
         this.crsExt = new ArrayList<CRS>();
+        this.scale = new Scaling();
     }
 
     public String getCoverageId() {
@@ -151,6 +155,14 @@ public class GetCoverageRequest extends BaseRequest {
     
     public List<CRS> getCRS() {
         return crsExt;
+    }
+    
+    public Scaling getScaling() {
+        return scale;
+    }
+    
+    public boolean isScaled() {
+        return scale.isSet();
     }
 
     @Override
@@ -314,6 +326,95 @@ public class GetCoverageRequest extends BaseRequest {
         
         public void setOutputCrs(String value) {
             outputCrs = value;
+        }
+    }
+    
+    public static class Scaling {
+    
+        private boolean set;
+        private int type;
+        private float factor;
+        private HashMap<String, Float> fact;
+        private HashMap<String, Integer> sz;
+        private HashMap<String, Pair<Integer, Integer>> extent;
+        
+        public Scaling() {
+            set = false;
+            type = 0;
+            factor = (float) 1.0;
+            fact = new HashMap<String, Float>();
+            sz = new HashMap<String, Integer>();
+            extent = new HashMap<String, Pair<Integer, Integer>>();
+        }
+        
+        public boolean isSet() {
+            return set;
+        }
+        
+        public int getType() {
+            return type;
+        }
+        
+        public float getFactor() {
+            return factor;
+        }
+        
+        public boolean isPresentFactor(String axis) {
+            return fact.containsKey(axis);
+        }
+        
+        public float getFactor(String axis) {
+            return fact.get(axis);
+        }
+        
+        public boolean isPresentSize(String axis) {
+            return sz.containsKey(axis);
+        }
+        
+        public boolean isPresentExtent(String axis) {
+            return extent.containsKey(axis);
+        }
+        
+        public int getSize(String axis) {
+            return sz.get(axis);
+        }
+        
+        public Pair<Integer, Integer> getExtent(String axis) {
+            return extent.get(axis);
+        }
+        
+        public void setFactor(float f) {
+            this.factor = f;
+            this.set = true;
+        }
+        
+        public void addFactor(String axis, float f) {
+            this.fact.put(axis, f);
+            this.set = true;            
+        }
+        
+        public void addSize(String axis, int sz) {
+            this.sz.put(axis, sz);
+            this.set = true;
+        }
+        
+        public void addExtent(String axis, Pair<Integer, Integer> ex) {
+            this.extent.put(axis, ex);
+            this.set = true;
+        }
+        
+        public void setType(int t) {
+            this.type = t;
+        }
+        
+        public int getAxesNumber() {
+            switch (this.type) {
+                case 1: return 0;
+                case 2: return this.fact.size();
+                case 3: return this.sz.size();
+                case 4: return this.extent.size();
+                default: return 0;
+            }
         }
     }
 }

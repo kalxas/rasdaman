@@ -193,4 +193,12 @@ public class ExceptionCode {
             "Parameter indicated in the outputCrs parameter is not a valid CRS", 404);
     public static final ExceptionCode OutputCrsNotSupported = new ExceptionCode("OutputCrsNotSupported",
             "CRS indicated in the outputCrs parameter is not supported by this server", 404);
+    public static final ExceptionCode InvalidCoverageType = new ExceptionCode("InvalidCoverageType",
+            "Coverage addressed is not a grid coverage", 404);
+    public static final ExceptionCode InvalidScaleFactor = new ExceptionCode("InvalidScaleFactor",
+            "Scale factor passed is not valid (no number or less than or equal to zero)", 404);
+    public static final ExceptionCode InvalidExtent = new ExceptionCode("InvalidExtent",
+            "Extent interval passed has upper bound smaller than lower bound", 404);
+    public static final ExceptionCode ScaleAxisUndefined = new ExceptionCode("ScaleAxisUndefined",
+            "CRS axis indicated is not an axis occurring in this coverage", 404);    
 }

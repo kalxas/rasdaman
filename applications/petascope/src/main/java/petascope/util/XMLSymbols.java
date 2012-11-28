@@ -94,6 +94,17 @@ public interface XMLSymbols {
     String LABEL_CRS = "CRS";
     String LABEL_EXTENSION = "Extension";
     String LABEL_FORMAT_SUPPORTED = "formatSupported";
+    // wcs scaling extension
+    String LABEL_SCALING = "Scaling";
+    String LABEL_SCALEBYFACTOR = "ScaleByFactor";
+    String LABEL_SCALEAXESBYFACTOR = "ScaleAxesByFactor";
+    String LABEL_SCALETOSIZE = "ScaleToSize";
+    String LABEL_SCALETOEXTENT = "ScaleToExtent";
+    String LABEL_SCALEFACTOR = "scaleFactor";
+    String LABEL_AXIS = "axis";
+    String LABEL_TARGETSIZE = "targetSize";
+    String LABEL_LOW = "low";
+    String LABEL_HIGH = "high";
 
     // ows
     String LABEL_SERVICE_IDENTIFICATION = "ServiceIdentification";

@@ -24,6 +24,7 @@ package petascope.wcs2.extensions;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import petascope.core.DbMetadataSource;
 import petascope.core.Metadata;
 import petascope.exceptions.ExceptionCode;
@@ -47,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import petascope.util.TimeUtil;
 import petascope.util.AxisTypes;
 import petascope.wcps.server.core.CellDomainElement;
+import petascope.wcs2.parsers.GetCoverageRequest.Scaling;
 
 /**
  *  An abstract implementation of {@link FormatExtension}, which provides some
@@ -235,7 +237,65 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             axesList.add(axis);
         }
         String proc = "c";
-
+        
+        if (req.isScaled()) {
+            if (!((cov.getCoverageType().equals("GridCoverage")) || 
+                    (cov.getCoverageType().equals("RectifiedGridCoverage")) || 
+                    (cov.getCoverageType().equals("ReferenceableGridCoverage")))) 
+                throw new WCSException(ExceptionCode.InvalidCoverageType.locator(req.getCoverageId())); 
+            Scaling s = req.getScaling();            
+            int axesNumber = 0; // for checking if all axes in the query were used
+            proc = "scale(" + proc + ", {";
+            Iterator<CellDomainElement> cit = cov.getCellDomainIterator();
+            while (cit.hasNext()) {
+                CellDomainElement cel = cit.next();
+                String crs = CrsUtil.IMAGE_CRS;
+                switch (s.getType()) {
+                    case 1: 
+                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + Math.round(Math.floor(cel.getLo().doubleValue()/s.getFactor()))
+                                    + ":" + Math.round(Math.floor(cel.getHi().doubleValue()/s.getFactor())) + "),";                     
+                    break;                        
+                    case 2: 
+                        if (s.isPresentFactor(cel.getName())) {                            
+                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + Math.round(Math.floor(cel.getLo().doubleValue()/s.getFactor(cel.getName())))
+                                    + ":" + Math.round(Math.floor(cel.getHi().doubleValue()/s.getFactor(cel.getName()))) + "),";                            
+                            axesNumber++;
+                        } else {
+                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + cel.getLo() 
+                                    + ":" + cel.getHi() + "),";              
+                        }                                        
+                    break;
+                    case 3: 
+                        if (s.isPresentSize(cel.getName())) {                            
+                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + cel.getLo()
+                                    + ":" + (cel.getLo().intValue() + s.getSize(cel.getName())-1) + "),";    
+                            axesNumber++;
+                        } else {
+                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + cel.getLo() 
+                                    + ":" + cel.getHi() + "),";             
+                        }                           
+                    break;
+                    case 4: 
+                        if (s.isPresentExtent(cel.getName())) {
+                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + s.getExtent(cel.getName()).fst 
+                                    + ":" + s.getExtent(cel.getName()).snd + "),";   
+                            axesNumber++;
+                        } else {
+                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + cel.getLo() 
+                                    + ":" + cel.getHi() + "),";
+                        }
+                    break;
+                }
+            }
+            if (axesNumber != s.getAxesNumber())                    
+                throw new WCSException(ExceptionCode.ScaleAxisUndefined); 
+            //TODO find out which axis was not found and add the locator to scaleFactor or scaleExtent or scaleDomain
+            proc = proc.substring(0, proc.length() - 1);
+            proc += "})";            
+            
+        } 
+        log.trace(proc); // query after scaling
+        
         // process subsetting operations
         /** NOTE: trims and slices are nested in each dimension: this inhibits WCPS 
          * subsetExpr to actually accept CRS != Native CRS of Image, since both 
