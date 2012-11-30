@@ -36,11 +36,11 @@ import petascope.util.WcsUtil;
 import petascope.util.ras.RasQueryResult;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcs2.handlers.Response;
+import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSubset;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
-import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.templates.Templates;
 
 /**
@@ -69,6 +69,9 @@ public class GmlFormatExtension extends AbstractFormatExtension {
         CRSExtension crsExtension = (CRSExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.CRS_IDENTIFIER);
         crsExtension.handle(request, m, meta);
         
+        //Handle the range subset feature
+        RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
+        rsubExt.handle(request, m);
         String metadata = "";
         try {
             metadata = meta.getImageMetadata(request.getCoverageId());

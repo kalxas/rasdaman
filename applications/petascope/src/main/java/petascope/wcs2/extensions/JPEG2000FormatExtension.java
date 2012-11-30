@@ -53,6 +53,10 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension{
         CRSExtension crsExtension = (CRSExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.CRS_IDENTIFIER);
         crsExtension.handle(request, m, meta);
         
+        //Handle the range subset feature
+        RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
+        rsubExt.handle(request, m);        
+        
         setBounds(request, m, meta);
         if (m.getGridDimension() != 2 || !(
                 m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE) ||

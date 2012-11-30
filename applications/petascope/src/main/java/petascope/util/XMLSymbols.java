@@ -105,6 +105,12 @@ public interface XMLSymbols {
     String LABEL_TARGETSIZE = "targetSize";
     String LABEL_LOW = "low";
     String LABEL_HIGH = "high";
+    //wcs range subsetting
+    String LABEL_RANGEITEM = "rangeItem";
+    String LABEL_RANGEINTERVAL = "rangeInterval";
+    String LABEL_STARTCOMPONENT = "startComponent";
+    String LABEL_ENDCOMPONENT = "startComponent";
+    String LABEL_RANGECOMPONENT = "rangeComponent";
 
     // ows
     String LABEL_SERVICE_IDENTIFICATION = "ServiceIdentification";

@@ -21,7 +21,6 @@
  */
 package petascope.exceptions;
 
-
 /**
  * Represents an exception code, as defined in [OGC 06-121r9] Clause 8
  *
@@ -33,22 +32,19 @@ public class ExceptionCode {
      * Code representing type of this exception
      */
     private final String exceptionCode;
-
     /**
      * Exception code description
      */
     private final String description;
-
     /**
-     * Indicator of location in the client's operation request where this exception was encountered
+     * Indicator of location in the client's operation request where this
+     * exception was encountered
      */
     private String locator;
-
     /**
      * HTTP response code, when the exception is returned over HTTP
      */
     private int httpErrorCode;
-
 
     /**
      * Create new ExceptionCode
@@ -64,8 +60,10 @@ public class ExceptionCode {
      *
      * @param exceptionCode Code representing type of this exception
      * @param description Exception code description
-     * @param locator Indicator of location in the client's operation request where this exception was encountered
-     * @param httpErrorCode HTTP response code, when the exception is returned over HTTP
+     * @param locator Indicator of location in the client's operation request
+     * where this exception was encountered
+     * @param httpErrorCode HTTP response code, when the exception is returned
+     * over HTTP
      */
     public ExceptionCode(String exceptionCode, String description, int httpErrorCode) {
         this.exceptionCode = exceptionCode;
@@ -76,7 +74,8 @@ public class ExceptionCode {
     /**
      * Use this to set the locator on the fly, while passing the exception code
      *
-     * @param locator Indicator of location in the client's operation request where this exception was encountered
+     * @param locator Indicator of location in the client's operation request
+     * where this exception was encountered
      * @return a copy of the original exception code
      */
     public ExceptionCode locator(String locator) {
@@ -107,14 +106,16 @@ public class ExceptionCode {
     }
 
     /**
-     * @return Indicator of location in the client's operation request where this exception was encountered
+     * @return Indicator of location in the client's operation request where
+     * this exception was encountered
      */
     public String getLocator() {
         return locator;
     }
 
     /**
-     * @param locator Indicator of location in the client's operation request where this exception was encountered
+     * @param locator Indicator of location in the client's operation request
+     * where this exception was encountered
      */
     public void setLocator(String locator) {
         this.locator = locator;
@@ -129,15 +130,14 @@ public class ExceptionCode {
                 + "\n  httpErrorCode = " + httpErrorCode
                 + "\n}";
     }
-
     public static final ExceptionCode BadResponseHandler = new ExceptionCode("BadResponseHandler", null, 0);
     public static final ExceptionCode InternalComponentError = new ExceptionCode("InternalComponentError", null, 0);
     public static final ExceptionCode InternalSqlError = new ExceptionCode("InternalSqlError", null, 0);
     public static final ExceptionCode InvalidEncodingSyntax = new ExceptionCode("InvalidEncodingSyntax",
             "Document received does not conform with protocol syntax", 400);
-    public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel", 
-            "The dimension subsetting operation specified an axis label that does not exist in the Envelope" +
-            "or has been used more than once in the GetCoverage request.", 404);
+    public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel",
+            "The dimension subsetting operation specified an axis label that does not exist in the Envelope"
+            + "or has been used more than once in the GetCoverage request.", 404);
     public static final ExceptionCode InvalidMetadata = new ExceptionCode("InvalidMetadata", null, 0);
     public static final ExceptionCode InvalidParameterValue = new ExceptionCode("InvalidParameterValue",
             "Operation request contains an invalid parameter value", 400);
@@ -145,8 +145,8 @@ public class ExceptionCode {
     public static final ExceptionCode InvalidRequest = new ExceptionCode("InvalidRequest", null, 0);
     public static final ExceptionCode InvalidServiceConfiguration = new ExceptionCode("InvalidServiceConfiguration", null, 0);
     public static final ExceptionCode InvalidSubsetting = new ExceptionCode("InvalidSubsetting",
-            "Operation request contains an invalid subsetting value; either a trim or slice parameter value " +
-            "is outside the extent of the coverage or, in a trim operation, a lower bound is above the upper bound.", 404);
+            "Operation request contains an invalid subsetting value; either a trim or slice parameter value "
+            + "is outside the extent of the coverage or, in a trim operation, a lower bound is above the upper bound.", 404);
     public static final ExceptionCode InvalidTemporalMetadata = new ExceptionCode("InvalidTemporalMetadata", null, 0);
     public static final ExceptionCode InvalidUpdateSequence = new ExceptionCode("InvalidUpdateSequence",
             "Value of (optional) updateSequence parameter in GetCapabilities operation request "
@@ -193,6 +193,10 @@ public class ExceptionCode {
             "Parameter indicated in the outputCrs parameter is not a valid CRS", 404);
     public static final ExceptionCode OutputCrsNotSupported = new ExceptionCode("OutputCrsNotSupported",
             "CRS indicated in the outputCrs parameter is not supported by this server", 404);
+    public static final ExceptionCode MultipleRangeSubsets = new ExceptionCode("Invalid RangeSubsets parameters",
+            "Multiple RangeSubset parameters have been provided, only one can be accepted", 404);
+    public static final ExceptionCode NoSuchField = new ExceptionCode("NoSuchField",
+            "One or more range field names indicated in the request are not defined in range type of the coverage addressed", 404);
     public static final ExceptionCode InvalidCoverageType = new ExceptionCode("InvalidCoverageType",
             "Coverage addressed is not a grid coverage", 404);
     public static final ExceptionCode InvalidScaleFactor = new ExceptionCode("InvalidScaleFactor",
@@ -200,5 +204,5 @@ public class ExceptionCode {
     public static final ExceptionCode InvalidExtent = new ExceptionCode("InvalidExtent",
             "Extent interval passed has upper bound smaller than lower bound", 404);
     public static final ExceptionCode ScaleAxisUndefined = new ExceptionCode("ScaleAxisUndefined",
-            "CRS axis indicated is not an axis occurring in this coverage", 404);    
+            "CRS axis indicated is not an axis occurring in this coverage", 404);
 }

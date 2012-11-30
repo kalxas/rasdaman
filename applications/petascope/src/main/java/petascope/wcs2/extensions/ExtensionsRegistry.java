@@ -43,6 +43,7 @@ public class ExtensionsRegistry {
     public static final String GEOTIFF_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_geotiff/1.0/";
     public static final String JPEG2000_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_jpeg2000/1.0/";
     public static final String CRS_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs";
+    public static final String RANGE_SUBSETTING_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/";
     public static final String SCALING_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling";
     //public static final String CRS_DISCRETE_COVERAGE_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs-discrete-coverage";
     //public static final String CRS_GRIDDED_COVERAGE_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs-grid-coverage";
@@ -67,6 +68,7 @@ public class ExtensionsRegistry {
         registerExtension(new MultipartGeotiffFormatExtension());
         registerExtension(new MultipartJPEG2000FormatExtension());
         registerExtension(new CRSExtension());
+        registerExtension(new RangeSubsettingExtension());
         registerExtension(new ScalingExtension());
         // Add crs.discrete.coverage and crs.gridded.coverage extensions ?
     }

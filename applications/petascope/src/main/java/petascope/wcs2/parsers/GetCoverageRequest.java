@@ -28,74 +28,48 @@ import java.util.ListIterator;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.wcs2.extensions.FormatExtension;
+import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
 
 /**
  * A GetCoverage request object, populated by a parser.
  *
-   <element name="GetCoverage" type="wcs:GetCoverageType">
-        <annotation>
-            <documentation>Request to a WCS to perform the GetCoverage operation. This operation allows a client to retrieve a subset of one coverage. </documentation>
-        </annotation>
-    </element>
-    <complexType name="GetCoverageType">
-        <complexContent>
-            <extension base="wcs:RequestBaseType">
-                <sequence>
-                    <element ref="wcs:CoverageId">
-                        <annotation>
-                            <documentation>Identifier of the coverage that this GetCoverage operation request shall draw from. </documentation>
-                        </annotation>
-                    </element>
-                    <element ref="wcs:DimensionSubset" minOccurs="0" maxOccurs="unbounded"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-
-    <!-- ======================================================= -->
-    <!-- Domain subset types and elements                        -->
-    <!-- ======================================================= -->
-    <element name="DimensionSubset" type="wcs:DimensionSubsetType" abstract="true">
-        <annotation>
-            <documentation>Definition of the desired subset of the domain of the coverage. This is either a Trim operation, or a Slice operation.</documentation>
-        </annotation>
-    </element>
-    <complexType name="DimensionSubsetType" abstract="true">
-        <sequence>
-            <element name="Dimension" type="NCName"/>
-        </sequence>
-    </complexType>
-    <!-- ======================================================= -->
-    <element name="DimensionTrim" type="wcs:DimensionTrimType" substitutionGroup="wcs:DimensionSubset">
-        <annotation>
-            <documentation>Describes the trimming of a coverage's domain axis, between two values.</documentation>
-        </annotation>
-    </element>
-    <complexType name="DimensionTrimType">
-        <complexContent>
-            <extension base="wcs:DimensionSubsetType">
-                <sequence>
-                    <element name="TrimLow" type="double" minOccurs="0"/>
-                    <element name="TrimHigh" type="double" minOccurs="0"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
-    <!-- ======================================================= -->
-    <element name="DimensionSlice" type="wcs:DimensionSliceType" substitutionGroup="wcs:DimensionSubset">
-        <annotation>
-            <documentation>Describes the slicing of a coverage's domain axis at a particular point.</documentation>
-        </annotation>
-    </element>
-    <complexType name="DimensionSliceType">
-        <complexContent>
-            <extension base="wcs:DimensionSubsetType">
-                <sequence>
-                    <element name="SlicePoint" type="double"/>
-                </sequence>
-            </extension>
-        </complexContent>
-    </complexType>
+ * <element name="GetCoverage" type="wcs:GetCoverageType"> <annotation>
+ * <documentation>Request to a WCS to perform the GetCoverage operation. This
+ * operation allows a client to retrieve a subset of one coverage.
+ * </documentation> </annotation> </element> <complexType
+ * name="GetCoverageType"> <complexContent> <extension
+ * base="wcs:RequestBaseType"> <sequence> <element ref="wcs:CoverageId">
+ * <annotation> <documentation>Identifier of the coverage that this GetCoverage
+ * operation request shall draw from. </documentation> </annotation> </element>
+ * <element ref="wcs:DimensionSubset" minOccurs="0" maxOccurs="unbounded"/>
+ * </sequence> </extension> </complexContent> </complexType>
+ *
+ * <!-- ======================================================= --> <!-- Domain
+ * subset types and elements --> <!--
+ * ======================================================= --> <element
+ * name="DimensionSubset" type="wcs:DimensionSubsetType" abstract="true">
+ * <annotation> <documentation>Definition of the desired subset of the domain of
+ * the coverage. This is either a Trim operation, or a Slice
+ * operation.</documentation> </annotation> </element> <complexType
+ * name="DimensionSubsetType" abstract="true"> <sequence> <element
+ * name="Dimension" type="NCName"/> </sequence> </complexType> <!--
+ * ======================================================= --> <element
+ * name="DimensionTrim" type="wcs:DimensionTrimType"
+ * substitutionGroup="wcs:DimensionSubset"> <annotation>
+ * <documentation>Describes the trimming of a coverage's domain axis, between
+ * two values.</documentation> </annotation> </element> <complexType
+ * name="DimensionTrimType"> <complexContent> <extension
+ * base="wcs:DimensionSubsetType"> <sequence> <element name="TrimLow"
+ * type="double" minOccurs="0"/> <element name="TrimHigh" type="double"
+ * minOccurs="0"/> </sequence> </extension> </complexContent> </complexType>
+ * <!-- ======================================================= --> <element
+ * name="DimensionSlice" type="wcs:DimensionSliceType"
+ * substitutionGroup="wcs:DimensionSubset"> <annotation>
+ * <documentation>Describes the slicing of a coverage's domain axis at a
+ * particular point.</documentation> </annotation> </element> <complexType
+ * name="DimensionSliceType"> <complexContent> <extension
+ * base="wcs:DimensionSubsetType"> <sequence> <element name="SlicePoint"
+ * type="double"/> </sequence> </extension> </complexContent> </complexType>
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
@@ -105,31 +79,32 @@ public class GetCoverageRequest extends BaseRequest {
     public static final String RECTIFIED_GRID_COVERAGE = "RectifiedGridCoverage";
     public static final String REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
     public static final String MULTIPOINT_COVERAGE = "MultiPointCoverage";
-
     private final String coverageId;
     private final String format;
     private final boolean multipart;
     private final List<DimensionSubset> subsets;
     private final List<CRS> crsExt;    // use List to allow lazy init of final CRS
+    private final RangeSubset rangeSubset;   
     private final Scaling scale;
 
     public GetCoverageRequest(String coverageId) {
         this(coverageId, FormatExtension.MIME_GML, false);
     }
-
+    
     public GetCoverageRequest(String coverageId, String format, boolean multipart) {
         this.coverageId = coverageId;
         this.format = format;
         this.multipart = multipart;
         this.subsets = new ArrayList<DimensionSubset>();
         this.crsExt = new ArrayList<CRS>();
+        this.rangeSubset = new RangeSubset();
         this.scale = new Scaling();
     }
-
+    
     public String getCoverageId() {
         return coverageId;
     }
-
+    
     public List<DimensionSubset> getSubsets() {
         return subsets;
     }
@@ -138,13 +113,13 @@ public class GetCoverageRequest extends BaseRequest {
         ListIterator<DimensionSubset> it = subsets.listIterator();
         while (it.hasNext()) {
             if (dim.equals(it.next().getDimension())) {
-                it.previous(); 
+                it.previous();                
                 return it.next();
             }
-        }    
+        }        
         return null;
     }
-
+    
     public String getFormat() {
         return format;
     }
@@ -157,6 +132,10 @@ public class GetCoverageRequest extends BaseRequest {
         return crsExt;
     }
     
+    public RangeSubset getRangeSubset() {
+        return rangeSubset;
+    }
+    
     public Scaling getScaling() {
         return scale;
     }
@@ -164,14 +143,23 @@ public class GetCoverageRequest extends BaseRequest {
     public boolean isScaled() {
         return scale.isSet();
     }
+    
+    public boolean hasRangeSubsetting(){
+        return !this.rangeSubset.isEmpty();
+    }
 
     @Override
     public String toString() {
-        return "Coverage: " + coverageId + ", Subsets: " + ListUtil.ltos(subsets, ", ");
+        StringBuilder ret = new StringBuilder();
+        ret.append("Coverage: ").append(coverageId).append(", Subsets: ").append(ListUtil.ltos(subsets, ", "));
+        if(!this.rangeSubset.isEmpty()){
+            ret.append(this.rangeSubset.toString());
+        }
+        return ret.toString();
     }
-
+    
     public static class DimensionSubset {
-
+        
         protected final String dimension;
         //protected final String crs;
         protected String crs;
@@ -180,23 +168,24 @@ public class GetCoverageRequest extends BaseRequest {
         public DimensionSubset(String dimension) {
             this(dimension, null);
         }
-
+        
         public DimensionSubset(String dimension, String crs) {
             this.dimension = dimension;
             this.crs = crs;
             this.transformed = false;
         }
-
+        
         public String getDimension() {
             return dimension;
         }
-
+        
         public String getCrs() {
             return crs;
         }
 
-        /** NOTE(campalani): to avoid second wrong CRS transformsetBounds
-         *  (both setBounds and addCoverageData loop through AbstractFormatExtension)         * 
+        /**
+         * NOTE(campalani): to avoid second wrong CRS transformsetBounds (both
+         * setBounds and addCoverageData loop through AbstractFormatExtension) *
          */
         public boolean isCrsTransformed() {
             return transformed;
@@ -206,6 +195,7 @@ public class GetCoverageRequest extends BaseRequest {
             transformed = value;
         }
         // When transforming a subset, change crs accordingly
+
         public void setCrs(String value) {
             crs = value;
         }
@@ -215,7 +205,7 @@ public class GetCoverageRequest extends BaseRequest {
             return dimension + ((crs != null) ? "," + crs : "");
         }
     }
-
+    
     public static class DimensionTrim extends DimensionSubset {
 
         //private final String trimLow;
@@ -223,40 +213,44 @@ public class GetCoverageRequest extends BaseRequest {
         private String trimLow;
         private String trimHigh;
         
-
         public DimensionTrim(String dimension, String trimLow, String trimHigh) {
             this(dimension, null, trimLow, trimHigh);
         }
-
+        
         public DimensionTrim(String dimension, String crs, String trimLow, String trimHigh) {
             super(dimension, crs);
             this.trimLow = trimLow;
             this.trimHigh = trimHigh;
         }
-
+        
         public String getTrimHigh() {
             return trimHigh;
         }
-
+        
         public String getTrimLow() {
             return trimLow;
         }
+
         /**
-         * @param value Set new lower bound to 1D domain (due to a CRS transformation).
+         * @param value Set new lower bound to 1D domain (due to a CRS
+         * transformation).
          */
         public void setTrimLow(String value) {
             trimLow = value;
         }
-        public void setTrimLow(Double value){
+
+        public void setTrimLow(Double value) {
             setTrimLow(value.toString());
         }
-                
+
         /**
-         * @param value Set new upper bound to 1D domain (due to a CRS transformation).
+         * @param value Set new upper bound to 1D domain (due to a CRS
+         * transformation).
          */
         public void setTrimHigh(String value) {
             trimHigh = value;
         }
+
         public void setTrimHigh(Double value) {
             setTrimHigh(value.toString());
         }
@@ -266,29 +260,30 @@ public class GetCoverageRequest extends BaseRequest {
             return super.toString() + "(" + trimLow + "," + trimHigh + ")";
         }
     }
-
+    
     public static class DimensionSlice extends DimensionSubset {
 
         //private final String slicePoint;
         private String slicePoint;
-
+        
         public DimensionSlice(String dimension, String slicePoint) {
             this(dimension, null, slicePoint);
         }
-
+        
         public DimensionSlice(String dimension, String crs, String slicePoint) {
             super(dimension, crs);
             this.slicePoint = slicePoint;
         }
-
+        
         public String getSlicePoint() {
             return slicePoint;
         }
-
+        
         public void setSlicePoint(String value) {
             slicePoint = value;
         }
-        public void setSlicePoint(Double value){
+
+        public void setSlicePoint(Double value) {
             setSlicePoint(value.toString());
         }
         
@@ -297,9 +292,10 @@ public class GetCoverageRequest extends BaseRequest {
             return super.toString() + "(" + slicePoint + ")";
         }
     }
-    
+
     // CRS-extension additional (optional) parameters
     public static class CRS {
+
         private String subsettingCrs;
         private String outputCrs;
 
@@ -308,16 +304,16 @@ public class GetCoverageRequest extends BaseRequest {
             subsettingCrs = subset;
             outputCrs = out;
         }
-        
+
         // Interface
         public String getSubsettingCrs() {
             return subsettingCrs;
-        }            
-
-        public String getOutputCrs() {                
+        }        
+        
+        public String getOutputCrs() {            
             return outputCrs;
         }
-        
+
         // NOTE(campalani): initial null values (when no CRS values as specified
         //  need to be replaced with default values, relative to requested coverage.
         public void setSubsettingCrs(String value) {

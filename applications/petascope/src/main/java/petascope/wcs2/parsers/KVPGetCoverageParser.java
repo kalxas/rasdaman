@@ -21,24 +21,24 @@
  */
 package petascope.wcs2.parsers;
 
-
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
-import petascope.util.StringUtil;
-import petascope.wcs2.handlers.RequestHandler;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
-import petascope.util.ListUtil;
 import petascope.util.CrsUtil;
+import petascope.util.ListUtil;
 import petascope.util.Pair;
+import petascope.util.StringUtil;
 import petascope.util.TimeUtil;
 import petascope.wcs2.extensions.FormatExtension;
+import petascope.wcs2.extensions.RangeSubsettingExtension;
+import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
 
@@ -50,11 +50,14 @@ import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
 public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
 
     //                                                          dim=$1  crs=$2      low=$4  high=$5
-        private static final Pattern PATTERN = Pattern.compile("([^,\\(]+)(,([^\\(]+))?\\(([^,\\)]+)(,([^\\)]+))?\\)");
+    private static final Pattern PATTERN = Pattern.compile("([^,\\(]+)(,([^\\(]+))?\\(([^,\\)]+)(,([^\\)]+))?\\)");
 
     /**
-     * Parses any subset parameters defined as in OGC 09-147r1 standard(e.g. ...&subset=x(200,300)&subset=y(300,200))
-     * and for backwards compatibility subsets defined as subsetD(where D is any distinct string)(e.g. &subsetA=x(200,300))
+     * Parses any subset parameters defined as in OGC 09-147r1 standard(e.g.
+     * ...&subset=x(200,300)&subset=y(300,200)) and for backwards compatibility
+     * subsets defined as subsetD(where D is any distinct string)(e.g.
+     * &subsetA=x(200,300))
+     *
      * @param requestParams - the request parameters as a string
      * @return ret - a hashmap containing the subsets
      */
@@ -69,9 +72,8 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                 String value = kvPair.substring(splitPos + 1);
                 if (key.equalsIgnoreCase("subset")) {
                     ret.put(key + value, value);
-                }
-                //Backward compatibility
-                else if (key.toLowerCase().startsWith("subset") 
+                } //Backward compatibility
+                else if (key.toLowerCase().startsWith("subset")
                         && !key.equalsIgnoreCase("subsettingCrs")) {
                     ret.put(key + value, value);
                 }
@@ -82,8 +84,10 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
     }
 
     /**
-     * Parses scaling parameters corresponding to the keys "scaleaxes" or "scalesize"
-     * Separates axes from scaling factors in "a1(s1),a2(s2),...an(sn)"
+     * Parses scaling parameters corresponding to the keys "scaleaxes" or
+     * "scalesize" Separates axes from scaling factors in
+     * "a1(s1),a2(s2),...an(sn)"
+     *
      * @param requestParams - the request parameters as a string
      * @return ret - a hashmap containing the axes and scaling factors
      */
@@ -97,19 +101,21 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                 String key = kvPair.substring(0, splitPos);
                 String value = kvPair.substring(splitPos + 1);
                 if (value.endsWith(")")) // last token, therefore remove trailing ")"
+                {
                     value = value.substring(0, value.length() - 1);
-                ret.put(key, value);                
+                }
+                ret.put(key, value);
             }
         }
 
         return ret;
-    }    
-    
+    }
+
     @Override
     public GetCoverageRequest parse(String input) throws WCSException {
         Map<String, List<String>> p = StringUtil.parseQuery(input);
         checkEncodingSyntax(p, "coverageid", "version", "mediatype", "format", "subsettingcrs", "outputcrs",
-                "scalefactor", "scaleaxes", "scalesize", "scaleextent");
+                "scalefactor", "scaleaxes", "scalesize", "scaleextent", "rangesubset");
         List<String> coverageIds = p.get("coverageid");
         if (coverageIds.size() != 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
@@ -125,145 +131,161 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         GetCoverageRequest ret = new GetCoverageRequest(coverageIds.get(0), format,
                 FormatExtension.MIME_MULTIPART.equals(mediaType));
 
+        //Parse rangeSubset parameters if any for the RangeSubset Extension
+        RangeSubsettingExtension.parseGetCoverageKVPRequest(p, ret);
+
         /* CRS-extension parameters: */
         // subsettingCrs
-        String subCrs=null, outCrs=null;
+        String subCrs = null, outCrs = null;
         List<String> list = p.get("subsettingcrs");
-        if (list != null && list.size() > 1)
+        if (list != null && list.size() > 1) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"subsettingCrs\" parameters in the request: must be unique.");
-        else {
+        } else {
             subCrs = ListUtil.head(list);
-            if (!(subCrs == null) && !CrsUtil.CrsUri.isValid(subCrs))
+            if (!(subCrs == null) && !CrsUtil.CrsUri.isValid(subCrs)) {
                 throw new WCSException(ExceptionCode.NotASubsettingCrs, "subsettingCrs " + subCrs + " is not valid.");
-            if (!(subCrs == null) && !CrsUtil.isSupportedCrsCode(subCrs))
+            }
+            if (!(subCrs == null) && !CrsUtil.isSupportedCrsCode(subCrs)) {
                 throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, "subsettingCrs " + subCrs + " is not supported.");
+            }
         }
         // outputCrs
         list = p.get("outputcrs");
-        if (list != null && list.size() > 1)
+        if (list != null && list.size() > 1) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"outputCrs\" parameters in the request: must be unique.");
-        else {
+        } else {
             outCrs = ListUtil.head(list);
-            if (!(outCrs == null) && !CrsUtil.CrsUri.isValid(outCrs))
+            if (!(outCrs == null) && !CrsUtil.CrsUri.isValid(outCrs)) {
                 throw new WCSException(ExceptionCode.NotAnOutputCrs, "outputCrs " + outCrs + " is not valid.");
-            if (!(outCrs == null) && !CrsUtil.isSupportedCrsCode(outCrs))
+            }
+            if (!(outCrs == null) && !CrsUtil.isSupportedCrsCode(outCrs)) {
                 throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, "outputCrs " + outCrs + " is not supported.");
-        }        
-        if (!(subCrs==null) || !(outCrs==null)) 
+            }
+        }
+        if (!(subCrs == null) || !(outCrs == null)) {
             ret.getCRS().add(new GetCoverageRequest.CRS(subCrs, outCrs));
-        
+        }
+
         HashMap<String, String> subsets = parseSubsetParams(input);
         for (Map.Entry<String, String> subset : subsets.entrySet()) {
-                String subsetKey = (String)subset.getKey();
-                String subsetValue = (String)subset.getValue();                
-                Matcher matcher = PATTERN.matcher(subsetValue);
-                if (matcher.find()) {
-                    String dim = matcher.group(1);
-                    String crs = matcher.group(3);
-                    String low = matcher.group(4);
-                    String high = matcher.group(6);
-                    if (high == null) {
-                        ret.getSubsets().add(new DimensionSlice(dim, crs, low));
-                    } else if (dim != null) {
-                        ret.getSubsets().add(new DimensionTrim(dim, crs, low, high));
-                    } else {
-                        throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator(subsetKey));
-                    }
-                    
-                    // Check time-subset validity (YYYY-MM-DD)
-                    if (dim.equals(AxisTypes.T_AXIS)) {
-                        if (low != null && !TimeUtil.isValidTimestamp(low)) {
-                            throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + low + "\" is not valid (pattern is YYYY-MM-DD).");
-                        }
-                        if (high != null && !TimeUtil.isValidTimestamp(high)) {
-                            throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + high + "\" is not valid (pattern is YYYY-MM-DD).");
-                        }
-                        // Check low<high
-                        if (low!=null && high!= null && !TimeUtil.isOrderedTimeSubset(low, high))
-                            throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + low + ":" + high + "\" is invalid: check order.");
-                    }
+            String subsetKey = (String) subset.getKey();
+            String subsetValue = (String) subset.getValue();
+            Matcher matcher = PATTERN.matcher(subsetValue);
+            if (matcher.find()) {
+                String dim = matcher.group(1);
+                String crs = matcher.group(3);
+                String low = matcher.group(4);
+                String high = matcher.group(6);
+                if (high == null) {
+                    ret.getSubsets().add(new DimensionSlice(dim, crs, low));
+                } else if (dim != null) {
+                    ret.getSubsets().add(new DimensionTrim(dim, crs, low, high));
                 } else {
                     throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator(subsetKey));
                 }
+
+                // Check time-subset validity (YYYY-MM-DD)
+                if (dim.equals(AxisTypes.T_AXIS)) {
+                    if (low != null && !TimeUtil.isValidTimestamp(low)) {
+                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + low + "\" is not valid (pattern is YYYY-MM-DD).");
+                    }
+                    if (high != null && !TimeUtil.isValidTimestamp(high)) {
+                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + high + "\" is not valid (pattern is YYYY-MM-DD).");
+                    }
+                    // Check low<high
+                    if (low != null && high != null && !TimeUtil.isOrderedTimeSubset(low, high)) {
+                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + low + ":" + high + "\" is invalid: check order.");
+                    }
+                }
+            } else {
+                throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator(subsetKey));
+            }
         }
-        
+
         // get scaling options
-        list = p.get("scalefactor");        
-        if (list != null && list.size() != 1 || ret.isScaled()) 
+        list = p.get("scalefactor");
+        if (list != null && list.size() != 1 || ret.isScaled()) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
-        else if (list != null) {
+        } else if (list != null) {
             float scaleFactor;
             try {
                 scaleFactor = Float.parseFloat(ListUtil.head(list));
             } catch (NumberFormatException e) {
                 throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(ListUtil.head(list)));
             }
-            if (scaleFactor <= 0)
-                   throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(ListUtil.head(list)));         
+            if (scaleFactor <= 0) {
+                throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(ListUtil.head(list)));
+            }
             ret.getScaling().setFactor(scaleFactor);
             ret.getScaling().setType(1);
         }
-        
-        list = p.get("scaleaxes");                    
-        if (list != null && (list.size() != 1 || ret.isScaled()))
+
+        list = p.get("scaleaxes");
+        if (list != null && (list.size() != 1 || ret.isScaled())) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
-        else if (list != null) {            
+        } else if (list != null) {
             Map<String, String> map = parseScaling(ListUtil.head(list));
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 String axis = entry.getKey();
-                String fact = entry.getValue();    
-                if (ret.getScaling().isPresentFactor(axis))
+                String fact = entry.getValue();
+                if (ret.getScaling().isPresentFactor(axis)) {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
+                }
                 float scaleFactor;
                 try {
                     scaleFactor = Float.parseFloat(fact);
                 } catch (NumberFormatException e) {
                     throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(fact));
                 }
-                if (scaleFactor <= 0)
-                       throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(fact));              
+                if (scaleFactor <= 0) {
+                    throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(fact));
+                }
                 ret.getScaling().addFactor(axis, scaleFactor);
             }
             ret.getScaling().setType(2);
-        }     
-        
-        list = p.get("scalesize");                  
-        if (list != null && (list.size() != 1 || ret.isScaled()))
+        }
+
+        list = p.get("scalesize");
+        if (list != null && (list.size() != 1 || ret.isScaled())) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
-        else if (list != null) {            
+        } else if (list != null) {
             Map<String, String> map = parseScaling(ListUtil.head(list));
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 String axis = entry.getKey();
-                String fact = entry.getValue();           
-                if (ret.getScaling().isPresentSize(axis))
+                String fact = entry.getValue();
+                if (ret.getScaling().isPresentSize(axis)) {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
+                }
                 int scaleSize;
                 try {
                     scaleSize = Integer.parseInt(fact);
                 } catch (NumberFormatException e) {
                     throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(fact));
                 }
-                if (scaleSize < 0)
+                if (scaleSize < 0) {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Scaling size is not positive.");
+                }
 
-                ret.getScaling().addSize(axis, scaleSize);        
+                ret.getScaling().addSize(axis, scaleSize);
             }
             ret.getScaling().setType(3);
         }
-        list = p.get("scaleextent");    
-        if (list != null && ret.isScaled())
+        list = p.get("scaleextent");
+        if (list != null && ret.isScaled()) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
-        else if (list != null) {            
+        } else if (list != null) {
             Iterator<String> it = list.iterator();
             while (it.hasNext()) {
                 String axisLo = it.next();
                 int ind = axisLo.indexOf("(");
-                if (ind == -1)
-                    throw new WCSException(ExceptionCode.InvalidRequest, "Wrong format for scaling parameters.");                    
+                if (ind == -1) {
+                    throw new WCSException(ExceptionCode.InvalidRequest, "Wrong format for scaling parameters.");
+                }
                 String axis = axisLo.substring(0, ind);
                 String slo = axisLo.substring(ind + 1);
-                if (!it.hasNext())
+                if (!it.hasNext()) {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Wrong format for scaling parameters.");
+                }
                 String tmp = it.next();
                 String shi = tmp.substring(0, tmp.length() - 1);
                 int lo;
@@ -278,10 +300,12 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                 } catch (NumberFormatException e) {
                     throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(shi));
                 }
-                if (ret.getScaling().isPresentExtent(axis))
+                if (ret.getScaling().isPresentExtent(axis)) {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
-                if (hi < lo)
+                }
+                if (hi < lo) {
                     throw new WCSException(ExceptionCode.InvalidExtent.locator(shi));
+                }
 
                 ret.getScaling().addExtent(axis, new Pair(lo, hi));
             }
