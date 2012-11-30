@@ -72,7 +72,7 @@ public class WcsUtil {
      * @return csv string of form b1 b2 .. bn, b1 b2 ... bn, ...
      */
     protected static String rasCsvToTupleList(String csv) {
-        return csv.replace("{", "").replace("}","");
+        return csv.replace("{", "").replace("}","").replace("\"", "");
     }
 
     /**
