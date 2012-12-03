@@ -104,12 +104,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                             Double.parseDouble(((DimensionTrim) subset).getTrimHigh()),
                                             domain.getNumHi()) + " ";
                                 } else if (subset instanceof DimensionSlice) {
-                                    lowerDom += Math.max(
-                                            Double.parseDouble(((DimensionSlice) subset).getSlicePoint()),
-                                            domain.getNumLo()) + " ";
-                                    upperDom += Math.min(
-                                            Double.parseDouble(((DimensionSlice) subset).getSlicePoint()),
-                                            domain.getNumHi()) + " ";
+                                    log.info("Axis " + domain.getName() + " has been sliced: remove it from the boundedBy element.");
                                 } else {
                                     throw new WCSException(ExceptionCode.InternalComponentError,
                                             "Subset '" + subset + "' is not recognized as trim nor slice.");
