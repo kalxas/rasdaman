@@ -22,7 +22,6 @@
 package petascope.util;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import javax.xml.bind.JAXBException;
 import net.opengis.ows.v_1_0_0.ExceptionReport;

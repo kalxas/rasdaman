@@ -45,7 +45,6 @@ public class CrsTransformCoverageExpr implements IRasNode, ICoverageInfo {
         //  foreach XYplane slice (=spatialcoverage)
             //      extract xy pixels 
             //      project(arr, bbox, s_crs, t_crs);
-            //      replace it in the ...DOVE? data is returned in executeRasqlQuery..
             // end
         throw new WCPSException(ExceptionCode.NoApplicableCode, WCPSConstants.MSG_CRS_TRANSFORM_EXPR);
     }

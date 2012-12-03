@@ -93,7 +93,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                     DimensionSubset subset;
                     while (subsIt.hasNext()) {
                         subset = subsIt.next();
-                        if (subset.getDimension().equals(domain.getType())) {
+                        if (subset.getDimension().equals(domain.getName())) {
                             try {
                                 // Compare subset with domain borders and update
                                 if (subset instanceof DimensionTrim) {
@@ -345,7 +345,9 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             }
         }
         if (params != null) {
-            format += ", \"" + params + "\"";
+            // Additional paramters (e.g. bbox/crs in case of GTiff encoding)
+            // NOTE: the whole format string is eventually wrapped into quotes (see below)
+            format += "\", \"" + params;
         }
 
         // If outputCrs != Native CRS then add crsTrasform WCPS expression

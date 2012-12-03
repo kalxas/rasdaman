@@ -29,6 +29,9 @@ import petascope.util.ras.RasQueryResult;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import petascope.util.CrsUtil;
 
 /**
  * Return coverage as a GeoTIFF file.
@@ -39,7 +42,17 @@ import petascope.wcs2.parsers.GetCoverageRequest;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class GeotiffFormatExtension extends  AbstractFormatExtension {
-
+    
+    /* Member */
+    CrsProperties crsProperties;
+    private static final Logger log = LoggerFactory.getLogger(GeotiffFormatExtension.class);
+    
+    /* Interface */
+    public CrsProperties getCrsProperties() {
+        return crsProperties;
+    }
+    
+    /* Methods */
     @Override
     public boolean canHandle(GetCoverageRequest req) {
         return !req.isMultipart() && getMimeType().equals(req.getFormat());
@@ -62,6 +75,7 @@ public class GeotiffFormatExtension extends  AbstractFormatExtension {
         if (m.getGridDimension() != 2 || !(
                 m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE) ||
                 m.getCoverageType().equals(GetCoverageRequest.RECTIFIED_GRID_COVERAGE))) {
+            log.error("Cannot format a GTiff on a " + m.getGridDimension() +"-dimensional grid." );
             throw new WCSException(ExceptionCode.NoApplicableCode, "The GeoTIFF format extension "
                     + "only supports GridCoverage and RectifiedGridCoverage with exactly two dimensions");
         }
@@ -69,10 +83,22 @@ public class GeotiffFormatExtension extends  AbstractFormatExtension {
         Pair<Object, String> p = null;
         if (m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE)) {
             // return plain TIFF
-            p = executeRasqlQuery(request, m, meta, TIFF_ENCODING, null);
+            crsProperties = new CrsProperties();
+            p = executeRasqlQuery(request, m, meta, TIFF_ENCODING, crsProperties.toString());
         } else {
-            // return GeoTIFF
-            p = executeRasqlQuery(request, m, meta, TIFF_ENCODING, null);
+            // RectifiedGrid: geometry is associated with a CRS -> return GeoTIFF
+            String params = null; //"";
+            // Need to use the GetCoverage metadata which has updated bounds [see super.setBounds()]
+            String[] domLo = m.getDomLow().split(" ");
+            String[] domHi = m.getDomHigh().split(" ");
+            if (domLo.length != 2 || domHi.length != 2) {
+                // Output grid dimensions have already been checked (see above), but double-check on the domain bounds:
+                log.error("Cannot format GTiff: output dimensionality is not 2.");
+                throw new WCSException(ExceptionCode.InvalidRequest, "Output dimensionality of the requested coverage is " +
+                        (domLo.length==2?domHi.length:domLo.length) + " whereas GTiff requires 2-dimensional grids.");
+            }
+            crsProperties = new CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName());
+            p = executeRasqlQuery(request, m, meta, TIFF_ENCODING, crsProperties.toString());
         }
 
         RasQueryResult res = new RasQueryResult(p.fst);
@@ -91,4 +117,76 @@ public class GeotiffFormatExtension extends  AbstractFormatExtension {
     public String getMimeType() {
         return MIME_TIFF;
     }
+    
+ 
+    /**
+     * Inner class which gathers the required parameters for GTiff encoding.
+     */
+    public class CrsProperties {
+        /* Encoding parameters */
+        private static final String CRS_PARAM  = "crs";
+        private static final String XMAX_PARAM = "xmax";
+        private static final String XMIN_PARAM = "xmin";
+        private static final String YMAX_PARAM = "ymax";
+        private static final String YMIN_PARAM = "ymin";
+        private static final char PS = ';'; // parameter separator
+        
+        /* Members */
+        private double lowX;
+        private double highX;
+        private double lowY;
+        private double highY;
+        private String crs;
+        
+        /* Constructors */
+        // Unreferenced gml:Grid
+        public CrsProperties() {
+            lowX  = 0.0D;
+            highX = 0.0D;
+            lowY  = 0.0D;
+            highY = 0.0D;
+            crs   = "";
+        }
+        // Georeferenced gml:RectifiedGrid
+        private CrsProperties(double xMin, double xMax, double yMin, double yMax, String crs) {
+            lowX  = xMin;
+            highX = xMax;
+            lowY  = yMin;
+            highY = yMax;
+            this.crs = crs;
+        }
+        private CrsProperties(String xMin, String xMax, String yMin, String yMax, String crs) {
+            this(Double.parseDouble(xMin), Double.parseDouble(xMax),
+                    Double.parseDouble(yMin), Double.parseDouble(yMax), crs);
+        }
+        
+        // Interface
+        public double getXmin() {
+            return lowX;
+        }
+        public double getXmax() {
+            return highX;
+        }
+        public double getYmin() {
+            return lowY;
+        }
+        public double getYmax() {
+            return highY;
+        }
+        public String getCrs() {
+            return crs;
+        }
+        
+        // Methods
+        // Returns the paramters as they are exptected from rasql encode() function
+        @Override
+        public String toString() {
+            return XMIN_PARAM  + "=" + lowX  + PS +
+                    XMAX_PARAM + "=" + highX + PS +
+                    YMIN_PARAM + "=" + lowY  + PS +
+                    YMAX_PARAM + "=" + highY + PS +
+                    CRS_PARAM  + "=" + CrsUtil.CrsUri.getAuthority(crs) + ":" + CrsUtil.CrsUri.getCode(crs);
+        }
+    }
+    
 }
