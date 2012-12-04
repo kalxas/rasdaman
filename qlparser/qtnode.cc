@@ -44,7 +44,7 @@ static const char rcsid[] = "@(#)qlparser, QtNode: $Id: qtnode.cc,v 1.27 2002/06
 
 const QtNode::QtNodeType QtNode::nodeType = QT_UNDEFINED_NODE;
 
-const int QtNode::QtNodes = 80;
+const int QtNode::QtNodes = 81;
 
 const QtNode::QtNodeType QtNode::QtRoot = QT_UNDEFINED_NODE;
 
@@ -92,6 +92,7 @@ const QtNode::QtNodeType QtNode::QtInheritance[][2] =
     {QT_OPERATION, QT_NARY_OPERATION},
     {QT_NARY_OPERATION, QT_MINTERVALOP},
     {QT_NARY_OPERATION, QT_POINTOP},
+    {QT_NARY_OPERATION, QT_CONCAT},
     {QT_OPERATION, QT_UNARY_OPERATION},
     {QT_UNARY_OPERATION, QT_CONDENSE},
     {QT_CONDENSE, QT_ADDCELLS},

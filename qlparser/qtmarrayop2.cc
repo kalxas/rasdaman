@@ -350,8 +350,9 @@ void QtMarrayOp2::traverse(QtOperation *&node)
                 break;
 
                 // from Nary
-                case QtNode::QT_POINTOP:
+                case QtNode::QT_POINTOP:                
                 case QtNode::QT_MINTERVALOP:
+                case QtNode::QT_CONCAT:                
                 {
                     QtNode::QtOperationList *ninput = ((QtNaryOperation *)node)->getInputs();
 

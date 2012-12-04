@@ -169,6 +169,7 @@ public:
         QT_BIT,
         QT_PYRAMID,
         QT_ENCODE,
+        QT_CONCAT,
         QT_LAST_NODE_TYPE
     };
 

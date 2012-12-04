@@ -8,6 +8,7 @@
 #                     added 830
 # 2003-dec-03  PB     added 3000
 # 2005-jun-19  PB     added 420, 421, 422
+# 2012-dec-04  MR     added 423, 424, 425
 #
 # This file contains types and textual descriptions of RasDaMan errors.
 # The ascending error numbers are used as index to the descriptions. Each 
@@ -151,6 +152,10 @@
 420^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Extend operation with open bounds is not supported.
 421^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Target interval of extend operation does not cover MDD to be extended.
 422^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Second operand of extend function must be an minterval.
+#
+423^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Every operand of concatenation function must be of type MDD.
+424^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Some operands have less dimensions than the one specified for concatenation.
+425^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: r_Mintervals of concatenation operands not mergeable.
 #
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
 #

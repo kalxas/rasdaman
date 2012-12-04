@@ -59,6 +59,7 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "qlparser/parseinfo.hh"
 #include "qlparser/qtmddcfgop.hh"
 #include "qlparser/qtencode.hh"
+#include "qlparser/qtconcat.hh"
 #include "rasodmg/dirdecompose.hh"
 
 extern ServerComm::ClientTblElt* currentClientTblElt;
@@ -211,10 +212,11 @@ struct QtUpdateSpecElement
 			 TILING ALIGNED REGULAR DIRECTIONAL
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
 			 STRCT COMPLEX RE IM TIFF BMP HDF NETCDF CSV JPEG PNG VFF TOR DEM INV_TIFF INV_BMP INV_HDF INV_NETCDF
-			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM ENCODE
+			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM ENCODE CONCAT ALONG
 
 %left COLON VALUES USING WHERE
 %left OVERLAY
+%left CONCAT
 %left OR XOR
 %left AND
 %left NOT
@@ -234,12 +236,12 @@ struct QtUpdateSpecElement
 %type <qtUnaryOperationValue> reduceIdent structSelection trimExp
 %type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp functionExp spatialOp
 //                              integerExp mintervalExp intervalExp condenseExp variable fscale mddConfiguration
-                              integerExp mintervalExp intervalExp condenseExp variable mddConfiguration mintervalList
+                              integerExp mintervalExp intervalExp condenseExp variable mddConfiguration mintervalList concatExp
 %type <tilingType>            tilingAttributes  tileTypes tileCfg statisticParameters tilingSize
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
 %type <indexType> 	      indexingAttributes indexTypes
 // %type <stgType>           storageAttributes storageTypes comp compType zLibCfg rLECfg waveTypes
-%type <qtOperationListValue>  spatialOpList spatialOpList2 bboxList
+%type <qtOperationListValue>  spatialOpList spatialOpList2 bboxList mddList
 %type <integerToken>          intLitExp
 %type <operationValue>        condenseOpLit 
 %type <castTypes>	      castType
@@ -833,6 +835,7 @@ generalExp: mddExp                          { $$ = $1; }
 	| inductionExp                      { $$ = $1; }
 	| functionExp                       { $$ = $1; }
 	| integerExp                        { $$ = $1; }
+	| concatExp                         { $$ = $1; }	
 	| condenseExp                       { $$ = $1; }
 	| variable                          { $$ = $1; }
 	| mintervalExp                      { $$ = $1; }
@@ -844,6 +847,40 @@ generalExp: mddExp                          { $$ = $1; }
 	  parseQueryTree->removeDynamicObject( $1 );
 	  parseQueryTree->addDynamicObject( $$ );
 	};
+	
+
+concatExp: CONCAT mddList ALONG intLitExp
+	{
+	  if( $4.negative )
+	    if( $4.svalue < 0 )
+	      yyerror("non negative integer expected");
+	    else
+	      $$ = new QtConcat( $2, (unsigned int)$4.svalue );
+	  else
+	    $$ = new QtConcat( $2, (unsigned int)$4.uvalue );
+	  $$->setParseInfo( *($1.info) );
+	  QtNode::QtOperationList::iterator iter;
+	  for( iter=$2->begin(); iter!=$2->end(); ++iter )
+	      parseQueryTree->removeDynamicObject( *iter );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+	  FREESTACK($3)
+	  FREESTACK($4)
+	};	
+	
+mddList : mddList WITH generalExp
+  {
+	  $1->push_back( $3 );
+	  $$ = $1;
+	  FREESTACK($2)  
+  }
+  | generalExp WITH generalExp
+  {
+	  $$ = new QtNode::QtOperationList(2);
+	  (*$$)[0] = $1;
+	  (*$$)[1] = $3;  
+	  FREESTACK($2)  
+  };
 
 integerExp: generalExp DOT LO
 	{
