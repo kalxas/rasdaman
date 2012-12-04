@@ -99,6 +99,11 @@ check_postgres() {
 check_rasdaman() {
   which rasql > /dev/null || error "rasdaman not installed, please add rasql to the PATH."
   pgrep rasmgr > /dev/null || error "rasdaman not started, please start with start_rasdaman.sh"
+
+  # set rascontrol login
+  if [ -z "$RASLOGIN" ]; then
+    export RASLOGIN=rasadmin:d293a15562d3e70b6fdc5ee452eaed40
+  fi
   $RASCONTROL -x 'list srv -all' > /dev/null || error "no rasdaman servers started."
 }
 check_paths() {
