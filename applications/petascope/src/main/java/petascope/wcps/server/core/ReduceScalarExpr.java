@@ -43,11 +43,15 @@ public class ReduceScalarExpr implements IRasNode {
             node = node.getNextSibling();
         }
 
-        String nodeName = node.getNodeName();
+        String nodeName = node.getNodeName().toLowerCase();
 
-        if (nodeName.equals(WCPSConstants.MSG_ALL) || nodeName.equals(WCPSConstants.MSG_SOME) || nodeName.equals(WCPSConstants.MSG_COUNT)
-                || nodeName.equals(WCPSConstants.MSG_ADD) || nodeName.equals(WCPSConstants.MSG_AVG) || nodeName.equals(WCPSConstants.MSG_MIN)
-                || nodeName.equals(WCPSConstants.MSG_MAX)) {
+        if (nodeName.equals(WCPSConstants.MSG_ALL) ||
+                nodeName.equals(WCPSConstants.MSG_SOME) ||
+                nodeName.equals(WCPSConstants.MSG_COUNT) || 
+                nodeName.equals(WCPSConstants.MSG_ADD) || 
+                nodeName.equals(WCPSConstants.MSG_AVG) || 
+                nodeName.equals(WCPSConstants.MSG_MIN) || 
+                nodeName.equals(WCPSConstants.MSG_MAX)) {
             op = nodeName;
 
             if (!op.equals(WCPSConstants.MSG_ALL) && !op.equals(WCPSConstants.MSG_SOME)) {

@@ -1,0 +1,2 @@
+<ProcessCoveragesRequest xmlns="http://www.opengis.net/wcps/1.0" service="WCPS" version="1.0.0">
+<query><xmlSyntax><coverageIterator><iteratorVar>c</iteratorVar><coverageName>mr</coverageName></coverageIterator><reduce><avg><coverage>c</coverage></avg></reduce></xmlSyntax></query></ProcessCoveragesRequest>
