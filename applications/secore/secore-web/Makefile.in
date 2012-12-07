@@ -44,6 +44,10 @@
 # COMMENTS:
 # 
 ##################################################################
+
+# ------------------------------------------------------------------------------
+#                                 VARIABLES
+# ------------------------------------------------------------------------------
 VPATH = @srcdir@
 am__make_dryrun = \
   { \
@@ -78,8 +82,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-subdir = applications/secore
-DIST_COMMON = README $(srcdir)/Makefile.am $(srcdir)/Makefile.in
+subdir = applications/secore/secore-web
+DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in compile
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ac_prog_ecpg.m4 \
 	$(top_srcdir)/m4/ac_prog_java_cc.m4 \
@@ -226,7 +230,7 @@ RMANBASE = @RMANBASE@
 RPCGEN = @RPCGEN@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
-SHELL = @SHELL@
+SHELL = bash
 STATICBASEDBFLAGS = @STATICBASEDBFLAGS@
 STRIP = @STRIP@
 VERSION = @VERSION@
@@ -278,7 +282,52 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wardir = @wardir@
 wpswar = @wpswar@
-SUBDIRS = secore-web
+VERSION_NUMBER = 1.0
+@GENERATE_DOCS_TRUE@GEN_DOCS = javadoc
+
+# Location of trees.
+SRC = src
+SRC_MAIN = $(SRC)/java
+SRC_WEB = web
+BUILD = build
+DIST = $(BUILD)/dist
+WEB = $(BUILD)/web
+CLASSES = $(WEB)/WEB-INF/classes
+NAME = def
+WAR_NAME = $(NAME).war
+WAR = $(DIST)/$(WAR_NAME)
+APIDOCS = $(BUILD)/apidocs
+SECORE_CORE = ../secore-core
+SUBDIRS = ../secore-core
+
+# Unix tools
+FIND = find
+MKDIR = mkdir -p
+CP = cp -r
+CD = cd
+RM = rm -rf
+TAR = tar
+
+# Java tools
+JAVA = java
+JAVAC = javac
+JJARS_CP = $(SECORE_CORE)/lib/basex-api.jar:$(SECORE_CORE)/lib/BaseX.jar:$(SECORE_CORE)/lib/log4j-1.2.16.jar:$(SECORE_CORE)/lib/nanoxml-2.2.3.jar:$(SECORE_CORE)/lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar:$(SECORE_CORE)/lib/slf4j-api-1.6.2.jar:$(SECORE_CORE)/lib/slf4j-log4j12-1.6.2.jar:$(SECORE_CORE)/lib/xmlunit-1.3.jar:$(SECORE_CORE)/lib/xqj-api-1.0.jar:$(SECORE_CORE)/build/dist/secore-core.jar:lib/servlet-api.jar
+JJARS_PATHS = $(SECORE_CORE)/lib/basex-api.jar $(SECORE_CORE)/lib/BaseX.jar $(SECORE_CORE)/lib/log4j-1.2.16.jar $(SECORE_CORE)/lib/nanoxml-2.2.3.jar $(SECORE_CORE)/lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar $(SECORE_CORE)/lib/slf4j-api-1.6.2.jar $(SECORE_CORE)/lib/slf4j-log4j12-1.6.2.jar $(SECORE_CORE)/lib/xmlunit-1.3.jar $(SECORE_CORE)/lib/xqj-api-1.0.jar $(SECORE_CORE)/build/dist/secore-core.jar lib/servlet-api.jar
+JFLAGS = -sourcepath $(SRC_MAIN) \
+            -d $(CLASSES)           \
+            -cp $(JJARS_CP)	        \
+            -source 1.5
+
+JAR = jar
+JARFLAGS = cf
+JAVADOC = javadoc
+JDFLAGS = -sourcepath $(SRC_MAIN)  \
+            -d $(APIDOCS)	     \
+            -source 1.5 -classpath $(JJARS_CP)
+
+
+# all_javas - Temp file for holding source file list
+all_javas = $(CLASSES)/all.javas
 all: all-recursive
 
 .SUFFIXES:
@@ -291,9 +340,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu applications/secore/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu applications/secore/secore-web/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu applications/secore/Makefile
+	  $(AUTOMAKE) --gnu applications/secore/secore-web/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -508,7 +557,6 @@ check: check-recursive
 all-am: Makefile
 installdirs: installdirs-recursive
 installdirs-am:
-install: install-recursive
 install-exec: install-exec-recursive
 install-data: install-data-recursive
 uninstall: uninstall-recursive
@@ -538,8 +586,6 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
-clean: clean-recursive
-
 clean-am: clean-generic mostlyclean-am
 
 distclean: distclean-recursive
@@ -620,6 +666,74 @@ uninstall-am:
 	mostlyclean mostlyclean-generic pdf pdf-am ps ps-am tags \
 	tags-recursive uninstall uninstall-am
 
+
+# ------------------------------------------------------------------------------
+#                                 TARGETS
+# ------------------------------------------------------------------------------
+
+# Create war
+.PHONY: war
+war: compile
+	$(MKDIR) $(DIST)
+	$(CD) $(WEB); $(JAR) $(JARFLAGS) ../../$(WAR) .
+
+# Print the targets
+.PHONY: help
+help:
+	@echo
+	@echo "  Available rules:"
+	@echo "    war      create WAR archive in $(DIST)"
+	@echo "    install  copy generated WAR archive to wardir set at configure"
+	@echo "    javadoc  to generate Javadoc in $(APIDOCS)"
+	@echo "    test     run automated tests"
+	@echo "    clean    remove all build files"
+	@echo "    wps      build 52n WPS server with petascope support and copy to wardir"
+	@echo
+
+# Gather source file list, excluding n52 which are exclusively compiled with maven
+.INTERMEDIATE: $(all_javas)
+$(all_javas):
+	$(MKDIR) $(CLASSES)
+	$(FIND) $(SRC_MAIN) $(TEST) -name '*.java' > $@
+
+# compile - Compile the source
+.PHONY: compile
+compile: $(all_javas) $(GEN_DOCS)
+	$(MKDIR) $(BUILD)
+	$(CP) $(SRC_WEB)/* $(WEB)
+	$(CP) $(SECORE_CORE)/etc $(WEB)
+	$(TAR) xzf $(WEB)/etc/gml.tar.gz -C $(WEB)/etc/; $(RM) $(WEB)/etc/gml.tar.gz $(WEB)/etc/testdata
+	$(MKDIR) $(WEB)/WEB-INF/lib
+	$(CP) $(JJARS_PATHS) $(WEB)/WEB-INF/lib
+	$(CP) $(SRC_MAIN)/* $(CLASSES) # copy resources (xml, xsd, properties)
+	$(FIND) $(BUILD) -name '*.java' | xargs $(RM)
+	$(FIND) $(BUILD) -name '.svn' | xargs $(RM) # remove .svn directories
+	$(JAVAC) $(JFLAGS) @$<
+
+# Generate the Java doc from sources
+.PHONY: javadoc
+javadoc: $(all_javas)
+	$(JAVADOC) $(JDFLAGS) @$<
+
+# copy WAR to TOMCAT
+.PHONY: install
+install: war
+	$(MKDIR) $(DESTDIR)$(wardir)
+	$(CP) $(WAR) $(DESTDIR)$(wardir)
+@GENERATE_DOCS_TRUE@	$(MKDIR) $(DESTDIR)$(pkgdatadir)/doc
+@GENERATE_DOCS_TRUE@	$(CP) $(APIDOCS) $(DESTDIR)$(pkgdatadir)/doc/secore-web
+
+# clean up
+.PHONY: clean
+clean:
+	$(RM) $(BUILD) dist
+
+# build jar file
+.PHONY: jar
+jar: compile
+	$(CD) $(CLASSES); $(JAR) $(JARFLAGS) ../../../dist/$(NAME).jar .
+
+all: war
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

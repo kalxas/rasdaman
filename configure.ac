@@ -135,6 +135,8 @@ AC_CONFIG_FILES([Makefile
                  applications/Makefile
                  applications/rasql/Makefile
                  applications/rview/Makefile
+                 applications/secore/secore-core/Makefile
+                 applications/secore/secore-web/Makefile
                  applications/rasgeo/Makefile
                  applications/rasgeo/wms-import/inittools/Makefile
                  applications/rasgeo/wms-import/importtools/Makefile

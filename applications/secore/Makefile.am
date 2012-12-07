@@ -28,6 +28,4 @@
 # 
 ##################################################################
 
-install-data-hook:
-	mkdir -p $(DESTDIR)$(wardir)
-	./deploy $(DESTDIR)$(wardir)
+SUBDIRS = secore-web
