@@ -198,7 +198,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         root.appendChild(contents);
 
         try {
-            return new Response(XMLUtil.serialize(ret));
+            return new Response(null, XMLUtil.serialize(ret), FormatExtension.MIME_XML);
         } catch (IOException ex) {
             throw new WCSException(ExceptionCode.IOConnectionError,
                     "Error serializing constructed document", ex);

@@ -38,6 +38,7 @@ import petascope.util.WcsUtil;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import static petascope.util.XMLSymbols.*;
 import static petascope.util.XMLUtil.*;
+import petascope.wcs2.extensions.FormatExtension;
 
 /**
  * GetCapabilities operation for The Web Coverage Service 2.0
@@ -101,7 +102,7 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
         }
 
         try {
-            return new Response(serialize(ret));
+            return new Response(null, serialize(ret), FormatExtension.MIME_XML);
         } catch (IOException ex) {
             throw new WCSException(ExceptionCode.IOConnectionError,
                     "Error serializing constructed document", ex);
