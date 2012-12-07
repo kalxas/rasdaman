@@ -584,13 +584,13 @@ public class DbMetadataSource implements IMetadataSource {
                     // X
                     BigDecimal maxBD = BigDecimal.valueOf(h1);
                     BigDecimal minBD = BigDecimal.valueOf(l1);
-                    BigDecimal dimBD = BigDecimal.valueOf(x1 - x0);
+                    BigDecimal dimBD = BigDecimal.valueOf(x1 - x0 + 1);
                     BigDecimal diffBD = maxBD.subtract(minBD);
                     BigDecimal resBDx = diffBD.divide(dimBD, RoundingMode.UP);
                     // Y
                     maxBD = BigDecimal.valueOf(h1);
                     minBD = BigDecimal.valueOf(l1);
-                    dimBD = BigDecimal.valueOf(x1 - x0);
+                    dimBD = BigDecimal.valueOf(x1 - x0 + 1);
                     diffBD = maxBD.subtract(minBD);
                     BigDecimal resBDy = diffBD.divide(dimBD, RoundingMode.UP);
                     
