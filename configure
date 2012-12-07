@@ -2547,7 +2547,6 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-RMANVERSION=8310
 am__api_version='1.11'
 
 ac_aux_dir=
@@ -8385,7 +8384,6 @@ ac_config_files="$ac_config_files Makefile catalogmgr/Makefile relblobif/Makefil
 
 
 
-
 # --------------- Parameter Definition -----------------------------
 ####################################################################
 
@@ -9548,10 +9546,6 @@ else
 
 fi
 # CXXFLAGS+= -fPIC  ???NEEDED???
-cat >>confdefs.h <<_ACEOF
-#define RMANVERSION $RMANVERSION
-_ACEOF
-
 cat >>confdefs.h <<_ACEOF
 #define BASEDBSTRING "$BASEDBSTRING"
 _ACEOF
