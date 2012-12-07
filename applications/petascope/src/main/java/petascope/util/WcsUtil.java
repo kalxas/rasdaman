@@ -99,9 +99,9 @@ public class WcsUtil {
 
         int n = bands[0].split(",").length;
         Double[] low = new Double[n];
-        Arrays.fill(low, Double.MAX_VALUE);
+        Arrays.fill(low, Double.POSITIVE_INFINITY);
         Double[] high = new Double[n];
-        Arrays.fill(high, Double.MIN_VALUE);
+        Arrays.fill(high, Double.NEGATIVE_INFINITY);
 
         for (String band : bands) {
             String[] dims = band.split(",");
