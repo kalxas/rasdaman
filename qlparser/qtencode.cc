@@ -59,6 +59,9 @@ using namespace std;
 
 #define PARAM_CRS  "crs"
 #define PARAM_METADATA "metadata"
+#define PARAM_NODATA "nodata"
+
+#define NODATA_VALUE_SEPARATOR " ,"
 
 QtEncode::QtEncode(QtOperation *mddOp, char* formatIn) throw (r_Error)
 : QtUnaryOperation(mddOp), format(formatIn), fParams(NULL)
@@ -77,6 +80,9 @@ QtEncode::~QtEncode()
 {
     CSLDestroy(fParams);
 }
+
+  void split(string &s1, string &s2, char delim){
+  }
 
 void
 QtEncode::initParams(char* paramsIn)
@@ -105,6 +111,18 @@ QtEncode::initParams(char* paramsIn)
     setDouble(PARAM_YMAX, &gParams.ymax);
     setString(PARAM_CRS,  &gParams.crs);
     setString(PARAM_METADATA, &gParams.metadata);
+    
+    string nodata;
+    setString(PARAM_NODATA, &nodata);
+    
+    char* pch = (char*) nodata.c_str();
+    pch = strtok (pch, NODATA_VALUE_SEPARATOR);
+    while (pch != NULL)
+    {
+        double value = strtod(pch, NULL);
+        gParams.nodata.push_back(value);
+        pch = strtok (NULL, NODATA_VALUE_SEPARATOR);
+    }
 }
 
 void
@@ -424,8 +442,8 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
 
         CPLErr error =
                 hMemDS->GetRasterBand(band + 1)->
-                RasterIO(GF_Write, 0, 0, width, height, datasetCells,
-                                         width, height, gdalBandType, 0, 0);
+                            RasterIO(GF_Write, 0, 0, width, height, datasetCells,
+                                                     width, height, gdalBandType, 0, 0);
         if (error != CE_None)
         {
             RMInit::logOut << "QtEncode::convertTileToDataset - Error: Could not write data to GDAL raster band " << band << endl;
@@ -471,6 +489,33 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
         char** metadata = NULL;
         metadata = CSLAddNameValue(metadata, "metadata", gParams.metadata.c_str());
         hMemDS->SetMetadata(metadata);
+    }
+    
+        
+    // set nodata value
+    if (gParams.nodata.size() > 0)
+    {
+        for (int band = 0; band < nBands; band++)
+        {
+            GDALRasterBand* rasterBand = hMemDS->GetRasterBand(band + 1);
+            
+            // if only one value is provided use the same for all bands
+            if (gParams.nodata.size() == 1)
+            {
+                rasterBand->SetNoDataValue(gParams.nodata.at(0));
+            }
+            else if (gParams.nodata.size() == nBands)
+            {
+                rasterBand->SetNoDataValue(gParams.nodata.at(band));
+            }
+            else
+            {
+                // warning, nodata value no != band no -- DM 2012-dec-10
+                RMInit::logOut << "Warning: ignored setting NODATA value, number of NODATA values (" <<
+                        gParams.nodata.size() << ") doesn't match the number of bands (" << nBands << ")." << endl;
+                break;
+            }
+        }
     }
 
     free(datasetCells);
