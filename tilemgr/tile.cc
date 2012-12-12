@@ -762,11 +762,22 @@ Tile::copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval
 
     while (!resTileIter.isDone())
     {
+        memcpy(resTileIter.getData(), opTileIter.getData(), tsize);
+        
+        /*
+         * With the below updates where the last dimension is sliced fail, e.g.
+         *      update COLL as x set x[0:50,0:50,1] assign ..
+         * Commented for now, but TODO: needs a faster solution, right now it's
+         * copying cell by cell to the target tile -- DM 2012-dec-12
+         */
+        /*
         // copy entire line (continuous chunk in last dimension) in one go
         memcpy(resTileIter.getData(), opTileIter.getData(), width * tsize);
         // force overflow of last dimension
         resTileIter.id[dimRes-1].pos += width;
         opTileIter.id[dimOp-1].pos += width;
+         */
+        
         // iterate; the last dimension will always overflow now
         ++resTileIter;
         ++opTileIter;
