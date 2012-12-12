@@ -21,6 +21,8 @@
  */
 package petascope.wcs2.extensions;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
@@ -39,6 +41,17 @@ import petascope.wcs2.parsers.GetCoverageRequest;
  * @author <a href="mailto:m.rusu@jacobs-university.de">Mihaela Rusu</a>
  */
 public class JPEG2000FormatExtension extends AbstractFormatExtension{
+    
+    /* Member */
+    CrsProperties crsProperties;
+    private static final Logger log = LoggerFactory.getLogger(JPEG2000FormatExtension.class);
+    
+    /* Interface */
+    public CrsProperties getCrsProperties() {
+        return crsProperties;
+    }
+    
+    /* Methods */
     @Override
     public boolean canHandle(GetCoverageRequest req) {
         return !req.isMultipart() && getMimeType().equals(req.getFormat());
@@ -67,11 +80,22 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension{
         
         Pair<Object, String> p = null;
         if (m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE)) {
-            // return plain TIFF
+            // return plain JPEG
+            crsProperties = new CrsProperties();
             p = executeRasqlQuery(request, m, meta, JP2_ENCODING, null);
         } else {
-            // return GeoTIFF
-            p = executeRasqlQuery(request, m, meta, JP2_ENCODING, null);
+            // RectifiedGrid: geometry is associated with a CRS -> return JPEG2000 with geo-metadata
+            // Need to use the GetCoverage metadata which has updated bounds [see super.setBounds()]
+            String[] domLo = m.getDomLow().split(" ");
+            String[] domHi = m.getDomHigh().split(" ");
+            if (domLo.length != 2 || domHi.length != 2) {
+                // Output grid dimensions have already been checked (see above), but double-check on the domain bounds:
+                log.error("Cannot format JPEG2000: output dimensionality is not 2.");
+                throw new WCSException(ExceptionCode.InvalidRequest, "Output dimensionality of the requested coverage is " +
+                        (domLo.length==2?domHi.length:domLo.length) + " whereas JPEG2000 requires 2-dimensional grids.");
+            }
+            crsProperties = new CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName());
+            p = executeRasqlQuery(request, m, meta, JP2_ENCODING, crsProperties.toString());
         }
 
         RasQueryResult res = new RasQueryResult(p.fst);
