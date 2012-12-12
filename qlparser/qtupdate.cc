@@ -480,8 +480,10 @@ QtUpdate::evaluate()
                                 }
 
                                 RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "update domains: target tile " << (*targetIt)->getDomain() << " update target at " << intersectUpdateSourceTileDomain << ", source tile " << (*sourceIt)->getDomain() << " update with data at " << intersectSourceTileDomain )
-                                //(*targetIt)->execUnaryOp( Ops::OP_IDENTITY, intersectUpdateSourceTileDomain, *sourceIt, intersectSourceTileDomain );
-                                (*targetIt)->copyTile(intersectUpdateSourceTileDomain, *sourceIt, intersectSourceTileDomain);
+                                if (intersectUpdateSourceTileDomain.dimension() == intersectSourceTileDomain.dimension())
+                                    (*targetIt)->copyTile(intersectUpdateSourceTileDomain, *sourceIt, intersectSourceTileDomain);
+                                else
+                                    (*targetIt)->execUnaryOp( &(*myOp), intersectUpdateSourceTileDomain, *sourceIt, intersectSourceTileDomain );
                                 updatedArea = updatedArea + intersectUpdateSourceTileDomain.cell_count();
                             }
                         }
@@ -497,8 +499,6 @@ QtUpdate::evaluate()
                             else
                                 newPersTile->execUnaryOp( &(*myOp), updateSourceTileDomain, *sourceIt, sourceTileDomain );
                             RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "update domains: target tile " << newPersTile->getDomain() << " update target at " << updateSourceTileDomain << ", source tile " << (*sourceIt)->getDomain() << " update with data at " << sourceTileDomain )
-                            // this will make a crash in updateset3 because of a strange triming doman
-                            //newPersTile->copyTile(updateSourceTileDomain, *sourceIt, sourceTileDomain);
 
                             targetObj->insertTile( newPersTile );
                             updatedArea = updatedArea + updateSourceTileDomain.cell_count();
@@ -586,7 +586,10 @@ QtUpdate::evaluate()
                                             else
                                                 j++;
                                     }
-                                    (*retvalIt)->copyTile(intersectRetvalTileDomain, *sourceIt, intersectSourceTileDomain);
+                                    if (intersectRetvalTileDomain.dimension() == intersectSourceTileDomain.dimension())
+                                        (*retvalIt)->copyTile(intersectRetvalTileDomain, *sourceIt, intersectSourceTileDomain);
+                                    else
+                                        (*retvalIt)->execUnaryOp( &(*myOp), intersectRetvalTileDomain, *sourceIt, intersectSourceTileDomain );
                                 }
                             }
                         }
