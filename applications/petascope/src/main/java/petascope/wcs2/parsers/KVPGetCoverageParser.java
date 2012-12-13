@@ -83,34 +83,6 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         return ret;
     }
 
-    /**
-     * Parses scaling parameters corresponding to the keys "scaleaxes" or
-     * "scalesize" Separates axes from scaling factors in
-     * "a1(s1),a2(s2),...an(sn)"
-     *
-     * @param requestParams - the request parameters as a string
-     * @return ret - a hashmap containing the axes and scaling factors
-     */
-    public HashMap<String, String> parseScaling(String request) {
-        HashMap<String, String> ret = new HashMap<String, String>();
-        StringTokenizer st = new StringTokenizer(request, "),"); // not just "," since it's also used for "lo,hi"
-        while (st.hasMoreTokens()) {
-            String kvPair = (String) st.nextToken();
-            int splitPos = kvPair.indexOf("(");
-            if (splitPos != -1) {
-                String key = kvPair.substring(0, splitPos);
-                String value = kvPair.substring(splitPos + 1);
-                if (value.endsWith(")")) // last token, therefore remove trailing ")"
-                {
-                    value = value.substring(0, value.length() - 1);
-                }
-                ret.put(key, value);
-            }
-        }
-
-        return ret;
-    }
-
     @Override
     public GetCoverageRequest parse(String input) throws WCSException {
         Map<String, List<String>> p = StringUtil.parseQuery(input);
@@ -221,16 +193,21 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         }
 
         list = p.get("scaleaxes");
-        if (list != null && (list.size() != 1 || ret.isScaled())) {
+        if (list != null && ret.isScaled()) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
-        } else if (list != null) {
-            Map<String, String> map = parseScaling(ListUtil.head(list));
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                String axis = entry.getKey();
-                String fact = entry.getValue();
-                if (ret.getScaling().isPresentFactor(axis)) {
+        } else if (list != null) { 
+            Iterator<String> it = list.iterator();
+            while (it.hasNext()) {
+                String keyvalue = it.next();
+                String fact = "", axis = "";
+                int splitPos = keyvalue.indexOf("(");
+                if (splitPos != -1) {
+                    axis = keyvalue.substring(0, splitPos);
+                    fact = keyvalue.substring(splitPos + 1, keyvalue.length()-1);
+                } else 
+                    throw new WCSException(ExceptionCode.InvalidRequest, "Wrong scaling parameter format: must be axis(factor).");
+                if (ret.getScaling().isPresentFactor(axis))
                     throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
-                }
                 float scaleFactor;
                 try {
                     scaleFactor = Float.parseFloat(fact);
@@ -246,16 +223,21 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         }
 
         list = p.get("scalesize");
-        if (list != null && (list.size() != 1 || ret.isScaled())) {
+        if (list != null && ret.isScaled()) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
-        } else if (list != null) {
-            Map<String, String> map = parseScaling(ListUtil.head(list));
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                String axis = entry.getKey();
-                String fact = entry.getValue();
-                if (ret.getScaling().isPresentSize(axis)) {
+        } else if (list != null) {            
+            Iterator<String> it = list.iterator();
+            while (it.hasNext()) {
+                String keyvalue = it.next();
+                String fact = "", axis = "";
+                int splitPos = keyvalue.indexOf("(");
+                if (splitPos != -1) {
+                    axis = keyvalue.substring(0, splitPos);
+                    fact = keyvalue.substring(splitPos + 1, keyvalue.length()-1);
+                } else 
+                    throw new WCSException(ExceptionCode.InvalidRequest, "Wrong scaling parameter format: must be axis(size).");         
+                if (ret.getScaling().isPresentSize(axis))
                     throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
-                }
                 int scaleSize;
                 try {
                     scaleSize = Integer.parseInt(fact);
@@ -276,25 +258,28 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         } else if (list != null) {
             Iterator<String> it = list.iterator();
             while (it.hasNext()) {
-                String axisLo = it.next();
-                int ind = axisLo.indexOf("(");
-                if (ind == -1) {
-                    throw new WCSException(ExceptionCode.InvalidRequest, "Wrong format for scaling parameters.");
-                }
-                String axis = axisLo.substring(0, ind);
-                String slo = axisLo.substring(ind + 1);
-                if (!it.hasNext()) {
-                    throw new WCSException(ExceptionCode.InvalidRequest, "Wrong format for scaling parameters.");
-                }
-                String tmp = it.next();
-                String shi = tmp.substring(0, tmp.length() - 1);
-                int lo;
+                String keyvalue = it.next();
+                String fact = "", axis = "";
+                int splitPos = keyvalue.indexOf("(");
+                if (splitPos != -1) {
+                    axis = keyvalue.substring(0, splitPos);
+                    fact = keyvalue.substring(splitPos + 1, keyvalue.length()-1);
+                } else 
+                    throw new WCSException(ExceptionCode.InvalidRequest, "Wrong scaling parameter format: must be axis(lo:hi).");          
+                if (ret.getScaling().isPresentExtent(axis))
+                    throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
+                String shi = "", slo = "";
+                StringTokenizer st = new StringTokenizer(fact, ":"); 
+                if (st.countTokens() != 2)
+                    throw new WCSException(ExceptionCode.InvalidRequest, "Wrong format for scaling parameters: must be 'lo:hi'.");
+                slo = st.nextToken();
+                shi = st.nextToken();
+                int hi, lo;
                 try {
                     lo = Integer.parseInt(slo);
                 } catch (NumberFormatException e) {
                     throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(slo));
                 }
-                int hi;
                 try {
                     hi = Integer.parseInt(shi);
                 } catch (NumberFormatException e) {
