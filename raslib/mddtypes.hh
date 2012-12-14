@@ -43,6 +43,8 @@ rasdaman GmbH.
 #include <sstream>
 #endif
 
+#include <stdint.h>
+
 //typedef unsigned int uint32;
 //typedef int int32;
 
@@ -80,7 +82,7 @@ typedef unsigned long r_Ptr;
 //@Args: as unsigned int
 //@Memo: Module: {\bf raslib}.
 
-typedef unsigned int r_Area;
+typedef uint64_t r_Area;
 
 /**
   {\tt typedef unsigned int r_Area;}

@@ -61,8 +61,8 @@ rasdaman GmbH.
 const char*
 r_Stat_Tiling::description = "dimensions, access patterns, border threshold, interesting threshold, tile size (in bytes) (ex: \"2;[0:9,0:9],3;[100:109,0:9],2;2;0.3;100\")";
 
-const r_ULong
-r_Stat_Tiling::DEF_BORDER_THR = 50;
+const
+r_Area r_Stat_Tiling::DEF_BORDER_THR = 50L;
 const r_Double
 r_Stat_Tiling::DEF_INTERESTING_THR  = 0.20;
 
@@ -338,7 +338,7 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
 }
 
 
-r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access>& stat_info2, r_Bytes ts, r_ULong border_threshold, r_Double interesting_threshold) throw (r_Error)
+r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access>& stat_info2, r_Bytes ts, r_Area border_threshold, r_Double interesting_threshold) throw (r_Error)
     :   r_Dimension_Tiling(dim, ts),
         border_thr(border_threshold),
         stat_info(stat_info2),

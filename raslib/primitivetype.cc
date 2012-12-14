@@ -130,7 +130,7 @@ r_Primitive_Type::isPrimitiveType() const
 }
 
 void
-r_Primitive_Type::convertToLittleEndian(char* cells, r_Bytes noCells) const
+r_Primitive_Type::convertToLittleEndian(char* cells, r_Area noCells) const
 {
     char c0 = 0;
     char c1 = 0;
@@ -182,7 +182,7 @@ r_Primitive_Type::convertToLittleEndian(char* cells, r_Bytes noCells) const
 }
 
 void
-r_Primitive_Type::convertToBigEndian(char* cells, r_Bytes noCells) const
+r_Primitive_Type::convertToBigEndian(char* cells, r_Area noCells) const
 {
     char c0 = 0;
     char c1 = 0;

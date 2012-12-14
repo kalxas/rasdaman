@@ -55,12 +55,12 @@ r_Sinterval_Type::isSintervalType() const
 }
 
 void
-r_Sinterval_Type::convertToLittleEndian(char* cells, r_Bytes noCells) const
+r_Sinterval_Type::convertToLittleEndian(char* cells, r_Area noCells) const
 {
 }
 
 void
-r_Sinterval_Type::convertToBigEndian(char* cells, r_Bytes noCells) const
+r_Sinterval_Type::convertToBigEndian(char* cells, r_Area noCells) const
 {
 }
 
