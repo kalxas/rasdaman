@@ -2769,8 +2769,11 @@ intArray : IntegerLit
 	{
 	  $$.dirDecomp = $3.dirDecomp;
 	  r_Dir_Decompose temp = $$.dirDecomp->at($$.dirDecomp->size()-1);
-	  temp<<$1.svalue;
-	  $$.dirDecomp->at($$.dirDecomp->size()-1) = temp;
+	  
+	  // the values are inserted in the wrong order when appending,
+    // so changed bellow to prepend -- DM 2012-dec-16
+    //temp<<$1.svalue;
+    $$.dirDecomp->at($$.dirDecomp->size()-1) = temp.prepend($1.svalue);
 	}
 ;
 

@@ -207,7 +207,7 @@ MDDObj::insertTile(Tile* newTile)
             // we are using retiling here.  *it is therefore an indivisible layout domain.
             RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "tile domain (" << tileDom << ") is not the same as layout domain (" << *it << ")")
             indexTiles = myMDDIndex->intersect(*it);
-            if (indexTiles)
+            if (indexTiles && indexTiles->size() > 0)
             {
                 // there was a tile in the run before, which overlapped with this layout domain
                 // there may only be one entry in the index for this domain.

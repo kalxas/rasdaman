@@ -84,6 +84,9 @@ public:
 
     /// Reads a new limit for the current dimension
     r_Dir_Decompose& operator<<(r_Range limit);
+    
+    /// Reads a new limit for the current dimension and prepends it to the list of limits
+    r_Dir_Decompose& prepend(r_Range limit);
 
     /// Gets the number of intervals the dimension is to be split into
     int get_num_intervals() const;

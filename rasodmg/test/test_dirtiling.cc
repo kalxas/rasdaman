@@ -64,6 +64,9 @@ int main(int argc, char* argv[])
     r_Dir_Decompose a;
     a << 0 << 50 << 200 << 600 << 700 << 950 << 999;
     decomp.push_back(a);
+    r_Dir_Decompose b;
+    b << 0 << 50 << 99;
+    decomp.push_back(b);
 
     r_Dir_Tiling tiling(2, decomp, tilesize);
     tiling.print_status(cout);

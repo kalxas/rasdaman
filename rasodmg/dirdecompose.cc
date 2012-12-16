@@ -71,7 +71,11 @@ const r_Dir_Decompose& r_Dir_Decompose::operator=(const r_Dir_Decompose& other)
 {
     if (this != &other)
     {
-        delete [] intervals;
+        if (intervals)
+        {
+            delete [] intervals;
+            intervals = NULL;
+        }
 
         num_intervals = other.num_intervals;
         current_interval = other.current_interval;
@@ -103,6 +107,32 @@ r_Dir_Decompose& r_Dir_Decompose::operator<<(r_Range limit)
 
     intervals[current_interval++] = limit;
 
+    return *this;
+}
+
+r_Dir_Decompose& r_Dir_Decompose::prepend(r_Range limit)
+{
+    if (current_interval == num_intervals)
+    {
+        r_Range *aux = new r_Range[num_intervals*2];
+
+        for (int i=0; i<num_intervals; i++)
+            aux[i+1] = intervals[i];
+
+        delete [] intervals;
+        intervals = aux;
+
+        num_intervals*= 2;
+    }
+    else
+    {
+        for (int i=current_interval-1; i>=0; i--)
+        {
+            intervals[i+1] = intervals[i];
+        }
+    }
+    ++current_interval;
+    intervals[0] = limit;
     return *this;
 }
 
