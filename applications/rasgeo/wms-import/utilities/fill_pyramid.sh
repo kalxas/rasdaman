@@ -168,12 +168,14 @@ fi
 echo -en "\n$ME: Parsing arguments... "
 COLLNAME=$1
 TASPLIT=''
-if [ "$2" = "$ARG_TASPLIT" ]; then 
-	TASPLIT="$2"
-else 
-	echo "$ME: unknown argument '$2'."
-	echo "$USAGE"
-	exit $RC_ERROR
+if [ $# -eq $MAX_ARGS ]; then 
+	if [ "$2" = "$ARG_TASPLIT" ]; then 
+		TASPLIT="$2"
+	else 
+		echo "$ME: unknown argument '$2'."
+		echo "$USAGE"
+		exit $RC_ERROR
+	fi
 fi
 
 # Check existence of rasdaman collection 
