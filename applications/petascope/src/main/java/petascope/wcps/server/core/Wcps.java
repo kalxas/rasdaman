@@ -52,7 +52,7 @@ public class Wcps {
     private static Logger log = LoggerFactory.getLogger(Wcps.class);
 
     private DocumentBuilder wcpsDocumentBuilder;
-    private static IDynamicMetadataSource dynamicMetadataSource;
+    private static ThreadLocal dynamicMetadataSource = new ThreadLocal();
 
     public Wcps(File pcSchema, IMetadataSource metadataSource) throws WCPSException, PetascopeException {
         try {
@@ -66,7 +66,7 @@ public class Wcps {
             wcpsDocumentBuilder = dbconfig.newDocumentBuilder();
             log.info(WCPSConstants.MSG_WCPS_FINISHED_LOADING_SCHEMA);
             
-            dynamicMetadataSource = new DynamicMetadataSource(metadataSource);
+            dynamicMetadataSource.set(new DynamicMetadataSource(metadataSource));
             
         } catch (Exception e) {
             throw new WCPSException(
@@ -75,7 +75,7 @@ public class Wcps {
     }
 
     public Wcps(IMetadataSource metadataSource) throws ParserConfigurationException, PetascopeException {
-        dynamicMetadataSource = new DynamicMetadataSource(metadataSource);
+        dynamicMetadataSource.set(new DynamicMetadataSource(metadataSource));
         wcpsDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
@@ -117,13 +117,13 @@ public class Wcps {
     private ProcessCoveragesRequest pcPrepare(String url, String database, Document doc)
             throws WCPSException, SAXException, IOException {
         try {
-            return new ProcessCoveragesRequest(url, database, doc, dynamicMetadataSource, this);
+            return new ProcessCoveragesRequest(url, database, doc, getDynamicMetadataSource(), this);
         } catch (PetascopeException ex) {
             throw (WCPSException) ex;
         }
     }
 
     public static IDynamicMetadataSource getDynamicMetadataSource() {
-        return dynamicMetadataSource;
+        return (IDynamicMetadataSource)dynamicMetadataSource.get();
     }
 }
