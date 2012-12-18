@@ -134,6 +134,7 @@ AC_CONFIG_FILES([Makefile
                  rasdl/Makefile
                  applications/Makefile
                  applications/rasql/Makefile
+                 applications/directql/Makefile
                  applications/rview/Makefile
                  applications/secore/secore-core/Makefile
                  applications/secore/secore-web/Makefile

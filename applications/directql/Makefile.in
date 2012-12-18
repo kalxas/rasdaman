@@ -38,12 +38,13 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 # MAKEFILE FOR:
-#   rasdaman applications
-#   does nothing but distribute any make call into all subdirs
+#   directql query utility
+#
 #
 # COMMENTS:
 #
 ##################################################################
+
 VPATH = @srcdir@
 am__make_dryrun = \
   { \
@@ -78,7 +79,8 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-subdir = applications
+noinst_PROGRAMS = directql$(EXEEXT)
+subdir = applications/directql
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ac_prog_ecpg.m4 \
@@ -93,8 +95,44 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-SOURCES =
-DIST_SOURCES =
+PROGRAMS = $(noinst_PROGRAMS)
+am_directql_OBJECTS = directql.$(OBJEXT) directql_error.$(OBJEXT) \
+	directql_signal.$(OBJEXT)
+directql_OBJECTS = $(am_directql_OBJECTS)
+directql_DEPENDENCIES = ../../rasodmg/librasodmg.a \
+	../../clientcomm/libclientcomm.a ../../raslib/libraslib.a \
+	../../conversion/libconversion.a ../../commline/libcommline.a \
+	../../network/libnetwork.a \
+	../../relcatalogif/librelcatalogif.a \
+	../../relindexif/librelindexif.a \
+	../../reladminif/libreladminif.a \
+	../../catalogmgr/libcatalogmgr.a \
+	../../relcatalogif/librelcatalogif.a \
+	../../relstorageif/librelstorageif.a \
+	../../storagemgr/libstoragemgr.a \
+	../../relindexif/librelindexif.a ../../indexmgr/libindexmgr.a \
+	../../tilemgr/libtilemgr.a ../../relblobif/librelblobif.a \
+	../../relcatalogif/librelcatalogif.a \
+	../../servercomm/libservercomm.a ../../mddmgr/libmddmgr.a \
+	../../relmddif/librelmddif.a ../../indexmgr/libindexmgr.a \
+	../../qlparser/libqlparser.a ../../conversion/libconversion.a \
+	../../catalogmgr/libcatalogmgr.a ../../raslib/libraslib.a \
+	../../tilemgr/libtilemgr.a
+DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
+depcomp = $(SHELL) $(top_srcdir)/depcomp
+am__depfiles_maybe = depfiles
+am__mv = mv -f
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
+	-o $@
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
+SOURCES = $(directql_SOURCES)
+DIST_SOURCES = $(directql_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -114,8 +152,7 @@ AM_RECURSIVE_TARGETS = $(RECURSIVE_TARGETS:-recursive=) \
 	distdir
 ETAGS = etags
 CTAGS = ctags
-DIST_SUBDIRS = rasql rview rasgeo petascope raswct \
-	petascope/src/main/db secore directql
+DIST_SUBDIRS = $(SUBDIRS)
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
 am__relativize = \
   dir0=`pwd`; \
@@ -279,11 +316,33 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 wardir = @wardir@
 wpswar = @wpswar@
-@ENABLE_JAVA_TRUE@JAVA_DIR = petascope raswct petascope/src/main/db secore
-SUBDIRS = rasql rview rasgeo $(JAVA_DIR) directql
+AM_CXXFLAGS = @CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@
+AM_LDFLAGS = @CLIENTLDFLAGS@ @BASEDBLDFLAGS@
+directql_SOURCES = directql.cc directql_error.cc directql_error.hh \
+               directql_signal.cc directql_signal.hh
+
+directql_LDADD = ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
+              ../../raslib/libraslib.a \
+              ../../conversion/libconversion.a ../../commline/libcommline.a \
+              ../../network/libnetwork.a ../../relcatalogif/librelcatalogif.a \
+              ../../relindexif/librelindexif.a ../../reladminif/libreladminif.a \
+              ../../catalogmgr/libcatalogmgr.a ../../relcatalogif/librelcatalogif.a \
+              ../../relstorageif/librelstorageif.a ../../storagemgr/libstoragemgr.a \
+              ../../relindexif/librelindexif.a ../../indexmgr/libindexmgr.a \
+              ../../tilemgr/libtilemgr.a ../../relblobif/librelblobif.a \
+              ../../relcatalogif/librelcatalogif.a ../../servercomm/libservercomm.a \
+               ../../mddmgr/libmddmgr.a ../../relmddif/librelmddif.a \
+               ../../indexmgr/libindexmgr.a ../../qlparser/libqlparser.a ../../conversion/libconversion.a \
+               ../../catalogmgr/libcatalogmgr.a \
+               ../../raslib/libraslib.a ../../tilemgr/libtilemgr.a @GDAL_LDFLAGS@
+
+SUBDIRS = ../../rasodmg ../../clientcomm \
+         ../../raslib ../../conversion ../../commline ../../network
+
 all: all-recursive
 
 .SUFFIXES:
+.SUFFIXES: .cc .o .obj
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	@for dep in $?; do \
 	  case '$(am__configure_deps)' in \
@@ -293,9 +352,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu applications/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu applications/directql/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu applications/Makefile
+	  $(AUTOMAKE) --gnu applications/directql/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -314,6 +373,36 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
+
+clean-noinstPROGRAMS:
+	-test -z "$(noinst_PROGRAMS)" || rm -f $(noinst_PROGRAMS)
+directql$(EXEEXT): $(directql_OBJECTS) $(directql_DEPENDENCIES) $(EXTRA_directql_DEPENDENCIES) 
+	@rm -f directql$(EXEEXT)
+	$(CXXLINK) $(directql_OBJECTS) $(directql_LDADD) $(LIBS)
+
+mostlyclean-compile:
+	-rm -f *.$(OBJEXT)
+
+distclean-compile:
+	-rm -f *.tab.c
+
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/directql.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/directql_error.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/directql_signal.Po@am__quote@
+
+.cc.o:
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ $<
+
+.cc.obj:
+@am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
 # This directory's subdirectories are mostly independent; you can cd
 # into them and run `make' without going through this Makefile.
@@ -345,37 +434,6 @@ $(RECURSIVE_TARGETS):
 	if test "$$dot_seen" = "no"; then \
 	  $(MAKE) $(AM_MAKEFLAGS) "$$target-am" || exit 1; \
 	fi; test -z "$$fail"
-
-$(RECURSIVE_CLEAN_TARGETS):
-	@fail= failcom='exit 1'; \
-	for f in x $$MAKEFLAGS; do \
-	  case $$f in \
-	    *=* | --[!k]*);; \
-	    *k*) failcom='fail=yes';; \
-	  esac; \
-	done; \
-	dot_seen=no; \
-	case "$@" in \
-	  distclean-* | maintainer-clean-*) list='$(DIST_SUBDIRS)' ;; \
-	  *) list='$(SUBDIRS)' ;; \
-	esac; \
-	rev=''; for subdir in $$list; do \
-	  if test "$$subdir" = "."; then :; else \
-	    rev="$$subdir $$rev"; \
-	  fi; \
-	done; \
-	rev="$$rev ."; \
-	target=`echo $@ | sed s/-recursive//`; \
-	for subdir in $$rev; do \
-	  echo "Making $$target in $$subdir"; \
-	  if test "$$subdir" = "."; then \
-	    local_target="$$target-am"; \
-	  else \
-	    local_target="$$target"; \
-	  fi; \
-	  ($(am__cd) $$subdir && $(MAKE) $(AM_MAKEFLAGS) $$local_target) \
-	  || eval $$failcom; \
-	done && test -z "$$fail"
 tags-recursive:
 	list='$(SUBDIRS)'; for subdir in $$list; do \
 	  test "$$subdir" = . || ($(am__cd) $$subdir && $(MAKE) $(AM_MAKEFLAGS) tags); \
@@ -507,7 +565,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: Makefile
+all-am: Makefile $(PROGRAMS)
 installdirs: installdirs-recursive
 installdirs-am:
 install: install-recursive
@@ -542,11 +600,13 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-generic mostlyclean-am
+clean-am: clean-generic clean-noinstPROGRAMS mostlyclean-am
 
 distclean: distclean-recursive
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
-distclean-am: clean-am distclean-generic distclean-tags
+distclean-am: clean-am distclean-compile distclean-generic \
+	distclean-tags
 
 dvi: dvi-recursive
 
@@ -589,12 +649,13 @@ install-ps-am:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-recursive
+	-rm -rf ./$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
 mostlyclean: mostlyclean-recursive
 
-mostlyclean-am: mostlyclean-generic
+mostlyclean-am: mostlyclean-compile mostlyclean-generic
 
 pdf: pdf-recursive
 
@@ -610,18 +671,22 @@ uninstall-am:
 	install-am install-strip tags-recursive
 
 .PHONY: $(RECURSIVE_CLEAN_TARGETS) $(RECURSIVE_TARGETS) CTAGS GTAGS \
-	all all-am check check-am clean clean-generic ctags \
-	ctags-recursive distclean distclean-generic distclean-tags \
-	distdir dvi dvi-am html html-am info info-am install \
-	install-am install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	mostlyclean mostlyclean-generic pdf pdf-am ps ps-am tags \
-	tags-recursive uninstall uninstall-am
+	all all-am check check-am clean clean-generic \
+	clean-noinstPROGRAMS ctags ctags-recursive distclean \
+	distclean-compile distclean-generic distclean-tags distdir dvi \
+	dvi-am html html-am info info-am install install-am \
+	install-data install-data-am install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs installdirs-am \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic pdf pdf-am ps ps-am \
+	tags tags-recursive uninstall uninstall-am
 
+
+$(RECURSIVE_CLEAN_TARGETS):
+	@$(MAKE) $(AM_MAKEFLAGS) `echo $@ | sed s/-recursive/-am/`
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

@@ -34,7 +34,7 @@ rasdaman GmbH.
 * - query filename "" is interpreted as stdin
 */
 
-
+#include "config.h"
 static const char rasql_rcsid[] = "@(#)rasql,rasql.cc: $Id: rasql.cc,v 1.3 2006/11/06 21:59:01 rasdev Exp $";
 #include "version.h"
 #ifndef RMANVERSION
@@ -52,10 +52,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #define __EXECUTABLE__
 #define EARLY_TEMPLATE
 #define DEBUG_MAIN
-#define DEBUG
-#define RMANDEBUG
 
-#include "debug.hh"
 #include "template_inst.hh"
 #include "raslib/template_inst.hh"
 
@@ -253,6 +250,7 @@ bool displayType = false;
 OUTPUT_TYPE outputType = DEFAULT_OUT;
 
 const char *outFileMask = DEFAULT_OUTFILE;
+ServerComm::ClientTblElt *r;
 
 r_Minterval mddDomain;
 bool mddDomainDef = false;
@@ -424,23 +422,24 @@ openDatabase() throw (r_Error)
     {
         LOG( "opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush );
         //
-        sprintf(globalConnectId, "tcp:postgresql://%s:%d/%s", serverName, serverPort, baseName);
+//        sprintf(globalConnectId, "tcp:postgresql://%s:%d/%s", serverName, serverPort, baseName);
+        sprintf(globalConnectId, "%s", baseName);
         //strcpy(globalConnectId, "tcp:postgresql://$serverName:$serverPort/$baseName");
         printf("conn = %s\n", globalConnectId);
 
-        server = new ServerComm(300, 120, 7013, "rasmgr", 7001, "N1");
+        server = new ServerComm(300, 120, 7013, (char*) serverName, 7001, "NT1");
 
 
         AdminIf* myAdmin = AdminIf::instance();
-        database.open( "RASSERVICE");
+        database.open(baseName);
 
         //ta.begin( &database );
 
-        ServerComm::ClientTblElt *r = new ServerComm::ClientTblElt("testclient", 2);
+        r = new ServerComm::ClientTblElt("rasadmin", 2);
         server->addClientTblEntry (r);
         accessControl.setServerName("NT1");
         accessControl.crunchCapability("$I1$ER.$BRASBASE$T1:3:2008:23:39:24$NNT1$D983893f406445a922cba0301bc5a85ec$K");
-        server->openDB(2, "RASBASE", "costea");
+        server->openDB(2, baseName, "rasadmin");
         SET_OUTPUT(TRUE);
 
         TALK( "ok" );
@@ -885,16 +884,17 @@ void doStuff( int argc, char** argv ) throw (r_Error)
         }
     }
 
-    ExecuteQueryRes result;
 
     if( query.is_update_query() )
     {
+        ExecuteUpdateRes result;
+        result.token = NULL;
         openTransaction( true );
 
         r_Marray<r_ULong>* mddConst = NULL;
 
         LOG( "Executing update query..." << flush );
-        server->executeQuery(2, queryString, result );
+        server->executeUpdate(2, queryString, result );
         LOG( "ok" << endl );
 
         if( mddConst )
@@ -910,7 +910,8 @@ void doStuff( int argc, char** argv ) throw (r_Error)
         // r_Set< r_Ref_Any > result_set;
 
         LOG( "Executing retrieval query..." << flush );
-        int status;
+        int status = 0;
+        ExecuteQueryRes result;
         status = server->executeQuery(2, queryString, result );
         switch (status)
         {
@@ -934,16 +935,25 @@ void doStuff( int argc, char** argv ) throw (r_Error)
         LOG( "Getting result..." << flush );
         if( output )
         {
-            while (true)
+            LOG( "Getting mdd..." << endl << flush );
+            status = server->getNextMDD(2, mddDomain, typeName, typeStructure, oid, currentFormat);
+            
+            // this is normally done in getNextTile(). But this is not called, so we do it here.
+            (*(r->transferDataIter))++;
+            if( *(r->transferDataIter) != r->transferData->end() )
             {
-                LOG( "Getting mdd..." << endl << flush );
-                status = server->getNextMDD(2, mddDomain, typeName, typeStructure, oid, currentFormat);
-                if (status==2)
+                // clean r->transtile if necessary
+                if( r->transTiles )
                 {
-                    printf("Empty MDD\n");
-                    break;
+                    delete r->transTiles;
+                    r->transTiles = 0;
                 }
-
+                // clean r->tileIter if necessary
+                if( r->tileIter )
+                {
+                    delete r->tileIter;
+                    r->tileIter = 0;
+                }
             }
         }
         //result_set = result;

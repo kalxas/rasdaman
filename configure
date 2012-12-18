@@ -8362,7 +8362,7 @@ done
 
 ac_config_headers="$ac_config_headers config.h"
 
-ac_config_files="$ac_config_files Makefile catalogmgr/Makefile relblobif/Makefile relindexif/Makefile relmddif/Makefile relcatalogif/Makefile reladminif/Makefile relstorageif/Makefile indexmgr/Makefile indexmgr/test/Makefile tilemgr/Makefile storagemgr/Makefile commline/Makefile network/Makefile raslib/Makefile raslib/test/Makefile clientcomm/Makefile servercomm/Makefile rasodmg/Makefile rasodmg/test/Makefile qlparser/Makefile conversion/Makefile mddmgr/Makefile httpserver/Makefile mymalloc/Makefile server/Makefile rasmgr/Makefile rascontrol/Makefile rasdl/Makefile applications/Makefile applications/rasql/Makefile applications/rview/Makefile applications/secore/secore-core/Makefile applications/secore/secore-web/Makefile applications/rasgeo/Makefile applications/rasgeo/wms-import/inittools/Makefile applications/rasgeo/wms-import/importtools/Makefile applications/rasgeo/wms-import/utilities/Makefile applications/raswct/Makefile applications/petascope/Makefile applications/petascope/src/main/db/Makefile applications/secore/Makefile bin/Makefile manuals_and_examples/Makefile manuals_and_examples/examples/c++/Makefile insertutils/Makefile include/Makefile java/Makefile systemtest/Makefile"
+ac_config_files="$ac_config_files Makefile catalogmgr/Makefile relblobif/Makefile relindexif/Makefile relmddif/Makefile relcatalogif/Makefile reladminif/Makefile relstorageif/Makefile indexmgr/Makefile indexmgr/test/Makefile tilemgr/Makefile storagemgr/Makefile commline/Makefile network/Makefile raslib/Makefile raslib/test/Makefile clientcomm/Makefile servercomm/Makefile rasodmg/Makefile rasodmg/test/Makefile qlparser/Makefile conversion/Makefile mddmgr/Makefile httpserver/Makefile mymalloc/Makefile server/Makefile rasmgr/Makefile rascontrol/Makefile rasdl/Makefile applications/Makefile applications/rasql/Makefile applications/directql/Makefile applications/rview/Makefile applications/secore/secore-core/Makefile applications/secore/secore-web/Makefile applications/rasgeo/Makefile applications/rasgeo/wms-import/inittools/Makefile applications/rasgeo/wms-import/importtools/Makefile applications/rasgeo/wms-import/utilities/Makefile applications/raswct/Makefile applications/petascope/Makefile applications/petascope/src/main/db/Makefile applications/secore/Makefile bin/Makefile manuals_and_examples/Makefile manuals_and_examples/examples/c++/Makefile insertutils/Makefile include/Makefile java/Makefile systemtest/Makefile"
 
 
 # --------------- Header Template Definitions ----------------------
@@ -10615,6 +10615,7 @@ do
     "rasdl/Makefile") CONFIG_FILES="$CONFIG_FILES rasdl/Makefile" ;;
     "applications/Makefile") CONFIG_FILES="$CONFIG_FILES applications/Makefile" ;;
     "applications/rasql/Makefile") CONFIG_FILES="$CONFIG_FILES applications/rasql/Makefile" ;;
+    "applications/directql/Makefile") CONFIG_FILES="$CONFIG_FILES applications/directql/Makefile" ;;
     "applications/rview/Makefile") CONFIG_FILES="$CONFIG_FILES applications/rview/Makefile" ;;
     "applications/secore/secore-core/Makefile") CONFIG_FILES="$CONFIG_FILES applications/secore/secore-core/Makefile" ;;
     "applications/secore/secore-web/Makefile") CONFIG_FILES="$CONFIG_FILES applications/secore/secore-web/Makefile" ;;

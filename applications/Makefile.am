@@ -32,4 +32,4 @@ if ENABLE_JAVA
     JAVA_DIR = petascope raswct petascope/src/main/db secore
 endif
 
-SUBDIRS=rasql rview rasgeo $(JAVA_DIR)
+SUBDIRS=rasql rview rasgeo $(JAVA_DIR) directql

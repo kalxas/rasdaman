@@ -37,6 +37,7 @@ static const char rcsid[] = "@(#)raslib, RasqlError: $Id: rasql_error.cc,v 1.1 2
 
 #include <exception>
 #include <string>
+#include <cstring>
 
 // for sprintf():
 #include <stdio.h>

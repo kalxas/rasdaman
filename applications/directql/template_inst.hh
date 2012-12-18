@@ -27,11 +27,9 @@ rasdaman GmbH.
 *       No comments
 */
 
-//@ManMemo: Module: {\bf raslib}
-
 //for rb_tree, select1st
-#include <function.h>
-#include <tree.h>
+#include <ext/functional>
+#include <ext/rb_tree>
 #include <vector>
 #include <utility>
 #include <memory>
@@ -46,6 +44,7 @@ using __gnu_cxx::select1st;
 
 using std::vector;
 using std::pair;
+using std::less;
 
 // commented by Constantin Jucovschi (gcc 3.4+ no longer supports __default_alloc_template)
 //using std::__default_alloc_template;
@@ -84,10 +83,6 @@ using std::fill_n;
 #include "relmddif/dbmddobj.hh"
 #include "relmddif/dbmddset.hh"
 
-#include "relstorageif/dbudfds.hh"
-#include "relstorageif/dbudfpackageds.hh"
-#include "relstorageif/dbstoragelayout.hh"
-
 template class SymbolTable<int>;
 
 //template class r_IterType<r_Attribute>;
@@ -104,8 +99,6 @@ template class DBRef<InlineTile>;
 template class DBRef<DBMDDSet>;
 template class DBRef<DBMinterval>;
 template class DBRef<DBStorageLayout>;
-template class DBRef<DBUDFDS>;
-template class DBRef<DBUDFPackageDS>;
 //template class DBRef<DBMDDObj>;
 // template bool operator< (const DBRef<DBMDDObj>&, const DBRef<DBMDDObj>&);
 
