@@ -170,6 +170,7 @@ public:
         QT_PYRAMID,
         QT_ENCODE,
         QT_CONCAT,
+        QT_CASEOP,
         QT_LAST_NODE_TYPE
     };
 

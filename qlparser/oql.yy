@@ -60,6 +60,7 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "qlparser/qtmddcfgop.hh"
 #include "qlparser/qtencode.hh"
 #include "qlparser/qtconcat.hh"
+#include "qlparser/qtcaseop.hh"
 #include "rasodmg/dirdecompose.hh"
 
 extern ServerComm::ClientTblElt* currentClientTblElt;
@@ -213,6 +214,7 @@ struct QtUpdateSpecElement
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
 			 STRCT COMPLEX RE IM TIFF BMP HDF NETCDF CSV JPEG PNG VFF TOR DEM INV_TIFF INV_BMP INV_HDF INV_NETCDF
 			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM ENCODE CONCAT ALONG
+                         CASE WHEN THEN ELSE END
 
 %left COLON VALUES USING WHERE
 %left OVERLAY
@@ -237,11 +239,12 @@ struct QtUpdateSpecElement
 %type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp functionExp spatialOp
 //                              integerExp mintervalExp intervalExp condenseExp variable fscale mddConfiguration
                               integerExp mintervalExp intervalExp condenseExp variable mddConfiguration mintervalList concatExp
+                              caseExp
 %type <tilingType>            tilingAttributes  tileTypes tileCfg statisticParameters tilingSize
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
 %type <indexType> 	      indexingAttributes indexTypes
 // %type <stgType>           storageAttributes storageTypes comp compType zLibCfg rLECfg waveTypes
-%type <qtOperationListValue>  spatialOpList spatialOpList2 bboxList mddList
+%type <qtOperationListValue>  spatialOpList spatialOpList2 bboxList mddList caseCond caseCondList caseEnd
 %type <integerToken>          intLitExp
 %type <operationValue>        condenseOpLit 
 %type <castTypes>	      castType
@@ -829,7 +832,8 @@ resultList: resultList COMMA generalExp
 	  $$ = $1;
 	};	
 
-generalExp: mddExp                          { $$ = $1; }
+generalExp: caseExp                         { $$ = $1;} 
+        | mddExp                            { $$ = $1; }
 	| trimExp                           { $$ = $1; }
 	| reduceExp                         { $$ = $1; }
 	| inductionExp                      { $$ = $1; }
@@ -847,8 +851,94 @@ generalExp: mddExp                          { $$ = $1; }
 	  parseQueryTree->removeDynamicObject( $1 );
 	  parseQueryTree->addDynamicObject( $$ );
 	};
-	
 
+caseCond: WHEN generalExp THEN generalExp
+        {
+          $$ = new QtNode::QtOperationList(2);
+	  (*$$)[0] = $2;
+          (*$$)[1] = $4;
+          FREESTACK($1)
+          FREESTACK($3)
+        };
+
+caseCondList: 
+        {
+          $$ = new QtNode::QtOperationList();
+        }
+        |
+        caseCondList caseCond
+        {
+          $1->push_back( (*$2)[0] );
+          $1->push_back( (*$2)[1] );
+	  $$ = $1;
+        }
+        |
+        caseCond
+        {
+          $$ = $1;
+        };
+        
+caseEnd: ELSE generalExp END
+        {
+          $$ = new QtNode::QtOperationList(1);
+          (*$$)[0] = $2;
+          FREESTACK($1);
+          FREESTACK($3);
+        };
+        
+caseExp: CASE caseCondList caseEnd
+        {
+          QtNode::QtOperationList* result = new QtNode::QtOperationList();
+          result->reserve($2->size() + $3->size());
+          result->insert(result->end(), $2->begin(), $2->end());
+          result->insert(result->end(), $3->begin(), $3->end()); 
+          $$ = new QtCaseOp(result);
+          QtNode::QtOperationList::iterator iter;
+          
+          for(iter = $2->begin(); iter != $2->end(); iter++){
+              parseQueryTree->removeDynamicObject( *iter );
+          }
+          
+          for(iter = $3->begin(); iter != $3->end(); iter++){
+              parseQueryTree->removeDynamicObject( *iter );
+          }
+          
+          $$->setParseInfo( *($1.info) );
+          parseQueryTree->addDynamicObject( $$ );
+          FREESTACK($1);
+        }
+        | CASE generalExp caseCondList caseEnd
+        {
+          QtNode::QtOperationList::iterator iter;
+          QtNode::QtOperationList* result = new QtNode::QtOperationList();
+          result->reserve($3->size() + $4->size());
+          int pos = 0;
+          for(iter = $3->begin(); iter != $3->end(); iter++){
+              if( !(pos%2) ){
+                  result->push_back(new QtEqual(*iter, $2));
+              } else{
+                  result->push_back(*iter);
+              }
+              pos++;
+          }
+          result->insert(result->end(), $4->begin(), $4->end()); 
+          $$ = new QtCaseOp(result);
+          
+          parseQueryTree->removeDynamicObject($2);
+          
+          for(iter = $3->begin(); iter != $3->end(); iter++){
+              parseQueryTree->removeDynamicObject( *iter );
+          }
+          
+          for(iter = $4->begin(); iter != $4->end(); iter++){
+              parseQueryTree->removeDynamicObject( *iter );
+          }
+          
+          $$->setParseInfo( *($1.info) );
+          parseQueryTree->addDynamicObject( $$ );
+          FREESTACK($1);
+        };
+	
 concatExp: CONCAT mddList ALONG intLitExp
 	{
 	  if( $4.negative )

@@ -1,4 +1,4 @@
-198
+204
 # Increment the number above every time you add a new exception
 #
 # Increment the number above every time you add a new exception
@@ -154,6 +154,13 @@
 423^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Jeder Operand der Concat-Funktion muss vom Typ MDD sein.
 424^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Einige Operanden haben weniger Dimensionen als die für Konkatenation spezifizierte Dimension.
 425^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die r_Mintervale des Operanden der Konkatination konnten nicht verbunden werden.
+#
+426^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die Bedingung MDDs haben nicht die gleichen Domäne.
+427^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die Bedingung MDDs haben nicht die gleichen Fliesen.
+428^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Mindestens eine Bedingung ist kein boolean MDD.
+429^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Wenigstens ein Ergebnis-Typ ist nicht Basistyp.
+430^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die Ergebnisse haben inkompatible Typen.
+431^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Mindestens eine Bedingung ist kein boolean.
 #
 499^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Sprachmerkmal wird nicht unterstützt.
 #

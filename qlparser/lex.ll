@@ -187,6 +187,11 @@ int string_yyinput( char* buf, int max_size )
 "hi"                                     { SETTOKEN( HI, commandToken, HI ) }
 "concat"                                 { SETTOKEN( CONCAT, commandToken, CONCAT ) }
 "along"                                  { SETTOKEN( ALONG, commandToken, ALONG ) }
+"case"                                   { SETTOKEN( CASE, commandToken, CASE ) }
+"when"                                   { SETTOKEN( WHEN, commandToken, WHEN ) }
+"then"                                   { SETTOKEN( THEN, commandToken, THEN ) }
+"else"                                   { SETTOKEN( ELSE, commandToken, ELSE ) }
+"end"                                    { SETTOKEN( END, commandToken, END ) }
 
 "insert"                                 { SETTOKEN( INSERT, commandToken, INSERT ) }
 "into"                                   { SETTOKEN( INTO, commandToken, INTO ) }

@@ -133,7 +133,8 @@ am_libqlparser_a_OBJECTS = oql.$(OBJEXT) lex.$(OBJEXT) \
 	qtunaryfunc.$(OBJEXT) qtbinaryfunc.$(OBJEXT) \
 	qtmarrayop.$(OBJEXT) qtmarrayop2.$(OBJEXT) \
 	qtcondenseop.$(OBJEXT) qtnode.$(OBJEXT) querytree.$(OBJEXT) \
-	qtmddconfig.$(OBJEXT) qtmddcfgop.$(OBJEXT) qtencode.$(OBJEXT)
+	qtmddconfig.$(OBJEXT) qtmddcfgop.$(OBJEXT) qtencode.$(OBJEXT) \
+	qtconcat.$(OBJEXT) qtcaseop.$(OBJEXT)
 libqlparser_a_OBJECTS = $(am_libqlparser_a_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -350,7 +351,9 @@ libqlparser_a_SOURCES = oql.yy lex.ll alloca.c\
                       qtexecute.hh qtdelete.icc \
                       qtmddconfig.hh qtmddconfig.cc \
                       qtmddcfgop.hh qtmddcfgop.cc \
-                      qtencode.hh qtencode.cc
+                      qtencode.hh qtencode.cc \
+                      qtconcat.hh qtconcat.cc qtconcat.icc \
+		      qtcaseop.cc qtcaseop.hh qtcaseop.icc
 
 EXTRA_libqlparser_a_SOURCES = autogen_qtui.hh autogen_qtui.icc autogen_qtui.cc
 BUILT_SOURCES = lex.cc oql.cc oql.h
@@ -369,9 +372,9 @@ $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
 	      exit 1;; \
 	  esac; \
 	done; \
-	echo ' cd $(top_srcdir) && $(AUTOMAKE) --gnu qlparser/Makefile'; \
+	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign qlparser/Makefile'; \
 	$(am__cd) $(top_srcdir) && \
-	  $(AUTOMAKE) --gnu qlparser/Makefile
+	  $(AUTOMAKE) --foreign qlparser/Makefile
 .PRECIOUS: Makefile
 Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
 	@case '$?' in \
@@ -444,8 +447,10 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qtbinaryinduce.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qtbinaryinduce2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qtbinaryoperation.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qtcaseop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qtcommand.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qtcomplexdata.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qtconcat.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qtcondense.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qtcondenseop.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/qtconst.Po@am__quote@

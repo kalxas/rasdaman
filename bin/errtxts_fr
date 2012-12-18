@@ -1,4 +1,4 @@
-205
+214
 # Increment the number above every time you add a new exception
 # (no of error codes - 1)
 #
@@ -145,6 +145,17 @@
 #
 418^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Le second operande d'une fonction bit a bit doit etre de type entier.
 419^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Impossible de mettre le domaine a l'echelle.
+#
+423^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Chaque opérande de la fonction de concaténation doit être de type MDD.
+424^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Certains opérandes ont moins de dimensions que celui spécifié pour la concaténation.
+425^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: r_Mintervals d'opérandes de concaténation pas fusionnables.
+#
+426^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Les MDD conditions n'ont pas le même domaine.
+427^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Les MDD conditions n'ont pas le même tuiles.
+428^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Au moins une des conditions n'est pas booléen MDD.
+429^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Au moins un type de résultat n'est pas type de base.
+430^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Les résultats ont des types incompatible.
+431^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Au moins une des conditions n'est pas booléene.
 #
 499^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Le concept Language n'est pas supporte.
 #
