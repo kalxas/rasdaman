@@ -37,6 +37,7 @@ import petascope.wcs2.extensions.*;
 import petascope.core.DbMetadataSource;
 import petascope.wcs2.handlers.Response;
 import petascope.ConfigManager;
+import petascope.HTTPRequest;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.PetascopeException;
 
@@ -83,7 +84,8 @@ public class PreformWCS2RasdamanQuery implements Runnable{
 
 	try {
 
-	    res = pext.handle(REQUEST,meta);
+        HTTPRequest request = new HTTPRequest("", "", "", REQUEST);
+	    res = pext.handle(request,meta);
 
 	} catch(Exception e) {
 

@@ -45,6 +45,8 @@ import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
 public class CRSExtension implements Extension {
     
     private static final Logger log = LoggerFactory.getLogger(CRSExtension.class);
+    public static final String REST_SUBSETTING_PARAM = "subsettingcrs";
+    public static final String REST_OUTPUT_PARAM = "outputcrs";
     
     @Override
     public String getExtensionIdentifier() {

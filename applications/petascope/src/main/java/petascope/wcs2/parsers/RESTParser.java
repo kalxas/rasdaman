@@ -53,4 +53,7 @@ public abstract class RESTParser<T extends Request> extends AbstractRequestParse
         return canParse;
     }
     private static Logger log = LoggerFactory.getLogger(RESTParser.class);
+    public static final String RANGE_SEPARATOR = ":";
+    public static final String ENUMERATOR_SEPARATOR = ",";
+    
 }

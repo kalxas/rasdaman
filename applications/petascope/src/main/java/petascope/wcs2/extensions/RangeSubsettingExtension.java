@@ -22,6 +22,7 @@
 package petascope.wcs2.extensions;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import nu.xom.Element;
@@ -35,6 +36,7 @@ import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
 import petascope.wcs2.helpers.rest.RESTUrl;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
+import petascope.wcs2.parsers.RESTParser;
 
 /**
  * This class manages the Subsetting Extension in accordance to the OGC-12-040
@@ -142,28 +144,31 @@ public class RangeSubsettingExtension implements Extension {
     public static void parseGetCoverageKVPRequest(Map<String, List<String>> params, GetCoverageRequest request) throws WCSException {
         if (params.containsKey(RANGESUBSET_KVP_PARAMNAME)) {
             List<String> rangeParams = params.get(RANGESUBSET_KVP_PARAMNAME);
-            RangeSubsettingExtension.parseGetCoverageRequest(rangeParams, request);
+            RangeSubsettingExtension.parseGetCoverageRequest(rangeParams, RANGESUBSET_KVP_RANGE_SEPARATOR, request);
         }
     }
 
     public static void parseGetCoverageRESTRequest(RESTUrl rUrl, GetCoverageRequest request) throws WCSException {
-        if (rUrl.existsKey(RANGESUBSET_REST_PARAMNAME)) {
-            List<String> rangeParams = rUrl.getByKey(RANGESUBSET_REST_PARAMNAME);
-            RangeSubsettingExtension.parseGetCoverageRequest(rangeParams, request);
+        if (rUrl.existsKey(RANGESUBSET_REST_PARAMNAME) && !rUrl.getByKey(RANGESUBSET_REST_PARAMNAME).isEmpty()) {
+            List<String> rangeParams = new ArrayList<String>(Arrays.asList(
+                    rUrl.getByKey(RANGESUBSET_REST_PARAMNAME).get(0).split(RESTParser.ENUMERATOR_SEPARATOR)));
+            RangeSubsettingExtension.parseGetCoverageRequest(rangeParams,RANGESUBSET_REST_RANGE_SEPARATOR, request);
         }
     }
 
-    public static void parseGetCoverageRequest(List<String> rangeParams, GetCoverageRequest request) throws WCSException {
+    public static void parseGetCoverageRequest(List<String> rangeParams, String rangeSep, GetCoverageRequest request) throws WCSException {
         for (int i = 0; i < rangeParams.size(); i++) {
-            if (rangeParams.get(i).contains(":")) {
-                String[] rangeComp = rangeParams.get(i).split(":");
+            if (rangeParams.get(i).contains(rangeSep)) {
+                String[] rangeComp = rangeParams.get(i).split(rangeSep);
                 request.getRangeSubset().addRangeItem(new RangeInterval(rangeComp[0], rangeComp[1]));
             } else {
                 request.getRangeSubset().addRangeItem(new RangeComponent(rangeParams.get(i)));
             }
         }
     }
-    
     public static final String RANGESUBSET_KVP_PARAMNAME = "rangesubset";
+    public static final String RANGESUBSET_KVP_RANGE_SEPARATOR = ":";
+        
     public static final String RANGESUBSET_REST_PARAMNAME = "rangesubset";
+    public static final String RANGESUBSET_REST_RANGE_SEPARATOR = RESTParser.RANGE_SEPARATOR;
 }

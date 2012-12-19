@@ -304,15 +304,14 @@ public class PetascopeInterface extends HttpServlet {
                 // To preserve compatibility with previous client versions, we allow
                 // GET requests with parameter "query"
                 String request2 = null;
-                request2 = paramMap.get("query");
+                request2 = paramMap.get(WCPS_QUERY_GET_PARAMETER);
                 if (request2 == null) {
-                    request2 = StringUtil.urldecode(params.get("query"), httpRequest.getContentType());
+                    request2 = StringUtil.urldecode(params.get(WCPS_QUERY_GET_PARAMETER), httpRequest.getContentType());
                 }
-                String queryDecoded = "test";
+                
                 if (request2 == null && splitURI.get(0).equalsIgnoreCase(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER)) {
-                    if (splitURI.size() > 2 && splitURI.get(1).equals("query")) {
-                        queryDecoded = StringUtil.urldecode(splitURI.get(2), httpRequest.getContentType());
-                        log.debug(queryDecoded);
+                    if (splitURI.size() > 2 && splitURI.get(1).equals(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER)) {
+                        String queryDecoded = StringUtil.urldecode(splitURI.get(2), httpRequest.getContentType());
                         request2 = RasUtil.abstractWCPSToRasql(queryDecoded, wcps);
                     }
                 } else if (request2 != null) {
@@ -732,4 +731,5 @@ public class PetascopeInterface extends HttpServlet {
     private static final String CORS_ACCESS_CONTROL_ALLOW_METHODS = "POST, GET, OPTIONS";
     private static final String CORS_ACCESS_CONTROL_ALLOW_HEADERS = "Content-Type";
     private static final String CORS_ACCESS_CONTROL_MAX_AGE = "1728000";
+    private static final String WCPS_QUERY_GET_PARAMETER = "query";
 }

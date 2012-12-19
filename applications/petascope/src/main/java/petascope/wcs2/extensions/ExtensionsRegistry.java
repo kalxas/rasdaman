@@ -31,7 +31,7 @@ import petascope.wcs2.parsers.GetCoverageRequest;
 /**
  * Protocol binding extensions are managed in this class.
  *
- * @author <a href="mailto:d.misev@jacobs-university.de">Dimi   tar Misev</a>
+ * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class ExtensionsRegistry {
 
@@ -39,6 +39,7 @@ public class ExtensionsRegistry {
     
     public static final String XML_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_post-xml/1.0";
     public static final String KVP_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_get-kvp/1.0/conf/get-kvp";
+    //@todo add a real url here
     public static final String REST_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_get-rest/1.0/conf/get-rest";    
     public static final String SOAP_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_soap/1.0";
     public static final String ENCODING_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage";

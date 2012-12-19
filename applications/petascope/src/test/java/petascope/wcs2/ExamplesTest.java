@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import petascope.BaseTestCase;
 import petascope.ConfigManager;
+import petascope.HTTPRequest;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
@@ -94,8 +95,9 @@ public class ExamplesTest extends BaseTestCase {
                 String[] s = fileName.split("-");
                 l.println("REQUEST (Operation: " + s[0] + ", Protocol: " + s[1] + ")\n" + input + "\n\nRESPONSE");
                 
-                ProtocolExtension extension = ExtensionsRegistry.getProtocolExtension(input);
-                Response res = extension.handle(input, meta);
+                HTTPRequest request = new HTTPRequest("", "", "", input);
+                ProtocolExtension extension = ExtensionsRegistry.getProtocolExtension(request);
+                Response res = extension.handle(request, meta);
                 
                 String response = humanReadableResponse(file, res);
                 File exp = new File(IOUtil.removeExtension(file.getPath()) + ".exp");

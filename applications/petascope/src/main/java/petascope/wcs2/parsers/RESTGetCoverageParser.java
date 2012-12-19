@@ -33,6 +33,7 @@ import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.TimeUtil;
+import petascope.wcs2.extensions.CRSExtension;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
 import petascope.wcs2.helpers.rest.RESTUrl;
@@ -53,7 +54,7 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
      * @throws WCSException
      */
     public void parseSubsets(RESTUrl rUrl, GetCoverageRequest ret) throws WCSException {
-        ArrayList<String> subsets = rUrl.getByKey("subset");
+        ArrayList<String> subsets = rUrl.getByKey(REST_SUBSET_PARAM);
         for (String subsetValue : subsets) {
             Matcher matcher = SUBSET_REGEX.matcher(subsetValue);
             if (matcher.find()) {
@@ -98,7 +99,7 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
     public void parseCRS(RESTUrl rUrl, GetCoverageRequest ret) throws WCSException {
         /* CRS-extension parameters: */
         // subsettingCrs
-        String subCrs = ListUtil.head(rUrl.getByKey("subsettingcrs"));
+        String subCrs = ListUtil.head(rUrl.getByKey(CRSExtension.REST_SUBSETTING_PARAM));
         if (!(subCrs == null) && !CrsUtil.CrsUri.isValid(subCrs)) {
             throw new WCSException(ExceptionCode.NotASubsettingCrs, "subsettingCrs " + subCrs + " is not valid.");
         }
@@ -107,7 +108,7 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
         }
         // outputCrs
 
-        String outCrs = ListUtil.head(rUrl.getByKey("outputcrs"));
+        String outCrs = ListUtil.head(rUrl.getByKey(CRSExtension.REST_OUTPUT_PARAM));
         if (!(outCrs == null) && !CrsUtil.CrsUri.isValid(outCrs)) {
             throw new WCSException(ExceptionCode.NotAnOutputCrs, "outputCrs " + outCrs + " is not valid.");
         }
@@ -163,5 +164,7 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
     }
     private static final String OPERATION_IDENTIFIER = "coverage";
     private static final int COVERAGE_ID_PLACE = 3;
-    private static final Pattern SUBSET_REGEX = Pattern.compile("([^,\\(]+)(,([^\\(]+))?\\(([^,\\)]+)(,([^\\)]+))?\\)");
+    private static final Pattern SUBSET_REGEX = Pattern.compile("([^,\\(]+)(,([^\\(]+))?\\(([^"
+            + RESTParser.RANGE_SEPARATOR + "\\)]+)(" + RESTParser.RANGE_SEPARATOR + "([^\\)]+))?\\)");
+    private static final String REST_SUBSET_PARAM = "subset";
 }
