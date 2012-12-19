@@ -331,16 +331,16 @@ public class GetCoverageRequest extends BaseRequest {
         private int type;
         private float factor;
         private HashMap<String, Float> fact;
-        private HashMap<String, Integer> sz;
-        private HashMap<String, Pair<Integer, Integer>> extent;
+        private HashMap<String, Long> sz;
+        private HashMap<String, Pair<Long, Long>> extent;
         
         public Scaling() {
             set = false;
             type = 0;
             factor = (float) 1.0;
             fact = new HashMap<String, Float>();
-            sz = new HashMap<String, Integer>();
-            extent = new HashMap<String, Pair<Integer, Integer>>();
+            sz = new HashMap<String, Long>();
+            extent = new HashMap<String, Pair<Long, Long>>();
         }
         
         public boolean isSet() {
@@ -371,11 +371,11 @@ public class GetCoverageRequest extends BaseRequest {
             return extent.containsKey(axis);
         }
         
-        public int getSize(String axis) {
+        public long getSize(String axis) {
             return sz.get(axis);
         }
         
-        public Pair<Integer, Integer> getExtent(String axis) {
+        public Pair<Long, Long> getExtent(String axis) {
             return extent.get(axis);
         }
         
@@ -389,12 +389,12 @@ public class GetCoverageRequest extends BaseRequest {
             this.set = true;            
         }
         
-        public void addSize(String axis, int sz) {
+        public void addSize(String axis, long sz) {
             this.sz.put(axis, sz);
             this.set = true;
         }
         
-        public void addExtent(String axis, Pair<Integer, Integer> ex) {
+        public void addExtent(String axis, Pair<Long, Long> ex) {
             this.extent.put(axis, ex);
             this.set = true;
         }

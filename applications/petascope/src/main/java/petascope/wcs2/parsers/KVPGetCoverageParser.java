@@ -240,9 +240,9 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Wrong scaling parameter format: must be axis(size).");         
                 if (ret.getScaling().isPresentSize(axis))
                     throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
-                int scaleSize;
+                long scaleSize;
                 try {
-                    scaleSize = Integer.parseInt(fact);
+                    scaleSize = Long.parseLong(fact);
                 } catch (NumberFormatException e) {
                     throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(fact));
                 }
@@ -276,14 +276,14 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Wrong format for scaling parameters: must be 'lo:hi'.");
                 slo = st.nextToken();
                 shi = st.nextToken();
-                int hi, lo;
+                long hi, lo;
                 try {
-                    lo = Integer.parseInt(slo);
+                    lo = Long.parseLong(slo);
                 } catch (NumberFormatException e) {
                     throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(slo));
                 }
                 try {
-                    hi = Integer.parseInt(shi);
+                    hi = Long.parseLong(shi);
                 } catch (NumberFormatException e) {
                     throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(shi));
                 }
