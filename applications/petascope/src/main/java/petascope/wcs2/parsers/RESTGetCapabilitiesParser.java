@@ -21,8 +21,6 @@
  */
 package petascope.wcs2.parsers;
 
-import java.util.ArrayList;
-import javax.servlet.http.HttpServletRequest;
 import petascope.HTTPRequest;
 import petascope.exceptions.WCSException;
 import petascope.util.ListUtil;
@@ -36,6 +34,12 @@ import petascope.wcs2.helpers.rest.RESTUrl;
  */
 public class RESTGetCapabilitiesParser extends RESTParser<GetCapabilitiesRequest> {
 
+    /**
+     * Parses an HTTPRequest into a GetCapabilities request
+     * @param request the http request
+     * @return the get coverage request
+     * @throws WCSException 
+     */
     public GetCapabilitiesRequest parse(HTTPRequest request) throws WCSException {
         RESTUrl rUrl = new RESTUrl(request.getUrlPath());
         return new GetCapabilitiesRequest(

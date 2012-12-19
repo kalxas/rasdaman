@@ -32,6 +32,7 @@ import petascope.util.XMLSymbols;
 import petascope.wcs2.helpers.rangesubsetting.RangeComponent;
 import petascope.wcs2.helpers.rangesubsetting.RangeInterval;
 import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
+import petascope.wcs2.helpers.rest.RESTUrl;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
 
@@ -89,8 +90,8 @@ public class RangeSubsettingExtension implements Extension {
     }
 
     /**
-     * Helper method to parse a RangeItem XML element and adds the parsed information to the
-     * GetCoverage Request
+     * Helper method to parse a RangeItem XML element and adds the parsed
+     * information to the GetCoverage Request
      *
      * @param gcRequest - the request to add the parsed info
      * @param rangeElem - the XML element to be parsed
@@ -122,33 +123,47 @@ public class RangeSubsettingExtension implements Extension {
                             "A RangeInterval element needs to have exactly one startComponent and one endComponent");
                 }
                 gcRequest.getRangeSubset().addRangeItem(new RangeInterval(startComponent, endComponent));
-            }
-            else if(currentChild.getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_RANGECOMPONENT)){
+            } else if (currentChild.getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_RANGECOMPONENT)) {
                 gcRequest.getRangeSubset().addRangeItem(new RangeComponent(currentChild.getValue().trim()));
             }
         }
     }
-    
+
     /**
      * Helper method to parse the rangesubsets parameters for this request It
      * recognizes the following formats: band | band1:bandN | band1, band2,
      * bandX:bandY
      *
      * @param params - the GET parameters of this request
-     * @param request - the coverage request to which to add the parsed information
+     * @param request - the coverage request to which to add the parsed
+     * information
      * @throws WCSException
      */
     public static void parseGetCoverageKVPRequest(Map<String, List<String>> params, GetCoverageRequest request) throws WCSException {
-        if (params.containsKey("rangesubset")) {
-            List<String> rangeParams = params.get("rangesubset");
-            for (int i = 0; i < rangeParams.size(); i++) {
-                if (rangeParams.get(i).contains(":")) {
-                    String[] rangeComp = rangeParams.get(i).split(":");
-                    request.getRangeSubset().addRangeItem(new RangeInterval(rangeComp[0], rangeComp[1]));
-                } else {
-                    request.getRangeSubset().addRangeItem(new RangeComponent(rangeParams.get(i)));
-                }
+        if (params.containsKey(RANGESUBSET_KVP_PARAMNAME)) {
+            List<String> rangeParams = params.get(RANGESUBSET_KVP_PARAMNAME);
+            RangeSubsettingExtension.parseGetCoverageRequest(rangeParams, request);
+        }
+    }
+
+    public static void parseGetCoverageRESTRequest(RESTUrl rUrl, GetCoverageRequest request) throws WCSException {
+        if (rUrl.existsKey(RANGESUBSET_REST_PARAMNAME)) {
+            List<String> rangeParams = rUrl.getByKey(RANGESUBSET_REST_PARAMNAME);
+            RangeSubsettingExtension.parseGetCoverageRequest(rangeParams, request);
+        }
+    }
+
+    public static void parseGetCoverageRequest(List<String> rangeParams, GetCoverageRequest request) throws WCSException {
+        for (int i = 0; i < rangeParams.size(); i++) {
+            if (rangeParams.get(i).contains(":")) {
+                String[] rangeComp = rangeParams.get(i).split(":");
+                request.getRangeSubset().addRangeItem(new RangeInterval(rangeComp[0], rangeComp[1]));
+            } else {
+                request.getRangeSubset().addRangeItem(new RangeComponent(rangeParams.get(i)));
             }
         }
-    }    
+    }
+    
+    public static final String RANGESUBSET_KVP_PARAMNAME = "rangesubset";
+    public static final String RANGESUBSET_REST_PARAMNAME = "rangesubset";
 }

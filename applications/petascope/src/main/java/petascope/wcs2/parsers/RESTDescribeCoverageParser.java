@@ -33,6 +33,13 @@ import petascope.wcs2.helpers.rest.RESTUrl;
  */
 public class RESTDescribeCoverageParser extends RESTParser<DescribeCoverageRequest> {
 
+    /**
+     * Parses an HTTPRequest into a DescribeCoverage request
+     *
+     * @param request the http request
+     * @return the DescribeCoverage request
+     * @throws WCSException
+     */
     public DescribeCoverageRequest parse(HTTPRequest request) throws WCSException {
         RESTUrl rUrl = new RESTUrl(request.getUrlPath());
         DescribeCoverageRequest ret = new DescribeCoverageRequest();
