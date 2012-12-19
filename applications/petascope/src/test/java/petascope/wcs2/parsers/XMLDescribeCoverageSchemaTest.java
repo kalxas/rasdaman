@@ -29,6 +29,7 @@ import petascope.BaseTestCase;
 import petascope.exceptions.WCSException;
 import org.junit.After;
 import org.junit.Before;
+import petascope.HTTPRequest;
 
 /**
   Test class for the XMLDescribeCoverageParser. Tests whether the parser
@@ -70,13 +71,14 @@ public class XMLDescribeCoverageSchemaTest extends BaseTestCase{
 
     @Test
     public void testValidXML() throws WCSException{
-	
-	parser.parse(validXML);
+	HTTPRequest req = new HTTPRequest("", "", "", validXML);
+	parser.parse(req);
     }
 
     
     @Test(expected=WCSException.class)
     public void testInvalidXML() throws WCSException{
-	parser.parse(invalidXML);
+    HTTPRequest req = new HTTPRequest("", "", "", validXML);
+	parser.parse(req);
     }
 }
