@@ -25,6 +25,7 @@ package petascope.wcs2.extensions;
 import petascope.wcs2.parsers.BaseRequest;
 import nu.xom.Document;
 import nu.xom.Element;
+import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.XMLUtil;
@@ -39,8 +40,9 @@ import static petascope.util.XMLSymbols.*;
 public class XMLProtocolExtension extends AbstractProtocolExtension {
 
     @Override
-    public boolean canHandle(String request) {
-        return request != null && request.startsWith("<") && !XMLUtil.isFirstTag(request, "Envelope");
+    public boolean canHandle(HTTPRequest request) {
+        return request.getRequestString() != null && request.getRequestString().startsWith("<") 
+                && !XMLUtil.isFirstTag(request.getRequestString(), "Envelope");
     }
 
     protected Element parseInput(String input) throws WCSException {

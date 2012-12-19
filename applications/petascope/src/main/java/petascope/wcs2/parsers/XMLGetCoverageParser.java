@@ -25,6 +25,7 @@ import java.util.List;
 import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
@@ -49,8 +50,8 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
     private static final Logger log = LoggerFactory.getLogger(XMLGetCoverageParser.class);
 
     @Override
-    public GetCoverageRequest parse(String input) throws WCSException {
-        Element root = parseInput(input);
+    public GetCoverageRequest parse(HTTPRequest request) throws WCSException {
+        Element root = parseInput(request.getRequestString());
         List<Element> coverageIds = collectAll(root, PREFIX_WCS,
                 LABEL_COVERAGE_ID, CTX_WCS);
         if (coverageIds.size() != 1) {

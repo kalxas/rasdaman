@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.ListUtil;
@@ -43,8 +44,9 @@ public abstract class KVPParser<T extends Request> extends AbstractRequestParser
     private static Logger log = LoggerFactory.getLogger(KVPParser.class);
 
     @Override
-    public boolean canParse(String input) {
-        return input != null && !input.startsWith("<") && input.contains(getOperationName());
+    public boolean canParse(HTTPRequest request) {
+        return request.getRequestString() != null && !request.getRequestString().startsWith("<") 
+                && request.getRequestString().contains(getOperationName());
     }
 
     protected String get(String key, Map<String, List<String>> m) {

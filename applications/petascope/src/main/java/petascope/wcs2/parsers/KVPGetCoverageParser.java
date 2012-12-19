@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
@@ -84,7 +85,8 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
     }
 
     @Override
-    public GetCoverageRequest parse(String input) throws WCSException {
+    public GetCoverageRequest parse(HTTPRequest request) throws WCSException {
+        String input = request.getRequestString();
         Map<String, List<String>> p = StringUtil.parseQuery(input);
         checkEncodingSyntax(p, "coverageid", "version", "mediatype", "format", "subsettingcrs", "outputcrs",
                 "scalefactor", "scaleaxes", "scalesize", "scaleextent", "rangesubset");

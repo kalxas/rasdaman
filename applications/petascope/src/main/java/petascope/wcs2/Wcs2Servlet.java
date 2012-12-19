@@ -37,6 +37,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
+import petascope.HTTPRequest;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.ExceptionCode;
@@ -150,7 +151,7 @@ public class Wcs2Servlet extends HttpServlet {
                 log.debug("Petascope Request: \n------START REQUEST--------\n"
                         + request + "\n------END REQUEST------\n");
 
-                handleWcs2Request(request, false, res);
+                handleWcs2Request(request, false, res, req);
             } catch (WCSException e) {
                 throw e;
             } catch (Exception e) {
@@ -166,13 +167,14 @@ public class Wcs2Servlet extends HttpServlet {
     /**
      * Handle WCS 2.0 request.
      * 
-     * @param request request string
+     * @param input request string
      * @param response
      * @throws WCSException in case of I/O error, or if the server is unable to handle the request
      */
-    private void handleWcs2Request(String request, boolean soap, HttpServletResponse response)
+    private void handleWcs2Request(String input, boolean soap, HttpServletResponse response, HttpServletRequest srvRequest)
             throws WCSException, PetascopeException {
         try {
+            HTTPRequest request = this.parseUrl(srvRequest, input);
             log.info("Handling WCS 2.0 request");
             ProtocolExtension pext = ExtensionsRegistry.getProtocolExtension(request);
             if (pext == null) {
@@ -259,4 +261,24 @@ public class Wcs2Servlet extends HttpServlet {
             log.trace("done with error");
         }
     }
+    
+    /**
+     * Parses the HTTP servlet request into a Petascope Servlet Request
+     * @param srvRequest the http servlet request
+     * @param request the request string needed by parsers
+     * @return complete ServletRequest
+     */
+    private HTTPRequest parseUrl(HttpServletRequest srvRequest, String request) {
+        String contextPath = "", pathInfo = "";
+        //get rid of the prefix slashes
+        if (srvRequest.getContextPath().length() > 1) {
+            contextPath = srvRequest.getContextPath().substring(1);
+        }
+        if (srvRequest.getPathInfo().length() > 1) {
+            pathInfo = srvRequest.getPathInfo().substring(1);
+        }
+        HTTPRequest srvReq = new HTTPRequest(contextPath,
+                pathInfo, srvRequest.getQueryString(), request);
+        return srvReq;
+    }    
 }

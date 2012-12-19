@@ -22,34 +22,37 @@
  */
 package petascope.wcs2.extensions;
 
-import java.util.List;
-import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import petascope.HTTPRequest;
 
 /**
- * An abstract superclass forKVP protocol binding extensions, which provides some
+ * A superclass for REST protocol binding extensions, which provides some
  * convenience methods to concrete implementations.
  *
- * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
+ * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  */
-public class KVPProtocolExtension extends AbstractProtocolExtension {
+public class RESTProtocolExtension extends AbstractProtocolExtension {
 
-    @Override
     public boolean canHandle(HTTPRequest request) {
-        Boolean canHandle = request.getRequestString() != null && !request.getRequestString().startsWith("<");
-        return canHandle;
+        return request.getUrlPath().contains(RESTProtocolExtension.REST_PROTOCOL_WCS_IDENTIFIER);
+    }
+
+    public String getExtensionIdentifier() {
+        return ExtensionsRegistry.REST_IDENTIFIER;
     }
     
-    protected String get(String key, Map<String, List<String>> m) {
-        if (m.containsKey(key)) {
-            return m.get(key).get(0);
-        } else {
-            return null;
+    public static String mapRestResourcesToCoverageOperation(String restResource){
+        if(restResource.contains("capabilities")){
+            return "GetCapabilities";
         }
+        else if(restResource.contains("coverage") && restResource.contains("description")){
+            return "DescribeCoverage";
+        }
+        else if(restResource.contains("coverage")){
+            return "GetCoverage";
+        }
+        return "";
     }
-
-    @Override
-    public String getExtensionIdentifier() {
-        return ExtensionsRegistry.KVP_IDENTIFIER;
-    }
+    public static final String REST_PROTOCOL_WCS_IDENTIFIER = "wcs";
+    public static final String REST_PROTOCOL_WCPS_IDENTIFIER = "wcps";
 }

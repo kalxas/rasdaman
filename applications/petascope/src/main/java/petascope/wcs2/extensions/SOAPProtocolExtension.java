@@ -26,6 +26,7 @@ import nu.xom.Document;
 import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.HTTPRequest;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.wcs2.handlers.Response;
@@ -49,14 +50,15 @@ public class SOAPProtocolExtension extends AbstractProtocolExtension {
     private static final Logger log = LoggerFactory.getLogger(SOAPProtocolExtension.class);
     
     @Override
-    public boolean canHandle(String input) {
-        return input != null && input.startsWith("<") && XMLUtil.isFirstTag(input, "Envelope");
+    public boolean canHandle(HTTPRequest request) {
+        return request.getRequestString() != null && request.getRequestString().startsWith("<") 
+                && XMLUtil.isFirstTag(request.getRequestString(), "Envelope");
     }
 
     @Override
-    public Response handle(String request, DbMetadataSource meta) throws WCSException {
+    public Response handle(HTTPRequest request, DbMetadataSource meta) throws WCSException {
         try {
-            request = extractWcsRequest(request);
+            request.setRequestString(extractWcsRequest(request.getRequestString()));
             Response ret = super.handle(request, meta);
             if (ret.getXml() != null) {
                 ret = new Response(ret.getData(), Templates.getTemplate(Templates.SOAP_MESSAGE,

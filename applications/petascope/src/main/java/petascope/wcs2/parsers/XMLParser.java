@@ -22,25 +22,27 @@
  */
 package petascope.wcs2.parsers;
 
-import nu.xom.ParsingException;
 import nu.xom.Document;
 import nu.xom.Element;
+import nu.xom.ParsingException;
+import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
-import petascope.util.XMLUtil;
 import static petascope.util.XMLSymbols.*;
+import petascope.util.XMLUtil;
 
 /**
- * An abstract superclass for XML/POST protocol binding extensions, which provides some
- * convenience methods to concrete implementations.
+ * An abstract superclass for XML/POST protocol binding extensions, which
+ * provides some convenience methods to concrete implementations.
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public abstract class XMLParser<T extends Request> extends AbstractRequestParser<T> {
 
     @Override
-    public boolean canParse(String input) {
-        return input != null && input.startsWith("<") && XMLUtil.isFirstTag(input, getOperationName());
+    public boolean canParse(HTTPRequest request) {
+        return request.getRequestString() != null && request.getRequestString().startsWith("<")
+                && XMLUtil.isFirstTag(request.getRequestString(), getOperationName());
     }
 
     protected Element parseInput(String input) throws WCSException {
@@ -50,8 +52,8 @@ public abstract class XMLParser<T extends Request> extends AbstractRequestParser
 
             String service = root.getAttributeValue(ATT_SERVICE);
             String version = root.getAttributeValue(ATT_VERSION);
-            if ((service != null && !service.equals(BaseRequest.SERVICE)) ||
-                    (version != null && !version.matches(BaseRequest.VERSION))) {
+            if ((service != null && !service.equals(BaseRequest.SERVICE))
+                    || (version != null && !version.matches(BaseRequest.VERSION))) {
                 throw new WCSException(ExceptionCode.VersionNegotiationFailed, "Service/Version not supported.");
             }
 

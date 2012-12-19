@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.HTTPRequest;
 
 /**
  * Parsers are managed in this class.
@@ -45,12 +46,15 @@ public class ParsersRegistry {
      * Initialize registry: load available protocol binding extensions
      */
     public static void initialize() {
-        registerParser(new XMLGetCapabilitiesParser());
-        registerParser(new XMLDescribeCoverageParser());
-        registerParser(new XMLGetCoverageParser());
+        //registerParser(new XMLGetCapabilitiesParser());
+        //registerParser(new XMLDescribeCoverageParser());
+        //registerParser(new XMLGetCoverageParser());
         registerParser(new KVPGetCapabilitiesParser());
         registerParser(new KVPDescribeCoverageParser());
         registerParser(new KVPGetCoverageParser());
+        registerParser(new RESTGetCapabilitiesParser());
+        registerParser(new RESTDescribeCoverageParser());
+        registerParser(new RESTGetCoverageParser());
     }
 
     /**
@@ -65,7 +69,7 @@ public class ParsersRegistry {
     /**
      * @return a binding for the specified operation, that can parse the specified input, or null otherwise
      */
-    public static RequestParser getParser(String request) {
+    public static RequestParser getParser(HTTPRequest request) {
         for (RequestParser parser : parsers) {
             if (parser.canParse(request)) {
                 return parser;

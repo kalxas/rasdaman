@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.parsers;
 
+import petascope.HTTPRequest;
 import petascope.exceptions.WCSException;
 
 /**
@@ -34,7 +35,7 @@ public interface RequestParser<T extends Request> {
     /**
      * @return true if this parser can parse request, or false otherwise
      */
-    boolean canParse(String request);
+    boolean canParse(HTTPRequest request);
 
     /**
      * Parse request.
@@ -42,7 +43,7 @@ public interface RequestParser<T extends Request> {
      * @return bean containing parsed data
      * @throws WCSException
      */
-    T parse(String request) throws WCSException;
+    T parse(HTTPRequest request) throws WCSException;
     
     /**
      * @return this operations name, e.g. GetCapabilities

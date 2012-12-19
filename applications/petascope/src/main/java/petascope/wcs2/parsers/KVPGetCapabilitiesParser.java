@@ -23,6 +23,7 @@ package petascope.wcs2.parsers;
 
 import java.util.List;
 import java.util.Map;
+import petascope.HTTPRequest;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.exceptions.WCSException;
 import petascope.util.StringUtil;
@@ -35,7 +36,8 @@ import petascope.util.StringUtil;
 public class KVPGetCapabilitiesParser extends KVPParser<GetCapabilitiesRequest> {
 
     @Override
-    public GetCapabilitiesRequest parse(String input) throws WCSException {
+    public GetCapabilitiesRequest parse(HTTPRequest request) throws WCSException {
+        String input = request.getRequestString();
         Map<String, List<String>> p = StringUtil.parseQuery(input);
         checkEncodingSyntax(p, "acceptversions", "acceptformats",
                 "acceptlanguages", "version");

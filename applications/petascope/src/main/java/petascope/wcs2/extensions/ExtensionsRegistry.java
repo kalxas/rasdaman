@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.HTTPRequest;
 import petascope.wcs2.parsers.GetCoverageRequest;
 
 /**
@@ -38,6 +39,7 @@ public class ExtensionsRegistry {
     
     public static final String XML_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_post-xml/1.0";
     public static final String KVP_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_get-kvp/1.0/conf/get-kvp";
+    public static final String REST_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_get-rest/1.0/conf/get-rest";    
     public static final String SOAP_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_soap/1.0";
     public static final String ENCODING_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage";
     public static final String GEOTIFF_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_geotiff/1.0/";
@@ -62,6 +64,7 @@ public class ExtensionsRegistry {
         registerExtension(new XMLProtocolExtension());
         registerExtension(new SOAPProtocolExtension());
         registerExtension(new KVPProtocolExtension());
+        registerExtension(new RESTProtocolExtension());        
         registerExtension(new GmlFormatExtension());
         registerExtension(new GeotiffFormatExtension());
         registerExtension(new JPEG2000FormatExtension());
@@ -85,9 +88,9 @@ public class ExtensionsRegistry {
     /**
      * @return a binding for the specified operation, that can parse the specified input, or null otherwise
      */
-    public static ProtocolExtension getProtocolExtension(String input) {
+    public static ProtocolExtension getProtocolExtension(HTTPRequest request) {
         for (Extension extension : extensions) {
-            if (extension instanceof ProtocolExtension && ((ProtocolExtension) extension).canHandle(input)) {
+            if (extension instanceof ProtocolExtension && ((ProtocolExtension) extension).canHandle(request)) {
                 return (ProtocolExtension) extension;
             }
         }

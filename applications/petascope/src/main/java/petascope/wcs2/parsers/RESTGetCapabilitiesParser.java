@@ -21,32 +21,31 @@
  */
 package petascope.wcs2.parsers;
 
-import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
+import javax.servlet.http.HttpServletRequest;
 import petascope.HTTPRequest;
 import petascope.exceptions.WCSException;
-import petascope.util.StringUtil;
-import petascope.wcs2.handlers.RequestHandler;
+import petascope.util.ListUtil;
+import petascope.wcs2.helpers.rest.RESTUrl;
 
 /**
- * Parse a DescribeCoverage KVP request.
+ * Implementation of the RESTParser for the GetCapabilities operation in REST
+ * syntax: /wcs/:version/capabilities
  *
- * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
+ * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  */
-public class KVPDescribeCoverageParser extends KVPParser<DescribeCoverageRequest> {
+public class RESTGetCapabilitiesParser extends RESTParser<GetCapabilitiesRequest> {
 
-    @Override
-    public DescribeCoverageRequest parse(HTTPRequest request) throws WCSException {
-        String input = request.getRequestString();
-        Map<String, List<String>> p = StringUtil.parseQuery(input);
-        checkEncodingSyntax(p, "coverageid", "version");
-        DescribeCoverageRequest ret = new DescribeCoverageRequest();
-        ret.getCoverageIds().addAll(p.get("coverageid"));
-        return ret;
+    public GetCapabilitiesRequest parse(HTTPRequest request) throws WCSException {
+        RESTUrl rUrl = new RESTUrl(request.getUrlPath());
+        return new GetCapabilitiesRequest(
+                ListUtil.head(rUrl.getByKey("acceptversions")),
+                ListUtil.head(rUrl.getByKey("acceptformats")),
+                ListUtil.head(rUrl.getByKey("acceptlanguages")));
     }
 
-    @Override
     public String getOperationName() {
-        return RequestHandler.DESCRIBE_COVERAGE;
+        return RESTGetCapabilitiesParser.REST_IDENTIFIER;
     }
+    private static final String REST_IDENTIFIER = "capabilities";
 }

@@ -21,25 +21,26 @@
  */
 package petascope.wcs2.parsers;
 
+import java.io.IOException;
+import java.io.StringBufferInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
-import nu.xom.Element;
-import petascope.exceptions.WCSException;
-import petascope.wcs2.handlers.RequestHandler;
-import static petascope.util.XMLUtil.*;
-import static petascope.util.XMLSymbols.*;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Schema;
-import org.xml.sax.SAXException;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.io.StringBufferInputStream;
-import java.net.URL;
-import java.net.MalformedURLException;
+import org.xml.sax.SAXException;
+import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
-import java.io.IOException;
+import petascope.exceptions.WCSException;
+import static petascope.util.XMLSymbols.*;
+import static petascope.util.XMLUtil.*;
+import petascope.wcs2.handlers.RequestHandler;
 /**
  * Parse a GetCapabilities XML request.
  *
@@ -66,9 +67,9 @@ public class XMLDescribeCoverageParser extends XMLParser<DescribeCoverageRequest
     }
 
     @Override
-    public DescribeCoverageRequest parse(String input) throws WCSException {
+    public DescribeCoverageRequest parse(HTTPRequest request) throws WCSException {
 
-	Source requestStream=new StreamSource(new StringBufferInputStream(input));
+	Source requestStream=new StreamSource(new StringBufferInputStream(request.getRequestString()));
 	Validator validator=schema.newValidator();
 	try{
 	    validator.validate(requestStream);
@@ -79,7 +80,7 @@ public class XMLDescribeCoverageParser extends XMLParser<DescribeCoverageRequest
 	}catch(IOException e){
 	    throw new WCSException(ExceptionCode.WcsError,"A fatal error ocurred processing the input.");
 	}
-        Element root = parseInput(input);
+        Element root = parseInput(request.getRequestString());
         List<Element> coverageIds = collectAll(root, PREFIX_WCS,
                 LABEL_COVERAGE_ID, CTX_WCS);
         DescribeCoverageRequest ret = new DescribeCoverageRequest();

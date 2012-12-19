@@ -22,10 +22,10 @@
  */
 package petascope.wcs2.extensions;
 
+import petascope.HTTPRequest;
 import petascope.core.DbMetadataSource;
-import petascope.wcs2.handlers.Response;
 import petascope.exceptions.WCSException;
-import petascope.util.Pair;
+import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.Request;
 
 /**
@@ -38,7 +38,7 @@ public interface ProtocolExtension extends  Extension {
     /**
      * @return true if this protocol extension can handle the request, or false otherwise
      */
-    boolean canHandle(String request);
+    boolean canHandle(HTTPRequest request);
 
     /**
      * Handle request. This involves parsing the raw request into a {@link Request}, then handling
@@ -48,5 +48,5 @@ public interface ProtocolExtension extends  Extension {
      * @return result from executing the requested operation
      * @throws WCSException
      */
-    Response handle(String request, DbMetadataSource meta) throws WCSException;
+    Response handle(HTTPRequest request, DbMetadataSource meta) throws WCSException;
 }

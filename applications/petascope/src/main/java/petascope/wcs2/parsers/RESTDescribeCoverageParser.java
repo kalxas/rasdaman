@@ -21,32 +21,28 @@
  */
 package petascope.wcs2.parsers;
 
-import java.util.List;
-import java.util.Map;
 import petascope.HTTPRequest;
 import petascope.exceptions.WCSException;
-import petascope.util.StringUtil;
-import petascope.wcs2.handlers.RequestHandler;
+import petascope.wcs2.helpers.rest.RESTUrl;
 
 /**
- * Parse a DescribeCoverage KVP request.
+ * Implementation of the RESTParser for the GetCapabilities operation in REST
+ * syntax: /wcs/:version/coverage/:id/description
  *
- * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
+ * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  */
-public class KVPDescribeCoverageParser extends KVPParser<DescribeCoverageRequest> {
+public class RESTDescribeCoverageParser extends RESTParser<DescribeCoverageRequest> {
 
-    @Override
     public DescribeCoverageRequest parse(HTTPRequest request) throws WCSException {
-        String input = request.getRequestString();
-        Map<String, List<String>> p = StringUtil.parseQuery(input);
-        checkEncodingSyntax(p, "coverageid", "version");
+        RESTUrl rUrl = new RESTUrl(request.getUrlPath());
         DescribeCoverageRequest ret = new DescribeCoverageRequest();
-        ret.getCoverageIds().addAll(p.get("coverageid"));
+        ret.getCoverageIds().add(rUrl.getByIndex(RESTDescribeCoverageParser.COVERAGE_ID_PLACE).fst);
         return ret;
     }
 
-    @Override
     public String getOperationName() {
-        return RequestHandler.DESCRIBE_COVERAGE;
+        return RESTDescribeCoverageParser.OPERATION_IDENTIFIER;
     }
+    private static final String OPERATION_IDENTIFIER = "description";
+    private static final int COVERAGE_ID_PLACE = 3;
 }

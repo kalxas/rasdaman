@@ -21,12 +21,13 @@
  */
 package petascope.wcs2.parsers;
 
-import petascope.wcs2.handlers.RequestHandler;
-import nu.xom.Node;
 import nu.xom.Element;
+import nu.xom.Node;
+import petascope.HTTPRequest;
 import petascope.exceptions.WCSException;
-import static petascope.util.XMLUtil.*;
 import static petascope.util.XMLSymbols.*;
+import static petascope.util.XMLUtil.*;
+import petascope.wcs2.handlers.RequestHandler;
 
 /**
  * Parse a GetCapabilities XML request.
@@ -36,8 +37,8 @@ import static petascope.util.XMLSymbols.*;
 public class XMLGetCapabilitiesParser extends XMLParser<GetCapabilitiesRequest> {
     
     @Override
-    public GetCapabilitiesRequest parse(String input) throws WCSException {
-        Element root = parseInput(input);
+    public GetCapabilitiesRequest parse(HTTPRequest request) throws WCSException {
+        Element root = parseInput(request.getRequestString());
 
         return new GetCapabilitiesRequest(
                 childrenToString(firstChildRecursive(root, LABEL_ACCEPT_VERSIONS)),
