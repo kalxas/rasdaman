@@ -458,9 +458,9 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
         adfGeoTransform[0] = gParams.xmin;
         adfGeoTransform[1] = (gParams.xmax - gParams.xmin) / width;
         adfGeoTransform[2] = 0.0;
-        adfGeoTransform[3] = gParams.ymin;
+        adfGeoTransform[3] = gParams.ymax;
         adfGeoTransform[4] = 0.0;
-        adfGeoTransform[5] = (gParams.ymax - gParams.ymin) / height;
+        adfGeoTransform[5] = -(gParams.ymax - gParams.ymin) / height;
         hMemDS->SetGeoTransform(adfGeoTransform);
     }
     
