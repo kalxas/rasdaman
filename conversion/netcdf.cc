@@ -651,11 +651,6 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         for (int i = 0; i < numDims; i++)
         {
             NcDim *dim = var->get_dim(i);
-            if (dim->is_unlimited())
-            {
-                RMInit::logOut << "Error: unlimited dimensions can not be handled." << endl;
-                throw r_Error(r_Error::r_Error_General);
-            }
             dimSizes[i] = dim->size();
             dataSize *= dim->size();
         }
