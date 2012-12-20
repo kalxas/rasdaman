@@ -117,6 +117,10 @@ public class RasUtil {
                     tr.abort();
                     throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
                             "Error evaluating rasdaman query: '" + query, ex);
+                } catch (Error ex) {
+                    tr.abort();
+                    throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
+                            "Requested more data than the server can handle at once.");
                 } finally {
 		    
 		    //Done connection with rasdaman, closing database.
