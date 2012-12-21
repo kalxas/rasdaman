@@ -395,15 +395,16 @@ QtNode::resumeTimer()
 std::string
 QtNode::getEvaluationTime()
 {
+    std::string ret("");
 #ifdef RMANBENCHMARK
     if (evaluationTimer)
     {
-        std::string ret;
-        ret = " - " + evaluationTimer->getTime() + " usecs";
-        return ret;
+        std::stringstream ss;
+        ss << " - " << evaluationTimer->getTime() << " usecs";
+        ret = ss.str();
     }
 #endif
-    return "";
+    return ret;
 }
 
 

@@ -59,11 +59,6 @@ static const char rcsid[] = "@(#)servercomm2, ServerComm: $Id: servercomm2.cc,v 
 #include <purify.h>
 #endif
 
-#ifdef RMANBENCHMARK
-// to control GenericCompression::decompTimer and GenericCompression::compTimer
-#include "tilemgr/gencompression.hh"
-#endif
-
 #ifdef SOLARIS
 #define PORTMAP        // define to use function declarations for old interfaces
 #include <rpc/rpc.h>
