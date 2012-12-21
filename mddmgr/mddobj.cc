@@ -98,6 +98,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain)
 
     RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << mddType->getName() << ", " << domain << ") " << (r_Ptr)this);
     myStorageLayout = new StorageLayout(r_Directory_Index);
+    myStorageLayout->setCellSize(mddType->getBaseType()->getSize());
     myMDDIndex = new MDDObjIx(*myStorageLayout, domain);
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout());
 }
@@ -115,6 +116,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId&
 
     RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << mddType->getName() << ", " << domain << ", " << newOId << ", " << ms.getDBStorageLayout().getOId() << ") " << (r_Ptr)this);
     myStorageLayout = new StorageLayout(ms);
+    myStorageLayout->setCellSize(mddType->getBaseType()->getSize());
     myMDDIndex = new MDDObjIx(*myStorageLayout, checkStorage(domain), mddType->getBaseType());
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), ms.getDBStorageLayout(), newOId);
 }
@@ -137,6 +139,7 @@ MDDObj::MDDObj(const OId& givenOId) throw(r_Error)
     RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << givenOId << ") " << (r_Ptr)this);
     myDBMDDObj = DBMDDObjId(givenOId);
     myStorageLayout = new StorageLayout(myDBMDDObj->getDBStorageLayout());
+    myStorageLayout->setCellSize(myDBMDDObj->getCellType()->getSize());
     myMDDIndex = new MDDObjIx(myDBMDDObj->getDBIndexDS(), *myStorageLayout, myDBMDDObj->getMDDBaseType()->getBaseType());
 }
 
@@ -152,6 +155,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const Stor
         throw r_Error(MDDTYPE_NULL);
     }
     myStorageLayout = new StorageLayout(ms);
+    myStorageLayout->setCellSize(mddType->getBaseType()->getSize());
     myMDDIndex = new MDDObjIx(*myStorageLayout, checkStorage(domain), mddType->getBaseType());
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), ms.getDBStorageLayout());
     myDBMDDObj->setPersistent();

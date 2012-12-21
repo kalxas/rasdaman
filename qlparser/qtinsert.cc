@@ -115,7 +115,6 @@ QtInsert::evaluate()
     QtData* sourceData = NULL;
     QtNode::QtDataList* nextTupel = NULL;
     if (dataToInsert) {
-        RMInit::logOut << "Source data provided" << endl;
         sourceData = dataToInsert;
     }
     else
@@ -129,8 +128,6 @@ QtInsert::evaluate()
         }
         // get the operands
         sourceData = source->evaluate(nextTupel);
-    
-        RMInit::logOut << "Evaluated source data" << endl;
     }
 
     if (sourceData)
