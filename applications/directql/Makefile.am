@@ -29,7 +29,7 @@
 ##################################################################
 
 AM_CXXFLAGS=@CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@
-AM_LDFLAGS=@CLIENTLDFLAGS@ @BASEDBLDFLAGS@
+AM_LDFLAGS=
 
 noinst_PROGRAMS=directql
 directql_SOURCES= directql.cc directql_error.cc directql_error.hh \
@@ -47,7 +47,7 @@ directql_LDADD = ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
                ../../mddmgr/libmddmgr.a ../../relmddif/librelmddif.a \
                ../../indexmgr/libindexmgr.a ../../qlparser/libqlparser.a ../../conversion/libconversion.a \
                ../../catalogmgr/libcatalogmgr.a \
-               ../../raslib/libraslib.a ../../tilemgr/libtilemgr.a @GDAL_LDFLAGS@
+               ../../raslib/libraslib.a ../../tilemgr/libtilemgr.a @GDAL_LDFLAGS@ @CLIENTLDFLAGS@ @BASEDBLDFLAGS@
 
 
 SUBDIRS= ../../rasodmg ../../clientcomm \
