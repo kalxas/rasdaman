@@ -274,7 +274,8 @@ public class Wcs2Servlet extends HttpServlet {
         if (srvRequest.getContextPath().length() > 1) {
             contextPath = srvRequest.getContextPath().substring(1);
         }
-        if (srvRequest.getPathInfo().length() > 1) {
+        // [If no extra path info are specified in the request, .getPathInfo() returns `null`]
+        if (srvRequest.getPathInfo() != null && srvRequest.getPathInfo().length() > 1) {
             pathInfo = srvRequest.getPathInfo().substring(1);
         }
         HTTPRequest srvReq = new HTTPRequest(contextPath,
