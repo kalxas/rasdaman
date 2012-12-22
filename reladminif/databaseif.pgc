@@ -1090,8 +1090,8 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
         // may not be needed
         EXEC SQL CREATE TABLE RAS_HIERIX (
         MDDObjIxOId DEC(15,0) NOT NULL,
-        NumEntries  SMALLINT NOT NULL,
-        Dimension   SMALLINT NOT NULL,
+        NumEntries  INTEGER NOT NULL,
+        Dimension   INTEGER NOT NULL,
         ParentOId   DEC(15,0) NOT NULL,
         IndexSubType    SMALLINT NOT NULL,
         DynData     OID
