@@ -229,6 +229,9 @@ public:
 
     /// release all tiles from the index
     void releaseTiles();
+    
+    /// Return the storage layout of this object
+    StorageLayout* getStorageLayout() const;
 
 protected:
 

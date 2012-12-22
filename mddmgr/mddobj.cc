@@ -399,3 +399,9 @@ MDDObj::releaseTiles()
 {
     myMDDIndex->releasePersTiles();
 }
+
+StorageLayout*
+MDDObj::getStorageLayout() const
+{
+    return myStorageLayout;
+}

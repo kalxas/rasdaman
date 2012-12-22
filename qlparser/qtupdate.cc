@@ -197,6 +197,11 @@ QtUpdate::evaluate()
                     // get optional domain
                     QtData*     domainData = NULL;
                     r_Minterval domain;
+                    
+                    if ( targetObj->getStorageLayout() )
+                    {
+                        targetObj->getStorageLayout()->setCellSize(targetObj->getCellType()->getSize());
+                    }
 
                     if( updateDomain )
                     {
