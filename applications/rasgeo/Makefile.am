@@ -49,9 +49,6 @@ SUBDIRS= ../../rasodmg ../../clientcomm \
          
 setupdb:
 	psql -d RASBASE -f createEmptyNM_META.sql
-	
-install-data-hook:
-	cp rasimport raserase $(DESTDIR)$(bindir)
 
 connectfile:
 	if [ ! -d $(HOME)/.rasdaman ]; then \

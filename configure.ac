@@ -6,8 +6,10 @@ AC_PREREQ(2.61)
 AC_INIT(Rasdaman, 8.3.1, baumann@rasdaman.com)
 AM_INIT_AUTOMAKE([1.9 tar-pax])
 # Define CXXFLAGS before AC_PROG_CXX or it will automatically add -g -O2 on some systems
+USER_CFLAGS="$CFLAGS"
+USER_CXXFLAGS="$CXXFLAGS"
 CXXFLAGS=
-GCJFLAGS=
+CFLAGS=
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_AWK
@@ -232,10 +234,10 @@ AC_ARG_WITH([pic],
 
 # postgres is automatically defined in m4/ct_check_postgres_db.m4
 AC_ARG_WITH([default-basedb],
-            [AS_HELP_STRING([--with-basedb],
+            [AS_HELP_STRING([--with-default-basedb],
                             [change the default Base DBMS])],
-            [], 
-            [with_default_basedb=check])
+            [with_default_basedb=$withval],
+            [with_default_basedb=postgresql])
 AC_ARG_ENABLE([debug],
               [AS_HELP_STRING([--enable-debug],
                               [this feature enables generation of binaries that contain extra code for debug output. The output is usually very verbose. It is not recommended for production use.])],
@@ -302,7 +304,7 @@ AM_CONDITIONAL([ENABLE_JAVA], [test "$disable_java" = no])
 # --------------- Database Specific Configuration ------------------
 ####################################################################
 
-AS_IF([test "x$with_default_basedb" == xcheck],
+AS_IF([test "x$with_default_basedb" == x],
       [with_default_basedb=postgresql])
 
 AC_MSG_NOTICE([Using database $with_default_basedb.])
@@ -338,20 +340,13 @@ AS_IF([test "$with_default_basedb" == postgresql],
 
 AS_IF([test "$disable_java" = no],
   [
+    AC_PROG_JAVA
     AC_PROG_JAVA_CC
     AC_CHECK_PROGS(JAR_TOOL, jar, [${am_missing_run} jar])
   ], [])
 
 abs_top_srcdir=`pwd`
-RMANBASE=$abs_top_srcdir
-
-# Optional packages
-
-# If rasgeo is present then delegate configure to it.    
-if test -d "$srcdir/rasgeo"; then
-    echo rasgeo
-    #AC_CONFIGURE_SUBDIRS([rasgeo])
-fi    
+RMANBASE=$abs_top_srcdir   
 
 # ----------------
 # check for netpbm headers
@@ -374,7 +369,7 @@ done
 AS_IF([test "x$RMANDEBUG" != x],
       [AC_DEFINE([RMANDEBUG])
        AC_DEFINE([DEBUG])
-       CXXFLAGS+=" -g -O0 "
+       CXXFLAGS+=" -g3 -gdwarf-2 -O0 "
       ], 
       [
        AC_DEFINE([__NO_MATH_INLINES])
@@ -396,13 +391,14 @@ STATICBASEDBLDFLAGS+=" -lnsl"
 AC_DEFINE([NO_in_addr_t])
 BASEDBCXXFLAGS+=" $DBIF_INC "
 
-CLIENTCXXFLAGS=$CXXFLAGS
-CLIENTLDFLAGS=$CXXLDFLAGS
-
 COMPDATE=`date +"%d.%m.%Y %H:%M:%S"`
 AC_DEFINE_UNQUOTED([COMPDATE], ["$COMPDATE"])
 
-CXXFLAGS+=" -I$abs_top_srcdir -I$abs_top_srcdir/debug -I$abs_top_srcdir/include"
+CXXFLAGS+=" -I$abs_top_srcdir -I$abs_top_srcdir/debug -I$abs_top_srcdir/include $USER_CXXFLAGS"
+CFLAGS+=" $USER_CFLAGS"
+
+CLIENTCXXFLAGS=$CXXFLAGS
+CLIENTLDFLAGS=$CXXLDFLAGS
 
 # --------------- System Test Settings -----------------------------
 ####################################################################
@@ -426,10 +422,6 @@ AC_SUBST(DB2_INSTANCEPATH)
 AC_SUBST(DB2_CPPLIBS)
 AC_SUBST(DBIF_INC) 
 AC_SUBST(INFORMIX_INC)       
-AC_SUBST(ORA_INC)
-AC_SUBST(ORA_PROC)
-AC_SUBST(ORA_PROCPPFLAGS)
-AC_SUBST(ORALDFLAGS)
 AC_SUBST(RASMGR_PORT)
 AC_SUBST(REL_STATIC_LIBS)   
 AC_SUBST(RMANBASE)

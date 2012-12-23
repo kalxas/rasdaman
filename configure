@@ -633,10 +633,6 @@ STATICBASEDBFLAGS
 RMANBASE
 REL_STATIC_LIBS
 RASMGR_PORT
-ORALDFLAGS
-ORA_PROCPPFLAGS
-ORA_PROC
-ORA_INC
 INFORMIX_INC
 DBIF_INC
 DB2_CPPLIBS
@@ -656,6 +652,7 @@ JAVA_CC_OPTS
 GCJ_OPTS
 JAVA_CC_FLAGS
 JAVA_CC
+JAVA
 ECPG
 POSTGRESQL_LDFLAGS
 POSTGRESQL_CFLAGS
@@ -1452,7 +1449,7 @@ Optional Packages:
   --with-static-libs      try to compile using statically linked DBMS
                           libraries
   --with-pic              generate position independent code (PIC)
-  --with-basedb           change the default Base DBMS
+  --with-default-basedb   change the default Base DBMS
   --enable-debug          this feature enables generation of binaries that
                           contain extra code for debug output. The output is
                           usually very verbose. It is not recommended for
@@ -3136,8 +3133,10 @@ $as_echo "$am_cv_prog_tar_pax" >&6; }
 
 
 # Define CXXFLAGS before AC_PROG_CXX or it will automatically add -g -O2 on some systems
+USER_CFLAGS="$CFLAGS"
+USER_CXXFLAGS="$CXXFLAGS"
 CXXFLAGS=
-GCJFLAGS=
+CFLAGS=
 # Checks for programs.
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
@@ -8725,9 +8724,9 @@ fi
 
 # Check whether --with-default-basedb was given.
 if test "${with_default_basedb+set}" = set; then :
-  withval=$with_default_basedb;
+  withval=$with_default_basedb; with_default_basedb=$withval
 else
-  with_default_basedb=check
+  with_default_basedb=postgresql
 fi
 
 # Check whether --enable-debug was given.
@@ -8832,7 +8831,7 @@ fi
 # --------------- Database Specific Configuration ------------------
 ####################################################################
 
-if test "x$with_default_basedb" == xcheck; then :
+if test "x$with_default_basedb" == x; then :
   with_default_basedb=postgresql
 fi
 
@@ -9160,7 +9159,103 @@ fi
 # --------------- General Configuration ----------------------------
 ####################################################################
 
+
 if test "$disable_java" = no; then :
+
+
+						if test x$JAVAPREFIX = x; then
+			        test x$JAVA = x && for ac_prog in kaffe$EXEEXT java$EXEEXT
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_JAVA+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$JAVA"; then
+  ac_cv_prog_JAVA="$JAVA" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_JAVA="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+JAVA=$ac_cv_prog_JAVA
+if test -n "$JAVA"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVA" >&5
+$as_echo "$JAVA" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$JAVA" && break
+done
+
+					else
+					        test x$JAVA = x && for ac_prog in kaffe$EXEEXT java$EXEEXT
+do
+  # Extract the first word of "$ac_prog", so it can be a program name with args.
+set dummy $ac_prog; ac_word=$2
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
+$as_echo_n "checking for $ac_word... " >&6; }
+if ${ac_cv_prog_JAVA+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  if test -n "$JAVA"; then
+  ac_cv_prog_JAVA="$JAVA" # Let the user override the test.
+else
+as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+    for ac_exec_ext in '' $ac_executable_extensions; do
+  if as_fn_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_prog_JAVA="$ac_prog"
+    $as_echo "$as_me:${as_lineno-$LINENO}: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
+  fi
+done
+  done
+IFS=$as_save_IFS
+
+fi
+fi
+JAVA=$ac_cv_prog_JAVA
+if test -n "$JAVA"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: $JAVA" >&5
+$as_echo "$JAVA" >&6; }
+else
+  { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+fi
+
+
+  test -n "$JAVA" && break
+done
+test -n "$JAVA" || JAVA="$JAVAPREFIX"
+
+							fi
+							test x$JAVA = x && as_fn_error $? "no acceptable Java virtual machine found in \$PATH" "$LINENO" 5
+
+
+
+
 
     if test -n "$ac_tool_prefix"; then
   # Extract the first word of "${ac_tool_prefix}gcj", so it can be a program name with args.
@@ -9503,14 +9598,6 @@ fi
 abs_top_srcdir=`pwd`
 RMANBASE=$abs_top_srcdir
 
-# Optional packages
-
-# If rasgeo is present then delegate configure to it.
-if test -d "$srcdir/rasgeo"; then
-    echo rasgeo
-    #AC_CONFIGURE_SUBDIRS([rasgeo])
-fi
-
 # ----------------
 # check for netpbm headers
 
@@ -9536,7 +9623,7 @@ if test "x$RMANDEBUG" != x; then :
 
        $as_echo "#define DEBUG 1" >>confdefs.h
 
-       CXXFLAGS+=" -g -O0 "
+       CXXFLAGS+=" -g3 -gdwarf-2 -O0 "
 
 else
 
@@ -9796,16 +9883,17 @@ $as_echo "#define NO_in_addr_t 1" >>confdefs.h
 
 BASEDBCXXFLAGS+=" $DBIF_INC "
 
-CLIENTCXXFLAGS=$CXXFLAGS
-CLIENTLDFLAGS=$CXXLDFLAGS
-
 COMPDATE=`date +"%d.%m.%Y %H:%M:%S"`
 cat >>confdefs.h <<_ACEOF
 #define COMPDATE "$COMPDATE"
 _ACEOF
 
 
-CXXFLAGS+=" -I$abs_top_srcdir -I$abs_top_srcdir/debug -I$abs_top_srcdir/include"
+CXXFLAGS+=" -I$abs_top_srcdir -I$abs_top_srcdir/debug -I$abs_top_srcdir/include $USER_CXXFLAGS"
+CFLAGS+=" $USER_CFLAGS"
+
+CLIENTCXXFLAGS=$CXXFLAGS
+CLIENTLDFLAGS=$CXXLDFLAGS
 
 # --------------- System Test Settings -----------------------------
 ####################################################################
@@ -9814,10 +9902,6 @@ CXXFLAGS+=" -I$abs_top_srcdir -I$abs_top_srcdir/debug -I$abs_top_srcdir/include"
 
 # --------------- Makefile Substitutions --------------------------
 ####################################################################
-
-
-
-
 
 
 
