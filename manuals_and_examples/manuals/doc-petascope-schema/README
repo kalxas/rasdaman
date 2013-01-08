@@ -1,0 +1,13 @@
+petascope_metadata_schema.sh script is used for generating the petascope schema into the schema/ folder
+It uses SchemaSpy, which can be obtained from http://schemaspy.sourceforge.net/
+
+Usage:
+./petascope_metadata_schema.sh SchemaSpy.jar postgresql.jar Settings_file
+where:
+  - SchemaSpy.jar is the location of the SchemaSpy jar file
+  - postgresql.jar is the location of the postgresql driver jar file, usually found at $RASDAMAN/applications/petascope/lib/postgresql-...jar
+  - Settings_file is the location of the petascope.properties file ($RMANHOME/etc/petascope.properties)
+
+Example: 
+./petascope_metadata_schema.sh schemaSpy_5.0.0.jar postgresql.jar petascope.properties
+

@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<database name="petascopedb" schema="public" type="PostgreSQL - 8.4.14">
+   <tables>
+      <table name="ps_axistype" numRows="6" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_axistype_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial">
+            <child column="type" foreignKey="ps_domain_type_fkey" implied="false" onDeleteCascade="true" table="ps_domain"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="axistype" nullable="false" remarks="" size="9" type="varchar"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_axistype_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ps_axistype_axistype_key" unique="true">
+            <column ascending="true" name="axistype"/>
+         </index>
+      </table>
+      <table name="ps_celldomain" numRows="2" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_celldomain_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial"/>
+         <column autoUpdated="false" digits="0" id="1" name="coverage" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_celldomain_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_coverage"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="2" name="i" nullable="false" remarks="" size="10" type="int4"/>
+         <column autoUpdated="false" digits="0" id="3" name="lo" nullable="false" remarks="" size="10" type="int4"/>
+         <column autoUpdated="false" digits="0" id="4" name="hi" nullable="false" remarks="" size="10" type="int4"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_celldomain_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ps_celldomain_coverage_key" unique="true">
+            <column ascending="true" name="coverage"/>
+            <column ascending="true" name="i"/>
+         </index>
+      </table>
+      <table name="ps_coverage" numRows="1" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_coverage_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial">
+            <child column="coverage" foreignKey="ps_celldomain_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_celldomain"/>
+            <child column="coverage" foreignKey="ps_crsdetails_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_crsdetails"/>
+            <child column="coverage" foreignKey="ps_descriptions_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_descriptions"/>
+            <child column="coverage" foreignKey="ps_domain_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_domain"/>
+            <child column="coverage" foreignKey="ps_interpolationset_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_interpolationset"/>
+            <child column="coverage" foreignKey="ps_metadata_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_metadata"/>
+            <child column="coverage" foreignKey="ps_nullset_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_nullset"/>
+            <child column="coverage" foreignKey="ps_range_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_range"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="name" nullable="false" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="2" name="nullvalue" nullable="true" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="3" name="crs" nullable="true" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="4" name="nulldefault" nullable="true" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="5" name="interpolationtypedefault" nullable="true" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_coverage_interpolationtypedefault_fkey" implied="false" onDeleteCascade="false" table="ps_interpolationtype"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="6" name="nullresistancedefault" nullable="true" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_coverage_nullresistancedefault_fkey" implied="false" onDeleteCascade="false" table="ps_nullresistance"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="7" name="type" nullable="true" remarks="" size="30" type="varchar"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_coverage_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ps_coverage_name_key" unique="true">
+            <column ascending="true" name="name"/>
+         </index>
+      </table>
+      <table name="ps_crs" numRows="2" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_crs_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial">
+            <child column="crs" foreignKey="ps_crsset_crs_fkey" implied="false" onDeleteCascade="true" table="ps_crsset"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="name" nullable="false" remarks="" size="2147483647" type="text"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_crs_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ps_crs_name_key" unique="true">
+            <column ascending="true" name="name"/>
+         </index>
+      </table>
+      <table name="ps_crsdetails" numRows="1" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_crsdetails_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial"/>
+         <column autoUpdated="false" digits="0" id="1" name="coverage" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_crsdetails_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_coverage"/>
+         </column>
+         <column autoUpdated="false" digits="17" id="2" name="low1" nullable="false" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="3" name="high1" nullable="false" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="4" name="low2" nullable="false" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="5" name="high2" nullable="false" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="6" name="offset1" nullable="true" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="7" name="offset2" nullable="true" remarks="" size="17" type="float8"/>
+         <index name="ps_crsdetails_coverage_key" unique="true">
+            <column ascending="true" name="coverage"/>
+         </index>
+      </table>
+      <table name="ps_crsset" numRows="2" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_crsset_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial"/>
+         <column autoUpdated="false" digits="0" id="1" name="axis" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_crsset_axis_fkey" implied="false" onDeleteCascade="true" table="ps_domain"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="2" name="crs" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_crsset_crs_fkey" implied="false" onDeleteCascade="true" table="ps_crs"/>
+         </column>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_crsset_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ps_crsset_axis_key" unique="true">
+            <column ascending="true" name="axis"/>
+            <column ascending="true" name="crs"/>
+         </index>
+      </table>
+      <table name="ps_datatype" numRows="13" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_datatype_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial">
+            <child column="type" foreignKey="ps_range_type_fkey" implied="false" onDeleteCascade="true" table="ps_range"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="datatype" nullable="false" remarks="" size="2147483647" type="text"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_datatype_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
+      <table name="ps_dbupdates" numRows="1" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_dbupdates_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial"/>
+         <column autoUpdated="false" digits="0" id="1" name="update" nullable="true" remarks="" size="10" type="int4"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_dbupdates_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
+      <table name="ps_descriptions" numRows="1" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_descriptions_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial"/>
+         <column autoUpdated="false" digits="0" id="1" name="coverage" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_descriptions_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_coverage"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="2" name="title" nullable="false" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="3" name="abstract" nullable="true" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="4" name="keywords" nullable="true" remarks="" size="2147483647" type="text"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_descriptions_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ps_descriptions_coverage_key" unique="true">
+            <column ascending="true" name="coverage"/>
+         </index>
+      </table>
+      <table name="ps_domain" numRows="2" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_domain_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial">
+            <child column="axis" foreignKey="ps_crsset_axis_fkey" implied="false" onDeleteCascade="true" table="ps_crsset"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="coverage" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_domain_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_coverage"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="2" name="i" nullable="false" remarks="" size="10" type="int4"/>
+         <column autoUpdated="false" digits="0" id="3" name="name" nullable="false" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="4" name="type" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_domain_type_fkey" implied="false" onDeleteCascade="true" table="ps_axistype"/>
+         </column>
+         <column autoUpdated="false" digits="17" id="5" name="numlo" nullable="true" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="6" name="numhi" nullable="true" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="0" id="7" name="strlo" nullable="true" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="8" name="strhi" nullable="true" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="9" name="uom" nullable="true" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="uom_fk" implied="false" onDeleteCascade="true" table="ps_uom"/>
+         </column>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_domain_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ps_domain_coverage_key" unique="true">
+            <column ascending="true" name="coverage"/>
+            <column ascending="true" name="i"/>
+         </index>
+      </table>
+      <table name="ps_format" numRows="133" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_format_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial"/>
+         <column autoUpdated="false" digits="0" id="1" name="name" nullable="false" remarks="" size="64" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="2" name="mimetype" nullable="false" remarks="" size="128" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="3" name="gdalid" nullable="true" remarks="" size="64" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="4" name="description" nullable="true" remarks="" size="2147483647" type="text"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_format_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
+      <table name="ps_interpolationset" numRows="1" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_interpolationset_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial"/>
+         <column autoUpdated="false" digits="0" id="1" name="coverage" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_interpolationset_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_coverage"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="2" name="interpolationtype" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_interpolationset_interpolationtype_fkey" implied="false" onDeleteCascade="true" table="ps_interpolationtype"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="3" name="nullresistance" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_interpolationset_nullresistance_fkey" implied="false" onDeleteCascade="true" table="ps_nullresistance"/>
+         </column>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_interpolationset_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ps_interpolationset_coverage_key" unique="true">
+            <column ascending="true" name="coverage"/>
+            <column ascending="true" name="interpolationtype"/>
+            <column ascending="true" name="nullresistance"/>
+         </index>
+      </table>
+      <table name="ps_interpolationtype" numRows="5" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_interpolationtype_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial">
+            <child column="interpolationtypedefault" foreignKey="ps_coverage_interpolationtypedefault_fkey" implied="false" onDeleteCascade="false" table="ps_coverage"/>
+            <child column="interpolationtype" foreignKey="ps_interpolationset_interpolationtype_fkey" implied="false" onDeleteCascade="true" table="ps_interpolationset"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="interpolationtype" nullable="false" remarks="" size="2147483647" type="text"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_interpolationtype_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
+      <table name="ps_layers" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_layers_layerid_seq'::regclass)" digits="0" id="0" name="layerid" nullable="false" remarks="" size="10" type="serial">
+            <child column="layerid" foreignKey="ps_pyramidlevels_layerid_fkey" implied="false" onDeleteCascade="false" table="ps_pyramidlevels"/>
+            <child column="layerid" foreignKey="ps_servicelayer_layerid_fkey" implied="false" onDeleteCascade="false" table="ps_servicelayer"/>
+            <child column="layerid" foreignKey="ps_styles_layerid_fkey" implied="false" onDeleteCascade="false" table="ps_styles"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="name" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="2" name="title" nullable="false" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="3" name="srs" nullable="false" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="4" name="authority" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="17" id="5" name="latlonboxxmin" nullable="true" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="6" name="latlonboxxmax" nullable="true" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="7" name="latlonboxymin" nullable="true" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="8" name="latlonboxymax" nullable="true" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="9" name="bboxxmin" nullable="true" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="10" name="bboxxmax" nullable="true" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="11" name="bboxymin" nullable="true" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="17" id="12" name="bboxymax" nullable="true" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="0" id="13" name="attributionurl" nullable="true" remarks="" size="300" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="14" name="attributiontitle" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="15" name="logowidth" nullable="true" remarks="" size="10" type="int4"/>
+         <column autoUpdated="false" digits="0" id="16" name="logoheight" nullable="true" remarks="" size="10" type="int4"/>
+         <column autoUpdated="false" digits="0" id="17" name="logoformat" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="18" name="logourl" nullable="true" remarks="" size="300" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="19" name="featureurl" nullable="true" remarks="" size="300" type="varchar"/>
+         <column autoUpdated="false" digits="17" id="20" name="resolution" nullable="true" remarks="" size="17" type="float8"/>
+         <column autoUpdated="false" digits="0" id="21" name="maptype" nullable="true" remarks="" size="200" type="varchar"/>
+         <primaryKey column="layerid" sequenceNumberInPK="1"/>
+         <index name="ps_layers_pkey" unique="true">
+            <column ascending="true" name="layerid"/>
+         </index>
+         <index name="ps_layers_name_key" unique="true">
+            <column ascending="true" name="name"/>
+         </index>
+      </table>
+      <table name="ps_metadata" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_metadata_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial"/>
+         <column autoUpdated="false" digits="0" id="1" name="coverage" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_metadata_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_coverage"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="2" name="metadata" nullable="true" remarks="" size="2147483647" type="text"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_metadata_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
+      <table name="ps_nullresistance" numRows="4" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_nullresistance_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial">
+            <child column="nullresistancedefault" foreignKey="ps_coverage_nullresistancedefault_fkey" implied="false" onDeleteCascade="false" table="ps_coverage"/>
+            <child column="nullresistance" foreignKey="ps_interpolationset_nullresistance_fkey" implied="false" onDeleteCascade="true" table="ps_interpolationset"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="nullresistance" nullable="false" remarks="" size="2147483647" type="text"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_nullresistance_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+      </table>
+      <table name="ps_nullset" numRows="1" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_nullset_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial"/>
+         <column autoUpdated="false" digits="0" id="1" name="coverage" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_nullset_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_coverage"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="2" name="nullvalue" nullable="false" remarks="" size="2147483647" type="text"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_nullset_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ps_nullset_coverage_key" unique="true">
+            <column ascending="true" name="coverage"/>
+            <column ascending="true" name="nullvalue"/>
+         </index>
+      </table>
+      <table name="ps_pyramidlevels" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_pyramidlevels_levelid_seq'::regclass)" digits="0" id="0" name="levelid" nullable="false" remarks="" size="10" type="serial"/>
+         <column autoUpdated="false" digits="0" id="1" name="layerid" nullable="false" remarks="" size="10" type="int4">
+            <parent column="layerid" foreignKey="ps_pyramidlevels_layerid_fkey" implied="false" onDeleteCascade="false" table="ps_layers"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="2" name="collectionname" nullable="false" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="17" id="3" name="scalefactor" nullable="false" remarks="" size="17" type="float8"/>
+         <primaryKey column="levelid" sequenceNumberInPK="1"/>
+         <index name="ps_pyramidlevels_pkey" unique="true">
+            <column ascending="true" name="levelid"/>
+         </index>
+      </table>
+      <table name="ps_range" numRows="1" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_range_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial"/>
+         <column autoUpdated="false" digits="0" id="1" name="coverage" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_range_coverage_fkey" implied="false" onDeleteCascade="true" table="ps_coverage"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="2" name="i" nullable="false" remarks="" size="10" type="int4"/>
+         <column autoUpdated="false" digits="0" id="3" name="name" nullable="false" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="4" name="type" nullable="false" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_range_type_fkey" implied="false" onDeleteCascade="true" table="ps_datatype"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="5" name="uom" nullable="true" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="uom_fk" implied="false" onDeleteCascade="true" table="ps_uom"/>
+         </column>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_range_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ps_range_coverage_key" unique="true">
+            <column ascending="true" name="coverage"/>
+            <column ascending="true" name="i"/>
+         </index>
+      </table>
+      <table name="ps_servicelayer" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="false" digits="0" id="0" name="serviceid" nullable="false" remarks="" size="10" type="int4">
+            <parent column="serviceid" foreignKey="ps_servicelayer_serviceid_fkey" implied="false" onDeleteCascade="false" table="ps_services"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="layerid" nullable="false" remarks="" size="10" type="int4">
+            <parent column="layerid" foreignKey="ps_servicelayer_layerid_fkey" implied="false" onDeleteCascade="false" table="ps_layers"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="2" name="layerseq" nullable="false" remarks="" size="10" type="int4"/>
+         <index name="ps_servicelayer_serviceid_key" unique="true">
+            <column ascending="true" name="serviceid"/>
+            <column ascending="true" name="layerid"/>
+         </index>
+      </table>
+      <table name="ps_services" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_services_serviceid_seq'::regclass)" digits="0" id="0" name="serviceid" nullable="false" remarks="" size="10" type="serial">
+            <child column="serviceid" foreignKey="ps_servicelayer_serviceid_fkey" implied="false" onDeleteCascade="false" table="ps_servicelayer"/>
+         </column>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="1" name="contactperson" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="2" name="contactorganization" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="3" name="addresstype" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="4" name="address" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="5" name="city" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="6" name="stateorprovince" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="7" name="postcode" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="8" name="country" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="9" name="contactvoicetelephone" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="10" name="contactfacsimiletelephone" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="11" name="contactelectronicmailaddress" nullable="true" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="12" name="updatesequence" nullable="true" remarks="" size="10" type="int4"/>
+         <column autoUpdated="false" digits="0" id="13" name="availability" nullable="false" remarks="" size="10" type="int4"/>
+         <column autoUpdated="false" digits="0" id="14" name="name" nullable="false" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="15" name="title" nullable="false" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="16" name="abstract" nullable="true" remarks="" size="100" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="17" name="keywords" nullable="true" remarks="" size="100" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="18" name="fees" nullable="true" remarks="" size="100" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="19" name="accessconstraints" nullable="true" remarks="" size="300" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="20" name="hostname" nullable="false" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="21" name="port" nullable="false" remarks="" size="10" type="int4"/>
+         <column autoUpdated="false" digits="0" id="22" name="path" nullable="false" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="23" name="formats" nullable="false" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="24" name="baselayername" nullable="false" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" defaultValue="'undefined'::character varying" digits="0" id="25" name="vendorcapabilities" nullable="true" remarks="" size="200" type="varchar"/>
+         <primaryKey column="serviceid" sequenceNumberInPK="1"/>
+         <index name="ps_services_pkey" unique="true">
+            <column ascending="true" name="serviceid"/>
+         </index>
+         <index name="ps_services_hostname_key" unique="true">
+            <column ascending="true" name="hostname"/>
+            <column ascending="true" name="port"/>
+            <column ascending="true" name="path"/>
+         </index>
+         <index name="ps_services_name_key" unique="true">
+            <column ascending="true" name="name"/>
+         </index>
+      </table>
+      <table name="ps_styles" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_styles_styleid_seq'::regclass)" digits="0" id="0" name="styleid" nullable="false" remarks="" size="10" type="serial"/>
+         <column autoUpdated="false" digits="0" id="1" name="layerid" nullable="false" remarks="" size="10" type="int4">
+            <parent column="layerid" foreignKey="ps_styles_layerid_fkey" implied="false" onDeleteCascade="false" table="ps_layers"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="2" name="name" nullable="false" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="3" name="title" nullable="false" remarks="" size="200" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="4" name="abstract" nullable="true" remarks="" size="4096" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="5" name="legendwidth" nullable="true" remarks="" size="10" type="int4"/>
+         <column autoUpdated="false" digits="0" id="6" name="legendheight" nullable="true" remarks="" size="10" type="int4"/>
+         <column autoUpdated="false" digits="0" id="7" name="legendurl" nullable="true" remarks="" size="300" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="8" name="sheeturl" nullable="true" remarks="" size="300" type="varchar"/>
+         <column autoUpdated="false" digits="0" id="9" name="rasqlop" nullable="true" remarks="" size="2147483647" type="text"/>
+         <primaryKey column="styleid" sequenceNumberInPK="1"/>
+         <primaryKey column="layerid" sequenceNumberInPK="2"/>
+         <index name="ps_styles_pkey" unique="true">
+            <column ascending="true" name="styleid"/>
+            <column ascending="true" name="layerid"/>
+         </index>
+         <index name="ps_styles_layerid_key" unique="true">
+            <column ascending="true" name="layerid"/>
+            <column ascending="true" name="name"/>
+         </index>
+      </table>
+      <table name="ps_uom" numRows="0" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_uom_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial">
+            <child column="uom" foreignKey="uom_fk" implied="false" onDeleteCascade="true" table="ps_domain"/>
+            <child column="uom" foreignKey="uom_fk" implied="false" onDeleteCascade="true" table="ps_range"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="uom" nullable="true" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="2" name="link" nullable="true" remarks="" size="2147483647" type="text"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_uom_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ps_uom_link_key" unique="true">
+            <column ascending="true" name="link"/>
+         </index>
+         <index name="ps_uom_uom_key" unique="true">
+            <column ascending="true" name="uom"/>
+         </index>
+      </table>
+   </tables>
+</database>
