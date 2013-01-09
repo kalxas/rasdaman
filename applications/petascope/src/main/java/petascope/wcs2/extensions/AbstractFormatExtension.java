@@ -22,6 +22,7 @@
 package petascope.wcs2.extensions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
@@ -219,6 +220,36 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         }
         return Pair.of(res, pair.snd);
     }
+    
+    /**
+     * Method for converting CRS coordinates to pixel coordinates without checking limits (like in wcps.server.core.CRS.java)
+     *
+     * @param val the value to be converted
+     * @param el the DomainElement for the dimension
+     * @param cel the CellDomainElement for the dimension
+     * @return the corresponding CRS coordinates
+     */
+    private long toPixels(double val, DomainElement el, CellDomainElement cel) {
+    
+        // Get cellDomain extremes
+        long pxLo = cel.getLo().longValue();
+        long pxHi = cel.getHi().longValue();
+        
+        // Get Domain extremes (real sdom)
+        double domLo = el.getNumLo();
+        double domHi = el.getNumHi();
+
+        // Get cell dimension 
+        double cellWidth = (domHi-domLo)/(double)((pxHi-pxLo)+1);
+
+        // Conversion to pixel domain
+        if (!el.getName().equals(AxisTypes.Y_AXIS)) {
+            return (long)Math.floor((val - domLo) / cellWidth) + pxLo;
+        } else {
+            return (long)Math.floor((domHi - val) / cellWidth) + pxLo;
+        }
+
+    }
 
     /**
      * Given a GetCoverage request, construct an abstract WCPS query.
@@ -245,64 +276,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         }
         //End range subsetting processing
         
-        if (req.isScaled()) {
-            if (!((cov.getCoverageType().equals("GridCoverage")) || 
-                    (cov.getCoverageType().equals("RectifiedGridCoverage")) || 
-                    (cov.getCoverageType().equals("ReferenceableGridCoverage")))) 
-                throw new WCSException(ExceptionCode.InvalidCoverageType.locator(req.getCoverageId())); 
-            Scaling s = req.getScaling();            
-            int axesNumber = 0; // for checking if all axes in the query were used
-            proc = "scale(" + proc + ", {";
-            Iterator<CellDomainElement> cit = cov.getCellDomainIterator();
-            while (cit.hasNext()) {
-                CellDomainElement cel = cit.next();
-                String crs = CrsUtil.IMAGE_CRS;
-                switch (s.getType()) {
-                    case 1: 
-                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + Math.round(Math.floor(cel.getLo().doubleValue()/s.getFactor()))
-                                    + ":" + Math.round(Math.floor(cel.getHi().doubleValue()/s.getFactor())) + "),";                     
-                    break;                        
-                    case 2: 
-                        if (s.isPresentFactor(cel.getName())) {                            
-                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + Math.round(Math.floor(cel.getLo().doubleValue()/s.getFactor(cel.getName())))
-                                    + ":" + Math.round(Math.floor(cel.getHi().doubleValue()/s.getFactor(cel.getName()))) + "),";                            
-                            axesNumber++;
-                        } else {
-                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + cel.getLo() 
-                                    + ":" + cel.getHi() + "),";              
-                        }                                        
-                    break;
-                    case 3: 
-                        if (s.isPresentSize(cel.getName())) {                            
-                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + cel.getLo()
-                                    + ":" + (cel.getLo().intValue() + s.getSize(cel.getName())-1) + "),";    
-                            axesNumber++;
-                        } else {
-                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + cel.getLo() 
-                                    + ":" + cel.getHi() + "),";             
-                        }                           
-                    break;
-                    case 4: 
-                        if (s.isPresentExtent(cel.getName())) {
-                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + s.getExtent(cel.getName()).fst 
-                                    + ":" + s.getExtent(cel.getName()).snd + "),";   
-                            axesNumber++;
-                        } else {
-                            proc = proc + cel.getName() + ":\"" + crs + "\"(" + cel.getLo() 
-                                    + ":" + cel.getHi() + "),";
-                        }
-                    break;
-                }
-            }
-            if (axesNumber != s.getAxesNumber())                    
-                throw new WCSException(ExceptionCode.ScaleAxisUndefined); 
-            //TODO find out which axis was not found and add the locator to scaleFactor or scaleExtent or scaleDomain
-            proc = proc.substring(0, proc.length() - 1);
-            proc += "})";            
-            
-        } 
-        log.trace(proc); // query after scaling
-        
+        HashMap<String, Pair<String, String>> newdim = new HashMap<String, Pair<String, String>>(); // saves the new limits of the axes after trimming or slicing       
+       
         // process subsetting operations
         /**
          * NOTE: trims and slices are nested in each dimension: this inhibits
@@ -331,14 +306,82 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 DimensionTrim trim = (DimensionTrim) subset;
                 proc = "trim(" + proc + ",{" + dim + ":\"" + crs + "\" ("
                         + trim.getTrimLow() + ":" + trim.getTrimHigh() + ")})";
+                newdim.put(dim, new Pair(trim.getTrimLow(), trim.getTrimHigh()));
             } else if (subset instanceof DimensionSlice) {
                 DimensionSlice slice = (DimensionSlice) subset;
                 proc = "slice(" + proc + ",{" + dim + ":\"" + crs + "\" (" + slice.getSlicePoint() + ")})";
+                newdim.put(dim, new Pair(slice.getSlicePoint(), slice.getSlicePoint()));
                 log.debug("Dimension" + dim);
                 log.debug(axes);
                 axes = axes.replaceFirst(dim + " ?", ""); // remove axis
             }
         }
+        
+        
+        if (req.isScaled()) {
+            if (!((cov.getCoverageType().equals("GridCoverage")) || 
+                    (cov.getCoverageType().equals("RectifiedGridCoverage")) || 
+                    (cov.getCoverageType().equals("ReferenceableGridCoverage")))) 
+                throw new WCSException(ExceptionCode.InvalidCoverageType.locator(req.getCoverageId())); 
+            Scaling s = req.getScaling();            
+            int axesNumber = 0; // for checking if all axes in the query were used
+            proc = "scale(" + proc + ", {";
+            Iterator<DomainElement> it = cov.getDomainIterator();
+            Iterator<CellDomainElement> cit = cov.getCellDomainIterator();
+            while (it.hasNext() && cit.hasNext()) {
+                DomainElement el = it.next();
+                CellDomainElement cel = cit.next();
+                long lo = cel.getLo().longValue();
+                long hi = cel.getHi().longValue();
+                String dim = el.getName();
+                String crs = CrsUtil.IMAGE_CRS;
+                if (newdim.containsKey(dim)) {
+                    lo = toPixels(Double.parseDouble(newdim.get(dim).fst), el, cel);
+                    hi = toPixels(Double.parseDouble(newdim.get(dim).snd), el, cel);
+                }
+                switch (s.getType()) {
+                    case 1: 
+                            proc = proc + dim + ":\"" + crs + "\"(" + Math.round(Math.floor(lo/s.getFactor()))
+                                    + ":" + Math.round(Math.floor(hi/s.getFactor())) + "),";                    
+                    break;                        
+                    case 2: 
+                        if (s.isPresentFactor(dim)) {   
+                            proc = proc + dim + ":\"" + crs + "\"(" + Math.round(Math.floor(lo/s.getFactor(dim)))
+                                    + ":" + Math.round(Math.floor(hi/s.getFactor(dim))) + "),";                   
+                            axesNumber++;
+                        } else {
+                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";           
+                        }                                        
+                    break;
+                    case 3: 
+                        if (s.isPresentSize(dim)) {  
+                            proc = proc + dim + ":\"" + crs + "\"(" + lo
+                                    + ":" + (lo + s.getSize(dim)-1) + "),";    
+                            axesNumber++;
+                        } else {
+                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";              
+                        }                           
+                    break;
+                    case 4: 
+                        if (s.isPresentExtent(dim)) {
+                            proc = proc + dim + ":\"" + crs + "\"(" + s.getExtent(dim).fst 
+                                    + ":" + s.getExtent(dim).snd + "),";  
+                            axesNumber++;
+                        } else {
+                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";  
+                        }
+                    break;
+                }
+            }
+            if (axesNumber != s.getAxesNumber())                    
+                throw new WCSException(ExceptionCode.ScaleAxisUndefined); 
+            //TODO find out which axis was not found and add the locator to scaleFactor or scaleExtent or scaleDomain
+            proc = proc.substring(0, proc.length() - 1);
+            proc += "})";            
+            
+        } 
+        log.trace(proc); // query after scaling    
+        
         if (params != null) {
             // Additional paramters (e.g. bbox/crs in case of GTiff encoding)
             // NOTE: the whole format string is eventually wrapped into quotes (see below)
