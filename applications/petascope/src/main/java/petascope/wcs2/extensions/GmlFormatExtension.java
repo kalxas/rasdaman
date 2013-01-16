@@ -72,32 +72,16 @@ public class GmlFormatExtension extends AbstractFormatExtension {
         //Handle the range subset feature
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
         rsubExt.handle(request, m);
-        String metadata = "";
-        try {
-            metadata = meta.getImageMetadata(request.getCoverageId());
-        } catch (PetascopeException p) {
-            throw new WCSException(ExceptionCode.ResourceError, p);
-        }
         
         if (m.getCoverageType().equals(GetCoverageRequest.MULTIPOINT_COVERAGE)) {
             Response r = handleMultiPoint(request, request.getCoverageId(), meta, m);
             String xml = r.getXml();
-            if (!metadata.isEmpty()) {
-                xml = xml.replace("{metadata}", "<gmlcov:metadata>" + metadata + "</gmlcov:metadata>");
-            } else {
-                xml = xml.replace("{metadata}", "");
-            }
             return new Response(r.getData(), xml, r.getMimeType());
         }
         
         setBounds(request, m, meta);
         String gml = WcsUtil.getGML(m, Templates.GRID_COVERAGE, true);
         gml = addCoverageData(gml, request, meta, m);
-        if (!metadata.isEmpty()) {
-            gml = gml.replace("{metadata}", "<gmlcov:metadata>" + metadata + "</gmlcov:metadata>");
-        } else {
-            gml = gml.replace("{metadata}", "");
-        }
         return new Response(gml);
     }
     

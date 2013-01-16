@@ -451,7 +451,8 @@ public class DbMetadataSource implements IMetadataSource {
             ensureConnection();
             s = conn.createStatement();
 
-            ResultSet r = s.executeQuery("SELECT id, type, nullDefault, interpolationTypeDefault, nullResistanceDefault FROM PS_Coverage WHERE name = '" + coverageName + "'");
+            ResultSet r = null;
+                r = s.executeQuery("SELECT id, type, nullDefault, interpolationTypeDefault, nullResistanceDefault FROM PS_Coverage WHERE name = '" + coverageName + "'");
 
             if (!r.next()) {
                 throw new PetascopeException(ExceptionCode.InvalidRequest,
@@ -630,6 +631,13 @@ public class DbMetadataSource implements IMetadataSource {
             } else if (twoDCoverage) {
                 log.warn(" Bounding box missing for 2-D coverage '" + coverageName + "'...");
             }
+            
+            r = s.executeQuery("SELECT metadata FROM ps_metadata WHERE coverage in "
+                     + "(SELECT id FROM ps_coverage WHERE name = '" + coverage + "')");
+            String metadata = "";
+            if (r.next()) {
+                metadata = r.getString("metadata");
+            }
 
             /* Done with SQL statements */
             s.close();
@@ -639,6 +647,7 @@ public class DbMetadataSource implements IMetadataSource {
                     new InterpolationMethod(interpolationTypeDefault, nullResistanceDefault),
                     coverageName, coverageType, domain, bbox, title, abstr, keywords);
             meta.setCoverageId(coverage);
+            meta.setMetadata(metadata);
             log.trace("Caching coverage metadata.");
             cache.put(coverageName, meta);
             return meta;
@@ -1054,38 +1063,6 @@ public class DbMetadataSource implements IMetadataSource {
         }
     }
     
-    /**
-     * Given the CoverageID; returns image metadata
-     * @param coverageId
-     * @return textual metadata
-     * @throws PetascopeException
-     */
-    public String getImageMetadata(String coverageId) throws PetascopeException {
-        Statement s = null;
-        try {
-            ensureConnection();
-            s = conn.createStatement();
-            ResultSet r = s.executeQuery("SELECT metadata FROM ps_metadata WHERE coverage in "
-                     + "(SELECT id FROM ps_coverage WHERE name = '" + coverageId + "')");
-            if (r.next()) {
-                return r.getString("metadata");
-            } else {
-                return "";
-            }
-        } catch (SQLException sqle) {
-            throw new PetascopeException(ExceptionCode.ResourceError,
-                    "Error retrieving metadata for coverage " + coverageId, sqle);
-        } finally {
-            if (s != null) {
-                try {
-                    s.close();
-                } catch (SQLException f) {
-                }
-            }
-            close();
-        }
-    }
-
     /** Insert metadata for a new coverage.
      *
      * @param meta Metadata object, container of information

@@ -183,6 +183,12 @@ public class WcsUtil {
                     Pair.of("\\{code\\}", range.getUomCode()));
         }
 
+        String metadata = m.getMetadata().getMetadata();
+        if (metadata == null) {
+            metadata = "<gmlcov:metadata>" + metadata + "</gmlcov:metadata>";
+        } else {
+            metadata = "";
+        }
         String ret = Templates.getTemplate(template,
                 Pair.of("\\{coverageId\\}", m.getCoverageId()),
                 Pair.of("\\{coverageType\\}", m.getCoverageType()),
@@ -199,6 +205,7 @@ public class WcsUtil {
                 Pair.of("\\{srsName\\}", getSrsName(m)),
                 Pair.of("\\{lowerCorner\\}", getLowerCorner(m)),
                 Pair.of("\\{upperCorner\\}", getUpperCorner(m)),
+                Pair.of("\\{metadata\\}", metadata),
                 Pair.of("\\{additions\\}", getAdditions(m)));
 
         if (replaceBounds) {

@@ -63,6 +63,7 @@ public class Metadata implements Cloneable {
     private Bbox bbox = null;
     private CellDomainElement cellX, cellY, cellT;
     private DomainElement domX, domY, domT;
+    private String metadata;
 
     public Metadata(List<CellDomainElement> cellDomain, List<RangeElement> range,
             Set<String> nullSet, String nullDefault, Set<InterpolationMethod> interpolationSet,
@@ -682,5 +683,13 @@ public class Metadata implements Cloneable {
         }
         BigInteger big = cellT.getHi().subtract(cellT.getLo());
         return big.longValue();
+    }
+
+    public String getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
     }
 }
