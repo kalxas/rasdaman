@@ -37,10 +37,9 @@ import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.TimeUtil;
-import petascope.util.WcsUtil;
-import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.CellDomainElement;
+import petascope.wcps.server.core.Crs;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.Wcps;
 import petascope.wcs2.parsers.GetCoverageMetadata;
@@ -64,72 +63,85 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * Update m with the correct bounds and axes (mostly useful when there's
      * slicing/trimming in the request)
      */
-    protected void setBounds(GetCoverageRequest request, GetCoverageMetadata m, DbMetadataSource meta) throws WCSException {
-        Pair<Object, String> pair = executeRasqlQuery(request, m, meta, "sdom", null);
-        if (pair.fst != null) {
-            RasQueryResult res = new RasQueryResult(pair.fst);
-            if (!res.getScalars().isEmpty()) {
-                // TODO: can be done better with Minterval instead of sdom2bounds
-                Pair<String, String> bounds = WcsUtil.sdom2bounds(res.getScalars().get(0));
-                m.setAxisLabels(pair.snd);
-
-                // Update **pixel-domain** bounds
-                m.setLow(bounds.fst);
-                m.setHigh(bounds.snd);
-
-                // Update **domain** bounds
-                String lowerDom = "";
-                String upperDom = "";
-                boolean domUpdated;
-                Iterator<DomainElement> domsIt = m.getMetadata().getDomainIterator();
-                DomainElement domain;
-                List<DimensionSubset> subsList = request.getSubsets();
-                while (domsIt.hasNext()) {
-                    // Check if one subset trims on /this/ dimension:
-                    // Order and quantity of subsets not necessarily coincide with domain of the coverage
-                    // (e.g. single subset on Y over a nD coverage)
-                    domUpdated = false;
-                    domain = domsIt.next();
-                    Iterator<DimensionSubset> subsIt = subsList.iterator();
-                    DimensionSubset subset;
-                    while (subsIt.hasNext()) {
-                        subset = subsIt.next();
-                        if (subset.getDimension().equals(domain.getName())) {
-                            try {
-                                // Compare subset with domain borders and update
-                                if (subset instanceof DimensionTrim) {
-                                    lowerDom += Math.max(
-                                            Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
-                                            domain.getNumLo()) + " ";
-                                    upperDom += Math.min(
-                                            Double.parseDouble(((DimensionTrim) subset).getTrimHigh()),
-                                            domain.getNumHi()) + " ";
-                                } else if (subset instanceof DimensionSlice) {
-                                    log.info("Axis " + domain.getName() + " has been sliced: remove it from the boundedBy element.");
-                                } else {
-                                    throw new WCSException(ExceptionCode.InternalComponentError,
-                                            "Subset '" + subset + "' is not recognized as trim nor slice.");
-                                }
-                                // flag: if no subsets has updated the bounds, then need to append the bbox value
-                                domUpdated = true;
-                            } catch (NumberFormatException ex) {
-                                String message = "Error while casting a subset to numeric format for comparison.";
-                                log.error(message);
-                                throw new WCSException(ExceptionCode.InvalidRequest, message);
-                            }
+    protected void setBounds(GetCoverageRequest request, GetCoverageMetadata m, DbMetadataSource meta)
+            throws WCSException {
+        
+        // Init variables
+        String axesLabels = "";
+        String lowerDom = "";
+        String upperDom = "";
+        String lowerCellDom = "";
+        String upperCellDom = "";
+        boolean domUpdated;
+        Iterator<DomainElement>         domsIt = m.getMetadata().getDomainIterator();
+        Iterator<CellDomainElement> cellDomsIt = m.getMetadata().getCellDomainIterator();
+        DomainElement domainEl;
+        CellDomainElement cellDomainEl;
+        List<DimensionSubset> subsList = request.getSubsets();
+        while (domsIt.hasNext()) {
+            // Check if one subset trims on /this/ dimension:
+            // Order and quantity of subsets not necessarily coincide with domain of the coverage
+            // (e.g. single subset on Y over a nD coverage)
+            domUpdated = false;
+            domainEl     = domsIt.next();
+            cellDomainEl = cellDomsIt.next();
+            // Loop through each subsets in the request and check if this axis is involved
+            Iterator<DimensionSubset> subsIt = subsList.iterator();
+            DimensionSubset subset;
+            Metadata metadata = m.getMetadata();
+            while (subsIt.hasNext()) {
+                subset = subsIt.next();
+                if (subset.getDimension().equals(domainEl.getName())) {
+                    try {
+                        // Compare subset with domain borders and update
+                        if (subset instanceof DimensionTrim) {
+                            // Append axis label
+                            axesLabels += subset.getDimension() + " ";
+                            // Append updated bounds 
+                            lowerDom += Math.max(
+                                    Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
+                                    domainEl.getNumLo()) + " ";
+                            upperDom += Math.min(
+                                    Double.parseDouble(((DimensionTrim) subset).getTrimHigh()),
+                                    domainEl.getNumHi()) + " ";
+                            // Append updated pixel bounds
+                            int[] cellDom = Crs.convertToPixelIndices(metadata, subset.getDimension(), 
+                                    Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
+                                    Double.parseDouble(((DimensionTrim) subset).getTrimHigh()));
+                            lowerCellDom += cellDom[0] + " ";
+                            upperCellDom += cellDom[1] + " ";
+                        } else if (subset instanceof DimensionSlice) {
+                            log.info("Axis " + domainEl.getName() + " has been sliced: remove it from the boundedBy element.");
+                        } else {
+                            throw new WCSException(ExceptionCode.InternalComponentError,
+                                    "Subset '" + subset + "' is not recognized as trim nor slice.");
                         }
-                    } // END subsets iterator
-                    if (!domUpdated) {
-                        // This dimension is not involved in any subset: use bbox bounds
-                        lowerDom += domain.getNumLo() + " ";
-                        upperDom += domain.getNumHi() + " ";
+                        // flag: if no subset has updated the bounds, then need to append the bbox value
+                        domUpdated = true;
+                    } catch (NumberFormatException ex) {
+                        String message = "Error while casting a subset to numeric format for comparison.";
+                        log.error(message);
+                        throw new WCSException(ExceptionCode.InvalidRequest, message);
                     }
-                } // END domains iterator
-                // Update coverage info
-                m.setDomLow(lowerDom);
-                m.setDomHigh(upperDom);
+                }
+            } // END subsets iterator
+            if (!domUpdated) {
+                // This dimension is not involved in any subset: use bbox bounds
+                axesLabels += domainEl.getName() + " ";
+                lowerDom += domainEl.getNumLo() + " ";
+                upperDom += domainEl.getNumHi() + " ";
+                lowerCellDom += cellDomainEl.getLo() + " ";
+                upperCellDom += cellDomainEl.getHi() + " ";
             }
-        }
+        } // END domains iterator
+        // Update axes labels
+        m.setAxisLabels(axesLabels);
+        // Update **pixel-domain** bounds
+        m.setLow(lowerCellDom);
+        m.setHigh(upperCellDom);
+        // Update **domain** bounds
+        m.setDomLow(lowerDom);
+        m.setDomHigh(upperDom);
     }
 
     /**

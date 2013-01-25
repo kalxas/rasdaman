@@ -30,12 +30,11 @@ import org.w3c.dom.*;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.AxisTypes;
-import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
 
 public class Crs implements IRasNode {
 
-    Logger log = LoggerFactory.getLogger(Crs.class);
+    private static final Logger log = LoggerFactory.getLogger(Crs.class);
     private String crsName;
 
     public Crs(String srsName) {
@@ -151,7 +150,7 @@ public class Crs implements IRasNode {
      * @return Interval transformed values.
      * coordinates.
      */
-    public int[] convertToPixelIndices(Metadata meta, String axisName, Double coordLo, Double coordHi) throws WCSException {
+    public static int[] convertToPixelIndices(Metadata meta, String axisName, Double coordLo, Double coordHi) throws WCSException {
        
         // IMPORTANT: y axis are decreasing wrt pixel domain
         boolean zeroIsMin = !axisName.equals(AxisTypes.Y_AXIS);
@@ -210,7 +209,7 @@ public class Crs implements IRasNode {
         return out;
     }
     // Dummy overload (for DimensionPointElements)
-    public int convertToPixelIndices(Metadata meta, String axisName, Double value) throws WCSException {
+    public static int convertToPixelIndices(Metadata meta, String axisName, Double value) throws WCSException {
         return convertToPixelIndices(meta, axisName, value, value)[0];
     }
 
