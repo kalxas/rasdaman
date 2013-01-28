@@ -60,6 +60,7 @@ import petascope.exceptions.WCSTException;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.StringUtil;
+import petascope.util.WCPSConstants;
 import petascope.util.XMLUtil;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
@@ -622,13 +623,15 @@ public class PetascopeInterface extends HttpServlet {
     }
 
     private void handleProcessCoverages(String xmlRequest, HttpServletResponse response)
-            throws WCSException {
+            throws WCSException, PetascopeException {
         OutputStream webOut = null;
         try {
             log.debug("Received a ProcessCoverages request: \n{}", xmlRequest);
 
             log.debug("-------------------------------------------------------");
             log.debug("Converting to rasql");
+            wcps = new Wcps(new File(getServletContext().getRealPath(
+                    WCPSConstants.MSG_WCPS_PROCESS_COVERAGE_XSD)), meta);
             ProcessCoveragesRequest processCoverageRequest =
                     wcps.pcPrepare(ConfigManager.RASDAMAN_URL, ConfigManager.RASDAMAN_DATABASE,
                     IOUtils.toInputStream(xmlRequest));
