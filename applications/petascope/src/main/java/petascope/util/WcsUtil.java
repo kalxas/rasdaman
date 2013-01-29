@@ -184,7 +184,7 @@ public class WcsUtil {
         }
 
         String metadata = m.getMetadata().getMetadata();
-        if (metadata == null) {
+        if (metadata != null) {
             metadata = "<gmlcov:metadata>" + metadata + "</gmlcov:metadata>";
         } else {
             metadata = "";

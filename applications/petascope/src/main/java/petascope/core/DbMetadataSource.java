@@ -632,8 +632,7 @@ public class DbMetadataSource implements IMetadataSource {
                 log.warn(" Bounding box missing for 2-D coverage '" + coverageName + "'...");
             }
             
-            r = s.executeQuery("SELECT metadata FROM ps_metadata WHERE coverage in "
-                     + "(SELECT id FROM ps_coverage WHERE name = '" + coverage + "')");
+            r = s.executeQuery("SELECT metadata FROM ps_metadata WHERE coverage = " + coverage);
             String metadata = "";
             if (r.next()) {
                 metadata = r.getString("metadata");
