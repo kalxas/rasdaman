@@ -26,6 +26,7 @@ import java.util.Map;
 import petascope.HTTPRequest;
 import petascope.exceptions.WCSException;
 import petascope.util.StringUtil;
+import static petascope.util.KVPSymbols.*;
 import petascope.wcs2.handlers.RequestHandler;
 
 /**
@@ -39,9 +40,9 @@ public class KVPDescribeCoverageParser extends KVPParser<DescribeCoverageRequest
     public DescribeCoverageRequest parse(HTTPRequest request) throws WCSException {
         String input = request.getRequestString();
         Map<String, List<String>> p = StringUtil.parseQuery(input);
-        checkEncodingSyntax(p, "coverageid", "version");
+        checkEncodingSyntax(p, KEY_COVERAGEID, KEY_VERSION);
         DescribeCoverageRequest ret = new DescribeCoverageRequest();
-        ret.getCoverageIds().addAll(p.get("coverageid"));
+        ret.getCoverageIds().addAll(p.get(KEY_COVERAGEID));
         return ret;
     }
 

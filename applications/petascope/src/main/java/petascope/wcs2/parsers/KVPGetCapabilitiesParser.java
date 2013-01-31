@@ -27,6 +27,7 @@ import petascope.HTTPRequest;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.exceptions.WCSException;
 import petascope.util.StringUtil;
+import static petascope.util.KVPSymbols.*;
 
 /**
  * Parse a GetCapabilities XML request.
@@ -39,12 +40,12 @@ public class KVPGetCapabilitiesParser extends KVPParser<GetCapabilitiesRequest> 
     public GetCapabilitiesRequest parse(HTTPRequest request) throws WCSException {
         String input = request.getRequestString();
         Map<String, List<String>> p = StringUtil.parseQuery(input);
-        checkEncodingSyntax(p, "acceptversions", "acceptformats",
-                "acceptlanguages", "version");
+        checkEncodingSyntax(p, KEY_ACCEPTVERSIONS, KEY_ACCEPTFORMATS,
+                KEY_ACCEPTLANGUAGES, KEY_VERSION);
         return new GetCapabilitiesRequest(
-                get("acceptversions", p),
-                get("acceptformats", p),
-                get("acceptlanguages", p));
+                get(KEY_ACCEPTVERSIONS, p),
+                get(KEY_ACCEPTFORMATS, p),
+                get(KEY_ACCEPTLANGUAGES, p));
     }
 
     @Override

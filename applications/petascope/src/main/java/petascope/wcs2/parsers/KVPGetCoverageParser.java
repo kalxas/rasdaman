@@ -37,6 +37,7 @@ import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.StringUtil;
 import petascope.util.TimeUtil;
+import static petascope.util.KVPSymbols.*;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
 import petascope.wcs2.handlers.RequestHandler;
@@ -71,11 +72,11 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
             if (splitPos != -1) {
                 String key = kvPair.substring(0, splitPos);
                 String value = kvPair.substring(splitPos + 1);
-                if (key.equalsIgnoreCase("subset")) {
+                if (key.equalsIgnoreCase(KEY_SUBSET)) {
                     ret.put(key + value, value);
                 } //Backward compatibility
-                else if (key.toLowerCase().startsWith("subset")
-                        && !key.equalsIgnoreCase("subsettingCrs")) {
+                else if (key.toLowerCase().startsWith(KEY_SUBSET)
+                        && !key.equalsIgnoreCase(KEY_SUBSETCRS)) {
                     ret.put(key + value, value);
                 }
             }
@@ -88,15 +89,15 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
     public GetCoverageRequest parse(HTTPRequest request) throws WCSException {
         String input = request.getRequestString();
         Map<String, List<String>> p = StringUtil.parseQuery(input);
-        checkEncodingSyntax(p, "coverageid", "version", "mediatype", "format", "subsettingcrs", "outputcrs",
-                "scalefactor", "scaleaxes", "scalesize", "scaleextent", "rangesubset");
-        List<String> coverageIds = p.get("coverageid");
+        checkEncodingSyntax(p, KEY_COVERAGEID, KEY_VERSION, KEY_MEDIATYPE, KEY_FORMAT, KEY_SUBSETCRS, KEY_OUTPUTCRS,
+                KEY_SCALEFACTOR, KEY_SCALEAXES, KEY_SCALESIZE, KEY_SCALEEXTENT, KEY_RANGESUBSET);
+        List<String> coverageIds = p.get(KEY_COVERAGEID);
         if (coverageIds.size() != 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
                     "A GetCoverage request can specify only one CoverageId");
         }
-        String mediaType = ListUtil.head(p.get("mediatype"));
-        String format = ListUtil.head(p.get("format"));
+        String mediaType = ListUtil.head(p.get(KEY_MEDIATYPE));
+        String format = ListUtil.head(p.get(KEY_FORMAT));
         if (FormatExtension.MIME_MULTIPART.equals(mediaType) && FormatExtension.MIME_GML.equals(format)) {
             throw new WCSException(ExceptionCode.InvalidRequest,
                     "The 'MEDIATYPE=multipart/mixed & FORMAT=application/gml+xml' combination is not applicable");
@@ -111,7 +112,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         /* CRS-extension parameters: */
         // subsettingCrs
         String subCrs = null, outCrs = null;
-        List<String> list = p.get("subsettingcrs");
+        List<String> list = p.get(KEY_SUBSETCRS);
         if (list != null && list.size() > 1) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"subsettingCrs\" parameters in the request: must be unique.");
         } else {
@@ -124,7 +125,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
             }
         }
         // outputCrs
-        list = p.get("outputcrs");
+        list = p.get(KEY_OUTPUTCRS);
         if (list != null && list.size() > 1) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"outputCrs\" parameters in the request: must be unique.");
         } else {
@@ -177,7 +178,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         }
 
         // get scaling options
-        list = p.get("scalefactor");
+        list = p.get(KEY_SCALEFACTOR);
         if (list != null && list.size() != 1 || ret.isScaled()) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
         } else if (list != null) {
@@ -194,7 +195,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
             ret.getScaling().setType(1);
         }
 
-        list = p.get("scaleaxes");
+        list = p.get(KEY_SCALEAXES);
         if (list != null && ret.isScaled()) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
         } else if (list != null) { 
@@ -224,7 +225,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
             ret.getScaling().setType(2);
         }
 
-        list = p.get("scalesize");
+        list = p.get(KEY_SCALESIZE);
         if (list != null && ret.isScaled()) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
         } else if (list != null) {            
@@ -254,7 +255,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
             }
             ret.getScaling().setType(3);
         }
-        list = p.get("scaleextent");
+        list = p.get(KEY_SCALEEXTENT);
         if (list != null && ret.isScaled()) {
             throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
         } else if (list != null) {

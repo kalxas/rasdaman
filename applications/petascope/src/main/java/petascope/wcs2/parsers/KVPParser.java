@@ -31,6 +31,7 @@ import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.ListUtil;
+import static petascope.util.KVPSymbols.*;
 import petascope.wcs2.handlers.RequestHandler;
 
 /**
@@ -69,21 +70,21 @@ public abstract class KVPParser<T extends Request> extends AbstractRequestParser
         List<String> possibleKeys = ListUtil.toList(keys);
         Set<String> requestKeys = m.keySet();
         
-        String request = get("request", m);
+        String request = get(KEY_REQUEST, m);
         if (!RequestHandler.GET_CAPABILITIES.equals(request)) {
-            String version = get("version", m);
+            String version = get(KEY_VERSION, m);
             if (version == null || !version.matches(BaseRequest.VERSION)) {
                 log.error("Version = " + version);
-                throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator("version"));
+                throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator(KEY_VERSION));
             }
         }
         for (String k : requestKeys) {
-            if (k.equals("request") || k.equals("service") || k.equals("version")) {
+            if (k.equals(KEY_REQUEST) || k.equals(KEY_SERVICE) || k.equals(KEY_VERSION)) {
                 if (m.get(k).size() > 1) {
                     throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator(k));
                 }
             }
-            if (k.equals("request") || k.equals("service") || (k.startsWith("subset")
+            if (k.equals(KEY_REQUEST) || k.equals(KEY_SERVICE) || (k.startsWith(KEY_SUBSET)
                     && getOperationName().equals(RequestHandler.GET_COVERAGE))) {
                 continue;
             }
@@ -92,8 +93,8 @@ public abstract class KVPParser<T extends Request> extends AbstractRequestParser
             }
         }
 
-        checkValue(m, "request", getOperationName());
-        checkValue(m, "service", BaseRequest.SERVICE);
+        checkValue(m, KEY_REQUEST, getOperationName());
+        checkValue(m, KEY_SERVICE, BaseRequest.SERVICE);
     }
 
     private void checkValue(Map<String, List<String>> m, String k, String... vals) throws WCSException {
