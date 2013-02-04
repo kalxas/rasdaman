@@ -1,4 +1,4 @@
-SRC = toolkit
+SRC = src
 BIN = bin
 LIB = lib
 CP = cp -r
@@ -10,19 +10,96 @@ all: css libs src img
 	@cat $(BIN)/raswct_lib.js $(BIN)/raswct_src.js > $(BIN)/raswct.js
 	@echo "Build Process sucessfully. You can now install the toolkit by running $ make install"
 
-img:	
-	@$(CP) $(LIB)/gauges/img/* $(BIN)/img
+doBin:
+	$(MKDIR) -p $(BIN)
+	$(MKDIR) -p $(BIN)/img
 
-css:
-	@cat $(LIB)/jqueryui/css/ui-lightness/jquery-ui-1.8.16.custom.css $(LIB)/gritter/jquery.gritter.css $(LIB)/charts/jquery.jqplot.css $(LIB)/openlayers/style.css $(LIB)/gauges/css/jgauge.css $(LIB)/gauges/css/styles.css $(LIB)/gauges/css/knobKnob.css > $(BIN)/raswct.css
+img: doBin
+	@$(CP) $(LIB)/Gauges/img/* $(LIB)/TwitterBootstrap/img/* $(BIN)/img
+
+css: doBin
+	@cat $(LIB)/Dojo/dojo.css $(LIB)/jqPlot/jquery.jqplot.css               \
+	     $(LIB)/jqTip/jqtip.css                                             \
+	     $(LIB)/openlayers/style.css                                        \
+	     $(LIB)/Gauges/css/jgauge.css                                       \
+	     $(LIB)/TwitterBootstrap/bootstrap.css                              \
+	     $(LIB)/Gauges/css/styles.css                                       \
+	     $(LIB)/Gauges/css/knobKnob.css > $(BIN)/raswct.css
 
 
-libs:
-	@cat $(LIB)/jqueryui/js/jquery-1.7.1.min.js $(LIB)/jqueryui/js/jQueryRotate.min.js $(LIB)/jqueryui/js/jquery-ui-1.8.16.custom.min.js $(LIB)/gritter/gritter.js $(LIB)/jsclass/min/loader-browser.js $(LIB)/jsclass/min/core.js $(LIB)/jsclass/min/deferrable.js $(LIB)/openlayers/OpenLayers.js $(LIB)/charts/jquery.jqplot.min.js $(LIB)/charts/plugins/jqplot.canvasAxisLabelRenderer.min.js $(LIB)/charts/plugins/jqplot.canvasAxisTickRenderer.min.js $(LIB)/charts/plugins/jqplot.canvasOverlay.js $(LIB)/charts/plugins/jqplot.categoryAxisRenderer.min.js $(LIB)/charts/plugins/jqplot.canvasTextRenderer.min.js $(LIB)/charts/plugins/jqplot.cursor.min.js $(LIB)/charts/plugins/jqplot.barRenderer.min.js $(LIB)/charts/plugins/jqplot.categoryAxisRenderer.min.js $(LIB)/charts/plugins/jqplot.dateAxisRenderer.min.js $(LIB)/charts/plugins/jqplot.dragable.min.js $(LIB)/charts/plugins/jqplot.enhancedLegendRenderer.min.js $(LIB)/charts/plugins/jqplot.highlighter.min.js $(LIB)/charts/plugins/jqplot.logAxisRenderer.min.js $(LIB)/charts/plugins/jqplot.meterGaugeRenderer.min.js $(LIB)/charts/plugins/jqplot.pieRenderer.min.js $(LIB)/charts/plugins/jqplot.pointLabels.min.js $(LIB)/gauges/raphael.js $(LIB)/gauges/jgauge-0.3.0.a3.js $(LIB)/gauges/justgage.1.0.1.min.js $(LIB)/gauges/transform.js $(LIB)/gauges/knobKnob.jquery.js $(LIB)/gauges/flipCounter.js > $(BIN)/raswct_lib.js
+libs: doBin
+	@cat $(LIB)/Flanche/FlancheJs.js                                 \
+	     $(LIB)/Underscore/underscore.min.js                         \
+	     $(LIB)/LawnChair/lawnchair.min.js                           \
+	     $(LIB)/jQuery/jQuery.min.js                                 \
+	     $(LIB)/Dojo/dojo.js                                         \
+	     $(LIB)/jQuery/jQueryRotate.min.js                           \
+	     $(LIB)/jqTip/jqTip.min.js                                   \
+	     $(LIB)/openlayers/OpenLayers.js                             \
+	     $(LIB)/jqPlot/jquery.jqplot.min.js                          \
+	     $(LIB)/jqPlot/plugins/jqplot.canvasAxisLabelRenderer.min.js \
+	     $(LIB)/jqPlot/plugins/jqplot.canvasAxisTickRenderer.min.js  \
+	     $(LIB)/jqPlot/plugins/jqplot.canvasOverlay.js               \
+	     $(LIB)/jqPlot/plugins/jqplot.categoryAxisRenderer.min.js    \
+	     $(LIB)/jqPlot/plugins/jqplot.canvasTextRenderer.min.js      \
+	     $(LIB)/jqPlot/plugins/jqplot.cursor.min.js                  \
+	     $(LIB)/jqPlot/plugins/jqplot.barRenderer.min.js             \
+	     $(LIB)/jqPlot/plugins/jqplot.categoryAxisRenderer.min.js    \
+	     $(LIB)/jqPlot/plugins/jqplot.dateAxisRenderer.min.js        \
+	     $(LIB)/jqPlot/plugins/jqplot.dragable.min.js                \
+	     $(LIB)/jqPlot/plugins/jqplot.enhancedLegendRenderer.min.js  \
+	     $(LIB)/jqPlot/plugins/jqplot.highlighter.min.js             \
+	     $(LIB)/jqPlot/plugins/jqplot.logAxisRenderer.min.js         \
+	     $(LIB)/jqPlot/plugins/jqplot.meterGaugeRenderer.min.js      \
+	     $(LIB)/jqPlot/plugins/jqplot.pieRenderer.min.js             \
+	     $(LIB)/jqPlot/plugins/jqplot.pointLabels.min.js             \
+	     $(LIB)/Gauges/raphael.js                                    \
+	     $(LIB)/Gauges/jgauge-0.3.0.a3.js                            \
+	     $(LIB)/Gauges/justgage.1.0.1.min.js                         \
+	     $(LIB)/Gauges/transform.js                                  \
+	     $(LIB)/Gauges/knobKnob.jquery.js                            \
+	     $(LIB)/Gauges/flipCounter.js                                > $(BIN)/raswct_lib.js
 
-
-src:
-	@cat $(SRC)/Init.js $(SRC)/Util.js $(SRC)/Query/BaseQuery.js $(SRC)/Query/SelectQuery.js $(SRC)/Query/UrlQuery.js $(SRC)/Query/QueryExecutor.js $(SRC)/Widgets/BaseWidget.js $(SRC)/Widgets/InputWidget.js $(SRC)/Widgets/OutputWidget.js $(SRC)/Widgets/BaseChart.js $(SRC)/Widgets/LinearDiagram.js $(SRC)/Widgets/AreaDiagram.js $(SRC)/Widgets/ScatterDiagram.js $(SRC)/Widgets/BarDiagram.js $(SRC)/Widgets/LayerWidget.js $(SRC)/Widgets/MapWidget.js $(SRC)/Widgets/TextWidget.js $(SRC)/Widgets/SliderWidget.js $(SRC)/Widgets/DiscreteSliderWidget.js $(SRC)/Widgets/ImageSlicesWidget.js $(SRC)/Widgets/Knob.js $(SRC)/Widgets/LedDisplay.js $(SRC)/Widgets/Gauge.js $(SRC)/Widgets/JGauge.js > $(BIN)/raswct_src.js
+src: doBin
+	@cat $(SRC)/util/GlobalState.js                       \
+	     $(SRC)/util/Util.js                              \
+	     $(SRC)/util/Constants.js                         \
+	     $(SRC)/util/Observable.js                        \
+	     $(SRC)/util/DataSeries.js                        \
+         $(SRC)/util/ConfigManager.js                     \
+         $(SRC)/util/ErrorManager.js                      \
+         $(SRC)/util/NotificationManager.js               \
+         $(SRC)/util/XMLDoc.js                            \
+         $(SRC)/util/MultiDimArray.js                     \
+         $(SRC)/util/CSVParser.js                         \
+         $(SRC)/util/CacheEngine.js                       \
+         $(SRC)/util/MapLayer.js                          \
+         $(SRC)/query/Transport.js                        \
+         $(SRC)/query/Executable.js                       \
+         $(SRC)/query/GMLParser.js                        \
+         $(SRC)/query/LiteralQuery.js                     \
+         $(SRC)/query/RasQuery.js                         \
+         $(SRC)/query/WCPSQuery.js                        \
+         $(SRC)/query/WCSQuery.js                         \
+         $(SRC)/widget/BaseWidget.js                      \
+	     $(SRC)/widget/InputWidget.js                     \
+	     $(SRC)/widget/OutputWidget.js                    \
+	     $(SRC)/widget/Knob.js                            \
+	     $(SRC)/widget/Text.js                            \
+	     $(SRC)/widget/SpeedoMeter.js                     \
+	     $(SRC)/widget/Gauge.js                           \
+	     $(SRC)/widget/ToolTip.js                         \
+	     $(SRC)/widget/Slider.js                          \
+	     $(SRC)/widget/HorizontalSlider.js                \
+	     $(SRC)/widget/VerticalSlider.js                  \
+	     $(SRC)/widget/BinaryImage.js                     \
+	     $(SRC)/widget/Diagram.js                         \
+	     $(SRC)/widget/BarDiagram.js                      \
+	     $(SRC)/widget/AreaDiagram.js                     \
+	     $(SRC)/widget/LinearDiagram.js                   \
+	     $(SRC)/widget/ScatterDiagram.js                  \
+	     $(SRC)/widget/Map.js                             \
+	     $(SRC)/widget/Led.js                             > $(BIN)/raswct_src.js
 
 install:
 	@$(MKDIR) -p $(INSTALL_DIR)

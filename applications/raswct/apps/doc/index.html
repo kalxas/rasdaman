@@ -1,0 +1,5417 @@
+<!--/*-->
+<!--* This file is part of rasdaman community.-->
+<!--*-->
+<!--* Rasdaman community is free software: you can redistribute it and/or modify-->
+<!--* it under the terms of the GNU Lesser General Public License as published by-->
+<!--* the Free Software Foundation, either version 3 of the License, or-->
+<!--* (at your option) any later version.-->
+<!--*-->
+<!--* Rasdaman community is distributed in the hope that it will be useful,-->
+<!--* but WITHOUT ANY WARRANTY; without even the implied warranty of-->
+<!--* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the-->
+<!--* GNU Lesser General Public License for more details.-->
+<!--*-->
+<!--* You should have received a copy of the GNU Lesser General Public License-->
+<!--* along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.-->
+<!--*-->
+<!--* Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann / rasdaman GmbH.-->
+<!--*-->
+<!--* For more information please see <http://www.rasdaman.org>-->
+<!--* or contact Peter Baumann via <baumann@rasdaman.com>.-->
+<!--*/-->
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="lib/bootstrap.min.css"/>
+    <link rel="stylesheet" href="lib/bootstrap-responsive.min.css"/>
+    <link rel="stylesheet" href="lib/prettify.css"/>
+    <script type="text/javascript" src="lib/jQuery.min.js"></script>
+    <script type="text/javascript" src="lib/bootstrap.min.js"></script>
+    <script type="text/javascript" src="lib/prettify.js"></script>
+    <style>
+        h2 {
+            padding-top: 120px;
+        }
+    </style>
+    <script type="text/javascript">
+
+        var createModalView = function(url){
+            var screenWidth = window.screen.width-50;
+            var screenHeight = window.screen.height-200;
+            $("#trainer-modal").remove();
+            $(document.body).append('<div id="trainer-modal" class="modal hide fade" style="width:'+ screenWidth +'px; left:290px; height:' + screenHeight + 'px; top: 10px" >' +
+                    '<div class="modal-header">' +
+                    '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>' +
+                    '</div> ' +
+                    '<div class="modal-body" style="height: auto; max-height: none">' +
+                    '<iframe style="border: none" width="100%" height="90%" src="' + url + '"/>' +
+                    '</div>' +
+                    '<div class="modal-footer"><button class="btn" data-dismiss="modal" aria-hidden="true">Close</button></div>' +
+                    '</div>');
+            $("#trainer-modal").modal('show');
+        }
+
+        var htmlCode = {};
+        var jsCode = {};
+
+        var getCode = function(){
+            $('pre').each(function(){
+                var id = $(this).attr('id');
+                if(id.match('html')){
+                    htmlCode[id] = $(this).html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                }
+                else{
+                    jsCode[id] = $(this).html();
+                }
+            })
+        }
+
+        $(document).ready(function(){
+            $('.nav li').click(function(){
+                $('.nav li').removeClass("active");
+                $(this).addClass("active");
+            })
+            getCode();
+            var POST_URL = '../trainer/processor.php?action=example';
+            $('.example-button').click(function(){
+                var pieces = $(this).attr('id').split('-');
+                var id = pieces[1];
+                var html = htmlCode['html-' + id] || ' ';
+                var js = jsCode['js-' + id] || ' ';
+                $.post(POST_URL, {'html': html, 'js': js}, function(response){
+                    createModalView('../trainer/' + response);
+                });
+            });
+            prettyPrint();
+        })
+    </script>
+    <title>Rasdaman Web Client Toolkit Documentation</title>
+</head>
+<body data-spy="scroll" data-target=".navbar">
+
+<div id="raswct-navbar" class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container" style="width:auto; padding-left:10px;">
+        <a class="brand" href="#"><strong>raswct</strong></a>
+        <ul class="nav" role="navigation">
+            <li class="active widgets"><a href="#widgets" tabindex="-1" style="text-decoration: underline;"><strong>Widgets</strong></a></li>
+            <li><a href="#AreaDiagram" tabindex="-1">AreaDiagram</a></li>
+            <li><a href="#BarDiagram" tabindex="-1">BarDiagram</a></li>
+            <li><a href="#LinearDiagram" tabindex="-1">LinearDiagram</a></li>
+            <li><a href="#ScatterDiagram" tabindex="-1">ScatterDiagram</a></li>
+            <li><a href="#BinaryImage" tabindex="-1">BinaryImage</a></li>
+            <li><a href="#Gauge" tabindex="-1">Gauge</a></li>
+            <li><a href="#Led" tabindex="-1">Led</a></li>
+            <li><a href="#Map" tabindex="-1">Map</a></li>
+            <li><a href="#SpeedoMeter" tabindex="-1">SpeedoMeter</a></li>
+            <li><a href="#ToolTip" tabindex="-1">ToolTip</a></li>
+            <li><a href="#HorizontalSlider" tabindex="-1">HSlider</a></li>
+            <li><a href="#VerticalSlider" tabindex="-1">VSlider</a></li>
+            <li><a href="#Knob" tabindex="-1">Knob</a></li>
+            <li><a href="#Text" tabindex="-1">Text</a></li>
+            <li><a href="#query" style="text-decoration: underline;"><strong>Query</strong></a></li>
+            <li><a href="#WCPSQuery" tabindex="-1">WCPSQuery</a></li>
+            <li><a href="#wcs.GetCoverage" tabindex="-1">wcs.GetCoverage</a></li>
+            <li><a href="#wcs.Subset" tabindex="-1">wcs.Subset</a></li>
+            <li><a href="#wcs.Subset" tabindex="-1">wcs.Subset</a></li>
+            <li><a href="#utils" tabindex="-1" style="text-decoration: underline;"><strong>Utils</strong></a></li>
+            <li><a href="#Bindable" tabindex="-1">Bindable</a></li>
+            <li><a href="#ConfigManager" tabindex="-1">ConfigManager</a></li>
+            <li><a href="#CSVParser" tabindex="-1">CSVParser</a></li>
+            <li><a href="#Observable" tabindex="-1">Observable</a></li>
+            <li><a href="#DataSeries" tabindex="-1">DataSeries</a></li>
+        </ul>
+        </div>
+    </div>
+</div>
+<div class="container-fluid" style="margin-top: 130px">
+<div class="title">
+    <h1><span style="border-bottom: 2px solid #000">Ras</span>daman <span style="border-bottom: 2px solid #000">W</span>eb
+        <span style="border-bottom: 2px solid #000">C</span>lient <span style="border-bottom: 2px solid #000">T</span>oolkit
+    </h1>
+    <h2>
+        Documentation
+    </h2>
+    <h3>
+        raswct version: 3.0.0
+    </h3>
+    <br/><br/>
+</div>
+<h2 id="widgets" style="color:#356635;">Widgets</h2>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div data-spy="scroll" data-target="#raswct-navbar" data-offset="0">
+<div id="AreaDiagram">
+<div class="class-name">
+    <h2 >Rj.widget.AreaDiagram</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a widget used for displaying area diagrams.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._Diagram
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Optional</span> dataSeries
+            </td>
+            <td>
+                <a href="#">Rj.util.DataSeries</a>
+            </td>
+            <td>
+                The series to be plotted. The diagram is plotted only when at least a dataSeries exists.
+            </td>
+            <td>
+                [ ]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> title
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The title displayed above the diagram.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> xLabel
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The label of the X axis.
+            </td>
+            <td>
+                X
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> yLabel
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The label of the Y axis.
+            </td>
+            <td>
+                Y
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> tooltip
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                Indicates whether a Tooltip with tips about how the diagram works should be shown.
+            </td>
+            <td>
+                false
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> dataSeries
+            </td>
+            <td>
+                <a href="#DataSeries">Rj.util.DataSeries</a>
+            </td>
+            <td>
+                The series to be plotted.
+            </td>
+            <td>
+                [ ]
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> width
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The width of the diagram.
+            </td>
+            <td>
+                600
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> height
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The height of the diagram.
+            </td>
+            <td>
+                300
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-methods">
+    <h3>Methods</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                RETURN TYPE
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span class="label label-info">Inherited</span> addDataSeries</td>
+            <td>Void</td>
+            <td>{<a href="#DataSeries">Rj.util.DataSeries</a>} series - the series object.</td>
+            <td>Adds a data series to the diagram.</td>
+        </tr>
+        <tr>
+            <td><span class="label label-info">Inherited</span> removeDataSeries</td>
+            <td>Void</td>
+            <td>{String} seriesName - the name of the data series to be removed.</td>
+            <td>Removes a data series from the diagram.</td>
+        </tr>
+        <tr>
+            <td><span class="label label-info">Inherited</span> getData</td>
+            <td>Array</td>
+            <td>-</td>
+            <td>Returns the plotted data as a multidimensional array of the form: <br/>[ [ [index, element], [index,
+                element], ... ], [ [ index, element], [index, element], ... ], ... ]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                beforerender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired before the rendering of the widget starts.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                afterrender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired after the rendering of the widget ends.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+    <h4>HTML:</h4>
+    <pre id="html-AreaDiagram" class="prettyprint linenums">&lt;div id='area-widget'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-AreaDiagram" class="prettyprint linenums">var dataSeries = new Rj.util.DataSeries([1,5,2,4,10]);
+var widget = new Rj.widget.AreaDiagram("#area-widget", dataSeries);</pre>
+    <button id="btn-AreaDiagram" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="BarDiagram">
+<div class="class-name">
+    <h2>Rj.widget.BarDiagram</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a widget used for displaying bar diagrams.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._Diagram
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Optional</span> dataSeries
+            </td>
+            <td>
+                <a href="#">Rj.util.DataSeries</a>
+            </td>
+            <td>
+                The series to be plotted. The diagram is plotted only when at least a dataSeries exists.
+            </td>
+            <td>
+                [ ]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> title
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The title displayed above the diagram.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> xLabel
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The label of the X axis.
+            </td>
+            <td>
+                X
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> yLabel
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The label of the Y axis.
+            </td>
+            <td>
+                Y
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> tooltip
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                Indicates whether a Tooltip with tips about how the diagram works should be shown.
+            </td>
+            <td>
+                false
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> dataSeries
+            </td>
+            <td>
+                <a href="#DataSeries">Rj.util.DataSeries</a>
+            </td>
+            <td>
+                The series to be plotted.
+            </td>
+            <td>
+                [ ]
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> width
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The width of the diagram.
+            </td>
+            <td>
+                600
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> height
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The height of the diagram.
+            </td>
+            <td>
+                300
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-methods">
+    <h3>Methods</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                RETURN TYPE
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span class="label label-info">Inherited</span> addDataSeries</td>
+            <td>Void</td>
+            <td>{<a href="#DataSeries">Rj.util.DataSeries</a>} series - the series object.</td>
+            <td>Adds a data series to the diagram.</td>
+        </tr>
+        <tr>
+            <td><span class="label label-info">Inherited</span> removeDataSeries</td>
+            <td>Void</td>
+            <td>{String} seriesName - the name of the data series to be removed.</td>
+            <td>Removes a data series from the diagram.</td>
+        </tr>
+        <tr>
+            <td><span class="label label-info">Inherited</span> getData</td>
+            <td>Array</td>
+            <td>-</td>
+            <td>Returns the plotted data as a multidimensional array of the form: <br/>[ [ [index, element], [index,
+                element], ... ], [ [ index, element], [index, element], ... ], ... ]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="class-events">
+        <h3>Events</h3>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>
+                    NAME
+                </th>
+                <th>
+                    PARAMETERS
+                </th>
+                <th>
+                    DESCRIPTION
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    beforerender
+                </td>
+                <td>
+                    -
+                </td>
+                <td>
+                    Event fired before the rendering of the widget starts.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    afterrender
+                </td>
+                <td>
+                    -
+                </td>
+                <td>
+                    Event fired after the rendering of the widget ends.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="class-examples">
+        <h3>Examples</h3>
+        <h4>HTML:</h4>
+        <pre id="html-BarDiagram" class="prettyprint linenums">&lt;div id='bar-widget'&gt;&lt;/div&gt;</pre>
+        <h4>Javascript:</h4>
+    <pre id="js-BarDiagram" class="prettyprint linenums">var dataSeries = new Rj.util.DataSeries([1,5,2,4,10]);
+var widget = new Rj.widget.BarDiagram("#bar-widget", dataSeries);</pre>
+        <button id="btn-BarDiagram" class="btn btn-danger example-button">See in Code Trainer</button>
+        <br/><br/>
+    </div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="LinearDiagram">
+<div class="class-name">
+    <h2>Rj.widget.LinearDiagram</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a widget used for displaying linear diagrams.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._Diagram
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Optional</span> dataSeries
+            </td>
+            <td>
+                <a href="#">Rj.util.DataSeries</a>
+            </td>
+            <td>
+                The series to be plotted. The diagram is plotted only when at least a dataSeries exists.
+            </td>
+            <td>
+                [ ]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> title
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The title displayed above the diagram.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> xLabel
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The label of the X axis.
+            </td>
+            <td>
+                X
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> yLabel
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The label of the Y axis.
+            </td>
+            <td>
+                Y
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> tooltip
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                Indicates whether a Tooltip with tips about how the diagram works should be shown.
+            </td>
+            <td>
+                false
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> dataSeries
+            </td>
+            <td>
+                <a href="#DataSeries">Rj.util.DataSeries</a>
+            </td>
+            <td>
+                The series to be plotted.
+            </td>
+            <td>
+                [ ]
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> width
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The width of the diagram.
+            </td>
+            <td>
+                600
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> height
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The height of the diagram.
+            </td>
+            <td>
+                300
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-methods">
+    <h3>Methods</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                RETURN TYPE
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span class="label label-info">Inherited</span> addDataSeries</td>
+            <td>Void</td>
+            <td>{<a href="#DataSeries">Rj.util.DataSeries</a>} series - the series object.</td>
+            <td>Adds a data series to the diagram.</td>
+        </tr>
+        <tr>
+            <td><span class="label label-info">Inherited</span> removeDataSeries</td>
+            <td>Void</td>
+            <td>{String} seriesName - the name of the data series to be removed.</td>
+            <td>Removes a data series from the diagram.</td>
+        </tr>
+        <tr>
+            <td><span class="label label-info">Inherited</span> getData</td>
+            <td>Array</td>
+            <td>-</td>
+            <td>Returns the plotted data as a multidimensional array of the form: <br/>[ [ [index, element], [index,
+                element], ... ], [ [ index, element], [index, element], ... ], ... ]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                beforerender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired before the rendering of the widget starts.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                afterrender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired after the rendering of the widget ends.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+    <h4>HTML:</h4>
+    <pre id="html-LinearDiagram" class="prettyprint linenums">&lt;div id='linear-widget'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-LinearDiagram" class="prettyprint linenums">var dataSeries = new Rj.util.DataSeries([1,5,2,4,10]);
+var widget = new Rj.widget.LinearDiagram("#linear-widget", dataSeries);</pre>
+    <button id="btn-LinearDiagram" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="ScatterDiagram">
+<div class="class-name">
+    <h2>Rj.widget.ScatterDiagram</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a widget used for displaying scatter diagrams.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._Diagram
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Optional</span> dataSeries
+            </td>
+            <td>
+                <a href="#">Rj.util.DataSeries</a>
+            </td>
+            <td>
+                The series to be plotted. The diagram is plotted only when at least a dataSeries exists.
+            </td>
+            <td>
+                [ ]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> title
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The title displayed above the diagram.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> xLabel
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The label of the X axis.
+            </td>
+            <td>
+                X
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> yLabel
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The label of the Y axis.
+            </td>
+            <td>
+                Y
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> tooltip
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                Indicates whether a Tooltip with tips about how the diagram works should be shown.
+            </td>
+            <td>
+                false
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> dataSeries
+            </td>
+            <td>
+                <a href="#DataSeries">Rj.util.DataSeries</a>
+            </td>
+            <td>
+                The series to be plotted.
+            </td>
+            <td>
+                [ ]
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> width
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The width of the diagram.
+            </td>
+            <td>
+                600
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> height
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The height of the diagram.
+            </td>
+            <td>
+                300
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-methods">
+    <h3>Methods</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                RETURN TYPE
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span class="label label-info">Inherited</span> addDataSeries</td>
+            <td>Void</td>
+            <td>{<a href="#DataSeries">Rj.util.DataSeries</a>} series - the series object.</td>
+            <td>Adds a data series to the diagram.</td>
+        </tr>
+        <tr>
+            <td><span class="label label-info">Inherited</span> removeDataSeries</td>
+            <td>Void</td>
+            <td>{String} seriesName - the name of the data series to be removed.</td>
+            <td>Removes a data series from the diagram.</td>
+        </tr>
+        <tr>
+            <td><span class="label label-info">Inherited</span> getData</td>
+            <td>Array</td>
+            <td>-</td>
+            <td>Returns the plotted data as a multidimensional array of the form: <br/>[ [ [index, element], [index,
+                element], ... ], [ [ index, element], [index, element], ... ], ... ]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                beforerender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired before the rendering of the widget starts.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                afterrender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired after the rendering of the widget ends.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+    <h4>HTML:</h4>
+    <pre id="html-ScatterDiagram" class="prettyprint linenums">&lt;div id='scatter-widget'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-ScatterDiagram" class="prettyprint linenums">var dataSeries = new Rj.util.DataSeries([1,5,2,4,10]);
+var widget = new Rj.widget.ScatterDiagram("#scatter-widget", dataSeries);</pre>
+    <button id="btn-ScatterDiagram" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+</div>
+<div id="BinaryImage">
+<div class="class-name">
+    <h2>Rj.widget.BinaryImage</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a binary image widget that can consume uint8 data and transform it into a image that can be displayed in
+        the browser.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._OutputWidget
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                format
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The data format (e.g. 'image/png').
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Optional</span> arrayBufData
+            </td>
+            <td>
+                ArrayBuffer
+            </td>
+            <td>
+                The data stream. The image is not rendered until a data stream is set.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                width
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The width of the image.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                height
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The height of the image.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                binaryData
+            </td>
+            <td>
+                ArrayBuffer
+            </td>
+            <td>
+                The data stream.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                beforerender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired before the rendering of the widget starts.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                afterrender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired after the rendering of the widget ends.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <p>The following example shows how to display an image that comes as response from a WCPS query.</p>
+    <h4>HTML:</h4>
+    <pre id="html-BinaryImage" class="prettyprint linenums">&lt;div id='image-widget'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-BinaryImage" class="prettyprint linenums">//Set up the WCPS Service
+Rj.util.ConfigManager.setWCPSService({
+    url           : "http://flanche.net:8080/petascope/",
+    queryParameter: "request"
+});
+
+//Declare the query, with binary format
+var query = new Rj.query.WCPSQuery('for m in (mean_summer_airtemp) return encode((char) m, "png" )');
+query.setBinaryFormat(true);
+
+//evaluate the query and set-up the widget from its response
+query.evaluate(function(response){
+      var img = new Rj.widget.BinaryImage("#image-widget", "image/png", response);
+      img.setWidth(300);
+});
+</pre>
+    <h4>Alternative, using binders:</h4>
+    <pre id="js-BinaryImage2" class="prettyprint linenums">//Set up the WCPS Service
+Rj.util.ConfigManager.setWCPSService({
+    url           : "http://example.org:8080/petascope/",
+    queryParameter: "request"
+});
+
+//Declare the query, with binary format
+var query = new Rj.query.WCPSQuery('for m in (mean_summer_airtemp) return encode((char) m, "png" )');
+query.setBinaryFormat(true);
+
+var img = new Rj.widget.BinaryImage("#image-widget", "image/png");
+img.bind(query);
+query.evaluate();
+</pre>
+    <button id="btn-BinaryImage" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="Gauge">
+<div class="class-name">
+    <h2>Rj.widget.Gauge</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a widget used for displaying gauges.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._OutputWidget
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Optional</span> min
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The minimum value that can be displayed by the gauge.
+            </td>
+            <td>
+                0
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Optional</span> max
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The maximum value that can be displayed by the gauge.
+            </td>
+            <td>
+                100
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> value
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The value displayed by the gauge.
+            </td>
+            <td>
+                The <strong>min</strong> attribute.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                min
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The minimum value that can be displayed by the gauge.
+            </td>
+            <td>
+                0
+            </td>
+        </tr>
+        <tr>
+            <td>
+                max
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The maximum value that can be displayed by the gauge.
+            </td>
+            <td>
+                100
+            </td>
+        </tr>
+        <tr>
+            <td>
+                title
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The title displayed above the gauge.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                label
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The label displayed next to the gauge.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                widthScale
+            </td>
+            <td>
+                Float
+            </td>
+            <td>
+                A number between 0 and 1 to which the width of the gauge is scaled.
+            </td>
+            <td>
+                1
+            </td>
+        </tr>
+        <tr>
+            <td>
+                showMinMax
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                Indicates whether the minimum and maximum values are shown at the ends of the gauge.
+            </td>
+            <td>
+                true
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                beforerender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired before the rendering of the widget starts.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                afterrender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired after the rendering of the widget ends.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                valuechanged
+            </td>
+            <td>
+                value
+            </td>
+            <td>
+                Event fired when the value of the widget changes.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <p>The following example shows how to display a gauge which takes a random value every 2 seconds.</p>
+    <h4>HTML:</h4>
+    <pre id="html-Gauge" class="prettyprint linenums">&lt;div id='gauge-widget'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-Gauge" class="prettyprint linenums">var gauge = new Rj.widget.Gauge("#gauge-widget", 0, 1000);
+setInterval(function(){
+    var value = Math.random()*1000;
+    gauge.setValue(value);
+}, 2000);</pre>
+    <button id="btn-Gauge" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="Led">
+<div class="class-name">
+    <h2>Rj.widget.Led</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a widget used for displaying leds.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._OutputWidget
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> value
+            </td>
+            <td>
+                Float
+            </td>
+            <td>
+                The value displayed by the widget.
+            </td>
+            <td>
+                0.00
+            </td>
+        </tr>
+        <tr>
+            <td>
+                intDigits
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The number of integer digits that the led has.
+            </td>
+            <td>
+                4
+            </td>
+        </tr>
+        <tr>
+            <td>
+                fracDigits
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The number of fractional digits that the led has.
+            </td>
+            <td>
+                2
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                beforerender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired before the rendering of the widget starts.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                afterrender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired after the rendering of the widget ends.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                valuechanged
+            </td>
+            <td>
+                value
+            </td>
+            <td>
+                Event fired when the value of the widget changes.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <p>The following example shows how to display a led which takes a random value every 2 seconds.</p>
+    <h4>HTML:</h4>
+    <pre id="html-Led" class="prettyprint linenums">&lt;div id='led-widget'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-Led" class="prettyprint linenums">var led = new Rj.widget.Led("#led-widget");
+setInterval(function(){
+    var value = Math.random()*100 + Math.random();
+    led.setValue(value);
+}, 2000);</pre>
+    <button id="btn-Led" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="Map">
+<div class="class-name">
+    <h2>Rj.widget.Map</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a widget used for displaying maps composed of several layers. The implementation is based on the
+        <a href="http://http://openlayers.org/">OpenLayers library</a>.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._OutputWidget
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Optional</span> options
+            </td>
+            <td>
+                Object
+            </td>
+            <td>
+                An OpenLayers configuration object.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                map
+            </td>
+            <td>
+                Object
+            </td>
+            <td>
+                The OpenLayers map object.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                layers
+            </td>
+            <td>
+                Array
+            </td>
+            <td>
+                The map layers, as an array of <a href="#">Rj.util.MapLayer</a> objects.
+            </td>
+            <td>
+                [ ]
+            </td>
+        </tr>
+        <tr>
+            <td>
+                width
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The width of the map.
+            </td>
+            <td>
+                600
+            </td>
+        </tr>
+        <tr>
+            <td>
+                height
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The height of the map.
+            </td>
+            <td>
+                300
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-methods">
+    <h3>Methods</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                RETURN TYPE
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>addLayers</td>
+            <td>Void</td>
+            <td>Array of {<a href="">Rj.util.MapLayer</a>} layers - the layers to be added.</td>
+            <td>Adds layers to the widget.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                beforerender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired before the rendering of the widget starts.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                afterrender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired after the rendering of the widget ends.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <h4>HTML:</h4>
+    <pre id="html-Map" class="prettyprint linenums">&lt;div id='map-widget'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-Map" class="prettyprint linenums">var WMS_SERVICE_URL = "http://212.201.49.173:8080/rasogc/rasogc";
+
+var map = new Rj.widget.Map('#map-widget', {
+    projection : "EPSG:32633",
+    maxExtent : new OpenLayers.Bounds(489750,7988500,492750,7990000),
+    tileSize : new OpenLayers.Size(500, 500),
+    numZoomLevel : 4
+});
+
+var layerHakoon = new Rj.util.MapLayer("Hakoon Drive", WMS_SERVICE_URL, {
+     layers: 'Hakoon_Dive_1',
+     styles: 'standard',
+     format : "image/png",
+     transparent: "true",
+     version : "1.1.0",
+     exceptions : 'application/vnd.ogc.se_xml',
+     customdem : 'minLevel,maxLevel,T'
+     },
+     {
+     isBaseLayer: false,
+     transitionEffect : 'resize'
+});
+
+map.addLayers([layerHakoon]);</pre>
+    <button id="btn-Map" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="SpeedoMeter">
+    <div class="class-name">
+        <h2>Rj.widget.SpeedoMeter</h2>
+    </div>
+    <div class="class-description">
+        <h5>Defines a widget used for displaying speedometers.</h5>
+        <table class="table table-hover">
+            <tbody>
+            <tr>
+                <td>
+                    Extends
+                </td>
+                <td>
+                    <span class="label label-important">Internal</span> Rj.widget._OutputWidget
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Implements
+                </td>
+                <td>
+                    <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                    <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="class-constructor">
+        <h3>Constructor:</h3>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>
+                    PARAMETER
+                </th>
+                <th>
+                    TYPE
+                </th>
+                <th>
+                    DESCRIPTION
+                </th>
+                <th>
+                    DEFAULT
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    selector
+                </td>
+                <td>
+                    String
+                </td>
+                <td>
+                    A valid css3/XPath selector where the widget will be displayed.
+                </td>
+                <td>
+                    None
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="class-properties">
+        <h3>Properties</h3>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>
+                    NAME
+                </th>
+                <th>
+                    TYPE
+                </th>
+                <th>
+                    DESCRIPTION
+                </th>
+                <th>
+                    DEFAULT
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    <span class="label label-info">Inherited</span> selector
+                </td>
+                <td>
+                    String
+                </td>
+                <td>
+                    A valid css3/XPath selector where the widget will be displayed.
+                </td>
+                <td>
+                    None
+                </td>
+            </tr>
+            <td>
+                <span class="label label-info">Inherited</span> value
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The value displayed by the widget.
+            </td>
+            <td>
+                None
+            </td>
+            </tr>
+            <tr>
+                <td>
+                    labelSuffix
+                </td>
+                <td>
+                    String
+                </td>
+                <td>
+                    The string displayed next to the value of the widget.
+                </td>
+                <td>
+                    None
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="class-events">
+        <h3>Events</h3>
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th>
+                    NAME
+                </th>
+                <th>
+                    PARAMETERS
+                </th>
+                <th>
+                    DESCRIPTION
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>
+                    beforerender
+                </td>
+                <td>
+                    -
+                </td>
+                <td>
+                    Event fired before the rendering of the widget starts.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    afterrender
+                </td>
+                <td>
+                    -
+                </td>
+                <td>
+                    Event fired after the rendering of the widget ends.
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    valuechanged
+                </td>
+                <td>
+                    value
+                </td>
+                <td>
+                    Event fired when the value of the widget changes.
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="class-examples">
+        <h3>Examples</h3>
+
+        <p>The follwoing examples shows how to display a SpeedoMeter widget that takes a random value every 5
+            seconds.</p>
+        <h4>HTML:</h4>
+        <pre id="html-SpeedoMeter" class="prettyprint linenums">&lt;div id='speedometer-widget'&gt;&lt;/div&gt;</pre>
+        <h4>Javascript:</h4>
+    <pre id="js-SpeedoMeter" class="prettyprint linenums">var speedoMeter = new Rj.widget.SpeedoMeter("#speedometer-widget");
+setInterval(function(){
+    var value = Math.random()*100;
+    speedoMeter.setValue(value);
+}, 2000);</pre>
+        <button id="btn-SpeedoMeter" class="btn btn-danger example-button">See in Code Trainer</button>
+        <br/><br/>
+    </div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="ToolTip">
+<div class="class-name">
+    <h2>Rj.widget.ToolTip</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a widget used for displaying tooltips.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._OutputWidget
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <td>
+            <span class="label label-info">Inherited</span> value
+        </td>
+        <td>
+            String
+        </td>
+        <td>
+            The value displayed by the tooltip.
+        </td>
+        <td>
+            None
+        </td>
+        </tr>
+        <tr>
+            <td>
+                pretext
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The string displayed before the value of the tooltip.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                postext
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The string displayed after the value of the tooltip.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                adjust
+            </td>
+            <td>
+                Object
+            </td>
+            <td>
+                An object containing <a href="http://craigsworks.com/projects/qtip2/">qTip</a> adjustments.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                place
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                Indicates where the tooltip is placed.
+            </td>
+            <td>
+                bottom
+            </td>
+        </tr>
+        <tr>
+            <td>
+                mouse
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                Indicates whether the tooltip follows the mouse.
+            </td>
+            <td>
+                false
+            </td>
+        </tr>
+        <tr>
+            <td>
+                delay
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The delay, in ms, at which the tooltip appears.
+            </td>
+            <td>
+                1000
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                beforerender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired before the rendering of the widget starts.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                afterrender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired after the rendering of the widget ends.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                valuechanged
+            </td>
+            <td>
+                value
+            </td>
+            <td>
+                Event fired when the value of the widget changes.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <h4>HTML:</h4>
+    <pre id="html-ToolTip" class="prettyprint linenums">&lt;div id='tooltip-widget' style='width:100px; margin-top:100px;'&gt;Hover me!&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-ToolTip" class="prettyprint linenums">var tooltip = new Rj.widget.ToolTip("#tooltip-widget");
+tooltip.setValue("This is my tooltip");</pre>
+    <button id="btn-ToolTip" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="HorizontalSlider">
+<div class="class-name">
+    <h2>Rj.widget.HorizontalSlider</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a widget used for displaying horizontal sliders.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._Slider
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                min
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The minimum value that the slider can take.
+            </td>
+            <td>
+                0
+            </td>
+        </tr>
+        <tr>
+            <td>
+                max
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The maximum value that the slider can take.
+            </td>
+            <td>
+                100
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> min
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The minimum value that the slider can take.
+            </td>
+            <td>
+                0
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> max
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The maximum value that the slider can take.
+            </td>
+            <td>
+                100
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> value
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The value at which the slider is set.
+            </td>
+            <td>
+                The <strong>min</strong> attribute.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> step
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The smallest unit regarding how much the slider can move.
+            </td>
+            <td>
+                1
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> tooltip
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                Indicates whether the value of the slider is shown in a tooltip.
+            </td>
+            <td>
+                true
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> label
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The text displayed next to the value, in the tooltip.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> height
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The height of the slider.
+            </td>
+            <td>
+                100
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> width
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The width of the slider.
+            </td>
+            <td>
+                100
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> instantChange
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                If true, the slider value changes with every movement. Otherwise, it changes only when released.
+            </td>
+            <td>
+                false
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                beforerender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired before the rendering of the widget starts.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                afterrender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired after the rendering of the widget ends.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                valuechanged
+            </td>
+            <td>
+                value
+            </td>
+            <td>
+                Event fired when the value of the widget changes.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <h4>HTML:</h4>
+    <pre id="html-HorizontalSlider" class="prettyprint linenums">&lt;div id='slider-widget' style='margin-top:100px;'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-HorizontalSlider" class="prettyprint linenums">var slider = new Rj.widget.HorizontalSlider("#slider-widget", 0, 10);
+slider.addListener("hSliderListener", "valuechanged", function(value){
+    alert("The new value of the slider is:" + value);
+})</pre>
+    <button id="btn-HorizontalSlider" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="VerticalSlider">
+<div class="class-name">
+    <h2>Rj.widget.VerticalSlider</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a widget used for displaying vertical sliders.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._Slider
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                min
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The minimum value that the slider can take.
+            </td>
+            <td>
+                0
+            </td>
+        </tr>
+        <tr>
+            <td>
+                max
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The maximum value that the slider can take.
+            </td>
+            <td>
+                100
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> min
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The minimum value that the slider can take.
+            </td>
+            <td>
+                0
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> max
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The maximum value that the slider can take.
+            </td>
+            <td>
+                100
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> value
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The value at which the slider is set.
+            </td>
+            <td>
+                The <strong>min</strong> attribute.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> step
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The smallest unit regarding how much the slider can move.
+            </td>
+            <td>
+                1
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> tooltip
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                Indicates whether the value of the slider is shown in a tooltip.
+            </td>
+            <td>
+                true
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> label
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The text displayed next to the value, in the tooltip.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> height
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The height of the slider.
+            </td>
+            <td>
+                100
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> width
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The width of the slider.
+            </td>
+            <td>
+                100
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> instantChange
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                If true, the slider value changes with every movement. Otherwise, it changes only when released.
+            </td>
+            <td>
+                false
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                beforerender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired before the rendering of the widget starts.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                afterrender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired after the rendering of the widget ends.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                valuechanged
+            </td>
+            <td>
+                value
+            </td>
+            <td>
+                Event fired when the value of the widget changes.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <h4>HTML:</h4>
+    <pre id="html-VerticalSlider" class="prettyprint linenums">&lt;div id='slider-widget' style='margin-top: 100px;'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-VerticalSlider" class="prettyprint linenums">var slider = new Rj.widget.VerticalSlider("#slider-widget", 0, 10);
+slider.addListener("vSliderListener", "valuechanged", function(value){
+    alert("The new value of the slider is:" + value);
+})</pre>
+    <button id="btn-VerticalSlider" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="Knob">
+<div class="class-name">
+    <h2>Rj.widget.Knob</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a widget used for displaying knobs.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._InputWidget
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                min
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The minimum value that the knob can take.
+            </td>
+            <td>
+                0
+            </td>
+        </tr>
+        <tr>
+            <td>
+                max
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The maximum value that the knob can take.
+            </td>
+            <td>
+                100
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> min
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The minimum value that the knob can take.
+            </td>
+            <td>
+                0
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> max
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The maximum value that the knob can take.
+            </td>
+            <td>
+                100
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> value
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The value at which the knob is set.
+            </td>
+            <td>
+                The <strong>min</strong> attribute.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                snap
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The number of degrees at which the knob is drawn to the minimum value.
+            </td>
+            <td>
+                1
+            </td>
+        </tr>
+        <tr>
+            <td>
+                reverse
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                Indicates whether the value should decrease as the angle of the knob increases.
+            </td>
+            <td>
+                false
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                beforerender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired before the rendering of the widget starts.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                afterrender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired after the rendering of the widget ends.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                valuechanged
+            </td>
+            <td>
+                value
+            </td>
+            <td>
+                Event fired when the value of the widget changes.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <h4>HTML:</h4>
+    <pre id="html-Knob" class="prettyprint linenums">&lt;div id='knob-widget'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-Knob" class="prettyprint linenums">var knob = new Rj.widget.Knob("#knob-widget", 0, 10);
+knob.setValue(3);</pre>
+    <button id="btn-Knob" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="Text">
+<div class="class-name">
+    <h2>Rj.widget.Text</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a widget used for displaying text areas.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.widget._InputWidget
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-info">Inherited</span> <a href="#Bindable">Rj.util.Bindable</a>,
+                <span class="label label-info">Inherited</span> <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                value
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The initial string to be displayed in the text area.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> selector
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                A valid css3/XPath selector where the widget will be displayed.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> value
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The value at which the knob is set.
+            </td>
+            <td>
+                The <strong>min</strong> attribute.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                rows
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The number of rows of the text area.
+            </td>
+            <td>
+                5
+            </td>
+        </tr>
+        <tr>
+            <td>
+                cols
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The number of columns of the text area.
+            </td>
+            <td>
+                15
+            </td>
+        </tr>
+        <tr>
+            <td>
+                label
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The label of the text area.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                submitText
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The text displayed on the submit button.
+            </td>
+            <td>
+                "Submit"
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                beforerender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired before the rendering of the widget starts.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                afterrender
+            </td>
+            <td>
+                -
+            </td>
+            <td>
+                Event fired after the rendering of the widget ends.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                valuechanged
+            </td>
+            <td>
+                value
+            </td>
+            <td>
+                Event fired when the value of the widget changes.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <h4>HTML:</h4>
+    <pre id="html-Text" class="prettyprint linenums">&lt;div id='text-widget'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-Text" class="prettyprint linenums">var textWidget = new Rj.widget.Text("#text-widget", "Initial text.");
+textWidget.setValue("Another piece of text.");</pre>
+    <button id="btn-Text" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<h2 id="query" style="color: #356635;">Query</h2>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="WCPSQuery">
+<div class="class-name">
+    <h2>Rj.query.WCPSQuery</h2>
+</div>
+<div class="class-description">
+    <h5>A WCPSQuery object can send wcps queries to a service that can process them and parse the result
+        to obtain data.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.query.LiteralQuery,
+                <span class="label label-important">Internal</span> Rj.query.Executable,
+                <a href="#Bindable">Rj.util.Bindable</a>,
+                <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                query
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The query string. Can contain 0 or more variables.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Optional</span> variables
+            </td>
+            <td>
+                Array
+            </td>
+            <td>
+                An array containing the names of the query variables.
+            </td>
+            <td>
+                [ ]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                binaryFormat
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                Should be set to true if the query returns a binary format (e.g. image) instead of UTF-8 / ASCII format.
+            </td>
+            <td>
+                false
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label label-info">Inherited</span> cached
+            </td>
+            <td>
+                Bool
+            </td>
+            <td>
+                Indicates whether the query should be cached or not.
+            </td>
+            <td>
+                false
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-methods">
+    <h3>Methods</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                RETURN TYPE
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span class="label label-info">Inherited</span> evaluate</td>
+            <td>Void</td>
+            <td><span class="label">Optional</span> {Function} callback - a function to process the response<br/>
+                <span class="label">Optional</span> {Bool} persistent - if true the callback will be called each time
+                the query will be re-executed</td>
+            <td>Evaluates the query and calls a corresponding callback function.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                evaluated
+            </td>
+            <td>
+                result
+            </td>
+            <td>
+                Event fired after the query has been evaluated.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <h4>Javascript:</h4>
+    <pre id="js-WCPSQuery" class="prettyprint linenums">//set up the WCPS service
+Rj.util.ConfigManager.setWCPSService({
+    url           : "http://flanche.net:8080/petascope/",
+    queryParameter: "request"
+});
+
+var query = new Rj.query.WCPSQuery('for t1 in (mean_summer_airtemp) return encode (t1[ x(126), y(-10) ], "csv")');
+query.evaluate(function(response){
+        alert("The query result is: " + response);
+})</pre>
+    <button id="btn-WCPSQuery" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="wcs.GetCoverage">
+<div class="class-name">
+    <h2>Rj.query.wcs.GetCoverage</h2>
+</div>
+<div class="class-description">
+    <h5>A GetCoverage object can send WCS getCoverage requests to a service that can process them and parse the result
+        to obtain data.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <span class="label label-important">Internal</span> Rj.query.Executable, <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                coverageId
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The id of the coverage.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                coverageId
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The id of the coverage.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                subsets
+            </td>
+            <td>
+                Array of <a href="#wcs.Subset">Rj.query.wcs.Subset</a>
+            </td>
+            <td>
+                The requested subsets.
+            </td>
+            <td>
+                [ ]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-methods">
+    <h3>Methods</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                RETURN TYPE
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td><span class="label label-info">Inherited</span> evaluate</td>
+            <td>Void</td>
+            <td><span class="label">Optional</span> {Function} callback - a function to process the response<br/>
+                <span class="label">Optional</span> {Bool} persistent - if true the callback will be called each time
+                the query will be re-executed</td>
+            <td>Evaluates the query and calls a corresponding callback function.</td>
+        </tr>
+        <tr>
+            <td>addSubset</td>
+            <td>Void</td>
+            <td>{<a href="#wcs.Subset">Rj.query.wcs.Subset</a>} subset - the subset to be added</td>
+            <td>Adds a subset to the request.</td>
+        </tr>
+        <tr>
+            <td>removeSubset</td>
+            <td>Void</td>
+            <td>{<a href="#wcs.Subset">Rj.query.wcs.Subset</a>} subset - the subset to be removed</td>
+            <td>Removes a subset from the request.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                evaluated
+            </td>
+            <td>
+                result
+            </td>
+            <td>
+                Event fired after the query has been evaluated.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <h4>Javascript:</h4>
+    <pre id="js-wcs.GetCoverage" class="prettyprint linenums">//set up the WCS service
+Rj.util.ConfigManager.setWCSService({
+      baseUrl:"http://flanche.net:8080/petascope/",
+      name   :"WCS",
+      version:"2.0.0"
+});
+
+var query = new Rj.query.wcs.GetCoverage("mean_summer_airtemp");
+query.evaluate(function(response){
+    alert("The query result is: " + response);
+});</pre>
+    <button id="btn-wcs.GetCoverage" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="wcs.Subset">
+<div class="class-name">
+    <h2>Rj.query.wcs.Subset</h2>
+</div>
+<div class="class-description">
+    <h5>A Subset object meant to be passed to a getCoverage request, in <a href="#wcs.GetCoverage">wcs.GetCoverage</a>.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                dimension
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The name of the dimension.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                crs
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The identifier of the crs.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                low
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The lower bound of the subset.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Optional</span> high
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The higher bound of the subset.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                dimension
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The name of the dimension.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                crs
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The identifier of the crs.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                low
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The lower bound of the subset.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Optional</span> high
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The higher bound of the subset.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-methods">
+    <h3>Methods</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                RETURN TYPE
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>equals</td>
+            <td>Bool</td>
+            <td>{<a href="#wcs.Subset">Rj.query.wcs.Subset</a>} other - Another object of the same type.</td>
+            <td>Checks if the 2 objects have the same dimension, crs, low and high.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<h2 id="#utils" style="color:#356635;">Utils</h2>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="Bindable">
+<div class="class-name">
+    <h2>Rj.util.Bindable</h2>
+</div>
+<div class="class-description">
+    <h5>Interface for binding objects.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-methods">
+    <h3>Methods</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                RETURN TYPE
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>bind</td>
+            <td>Void</td>
+            <td>{Object} modifier - The object to which the binding is made. The binding implies that the modifier has effects on the original object.<br/>
+                <span class="label">Optional</span> variable - A variable indicating what the modifier will change.<br/>
+                <span class="label">Optional</span> callback - The binding function. If a default binindg exists, it will be overriden.<br/>
+            <td>Performs the binding between objects.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <p>This example shows how to bind a query to a slider: when the slider moves the value of the query changes.</p>
+    <p>The query string is then printed to a text widget with a custom binder.</p>
+
+    <h4>HTML:</h4>
+    <pre id="html-Bindable" class="prettyprint linenums">&lt;div id='slider-widget' style='margin-top: 30px;'&gt;&lt;/div&gt;
+&lt;div id='text-widget'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-Bindable" class="prettyprint linenums">//set up the wcps service
+Rj.util.ConfigManager.setWCPSService({
+      url           : "http://flanche.net:8080/petascope/",
+      queryParameter: "request"
+});
+
+var slider = new Rj.widget.HorizontalSlider("#slider-widget", 126, 130);
+var query = new Rj.query.WCPSQuery('for t1 in (mean_summer_airtemp) return encode (t1[ x(126:$x) ], "csv")', ['$x']);
+query.bind(slider, '$x');
+
+var text = new Rj.widget.Text("#text-widget");
+text.bind(query, function(text, bind){
+    //set the initial value
+    text.setValue(query.toString());
+
+    //when the query evaluates, change to the new value
+    query.addListener('textModifier', 'evaluated', function(){
+        text.setValue(query.toString());
+    });
+});
+</pre>
+    <button id="btn-Bindable" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="ConfigManager">
+<div class="class-name">
+    <h2>Rj.util.ConfigManager</h2>
+</div>
+<div class="class-description">
+    <h5>Singleton class used for service configurations.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                WCPSService
+            </td>
+            <td>
+                Object
+            </td>
+            <td>
+                A configuration object for WCPS.
+            </td>
+            <td>
+               {
+                url           :"http://example.org/wcps/1.0/",
+                queryParameter:"request"
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                WCSService
+            </td>
+            <td>
+                Object
+            </td>
+            <td>
+                A configuration object for WCS.
+            </td>
+            <td>
+                {
+                baseUrl:"http://example.org/",
+                name   :"WCS",
+                version:"2.0.1"
+                }
+            </td>
+        </tr>
+        <tr>
+            <td>
+                RequestDelay
+            </td>
+            <td>
+                Int
+            </td>
+            <td>
+                The minimal time, in ms, that has to pass from the the time of the last query until a new one can be
+                sent.
+            </td>
+            <td>
+                200
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <h4>Javascript:</h4>
+    <pre id="js-ConfigManager" class="prettyprint linenums">//set up a WCS service
+Rj.util.ConfigManager.setWCSService({
+      baseUrl:"http://flanche.net:8080/petascope/",
+      name   :"WCS",
+      version:"2.0.0"
+});
+</pre>
+    <button id="btn-ConfigManager" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="CSVParser">
+<div class="class-name">
+    <h2>Rj.util.CSVParser</h2>
+</div>
+<div class="class-description">
+    <h5>Class used for parsing comma separated value responses.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                csvString
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The original csv string.
+            </td>
+            <td>
+               None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="label">Optional</span> elementParser
+            </td>
+            <td>
+                Function
+            </td>
+            <td>
+                A function to be applied to every element of the parsed response.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+
+    <h4>Javascript:</h4>
+    <pre id="js-CSVParser" class="prettyprint linenums">//set up a WCPS service
+Rj.util.ConfigManager.setWCPSService({
+      url           : "http://flanche.net:8080/petascope/",
+      queryParameter: "request"
+});
+
+var query = new Rj.query.WCPSQuery('for t2 in (mean_summer_airtemp) return encode (t2 [x(160), y(0)], "csv")');
+query.evaluate(function(response){
+      var parser = new Rj.util.CSVParser(response, function(e){
+        return parseInt(e, 10);
+      });
+      alert(parser.toNativeJsArray());
+});
+</pre>
+    <button id="btn-CSVParser" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="Observable">
+<div class="class-name">
+    <h2>Rj.util.Observable</h2>
+</div>
+<div class="class-description">
+    <h5>Interface for event communication.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-methods">
+    <h3>Methods</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                RETURN TYPE
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>fireEvent</td>
+            <td>Void</td>
+            <td>{String} name - the name of the event to be fired<br/>
+            <span class="label">Optional</span>{Object} args - any additional parameters to be passed to the handler
+            </td>
+            <td>Fires an event with the given arguments.</td>
+        </tr>
+        <tr>
+            <td>addListener</td>
+            <td>Void</td>
+            <td>{String} identifier - an identifier for the registered listener<br/>
+            {String} eventName - the name of the event to which the object listens<br/>
+            {Function} callback - the function to be executed when the event occurs
+            </td>
+            <td>Registers a listener to a given event.</td>
+        </tr>
+        <tr>
+            <td>removeListener</td>
+            <td>Void</td>
+            <td>{String} identifier - the id of the listener to be removed<br/>
+            {String} eventName - the name of the event associated with the listener
+            </td>
+            <td>Removes the given listener.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+    <h4>HTML:</h4>
+    <pre id="html-Observable" class="prettyprint linenums">&lt;div id='slider-widget' style='margin-top:30px'&gt;&lt;/div&gt;
+&lt;div id='text-widget'&gt;&lt;/div&gt;</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-Observable" class="prettyprint linenums">
+var slider = new Rj.widget.HorizontalSlider("#slider-widget", 0, 50);
+var text = new Rj.widget.Text("#text-widget");
+
+//when the value of the slider changes, it fires "valuechanged"
+//we make the value in the text change with a listener
+slider.addListener("mySliderText", "valuechanged", function(value){
+   text.setValue(value);
+});
+</pre>
+    <button id="btn-Observable" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+<div id="DataSeries">
+<div class="class-name">
+    <h2>Rj.util.DataSeries</h2>
+</div>
+<div class="class-description">
+    <h5>Defines a data series for diagram usage.</h5>
+    <table class="table table-hover">
+        <tbody>
+        <tr>
+            <td>
+                Extends
+            </td>
+            <td>
+                -
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Implements
+            </td>
+            <td>
+                <a href="#Observable">Rj.util.Observable</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-constructor">
+    <h3>Constructor:</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                PARAMETER
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                series
+            </td>
+            <td>
+                Array
+            </td>
+            <td>
+                An array of the form [point, point, ...] or [[x,y], [x,y], ...].
+            </td>
+            <td>
+                [ ]
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-properties">
+    <h3>Properties</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                TYPE
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+            <th>
+                DEFAULT
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                name
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The name of the series.
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                color
+            </td>
+            <td>
+                String
+            </td>
+            <td>
+                The color of the series..
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        <tr>
+            <td>
+                series
+            </td>
+            <td>
+                Array
+            </td>
+            <td>
+                The series array in the form [[x,y], [x,y], ...]
+            </td>
+            <td>
+                None
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-methods">
+    <h3>Methods</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                RETURN TYPE
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>pointAt</td>
+            <td>Float</td>
+            <td>{String} x - the index of the wanted point<br/>
+            </td>
+            <td>Returns the value of the point at the given index.</td>
+        </tr>
+        <tr>
+            <td>addPoint</td>
+            <td>Void</td>
+            <td>{Float} x - the index at which the point is added or the value of the point, if the second argument is not given.<br/>
+            <span class="label">Optional</span> {Float} y - the value of the point<br/>
+            </td>
+            <td>If x,y given it adds the point y to the coordinate x in the series. If only x given it adds it at the end of the series.<br/>
+            If a point already exists at the given index, it is replaced.
+            </td>
+        </tr>
+        <tr>
+            <td>removePoint</td>
+            <td>Void</td>
+            <td>{Int} x - the index of the point to be removed</td>
+            <td>Removes the given point.</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-events">
+    <h3>Events</h3>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>
+                NAME
+            </th>
+            <th>
+                PARAMETERS
+            </th>
+            <th>
+                DESCRIPTION
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                namechanged
+            </td>
+            <td>
+                newName
+            </td>
+            <td>
+                Event fired when the name of the series changes.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                colorchanged
+            </td>
+            <td>
+                newColor
+            </td>
+            <td>
+                Event fired when the color of the series changes.
+            </td>
+        </tr>
+        <tr>
+            <td>
+                serieschanged
+            </td>
+            <td>
+                newSeries
+            </td>
+            <td>
+                Event fired when the series suffers any modifications.
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div class="class-examples">
+    <h3>Examples</h3>
+    <h4>HTML:</h4>
+    <pre id="html-DataSeries" class="prettyprint linenums">&lt;div id='diagram-widget' style='margin-top:30px'&gt;&lt;/div&gt;
+</pre>
+    <h4>Javascript:</h4>
+    <pre id="js-DataSeries" class="prettyprint linenums">
+var dataSeries = new Rj.util.DataSeries([[1,2], [5,9], [6,4]]);
+var diagram = new Rj.widget.LinearDiagram("#diagram-widget", dataSeries);
+
+//after 5 seconds change the color, and add a new point
+setTimeout(function(){
+    dataSeries.setColor("green");
+    dataSeries.addPoint(7,5);
+}, 5000);
+</pre>
+    <button id="btn-DataSeries" class="btn btn-danger example-button">See in Code Trainer</button>
+    <br/><br/>
+</div>
+</div>
+<div class="progress progress-info">
+    <div class="bar" style="width: 100%"></div>
+</div>
+</div>
+</div>
+</body>
+</html>

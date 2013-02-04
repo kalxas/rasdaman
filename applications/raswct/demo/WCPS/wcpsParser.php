@@ -24,7 +24,7 @@ function get_data($url) {
 
 
 $coverageId = $_GET['coverageId'];
-$coverageRaw = get_data('http://kahlua.eecs.jacobs-university.de:8080/petascope?service=WCS&version=2.0.0&request=GetCoverage&coverageId=' . $coverageId);
+$coverageRaw = get_data('http://212.201.49.173:8080/petascope_earthlook?service=WCS&version=2.0.0&request=GetCoverage&coverageId=' . $coverageId);
 if (!strstr($coverageRaw, '<ows:ExceptionText>')) {
     $coverage = simplexml_load_string($coverageRaw);
     $lowDomainLimit = (string) $coverage->domainSet->Grid->limits->GridEnvelope->low;
@@ -49,6 +49,8 @@ else{
       'error' => trim($error[0])
     );
 }
+
+$results = array(array(0,1),array(1,2),array(2,3),array(3,4),array(4,5),array(5,6),array(6,7),array(7,8),array(8,9));
 
 print json_encode($results);
 
