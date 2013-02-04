@@ -242,11 +242,13 @@ public class Wcs2Servlet extends HttpServlet {
         log.error("Error stack trace:", e);
         if (e instanceof WCSException) {
             String output = WcsUtil.exceptionToXml((WCSException) e);
+            response.setStatus(400);
             response.setContentType("text/xml; charset=utf-8");
             out.println(output);
             out.close();
         } else {
             log.trace("setting response mimetype to text/html; charset=utf-8");
+            response.setStatus(501);
             response.setContentType("text/html; charset=utf-8");
             log.trace("returning the following error message.", e);
             log.trace("end of error message");
