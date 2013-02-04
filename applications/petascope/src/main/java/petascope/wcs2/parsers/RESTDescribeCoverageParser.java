@@ -50,6 +50,6 @@ public class RESTDescribeCoverageParser extends RESTParser<DescribeCoverageReque
     public String getOperationName() {
         return RESTDescribeCoverageParser.OPERATION_IDENTIFIER;
     }
-    private static final String OPERATION_IDENTIFIER = "description";
+    public static final String OPERATION_IDENTIFIER = "description";
     private static final int COVERAGE_ID_PLACE = 3;
 }

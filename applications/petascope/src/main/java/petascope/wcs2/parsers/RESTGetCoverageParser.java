@@ -47,6 +47,25 @@ import petascope.wcs2.helpers.rest.RESTUrl;
 public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
 
     /**
+     * Overrides the parent canParse method to better identify GetCoverage requests
+     * @param request the http request
+     * @return true if possible, false otherwise
+     */
+    @Override
+    public boolean canParse(HTTPRequest request) {
+        RESTUrl rUrl = new RESTUrl(request.getUrlPath());
+        Boolean canParse = true;
+        if (!(request.getQueryString() == null || request.getQueryString().isEmpty())) {
+            canParse = false;
+        } else if (!rUrl.existsKey(this.getOperationName())) {
+            canParse = false;
+        } else if (rUrl.existsKey(RESTDescribeCoverageParser.OPERATION_IDENTIFIER)) {
+            canParse = false;
+        }
+        return canParse;
+    }
+
+    /**
      * Parses all the subsets and add them to the coverage request
      *
      * @param rUrl - A RESTUrl object from which subsets can be extracted
