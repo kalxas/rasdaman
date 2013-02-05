@@ -21,23 +21,23 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.core.Metadata;
-import petascope.exceptions.WCPSException;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.core.Metadata;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
 
-public class ScalarExpr implements IRasNode, ICoverageInfo {
+public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(ScalarExpr.class);
 
@@ -112,6 +112,9 @@ public class ScalarExpr implements IRasNode, ICoverageInfo {
         if (child == null) {
             log.error("  " + WCPSConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
             throw new WCPSException(WCPSConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
+        } else {
+            // Add it to the children for XML tree re-traversing
+            super.children.add(child);
         }
 
         Metadata meta = createScalarExprMetadata(xq);

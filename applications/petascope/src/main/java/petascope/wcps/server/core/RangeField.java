@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.util.WCPSConstants;
 
-public class RangeField implements IRasNode {
+public class RangeField extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(RangeField.class);
 

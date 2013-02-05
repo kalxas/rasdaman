@@ -21,16 +21,25 @@
  */
 package petascope.wcps.server.core;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.core.IDynamicMetadataSource;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
+import petascope.util.MiscUtil;
 import petascope.util.WCPSConstants;
+import petascope.wcs2.extensions.FormatExtension;
 
 // This is the equivalent of the "ProcessingExprType" complex XML type.
-public class EncodeDataExpr implements IRasNode {
-    
+public class EncodeDataExpr extends AbstractRasNode {
+       
     private static Logger log = LoggerFactory.getLogger(EncodeDataExpr.class);
 
     private IRasNode coverageExprType;
@@ -46,7 +55,7 @@ public class EncodeDataExpr implements IRasNode {
 
         for (child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
             nodeName = child.getNodeName();
-
+            
             if (nodeName.equals("#" + WCPSConstants.MSG_TEXT)) {
                 continue;
             }
@@ -69,6 +78,9 @@ public class EncodeDataExpr implements IRasNode {
             } catch (WCPSException ex) {
                 throw ex;
             }
+            
+            /// Keep this child for XML tree crawling:
+            super.children.add(coverageExprType);
         }
 
         Node _store = node.getAttributes().getNamedItem(WCPSConstants.MSG_STORE);
@@ -80,7 +92,7 @@ public class EncodeDataExpr implements IRasNode {
     public String getMime() {
         return mime;
     }
-
+ 
     public String toRasQL() {
         // TODO: cjucovschi - implement store
 
@@ -117,16 +129,120 @@ public class EncodeDataExpr implements IRasNode {
             if (encode) {
                 result += ", \"" + gdalid + "\"";
             }
-
-            // finally extra parameters to the encoding function
+            
+            // finally extra parameters to the encoding function.
+            // They can be either explicitely set by the user (or by WCS engine) or,
+            // in case of GTiff/JPEG200 enconding, automatically filled with (geo)bounds
             if (extraParams != null) {
                 extraParams = '"' + extraParams + '"';
                 result = result + ", " + extraParams;
-            }
-
+            } else if (encode && coverageExprType instanceof CoverageExpr
+                    && (format.equals(FormatExtension.TIFF_ENCODING) || format.equals(FormatExtension.JP2_ENCODING))) {
+                
+                // Get the bounds of the 2D requested coverage
+                try {
+                    List<Double> reqBounds = this.getRequestBounds(coverageExprType, 2);
+                    CoverageInfo info = ((CoverageExpr) coverageExprType).getCoverageInfo();
+                    
+                    if (!reqBounds.isEmpty() && info != null) {
+                        // Build the whole string (dimensions of reqBounds are already checked inside getRequestBounds)
+                        String crs = (info.getBbox() == null) ? "" : info.getBbox().getCrsName();
+                        MiscUtil.CrsProperties crsProperties =
+                                (new MiscUtil()).new CrsProperties(
+                                reqBounds.get(0), // x1_min
+                                reqBounds.get(1), // x1_max
+                                reqBounds.get(2), // x2_min
+                                reqBounds.get(3), // x2_max
+                                crs);
+                        
+                        // Append params to the rasql query:
+                        extraParams = crsProperties.toString();
+                        result = result + ", \"" + extraParams + "\"";
+                    }
+                } catch (WCPSException ex) {
+                    log.warn("GDAL extra params won't be set: " + ex.getMessage());
+                }
+            }            
             result = result + ")";
         }
-
         return result;
+    }
+    
+    /** 
+     * Returns the bounds of the requested coverage with trim-updates and letting out sliced dimensions.
+     * Dimensionality of the bounds is checked against the DIM argument.
+     * @param queryRoot The root node of the XML query, used to fetch trims and slices
+     * @param info      
+     * @return
+     * @throws WCPSException 
+     */
+    private List<Double> getRequestBounds(IRasNode queryRoot, Integer DIM) throws WCPSException {
+        
+        // variables
+        List<Double> outList = new ArrayList<Double>();
+        CoverageInfo info = ((CoverageExpr) queryRoot).getCoverageInfo();
+        
+        if (info != null) {
+            Map<Integer, String>   orderToName = new HashMap<Integer, String>(); // (order of subset) not necessarily = (order of coverage axes)
+            Map<String, Double[]> nameToBounds = new HashMap<String, Double[]>();
+            
+            // Fetch the subset operations (trims) in the WCPS query to set appropriate (geo)bounds
+            List<TrimCoverageExpr>   trims = MiscUtil.childrenOfType(queryRoot, TrimCoverageExpr.class);
+            List<SliceCoverageExpr> slices = MiscUtil.childrenOfType(queryRoot, SliceCoverageExpr.class);
+            
+            // Check each dimension: slice->discard, trim->setBounds, otherwise set bbox bounds
+            for (int i=0; i<info.getNumDimensions(); i++) {
+                String dimName = info.getDomainElement(i).getName();
+                
+                // Check slices
+                boolean sliced = false;
+                for (SliceCoverageExpr slice : slices) {
+                    if (slice.slicesDimension(dimName)) {
+                        sliced = true; // Skip to next axis
+                    }
+                }
+                
+                // The dimension is surely in the output
+                if (!sliced) {
+                    try {
+                        orderToName.put(info.getDomainIndexByName(dimName), dimName);
+                        
+                        // Set the bounds of this dimension: total bbox first, then update in case of trims in the request
+                        nameToBounds.put(dimName, new Double[]{info.getDomainElement(i).getNumLo(), info.getDomainElement(i).getNumHi()});
+                        for (TrimCoverageExpr trim : trims) {
+                            if (trim.trimsDimension(dimName)) {
+                                // Set bounds specified in the trim (themselves trimmed by bbox values)                                
+                                Double[] trimBounds = trim.trimmingValues(dimName);
+                                if (trimBounds[0] < nameToBounds.get(dimName)[0]) trimBounds[0] = nameToBounds.get(dimName)[0]; // trimLo < bboxLo
+                                if (trimBounds[1] > nameToBounds.get(dimName)[1]) trimBounds[1] = nameToBounds.get(dimName)[1]; // trimHi > bboxHi
+                                nameToBounds.remove(dimName);
+                                nameToBounds.put(dimName, trimBounds);
+                            }
+                        }
+                    } catch (WCPSException ex) {
+                        log.error(ex.getMessage());
+                        throw ex;
+                    }
+                }
+            }
+            
+            // Check dimensions is exactly 2:
+            if (orderToName.size() != DIM) {
+                String message = "Trying to encode a " + format + " but the number of output dimensions is " + orderToName.size() + ".";
+                log.error(message);
+                throw new WCPSException(ExceptionCode.InvalidRequest, message);
+            }
+            // end of method
+            
+            // Set the bounds in the proper order (according to the order of the axes in the coverage
+            Double[] dom1 = nameToBounds.get(orderToName.get(Collections.min(orderToName.keySet())));
+            Double[] dom2 = nameToBounds.get(orderToName.get(Collections.max(orderToName.keySet())));
+            
+            // Output: min1, max1, min2, max2
+            outList.addAll(Arrays.asList(dom1));
+            outList.addAll(Arrays.asList(dom2));
+        }
+        
+        return outList;
     }
 }

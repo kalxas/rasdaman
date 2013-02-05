@@ -108,6 +108,8 @@ for f in *.test; do
   
   # test single file
   #[ "$f" == "48-slice_scale.test" ] || continue
+  # test single file (regexp)
+  #[[ "$f" == 53* ]] || continue
 
   # test header
   loge ""

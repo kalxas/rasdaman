@@ -27,7 +27,7 @@ import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.util.WCPSConstants;
 
-public class FieldName implements IRasNode {
+public class FieldName extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(FieldName.class);
 

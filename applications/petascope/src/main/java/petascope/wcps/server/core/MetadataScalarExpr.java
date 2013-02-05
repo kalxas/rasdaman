@@ -23,18 +23,17 @@ package petascope.wcps.server.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
 
 // TODO: implement class MetadataScalarExprType
-public class MetadataScalarExpr implements IRasNode {
+public class MetadataScalarExpr extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(MetadataScalarExpr.class);
     
-    private IRasNode child;
     private CoverageExpr coverageExprType;
     private CoverageInfo coverageInfo;
     private String op;
@@ -52,11 +51,13 @@ public class MetadataScalarExpr implements IRasNode {
         // the first argument is always a coverage expression
         coverageExprType = new CoverageExpr(child, xq);
         coverageInfo = coverageExprType.getCoverageInfo();
+        super.children.add(coverageExprType);
         child = child.getNextSibling();
         
         op = nodeName;
+        AxisName axis = null;
         if (nodeName.equals(WCPSConstants.MSG_DOMAIN_METADATA_CAMEL)) {
-            AxisName axis = new AxisName(child, xq);
+            axis = new AxisName(child, xq);            
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
             DomainElement domainElement = coverageInfo.getDomainElement(axisIndex);
             if (domainElement.getNumLo() == null) {
@@ -67,7 +68,7 @@ public class MetadataScalarExpr implements IRasNode {
                 hi = domainElement.getNumHi().toString();
             }
         } else if (nodeName.equals(WCPSConstants.MSG_IMAGE_CRSDOMAIN)) {
-            AxisName axis = new AxisName(child, xq);
+            axis = new AxisName(child, xq);
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
             CellDomainElement cellDomain = coverageInfo.getCellDomainElement(axisIndex);
             lo = cellDomain.getLo().toString();
@@ -76,6 +77,9 @@ public class MetadataScalarExpr implements IRasNode {
                    !nodeName.equals(WCPSConstants.MSG_IMAGE_CRS2)) {
             throw new WCPSException(WCPSConstants.ERRTXT_NO_METADATA_NODE + nodeName);
         }
+        
+        // Store the child for XML tree re-traversing
+        if (axis != null) super.children.add(axis);
     }
 
     public String toRasQL() {

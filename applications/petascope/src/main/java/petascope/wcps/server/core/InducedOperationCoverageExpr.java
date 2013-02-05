@@ -23,11 +23,11 @@ package petascope.wcps.server.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
 
-public class InducedOperationCoverageExpr implements IRasNode, ICoverageInfo {
+public class InducedOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(InducedOperationCoverageExpr.class);
 
@@ -74,6 +74,9 @@ public class InducedOperationCoverageExpr implements IRasNode, ICoverageInfo {
             if (child == null) {
                 throw new WCPSException(WCPSConstants.ERRTXT_INVALID_INDUCED_COV_EXPR + ": "
                         + node.getNodeName());
+            } else {
+                // Keep the child to let the XML tree be traversed
+                super.children.add(child);
             }
         }
 

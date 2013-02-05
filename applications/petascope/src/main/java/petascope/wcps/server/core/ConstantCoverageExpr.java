@@ -35,7 +35,7 @@ import org.w3c.dom.*;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
 
-public class ConstantCoverageExpr implements IRasNode, ICoverageInfo {
+public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
     private static Logger log = LoggerFactory.getLogger(ConstantCoverageExpr.class);
 
@@ -67,7 +67,8 @@ public class ConstantCoverageExpr implements IRasNode, ICoverageInfo {
             } else {
                 log.trace("  " + WCPSConstants.MSG_VALUE_LISt);
                 valueList = new ConstantList(node, xq);
-                node = valueList.getLastNode();
+                node = valueList.getLastNode();                
+                super.children.add(valueList);
             }
 
             node = node.getNextSibling();

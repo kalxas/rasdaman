@@ -33,7 +33,7 @@ import petascope.util.WCPSConstants;
 /** NOTE(campalani): rasdaman enterprise already implements reprojection of coverage
  *  through 'project' function.
  */
-public class CrsTransformCoverageExpr implements IRasNode, ICoverageInfo {
+public class CrsTransformCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(CrsTransformCoverageExpr.class);
     

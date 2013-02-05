@@ -33,7 +33,7 @@ import org.w3c.dom.*;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
 
-public class ConstructCoverageExpr implements IRasNode, ICoverageInfo {
+public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
     private String covName;
     private Vector<AxisIterator> iterators;
@@ -75,6 +75,9 @@ public class ConstructCoverageExpr implements IRasNode, ICoverageInfo {
                 }
                 // And only then start parsing the "values" section 
                 values = new CoverageExpr(node, xq);
+                
+                // Keep children to let the XML tree be re-traversed
+                super.children.add(values);
             }
 
             node = node.getNextSibling();

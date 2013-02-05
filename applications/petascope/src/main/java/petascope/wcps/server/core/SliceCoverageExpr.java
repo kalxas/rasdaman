@@ -21,26 +21,27 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.exceptions.WCPSException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
+import petascope.exceptions.WCPSException;
 import petascope.util.Pair;
 import petascope.util.WCPSConstants;
 import petascope.util.WcsUtil;
 
-public class SliceCoverageExpr implements IRasNode, ICoverageInfo {
+public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(SliceCoverageExpr.class);
 
     private List<DimensionPointElement> axisList;
     private CoverageExpr coverageExprType;
     private CoverageInfo coverageInfo = null;
-    private String[] dim;
+    private String[] dimNames;
     private DimensionPointElement elem;
     private int dims;
 
@@ -75,6 +76,7 @@ public class SliceCoverageExpr implements IRasNode, ICoverageInfo {
                     log.trace("  " + WCPSConstants.MSG_COVERAGE);
                     coverageExprType = new CoverageExpr(child, xq);
                     coverageInfo = coverageExprType.getCoverageInfo();
+                    super.children.add(coverageExprType);
                     child = child.getNextSibling();
                     continue;
                 } catch (WCPSException e) {
@@ -84,12 +86,15 @@ public class SliceCoverageExpr implements IRasNode, ICoverageInfo {
             }
         }
 
+        // Add children to let the XML query be re-traversed
+        super.children.addAll(axisList);     
+        
         dims = coverageInfo.getNumDimensions();
         log.trace("  " + WCPSConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
-        dim = new String[dims];
+        dimNames = new String[dims];
 
         for (int j = 0; j < dims; ++j) {
-            dim[j] = "*:*";
+            dimNames[j] = "*:*";
         }
 
         Iterator<DimensionPointElement> i = axisList.iterator();
@@ -103,7 +108,7 @@ public class SliceCoverageExpr implements IRasNode, ICoverageInfo {
             /* TODO: BUG: This searches the axis types list using name, not type */
             axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
             slicingPosStr = axis.getSlicingPosition();
-            dim[axisId] = slicingPosStr;
+            dimNames[axisId] = slicingPosStr;
             // Slicing position can be a constant number or a variable reference
             try {
                 slicingPosInt = Integer.parseInt(slicingPosStr);
@@ -153,14 +158,42 @@ public class SliceCoverageExpr implements IRasNode, ICoverageInfo {
         } else if (c instanceof SliceCoverageExpr) {
             res = ((SliceCoverageExpr) c).computeRasQL();
         } else {
-            return Pair.of(dim, coverageExprType.toRasQL());
+            return Pair.of(dimNames, coverageExprType.toRasQL());
         }
         String[] a = res.fst;
         String[] b = new String[dims];
         for (int i = 0; i < dims; i++) {
-            b[i] = WcsUtil.min(a[i], dim[i]);
+            b[i] = WcsUtil.min(a[i], dimNames[i]);
         }
         
         return Pair.of(b, res.snd);
+    }
+    
+    /**  
+     * @return How many dimensions are specified in this slice expression
+     */
+    int numberOfDimensions() {
+        return dims;
+    }
+    
+    /**
+     * @return The list of axes names specified in this slice expression
+     */
+    List<String> getDimensionsNames() {
+        return new ArrayList(Arrays.asList(dimNames));
+    }
+    
+    /** 
+     * Utility to check whether a specified axis is involved in this slice expression
+     * @param axisName  The name of the axis (specified in the request)
+     * @return True is `axisName` is sliced here.
+     */    
+    boolean slicesDimension(String axisName) {
+        for (DimensionPointElement slice : axisList) {
+            if (slice.getAxisName().equals(axisName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

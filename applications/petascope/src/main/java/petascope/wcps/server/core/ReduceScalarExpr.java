@@ -23,11 +23,11 @@ package petascope.wcps.server.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
 
-public class ReduceScalarExpr implements IRasNode {
+public class ReduceScalarExpr extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(ReduceScalarExpr.class);
 
@@ -66,6 +66,10 @@ public class ReduceScalarExpr implements IRasNode {
             }
 
             expr = new CoverageExpr(node, xq);
+            
+            // Keep the child for XML tree re-traversing
+            super.children.add(expr);
+            
         } else {
             throw new WCPSException(WCPSConstants.ERRTXT_INVALID_REDUCE_SCALAR_EXPR + nodeName);
         }

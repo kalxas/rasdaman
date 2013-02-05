@@ -33,7 +33,7 @@ import petascope.util.WCPSConstants;
  * This is a component of a RangeStructure. 
  * @author Andrei Aiordachioaie
  */
-public class RangeComponent implements IRasNode, ICoverageInfo {
+public class RangeComponent extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(RangeComponent.class);
 

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.util.WCPSConstants;
 
-public class ExtendCoverageExpr implements IRasNode, ICoverageInfo {
+public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(ExtendCoverageExpr.class);
 
@@ -63,6 +63,7 @@ public class ExtendCoverageExpr implements IRasNode, ICoverageInfo {
             try {
                 coverageExprType = new CoverageExpr(child, xq);
                 coverageInfo = coverageExprType.getCoverageInfo();
+                super.children.add(coverageExprType);
                 child = child.getNextSibling();
                 continue;
             } catch (WCPSException e) {
@@ -73,6 +74,7 @@ public class ExtendCoverageExpr implements IRasNode, ICoverageInfo {
                 elem = new DimensionIntervalElement(child, xq, coverageInfo);
                 log.trace("  " + WCPSConstants.MSG_ADD_NEW_AXIS + ": " + elem.getAxisName());
                 axisList.add(elem);
+                super.children.add(elem);
                 child = elem.getNextNode();
                 continue;
             } catch (WCPSException e) {
@@ -104,8 +106,8 @@ public class ExtendCoverageExpr implements IRasNode, ICoverageInfo {
             log.trace("  " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName());
             log.trace("  " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_COORDS + ": ");
 
-            axisLo = Integer.parseInt(axis.getLowCoord());
-            axisHi = Integer.parseInt(axis.getHighCoord());
+            axisLo = Integer.parseInt(axis.getLoCellCoord());
+            axisHi = Integer.parseInt(axis.getHiCellCoord());
             dim[axisId] = axisLo + ":" + axisHi;
             coverageInfo.setCellDimension(
                     axisId,

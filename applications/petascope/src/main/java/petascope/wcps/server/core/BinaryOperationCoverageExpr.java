@@ -21,13 +21,14 @@
  */
 package petascope.wcps.server.core;
 
+import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
 
-public class BinaryOperationCoverageExpr implements IRasNode, ICoverageInfo {
+public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(BinaryOperationCoverageExpr.class);
 
@@ -95,7 +96,9 @@ public class BinaryOperationCoverageExpr implements IRasNode, ICoverageInfo {
         info = new CoverageInfo(((ICoverageInfo) pair).getCoverageInfo());
         first = pair.getFirst();
         second = pair.getSecond();
-
+        
+        // Keep the children to let XML tree be re-traversed
+        super.children.addAll(Arrays.asList(first, second));
     }
 
     public CoverageInfo getCoverageInfo() {

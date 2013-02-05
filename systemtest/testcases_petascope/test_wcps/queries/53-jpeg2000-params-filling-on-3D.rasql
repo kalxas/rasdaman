@@ -1,0 +1,2 @@
+select encode(c[1,0:20,121:131], "JPEG2000", "xmin=25.0;xmax=35.0;ymin=10.0;ymax=15.0;crs=EPSG:4326") from eobstest AS c
+

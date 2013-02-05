@@ -32,7 +32,7 @@ import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
 
-public class DimensionPointElement implements IRasNode {
+public class DimensionPointElement extends AbstractRasNode {
 
     Logger log = LoggerFactory.getLogger(DimensionPointElement.class);
     

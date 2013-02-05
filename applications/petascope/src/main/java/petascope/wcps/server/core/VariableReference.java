@@ -27,7 +27,7 @@ import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.util.WCPSConstants;
 
-public class VariableReference implements IRasNode {
+public class VariableReference extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(VariableReference.class);
 

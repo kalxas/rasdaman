@@ -32,7 +32,7 @@ import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
 import petascope.util.WCPSConstants;
 
-public class Crs implements IRasNode {
+public class Crs extends AbstractRasNode {
 
     private static final Logger log = LoggerFactory.getLogger(Crs.class);
     private String crsName;

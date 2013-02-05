@@ -21,22 +21,22 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.exceptions.PetascopeException;
-import petascope.exceptions.WCPSException;
-import org.w3c.dom.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import petascope.core.IDynamicMetadataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.*;
+import petascope.core.IDynamicMetadataSource;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
 
 /**
  *
  * @author Andrei Aiordachioaie
  */
-public class XmlQuery implements IRasNode {
+public class XmlQuery extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(XmlQuery.class);
 
@@ -217,7 +217,6 @@ public class XmlQuery implements IRasNode {
         return newName;
     }
 
-    @Override
     public String toRasQL() {
         String result = "";
         if (coverageExpr instanceof ScalarExpr &&
@@ -243,8 +242,7 @@ public class XmlQuery implements IRasNode {
             if (where != null) {
                 result += " " + WCPSConstants.MSG_WHERE+ " " + where.toRasQL();
             }
-        }
-
+        }        
         return result;
     }
 

@@ -21,13 +21,13 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.core.Metadata;
-import petascope.exceptions.WCPSException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.Metadata;
+import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
 
 public class CoverageInfo {

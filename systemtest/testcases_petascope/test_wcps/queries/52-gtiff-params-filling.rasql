@@ -1,0 +1,1 @@
+select encode(c[60:160,520:620], "GTiff", "xmin=115.0;xmax=120.0;ymin=-40.0;ymax=-35.0;crs=EPSG:4326") from mean_summer_airtemp AS c

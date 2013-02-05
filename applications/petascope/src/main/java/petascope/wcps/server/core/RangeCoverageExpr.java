@@ -21,19 +21,19 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.exceptions.WCPSException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
 
-public class RangeCoverageExpr implements IRasNode, ICoverageInfo {
+public class RangeCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(RangeCoverageExpr.class);
 
-    private IRasNode child;
     private CoverageInfo info = null;
     List<IRasNode> components;
 
@@ -63,7 +63,9 @@ public class RangeCoverageExpr implements IRasNode, ICoverageInfo {
 
             node = node.getNextSibling();
         }
-
+        
+        // Keep children to let the XML tree be re-traversed
+        super.children.addAll(components);
     }
 
     public CoverageInfo getCoverageInfo() {

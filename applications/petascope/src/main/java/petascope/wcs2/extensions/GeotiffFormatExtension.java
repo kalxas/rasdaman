@@ -27,6 +27,7 @@ import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
+import petascope.util.MiscUtil;
 import petascope.util.Pair;
 import petascope.util.ras.RasQueryResult;
 import petascope.wcs2.handlers.Response;
@@ -44,11 +45,11 @@ import petascope.wcs2.parsers.GetCoverageRequest;
 public class GeotiffFormatExtension extends AbstractFormatExtension {
     
     /* Member */
-    CrsProperties crsProperties;
+    MiscUtil.CrsProperties crsProperties;
     private static final Logger log = LoggerFactory.getLogger(GeotiffFormatExtension.class);
     
     /* Interface */
-    public CrsProperties getCrsProperties() {
+    public MiscUtil.CrsProperties getCrsProperties() {
         return crsProperties;
     }
     
@@ -88,7 +89,7 @@ public class GeotiffFormatExtension extends AbstractFormatExtension {
         Pair<Object, String> p = null;
         if (m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE)) {
             // return plain TIFF
-            crsProperties = new CrsProperties();
+            crsProperties = (new MiscUtil()).new CrsProperties();
             p = executeRasqlQuery(request, m, meta, TIFF_ENCODING, crsProperties.toString());
         } else {
             // RectifiedGrid: geometry is associated with a CRS -> return GeoTIFF
@@ -101,7 +102,7 @@ public class GeotiffFormatExtension extends AbstractFormatExtension {
                 throw new WCSException(ExceptionCode.InvalidRequest, "Output dimensionality of the requested coverage is " +
                         (domLo.length==2?domHi.length:domLo.length) + " whereas GTiff requires 2-dimensional grids.");
             }
-            crsProperties = new CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName());
+            crsProperties = (new MiscUtil()).new CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName());
             p = executeRasqlQuery(request, m, meta, TIFF_ENCODING, crsProperties.toString());
         }
 

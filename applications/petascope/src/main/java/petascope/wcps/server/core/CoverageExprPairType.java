@@ -25,7 +25,7 @@ import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.util.WCPSConstants;
 
-public class CoverageExprPairType implements IRasNode, ICoverageInfo {
+public class CoverageExprPairType extends AbstractRasNode implements ICoverageInfo {
 
     private IRasNode first, second;
     private CoverageInfo info;

@@ -25,7 +25,7 @@ import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.util.WCPSConstants;
 
-public class CondenseOperation implements IRasNode {
+public class CondenseOperation extends AbstractRasNode {
 
     private String name;
 

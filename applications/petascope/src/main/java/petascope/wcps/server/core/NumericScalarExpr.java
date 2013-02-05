@@ -21,13 +21,14 @@
  */
 package petascope.wcps.server.core;
 
+import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
 
-public class NumericScalarExpr implements IRasNode {
+public class NumericScalarExpr extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(NumericScalarExpr.class);
 
@@ -105,6 +106,13 @@ public class NumericScalarExpr implements IRasNode {
                     + node.getNodeName());
         }
         log.trace("  " + WCPSConstants.MSG_OPERATION + ": " + op + ", " + WCPSConstants.MSG_BINARY + ": " + twoChildren);
+        
+        // Keep the children for XML tree re-traversing
+        if (twoChildren) {
+            super.children.addAll(Arrays.asList(first, second));
+        } else {
+            super.children.add(first);
+        }
     }
 
     public String toRasQL() {

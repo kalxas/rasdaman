@@ -23,13 +23,12 @@ package petascope.wcps.server.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.exceptions.WCPSException;
 import petascope.util.Pair;
 import petascope.util.WCPSConstants;
 
-// TODO: Implement class SubsetOperation
-public class SubsetOperationCoverageExpr implements IRasNode, ICoverageInfo {
+public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(SubsetOperationCoverageExpr.class);
 
@@ -70,6 +69,9 @@ public class SubsetOperationCoverageExpr implements IRasNode, ICoverageInfo {
             log.error("  " + WCPSConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);
             throw new WCPSException(WCPSConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);
         }
+        
+        // Keep the children to re-traverse the XML tree
+        if (child != null) super.children.add(child);
     }
 
     @Override
@@ -86,7 +88,11 @@ public class SubsetOperationCoverageExpr implements IRasNode, ICoverageInfo {
             return Pair.of(null, child.toRasQL());
         }
     }
-
+    
+    public IRasNode getChild() {
+        return child;
+    }
+    
     @Override
     public CoverageInfo getCoverageInfo() {
         return info;

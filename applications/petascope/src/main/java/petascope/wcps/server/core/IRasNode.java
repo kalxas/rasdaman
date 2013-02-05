@@ -21,7 +21,11 @@
  */
 package petascope.wcps.server.core;
 
-interface IRasNode {
+import java.util.List;
 
-    public String toRasQL();
+public interface IRasNode {
+
+    public String toRasQL();   
+    public List<IRasNode> getChildren();
+    public boolean hasChildren();    
 }

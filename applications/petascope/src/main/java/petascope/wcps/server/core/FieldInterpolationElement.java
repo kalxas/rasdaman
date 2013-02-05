@@ -25,7 +25,7 @@ import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.util.WCPSConstants;
 
-public class FieldInterpolationElement implements IRasNode {
+public class FieldInterpolationElement extends AbstractRasNode {
 
     private FieldName name;
     private InterpolationMethod interp;

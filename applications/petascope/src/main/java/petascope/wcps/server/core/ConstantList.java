@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.util.WCPSConstants;
 
-public class ConstantList implements IRasNode {
+public class ConstantList extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(ConstantList.class);
 

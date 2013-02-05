@@ -25,7 +25,7 @@ import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.util.WCPSConstants;
 
-public class ComplexConstant implements IRasNode {
+public class ComplexConstant extends AbstractRasNode {
 
     private String re, im;
 

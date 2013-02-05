@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.util.WCPSConstants;
 
-public class CoverageIterator implements IRasNode {
+public class CoverageIterator extends AbstractRasNode {
 
     private static Logger log = LoggerFactory.getLogger(CoverageIterator.class);
 

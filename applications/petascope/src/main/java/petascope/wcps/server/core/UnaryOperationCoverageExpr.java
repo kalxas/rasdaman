@@ -23,11 +23,11 @@ package petascope.wcps.server.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
 
-public class UnaryOperationCoverageExpr implements IRasNode, ICoverageInfo {
+public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(UnaryOperationCoverageExpr.class);
 
@@ -125,6 +125,9 @@ public class UnaryOperationCoverageExpr implements IRasNode, ICoverageInfo {
 
         info = new CoverageInfo(child.getCoverageInfo());
         log.trace("  " + WCPSConstants.MSG_OPERATION + ": " + operation);
+        
+        // Add children to let the XML query be re-traversed
+        if (child != null) super.children.add(child);        
     }
 
     public CoverageInfo getCoverageInfo() {

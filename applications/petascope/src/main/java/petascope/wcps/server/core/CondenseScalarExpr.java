@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.util.WCPSConstants;
 
-public class CondenseScalarExpr implements IRasNode {
+public class CondenseScalarExpr extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(CondenseScalarExpr.class);
 
@@ -59,6 +59,7 @@ public class CondenseScalarExpr implements IRasNode {
             } else if (name.equals(WCPSConstants.MSG_ITERATOR)) {
                 AxisIterator it = new AxisIterator(node.getFirstChild(), xq, newIteratorName);
                 iterators.add(it);
+                super.children.add(it);
             } else if (name.equals(WCPSConstants.MSG_WHERE)) {
                 where = new BooleanScalarExpr(node.getFirstChild(), xq);
             } else {
@@ -69,6 +70,10 @@ public class CondenseScalarExpr implements IRasNode {
             while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
                 node = node.getNextSibling();
             }
+            
+            // Keep the children to let XML tree be re-traversed
+            if (where != null) super.children.add(where);
+            if (using != null) super.children.add(using);
         }
 
         buildAxisIteratorDomain();

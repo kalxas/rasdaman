@@ -22,17 +22,17 @@
 package petascope.util;
 
 import java.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
-import org.geotools.referencing.CRS;
-import org.geotools.geometry.jts.JTS;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 

@@ -23,18 +23,16 @@ package petascope.wcps.server.core;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
 
-public class ScaleCoverageExpr implements IRasNode, ICoverageInfo {
+public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(ScaleCoverageExpr.class);
 
@@ -78,6 +76,7 @@ public class ScaleCoverageExpr implements IRasNode, ICoverageInfo {
                     log.trace("  " + WCPSConstants.MSG_COVERAGE_EXPR);
                     coverageExprType = new CoverageExpr(child, xq);
                     coverageInfo = coverageExprType.getCoverageInfo();
+                    super.children.add(coverageExprType);
                     child = child.getNextSibling();
                 } catch (WCPSException ex) {
                     log.error(" " + WCPSConstants.ERRTXT_UNKNOWN_NODE_FOR_SCALE_COV + child.getNodeName());
@@ -85,7 +84,10 @@ public class ScaleCoverageExpr implements IRasNode, ICoverageInfo {
                 }
             }
         }
-
+                
+        // Add children to let the XML query be re-traversed
+        super.children.addAll(axisList);
+                
         dims = axisList.size();
         log.trace("  " + WCPSConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
         dim = new String[dims];
@@ -108,8 +110,8 @@ public class ScaleCoverageExpr implements IRasNode, ICoverageInfo {
             log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_ID + ": " + axisId);
             log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName());
 
-            axisLo = Integer.parseInt(axis.getLowCoord());
-            axisHi = Integer.parseInt(axis.getHighCoord());
+            axisLo = Integer.parseInt(axis.getLoCellCoord());
+            axisHi = Integer.parseInt(axis.getHiCellCoord());
             dim[scaleId] = axisLo + ":" + axisHi;
             log.trace("    " + WCPSConstants.MSG_AXIS_COORDS + ": " + dim[scaleId]);
             ++scaleId;

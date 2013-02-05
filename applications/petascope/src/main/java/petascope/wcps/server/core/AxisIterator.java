@@ -29,7 +29,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.WCPSConstants;
 
-public class AxisIterator implements IRasNode {
+public class AxisIterator extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(AxisIterator.class);
 

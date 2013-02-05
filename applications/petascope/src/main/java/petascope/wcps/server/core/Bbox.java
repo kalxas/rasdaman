@@ -26,13 +26,13 @@
  */
 package petascope.wcps.server.core;
 
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
-import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import petascope.util.WCPSConstants;
 
 /**
@@ -52,6 +52,8 @@ import petascope.util.WCPSConstants;
  * 
  * @author <a href="mailto:cmppri@unife.it">Piero Campalani</a>
  */
+@Deprecated
+// Information from the DomainElements (i.e. `ps_domain') should be used.
 public class Bbox implements Cloneable {
     
     private static Logger log = LoggerFactory.getLogger(Bbox.class);

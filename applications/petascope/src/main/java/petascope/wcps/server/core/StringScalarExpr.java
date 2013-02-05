@@ -23,11 +23,11 @@ package petascope.wcps.server.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
 
-public class StringScalarExpr implements IRasNode {
+public class StringScalarExpr extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(StringScalarExpr.class);
 
@@ -43,6 +43,7 @@ public class StringScalarExpr implements IRasNode {
         if (node.getNodeName().equals(WCPSConstants.MSG_STRING_IDENTIFIER)) {
             Node child = node.getFirstChild();
             cov = new CoverageExpr(child, xq);
+            super.children.add(cov);
             op = WCPSConstants.MSG_ID_LOWERCASE;
         } else if (node.getNodeName().equals(WCPSConstants.MSG_STRING_CONSTANT)) {
             op = WCPSConstants.MSG_CONSTANT;

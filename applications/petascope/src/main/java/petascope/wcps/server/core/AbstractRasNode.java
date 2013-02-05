@@ -21,23 +21,26 @@
  */
 package petascope.wcps.server.core;
 
-import org.w3c.dom.*;
-import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-// TODO: Implement class SetMetadataCoverageExprType
-public class SetMetadataCoverageExpr extends AbstractRasNode implements ICoverageInfo {
-
-    public SetMetadataCoverageExpr(Node node, XmlQuery xq)
-            throws WCPSException {
-        throw new WCPSException(WCPSConstants.MSG_METHOD_NOT_IMPL);
+/**
+ * Abstract class to host shared fields/methods of WCPS expressions classes.
+ * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
+ */
+public abstract class AbstractRasNode implements IRasNode {    
+    /* Fields */
+    protected List<IRasNode> children = new ArrayList<IRasNode>();
+    
+    /* Methods */  
+    // Enable crawling through the XML tree
+    public List<IRasNode> getChildren() { 
+        return Collections.unmodifiableList(children);
     }
-
-    public String toRasQL() {
-        return "";
-    }
-
-    public CoverageInfo getCoverageInfo() {
-        return null;
+    
+    // Utility
+    public boolean hasChildren() {
+        return !children.isEmpty();
     }
 }

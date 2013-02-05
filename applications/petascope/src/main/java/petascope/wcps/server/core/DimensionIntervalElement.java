@@ -36,16 +36,17 @@ import petascope.util.WCPSConstants;
  * @author <?>
  * @author <a href="mailto:cmppri@unife.it">Piero Campalani</a>
  */
-public class DimensionIntervalElement implements IRasNode, ICoverageInfo {
+public class DimensionIntervalElement extends AbstractRasNode implements ICoverageInfo {
 
     Logger log = LoggerFactory.getLogger(DimensionIntervalElement.class);
     
-    private IRasNode child;
     private CoverageInfo info = null;
     private AxisName axis;
     private Crs crs;
-    private ScalarExpr domain1, domain2;  // lower and upper bound, or "DomainMetadataExprType" and null
-    private long coord1, coord2;
+    private ScalarExpr domain1;
+    private ScalarExpr domain2;  // lower and upper bound, or "DomainMetadataExprType" and null
+    private long cellCoord1;    // Subsets (after conversion to pixel indices)
+    private long cellCoord2;
     private int counter = 0;            // counter for the domain vars
     private Metadata meta = null;       // metadata about the current coverage
     private boolean finished = false;
@@ -182,8 +183,8 @@ public class DimensionIntervalElement implements IRasNode, ICoverageInfo {
             } else {
                 // Set grid values which were directly set in the requests
                 try {
-                    coord1 = (long)(domain1.getSingleValue());
-                    coord2 = (long)(domain2.getSingleValue());
+                    cellCoord1 = (long)(domain1.getSingleValue());
+                    cellCoord2 = (long)(domain2.getSingleValue());
                     this.transformedCoordinates = true;
                 } catch (ClassCastException ex) {
                     String message = ex.getMessage();
@@ -210,8 +211,8 @@ public class DimensionIntervalElement implements IRasNode, ICoverageInfo {
                 Double val2 = domain2.getSingleValue();
                 String axisName = axis.toRasQL(); //.toUpperCase();
                 int[] pCoord = crs.convertToPixelIndices(meta, axisName, val1, val2);
-                coord1 = pCoord[0];
-                coord2 = pCoord[1];
+                cellCoord1 = pCoord[0];
+                cellCoord2 = pCoord[1];
             } catch (PetascopeException e) {
                 this.transformedCoordinates = false;
                 log.error(WCPSConstants.ERRTXT_ERROR_WHILE_TRANSFORMING);
@@ -242,18 +243,25 @@ public class DimensionIntervalElement implements IRasNode, ICoverageInfo {
     public String getAxisCoords() {
         return this.domain1.toRasQL() + " : " + this.domain2.toRasQL();
     }
+    
+    public Double getLoCoord() {
+        return this.domain1.getSingleValue();
+    }
+    public Double getHiCoord() {
+        return this.domain2.getSingleValue();
+    }
 
-    public String getLowCoord() {
+    public String getLoCellCoord() {
         if (transformedCoordinates) {
-            return String.valueOf(coord1);
+            return String.valueOf(cellCoord1);
         } else {
             return this.domain1.toRasQL();
         }
     }
 
-    public String getHighCoord() {
+    public String getHiCellCoord() {
         if (transformedCoordinates) {
-            return String.valueOf(coord2);
+            return String.valueOf(cellCoord2);
         } else {
             return this.domain2.toRasQL();
         }
