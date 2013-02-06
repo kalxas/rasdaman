@@ -148,12 +148,12 @@ public:
     /*! insert an image into the collection */
     double insertImage(std::string collname, char* buf,
                        r_Point& shift, r_Minterval& sdom, bool bRowMajor2ColMajor,
-                       std::string marraytypename = "");
+                       std::string marraytypename, std::string tiling);
 
     /*! update an already present image in the collection */
     void updateImage(std::string collname, double imgid,
                      char* buf, r_Point& shift, r_Minterval& sdom, bool bRowMajor2ColMajor,
-                     std::string marraytypename = "")
+                     std::string marraytypename)
     throw (r_Error);
 
 

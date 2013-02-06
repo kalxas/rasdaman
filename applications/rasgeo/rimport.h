@@ -133,11 +133,11 @@ void showHelp();
 
 int importImage(RasdamanHelper2& helper, GDALDataset* pDs, string& collname, vector<double>& oids,
                 r_Minterval& readGDALImgDOM, r_Point& writeShift, Header& newGeoRegion,
-                bool asCube, std::string marraytypename = "");
+                bool asCube, std::string marraytypename, string tiling);
 
 int processImageFiles(vector<string>& filenames, string collname, vector<double>& oids,
                       Header& processRegion, string mode3D, r_Point& shiftPt, RasdamanHelper2& helper,
-                      std::string marraytypename = "");
+                      std::string marraytypename, string tiling);
 
 void intersectRegions2D(Header& inoutRegion, Header& intersectRegion);
 void intersectRegions2D(Header& inoutRegion, std::vector<double>& intersectRegions);

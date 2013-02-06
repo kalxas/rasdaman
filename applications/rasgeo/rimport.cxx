@@ -461,7 +461,7 @@ int
 processImageFiles(vector<string>& filenames, string collname,
                   vector<double>& oids, Header& processRegion,
                   string mode3D, r_Point& shiftPt, RasdamanHelper2& helper,
-                  std::string marraytypename)
+                  std::string marraytypename, std::string tiling)
 {
     /* PROCEDURE
      * - read source geospatial region (srcGeoRegion)
@@ -678,7 +678,7 @@ processImageFiles(vector<string>& filenames, string collname,
         printRegion(newGeoRegion, "newGeoRegion");
 
         importImage(helper, pDs, collname, oids, readGDALImgDOM, writeShift,
-                    newGeoRegion, b3D, marraytypename);
+                    newGeoRegion, b3D, marraytypename, tiling);
 
         // release data set
         GDALClose(pDs);
@@ -709,7 +709,7 @@ processImageFiles(vector<string>& filenames, string collname,
 
 int importImage(RasdamanHelper2& helper, GDALDataset* pDs, string& collname, vector<double>& oids,
                 r_Minterval& readGDALImgDOM, r_Point& writeShift, Header& newGeoRegion,
-                bool asCube, std::string marraytypename)
+                bool asCube, std::string marraytypename, std::string tiling)
 {
     NMDebugCtx(ctxRimport, << "...");
 
@@ -791,7 +791,7 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs, string& collname, vec
 
                 if (iter == 0 && oids.size() < b)
                     oids.push_back(helper.insertImage(collname, (char*)gdalbuf, seqWriteShift, rint, true,
-                                                      marraytypename));
+                                                      marraytypename, tiling));
                 else
                     helper.updateImage(collname, oids[b-1], (char*)gdalbuf, seqWriteShift, rint, true,
                                        marraytypename);
@@ -810,7 +810,7 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs, string& collname, vec
                 if (iter == 0 && oids.size() == 0)
                 {
                     oids.push_back(helper.insertImage(collname, (char*)gdalbuf, seqWriteShift, rint, true,
-                                                      marraytypename));
+                                                      marraytypename, tiling));
                 }
                 else
                 {
@@ -1068,6 +1068,7 @@ main(int argc, char** argv)
     std::string collname;                                        // -coll
     std::string connfile;                                        // -conn
     std::string mode3D;                                          // -3D
+    std::string tilingSpec;										 // -tiling
 
     double cellsizez = -1;                                       // -csz
     std::vector<double> bnd;                                     // -bnd
@@ -1203,6 +1204,10 @@ main(int argc, char** argv)
                 return EXIT_FAILURE;
             }
         }
+        else if (theArg == "-tiling")
+        {
+        	tilingSpec = argv[arg+1];
+        }
         else if (theArg == "--help")
         {
             showHelp();
@@ -1240,6 +1245,8 @@ main(int argc, char** argv)
     for (int t=0; t < usertype.size(); t++)
         NMDebug(<< usertype.at(t) << " ");
     NMDebug(<< std::endl);
+
+    NMDebugInd(1, << "tiling scheme: " << tilingSpec << std::endl);
 
     // -----------------------------------------------------------------------
     // EVALUATE ARGUMENTS
@@ -1353,7 +1360,7 @@ main(int argc, char** argv)
             marraytypename = usertype.at(0);
 
         if (!processImageFiles(vimportnames, collname, oids, header, mode3D,
-                               shiftPt, helper, marraytypename))
+                               shiftPt, helper, marraytypename, tilingSpec))
         {
             NMErr(ctxRimport, << "Failed processing image file(s)!");
             return EXIT_FAILURE;

@@ -480,7 +480,7 @@ unsigned int RasdamanHelper2::getBaseTypeSize(std::string collname)
 
 double RasdamanHelper2::insertImage(std::string collname,
                                     char* buf, r_Point& shift, r_Minterval& sdom, bool bRowMajor2ColMajor,
-                                    std::string marraytypename)
+                                    std::string marraytypename, std::string tiling)
 {
     NMDebugCtx(ctxrhelper, << "...");
 
@@ -530,6 +530,13 @@ double RasdamanHelper2::insertImage(std::string collname,
             else
                 qstr += "}";
         }
+    }
+
+    // if the specified tiling string is not empty, we just append it to the insert query
+    // string - we rely on r_oql to throw an execption, if anything is wrong ...
+    if (!tiling.empty())
+    {
+    	qstr += " " + tiling;
     }
 
     NMDebugAI( << "dummy grid query: " << qstr << std::endl);
