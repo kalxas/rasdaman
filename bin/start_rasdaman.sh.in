@@ -85,12 +85,7 @@ nohup @bindir@rasmgr & 2>&1
 # --- start servers: -------------------------------------------------
 
 # allow process to establish
-time_passed=0
-while [ -z "$(pgrep -f @bindir@rasmgr)" -a \
-        $time_passed -lt $WAIT_FOR_CHILDREN ]; do
-  sleep 1
-  time_passed=$(($time_passed+1))
-done
+sleep $WAIT_FOR_CHILDREN
 
 # these servers will be started:
 if [ $1 ]
