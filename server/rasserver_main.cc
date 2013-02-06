@@ -304,7 +304,7 @@ bool initialization()
     if(tmpTS != r_Tiling_Scheme_NUMBER)
         StorageLayout::DefaultTilingScheme = tmpTS;
 
-    if((tmpTS != r_NoTiling) && (tmpTS != r_RegularTiling))
+    if((tmpTS != r_NoTiling) && (tmpTS != r_RegularTiling) && (tmpTS != r_AlignedTiling))
     {
         RMInit::logOut << "Error: unsupported tiling strategy: " << configuration.getTilingScheme() << endl;
         if(configuration.isLogToStdOut())

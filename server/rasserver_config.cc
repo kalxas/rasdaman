@@ -106,16 +106,16 @@ void Configuration::initParameters()
     cmlPasswdStr  = &cmlInter.addStringParameter('p', "passwd", "<password> database connection password (empty by default)", "");
     cmlLog     = &cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "$RMANHOME/log/<srv-name>.<pid>.log");
 
-    cmlTileSize = &cmlInter.addLongParameter(NSN, "tilesize", "<nnnn> specifies maximal size of tiles in bytes\n\t\t-regular tiles with equal edge lengthes",  2097152);
+    cmlTileSize = &cmlInter.addLongParameter(NSN, "tilesize", "<nnnn> specifies maximal size of tiles in bytes\n\t\t-regular tiles with equal edge lengthes",  4194304);
     cmlPctMin   = &cmlInter.addLongParameter(NSN, "pctmin", "<nnnn> specifies minimal size of blobtiles in bytes",  2048);
     cmlPctMax   = &cmlInter.addLongParameter(NSN, "pctmax", "<nnnn> specifies maximal size of inlinetiles in bytes",  4096);
     cmlUseTC    = &cmlInter.addFlagParameter(NSN, "usetc", "use TileContainerIndex");
-    cmlTileConf = &cmlInter.addStringParameter(NSN, "tileconf", "<dom> default tile configuration (e.g. [0:1,0:2])", "[0:511,0:511]");
+    cmlTileConf = &cmlInter.addStringParameter(NSN, "tileconf", "<dom> default tile configuration (e.g. [0:1,0:2])", "[0:1023,0:1023]");
 
     string tilingDesc = string("<tiling-name> retiling strategy, specified as:") + CommandLineParameter::descLineSep +
                         "  " + tiling_name_notiling          + "," + CommandLineParameter::descLineSep +
                         "  " + tiling_name_regulartiling;
-    cmlTiling   = &cmlInter.addStringParameter(NSN, "tiling", tilingDesc.c_str(), tiling_name_notiling);
+    cmlTiling   = &cmlInter.addStringParameter(NSN, "tiling", tilingDesc.c_str(), tiling_name_alignedtiling);
 
     string indexDesc  = string("<index-name> index for created objects, specified as:") + CommandLineParameter::descLineSep +
                         "  " + index_name_auto              + "," + CommandLineParameter::descLineSep +
