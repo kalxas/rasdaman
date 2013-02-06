@@ -38,6 +38,7 @@ public class CoverageExpr implements IRasNode, ICoverageInfo {
     private boolean scalarExpr = false;
 //    private String var;
     private boolean simpleCoverage;    // True if the coverage is just a string
+    private String exMessage = "";
 
     public CoverageExpr(Node node, XmlQuery xq) throws WCPSException {
         while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
@@ -97,6 +98,7 @@ public class CoverageExpr implements IRasNode, ICoverageInfo {
         //        }
         else {    // Try one of the groups
             child = null;
+            String firstMessage = "";
 
             if (child == null) {
                 try {
@@ -104,6 +106,8 @@ public class CoverageExpr implements IRasNode, ICoverageInfo {
                     log.trace("  " + WCPSConstants.MSG_MATCHED_SET_METADATA);
                 } catch (WCPSException e) {
                     child = null;
+                    exMessage = e.getMessage();
+                    firstMessage = exMessage;
                 }
             }
 
@@ -125,6 +129,7 @@ public class CoverageExpr implements IRasNode, ICoverageInfo {
                     log.trace("  " + WCPSConstants.MSG_MATCHED_SUBSET_OP);
                 } catch (WCPSException e) {
                     child = null;
+                    exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
                 }
             }
 
@@ -135,13 +140,14 @@ public class CoverageExpr implements IRasNode, ICoverageInfo {
                     log.trace(WCPSConstants.MSG_MATCHED_SCALAR_EXPR);
                 } catch (WCPSException e) {
                     child = null;
+                    exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
                 }
             }
         }
 
         if (!simpleCoverage && (child == null)) {
             throw new WCPSException(WCPSConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": "
-                    + node.getNodeName());
+                    + node.getNodeName() + " - " + exMessage);
         }
 
         if (info == null) {

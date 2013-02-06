@@ -60,7 +60,11 @@ public class SubsetOperationCoverageExpr implements IRasNode, ICoverageInfo {
             info = ((ExtendCoverageExpr) child).getCoverageInfo();
         } else if (nodeName.equals(WCPSConstants.MSG_SLICE)) {
             log.trace("  " + WCPSConstants.MSG_SLICE + " " + WCPSConstants.MSG_CHILD);
-            child = new SliceCoverageExpr(node, xq);
+            try {
+                child = new SliceCoverageExpr(node, xq);
+            } catch (WCPSException ex) {
+                throw ex;
+            } 
             info = ((SliceCoverageExpr) child).getCoverageInfo();
         } else {
             log.error("  " + WCPSConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);

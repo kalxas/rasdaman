@@ -21,14 +21,14 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.core.Metadata;
 import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
-import petascope.exceptions.WCSException;
+import petascope.core.Metadata;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
 import petascope.util.WCPSConstants;
 
@@ -72,7 +72,7 @@ public class Crs implements IRasNode {
      * coordinates.
      */
     @Deprecated
-    public long[] convertToPixelCoordinates(Metadata meta, String axisName, Double u2, Double u3, Double v2, Double v3) throws WCSException {
+    public long[] convertToPixelCoordinates(Metadata meta, String axisName, Double u2, Double u3, Double v2, Double v3) throws PetascopeException {
         //Wgs84Crs crs = meta.getCrs();
         Bbox bbox = meta.getBbox();
         long px0 = -1, px1 = -1, py0 = -1, py1 = -1;
@@ -86,7 +86,7 @@ public class Crs implements IRasNode {
             CellDomainElement Y = it.next();
             if (X == null || Y == null) {
                 log.error(WCPSConstants.ERRTXT_COULD_NOT_FIND_THE_X + ": " + meta.getCoverageName());
-                throw new WCSException(ExceptionCode.NoApplicableCode, WCPSConstants.ERRTXT_COULD_NOT_FIND_THE_X + ": " + meta.getCoverageName());
+                throw new PetascopeException(ExceptionCode.NoApplicableCode, WCPSConstants.ERRTXT_COULD_NOT_FIND_THE_X + ": " + meta.getCoverageName());
             }
             int x0 = X.getLo().intValue();
             int x1 = X.getHi().intValue();
@@ -150,7 +150,7 @@ public class Crs implements IRasNode {
      * @return Interval transformed values.
      * coordinates.
      */
-    public static int[] convertToPixelIndices(Metadata meta, String axisName, Double coordLo, Double coordHi) throws WCSException {
+    public static int[] convertToPixelIndices(Metadata meta, String axisName, Double coordLo, Double coordHi) throws PetascopeException {
        
         // IMPORTANT: y axis are decreasing wrt pixel domain
         boolean zeroIsMin = !axisName.equals(AxisTypes.Y_AXIS);
@@ -158,7 +158,7 @@ public class Crs implements IRasNode {
         // Put in order to prevent call error
         if (coordHi < coordLo) {
             log.error(WCPSConstants.ERRTXT_ARGUMENT_HIGH_IS_LOWER_P1 + ": " + coordHi + "<" + coordLo + " " + WCPSConstants.ERRTXT_ARGUMENT_HIGH_IS_LOWER_P2);
-            throw new WCSException(ExceptionCode.InvalidSubsetting, WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ":" + meta.getCoverageName());
+            throw new PetascopeException(ExceptionCode.InvalidSubsetting, WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ":" + meta.getCoverageName());
         }
         
         // Convert domain-space values to cell-space indices
@@ -169,7 +169,7 @@ public class Crs implements IRasNode {
         CellDomainElement cdom = meta.getCellDomainByName(axisName);
         if (cdom == null || dom == null) {
             log.error(WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ": " + meta.getCoverageName());
-            throw new WCSException(ExceptionCode.NoApplicableCode, WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ":" + meta.getCoverageName());
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ":" + meta.getCoverageName());
         }
         
         // Get cellDomain extremes
@@ -202,14 +202,20 @@ public class Crs implements IRasNode {
         log.debug(WCPSConstants.MSG_TRANSFORMED_COORDS_INDX + " (" + out[0] + "," + out[1] + ")");
         
         // Check outside bounds:
-        out[0] = (out[0]<pxLo) ? pxLo : ((out[0]>pxHi)?pxHi:out[0]);
-        out[1] = (out[1]<pxLo) ? pxLo : ((out[1]>pxHi)?pxHi:out[1]);
+        if (out[0] > pxHi || out[1] < pxLo) {
+            String message = "Subsetting on axis " + axisName + " is outside bounds (" + domLo + "," + domHi + ").";
+            log.error(message);
+            throw new PetascopeException(ExceptionCode.InvalidRequest, message);
+        } else {
+            out[0] = (out[0]<pxLo) ? pxLo : ((out[0]>pxHi)?pxHi:out[0]);
+            out[1] = (out[1]<pxLo) ? pxLo : ((out[1]>pxHi)?pxHi:out[1]);
+        }
         log.debug(WCPSConstants.MSG_TRANSFORMED_REBOUNDED_COORDS + " (" + out[0] + "," + out[1] + ")");
 
         return out;
     }
     // Dummy overload (for DimensionPointElements)
-    public static int convertToPixelIndices(Metadata meta, String axisName, Double value) throws WCSException {
+    public static int convertToPixelIndices(Metadata meta, String axisName, Double value) throws PetascopeException {
         return convertToPixelIndices(meta, axisName, value, value)[0];
     }
 

@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
-import petascope.util.ListUtil;
 import static petascope.util.KVPSymbols.*;
+import petascope.util.ListUtil;
 import petascope.wcs2.handlers.RequestHandler;
 
 /**

@@ -22,12 +22,13 @@
 package petascope.wcps.server.core;
 
 import java.util.Iterator;
-import petascope.core.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
-import petascope.exceptions.WCSException;
 import org.w3c.dom.*;
+import petascope.core.Metadata;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
 
@@ -164,19 +165,32 @@ public class DimensionIntervalElement implements IRasNode, ICoverageInfo {
                 crs = new Crs(crsname);
               } else {
                 log.warn("  No native CRS specified for axis " + axisName + ", assuming pixel coordinates.");
-                crs = new Crs(CrsUtil.IMAGE_CRS);
+                crs = new Crs(CrsUtil.GRID_CRS);
               }
             }
         }
 
         // Pixel indices are retrieved from bbox, which is stored for XY plane only.
-        if (finished == true && !crs.getName().equals(CrsUtil.IMAGE_CRS)) {
-           convertToPixelCoordinates(); 
+        if (finished == true) {
+            if (!crs.getName().equals(CrsUtil.GRID_CRS)) {
+                convertToPixelCoordinates();
+            } else {
+                // Set grid values which were directly set in the requests
+                try {
+                    coord1 = (long)(domain1.getSingleValue());
+                    coord2 = (long)(domain2.getSingleValue());
+                    this.transformedCoordinates = true;
+                } catch (ClassCastException ex) {
+                    String message = ex.getMessage();
+                    log.error(message);
+                    throw new WCPSException(ExceptionCode.InternalComponentError, message);
+                }
+            }
         }
     }
 
     /* If input coordinates are geo-, convert them to pixel coordinates. */
-    private void convertToPixelCoordinates() {
+    private void convertToPixelCoordinates() throws WCPSException {
         if (meta.getBbox() == null && crs != null) {
             throw new RuntimeException(WCPSConstants.MSG_COVERAGE + " '" + meta.getCoverageName()
                     //+ "' is not georeferenced with 'EPSG:4326' coordinate system.");
@@ -193,9 +207,10 @@ public class DimensionIntervalElement implements IRasNode, ICoverageInfo {
                 int[] pCoord = crs.convertToPixelIndices(meta, axisName, val1, val2);
                 coord1 = pCoord[0];
                 coord2 = pCoord[1];
-            } catch (WCSException e) {
+            } catch (PetascopeException e) {
                 this.transformedCoordinates = false;
                 log.error(WCPSConstants.ERRTXT_ERROR_WHILE_TRANSFORMING);
+                throw new WCPSException(e.getExceptionCode(), e.getMessage());
             }
         }
     }

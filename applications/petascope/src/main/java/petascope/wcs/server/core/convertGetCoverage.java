@@ -151,11 +151,11 @@ public class convertGetCoverage {
         if (domain.isSetBoundingBox()) {
             BoundingBoxType bbox = (BoundingBoxType) domain.getBoundingBox().getValue();
 
-            /* We only understand two CRSs: WGS84 and IMAGE_CRS */
+            /* We only understand two CRSs: WGS84 and GRID_CRS */
             /* TODO: Implement CRS transformations */
             crsName = bbox.getCrs();
             if (crsName != null) {
-                if (crsName.equals(CrsUtil.IMAGE_CRS)) {
+                if (crsName.equals(CrsUtil.GRID_CRS)) {
                     log.trace("CRS: NATIVE_IMAGE_CRS");
                 } else if (CrsUtil.CrsUri.areEquivalent(crsName, CrsUtil.WGS84_URI)) {
                     log.trace("CRS: WGS84");
@@ -166,7 +166,7 @@ public class convertGetCoverage {
             } else {
                 log.debug("CRS: None specified for bounding box");
                 log.debug("CRS: Using default IMAGE_CRS");
-                crsName = CrsUtil.IMAGE_CRS;
+                crsName = CrsUtil.GRID_CRS;
             }
 
             /* BBox declarations */
@@ -199,7 +199,7 @@ public class convertGetCoverage {
             px1 = u3;
             py1 = v3;
 
-            if (crsName.equals(CrsUtil.IMAGE_CRS) == false
+            if (crsName.equals(CrsUtil.GRID_CRS) == false
                     && crsName.equals(CrsUtil.WGS84_URI) == false) {
                 throw new WCSException(ExceptionCode.NoApplicableCode, "Unknown CRS: " + crsName);
             }

@@ -189,10 +189,14 @@ public class RasUtil {
         }
         log.trace("Converting abstract WCPS query\n{}", query);
         String xmlQuery = abstractWCPStoXML(query);
-        String rasql = xmlWCPSToRasql(xmlQuery, wcps);
-        log.debug("rasql: " + rasql);
-        return rasql;
-        //return xmlWCPSToRasql(xmlQuery, wcps);
+        try {
+            String rasql = xmlWCPSToRasql(xmlQuery, wcps);
+            log.debug("rasql: " + rasql);
+            return rasql;
+            //return xmlWCPSToRasql(xmlQuery, wcps);
+        } catch (WCPSException ex) {
+            throw ex;
+        }
     }
     
     /**
@@ -249,7 +253,7 @@ public class RasUtil {
                     ConfigManager.RASDAMAN_DATABASE, IOUtils.toInputStream(query));
         } catch (Exception ex) {
             throw new WCPSException(ExceptionCode.InternalComponentError,
-                    "Error translating XML WCPS query to rasql.", ex);
+                    "Error translating XML WCPS query to rasql - " + ex.getMessage(), ex);
         }
         log.trace("Resulting RasQL query: [{}] {}", pcReq.getMime(), pcReq.getRasqlQuery());
         String ret = pcReq.getRasqlQuery();

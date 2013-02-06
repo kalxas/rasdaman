@@ -83,7 +83,7 @@ public class MetadataScalarExpr implements IRasNode {
         if (op.equals(WCPSConstants.MSG_IDENTIFIER)) {
             ret = coverageInfo.getCoverageName();
         } else if (op.equals(WCPSConstants.MSG_IMAGE_CRS)) {
-            ret = CrsUtil.IMAGE_CRS;
+            ret = CrsUtil.GRID_CRS;
         } else if (op.equals(WCPSConstants.MSG_DOMAIN_METADATA_CAMEL) || op.equals(WCPSConstants.MSG_IMAGE_CRSDOMAIN)) {
             ret = "(" + lo + "," + hi + ")";
         }

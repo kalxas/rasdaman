@@ -513,7 +513,7 @@ public class executeTransaction {
 
         // Domains
         Set<String> crsSet = new HashSet<String>(1);
-        crsSet.add(CrsUtil.IMAGE_CRS);
+        crsSet.add(CrsUtil.GRID_CRS);
         String str1 = null, str2 = null;
         /* Since we currently do not use the Domain sizes, we can set them to 0 and 1 */
         DomainElement domX = new DomainElement(AxisTypes.X_AXIS, AxisTypes.X_AXIS, 0.0, 1.0, str1, str2, crsSet, metaDb.getAxisNames(), null);
@@ -688,7 +688,7 @@ public class executeTransaction {
                     desc.getDomain().getSpatialDomain().getBoundingBox();
             if (list.size() == 1) {
                 BoundingBoxType bbox = (BoundingBoxType) list.get(0).getValue();
-                if (bbox.getCrs() == null || bbox.getCrs().equals(CrsUtil.IMAGE_CRS)) {
+                if (bbox.getCrs() == null || bbox.getCrs().equals(CrsUtil.GRID_CRS)) {
                     meta = updateImageCrsBoundingBox(meta, bbox);
                 } else {
                     throw new WCSTException(ExceptionCode.InvalidParameterValue, "crs. Explanation: Unknown CRS " + bbox.getCrs());
@@ -697,7 +697,7 @@ public class executeTransaction {
                 Iterator i = list.iterator();
                 while (i.hasNext()) {
                     BoundingBoxType bbox = (BoundingBoxType) i.next();
-                    if (bbox.getCrs().equals(CrsUtil.IMAGE_CRS)) {
+                    if (bbox.getCrs().equals(CrsUtil.GRID_CRS)) {
                         meta = updateImageCrsBoundingBox(meta, bbox);
                     }
                     // TODO: Implement WGS84 update

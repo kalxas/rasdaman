@@ -63,7 +63,11 @@ public class SliceCoverageExpr implements IRasNode, ICoverageInfo {
             if (nodeName.equals(WCPSConstants.MSG_AXIS)) {
                 // Start a new axis and save it
                 log.trace("  " + WCPSConstants.MSG_AXIS);
-                elem = new DimensionPointElement(child, xq, coverageInfo);
+                try {
+                    elem = new DimensionPointElement(child, xq, coverageInfo);
+                } catch (WCPSException ex) {
+                    throw ex;
+                }
                 axisList.add(elem);
                 child = elem.getNextNode();
             } else {

@@ -145,7 +145,7 @@ public class ScalarExpr implements IRasNode, ICoverageInfo {
 
         // Build domain metadata
         cellDomainList.add(new CellDomainElement(new BigInteger("1"), new BigInteger("1"), AxisTypes.X_AXIS));
-        String crs = CrsUtil.IMAGE_CRS;
+        String crs = CrsUtil.GRID_CRS;
         HashSet<String> crsset = new HashSet<String>();
         crsset.add(crs);
         Collection<String> allowedAxes = xq.getMetadataSource().getAxisNames();

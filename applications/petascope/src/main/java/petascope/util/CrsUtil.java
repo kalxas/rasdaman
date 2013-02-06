@@ -61,7 +61,7 @@ public class CrsUtil {
     public static final String CS_GMLSUFFIX = "CS";
     
     // NOTE: "CRS:1" axes to have a GML definition that will be parsed.
-    public static final String IMAGE_CRS = "CRS:1"; 
+    public static final String GRID_CRS = "CRS:1";
     public static final String PIXEL_UOM = "pixels";
     
     public static final String CRS_DEFAULT_VERSION = "0";
@@ -204,7 +204,7 @@ public class CrsUtil {
     public static boolean isSupportedCrsCode(String crsID) {
         try {
             // read from List e return
-            return crsID.equals(IMAGE_CRS)
+            return crsID.equals(GRID_CRS)
                     || (CrsUri.getAuthority(crsID).equals(EPSG_AUTH) && CrsUri.getVersion(crsID).equals(CRS_DEFAULT_VERSION)); //&& SUPPORTED_EPSG.contains(Integer.parseInt(CrsUri.getCode(crsID))));
             //      || CrsUri.getAuthority(crsID).equals(IAU_AUTH) && ....
             //      ...
@@ -306,7 +306,7 @@ public class CrsUtil {
 
             if (crss.isEmpty()) return false;
             for (String current : crss) {
-                if (current.equals(IMAGE_CRS)) return true; // TODO: if CRS:1 is replaces by URI, need 'areEquivalent() instead
+                if (current.equals(GRID_CRS)) return true; // TODO: if CRS:1 is replaces by URI, need 'areEquivalent() instead
                 if (isKvp(current) || isRest(current)) {
                     // Check if authority is supported (SECORE is now bottleneck) as well:
                     // --> http://kahlua.eecs.jacobs-university.de:8080/def/crs/browse.jsp <--

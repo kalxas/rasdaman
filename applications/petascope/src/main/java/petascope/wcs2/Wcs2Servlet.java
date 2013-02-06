@@ -154,6 +154,8 @@ public class Wcs2Servlet extends HttpServlet {
                 handleWcs2Request(request, false, res, req);
             } catch (WCSException e) {
                 throw e;
+            } catch (PetascopeException e) {
+                throw new WCSException(e.getExceptionCode(), e.getMessage());
             } catch (Exception e) {
                 log.error("Runtime error : {}", e.getMessage());
                 throw new WCSException(ExceptionCode.RuntimeError,

@@ -106,7 +106,11 @@ public class XmlQuery implements IRasNode {
             } else if (x.getNodeName().equals(WCPSConstants.MSG_ENCODE)) {
                 EncodeDataExpr encode;
 
-                encode = new EncodeDataExpr(x, this);
+                try {
+                    encode = new EncodeDataExpr(x, this);
+                } catch (WCPSException ex) {
+                    throw ex;
+                }
                 coverageExpr = encode;
                 mime = encode.getMime();
             } else {

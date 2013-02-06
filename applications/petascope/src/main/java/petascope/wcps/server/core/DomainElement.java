@@ -40,8 +40,6 @@ public class DomainElement implements Cloneable {
     
     private static Logger log = LoggerFactory.getLogger(DomainElement.class);
 
-    //public static final String WGS84_CRS = "http://www.opengis.net/def/crs/EPSG/0/4326";
-    //public static final String IMAGE_CRS = "CRS:1";
     private Set<String> crss;
     private String name;
     private Double numHi;
@@ -113,11 +111,11 @@ public class DomainElement implements Cloneable {
         this.name = name;
         this.type = type;
 
-        if ((crss == null) || !crss.contains(CrsUtil.IMAGE_CRS)) {
+        if ((crss == null) || !crss.contains(CrsUtil.GRID_CRS)) {
 //			throw new WCPSException(ExceptionCode.InvalidMetadata, 
 //			    "Invalid domain element: CRS set does not contain image CRS '"
-//			    + CrsUtil.IMAGE_CRS + "'");
-            crss.add(CrsUtil.IMAGE_CRS);
+//			    + CrsUtil.GRID_CRS + "'");
+            crss.add(CrsUtil.GRID_CRS);
         }
 
         this.crss = crss;

@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
 import petascope.core.Metadata;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
@@ -64,7 +65,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * slicing/trimming in the request)
      */
     protected void setBounds(GetCoverageRequest request, GetCoverageMetadata m, DbMetadataSource meta)
-            throws WCSException {
+            throws PetascopeException, WCSException {
         
         // Init variables
         String axesLabels = "";
@@ -122,6 +123,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                         String message = "Error while casting a subset to numeric format for comparison.";
                         log.error(message);
                         throw new WCSException(ExceptionCode.InvalidRequest, message);
+                    } catch (PetascopeException ex) {
+                        throw ex;
                     }
                 }
             } // END subsets iterator
@@ -163,62 +166,13 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         } catch (Exception ex) {
             throw new WCSException(ExceptionCode.InternalComponentError, "Error initializing WCPS engine", ex);
         }
-
-        // Convert human-readable **timestamp** to ANSI day number
-        // NOTE: solution is not definitive!
-        DimensionSubset tSubset = request.getSubset(AxisTypes.T_AXIS);
-        if (tSubset != null && !tSubset.isCrsTransformed()
-                && m.getAxisLabels().contains(AxisTypes.T_AXIS)) {
-            try {
-                if (tSubset instanceof DimensionTrim) {
-                    int dayLo = TimeUtil.convert2AnsiDay(((DimensionTrim) tSubset).getTrimLow());
-                    int dayHi = TimeUtil.convert2AnsiDay(((DimensionTrim) tSubset).getTrimHigh());
-                    // Check order:
-                    if (dayLo > dayHi) {
-                        log.error("Temporal subset order is wrong: lower bound is greater than upper-bound.");
-                        throw new WCSException(ExceptionCode.InvalidParameterValue);
-                    } else {
-                        // Check intersection with coverage temporal domain
-                        CellDomainElement tRange = m.getMetadata().getCellDomainByName(AxisTypes.T_AXIS);
-                        if ((dayLo < tRange.getLo().intValue() && dayHi < tRange.getLo().intValue()) // t1,t2 < Tmin
-                                || (dayLo > tRange.getHi().intValue() && dayHi > tRange.getHi().intValue())) {// t1,t2 > Tmax
-                            log.error("Temporal subset does not intersect with coverage domain.");
-                            throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset does not intersect with coverage temporal domain.");
-                        } else {
-                            ((DimensionTrim) tSubset).setTrimLow((double) dayLo);
-                            ((DimensionTrim) tSubset).setTrimHigh((double) dayHi);
-                        }
-                    }
-                } else if (request.getSubset(AxisTypes.T_AXIS) instanceof DimensionSlice) {
-                    int day = TimeUtil.convert2AnsiDay(((DimensionSlice) tSubset).getSlicePoint());
-                    // Check intersection with coverage temporal domain
-                    CellDomainElement tRange = m.getMetadata().getCellDomainByName(AxisTypes.T_AXIS);
-                    if (day < tRange.getLo().intValue() || day > tRange.getHi().intValue()) {
-                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset does not intersect with coverage temporal domain.");
-                    } else {
-                        ((DimensionSlice) tSubset).setSlicePoint((double) day);
-                    }
-                }
-
-                // Set transformed to true
-                if (tSubset != null) {
-                    tSubset.isCrsTransformed(true);
-                }
-
-            } catch (WCSException e) {
-                throw e;
-            } catch (Exception e) {
-                log.error("Error while converting WCS time subsetting to equivalent ANSI day numbers.\n" + e.getMessage());
-                throw new WCSException(ExceptionCode.InternalComponentError);
-            }
-        }
         // Possible required CRS subsetting transforms have been done now, proceed to WCPS:
         Pair<String, String> pair = constructWcpsQuery(request, m.getMetadata(), format, params);
         String rquery = null;
         try {
             rquery = RasUtil.abstractWCPSToRasql(pair.fst, wcps);
         } catch (WCPSException ex) {
-            throw new WCSException(ExceptionCode.WcpsError, "Error converting WCPS query to rasql query", ex);
+            throw new WCSException(ExceptionCode.WcpsError, "Error converting WCPS query to rasql query: " + ex.getMessage(), ex);
         }
         Object res = null;
         try {
@@ -228,7 +182,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 res = RasUtil.executeRasqlQuery(rquery);
             }
         } catch (RasdamanException ex) {
-            throw new WCSException(ExceptionCode.RasdamanRequestFailed, "Error executing rasql query", ex);
+            throw new WCSException(ExceptionCode.RasdamanRequestFailed, "Error executing rasql query: " + ex.getMessage(), ex);
         }
         return Pair.of(res, pair.snd);
     }
@@ -308,7 +262,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                         "The axis label " + dim + " was not found in the list of available axes");
             }
 
-            String crs = CrsUtil.IMAGE_CRS;
+            String crs = CrsUtil.GRID_CRS;
             // Subset-CRS might be embedded in a trimmig spec (~WCPS, e.g. KVP req) or with subsettingCrs attribute:
             if (subset.getCrs() != null || (req.getCRS().size() == 1 && req.getCRS().get(0).getSubsettingCrs() != null)) {
                 crs = (subset.getCrs() != null) ? subset.getCrs() : req.getCRS().get(0).getSubsettingCrs();
@@ -346,7 +300,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 long lo = cel.getLo().longValue();
                 long hi = cel.getHi().longValue();
                 String dim = el.getName();
-                String crs = CrsUtil.IMAGE_CRS;
+                String crs = CrsUtil.GRID_CRS;
                 if (newdim.containsKey(dim)) {
                     lo = toPixels(Double.parseDouble(newdim.get(dim).fst), el, cel);
                     hi = toPixels(Double.parseDouble(newdim.get(dim).snd), el, cel);

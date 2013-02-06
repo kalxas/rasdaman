@@ -147,7 +147,7 @@ public class executeDescribeCoverage {
         CoverageDomainType domain = null;
         Double lo1 = 0.0, lo2 = 0.0, hi1 = 0.0, hi2 = 0.0;
 
-        /* Default Bounding Box (uses IMAGE_CRS): use image size */
+        /* Default Bounding Box (uses GRID_CRS): use image size */
         BoundingBoxType bbox = new BoundingBoxType();
         CellDomainElement X = cov.getXCellDomain();
         CellDomainElement Y = cov.getYCellDomain();
@@ -157,7 +157,7 @@ public class executeDescribeCoverage {
             lo2 = Y.getLo().doubleValue();
             hi2 = Y.getHi().doubleValue();
 
-            bbox.setCrs(CrsUtil.IMAGE_CRS);
+            bbox.setCrs(CrsUtil.GRID_CRS);
 
             bbox.getLowerCorner().add(lo1);
             bbox.getLowerCorner().add(lo2);
@@ -261,7 +261,7 @@ public class executeDescribeCoverage {
         }
 
         // Available CRSs for current coverage
-        desc.getSupportedCRS().add(CrsUtil.IMAGE_CRS);
+        desc.getSupportedCRS().add(CrsUtil.GRID_CRS);
         if (cov.getBbox() != null) {
             //desc.getSupportedCRS().add(DomainElement.WGS84_CRS);
             desc.getSupportedCRS().add(cov.getBbox().getCrsName());

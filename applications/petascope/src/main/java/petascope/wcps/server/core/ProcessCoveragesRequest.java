@@ -91,7 +91,11 @@ public class ProcessCoveragesRequest {
         if (queryNode.getNodeName().equals(WCPSConstants.MSG_XML_SYNTAX)) {
             log.debug(WCPSConstants.DEBUGTXT_FOUND_XML_SYTANX_QUERY);
             this.xmlQuery = new XmlQuery(this.source);
-            xmlQuery.startParsing(queryNode);
+            try {
+                xmlQuery.startParsing(queryNode);
+            } catch (WCPSException ex) {
+                throw ex;
+            }
         } else if (queryNode.getNodeName().equals(WCPSConstants.MSG_ABSTRACT_SYNTAX)) {
             String abstractQuery = queryNode.getFirstChild().getNodeValue();
             log.debug(WCPSConstants.DEBUGTXT_FOUND_ABSTRACT_SSYNTAX_QUERY + abstractQuery);

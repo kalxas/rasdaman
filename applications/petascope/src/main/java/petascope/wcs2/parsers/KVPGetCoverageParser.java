@@ -28,16 +28,19 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import static petascope.util.KVPSymbols.*;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.StringUtil;
 import petascope.util.TimeUtil;
-import static petascope.util.KVPSymbols.*;
+import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
 import petascope.wcs2.handlers.RequestHandler;
@@ -53,6 +56,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
 
     //                                                          dim=$1  crs=$2      low=$4  high=$5
     private static final Pattern PATTERN = Pattern.compile("([^,\\(]+)(,([^\\(]+))?\\(([^,\\)]+)(,([^\\)]+))?\\)");
+    private static final Logger log = LoggerFactory.getLogger(KVPGetCoverageParser.class);
 
     /**
      * Parses any subset parameters defined as in OGC 09-147r1 standard(e.g.
@@ -159,8 +163,8 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                     throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator(subsetKey));
                 }
 
-                // Check time-subset validity (YYYY-MM-DD)
-                if (dim.equals(AxisTypes.T_AXIS)) {
+                // Check time-subset validity (YYYY-MM-DD) e convert to ANSI
+                if (dim.equals(AxisTypes.T_AXIS) && !CrsUtil.GRID_CRS.equals(crs) && !CrsUtil.GRID_CRS.equals(subCrs)) {
                     if (low != null && !TimeUtil.isValidTimestamp(low)) {
                         throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + low + "\" is not valid (pattern is YYYY-MM-DD).");
                     }
@@ -170,6 +174,30 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                     // Check low<high
                     if (low != null && high != null && !TimeUtil.isOrderedTimeSubset(low, high)) {
                         throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + low + ":" + high + "\" is invalid: check order.");
+                    }
+                    
+                    // Convert ISO to ANSI dates
+                    try {
+                        if (high != null) {
+                            int dayLo = TimeUtil.convert2AnsiDay(((DimensionTrim) ret.getSubset(dim)).getTrimLow());
+                            int dayHi = TimeUtil.convert2AnsiDay(((DimensionTrim) ret.getSubset(dim)).getTrimHigh());
+                            // Check order:
+                            if (dayLo > dayHi) {
+                                log.error("Temporal subset order is wrong: lower bound is greater than upper-bound.");
+                                throw new WCSException(ExceptionCode.InvalidParameterValue);
+                            } else {
+                                ((DimensionTrim) ret.getSubset(dim)).setTrimLow((double) dayLo);
+                                ((DimensionTrim) ret.getSubset(dim)).setTrimHigh((double) dayHi);
+                            }
+                        } else if (ret.getSubset(dim) instanceof DimensionSlice) {
+                            int day = TimeUtil.convert2AnsiDay(((DimensionSlice) ret.getSubset(dim)).getSlicePoint());
+                            ((DimensionSlice)ret.getSubset(dim)).setSlicePoint((double) day);
+                        }
+                    } catch (WCSException e) {
+                        throw e;
+                    } catch (Exception e) {
+                        log.error("Error while converting WCS time subsetting to equivalent ANSI day numbers.\n" + e.getMessage());
+                        throw new WCSException(ExceptionCode.InternalComponentError);
                     }
                 }
             } else {

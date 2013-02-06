@@ -73,7 +73,7 @@ public class CRSExtension implements Extension {
          *  include elevation in case of 3D collections.
          */
         // Check if a CRS transform is needed for X and Y axis.
-        if (request.getCRS().size() == 1 && !m.getBbox().getCrsName().equals(CrsUtil.IMAGE_CRS)) {
+        if (request.getCRS().size() == 1 && !m.getBbox().getCrsName().equals(CrsUtil.GRID_CRS)) {
             if (request.getSubset(AxisTypes.X_AXIS) == null && request.getSubset(AxisTypes.Y_AXIS) == null) {  // No subsetting at all was specified
                 log.warn("A subsettingCrs is stated but no subsettings were found: ignore it.");
             } else {                
@@ -86,7 +86,7 @@ public class CRSExtension implements Extension {
                         //|| (zSubset != null && !zSubset.isCrsTransformed())) {  // 
                         try {
                             if (request.getCRS().get(0).getSubsettingCrs() != null &&
-                                    request.getCRS().get(0).getSubsettingCrs().equals(CrsUtil.IMAGE_CRS)) {
+                                    request.getCRS().get(0).getSubsettingCrs().equals(CrsUtil.GRID_CRS)) {
                                 log.info("Subset(s) defined in pixel coordinates: no CRS reprojection need to be made.");
                                 
                             } else if (request.getCRS().get(0).getSubsettingCrs() == null ||
@@ -202,7 +202,7 @@ public class CRSExtension implements Extension {
      */
     public boolean axisDomainIntersection (DimensionSubset subset, GetCoverageMetadata meta, String subsettingCrs) {
         // If subsettingCrs is CRS:1, need to check cellDomains instead of geo-Bbox.
-        boolean cellSpace = subsettingCrs.equals(CrsUtil.IMAGE_CRS);
+        boolean cellSpace = subsettingCrs.equals(CrsUtil.GRID_CRS);
         
         if (subset == null) return true;
         

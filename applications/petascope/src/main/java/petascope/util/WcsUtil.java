@@ -233,7 +233,7 @@ public class WcsUtil {
         if (bbox != null) {
             return bbox.getCrsName();
         } else {
-            return CrsUtil.IMAGE_CRS;
+            return CrsUtil.GRID_CRS;
         }
     }
 

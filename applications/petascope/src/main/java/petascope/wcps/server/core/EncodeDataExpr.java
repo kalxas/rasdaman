@@ -23,9 +23,9 @@ package petascope.wcps.server.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.core.IDynamicMetadataSource;
+import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
 
 // This is the equivalent of the "ProcessingExprType" complex XML type.
@@ -64,7 +64,11 @@ public class EncodeDataExpr implements IRasNode {
                 continue;
             }
 
-            coverageExprType = new CoverageExpr(child, request);
+            try {
+                coverageExprType = new CoverageExpr(child, request);
+            } catch (WCPSException ex) {
+                throw ex;
+            }
         }
 
         Node _store = node.getAttributes().getNamedItem(WCPSConstants.MSG_STORE);
