@@ -9,5 +9,5 @@ to ./configure.  To see them, use:
 
   $ ./configure --help
 
-Once installed, see the "rasdaman Installation Guide" for next steps.
+Once installed, see the "rasdaman Installation Guide" for the next steps.
 It can be found in manuals_and_examples/manuals/pdf/inst-guide.pdf
