@@ -347,7 +347,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     r_Type* type = r_Type::get_any_type("char");
     const BaseType* baseType = TypeFactory::mapType(type->name());
     
-    Tile *resultTile = new Tile(mddDomain, baseType, (char*) fileContents, size, r_Array);
+    Tile *resultTile = new Tile(mddDomain, baseType, (char*) fileContents, size, getDataFormat(format));
     RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "evaluateMDD() - Created result tile of size " << size)
 
     // create a transient MDD object for the query result
@@ -520,6 +520,40 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
 
     free(datasetCells);
     return hMemDS;
+}
+
+#define EQUAL(a, b) (strcmp(a, b) == 0)
+
+r_Data_Format
+QtEncode::getDataFormat(char* format)
+{
+    r_Data_Format ret = r_Array;
+    
+    if (format)
+    {
+        char* f = strdup(format);
+        for (int i = 0; format[i]; i++)
+        {
+            if (isalpha(format[i]))
+                f[i] = tolower(format[i]);
+        }
+        
+        if (EQUAL(f, "png"))
+            ret = r_PNG;
+        else if (EQUAL(f, "netcdf"))
+            ret = r_NETCDF;
+        else if (EQUAL(f, "gtiff") || EQUAL(f, "tiff"))
+            ret = r_TIFF;
+        else if (EQUAL(f, "jpeg") || EQUAL(f, "jpeg2000"))
+            ret = r_JPEG;
+        else if (EQUAL(f, "nitf"))
+            ret = r_NTF;
+        else if (EQUAL(f, "hdf") || EQUAL(f, "hdf4") || EQUAL(f, "hdf4image") || EQUAL(f, "hdf5"))
+            ret = r_HDF;
+        else if (EQUAL(f, "bmp"))
+            ret = r_BMP;
+    }
+    return ret;
 }
 
 GDALDataType

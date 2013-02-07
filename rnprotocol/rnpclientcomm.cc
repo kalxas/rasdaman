@@ -645,7 +645,7 @@ RnpClientComm::getMDDCore( r_Ref< r_GMarray > &mdd, GetMDDRes *thisResult, unsig
     marray->set_type_structure( thisResult->typeStructure );
 
     r_Data_Format currentFormat = (r_Data_Format)(thisResult->currentFormat);
-    currentFormat = r_Array;
+//    currentFormat = r_Array;
     marray->set_current_format( currentFormat );
 
     r_Data_Format decompFormat;

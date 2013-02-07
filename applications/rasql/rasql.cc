@@ -660,6 +660,12 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ )
                 case r_NETCDF:
                     strcat( defFileName, ".nc" );
                     break;
+                case r_CSV:
+                    strcat( defFileName, ".csv" );
+                    break;
+                case r_DEM:
+                    strcat( defFileName, ".dem" );
+                    break;
                 default:
                     strcat( defFileName, ".unknown" );
                     break;

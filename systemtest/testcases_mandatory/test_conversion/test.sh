@@ -57,7 +57,7 @@ PASSWORD=rasadmin
 DATABASE=RASBASE
 IMAGEDIR=$DIR_NAME/testdata
 ORACLE_DIR=$DIR_NAME/oracle
-RASQL="rasql --quiet"
+RASQL="rasql --quiet --user $USERNAME --passwd $PASSWORD"
 RASDL="rasdl"
 GDALINFO="gdalinfo -noct -checksum"
 
@@ -70,6 +70,10 @@ GDALINFO="gdalinfo -noct -checksum"
   NUM_TOTAL=0
   NUM_FAIL=0
   NUM_SUC=0 
+  
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
   
 #--------------- check if old logfile exists ----------------------------------
 if [ -f $LOG ]
@@ -138,23 +142,23 @@ fi
 if   $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep test_tmp 
 then
 	echo dropping collection ... | tee -a $LOG
-	$RASQL -q "drop collection test_tmp" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
+	$RASQL -q "drop collection test_tmp" | tee -a $LOG
 fi
 
 ################## jpeg() and inv_jpeg() #######################
 echo -----jpeg and inv_jpeg conversion------ | tee -a $LOG
 echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" --user $USERNAME --passwd $PASSWORD || echo Error creating collection  test_tmp| tee -a $LOG
+$RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection  test_tmp| tee -a $LOG
 
 echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_jpeg($1)' -f $IMAGEDIR/mr_1.jpeg --user $USERNAME --passwd $PASSWORD || echo Error inserting jpeg image | tee -a $LOG
+$RASQL -q 'insert into test_tmp  values inv_jpeg($1)' -f $IMAGEDIR/mr_1.jpeg || echo Error inserting jpeg image | tee -a $LOG
 
 echo extracting collection ... | tee -a $LOG
-$RASQL -q "select jpeg(a) from test_tmp as a" --out file --outfile mr_1.jpeg  --user $USERNAME --passwd $PASSWORD || 
+$RASQL -q "select jpeg(a) from test_tmp as a" --out file --outfile mr_1.jpg  || 
 		echo Error extracting jpeg image | tee -a $LOG
 
 echo  comparing images | tee -a $LOG
-$GDALINFO mr_1.jpeg* | grep 'Checksum' > mr_1.jpeg.result
+$GDALINFO mr_1.jpg* | grep 'Checksum' > mr_1.jpeg.result
 diff $ORACLE_DIR/mr_1.jpeg.checksum mr_1.jpeg.result
 
 if [ $? != "0" ]
@@ -166,18 +170,19 @@ else
 	NUM_SUC=$(($NUM_SUC + 1))
 fi
 
-$RASQL -q "drop collection test_tmp" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-rm mr_1.jpeg*
+$RASQL -q "drop collection test_tmp" | tee -a $LOG
+rm mr_1.jpg*
+
 ################## tiff() and inv_tiff() #######################
 echo ------tiff and inv_tiff conversion------ | tee -a $LOG
 echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" --user $USERNAME --passwd $PASSWORD || echo Error creating collection test_tmp | tee -a $LOG
+$RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
 
 echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_tiff($1)' -f $IMAGEDIR/mr_1.tif --user $USERNAME --passwd $PASSWORD || echo Error inserting tiff image | tee -a $LOG
+$RASQL -q 'insert into test_tmp  values inv_tiff($1)' -f $IMAGEDIR/mr_1.tif || echo Error inserting tiff image | tee -a $LOG
 
 echo extracting collection ... | tee -a $LOG
-$RASQL -q "select tiff(a) from test_tmp as a" --out file --outfile mr_1.tif --user $USERNAME --passwd $PASSWORD || 
+$RASQL -q "select tiff(a) from test_tmp as a" --out file --outfile mr_1.tif || 
 		echo Error extracting tiff image | tee -a $LOG
 
 echo  comparing images | tee -a $LOG
@@ -194,7 +199,7 @@ else
 fi
 
 echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
+$RASQL -q "drop collection test_tmp" | tee -a $LOG
 rm mr_1.tif*
 
 
@@ -207,13 +212,13 @@ if [ $? -ne 0 ]; then
 fi
 
 echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp TestSet" --user $USERNAME --passwd $PASSWORD || echo Error creating collection test_tmp | tee -a $LOG
+$RASQL -q "create collection test_tmp TestSet" || echo Error creating collection test_tmp | tee -a $LOG
 
 echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp values (octet) inv_tiff($1, "sampletype=octet")' -f $IMAGEDIR/multiband.tif --user $USERNAME --passwd $PASSWORD || echo Error inserting tiff image | tee -a $LOG
+$RASQL -q 'insert into test_tmp values (octet) inv_tiff($1, "sampletype=octet")' -f $IMAGEDIR/multiband.tif || echo Error inserting tiff image | tee -a $LOG
 
 echo extracting collection ... | tee -a $LOG
-$RASQL -q "select tiff(a) from test_tmp as a" --out file --outfile multiband.tif --user $USERNAME --passwd $PASSWORD || echo Error extracting tiff image | tee -a $LOG
+$RASQL -q "select tiff(a) from test_tmp as a" --out file --outfile multiband.tif || echo Error extracting tiff image | tee -a $LOG
 
 echo  comparing images | tee -a $LOG
 $GDALINFO multiband.tif* | grep 'Checksum' > multiband.tif.result
@@ -229,24 +234,25 @@ else
 fi
 
 echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
+$RASQL -q "drop collection test_tmp" | tee -a $LOG
 
 rm multiband.tif*
+
 ################## png() and inv_png() #######################
 
 echo ------png and inv_png conversion------ | tee -a $LOG
 echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" --user $USERNAME --passwd $PASSWORD || echo Error creating collection test_tmp | tee -a $LOG
+$RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
 
 echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_png($1)' -f $IMAGEDIR/mr_1.png --user $USERNAME --passwd $PASSWORD || echo Error inserting png image | tee -a $LOG
+$RASQL -q 'insert into test_tmp  values inv_png($1)' -f $IMAGEDIR/mr_1.png || echo Error inserting png image | tee -a $LOG
 
 echo extracting collection ... | tee -a $LOG
-$RASQL -q "select png(a) from test_tmp as a" --out file --outfile mr_1.png --user $USERNAME --passwd $PASSWORD || 
+$RASQL -q "select png(a) from test_tmp as a" --out file --outfile mr_1 || 
 		echo Error extracting png image | tee -a $LOG
 
 echo  comparing images | tee -a $LOG
-cmp $IMAGEDIR/mr_1.png mr_1.png.unknown 
+cmp $IMAGEDIR/mr_1.png mr_1.png
 
 if [ $? != "0" ]
 then
@@ -258,19 +264,21 @@ else
 fi
 
 echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-rm mr_1.png.unknown
+$RASQL -q "drop collection test_tmp" | tee -a $LOG
+rm mr_1.png
+
+
 ################## bmp() and inv_bmp() #######################
 
 echo ------bmp and inv_bmp conversion------ | tee -a $LOG
 echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" --user $USERNAME --passwd $PASSWORD || echo Error creating collection test_tmp | tee -a $LOG
+$RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
 
 echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_bmp($1)' -f $IMAGEDIR/mr_1.bmp --user $USERNAME --passwd $PASSWORD || echo Error inserting bmp image | tee -a $LOG
+$RASQL -q 'insert into test_tmp  values inv_bmp($1)' -f $IMAGEDIR/mr_1.bmp || echo Error inserting bmp image | tee -a $LOG
 
 echo extracting collection ... | tee -a $LOG
-$RASQL -q "select bmp(a) from test_tmp as a" --out file --outfile mr_1.bmp --user $USERNAME --passwd $PASSWORD || 
+$RASQL -q "select bmp(a) from test_tmp as a" --out file --outfile mr_1.bmp || 
 		echo Error extracting bmp image | tee -a $LOG
 
 echo  comparing images | tee -a $LOG
@@ -287,7 +295,7 @@ else
 fi
 
 echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
+$RASQL -q "drop collection test_tmp" | tee -a $LOG
 rm mr_1.bmp*
 
 ################## vff() and inv_vff() #######################
@@ -295,17 +303,17 @@ rm mr_1.bmp*
 
 echo ------vff and inv_vff conversion------ | tee -a $LOG
 echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" --user $USERNAME --passwd $PASSWORD || echo Error creating collection test_tmp | tee -a $LOG
+$RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
 
 echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_vff($1)' -f $IMAGEDIR/mr_1.vff --user $USERNAME --passwd $PASSWORD || echo Error inserting vff image | tee -a $LOG
+$RASQL -q 'insert into test_tmp  values inv_vff($1)' -f $IMAGEDIR/mr_1.vff || echo Error inserting vff image | tee -a $LOG
 
 echo extracting collection ... | tee -a $LOG
-$RASQL -q 'select vff(a) from test_tmp as a' --out file --outfile mr_1.vff  --user $USERNAME --passwd $PASSWORD || 
+$RASQL -q 'select vff(a) from test_tmp as a' --out file --outfile mr_1  || 
 		echo Error extracting vff image | tee -a $LOG
 
 echo  comparing images | tee -a $LOG
-cmp $IMAGEDIR/mr_1.vff  mr_1.vff.unknown 
+cmp $IMAGEDIR/mr_1.vff  mr_1.vff
 
 if [ $? != "0" ]
 then
@@ -317,53 +325,59 @@ else
 fi
 
 echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-rm mr_1.vff.unknown
+$RASQL -q "drop collection test_tmp" | tee -a $LOG
+rm mr_1.vff
+
 ################## hdf() and inv_hdf() #######################
 
+# run hdf test only if hdf was compiled in
+grep 'HAVE_HDF 1' $SCRIPT_DIR/../../../config.h
 
-echo ------hdf and inv_hdf conversion------ | tee -a $LOG
-echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" --user $USERNAME --passwd $PASSWORD || echo Error creating collection test_tmp | tee -a $LOG
+if [ $? -eq 0 ]; then
+  echo ------hdf and inv_hdf conversion------ | tee -a $LOG
+  echo creating collection ... | tee -a $LOG
+  $RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
 
-echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_hdf($1)' -f $IMAGEDIR/mr_1.hdf --user $USERNAME --passwd $PASSWORD || echo Error inserting hdf4 image | tee -a $LOG
+  echo inserting collection ... | tee -a $LOG
+  $RASQL -q 'insert into test_tmp  values inv_hdf($1)' -f $IMAGEDIR/mr_1.hdf || echo Error inserting hdf4 image | tee -a $LOG
 
-echo extracting collection ... | tee -a $LOG
-$RASQL -q "select hdf(a) from test_tmp as a" --out file --outfile mr_1.hdf --user $USERNAME --passwd $PASSWORD || 
-		echo Error extracting hdf4 image | tee -a $LOG
+  echo extracting collection ... | tee -a $LOG
+  $RASQL -q "select hdf(a) from test_tmp as a" --out file --outfile mr_1 || 
+		  echo Error extracting hdf4 image | tee -a $LOG
 
-echo  comparing images | tee -a $LOG
-$GDALINFO mr_1.hdf* | grep 'Checksum' > mr_1.hdf.result
-diff $ORACLE_DIR/mr_1.hdf.checksum mr_1.hdf.result
+  echo  comparing images | tee -a $LOG
+  $GDALINFO mr_1.hdf | grep 'Checksum' > mr_1.hdf.result
+  diff $ORACLE_DIR/mr_1.hdf.checksum mr_1.hdf.result
 
-if [ $? != "0" ]
-then
-	echo input and output does not match | tee -a $LOG
-	NUM_FAIL=$(($NUM_FAIL + 1))
-else
-	echo input and output match | tee -a $LOG
-	NUM_SUC=$(($NUM_SUC + 1))
+  if [ $? != "0" ]
+  then
+	  echo input and output does not match | tee -a $LOG
+	  NUM_FAIL=$(($NUM_FAIL + 1))
+  else
+	  echo input and output match | tee -a $LOG
+	  NUM_SUC=$(($NUM_SUC + 1))
+  fi
+
+  echo dropping collections ... | tee -a $LOG
+  $RASQL -q "drop collection test_tmp" | tee -a $LOG
+  rm mr_1.hdf
 fi
 
-echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-rm mr_1.hdf*
 ################## csv() #######################
 
 
 echo ------csv conversion------ | tee -a $LOG
 echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" --user $USERNAME --passwd $PASSWORD || echo Error creating collection test_tmp | tee -a $LOG
+$RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
 
 echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_png($1)' -f $IMAGEDIR/mr_1.png --user $USERNAME --passwd $PASSWORD || echo Error inserting png image | tee -a $LOG
+$RASQL -q 'insert into test_tmp  values inv_png($1)' -f $IMAGEDIR/mr_1.png || echo Error inserting png image | tee -a $LOG
 
 echo extracting collection ... | tee -a $LOG
-$RASQL -q "select csv(a) from test_tmp as a" --out file --outfile mr_1.csv --user $USERNAME --passwd $PASSWORD || echo Error extracting csv image | tee -a $LOG
+$RASQL -q "select csv(a) from test_tmp as a" --out file --outfile mr_1 || echo Error extracting csv image | tee -a $LOG
 
 echo  comparing images | tee -a $LOG
-cmp $IMAGEDIR/mr_1.csv mr_1.csv*
+cmp $IMAGEDIR/mr_1.csv mr_1.csv
 
 if [ $? != "0" ]
 then
@@ -375,22 +389,22 @@ else
 fi
 
 echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-rm mr_1.csv*
+$RASQL -q "drop collection test_tmp" | tee -a $LOG
+rm mr_1.csv
 
 
 echo ------csv composite type conversion------ | tee -a $LOG
 echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  RGBSet" --user $USERNAME --passwd $PASSWORD || echo Error creating collection test_tmp | tee -a $LOG
+$RASQL -q "create collection test_tmp  RGBSet" || echo Error creating collection test_tmp | tee -a $LOG
 
 echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_png($1)' -f $IMAGEDIR/rgb.png --user $USERNAME --passwd $PASSWORD || echo Error inserting png image | tee -a $LOG
+$RASQL -q 'insert into test_tmp  values inv_png($1)' -f $IMAGEDIR/rgb.png || echo Error inserting png image | tee -a $LOG
 
 echo extracting collection ... | tee -a $LOG
-$RASQL -q "select csv(a[115:130,110:112]) from test_tmp as a" --out file --outfile rgb.csv --user $USERNAME --passwd $PASSWORD || echo Error extracting csv image | tee -a $LOG
+$RASQL -q "select csv(a[115:130,110:112]) from test_tmp as a" --out file --outfile rgb || echo Error extracting csv image | tee -a $LOG
 
 echo  comparing images | tee -a $LOG
-cmp $IMAGEDIR/rgb.csv rgb.csv*
+cmp $IMAGEDIR/rgb.csv rgb.csv
 
 if [ $? != "0" ]
 then
@@ -402,20 +416,21 @@ else
 fi
 
 echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-rm rgb.csv*
+$RASQL -q "drop collection test_tmp" | tee -a $LOG
+rm rgb.csv
+
 ################## Dem() and inv_dem() #######################
 
 
 # echo ------dem and inv_dem conversion------ | tee -a $LOG
 # echo creating collection ... | tee -a $LOG
-# $RASQL -q "create collection test_tmp  GreySet" --user $USERNAME --passwd $PASSWORD || echo Error creating collection test_tmp | tee -a $LOG
+# $RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
 
 # echo inserting collection ... | tee -a $LOG
-# $RASQL -q 'insert into test_tmp  values inv_dem($1)' -f $IMAGEDIR/mr_1.dem --user $USERNAME --passwd $PASSWORD || echo Error inserting dem image | tee -a $LOG
+# $RASQL -q 'insert into test_tmp  values inv_dem($1)' -f $IMAGEDIR/mr_1.dem || echo Error inserting dem image | tee -a $LOG
 
 # echo extracting collection ... | tee -a $LOG
-# $RASQL -q "select dem(a) from test_tmp as a" --out file --outfile mr_1.dem --user $USERNAME --passwd $PASSWORD || 
+# $RASQL -q "select dem(a) from test_tmp as a" --out file --outfile mr_1.dem || 
 #		echo Error extracting dem image | tee -a $LOG
 
 # echo  comparing images | tee -a $LOG
@@ -431,20 +446,20 @@ rm rgb.csv*
 # fi
 
 # echo dropping collections ... | tee -a $LOG
-# $RASQL -q "drop collection test_tmp" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
+# $RASQL -q "drop collection test_tmp" | tee -a $LOG
 # rm mr_1.dem.unknown
 ################## tor() and inv_tor() #######################
 
 
 # echo ------tor and inv_tor conversion------ | tee -a $LOG
 # echo creating collection ... | tee -a $LOG
-# $RASQL -q "create collection test_tmp  GreySet" --user $USERNAME --passwd $PASSWORD || echo Error creating collection test_tmp | tee -a $LOG
+# $RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
 
 # echo inserting collection ... | tee -a $LOG
-# $RASQL -q 'insert into test_tmp  values inv_tor($1)' -f $IMAGEDIR/mr_1.tor --user $USERNAME --passwd $PASSWORD || echo Error inserting tor image | tee -a $LOG
+# $RASQL -q 'insert into test_tmp  values inv_tor($1)' -f $IMAGEDIR/mr_1.tor || echo Error inserting tor image | tee -a $LOG
 
 # echo extracting collection ... | tee -a $LOG
-# $RASQL -q 'select tor(a) from test_tmp as a' --out file --outfile mr_1.tor  --user $USERNAME --passwd $PASSWORD || 
+# $RASQL -q 'select tor(a) from test_tmp as a' --out file --outfile mr_1.tor  || 
 #		echo Error extracting tor image | tee -a $LOG
 
 # echo  comparing images | tee -a $LOG
@@ -460,7 +475,7 @@ rm rgb.csv*
 # fi
 
 # echo dropping collections ... | tee -a $LOG
-# $RASQL -q "drop collection test_tmp" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
+# $RASQL -q "drop collection test_tmp" | tee -a $LOG
 # rm mr_1.tor.unknown
 
 ################# summary #######################

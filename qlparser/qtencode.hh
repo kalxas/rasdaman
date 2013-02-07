@@ -91,6 +91,9 @@ private:
     
     /// convert rasdaman type to GDAL type
     GDALDataType getGdalType(r_Type* rasType);
+    
+    /// convert GDAL format ID to rasdaman format
+    r_Data_Format getDataFormat(char* format);
 
     // convert rasdaman tile to GDAL dataset
     GDALDataset* convertTileToDataset(Tile* sourceTile, int nBands, r_Type* bandType);

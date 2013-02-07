@@ -479,10 +479,12 @@ QtConversion::evaluate( QtDataList* inputList )
             }
         }
 
+        long convResultSize = convResult.destInterv.cell_count() * myType->getSize();
+        
         Tile* resultTile = new Tile( convResult.destInterv,
                                      myType,
                                      convResult.dest,
-                                     0,
+                                     convResultSize,
                                      convFormat );
 
         // delete destination type
