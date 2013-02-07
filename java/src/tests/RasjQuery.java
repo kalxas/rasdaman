@@ -26,6 +26,8 @@
   @author Ernesto Rodriguez <ernesto4160@gmail.com>
 */
 
+package tests;
+
 import org.odmg.Database;
 import org.odmg.Implementation;
 import org.odmg.ODMGException;

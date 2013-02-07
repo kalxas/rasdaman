@@ -39,6 +39,11 @@ all : src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/client
 examples: src/examples/*.java all
 	mkdir -p bin
 	javac -d bin src/examples/*.java -cp dist/rasj.jar
+
+tests: src/tests/*.java all
+	mkdir -p bin
+	javac -d bin src/tests/*.java -cp dist/rasj.jar:../applications/petascope/lib/junit-4.5.jar
+	java -cp bin:dist/rasj.jar:../applications/petascope/lib/junit-4.5.jar org.junit.runner.JUnitCore tests.SimultaneousConnectionsTest
 	
 clean:
 	rm -rf bin dist

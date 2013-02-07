@@ -25,6 +25,7 @@
    Test for proper handling of simultaneous requests.
   @author Ernesto Rodriguez <ernesto4160@gmail.com>
 */
+package tests;
 
 import org.junit.Test;
 import rasj.RasQueryExecutionFailedException;
