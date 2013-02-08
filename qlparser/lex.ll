@@ -211,6 +211,7 @@ int string_yyinput( char* buf, int max_size )
 "oid"                                    { SETTOKEN( OID, commandToken, OID ) }
 "shift"                                  { SETTOKEN( SHIFT, commandToken, SHIFT ) }
 "scale"                                  { SETTOKEN( SCALE, commandToken, SCALE ) }
+"dbinfo"                                 { SETTOKEN( DBINFO, commandToken, DBINFO ) }
 
 "."                                      { SETTOKEN( DOT, commandToken, DOT ) }
 ","                                      { SETTOKEN( COMMA, commandToken, COMMA ) }

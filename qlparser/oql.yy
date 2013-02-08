@@ -62,6 +62,7 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "qlparser/qtconcat.hh"
 #include "qlparser/qtcaseop.hh"
 #include "rasodmg/dirdecompose.hh"
+#include "qlparser/qtinfo.hh"
 
 extern ServerComm::ClientTblElt* currentClientTblElt;
 extern ParseInfo *currInfo;
@@ -213,7 +214,7 @@ struct QtUpdateSpecElement
 			 TILING ALIGNED REGULAR DIRECTIONAL
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
 			 STRCT COMPLEX RE IM TIFF BMP HDF NETCDF CSV JPEG PNG VFF TOR DEM INV_TIFF INV_BMP INV_HDF INV_NETCDF
-			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM ENCODE CONCAT ALONG
+			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM ENCODE CONCAT ALONG DBINFO
                          CASE WHEN THEN ELSE END
 
 %left COLON VALUES USING WHERE
@@ -1232,6 +1233,32 @@ functionExp: OID LRPAR collectionIterator RRPAR
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($1)
 	  FREESTACK($2)
+	  FREESTACK($4)
+	  FREESTACK($6)
+	}
+	// added -- DM 2012-dec-07
+	| DBINFO LRPAR collectionIterator RRPAR
+	{
+	  QtVariable* var = new QtVariable( $3.value );
+	  var->setParseInfo( *($3.info) );
+	  $$ = new QtInfo( var );
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($3)
+	  FREESTACK($4)
+	}
+	| DBINFO LRPAR collectionIterator COMMA StringLit RRPAR
+	{
+	  QtVariable* var = new QtVariable( $3.value );
+	  var->setParseInfo( *($3.info) );
+	  $$ = new QtInfo( var, $5.value );
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($3)
 	  FREESTACK($4)
 	  FREESTACK($6)
 	}

@@ -91,7 +91,8 @@ libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
                       qtmddcfgop.hh qtmddcfgop.cc \
                       qtencode.hh qtencode.cc \
                       qtconcat.hh qtconcat.cc qtconcat.icc \
-		      qtcaseop.cc qtcaseop.hh qtcaseop.icc
+		      qtcaseop.cc qtcaseop.hh qtcaseop.icc \
+		      qtinfo.cc qtinfo.hh qtinfo.icc
 
 EXTRA_libqlparser_a_SOURCES = autogen_qtui.hh autogen_qtui.icc autogen_qtui.cc
 

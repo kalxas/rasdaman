@@ -171,6 +171,7 @@ public:
         QT_ENCODE,
         QT_CONCAT,
         QT_CASEOP,
+        QT_INFO,
         QT_LAST_NODE_TYPE
     };
 

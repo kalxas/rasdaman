@@ -164,6 +164,10 @@
 430^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The results have incompatible types.
 431^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: At least one condition is not boolean.
 #
+430^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Parameter of info function must be a persistent MDD object.
+431^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid persistent object given to the info function.
+432^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Failed retreiving information for the specified object.
+#
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
 #
 # 5XX errors for overflow situations
