@@ -389,7 +389,7 @@ public class PetascopeInterface extends HttpServlet {
                 // Finally, cast all other exceptions into a WCSException
                 log.error("Runtime error : {}", e.getMessage());
                 throw new WCSException(ExceptionCode.RuntimeError,
-                        "Runtime error while processing request", e);
+                        "Runtime error while processing request: " + e.getMessage(), e);
             }
         } // And catch all WCSExceptions, to display to the client
         catch (WCSException e) {

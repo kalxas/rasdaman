@@ -22,17 +22,16 @@
 package petascope.wcs2.extensions;
 
 import java.util.List;
-import petascope.core.DbMetadataSource;
-import petascope.exceptions.WCSException;
-import petascope.wcs2.parsers.GetCoverageRequest;
-import petascope.util.CrsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
-import petascope.wcps.server.core.Bbox;
+import petascope.util.CrsUtil;
 import petascope.wcs2.parsers.GetCoverageMetadata;
+import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSubset;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;

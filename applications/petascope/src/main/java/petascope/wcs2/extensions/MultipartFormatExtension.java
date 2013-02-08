@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import petascope.core.DbMetadataSource;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.GetCoverageMetadata;
@@ -46,7 +47,7 @@ public class MultipartFormatExtension extends  GmlFormatExtension {
     }
 
     @Override
-    public Response handle(GetCoverageRequest req, DbMetadataSource meta) throws WCSException {
+    public Response handle(GetCoverageRequest req, DbMetadataSource meta) throws PetascopeException, WCSException {
         // get gml response, but without the {coverageData} replaced
         Response gml = super.handle(req, meta);
         // get the GeoTIFF file

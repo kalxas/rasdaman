@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import petascope.HTTPRequest;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.wcs2.handlers.HandlersRegistry;
 import petascope.wcs2.parsers.Request;
@@ -45,7 +46,7 @@ public abstract class AbstractProtocolExtension implements  ProtocolExtension {
     private static final Logger log = LoggerFactory.getLogger(AbstractProtocolExtension.class);
 
     @Override
-    public Response handle(HTTPRequest request, DbMetadataSource meta) throws WCSException {
+    public Response handle(HTTPRequest request, DbMetadataSource meta) throws PetascopeException, WCSException {
         RequestParser parser = ParsersRegistry.getParser(request);
         if (parser == null) {
             throw new WCSException(ExceptionCode.NoApplicableCode, "No suitable parser found.");

@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.Pair;
 import petascope.util.ras.RasQueryResult;
@@ -40,7 +41,7 @@ import petascope.wcs2.parsers.GetCoverageRequest;
  *
  * @author <a href="mailto:m.rusu@jacobs-university.de">Mihaela Rusu</a>
  */
-public class JPEG2000FormatExtension extends AbstractFormatExtension{
+public class JPEG2000FormatExtension extends AbstractFormatExtension {
     
     /* Member */
     CrsProperties crsProperties;
@@ -59,7 +60,7 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension{
     }
 
     @Override
-    public Response handle(GetCoverageRequest request, DbMetadataSource meta) throws WCSException {
+    public Response handle(GetCoverageRequest request, DbMetadataSource meta) throws PetascopeException, WCSException {
         GetCoverageMetadata m = new GetCoverageMetadata(request, meta);
 
         // First, transform possible non-native CRS subsets
@@ -70,7 +71,12 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension{
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
         rsubExt.handle(request, m);        
         
-        setBounds(request, m, meta);
+        try {
+            setBounds(request, m, meta);
+        } catch (PetascopeException pEx) {
+            throw pEx;
+        }
+        
         if (m.getGridDimension() != 2 || !(
                 m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE) ||
                 m.getCoverageType().equals(GetCoverageRequest.RECTIFIED_GRID_COVERAGE))) {

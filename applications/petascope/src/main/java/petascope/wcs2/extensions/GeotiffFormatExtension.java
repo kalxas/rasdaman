@@ -21,17 +21,17 @@
  */
 package petascope.wcs2.extensions;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.Pair;
 import petascope.util.ras.RasQueryResult;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import petascope.util.CrsUtil;
 
 /**
  * Return coverage as a GeoTIFF file.
@@ -41,7 +41,7 @@ import petascope.util.CrsUtil;
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
-public class GeotiffFormatExtension extends  AbstractFormatExtension {
+public class GeotiffFormatExtension extends AbstractFormatExtension {
     
     /* Member */
     CrsProperties crsProperties;
@@ -60,7 +60,7 @@ public class GeotiffFormatExtension extends  AbstractFormatExtension {
     }
 
     @Override
-    public Response handle(GetCoverageRequest request, DbMetadataSource meta) throws WCSException {
+    public Response handle(GetCoverageRequest request, DbMetadataSource meta) throws PetascopeException, WCSException {
         GetCoverageMetadata m = new GetCoverageMetadata(request, meta);
 
         // First, transform possible non-native CRS subsets
@@ -71,7 +71,12 @@ public class GeotiffFormatExtension extends  AbstractFormatExtension {
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
         rsubExt.handle(request, m);       
         
-        setBounds(request, m, meta);
+        try {
+            setBounds(request, m, meta);
+        } catch (PetascopeException pEx) {
+            throw pEx;
+        }
+                
         if (m.getGridDimension() != 2 || !(
                 m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE) ||
                 m.getCoverageType().equals(GetCoverageRequest.RECTIFIED_GRID_COVERAGE))) {

@@ -23,6 +23,7 @@
 package petascope.wcs2.extensions;
 
 import petascope.core.DbMetadataSource;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.handlers.Response;
@@ -61,7 +62,7 @@ public interface FormatExtension extends  Extension {
      * @param meta database metadata
      * @return response encoded in the respective format
      */
-    Response handle(GetCoverageRequest req, DbMetadataSource meta) throws WCSException;
+    Response handle(GetCoverageRequest req, DbMetadataSource meta) throws PetascopeException, WCSException;
     
     /**
      * @return the mime-type of the particular format handled by this extension

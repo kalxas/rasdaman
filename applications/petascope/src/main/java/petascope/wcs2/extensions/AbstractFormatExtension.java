@@ -37,7 +37,6 @@ import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
-import petascope.util.TimeUtil;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.Crs;
@@ -99,16 +98,25 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             // Append axis label
                             axesLabels += subset.getDimension() + " ";
                             // Append updated bounds 
+                            // TODO: if request is specified via grid coords, need a backwards transform here 
+                            //       {cellDomain->domain} to show domain values in the WCS response:
+                            //       Crs.convertToDomainCoords()
                             lowerDom += Math.max(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
                                     domainEl.getNumLo()) + " ";
                             upperDom += Math.min(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimHigh()),
                                     domainEl.getNumHi()) + " ";
-                            // Append updated pixel bounds
-                            int[] cellDom = Crs.convertToPixelIndices(metadata, subset.getDimension(), 
-                                    Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
-                                    Double.parseDouble(((DimensionTrim) subset).getTrimHigh()));
+                            // Append updated pixel bounds                            
+                            String decimalsExp = "\\.[0-9]+";
+                            int[] cellDom = (CrsUtil.GRID_CRS.equals(subset.getCrs()) || // : subset=x,CRS:1(x1,x2) || subsettingCrs=CRS:1
+                                    (!request.getCRS().isEmpty() && CrsUtil.GRID_CRS.equals(request.getCRS().get(0).getSubsettingCrs())))
+                                    ? new int[]{ // NOTE: e.g. parseInt("10.0") throws exception: need to remove decimals.
+                                        Integer.parseInt(((DimensionTrim) subset).getTrimLow().replaceAll( decimalsExp, "").trim()), 
+                                        Integer.parseInt(((DimensionTrim) subset).getTrimHigh().replaceAll(decimalsExp, "").trim())} // subsets are alsready grid indexes
+                                    : Crs.convertToPixelIndices(metadata, subset.getDimension(),       // otherwise, need to convert them
+                                        Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
+                                        Double.parseDouble(((DimensionTrim) subset).getTrimHigh()));
                             lowerCellDom += cellDom[0] + " ";
                             upperCellDom += cellDom[1] + " ";
                         } else if (subset instanceof DimensionSlice) {

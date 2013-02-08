@@ -24,6 +24,7 @@ package petascope.wcs2.extensions;
 
 import petascope.HTTPRequest;
 import petascope.core.DbMetadataSource;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.Request;
@@ -48,5 +49,5 @@ public interface ProtocolExtension extends  Extension {
      * @return result from executing the requested operation
      * @throws WCSException
      */
-    Response handle(HTTPRequest request, DbMetadataSource meta) throws WCSException;
+    Response handle(HTTPRequest request, DbMetadataSource meta) throws PetascopeException, WCSException;
 }

@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
 import petascope.core.Metadata;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.Pair;
@@ -62,7 +61,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
     @Override
     public Response handle(GetCoverageRequest request, DbMetadataSource meta)
-            throws WCSException {
+            throws PetascopeException, WCSException {
         GetCoverageMetadata m = new GetCoverageMetadata(request, meta);
         
         // First, transform possible non-native CRS subsets
@@ -78,8 +77,13 @@ public class GmlFormatExtension extends AbstractFormatExtension {
             String xml = r.getXml();
             return new Response(r.getData(), xml, r.getMimeType());
         }
+       
+        try {
+            setBounds(request, m, meta);
+        } catch (PetascopeException pEx) {
+            throw pEx;
+        }
         
-        setBounds(request, m, meta);
         String gml = WcsUtil.getGML(m, Templates.GRID_COVERAGE, true);
         gml = addCoverageData(gml, request, meta, m);
         return new Response(gml);
