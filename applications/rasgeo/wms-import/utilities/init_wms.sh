@@ -252,6 +252,9 @@ PG_SELECT_NULL="(0 rows)"
   PG_SELECT_OK="(1 row)"
  PG_SELECT_OK2="(2 rows)"
 
+# HTTP code
+HTTP_OK_CODE=200
+
 # --- END CONSTANTS -------------------------------------------------
 
 # --- PARAMETER EVALUATION ------------------------------------------
@@ -596,9 +599,15 @@ echo "Done."
 
 # reload new capabilities file into rasogc
 echo "$ME: reloading capabilities into rasgeo URL=$PETASCOPEWMS_URL..."
-$WGET -q "$PETASCOPEWMS_URL?request=$WMS_RELOADCAPABILITIES&service=wms&version=$WMS_VERSION"
-rm -f *$WMS_RELOADCAPABILITIES*	# wget bug? Redirects output to wms?.... file.
-echo "$ME: Database $PETADB_NAME has been updated and WMS servlet ($PETASCOPEWMS_URL) refreshed."
+ReloadCapReq="$PETASCOPEWMS_URL?request=$WMS_RELOADCAPABILITIES&service=wms&version=$WMS_VERSION"
+ReloadCapRespCode=$( $WGET --spider -S "$ReloadCapReq" 2>&1 | grep "HTTP/" | awk '{print $2}')
+if [ "$ReloadCapRespCode" -ne $HTTP_OK_CODE ]; then
+	echo "$ME: ERROR while reloading WMS capabilities. HTTP code: $ReloadCapRespCode."
+	echo "$ME: Try reloading them manually: \"$ReloadCapReq\""
+	exit $RC_ERROR
+else 
+	echo "$ME: Database $PETADB_NAME has been updated and WMS servlet ($PETASCOPEWMS_URL) refreshed."
+fi
 
 echo
 echo "$ME: done."
