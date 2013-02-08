@@ -24,38 +24,32 @@
 # ------------------------------------------------------------------------------
 #
 # SYNOPSIS
-# ./update_petascopedb.sh
+# ./update_db.sh
 #
 # Description
-#  Command-line utility for updating the petascope database. The updating is
+#  Command-line utility for updating the rasdaman database RASBASE. The updating is
 #  done by importing all appropriate updateX.sql files to postgres. The script
 #  determines automatically which updates need to be imported. There are two
 #  cases:
-#   1. no petascope database is present, in which case the updates start from 0.
-#   2. a ps_dbupdates table is present, in this case the updates start from the
+#   1. no ras_dbupdates table is present, in which case the updates start from 0.
+#   2. a ras_dbupdates table is present, in this case the updates start from the
 #      number saved in the update column.
-#
-#  Database connection details are read from etc/petascope.properties
 #
 # PRECONDITIONS
 #  1) PostgreSQL server must be running
-#  2) etc/petascope.properties should be present, and the metadata_user should
-#     have appropriate write rights in postgres.
-#  3) share/rasdaman/petascope should contain the SQL update scripts
+#  2) User running the script must have write access in PostgreSQL
+#  3) share/rasdaman/db_updates should contain the SQL update scripts
 
 PROG=`basename $0`
 
 CODE_OK=0
 CODE_FAIL=255
 
-# petascope settings file
-SETTINGS=@sysconfdir@/petascope.properties
+# updateN.sql scripts
+SCRIPT_DIR=@pkgdatadir@/db_updates
 
-# petascope updateN.sql scripts
-SCRIPT_DIR=@pkgdatadir@/petascope
-
-# petascopedb tables
-PS_DBUPDATE=ps_dbupdates
+# table storing the current database update number
+RAS_DBUPDATE=ras_dbupdates
 
 # ------------------------------------------------------------------------------
 # functions
@@ -96,9 +90,6 @@ check_postgres() {
   fi
 }
 check_paths() {
-  if [ ! -f "$SETTINGS" ]; then
-	  error "petascope settings not found: $SETTINGS"
-  fi
   if [ ! -d "$SCRIPT_DIR" ]; then
     error "SQL update script directory not found: $SCRIPT_DIR"
   fi
@@ -111,72 +102,53 @@ check_paths() {
 check_paths
 
 #
-# postgres connection details
+# postgres connection details (defaults used)
 #
-PS_USER=`grep metadata_user "$SETTINGS" | awk -F "=" '{print $2}'`
-PS_USER="${PS_USER#"${PS_USER%%[![:space:]]*}"}"
-PS_PASS=`grep metadata_pass "$SETTINGS" | awk -F "=" '{print $2}'`
-PS_PASS="${PS_PASS#"${PS_PASS%%[![:space:]]*}"}"
-PS_DB=`grep metadata_url "$SETTINGS" | awk -F "/" '{print $4}' | tr -d '\n'`
-PS_PORT=`grep metadata_url "$SETTINGS" | awk -F ":|/" '{print $6}' | tr -d '\n'`
+RAS_DB=RASBASE
+RAS_PORT=5432
 
-# add user/pass to the .pgpass file
-PGPASS_LINE="$HOSTNAME:*:*:$PS_USER:$PS_PASS"
-PGPASS_FILE="$HOME/.pgpass"
-if [ ! -f $PGPASS_FILE ]; then
-  echo "$PGPASS_LINE" > $PGPASS_FILE
-  chmod 600 $PGPASS_FILE
-else
-  grep "$PS_USER" $PGPASS_FILE > /dev/null
-  if [ $? -ne 0 ]; then
-    echo "$PGPASS_LINE" >> $PGPASS_FILE
-  fi
-fi
 
 #
 # commands
 #
-PSQL="psql -U $PS_USER -d $PS_DB -p $PS_PORT"
-CREATEDB="createdb -U $PS_USER -p $PS_PORT"
+PSQL="psql -d $RAS_DB -p $RAS_PORT"
+CREATEDB="createdb -p $RAS_PORT"
 
 # print some info
-log "postgres settings read from $SETTINGS"
-log "  user: $PS_USER"
-log "  port: $PS_PORT"
-log "  db: $PS_DB"
+log "postgres settings"
+log "  port: $RAS_PORT"
+log "  db: $RAS_DB"
 
 check_postgres
 
 #
-# create db if not present
+# check if db is present
 #
-psql -U $PS_USER -p $PS_PORT --list 2>&1 | egrep "\b$PS_DB\b" > /dev/null
+psql -p $RAS_PORT --list 2>&1 | egrep "\b$RAS_DB\b" > /dev/null
 if [ $? -ne 0 ]; then
-  logn "no petascope database found, creating... "
-  $CREATEDB $PS_DB > /dev/null
-  feedback
+  error "no $RAS_DB database found, please run create_db.sh first"
 fi
 
 
 #
 # determine the update number
 #
-$PSQL -c "select * from $PS_DBUPDATE" > /dev/null 2>&1
+$PSQL -c "select * from $RAS_DBUPDATE" > /dev/null 2>&1
 if [ $? -ne 0 ]; then
   # create from scratch
 	counter=0
 else
   # update from the last update number
-	counter=`$PSQL -c "select update from $PS_DBUPDATE where id=1" | head -n 3 | tail -n 1 | awk '{print $1}'`
+	counter=`$PSQL -c "select update from $RAS_DBUPDATE where id=1" | head -n 3 | tail -n 1 | awk '{print $1}'`
 	if [ "$counter" -ne "$counter" ] 2>/dev/null; then
-    error "couldn't determine last update from the $PS_DBUPDATE table"
+    error "couldn't determine last update from the $RAS_DBUPDATE table"
   fi
 fi
 
 #
 # some updates are written in PL/pgSQL, so install the extension in postgres
 #
-createlang plpgsql $PS_DB > /dev/null 2>&1
+createlang plpgsql $RAS_DB > /dev/null 2>&1
 rc=$?
 if [ $rc -ne 0 -a $rc -ne 2 ]; then
   error "failed creating PL/pgSQL extension in PostgreSQL, please install it first on your system."
@@ -208,7 +180,7 @@ done
 # save the last update number
 #
 if [ $updated -eq 1 ]; then
-  $PSQL -c "update $PS_DBUPDATE set update=$counter where id=1" > /dev/null 2>&1
+  $PSQL -c "update $RAS_DBUPDATE set update=$counter where id=1" > /dev/null 2>&1
   log "updated database to update $((counter-1))"
 else
   log "database already up-to-date, nothing to update."

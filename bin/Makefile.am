@@ -22,9 +22,9 @@
 #
 ###################################################################
 
-bin_SCRIPTS = start_rasdaman.sh stop_rasdaman.sh create_db.sh rasmgr.conf
-EXTRA_DIST = stop_rasdaman.sh.in start_rasdaman.sh.in create_db.sh.in rasmgr.conf.in
-CLEANFILES = start_rasdaman.sh stop_rasdaman.sh create_db.sh rasmgr.conf
+bin_SCRIPTS = start_rasdaman.sh stop_rasdaman.sh create_db.sh rasmgr.conf update_db.sh
+EXTRA_DIST = stop_rasdaman.sh.in start_rasdaman.sh.in create_db.sh.in rasmgr.conf.in update_db.sh.in
+CLEANFILES = start_rasdaman.sh stop_rasdaman.sh create_db.sh rasmgr.conf update_db.sh
 dist_pkgdata_DATA=errtxts_en errtxts_de errtxts_fr errtxts
 
 script_edit = $(SED) \
@@ -32,7 +32,7 @@ script_edit = $(SED) \
      -e 's|@bindir[@]|$(bindir)/|g' \
      -e 's|@pkgdatadir[@]|$(pkgdatadir)/|g'
 
-start_rasdaman.sh stop_rasdaman.sh create_db.sh: Makefile
+start_rasdaman.sh stop_rasdaman.sh create_db.sh update_db.sh: Makefile
 	rm -f $@
 	$(script_edit) '$@.in' >$@
 	chmod +x $@
@@ -41,6 +41,7 @@ start_rasdaman.sh stop_rasdaman.sh create_db.sh: Makefile
 start_rasdaman.sh: start_rasdaman.sh.in
 stop_rasdaman.sh: stop_rasdaman.sh.in
 create_db.sh: create_db.sh.in
+update_db.sh: update_db.sh.in
 rasmgr.conf: rasmgr.conf.in Makefile
 	rm -f $@
 	$(SED) -e "s|@hostname[@]|`hostname`|g" '$@.in' >$@

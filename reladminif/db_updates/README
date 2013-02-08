@@ -1,0 +1,5 @@
+-- updateN.sql
+
+These files contain SQL statements that update the rasdaman database RASBASE. Any
+changes should be put in a new updateN.sql file, where N is the next update
+number. The update can then be executed with the update_db.sh script.
