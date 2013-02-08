@@ -162,11 +162,16 @@ public class DimensionIntervalElement implements IRasNode, ICoverageInfo {
               if (crsIt.hasNext()) {
                 String crsname = crsIt.next();
                 log.info("  Using native CRS: " + crsname);
-                crs = new Crs(crsname);
-              } else {
-                log.warn("  No native CRS specified for axis " + axisName + ", assuming pixel coordinates.");
-                crs = new Crs(CrsUtil.GRID_CRS);
-              }
+                    crs = new Crs(crsname);
+                } else {
+                    log.warn("  No native CRS specified for axis " + axisName + ", assuming pixel coordinates.");
+                    crs = new Crs(CrsUtil.GRID_CRS);
+                }
+            } else {
+                log.error("Unknown axis in coverage "
+                        + covInfo.getCoverageName() + ": " + axisName);
+                throw new RuntimeException("Unknown axis in coverage "
+                        + covInfo.getCoverageName() + ": " + axisName);
             }
         }
 
