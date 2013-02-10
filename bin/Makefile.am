@@ -22,7 +22,7 @@
 #
 ###################################################################
 
-bin_SCRIPTS = start_rasdaman.sh stop_rasdaman.sh create_db.sh rasmgr.conf update_db.sh
+bin_SCRIPTS = start_rasdaman.sh stop_rasdaman.sh create_db.sh update_db.sh
 EXTRA_DIST = stop_rasdaman.sh.in start_rasdaman.sh.in create_db.sh.in rasmgr.conf.in update_db.sh.in
 CLEANFILES = start_rasdaman.sh stop_rasdaman.sh create_db.sh rasmgr.conf update_db.sh
 dist_pkgdata_DATA=errtxts_en errtxts_de errtxts_fr errtxts
