@@ -82,20 +82,16 @@ DEM_MDDTYPE=DoubleImage
 PETADBNAME_KEY=petadbname
   PETAUSER_KEY=petauser
 PETAPASSWD_KEY=petapassword
-#
-   RAS_HOST=$(cat $CONNECT_FILE  | grep $HOST_KEY       | awk 'BEGIN { FS="=" }; { print $2 }')
-    PG_PORT=$(cat $CONNECT_FILE  | grep $PGPORT_KEY     | awk 'BEGIN { FS="=" }; { print $2 }')
- RASDB_NAME=$(cat $CONNECT_FILE  | grep $RASDBNAME_KEY  | awk 'BEGIN { FS="=" }; { print $2 }')
-PETADB_NAME="$(cat $CONNECT_FILE | grep $PETADBNAME_KEY | awk 'BEGIN { FS="=" }; { print $2 }')"
-   PETAUSER=$(cat $CONNECT_FILE  | grep $PETAUSER_KEY   | awk 'BEGIN { FS="=" }; { print $2 }')
- PETAPASSWD=$(cat $CONNECT_FILE  | grep $PETAPASSWD_KEY | awk 'BEGIN { FS="=" }; { print $2 }')
 
 # --- END DEFAULTS --------------------------------------------------
 
 # --- CONSTANTS -----------------------------------------------------
 # --- do not change anything here unless you have a real clue
 
-IMPORT_BIN="fillpyramid"
+# required binaries
+AWK="$( which gawk )" # see #295
+
+IMPORT_BIN="$( which fillpyramid )"
 ARG_COLLNAME='--collname'
 ARG_MDDDOMAIN='--mdddomain'
 ARG_MDDTYPE='--mddtype'
@@ -155,7 +151,26 @@ PG_SELECT_NULL="(0 rows)"
 
 # --- PARAMETER EVALUATION ------------------------------------------
 
-echo "$ME: Using databases {$RASDB_NAME,$PETADB_NAME}@$RAS_HOST:$PG_PORT."
+# check whether the required tools are available
+# i) installed
+if [ ! -f "$IMPORT_BIN" ]; then 
+	echo "$ME: ERROR: 'fillpyramid' not found, please install."
+	exit $RC_ERROR
+fi
+if [ ! -f "$AWK" ]; then
+  echo "$ME: ERROR: 'gawk' not found, please install."
+  exit $RC_ERROR
+fi
+
+# ii) executable
+if [ ! -x "$IMPORT_BIN" ]; then 
+	echo "$ME: ERROR: $IMPORT_BIN is not executable."
+	exit $RC_ERROR
+fi
+if [ ! -x "$AWK" ]; then
+  echo "$ME: ERROR: $AWK is not found executable."
+  exit $RC_ERROR
+fi
 
 # check number of parameters
 if [ $# -lt $MIN_ARGS -o $# -gt $MAX_ARGS ]
@@ -178,11 +193,21 @@ if [ $# -eq $MAX_ARGS ]; then
 	fi
 fi
 
+# Connection params
+   RAS_HOST=$(cat $CONNECT_FILE  | grep $HOST_KEY       | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+    PG_PORT=$(cat $CONNECT_FILE  | grep $PGPORT_KEY     | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+ RASDB_NAME=$(cat $CONNECT_FILE  | grep $RASDBNAME_KEY  | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+PETADB_NAME="$(cat $CONNECT_FILE | grep $PETADBNAME_KEY | "$AWK" 'BEGIN { FS="=" }; { print $2 }')"
+   PETAUSER=$(cat $CONNECT_FILE  | grep $PETAUSER_KEY   | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+ PETAPASSWD=$(cat $CONNECT_FILE  | grep $PETAPASSWD_KEY | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+
+echo "$ME: Using databases {$RASDB_NAME,$PETADB_NAME}@$RAS_HOST:$PG_PORT."
+
 # Check existence of rasdaman collection 
 collExists=0
 while read coll; do 
 	if [ "$coll" = "$COLLNAME" ]; then collExists=1; fi
-done <<< "$( rasql -q "select r from RAS_COLLECTIONNAMES as r" --out string | grep "Result object" | awk 'BEGIN { FS=" "}; { print $4 };' )"
+done <<< "$( rasql -q "select r from RAS_COLLECTIONNAMES as r" --out string | grep "Result object" | "$AWK" 'BEGIN { FS=" "}; { print $4 };' )"
 if [ "$collExists" -eq 0 ]; then
 	echo "$ME: ERROR: "$COLLNAME" must be an existing collection in $RASDB_NAME@$RAS_HOST:$PG_PORT."
 	exit $RC_ERROR
@@ -199,8 +224,8 @@ if [ "$?" -ne 0 ]; then
 	echo "$ME: ERROR: "$MAPNAME" already exists in $PETADB_NAME@$RAS_HOST:$PG_PORT."
 	exit $RC_ERROR
 else 
-	layerId=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $5 };' )
-	layerName=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $7 };' )
+	layerId=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $5 };' )
+	layerName=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $7 };' )
 	echo "$ME: Associated WMS layer: $layerName (ID #$layerId)."
 fi
 
@@ -218,10 +243,10 @@ ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_POR
 #
 echo "$ret" | grep "$PG_SELECT_OK2" 1>/dev/null
 if [ "$?" -eq 0 ]; then
-	PIXEL_XMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $5 };' )
-	PIXEL_XMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $7 };' )
-	PIXEL_YMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $8 };' )
-	PIXEL_YMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $10 };' )
+	PIXEL_XMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $5 };' )
+	PIXEL_XMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $7 };' )
+	PIXEL_YMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $8 };' )
+	PIXEL_YMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $10 };' )
 	echo "read [$PIXEL_XMIN:$PIXEL_XMAX,$PIXEL_YMIN:$PIXEL_YMAX]"
 else 
 	echo 
@@ -236,8 +261,8 @@ query=" SELECT $TABLE_PYRAMIDLEVELS.$PYRAMIDLEVELS_COLLECTIONNAME, $TABLE_PYRAMI
 	AND $TABLE_LAYERS.$LAYERS_NAME = '$layerName';"
 levelsString=""	# argument for import executable: exclude baselayer from inputs: grep $COLLNAME_ instead of $COLLNAME.
 while read line; do 
-	pyramidName=$( echo "$line" | awk 'BEGIN {FS=" " }; { print $1 };' )
-	pyramidFactor=$( echo "$line" | awk 'BEGIN {FS=" " }; { print $3 };' )
+	pyramidName=$( echo "$line" | "$AWK" 'BEGIN {FS=" " }; { print $1 };' )
+	pyramidFactor=$( echo "$line" | "$AWK" 'BEGIN {FS=" " }; { print $3 };' )
 	echo "$ME: Found pyramid level $pyramidName with scale factor $pyramidFactor..."
 	if [ "$levelsString" == "" ]; then 
 		levelsString="$pyramidName:$pyramidFactor"
@@ -254,7 +279,7 @@ ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_POR
 #
 echo "$ret" | grep "$PG_SELECT_OK" 1>/dev/null
 if [ "$?" -eq 0 ]; then
-	MAPTYPE=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $3 };' )
+	MAPTYPE=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $3 };' )
 	echo "$ME: Map is of type $MAPTYPE."
 else 
 	echo "$ME: ERROR: could not fetch data type from $RASDB_NAME."

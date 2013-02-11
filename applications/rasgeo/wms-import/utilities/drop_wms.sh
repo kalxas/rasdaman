@@ -64,8 +64,6 @@
 USER=rasadmin
 PASSWD=rasadmin
 
-WGET="$( which wget )"
-
 # load metadata db connection info (see ./rasgeo/README)
   CONNECT_FILE="$HOME/.rasdaman/rasconnect"
       HOST_KEY=host
@@ -74,18 +72,15 @@ WGET="$( which wget )"
 PETADBNAME_KEY=petadbname
   PETAUSER_KEY=petauser
 PETAPASSWD_KEY=petapassword
-#
-   RAS_HOST=$(cat $CONNECT_FILE  | grep $HOST_KEY       | awk 'BEGIN { FS="=" }; { print $2 }')
-    PG_PORT=$(cat $CONNECT_FILE  | grep $PGPORT_KEY     | awk 'BEGIN { FS="=" }; { print $2 }')
- RASDB_NAME=$(cat $CONNECT_FILE  | grep $RASDBNAME_KEY  | awk 'BEGIN { FS="=" }; { print $2 }')
-PETADB_NAME="$(cat $CONNECT_FILE | grep $PETADBNAME_KEY | awk 'BEGIN { FS="=" }; { print $2 }')"
-   PETAUSER=$(cat $CONNECT_FILE  | grep $PETAUSER_KEY   | awk 'BEGIN { FS="=" }; { print $2 }')
- PETAPASSWD=$(cat $CONNECT_FILE  | grep $PETAPASSWD_KEY | awk 'BEGIN { FS="=" }; { print $2 }')
 
 # --- END DEFAULTS --------------------------------------------------
 
 # --- CONSTANTS -----------------------------------------------------
 # --- do not change anything here unless you have a real clue
+
+# required binaries
+WGET="$( which wget )"
+AWK="$( which gawk )" # see #295
 
 # RASQL 
      RASQL='rasql'
@@ -120,17 +115,33 @@ PETASCOPEWMS_URL="http://$PETASCOPE_HOST:$PETASCOPE_PORT/$WMS_PATH"	# add argume
 WMS_VERSION='1.1.0'
 WMS_RELOADCAPABILITIES='reloadcapabilities'
 
+
+# HTTP code
+HTTP_OK_CODE=200
+
 # --- END CONSTANTS -------------------------------------------------
 
 # --- PARAMETER EVALUATION ------------------------------------------
 
-echo "$ME: Using databases {$RASDB_NAME,$PETADB_NAME}@$RAS_HOST:$PG_PORT."
+# check whether the required tools are available
+# i) installed
+if [ ! -f "$WGET" ]; then 
+	echo "$ME: ERROR: 'wget' not found, please install."
+	exit $RC_ERROR
+fi
+if [ ! -f "$AWK" ]; then
+  echo "$ME: ERROR: 'gawk' not found, please install."
+  exit $RC_ERROR
+fi
 
-# check whether wget tool is available
-if [ ! -x "$WGET" ]
-then
+# ii) executable
+if [ ! -x "$WGET" ]; then 
 	echo "$ME: ERROR: $WGET is not executable."
 	exit $RC_ERROR
+fi
+if [ ! -x "$AWK" ]; then
+  echo "$ME: ERROR: $AWK is not found executable."
+  exit $RC_ERROR
 fi
 
 # check number of parameters
@@ -152,6 +163,16 @@ while [ $# -gt 0 ]; do
         shift
 done
 
+# connection params
+   RAS_HOST=$(cat $CONNECT_FILE  | grep $HOST_KEY       | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+    PG_PORT=$(cat $CONNECT_FILE  | grep $PGPORT_KEY     | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+ RASDB_NAME=$(cat $CONNECT_FILE  | grep $RASDBNAME_KEY  | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+PETADB_NAME="$(cat $CONNECT_FILE | grep $PETADBNAME_KEY | "$AWK" 'BEGIN { FS="=" }; { print $2 }')"
+   PETAUSER=$(cat $CONNECT_FILE  | grep $PETAUSER_KEY   | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+ PETAPASSWD=$(cat $CONNECT_FILE  | grep $PETAPASSWD_KEY | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+
+echo "$ME: Using databases {$RASDB_NAME,$PETADB_NAME}@$RAS_HOST:$PG_PORT."
+
 # Check existence of WMS layer
 query="	SELECT $LAYERS_LAYERID FROM $TABLE_LAYERS WHERE $LAYERS_NAME = '$layerName'; "
 echo "$query"
@@ -162,7 +183,7 @@ if [ "$?" -eq 0 ]; then
 	echo "$ME: ERROR: "$layerName" must be an existing collection in $PETADB_NAME@$RAS_HOST:$PG_PORT."
 	exit $RC_ERROR
 else 
-	layerId=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $3 };' )
+	layerId=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $3 };' )
 	echo "$ME: WMS layer $layerName has ID #$layerId."
 
 fi
@@ -178,8 +199,8 @@ if [ "$KEEPPYR" != "$ARG_KEEPPYR" ]; then
 		WHERE $TABLE_PYRAMIDLEVELS.$PYRAMIDLEVELS_LAYERID = $TABLE_LAYERS.$LAYERS_LAYERID
 		AND $TABLE_LAYERS.$LAYERS_NAME = '$layerName';"
 	while read line; do 
-		pyramidName=$( echo "$line" | awk 'BEGIN {FS=" " }; { print $1 };' )
-		pyramidFactor=$( echo "$line" | awk 'BEGIN {FS=" " }; { print $3 };' )
+		pyramidName=$( echo "$line" | "$AWK" 'BEGIN {FS=" " }; { print $1 };' )
+		pyramidFactor=$( echo "$line" | "$AWK" 'BEGIN {FS=" " }; { print $3 };' )
 		if [ "$pyramidFactor" -ne 1 ]; then 
 			echo -n "$ME: Dropping pyramid level $pyramidName... "
 			"$RASQL" "$QUERY_OPT" "$DROP_COMM $pyramidName" "$USER_OPT" "$USER" "$PASSWD_OPT" "$PASSWD" 1>/dev/null
@@ -212,9 +233,15 @@ fi
 
 # reload new capabilities file into rasogc
 echo "$ME: reloading capabilities into rasgeo URL=$PETASCOPEWMS_URL..."
-$WGET -q "$PETASCOPEWMS_URL?request=$WMS_RELOADCAPABILITIES&service=wms&version=$WMS_VERSION"
-rm -f *$WMS_RELOADCAPABILITIES*	# wget bug? Redirects output to wms?.... file.
-echo "$ME: Database $PETADB_NAME has been updated and WMS servlet ($PETASCOPEWMS_URL) refreshed."
+ReloadCapReq="$PETASCOPEWMS_URL?request=$WMS_RELOADCAPABILITIES&service=wms&version=$WMS_VERSION"
+ReloadCapRespCode=$( $WGET --spider -S "$ReloadCapReq" 2>&1 | grep "HTTP/" | "$AWK" '{print $2}')
+if [[ "$ReloadCapRespCode" -ne $HTTP_OK_CODE ]]; then
+	echo "$ME: ERROR while reloading WMS capabilities. HTTP code: $ReloadCapRespCode."
+	echo "$ME: Try reloading them manually: \"$ReloadCapReq\""
+	exit $RC_ERROR
+else 
+	echo "$ME: Database $PETADB_NAME has been updated and WMS servlet ($PETASCOPEWMS_URL) refreshed."
+fi
 
 echo 
 echo "$ME: done."

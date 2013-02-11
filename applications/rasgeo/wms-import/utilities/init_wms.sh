@@ -105,20 +105,16 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 PETADBNAME_KEY=petadbname
   PETAUSER_KEY=petauser
 PETAPASSWD_KEY=petapassword
-#
-   RAS_HOST=$(cat $CONNECT_FILE  | grep $HOST_KEY       | awk 'BEGIN { FS="=" }; { print $2 }')
-    PG_PORT=$(cat $CONNECT_FILE  | grep $PGPORT_KEY     | awk 'BEGIN { FS="=" }; { print $2 }')
- RASDB_NAME=$(cat $CONNECT_FILE  | grep $RASDBNAME_KEY  | awk 'BEGIN { FS="=" }; { print $2 }')
-PETADB_NAME="$(cat $CONNECT_FILE | grep $PETADBNAME_KEY | awk 'BEGIN { FS="=" }; { print $2 }')"
-   PETAUSER=$(cat $CONNECT_FILE  | grep $PETAUSER_KEY   | awk 'BEGIN { FS="=" }; { print $2 }')
- PETAPASSWD=$(cat $CONNECT_FILE  | grep $PETAPASSWD_KEY | awk 'BEGIN { FS="=" }; { print $2 }')
 # --- END DEFAULTS --------------------------------------------------
 
 # --- CONSTANTS -----------------------------------------------------
 # --- do not change anything here unless you have a real clue
 
+# required binaries
 INITPROG="initpyramid"
 WGET="$( which wget )"
+AWK="$( which gawk )" # see #295
+DC="$( which dc )"
 
 # temp file names
 TEMPFILE=`mktemp /tmp/$ME.output.XXXXXX`
@@ -259,21 +255,40 @@ HTTP_OK_CODE=200
 
 # --- PARAMETER EVALUATION ------------------------------------------
 
-echo "$ME: Using databases {$RASDB_NAME,$PETADB_NAME}@$RAS_HOST:$PG_PORT."
-
 # check whether the required tools are available
-if [ ! -x "$WGET" ]
-then
+# i) installed
+if [ ! -f "$WGET" ]; then 
+	echo "$ME: ERROR: 'wget' not found, please install."
+	exit $RC_ERROR
+fi
+if [ ! -f "$WMS_SERVICE_INSERT" ]; then 
+	echo "$ME: ERROR: 'initpyramid' not found, please install."
+	exit $RC_ERROR
+fi
+if [ ! -f "$DC" ]; then
+  echo "$ME: ERROR: 'dc' not found, please install."
+  exit $RC_ERROR
+fi
+if [ ! -f "$AWK" ]; then
+  echo "$ME: ERROR: 'gawk' not found, please install."
+  exit $RC_ERROR
+fi
+
+# ii) executable
+if [ ! -x "$WGET" ]; then 
 	echo "$ME: ERROR: $WGET is not executable."
 	exit $RC_ERROR
 fi
-if [ ! -x "$WMS_SERVICE_INSERT" ]
-then
+if [ ! -x "$WMS_SERVICE_INSERT" ]; then
 	echo "$ME: ERROR: $WMS_SERVICE_INSERT is not executable."
 	exit $RC_ERROR
 fi
-if [ ! $(which dc) ]; then
-  echo "$ME: ERROR: dc is not found, please install."
+if [ ! -x "$DC" ]; then
+  echo "$ME: ERROR: $DC is not executable."
+  exit $RC_ERROR
+fi
+if [ ! -x "$AWK" ]; then
+  echo "$ME: ERROR: $AWK is not found executable."
   exit $RC_ERROR
 fi
 
@@ -305,11 +320,21 @@ then
 	exit $RC_ERROR
 fi
 
+# Connection params
+    RAS_HOST=$(cat $CONNECT_FILE  | grep $HOST_KEY       | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+     PG_PORT=$(cat $CONNECT_FILE  | grep $PGPORT_KEY     | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+  RASDB_NAME=$(cat $CONNECT_FILE  | grep $RASDBNAME_KEY  | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+PETADB_NAME="$(cat $CONNECT_FILE  | grep $PETADBNAME_KEY | "$AWK" 'BEGIN { FS="=" }; { print $2 }')"
+    PETAUSER=$(cat $CONNECT_FILE  | grep $PETAUSER_KEY   | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+  PETAPASSWD=$(cat $CONNECT_FILE  | grep $PETAPASSWD_KEY | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+
+echo "$ME: Using databases {$RASDB_NAME,$PETADB_NAME}@$RAS_HOST:$PG_PORT."
+
 # Check existence of rasdaman collection 
 collExists=0
 while read coll; do 
 	if [ "$coll" = "$COLLNAME" ]; then collExists=1; fi
-done <<< "$( rasql -q "select r from RAS_COLLECTIONNAMES as r" --out string | grep "Result object" | awk 'BEGIN { FS=" "}; { print $4 };' )"
+done <<< "$( rasql -q "select r from RAS_COLLECTIONNAMES as r" --out string | grep "Result object" | "$AWK" 'BEGIN { FS=" "}; { print $4 };' )"
 if [ "$collExists" -eq 0 ]; then
 	echo "$ME: ERROR: "$COLLNAME" must be an existing collection in $RASDB_NAME@$RAS_HOST:$PG_PORT."
 	exit $RC_ERROR
@@ -333,7 +358,7 @@ ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_POR
 #
 echo "$ret" | grep "$PG_SELECT_NULL" 1>/dev/null
 if [ "$?" -ne 0 ]; then
-	wmsName=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $3 };' )
+	wmsName=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $3 };' )
 	echo "$ME: ERROR: "$COLLNAME" was already published as WMS layer in $PETADB_NAME@$RAS_HOST:$PG_PORT, as '$wmsName'."
 	exit $RC_ERROR
 fi
@@ -349,7 +374,7 @@ function rollback {
 		echo -n "  Deleting $coll... "
 		rasql -q "drop collection $coll" --user $USER --passwd $PASSWD 1>/dev/null
 		echo "Done."
-	done <<< "$( rasql -q "select r from RAS_COLLECTIONNAMES as r" --out string | grep "$COLLNAME"_"$PYRAMID_SUFFIX" | awk 'BEGIN { FS=" "}; { print $4 };' )"
+	done <<< "$( rasql -q "select r from RAS_COLLECTIONNAMES as r" --out string | grep "$COLLNAME"_"$PYRAMID_SUFFIX" | "$AWK" 'BEGIN { FS=" "}; { print $4 };' )"
 	echo "$ME: Done."
 }
 
@@ -365,7 +390,7 @@ ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_POR
 #
 echo "$ret" | grep "$PG_SELECT_OK" 1>/dev/null
 if [ "$?" -eq 0 ]; then
-	MAPTYPE=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $3 };' )
+	MAPTYPE=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $3 };' )
 else 
 	echo "$ME: ERROR: could not fetch data type from $RASDB_NAME."
 	exit $RC_ERROR
@@ -397,10 +422,10 @@ ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_POR
 #
 echo "$ret" | grep "$PG_SELECT_OK" 1>/dev/null
 if [ "$?" -eq 0 ]; then
-	XMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $9 };' )
-	YMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $11 };' )
-	XMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $13 };' )
-	YMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $15 };' )
+	XMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $9 };' )
+	YMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $11 };' )
+	XMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $13 };' )
+	YMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $15 };' )
 else 
 	echo "$ME: ERROR while fetching bounding box information of $COLLNAME from $PETADB_NAME@$RAS_HOST:$PG_PORT."
 	exit $RC_ERROR
@@ -417,10 +442,10 @@ ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_POR
 #
 echo "$ret" | grep "$PG_SELECT_OK2" 1>/dev/null
 if [ "$?" -eq 0 ]; then
-	PIXEL_XMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $5 };' )
-	PIXEL_XMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $7 };' )
-	PIXEL_YMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $8 };' )
-	PIXEL_YMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $10 };' )
+	PIXEL_XMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $5 };' )
+	PIXEL_XMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $7 };' )
+	PIXEL_YMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $8 };' )
+	PIXEL_YMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $10 };' )
 else 
 	echo "$ME: ERROR while fetching pixel-domain information of $COLLNAME from $PETADB_NAME@$RAS_HOST:$PG_PORT."
 	exit $RC_ERROR
@@ -450,7 +475,7 @@ else
 fi
 
 # Parse all the new inserted layers in rasdasman database to update the metadata later on
-PYRAMID=`awk '/Creating collection:/ { print \$3; }' < $TEMPFILE`
+PYRAMID=$( "$AWK" '/Creating collection:/ { print $3; }' < $TEMPFILE )
 
 # set rasql op specific for this
 if [ "$MAPTYPE" == "$GREY_COLLTYPE" ]
@@ -463,7 +488,7 @@ elif [ "$MAPTYPE" == "$DEM_COLLTYPE" ]
 then
 	# parse the max_value of the collection so that the servlet does not need to find it at every request:
 	maxValue="$( rasql -q "select $QL_MAXCELLS(x) from $COLLNAME as x" --out string | 
-			grep "$QL_OUT" | awk 'BEGIN { FS=" " }; { print $4 };' )"	
+			grep "$QL_OUT" | "$AWK" 'BEGIN { FS=" " }; { print $4 };' )"	
 	RASQLOP="(char)(255*standard/$maxValue)*{1c,1c,1c}"
 else	# has been checked earlier, but we want to be sure
 	echo "$ME: $MAPTYPE is not a WMS supported map type (allowed types: $GREY_COLLTYPE, $RGB_COLLTYPE, $DEM_COLLTYPE)."
@@ -472,10 +497,10 @@ else	# has been checked earlier, but we want to be sure
 fi
 
 # compute latlon coordinates of (GK!) bbox
-XMIN_LATLON=$( echo $XMIN $YMIN | gdaltransform -s_srs $CRS -t_srs $WGS84 | awk '{ print $1 }' )
-YMIN_LATLON=$( echo $XMIN $YMIN | gdaltransform -s_srs $CRS -t_srs $WGS84 | awk '{ print $2 }' )
-XMAX_LATLON=$( echo $XMAX $YMAX | gdaltransform -s_srs $CRS -t_srs $WGS84 | awk '{ print $1 }' )
-YMAX_LATLON=$( echo $XMAX $YMAX | gdaltransform -s_srs $CRS -t_srs $WGS84 | awk '{ print $2 }' )
+XMIN_LATLON=$( echo $XMIN $YMIN | gdaltransform -s_srs $CRS -t_srs $WGS84 | "$AWK" '{ print $1 }' )
+YMIN_LATLON=$( echo $XMIN $YMIN | gdaltransform -s_srs $CRS -t_srs $WGS84 | "$AWK" '{ print $2 }' )
+XMAX_LATLON=$( echo $XMAX $YMAX | gdaltransform -s_srs $CRS -t_srs $WGS84 | "$AWK" '{ print $1 }' )
+YMAX_LATLON=$( echo $XMAX $YMAX | gdaltransform -s_srs $CRS -t_srs $WGS84 | "$AWK" '{ print $2 }' )
 
 # Export variables to open session with psql
 export PGUSER="$PETAUSER"
@@ -494,7 +519,7 @@ while [ "$serviceID" = "" ]; do
 	#
 	echo "$ret" | grep "$PG_SELECT_OK" 1>/dev/null
 	if [ "$?" -eq 0 ]; then
-		serviceID=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $3 };' )
+		serviceID=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $3 };' )
 	else 
 		echo -n "NO --> Add it to the database... "
 		$WMS_SERVICE_INSERT --name "$WMS_SERVICENAME" --title "$WMS_SERVICENAME WMS Service" --host $PETASCOPE_HOST --port $PETASCOPE_PORT --path $WMS_PATH --formats "$WMS_FORMATS" --availability $DEFAULT_AVAILABILITY  --baselayer-name "$MAPNAME"
@@ -531,7 +556,7 @@ if [ "$?" -ne 0 ]; then
 	rollback
 	exit $RC_ERROR
 else 
-	layerID=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=" " }; { print $3 };' )
+	layerID=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $3 };' )
 fi
 echo "Done."
 
@@ -562,7 +587,7 @@ queriesPyramids="
 		$layerID, '$COLLNAME', 1 );
 "
 # Pyramids
-RES=$( echo "$LEVELS_STRING" | sed ':a;N;$!ba;s/\n/ /g' | awk 'BEGIN { FS=":" }; { print $1 }' )
+RES=$( echo "$LEVELS_STRING" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=":" }; { print $1 }' )
 TOT_INSERTS=1
 for COLLECTION in $PYRAMID; do
 	echo "$ME: Pyramid level $COLLECTION to have scale factor $RES... "
@@ -600,8 +625,8 @@ echo "Done."
 # reload new capabilities file into rasogc
 echo "$ME: reloading capabilities into rasgeo URL=$PETASCOPEWMS_URL..."
 ReloadCapReq="$PETASCOPEWMS_URL?request=$WMS_RELOADCAPABILITIES&service=wms&version=$WMS_VERSION"
-ReloadCapRespCode=$( $WGET --spider -S "$ReloadCapReq" 2>&1 | grep "HTTP/" | awk '{print $2}')
-if [ "$ReloadCapRespCode" -ne $HTTP_OK_CODE ]; then
+ReloadCapRespCode=$( $WGET --spider -S "$ReloadCapReq" 2>&1 | grep "HTTP/" | "$AWK" '{print $2}')
+if [[ "$ReloadCapRespCode" -ne $HTTP_OK_CODE ]]; then
 	echo "$ME: ERROR while reloading WMS capabilities. HTTP code: $ReloadCapRespCode."
 	echo "$ME: Try reloading them manually: \"$ReloadCapReq\""
 	exit $RC_ERROR
