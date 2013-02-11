@@ -25,6 +25,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import petascope.exceptions.ExceptionCode;
@@ -36,7 +37,6 @@ import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.InterpolationMethod;
 import petascope.wcps.server.core.RangeElement;
 import petascope.wcps.server.core.SDU;
-import petascope.wcps.server.core.Wgs84Crs;
 import petascope.wcs.server.core.TimeString;
 
 /**
@@ -55,11 +55,11 @@ public class Metadata implements Cloneable {
     private Set<InterpolationMethod> interpolationSet;
     private String nullDefault;
     private Set<String> nullSet;
+    private LinkedHashSet<String> crsSet;
     private List<RangeElement> range;
     private String titleStr = "";
     private String abstractStr = "";
     private String keywordsStr = "";
-    //private Wgs84Crs crs = null;
     private Bbox bbox = null;
     private CellDomainElement cellX, cellY, cellT;
     private DomainElement domX, domY, domT;
@@ -68,7 +68,6 @@ public class Metadata implements Cloneable {
     public Metadata(List<CellDomainElement> cellDomain, List<RangeElement> range,
             Set<String> nullSet, String nullDefault, Set<InterpolationMethod> interpolationSet,
             InterpolationMethod interpolationDefault, String coverageName, String coverageType,
-            //List<DomainElement> domain, Wgs84Crs crs, String title, String abstr, String keywords) throws PetascopeException {
             List<DomainElement> domain, Bbox bbox, String title, String abstr, String keywords) throws PetascopeException {
         this(cellDomain, range, nullSet, nullDefault, interpolationSet, interpolationDefault, coverageName, coverageType, domain, bbox);
         this.titleStr = title;
@@ -79,21 +78,20 @@ public class Metadata implements Cloneable {
     public Metadata(List<CellDomainElement> cellDomain, List<RangeElement> range,
             Set<String> nullSet, String nullDefault, Set<InterpolationMethod> interpolationSet,
             InterpolationMethod interpolationDefault, String coverageName, String coverageType,
-            //List<DomainElement> domain, Wgs84Crs crs) throws PetascopeException {
             List<DomainElement> domain, Bbox bbox) throws PetascopeException {
         if ((cellDomain == null) || (range == null) || (coverageName == null) || (nullSet == null) || (interpolationSet == null)) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata, "Cell domain, range list, "
                     + "coverage name, null set, and interpolation set cannot be null for coverage " + coverageName);
         }
 
-        if (cellDomain.size() == 0) {
+        if (cellDomain.isEmpty()) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid cell domain: At least "
                     + "one element is required for coverage " + coverageName);
         }
 
         this.cellDomain = cellDomain;
 
-        if (range.size() == 0) {
+        if (range.isEmpty()) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata, "At least one range element is "
                     + "required for coverage " + coverageName);
         }
@@ -115,7 +113,7 @@ public class Metadata implements Cloneable {
             this.range.add(next);
         }
 
-        if (nullSet.size() == 0) {
+        if (nullSet.isEmpty()) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid null set: At least one "
                     + "null value is required for coverage " + coverageName);
         }
@@ -164,7 +162,7 @@ public class Metadata implements Cloneable {
         this.nullSet = nullSet;
         this.nullDefault = nullDefault;
 
-        if (interpolationSet.size() == 0) {
+        if (interpolationSet.isEmpty()) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid interpolation set: "
                     + "At least one interpolation method is required for "
                     + "coverage " + coverageName);
@@ -207,11 +205,14 @@ public class Metadata implements Cloneable {
             this.domain = new ArrayList<DomainElement>(domain.size());
             Iterator<DomainElement> i = domain.iterator();
             Iterator<CellDomainElement> ci = cellDomain.iterator();
+            this.crsSet = new LinkedHashSet<String>();
 
             while (i.hasNext() && ci.hasNext()) {
                 DomainElement next = i.next();
                 CellDomainElement cell = ci.next();
                 Iterator<DomainElement> j = this.domain.iterator();
+                
+                this.crsSet.add(next.getCrsSet().toString());
                 
                 if (next.getType().equals(AxisTypes.X_AXIS)) {
                     cellX = cell;
@@ -387,6 +388,10 @@ public class Metadata implements Cloneable {
     public Iterator<DomainElement> getDomainIterator() {
         return domain.iterator();
     }
+    
+    public List<DomainElement> getDomainList() {
+        return domain;
+    }
 
     public Iterator<RangeElement> getRangeIterator() {
         return range.iterator();
@@ -456,6 +461,10 @@ public class Metadata implements Cloneable {
 
     public Set<String> getNullSet() {
         return nullSet;
+    }
+    
+    public LinkedHashSet<String> getCrsSet() {
+        return crsSet;
     }
 
     public boolean isRangeBoolean() {
@@ -535,7 +544,7 @@ public class Metadata implements Cloneable {
     }
 
     public void updateNulls(Set<String> nullSet, String nullDefault) throws PetascopeException {
-        if (nullSet.size() == 0) {
+        if (nullSet.isEmpty()) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid null set: At least one null value is required");
         }
 
@@ -559,9 +568,6 @@ public class Metadata implements Cloneable {
         return interpolationDefault.getNullResistance();
     }
 
-    //public Wgs84Crs getCrs() {
-    //    return crs;
-    //}
     public Bbox getBbox() {
         return bbox;
     }

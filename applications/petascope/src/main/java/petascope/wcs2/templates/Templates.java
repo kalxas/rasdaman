@@ -50,6 +50,7 @@ public class Templates {
     public static final String RANGE_FIELD = "RangeField";
     public static final String GRID_COVERAGE = "GridCoverage";
     public static final String RECTIFIED_GRID_COVERAGE = "RectifiedGridCoverage";
+    public static final String RECTIFIED_GRID_COVERAGE_OFFSETS = "RectifiedGridCoverageOffsets";
     public static final String MULTIPOINT_COVERAGE = "MultiPointCoverage";
     public static final String MULTIPOINT_POINTMEMBERS = "PointMembers";
     public static final String SOAP_MESSAGE = "SOAPMessage";
@@ -71,6 +72,7 @@ public class Templates {
         loadTemplate(RANGE_FIELD);
         loadTemplate(GRID_COVERAGE);
         loadTemplate(RECTIFIED_GRID_COVERAGE);
+        loadTemplate(RECTIFIED_GRID_COVERAGE_OFFSETS);
         loadTemplate(MULTIPOINT_COVERAGE);
         loadTemplate(MULTIPOINT_POINTMEMBERS);
         loadTemplate(SOAP_MESSAGE);

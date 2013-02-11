@@ -408,13 +408,17 @@ public class CrsUtil {
         //}
         
         public static String createCompound(LinkedHashSet<String> crsUris) {
-            String ccrsOut = OPENGIS_URI_PREFIX + "/" +  RESOLVER_CCRS_PATH + "?";
-            Iterator it = crsUris.iterator();
-            for (int i = 0; i < crsUris.size(); i++) {
-                ccrsOut += (i+1) + "=" + it.next();
-                if (it.hasNext()) ccrsOut += "&";
+            if (crsUris.size() == 1) {
+                return crsUris.iterator().next();
+            } else {
+                String ccrsOut = OPENGIS_URI_PREFIX + "/" +  RESOLVER_CCRS_PATH + "?";
+                Iterator it = crsUris.iterator();
+                for (int i = 0; i < crsUris.size(); i++) {
+                    ccrsOut += (i+1) + "=" + it.next();
+                    if (it.hasNext()) ccrsOut += "&";
+                }
+                return ccrsOut;
             }
-            return ccrsOut;
         }
     }
 }

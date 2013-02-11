@@ -21,6 +21,8 @@
  */
 package petascope.wcps.server.core;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -49,6 +51,7 @@ public class DomainElement implements Cloneable {
     private String type;
     private String uom;
     private Collection<String> allowedAxes;
+    private Double resolution = 1.0;
 
     public DomainElement(String name, String type, Double numLo, Double numHi, String strLo,
             String strHi, Set<String> crss, Collection<String> axes, String uom) throws WCPSException
@@ -79,6 +82,7 @@ public class DomainElement implements Cloneable {
 
             this.numLo = numLo;
             this.numHi = numHi;
+            
         } else if ((strLo != null) && (numHi != null) && (numLo == null) && (numHi == null)) {
             if (strLo.equals("") || strHi.equals("")) {
                 throw new WCPSException(ExceptionCode.InvalidMetadata, 
@@ -184,13 +188,41 @@ public class DomainElement implements Cloneable {
     public String getType() {
         return type;
     }
-
+    
     public Set<String> getCrsSet() {
         return crss;
     }
 
+    /**
+     * Extracts the external CRS from the allowed CRS of this domain (always containing the grid CRS as well, see constructor)
+     * @return The external CRS of this dimension
+     */
+    public String getExternalCrs() {
+        for (String crs : crss) {
+            if (!crs.equals(CrsUtil.GRID_CRS)) {
+                return crs;
+            }
+        }
+        return "";
+    }
+
     public String getUom() {
         return uom;
+    }
+    
+    public Double getResolution() {
+        return resolution;
+    }
+    
+    public void setResolution(Integer DIM) {        
+        // Use BigDecimals to avoid finite arithemtic rounding issues of Doubles
+        BigDecimal maxBD = BigDecimal.valueOf(numHi);
+        BigDecimal minBD = BigDecimal.valueOf(numLo);
+        BigDecimal dimBD = BigDecimal.valueOf(DIM);
+        BigDecimal diffBD = maxBD.subtract(minBD);
+        BigDecimal resBD = diffBD.divide(dimBD, RoundingMode.UP);
+        
+        resolution = resBD.doubleValue();
     }
 
     @Override

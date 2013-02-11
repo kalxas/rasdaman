@@ -30,6 +30,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import petascope.util.WcsUtil;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
@@ -72,7 +73,7 @@ public class CRSExtension implements Extension {
          *  include elevation in case of 3D collections.
          */
         // Check if a CRS transform is needed for X and Y axis.
-        if (request.getCRS().size() == 1 && !m.getBbox().getCrsName().equals(CrsUtil.GRID_CRS)) {
+        if (request.getCRS().size() == 1 && m.getBbox() != null && !m.getBbox().getCrsName().equals(CrsUtil.GRID_CRS)) {
             if (request.getSubset(AxisTypes.X_AXIS) == null && request.getSubset(AxisTypes.Y_AXIS) == null) {  // No subsetting at all was specified
                 log.warn("A subsettingCrs is stated but no subsettings were found: ignore it.");
             } else {                
@@ -169,9 +170,9 @@ public class CRSExtension implements Extension {
         } else {
             // Req7: /req/crs/getCoverage-subsettingCrs-default
             // NOTE: if no CRS instance is presence, hence both subsettingCRS and outputCRS were not specified.
-            if (request.getCRS().isEmpty()) 
-                request.getCRS().add(new GetCoverageRequest.CRS(m.getBbox().getCrsName(), null));
-            else request.getCRS().get(0).setSubsettingCrs(m.getBbox().getCrsName());
+            if (request.getCRS().isEmpty())
+                request.getCRS().add(new GetCoverageRequest.CRS(WcsUtil.getSrsName(m), null));
+            else request.getCRS().get(0).setSubsettingCrs(WcsUtil.getSrsName(m));
         }
 
         // Req10: /req/crs/getCoverage-outputCrs-default

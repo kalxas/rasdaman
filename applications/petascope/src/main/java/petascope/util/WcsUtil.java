@@ -25,6 +25,7 @@ import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.xml.bind.JAXBException;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
@@ -38,7 +39,6 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.DomainElement;
-import petascope.wcps.server.core.Wgs84Crs;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageMetadata.RangeField;
 import petascope.wcs2.parsers.GetCoverageRequest;
@@ -203,7 +203,6 @@ public class WcsUtil {
                 Pair.of("\\{rangeFields\\}", rangeFields),
                 Pair.of("\\{coverageSubtype\\}", m.getCoverageType()),
                 Pair.of("\\{axisLabels\\}", m.getAxisLabels()),
-                //Pair.of("\\{spatialAxisLabels\\}", m.getSpatialAxis()),
                 Pair.of("\\{gridType\\}", m.getGridType()),
                 Pair.of("\\{srsgroup\\}", getSrsGroup(m)),
                 Pair.of("\\{srsName\\}", getSrsName(m)),
@@ -222,7 +221,6 @@ public class WcsUtil {
     }
 
     private static String getSrsGroup(GetCoverageMetadata m) {
-        //Wgs84Crs crs = m.getCrs();
         Bbox bbox = m.getBbox();
         if (bbox != null) {
             return " srsName=\"" + bbox.getCrsName() + "\" "
@@ -232,13 +230,12 @@ public class WcsUtil {
         }
     }
 
-    private static String getSrsName(GetCoverageMetadata m) {
-        Bbox bbox = m.getBbox();
-        if (bbox != null) {
-            return bbox.getCrsName();
-        } else {
-            return CrsUtil.GRID_CRS;
+    public static String getSrsName(GetCoverageMetadata m) {
+        LinkedHashSet<String> extCrsSet = new LinkedHashSet<String>();
+        for (DomainElement dom : m.getMetadata().getDomainList()) {
+            extCrsSet.add(dom.getExternalCrs().isEmpty() ? CrsUtil.GRID_CRS : dom.getExternalCrs());
         }
+        return CrsUtil.CrsUri.createCompound(extCrsSet).replace("&", "&amp;");
     }
 
     /* [DescribeCoveage]: gml:boundedBy element filled with bbox of the coverage 
@@ -251,26 +248,56 @@ public class WcsUtil {
     private static String getUpperCorner(GetCoverageMetadata m) {
         return m.getDomHigh();
     }
+    // NOTE1: rotated ReferenceableGridCoverage are not supported:
+    // need to yield the offsets anyway for GML response: unity vectors.   
+    // NOTE2: an ad-hoc templates was needed since dimensionality of the coverage is
+    // not fixed and each offset vector needs a GML row.
+    private static String getOffsetsGml(GetCoverageMetadata m) {
+        Bbox bbox = m.getBbox();
+        String output = "";
+        String[] axisNames = m.getAxisLabels().split(" ");
+            // Loop through the N dimensions
+            for (int i = 0; i < axisNames.length; i++) {
+                if (i>0) output += "\n";
+                output += Templates.getTemplate(Templates.RECTIFIED_GRID_COVERAGE_OFFSETS,
+                        Pair.of("\\{srsName\\}", getSrsName(m)),
+                        Pair.of("\\{offsets\\}", getOffsets(m, axisNames[i])));
+            }
+        return output;
+    }
+    
+    // Function the builds the string of offsets vector for a specified dimension.
+    private static String getOffsets(GetCoverageMetadata m, String axisName) {
+        String output = "";
+        String[] axisNames = m.getAxisLabels().split(" ");
+        // Loop through the N dimensions
+        for (int i = 0; i < axisNames.length; i++) {
+            if (i>0) output += " ";
+            output += (axisNames[i].equals(axisName)) ? m.getMetadata().getDomainByName(axisNames[i]).getResolution() : "0";
+        }
+        return output;
+    }
 
     private static String getAdditions(GetCoverageMetadata m) {
         String ret = "";
-        //Wgs84Crs crs;
         Bbox bbox;
         if (m.getCoverageType().equals(GetCoverageRequest.RECTIFIED_GRID_COVERAGE)) {
             if (m.getBbox() != null) {
                 bbox = m.getBbox();
-                return Templates.getTemplate(Templates.RECTIFIED_GRID_COVERAGE,
+                String outGml = Templates.getTemplate(Templates.RECTIFIED_GRID_COVERAGE,
                         Pair.of("\\{pointId\\}", m.getCoverageId() + "-origin"),
-                        Pair.of("\\{srsName\\}", bbox.getCrsName()),
-                        Pair.of("\\{originPos\\}", bbox.getLow1() + " " + bbox.getLow2()),
-                        Pair.of("\\{offset1\\}", bbox.getOffset1() + ""),
-                        Pair.of("\\{offset2\\}", bbox.getOffset2() + ""));
+                        Pair.of("\\{srsName\\}", getSrsName(m)),
+                        Pair.of("\\{originPos\\}", m.getDomLow()));
+                String offsetsGml = getOffsetsGml(m);
+                return outGml + "\n" + offsetsGml;
+            } else {
+                log.warn("Bbox object is missing for coverage " + m.getMetadata().getCoverageName());
             }
         }
         return ret;
-    }
+    }    
 
-    public static Pair<String, String> toInterval(String type) {
+        public static Pair<String, String> toInterval(String type) {
         if (type.equals("char")) {
             return Pair.of("-128", "128");
         } else if (type.equals("unsigned char")) {
@@ -343,7 +370,7 @@ public class WcsUtil {
         Iterator<DomainElement> domIt = covMeta.getDomainIterator();
         
         while (domIt.hasNext()) {
-            crss.add(domIt.next().getCrsSet().toString());
+            crss.add(domIt.next().getExternalCrs());
         }
         return crss.size() == 1;
     }

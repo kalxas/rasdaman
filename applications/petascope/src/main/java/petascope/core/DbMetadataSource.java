@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.util.AxisTypes;
 import petascope.util.Pair;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.CellDomainElement;
@@ -543,14 +544,21 @@ public class DbMetadataSource implements IMetadataSource {
                 }
 
                 ResultSet rr = ss.executeQuery("SELECT crs FROM PS_CrsSet WHERE axis = '" + r.getInt("id") + "'");
-                Set<String> crsSet = new HashSet<String>(rr.getFetchSize());
+                
+                if (rr.getFetchSize() != 1) {
+                    log.warn("Multiple CRSs associated with the axis \"" + r.getString("name") + "\" of coverage " + coverageName 
+                            + "; only the first will be considered.");
+                }
+                Set<String> crsSet = new HashSet<String>();
 
                 while (rr.next()) {
                     crsSet.add(crss.get(rr.getInt("crs")));
+                    break;
                 }
-
+                
                 DomainElement d = new DomainElement(r.getString("name"), axisTypes.get(r.getInt("type")),
                         numLo, numHi, strLo, strHi, crsSet, axisTypes.values(), r.getString("uom"));
+                d.setResolution(cellDomain.get(domain.size()).getHi().subtract(cellDomain.get(domain.size()).getLo()).intValue()+1);
                 domain.add(d);
             }
 
