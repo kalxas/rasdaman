@@ -21,16 +21,11 @@
  */
 package petascope.wcs2.handlers;
 
-import petascope.wcs2.parsers.BaseRequest;
-import petascope.wcs2.parsers.GetCapabilitiesRequest;
-import nu.xom.Attribute;
-import petascope.util.Pair;
-import petascope.wcs2.templates.Templates;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import petascope.exceptions.PetascopeException;
+import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import org.slf4j.Logger;
@@ -38,15 +33,21 @@ import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
-import petascope.util.XMLUtil;
-import petascope.wcs2.Wcs2Servlet;
-import petascope.wcs2.extensions.ExtensionsRegistry;
-import petascope.wcps.server.core.Bbox;
+import petascope.util.Pair;
+import petascope.util.WcsUtil;
 import static petascope.util.XMLSymbols.*;
+import petascope.util.XMLUtil;
+import petascope.wcps.server.core.Bbox;
+import petascope.wcs2.Wcs2Servlet;
 import petascope.wcs2.extensions.Extension;
+import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcs2.extensions.FormatExtension;
+import petascope.wcs2.parsers.BaseRequest;
+import petascope.wcs2.parsers.GetCapabilitiesRequest;
+import petascope.wcs2.templates.Templates;
 
 /**
  * GetCapabilities operation for The Web Coverage Service 2.0
@@ -149,8 +150,10 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 cs.appendChild(c);
                 contents.appendChild(cs);
                 /** Append Native Bbox **/
+                // Note: ows:BoundingBox is not mandatory, publish it only for coverages with *single* CRS and dim=2 (ps_crsdetails constraint)
                 Bbox bbox = meta.read(coverageId).getBbox();
-                if (bbox != null) {
+                if (bbox != null && WcsUtil.hasSingleCrs(meta.read(coverageId)) 
+                        && meta.read(coverageId).getCellDomainList().size() == 2) {
                     c = new Element(LABEL_BBOX, NAMESPACE_OWS);
                     // lower-left + upper-right coords
                     cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);

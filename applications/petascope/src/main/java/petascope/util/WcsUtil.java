@@ -23,6 +23,9 @@ package petascope.util;
 
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import javax.xml.bind.JAXBException;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import org.slf4j.Logger;
@@ -34,6 +37,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.wcps.server.core.Bbox;
+import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.Wgs84Crs;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageMetadata.RangeField;
@@ -332,6 +336,16 @@ public class WcsUtil {
         } else {
             return i.toString();
         }
+    }
+    
+    public static boolean hasSingleCrs(Metadata covMeta) {
+        Set<String> crss = new HashSet<String>();
+        Iterator<DomainElement> domIt = covMeta.getDomainIterator();
+        
+        while (domIt.hasNext()) {
+            crss.add(domIt.next().getCrsSet().toString());
+        }
+        return crss.size() == 1;
     }
 
     private static Integer toInt(String[] s, int i) {
