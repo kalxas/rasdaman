@@ -74,3 +74,5 @@ config.h
 *~
 stamp-h1
 version.h
+bin/update_db.sh
+applications/directql/directql

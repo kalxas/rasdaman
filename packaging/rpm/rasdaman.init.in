@@ -183,6 +183,14 @@ initdb(){
 }
 
 #
+# Update RASBASE
+#
+updatedb()
+{
+  $SU -l rasdaman -s "$rasshell" -c "update_db.sh"
+}
+
+#
 # Initializes/updates the petascope database
 #
 initpetascopedb(){
@@ -260,6 +268,9 @@ case "$1" in
   initdb)
   initdb
   ;;
+  updatedb)
+  updatedb
+  ;;
   initpetascopedb)
   initpetascopedb
   ;;
@@ -273,7 +284,7 @@ case "$1" in
   droppetascopedb
   ;;
   *)
-  echo $"Usage: $prog {start|stop|restart|condrestart|status|initdb|dropdb|initpetascopedb|updatepetascopedb|droppetascopedb}"
+  echo $"Usage: $prog {start|stop|restart|condrestart|status|initdb|updatedb|dropdb|initpetascopedb|updatepetascopedb|droppetascopedb}"
   RETVAL=3
 esac
 

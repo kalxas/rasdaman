@@ -240,9 +240,11 @@ fi
 %{_bindir}/raspasswd
 %{_bindir}/rasql
 %{_bindir}/rasserver
+%{_bindir}/update_db.sh
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/rasmgr.conf
 %{_localstatedir}/log/rasdaman/empty
 %{_datadir}/rasdaman/errtxts*
+%{_datadir}/rasdaman/db_updates
 %attr(700,rasdaman,rasdaman) %dir %{rasdir}
 %attr(644,rasdaman,rasdaman) %config(noreplace) %{rasdir}/basictypes.dl
 %{_initddir}/rasdaman
