@@ -47,7 +47,7 @@ rasmgr.conf: rasmgr.conf.in Makefile
 	$(SED) -e "s|@hostname[@]|`hostname`|g" '$@.in' >$@
 
 # don't overwrite rasmgr.conf if it's already there -- DM 2012-may-16
-install-data-hook:
+install-data-hook: rasmgr.conf
 	if test -f $(DESTDIR)$(sysconfdir)/rasmgr.conf; then \
 		echo "$@ will not overwrite existing $(DESTDIR)$(sysconfdir)/rasmgr.conf"; \
 	else \
