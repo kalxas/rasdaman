@@ -490,7 +490,8 @@ public class DbMetadataSource implements IMetadataSource {
                 twoDCoverage = false;
             }
 
-            r = s.executeQuery("SELECT name, type, uom FROM PS_Range WHERE coverage = '" + coverage + "' ORDER BY i ASC");
+            r = s.executeQuery("SELECT name, type, ps_uom.uom FROM PS_Range, PS_Uom WHERE "
+                    + "ps_range.uom=ps_uom.id AND coverage = '" + coverage + "' ORDER BY i ASC");
             List<RangeElement> range = new ArrayList<RangeElement>(r.getFetchSize());
 
             while (r.next()) {
