@@ -520,38 +520,70 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
             </sequential>
         </macrodef>
     </target>
-    <target if="${junit.available}" name="-init-macrodef-junit-debug">
+    <target if="${junit.available}" name="-init-macrodef-junit-debug" unless="${nb.junit.batch}">
         <macrodef name="junit-debug" uri="http://www.netbeans.org/ns/web-project/2">
-            <attribute default="${main.class}" name="testClass"/>
-            <attribute default="" name="testMethod"/>
-            <element name="customize2" optional="true"/>
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <attribute default="" name="testmethods"/>
+            <element name="customize" optional="true"/>
             <sequential>
-                <property location="${build.test.results.dir}/TEST-@{testClass}.xml" name="test.report.file"/>
-                <delete file="${test.report.file}"/>
-                <mkdir dir="${build.test.results.dir}"/>
-                <condition else="" property="junit.methods.arg" value="methods=@{testMethod}">
-                    <isset property="test.method"/>
-                </condition>
-                <webproject1:debug args="@{testClass}" classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTestRunner" classpath="${ant.home}/lib/ant.jar:${ant.home}/lib/ant-junit.jar:${debug.test.classpath}:${j2ee.platform.embeddableejb.classpath}">
-                    <customize>
-                        <arg value="${junit.methods.arg}"/>
-                        <arg value="showoutput=true"/>
-                        <arg value="formatter=org.apache.tools.ant.taskdefs.optional.junit.BriefJUnitResultFormatter"/>
-                        <arg value="formatter=org.apache.tools.ant.taskdefs.optional.junit.XMLJUnitResultFormatter,${test.report.file}"/>
-                        <customize2/>
-                    </customize>
-                </webproject1:debug>
+                <junit dir="${basedir}" errorproperty="tests.failed" failureproperty="tests.failed" fork="true" showoutput="true" tempdir="${java.io.tmpdir}">
+                    <test methods="@{testmethods}" name="@{testincludes}" todir="${build.test.results.dir}"/>
+                    <syspropertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <formatter type="brief" usefile="false"/>
+                    <formatter type="xml"/>
+                    <jvmarg value="-ea"/>
+                    <jvmarg line="${debug-args-line}"/>
+                    <jvmarg value="-Xrunjdwp:transport=${debug-transport},address=${jpda.address}"/>
+                    <customize/>
+                </junit>
             </sequential>
         </macrodef>
     </target>
-    <target depends="-init-macrodef-junit-debug" if="${junit.available}" name="-init-macrodef-junit-debug-impl">
-        <macrodef name="test-debug-impl" uri="http://www.netbeans.org/ns/web-project/2">
-            <attribute default="${main.class}" name="testClass"/>
-            <attribute default="" name="testMethod"/>
-            <element implicit="true" name="customize2" optional="true"/>
+    <target if="${nb.junit.batch}" name="-init-macrodef-junit-debug-batch">
+        <macrodef name="junit-debug" uri="http://www.netbeans.org/ns/web-project/2">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <attribute default="" name="testmethods"/>
+            <element name="customize" optional="true"/>
             <sequential>
-                <webproject2:junit-debug testClass="@{testClass}" testMethod="@{testMethod}">
-                    <customize2/>
+                <property name="run.jvmargs.ide" value=""/>
+                <junit dir="${basedir}" errorproperty="tests.failed" failureproperty="tests.failed" fork="true" showoutput="true" tempdir="${build.dir}">
+                    <batchtest todir="${build.test.results.dir}">
+                        <fileset dir="${test.java.dir}" excludes="@{excludes},${excludes}" includes="@{includes}">
+                            <filename name="@{testincludes}"/>
+                        </fileset>
+                    </batchtest>
+                    <syspropertyset>
+                        <propertyref prefix="test-sys-prop."/>
+                        <mapper from="test-sys-prop.*" to="*" type="glob"/>
+                    </syspropertyset>
+                    <formatter type="brief" usefile="false"/>
+                    <formatter type="xml"/>
+                    <jvmarg value="-ea"/>
+                    <jvmarg line="${run.jvmargs.ide}"/>
+                    <jvmarg line="${debug-args-line}"/>
+                    <jvmarg value="-Xrunjdwp:transport=${debug-transport},address=${jpda.address}"/>
+                    <customize/>
+                </junit>
+            </sequential>
+        </macrodef>
+    </target>
+    <target depends="-init-macrodef-junit-debug,-init-macrodef-junit-debug-batch" if="${junit.available}" name="-init-macrodef-junit-debug-impl">
+        <macrodef name="test-debug-impl" uri="http://www.netbeans.org/ns/web-project/2">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <attribute default="" name="testmethods"/>
+            <element implicit="true" name="customize" optional="true"/>
+            <sequential>
+                <webproject2:junit-debug excludes="@{excludes}" includes="@{includes}" testincludes="@{testincludes}" testmethods="@{testmethods}">
+                    <customize/>
                 </webproject2:junit-debug>
             </sequential>
         </macrodef>
@@ -583,7 +615,7 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
         </macrodef>
     </target>
     <target depends="-init-macrodef-testng-debug" if="${testng.available}" name="-init-macrodef-testng-debug-impl">
-        <macrodef name="test-debug-impl" uri="http://www.netbeans.org/ns/web-project/2">
+        <macrodef name="testng-debug-impl" uri="http://www.netbeans.org/ns/web-project/2">
             <attribute default="${main.class}" name="testClass"/>
             <attribute default="" name="testMethod"/>
             <element implicit="true" name="customize2" optional="true"/>
@@ -594,22 +626,48 @@ or ant -Dj2ee.platform.classpath=&lt;server_classpath&gt; (where no properties f
             </sequential>
         </macrodef>
     </target>
-    <target depends="-init-macrodef-junit-debug-impl,-init-macrodef-testng-debug-impl" name="-init-macrodef-test-debug">
+    <target depends="-init-macrodef-junit-debug-impl" if="${junit.available}" name="-init-macrodef-test-debug-junit">
         <macrodef name="test-debug" uri="http://www.netbeans.org/ns/web-project/2">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <attribute default="" name="testmethods"/>
             <attribute default="${main.class}" name="testClass"/>
             <attribute default="" name="testMethod"/>
             <sequential>
-                <webproject2:test-debug-impl testClass="@{testClass}" testMethod="@{testMethod}">
+                <webproject2:test-debug-impl excludes="@{excludes}" includes="@{includes}" testincludes="@{testincludes}" testmethods="@{testmethods}">
+                    <customize>
+                        <classpath>
+                            <path path="${run.test.classpath}:${j2ee.platform.classpath}:${j2ee.platform.embeddableejb.classpath}"/>
+                        </classpath>
+                        <jvmarg line="${endorsed.classpath.cmd.line.arg}"/>
+                        <jvmarg line="${runmain.jvmargs}"/>
+                    </customize>
+                </webproject2:test-debug-impl>
+            </sequential>
+        </macrodef>
+    </target>
+    <target depends="-init-macrodef-testng-debug-impl" if="${testng.available}" name="-init-macrodef-test-debug-testng">
+        <macrodef name="test-debug" uri="http://www.netbeans.org/ns/web-project/2">
+            <attribute default="${includes}" name="includes"/>
+            <attribute default="${excludes}" name="excludes"/>
+            <attribute default="**" name="testincludes"/>
+            <attribute default="" name="testmethods"/>
+            <attribute default="${main.class}" name="testClass"/>
+            <attribute default="" name="testMethod"/>
+            <sequential>
+                <webproject2:testng-debug-impl testClass="@{testClass}" testMethod="@{testMethod}">
                     <customize2>
                         <syspropertyset>
                             <propertyref prefix="test-sys-prop."/>
                             <mapper from="test-sys-prop.*" to="*" type="glob"/>
                         </syspropertyset>
                     </customize2>
-                </webproject2:test-debug-impl>
+                </webproject2:testng-debug-impl>
             </sequential>
         </macrodef>
     </target>
+    <target depends="-init-macrodef-test-debug-junit,-init-macrodef-test-debug-testng" name="-init-macrodef-test-debug"/>
     <target name="-init-macrodef-java">
         <macrodef name="java" uri="http://www.netbeans.org/ns/web-project/1">
             <attribute default="${main.class}" name="classname"/>
@@ -955,6 +1013,7 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.wcs-v_1_1_0-schema-1.0-SNAPSHOT.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.wcst-schema.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.xom-1.2.6.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${file.reference.xercesImpl-2.7.1.jar}" iftldtodir="${build.web.dir}/WEB-INF" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.petascope-templates}" todir="${build.web.dir}//templates"/>
         <copyfiles files="${file.reference.resources-wms-messages}" todir="${build.web.dir}//WEB-INF/wms-messages"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
@@ -1000,6 +1059,7 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.wcs-v_1_1_0-schema-1.0-SNAPSHOT.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.wcst-schema.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.xom-1.2.6.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.xercesImpl-2.7.1.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${file.reference.petascope-templates}" todir="${build.web.dir}//templates"/>
         <copyfiles files="${file.reference.resources-wms-messages}" todir="${build.web.dir}//WEB-INF/wms-messages"/>
     </target>
@@ -1142,7 +1202,10 @@ exists or setup the property manually. For example like this:
         <antcall target="connect-client-debugger"/>
     </target>
     <target if="do.debug.server" name="connect-debugger" unless="is.debugged">
-        <nbjpdaconnect address="${jpda.address}" host="${jpda.host}" name="${name}" transport="${jpda.transport}">
+        <condition property="listeningcp" value="sourcepath">
+            <istrue value="${j2ee.compile.on.save}"/>
+        </condition>
+        <nbjpdaconnect address="${jpda.address}" host="${jpda.host}" listeningcp="${listeningcp}" name="${name}" transport="${jpda.transport}">
             <classpath>
                 <path path="${debug.classpath}:${j2ee.platform.classpath}"/>
             </classpath>
@@ -1370,13 +1433,14 @@ exists or setup the property manually. For example like this:
                 
                 TEST DEBUGGING SECTION
             -->
-    <target depends="init,compile-test" if="have.tests" name="-debug-start-debuggee-test">
+    <target depends="init,compile-test-single,-pre-test-run-single" if="have.tests" name="-debug-start-debuggee-test">
         <fail unless="test.class">Must select one file in the IDE or set test.class</fail>
-        <webproject2:test-debug testClass="${test.class}"/>
+        <webproject2:test-debug excludes="" includes="${javac.includes}" testClass="${test.class}" testincludes="${javac.includes}"/>
     </target>
-    <target depends="init,compile-test" if="have.tests" name="-debug-start-debuggee-test-method">
+    <target depends="init,compile-test-single,-pre-test-run-single" if="have.tests" name="-debug-start-debuggee-test-method">
         <fail unless="test.class">Must select one file in the IDE or set test.class</fail>
-        <webproject2:test-debug testClass="${test.class}" testMethod="${test.method}"/>
+        <fail unless="test.method">Must select some method in the IDE or set test.method</fail>
+        <webproject2:test-debug excludes="" includes="${javac.includes}" testClass="${test.class}" testMethod="${test.method}" testincludes="${test.class}" testmethods="${test.method}"/>
     </target>
     <target depends="init,compile-test" if="netbeans.home+have.tests" name="-debug-start-debugger-test">
         <webproject1:nbjpdastart classpath="${debug.test.classpath}" name="${test.class}"/>
