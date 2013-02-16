@@ -100,6 +100,7 @@ public class ParameterizedCrsHandler extends GeneralHandler {
     // first resolve the parameterized CRS
     ResolveRequest req = new ResolveRequest(request.getOperation(),
         request.getService(), request.getFullUri());
+    req.addParam(EXPAND_KEY, EXPAND_NONE);
     int i = 0;
     for (Pair<String, String> p : request.getParams()) {
       String key = p.fst;
