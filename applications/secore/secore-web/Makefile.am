@@ -67,9 +67,9 @@ TAR       = tar
 # Java tools
 JAVA      = java
 JAVAC     = javac
-JJARS_CP  = $(SECORE_CORE)/lib/basex-api.jar:$(SECORE_CORE)/lib/BaseX.jar:$(SECORE_CORE)/lib/log4j-1.2.16.jar:$(SECORE_CORE)/lib/nanoxml-2.2.3.jar:$(SECORE_CORE)/lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar:$(SECORE_CORE)/lib/slf4j-api-1.6.2.jar:$(SECORE_CORE)/lib/slf4j-log4j12-1.6.2.jar:$(SECORE_CORE)/lib/xmlunit-1.3.jar:$(SECORE_CORE)/lib/xqj-api-1.0.jar:$(SECORE_CORE)/build/dist/secore-core.jar:lib/servlet-api.jar
+JJARS_CP  = $(SECORE_CORE)/lib/basex-api.jar:$(SECORE_CORE)/lib/BaseX.jar:$(SECORE_CORE)/lib/log4j-1.2.16.jar:$(SECORE_CORE)/lib/nanoxml-2.2.3.jar:$(SECORE_CORE)/lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar:$(SECORE_CORE)/lib/slf4j-api-1.6.2.jar:$(SECORE_CORE)/lib/slf4j-log4j12-1.6.2.jar:$(SECORE_CORE)/lib/xmlunit-1.3.jar:$(SECORE_CORE)/lib/xqj-api-1.0.jar:$(SECORE_CORE)/build/dist/secore-core.jar:lib/servlet-api.jar:lib/xercesImpl-2.7.1.jar
 
-JJARS_PATHS = $(SECORE_CORE)/lib/basex-api.jar $(SECORE_CORE)/lib/BaseX.jar $(SECORE_CORE)/lib/log4j-1.2.16.jar $(SECORE_CORE)/lib/nanoxml-2.2.3.jar $(SECORE_CORE)/lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar $(SECORE_CORE)/lib/slf4j-api-1.6.2.jar $(SECORE_CORE)/lib/slf4j-log4j12-1.6.2.jar $(SECORE_CORE)/lib/xmlunit-1.3.jar $(SECORE_CORE)/lib/xqj-api-1.0.jar $(SECORE_CORE)/build/dist/secore-core.jar lib/servlet-api.jar
+JJARS_PATHS = $(SECORE_CORE)/lib/basex-api.jar $(SECORE_CORE)/lib/BaseX.jar $(SECORE_CORE)/lib/log4j-1.2.16.jar $(SECORE_CORE)/lib/nanoxml-2.2.3.jar $(SECORE_CORE)/lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar $(SECORE_CORE)/lib/slf4j-api-1.6.2.jar $(SECORE_CORE)/lib/slf4j-log4j12-1.6.2.jar $(SECORE_CORE)/lib/xmlunit-1.3.jar $(SECORE_CORE)/lib/xqj-api-1.0.jar $(SECORE_CORE)/build/dist/secore-core.jar lib/servlet-api.jar lib/xercesImpl-2.7.1.jar
 JFLAGS    = -sourcepath $(SRC_MAIN) \
             -d $(CLASSES)           \
             -cp $(JJARS_CP)	        \

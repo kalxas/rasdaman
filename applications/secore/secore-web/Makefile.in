@@ -86,7 +86,9 @@ subdir = applications/secore/secore-web
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in compile
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ac_prog_ecpg.m4 \
+	$(top_srcdir)/m4/ac_prog_java.m4 \
 	$(top_srcdir)/m4/ac_prog_java_cc.m4 \
+	$(top_srcdir)/m4/ac_prog_java_works.m4 \
 	$(top_srcdir)/m4/ac_prog_rpcgen.m4 \
 	$(top_srcdir)/m4/ac_prog_sed.m4 \
 	$(top_srcdir)/m4/ax_lib_postgresql.m4 \
@@ -192,6 +194,9 @@ INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JAR_TOOL = @JAR_TOOL@
+
+# Java tools
+JAVA = java
 JAVA_CC = @JAVA_CC@
 JAVA_CC_FLAGS = @JAVA_CC_FLAGS@
 JAVA_CC_OPTS = @JAVA_CC_OPTS@
@@ -206,10 +211,6 @@ LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
 MKDIR_P = @MKDIR_P@
 OBJEXT = @OBJEXT@
-ORALDFLAGS = @ORALDFLAGS@
-ORA_INC = @ORA_INC@
-ORA_PROC = @ORA_PROC@
-ORA_PROCPPFLAGS = @ORA_PROCPPFLAGS@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
 PACKAGE_NAME = @PACKAGE_NAME@
@@ -307,12 +308,9 @@ CP = cp -r
 CD = cd
 RM = rm -rf
 TAR = tar
-
-# Java tools
-JAVA = java
 JAVAC = javac
-JJARS_CP = $(SECORE_CORE)/lib/basex-api.jar:$(SECORE_CORE)/lib/BaseX.jar:$(SECORE_CORE)/lib/log4j-1.2.16.jar:$(SECORE_CORE)/lib/nanoxml-2.2.3.jar:$(SECORE_CORE)/lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar:$(SECORE_CORE)/lib/slf4j-api-1.6.2.jar:$(SECORE_CORE)/lib/slf4j-log4j12-1.6.2.jar:$(SECORE_CORE)/lib/xmlunit-1.3.jar:$(SECORE_CORE)/lib/xqj-api-1.0.jar:$(SECORE_CORE)/build/dist/secore-core.jar:lib/servlet-api.jar
-JJARS_PATHS = $(SECORE_CORE)/lib/basex-api.jar $(SECORE_CORE)/lib/BaseX.jar $(SECORE_CORE)/lib/log4j-1.2.16.jar $(SECORE_CORE)/lib/nanoxml-2.2.3.jar $(SECORE_CORE)/lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar $(SECORE_CORE)/lib/slf4j-api-1.6.2.jar $(SECORE_CORE)/lib/slf4j-log4j12-1.6.2.jar $(SECORE_CORE)/lib/xmlunit-1.3.jar $(SECORE_CORE)/lib/xqj-api-1.0.jar $(SECORE_CORE)/build/dist/secore-core.jar lib/servlet-api.jar
+JJARS_CP = $(SECORE_CORE)/lib/basex-api.jar:$(SECORE_CORE)/lib/BaseX.jar:$(SECORE_CORE)/lib/log4j-1.2.16.jar:$(SECORE_CORE)/lib/nanoxml-2.2.3.jar:$(SECORE_CORE)/lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar:$(SECORE_CORE)/lib/slf4j-api-1.6.2.jar:$(SECORE_CORE)/lib/slf4j-log4j12-1.6.2.jar:$(SECORE_CORE)/lib/xmlunit-1.3.jar:$(SECORE_CORE)/lib/xqj-api-1.0.jar:$(SECORE_CORE)/build/dist/secore-core.jar:lib/servlet-api.jar:lib/xercesImpl-2.7.1.jar
+JJARS_PATHS = $(SECORE_CORE)/lib/basex-api.jar $(SECORE_CORE)/lib/BaseX.jar $(SECORE_CORE)/lib/log4j-1.2.16.jar $(SECORE_CORE)/lib/nanoxml-2.2.3.jar $(SECORE_CORE)/lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar $(SECORE_CORE)/lib/slf4j-api-1.6.2.jar $(SECORE_CORE)/lib/slf4j-log4j12-1.6.2.jar $(SECORE_CORE)/lib/xmlunit-1.3.jar $(SECORE_CORE)/lib/xqj-api-1.0.jar $(SECORE_CORE)/build/dist/secore-core.jar lib/servlet-api.jar lib/xercesImpl-2.7.1.jar
 JFLAGS = -sourcepath $(SRC_MAIN) \
             -d $(CLASSES)           \
             -cp $(JJARS_CP)	        \

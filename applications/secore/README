@@ -9,6 +9,19 @@ SECORE is implemented as a Java servlet. As such, it relies on the following
 freely available component which is not part of the SECORE distribution:
     - Tomcat (tomcat.apache.org) as servlet container
 
+Security
+========
+Only tomcat users with the role 'secore' can access the admin pages.
+
+Access to users is controlled in $CATALINA_HOME/conf/tomcat-users.xml
+First make sure that the 'secore' role is defined:
+
+  <role rolename="secore"/>
+
+Then new users can be added, e.g. add a user secore-admin:
+
+  <user username="secore-admin" password="secret" roles="secore"/>
+
 
 Distribution
 ============
