@@ -75,6 +75,7 @@ public class DbMetadataSource implements IMetadataSource {
     private Map<Integer, String> dataTypes;
     private Map<Integer, String> interpolationTypes;
     private Map<Integer, String> nullResistances;
+    private Map<Integer, String> rangeUoms;
     private Map<String, String> supportedFormats;
     private Map<String, String> gdalFormatsIds; // GDAL code -> format name
 
@@ -85,6 +86,7 @@ public class DbMetadataSource implements IMetadataSource {
     private Map<String, Integer> revDataTypes;
     private Map<String, Integer> revInterpolationTypes;
     private Map<String, Integer> revNullResistances;
+    private Map<String, Integer> revRangeUoms;
     private Map<String, String> revSupportedFormats;    // Not used
     private Map<String, String> revGdalFormatsIds; // format name -> GDAL code
 
@@ -167,6 +169,15 @@ public class DbMetadataSource implements IMetadataSource {
                 nullResistances.put(r.getInt("id"), r.getString("nullResistance"));
                 revNullResistances.put(r.getString("nullResistance"), r.getInt("id"));
             }
+            
+            rangeUoms = new HashMap<Integer, String>();
+            revRangeUoms = new HashMap<String, Integer>();
+            r = s.executeQuery("SELECT id, uom FROM PS_Uom");
+
+            while (r.next()) {
+                rangeUoms.put(r.getInt("id"), r.getString("uom"));
+                revRangeUoms.put(r.getString("uom"), r.getInt("id"));
+            }            
 
             crss = new HashMap<Integer, String>();
             revCrss = new HashMap<String, Integer>();
@@ -490,12 +501,11 @@ public class DbMetadataSource implements IMetadataSource {
                 twoDCoverage = false;
             }
 
-            r = s.executeQuery("SELECT name, type, ps_uom.uom FROM PS_Range, PS_Uom WHERE "
-                    + "ps_range.uom=ps_uom.id AND coverage = '" + coverage + "' ORDER BY i ASC");
+            r = s.executeQuery("SELECT name, type, uom FROM PS_Range WHERE coverage = '" + coverage + "' ORDER BY i ASC");
             List<RangeElement> range = new ArrayList<RangeElement>(r.getFetchSize());
 
             while (r.next()) {
-                range.add(new RangeElement(r.getString("name"), dataTypes.get(r.getInt("type")), r.getString("uom")));
+                range.add(new RangeElement(r.getString("name"), dataTypes.get(r.getInt("type")), rangeUoms.get(r.getInt("uom"))));
             }
 
             r = s.executeQuery("SELECT interpolationType, nullResistance FROM PS_InterpolationSet WHERE coverage = '" + coverage + "'");
