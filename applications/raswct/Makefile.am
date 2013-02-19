@@ -65,7 +65,8 @@ src: doBin
 	     $(SRC)/util/Util.js                              \
 	     $(SRC)/util/Constants.js                         \
 	     $(SRC)/util/Observable.js                        \
-	     $(SRC)/util/DataSeries.js                        \
+	     $(SRC)/util/Bindable.js                          \
+             $(SRC)/util/DataSeries.js                        \
          $(SRC)/util/ConfigManager.js                     \
          $(SRC)/util/ErrorManager.js                      \
          $(SRC)/util/NotificationManager.js               \
