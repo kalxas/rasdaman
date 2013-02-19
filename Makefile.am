@@ -42,7 +42,7 @@ endif
 
 nobase_include_HEADERS=raslib/*.h raslib/*.hh raslib/*.icc raslib/*.cc \
 		rasodmg/*.hh rasodmg/*.cc rasodmg/*.icc conversion/*.h conversion/*.hh \
-		clientcomm/*.h clientcomm/*.hh commline/*.hh commline/*.cc debug/*.hh
+		clientcomm/*.h clientcomm/*.hh commline/*.hh commline/*.cc debug/*.hh config.h
 
 SUBDIRS = relblobif relindexif relmddif relcatalogif reladminif relstorageif \
           indexmgr catalogmgr tilemgr storagemgr commline network \
