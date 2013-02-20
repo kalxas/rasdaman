@@ -392,6 +392,10 @@ public class Metadata implements Cloneable {
         return range.iterator();
     }
 
+    public List<RangeElement> getRange(){
+        return range;
+    }    
+    
     public Iterator<InterpolationMethod> getInterpolationMethodIterator() {
         return interpolationSet.iterator();
     }

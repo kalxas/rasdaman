@@ -245,7 +245,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         String proc = "c";
 
         //Process rangesubsetting based on the coverage alias
-        if (req.hasRangeSubsetting()) {        
+        if (req.hasRangeSubsetting() && cov.getRange() != null && cov.getRange().size() > 1) {
             proc = RangeSubsettingExtension.processWCPSRequest(proc, req.getRangeSubset());
         }
         //End range subsetting processing

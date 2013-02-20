@@ -148,6 +148,13 @@ public class RangeSubsettingExtension implements Extension {
         }
     }
 
+    /**
+     * Helper method to parse the range subsets parameters for a REST encoded
+     * request
+     * @param rUrl
+     * @param request
+     * @throws WCSException 
+     */
     public static void parseGetCoverageRESTRequest(RESTUrl rUrl, GetCoverageRequest request) throws WCSException {
         if (rUrl.existsKey(RANGESUBSET_REST_PARAMNAME) && !rUrl.getByKey(RANGESUBSET_REST_PARAMNAME).isEmpty()) {
             List<String> rangeParams = new ArrayList<String>(Arrays.asList(
@@ -156,6 +163,14 @@ public class RangeSubsettingExtension implements Extension {
         }
     }
 
+    /**
+     * Helper method to parse range subsets that contains common code for both 
+     * KVP and REST encodings
+     * @param rangeParams
+     * @param rangeSep
+     * @param request
+     * @throws WCSException 
+     */
     public static void parseGetCoverageRequest(List<String> rangeParams, String rangeSep, GetCoverageRequest request) throws WCSException {
         for (int i = 0; i < rangeParams.size(); i++) {
             if (rangeParams.get(i).contains(rangeSep)) {
