@@ -1211,6 +1211,20 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
                 RAS_MDDDOMTYPES;
         if(check("DatabaseIf::create() CREATE VIEW"))
             generateException();
+        
+        // database updates
+		EXEC SQL CREATE TABLE RAS_DBUPDATES (
+			id serial NOT NULL,
+			UpdateNumber INTEGER,
+			UpdateNumberRe INTEGER,
+			PRIMARY KEY (id)
+		);
+		if(check("DatabaseIf::create() CREATE TABLE RAS_DBUPDATES\0"))
+			generateException();
+
+        EXEC SQL INSERT INTO RAS_DBUPDATES values (1, 2, 0);
+		if(check("DatabaseIf::create() INSERT INTO RAS_DBUPDATES\0"))
+			generateException();
 
         TALK( "EXEC SQL COMMIT WORK" );
         EXEC SQL COMMIT WORK;

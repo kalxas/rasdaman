@@ -139,7 +139,7 @@ if [ $? -ne 0 ]; then
 	counter=0
 else
   # update from the last update number
-	counter=`$PSQL -c "select update from $RAS_DBUPDATE where id=1" | head -n 3 | tail -n 1 | awk '{print $1}'`
+	counter=`$PSQL -c "select UpdateNumber from $RAS_DBUPDATE where id=1" | head -n 3 | tail -n 1 | awk '{print $1}'`
 	if [ "$counter" -ne "$counter" ] 2>/dev/null; then
     error "couldn't determine last update from the $RAS_DBUPDATE table"
   fi
@@ -180,7 +180,7 @@ done
 # save the last update number
 #
 if [ $updated -eq 1 ]; then
-  $PSQL -c "update $RAS_DBUPDATE set update=$counter where id=1" > /dev/null 2>&1
+  $PSQL -c "update $RAS_DBUPDATE set UpdateNumber=$counter where id=1" > /dev/null 2>&1
   log "updated database to update $((counter-1))"
 else
   log "database already up-to-date, nothing to update."
