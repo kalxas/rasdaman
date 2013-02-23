@@ -37,10 +37,8 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
-import petascope.util.WcsUtil;
 import static petascope.util.XMLSymbols.*;
 import petascope.util.XMLUtil;
-import petascope.wcps.server.core.Bbox;
 import petascope.wcs2.Wcs2Servlet;
 import petascope.wcs2.extensions.Extension;
 import petascope.wcs2.extensions.ExtensionsRegistry;
@@ -149,50 +147,6 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 c.appendChild(meta.coverageType(coverageId));
                 cs.appendChild(c);
                 contents.appendChild(cs);
-                /** Append Native Bbox **/
-                // Note: ows:BoundingBox is not mandatory, publish it only for coverages with *single* CRS and dim=2 (ps_crsdetails constraint)
-                Bbox bbox = meta.read(coverageId).getBbox();
-                if (bbox != null && WcsUtil.hasSingleCrs(meta.read(coverageId)) 
-                        && meta.read(coverageId).getCellDomainList().size() == 2) {
-                    c = new Element(LABEL_BBOX, NAMESPACE_OWS);
-                    // lower-left + upper-right coords
-                    cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
-                    cc.appendChild(bbox.getLow1() + " " + bbox.getLow2());
-                    c.appendChild(cc);
-                    cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
-                    cc.appendChild(bbox.getHigh1() + " " + bbox.getHigh2());
-                    c.appendChild(cc);
-                    // dimensions and crs attributes
-                    Attribute crs = new Attribute(ATT_CRS, bbox.getCrsName());
-                    Attribute dimensions = new Attribute(ATT_DIMENSIONS, "" + "2"); //+   meta.read(coverageId).getCellDomainList().size());
-                    c.addAttribute(crs);
-                    c.addAttribute(dimensions);
-                    cs.appendChild(c);
-                    
-                    /**
-                     * Doesn't conform to WCS 2.0.1 so commented out -- DM 2012-oct-19
-                     * 
-                    // WGS84 Bbox (for 2D EPSG-defined CRSs only, currently)
-                    if (bbox.hasWgs84Bbox()) {
-
-                        c = new Element(LABEL_WGS84_BBOX, NAMESPACE_WCS);
-                        // lower-left + upper-right coords
-                        cc = new Element(ATT_LOWERCORNER, NAMESPACE_WCS);
-                        cc.appendChild(bbox.getWgs84Low1() + " " + bbox.getWgs84Low2());
-                        c.appendChild(cc);
-                        cc = new Element(ATT_UPPERCORNER, NAMESPACE_WCS);
-                        cc.appendChild(bbox.getWgs84High1() + " " + bbox.getWgs84High2());
-                        c.appendChild(cc);
-                        // dimensions and crs attributes
-                        crs = new Attribute(ATT_CRS, CrsUtil.WGS84_URI);
-                        dimensions = new Attribute(ATT_DIMENSIONS, "2");
-                        c.addAttribute(crs);
-                        c.addAttribute(dimensions);
-                        cs.appendChild(c);
-
-                    }
-                    */
-                }
             }
         } catch (PetascopeException ex) {
             log.error("Error", ex);
