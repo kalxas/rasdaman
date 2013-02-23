@@ -101,7 +101,7 @@ then
    exit $CODE_FAIL
 fi
 
-# check tiffinfo
+# check gdalinfo
 which gdalinfo > /dev/null
 if [ $? -ne 0 ]
 then
@@ -134,6 +134,12 @@ then
    exit $CODE_FAIL
 fi
 
+$RASDL -p | grep --quiet 'TestSet'
+if [ $? -ne 0 ]; then
+  $RASDL -r $IMAGEDIR/types.dl -i > /dev/null
+fi
+
+
 # check data set
 
 #--------------------------initiation--------------------------------------------
@@ -145,188 +151,74 @@ then
 	$RASQL -q "drop collection test_tmp" | tee -a $LOG
 fi
 
-################## jpeg() and inv_jpeg() #######################
-echo -----jpeg and inv_jpeg conversion------ | tee -a $LOG
+#
+# function runnning the test
+#
+function run_test()
+{
+local fun=$1
+local inv_fun=$2
+local ext=$3
+local inv_ext=$4
+local colltype=$5
+local f="mr_1"
+if [ "$colltype" == RGBSet ]; then
+  f=rgb
+elif [ "$colltype" == TestSet ]; then
+  f=multiband
+fi
+local extraopts="$6"
+
+echo -----$fun and inv_$fun conversion------ | tee -a $LOG
+
 echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection  test_tmp| tee -a $LOG
+$RASQL -q "create collection test_tmp $colltype" ||
+  echo Error creating collection  test_tmp | tee -a $LOG
 
 echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_jpeg($1)' -f $IMAGEDIR/mr_1.jpeg || echo Error inserting jpeg image | tee -a $LOG
+$RASQL -q "insert into test_tmp values inv_$inv_fun(\$1 $extraopts)" -f $IMAGEDIR/$f.$inv_ext ||
+  echo Error inserting $inv_fun image | tee -a $LOG
 
 echo extracting collection ... | tee -a $LOG
-$RASQL -q "select jpeg(a) from test_tmp as a" --out file --outfile mr_1.jpg  || 
-		echo Error extracting jpeg image | tee -a $LOG
+$RASQL -q "select $fun(a) from test_tmp as a" --out file --outfile $f || 
+  echo Error extracting $fun image | tee -a $LOG
 
 echo  comparing images | tee -a $LOG
-$GDALINFO mr_1.jpg* | grep 'Checksum' > mr_1.jpeg.result
-diff $ORACLE_DIR/mr_1.jpeg.checksum mr_1.jpeg.result
+if [ -f "$ORACLE_DIR/$f.$ext.checksum" ]; then
+  $GDALINFO $f.$ext | grep 'Checksum' > $f.$ext.result
+  diff $ORACLE_DIR/$f.$ext.checksum $f.$ext.result
+else
+  cmp $IMAGEDIR/$f.$ext $f.$ext
+fi
 
 if [ $? != "0" ]
 then
-	echo input and output does not match | tee -a $LOG
-	NUM_FAIL=$(($NUM_FAIL + 1))
+  echo input and output does not match | tee -a $LOG
+  NUM_FAIL=$(($NUM_FAIL + 1))
 else
-	echo input and output match | tee -a $LOG
-	NUM_SUC=$(($NUM_SUC + 1))
+  echo input and output match | tee -a $LOG
+  NUM_SUC=$(($NUM_SUC + 1))
 fi
 
 $RASQL -q "drop collection test_tmp" | tee -a $LOG
-rm mr_1.jpg*
+rm -f $f*
+}
+
+################## jpeg() and inv_jpeg() #######################
+run_test jpeg jpeg jpg jpg GreySet
 
 ################## tiff() and inv_tiff() #######################
-echo ------tiff and inv_tiff conversion------ | tee -a $LOG
-echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
-
-echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_tiff($1)' -f $IMAGEDIR/mr_1.tif || echo Error inserting tiff image | tee -a $LOG
-
-echo extracting collection ... | tee -a $LOG
-$RASQL -q "select tiff(a) from test_tmp as a" --out file --outfile mr_1.tif || 
-		echo Error extracting tiff image | tee -a $LOG
-
-echo  comparing images | tee -a $LOG
-$GDALINFO mr_1.tif* | grep 'Checksum' > mr_1.tif.result
-diff $ORACLE_DIR/mr_1.tif.checksum mr_1.tif.result
-
-if [ $? != "0" ]
-then
-	echo input and output does not match | tee -a $LOG
-	NUM_FAIL=$(($NUM_FAIL + 1))
-else
-	echo input and output match | tee -a $LOG
-	NUM_SUC=$(($NUM_SUC + 1))
-fi
-
-echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" | tee -a $LOG
-rm mr_1.tif*
-
-
-echo ------tiff and inv_tiff multiband conversion------ | tee -a $LOG
-
-echo reading types ... | tee -a $LOG
-$RASDL -p | grep --quiet 'TestSet'
-if [ $? -ne 0 ]; then
-  $RASDL -r $IMAGEDIR/types.dl -i > /dev/null
-fi
-
-echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp TestSet" || echo Error creating collection test_tmp | tee -a $LOG
-
-echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp values (octet) inv_tiff($1, "sampletype=octet")' -f $IMAGEDIR/multiband.tif || echo Error inserting tiff image | tee -a $LOG
-
-echo extracting collection ... | tee -a $LOG
-$RASQL -q "select tiff(a) from test_tmp as a" --out file --outfile multiband.tif || echo Error extracting tiff image | tee -a $LOG
-
-echo  comparing images | tee -a $LOG
-$GDALINFO multiband.tif* | grep 'Checksum' > multiband.tif.result
-diff $ORACLE_DIR/multiband.tif.checksum multiband.tif.result
-
-if [ $? != "0" ]
-then
-	echo input and output does not match | tee -a $LOG
-	NUM_FAIL=$(($NUM_FAIL + 1))
-else
-	echo input and output match | tee -a $LOG
-	NUM_SUC=$(($NUM_SUC + 1))
-fi
-
-echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" | tee -a $LOG
-
-rm multiband.tif*
+run_test tiff tiff tif tif GreySet
+run_test tiff tiff tif tif TestSet ", \"sampletype=octet\""
 
 ################## png() and inv_png() #######################
-
-echo ------png and inv_png conversion------ | tee -a $LOG
-echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
-
-echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_png($1)' -f $IMAGEDIR/mr_1.png || echo Error inserting png image | tee -a $LOG
-
-echo extracting collection ... | tee -a $LOG
-$RASQL -q "select png(a) from test_tmp as a" --out file --outfile mr_1 || 
-		echo Error extracting png image | tee -a $LOG
-
-echo  comparing images | tee -a $LOG
-cmp $IMAGEDIR/mr_1.png mr_1.png
-
-if [ $? != "0" ]
-then
-	echo input and output does not match | tee -a $LOG
-	NUM_FAIL=$(($NUM_FAIL + 1))
-else
-	echo input and output match | tee -a $LOG
-	NUM_SUC=$(($NUM_SUC + 1))
-fi
-
-echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" | tee -a $LOG
-rm mr_1.png
-
+run_test png png png png GreySet
 
 ################## bmp() and inv_bmp() #######################
-
-echo ------bmp and inv_bmp conversion------ | tee -a $LOG
-echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
-
-echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_bmp($1)' -f $IMAGEDIR/mr_1.bmp || echo Error inserting bmp image | tee -a $LOG
-
-echo extracting collection ... | tee -a $LOG
-$RASQL -q "select bmp(a) from test_tmp as a" --out file --outfile mr_1.bmp || 
-		echo Error extracting bmp image | tee -a $LOG
-
-echo  comparing images | tee -a $LOG
-$GDALINFO mr_1.bmp* | grep 'Checksum' > mr_1.bmp.result
-diff $ORACLE_DIR/mr_1.bmp.checksum mr_1.bmp.result
-
-if [ $? != "0" ]
-then
-	echo input and output does not match | tee -a $LOG
-	NUM_FAIL=$(($NUM_FAIL + 1))
-else
-	echo input and output match | tee -a $LOG
-	NUM_SUC=$(($NUM_SUC + 1))
-fi
-
-echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" | tee -a $LOG
-rm mr_1.bmp*
+run_test bmp bmp bmp bmp GreySet
 
 ################## vff() and inv_vff() #######################
-
-
-echo ------vff and inv_vff conversion------ | tee -a $LOG
-echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
-
-echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_vff($1)' -f $IMAGEDIR/mr_1.vff || echo Error inserting vff image | tee -a $LOG
-
-echo extracting collection ... | tee -a $LOG
-$RASQL -q 'select vff(a) from test_tmp as a' --out file --outfile mr_1  || 
-		echo Error extracting vff image | tee -a $LOG
-
-echo  comparing images | tee -a $LOG
-cmp $IMAGEDIR/mr_1.vff  mr_1.vff
-
-if [ $? != "0" ]
-then
-	echo input and output does not match | tee -a $LOG
-	NUM_FAIL=$(($NUM_FAIL + 1))
-else
-	echo input and output match | tee -a $LOG
-	NUM_SUC=$(($NUM_SUC + 1))
-fi
-
-echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" | tee -a $LOG
-rm mr_1.vff
+run_test vff vff vff vff GreySet
 
 ################## hdf() and inv_hdf() #######################
 
@@ -334,162 +226,29 @@ rm mr_1.vff
 grep 'HAVE_HDF 1' $SCRIPT_DIR/../../../config.h
 
 if [ $? -eq 0 ]; then
-  echo ------hdf and inv_hdf conversion------ | tee -a $LOG
-  echo creating collection ... | tee -a $LOG
-  $RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
-
-  echo inserting collection ... | tee -a $LOG
-  $RASQL -q 'insert into test_tmp  values inv_hdf($1)' -f $IMAGEDIR/mr_1.hdf || echo Error inserting hdf4 image | tee -a $LOG
-
-  echo extracting collection ... | tee -a $LOG
-  $RASQL -q "select hdf(a) from test_tmp as a" --out file --outfile mr_1 || 
-		  echo Error extracting hdf4 image | tee -a $LOG
-
-  echo  comparing images | tee -a $LOG
-  $GDALINFO mr_1.hdf | grep 'Checksum' > mr_1.hdf.result
-  diff $ORACLE_DIR/mr_1.hdf.checksum mr_1.hdf.result
-
-  if [ $? != "0" ]
-  then
-	  echo input and output does not match | tee -a $LOG
-	  NUM_FAIL=$(($NUM_FAIL + 1))
-  else
-	  echo input and output match | tee -a $LOG
-	  NUM_SUC=$(($NUM_SUC + 1))
-  fi
-
-  echo dropping collections ... | tee -a $LOG
-  $RASQL -q "drop collection test_tmp" | tee -a $LOG
-  rm mr_1.hdf
+  run_test hdf hdf hdf hdf GreySet
 fi
 
 ################## csv() #######################
 
+run_test csv png csv png GreySet
+run_test csv png csv png RGBSet
 
-echo ------csv conversion------ | tee -a $LOG
-echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
-
-echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_png($1)' -f $IMAGEDIR/mr_1.png || echo Error inserting png image | tee -a $LOG
-
-echo extracting collection ... | tee -a $LOG
-$RASQL -q "select csv(a) from test_tmp as a" --out file --outfile mr_1 || echo Error extracting csv image | tee -a $LOG
-
-echo  comparing images | tee -a $LOG
-cmp $IMAGEDIR/mr_1.csv mr_1.csv
-
-if [ $? != "0" ]
-then
-	echo input and output does not match | tee -a $LOG
-	NUM_FAIL=$(($NUM_FAIL + 1))
-else
-	echo input and output match | tee -a $LOG
-	NUM_SUC=$(($NUM_SUC + 1))
-fi
-
-echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" | tee -a $LOG
-rm mr_1.csv
-
-
-echo ------csv composite type conversion------ | tee -a $LOG
-echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp  RGBSet" || echo Error creating collection test_tmp | tee -a $LOG
-
-echo inserting collection ... | tee -a $LOG
-$RASQL -q 'insert into test_tmp  values inv_png($1)' -f $IMAGEDIR/rgb.png || echo Error inserting png image | tee -a $LOG
-
-echo extracting collection ... | tee -a $LOG
-$RASQL -q "select csv(a[115:130,110:112]) from test_tmp as a" --out file --outfile rgb || echo Error extracting csv image | tee -a $LOG
-
-echo  comparing images | tee -a $LOG
-cmp $IMAGEDIR/rgb.csv rgb.csv
-
-if [ $? != "0" ]
-then
-	echo input and output does not match | tee -a $LOG
-	NUM_FAIL=$(($NUM_FAIL + 1))
-else
-	echo input and output match | tee -a $LOG
-	NUM_SUC=$(($NUM_SUC + 1))
-fi
-
-echo dropping collections ... | tee -a $LOG
-$RASQL -q "drop collection test_tmp" | tee -a $LOG
-rm rgb.csv
-
-################## Dem() and inv_dem() #######################
-
-
-# echo ------dem and inv_dem conversion------ | tee -a $LOG
-# echo creating collection ... | tee -a $LOG
-# $RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
-
-# echo inserting collection ... | tee -a $LOG
-# $RASQL -q 'insert into test_tmp  values inv_dem($1)' -f $IMAGEDIR/mr_1.dem || echo Error inserting dem image | tee -a $LOG
-
-# echo extracting collection ... | tee -a $LOG
-# $RASQL -q "select dem(a) from test_tmp as a" --out file --outfile mr_1.dem || 
-#		echo Error extracting dem image | tee -a $LOG
-
-# echo  comparing images | tee -a $LOG
-# cmp $IMAGEDIR/mr_1.dem mr_1.dem.unknown 
-
-# if [ $? != "0" ]
-# then
-#	echo input and output does not match | tee -a $LOG
-# 	NUM_FAIL=$(($NUM_FAIL + 1))
-# else
-# 	echo input and output match | tee -a $LOG
-#	NUM_SUC=$(($NUM_SUC + 1))
-# fi
-
-# echo dropping collections ... | tee -a $LOG
-# $RASQL -q "drop collection test_tmp" | tee -a $LOG
-# rm mr_1.dem.unknown
-################## tor() and inv_tor() #######################
-
-
-# echo ------tor and inv_tor conversion------ | tee -a $LOG
-# echo creating collection ... | tee -a $LOG
-# $RASQL -q "create collection test_tmp  GreySet" || echo Error creating collection test_tmp | tee -a $LOG
-
-# echo inserting collection ... | tee -a $LOG
-# $RASQL -q 'insert into test_tmp  values inv_tor($1)' -f $IMAGEDIR/mr_1.tor || echo Error inserting tor image | tee -a $LOG
-
-# echo extracting collection ... | tee -a $LOG
-# $RASQL -q 'select tor(a) from test_tmp as a' --out file --outfile mr_1.tor  || 
-#		echo Error extracting tor image | tee -a $LOG
-
-# echo  comparing images | tee -a $LOG
-# cmp $IMAGEDIR/mr_1.tor  mr_1.tor.unknown 
-
-# if [ $? != "0" ]
-# then
-#	echo input and output does not match | tee -a $LOG
-#	NUM_FAIL=$(($NUM_FAIL + 1))
-# else
-#	echo input and output match | tee -a $LOG
-#	NUM_SUC=$(($NUM_SUC + 1))
-# fi
-
-# echo dropping collections ... | tee -a $LOG
-# $RASQL -q "drop collection test_tmp" | tee -a $LOG
-# rm mr_1.tor.unknown
-
+#
 ################# summary #######################
-  NUM_TOTAL=$(($NUM_SUC + $NUM_FAIL))
+#
+NUM_TOTAL=$(($NUM_SUC + $NUM_FAIL))
+
 # Print the summary
-  echo "test done at "`date`|tee -a $LOG
-  echo "Total conversions: "$NUM_TOTAL|tee -a $LOG
-  echo "Successful conversion number: "$NUM_SUC|tee -a $LOG
-  echo "Failed conversion number: "$NUM_FAIL|tee -a $LOG
-  echo "Detail test log is in "$LOG 
-  
-  if [ $NUM_TOTAL = $NUM_SUC ]
-  then
-  	exit $CODE_OK
-  else
-	exit $CODE_FAIL
-  fi
+echo
+echo "test done at "`date`|tee -a $LOG
+echo "Total conversions: "$NUM_TOTAL|tee -a $LOG
+echo "Successful conversion number: "$NUM_SUC|tee -a $LOG
+echo "Failed conversion number: "$NUM_FAIL|tee -a $LOG
+echo "Detail test log is in "$LOG 
+
+if [ $NUM_TOTAL -eq $NUM_SUC ]; then
+  exit $CODE_OK
+else
+  exit $CODE_FAIL
+fi
