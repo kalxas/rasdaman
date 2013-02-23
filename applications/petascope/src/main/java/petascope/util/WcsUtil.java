@@ -255,7 +255,7 @@ public class WcsUtil {
     private static String getOffsetsGml(GetCoverageMetadata m) {
         Bbox bbox = m.getBbox();
         String output = "";
-        String[] axisNames = m.getAxisLabels().split(" ");
+        String[] axisNames = m.getAxisLabels().split(" +");
             // Loop through the N dimensions
             for (int i = 0; i < axisNames.length; i++) {
                 if (i>0) output += "\n";
@@ -269,7 +269,7 @@ public class WcsUtil {
     // Function the builds the string of offsets vector for a specified dimension.
     private static String getOffsets(GetCoverageMetadata m, String axisName) {
         String output = "";
-        String[] axisNames = m.getAxisLabels().split(" ");
+        String[] axisNames = m.getAxisLabels().isEmpty() ? new String[0] : m.getAxisLabels().split(" +");
         // Loop through the N dimensions
         for (int i = 0; i < axisNames.length; i++) {
             if (i>0) output += " ";

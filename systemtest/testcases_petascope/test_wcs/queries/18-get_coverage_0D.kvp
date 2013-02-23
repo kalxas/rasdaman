@@ -1,0 +1,6 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=mr&
+subset=x(25)&
+subset=y(0)
