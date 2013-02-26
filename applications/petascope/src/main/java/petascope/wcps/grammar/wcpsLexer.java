@@ -1,4 +1,4 @@
-// $ANTLR !Unknown version! wcps.g 2012-09-17 16:31:48
+// $ANTLR 3.1.2 wcps.g 2013-02-26 10:34:20
 package petascope.wcps.grammar;
 
 import org.antlr.runtime.*;

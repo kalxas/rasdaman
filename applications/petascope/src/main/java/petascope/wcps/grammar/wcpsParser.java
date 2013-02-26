@@ -1,4 +1,4 @@
-// $ANTLR !Unknown version! wcps.g 2012-09-17 16:31:47
+// $ANTLR 3.1.2 wcps.g 2013-02-26 10:34:19
 package petascope.wcps.grammar;
 
 import org.antlr.runtime.*;
@@ -6942,7 +6942,7 @@ public class wcpsParser extends Parser {
             if ( (LA46_0==INTEGERCONSTANT||LA46_0==STRING||LA46_0==NAME) ) {
                 int LA46_1 = input.LA(2);
 
-                if ( (LA46_1==LPAREN) ) {
+                if ( (LA46_1==COLON) ) {
                     int LA46_2 = input.LA(3);
 
                     if ( (synpred115_wcps()) ) {
@@ -6959,7 +6959,7 @@ public class wcpsParser extends Parser {
                         throw nvae;
                     }
                 }
-                else if ( (LA46_1==COLON) ) {
+                else if ( (LA46_1==LPAREN) ) {
                     int LA46_3 = input.LA(3);
 
                     if ( (synpred115_wcps()) ) {
@@ -7052,7 +7052,7 @@ public class wcpsParser extends Parser {
             	    if ( (LA47_0==INTEGERCONSTANT||LA47_0==STRING||LA47_0==NAME) ) {
             	        int LA47_1 = input.LA(2);
 
-            	        if ( (LA47_1==LPAREN) ) {
+            	        if ( (LA47_1==COLON) ) {
             	            int LA47_2 = input.LA(3);
 
             	            if ( (synpred116_wcps()) ) {
@@ -7069,7 +7069,7 @@ public class wcpsParser extends Parser {
             	                throw nvae;
             	            }
             	        }
-            	        else if ( (LA47_1==COLON) ) {
+            	        else if ( (LA47_1==LPAREN) ) {
             	            int LA47_3 = input.LA(3);
 
             	            if ( (synpred116_wcps()) ) {
@@ -7333,7 +7333,7 @@ public class wcpsParser extends Parser {
     };
 
     // $ANTLR start "extendExpr"
-    // wcps.g:298:1: extendExpr returns [ExtendExpr value] : EXTEND LPAREN e1= coverageExpr COMMA dil= dimensionIntervalList RPAREN ;
+    // wcps.g:298:1: extendExpr returns [ExtendExpr value] : EXTEND LPAREN e1= coverageExpr COMMA LBRACE dil= dimensionIntervalList RBRACE RPAREN ;
     public final wcpsParser.extendExpr_return extendExpr() throws RecognitionException {
         wcpsParser.extendExpr_return retval = new wcpsParser.extendExpr_return();
         retval.start = input.LT(1);
@@ -7343,7 +7343,9 @@ public class wcpsParser extends Parser {
         Token EXTEND163=null;
         Token LPAREN164=null;
         Token COMMA165=null;
-        Token RPAREN166=null;
+        Token LBRACE166=null;
+        Token RBRACE167=null;
+        Token RPAREN168=null;
         wcpsParser.coverageExpr_return e1 = null;
 
         wcpsParser.dimensionIntervalList_return dil = null;
@@ -7352,12 +7354,14 @@ public class wcpsParser extends Parser {
         Object EXTEND163_tree=null;
         Object LPAREN164_tree=null;
         Object COMMA165_tree=null;
-        Object RPAREN166_tree=null;
+        Object LBRACE166_tree=null;
+        Object RBRACE167_tree=null;
+        Object RPAREN168_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 54) ) { return retval; }
-            // wcps.g:299:2: ( EXTEND LPAREN e1= coverageExpr COMMA dil= dimensionIntervalList RPAREN )
-            // wcps.g:299:4: EXTEND LPAREN e1= coverageExpr COMMA dil= dimensionIntervalList RPAREN
+            // wcps.g:299:2: ( EXTEND LPAREN e1= coverageExpr COMMA LBRACE dil= dimensionIntervalList RBRACE RPAREN )
+            // wcps.g:299:4: EXTEND LPAREN e1= coverageExpr COMMA LBRACE dil= dimensionIntervalList RBRACE RPAREN
             {
             root_0 = (Object)adaptor.nil();
 
@@ -7382,16 +7386,26 @@ public class wcpsParser extends Parser {
             COMMA165_tree = (Object)adaptor.create(COMMA165);
             adaptor.addChild(root_0, COMMA165_tree);
             }
-            pushFollow(FOLLOW_dimensionIntervalList_in_extendExpr3228);
+            LBRACE166=(Token)match(input,LBRACE,FOLLOW_LBRACE_in_extendExpr3226); if (state.failed) return retval;
+            if ( state.backtracking==0 ) {
+            LBRACE166_tree = (Object)adaptor.create(LBRACE166);
+            adaptor.addChild(root_0, LBRACE166_tree);
+            }
+            pushFollow(FOLLOW_dimensionIntervalList_in_extendExpr3230);
             dil=dimensionIntervalList();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, dil.getTree());
-            RPAREN166=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_extendExpr3230); if (state.failed) return retval;
+            RBRACE167=(Token)match(input,RBRACE,FOLLOW_RBRACE_in_extendExpr3232); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            RPAREN166_tree = (Object)adaptor.create(RPAREN166);
-            adaptor.addChild(root_0, RPAREN166_tree);
+            RBRACE167_tree = (Object)adaptor.create(RBRACE167);
+            adaptor.addChild(root_0, RBRACE167_tree);
+            }
+            RPAREN168=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_extendExpr3234); if (state.failed) return retval;
+            if ( state.backtracking==0 ) {
+            RPAREN168_tree = (Object)adaptor.create(RPAREN168);
+            adaptor.addChild(root_0, RPAREN168_tree);
             }
             if ( state.backtracking==0 ) {
                retval.value = new ExtendExpr((e1!=null?e1.value:null), (dil!=null?dil.value:null)); 
@@ -7434,15 +7448,15 @@ public class wcpsParser extends Parser {
         int castExpr_StartIndex = input.index();
         Object root_0 = null;
 
-        Token LPAREN167=null;
-        Token RPAREN168=null;
+        Token LPAREN169=null;
+        Token RPAREN170=null;
         wcpsParser.rangeType_return e1 = null;
 
         wcpsParser.coverageExpr_return e2 = null;
 
 
-        Object LPAREN167_tree=null;
-        Object RPAREN168_tree=null;
+        Object LPAREN169_tree=null;
+        Object RPAREN170_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 55) ) { return retval; }
@@ -7451,23 +7465,23 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            LPAREN167=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_castExpr3248); if (state.failed) return retval;
+            LPAREN169=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_castExpr3252); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            LPAREN167_tree = (Object)adaptor.create(LPAREN167);
-            adaptor.addChild(root_0, LPAREN167_tree);
+            LPAREN169_tree = (Object)adaptor.create(LPAREN169);
+            adaptor.addChild(root_0, LPAREN169_tree);
             }
-            pushFollow(FOLLOW_rangeType_in_castExpr3252);
+            pushFollow(FOLLOW_rangeType_in_castExpr3256);
             e1=rangeType();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, e1.getTree());
-            RPAREN168=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_castExpr3254); if (state.failed) return retval;
+            RPAREN170=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_castExpr3258); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            RPAREN168_tree = (Object)adaptor.create(RPAREN168);
-            adaptor.addChild(root_0, RPAREN168_tree);
+            RPAREN170_tree = (Object)adaptor.create(RPAREN170);
+            adaptor.addChild(root_0, RPAREN170_tree);
             }
-            pushFollow(FOLLOW_coverageExpr_in_castExpr3258);
+            pushFollow(FOLLOW_coverageExpr_in_castExpr3262);
             e2=coverageExpr();
 
             state._fsp--;
@@ -7515,10 +7529,10 @@ public class wcpsParser extends Parser {
         Object root_0 = null;
 
         Token type=null;
-        Token UNSIGNED169=null;
+        Token UNSIGNED171=null;
 
         Object type_tree=null;
-        Object UNSIGNED169_tree=null;
+        Object UNSIGNED171_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 56) ) { return retval; }
@@ -7568,10 +7582,10 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    UNSIGNED169=(Token)match(input,UNSIGNED,FOLLOW_UNSIGNED_in_rangeType3307); if (state.failed) return retval;
+                    UNSIGNED171=(Token)match(input,UNSIGNED,FOLLOW_UNSIGNED_in_rangeType3311); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    UNSIGNED169_tree = (Object)adaptor.create(UNSIGNED169);
-                    adaptor.addChild(root_0, UNSIGNED169_tree);
+                    UNSIGNED171_tree = (Object)adaptor.create(UNSIGNED171);
+                    adaptor.addChild(root_0, UNSIGNED171_tree);
                     }
                     type=(Token)input.LT(1);
                     if ( (input.LA(1)>=CHAR && input.LA(1)<=LONG) ) {
@@ -7628,13 +7642,13 @@ public class wcpsParser extends Parser {
         int fieldExpr_StartIndex = input.index();
         Object root_0 = null;
 
-        Token DOT170=null;
+        Token DOT172=null;
         wcpsParser.coverageAtom_return e1 = null;
 
         wcpsParser.fieldName_return e2 = null;
 
 
-        Object DOT170_tree=null;
+        Object DOT172_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 57) ) { return retval; }
@@ -7643,18 +7657,18 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_coverageAtom_in_fieldExpr3340);
+            pushFollow(FOLLOW_coverageAtom_in_fieldExpr3344);
             e1=coverageAtom();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, e1.getTree());
-            DOT170=(Token)match(input,DOT,FOLLOW_DOT_in_fieldExpr3342); if (state.failed) return retval;
+            DOT172=(Token)match(input,DOT,FOLLOW_DOT_in_fieldExpr3346); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            DOT170_tree = (Object)adaptor.create(DOT170);
-            adaptor.addChild(root_0, DOT170_tree);
+            DOT172_tree = (Object)adaptor.create(DOT172);
+            adaptor.addChild(root_0, DOT172_tree);
             }
-            pushFollow(FOLLOW_fieldName_in_fieldExpr3346);
+            pushFollow(FOLLOW_fieldName_in_fieldExpr3350);
             e2=fieldName();
 
             state._fsp--;
@@ -7716,7 +7730,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_booleanScalarTerm_in_booleanScalarExpr3371);
+            pushFollow(FOLLOW_booleanScalarTerm_in_booleanScalarExpr3375);
             e1=booleanScalarTerm();
 
             state._fsp--;
@@ -7746,7 +7760,7 @@ public class wcpsParser extends Parser {
             	        throw mse;
             	    }
 
-            	    pushFollow(FOLLOW_booleanScalarTerm_in_booleanScalarExpr3392);
+            	    pushFollow(FOLLOW_booleanScalarTerm_in_booleanScalarExpr3396);
             	    e2=booleanScalarTerm();
 
             	    state._fsp--;
@@ -7817,7 +7831,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_booleanScalarNegation_in_booleanScalarTerm3414);
+            pushFollow(FOLLOW_booleanScalarNegation_in_booleanScalarTerm3418);
             e1=booleanScalarNegation();
 
             state._fsp--;
@@ -7835,12 +7849,12 @@ public class wcpsParser extends Parser {
             	case 1 :
             	    // wcps.g:319:5: op= AND e2= booleanScalarNegation
             	    {
-            	    op=(Token)match(input,AND,FOLLOW_AND_in_booleanScalarTerm3424); if (state.failed) return retval;
+            	    op=(Token)match(input,AND,FOLLOW_AND_in_booleanScalarTerm3428); if (state.failed) return retval;
             	    if ( state.backtracking==0 ) {
             	    op_tree = (Object)adaptor.create(op);
             	    adaptor.addChild(root_0, op_tree);
             	    }
-            	    pushFollow(FOLLOW_booleanScalarNegation_in_booleanScalarTerm3428);
+            	    pushFollow(FOLLOW_booleanScalarNegation_in_booleanScalarTerm3432);
             	    e2=booleanScalarNegation();
 
             	    state._fsp--;
@@ -7913,7 +7927,7 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_booleanScalarAtom_in_booleanScalarNegation3449);
+                    pushFollow(FOLLOW_booleanScalarAtom_in_booleanScalarNegation3453);
                     e1=booleanScalarAtom();
 
                     state._fsp--;
@@ -7930,12 +7944,12 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    op=(Token)match(input,NOT,FOLLOW_NOT_in_booleanScalarNegation3458); if (state.failed) return retval;
+                    op=(Token)match(input,NOT,FOLLOW_NOT_in_booleanScalarNegation3462); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
                     op_tree = (Object)adaptor.create(op);
                     adaptor.addChild(root_0, op_tree);
                     }
-                    pushFollow(FOLLOW_booleanScalarAtom_in_booleanScalarNegation3462);
+                    pushFollow(FOLLOW_booleanScalarAtom_in_booleanScalarNegation3466);
                     e1=booleanScalarAtom();
 
                     state._fsp--;
@@ -7985,8 +7999,8 @@ public class wcpsParser extends Parser {
         Object root_0 = null;
 
         Token e=null;
-        Token LPAREN171=null;
-        Token RPAREN172=null;
+        Token LPAREN173=null;
+        Token RPAREN174=null;
         wcpsParser.booleanScalarExpr_return e1 = null;
 
         wcpsParser.stringScalarExpr_return s1 = null;
@@ -8001,8 +8015,8 @@ public class wcpsParser extends Parser {
 
 
         Object e_tree=null;
-        Object LPAREN171_tree=null;
-        Object RPAREN172_tree=null;
+        Object LPAREN173_tree=null;
+        Object RPAREN174_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 61) ) { return retval; }
@@ -8015,21 +8029,21 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    LPAREN171=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_booleanScalarAtom3477); if (state.failed) return retval;
+                    LPAREN173=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_booleanScalarAtom3481); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    LPAREN171_tree = (Object)adaptor.create(LPAREN171);
-                    adaptor.addChild(root_0, LPAREN171_tree);
+                    LPAREN173_tree = (Object)adaptor.create(LPAREN173);
+                    adaptor.addChild(root_0, LPAREN173_tree);
                     }
-                    pushFollow(FOLLOW_booleanScalarExpr_in_booleanScalarAtom3481);
+                    pushFollow(FOLLOW_booleanScalarExpr_in_booleanScalarAtom3485);
                     e1=booleanScalarExpr();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, e1.getTree());
-                    RPAREN172=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_booleanScalarAtom3483); if (state.failed) return retval;
+                    RPAREN174=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_booleanScalarAtom3487); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    RPAREN172_tree = (Object)adaptor.create(RPAREN172);
-                    adaptor.addChild(root_0, RPAREN172_tree);
+                    RPAREN174_tree = (Object)adaptor.create(RPAREN174);
+                    adaptor.addChild(root_0, RPAREN174_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = (e1!=null?e1.value:null); 
@@ -8042,19 +8056,19 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_stringScalarExpr_in_booleanScalarAtom3492);
+                    pushFollow(FOLLOW_stringScalarExpr_in_booleanScalarAtom3496);
                     s1=stringScalarExpr();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, s1.getTree());
-                    pushFollow(FOLLOW_compOp_in_booleanScalarAtom3496);
+                    pushFollow(FOLLOW_compOp_in_booleanScalarAtom3500);
                     cop=compOp();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, cop.getTree());
-                    pushFollow(FOLLOW_stringScalarExpr_in_booleanScalarAtom3500);
+                    pushFollow(FOLLOW_stringScalarExpr_in_booleanScalarAtom3504);
                     s2=stringScalarExpr();
 
                     state._fsp--;
@@ -8071,19 +8085,19 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_numericScalarExpr_in_booleanScalarAtom3510);
+                    pushFollow(FOLLOW_numericScalarExpr_in_booleanScalarAtom3514);
                     n1=numericScalarExpr();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, n1.getTree());
-                    pushFollow(FOLLOW_compOp_in_booleanScalarAtom3514);
+                    pushFollow(FOLLOW_compOp_in_booleanScalarAtom3518);
                     cop=compOp();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, cop.getTree());
-                    pushFollow(FOLLOW_numericScalarExpr_in_booleanScalarAtom3518);
+                    pushFollow(FOLLOW_numericScalarExpr_in_booleanScalarAtom3522);
                     n2=numericScalarExpr();
 
                     state._fsp--;
@@ -8100,7 +8114,7 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    e=(Token)match(input,BOOLEANCONSTANT,FOLLOW_BOOLEANCONSTANT_in_booleanScalarAtom3528); if (state.failed) return retval;
+                    e=(Token)match(input,BOOLEANCONSTANT,FOLLOW_BOOLEANCONSTANT_in_booleanScalarAtom3532); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
                     e_tree = (Object)adaptor.create(e);
                     adaptor.addChild(root_0, e_tree);
@@ -8163,7 +8177,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_numericScalarTerm_in_numericScalarExpr3545);
+            pushFollow(FOLLOW_numericScalarTerm_in_numericScalarExpr3549);
             e1=numericScalarTerm();
 
             state._fsp--;
@@ -8193,7 +8207,7 @@ public class wcpsParser extends Parser {
             	        throw mse;
             	    }
 
-            	    pushFollow(FOLLOW_numericScalarTerm_in_numericScalarExpr3563);
+            	    pushFollow(FOLLOW_numericScalarTerm_in_numericScalarExpr3567);
             	    e2=numericScalarTerm();
 
             	    state._fsp--;
@@ -8264,7 +8278,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_numericScalarFactor_in_numericScalarTerm3582);
+            pushFollow(FOLLOW_numericScalarFactor_in_numericScalarTerm3586);
             e1=numericScalarFactor();
 
             state._fsp--;
@@ -8294,7 +8308,7 @@ public class wcpsParser extends Parser {
             	        throw mse;
             	    }
 
-            	    pushFollow(FOLLOW_numericScalarFactor_in_numericScalarTerm3599);
+            	    pushFollow(FOLLOW_numericScalarFactor_in_numericScalarTerm3603);
             	    e2=numericScalarFactor();
 
             	    state._fsp--;
@@ -8352,14 +8366,14 @@ public class wcpsParser extends Parser {
 
         Token op=null;
         Token e=null;
-        Token LPAREN173=null;
-        Token RPAREN174=null;
         Token LPAREN175=null;
         Token RPAREN176=null;
         Token LPAREN177=null;
         Token RPAREN178=null;
         Token LPAREN179=null;
         Token RPAREN180=null;
+        Token LPAREN181=null;
+        Token RPAREN182=null;
         wcpsParser.numericScalarExpr_return e1 = null;
 
         wcpsParser.numericScalarFactor_return e10 = null;
@@ -8377,14 +8391,14 @@ public class wcpsParser extends Parser {
 
         Object op_tree=null;
         Object e_tree=null;
-        Object LPAREN173_tree=null;
-        Object RPAREN174_tree=null;
         Object LPAREN175_tree=null;
         Object RPAREN176_tree=null;
         Object LPAREN177_tree=null;
         Object RPAREN178_tree=null;
         Object LPAREN179_tree=null;
         Object RPAREN180_tree=null;
+        Object LPAREN181_tree=null;
+        Object RPAREN182_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 64) ) { return retval; }
@@ -8397,21 +8411,21 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    LPAREN173=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_numericScalarFactor3619); if (state.failed) return retval;
+                    LPAREN175=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_numericScalarFactor3623); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    LPAREN173_tree = (Object)adaptor.create(LPAREN173);
-                    adaptor.addChild(root_0, LPAREN173_tree);
+                    LPAREN175_tree = (Object)adaptor.create(LPAREN175);
+                    adaptor.addChild(root_0, LPAREN175_tree);
                     }
-                    pushFollow(FOLLOW_numericScalarExpr_in_numericScalarFactor3623);
+                    pushFollow(FOLLOW_numericScalarExpr_in_numericScalarFactor3627);
                     e1=numericScalarExpr();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, e1.getTree());
-                    RPAREN174=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_numericScalarFactor3625); if (state.failed) return retval;
+                    RPAREN176=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_numericScalarFactor3629); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    RPAREN174_tree = (Object)adaptor.create(RPAREN174);
-                    adaptor.addChild(root_0, RPAREN174_tree);
+                    RPAREN176_tree = (Object)adaptor.create(RPAREN176);
+                    adaptor.addChild(root_0, RPAREN176_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = (e1!=null?e1.value:null); 
@@ -8424,12 +8438,12 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    op=(Token)match(input,MINUS,FOLLOW_MINUS_in_numericScalarFactor3637); if (state.failed) return retval;
+                    op=(Token)match(input,MINUS,FOLLOW_MINUS_in_numericScalarFactor3641); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
                     op_tree = (Object)adaptor.create(op);
                     adaptor.addChild(root_0, op_tree);
                     }
-                    pushFollow(FOLLOW_numericScalarFactor_in_numericScalarFactor3641);
+                    pushFollow(FOLLOW_numericScalarFactor_in_numericScalarFactor3645);
                     e10=numericScalarFactor();
 
                     state._fsp--;
@@ -8446,26 +8460,26 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    op=(Token)match(input,ABS,FOLLOW_ABS_in_numericScalarFactor3653); if (state.failed) return retval;
+                    op=(Token)match(input,ABS,FOLLOW_ABS_in_numericScalarFactor3657); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
                     op_tree = (Object)adaptor.create(op);
                     adaptor.addChild(root_0, op_tree);
                     }
-                    LPAREN175=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_numericScalarFactor3655); if (state.failed) return retval;
+                    LPAREN177=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_numericScalarFactor3659); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    LPAREN175_tree = (Object)adaptor.create(LPAREN175);
-                    adaptor.addChild(root_0, LPAREN175_tree);
+                    LPAREN177_tree = (Object)adaptor.create(LPAREN177);
+                    adaptor.addChild(root_0, LPAREN177_tree);
                     }
-                    pushFollow(FOLLOW_numericScalarExpr_in_numericScalarFactor3659);
+                    pushFollow(FOLLOW_numericScalarExpr_in_numericScalarFactor3663);
                     e12=numericScalarExpr();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, e12.getTree());
-                    RPAREN176=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_numericScalarFactor3661); if (state.failed) return retval;
+                    RPAREN178=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_numericScalarFactor3665); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    RPAREN176_tree = (Object)adaptor.create(RPAREN176);
-                    adaptor.addChild(root_0, RPAREN176_tree);
+                    RPAREN178_tree = (Object)adaptor.create(RPAREN178);
+                    adaptor.addChild(root_0, RPAREN178_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = new NumericScalarExpr((op!=null?op.getText():null), (e12!=null?e12.value:null)); 
@@ -8478,26 +8492,26 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    op=(Token)match(input,SQRT,FOLLOW_SQRT_in_numericScalarFactor3673); if (state.failed) return retval;
+                    op=(Token)match(input,SQRT,FOLLOW_SQRT_in_numericScalarFactor3677); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
                     op_tree = (Object)adaptor.create(op);
                     adaptor.addChild(root_0, op_tree);
                     }
-                    LPAREN177=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_numericScalarFactor3675); if (state.failed) return retval;
+                    LPAREN179=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_numericScalarFactor3679); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    LPAREN177_tree = (Object)adaptor.create(LPAREN177);
-                    adaptor.addChild(root_0, LPAREN177_tree);
+                    LPAREN179_tree = (Object)adaptor.create(LPAREN179);
+                    adaptor.addChild(root_0, LPAREN179_tree);
                     }
-                    pushFollow(FOLLOW_numericScalarExpr_in_numericScalarFactor3679);
+                    pushFollow(FOLLOW_numericScalarExpr_in_numericScalarFactor3683);
                     e11=numericScalarExpr();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, e11.getTree());
-                    RPAREN178=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_numericScalarFactor3681); if (state.failed) return retval;
+                    RPAREN180=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_numericScalarFactor3685); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    RPAREN178_tree = (Object)adaptor.create(RPAREN178);
-                    adaptor.addChild(root_0, RPAREN178_tree);
+                    RPAREN180_tree = (Object)adaptor.create(RPAREN180);
+                    adaptor.addChild(root_0, RPAREN180_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = new NumericScalarExpr((op!=null?op.getText():null), (e11!=null?e11.value:null)); 
@@ -8510,26 +8524,26 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    op=(Token)match(input,ROUND,FOLLOW_ROUND_in_numericScalarFactor3693); if (state.failed) return retval;
+                    op=(Token)match(input,ROUND,FOLLOW_ROUND_in_numericScalarFactor3697); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
                     op_tree = (Object)adaptor.create(op);
                     adaptor.addChild(root_0, op_tree);
                     }
-                    LPAREN179=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_numericScalarFactor3695); if (state.failed) return retval;
+                    LPAREN181=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_numericScalarFactor3699); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    LPAREN179_tree = (Object)adaptor.create(LPAREN179);
-                    adaptor.addChild(root_0, LPAREN179_tree);
+                    LPAREN181_tree = (Object)adaptor.create(LPAREN181);
+                    adaptor.addChild(root_0, LPAREN181_tree);
                     }
-                    pushFollow(FOLLOW_numericScalarExpr_in_numericScalarFactor3699);
+                    pushFollow(FOLLOW_numericScalarExpr_in_numericScalarFactor3703);
                     e1=numericScalarExpr();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, e1.getTree());
-                    RPAREN180=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_numericScalarFactor3701); if (state.failed) return retval;
+                    RPAREN182=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_numericScalarFactor3705); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    RPAREN180_tree = (Object)adaptor.create(RPAREN180);
-                    adaptor.addChild(root_0, RPAREN180_tree);
+                    RPAREN182_tree = (Object)adaptor.create(RPAREN182);
+                    adaptor.addChild(root_0, RPAREN182_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = new NumericScalarExpr((op!=null?op.getText():null), (e1!=null?e1.value:null)); 
@@ -8542,7 +8556,7 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    e=(Token)match(input,INTEGERCONSTANT,FOLLOW_INTEGERCONSTANT_in_numericScalarFactor3713); if (state.failed) return retval;
+                    e=(Token)match(input,INTEGERCONSTANT,FOLLOW_INTEGERCONSTANT_in_numericScalarFactor3717); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
                     e_tree = (Object)adaptor.create(e);
                     adaptor.addChild(root_0, e_tree);
@@ -8558,7 +8572,7 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    e=(Token)match(input,FLOATCONSTANT,FOLLOW_FLOATCONSTANT_in_numericScalarFactor3725); if (state.failed) return retval;
+                    e=(Token)match(input,FLOATCONSTANT,FOLLOW_FLOATCONSTANT_in_numericScalarFactor3729); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
                     e_tree = (Object)adaptor.create(e);
                     adaptor.addChild(root_0, e_tree);
@@ -8574,7 +8588,7 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_complexConstant_in_numericScalarFactor3737);
+                    pushFollow(FOLLOW_complexConstant_in_numericScalarFactor3741);
                     e2=complexConstant();
 
                     state._fsp--;
@@ -8591,7 +8605,7 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_condenseExpr_in_numericScalarFactor3749);
+                    pushFollow(FOLLOW_condenseExpr_in_numericScalarFactor3753);
                     e3=condenseExpr();
 
                     state._fsp--;
@@ -8608,7 +8622,7 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_variableName_in_numericScalarFactor3761);
+                    pushFollow(FOLLOW_variableName_in_numericScalarFactor3765);
                     e4=variableName();
 
                     state._fsp--;
@@ -8657,19 +8671,19 @@ public class wcpsParser extends Parser {
         int compOp_StartIndex = input.index();
         Object root_0 = null;
 
-        Token EQUALS181=null;
-        Token NOTEQUALS182=null;
-        Token LT183=null;
-        Token GT184=null;
-        Token LTE185=null;
-        Token GTE186=null;
+        Token EQUALS183=null;
+        Token NOTEQUALS184=null;
+        Token LT185=null;
+        Token GT186=null;
+        Token LTE187=null;
+        Token GTE188=null;
 
-        Object EQUALS181_tree=null;
-        Object NOTEQUALS182_tree=null;
-        Object LT183_tree=null;
-        Object GT184_tree=null;
-        Object LTE185_tree=null;
-        Object GTE186_tree=null;
+        Object EQUALS183_tree=null;
+        Object NOTEQUALS184_tree=null;
+        Object LT185_tree=null;
+        Object GT186_tree=null;
+        Object LTE187_tree=null;
+        Object GTE188_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 65) ) { return retval; }
@@ -8720,10 +8734,10 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    EQUALS181=(Token)match(input,EQUALS,FOLLOW_EQUALS_in_compOp3779); if (state.failed) return retval;
+                    EQUALS183=(Token)match(input,EQUALS,FOLLOW_EQUALS_in_compOp3783); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    EQUALS181_tree = (Object)adaptor.create(EQUALS181);
-                    adaptor.addChild(root_0, EQUALS181_tree);
+                    EQUALS183_tree = (Object)adaptor.create(EQUALS183);
+                    adaptor.addChild(root_0, EQUALS183_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = new String("equals"); 
@@ -8736,10 +8750,10 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    NOTEQUALS182=(Token)match(input,NOTEQUALS,FOLLOW_NOTEQUALS_in_compOp3786); if (state.failed) return retval;
+                    NOTEQUALS184=(Token)match(input,NOTEQUALS,FOLLOW_NOTEQUALS_in_compOp3790); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    NOTEQUALS182_tree = (Object)adaptor.create(NOTEQUALS182);
-                    adaptor.addChild(root_0, NOTEQUALS182_tree);
+                    NOTEQUALS184_tree = (Object)adaptor.create(NOTEQUALS184);
+                    adaptor.addChild(root_0, NOTEQUALS184_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = new String("notEqual"); 
@@ -8752,10 +8766,10 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    LT183=(Token)match(input,LT,FOLLOW_LT_in_compOp3793); if (state.failed) return retval;
+                    LT185=(Token)match(input,LT,FOLLOW_LT_in_compOp3797); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    LT183_tree = (Object)adaptor.create(LT183);
-                    adaptor.addChild(root_0, LT183_tree);
+                    LT185_tree = (Object)adaptor.create(LT185);
+                    adaptor.addChild(root_0, LT185_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = new String("lessThan"); 
@@ -8768,10 +8782,10 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    GT184=(Token)match(input,GT,FOLLOW_GT_in_compOp3800); if (state.failed) return retval;
+                    GT186=(Token)match(input,GT,FOLLOW_GT_in_compOp3804); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    GT184_tree = (Object)adaptor.create(GT184);
-                    adaptor.addChild(root_0, GT184_tree);
+                    GT186_tree = (Object)adaptor.create(GT186);
+                    adaptor.addChild(root_0, GT186_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = new String("greaterThan"); 
@@ -8784,10 +8798,10 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    LTE185=(Token)match(input,LTE,FOLLOW_LTE_in_compOp3807); if (state.failed) return retval;
+                    LTE187=(Token)match(input,LTE,FOLLOW_LTE_in_compOp3811); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    LTE185_tree = (Object)adaptor.create(LTE185);
-                    adaptor.addChild(root_0, LTE185_tree);
+                    LTE187_tree = (Object)adaptor.create(LTE187);
+                    adaptor.addChild(root_0, LTE187_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = new String("lessOrEqual"); 
@@ -8800,10 +8814,10 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    GTE186=(Token)match(input,GTE,FOLLOW_GTE_in_compOp3814); if (state.failed) return retval;
+                    GTE188=(Token)match(input,GTE,FOLLOW_GTE_in_compOp3818); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    GTE186_tree = (Object)adaptor.create(GTE186);
-                    adaptor.addChild(root_0, GTE186_tree);
+                    GTE188_tree = (Object)adaptor.create(GTE188);
+                    adaptor.addChild(root_0, GTE188_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = new String("greaterOrEqual"); 
@@ -8848,11 +8862,11 @@ public class wcpsParser extends Parser {
         int dimensionIntervalList_StartIndex = input.index();
         Object root_0 = null;
 
-        Token COMMA187=null;
+        Token COMMA189=null;
         wcpsParser.dimensionIntervalElement_return elem = null;
 
 
-        Object COMMA187_tree=null;
+        Object COMMA189_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 66) ) { return retval; }
@@ -8861,7 +8875,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_dimensionIntervalElement_in_dimensionIntervalList3834);
+            pushFollow(FOLLOW_dimensionIntervalElement_in_dimensionIntervalList3838);
             elem=dimensionIntervalElement();
 
             state._fsp--;
@@ -8885,12 +8899,12 @@ public class wcpsParser extends Parser {
             	case 1 :
             	    // wcps.g:361:10: COMMA elem= dimensionIntervalElement
             	    {
-            	    COMMA187=(Token)match(input,COMMA,FOLLOW_COMMA_in_dimensionIntervalList3847); if (state.failed) return retval;
+            	    COMMA189=(Token)match(input,COMMA,FOLLOW_COMMA_in_dimensionIntervalList3851); if (state.failed) return retval;
             	    if ( state.backtracking==0 ) {
-            	    COMMA187_tree = (Object)adaptor.create(COMMA187);
-            	    adaptor.addChild(root_0, COMMA187_tree);
+            	    COMMA189_tree = (Object)adaptor.create(COMMA189);
+            	    adaptor.addChild(root_0, COMMA189_tree);
             	    }
-            	    pushFollow(FOLLOW_dimensionIntervalElement_in_dimensionIntervalList3851);
+            	    pushFollow(FOLLOW_dimensionIntervalElement_in_dimensionIntervalList3855);
             	    elem=dimensionIntervalElement();
 
             	    state._fsp--;
@@ -8946,9 +8960,9 @@ public class wcpsParser extends Parser {
         int dimensionIntervalElement_StartIndex = input.index();
         Object root_0 = null;
 
-        Token COLON188=null;
-        Token LPAREN189=null;
-        Token RPAREN190=null;
+        Token COLON190=null;
+        Token LPAREN191=null;
+        Token RPAREN192=null;
         wcpsParser.axisName_return aname = null;
 
         wcpsParser.crsName_return crs = null;
@@ -8956,9 +8970,9 @@ public class wcpsParser extends Parser {
         wcpsParser.dimensionIntervalExpr_return die = null;
 
 
-        Object COLON188_tree=null;
-        Object LPAREN189_tree=null;
-        Object RPAREN190_tree=null;
+        Object COLON190_tree=null;
+        Object LPAREN191_tree=null;
+        Object RPAREN192_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 67) ) { return retval; }
@@ -8967,7 +8981,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_axisName_in_dimensionIntervalElement3876);
+            pushFollow(FOLLOW_axisName_in_dimensionIntervalElement3880);
             aname=axisName();
 
             state._fsp--;
@@ -8987,12 +9001,12 @@ public class wcpsParser extends Parser {
                 case 1 :
                     // wcps.g:364:80: COLON crs= crsName
                     {
-                    COLON188=(Token)match(input,COLON,FOLLOW_COLON_in_dimensionIntervalElement3881); if (state.failed) return retval;
+                    COLON190=(Token)match(input,COLON,FOLLOW_COLON_in_dimensionIntervalElement3885); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    COLON188_tree = (Object)adaptor.create(COLON188);
-                    adaptor.addChild(root_0, COLON188_tree);
+                    COLON190_tree = (Object)adaptor.create(COLON190);
+                    adaptor.addChild(root_0, COLON190_tree);
                     }
-                    pushFollow(FOLLOW_crsName_in_dimensionIntervalElement3885);
+                    pushFollow(FOLLOW_crsName_in_dimensionIntervalElement3889);
                     crs=crsName();
 
                     state._fsp--;
@@ -9007,21 +9021,21 @@ public class wcpsParser extends Parser {
 
             }
 
-            LPAREN189=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_dimensionIntervalElement3896); if (state.failed) return retval;
+            LPAREN191=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_dimensionIntervalElement3900); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            LPAREN189_tree = (Object)adaptor.create(LPAREN189);
-            adaptor.addChild(root_0, LPAREN189_tree);
+            LPAREN191_tree = (Object)adaptor.create(LPAREN191);
+            adaptor.addChild(root_0, LPAREN191_tree);
             }
-            pushFollow(FOLLOW_dimensionIntervalExpr_in_dimensionIntervalElement3900);
+            pushFollow(FOLLOW_dimensionIntervalExpr_in_dimensionIntervalElement3904);
             die=dimensionIntervalExpr();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, die.getTree());
-            RPAREN190=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_dimensionIntervalElement3902); if (state.failed) return retval;
+            RPAREN192=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_dimensionIntervalElement3906); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            RPAREN190_tree = (Object)adaptor.create(RPAREN190);
-            adaptor.addChild(root_0, RPAREN190_tree);
+            RPAREN192_tree = (Object)adaptor.create(RPAREN192);
+            adaptor.addChild(root_0, RPAREN192_tree);
             }
             if ( state.backtracking==0 ) {
                retval.value.setIntervalExpr((die!=null?die.value:null)); 
@@ -9064,12 +9078,12 @@ public class wcpsParser extends Parser {
         int dimensionIntervalExpr_StartIndex = input.index();
         Object root_0 = null;
 
-        Token COLON191=null;
-        Token DOMAIN192=null;
-        Token LPAREN193=null;
-        Token COLON194=null;
-        Token COLON195=null;
-        Token RPAREN196=null;
+        Token COLON193=null;
+        Token DOMAIN194=null;
+        Token LPAREN195=null;
+        Token COLON196=null;
+        Token COLON197=null;
+        Token RPAREN198=null;
         wcpsParser.scalarExpr_return e1 = null;
 
         wcpsParser.scalarExpr_return e2 = null;
@@ -9081,12 +9095,12 @@ public class wcpsParser extends Parser {
         wcpsParser.crsName_return e5 = null;
 
 
-        Object COLON191_tree=null;
-        Object DOMAIN192_tree=null;
-        Object LPAREN193_tree=null;
-        Object COLON194_tree=null;
-        Object COLON195_tree=null;
-        Object RPAREN196_tree=null;
+        Object COLON193_tree=null;
+        Object DOMAIN194_tree=null;
+        Object LPAREN195_tree=null;
+        Object COLON196_tree=null;
+        Object COLON197_tree=null;
+        Object RPAREN198_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 68) ) { return retval; }
@@ -9099,18 +9113,18 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_scalarExpr_in_dimensionIntervalExpr3925);
+                    pushFollow(FOLLOW_scalarExpr_in_dimensionIntervalExpr3929);
                     e1=scalarExpr();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, e1.getTree());
-                    COLON191=(Token)match(input,COLON,FOLLOW_COLON_in_dimensionIntervalExpr3927); if (state.failed) return retval;
+                    COLON193=(Token)match(input,COLON,FOLLOW_COLON_in_dimensionIntervalExpr3931); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    COLON191_tree = (Object)adaptor.create(COLON191);
-                    adaptor.addChild(root_0, COLON191_tree);
+                    COLON193_tree = (Object)adaptor.create(COLON193);
+                    adaptor.addChild(root_0, COLON193_tree);
                     }
-                    pushFollow(FOLLOW_scalarExpr_in_dimensionIntervalExpr3931);
+                    pushFollow(FOLLOW_scalarExpr_in_dimensionIntervalExpr3935);
                     e2=scalarExpr();
 
                     state._fsp--;
@@ -9127,48 +9141,48 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    DOMAIN192=(Token)match(input,DOMAIN,FOLLOW_DOMAIN_in_dimensionIntervalExpr3941); if (state.failed) return retval;
+                    DOMAIN194=(Token)match(input,DOMAIN,FOLLOW_DOMAIN_in_dimensionIntervalExpr3945); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    DOMAIN192_tree = (Object)adaptor.create(DOMAIN192);
-                    adaptor.addChild(root_0, DOMAIN192_tree);
+                    DOMAIN194_tree = (Object)adaptor.create(DOMAIN194);
+                    adaptor.addChild(root_0, DOMAIN194_tree);
                     }
-                    LPAREN193=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_dimensionIntervalExpr3943); if (state.failed) return retval;
+                    LPAREN195=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_dimensionIntervalExpr3947); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    LPAREN193_tree = (Object)adaptor.create(LPAREN193);
-                    adaptor.addChild(root_0, LPAREN193_tree);
+                    LPAREN195_tree = (Object)adaptor.create(LPAREN195);
+                    adaptor.addChild(root_0, LPAREN195_tree);
                     }
-                    pushFollow(FOLLOW_coverageName_in_dimensionIntervalExpr3947);
+                    pushFollow(FOLLOW_coverageName_in_dimensionIntervalExpr3951);
                     e3=coverageName();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, e3.getTree());
-                    COLON194=(Token)match(input,COLON,FOLLOW_COLON_in_dimensionIntervalExpr3949); if (state.failed) return retval;
+                    COLON196=(Token)match(input,COLON,FOLLOW_COLON_in_dimensionIntervalExpr3953); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    COLON194_tree = (Object)adaptor.create(COLON194);
-                    adaptor.addChild(root_0, COLON194_tree);
+                    COLON196_tree = (Object)adaptor.create(COLON196);
+                    adaptor.addChild(root_0, COLON196_tree);
                     }
-                    pushFollow(FOLLOW_axisName_in_dimensionIntervalExpr3953);
+                    pushFollow(FOLLOW_axisName_in_dimensionIntervalExpr3957);
                     e4=axisName();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, e4.getTree());
-                    COLON195=(Token)match(input,COLON,FOLLOW_COLON_in_dimensionIntervalExpr3955); if (state.failed) return retval;
+                    COLON197=(Token)match(input,COLON,FOLLOW_COLON_in_dimensionIntervalExpr3959); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    COLON195_tree = (Object)adaptor.create(COLON195);
-                    adaptor.addChild(root_0, COLON195_tree);
+                    COLON197_tree = (Object)adaptor.create(COLON197);
+                    adaptor.addChild(root_0, COLON197_tree);
                     }
-                    pushFollow(FOLLOW_crsName_in_dimensionIntervalExpr3959);
+                    pushFollow(FOLLOW_crsName_in_dimensionIntervalExpr3963);
                     e5=crsName();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, e5.getTree());
-                    RPAREN196=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_dimensionIntervalExpr3961); if (state.failed) return retval;
+                    RPAREN198=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_dimensionIntervalExpr3965); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    RPAREN196_tree = (Object)adaptor.create(RPAREN196);
-                    adaptor.addChild(root_0, RPAREN196_tree);
+                    RPAREN198_tree = (Object)adaptor.create(RPAREN198);
+                    adaptor.addChild(root_0, RPAREN198_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = new DimensionIntervalExpr((e3!=null?e3.value:null), (e4!=null?e4.value:null), (e5!=null?e5.value:null)); 
@@ -9213,13 +9227,13 @@ public class wcpsParser extends Parser {
         int dimensionPointList_StartIndex = input.index();
         Object root_0 = null;
 
-        Token COMMA197=null;
+        Token COMMA199=null;
         wcpsParser.dimensionPointElement_return elem1 = null;
 
         wcpsParser.dimensionPointElement_return elem2 = null;
 
 
-        Object COMMA197_tree=null;
+        Object COMMA199_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 69) ) { return retval; }
@@ -9228,7 +9242,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_dimensionPointElement_in_dimensionPointList3984);
+            pushFollow(FOLLOW_dimensionPointElement_in_dimensionPointList3988);
             elem1=dimensionPointElement();
 
             state._fsp--;
@@ -9252,12 +9266,12 @@ public class wcpsParser extends Parser {
             	case 1 :
             	    // wcps.g:373:7: COMMA elem2= dimensionPointElement
             	    {
-            	    COMMA197=(Token)match(input,COMMA,FOLLOW_COMMA_in_dimensionPointList3994); if (state.failed) return retval;
+            	    COMMA199=(Token)match(input,COMMA,FOLLOW_COMMA_in_dimensionPointList3998); if (state.failed) return retval;
             	    if ( state.backtracking==0 ) {
-            	    COMMA197_tree = (Object)adaptor.create(COMMA197);
-            	    adaptor.addChild(root_0, COMMA197_tree);
+            	    COMMA199_tree = (Object)adaptor.create(COMMA199);
+            	    adaptor.addChild(root_0, COMMA199_tree);
             	    }
-            	    pushFollow(FOLLOW_dimensionPointElement_in_dimensionPointList3998);
+            	    pushFollow(FOLLOW_dimensionPointElement_in_dimensionPointList4002);
             	    elem2=dimensionPointElement();
 
             	    state._fsp--;
@@ -9313,11 +9327,11 @@ public class wcpsParser extends Parser {
         int dimensionPointElement_StartIndex = input.index();
         Object root_0 = null;
 
-        Token LPAREN198=null;
-        Token RPAREN199=null;
-        Token COLON200=null;
-        Token LPAREN201=null;
-        Token RPAREN202=null;
+        Token LPAREN200=null;
+        Token RPAREN201=null;
+        Token COLON202=null;
+        Token LPAREN203=null;
+        Token RPAREN204=null;
         wcpsParser.axisName_return aname = null;
 
         wcpsParser.dimensionPoint_return dpe = null;
@@ -9325,11 +9339,11 @@ public class wcpsParser extends Parser {
         wcpsParser.crsName_return crs = null;
 
 
-        Object LPAREN198_tree=null;
-        Object RPAREN199_tree=null;
-        Object COLON200_tree=null;
-        Object LPAREN201_tree=null;
-        Object RPAREN202_tree=null;
+        Object LPAREN200_tree=null;
+        Object RPAREN201_tree=null;
+        Object COLON202_tree=null;
+        Object LPAREN203_tree=null;
+        Object RPAREN204_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 70) ) { return retval; }
@@ -9340,11 +9354,11 @@ public class wcpsParser extends Parser {
             if ( (LA63_0==INTEGERCONSTANT||LA63_0==STRING||LA63_0==NAME) ) {
                 int LA63_1 = input.LA(2);
 
-                if ( (LA63_1==LPAREN) ) {
-                    alt63=1;
-                }
-                else if ( (LA63_1==COLON) ) {
+                if ( (LA63_1==COLON) ) {
                     alt63=2;
+                }
+                else if ( (LA63_1==LPAREN) ) {
+                    alt63=1;
                 }
                 else {
                     if (state.backtracking>0) {state.failed=true; return retval;}
@@ -9367,27 +9381,27 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_axisName_in_dimensionPointElement4023);
+                    pushFollow(FOLLOW_axisName_in_dimensionPointElement4027);
                     aname=axisName();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, aname.getTree());
-                    LPAREN198=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_dimensionPointElement4025); if (state.failed) return retval;
+                    LPAREN200=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_dimensionPointElement4029); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    LPAREN198_tree = (Object)adaptor.create(LPAREN198);
-                    adaptor.addChild(root_0, LPAREN198_tree);
+                    LPAREN200_tree = (Object)adaptor.create(LPAREN200);
+                    adaptor.addChild(root_0, LPAREN200_tree);
                     }
-                    pushFollow(FOLLOW_dimensionPoint_in_dimensionPointElement4029);
+                    pushFollow(FOLLOW_dimensionPoint_in_dimensionPointElement4033);
                     dpe=dimensionPoint();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, dpe.getTree());
-                    RPAREN199=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_dimensionPointElement4031); if (state.failed) return retval;
+                    RPAREN201=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_dimensionPointElement4035); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    RPAREN199_tree = (Object)adaptor.create(RPAREN199);
-                    adaptor.addChild(root_0, RPAREN199_tree);
+                    RPAREN201_tree = (Object)adaptor.create(RPAREN201);
+                    adaptor.addChild(root_0, RPAREN201_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = new DimensionPointElement((aname!=null?aname.value:null), (dpe!=null?dpe.value:null)); 
@@ -9400,38 +9414,38 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_axisName_in_dimensionPointElement4043);
+                    pushFollow(FOLLOW_axisName_in_dimensionPointElement4047);
                     aname=axisName();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, aname.getTree());
-                    COLON200=(Token)match(input,COLON,FOLLOW_COLON_in_dimensionPointElement4045); if (state.failed) return retval;
+                    COLON202=(Token)match(input,COLON,FOLLOW_COLON_in_dimensionPointElement4049); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    COLON200_tree = (Object)adaptor.create(COLON200);
-                    adaptor.addChild(root_0, COLON200_tree);
+                    COLON202_tree = (Object)adaptor.create(COLON202);
+                    adaptor.addChild(root_0, COLON202_tree);
                     }
-                    pushFollow(FOLLOW_crsName_in_dimensionPointElement4049);
+                    pushFollow(FOLLOW_crsName_in_dimensionPointElement4053);
                     crs=crsName();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, crs.getTree());
-                    LPAREN201=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_dimensionPointElement4051); if (state.failed) return retval;
+                    LPAREN203=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_dimensionPointElement4055); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    LPAREN201_tree = (Object)adaptor.create(LPAREN201);
-                    adaptor.addChild(root_0, LPAREN201_tree);
+                    LPAREN203_tree = (Object)adaptor.create(LPAREN203);
+                    adaptor.addChild(root_0, LPAREN203_tree);
                     }
-                    pushFollow(FOLLOW_dimensionPoint_in_dimensionPointElement4055);
+                    pushFollow(FOLLOW_dimensionPoint_in_dimensionPointElement4059);
                     dpe=dimensionPoint();
 
                     state._fsp--;
                     if (state.failed) return retval;
                     if ( state.backtracking==0 ) adaptor.addChild(root_0, dpe.getTree());
-                    RPAREN202=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_dimensionPointElement4057); if (state.failed) return retval;
+                    RPAREN204=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_dimensionPointElement4061); if (state.failed) return retval;
                     if ( state.backtracking==0 ) {
-                    RPAREN202_tree = (Object)adaptor.create(RPAREN202);
-                    adaptor.addChild(root_0, RPAREN202_tree);
+                    RPAREN204_tree = (Object)adaptor.create(RPAREN204);
+                    adaptor.addChild(root_0, RPAREN204_tree);
                     }
                     if ( state.backtracking==0 ) {
                        retval.value = new DimensionPointElement((aname!=null?aname.value:null), (crs!=null?crs.value:null), (dpe!=null?dpe.value:null)); 
@@ -9487,7 +9501,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_scalarExpr_in_dimensionPoint4080);
+            pushFollow(FOLLOW_scalarExpr_in_dimensionPoint4084);
             e1=scalarExpr();
 
             state._fsp--;
@@ -9534,17 +9548,17 @@ public class wcpsParser extends Parser {
         int interpolationMethod_StartIndex = input.index();
         Object root_0 = null;
 
-        Token LPAREN203=null;
-        Token COLON204=null;
-        Token RPAREN205=null;
+        Token LPAREN205=null;
+        Token COLON206=null;
+        Token RPAREN207=null;
         wcpsParser.interpolationType_return type = null;
 
         wcpsParser.nullResistence_return res = null;
 
 
-        Object LPAREN203_tree=null;
-        Object COLON204_tree=null;
-        Object RPAREN205_tree=null;
+        Object LPAREN205_tree=null;
+        Object COLON206_tree=null;
+        Object RPAREN207_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 72) ) { return retval; }
@@ -9553,32 +9567,32 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            LPAREN203=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_interpolationMethod4098); if (state.failed) return retval;
+            LPAREN205=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_interpolationMethod4102); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            LPAREN203_tree = (Object)adaptor.create(LPAREN203);
-            adaptor.addChild(root_0, LPAREN203_tree);
+            LPAREN205_tree = (Object)adaptor.create(LPAREN205);
+            adaptor.addChild(root_0, LPAREN205_tree);
             }
-            pushFollow(FOLLOW_interpolationType_in_interpolationMethod4102);
+            pushFollow(FOLLOW_interpolationType_in_interpolationMethod4106);
             type=interpolationType();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, type.getTree());
-            COLON204=(Token)match(input,COLON,FOLLOW_COLON_in_interpolationMethod4104); if (state.failed) return retval;
+            COLON206=(Token)match(input,COLON,FOLLOW_COLON_in_interpolationMethod4108); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            COLON204_tree = (Object)adaptor.create(COLON204);
-            adaptor.addChild(root_0, COLON204_tree);
+            COLON206_tree = (Object)adaptor.create(COLON206);
+            adaptor.addChild(root_0, COLON206_tree);
             }
-            pushFollow(FOLLOW_nullResistence_in_interpolationMethod4108);
+            pushFollow(FOLLOW_nullResistence_in_interpolationMethod4112);
             res=nullResistence();
 
             state._fsp--;
             if (state.failed) return retval;
             if ( state.backtracking==0 ) adaptor.addChild(root_0, res.getTree());
-            RPAREN205=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_interpolationMethod4110); if (state.failed) return retval;
+            RPAREN207=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_interpolationMethod4114); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            RPAREN205_tree = (Object)adaptor.create(RPAREN205);
-            adaptor.addChild(root_0, RPAREN205_tree);
+            RPAREN207_tree = (Object)adaptor.create(RPAREN207);
+            adaptor.addChild(root_0, RPAREN207_tree);
             }
             if ( state.backtracking==0 ) {
                retval.value = new InterpolationMethod((type!=null?type.value:null), (res!=null?res.value:null)); 
@@ -9813,7 +9827,7 @@ public class wcpsParser extends Parser {
         int fieldName_StartIndex = input.index();
         Object root_0 = null;
 
-        wcpsParser.name_return name206 = null;
+        wcpsParser.name_return name208 = null;
 
 
 
@@ -9824,14 +9838,14 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_name_in_fieldName4204);
-            name206=name();
+            pushFollow(FOLLOW_name_in_fieldName4208);
+            name208=name();
 
             state._fsp--;
             if (state.failed) return retval;
-            if ( state.backtracking==0 ) adaptor.addChild(root_0, name206.getTree());
+            if ( state.backtracking==0 ) adaptor.addChild(root_0, name208.getTree());
             if ( state.backtracking==0 ) {
-               retval.value = new String((name206!=null?name206.value:null));
+               retval.value = new String((name208!=null?name208.value:null));
             }
 
             }
@@ -9925,7 +9939,7 @@ public class wcpsParser extends Parser {
                     {
                     root_0 = (Object)adaptor.nil();
 
-                    pushFollow(FOLLOW_complexConstant_in_constant4238);
+                    pushFollow(FOLLOW_complexConstant_in_constant4242);
                     e1=complexConstant();
 
                     state._fsp--;
@@ -9976,15 +9990,15 @@ public class wcpsParser extends Parser {
 
         Token re1=null;
         Token im1=null;
-        Token LPAREN207=null;
-        Token COMMA208=null;
-        Token RPAREN209=null;
+        Token LPAREN209=null;
+        Token COMMA210=null;
+        Token RPAREN211=null;
 
         Object re1_tree=null;
         Object im1_tree=null;
-        Object LPAREN207_tree=null;
-        Object COMMA208_tree=null;
-        Object RPAREN209_tree=null;
+        Object LPAREN209_tree=null;
+        Object COMMA210_tree=null;
+        Object RPAREN211_tree=null;
 
         try {
             if ( state.backtracking>0 && alreadyParsedRule(input, 78) ) { return retval; }
@@ -9993,30 +10007,30 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            LPAREN207=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_complexConstant4253); if (state.failed) return retval;
+            LPAREN209=(Token)match(input,LPAREN,FOLLOW_LPAREN_in_complexConstant4257); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            LPAREN207_tree = (Object)adaptor.create(LPAREN207);
-            adaptor.addChild(root_0, LPAREN207_tree);
+            LPAREN209_tree = (Object)adaptor.create(LPAREN209);
+            adaptor.addChild(root_0, LPAREN209_tree);
             }
-            re1=(Token)match(input,FLOATCONSTANT,FOLLOW_FLOATCONSTANT_in_complexConstant4257); if (state.failed) return retval;
+            re1=(Token)match(input,FLOATCONSTANT,FOLLOW_FLOATCONSTANT_in_complexConstant4261); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             re1_tree = (Object)adaptor.create(re1);
             adaptor.addChild(root_0, re1_tree);
             }
-            COMMA208=(Token)match(input,COMMA,FOLLOW_COMMA_in_complexConstant4259); if (state.failed) return retval;
+            COMMA210=(Token)match(input,COMMA,FOLLOW_COMMA_in_complexConstant4263); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            COMMA208_tree = (Object)adaptor.create(COMMA208);
-            adaptor.addChild(root_0, COMMA208_tree);
+            COMMA210_tree = (Object)adaptor.create(COMMA210);
+            adaptor.addChild(root_0, COMMA210_tree);
             }
-            im1=(Token)match(input,FLOATCONSTANT,FOLLOW_FLOATCONSTANT_in_complexConstant4263); if (state.failed) return retval;
+            im1=(Token)match(input,FLOATCONSTANT,FOLLOW_FLOATCONSTANT_in_complexConstant4267); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             im1_tree = (Object)adaptor.create(im1);
             adaptor.addChild(root_0, im1_tree);
             }
-            RPAREN209=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_complexConstant4265); if (state.failed) return retval;
+            RPAREN211=(Token)match(input,RPAREN,FOLLOW_RPAREN_in_complexConstant4269); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
-            RPAREN209_tree = (Object)adaptor.create(RPAREN209);
-            adaptor.addChild(root_0, RPAREN209_tree);
+            RPAREN211_tree = (Object)adaptor.create(RPAREN211);
+            adaptor.addChild(root_0, RPAREN211_tree);
             }
             if ( state.backtracking==0 ) {
                retval.value = new String((re1!=null?re1.getText():null) +"+i"+(im1!=null?im1.getText():null)); 
@@ -10070,7 +10084,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            s=(Token)match(input,STRING,FOLLOW_STRING_in_stringConstant4282); if (state.failed) return retval;
+            s=(Token)match(input,STRING,FOLLOW_STRING_in_stringConstant4286); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             s_tree = (Object)adaptor.create(s);
             adaptor.addChild(root_0, s_tree);
@@ -10191,7 +10205,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_stringConstant_in_crsName4326);
+            pushFollow(FOLLOW_stringConstant_in_crsName4330);
             s=stringConstant();
 
             state._fsp--;
@@ -10249,7 +10263,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_name_in_axisName4343);
+            pushFollow(FOLLOW_name_in_axisName4347);
             type1=name();
 
             state._fsp--;
@@ -10307,7 +10321,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            var=(Token)match(input,VARIABLE_DOLLAR,FOLLOW_VARIABLE_DOLLAR_in_variableName4360); if (state.failed) return retval;
+            var=(Token)match(input,VARIABLE_DOLLAR,FOLLOW_VARIABLE_DOLLAR_in_variableName4364); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             var_tree = (Object)adaptor.create(var);
             adaptor.addChild(root_0, var_tree);
@@ -10364,7 +10378,7 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            var=(Token)match(input,NAME,FOLLOW_NAME_in_coverageVariable4377); if (state.failed) return retval;
+            var=(Token)match(input,NAME,FOLLOW_NAME_in_coverageVariable4381); if (state.failed) return retval;
             if ( state.backtracking==0 ) {
             var_tree = (Object)adaptor.create(var);
             adaptor.addChild(root_0, var_tree);
@@ -10410,7 +10424,7 @@ public class wcpsParser extends Parser {
         int coverageName_StartIndex = input.index();
         Object root_0 = null;
 
-        wcpsParser.name_return name210 = null;
+        wcpsParser.name_return name212 = null;
 
 
 
@@ -10421,14 +10435,14 @@ public class wcpsParser extends Parser {
             {
             root_0 = (Object)adaptor.nil();
 
-            pushFollow(FOLLOW_name_in_coverageName4392);
-            name210=name();
+            pushFollow(FOLLOW_name_in_coverageName4396);
+            name212=name();
 
             state._fsp--;
             if (state.failed) return retval;
-            if ( state.backtracking==0 ) adaptor.addChild(root_0, name210.getTree());
+            if ( state.backtracking==0 ) adaptor.addChild(root_0, name212.getTree());
             if ( state.backtracking==0 ) {
-               retval.value = (name210!=null?name210.value:null); 
+               retval.value = (name212!=null?name212.value:null); 
             }
 
             }
@@ -11104,7 +11118,7 @@ public class wcpsParser extends Parser {
             throw mse;
         }
 
-        pushFollow(FOLLOW_booleanScalarTerm_in_synpred130_wcps3392);
+        pushFollow(FOLLOW_booleanScalarTerm_in_synpred130_wcps3396);
         e2=booleanScalarTerm();
 
         state._fsp--;
@@ -11123,8 +11137,8 @@ public class wcpsParser extends Parser {
         // wcps.g:319:5: (op= AND e2= booleanScalarNegation )
         // wcps.g:319:5: op= AND e2= booleanScalarNegation
         {
-        op=(Token)match(input,AND,FOLLOW_AND_in_synpred131_wcps3424); if (state.failed) return ;
-        pushFollow(FOLLOW_booleanScalarNegation_in_synpred131_wcps3428);
+        op=(Token)match(input,AND,FOLLOW_AND_in_synpred131_wcps3428); if (state.failed) return ;
+        pushFollow(FOLLOW_booleanScalarNegation_in_synpred131_wcps3432);
         e2=booleanScalarNegation();
 
         state._fsp--;
@@ -11142,13 +11156,13 @@ public class wcpsParser extends Parser {
         // wcps.g:326:4: ( LPAREN e1= booleanScalarExpr RPAREN )
         // wcps.g:326:4: LPAREN e1= booleanScalarExpr RPAREN
         {
-        match(input,LPAREN,FOLLOW_LPAREN_in_synpred133_wcps3477); if (state.failed) return ;
-        pushFollow(FOLLOW_booleanScalarExpr_in_synpred133_wcps3481);
+        match(input,LPAREN,FOLLOW_LPAREN_in_synpred133_wcps3481); if (state.failed) return ;
+        pushFollow(FOLLOW_booleanScalarExpr_in_synpred133_wcps3485);
         e1=booleanScalarExpr();
 
         state._fsp--;
         if (state.failed) return ;
-        match(input,RPAREN,FOLLOW_RPAREN_in_synpred133_wcps3483); if (state.failed) return ;
+        match(input,RPAREN,FOLLOW_RPAREN_in_synpred133_wcps3487); if (state.failed) return ;
 
         }
     }
@@ -11166,17 +11180,17 @@ public class wcpsParser extends Parser {
         // wcps.g:328:4: (n1= numericScalarExpr cop= compOp n2= numericScalarExpr )
         // wcps.g:328:4: n1= numericScalarExpr cop= compOp n2= numericScalarExpr
         {
-        pushFollow(FOLLOW_numericScalarExpr_in_synpred135_wcps3510);
+        pushFollow(FOLLOW_numericScalarExpr_in_synpred135_wcps3514);
         n1=numericScalarExpr();
 
         state._fsp--;
         if (state.failed) return ;
-        pushFollow(FOLLOW_compOp_in_synpred135_wcps3514);
+        pushFollow(FOLLOW_compOp_in_synpred135_wcps3518);
         cop=compOp();
 
         state._fsp--;
         if (state.failed) return ;
-        pushFollow(FOLLOW_numericScalarExpr_in_synpred135_wcps3518);
+        pushFollow(FOLLOW_numericScalarExpr_in_synpred135_wcps3522);
         n2=numericScalarExpr();
 
         state._fsp--;
@@ -11206,7 +11220,7 @@ public class wcpsParser extends Parser {
             throw mse;
         }
 
-        pushFollow(FOLLOW_numericScalarTerm_in_synpred137_wcps3563);
+        pushFollow(FOLLOW_numericScalarTerm_in_synpred137_wcps3567);
         e2=numericScalarTerm();
 
         state._fsp--;
@@ -11236,7 +11250,7 @@ public class wcpsParser extends Parser {
             throw mse;
         }
 
-        pushFollow(FOLLOW_numericScalarFactor_in_synpred139_wcps3599);
+        pushFollow(FOLLOW_numericScalarFactor_in_synpred139_wcps3603);
         e2=numericScalarFactor();
 
         state._fsp--;
@@ -11254,13 +11268,13 @@ public class wcpsParser extends Parser {
         // wcps.g:340:7: ( LPAREN e1= numericScalarExpr RPAREN )
         // wcps.g:340:7: LPAREN e1= numericScalarExpr RPAREN
         {
-        match(input,LPAREN,FOLLOW_LPAREN_in_synpred140_wcps3619); if (state.failed) return ;
-        pushFollow(FOLLOW_numericScalarExpr_in_synpred140_wcps3623);
+        match(input,LPAREN,FOLLOW_LPAREN_in_synpred140_wcps3623); if (state.failed) return ;
+        pushFollow(FOLLOW_numericScalarExpr_in_synpred140_wcps3627);
         e1=numericScalarExpr();
 
         state._fsp--;
         if (state.failed) return ;
-        match(input,RPAREN,FOLLOW_RPAREN_in_synpred140_wcps3625); if (state.failed) return ;
+        match(input,RPAREN,FOLLOW_RPAREN_in_synpred140_wcps3629); if (state.failed) return ;
 
         }
     }
@@ -11274,7 +11288,7 @@ public class wcpsParser extends Parser {
         // wcps.g:347:7: (e2= complexConstant )
         // wcps.g:347:7: e2= complexConstant
         {
-        pushFollow(FOLLOW_complexConstant_in_synpred147_wcps3737);
+        pushFollow(FOLLOW_complexConstant_in_synpred147_wcps3741);
         e2=complexConstant();
 
         state._fsp--;
@@ -11294,13 +11308,13 @@ public class wcpsParser extends Parser {
         // wcps.g:368:7: (e1= scalarExpr COLON e2= scalarExpr )
         // wcps.g:368:7: e1= scalarExpr COLON e2= scalarExpr
         {
-        pushFollow(FOLLOW_scalarExpr_in_synpred156_wcps3925);
+        pushFollow(FOLLOW_scalarExpr_in_synpred156_wcps3929);
         e1=scalarExpr();
 
         state._fsp--;
         if (state.failed) return ;
-        match(input,COLON,FOLLOW_COLON_in_synpred156_wcps3927); if (state.failed) return ;
-        pushFollow(FOLLOW_scalarExpr_in_synpred156_wcps3931);
+        match(input,COLON,FOLLOW_COLON_in_synpred156_wcps3931); if (state.failed) return ;
+        pushFollow(FOLLOW_scalarExpr_in_synpred156_wcps3935);
         e2=scalarExpr();
 
         state._fsp--;
@@ -13126,11 +13140,12 @@ public class wcpsParser extends Parser {
             "\1\60",
             "\1\61",
             "\1\62\1\uffff\1\62\6\uffff\1\62\1\uffff\1\62\17\uffff\2\62",
-            "\1\64\17\uffff\1\124\1\65\3\uffff\1\75\1\76\1\77\1\100\1\102"+
-            "\1\103\1\104\1\101\7\72\1\73\3\uffff\1\111\4\uffff\1\112\1\113"+
-            "\1\114\1\115\1\116\1\120\1\uffff\1\117\1\132\1\67\1\66\2\125"+
-            "\3\126\11\127\1\107\1\130\1\71\1\70\1\105\1\131\2\uffff\1\121"+
-            "\1\122\1\123\11\42\1\uffff\1\106\1\63\10\uffff\1\110\1\74",
+            "\1\64\17\uffff\1\124\1\67\3\uffff\1\65\1\101\1\102\1\103\1"+
+            "\105\1\106\1\107\1\104\7\74\1\75\3\uffff\1\111\4\uffff\1\112"+
+            "\1\113\1\114\1\115\1\116\1\120\1\uffff\1\117\1\132\1\71\1\70"+
+            "\2\125\3\126\11\127\1\100\1\130\1\73\1\72\1\66\1\131\2\uffff"+
+            "\1\121\1\122\1\123\11\42\1\uffff\1\77\1\63\10\uffff\1\110\1"+
+            "\76",
             "\1\uffff",
             "\1\163\20\uffff\1\164\3\uffff\10\42\7\172\1\173\3\uffff\1\42"+
             "\4\uffff\6\42\1\uffff\1\42\1\uffff\1\166\1\165\16\uffff\1\42"+
@@ -15476,21 +15491,21 @@ public class wcpsParser extends Parser {
     static final String DFA14_eotS =
         "\u0091\uffff";
     static final String DFA14_eofS =
-        "\14\uffff\1\56\u0084\uffff";
+        "\14\uffff\1\64\u0084\uffff";
     static final String DFA14_minS =
-        "\2\6\7\uffff\1\6\1\15\1\6\1\7\4\6\3\0\2\uffff\21\0\13\uffff\1\0"+
-        "\4\uffff\5\0\7\uffff\15\0\101\uffff";
+        "\2\6\7\uffff\1\6\1\15\1\6\1\7\4\6\3\0\2\uffff\21\0\7\uffff\6\0\17"+
+        "\uffff\15\0\101\uffff";
     static final String DFA14_maxS =
         "\1\154\1\6\7\uffff\1\6\1\51\1\154\1\140\1\154\3\6\3\0\2\uffff\21"+
-        "\0\13\uffff\1\0\4\uffff\5\0\7\uffff\15\0\101\uffff";
+        "\0\7\uffff\6\0\17\uffff\15\0\101\uffff";
     static final String DFA14_acceptS =
-        "\2\uffff\1\1\21\uffff\1\3\22\uffff\1\6\6\uffff\1\5\66\uffff\1\4"+
+        "\2\uffff\1\1\21\uffff\1\3\22\uffff\1\6\14\uffff\1\5\60\uffff\1\4"+
         "\52\uffff\1\2";
     static final String DFA14_specialS =
         "\21\uffff\1\0\1\1\1\2\2\uffff\1\3\1\4\1\5\1\6\1\7\1\10\1\11\1\12"+
-        "\1\13\1\14\1\15\1\16\1\17\1\20\1\21\1\22\1\23\13\uffff\1\24\4\uffff"+
-        "\1\25\1\26\1\27\1\30\1\31\7\uffff\1\32\1\33\1\34\1\35\1\36\1\37"+
-        "\1\40\1\41\1\42\1\43\1\44\1\45\1\46\101\uffff}>";
+        "\1\13\1\14\1\15\1\16\1\17\1\20\1\21\1\22\1\23\7\uffff\1\24\1\25"+
+        "\1\26\1\27\1\30\1\31\17\uffff\1\32\1\33\1\34\1\35\1\36\1\37\1\40"+
+        "\1\41\1\42\1\43\1\44\1\45\1\46\101\uffff}>";
     static final String[] DFA14_transitionS = {
             "\1\13\20\uffff\1\15\3\uffff\1\1\7\2\7\11\1\12\21\uffff\1\17"+
             "\1\16\16\uffff\1\24\1\uffff\1\21\1\20\1\14\20\uffff\1\24\1\22"+
@@ -15505,12 +15520,12 @@ public class wcpsParser extends Parser {
             "",
             "\1\27",
             "\1\30\1\uffff\1\30\6\uffff\1\30\1\uffff\1\30\17\uffff\2\30",
-            "\1\32\20\uffff\1\35\3\uffff\1\33\7\47\7\42\1\43\21\uffff\1"+
-            "\37\1\36\16\uffff\1\46\1\uffff\1\41\1\40\1\34\20\uffff\1\45"+
-            "\1\31\11\uffff\1\44",
-            "\2\56\1\uffff\1\56\2\uffff\3\56\1\62\1\67\1\70\1\71\1\72\1"+
-            "\73\5\56\21\uffff\2\56\3\uffff\1\56\7\uffff\1\56\30\uffff\1"+
-            "\56\15\uffff\1\56",
+            "\1\32\20\uffff\1\33\3\uffff\1\43\7\47\7\40\1\41\21\uffff\1"+
+            "\35\1\34\16\uffff\1\46\1\uffff\1\37\1\36\1\44\20\uffff\1\45"+
+            "\1\31\11\uffff\1\42",
+            "\2\64\1\uffff\1\64\2\uffff\3\64\1\56\1\57\1\60\1\61\1\62\1"+
+            "\63\5\64\21\uffff\2\64\3\uffff\1\64\7\uffff\1\64\30\uffff\1"+
+            "\64\15\uffff\1\64",
             "\1\103\20\uffff\1\104\13\uffff\7\112\1\113\21\uffff\1\106\1"+
             "\105\20\uffff\1\110\1\107\22\uffff\1\111\11\uffff\1\114",
             "\1\115",
@@ -15545,20 +15560,20 @@ public class wcpsParser extends Parser {
             "",
             "",
             "",
-            "",
-            "",
-            "",
-            "",
-            "\1\uffff",
-            "",
-            "",
-            "",
-            "",
             "\1\uffff",
             "\1\uffff",
             "\1\uffff",
             "\1\uffff",
             "\1\uffff",
+            "\1\uffff",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
             "",
             "",
             "",
@@ -15738,7 +15753,7 @@ public class wcpsParser extends Parser {
 
                         else if ( (synpred33_wcps()) ) {s = 20;}
 
-                        else if ( (synpred35_wcps()) ) {s = 46;}
+                        else if ( (synpred35_wcps()) ) {s = 52;}
 
                          
                         input.seek(index14_22);
@@ -15821,6 +15836,8 @@ public class wcpsParser extends Parser {
                         s = -1;
                         if ( (synpred33_wcps()) ) {s = 20;}
 
+                        else if ( (synpred34_wcps()) ) {s = 101;}
+
                         else if ( (true) ) {s = 39;}
 
                          
@@ -15835,6 +15852,8 @@ public class wcpsParser extends Parser {
                         input.rewind();
                         s = -1;
                         if ( (synpred33_wcps()) ) {s = 20;}
+
+                        else if ( (synpred34_wcps()) ) {s = 101;}
 
                         else if ( (true) ) {s = 39;}
 
@@ -15953,8 +15972,6 @@ public class wcpsParser extends Parser {
                         s = -1;
                         if ( (synpred33_wcps()) ) {s = 20;}
 
-                        else if ( (synpred34_wcps()) ) {s = 101;}
-
                         else if ( (true) ) {s = 39;}
 
                          
@@ -15969,8 +15986,6 @@ public class wcpsParser extends Parser {
                         input.rewind();
                         s = -1;
                         if ( (synpred33_wcps()) ) {s = 20;}
-
-                        else if ( (synpred34_wcps()) ) {s = 101;}
 
                         else if ( (true) ) {s = 39;}
 
@@ -16009,6 +16024,66 @@ public class wcpsParser extends Parser {
                         if ( s>=0 ) return s;
                         break;
                     case 20 : 
+                        int LA14_46 = input.LA(1);
+
+                         
+                        int index14_46 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (synpred33_wcps()) ) {s = 20;}
+
+                        else if ( (synpred35_wcps()) ) {s = 52;}
+
+                         
+                        input.seek(index14_46);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 21 : 
+                        int LA14_47 = input.LA(1);
+
+                         
+                        int index14_47 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (synpred33_wcps()) ) {s = 20;}
+
+                        else if ( (synpred35_wcps()) ) {s = 52;}
+
+                         
+                        input.seek(index14_47);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 22 : 
+                        int LA14_48 = input.LA(1);
+
+                         
+                        int index14_48 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (synpred33_wcps()) ) {s = 20;}
+
+                        else if ( (synpred35_wcps()) ) {s = 52;}
+
+                         
+                        input.seek(index14_48);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 23 : 
+                        int LA14_49 = input.LA(1);
+
+                         
+                        int index14_49 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (synpred33_wcps()) ) {s = 20;}
+
+                        else if ( (synpred35_wcps()) ) {s = 52;}
+
+                         
+                        input.seek(index14_49);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 24 : 
                         int LA14_50 = input.LA(1);
 
                          
@@ -16017,85 +16092,25 @@ public class wcpsParser extends Parser {
                         s = -1;
                         if ( (synpred33_wcps()) ) {s = 20;}
 
-                        else if ( (synpred35_wcps()) ) {s = 46;}
+                        else if ( (synpred35_wcps()) ) {s = 52;}
 
                          
                         input.seek(index14_50);
                         if ( s>=0 ) return s;
                         break;
-                    case 21 : 
-                        int LA14_55 = input.LA(1);
-
-                         
-                        int index14_55 = input.index();
-                        input.rewind();
-                        s = -1;
-                        if ( (synpred33_wcps()) ) {s = 20;}
-
-                        else if ( (synpred35_wcps()) ) {s = 46;}
-
-                         
-                        input.seek(index14_55);
-                        if ( s>=0 ) return s;
-                        break;
-                    case 22 : 
-                        int LA14_56 = input.LA(1);
-
-                         
-                        int index14_56 = input.index();
-                        input.rewind();
-                        s = -1;
-                        if ( (synpred33_wcps()) ) {s = 20;}
-
-                        else if ( (synpred35_wcps()) ) {s = 46;}
-
-                         
-                        input.seek(index14_56);
-                        if ( s>=0 ) return s;
-                        break;
-                    case 23 : 
-                        int LA14_57 = input.LA(1);
-
-                         
-                        int index14_57 = input.index();
-                        input.rewind();
-                        s = -1;
-                        if ( (synpred33_wcps()) ) {s = 20;}
-
-                        else if ( (synpred35_wcps()) ) {s = 46;}
-
-                         
-                        input.seek(index14_57);
-                        if ( s>=0 ) return s;
-                        break;
-                    case 24 : 
-                        int LA14_58 = input.LA(1);
-
-                         
-                        int index14_58 = input.index();
-                        input.rewind();
-                        s = -1;
-                        if ( (synpred33_wcps()) ) {s = 20;}
-
-                        else if ( (synpred35_wcps()) ) {s = 46;}
-
-                         
-                        input.seek(index14_58);
-                        if ( s>=0 ) return s;
-                        break;
                     case 25 : 
-                        int LA14_59 = input.LA(1);
+                        int LA14_51 = input.LA(1);
 
                          
-                        int index14_59 = input.index();
+                        int index14_51 = input.index();
                         input.rewind();
                         s = -1;
                         if ( (synpred33_wcps()) ) {s = 20;}
 
-                        else if ( (synpred35_wcps()) ) {s = 46;}
+                        else if ( (synpred35_wcps()) ) {s = 52;}
 
                          
-                        input.seek(index14_59);
+                        input.seek(index14_51);
                         if ( s>=0 ) return s;
                         break;
                     case 26 : 
@@ -18379,7 +18394,7 @@ public class wcpsParser extends Parser {
         "\1\154\12\uffff\1\154\1\uffff\1\154\2\6\5\uffff\1\154\7\uffff\1"+
         "\70\1\153\57\uffff\12\0\24\uffff\17\0\33\uffff\2\0\1\uffff";
     static final String DFA36_acceptS =
-        "\1\uffff\1\1\35\uffff\1\2\1\uffff\1\3\1\4\1\5\12\uffff\1\6\151\uffff"+
+        "\1\uffff\1\1\35\uffff\1\2\1\uffff\1\3\1\4\1\5\50\uffff\1\6\113\uffff"+
         "\1\7";
     static final String DFA36_specialS =
         "\116\uffff\1\0\1\1\1\2\1\3\1\4\1\5\1\6\1\7\1\10\1\11\24\uffff\1"+
@@ -18400,7 +18415,7 @@ public class wcpsParser extends Parser {
             "",
             "",
             "\1\1\17\uffff\2\1\3\uffff\20\1\3\uffff\1\1\4\uffff\6\1\1\uffff"+
-            "\30\1\2\uffff\3\1\11\56\1\uffff\2\1\10\uffff\2\1",
+            "\30\1\2\uffff\3\1\11\114\1\uffff\2\1\10\uffff\2\1",
             "",
             "\1\116\20\uffff\1\117\3\uffff\10\37\7\125\1\126\3\uffff\1\37"+
             "\4\uffff\6\37\1\uffff\1\37\1\uffff\1\121\1\120\16\uffff\1\37"+
@@ -19039,23 +19054,23 @@ public class wcpsParser extends Parser {
             "\1\51",
             "\1\52",
             "\1\53\1\uffff\1\53\6\uffff\1\53\1\uffff\1\53\17\uffff\2\53",
-            "\1\55\17\uffff\1\115\1\56\3\uffff\1\66\1\67\1\70\1\71\1\73"+
-            "\1\74\1\75\1\72\7\63\1\64\3\uffff\1\102\4\uffff\1\103\1\104"+
+            "\1\55\17\uffff\1\115\1\56\3\uffff\1\66\1\72\1\73\1\74\1\76"+
+            "\1\77\1\100\1\75\7\63\1\64\3\uffff\1\102\4\uffff\1\103\1\104"+
             "\1\105\1\106\1\107\1\111\1\uffff\1\110\1\123\1\60\1\57\2\116"+
-            "\3\117\11\120\1\100\1\121\1\62\1\61\1\76\1\122\2\uffff\1\112"+
-            "\1\113\1\114\12\uffff\1\77\1\54\10\uffff\1\101\1\65",
-            "\1\124\1\125\1\126\1\127\1\130\1\131\74\uffff\1\132",
+            "\3\117\11\120\1\71\1\121\1\62\1\61\1\67\1\122\2\uffff\1\112"+
+            "\1\113\1\114\12\uffff\1\70\1\54\10\uffff\1\101\1\65",
+            "\1\125\1\126\1\127\1\130\1\131\1\132\74\uffff\1\124",
             "\1\133\20\uffff\1\134\13\uffff\7\142\1\143\21\uffff\1\136\1"+
             "\135\20\uffff\1\140\1\137\22\uffff\1\141\11\uffff\1\144",
             "\1\145",
             "\1\146",
             "\1\147",
-            "\1\153\1\154\1\155\1\156\1\157\1\160\2\151\2\150\70\uffff\1"+
-            "\152",
+            "\1\152\1\153\1\154\1\155\1\156\1\157\2\151\2\150\70\uffff\1"+
+            "\160",
             "\1\163\1\164\1\165\1\166\1\167\1\170\2\162\2\161\70\uffff\1"+
             "\171",
-            "\1\174\1\175\1\176\1\177\1\u0080\1\u0081\2\173\2\172\70\uffff"+
-            "\1\u0082",
+            "\1\175\1\176\1\177\1\u0080\1\u0081\1\u0082\2\173\2\172\70\uffff"+
+            "\1\174",
             "\2\u0084\1\u0083\102\uffff\1\u0085",
             "\1\u0086\20\uffff\1\u0089\3\uffff\1\u0087\7\uffff\7\u008f\1"+
             "\u0090\21\uffff\1\u008b\1\u008a\20\uffff\1\u008d\1\u008c\1\u0088"+
@@ -21824,19 +21839,19 @@ public class wcpsParser extends Parser {
     static final String DFA54_eofS =
         "\34\uffff";
     static final String DFA54_minS =
-        "\2\6\14\uffff\12\0\4\uffff";
+        "\2\6\14\uffff\2\0\2\uffff\10\0\2\uffff";
     static final String DFA54_maxS =
-        "\2\154\14\uffff\12\0\4\uffff";
+        "\2\154\14\uffff\2\0\2\uffff\10\0\2\uffff";
     static final String DFA54_acceptS =
-        "\2\uffff\1\2\1\uffff\1\3\10\uffff\1\4\12\uffff\1\1\3\uffff";
+        "\2\uffff\1\2\1\uffff\1\3\10\uffff\1\4\2\uffff\1\1\13\uffff";
     static final String DFA54_specialS =
-        "\16\uffff\1\0\1\1\1\2\1\3\1\4\1\5\1\6\1\7\1\10\1\11\4\uffff}>";
+        "\16\uffff\1\0\1\1\2\uffff\1\2\1\3\1\4\1\5\1\6\1\7\1\10\1\11\2\uffff}>";
     static final String[] DFA54_transitionS = {
             "\1\1\20\uffff\1\4\3\uffff\1\2\7\uffff\10\4\21\uffff\2\4\20\uffff"+
             "\2\4\1\2\20\uffff\1\15\1\4\11\uffff\1\4",
-            "\1\17\20\uffff\1\20\3\uffff\1\30\7\uffff\7\25\1\26\21\uffff"+
-            "\1\22\1\21\16\uffff\1\30\1\uffff\1\24\1\23\1\30\20\uffff\1\30"+
-            "\1\16\11\uffff\1\27",
+            "\1\17\20\uffff\1\22\3\uffff\1\20\7\uffff\7\27\1\30\21\uffff"+
+            "\1\24\1\23\16\uffff\1\20\1\uffff\1\26\1\25\1\20\20\uffff\1\20"+
+            "\1\16\11\uffff\1\31",
             "",
             "",
             "",
@@ -21851,16 +21866,16 @@ public class wcpsParser extends Parser {
             "",
             "\1\uffff",
             "\1\uffff",
-            "\1\uffff",
-            "\1\uffff",
-            "\1\uffff",
-            "\1\uffff",
-            "\1\uffff",
-            "\1\uffff",
-            "\1\uffff",
-            "\1\uffff",
             "",
             "",
+            "\1\uffff",
+            "\1\uffff",
+            "\1\uffff",
+            "\1\uffff",
+            "\1\uffff",
+            "\1\uffff",
+            "\1\uffff",
+            "\1\uffff",
             "",
             ""
     };
@@ -21908,7 +21923,7 @@ public class wcpsParser extends Parser {
                         int index54_14 = input.index();
                         input.rewind();
                         s = -1;
-                        if ( (synpred133_wcps()) ) {s = 24;}
+                        if ( (synpred133_wcps()) ) {s = 16;}
 
                         else if ( (synpred135_wcps()) ) {s = 4;}
 
@@ -21923,7 +21938,7 @@ public class wcpsParser extends Parser {
                         int index54_15 = input.index();
                         input.rewind();
                         s = -1;
-                        if ( (synpred133_wcps()) ) {s = 24;}
+                        if ( (synpred133_wcps()) ) {s = 16;}
 
                         else if ( (synpred135_wcps()) ) {s = 4;}
 
@@ -21932,43 +21947,13 @@ public class wcpsParser extends Parser {
                         if ( s>=0 ) return s;
                         break;
                     case 2 : 
-                        int LA54_16 = input.LA(1);
-
-                         
-                        int index54_16 = input.index();
-                        input.rewind();
-                        s = -1;
-                        if ( (synpred133_wcps()) ) {s = 24;}
-
-                        else if ( (synpred135_wcps()) ) {s = 4;}
-
-                         
-                        input.seek(index54_16);
-                        if ( s>=0 ) return s;
-                        break;
-                    case 3 : 
-                        int LA54_17 = input.LA(1);
-
-                         
-                        int index54_17 = input.index();
-                        input.rewind();
-                        s = -1;
-                        if ( (synpred133_wcps()) ) {s = 24;}
-
-                        else if ( (synpred135_wcps()) ) {s = 4;}
-
-                         
-                        input.seek(index54_17);
-                        if ( s>=0 ) return s;
-                        break;
-                    case 4 : 
                         int LA54_18 = input.LA(1);
 
                          
                         int index54_18 = input.index();
                         input.rewind();
                         s = -1;
-                        if ( (synpred133_wcps()) ) {s = 24;}
+                        if ( (synpred133_wcps()) ) {s = 16;}
 
                         else if ( (synpred135_wcps()) ) {s = 4;}
 
@@ -21976,14 +21961,14 @@ public class wcpsParser extends Parser {
                         input.seek(index54_18);
                         if ( s>=0 ) return s;
                         break;
-                    case 5 : 
+                    case 3 : 
                         int LA54_19 = input.LA(1);
 
                          
                         int index54_19 = input.index();
                         input.rewind();
                         s = -1;
-                        if ( (synpred133_wcps()) ) {s = 24;}
+                        if ( (synpred133_wcps()) ) {s = 16;}
 
                         else if ( (synpred135_wcps()) ) {s = 4;}
 
@@ -21991,14 +21976,14 @@ public class wcpsParser extends Parser {
                         input.seek(index54_19);
                         if ( s>=0 ) return s;
                         break;
-                    case 6 : 
+                    case 4 : 
                         int LA54_20 = input.LA(1);
 
                          
                         int index54_20 = input.index();
                         input.rewind();
                         s = -1;
-                        if ( (synpred133_wcps()) ) {s = 24;}
+                        if ( (synpred133_wcps()) ) {s = 16;}
 
                         else if ( (synpred135_wcps()) ) {s = 4;}
 
@@ -22006,14 +21991,14 @@ public class wcpsParser extends Parser {
                         input.seek(index54_20);
                         if ( s>=0 ) return s;
                         break;
-                    case 7 : 
+                    case 5 : 
                         int LA54_21 = input.LA(1);
 
                          
                         int index54_21 = input.index();
                         input.rewind();
                         s = -1;
-                        if ( (synpred133_wcps()) ) {s = 24;}
+                        if ( (synpred133_wcps()) ) {s = 16;}
 
                         else if ( (synpred135_wcps()) ) {s = 4;}
 
@@ -22021,14 +22006,14 @@ public class wcpsParser extends Parser {
                         input.seek(index54_21);
                         if ( s>=0 ) return s;
                         break;
-                    case 8 : 
+                    case 6 : 
                         int LA54_22 = input.LA(1);
 
                          
                         int index54_22 = input.index();
                         input.rewind();
                         s = -1;
-                        if ( (synpred133_wcps()) ) {s = 24;}
+                        if ( (synpred133_wcps()) ) {s = 16;}
 
                         else if ( (synpred135_wcps()) ) {s = 4;}
 
@@ -22036,19 +22021,49 @@ public class wcpsParser extends Parser {
                         input.seek(index54_22);
                         if ( s>=0 ) return s;
                         break;
-                    case 9 : 
+                    case 7 : 
                         int LA54_23 = input.LA(1);
 
                          
                         int index54_23 = input.index();
                         input.rewind();
                         s = -1;
-                        if ( (synpred133_wcps()) ) {s = 24;}
+                        if ( (synpred133_wcps()) ) {s = 16;}
 
                         else if ( (synpred135_wcps()) ) {s = 4;}
 
                          
                         input.seek(index54_23);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 8 : 
+                        int LA54_24 = input.LA(1);
+
+                         
+                        int index54_24 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (synpred133_wcps()) ) {s = 16;}
+
+                        else if ( (synpred135_wcps()) ) {s = 4;}
+
+                         
+                        input.seek(index54_24);
+                        if ( s>=0 ) return s;
+                        break;
+                    case 9 : 
+                        int LA54_25 = input.LA(1);
+
+                         
+                        int index54_25 = input.index();
+                        input.rewind();
+                        s = -1;
+                        if ( (synpred133_wcps()) ) {s = 16;}
+
+                        else if ( (synpred135_wcps()) ) {s = 4;}
+
+                         
+                        input.seek(index54_25);
                         if ( s>=0 ) return s;
                         break;
             }
@@ -22907,129 +22922,131 @@ public class wcpsParser extends Parser {
     public static final BitSet FOLLOW_EXTEND_in_extendExpr3216 = new BitSet(new long[]{0x0000000000000040L});
     public static final BitSet FOLLOW_LPAREN_in_extendExpr3218 = new BitSet(new long[]{0xFDF847FFF8C01840L,0x000018060073FFFFL});
     public static final BitSet FOLLOW_coverageExpr_in_extendExpr3222 = new BitSet(new long[]{0x0000000000000100L});
-    public static final BitSet FOLLOW_COMMA_in_extendExpr3224 = new BitSet(new long[]{0x0000000000000000L,0x0000080000014000L});
-    public static final BitSet FOLLOW_dimensionIntervalList_in_extendExpr3228 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_extendExpr3230 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_castExpr3248 = new BitSet(new long[]{0x0000000000000000L,0x00000000FF800000L});
-    public static final BitSet FOLLOW_rangeType_in_castExpr3252 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_castExpr3254 = new BitSet(new long[]{0xFDF847FFF8C01840L,0x000018060073FFFFL});
-    public static final BitSet FOLLOW_coverageExpr_in_castExpr3258 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_rangeType3281 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_UNSIGNED_in_rangeType3307 = new BitSet(new long[]{0x0000000000000000L,0x0000000007000000L});
-    public static final BitSet FOLLOW_set_in_rangeType3311 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_coverageAtom_in_fieldExpr3340 = new BitSet(new long[]{0x0000000000000000L,0x0000000100000000L});
-    public static final BitSet FOLLOW_DOT_in_fieldExpr3342 = new BitSet(new long[]{0x0000000000000000L,0x0000080000014000L});
-    public static final BitSet FOLLOW_fieldName_in_fieldExpr3346 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_booleanScalarTerm_in_booleanScalarExpr3371 = new BitSet(new long[]{0x0000000000006002L});
-    public static final BitSet FOLLOW_set_in_booleanScalarExpr3384 = new BitSet(new long[]{0x300007F808800040L,0x000010060001D000L});
-    public static final BitSet FOLLOW_booleanScalarTerm_in_booleanScalarExpr3392 = new BitSet(new long[]{0x0000000000006002L});
-    public static final BitSet FOLLOW_booleanScalarNegation_in_booleanScalarTerm3414 = new BitSet(new long[]{0x0000000000008002L});
-    public static final BitSet FOLLOW_AND_in_booleanScalarTerm3424 = new BitSet(new long[]{0x300007F808800040L,0x000010060001D000L});
-    public static final BitSet FOLLOW_booleanScalarNegation_in_booleanScalarTerm3428 = new BitSet(new long[]{0x0000000000008002L});
-    public static final BitSet FOLLOW_booleanScalarAtom_in_booleanScalarNegation3449 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NOT_in_booleanScalarNegation3458 = new BitSet(new long[]{0x300007F808800040L,0x000010060001C000L});
-    public static final BitSet FOLLOW_booleanScalarAtom_in_booleanScalarNegation3462 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_booleanScalarAtom3477 = new BitSet(new long[]{0x300007F808800040L,0x000010060001D000L});
-    public static final BitSet FOLLOW_booleanScalarExpr_in_booleanScalarAtom3481 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_booleanScalarAtom3483 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_stringScalarExpr_in_booleanScalarAtom3492 = new BitSet(new long[]{0x00000000003F0000L});
-    public static final BitSet FOLLOW_compOp_in_booleanScalarAtom3496 = new BitSet(new long[]{0x0000000008000000L,0x0000000000010000L});
-    public static final BitSet FOLLOW_stringScalarExpr_in_booleanScalarAtom3500 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_numericScalarExpr_in_booleanScalarAtom3510 = new BitSet(new long[]{0x00000000003F0000L});
-    public static final BitSet FOLLOW_compOp_in_booleanScalarAtom3514 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
-    public static final BitSet FOLLOW_numericScalarExpr_in_booleanScalarAtom3518 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_BOOLEANCONSTANT_in_booleanScalarAtom3528 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_numericScalarTerm_in_numericScalarExpr3545 = new BitSet(new long[]{0x0000000000C00002L});
-    public static final BitSet FOLLOW_set_in_numericScalarExpr3555 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
-    public static final BitSet FOLLOW_numericScalarTerm_in_numericScalarExpr3563 = new BitSet(new long[]{0x0000000000C00002L});
-    public static final BitSet FOLLOW_numericScalarFactor_in_numericScalarTerm3582 = new BitSet(new long[]{0x0000000003000002L});
-    public static final BitSet FOLLOW_set_in_numericScalarTerm3591 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
-    public static final BitSet FOLLOW_numericScalarFactor_in_numericScalarTerm3599 = new BitSet(new long[]{0x0000000003000002L});
-    public static final BitSet FOLLOW_LPAREN_in_numericScalarFactor3619 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
-    public static final BitSet FOLLOW_numericScalarExpr_in_numericScalarFactor3623 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_numericScalarFactor3625 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_MINUS_in_numericScalarFactor3637 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
-    public static final BitSet FOLLOW_numericScalarFactor_in_numericScalarFactor3641 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ABS_in_numericScalarFactor3653 = new BitSet(new long[]{0x0000000000000040L});
-    public static final BitSet FOLLOW_LPAREN_in_numericScalarFactor3655 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
-    public static final BitSet FOLLOW_numericScalarExpr_in_numericScalarFactor3659 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_numericScalarFactor3661 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_SQRT_in_numericScalarFactor3673 = new BitSet(new long[]{0x0000000000000040L});
-    public static final BitSet FOLLOW_LPAREN_in_numericScalarFactor3675 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
-    public static final BitSet FOLLOW_numericScalarExpr_in_numericScalarFactor3679 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_numericScalarFactor3681 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_ROUND_in_numericScalarFactor3693 = new BitSet(new long[]{0x0000000000000040L});
-    public static final BitSet FOLLOW_LPAREN_in_numericScalarFactor3695 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
-    public static final BitSet FOLLOW_numericScalarExpr_in_numericScalarFactor3699 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_numericScalarFactor3701 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_INTEGERCONSTANT_in_numericScalarFactor3713 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_FLOATCONSTANT_in_numericScalarFactor3725 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_complexConstant_in_numericScalarFactor3737 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_condenseExpr_in_numericScalarFactor3749 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_variableName_in_numericScalarFactor3761 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_EQUALS_in_compOp3779 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NOTEQUALS_in_compOp3786 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LT_in_compOp3793 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_GT_in_compOp3800 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LTE_in_compOp3807 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_GTE_in_compOp3814 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_dimensionIntervalElement_in_dimensionIntervalList3834 = new BitSet(new long[]{0x0000000000000102L});
-    public static final BitSet FOLLOW_COMMA_in_dimensionIntervalList3847 = new BitSet(new long[]{0x0000000000000000L,0x0000080000014000L});
-    public static final BitSet FOLLOW_dimensionIntervalElement_in_dimensionIntervalList3851 = new BitSet(new long[]{0x0000000000000102L});
-    public static final BitSet FOLLOW_axisName_in_dimensionIntervalElement3876 = new BitSet(new long[]{0x0000200000000040L});
-    public static final BitSet FOLLOW_COLON_in_dimensionIntervalElement3881 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
-    public static final BitSet FOLLOW_crsName_in_dimensionIntervalElement3885 = new BitSet(new long[]{0x0000000000000040L});
-    public static final BitSet FOLLOW_LPAREN_in_dimensionIntervalElement3896 = new BitSet(new long[]{0x300007FFF8801840L,0x000010060001D000L});
-    public static final BitSet FOLLOW_dimensionIntervalExpr_in_dimensionIntervalElement3900 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_dimensionIntervalElement3902 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_scalarExpr_in_dimensionIntervalExpr3925 = new BitSet(new long[]{0x0000200000000000L});
-    public static final BitSet FOLLOW_COLON_in_dimensionIntervalExpr3927 = new BitSet(new long[]{0x300007FFF8801840L,0x000010060001D000L});
-    public static final BitSet FOLLOW_scalarExpr_in_dimensionIntervalExpr3931 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_DOMAIN_in_dimensionIntervalExpr3941 = new BitSet(new long[]{0x0000000000000040L});
-    public static final BitSet FOLLOW_LPAREN_in_dimensionIntervalExpr3943 = new BitSet(new long[]{0x0000000000000000L,0x0000080000014000L});
-    public static final BitSet FOLLOW_coverageName_in_dimensionIntervalExpr3947 = new BitSet(new long[]{0x0000200000000000L});
-    public static final BitSet FOLLOW_COLON_in_dimensionIntervalExpr3949 = new BitSet(new long[]{0x0000000000000000L,0x0000080000014000L});
-    public static final BitSet FOLLOW_axisName_in_dimensionIntervalExpr3953 = new BitSet(new long[]{0x0000200000000000L});
-    public static final BitSet FOLLOW_COLON_in_dimensionIntervalExpr3955 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
-    public static final BitSet FOLLOW_crsName_in_dimensionIntervalExpr3959 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_dimensionIntervalExpr3961 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_dimensionPointElement_in_dimensionPointList3984 = new BitSet(new long[]{0x0000000000000102L});
-    public static final BitSet FOLLOW_COMMA_in_dimensionPointList3994 = new BitSet(new long[]{0x0000000000000000L,0x0000080000014000L});
-    public static final BitSet FOLLOW_dimensionPointElement_in_dimensionPointList3998 = new BitSet(new long[]{0x0000000000000102L});
-    public static final BitSet FOLLOW_axisName_in_dimensionPointElement4023 = new BitSet(new long[]{0x0000000000000040L});
-    public static final BitSet FOLLOW_LPAREN_in_dimensionPointElement4025 = new BitSet(new long[]{0x300007FFF8801840L,0x000010060001D000L});
-    public static final BitSet FOLLOW_dimensionPoint_in_dimensionPointElement4029 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_dimensionPointElement4031 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_axisName_in_dimensionPointElement4043 = new BitSet(new long[]{0x0000200000000000L});
-    public static final BitSet FOLLOW_COLON_in_dimensionPointElement4045 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
-    public static final BitSet FOLLOW_crsName_in_dimensionPointElement4049 = new BitSet(new long[]{0x0000000000000040L});
-    public static final BitSet FOLLOW_LPAREN_in_dimensionPointElement4051 = new BitSet(new long[]{0x300007FFF8801840L,0x000010060001D000L});
-    public static final BitSet FOLLOW_dimensionPoint_in_dimensionPointElement4055 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_dimensionPointElement4057 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_scalarExpr_in_dimensionPoint4080 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_interpolationMethod4098 = new BitSet(new long[]{0x0000000000000000L,0x0000007800000000L});
-    public static final BitSet FOLLOW_interpolationType_in_interpolationMethod4102 = new BitSet(new long[]{0x0000200000000000L});
-    public static final BitSet FOLLOW_COLON_in_interpolationMethod4104 = new BitSet(new long[]{0x0000000000000000L,0x0000078000000000L});
-    public static final BitSet FOLLOW_nullResistence_in_interpolationMethod4108 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_interpolationMethod4110 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_interpolationType4127 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_nullResistence4152 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_condenseOpType4177 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_name_in_fieldName4204 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_constant4221 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_complexConstant_in_constant4238 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_complexConstant4253 = new BitSet(new long[]{0x0000000000000000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_FLOATCONSTANT_in_complexConstant4257 = new BitSet(new long[]{0x0000000000000100L});
-    public static final BitSet FOLLOW_COMMA_in_complexConstant4259 = new BitSet(new long[]{0x0000000000000000L,0x0000000400000000L});
-    public static final BitSet FOLLOW_FLOATCONSTANT_in_complexConstant4263 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_complexConstant4265 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_STRING_in_stringConstant4282 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_name4299 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_stringConstant_in_crsName4326 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_name_in_axisName4343 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_VARIABLE_DOLLAR_in_variableName4360 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_NAME_in_coverageVariable4377 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_name_in_coverageName4392 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_COMMA_in_extendExpr3224 = new BitSet(new long[]{0x0100000000000000L});
+    public static final BitSet FOLLOW_LBRACE_in_extendExpr3226 = new BitSet(new long[]{0x0000000000000000L,0x0000080000014000L});
+    public static final BitSet FOLLOW_dimensionIntervalList_in_extendExpr3230 = new BitSet(new long[]{0x0200000000000000L});
+    public static final BitSet FOLLOW_RBRACE_in_extendExpr3232 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_extendExpr3234 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_castExpr3252 = new BitSet(new long[]{0x0000000000000000L,0x00000000FF800000L});
+    public static final BitSet FOLLOW_rangeType_in_castExpr3256 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_castExpr3258 = new BitSet(new long[]{0xFDF847FFF8C01840L,0x000018060073FFFFL});
+    public static final BitSet FOLLOW_coverageExpr_in_castExpr3262 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_rangeType3285 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_UNSIGNED_in_rangeType3311 = new BitSet(new long[]{0x0000000000000000L,0x0000000007000000L});
+    public static final BitSet FOLLOW_set_in_rangeType3315 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_coverageAtom_in_fieldExpr3344 = new BitSet(new long[]{0x0000000000000000L,0x0000000100000000L});
+    public static final BitSet FOLLOW_DOT_in_fieldExpr3346 = new BitSet(new long[]{0x0000000000000000L,0x0000080000014000L});
+    public static final BitSet FOLLOW_fieldName_in_fieldExpr3350 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_booleanScalarTerm_in_booleanScalarExpr3375 = new BitSet(new long[]{0x0000000000006002L});
+    public static final BitSet FOLLOW_set_in_booleanScalarExpr3388 = new BitSet(new long[]{0x300007F808800040L,0x000010060001D000L});
+    public static final BitSet FOLLOW_booleanScalarTerm_in_booleanScalarExpr3396 = new BitSet(new long[]{0x0000000000006002L});
+    public static final BitSet FOLLOW_booleanScalarNegation_in_booleanScalarTerm3418 = new BitSet(new long[]{0x0000000000008002L});
+    public static final BitSet FOLLOW_AND_in_booleanScalarTerm3428 = new BitSet(new long[]{0x300007F808800040L,0x000010060001D000L});
+    public static final BitSet FOLLOW_booleanScalarNegation_in_booleanScalarTerm3432 = new BitSet(new long[]{0x0000000000008002L});
+    public static final BitSet FOLLOW_booleanScalarAtom_in_booleanScalarNegation3453 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NOT_in_booleanScalarNegation3462 = new BitSet(new long[]{0x300007F808800040L,0x000010060001C000L});
+    public static final BitSet FOLLOW_booleanScalarAtom_in_booleanScalarNegation3466 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_booleanScalarAtom3481 = new BitSet(new long[]{0x300007F808800040L,0x000010060001D000L});
+    public static final BitSet FOLLOW_booleanScalarExpr_in_booleanScalarAtom3485 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_booleanScalarAtom3487 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_stringScalarExpr_in_booleanScalarAtom3496 = new BitSet(new long[]{0x00000000003F0000L});
+    public static final BitSet FOLLOW_compOp_in_booleanScalarAtom3500 = new BitSet(new long[]{0x0000000008000000L,0x0000000000010000L});
+    public static final BitSet FOLLOW_stringScalarExpr_in_booleanScalarAtom3504 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_numericScalarExpr_in_booleanScalarAtom3514 = new BitSet(new long[]{0x00000000003F0000L});
+    public static final BitSet FOLLOW_compOp_in_booleanScalarAtom3518 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
+    public static final BitSet FOLLOW_numericScalarExpr_in_booleanScalarAtom3522 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_BOOLEANCONSTANT_in_booleanScalarAtom3532 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_numericScalarTerm_in_numericScalarExpr3549 = new BitSet(new long[]{0x0000000000C00002L});
+    public static final BitSet FOLLOW_set_in_numericScalarExpr3559 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
+    public static final BitSet FOLLOW_numericScalarTerm_in_numericScalarExpr3567 = new BitSet(new long[]{0x0000000000C00002L});
+    public static final BitSet FOLLOW_numericScalarFactor_in_numericScalarTerm3586 = new BitSet(new long[]{0x0000000003000002L});
+    public static final BitSet FOLLOW_set_in_numericScalarTerm3595 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
+    public static final BitSet FOLLOW_numericScalarFactor_in_numericScalarTerm3603 = new BitSet(new long[]{0x0000000003000002L});
+    public static final BitSet FOLLOW_LPAREN_in_numericScalarFactor3623 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
+    public static final BitSet FOLLOW_numericScalarExpr_in_numericScalarFactor3627 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_numericScalarFactor3629 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_MINUS_in_numericScalarFactor3641 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
+    public static final BitSet FOLLOW_numericScalarFactor_in_numericScalarFactor3645 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ABS_in_numericScalarFactor3657 = new BitSet(new long[]{0x0000000000000040L});
+    public static final BitSet FOLLOW_LPAREN_in_numericScalarFactor3659 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
+    public static final BitSet FOLLOW_numericScalarExpr_in_numericScalarFactor3663 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_numericScalarFactor3665 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_SQRT_in_numericScalarFactor3677 = new BitSet(new long[]{0x0000000000000040L});
+    public static final BitSet FOLLOW_LPAREN_in_numericScalarFactor3679 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
+    public static final BitSet FOLLOW_numericScalarExpr_in_numericScalarFactor3683 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_numericScalarFactor3685 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_ROUND_in_numericScalarFactor3697 = new BitSet(new long[]{0x0000000000000040L});
+    public static final BitSet FOLLOW_LPAREN_in_numericScalarFactor3699 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
+    public static final BitSet FOLLOW_numericScalarExpr_in_numericScalarFactor3703 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_numericScalarFactor3705 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_INTEGERCONSTANT_in_numericScalarFactor3717 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_FLOATCONSTANT_in_numericScalarFactor3729 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_complexConstant_in_numericScalarFactor3741 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_condenseExpr_in_numericScalarFactor3753 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_variableName_in_numericScalarFactor3765 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_EQUALS_in_compOp3783 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NOTEQUALS_in_compOp3790 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LT_in_compOp3797 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_GT_in_compOp3804 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LTE_in_compOp3811 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_GTE_in_compOp3818 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_dimensionIntervalElement_in_dimensionIntervalList3838 = new BitSet(new long[]{0x0000000000000102L});
+    public static final BitSet FOLLOW_COMMA_in_dimensionIntervalList3851 = new BitSet(new long[]{0x0000000000000000L,0x0000080000014000L});
+    public static final BitSet FOLLOW_dimensionIntervalElement_in_dimensionIntervalList3855 = new BitSet(new long[]{0x0000000000000102L});
+    public static final BitSet FOLLOW_axisName_in_dimensionIntervalElement3880 = new BitSet(new long[]{0x0000200000000040L});
+    public static final BitSet FOLLOW_COLON_in_dimensionIntervalElement3885 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
+    public static final BitSet FOLLOW_crsName_in_dimensionIntervalElement3889 = new BitSet(new long[]{0x0000000000000040L});
+    public static final BitSet FOLLOW_LPAREN_in_dimensionIntervalElement3900 = new BitSet(new long[]{0x300007FFF8801840L,0x000010060001D000L});
+    public static final BitSet FOLLOW_dimensionIntervalExpr_in_dimensionIntervalElement3904 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_dimensionIntervalElement3906 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_scalarExpr_in_dimensionIntervalExpr3929 = new BitSet(new long[]{0x0000200000000000L});
+    public static final BitSet FOLLOW_COLON_in_dimensionIntervalExpr3931 = new BitSet(new long[]{0x300007FFF8801840L,0x000010060001D000L});
+    public static final BitSet FOLLOW_scalarExpr_in_dimensionIntervalExpr3935 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_DOMAIN_in_dimensionIntervalExpr3945 = new BitSet(new long[]{0x0000000000000040L});
+    public static final BitSet FOLLOW_LPAREN_in_dimensionIntervalExpr3947 = new BitSet(new long[]{0x0000000000000000L,0x0000080000014000L});
+    public static final BitSet FOLLOW_coverageName_in_dimensionIntervalExpr3951 = new BitSet(new long[]{0x0000200000000000L});
+    public static final BitSet FOLLOW_COLON_in_dimensionIntervalExpr3953 = new BitSet(new long[]{0x0000000000000000L,0x0000080000014000L});
+    public static final BitSet FOLLOW_axisName_in_dimensionIntervalExpr3957 = new BitSet(new long[]{0x0000200000000000L});
+    public static final BitSet FOLLOW_COLON_in_dimensionIntervalExpr3959 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
+    public static final BitSet FOLLOW_crsName_in_dimensionIntervalExpr3963 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_dimensionIntervalExpr3965 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_dimensionPointElement_in_dimensionPointList3988 = new BitSet(new long[]{0x0000000000000102L});
+    public static final BitSet FOLLOW_COMMA_in_dimensionPointList3998 = new BitSet(new long[]{0x0000000000000000L,0x0000080000014000L});
+    public static final BitSet FOLLOW_dimensionPointElement_in_dimensionPointList4002 = new BitSet(new long[]{0x0000000000000102L});
+    public static final BitSet FOLLOW_axisName_in_dimensionPointElement4027 = new BitSet(new long[]{0x0000000000000040L});
+    public static final BitSet FOLLOW_LPAREN_in_dimensionPointElement4029 = new BitSet(new long[]{0x300007FFF8801840L,0x000010060001D000L});
+    public static final BitSet FOLLOW_dimensionPoint_in_dimensionPointElement4033 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_dimensionPointElement4035 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_axisName_in_dimensionPointElement4047 = new BitSet(new long[]{0x0000200000000000L});
+    public static final BitSet FOLLOW_COLON_in_dimensionPointElement4049 = new BitSet(new long[]{0x0000000000000000L,0x0000000000010000L});
+    public static final BitSet FOLLOW_crsName_in_dimensionPointElement4053 = new BitSet(new long[]{0x0000000000000040L});
+    public static final BitSet FOLLOW_LPAREN_in_dimensionPointElement4055 = new BitSet(new long[]{0x300007FFF8801840L,0x000010060001D000L});
+    public static final BitSet FOLLOW_dimensionPoint_in_dimensionPointElement4059 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_dimensionPointElement4061 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_scalarExpr_in_dimensionPoint4084 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_interpolationMethod4102 = new BitSet(new long[]{0x0000000000000000L,0x0000007800000000L});
+    public static final BitSet FOLLOW_interpolationType_in_interpolationMethod4106 = new BitSet(new long[]{0x0000200000000000L});
+    public static final BitSet FOLLOW_COLON_in_interpolationMethod4108 = new BitSet(new long[]{0x0000000000000000L,0x0000078000000000L});
+    public static final BitSet FOLLOW_nullResistence_in_interpolationMethod4112 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_interpolationMethod4114 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_interpolationType4131 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_nullResistence4156 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_condenseOpType4181 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_name_in_fieldName4208 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_constant4225 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_complexConstant_in_constant4242 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_complexConstant4257 = new BitSet(new long[]{0x0000000000000000L,0x0000000400000000L});
+    public static final BitSet FOLLOW_FLOATCONSTANT_in_complexConstant4261 = new BitSet(new long[]{0x0000000000000100L});
+    public static final BitSet FOLLOW_COMMA_in_complexConstant4263 = new BitSet(new long[]{0x0000000000000000L,0x0000000400000000L});
+    public static final BitSet FOLLOW_FLOATCONSTANT_in_complexConstant4267 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_complexConstant4269 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_STRING_in_stringConstant4286 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_name4303 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_stringConstant_in_crsName4330 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_name_in_axisName4347 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_VARIABLE_DOLLAR_in_variableName4364 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_NAME_in_coverageVariable4381 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_name_in_coverageName4396 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_set_in_synpred8_wcps366 = new BitSet(new long[]{0xFDF847FFF8C01840L,0x000018060073FFFFL});
     public static final BitSet FOLLOW_coverageLogicTerm_in_synpred8_wcps374 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_AND_in_synpred9_wcps416 = new BitSet(new long[]{0xFDF847FFF8C01840L,0x000018060073FFFFL});
@@ -23070,26 +23087,26 @@ public class wcpsParser extends Parser {
     public static final BitSet FOLLOW_sliceExpr_in_synpred112_wcps2843 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_dimensionIntervalElement_in_synpred115_wcps2972 = new BitSet(new long[]{0x0000000000000002L});
     public static final BitSet FOLLOW_dimensionIntervalElement_in_synpred116_wcps3081 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_synpred130_wcps3384 = new BitSet(new long[]{0x300007F808800040L,0x000010060001D000L});
-    public static final BitSet FOLLOW_booleanScalarTerm_in_synpred130_wcps3392 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_AND_in_synpred131_wcps3424 = new BitSet(new long[]{0x300007F808800040L,0x000010060001D000L});
-    public static final BitSet FOLLOW_booleanScalarNegation_in_synpred131_wcps3428 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_synpred133_wcps3477 = new BitSet(new long[]{0x300007F808800040L,0x000010060001D000L});
-    public static final BitSet FOLLOW_booleanScalarExpr_in_synpred133_wcps3481 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_synpred133_wcps3483 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_numericScalarExpr_in_synpred135_wcps3510 = new BitSet(new long[]{0x00000000003F0000L});
-    public static final BitSet FOLLOW_compOp_in_synpred135_wcps3514 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
-    public static final BitSet FOLLOW_numericScalarExpr_in_synpred135_wcps3518 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_synpred137_wcps3555 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
-    public static final BitSet FOLLOW_numericScalarTerm_in_synpred137_wcps3563 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_set_in_synpred139_wcps3591 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
-    public static final BitSet FOLLOW_numericScalarFactor_in_synpred139_wcps3599 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_LPAREN_in_synpred140_wcps3619 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
-    public static final BitSet FOLLOW_numericScalarExpr_in_synpred140_wcps3623 = new BitSet(new long[]{0x0000000000000080L});
-    public static final BitSet FOLLOW_RPAREN_in_synpred140_wcps3625 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_complexConstant_in_synpred147_wcps3737 = new BitSet(new long[]{0x0000000000000002L});
-    public static final BitSet FOLLOW_scalarExpr_in_synpred156_wcps3925 = new BitSet(new long[]{0x0000200000000000L});
-    public static final BitSet FOLLOW_COLON_in_synpred156_wcps3927 = new BitSet(new long[]{0x300007FFF8801840L,0x000010060001D000L});
-    public static final BitSet FOLLOW_scalarExpr_in_synpred156_wcps3931 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_synpred130_wcps3388 = new BitSet(new long[]{0x300007F808800040L,0x000010060001D000L});
+    public static final BitSet FOLLOW_booleanScalarTerm_in_synpred130_wcps3396 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_AND_in_synpred131_wcps3428 = new BitSet(new long[]{0x300007F808800040L,0x000010060001D000L});
+    public static final BitSet FOLLOW_booleanScalarNegation_in_synpred131_wcps3432 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_synpred133_wcps3481 = new BitSet(new long[]{0x300007F808800040L,0x000010060001D000L});
+    public static final BitSet FOLLOW_booleanScalarExpr_in_synpred133_wcps3485 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_synpred133_wcps3487 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_numericScalarExpr_in_synpred135_wcps3514 = new BitSet(new long[]{0x00000000003F0000L});
+    public static final BitSet FOLLOW_compOp_in_synpred135_wcps3518 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
+    public static final BitSet FOLLOW_numericScalarExpr_in_synpred135_wcps3522 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_synpred137_wcps3559 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
+    public static final BitSet FOLLOW_numericScalarTerm_in_synpred137_wcps3567 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_set_in_synpred139_wcps3595 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
+    public static final BitSet FOLLOW_numericScalarFactor_in_synpred139_wcps3603 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_LPAREN_in_synpred140_wcps3623 = new BitSet(new long[]{0x300007F800800040L,0x000010040000C000L});
+    public static final BitSet FOLLOW_numericScalarExpr_in_synpred140_wcps3627 = new BitSet(new long[]{0x0000000000000080L});
+    public static final BitSet FOLLOW_RPAREN_in_synpred140_wcps3629 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_complexConstant_in_synpred147_wcps3741 = new BitSet(new long[]{0x0000000000000002L});
+    public static final BitSet FOLLOW_scalarExpr_in_synpred156_wcps3929 = new BitSet(new long[]{0x0000200000000000L});
+    public static final BitSet FOLLOW_COLON_in_synpred156_wcps3931 = new BitSet(new long[]{0x300007FFF8801840L,0x000010060001D000L});
+    public static final BitSet FOLLOW_scalarExpr_in_synpred156_wcps3935 = new BitSet(new long[]{0x0000000000000002L});
 
 }

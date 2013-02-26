@@ -296,7 +296,7 @@ sliceExpr returns[SliceExpr value]
 	| SLICE LPAREN e2=coverageExpr COMMA LBRACE dpl=dimensionPointList RBRACE RPAREN { $value = new SliceExpr($e2.value, $dpl.value); }
 	;
 extendExpr returns[ExtendExpr value]
-	: EXTEND LPAREN e1=coverageExpr COMMA dil=dimensionIntervalList RPAREN { $value = new ExtendExpr($e1.value, $dil.value); }
+	: EXTEND LPAREN e1=coverageExpr COMMA LBRACE dil=dimensionIntervalList RBRACE RPAREN { $value = new ExtendExpr($e1.value, $dil.value); }
 	;
 castExpr returns[CastExpr value]
     : LPAREN e1=rangeType RPAREN e2=coverageExpr { $value = new CastExpr($e2.value, $e1.value); }
