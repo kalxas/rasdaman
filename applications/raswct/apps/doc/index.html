@@ -34,12 +34,47 @@
         }
     </style>
     <script type="text/javascript">
+      function findString (str) {
+        if (parseInt(navigator.appVersion)<4) return;
+        var strFound;
+        if (window.find) {
+          
+          // CODE FOR BROWSERS THAT SUPPORT window.find
+          
+          strFound=self.find(str);
+          if (!strFound) {
+            strFound=self.find(str,0,1);
+            while (self.find(str,0,1)) continue;
+          }
+        }
+        else if (navigator.appName.indexOf("Microsoft")!=-1) {
+          
+          // EXPLORER-SPECIFIC CODE
+          
+          if (TRange!=null) {
+            TRange.collapse(false);
+            strFound=TRange.findText(str);
+            if (strFound) TRange.select();
+          }
+          if (TRange==null || strFound==0) {
+            TRange=self.document.body.createTextRange();
+            strFound=TRange.findText(str);
+            if (strFound) TRange.select();
+          }
+        }
+        else if (navigator.appName=="Opera") {
+          alert ("Opera browsers not supported, sorry...")
+          return;
+        }
+        if (!strFound) alert ("String '"+str+"' not found!")
+        return;
+      }
 
         var createModalView = function(url){
             var screenWidth = window.screen.width-50;
             var screenHeight = window.screen.height-200;
-            $("#trainer-modal").remove();
-            $(document.body).append('<div id="trainer-modal" class="modal hide fade" style="width:'+ screenWidth +'px; left:290px; height:' + screenHeight + 'px; top: 10px" >' +
+            $("#playground-modal").remove();
+            $(document.body).append('<div id="playground-modal" class="modal hide fade" style="width:'+ screenWidth +'px; left:290px; height:' + screenHeight + 'px; top: 10px" >' +
                     '<div class="modal-header">' +
                     '<button type="button" class="close" data-dismiss="modal" aria-hidden="true">x</button>' +
                     '</div> ' +
@@ -48,7 +83,7 @@
                     '</div>' +
                     '<div class="modal-footer"><button class="btn" data-dismiss="modal" aria-hidden="true">Close</button></div>' +
                     '</div>');
-            $("#trainer-modal").modal('show');
+            $("#playground-modal").modal('show');
         }
 
         var htmlCode = {};
@@ -67,19 +102,20 @@
         }
 
         $(document).ready(function(){
+            
             $('.nav li').click(function(){
                 $('.nav li').removeClass("active");
                 $(this).addClass("active");
             })
             getCode();
-            var POST_URL = '../trainer/processor.php?action=example';
+            var POST_URL = '../playground/processor.php?action=example';
             $('.example-button').click(function(){
                 var pieces = $(this).attr('id').split('-');
                 var id = pieces[1];
                 var html = htmlCode['html-' + id] || ' ';
                 var js = jsCode['js-' + id] || ' ';
                 $.post(POST_URL, {'html': html, 'js': js}, function(response){
-                    createModalView('../trainer/' + response);
+                    createModalView('../playground/' + response);
                 });
             });
             prettyPrint();
@@ -91,35 +127,55 @@
 
 <div id="raswct-navbar" class="navbar navbar-fixed-top">
     <div class="navbar-inner">
-        <div class="container" style="width:auto; padding-left:10px;">
+        <div class="container" style="width:auto; padding-left:10px; padding-right: 30px;">
+        <form class="navbar-search pull-right" onSubmit="if(this.t1.value!=null && this.t1.value!='') findString(this.t1.value);return false">
+          <input id="t1" type="text" class="search-query" placeholder="Search"/>
+        </form>
         <a class="brand" href="#"><strong>raswct</strong></a>
         <ul class="nav" role="navigation">
-            <li class="active widgets"><a href="#widgets" tabindex="-1" style="text-decoration: underline;"><strong>Widgets</strong></a></li>
-            <li><a href="#AreaDiagram" tabindex="-1">AreaDiagram</a></li>
-            <li><a href="#BarDiagram" tabindex="-1">BarDiagram</a></li>
-            <li><a href="#LinearDiagram" tabindex="-1">LinearDiagram</a></li>
-            <li><a href="#ScatterDiagram" tabindex="-1">ScatterDiagram</a></li>
-            <li><a href="#BinaryImage" tabindex="-1">BinaryImage</a></li>
-            <li><a href="#Gauge" tabindex="-1">Gauge</a></li>
-            <li><a href="#Led" tabindex="-1">Led</a></li>
-            <li><a href="#Map" tabindex="-1">Map</a></li>
-            <li><a href="#SpeedoMeter" tabindex="-1">SpeedoMeter</a></li>
-            <li><a href="#ToolTip" tabindex="-1">ToolTip</a></li>
-            <li><a href="#HorizontalSlider" tabindex="-1">HSlider</a></li>
-            <li><a href="#VerticalSlider" tabindex="-1">VSlider</a></li>
-            <li><a href="#Knob" tabindex="-1">Knob</a></li>
-            <li><a href="#Text" tabindex="-1">Text</a></li>
-            <li><a href="#query" style="text-decoration: underline;"><strong>Query</strong></a></li>
-            <li><a href="#WCPSQuery" tabindex="-1">WCPSQuery</a></li>
-            <li><a href="#wcs.GetCoverage" tabindex="-1">wcs.GetCoverage</a></li>
-            <li><a href="#wcs.Subset" tabindex="-1">wcs.Subset</a></li>
-            <li><a href="#wcs.Subset" tabindex="-1">wcs.Subset</a></li>
-            <li><a href="#utils" tabindex="-1" style="text-decoration: underline;"><strong>Utils</strong></a></li>
-            <li><a href="#Bindable" tabindex="-1">Bindable</a></li>
-            <li><a href="#ConfigManager" tabindex="-1">ConfigManager</a></li>
-            <li><a href="#CSVParser" tabindex="-1">CSVParser</a></li>
-            <li><a href="#Observable" tabindex="-1">Observable</a></li>
-            <li><a href="#DataSeries" tabindex="-1">DataSeries</a></li>
+            <li class="dropdown active">
+              <a id="drop-widgets" href="#" tabindex="-1" data-toggle="dropdown">Widgets
+                <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="drop-widgets">
+                <li><a href="#AreaDiagram" tabindex="-1">AreaDiagram</a></li>
+                <li><a href="#BarDiagram" tabindex="-1">BarDiagram</a></li>
+                <li><a href="#LinearDiagram" tabindex="-1">LinearDiagram</a></li>
+                <li><a href="#ScatterDiagram" tabindex="-1">ScatterDiagram</a></li>
+                <li><a href="#BinaryImage" tabindex="-1">BinaryImage</a></li>
+                <li><a href="#Gauge" tabindex="-1">Gauge</a></li>
+                <li><a href="#Led" tabindex="-1">Led</a></li>
+                <li><a href="#Map" tabindex="-1">Map</a></li>
+                <li><a href="#SpeedoMeter" tabindex="-1">SpeedoMeter</a></li>
+                <li><a href="#ToolTip" tabindex="-1">ToolTip</a></li>
+                <li><a href="#HorizontalSlider" tabindex="-1">Horizontal Slider</a></li>
+                <li><a href="#VerticalSlider" tabindex="-1">Vertical Slider</a></li>
+                <li><a href="#Knob" tabindex="-1">Knob</a></li>
+                <li><a href="#Text" tabindex="-1">Text</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a id="drop-query" href="#" tabindex="-1" data-toggle="dropdown">Queries
+                <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="drop-query">
+                <li><a href="#WCPSQuery" tabindex="-1">WCPSQuery</a></li>
+                <li><a href="#wcs.GetCoverage" tabindex="-1">wcs.GetCoverage</a></li>
+                <li><a href="#wcs.Subset" tabindex="-1">wcs.Subset</a></li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a id="drop-utils" href="#" tabindex="-1" data-toggle="dropdown">Utils
+                <b class="caret"></b>
+              </a>
+              <ul class="dropdown-menu" role="menu" aria-labelledby="drop-utils">
+                <li><a href="#Bindable" tabindex="-1">Bindable</a></li>
+                <li><a href="#ConfigManager" tabindex="-1">ConfigManager</a></li>
+                <li><a href="#CSVParser" tabindex="-1">CSVParser</a></li>
+                <li><a href="#Observable" tabindex="-1">Observable</a></li>
+                <li><a href="#DataSeries" tabindex="-1">DataSeries</a></li>
+              </ul>
+            </li>            
         </ul>
         </div>
     </div>
@@ -448,7 +504,7 @@
     <h4>Javascript:</h4>
     <pre id="js-AreaDiagram" class="prettyprint linenums">var dataSeries = new Rj.util.DataSeries([1,5,2,4,10]);
 var widget = new Rj.widget.AreaDiagram("#area-widget", dataSeries);</pre>
-    <button id="btn-AreaDiagram" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-AreaDiagram" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -760,7 +816,7 @@ var widget = new Rj.widget.AreaDiagram("#area-widget", dataSeries);</pre>
         <h4>Javascript:</h4>
     <pre id="js-BarDiagram" class="prettyprint linenums">var dataSeries = new Rj.util.DataSeries([1,5,2,4,10]);
 var widget = new Rj.widget.BarDiagram("#bar-widget", dataSeries);</pre>
-        <button id="btn-BarDiagram" class="btn btn-danger example-button">See in Code Trainer</button>
+        <button id="btn-BarDiagram" class="btn btn-danger example-button">See in Code Playground</button>
         <br/><br/>
     </div>
 </div>
@@ -1073,7 +1129,7 @@ var widget = new Rj.widget.BarDiagram("#bar-widget", dataSeries);</pre>
     <h4>Javascript:</h4>
     <pre id="js-LinearDiagram" class="prettyprint linenums">var dataSeries = new Rj.util.DataSeries([1,5,2,4,10]);
 var widget = new Rj.widget.LinearDiagram("#linear-widget", dataSeries);</pre>
-    <button id="btn-LinearDiagram" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-LinearDiagram" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -1386,7 +1442,7 @@ var widget = new Rj.widget.LinearDiagram("#linear-widget", dataSeries);</pre>
     <h4>Javascript:</h4>
     <pre id="js-ScatterDiagram" class="prettyprint linenums">var dataSeries = new Rj.util.DataSeries([1,5,2,4,10]);
 var widget = new Rj.widget.ScatterDiagram("#scatter-widget", dataSeries);</pre>
-    <button id="btn-ScatterDiagram" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-ScatterDiagram" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -1644,7 +1700,7 @@ var img = new Rj.widget.BinaryImage("#image-widget", "image/png");
 img.bind(query);
 query.evaluate();
 </pre>
-    <button id="btn-BinaryImage" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-BinaryImage" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -1944,7 +2000,7 @@ setInterval(function(){
     var value = Math.random()*1000;
     gauge.setValue(value);
 }, 2000);</pre>
-    <button id="btn-Gauge" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-Gauge" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -2160,7 +2216,7 @@ setInterval(function(){
     var value = Math.random()*100 + Math.random();
     led.setValue(value);
 }, 2000);</pre>
-    <button id="btn-Led" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-Led" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -2441,7 +2497,7 @@ var layerHakoon = new Rj.util.MapLayer("Hakoon Drive", WMS_SERVICE_URL, {
 });
 
 map.addLayers([layerHakoon]);</pre>
-    <button id="btn-Map" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-Map" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -2643,7 +2699,7 @@ setInterval(function(){
     var value = Math.random()*100;
     speedoMeter.setValue(value);
 }, 2000);</pre>
-        <button id="btn-SpeedoMeter" class="btn btn-danger example-button">See in Code Trainer</button>
+        <button id="btn-SpeedoMeter" class="btn btn-danger example-button">See in Code Playground</button>
         <br/><br/>
     </div>
 </div>
@@ -2910,7 +2966,7 @@ setInterval(function(){
     <h4>Javascript:</h4>
     <pre id="js-ToolTip" class="prettyprint linenums">var tooltip = new Rj.widget.ToolTip("#tooltip-widget");
 tooltip.setValue("This is my tooltip");</pre>
-    <button id="btn-ToolTip" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-ToolTip" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -3236,7 +3292,7 @@ tooltip.setValue("This is my tooltip");</pre>
 slider.addListener("hSliderListener", "valuechanged", function(value){
     alert("The new value of the slider is:" + value);
 })</pre>
-    <button id="btn-HorizontalSlider" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-HorizontalSlider" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -3562,7 +3618,7 @@ slider.addListener("hSliderListener", "valuechanged", function(value){
 slider.addListener("vSliderListener", "valuechanged", function(value){
     alert("The new value of the slider is:" + value);
 })</pre>
-    <button id="btn-VerticalSlider" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-VerticalSlider" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -3830,7 +3886,7 @@ slider.addListener("vSliderListener", "valuechanged", function(value){
     <h4>Javascript:</h4>
     <pre id="js-Knob" class="prettyprint linenums">var knob = new Rj.widget.Knob("#knob-widget", 0, 10);
 knob.setValue(3);</pre>
-    <button id="btn-Knob" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-Knob" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -4084,7 +4140,7 @@ knob.setValue(3);</pre>
     <h4>Javascript:</h4>
     <pre id="js-Text" class="prettyprint linenums">var textWidget = new Rj.widget.Text("#text-widget", "Initial text.");
 textWidget.setValue("Another piece of text.");</pre>
-    <button id="btn-Text" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-Text" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -4304,7 +4360,7 @@ var query = new Rj.query.WCPSQuery('for t1 in (mean_summer_airtemp) return encod
 query.evaluate(function(response){
         alert("The query result is: " + response);
 })</pre>
-    <button id="btn-WCPSQuery" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-WCPSQuery" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -4516,7 +4572,7 @@ var query = new Rj.query.wcs.GetCoverage("mean_summer_airtemp");
 query.evaluate(function(response){
     alert("The query result is: " + response);
 });</pre>
-    <button id="btn-wcs.GetCoverage" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-wcs.GetCoverage" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -4834,7 +4890,7 @@ text.bind(query, function(text, bind){
     });
 });
 </pre>
-    <button id="btn-Bindable" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-Bindable" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -4952,7 +5008,7 @@ Rj.util.ConfigManager.setWCSService({
       version:"2.0.0"
 });
 </pre>
-    <button id="btn-ConfigManager" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-ConfigManager" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -5055,7 +5111,7 @@ query.evaluate(function(response){
       alert(parser.toNativeJsArray());
 });
 </pre>
-    <button id="btn-CSVParser" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-CSVParser" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -5153,7 +5209,7 @@ slider.addListener("mySliderText", "valuechanged", function(value){
    text.setValue(value);
 });
 </pre>
-    <button id="btn-Observable" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-Observable" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
@@ -5404,7 +5460,7 @@ setTimeout(function(){
     dataSeries.addPoint(7,5);
 }, 5000);
 </pre>
-    <button id="btn-DataSeries" class="btn btn-danger example-button">See in Code Trainer</button>
+    <button id="btn-DataSeries" class="btn btn-danger example-button">See in Code Playground</button>
     <br/><br/>
 </div>
 </div>
