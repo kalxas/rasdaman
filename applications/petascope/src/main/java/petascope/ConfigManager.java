@@ -83,6 +83,9 @@ public class ConfigManager {
     public static String RASDAMAN_USER = "rasguest";
     public static String RASDAMAN_PASS = "rasguest";
     public static String RASDAMAN_VERSION = "8";
+
+    // XML validation schema control setting
+    public static String XML_VALIDATION = "false";
     
     //Retry settings when opening a connection to rasdaman server. Ernesto Rodriguez <ernesto4160@gmail.com>
 
@@ -237,6 +240,7 @@ public class ConfigManager {
         METADATA_PASS = get("metadata_pass");
         RASDAMAN_RETRY_TIMEOUT=get("rasdaman_retry_timeout");
         RASDAMAN_RETRY_ATTEMPTS=get("rasdaman_retry_attempts");
+        XML_VALIDATION = get("xml_validation");
 
         CCIP_HACK = Boolean.parseBoolean(get("ccip_version"));
 
