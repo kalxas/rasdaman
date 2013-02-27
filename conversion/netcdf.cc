@@ -90,13 +90,13 @@ void r_Conv_NETCDF::getVars(void)
     if (variable != NULL)
     {
         // count nr of variables in the options string
-        int occ = 0; 
+        int occ = 0;
         for (int i = 0; variable[i]; i++)
             occ += (variable[i] == VARIABLE_SEPARATOR_CHAR);
         // separate the variables and save them in 'vars'
         vars = new char*[occ + 1];
-        char *b = variable;   
-        char *result = NULL; 
+        char *b = variable;
+        char *result = NULL;
         result = strtok( b, VARIABLE_SEPARATOR_STR );
         while( result != NULL )
         {
@@ -113,7 +113,7 @@ r_Conv_NETCDF::r_Conv_NETCDF(const char *src, const r_Minterval &interv, const r
     : r_Convert_Memory(src, interv, tp, true)
 {
     initNETCDF();
-    /* added support for multiple variables and commented out this check -- MR 2012-oct-20 
+    /* added support for multiple variables and commented out this check -- MR 2012-oct-20
     /// ToDo: Can be hacked by dividing it to its basic component. Or by using CXX-4 which is in the development phase
     if (tp->isStructType())
     {
@@ -139,7 +139,7 @@ r_Conv_NETCDF::~r_Conv_NETCDF(void)
         delete [] variable;
         variable = NULL;
     }
-    for (int i = 0; i < varsSize; i++) 
+    for (int i = 0; i < varsSize; i++)
     {
         if (vars[i] != NULL)
         {
@@ -156,7 +156,7 @@ r_Conv_NETCDF::~r_Conv_NETCDF(void)
 /// convert to NETCDF
 r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
 {
-    char fileName[256];
+    char *fileName="netcdfTempXXXXXX";
     string dimNamePrefix = "dim_";
     int dimNo = 0;
     long *dimSizes;
@@ -164,6 +164,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     size_t filesize = 0;
     FILE *fp = NULL;
     const char *src = desc.src;
+    int tempFD;              // for the temp file
 
     RMInit::logOut << "r_Conv_NETCDF::convertTo" << endl;
 
@@ -174,7 +175,14 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         getVars();
     }
 
-    strncpy(fileName, tmpnam(NULL), 256);
+    tempFD = mkstemp(fileName);
+    if(tempFD == -1)
+    {
+        RMInit::logOut << "r_Conv_netcdf::convertTo(" << (options?options:"NULL")
+                        << ") desc.srcType (" << desc.srcType->type_id()
+                        << ") unable to generate a tempory file !" << endl;
+        throw r_Error();
+    }
 
     // Create the file. The Replace parameter tells netCDF to overwrite
     // this file, if it already exists.
@@ -219,9 +227,9 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     if (desc.baseType != ctype_struct && varsSize > 1)
     {
         RMInit::logOut << "Error: mismatch in #variables between query and MDD object type." << endl;
-        throw r_Error(r_Error::r_Error_QueryParameterCountInvalid);        
+        throw r_Error(r_Error::r_Error_QueryParameterCountInvalid);
     }
-    
+
     switch (desc.baseType)
     {
     case ctype_int8:
@@ -332,17 +340,17 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         break;
     }
     case ctype_struct:
-    { 
+    {
         r_Structure_Type *st = (r_Structure_Type*) desc.srcType;
         if (st == NULL)
         {
             RMInit::logOut << "Error: MDD object type could not be cast to struct." << endl;
-            throw r_Error(r_Error::r_Error_RefInvalid);         
+            throw r_Error(r_Error::r_Error_RefInvalid);
         }
-        if (varsSize > st->count_elements()) 
+        if (varsSize > st->count_elements())
         {
             RMInit::logOut << "Error: mismatch in #variables between query and MDD object type." << endl;
-            throw r_Error(r_Error::r_Error_QueryParameterCountInvalid);        
+            throw r_Error(r_Error::r_Error_QueryParameterCountInvalid);
         }
         int structSize = 0; // size of the struct type, used for offset computation in memcpy
         int allMatch = 0; // check if all variables have a match in struct attributes
@@ -356,16 +364,16 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
             }
             varsSize = 0;
         }
-        
-        for (r_Structure_Type::attribute_iterator ite(st->defines_attribute_begin()); ite != st->defines_attribute_end(); ite++) 
+
+        for (r_Structure_Type::attribute_iterator ite(st->defines_attribute_begin()); ite != st->defines_attribute_end(); ite++)
         {
-            r_Primitive_Type *pt = (r_Primitive_Type*) &(*ite).type_of(); 
-            structSize += pt->size(); 
+            r_Primitive_Type *pt = (r_Primitive_Type*) &(*ite).type_of();
+            structSize += pt->size();
             if (variable == NULL)
             {
                 vars[varsSize] = strdup((*ite).name());
-                varsSize++;    
-                allMatch++;        
+                varsSize++;
+                allMatch++;
             }
             else
             {
@@ -374,30 +382,30 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                 {
                     i++;
                 }
-                if (i < varsSize) 
+                if (i < varsSize)
                 {
                     allMatch++;
                 }
-            }      
+            }
         }
-        if (allMatch != varsSize) 
+        if (allMatch != varsSize)
         {
             RMInit::logOut << "Error: not all specified variables are attributes of the MDD object type." << endl;
-            throw r_Error(r_Error::r_Error_General);            
-        }        
+            throw r_Error(r_Error::r_Error_General);
+        }
 
         for (int i = 0;  i < varsSize; i++)
         {
-            int offset = 0; // offset of the attribute within the struct type    
+            int offset = 0; // offset of the attribute within the struct type
             r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
             while (iter != st->defines_attribute_end() && (strcmp((*iter).name(),vars[i]) != 0))
-            {   
+            {
                 r_Primitive_Type *pt = (r_Primitive_Type*) &(*iter).type_of();
                 offset += pt->size();
                 iter++;
             }
-            if (iter != st->defines_attribute_end()) 
-            {                    
+            if (iter != st->defines_attribute_end())
+            {
                 varName = vars[i];
                 switch ((*iter).type_of().type_id())
                 {
@@ -409,14 +417,14 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                             RMInit::logOut << "Error: out of memory." << endl;
                             throw r_Error(r_Error::r_Error_MemoryAllocation);
                         }
-                        for (int j = 0; j < dataSize; j++) 
+                        for (int j = 0; j < dataSize; j++)
                         {
                             memcpy(&buff[j], desc.src + j*structSize + offset, sizeof(char));
                         }
                         r_Octet *val = (r_Octet*) buff;
                         NcVar *ncVar = dataFile.add_var(varName, ncByte, dimNo, dims);
-                        ncVar->put(val, dimSizes); 
-                        delete [] buff;                   
+                        ncVar->put(val, dimSizes);
+                        delete [] buff;
                         break;
                     }
                     case r_Type::CHAR:
@@ -427,14 +435,14 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                             RMInit::logOut << "Error: out of memory." << endl;
                             throw r_Error(r_Error::r_Error_MemoryAllocation);
                         }
-                        for (int j = 0; j < dataSize; j++) 
+                        for (int j = 0; j < dataSize; j++)
                         {
                             memcpy(&buff[j], desc.src + j*structSize + offset, sizeof(char));
                         }
                         r_Char *val = (r_Char*) buff;
                         NcVar *ncVar = dataFile.add_var(varName, ncChar, dimNo, dims);
-                        ncVar->put((const char*)val, dimSizes); 
-                        delete [] buff;                   
+                        ncVar->put((const char*)val, dimSizes);
+                        delete [] buff;
                         break;
                     }
                     case r_Type::USHORT:
@@ -446,16 +454,16 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                             RMInit::logOut << "Error: out of memory." << endl;
                             throw r_Error(r_Error::r_Error_MemoryAllocation);
                         }
-                        for (int j = 0; j < dataSize; j++) 
+                        for (int j = 0; j < dataSize; j++)
                         {
                             memcpy(&buff[j], desc.src + j*structSize + offset, sizeof(short));
-                        }                
+                        }
                         r_Short *val = (r_Short*) buff;
                         NcVar *ncVar = dataFile.add_var(varName, ncShort, dimNo, dims);
-                        ncVar->put(val, dimSizes);    
-                        delete [] buff;                
+                        ncVar->put(val, dimSizes);
+                        delete [] buff;
                         break;
-                    }                
+                    }
                     case r_Type::ULONG:
                     case r_Type::LONG:
                     {
@@ -465,16 +473,16 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                             RMInit::logOut << "Error: out of memory." << endl;
                             throw r_Error(r_Error::r_Error_MemoryAllocation);
                         }
-                        for (int j = 0; j < dataSize; j++) 
+                        for (int j = 0; j < dataSize; j++)
                         {
                             memcpy(&buff[j], desc.src + j*structSize + offset, sizeof(int));
-                        }                
+                        }
                         r_Long *val = (r_Long*) buff;
                         NcVar *ncVar = dataFile.add_var(varName, ncInt, dimNo, dims);
-                        ncVar->put(val, dimSizes);       
-                        delete [] buff;             
+                        ncVar->put(val, dimSizes);
+                        delete [] buff;
                         break;
-                    }                
+                    }
                     case r_Type::FLOAT:
                     {
                         float * buff = new float[dataSize];
@@ -483,16 +491,16 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                             RMInit::logOut << "Error: out of memory." << endl;
                             throw r_Error(r_Error::r_Error_MemoryAllocation);
                         }
-                        for (int j = 0; j < dataSize; j++) 
+                        for (int j = 0; j < dataSize; j++)
                         {
                             memcpy(&buff[j], desc.src + j*structSize + offset, sizeof(float));
-                        }                
+                        }
                         r_Float *val = (r_Float*) buff;
                         NcVar *ncVar = dataFile.add_var(varName, ncFloat, dimNo, dims);
-                        ncVar->put(val, dimSizes);   
-                        delete [] buff;                 
+                        ncVar->put(val, dimSizes);
+                        delete [] buff;
                         break;
-                    }                
+                    }
                     case r_Type::DOUBLE:
                     {
                         double * buff = new double[dataSize];
@@ -501,27 +509,27 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
                             RMInit::logOut << "Error: out of memory." << endl;
                             throw r_Error(r_Error::r_Error_MemoryAllocation);
                         }
-                        for (int j = 0; j < dataSize; j++) 
+                        for (int j = 0; j < dataSize; j++)
                         {
                             memcpy(&buff[j], desc.src + j*structSize + offset, sizeof(double));
-                        }       
+                        }
                         r_Double *val = (r_Double*) buff;
                         NcVar *ncVar = dataFile.add_var(varName, ncDouble, dimNo, dims);
-                        ncVar->put(val, dimSizes);     
-                        delete [] buff;               
+                        ncVar->put(val, dimSizes);
+                        delete [] buff;
                         break;
-                    }              
+                    }
                     default:
                     {
                         RMInit::logOut << "Error: this type is not supported " << desc.baseType << "." << endl;
-                        throw r_Error(r_Error::r_Error_General);                
+                        throw r_Error(r_Error::r_Error_General);
                     }
-                }             
-            }                               
-   
-        }  
+                }
+            }
+
+        }
         break;
-    }    
+    }
     default:
     {
         RMInit::logOut << "Error: this type is not supported " << desc.baseType << "." << endl;
@@ -613,18 +621,18 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         NcVar *var = dataFile.get_var(i);
         if (var->num_dims() > 0)
         {
-            if (variable == NULL) 
+            if (variable == NULL)
             {
                 varNames.insert(var->name());
             }
-            else 
+            else
             {
                 int i = 0;
                 while ((i < varsSize) && (strcmp(var->name(), vars[i]) != 0))
                 {
                     i++;
                 }
-                if (i < varsSize) 
+                if (i < varsSize)
                 {
                     varNames.insert(var->name());
                 }
@@ -636,8 +644,8 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         RMInit::logOut << "Error: no variable found to import." << endl;
         throw r_Error(r_Error::r_Error_General);
     }
-    
-    if (varsSize == 1) 
+
+    if (varsSize == 1)
     {
         string varName = variable;
         NcVar *var = dataFile.get_var(varName.c_str());
@@ -785,13 +793,13 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
             throw r_Error(r_Error::r_Error_General);
         }
 
-        }    
+        }
     }
     else
-    {   
+    {
         // if no variable is specified, try to import all
-        if (variable == NULL) 
-        {            
+        if (variable == NULL)
+        {
             vars = new char*[varNames.size()];
             if (vars == NULL)
             {
@@ -799,7 +807,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                 throw r_Error(r_Error::r_Error_MemoryAllocation);
             }
             varsSize = 0;
-            for (it = varNames.begin(); it != varNames.end(); it++) 
+            for (it = varNames.begin(); it != varNames.end(); it++)
             {
                 vars[varsSize] = strdup((*it).c_str());
                 varsSize++;
@@ -809,17 +817,17 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         int structSize = 0; // size of the struct type, used for offset computations in memcpy
         stringstream destType(stringstream::out); // build the struct type string
         destType << "struct { ";
-        for (int i = 0; i < varsSize; i++) 
-        {    
+        for (int i = 0; i < varsSize; i++)
+        {
             if (varNames.find(vars[i]) == varNames.end())
             {
                 RMInit::logOut << "Error: variable " << vars[i] << " not present in the file." << endl;
-                throw r_Error(r_Error::r_Error_General);        
-            }  
+                throw r_Error(r_Error::r_Error_General);
+            }
             NcVar *var = dataFile.get_var(vars[i]);
             if (i > 0)
                 destType << ", ";
-            switch (var->type()) 
+            switch (var->type())
             {
                 case ncByte:
                 case ncChar:
@@ -849,24 +857,24 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                 }
             }
 
-        
+
             numDims = var->num_dims();
             int firstDim; // get the dimensionality of first variable to import and check if all other have the same dimensionality
-            if (i == 0) 
+            if (i == 0)
             {
                 firstDim = numDims;
-                dimSizes = new long[numDims];    
+                dimSizes = new long[numDims];
                 if (dimSizes == NULL)
                 {
                     RMInit::logOut << "Error: out of memory." << endl;
                     throw r_Error(r_Error::r_Error_MemoryAllocation);
-                }            
+                }
             }
-            else 
+            else
             {
                 if (numDims != firstDim) {
                     RMInit::logOut << "Error: variables have different dimesionalities." << endl;
-                    throw r_Error(r_Error::r_Error_General);                 
+                    throw r_Error(r_Error::r_Error_General);
                 }
             }
             for (int j = 0; j < numDims; j++)
@@ -877,21 +885,21 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     RMInit::logOut << "Error: unlimited dimensions can not be handled." << endl;
                     throw r_Error(r_Error::r_Error_General);
                 }
-                else 
+                else
                 {
-                    if (i == 0) 
+                    if (i == 0)
                     {
                         dimSizes[j] = dim->size();
                         dataSize *= dim->size();
-                    }                
+                    }
                     else if (dim->size() != dimSizes[j])
                     {
                         RMInit::logOut << "Error: variables have different dimesionalities." << endl;
-                        throw r_Error(r_Error::r_Error_General);                      
+                        throw r_Error(r_Error::r_Error_General);
                     }
                 }
-            }         
-        } 
+            }
+        }
 
         destType << " }";
         desc.destType = r_Type::get_any_type(destType.str().c_str());
@@ -899,13 +907,13 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         {
             RMInit::logOut << "Error: out of memory." << endl;
             throw r_Error(r_Error::r_Error_MemoryAllocation);
-        }            
-           
+        }
+
         int offset = 0; // offset of the attribute within the struct type
-        for (int i = 0; i < varsSize; i++) 
-        {   
+        for (int i = 0; i < varsSize; i++)
+        {
             NcVar *var = dataFile.get_var(vars[i]);
-            switch (var->type()) 
+            switch (var->type())
             {
                 case ncShort:
                 {
@@ -917,9 +925,9 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     }
                     var->get(&data[0], dimSizes);
 
-                    for (int j = 0; j < dataSize; j++) 
+                    for (int j = 0; j < dataSize; j++)
                         memcpy(desc.dest + j * structSize + offset, &data[j], sizeof(short));
-                                                         
+
                     delete [] data;
                     offset += sizeof(short);
                     break;
@@ -934,9 +942,9 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     }
                     var->get(&data[0], dimSizes);
 
-                    for (int j = 0; j < dataSize; j++) 
+                    for (int j = 0; j < dataSize; j++)
                         memcpy(desc.dest + j * structSize + offset, &data[j], sizeof(int));
-                   
+
                     delete [] data;
                     offset += sizeof(int);
                     break;
@@ -951,9 +959,9 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     }
                     var->get(&data[0], dimSizes);
 
-                    for (int j = 0; j < dataSize; j++) 
+                    for (int j = 0; j < dataSize; j++)
                         memcpy(desc.dest + j * structSize + offset, &data[j], sizeof(double));
-                   
+
                     delete [] data;
                     offset += sizeof(double);
                     break;
@@ -968,9 +976,9 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     }
                     var->get(&data[0], dimSizes);
 
-                    for (int j = 0; j < dataSize; j++) 
+                    for (int j = 0; j < dataSize; j++)
                         memcpy(desc.dest + j * structSize + offset, &data[j], sizeof(float));
-                   
+
                     delete [] data;
                     offset += sizeof(float);
                     break;
@@ -986,9 +994,9 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     }
                     var->get(&data[0], dimSizes);
 
-                    for (int j = 0; j < dataSize; j++) 
+                    for (int j = 0; j < dataSize; j++)
                         memcpy(desc.dest + j * structSize + offset, &data[j], sizeof(char));
-                   
+
                     delete [] data;
                     offset += sizeof(char);
                     break;
@@ -997,16 +1005,16 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                 {
                     RMInit::logOut << "Error: this type is not supported." << endl;
                     throw r_Error(r_Error::r_Error_General);
-                }                                
-            
+                }
+
             }
-            
+
         }
-        
+
         desc.destInterv = r_Minterval(numDims);
         for (int i = 0; i < numDims; i++)
             desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) dimSizes[i] - 1);
-        
+
     }
     if (desc.srcInterv.dimension() == 2)
         // this means it was explicitly specified, so we shouldn't override it

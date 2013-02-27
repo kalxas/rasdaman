@@ -740,16 +740,16 @@ r_Conv_int16::convertTo(const char* options) throw (r_Error)
         readToSrcStream();
 
         //convert from marray to int16;
-        char* pTempFileName=NULL;
+        char* pTempFileName="int16tempXXXXXX";
         string tempFileName;
         ofstream oFile;
         FILE* pFile=NULL;
         size_t lenFile=0;
+        int tempFD;
 
         //--create the temp file
-        //FIXME for multithread application
-        pTempFileName=tmpnam(NULL);
-        if(pTempFileName==NULL)
+        tempFD = mkstemp(pTempFileName);;
+        if(tempFD==-1)
         {
             RMInit::logOut << "r_Conv_int16::convertTo(" << (options?options:"NULL")
                            << ") desc.srcType (" << desc.srcType->type_id()

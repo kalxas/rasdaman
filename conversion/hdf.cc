@@ -258,7 +258,7 @@ r_Conv_HDF::~r_Conv_HDF(void)
 
 r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
 {
-    char name[256];
+    char *name = "hdfTempXXXXXX";
     int32 handle=0, sds_id=0, rank=0;
     comp_coder_t comp_type=COMP_CODE_NONE;
     int32 *dimsizes=NULL, *start=NULL;
@@ -266,9 +266,16 @@ r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
     int i=0, j=0;
     FILE *fp=NULL;
     comp_info c_info;
+    int tempFD;
 
-    strncpy(name, tmpnam(NULL), 256);
-    //name = "testfile.hdf";
+    tempFD = mkstemp(name);
+    if(tempFD==-1)
+    {
+        RMInit::logOut << "r_Conv_hdf::convertTo(" << (options?options:"NULL")
+                        << ") desc.srcType (" << desc.srcType->type_id()
+                        << ") unable to generate a tempory file !" << endl;
+        throw r_Error();
+    }
 
     if ((handle = SDstart(name, DFACC_CREATE)) == FAIL)
     {

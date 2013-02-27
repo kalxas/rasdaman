@@ -719,11 +719,12 @@ r_Conv_DEM::convertTo(const char* options) throw (r_Error)
 {
     bool hasSrcType=true;
 
-    char* pTempFileName=NULL;   // name of temp file
+    char* pTempFileName="demtempXXXXXX";   // name of temp file
     string tempFileName;        // duplicate of temp file name -- heaven knows why
     ofstream oFile;         // for writing out file
     FILE* pFile=NULL;       // for reading back file
     size_t lenFile=0;       // size of file as read
+    int tempFD;             // for the temp file
 
     RMInit::logOut << "r_Conv_DEM::convertTo(" << (options?options:"NULL") << ")" << endl;
 
@@ -763,8 +764,8 @@ r_Conv_DEM::convertTo(const char* options) throw (r_Error)
         //convert from marray to DEM;
         //--create the temp file
         //FIXME for multithread application
-        pTempFileName=tmpnam(NULL);
-        if(pTempFileName==NULL)
+        tempFD = mkstemp(pTempFileName);
+        if(tempFD == -1)
         {
             RMInit::logOut << "r_Conv_DEM::convertTo(" << (options?options:"NULL")
                            << ") desc.srcType (" << desc.srcType->type_id()
