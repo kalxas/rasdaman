@@ -29,9 +29,14 @@ import petascope.wcs2.helpers.rest.RESTUrl;
 /**
  * Parser class that processes requests using the REST interface.
  *
+ * @param <T>
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  */
 public abstract class RESTParser<T extends Request> extends AbstractRequestParser<T> {
+
+    public static final String RANGE_SEPARATOR = ":";
+    public static final String ENUMERATOR_SEPARATOR = ",";
+    private static Logger log = LoggerFactory.getLogger(RESTParser.class);
 
     /**
      * Implementation of the AbstractRequestParser interface The RESTParser can
@@ -42,7 +47,6 @@ public abstract class RESTParser<T extends Request> extends AbstractRequestParse
      * @return canParse true if it can parse the request, false otherwise
      */
     public boolean canParse(HTTPRequest request) {
-        log.trace("RESTParser can parse the request");
         RESTUrl rUrl = new RESTUrl(request.getUrlPath());
         Boolean canParse = true;
         if (!(request.getQueryString() == null || request.getQueryString().isEmpty())) {
@@ -50,10 +54,7 @@ public abstract class RESTParser<T extends Request> extends AbstractRequestParse
         } else if (!rUrl.existsKey(this.getOperationName())) {
             canParse = false;
         }
+        log.trace("RESTParser<{}> {} parse the request", getOperationName(), canParse ? "can" : "cannot");
         return canParse;
     }
-    private static Logger log = LoggerFactory.getLogger(RESTParser.class);
-    public static final String RANGE_SEPARATOR = ":";
-    public static final String ENUMERATOR_SEPARATOR = ",";
-    
 }

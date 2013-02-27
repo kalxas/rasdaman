@@ -46,9 +46,9 @@ public class ParsersRegistry {
      * Initialize registry: load available protocol binding extensions
      */
     public static void initialize() {
-        //registerParser(new XMLGetCapabilitiesParser());
-        //registerParser(new XMLDescribeCoverageParser());
-        //registerParser(new XMLGetCoverageParser());
+        registerParser(new XMLGetCapabilitiesParser());
+        registerParser(new XMLDescribeCoverageParser());
+        registerParser(new XMLGetCoverageParser());
         registerParser(new KVPGetCapabilitiesParser());
         registerParser(new KVPDescribeCoverageParser());
         registerParser(new KVPGetCoverageParser());
@@ -58,8 +58,10 @@ public class ParsersRegistry {
     }
 
     /**
-     * Add new binding to the registry. It will replace any other binding which has the same operation
-     * name and extension identifier.
+     * Add new binding to the registry.
+     * It will replace any other binding which has the same operation name and extension identifier.
+     *
+     * @param parser
      */
     public static void registerParser(RequestParser parser) {
         log.info("Registered parser {}", parser.getClass().getName());
@@ -67,6 +69,7 @@ public class ParsersRegistry {
     }
 
     /**
+     * @param request
      * @return a binding for the specified operation, that can parse the specified input, or null otherwise
      */
     public static RequestParser getParser(HTTPRequest request) {

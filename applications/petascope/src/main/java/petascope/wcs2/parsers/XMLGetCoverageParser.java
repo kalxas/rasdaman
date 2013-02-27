@@ -21,10 +21,18 @@
  */
 package petascope.wcs2.parsers;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
+import javax.xml.XMLConstants;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+import petascope.ConfigManager;
+import static petascope.ConfigManager.XML_VALIDATION_T;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
@@ -53,8 +61,36 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
     public static final String LABEL_SUBSETTING_CRS = "subsettingcrs";
     public static final String LABEL_OUTPUT_CRS = "outputcrs";
 
+    // XML validation
+    private Schema schema;
+    private SchemaFactory schemaFactory;
+    private final String WCS2_GETCOV_SCHEMA = "http://schemas.opengis.net/wcs/2.0/wcsGetCoverage.xsd";
+
+    // constructor
+    public XMLGetCoverageParser(){
+        if(ConfigManager.XML_VALIDATION.equals(XML_VALIDATION_T)){
+            try {
+                log.info("Loading XML schema definition from " + WCS2_GETCOV_SCHEMA + "...");
+                schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                schema = schemaFactory.newSchema(new URL(WCS2_GETCOV_SCHEMA));
+                log.info("Done.");
+            } catch(SAXException e) {
+                log.error("Could not initialize the GetCoverage XML Schema validator. Schema validation will be disabled.",e);
+            } catch(MalformedURLException e) {
+                log.error("Could not initialize the GetCoverage XML Schema validator. Schema validation will be disabled.",e);
+            }
+        }
+    }
+
     @Override
     public GetCoverageRequest parse(HTTPRequest request) throws WCSException {
+
+        // input XML validation
+        if(ConfigManager.XML_VALIDATION.equals(XML_VALIDATION_T)){
+            validateInput(request.getRequestString(), schema);
+        }
+
+        // parsing
         Element root = parseInput(request.getRequestString());
         List<Element> coverageIds = collectAll(root, PREFIX_WCS,
                 LABEL_COVERAGE_ID, CTX_WCS);

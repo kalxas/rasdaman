@@ -21,26 +21,23 @@
  */
 package petascope.wcs2.parsers;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
+import javax.xml.XMLConstants;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import petascope.HTTPRequest;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import static petascope.util.XMLSymbols.*;
 import static petascope.util.XMLUtil.*;
 import petascope.wcs2.handlers.RequestHandler;
+import petascope.ConfigManager;
+import static petascope.ConfigManager.XML_VALIDATION_T;
 
 /**
  * Parse a GetCapabilities XML request.
@@ -49,36 +46,36 @@ import petascope.wcs2.handlers.RequestHandler;
  */
 public class XMLDescribeCoverageParser extends XMLParser<DescribeCoverageRequest> {
 
-    private Schema schema;
-    private SchemaFactory schemaFactory;
-    private final String SCHEMA = "http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd";
     Logger log = LoggerFactory.getLogger(XMLDescribeCoverageParser.class);
 
-    public XMLDescribeCoverageParser() {
-        try {
-            schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-            schema = schemaFactory.newSchema(new URL(SCHEMA));
-        } catch (SAXException e) {
-            log.error("Could not initialize the XML Schema validator. Schema validation will be disabled.", e);
-        } catch (MalformedURLException e) {
-            log.error("Could not initialize the XML Schema validator. Schema validation will be disabled.", e);
+    private Schema schema;
+    private SchemaFactory schemaFactory;
+    private final String WCS2_DESCRCOV_SCHEMA = "http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd";
+
+    public XMLDescribeCoverageParser(){
+        if(ConfigManager.XML_VALIDATION.equals(XML_VALIDATION_T)){
+            try {
+                log.info("Loading XML schema definition from " + WCS2_DESCRCOV_SCHEMA + "...");
+                schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                schema = schemaFactory.newSchema(new URL(WCS2_DESCRCOV_SCHEMA));
+                log.info("Done.");
+            } catch(SAXException e) {
+                log.error("Could not initialize the DescribeCoverage XML Schema validator. Schema validation will be disabled.",e);
+            } catch(MalformedURLException e) {
+                log.error("Could not initialize the DescribeCoverage XML Schema validator. Schema validation will be disabled.",e);
+            }
         }
     }
 
     @Override
     public DescribeCoverageRequest parse(HTTPRequest request) throws WCSException {
 
-        Source requestStream = new StreamSource(new StringReader(request.getRequestString()));
-        Validator validator = schema.newValidator();
-        try {
-            validator.validate(requestStream);
-        } catch (SAXException e) {
-            throw new WCSException(ExceptionCode.XmlNotValid, "The structure of the provided input is not valid.");
-        } catch (NullPointerException e) {
-            log.warn("The recieved XML document could not be validated.");
-        } catch (IOException e) {
-            throw new WCSException(ExceptionCode.WcsError, "A fatal error ocurred processing the input.");
+        // input XML validation
+        if(ConfigManager.XML_VALIDATION.equals(XML_VALIDATION_T)){
+            validateInput(request.getRequestString(), schema);
         }
+
+        // parsing
         Element root = parseInput(request.getRequestString());
         List<Element> coverageIds = collectAll(root, PREFIX_WCS,
                 LABEL_COVERAGE_ID, CTX_WCS);

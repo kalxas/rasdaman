@@ -22,9 +22,18 @@
  */
 package petascope.wcs2.parsers;
 
+import java.io.IOException;
+import java.io.StringReader;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.Validator;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
@@ -36,13 +45,20 @@ import petascope.util.XMLUtil;
  * provides some convenience methods to concrete implementations.
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
+ *
+ * @param <T>
  */
 public abstract class XMLParser<T extends Request> extends AbstractRequestParser<T> {
 
+    private static Logger log = LoggerFactory.getLogger(XMLParser.class);
+
     @Override
     public boolean canParse(HTTPRequest request) {
-        return request.getRequestString() != null && request.getRequestString().startsWith("<")
+        boolean canParse = request.getRequestString() != null
+                && request.getRequestString().startsWith("<")
                 && XMLUtil.isFirstTag(request.getRequestString(), getOperationName());
+        log.trace("XMLParser<{}> {} parse the request", getOperationName(), canParse ? "can" : "cannot");
+        return canParse;
     }
 
     protected Element parseInput(String input) throws WCSException {
@@ -64,6 +80,31 @@ public abstract class XMLParser<T extends Request> extends AbstractRequestParser
                     ex.getMessage(), ex);
         } catch (Exception ex) {
             throw new WCSException(ExceptionCode.XmlNotValid, ex.getMessage(), ex);
+        }
+    }
+
+    /**
+     * Validates the input XML request against the given XML schema definition.
+     *
+     * @param input
+     * @param schema
+     * @throws WCSException
+     */
+    protected void validateInput(String input, Schema schema) throws WCSException {
+
+        // create XML validator
+        Source requestStream = new StreamSource(new StringReader(input));
+        Validator validator = schema.newValidator();
+
+        // validate
+        try {
+            validator.validate(requestStream);
+        } catch(SAXException e) {
+            throw new WCSException(ExceptionCode.XmlNotValid,"The structure of the provided input is not valid.");
+        } catch(NullPointerException e) {
+            throw new WCSException(ExceptionCode.InvalidRequest, "The received XML document is empty.");
+        } catch(IOException e) {
+            throw new WCSException(ExceptionCode.WcsError,"A fatal error ocurred while validating the input schema.");
         }
     }
 }

@@ -96,12 +96,18 @@ public class ConfigManager {
     public static String RASDAMAN_ADMIN_PASS = "rasadmin";
     public static String RASDAMAN_VERSION = "v9.0.0beta1";
 
+    // XML validation schema control setting
+    public static final String XML_VALIDATION_F = "false";
+    public static final String XML_VALIDATION_T = "true";
+    public static String XML_VALIDATION = XML_VALIDATION_F;
+
+    //Retry settings when opening a connection to rasdaman server. Ernesto Rodriguez <ernesto4160@gmail.com>
     //Time in seconds between each re-connect attempt
     public static String RASDAMAN_RETRY_TIMEOUT="5";
-
     //Maximum number of re-connect attempts
     public static String RASDAMAN_RETRY_ATTEMPTS="3";
 
+    // OGC services info
     public static String WCST_LANGUAGE  = "en";
     public static String WCST_VERSION = "1.1.4";
     public static String WCPS_LANGUAGE = "en";
@@ -166,6 +172,7 @@ public class ConfigManager {
     public static final String KEY_WCST_DEFAULT_DATATYPE = "default_datatype";
     public static final String KEY_SECORE_URLS = "secore_urls";
     public static final String KEY_SECORE_VERSIONS = "secore_versions";
+    public static final String KEY_XML_VALIDATION = "xml_validation";
 
     public static final String TEMPLATES_PATH = "../templates/";
     public static final String GETCAPABILITIES_XML = "GetCapabilities.xml";
@@ -283,6 +290,7 @@ public class ConfigManager {
         METADATA_PASS           = get(KEY_METADATA_PASS);
         RASDAMAN_RETRY_TIMEOUT  = get(KEY_RASDAMAN_RETRY_TIMEOUT);
         RASDAMAN_RETRY_ATTEMPTS = get(KEY_RASDAMAN_RETRY_ATTEMPTS);
+        XML_VALIDATION          = get(KEY_XML_VALIDATION);
 
         CCIP_HACK = Boolean.parseBoolean(get(KEY_CCIP_VERSION));
 

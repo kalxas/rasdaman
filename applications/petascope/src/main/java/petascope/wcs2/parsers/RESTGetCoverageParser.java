@@ -28,11 +28,12 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
-import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.TimeUtil;
 import petascope.wcs2.extensions.FormatExtension;
@@ -46,6 +47,13 @@ import petascope.wcs2.helpers.rest.RESTUrl;
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  */
 public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
+
+    private static final String OPERATION_IDENTIFIER = "coverage";
+    private static final int COVERAGE_ID_PLACE = 3;
+    private static final Pattern SUBSET_REGEX = Pattern.compile("([^,\\(]+)(,([^\\(]+))?\\(([^"
+            + RESTParser.RANGE_SEPARATOR + "\\)]+)(" + RESTParser.RANGE_SEPARATOR + "([^\\)]+))?\\)");
+    private static final String REST_SUBSET_PARAM = "subset";
+    private static Logger log = LoggerFactory.getLogger(RESTGetCoverageParser.class);
 
     /**
      * Overrides the parent canParse method to better identify GetCoverage requests
@@ -63,6 +71,7 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
         } else if (rUrl.existsKey(RESTDescribeCoverageParser.OPERATION_IDENTIFIER)) {
             canParse = false;
         }
+        log.trace("RESTGetCoverageParser {} parse the request", canParse ? "can" : "cannot");
         return canParse;
     }
 
@@ -159,9 +168,4 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
     public String getOperationName() {
         return RESTGetCoverageParser.OPERATION_IDENTIFIER;
     }
-    private static final String OPERATION_IDENTIFIER = "coverage";
-    private static final int COVERAGE_ID_PLACE = 3;
-    private static final Pattern SUBSET_REGEX = Pattern.compile("([^,\\(]+)(,([^\\(]+))?\\(([^"
-            + RESTParser.RANGE_SEPARATOR + "\\)]+)(" + RESTParser.RANGE_SEPARATOR + "([^\\)]+))?\\)");
-    private static final String REST_SUBSET_PARAM = "subset";
 }

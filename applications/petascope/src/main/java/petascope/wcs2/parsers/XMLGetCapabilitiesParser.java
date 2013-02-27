@@ -21,8 +21,18 @@
  */
 package petascope.wcs2.parsers;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import javax.xml.XMLConstants;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
 import nu.xom.Element;
 import nu.xom.Node;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+import petascope.ConfigManager;
+import static petascope.ConfigManager.XML_VALIDATION_T;
 import petascope.HTTPRequest;
 import petascope.exceptions.WCSException;
 import static petascope.util.XMLSymbols.*;
@@ -35,9 +45,37 @@ import petascope.wcs2.handlers.RequestHandler;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class XMLGetCapabilitiesParser extends XMLParser<GetCapabilitiesRequest> {
-    
+
+    Logger log = LoggerFactory.getLogger(XMLGetCapabilitiesParser.class);
+
+    private Schema schema;
+    private SchemaFactory schemaFactory;
+    private final String WCS2_GETCAP_SCHEMA = "http://schemas.opengis.net/wcs/2.0/wcsGetCapabilities.xsd";
+
+    public XMLGetCapabilitiesParser(){
+        if(ConfigManager.XML_VALIDATION.equals(XML_VALIDATION_T)){
+            try {
+                log.info("Loading XML schema definition from " + WCS2_GETCAP_SCHEMA + "...");
+                schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                schema = schemaFactory.newSchema(new URL(WCS2_GETCAP_SCHEMA));
+                log.info("Done.");
+            } catch(SAXException e) {
+                log.error("Could not initialize the GetCapabilities XML Schema validator. Schema validation will be disabled.",e);
+            } catch(MalformedURLException e) {
+                log.error("Could not initialize the GetCapabilities XML Schema validator. Schema validation will be disabled.",e);
+            }
+        }
+    }
+
     @Override
     public GetCapabilitiesRequest parse(HTTPRequest request) throws WCSException {
+
+        // input XML validation
+        if(ConfigManager.XML_VALIDATION.equals(XML_VALIDATION_T)){
+            validateInput(request.getRequestString(), schema);
+        }
+
+        // parsing
         Element root = parseInput(request.getRequestString());
 
         return new GetCapabilitiesRequest(
