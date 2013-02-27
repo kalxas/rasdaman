@@ -406,16 +406,18 @@ QtExtend::evaluate( QtDataList* inputList )
             throw parseInfo;
         }
         // - M.subset( sdom(C) ); can we relieve this?
-        if( ! targetDomain.covers( qtMDDObj->getLoadDomain() ) )
-        {
-            // delete the old operands
-            if( operand1 ) operand1->deleteRef();
-            if( operand2 ) operand2->deleteRef();
-
-            RMInit::logOut << "Error: QtExtend::evaluate( QtDataList* ) - new interval does not cover MDD to be extended." << endl;
-            parseInfo.setErrorNo(421);
-            throw parseInfo;
-        }
+        // yes, commented out the below, all seems to work perfectly fine and
+        // I can't think of a good reason for this limitation -- DM 2013-feb-27
+//        if( ! targetDomain.covers( qtMDDObj->getLoadDomain() ) )
+//        {
+//            // delete the old operands
+//            if( operand1 ) operand1->deleteRef();
+//            if( operand2 ) operand2->deleteRef();
+//
+//            RMInit::logOut << "Error: QtExtend::evaluate( QtDataList* ) - new interval does not cover MDD to be extended." << endl;
+//            parseInfo.setErrorNo(421);
+//            throw parseInfo;
+//        }
 
         // RMInit::logOut << "QtExtend::evaluate( QtDataList* ) - extending MDD with basetype " << currentMDDObj->getMDDBaseType() << " and load domain " << qtMDDObj->getLoadDomain() << " to domain " << targetDomain << endl;
 
