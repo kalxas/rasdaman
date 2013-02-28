@@ -25,6 +25,8 @@ import secore.db.DbManager;
 import secore.util.SecoreException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static secore.util.Constants.*;
@@ -40,9 +42,58 @@ import secore.util.Pair;
 public abstract class AbstractHandler implements Handler {
   
   private static Logger log = LoggerFactory.getLogger(AbstractHandler.class);
+  
+  // regex pattern matching empty XML returned from BaseX
+  private static final Pattern EMPTY_XML = Pattern.compile("(<\\?xml.*\\?>\\n)?<empty/>");
 
   public boolean canHandle(ResolveRequest request) {
     return getOperation().equals(request.getOperation());
+  }
+
+  /**
+   * Returns the parent of element <code>el</code> which text content equals
+   * <code>id</code>.
+   * 
+   * @param el element name
+   * @param urnUrlPair URN/URL identifiers that should be resolved
+   * @param depth set the depth to which to dereference xlinks
+   * @param parameters parameters to substitute for target elements
+   * @return the definition (parent element of el)
+   * @throws SecoreException usually if the text content of el hasn't been matched with id
+   */
+  protected GmlResponse resolve(String el, Pair<String, String> urnUrlPair, int depth, List<Parameter> parameters) throws SecoreException {
+    // try to resolve a URN first
+    log.trace("Resolving URN identifier");
+    String res = resolve(IDENTIFIER_LABEL, urnUrlPair.fst, depth, parameters);
+
+    if (!validDefinition(res)) {
+      log.trace("URN resolution failed, trying to resolve URL identifier");
+      res = resolve(IDENTIFIER_LABEL, urnUrlPair.snd, depth, parameters);
+    }
+
+    if (!validDefinition(res)) {
+      // no definition found
+      log.error("Failed resolving " + urnUrlPair.snd);
+      throw new SecoreException(ExceptionCode.NoSuchDefinition, "Failed resolving " + urnUrlPair.snd);
+    }
+
+    // TODO check for the result, e.g. if the operation is datum than the result can only be GeodeticDatum
+    log.debug("Done, returning response.");
+    
+    return new GmlResponse(res);
+  }
+
+  /**
+   * Check if def is not an empty XML document.
+   * @param def XML definition to be checked.
+   * @return true if not empty, false otherwise.
+   */
+  private boolean validDefinition(String def) {
+    if (def != null) {
+      Matcher matcher = EMPTY_XML.matcher(def);
+      return !matcher.matches();
+    }
+    return false;
   }
 
   /**

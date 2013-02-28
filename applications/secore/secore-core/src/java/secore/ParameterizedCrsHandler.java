@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 import static secore.ParameterizedCrsHandler.*;
 import static secore.util.Constants.*;
 
+
 /**
  * Handle parameterized CRSs. An example of a parameterized CRS is the 
  * auto universal transverse mercator layer CRS (AUTO:42001):
@@ -86,6 +87,10 @@ public class ParameterizedCrsHandler extends GeneralHandler {
   public static final String PARAMETER_TARGET = "target";
   public static final String TARGET_CRS = "targetCRS";
   public static final String TARGET_CRS_HREF = "href";
+  
+  // the definition of the parameterized CRS may be resolved previously
+  // by the general handler.
+  private GmlResponse definition = null;
 
   @Override
   public boolean canHandle(ResolveRequest request) {
@@ -122,7 +127,10 @@ public class ParameterizedCrsHandler extends GeneralHandler {
     if (req.getParams().size() != 3) {
       throw new SecoreException(ExceptionCode.InvalidRequest, "Invalid Parameterized CRS request");
     }
-    GmlResponse gml = resolveRequest(req);
+    GmlResponse gml = definition;
+    if (gml == null) {
+      gml = resolveParameterizedRequest(req);
+    }
     
     // check if the result is a ParameterizedCRS
     String rootElementName = StringUtil.getRootElementName(gml.getData());
@@ -164,7 +172,19 @@ public class ParameterizedCrsHandler extends GeneralHandler {
     for (Pair<String, String> p : request.getParams()) {
       String name = p.fst;
       String value = p.snd;
-      if (!name.equalsIgnoreCase(AUTHORITY_KEY) && !name.equalsIgnoreCase(CODE_KEY) &&
+      
+      log.debug("key: " + name + ", value: " + value);
+      
+      if (name.equalsIgnoreCase(RESOLVE_TARGET_KEY) && value != null) {
+        if (value.equalsIgnoreCase(RESOLVE_TARGET_NO)) {
+          // no resolving, just return original definition
+          return gml;
+        } else if (!value.equalsIgnoreCase(RESOLVE_TARGET_YES)) {
+          throw new SecoreException(ExceptionCode.InvalidRequest.locator(name),
+              "Invalid value for parameter " + name + ", expected 'yes' or 'no'.");
+        }
+      } else if (!name.equalsIgnoreCase(AUTHORITY_KEY) && 
+          !name.equalsIgnoreCase(CODE_KEY) &&
           !name.equalsIgnoreCase(VERSION_KEY) && value != null) {
         Parameter parameter = parameters.get(name);
         if (parameter == null) {
@@ -182,7 +202,7 @@ public class ParameterizedCrsHandler extends GeneralHandler {
     ResolveRequest targetCRSRequest = StringUtil.buildRequest(targetCRS);
     
     // get (URN, URL) for the target CRS
-    Pair<String, String> p = parseRequest(targetCRSRequest);
+    Pair<String, String> urnUrlPair = parseRequest(targetCRSRequest);
     
     // extract parameters with targets
     List<Parameter> params = new ArrayList<Parameter>();
@@ -192,24 +212,18 @@ public class ParameterizedCrsHandler extends GeneralHandler {
       }
     }
     
-    // try to resolve a URN first
-    String res = null;
-    try {
-      res = resolve(IDENTIFIER_LABEL, p.fst, 2, params);
-    } catch (SecoreException ex) {
-      if (ExceptionCode.NoSuchDefinition.equals(ex.getExceptionCode())) {
-        // URN resolution failed, try with a REST now
-        res = resolve(IDENTIFIER_LABEL, p.snd, 2, params);
-      } else {
-        throw ex;
-      }
-    }
-    
-    return new GmlResponse(res);
+    return resolve(IDENTIFIER_LABEL, urnUrlPair, 2, params);
+  }
+
+  public GmlResponse getDefinition() {
+    return definition;
+  }
+
+  public void setDefinition(GmlResponse definition) {
+    this.definition = definition;
   }
   
 }
-
 class Parameters extends HashMap<String, Parameter> {
   
   private static Logger log = LoggerFactory.getLogger(Parameters.class);
@@ -366,9 +380,9 @@ class Parameter {
     try {
       this.value = StringUtil.evaluate(value);
       evaluated = true;
-    } catch (ScriptException ex) {
+    } catch (Exception ex) {
       throw new SecoreException(ExceptionCode.InvalidParameterValue.locator(name),
-          "Failed evaluating the parameter value: " + value);
+          "Failed evaluating the parameter value: " + value, ex);
     }
   }
 

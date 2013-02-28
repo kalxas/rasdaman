@@ -21,15 +21,16 @@
  */
 package secore;
 
+import java.util.ArrayList;
 import secore.util.SecoreException;
 import secore.util.ExceptionCode;
 import secore.util.Pair;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.util.Constants;
 import static secore.util.Constants.*;
+import secore.util.StringUtil;
 
 /**
  * This handler should be invoked as a fallback to the more specific handler,
@@ -49,9 +50,10 @@ public class GeneralHandler extends AbstractHandler {
   public static final String EXPAND_FULL = "full";
   public static final String EXPAND_NONE = "none";
   public static final int EXPAND_DEFAULT = 2;
-  
-  // regex pattern matching empty XML returned from BaseX
-  private static final Pattern EMPTY_XML = Pattern.compile("(<\\?xml.*\\?>\\n)?<empty/>");
+  // flag indicating whether to resolve the target CRS
+  public static final String RESOLVE_TARGET_KEY = "resolve-target";
+  public static final String RESOLVE_TARGET_YES = "yes";
+  public static final String RESOLVE_TARGET_NO = "no";
 
   @Override
   public boolean canHandle(ResolveRequest request) {
@@ -64,35 +66,30 @@ public class GeneralHandler extends AbstractHandler {
   }
 
   public GmlResponse resolveRequest(ResolveRequest request) throws SecoreException {
-    Pair<String, String> p = parseRequest(request);
-    int depth = request.getExpandDepth();
-
-    // try to resolve a URN first
-    log.trace("Resolving URN identifier");
-    String res = resolve(IDENTIFIER_LABEL, p.fst, depth);
-
-    if (!validDefinition(res)) {
-      log.trace("URN resolution failed, trying to resolve URL identifier");
-      res = resolve(IDENTIFIER_LABEL, p.snd, depth);
+    Pair<String, String> urnUrlPair = parseRequest(request);
+    
+    GmlResponse ret = resolve(IDENTIFIER_LABEL,
+        urnUrlPair, request.getExpandDepth(), new ArrayList<Parameter>());
+    
+    // check if the result is a parameterized CRS, and forward to the ParameterizedCrsHandler
+    if (ret != null && ret.getData() != null &&
+        StringUtil.getRootElementName(ret.getData()).equals(ParameterizedCrsHandler.PARAMETERIZED_CRS)) {
+      ret = resolve(IDENTIFIER_LABEL, urnUrlPair, 0, new ArrayList<Parameter>());
+      ParameterizedCrsHandler phandler = new ParameterizedCrsHandler();
+      phandler.setDefinition(ret);
+      ret = phandler.handle(request);
     }
-
-    if (!validDefinition(res)) {
-      // no definition found
-      log.error("Failed resolving " + p.snd);
-      throw new SecoreException(ExceptionCode.NoSuchDefinition, "Failed resolving " + p.snd);
-    }
-
-    // TODO check for the result, e.g. if the operation is datum than the result can only be GeodeticDatum
-    log.debug("Done, returning response.");
-    return new GmlResponse(res);
+    
+    return ret;
   }
 
-  private boolean validDefinition(String def) {
-    if (def != null) {
-      Matcher matcher = EMPTY_XML.matcher(def);
-      return !matcher.matches();
-    }
-    return false;
+  public GmlResponse resolveParameterizedRequest(ResolveRequest request) throws SecoreException {
+    Pair<String, String> urnUrlPair = parseRequest(request);
+    
+    GmlResponse ret = resolve(IDENTIFIER_LABEL,
+        urnUrlPair, request.getExpandDepth(), new ArrayList<Parameter>());
+    
+    return ret;
   }
 
   /**
