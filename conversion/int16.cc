@@ -740,7 +740,7 @@ r_Conv_int16::convertTo(const char* options) throw (r_Error)
         readToSrcStream();
 
         //convert from marray to int16;
-        char* pTempFileName="int16tempXXXXXX";
+        char pTempFileName[] ="int16tempXXXXXX";
         string tempFileName;
         ofstream oFile;
         FILE* pFile=NULL;

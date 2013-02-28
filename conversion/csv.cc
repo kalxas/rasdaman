@@ -248,7 +248,7 @@ void r_Conv_CSV::printStruct(std::ofstream &f, int *dims, int dim)
 r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
 {
     ENTER("r_Conv_CSV::convertTo()");
-    char* name = "csvtempXXXXXX";
+    char name[] = "csvtempXXXXXX";
     int tempFD;
     tempFD = mkstemp(name);
     if(tempFD == -1)

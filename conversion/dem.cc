@@ -719,7 +719,7 @@ r_Conv_DEM::convertTo(const char* options) throw (r_Error)
 {
     bool hasSrcType=true;
 
-    char* pTempFileName="demtempXXXXXX";   // name of temp file
+    char pTempFileName[] ="demtempXXXXXX";   // name of temp file
     string tempFileName;        // duplicate of temp file name -- heaven knows why
     ofstream oFile;         // for writing out file
     FILE* pFile=NULL;       // for reading back file

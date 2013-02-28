@@ -156,7 +156,7 @@ r_Conv_NETCDF::~r_Conv_NETCDF(void)
 /// convert to NETCDF
 r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
 {
-    char *fileName="netcdfTempXXXXXX";
+    char fileName[] ="netcdfTempXXXXXX";
     string dimNamePrefix = "dim_";
     int dimNo = 0;
     long *dimSizes;

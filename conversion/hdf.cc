@@ -258,7 +258,7 @@ r_Conv_HDF::~r_Conv_HDF(void)
 
 r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
 {
-    char *name = "hdfTempXXXXXX";
+    char name[] = "hdfTempXXXXXX";
     int32 handle=0, sds_id=0, rank=0;
     comp_coder_t comp_type=COMP_CODE_NONE;
     int32 *dimsizes=NULL, *start=NULL;
@@ -371,7 +371,7 @@ r_convDesc &r_Conv_HDF::convertTo( const char *options ) throw(r_Error)
 
 r_convDesc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
 {
-    char name[256];
+    char name[] = "HDFtempXXXXXX";
     int32 handle=0, sds_id=0, rank=0, dtype=0, numattr=0, array_size=0;
     int32 dimsizes[H4_MAX_VAR_DIMS];
     int32 *start=NULL;
@@ -379,6 +379,7 @@ r_convDesc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
     size_t filesize=0;
     FILE *fp=NULL;
     int i=0;
+    int tempFD;
 
     if (desc.srcInterv.dimension() != 1)
     {
@@ -386,7 +387,15 @@ r_convDesc &r_Conv_HDF::convertFrom(const char *options) throw(r_Error)
         throw r_Error(r_Error::r_Error_General);
     }
 
-    strncpy(name, tmpnam(NULL), 256);
+    tempFD = mkstemp(name);
+    if(tempFD==-1)
+    {
+        RMInit::logOut << "r_Conv_hdf::convertTo(" << (options?options:"NULL")
+                        << ") desc.srcType (" << desc.srcType->type_id()
+                        << ") unable to generate a tempory file !" << endl;
+        throw r_Error();
+    }
+
     if ((fp = fopen(name, "wb")) == NULL)
     {
         RMInit::logOut << "r_Conv_HDF::convertFrom(): unable to write temporary file!" << endl;
