@@ -25,6 +25,8 @@ import secore.util.SecoreException;
 import secore.util.ExceptionCode;
 import secore.util.Pair;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static secore.util.Constants.*;
@@ -38,17 +40,18 @@ import static secore.util.Constants.*;
 public class GeneralHandler extends AbstractHandler {
 
   private static Logger log = LoggerFactory.getLogger(GeneralHandler.class);
-  
   public static final String AUTHORITY_KEY = "authority";
   public static final String VERSION_KEY = "version";
   public static final String DEFAULT_VERSION = "0";
   public static final String CODE_KEY = "code";
-  
   // flatten possibilites
   public static final String EXPAND_KEY = "expand";
   public static final String EXPAND_FULL = "full";
   public static final String EXPAND_NONE = "none";
   public static final int EXPAND_DEFAULT = 2;
+  
+  // regex pattern matching empty XML returned from BaseX
+  private static final Pattern EMPTY_XML = Pattern.compile("(<\\?xml.*\\?>\\n)?<empty/>");
 
   @Override
   public boolean canHandle(ResolveRequest request) {
@@ -59,35 +62,45 @@ public class GeneralHandler extends AbstractHandler {
     log.debug("Handling resolve request...");
     return resolveRequest(request);
   }
-  
+
   public GmlResponse resolveRequest(ResolveRequest request) throws SecoreException {
     Pair<String, String> p = parseRequest(request);
     int depth = request.getExpandDepth();
 
     // try to resolve a URN first
-    String res = null;
-    try {
-      res = resolve(IDENTIFIER_LABEL, p.fst, depth);
-    } catch (SecoreException ex) {
-      if (ExceptionCode.NoSuchDefinition.equals(ex.getExceptionCode())) {
-        // URN resolution failed, try with a REST now
-        res = resolve(IDENTIFIER_LABEL, p.snd, depth);
-      } else {
-        throw ex;
-      }
+    log.trace("Resolving URN identifier");
+    String res = resolve(IDENTIFIER_LABEL, p.fst, depth);
+
+    if (!validDefinition(res)) {
+      log.trace("URN resolution failed, trying to resolve URL identifier");
+      res = resolve(IDENTIFIER_LABEL, p.snd, depth);
+    }
+
+    if (!validDefinition(res)) {
+      // no definition found
+      log.error("Failed resolving " + p.snd);
+      throw new SecoreException(ExceptionCode.NoSuchDefinition, "Failed resolving " + p.snd);
     }
 
     // TODO check for the result, e.g. if the operation is datum than the result can only be GeodeticDatum
     log.debug("Done, returning response.");
     return new GmlResponse(res);
   }
-  
+
+  private boolean validDefinition(String def) {
+    if (def != null) {
+      Matcher matcher = EMPTY_XML.matcher(def);
+      return !matcher.matches();
+    }
+    return false;
+  }
+
   /**
-   * Checks the request and returns a pair of URN/URL IDENTIFIER_LABELs to be looked
-   * up in the database.
-   * 
+   * Checks the request and returns a pair of URN/URL IDENTIFIER_LABELs to be
+   * looked up in the database.
+   *
    * @param request resolving request
-   * @return  pair of URN/URL IDENTIFIER_LABELs to be looked up in the database.
+   * @return pair of URN/URL IDENTIFIER_LABELs to be looked up in the database.
    * @throws SecoreException in case of an invalid request
    */
   Pair<String, String> parseRequest(ResolveRequest request) throws SecoreException {
@@ -117,7 +130,7 @@ public class GeneralHandler extends AbstractHandler {
           code = val;
         }
       }
-      
+
       // check for empty parameters
       if (authority.equals(EMPTY)) {
         log.error("No authority specified.");
@@ -134,7 +147,7 @@ public class GeneralHandler extends AbstractHandler {
         throw new SecoreException(ExceptionCode.MissingParameterValue
             .locator(CODE_KEY), "Insufficient parameters provided");
       }
-      
+
       // try to resolve a URN first
       String urn = URN_PREFIX + URN_SEPARATOR + request.getOperation() + URN_SEPARATOR + authority
           + URN_SEPARATOR + (version.equals(DEFAULT_VERSION) ? EMPTY : version) + URN_SEPARATOR + code;
