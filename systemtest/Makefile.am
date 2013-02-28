@@ -40,13 +40,19 @@ TESTSEQUENCE = $(shell) ls -d testcases_mandatory/* \
 # general system test
 .PHONY: check
 check:
+	ret=0; \
 	for testcase in ${TESTSEQUENCE}; do\
 		 RMANBASE=${RMANBASE}\
 		 PATH=${bindir}:${PATH}\
 		 PROGTEST=$${testcase}/*.sh;\
+     if [ ! -f $$testcase/*.sh ]; then\
+       continue;\
+     fi;\
      $$testcase/*.sh;\
-		 if [ $$? -ne 0 ]; \
+     tmp=$$?;\
+		 if [ $$tmp -ne 0 ]; \
 		 then\
+      ret=$$tmp;\
 			echo $${PROGTEST} ... FAIL>>log;\
 		 else \
 		 	echo $${PROGTEST} ... OK>>log;\
@@ -54,7 +60,8 @@ check:
 		 echo "	"see detail in $$testcase/log>>log;\
 	done;\
 	cat log;\
-	rm log;
+	rm log;\
+  exit $$ret;
 	
 clean:
 	for testcase in ${TESTSEQUENCE}; do \
