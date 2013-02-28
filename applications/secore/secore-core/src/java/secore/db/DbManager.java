@@ -21,6 +21,8 @@
  */
 package secore.db;
 
+import java.util.HashMap;
+import java.util.Map;
 import secore.util.Config;
 import secore.util.IOUtil;
 import org.slf4j.Logger;
@@ -37,6 +39,8 @@ public class DbManager {
   
   private Database db;
   private static DbManager instance;
+  
+  private static final Map<String, String> cache = new HashMap<String, String>();
   
   private DbManager() {
     db = new BaseX();
@@ -71,5 +75,25 @@ public class DbManager {
     }
     this.db.close();
     this.db = db;
+  }
+  
+  /*
+   * Cache maintenance
+   */
+  
+  public static void clearCache() {
+    cache.clear();
+  }
+  
+  public static void updateCache(String key, String value) {
+    cache.put(key, value);
+  }
+  
+  public static String getCached(String key) {
+    return cache.get(key);
+  }
+  
+  public static boolean cacheContains(String key) {
+    return cache.containsKey(key);
   }
 }

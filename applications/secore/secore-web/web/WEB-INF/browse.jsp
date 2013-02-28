@@ -61,7 +61,8 @@
       String urlnoColon =  urlColon.substring(0, urlColon.length() -1);
       String query = "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
           + "let $x := doc('gml')//gml:identifier[text() = '" + Constants.URN_SHORT_PREFIX + urlnoColon + "']/.." + Constants.NEW_LINE
-          + "return replace node $x with " + mod;
+          + "return replace node $x with " + mod.replaceAll("\\{", "{{").replaceAll("\\}", "}}");
+      DbManager.clearCache();
       String result = DbManager.getInstance().getDb().query(query);
       out.println("<br/><span style=\"font-size:x-large;\">The database has been updated</span><br/>");
     } else {
@@ -75,7 +76,10 @@
     if (!newd.equals(Constants.EMPTY)) {
       String query = "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
           + "let $x := doc('gml')" + Constants.NEW_LINE
-          + "return insert node <dictionaryEntry xmlns=\"http://www.opengis.net/gml\">"+newd+"</dictionaryEntry> into $x";
+          + "return insert node <dictionaryEntry xmlns=\"http://www.opengis.net/gml\">"
+          + newd.replaceAll("\\{", "{{").replaceAll("\\}", "}}")
+          + "</dictionaryEntry> into $x";
+      DbManager.clearCache();
       String result = DbManager.getInstance().getDb().query(query);
       out.println("<br/><span style=\"font-size:x-large;\">The database has been updated</span><br/>");
     } else {

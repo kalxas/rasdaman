@@ -26,6 +26,8 @@ import secore.util.SecoreException;
 import secore.util.ExceptionCode;
 import java.io.File;
 import java.io.FilenameFilter;
+import java.util.HashMap;
+import java.util.Map;
 import org.basex.core.BaseXException;
 import org.basex.core.Context;
 import org.basex.core.cmd.Add;
@@ -104,8 +106,16 @@ public class BaseX implements Database {
   public String query(String query) throws SecoreException {
     log.trace("Executing query: " + query);
     try {
-      String ret = new XQuery(query).execute(context);
-      log.trace("Query successfully executed.");
+      long start = System.currentTimeMillis();
+      String ret = null;
+      if (DbManager.cacheContains(query)) {
+        ret = DbManager.getCached(query);
+      } else {
+        ret = new XQuery(query).execute(context);
+        DbManager.updateCache(query, ret);
+      }
+      long end = System.currentTimeMillis();
+      log.trace("Query successfully executed in " + (end - start) + "ms");
       return ret;
     } catch (Exception e) {
       throw new SecoreException(ExceptionCode.InternalComponentError, "Failed at querying the database", e);
