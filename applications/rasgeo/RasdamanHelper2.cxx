@@ -1683,20 +1683,25 @@ int RasdamanHelper2::writePSMetadata(std::string collname,
     // set the geo domain (i.e. the bounds in terms of real world coordinate values)
     double mindom[3] = {xmin, ymin, zmin};
     double maxdom[3] = {xmax, ymax, zmax};
+    /* Defatuls used for insert, upon update these are not used anymore */
     int   typedom[3] = {1,2,5};
     char  namedom[3] = {'x','y','z'};
-    columns << "(coverage, i, name, type, numLo, numHi)";
+
+
     for (int d=0; d < cellDom.dimension(); d++)
     {
-        values << "(" << image_id << ", " << d << ", '" << namedom[d] << "', " <<
-               typedom[d] << ", " << mindom[d] << ", " << maxdom[d] << ")";
         if (!bUpdate)
         {
+			columns << "(coverage, i, name, type, numLo, numHi)";
+			values << "(" << image_id << ", " << d << ", '" << namedom[d] << "', " <<
+				   typedom[d] << ", " << mindom[d] << ", " << maxdom[d] << ")";
             query << "insert into ps_domain " << columns.str() << " values " <<
                   values.str();
         }
         else
         {
+			columns << "(coverage, i, numLo, numHi)";
+			values << "(" << image_id << ", " << d << ", "  << mindom[d] << ", " << maxdom[d] << ")";
             query << "update ps_domain set " << columns.str() << " = " << values.str() <<
                   " where coverage = " << image_id << " and i = " << d;
         }
@@ -1711,6 +1716,7 @@ int RasdamanHelper2::writePSMetadata(std::string collname,
             NMDebug(<< "done!" << endl);
         PQclear(res);
         query.str("");
+        columns.str("");
         values.str("");
     }
     columns.str("");
