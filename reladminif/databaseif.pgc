@@ -1214,15 +1214,14 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
         
         // database updates
 		EXEC SQL CREATE TABLE RAS_DBUPDATES (
-			id serial NOT NULL,
-			UpdateNumber INTEGER,
-			UpdateNumberRe INTEGER,
-			PRIMARY KEY (id)
+		    UpdateType VARCHAR(5) NOT NULL,
+		    UpdateNumber INTEGER,
+		    primary key (UpdateType)
 		);
 		if(check("DatabaseIf::create() CREATE TABLE RAS_DBUPDATES\0"))
 			generateException();
 
-        EXEC SQL INSERT INTO RAS_DBUPDATES values (1, 2, 0);
+        EXEC SQL INSERT INTO RAS_DBUPDATES values ('rc', 2);
 		if(check("DatabaseIf::create() INSERT INTO RAS_DBUPDATES\0"))
 			generateException();
 
