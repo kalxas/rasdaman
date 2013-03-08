@@ -28,7 +28,6 @@ BuildRequires: flex
 BuildRequires: postgresql-devel
 BuildRequires: doxygen
 BuildRequires: netcdf-devel
-BuildRequires: gdal-devel
 BuildRequires: java-1.6.0-openjdk-devel
 
 Requires(pre): /usr/sbin/useradd
@@ -170,10 +169,11 @@ sed 's/^RASVERSION=.*$/RASVERSION=%{version}/' < %{SOURCE1} > %{_sourcedir}/rasd
 install -m 755 %{_sourcedir}/rasdaman.init %{buildroot}%{_initddir}/rasdaman
 
 # Remove unpackaged files
-rm %{buildroot}%{_bindir}/rasmgr.conf
+rm -f %{buildroot}%{_bindir}/rasmgr.conf
 rm -f %{buildroot}%{_bindir}/create_db.sh
 rm -f %{buildroot}%{_bindir}/start_rasdaman.sh
 rm -f %{buildroot}%{_bindir}/stop_rasdaman.sh
+rm -f %{buildroot}%{_bindir}/directql
 
 # Create home for our user
 install -d -m 700 %{buildroot}%{rasdir}
@@ -254,6 +254,7 @@ fi
 %{_includedir}/rasdaman
 %{_includedir}/raslib
 %{_includedir}/rasodmg
+%{_includedir}/config.h
 %{_libdir}/libcatalogmgr.a
 %{_libdir}/libclientcomm.a
 %{_libdir}/libcommline.a

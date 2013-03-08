@@ -124,8 +124,10 @@ PS_PORT=`grep metadata_url "$SETTINGS" | awk -F ":|/" '{print $6}' | tr -d '\n'`
 PGPASS_LINE="$HOSTNAME:*:*:$PS_USER:$PS_PASS"
 PGPASS_FILE="$HOME/.pgpass"
 if [ ! -f $PGPASS_FILE ]; then
-  echo "$PGPASS_LINE" > $PGPASS_FILE
-  chmod 600 $PGPASS_FILE
+  if [ -w $HOME ]; then
+    echo "$PGPASS_LINE" > $PGPASS_FILE
+    chmod 600 $PGPASS_FILE
+  fi
 else
   grep "$PS_USER" $PGPASS_FILE > /dev/null
   if [ $? -ne 0 ]; then
@@ -176,7 +178,7 @@ fi
 #
 # some updates are written in PL/pgSQL, so install the extension in postgres
 #
-createlang plpgsql $PS_DB > /dev/null 2>&1
+createlang plpgsql -U $PS_USER $PS_DB > /dev/null 2>&1
 rc=$?
 if [ $rc -ne 0 -a $rc -ne 2 ]; then
   error "failed creating PL/pgSQL extension in PostgreSQL, please install it first on your system."
