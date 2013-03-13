@@ -202,7 +202,7 @@ initpetascopedb(){
 
   # update petascope user in configuration, unless the user has changed it
   grep 'metadata_user=tomcat6' /etc/rasdaman/petascope.properties > /dev/null
-  if [ $? -ne 0 ]; then
+  if [ $? -eq 0 ]; then
     sed -i 's/^metadata_user=.\+/metadata_user='$tomcat_user'/' /etc/rasdaman/petascope.properties
   fi
 
