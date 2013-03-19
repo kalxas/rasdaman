@@ -46,18 +46,23 @@ rasdaman GmbH.
 
 #include "netcdfcpp.h"
 #include "raslib/odmgtypes.hh"
+#include "relcatalogif/basetype.hh"
+#include "relcatalogif/structtype.hh"
 
 #include <cstring>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 #include <string>
-#include <set>
+#include <vector>
 #include <math.h>
 #include <cmath>
 
 #define DEFAULT_VAR "data"
 #define VARIABLE_SEPARATOR_CHAR ';'
 #define VARIABLE_SEPARATOR_STR ";"
+#define VARIABLE_KEY "vars"
+#define VARIABLE_KEY_EQ "vars="
 #define VALID_MIN "valid_min"
 #define VALID_MAX "valid_max"
 #define VALID_MIN_BYTE 0
@@ -71,7 +76,6 @@ using namespace std;
 
 void r_Conv_NETCDF::initNETCDF(void)
 {
-    RMInit::logOut << "initializing netcdf...";
     Conventions = "CF-1.4";
     Institution = "rasdaman.org, Jacobs University Bremen";
 
@@ -79,25 +83,28 @@ void r_Conv_NETCDF::initNETCDF(void)
     vars = NULL;
     if (params == NULL)
         params = new r_Parse_Params();
-    params->add("vars", &variable, r_Parse_Params::param_type_string);
+    params->add(VARIABLE_KEY, &variable, r_Parse_Params::param_type_string);
     varsSize = 0;
-    RMInit::logOut << " done." << endl;
 }
 
 void r_Conv_NETCDF::getVars(void)
 {
-    RMInit::logOut << "separating the vars option...";
     if (variable != NULL)
     {
+        char* start = strstr(variable, VARIABLE_KEY_EQ);
+        char* variables = variable;
+        if (start != NULL)
+        {
+            variables = variable + strlen(VARIABLE_KEY_EQ);
+        }
         // count nr of variables in the options string
         int occ = 0;
-        for (int i = 0; variable[i]; i++)
-            occ += (variable[i] == VARIABLE_SEPARATOR_CHAR);
+        for (int i = 0; variables[i]; i++)
+            occ += (variables[i] == VARIABLE_SEPARATOR_CHAR);
         // separate the variables and save them in 'vars'
         vars = new char*[occ + 1];
-        char *b = variable;
         char *result = NULL;
-        result = strtok( b, VARIABLE_SEPARATOR_STR );
+        result = strtok( variables, VARIABLE_SEPARATOR_STR );
         while( result != NULL )
         {
             vars[varsSize] = strdup(result);
@@ -105,7 +112,6 @@ void r_Conv_NETCDF::getVars(void)
             result = strtok( NULL, VARIABLE_SEPARATOR_STR );
         }
     }
-    RMInit::logOut << " done." << endl;
 }
 
 /// constructor using an r_Type object. Exception if the type isn't atomic.
@@ -166,11 +172,8 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     const char *src = desc.src;
     int tempFD;              // for the temp file
 
-    RMInit::logOut << "r_Conv_NETCDF::convertTo" << endl;
-
     if (options != NULL)
     {
-        RMInit::logOut << "options: " << options << endl;
         params->process(options);
         getVars();
     }
@@ -569,7 +572,6 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
     desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) filesize - 1);
     desc.destType = r_Type::get_any_type("char");
 
-    RMInit::logOut << "r_Conv_NETCDF::convertTo EXIT" << endl;
     return desc;
 }
 
@@ -578,13 +580,21 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
 {
     long dataSize = 1;
     long *dimSizes;
-    char tmpFile [] = "/tmp/tmp.nc";
-
-    RMInit::logOut << "r_Conv_NETCDF::convertFrom" << endl;
+    
+    char tmpFile[] = "nctempXXXXXX";
+    int tmpFd;
+    tmpFd = mkstemp(tmpFile);
+    if(tmpFd == -1)
+    {
+        RMInit::logOut << "r_Conv_NETCDF::convertFrom(" << (options?options:"NULL")
+                        << ") desc.srcType (" << desc.srcType->type_id()
+                        << ") unable to generate a temporary file!" << endl;
+        throw r_Error(r_Error::r_Error_General);
+    }
 
     if (options != NULL)
     {
-        params->process(options);
+        variable = strdup(options);
         getVars();
     }
 
@@ -612,8 +622,8 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
     int numVars = dataFile.num_vars();
 
     // Get a set of dimension names. This is used to get all the variables that are not dimensions
-    set<string> varNames;
-    set<string>::iterator it;
+    vector<string> varNames;
+    vector<string>::iterator it;
 
     // Get a set of variable names that are not dimensions. and defined by all dimensions
     for (int i = 0; i < numVars; i++)
@@ -623,7 +633,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         {
             if (variable == NULL)
             {
-                varNames.insert(var->name());
+                varNames.push_back(var->name());
             }
             else
             {
@@ -634,7 +644,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                 }
                 if (i < varsSize)
                 {
-                    varNames.insert(var->name());
+                    varNames.push_back(var->name());
                 }
             }
         }
@@ -815,11 +825,13 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         }
         desc.baseType = ctype_struct;
         int structSize = 0; // size of the struct type, used for offset computations in memcpy
+        int alignSize = 1;  // alignment of size (taken from StructType::calcSize())
+        int cellSize = 0;
         stringstream destType(stringstream::out); // build the struct type string
         destType << "struct { ";
         for (int i = 0; i < varsSize; i++)
         {
-            if (varNames.find(vars[i]) == varNames.end())
+            if (find(varNames.begin(), varNames.end(), vars[i]) == varNames.end())
             {
                 RMInit::logOut << "Error: variable " << vars[i] << " not present in the file." << endl;
                 throw r_Error(r_Error::r_Error_General);
@@ -831,23 +843,23 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
             {
                 case ncByte:
                 case ncChar:
-                    structSize += sizeof(char);
+                    cellSize = sizeof(r_Char);
                     destType << "char";
                     break;
                 case ncDouble:
-                    structSize += sizeof(double);
+                    cellSize = sizeof(r_Double);
                     destType << "double";
                     break;
                 case ncFloat:
-                    structSize += sizeof(float);
+                    cellSize = sizeof(r_Float);
                     destType << "float";
                     break;
                 case ncInt:
-                    structSize += sizeof(int);
+                    cellSize = sizeof(r_Long);
                     destType << "long";
                     break;
                 case ncShort:
-                    structSize += sizeof(short);
+                    cellSize = sizeof(r_Short);
                     destType << "short";
                     break;
                 default:
@@ -856,7 +868,9 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     throw r_Error(r_Error::r_Error_General);
                 }
             }
-
+            structSize += cellSize;
+            if (cellSize > alignSize)
+                alignSize = cellSize;
 
             numDims = var->num_dims();
             int firstDim; // get the dimensionality of first variable to import and check if all other have the same dimensionality
@@ -903,6 +917,10 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
 
         destType << " }";
         desc.destType = r_Type::get_any_type(destType.str().c_str());
+        
+        // align struct size to the member type of biggest size
+        structSize = (structSize / alignSize + 1) * alignSize;
+        
         if ((desc.dest = (char*) mystore.storage_alloc(dataSize * structSize)) == NULL)
         {
             RMInit::logOut << "Error: out of memory." << endl;
@@ -1020,7 +1038,8 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         // this means it was explicitly specified, so we shouldn't override it
         desc.destInterv = desc.srcInterv;
 
-    RMInit::logOut << "r_Conv_NETCDF::convertFrom EXIT" << endl;
+    remove(tmpFile);
+    
     return desc;
 }
 
