@@ -573,8 +573,6 @@ QtUpdate::evaluate()
                         retval = t.generateTiles(*sourceTiles);
                         for (retvalIt = retval.begin(); retvalIt != retval.end(); retvalIt++)
                         {
-                            targetObj->insertTile((Tile*)(*retvalIt));
-
                             // Copy data from source tiles to the newly inserted tiles -- DM 2012-may-23
                             for (sourceIt = sourceTiles->begin(), domIt = sourceDomains.begin();
                                     sourceIt != sourceTiles->end(); sourceIt++, domIt++)
@@ -597,6 +595,8 @@ QtUpdate::evaluate()
                                         (*retvalIt)->execUnaryOp( &(*myOp), intersectRetvalTileDomain, *sourceIt, intersectSourceTileDomain );
                                 }
                             }
+                            
+                            targetObj->insertTile((Tile*)(*retvalIt));
                         }
                         RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "insertion of the rest is done")
                     }
