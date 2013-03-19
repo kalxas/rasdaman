@@ -888,7 +888,8 @@ QtUpdate::checkType()
         // at this point, as we can't determine the type until the data is decoded -- DM 2012-mar-12
 
         QtNodeList* convChildren = updateSource->getChild(QT_CONVERSION, QT_ALL_NODES);
-        compatible = (convChildren != NULL && !convChildren->empty()) ||
+        compatible = updateSource->getNodeType() == QT_CONVERSION ||
+                     (convChildren != NULL && !convChildren->empty()) ||
                      type1->compatibleWith(type2); //(strcmp(type1, type2) == 0);
 
         if( !compatible )
