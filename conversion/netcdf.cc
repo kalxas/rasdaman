@@ -140,23 +140,23 @@ r_Conv_NETCDF::r_Conv_NETCDF(const char *src, const r_Minterval &interv, int tp)
 /// destructor
 r_Conv_NETCDF::~r_Conv_NETCDF(void)
 {
-    if (variable != NULL)
-    {
-        delete [] variable;
-        variable = NULL;
-    }
-    for (int i = 0; i < varsSize; i++)
-    {
-        if (vars[i] != NULL)
-        {
-            delete [] vars[i];
-        }
-    }
-    if (vars != NULL)
-    {
-        delete [] vars;
-        vars = NULL;
-    }
+//    if (variable != NULL)
+//    {
+//        delete [] variable;
+//        variable = NULL;
+//    }
+//    for (int i = 0; i < varsSize; i++)
+//    {
+//        if (vars[i] != NULL)
+//        {
+//            delete [] vars[i];
+//        }
+//    }
+//    if (vars != NULL)
+//    {
+//        delete [] vars;
+//        vars = NULL;
+//    }
 }
 
 /// convert to NETCDF
@@ -657,7 +657,7 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
 
     if (varsSize == 1)
     {
-        string varName = variable;
+        string varName = vars[0];
         NcVar *var = dataFile.get_var(varName.c_str());
         numDims = var->num_dims();
         dimSizes = new long[numDims];
