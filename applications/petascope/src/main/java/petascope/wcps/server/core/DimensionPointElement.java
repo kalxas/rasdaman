@@ -158,7 +158,7 @@ public class DimensionPointElement extends AbstractRasNode {
                 // Set grid values which were directly set in the requests
                 try {
                     coord = (long)(domain.getSingleValue());
-                    this.transformedCoordinates = true;
+                    this.transformedCoordinates = false;
                 } catch (ClassCastException ex) {
                     String message = ex.getMessage();
                     log.error(message);
