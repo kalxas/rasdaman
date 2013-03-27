@@ -822,7 +822,7 @@ main( int argc, char** argv )
                                << r_Sinterval((r_Range)0, imgRows - 1);
 
                     createMarray(cacheDom, mddPtr, pixType);
-                    const char *contents = mddPtr->get_array();
+                    contents = mddPtr->get_array();
                 }
 
                 ++currentFileName, ++k;
