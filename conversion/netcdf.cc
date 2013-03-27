@@ -140,23 +140,23 @@ r_Conv_NETCDF::r_Conv_NETCDF(const char *src, const r_Minterval &interv, int tp)
 /// destructor
 r_Conv_NETCDF::~r_Conv_NETCDF(void)
 {
-//    if (variable != NULL)
-//    {
-//        delete [] variable;
-//        variable = NULL;
-//    }
-//    for (int i = 0; i < varsSize; i++)
-//    {
-//        if (vars[i] != NULL)
-//        {
-//            delete [] vars[i];
-//        }
-//    }
-//    if (vars != NULL)
-//    {
-//        delete [] vars;
-//        vars = NULL;
-//    }
+    if (variable != NULL)
+    {
+        delete [] variable;
+        variable = NULL;
+    }
+    for (int i = 0; i < varsSize; i++)
+    {
+        if (vars[i] != NULL)
+        {
+            delete [] vars[i];
+        }
+    }
+    if (vars != NULL)
+    {
+        delete [] vars;
+        vars = NULL;
+    }
 }
 
 /// convert to NETCDF
@@ -675,6 +675,31 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
         switch (var->type())
         {
         case ncByte:
+        {
+            ncbyte *data = new ncbyte[dataSize];
+            if (data == NULL)
+            {
+                RMInit::logOut << "Error: out of memory." << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            var->get(&data[0], dimSizes);
+
+            desc.destInterv = r_Minterval(numDims);
+            // Ignore NetCDF dim interval and assume it always starts at zero
+            // ToDo: Add a parse object to allow the user to control the dim interval, i.e. start at 0 or not
+            for (int i = 0; i < numDims; i++)
+                desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) dimSizes[i] - 1);
+
+            if ((desc.dest = (char*) mystore.storage_alloc(dataSize)) == NULL)
+            {
+                RMInit::logOut << "Error: out of memory" << endl;
+                throw r_Error(r_Error::r_Error_MemoryAllocation);
+            }
+            memcpy(desc.dest, data, dataSize * sizeof (ncbyte));
+            desc.destType = get_external_type(ctype_char);
+            delete [] data;
+            break;
+        }
         case ncChar:
         {
             char *data = new char[dataSize];
@@ -1002,6 +1027,22 @@ r_convDesc &r_Conv_NETCDF::convertFrom(const char *options) throw (r_Error)
                     break;
                 }
                 case ncByte:
+                {
+                    ncbyte *data = new ncbyte[dataSize];
+                    if (data == NULL)
+                    {
+                        RMInit::logOut << "Error: out of memory." << endl;
+                        throw r_Error(r_Error::r_Error_MemoryAllocation);
+                    }
+                    var->get(&data[0], dimSizes);
+
+                    for (int j = 0; j < dataSize; j++)
+                        memcpy(desc.dest + j * structSize + offset, &data[j], sizeof(ncbyte));
+
+                    delete [] data;
+                    offset += sizeof(ncbyte);
+                    break;
+                }
                 case ncChar:
                 {
                     char *data = new char[dataSize];
