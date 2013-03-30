@@ -125,6 +125,8 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
         {
             scalarElem = *(literalList->begin());
             const BaseType* baseType = scalarElem->getValueType();
+            //used to check if the MDDs are of the same type
+            char *baseStructure = baseType->getTypeStructure();
 
             //
             // allocate memory and fill it with cell values of the list
@@ -142,7 +144,7 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
                 // do not write beyond array boundary
                 if( cellCount <= domain.cell_count() )
                 {
-                    if( scalarElem->getValueType() != baseType )
+                    if( strcmp(scalarElem->getTypeStructure(),baseStructure) != 0)
                     {
                         RMDBGONCE(2, RMDebug::module_qlparser, "QtMDD", "Error: QtMDD() - All cell values of an MDD must be of the same type." )
                         free( cellBuffer );
