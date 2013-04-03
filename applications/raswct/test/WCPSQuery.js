@@ -29,7 +29,7 @@
  */
 
 buster.testCase("Rj.query.WCPSQuery tests", {
-  setUp: function(){
+  setUp: function () {
     this.timeout = 20000;
     Rj.util.ConfigManager.setWCPSService({
       url           : "http://flanche.net:8080/petascope/",
@@ -37,28 +37,41 @@ buster.testCase("Rj.query.WCPSQuery tests", {
     })
   },
 
-  "WCPS service is available": function(done){
+  "WCPS service is available": function (done) {
     var query = new Rj.query.WCPSQuery('for t2 in (mean_summer_airtemp) return encode (t2, "csv")');
-    query.evaluate(function(response){
+    query.evaluate(function (response) {
       buster.assert(response !== null);
-      var parser = new Rj.util.CSVParser(response, function(e){
+      var parser = new Rj.util.CSVParser(response, function (e) {
         return parseInt(e, 10);
       });
       done();
     })
   },
 
-  "WCPS can register multiple queries": function(done){
+  "WCPS can register multiple queries": function (done) {
     var query = new Rj.query.WCPSQuery('for t2 in (mean_summer_airtemp) return encode (t2, "csv")');
     query.setCached(true);
-    query.evaluate(function(response){
+    query.evaluate(function (response) {
       console.log("1");
     }, true);
-    query.evaluate(function(response){
+    query.evaluate(function (response) {
       console.log("2");
     }, true);
     query.evaluate();
     buster.assert(true);
     done();
+  },
+
+  "WCPS query works with specified service(not global)": function (done) {
+    "use strict";
+    var query = new Rj.query.WCPSQuery('for t2 in (mean_summer_airtemp) return encode (t2, "csv")');
+    query.setWCPSService({
+      url           : "http://flanche.net:8080/restPatch",
+      queryParameter: "request"
+    });
+    query.evaluate(function (response) {
+      buster.assert(_.exists(response));
+      done();
+    });
   }
 })

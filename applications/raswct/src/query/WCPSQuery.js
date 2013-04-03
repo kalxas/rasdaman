@@ -36,10 +36,10 @@ FlancheJs.defineClass("Rj.query.WCPSQuery", {
    * @param query a string query containing 0 or more parameterized variables
    * @param {Array} vars - the query variables (e.g. $domain)
    */
-  init: function(query, vars){
+  init: function (query, vars) {
     this.setQuery(query);
-    if(_.exists(vars)){
-      for(var i = 0; i < vars.length; i++){
+    if (_.exists(vars)) {
+      for (var i = 0; i < vars.length; i++) {
         this.setVariable(vars[i], undefined);
       }
     }
@@ -54,24 +54,29 @@ FlancheJs.defineClass("Rj.query.WCPSQuery", {
      */
     binaryFormat: {
       value: false
+    },
+    WCPSService : {
+      value: null
     }
   },
 
   methods: {
     /**
      * Returns a transport object that can be used internally by
-     * the Executable trait
+     * the Executable trait                                                
      * @return {Rj.query.Transport}
      */
-    transport: function(){
+    transport: function () {
+      var queryParameter = _.exists(this.getWCPSService()) ? this.getWCPSService().queryParameter : Rj.util.ConfigManager.getWCPSService().queryParameter;
+      var serviceUrl = _.exists(this.getWCPSService()) ? this.getWCPSService().url : Rj.util.ConfigManager.getWCPSService().url;
       var params = {};
       var tpl = Rj.util.Constants.templates.wcpsRequestTemplate.replace(Rj.util.Constants.wcpsQueryPlaceHolder, this._expand());
-      params[Rj.util.ConfigManager.getWCPSService().queryParameter] = tpl;
+      params[queryParameter] = tpl;
       var transport = new Rj.query.Transport(
-        Rj.util.ConfigManager.getWCPSService().url,
+        serviceUrl,
         params,
         Rj.query.Transport.HttpMethod.POST
-      )
+      );
       transport.setBinary(this.getBinaryFormat());
       return transport;
     }
