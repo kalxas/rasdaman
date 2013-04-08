@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.extensions;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -113,12 +114,13 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                     (!request.getCRS().isEmpty() && CrsUtil.GRID_CRS.equals(request.getCRS().get(0).getSubsettingCrs())))
                                     ? new int[]{ // NOTE: e.g. parseInt("10.0") throws exception: need to remove decimals.
                                         Integer.parseInt(((DimensionTrim) subset).getTrimLow().replaceAll( decimalsExp, "").trim()), 
-                                        Integer.parseInt(((DimensionTrim) subset).getTrimHigh().replaceAll(decimalsExp, "").trim())} // subsets are alsready grid indexes
+                                        Integer.parseInt(((DimensionTrim) subset).getTrimHigh().replaceAll(decimalsExp, "").trim())} // subsets are already grid indexes
                                     : Crs.convertToPixelIndices(metadata, subset.getDimension(),       // otherwise, need to convert them
                                         Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
                                         Double.parseDouble(((DimensionTrim) subset).getTrimHigh()));
-                            lowerCellDom += cellDom[0] + " ";
-                            upperCellDom += cellDom[1] + " ";
+                            // In any case, properly trim the bounds by the image extremes
+                            lowerCellDom += ((cellDomainEl.getLo().compareTo(BigInteger.valueOf(cellDom[0])) > 0) ? cellDomainEl.getLo() : cellDom[0]) + " ";
+                            upperCellDom += ((cellDomainEl.getHi().compareTo(BigInteger.valueOf(cellDom[1])) < 0) ? cellDomainEl.getHi() : cellDom[1]) + " ";
                         } else if (subset instanceof DimensionSlice) {
                             log.info("Axis " + domainEl.getName() + " has been sliced: remove it from the boundedBy element.");
                         } else {
