@@ -267,7 +267,7 @@ public class DbMetadataSource implements IMetadataSource {
 
             ResultSet r = s.executeQuery("SELECT name FROM ps_coverage");
 
-            coverages = new HashSet<String>(r.getFetchSize());
+            coverages = new HashSet<String>();
 
             while (r.next()) {
                 coverages.add(r.getString("name"));
@@ -484,7 +484,7 @@ public class DbMetadataSource implements IMetadataSource {
                     + "ORDER BY ps_celldomain.i ASC");
             CellDomainElement X = null, Y = null, cell;
             boolean twoDCoverage = true;
-            List<CellDomainElement> cellDomain = new ArrayList<CellDomainElement>(r.getFetchSize());
+            List<CellDomainElement> cellDomain = new ArrayList<CellDomainElement>();
 
             while (r.next()) {
                 cell = new CellDomainElement(BigInteger.valueOf(r.getInt("lo")), BigInteger.valueOf(r.getInt("hi")), r.getString("name"));
@@ -502,28 +502,28 @@ public class DbMetadataSource implements IMetadataSource {
             }
 
             r = s.executeQuery("SELECT name, type, uom FROM PS_Range WHERE coverage = '" + coverage + "' ORDER BY i ASC");
-            List<RangeElement> range = new ArrayList<RangeElement>(r.getFetchSize());
+            List<RangeElement> range = new ArrayList<RangeElement>();
 
             while (r.next()) {
                 range.add(new RangeElement(r.getString("name"), dataTypes.get(r.getInt("type")), rangeUoms.get(r.getInt("uom"))));
             }
 
             r = s.executeQuery("SELECT interpolationType, nullResistance FROM PS_InterpolationSet WHERE coverage = '" + coverage + "'");
-            Set<InterpolationMethod> interpolationSet = new HashSet<InterpolationMethod>(r.getFetchSize());
+            Set<InterpolationMethod> interpolationSet = new HashSet<InterpolationMethod>();
 
             while (r.next()) {
                 interpolationSet.add(new InterpolationMethod(interpolationTypes.get(r.getInt("interpolationType")), nullResistances.get(r.getInt("nullResistance"))));
             }
 
             r = s.executeQuery("SELECT nullValue FROM PS_NullSet WHERE coverage = '" + coverage + "'");
-            Set<String> nullSet = new HashSet<String>(r.getFetchSize());
+            Set<String> nullSet = new HashSet<String>();
 
             while (r.next()) {
                 nullSet.add(r.getString("nullValue"));
             }
 
             r = s.executeQuery("SELECT id, name, type, numLo, numHi, strLo, strHi, uom FROM PS_Domain WHERE coverage = '" + coverage + "' ORDER BY i ASC");
-            List<DomainElement> domain = new ArrayList<DomainElement>(r.getFetchSize());
+            List<DomainElement> domain = new ArrayList<DomainElement>();
             Statement ss = conn.createStatement();
 
             while (r.next()) {
@@ -544,15 +544,16 @@ public class DbMetadataSource implements IMetadataSource {
 
                 ResultSet rr = ss.executeQuery("SELECT crs FROM PS_CrsSet WHERE axis = '" + r.getInt("id") + "'");
                 
-                if (rr.getFetchSize() != 1) {
-                    log.warn("Multiple CRSs associated with the axis \"" + r.getString("name") + "\" of coverage " + coverageName 
-                            + "; only the first will be considered.");
-                }
                 Set<String> crsSet = new HashSet<String>();
-
+                int count = 0;
                 while (rr.next()) {
+                    if (count > 0) {
+                        log.warn("Multiple CRSs associated with the axis \"" + r.getString("name") + "\" of coverage " + coverageName 
+                                + "; only the first will be considered.");
+                        break;
+                    }
                     crsSet.add(crss.get(rr.getInt("crs")));
-                    break;
+                    ++count;
                 }
                 
                 DomainElement d = new DomainElement(r.getString("name"), axisTypes.get(r.getInt("type")),
