@@ -140,7 +140,7 @@ public class Crs extends AbstractRasNode {
     }
     
     /***
-     * Converts an interval subset to CRS:1 domain (grid indices).
+     * Converts an interval subset to CRS:1 domain (grid indices) with rebounding enabled.
      * NOTE1:   origin of pixel grid is UPPER-LEFT corner (!!)
      * NOTE2:   Currently it works for axis whose domain is numerical.
      *          To be updated when *strlo* and *strhi* extents will be effectively possible (e.g. temporal axis).
@@ -151,6 +151,23 @@ public class Crs extends AbstractRasNode {
      * coordinates.
      */
     public static int[] convertToPixelIndices(Metadata meta, String axisName, Double coordLo, Double coordHi) throws PetascopeException {
+        return convertToPixelIndices(meta, axisName, coordLo, coordHi, true);
+    }
+    
+    /***
+     * Converts an interval subset to CRS:1 domain (grid indices).
+     * NOTE1:   origin of pixel grid is UPPER-LEFT corner (!!)
+     * NOTE2:   Currently it works for axis whose domain is numerical.
+     *          To be updated when *strlo* and *strhi* extents will be effectively possible (e.g. temporal axis).
+     * @param coordMin Min value of interval
+     * @param coordMax Max value of interval
+     * @param zeroIsMin Is 0-index corresponding to minimum domain value? For 'y' axis this is not true.
+     * @param rebound true indicates to trim interval down to the intersection with
+     *  the coverage bounding box, false prevents this.
+     * @return Interval transformed values.
+     * coordinates.
+     */
+    public static int[] convertToPixelIndices(Metadata meta, String axisName, Double coordLo, Double coordHi, boolean rebound) throws PetascopeException {
        
         // IMPORTANT: y axis are decreasing wrt pixel domain
         boolean zeroIsMin = !axisName.equals(AxisTypes.Y_AXIS);
@@ -206,7 +223,7 @@ public class Crs extends AbstractRasNode {
             String message = "Subsetting on axis " + axisName + " is outside bounds (" + domLo + "," + domHi + ").";
             log.error(message);
             throw new PetascopeException(ExceptionCode.InvalidRequest, message);
-        } else {
+        } else if (rebound) {
             out[0] = (out[0]<pxLo) ? pxLo : ((out[0]>pxHi)?pxHi:out[0]);
             out[1] = (out[1]<pxLo) ? pxLo : ((out[1]>pxHi)?pxHi:out[1]);
         }

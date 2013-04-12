@@ -71,7 +71,7 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
 
             try {
                 // Start a new axis and save it
-                elem = new DimensionIntervalElement(child, xq, coverageInfo);
+                elem = new DimensionIntervalElement(child, xq, coverageInfo, false);
                 log.trace("  " + WCPSConstants.MSG_ADD_NEW_AXIS + ": " + elem.getAxisName());
                 axisList.add(elem);
                 super.children.add(elem);
@@ -114,8 +114,6 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
                     new CellDomainElement(
                     BigInteger.valueOf(axisLo), BigInteger.valueOf(axisHi), axis.getAxisName()));
         }
-
-
     }
 
     public CoverageInfo getCoverageInfo() {

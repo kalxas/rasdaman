@@ -52,9 +52,13 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
     private boolean finished = false;
     private Node nextNode;
     private boolean transformedCoordinates = false;
+    
+    // true indicates to rebound interval down to the intersection with the coverage bounding box, false prevents this.
+    private boolean rebound = true;
 
     /**
-     * Constructs an element of a dimension interval.
+     * Constructs an element of a dimension interval, with interval rebounding enabled
+     * by default.
      * @param node XML Node
      * @param xq WCPS Xml Query object
      * @param covInfo CoverageInfo object about the Trim parent object
@@ -62,7 +66,21 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
      */
     public DimensionIntervalElement(Node node, XmlQuery xq, CoverageInfo covInfo)
             throws WCPSException {
+        this(node, xq, covInfo, true);
+    }
 
+    /**
+     * Constructs an element of a dimension interval.
+     * @param node XML Node
+     * @param xq WCPS Xml Query object
+     * @param covInfo CoverageInfo object about the Trim parent object
+     * @param rebound true indicates to trim interval down to the intersection with
+     *  the coverage bounding box, false prevents this.
+     * @throws WCPSException
+     */
+    public DimensionIntervalElement(Node node, XmlQuery xq, CoverageInfo covInfo, boolean rebound)
+            throws WCPSException {
+        this.rebound = rebound;
         while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
@@ -210,7 +228,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 Double val1 = domain1.getSingleValue();
                 Double val2 = domain2.getSingleValue();
                 String axisName = axis.toRasQL(); //.toUpperCase();
-                int[] pCoord = crs.convertToPixelIndices(meta, axisName, val1, val2);
+                int[] pCoord = Crs.convertToPixelIndices(meta, axisName, val1, val2, rebound);
                 cellCoord1 = pCoord[0];
                 cellCoord2 = pCoord[1];
             } catch (PetascopeException e) {
