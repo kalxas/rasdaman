@@ -446,16 +446,15 @@ public class DbMetadataSource implements IMetadataSource {
 
     @Override
     public Metadata read(String coverageName) throws PetascopeException {
-        log.debug("Reading metadata for coverage '{}'", coverageName);
-
         if ((coverageName == null) || coverageName.equals("")) {
             throw new PetascopeException(ExceptionCode.InvalidRequest,
                     "Cannot retrieve coverage with null or empty name");
         }
         if (cache.containsKey(coverageName)) {
-            log.trace("Returning cached coverage metadata.");
+            log.trace("Returning cached coverage metadata for '{}'", coverageName);
             return cache.get(coverageName);
         }
+        log.debug("Reading metadata for coverage '{}'", coverageName);
 
         Statement s = null;
 

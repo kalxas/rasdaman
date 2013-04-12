@@ -175,7 +175,8 @@ public class Crs extends AbstractRasNode {
         // Put in order to prevent call error
         if (coordHi < coordLo) {
             log.error(WCPSConstants.ERRTXT_ARGUMENT_HIGH_IS_LOWER_P1 + ": " + coordHi + "<" + coordLo + " " + WCPSConstants.ERRTXT_ARGUMENT_HIGH_IS_LOWER_P2);
-            throw new PetascopeException(ExceptionCode.InvalidSubsetting, WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ":" + meta.getCoverageName());
+            throw new PetascopeException(ExceptionCode.InvalidSubsetting,
+                    WCPSConstants.ERRTXT_ARGUMENT_HIGH_IS_LOWER_P1 + ": " + coordHi + "<" + coordLo + " " + WCPSConstants.ERRTXT_ARGUMENT_HIGH_IS_LOWER_P2);
         }
         
         // Convert domain-space values to cell-space indices
@@ -186,7 +187,8 @@ public class Crs extends AbstractRasNode {
         CellDomainElement cdom = meta.getCellDomainByName(axisName);
         if (cdom == null || dom == null) {
             log.error(WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ": " + meta.getCoverageName());
-            throw new PetascopeException(ExceptionCode.NoApplicableCode, WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ":" + meta.getCoverageName());
+            throw new PetascopeException(ExceptionCode.NoApplicableCode,
+                    WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ":" + meta.getCoverageName());
         }
         
         // Get cellDomain extremes
@@ -216,7 +218,7 @@ public class Crs extends AbstractRasNode {
                 (int)Math.floor((domHi - coordLo) / cellWidth) + pxLo
             };
         }
-        log.debug(WCPSConstants.MSG_TRANSFORMED_COORDS_INDX + " (" + out[0] + "," + out[1] + ")");
+        log.trace(WCPSConstants.MSG_TRANSFORMED_COORDS_INDX + " (" + out[0] + "," + out[1] + ")");
         
         // Check outside bounds:
         if (out[0] > pxHi || out[1] < pxLo) {
@@ -226,8 +228,8 @@ public class Crs extends AbstractRasNode {
         } else if (rebound) {
             out[0] = (out[0]<pxLo) ? pxLo : ((out[0]>pxHi)?pxHi:out[0]);
             out[1] = (out[1]<pxLo) ? pxLo : ((out[1]>pxHi)?pxHi:out[1]);
+            log.trace(WCPSConstants.MSG_TRANSFORMED_REBOUNDED_COORDS + " (" + out[0] + "," + out[1] + ")");
         }
-        log.debug(WCPSConstants.MSG_TRANSFORMED_REBOUNDED_COORDS + " (" + out[0] + "," + out[1] + ")");
 
         return out;
     }

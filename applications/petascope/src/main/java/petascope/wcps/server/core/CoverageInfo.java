@@ -74,7 +74,7 @@ public class CoverageInfo {
 
     public boolean isCompatible(CoverageInfo other) {
         if (getNumDimensions() != other.getNumDimensions()) {
-            log.error(WCPSConstants.ERRTXT_NUMBER_DIM_DOES_NOT_MATCH);
+            log.trace(WCPSConstants.ERRTXT_NUMBER_DIM_DOES_NOT_MATCH);
             return false;
         }
 
@@ -89,14 +89,14 @@ public class CoverageInfo {
                 you = other.getCellDomainElement(index++);
 
                 if (!me.getHi().equals(you.getHi())) {
-                    log.error(WCPSConstants.ERRTXT_HIGH_VALUES_DONOT_MATCH + ": "
+                    log.trace(WCPSConstants.ERRTXT_HIGH_VALUES_DONOT_MATCH + ": "
                             + me.getHi().toString() + ", "
                             + you.getHi().toString());
                     return false;
                 }
 
                 if (!me.getLo().equals(you.getLo())) {
-                    log.error(WCPSConstants.ERRTXT_LOW_VALUES_DONOT_MATCH + ": "
+                    log.trace(WCPSConstants.ERRTXT_LOW_VALUES_DONOT_MATCH + ": "
                             + me.getLo().toString() + ", "
                             + you.getLo().toString());
                     return false;
@@ -114,7 +114,7 @@ public class CoverageInfo {
                 you = other.getDomainElement(index++);
 
                 if (!me.getName().equals(you.getName())) {
-                    log.error(WCPSConstants.ERRTXT_DOMAIN_ELEMENT_DONNOT_MATCH + ": '"
+                    log.trace(WCPSConstants.ERRTXT_DOMAIN_ELEMENT_DONNOT_MATCH + ": '"
                             + me.getName() + "' " + WCPSConstants.MSG_AND + " '"
                             + you.getName() + "'.");
                     return false;
@@ -172,7 +172,7 @@ public class CoverageInfo {
             index++;
         }
 
-        log.error(WCPSConstants.ERRTXT_AXIS_NAME_NOT_FOUND + ": " + name);
+        log.error(WCPSConstants.ERRTXT_DOMAIN_NAME_NOT_FOUND + ": " + name);
         throw new WCPSException(WCPSConstants.ERRTXT_DOMAIN_NAME_NOT_FOUND + ": " + name);
     }
 

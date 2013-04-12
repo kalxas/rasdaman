@@ -110,7 +110,6 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
 
         // Error check
         if (child == null) {
-            log.error("  " + WCPSConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
             throw new WCPSException(WCPSConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
         } else {
             // Add it to the children for XML tree re-traversing

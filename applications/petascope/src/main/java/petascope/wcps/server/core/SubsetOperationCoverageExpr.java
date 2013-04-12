@@ -66,7 +66,6 @@ public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICov
             } 
             info = ((SliceCoverageExpr) child).getCoverageInfo();
         } else {
-            log.error("  " + WCPSConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);
             throw new WCPSException(WCPSConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);
         }
         
