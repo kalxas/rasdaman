@@ -129,7 +129,7 @@ public class StringUtil {
       ind = ind2;
     } else {
       log.error("Couldn't determine request operation in " + uri);
-      throw new SecoreException(ExceptionCode.InvalidRequest, "Mallformed request: " + uri);
+      throw new SecoreException(ExceptionCode.InvalidRequest, "Malformed request: " + uri);
     }
     String operation = uri.substring(0, ind);
     uri = uri.substring(ind + 1);
