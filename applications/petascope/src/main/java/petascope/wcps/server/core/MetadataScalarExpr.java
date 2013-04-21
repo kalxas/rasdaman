@@ -28,6 +28,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
+import java.util.Set;
 
 // TODO: implement class MetadataScalarExprType
 public class MetadataScalarExpr extends AbstractRasNode {
@@ -38,6 +39,7 @@ public class MetadataScalarExpr extends AbstractRasNode {
     private CoverageInfo coverageInfo;
     private String op;
     private String lo, hi;
+    private String crss = "";
 
     public MetadataScalarExpr(Node node, XmlQuery xq) throws WCPSException {
         String nodeName = node.getNodeName();
@@ -53,7 +55,7 @@ public class MetadataScalarExpr extends AbstractRasNode {
         coverageInfo = coverageExprType.getCoverageInfo();
         super.children.add(coverageExprType);
         child = child.getNextSibling();
-        
+
         op = nodeName;
         AxisName axis = null;
         if (nodeName.equals(WCPSConstants.MSG_DOMAIN_METADATA_CAMEL)) {
@@ -73,8 +75,26 @@ public class MetadataScalarExpr extends AbstractRasNode {
             CellDomainElement cellDomain = coverageInfo.getCellDomainElement(axisIndex);
             lo = cellDomain.getLo().toString();
             hi = cellDomain.getHi().toString();
-        } else if (!nodeName.equals(WCPSConstants.MSG_SET_IDENTIFIER ) && 
-                   !nodeName.equals(WCPSConstants.MSG_IMAGE_CRS2)) {
+        } else if (nodeName.equals(WCPSConstants.MSG_CRS_SET)){
+            int n = coverageInfo.getNumDimensions();
+            for(int i=0; i<n;i++){
+                DomainElement domainElement = coverageInfo.getDomainElement(i);
+                String axName = domainElement.getName();
+                crss+=axName + ":";
+                Set<String> set = domainElement.getCrsSet();
+                for(String str:set){
+                    crss+=(str + " ");
+                }
+                //delete last space
+                crss = crss.substring(0,crss.length()-1);
+                if(i+1!=n) // eliminate possibility of trailing commas
+                    crss+=", ";
+            }
+        } 
+        else if (!nodeName.equals(WCPSConstants.MSG_SET_IDENTIFIER ) && 
+                   !nodeName.equals(WCPSConstants.MSG_IMAGE_CRS2) && 
+                   !nodeName.equals(WCPSConstants.MSG_IDENTIFIER) &&
+                   !nodeName.equals(WCPSConstants.MSG_IMAGE_CRS)) {
             throw new WCPSException(WCPSConstants.ERRTXT_NO_METADATA_NODE + nodeName);
         }
         
@@ -90,6 +110,8 @@ public class MetadataScalarExpr extends AbstractRasNode {
             ret = CrsUtil.GRID_CRS;
         } else if (op.equals(WCPSConstants.MSG_DOMAIN_METADATA_CAMEL) || op.equals(WCPSConstants.MSG_IMAGE_CRSDOMAIN)) {
             ret = "(" + lo + "," + hi + ")";
+        } else if(op.equals(WCPSConstants.MSG_CRS_SET)){
+            ret = crss;
         }
         return ret;
     }
