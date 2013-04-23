@@ -28,6 +28,11 @@
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
+        <description>Rasql Service</description>
+        <servlet-name>RasqlServlet</servlet-name>
+        <servlet-class>petascope.rasdaman.RasqlServlet</servlet-class>
+    </servlet>
+    <servlet>
         <description>WMS Service</description>
         <servlet-name>WmsServlet</servlet-name>
         <servlet-class>petascope.wms.WmsServlet</servlet-class>
@@ -65,6 +70,10 @@
     <servlet-mapping>
         <servlet-name>WmsServlet</servlet-name>
         <url-pattern>/wms</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RasqlServlet</servlet-name>
+        <url-pattern>/rasql</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

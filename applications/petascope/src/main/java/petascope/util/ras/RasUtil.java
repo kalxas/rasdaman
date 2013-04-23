@@ -61,10 +61,15 @@ public class RasUtil {
 
     //Default number of re-connect attempts  (If setting not fount)
     private static final int DEFAULT_RECONNECT_ATTEMPTS = 3; 
+    
+    public static Object executeRasqlQuery(String query) throws RasdamanException {
+        return executeRasqlQuery(query, ConfigManager.RASDAMAN_USER, ConfigManager.RASDAMAN_PASS);
+    }
 
     // FIXME - should return just String?
-    public static Object executeRasqlQuery(String query) throws RasdamanException {
-        Implementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
+    public static Object executeRasqlQuery(String query, String username, String password) throws RasdamanException {
+        RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
+        impl.setUserIdentification(username, password);
         Database db = impl.newDatabase();
 	int maxAttempts, timeout, attempts = 0;	
 
