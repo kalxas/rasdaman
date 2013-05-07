@@ -1,0 +1,77 @@
+for c in (mr)
+return encode(
+  (char)(({
+    red:   ((char)((c < 20) * 200));
+    green: ((char)((c < 20) * 10));
+    blue:  ((char)((c < 20) * 10))
+  }
+overlay
+  (char){
+    red:   ((char)((c >= 20 and c < 25) * 255));
+    green: ((char)((c >= 20 and c < 25) * 165));
+    blue:  ((char)((c >= 20 and c < 25) * 0))
+  }
+overlay
+  (char){
+    red:   ((char)((c >= 25 and c < 30) * 255));
+    green: ((char)((c >= 25 and c < 30) * 215));
+    blue:  ((char)((c >= 25 and c < 30) * 0))
+  }
+overlay
+  (char){
+    red:   ((char)((c >= 30 and c < 35) * 255));
+    green: ((char)((c >= 30 and c < 35) * 255));
+    blue:  ((char)((c >= 30 and c < 35) * 0))
+  }
+overlay
+  (char){
+    red:   ((char)((c >= 35 and c < 40) * 173));
+    green: ((char)((c >= 35 and c < 40) * 255));
+    blue:  ((char)((c >= 35 and c < 40) * 47))
+  }
+overlay
+  (char){
+    red:   ((char)((c >= 40 and c < 45) * 20));
+    green: ((char)((c >= 40 and c < 45) * 255));
+    blue:  ((char)((c >= 40 and c < 45) * 20))
+  }
+overlay
+  (char){
+    red:   ((char)((c >= 45 and c < 50) * 10));
+    green: ((char)((c >= 45 and c < 50) * 200));
+    blue:  ((char)((c >= 45 and c < 50) * 10))
+  }
+overlay
+  (char){
+    red:   ((char)((c >= 50 and c < 55) * 0));
+    green: ((char)((c >= 50 and c < 55) * 136));
+    blue:  ((char)((c >= 50 and c < 55) * 0))
+  }
+overlay
+  (char){
+    red:   ((char)((c >= 55 and c < 253) * 0));
+    green: ((char)((c >= 55 and c < 253) * 0));
+    blue:  ((char)((c >= 55 and c < 253) * 255))
+  }
+overlay
+  (char){
+    red:   ((char)((c = 253) * 0));
+    green: ((char)((c = 253) * 0));
+    blue:  ((char)((c = 253) * 250))
+  }
+overlay
+  (char){
+    red:   ((char)((c = 254) * 255));
+    green: ((char)((c = 254) * 235));
+    blue:  ((char)((c = 254) * 190))
+  }
+overlay
+  (char){
+    red:   ((char)(c = 255) * 80);
+    green: ((char)(c = 255) * 80);
+    blue:  ((char)(c = 255) * 80)
+  }
+ 
+)[x(10:20),y(37:40)])
+,
+"png")

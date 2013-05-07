@@ -21,6 +21,9 @@
  */
 package petascope.wcps.server.core;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
@@ -30,6 +33,24 @@ import petascope.util.WCPSConstants;
 public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(UnaryOperationCoverageExpr.class);
+    
+    public static final Set<String> NODE_NAMES = new HashSet<String>();
+    private static final String[] NODE_NAMES_ARRAY = { 
+        WCPSConstants.MSG_UNARY_PLUS, WCPSConstants.MSG_UNARY_MINUS,
+        WCPSConstants.MSG_SQRT, WCPSConstants.MSG_ABS,
+        WCPSConstants.MSG_EXP, WCPSConstants.MSG_LOG,
+        WCPSConstants.MSG_SIN, WCPSConstants.MSG_COS,
+        WCPSConstants.MSG_SINH, WCPSConstants.MSG_COSH,
+        WCPSConstants.MSG_TANH, WCPSConstants.MSG_ARCSIN,
+        WCPSConstants.MSG_ARCCOS, WCPSConstants.MSG_ARCTAN,
+        WCPSConstants.MSG_NOT, WCPSConstants.MSG_RE,
+        WCPSConstants.MSG_LN, WCPSConstants.MSG_BIT,
+        WCPSConstants.MSG_TAN, WCPSConstants.MSG_CAST,
+        WCPSConstants.MSG_IM, WCPSConstants.MSG_FIELD_SELECT,
+    };
+    static {
+        NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
+    }
 
     private CoverageExpr child;
     private CoverageInfo info;

@@ -21,10 +21,11 @@
  */
 package petascope.wcps.server.core;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
@@ -34,6 +35,17 @@ import java.util.Set;
 public class MetadataScalarExpr extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(MetadataScalarExpr.class);
+    
+    public static final Set<String> NODE_NAMES = new HashSet<String>();
+    private static final String[] NODE_NAMES_ARRAY = {
+        WCPSConstants.MSG_DOMAIN_METADATA_CAMEL,
+        WCPSConstants.MSG_IMAGE_CRSDOMAIN,
+        WCPSConstants.MSG_CRS_SET,
+        WCPSConstants.MSG_IDENTIFIER,
+    };
+    static {
+        NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
+    }
     
     private CoverageExpr coverageExprType;
     private CoverageInfo coverageInfo;
@@ -90,10 +102,12 @@ public class MetadataScalarExpr extends AbstractRasNode {
                 if(i+1!=n) // eliminate possibility of trailing commas
                     crss+=", ";
             }
-        } 
-        else if (!nodeName.equals(WCPSConstants.MSG_SET_IDENTIFIER ) && 
-                   !nodeName.equals(WCPSConstants.MSG_IMAGE_CRS2) && 
-                   !nodeName.equals(WCPSConstants.MSG_IDENTIFIER) &&
+        }
+        else if (nodeName.equals(WCPSConstants.MSG_IDENTIFIER )) {
+            op = WCPSConstants.MSG_IDENTIFIER;
+        }
+        else if (!nodeName.equals(WCPSConstants.MSG_IMAGE_CRS2) && 
+                   !nodeName.equals(WCPSConstants.MSG_SET_IDENTIFIER) &&
                    !nodeName.equals(WCPSConstants.MSG_IMAGE_CRS)) {
             throw new WCPSException(WCPSConstants.ERRTXT_NO_METADATA_NODE + nodeName);
         }

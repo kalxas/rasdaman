@@ -89,3 +89,4 @@ java/dist/
 output
 applications/petascope/src/main/webapp/WEB-INF/web.xml
 compile
+/applications/petascope/dist/
