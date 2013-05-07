@@ -41,7 +41,7 @@ SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-. "$SCRIPT_DIR"/test.cfg
+. "$SCRIPT_DIR"/../../util/petascope.sh
 
 #
 # constants

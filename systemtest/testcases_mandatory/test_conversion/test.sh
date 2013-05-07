@@ -37,121 +37,53 @@
 # 	2)Rasdaman Server must be running
 # 	3)database RASBASE must exists
 # 	4)rasql utility must be fully running
-#	5)images needed for testing shall be put in directory of images 	
+# 	5)images needed for testing shall be put in directory of images 	
 # Usage: ./test.sh 
 #        
 # CHANGE HISTORY
 #       2009-Sep-16     J.Yu       created
 #
 
-# further tests will be done on dem, inv_dem, tor and inv_tor, after their implementations.
+PROG=`basename $0`
 
-# Variables
-PROGNAME=`basename $0`
-DIR_NAME=$(dirname $0)
-LOG_DIR=$DIR_NAME  
-LOG=$LOG_DIR/log
-OLDLOG=$LOG.save
-USERNAME=rasadmin	
-PASSWORD=rasadmin
-DATABASE=RASBASE
-IMAGEDIR=$DIR_NAME/testdata
-ORACLE_DIR=$DIR_NAME/oracle
-RASQL="rasql --quiet --user $USERNAME --passwd $PASSWORD"
-RASDL="rasdl"
-GDALINFO="gdalinfo -noct -checksum"
-
-  CODE_OK=0
-  CODE_FAIL=255
-
-# NUM_TOTAL: the number of manipulations
-# NUM_FAIL: the number of fail manipulations
-# NUM_SUC: the number of success manipulations
-  NUM_TOTAL=0
-  NUM_FAIL=0
-  NUM_SUC=0 
-  
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-  
-#--------------- check if old logfile exists ----------------------------------
-if [ -f $LOG ]
-then
-	echo Old logfile found, copying it to $OLDLOG
-	mv $LOG $OLDLOG
-fi
 
-echo "Test by:"$PROGNAME" at "`date`|tee $LOG
+. "$SCRIPT_DIR"/../../util/common.sh
 
-#---------------------------Precondition------------------------------------------
-# check the Postgres
-ps -e | grep --quiet -w postgres
-if [ $? -ne 0 ]
-then
-   echo no postgres available|tee -a $LOG
-   exit $CODE_FAIL
-fi
-
-# check the Rasdaman
-ps -e | grep --quiet rasmgr
-if [ $? -ne 0 ]
-then
-   echo no rasmgr available|tee -a $LOG 
-   exit $CODE_FAIL
-fi
-
-# check gdalinfo
-which gdalinfo > /dev/null
-if [ $? -ne 0 ]
-then
-   echo gdal tools missing, please add gdalinfo to the PATH|tee -a $LOG 
-   exit $CODE_FAIL
-fi
-
-# check usr
 #
-# check data collection
-$RASQL -q "select r from RAS_COLLECTIONNAMES as r"
-if [ $? -ne 0 ]
-then
-   echo no data collection available|tee -a $LOG 
-   exit $CODE_FAIL
-fi
-
-# check data type
-$RASDL --print|grep --quiet GreySet
-if [ $? -ne 0 ]
-then
-   echo no GreSet type available|tee -a $LOG 
-   exit $CODE_FAIL
-fi
-
-$RASDL --print|grep --quiet RGBSet
-if [ $? -ne 0 ]
-then
-   echo no RGBSet type available, try create_db.sh|tee -a $LOG 
-   exit $CODE_FAIL
-fi
-
-$RASDL -p | grep --quiet 'TestSet'
-if [ $? -ne 0 ]; then
-  $RASDL -r $IMAGEDIR/types.dl -i > /dev/null
-fi
+# paths
+#
+TESTDATA_PATH="$SCRIPT_DIR/testdata"
+[ -d "$TESTDATA_PATH" ] || error "Testdata directory not found: $TESTDATA_PATH"
+ORACLE_PATH="$SCRIPT_DIR/oracle"
+[ -d "$ORACLE_PATH" ] || error "Expected results directory not found: $ORACLE_PATH"
 
 
-# check data set
 
-#--------------------------initiation--------------------------------------------
+
+
+# ------------------------------------------------------------------------------
+# test dependencies
+#
+check_postgres
+check_rasdaman
+check_gdal
+
+# check data types
+check_type GreySet
+check_type RGBSet
+check_user_type TestSet
+
+
+
+# ------------------------------------------------------------------------------
 # drop collection if they already exists
-
-if   $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep test_tmp 
-then
-	echo dropping collection ... | tee -a $LOG
-	$RASQL -q "drop collection test_tmp" | tee -a $LOG
-fi
-
 #
+drop_colls test_tmp
+
+# ------------------------------------------------------------------------------
 # function runnning the test
 #
 function run_test()
@@ -169,38 +101,30 @@ elif [ "$colltype" == TestSet ]; then
 fi
 local extraopts="$6"
 
-echo -----$fun and inv_$fun conversion------ | tee -a $LOG
+log ----- $fun and inv_$fun conversion ------
 
-echo creating collection ... | tee -a $LOG
-$RASQL -q "create collection test_tmp $colltype" ||
-  echo Error creating collection  test_tmp | tee -a $LOG
+create_coll test_tmp $colltype
+insert_into test_tmp "$TESTDATA_PATH/$f.$inv_ext" "$extraopts" "inv_$inv_fun"
+export_to_file test_tmp "$f" "$fun"
 
-echo inserting collection ... | tee -a $LOG
-$RASQL -q "insert into test_tmp values inv_$inv_fun(\$1 $extraopts)" -f $IMAGEDIR/$f.$inv_ext ||
-  echo Error inserting $inv_fun image | tee -a $LOG
-
-echo extracting collection ... | tee -a $LOG
-$RASQL -q "select $fun(a) from test_tmp as a" --out file --outfile $f || 
-  echo Error extracting $fun image | tee -a $LOG
-
-echo  comparing images | tee -a $LOG
-if [ -f "$ORACLE_DIR/$f.$ext.checksum" ]; then
+logn "comparing images: "
+if [ -f "$ORACLE_PATH/$f.$ext.checksum" ]; then
   $GDALINFO $f.$ext | grep 'Checksum' > $f.$ext.result
-  diff $ORACLE_DIR/$f.$ext.checksum $f.$ext.result
+  diff $ORACLE_PATH/$f.$ext.checksum $f.$ext.result > /dev/null
 else
-  cmp $IMAGEDIR/$f.$ext $f.$ext
+  cmp $TESTDATA_PATH/$f.$ext $f.$ext > /dev/null
 fi
 
 if [ $? != "0" ]
 then
-  echo input and output does not match | tee -a $LOG
+  echo input and output do not match
   NUM_FAIL=$(($NUM_FAIL + 1))
 else
-  echo input and output match | tee -a $LOG
+  echo input and output match
   NUM_SUC=$(($NUM_SUC + 1))
 fi
 
-$RASQL -q "drop collection test_tmp" | tee -a $LOG
+drop_colls test_tmp
 rm -f $f*
 }
 
@@ -234,21 +158,8 @@ fi
 run_test csv png csv png GreySet
 run_test csv png csv png RGBSet
 
+# ------------------------------------------------------------------------------
+# test summary
 #
-################# summary #######################
-#
-NUM_TOTAL=$(($NUM_SUC + $NUM_FAIL))
-
-# Print the summary
-echo
-echo "test done at "`date`|tee -a $LOG
-echo "Total conversions: "$NUM_TOTAL|tee -a $LOG
-echo "Successful conversion number: "$NUM_SUC|tee -a $LOG
-echo "Failed conversion number: "$NUM_FAIL|tee -a $LOG
-echo "Detail test log is in "$LOG 
-
-if [ $NUM_TOTAL -eq $NUM_SUC ]; then
-  exit $CODE_OK
-else
-  exit $CODE_FAIL
-fi
+print_summary
+exit $RC

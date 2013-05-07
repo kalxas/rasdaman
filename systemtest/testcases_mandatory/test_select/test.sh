@@ -44,253 +44,103 @@
 #       2010-Apr-13     J.Yu       revise on input folder structure to support different queries input, including folders on mandatory, bug fixed, bug unfixed, and other queries.
 #
 # Parameters definistion and initiation
-  PROGNAME=`basename $0`
-  USERNAME=rasadmin
-  PASSWORD=rasadmin
-  DATABASE=RASBASE
-# RMANBASE: change RMANBASE depending on your system, where rasdaman is installed
-# RASQL="rasql --quiet" no ornament msg
-# QUERY_DIR: the test input folder, including queries for extracting some aspects of tested data
-# QUERY_DIR_T: the test input folder, including queries for updating some aspects of tested data
-# TESTDATA_DIR: the images needed
-# ORACLE_DIR: the expected result
-  RMANBASE=$RMANHOME
-  RASQL="rasql"
-  RASDL="rasdl"
-  DIR_NAME=$(dirname $0)
-  QUERY_DIR=$DIR_NAME/test_rasql
-  TESTDATA_DIR=$DIR_NAME/testdata
-  ORACLE_DIR=$DIR_NAME/oracle
-  LOG_DIR=$DIR_NAME
-  LOG=$LOG_DIR/log
-FAILED=$LOG_DIR/failed_cases
-  TEST_GREY=test_grey
-  TEST_GREY2=test_grey2
-  TEST_RGB2=test_rgb2
-  QUERY=""
-# LOG_DIR: the query output
-# REPOET: test report
-# NUM_TOTAL: number of the test query
-# NUM_FAIL: number of fail test
-# NUM_SUC: number of success test
-# Q_ID: query identifier
-  NUM_TOTAL=0
-  NUM_FAIL=0
-  NUM_SUC=0
-  Q_ID=""
-  CODE_OK=0
-  CODE_FAIL=255
 
-  echo   "Test by:"$PROGNAME $QUERY_DIR $ORACLE_DIR $LOG_DIR" at "`date`|tee $LOG
-#---------------------------Precondition------------------------------------------
-# check the Postgres
-ps -e | grep --quiet -w postgres
-if [ $? -ne 0 ]
-then
-   echo no postgres available|tee -a $LOG
-   exit $CODE_FAIL
-fi
+PROG=`basename $0`
 
-# check the Rasdaman
-ps -e | grep --quiet -w rasmgr
-if [ $? -ne 0 ]
-then
-   echo no rasmgr available|tee -a $LOG
-   exit $CODE_FAIL
-fi
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-# check usr
+. "$SCRIPT_DIR"/../../util/common.sh
+
 #
-# check data collection
-$RASQL -q "select r from RAS_COLLECTIONNAMES as r"
-if [ $? -ne 0 ]
-then
-   echo no data collection available|tee -a $LOG
-   exit $CODE_FAIL
-fi
+# paths
+#
+TESTDATA_PATH="$SCRIPT_DIR/testdata"
+[ -d "$TESTDATA_PATH" ] || error "Testdata directory not found: $TESTDATA_PATH"
+ORACLE_PATH="$SCRIPT_DIR/oracle"
+[ -d "$ORACLE_PATH" ] || error "Expected results directory not found: $ORACLE_PATH"
+QUERY_PATH="$SCRIPT_DIR/test_rasql"
+[ -d "$QUERY_PATH" ] || error "Rasql query dir not found: $QUERY_PATH"
 
-# check data type
-$RASDL --print|grep --quiet GreySet
-if [ $? -ne 0 ]
-then
-   echo no GreySet type available, try create_db.sh|tee -a $LOG
-   exit $CODE_FAIL
-fi
+FAILED="$SCRIPT_DIR"/failed_cases
 
-$RASDL --print|grep --quiet RGBSet
-if [ $? -ne 0 ]
-then
-   echo no RGBSet type available, try create_db.sh|tee -a $LOG
-   exit $CODE_FAIL
-fi
-#--------------------------initiation--------------------------------------------
+QUERY="" # query
+Q_ID=""  # query identifier (file name)
+
+TEST_GREY=test_grey
+TEST_GREY2=test_grey2
+TEST_RGB2=test_rgb2
+
+# ------------------------------------------------------------------------------
+# test dependencies
+#
+check_postgres
+check_rasdaman
+
+# check data types
+check_type GreySet
+check_type RGBSet
+
+# ------------------------------------------------------------------------------
 # drop test collection if they already exists
+#
+log "test initialization..."
 
-if   $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep -w $TEST_GREY
-then
-	echo dropping collection ... | tee -a $LOG
-	$RASQL -q 'drop collection '$TEST_GREY'' --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-fi
+drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
 
-if   $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep -w $TEST_GREY2
-then
-	echo dropping collection ... | tee -a $LOG
-	$RASQL -q 'drop collection '$TEST_GREY2'' --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-fi
+create_coll $TEST_GREY GreySet
+insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "inv_png"
 
-if   $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep -w $TEST_RGB2
-then
-	echo dropping collection ... | tee -a $LOG
-	$RASQL -q 'drop collection '$TEST_RGB2'' --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-fi
+create_coll $TEST_GREY2 GreySet
+insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "inv_png"
 
-echo test data initiation...  | tee -a $LOG
-echo creating test collection $TEST_GREY... | tee -a $LOG
-$RASQL -q 'create collection '$TEST_GREY' GreySet' --user $USERNAME --passwd $PASSWORD || echo Error creating collection  $TEST_GREY| tee -a $LOG
-if $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep -w $TEST_GREY
-then
-	echo create collection $TEST_GREY  GreySet successfully ... | tee -a $LOG
-else
-	echo create collection $TEST_GREY  GreySet unsuccessfully ... | tee -a $LOG
-fi
-
-echo inserting MDD into collection $TEST_GREY... | tee -a $LOG
-if [ ! -f $TESTDATA_DIR/mr_1.png ]
-then
-	echo "there is no test data in "$TESTDATA_DIR
-	exit $CODE_FAIL
-else
-	if $RASQL -q 'insert into test_grey  values inv_png($1)' --file $TESTDATA_DIR/mr_1.png --user $USERNAME --passwd $PASSWORD
-		then
-			echo insert test data into collection $TEST_GREY  successfully ... | tee -a $LOG
-		else
-			echo insert test data into collection $TEST_GREY  unsuccessfully ... | tee -a $LOG
-			exit $CODE_FAIL
-	fi
-fi
+create_coll $TEST_RGB2 RGBSet
+insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "inv_png"
 
 
+# ------------------------------------------------------------------------------
+# test by queries
+#
+  	
+rm -f tmp.unknown $FAILED
+# Query by query for extracting some aspects of tested data
+for i in $QUERY_PATH/*.rasql; do
+  # Send query in query folder.
+	Q_ID=`basename $i`
+  echo "----------------------------------------------------------------------" | tee -a $LOG
+  log " test query in $Q_ID"
+  echo "" | tee -a $LOG
+  QUERY=`cat $i`
+	$RASQL -q "$QUERY" --out file --outfile tmp | tee -a $LOG
 
-echo creating test collection $TEST_GREY2... | tee -a $LOG
-$RASQL -q 'create collection '$TEST_GREY2' GreySet' --user $USERNAME --passwd $PASSWORD || echo Error creating collection  $TEST_GREY2| tee -a $LOG
-if $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep -w $TEST_GREY2
-then
-	echo create collection $TEST_GREY2  GreySet successfully ... | tee -a $LOG
-else
-	echo create collection $TEST_GREY2  GreySet unsuccessfully ... | tee -a $LOG
-fi
-
-echo inserting MDD into collection $TEST_GREY2... | tee -a $LOG
-if [ ! -f $TESTDATA_DIR/mr2_1.png ]
-then
-	echo "there is no test data in "$TESTDATA_DIR
-	exit $CODE_FAIL
-else
-	if $RASQL -q 'insert into '$TEST_GREY2'  values inv_png($1)'  -f $TESTDATA_DIR/mr2_1.png --user $USERNAME --passwd $PASSWORD
-		then
-			echo insert test data into collection $TEST_GREY2  successfully ... | tee -a $LOG
-		else
-			echo insert test data into collection $TEST_GREY2  unsuccessfully ... | tee -a $LOG
-			exit $CODE_FAIL
-	fi
-fi
-
-
-echo creating test collection $TEST_RGB2... | tee -a $LOG
-$RASQL -q 'create collection '$TEST_RGB2' RGBSet' --user $USERNAME --passwd $PASSWORD || echo Error creating collection $TEST_RGB2| tee -a $LOG
-if $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep -w $TEST_RGB2
-then
-	echo create collection $TEST_RGB2  RGBSet successfully ... | tee -a $LOG
-else
-	echo create collection $TEST_RGB2  RGBSet unsuccessfully ... | tee -a $LOG
-fi
-
-echo inserting MDD into collection $TEST_RGB2... | tee -a $LOG
-if [ ! -f $TESTDATA_DIR/rgb.png ]
-then
-	echo "there is no test data in "$TESTDATA_DIR
-	exit $CODE_FAIL
-else
-	if $RASQL -q 'insert into '$TEST_RGB2'  values inv_png($1)'  --file $TESTDATA_DIR/rgb.png --user $USERNAME --passwd $PASSWORD
-		then
-			echo insert test data into collection $TEST_RGB2  successfully ... | tee -a $LOG
-		else
-			echo insert test data into collection $TEST_RGB2 unsuccessfully ... | tee -a $LOG
-			exit $CODE_FAIL
-	fi
-fi
-#==========================test by queries==================================================
-  if [ ! -d $QUERY_DIR ]
-  then
-	echo "there is no rasql for test in the "$QUERY_DIR
-  else
-       # initialation
-  	rm tmp.unknown $FAILED
-	# Query by query for extracting some aspects of tested data
-  	for i in $QUERY_DIR/*.rasql
-  	do
-	# Send query in query folder.
-        	Q_ID=`basename $i`
-		echo -e "\n test query in " $Q_ID|tee -a $LOG
-		QUERY=`cat $i`
-  		$RASQL -q  "$QUERY" --out file --outfile tmp|tee -a $LOG
-
-		# if the result is a scalar, there will be no tmp file by rasql, here we output the Result element scalar into tmp.unknown
-		if [ ! -f tmp.unknown ]
-		then
-			$RASQL -q  "$QUERY" --out string|grep Result > tmp.unknown
-		fi
- 		mv tmp.unknown $Q_ID
-
-		# Compare the result byte by byte with the expected result in orale folder
-        	cmp $ORACLE_DIR/$Q_ID $Q_ID
-    		if [ $? != 0 ]
-    		then
-			echo -e "\n Result error for the query."|tee -a $LOG
-        		NUM_FAIL=$(($NUM_FAIL + 1))
-            echo "------------------------------------------------------" | tee -a $FAILED
-            echo $Q_ID| tee -a $FAILED
-            echo $QUERY | tee -a $FAILED
-     		else
-			echo -e "\n Result correct for the query."|tee -a $LOG
-			NUM_SUC=$(($NUM_SUC + 1))
-    		fi
-   		rm $Q_ID
-  	done
+  # if the result is a scalar, there will be no tmp file by rasql, 
+  # here we output the Result element scalar into tmp.unknown
+  if [ ! -f tmp.unknown ]; then
+	  $RASQL -q "$QUERY" --out string | grep Result > tmp.unknown
   fi
+  mv tmp.unknown $Q_ID
 
-  NUM_TOTAL=$(($NUM_SUC + $NUM_FAIL))
+  # Compare the result byte by byte with the expected result in oracle folder
+	cmp $ORACLE_PATH/$Q_ID $Q_ID
+	if [ $? != 0 ]; then
+	  echo -e "\n Result error for the query." | tee -a $LOG
+		NUM_FAIL=$(($NUM_FAIL + 1))
+    echo "----------------------------------------------------------------------" | tee -a $FAILED
+    echo $Q_ID| tee -a $FAILED
+    echo $QUERY | tee -a $FAILED
+	else
+	  echo -e "\n Result correct for the query."|tee -a $LOG
+	  NUM_SUC=$(($NUM_SUC + 1))
+	fi
+	rm -f $Q_ID
+done
 
-# drop collection after test
+drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
 
-if   $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep -w $TEST_GREY
-then
-	echo dropping collection ... | tee -a $LOG
-	$RASQL -q 'drop collection '$TEST_GREY'' --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-fi
 
-if   $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep -w $TEST_GREY2
-then
-	echo dropping collection ... | tee -a $LOG
-	$RASQL -q 'drop collection '$TEST_GREY2'' --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-fi
-
-if   $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep -w $TEST_RGB2
-then
-	echo dropping collection ... | tee -a $LOG
-	$RASQL -q 'drop collection '$TEST_RGB2'' --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-fi
-
-# Print the summary
-  echo "test done at "`date`|tee -a $LOG
-  echo "Total query number: "$NUM_TOTAL|tee -a $LOG
-  echo "Successful query number: "$NUM_SUC|tee -a $LOG
-  echo "Failed query number: "$NUM_FAIL|tee -a $LOG
-  echo "Detail test report is in "$LOG
-
-  if [ $NUM_TOTAL = $NUM_SUC ]
-  then
-  	exit $CODE_OK
-  else
-	exit $CODE_FAIL
-  fi
+# ------------------------------------------------------------------------------
+# test summary
+#
+print_summary
+exit $RC

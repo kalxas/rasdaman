@@ -42,10 +42,8 @@ SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-WCPS_DIR="$SCRIPT_DIR"/../test_wcps
 
-# load configuration file
-. "$WCPS_DIR"/test.cfg
+. "$SCRIPT_DIR"/../../util/petascope.sh
 
 #
 # constants

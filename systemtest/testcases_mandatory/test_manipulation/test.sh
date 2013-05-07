@@ -10,11 +10,11 @@
 #
 # Rasdaman community is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+# along with rasdaman community. If not, see <http://www.gnu.org/licenses/>.
 #
 # Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
 # rasdaman GmbH.
@@ -40,182 +40,125 @@
 # Usage: ./test.sh
 #
 # CHANGE HISTORY
-#       2009-Sep-16     J.Yu       created
-#       2010-July-04    J.Yu       add precondition
+#    2009-Sep-16   J.Yu    created
+#    2010-July-04  J.Yu    add precondition
 
 
 # Variables
-PROGNAME=`basename $0`
-DIR_NAME=$(dirname $0)
-LOG_DIR=$DIR_NAME
-LOG=$LOG_DIR/log
-OLDLOG=$LOG.old
-USERNAME=rasadmin
-PASSWORD=rasadmin
-DATABASE=RASBASE
-RASQL="rasql --quiet"
-RASDL="rasdl"
+PROG=`basename $0`
+
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+. "$SCRIPT_DIR"/../../util/common.sh
+
 TEST_COLLECTION="test_tmp"
 TMP_COLLECTION="test_tmp_select_into"
 
-  CODE_OK=0
-  CODE_FAIL=255
 
-# NUM_TOTAL: the number of manipulations
-# NUM_FAIL: the number of fail manipulations
-# NUM_SUC: the number of success manipulations
-  NUM_TOTAL=0
-  NUM_FAIL=0
-  NUM_SUC=0
-
-#--------------- check if old logfile exists ----------------------------------
-if [ -f $LOG ]
-then
-	echo Old logfile found, copying it to $OLDLOG
-	mv $LOG $OLDLOG
-fi
-
-echo "Test by:"$PROGNAME" at "`date`|tee $LOG
-
-#---------------------------Precondition------------------------------------------
-# check the Postgres
-ps -e | grep --quiet -w postgres
-if [ $? -ne 0 ]
-then
-   echo no postgres available|tee -a $LOG
-   exit $CODE_FAIL
-fi
-
-# check the Rasdaman
-ps -e | grep --quiet rasmgr
-if [ $? -ne 0 ]
-then
-   echo no rasmgr available|tee -a $LOG
-   exit $CODE_FAIL
-fi
-
-# check usr
+# ------------------------------------------------------------------------------
+# test dependencies
 #
-# check data collection
-$RASQL -q "select r from RAS_COLLECTIONNAMES as r"
-if [ $? -ne 0 ]
-then
-   echo no data collection available|tee -a $LOG
-   exit $CODE_FAIL
-fi
+check_postgres
+check_rasdaman
 
-# check data type
-$RASDL --print|grep --quiet GreySet
-if [ $? -ne 0 ]
-then
-   echo no GreSet type available|tee -a $LOG
-   exit $CODE_FAIL
-fi
+# check data types
+check_type GreySet
 
-# check data set
 
-#--------------------------initiation--------------------------------------------
-# drop collection if they already exists
+# ------------------------------------------------------------------------------
+# drop test collection if they already exists
+#
+logn "test initialization..."
+drop_colls $TEST_COLLECTION
+feedback
 
-if   $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep -w $TEST_COLLECTION
-then
-	echo dropping collection ... | tee -a $LOG
-	$RASQL -q "drop collection $TEST_COLLECTION" --user $USERNAME --passwd $PASSWORD | tee -a $LOG
-fi
-################## starting manipulation test #######################
-echo starting manipulation test...  | tee -a $LOG
-echo creating collection $TEST_COLLECTION... | tee -a $LOG
-$RASQL -q "create collection $TEST_COLLECTION  GreySet" --user $USERNAME --passwd $PASSWORD || echo Error creating collection  $TEST_COLLECTION| tee -a $LOG
-if $RASQL -q "select r from RAS_COLLECTIONNAMES as r" --out string|grep -w $TEST_COLLECTION
-then
-	echo create collection $TEST_COLLECTION  GreySet successfully ... | tee -a $LOG
+# ------------------------------------------------------------------------------
+# start test
+#
+create_coll $TEST_COLLECTION GreySet
+
+logn "inserting MDD into collection... "
+$RASQL --quiet -q "insert into $TEST_COLLECTION values marray x in [0:255, 0:210] values 1c"
+if [ $? -eq 0 ]; then
+	echo ok.
 	NUM_SUC=$(($NUM_SUC + 1))
 else
-	echo create collection $TEST_COLLECTION  GreySet unsuccessfully ... | tee -a $LOG
+	echo failed.
 	NUM_FAIL=$(($NUM_FAIL + 1))
 fi
 
-echo inserting MDD into collection ... | tee -a $LOG
-if $RASQL -q "insert into $TEST_COLLECTION  values marray x in [0:255, 0:210] values 1c" --user $USERNAME --passwd $PASSWORD
-then
-	echo insert MDD into collection $TEST_COLLECTION  successfully ... | tee -a $LOG
+# ------------------------------------------------------------------------------
+
+logn "updating MDD from collection... "
+$RASQL --quiet -q "update $TEST_COLLECTION as a set a assign a[0:179,0:54] + 1c"
+if [ $? -eq 0 ]; then
+	echo ok.
 	NUM_SUC=$(($NUM_SUC + 1))
 else
-	echo insert MDD into collection $TEST_COLLECTION  unsuccessfully ... | tee -a $LOG
+	echo failed.
 	NUM_FAIL=$(($NUM_FAIL + 1))
 fi
 
-echo updating MDD from collection ... | tee -a $LOG
-if $RASQL -q "update $TEST_COLLECTION as a set a assign a[0:179,0:54] + 1c" --user $USERNAME --passwd $PASSWORD
-then
-	echo update MDD from collection $TEST_COLLECTION  successfully ... | tee -a $LOG
-	NUM_SUC=$(($NUM_SUC + 1))
-else
-	echo update MDD from collection $TEST_COLLECTION  unsuccessfully ... | tee -a $LOG
-	NUM_FAIL=$(($NUM_FAIL + 1))
-fi
+# ------------------------------------------------------------------------------
 
-echo testing SELECT INTO a new collection ... | tee -a $LOG
-if $RASQL -q "select c / 2 into $TMP_COLLECTION from $TEST_COLLECTION as c" --user $USERNAME --passwd $PASSWORD
-then
+logn "testing SELECT INTO a new collection... "
+$RASQL --quiet -q "select c / 2 into $TMP_COLLECTION from $TEST_COLLECTION as c"
+if [ $? -eq 0 ]; then
 	sdom1=`$RASQL -q "select sdom(c) from $TMP_COLLECTION as c" --out string`
 	sdom2=`$RASQL -q "select sdom(c) from $TEST_COLLECTION as c" --out string`
 	if [ "$sdom1" == "$sdom2" ]; then
-		echo select into $TMP_COLLECTIO  successfully ... | tee -a $LOG
+	  echo ok.
 		NUM_SUC=$(($NUM_SUC + 1))
 	else
-		echo select into $TMP_COLLECTION  unsuccessfully ... | tee -a $LOG
+		echo failed.
 		NUM_FAIL=$(($NUM_FAIL + 1))
 	fi
 else
-	echo select into $TMP_COLLECTION  unsuccessfully ... | tee -a $LOG
+	echo failed.
 	NUM_FAIL=$(($NUM_FAIL + 1))
 fi
 
-echo dropping collection $TMP_COLLECTION... | tee -a $LOG
-if $RASQL -q "drop collection $TMP_COLLECTION" --user $USERNAME --passwd $PASSWORD
-then
-	echo drop collection $TMP_COLLECTION successfully ... | tee -a $LOG
+# ------------------------------------------------------------------------------
+
+logn "dropping collection $TMP_COLLECTION... "
+$RASQL --quiet -q "drop collection $TMP_COLLECTION"
+if [ $? -eq 0 ]; then
+	echo ok.
 	NUM_SUC=$(($NUM_SUC + 1))
 else
-	echo drop collection $TMP_COLLECTION unsuccessfully ... | tee -a $LOG
+	echo failed.
 	NUM_FAIL=$(($NUM_FAIL + 1))
 fi
 
+# ------------------------------------------------------------------------------
 
-
-echo deleting MDD from collection ... | tee -a $LOG
-if $RASQL -q "delete from $TEST_COLLECTION as a where all_cells(a>0)" --user $USERNAME --passwd $PASSWORD
-then
-	echo delete MDD from collection $TEST_COLLECTION  successfully ... | tee -a $LOG
+logn "deleting MDD from collection... "
+$RASQL --quiet -q "delete from $TEST_COLLECTION as a where all_cells(a>0)"
+if [ $? -eq 0 ]; then
+	echo ok.
 	NUM_SUC=$(($NUM_SUC + 1))
 else
-	echo delete MDD from collection $TEST_COLLECTION  unsuccessfully ... | tee -a $LOG
+	echo failed.
 	NUM_FAIL=$(($NUM_FAIL + 1))
 fi
 
-echo dropping collection $TEST_COLLECTION... | tee -a $LOG
-if $RASQL -q "drop collection $TEST_COLLECTION" --user $USERNAME --passwd $PASSWORD
-then
-	echo drop collection $TEST_COLLECTION successfully ... | tee -a $LOG
+# ------------------------------------------------------------------------------
+
+logn "dropping collection $TEST_COLLECTION... "
+$RASQL --quiet -q "drop collection $TEST_COLLECTION"
+if [ $? -eq 0 ]; then
+	echo ok.
 	NUM_SUC=$(($NUM_SUC + 1))
 else
-	echo drop collection $TEST_COLLECTION unsuccessfully ... | tee -a $LOG
+	echo failed.
 	NUM_FAIL=$(($NUM_FAIL + 1))
 fi
 
-NUM_TOTAL=$(($NUM_SUC + $NUM_FAIL))
-# Print the summary
-  echo "test done at "`date`|tee -a $LOG
-  echo "Total manipulations: "$NUM_TOTAL|tee -a $LOG
-  echo "Successful manipulation number: "$NUM_SUC|tee -a $LOG
-  echo "Failed manipulation number: "$NUM_FAIL|tee -a $LOG
-  echo "Detail test log is in " $LOG
 
-
-  if [ $NUM_TOTAL = $NUM_SUC ]
-  then
-  	exit $CODE_OK
-  else
-	  exit $CODE_FAIL
-  fi
+# ------------------------------------------------------------------------------
+# test summary
+#
+print_summary
+exit $RC

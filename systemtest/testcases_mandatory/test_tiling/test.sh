@@ -1,5 +1,4 @@
 #!/bin/bash
-#!/bin/ksh
 #
 # This file is part of rasdaman community.
 #
@@ -29,20 +28,24 @@
 #	1) Send rasql query
 #	2) Get response
 #	3) Compare the response with the expected result
-#	4) Give out the testing result. 
+#	4) Give out the testing result.
 #
 # PRECONDITIONS
 # 	Postgres, Rasdaman installed
 #
-# Usage: ./test.sh 
-#         images needed for testing shall be put in directory of testdata	  	
-# Parameters: 
-# 
+# Usage: ./test.sh
+#         images needed for testing shall be put in directory of testdata
+# Parameters:
+#
 #
 # CHANGE HISTORY
 #       2009-Sep-16     J.Yu       created
 #       2010-Apr-13     J.Yu       revise on input folder structure to support different queries input, including folders on mandatory, bug fixed, bug unfixed, and other queries.
 #
+# Parameters definistion and initiation
+
+set -o nounset
+
 PROG=`basename $0`
 
 SOURCE="${BASH_SOURCE[0]}"
@@ -56,6 +59,8 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 #
 TESTDATA_PATH="$SCRIPT_DIR/testdata"
 [ -d "$TESTDATA_PATH" ] || error "Testdata directory not found: $TESTDATA_PATH"
+ORACLE_PATH="$SCRIPT_DIR/oracle"
+[ -d "$ORACLE_PATH" ] || error "Expected results directory not found: $ORACLE_PATH"
 QUERY_PATH="$SCRIPT_DIR/test_rasql"
 [ -d "$QUERY_PATH" ] || error "Rasql query dir not found: $QUERY_PATH"
 
@@ -64,9 +69,8 @@ FAILED="$SCRIPT_DIR"/failed_cases
 QUERY="" # query
 Q_ID=""  # query identifier (file name)
 
-TEST_GREY=test_grey
-TEST_GREY2=test_grey2
-TEST_RGB2=test_rgb2
+TEST_COLL=test_coll
+TEST_COLL3=test_coll3
 
 # ------------------------------------------------------------------------------
 # test dependencies
@@ -76,52 +80,92 @@ check_rasdaman
 
 # check data types
 check_type GreySet
-check_type RGBSet
-
-# ------------------------------------------------------------------------------
-# drop test collection if they already exists
-#
-log "test initialization..."
-
-drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
-
-create_coll $TEST_GREY GreySet
-insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "inv_png"
-
-create_coll $TEST_GREY2 GreySet
-insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "inv_png"
-
-create_coll $TEST_RGB2 RGBSet
-insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "inv_png"
+check_type GreySet3
 
 
 # ------------------------------------------------------------------------------
 # test by queries
 #
-
-log "running tests"
-echo "" | tee -a $LOG
-
+  	
 rm -f tmp.unknown $FAILED
 # Query by query for extracting some aspects of tested data
 for i in $QUERY_PATH/*.rasql; do
+
   # Send query in query folder.
 	Q_ID=`basename $i`
+
   echo "----------------------------------------------------------------------" | tee -a $LOG
-  log " test query in $Q_ID"
+  log "running queries in $Q_ID"
   echo "" | tee -a $LOG
-  QUERY=`cat $i`
-	$RASQL -q "$QUERY" --quiet
-  if [ $? -eq 0 ]; then 
-	  echo "bug is fixed"
-	  NUM_SUC=$(($NUM_SUC + 1))		
-  else 
-	  echo "bug is unfixed"
-    NUM_FAIL=$(($NUM_FAIL + 1))
-  fi
+
+  # initialize collections
+  drop_colls $TEST_COLL $TEST_COLL3
+  create_coll $TEST_COLL GreySet
+  create_coll $TEST_COLL3 GreySet3
+
+  counter=0
+  while read QUERY; do
+    q_id=$Q_ID.$counter
+
+    # first run insert/update query
+    echo "----------------------------------------------------------------------" | tee -a $LOG
+    log "$q_id:"
+    log "  $QUERY"
+
+    $RASQL -q "$QUERY" --quiet
+    if [ $? -ne 0 ]; then
+      log "Failed executing update query." | tee -a $LOG
+      NUM_FAIL=$(($NUM_FAIL + 1))
+      echo "----------------------------------------------------------------------" >> $FAILED
+      echo $q_id >> $FAILED
+      echo $QUERY >> $FAILED
+      continue
+    fi
+
+    coll_name="$TEST_COLL"
+    echo "$QUERY" | grep "$TEST_COLL3"
+    if [ $? -eq 0 ]; then
+      coll_name="$TEST_COLL3"
+    fi
+
+	  $RASQL -q "select dbinfo(c, \"printtiles=1\") from $coll_name as c" --out file --outfile tmp > /dev/null
+    if [ ! -f tmp.unknown ]; then
+      log "Failed executing select query." | tee -a $LOG
+      NUM_FAIL=$(($NUM_FAIL + 1))
+      echo "----------------------------------------------------------------------" >> $FAILED
+      echo $q_id >> $FAILED
+      echo $QUERY >> $FAILED
+      continue
+    fi
+    sed -i '/oid/d' tmp.unknown
+    mv tmp.unknown $q_id
+
+    if [ ! -f "$ORACLE_PATH/$q_id" ]; then
+      cp "$q_id" "$ORACLE_PATH/$q_id"
+    fi
+
+    # Compare the result byte by byte with the expected result in oracle folder
+	  cmp $ORACLE_PATH/$q_id $q_id
+	  if [ $? != 0 ]; then
+	    log "Result error for the query."
+		  NUM_FAIL=$(($NUM_FAIL + 1))
+      echo "----------------------------------------------------------------------" >> $FAILED
+      echo $q_id >> $FAILED
+      echo $QUERY >> $FAILED
+	  else
+	    log "Result correct for the query."
+	    NUM_SUC=$(($NUM_SUC + 1))
+	  fi
+	  rm -f $q_id
+
+    counter=$(($counter+1))
+    QUERY=""
+  done < "$i"
+
+
 done
 
-drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
+drop_colls $TEST_COLL $TEST_COLL3
 
 
 # ------------------------------------------------------------------------------
