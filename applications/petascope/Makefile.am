@@ -42,6 +42,8 @@ endif
 # Location of trees.
 SRC	  = src/main
 SRC_MAIN  = $(SRC)/java
+SRC_RES   = $(SRC)/resources
+WMS_MES   = $(SRC_RES)/wms-messages
 SRC_WEB   = $(SRC)/webapp
 TEST      = src/test
 BUILD     = build
@@ -129,6 +131,8 @@ compile: $(all_javas) $(GEN_DOCS)
 	$(MKDIR) $(WEB)/WEB-INF/lib
 	$(CP) $(JJARS_PATHS) $(WEB)/WEB-INF/lib
 	$(CP) $(SRC_MAIN)/* $(CLASSES) # copy resources (xml, xsd, properties)
+	$(MKDIR) $(WEB)/WEB-INF/wms-messages
+	$(CP) $(WMS_MES)/* $(WEB)/WEB-INF/wms-messages/ # copy WMS error messages
 	$(FIND) $(BUILD) -name '*.java' | xargs $(RM)
 	$(FIND) $(BUILD) -name '.svn' | xargs $(RM) # remove .svn directories
 	$(JAVAC) $(JFLAGS) @$<
