@@ -1,7 +1,6 @@
-The new tables for `petascopedb' can be added by simply importing the ini9_schema.sql file:
+The new tables for `petascopedb' can be added by simply importing the init9.sql file:
 
-$ psql petascopedb
-petascopedb=# \i <rasdaman>/applications/petascope9/src/main/db/petascope/init9_schema.sql
+$ psql --set ON_ERROR_STOP=on --single-transaction -f init9.sql petascopedb
 
 Currently, the prefix ``ps9_'' will highlight the new tables for Petascope 9.
 To *visualize* the schema structure you could look into the 
