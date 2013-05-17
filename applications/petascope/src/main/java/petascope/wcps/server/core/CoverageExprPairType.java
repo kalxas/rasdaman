@@ -49,7 +49,7 @@ public class CoverageExprPairType extends AbstractRasNode implements ICoverageIn
         }
         
         info = new CoverageInfo(((ICoverageInfo) first).getCoverageInfo());
-        if(info == null || first instanceof ScalarExpr){
+        if(info == null){
             info = new CoverageInfo(((ICoverageInfo) second).getCoverageInfo());
         }
     }

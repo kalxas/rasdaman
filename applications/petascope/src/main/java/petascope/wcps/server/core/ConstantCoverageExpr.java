@@ -21,7 +21,7 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.core.Metadata;
+import petascope.core.CoverageMetadata;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import java.util.HashSet;
@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
+import petascope.wcs2.templates.Templates;
 
 public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
@@ -140,29 +141,49 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
         interpolationSet.add(interpolationDefault);
         String coverageName = covName;
         List<DomainElement> domainList = new LinkedList<DomainElement>();
+        String crs = CrsUtil.GRID_CRS;
 
         Iterator<AxisIterator> i = iterators.iterator();
+        int order = 0;
         while (i.hasNext()) {
             // Build domain metadata
             AxisIterator ai = i.next();
             String axisName = ai.getVar();
             String axisType = ai.getAxisType();
-            cellDomainList.add(new CellDomainElement(ai.getLow(), ai.getHigh(), axisType));
-            String crs = CrsUtil.GRID_CRS;
-            HashSet<String> crsset = new HashSet<String>();
-            crsset.add(crs);
-            DomainElement domain = new DomainElement(axisName, axisType,
-                    ai.getLow().doubleValue(), ai.getHigh().doubleValue(),
-                    null, null, crsset, xq.getMetadataSource().getAxisNames(), null); // FIXME uom = null
-            domainList.add(domain);
-        }
 
+            CellDomainElement cellDomain = new CellDomainElement(
+                    ai.getLow(), 
+                    ai.getHigh(),
+                    axisType,
+                    order);
+            DomainElement domain = new DomainElement(
+                    ai.getLow().toString(), 
+                    ai.getHigh().toString(), 
+                    axisName, 
+                    axisType, 
+                    crs,
+                    order,
+                    ai.getHigh().intValue()-ai.getLow().intValue()+1,
+                    false); // FIXME uom = null
+            cellDomainList.add(cellDomain);
+            domainList.add(domain);
+            order += 1;
+        }
+        
         // TODO: check element datatypes and their consistency
         // "unsigned int" is default datatype
         rangeList.add(new RangeElement(WCPSConstants.MSG_DYNAMIC_TYPE, WCPSConstants.MSG_UNSIGNED_INT, null));
-        Metadata metadata = new Metadata(cellDomainList, rangeList, nullSet,
-                nullDefault, interpolationSet, interpolationDefault,
-                coverageName, WCPSConstants.MSG_GRID_COVERAGE, domainList, null); // FIXME
+        CoverageMetadata metadata = new CoverageMetadata(
+                coverageName,
+                Templates.RECTIFIED_GRID_COVERAGE,
+                crs,
+                domainList,
+                cellDomainList,
+                rangeList,
+                nullSet,
+                nullDefault, 
+                interpolationSet, 
+                interpolationDefault);
         // Let the top-level query know the full metadata about us
         xq.getMetadataSource().addDynamicMetadata(covName, metadata);
         info = new CoverageInfo(metadata);

@@ -61,6 +61,45 @@ public class Templates {
      * template name -> (template as string, template as XOM element)
      */
     private static final Map<String, String> templates = new HashMap<String, String>();
+    
+    /* Keywords in WCS templates (alphabetic order) */
+    public static final String KEY_ADDITIONS = "additions";
+    public static final String KEY_ALLOWEDVALUES = "allowedValues";
+    public static final String KEY_AXISLABELS = "axisLabels";
+    public static final String KEY_CODE = "code";
+    public static final String KEY_COMPONENTNAME = "componentName";
+    public static final String KEY_COVERAGEDATA = "coverageData";
+    public static final String KEY_COVERAGEID = "coverageId";
+    public static final String KEY_COVERAGESUBTYPE = "coverageSubtype";
+    public static final String KEY_COVERAGETYPE = "coverageType";
+    public static final String KEY_DATATYPE = "datatype";
+    public static final String KEY_FIELDDESCR = "fieldDescr";
+    public static final String KEY_FIELDNAME = "fieldName";
+    public static final String KEY_GRIDDIMENSION = "gridDimension";
+    public static final String KEY_GRIDID = "gridId";
+    public static final String KEY_GRIDTYPE = "gridType";
+    public static final String KEY_HIGH = "high";
+    public static final String KEY_LOW = "low";
+    public static final String KEY_LOWERCORNER = "lowerCorner";
+    public static final String KEY_METADATA = "metadata";
+    public static final String KEY_MPID = "mpId";
+    public static final String KEY_MULUOMLABLES = "mulUomLabels";
+    public static final String KEY_NILVALUES = "nilValues";
+    public static final String KEY_OFFSETS= "offsets";
+    public static final String KEY_ORIGINPOS= "originPos";
+    public static final String KEY_POINTID = "pointId";
+    public static final String KEY_POINTMEMBERS = "pointMembers";
+    public static final String KEY_RANGEFIELDS = "rangeFields";
+    public static final String KEY_SRSGROUP = "srsgroup";
+    public static final String KEY_SRSDIMENSION = "srsDimension";
+    public static final String KEY_SRSNAME = "srsName";
+    public static final String KEY_UOMLABELS = "uomLabels";
+    public static final String KEY_UPPERCORNER = "upperCorner";
+    public static final String KEY_URL = "URL";
+    
+    /* Other constants */
+    public static final String PREFIX_MP = "multipoint_";
+    public static final String SUFFIX_ORIGIN = "-origin";
 
     // load templates
     static {

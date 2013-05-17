@@ -32,7 +32,10 @@ import petascope.util.ListUtil;
  */
 public class DescribeCoverageRequest extends BaseRequest {
 
-    private final List<String> coverageIds;
+    /* WCS DescribeCoverage request constants */
+    public static final String VALUE_DESCRIBECOVERAGE = "DescribeCoverage";
+    
+    private final List<String> coverageIds;    
 
     public DescribeCoverageRequest() {
         coverageIds = new ArrayList<String>();
@@ -44,6 +47,7 @@ public class DescribeCoverageRequest extends BaseRequest {
 
     @Override
     public String toString() {
-        return "DescribeCoverage: " + "coverageIds=" + ListUtil.ltos(coverageIds,",");
+        return VALUE_DESCRIBECOVERAGE + ": " + 
+                KVPDescribeCoverageParser.KEY_COVERAGEID + "s=" + ListUtil.ltos(coverageIds,",");
     }
 }

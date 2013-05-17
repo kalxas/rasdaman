@@ -100,8 +100,9 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         Iterator<DimensionPointElement> i = axisList.iterator();
         DimensionPointElement axis;
         int axisId;
-        int slicingPosInt;
+        int slicingPosInt;        
         String slicingPosStr;
+        int order = 0;
 
         while (i.hasNext()) {
             axis = i.next();
@@ -120,10 +121,13 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             coverageInfo.setCellDimension(
                     axisId,
                     new CellDomainElement(
-                    BigInteger.valueOf(slicingPosInt), BigInteger.valueOf(slicingPosInt), axis.getAxisName()));
-
+                        BigInteger.valueOf(slicingPosInt), 
+                        BigInteger.valueOf(slicingPosInt),
+                        axis.getAxisName(),
+                        order)
+                    );
+            order += 1;
         }
-
     }
 
     @Override

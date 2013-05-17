@@ -22,15 +22,18 @@
 package petascope.wcps.server.core;
 
 import java.util.Iterator;
+import petascope.core.CoverageMetadata;
+import petascope.exceptions.WCPSException;
+import org.w3c.dom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
-import petascope.core.Metadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
+
 
 public class DimensionPointElement extends AbstractRasNode {
 
@@ -42,7 +45,7 @@ public class DimensionPointElement extends AbstractRasNode {
     private Crs crs;
     private boolean finished = false;
     private Node nextNode;
-    private Metadata meta = null;       // metadata about the current coverage
+    private CoverageMetadata meta = null;       // metadata about the current coverage
     private boolean transformedCoordinates = false;
     private long coord;
     
@@ -83,7 +86,7 @@ public class DimensionPointElement extends AbstractRasNode {
                 continue;
             } catch (WCPSException e) {
             }
-
+            
             // Try CRS name
             try {
                 log.trace("  " + WCPSConstants.MSG_MATCHING_CRS);
@@ -95,7 +98,7 @@ public class DimensionPointElement extends AbstractRasNode {
                 continue;
             } catch (WCPSException e) {
             }
-
+            
             // TODO: how to implement DomainMetadataExpr ?
 
 //            // Try last thing
@@ -120,98 +123,79 @@ public class DimensionPointElement extends AbstractRasNode {
             } else {
                 throw new WCPSException(WCPSConstants.ERRTXT_UNEXPETCTED_NODE + ": " + node.getFirstChild().getNodeName());
             }
-
+            
             if (axis != null && domain != null) {
                 finished = true;
             }
-
+            
             if (finished == true) {
                 nextNode = node.getNextSibling();
             }
-
+            
             node = node.getNextSibling();
         }
         
         if (crs == null) {
             // if no CRS is specified assume native CRS -- DM 2012-mar-05
             String axisName = axis.toRasQL();
-
+            
             DomainElement axisDomain = meta.getDomainByName(axisName);
             if (axisDomain != null) {
-              Iterator<String> crsIt = axisDomain.getCrsSet().iterator();
-              if (crsIt.hasNext()) {
-                String crsname = crsIt.next();
-                log.info(WCPSConstants.MSG_USING_NATIVE_CRS + ": " + crsname);
-                crs = new Crs(crsname);
-              } else {
-                log.warn(WCPSConstants.WARNTXT_NO_NATIVE_CRS_P1 + " " + axisName + ", " + WCPSConstants.WARNTXT_NO_NATIVE_CRS_P2);
+                String crsName = axisDomain.getCrs();
+                log.info(WCPSConstants.MSG_USING_NATIVE_CRS + ": " + crsName);
+                crs = new Crs(crsName);
+            } else {
+                log.warn(WCPSConstants.WARNTXT_NO_NATIVE_CRS_P1 + " " + axisName + WCPSConstants.WARNTXT_NO_NATIVE_CRS_P2);
                 crs = new Crs(CrsUtil.GRID_CRS);
-              }
+                this.transformedCoordinates = true;
             }
         }
         
-        // Pixel indices are retrieved from bbox, which is stored for XY plane only.
-        if (finished == true) {
-            if (!crs.getName().equals(CrsUtil.GRID_CRS)) {
-                convertToPixelCoordinate();
-            } else {
-                // Set grid values which were directly set in the requests
-                try {
-                    coord = (long)(domain.getSingleValue());
-                    this.transformedCoordinates = false;
-                } catch (ClassCastException ex) {
-                    String message = ex.getMessage();
-                    log.error(message);
-                    throw new WCPSException(ExceptionCode.InternalComponentError, message);
-                }
-            }
+        if (finished == true && crs != null && !crs.getName().equals(CrsUtil.GRID_CRS)) {
+            convertToPixelCoordinate();
         }
     }
-
+    
     /* If input coordinates are geo-, convert them to pixel coordinates. */
     private void convertToPixelCoordinate() throws WCPSException {
-        //if (meta.getCrs() == null && crs != null && crs.getName().equals(DomainElement.WGS84_CRS)) {
         if (meta.getBbox() == null && crs != null) {
             throw new RuntimeException(WCPSConstants.MSG_COVERAGE + " '" + meta.getCoverageName()
-                    //+ "' is not georeferenced with 'EPSG:4326' coordinate system.");
                     + "' " + WCPSConstants.ERRTXT_IS_NOT_GEOREFERENCED);
-        }        
+        }
         if (crs != null && domain.isSingleValue()) {
-            //if (crs.getName().equals(DomainElement.WGS84_CRS)) {
-                //log.debug("CRS is '{}' and should be equal to '{}'", crs.getName(), DomainElement.WGS84_CRS);
-                log.debug(WCPSConstants.DEBUGTXT_REQUESTED_SUBSETTING, crs.getName(), meta.getBbox().getCrsName());
-                try {
-                    this.transformedCoordinates = true;
-                    // Convert to pixel coordinates
-                    Double val = domain.getSingleValue();
-                    String axisName = axis.toRasQL(); //.toUpperCase();
-                    coord = crs.convertToPixelIndices(meta, axisName, val);
-                } catch (PetascopeException e) {
-                    this.transformedCoordinates = false;
-                    log.error(WCPSConstants.ERRTXT_ERROR_WHILE_TRANSFORMING);
-                    throw new WCPSException(e.getExceptionCode(), e.getMessage());
-                }
-            //}
-        } // else no crs was embedded in the slice expression 
+            log.debug(WCPSConstants.DEBUGTXT_REQUESTED_SUBSETTING, crs.getName(), meta.getBbox().getCrsName());
+            try {
+                this.transformedCoordinates = true;
+                // Convert to pixel coordinates
+                String val = domain.getSingleValue();
+                boolean domIsNum = !domain.isStringScalarExpr();
+                String axisName = axis.toRasQL();
+                coord = crs.convertToPixelIndices(meta, axisName, val, domIsNum);
+            } catch (PetascopeException e) {
+                this.transformedCoordinates = false;
+                log.error(WCPSConstants.ERRTXT_ERROR_WHILE_TRANSFORMING);
+                throw new WCPSException(e.getExceptionCode(), e.getMessage());
+            }
+        } // else no crs was embedded in the slice expression
     }
-
+    
     @Override
     public String toRasQL() {
         return child.toRasQL();
     }
-
+    
     public Node getNextNode() {
         return nextNode;
     }
-
+    
     public String getAxisName() {
         return this.axis.toRasQL();
     }
-
+    
     public String getCrsName() {
         return this.crs.toRasQL();
     }
-
+    
     public String getSlicingPosition() {
         if (transformedCoordinates) {
             return String.valueOf(coord);

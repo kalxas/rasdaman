@@ -83,7 +83,7 @@ public class CondenseScalarExpr extends AbstractRasNode {
         String result = WCPSConstants.MSG_CONDENSE + " " + op.toRasQL() + " " + WCPSConstants.MSG_OVER + " ";
         result += axisIteratorString;
         if (where != null) {
-            result += " " + WCPSConstants.MSG_WHERE + " " + where.toRasQL();
+            result += where.toRasQL();
         }
         result += " " + WCPSConstants.MSG_USING + " " + using.toRasQL();
         return result;

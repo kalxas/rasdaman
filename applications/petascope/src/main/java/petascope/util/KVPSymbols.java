@@ -46,8 +46,4 @@ public interface KVPSymbols {
     String KEY_ACCEPTFORMATS = "acceptformats";
     String KEY_ACCEPTLANGUAGES = "acceptlanguages";
     
-    // rasql KVP
-    String KEY_USERNAME = "username";
-    String KEY_PASSWORD = "password";
-    String KEY_QUERY = "query";
 }

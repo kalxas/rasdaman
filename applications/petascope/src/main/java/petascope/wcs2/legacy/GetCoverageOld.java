@@ -30,7 +30,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import petascope.ConfigManager;
 import petascope.core.DbMetadataSource;
-import petascope.core.Metadata;
+import petascope.core.CoverageMetadata;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.ExceptionCode;
 import java.io.IOException;
@@ -78,7 +78,7 @@ public class GetCoverageOld {
     private String rangeComponentTemplate;
     /* Xml request */
     private Document doc;
-    /* for Metadata */
+    /* for CoverageMetadata */
     private DbMetadataSource meta;
     /* The new coverage domain */
     private String lowPoint, highPoint, newAxesLabels;
@@ -110,7 +110,7 @@ public class GetCoverageOld {
 
     public String handle(String stringXml, HttpServletResponse response) throws WCSException {
         String output;
-        Metadata cov;
+        CoverageMetadata cov;
 
         try {
             doc = builder.parse(IOUtils.toInputStream(stringXml));
@@ -167,12 +167,12 @@ public class GetCoverageOld {
         return nodes.item(0).getNodeValue();
     }
 
-    private Metadata readCoverageMetadata() throws WCSException, XPathExpressionException {
+    private CoverageMetadata readCoverageMetadata() throws WCSException, XPathExpressionException {
         String coverageId = getCoverageName(doc);
 
         if (meta.existsCoverageName(coverageId)) {
             try {
-                Metadata cov = meta.read(coverageId);
+                CoverageMetadata cov = meta.read(coverageId);
 
                 return cov;
             } catch (Exception e) {
@@ -194,7 +194,7 @@ public class GetCoverageOld {
      * @return
      * @throws WCSException
      */
-    private String computeRequestSubsettingLimits(Metadata coverage) throws WCSException {
+    private String computeRequestSubsettingLimits(CoverageMetadata coverage) throws WCSException {
         int dims = coverage.getDimension(), i = 0;
         String[] limits = new String[dims];
         BigInteger[] high = new BigInteger[dims];
@@ -271,7 +271,7 @@ public class GetCoverageOld {
 
             list = evalXPathList("wcs:dimension/text()", slice);
             axis = list.item(0).getNodeValue();
-            axisIndex = coverage.getDomainIndexByName(axis);
+            axisIndex = coverage.getDomainIndexByType(axis);
             if (axisIndex == -1) {
                 throw new WCSException(ExceptionCode.InvalidParameterValue, "dimension. Explanation: Unknown axis name: " + axis);
             }
@@ -393,7 +393,7 @@ public class GetCoverageOld {
     }
 
     /** Creates a string with the contents of the GetCoverage response XML */
-    private String buildOutputXml(String coverageData, Metadata coverage) {
+    private String buildOutputXml(String coverageData, CoverageMetadata coverage) {
         String xml = GetCoverageResponse;
         xml = xml.replaceAll("\\{coverageId\\}", coverage.getCoverageName() + Math.random());
         xml = xml.replaceAll("\\{gridDimension\\}", String.valueOf(coverage.getDimension()));
@@ -457,7 +457,7 @@ public class GetCoverageOld {
      * pixel are comma-separated. For example, the string "1,2 3,4 5,6" can
      * be the coverage data of a 1-by-3 coverage, with two bands
      */
-    private String buildCoverageData(Metadata coverage, String subsetting) throws WCSException {
+    private String buildCoverageData(CoverageMetadata coverage, String subsetting) throws WCSException {
         String coverageName = coverage.getCoverageName();
         Iterator<RangeElement> it = coverage.getRangeIterator();
         int bandcount = 0;

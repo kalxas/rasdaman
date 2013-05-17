@@ -23,21 +23,19 @@ package petascope.util;
 
 import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 import javax.xml.bind.JAXBException;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.PetascopeXmlNamespaceMapper;
 import petascope.core.DbMetadataSource;
-import petascope.core.Metadata;
+import petascope.core.CoverageMetadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.wcps.server.core.Bbox;
+import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageMetadata.RangeField;
@@ -52,11 +50,44 @@ import petascope.wcs2.templates.Templates;
 public class WcsUtil {
 
     private static final Logger log = LoggerFactory.getLogger(WcsUtil.class);
+    
+    /* Constants */
+    public static final String KEY_CHAR = "char";
+    public static final String KEY_UCHAR = "unsigned char";
+    public static final String KEY_SHORT = "short";
+    public static final String KEY_USHORT = "unsigned short";
+    public static final String KEY_INT = "int";
+    public static final String KEY_UINT = "unsigned int";
+    public static final String KEY_LONG = "long";
+    public static final String KEY_ULONG = "unsigned long";
+    public static final String KEY_FLOAT = "float";
+    public static final String KEY_DOUBLE = "double";
+    
+    public static final String CHAR_MIN = "-128";
+    public static final String CHAR_MAX = "127";
+    public static final String UCHAR_MIN = "0";
+    public static final String UCHAR_MAX = "255";
+    public static final String SHORT_MIN = "-32768";
+    public static final String SHORT_MAX = "32767";
+    public static final String USHORT_MIN = "0";
+    public static final String USHORT_MAX = "65535";
+    public static final String INT_MIN = "-2147483648";
+    public static final String INT_MAX = "2147483647";
+    public static final String UINT_MIN = "0";
+    public static final String UINT_MAX = "4294967295";
+    public static final String LONG_MIN = "-9223372036854775808";
+    public static final String LONG_MAX = "9223372036854775807";
+    public static final String ULONG_MIN = "0";
+    public static final String ULONG_MAX = "18446744073709551615";
+    public static final String FLOAT_MIN = "+/-3.4e-38";
+    public static final String FLOAT_MAX = "+/-3.4e+38";
+    public static final String DOUBLE_MIN = "+/-1.7e-308";
+    public static final String DOUBLE_MAX = "+/-1.7e+308";
 
     /**
      * Utility method to read coverage's metadata
      */
-    public static Metadata getMetadata(DbMetadataSource meta, String coverageId) throws WCSException {
+    public static CoverageMetadata getMetadata(DbMetadataSource meta, String coverageId) throws WCSException {
         try {
             return meta.read(coverageId);
         } catch (Exception e) {
@@ -178,13 +209,13 @@ public class WcsUtil {
         String rangeFields = "";
         for (RangeField range : m.getRangeFields()) {
             rangeFields += Templates.getTemplate(Templates.RANGE_FIELD,
-                    Pair.of("\\{fieldName\\}", range.getFieldName()),
-                    Pair.of("\\{componentName\\}", range.getComponentName()),
-                    Pair.of("\\{datatype\\}", range.getDatatype()),
-                    Pair.of("\\{nilValues\\}", range.getNilValues()),
-                    Pair.of("\\{fieldDescr\\}", range.getDescription()),
-                    Pair.of("\\{allowedValues\\}", range.getAllowedValues()),
-                    Pair.of("\\{code\\}", range.getUomCode()));
+                    Pair.of("\\{" + Templates.KEY_FIELDNAME     + "\\}", range.getFieldName()),
+                    Pair.of("\\{" + Templates.KEY_COMPONENTNAME + "\\}", range.getComponentName()),
+                    Pair.of("\\{" + Templates.KEY_DATATYPE      + "\\}", range.getDatatype()),
+                    Pair.of("\\{" + Templates.KEY_NILVALUES     + "\\}", range.getNilValues()),
+                    Pair.of("\\{" + Templates.KEY_FIELDDESCR    + "\\}", range.getDescription()),
+                    Pair.of("\\{" + Templates.KEY_ALLOWEDVALUES + "\\}", range.getAllowedValues()),
+                    Pair.of("\\{" + Templates.KEY_CODE          + "\\}", range.getUomCode()));
         }
 
         String metadata = m.getMetadata().getMetadata();
@@ -194,60 +225,50 @@ public class WcsUtil {
             metadata = "";
         }
         String ret = Templates.getTemplate(template,
-                Pair.of("\\{coverageId\\}", m.getCoverageId()),
-                Pair.of("\\{coverageType\\}", m.getCoverageType()),
-                Pair.of("\\{gridId\\}", m.getGridId()),
-                Pair.of("\\{mpId\\}", "multipoint_" + m.getGridId()),
-                Pair.of("\\{gridDimension\\}", String.valueOf(m.getGridDimension())),
-                Pair.of("\\{uomLabels\\}", m.getUomLabels()),
-                Pair.of("\\{rangeFields\\}", rangeFields),
-                Pair.of("\\{coverageSubtype\\}", m.getCoverageType()),
-                Pair.of("\\{axisLabels\\}", m.getAxisLabels()),
-                Pair.of("\\{gridType\\}", m.getGridType()),
-                Pair.of("\\{srsgroup\\}", getSrsGroup(m)),
-                Pair.of("\\{srsName\\}", getSrsName(m)),
-                Pair.of("\\{lowerCorner\\}", getLowerCorner(m)),
-                Pair.of("\\{upperCorner\\}", getUpperCorner(m)),
-                Pair.of("\\{metadata\\}", metadata),
-                Pair.of("\\{additions\\}", getAdditions(m)));
+                Pair.of("\\{" + Templates.KEY_COVERAGEID      + "\\}", m.getCoverageId()),
+                Pair.of("\\{" + Templates.KEY_COVERAGETYPE    + "\\}", m.getCoverageType()),
+                Pair.of("\\{" + Templates.KEY_GRIDID          + "\\}", m.getGridId()),
+                Pair.of("\\{" + Templates.KEY_MPID            + "\\}", Templates.PREFIX_MP + m.getGridId()),
+                Pair.of("\\{" + Templates.KEY_GRIDDIMENSION   + "\\}", String.valueOf(m.getGridDimension())),
+                Pair.of("\\{" + Templates.KEY_UOMLABELS       + "\\}", m.getUomLabels()),
+                Pair.of("\\{" + Templates.KEY_RANGEFIELDS     + "\\}", rangeFields),
+                Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPE + "\\}", m.getCoverageType()),
+                Pair.of("\\{" + Templates.KEY_AXISLABELS      + "\\}", m.getAxisLabels()),
+                Pair.of("\\{" + Templates.KEY_GRIDTYPE        + "\\}", m.getGridType()),
+                Pair.of("\\{" + Templates.KEY_SRSGROUP        + "\\}", getSrsGroup(m)),
+                Pair.of("\\{" + Templates.KEY_SRSNAME         + "\\}", getSrsName(m)),
+                Pair.of("\\{" + Templates.KEY_LOWERCORNER     + "\\}", m.getDomLow()),
+                Pair.of("\\{" + Templates.KEY_UPPERCORNER     + "\\}", m.getDomHigh()),
+                Pair.of("\\{" + Templates.KEY_METADATA        + "\\}", metadata),
+                Pair.of("\\{" + Templates.KEY_ADDITIONS       + "\\}", getAdditions(m)));
 
         if (replaceBounds) {
-            ret = ret.replaceAll("\\{low\\}", m.getLow())
-                    .replaceAll("\\{high\\}", m.getHigh())
-                    .replaceAll("\\{axisLabels\\}", m.getAxisLabels());
+            ret = ret.replaceAll("\\{" + Templates.KEY_LOW       + "\\}", m.getLow())
+                    .replaceAll("\\{" + Templates.KEY_HIGH       + "\\}", m.getHigh())
+                    .replaceAll("\\{" + Templates.KEY_AXISLABELS + "\\}", m.getAxisLabels());
         }
-
         return ret;
     }
 
     private static String getSrsGroup(GetCoverageMetadata m) {
         Bbox bbox = m.getBbox();
         if (bbox != null) {
-            return " srsName=\"" + bbox.getCrsName() + "\" "
-                    + "srsDimension=\"" + m.getGridDimension() + "\"";
+            return " " + Templates.KEY_SRSNAME + "=\"" + bbox.getCrsName() + "\" " +
+                    Templates.KEY_SRSDIMENSION + "=\"" + m.getGridDimension() + "\"";
         } else {
             return "";
         }
     }
 
-    public static String getSrsName(GetCoverageMetadata m) {
-        LinkedHashSet<String> extCrsSet = new LinkedHashSet<String>();
-        for (DomainElement dom : m.getMetadata().getDomainList()) {
-            extCrsSet.add(dom.getExternalCrs().isEmpty() ? CrsUtil.GRID_CRS : dom.getExternalCrs());
+    private static String getSrsName(GetCoverageMetadata m) {
+        if (m.getCrs() != null) {
+            // Need to encode the '&' that are in CCRS
+            return m.getCrs().replace("&", "&amp;");
+        } else {
+            return CrsUtil.GRID_CRS;
         }
-        return CrsUtil.CrsUri.createCompound(extCrsSet).replace("&", "&amp;");
     }
-
-    /* [DescribeCoveage]: gml:boundedBy element filled with bbox of the coverage 
-     * [GetCoveage]:      gml:boundedBy element filled with requested subset of the coverage
-     * Bounds are updated by petascope.wcs2.extensions.AbstractFormatExtension.setBounds()
-     */
-    private static String getLowerCorner(GetCoverageMetadata m) {
-        return m.getDomLow();
-    }
-    private static String getUpperCorner(GetCoverageMetadata m) {
-        return m.getDomHigh();
-    }
+    
     // NOTE1: rotated ReferenceableGridCoverage are not supported:
     // need to yield the offsets anyway for GML response: unity vectors.   
     // NOTE2: an ad-hoc templates was needed since dimensionality of the coverage is
@@ -255,13 +276,13 @@ public class WcsUtil {
     private static String getOffsetsGml(GetCoverageMetadata m) {
         Bbox bbox = m.getBbox();
         String output = "";
-        String[] axisNames = m.getAxisLabels().split(" +");
+        String[] axisNames = m.getAxisLabels().split(" ");
             // Loop through the N dimensions
             for (int i = 0; i < axisNames.length; i++) {
                 if (i>0) output += "\n";
                 output += Templates.getTemplate(Templates.RECTIFIED_GRID_COVERAGE_OFFSETS,
-                        Pair.of("\\{srsName\\}", getSrsName(m)),
-                        Pair.of("\\{offsets\\}", getOffsets(m, axisNames[i])));
+                        Pair.of("\\{" + Templates.KEY_SRSNAME + "\\}", getSrsName(m)),
+                        Pair.of("\\{" + Templates.KEY_OFFSETS + "\\}", getOffsets(m, axisNames[i])));
             }
         return output;
     }
@@ -269,7 +290,7 @@ public class WcsUtil {
     // Function the builds the string of offsets vector for a specified dimension.
     private static String getOffsets(GetCoverageMetadata m, String axisName) {
         String output = "";
-        String[] axisNames = m.getAxisLabels().isEmpty() ? new String[0] : m.getAxisLabels().split(" +");
+        String[] axisNames = m.getAxisLabels().split(" ");
         // Loop through the N dimensions
         for (int i = 0; i < axisNames.length; i++) {
             if (i>0) output += " ";
@@ -285,40 +306,27 @@ public class WcsUtil {
             if (m.getBbox() != null) {
                 bbox = m.getBbox();
                 String outGml = Templates.getTemplate(Templates.RECTIFIED_GRID_COVERAGE,
-                        Pair.of("\\{pointId\\}", m.getCoverageId() + "-origin"),
-                        Pair.of("\\{srsName\\}", getSrsName(m)),
-                        Pair.of("\\{originPos\\}", m.getDomLow()));
+                        Pair.of("\\{" + Templates.KEY_POINTID   + "\\}", m.getCoverageId() + Templates.SUFFIX_ORIGIN),
+                        Pair.of("\\{" + Templates.KEY_SRSNAME   + "\\}", m.getCrs().replace("&", "&amp;")),
+                        Pair.of("\\{" + Templates.KEY_ORIGINPOS + "\\}", bbox.getLowerCorner(m.getAxisLabels().split(" "))));
                 String offsetsGml = getOffsetsGml(m);
                 return outGml + "\n" + offsetsGml;
-            } else {
-                log.warn("Bbox object is missing for coverage " + m.getMetadata().getCoverageName());
-            }
+            } else log.warn("Bbox object is missing for coverage " + m.getMetadata().getCoverageName());
         }
         return ret;
-    }    
-
-        public static Pair<String, String> toInterval(String type) {
-        if (type.equals("char")) {
-            return Pair.of("-128", "128");
-        } else if (type.equals("unsigned char")) {
-            return Pair.of("0", "255");
-        } else if (type.equals("short")) {
-            return Pair.of("-32768", "32767");
-        } else if (type.equals("unsigned short")) {
-            return Pair.of("0", "65535");
-        } else if (type.equals("int")) {
-            return Pair.of("-2147483648", "2147483647");
-        } else if (type.equals("unsigned int")) {
-            return Pair.of("0", "4294967295");
-        } else if (type.equals("long")) {
-            return Pair.of("-9223372036854775808", "9223372036854775807");
-        } else if (type.equals("usnigned long")) {
-            return Pair.of("0", "18446744073709551615");
-        } else if (type.equals("float")) {
-            return Pair.of(-Float.MAX_VALUE + "", Float.MAX_VALUE + "");
-        } else if (type.equals("double")) {
-            return Pair.of(-Double.MAX_VALUE + "", Double.MAX_VALUE + "");
-        }
+    }
+   
+    public static Pair<String, String> toInterval(String type) {
+        if (type.equals(KEY_CHAR))   { return Pair.of(CHAR_MIN, CHAR_MAX);     } else 
+        if (type.equals(KEY_UCHAR))  { return Pair.of(UCHAR_MIN, UCHAR_MAX);   } else 
+        if (type.equals(KEY_SHORT))  { return Pair.of(SHORT_MIN, SHORT_MAX);   } else 
+        if (type.equals(KEY_USHORT)) { return Pair.of(USHORT_MIN, USHORT_MAX); } else 
+        if (type.equals(KEY_INT))    { return Pair.of(INT_MIN, INT_MAX);       } else 
+        if (type.equals(KEY_UINT))   { return Pair.of(UINT_MIN, UINT_MAX);     } else 
+        if (type.equals(KEY_LONG))   { return Pair.of(LONG_MIN, LONG_MAX);     } else 
+        if (type.equals(KEY_ULONG))  { return Pair.of(ULONG_MIN, ULONG_MAX);   } else 
+        if (type.equals(KEY_FLOAT))  { return Pair.of(FLOAT_MIN, FLOAT_MAX);   } else 
+        if (type.equals(KEY_DOUBLE)) { return Pair.of(DOUBLE_MIN, DOUBLE_MAX); }
         return Pair.of("", "");
     }
 
@@ -363,16 +371,6 @@ public class WcsUtil {
         } else {
             return i.toString();
         }
-    }
-    
-    public static boolean hasSingleCrs(Metadata covMeta) {
-        Set<String> crss = new HashSet<String>();
-        Iterator<DomainElement> domIt = covMeta.getDomainIterator();
-        
-        while (domIt.hasNext()) {
-            crss.add(domIt.next().getExternalCrs());
-        }
-        return crss.size() == 1;
     }
 
     private static Integer toInt(String[] s, int i) {

@@ -21,15 +21,15 @@
  */
 package petascope.wcs2.extensions;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
-import petascope.core.Metadata;
+import petascope.core.CoverageMetadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
@@ -49,6 +49,8 @@ import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSubset;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
 import petascope.wcs2.parsers.GetCoverageRequest.Scaling;
+import petascope.util.CrsUtil;
+import petascope.util.TimeUtil;
 
 /**
  * An abstract implementation of {@link FormatExtension}, which provides some
@@ -57,9 +59,9 @@ import petascope.wcs2.parsers.GetCoverageRequest.Scaling;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public abstract class AbstractFormatExtension implements FormatExtension {
-
+    
     private static final Logger log = LoggerFactory.getLogger(AbstractFormatExtension.class);
-
+    
     /**
      * Update m with the correct bounds and axes (mostly useful when there's
      * slicing/trimming in the request)
@@ -89,7 +91,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             // Loop through each subsets in the request and check if this axis is involved
             Iterator<DimensionSubset> subsIt = subsList.iterator();
             DimensionSubset subset;
-            Metadata metadata = m.getMetadata();
+            CoverageMetadata metadata = m.getMetadata();
             while (subsIt.hasNext()) {
                 subset = subsIt.next();
                 if (subset.getDimension().equals(domainEl.getName())) {
@@ -104,23 +106,22 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             //       Crs.convertToDomainCoords()
                             lowerDom += Math.max(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
-                                    domainEl.getNumLo()) + " ";
+                                    Double.parseDouble(domainEl.getMinValue())) + " ";
                             upperDom += Math.min(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimHigh()),
-                                    domainEl.getNumHi()) + " ";
+                                    Double.parseDouble(domainEl.getMaxValue())) + " ";
                             // Append updated pixel bounds                            
                             String decimalsExp = "\\.[0-9]+";
                             int[] cellDom = (CrsUtil.GRID_CRS.equals(subset.getCrs()) || // : subset=x,CRS:1(x1,x2) || subsettingCrs=CRS:1
-                                    (!request.getCRS().isEmpty() && CrsUtil.GRID_CRS.equals(request.getCRS().get(0).getSubsettingCrs())))
+                                    (request.getCrsExt() != null && CrsUtil.GRID_CRS.equals(request.getCrsExt().getSubsettingCrs())))
                                     ? new int[]{ // NOTE: e.g. parseInt("10.0") throws exception: need to remove decimals.
                                         Integer.parseInt(((DimensionTrim) subset).getTrimLow().replaceAll( decimalsExp, "").trim()), 
-                                        Integer.parseInt(((DimensionTrim) subset).getTrimHigh().replaceAll(decimalsExp, "").trim())} // subsets are already grid indexes
+                                        Integer.parseInt(((DimensionTrim) subset).getTrimHigh().replaceAll(decimalsExp, "").trim())} // subsets are alsready grid indexes
                                     : Crs.convertToPixelIndices(metadata, subset.getDimension(),       // otherwise, need to convert them
-                                        Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
-                                        Double.parseDouble(((DimensionTrim) subset).getTrimHigh()));
-                            // In any case, properly trim the bounds by the image extremes
-                            lowerCellDom += ((cellDomainEl.getLo().compareTo(BigInteger.valueOf(cellDom[0])) > 0) ? cellDomainEl.getLo() : cellDom[0]) + " ";
-                            upperCellDom += ((cellDomainEl.getHi().compareTo(BigInteger.valueOf(cellDom[1])) < 0) ? cellDomainEl.getHi() : cellDom[1]) + " ";
+                                        ((DimensionTrim) subset).getTrimLow(),  true
+                                        ((DimensionTrim) subset).getTrimHigh(), true);
+                            lowerCellDom += cellDom[0] + " ";
+                            upperCellDom += cellDom[1] + " ";
                         } else if (subset instanceof DimensionSlice) {
                             log.info("Axis " + domainEl.getName() + " has been sliced: remove it from the boundedBy element.");
                         } else {
@@ -141,8 +142,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             if (!domUpdated) {
                 // This dimension is not involved in any subset: use bbox bounds
                 axesLabels += domainEl.getName() + " ";
-                lowerDom += domainEl.getNumLo() + " ";
-                upperDom += domainEl.getNumHi() + " ";
+                lowerDom += domainEl.getMinValue() + " ";
+                upperDom += domainEl.getMaxValue() + " ";
                 lowerCellDom += cellDomainEl.getLo() + " ";
                 upperCellDom += cellDomainEl.getHi() + " ";
             }
@@ -176,7 +177,13 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         } catch (Exception ex) {
             throw new WCSException(ExceptionCode.InternalComponentError, "Error initializing WCPS engine", ex);
         }
-        // Possible required CRS subsetting transforms have been done now, proceed to WCPS:
+        
+        // Add double quotes in possible timestamp-based temporal subsets: 
+        // WCPS needs then to recognize a StringExpression from a NumericalExpression:
+        // --> set quotes directly in the WCS request if timestamps want to be used (' = %27, " = %22)
+        // since there are cases which can create conflict (eg 2010 is year 2010 or numeric temporal coordinate 2010?)
+        
+        // Proceed to WCPS:
         Pair<String, String> pair = constructWcpsQuery(request, m.getMetadata(), format, params);
         String rquery = null;
         try {
@@ -212,8 +219,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         long pxHi = cel.getHi().longValue();
         
         // Get Domain extremes (real sdom)
-        double domLo = el.getNumLo();
-        double domHi = el.getNumHi();
+        double domLo = Double.parseDouble(el.getMinValue());
+        double domHi = Double.parseDouble(el.getMaxValue());
 
         // Get cell dimension 
         double cellWidth = (domHi-domLo)/(double)((pxHi-pxLo)+1);
@@ -234,7 +241,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @param cov coverage metadata
      * @return (WCPS query in abstract syntax, axes)
      */
-    protected Pair<String, String> constructWcpsQuery(GetCoverageRequest req, Metadata cov, String format, String params) throws WCSException {
+    protected Pair<String, String> constructWcpsQuery(GetCoverageRequest req, CoverageMetadata cov, String format, String params) 
+            throws WCSException, PetascopeException {
         String axes = "";
         //keep a list of the axes defined in the coverage
         ArrayList<String> axesList = new ArrayList<String>();
@@ -247,7 +255,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         String proc = "c";
 
         //Process rangesubsetting based on the coverage alias
-        if (req.hasRangeSubsetting() && cov.getRange() != null && cov.getRange().size() > 1) {
+        if (req.hasRangeSubsetting()) {        
             proc = RangeSubsettingExtension.processWCPSRequest(proc, req.getRangeSubset());
         }
         //End range subsetting processing
@@ -272,17 +280,14 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                         "The axis label " + dim + " was not found in the list of available axes");
             }
 
-            String crs = CrsUtil.GRID_CRS;
-            // Subset-CRS might be embedded in a trimmig spec (~WCPS, e.g. KVP req) or with subsettingCrs attribute:
-            if (subset.getCrs() != null || (req.getCRS().size() == 1 && req.getCRS().get(0).getSubsettingCrs() != null)) {
-                crs = (subset.getCrs() != null) ? subset.getCrs() : req.getCRS().get(0).getSubsettingCrs();
-            }
+            String crs = de.getCrs();
 
             if (subset instanceof DimensionTrim) {
                 DimensionTrim trim = (DimensionTrim) subset;
                 proc = "trim(" + proc + ",{" + dim + ":\"" + crs + "\" ("
                         + trim.getTrimLow() + ":" + trim.getTrimHigh() + ")})";
                 newdim.put(dim, new Pair(trim.getTrimLow(), trim.getTrimHigh()));
+
             } else if (subset instanceof DimensionSlice) {
                 DimensionSlice slice = (DimensionSlice) subset;
                 proc = "slice(" + proc + ",{" + dim + ":\"" + crs + "\" (" + slice.getSlicePoint() + ")})";
@@ -363,12 +368,21 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             // NOTE: the whole format string is eventually wrapped into quotes (see below)
             format += "\", \"" + params;
         }
-
-        // If outputCrs != Native CRS then add crsTrasform WCPS expression
-        if (!format.equalsIgnoreCase("sdom") && cov.getBbox() != null
-                && !CrsUtil.CrsUri.areEquivalent(req.getCRS().get(0).getOutputCrs(), cov.getBbox().getCrsName())) {
-            proc = "crsTransform(" + proc + ", { x:\"" + req.getCRS().get(0).getOutputCrs() + "\","
-                    + "y:\"" + req.getCRS().get(0).getOutputCrs() + "\"}, { })";
+        
+        // If outputCrs != Native CrsExt then add crsTrasform WCPS expression
+        if (!format.equalsIgnoreCase("sdom")) {
+            String axesCrs = "";
+            // create the string 'x1:"crs1", x2:"crs2", ___ , xN:"crsN"', argument of crsTransform.
+            for (String axisName : axesList) {
+                if (req.getCrsExt().getCrsUriReprojection(axisName) != null) {
+                    log.info("Output reprojection has been requested for axis" + axisName + ".");
+                    axesCrs += axisName + ":\"" + req.getCrsExt().getCrsUriReprojection(axisName) + "\" ";
+                }                
+            }
+            // Wrap it up with the crsTransformExpr in case at least 1 axes required reprojection
+            if (!axesCrs.isEmpty()) {
+                proc = "crsTransform(" + proc + ", { " + axesCrs + "}, { })";
+            }
             // TODO: manage interpolation formats list.
         }
         String query = "for c in (" + req.getCoverageId() + ") return encode(" + proc + ", \"" + format + "\")";

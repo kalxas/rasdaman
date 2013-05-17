@@ -21,7 +21,6 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.core.IDynamicMetadataSource;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;

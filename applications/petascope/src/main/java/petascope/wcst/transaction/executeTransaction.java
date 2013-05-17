@@ -60,7 +60,7 @@ import org.odmg.ODMGException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
-import petascope.core.Metadata;
+import petascope.core.CoverageMetadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.ConfigManager;
 import petascope.wcps.server.core.CellDomainElement;
@@ -79,6 +79,7 @@ import wcst.transaction.schema.TransactionResponseType;
 import wcst.transaction.schema.TransactionType;
 import petascope.wcst.transaction.tools.RasdamanUtils;
 import petascope.util.CrsUtil;
+import petascope.wcs2.templates.Templates;
 
 /**
  * This class takes a WCS-T Transaction XML request and executes the request,
@@ -420,11 +421,11 @@ public class executeTransaction {
      * Updates the coverage metadata: textual descriptions. The title and the abstract
      * could be specified in multiple languages, but we only store english.
      *
-     * @param meta Metadata object to be modified
+     * @param meta CoverageMetadata object to be modified
      * @param summary summary object, that contains title, abstract and coverage keywords
      * @return modified metadata object
      */
-    private Metadata updateMetadataWithSummary(Metadata meta,
+    private CoverageMetadata updateMetadataWithSummary(CoverageMetadata meta,
             CoverageSummaryType summary) throws WCSTException {
         log.debug("Updating metadata with values from Coverage Summary...");
 
@@ -493,8 +494,8 @@ public class executeTransaction {
      * @param img The image, fetched from external reference
      * @throws WCSTException on error
      */
-    private Metadata createNewCoverageMetadata(String identifier, BufferedImage img) throws WCPSException, PetascopeException {
-        Metadata m = null;
+    private CoverageMetadata createNewCoverageMetadata(String identifier, BufferedImage img) throws WCPSException, PetascopeException {
+        CoverageMetadata m = null;
         log.debug("Creating metadata with default values...");
 
         // TODO: When we accept multi-band images, update nullDefault
@@ -505,19 +506,34 @@ public class executeTransaction {
         BigInteger highX = new BigInteger(String.valueOf(img.getHeight() - 1));
         BigInteger lowY = new BigInteger("0");
         BigInteger highY = new BigInteger(String.valueOf(img.getWidth() - 1));
-        CellDomainElement cellX = new CellDomainElement(lowX, highX, AxisTypes.X_AXIS);
-        CellDomainElement cellY = new CellDomainElement(lowY, highY, AxisTypes.Y_AXIS);
+        CellDomainElement cellX = new CellDomainElement(lowX, highX, AxisTypes.X_AXIS, 0);
+        CellDomainElement cellY = new CellDomainElement(lowY, highY, AxisTypes.Y_AXIS, 1);
         List<CellDomainElement> cellList = new ArrayList<CellDomainElement>(2);
         cellList.add(cellX);
         cellList.add(cellY);
 
         // Domains
-        Set<String> crsSet = new HashSet<String>(1);
-        crsSet.add(CrsUtil.GRID_CRS);
+        String crs = CrsUtil.GRID_CRS;
         String str1 = null, str2 = null;
         /* Since we currently do not use the Domain sizes, we can set them to 0 and 1 */
-        DomainElement domX = new DomainElement(AxisTypes.X_AXIS, AxisTypes.X_AXIS, 0.0, 1.0, str1, str2, crsSet, metaDb.getAxisNames(), null);
-        DomainElement domY = new DomainElement(AxisTypes.Y_AXIS, AxisTypes.Y_AXIS, 0.0, 1.0, str1, str2, crsSet, metaDb.getAxisNames(), null);
+        DomainElement domX = new DomainElement(
+                new Double(0.0).toString(), 
+                new Double(1.0).toString(), 
+                AxisTypes.X_AXIS, 
+                AxisTypes.X_AXIS, 
+                crs, 
+                0,
+                1,
+                false);
+        DomainElement domY = new DomainElement(
+                new Double(0.0).toString(), 
+                new Double(1.0).toString(), 
+                AxisTypes.Y_AXIS, 
+                AxisTypes.Y_AXIS, 
+                crs, 
+                1,
+                1,
+                false);
         List<DomainElement> domList = new ArrayList<DomainElement>(2);
         domList.add(domX);
         domList.add(domY);
@@ -531,9 +547,9 @@ public class executeTransaction {
         // Interpolation methods: only the default
         String interpMeth = ConfigManager.WCST_DEFAULT_INTERPOLATION;
         String nullRes = ConfigManager.WCST_DEFAULT_NULL_RESISTANCE;
-        InterpolationMethod interp = new InterpolationMethod(interpMeth, nullRes);
+        InterpolationMethod interpDef = new InterpolationMethod(interpMeth, nullRes);
         Set<InterpolationMethod> interpList = new HashSet<InterpolationMethod>(1);
-        interpList.add(interp);
+        interpList.add(interpDef);
 
         // Null sets
             /* TODO: update for multi-band images */
@@ -544,14 +560,24 @@ public class executeTransaction {
         // Descriptions
         String abstr = null;
         String title = "Coverage " + identifier;
-        String type = "GridCoverage"; // FIXME
         String keywords = null;
 
+        m = new CoverageMetadata(
+                identifier,
+                Templates.RECTIFIED_GRID_COVERAGE,
+                crs,
+                domList,
+                cellList,
+                rList,
+                nullSet,
+                nullDefault, 
+                interpList, 
+                interpDef,
+                title,
+                abstr,
+                keywords);
 
-        m = new Metadata(cellList, rList, nullSet, nullDefault, interpList,
-                interp, identifier, type, domList, null, title, abstr, keywords);
-
-        log.debug("Done creating default metadata");
+        log.debug("Done creating default metadata.");
         return m;
     }
 
@@ -608,12 +634,12 @@ public class executeTransaction {
     }
 
     /**
-     * Updates the Metadata DB with the information contained in the CoverageDescriptions XML object
+     * Updates the CoverageMetadata DB with the information contained in the CoverageDescriptions XML object
      *
      * @param identifier ID of the coverage
      * @param desc object that contains the coverage description.
      */
-    private Metadata updateMetadataWithDescription(Metadata meta, CoverageDescriptionType desc) throws WCPSException, WCSTException {
+    private CoverageMetadata updateMetadataWithDescription(CoverageMetadata meta, CoverageDescriptionType desc) throws WCPSException, WCSTException {
         log.debug("Updating metadata with values from CoverageDescription...");
 
         /* (B) Table ps_descriptions: Update coverage title, abstract, keywords */
@@ -758,7 +784,7 @@ public class executeTransaction {
 
         // Error checking
         // Only change the metadata for an existing coverage
-        Metadata m = metaDb.read(identifier);
+        CoverageMetadata m = metaDb.read(identifier);
 
         // Obtain the references
         ReferenceType pixels, desc;
@@ -793,7 +819,7 @@ public class executeTransaction {
         log.trace("Executing action Update Metadata...");
 
         // Only change the metadata for an existing coverage
-        Metadata m = null;
+        CoverageMetadata m = null;
         try {
             m = metaDb.read(identifier);
         } catch (Exception e) {
@@ -825,10 +851,10 @@ public class executeTransaction {
 
         // (2) Do the actual processing
         try {
-            Metadata oldMeta = m;
-            Metadata newMeta = updateMetadataWithDescription(oldMeta, desc);
+            CoverageMetadata oldMeta = m;
+            CoverageMetadata newMeta = updateMetadataWithDescription(oldMeta, desc);
             if (summ != null) {
-                Metadata tempMeta = newMeta;
+                CoverageMetadata tempMeta = newMeta;
                 newMeta = updateMetadataWithSummary(newMeta, summ);
             }
 
@@ -918,7 +944,7 @@ public class executeTransaction {
         /**
          * (3) Build the metadata object and store it in the db.
          */
-        Metadata m = createNewCoverageMetadata(identifier, img);
+        CoverageMetadata m = createNewCoverageMetadata(identifier, img);
         m = updateMetadataWithDescription(m, desc);
         /* Top level descriptions overwrite other metadata sources */
         if (summ != null) {
@@ -952,7 +978,7 @@ public class executeTransaction {
 
         // (2) Do the actual processing
         try {
-            Metadata m = metaDb.read(identifier);
+            CoverageMetadata m = metaDb.read(identifier);
             deleteCoverageFromRasdaman(identifier);
             metaDb.delete(m, false);
         } catch (Exception e) {
@@ -1078,7 +1104,7 @@ public class executeTransaction {
         return null;
     }
 
-    private Metadata updateImageCrsBoundingBox(Metadata meta, BoundingBoxType bbox) throws WCPSException {
+    private CoverageMetadata updateImageCrsBoundingBox(CoverageMetadata meta, BoundingBoxType bbox) throws WCPSException {
         List<Double> lower = bbox.getLowerCorner();
         List<Double> upper = bbox.getUpperCorner();
 
@@ -1093,8 +1119,8 @@ public class executeTransaction {
         long hiX = upper.get(0).longValue();
         long hiY = upper.get(1).longValue();
 
-        CellDomainElement cellX = new CellDomainElement(BigInteger.valueOf(loX), BigInteger.valueOf(hiX), AxisTypes.X_AXIS);
-        CellDomainElement cellY = new CellDomainElement(BigInteger.valueOf(loY), BigInteger.valueOf(hiY), AxisTypes.Y_AXIS);
+        CellDomainElement cellX = new CellDomainElement(BigInteger.valueOf(loX), BigInteger.valueOf(hiX), AxisTypes.X_AXIS, 0);
+        CellDomainElement cellY = new CellDomainElement(BigInteger.valueOf(loY), BigInteger.valueOf(hiY), AxisTypes.Y_AXIS, 1);
 
         List<CellDomainElement> list = new ArrayList<CellDomainElement>();
         list.add(cellX);

@@ -71,7 +71,7 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
 
             try {
                 // Start a new axis and save it
-                elem = new DimensionIntervalElement(child, xq, coverageInfo, false);
+                elem = new DimensionIntervalElement(child, xq, coverageInfo);
                 log.trace("  " + WCPSConstants.MSG_ADD_NEW_AXIS + ": " + elem.getAxisName());
                 axisList.add(elem);
                 super.children.add(elem);
@@ -98,6 +98,7 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
         DimensionIntervalElement axis;
         int axisId;
         int axisLo, axisHi;
+        int order =0;
 
         while (i.hasNext()) {
             axis = i.next();
@@ -106,13 +107,18 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
             log.trace("  " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName());
             log.trace("  " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_COORDS + ": ");
 
-            axisLo = Integer.parseInt(axis.getLoCellCoord());
-            axisHi = Integer.parseInt(axis.getHiCellCoord());
+            axisLo = Integer.parseInt(axis.getLowCoord());
+            axisHi = Integer.parseInt(axis.getHighCoord());
             dim[axisId] = axisLo + ":" + axisHi;
             coverageInfo.setCellDimension(
                     axisId,
                     new CellDomainElement(
-                    BigInteger.valueOf(axisLo), BigInteger.valueOf(axisHi), axis.getAxisName()));
+                        BigInteger.valueOf(axisLo),
+                        BigInteger.valueOf(axisHi),
+                        axis.getAxisName(),
+                        order)
+                    );
+            order += 1;
         }
     }
 

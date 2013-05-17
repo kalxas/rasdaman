@@ -21,37 +21,23 @@
  */
 package petascope.wcps.server.core;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
-import java.util.Set;
 
 // TODO: implement class MetadataScalarExprType
 public class MetadataScalarExpr extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(MetadataScalarExpr.class);
     
-    public static final Set<String> NODE_NAMES = new HashSet<String>();
-    private static final String[] NODE_NAMES_ARRAY = {
-        WCPSConstants.MSG_DOMAIN_METADATA_CAMEL,
-        WCPSConstants.MSG_IMAGE_CRSDOMAIN,
-        WCPSConstants.MSG_CRS_SET,
-        WCPSConstants.MSG_IDENTIFIER,
-    };
-    static {
-        NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
-    }
-    
     private CoverageExpr coverageExprType;
     private CoverageInfo coverageInfo;
     private String op;
     private String lo, hi;
-    private String crss = "";
 
     public MetadataScalarExpr(Node node, XmlQuery xq) throws WCPSException {
         String nodeName = node.getNodeName();
@@ -67,48 +53,23 @@ public class MetadataScalarExpr extends AbstractRasNode {
         coverageInfo = coverageExprType.getCoverageInfo();
         super.children.add(coverageExprType);
         child = child.getNextSibling();
-
+        
         op = nodeName;
         AxisName axis = null;
         if (nodeName.equals(WCPSConstants.MSG_DOMAIN_METADATA_CAMEL)) {
             axis = new AxisName(child, xq);            
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
             DomainElement domainElement = coverageInfo.getDomainElement(axisIndex);
-            if (domainElement.getNumLo() == null) {
-                lo = domainElement.getStrLo();
-                hi = domainElement.getStrHi();
-            } else {
-                lo = domainElement.getNumLo().toString();
-                hi = domainElement.getNumHi().toString();
-            }
+            lo = domainElement.getMinValue();
+            hi = domainElement.getMaxValue();            
         } else if (nodeName.equals(WCPSConstants.MSG_IMAGE_CRSDOMAIN)) {
             axis = new AxisName(child, xq);
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
             CellDomainElement cellDomain = coverageInfo.getCellDomainElement(axisIndex);
             lo = cellDomain.getLo().toString();
             hi = cellDomain.getHi().toString();
-        } else if (nodeName.equals(WCPSConstants.MSG_CRS_SET)){
-            int n = coverageInfo.getNumDimensions();
-            for(int i=0; i<n;i++){
-                DomainElement domainElement = coverageInfo.getDomainElement(i);
-                String axName = domainElement.getName();
-                crss+=axName + ":";
-                Set<String> set = domainElement.getCrsSet();
-                for(String str:set){
-                    crss+=(str + " ");
-                }
-                //delete last space
-                crss = crss.substring(0,crss.length()-1);
-                if(i+1!=n) // eliminate possibility of trailing commas
-                    crss+=", ";
-            }
-        }
-        else if (nodeName.equals(WCPSConstants.MSG_IDENTIFIER )) {
-            op = WCPSConstants.MSG_IDENTIFIER;
-        }
-        else if (!nodeName.equals(WCPSConstants.MSG_IMAGE_CRS2) && 
-                   !nodeName.equals(WCPSConstants.MSG_SET_IDENTIFIER) &&
-                   !nodeName.equals(WCPSConstants.MSG_IMAGE_CRS)) {
+        } else if (!nodeName.equals(WCPSConstants.MSG_SET_IDENTIFIER ) && 
+                   !nodeName.equals(WCPSConstants.MSG_IMAGE_CRS2)) {
             throw new WCPSException(WCPSConstants.ERRTXT_NO_METADATA_NODE + nodeName);
         }
         
@@ -124,8 +85,6 @@ public class MetadataScalarExpr extends AbstractRasNode {
             ret = CrsUtil.GRID_CRS;
         } else if (op.equals(WCPSConstants.MSG_DOMAIN_METADATA_CAMEL) || op.equals(WCPSConstants.MSG_IMAGE_CRSDOMAIN)) {
             ret = "(" + lo + "," + hi + ")";
-        } else if(op.equals(WCPSConstants.MSG_CRS_SET)){
-            ret = crss;
         }
         return ret;
     }

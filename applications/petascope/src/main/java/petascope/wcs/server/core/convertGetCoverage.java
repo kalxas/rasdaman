@@ -41,7 +41,8 @@ import java.util.List;
 import org.antlr.runtime.RecognitionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.core.Metadata;
+import petascope.core.CoverageMetadata;
+import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
 import petascope.util.ras.RasUtil;
 
@@ -84,7 +85,7 @@ public class convertGetCoverage {
     private long px0, px1, py0, py1;    // Bounding box subsetting
     private String crsName;             // for bounding box
     private String xmlRequest;
-    private Metadata covMeta;
+    private CoverageMetadata covMeta;
 
     /**
      * Default constructor
@@ -108,7 +109,7 @@ public class convertGetCoverage {
      * @return a WCPS abstract syntax query as a string
      * @throws wcs.server.core.WCSException
      */
-    public String get() throws WCSException {
+    public String get() throws WCSException, PetascopeException {
         try {
             if (!finished) {
                 process();
@@ -137,7 +138,7 @@ public class convertGetCoverage {
      * Converts WCS node 2 (Domain subsetting) to WCPS info
      * @throws wcs_web_service.WCSException
      */
-    private void readField2() throws WCSException {
+    private void readField2() throws WCSException, PetascopeException {
         if (!wcs.isSetDomainSubset()) {
             throw new WCSException(ExceptionCode.MissingParameterValue, "DomainSubset");
         }
@@ -157,7 +158,7 @@ public class convertGetCoverage {
             if (crsName != null) {
                 if (crsName.equals(CrsUtil.GRID_CRS)) {
                     log.trace("CRS: NATIVE_IMAGE_CRS");
-                } else if (CrsUtil.CrsUri.areEquivalent(crsName, CrsUtil.WGS84_URI)) {
+                } else if (CrsUtil.CrsUri.areEquivalent(crsName, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE))) {
                     log.trace("CRS: WGS84");
                 } else {
                     throw new WCSException(ExceptionCode.InvalidParameterValue, "BoundingBox.crs. Explanation: "
@@ -200,7 +201,7 @@ public class convertGetCoverage {
             py1 = v3;
 
             if (crsName.equals(CrsUtil.GRID_CRS) == false
-                    && crsName.equals(CrsUtil.WGS84_URI) == false) {
+                    && crsName.equals(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE)) == false) {
                 throw new WCSException(ExceptionCode.NoApplicableCode, "Unknown CRS: " + crsName);
             }
         }
@@ -314,7 +315,7 @@ public class convertGetCoverage {
      * @throws wcs_web_service.WCSException
      */
     @SuppressWarnings("static-access")
-    public void process() throws WCSException {
+    public void process() throws WCSException, PetascopeException {
         /** * Processing starts here ... with the nodes of the WCS * */
         // Service Description
         log.debug("WCS service: \"" + wcs.SERVICE + "\"");

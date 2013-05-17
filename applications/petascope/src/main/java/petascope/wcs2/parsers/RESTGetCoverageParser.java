@@ -135,7 +135,8 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
             throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, "outputCrs " + outCrs + " is not supported.");
         }
         if (!(subCrs == null) || !(outCrs == null)) {
-            ret.getCRS().add(new GetCoverageRequest.CRS(subCrs, outCrs));
+            ret.getCrsExt().setSubsettingCrs(subCrs);
+            ret.getCrsExt().setOutputCrs(outCrs);
         }
     }
 

@@ -119,6 +119,7 @@ public interface WCPSConstants {
     public static final String MSG_DIV_S                        = "div";
     public static final String MSG_DOMAIN_INTERVAL_ELEMENT_NOT  = "<DimensionIntervalElement Not Converted to RasQL>";
     public static final String MSG_DOMAIN                       = "domain";
+    public static final String MSG_DOMAIN_CAMEL                 = "Domain";
     public static final String MSG_DOMAIN_ELEMENT_NAME          = "Domain Element { Name: '";
     public static final String MSG_DOMAIN_EXTREMES_COORD        = "Domain extremes coordinates";
     public static final String MSG_DOMAIN_METADATA              = "domain metadata";
@@ -371,6 +372,7 @@ public interface WCPSConstants {
     public static final String ERRTXT_COVERAGEEXPRTYPE_PASING_ERR  = "CoverageExprType parsing error";
     public static final String ERRTXT_ERROR                        = "error";
     public static final String ERRTXT_ERROR_UNEXPECTED_NODE        = "Error, unexpected node: ";
+    public static final String ERRTXT_ERROR_WHILE_CONVERTING       = "Error while converting to pixel coordinates.";
     public static final String ERRTXT_ERROR_WHILE_LOADING_DOC      = "Error while loading the document builder interface.";
     public static final String ERRTXT_ERROR_WHILE_TRANSFORMING     = "Error while transforming geo-coordinates to pixel coordinates. The metadata is probably not valid.";
     public static final String ERRTXT_EXPECTED_AXIS_NODE           = "Expected Axis node before CRS.";
@@ -396,6 +398,7 @@ public interface WCPSConstants {
     public static final String ERRTXT_INVALID_DOMAIN_ELEMENT_EMPTY = "Invalid domain element: Element name cannot be empty";
     public static final String ERRTXT_INVALID_DOMAIN_ELEMENT_TYP_P1= "Invalid domain element: Invalid element type: ";
     public static final String ERRTXT_INVALID_DOMAIN_ELEMENT_TYP_P2= ". Allowed element types are: ";
+    public static final String ERRTXT_INVALID_DOM_BOUNDS           = "Invalid domain element: upper-bound is greater then lower-bound.";
     public static final String ERRTXT_INVALID_DOM_LOWER_INT_BOUND  = "Invalid domain element: Lower integer bound cannot be larger than upper integer bound";
     public static final String ERRTXT_INVALID_DOM_STRING_BOUND     = "Invalid domain element: String bounds cannot be empty";
     public static final String ERRTXT_INVALID_DOM_INT_BOUND_BOTH   = "Invalid domain element: Integer bounds must both be non-null if string bounds are null, and vice versa at ";

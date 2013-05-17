@@ -137,7 +137,7 @@ public class EncodeDataExpr extends AbstractRasNode {
                 extraParams = '"' + extraParams + '"';
                 result = result + ", " + extraParams;
             } else if (encode && coverageExprType instanceof CoverageExpr
-                    && (format.equals(FormatExtension.TIFF_ENCODING) ||format.equals(FormatExtension.NETCDF_ENCODING) || format.equals(FormatExtension.JP2_ENCODING))) {
+                    && (format.equals(FormatExtension.TIFF_ENCODING) || format.equals(FormatExtension.JP2_ENCODING))) {
                 
                 // Get the bounds of the 2D requested coverage
                 try {
@@ -208,7 +208,10 @@ public class EncodeDataExpr extends AbstractRasNode {
                         orderToName.put(info.getDomainIndexByName(dimName), dimName);
                         
                         // Set the bounds of this dimension: total bbox first, then update in case of trims in the request
-                        nameToBounds.put(dimName, new Double[]{info.getDomainElement(i).getNumLo(), info.getDomainElement(i).getNumHi()});
+                        nameToBounds.put(dimName, new Double[]{
+                            Double.parseDouble(info.getDomainElement(i).getMinValue()), 
+                            Double.parseDouble(info.getDomainElement(i).getMaxValue())
+                        });
                         for (TrimCoverageExpr trim : trims) {
                             if (trim.trimsDimension(dimName)) {
                                 // Set bounds specified in the trim (themselves trimmed by bbox values)                                

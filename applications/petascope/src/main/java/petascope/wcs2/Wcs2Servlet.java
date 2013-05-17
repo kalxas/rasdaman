@@ -142,6 +142,7 @@ public class Wcs2Servlet extends HttpServlet {
                 if (request == null || request.length() == 0) {
                     if (req.getQueryString() != null && req.getQueryString().length() > 0) {
                         request = req.getQueryString();
+                        request = StringUtil.urldecode(request, req.getContentType());
                     } else {
                         printUsage(res, request);
                         return;

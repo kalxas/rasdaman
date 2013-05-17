@@ -43,6 +43,10 @@ import petascope.wcs2.handlers.RequestHandler;
 public abstract class KVPParser<T extends Request> extends AbstractRequestParser<T> {
     
     private static Logger log = LoggerFactory.getLogger(KVPParser.class);
+    // Shared keys
+    public static final String KEY_REQUEST = "request";
+    public static final String KEY_VERSION = "version";
+    public static final String KEY_SERVICE = "service";    
 
     @Override
     public boolean canParse(HTTPRequest request) {

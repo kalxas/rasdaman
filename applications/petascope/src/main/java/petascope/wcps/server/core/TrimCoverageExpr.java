@@ -103,6 +103,7 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
         DimensionIntervalElement axis;
         int axisId;
         int axisLo, axisHi;
+        int order = 0;
 
         while (i.hasNext()) {
             axis = i.next();
@@ -110,16 +111,20 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
             log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_ID + ": " + axisId);
             log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName());
 
-            axisLo = Integer.parseInt(axis.getLoCellCoord());
-            axisHi = Integer.parseInt(axis.getHiCellCoord());
+            axisLo = Integer.parseInt(axis.getLowCoord());
+            axisHi = Integer.parseInt(axis.getHighCoord());
             dimNames[axisId] = axisLo + ":" + axisHi;
             log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_COORDS + ": " + dimNames[axisId]);
             coverageInfo.setCellDimension(
                     axisId,
                     new CellDomainElement(
-                    BigInteger.valueOf(axisLo), BigInteger.valueOf(axisHi), axis.getAxisName()));
+                        BigInteger.valueOf(axisLo), 
+                        BigInteger.valueOf(axisHi),
+                        axis.getAxisName(),
+                        order)
+                    );
+            order += 1;
         }
-
     }
 
     @Override
@@ -201,7 +206,9 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     Double[] trimmingValues(String axisName) {
         for (DimensionIntervalElement trim : axisList) {
             if (trim.getAxisName().equals(axisName)) {
-                return new Double[]{trim.getLoCoord(), trim.getHiCoord()};
+                return new Double[]{
+                    Double.parseDouble(trim.getLowCoord()), 
+                    Double.parseDouble(trim.getHighCoord())};
             }
         }
         return new Double[]{};

@@ -26,6 +26,7 @@ import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.DescribeCoverageRequest;
 import nu.xom.Document;
 import petascope.util.XMLUtil;
+import petascope.wcs2.extensions.AbstractFormatExtension;
 import petascope.wcs2.templates.Templates;
 import java.io.IOException;
 import petascope.exceptions.ExceptionCode;
@@ -38,6 +39,7 @@ import petascope.util.WcsUtil;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import static petascope.util.XMLSymbols.*;
 import static petascope.util.XMLUtil.*;
+import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcs2.extensions.FormatExtension;
 
 /**

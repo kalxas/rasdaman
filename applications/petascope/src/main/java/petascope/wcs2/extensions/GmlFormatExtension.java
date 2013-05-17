@@ -27,7 +27,8 @@ import java.util.ListIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
-import petascope.core.Metadata;
+import petascope.exceptions.ExceptionCode;
+import petascope.core.CoverageMetadata;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.Pair;
@@ -52,6 +53,9 @@ public class GmlFormatExtension extends AbstractFormatExtension {
     private static final Logger log = LoggerFactory.getLogger(GmlFormatExtension.class);
     public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:";
     protected static final String MULTIPOINTSCHEMA = "ps_multipoint";
+    protected static final String TAG_DATABLOCK = "DataBlock";
+    protected static final String TAG_RANGEPARAMETERS = "rangeParameters";
+    protected static final String TAG_TUPLELIST = "tupleList"; 
 
     @Override
     public boolean canHandle(GetCoverageRequest req) {
@@ -66,7 +70,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
         
         // First, transform possible non-native CRS subsets
         CRSExtension crsExtension = (CRSExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.CRS_IDENTIFIER);
-        crsExtension.handle(request, m, meta);
+        crsExtension.handle(request, m);
         
         //Handle the range subset feature
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
@@ -89,13 +93,17 @@ public class GmlFormatExtension extends AbstractFormatExtension {
         return new Response(gml);
     }
     
-    protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, GetCoverageMetadata m) throws WCSException {
+    protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, GetCoverageMetadata m) 
+            throws WCSException, PetascopeException {
         RasQueryResult res = new RasQueryResult(executeRasqlQuery(request, m, meta, CSV_ENCODING, null).fst);
         if (!res.getMdds().isEmpty()) {
             String data = new String(res.getMdds().get(0));
             data = WcsUtil.csv2tupleList(data);
-            data = "<DataBlock><rangeParameters/><tupleList>" + data + "</tupleList></DataBlock>";
-            gml = gml.replace("{coverageData}", data);
+            data = "<" + TAG_DATABLOCK + ">" + 
+                        "<" +  TAG_RANGEPARAMETERS + "/>" + 
+                        "<" + TAG_TUPLELIST + ">" + data + "</" + TAG_TUPLELIST + ">" + 
+                    "</" + TAG_DATABLOCK + ">";
+            gml = gml.replace("{" + Templates.KEY_COVERAGEDATA + "}", data);
         }
         return gml;
     }
@@ -109,7 +117,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
      */
     private Response handleMultiPoint(GetCoverageRequest req, String coverageID, DbMetadataSource meta, GetCoverageMetadata m)
             throws WCSException {
-        Metadata cov = m.getMetadata();
+        CoverageMetadata cov = m.getMetadata();
         String ret = WcsUtil.getGML(m, Templates.MULTIPOINT_COVERAGE, false);
         String pointMembers = "";
         String low = "", high = "";
@@ -160,14 +168,15 @@ public class GmlFormatExtension extends AbstractFormatExtension {
             Pair<String, String> pair = constructWcpsQuery(req, cov, CSV_ENCODING, null);
 
             /* generate the result */
-            ret = ret.replaceAll("\\{pointMembers\\}", pointMembers).replaceAll("\\{low\\}", low).
-                    replaceAll("\\{high\\}", high).replaceAll("\\{axisLabels\\}", pair.snd).
-                    replaceAll("\\{mulUomLabels\\}", pair.snd);
+            ret = ret.replaceAll("\\{" + Templates.KEY_POINTMEMBERS + "\\}", 
+                    pointMembers).replaceAll("\\{" + Templates.KEY_LOW + "\\}", 
+                    low).replaceAll("\\{"          + Templates.KEY_HIGH + "\\}", 
+                    high).replaceAll("\\{"         + Templates.KEY_AXISLABELS + "\\}", 
+                    pair.snd).replaceAll("\\{"     + Templates.KEY_MULUOMLABLES + "\\}", pair.snd);
 
         } catch (PetascopeException ex) {
             log.error("Error", ex);
         }
-
         return new Response(ret);
     }
 

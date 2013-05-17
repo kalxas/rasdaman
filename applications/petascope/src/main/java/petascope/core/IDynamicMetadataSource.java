@@ -30,5 +30,5 @@ package petascope.core;
  */
 public interface IDynamicMetadataSource extends IMetadataSource {
 
-    public void addDynamicMetadata(String coverageName, Metadata meta);
+    public void addDynamicMetadata(String coverageName, CoverageMetadata meta);
 }

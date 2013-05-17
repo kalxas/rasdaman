@@ -25,7 +25,7 @@ import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
-import petascope.core.Metadata;
+import petascope.core.CoverageMetadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.Pair;
@@ -57,8 +57,8 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
 
     @Override
     public Response handle(GetCoverageRequest req) throws WCSException {
-        Pair<Metadata, String> p = null; //coverageDescription(req.getCoverageId(),                Templates.getTemplate(Templates.GRID_COVERAGE), true);
-        Metadata cov = p.fst;
+        Pair<CoverageMetadata, String> p = null; //coverageDescription(req.getCoverageId(),                Templates.getTemplate(Templates.GRID_COVERAGE), true);
+        CoverageMetadata cov = p.fst;
         String descr = p.snd;
 
         String subsetting = computeRequestSubsettingLimits(req, cov);
@@ -79,7 +79,7 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
      * @return
      * @throws WCSException
      */
-    private String computeRequestSubsettingLimits(GetCoverageRequest req, Metadata coverage)
+    private String computeRequestSubsettingLimits(GetCoverageRequest req, CoverageMetadata coverage)
             throws WCSException {
         int dims = coverage.getDimension(), i = 0;
         String[] limits = new String[dims];
@@ -160,7 +160,7 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
      * pixel are comma-separated. For example, the string "1,2 3,4 5,6" can
      * be the coverage data of a 1-by-3 coverage, with two bands
      */
-    private String buildCoverageData(GetCoverageRequest req, Metadata coverage, String subsetting)
+    private String buildCoverageData(GetCoverageRequest req, CoverageMetadata coverage, String subsetting)
             throws WCSException {
         String coverageId = req.getCoverageId();
         

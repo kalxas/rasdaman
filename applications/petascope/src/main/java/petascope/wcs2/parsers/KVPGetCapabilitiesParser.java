@@ -35,13 +35,21 @@ import static petascope.util.KVPSymbols.*;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class KVPGetCapabilitiesParser extends KVPParser<GetCapabilitiesRequest> {
+    
+    // Keys
+    public static final String KEY_ACCEPTFORMATS = "acceptformats";
+    public static final String KEY_ACCEPTLANG = "acceptlanguages";
+    public static final String KEY_ACCEPTVERSIONS = "acceptversions";
 
     @Override
     public GetCapabilitiesRequest parse(HTTPRequest request) throws WCSException {
         String input = request.getRequestString();
         Map<String, List<String>> p = StringUtil.parseQuery(input);
-        checkEncodingSyntax(p, KEY_ACCEPTVERSIONS, KEY_ACCEPTFORMATS,
-                KEY_ACCEPTLANGUAGES, KEY_VERSION);
+        checkEncodingSyntax(p, 
+                KEY_ACCEPTVERSIONS, 
+                KEY_ACCEPTFORMATS,
+                KEY_ACCEPTLANGUAGES,
+                KEY_VERSION);
         return new GetCapabilitiesRequest(
                 get(KEY_ACCEPTVERSIONS, p),
                 get(KEY_ACCEPTFORMATS, p),

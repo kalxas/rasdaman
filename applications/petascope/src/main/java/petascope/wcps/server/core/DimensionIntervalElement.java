@@ -22,13 +22,13 @@
 package petascope.wcps.server.core;
 
 import java.util.Iterator;
+import petascope.exceptions.PetascopeException;
+import petascope.core.CoverageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.*;
-import petascope.core.Metadata;
-import petascope.exceptions.ExceptionCode;
-import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
+import org.w3c.dom.*;
+import petascope.exceptions.ExceptionCode;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
 
@@ -48,17 +48,13 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
     private long cellCoord1;    // Subsets (after conversion to pixel indices)
     private long cellCoord2;
     private int counter = 0;            // counter for the domain vars
-    private Metadata meta = null;       // metadata about the current coverage
+    private CoverageMetadata meta = null;       // metadata about the current coverage
     private boolean finished = false;
     private Node nextNode;
     private boolean transformedCoordinates = false;
     
-    // true indicates to rebound interval down to the intersection with the coverage bounding box, false prevents this.
-    private boolean rebound = true;
-
     /**
-     * Constructs an element of a dimension interval, with interval rebounding enabled
-     * by default.
+     * Constructs an element of a dimension interval.
      * @param node XML Node
      * @param xq WCPS Xml Query object
      * @param covInfo CoverageInfo object about the Trim parent object
@@ -66,21 +62,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
      */
     public DimensionIntervalElement(Node node, XmlQuery xq, CoverageInfo covInfo)
             throws WCPSException {
-        this(node, xq, covInfo, true);
-    }
-
-    /**
-     * Constructs an element of a dimension interval.
-     * @param node XML Node
-     * @param xq WCPS Xml Query object
-     * @param covInfo CoverageInfo object about the Trim parent object
-     * @param rebound true indicates to trim interval down to the intersection with
-     *  the coverage bounding box, false prevents this.
-     * @throws WCPSException
-     */
-    public DimensionIntervalElement(Node node, XmlQuery xq, CoverageInfo covInfo, boolean rebound)
-            throws WCPSException {
-        this.rebound = rebound;
+        
         while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
@@ -97,13 +79,13 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 throw new WCPSException(ex.getMessage(), ex);
             }
         }
-
+        
         while (node != null && finished == false) {
             if (node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
                 node = node.getNextSibling();
                 continue;
             }
-
+            
             // Try Axis
             try {
                 axis = new AxisName(node, xq);
@@ -111,7 +93,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 continue;
             } catch (WCPSException e) {
             }
-
+            
             // Try CRS name
             try {
                 crs = new Crs(node, xq);
@@ -122,21 +104,21 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 continue;
             } catch (WCPSException e) {
             }
-
+            
             // TODO: how to implement DomainMetadataExpr ?
-
-//            // Try last thing
-//            try
-//            {
-//                domain1 = new DomainMetadataExprType(node, xq);
-//                counter = 1;
-//                continue;
-//            }
-//            catch (WCPSException e)
-//            {
-//                System.err.println("Failed to parse domain metadata!");
-//            }
-
+            
+            //            // Try last thing
+            //            try
+            //            {
+            //                domain1 = new DomainMetadataExprType(node, xq);
+            //                counter = 1;
+            //                continue;
+            //            }
+            //            catch (WCPSException e)
+            //            {
+            //                System.err.println("Failed to parse domain metadata!");
+            //            }
+            
             // Then it must be a pair of nodes "lowerBound" + "upperBound"
             if (node.getNodeName().equals(WCPSConstants.MSG_LOWER_BOUND)) {
                 counter = 2;
@@ -156,128 +138,111 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 log.error("  " + WCPSConstants.ERRTXT_UNEXPETCTED_NODE + ": " + node.getFirstChild().getNodeName());
                 throw new WCPSException(WCPSConstants.ERRTXT_UNEXPETCTED_NODE + ": " + node.getFirstChild().getNodeName());
             }
-
+            
             if (axis != null && counter == 1 && domain1 != null) {
                 finished = true;
             }
             if (axis != null && counter == 2 && domain1 != null && domain2 != null) {
                 finished = true;
             }
-
+            
             if (finished == true) {
                 nextNode = node.getNextSibling();
             }
-
+            
             node = node.getNextSibling();
         }
         
         if (crs == null) {
             // if no CRS is specified assume native CRS -- DM 2012-mar-05
             String axisName = axis.toRasQL();
-
+            
             DomainElement axisDomain = meta.getDomainByName(axisName);
             if (axisDomain != null) {
-              Iterator<String> crsIt = axisDomain.getCrsSet().iterator();
-              if (crsIt.hasNext()) {
-                String crsname = crsIt.next();
-                log.info("  Using native CRS: " + crsname);
-                    crs = new Crs(crsname);
-                } else {
+                String crsName = axisDomain.getCrs();
+                log.info("  Using native CRS: " + crsName);
+                crs = new Crs(crsName);
+                
+                if (crsName == null) {
                     log.warn("  No native CRS specified for axis " + axisName + ", assuming pixel coordinates.");
                     crs = new Crs(CrsUtil.GRID_CRS);
                 }
             } else {
-                log.error("Unknown axis in coverage "
-                        + covInfo.getCoverageName() + ": " + axisName);
-                throw new RuntimeException("Unknown axis in coverage "
-                        + covInfo.getCoverageName() + ": " + axisName);
+                log.warn(WCPSConstants.WARNTXT_NO_NATIVE_CRS_P1 + " " + axisName + WCPSConstants.WARNTXT_NO_NATIVE_CRS_P2);
+                crs = new Crs(CrsUtil.GRID_CRS);
+                this.transformedCoordinates = true;
+
+                //log.error(axisName + " is not available for coverage " + meta.getCoverageName());
+                //throw new WCPSException(ExceptionCode.InvalidRequest, 
+                //        axisName + " is not available for coverage " + meta.getCoverageName());
             }
         }
-
-        // Pixel indices are retrieved from bbox, which is stored for XY plane only.
-        if (finished == true) {
-            if (!crs.getName().equals(CrsUtil.GRID_CRS)) {
-                convertToPixelCoordinates();
-            } else {
-                // Set grid values which were directly set in the requests
-                try {
-                    cellCoord1 = (long)(domain1.getSingleValue());
-                    cellCoord2 = (long)(domain2.getSingleValue());
-                    this.transformedCoordinates = true;
-                } catch (ClassCastException ex) {
-                    String message = ex.getMessage();
-                    log.error(message);
-                    throw new WCPSException(ExceptionCode.InternalComponentError, message);
-                }
-            }
+        
+        if (finished == true && !crs.getName().equals(CrsUtil.GRID_CRS)) {
+            convertToPixelCoordinates();
         }
     }
-
+    
     /* If input coordinates are geo-, convert them to pixel coordinates. */
     private void convertToPixelCoordinates() throws WCPSException {
+
         if (meta.getBbox() == null && crs != null) {
             throw new RuntimeException(WCPSConstants.MSG_COVERAGE + " '" + meta.getCoverageName()
-                    //+ "' is not georeferenced with 'EPSG:4326' coordinate system.");
                     + "' " + WCPSConstants.ERRTXT_IS_NOT_GEOREFERENCED);
         }
         if (counter == 2 && crs != null && domain1.isSingleValue() && domain2.isSingleValue()) {
-            log.debug(WCPSConstants.DEBUGTXT_REQUESTED_SUBSETTING, crs.getName(), meta.getBbox().getCrsName());
+            log.debug("[Transformed] requested subsettingCrs is '{}', should match now native CRS '{}'",
+                    crs.getName(), meta.getBbox().getCrsName());
             try {
                 this.transformedCoordinates = true;
                 // Convert to pixel coordinates
-                Double val1 = domain1.getSingleValue();
-                Double val2 = domain2.getSingleValue();
-                String axisName = axis.toRasQL(); //.toUpperCase();
-                int[] pCoord = Crs.convertToPixelIndices(meta, axisName, val1, val2, rebound);
+                String val1 = domain1.getSingleValue();
+                String val2 = domain2.getSingleValue();
+                boolean dom1IsNum = !domain1.isStringScalarExpr();
+                boolean dom2IsNum = !domain2.isStringScalarExpr();
+                String axisName = axis.toRasQL();
+                int[] pCoord = crs.convertToPixelIndices(meta, axisName, val1, dom1IsNum, val2, dom2IsNum);
                 cellCoord1 = pCoord[0];
                 cellCoord2 = pCoord[1];
             } catch (PetascopeException e) {
                 this.transformedCoordinates = false;
-                log.error(WCPSConstants.ERRTXT_ERROR_WHILE_TRANSFORMING);
-                throw new WCPSException(e.getExceptionCode(), e.getMessage());
-            }
+                throw new WCPSException(ExceptionCode.InvalidMetadata,
+                        WCPSConstants.ERRTXT_ERROR_WHILE_CONVERTING);            }
         }
     }
-
+    
     /* Not used */
     @Override
     public String toRasQL() {
         return WCPSConstants.MSG_DOMAIN_INTERVAL_ELEMENT_NOT;
     }
-
+    
     @Override
     public CoverageInfo getCoverageInfo() {
         return info;
     }
-
+    
     public Node getNextNode() {
         return nextNode;
     }
-
+    
     public String getAxisName() {
         return this.axis.toRasQL();
     }
-
+    
     public String getAxisCoords() {
         return this.domain1.toRasQL() + " : " + this.domain2.toRasQL();
     }
     
-    public Double getLoCoord() {
-        return this.domain1.getSingleValue();
-    }
-    public Double getHiCoord() {
-        return this.domain2.getSingleValue();
-    }
-
-    public String getLoCellCoord() {
+    public String getLowCoord() {
         if (transformedCoordinates) {
             return String.valueOf(cellCoord1);
         } else {
             return this.domain1.toRasQL();
         }
     }
-
-    public String getHiCellCoord() {
+    
+    public String getHighCoord() {
         if (transformedCoordinates) {
             return String.valueOf(cellCoord2);
         } else {

@@ -778,6 +778,25 @@ public class XMLUtil {
         }
         return null;
     }
+    
+    /**
+     * Returns first child element whose name matches a certain pattern.
+     * @param e         Root element
+     * @param pattern   The pattern to match
+     * @return          The first child element which matches the pattern (if it exists)
+     */
+    public static Element firstChildPattern(Element e, String pattern) {
+        Node n = null;
+        for (int i = 0; i < e.getChildCount(); i++) {
+            n = e.getChild(i);
+            if (n instanceof Element) {
+                if (pattern == null || ((Element) n).getLocalName().matches(pattern)) {
+                    return (Element) n;
+                }
+            }
+        }
+        return null;
+    }
 
     public static Element firstChildRecursive(Element e, String name) {
         Node n = null;
@@ -788,6 +807,29 @@ public class XMLUtil {
                     return (Element) n;
                 }
                 Element ret = firstChildRecursive((Element) n, name);
+                if (ret != null) {
+                    return ret;
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Returns first child element whose name matches a certain pattern, recursively through the XML nodes.
+     * @param e         Root element
+     * @param pattern   The pattern to match
+     * @return          The first child element which matches the pattern (if it exists)
+     */
+    public static Element firstChildRecursivePattern(Element e, String pattern) {
+        Node n = null;
+        for (int i = 0; i < e.getChildCount(); i++) {
+            n = e.getChild(i);
+            if (n instanceof Element) {
+                if (pattern == null || ((Element) n).getLocalName().matches(pattern)) {
+                    return (Element) n;
+                }
+                Element ret = firstChildRecursivePattern((Element) n, pattern);
                 if (ret != null) {
                     return ret;
                 }

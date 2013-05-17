@@ -46,9 +46,9 @@ public class ParsersRegistry {
      * Initialize registry: load available protocol binding extensions
      */
     public static void initialize() {
-        registerParser(new XMLGetCapabilitiesParser());
-        registerParser(new XMLDescribeCoverageParser());
-        registerParser(new XMLGetCoverageParser());
+        //registerParser(new XMLGetCapabilitiesParser());
+        //registerParser(new XMLDescribeCoverageParser());
+        //registerParser(new XMLGetCoverageParser());
         registerParser(new KVPGetCapabilitiesParser());
         registerParser(new KVPDescribeCoverageParser());
         registerParser(new KVPGetCoverageParser());

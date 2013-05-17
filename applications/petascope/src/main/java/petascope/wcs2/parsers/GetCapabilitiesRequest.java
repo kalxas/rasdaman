@@ -28,11 +28,10 @@ package petascope.wcs2.parsers;
  */
 public class GetCapabilitiesRequest extends Request {
 
-    /**
-     * Service name, fixed to WCS
-     */
+    /* Constants */
     public static final String SERVICE = "WCS";
-
+    public static final String VALUE_GETCAPABILITIES = "GetCapabilities";
+    
     private final String acceptVersion;
     private final String acceptFormats;
     private final String acceptLanguages;
@@ -57,7 +56,9 @@ public class GetCapabilitiesRequest extends Request {
 
     @Override
     public String toString() {
-        return "GetCapabilitiesRequest: " + "acceptVersion=" + acceptVersion + ", acceptFormats=" + 
-                acceptFormats + ", acceptLanguages=" + acceptLanguages;
+        return VALUE_GETCAPABILITIES + ": " + 
+                KVPGetCapabilitiesParser.KEY_ACCEPTVERSIONS + "=" + acceptVersion + ", " + 
+                KVPGetCapabilitiesParser.KEY_ACCEPTFORMATS  + "=" + acceptFormats + ", " +
+                KVPGetCapabilitiesParser.KEY_ACCEPTLANG     + "=" + acceptLanguages;
     }
 }

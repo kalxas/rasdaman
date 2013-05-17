@@ -66,7 +66,8 @@ public class GeotiffFormatExtension extends AbstractFormatExtension {
 
         // First, transform possible non-native CRS subsets
         CRSExtension crsExtension = (CRSExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.CRS_IDENTIFIER);
-        crsExtension.handle(request, m, meta);
+        
+        crsExtension.handle(request, m);
 
         //Handle the range subset feature
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);

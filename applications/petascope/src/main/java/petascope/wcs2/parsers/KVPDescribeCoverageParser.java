@@ -35,12 +35,17 @@ import petascope.wcs2.handlers.RequestHandler;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class KVPDescribeCoverageParser extends KVPParser<DescribeCoverageRequest> {
+    
+    // Keys
+    public static final String KEY_COVERAGEID = "coverageid";  
 
     @Override
     public DescribeCoverageRequest parse(HTTPRequest request) throws WCSException {
         String input = request.getRequestString();
         Map<String, List<String>> p = StringUtil.parseQuery(input);
-        checkEncodingSyntax(p, KEY_COVERAGEID, KEY_VERSION);
+        checkEncodingSyntax(p, 
+                KEY_COVERAGEID, 
+                KEY_VERSION);
         DescribeCoverageRequest ret = new DescribeCoverageRequest();
         ret.getCoverageIds().addAll(p.get(KEY_COVERAGEID));
         return ret;

@@ -23,17 +23,15 @@ package petascope.wcps.server.core;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
+import petascope.util.TimeUtil;
 
 /**
  * This is an axis in geographic coordinates. See the WCPS standard.
@@ -42,110 +40,94 @@ public class DomainElement implements Cloneable {
     
     private static Logger log = LoggerFactory.getLogger(DomainElement.class);
 
-    private Set<String> crss;
+    private String crs;
     private String name;
-    private Double numHi;
-    private Double numLo;
-    private String strHi;
-    private String strLo;
+    private String maxValue;
+    private String minValue;
     private String type;
     private String uom;
-    private Collection<String> allowedAxes;
-    private Double resolution = 1.0;
+    private int iOrder;
+    private CrsDefinition.Axis axisDef;
+    private String resolution;
+    private int DIM;
+    private boolean isIrregular;
 
-    public DomainElement(String name, String type, Double numLo, Double numHi, String strLo,
-            String strHi, Set<String> crss, Collection<String> axes, String uom) throws WCPSException
-            {
-        this.allowedAxes = axes;
+    // Overload
+    public DomainElement(String min, String max, CrsDefinition.Axis axis, String crsUri, int order, int dim, boolean isIrr) 
+            throws WCPSException {
+        this(min, max, axis.getAbbreviation(), axis.getType(), crsUri, order, dim, isIrr);
+        name = axis.getAbbreviation();
+        uom  = axis.getUoM();
+        
+        axisDef = axis;
+    }
 
-        if ((name == null) || (type == null)) {
+    public DomainElement(String min, String max, String axisName, String axisType, String crsUri, int order, int dim, boolean isIrr) 
+            throws WCPSException {
+
+        if ((axisName == null) || (axisType == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
                     WCPSConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_NULL);
         }
 
-        if (name.equals("")) {
+        name = axisName;
+        DIM = dim;
+        isIrregular = isIrr;
+        iOrder = order;
+        type = axisType;
+        if (!type.equals(AxisTypes.X_AXIS) 
+                && !type.equals(AxisTypes.Y_AXIS) 
+                && !type.equals(AxisTypes.T_AXIS) 
+                && !type.equals(AxisTypes.ELEV_AXIS)
+                && !type.equals(AxisTypes.OTHER)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
+                    WCPSConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_EMPTY + type);
+        }
+
+        if ((min != null) && (max != null)) {
+            minValue = min;
+            maxValue = max;
+        } else {
+            throw new WCPSException(ExceptionCode.InvalidMetadata,
                     WCPSConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_EMPTY);
         }
 
-        if (allowedAxes.contains(type) == false) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WCPSConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_TYP_P1 + type
-                    + WCPSConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_TYP_P2 + allowedAxes.toString());
-        }
-
-        if ((numLo != null) && (numHi != null) && (strLo == null) && (strHi == null)) {
-            if (numLo.compareTo(numHi) == 1) {
-                throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                        WCPSConstants.ERRTXT_INVALID_DOM_LOWER_INT_BOUND);
+        if ((crsUri == null) || crsUri.equals(CrsUtil.GRID_CRS)) {
+               crs = CrsUtil.GRID_CRS;
+        } else crs = crsUri;
+        
+        // Compute resolution (with irregular axes a resolution cannot be defined)
+        if (!isIrregular) {
+            // Consistency checks
+            if (Double.parseDouble(maxValue) < Double.parseDouble(minValue)) {
+                throw new WCPSException(ExceptionCode.InvalidMetadata,
+                        WCPSConstants.ERRTXT_INVALID_DOM_BOUNDS);
             }
-
-            this.numLo = numLo;
-            this.numHi = numHi;
             
-        } else if ((strLo != null) && (numHi != null) && (numLo == null) && (numHi == null)) {
-            if (strLo.equals("") || strHi.equals("")) {
-                throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                        WCPSConstants.ERRTXT_INVALID_DOM_STRING_BOUND);
-            }
-
-            this.strLo = strLo;
-            this.strHi = strHi;
-        } else {
-            /* Allow both sources of info for time-axes */
-            if (type.equals("t")) {
-                this.strLo = strLo;
-                this.strHi = strHi;
-                this.numLo = numLo;
-                this.numHi = numHi;
-            } else {
-                throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                        WCPSConstants.ERRTXT_INVALID_DOM_INT_BOUND_BOTH
-                        + name + ":" + type);
-            }
+            // Use BigDecimals to avoid finite arithemtic rounding issues of Doubles
+            BigDecimal maxBD = BigDecimal.valueOf(Double.parseDouble(maxValue));
+            BigDecimal minBD = BigDecimal.valueOf(Double.parseDouble(minValue));
+            BigDecimal dimBD = BigDecimal.valueOf(DIM);
+            BigDecimal diffBD = maxBD.subtract(minBD);
+            BigDecimal resBD = diffBD.divide(dimBD, RoundingMode.UP);
+            
+            resolution = resBD.toString();
         }
-
-        if ((type.equals(AxisTypes.X_AXIS) || type.equals(AxisTypes.Y_AXIS)) && (numLo == null)) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WCPSConstants.ERRTXT_INVALID_DOM_SPATIAL_AXIS);
-        } else if (type.equals(AxisTypes.T_AXIS) && (numLo == null) || (numHi == null)) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata, WCPSConstants.ERRTXT_INVALID_DOM_T_AXIS);
-        }
-
-        this.name = name;
-        this.type = type;
-
-        if ((crss == null) || !crss.contains(CrsUtil.GRID_CRS)) {
-//			throw new WCPSException(ExceptionCode.InvalidMetadata, 
-//			    "Invalid domain element: CRS set does not contain image CRS '"
-//			    + CrsUtil.GRID_CRS + "'");
-            crss.add(CrsUtil.GRID_CRS);
-        }
-
-        this.crss = crss;
         
         log.trace(toString());
     }
 
-    @Override
+    //@Override
     public DomainElement clone() {
-        Set<String> c = new HashSet<String>(crss.size());
-        Iterator<String> i = crss.iterator();
-
-        while (i.hasNext()) {
-            c.add(new String(i.next()));
-        }
-
+        
         try {
-            String newName = name == null ? null : new String(name);
-            String newType = type == null ? null : new String(type);
-            Double newNumLo = numLo == null ? null : new Double(numLo);
-            Double newNumHi = numHi == null ? null : new Double(numHi);
-            String newStrLo = strLo == null ? null : new String(strLo);
-            String newStrHi = strHi == null ? null : new String(strHi);
-            String newUom = uom == null ? null : new String(uom);
-            return new DomainElement(newName, newType, newNumLo, newNumHi, newStrLo, newStrHi, c, allowedAxes, newUom);
-        } catch (WCPSException ime) {
+            String newMin = minValue == null ? null : minValue.toString();
+            String newMax = maxValue == null ? null : maxValue.toString();
+            String newCrs = crs      == null ? null : crs.toString();
+            int order     = new Integer(iOrder);
+            boolean isIrr = isIrregular ? true : false;
+            return new DomainElement(newMin, newMax, axisDef.clone(), newCrs, order, DIM, isIrr);
+        } catch (Exception ime) {
             throw new RuntimeException(
                     WCPSConstants.ERRTXT_INVALID_METADAT_WHILE_CLONE,
                     ime);
@@ -154,82 +136,59 @@ public class DomainElement implements Cloneable {
     }
 
     public boolean equals(DomainElement de) {
-        if ((numLo == null) && (de.numLo == null)) {
-            return strLo.equals(de.strLo) && strHi.equals(strHi)
-                    && name.equals(de.name) && type.equals(de.type);
-        } else if ((strLo == null) && (de.strLo == null)) {
-            return numLo.equals(de.numLo) && numHi.equals(numHi)
-                    && name.equals(de.name) && type.equals(de.type);
-        } else {
-            return false;
-        }
+        return minValue.equals(de.minValue) && maxValue.equals(maxValue)
+                && name.equals(de.name) && type.equals(de.type);
     }
-
+    
+    public CrsDefinition.Axis getAxisDef() {
+        return axisDef;
+    }
+    
     public String getName() {
         return name;
     }
 
-    public Double getNumHi() {
-        return numHi;
+    public String getMaxValue() {
+        return maxValue;
     }
 
-    public Double getNumLo() {
-        return numLo;
+    public String getMinValue() {
+        return minValue;
     }
-
-    public String getStrHi() {
-        return strHi;
-    }
-
-    public String getStrLo() {
-        return strLo;
+    
+    public String getResolution() {
+        return resolution;
     }
 
     public String getType() {
         return type;
     }
-    
-    public Set<String> getCrsSet() {
-        return crss;
-    }
 
-    /**
-     * Extracts the external CRS from the allowed CRS of this domain (always containing the grid CRS as well, see constructor)
-     * @return The external CRS of this dimension
-     */
-    public String getExternalCrs() {
-        for (String crs : crss) {
-            if (!crs.equals(CrsUtil.GRID_CRS)) {
-                return crs;
-            }
-        }
-        return "";
+    public String getCrs() {
+        return crs;
     }
 
     public String getUom() {
         return uom;
     }
     
-    public Double getResolution() {
-        return resolution;
+    public int getOrder() {
+       return iOrder;
     }
     
-    public void setResolution(Integer DIM) {        
-        // Use BigDecimals to avoid finite arithemtic rounding issues of Doubles
-        BigDecimal maxBD = BigDecimal.valueOf(numHi);
-        BigDecimal minBD = BigDecimal.valueOf(numLo);
-        BigDecimal dimBD = BigDecimal.valueOf(DIM);
-        BigDecimal diffBD = maxBD.subtract(minBD);
-        BigDecimal resBD = diffBD.divide(dimBD, RoundingMode.UP);
-        
-        resolution = resBD.doubleValue();
+    public boolean isIrregular() {
+        return isIrregular;
     }
-
+    
     @Override
     public String toString() {
-        String d = WCPSConstants.MSG_DOMAIN_ELEMENT_NAME + name + "', " + WCPSConstants.MSG_TYPE_CAMEL + ": '" + type
-                + "', " + WCPSConstants.MSG_NUMLOW + ": '" + numLo + "', " + WCPSConstants.MSG_NUMHI + ": '" + numHi + "', " + WCPSConstants.MSG_STRLOW + ": '"
-                + strLo + "', " + WCPSConstants.MSG_STRHI + ": '" + strHi + "', " + WCPSConstants.MSG_CRS_SET_CAMEL + ": '" + crss + "'}";
+        String d = WCPSConstants.MSG_DOMAIN_CAMEL + "#" + iOrder + " {"  
+                + "Name:" + name 
+                + " | Type:" + type
+                + " | UoM:" + uom
+                + " | [" + minValue 
+                + ","    + maxValue + "]"
+                + " | CRS:" + crs + "'}";
         return d;
     }
 }

@@ -22,23 +22,29 @@
 package petascope.wcps.grammar;
 
 import petascope.util.WCPSConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author: Andrei Aiordachioaie
  */
 public class StringScalarExpr implements IParseTreeNode {
 
+    private static Logger log = LoggerFactory.getLogger(StringScalarExpr.class);
+    
     CoverageExpr cov;
     String function;
     String op;
     String val;
 
     public StringScalarExpr(String val) {
+        log.trace("StringScalarExpr " + val);        
         this.val = val;
         this.function = WCPSConstants.MSG_STRING_CONSTANT;
     }
 
     public StringScalarExpr(String op, CoverageExpr cov) {
+        log.trace("StrinScalarExpr " + op + ", " + cov);
         this.cov = cov;
         function = WCPSConstants.MSG_STRING_IDENTIFIER;
         this.op = op;

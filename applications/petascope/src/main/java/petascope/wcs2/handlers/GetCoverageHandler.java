@@ -47,6 +47,10 @@ public class GetCoverageHandler extends AbstractRequestHandler<GetCoverageReques
             throw new WCSException(ExceptionCode.NoApplicableCode, 
                     "No appropriate format extension was found that can handle the request");
         }
-        return formatExtension.handle(request, meta);
+        try {
+            return formatExtension.handle(request, meta);            
+        } catch (PetascopeException ex) {
+            throw ex;
+        }
     }
 }

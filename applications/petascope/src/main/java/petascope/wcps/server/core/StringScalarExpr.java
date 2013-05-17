@@ -21,9 +21,6 @@
  */
 package petascope.wcps.server.core;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
@@ -33,15 +30,6 @@ import petascope.util.WCPSConstants;
 public class StringScalarExpr extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(StringScalarExpr.class);
-    
-    public static final Set<String> NODE_NAMES = new HashSet<String>();
-    private static final String[] NODE_NAMES_ARRAY = {
-        WCPSConstants.MSG_STRING_IDENTIFIER,
-        WCPSConstants.MSG_STRING_CONSTANT,
-    };
-    static {
-        NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
-    }
 
     private String op, string;
     private CoverageExpr cov;
@@ -59,7 +47,7 @@ public class StringScalarExpr extends AbstractRasNode {
             op = WCPSConstants.MSG_ID_LOWERCASE;
         } else if (node.getNodeName().equals(WCPSConstants.MSG_STRING_CONSTANT)) {
             op = WCPSConstants.MSG_CONSTANT;
-            string = node.getNodeValue();
+            string = node.getFirstChild().getNodeValue();
         } else {
             throw new WCPSException(WCPSConstants.ERRTXT_UNKNOWN_STRING_NODE_EXPR + ": " + node.getNodeName());
         }
@@ -77,5 +65,16 @@ public class StringScalarExpr extends AbstractRasNode {
         }
 
         return result;
+    }
+    
+    // Equivalent of NumericScalarExpr::getSingleValue() for String subset expressions (e.g. timestamps)
+    public String getValue() {
+        if (op.equals(WCPSConstants.MSG_CONSTANT)) {
+            return string;
+        } else return "";
+    }
+    
+    public boolean isSingleValue() {
+        return op.equals(WCPSConstants.MSG_CONSTANT);
     }
 }

@@ -137,6 +137,24 @@ public interface XMLSymbols {
     // soap
     String LABEL_BODY = "Body";
     
+    // CRS definitions
+    String LABEL_CRSAXIS       = "axis";
+    String LABEL_CSAXIS        = "CoordinateSystemAxis";
+    String LABEL_AXISABBREV    = "axisAbbrev";
+    String LABEL_AXISDIRECTION = "axisDirection";
+    String LABEL_CSA           = "CoordinateSystemAxis";
+    String LABEL_NAME          = "name";
+    String LABEL_ORIGIN        = "origin";
+    String LABEL_TEMPORALCRS   = "TemporalCRS";
+    // (suffixes: e.g. ProjectedCRS, TemporalCRS, etc.)
+    String CRS_GMLSUFFIX   = "CRS";
+    String CS_GMLSUFFIX    = "CS";
+    String DATUM_GMLSUFFIX = "Datum";    
+    
+    // SECORE equality test
+    String LABEL_COMPARISON_RESULT = "comparisonResult";
+    String LABEL_EQUAL             = "equal";
+    String LABEL_EXCEPTION_TEXT    = "ExceptionText";
     
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -157,6 +175,9 @@ public interface XMLSymbols {
     String ATT_UPPERCORNER = "UpperCorner";
     String ATT_CRS = "crs";
     String ATT_DIMENSIONS = "dimensions";
+    
+    // CRS definitions
+    String ATT_UOM = "uom";
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

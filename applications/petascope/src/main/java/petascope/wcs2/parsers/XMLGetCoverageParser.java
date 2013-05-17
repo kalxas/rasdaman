@@ -39,6 +39,7 @@ import petascope.wcs2.extensions.RangeSubsettingExtension;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
+import petascope.wcs2.extensions.CRSExtension;
 
 /**
  * Parse a GetCapabilities XML request.
@@ -67,27 +68,15 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                 if(name.equals(LABEL_EXTENSION)){
                     this.parseExtensions(ret, c);
                 }
-                if (name.equals(LABEL_DIMENSION_TRIM)) {
-                    ret.getSubsets().add(new DimensionTrim(getText(c.get(0)), getText(c.get(1)), getText(c.get(2))));
-                    // Check timestamps validity
-                    if (getText(c.get(0)).equalsIgnoreCase("T") || getText(c.get(0)).equalsIgnoreCase("TEMPORAL")) {
-                        if (getText(c.get(1)) != null && !TimeUtil.isValidTimestamp(getText(c.get(1)))) {
-                            throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + getText(c.get(1)) + "\" is not valid (pattern is YYYY-MM-DD).");
-                        }
-                        if (getText(c.get(2)) != null && !TimeUtil.isValidTimestamp(getText(c.get(2)))) {
-                            throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + getText(c.get(2)) + "\" is not valid (pattern is YYYY-MM-DD).");
-                        }
-                        //Check order
-                        if (getText(c.get(1)) != null && getText(c.get(2)) != null
-                                && !TimeUtil.isOrderedTimeSubset(getText(c.get(1)), getText(c.get(2)))) {
-                            throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + getText(c.get(1)) + ":" + getText(c.get(2)) + "\" is invalid: check order.");
-                        }
-                    }
+                if (name.equals(LABEL_DIMENSION_TRIM)) {                    
+                    ret.getSubsets().add(new DimensionTrim(getText(c.get(0)), getText(c.get(1)), getText(c.get(2))));                    
                 } else if (name.equals(LABEL_DIMENSION_SLICE)) {
                     ret.getSubsets().add(new DimensionSlice(getText(c.get(0)), getText(c.get(1))));
                     if (getText(c.get(0)).equals(AxisTypes.T_AXIS)) {
                         // Check timestamps validity
-                        if (getText(c.get(1)) != null && !TimeUtil.isValidTimestamp(getText(c.get(1)))) {
+                        if (getText(c.get(1)) != null                                 
+                                && !CrsUtil.GRID_CRS.equals(getText(c.get(1)))     // No timestamp validity needed hence.
+                                && !TimeUtil.isValidTimestamp(getText(c.get(1)))) {
                             throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + getText(c.get(1)) + "\" is not valid (pattern is YYYY-MM-DD).");
                         }
                     }
@@ -95,40 +84,31 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                     String subCrs = null, outCrs = null;
                     for (Element attr : c) {
                         if (attr.getLocalName().equals(ATT_SUBSET_CRS)) {
-                            if (subCrs == null) {
-                                subCrs = getText(attr);
-                            } else {
-                                throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"subsettingCrs\" parameters in the request: must be unique.");
-                            }
-                            // check validity of CRS specification
-                            if (!CrsUtil.CrsUri.isValid(subCrs)) {
-                                throw new WCSException(ExceptionCode.NotASubsettingCrs, "subsettingCrs \"" + subCrs + "\" is not valid.");
-                            }
-                            if (!CrsUtil.isSupportedCrsCode(subCrs)) {
-                                throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, "subsettingCrs " + subCrs + " is not supported.");
-                            }
-                        } else if (attr.getLocalName().equals(ATT_OUTPUT_CRS)) {
-                            if (outCrs == null) {
-                                outCrs = getText(attr);
-                            } else {
-                                throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"outputCrs\" parameters in the request: must be unique.");
-                            }
-                            // check validity of CRS specification
-                            if (!CrsUtil.CrsUri.isValid(outCrs)) {
-                                throw new WCSException(ExceptionCode.NotAnOutputCrs, "outputCrs \"" + outCrs + "\" is not valid.");
-                            }
-                            if (!CrsUtil.isSupportedCrsCode(outCrs)) {
-                                throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, "outputCrs " + outCrs + " is not supported.");
-                            }
-                        } else {
-                            log.warn("\"" + attr.getLocalName() + "\" unknown attribute of CRS element while parsing XML GetCoverage request");
+                            if (subCrs == null) subCrs = getText(attr);
+                            else throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"" + KEY_SUBSETCRS + "\" parameters in the request: must be unique.");
+                            // check validity of CrsExt specification
+                            if (!CrsUtil.CrsUri.isValid(subCrs)) 
+                                throw new WCSException(ExceptionCode.NotASubsettingCrs, 
+                                        KEY_SUBSETCRS + "\"" + subCrs + "\" is not valid.");
+                            if (!CrsUtil.isSupportedCrsCode(subCrs)) 
+                                throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, 
+                                        KEY_SUBSETCRS + "\"" + subCrs + "\" is not supported.");
+                        }
+                        else if (attr.getLocalName().equals(ATT_OUTPUT_CRS)) {
+                            if (outCrs == null) outCrs = getText(attr);
+                            else throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"" + KEY_OUTPUTCRS + "\" parameters in the request: must be unique.");
+                            // check validity of CrsExt specification
+                            if (!CrsUtil.CrsUri.isValid(outCrs)) 
+                                throw new WCSException(ExceptionCode.NotAnOutputCrs, 
+                                        KEY_OUTPUTCRS + " \"" + outCrs + "\" is not valid.");
+                            if (!CrsUtil.isSupportedCrsCode(outCrs)) 
+                                throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, 
+                                        KEY_OUTPUTCRS + " \"" + outCrs + "\" is not supported.");
                         }
                     }
-                    if (ret.getCRS().size() == 1) {
-                        log.warn("Repeated CRS item inside XML GetCoverage request: discard it.");
-                    } else {
-                        ret.getCRS().add(new GetCoverageRequest.CRS(subCrs, outCrs));
-                    }
+                    ret.getCrsExt().setSubsettingCrs(subCrs);
+                    ret.getCrsExt().setOutputCrs(outCrs);
+                    
                 } else if (name.equals(LABEL_SCALING)) {
                     log.trace("here");
                     for (Element elem : c) {
@@ -162,7 +142,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                                     String axis = "", fact = "";
                                     for (Element ele : chi) {
                                         String ename = ele.getLocalName();
-                                        if (ename.equals(LABEL_AXIS)) {
+                                        if (ename.equals(LABEL_CRSAXIS)) {
                                             axis = getText(ele);
                                         } else if (ename.equals(LABEL_SCALEFACTOR)) {
                                             fact = getText(ele);
@@ -193,7 +173,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                                     String axis = "", fact = "";
                                     for (Element ele : chi) {
                                         String ename = ele.getLocalName();
-                                        if (ename.equals(LABEL_AXIS)) {
+                                        if (ename.equals(LABEL_CRSAXIS)) {
                                             axis = getText(ele);
                                         } else if (ename.equals(LABEL_TARGETSIZE)) {
                                             fact = getText(ele);
@@ -225,7 +205,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                                     String axis = "", slo = "", shi = "";
                                     for (Element ele : chi) {
                                         String ename = ele.getLocalName();
-                                        if (ename.equals(LABEL_AXIS)) {
+                                        if (ename.equals(LABEL_CRSAXIS)) {
                                             axis = getText(ele);
                                         } else if (ename.equals(LABEL_LOW)) {
                                             slo = getText(ele);
@@ -264,11 +244,10 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                 }
 
             } catch (Exception ex) {
-                if (((PetascopeException) ex).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.NotASubsettingCrs.getExceptionCode())) {
-                    throw (WCSException) ex;
-                } else if (((PetascopeException) ex).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.NotAnOutputCrs.getExceptionCode())) {
-                    throw (WCSException) ex;
-                } else {
+                if (((PetascopeException)ex).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.NotASubsettingCrs.getExceptionCode())
+                    || ((PetascopeException)ex).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.NotAnOutputCrs.getExceptionCode()))
+                    throw (WCSException)ex;
+                else 
                     throw new WCSException(ExceptionCode.InvalidRequest, "Error parsing dimension subset:\n\n" + e.toXML(), ex);
                 }
             }

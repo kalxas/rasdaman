@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import petascope.exceptions.PetascopeException;
 import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -37,14 +38,20 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
+import petascope.util.WcsUtil;
 import static petascope.util.XMLSymbols.*;
 import petascope.util.XMLUtil;
+import petascope.wcps.server.core.Bbox;
 import petascope.wcs2.Wcs2Servlet;
-import petascope.wcs2.extensions.Extension;
 import petascope.wcs2.extensions.ExtensionsRegistry;
+import petascope.wcps.server.core.Bbox;
+import static petascope.util.XMLSymbols.*;
+import petascope.wcs2.extensions.Extension;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.parsers.BaseRequest;
 import petascope.wcs2.parsers.GetCapabilitiesRequest;
+import petascope.wcs2.parsers.GetCoverageMetadata;
+import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.templates.Templates;
 
 /**
@@ -69,7 +76,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
 
         // Service Identification
         Element serviceIdentification = Templates.getXmlTemplate(Templates.SERVICE_IDENTIFICATION,
-                Pair.of("\\{URL\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
+                Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
                 ? ConfigManager.PETASCOPE_SERVLET_URL
                 : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
         if (serviceIdentification != null) {
@@ -83,7 +90,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
 
         // Service Provider
         Element serviceProvider = Templates.getXmlTemplate(Templates.SERVICE_PROVIDER,
-                Pair.of("\\{URL\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
+                Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
                 ? ConfigManager.PETASCOPE_SERVLET_URL
                 : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
         if (serviceProvider != null) {
@@ -92,7 +99,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
 
         // Operations Metadata
         Element operationsMetadata = Templates.getXmlTemplate(Templates.OPERATIONS_METADATA,
-                Pair.of("\\{URL\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
+                Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
                 ? ConfigManager.PETASCOPE_SERVLET_URL
                 : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
         if (operationsMetadata != null) {
@@ -122,7 +129,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             Element crsExtension = new Element(PREFIX_WCS + ":" + LABEL_EXTENSION, NAMESPACE_WCS);
             Element crsMetadata  = new Element(PREFIX_CRS + ":" + LABEL_CRS_METADATA, NAMESPACE_CRS);
             Element supportedCrs = new Element(PREFIX_CRS + ":" + ATT_SUPPORTED_CRS, NAMESPACE_CRS);
-            supportedCrs.appendChild(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH));
+            supportedCrs.appendChild(CrsUtil.CrsUriDir(CrsUtil.OPENGIS_URI_PREFIX, CrsUtil.EPSG_AUTH));
             crsMetadata.appendChild(supportedCrs);
             crsExtension.appendChild(crsMetadata);
             serviceMetadata.appendChild(crsExtension);
@@ -135,18 +142,58 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         Iterator<String> it;
         try {
             it = meta.coverages().iterator();
-            while (it.hasNext()) {
+            while (it.hasNext()) {                
                 Element cs = new Element(LABEL_COVERAGE_SUMMARY, NAMESPACE_WCS);
                 Element c = null;
                 Element cc = null; 
                 c = new Element(LABEL_COVERAGE_ID, NAMESPACE_WCS);
                 String coverageId = it.next();
+                GetCoverageRequest tmp = new GetCoverageRequest(coverageId);
+                GetCoverageMetadata m  = new GetCoverageMetadata(tmp, meta);
                 c.appendChild(coverageId);
                 cs.appendChild(c);
                 c = new Element(LABEL_COVERAGE_SUBTYPE, NAMESPACE_WCS);
                 c.appendChild(meta.coverageType(coverageId));
                 cs.appendChild(c);
                 contents.appendChild(cs);
+                
+                /** Append Native Bbox **/
+                Bbox bbox = meta.read(coverageId).getBbox();
+
+                c = new Element(LABEL_BBOX, NAMESPACE_OWS);
+                // lower-left + upper-right coords
+                cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
+                cc.appendChild(bbox.getLowerCorner());
+                c.appendChild(cc);
+                cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
+                cc.appendChild(bbox.getUpperCorner());
+                c.appendChild(cc);
+                
+                // dimensions and crs attributes
+                Attribute crs = new Attribute(ATT_CRS, bbox.getCrsName());
+                Attribute dimensions = new Attribute(ATT_DIMENSIONS, "" + bbox.getDimensionality());
+                c.addAttribute(crs);
+                c.addAttribute(dimensions);
+                cs.appendChild(c);
+                
+                /** WGS84 Bbox **/
+                // Doesn't conform to WCS 2.0.1 so commented out -- DM 2012-oct-19 
+                /*if (bbox.hasWgs84Bbox()) {                    
+                    c = new Element(LABEL_WGS84_BBOX, NAMESPACE_OWS);
+                    // lower-left + upper-right coords
+                    cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
+                    cc.appendChild(bbox.getWgs84LowerCorner());
+                    c.appendChild(cc);
+                    cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
+                    cc.appendChild(bbox.getWgs84UpperCorner());
+                    c.appendChild(cc);
+                    // dimensions and crs attributes
+                    crs = new Attribute(ATT_CRS, bbox.getWgs84CrsName());
+                    dimensions = new Attribute(ATT_DIMENSIONS, "" + bbox.getDimensionality());
+                    c.addAttribute(crs);
+                    c.addAttribute(dimensions);
+                    cs.appendChild(c);
+                }*/
             }
         } catch (PetascopeException ex) {
             log.error("Error", ex);

@@ -24,6 +24,7 @@ package petascope.wcps.server.core;
 import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
@@ -36,74 +37,90 @@ public class CellDomainElement implements Cloneable {
 
     GetCoverageRequest.DimensionSubset subsetElement;
 
-    private BigInteger hi;                      //FIXME: should be double
-    private BigInteger lo;                      //FIXME: should be double
+    private BigInteger minValue;
+    private BigInteger maxValue;
     private String name;
+    private CrsDefinition.Axis axisDef;
+    private int iOrder;
 
-    public CellDomainElement(BigInteger lo, BigInteger hi, String dimname) throws WCPSException {
+    // Overload
+    public CellDomainElement(BigInteger lo, BigInteger hi, CrsDefinition.Axis axis, int order) throws WCPSException {
+        this(lo, hi, axis.getAbbreviation(), order);
+        axisDef = axis;
+    }
+   
+    public CellDomainElement(BigInteger lo, BigInteger hi, String axisName, int order) throws WCPSException {        
         if ((lo == null) || (hi == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
                     WCPSConstants.ERRTXT_INVALID_CELL_DOMAIN);
         }
-
         if (lo.compareTo(hi) == 1) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
                     WCPSConstants.ERRTXT_INVALID_CELL_DOMAIN_LOWER + " " + lo + " " + WCPSConstants.ERRTXT_CANNOT_BE_LARGER + " " + hi);
         }
         log.trace(WCPSConstants.MSG_CELL_DOMAIN + " " + lo + ":" + hi);
 
-        this.lo = lo;
-        this.hi = hi;
-        this.name = dimname;
-
+        minValue = lo;
+        maxValue = hi;
+        name = axisName;
+        iOrder = order;
     }
 
     @Override
     public CellDomainElement clone() {
         try {
-            return new CellDomainElement(BigInteger.ZERO.add(lo),
-                    BigInteger.ZERO.add(hi), name);
+            return new CellDomainElement(BigInteger.ZERO.add(minValue),
+                    BigInteger.ZERO.add(maxValue), axisDef, new Integer(iOrder));
         } catch (WCPSException ime) {
             throw new RuntimeException(
                     WCPSConstants.ERRTXT_INVALID_METADATA,
                     ime);
         }
-
     }
 
     public boolean equals(CellDomainElement cde) {
-        return lo.equals(cde.lo) && hi.equals(cde.hi);
-
+        return minValue.equals(cde.getLo()) 
+                && maxValue.equals(cde.getHi());
     }
-
-    public BigInteger getHi() {
-        return hi;
-
-    }
-
-    public void setHi(BigInteger hi){this.hi = hi;}
 
     public BigInteger getLo() {
-        return lo;
+        return minValue;
     }
 
-    public void setLo(BigInteger lo){this.lo = lo;}
+    public void setLo(BigInteger lo){
+        minValue = lo;
+    }
+    
+    public BigInteger getHi() {
+        return maxValue;
+    }
 
+    public void setHi(BigInteger hi){
+        maxValue = hi;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public int getOrder() {
+        return iOrder;
+    }
+    
+    public CrsDefinition.Axis getAxisDef() {
+        return axisDef;
+    }
+    
     @Override
     public String toString() {
-        String result = WCPSConstants.MSG_CELL_DOMAIN_ELEMENT + " [" + lo + ", " + hi + "]";
-        return result;
+        return WCPSConstants.MSG_CELL_DOMAIN_ELEMENT + "#" + iOrder + " [" + minValue + ", " + maxValue + "]";
     }
 
     public GetCoverageRequest.DimensionSubset getSubsetElement() {
         return subsetElement;
     }
 
-    public void setSubsetElement(GetCoverageRequest.DimensionSubset subsetElement) {
-        this.subsetElement = subsetElement;
-    }
-    
-    public String getName() {
-        return name;
+    public void setSubsetElement(GetCoverageRequest.DimensionSubset subsetEl) {
+        subsetElement = subsetEl;
     }
 }

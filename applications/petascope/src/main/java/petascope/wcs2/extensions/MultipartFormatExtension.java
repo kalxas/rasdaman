@@ -25,8 +25,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import petascope.core.DbMetadataSource;
-import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
+import petascope.exceptions.PetascopeException;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
@@ -38,7 +38,7 @@ import petascope.wcs2.parsers.GetCoverageRequest;
  */
 public class MultipartFormatExtension extends  GmlFormatExtension {
     
-    public static final String[] SET_VALUES = new String[] { MIME_TIFF, MIME_JP2, MIME_NETCDF };
+    public static final String[] SET_VALUES = new String[] { MIME_TIFF, MIME_JP2 };
     public static final Set<String> SUPPORTED_FORMATS = new HashSet<String>(Arrays.asList(SET_VALUES));
     
     @Override

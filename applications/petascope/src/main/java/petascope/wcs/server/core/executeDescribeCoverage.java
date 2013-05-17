@@ -21,7 +21,8 @@
  */
 package petascope.wcs.server.core;
 
-import petascope.core.Metadata;
+import java.util.ArrayList;
+import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.ExceptionCode;
@@ -39,6 +40,7 @@ import net.opengis.wcs.v_1_1_0.RangeType;
 import net.opengis.wcs.v_1_1_0.SpatialDomainType;
 import petascope.wcps.server.core.*;
 import java.util.Iterator;
+import java.util.List;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -47,6 +49,7 @@ import net.opengis.wcs.ows.v_1_1_0.AnyValue;
 import net.opengis.wcs.v_1_1_0.TimeSequenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 
 /**
@@ -110,7 +113,7 @@ public class executeDescribeCoverage {
     /**
      * Retrieve details for one coverage.
      * @param name Name of the coverage
-     * @return CoverageDescriptionType object, that can just be plugged in the respose object
+     * @return CoverageDescriptionType object, that can just be plugged in the response object
      */
     private CoverageDescriptionType getCoverageDescription(String name) throws WCSException {
         log.trace("Building coverage description for coverage '" + name + "' ...");
@@ -123,7 +126,7 @@ public class executeDescribeCoverage {
         }
 
         // Read all coverage metadata
-        Metadata cov = null;
+        CoverageMetadata cov = null;
 
         try {
             cov = meta.read(name);
@@ -145,46 +148,52 @@ public class executeDescribeCoverage {
 
         // Coverage Domain
         CoverageDomainType domain = null;
-        Double lo1 = 0.0, lo2 = 0.0, hi1 = 0.0, hi2 = 0.0;
+
 
         /* Default Bounding Box (uses GRID_CRS): use image size */
         BoundingBoxType bbox = new BoundingBoxType();
-        CellDomainElement X = cov.getXCellDomain();
-        CellDomainElement Y = cov.getYCellDomain();
+        CellDomainElement X = cov.getCellDomain(AxisTypes.X_AXIS);
+        CellDomainElement Y = cov.getCellDomain(AxisTypes.Y_AXIS);
+        Double loX, loY, hiX, hiY;
+        
         if (X != null && Y != null) {
-            lo1 = X.getLo().doubleValue();
-            hi1 = X.getHi().doubleValue();
-            lo2 = Y.getLo().doubleValue();
-            hi2 = Y.getHi().doubleValue();
+            loX = X.getLo().doubleValue();
+            hiX = X.getHi().doubleValue();
+            loY = Y.getLo().doubleValue();
+            hiY = Y.getHi().doubleValue();
 
             bbox.setCrs(CrsUtil.GRID_CRS);
 
-            bbox.getLowerCorner().add(lo1);
-            bbox.getLowerCorner().add(lo2);
-            bbox.getUpperCorner().add(hi1);
-            bbox.getUpperCorner().add(hi2);
+            bbox.getLowerCorner().add(loX);
+            bbox.getLowerCorner().add(loY);
+            bbox.getUpperCorner().add(hiX);
+            bbox.getUpperCorner().add(hiY);
         } else {
             throw new WCSException(ExceptionCode.NoApplicableCode, "Internal error: Could "
-                    + "not find X and Y cell domain extents.");
+                    + "not find " + AxisTypes.X_AXIS + " and " + AxisTypes.Y_AXIS + " cell domain extents.");
         }
 
         /* Try to use bounding box, if available */
-        //Wgs84Crs crs = cov.getCrs();
         Bbox boundbox = cov.getBbox();
         BoundingBoxType bboxType = new BoundingBoxType();
-        //bbox84.setCrs(DomainElement.WGS84_CRS);
         bboxType.setCrs(boundbox.getCrsName());
+        
+        List<String> lowers = new ArrayList<String>();
+        List<String> uppers = new ArrayList<String>();
+        
         if (boundbox != null) {
-            lo1 = boundbox.getLow1().doubleValue();
-            hi1 = boundbox.getHigh1().doubleValue();
-            lo2 = boundbox.getLow2().doubleValue();
-            hi2 = boundbox.getHigh2().doubleValue();
-
-            bboxType.getLowerCorner().add(lo1);
-            bboxType.getLowerCorner().add(lo2);
-            bboxType.getUpperCorner().add(hi1);
-            bboxType.getUpperCorner().add(hi2);
-
+            for (int i = 0; i < boundbox.getDimensionality(); i++) {
+                lowers.add(boundbox.getMinValue(i));
+                uppers.add(boundbox.getMaxValue(i));
+                
+                try {
+                    bboxType.getLowerCorner().add(Double.parseDouble(lowers.get(i)));
+                    bboxType.getUpperCorner().add(Double.parseDouble(uppers.get(i)));
+                } catch (NumberFormatException e) {
+                    log.error("WCS 1.0 still requires numeric bounding boxes only: ignoring " + 
+                            boundbox.getCoverageName() + "::" + boundbox.getType(i) + " axis.");
+                }
+            }            
             bbox = bboxType;
         }
 
@@ -197,7 +206,7 @@ public class executeDescribeCoverage {
 
 
         /* Find a time-axis if exists */
-        CellDomainElement T = cov.getTCellDomain();
+        CellDomainElement T = cov.getCellDomain(AxisTypes.T_AXIS);
         if (T != null) {
             log.trace("Found time-axis for coverage: [" + T.getLo() + ", " + T.getHi() + "]");
             TimeSequenceType temporal = new TimeSequenceType();

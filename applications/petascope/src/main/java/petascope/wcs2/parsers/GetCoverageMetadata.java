@@ -27,7 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import petascope.core.DbMetadataSource;
-import petascope.core.Metadata;
+import petascope.core.CoverageMetadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.ListUtil;
@@ -46,7 +46,7 @@ import petascope.wcps.server.core.SDU;
  */
 public class GetCoverageMetadata {
 
-    private final Metadata metadata;
+    private final CoverageMetadata metadata;
     private final String coverageId;
     private String coverageType;
     private String axisLabels;
@@ -59,7 +59,7 @@ public class GetCoverageMetadata {
     private String gridId;
     private Integer gridDimension;
     private List<RangeField> rangeFields;
-    //private Wgs84Crs crs;
+    private String crs;     // dynamically adapt to coverage slicing
     private Bbox bbox;
 
     public GetCoverageMetadata(GetCoverageRequest request, DbMetadataSource meta) throws WCSException {
@@ -86,8 +86,8 @@ public class GetCoverageMetadata {
             axisLabels += dom.getName() + " ";
             low  += cell.getLo() + " ";
             high += cell.getHi() + " ";
-            domLow  += dom.getNumLo() + " ";
-            domHigh += dom.getNumHi() + " ";
+            domLow  += dom.getMinValue() + " ";
+            domHigh += dom.getMaxValue() + " ";
             if (dom.getUom() != null) {
                 uomLabels += dom.getUom() + " ";
             }
@@ -104,7 +104,8 @@ public class GetCoverageMetadata {
             RangeElement range = rit.next();
             rangeFields.add(new RangeField(metadata, range, ++i));
         }
-        bbox = metadata.getBbox();
+        bbox = metadata.getBbox();        
+        crs = metadata.getCrsUri();        
     }
 
     public String getAxisLabels() {
@@ -154,17 +155,21 @@ public class GetCoverageMetadata {
         return uomLabels.trim();
     }
 
-    public Metadata getMetadata() {
+    public CoverageMetadata getMetadata() {
         return metadata;
     }
 
     public Bbox getBbox() {
         return bbox;
     }
+    
+    public String getCrs() {
+        return crs;
+    }
 
     public void setAxisLabels(String axisLabels) {
         this.axisLabels = axisLabels;
-        setGridDimension(axisLabels.isEmpty() ? 0 : axisLabels.split(" +").length);
+        setGridDimension(axisLabels.split(" +").length);
     }
 
     // Update pixel bounds of the grid (upon trimming and slicing)
@@ -177,27 +182,36 @@ public class GetCoverageMetadata {
     
     // Update bounds of coverage (upon trimming and slicing)
     public void setDomHigh(String high) {
-        this.domHigh = high;
+        domHigh = high;
     }
     public void setDomLow(String low) {
-        this.domLow = low;
+        domLow = low;
     }
     
     public void setGridDimension(Integer gridDimension) {
         this.gridDimension = gridDimension;
     }
     
+    public void setCrs(String newUri) {
+        crs = newUri;
+    }
+    
+    public void setUomLabels(String newUoms) {
+        uomLabels = newUoms;
+    }
+    
     public static class RangeField {
         
         public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:";
         
-        private String fieldName, componentName;
+        private String fieldName;
+        private String componentName;
         private String nilValues;
         private String uomCode;
         private String type;
         private String description;
 
-        public RangeField(Metadata cov, RangeElement range, int i) {
+        public RangeField(CoverageMetadata cov, RangeElement range, int i) {
             fieldName = range.getName();
             componentName = range.getName();
             

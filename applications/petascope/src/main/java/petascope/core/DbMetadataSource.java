@@ -3,7 +3,7 @@
  *
  * Rasdaman community is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser  General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
+ * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
  * Rasdaman community is distributed in the hope that it will be useful,
@@ -21,9 +21,7 @@
  */
 package petascope.core;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -38,18 +36,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
+import org.hsqldb.lib.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.util.AxisTypes;
+import petascope.exceptions.RasdamanException;
+import petascope.util.CrsUtil;
 import petascope.util.Pair;
-import petascope.wcps.server.core.Bbox;
-import petascope.wcps.server.core.CellDomainElement;
-import petascope.wcps.server.core.DomainElement;
-import petascope.wcps.server.core.InterpolationMethod;
-import petascope.wcps.server.core.RangeElement;
+import petascope.util.ras.RasQueryResult;
+import petascope.util.ras.RasUtil;
+import petascope.wcps.server.core.*;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.templates.Templates;
 
@@ -63,51 +60,146 @@ import petascope.wcs2.templates.Templates;
  *
  */
 public class DbMetadataSource implements IMetadataSource {
-
+    
     private static Logger log = LoggerFactory.getLogger(DbMetadataSource.class);
+    
+    /* Petascopedb Tables and Fields */
+    public static final String TABLE_COVERAGE = "ps_coverage";
+    public static final String COVERAGE_ID                = "id";
+    public static final String COVERAGE_NAME              = "name";
+    public static final String COVERAGE_NULLVALUE         = "nullvalue";
+    public static final String COVERAGE_NULLDEFAULT       = "nulldefault";
+    public static final String COVERAGE_NULLRESDEFAULT    = "nullresistancedefault";
+    public static final String COVERAGE_INTERPTYPEDEFAULT = "interpolationtypedefault";
+    public static final String COVERAGE_TYPE              = "type";
+    public static final String COVERAGE_CRS               = "crs";
+    public static final String COVERAGE_VISIBLE           = "visible";
+    
+    public static final String TABLE_CRS = "ps_crs";
+    public static final String CRS_ID   = "id";
+    public static final String CRS_NAME = "name";
+    
+    public static final String TABLE_DATATYPE = "ps_datatype";
+    public static final String DATATYPE_ID       = "id";
+    public static final String DATATYPE_DATATYPE = "datatype";
+    
+    public static final String TABLE_DESCRIPTIONS = "ps_descriptions";
+    public static final String DESCRIPTIONS_ID       = "id";
+    public static final String DESCRIPTIONS_COVERAGE = "coverage";
+    public static final String DESCRIPTIONS_TITLE    = "title";
+    public static final String DESCRIPTIONS_ABSTRACT = "abstract";
+    public static final String DESCRIPTIONS_KEYWORDS = "keywords";
+    
+    public static final String TABLE_DOMAIN = "ps_domain";
+    public static final String DOMAIN_ID           = "id";
+    public static final String DOMAIN_COVERAGE     = "coverage";
+    public static final String DOMAIN_I            = "i";
+    public static final String DOMAIN_MINVALUE     = "minvalue";
+    public static final String DOMAIN_MAXVALUE     = "maxvalue";
+    public static final String DOMAIN_ISIRREGULAR  = "isirregular";
+    
+    public static final String TABLE_IRRSERIES = "ps_irrseries";
+    public static final String IRRSERIES_ID         = "id";
+    public static final String IRRSERIES_AXIS       = "axis";
+    public static final String IRRSERIES_STARTVALUE = "startvalue";
+    public static final String IRRSERIES_ENDVALUE   = "endvalue";
+    public static final String IRRSERIES_CELL       = "cell";
+    
+    public static final String TABLE_FORMAT = "ps_format";
+    public static final String FORMAT_ID          = "id";
+    public static final String FORMAT_NAME        = "name";
+    public static final String FORMAT_MIMETYPE    = "mimetype";
+    public static final String FORMAT_GDALID      = "gdalid";
+    public static final String FORMAT_DESCRIPTION = "description";
 
+    public static final String TABLE_METADATA = "ps_metadata";
+    public static final String METADATA_ID       = "id";
+    public static final String METADATA_COVERAGE = "coverage";
+    public static final String METADATA_METADATA = "metadata";
+
+    public static final String TABLE_INTERPSET = "ps_interpolationset";
+    public static final String INTERPSET_ID             = "id";
+    public static final String INTERPSET_COVERAGE       = "coverage";
+    public static final String INTERPSET_INTERPTYPE     = "interpolationtype";
+    public static final String INTERPSET_NULLRESISTANCE = "nullresistance";
+    
+    public static final String TABLE_INTERPTYPE = "ps_interpolationtype";
+    public static final String INTERPTYPE_ID         = "id";
+    public static final String INTERPTYPE_INTERPTYPE = "interpolationtype";
+    
+    public static final String TABLE_NULLRESISTANCE = "ps_nullresistance";
+    public static final String NULLRESISTANCE_ID             = "id";
+    public static final String NULLRESISTANCE_NULLRESISTANCE = "nullresistance";
+    
+    public static final String TABLE_NULLSET = "ps_nullset";
+    public static final String NULLSET_ID        = "id";
+    public static final String NULLSET_COVERAGE  = "coverage";
+    public static final String NULLSET_NULLVALUE = "nullvalue";
+    
+    public static final String TABLE_RANGE = "ps_range";
+    public static final String RANGE_ID       = "id";
+    public static final String RANGE_COVERAGE = "coverage";
+    public static final String RANGE_I        = "i";
+    public static final String RANGE_NAME     = "name";
+    public static final String RANGE_TYPE     = "type";
+    public static final String RANGE_UOM      = "uom";
+    
+    public static final String TABLE_UOM = "ps_uom";
+    public static final String UOM_ID   = "id";
+    public static final String UOM_UOM  = "uom";
+    public static final String UOM_LINK = "link";
+    
+    /* PSQL useful keywords */
+    public static final String KEYWORD_MIN = "min";
+    public static final String KEYWORD_MAX = "max";
+    public static final String KEYWORD_TRUE = "true";
+    // Datatypes full list: http://www.postgresql.org/docs/8.4/static/datatype.html
+    public static final String TYPE_FLOAT8    = "float8";    // for integers and decimals
+    
     /* Status variables */
     private boolean initializing;
     private boolean checkAtInit;
-
+    
     /* Contents of static tables */
-    private Map<Integer, String> axisTypes;
     private Map<Integer, String> crss;
     private Map<Integer, String> dataTypes;
     private Map<Integer, String> interpolationTypes;
     private Map<Integer, String> nullResistances;
-    private Map<Integer, String> rangeUoms;
     private Map<String, String> supportedFormats;
+    private Map<Integer, String>  supportedRangeUoms;
     private Map<String, String> gdalFormatsIds; // GDAL code -> format name
 
     /* Contents of static tables (reversed, for easy access if you
-    know the something's name and want to find out its id) */
-    private Map<String, Integer> revAxisTypes;
+     * know the something's name and want to find out its id) */
     private Map<String, Integer> revCrss;
     private Map<String, Integer> revDataTypes;
     private Map<String, Integer> revInterpolationTypes;
     private Map<String, Integer> revNullResistances;
-    private Map<String, Integer> revRangeUoms;
     private Map<String, String> revSupportedFormats;    // Not used
+    private Map<String, Integer> revSupportedRangeUoms;
     private Map<String, String> revGdalFormatsIds; // format name -> GDAL code
 
     /* Database access info */
+    private static final String pgDriver = "org.postgresql.Driver";
     private String driver;
     private String pass;
     private String url;
     private String user;
-
+    
     /* Global database key variables */
     private Connection conn;
     private Savepoint savepoint;
     private String query;
     
-    private Map<String, Metadata> cache = new HashMap<String, Metadata>();
-
+    /* Cache */
+    private Map<String, CoverageMetadata> cache = new HashMap<String, CoverageMetadata>();
+    
+    /*------------------------------------------------*/
+    
     public DbMetadataSource(String driver, String url, String user, String pass) throws PetascopeException {
         this(driver, url, user, pass, true);
     }
-
+    
     public DbMetadataSource(String driver, String url, String user, String pass, boolean checkAtInit) throws PetascopeException {
         try {
             this.driver = driver;
@@ -122,103 +214,89 @@ public class DbMetadataSource implements IMetadataSource {
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error: Access denied to JDBC driver: " + driver, e);
         }
-
+        
         this.driver = driver;
         this.url = url;
         this.user = user;
         this.pass = pass;
         Statement s = null;
-
+        
         try {
-
+            
             /* Read contents of static metadata tables */
             ensureConnection();
-
-            axisTypes = new HashMap<Integer, String>();
-            revAxisTypes = new HashMap<String, Integer>();
             s = conn.createStatement();
-            ResultSet r = s.executeQuery("SELECT id, axisType FROM PS_AxisType");
-
-            while (r.next()) {
-                axisTypes.put(r.getInt("id"), r.getString("axisType"));
-                revAxisTypes.put(r.getString("axisType"), r.getInt("id"));
-            }
-
+            
+            /* PS_DATATYPES */
             dataTypes = new HashMap<Integer, String>();
             revDataTypes = new HashMap<String, Integer>();
-            r = s.executeQuery("SELECT id, dataType FROM PS_Datatype");
-
+            ResultSet r = s.executeQuery("SELECT " + DATATYPE_ID + ", " + DATATYPE_DATATYPE + " FROM " + TABLE_DATATYPE);
             while (r.next()) {
-                dataTypes.put(r.getInt("id"), r.getString("dataType"));
-                revDataTypes.put(r.getString("dataType"), r.getInt("id"));
-            }
-
-            interpolationTypes = new HashMap<Integer, String>();
-            revInterpolationTypes = new HashMap<String, Integer>();
-            r = s.executeQuery("SELECT id, interpolationType FROM PS_InterpolationType");
-
-            while (r.next()) {
-                interpolationTypes.put(r.getInt("id"), r.getString("interpolationType"));
-                revInterpolationTypes.put(r.getString("interpolationType"), r.getInt("id"));
-            }
-
-            nullResistances = new HashMap<Integer, String>();
-            revNullResistances = new HashMap<String, Integer>();
-            r = s.executeQuery("SELECT id, nullResistance FROM PS_NullResistance");
-
-            while (r.next()) {
-                nullResistances.put(r.getInt("id"), r.getString("nullResistance"));
-                revNullResistances.put(r.getString("nullResistance"), r.getInt("id"));
+                dataTypes.put(r.getInt(DATATYPE_ID), r.getString(DATATYPE_DATATYPE));
+                revDataTypes.put(r.getString(DATATYPE_DATATYPE), r.getInt(DATATYPE_ID));
             }
             
-            rangeUoms = new HashMap<Integer, String>();
-            revRangeUoms = new HashMap<String, Integer>();
-            r = s.executeQuery("SELECT id, uom FROM PS_Uom");
-
+            /* PS_INTERPOLATIONTYPE */
+            interpolationTypes = new HashMap<Integer, String>();
+            revInterpolationTypes = new HashMap<String, Integer>();
+            r = s.executeQuery("SELECT " + INTERPTYPE_ID + ", " + INTERPTYPE_INTERPTYPE + " FROM " + TABLE_INTERPTYPE);
             while (r.next()) {
-                rangeUoms.put(r.getInt("id"), r.getString("uom"));
-                revRangeUoms.put(r.getString("uom"), r.getInt("id"));
-            }            
-
+                interpolationTypes.put(r.getInt(INTERPTYPE_ID), r.getString(INTERPTYPE_INTERPTYPE));
+                revInterpolationTypes.put(r.getString(INTERPTYPE_INTERPTYPE), r.getInt(INTERPTYPE_ID));
+            }
+            
+            /* PS_NULLRESISTANCE */
+            nullResistances = new HashMap<Integer, String>();
+            revNullResistances = new HashMap<String, Integer>();
+            r = s.executeQuery("SELECT " + NULLRESISTANCE_ID + ", " + NULLRESISTANCE_NULLRESISTANCE + " FROM " + TABLE_NULLRESISTANCE);
+            while (r.next()) {
+                nullResistances.put(r.getInt(NULLRESISTANCE_ID), r.getString(NULLRESISTANCE_NULLRESISTANCE));
+                revNullResistances.put(r.getString(NULLRESISTANCE_NULLRESISTANCE), r.getInt(NULLRESISTANCE_ID));
+            }
+            
+            /* PS_CRS */
+            // NOTE: here only the CRS URI are stored, afterwards the parser will create ad-hoc objects.
             crss = new HashMap<Integer, String>();
             revCrss = new HashMap<String, Integer>();
-            r = s.executeQuery("SELECT id, name FROM PS_Crs");
-
+            r = s.executeQuery("SELECT " + CRS_ID + ", " + CRS_NAME + " FROM " + TABLE_CRS);
             while (r.next()) {
-                crss.put(r.getInt("id"), r.getString("name"));
-                revCrss.put(r.getString("name"), r.getInt("id"));
+                crss.put(r.getInt(CRS_ID), r.getString(CRS_NAME));
+                revCrss.put(r.getString(CRS_NAME), r.getInt(CRS_ID));
             }
-
+            
+            /* PS_FORMAT */
             gdalFormatsIds = new HashMap<String, String>();
             revGdalFormatsIds = new HashMap<String, String>();
             supportedFormats = new HashMap<String, String>();
             revSupportedFormats = new HashMap<String, String>();
-            r = s.executeQuery("SELECT name, mimetype, gdalid FROM PS_Format");
-
+            r = s.executeQuery("SELECT " + 
+                    FORMAT_NAME     + ", " + 
+                    FORMAT_MIMETYPE + ", " + 
+                    FORMAT_GDALID   + " FROM " + TABLE_FORMAT);
             while (r.next()) {
-                supportedFormats.put(r.getString("name"), r.getString("mimetype"));
-                revSupportedFormats.put(r.getString("mimetype"), r.getString("name"));
-                gdalFormatsIds.put(r.getString("gdalid"), r.getString("name"));
-                revGdalFormatsIds.put(r.getString("name"), r.getString("gdalid"));
+                supportedFormats.put(r.getString(FORMAT_NAME), r.getString(FORMAT_MIMETYPE));
+                revSupportedFormats.put(r.getString(FORMAT_MIMETYPE), r.getString(FORMAT_NAME));
+                gdalFormatsIds.put(r.getString(FORMAT_GDALID), r.getString(FORMAT_NAME));
+                revGdalFormatsIds.put(r.getString(FORMAT_NAME), r.getString(FORMAT_GDALID));
             }
-
+            
+            /* PS_UOM : for ps_range UoMs*/
+            supportedRangeUoms = new HashMap<Integer, String>();
+            revSupportedRangeUoms = new HashMap<String, Integer>();
+            r = s.executeQuery("SELECT " + UOM_ID + "," + UOM_UOM + " FROM " + TABLE_UOM);
+            while (r.next()) {
+                supportedRangeUoms.put(r.getInt(UOM_ID), r.getString(UOM_UOM));
+                revSupportedRangeUoms.put(r.getString(UOM_UOM), r.getInt(UOM_ID));
+            }
             s.close();
-
-            /* Debug checks for reverse static tables */
-//            log(revAxisTypes.toString());
-//            log(revCrss.toString());
-//            log(revDataTypes.toString());
-//            log(revInterpolationTypes.toString());
-//            log(revNullResistances.toString());
-//            log(revSupportedFormats.toString());
-
-            /* Check Metadata consistency at startup, if needed */
+            
+            /* Check CoverageMetadata consistency at startup, if needed */
             this.checkAtInit = checkAtInit;
-
+            
             if (checkAtInit) {
                 initializing = true;
                 boolean coveragesOk = false;
-
+                
                 while (!coveragesOk) {
                     Iterator<String> coverages = coverages().iterator();
                     while (coverages.hasNext()) {
@@ -228,7 +306,7 @@ public class DbMetadataSource implements IMetadataSource {
                 }
                 initializing = false;
             }
-
+            
         } catch (SQLException sqle) {
             if (s != null) {
                 try {
@@ -236,15 +314,15 @@ public class DbMetadataSource implements IMetadataSource {
                 } catch (SQLException e) {
                 }
             }
-
+            
             close();
-
+            
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error", sqle);
         }
-
+        
     }
-
+    
     public void close() {
         if (conn != null) {
             try {
@@ -254,27 +332,28 @@ public class DbMetadataSource implements IMetadataSource {
             conn = null;
         }
     }
-
+    
     /* List all available coverages */
     @Override
     public Set<String> coverages() throws PetascopeException {
         Statement s = null;
         Set<String> coverages;
-
+        
         try {
             ensureConnection();
             s = conn.createStatement();
-
-            ResultSet r = s.executeQuery("SELECT name FROM ps_coverage");
-
-            coverages = new HashSet<String>();
-
+            
+            ResultSet r = s.executeQuery(
+                    "SELECT " + COVERAGE_NAME + 
+                    " FROM "  + TABLE_COVERAGE +
+                    " WHERE " + COVERAGE_VISIBLE + "= " + KEYWORD_TRUE);
+            coverages = new HashSet<String>(r.getFetchSize());
+            
             while (r.next()) {
-                coverages.add(r.getString("name"));
+                coverages.add(r.getString(COVERAGE_NAME));
             }
-
             s.close();
-
+            
             return coverages;
         } catch (SQLException sqle) {
             if (s != null) {
@@ -283,14 +362,14 @@ public class DbMetadataSource implements IMetadataSource {
                 } catch (SQLException f) {
                 }
             }
-
+            
             close();
-
+            
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error", sqle);
         }
     }
-
+    
     /**
      * Fetches Coverage Data from Non-Raster Coverage created in PetascopeDB
      * @param schemaName
@@ -300,74 +379,69 @@ public class DbMetadataSource implements IMetadataSource {
      * @return
      * @throws PetascopeException
      */
-    public String coverageData(String schemaName, String coverageID, String coverageName, 
-                               List<CellDomainElement> cellDomainList) throws PetascopeException {
+    public String coverageData(String schemaName, String coverageID, String coverageName,
+            List<CellDomainElement> cellDomainList) throws PetascopeException {
         
         Statement s = null;
         int pointCount = 0;
-
+        
         try {
             ensureConnection();
             s = conn.createStatement();
-
+            
             String genQuery = "SELECT * FROM " + schemaName + " WHERE coverage=" + coverageID;
-
+            
             ResultSet r = s.executeQuery(genQuery);
             String pointMembers = "";
-
+            
             while (r.next()) {
                 
                 String tuple = "";
                 boolean isInSubset = true;
                 int count = 0;
-
+                
                 for (CellDomainElement cell : cellDomainList){
-
+                    
                     double columnValue = r.getDouble(count+3);
                     Double low = Double.parseDouble(cell.getLo().toString());
                     Double high = Double.parseDouble(cell.getHi().toString());
                     GetCoverageRequest.DimensionSubset subset = cell.getSubsetElement();
-
+                    
                     if(columnValue >= low && columnValue <= high){
-
                         /* ignore the dimension for the slicePoint if subsetting operation is slicing */
                         if(subset instanceof GetCoverageRequest.DimensionTrim || low.compareTo(high) != 0){
-
-                            if((count+1) != cellDomainList.size())
+                            if((count+1) != cellDomainList.size()) {
                                 tuple += Double.toString(columnValue) + " ";
-                            else
+                            } else {
                                 tuple += Double.toString(columnValue);
+                            }
                         }
-                    }else{
+                    } else {
                         isInSubset = false;
                     }
-
                     count++;
                 }
-
+                
                 if(isInSubset){
-
+                    
                     String rowID = "p" + (++pointCount) + "_" + coverageName;
-
-                    if(pointMembers!=null)
-
-                      pointMembers += Templates.getTemplate(Templates.MULTIPOINT_POINTMEMBERS,
-                      Pair.of("\\{gmlPointId\\}", rowID),
-                      Pair.of("\\{gmlPos\\}", tuple));
-
-                    else
-
-                      pointMembers = Templates.getTemplate(Templates.MULTIPOINT_POINTMEMBERS,
-                      Pair.of("\\{gmlPointId\\}", rowID),
-                      Pair.of("\\{gmlPos\\}", tuple));
-
+                    
+                    if(pointMembers!=null) {                        
+                        pointMembers += Templates.getTemplate(Templates.MULTIPOINT_POINTMEMBERS,
+                                Pair.of("\\{gmlPointId\\}", rowID),
+                                Pair.of("\\{gmlPos\\}", tuple));
+                    } else {                        
+                        pointMembers = Templates.getTemplate(Templates.MULTIPOINT_POINTMEMBERS,
+                                Pair.of("\\{gmlPointId\\}", rowID),
+                                Pair.of("\\{gmlPos\\}", tuple));
+                    }
                     pointMembers += "\n";
-                }               
+                }
             }
-
+            
             s.close();
             return pointMembers;
-
+            
         } catch (SQLException sqle) {
             if (s != null) {
                 try {
@@ -375,22 +449,25 @@ public class DbMetadataSource implements IMetadataSource {
                 } catch (SQLException f) {
                 }
             }
-
+            
             close();
-
+            
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error", sqle);
         }
     }
-
+    
     public String coverageType(String coverageId) throws PetascopeException {
         Statement s = null;
         try {
             ensureConnection();
             s = conn.createStatement();
-            ResultSet r = s.executeQuery("SELECT type FROM ps_coverage WHERE name='" + coverageId + "'");
+            ResultSet r = s.executeQuery(
+                    " SELECT " + COVERAGE_TYPE +
+                    " FROM "   + TABLE_COVERAGE +
+                    " WHERE "  + COVERAGE_NAME + "='" + coverageId + "'");
             if (r.next()) {
-                return r.getString("type");
+                return r.getString(COVERAGE_TYPE);
             }
             throw new PetascopeException(ExceptionCode.NoSuchCoverage.locator(coverageId),
                     "Error getting coverage type.");
@@ -407,7 +484,7 @@ public class DbMetadataSource implements IMetadataSource {
             close();
         }
     }
-
+    
     /**
      * Given the CoverageName; returns the CoverageID
      * @param coverageId
@@ -419,7 +496,10 @@ public class DbMetadataSource implements IMetadataSource {
         try {
             ensureConnection();
             s = conn.createStatement();
-            ResultSet r = s.executeQuery("SELECT bbox FROM ps_coverage WHERE name='" + coverageName + "'");
+            ResultSet r = s.executeQuery(
+                    " SELECT " + COVERAGE_ID +
+                    " FROM "   + TABLE_COVERAGE +
+                    " WHERE "  + COVERAGE_NAME + "='" + coverageName + "'");
             if (r.next()) {
                 return r.getString("id");
             }
@@ -438,217 +518,191 @@ public class DbMetadataSource implements IMetadataSource {
             close();
         }
     }
-        
+    
     @Override
     public String formatToMimetype(String format) {
         return supportedFormats.get(format);
     }
-
+    
     @Override
-    public Metadata read(String coverageName) throws PetascopeException {
+    public CoverageMetadata read(String coverageName) throws PetascopeException {
+        log.debug("Reading metadata for coverage '{}'", coverageName);
+        
         if ((coverageName == null) || coverageName.equals("")) {
             throw new PetascopeException(ExceptionCode.InvalidRequest,
                     "Cannot retrieve coverage with null or empty name");
         }
         if (cache.containsKey(coverageName)) {
-            log.trace("Returning cached coverage metadata for '{}'", coverageName);
+            log.trace("Returning cached coverage metadata.");
             return cache.get(coverageName);
         }
-        log.debug("Reading metadata for coverage '{}'", coverageName);
-
+        
         Statement s = null;
-
+        
         try {
             ensureConnection();
             s = conn.createStatement();
-
-            ResultSet r = null;
-                r = s.executeQuery("SELECT id, type, nullDefault, interpolationTypeDefault, nullResistanceDefault FROM PS_Coverage WHERE name = '" + coverageName + "'");
-
+            
+            /* PS_COVERAGE */
+            ResultSet r = s.executeQuery(
+                    " SELECT " +
+                    COVERAGE_ID + ", " +
+                    COVERAGE_TYPE + ", " +
+                    COVERAGE_NULLDEFAULT + ", " +
+                    COVERAGE_INTERPTYPEDEFAULT + ", " +
+                    COVERAGE_NULLRESDEFAULT + ", " +
+                    COVERAGE_CRS +
+                    " FROM "  + TABLE_COVERAGE +
+                    " WHERE " + COVERAGE_NAME + "='" + coverageName + "'");
             if (!r.next()) {
                 throw new PetascopeException(ExceptionCode.InvalidRequest,
                         "Coverage '" + coverageName + "' is not served by this server");
             }
+            
+            int coverage                    = r.getInt(COVERAGE_ID);
+            String coverageType             = r.getString(COVERAGE_TYPE);
+            String nullDefault              = r.getString(COVERAGE_NULLDEFAULT);
+            String interpolationTypeDefault = interpolationTypes.get(r.getInt(COVERAGE_INTERPTYPEDEFAULT));
+            String nullResistanceDefault    = nullResistances.get(r.getInt(COVERAGE_NULLRESDEFAULT));
+            InterpolationMethod interpDef   = new InterpolationMethod(interpolationTypeDefault, nullResistanceDefault);
+            String crsUri                   = crss.get(r.getInt(COVERAGE_CRS));
+            
+            /* If not previously cached, fetch CRS definition(s) from URI */
+            /* PURPOSE: axes semantic and order are not available from the database,
+             * but only from CRS definition (robustness).
+             * NOTE1: it can be a Compound-CRS: (important) transfer all axis of different CRS into a one ordered array (List<CrsDefinition.Axis>).
+             * NOTE2: CRS URI equivalence needs to be checked (SOAP/KVP).
+             */
+            List<CrsDefinition> crsDefs   = new ArrayList<CrsDefinition>();
+            List<String> atomicUris       = CrsUtil.CrsUri.decomposeUri(crsUri);
+            List<CrsDefinition.Axis> axes = new ArrayList<CrsDefinition.Axis>(); // while I decode the (C)CRS I keep trace of the number of axis: consistency check.
+            List<String> axesCrs          = new ArrayList<String>(); // To ease the axis association of CRS: each CRS can have a different dimension.
+            for (String uri : atomicUris) {
+                // Decode URI from either resolver query or cache:
+                log.info("Decoding " + uri + " ...");
+                crsDefs.add(CrsUtil.parseGmlDefinition(uri));
+                axes.addAll(crsDefs.get(crsDefs.size()-1).getAxes());
+                for (CrsDefinition.Axis axis : axes) {
+                    axesCrs.add(uri); // Eg both X and Y axis are associated to the same CRS.
+                }
+            }
 
-            int coverage = r.getInt("id");
-            String coverageType = r.getString("type");
-            String nullDefault = r.getString("nullDefault");
-            String interpolationTypeDefault = interpolationTypes.get(r.getInt("interpolationTypeDefault"));
-            String nullResistanceDefault = nullResistances.get(r.getInt("nullResistanceDefault"));
-
-            //r = s.executeQuery("SELECT lo, hi FROM PS_CellDomain WHERE coverage = '" + coverage + "' ORDER BY i ASC");
-            r = s.executeQuery("SELECT name, lo, hi FROM ps_domain, ps_celldomain "
-                    + "WHERE ps_domain.coverage = ps_celldomain.coverage "
-                    + "AND ps_domain.i = ps_celldomain.i "
-                    + "AND ps_celldomain.coverage = '" + coverage + "' "
-                    + "ORDER BY ps_celldomain.i ASC");
-            CellDomainElement X = null, Y = null, cell;
-            boolean twoDCoverage = true;
-            List<CellDomainElement> cellDomain = new ArrayList<CellDomainElement>();
-
-            while (r.next()) {
-                cell = new CellDomainElement(BigInteger.valueOf(r.getInt("lo")), BigInteger.valueOf(r.getInt("hi")), r.getString("name"));
+            log.trace("(!) Coverage " + coverageName + " CRS decoded: it has " + axes.size() + (axes.size()>1?" axes":" axis") + ".");
+            
+            /* PS_DOMAIN */
+            // Now transfer the CRS data to each axis of the coverage.
+            // NOTE1: load them following the `i' order so as to match CRS axis order.
+            // NOTE2: axes semantic is then read from CrsDefinition, not from database.
+            r = s.executeQuery("SELECT " +
+                    DOMAIN_ID + ", " +
+                    DOMAIN_MINVALUE      + ", " + DOMAIN_MAXVALUE     + ", " +
+                    DOMAIN_ISIRREGULAR   +
+                    " FROM "     + TABLE_DOMAIN +
+                    " WHERE "    + DOMAIN_COVERAGE + "='" + coverage + "'" +
+                    " ORDER BY " + DOMAIN_I);
+            
+            CellDomainElement cell;
+            DomainElement     dom;
+            List<CellDomainElement> cellDomain = new ArrayList<CellDomainElement>(r.getFetchSize());
+            List<DomainElement>     domain     = new ArrayList<DomainElement>(r.getFetchSize());
+            
+            // Consistency check: decoded axes from CRS definition MUST match the number of axes in the database.
+            if (axes.size() != r.getFetchSize()) {
+                //throw new PetascopeException(ExceptionCode.InvalidMetadata,
+                //    "Coverage" + coverageName + " has " + r.getFetchSize() +
+                //    " but its CRS (" + crsUri + ") defines " + axes.size() + " axis instead!");
+                // NOTE: getFetchSize() always returns '0'! Don't rely on it, and use `while(r.next())'.
+            }            
+            
+            // Now create the Java objects:
+            int ind = 0;
+            Pair<String, String> cellDimensions;
+            while(r.next()) {
+                
+                // Fetch pixel dimensions from rasdaman
+                cellDimensions = getImageDomain(coverageName, ind);
+                
+                // CellDomain
+                cell = new CellDomainElement(
+                        BigInteger.valueOf(Integer.parseInt(cellDimensions.fst)),
+                        BigInteger.valueOf(Integer.parseInt(cellDimensions.snd)),
+                        axes.get(ind),
+                        ind);
+                // Note: need direction as well for a (-1) factor on pixel index translation (e.g. height/depth).
                 cellDomain.add(cell);
-                if (X == null && cell.getName().equalsIgnoreCase("x")) {
-                    X = cell;
-                } else if (Y == null && cell.getName().equalsIgnoreCase("y")) {
-                    Y = cell;
-                } else {
-                    twoDCoverage = false;
-                }
-            }
-            if (X == null || Y == null) {
-                twoDCoverage = false;
-            }
-
-            r = s.executeQuery("SELECT name, type, uom FROM PS_Range WHERE coverage = '" + coverage + "' ORDER BY i ASC");
-            List<RangeElement> range = new ArrayList<RangeElement>();
-
-            while (r.next()) {
-                range.add(new RangeElement(r.getString("name"), dataTypes.get(r.getInt("type")), rangeUoms.get(r.getInt("uom"))));
-            }
-
-            r = s.executeQuery("SELECT interpolationType, nullResistance FROM PS_InterpolationSet WHERE coverage = '" + coverage + "'");
-            Set<InterpolationMethod> interpolationSet = new HashSet<InterpolationMethod>();
-
-            while (r.next()) {
-                interpolationSet.add(new InterpolationMethod(interpolationTypes.get(r.getInt("interpolationType")), nullResistances.get(r.getInt("nullResistance"))));
-            }
-
-            r = s.executeQuery("SELECT nullValue FROM PS_NullSet WHERE coverage = '" + coverage + "'");
-            Set<String> nullSet = new HashSet<String>();
-
-            while (r.next()) {
-                nullSet.add(r.getString("nullValue"));
-            }
-
-            r = s.executeQuery("SELECT id, name, type, numLo, numHi, strLo, strHi, uom FROM PS_Domain WHERE coverage = '" + coverage + "' ORDER BY i ASC");
-            List<DomainElement> domain = new ArrayList<DomainElement>();
-            Statement ss = conn.createStatement();
-
-            while (r.next()) {
-                String strLo = r.getString("strLo");
-                String strHi = r.getString("strHi");
-
-                Double numLo = r.getDouble("numLo");
-
-                if (r.wasNull()) {
-                    numLo = null;
-                }
-
-                Double numHi = r.getDouble("numHi");
-
-                if (r.wasNull()) {
-                    numHi = null;
-                }
-
-                ResultSet rr = ss.executeQuery("SELECT crs FROM PS_CrsSet WHERE axis = '" + r.getInt("id") + "'");
+                log.debug("Added cellDomain element: " + cell);
                 
-                Set<String> crsSet = new HashSet<String>();
-                int count = 0;
-                while (rr.next()) {
-                    if (count > 0) {
-                        log.warn("Multiple CRSs associated with the axis \"" + r.getString("name") + "\" of coverage " + coverageName 
-                                + "; only the first will be considered.");
-                        break;
-                    }
-                    crsSet.add(crss.get(rr.getInt("crs")));
-                    ++count;
-                }
+                // Check regularity of the axis:
+                boolean isIrregular = r.getBoolean(DOMAIN_ISIRREGULAR);
                 
-                DomainElement d = new DomainElement(r.getString("name"), axisTypes.get(r.getInt("type")),
-                        numLo, numHi, strLo, strHi, crsSet, axisTypes.values(), r.getString("uom"));
-                d.setResolution(cellDomain.get(domain.size()).getHi().subtract(cellDomain.get(domain.size()).getLo()).intValue()+1);
-                domain.add(d);
+                // GML pending issues: http://212.201.49.163/trac/wiki/OgcStandardsIssues
+                // Temporarily inhibit the use of irregular axes:
+                //if (isIrregular) {
+                //    throw new PetascopeException(ExceptionCode.InvalidMetadata,
+                //            "Axis " + axes.get(ind).getType() + " of coverage " + coverageName +
+                //            " is irregular, but irregular axes are still inhibited for GML related issues.");
+                //}
+                
+                // domain
+                dom = new DomainElement(
+                        r.getString(DOMAIN_MINVALUE),
+                        r.getString(DOMAIN_MAXVALUE),
+                        axes.get(ind),
+                        axesCrs.get(ind),
+                        ind,
+                        Integer.parseInt(cellDimensions.snd)-Integer.parseInt(cellDimensions.fst)+1,
+                        isIrregular);
+                domain.add(dom);
+                log.debug("Added domain element: " + dom);
+                
+                ind += 1;
             }
-
-            String abstr = "";
-            String title = "";
-            String keywords = "";
-            r = s.executeQuery("SELECT title, abstract, keywords FROM PS_Descriptions WHERE coverage = '" + coverage + "'");
+            
+            /* PS_RANGE */
+            // TODO: ps_uom table is still empty.
+            r = s.executeQuery(
+                    " SELECT " + RANGE_NAME + "," + RANGE_TYPE + "," + RANGE_UOM +
+                    " FROM "   + TABLE_RANGE + " WHERE " + RANGE_COVERAGE + "='" + coverage + "' ORDER BY " + RANGE_I + " ASC");
+            List<RangeElement> range = new ArrayList<RangeElement>(r.getFetchSize());
+            while (r.next()) {
+                range.add(new RangeElement(r.getString(RANGE_NAME), dataTypes.get(r.getInt(RANGE_TYPE)), supportedRangeUoms.get(r.getInt(RANGE_UOM))));
+            }
+            
+            /* PS_INTERPOLATIONSET */
+            r = s.executeQuery(
+                    " SELECT " + INTERPSET_INTERPTYPE + "," + INTERPSET_NULLRESISTANCE +
+                    " FROM "   + TABLE_INTERPSET +
+                    " WHERE "  + INTERPSET_COVERAGE + "='" + coverage + "'");
+            Set<InterpolationMethod> interpolationSet = new HashSet<InterpolationMethod>(r.getFetchSize());
+            while (r.next()) {
+                interpolationSet.add(new InterpolationMethod(
+                        interpolationTypes.get(r.getInt(INTERPSET_INTERPTYPE)),
+                        nullResistances.get(r.getInt(INTERPSET_NULLRESISTANCE))));
+            }
+            
+            /* PS_NULLSET */
+            r = s.executeQuery(
+                    " SELECT " + NULLSET_NULLVALUE + " FROM " + TABLE_NULLSET +
+                    " WHERE "  + NULLSET_COVERAGE + "='" + coverage + "'");
+            Set<String> nullSet = new HashSet<String>(r.getFetchSize());
+            while (r.next()) {
+                nullSet.add(r.getString(NULLSET_NULLVALUE));
+            }
+            
+            /* PS_DESCRIPTIONS */
+            String abstr = new String();
+            String title = new String();
+            String keywords = new String();
+            r = s.executeQuery(
+                    "SELECT " +
+                    DESCRIPTIONS_TITLE + "," +
+                    DESCRIPTIONS_ABSTRACT + "," +
+                    DESCRIPTIONS_KEYWORDS +
+                    " FROM " + TABLE_DESCRIPTIONS + " WHERE " + DESCRIPTIONS_COVERAGE + "='" + coverage + "'");
             if (r.next()) {
-                abstr = r.getString("abstract");
-                title = r.getString("title");
-                keywords = r.getString("keywords");
-            }
-
-            /* WGS84 is the only CRS we understand (except IMAGE_CRS, of course) */
-            //Wgs84Crs crs = null;
-            /* CRS-extension: store BBOX regardless of its CRS */
-            Bbox bbox = null;
-            Double l1 = 0.0, l2 = 0.0, h1 = 0.0, h2 = 0.0;
-            Double o1 = null, o2 = null;
-            r = s.executeQuery("SELECT * FROM PS_CrsDetails WHERE coverage = '" + coverage + "'");
-            if (r.next()) {
-                /* Domain extent */
-                int x0 = (X==null) ? null : X.getLo().intValue();
-                int y0 = (Y==null) ? null : Y.getLo().intValue();
-                int x1 = (X==null) ? null : X.getHi().intValue();
-                int y1 = (Y==null) ? null : Y.getHi().intValue();
-                /* CRS Bounding box */
-                l1 = r.getDouble("low1");
-                l2 = r.getDouble("low2");
-                h1 = r.getDouble("high1");
-                h2 = r.getDouble("high2");
-                String off1 = r.getString("offset1");
-                String off2 = r.getString("offset2");
-                if (off1 != null) {
-                    o1 = Double.parseDouble(off1);
-                }
-                if (off2 != null) {
-                    o2 = Double.parseDouble(off2);
-                }
-                /* Compute axis offsets if not predefined */
-                if (o1 == null && o2 == null) {
-                    // Use BigDecimals to avoid finite arithemtic rounding issues of Doubles
-                    // X
-                    BigDecimal maxBD = BigDecimal.valueOf(h1);
-                    BigDecimal minBD = BigDecimal.valueOf(l1);
-                    BigDecimal dimBD = BigDecimal.valueOf(x1 - x0 + 1);
-                    BigDecimal diffBD = maxBD.subtract(minBD);
-                    BigDecimal resBDx = diffBD.divide(dimBD, RoundingMode.UP);
-                    // Y
-                    maxBD = BigDecimal.valueOf(h1);
-                    minBD = BigDecimal.valueOf(l1);
-                    dimBD = BigDecimal.valueOf(x1 - x0 + 1);
-                    diffBD = maxBD.subtract(minBD);
-                    BigDecimal resBDy = diffBD.divide(dimBD, RoundingMode.UP);
-                    
-                    o1 = resBDx.doubleValue();
-                    o2 = resBDy.doubleValue();
-                    
-                    log.debug("Calculated CRS axis offsets. For X: {}, for Y: {}", o1, o2);
-                    log.debug(X.toString());
-                    log.debug(Y.toString());
-                }
-                
-                
-                // Read CRS specification of X axis (=Y) of this coverage and create the BBOX:
-                String crsName = null;
-                r = s.executeQuery(""
-                        + "SELECT ps_crs.name FROM ps_crs, ps_crsset, ps_domain, ps_coverage " 
-                        + "WHERE ps_crs.id=ps_crsset.crs "
-                        + "AND ps_crsset.axis=ps_domain.id "
-                        + "AND ps_domain.coverage=ps_coverage.id "
-                        + "AND ps_domain.name='x' " // or 'y', it's the same.
-                        + "AND ps_coverage.id='" + coverage + "'");
-                if (r.next()) {
-                    crsName = r.getString("name");
-                    log.debug("Read spatial CRS of coverage " + coverageName + ": " + crsName);
-                }
-                /* Only store CRS information if coverage is 2-D */
-                //crs = new Wgs84Crs(l1, h1, l2, h2, o1, o2);
-                /* CRS-Extension: store general BBOX information (can be !WGS84) */
-                bbox = new Bbox(crsName, l1, h1, l2, h2, o1, o2);
-
-                if (twoDCoverage == true) {                    
-                    log.trace("Found CRS : ", bbox.toString());
-                } else {
-                    log.warn("Found CRS '{}', but coverage is not 2-dimensional. "
-                            + "Ignoring CRS information.", bbox.toString());                    
-                }
-            } else if (twoDCoverage) {
-                log.warn(" Bounding box missing for 2-D coverage '" + coverageName + "'...");
+                abstr    = r.getString(DESCRIPTIONS_ABSTRACT);
+                title    = r.getString(DESCRIPTIONS_TITLE);
+                keywords = r.getString(DESCRIPTIONS_KEYWORDS);
             }
             
             r = s.executeQuery("SELECT metadata FROM ps_metadata WHERE coverage = " + coverage);
@@ -659,16 +713,19 @@ public class DbMetadataSource implements IMetadataSource {
 
             /* Done with SQL statements */
             s.close();
-
+            
             /* Build the complete metadata object */
-            Metadata meta = new Metadata(cellDomain, range, nullSet, nullDefault, interpolationSet,
-                    new InterpolationMethod(interpolationTypeDefault, nullResistanceDefault),
-                    coverageName, coverageType, domain, bbox, title, abstr, keywords);
-            meta.setCoverageId(coverage);
-            meta.setMetadata(metadata);
+            // NOTE: create a Bbox object with list of axis/extents or just let CoverageMetadata have a getBbox method?
+            // `domain' object has the required metadata to deduce the Bbox of the coverage.
+            CoverageMetadata covMeta = new CoverageMetadata(
+                    coverageName,    coverageType,    crsUri,          domain,            cellDomain,
+                    range,           nullSet,         nullDefault,     interpolationSet,  interpDef,
+                    title,           abstr,           keywords);
+            covMeta.setCoverageId(coverage);
+            covMeta.setMetadata(metadata);
             log.trace("Caching coverage metadata.");
-            cache.put(coverageName, meta);
-            return meta;
+            cache.put(coverageName, covMeta);
+            return covMeta;
         } catch (PetascopeException ime) {
             log.error("Failed reading metadata", ime);
             if (checkAtInit && !initializing) {
@@ -690,16 +747,15 @@ public class DbMetadataSource implements IMetadataSource {
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error", sqle);
         }
-
     }
-
+    
     /** Write a coverage's metadata to the database. This function can be used
-     * for both inserting new coverages and updating coverage metadata. 
+     * for both inserting new coverages and updating coverage metadata.
      *
-     * @param meta Metadata container for the information to be stored in the metadata database
+     * @param meta CoverageMetadata container for the information to be stored in the metadata database
      * @param commit Boolean value, specifying if we want to commit immediately or not
      */
-    private void write(Metadata meta, boolean commit) throws PetascopeException {
+    private void write(CoverageMetadata meta, boolean commit) throws PetascopeException {
         String coverageName = meta.getCoverageName();
         if (existsCoverageName(coverageName)) {
             updateCoverageMetadata(meta, commit);
@@ -707,25 +763,25 @@ public class DbMetadataSource implements IMetadataSource {
             insertNewCoverageMetadata(meta, commit);
         }
     }
-
-    public void delete(Metadata meta, boolean commit) throws PetascopeException {
+    
+    public void delete(CoverageMetadata meta, boolean commit) throws PetascopeException {
         String coverageName = meta.getCoverageName();
         if (existsCoverageName(coverageName) == false) {
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Cannot delete inexistent coverage: " + coverageName);
         }
-
+        
         /* Delete main coverage entry from "PS_Coverage". Auxiliary metadata are
          * automatically deleted by the DB (via CASCADING) on
          * deletion of the main entry in ps_coverage */
         Statement s = null;
         try {
             s = conn.createStatement();
-            setQuery("DELETE FROM PS_Coverage WHERE name = '" + coverageName + "'");
+            setQuery("DELETE FROM " + TABLE_COVERAGE + " WHERE " + COVERAGE_NAME + "='" + coverageName + "'");
             int count = s.executeUpdate(query);
             log.trace("Affected rows: " + count);
             s.close();
-
+            
             if (commit) {
                 commitAndClose();
             }
@@ -738,7 +794,7 @@ public class DbMetadataSource implements IMetadataSource {
             }
         }
     }
-
+    
     /**
      * Check if there is metadata available for a given coverage name
      * @param name coverage name
@@ -750,7 +806,10 @@ public class DbMetadataSource implements IMetadataSource {
         try {
             ensureConnection();
             s = conn.createStatement();
-            setQuery("SELECT * FROM PS_Coverage WHERE name = '" + name + "'");
+            setQuery(
+                    "SELECT * FROM " + TABLE_COVERAGE + 
+                    " WHERE " + COVERAGE_NAME + "='" + name + "'" +
+                    " AND "   + COVERAGE_VISIBLE + "= " + KEYWORD_TRUE);
             ResultSet r = s.executeQuery(query);
             if (r.next()) {
                 result = true;
@@ -768,7 +827,7 @@ public class DbMetadataSource implements IMetadataSource {
         }
         return result;
     }
-
+    
     /**
      * Check if there exists a coverage with a given ID in the metadata database.
      * @param id coverage id
@@ -780,7 +839,9 @@ public class DbMetadataSource implements IMetadataSource {
         try {
             s = conn.createStatement();
             ResultSet r = s.executeQuery(
-                    "SELECT * FROM PS_Coverage WHERE id = '" + id + "'");
+                    "SELECT * FROM " + TABLE_COVERAGE + 
+                    " WHERE " + COVERAGE_ID      + "='" + id + "'" +
+                    " AND "   + COVERAGE_VISIBLE + "= " + KEYWORD_TRUE);
             if (r.next()) {
                 result = true;
             } else {
@@ -788,281 +849,206 @@ public class DbMetadataSource implements IMetadataSource {
             }
             s.close();
         } catch (SQLException e) {
+            log.error(e.getMessage());
             e.printStackTrace();
         } finally {
             try {
                 s.close();
             } catch (Exception e) {
+                log.error(e.getMessage());
             }
         }
         log.trace("Coverage with ID " + id + (result == false ? " does not " : "") + " exists.");
         return result;
     }
-
-    /** Update metadata for an existing coverage. All information may change (including 
+    
+    /** Update metadata for an existing coverage. All information may change (including
      * name), but the ID of the tuple in PS_Coverage will stay the same.
      *
-     * @param meta Metadata object, container of the new information.
+     * @param meta CoverageMetadata object, container of the new information.
      * @param commit True if we want to commit immediately, false to delay commit indefinitely
      */
-    public void updateCoverageMetadata(Metadata meta, boolean commit) throws PetascopeException {
+    public void updateCoverageMetadata(CoverageMetadata meta, boolean commit) throws PetascopeException {
         Statement s = null;
         int coverageId = meta.getCoverageId();
         int count = -1;
         String coverageName = meta.getCoverageName();
-
+        
         try {
             ensureConnection();
             s = conn.createStatement();
-
+            
             String name = coverageName;
             String nulldefault = meta.getNullDefault();
             int interpolatiotypendefault = revInterpolationTypes.get(meta.getInterpolationDefault());
             int nullresistancedefault = revNullResistances.get(meta.getNullResistanceDefault());
-
-            // Table PS_Coverage
-            setQuery("UPDATE PS_Coverage SET "
-                    + "(name, nullDefault, interpolationTypeDefault, nullResistanceDefault) "
-                    + " = ('" + name + "', '" + nulldefault + "', '"
-                    + interpolatiotypendefault + "', '" + nullresistancedefault + "')"
-                    + " WHERE id='" + coverageId + "'");
+            int crsId = revCrss.get(meta.getCrsUri()); // manca il public String getCrs();
+            
+            // Table PS_COVERAGE
+            setQuery("UPDATE " + TABLE_COVERAGE + " SET " + "(" +
+                    COVERAGE_NAME + "," +
+                    COVERAGE_NULLDEFAULT + "," +
+                    COVERAGE_INTERPTYPEDEFAULT + "," +
+                    COVERAGE_NULLRESDEFAULT +
+                    COVERAGE_CRS + ") = ('" +
+                    name + "', '" +
+                    nulldefault + "', '" +
+                    interpolatiotypendefault + "', '" +
+                    nullresistancedefault + "', " +
+                    crsId +
+                    "') WHERE " + COVERAGE_ID + "='" + coverageId + "'");
             count = s.executeUpdate(query);
             if (count <= 0) {
-                throw new SQLException("Could not update table PS_Coverage.");
+                throw new SQLException("Could not update table " + TABLE_COVERAGE + ".");
             }
-
-            // Table PS_CellDomain
+            
+            // Table PS_DOMAIN
             /* Delete old data */
-            setQuery("DELETE FROM PS_CellDomain WHERE coverage='" + coverageId + "'");
+            setQuery("DELETE FROM " + TABLE_DOMAIN + " WHERE " + DOMAIN_COVERAGE + "='" + coverageId + "'");
             count = s.executeUpdate(query);
             if (count <= 0) {
-                throw new SQLException("Could not delete old entries from table PS_CellDomain.");
+                throw new SQLException("Could not delete old entries from table " + TABLE_DOMAIN + ".");
             }
             /* Insert new data */
             Iterator<CellDomainElement> cellIt = meta.getCellDomainIterator();
-            int i = 0;
-            while (cellIt.hasNext()) {
+            Iterator<DomainElement> domIt = meta.getDomainIterator();
+            while (domIt.hasNext()) { // = while (cellIt.hasNext())
+                DomainElement dom = domIt.next();
                 CellDomainElement cell = cellIt.next();
-                setQuery("INSERT INTO PS_CellDomain (coverage, i, lo, hi) VALUES "
-                        + " ('" + coverageId + "', '" + i + "', '" + cell.getLo() + "', '"
-                        + cell.getHi() + "')");
+                
+                setQuery("INSERT INTO " + TABLE_DOMAIN + " (" +
+                        DOMAIN_COVERAGE + ", " +
+                        DOMAIN_I + ", " +
+                        DOMAIN_MINVALUE + ", " +
+                        DOMAIN_MAXVALUE + ") VALUES ('" +
+                        coverageId + "', '" +
+                        dom.getOrder() + "', '" +
+                        dom.getMinValue() + "', '" +
+                        dom.getMaxValue() + "')");
                 if (s.executeUpdate(query) <= 0) {
-                    throw new SQLException("Could not insert axis " + i + " for coverage "
-                            + coverageName + "( id " + coverageId + ") into table PS_CellDomain");
+                    throw new SQLException("Could not insert axis " + dom.getOrder() + " for coverage " +
+                            coverageName + "(id " + coverageId + ") into table " + TABLE_DOMAIN + ".");
                 }
-                i++;
             }
-
-            // Table PS_Range
+            
+            // Table PS_RANGE
             /* Delete old data */
-            setQuery("DELETE FROM PS_Range WHERE coverage='" + coverageId + "'");
+            setQuery("DELETE FROM " + TABLE_RANGE + " WHERE " + RANGE_COVERAGE + "='" + coverageId + "'");
             count = s.executeUpdate(query);
             if (count <= 0) {
-                throw new SQLException("Could not delete old entries from table PS_Range.");
+                throw new SQLException("Could not delete old entries from table " + TABLE_RANGE + ".");
             }
             /* Insert new data */
             Iterator<RangeElement> rangeIt = meta.getRangeIterator();
-            i = 0;
+            int i = 0;
             while (rangeIt.hasNext()) {
                 RangeElement range = rangeIt.next();
                 int dataType = revDataTypes.get(range.getType());
-                setQuery("INSERT INTO PS_Range (coverage, i, name, type) VALUES "
-                        + " ('" + coverageId + "', '" + i + "', '" + range.getName() + "', '"
-                        + dataType + "')");
+                int uomId = revSupportedRangeUoms.get(range.getUom());
+                
+                setQuery("INSERT INTO " + TABLE_RANGE + " (" +
+                        RANGE_COVERAGE + ", " +
+                        RANGE_I + ", " +
+                        RANGE_NAME + ", " +
+                        RANGE_TYPE + ", " +
+                        RANGE_UOM + ") VALUES ('" +
+                        coverageId + "', '" +
+                        i + "', '" +
+                        range.getName() + "', '" +
+                        dataType + "', '" +
+                        uomId + "')");
                 if (s.executeUpdate(query) <= 0) {
                     throw new SQLException("Could not insert range " + range.getName()
-                            + "( id " + i + " ) for coverage "
-                            + coverageName + "( id " + coverageId + ") into table PS_Range");
+                            + "(id " + i + ") for coverage "
+                            + coverageName + "( id " + coverageId + ") into table" + TABLE_RANGE + ".");
                 }
                 i++;
             }
-
-            // Table PS_InterpolationSet
+            
+            // Table PS_INTERPOLATIONSET
             /* Delete old data */
-            setQuery("DELETE FROM PS_InterpolationSet WHERE coverage='" + coverageId + "'");
+            setQuery("DELETE FROM " + TABLE_INTERPSET + " WHERE " + INTERPSET_COVERAGE + "='" + coverageId + "'");
             count = s.executeUpdate(query);
             if (count <= 0) {
-                throw new SQLException("Could not delete old entries from table PS_InterpolationSet.");
+                throw new SQLException("Could not delete old entries from table " + TABLE_INTERPSET + ".");
             }
             /* Insert new data */
             Iterator<InterpolationMethod> methodIt = meta.getInterpolationMethodIterator();
-            i = 0;
             while (methodIt.hasNext()) {
                 InterpolationMethod method = methodIt.next();
                 int interp = revInterpolationTypes.get(method.getInterpolationType());
                 int nullRes = revNullResistances.get(method.getNullResistance());
-                setQuery("INSERT INTO PS_InterpolationSet (coverage, interpolationType, nullResistance) VALUES "
-                        + " ('" + coverageId + "', '" + interp + "', '" + nullRes + "')");
+                setQuery("INSERT INTO " + TABLE_INTERPSET + " (" +
+                        INTERPSET_COVERAGE + ", " +
+                        INTERPSET_INTERPTYPE + ", " +
+                        INTERPSET_NULLRESISTANCE + ") VALUES ('" +
+                        coverageId + "', '" +
+                        interp + "', '" +
+                        nullRes + "')");
                 if (s.executeUpdate(query) <= 0) {
                     throw new SQLException("Could not insert interpolation method (" + method.getInterpolationType()
                             + ", " + method.getNullResistance() + " ) for coverage "
-                            + coverageName + "( id " + coverageId + ") into table PS_InterpolationSet");
+                            + coverageName + "(id " + coverageId + ") into table " + TABLE_INTERPSET + ".");
                 }
-                i++;
             }
-
-            // Table PS_NullSet
+            
+            // Table PS_NULLSET
             /* Delete old data */
-            setQuery("DELETE FROM PS_NullSet WHERE coverage='" + coverageId + "'");
+            setQuery("DELETE FROM " + TABLE_NULLSET + " WHERE " + NULLSET_COVERAGE + "='" + coverageId + "'");
             count = s.executeUpdate(query);
             if (count <= 0) {
-                throw new SQLException("Could not delete old entries from table PS_NullSet.");
+                throw new SQLException("Could not delete old entries from table " + TABLE_NULLSET + ".");
             }
             /* Insert new data */
             Iterator<String> nullIt = meta.getNullSetIterator();
             while (nullIt.hasNext()) {
                 String nullValue = nullIt.next();
-                setQuery("INSERT INTO PS_NullSet (coverage, nullValue) VALUES "
-                        + " ('" + coverageId + "', '" + nullValue + "')");
+                setQuery("INSERT INTO " + TABLE_NULLSET + " (" +
+                        NULLSET_COVERAGE + ", " +
+                        NULLSET_NULLVALUE + ") VALUES ('" +
+                        coverageId + "', '" +
+                        nullValue + "')");
                 if (s.executeUpdate(query) <= 0) {
                     throw new SQLException("Could not insert null value '" + nullValue
-                            + "' for coverage " + coverageName + "( id " + coverageId
-                            + ") into table PS_NullSet");
+                            + "' for coverage " + coverageName + "(id " + coverageId
+                            + ") into table " + TABLE_NULLSET + ".");
                 }
             }
-
-            // Tables PS_Domain and PS_CrsSet
+            
+            
+            // Table PS_DESCRIPTIONS
             /* Delete old data */
-            setQuery("SELECT * FROM PS_Domain WHERE coverage='" + coverageId + "'");
-            ResultSet r1 = s.executeQuery(query);
-            Vector axes = new Vector(5);
-            while (r1.next()) {
-                int axisId = r1.getInt("id");
-                axes.add((Integer) axisId);
-            }
-            for (i = 0; i < axes.size(); i++) {
-                int axisId = ((Integer) axes.elementAt(i)).intValue();
-                setQuery("DELETE FROM PS_CrsSet WHERE axis='" + axisId + "'");
-                count = s.executeUpdate(query);
-                /* Do not worry about inexisting entries in CRS Sets: this implementation
-                does not really use CRSs. */
-//                if (count <= 0)
-//                    throw new SQLException("Could not delete old entries from table PS_CrsSet.");
-
-            }
-
-            setQuery("DELETE FROM PS_Domain WHERE coverage='" + coverageId + "'");
+            setQuery("DELETE FROM " + TABLE_DESCRIPTIONS + " WHERE " + DESCRIPTIONS_COVERAGE + "='" + coverageId + "'");
             count = s.executeUpdate(query);
             if (count <= 0) {
-                throw new SQLException("Could not delete old entries from table PS_Domain.");
+                // Coverage descriptions are not essential, do not throw an error if missing:
+                //throw new SQLException("Could not delete old data from table " + TABLE_DESCRIPTIONS + ".");
+                log.warn("Missing descriptions from coverage " + coverageName + "(id " + coverageId + ").");
             }
             /* Insert new data */
-            Iterator<DomainElement> domIt = meta.getDomainIterator();
-            i = 0;
-            while (domIt.hasNext()) {
-                // Table PS_Domain
-                DomainElement dom = domIt.next();
-                int axisType = revAxisTypes.get(dom.getType());
-                Double numLo = dom.getNumLo();
-                Double numHi = dom.getNumHi();
-                String sNumLo = numLo == null ? "null" : "'" + numLo.toString() + "'";
-                String sNumHi = numHi == null ? "null" : "'" + numHi.toString() + "'";
-                String strLo = dom.getStrLo();
-                String strHi = dom.getStrHi();
-                if (strLo != null && strLo.equals("null") == false) {
-                    strLo = "'" + strLo + "'";
-                }
-                if (strHi != null && strHi.equals("null") == false) {
-                    strHi = "'" + strHi + "'";
-                }
-
-                String sqlQuery = "INSERT INTO PS_Domain "
-                        + "(coverage, i, name, type, numLo, numHi, strLo, strHi) VALUES "
-                        + "('" + coverageId + "', '" + i + "', '" + dom.getName() + "', '"
-                        + axisType + "', " + sNumLo + ", " + sNumHi
-                        + ", " + strLo + ", " + strHi + ")";
-                /* Need to get ID of the newly inserted tuple. Postgres has a cool construct (RETURNING),
-                 * but we can also fall-back to another generic JDBC driver */
-                int axisId = -1;
-                if (driver.equals("org.postgresql.Driver")) {
-                    /* RETURNING clause is not standard SQL, only PostgreSQL understands it*/
-                    setQuery(sqlQuery + " RETURNING id");
-
-                    ResultSet r = s.executeQuery(query);
-                    if (r.next() == false) {
-                        throw new SQLException("Could not insert domain element (i = " + i
-                                + ", name=" + dom.getName() + ", type=" + dom.getType()
-                                + ", numLo=" + dom.getNumLo() + ", numHi=" + dom.getNumHi()
-                                + ", strLo=" + dom.getStrLo() + ", strHi=" + dom.getStrHi()
-                                + ") for coverage " + coverageName + "( id " + coverageId
-                                + ") into table PS_Domain");
-                    }
-                    /* Retrieve the ID of the newly inserted tuple (PS_Domain) */
-                    axisId = r.getInt("id");
-                } else {
-                    /* Fallback to specific driver support on returning autogenerated keys. */
-                    String[] keys = new String[1];
-                    keys[0] = "id";
-                    int c = s.executeUpdate(sqlQuery, keys);
-                    if (c <= 0) {
-                        throw new SQLException("Could not insert domain element (i = " + i
-                                + ", name=" + dom.getName() + ", type=" + dom.getType()
-                                + ", numLo=" + dom.getNumLo() + ", numHi=" + dom.getNumHi()
-                                + ", strLo=" + dom.getStrLo() + ", strHi=" + dom.getStrHi()
-                                + ") for coverage " + coverageName + "( id " + coverageId
-                                + ") into table PS_Domain");
-                    }
-                    /* Retrieve the ID of the newly inserted tuple (PS_Domain) */
-                    ResultSet rr = s.getGeneratedKeys();
-                    if (rr.next() == false) {
-                        throw new SQLException("Could not retrieve ID of the newly insterted tuple in table PS_Domain.");
-                    }
-                    axisId = rr.getInt("id");
-                }
-                /* check ID */
-                if (axisId < 0) {
-                    throw new SQLException("Generated ID (" + axisId
-                            + ") for the tuple in PS_Domain is not valid !");
-                }
-
-                /* Increment axis number */
-                i++;
-
-                // Table PS_CrsSet
-                Set<String> crsSet = dom.getCrsSet();
-                Iterator<String> crsIt = crsSet.iterator();
-                while (crsIt.hasNext()) {
-                    String crs = crsIt.next();
-                    int crsId = revCrss.get(crs);
-                    setQuery("INSERT INTO PS_CrsSet (axis, crs) VALUES "
-                            + "('" + axisId + "', '" + crsId + "')");
-                    if (s.executeUpdate(query) <= 0) {
-                        throw new SQLException("Could not insert Crs " + crs
-                                + "for axis =" + axisId + " in table PS_CrsSet");
-                    }
-                }
-            }
-
-            // Table PS_Descriptions
-            /* Delete old data */
-            setQuery("DELETE FROM PS_Descriptions WHERE coverage='" + coverageId + "'");
-            count = s.executeUpdate(query);
-            /* Coverage descriptions are not essential, do not throw an error if missing */
-//            if (count <= 0)
-//                throw new SQLException("Could not delete old data from table PS_Descriptions");
-            /* Insert new data */
-            String title = meta.getTitle();
-            String abstr = meta.getAbstract();
+            String title    = meta.getTitle();
+            String abstr    = meta.getAbstract();
             String keywords = meta.getKeywords();
-            if (title != null) {
-                title = "'" + title + "'";
-            }
-            if (abstr != null) {
-                abstr = "'" + abstr + "'";
-            }
-            if (keywords != null) {
-                keywords = "'" + keywords + "'";
-            }
-            setQuery("INSERT INTO PS_Descriptions (coverage, title, abstract, keywords)"
-                    + " VALUES ('" + coverageId + "', " + title + ", " + abstr + ", " + keywords + ")");
+            if (title != null)    { title    = "'" + title    + "'"; }
+            if (abstr != null)    { abstr    = "'" + abstr    + "'"; }
+            if (keywords != null) { keywords = "'" + keywords + "'"; }
+            
+            setQuery("INSERT INTO " + TABLE_DESCRIPTIONS + " (" +
+                    DESCRIPTIONS_COVERAGE + ", " +
+                    DESCRIPTIONS_TITLE + ", " +
+                    DESCRIPTIONS_ABSTRACT + ", " +
+                    DESCRIPTIONS_KEYWORDS + ") VALUES ('" +
+                    coverageId + "', '" +
+                    title + "', '" +
+                    abstr + "', '" +
+                    keywords + "')");
             if (s.executeUpdate(query) <= 0) {
-                throw new SQLException("Could not insert descriptive metadata in table "
-                        + "PS_Descriptions for coverage " + coverageName + " (ID " + coverageId + ")");
+                throw new SQLException("Could not insert descriptive metadata in table " + TABLE_DESCRIPTIONS +
+                        " for coverage " + coverageName + " (id " + coverageId + ")");
             }
-
-
+            // End of coverage metadata update
+            
             s.close();
-
             if (commit) {
                 commitAndClose();
             }
@@ -1074,8 +1060,8 @@ public class DbMetadataSource implements IMetadataSource {
                 }
                 abortAndClose();
             } catch (SQLException f) {
+                log.warn(f.getMessage());
             }
-
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error", sqle);
         }
@@ -1083,213 +1069,161 @@ public class DbMetadataSource implements IMetadataSource {
     
     /** Insert metadata for a new coverage.
      *
-     * @param meta Metadata object, container of information
+     * @param meta CoverageMetadata object, container of information
      * @param commit Boolean value, specifying if we want to commit immediately or not
      */
-    public void insertNewCoverageMetadata(Metadata meta, boolean commit) throws PetascopeException {
+    public void insertNewCoverageMetadata(CoverageMetadata meta, boolean commit) throws PetascopeException {
         Statement s = null;
         String coverageName = meta.getCoverageName();
         int coverageId = -1;
-
+        
         try {
             ensureConnection();
             s = conn.createStatement();
-
+            
             String name = coverageName;
-            /*  FIXME: Table PS_COVERAGE: nullValue and CRS fields not USED !!! */
-//            String nullvalue = "";
-//            String crs = "";
+            /*  FIXME: Table PS_COVERAGE: nullValue not USED !!! */
+            //            String nullvalue = "";
             String nulldefault = meta.getNullDefault();
             int interpolatiotypendefault = revInterpolationTypes.get(meta.getInterpolationDefault());
             int nullresistancedefault = revNullResistances.get(meta.getNullResistanceDefault());
-
-            // Table PS_Coverage
-            String sqlQuery = "INSERT INTO PS_Coverage "
-                    + "(name, nullDefault, interpolationTypeDefault, nullResistanceDefault) "
-                    + " VALUES ('" + name + "', '" + nulldefault + "', '"
-                    + interpolatiotypendefault + "', '" + nullresistancedefault + "')";
+            String type = meta.getCoverageType();
+            String crs = meta.getCrsUri();
+            
+            // Table PS_COVERAGE
+            String sqlQuery = "INSERT INTO " + TABLE_COVERAGE + " (" +
+                    COVERAGE_NAME + ", " +
+                    COVERAGE_NULLDEFAULT + ", " +
+                    COVERAGE_INTERPTYPEDEFAULT + ", " +
+                    COVERAGE_NULLRESDEFAULT + ", " +
+                    COVERAGE_TYPE + ", " +
+                    COVERAGE_CRS + ") VALUES ('" +
+                    name + "', '" +
+                    nulldefault + "', '" +
+                    interpolatiotypendefault + "', '" +
+                    nullresistancedefault + "', '" +
+                    type + "', '" +
+                    crs + "')";
             /* Need to get ID of the newly inserted tuple. Postgres has a cool construct (RETURNING),
              * but we can also fall-back to another generic JDBC driver */
-            if (driver.equals("org.postgresql.Driver")) {
+            if (driver.equals(pgDriver)) {
                 /* RETURNING clause is not standard SQL, only PostgreSQL understands it*/
-                setQuery(sqlQuery + " RETURNING id");
-
+                setQuery(sqlQuery + " RETURNING " + COVERAGE_ID);
+                
                 ResultSet r = s.executeQuery(query);
                 if (r.next() == false) {
-                    throw new SQLException("Could not insert new coverage in table PS_Coverage.");
+                    throw new SQLException("Could not insert new coverage in table " + TABLE_COVERAGE + ".");
                 }
-                /* Retrieve the ID of the newly inserted tuple (PS_Coverage) */
-                coverageId = r.getInt("id");
+                /* Retrieve the ID of the newly inserted tuple (PS_COVERAGE) */
+                coverageId = r.getInt(COVERAGE_ID);
             } else {
                 /* Fallback to specific driver support on returning autogenerated keys. */
                 String[] keys = new String[1];
-                keys[0] = "id";
+                keys[0] = COVERAGE_ID;
                 int c = s.executeUpdate(sqlQuery, keys);
                 if (c <= 0) {
-                    throw new SQLException("Could not insert new coverage in table PS_Coverage.");
+                    throw new SQLException("Could not insert new coverage in table " + TABLE_COVERAGE + ".");
                 }
                 /* Retrieve the ID of the newly inserted tuple (PS_Coverage) */
                 ResultSet rr = s.getGeneratedKeys();
                 if (rr.next() == false) {
-                    throw new SQLException("Could not retrieve ID of the newly insterted tuple in table PS_Coverage.");
+                    throw new SQLException("Could not retrieve ID of the newly inserted tuple in table " + TABLE_COVERAGE + ".");
                 }
-                coverageId = rr.getInt("id");
+                coverageId = rr.getInt(COVERAGE_ID);
             }
             /* check ID */
             if (coverageId < 0) {
                 throw new SQLException("Generated ID (" + coverageId
-                        + ") for the tuple in PS_Coverage is not valid !");
+                        + ") for the tuple in " + TABLE_COVERAGE + " is not valid !");
             }
-
-            // Table PS_CellDomain
+            
+            // Table PS_DOMAIN
             Iterator<CellDomainElement> cellIt = meta.getCellDomainIterator();
-            int i = 0;
-            while (cellIt.hasNext()) {
+            Iterator<DomainElement> domIt = meta.getDomainIterator();
+            while (domIt.hasNext()) { // = while (cellIt.hasNext())
+                DomainElement dom = domIt.next();
                 CellDomainElement cell = cellIt.next();
-                setQuery("INSERT INTO PS_CellDomain (coverage, i, lo, hi) VALUES "
-                        + " ('" + coverageId + "', '" + i + "', '" + cell.getLo() + "', '"
-                        + cell.getHi() + "')");
+                
+                setQuery("INSERT INTO " + TABLE_DOMAIN + " (" +
+                        DOMAIN_COVERAGE + ", " +
+                        DOMAIN_I + ", " +
+                        DOMAIN_MINVALUE + ", " +
+                        DOMAIN_MAXVALUE + ") VALUES ('" +
+                        coverageId + "', '" +
+                        dom.getOrder() + "', '" +
+                        dom.getMinValue() + "', '" +
+                        dom.getMaxValue() + "')");
                 if (s.executeUpdate(query) <= 0) {
-                    throw new SQLException("Could not insert axis " + i + " for coverage "
-                            + coverageName + "( id " + coverageId + ") into table PS_CellDomain");
+                    throw new SQLException("Could not insert axis " + dom.getOrder() + " for coverage "
+                            + coverageName + "(id " + coverageId + ") into table " + TABLE_DOMAIN + ".");
                 }
-                i++;
             }
-
-            // Table PS_Range
+            
+            // Table PS_RANGE
             Iterator<RangeElement> rangeIt = meta.getRangeIterator();
-            i = 0;
+            int i = 0;
             while (rangeIt.hasNext()) {
                 RangeElement range = rangeIt.next();
                 int dataType = revDataTypes.get(range.getType());
-                setQuery("INSERT INTO PS_Range (coverage, i, name, type) VALUES "
-                        + " ('" + coverageId + "', '" + i + "', '" + range.getName() + "', '"
-                        + dataType + "')");
+                int uomId = revSupportedRangeUoms.get(range.getUom());
+                
+                setQuery("INSERT INTO " + TABLE_RANGE + " (" +
+                        RANGE_COVERAGE + ", " +
+                        RANGE_I + ", " +
+                        RANGE_NAME + ", " +
+                        RANGE_TYPE + ", " +
+                        RANGE_UOM + ") VALUES ('" +
+                        coverageId + "', '" +
+                        i + "', '" +
+                        range.getName() + "', '" +
+                        dataType + "', '" +
+                        uomId + "')");
                 if (s.executeUpdate(query) <= 0) {
                     throw new SQLException("Could not insert range " + range.getName()
                             + "( id " + i + " ) for coverage "
-                            + coverageName + "( id " + coverageId + ") into table PS_Range");
+                            + coverageName + "( id " + coverageId + ") into table " + TABLE_RANGE + ".");
                 }
                 i++;
             }
-
-            // Table PS_InterpolationSet
+            
+            // Table PS_INTERPOLATIONSET
             Iterator<InterpolationMethod> methodIt = meta.getInterpolationMethodIterator();
-            i = 0;
             while (methodIt.hasNext()) {
                 InterpolationMethod method = methodIt.next();
                 int interp = revInterpolationTypes.get(method.getInterpolationType());
                 int nullRes = revNullResistances.get(method.getNullResistance());
-                setQuery("INSERT INTO PS_InterpolationSet (coverage, interpolationType, nullResistance) VALUES "
-                        + " ('" + coverageId + "', '" + interp + "', '" + nullRes + "')");
+                
+                setQuery("INSERT INTO " + TABLE_INTERPSET + " (" +
+                        INTERPSET_COVERAGE + ", " +
+                        INTERPSET_INTERPTYPE + ", " +
+                        INTERPSET_NULLRESISTANCE + ") VALUES ('" +
+                        coverageId + "', '" +
+                        interp + "', '" +
+                        nullRes + "')");
                 if (s.executeUpdate(query) <= 0) {
                     throw new SQLException("Could not insert interpolation method (" + method.getInterpolationType()
                             + ", " + method.getNullResistance() + " ) for coverage "
-                            + coverageName + "( id " + coverageId + ") into table PS_InterpolationSet");
+                            + coverageName + "(id " + coverageId + ") into table " + TABLE_INTERPSET + ".");
                 }
-                i++;
             }
-
-            // Table PS_NullSet
+            
+            // Table PS_NULLSET
             Iterator<String> nullIt = meta.getNullSetIterator();
             while (nullIt.hasNext()) {
                 String nullValue = nullIt.next();
-                setQuery("INSERT INTO PS_NullSet (coverage, nullValue) VALUES "
-                        + " ('" + coverageId + "', '" + nullValue + "')");
+                setQuery("INSERT INTO " + TABLE_NULLSET + " (" +
+                        NULLSET_COVERAGE + ", " +
+                        NULLSET_NULLVALUE + ") VALUES ('" +
+                        coverageId + "', '" +
+                        nullValue + "')");
                 if (s.executeUpdate(query) <= 0) {
                     throw new SQLException("Could not insert null value '" + nullValue
-                            + "' for coverage " + coverageName + "( id " + coverageId
-                            + ") into table PS_NullSet");
+                            + "' for coverage " + coverageName + "(id " + coverageId
+                            + ") into table " + TABLE_NULLSET + ".");
                 }
             }
-
-            Iterator<DomainElement> domIt = meta.getDomainIterator();
-            i = 0;
-            while (domIt.hasNext()) {
-                // Table PS_Domain
-                DomainElement dom = domIt.next();
-                int axisType = revAxisTypes.get(dom.getType());
-                Double numLo = dom.getNumLo();
-                Double numHi = dom.getNumHi();
-                String sNumLo = numLo == null ? "null" : "'" + numLo.toString() + "'";
-                String sNumHi = numHi == null ? "null" : "'" + numHi.toString() + "'";
-                String strLo = dom.getStrLo();
-                String strHi = dom.getStrHi();
-                if (strLo != null && strLo.equals("null") == false) {
-                    strLo = "'" + strLo + "'";
-                }
-                if (strHi != null && strHi.equals("null") == false) {
-                    strHi = "'" + strHi + "'";
-                }
-
-                sqlQuery = "INSERT INTO PS_Domain "
-                        + "(coverage, i, name, type, numLo, numHi, strLo, strHi) VALUES "
-                        + "('" + coverageId + "', '" + i + "', '" + dom.getName() + "', '"
-                        + axisType + "', " + sNumLo + ", " + sNumHi
-                        + ", " + strLo + ", " + strHi + ")";
-                /* Need to get ID of the newly inserted tuple. Postgres has a cool construct (RETURNING),
-                 * but we can also fall-back to another generic JDBC driver */
-                int axisId = -1;
-                if (driver.equals("org.postgresql.Driver")) {
-                    /* RETURNING clause is not standard SQL, only PostgreSQL understands it*/
-                    setQuery(sqlQuery + " RETURNING id");
-
-                    ResultSet r = s.executeQuery(query);
-                    if (r.next() == false) {
-                        throw new SQLException("Could not insert domain element (i = " + i
-                                + ", name=" + dom.getName() + ", type=" + dom.getType()
-                                + ", numLo=" + dom.getNumLo() + ", numHi=" + dom.getNumHi()
-                                + ", strLo=" + dom.getStrLo() + ", strHi=" + dom.getStrHi()
-                                + ") for coverage " + coverageName + "( id " + coverageId
-                                + ") into table PS_Domain");
-                    }
-                    /* Retrieve the ID of the newly inserted tuple (PS_Domain) */
-                    axisId = r.getInt("id");
-                } else {
-                    /* Fallback to specific driver support on returning autogenerated keys. */
-                    String[] keys = new String[1];
-                    keys[0] = "id";
-                    int c = s.executeUpdate(sqlQuery, keys);
-                    if (c <= 0) {
-                        throw new SQLException("Could not insert domain element (i = " + i
-                                + ", name=" + dom.getName() + ", type=" + dom.getType()
-                                + ", numLo=" + dom.getNumLo() + ", numHi=" + dom.getNumHi()
-                                + ", strLo=" + dom.getStrLo() + ", strHi=" + dom.getStrHi()
-                                + ") for coverage " + coverageName + "( id " + coverageId
-                                + ") into table PS_Domain");
-                    }
-                    /* Retrieve the ID of the newly inserted tuple (PS_Domain) */
-                    ResultSet rr = s.getGeneratedKeys();
-                    if (rr.next() == false) {
-                        throw new SQLException("Could not retrieve ID of the newly insterted tuple in table PS_Domain.");
-                    }
-                    axisId = rr.getInt("id");
-                }
-                /* check ID */
-                if (axisId < 0) {
-                    throw new SQLException("Generated ID (" + axisId
-                            + ") for the tuple in PS_Domain is not valid !");
-                }
-
-                /* Increment axis number */
-                i++;
-
-                // Table PS_CrsSet
-                Set<String> crsSet = dom.getCrsSet();
-                Iterator<String> crsIt = crsSet.iterator();
-                while (crsIt.hasNext()) {
-                    String crs = crsIt.next();
-                    int crsId = revCrss.get(crs);
-                    setQuery("INSERT INTO PS_CrsSet (axis, crs) VALUES "
-                            + "('" + axisId + "', '" + crsId + "')");
-                    if (s.executeUpdate(query) <= 0) {
-                        throw new SQLException("Could not insert Crs " + crs
-                                + "for axis =" + axisId + " in table PS_CrsSet");
-                    }
-                }
-            }
-
-            // Table PS_Descriptions
+            
+            // Table PS_DESCRIPTIONS
             String title = meta.getTitle();
             String abstr = meta.getAbstract();
             String keywords = meta.getKeywords();
@@ -1302,15 +1236,22 @@ public class DbMetadataSource implements IMetadataSource {
             if (keywords != null) {
                 keywords = "'" + keywords + "'";
             }
-            setQuery("INSERT INTO PS_Descriptions (coverage, title, abstract, keywords)"
-                    + " VALUES ('" + coverageId + "', " + title + ", " + abstr + ", " + keywords + ")");
+            setQuery("INSERT INTO " + TABLE_DESCRIPTIONS + " (" +
+                    DESCRIPTIONS_COVERAGE + ", " +
+                    DESCRIPTIONS_TITLE + ", " +
+                    DESCRIPTIONS_ABSTRACT + ", " +
+                    DESCRIPTIONS_KEYWORDS + ") VALUES ('" +
+                    coverageId + "', '" +
+                    title + "', '" +
+                    abstr + "', '" +
+                    keywords + "')");
             if (s.executeUpdate(query) <= 0) {
-                throw new SQLException("Could not insert descriptive metadata in table "
-                        + "PS_Descriptions for coverage " + coverageName + " (ID " + coverageId + ")");
+                throw new SQLException("Could not insert descriptive metadata in table " + TABLE_DESCRIPTIONS +
+                        " for coverage " + coverageName + " (id " + coverageId + ")");
             }
-
+            // End of new metadata insertion
+            
             s.close();
-
             if (commit) {
                 commitAndClose();
             }
@@ -1322,31 +1263,31 @@ public class DbMetadataSource implements IMetadataSource {
                 }
                 abortAndClose();
             } catch (SQLException f) {
+                log.warn(f.getMessage());
             }
-
             throw new PetascopeException(ExceptionCode.InvalidRequest,
                     "Metadata database error", sqle);
         }
     }
-
+    
     public void ensureConnection() throws SQLException {
         synchronized (this) {
-//          if( connection == null || !connection.isValid( CONNECTION_TIMEOUT ) ) { // Not implemented by PostgreSQL yet.
+            //          if( connection == null || !connection.isValid( CONNECTION_TIMEOUT ) ) { // Not implemented by PostgreSQL yet.
             if ((conn == null) || conn.isClosed()) {
-//                log.trace("*** Opening new DB connection...");
+                //                log.trace("*** Opening new DB connection...");
                 close();
                 openConnection();
-//                log.trace("*** ok.");
+                //                log.trace("*** ok.");
             }
         }
     }
-
+    
     public void openConnection() throws SQLException {
         conn = DriverManager.getConnection(url, user, pass);
         conn.setAutoCommit(false);
         savepoint = conn.setSavepoint();
     }
-
+    
     public void abortAndClose() throws SQLException {
         if (conn != null) {
             conn.rollback(savepoint);
@@ -1354,7 +1295,7 @@ public class DbMetadataSource implements IMetadataSource {
             conn = null;
         }
     }
-
+    
     public void commitAndClose() throws SQLException {
         if (conn != null) {
             conn.commit();
@@ -1362,23 +1303,18 @@ public class DbMetadataSource implements IMetadataSource {
             conn = null;
         }
     }
-
-    @Override
-    public Collection<String> getAxisNames() {
-        return axisTypes.values();
-    }
-
+    
     /* Logging function for SQL queries. */
     private void setQuery(String q) {
         this.query = q;
         log.trace("SQL Query: {}", q);
     }
-
+    
     /* Returns the available formatToMimetype formats, as stored in the metadata database */
     public String[] getMimetypesList() {
         return supportedFormats.values().toArray(new String[1]);
     }
-
+    
     /* Translate a mime-type to a format name, if known to rasdaman. */
     @Override
     public String mimetypeToFormat(String mime) {
@@ -1401,14 +1337,14 @@ public class DbMetadataSource implements IMetadataSource {
     public Collection<String> getDataTypes() {
         return dataTypes.values();
     }
-
+    
     /**
      * @return the interpolationTypes
      */
     public Collection<String> getInterpolationTypes() {
         return interpolationTypes.values();
     }
-
+    
     /**
      * @return the nullResistances
      */
@@ -1421,5 +1357,105 @@ public class DbMetadataSource implements IMetadataSource {
      */
     public void clearCache() {
         cache.clear();
+    }
+    
+    public Collection<String> getAxisNames() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
+    /*
+     * Method to retrieve subset pixel indexes of an irregularly spaced axis.
+     * In case of timestamps, make sure they are in a PSQL-supported format:
+     * http://www.postgresql.org/docs/8.4/static/datatype-datetime.html
+     * @param  covName             Coverage human-readable name
+     * @param  iOrder              Order of the axis in the CRS: to indentify it in case the coverage has 2+ irregular axes.
+     * @param  stringLo            The lower bound of the subset
+     * @param  stringHi            The upper bound of the subset
+     * @return ArrayList<int>   The subset pixel indexes
+     */
+    public int[] getCellFromIrregularAxis(String covName, int iOrder, String stringLo, String stringHi, String castType)
+            throws PetascopeException {
+        
+        int[] outCells = new int[2];
+        Statement s = null;
+        
+        try {
+            ensureConnection();
+            s = conn.createStatement();
+            
+            ResultSet r = s.executeQuery(
+                    " SELECT MIN(" + TABLE_IRRSERIES + "." + IRRSERIES_CELL +
+                    "), MAX(" + TABLE_IRRSERIES + "." + IRRSERIES_CELL +
+                    ") FROM " + TABLE_COVERAGE + ", " + TABLE_DOMAIN + ", " + TABLE_IRRSERIES +
+                    " WHERE " + TABLE_IRRSERIES + "." + IRRSERIES_AXIS +
+                    " = "   + TABLE_DOMAIN    + "." + DOMAIN_ID +
+                    " AND " + TABLE_DOMAIN   + "." + DOMAIN_COVERAGE +
+                    " = " + TABLE_COVERAGE + "." + COVERAGE_ID +
+                    " AND " + TABLE_COVERAGE + "." + COVERAGE_NAME + "='" + covName + "'" +
+                    " AND " + TABLE_DOMAIN   + "." + DOMAIN_I + "=" + iOrder +
+                    " AND CAST(" + TABLE_IRRSERIES + "." + IRRSERIES_ENDVALUE +
+                    " AS " + castType + ") >= '" + stringLo + "'" +
+                    " AND CAST(" + TABLE_IRRSERIES + "." + IRRSERIES_STARTVALUE +
+                    //" AS " + castType + ") < '" + stringHi + "'");    // [a,b) subsets
+                    " AS " + castType + ") <= '" + stringHi + "'");     // [a,b] subsets
+            if (r.next()) {
+                outCells[0] = r.getInt(KEYWORD_MIN);
+                outCells[1] = r.getInt(KEYWORD_MAX);
+            } else {
+                throw new PetascopeException(ExceptionCode.InternalComponentError,
+                        "No tuples returned from " + TABLE_IRRSERIES + ": check the metadata.");
+            }
+                
+            
+            s.close();
+            return outCells;
+            
+        } catch (SQLException sqle) {
+            /* Abort this transaction */
+            try {
+                if (s != null) {
+                    s.close();
+                }
+                abortAndClose();
+            } catch (SQLException f) {
+                log.warn(f.getMessage());
+            }
+            throw new PetascopeException(ExceptionCode.InvalidRequest,
+                    "Metadata database error", sqle);
+        }
+    }
+    
+    /**
+     * Get the lower and upper bound of the specified coverage's dimension in pixel coordinates.
+     * PURPOSE: remove redundant pixel-domain dimensions info in the metadata database.
+     * @param collName     The coverage name.
+     * @param dimType      The dimension of collName of which the extent.
+     * @return             The minimum and maximum pixel values of the array.
+     * @throws PetascopeException 
+     */
+    public Pair<String, String> getImageDomain(String collName, int axisOrder) throws PetascopeException {
+                
+        // Run RasQL query
+        Object obj = null;
+        String rasQuery = "select sdom(c)[" + axisOrder + "] from " + collName + " as c";
+        try {
+            obj = RasUtil.executeRasqlQuery(rasQuery);
+        } catch (RasdamanException ex) {
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Error while executing RasQL query", ex);
+        }
+        
+        // Parse the result        
+        if (obj != null) {
+            RasQueryResult res = new RasQueryResult(obj);
+            if (!res.getScalars().isEmpty()) {
+                // TODO: can be done better with Minterval instead of sdom2bounds
+                Pair<String, String> bounds = Pair.of(
+                        StringUtil.split(res.getScalars().get(0), ":")[0],
+                        StringUtil.split(res.getScalars().get(0), ":")[1]);
+                return bounds;
+            }
+        }
+        
+        return null;
     }
 }

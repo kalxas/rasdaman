@@ -1,4 +1,4 @@
-    /*
+/*
  * This file is part of rasdaman community.
  *
  * Rasdaman community is free software: you can redistribute it and/or modify
@@ -21,16 +21,25 @@
  */
 package petascope.wcs2.extensions;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
-import petascope.exceptions.ExceptionCode;
-import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import petascope.exceptions.WCSException;
+import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.util.CrsUtil;
-import petascope.util.WcsUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import petascope.core.CoverageMetadata;
+import petascope.core.CrsDefinition;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
+import petascope.wcps.server.core.DomainElement;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
@@ -38,7 +47,10 @@ import petascope.wcs2.parsers.GetCoverageRequest.DimensionSubset;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
 
 /**
- * Manage CRS Extension (OGC 11-053).
+ * Manage WCS CrsExt Extension (OGC 11-053).
+ * Reproject subsets in the WCS request where needed and create a 
+ * dictionary (axisName, CrsExt) for output reprojection to correctly
+ * forward the task to WCPS.
  * 
  * @author <a href="mailto:cmppri@unife.it">Piero Campalani</a>
  */
@@ -48,6 +60,10 @@ public class CRSExtension implements Extension {
     public static final String REST_SUBSETTING_PARAM = "subsettingcrs";
     public static final String REST_OUTPUT_PARAM = "outputcrs";
     
+    /* Constants */  // TODO: USE KVPParser class constants
+    //public static final String KEY_SUBSETTINGCRS = "subsettingcrs";
+    //public static final String KEY_OUTPUTCRS = "outputcrs";  
+    
     @Override
     public String getExtensionIdentifier() {
         return ExtensionsRegistry.CRS_IDENTIFIER;
@@ -55,144 +71,238 @@ public class CRSExtension implements Extension {
     
     /**
      * Method for the handling of possible subsets in case of subsettingCrs not 
-     * corrispondent to the one which the desired collection is natively stored.
+     * correspondent to the one which the desired collection is natively stored.
      * 
      * @param request The WCS request, which is directly modified.
-     * @param meta    Metadata of the underlying petascopedb.
-     * 
+     * @param m       Metadata of the GetCoverage request 
      */
-    protected void handle (GetCoverageRequest request, GetCoverageMetadata m, DbMetadataSource meta) throws WCSException {
+    protected void handle (GetCoverageRequest request, GetCoverageMetadata m) throws WCSException, PetascopeException {
         /**
-         * NOTE1 (campalani): CRS transform cannot be done when only easting or
+         * NOTE1 (campalani): CrsExt transform cannot be done when only easting or
          *  only northing is known, so it must be done *outside* DimensionIntervalElement.
          *  Translation to pixel indices is moved outside DimensionInterval as well
-         *  since it must be computed a posteriori of (possible) CRS transforms.
-         * NOTE2 (campalani): at the same time, CRS is read only inside DimensionInterval
+         *  since it must be computed a posteriori of (possible) CrsExt transforms.
+         * NOTE2 (campalani): at the same time, CrsExt is read only inside DimensionInterval
          *  due to the syntax of WCPS language: trim(x:<crs>(xMin,xMax),y:<crs>(yMin,yMax).
-         * TODO: need to enable 3D spatial transform (x,y,elev): *Bbox* now is fixed to 2D but need to
-         *  include elevation in case of 3D collections.
          */
-        // Check if a CRS transform is needed for X and Y axis.
-        if (request.getCRS().size() == 1 && m.getBbox() != null && !m.getBbox().getCrsName().equals(CrsUtil.GRID_CRS)) {
-            if (request.getSubset(AxisTypes.X_AXIS) == null && request.getSubset(AxisTypes.Y_AXIS) == null) {  // No subsetting at all was specified
-                log.warn("A subsettingCrs is stated but no subsettings were found: ignore it.");
-            } else {                
-                DimensionSubset xSubset = request.getSubset(AxisTypes.X_AXIS);
-                DimensionSubset ySubset = request.getSubset(AxisTypes.Y_AXIS);
-                DimensionSubset zSubset = request.getSubset(AxisTypes.ELEV_AXIS);
                 
-                if ((xSubset != null && !xSubset.isCrsTransformed())            // isCrsTransformed: avoid transform(transform)
-                        || (ySubset != null && !ySubset.isCrsTransformed())) {     //
-                        //|| (zSubset != null && !zSubset.isCrsTransformed())) {  // 
-                        try {
-                            if (request.getCRS().get(0).getSubsettingCrs() != null &&
-                                    request.getCRS().get(0).getSubsettingCrs().equals(CrsUtil.GRID_CRS)) {
-                                log.info("Subset(s) defined in pixel coordinates: no CRS reprojection need to be made.");
-                                
-                            } else if (request.getCRS().get(0).getSubsettingCrs() == null ||
-                                    CrsUtil.CrsUri.areEquivalent(request.getCRS().get(0).getSubsettingCrs(), m.getBbox().getCrsName())) {
-                                log.info("Requested CRS (" + request.getCRS().get(0).getSubsettingCrs() + ") and native CRS coincide: no tranform needed.");
-                                // Req7: /req/crs/getCoverage-subsettingCrs-default
-                                if (request.getCRS().get(0).getSubsettingCrs()==null)
-                                    request.getCRS().get(0).setSubsettingCrs(m.getBbox().getCrsName());
-                                // Fill in crs of subsets, in case they were not embedded in the trimming expression of the request (es. KVP)
-                                if (xSubset != null) xSubset.setCrs(m.getBbox().getCrsName());
-                                if (ySubset != null) ySubset.setCrs(m.getBbox().getCrsName());
+        // Read the subsetting CrsExt (if specified): use a dictionary (no order) so link axes labels to *atomic* CRSs in the request
+        HashMap<String, String> subsettingCrsMap = new HashMap<String, String>();
+        List<DimensionSubset> subsetsList = request.getSubsets();
+        
+        // Create a list of subsets axis labels
+        List<String> subsetsLabels = new ArrayList<String>();
+        for (DimensionSubset subset : subsetsList) {
+            subsetsLabels.add(subset.getDimension());
+        }
+                
+        // Coverage metadata
+        CoverageMetadata cmeta = m.getMetadata();
+        
+        // Create a dictionary (label, uri) for the specified subsetting CrsExt(s)
+        String subsettingCrs = request.getCrsExt().getSubsettingCrs();
+        if (subsettingCrs != null) {
+            for (String crsUri : CrsUtil.CrsUri.decomposeUri(subsettingCrs)) {
+                // Decode URI from either resolver query or cache:
+                log.info("Decoding " + crsUri + " ...");
+                CrsDefinition crsUriDef = CrsUtil.parseGmlDefinition(crsUri);
+                for (CrsDefinition.Axis axis : crsUriDef.getAxes()) {
+                    // If this axis is specified in the subsets, then keep it; discard it otherwise.
+                    if (subsetsLabels.contains(axis.getAbbreviation())) {
+                        subsettingCrsMap.put(axis.getAbbreviation(), crsUri);
+                    }
+                }
+            }
+            
+            // Check if dimensionality of the subsettingCrs coincide with dimensionality of the coverage
+            if (subsettingCrsMap.size() != cmeta.getDomainList().size()) {
+                log.error("subsettingCrs dimensionality does not coincide with coverage dimensionality.");
+                throw new WCSException(ExceptionCode.InvalidRequest, "subsettingCrs defines " + subsettingCrsMap.size() +
+                        " dimensions, whereas the coverage has " + cmeta.getDomainList().size() + " axes.");
+            }
+        }
+        
+        // Check if a CrsExt transform is needed for _spatial_ axis: 
+        /* NOTE: there are different cases, e.g. 1D, 2D, 2D+1D, 3D in source and target CRSs. 
+         * At first, let's accept 2D and 3D transforms.
+         */
+        
+        // Firstly: check if the requests specified at least one spatial subset (either trim or slice):
+        // TODO: need to check if it is Linear1D, Linear2D or Linear3D instead of CrsExt:1, and 
+        // in case use CrsUtil.areEquivalent() instead of simple .equals.
+        if (!subsettingCrsMap.isEmpty()) {
+                    try {
+                        // Loop through each subset axis (which might belong to different spatial CrsExt)
+                        // and check if subsettingCrs actually specifies some non-native CrsExt
+                        Set<Entry<String, String>> entrySet = subsettingCrsMap.entrySet();
+                        Object[] entryArray = entrySet.toArray();
+                        
+                        // Loop through the dictionary, i.e. through the axes of the subsettingCrs
+                        // NOTE: don't use Iterator so allow bidirectional access to the Set
+                        for (int i = 0; i < entryArray.length; i++) {
+                            Map.Entry<String,String> mapEntry = (Entry<String, String>)entryArray[i]; 
+                            String requestedCrs = mapEntry.getValue();
+                            
+                            DomainElement domEl = cmeta.getDomainByName(mapEntry.getKey()); // GET BY TYPE? LABELS ARE DIFFERENT!!
+                            if (domEl == null) {
+                                log.error("Could not couple axis " + mapEntry.getKey() + " with any coverage axis. Wrong subsettingCrs or labels?");
+                                throw new PetascopeException(ExceptionCode.InternalComponentError);
+                            }
+                            String nativeCrs    = domEl.getCrs();
+                            String currentAxis  = mapEntry.getKey();
+                            
+                            // Create list of axes that have the same CrsExt (and may need to be collect for subsetting reprojection)
+                            List<String> involvedAxes = new ArrayList();
+                            involvedAxes.add(mapEntry.getKey());
+                            
+                            if (CrsUtil.CrsUri.areEquivalent(requestedCrs, nativeCrs)) {
+                                log.info("Requested CRS (" + requestedCrs + ") and native CRS on axis " + 
+                                        currentAxis + " coincide: no tranform needed.");
                             } else {
-                                log.info("Requested CRS (" + request.getCRS().get(0).getSubsettingCrs() + ") and native CRS (" + m.getBbox().getCrsName() + ") differ: tranform needed.");
-
-                                // If elevation is required to be transformed then throw exception: currently only 2D
-                                if (zSubset != null)
-                                    throw new WCSException(ExceptionCode.OperationNotSupported, "3D spatial transforms are currently not supported.");
+                            
+                                log.info("Requested CRS (" + requestedCrs + ") and native CRS (" + nativeCrs + ") on axis " +
+                                        currentAxis + " differ: reprojection needed.");
                                 
-                                // Extrapolate values independently of Trim/Slice request
-                                String[] subX, subY;
-                                CrsUtil crsTool;
-                                List<Double> temp;
-                                if (xSubset == null) subX = new String[2];
-                                else subX = (xSubset instanceof DimensionTrim)
-                                        ? new String[] {((DimensionTrim)xSubset).getTrimLow(), ((DimensionTrim)xSubset).getTrimHigh()}
-                                        : new String[] {((DimensionSlice)xSubset).getSlicePoint(), ((DimensionSlice)xSubset).getSlicePoint()};
-                                if (ySubset == null) subY = new String[2];
-                                else subY = (ySubset instanceof DimensionTrim)
-                                        ? new String[] {((DimensionTrim)ySubset).getTrimLow(), ((DimensionTrim)ySubset).getTrimHigh()}
-                                        : new String[] {((DimensionSlice)ySubset).getSlicePoint(), ((DimensionSlice)ySubset).getSlicePoint()};
-
-                                // If only one subsetting was set in the request, fill the other dimension with bbox values (transformed in subsettingCrs)
-                                if (subX[0] == null || subY[0] == null) {
-                                    crsTool = new CrsUtil(m.getBbox().getCrsName(), request.getCRS().get(0).getSubsettingCrs());
-                                    temp = crsTool.transform(new double[] {m.getBbox().getLow1(), m.getBbox().getLow2(), m.getBbox().getHigh1(), m.getBbox().getHigh2()});
-                                    subX = (subX[0]==null) ? new String[] {"" + temp.get(0), "" + temp.get(2)} : subX;
-                                    subY = (subY[0]==null) ? new String[] {"" + temp.get(1), "" + temp.get(3)} : subY;
+                                // Collect the axes which are under the same CrsExt 
+                                // NOTE: In this case I can use .equals() instead of areEquivalent(), see above how subsettingCrsMap is created.
+                                while (i+1 < entryArray.length && ((Entry<String, String>)entryArray[i+1]).getValue().equals(requestedCrs)) {
+                                    involvedAxes.add(((Entry<String, String>)entryArray[i+1]).getKey());
+                                    log.info(requestedCrs + " involves as well axis " + involvedAxes.get(involvedAxes.size()-1));
+                                    i++; // increment so that an axis is not read twice!
+                                }
+                            
+                                // crsTool.transform() takes an array of Strings: [X1min, X2min, ..., X1max, X2max, ...]
+                                String[] srcCoords = new String[2*involvedAxes.size()];
+                                
+                                // For any axes **defined in the current single CrsExt** check 
+                                // either subset values or bbox values (if a certain dimension does not appear in the request)                                
+                                for (String axisName : involvedAxes) {
+                                    if (subsetsLabels.contains(axisName)) {
+                                        log.debug(axisName + " is involved in a subset: extract it(s) value(s).");
+                                        // this dimension is subset in the request: get values
+                                        int axisIndex = involvedAxes.indexOf(axisName);
+                                        String loBound = (subsetsList.get(axisIndex) instanceof DimensionTrim) ?
+                                                ((DimensionTrim)subsetsList.get(axisIndex)).getTrimLow()  :
+                                                ((DimensionSlice)subsetsList.get(axisIndex)).getSlicePoint();
+                                        String hiBound = (subsetsList.get(axisIndex) instanceof DimensionTrim) ?
+                                                ((DimensionTrim)subsetsList.get(axisIndex)).getTrimHigh() :
+                                                ((DimensionSlice)subsetsList.get(axisIndex)).getSlicePoint();
+                                        // Add to global container of source coordinates for this CrsExt
+                                        srcCoords[axisIndex]                     = loBound;
+                                        srcCoords[involvedAxes.size()+axisIndex] = hiBound;
+                                    } else {
+                                        log.debug(axisName + " is not involved in a subset: reproject the BBOX and extract the reprojected values.");
+                                        // this dimension is not subset, need to take bbox values (but in the same CrsExt of the subsets!)
+                                        // Reproject the whole BBOX then take what I need:                                        
+                                        int axisIndex = involvedAxes.indexOf(axisName);
+                                        String[] srcCoordsBbox = new String[2*involvedAxes.size()];
+                                        for (String axisNameBbox : involvedAxes) {
+                                            int bboxAxisIndex = involvedAxes.indexOf(axisNameBbox);
+                                            // collect extremes for the axes defined by this CrsExt
+                                            srcCoordsBbox[bboxAxisIndex]                 = cmeta.getDomainByName(axisNameBbox).getMinValue();
+                                            srcCoordsBbox[involvedAxes.size()+axisIndex] = cmeta.getDomainByName(axisNameBbox).getMaxValue();
+                                        }                                        
+                                        // reproject to subsettingCrs
+                                        CrsUtil crsTool = new CrsUtil(nativeCrs, requestedCrs);
+                                        List<Double> trgCoordsBbox = crsTool.transform(srcCoordsBbox);
+                                        log.debug("Reprojected BBOX values: [" + trgCoordsBbox + "]");
+                                        // extract only values of the current axis
+                                        String loBound = trgCoordsBbox.get(axisIndex) + "";
+                                        String hiBound = trgCoordsBbox.get(involvedAxes.size()+axisIndex) + "";
+                                        // Add to global container of source coordinates for this CrsExt
+                                        srcCoords[axisIndex]                     = loBound;
+                                        srcCoords[involvedAxes.size()+axisIndex] = hiBound;                                                                
+                                    }                                
+                                }
+                            
+                                // Now all source coordinates are filled: transform
+                                CrsUtil crsTool = new CrsUtil(requestedCrs, nativeCrs);
+                                List<Double> trgCoords = crsTool.transform(srcCoords);
+                                log.debug("Reprojected subsetting values: [" + trgCoords + "]");
+                                
+                                // Update subsettings values and CrsExt: now they are in native coordinates
+                                for (DimensionSubset subset : subsetsList) {
+                                    // Need to properly extract reprojected values from the array
+                                    int axisIndex = involvedAxes.indexOf(subset.getDimension());
+                                    // Update values and CrsExt
+                                    if (subset instanceof DimensionTrim) {
+                                        ((DimensionTrim)subset).setTrimLow(trgCoords.get(axisIndex));
+                                        ((DimensionTrim)subset).setTrimHigh(trgCoords.get(involvedAxes.size()+axisIndex));
+                                    } else {
+                                        /* In case of slicing, the transformed slice point turns to two points:
+                                         *
+                                         *  [  source CrsExt   ]     [  target CrsExt  ]
+                                         *    o                     o
+                                         *    |                      \
+                                         *    |                       \
+                                         *    |                        \
+                                         *    o                         o
+                                         *  --x--------> LONG     --x---x------> EAST
+                                         *  slice                   slice
+                                         *  point                   points
+                                         *
+                                         * -> Take the *average* as value for the naticeCrs slicing.
+                                         */
+                                        ((DimensionSlice)subset).setSlicePoint(
+                                                (trgCoords.get(axisIndex) + trgCoords.get(involvedAxes.size()+axisIndex))/2
+                                                );
+                                    }
+                                    subset.setCrs(nativeCrs);
                                 }
                                 
-                                log.debug("Interval values: [" + subX[0] + ":" + subX[1] + "," + subY[0] + ":" + subY[1] + "]");
-                                
-                                // Now all values are filled: transform
-                                crsTool = new CrsUtil(request.getCRS().get(0).getSubsettingCrs(), m.getBbox().getCrsName());
-                                // crsTool.transform(xMin,yMin,xMax,yMax):
-                                temp = crsTool.transform(new String[] {subX[0], subY[0], subX[1], subY[1]});
-
-                                // Update dimension intervals nodes: one dimension might not be trimmed/sliced!
-                                if (xSubset != null) {
-                                    if (xSubset instanceof DimensionTrim) {
-                                        ((DimensionTrim)xSubset).setTrimLow(temp.get(0));
-                                        ((DimensionTrim)xSubset).setTrimHigh(temp.get(2));
-                                    } else ((DimensionSlice)xSubset).setSlicePoint(temp.get(0)); //~temp.get(2)
-                                } 
-                                if (ySubset != null) {
-                                    if (ySubset instanceof DimensionTrim) {
-                                        ((DimensionTrim)ySubset).setTrimLow(temp.get(1));
-                                        ((DimensionTrim)ySubset).setTrimHigh(temp.get(3));
-                                    } else ((DimensionSlice)ySubset).setSlicePoint(temp.get(1)); //~temp.get(3)
-                                }
-
-                                // Set transformed to true
-                                if (xSubset != null) xSubset.isCrsTransformed(true);
-                                if (ySubset != null) ySubset.isCrsTransformed(true);
-                                // Change crs
-                                if (xSubset != null) xSubset.setCrs(m.getBbox().getCrsName());
-                                if (ySubset != null) ySubset.setCrs(m.getBbox().getCrsName());
-
-                                log.debug("Transformed Interval values: [" + temp.get(0) + ":" + temp.get(2) + "," + temp.get(1) + ":" + temp.get(3) + "]");
-                            }  
-                        } catch (WCSException e) {
-                            if (((PetascopeException)e).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.InvalidMetadata.getExceptionCode()))
-                                throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, 
-                                        "subsetting Crs " + request.getCRS().get(0).getSubsettingCrs() + " is not supported by the server.");
-                            else throw new WCSException("Error while comparing requested subsettingCRS and native CRS of coverage " + m.getCoverageId());
-                        } catch (Exception e) {
-                            log.error(e.getMessage());
+                                log.debug("Transformed Interval values: [" + trgCoords + "]");
+                            }
+                        }
+                    } catch (WCSException e) {
+                        if (((PetascopeException)e).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.InvalidMetadata.getExceptionCode())) {
+                            throw new WCSException(ExceptionCode.SubsettingCrsNotSupported,
+                                    "subsetting Crs " + subsettingCrs + " is not supported by the server.");
+                        } else {
                             throw new WCSException("Error while comparing requested subsettingCRS and native CRS of coverage " + m.getCoverageId());
                         }
-                }
-            } // else: CRS transform already done (if necessary) by setBounds call.
+                    } catch (Exception e) {
+                        log.error(e.getMessage());
+                        throw new WCSException("Error while comparing requested subsettingCRS and native CRS of coverage " + m.getCoverageId());
+                    }
         } else {
+            // No subsettingCrs was specified
             // Req7: /req/crs/getCoverage-subsettingCrs-default
-            // NOTE: if no CRS instance is presence, hence both subsettingCRS and outputCRS were not specified.
-            if (request.getCRS().isEmpty())
-                request.getCRS().add(new GetCoverageRequest.CRS(WcsUtil.getSrsName(m), null));
-            else request.getCRS().get(0).setSubsettingCrs(WcsUtil.getSrsName(m));
+            // NOTE: if no CrsExt instance is presence, hence both subsettingCRS and outputCRS were not specified.
+            request.getCrsExt().setSubsettingCrs(cmeta.getCrsUri());            
         }
 
         // Req10: /req/crs/getCoverage-outputCrs-default
-        if (request.getCRS().get(0).getOutputCrs() == null)
-            request.getCRS().get(0).setOutputCrs(request.getCRS().get(0).getSubsettingCrs());  
+        if (request.getCrsExt().getOutputCrs() == null) {
+            request.getCrsExt().setOutputCrs(request.getCrsExt().getSubsettingCrs()); 
+        }
+        
+        // Need to parse the outputCrs and understand which axes are involved: to properly translate to WCPS (crsTransformExpr)
+        // Register to the CrsExt object only the dimensions that need to be reprojected
+        String outputCrs = request.getCrsExt().getOutputCrs();
+        for (String crsUri : CrsUtil.CrsUri.decomposeUri(outputCrs)) {
+            CrsDefinition crsUriDef = CrsUtil.parseGmlDefinition(crsUri);
+            for (CrsDefinition.Axis axis : crsUriDef.getAxes()) {
+                if (!CrsUtil.CrsUri.areEquivalent(cmeta.getDomainByName(axis.getAbbreviation()).getCrs(), crsUri)) {
+                    // Output Reprojection requested on this axis
+                    log.info("Output reprojection was specified for axis " + axis.getAbbreviation());
+                    request.getCrsExt().addAxisOutputReprojection(axis.getAbbreviation(), crsUri);
+                }  else {
+                    log.info("No output reprojection was specified for axis " + axis.getAbbreviation());
+                }
+            }
+        }            
         
         // Check intersection with coverage Bbox:
-        // X axis
-        if (!axisDomainIntersection(request.getSubset(AxisTypes.X_AXIS), m, request.getCRS().get(0).getSubsettingCrs())) {
-            throw new WCSException("Requested subset \"" + request.getSubset(AxisTypes.X_AXIS) + "\" is out of coverage bounds \"" + 
-                    m.getBbox().getLow1() + ":" + m.getBbox().getHigh1() + "\".");
+        Set<Entry<String, String>> entrySet = subsettingCrsMap.entrySet();
+        for (Entry<String, String> axisCrsEntry : entrySet) {
+            if (!axisDomainIntersection(request.getSubset(axisCrsEntry.getKey()), m, axisCrsEntry.getValue())) {
+                throw new WCSException(ExceptionCode.InvalidSubsetting,
+                        "Requested subset \"" + request.getSubset(axisCrsEntry.getKey()) + "\" is out of coverage bounds \"" +
+                        m.getBbox().getMinValue(axisCrsEntry.getKey()) + ":" + m.getBbox().getMaxValue(axisCrsEntry.getKey()) + "\".");
+            }
         }
-        // Y axis
-        if (!axisDomainIntersection(request.getSubset(AxisTypes.Y_AXIS), m, request.getCRS().get(0).getSubsettingCrs())) {
-            throw new WCSException("Requested subset \"" + request.getSubset(AxisTypes.Y_AXIS) + "\" is out of coverage bounds \"" + 
-                    m.getBbox().getLow2() + ":" + m.getBbox().getHigh2() + "\".");
-        }
-
+        
         // Request object modified by reference: no need to return a new Request.
-        return;
     }
     
     /**
@@ -201,49 +311,35 @@ public class CRSExtension implements Extension {
      * @return  boolean      Does request subset intersect with coverage Bbox?.
      */
     public boolean axisDomainIntersection (DimensionSubset subset, GetCoverageMetadata meta, String subsettingCrs) {
-        // If subsettingCrs is CRS:1, need to check cellDomains instead of geo-Bbox.
+        
+        if (subset == null) {
+            return true;
+        }
+        
+        // If subsettingCrs is CrsExt:1, need to check cellDomains instead of geo-Bbox.
         boolean cellSpace = subsettingCrs.equals(CrsUtil.GRID_CRS);
         
-        if (subset == null) return true;
+        String subsetAxisName = subset.getDimension();
         
-        // X axis
-        if (subset.getDimension().equals(AxisTypes.X_AXIS)) {
-            if (subset != null) {
-                // Set bounds
-                double bboxXMin = cellSpace ? meta.getMetadata().getCellDomainByName(AxisTypes.X_AXIS).getLo().doubleValue() : meta.getBbox().getLow1();
-                double bboxXMax = cellSpace ? meta.getMetadata().getCellDomainByName(AxisTypes.X_AXIS).getHi().doubleValue() : meta.getBbox().getHigh1();
-
-                if (subset instanceof DimensionTrim) {
-                    double subsetXMin = new Double(((DimensionTrim)subset).getTrimLow());
-                    double subsetXMax = new Double(((DimensionTrim)subset).getTrimHigh());                            
-                    if ((subsetXMin < bboxXMin && subsetXMax < bboxXMin)
-                            || (subsetXMin > bboxXMax && subsetXMax > bboxXMax))
-                    return false;
-                } else if (subset instanceof DimensionSlice &&
-                        (new Double(((DimensionSlice)subset).getSlicePoint()) < bboxXMin ||
-                        new Double(((DimensionSlice)subset).getSlicePoint()) > bboxXMax))
-                    return false;
-            }
-        }
-        // Y axis
-        if (subset.getDimension().equals(AxisTypes.Y_AXIS)) {
-            if (subset != null) {
-                // Set bounds
-                double bboxYMin = cellSpace ? meta.getMetadata().getCellDomainByName(AxisTypes.Y_AXIS).getLo().doubleValue() : meta.getBbox().getLow2();
-                double bboxYMax = cellSpace ? meta.getMetadata().getCellDomainByName(AxisTypes.Y_AXIS).getHi().doubleValue() : meta.getBbox().getHigh2();
-                
-                if (subset instanceof DimensionTrim) {
-                    double subsetYMin = new Double(((DimensionTrim)subset).getTrimLow());
-                    double subsetYMax = new Double(((DimensionTrim)subset).getTrimHigh());                            
-                    if ((subsetYMin < bboxYMin && subsetYMax < bboxYMin)
-                            || (subsetYMin > bboxYMax && subsetYMax > bboxYMax))
-                    return false;
-                } else if (subset instanceof DimensionSlice &&
-                        (new Double(((DimensionSlice)subset).getSlicePoint()) < bboxYMin ||
-                        new Double(((DimensionSlice)subset).getSlicePoint()) > bboxYMax))
-                    return false;
-            }
-        }
+        // Set bounds
+        double bboxMin = cellSpace ?
+                meta.getMetadata().getCellDomainByName(subsetAxisName).getLo().doubleValue() :
+                Double.parseDouble(meta.getBbox().getMinValue(subsetAxisName));
+        double bboxMax = cellSpace ?
+                meta.getMetadata().getCellDomainByName(subsetAxisName).getHi().doubleValue() :
+                Double.parseDouble(meta.getBbox().getMaxValue(subsetAxisName));
+        
+        // Check overlap: to avoid leaks, check assumes subsets might not be well ordered (e.g. subsetMin>subsetMax):
+        if (subset instanceof DimensionTrim) {
+            double subsetMin = new Double(((DimensionTrim)subset).getTrimLow());
+            double subsetMax = new Double(((DimensionTrim)subset).getTrimHigh());            
+            if ((subsetMin < bboxMin && subsetMax < bboxMin) || 
+                    (subsetMin > bboxMax && subsetMax > bboxMax))
+                return false;
+        } else if (subset instanceof DimensionSlice &&
+                (new Double(((DimensionSlice)subset).getSlicePoint()) < bboxMin ||
+                 new Double(((DimensionSlice)subset).getSlicePoint()) > bboxMax))
+            return false;
         
         return true;
     }

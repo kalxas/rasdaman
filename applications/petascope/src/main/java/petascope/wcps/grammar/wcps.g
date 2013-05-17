@@ -296,7 +296,7 @@ sliceExpr returns[SliceExpr value]
 	| SLICE LPAREN e2=coverageExpr COMMA LBRACE dpl=dimensionPointList RBRACE RPAREN { $value = new SliceExpr($e2.value, $dpl.value); }
 	;
 extendExpr returns[ExtendExpr value]
-	: EXTEND LPAREN e1=coverageExpr COMMA LBRACE dil=dimensionIntervalList RBRACE RPAREN { $value = new ExtendExpr($e1.value, $dil.value); }
+	: EXTEND LPAREN e1=coverageExpr COMMA dil=dimensionIntervalList RPAREN { $value = new ExtendExpr($e1.value, $dil.value); }
 	;
 castExpr returns[CastExpr value]
     : LPAREN e1=rangeType RPAREN e2=coverageExpr { $value = new CastExpr($e2.value, $e1.value); }
@@ -521,7 +521,8 @@ UNSIGNED: ('u'|'U')('n'|'N')('s'|'S')('i'|'I')('g'|'G')('n'|'N')('e'|'E')('d'|'D
 BOOLEAN: ('b'|'B')('o'|'O')('o'|'O')('l'|'L')('e'|'E')('a'|'A')('n'|'N');
 CHAR: ('c'|'C')('h'|'H')('a'|'A')('r'|'R');
 SHORT: ('s'|'S')('h'|'H')('o'|'O')('r'|'R')('t'|'T');
-LONG: ('l'|'L')('o'|'O')('n'|'N')('g'|'G');
+/*LONG: ('l'|'L')('o'|'O')('n'|'N')('g'|'G');*/
+LONG: ('l')('o'|'O')('n'|'N')('g'|'G');
 FLOAT: ('f'|'F')('l'|'L')('o'|'O')('a'|'A')('t'|'T');
 DOUBLE: ('d'|'D')('o'|'O')('u'|'U')('b'|'B')('l'|'L')('e'|'E');
 COMPLEX: ('c'|'C')('o'|'O')('m'|'M')('p'|'P')('l'|'L')('e'|'E')('x'|'X');

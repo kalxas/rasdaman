@@ -99,49 +99,36 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
             child = null;
             String firstMessage = "";
 
-            Node childNode = node;
-            while ((childNode != null) && childNode.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
-                childNode = childNode.getNextSibling();
+            if (child == null) {
+                try {
+                    child = new SetMetadataCoverageExpr(node, xq);
+                    log.trace("  " + WCPSConstants.MSG_MATCHED_SET_METADATA);
+                } catch (WCPSException e) {
+                    child = null;
+                    exMessage = e.getMessage();
+                    firstMessage = exMessage;
+                }
             }
-            String n = childNode.getNodeName();
-
-            // TODO: not implemented
-//            if (child == null) {
-//                try {
-//                    child = new SetMetadataCoverageExpr(node, xq);
-//                    log.trace("  " + WCPSConstants.MSG_MATCHED_SET_METADATA);
-//                } catch (WCPSException e) {
-//                    child = null;
-//                    exMessage = e.getMessage();
-//                    firstMessage = exMessage;
-//                }
-//            }
 
             if (child == null) {
-                if (n.equals(WCPSConstants.MSG_RANGE_CONSTRUCTOR) ||
-                    UnaryOperationCoverageExpr.NODE_NAMES.contains(n) ||
-                    BinaryOperationCoverageExpr.NODE_NAMES.contains(nodeName)) {
-                    try {
-                        child = new InducedOperationCoverageExpr(node, xq);
-                        log.trace("  " + WCPSConstants.MSG_MATCHED_INDUCED_COVERAGE);
-                    } catch (WCPSException e) {
-                        child = null;
-                        if (e.getMessage().equals(WCPSConstants.MSG_METHOD_NOT_IMPL)) {
-                            throw e;
-                        }
+                try {
+                    child = new InducedOperationCoverageExpr(node, xq);
+                    log.trace("  " + WCPSConstants.MSG_MATCHED_INDUCED_COVERAGE);
+                } catch (WCPSException e) {
+                    child = null;
+                    if (e.getMessage().equals(WCPSConstants.MSG_METHOD_NOT_IMPL)) {
+                        throw e;
                     }
                 }
             }
 
             if (child == null) {
-                if (SubsetOperationCoverageExpr.NODE_NAMES.contains(n)) {
-                    try {
-                        child = new SubsetOperationCoverageExpr(node, xq);
-                        log.trace("  " + WCPSConstants.MSG_MATCHED_SUBSET_OP);
-                    } catch (WCPSException e) {
-                        child = null;
-                        exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
-                    }
+                try {
+                    child = new SubsetOperationCoverageExpr(node, xq);
+                    log.trace("  " + WCPSConstants.MSG_MATCHED_SUBSET_OP);
+                } catch (WCPSException e) {
+                    child = null;
+                    exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
                 }
             }
 

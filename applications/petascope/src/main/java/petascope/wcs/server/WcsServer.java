@@ -133,7 +133,7 @@ public class WcsServer {
     /**
      * WcsServer GetCoverage operation
      */
-    public String GetCoverage(String stringXml, Wcps wcps) throws WCSException {
+    public String GetCoverage(String stringXml, Wcps wcps) throws WCSException, PetascopeException {
         String output = "Default output. ";
 
         try {
