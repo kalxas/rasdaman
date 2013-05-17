@@ -64,7 +64,7 @@ public class WcsUtil {
     public static final String KEY_DOUBLE = "double";
     
     public static final String CHAR_MIN = "-128";
-    public static final String CHAR_MAX = "128";
+    public static final String CHAR_MAX = "127";
     public static final String UCHAR_MIN = "0";
     public static final String UCHAR_MAX = "255";
     public static final String SHORT_MIN = "-32768";
