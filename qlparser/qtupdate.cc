@@ -44,6 +44,7 @@ static const char rcsid[] = "@(#)qlparser, QtUpdate: $Header: /home/rasdev/CVS-r
 #include "tilemgr/tiler.hh"
 
 #include "mddmgr/mddobj.hh"
+#include "debug/debug-srv.hh"
 
 #include <iostream>
 #include <memory>
@@ -121,511 +122,15 @@ QtUpdate::evaluate()
         {
             while( (nextTupel = input->next()) )
             {
-                // get obligatory operands
-                QtData* target = updateTarget->evaluate( nextTupel );
-                QtData* source = updateSource->evaluate( nextTupel );
-
-                // Test, if the operands are valid.
-                if( target && source )
-                {
-                    // check update target
-                    if( target->getDataType() != QT_MDD )
-                    {
-                        RMInit::logOut << "Error: QtUpdate::evaluate() - update target must be an iterator variable." << endl;
-
-                        // delete tupel vector received by next()
-                        for( vector<QtData*>::iterator dataIter=nextTupel->begin();
-                                dataIter!=nextTupel->end(); dataIter++ )
-                            if( *dataIter ) (*dataIter)->deleteRef();
-                        delete nextTupel;
-                        nextTupel=NULL;
-
-                        // delete the operands
-                        if( target ) target->deleteRef();
-                        if( source ) source->deleteRef();
-
-                        parseInfo.setErrorNo(950);
-                        throw parseInfo;
-                    }
-
-                    // check update source
-                    if( source->getDataType() != QT_MDD )
-                    {
-                        RMInit::logOut << "Error: QtUpdate::evaluate() - update source must be an expression resulting in an MDD" << endl;
-
-                        // delete tupel vector received by next()
-                        for( vector<QtData*>::iterator dataIter=nextTupel->begin();
-                                dataIter!=nextTupel->end(); dataIter++ )
-                            if( *dataIter ) (*dataIter)->deleteRef();
-                        delete nextTupel;
-                        nextTupel=NULL;
-
-                        // delete the operands
-                        if( target ) target->deleteRef();
-                        if( source ) source->deleteRef();
-
-                        parseInfo.setErrorNo(951);
-                        throw parseInfo;
-                    }
-
-                    QtMDD* targetMDD = (QtMDD*) target;
-                    QtMDD* sourceMDD = (QtMDD*) source;
-
-                    MDDObj* targetObj = targetMDD->getMDDObject();
-                    MDDObj* sourceObj = sourceMDD->getMDDObject();
-
-                    // test, if target is a persistent object
-                    if( !targetObj->isPersistent() )
-                    {
-                        RMInit::logOut << "Error: QtUpdate::evaluate() - result of target expression must be an assignable value (l-value)." << endl;
-
-                        // delete tupel vector received by next()
-                        for( vector<QtData*>::iterator dataIter=nextTupel->begin();
-                                dataIter!=nextTupel->end(); dataIter++ )
-                            if( *dataIter ) (*dataIter)->deleteRef();
-                        delete nextTupel;
-                        nextTupel=NULL;
-
-                        // delete the operands
-                        if( target ) target->deleteRef();
-                        if( source ) source->deleteRef();
-
-                        parseInfo.setErrorNo(954);
-                        throw parseInfo;
-                    }
-
-                    // get optional domain
-                    QtData*     domainData = NULL;
-                    r_Minterval domain;
-                    
-                    if ( targetObj->getStorageLayout() )
-                    {
-                        targetObj->getStorageLayout()->setCellSize(targetObj->getCellType()->getSize());
-                    }
-
-                    if( updateDomain )
-                    {
-                        domainData = updateDomain->evaluate( nextTupel );
-
-                        if( domainData )
-                            domain = ((QtMintervalData*)domainData)->getMintervalData();
-                    }
-
-                    RMDBGIF( 1, RMDebug::module_qlparser, "QtUpdate", \
-                             if( domainData ) \
-                             RMInit::dbgOut << endl << "  target MDD, domain " << domain << endl; \
-                             else  \
-                                 RMInit::dbgOut << endl << "  target MDD" << endl; \
-
-                                 targetMDD->printStatus( RMInit::dbgOut ); \
-                                 RMInit::dbgOut << endl << "  source MDD" << endl; \
-                                 sourceMDD->printStatus( RMInit::dbgOut ); \
-                                 RMInit::dbgOut << endl; \
-                               )
-
-                            // 1st update strategy:
-                            //
-                            // 1. All cell values of the source domain which are already defined are
-                            //    updated with the corresponding new values.
-                            // 2. If a source tile does not intersect with any tile of the target
-                            //    object, it is inserted.
-
-                            // In case of update domain existence, test for compatibility.
-                            if( domainData )
-                            {
-                                // Dimensionality of the udate domain specification has to be equal to
-                                // the target MDD dimensionality.
-                                if( domain.dimension() != targetMDD->getLoadDomain().dimension() )
-                                {
-                                    RMInit::logOut << "Error: QtUpdate::evaluate() - Update domain dimensionality must match target MDD dimensionaltiy." << endl;
-
-                                    // delete tupel vector received by next()
-                                    for( vector<QtData*>::iterator dataIter=nextTupel->begin();
-                                            dataIter!=nextTupel->end(); dataIter++ )
-                                        if( *dataIter ) (*dataIter)->deleteRef();
-                                    delete nextTupel;
-                                    nextTupel=NULL;
-
-                                    // delete the operands
-                                    if( target     ) target->deleteRef();
-                                    if( domainData ) domainData->deleteRef();
-                                    if( source     ) source->deleteRef();
-
-                                    parseInfo.setErrorNo(963);
-                                    throw parseInfo;
-                                }
-
-                                // The number of interval dimension of the update domain has to be
-                                // equal to the number of dimensions of the source domain.
-                                int updateIntervals = 0;
-
-                                const vector<bool>*  trimFlags = ((QtMintervalData*)domainData)->getTrimFlags();
-                                for( int i=0; i<trimFlags->size(); i++ )
-                                    if( (*trimFlags)[i] )
-                                        updateIntervals++;
-
-                                if( updateIntervals != sourceMDD->getLoadDomain().dimension() )
-                                {
-                                    RMInit::logOut << "Error: QtUpdate::evaluate() - Number of update intervals must match source dimensionality." << endl;
-
-                                    // delete tupel vector received by next()
-                                    for( vector<QtData*>::iterator dataIter=nextTupel->begin();
-                                            dataIter!=nextTupel->end(); dataIter++ )
-                                        if( *dataIter ) (*dataIter)->deleteRef();
-                                    delete nextTupel;
-                                    nextTupel=NULL;
-
-                                    // delete the operands
-                                    if( target     ) target->deleteRef();
-                                    if( domainData ) domainData->deleteRef();
-                                    if( source     ) source->deleteRef();
-
-                                    parseInfo.setErrorNo(962);
-                                    throw parseInfo;
-                                }
-
-                                // Before: Warning: Fixed bounds in update domain specifications are ignored.
-
-                                // After: Actually we should be stricter here and respect the documentation:
-                                // throw an exception if the source domain isn't within the target domain -- DM 2012-mar-12
-
-                                // copied from r_Minterval::covers(..), we have to rule out slices here
-                                const r_Minterval& sourceDomain = sourceMDD->getLoadDomain();
-                                int j = 0;
-                                for (r_Dimension i = 0; i < domain.dimension() ; i++)
-                                {
-                                    if( (*trimFlags)[i] ) // consider only trims
-                                    {
-                                        if((domain[i].is_low_fixed()  && (!(sourceDomain[j].is_low_fixed())  || domain[i].low()  > sourceDomain[j].low())) ||
-                                                (domain[i].is_high_fixed() && (!(sourceDomain[j].is_high_fixed()) || domain[i].high() < sourceDomain[j].high())))
-                                        {
-                                            RMInit::logOut << "Error: QtUpdate::evaluate() - source domain " <<
-                                                           sourceDomain << " isn't within the target domain " << domain << endl;
-
-                                            // delete tupel vector received by next()
-                                            for( vector<QtData*>::iterator dataIter=nextTupel->begin();
-                                                    dataIter!=nextTupel->end(); dataIter++ )
-                                                if( *dataIter ) (*dataIter)->deleteRef();
-                                            delete nextTupel;
-                                            nextTupel=NULL;
-
-                                            // delete the operands
-                                            if( target     ) target->deleteRef();
-                                            if( domainData ) domainData->deleteRef();
-                                            if( source     ) source->deleteRef();
-
-                                            parseInfo.setErrorNo(967);
-                                            throw parseInfo;
-                                        }
-                                        ++j;
-                                    }
-                                }
-
-                            }
-
-                    r_Minterval sourceMDDDomain( sourceMDD->getLoadDomain() );
-                    RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "source mdd domain " << sourceMDDDomain )
-
-                    // compute source MDD domain taking into account update domain
-                    if( domainData )
-                    {
-                        const vector<bool>*  trimFlags = ((QtMintervalData*)domainData)->getTrimFlags();
-                        r_Minterval newSourceMDDDomain( targetMDD->getLoadDomain().dimension() );
-
-                        for( int i=0, j=0; i<trimFlags->size(); i++ )
-                            if( (*trimFlags)[i] )
-                                newSourceMDDDomain << sourceMDDDomain[j++];
-                            else
-                                newSourceMDDDomain << domain[i];
-
-                        sourceMDDDomain = newSourceMDDDomain;
-
-                        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "source update domain " << sourceMDDDomain )
-                    }
-                    // check if you may update that are ( you should not go out of bounds for mdddomaintype )
-                    if (!targetObj->getMDDBaseType()->compatibleWithDomain(&sourceMDDDomain))
-                    {
-                        RMInit::logOut << "Error: QtUpdate::evaluate() - The update domain is outside the allowed domain of the target mdd." << endl;
-
-                        // delete tupel vector received by next()
-                        for( vector<QtData*>::iterator dataIter=nextTupel->begin();
-                                dataIter!=nextTupel->end(); dataIter++ )
-                            if( *dataIter ) (*dataIter)->deleteRef();
-                        delete nextTupel;
-                        nextTupel=NULL;
-
-                        // delete the operands
-                        if( target     ) target->deleteRef();
-                        if( domainData ) domainData->deleteRef();
-                        if( source     ) source->deleteRef();
-
-                        parseInfo.setErrorNo(953);
-                        throw parseInfo;
-
-                    }
-                    //
-                    // get all source tiles
-                    //
-                    vector<Tile*>* sourceTiles = sourceObj->getTiles();
-                    RMDBGIF(1, RMDebug::module_qlparser, "QtUpdate", \
-                            if (sourceTiles) \
-                            RMDBGMIDDLE(1, RMDebug::module_qlparser, "QtUpdate", "there are " << sourceTiles->size() << " source tiles") \
-                            else \
-                                RMDBGMIDDLE(1, RMDebug::module_qlparser, "QtUpdate", "there are no source tiles") )
-
-                            //
-                            // get all target tiles in the relevant area
-                            //
-
-                            vector<Tile*>* targetTiles = NULL;
-//this is not a very good idea
-//          try{
-                    targetTiles = targetObj->intersect( sourceMDDDomain );
-                    /*          }
-                              catch(...)
-                          {
-                            RMInit::logOut << "BUG of MDDObj::intersect" << endl;
-                                targetTiles = new vector<Tile*>;
-                          }
-                    */
-                    if( !targetTiles )
-                    {
-                        targetTiles = new vector<Tile*>;
-                        RMDBGMIDDLE(1, RMDebug::module_qlparser, "QtUpdate", "found no target tiles")
-                    }
-                    else
-                    {
-                        RMDBGMIDDLE(1, RMDebug::module_qlparser, "QtUpdate", "found " << targetTiles->size() << " target tiles in mdd")
-                    }
-
-                    //
-                    // iterate over source tiles
-                    //
-                    unsigned long targetTileArea = 0;
-                    unsigned long sourceTileArea = 0;
-                    unsigned long targetTileDomain = 0;
-                    unsigned long updatedArea = 0;
-                    bool computed = false;
-                    vector<r_Minterval> insertedDomains;
-                    vector<r_Minterval> sourceDomains;
-                    vector<r_Minterval> targetDomains;
-                    vector<r_Minterval>::iterator domIt;
-                    vector<r_Minterval>::iterator intervalIt;
-                    vector<Tile*> retval;
-                    vector<Tile*>::iterator retvalIt;
-                    vector<Tile*>::iterator sourceIt;
-                    vector<Tile*>::iterator targetIt;
-                    sourceIt = sourceTiles->begin();
-                    //this lives here because we don't want memory leaks because of exceptions
-                    //of course we seldom use this operation ( as we use copy tile most of the time )
-
-                    UnaryOp* tempOp = NULL;
-                    if (sourceIt != sourceTiles->end())
-                        tempOp = Ops::getUnaryOp(Ops::OP_IDENTITY, targetObj->getCellType(), (*sourceIt)->getType(), 0, 0);
-                    std::auto_ptr<UnaryOp> myOp(tempOp);
-                    const vector<bool>* trimFlags = NULL;
-                    for( ; sourceIt != sourceTiles->end(); sourceIt++ )
-                    {
-                        // calculate relevant area of source tile
-                        r_Minterval sourceTileDomain = (*sourceIt)->getDomain().create_intersection( sourceMDD->getLoadDomain() );
-
-                        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "original source tile domain " << sourceTileDomain )
-
-                        // compute update source tile domain taking into account update domain
-                        r_Minterval updateSourceTileDomain;
-
-                        if( domainData )
-                        {
-                            updateSourceTileDomain = r_Minterval( targetMDD->getLoadDomain().dimension() );
-                            trimFlags = ((QtMintervalData*)domainData)->getTrimFlags();
-
-                            for( int i=0, j=0; i<trimFlags->size(); i++ )
-                                if( (*trimFlags)[i] )
-                                    updateSourceTileDomain << sourceTileDomain[j++];
-                                else
-                                    updateSourceTileDomain << domain[i];
-                        }
-                        else
-                            updateSourceTileDomain = sourceTileDomain;
-
-                        //calculate number of cells in this area
-                        sourceTileArea = sourceTileArea + sourceTileDomain.cell_count();
-                        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "update source tile domain " << updateSourceTileDomain )
-
-                        bool intersection = false;
-
-                        for( targetIt = targetTiles->begin(); targetIt != targetTiles->end(); targetIt++ )
-                        {
-                            RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "target tile domain " << (*targetIt)->getDomain())
-                            if (!computed)
-                            {
-                                targetTileArea = targetTileArea + sourceMDDDomain.create_intersection((*targetIt)->getDomain()).cell_count();
-                                RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "target area sum " << targetTileArea)
-                            }
-                            // if tiles are intersecting
-                            if( updateSourceTileDomain.intersects_with( (*targetIt)->getDomain() ) )
-                            {
-                                RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "source tile domain " << updateSourceTileDomain << " intersects with target domain " << (*targetIt)->getDomain())
-                                intersection = true;
-
-                                // get intersecting updateSourceTileDomain
-                                r_Minterval intersectUpdateSourceTileDomain = updateSourceTileDomain.create_intersection( (*targetIt)->getDomain() );
-
-                                // compute corresponding sourceTileDomain
-                                r_Minterval intersectSourceTileDomain = intersectUpdateSourceTileDomain;
-                                if( domainData )
-                                {
-                                    const vector<bool>* trimFlags = ((QtMintervalData*)domainData)->getTrimFlags();
-
-                                    for( int i=0, j=0; i<trimFlags->size(); i++ )
-                                        if( !((*trimFlags)[i]) )
-                                            intersectSourceTileDomain.delete_dimension( j );
-                                        else
-                                            j++;
-                                }
-
-                                RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "update domains: target tile " << (*targetIt)->getDomain() << " update target at " << intersectUpdateSourceTileDomain << ", source tile " << (*sourceIt)->getDomain() << " update with data at " << intersectSourceTileDomain )
-                                if (intersectUpdateSourceTileDomain.dimension() == intersectSourceTileDomain.dimension())
-                                    (*targetIt)->copyTile(intersectUpdateSourceTileDomain, *sourceIt, intersectSourceTileDomain);
-                                else
-                                    (*targetIt)->execUnaryOp( &(*myOp), intersectUpdateSourceTileDomain, *sourceIt, intersectSourceTileDomain );
-                                updatedArea = updatedArea + intersectUpdateSourceTileDomain.cell_count();
-                            }
-                        }
-                        computed = true;
-                        // insert the tile
-                        if (!intersection)
-                        {
-                            // Create a new persistent tile, copy the transient data,
-                            // and insert it into the target mdd object.
-                            Tile* newPersTile = new Tile(updateSourceTileDomain, targetObj->getCellType(), (*sourceIt)->getDataFormat());
-                            if (updateSourceTileDomain.dimension() == sourceTileDomain.dimension())
-                                newPersTile->copyTile( updateSourceTileDomain, *sourceIt, sourceTileDomain );
-                            else
-                                newPersTile->execUnaryOp( &(*myOp), updateSourceTileDomain, *sourceIt, sourceTileDomain );
-                            RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "update domains: target tile " << newPersTile->getDomain() << " update target at " << updateSourceTileDomain << ", source tile " << (*sourceIt)->getDomain() << " update with data at " << sourceTileDomain )
-
-                            targetObj->insertTile( newPersTile );
-                            updatedArea = updatedArea + updateSourceTileDomain.cell_count();
-                            insertedDomains.push_back((*sourceIt)->getDomain());
-                        }
-                    }//for is done
-
-                    if (sourceTileArea > updatedArea)
-                    {
-                        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "the source area was not updated completely, tiling the rest")
-                        while (!insertedDomains.empty())
-                        {
-                            intervalIt = insertedDomains.begin();
-                            for (sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
-                                if ((*sourceIt)->getDomain() == *intervalIt)
-                                {
-                                    sourceTiles->erase(sourceIt);
-                                    break;
-                                }
-                            insertedDomains.erase(intervalIt);
-                        }
-
-                        r_Minterval targetTileDomain;
-                        for (targetIt = targetTiles->begin(); targetIt != targetTiles->end(); targetIt++)
-                        {
-                            targetTileDomain = (*targetIt)->getDomain();
-                            targetDomains.push_back(targetTileDomain);
-                        }
-
-                        for (sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
-                        {
-
-                            /*
-                            * When we try to update an object of N dimensions with data of less
-                            * dimensions, we should extend the source data here to N dimensions as well,
-                            * otherwise an index violation error is thrown.
-                            *
-                            * Example: "update Coll as m set m[5,*:*,*:*] assign marray x in [0:10,0:10] values 1c"
-                            * Coll is 3D but we update it with a 2D array, by restricting the target update interval
-                            * to slice 5. So the update array is extended to [5:5,0:10,0:10]
-                            *
-                            * -- DM 2012-may-23
-                            */
-
-                            r_Minterval origSourceDomain = (*sourceIt)->getDomain();
-                            r_Minterval resSourceDomain;
-                            if (trimFlags)
-                            {
-                                resSourceDomain = r_Minterval(targetTileDomain.dimension());
-                                for (int i = 0, j = 0; i < trimFlags->size(); i++)
-                                    if ((*trimFlags)[i])
-                                        resSourceDomain << origSourceDomain[j++];
-                                    else
-                                        resSourceDomain << targetTileDomain[i];
-                            }
-                            else
-                                resSourceDomain = origSourceDomain;
-                            sourceDomains.push_back(resSourceDomain);
-//          sourceDomains.push_back((*sourceIt)->getDomain());
-                        }
-
-                        r_Tiler t(sourceDomains, targetDomains);
-                        t.split();
-                        t.removeDoubleDomains();
-                        t.removeCoveredDomains();
-                        t.mergeDomains();
-                        retval = t.generateTiles(*sourceTiles);
-                        for (retvalIt = retval.begin(); retvalIt != retval.end(); retvalIt++)
-                        {
-                            // Copy data from source tiles to the newly inserted tiles -- DM 2012-may-23
-                            for (sourceIt = sourceTiles->begin(), domIt = sourceDomains.begin();
-                                    sourceIt != sourceTiles->end(); sourceIt++, domIt++)
-                            {
-                                if ((*domIt).intersects_with((*retvalIt)->getDomain()))
-                                {
-                                    r_Minterval intersectRetvalTileDomain = (*domIt).create_intersection((*retvalIt)->getDomain());
-                                    r_Minterval intersectSourceTileDomain = intersectRetvalTileDomain;
-                                    if( trimFlags )
-                                    {
-                                        for( int i=0, j=0; i<trimFlags->size(); i++ )
-                                            if( !((*trimFlags)[i]) )
-                                                intersectSourceTileDomain.delete_dimension( j );
-                                            else
-                                                j++;
-                                    }
-                                    if (intersectRetvalTileDomain.dimension() == intersectSourceTileDomain.dimension())
-                                        (*retvalIt)->copyTile(intersectRetvalTileDomain, *sourceIt, intersectSourceTileDomain);
-                                    else
-                                        (*retvalIt)->execUnaryOp( &(*myOp), intersectRetvalTileDomain, *sourceIt, intersectSourceTileDomain );
-                                }
-                            }
-                            
-                            targetObj->insertTile((Tile*)(*retvalIt));
-                        }
-                        RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtUpdate", "insertion of the rest is done")
-                    }
-
-                    // delete tile vectors
-                    delete sourceTiles;
-                    sourceTiles=NULL;
-                    delete targetTiles;
-                    targetTiles=NULL;
-
-                    // delete optional operand
-                    if( domainData ) domainData->deleteRef();
-                }
-                else
-                    RMInit::logOut << "Error: QtUpdate::evaluate() - target or source is not provided." << endl;
-
-                // delete the operands
-                if( target )     target->deleteRef();
-                if( source )     source->deleteRef();
+                evaluateTupel(nextTupel);
 
                 // delete tupel vector received by next()
-                for( vector<QtData*>::iterator dataIter=nextTupel->begin();
-                        dataIter!=nextTupel->end(); dataIter++ )
-                    if( *dataIter ) (*dataIter)->deleteRef();
+                for (vector<QtData*>::iterator dataIter = nextTupel->begin();
+                        dataIter != nextTupel->end(); dataIter++)
+                    if (*dataIter) (*dataIter)->deleteRef();
                 delete nextTupel;
-                nextTupel=NULL;
-
+                nextTupel = NULL;
             } // while
-
         }
         catch( ... )
         {
@@ -643,6 +148,489 @@ QtUpdate::evaluate()
     return 0;
 }
 
+void
+QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
+{
+    // mdd object to be updated
+    QtData* target = updateTarget->evaluate(nextTupel);
+    
+    // mdd object that is the source of the update
+    QtData* source = updateSource->evaluate(nextTupel);
+    
+    // check if target and source are valid
+    if (!checkOperands(nextTupel, target, source))
+    {
+        return;
+    }
+
+    QtMDD* targetMDD = (QtMDD*) target;
+    QtMDD* sourceMDD = (QtMDD*) source;
+
+    MDDObj* targetObj = targetMDD->getMDDObject();
+    MDDObj* sourceObj = sourceMDD->getMDDObject();
+
+    // test, if target is a persistent object
+    if (!targetObj->isPersistent())
+    {
+        RMInit::logOut << "Error: QtUpdate::evaluate() - result of target expression must be an assignable value (l-value)." << endl;
+        throwError(nextTupel, target, source, 954);
+    }
+
+    // get optional domain
+    QtData* targetDomainData = NULL;
+    r_Minterval targetDomain;
+    r_Minterval sourceMDDDomain(sourceMDD->getLoadDomain());
+
+    if (targetObj->getStorageLayout())
+    {
+        targetObj->getStorageLayout()->setCellSize(targetObj->getCellType()->getSize());
+    }
+
+    if (updateDomain)
+    {
+        targetDomainData = updateDomain->evaluate(nextTupel);
+
+        if (targetDomainData)
+            targetDomain = ((QtMintervalData*) targetDomainData)->getMintervalData();
+    }
+
+    RMDBGIF(1, RMDebug::module_qlparser, "QtUpdate", \
+                         if (targetDomainData) \
+                            RMInit::logOut << endl << "  target MDD, domain " << targetDomain << endl; \
+                         else  \
+                            RMInit::logOut << endl << "  target MDD" << endl; \
+                         targetMDD->printStatus(RMInit::logOut); \
+                         RMInit::logOut << endl << "  source MDD, domain " << sourceMDDDomain << endl; \
+                         sourceMDD->printStatus(RMInit::logOut); \
+                         RMInit::logOut << endl; \
+           );
+
+    // 1st update strategy:
+    //
+    // 1. All cell values of the source domain which are already defined are
+    //    updated with the corresponding new values.
+    // 2. If a source tile does not intersect with any tile of the target
+    //    object, it is inserted.
+
+    // In case of update domain existence, test for compatibility.
+    checkDomainCompatibility(nextTupel, target, source, targetDomainData, targetMDD, sourceMDD);
+
+    // compute source MDD domain taking into account update domain
+    if (targetDomainData)
+    {
+        const vector<bool>* trimFlags = ((QtMintervalData*) targetDomainData)->getTrimFlags();
+        r_Minterval newSourceMDDDomain(targetMDD->getLoadDomain().dimension());
+
+        for (int i = 0, j = 0; i < trimFlags->size(); i++)
+            if ((*trimFlags)[i])
+                newSourceMDDDomain << sourceMDDDomain[j++];
+            else
+                newSourceMDDDomain << targetDomain[i];
+
+        sourceMDDDomain = newSourceMDDDomain;
+
+        TALK("  new source update domain " << sourceMDDDomain);
+    }
+    
+    // check if you may update that are ( you should not go out of bounds for mdddomaintype )
+    if (!targetObj->getMDDBaseType()->compatibleWithDomain(&sourceMDDDomain))
+    {
+        RMInit::logOut << "Error: QtUpdate::evaluate() - The update domain is outside the allowed domain of the target mdd." << endl;
+        throwError(nextTupel, target, source, 953, targetDomainData);
+    }
+    
+    //
+    // get all source tiles
+    //
+    vector<Tile*>* sourceTiles = sourceObj->getTiles();
+    
+    RMDBGIF(1, RMDebug::module_qlparser, "QtUpdate", \
+                        if (sourceTiles) \
+                        { \
+                            TALK("  there are " << sourceTiles->size() << " source tiles") \
+                            vector<Tile*>::iterator sourceTilesIterator; \
+                            for (sourceTilesIterator = sourceTiles->begin(); sourceTilesIterator != sourceTiles->end(); sourceTilesIterator++) \
+                                TALK("    tile domain: " << (*sourceTilesIterator)->getDomain()) \
+                        } \
+                        else \
+                            TALK("  there are no source tiles") \
+    );
+
+    //
+    // get all target tiles in the relevant area
+    //
+    vector<Tile*>* targetTiles = NULL;
+    targetTiles = targetObj->intersect(sourceMDDDomain);
+    if (!targetTiles)
+    {
+        targetTiles = new vector<Tile*>;
+        TALK("  there are no target tiles");
+    }
+    else
+    {
+        TALK("  there are " << targetTiles->size() << " target tiles");
+        vector<Tile*>::iterator targetTilesIterator;
+        for (targetTilesIterator = targetTiles->begin(); targetTilesIterator != targetTiles->end(); targetTilesIterator++) \
+            TALK("    tile domain: " << (*targetTilesIterator)->getDomain())
+    }
+
+    //
+    // iterate over source tiles
+    //
+    unsigned long targetTileArea = 0;
+    unsigned long sourceTileArea = 0;
+    unsigned long targetTileDomain = 0;
+    unsigned long updatedArea = 0;
+    bool computed = false;
+    vector<r_Minterval> insertedDomains;
+    vector<r_Minterval> sourceDomains;
+    vector<r_Minterval> targetDomains;
+    vector<r_Minterval>::iterator domIt;
+    vector<r_Minterval>::iterator intervalIt;
+    vector<Tile*> retval;
+    vector<Tile*>::iterator retvalIt;
+    vector<Tile*>::iterator sourceIt;
+    vector<Tile*>::iterator targetIt;
+    sourceIt = sourceTiles->begin();
+    
+    //this lives here because we don't want memory leaks because of exceptions
+    //of course we seldom use this operation ( as we use copy tile most of the time )
+    UnaryOp* tempOp = NULL;
+    if (sourceIt != sourceTiles->end())
+        tempOp = Ops::getUnaryOp(Ops::OP_IDENTITY, targetObj->getCellType(), (*sourceIt)->getType(), 0, 0);
+    std::auto_ptr<UnaryOp> identityOp(tempOp);
+    
+    const vector<bool>* trimFlags = NULL;
+    
+    //
+    // iterate over source tiles
+    //
+    TALK("");
+    for (; sourceIt != sourceTiles->end(); sourceIt++)
+    {
+        // calculate relevant area of source tile
+        r_Minterval sourceTileDomain = (*sourceIt)->getDomain().create_intersection(sourceMDD->getLoadDomain());
+        TALK("original source tile domain " << sourceTileDomain);
+
+        // compute update source tile domain taking into account update domain
+        r_Minterval updateSourceTileDomain;
+        if (targetDomainData)
+        {
+            updateSourceTileDomain = r_Minterval(targetMDD->getLoadDomain().dimension());
+            trimFlags = ((QtMintervalData*) targetDomainData)->getTrimFlags();
+
+            for (int i = 0, j = 0; i < trimFlags->size(); i++)
+                if ((*trimFlags)[i])
+                    updateSourceTileDomain << sourceTileDomain[j++];
+                else
+                    updateSourceTileDomain << targetDomain[i];
+        }
+        else
+            updateSourceTileDomain = sourceTileDomain;
+        TALK("update source tile domain " << updateSourceTileDomain);
+
+        // calculate number of cells in this area
+        sourceTileArea = sourceTileArea + sourceTileDomain.cell_count();
+
+        bool intersection = false;
+
+        // see if there are existing tiles to be updated
+        for (targetIt = targetTiles->begin(); targetIt != targetTiles->end(); targetIt++)
+        {
+            r_Minterval targetTileDomain = (*targetIt)->getDomain();
+            
+            if (!computed)
+            {
+                targetTileArea = targetTileArea + sourceMDDDomain.create_intersection(targetTileDomain).cell_count();
+            }
+            
+            // if tiles are intersecting
+            if (updateSourceTileDomain.intersects_with(targetTileDomain))
+            {
+                TALK("  target tile domain " << targetTileDomain);
+                intersection = true;
+
+                // get intersecting updateSourceTileDomain
+                r_Minterval intersectUpdateSourceTileDomain = updateSourceTileDomain.create_intersection(targetTileDomain);
+                TALK("    source and target tiles intersect: " << intersectUpdateSourceTileDomain);
+
+                // compute corresponding sourceTileDomain
+                r_Minterval intersectSourceTileDomain = intersectUpdateSourceTileDomain;
+                if (targetDomainData)
+                {
+                    const vector<bool>* trimFlags = ((QtMintervalData*) targetDomainData)->getTrimFlags();
+
+                    for (int i = 0, j = 0; i < trimFlags->size(); i++)
+                        if (!((*trimFlags)[i]))
+                            intersectSourceTileDomain.delete_dimension(j);
+                        else
+                            j++;
+                }
+
+                TALK("    intersection after removing slices: " << intersectSourceTileDomain);
+                
+                TALK("    updating target tile with source tile data...");
+                if (intersectUpdateSourceTileDomain.dimension() == intersectSourceTileDomain.dimension())
+                    (*targetIt)->copyTile(intersectUpdateSourceTileDomain, *sourceIt, intersectSourceTileDomain);
+                else
+                    (*targetIt)->execUnaryOp(&(*identityOp), intersectUpdateSourceTileDomain, *sourceIt, intersectSourceTileDomain);
+                updatedArea = updatedArea + intersectUpdateSourceTileDomain.cell_count();
+            }
+        }
+        computed = true;
+        
+        // insert the tile
+        if (!intersection)
+        {
+            // Create a new persistent tile, copy the transient data,
+            // and insert it into the target mdd object.
+            TALK("  no intersection with target tiles found, inserting new tile");
+            Tile* newPersTile = new Tile(updateSourceTileDomain, targetObj->getCellType(), (*sourceIt)->getDataFormat());
+            if (updateSourceTileDomain.dimension() == sourceTileDomain.dimension())
+                newPersTile->copyTile(updateSourceTileDomain, *sourceIt, sourceTileDomain);
+            else
+                newPersTile->execUnaryOp(&(*identityOp), updateSourceTileDomain, *sourceIt, sourceTileDomain);
+            
+            TALK("  update domains: target tile " << newPersTile->getDomain() 
+                    << " update target at " << updateSourceTileDomain << 
+                    ", source tile " << (*sourceIt)->getDomain() 
+                    << " update with data at " << sourceTileDomain)
+
+            targetObj->insertTile(newPersTile);
+            updatedArea = updatedArea + updateSourceTileDomain.cell_count();
+            insertedDomains.push_back((*sourceIt)->getDomain());
+        }
+    }//for is done
+
+    if (sourceTileArea > updatedArea)
+    {
+        TALK("  the source area (" << sourceTileArea << 
+                ") was not updated completely (only " << updatedArea << "), tiling the rest")
+        while (!insertedDomains.empty())
+        {
+            intervalIt = insertedDomains.begin();
+            for (sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
+                if ((*sourceIt)->getDomain() == *intervalIt)
+                {
+                    sourceTiles->erase(sourceIt);
+                    break;
+                }
+            insertedDomains.erase(intervalIt);
+        }
+
+        r_Minterval targetTileDomain;
+        for (targetIt = targetTiles->begin(); targetIt != targetTiles->end(); targetIt++)
+        {
+            targetTileDomain = (*targetIt)->getDomain();
+            targetDomains.push_back(targetTileDomain);
+        }
+
+        for (sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
+        {
+
+            /*
+             * When we try to update an object of N dimensions with data of less
+             * dimensions, we should extend the source data here to N dimensions as well,
+             * otherwise an index violation error is thrown.
+             *
+             * Example: "update Coll as m set m[5,*:*,*:*] assign marray x in [0:10,0:10] values 1c"
+             * Coll is 3D but we update it with a 2D array, by restricting the target update interval
+             * to slice 5. So the update array is extended to [5:5,0:10,0:10]
+             *
+             * -- DM 2012-may-23
+             */
+
+            r_Minterval origSourceDomain = (*sourceIt)->getDomain();
+            r_Minterval resSourceDomain;
+            if (trimFlags)
+            {
+                resSourceDomain = r_Minterval(targetTileDomain.dimension());
+                for (int i = 0, j = 0; i < trimFlags->size(); i++)
+                    if ((*trimFlags)[i])
+                        resSourceDomain << origSourceDomain[j++];
+                    else
+                        resSourceDomain << targetTileDomain[i];
+            }
+            else
+                resSourceDomain = origSourceDomain;
+            sourceDomains.push_back(resSourceDomain);
+            //          sourceDomains.push_back((*sourceIt)->getDomain());
+        }
+        
+        r_Tiler t(sourceDomains, targetDomains);
+        t.split();
+        t.removeDoubleDomains();
+        t.removeCoveredDomains();
+        t.mergeDomains();
+        retval = t.generateTiles(*sourceTiles);
+        for (retvalIt = retval.begin(); retvalIt != retval.end(); retvalIt++)
+        {
+            // Copy data from source tiles to the newly inserted tiles -- DM 2012-may-23
+            for (sourceIt = sourceTiles->begin(), domIt = sourceDomains.begin();
+                    sourceIt != sourceTiles->end(); sourceIt++, domIt++)
+            {
+                if ((*domIt).intersects_with((*retvalIt)->getDomain()))
+                {
+                    r_Minterval intersectRetvalTileDomain = (*domIt).create_intersection((*retvalIt)->getDomain());
+                    r_Minterval intersectSourceTileDomain = intersectRetvalTileDomain;
+                    if (trimFlags)
+                    {
+                        for (int i = 0, j = 0; i < trimFlags->size(); i++)
+                            if (!((*trimFlags)[i]))
+                                intersectSourceTileDomain.delete_dimension(j);
+                            else
+                                j++;
+                    }
+                    if (intersectRetvalTileDomain.dimension() == intersectSourceTileDomain.dimension())
+                        (*retvalIt)->copyTile(intersectRetvalTileDomain, *sourceIt, intersectSourceTileDomain);
+                    else
+                        (*retvalIt)->execUnaryOp(&(*identityOp), intersectRetvalTileDomain, *sourceIt, intersectSourceTileDomain);
+                }
+            }
+
+            targetObj->insertTile((Tile*) (*retvalIt));
+        }
+        RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtUpdate", "insertion of the rest is done")
+    }
+
+    // delete tile vectors
+    delete sourceTiles;
+    sourceTiles = NULL;
+    delete targetTiles;
+    targetTiles = NULL;
+
+    // delete optional operand
+    if (targetDomainData) targetDomainData->deleteRef();
+
+    // delete the operands
+    if (target) target->deleteRef();
+    if (source) source->deleteRef();
+}
+
+bool
+QtUpdate::checkOperands(QtNode::QtDataList* nextTupel, QtData* target, QtData* source)
+{
+    // Test, if the operands are valid.
+    if (target && source)
+    {
+        // check update target
+        if (target->getDataType() != QT_MDD)
+        {
+            RMInit::logOut << "Error: QtUpdate::evaluate() - update target must be an iterator variable." << endl;
+            throwError(nextTupel, target, source, 950);
+        }
+
+        // check update source
+        if (source->getDataType() != QT_MDD)
+        {
+            RMInit::logOut << "Error: QtUpdate::evaluate() - update source must be an expression resulting in an MDD" << endl;
+            throwError(nextTupel, target, source, 951);
+        }
+    }
+    else {
+        RMInit::logOut << "Error: QtUpdate::evaluate() - target or source is not provided." << endl;
+
+        // delete the operands
+        if (target) target->deleteRef();
+        if (source) source->deleteRef();
+        
+        return false;
+    }
+    return true;
+}
+
+
+void
+QtUpdate::throwError(QtNode::QtDataList* nextTupel, QtData* target, QtData* source, int errorNumber, QtData* domainData)
+{
+
+    // delete tupel vector received by next()
+    for (vector<QtData*>::iterator dataIter = nextTupel->begin();
+            dataIter != nextTupel->end(); dataIter++)
+        if (*dataIter) (*dataIter)->deleteRef();
+    delete nextTupel;
+    nextTupel = NULL;
+
+    // delete the operands
+    if (target) target->deleteRef();
+    if (source) source->deleteRef();
+    if (domainData) domainData->deleteRef();
+
+    parseInfo.setErrorNo(errorNumber);
+    throw parseInfo;
+}
+
+
+void
+QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target,
+                                   QtData* source, QtData* domainData,
+                                   QtMDD* targetMDD, QtMDD* sourceMDD)
+{
+    // In case of update domain existence, test for compatibility.
+    if (domainData)
+    {
+        r_Minterval domain = ((QtMintervalData*) domainData)->getMintervalData();
+        // Dimensionality of the udate domain specification has to be equal to
+        // the target MDD dimensionality.
+        if (domain.dimension() != targetMDD->getLoadDomain().dimension())
+        {
+            RMInit::logOut << "Error: QtUpdate::evaluate() - Update domain dimensionality must match target MDD dimensionaltiy." << endl;
+            throwError(nextTupel, target, source, 963, domainData);
+        }
+
+        // The number of interval dimension of the update domain has to be
+        // equal to the number of dimensions of the source domain.
+        int updateIntervals = 0;
+        const vector<bool>* trimFlags = ((QtMintervalData*) domainData)->getTrimFlags();
+        for (int i = 0; i < trimFlags->size(); i++)
+            if ((*trimFlags)[i])
+                updateIntervals++;
+
+        if (updateIntervals != sourceMDD->getLoadDomain().dimension())
+        {
+            RMInit::logOut << "Error: QtUpdate::evaluate() - Number of update intervals must match source dimensionality." << endl;
+            throwError(nextTupel, target, source, 962, domainData);
+        }
+
+        // Before: Warning: Fixed bounds in update domain specifications are ignored.
+
+        // After: Actually we should be stricter here and respect the documentation:
+        // throw an exception if the source domain isn't within the target domain -- DM 2012-mar-12
+
+        // copied from r_Minterval::covers(..), we have to rule out slices here
+        const r_Minterval& sourceDomain = sourceMDD->getLoadDomain();
+        int j = 0;
+        for (r_Dimension i = 0; i < domain.dimension(); i++)
+        {
+            if ((*trimFlags)[i]) // consider only trims
+            {
+                if ((domain[i].is_low_fixed() && (!(sourceDomain[j].is_low_fixed()) || domain[i].low() > sourceDomain[j].low())) ||
+                        (domain[i].is_high_fixed() && (!(sourceDomain[j].is_high_fixed()) || domain[i].high() < sourceDomain[j].high())))
+                {
+                    RMInit::logOut << "Error: QtUpdate::evaluate() - source domain " <<
+                            sourceDomain << " isn't within the target domain " << domain << endl;
+
+                    // delete tupel vector received by next()
+                    for (vector<QtData*>::iterator dataIter = nextTupel->begin();
+                            dataIter != nextTupel->end(); dataIter++)
+                        if (*dataIter) (*dataIter)->deleteRef();
+                    delete nextTupel;
+                    nextTupel = NULL;
+
+                    // delete the operands
+                    if (target) target->deleteRef();
+                    if (domainData) domainData->deleteRef();
+                    if (source) source->deleteRef();
+
+                    parseInfo.setErrorNo(967);
+                    throw parseInfo;
+                }
+                ++j;
+            }
+        }
+
+    }
+}
 
 
 QtNode::QtNodeList*

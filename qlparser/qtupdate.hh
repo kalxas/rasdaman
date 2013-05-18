@@ -4,6 +4,7 @@
 #include "qlparser/qtexecute.hh"
 #include "qlparser/qtoncstream.hh"
 #include "qlparser/qtoperation.hh"
+#include "qlparser/qtmdd.hh"
 
 #include <iostream>
 
@@ -95,6 +96,21 @@ public:
     virtual void checkType();
 
 private:
+    /// evaluate one tupel of the input stream
+    void evaluateTupel(QtNode::QtDataList* nextTupel);
+    
+    /// check validity of operands
+    bool checkOperands(QtNode::QtDataList* nextTupel, QtData* target, QtData* source);
+    
+    /// test for update domain compatibility
+    void checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target,
+                                  QtData* source, QtData* domainData,
+                                  QtMDD* targetMDD, QtMDD* sourceMDD);
+    
+    /// generic method to handle errors
+    void throwError(QtNode::QtDataList* nextTupel, QtData* target,
+                    QtData* source, int errorNumber, QtData* domainData = NULL);
+    
     /// one input stream
     QtONCStream* input;
 
