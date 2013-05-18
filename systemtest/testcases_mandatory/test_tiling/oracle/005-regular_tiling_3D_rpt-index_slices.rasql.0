@@ -1,5 +1,5 @@
 {
- "baseType": "marray <char>",
+ "baseType": "marray <char, 3>",
  "tileNo": "4",
  "totalSize": "800",
  "tiling": {

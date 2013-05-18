@@ -57,12 +57,12 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 #
 # paths
 #
-TESTDATA_PATH="$SCRIPT_DIR/testdata"
-[ -d "$TESTDATA_PATH" ] || error "Testdata directory not found: $TESTDATA_PATH"
 ORACLE_PATH="$SCRIPT_DIR/oracle"
 [ -d "$ORACLE_PATH" ] || error "Expected results directory not found: $ORACLE_PATH"
 QUERY_PATH="$SCRIPT_DIR/test_rasql"
 [ -d "$QUERY_PATH" ] || error "Rasql query dir not found: $QUERY_PATH"
+OUTPUT_PATH="$SCRIPT_DIR/output"
+mkdir -p "$OUTPUT_PATH"
 
 FAILED="$SCRIPT_DIR"/failed_cases
 
@@ -95,6 +95,7 @@ for i in $QUERY_PATH/*.rasql; do
 	Q_ID=`basename $i`
 
   echo "----------------------------------------------------------------------" | tee -a $LOG
+  echo | tee -a $LOG
   log "running queries in $Q_ID"
   echo "" | tee -a $LOG
 
@@ -156,7 +157,7 @@ for i in $QUERY_PATH/*.rasql; do
 	    log "Result correct for the query."
 	    NUM_SUC=$(($NUM_SUC + 1))
 	  fi
-	  rm -f $q_id
+	  mv $q_id "$OUTPUT_PATH"
 
     counter=$(($counter+1))
     QUERY=""

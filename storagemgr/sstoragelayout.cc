@@ -298,64 +298,102 @@ StorageLayout::~StorageLayout()
 std::vector< r_Minterval >
 StorageLayout::calcRegLayout(const r_Minterval& tileDomain) const
 {
-    RMDBGENTER(4, RMDebug::module_storagemgr, "StorageLayout", "calcRegLayout(" << tileDomain << ") " << myLayout->getOId());
+    RMDBGENTER(4, RMDebug::module_storagemgr, "StorageLayout", 
+               "calcRegLayout(" << tileDomain << ") " << myLayout->getOId());
     std::vector< r_Minterval > retval;
     r_Minterval base = myLayout->getTileConfiguration();
-    RMDBGMIDDLE(5, RMDebug::module_storagemgr, "StorageLayout", "base: " << base)
+    RMDBGMIDDLE(5, RMDebug::module_storagemgr, "StorageLayout", "tiling configuration: " << base)
     r_Point borigin = base.get_origin();
     r_Point bhigh = base.get_high();
     r_Point bextent = base.get_extent();
     r_Point torigin = tileDomain.get_origin();
     r_Point thigh = tileDomain.get_high();
     r_Point textent = tileDomain.get_extent();
-    r_Dimension dim = base.dimension();
-    r_Point transex(dim);
-    r_Point transexmax(dim);
-    r_Point transco(dim);
-    r_Point transcotemp(dim);
-    r_Minterval nextDomain(dim);
-    r_Dimension counter2 = 0;
-    r_Range extent = 0;
-    r_Range extent2 = 0;
+    r_Dimension bdim = base.dimension();
+    r_Point transex(bdim);
+    r_Point transexmax(bdim);
+    r_Point transco(bdim);
+    r_Point transcotemp(bdim);
+    r_Point trans(bdim);
+    r_Minterval nextDomain(bdim);
+    r_Dimension i = 0;
+    r_Dimension j = 0;
+    int currdim = 0;
     r_Range origindiff = 0;
     r_Range highdiff = 0;
-    for (counter2 = 0; counter2 < dim; counter2++)
+    
+    RMDBGMIDDLE(5, RMDebug::module_storagemgr, "StorageLayout", 
+                "base       : origin " << borigin << ", high " << bhigh << ", extent " << bextent << ", dimension " << bdim)
+    RMDBGMIDDLE(5, RMDebug::module_storagemgr, "StorageLayout", 
+                "tile domain: origin " << torigin << ", high " << thigh << ", extent " << textent)
+    
+    // go through all dimensions of the base tile configuration
+    for (i = 0; i < bdim; i++)
     {
-        origindiff = torigin[counter2] - borigin[counter2];
-        highdiff = thigh[counter2] - bhigh[counter2];
-        if (highdiff%bextent[counter2] > 0)
-            transexmax[counter2] = highdiff/bextent[counter2] + 1;
+        origindiff = torigin[i] - borigin[i];
+        highdiff = thigh[i] - bhigh[i];
+        
+        if (highdiff%bextent[i] > 0)
+            transexmax[i] = highdiff/bextent[i] + 1;
         else
-            transexmax[counter2] = highdiff/bextent[counter2];
-        if (origindiff%bextent[counter2] < 0)
-            transex[counter2] = origindiff/bextent[counter2] - 1;
+            transexmax[i] = highdiff/bextent[i];
+        if (origindiff%bextent[i] < 0)
+            transex[i] = origindiff/bextent[i] - 1;
         else
-            transex[counter2] = origindiff/bextent[counter2];
-        transco[counter2] = (transex[counter2]) * bextent[counter2];
+            transex[i] = origindiff/bextent[i];
+        
+        trans[i] = transex[i];
+        
+        transco[i] = (transex[i]) * bextent[i];
     }
-    for (extent = transex[dim - 1]; extent <= transexmax[dim - 1]; extent++)
-    {
-        transcotemp = transco;
-        transcotemp[dim - 1] = bextent[dim - 1] * extent;
-        nextDomain = base.create_translation(transcotemp);
-        retval.push_back(nextDomain);
 
-        for (counter2 = 0; counter2 < dim - 1; counter2++)
+    // generate domains according to tiling layout
+    while (1)
+    {
+        // current dimension, start from the last one
+        currdim = bdim - 1;
+        
+        // setup translation vector
+        for (j = 0; j < bdim; j++)
         {
-            for (extent2 = transex[counter2] + 1; extent2 <= transexmax[counter2]; extent2++)
-            {
-                transcotemp[counter2] = bextent[counter2] * extent2;
-                nextDomain = base.create_translation(transcotemp);
-                retval.push_back(nextDomain);
-            }
+            transcotemp[j] = bextent[j] * trans[j];
+        }
+        
+        // advance current dimension
+        for (j = trans[currdim]; j <= transexmax[currdim]; j++)
+        {
+            transcotemp[currdim] = bextent[currdim] * j;
+            nextDomain = base.create_translation(transcotemp);
+            retval.push_back(nextDomain);
+        }
+        --currdim;
+        
+        //
+        // advance the next available dimension
+        //
+        // 1. find the next available dimension
+        while (currdim >= 0 && trans[currdim] == transexmax[currdim])
+            --currdim;
+        // if none found we're done
+        if (currdim < 0)
+            break;
+        // 2. advance dimension
+        ++trans[currdim];
+        // 3. reset later dimensions
+        ++currdim;
+        while (currdim < bdim)
+        {
+            trans[currdim] = transex[currdim];
+            ++currdim;
         }
     }
+
     RMDBGIF(5, RMDebug::module_storagemgr, "StorageLayout", \
             for (std::vector< r_Minterval >::iterator i = retval.begin(); i != retval.end(); i++) \
             RMDBGMIDDLE(1, RMDebug::module_storagemgr, "StorageLayout", *i); \
            );
-    RMDBGEXIT(4, RMDebug::module_storagemgr, "StorageLayout", "calcRegLayout(" << tileDomain << ") " << myLayout->getOId());
-    RMInit::logOut << "CalcReg Tiling: tile number: " << retval.size() << endl;
+    RMDBGEXIT(4, RMDebug::module_storagemgr, "StorageLayout", "calcRegLayout(" 
+            << tileDomain << ") " << myLayout->getOId());
     return retval;
 }
 
