@@ -137,7 +137,7 @@ public class EncodeDataExpr extends AbstractRasNode {
                 extraParams = '"' + extraParams + '"';
                 result = result + ", " + extraParams;
             } else if (encode && coverageExprType instanceof CoverageExpr
-                    && (format.equals(FormatExtension.TIFF_ENCODING) || format.equals(FormatExtension.JP2_ENCODING))) {
+                    && (format.equals(FormatExtension.TIFF_ENCODING) ||format.equals(FormatExtension.NETCDF_ENCODING) || format.equals(FormatExtension.JP2_ENCODING))) {
                 
                 // Get the bounds of the 2D requested coverage
                 try {

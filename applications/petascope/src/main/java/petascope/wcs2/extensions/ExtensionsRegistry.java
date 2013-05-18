@@ -45,6 +45,7 @@ public class ExtensionsRegistry {
     public static final String ENCODING_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage";
     public static final String GEOTIFF_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_geotiff/1.0/";
     public static final String JPEG2000_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_jpeg2000/1.0/";
+    public static final String NETCDF_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_netcdf/1.0/";
     public static final String CRS_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs";
     public static final String RANGE_SUBSETTING_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/";
     public static final String SCALING_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling";
@@ -69,8 +70,10 @@ public class ExtensionsRegistry {
         registerExtension(new GmlFormatExtension());
         registerExtension(new GeotiffFormatExtension());
         registerExtension(new JPEG2000FormatExtension());
+        registerExtension(new NetcdfFormatExtension());
         registerExtension(new MultipartGeotiffFormatExtension());
         registerExtension(new MultipartJPEG2000FormatExtension());
+        registerExtension(new MultipartNetcdfFormatExtension());
         registerExtension(new CRSExtension());
         registerExtension(new RangeSubsettingExtension());
         registerExtension(new ScalingExtension());

@@ -41,11 +41,13 @@ public interface FormatExtension extends  Extension {
     String MIME_XML = "text/xml";
     String MIME_TIFF = "image/tiff";
     String MIME_JP2 = "image/jp2";
+    String MIME_NETCDF = "application/netcdf";
     
     String CSV_ENCODING = "csv";
     String TIFF_ENCODING = "tiff";
     String JP2_ENCODING = "jpeg2000";
     String PNG_ENCODING = "png";
+    String NETCDF_ENCODING = "netcdf";
     
     /**
      * Check if this format extension is the right one for req
