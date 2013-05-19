@@ -78,7 +78,12 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
             throw pEx;
         }
         
-       
+       if ( !(m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE) ||
+              m.getCoverageType().equals(GetCoverageRequest.RECTIFIED_GRID_COVERAGE))) {
+       throw new WCSException(ExceptionCode.NoApplicableCode, "The Netcdf format extension "
+                    + "only supports GridCoverage and RectifiedGridCoverage");
+        }
+  
         Pair<Object, String> p = null;
         if (m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE)) {
             // return plain Netcdf
@@ -89,13 +94,8 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
             // Need to use the GetCoverage metadata which has updated bounds [see super.setBounds()]
             String[] domLo = m.getDomLow().split(" ");
             String[] domHi = m.getDomHigh().split(" ");
-            if (domLo.length != 2 || domHi.length != 2) {
-                // Output grid dimensions have already been checked (see above), but double-check on the domain bounds:
-                log.error("Cannot format Netcdf: output dimensionality is not 2.");
-                throw new WCSException(ExceptionCode.InvalidRequest, "Output dimensionality of the requested coverage is " +
-                        (domLo.length==2?domHi.length:domLo.length) + " whereas Netcdf requires 2-dimensional grids.");
-            }
-            crsProperties = (new MiscUtil()).new CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName());
+
+            crsProperties = (new MiscUtil()).new CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName()); 
             p = executeRasqlQuery(request, m, meta, NETCDF_ENCODING, crsProperties.toString());
         }
 
