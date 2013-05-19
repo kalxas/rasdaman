@@ -150,13 +150,13 @@ for i in $QUERY_PATH/*.rasql; do
 	  mv $q_id "$OUTPUT_PATH"
 	  cmp $ORACLE_PATH/$q_id "$OUTPUT_PATH/$q_id"
 	  if [ $? != 0 ]; then
-	    log "Result error for the query."
+	    log "Result of query contains error."
 		  NUM_FAIL=$(($NUM_FAIL + 1))
       echo "----------------------------------------------------------------------" >> $FAILED
       echo $q_id >> $FAILED
       echo $QUERY >> $FAILED
 	  else
-	    log "Result correct for the query."
+	    log "Result of query is correct."
 	    NUM_SUC=$(($NUM_SUC + 1))
 	  fi
 
