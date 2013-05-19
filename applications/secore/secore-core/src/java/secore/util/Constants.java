@@ -62,7 +62,12 @@ public interface Constants {
   String DEMO_FILE = "demo.jsp";
   String IOUTIL_CLASS = "IOUtil.class";
   
-  String NAMESPACE_GML = "http://www.opengis.net/gml";
+  // list of potential GML namespaces, they vary between EPSG db versions
+  String[] GML_NAMESPACES = {
+    "http://www.opengis.net/gml",
+    "http://www.opengis.net/gml/3.2"
+  };
+  String NAMESPACE_GML = StringUtil.getGmlNamespace();
   String NAMESPACE_XLINK = "http://www.w3.org/1999/xlink";
   String NAMESPACE_EPSG = "urn:x-ogp:spec:schema-xsd:EPSG:0.1:dataset";
   

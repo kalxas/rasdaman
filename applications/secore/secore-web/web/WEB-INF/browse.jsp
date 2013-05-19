@@ -59,7 +59,7 @@
   if (null != mod) {
     if (!mod.equals(Constants.EMPTY)) {
       String urlnoColon =  urlColon.substring(0, urlColon.length() -1);
-      String query = "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
+      String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
           + "let $x := doc('gml')//gml:identifier[text() = '" + Constants.URN_SHORT_PREFIX + urlnoColon + "']/.." + Constants.NEW_LINE
           + "return replace node $x with " + mod.replaceAll("\\{", "{{").replaceAll("\\}", "}}");
       DbManager.clearCache();
@@ -74,9 +74,9 @@
   String newd = request.getParameter("adddef");
   if (null != newd) {
     if (!newd.equals(Constants.EMPTY)) {
-      String query = "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
+      String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
           + "let $x := doc('gml')" + Constants.NEW_LINE
-          + "return insert node <dictionaryEntry xmlns=\"http://www.opengis.net/gml\">"
+          + "return insert node <dictionaryEntry xmlns=\"" + Constants.NAMESPACE_GML + "\">"
           + newd.replaceAll("\\{", "{{").replaceAll("\\}", "}}")
           + "</dictionaryEntry> into $x";
       DbManager.clearCache();
@@ -104,13 +104,13 @@
       if (todel.equals(Constants.ZERO)) {
         todel = Constants.EMPTY;
       }  
-      String query = "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
+      String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
           + "for $x in doc('gml')//gml:identifier[text() = '" + Constants.URN_SHORT_PREFIX + urlColon + todel + "']/.. union doc('gml')//gml:identifier[contains(.,'"+ urlColon + todel +":')]/.." + Constants.NEW_LINE
           + "return delete node $x";
       String result = DbManager.getInstance().getDb().query(query);
     }
     // Query for the list
-    String query = "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
+    String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
       + "for $x in doc('gml')//gml:identifier[contains(.,'"+ urlColon +"')]/text()" + Constants.NEW_LINE
       + "return <el>{$x}</el>";
     String result = DbManager.getInstance().getDb().query(query);
@@ -118,7 +118,7 @@
     // Query for individual GML definitions
     if (result.isEmpty()) {
       urlColon =  urlColon.substring(0, urlColon.length() -1);
-      query = "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
+      query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
           + "let $d := doc('gml')" + Constants.NEW_LINE
           + "return $d//gml:identifier[text() = '" + Constants.URN_SHORT_PREFIX + urlColon + "']/..";
       result = DbManager.getInstance().getDb().query(query);

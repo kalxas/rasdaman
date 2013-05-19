@@ -35,6 +35,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.db.DbManager;
 import static secore.util.Constants.*;
 
 /**
@@ -298,5 +299,32 @@ public class StringUtil {
     // TODO fix handling of version, 0 is assumed now
     return s.replaceAll(URN_PREFIX + ":(.+):(.+)::(.+)",
         Config.getInstance().getServiceUrl() + "/$1/$2/0/$3");
+  }
+  
+  /**
+   * @return the GML namespace used in the underlying database
+   * @throws SecoreException 
+   */
+  public static String getGmlNamespace() {
+    String ret = EMPTY;
+    String prefix = "declare namespace gml = \"";
+    String suffix = "let $x := doc('gml')/gml:Dictionary\n" +
+                    "return namespace-uri($x)";
+    
+    // iterate through possible namespaces to find the one we need
+    for (String ns : GML_NAMESPACES) {
+      String query = prefix + ns + "\";\n" + suffix;
+      try {
+        ret = DbManager.getInstance().getDb().query(query);
+      } catch (Exception ex) {
+      }
+      if (!EMPTY.equals(ret)) {
+        break;
+      }
+    }
+    if (EMPTY.equals(ret)) {
+      throw new RuntimeException("Couldn't determine the GML namespace used in the database.");
+    }
+    return ret;
   }
 }

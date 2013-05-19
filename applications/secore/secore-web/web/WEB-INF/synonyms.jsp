@@ -42,7 +42,7 @@
     String mod = request.getParameter("modsyn");
     if (null != mod) {
       if (!mod.equals(Constants.EMPTY)) {
-        String query = "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
+        String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
             + "let $x := doc('gml')//gml:axis[@identifier = '" +  request.getParameter("axisid") + "']" + Constants.NEW_LINE
             + "return replace node $x with " + mod;
         String result = DbManager.getInstance().getDb().query(query);
@@ -56,7 +56,7 @@
     String newd = request.getParameter("addnew");
     if (null != newd) {
       if (!newd.equals(Constants.EMPTY)) {
-        String query = "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
+        String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
             + "let $x := doc('gml')//gml:synonyms" + Constants.NEW_LINE
             + "return insert node "+newd+" into $x";
         String result = DbManager.getInstance().getDb().query(query);
@@ -71,7 +71,7 @@
       if (toedit.equals(Constants.ZERO)) {
         toedit = Constants.EMPTY;
       }  
-      String query = "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
+      String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
           + "let $d := doc('gml')" + Constants.NEW_LINE    
           + "return $d//gml:axis[@identifier = '" +  toedit + "']";
       String result = DbManager.getInstance().getDb().query(query);
@@ -105,14 +105,14 @@
           if (todel.equals(Constants.ZERO)) {
             todel = Constants.EMPTY;
           }  
-          String query = "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
+          String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
               + "let $d := doc('gml')" + Constants.NEW_LINE    
               + "return delete node $d//gml:axis[@identifier = '" +  todel + "']";
           String result = DbManager.getInstance().getDb().query(query);
         }
         out.println("<br/><span style=\"font-size:x-large;\">The list of the reference axes for which synonyms are provided:</span>");
         out.println("<br/><span style=\"font-size:x-large;\"><a href='"+ Constants.SYNONYMS_FILE + Constants.FRAGMENT_SEPARATOR + "add=true'>Add new</a></span><br/>");
-        String query = "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
+        String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
             + "for $x in data(doc('gml')//gml:synonym/../@identifier)"
             + "return <el>{$x}</el>";
         String result = DbManager.getInstance().getDb().query(query);
@@ -129,7 +129,7 @@
               id = id.substring(0, id.length() - 1);
             }
             query = "declare namespace epsg=\"urn:x-ogp:spec:schema-xsd:EPSG:0.1:dataset\";" + Constants.NEW_LINE
-                    + "declare namespace gml = \"http://www.opengis.net/gml\";" + Constants.NEW_LINE
+                    + "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
               + "let $d := doc('gml')" + Constants.NEW_LINE
               + "return $d//epsg:AxisName[gml:identifier[text() = '" + id + "']]/gml:name";
             result = DbManager.getInstance().getDb().query(query);

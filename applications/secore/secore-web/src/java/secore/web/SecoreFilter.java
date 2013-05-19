@@ -94,18 +94,18 @@ public class SecoreFilter implements Filter {
       String uri = ((HttpServletRequest) request).getRequestURI();
       log.debug("Request URI: " + uri);
       if (uri.endsWith(Constants.ADMIN_FILE)) {
-          log.debug("Call" + Constants.ADMIN_FILE);
+          log.debug("Call " + Constants.ADMIN_FILE);
           uri = uri.substring(0, uri.length() - Constants.ADMIN_FILE.length());
           request.setAttribute("url", uri);
           request.getRequestDispatcher("/WEB-INF/" + Constants.ADMIN_FILE).forward(request, response);
       } else if (uri.endsWith(Constants.SYNONYMS_FILE)) {
-          log.debug("Call" + Constants.SYNONYMS_FILE);
+          log.debug("Call " + Constants.SYNONYMS_FILE);
           request.getRequestDispatcher("/WEB-INF/" + Constants.SYNONYMS_FILE).forward(request, response);
       } else if (uri.endsWith(Constants.DEMO_FILE)) {
-          log.debug("Call" + Constants.DEMO_FILE);
+          log.debug("Call " + Constants.DEMO_FILE);
           request.getRequestDispatcher("/WEB-INF/" + Constants.DEMO_FILE).forward(request, response);
       } else if (uri.endsWith(Constants.INDEX_FILE)) {
-          log.debug("Call" + Constants.INDEX_FILE);
+          log.debug("Call " + Constants.INDEX_FILE);
           request.getRequestDispatcher("/" + Constants.INDEX_FILE).forward(request, response);
       } else if (uri.startsWith("/def")) {
           request.getRequestDispatcher(uri).forward(request, response);
