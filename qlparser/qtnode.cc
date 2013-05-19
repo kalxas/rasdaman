@@ -44,7 +44,7 @@ static const char rcsid[] = "@(#)qlparser, QtNode: $Id: qtnode.cc,v 1.27 2002/06
 
 const QtNode::QtNodeType QtNode::nodeType = QT_UNDEFINED_NODE;
 
-const int QtNode::QtNodes = 81;
+const int QtNode::QtNodes = QT_LAST_NODE_TYPE;
 
 const QtNode::QtNodeType QtNode::QtRoot = QT_UNDEFINED_NODE;
 
@@ -93,6 +93,7 @@ const QtNode::QtNodeType QtNode::QtInheritance[][2] =
     {QT_NARY_OPERATION, QT_MINTERVALOP},
     {QT_NARY_OPERATION, QT_POINTOP},
     {QT_NARY_OPERATION, QT_CONCAT},
+    {QT_NARY_OPERATION, QT_CASEOP},
     {QT_OPERATION, QT_UNARY_OPERATION},
     {QT_UNARY_OPERATION, QT_CONDENSE},
     {QT_CONDENSE, QT_ADDCELLS},
@@ -110,6 +111,8 @@ const QtNode::QtNodeType QtNode::QtInheritance[][2] =
     {QT_UNARY_OPERATION, QT_OID},
     {QT_UNARY_OPERATION, QT_SDOM},
     {QT_UNARY_OPERATION, QT_UNARY_INDUCE},
+    {QT_UNARY_OPERATION, QT_ENCODE},
+    {QT_UNARY_OPERATION, QT_INFO},
     {QT_UNARY_INDUCE, QT_CAST},
     {QT_UNARY_INDUCE, QT_DOT},
     {QT_UNARY_INDUCE, QT_IMAGINARPART},
@@ -130,7 +133,8 @@ const QtNode::QtNodeType QtNode::QtInheritance[][2] =
     {QT_UNARY_INDUCE, QT_ARCCOS},
     {QT_UNARY_INDUCE, QT_ARCTAN},
     {QT_UNARY_INDUCE, QT_POW},
-    {QT_OPERATION, QT_MDD_VAR}
+    {QT_OPERATION, QT_MDD_VAR},
+    {QT_UNDEFINED_NODE, QT_LAST_NODE_TYPE}
 };
 
 
@@ -320,10 +324,15 @@ QtNode::num_node (const QtNodePair *arr, const enum QtNodeType x)
 void
 QtNode::set_child_range(const QtNodePair *arr)
 {
+    RMInit::logOut << "number of nodes: " << QtNodes << endl;
     int i;
     child_range[QtNodes] = QtNodes-1;
+    RMInit::logOut << "set end node" << endl;
     for (i=QtNodes-3; i>=0; i--)
+    {
+        RMInit::logOut << "i = " << i << ", arr[i].base = " << arr[i+1].base << endl;
         if (arr[i].base != arr[i+1].base) child_range[arr[i+1].base] = i+1;
+    }
     child_range[arr[0].base] = 0;
     for (i=QtNodes-1; i>0; i--)
         if (child_range[i] == 0) child_range[i] = child_range[i+1];
