@@ -139,6 +139,7 @@ for i in $QUERY_PATH/*.rasql; do
       continue
     fi
     sed -i '/oid/d' tmp.unknown
+    sed -i '/baseType/d' tmp.unknown
     mv tmp.unknown $q_id
 
     if [ ! -f "$ORACLE_PATH/$q_id" ]; then
@@ -146,7 +147,8 @@ for i in $QUERY_PATH/*.rasql; do
     fi
 
     # Compare the result byte by byte with the expected result in oracle folder
-	  cmp $ORACLE_PATH/$q_id $q_id
+	  mv $q_id "$OUTPUT_PATH"
+	  cmp $ORACLE_PATH/$q_id "$OUTPUT_PATH/$q_id"
 	  if [ $? != 0 ]; then
 	    log "Result error for the query."
 		  NUM_FAIL=$(($NUM_FAIL + 1))
@@ -157,7 +159,6 @@ for i in $QUERY_PATH/*.rasql; do
 	    log "Result correct for the query."
 	    NUM_SUC=$(($NUM_SUC + 1))
 	  fi
-	  mv $q_id "$OUTPUT_PATH"
 
     counter=$(($counter+1))
     QUERY=""
