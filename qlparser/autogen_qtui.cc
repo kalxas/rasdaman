@@ -20,6 +20,9 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
+
+#include "qtatomicdata.hh"
+
 /*************************************************************
  *
  * 
@@ -265,6 +268,89 @@ const QtTypeElement& QtExp::checkType(QtTypeTuple* typeTuple) {
         }
         else
 		RMInit::logOut << "Error: QtExp::checkType() - operand branch invalid." << endl;
+
+	return dataStreamType;
+}
+
+const QtNode::QtNodeType QtPow::nodeType = QtNode::QT_POW;
+
+QtPow::QtPow(QtOperation* initInput, double newExponent): QtUnaryInduce(initInput),
+   exponent(newExponent) {
+}
+
+QtData* QtPow::evaluate(QtDataList* inputList) {
+	QtData* returnValue = NULL;
+	QtData* operand = NULL;
+
+	if(getOperand(inputList, operand)) {
+		try {
+			returnValue = computeOp( operand, Ops::OP_POW, exponent );
+		}
+		catch(...) {
+			operand->deleteRef();
+			throw;
+		}
+	}
+	// delete old operand
+	if(operand) operand->deleteRef();
+	return returnValue;
+}
+
+void QtPow::printTree(int tab, ostream& s, QtChildType mode) {
+	s << SPACE_STR(tab).c_str() << "QtPowObject " << getNodeType() << endl;
+	QtUnaryInduce::printTree( tab + 2, s, mode );
+}
+void QtPow::printAlgebraicExpression(ostream& s) {
+	s << "pow(";
+	if(input)
+		input->printAlgebraicExpression(s);
+	else
+        s << "<nn>";
+    s << ", " << exponent << ")";
+}
+
+const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple) {
+	RMDBCLASS( "QtPow", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
+	// check operand branches
+	if(input) {
+	// get input types
+	const QtTypeElement& inputType = input->checkType( typeTuple );
+	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
+		RMInit::dbgOut << "Operand: " << flush; \
+		inputType.printStatus( RMInit::dbgOut ); \
+		RMInit::dbgOut << endl; \
+	)
+	if(inputType.getDataType() == QT_MDD) {
+	const BaseType* baseType = ((MDDBaseType*)(inputType.getType()))->getBaseType();
+	BaseType* resultBaseType = (BaseType*)(Ops::getResultType( Ops::OP_POW, baseType ));
+	if(!resultBaseType) {
+		RMInit::logOut << "Error: QtPow::checkType() - induce operand type is not support" << endl;
+		parseInfo.setErrorNo(366);
+		throw parseInfo;
+	}
+	MDDBaseType* resultMDDType = new MDDBaseType( "tmp", resultBaseType );
+	TypeFactory::addTempType( resultMDDType );
+	dataStreamType.setType( resultMDDType );
+	}
+	else if(inputType.isBaseType()) {
+		BaseType* baseType = (BaseType*)(inputType.getType());
+		BaseType* resultBaseType = (BaseType*)(Ops::getResultType( Ops::OP_POW, baseType ));
+		if(!resultBaseType) {
+			RMInit::logOut << "Error: QtPow::checkType() - operand type is not supported." << endl;
+			parseInfo.setErrorNo(367);
+			throw parseInfo;
+	}
+		dataStreamType.setType( resultBaseType );
+	}
+	else {
+		RMInit::logOut << "Error: QtPow::checkType() - operation is not supported for strings." << endl;
+		parseInfo.setErrorNo(385);
+		throw parseInfo;
+	}
+        }
+        else
+		RMInit::logOut << "Error: QtPow::checkType() - operand branch invalid." << endl;
 
 	return dataStreamType;
 }

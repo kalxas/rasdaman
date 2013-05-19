@@ -209,7 +209,7 @@ struct QtUpdateSpecElement
                          DIV EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION
                          MDDPARAM OID SHIFT SCALE SQRT ABS EXP LOG LN SIN COS TAN SINH COSH TANH ARCSIN
-                         ARCCOS ARCTAN OVERLAY BIT UNKNOWN FASTSCALE PYRAMID MEMBERS ADD ALTER LIST 
+                         ARCCOS ARCTAN POW OVERLAY BIT UNKNOWN FASTSCALE PYRAMID MEMBERS ADD ALTER LIST 
 			  INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
 			 TILING ALIGNED REGULAR DIRECTIONAL
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
@@ -1764,6 +1764,28 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
  	}
+	| POW LRPAR generalExp COMMA IntegerLit RRPAR
+	{
+	  $$ = new QtPow( $3, (double) $5.svalue );
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->removeDynamicObject( $3 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($4)
+	  FREESTACK($6)
+	}
+	| POW LRPAR generalExp COMMA FloatLit RRPAR
+	{
+	  $$ = new QtPow( $3, $5.value );
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->removeDynamicObject( $3 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($4)
+	  FREESTACK($6)
+	}
 	| ABS LRPAR generalExp RRPAR         
 	{
 	  $$ = new QtAbs( $3 );

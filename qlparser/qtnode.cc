@@ -129,6 +129,7 @@ const QtNode::QtNodeType QtNode::QtInheritance[][2] =
     {QT_UNARY_INDUCE, QT_ARCSIN},
     {QT_UNARY_INDUCE, QT_ARCCOS},
     {QT_UNARY_INDUCE, QT_ARCTAN},
+    {QT_UNARY_INDUCE, QT_POW},
     {QT_OPERATION, QT_MDD_VAR}
 };
 

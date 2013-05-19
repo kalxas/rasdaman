@@ -94,6 +94,27 @@ private:
 
 */
 
+class QtPow : public QtUnaryInduce
+{
+public:
+    QtPow(QtOperation*, double);
+    QtData* evaluate(QtDataList*);
+    virtual void printTree(int, std::ostream& = std::cout, QtChildType = QT_ALL_NODES );
+    virtual void printAlgebraicExpression(std::ostream& = std::cout);
+    inline virtual const QtNodeType getNodeType() const;
+    virtual const QtTypeElement& checkType(QtTypeTuple* = NULL );
+
+private:
+    double exponent;
+    static const QtNodeType nodeType;
+};
+
+//@ManMemo: Module: {\bf qlparser}
+
+/*@Doc:
+
+*/
+
 class QtLog : public QtUnaryInduce
 {
 public:

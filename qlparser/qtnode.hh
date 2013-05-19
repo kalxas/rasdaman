@@ -172,6 +172,7 @@ public:
         QT_CONCAT,
         QT_CASEOP,
         QT_INFO,
+        QT_POW,
         QT_LAST_NODE_TYPE
     };
 

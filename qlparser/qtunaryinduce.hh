@@ -60,7 +60,7 @@ public:
 
 protected:
     /// computes the unary operation
-    QtData* computeOp( QtData* operand, Ops::OpType operation );
+    QtData* computeOp( QtData* operand, Ops::OpType operation, double param = 0.0 );
 
     /// method for testing and evaluating the input branch
     bool getOperand( QtDataList* inputList, QtData* &operand );
@@ -72,7 +72,7 @@ protected:
     */
 
     /// computes an unary induce operation with one MDD object
-    QtData* computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType, Ops::OpType operation, unsigned int operandOffset = 0 );
+    QtData* computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType, Ops::OpType operation, unsigned int operandOffset = 0, double param = 0.0 );
     /**
       The method carries out the unary induce operation specified by {\tt operation} on the operand. For
       the result, a new transient MDD object is created and returned. In the end, the MDD object of the operand
@@ -80,7 +80,7 @@ protected:
     */
 
     /// computes an unary induce operation with one MDD object
-    QtData* computeUnaryOp( QtScalarData* operand, const BaseType* resultBaseType, Ops::OpType operation, unsigned int operandOffset = 0 );
+    QtData* computeUnaryOp( QtScalarData* operand, const BaseType* resultBaseType, Ops::OpType operation, unsigned int operandOffset = 0, double param = 0.0 );
     /**
       The method carries out the unary operation specified by {\tt operation} on the operand.
     */

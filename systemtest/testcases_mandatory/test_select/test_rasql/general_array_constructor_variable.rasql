@@ -1,1 +1,1 @@
-select max_cell(marray x in [1:5], y in [1:10] values a[ x[0], y[0] ]) from test_grey as a
+select max_cells(marray x in [100:105], y in [100:105] values a[ x[0], y[0] ]) from test_grey as a

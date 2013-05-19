@@ -30,6 +30,7 @@ rasdaman GmbH.
 
 inline const QtNode::QtNodeType QtAbs::getNodeType() const { return nodeType; }
 inline const QtNode::QtNodeType QtSqrt::getNodeType() const { return nodeType; }
+inline const QtNode::QtNodeType QtPow::getNodeType() const { return nodeType; }
 inline const QtNode::QtNodeType QtExp::getNodeType() const { return nodeType; }
 inline const QtNode::QtNodeType QtLog::getNodeType() const { return nodeType; }
 inline const QtNode::QtNodeType QtLn::getNodeType() const { return nodeType; }

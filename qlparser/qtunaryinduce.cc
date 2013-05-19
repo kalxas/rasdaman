@@ -86,7 +86,7 @@ QtUnaryInduce::getOperand( QtDataList* inputList, QtData* &operand )
 
 
 QtData*
-QtUnaryInduce::computeOp( QtData* operand, Ops::OpType operation )
+QtUnaryInduce::computeOp( QtData* operand, Ops::OpType operation, double param )
 {
     QtData* returnValue = NULL;
 
@@ -96,7 +96,7 @@ QtUnaryInduce::computeOp( QtData* operand, Ops::OpType operation )
 
         const BaseType* resultCellType = (BaseType*)(Ops::getResultType( operation, mdd->getCellType() ));
 
-        returnValue = computeUnaryMDDOp( mdd, resultCellType, operation);
+        returnValue = computeUnaryMDDOp( mdd, resultCellType, operation, 0, param);
         
         ((QtMDD*) returnValue)->setFromConversion(mdd->isFromConversion());
     }
@@ -106,7 +106,7 @@ QtUnaryInduce::computeOp( QtData* operand, Ops::OpType operation )
 
         const BaseType* resultCellType = (BaseType*)(Ops::getResultType( operation, scalar->getValueType() ));
 
-        returnValue = computeUnaryOp( scalar, resultCellType, operation );
+        returnValue = computeUnaryOp( scalar, resultCellType, operation, 0, param );
     }
 
     return returnValue;
@@ -116,7 +116,7 @@ QtUnaryInduce::computeOp( QtData* operand, Ops::OpType operation )
 
 QtData*
 QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType,
-                                  Ops::OpType operation, unsigned int operandOffset )
+                                  Ops::OpType operation, unsigned int operandOffset, double param )
 {
     RMDBCLASS( "QtUnaryInduce", "computeUnaryMDDOp( QtMDD*, BaseType*, Ops::OpType, unsigned int ) ", "qlparser", __FILE__, __LINE__ )
 
@@ -173,6 +173,12 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
             parseInfo.setErrorNo(366);
             throw parseInfo;
         }
+        // set exponent for pow operations
+        if (operation == Ops::OP_POW)
+        {
+            ((OpPOWCDouble*)myOp)->setExponent(param);
+        }
+        
         // and iterate over them
         try
         {
@@ -248,7 +254,7 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
 
 QtData*
 QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBaseType,
-                               Ops::OpType operation, unsigned int operandOffset )
+                               Ops::OpType operation, unsigned int operandOffset, double param )
 {
     RMDBCLASS( "QtUnaryInduce", "computeUnaryOp( QtScalarData*, BaseType*, Ops::OpType, unsigned int ) ", "qlparser", __FILE__, __LINE__ )
 
@@ -269,7 +275,7 @@ QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBase
                                resultBaseType,
                                resultBuffer,
                                operand->getValueBuffer(),
-                               0, operandOffset );
+                               0, operandOffset, param );
     else
         try
         {
@@ -277,7 +283,7 @@ QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBase
                                    operand->getValueType(),
                                    resultBuffer,
                                    operand->getValueBuffer(),
-                                   0, operandOffset );
+                                   0, operandOffset, param );
         }
         catch(int err)
         {
