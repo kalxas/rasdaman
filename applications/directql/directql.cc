@@ -746,6 +746,12 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName ) throw(RasqlError,
     try
     {
         server->getTypeStructure(2, mddTypeName, ClientComm::r_MDDType_Type, typeStructure);
+        
+        // above doesn't seem to work, so at least make it work with inv_* functions -- DM 2013-may-19
+        if (!typeStructure)
+        {
+            typeStructure = strdup("marray<char>");
+        }
         TALK( "type structure is " << typeStructure );
     }
     catch (r_Error& err)
