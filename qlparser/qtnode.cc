@@ -324,13 +324,10 @@ QtNode::num_node (const QtNodePair *arr, const enum QtNodeType x)
 void
 QtNode::set_child_range(const QtNodePair *arr)
 {
-    RMInit::logOut << "number of nodes: " << QtNodes << endl;
     int i;
     child_range[QtNodes] = QtNodes-1;
-    RMInit::logOut << "set end node" << endl;
     for (i=QtNodes-3; i>=0; i--)
     {
-        RMInit::logOut << "i = " << i << ", arr[i].base = " << arr[i+1].base << endl;
         if (arr[i].base != arr[i+1].base) child_range[arr[i+1].base] = i+1;
     }
     child_range[arr[0].base] = 0;

@@ -296,63 +296,73 @@ QtData* QtPow::evaluate(QtDataList* inputList) {
 	return returnValue;
 }
 
-void QtPow::printTree(int tab, ostream& s, QtChildType mode) {
-	s << SPACE_STR(tab).c_str() << "QtPowObject " << getNodeType() << endl;
-	QtUnaryInduce::printTree( tab + 2, s, mode );
+void QtPow::printTree(int tab, ostream& s, QtChildType mode)
+{
+    s << SPACE_STR(tab).c_str() << "QtPowObject " << getNodeType() << endl;
+    QtUnaryInduce::printTree(tab + 2, s, mode);
 }
-void QtPow::printAlgebraicExpression(ostream& s) {
-	s << "pow(";
-	if(input)
-		input->printAlgebraicExpression(s);
-	else
+
+void QtPow::printAlgebraicExpression(ostream& s)
+{
+    s << "pow(";
+    if (input)
+        input->printAlgebraicExpression(s);
+    else
         s << "<nn>";
     s << ", " << exponent << ")";
 }
 
-const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple) {
-	RMDBCLASS( "QtPow", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
-	dataStreamType.setDataType( QT_TYPE_UNKNOWN );
-	// check operand branches
-	if(input) {
-	// get input types
-	const QtTypeElement& inputType = input->checkType( typeTuple );
-	RMDBGIF( 4, RMDebug::module_qlparser, "AutoGen", \
+const QtTypeElement& QtPow::checkType(QtTypeTuple* typeTuple)
+{
+    RMDBCLASS("QtPow", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__)
+    dataStreamType.setDataType(QT_TYPE_UNKNOWN);
+    // check operand branches
+    if (input)
+    {
+        // get input types
+        const QtTypeElement& inputType = input->checkType(typeTuple);
+        RMDBGIF(4, RMDebug::module_qlparser, "AutoGen", \
 		RMInit::dbgOut << "Operand: " << flush; \
-		inputType.printStatus( RMInit::dbgOut ); \
+		inputType.printStatus(RMInit::dbgOut); \
 		RMInit::dbgOut << endl; \
-	)
-	if(inputType.getDataType() == QT_MDD) {
-	const BaseType* baseType = ((MDDBaseType*)(inputType.getType()))->getBaseType();
-	BaseType* resultBaseType = (BaseType*)(Ops::getResultType( Ops::OP_POW, baseType ));
-	if(!resultBaseType) {
-		RMInit::logOut << "Error: QtPow::checkType() - induce operand type is not support" << endl;
-		parseInfo.setErrorNo(366);
-		throw parseInfo;
-	}
-	MDDBaseType* resultMDDType = new MDDBaseType( "tmp", resultBaseType );
-	TypeFactory::addTempType( resultMDDType );
-	dataStreamType.setType( resultMDDType );
-	}
-	else if(inputType.isBaseType()) {
-		BaseType* baseType = (BaseType*)(inputType.getType());
-		BaseType* resultBaseType = (BaseType*)(Ops::getResultType( Ops::OP_POW, baseType ));
-		if(!resultBaseType) {
-			RMInit::logOut << "Error: QtPow::checkType() - operand type is not supported." << endl;
-			parseInfo.setErrorNo(367);
-			throw parseInfo;
-	}
-		dataStreamType.setType( resultBaseType );
-	}
-	else {
-		RMInit::logOut << "Error: QtPow::checkType() - operation is not supported for strings." << endl;
-		parseInfo.setErrorNo(385);
-		throw parseInfo;
-	}
+        );
+        if (inputType.getDataType() == QT_MDD)
+        {
+            const BaseType* baseType = ((MDDBaseType*) (inputType.getType()))->getBaseType();
+            BaseType* resultBaseType = (BaseType*) (Ops::getResultType(Ops::OP_POW, baseType));
+            if (!resultBaseType)
+            {
+                RMInit::logOut << "Error: QtPow::checkType() - induce operand type is not support" << endl;
+                parseInfo.setErrorNo(366);
+                throw parseInfo;
+            }
+            MDDBaseType* resultMDDType = new MDDBaseType("tmp", resultBaseType);
+            TypeFactory::addTempType(resultMDDType);
+            dataStreamType.setType(resultMDDType);
+        }
+        else if (inputType.isBaseType())
+        {
+            BaseType* baseType = (BaseType*) (inputType.getType());
+            BaseType* resultBaseType = (BaseType*) (Ops::getResultType(Ops::OP_POW, baseType));
+            if (!resultBaseType)
+            {
+                RMInit::logOut << "Error: QtPow::checkType() - operand type is not supported." << endl;
+                parseInfo.setErrorNo(367);
+                throw parseInfo;
+            }
+            dataStreamType.setType(resultBaseType);
         }
         else
-		RMInit::logOut << "Error: QtPow::checkType() - operand branch invalid." << endl;
+        {
+            RMInit::logOut << "Error: QtPow::checkType() - operation is not supported for strings." << endl;
+            parseInfo.setErrorNo(385);
+            throw parseInfo;
+        }
+    }
+    else
+        RMInit::logOut << "Error: QtPow::checkType() - operand branch invalid." << endl;
 
-	return dataStreamType;
+    return dataStreamType;
 }
 
 const QtNode::QtNodeType QtLog::nodeType = QtNode::QT_LOG;
