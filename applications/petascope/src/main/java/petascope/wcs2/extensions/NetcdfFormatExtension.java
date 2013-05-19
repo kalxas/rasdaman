@@ -78,13 +78,7 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
             throw pEx;
         }
         
-        if (m.getGridDimension() != 2 || !(
-                m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE) ||
-                m.getCoverageType().equals(GetCoverageRequest.RECTIFIED_GRID_COVERAGE))) {
-            throw new WCSException(ExceptionCode.NoApplicableCode, "The Netcdf format extension "
-                    + "only supports GridCoverage and RectifiedGridCoverage with exactly two dimensions");
-        }
-        
+       
         Pair<Object, String> p = null;
         if (m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE)) {
             // return plain Netcdf
