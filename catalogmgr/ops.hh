@@ -35,6 +35,9 @@ rasdaman GmbH.
 #ifndef _OPS_HH_
 #define _OPS_HH_
 
+#include "config.h"
+#include "qlparser/qtatomicdata.hh"
+
 #include <limits.h>
 
 class CondenseOp;
@@ -128,7 +131,7 @@ public:
 
         //*******************
         OP_UFUNC_BEGIN,
-        OP_ABS, OP_SQRT,
+        OP_ABS, OP_SQRT, OP_POW,
         OP_EXP, OP_LOG, OP_LN,
         OP_SIN, OP_COS, OP_TAN,
         OP_SINH, OP_COSH, OP_TANH,
@@ -225,7 +228,7 @@ public:
     static void execUnaryConstOp( Ops::OpType op, const BaseType* resType,
                                   const BaseType* opType, char* res,
                                   const char* op1, unsigned int resOff = 0,
-                                  unsigned int opOff = 0 );
+                                  unsigned int opOff = 0, double param = 0 );
     /// executes operation on two constants.
     static void execBinaryConstOp( Ops::OpType op, const BaseType* resType,
                                    const BaseType* op1Type,

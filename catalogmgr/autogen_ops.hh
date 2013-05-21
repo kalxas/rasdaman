@@ -84,6 +84,31 @@ public:
 /**
   * \ingroup Catalogmgrs
   */
+class OpPOWCDouble : public UnaryOp
+{
+public:
+    OpPOWCDouble(
+        const BaseType* newResType,
+        const BaseType* newOpType,
+        unsigned int newResOff = 0,
+        unsigned int newOpOff = 0
+    );
+    virtual void operator() (char* result, const char* op);
+    void setExponent(double exponent);
+private:
+    double exponent;
+};
+
+//@ManMemo: Module: {\bf catalogmgr}
+
+/*@Doc:
+
+*/
+
+// class declaration
+/**
+  * \ingroup Catalogmgrs
+  */
 class OpEXPCDouble : public UnaryOp
 {
 public:

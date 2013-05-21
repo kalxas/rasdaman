@@ -79,6 +79,33 @@ void OpSQRTCDouble::operator()(char* res, const char* op)
     resType->makeFromCDouble(res + resOff, &convRes);
 }
 
+OpPOWCDouble::OpPOWCDouble(
+    const BaseType* newResType,
+    const BaseType* newOpType,
+    unsigned int newResOff,
+    unsigned int newOpOff)
+    : UnaryOp(newResType, newOpType, newResOff, newOpOff) {}
+
+
+void OpPOWCDouble::operator()(char* res, const char* op)
+{
+    double convOp;
+    double convRes;
+    errno = 0;
+    convRes = pow(*(opType->convertToCDouble(op + opOff, &convOp)), exponent);
+    if(errno)
+    {
+        if(errno == EDOM) throw 510;
+        if(errno == ERANGE) throw 511;
+    }
+    resType->makeFromCDouble(res + resOff, &convRes);
+}
+
+void OpPOWCDouble::setExponent(double newExponent)
+{
+    exponent = newExponent;
+}
+
 OpEXPCDouble::OpEXPCDouble(
     const BaseType* newResType,
     const BaseType* newOpType,

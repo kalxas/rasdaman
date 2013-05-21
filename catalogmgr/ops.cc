@@ -142,6 +142,8 @@ UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType
 
         case Ops::OP_SQRT:
             return new OpSQRTCDouble(resType, opType, resOff, opOff);
+        case Ops::OP_POW:
+            return new OpPOWCDouble(resType, opType, resOff, opOff);
         case Ops::OP_ABS:
             return new OpABSCDouble(resType, opType, resOff, opOff);
         case Ops::OP_EXP:
@@ -1158,9 +1160,15 @@ void
 Ops::execUnaryConstOp( Ops::OpType op, const BaseType* resType,
                        const BaseType* opType, char* res,
                        const char* op1, unsigned int resOff,
-                       unsigned int opOff )
+                       unsigned int opOff, double param )
 {
     UnaryOp* myOp = Ops::getUnaryOp( op, resType, opType, resOff, opOff );
+    
+    // set exponent for pow operations
+    if (op == Ops::OP_POW)
+    {
+        ((OpPOWCDouble*)myOp)->setExponent(param);
+    }
     try
     {
         (*myOp)(res, op1);
