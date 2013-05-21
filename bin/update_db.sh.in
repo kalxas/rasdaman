@@ -50,6 +50,7 @@ SCRIPT_DIR=@pkgdatadir@/db_updates
 
 # table storing the current database update number
 RAS_DBUPDATE=ras_dbupdates
+DB_TYPE=rc
 
 # ------------------------------------------------------------------------------
 # functions
@@ -139,13 +140,13 @@ if [ $? -ne 0 ]; then
 	counter=0
 else
   # check if there is an entry at all
-  count=`$PSQL -c "select count(UpdateNumber) from RAS_DBUPDATES where UpdateType='re'" | head -n 3 | tail -n 1 | awk '{print $1}'`
+  count=`$PSQL -c "select count(UpdateNumber) from RAS_DBUPDATES where UpdateType='$DB_TYPE'" | head -n 3 | tail -n 1 | awk '{print $1}'`
   if [ $count -gt 0 ]; then
     # get the last update number
-    counter=`$PSQL -c "select UpdateNumber from $RAS_DBUPDATE where UpdateType='rc'" | head -n 3 | tail -n 1 | awk '{print $1}'`
+    counter=`$PSQL -c "select UpdateNumber from $RAS_DBUPDATE where UpdateType='$DB_TYPE'" | head -n 3 | tail -n 1 | awk '{print $1}'`
   else
     counter=0
-    $PSQL -c "insert into $RAS_DBUPDATE values('rc', $counter)" > /dev/null 2>&1
+    $PSQL -c "insert into $RAS_DBUPDATE values('$DB_TYPE', $counter)" > /dev/null 2>&1
   fi
 fi
 
@@ -184,7 +185,7 @@ done
 # save the last update number
 #
 if [ $updated -eq 1 ]; then
-  $PSQL -c "update $RAS_DBUPDATE set UpdateNumber=$counter where UpdateType='rc'" > /dev/null 2>&1
+  $PSQL -c "update $RAS_DBUPDATE set UpdateNumber=$counter where UpdateType='$DB_TYPE'" > /dev/null 2>&1
   log "updated database to update $((counter-1))"
 else
   log "database already up-to-date, nothing to update."
