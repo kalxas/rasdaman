@@ -1,0 +1,1 @@
+select max_cell(test_grey min -1) from test_grey

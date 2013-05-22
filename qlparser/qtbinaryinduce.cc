@@ -688,6 +688,87 @@ QtMinus::printAlgebraicExpression( ostream& s )
 }
 
 
+const QtNode::QtNodeType QtTop::nodeType = QT_TOP;
+
+QtTop::QtTop( QtOperation* initInput1, QtOperation* initInput2 )
+    : QtBinaryInduce( initInput1, initInput2, Ops::OP_TOP )
+{
+}
+
+
+
+
+void
+QtTop::printTree( int tab, ostream& s, QtChildType mode )
+{
+    s << SPACE_STR(tab).c_str() << "QtTop Object " << getNodeType() << getEvaluationTime() << endl;
+
+    QtBinaryInduce::printTree( tab, s, mode );
+}
+
+
+
+void
+QtTop::printAlgebraicExpression( ostream& s )
+{
+    s << "(";
+
+    if( input1 )
+        input1->printAlgebraicExpression( s );
+    else
+        s << "<nn>";
+
+    s << " top ";
+
+    if( input2 )
+        input2->printAlgebraicExpression( s );
+    else
+        s << "<nn>";
+
+    s << ")";
+}
+
+
+const QtNode::QtNodeType QtBottom::nodeType = QT_BOTTOM;
+
+QtBottom::QtBottom( QtOperation* initInput1, QtOperation* initInput2 )
+    : QtBinaryInduce( initInput1, initInput2, Ops::OP_BOTTOM )
+{
+}
+
+
+
+
+void
+QtBottom::printTree( int tab, ostream& s, QtChildType mode )
+{
+    s << SPACE_STR(tab).c_str() << "QtBottom Object " << getNodeType() << getEvaluationTime() << endl;
+
+    QtBinaryInduce::printTree( tab, s, mode );
+}
+
+
+
+void
+QtBottom::printAlgebraicExpression( ostream& s )
+{
+    s << "(";
+
+    if( input1 )
+        input1->printAlgebraicExpression( s );
+    else
+        s << "<nn>";
+
+    s << " bottom ";
+
+    if( input2 )
+        input2->printAlgebraicExpression( s );
+    else
+        s << "<nn>";
+
+    s << ")";
+}
+
 
 
 const QtNode::QtNodeType QtMult::nodeType = QT_MULT;

@@ -100,6 +100,8 @@ This is the ops code and the persistence code: from the typenum the oids are gen
   && {\bf binary operations} \\
   OP_MINUS && subtraction \\
   OP_PLUS && addition \\
+  OP_TOP && top \\
+  OP_BOTTOM && bottom \\
   OP_MULT && multiplication \\
   OP_DIV && division \\
   OP_IS && not implemented yet \\
@@ -156,7 +158,7 @@ public:
 
         /* insert new unary ops before this line */ OP_IDENTITY,
         // binary operations.
-        OP_MINUS, OP_PLUS, OP_DIV, OP_MULT,
+        OP_MINUS, OP_PLUS, OP_TOP, OP_BOTTOM, OP_DIV, OP_MULT,
         OP_IS, OP_AND, OP_OR, OP_OVERLAY, OP_BIT, OP_XOR,
         /* insert new binary ops before this line */
         OP_EQUAL, OP_LESS, OP_LESSEQUAL,
@@ -973,6 +975,76 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_TOP on C type #unsigned long# and #unsigned long#, result #unsigned long#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpTOPCULong : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpTOPCULong(const BaseType* newResType,const BaseType* newOp1Type,
+                 const   BaseType* newOp2Type, unsigned int newResOff = 0,
+                 unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+    virtual void getCondenseInit(char* init);
+};
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpTOPULong : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpTOPULong(const BaseType* newResType,const BaseType* newOp1Type,
+                const   BaseType* newOp2Type, unsigned int newResOff = 0,
+                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+    virtual void getCondenseInit(char* init);
+};
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_BOTTOM on C type #unsigned long# and #unsigned long#, result #unsigned long#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpBOTTOMCULong : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpBOTTOMCULong(const BaseType* newResType,const BaseType* newOp1Type,
+                 const   BaseType* newOp2Type, unsigned int newResOff = 0,
+                 unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+    virtual void getCondenseInit(char* init);
+};
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpBOTTOMULong : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpBOTTOMULong(const BaseType* newResType,const BaseType* newOp1Type,
+                const   BaseType* newOp2Type, unsigned int newResOff = 0,
+                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+    virtual void getCondenseInit(char* init);
+};
+
+//@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_MINUS on C type #unsigned long# and #unsigned long#, result #unsigned long#.
 /**
   * \ingroup Catalogmgrs
@@ -1159,6 +1231,43 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_TOP on C type #long# and #long#, result #long#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpTOPCLong : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpTOPCLong(const BaseType* newResType,const BaseType* newOp1Type,
+                const BaseType* newOp2Type, unsigned int newResOff = 0,
+                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+    virtual void getCondenseInit(char* init);
+};
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_BOTTOM on C type #long# and #long#, result #long#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpBOTTOMCLong : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpBOTTOMCLong(const BaseType* newResType,const BaseType* newOp1Type,
+                const BaseType* newOp2Type, unsigned int newResOff = 0,
+                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+    virtual void getCondenseInit(char* init);
+};
+//@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_MINUS on C type #long# and #long#, result #long#.
 /**
   * \ingroup Catalogmgrs
@@ -1287,6 +1396,45 @@ public:
                              const char* op2 );
     virtual void getCondenseInit(char* init);
 };
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_TOP on C type #double# and #double#, result #double#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpTOPCDouble : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpTOPCDouble(const BaseType* newResType,const BaseType* newOp1Type,
+                  const BaseType* newOp2Type, unsigned int newResOff = 0,
+                  unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+    virtual void getCondenseInit(char* init);
+};
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_BOTTOM on C type #double# and #double#, result #double#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpBOTTOMCDouble : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpBOTTOMCDouble(const BaseType* newResType,const BaseType* newOp1Type,
+                  const BaseType* newOp2Type, unsigned int newResOff = 0,
+                  unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+    virtual void getCondenseInit(char* init);
+};
+
 
 //@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_MINUS on C type #double# and #double#, result #double#.
@@ -1699,6 +1847,44 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_TOP specialized for RasDaMan type Char.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpTOPChar : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpTOPChar(const BaseType* newResType,const BaseType* newOp1Type,
+               const BaseType* newOp2Type, unsigned int newResOff = 0,
+               unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+    virtual void getCondenseInit(char* init);
+};
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_BOTTOM specialized for RasDaMan type Char.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpBOTTOMChar : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpBOTTOMChar(const BaseType* newResType,const BaseType* newOp1Type,
+               const BaseType* newOp2Type, unsigned int newResOff = 0,
+               unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+    virtual void getCondenseInit(char* init);
+};
+
+//@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_MINUS specialized for RasDaMan type Char.
 /**
   * \ingroup Catalogmgrs
@@ -2010,6 +2196,70 @@ public:
     enum ScalarFlag { NONE, FIRST, SECOND};
 
     OpPLUSComplex(
+        const BaseType* newResType,
+        const BaseType* newOp1Type,
+        const BaseType* newOp2Type,
+        unsigned int newResOff = 0,
+        unsigned int newOp1Off = 0,
+        unsigned int newOp2Off = 0,
+        ScalarFlag flag = NONE
+    );
+    virtual void operator()(char* res, const char* op1, const char* op2);
+    virtual void getCondenseInit(char* init);
+
+protected:
+    unsigned int op1ReOff;
+    unsigned int op1ImOff;
+    unsigned int op2ReOff;
+    unsigned int op2ImOff;
+    unsigned int resReOff;
+    unsigned int resImOff;
+    ScalarFlag scalarFlag;
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpTOPComplex : public BinaryOp
+{
+public:
+    // Question: which operand is scalar?
+    // Answere: NONE, FIRST, SECOND
+    enum ScalarFlag { NONE, FIRST, SECOND};
+
+    OpTOPComplex(
+        const BaseType* newResType,
+        const BaseType* newOp1Type,
+        const BaseType* newOp2Type,
+        unsigned int newResOff = 0,
+        unsigned int newOp1Off = 0,
+        unsigned int newOp2Off = 0,
+        ScalarFlag flag = NONE
+    );
+    virtual void operator()(char* res, const char* op1, const char* op2);
+    virtual void getCondenseInit(char* init);
+
+protected:
+    unsigned int op1ReOff;
+    unsigned int op1ImOff;
+    unsigned int op2ReOff;
+    unsigned int op2ImOff;
+    unsigned int resReOff;
+    unsigned int resImOff;
+    ScalarFlag scalarFlag;
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpBOTTOMComplex : public BinaryOp
+{
+public:
+    // Question: which operand is scalar?
+    // Answere: NONE, FIRST, SECOND
+    enum ScalarFlag { NONE, FIRST, SECOND};
+
+    OpBOTTOMComplex(
         const BaseType* newResType,
         const BaseType* newOp1Type,
         const BaseType* newOp2Type,

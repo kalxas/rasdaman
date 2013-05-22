@@ -40,6 +40,17 @@ QtMinus::getNodeType() const
   return nodeType;
 }
 
+inline const QtNode::QtNodeType
+QtTop::getNodeType() const
+{
+  return nodeType;
+}
+
+inline const QtNode::QtNodeType
+QtBottom::getNodeType() const
+{
+  return nodeType;
+}
 
 inline const QtNode::QtNodeType
 QtMult::getNodeType() const

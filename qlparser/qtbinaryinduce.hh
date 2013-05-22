@@ -132,6 +132,7 @@ private:
 };
 
 
+
 //@ManMemo: Module: {\bf qlparser}
 
 /*@Doc:
@@ -161,6 +162,58 @@ private:
     static const QtNodeType nodeType;
 };
 
+//@ManMemo: Module: {\bf qlparser}
+
+/*@Doc:
+
+*/
+
+class QtTop : public QtBinaryInduce
+{
+public:
+    /// constructor getting the two operands
+    QtTop( QtOperation* input1, QtOperation* input2 );
+
+    /// prints the tree
+    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+
+    /// prints the algebraic expression
+    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+
+    /// method for identification of nodes
+    inline virtual const QtNodeType getNodeType() const;
+
+private:
+    /// attribute for identification of nodes
+    static const QtNodeType nodeType;
+};
+
+//@ManMemo: Module: {\bf qlparser}
+
+/*@Doc:
+
+*/
+
+class QtBottom : public QtBinaryInduce
+{
+public:
+    /// constructor getting the two operands
+    QtBottom( QtOperation* input1, QtOperation* input2 );
+
+
+    /// prints the tree
+    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+
+    /// prints the algebraic expression
+    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+
+    /// method for identification of nodes
+    inline virtual const QtNodeType getNodeType() const;
+
+private:
+    /// attribute for identification of nodes
+    static const QtNodeType nodeType;
+};
 
 //@ManMemo: Module: {\bf qlparser}
 

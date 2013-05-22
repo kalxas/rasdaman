@@ -293,7 +293,8 @@ int string_yyinput( char* buf, int max_size )
 "float"					 { SETTOKEN( TFLOAT, typeToken, TFLOAT) 	}
 "double"				 { SETTOKEN( TDOUBLE, typeToken, TDOUBLE) }
 
-
+"max"                                    { SETTOKEN( TOP, commandToken, TOP ) }
+"min"                                 { SETTOKEN( BOTTOM, commandToken, BOTTOM ) }
 "bit"					 { SETTOKEN( BIT, commandToken, BIT ) }
 "and"                                    { SETTOKEN( AND, commandToken, AND ) }
 "or"                                     { SETTOKEN( OR, commandToken, OR ) }

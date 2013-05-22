@@ -103,6 +103,8 @@ public:
         QT_COMMAND,
         QT_PLUS,
         QT_MINUS,
+        QT_TOP,
+        QT_BOTTOM,
         QT_MULT,
         QT_DIV,
         QT_OR,

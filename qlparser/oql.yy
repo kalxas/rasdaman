@@ -205,7 +205,7 @@ struct QtUpdateSpecElement
 %token <typeToken>       TUNSIG TBOOL TOCTET TCHAR TSHORT TUSHORT TLONG TULONG TFLOAT TDOUBLE
 %token <commandToken>    SELECT FROM WHERE AS RESTRICT TO EXTEND BY PROJECT AT DIMENSION ALL SOME
                          COUNTCELLS ADDCELLS AVGCELLS MINCELLS MAXCELLS SDOM OVER USING LO HI UPDATE
-                         SET ASSIGN MARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS MULT
+                         SET ASSIGN MARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS TOP BOTTOM MULT
                          DIV EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION
                          MDDPARAM OID SHIFT SCALE SQRT ABS EXP LOG LN SIN COS TAN SINH COSH TANH ARCSIN
@@ -226,6 +226,7 @@ struct QtUpdateSpecElement
 %left IS
 %left EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL
 %left PLUS MINUS
+%left TOP BOTTOM
 %left MULT DIV
 %left UNARYOP BIT
 %left DOT LEPAR SDOM
@@ -1197,6 +1198,16 @@ condenseOpLit: PLUS
 	{
 	  $$ = Ops::OP_OR;
 	  FREESTACK($1)
+	}
+	| TOP
+	{
+	  $$ = Ops::OP_TOP;
+	  FREESTACK($1)
+	}
+	| BOTTOM
+	{
+	  $$ = Ops::OP_BOTTOM;
+	  FREESTACK($1)
 	}; 
 
 functionExp: OID LRPAR collectionIterator RRPAR    
@@ -2005,6 +2016,24 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($2)
 	}
+	| generalExp TOP generalExp
+	{
+	  $$ = new QtTop ( $1, $3 );
+	  $$->setParseInfo( *($2.info) );
+	  parseQueryTree->removeDynamicObject( $1 );
+	  parseQueryTree->removeDynamicObject( $3 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($2)
+	}
+	| generalExp BOTTOM generalExp
+	{
+	  $$ = new QtBottom( $1, $3 );
+	  $$->setParseInfo( *($2.info) );
+	  parseQueryTree->removeDynamicObject( $1 );
+	  parseQueryTree->removeDynamicObject( $3 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($2)
+	}
 	| generalExp MULT generalExp
 	{
 	  $$ = new QtMult ( $1, $3 );
@@ -2087,6 +2116,16 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  $$ = new QtMult( $2, new QtConst( new QtAtomicData( (r_Long)-1, 1 ) ) );
 	  parseQueryTree->removeDynamicObject( $2 );
 	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+	}
+	| TOP  generalExp %prec UNARYOP
+	{
+	  $$ = $2;
+	  FREESTACK($1)
+	}
+	| BOTTOM generalExp %prec UNARYOP
+	{
+	  $$ = $2;
 	  FREESTACK($1)
 	}
 	| LRPAR castType RRPAR generalExp %prec UNARYOP
