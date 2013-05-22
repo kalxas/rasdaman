@@ -30,11 +30,11 @@ AM_LDFLAGS=@BASEDBLDFLAGS@
 
 bin_PROGRAMS=rasmgr
 rasmgr_SOURCES=ras_crypto.cc rasmgr_config.cc rasmgr_host.cc rasmgr_main.cc rasmgr_rascontrol.cc rasmgr_srv.cc \
-         	   rasmgr_comm.cc rasmgr_dbm.cc rasmgr_master_nb.cc rasmgr_rascontrol_help.cc \
+         	   rasmgr_dbm.cc rasmgr_master_nb.cc rasmgr_rascontrol_help.cc \
                rasmgr_users.cc rasmgr_comm_nb.cc rasmgr_error.cc rasmgr_localsrv.cc rasmgr_random.cc  \
                hostcmp.cc \
                ras_crypto.hh rasmgr_config.hh rasmgr_host.hh rasmgr_rascontrol.hh rasmgr_srv.hh \
-         	   rasmgr_comm.hh rasmgr_dbm.hh \
+         	   rasmgr_dbm.hh \
                rasmgr_users.hh rasmgr_comm_nb.hh rasmgr_error.hh rasmgr_localsrv.hh \
                rasmgr.hh rasmgr_protocol.hh rasmgr_master.hh \
                ../mymalloc/mymalloc_cln.cc ../mymalloc/mymalloc.h
@@ -54,13 +54,13 @@ $(RECURSIVE_CLEAN_TARGETS):
 # EXTRADINAMICLIBS= -Xlinker -Bdynamic -lm -lgcc -lc -lgcc
 #endif
 #SRCCXX = ras_crypto.cc rasmgr_config.cc rasmgr_host.cc rasmgr_main.cc rasmgr_rascontrol.cc rasmgr_srv.cc \
-#	rasmgr_comm.cc rasmgr_dbm.cc rasmgr_master_nb.cc rasmgr_rascontrol_help.cc \
-#	rasmgr_users.cc rasmgr_comm_nb.cc rasmgr_error.cc rasmgr_localsrv.cc rasmgr_random.cc rasmgr_slave.cc \
+#	rasmgr_dbm.cc rasmgr_master_nb.cc rasmgr_rascontrol_help.cc \
+#	rasmgr_users.cc rasmgr_comm_nb.cc rasmgr_error.cc rasmgr_localsrv.cc rasmgr_random.cc \
 #	hostcmp.cc
 
 
-#rasmgr: rasmgr_main.o rasmgr_config.o rasmgr_comm.o rasmgr_comm_nb.o rasmgr_host.o rasmgr_dbm.o rasmgr_srv.o rasmgr_random.o \
-#        rasmgr_master_nb.o rasmgr_rascontrol.always rasmgr_users.o ras_crypto.o rasmgr_slave.o rasmgr_localsrv.o rasmgr_error.o hostcmp.o
-#	$(PURIFY) $(CXX) $(CXXFLAGS) -o rasmgr rasmgr_main.o rasmgr_config.o rasmgr_comm.o rasmgr_comm_nb.o rasmgr_host.o rasmgr_dbm.o rasmgr_master_nb.o rasmgr_rascontrol.o rasmgr_users.o ras_crypto.o rasmgr_slave.o rasmgr_localsrv.o rasmgr_error.o rasmgr_random.o rasmgr_srv.o hostcmp.o \
+#rasmgr: rasmgr_main.o rasmgr_config.o rasmgr_comm_nb.o rasmgr_host.o rasmgr_dbm.o rasmgr_srv.o rasmgr_random.o \
+#        rasmgr_master_nb.o rasmgr_rascontrol.always rasmgr_users.o ras_crypto.o rasmgr_localsrv.o rasmgr_error.o hostcmp.o
+#	$(PURIFY) $(CXX) $(CXXFLAGS) -o rasmgr rasmgr_main.o rasmgr_config.o rasmgr_comm_nb.o rasmgr_host.o rasmgr_dbm.o rasmgr_master_nb.o rasmgr_rascontrol.o rasmgr_users.o ras_crypto.o rasmgr_localsrv.o rasmgr_error.o rasmgr_random.o rasmgr_srv.o hostcmp.o \
 #	$(LDFLAGS) $(EXTRASTATICLIBS) -lcrypto $(EXTRADINAMICLIBS) $(NETWORK) $(COMMLINE)
 

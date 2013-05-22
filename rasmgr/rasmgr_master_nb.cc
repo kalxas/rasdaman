@@ -56,6 +56,8 @@ using namespace std;
 // from rasmgr_localsrv.cc; should go to a central location -- PB 2003-nov-25
 extern char *now();
 
+extern bool hostCmp( const char *h1, const char *h2);
+
 // rasserver error codes (see errtxts)
 // FIXME: should go into a central include file / class -- PB 2003-nov-20
 #define MSG_OK          200
@@ -90,6 +92,7 @@ MasterComm::MasterComm()
 {
     commit=false;
     allowMultipleWriteTransactions = false;
+    currentPosition = config.outpeers.size();
 }
 
 MasterComm::~MasterComm()
@@ -264,6 +267,114 @@ const char *getClientAddr( int mySocket )
     return result;
 }
 
+// checks if a string contains only digits, * or .
+bool isIp(char *str)
+{
+    char* c = str; 
+    while (*c != '\0') {
+        if (((*c < '0') || (*c > '9')) && (*c != '*') && (*c != '.'))
+            return false;
+        c++;
+    }
+    return true;
+}
+
+// checks if the request comes from a known inpeer
+bool hostCmpPeer(char *h1, char *h2) 
+{
+    ENTER( "hostCmpPeer( " << h1 << ", " << h2 << " )" );
+
+    bool result = false;
+
+    if ( h1 == NULL && h2 == NULL )
+        result = true;
+    else if ( h1 == NULL )
+        result = false;
+    else if ( h2 == NULL )
+        result = false;
+    else
+    {
+        if (!strcmp(h1, "*"))
+            result = true;
+        else 
+        {
+
+            char* h1token;
+            char* h2token;
+            char h2n[256];
+            strcpy(h2n, h2);
+            if (isIp(h1) && !isIp(h2)) 
+            {            
+
+                struct addrinfo hints, *ai;
+                char addrstr[256];
+                void *ptr;
+
+                memset (&hints, 0, sizeof(hints));
+                hints.ai_family = AF_UNSPEC;
+
+                if (getaddrinfo (h2, NULL, &hints, &ai) != 0)
+                    return false;
+
+                for (; ai; ai = ai->ai_next)
+                {
+                    if (ai->ai_family == AF_INET)
+                    {
+                        ptr = &((struct sockaddr_in *) ai->ai_addr)->sin_addr;
+                        break;
+                    }
+                }
+                inet_ntop (ai->ai_family, ptr, addrstr, 256);
+                strcpy(h2n, addrstr);
+                freeaddrinfo(ai);
+            } 
+            else if (!isIp(h1) && isIp(h2))
+            {
+                char hostname[256];
+                struct sockaddr_in sa;
+                if (inet_pton(AF_INET, h2, &(sa.sin_addr)) != 1)
+                    return false;
+                if (getnameinfo((struct sockaddr *)&sa, sizeof(sa), hostname, 256, NULL, 0, NI_NAMEREQD)) 
+                    return false;
+                strcpy(h2n, hostname);
+            }
+            
+            char h1n[256];
+            strcpy(h1n, h1);  
+            int i1 = 0, i2 = 0;
+            for (int i = 0; h1n[i]; i++) 
+                if (h1n[i] == '.')
+                    i1++;
+            for (int i = 0; h2n[i]; i++) 
+                if (h2n[i] == '.')
+                    i2++;                    
+            if (i1 != i2) 
+                return false;
+          
+            h1token = strrchr(h1n, '.');
+            h2token = strrchr(h2n, '.');
+            while ((h1token != NULL) && (h2token != NULL))
+            {                                
+                if (strcmp(h1token, ".*")  && strcmp(h1token, h2token))
+                {
+                    return false;
+                }   
+                h1token[0] = '\0';
+                h2token[0] = '\0';
+                h1token = strrchr(h1n, '.');
+                h2token = strrchr(h2n, '.'); 
+            }
+            if (strcmp(h1n, "*")  && strcmp(h1n, h2n))
+            {
+                return false;
+            }            
+            result = true;
+        }
+    }
+
+    return result;
+}
+
 // process request which has been prepared in inBuffer
 // if 'verbose' is enabled in configuration then requests will be logged.
 // returns
@@ -283,16 +394,35 @@ int MasterComm::processRequest( NbJob &currentJob )
 
     // --- this is the central dispatcher for rasmgr requests, recognising and executing them.
 
-    if(isMessage("POST rasmgrslave"))
+    if(isMessage("POST peerrequest"))
     {
-        VLOG << now() << " slave rasmgr request from "
-             << getClientAddr( currentJob.getSocket() )
-             << ": '" << body << "'..." << flush;
 
-        hostmanager.postSlaveMGR(body,outBuffer);   // prepare outBuffer from body for send to slave
-        keepConnection = false;             // master mgr passes thru, it's singleton commo, so don't keep conn
-        // FIXME: is this really correct?? -- PB 2003-jun-10
-        VLOG << "ok" << endl;
+        VLOG << now() << " peer request from "
+             << getClientAddr( currentJob.getSocket() )
+             << ": " << "'get server'..." << flush;
+        
+        bool known = false;
+        char* hostName = body;
+        body = strstr(body, " ");
+        *body=0; // terminate hostname (!) string "hostname body"
+        body += strlen( " " );
+        for (int i = 0; i < config.inpeers.size(); i++) {
+            if (hostCmpPeer(config.inpeers[i],hostName)) {
+                known = true;        
+            }       
+        }
+        if (known || authorization.acceptEntry(header)) 
+        {
+            int rc = getFreeServer(fake, true);   
+            keepConnection = true; 
+            VLOG << "ok" << endl;
+        }
+        else
+        {
+            answerAccessDeniedCode();
+            keepConnection = true;
+            VLOG << "denied." << endl;
+        }
     }
     else if(isMessage("POST rasservernewstatus"))
     {
@@ -349,7 +479,7 @@ int MasterComm::processRequest( NbJob &currentJob )
 
         if(authorization.acceptEntry(header))
         {
-            int rc = getFreeServer(fake);   // returns std rasdaman errors -- FIXME: error ignored!
+            int rc = getFreeServer(fake, false);   // returns std rasdaman errors -- FIXME: error ignored!
             keepConnection = (rc == MSG_OK) ? true : false; // 200 is "ok"
             VLOG << "ok" << endl;
         }
@@ -471,7 +601,7 @@ int MasterComm::answerAccessDeniedCode()
 //          where the flags are NOT case sensitive
 // returns: standard rasdasman error codes
 //  200 (ok), 801, 805, 999, ...
-int MasterComm::getFreeServer(bool fake)
+int MasterComm::getFreeServer(bool fake, bool frompeer)
 {
     // creates too large log files, so omit in production:
     // BenchmarkTimer *freeServerTimePtr = new BenchmarkTimer("Get free server");
@@ -497,10 +627,11 @@ int MasterComm::getFreeServer(bool fake)
     }
 
     ClientID clientID;
+  
     // if we got a previous ID then take this one
     if(count >3)
         clientID.init(prevID);
-
+    
     TALK("GetFreeServer: db = " << databaseName << ", requested server type = " << serverType << ", access type = " << accessType << ", clientID="<<clientID<<" prevID="<< prevID );
 
     char sType=0;                   // type of server requested, values SERVERTYPE_*
@@ -574,7 +705,7 @@ int MasterComm::getFreeServer(bool fake)
         for(int i=0; i<db.countConnectionsToRasServers(); i++)
         {
             // inspect next server
-            RasServer &r=rasManager[db.getRasServerName(i)];
+            RasServer &r=rasManager[db.getRasServerName(i)]; 
             TALK( "  srv #" << i << ": name=" << r.getName() << ", type=" << r.getType() << ", isUp=" << r.isUp() << ", isAvailable=" << r.isAvailable() );
             if(sType == r.getType())    // type matches request?
             {
@@ -605,10 +736,40 @@ int MasterComm::getFreeServer(bool fake)
                         TALK("MasterComm::getFreeServer: You have the server.");
                         // answCode is same as initialised if we come here
                     }
-                    sprintf(answerString,"%s %ld %s ",r.getHostNetwName(),r.getPort(),authorization.getCapability(r.getName(),databaseName,!writeTransaction) );
+
+                    // try to obtain host's IP (must be known, no good reason why this should fail)
+                    // reason: to circumvent some problems with ill-set domain names
+                    struct hostent *hostInfo = gethostbyname( r.getHostNetwName() );
+                    char *ipString;
+                    if (hostInfo!=NULL)             // IP address found?
+                    {
+                        // solving the problem of getting the local IP
+                        char* ptr;
+                        int counter = 0;
+                        while ((ptr = hostInfo->h_addr_list[counter++])) {
+                            ipString = inet_ntoa(*((struct in_addr*)ptr) );
+                            if (strstr(ipString, "127.") != ipString) 
+                                break;
+                        }
+                        if (strstr(ipString, "127.") != ipString) { 
+                            // respond with this one 
+                            TALK( "responding with IP address " << ipString << " for host " << r.getHostNetwName() );
+                            sprintf(answerString,"%s %ld %s ",ipString,r.getPort(),authorization.getCapability(r.getName(),databaseName,!writeTransaction) );
+                        } 
+                        else
+                        {
+                            TALK( "Error: can't determine IP address (h_errno=" << h_errno << "), responding with host name " << r.getName() );
+                            sprintf(answerString,"%s %ld %s ",r.getHostNetwName(),r.getPort(),authorization.getCapability(r.getName(),databaseName,!writeTransaction) );                        
+                        }
+                    }
+                    else    // ok, for the _unlikely_ case we just return the name as is
+                    {
+                        TALK( "Error: can't determine IP address (h_errno=" << h_errno << "), responding with host name " << r.getName() );
+                        sprintf(answerString,"%s %ld %s ",r.getHostNetwName(),r.getPort(),authorization.getCapability(r.getName(),databaseName,!writeTransaction) );
+                    }
+
                     // remember server name
-                    strncpy( serverName, r.getName(), sizeof(serverName) );
-                    ;
+                    strncpy( serverName, r.getName(), sizeof(serverName) );                    
                     TALK( "answerString=" << answerString );
                     break;
                 }
@@ -617,12 +778,61 @@ int MasterComm::getFreeServer(bool fake)
 
         // any free server found?
         if(countSuitableServers == 0)
-        {
-            RMInit::logOut << "Error: no suitable free server available." << endl;
-            answCode = MSG_NOSUITABLESERVER;
-            break;
+        { 
+            bool found = false;
+            char* msg;
+            char outmsg[MAXMSG];
+            char newbody[MAXMSG];
+            if (!frompeer) {
+                sprintf(newbody,"%s %s", config.getPublicHostName(), body); // adding the hostname of the current rasmgr to identify ourselves
+                char* myheader = (char*)malloc(strlen(header) + 1);
+                strcpy(myheader,header);
+                char *auth = strstr(myheader,"Authorization:"); // should be present, otherwise the client wouldn't have been accepted
+                char *value = strtok(auth+strlen("Authorization:"),"\r\n");
+                
+                sprintf(outmsg,"POST peerrequest HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nAuthorization: ras %s\r\nContent-length: %d\r\n\r\n%s",value,strlen(newbody)+1,newbody); // Forward authorization to peer
+                free(myheader);
+                myheader = NULL;
+                int tmp = currentPosition + 1;   
+                if (tmp > config.outpeers.size() - 1) {
+                    tmp = 0;
+                    currentPosition = config.outpeers.size() - 1; // maybe some got deleted in the meantime, so to keep it correct
+                }                     
+                while (1) {                            
+                    msg = strdup(askOutpeer(tmp, outmsg)); 
+                    if (strstr(msg, MSG_OK_STR) != NULL) {
+                        found = true;        
+                        currentPosition = tmp;
+                        break;
+                    }                 
+                    tmp++;
+                    if (tmp == currentPosition + 1)
+                        break;                    
+                    if (tmp > config.outpeers.size() - 1)
+                        tmp = 0;
+                }
+            }
+            if (!found) {
+                RMInit::logOut << "Error: no suitable free server available." << endl;
+                answCode = MSG_NOSUITABLESERVER;
+                break;
+            } else if (!frompeer) {
+                char * answString = strstr(msg, RASMGRPROT_DOUBLE_EOL );  // find double EOL, this is where body starts
+                if(answString == NULL)                // not found? this means a protocol syntax error
+                {
+                    TALK( "MasterComm::fillInBuffer: Error in rasmgr protocol encountered (2xEOL missing). msg=" << msg );
+                    RMInit::logOut << "Error: no suitable free server available." << endl;
+                    answCode = MSG_NOSUITABLESERVER;
+                    break;
+                }
+                *answString=0;                    // terminate header (!) string
+                answString+= strlen( RASMGRPROT_DOUBLE_EOL );     // let body start after this double newline
+                answCode = MSG_OK;
+                strcpy(answerString, answString);
+                break;
+            }
+            
         }
-
         // no answer string provided -> no server available
         // oops?? why not uniformly check against answCode? -- PB 2003-nov-20
         if(answerString[0]==0)
@@ -652,6 +862,100 @@ int MasterComm::getFreeServer(bool fake)
     LEAVE("MasterComm::getFreeServer: leave. answCode=" << answCode << ", server=" << serverName << ", outBuffer=" << outBuffer );
     return answCode; //strlen(outBuffer)+1;
 } // getFreeServer()
+
+
+// askOutpeer: send a message to a peer and retrieve the answer
+// input:
+//  peer    peer number in the peer list
+//  outmsg  message to be sent to the peer
+// returns:
+//  answer  the reply from the peer
+const char* MasterComm::askOutpeer(int peer, char* outmsg) {
+
+    ENTER( "MasterComm::askOutpeer: enter." );
+    struct protoent* getprotoptr = getprotobyname("tcp");
+    struct hostent *hostinfo = gethostbyname(config.outpeers[peer]);
+    if(hostinfo==NULL)
+    {
+        RMInit::logOut << "Error locating RasMGR" << config.outpeers[peer] <<" ("<<strerror(errno)<<')'<<endl;
+    }
+
+    sockaddr_in internetSocketAddress;
+
+    internetSocketAddress.sin_family=AF_INET;
+    internetSocketAddress.sin_port=htons(config.outports[peer]); 
+    internetSocketAddress.sin_addr=*(struct in_addr*)hostinfo->h_addr;
+
+    static char answer[MAXMSG];
+    sprintf(answer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n%d %s",400,"Error",8,MSG_NOSUITABLESERVER,"Error");
+    int sock;
+    bool ok = false;
+    sock = socket(PF_INET,SOCK_STREAM,getprotoptr->p_proto);
+    if(sock<0)   
+    {
+        RMInit::logOut << "askOutpeer: cannot open socket to RasMGR, ("<<strerror(errno)<<')'<<endl;
+        return answer;
+    }
+    
+    if(connect(sock,(struct sockaddr*)&internetSocketAddress,sizeof(internetSocketAddress)) < 0)
+    {
+        RMInit::logOut <<"askOutpeer: Connection to RasMGR failed! ("<<strerror(errno)<<')'<<endl;
+        close(sock);
+        return answer;
+    }     
+   
+    int nbytes = 0;
+    int buffSize = strlen(outmsg)+1;
+    int rwNow;
+    while(1)
+    {
+        rwNow = write(sock,outmsg+nbytes,buffSize-nbytes);
+        if(rwNow == -1)
+        {
+            if(errno == EINTR) continue; // write was interrupted by signal
+            nbytes = -1; // another error
+            break;
+        }
+        nbytes+=rwNow;
+
+        if( nbytes == buffSize ) break; // THE END
+    }
+
+    if(nbytes<0)
+    {
+        RMInit::logOut << "Error writing message to RasMGR" << config.outpeers[peer] << " ("<<strerror(errno)<<')' << endl;
+        close(sock);
+        return answer;
+    }
+
+    //wait and read answer
+    nbytes = 0;
+    while(1)
+    {
+        rwNow = read(sock,answer+nbytes,MAXMSG-nbytes);
+        if(rwNow == -1)
+        {
+            if(errno == EINTR) continue; // read was interrupted by signal
+            nbytes = -1; // another error
+            break;
+        }
+        nbytes+=rwNow;
+
+        if(answer[nbytes-1] == 0) break; // THE END
+    }
+    close(sock);
+
+    if(nbytes<0)
+    {
+        RMInit::logOut << "Error reading answer from RasMGR" << config.outpeers[peer] <<" ("<<strerror(errno)<<')'<<endl;
+        sprintf(answer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n%d %s",400,"Error",6,MSG_NOSUITABLESERVER,"Error"); // again, as it might get changed above
+        return answer;
+    }
+    LEAVE("MasterComm::askOutpeer: leave. answer=" << answer );
+    return answer;
+    
+
+} // askOutpeer()
 
 // convertAnswerCode: convert numeric answer code to error text for selected errors + OK
 // input:

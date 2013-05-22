@@ -46,6 +46,7 @@ using namespace std;
 #include "rasmgr_users.hh"
 #include "rasmgr_error.hh"
 #include "raslib/rminit.hh"
+#include <arpa/inet.h>
 
 #ifndef RMANVERSION
 #error "Please specify RAMNVERSION variable!"
@@ -193,6 +194,8 @@ void RasControl::listCommand()
     if     (strcasecmp(listwhat,RASMGRCMD_SRV)==0)      listRasServers();
     else if(strcasecmp(listwhat,"version")==0)  listVersion();
     else if(strcasecmp(listwhat,"modus"  )==0)  listModus();
+    else if(strcasecmp(listwhat,"inpeer"  )==0)  listInPeers();
+    else if(strcasecmp(listwhat,"outpeer"  )==0)  listOutPeers();
     else if(strcasecmp(listwhat,RASMGRCMD_USER   )==0)  listUsers();
     else if(strcasecmp(listwhat,RASMGRCMD_HOST)==0)     listRasHosts();
     else if(strcasecmp(listwhat,"dbh")==0)      listDBHosts();
@@ -258,6 +261,32 @@ void RasControl::listUsers()
             sprintf(answBuffer+strlen(answBuffer)," [%s]",authorization.convertAdminRights(user.getAdminRights()));
             sprintf(answBuffer+strlen(answBuffer)," -[%s]",authorization.convertDatabRights(user.getDefaultDBRights()));
         }
+    }
+}
+
+void RasControl::listInPeers()
+{
+    checkPermission(admR_info);
+
+    checkUnexpectedTokens();
+
+    sprintf(answBuffer,"List of inpeers:\r\n");
+    for(int i=0; i<config.inpeers.size(); i++)
+    {
+        sprintf(answBuffer+strlen(answBuffer),"\r\n%2d. %s",i+1,config.inpeers[i]);
+    }
+}
+
+void RasControl::listOutPeers()
+{
+    checkPermission(admR_info);
+
+    checkUnexpectedTokens();
+
+    sprintf(answBuffer,"List of outpeers:\r\n");
+    for(int i=0; i<config.outpeers.size(); i++)
+    {
+        sprintf(answBuffer+strlen(answBuffer),"\r\n%2d. %s %d",i+1,config.outpeers[i],config.outports[i]);
     }
 }
 
@@ -474,6 +503,16 @@ void RasControl::defineCommand()
     }
     else if(strcasecmp(what,RASMGRCMD_HELP)==0)
         defineHelp();
+    else if(strcasecmp(what,"inpeer")==0)
+    {
+        defineInPeers();
+        configDirty = true;
+    }
+    else if(strcasecmp(what,"outpeer")==0)
+    {
+        defineOutPeers();
+        configDirty = true;
+    }
     else
         errorInCommand("Wrong DEFINE command");
 }
@@ -749,6 +788,98 @@ void RasControl::defineRasServers()
     LEAVE( "RasControl::defineRasServers()" );
 }
 
+void RasControl::defineInPeers()
+{
+
+    ENTER( "RasControl::defineInPeers()" );
+
+    const char *hostName=getValueOf("inpeer");
+    checkUnexpectedTokens();
+
+    checkNotNull(hostName,"host name");
+    
+    for (int i = 0; i < config.inpeers.size(); i++) {
+        if (hostCmp(config.inpeers[i],hostName)) { 
+            sprintf(answBuffer,"Error: Inpeer rasmanager %s already defined.",hostName);
+            LEAVE( "RasControl::defineInPeers()" );
+            return;        
+        }       
+    }
+    config.inpeers.push_back(strdup(hostName));
+    sprintf(answBuffer,"Defining inpeer rasmgr %s",hostName);
+
+    LEAVE( "RasControl::defineInPeers()" );
+
+}
+
+void RasControl::defineOutPeers()
+{
+
+    ENTER( "RasControl::defineOutPeers()" );
+
+    const char *hostName=getValueOf("outpeer");
+    const char *portStr =getValueOf("-port");
+    checkUnexpectedTokens();
+
+    checkNotNull(hostName,"host name");
+
+    long listenPort;
+    if(portStr) listenPort=convertToULong(portStr,"port");
+    else        listenPort=DEFAULT_PORT;
+
+    for (int i = 0; i < config.outpeers.size(); i++) {
+        if (!strcmp(config.outpeers[i],hostName)) { 
+            sprintf(answBuffer,"Error: Outpeer rasmanager %s already defined.",hostName);
+            LEAVE( "RasControl::defineOutPeers()" );
+            return;        
+        }       
+    }
+    config.outpeers.push_back(strdup(hostName));
+    config.outports.push_back(listenPort);
+
+    sprintf(answBuffer,"Defining outpeer rasmgr %s port=%d",hostName,listenPort);
+    
+    // a small "ping" checking if the outpeer can be reached
+    struct addrinfo hints, *ai;
+    char port[10];
+    int sockfd; 
+    bool success = false;
+    sprintf(port, "%d", config.outports[config.outports.size() - 1]);
+    memset (&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    if (getaddrinfo (config.outpeers[config.outpeers.size() - 1], port, &hints, &ai) != 0)
+        return;
+
+    for (; ai; ai = ai->ai_next)
+    {
+        if ((sockfd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol)) == -1) 
+        {
+            // socket error, nothing we can do at this point
+            continue;
+        }
+
+        if (connect(sockfd, ai->ai_addr, ai->ai_addrlen) == -1) {
+            close(sockfd);
+            // can't connect, nothing we can do at this point, the notification comes afterwards if no address works
+            continue;
+        }
+        success = true;
+        break;
+    }
+    
+    if (!success)
+    {
+        VLOG << "\nAttention! Outpeer " << config.outpeers[config.outpeers.size() - 1] << " can not be reached!\n" << flush;
+    }   
+    close(sockfd);
+    freeaddrinfo(ai);
+    LEAVE( "RasControl::defineOutPeers()" );
+}
+
+
 //----------------------------------------
 void RasControl::removeCommand()
 {
@@ -761,6 +892,10 @@ void RasControl::removeCommand()
     else if(strcasecmp(what,"dbh")==0)  removeDBHosts();
 
     else if(strcasecmp(what,"db")==0)   removeDatabases();
+
+    else if(strcasecmp(what,"inpeer")==0)  removeInPeers();
+
+    else if(strcasecmp(what,"outpeer")==0)   removeOutPeers();    
 
     else if(strcasecmp(what,RASMGRCMD_USER)==0) removeUsers();
 
@@ -843,6 +978,58 @@ void RasControl::removeRasServers()
     }
     sprintf(answBuffer,"Server %s removed",srvName);
 }
+
+void RasControl::removeInPeers()
+{
+    checkPermission(admR_config);
+
+    const char *peerName=getValueOf("inpeer");
+    checkUnexpectedTokens();
+
+    checkNotNull(peerName,"host name");
+    
+    int i = 0;
+    while ((i<config.inpeers.size()) && (strcmp(config.inpeers[i],peerName)))
+        i++;
+    if ((i<config.inpeers.size()) && !strcmp(config.inpeers[i],peerName)) 
+    {
+        config.inpeers.erase(config.inpeers.begin() + i);
+    } 
+    else 
+    {
+        sprintf(answBuffer,"No inpeer with host name %s found.",peerName);
+        return;    
+    } 
+
+    sprintf(answBuffer,"Peer %s removed",peerName);
+}
+
+void RasControl::removeOutPeers()
+{
+    checkPermission(admR_config);
+
+    const char *peerName=getValueOf("outpeer");
+    checkUnexpectedTokens();
+
+    checkNotNull(peerName,"host name");
+    
+    int i = 0;
+    while ((i<config.outpeers.size()) && (strcmp(config.outpeers[i],peerName)))
+        i++;
+    if ((i<config.outpeers.size()) && !strcmp(config.outpeers[i],peerName)) 
+    {
+        config.outpeers.erase(config.outpeers.begin()+i);
+        config.outports.erase(config.outports.begin()+i);
+    } 
+    else 
+    {
+        sprintf(answBuffer,"No outpeer with host name %s found.",peerName);
+        return;    
+    } 
+
+    sprintf(answBuffer,"Peer %s removed",peerName);
+}
+
 
 void RasControl::removeDBHosts()
 {

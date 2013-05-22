@@ -73,6 +73,8 @@ void RasControl::helpHelp()
             "  dbh  (data base host) - a computer running the database software\r\n"
             "  db   (database)       - the rasdaman database, hosted by the underlying database instance\r\n"
             "  user                  - a person registered by rasdaman through user name and password\r\n"
+            "  inpeer                - a peer which can forward client requests to the current RasManager\r\n"
+            "  outpeer               - a peer to which the current RasManager can forward client requests\r\n"
             "\r\nThe rascontrol utility allows to configure and do run-time administration work for the rasdaman system\r\n"
             "Commands:\r\n"
             "   >help       ...this help\r\n"
@@ -111,6 +113,10 @@ void RasControl::listHelp()
             "       - lists licence information\r\n"
             "list version\r\n"
             "       - list version information"
+            "list inpeer\r\n"
+            "       - list information about inpeers\r\n"
+            "list outpeer\r\n"
+            "       - list information about outpeers\r\n"
            );
 
 }
@@ -142,6 +148,11 @@ void RasControl::defineHelp()
             "       - define user account with symbolic name 'username'\r\n"
             "         'password' defaults to 'username' (use the raspasswd utility to change)\r\n"
             "         -rights 'rightsstring': the rights granted to the user (default: none; see documentation for valid rights)\r\n"
+            "define inpeer 'hostname'\r\n"
+            "       - define inpeer with the host name 'hostname'\r\n"
+            "define outpeer 'hostname' [-port 'portnumber']\r\n"
+            "       - define outpeer with the host name 'hostname'\r\n"
+            "         ('portnumber' defaults to 7001)\r\n"
            );
 }
 void RasControl::removeHelp()
@@ -158,6 +169,10 @@ void RasControl::removeHelp()
             "       - remove server 'srvname'\r\n"
             "remove user 'username'\r\n"
             "       - remove the user 'username'\r\n"
+            "remove inpeer 'hostname'\r\n"
+            "       - remove inpeer with host name 'hostname'\r\n"
+            "remove outpeer 'hostname'\r\n"
+            "       - remove outpeer with host name 'hostname'\r\n"
            );
 }
 

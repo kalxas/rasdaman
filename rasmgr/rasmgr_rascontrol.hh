@@ -69,6 +69,8 @@ private:
     void listConnections();
     void listRights();
     void listHelp();
+    void listInPeers();
+    void listOutPeers();    
     void defineCommand();
     void defineRasServers();
     void defineRasHosts();
@@ -76,6 +78,8 @@ private:
     void defineDatabases();
     void defineUsers();
     void defineHelp();
+    void defineInPeers();
+    void defineOutPeers();
     void removeCommand();
     void removeRasServers();
     void removeRasHosts();
@@ -83,6 +87,8 @@ private:
     void removeDatabases();
     void removeUsers();
     void removeHelp();
+    void removeInPeers();
+    void removeOutPeers();    
     void checkCommand();
     void checkRasHosts();
     void checkHelp();

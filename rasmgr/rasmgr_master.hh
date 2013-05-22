@@ -115,8 +115,9 @@ public:
     void commitAuthFile();
 private:
     bool isMessage(const char *messageStart);
-    int  getFreeServer(bool fake);
+    int  getFreeServer(bool fake, bool frompeer = false);
     const char* convertAnswerCode(int code);
+    const char* askOutpeer(int peer, char* outmsg);
 
 //      int  getFakeFreeServer();
     int  answerAccessDenied();
@@ -138,6 +139,8 @@ private:
     bool allowMultipleWriteTransactions;
 
     ClientQueue clientQueue;
+    
+    int currentPosition;
 };
 
 extern MasterComm masterCommunicator;

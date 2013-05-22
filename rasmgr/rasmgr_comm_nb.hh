@@ -35,9 +35,8 @@ rasdaman GmbH.
 */
 #ifndef RASMGR_COMM_NB_HH
 #define RASMGR_COMM_NB_HH
-
-#include "rasmgr_comm.hh"
-
+#include "rasmgr_config.hh"
+#include "rasmgr.hh"
 // this is the NON-BLOCKING version, which will replace the other one
 
 // maximum number of slaves a master mgr can handle

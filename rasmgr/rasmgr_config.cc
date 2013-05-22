@@ -72,8 +72,6 @@ Configuration::Configuration():
     cmlHostName   (cmlInter.addStringParameter(CommandLineParser::noShortName, "hostname", "<name> the advertized host name (master only, default: same as UNIX command 'hostname')")),
     cmlPort       (cmlInter.addLongParameter(CommandLineParser::noShortName, "port", "<port> listen port number", DEFAULT_PORT)),
     cmlPollFrequ  (cmlInter.addLongParameter(CommandLineParser::noShortName, "poll", "<poll> polling timeout (in seconds) for rasmgr listen port", DEFAULT_POLLING_FREQUENCY )),
-    cmlMaster     (cmlInter.addStringParameter(CommandLineParser::noShortName, "master", "<name> host of rasmgr master (slave only)")),
-    cmlMasterPort (cmlInter.addLongParameter(CommandLineParser::noShortName, "mport", "<port> listen port number of rasmgr master (slave only)", DEFAULT_PORT)),
     cmlQuiet      (cmlInter.addFlagParameter( 'q', CommandLineParser::noLongName, "quiet: don't log requests (default: log requests to stdout)")),
     cmlLog        (cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "log/rasmgr.<pid>.log")),
 #ifdef RMANDEBUG    // was: NO_OFFICIAL_RELEASE
@@ -95,16 +93,12 @@ Configuration::Configuration():
         RMInit::logOut << "Error: cannot get hostname of my machine: error " << ghnErrno << "; will use '" << DEFAULT_HOSTNAME << "' as heuristic." << endl;
         strcpy( hostName, DEFAULT_HOSTNAME );
     }
-    strcpy(slaveName,hostName);
     strcpy(publicHostName,hostName);
     listenPort=DEFAULT_PORT;
-    masterPort=DEFAULT_PORT;
-    masterName[0]=0;
 
     pollFrequency = DEFAULT_POLLING_FREQUENCY;
 
     configFileName[0]=0;
-    slave = false;
 
     if (sizeof(configFileName) < strlen(CONFDIR) + strlen(RASMGR_CONF_FILE) + 2)
     {
@@ -263,9 +257,18 @@ bool Configuration::saveConfigFile()
             ofs<<"define db "<<xx.getName()<<" -dbh "<<xx.getDBHostName(j)<<std::endl;
         }
     }
+    
+    for(i=0; i<outpeers.size(); i++) { 
+        ofs<<"define outpeer "<<outpeers[i]<<" -port "<<outports[i]<<std::endl;
+    }
+    
+    for(i=0; i<inpeers.size(); i++) {
+        ofs<<"define inpeer "<<inpeers[i]<<std::endl;
+    }
 
     ofs.close();        // this was missing, therefore sometimes the config file was cleared -- PB 2003-jun-06
     LEAVE( "Configuration::saveConfigFile: leave." );
+
     return true;
 } // saveConfigFile()
 
@@ -384,25 +387,6 @@ bool Configuration::interpretArguments(int argc, char **argv, char **envp)
         }
     }
 
-    if( (result==true) && cmlMaster.isPresent() )
-    {
-        slave = true;
-        strcpy(masterName,cmlMaster.getValueAsString());
-    }
-
-    if( (result==true) && cmlMasterPort.isPresent() )
-    {
-        try
-        {
-            masterPort = cmlMasterPort.getValueAsLong();
-        }
-        catch(CmlException& err)
-        {
-            VLOG << "Error converting " << cmlMasterPort.getLongName() << " to integer: " << err.what() << std::endl;
-            result = false;
-        }
-    }
-
     if( (result==true) && cmlPollFrequ.isPresent() )
     {
         try
@@ -417,17 +401,6 @@ bool Configuration::interpretArguments(int argc, char **argv, char **envp)
         if (result == true && pollFrequency <= 0)
         {
             VLOG << "Error: poll frequency must be a positive integer." << std::endl;
-            result = false;
-        }
-    }
-
-    if( (result==true) && cmlName.isPresent() )
-    {
-        if (sizeof(slaveName) > strlen(cmlName.getValueAsString()))
-            strcpy(slaveName,cmlName.getValueAsString());
-        else
-        {
-            VLOG << "Error: slave name exceeds length limit of " << sizeof(slaveName) << " characters." << std::endl;
             result = false;
         }
     }
@@ -491,23 +464,9 @@ int Configuration::getListenPort()
     return listenPort;
 }
 
-const char* Configuration::getMasterName()
-{
-    return masterName;
-}
-int Configuration::getMasterPort()
-{
-    return masterPort;
-}
-
 int Configuration::getPollFrequency()
 {
     return pollFrequency;
-}
-
-const char* Configuration::getSlaveName()
-{
-    return slaveName[0] ? slaveName:hostName;
 }
 
 void Configuration::printHelp()
