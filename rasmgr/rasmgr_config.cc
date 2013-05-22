@@ -46,7 +46,6 @@ using namespace std;
 #include "rasmgr_srv.hh"
 #include "ras_crypto.hh"
 #include "rasmgr_users.hh"
-#include "rasmgr_comm.hh"
 #include "rasmgr_rascontrol.hh"
 
 #include <sys/stat.h>

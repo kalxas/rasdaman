@@ -37,7 +37,6 @@ rasdaman GmbH.
 #define RASMGR_RASCONTROL_HH
 
 #include "rasmgr.hh"
-#include "rasmgr_comm.hh"
 #include "rasmgr_users.hh"
 #include "rasmgr_host.hh"
 

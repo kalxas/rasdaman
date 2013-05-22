@@ -33,7 +33,6 @@ rasdaman GmbH.
 #include "config.h"
 #include "rasmgr_srv.hh"
 #include "rasmgr_localsrv.hh"
-#include "rasmgr_comm.hh"
 #include "rasmgr_users.hh"
 
 #include "debug-srv.hh"
