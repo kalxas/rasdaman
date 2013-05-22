@@ -1,0 +1,2 @@
+TODO : create a correspondent oracle.sh file to check the result (otherwise the SECORE URL is going to be hardwired in the oracle).
+       Moreover, ticket #390 must be fixed in order to have a successful test here.

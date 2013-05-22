@@ -1,0 +1,52 @@
+--------------
+= SECORE tests =
+--------------
+
+This directory holds SECORE tests. Variables like Tomcat port, host, etc. may need
+to be adapted in test.cfg before running the tests. To run the tests, execute:
+
+./test.sh
+
+Do not execute ``sh test.sh'' as the script is written for bash, and sh is often
+linked to a restricted version of bash like dash, or similar.
+
+The output from each test is written to the output directory.
+
+
+----------------
+= Adding tests =
+----------------
+
+To add new tests to the test suite, simply add new URIs to the queries/
+directory. Please adhere to the naming convention, continuing from the last
+number:
+
+    KVP URI : number-%TYPE%_meaningful_name.kvp
+RESTful URI : number-%TYPE%_meaningful_name.rest
+
+where %TYPE% can either be (meanings are self-explanatory):
+
+  * single_crs
+  * compound_crs
+  * parametrized_crs
+  * crs_(in)?equality
+
+Tests which verify the same functionality shall have the same ``number'', and will differ
+in their extension.
+
+The test URIs are only partial and meant to be *appended* to the configured SECORE URL, so in:
+
+    http://<secore_host>:<secore_port>/def{%s}
+
+{%s} shall be the URI part inside each queries/* file.
+
+For better readability, the URI can be split in multiple lines: new lines and white spaces
+are anyway trimmed out during the tests.
+
+** Remarks *****
+
+In case of compound CRSs and equality tests, use the keyword ``%SECORE_URL%'' 
+instead of hard-wiring endpoints, e.g.:
+
+  WRONG: /crs-compound?1=http://localhost:8080/def/crs/EPSG/0/4327&2=http://localhost:8080/def/crs?authority=EPSG&version=0&code=5715
+CORRECT: /crs-compound?1=%SECORE_URL%/crs/EPSG/0/4327&2=%SECORE_URL%/crs?authority=EPSG&version=0&code=5715

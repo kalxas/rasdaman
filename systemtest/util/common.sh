@@ -180,6 +180,14 @@ function check_petascope()
   fi
 }
 
+function check_secore()
+{
+  $WGET -q "${SECORE_URL}/crs" -O /dev/null
+  if [ $? -ne 0 ]; then
+    error "failed connecting to SECORE at $SECORE_URL, please deploy it first."
+  fi
+}
+
 function check_netcdf()
 {
   which ncdump > /dev/null
