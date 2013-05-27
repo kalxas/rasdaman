@@ -688,10 +688,10 @@ QtMinus::printAlgebraicExpression( ostream& s )
 }
 
 
-const QtNode::QtNodeType QtTop::nodeType = QT_TOP;
+const QtNode::QtNodeType QtMax_binary::nodeType = QT_MAX_BINARY;
 
-QtTop::QtTop( QtOperation* initInput1, QtOperation* initInput2 )
-    : QtBinaryInduce( initInput1, initInput2, Ops::OP_TOP )
+QtMax_binary::QtMax_binary( QtOperation* initInput1, QtOperation* initInput2 )
+    : QtBinaryInduce( initInput1, initInput2, Ops::OP_MAX_BINARY )
 {
 }
 
@@ -699,9 +699,9 @@ QtTop::QtTop( QtOperation* initInput1, QtOperation* initInput2 )
 
 
 void
-QtTop::printTree( int tab, ostream& s, QtChildType mode )
+QtMax_binary::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtTop Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(tab).c_str() << "QtMax_binary Object " << getNodeType() << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -709,7 +709,7 @@ QtTop::printTree( int tab, ostream& s, QtChildType mode )
 
 
 void
-QtTop::printAlgebraicExpression( ostream& s )
+QtMax_binary::printAlgebraicExpression( ostream& s )
 {
     s << "(";
 
@@ -718,7 +718,7 @@ QtTop::printAlgebraicExpression( ostream& s )
     else
         s << "<nn>";
 
-    s << " top ";
+    s << " binary max ";
 
     if( input2 )
         input2->printAlgebraicExpression( s );
@@ -729,10 +729,10 @@ QtTop::printAlgebraicExpression( ostream& s )
 }
 
 
-const QtNode::QtNodeType QtBottom::nodeType = QT_BOTTOM;
+const QtNode::QtNodeType QtMin_binary::nodeType = QT_MIN_BINARY;
 
-QtBottom::QtBottom( QtOperation* initInput1, QtOperation* initInput2 )
-    : QtBinaryInduce( initInput1, initInput2, Ops::OP_BOTTOM )
+QtMin_binary::QtMin_binary( QtOperation* initInput1, QtOperation* initInput2 )
+    : QtBinaryInduce( initInput1, initInput2, Ops::OP_MIN_BINARY )
 {
 }
 
@@ -740,9 +740,9 @@ QtBottom::QtBottom( QtOperation* initInput1, QtOperation* initInput2 )
 
 
 void
-QtBottom::printTree( int tab, ostream& s, QtChildType mode )
+QtMin_binary::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtBottom Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(tab).c_str() << "QtMin_binary Object " << getNodeType() << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -750,7 +750,7 @@ QtBottom::printTree( int tab, ostream& s, QtChildType mode )
 
 
 void
-QtBottom::printAlgebraicExpression( ostream& s )
+QtMin_binary::printAlgebraicExpression( ostream& s )
 {
     s << "(";
 
@@ -759,7 +759,7 @@ QtBottom::printAlgebraicExpression( ostream& s )
     else
         s << "<nn>";
 
-    s << " bottom ";
+    s << " binary min ";
 
     if( input2 )
         input2->printAlgebraicExpression( s );

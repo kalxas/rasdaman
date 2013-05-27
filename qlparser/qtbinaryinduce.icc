@@ -41,13 +41,13 @@ QtMinus::getNodeType() const
 }
 
 inline const QtNode::QtNodeType
-QtTop::getNodeType() const
+QtMax_binary::getNodeType() const
 {
   return nodeType;
 }
 
 inline const QtNode::QtNodeType
-QtBottom::getNodeType() const
+QtMin_binary::getNodeType() const
 {
   return nodeType;
 }

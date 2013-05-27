@@ -100,8 +100,8 @@ This is the ops code and the persistence code: from the typenum the oids are gen
   && {\bf binary operations} \\
   OP_MINUS && subtraction \\
   OP_PLUS && addition \\
-  OP_TOP && top \\
-  OP_BOTTOM && bottom \\
+  OP_MAX_BINARY && binary max\\
+  OP_MIN_BINARY && binary min\\
   OP_MULT && multiplication \\
   OP_DIV && division \\
   OP_IS && not implemented yet \\
@@ -126,8 +126,8 @@ public:
     enum OpType
     {
         // condense operations.
-        OP_COUNT, OP_MAX, OP_MIN, OP_SUM, OP_SOME,
-        /* insert new condense ops before this line */ OP_ALL,
+        OP_COUNT, OP_MAX, OP_MIN, OP_SUM, OP_SOME, OP_ALL,
+        /* insert new condense ops before this line */        
         // unary operations.
         OP_NOT,
 
@@ -158,7 +158,7 @@ public:
 
         /* insert new unary ops before this line */ OP_IDENTITY,
         // binary operations.
-        OP_MINUS, OP_PLUS, OP_TOP, OP_BOTTOM, OP_DIV, OP_MULT,
+        OP_MINUS, OP_PLUS, OP_MAX_BINARY, OP_MIN_BINARY, OP_DIV, OP_MULT,
         OP_IS, OP_AND, OP_OR, OP_OVERLAY, OP_BIT, OP_XOR,
         /* insert new binary ops before this line */
         OP_EQUAL, OP_LESS, OP_LESSEQUAL,
@@ -975,15 +975,15 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
-//@Doc: OP_TOP on C type #unsigned long# and #unsigned long#, result #unsigned long#.
+//@Doc: OP_MAX_BINARY on C type #unsigned long# and #unsigned long#, result #unsigned long#.
 /**
   * \ingroup Catalogmgrs
   */
-class OpTOPCULong : public BinaryOp
+class OpMAX_BINARYCULong : public BinaryOp
 {
 public:
     /// constructor gets RasDaMan base type of result and operands.
-    OpTOPCULong(const BaseType* newResType,const BaseType* newOp1Type,
+    OpMAX_BINARYCULong(const BaseType* newResType,const BaseType* newOp1Type,
                  const   BaseType* newOp2Type, unsigned int newResOff = 0,
                  unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -995,11 +995,11 @@ public:
 /**
   * \ingroup Catalogmgrs
   */
-class OpTOPULong : public BinaryOp
+class OpMAX_BINARYULong : public BinaryOp
 {
 public:
     /// constructor gets RasDaMan base type of result and operands.
-    OpTOPULong(const BaseType* newResType,const BaseType* newOp1Type,
+    OpMAX_BINARYULong(const BaseType* newResType,const BaseType* newOp1Type,
                 const   BaseType* newOp2Type, unsigned int newResOff = 0,
                 unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -1010,15 +1010,15 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
-//@Doc: OP_BOTTOM on C type #unsigned long# and #unsigned long#, result #unsigned long#.
+//@Doc: OP_MIN_BINARY on C type #unsigned long# and #unsigned long#, result #unsigned long#.
 /**
   * \ingroup Catalogmgrs
   */
-class OpBOTTOMCULong : public BinaryOp
+class OpMIN_BINARYCULong : public BinaryOp
 {
 public:
     /// constructor gets RasDaMan base type of result and operands.
-    OpBOTTOMCULong(const BaseType* newResType,const BaseType* newOp1Type,
+    OpMIN_BINARYCULong(const BaseType* newResType,const BaseType* newOp1Type,
                  const   BaseType* newOp2Type, unsigned int newResOff = 0,
                  unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -1030,11 +1030,11 @@ public:
 /**
   * \ingroup Catalogmgrs
   */
-class OpBOTTOMULong : public BinaryOp
+class OpMIN_BINARYULong : public BinaryOp
 {
 public:
     /// constructor gets RasDaMan base type of result and operands.
-    OpBOTTOMULong(const BaseType* newResType,const BaseType* newOp1Type,
+    OpMIN_BINARYULong(const BaseType* newResType,const BaseType* newOp1Type,
                 const   BaseType* newOp2Type, unsigned int newResOff = 0,
                 unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -1231,15 +1231,15 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
-//@Doc: OP_TOP on C type #long# and #long#, result #long#.
+//@Doc: OP_MAX_BINARY on C type #long# and #long#, result #long#.
 /**
   * \ingroup Catalogmgrs
   */
-class OpTOPCLong : public BinaryOp
+class OpMAX_BINARYCLong : public BinaryOp
 {
 public:
     /// constructor gets RasDaMan base type of result and operands.
-    OpTOPCLong(const BaseType* newResType,const BaseType* newOp1Type,
+    OpMAX_BINARYCLong(const BaseType* newResType,const BaseType* newOp1Type,
                 const BaseType* newOp2Type, unsigned int newResOff = 0,
                 unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -1250,15 +1250,15 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
-//@Doc: OP_BOTTOM on C type #long# and #long#, result #long#.
+//@Doc: OP_MIN_BINARY on C type #long# and #long#, result #long#.
 /**
   * \ingroup Catalogmgrs
   */
-class OpBOTTOMCLong : public BinaryOp
+class OpMIN_BINARYCLong : public BinaryOp
 {
 public:
     /// constructor gets RasDaMan base type of result and operands.
-    OpBOTTOMCLong(const BaseType* newResType,const BaseType* newOp1Type,
+    OpMIN_BINARYCLong(const BaseType* newResType,const BaseType* newOp1Type,
                 const BaseType* newOp2Type, unsigned int newResOff = 0,
                 unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -1398,15 +1398,15 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
-//@Doc: OP_TOP on C type #double# and #double#, result #double#.
+//@Doc: OP_MAX_BINARY on C type #double# and #double#, result #double#.
 /**
   * \ingroup Catalogmgrs
   */
-class OpTOPCDouble : public BinaryOp
+class OpMAX_BINARYCDouble : public BinaryOp
 {
 public:
     /// constructor gets RasDaMan base type of result and operands.
-    OpTOPCDouble(const BaseType* newResType,const BaseType* newOp1Type,
+    OpMAX_BINARYCDouble(const BaseType* newResType,const BaseType* newOp1Type,
                   const BaseType* newOp2Type, unsigned int newResOff = 0,
                   unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -1417,15 +1417,15 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
-//@Doc: OP_BOTTOM on C type #double# and #double#, result #double#.
+//@Doc: OP_MIN_BINARY on C type #double# and #double#, result #double#.
 /**
   * \ingroup Catalogmgrs
   */
-class OpBOTTOMCDouble : public BinaryOp
+class OpMIN_BINARYCDouble : public BinaryOp
 {
 public:
     /// constructor gets RasDaMan base type of result and operands.
-    OpBOTTOMCDouble(const BaseType* newResType,const BaseType* newOp1Type,
+    OpMIN_BINARYCDouble(const BaseType* newResType,const BaseType* newOp1Type,
                   const BaseType* newOp2Type, unsigned int newResOff = 0,
                   unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -1847,15 +1847,15 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
-//@Doc: OP_TOP specialized for RasDaMan type Char.
+//@Doc: OP_MAX_BINARY specialized for RasDaMan type Char.
 /**
   * \ingroup Catalogmgrs
   */
-class OpTOPChar : public BinaryOp
+class OpMAX_BINARYChar : public BinaryOp
 {
 public:
     /// constructor gets RasDaMan base type of result and operands.
-    OpTOPChar(const BaseType* newResType,const BaseType* newOp1Type,
+    OpMAX_BINARYChar(const BaseType* newResType,const BaseType* newOp1Type,
                const BaseType* newOp2Type, unsigned int newResOff = 0,
                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -1866,15 +1866,15 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
-//@Doc: OP_BOTTOM specialized for RasDaMan type Char.
+//@Doc: OP_MIN_BINARY specialized for RasDaMan type Char.
 /**
   * \ingroup Catalogmgrs
   */
-class OpBOTTOMChar : public BinaryOp
+class OpMIN_BINARYChar : public BinaryOp
 {
 public:
     /// constructor gets RasDaMan base type of result and operands.
-    OpBOTTOMChar(const BaseType* newResType,const BaseType* newOp1Type,
+    OpMIN_BINARYChar(const BaseType* newResType,const BaseType* newOp1Type,
                const BaseType* newOp2Type, unsigned int newResOff = 0,
                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -2220,14 +2220,14 @@ protected:
 /**
   * \ingroup Catalogmgrs
   */
-class OpTOPComplex : public BinaryOp
+class OpMAX_BINARYComplex : public BinaryOp
 {
 public:
     // Question: which operand is scalar?
     // Answere: NONE, FIRST, SECOND
     enum ScalarFlag { NONE, FIRST, SECOND};
 
-    OpTOPComplex(
+    OpMAX_BINARYComplex(
         const BaseType* newResType,
         const BaseType* newOp1Type,
         const BaseType* newOp2Type,
@@ -2252,14 +2252,14 @@ protected:
 /**
   * \ingroup Catalogmgrs
   */
-class OpBOTTOMComplex : public BinaryOp
+class OpMIN_BINARYComplex : public BinaryOp
 {
 public:
     // Question: which operand is scalar?
     // Answere: NONE, FIRST, SECOND
     enum ScalarFlag { NONE, FIRST, SECOND};
 
-    OpBOTTOMComplex(
+    OpMIN_BINARYComplex(
         const BaseType* newResType,
         const BaseType* newOp1Type,
         const BaseType* newOp2Type,

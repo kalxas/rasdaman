@@ -168,11 +168,11 @@ private:
 
 */
 
-class QtTop : public QtBinaryInduce
+class QtMax_binary : public QtBinaryInduce
 {
 public:
     /// constructor getting the two operands
-    QtTop( QtOperation* input1, QtOperation* input2 );
+    QtMax_binary( QtOperation* input1, QtOperation* input2 );
 
     /// prints the tree
     virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
@@ -194,11 +194,11 @@ private:
 
 */
 
-class QtBottom : public QtBinaryInduce
+class QtMin_binary : public QtBinaryInduce
 {
 public:
     /// constructor getting the two operands
-    QtBottom( QtOperation* input1, QtOperation* input2 );
+    QtMin_binary( QtOperation* input1, QtOperation* input2 );
 
 
     /// prints the tree
