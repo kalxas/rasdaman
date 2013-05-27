@@ -205,7 +205,7 @@ struct QtUpdateSpecElement
 %token <typeToken>       TUNSIG TBOOL TOCTET TCHAR TSHORT TUSHORT TLONG TULONG TFLOAT TDOUBLE
 %token <commandToken>    SELECT FROM WHERE AS RESTRICT TO EXTEND BY PROJECT AT DIMENSION ALL SOME
                          COUNTCELLS ADDCELLS AVGCELLS MINCELLS MAXCELLS SDOM OVER USING LO HI UPDATE
-                         SET ASSIGN MARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS TOP BOTTOM MULT
+                         SET ASSIGN MARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS MAX_BINARY MIN_BINARY MULT
                          DIV EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION
                          MDDPARAM OID SHIFT SCALE SQRT ABS EXP LOG LN SIN COS TAN SINH COSH TANH ARCSIN
@@ -226,7 +226,7 @@ struct QtUpdateSpecElement
 %left IS
 %left EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL
 %left PLUS MINUS
-%left TOP BOTTOM
+%left MAX_BINARY MIN_BINARY
 %left MULT DIV
 %left UNARYOP BIT
 %left DOT LEPAR SDOM
@@ -1199,14 +1199,14 @@ condenseOpLit: PLUS
 	  $$ = Ops::OP_OR;
 	  FREESTACK($1)
 	}
-	| TOP
+	| MAX_BINARY
 	{
-	  $$ = Ops::OP_TOP;
+	  $$ = Ops::OP_MAX_BINARY;
 	  FREESTACK($1)
 	}
-	| BOTTOM
+	| MIN_BINARY
 	{
-	  $$ = Ops::OP_BOTTOM;
+	  $$ = Ops::OP_MIN_BINARY;
 	  FREESTACK($1)
 	}; 
 
@@ -2016,18 +2016,18 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($2)
 	}
-	| generalExp TOP generalExp
+	| generalExp MAX_BINARY generalExp
 	{
-	  $$ = new QtTop ( $1, $3 );
+	  $$ = new QtMax_binary( $1, $3 );
 	  $$->setParseInfo( *($2.info) );
 	  parseQueryTree->removeDynamicObject( $1 );
 	  parseQueryTree->removeDynamicObject( $3 );
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($2)
 	}
-	| generalExp BOTTOM generalExp
+	| generalExp MIN_BINARY generalExp
 	{
-	  $$ = new QtBottom( $1, $3 );
+	  $$ = new QtMin_binary( $1, $3 );
 	  $$->setParseInfo( *($2.info) );
 	  parseQueryTree->removeDynamicObject( $1 );
 	  parseQueryTree->removeDynamicObject( $3 );
@@ -2118,12 +2118,12 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($1)
 	}
-	| TOP  generalExp %prec UNARYOP
+	| MAX_BINARY  generalExp %prec UNARYOP
 	{
 	  $$ = $2;
 	  FREESTACK($1)
 	}
-	| BOTTOM generalExp %prec UNARYOP
+	| MIN_BINARY generalExp %prec UNARYOP
 	{
 	  $$ = $2;
 	  FREESTACK($1)

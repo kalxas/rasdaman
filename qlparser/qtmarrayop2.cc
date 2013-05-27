@@ -319,8 +319,8 @@ void QtMarrayOp2::traverse(QtOperation *&node)
                 case QtNode::QT_CONDENSEOP:
                 case QtNode::QT_XOR:
                 case QtNode::QT_PLUS:
-                case QtNode::QT_TOP:
-                case QtNode::QT_BOTTOM:
+                case QtNode::QT_MAX_BINARY:
+                case QtNode::QT_MIN_BINARY:
                 case QtNode::QT_OR:
                 case QtNode::QT_NOT_EQUAL:
                 case QtNode::QT_MULT:
