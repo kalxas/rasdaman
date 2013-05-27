@@ -22,810 +22,20 @@
 -- ~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=
 
 -- ####################################################################
--- |                    petascopedb 9.0 schema                        |
+-- |                    petascopedb 9.0 population                     |
 -- ####################################################################
 
 -----------------------------------------------------------------------
--- PREFACE
--- ~~~~~~~
--- New database schema for `petascopedb` in order to loose the previously 
--- inherent constraint that forced coverage axes to be aligned with CRS axes.
--- This new schema reflects the GML 3.3 ReferenceableGrid* types so that
--- irregular (spatiotemporal) coverages can be handled by Petascope.
--- 
--- The CRS metadata previously stored in the tables (axes, labels, UoM, etc.) 
--- is now available via resolvable URI, unique for a coverage. The CRS resolver
--- (SECORE) will provide the necessary CRS info to Petascope.
+-- Insert 
 --
--- Structure of this file:
---       i. Shared functions
---      ii. Creation of the SQL schema + triggers
---     iii. Population of some dictionary tables (e.g. formats, MIME types, GML types, etc.)
---
--- Note. RASBASE::nm_meta now merged into petascopedb and renamed to ps9_rasgeo (see #169).
---
--- PL/pgSQL ref.: http://www.commandprompt.com/ppbook/c19610.htm
---                http://postgres.cz/wiki/PL/pgSQL_(en)
---
--- DBMS IMPLEMENTATION CHOICES:
---   :: surrogate keys over natural keys, with label "id"
---   :: <table-name> = <prefix>_<table-label>       (e.g. ps9_coverage)
---   :: <fk-name>    = <table-label>_id             (e.g. coverage_id)
---   :: singular names over plural names for tables (e.g. ps9_coverage, and not ps9_coverages)
---   :: composite names are separated by `_'        (e.g. ps9_domain_set)
--- ~~~~~~~
--- New database schema for `petascopedb` in order to loose the previously 
+-- PREREQUISITES
+--   - PL/pgSQL is installed.
+--   - Schema has been created (`init9.sql')
+--   - `global_const.sql' has been imported within this session.
 -----------------------------------------------------------------------
 
--- ######################################################################### --
---                          i) SHARED FUNCTIONS                              --
--- ######################################################################### --
-
--- FUNCTION: ** table_exists (table_name) *************************************
--- Checks that a table exists in the current schema.
-CREATE OR REPLACE FUNCTION table_exists(text) RETURNS boolean AS $BODY$
-    DECLARE
-        -- Arguments
-        this_table ALIAS FOR $1;
-    BEGIN
-        -- check if the table exists
-        PERFORM * FROM pg_tables WHERE tablename = this_table AND schemaname = current_schema();
-        RETURN FOUND;
-    END;
-$BODY$ LANGUAGE plpgsql;
-
--- FUNCTION: ** table_has_id(table_name, id_field, id_value) ******************
--- Checks that a certain id is contained in the specified table.
--- This function is used when a table imports FKs from different tables.
-CREATE OR REPLACE FUNCTION table_has_id(text, text, integer) RETURNS boolean AS $BODY$
-    DECLARE
-        -- Arguments
-        this_table ALIAS FOR $1;
-        id_field   ALIAS FOR $2;
-        id_value   ALIAS FOR $3;
-
-        -- Local variables
-	ME text := current_query();
-        qry text;
-        tup record;
-    BEGIN
-        -- check if the table exists
-        IF NOT table_exists(this_table) THEN
-            RAISE EXCEPTION '%: table ''%'' does not exist.', ME, this_table;
-        END IF;
-
-        -- check for referential integrity
-	qry := 'SELECT * FROM ' || this_table || ' WHERE ' || id_field || '=' || id_value || ';';
-	-- RAISE NOTICE 'Executing: %', qry; --Debug
-	FOR tup IN EXECUTE qry LOOP -- EXECUTE does not affect FOUND
-            RETURN true; -- the tuple has been found
-        END LOOP;
-        RETURN false; -- no tuple with specified id
-    END;
-$BODY$ LANGUAGE plpgsql;
-
--- FUNCTION: ** matches_pattern(string, pattern) ******************************
--- Returns true if the pattern matches the specified string
-CREATE OR REPLACE FUNCTION matches_pattern(text, text) RETURNS boolean AS $BODY$
-    DECLARE
-        -- Arguments
-	this_string  ALIAS FOR $1;
-	this_pattern ALIAS FOR $2;
-    BEGIN
-        -- check that the UoM code is like <pattern value="^[^: \n\r\t]+"/>
-        PERFORM regexp_matches(this_string, this_pattern);
-        RETURN FOUND;
-    END;
-$BODY$ LANGUAGE plpgsql;
-
--- FUNCTION: ** numeric_column2array (table, numeric_column, where_clause, order_by_column) ****
--- Builds an array from a query response with single numeric values
-CREATE OR REPLACE FUNCTION numeric_column2array(text, text, text, text) RETURNS numeric[] AS $BODY$
-    DECLARE
-        -- Arguments
-        this_table     ALIAS FOR $1;
-        numeric_column ALIAS FOR $2;
-        where_clause   ALIAS FOR $3;
-        orderby_column ALIAS FOR $4;
-
-        -- Local variables
-        ME text := current_query();
-        qry       text;    
-        tup       record;
-        out_array numeric[];
-    BEGIN
-        qry := 'SELECT ARRAY[CAST(' || numeric_column || ' AS numeric)] AS a FROM ' || this_table || ' ' 
-               || where_clause      || ' ORDER BY '   || orderby_column || ';';
-	--RAISE NOTICE 'Executing: %', qry; --Debug
-	FOR tup IN EXECUTE qry LOOP 
-            -- Extract the numeric column value
-            out_array := array_append(out_array, tup.a[1]);
-        END LOOP;
-        RETURN out_array;
-    END;
-$BODY$ LANGUAGE plpgsql;
-
--- FUNCTION: ** array_sort (anyarray) ***********************
--- Sorts an array (usage: SELECT sort_array('{3,2,1}'::integer[]);)
-CREATE OR REPLACE FUNCTION array_sort(anyarray) RETURNS anyarray LANGUAGE SQL AS $$
-    SELECT ARRAY(
-      SELECT $1[s.i] AS "foo"
-      FROM
-          generate_series(array_lower($1,1), array_upper($1,1)) AS s(i)
-      ORDER BY foo
-    );
-$$;
-
-
--- FUNCTION: ** is_sequential (array, origin) ***********************
--- Verify that an array is strictly sequential from an origin index.
-CREATE OR REPLACE FUNCTION is_sequential(integer[], integer = NULL) RETURNS boolean AS $BODY$
-    DECLARE
-        -- Arguments and local variables
-        indexes_array  ALIAS FOR $1;
-        indexes_origin ALIAS FOR $2;
-        position integer := array_lower(indexes_array, 1); -- usually 1 is the starting index for arrays in psql
-    BEGIN
-        IF array_length(indexes_array, 1) > 0 THEN
-            -- check first element is origin
-            IF indexes_origin IS NOT NULL AND indexes_array[position] <> indexes_origin THEN
-                RETURN false;
-            ELSE 
-                -- check for sequential ordering
-                WHILE (position+1) <= array_length(indexes_array, 1) LOOP
-                    IF indexes_array[position+1] <> indexes_array[position]+1 THEN
-                        RETURN false;
-                    END IF;
-                    position := position + 1;
-                END LOOP;
-            END IF;
-        END IF;
-        RETURN true; -- 0-element arrays as well are considered sequential
-    END;
-$BODY$ LANGUAGE plpgsql;
-
--- FUNCTION: ** is_increasing (array, is_strict) *******************************
--- Verify that an array is strictly sequential from 0.
-CREATE OR REPLACE FUNCTION is_increasing(numeric[], boolean) RETURNS boolean AS $BODY$
-    DECLARE
-        -- Arguments and local variables
-        numeric_array ALIAS FOR $1;
-        is_strict     ALIAS FOR $2;
-        position integer := array_lower(numeric_array, 1);
-    BEGIN
-        IF array_length(numeric_array, 1) > 0 THEN
-            -- check for sequential ordering
-            WHILE (position+1) <= array_length(numeric_array, 1) LOOP
-                IF      (is_strict  AND numeric_array[position+1] <= numeric_array[position]) OR
-                   ((NOT is_strict) AND numeric_array[position+1] <  numeric_array[position]) THEN
-                    RETURN false;
-                END IF;
-                position := position + 1;
-            END LOOP;
-        END IF;
-        RETURN true; -- 0-element arrays as well are returning true
-    END;
-$BODY$ LANGUAGE plpgsql;
-
--- FUNCTION: ** table_is_empty (table) ****************************************
--- Returns true if a table is empty.
-CREATE OR REPLACE FUNCTION table_is_empty(text) RETURNS boolean AS $BODY$
-    DECLARE
-        -- Arguments
-        this_table ALIAS FOR $1;
-
-        -- Local variables
-        ME text := current_query();
-        qry   text;
-        tup   record;
-    BEGIN
-        -- check if the table exists
-        IF NOT table_exists(this_table) THEN
-            RAISE EXCEPTION '%: table ''%'' does not exist.', ME, this_table;
-        END IF;
-
-        -- check that it is empty
-        qry := 'SELECT * FROM ' || this_table || ';';
-	FOR tup IN EXECUTE qry LOOP -- EXECUTE does not affect FOUND
-            RETURN false; -- the tuple has been found
-        END LOOP;
-        RETURN true; -- table is empty
-    END;
-$BODY$ LANGUAGE plpgsql;
-
--- ######################################################################### --
---                        ii) SCHEMA AND TRIGGERS                            --
--- ######################################################################### --
-
--- COVERAGE MODEL (WCS/WCPS) --------------------------------------------------
--------------------------------------------------------------------------------
-
--- TABLE: **ps9_gml_type** =====================================================
--- Catalogue table storing the available GML grid types.
-CREATE TABLE ps9_gml_subtype (
-    id             serial PRIMARY KEY,
-    subtype        text   UNIQUE NOT NULL,
-    subtype_parent int    REFERENCES ps9_gml_subtype (id)
-);
-
--- TABLES: **ps9_format/ps9_mime_type/ps9_gdal_id** ==============================
--- These tables describe the encoding formats known to WCPS, as well as their mappings to mimetypes. 
--- If you add any, make sure that rasdaman can encode in the 
--- format specified by `name', or encoding to that format will not work.
--- Note: format names and MIME types can have aliases:
--- {1 MIME -> N formats} (e.g. tif/tiff) // {1 MIME -> N gdal_id} (JPEG/JPEGLS).
-CREATE TABLE ps9_mime_type (
-    id              serial           PRIMARY KEY,
-    mime_type       varchar(255)     NOT NULL         -- http://tools.ietf.org/html/rfc4288#section-4.2
-);
-CREATE TABLE ps9_gdal_format (
-    id              serial           PRIMARY KEY,
-    gdal_id         text             UNIQUE NOT NULL,
-    description     text             NULL
-);
-CREATE TABLE ps9_format (
-    id              serial       PRIMARY KEY,
-    name            text         UNIQUE NOT NULL,
-    mime_type_id    integer      NOT NULL,
-    gdal_id         integer      NULL, 
-    -- Constraints and FKs
-    FOREIGN KEY (mime_type_id) REFERENCES ps9_mime_type   (id) ON DELETE RESTRICT,
-    FOREIGN KEY (gdal_id)      REFERENCES ps9_gdal_format (id) ON DELETE RESTRICT
-);
-
--- TABLE: **ps9_coverage** =====================================================
--- The core of the coverage model. It is composed, as per GML model, by 
--- a domain (the topology), and a range (the payload).
-CREATE TABLE ps9_coverage (
-    id               serial       PRIMARY KEY,
-    name             text         UNIQUE NOT NULL,
-    gml_type_id      integer      NOT NULL,
-    native_format_id integer      NOT NULL,
-    -- Constraints and FKs
-    FOREIGN KEY (gml_type_id)      REFERENCES ps9_gml_subtype  (id) ON DELETE RESTRICT,
-    FOREIGN KEY (native_format_id) REFERENCES ps9_mime_type (id) ON DELETE RESTRICT
-);
--- TRIGGER: **coverage_name_trigger********************************************
--- A coverage name must start with a char and must not contain colons: [\i-[:]][\c-[:]]*
---   \i matches any character that may be the first character of an XML name, i.e. [_:A-Za-z]
---   \c matches any character that may occur after the first character in an XML name, i.e. [-._:A-Za-z0-9]
--- (http://www.schemacentral.com/sc/xsd/t-xsd_NCName.html).
-CREATE OR REPLACE FUNCTION coverage_name_pattern() RETURNS trigger AS $BODY$
-    DECLARE 
-        -- Constants
-	NAME_PATTERN  constant text := E'^[_A-Za-z][-._A-Za-z0-9]*$';
-
-        -- Local variables
-	ME text := current_query();
-        matches integer;
-    BEGIN
-        -- check that the coverage name ~ [\i-[:]][\c-[:]]*
-        IF NOT matches_pattern(NEW.name, NAME_PATTERN) THEN
-            RAISE EXCEPTION '%: ''%'' does not follow a valid naming pattern (%).', ME, NEW.name, NAME_PATTERN;
-        END IF;
-        RETURN NEW;
-    END;
-$BODY$ LANGUAGE plpgsql;
-CREATE TRIGGER coverage_name_trigger BEFORE INSERT OR UPDATE ON ps9_coverage
-       FOR EACH ROW EXECUTE PROCEDURE coverage_name_pattern();
-
--- TABLE: **ps9_rasdaman_collection** ==========================================
--- This table collects all the rasdaman collections, which are then referenced in ps9_range_set.
-CREATE TABLE ps9_rasdaman_collection (
-    id          serial       PRIMARY KEY,
-    name      	varchar(254) NOT NULL,  -- RASBASE::ras_mddcollnames.mddcollname
-    oid         numeric(20)  NOT NULL,  -- bigint is 8 bytes signed int: OID is 
-    base_type   text         NULL,	-- ex RASBASE::nm_meta.pixel_type
-    -- Constraints and FKs
-    UNIQUE (name, oid),
-    CHECK(oid >= 0 AND oid < 2.0^64)
-);
-
--- TABLE: **ps9_range_set** ====================================================
--- This table links the coverage to the either internal (PostgreSQL) or 
--- external (e.g. rasdaman) storage of the range values.
-CREATE TABLE ps9_range_set (
-    id            serial    PRIMARY KEY,
-    coverage_id   integer   UNIQUE NOT NULL,
-    storage_table text      NOT NULL DEFAULT 'ps9_rasdaman_collection', -- instead of managing an enum of types, use table names (see trigger)
-    storage_id    integer   NOT NULL,
-    -- Constraints and FKs
-    UNIQUE (storage_table, storage_id),
-    FOREIGN KEY (coverage_id) REFERENCES ps9_coverage (id) ON DELETE CASCADE
-);
--- TRIGGER: **storage_type_trigger*********************************************
--- Check referencial integrity on multiple references tables
-CREATE OR REPLACE FUNCTION storage_ref_integrity() RETURNS trigger AS $BODY$
-    DECLARE
-        -- constants
-        ID_FIELD constant text := 'id';
-        -- Local variables
-	ME text := current_query();
-    BEGIN
-        -- check for referential integrity
-        IF NOT table_has_id(NEW.storage_table, ID_FIELD, NEW.storage_id) THEN
-            RAISE EXCEPTION '%: invalid reference to ''%'', no row has id ''%''.', ME, NEW.storage_table, NEW.storage_id;
-        END IF;
-        RETURN NEW;
-    END;
-$BODY$ LANGUAGE plpgsql;
-CREATE TRIGGER storage_integrity_trigger BEFORE INSERT OR UPDATE ON ps9_range_set
-       FOR EACH ROW EXECUTE PROCEDURE storage_ref_integrity();
-
--- TABLE: **ps9_range_type_component** =========================================
--- Catalogue for range types.
-CREATE TABLE ps9_range_type_component (
-    id               serial     PRIMARY KEY,
-    coverage_id      integer    NOT NULL,
-    component_order  integer    NOT NULL,
-    field_id         integer    NOT NULL,
-    field_table      text       DEFAULT 'ps9_quantity',
-    -- Constraints and FKs
-    CHECK (component_order >= 0),
-    UNIQUE (coverage_id, component_order),
-    UNIQUE (coverage_id, field_id, field_table),
-    FOREIGN KEY (coverage_id) REFERENCES ps9_coverage (id) ON DELETE CASCADE
-);
--- TRIGGER: **field_type_trigger***********************************************
--- Check referencial integrity on multiple references tables
-CREATE OR REPLACE FUNCTION field_ref_integrity() RETURNS trigger AS $BODY$
-    DECLARE
-        -- Constants
-        ID_FIELD constant text := 'id';
-        -- Local variables
-	ME text := current_query();
-    BEGIN
-        -- check for referential integrity
-        IF NOT table_has_id(NEW.field_table, ID_FIELD, NEW.field_id) THEN
-            RAISE EXCEPTION '%: invalid reference to ''%'', no row has % ''%''.', ME, NEW.field_table, ID_FIELD, NEW.field_id;
-        END IF;
-        RETURN NEW;
-    END;
-$BODY$ LANGUAGE plpgsql;
-CREATE TRIGGER field_integrity_trigger BEFORE INSERT OR UPDATE ON ps9_range_type_component
-       FOR EACH ROW EXECUTE PROCEDURE field_ref_integrity();
--- TRIGGER: **range_component_order_trigger************************************
--- Checks that the components inserted for this coverage by now follow a sequential order from 0.
-CREATE OR REPLACE FUNCTION range_component_order_integrity() RETURNS trigger AS $BODY$
-    DECLARE
-        -- Constants
-        TABLE_RANGE_TYPE_COMP          constant text := 'ps9_range_type_component';
-          RANGE_TYPE_COMP_COVERAGE_ID  constant text := 'coverage_id';
-          RANGE_TYPE_COMP_ORDER        constant text := 'component_order';
-        -- Local variables
-	ME text := current_query();
-    BEGIN
-        -- check the component orders of this coverage are in a sequence from 0
-        IF NOT (SELECT is_sequential((
-              numeric_column2array(
-                TABLE_RANGE_TYPE_COMP,   -- table
-                RANGE_TYPE_COMP_ORDER,   -- numeric column to check
-                ' WHERE ' || RANGE_TYPE_COMP_COVERAGE_ID || ' = ' || NEW.coverage_id, -- select /this/ coverage
-                RANGE_TYPE_COMP_ORDER    -- order-by column
-              )::integer[]), 0)) -- the integer sequence must start from 0
-            THEN RAISE EXCEPTION '%: last inserted component order (%) is not valid. ''%'' must be in a ordered sequence starting from 0.', 
-                            ME, NEW.component_order, RANGE_TYPE_COMP_ORDER;
-        END IF;
-        RETURN NEW;
-    END;
-$BODY$ LANGUAGE plpgsql;
-CREATE TRIGGER range_component_order_trigger AFTER INSERT OR UPDATE ON ps9_range_type_component
-       FOR EACH ROW EXECUTE PROCEDURE range_component_order_integrity();
-
--- TABLE: **ps9_uom** ==========================================================
--- Catalogue table with Unit Of Measures (UoMs) for the rangeSet of a coverage.
--- Note: pure numbers should have a UoM code = 10⁰ [http://unitsofmeasure.org/ucum.html#section-Derived-Unit-Atoms, Tab.3]
-CREATE TABLE ps9_uom (
-    id      serial      PRIMARY KEY,
-    code    text        UNIQUE NOT NULL  -- /gmlcov:AbstractCoverage/gmlcov:rangeType/swe:field/swe:Quantity/gml:uom[@code]a
-);
--- TRIGGER: **uom_code_trigger*************************************************
--- This type specifies a character string of length at least one, and restricted 
--- such that it must not contain any of the following characters: ":" (colon), " " (space), 
--- (newline), (carriage return), (tab). This allows values corresponding to familiar 
--- abbreviations, such as "kg", "m/s", etc. It is also required that the symbol be an 
--- identifier for a unit of measure as specified in the "Unified Code of Units of Measure" 
--- (UCUM) (http://aurora.regenstrief.org/UCUM). [From http://schemas.opengis.net/sweCommon/2.0/basic_types.xsd - "UomSymbol"]
-CREATE OR REPLACE FUNCTION uom_code_pattern() RETURNS trigger AS $BODY$
-    DECLARE
-        -- Constants
-	UOM_PATTERN   constant text := E'^[^: \\n\\r\\t]+$';
- 
-        -- Local variables
-	ME text := current_query();
-        matches integer;
-    BEGIN
-        -- check that the UoM code is like <pattern value="[^: \n\r\t]+"/>
-        IF NOT matches_pattern(NEW.code, UOM_PATTERN) THEN
-            RAISE EXCEPTION '%: ''%'' does not follow a valid UoM pattern (%).', ME, NEW.code, UOM_PATTERN;
-        END IF;
-        RETURN NEW;
-    END;
-$BODY$ LANGUAGE plpgsql;
-CREATE TRIGGER uom_code_trigger BEFORE INSERT OR UPDATE ON ps9_uom
-       FOR EACH ROW EXECUTE PROCEDURE uom_code_pattern();
-
--- TABLE: **ps9_interval** =====================================================
--- Allowed interval values for `quantity' and `count' field types.
-CREATE TABLE ps9_interval (
-    id       serial      PRIMARY KEY,
-    min      numeric     NOT NULL,
-    max      numeric     NOT NULL,
-    -- Constraints and FKs
-    UNIQUE (min, max)
-);
-
--- TABLE: **ps9_quantity** =====================================================
--- Independent collection of continuous quantities
-CREATE TABLE ps9_quantity (
-    id                  serial      PRIMARY KEY,
-    name                text        NOT NULL,  -- /gmlcov:AbstractCoverage/gmlcov:rangeType/swe:field/swe:Quantity/gml:name
-    uom_id              integer     NOT NULL,  -- /gmlcov:AbstractCoverage/gmlcov:rangeType/swe:field/swe:Quantity/gml:uom
-    description         text        NULL,      -- /gmlcov:AbstractCoverage/gmlcov:rangeType/swe:field/swe:Quantity/gml:description
-    definition_uri      text        NULL,      -- /gmlcov:AbstractCoverage/gmlcov:rangeType/swe:field/swe:Quantity[@definition]
-    significant_figures integer     NULL,      -- /gmlcov:AbstractCoverage/gmlcov:rangeType/swe:field/swe:Quantity/swe:AllowedValues/significantFigures
-    -- Constraints and FKs
-    UNIQUE (name)
-);
-
--- TABLE: **ps9_interval_quantity** ============================================
--- n:m Association table between ps9_quantity and ps9_interval: a quantity can 
--- be constraint by multiple allowed intervals, which exist independently.
-CREATE TABLE ps9_interval_quantity (
-    quantity_id     integer,
-    interval_id     integer,
-    -- Constraints and FKs
-    PRIMARY KEY (quantity_id, interval_id),
-    FOREIGN KEY (quantity_id) REFERENCES ps9_quantity (id) ON DELETE RESTRICT,
-    FOREIGN KEY (interval_id) REFERENCES ps9_interval (id) ON DELETE RESTRICT
-);
-
--- TABLE: **ps9_crs** ==========================================================
--- Catalogue table storing CRS URIs.
-CREATE TABLE ps9_crs (
-    id     serial    PRIMARY KEY,
-    uri    text      UNIQUE NOT NULL -- either single or compound CRSs go in a single URI
-);
-
--- TABLE: **ps9_domain_set** ===================================================
--- Table which stores shared information on the geometry of a coverage,
--- independently of its type.
-CREATE TABLE ps9_domain_set (
-    coverage_id     integer    PRIMARY KEY,
-    native_crs_id   integer[]  NOT NULL,   -- compound CRSs to be stored as array of FKs
-    -- Constraints and FKs
-    CONSTRAINT native_crs_is_1D CHECK (array_lower(native_crs_id, 2) IS NULL), 
-    FOREIGN KEY (coverage_id)   REFERENCES ps9_coverage (id) ON DELETE CASCADE
-);
--- TRIGGER: **crs_integrity*****************************************************
--- Check referencial integrity on ps_crs.
-CREATE OR REPLACE FUNCTION crs_ref_integrity() RETURNS trigger AS $BODY$
-    DECLARE
-        -- constants
-        TABLE_CRS constant text := 'ps9_crs';
-           CRS_ID constant text := 'id';
-        -- Local variables
-	ME text := current_query();
-        i integer;
-    BEGIN
-        -- check for referential integrity
-        FOR i IN array_lower(NEW.native_crs_id, 1)..array_upper(NEW.native_crs_id, 1) LOOP
-            IF NOT table_has_id(TABLE_CRS, CRS_ID, NEW.native_crs_id[i]) THEN
-                RAISE EXCEPTION '%: invalid reference to ''%'', no row has id ''%''.', ME, TABLE_CRS, NEW.native_crs_id[i];
-            END IF;
-        END LOOP;
-        RETURN NEW;
-    END;
-$BODY$ LANGUAGE plpgsql;
-CREATE TRIGGER crs_integrity BEFORE INSERT OR UPDATE ON ps9_domain_set
-       FOR EACH ROW EXECUTE PROCEDURE crs_ref_integrity();
--- TRIGGER: **crs_compound_integrity***********************************************
--- Check referencial integrity on ps_crs.
-CREATE OR REPLACE FUNCTION crs_compound_components() RETURNS trigger AS $BODY$
-    DECLARE
-        -- Local variables
-	ME text := current_query();
-        i integer;
-    BEGIN
-        -- check that there are no duplicated in the CRS compound
-        IF NOT (SELECT is_increasing((array_sort(NEW.native_crs_id), true)))
-            THEN RAISE EXCEPTION '%: invalid compound CRS (%). The single composing CRSs must be unique.', 
-                            ME, NEW.native_crs_id;
-        END IF;
-        RETURN NEW;
-    END;
-$BODY$ LANGUAGE plpgsql;
-CREATE TRIGGER crs_compound_integrity BEFORE INSERT OR UPDATE ON ps9_domain_set
-       FOR EACH ROW EXECUTE PROCEDURE crs_compound_components();
-
-
-
--- TABLE: **ps9_gridded_domain_set** ===========================================
--- Separating metadata shared by /any/ coverage model (multi* coverages, grids, etc.)
--- from type-specific metadata, *GridCoverage-specific in this case.
--- The geometry (domainSet) tables will refer to this one, and not to ps9_coverage.
-CREATE TABLE ps9_gridded_domain_set (
-    coverage_id     integer    PRIMARY KEY,
-    grid_origin     numeric[]  NOT NULL,
-    -- Constraints and FKs
-    CONSTRAINT origin_lower_bound_is_1 CHECK (array_lower(grid_origin, 1) = 1),     -- Indexing starts from 1
-    CONSTRAINT origin_is_1D            CHECK (array_lower(grid_origin, 2) IS NULL), -- Cannot have more than 1 tuple of coordinates 
-    FOREIGN KEY (coverage_id) REFERENCES ps9_domain_set (coverage_id) ON DELETE CASCADE
-);
--- TRIGGER: **unique_domain_subtype_trigger************************************
--- Check here if already an other ps9_coverage.id has been used by other tables? (e.g. Multipoint). ?
--- ...
-
--- TABLE: **ps9_grid_axis** ====================================================
--- Table representing information regarding each axis of the gridded coverage.
--- Depending on how this table is filled, it can represent a regular/irregular 
--- rectilinear/curvilinear grid axis.
-CREATE TABLE ps9_grid_axis (
-    id                  serial      PRIMARY KEY,
-    gridded_coverage_id integer     NOT NULL,
-    rasdaman_order      integer     NOT NULL,
-    -- Constraints and FKs
-    CHECK (rasdaman_order >= 0),
-    FOREIGN KEY (gridded_coverage_id) REFERENCES ps9_gridded_domain_set (coverage_id) ON DELETE CASCADE
-);
--- TRIGGER: **rasdaman_axis_order_trigger**************************************
--- Checks that the rasdaman orders inserted for this coverage by now, follow a sequential order from 0.
-CREATE OR REPLACE FUNCTION rasdaman_axis_order_integrity() RETURNS trigger AS $BODY$
-    DECLARE
-        -- Constants
-        TABLE_GRID_AXIS             constant text := 'ps9_grid_axis';
-          GRID_AXIS_COVERAGE_ID     constant text := 'gridded_coverage_id';
-          GRID_AXIS_RASDAMAN_ORDER  constant text := 'rasdaman_order';
-
-        -- Local variables
-	ME text := current_query();
-    BEGIN
-        -- check the rasdaman orders of this coverage are in a sequence from 0
-        IF NOT (SELECT is_sequential((
-              numeric_column2array(
-                TABLE_GRID_AXIS,          -- table
-                GRID_AXIS_RASDAMAN_ORDER, -- numeric column to check
-                ' WHERE ' || GRID_AXIS_COVERAGE_ID || ' = ' || NEW.gridded_coverage_id, -- select /this/ coverage
-                GRID_AXIS_RASDAMAN_ORDER  -- order-by column
-              )::integer[]), 0)) -- the integer sequence must start from 0
-            THEN RAISE EXCEPTION '%: last inserted rasdaman order (%) is not valid. ''%'' must be in a ordered sequence starting from 0.', 
-                            ME, NEW.rasdaman_order, GRID_AXIS_RASDAMAN_ORDER;
-        END IF;
-        RETURN NEW;
-    END;
-$BODY$ LANGUAGE plpgsql;
-CREATE TRIGGER rasdaman_axis_order_trigger AFTER INSERT OR UPDATE ON ps9_grid_axis
-       FOR EACH ROW EXECUTE PROCEDURE rasdaman_axis_order_integrity();
-
--- TABLE: **ps9_rectilinear_axis** =============================================
--- This table represents a rectilinear (not curvilinear) axis of a gridded coverage.
--- Depending on how this table is filled, it can represent either a regular or an irregular 
--- rectilinear axis.
--- [In PSQL an array of N elements starts with array[1] and ends with array[N]]
-CREATE TABLE ps9_rectilinear_axis (
-    grid_axis_id       integer    PRIMARY KEY,
-    offset_vector      numeric[]  NOT NULL, -- directional resolution (point location relative to the origin)
-    -- Constraints and FKs
-    FOREIGN KEY (grid_axis_id) REFERENCES ps9_grid_axis (id) ON DELETE CASCADE,
-    CONSTRAINT offsetvector_lower_bound_is_1 CHECK (array_lower(offset_vector, 1) = 1),    -- Indexing starts from 1
-    CONSTRAINT offsetvector_is_1D            CHECK (array_lower(offset_vector, 2) IS NULL) -- Cannot have more than 1 tuple of coordinates 
-);
-
--- TRIGGER: **offsetvector_origin_trigger**************************************
--- This trigger checks coherence of dimensions of the referenced offset vector with
--- the origin of the coverage.
-CREATE OR REPLACE FUNCTION offset_vector_coherence() RETURNS trigger AS $BODY$
-    DECLARE 
-        -- Constants
-        TABLE_GRIDDED_DOMAIN_SET       constant text := 'ps9_gridded_domain_set';
-          GRIDDED_DOMAIN_SET_ID        constant text := 'coverage_id';
-          GRIDDED_DOMAIN_SET_ORIGIN    constant text := 'grid_origin';
-        TABLE_GRID_AXIS            constant text := 'ps9_grid_axis';
-          GRID_AXIS_ID             constant text := 'id';
-          GRID_AXIS_COVERAGE_ID    constant text := 'gridded_coverage_id';
-
-        -- Local variables
-	ME text := current_query();
-        grid_origin numeric[];
-        qry text;
-    BEGIN
-        -- Check if origin has been inserted
-	qry :=     'SELECT ' || TABLE_GRIDDED_DOMAIN_SET || '.' || GRIDDED_DOMAIN_SET_ORIGIN
-		||  ' FROM ' || TABLE_GRIDDED_DOMAIN_SET || ',' || TABLE_GRID_AXIS
-                || ' WHERE ' || TABLE_GRIDDED_DOMAIN_SET || '.' || GRIDDED_DOMAIN_SET_ID 
-                ||       '=' || TABLE_GRID_AXIS   || '.' || GRID_AXIS_COVERAGE_ID
-                ||   ' AND ' || TABLE_GRID_AXIS   || '.' || GRID_AXIS_ID || '=' || NEW.grid_axis_id || ';';
-	--RAISE NOTICE '%: EXECUTE %', ME, qry; -- Debug
-	EXECUTE qry INTO STRICT grid_origin;  -- error if not exactly one row is returned
-        IF grid_origin IS NULL THEN
-            RAISE EXCEPTION '%: Trying to set a reference vector for a coverage without origin.', ME;
-        ELSE
-            -- Check if the dimensions of origin and offset vector match (lower bound is in CHECK contraint already, for both)
-            IF array_upper(NEW.offset_vector, 1) <> array_upper(grid_origin, 1) THEN
-                RAISE EXCEPTION '%: offset vector (%) is not compatible with coverage origin (%)', ME, NEW.offset_vector, grid_origin;
-            END IF;
-	END IF;
-        RETURN NEW;
-    END;
-$BODY$ LANGUAGE plpgsql;
-CREATE TRIGGER offsetvector_origin_trigger BEFORE INSERT OR UPDATE ON ps9_rectilinear_axis
-       FOR EACH ROW EXECUTE PROCEDURE offset_vector_coherence();
-
--- TABLE: **ps9_vector_coefficients** ==========================================
--- Irregularly-spaced rectilinear axis will be represented ``by vectors'', 
--- and the coefficients of each grid point along this axis are stored in this table.
-CREATE TABLE ps9_vector_coefficients (
-    grid_axis_id      integer    NOT NULL,
-    coefficient       numeric    NOT NULL,
-    coefficient_order integer    NOT NULL,
-    -- Constraints and FKs
-    UNIQUE (grid_axis_id, coefficient),
-    CHECK (coefficient_order >= 0),
-    FOREIGN KEY (grid_axis_id) REFERENCES ps9_rectilinear_axis (grid_axis_id) ON DELETE CASCADE
-);
--- INDEX on multiple columns for query: ***************************************
--- ``SELECT coefficient_order FROM ps9_vector_coefficients WHERE grid_axis_id=<id> AND coefficient <|> <value>''
-CREATE INDEX coefficients_idx ON ps9_vector_coefficients (grid_axis_id, coefficient);
-
--- TRIGGER: **coefficients_integrity_trigger***********************************
--- Checks that the coefficients are ordered (0,1,2,...) and their values are strictly increasing.
--- TRIGGER: **coefficients_integrity_trigger***********************************
--- Checks that the coefficients are ordered (0,1,2,...) and their values are strictly increasing.
-CREATE OR REPLACE FUNCTION coefficients_integrity() RETURNS trigger AS $BODY$
-    DECLARE
-        -- Constants
-        TABLE_VECTOR_COEFFICIENTS    constant text := 'ps9_vector_coefficients';
-          VECTOR_COEFFICIENTS_ID     constant text := 'grid_axis_id';
-          VECTOR_COEFFICIENTS_VALUE  constant text := 'coefficient';
-          VECTOR_COEFFICIENTS_ORDER  constant text := 'coefficient_order';
-        -- Local variables
-        ME text := current_query();
-    BEGIN
-        -- check the component orders of this coverage are in a sequence from 0
-        IF NOT (SELECT is_sequential((
-              numeric_column2array(
-                TABLE_VECTOR_COEFFICIENTS,   -- table
-                VECTOR_COEFFICIENTS_ORDER,   -- numeric column to check
-                ' WHERE ' || VECTOR_COEFFICIENTS_ID || ' = ' || NEW.grid_axis_id, -- select /this/ axis
-                VECTOR_COEFFICIENTS_ORDER    -- order-by column
-              )::integer[]), 0)) -- the integer sequence must start from 
-            THEN RAISE EXCEPTION '%: last inserted coefficient order (%) is not valid. ''%'' must be in a ordered sequence starting from 0.', 
-                                 ME, NEW.coefficient_order, VECTOR_COEFFICIENTS_ORDER;
-        END IF; 
-
-        -- check that the coefficients are *strictly* increasing
-        IF NOT (SELECT is_increasing((
-            SELECT numeric_column2array(
-                TABLE_VECTOR_COEFFICIENTS,   -- table
-                VECTOR_COEFFICIENTS_VALUE,   -- numeric column to check
-                ' WHERE ' || VECTOR_COEFFICIENTS_ID || ' = ' || NEW.grid_axis_id, -- select /this/ axis
-                VECTOR_COEFFICIENTS_ORDER    -- order-by column
-            )), true)) -- is_strict
-            THEN RAISE EXCEPTION '%: last inserted coefficient (%) is not valid. ''%'' must be in a strictly increasing sequence.', 
-                                 ME, NEW.coefficient, VECTOR_COEFFICIENTS_VALUE;
-        END IF; 
-        RETURN NEW;
-    END;
-$BODY$ LANGUAGE plpgsql;
-CREATE TRIGGER coefficients_integrity_trigger AFTER INSERT OR UPDATE ON ps9_vector_coefficients
-       FOR EACH ROW EXECUTE PROCEDURE coefficients_integrity();
-
-
--- TABLE: **ps9_extra_metadata_type** ==========================================
--- Catalogue table of metadata types for a coverage.
-CREATE TABLE ps9_extra_metadata_type (
-    id     serial      PRIMARY KEY,
-    type   text        UNIQUE NOT NULL
-);
-
--- TABLE: **ps9_extra_metadata** ===============================================
--- Additional (optional) metadata that can be specified for a coverage.
--- For extendability, a catalogue table of metadata types is referenced.
-CREATE TABLE ps9_extra_metadata (
-    id               serial      PRIMARY KEY,
-    coverage_id      integer     NOT NULL,
-    metadata_type_id integer     NOT NULL,
-    value            text        NOT NULL,
-    -- Constraints and FKs
-    UNIQUE (coverage_id, metadata_type_id),
-    FOREIGN KEY (coverage_id)      REFERENCES ps9_coverage            (id) ON DELETE CASCADE,
-    FOREIGN KEY (metadata_type_id) REFERENCES ps9_extra_metadata_type (id) ON DELETE RESTRICT
-);
-
--- TABLE: **ps9_service_identification** =======================================
--- Metadata for the WCS service (/wcs:Capabilities/ows:ServiceIdentification)
-CREATE TABLE ps9_service_identification (
-    id         serial    PRIMARY KEY,
-    title      text      NULL,
-    abstract   text      NULL
-);
--- TRIGGER: **single_service_trigger*******************************************
--- Checks that no second service is inserted.
-CREATE OR REPLACE FUNCTION single_service() RETURNS trigger AS $BODY$
-    DECLARE
-        -- Constants
-        TABLE_SERVICE_IDENTIFICATION constant text := 'ps9_service_identification';
-
-        -- Local variables
-	ME text := current_query();
-    BEGIN
-        -- check there is no other service there
-        IF NOT (SELECT table_is_empty(TABLE_SERVICE_IDENTIFICATION)) THEN
-            RAISE EXCEPTION '%: cannot insert more than one WCS service.''', ME;
-        END IF;
-        RETURN NEW;
-    END;
-$BODY$ LANGUAGE plpgsql;
-CREATE TRIGGER single_service_trigger BEFORE INSERT ON ps9_service_identification
-       FOR EACH ROW EXECUTE PROCEDURE single_service();
-
--- TABLE: **ps9_keywords** =====================================================
--- Keywords for the WCS service identification (/wcs:Capabilities/ows:ServiceIdentification/ows:keywords)
-CREATE TABLE ps9_keyword (
-    id             serial    PRIMARY KEY,
-    value          text      NOT NULL,
-    type           text      NULL,
-    type_codespace text      NULL,
-    -- Constraints and FKs
-    UNIQUE (value, type, type_codespace)
-);
-
--- TABLE: **ps9_service_keyword** ==============================================
--- n:m Association table between ps9_service_identification and ps9_keyword, although now only one service is allowed.
-CREATE TABLE ps9_service_keyword (
-    service_id     integer,
-    keyword_id     integer,
-    -- Constraints and FKs
-    PRIMARY KEY (service_id, keyword_id),
-    FOREIGN KEY (service_id) REFERENCES ps9_service_identification (id) ON DELETE CASCADE,
-    FOREIGN KEY (keyword_id) REFERENCES ps9_keyword                (id) ON DELETE RESTRICT
-);
-
--- TABLE: **ps9_service_provider** =============================================
--- Metadata for the WCS service provider (/wcs:Capabilities/ows:ServiceProvider)
-CREATE TABLE ps9_service_provider (
-    id          serial PRIMARY KEY,
-    name        text     NOT NULL,   -- //ows:ServiceProvider/ows:ProviderName
-    site        text     NULL,       -- //ows:ServiceProvider/ows:ProviderSite[@xlink:href]
-    contact_individual_name     text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:IndividualName
-    contact_position_name       text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:PositionName
-    contact_phone               text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Phone
-    contact_delivery_point      text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:DeliveryPoint
-    contact_city                text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:City
-    contact_administrative_area text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:AdministrativeArea
-    contact_postal_code         text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:PostalCode
-    contact_country             text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:Country
-    contact_email_address       text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:ElectronicMailAddress
-    contact_hours_of_service    text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:HoursOfService
-    contact_instructions        text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:ContactInstructions
-    contact_role                text NULL  -- //ows:ServiceProvider/ows:ServiceContact/ows:Role
-);
--- TRIGGER: **single_service_provider_trigger**********************************
--- Checks that no second service is inserted.
-CREATE OR REPLACE FUNCTION single_service_provider() RETURNS trigger AS $BODY$
-    DECLARE
-        -- Constants
-        TABLE_SERVICE_PROVIDER constant text := 'ps9_service_provider';
-
-        -- Local variables
-	ME text := current_query();
-    BEGIN
-        -- check there is no other service there
-        IF NOT (SELECT table_is_empty(TABLE_SERVICE_PROVIDER)) THEN
-            RAISE EXCEPTION '%: cannot insert more than one WCS service provider.''', ME;
-        END IF;
-        RETURN NEW;
-    END;
-$BODY$ LANGUAGE plpgsql;
-CREATE TRIGGER single_service_provider_trigger BEFORE INSERT ON ps9_service_provider
-       FOR EACH ROW EXECUTE PROCEDURE single_service_provider();
-
--- MAP MODEL (WMS) ------------------------------------------------------------
--- ...
-
--- ######################################################################### --
---                         iii) SCHEMA POPULATION                            --
--- ######################################################################### --
+-- Load the constants
+SELECT set_constants();
 
 -- Default service and service provider metadata:
 INSERT INTO ps9_service_identification (title, abstract) VALUES ('rasdaman', 'rasdaman server - free download from www.rasdaman.org');
@@ -834,43 +44,124 @@ INSERT INTO ps9_service_provider
        VALUES ('Jacobs University Bremen', 'http://www.petascope.org/', 'Prof. Dr. Peter Baumann', 
                'Bremen', '28717', 'Germany', 'p.baumann@jacobs-university.de', 'Project Leader');
 
+--
 -- CRS for ANSI-Date (rasdaman 8.4 legacy)
+--
 -- TODO: init9.sql.in to replace with configure %SECORE% host
-INSERT INTO ps9_crs (uri) VALUES ('http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/ANSI-Date');
+INSERT INTO ps9_crs (uri) VALUES (cget('CRS_ANSI'));
+INSERT INTO ps9_crs (uri) VALUES (cget('CRS_INDEX_1D'));
+INSERT INTO ps9_crs (uri) VALUES (cget('CRS_INDEX_2D'));
+INSERT INTO ps9_crs (uri) VALUES (cget('CRS_INDEX_3D'));
 
+--
 -- GML coverage types:
-INSERT INTO ps9_gml_subtype (subtype) VALUES ('AbstractCoverage');
+--
+INSERT INTO ps9_gml_subtype (subtype) VALUES (cget('GML_ABSTRACT_COV'));
 INSERT INTO ps9_gml_subtype (subtype, subtype_parent) 
-       VALUES ('AbstractDiscreteCoverage', (SELECT id FROM ps9_gml_subtype WHERE subtype='AbstractCoverage'));
+       VALUES (cget('GML_ABSTRACT_DISCRETE_COV'),
+              (SELECT id FROM ps9_gml_subtype WHERE subtype=cget('GML_ABSTRACT_COV')));
 INSERT INTO ps9_gml_subtype (subtype, subtype_parent) 
-       VALUES ('GridCoverage',             (SELECT id FROM ps9_gml_subtype WHERE subtype='AbstractDiscreteCoverage'));
+       VALUES (cget('GML_GRID_COV'),
+              (SELECT id FROM ps9_gml_subtype WHERE subtype=cget('GML_ABSTRACT_DISCRETE_COV')));
 INSERT INTO ps9_gml_subtype (subtype, subtype_parent) 
-       VALUES ('RectifiedGridCoverage',    (SELECT id FROM ps9_gml_subtype WHERE subtype='AbstractDiscreteCoverage'));
+       VALUES (cget('GML_RECTIFIED_GRID_COV'),
+              (SELECT id FROM ps9_gml_subtype WHERE subtype=cget('GML_ABSTRACT_DISCRETE_COV')));
 INSERT INTO ps9_gml_subtype (subtype, subtype_parent) 
-       VALUES ('ReferenceableGridCoverage',(SELECT id FROM ps9_gml_subtype WHERE subtype='AbstractDiscreteCoverage'));
+       VALUES (cget('GML_REFERENCEABLE_GRID_COV'),
+              (SELECT id FROM ps9_gml_subtype WHERE subtype=cget('GML_ABSTRACT_DISCRETE_COV')));
 INSERT INTO ps9_gml_subtype (subtype, subtype_parent) 
-       VALUES ('MultiPointCoverage',       (SELECT id FROM ps9_gml_subtype WHERE subtype='AbstractDiscreteCoverage'));
+       VALUES (cget('GML_MULTIPOINT_COV'),
+              (SELECT id FROM ps9_gml_subtype WHERE subtype=cget('GML_ABSTRACT_DISCRETE_COV')));
+INSERT INTO ps9_gml_subtype (subtype, subtype_parent) 
+       VALUES (cget('GML_MULTICURVE_COV'),
+              (SELECT id FROM ps9_gml_subtype WHERE subtype=cget('GML_ABSTRACT_DISCRETE_COV')));
+INSERT INTO ps9_gml_subtype (subtype, subtype_parent) 
+       VALUES (cget('GML_MULTISURFACE_COV'),
+              (SELECT id FROM ps9_gml_subtype WHERE subtype=cget('GML_ABSTRACT_DISCRETE_COV')));
+INSERT INTO ps9_gml_subtype (subtype, subtype_parent) 
+       VALUES (cget('GML_MULTISOLID_COV'),
+              (SELECT id FROM ps9_gml_subtype WHERE subtype=cget('GML_ABSTRACT_DISCRETE_COV')));
 
+--
 -- Extra-metadata types:
-INSERT INTO ps9_extra_metadata_type (type) VALUES ('ows');    -- /wcs:Capabilities/wcs:Contents/wcs:CoverageSummary/ows:Metadata
-INSERT INTO ps9_extra_metadata_type (type) VALUES ('gmlcov'); -- /wcs:CoverageDescriptions/wcs:CoverageDescription/gmlcov:metadata
-                                                              -- /gmlcov:AbstractCoverage/gmlcov:metadata
-INSERT INTO ps9_extra_metadata_type (type) VALUES ('attrtable_name'); -- Rasters' attribute table name for rasimport
+--
+---- /wcs:Capabilities/wcs:Contents/wcs:CoverageSummary/ows:Metadata
+INSERT INTO ps9_extra_metadata_type (type) VALUES (cget('METADATA_TYPE_OWS')); 
+---- /wcs:CoverageDescriptions/wcs:CoverageDescription/gmlcov:metadata  AND
+---- /gmlcov:AbstractCoverage/gmlcov:metadata
+INSERT INTO ps9_extra_metadata_type (type) VALUES (cget('METADATA_TYPE_GMLCOV'));
+---- Rasters' attribute table name for rasimport
+INSERT INTO ps9_extra_metadata_type (type) VALUES (cget('METADATA_TYPE_ATTRTABLE'));
 
+--
 -- Allowed intervals (see petascope.util.WcsUtil.java)
-INSERT INTO ps9_interval (min, max) VALUES (-128, 127); -- char_8
-INSERT INTO ps9_interval (min, max) VALUES (   0, 255); -- uchar_8
-INSERT INTO ps9_interval (min, max) VALUES (-32768, 32767); -- short_16
-INSERT INTO ps9_interval (min, max) VALUES (     0, 65535); -- ushort_16
-INSERT INTO ps9_interval (min, max) VALUES (-2147483648, 2147483647); -- int_32
-INSERT INTO ps9_interval (min, max) VALUES (          0, 4294967295); -- uint_32
-INSERT INTO ps9_interval (min, max) VALUES (-9223372036854775808,  9223372036854775807); -- long_64
-INSERT INTO ps9_interval (min, max) VALUES (                   0, 18446744073709551615); -- ulong_64
-INSERT INTO ps9_interval (min, max) VALUES (          -3.4028234^38,           3.4028234^38); -- float_32
-INSERT INTO ps9_interval (min, max) VALUES (-1.7976931348623157^308, 1.7976931348623157^308); -- double_64
+--
+INSERT INTO ps9_interval (min, max) VALUES (  ncget('CHAR_MIN'),   ncget('CHAR_MAX')); -- char_8
+INSERT INTO ps9_interval (min, max) VALUES ( ncget('UCHAR_MIN'),  ncget('UCHAR_MAX')); -- uchar_8
+INSERT INTO ps9_interval (min, max) VALUES ( ncget('SHORT_MIN'),  ncget('SHORT_MAX')); -- short_16
+INSERT INTO ps9_interval (min, max) VALUES (ncget('USHORT_MIN'), ncget('USHORT_MAX')); -- ushort_16
+INSERT INTO ps9_interval (min, max) VALUES (   ncget('INT_MIN'),    ncget('INT_MAX')); -- int_32
+INSERT INTO ps9_interval (min, max) VALUES (  ncget('UINT_MIN'),   ncget('UINT_MAX')); -- uint_32
+INSERT INTO ps9_interval (min, max) VALUES (  ncget('LONG_MIN'),   ncget('LONG_MAX')); -- long_64
+INSERT INTO ps9_interval (min, max) VALUES ( ncget('ULONG_MIN'),  ncget('ULONG_MAX')); -- ulong_64
+INSERT INTO ps9_interval (min, max) VALUES ( ncget('FLOAT_MIN'),  ncget('FLOAT_MAX')); -- float_32
+INSERT INTO ps9_interval (min, max) VALUES (ncget('DOUBLE_MIN'), ncget('DOUBLE_MAX')); -- double_64
 
 -- UoM for pure numbers
-INSERT INTO ps9_uom (code) VALUES ('10' || chr(x'2070'::int));
+INSERT INTO ps9_uom (code) VALUES (cget('UOM_PURE_NUM'));
+
+-- Insert quantities for each data type (allowed values determine a quantity)
+INSERT INTO ps9_quantity (uom_id, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_CHAR'));
+INSERT INTO ps9_quantity (uom_id, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_UCHAR'));
+INSERT INTO ps9_quantity (uom_id, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_SHORT'));
+INSERT INTO ps9_quantity (uom_id, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_USHORT'));
+INSERT INTO ps9_quantity (uom_id, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_INT'));
+INSERT INTO ps9_quantity (uom_id, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_UINT'));
+INSERT INTO ps9_quantity (uom_id, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_LONG'));
+INSERT INTO ps9_quantity (uom_id, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_ULONG'));
+INSERT INTO ps9_quantity (uom_id, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_FLOAT'));
+INSERT INTO ps9_quantity (uom_id, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_DOUBLE'));
+-- .. and their allowed values:
+INSERT INTO ps9_interval_quantity (quantity_id, interval_id) 
+       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_CHAR')),
+               (SELECT id FROM ps9_interval WHERE max=ncget('CHAR_MAX')));
+INSERT INTO ps9_interval_quantity (quantity_id, interval_id) 
+       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_UCHAR')),
+               (SELECT id FROM ps9_interval WHERE max=ncget('UCHAR_MAX')));
+INSERT INTO ps9_interval_quantity (quantity_id, interval_id) 
+       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_SHORT')),
+               (SELECT id FROM ps9_interval WHERE max=ncget('SHORT_MAX')));
+INSERT INTO ps9_interval_quantity (quantity_id, interval_id) 
+       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_USHORT')),
+               (SELECT id FROM ps9_interval WHERE max=ncget('USHORT_MAX')));
+INSERT INTO ps9_interval_quantity (quantity_id, interval_id) 
+       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_INT')),
+               (SELECT id FROM ps9_interval WHERE max=ncget('INT_MAX')));
+INSERT INTO ps9_interval_quantity (quantity_id, interval_id ) 
+       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_UINT')),
+               (SELECT id FROM ps9_interval WHERE max=ncget('UINT_MAX')));
+INSERT INTO ps9_interval_quantity (quantity_id, interval_id) 
+       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_LONG')),
+               (SELECT id FROM ps9_interval WHERE max=ncget('LONG_MAX')));
+INSERT INTO ps9_interval_quantity (quantity_id, interval_id) 
+       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_ULONG')),
+               (SELECT id FROM ps9_interval WHERE max=ncget('ULONG_MAX')));
+INSERT INTO ps9_interval_quantity (quantity_id, interval_id) 
+       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_FLOAT')),
+               (SELECT id FROM ps9_interval WHERE max=ncget('FLOAT_MAX')));
+INSERT INTO ps9_interval_quantity (quantity_id, interval_id) 
+       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_DOUBLE')),
+               (SELECT id FROM ps9_interval WHERE max=ncget('DOUBLE_MAX')));
 
 -- Formats/MIME types/GDAL ids:
 INSERT INTO ps9_mime_type (mime_type)

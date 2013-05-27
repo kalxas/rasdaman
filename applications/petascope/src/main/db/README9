@@ -1,6 +1,7 @@
-The new tables for `petascopedb' can be added by simply importing the init9.sql file:
+The new tables for `petascopedb' can be added with:
 
-$ psql --set ON_ERROR_STOP=on --single-transaction -f init9.sql petascopedb
+$ cd ./petascope/
+$ cat utilities.sql global_const.sql triggers9.sql schema9.sql | psql --set ON_ERROR_STOP=on --single-transaction petascopedb
 
 Currently, the prefix ``ps9_'' will highlight the new tables for Petascope 9.
 To *visualize* the schema structure you could look into the 
@@ -9,3 +10,11 @@ To see the available tables and triggers from command line instead, you could ty
 
 petascopedb=# \dt ps9_*
 petascopedb=# \dft
+
+To migrate the existing coverages in PS_* tables to PS9_* ones, run:
+
+$ cd ./petascope/
+$ # New Postgres session
+$ cat utilities.sql global_const.sql migrate.sql | psql --set ON_ERROR_STOP=on --single-transaction petascopedb
+$ # Same Postgres session
+$ psql --set ON_ERROR_STOP=on --single-transaction -f migrate.sql petascopedb
