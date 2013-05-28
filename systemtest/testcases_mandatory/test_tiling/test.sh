@@ -84,10 +84,56 @@ check_type GreySet3
 
 
 # ------------------------------------------------------------------------------
+# test function
+#
+# arg 1: query id
+# arg 2: only specify for dbinfo test
+function run_test()
+{
+  local q_id="$1"
+  local f=tmp.unknown
+  if [ $# -eq 1 ]; then
+    f=tmp.csv
+  fi
+  
+  if [ ! -f $f ]; then
+    log "Failed executing select query." | tee -a $LOG
+    NUM_FAIL=$(($NUM_FAIL + 1))
+    echo "----------------------------------------------------------------------" >> $FAILED
+    echo $q_id >> $FAILED
+    echo $QUERY >> $FAILED
+    return
+  fi
+  if [ $# -gt 1 ]; then
+    sed -i '/oid/d' $f
+    sed -i '/baseType/d' $f
+  fi
+  mv $f $q_id
+  if [ ! -f "$ORACLE_PATH/$q_id" ]; then
+    cp "$q_id" "$ORACLE_PATH/$q_id"
+  fi
+
+  # Compare the result byte by byte with the expected result in oracle folder
+  mv $q_id "$OUTPUT_PATH"
+  cmp $ORACLE_PATH/$q_id "$OUTPUT_PATH/$q_id"
+  if [ $? != 0 ]; then
+    log "Result of query contains error."
+	  NUM_FAIL=$(($NUM_FAIL + 1))
+    echo "----------------------------------------------------------------------" >> $FAILED
+    echo $q_id >> $FAILED
+    echo $QUERY >> $FAILED
+  else
+    log "Result of query is correct."
+    NUM_SUC=$(($NUM_SUC + 1))
+  fi
+}
+
+
+# ------------------------------------------------------------------------------
 # test by queries
 #
   	
-rm -f tmp.unknown $FAILED
+rm -f tmp.unknown tmp.csv $FAILED
 # Query by query for extracting some aspects of tested data
 for i in $QUERY_PATH/*.rasql; do
 
@@ -129,36 +175,13 @@ for i in $QUERY_PATH/*.rasql; do
       coll_name="$TEST_COLL3"
     fi
 
-	  $RASQL -q "select dbinfo(c, \"printtiles=1\") from $coll_name as c" --out file --outfile tmp > /dev/null
-    if [ ! -f tmp.unknown ]; then
-      log "Failed executing select query." | tee -a $LOG
-      NUM_FAIL=$(($NUM_FAIL + 1))
-      echo "----------------------------------------------------------------------" >> $FAILED
-      echo $q_id >> $FAILED
-      echo $QUERY >> $FAILED
-      continue
-    fi
-    sed -i '/oid/d' tmp.unknown
-    sed -i '/baseType/d' tmp.unknown
-    mv tmp.unknown $q_id
+    # test result contents
+    $RASQL -q "select csv(c) from $coll_name as c" --out file --outfile tmp > /dev/null
+    run_test "$q_id.csv"
 
-    if [ ! -f "$ORACLE_PATH/$q_id" ]; then
-      cp "$q_id" "$ORACLE_PATH/$q_id"
-    fi
-
-    # Compare the result byte by byte with the expected result in oracle folder
-	  mv $q_id "$OUTPUT_PATH"
-	  cmp $ORACLE_PATH/$q_id "$OUTPUT_PATH/$q_id"
-	  if [ $? != 0 ]; then
-	    log "Result of query contains error."
-		  NUM_FAIL=$(($NUM_FAIL + 1))
-      echo "----------------------------------------------------------------------" >> $FAILED
-      echo $q_id >> $FAILED
-      echo $QUERY >> $FAILED
-	  else
-	    log "Result of query is correct."
-	    NUM_SUC=$(($NUM_SUC + 1))
-	  fi
+    # test dbinfo for tile structure
+    $RASQL -q "select dbinfo(c, \"printtiles=1\") from $coll_name as c" --out file --outfile tmp > /dev/null
+    run_test "$q_id" "dbinfo"
 
     counter=$(($counter+1))
     QUERY=""

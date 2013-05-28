@@ -259,6 +259,21 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
     //
     // get all target tiles in the relevant area
     //
+    unsigned long targetTileArea = 0;
+    unsigned long sourceTileArea = 0;
+    unsigned long targetTileDomain = 0;
+    unsigned long updatedArea = 0;
+    bool computed = false;
+    vector<r_Minterval> insertedDomains;
+    vector<r_Minterval>::iterator domIt;
+    vector<r_Minterval>::iterator intervalIt;
+    vector<r_Minterval> sourceDomains;
+    vector<r_Minterval> targetDomains;
+    vector<Tile*>::iterator retvalIt;
+    vector<Tile*>::iterator sourceIt;
+    vector<Tile*>::iterator targetIt;
+    sourceIt = sourceTiles->begin();
+    sourceDomains.push_back(sourceMDDDomain);
     vector<Tile*>* targetTiles = NULL;
     targetTiles = targetObj->intersect(sourceMDDDomain);
     if (!targetTiles)
@@ -270,28 +285,27 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
     {
         TALK("  there are " << targetTiles->size() << " target tiles");
         vector<Tile*>::iterator targetTilesIterator;
-        for (targetTilesIterator = targetTiles->begin(); targetTilesIterator != targetTiles->end(); targetTilesIterator++) \
-            TALK("    tile domain: " << (*targetTilesIterator)->getDomain())
+        for (targetTilesIterator = targetTiles->begin(); targetTilesIterator != targetTiles->end(); targetTilesIterator++)
+        {
+            TALK("    tile domain: " << (*targetTilesIterator)->getDomain());
+            targetDomains.push_back((*targetTilesIterator)->getDomain());
+        }
     }
 
     //
     // iterate over source tiles
     //
-    unsigned long targetTileArea = 0;
-    unsigned long sourceTileArea = 0;
-    unsigned long targetTileDomain = 0;
-    unsigned long updatedArea = 0;
-    bool computed = false;
-    vector<r_Minterval> insertedDomains;
-    vector<r_Minterval> sourceDomains;
-    vector<r_Minterval> targetDomains;
-    vector<r_Minterval>::iterator domIt;
-    vector<r_Minterval>::iterator intervalIt;
-    vector<Tile*> retval;
-    vector<Tile*>::iterator retvalIt;
-    vector<Tile*>::iterator sourceIt;
-    vector<Tile*>::iterator targetIt;
-    sourceIt = sourceTiles->begin();
+    //
+    r_Tiler t(sourceDomains, targetDomains);
+    t.split();
+    t.removeDoubleDomains();
+    t.removeCoveredDomains();
+    t.mergeDomains();
+    vector<Tile*> retval = t.generateTiles(*sourceTiles);
+    for (retvalIt = retval.begin(); retvalIt != retval.end(); retvalIt++)
+    {
+        targetTiles->push_back(*retvalIt);
+    }
     
     //this lives here because we don't want memory leaks because of exceptions
     //of course we seldom use this operation ( as we use copy tile most of the time )
@@ -402,95 +416,9 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
         }
     }//for is done
 
-    if (sourceTileArea > updatedArea)
+    for (retvalIt = retval.begin(); retvalIt != retval.end(); retvalIt++)
     {
-        TALK("  the source area (" << sourceTileArea << 
-                ") was not updated completely (only " << updatedArea << "), tiling the rest")
-        while (!insertedDomains.empty())
-        {
-            intervalIt = insertedDomains.begin();
-            for (sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
-                if ((*sourceIt)->getDomain() == *intervalIt)
-                {
-                    sourceTiles->erase(sourceIt);
-                    break;
-                }
-            insertedDomains.erase(intervalIt);
-        }
-
-        r_Minterval targetTileDomain;
-        for (targetIt = targetTiles->begin(); targetIt != targetTiles->end(); targetIt++)
-        {
-            targetTileDomain = (*targetIt)->getDomain();
-            targetDomains.push_back(targetTileDomain);
-        }
-
-        for (sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
-        {
-
-            /*
-             * When we try to update an object of N dimensions with data of less
-             * dimensions, we should extend the source data here to N dimensions as well,
-             * otherwise an index violation error is thrown.
-             *
-             * Example: "update Coll as m set m[5,*:*,*:*] assign marray x in [0:10,0:10] values 1c"
-             * Coll is 3D but we update it with a 2D array, by restricting the target update interval
-             * to slice 5. So the update array is extended to [5:5,0:10,0:10]
-             *
-             * -- DM 2012-may-23
-             */
-
-            r_Minterval origSourceDomain = (*sourceIt)->getDomain();
-            r_Minterval resSourceDomain;
-            if (trimFlags)
-            {
-                resSourceDomain = r_Minterval(targetTileDomain.dimension());
-                for (int i = 0, j = 0; i < trimFlags->size(); i++)
-                    if ((*trimFlags)[i])
-                        resSourceDomain << origSourceDomain[j++];
-                    else
-                        resSourceDomain << targetTileDomain[i];
-            }
-            else
-                resSourceDomain = origSourceDomain;
-            sourceDomains.push_back(resSourceDomain);
-            //          sourceDomains.push_back((*sourceIt)->getDomain());
-        }
-        
-        r_Tiler t(sourceDomains, targetDomains);
-        t.split();
-        t.removeDoubleDomains();
-        t.removeCoveredDomains();
-        t.mergeDomains();
-        retval = t.generateTiles(*sourceTiles);
-        for (retvalIt = retval.begin(); retvalIt != retval.end(); retvalIt++)
-        {
-            // Copy data from source tiles to the newly inserted tiles -- DM 2012-may-23
-            for (sourceIt = sourceTiles->begin(), domIt = sourceDomains.begin();
-                    sourceIt != sourceTiles->end(); sourceIt++, domIt++)
-            {
-                if ((*domIt).intersects_with((*retvalIt)->getDomain()))
-                {
-                    r_Minterval intersectRetvalTileDomain = (*domIt).create_intersection((*retvalIt)->getDomain());
-                    r_Minterval intersectSourceTileDomain = intersectRetvalTileDomain;
-                    if (trimFlags)
-                    {
-                        for (int i = 0, j = 0; i < trimFlags->size(); i++)
-                            if (!((*trimFlags)[i]))
-                                intersectSourceTileDomain.delete_dimension(j);
-                            else
-                                j++;
-                    }
-                    if (intersectRetvalTileDomain.dimension() == intersectSourceTileDomain.dimension())
-                        (*retvalIt)->copyTile(intersectRetvalTileDomain, *sourceIt, intersectSourceTileDomain);
-                    else
-                        (*retvalIt)->execUnaryOp(&(*identityOp), intersectRetvalTileDomain, *sourceIt, intersectSourceTileDomain);
-                }
-            }
-
-            targetObj->insertTile((Tile*) (*retvalIt));
-        }
-        RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtUpdate", "insertion of the rest is done")
+        targetObj->insertTile((Tile*) (*retvalIt));
     }
 
     // delete tile vectors
