@@ -92,7 +92,7 @@ MasterComm::MasterComm()
 {
     commit=false;
     allowMultipleWriteTransactions = false;
-    currentPosition = config.outpeers.size();
+    currentPosition = (int)config.outpeers.size() - 1;
 }
 
 MasterComm::~MasterComm()
@@ -794,22 +794,25 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
                 free(myheader);
                 myheader = NULL;
                 int tmp = currentPosition + 1;   
-                if (tmp > config.outpeers.size() - 1) {
+                if (tmp > ((int)config.outpeers.size() - 1)) {
                     tmp = 0;
-                    currentPosition = config.outpeers.size() - 1; // maybe some got deleted in the meantime, so to keep it correct
-                }                     
-                while (1) {                            
-                    msg = strdup(askOutpeer(tmp, outmsg)); 
-                    if (strstr(msg, MSG_OK_STR) != NULL) {
-                        found = true;        
-                        currentPosition = tmp;
-                        break;
-                    }                 
-                    tmp++;
-                    if (tmp == currentPosition + 1)
-                        break;                    
-                    if (tmp > config.outpeers.size() - 1)
-                        tmp = 0;
+                    currentPosition = (int)config.outpeers.size() - 1; // maybe some got deleted in the meantime, so to keep it correct
+                }           
+                if (config.outpeers.size() > 0)  
+                {
+                    while (1) {                       
+                        msg = strdup(askOutpeer(tmp, outmsg)); 
+                        if (strstr(msg, MSG_OK_STR) != NULL) {
+                            found = true;        
+                            currentPosition = tmp;
+                            break;
+                        }                 
+                        tmp++;
+                        if (tmp == currentPosition + 1)
+                            break;                    
+                        if (tmp > ((int)config.outpeers.size() - 1))
+                            tmp = 0;
+                    }
                 }
             }
             if (!found) {
