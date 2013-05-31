@@ -793,25 +793,26 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
                 sprintf(outmsg,"POST peerrequest HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nAuthorization: ras %s\r\nContent-length: %d\r\n\r\n%s",value,strlen(newbody)+1,newbody); // Forward authorization to peer
                 free(myheader);
                 myheader = NULL;
-                int tmp = currentPosition + 1;   
-                if (tmp > ((int)config.outpeers.size() - 1)) {
-                    tmp = 0;
+                int peer = currentPosition + 1; // going round-robin over outpeers, starting with the one after the last successful one   
+                if (peer > ((int)config.outpeers.size() - 1)) {
+                    peer = 0;
                     currentPosition = (int)config.outpeers.size() - 1; // maybe some got deleted in the meantime, so to keep it correct
                 }           
                 if (config.outpeers.size() > 0)  
                 {
-                    while (1) {                       
-                        msg = strdup(askOutpeer(tmp, outmsg)); 
+                    bool goon = true;
+                    while (goon) {                       
+                        msg = strdup(askOutpeer(peer, outmsg)); 
                         if (strstr(msg, MSG_OK_STR) != NULL) {
                             found = true;        
-                            currentPosition = tmp;
-                            break;
+                            currentPosition = peer;
+                            goon = false;
                         }                 
-                        tmp++;
-                        if (tmp == currentPosition + 1)
-                            break;                    
-                        if (tmp > ((int)config.outpeers.size() - 1))
-                            tmp = 0;
+                        peer++;
+                        if (peer == currentPosition + 1)
+                            goon = false;                    
+                        if (peer > ((int)config.outpeers.size() - 1))
+                            peer = 0;
                     }
                 }
             }
