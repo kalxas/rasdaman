@@ -76,19 +76,16 @@ OLDLOG="$LOG.save"
 function log()
 {
   echo "$PROG: $*"
-  echo "$PROG: $*" >> $LOG
 }
 
 function loge()
 {
   echo "$*"
-  echo "$*" >> $LOG
 }
 
 function logn()
 {
   echo -n "$PROG: $*"
-  echo -n "$PROG: $*" >> $LOG
 }
 
 function feedback()
@@ -103,9 +100,7 @@ function feedback()
 function error()
 {
   echo "$PROG: $*"
-  echo "$PROG: $*" >> $LOG
   echo "$PROG: exiting."
-  echo "$PROG: exiting." >> $LOG
   exit $RC_ERROR
 }
 
@@ -118,6 +113,10 @@ if [ -n "$SCRIPT_DIR" ]; then
     rm -f $OLDLOG
 	  mv $LOG $OLDLOG
   fi
+  
+  # all output that goes to stdout is redirected to log too
+  exec >  >(tee -a $LOG)
+  exec 2> >(tee -a $LOG >&2)
 
   NOW=`date`
   log "starting test at $NOW"

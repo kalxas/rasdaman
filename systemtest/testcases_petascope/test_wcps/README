@@ -2,16 +2,56 @@
 = WCPS tests =
 --------------
 
-This directory holds WCPS tests. Variables like Tomcat port, host, etc. may need
-to be adapted in test.cfg before running the tests. To run the tests, execute:
+Environment variables used later on in this document:
+RMANBASE       # base path to the checked out rasdaman source code.
 
-./test.sh
+IMPORTANT: This README should be found in 
+$RMANBASE/systemtest/test_petascope/test_wcps directory.
+
+This directory holds WCPS tests and it has the following structure.
+.
+├── oracle     # expected result outputs
+├── output     # result output from running test queris
+├── queries    # test queries in WCPS abstract syntax
+├── testdata   # contains data used by tests
+├── README     # this file
+└── test.sh    # the test script
+
+Variables like Tomcat port, host, etc. may need to be adapted in test.cfg, 
+located at $RMANBASE/systemtest/conf/test.cfg, before running the tests. The 
+testdata folder contains the testing images and data. All the queries are 
+contained in the queries directory, to add a new test please refer to the 
+"Adding tests" section in this document.
+The oracle folder contains oracles required for the test verification. 
+To generate a new oracle, just remove the existing oracle and run the tests.
+The respective output from the test will be automatically copied to the 
+oracle dir. For more information please refer to the "Adding tests" section 
+in this document.
+
+To run the tests, execute:
+
+  ./test.sh
 
 Do not execute "sh test.sh" as the script is written for bash, and sh is often
 linked to a restricted version of bash like dash, or similar.
 
-The output from each test is written to the output directory.
+The test.sh script works as follow:
 
+It runs each query from the file with extension .test against the configured
+WCPS endpoint, taking the filename without extension as "testname". The output
+from each test is written to the output directory as testname.test.out .
+If a script testname.oracle.sh is found in the oracle dir, it is executed 
+(passing the path to the output file as parameter) and the test is passed if 
+this script returns 0. The testname.oracle.sh allows for custom test verificaton 
+to be inserted into the process. If testname.oracle.sh is not found, the output 
+is compared to testname.oracle.data by means of type conversion with GDAL,
+ensuring that the comparison is portable and works on different platforms.. 
+The script translates images to the GTiff format before doing byte comparison, 
+while it directly compares to the oracle if the output is ASCII Text.
+test.sh outputs either a list of failed tests (returning non-zero exit code) 
+or the message all tests passed (returning 0 as its exit code).
+
+The log is located in the log file in this directory.
 
 ------------
 = Testdata =
@@ -34,10 +74,30 @@ These coverages are automatically inserted if necessary
 = Adding tests =
 ----------------
 
+This test suite only supports WCPS queries.
+
 To add new tests to the test suite, simply add new WCPS queries to the queries
-directory. Please adhere to the naming convention, continuing from the last
-number:
+directory. Then run the test.sh script, which will automatically add the output
+to the oracle dir, under name testname.oracle.data. Manually inspect and verify 
+whether the output is correct.
+If custom verification is required (ex. it is an image that is not portable)
+create the testname.oracle.sh script for verification (in this script you can
+use any tool for verification of the output, just be sure that it is available
+on the system or output a message if it is not found since this script will be
+executed on a variety of systems, not just your own machine.
+ 
+Due to the nature of the test verification there is also a possibility of 
+adding a failing test. A similar procedure is used and an error message is used 
+as oracle.
+
+Please adhere to the naming convention, continuing from the last number:
 
 WCPS abstract: number-meaningful_name.test
-rasql        : number-meaningful_name.rasql
 WCPS XML     : number-meaningful_name.xml
+
+-----------------
+= Failing tests =
+-----------------
+
+At present no tests are failing.
+
