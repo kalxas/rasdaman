@@ -62,6 +62,6 @@ dist_log_DATA=empty
 #
 BUILT_SOURCES = version
 version:
-	echo '#define RMANVERSION "'`(git describe --match "v[0-9]*" HEAD 2>/dev/null || echo v8.4) | sed s/-[0-9]*//1`'"' > version.h.tmp
+	echo '#define RMANVERSION "'`(git describe --tags HEAD 2>/dev/null || echo v8.4) | sed s/-[0-9]*//1`'"' > version.h.tmp
 	test -f version.h && cmp version.h.tmp version.h || mv version.h.tmp version.h
 	rm -f version.h.tmp 2>/dev/null   
