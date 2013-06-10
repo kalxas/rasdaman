@@ -91,7 +91,7 @@ public class SDU {
         Iterator<String> i = strings.iterator();
 
         while (i.hasNext()) {
-            booleans.add(new Boolean(i.next().equals(WCPSConstants.MSG_TRUE)));
+            booleans.add(i.next().equals(WCPSConstants.MSG_TRUE));
         }
 
         return booleans;

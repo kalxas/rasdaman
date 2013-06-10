@@ -22,16 +22,15 @@
 package petascope.wcps.server.core;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.math.RoundingMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
-import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.WCPSConstants;
-import petascope.util.TimeUtil;
 
 /**
  * This is an axis in geographic coordinates. See the WCPS standard.
@@ -41,48 +40,42 @@ public class DomainElement implements Cloneable {
     private static Logger log = LoggerFactory.getLogger(DomainElement.class);
 
     private String crs;
-    private String name;
-    private String maxValue;
-    private String minValue;
+    private String label;
+    private BigDecimal maxValue;
+    private BigDecimal minValue;
     private String type;
     private String uom;
     private int iOrder;
+    private BigDecimal resolution;
+    private BigInteger dimensionality; // # of dimensions
+    private boolean    isIrregular;
     private CrsDefinition.Axis axisDef;
-    private String resolution;
-    private int DIM;
-    private boolean isIrregular;
 
-    // Overload
-    public DomainElement(String min, String max, CrsDefinition.Axis axis, String crsUri, int order, int dim, boolean isIrr) 
-            throws WCPSException {
-        this(min, max, axis.getAbbreviation(), axis.getType(), crsUri, order, dim, isIrr);
-        name = axis.getAbbreviation();
-        uom  = axis.getUoM();
-        
-        axisDef = axis;
-    }
-
-    public DomainElement(String min, String max, String axisName, String axisType, String crsUri, int order, int dim, boolean isIrr) 
+    // constructor
+    public DomainElement(
+            BigDecimal min, 
+            BigDecimal max, 
+            String axisLabel,
+            String axisType,
+            String axisUom,
+            String crsUri,
+            int order, 
+            BigInteger dim, 
+            boolean isIrregular) 
             throws WCPSException {
 
-        if ((axisName == null) || (axisType == null)) {
+        if (axisLabel == null) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
                     WCPSConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_NULL);
         }
 
-        name = axisName;
-        DIM = dim;
-        isIrregular = isIrr;
-        iOrder = order;
+        // store to fields
+        label = axisLabel;
+        uom = axisUom;
         type = axisType;
-        if (!type.equals(AxisTypes.X_AXIS) 
-                && !type.equals(AxisTypes.Y_AXIS) 
-                && !type.equals(AxisTypes.T_AXIS) 
-                && !type.equals(AxisTypes.ELEV_AXIS)
-                && !type.equals(AxisTypes.OTHER)) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WCPSConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_EMPTY + type);
-        }
+        dimensionality = dim;
+        this.isIrregular = isIrregular;
+        iOrder = order;
 
         if ((min != null) && (max != null)) {
             minValue = min;
@@ -99,65 +92,72 @@ public class DomainElement implements Cloneable {
         // Compute resolution (with irregular axes a resolution cannot be defined)
         if (!isIrregular) {
             // Consistency checks
-            if (Double.parseDouble(maxValue) < Double.parseDouble(minValue)) {
+            if (maxValue.compareTo(minValue) < 0) {
                 throw new WCPSException(ExceptionCode.InvalidMetadata,
                         WCPSConstants.ERRTXT_INVALID_DOM_BOUNDS);
             }
             
-            // Use BigDecimals to avoid finite arithemtic rounding issues of Doubles
-            BigDecimal maxBD = BigDecimal.valueOf(Double.parseDouble(maxValue));
-            BigDecimal minBD = BigDecimal.valueOf(Double.parseDouble(minValue));
-            BigDecimal dimBD = BigDecimal.valueOf(DIM);
-            BigDecimal diffBD = maxBD.subtract(minBD);
-            BigDecimal resBD = diffBD.divide(dimBD, RoundingMode.UP);
-            
-            resolution = resBD.toString();
+            BigDecimal diffBD = maxValue.subtract(minValue);
+            resolution        = diffBD.divide(new BigDecimal(dimensionality), RoundingMode.UP);
         }
         
         log.trace(toString());
     }
 
-    //@Override
+    @Override
     public DomainElement clone() {
         
         try {
-            String newMin = minValue == null ? null : minValue.toString();
-            String newMax = maxValue == null ? null : maxValue.toString();
-            String newCrs = crs      == null ? null : crs.toString();
-            int order     = new Integer(iOrder);
-            boolean isIrr = isIrregular ? true : false;
-            return new DomainElement(newMin, newMax, axisDef.clone(), newCrs, order, DIM, isIrr);
+            BigDecimal cloneMin = minValue == null ? null : minValue;
+            BigDecimal cloneMax = maxValue == null ? null : maxValue;
+            String cloneCrs     = crs      == null ? null : crs.toString();
+            String cloneUom     = uom      == null ? null : uom.toString();
+            String cloneLabel   = label    == null ? null : label.toString();
+            String cloneType    = type     == null ? null : type.toString();
+            int order         = new Integer(iOrder);
+            boolean isIrr     = isIrregular ? true : false;
+            return new DomainElement(
+                    cloneMin, 
+                    cloneMax, 
+                    cloneLabel, 
+                    cloneType, 
+                    cloneUom, 
+                    cloneCrs,
+                    order, 
+                    dimensionality, 
+                    isIrr
+                    );
         } catch (Exception ime) {
             throw new RuntimeException(
                     WCPSConstants.ERRTXT_INVALID_METADAT_WHILE_CLONE,
                     ime);
         }
-
     }
 
     public boolean equals(DomainElement de) {
         return minValue.equals(de.minValue) && maxValue.equals(maxValue)
-                && name.equals(de.name) && type.equals(de.type);
+                && label.equals(de.label) && type.equals(de.type);
     }
-    
-    public CrsDefinition.Axis getAxisDef() {
-        return axisDef;
-    }
-    
-    public String getName() {
-        return name;
+   
+    // Interface: getters/setters
+    public String getLabel() {
+        return label;
     }
 
-    public String getMaxValue() {
+    public BigDecimal getMaxValue() {
         return maxValue;
     }
 
-    public String getMinValue() {
+    public BigDecimal getMinValue() {
         return minValue;
     }
     
-    public String getResolution() {
+    public BigDecimal getResolution() {
         return resolution;
+    }
+    
+    public void setResolution(BigDecimal res) {
+        resolution = res;
     }
 
     public String getType() {
@@ -176,6 +176,14 @@ public class DomainElement implements Cloneable {
        return iOrder;
     }
     
+    public CrsDefinition.Axis getAxisDef() {
+        return axisDef;
+    }
+    
+    public void setAxisDef(CrsDefinition.Axis axisDef) {
+        this.axisDef = axisDef;
+    }
+    
     public boolean isIrregular() {
         return isIrregular;
     }
@@ -183,7 +191,7 @@ public class DomainElement implements Cloneable {
     @Override
     public String toString() {
         String d = WCPSConstants.MSG_DOMAIN_CAMEL + "#" + iOrder + " {"  
-                + "Name:" + name 
+                + "Name:" + label 
                 + " | Type:" + type
                 + " | UoM:" + uom
                 + " | [" + minValue 

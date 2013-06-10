@@ -26,11 +26,11 @@
  */
 package petascope.wcps.server.core;
 
+import java.math.BigDecimal;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
@@ -38,7 +38,6 @@ import petascope.util.CrsUtil;
 import petascope.util.AxisTypes;
 import petascope.exceptions.PetascopeException;
 import petascope.util.WCPSConstants;
-import petascope.util.TimeUtil;
 
 /** 
  * NOTE: the WGS84 bounding needs to take care to transform only the /spatial/ axes,
@@ -52,14 +51,14 @@ public class Bbox implements Cloneable {
  
     private String crsName;
     private String coverageName;
-    private List<String> minValues;
-    private List<String> maxValues;
+    private List<BigDecimal> minValues;
+    private List<BigDecimal> maxValues;
     private List<String> types;
     private List<String> names; 
-    private Double wgs84minLon;
-    private Double wgs84maxLon;
-    private Double wgs84minLat;
-    private Double wgs84maxLat;
+    private double wgs84minLon;
+    private double wgs84maxLon;
+    private double wgs84minLat;
+    private double wgs84maxLat;
     private Boolean hasWgs84Bbox = false;
     private List<DomainElement> domains; // Cloning
     
@@ -68,8 +67,8 @@ public class Bbox implements Cloneable {
         this.domains = new ArrayList();
         this.domains.addAll(domains);
         coverageName = coverage;
-        minValues = new ArrayList<String>();
-        maxValues = new ArrayList<String>();
+        minValues = new ArrayList<BigDecimal>();
+        maxValues = new ArrayList<BigDecimal>();
         types     = new ArrayList<String>();
         names     = new ArrayList<String>();
         
@@ -82,12 +81,13 @@ public class Bbox implements Cloneable {
             minValues.add(el.getMinValue());
             maxValues.add(el.getMaxValue());
             types.add(el.getType());
-            names.add(el.getName());
+            names.add(el.getLabel());
         }
         
         if (crs == null) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, WCPSConstants.ERRTXT_INVALID_CRS);
         } else {
+            // Store the native (C)CRS from the list of single CRSs associated to the coverage
             crsName = crs;
         }        
         
@@ -97,33 +97,36 @@ public class Bbox implements Cloneable {
          * (NOTE2) Keep WGS84 bbox for planetary CRSs as well? It can be useful, but they need
          * a special treatment since the CRS must be loaded via WKT, URI is unknown for GeoTools.
          */
-        double lowX=0D, lowY=0D, highX=0D, highY=0D;
+        double lowX  = 0D;
+        double lowY  = 0D;
+        double highX = 0D;
+        double highY = 0D;
         String crsSourceX="", crsSourceY="";
         for (DomainElement el : domains) { 
             // X AXIS
             if (el.getType().equals(AxisTypes.X_AXIS)) {
                 crsSourceX = el.getCrs();
                 if (CrsUtil.CrsUri.areEquivalent(crsSourceX, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE))) {
-                    wgs84minLon = Double.parseDouble(el.getMinValue());
-                    wgs84maxLon = Double.parseDouble(el.getMaxValue());
+                    wgs84minLon = el.getMinValue().doubleValue();
+                    wgs84maxLon = el.getMaxValue().doubleValue();
                 } else {
-                    lowX  = Double.parseDouble(el.getMinValue());
-                    highX = Double.parseDouble(el.getMaxValue());
+                    lowX  = el.getMinValue().doubleValue();
+                    highX = el.getMaxValue().doubleValue();
                 }
             // Y AXIS
             } else if (el.getType().equals(AxisTypes.Y_AXIS)) {
                 crsSourceY = el.getCrs();
                 if (CrsUtil.CrsUri.areEquivalent(crsSourceY, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE))) {
-                    wgs84minLat = Double.parseDouble(el.getMinValue());
-                    wgs84maxLat = Double.parseDouble(el.getMaxValue());
+                    wgs84minLat = el.getMinValue().doubleValue();
+                    wgs84maxLat = el.getMaxValue().doubleValue();
                 } else {
-                    lowY  = Double.parseDouble(el.getMinValue());
-                    highY = Double.parseDouble(el.getMaxValue());
+                    lowY  = el.getMinValue().doubleValue();
+                    highY = el.getMaxValue().doubleValue();
                 }
             }
         } 
         
-        // Consistency check
+        // Consistency checks
         if (!crsSourceX.isEmpty() && !crsSourceY.isEmpty()) {
             if (!CrsUtil.CrsUri.areEquivalent(crsSourceX, crsSourceY)) {
                 throw new WCPSException(ExceptionCode.InvalidMetadata,
@@ -188,31 +191,31 @@ public class Bbox implements Cloneable {
     /**
      * @return the minValues of a specified axis.
      */
-    public String getMinValue(String axisName) {
+    public double getMinValue(String axisName) {
         for (int i=0; i<names.size(); i++) { 
             if (names.get(i).equals(axisName)) {
                 return getMinValue(i);
             }
         }
-        return null;
+        return Double.NaN;
     }    
-    public String getMinValue(int index) {
-        return minValues.get(index);
+    public double getMinValue(int index) {
+        return minValues.get(index).doubleValue();
     }
     
     /**
      * @return the maxValue of a specified axis.
      */
-    public String getMaxValue(String axisName) {
+    public double getMaxValue(String axisName) {
         for (int i=0; i<names.size(); i++) { 
             if (names.get(i).equals(axisName)) {
                 return getMaxValue(i);
             }
         }
-        return null;
+        return Double.NaN;
     }    
-    public String getMaxValue(int index) {
-        return maxValues.get(index);
+    public double getMaxValue(int index) {
+        return maxValues.get(index).doubleValue();
     }
     
     /**
@@ -240,13 +243,13 @@ public class Bbox implements Cloneable {
      * @return the CRS name where the spatial CRS is replaced by WGS84 URI.
      */
     public String getWgs84CrsName() {
-        LinkedHashSet<String> crsUris; // avoid CRS duplication if some axes share the CRS; keep order.
+        List<String> crsUris; // avoid CRS duplication if some axes share the CRS; keep order.
         if (CrsUtil.CrsUri.isCompound(crsName)) {
             // Extract the involved atomic CRSs:
             /* Assumption: suppose that CRS involving height are 2D+1D, not 3D: still not considering
              * 3D->WGS84 transforms.
              */
-            crsUris = new LinkedHashSet<String>();
+            crsUris = new ArrayList<String>();
             for (DomainElement dom : domains) {
                 if (dom.getType().equals(AxisTypes.X_AXIS) ||
                         dom.getType().equals(AxisTypes.Y_AXIS)) {                   
@@ -341,7 +344,7 @@ public class Bbox implements Cloneable {
      */
     public String getLowerCorner() {
         String output = "";
-        String tmp;
+        double tmp;
         // Loop through the N dimensions
         for (int i = 0; i < getDimensionality(); i++) {
             if (i>0) output += " ";
@@ -358,7 +361,7 @@ public class Bbox implements Cloneable {
     // Used when get the corner only for a subset of the whole available axes (eg. gml:origin after slicing)
     public String getLowerCorner(String[] axisLabels) {
         String output = "";
-        String tmp;
+        double tmp;
         // Loop through the N dimensions
         for (int i = 0; i < axisLabels.length; i++) {
             if (i>0) output += " ";
@@ -374,7 +377,7 @@ public class Bbox implements Cloneable {
     }
     public String getWgs84LowerCorner() {
         String output = "";
-        String tmp;
+        double tmp;
         // Loop through the N dimensions
         for (int i = 0; i < getDimensionality(); i++) {
             if (i>0) output += " ";
@@ -393,7 +396,7 @@ public class Bbox implements Cloneable {
     }        
     public String getUpperCorner() {
         String output = "";
-        String tmp;
+        double tmp;
         // Loop through the N dimensions
         for (int i = 0; i < getDimensionality(); i++) {
             if (i>0) output += " ";
@@ -409,7 +412,7 @@ public class Bbox implements Cloneable {
     // Used when get the corner only for a subset of the whole available axes 
     public String getUpperCorner(String[] axisLabels) {
         String output = "";
-        String tmp;
+        double tmp;
         // Loop through the N dimensions
         for (int i = 0; i < axisLabels.length; i++) {
             if (i>0) output += " ";
@@ -425,7 +428,7 @@ public class Bbox implements Cloneable {
     }
     public String getWgs84UpperCorner() {
         String output = "";
-        String tmp;
+        double tmp;
         // Loop through the N dimensions
         for (int i = 0; i < getDimensionality(); i++) {
             if (i>0) output += " ";

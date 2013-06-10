@@ -40,8 +40,6 @@ public interface IMetadataSource {
     String mimetypeToFormat(String mime);
     String formatToGdalid(String format);
     String gdalidToFormat(String gdalid);
-
+    
     CoverageMetadata read(String coverageName) throws PetascopeException;
-
-    Collection<String> getAxisNames();
 }

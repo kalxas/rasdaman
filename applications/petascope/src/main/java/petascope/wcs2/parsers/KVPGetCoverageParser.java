@@ -61,6 +61,8 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
     public static final String KEY_MEDIATYPE = "mediatype";
     public static final String KEY_FORMAT = "format";
     public static final String KEY_SUBSET = "subset";
+    public static final String KEY_SUBSETTING_CRS = "subsettingcrs";
+    public static final String KEY_OUTPUT_CRS = "outputcrs";
     
     //                                                      dim=$1  crs=$2      low=$4  high=$5
     private static final Pattern PATTERN = Pattern.compile("([^,\\(]+)(,([^\\(]+))?\\(([^,\\)]+)(,([^\\)]+))?\\)");

@@ -23,20 +23,18 @@ package petascope.util;
 
 import java.io.StringWriter;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 import javax.xml.bind.JAXBException;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.PetascopeXmlNamespaceMapper;
-import petascope.core.DbMetadataSource;
 import petascope.core.CoverageMetadata;
+import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.wcps.server.core.Bbox;
-import petascope.wcps.server.core.CellDomainElement;
-import petascope.wcps.server.core.DomainElement;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageMetadata.RangeField;
 import petascope.wcs2.parsers.GetCoverageRequest;
@@ -52,35 +50,35 @@ public class WcsUtil {
     private static final Logger log = LoggerFactory.getLogger(WcsUtil.class);
     
     /* Constants */
-    public static final String KEY_CHAR = "char";
-    public static final String KEY_UCHAR = "unsigned char";
-    public static final String KEY_SHORT = "short";
+    public static final String KEY_CHAR   = "char";
+    public static final String KEY_UCHAR  = "unsigned char";
+    public static final String KEY_SHORT  = "short";
     public static final String KEY_USHORT = "unsigned short";
-    public static final String KEY_INT = "int";
-    public static final String KEY_UINT = "unsigned int";
-    public static final String KEY_LONG = "long";
-    public static final String KEY_ULONG = "unsigned long";
-    public static final String KEY_FLOAT = "float";
+    public static final String KEY_INT    = "int";
+    public static final String KEY_UINT   = "unsigned int";
+    public static final String KEY_LONG   = "long";
+    public static final String KEY_ULONG  = "unsigned long";
+    public static final String KEY_FLOAT  = "float";
     public static final String KEY_DOUBLE = "double";
     
-    public static final String CHAR_MIN = "-128";
-    public static final String CHAR_MAX = "127";
-    public static final String UCHAR_MIN = "0";
-    public static final String UCHAR_MAX = "255";
-    public static final String SHORT_MIN = "-32768";
-    public static final String SHORT_MAX = "32767";
+    public static final String CHAR_MIN   = "-128";
+    public static final String CHAR_MAX   = "127";
+    public static final String UCHAR_MIN  = "0";
+    public static final String UCHAR_MAX  = "255";
+    public static final String SHORT_MIN  = "-32768";
+    public static final String SHORT_MAX  = "32767";
     public static final String USHORT_MIN = "0";
     public static final String USHORT_MAX = "65535";
-    public static final String INT_MIN = "-2147483648";
-    public static final String INT_MAX = "2147483647";
-    public static final String UINT_MIN = "0";
-    public static final String UINT_MAX = "4294967295";
-    public static final String LONG_MIN = "-9223372036854775808";
-    public static final String LONG_MAX = "9223372036854775807";
-    public static final String ULONG_MIN = "0";
-    public static final String ULONG_MAX = "18446744073709551615";
-    public static final String FLOAT_MIN = "+/-3.4e-38";
-    public static final String FLOAT_MAX = "+/-3.4e+38";
+    public static final String INT_MIN    = "-2147483648";
+    public static final String INT_MAX    = "2147483647";
+    public static final String UINT_MIN   = "0";
+    public static final String UINT_MAX   = "4294967295";
+    public static final String LONG_MIN   = "-9223372036854775808";
+    public static final String LONG_MAX   = "9223372036854775807";
+    public static final String ULONG_MIN  = "0";
+    public static final String ULONG_MAX  = "18446744073709551615";
+    public static final String FLOAT_MIN  = "+/-3.4e-38";
+    public static final String FLOAT_MAX  = "+/-3.4e+38";
     public static final String DOUBLE_MIN = "+/-1.7e-308";
     public static final String DOUBLE_MAX = "+/-1.7e+308";
 
@@ -206,6 +204,8 @@ public class WcsUtil {
     }
 
     public static String getGML(GetCoverageMetadata m, String template, boolean replaceBounds) {
+        
+        // Range type
         String rangeFields = "";
         for (RangeField range : m.getRangeFields()) {
             rangeFields += Templates.getTemplate(Templates.RANGE_FIELD,
@@ -218,12 +218,15 @@ public class WcsUtil {
                     Pair.of("\\{" + Templates.KEY_CODE          + "\\}", range.getUomCode()));
         }
 
-        String metadata = m.getMetadata().getMetadata();
-        if (metadata != null) {
-            metadata = "<gmlcov:metadata>" + metadata + "</gmlcov:metadata>";
-        } else {
-            metadata = "";
+        // GMLCOV metadata
+        Set<String> gmlcovMetadata = m.getMetadata().getExtraMetadata(XMLSymbols.PREFIX_GMLCOV);
+        String gmlcovFormattedMetadata = "";
+        for (String metadataValue : gmlcovMetadata) {
+            gmlcovFormattedMetadata += "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_METADATA + ">" + metadataValue 
+                    + "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_METADATA + ">";
         }
+        
+        // Whole document
         String ret = Templates.getTemplate(template,
                 Pair.of("\\{" + Templates.KEY_COVERAGEID      + "\\}", m.getCoverageId()),
                 Pair.of("\\{" + Templates.KEY_COVERAGETYPE    + "\\}", m.getCoverageType()),
@@ -239,7 +242,7 @@ public class WcsUtil {
                 Pair.of("\\{" + Templates.KEY_SRSNAME         + "\\}", getSrsName(m)),
                 Pair.of("\\{" + Templates.KEY_LOWERCORNER     + "\\}", m.getDomLow()),
                 Pair.of("\\{" + Templates.KEY_UPPERCORNER     + "\\}", m.getDomHigh()),
-                Pair.of("\\{" + Templates.KEY_METADATA        + "\\}", metadata),
+                Pair.of("\\{" + Templates.KEY_METADATA        + "\\}", gmlcovFormattedMetadata),
                 Pair.of("\\{" + Templates.KEY_ADDITIONS       + "\\}", getAdditions(m)));
 
         if (replaceBounds) {
@@ -317,15 +320,15 @@ public class WcsUtil {
     }
    
     public static Pair<String, String> toInterval(String type) {
-        if (type.equals(KEY_CHAR))   { return Pair.of(CHAR_MIN, CHAR_MAX);     } else 
-        if (type.equals(KEY_UCHAR))  { return Pair.of(UCHAR_MIN, UCHAR_MAX);   } else 
-        if (type.equals(KEY_SHORT))  { return Pair.of(SHORT_MIN, SHORT_MAX);   } else 
+        if (type.equals(KEY_CHAR))   { return Pair.of(CHAR_MIN,   CHAR_MAX);   } else 
+        if (type.equals(KEY_UCHAR))  { return Pair.of(UCHAR_MIN,  UCHAR_MAX);  } else 
+        if (type.equals(KEY_SHORT))  { return Pair.of(SHORT_MIN,  SHORT_MAX);  } else 
         if (type.equals(KEY_USHORT)) { return Pair.of(USHORT_MIN, USHORT_MAX); } else 
-        if (type.equals(KEY_INT))    { return Pair.of(INT_MIN, INT_MAX);       } else 
-        if (type.equals(KEY_UINT))   { return Pair.of(UINT_MIN, UINT_MAX);     } else 
-        if (type.equals(KEY_LONG))   { return Pair.of(LONG_MIN, LONG_MAX);     } else 
-        if (type.equals(KEY_ULONG))  { return Pair.of(ULONG_MIN, ULONG_MAX);   } else 
-        if (type.equals(KEY_FLOAT))  { return Pair.of(FLOAT_MIN, FLOAT_MAX);   } else 
+        if (type.equals(KEY_INT))    { return Pair.of(INT_MIN,    INT_MAX);    } else 
+        if (type.equals(KEY_UINT))   { return Pair.of(UINT_MIN,   UINT_MAX);   } else 
+        if (type.equals(KEY_LONG))   { return Pair.of(LONG_MIN,   LONG_MAX);   } else 
+        if (type.equals(KEY_ULONG))  { return Pair.of(ULONG_MIN,  ULONG_MAX);  } else 
+        if (type.equals(KEY_FLOAT))  { return Pair.of(FLOAT_MIN,  FLOAT_MAX);  } else 
         if (type.equals(KEY_DOUBLE)) { return Pair.of(DOUBLE_MIN, DOUBLE_MAX); }
         return Pair.of("", "");
     }

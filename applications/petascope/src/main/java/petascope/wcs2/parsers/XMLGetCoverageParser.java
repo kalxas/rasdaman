@@ -49,7 +49,11 @@ import petascope.wcs2.extensions.CRSExtension;
 public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
 
     private static final Logger log = LoggerFactory.getLogger(XMLGetCoverageParser.class);
-
+    
+    // constants
+    public static final String LABEL_SUBSETTING_CRS = "subsettingcrs";
+    public static final String LABEL_OUTPUT_CRS = "outputcrs";
+    
     @Override
     public GetCoverageRequest parse(HTTPRequest request) throws WCSException {
         Element root = parseInput(request.getRequestString());
@@ -85,25 +89,25 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                     for (Element attr : c) {
                         if (attr.getLocalName().equals(ATT_SUBSET_CRS)) {
                             if (subCrs == null) subCrs = getText(attr);
-                            else throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"" + KEY_SUBSETCRS + "\" parameters in the request: must be unique.");
+                            else throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"" + LABEL_SUBSETTING_CRS + "\" parameters in the request: must be unique.");
                             // check validity of CrsExt specification
                             if (!CrsUtil.CrsUri.isValid(subCrs)) 
                                 throw new WCSException(ExceptionCode.NotASubsettingCrs, 
-                                        KEY_SUBSETCRS + "\"" + subCrs + "\" is not valid.");
+                                        LABEL_SUBSETTING_CRS + "\"" + subCrs + "\" is not valid.");
                             if (!CrsUtil.isSupportedCrsCode(subCrs)) 
                                 throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, 
-                                        KEY_SUBSETCRS + "\"" + subCrs + "\" is not supported.");
+                                        LABEL_SUBSETTING_CRS + "\"" + subCrs + "\" is not supported.");
                         }
                         else if (attr.getLocalName().equals(ATT_OUTPUT_CRS)) {
                             if (outCrs == null) outCrs = getText(attr);
-                            else throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"" + KEY_OUTPUTCRS + "\" parameters in the request: must be unique.");
+                            else throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"" + LABEL_OUTPUT_CRS + "\" parameters in the request: must be unique.");
                             // check validity of CrsExt specification
                             if (!CrsUtil.CrsUri.isValid(outCrs)) 
                                 throw new WCSException(ExceptionCode.NotAnOutputCrs, 
-                                        KEY_OUTPUTCRS + " \"" + outCrs + "\" is not valid.");
+                                        LABEL_OUTPUT_CRS + " \"" + outCrs + "\" is not valid.");
                             if (!CrsUtil.isSupportedCrsCode(outCrs)) 
                                 throw new WCSException(ExceptionCode.SubsettingCrsNotSupported, 
-                                        KEY_OUTPUTCRS + " \"" + outCrs + "\" is not supported.");
+                                        LABEL_OUTPUT_CRS + " \"" + outCrs + "\" is not supported.");
                         }
                     }
                     ret.getCrsExt().setSubsettingCrs(subCrs);
@@ -251,9 +255,8 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Error parsing dimension subset:\n\n" + e.toXML(), ex);
                 }
             }
-        }
         return ret;
-    }    
+    }
 
     @Override
     public String getOperationName() {

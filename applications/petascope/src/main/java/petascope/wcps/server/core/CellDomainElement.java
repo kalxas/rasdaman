@@ -24,7 +24,6 @@ package petascope.wcps.server.core;
 import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
@@ -39,17 +38,9 @@ public class CellDomainElement implements Cloneable {
 
     private BigInteger minValue;
     private BigInteger maxValue;
-    private String name;
-    private CrsDefinition.Axis axisDef;
     private int iOrder;
-
-    // Overload
-    public CellDomainElement(BigInteger lo, BigInteger hi, CrsDefinition.Axis axis, int order) throws WCPSException {
-        this(lo, hi, axis.getAbbreviation(), order);
-        axisDef = axis;
-    }
    
-    public CellDomainElement(BigInteger lo, BigInteger hi, String axisName, int order) throws WCPSException {        
+    public CellDomainElement(BigInteger lo, BigInteger hi, int order) throws WCPSException {        
         if ((lo == null) || (hi == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
                     WCPSConstants.ERRTXT_INVALID_CELL_DOMAIN);
@@ -62,7 +53,6 @@ public class CellDomainElement implements Cloneable {
 
         minValue = lo;
         maxValue = hi;
-        name = axisName;
         iOrder = order;
     }
 
@@ -70,7 +60,7 @@ public class CellDomainElement implements Cloneable {
     public CellDomainElement clone() {
         try {
             return new CellDomainElement(BigInteger.ZERO.add(minValue),
-                    BigInteger.ZERO.add(maxValue), axisDef, new Integer(iOrder));
+                    BigInteger.ZERO.add(maxValue), new Integer(iOrder));
         } catch (WCPSException ime) {
             throw new RuntimeException(
                     WCPSConstants.ERRTXT_INVALID_METADATA,
@@ -99,16 +89,8 @@ public class CellDomainElement implements Cloneable {
         maxValue = hi;
     }
     
-    public String getName() {
-        return name;
-    }
-    
     public int getOrder() {
         return iOrder;
-    }
-    
-    public CrsDefinition.Axis getAxisDef() {
-        return axisDef;
     }
     
     @Override

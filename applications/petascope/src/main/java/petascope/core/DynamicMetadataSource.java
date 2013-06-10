@@ -130,11 +130,6 @@ public class DynamicMetadataSource implements IDynamicMetadataSource {
         allCoverageNames.addAll(dynamicCoverageNames);
     }
 
-    @Override
-    public Collection<String> getAxisNames() {
-        return metadataSource.getAxisNames();
-    }
-    
     public IMetadataSource getMetadataSource() {
         return metadataSource;
     }

@@ -39,6 +39,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -79,6 +80,7 @@ import wcst.transaction.schema.TransactionResponseType;
 import wcst.transaction.schema.TransactionType;
 import petascope.wcst.transaction.tools.RasdamanUtils;
 import petascope.util.CrsUtil;
+import petascope.util.Pair;
 import petascope.wcs2.templates.Templates;
 
 /**
@@ -506,33 +508,37 @@ public class executeTransaction {
         BigInteger highX = new BigInteger(String.valueOf(img.getHeight() - 1));
         BigInteger lowY = new BigInteger("0");
         BigInteger highY = new BigInteger(String.valueOf(img.getWidth() - 1));
-        CellDomainElement cellX = new CellDomainElement(lowX, highX, AxisTypes.X_AXIS, 0);
-        CellDomainElement cellY = new CellDomainElement(lowY, highY, AxisTypes.Y_AXIS, 1);
+        CellDomainElement cellX = new CellDomainElement(lowX, highX, 0);
+        CellDomainElement cellY = new CellDomainElement(lowY, highY, 1);
         List<CellDomainElement> cellList = new ArrayList<CellDomainElement>(2);
         cellList.add(cellX);
         cellList.add(cellY);
 
         // Domains
-        String crs = CrsUtil.GRID_CRS;
-        String str1 = null, str2 = null;
+        List<String> crs = new ArrayList<String>(1);
+        crs.add(CrsUtil.GRID_CRS);
+        String str1 = null;
+        String str2 = null;
         /* Since we currently do not use the Domain sizes, we can set them to 0 and 1 */
         DomainElement domX = new DomainElement(
-                new Double(0.0).toString(), 
-                new Double(1.0).toString(), 
+                BigDecimal.ZERO, 
+                BigDecimal.ONE,
                 AxisTypes.X_AXIS, 
                 AxisTypes.X_AXIS, 
-                crs, 
+                CrsUtil.PURE_UOM,
+                crs.get(0), 
                 0,
-                1,
+                BigInteger.ONE,
                 false);
         DomainElement domY = new DomainElement(
-                new Double(0.0).toString(), 
-                new Double(1.0).toString(), 
+                BigDecimal.ZERO, 
+                BigDecimal.ONE,
                 AxisTypes.Y_AXIS, 
                 AxisTypes.Y_AXIS, 
-                crs, 
+                CrsUtil.PURE_UOM,
+                crs.get(0), 
                 1,
-                1,
+                BigInteger.ONE,
                 false);
         List<DomainElement> domList = new ArrayList<DomainElement>(2);
         domList.add(domX);
@@ -558,24 +564,18 @@ public class executeTransaction {
         nullSet.add(nullVal);
 
         // Descriptions
-        String abstr = null;
-        String title = "Coverage " + identifier;
-        String keywords = null;
-
+        Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
         m = new CoverageMetadata(
                 identifier,
                 Templates.RECTIFIED_GRID_COVERAGE,
+                "", // native format
+                emptyMetadata,
                 crs,
-                domList,
                 cellList,
-                rList,
-                nullSet,
-                nullDefault, 
-                interpList, 
-                interpDef,
-                title,
-                abstr,
-                keywords);
+                domList,
+                Pair.of(BigDecimal.ZERO, ""),
+                rList
+                );
 
         log.debug("Done creating default metadata.");
         return m;
@@ -858,7 +858,7 @@ public class executeTransaction {
                 newMeta = updateMetadataWithSummary(newMeta, summ);
             }
 
-            metaDb.updateCoverageMetadata(m, false);
+            //metaDb.updateCoverageMetadata(m, false);
         } catch (Exception e) {
             throw new WCSTException(ExceptionCode.NoApplicableCode, "Error while updating metadata.", e);
         }
@@ -951,7 +951,7 @@ public class executeTransaction {
             m = updateMetadataWithSummary(m, summ);
         }
 
-        metaDb.insertNewCoverageMetadata(m, false);
+        //metaDb.insertNewCoverageMetadata(m, false);
 
         /**
          * (4) Indicate success: Add this ID to the output XML document
@@ -1119,8 +1119,8 @@ public class executeTransaction {
         long hiX = upper.get(0).longValue();
         long hiY = upper.get(1).longValue();
 
-        CellDomainElement cellX = new CellDomainElement(BigInteger.valueOf(loX), BigInteger.valueOf(hiX), AxisTypes.X_AXIS, 0);
-        CellDomainElement cellY = new CellDomainElement(BigInteger.valueOf(loY), BigInteger.valueOf(hiY), AxisTypes.Y_AXIS, 1);
+        CellDomainElement cellX = new CellDomainElement(BigInteger.valueOf(loX), BigInteger.valueOf(hiX), 0);
+        CellDomainElement cellY = new CellDomainElement(BigInteger.valueOf(loY), BigInteger.valueOf(hiY), 1);
 
         List<CellDomainElement> list = new ArrayList<CellDomainElement>();
         list.add(cellX);

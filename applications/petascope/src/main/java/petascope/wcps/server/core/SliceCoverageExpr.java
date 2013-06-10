@@ -123,7 +123,6 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
                     new CellDomainElement(
                         BigInteger.valueOf(slicingPosInt), 
                         BigInteger.valueOf(slicingPosInt),
-                        axis.getAxisName(),
                         order)
                     );
             order += 1;

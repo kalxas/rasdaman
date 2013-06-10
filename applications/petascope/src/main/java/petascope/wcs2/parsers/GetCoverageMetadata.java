@@ -30,6 +30,7 @@ import petascope.core.DbMetadataSource;
 import petascope.core.CoverageMetadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
+import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.WcsUtil;
@@ -83,7 +84,7 @@ public class GetCoverageMetadata {
         while (dit.hasNext() && cdit.hasNext()) {
             DomainElement dom = dit.next();
             CellDomainElement cell = cdit.next();
-            axisLabels += dom.getName() + " ";
+            axisLabels += dom.getLabel() + " ";
             low  += cell.getLo() + " ";
             high += cell.getHi() + " ";
             domLow  += dom.getMinValue() + " ";
@@ -105,7 +106,7 @@ public class GetCoverageMetadata {
             rangeFields.add(new RangeField(metadata, range, ++i));
         }
         bbox = metadata.getBbox();        
-        crs = metadata.getCrsUri();        
+        crs = CrsUtil.CrsUri.createCompound(metadata.getCrsUris());
     }
 
     public String getAxisLabels() {
@@ -212,19 +213,21 @@ public class GetCoverageMetadata {
         private String description;
 
         public RangeField(CoverageMetadata cov, RangeElement range, int i) {
+            
             fieldName = range.getName();
-            componentName = range.getName();
+            componentName = range.getName();        
             
             Set<String> nullSet = new HashSet<String>();
             Iterator<String> nit = cov.getNullSetIterator();
             while (nit.hasNext()) {
-                nullSet.add(SDU.str2string(nit.next()).get(i));
+                    nullSet.add(SDU.str2string(nit.next()).get(i));
             }
             nilValues = ListUtil.ltos(nullSet, " ");
+            
             type = range.getType();
             uomCode = range.getUom();
             if (uomCode == null) {
-                uomCode = "unknown";
+                uomCode = CrsUtil.PURE_UOM;
             }
             description = "";
             range.isBoolean();

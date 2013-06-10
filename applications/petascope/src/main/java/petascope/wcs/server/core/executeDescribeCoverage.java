@@ -183,8 +183,8 @@ public class executeDescribeCoverage {
         
         if (boundbox != null) {
             for (int i = 0; i < boundbox.getDimensionality(); i++) {
-                lowers.add(boundbox.getMinValue(i));
-                uppers.add(boundbox.getMaxValue(i));
+                lowers.add(new Double(boundbox.getMinValue(i)).toString());
+                uppers.add(new Double(boundbox.getMaxValue(i)).toString());
                 
                 try {
                     bboxType.getLowerCorner().add(Double.parseDouble(lowers.get(i)));

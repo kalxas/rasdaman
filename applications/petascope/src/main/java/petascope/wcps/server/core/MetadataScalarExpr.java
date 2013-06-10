@@ -60,8 +60,8 @@ public class MetadataScalarExpr extends AbstractRasNode {
             axis = new AxisName(child, xq);            
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
             DomainElement domainElement = coverageInfo.getDomainElement(axisIndex);
-            lo = domainElement.getMinValue();
-            hi = domainElement.getMaxValue();            
+            lo = domainElement.getMinValue().toString();
+            hi = domainElement.getMaxValue().toString();
         } else if (nodeName.equals(WCPSConstants.MSG_IMAGE_CRSDOMAIN)) {
             axis = new AxisName(child, xq);
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());

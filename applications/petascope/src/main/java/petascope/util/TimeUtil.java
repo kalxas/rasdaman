@@ -24,8 +24,6 @@ package petascope.util;
 import hirondelle.date4j.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.ExceptionCode;
-import petascope.exceptions.PetascopeException;
 
 /**
  * Class that offers several utilities to handle timestamps formatting and elaborations.

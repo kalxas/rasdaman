@@ -199,8 +199,8 @@ public class CRSExtension implements Extension {
                                         for (String axisNameBbox : involvedAxes) {
                                             int bboxAxisIndex = involvedAxes.indexOf(axisNameBbox);
                                             // collect extremes for the axes defined by this CrsExt
-                                            srcCoordsBbox[bboxAxisIndex]                 = cmeta.getDomainByName(axisNameBbox).getMinValue();
-                                            srcCoordsBbox[involvedAxes.size()+axisIndex] = cmeta.getDomainByName(axisNameBbox).getMaxValue();
+                                            srcCoordsBbox[bboxAxisIndex]                 = cmeta.getDomainByName(axisNameBbox).getMinValue().toString();
+                                            srcCoordsBbox[involvedAxes.size()+axisIndex] = cmeta.getDomainByName(axisNameBbox).getMaxValue().toString();
                                         }                                        
                                         // reproject to subsettingCrs
                                         CrsUtil crsTool = new CrsUtil(nativeCrs, requestedCrs);
@@ -268,7 +268,7 @@ public class CRSExtension implements Extension {
             // No subsettingCrs was specified
             // Req7: /req/crs/getCoverage-subsettingCrs-default
             // NOTE: if no CrsExt instance is presence, hence both subsettingCRS and outputCRS were not specified.
-            request.getCrsExt().setSubsettingCrs(cmeta.getCrsUri());            
+            request.getCrsExt().setSubsettingCrs(CrsUtil.CrsUri.createCompound(cmeta.getCrsUris()));
         }
 
         // Req10: /req/crs/getCoverage-outputCrs-default
@@ -324,10 +324,10 @@ public class CRSExtension implements Extension {
         // Set bounds
         double bboxMin = cellSpace ?
                 meta.getMetadata().getCellDomainByName(subsetAxisName).getLo().doubleValue() :
-                Double.parseDouble(meta.getBbox().getMinValue(subsetAxisName));
+                new Double(meta.getBbox().getMinValue(subsetAxisName));
         double bboxMax = cellSpace ?
                 meta.getMetadata().getCellDomainByName(subsetAxisName).getHi().doubleValue() :
-                Double.parseDouble(meta.getBbox().getMaxValue(subsetAxisName));
+                new Double(meta.getBbox().getMaxValue(subsetAxisName));
         
         // Check overlap: to avoid leaks, check assumes subsets might not be well ordered (e.g. subsetMin>subsetMax):
         if (subset instanceof DimensionTrim) {

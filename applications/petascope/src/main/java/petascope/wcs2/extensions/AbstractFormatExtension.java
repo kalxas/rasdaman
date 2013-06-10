@@ -94,7 +94,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             CoverageMetadata metadata = m.getMetadata();
             while (subsIt.hasNext()) {
                 subset = subsIt.next();
-                if (subset.getDimension().equals(domainEl.getName())) {
+                if (subset.getDimension().equals(domainEl.getLabel())) {
                     try {
                         // Compare subset with domain borders and update
                         if (subset instanceof DimensionTrim) {
@@ -106,24 +106,25 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             //       Crs.convertToDomainCoords()
                             lowerDom += Math.max(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
-                                    Double.parseDouble(domainEl.getMinValue())) + " ";
+                                    domainEl.getMinValue().doubleValue()) + " ";
                             upperDom += Math.min(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimHigh()),
-                                    Double.parseDouble(domainEl.getMaxValue())) + " ";
+                                    domainEl.getMaxValue().doubleValue()) + " ";
                             // Append updated pixel bounds                            
                             String decimalsExp = "\\.[0-9]+";
-                            int[] cellDom = (CrsUtil.GRID_CRS.equals(subset.getCrs()) || // : subset=x,CRS:1(x1,x2) || subsettingCrs=CRS:1
+                            long[] cellDom = (CrsUtil.GRID_CRS.equals(subset.getCrs()) || // : subset=x,CRS:1(x1,x2) || subsettingCrs=CRS:1
                                     (request.getCrsExt() != null && CrsUtil.GRID_CRS.equals(request.getCrsExt().getSubsettingCrs())))
-                                    ? new int[]{ // NOTE: e.g. parseInt("10.0") throws exception: need to remove decimals.
+                                    ? new long[] { // NOTE: e.g. parseInt("10.0") throws exception: need to remove decimals.
                                         Integer.parseInt(((DimensionTrim) subset).getTrimLow().replaceAll( decimalsExp, "").trim()), 
                                         Integer.parseInt(((DimensionTrim) subset).getTrimHigh().replaceAll(decimalsExp, "").trim())} // subsets are alsready grid indexes
-                                    : Crs.convertToPixelIndices(metadata, subset.getDimension(),       // otherwise, need to convert them
-                                        ((DimensionTrim) subset).getTrimLow(),  true
-                                        ((DimensionTrim) subset).getTrimHigh(), true);
+                                    : new long[] {
+                                        toPixels(Double.parseDouble(((DimensionTrim) subset).getTrimLow()),  domainEl, cellDomainEl), // otherwise, need to convert them
+                                        toPixels(Double.parseDouble(((DimensionTrim) subset).getTrimHigh()), domainEl, cellDomainEl)
+                                    };
                             lowerCellDom += cellDom[0] + " ";
                             upperCellDom += cellDom[1] + " ";
                         } else if (subset instanceof DimensionSlice) {
-                            log.info("Axis " + domainEl.getName() + " has been sliced: remove it from the boundedBy element.");
+                            log.info("Axis " + domainEl.getLabel() + " has been sliced: remove it from the boundedBy element.");
                         } else {
                             throw new WCSException(ExceptionCode.InternalComponentError,
                                     "Subset '" + subset + "' is not recognized as trim nor slice.");
@@ -141,7 +142,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             } // END subsets iterator
             if (!domUpdated) {
                 // This dimension is not involved in any subset: use bbox bounds
-                axesLabels += domainEl.getName() + " ";
+                axesLabels += domainEl.getLabel() + " ";
                 lowerDom += domainEl.getMinValue() + " ";
                 upperDom += domainEl.getMaxValue() + " ";
                 lowerCellDom += cellDomainEl.getLo() + " ";
@@ -167,7 +168,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @throws WCSException
      */
     protected Pair<Object, String> executeRasqlQuery(GetCoverageRequest request,
-            GetCoverageMetadata m, DbMetadataSource meta, String format, String params) throws WCSException {
+            GetCoverageMetadata m, DbMetadataSource meta, String format, String params) 
+            throws PetascopeException, RasdamanException, WCPSException, WCSException {
 
         //This variable is now local to the method to avoid concurrency problems
         Wcps wcps;
@@ -184,13 +186,15 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         // since there are cases which can create conflict (eg 2010 is year 2010 or numeric temporal coordinate 2010?)
         
         // Proceed to WCPS:
-        Pair<String, String> pair = constructWcpsQuery(request, m.getMetadata(), format, params);
         String rquery = null;
+        Pair<String, String> pair;
         try {
+            pair = constructWcpsQuery(request, m.getMetadata(), format, params);            
             rquery = RasUtil.abstractWCPSToRasql(pair.fst, wcps);
-        } catch (WCPSException ex) {
-            throw new WCSException(ExceptionCode.WcpsError, "Error converting WCPS query to rasql query: " + ex.getMessage(), ex);
-        }
+        } catch (PetascopeException ex) {
+            throw new PetascopeException(ex.getExceptionCode(), "Error converting WCPS query to rasql query: " + ex.getMessage(), ex);
+        } 
+        
         Object res = null;
         try {
             if ("sdom".equals(format) && !rquery.contains(":")) {
@@ -201,6 +205,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         } catch (RasdamanException ex) {
             throw new WCSException(ExceptionCode.RasdamanRequestFailed, "Error executing rasql query: " + ex.getMessage(), ex);
         }
+        
         return Pair.of(res, pair.snd);
     }
     
@@ -219,14 +224,14 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         long pxHi = cel.getHi().longValue();
         
         // Get Domain extremes (real sdom)
-        double domLo = Double.parseDouble(el.getMinValue());
-        double domHi = Double.parseDouble(el.getMaxValue());
+        double domLo = el.getMinValue().doubleValue();
+        double domHi = el.getMaxValue().doubleValue();
 
         // Get cell dimension 
         double cellWidth = (domHi-domLo)/(double)((pxHi-pxLo)+1);
 
         // Conversion to pixel domain
-        if (!el.getName().equals(AxisTypes.Y_AXIS)) {
+        if (!el.getLabel().equals(AxisTypes.Y_AXIS)) {
             return (long)Math.floor((val - domLo) / cellWidth) + pxLo;
         } else {
             return (long)Math.floor((domHi - val) / cellWidth) + pxLo;
@@ -248,7 +253,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         ArrayList<String> axesList = new ArrayList<String>();
         Iterator<DomainElement> dit = cov.getDomainIterator();
         while (dit.hasNext()) {
-            String axis = dit.next().getName();
+            String axis = dit.next().getLabel();
             axes += axis + " ";
             axesList.add(axis);
         }
@@ -314,7 +319,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 CellDomainElement cel = cit.next();
                 long lo = cel.getLo().longValue();
                 long hi = cel.getHi().longValue();
-                String dim = el.getName();
+                String dim = el.getLabel();
                 String crs = CrsUtil.GRID_CRS;
                 if (newdim.containsKey(dim)) {
                     lo = toPixels(Double.parseDouble(newdim.get(dim).fst), el, cel);

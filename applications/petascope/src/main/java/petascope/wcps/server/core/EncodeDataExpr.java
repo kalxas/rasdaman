@@ -192,7 +192,7 @@ public class EncodeDataExpr extends AbstractRasNode {
             
             // Check each dimension: slice->discard, trim->setBounds, otherwise set bbox bounds
             for (int i=0; i<info.getNumDimensions(); i++) {
-                String dimName = info.getDomainElement(i).getName();
+                String dimName = info.getDomainElement(i).getLabel();
                 
                 // Check slices
                 boolean sliced = false;
@@ -209,8 +209,8 @@ public class EncodeDataExpr extends AbstractRasNode {
                         
                         // Set the bounds of this dimension: total bbox first, then update in case of trims in the request
                         nameToBounds.put(dimName, new Double[]{
-                            Double.parseDouble(info.getDomainElement(i).getMinValue()), 
-                            Double.parseDouble(info.getDomainElement(i).getMaxValue())
+                            info.getDomainElement(i).getMinValue().doubleValue(), 
+                            info.getDomainElement(i).getMaxValue().doubleValue()
                         });
                         for (TrimCoverageExpr trim : trims) {
                             if (trim.trimsDimension(dimName)) {

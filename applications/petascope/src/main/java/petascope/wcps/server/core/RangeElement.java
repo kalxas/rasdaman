@@ -23,10 +23,14 @@ package petascope.wcps.server.core;
 
 
 //A single component of a coverage's range. See the WCPS standard for more information.
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
+import petascope.util.Pair;
 import petascope.util.WCPSConstants;
 
 public class RangeElement implements Cloneable {
@@ -36,7 +40,14 @@ public class RangeElement implements Cloneable {
     private String name;
     private String type;
     private String uom;
+    private List<Pair<BigDecimal,BigDecimal>> allowedIntervals;
 
+    // Overload
+    public RangeElement(String name, String type, String uom, List<Pair<BigDecimal,BigDecimal>> allowedIntervals) throws WCPSException {
+        this(name, type, uom);
+        this.allowedIntervals = allowedIntervals;
+    }
+    // Overload
     public RangeElement(String name, String type, String uom) throws WCPSException {
         if ((name == null) || (type == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
@@ -66,35 +77,37 @@ public class RangeElement implements Cloneable {
         
         log.trace(toString());
     }
-
-    public String getUom() {
-        return uom;
-    }
-
+    
+    
     public RangeElement clone() {
         try {
-            return new RangeElement(new String(name), new String(type), new String(uom));
+            return new RangeElement(
+                    new String(name), 
+                    new String(type), 
+                    new String(uom),
+                    new ArrayList<Pair<BigDecimal,BigDecimal>>(allowedIntervals));
         } catch (WCPSException ime) {
             throw new RuntimeException(
                     WCPSConstants.ERRTXT_INVALID_METADATA_CLONING_RAN,
                     ime);
         }
+    }
 
+
+    public String getUom() {
+        return uom;
     }
 
     public boolean equals(RangeElement re) {
         return name.equals(re.type);
-
     }
 
     public String getName() {
         return name;
-
     }
 
     public String getType() {
         return type;
-
     }
 
     public boolean isBoolean() {

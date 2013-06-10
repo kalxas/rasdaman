@@ -29,7 +29,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import nu.xom.*;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.NoSuchAuthorityCodeException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -71,8 +70,9 @@ public class CrsUtil {
     public static final String KEY_RESOLVER_EQUAL = "equal";
     
     // NOTE: "CRS:1" axes to have a GML definition that will be parsed.
-    public static final String GRID_CRS = "CRS:1";
+    public static final String GRID_CRS  = "CRS:1";
     public static final String PIXEL_UOM = "pixels";
+    public static final String PURE_UOM  = "10⁰";
     
     public static final String CRS_DEFAULT_VERSION = "0";
     //public static final String CRS_DEFAULT_FORMAT  = "application/gml+xml";
@@ -433,6 +433,7 @@ public class CrsUtil {
                 
                 // Add datum origin to the definition object
                 crs.setDatumOrigin(datumOrigin);
+                log.debug("Found datum origin: " + datumOrigin);
                 
             } // else: no need to parse the datum
         } catch (ValidityException ex) {
@@ -457,7 +458,7 @@ public class CrsUtil {
          * See also System.setProperty() in petascope.PetascopeInterface.java.
          * Trace of true order remains in the CrsDefinition.
          */   
-        forceXYorder(crs, axes);        
+        //forceXYorder(crs, axes);
         for (List<String> axisMetadata : axes) {
             // All metadata of this axis is parsed: add it to CrsDefinition:
             crs.addAxis(axisMetadata.get(0), axisMetadata.get(1), axisMetadata.get(2));
@@ -646,6 +647,7 @@ public class CrsUtil {
                 return true;
             }          
             
+            // CRS:1 workaround (temporary)
             if (uri1.equals(GRID_CRS) || uri2.equals(GRID_CRS)) {
                 return false; // they are not equal (see check above)
             }
@@ -825,7 +827,7 @@ public class CrsUtil {
          * @param crsUris
          * @return  The compounding of the listed CRS URIs.
          */
-        public static String createCompound(LinkedHashSet<String> crsUris) {
+        public static String createCompound(List<String> crsUris) {
             if (crsUris.size() == 1) {
                 // Only one CRS: no need to compound
                 return (crsUris.iterator().next());

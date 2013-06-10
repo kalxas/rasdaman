@@ -120,8 +120,7 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             coverageInfo.setCellDimension(axisId,
                     new CellDomainElement(
                         BigInteger.valueOf(axisLo), 
-                        BigInteger.valueOf(axisHi),   
-                        axis.getAxisName(),
+                        BigInteger.valueOf(axisHi),
                         order)
                     );
             order += 1;

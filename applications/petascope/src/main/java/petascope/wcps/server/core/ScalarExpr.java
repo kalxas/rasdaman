@@ -21,9 +21,11 @@
  */
 package petascope.wcps.server.core;
 
+import java.math.BigDecimal;
 import petascope.core.CoverageMetadata;
 import petascope.exceptions.WCPSException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,6 +37,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import petascope.util.Pair;
 import petascope.util.WCPSConstants;
 import petascope.wcs2.templates.Templates;
 
@@ -138,54 +141,44 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
     private CoverageMetadata createScalarExprMetadata(XmlQuery xq) throws WCPSException {
         List<CellDomainElement> cellDomainList = new LinkedList<CellDomainElement>();
         List<RangeElement> rangeList = new LinkedList<RangeElement>();
-        //HashSet<String> nullSet = new HashSet<String>();
-        Set<String> nullSet = new HashSet<String>();
-        String nullDefault = "0";
-        nullSet.add(nullDefault);
-        //HashSet<InterpolationMethod> interpolationSet = new HashSet<InterpolationMethod>();
-        Set<InterpolationMethod> interpolationSet = new HashSet<InterpolationMethod>();
-        InterpolationMethod interpolationDefault = new InterpolationMethod(WCPSConstants.MSG_NONE, WCPSConstants.MSG_NONE);
-        interpolationSet.add(interpolationDefault);
         String coverageName = WCPSConstants.MSG_SCALAR_EXPR;
         List<DomainElement> domainList = new LinkedList<DomainElement>();
-
+        List<String> crs = new ArrayList<String>(1);
+        crs.add(CrsUtil.GRID_CRS);
+        
         // Build domain metadata
         cellDomainList.add(new CellDomainElement(
-                new BigInteger("1"), 
-                new BigInteger("1"),
-                AxisTypes.X_AXIS,
+                BigInteger.ONE, 
+                BigInteger.ONE,
                 0)
-                );
-        String crs = CrsUtil.GRID_CRS;       
+                );  
         domainList.add( new DomainElement(
-                new Double(1.0).toString(),
-                new Double(1.0).toString(),
+                BigDecimal.ONE,
+                BigDecimal.ONE,
                 AxisTypes.X_AXIS, 
                 AxisTypes.X_AXIS,
-                crs,
+                CrsUtil.PURE_UOM,
+                crs.get(0),
                 0,
-                1,
+                BigInteger.ONE,
                 false)
                 );
         // "unsigned int" is default datatype
         rangeList.add(new RangeElement(WCPSConstants.MSG_DYNAMIC_TYPE, WCPSConstants.MSG_UNSIGNED_INT, null));
 
         try {
-            /** NOTE(campalani): nullSet and interpolationSet need to be declared
-             * as "Set" to be accepted by CoverageMetadata constructor (see above). 
-             * Then, Java polymorphism will understand the subtype (e.g. HashSet) on its own.
-             */            
+            Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
             CoverageMetadata metadata = new CoverageMetadata(
-                coverageName,
-                Templates.RECTIFIED_GRID_COVERAGE,
-                crs,
-                domainList,
-                cellDomainList,
-                rangeList,
-                nullSet,
-                nullDefault, 
-                interpolationSet, 
-                interpolationDefault);
+                    coverageName,
+                    Templates.RECTIFIED_GRID_COVERAGE,
+                    "", // native format
+                    emptyMetadata,
+                    crs,
+                    cellDomainList,
+                    domainList,
+                    Pair.of(BigDecimal.ZERO, ""),
+                    rangeList
+                    );
             return metadata;
         } catch (PetascopeException ex) {
             throw (WCPSException) ex;

@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
@@ -58,7 +57,6 @@ import rasj.RasImplementation;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.RangeElement;
-import petascope.wcps.server.core.SDU;
 import petascope.wcs2.parsers.GetCoverageMetadata.RangeField;
 import petascope.wcs2.templates.Templates;
 import petascope.wcs2.templates.WcsNamespaceContext;
@@ -213,7 +211,7 @@ public class GetCoverageOld {
             log.trace(dom.toString());
             high[i] = cell.getHi();
             low[i] = cell.getLo();
-            axesLabels[i] = dom.getName();
+            axesLabels[i] = dom.getLabel();
             limits[i] = low[i] + ":" + high[i];
             sliced[i] = false;
             trimmed[i] = false;
@@ -426,16 +424,7 @@ public class GetCoverageOld {
 
             // Compute the null values for this range field
             Set<String> nullVals = new HashSet<String>();
-            Iterator<String> it = coverage.getNullSetIterator();
-            while (it.hasNext()) {
-                List<String> nilVal = SDU.str2string(it.next());
-                nullVals.add(nilVal.get(i));
-            }
             StringBuffer nullValsString = new StringBuffer();
-            it = nullVals.iterator();
-            while (it.hasNext()) {
-                nullValsString.append(" " + it.next());
-            }
             component = component.replaceAll("\\{nilValues\\}", nullValsString.toString().substring(1));
 
             // And add this range field to the range structure

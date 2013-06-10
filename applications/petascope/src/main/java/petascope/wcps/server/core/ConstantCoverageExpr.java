@@ -21,6 +21,9 @@
  */
 package petascope.wcps.server.core;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import petascope.core.CoverageMetadata;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
@@ -28,11 +31,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Vector;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.util.CrsUtil;
+import petascope.util.Pair;
 import petascope.util.WCPSConstants;
 import petascope.wcs2.templates.Templates;
 
@@ -41,7 +45,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
     private static Logger log = LoggerFactory.getLogger(ConstantCoverageExpr.class);
 
     private String covName;
-    private Vector<AxisIterator> iterators;
+    private List<AxisIterator> iterators;
     private ConstantList valueList;
     private CoverageInfo info;
     private String axisIteratorString;
@@ -54,7 +58,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
         }
         log.trace(node.getNodeName());
 
-        iterators = new Vector();
+        iterators = new ArrayList<AxisIterator>();
 
         while (node != null) {
             String name = node.getNodeName();
@@ -120,7 +124,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
             if (i > 0) {
                 axisIteratorString += ", ";
             }
-            AxisIterator ai = iterators.elementAt(i);
+            AxisIterator ai = iterators.get(i);
             axisIteratorString += ai.getInterval();
             requiredListSize *= (ai.getHigh().intValue() - ai.getLow().intValue() + 1);
         }
@@ -133,15 +137,10 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
         log.trace("  " + WCPSConstants.MSG_BUILDING_METADATA);
         List<CellDomainElement> cellDomainList = new LinkedList<CellDomainElement>();
         List<RangeElement> rangeList = new LinkedList<RangeElement>();
-        HashSet<String> nullSet = new HashSet<String>();
-        String nullDefault = "0";
-        nullSet.add(nullDefault);
-        HashSet<InterpolationMethod> interpolationSet = new HashSet<InterpolationMethod>();
-        InterpolationMethod interpolationDefault = new InterpolationMethod(WCPSConstants.MSG_NONE, WCPSConstants.MSG_NONE);
-        interpolationSet.add(interpolationDefault);
         String coverageName = covName;
         List<DomainElement> domainList = new LinkedList<DomainElement>();
-        String crs = CrsUtil.GRID_CRS;
+        List<String> crs = new ArrayList<String>(1);
+        crs.add(CrsUtil.GRID_CRS);
 
         Iterator<AxisIterator> i = iterators.iterator();
         int order = 0;
@@ -154,16 +153,16 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
             CellDomainElement cellDomain = new CellDomainElement(
                     ai.getLow(), 
                     ai.getHigh(),
-                    axisType,
                     order);
             DomainElement domain = new DomainElement(
-                    ai.getLow().toString(), 
-                    ai.getHigh().toString(), 
+                    new BigDecimal(ai.getLow()),
+                    new BigDecimal(ai.getHigh()), 
                     axisName, 
-                    axisType, 
-                    crs,
+                    axisType,
+                    CrsUtil.PURE_UOM,
+                    crs.get(0),
                     order,
-                    ai.getHigh().intValue()-ai.getLow().intValue()+1,
+                    BigInteger.valueOf(ai.getHigh().intValue()-ai.getLow().intValue()+1),
                     false); // FIXME uom = null
             cellDomainList.add(cellDomain);
             domainList.add(domain);
@@ -173,17 +172,18 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
         // TODO: check element datatypes and their consistency
         // "unsigned int" is default datatype
         rangeList.add(new RangeElement(WCPSConstants.MSG_DYNAMIC_TYPE, WCPSConstants.MSG_UNSIGNED_INT, null));
+        Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
         CoverageMetadata metadata = new CoverageMetadata(
                 coverageName,
                 Templates.RECTIFIED_GRID_COVERAGE,
+                "", // native format
+                emptyMetadata, // extra-metadata
                 crs,
-                domainList,
                 cellDomainList,
-                rangeList,
-                nullSet,
-                nullDefault, 
-                interpolationSet, 
-                interpolationDefault);
+                domainList,
+                Pair.of(BigDecimal.ZERO, ""),
+                rangeList
+                );
         // Let the top-level query know the full metadata about us
         xq.getMetadataSource().addDynamicMetadata(covName, metadata);
         info = new CoverageInfo(metadata);

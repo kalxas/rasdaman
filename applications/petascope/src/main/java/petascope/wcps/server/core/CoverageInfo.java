@@ -114,10 +114,10 @@ public class CoverageInfo {
                 me = it.next();
                 you = other.getDomainElement(index++);
 
-                if (!me.getName().equals(you.getName())) {
+                if (!me.getLabel().equals(you.getLabel())) {
                     log.error(WCPSConstants.ERRTXT_DOMAIN_ELEMENT_DONNOT_MATCH + ": '"
-                            + me.getName() + "' " + WCPSConstants.MSG_AND + " '"
-                            + you.getName() + "'.");
+                            + me.getLabel() + "' " + WCPSConstants.MSG_AND + " '"
+                            + you.getLabel() + "'.");
                     return false;
                 }
 
@@ -182,7 +182,7 @@ public class CoverageInfo {
         int index = 0;
         
         while (it.hasNext()) {
-            if (name.equals(it.next().getName())) {
+            if (name.equals(it.next().getLabel())) {
                 return index;
             }
             

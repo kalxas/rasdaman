@@ -81,14 +81,6 @@ public class WcstServer {
         if (source.getDataTypes().contains(cfg) == false) {
             throw new WCSException(ExceptionCode.InvalidPropertyValue, "The following setting is not a valid datatype: " + cfg);
         }
-        cfg = ConfigManager.WCST_DEFAULT_INTERPOLATION;
-        if (source.getInterpolationTypes().contains(cfg) == false) {
-            throw new WCSException(ExceptionCode.InvalidPropertyValue, "The following setting is not a valid interpolation method: " + cfg);
-        }
-        cfg = ConfigManager.WCST_DEFAULT_NULL_RESISTANCE;
-        if (source.getNullResistances().contains(cfg) == false) {
-            throw new WCSException(ExceptionCode.InvalidPropertyValue, "The following setting is not a valid null resistance: " + cfg);
-        }
     }
 
     /**

@@ -100,7 +100,7 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
             DomainElement dom = dit.next();
             high[i] = cell.getHi().doubleValue();
             low[i] = cell.getLo().doubleValue();
-            axesLabels[i] = dom.getName();
+            axesLabels[i] = dom.getLabel();
             limits[i] = low[i] + ":" + high[i];
             sliced[i] = false;
             trimmed[i] = false;

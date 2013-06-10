@@ -134,6 +134,18 @@ public interface XMLSymbols {
     String LABEL_ACCEPT_FORMATS = "AcceptFormats";
     String LABEL_ACCEPT_LANGUAGES = "AcceptLanguages";
     
+    // gmlcov
+    String LABEL_ABSTRACT_COVERAGE = "AbstractCoverage";
+    String LABEL_ABSTRACT_DISCRETE_COVERAGE = "AbstractDiscreteCoverage";
+    String LABEL_GRID_COVERAGE  = "GridCoverage";
+    String LABEL_MULTIPOINT_COVERAGE = "MultiPointCoverage";
+    String LABEL_MULTICURVE_COVERAGE = "GridCoverage";
+    String LABEL_MULTISURFACE_COVERAGE = "GridCoverage";
+    String LABEL_MULTISOLID_COVERAGE = "GridCoverage";
+    String LABEL_RECTIFIED_GRID_COVERAGE = "RectifiedGridCoverage";
+    String LABEL_REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
+    String LABEL_METADATA = "metadata";
+    
     // soap
     String LABEL_BODY = "Body";
     

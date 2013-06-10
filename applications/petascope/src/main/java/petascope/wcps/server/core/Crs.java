@@ -85,7 +85,7 @@ public class Crs extends AbstractRasNode {
      * @return              The pixel indices corresponding to this subset
      * @throws WCPSException 
      */
-    public static int[] convertToPixelIndices(CoverageMetadata covMeta, String axisName,
+    public int[] convertToPixelIndices(CoverageMetadata covMeta, String axisName,
             String stringLo, boolean loIsNumeric, String stringHi, boolean hiIsNumeric)
             throws PetascopeException {
         
@@ -115,8 +115,8 @@ public class Crs extends AbstractRasNode {
         log.trace(WCPSConstants.MSG_CELL_DOMAIN_EXTREMES + pxLo + ", " + WCPSConstants.MSG_HIGH_U + ":" + pxHi);
         
         // Get Domain extremes (real sdom)
-        String domLo = dom.getMinValue();
-        String domHi = dom.getMaxValue();
+        BigDecimal domLo = dom.getMinValue();
+        BigDecimal domHi = dom.getMaxValue();
         log.trace("Domain extremes coordinates: (" + domLo + ", " + domHi + ")");
         log.trace("Subset cooordinates: (" + stringLo + ", " + stringHi + ")");
         
@@ -167,7 +167,7 @@ public class Crs extends AbstractRasNode {
                             axisName + " axis: subset (" + coordLo + ":" + coordHi + ") is out of bounds.");
                 }
             } else {
-                if (coordLo > Double.parseDouble(domHi) || coordHi < Double.parseDouble(domLo)) {
+                if (coordLo > domHi.doubleValue() || coordHi < domLo.doubleValue()) {
                     throw new PetascopeException(ExceptionCode.InvalidSubsetting,
                             axisName + " axis: subset (" + coordLo + ":" + coordHi + ") is out of bounds.");
                 }
@@ -201,14 +201,12 @@ public class Crs extends AbstractRasNode {
             
                 // Retrieve correspondent cell indexes (unique method for numerical/timestamp values)
                 // TODO: I need to extract all the values, not just the extremes
-                out = dbMeta.getCellFromIrregularAxis(
-                        covMeta.getCoverageName(),
-                        covMeta.getDomainIndexByName(axisName), // i-order of axis
-                        numLo, numHi, 
-                        DbMetadataSource.TYPE_FLOAT8);
+                //out = dbMeta.getIndexFromIrregularAxis(
+                //        covMeta.getCoverageName(),
+                //        covMeta.getDomainIndexByName(axisName), // i-order of axis
+                //        numLo, numHi, 
+                //        DbMetadataSource.TYPE_FLOAT8);
                 
-            } catch (WCPSException e) {
-                throw e;
             } catch (Exception e) {
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
                         "Error while fetching cell boundaries of irregular axis " +
@@ -223,7 +221,7 @@ public class Crs extends AbstractRasNode {
                 int numHi = TimeUtil.countPixels(datumOrigin, stringHi, axisUoM);                
                         
                 // Consistency check
-                if (numHi < Double.parseDouble(domLo) || numLo > Double.parseDouble(domHi)) {
+                if (numHi < domLo.doubleValue() || numLo > domHi.doubleValue()) {
                     throw new PetascopeException(ExceptionCode.InternalComponentError,
                             "Translated pixel indixes of regular temporal axis (" + 
                             numLo + ":" + numHi +") exceed the allowed values.");
@@ -249,13 +247,9 @@ public class Crs extends AbstractRasNode {
             double coordLo = Double.parseDouble(stringLo);
             double coordHi = Double.parseDouble(stringHi);
             
-            // Numerical domain extremes (real sdom)
-            double dDomLo = Double.parseDouble(domLo);
-            double dDomHi = Double.parseDouble(domHi);
-            
             // Get cell dimension -- Use BigDecimals to avoid finite arithemtic rounding issues of Doubles
             double cellWidth = (
-                    BigDecimal.valueOf(dDomHi).subtract(BigDecimal.valueOf(dDomLo)))
+                    domHi.subtract(domLo))
                     .divide((BigDecimal.valueOf(pxHi+1)).subtract(BigDecimal.valueOf(pxLo)), RoundingMode.UP)
                     .doubleValue();
             //      = (dDomHi-dDomLo)/(double)((pxHi-pxLo)+1);
@@ -294,15 +288,15 @@ public class Crs extends AbstractRasNode {
             } else if (zeroIsMin) {
                 // Normal linear numerical axis
                 out = new int[] {
-                    (int)Math.floor((coordLo    - dDomLo) / cellWidth) + pxLo,
-                    (int)Math.floor((coordHiEps - dDomLo) / cellWidth) + pxLo
+                    (int)Math.floor((coordLo    - domLo.doubleValue()) / cellWidth) + pxLo,
+                    (int)Math.floor((coordHiEps - domLo.doubleValue()) / cellWidth) + pxLo
                 };
             } else {
                 // Linear negative axis (eg northing of georeferenced images)
                 out = new int[] {
                     // First coordHi, so that left-hand index is the lower one
-                    (int)Math.ceil((dDomHi - coordHiEps) / cellWidth) + pxLo,
-                    (int)Math.ceil((dDomHi - coordLo)    / cellWidth) + pxLo
+                    (int)Math.ceil((domHi.doubleValue() - coordHiEps) / cellWidth) + pxLo,
+                    (int)Math.ceil((domHi.doubleValue() - coordLo)    / cellWidth) + pxLo
                 };
             }
             log.debug("Transformed coords indices (" + out[0] + "," + out[1] + ")");

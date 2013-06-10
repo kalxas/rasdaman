@@ -115,7 +115,6 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
                     new CellDomainElement(
                         BigInteger.valueOf(axisLo),
                         BigInteger.valueOf(axisHi),
-                        axis.getAxisName(),
                         order)
                     );
             order += 1;
