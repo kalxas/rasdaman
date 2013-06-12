@@ -143,7 +143,7 @@ public class executeGetCapabilities {
         ServiceProvider prov = new ServiceProvider();
         prov.setProviderName("Jacobs University Bremen");
         OnlineResourceType site = new OnlineResourceType();
-        site.setHref("http://www.petascope.org/");
+        site.setHref("http://rasdaman.org/");
         prov.setProviderSite(site);
         ResponsiblePartySubsetType resp = new ResponsiblePartySubsetType();
         resp.setIndividualName("Prof. Dr. Peter Baumann");
