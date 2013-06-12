@@ -49,7 +49,7 @@ function drop_petascope()
     logn "deleting coverage $c from petascope... "
 
     c_id=$($PSQL -c  "select id from PS_Coverage where name = '$c' " | head -3 | tail -1) > /dev/null
-    if [ "$c_id" != "(0 rows)" ]; then
+    if [[ "$c_id" != \(0*\) ]]; then
       x_id=$($PSQL -c "select id from PS_domain where coverage = $c_id and type=1" | head -3 | tail -1) > /dev/null
       y_id=$($PSQL -c "select id from PS_domain where coverage = $c_id and type=2" | head -3 | tail -1) > /dev/null
 
@@ -60,10 +60,10 @@ function drop_petascope()
       $PSQL -c "delete from PS_InterpolationSet where coverage = $c_id" > /dev/null
       $PSQL -c "delete from PS_NullSet where coverage = $c_id" > /dev/null
       $PSQL -c "delete from PS_CrsDetails where coverage = $c_id" > /dev/null
-      if [ "$x_id" != "(0 rows)" ]; then
+      if [[ "$x_id" != \(0*\) ]]; then
         $PSQL -c "delete from PS_crsset where axis = $x_id" > /dev/null
       fi
-      if [ "$y_id" != "(0 rows)" ]; then
+      if [[ "$y_id" != \(0*\) ]]; then
         $PSQL -c "delete from PS_crsset where axis = $y_id" > /dev/null
       fi
 
