@@ -145,8 +145,8 @@ for f in *.test; do
   f_out="$OUTPUT_PATH/$f.out"
   time $WGET -q --post-data "query=$f_enc" $WCPS_URL -O "$f_out"
 
-  custom_script=${f:0:-5}".oracle.sh"
-  oracle_data=${f:0:-5}".oracle.data"
+  custom_script=${f%.*}".oracle.sh"
+  oracle_data=${f%.*}".oracle.data"
   oracle_exception=${f:0:-5}".oracle.exception"
 
   if [ -f "$ORACLE_PATH/$custom_script" ]; then
