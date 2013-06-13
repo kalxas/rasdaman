@@ -322,7 +322,7 @@ $$ LANGUAGE 'plpgsql';
 --   :: cset(key, value)    -> constant setter
 --
 -- IMPORTANT
--- Tables names are `string_constants'/`numeric_constants' with fields 'key' and 'value'.
+-- Tables names are `ps9_string_constants'/`ps9_numeric_constants' with fields 'key' and 'value'.
 -- NOTE: some numbers are better written via operators, hence not automatically 
 -- not castable from string to numeric.
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --
@@ -336,11 +336,10 @@ $$
     BEGIN
         -- String constants -------------------------
         PERFORM * FROM pg_catalog.pg_class
-        WHERE relname = 'string_constants' AND
-              relnamespace = pg_catalog.pg_my_temp_schema();
+        WHERE relname = 'ps9_string_constants';
 
         IF NOT FOUND THEN
-            CREATE TEMPORARY TABLE string_constants (
+            CREATE TABLE ps9_string_constants (
                key   text PRIMARY KEY,
                value text
             );
@@ -349,11 +348,10 @@ $$
 
         -- Numeric constants -------------------------
         PERFORM * FROM pg_catalog.pg_class
-        WHERE relname = 'numeric_constants' AND
-              relnamespace = pg_catalog.pg_my_temp_schema();
+        WHERE relname = 'ps9_numeric_constants';
 
         IF NOT FOUND THEN
-            CREATE TEMPORARY TABLE numeric_constants (
+            CREATE TABLE ps9_numeric_constants (
                key   text PRIMARY KEY,
                value numeric
             );
@@ -377,13 +375,13 @@ BEGIN
     PERFORM check_constants_tables_exists();
 
     -- Has this constant already been defined previously in this session?
-    PERFORM * FROM string_constants
+    PERFORM * FROM ps9_string_constants
              WHERE key = xKey;
 
     IF FOUND THEN
         RAISE WARNING '%: constant ''%'' was already defined and will not be overwritten.', ME, xKey;
     ELSE
-        INSERT INTO string_constants (key, value) VALUES (xKey, xValue);
+        INSERT INTO ps9_string_constants (key, value) VALUES (xKey, xValue);
     END IF;
     RETURN;
 END;
@@ -402,13 +400,13 @@ $$
         PERFORM check_constants_tables_exists();
 
         -- Has this constant already been defined previously in this session?
-        PERFORM * FROM numeric_constants
+        PERFORM * FROM ps9_numeric_constants
                  WHERE key = xKey;
 
         IF FOUND THEN
             RAISE WARNING '%: constant ''%'' was already defined and will not be overwritten.', ME, xKey;
         ELSE
-            INSERT INTO numeric_constants (key, value) VALUES (xKey, xValue);
+            INSERT INTO ps9_numeric_constants (key, value) VALUES (xKey, xValue);
         END IF;
         RETURN;
     END;
@@ -429,7 +427,7 @@ $$
         PERFORM check_constants_tables_exists();
 
         -- Has this constant already been defined previously in this session?
-        PERFORM value FROM string_constants 
+        PERFORM value FROM ps9_string_constants 
                      WHERE key = xKey;
 
         IF NOT FOUND THEN
@@ -437,7 +435,7 @@ $$
             RETURN;
         END IF;
 
-        SELECT value INTO xValue FROM string_constants WHERE key = xKey;
+        SELECT value INTO xValue FROM ps9_string_constants WHERE key = xKey;
         RETURN;
 END;
 $$ LANGUAGE 'plpgsql';
@@ -455,7 +453,7 @@ $$
         PERFORM check_constants_tables_exists();
 
         -- Has this constant already been defined previously in this session?
-        PERFORM value FROM numeric_constants 
+        PERFORM value FROM ps9_numeric_constants 
                      WHERE key = xKey;
 
         IF NOT FOUND THEN
@@ -463,7 +461,7 @@ $$
             RETURN;
         END IF;
 
-        SELECT value INTO xValue FROM numeric_constants WHERE key = xKey;
+        SELECT value INTO xValue FROM ps9_numeric_constants WHERE key = xKey;
         RETURN;
     END;
 $$ LANGUAGE 'plpgsql';

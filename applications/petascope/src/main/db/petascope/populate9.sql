@@ -41,7 +41,7 @@ SELECT set_constants();
 INSERT INTO ps9_service_identification (title, abstract) VALUES ('rasdaman', 'rasdaman server - free download from www.rasdaman.org');
 INSERT INTO ps9_service_provider
        (name, site, contact_individual_name, contact_city, contact_postal_code, contact_country, contact_email_address, contact_role) 
-       VALUES ('Jacobs University Bremen', 'http://www.petascope.org/', 'Prof. Dr. Peter Baumann', 
+       VALUES ('Jacobs University Bremen', 'http://rasdaman.org/', 'Prof. Dr. Peter Baumann', 
                'Bremen', '28717', 'Germany', 'p.baumann@jacobs-university.de', 'Project Leader');
 
 --

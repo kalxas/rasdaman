@@ -31,9 +31,6 @@
 --   - `utilities.sql' and `global_const.sql' have been imported within this session.
 -----------------------------------------------------------------------
 
--- Load the constants
-SELECT set_constants();
-
 -- TRIGGER: **coverage_name_trigger********************************************
 -- A coverage name must start with a char and must not contain colons: [\i-[:]][\c-[:]]*
 --   \i matches any character that may be the first character of an XML name, i.e. [_:A-Za-z]
