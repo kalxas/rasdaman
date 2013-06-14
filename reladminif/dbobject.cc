@@ -336,23 +336,23 @@ DBObject::validate() throw (r_Error)
                     }
                     else
                     {
-                        //don´t do anything: not in db and not persistent
+                        //do not do anything: not in db and not persistent
                     }
                 }
             }
             else
             {
-                //don´t do anything: is aborted
+                //do not do anything: is aborted
             }
         }
         else
         {
-            //don´t do anything: is read only
+            //do not do anything: is read only
         }
     }
     else
     {
-        //don´t do anything: not modified
+        //do not do anything: not modified
     }
     RMDBGEXIT(9, RMDebug::module_adminif, "DBObject", "validate() " << myOId);
 }

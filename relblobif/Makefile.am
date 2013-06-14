@@ -40,7 +40,8 @@ AM_LDFLAGS=@BASEDBLDFLAGS@
 lib_LIBRARIES=librelblobif.a
 librelblobif_a_SOURCES= blobtile.hh \
                         dbtile.cc dbtile.hh inlinetile.cc inlinetile.hh \
-                        blobtilecommon.cc tileid.hh
+                        blobtilecommon.cc tileid.hh \
+                        tilecache.cc tilecache.hh
 EXTRA_librelblobif_a_SOURCES=blobtile.pgc 
 librelblobif_a_LIBADD=blobtile.$(OBJEXT)
 librelblobif_a_DEPENDENCIES=blobtile.$(OBJEXT)

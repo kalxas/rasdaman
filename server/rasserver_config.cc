@@ -130,6 +130,8 @@ void Configuration::initParameters()
     // for systemtest use e.g.3 together with tileSize 12
     string indexsizeDesc = string("<nnnn> make the index use n nodes");
     cmlIndexSize = &cmlInter.addLongParameter(NSN, "indexsize", indexsizeDesc.c_str(),0L);
+    
+    cmlCacheLimit = &cmlInter.addLongParameter(NSN, "cachelimit", "<limit> specifies upper limit in bytes on using memory for caching", 0L);
 #ifdef RMANDEBUG
     cmlDbg   = &cmlInter.addStringParameter('d', "debug", "<dgb-file> debug output is printed to <dbg-file>; if <dbg-file> is stdout, debug output is printed to standard out","<srv-name>.log");
     cmlDbgLevel  = &cmlInter.addLongParameter(NSN, "dl", "<nn> debug level (0-4; 0 = no / 4 = maximal debug information)", 0L);
@@ -175,6 +177,8 @@ void Configuration::checkParameters()
     tilingName = cmlTiling->getValueAsString();
     indexType  = cmlIndex->getValueAsString();
     indexSize  = cmlIndexSize->getValueAsLong();
+    
+    cacheLimit = cmlCacheLimit->getValueAsLong();
 
 #ifdef RMANDEBUG
     //  deprecated(cmlDbg);     // will certainly not remove this... -- PB 2007-may-07
@@ -356,6 +360,10 @@ const char* Configuration::getIndexType()
 bool        Configuration::useTileContainer()
 {
     return useTC;
+}
+long        Configuration::getCacheLimit()
+{
+    return cacheLimit;
 }
 
 

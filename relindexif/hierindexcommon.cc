@@ -369,11 +369,10 @@ DBHierIndex::printStatus(unsigned int level, std::ostream& stream) const
         {
             t = DBObjectId((*i).getObject());
             if (t.is_null())
-                stream << indent << " entry is null";
+                stream << indent << " entry is null" << std::endl;
             else
                 t->printStatus(level + 1, stream);
         }
-        stream << std::endl;
         count++;
     }
     delete[] indent;
@@ -407,7 +406,7 @@ DBHierIndex::isOverFull() const
         retval = true;
 
     RMDBGONCE(4, RMDebug::module_indexif, "DBHierIndex", "isOverFull() " << myOId << " maxSize " << maxSize << " size " << getSize() << " retval " << retval)
-    ENTER( "DBHierIndex::isOverFull() -> " << retval );
+    LEAVE( "DBHierIndex::isOverFull() -> " << retval );
     return retval;
 }
 
@@ -540,7 +539,7 @@ bool
 DBHierIndex::isLeaf() const
 {
     RMDBGONCE(7, RMDebug::module_indexif, "DBHierIndex", "isLeaf() const " << myOId << " " << (int)(!_isNode));
-    TALK( "DBHierIndex::isLeaf() -> " <<  !_isNode );
+    //TALK( "DBHierIndex::isLeaf() -> " <<  !_isNode );
     return !_isNode;
 }
 
@@ -585,7 +584,7 @@ const KeyObject&
 DBHierIndex::getObject(unsigned int pos) const
 {
     RMDBGONCE(4, RMDebug::module_indexif, "DBHierIndex", "getObject(" << pos << ") " << myOId << " " << myKeyObjects[pos]);
-    TALK( "DBHierIndex::getObject() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos] );
+    //TALK( "DBHierIndex::getObject() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos] );
 
     return myKeyObjects[pos];
 }
@@ -609,7 +608,7 @@ r_Minterval
 DBHierIndex::getObjectDomain(unsigned int pos) const
 {
     RMDBGONCE(4, RMDebug::module_indexif, "DBHierIndex", "getObjectDomain(" <<  pos << ") " << myOId << " " << myKeyObjects[pos]);
-    TALK( "DBHierIndex::getObjectDomain() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos] );
+    //TALK( "DBHierIndex::getObjectDomain() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos] );
     return myKeyObjects[pos].getDomain();
 }
 

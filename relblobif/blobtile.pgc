@@ -73,7 +73,7 @@ extern PGconn *pgConn;
 
 // update blob in ras_tiles table, identified by variable myOId (from blobtile.cc), update map ref
 void
-BLOBTile::updateInDb() throw (r_Error)
+BLOBTile::updateInDbReal() throw (r_Error)
 {
     RMDBGENTER(3, RMDebug::module_blobif, "BLOBTile", "updateInDb() " << myOId);
     ENTER( "BLOBTile::updateInDb" );
@@ -193,6 +193,7 @@ BLOBTile::updateInDb() throw (r_Error)
     // (4) --- update map ref
     DBObject::updateInDb();
 
+    // RMInit::logOut << "BLOBTile: update blob with oid = " << myOId << " and size = " << size << endl;
     LEAVE( "BLOBTile::updateInDb, myOId=" << myOId );
     RMDBGEXIT(3, RMDebug::module_blobif, "BLOBTile", "updateInDb() " << myOId);
 } // updateInDb()
@@ -201,7 +202,7 @@ BLOBTile::updateInDb() throw (r_Error)
 // tuple is identified by blobtile.cc var myOId
 // data is taken from buffer 'cells' containing 'size' bytes
 void
-BLOBTile::insertInDb() throw (r_Error)
+BLOBTile::insertInDbReal() throw (r_Error)
 {
     RMDBGENTER(3, RMDebug::module_blobif, "BLOBTile", "insertInDb() " << myOId);
     ENTER( "BLOBTile::insertInDb" );
@@ -289,6 +290,7 @@ BLOBTile::insertInDb() throw (r_Error)
     // (3) --- update map ref
     DBObject::insertInDb();
 
+    // RMInit::logOut << "BLOBTile: insert blob with oid = " << myOId << " and size = " << size << endl;
     LEAVE( "BLOBTile::insertInDb(), myOId=" << myOId );
     RMDBGEXIT(3, RMDebug::module_blobif, "BLOBTile", "insertInDb() " << myOId);
 } // insertInDb()
@@ -296,7 +298,7 @@ BLOBTile::insertInDb() throw (r_Error)
 // delete one tuple from ras_tiles table, update map ref
 // tuple is identified by blobtile.cc var myOId
 void
-BLOBTile::deleteFromDb() throw (r_Error)
+BLOBTile::deleteFromDbReal() throw (r_Error)
 {
     RMDBGENTER(3, RMDebug::module_blobif, "BLOBTile", "deleteFromDb() " << myOId);
     ENTER( "BLOBTile::deleteFromDb" );
@@ -334,8 +336,9 @@ BLOBTile::deleteFromDb() throw (r_Error)
     (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT Tile FROM RAS_TILES WHERE BlobId = %ld", blobId );
     TALK( pgQuery );
     PGresult *pgResult = PQexec( pgConn, pgQuery );
-    if (PQresultStatus(pgResult))
+    if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
     {
+        RMInit::logOut << "BLOBTile::deleteFromDb() libpq 'select tile' error: " << PQerrorMessage(pgConn) << endl;
         LEAVE( "BLOBTile::deleteFromDb() libpq 'select tile' error: " << PQerrorMessage(pgConn) );
         PQclear( pgResult );
         generateException();
@@ -373,7 +376,7 @@ BLOBTile::deleteFromDb() throw (r_Error)
         }
     #endif NOTYET
     */
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DELETE FROM RAS_TILES WHERE BlobId = ", blobOid );
+    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DELETE FROM RAS_TILES WHERE BlobId = %ld", blobId );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
@@ -389,6 +392,7 @@ BLOBTile::deleteFromDb() throw (r_Error)
     // update map ref
     DBObject::deleteFromDb();
 
+    // RMInit::logOut << "BLOBTile: delete blob with oid = " << myOId << endl;
     LEAVE( "BLOBTile::deleteFromDb, myOId=" << myOId );
     RMDBGEXIT(3, RMDebug::module_blobif, "BLOBTile", "deleteFromDb() " << myOId);
 }
@@ -396,7 +400,7 @@ BLOBTile::deleteFromDb() throw (r_Error)
 // delete a range of tuple(s) from ras_tiles table, update map ref
 // tuples are identified by target and a range
 void
-BLOBTile::kill(const OId& target, unsigned int range)
+BLOBTile::killReal(const OId& target, unsigned int range)
 {
     RMDBGENTER(0, RMDebug::module_blobif, "BLOBTile", "kill(" << target << ", " << range <<")");
     ENTER( "BLOBTile::kill, target=" << target << ", range=" << range );
@@ -636,6 +640,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
 
     }
 
+    // RMInit::logOut << "BLOBTile: killed blob with oid = " << blobOid << endl;
     LEAVE( "BLOBTile::kill" );
     RMDBGEXIT(0, RMDebug::module_blobif, "BLOBTile", "kill(" << target << " " << target.getType() << ")");
 }
@@ -644,7 +649,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
 // allocates necessary mem into ptr 'cells' and fills it; must be freed elsewhere
 // external var 'size' is set to the number of bytes read
 void
-BLOBTile::readFromDb() throw (r_Error)
+BLOBTile::readFromDbReal() throw (r_Error)
 {
     RMDBGENTER(3, RMDebug::module_blobif, "BLOBTile", "readFromDb() " << myOId);
     ENTER( "BLOBTile::readFromDb" );
@@ -761,6 +766,7 @@ BLOBTile::readFromDb() throw (r_Error)
     DBObject::readTimer.pause();
 #endif
 
+    // RMInit::logOut << "BLOBTile: read blob with oid = " << myOId << " and size = " << size << endl;
     LEAVE( "BLOBTile::readFromDb" );
     RMDBGEXIT(3, RMDebug::module_blobif, "BLOBTile", "readFromDb() " << myOId);
 }

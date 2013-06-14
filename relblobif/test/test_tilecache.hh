@@ -20,25 +20,47 @@ rasdaman GmbH.
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
-/*************************************************************
- *
- *
- * PURPOSE:
- * The interface used by the file storage modules.
- *
- *
- * COMMENTS:
- *
- ************************************************************/
+#ifndef _TILECACHETEST_HH_
+#define _TILECACHETEST_HH_
 
-#ifndef _FILESTORAGEEXCEPTION_HH_
-#define _FILESTORAGEEXCEPTION_HH_
+#include <vector>
+#include "reladminif/oidif.hh"
+
 /**
-  * \ingroup Relblobifs
-  */
-class FileStorageException
-{
+ * Test tile caching.
+ * 
+ * @author Dimitar Misev
+ */
+class TileCacheTest {
+public:
+    /// constructor
+    TileCacheTest();
 
-};  // class FileStorageException
+    /// insert a number of blobs
+    void insertBlobs();
+    
+    /// insert more blobs (over cache limit) so that cache readjustments kicks in
+    void insertBlobsReadjust();
+    
+    /// remove all blobs from the cache
+    void removeBlobs();
+    
+    /// permanently delete all blobs created in this test
+    void deleteBlobs();
+    
+    /// get the blobs created in this test
+    void getBlobs();
+    
+    /// test cache clearing
+    void clearCache();
 
-#endif  // _FILESTORAGEEXCEPTION_HH_
+private:
+    
+    /// a list of the blob oids that are created during the test
+    std::vector<OId> oids;
+
+    /// helper for creating a new blob
+    BLOBTile* createBlob();
+};
+
+#endif

@@ -215,7 +215,7 @@ struct QtUpdateSpecElement
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
 			 STRCT COMPLEX RE IM TIFF BMP HDF NETCDF CSV JPEG PNG VFF TOR DEM INV_TIFF INV_BMP INV_HDF INV_NETCDF
 			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM ENCODE CONCAT ALONG DBINFO
-                         CASE WHEN THEN ELSE END
+                         CASE WHEN THEN ELSE END COMMIT
 
 %left COLON VALUES USING WHERE
 %left OVERLAY
@@ -250,7 +250,7 @@ struct QtUpdateSpecElement
 %type <integerToken>          intLitExp
 %type <operationValue>        condenseOpLit 
 %type <castTypes>	      castType
-%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp 
+%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp
 //%type <identifierToken>       namedCollection collectionIterator typeName attributeIdent pyrName 
 %type <identifierToken>       namedCollection collectionIterator typeName attributeIdent
 			      marrayVariable condenseVariable
@@ -289,9 +289,34 @@ query: createExp
 	| updateExp
 	| insertExp
 	| deleteExp
+    | commitExp
 //        | pyramidExp;
 	;
 
+commitExp: COMMIT
+{
+	  try {
+	    accessControl.wantToWrite();
+	  }
+	    catch(...) {
+	    // save the parse error info and stop the parser
+            if ( parseError ) delete parseError;
+            parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+                                        $1.info->getLineNo(), $1.info->getColumnNo() );
+	    FREESTACK($1)
+	    QueryTree::symtab.wipe();
+            YYABORT;
+	  }
+
+	  // create the command node
+	  QtCommand* commandNode = new QtCommand( QtCommand::QT_COMMIT, "dummy" );
+	  commandNode->setParseInfo( *($1.info) );
+	  
+	  // set insert node  as root of the Query Tree
+	  parseQueryTree->setRoot( commandNode );
+	  
+	  FREESTACK($1)
+}
 
 createExp: CREATE COLLECTION namedCollection typeName
 	{

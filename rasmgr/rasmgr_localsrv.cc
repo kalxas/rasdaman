@@ -270,13 +270,15 @@ bool LocalServerManager::killServer(const char *serverName)
             found = true;
             VLOG <<  now() << " killing rasdaman server " << iter->getName() << ", pid " << iter->getPID() << "..." << flush;
 
-            int killResult = kill(iter->getPID(),SIGKILL);
+            // try graceful termination first
+            int killResult = kill(iter->getPID(),SIGTERM);
+            killResult = kill(iter->getPID(),SIGKILL);
             if (killResult == -1)
             {
                 RMInit::logOut << "Error: " << strerror(errno) << endl;
                 result = false;
             }
-            else
+            if (killResult >= 0)
             {
                 iter = srvList.erase(iter);
                 VLOG << "ok" << endl;

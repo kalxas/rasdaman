@@ -193,7 +193,7 @@ void
 generateException() throw (r_Error)
 {
     TALK( "Throwing Exception (SQLCODE=" << SQLCODE << "): " << lastErrorMsg );
-    RMInit::dbgOut << "Throwing Exception (SQLCODE=" << SQLCODE << "): " << lastErrorMsg << endl;
+    RMInit::logOut << "Throwing Exception (SQLCODE=" << SQLCODE << "): " << lastErrorMsg << endl;
     throw r_Ebase_dbms( SQLCODE, lastErrorMsg );
 } // generateException()
 

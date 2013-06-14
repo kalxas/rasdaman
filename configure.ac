@@ -108,6 +108,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile
                  catalogmgr/Makefile         
                  relblobif/Makefile
+                 relblobif/test/Makefile
                  relindexif/Makefile
                  relmddif/Makefile
                  relcatalogif/Makefile

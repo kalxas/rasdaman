@@ -64,6 +64,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include "globals.hh"   // DEFAULT_PORT
 #include "servercomm/httpserver.hh"
 #include "storagemgr/sstoragelayout.hh"
+#include "relblobif/tilecache.hh"
 #include <signal.h>
 
 RMINITGLOBALS('C');
@@ -327,6 +328,10 @@ bool initialization()
     //use tilecontainer
     RMInit::useTileContainer = configuration.useTileContainer();
     RMInit::logOut << "Use Tile Container: " << RMInit::useTileContainer << endl;
+    
+    //set cache size limit
+    TileCache::cacheLimit = configuration.getCacheLimit();
+    RMInit::logOut << "Cache size limit  : " << TileCache::cacheLimit << endl;
 
     return true;
 }

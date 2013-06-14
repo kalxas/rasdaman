@@ -54,7 +54,8 @@ public:
     {
         QT_DROP_COLLECTION,
         QT_CREATE_COLLECTION,
-        QT_CREATE_COLLECTION_FROM_QUERY_RESULT
+        QT_CREATE_COLLECTION_FROM_QUERY_RESULT,
+        QT_COMMIT
     };
 
     /// constructor getting command, collection and type name (create collection)

@@ -39,6 +39,7 @@ rasdaman GmbH.
 #include "srvrasmgrcomm.hh"
 #include "server/rasserver_config.hh"
 #include "rnpservercomm.hh"
+#include "relblobif/blobtile.hh"
 
 #include "raslib/rminit.hh"
 #include "debug-srv.hh"
@@ -96,6 +97,10 @@ void startRnpServer()
     communicator.runServer();
 
     RMInit::logOut<<"RNP server shutdown in progress..."<<flush;
+    if (TileCache::cacheLimit > 0)
+    {
+        TileCache::clear();
+    }
     rnpServerComm.disconnectFromCommunicator();
 
     //##################

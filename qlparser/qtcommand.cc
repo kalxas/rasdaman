@@ -42,6 +42,7 @@ static const char rcsid[] = "@(#)qlparser, QtCommand: $Header: /home/rasdev/CVS-
 #include "servercomm/servercomm.hh"
 #include "qlparser/querytree.hh"
 #include "qlparser/qtinsert.hh"
+#include "relblobif/tilecache.hh"
 
 #include <iostream>
 
@@ -284,6 +285,9 @@ QtCommand::evaluate()
         break;
     case QT_CREATE_COLLECTION:
         createCollection(collectionName, typeName);
+        break;
+    case QT_COMMIT:
+        TileCache::clear();
         break;
     case QT_CREATE_COLLECTION_FROM_QUERY_RESULT:
 

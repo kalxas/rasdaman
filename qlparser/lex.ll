@@ -207,6 +207,7 @@ int string_yyinput( char* buf, int max_size )
 "in"                                     { SETTOKEN( IN, commandToken, IN ) }
 "marray"                                 { SETTOKEN( MARRAY, commandToken, MARRAY ) }
 "condense"                               { SETTOKEN( CONDENSE, commandToken, CONDENSE ) }
+"commit"                                 { SETTOKEN( COMMIT, commandToken, COMMIT ) }
 
 "oid"                                    { SETTOKEN( OID, commandToken, OID ) }
 "shift"                                  { SETTOKEN( SHIFT, commandToken, SHIFT ) }

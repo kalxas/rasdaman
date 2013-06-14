@@ -162,7 +162,7 @@ QtConst::optimizeLoad( QtTrimList* trimList )
 QtData*
 QtConst::evaluate( QtDataList* /*inputList*/ )
 {
-    RMDBCLASS( "QtConst", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
+//    RMDBCLASS( "QtConst", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__ )
     startTimer("QtConst");
 
     QtData* returnValue = NULL;

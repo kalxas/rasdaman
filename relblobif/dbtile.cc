@@ -283,12 +283,12 @@ DBTile::DBTile(const OId& id) throw (r_Error)
 DBTile::~DBTile()
 {
     RMDBGENTER(3, RMDebug::module_blobif, "DBTile", "~DBTile() " << myOId);
-    if (cells)
-    {
-        TALK( "DBTile::~DBTile() freeing blob cells" );
-        free(cells);
-    }
-    cells = NULL;
+//    if (cells)
+//    {
+//        TALK( "DBTile::~DBTile() freeing blob cells" );
+//        free(cells);
+//    }
+//    cells = NULL;
     RMDBGEXIT(3, RMDebug::module_blobif, "DBTile", "~DBTile() " << myOId);
 }
 

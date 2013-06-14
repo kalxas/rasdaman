@@ -66,6 +66,7 @@ public:
     const char* getIndexType();
     bool        useTileContainer();
 
+    long        getCacheLimit();
 
 private:
     void printHelp();
@@ -105,6 +106,8 @@ private:
     CommandLineParameter *cmlTiling;
     CommandLineParameter *cmlIndex;
     CommandLineParameter *cmlIndexSize;
+    
+    CommandLineParameter *cmlCacheLimit;
 #ifdef RMANDEBUG
     CommandLineParameter *cmlDbg;
     CommandLineParameter *cmlDbgLevel;
@@ -136,6 +139,8 @@ private:
     const char* tilingName;
     const char* indexType;
     int         indexSize;
+    
+    long        cacheLimit;
 #ifdef RMANDEBUG
     int         dbgLevel;
 #endif
