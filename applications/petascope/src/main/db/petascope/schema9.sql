@@ -136,12 +136,24 @@ CREATE TRIGGER storage_integrity_trigger BEFORE INSERT OR UPDATE ON ps9_range_se
        FOR EACH ROW EXECUTE PROCEDURE storage_ref_integrity();
 
 
+-- TABLE: **ps9_data_type** ====================================================
+-- Catalogue for data types of a coverages's range [WCPS rangeType() -- OGC 08-068r2 Tab.2].
+CREATE TABLE ps9_range_data_type (
+    id             serial     PRIMARY KEY,
+    name           text       NOT NULL,
+    meaning        text       NULL,
+    -- Constraints and FKs
+    UNIQUE (name)
+);
+
+
 -- TABLE: **ps9_range_type_component** =========================================
--- Catalogue for range types.
+-- Field components (bands) of a coverage.
 CREATE TABLE ps9_range_type_component (
     id               serial     PRIMARY KEY,
     coverage_id      integer    NOT NULL,
     name             text       NOT NULL,   -- /gmlcov:AbstractCoverage/gmlcov:rangeType/swe:field/@name
+    data_type_id     integer    NOT NULL,   -- WCPS rangeType()
     component_order  integer    NOT NULL,
     field_id         integer    NOT NULL,
     field_table      text       DEFAULT 'ps9_quantity',
@@ -149,13 +161,13 @@ CREATE TABLE ps9_range_type_component (
     CHECK  (component_order >= 0),
     UNIQUE (coverage_id, component_order), -- no same order
     UNIQUE (coverage_id, name),            -- no same label
-    FOREIGN KEY (coverage_id) REFERENCES ps9_coverage (id) ON DELETE CASCADE
+    FOREIGN KEY (coverage_id)  REFERENCES ps9_coverage        (id) ON DELETE CASCADE,
+    FOREIGN KEY (data_type_id) REFERENCES ps9_range_data_type (id) ON DELETE CASCADE
 );
 CREATE TRIGGER field_integrity_trigger BEFORE INSERT OR UPDATE ON ps9_range_type_component
        FOR EACH ROW EXECUTE PROCEDURE field_ref_integrity();
 CREATE TRIGGER range_component_order_trigger AFTER INSERT OR UPDATE ON ps9_range_type_component
        FOR EACH ROW EXECUTE PROCEDURE range_component_order_integrity();
-
 
 -- TABLE: **ps9_uom** ==========================================================
 -- Catalogue table with Unit Of Measures (UoMs) for the rangeSet of a coverage.

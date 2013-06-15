@@ -160,6 +160,7 @@ $$
         _grid_axis_id  integer;
         _rascoll_id    integer;
         _quantity_id   integer;
+        _datatype_id   integer;
         --
         _qry text;
         _tup record;
@@ -484,9 +485,19 @@ $$
                                ' INNER JOIN ' || cget('TABLE_PS_DATATYPE')   || 
                                        ' ON ' || cget('TABLE_PS_DATATYPE')   || '.' || cget('PS_DATATYPE_ID') || '='
                                               || cget('TABLE_PS_RANGE')      || '.' || cget('PS_RANGE_TYPE')  ||
-                      ' WHERE ' || cget('TABLE_PS_RANGE') || '.' || cget('PS_RANGE_COVERAGE') || '=' || _coverage_id;
+                      ' WHERE ' || cget('TABLE_PS_RANGE') || '.' || cget('PS_RANGE_COVERAGE') || '=' || _coverage_id ||
+                   ' ORDER BY ' || cget('TABLE_PS_RANGE') || '.' || cget('PS_RANGE_I');
         RAISE DEBUG '%: EXECUTING %', ME, _qry; 
         FOR _tup IN EXECUTE _qry LOOP
+
+            -- Get the ID of the range data type
+            _datatype_id := select_field(
+                              cget('TABLE_PS9_RANGE_DATATYPE'), 
+                              cget('PS9_RANGE_DATATYPE_ID'), 0,
+                              ' WHERE ' || cget('PS9_RANGE_DATATYPE_NAME') || '='
+                                   '''' || _tup.row[3] || ''''
+            );
+
             -- Fetch the ID of this quantity
             BEGIN
                 IF _tup.row[4] IS NULL THEN
@@ -514,12 +525,14 @@ $$
             RAISE DEBUG '%: quantity ID for ''%'' UoM is %.', ME, _tup.row[4], _quantity_id;
 
             -- Finally, set this range type component for the coverage
-            _qry := ' INSERT INTO ' || cget('TABLE_PS9_RANGETYPE_COMPONENT')         ||
-                               ' (' || cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID')   || ','
-                                    || cget('PS9_RANGETYPE_COMPONENT_NAME')          || ',' 
-                                    || cget('PS9_RANGETYPE_COMPONENT_ORDER')         || ','
-                                    || cget('PS9_RANGETYPE_COMPONENT_FIELD_ID')      || ') '       ||
-                        ' VALUES (' || _coverage9_id || ',''' || _tup.row[2] || ''',' || _tup.row[1] || ',' || _quantity_id || ')';
+            _qry := ' INSERT INTO ' || cget('TABLE_PS9_RANGETYPE_COMPONENT')           ||
+                               ' (' || cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID')     || ','
+                                    || cget('PS9_RANGETYPE_COMPONENT_ORDER')           || ','
+                                    || cget('PS9_RANGETYPE_COMPONENT_NAME')            || ','
+                                    || cget('PS9_RANGETYPE_COMPONENT_TYPE_ID')         || ','
+                                    || cget('PS9_RANGETYPE_COMPONENT_FIELD_ID')        || ') '         ||
+                        ' VALUES (' || _coverage9_id || ','   || _tup.row[1]  || ','''  
+                                    || _tup.row[2]   || ''',' || _datatype_id || ','   || _quantity_id || ')';
             RAISE DEBUG '%: EXECUTING %', ME, _qry; 
             EXECUTE _qry;
             RAISE NOTICE '%: range-type component ''%'' has been set for coverage ''%''.', 

@@ -34,8 +34,6 @@
 --   - `global_const.sql' has been imported within this session.
 -----------------------------------------------------------------------
 
--- Load the constants
-SELECT set_constants();
 
 -- Default service and service provider metadata:
 INSERT INTO ps9_service_identification (title, abstract) VALUES ('rasdaman', 'rasdaman server - free download from www.rasdaman.org');
@@ -92,6 +90,23 @@ INSERT INTO ps9_extra_metadata_type (type) VALUES (cget('METADATA_TYPE_OWS'));
 INSERT INTO ps9_extra_metadata_type (type) VALUES (cget('METADATA_TYPE_GMLCOV'));
 ---- Rasters' attribute table name for rasimport
 INSERT INTO ps9_extra_metadata_type (type) VALUES (cget('METADATA_TYPE_ATTRTABLE'));
+
+--
+-- Range data types (OGC 08-068r2, Tab.2)
+--
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_BOOLEAN'),  cget('DT_BOOLEAN_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_CHAR'),     cget('DT_CHAR_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_UCHAR'),    cget('DT_UCHAR_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_SHORT'),    cget('DT_SHORT_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_USHORT'),   cget('DT_USHORT_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_INT'),      cget('DT_INT_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_UINT'),     cget('DT_UINT_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_LONG'),     cget('DT_LONG_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_ULONG'),    cget('DT_ULONG_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_FLOAT'),    cget('DT_FLOAT_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_DOUBLE'),   cget('DT_DOUBLE_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_COMPLEX'),  cget('DT_COMPLEX_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_COMPLEX2'), cget('DT_COMPLEX2_MEANING'));
 
 --
 -- Allowed intervals (see petascope.util.WcsUtil.java)

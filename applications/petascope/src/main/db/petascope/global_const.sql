@@ -63,17 +63,34 @@ $$
     SELECT cset('METADATA_TYPE_OWS',          'ows');
     SELECT cset('METADATA_TYPE_GMLCOV',       'gmlcov');
     SELECT cset('METADATA_TYPE_ATTRTABLE',    'attrtable_name');
-    -- Data types
-    SELECT cset('DT_CHAR','char');
-    SELECT cset('DT_UCHAR','unsigned char');
-    SELECT cset('DT_SHORT','short');
-    SELECT cset('DT_USHORT','unsigned short');
-    SELECT cset('DT_INT','int');
-    SELECT cset('DT_UINT','unsigned int');
-    SELECT cset('DT_LONG','long');
-    SELECT cset('DT_ULONG','unsigned long');
-    SELECT cset('DT_FLOAT','float');
-    SELECT cset('DT_DOUBLE','double');
+    -- Range data types
+    SELECT cset('DT_BOOLEAN',   'boolean');
+    SELECT cset('DT_CHAR',      'char');
+    SELECT cset('DT_UCHAR',     'unsigned char');
+    SELECT cset('DT_SHORT',     'short');
+    SELECT cset('DT_USHORT',    'unsigned short');
+    SELECT cset('DT_INT',       'int');
+    SELECT cset('DT_UINT',      'unsigned int');
+    SELECT cset('DT_LONG',      'long');
+    SELECT cset('DT_ULONG',     'unsigned long');
+    SELECT cset('DT_FLOAT',     'float');
+    SELECT cset('DT_DOUBLE',    'double');
+    SELECT cset('DT_COMPLEX',   'complex');
+    SELECT cset('DT_COMPLEX2',  'complex2');
+    -- Range data types meanings
+    SELECT cset('DT_BOOLEAN_MEANING',    'Boolean');
+    SELECT cset('DT_CHAR_MEANING',       '8-bit signed integer');
+    SELECT cset('DT_UCHAR_MEANING',      '8-bit unsigned integer');
+    SELECT cset('DT_SHORT_MEANING',      '16-bit signed integer');
+    SELECT cset('DT_USHORT_MEANING',     '16-bit unsigned integer');
+    SELECT cset('DT_INT_MEANING',        '32-bit signed integer');
+    SELECT cset('DT_UINT_MEANING',       '32-bit unsigned integer');
+    SELECT cset('DT_LONG_MEANING',       '64-bit signed integer');
+    SELECT cset('DT_ULONG_MEANING',      '64-bit unsigned integer');
+    SELECT cset('DT_FLOAT_MEANING',      'Single precision floating point number');
+    SELECT cset('DT_DOUBLE_MEANING',     'Double precision floating point number');
+    SELECT cset('DT_COMPLEX_MEANING',    'Single precision complex number');
+    SELECT cset('DT_COMPLEX2_MEANING',   'Double precision complex number');
     -- Data intervals
     SELECT cset('CHAR_MIN',                        -128);
     SELECT cset('CHAR_MAX',                         127);
@@ -175,10 +192,14 @@ $$
     SELECT cset('TABLE_PS9_RANGESET',                         cget('PS9_PREFIX') || '_range_set');
           SELECT cset('PS9_RANGESET_COVERAGE_ID',            'coverage_id');
           SELECT cset('PS9_RANGESET_STORAGE_ID',             'storage_id');
+    SELECT cset('TABLE_PS9_RANGE_DATATYPE',                   cget('PS9_PREFIX') || '_range_data_type');
+          SELECT cset('PS9_RANGE_DATATYPE_ID',               'id');
+          SELECT cset('PS9_RANGE_DATATYPE_NAME',             'name');
     SELECT cset('TABLE_PS9_RANGETYPE_COMPONENT',              cget('PS9_PREFIX') || '_range_type_component');
-          SELECT cset('PS9_RANGETYPE_COMPONENT_ID', 'id');
+          SELECT cset('PS9_RANGETYPE_COMPONENT_ID',          'id');
           SELECT cset('PS9_RANGETYPE_COMPONENT_COVERAGE_ID', 'coverage_id');
           SELECT cset('PS9_RANGETYPE_COMPONENT_NAME',        'name');
+          SELECT cset('PS9_RANGETYPE_COMPONENT_TYPE_ID',     'data_type_id');
           SELECT cset('PS9_RANGETYPE_COMPONENT_ORDER',       'component_order');
           SELECT cset('PS9_RANGETYPE_COMPONENT_FIELD_ID',    'field_id');
     SELECT cset('TABLE_PS9_RASDAMAN_COLLECTION',              cget('PS9_PREFIX') || '_rasdaman_collection');
@@ -211,3 +232,4 @@ $$
     -- TODO: WCPS/GDAL/MIME format IDs
     -- ...
 $$ LANGUAGE 'sql';
+SELECT set_constants();

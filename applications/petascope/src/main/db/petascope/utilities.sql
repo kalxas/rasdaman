@@ -327,7 +327,7 @@ $$ LANGUAGE 'plpgsql';
 -- not castable from string to numeric.
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --
 
---- Make sure the *_constants temporary tables exist ------------------
+--- Make sure the *_constants tables exist ------------------
 CREATE OR REPLACE FUNCTION check_constants_tables_exists() RETURNS VOID AS
 $$
     DECLARE
@@ -343,7 +343,7 @@ $$
                key   text PRIMARY KEY,
                value text
             );
-            RAISE NOTICE '%: created temporary table for session-wide string constants.', ME;
+            RAISE NOTICE '%: created table for string constants.', ME;
         END IF;
 
         -- Numeric constants -------------------------
@@ -355,7 +355,7 @@ $$
                key   text PRIMARY KEY,
                value numeric
             );
-            RAISE NOTICE '%: created temporary table for session-wide numeric constants.', ME;
+            RAISE NOTICE '%: created table for numeric constants.', ME;
         END IF;
     END;
 $$ LANGUAGE 'plpgsql';
