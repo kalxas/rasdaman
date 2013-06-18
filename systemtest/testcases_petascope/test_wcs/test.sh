@@ -48,6 +48,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 #
 # constants
 #
+WCPS_DIR="$SCRIPT_DIR"/../test_wcps
 TESTDATA_PATH="$WCPS_DIR/testdata"
 [ -d "$TESTDATA_PATH" ] || error "Testdata directory not found: $TESTDATA_PATH"
 QUERIES_PATH="$SCRIPT_DIR/queries"
