@@ -843,9 +843,9 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
 
         // relblobif
         EXEC SQL CREATE TABLE RAS_TILES (
-        BlobId INTEGER NOT NULL,
+        BlobId BIGINT NOT NULL,
         DataFormat INTEGER,
-        Tile oid
+        Tile BIGINT
         );
         if(check("DatabaseIf::create() CREATE TABLE RAS_TILES\0"))
             generateException();
@@ -857,8 +857,8 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
 
         //ras_itiles
         EXEC SQL CREATE TABLE RAS_ITILES (
-        ITileId INTEGER NOT NULL,
-        ITile oid
+        ITileId BIGINT NOT NULL,
+        ITile BIGINT
         );
         if (check("DatabaseIf::create() CREATE TABLE RAS_ITILES\0"))
             generateException();
@@ -870,7 +870,7 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
 
         // relcatalogif
         EXEC SQL CREATE TABLE RAS_MDDTYPES (
-        MDDTypeOId DEC(15,0) NOT NULL,
+        MDDTypeOId BIGINT NOT NULL,
         MDDTypeName VARCHAR(254) NOT NULL
         );
         if(check("DatabaseIf::create() CREATE TABLE RAS_MDDTYPES\0"))
@@ -882,8 +882,8 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
             generateException();
 
         EXEC SQL CREATE TABLE RAS_ITMAP (
-        TileId INTEGER NOT NULL,
-        IndexId INTEGER NOT NULL
+        TileId BIGINT NOT NULL,
+        IndexId BIGINT NOT NULL
         );
         if(check("DatabaseIf::create() CREATE TABLE RAS_ITMAP\0"))
             generateException();
@@ -894,8 +894,8 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
             generateException();
 
         EXEC SQL CREATE TABLE RAS_MDDBASETYPES (
-        MDDBaseTypeOId DEC(15,0) NOT NULL,
-        BaseTypeId DEC(15,0) NOT NULL,
+        MDDBaseTypeOId BIGINT NOT NULL,
+        BaseTypeId BIGINT NOT NULL,
         MDDTypeName VARCHAR(254) NOT NULL
         );
         if(check("DatabaseIf::create() CREATE TABLE RAS_MDDBASETYPES\0"))
@@ -907,8 +907,8 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
             generateException();
 
         EXEC SQL CREATE TABLE RAS_MDDDIMTYPES (
-        MDDDimTypeOId DEC(15,0) NOT NULL,
-        BaseTypeId DEC(15,0) NOT NULL,
+        MDDDimTypeOId BIGINT NOT NULL,
+        BaseTypeId BIGINT NOT NULL,
         Dimension INTEGER NOT NULL,
         MDDTypeName VARCHAR(254) NOT NULL
         );
@@ -921,8 +921,8 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
             generateException();
 
         EXEC SQL CREATE TABLE RAS_MDDDOMTYPES (
-        MDDDomTypeOId DEC(15,0) NOT NULL,
-        BaseTypeId DEC(15,0) NOT NULL,
+        MDDDomTypeOId BIGINT NOT NULL,
+        BaseTypeId BIGINT NOT NULL,
         DomainId INTEGER NOT NULL,
         MDDTypeName VARCHAR(254) NOT NULL
         );
@@ -936,7 +936,7 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
 
         EXEC SQL CREATE TABLE RAS_SETTYPES (
         SetTypeId INTEGER NOT NULL,
-        MDDTypeOId DEC(15,0) NOT NULL,
+        MDDTypeOId BIGINT NOT NULL,
         SetTypeName VARCHAR(254) NOT NULL
         );
         if(check("DatabaseIf::create() CREATE TABLE RAS_SETTYPES\0"))
@@ -962,7 +962,7 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
         EXEC SQL CREATE TABLE RAS_BASETYPES (
         BaseTypeId INTEGER NOT NULL,
         Count SMALLINT NOT NULL,
-        ContentType DEC(15,0) NOT NULL,
+        ContentType BIGINT NOT NULL,
         ContentTypeName VARCHAR (254) NOT NULL
         );
         if(check("DatabaseIf::create() CREATE TABLE RAS_BASETYPES\0"))
@@ -1052,11 +1052,11 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
 
         EXEC SQL CREATE TABLE RAS_MDDOBJECTS (
         MDDId INTEGER NOT NULL,
-        BaseTypeOId DEC(15,0) NOT NULL,
+        BaseTypeOId BIGINT NOT NULL,
         DomainId INTEGER NOT NULL,
         PersRefCount INTEGER NOT NULL,
-        StorageOId DEC(15,0) NOT NULL,
-        NodeOId DEC(15,0)
+        StorageOId BIGINT NOT NULL,
+        NodeOId BIGINT
         );
         if(check("DatabaseIf::create() CREATE TABLE RAS_MDDOBJECTS\0"))
             generateException();
@@ -1089,12 +1089,12 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
         // relindexif
         // may not be needed
         EXEC SQL CREATE TABLE RAS_HIERIX (
-        MDDObjIxOId DEC(15,0) NOT NULL,
+        MDDObjIxOId BIGINT NOT NULL,
         NumEntries  INTEGER NOT NULL,
         Dimension   INTEGER NOT NULL,
-        ParentOId   DEC(15,0) NOT NULL,
-        IndexSubType    SMALLINT NOT NULL,
-        DynData     OID
+        ParentOId   BIGINT NOT NULL,
+        IndexSubType SMALLINT NOT NULL,
+        DynData     BIGINT
         );
         if(check("DatabaseIf::create() CREATE TABLE RAS_HIERIX\0"))
             generateException();
@@ -1102,7 +1102,7 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
         // Note: table RAS_HIERIXDYN is not needed, we put each index node into the above DynData blob
 
         EXEC SQL CREATE TABLE RAS_UDFBODY (
-        UOId        DEC(15,0) NOT NULL,
+        UOId        BIGINT NOT NULL,
         Name        VARCHAR(254) NOT NULL,
         Body        CHAR(3700) NOT NULL
         );
@@ -1115,7 +1115,7 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
             generateException();
 
         EXEC SQL CREATE TABLE RAS_UDFARGS (
-        UOId        DEC(15,0) NOT NULL,
+        UOId        BIGINT NOT NULL,
         ArgNum      SMALLINT NOT NULL,
         ArgName     VARCHAR(254) NOT NULL
         );
@@ -1133,7 +1133,7 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
             generateException();
 
         EXEC SQL CREATE TABLE RAS_UDFPACKAGE (
-        UOId        DEC(15,0) NOT NULL,
+        UOId        BIGINT NOT NULL,
         Name        VARCHAR(254) NOT NULL
         );
         if(check("DatabaseIf::create() CREATE TABLE RAS_UDFPACKAGE\0"))
@@ -1150,8 +1150,8 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
             generateException();
 
         EXEC SQL CREATE TABLE RAS_UDFNSCONTENT (
-        UOId        DEC(15,0) NOT NULL,
-        UDFOId      DEC(15,0) NOT NULL
+        UOId        BIGINT NOT NULL,
+        UDFOId      BIGINT NOT NULL
         );
         if(check("DatabaseIf::create() CREATE TABLE RAS_UDFNSCONTENT\0"))
             generateException();
@@ -1166,13 +1166,14 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
         if(check("DatabaseIf::create() CREATE UNIQUE INDEX RAS_UDFNSCONTENT_IX\0"))
             generateException();
 
-        // We need 1 byte more because the first character may not be a \0 -> the first byte is always 13
+        // <9.0: We need 1 byte more because the first character may not be a \0 -> the first byte is always 13
+        // 9.0: the first 8 bytes now contain a header, does work under PG
         // note: this does not hold for PG, but we keep it to remain cross-platform consistent in data
         // note2: we use blob instead of varchar because the latter can hold only ascii data in PG
         EXEC SQL CREATE TABLE RAS_RCINDEXDYN (
-        Id      DEC(15,0) NOT NULL,
-        Count       DEC(3,0) NOT NULL,
-        DynData     oid
+        Id      BIGINT NOT NULL,
+        Count   INTEGER NOT NULL,
+        DynData BIGINT
         );
         if(check("DatabaseIf::create() CREATE TABLE RAS_RCINDEXDYN\0"))
             generateException();

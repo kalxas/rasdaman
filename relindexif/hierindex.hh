@@ -37,6 +37,29 @@ functionality.
 Beware of the cache when droping the IndexDS classes!
 
 See indexmgr/hierindexds.hh and indexmgr/indexds.hh for documentation.
+
+    // Old Blob format rasdaman < 9.0
+    headerbyte      char with value 13
+    lowerbounds     sizeof(r_Range) * (numEntries + 1) * dimension 
+    upperbounds     sizeof(r_Range) * (numEntries + 1) * dimension
+    lowerfixed      sizeof(char) * (numEntries + 1) * dimension;
+    upperfixed      sizeof(char) * (numEntries + 1) * dimension;
+    entryids        sizeof(int) * numEntries
+    entrytypes      sizeof(char) * numEntries
+       
+    // New Blob format (optimized for 64-bit alignment, rasdaman >= 9.0)
+    header          long long  (>= 1009 is new format, otherwise considered to be old format)
+    lowerbounds     sizeof(r_Range) * (numEntries + 1) * dimension 
+    upperbounds     sizeof(r_Range) * (numEntries + 1) * dimension
+    lowerfixed      sizeof(char) * (numEntries + 1) * dimension;
+    upperfixed      sizeof(char) * (numEntries + 1) * dimension;
+    entryids        sizeof(int) * numEntries
+    entrytypes      sizeof(char) * numEntries
+
+    readfromDb() is able to read both formats 
+    updateInDb() and insertInDb will only write new format
+
+
 */
 /**
   * \ingroup Relindexifs

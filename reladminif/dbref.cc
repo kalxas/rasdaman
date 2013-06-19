@@ -94,12 +94,12 @@ DBRef<T>::DBRef(const OId &id)
 
 
 template <class T>
-DBRef<T>::DBRef(double id)
+DBRef<T>::DBRef(long long id)
     :   object(0),
         pointerValid(false),
         objId(id)
 {
-    RMDBGONCE(11, RMDebug::module_adminif, "DBRef", "DBRef(double " << id << ")");
+    RMDBGONCE(11, RMDebug::module_adminif, "DBRef", "DBRef(long long " << id << ")");
 }
 
 

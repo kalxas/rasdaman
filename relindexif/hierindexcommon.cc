@@ -420,7 +420,7 @@ DBHierIndex::getOptimalSize(r_Dimension dim)
     unsigned int blocksize = 0;
     unsigned int useablespace = 0;
     //dimension * (upperbound + upperfixed + lowerbound + lowerfixed) + entryid + entryoidtype
-    unsigned int oneentry = dim * (sizeof(r_Range) * 2 + sizeof(char) * 2) + sizeof(OId::OIdCounter) + sizeof(char);
+    unsigned int oneentry = dim * (sizeof(r_Range) * 2 + sizeof(char) * 2) + sizeof(OId::OIdCounter) + sizeof(long long);
 
 #ifdef BASEDB_ORACLE
     blocksize = 2048;
@@ -809,6 +809,9 @@ value :
     x bytes database layout
 */
 
+// HST this might need an update for long long oid, but as the only user is
+// text/exportindex.cc, this will be done later
+// 
 BinaryRepresentation
 DBHierIndex::getBinaryRepresentation() const throw (r_Error)
 {
@@ -821,7 +824,7 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
     short dimension2 = myDomain.dimension();
     size_t size2 = myKeyObjects.size();
     short subtype = _isNode;
-    double parentid2 = 0;
+    long long parentid2 = 0;
 
     if (parent.getType() == OId::INVALID)
         parentid2 = 0;
@@ -892,7 +895,7 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
         8 bytes oid
     */
     //version + endianness + oid + size + dimension + parentoid + subtype
-    brp.binaryLength = 7 + sizeof(double) + sizeof(int) + sizeof(short) + sizeof(double) + sizeof(char) + completesize;
+    brp.binaryLength = 7 + sizeof(OId::OIdCounter) + sizeof(int) + sizeof(short) + sizeof(OId::OIdCounter) + sizeof(char) + completesize;
     brp.binaryData = new char[brp.binaryLength];
     memcpy(brp.binaryData, BinaryRepresentation::fileTag, 5);
     memset(&brp.binaryData[5], 1, 1);
@@ -905,7 +908,7 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
         memset(&brp.binaryData[6], 0, 1);
     }
     double tempd = myOId;
-    memcpy(&brp.binaryData[7], &tempd, sizeof(double));
+    memcpy(&brp.binaryData[7], &tempd, sizeof(OId::OIdCounter));
     /*
         special
         4 bytes size
@@ -915,13 +918,13 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
         x bytes database layout
     */
     int tempi = size2;
-    memcpy(&brp.binaryData[7 + sizeof(double)], &tempi, sizeof(int));
+    memcpy(&brp.binaryData[7 + sizeof(OId::OIdCounter)], &tempi, sizeof(int));
     short temps = dimension2;
-    memcpy(&brp.binaryData[7 + sizeof(double) + sizeof(int)], &temps, sizeof(short));
-    memcpy(&brp.binaryData[7 + sizeof(double) + sizeof(int) + sizeof(short)], &parentid2, sizeof(double));
+    memcpy(&brp.binaryData[7 + sizeof(OId::OIdCounter) + sizeof(int)], &temps, sizeof(short));
+    memcpy(&brp.binaryData[7 + sizeof(OId::OIdCounter) + sizeof(int) + sizeof(short)], &parentid2, sizeof(OId::OIdCounter));
     char tempc = subtype;
-    memcpy(&brp.binaryData[7 + sizeof(double) + sizeof(int) + sizeof(short) + sizeof(double)], &tempc, sizeof(char));
-    memcpy(&brp.binaryData[7 + sizeof(double) + sizeof(int) + sizeof(short) + sizeof(double) + sizeof(char)], completebuffer, completesize);
+    memcpy(&brp.binaryData[7 + sizeof(OId::OIdCounter) + sizeof(int) + sizeof(short) + sizeof(OId::OIdCounter)], &tempc, sizeof(char));
+    memcpy(&brp.binaryData[7 + sizeof(OId::OIdCounter) + sizeof(int) + sizeof(short) + sizeof(OId::OIdCounter) + sizeof(char)], completebuffer, completesize);
 
     delete [] completebuffer;
 
@@ -932,6 +935,7 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
 void
 DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_Error)
 {
+	// This format is not efficient (but also not in use..), it should be reviewed against alignment issues
     ENTER( "DBHierIndex::setBinaryRepresentation()" );
 
     if (memcmp(brp.binaryData, BinaryRepresentation::fileTag, 5) != 0)
@@ -951,13 +955,13 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
     }
     size_t size1;
     short dimension1;
-    double parentid1;
+    OId::OIdCounter parentid1;
     int tempi;
     short temps;
     char tempc;
-    double tempd;
+    OId::OIdCounter tempd;
 
-    memcpy((char*)&tempd, &brp.binaryData[7], sizeof(double));
+    memcpy((char*)&tempd, &brp.binaryData[7], sizeof(OId::OIdCounter));
     myOId = tempd;
     char* temp = getBinaryName();
     if (strcmp(temp, brp.binaryName) != 0)
@@ -968,11 +972,11 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
     }
     delete [] temp;
     temp = NULL;
-    memcpy(&tempi, &brp.binaryData[7 + sizeof(double)], sizeof(int));
+    memcpy(&tempi, &brp.binaryData[7 + sizeof(OId::OIdCounter)], sizeof(int));
     size1 = tempi;
-    memcpy(&temps, &brp.binaryData[7 + sizeof(double) + sizeof(int)], sizeof(short));
+    memcpy(&temps, &brp.binaryData[7 + sizeof(OId::OIdCounter) + sizeof(int)], sizeof(short));
     dimension1 = temps;
-    memcpy(&parentid1, &brp.binaryData[7 + sizeof(double) + sizeof(int) + sizeof(short)], sizeof(double));
+    memcpy(&parentid1, &brp.binaryData[7 + sizeof(OId::OIdCounter) + sizeof(int) + sizeof(short)], sizeof(double));
     memcpy(&tempc, &brp.binaryData[7 + sizeof(double) + sizeof(int) + sizeof(short) + sizeof(double)], sizeof(char));
     _isNode = tempc;
 
@@ -1002,7 +1006,7 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
     char* lowerfixedbuf = new char[fixessize];
     OId::OIdCounter* entryidsbuf = new OId::OIdCounter[idssize];
     char* entrytypesbuf = new char[typessize];
-    memcpy(completebuffer, &brp.binaryData[7 + sizeof(double) + sizeof(int) + sizeof(short) + sizeof(double) + sizeof(char)], completesize);
+    memcpy(completebuffer, &brp.binaryData[7 + sizeof(OId::OIdCounter) + sizeof(int) + sizeof(short) + sizeof(OId::OIdCounter) + sizeof(char)], completesize);
 
     //all dynamic data is in completebuffer
     //put that stuff in the correct buffers

@@ -187,8 +187,8 @@ ObjectBroker::getMDDTypeByName(const char* name) throw (r_Error)
     ENTER( "ObjectBroker::getMDDTypeByName, name=" << name );
 
     EXEC SQL BEGIN DECLARE SECTION;
-        char    mddtnamev[STRING_MAXLEN];
-        double  mddtoidv;
+        char      mddtnamev[STRING_MAXLEN];
+        long long mddtoidv;
     EXEC SQL END DECLARE SECTION;
 
     MDDType* retval = 0;
@@ -263,8 +263,8 @@ ObjectBroker::getOIdOfMDDType(const char* name) throw (r_Error)
     ENTER( "ObjectBroker::getOIdOfMDDType, name=" << name );
 
     EXEC SQL BEGIN DECLARE SECTION;
-        char    mddtname[STRING_MAXLEN];
-        long    mddtoid;
+        char      mddtname[STRING_MAXLEN];
+        long long mddtoid;
     EXEC SQL END DECLARE SECTION;
 
     OId retval;

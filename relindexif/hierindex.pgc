@@ -61,18 +61,21 @@ DBHierIndex::insertInDb() throw (r_Error)
     RMDBGENTER(5, RMDebug::module_indexif, "DBHierIndex", "insertInDb() " << myOId);
     ENTER( "DBHierIndex::insertInDb(), myOId=" << myOId );
 
+    // old format a 13, new format 1009 (to align with dbrcindex.pgc)
+    long long header = 1009; 
+
 #ifdef NOTYET   // should be in future
     /*
         EXEC SQL BEGIN DECLARE SECTION;
     */
 #endif // NOTYET
-    double  id2;
-    long    dimension2;
-    long    size2;
-    double  parentid2;
-    short   indexsubtype2;
-    Oid blobOid;
-    char    pgQuery[SQL_QUERY_BUFFER_SIZE];     // prelim
+    long long id2;
+    long      dimension2;
+    long      size2;
+    long long parentid2;
+    int       indexsubtype2;
+    Oid       blobOid;
+    char      pgQuery[SQL_QUERY_BUFFER_SIZE];     // prelim
     PGresult *pgResult = NULL;          // prelim
 #ifdef NOTYET   // should be in future
     /*
@@ -92,7 +95,9 @@ DBHierIndex::insertInDb() throw (r_Error)
     else
         parentid2 = parent;
 
-    // (1) -­- set all buffers
+    // (1) -- set all buffers
+    r_Bytes headersize = sizeof(header);
+	
     //number of bytes for bounds for "size" entries and mydomain
     r_Bytes boundssize = sizeof(r_Range) * (size2 + 1) * dimension2;
     //number of bytes for fixes for "size" entries and mydomain
@@ -102,8 +107,10 @@ DBHierIndex::insertInDb() throw (r_Error)
     //number of bytes for types of entries
     r_Bytes typessize = sizeof(char) * size2;
     //number of bytes for the dynamic data, plus 1 starter byte (see below)
-    r_Bytes completesize = 1 + boundssize * 2 + fixessize * 2 + idssize + typessize;
+    r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
 
+    // HST After some testing of the new format all these allocations 
+    // should be removed.
     char* completebuffer = (char*)mymalloc(completesize);
     if (completebuffer == NULL)
     {
@@ -171,19 +178,23 @@ DBHierIndex::insertInDb() throw (r_Error)
     }
 
     // write the buffers in the complete buffer, free all unnecessary buffers
-    // this indirection is neccessary because of memory alignement of longs...
-    completebuffer[0] = 13;     //the first char must not be a \0
-    (void) memcpy( &completebuffer[1], lowerboundsbuf, boundssize);
+    // OUTDATED this indirection is necessary because of memory alignement of longs...
+	// this is only necessary for the old format, not the new format...
+
+	// write the new header
+    memcpy( &completebuffer[0], &header, sizeof(header));  //the first char must not be a \0 ?? 
+	
+    (void) memcpy( &completebuffer[headersize], lowerboundsbuf, boundssize);
     free(lowerboundsbuf);
-    (void) memcpy( &completebuffer[boundssize + 1], upperboundsbuf, boundssize);
+    (void) memcpy( &completebuffer[boundssize + headersize], upperboundsbuf, boundssize);
     free(upperboundsbuf);
-    (void) memcpy( &completebuffer[boundssize * 2 + 1], lowerfixedbuf, fixessize);
+    (void) memcpy( &completebuffer[boundssize * 2 + headersize], lowerfixedbuf, fixessize);
     free(lowerfixedbuf);
-    (void) memcpy( &completebuffer[boundssize * 2 + fixessize + 1], upperfixedbuf, fixessize);
+    (void) memcpy( &completebuffer[boundssize * 2 + fixessize + headersize], upperfixedbuf, fixessize);
     free(upperfixedbuf);
-    (void) memcpy( &completebuffer[boundssize * 2 + fixessize * 2 + 1], entryidsbuf, idssize);
+    (void) memcpy( &completebuffer[boundssize * 2 + fixessize * 2 + headersize], entryidsbuf, idssize);
     free(entryidsbuf);
-    (void) memcpy( &completebuffer[boundssize * 2 + fixessize * 2 + idssize + 1], entrytypesbuf, typessize);
+    (void) memcpy( &completebuffer[boundssize * 2 + fixessize * 2 + idssize + headersize], entrytypesbuf, typessize);
     free(entrytypesbuf);
 
 
@@ -238,7 +249,7 @@ DBHierIndex::insertInDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "INSERT INTO RAS_HIERIX ( MDDObjIxOId, NumEntries, Dimension, ParentOId, IndexSubType, DynData ) VALUES ( %f, %ld, %ld, %f, %d, %d )", id2, size2, dimension2, parentid2, indexsubtype2, blobOid );
+    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "INSERT INTO RAS_HIERIX ( MDDObjIxOId, NumEntries, Dimension, ParentOId, IndexSubType, DynData ) VALUES ( %lld, %ld, %ld, %lld, %d, %d )", id2, size2, dimension2, parentid2, indexsubtype2, blobOid );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
@@ -270,14 +281,19 @@ DBHierIndex::readFromDb() throw (r_Error)
         EXEC SQL BEGIN DECLARE SECTION;
     */
 #endif // NOTYET
-    double  id1;
-    double  parentid1;
-    long    dimension1;
-    long    size1;
-    short   indexsubtype1;
-    short   lowerfind;
-    Oid blobOid;
-    char pgQuery[SQL_QUERY_BUFFER_SIZE];        // prelim
+
+    int headersize;
+    int header;
+    int blobformat;
+
+    long long id1;
+    long long parentid1;
+    long      dimension1;
+    long      size1;
+    int       indexsubtype1;
+    int       lowerfind;
+    Oid   blobOid;
+    char  pgQuery[SQL_QUERY_BUFFER_SIZE];        // prelim
     PGresult *pgResult = NULL;  // prelim
 #ifdef NOTYET   // should be in future
     /*
@@ -305,7 +321,7 @@ DBHierIndex::readFromDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT NumEntries, Dimension, ParentOId, IndexSubType, DynData FROM RAS_HIERIX WHERE MDDObjIxOId = %f", id1 );
+    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT NumEntries, Dimension, ParentOId, IndexSubType, DynData FROM RAS_HIERIX WHERE MDDObjIxOId = %lld", id1 );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
@@ -316,7 +332,7 @@ DBHierIndex::readFromDb() throw (r_Error)
     }
     size1         = atoi( PQgetvalue( pgResult, 0, 0 ) ); // extract value #1 from result
     dimension1    = atoi( PQgetvalue( pgResult, 0, 1 ) ); // extract value #2 from result
-    parentid1     = atoi( PQgetvalue( pgResult, 0, 2 ) ); // extract value #3 from result
+    parentid1     = atoll( PQgetvalue( pgResult, 0, 2 ) ); // extract value #3 from result
     indexsubtype1 = atoi( PQgetvalue( pgResult, 0, 3 ) ); // extract value #4 from result
     blobOid       = atoi( PQgetvalue( pgResult, 0, 4 ) ); // extract value #5 from result
     PQclear( pgResult );
@@ -330,43 +346,82 @@ DBHierIndex::readFromDb() throw (r_Error)
     else
         parent = OId(0, OId::INVALID);
 
-    //number of bytes for bounds for "size" entries and mydomain
-    r_Bytes boundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
-    //number of bytes for fixes for "size" entries and mydomain
-    r_Bytes fixessize = sizeof(char) * (size1 + 1) * dimension1;
-    //number of bytes for ids of entries
-    r_Bytes idssize = sizeof(OId::OIdCounter) * size1;
-    //number of bytes for types of entries
-    r_Bytes typessize = sizeof(char) * size1;
-    //number of bytes for the dynamic data (1 starter byte!)
-    r_Bytes completesize = 1 + boundssize * 2 + fixessize * 2 + idssize + typessize;
-
-    RMDBGMIDDLE(8, RMDebug::module_indexif, "DBHierIndex", "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size1 << " dimension=" << dimension1 );
-
-    char* completebuffer = (char*)mymalloc(completesize);
-    r_Range* upperboundsbuf = (r_Range*)mymalloc(boundssize);
-    r_Range* lowerboundsbuf = (r_Range*)mymalloc(boundssize);
-    char* upperfixedbuf = (char*)mymalloc(fixessize);
-    char* lowerfixedbuf = (char*)mymalloc(fixessize);
-    OId::OIdCounter* entryidsbuf = (OId::OIdCounter*)mymalloc(idssize);
-    char* entrytypesbuf = (char*)mymalloc(typessize);
-
     // (3) --- open, read, close blob
     TALK( "lo_open()" );
     int fd = lo_open( pgConn, blobOid, INV_READ );      // open; manual tells no error indication
     TALK( "lo_lseek() end" );
     int bytesToDo = lo_lseek( pgConn, fd, 0, SEEK_END );    // determine blob size; FIXME: more efficient method??
+
+    char* blobbuffer = (char*)mymalloc(bytesToDo);
+
     TALK( "lo_lseek() start" );
     (void) lo_lseek( pgConn, fd, 0, SEEK_SET );     // rewind for reading
-    TALK( "lo_read() for " << completesize << " bytes" );   // read blob
-    int loResult = lo_read( pgConn, fd, completebuffer, completesize );
+    TALK( "lo_read() for " << bytesToDo << " bytes" );   // read blob
+    int loResult = lo_read( pgConn, fd, blobbuffer, bytesToDo );
     if (loResult < 0)
     {
         RMInit::logOut << "DBHierIndex::readFromDb() cannot read blob, error: " << pgResult << endl;
         LEAVE( "DBHierIndex::readFromDb: cannot read blob, error " << pgResult );
         throw r_Error( r_Error::r_Error_BaseDBMSFailed );
     }
-    else if (loResult != bytesToDo)             // did not get all
+  
+    r_Bytes idssize; 	
+    r_Bytes newidssize;
+	
+    if (blobbuffer[0] == 13) { // old format
+        blobformat = 8;
+        idssize = sizeof(int) * size1;
+		newidssize = sizeof(OId::OIdCounter) * size1;		
+        //number of bytes for types of entries
+        headersize = 1;
+    } else {
+        blobformat = 9;
+        idssize = sizeof(OId::OIdCounter) * size1;
+        //number of bytes for types of entries
+        headersize = 8;
+    }
+    TALK( "blobformat: " << blobformat );
+
+    //number of bytes for bounds for "size" entries and mydomain
+    r_Bytes boundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
+    //number of bytes for fixes for "size" entries and mydomain
+    r_Bytes fixessize = sizeof(char) * (size1 + 1) * dimension1;
+    //number of bytes for types of entries
+    r_Bytes typessize = sizeof(char) * size1;
+    //number of bytes for the dynamic data 
+    r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
+
+    RMDBGMIDDLE(8, RMDebug::module_indexif, "DBHierIndex", "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size1 << " dimension=" << dimension1 );
+
+	char* completebuffer = blobbuffer;
+
+/*	
+ * HST
+    r_Range* upperboundsbuf = (r_Range*)mymalloc(boundssize);
+    r_Range* lowerboundsbuf = (r_Range*)mymalloc(boundssize);
+    char* upperfixedbuf = (char*)mymalloc(fixessize);
+    char* lowerfixedbuf = (char*)mymalloc(fixessize);
+*/
+    r_Range* upperboundsbuf;
+    r_Range* lowerboundsbuf;
+    char* upperfixedbuf;
+    char* lowerfixedbuf;
+
+    unsigned int* oldentryidsbuf;
+	
+    OId::OIdCounter* entryidsbuf;
+    if (blobformat == 8) {
+        oldentryidsbuf = (unsigned int*)mymalloc(idssize);
+        entryidsbuf = (long long*)mymalloc(newidssize);
+    } else {
+        entryidsbuf = (OId::OIdCounter*)mymalloc(idssize);
+	}
+	/*	
+    char* entrytypesbuf = (char*)mymalloc(typessize);
+	*/
+    char* entrytypesbuf;
+
+    if (loResult != bytesToDo)             // did not get all
     {
         RMInit::dbgOut << "BLOB (" << myOId << ") read: want to read (" << bytesToDo << " bytes, but got " << loResult << " bytes" << endl;
         LEAVE( "DBHierIndex::readFromDb: want to read " << bytesToDo << " bytes, but got " << loResult << " bytes" );
@@ -374,8 +429,8 @@ DBHierIndex::readFromDb() throw (r_Error)
     }
     else if (completesize != bytesToDo)             // this because I don't trust computations
     {
-        RMInit::dbgOut << "BLOB (" << myOId << ") read: completesize=" << completesize << ", but bytesToDo=" << bytesToDo << endl;
-        LEAVE( "DBHierIndex::readFromDb: completesize=" << completesize << ", but bytesToDo=" << bytesToDo );
+        RMInit::dbgOut << "BLOB (" << myOId << ") read: xcompletesize=" << completesize << ", but bytesToDo=" << bytesToDo << endl;
+        LEAVE( "DBHierIndex::readFromDb: completesize=" << completesize << ", but bytesToDo=" << bytesToDo << " blobformat=" << blobformat);
         throw r_Error( r_Error::r_Error_LimitsMismatch );
     }
     TALK( "lo_close()" );
@@ -386,19 +441,39 @@ DBHierIndex::readFromDb() throw (r_Error)
         TALK( "DBHierIndex::readFromDb: ignoring lo_close() error: " << ignoredPgResult );
     }
 
-
     // (4) --- copy data into buffers
     // all dynamic data ( plus starter byte) is in completebuffer, put that stuff in the correct buffers
-    memcpy(lowerboundsbuf, &completebuffer[1], boundssize);
-    memcpy(upperboundsbuf, &completebuffer[boundssize + 1], boundssize);
-    memcpy(lowerfixedbuf,  &completebuffer[boundssize * 2 + 1], fixessize);
-    memcpy(upperfixedbuf,  &completebuffer[boundssize * 2 + fixessize + 1], fixessize);
-    memcpy(entryidsbuf,    &completebuffer[boundssize * 2 + fixessize * 2 + 1], idssize);
-    memcpy(entrytypesbuf,  &completebuffer[boundssize * 2 + fixessize * 2 + idssize + 1], typessize);
+	/* HST
+    memcpy(lowerboundsbuf, &completebuffer[headersize], boundssize);
+    memcpy(upperboundsbuf, &completebuffer[boundssize + headersize], boundssize);
+    memcpy(lowerfixedbuf,  &completebuffer[boundssize * 2 + headersize], fixessize);
+    memcpy(upperfixedbuf,  &completebuffer[boundssize * 2 + fixessize + headersize], fixessize);
+	 */
+
+    lowerboundsbuf = (r_Range*) &completebuffer[headersize];
+    upperboundsbuf = (r_Range*) &completebuffer[boundssize + headersize];
+    lowerfixedbuf = &completebuffer[boundssize * 2 + headersize];
+    upperfixedbuf = &completebuffer[boundssize * 2 + fixessize + headersize];
+	
+    if (blobformat == 8) {
+        memcpy(oldentryidsbuf, &completebuffer[boundssize * 2 + fixessize * 2 + headersize], idssize);
+        for (int i = 0; i < size1; i++) {
+            entryidsbuf[i] = (OId::OIdCounter) oldentryidsbuf[i];
+        }
+    } 
+    else {
+       /* HST
+        memcpy(entryidsbuf,    &completebuffer[boundssize * 2 + fixessize * 2 + headersize], idssize);
+        */
+        entryidsbuf = (OId::OIdCounter*) &completebuffer[boundssize * 2 + fixessize * 2 + headersize];
+    }
+	
+    entrytypesbuf = &completebuffer[boundssize * 2 + fixessize * 2 + idssize + headersize];
     // now all dynamic data is in its private buffer
+	/* HST
     free (completebuffer);
     completebuffer = NULL;
-
+	*/
     // rebuild the attributes from the buffers
     int i = 0;
     myDomain = InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[i*dimension1]));
@@ -412,12 +487,21 @@ DBHierIndex::readFromDb() throw (r_Error)
         RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension1, &(lowerboundsbuf[(i+1)*dimension1]), &(upperboundsbuf[(i+1)*dimension1]), &(lowerfixedbuf[(i+1)*dimension1]), &(upperfixedbuf[(i+1)*dimension1])));
     }
 
+
+/* HST
     free(upperboundsbuf);
     free(lowerboundsbuf);
     free(upperfixedbuf);
     free(lowerfixedbuf);
     free(entryidsbuf);
     free(entrytypesbuf);
+*/
+    if (blobformat == 8) {
+        free(oldentryidsbuf);
+        free(entryidsbuf);
+    
+    free (completebuffer);
+    completebuffer = NULL;
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
@@ -436,18 +520,20 @@ DBHierIndex::updateInDb() throw (r_Error)
     RMDBGENTER(5, RMDebug::module_indexif, "DBHierIndex", "updateInDb() " << myOId);
     ENTER( "DBHierIndex::updateInDb(), myOId=" << myOId );
 
+    long long header = 1009; 
+
 #ifdef NOTYET   // should be in future
     /*
         EXEC SQL BEGIN DECLARE SECTION;
     */
 #endif // NOTYET
-    double  id4;
-    long    dimension4;
-    long    size4;
-    double  parentid4;
-    short   count4;
-    short   indexsubtype4;
-    Oid blobOid;
+    long long id4;
+    long      dimension4;
+    long      size4;
+    long long parentid4;
+    int       count4;
+    int       indexsubtype4;
+    Oid       blobOid;
     char pgQuery[SQL_QUERY_BUFFER_SIZE];        // prelim
     PGresult *pgResult = NULL;  // prelim
 #ifdef NOTYET   // should be in future
@@ -467,6 +553,9 @@ DBHierIndex::updateInDb() throw (r_Error)
         parentid4 = parent;
 
     // (1) --- prepare buffer
+    // number of bytes for header
+    r_Bytes headersize = sizeof(header);
+	
     //number of bytes for bounds for "size" entries and mydomain
     r_Bytes boundssize = sizeof(r_Range) * (size4 + 1) * dimension4;
     //number of bytes for fixes for "size" entries and mydomain
@@ -476,7 +565,7 @@ DBHierIndex::updateInDb() throw (r_Error)
     //number of bytes for types of entries
     r_Bytes typessize = sizeof(char) * size4;
     //number of bytes for the dynamic data; 1 starter byte!
-    r_Bytes completesize = 1 + boundssize * 2 + fixessize * 2 + idssize + typessize;
+    r_Bytes completesize = headersize + boundssize * 2 + fixessize * 2 + idssize + typessize;
 
     char* completebuffer = (char*)mymalloc(completesize);
     r_Range* upperboundsbuf = (r_Range*)mymalloc(boundssize);
@@ -504,19 +593,20 @@ DBHierIndex::updateInDb() throw (r_Error)
     RMDBGMIDDLE(8, RMDebug::module_indexif, "DBHierIndex", "complete=" << completesize << " bounds=" << boundssize << " fixes=" << fixessize << " ids=" << idssize << " types=" << typessize << ", size=" << size4 << " dimension=" << dimension4 );
 
     // write the buffers in the complete buffer, plus starter byte
-    // this indirection is neccessary because of memory alignement of longs...
-    completebuffer[0] = 13;         // write dummy starter byte
-    memcpy( &completebuffer[1], lowerboundsbuf, boundssize);
+    // OUTDATED this indirection is necessary because of memory alignement of longs...
+    memcpy( &completebuffer[0], &header, headersize);
+
+    memcpy( &completebuffer[headersize], lowerboundsbuf, boundssize);
     free(lowerboundsbuf);
-    memcpy( &completebuffer[boundssize + 1], upperboundsbuf, boundssize);
+    memcpy( &completebuffer[boundssize + headersize], upperboundsbuf, boundssize);
     free(upperboundsbuf);
-    memcpy( &completebuffer[boundssize * 2 + 1], lowerfixedbuf, fixessize);
+    memcpy( &completebuffer[boundssize * 2 + headersize], lowerfixedbuf, fixessize);
     free(lowerfixedbuf);
-    memcpy( &completebuffer[boundssize * 2 + fixessize + 1], upperfixedbuf, fixessize);
+    memcpy( &completebuffer[boundssize * 2 + fixessize + headersize], upperfixedbuf, fixessize);
     free(upperfixedbuf);
-    memcpy( &completebuffer[boundssize * 2 + fixessize * 2 + 1], entryidsbuf, idssize);
+    memcpy( &completebuffer[boundssize * 2 + fixessize * 2 + headersize], entryidsbuf, idssize);
     free(entryidsbuf);
-    memcpy( &completebuffer[boundssize * 2 + fixessize * 2 + idssize + 1], entrytypesbuf, typessize);
+    memcpy( &completebuffer[boundssize * 2 + fixessize * 2 + idssize + headersize], entrytypesbuf, typessize);
     free(entrytypesbuf);
 
 
@@ -573,7 +663,7 @@ DBHierIndex::updateInDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "UPDATE RAS_HIERIX SET NumEntries = %ld, Dimension = %ld, ParentOId = %f, IndexSubType = %d, DynData = %d WHERE MDDObjIxOId = %f", size4, dimension4, parentid4, indexsubtype4, blobOid, id4 );
+    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "UPDATE RAS_HIERIX SET NumEntries = %ld, Dimension = %ld, ParentOId = %lld, IndexSubType = %d, DynData = %d WHERE MDDObjIxOId = %lld", size4, dimension4, parentid4, indexsubtype4, blobOid, id4 );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
@@ -591,6 +681,7 @@ DBHierIndex::updateInDb() throw (r_Error)
     LEAVE( "DBHierIndex::updateInDb(), myOId=" << myOId );
 } // updateInDb()
 
+
 void
 DBHierIndex::deleteFromDb() throw (r_Error)
 {
@@ -602,9 +693,9 @@ DBHierIndex::deleteFromDb() throw (r_Error)
         EXEC SQL BEGIN DECLARE SECTION;
     */
 #endif // NOTYET
-    double  id3;
-    Oid blobOid;
-    char pgQuery[SQL_QUERY_BUFFER_SIZE];        // prelim
+    long long id3;
+    Oid       blobOid;
+    char      pgQuery[SQL_QUERY_BUFFER_SIZE];        // prelim
     PGresult *pgResult = NULL;  // prelim
 #ifdef NOTYET   // should be in future
     /*
@@ -654,7 +745,7 @@ DBHierIndex::deleteFromDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT DynData FROM RAS_HIERIX WHERE MDDObjIxOId = %f", id3 );
+    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT DynData FROM RAS_HIERIX WHERE MDDObjIxOId = %lld", id3 );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
@@ -688,7 +779,7 @@ DBHierIndex::deleteFromDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DELETE FROM RAS_HIERIX WHERE MDDObjIxOId = %f", id3 );
+    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DELETE FROM RAS_HIERIX WHERE MDDObjIxOId = %lld", id3 );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)

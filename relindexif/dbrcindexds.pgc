@@ -66,16 +66,19 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     RMDBGENTER(5, RMDebug::module_indexif, "DBRCIndexDS", "insertInDb() " << myOId);
     ENTER( "DBRCIndexDS::insertInDb" );
 
+    int header = 1009; 
+    int headersize = 4;
+	
 #ifdef NOTYET   // should be in future
     /*
         EXEC SQL BEGIN DECLARE SECTION;
     */
 #endif //NOTYET
-    double  id2;
-    short   count2;
-    Oid blobOid;
-    char    pgQuery[SQL_QUERY_BUFFER_SIZE];     // prelim
-    PGresult *pgResult = NULL;          // prelim
+    long long id2;
+    int       count2;
+    Oid       blobOid;
+    char      pgQuery[SQL_QUERY_BUFFER_SIZE];     // prelim
+    PGresult  *pgResult = NULL;          // prelim
 #ifdef NOTYET   // should be in future
     /*
         EXEC SQL END DECLARE SECTION;
@@ -93,9 +96,14 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     //number of bytes for fixes in 1 minterval
     r_Bytes fixessize = sizeof(char) * dimension;
     //number of bytes for the dynamic data
-    r_Bytes completesize = sizeof(r_Dimension) + sizeof(short) + sizeof(OId::OIdCounter) + sizeof(unsigned int) + boundssize * 2 + fixessize * 2;
+    r_Bytes completesize = sizeof(header) + sizeof(r_Dimension) + sizeof(long long) 
+                           + sizeof(OId::OIdCounter) + sizeof(OId::OIdCounter) 
+                           + boundssize * 2 + fixessize * 2;
 
     char* completebuffer = (char*)mymalloc(completesize);
+    // At a later stage get rid of all the unnecessary mallocs and memcpys, 
+    // but first make sure that everything works as expected
+
     r_Range* upperboundsbuf = (r_Range*)mymalloc(boundssize);
     r_Range* lowerboundsbuf = (r_Range*)mymalloc(boundssize);
     char* upperfixedbuf = (char*)mymalloc(fixessize);
@@ -110,23 +118,30 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     TALK( "DBRCIndexDS: domain " << myDomain << " stored as " << InlineMinterval(dimension, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])) );
 
     char* insertionpointer = completebuffer;
+
     // write the buffers in the complete buffer
-    // this indirection is neccessary because of memory alignment of longs...
+    // this indirection is necessary because of memory alignment of longs...
     // insert dimension
+	
+    memcpy(insertionpointer, &header, sizeof(header));
+    insertionpointer = insertionpointer + sizeof(header);
+	
     memcpy(insertionpointer, &dimension, sizeof(r_Dimension));
     insertionpointer = insertionpointer + sizeof(r_Dimension);
 
     // insert oid type
-    memcpy(insertionpointer, &myBaseOIdType, sizeof(short));
-    insertionpointer = insertionpointer + sizeof(short);
+    long long tmpMyBaseOIdType;
+    tmpMyBaseOIdType = myBaseOIdType;
+    memcpy(insertionpointer, &tmpMyBaseOIdType, sizeof(long long));
+    insertionpointer = insertionpointer + sizeof(long long);
 
     // insert oid counter
     memcpy(insertionpointer, &myBaseCounter, sizeof(OId::OIdCounter));
     insertionpointer = insertionpointer + sizeof(OId::OIdCounter);
 
     // insert oid counter
-    memcpy(insertionpointer, &mySize, sizeof(unsigned int));
-    insertionpointer = insertionpointer + sizeof(unsigned int);
+    memcpy(insertionpointer, &mySize, sizeof(OId::OIdCounter));    
+    insertionpointer = insertionpointer + sizeof(OId::OIdCounter);
 
     // insert domains
     memcpy(insertionpointer, lowerboundsbuf, boundssize);
@@ -219,7 +234,7 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "INSERT INTO RAS_RCINDEXDYN ( Id, Count, DynData ) VALUES ( %f, %d, %d )", id2, count2, blobOid );
+    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "INSERT INTO RAS_RCINDEXDYN ( Id, Count, DynData ) VALUES ( %lld, %d, %d )", id2, count2, blobOid );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
@@ -252,9 +267,14 @@ DBRCIndexDS::readFromDb() throw (r_Error)
         EXEC SQL BEGIN DECLARE SECTION;
     */
 #endif //NOTYET
-    double  id1;
-    Oid blobOid;
-    char pgQuery[SQL_QUERY_BUFFER_SIZE];        // prelim
+
+    int blobformat;
+    int headersize = 0;
+    int header = 0;
+	
+    long long id1;
+    Oid       blobOid;
+    char      pgQuery[SQL_QUERY_BUFFER_SIZE];        // prelim
     PGresult *pgResult = NULL;  // prelim
 #ifdef NOTYET   // should be in future
     /*
@@ -279,7 +299,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = %f", id1 );
+    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = %lld", id1 );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
@@ -342,16 +362,59 @@ DBRCIndexDS::readFromDb() throw (r_Error)
 #endif // RMANDEBUG
 
     // (4) --- fill variables and buffers
+    unsigned int bytesdone;
     r_Dimension dimension = 0;
-    (void) memcpy(&dimension, completebuffer, sizeof(r_Dimension));
-    unsigned int bytesdone = sizeof(r_Dimension);
 
-    (void) memcpy(&myBaseOIdType, &(completebuffer[bytesdone]), sizeof(short));
-    bytesdone += sizeof(short);
-    (void) memcpy(&myBaseCounter, &(completebuffer[bytesdone]), sizeof(OId::OIdCounter));
-    bytesdone += sizeof(OId::OIdCounter);
-    (void) memcpy(&mySize, &(completebuffer[bytesdone]), sizeof(unsigned int));
-    bytesdone += sizeof(unsigned int);
+    (void) memcpy(&header, &completebuffer[0], sizeof(int));
+    // if header >=1009 then this is considered to be a real header, 
+    // otherwise the value needs to be interpreted as a dimension
+
+	// old format
+    if (header <= 1008) {
+        blobformat = 8;
+        // no header, first 4 bytes are actually the dimension;
+        headersize = 0;
+        dimension = header;
+        bytesdone = headersize + sizeof(r_Dimension);
+
+        // this is needed for correct assignment
+        short tmpBaseOIdType;
+        memcpy(&tmpBaseOIdType, &(completebuffer[bytesdone]), sizeof(short));
+        myBaseOIdType = (OId::OIdType) tmpBaseOIdType;
+        bytesdone += sizeof(short);
+
+        int tmpBaseCounter;
+        memcpy(&tmpBaseCounter, &(completebuffer[bytesdone]), sizeof(int));
+        myBaseCounter = tmpBaseCounter;
+        bytesdone += sizeof(int);
+		
+        unsigned int tmpMySize;
+        memcpy(&tmpMySize, &(completebuffer[bytesdone]), sizeof(unsigned int));
+        mySize = tmpMySize;
+        bytesdone += sizeof(unsigned int);
+
+	} else {
+
+        blobformat = 9;
+        // first 4 bytes are the header;
+        headersize = 4;
+        memcpy(&dimension, &completebuffer[headersize], sizeof(r_Dimension));
+        bytesdone = headersize + sizeof(r_Dimension);
+
+        // this is needed for correct assignment
+        long long tmpBaseOIdType;
+        memcpy(&tmpBaseOIdType, &(completebuffer[bytesdone]), sizeof(long long));
+        myBaseOIdType = (OId::OIdType) tmpBaseOIdType;
+        bytesdone += sizeof(long long);
+
+        long long tmpBaseCounter;
+        memcpy(&myBaseCounter, &(completebuffer[bytesdone]), sizeof(OId::OIdCounter));
+        bytesdone += sizeof(OId::OIdCounter);
+		
+        memcpy(&mySize, &(completebuffer[bytesdone]), sizeof(OId::OIdCounter));
+        bytesdone += sizeof(OId::OIdCounter);
+
+	}
 
     r_Bytes boundssize = sizeof(r_Range) * dimension;   //number of bytes for bounds in 2 domains
     r_Bytes fixessize = sizeof(char) * dimension;       //number of bytes for fixes in 2 domains
@@ -373,6 +436,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     char* upperfixedbuf = (char*)mymalloc(fixessize);
     char* lowerfixedbuf = (char*)mymalloc(fixessize);
 
+    // HST at later stage remove unnecessary copying
     // all dynamic data is in dynamicBuffer
     // put that stuff in the correct buffers
     memcpy(lowerboundsbuf, dynamicBuffer, boundssize);
@@ -419,9 +483,9 @@ DBRCIndexDS::deleteFromDb() throw (r_Error)
         EXEC SQL BEGIN DECLARE SECTION;
     */
 #endif // NOTYET
-    double  id3;
-    Oid blobOid;
-    char pgQuery[SQL_QUERY_BUFFER_SIZE];        // prelim
+    long long id3;
+    Oid       blobOid;
+    char      pgQuery[SQL_QUERY_BUFFER_SIZE];        // prelim
     PGresult *pgResult = NULL;  // prelim
 #ifdef NOTYET   // should be in future
     /*
@@ -443,7 +507,7 @@ DBRCIndexDS::deleteFromDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = %f", id3 );
+    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = %lld", id3 );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
@@ -477,7 +541,7 @@ DBRCIndexDS::deleteFromDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DELETE FROM RAS_RCINDEXDYN WHERE Id = %f", id3 );
+    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DELETE FROM RAS_RCINDEXDYN WHERE Id = %lld", id3 );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)

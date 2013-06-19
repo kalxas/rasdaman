@@ -52,9 +52,9 @@ SetType::insertInDb() throw (r_Error)
     RMDBGENTER(5, RMDebug::module_catalogif, "SetType", "insertInDb() " << myOId << " " << getTypeName());
 
     EXEC SQL BEGIN DECLARE SECTION;
-        double  mddtypeid;
-        char    settypename[VARCHAR_MAXLEN];
-        long    settypeid;
+        long long mddtypeid;
+        char      settypename[VARCHAR_MAXLEN];
+        long      settypeid;
     EXEC SQL END DECLARE SECTION;
 
     (void) strncpy( settypename, (char*) getTypeName(), (size_t) sizeof(settypename) );
@@ -106,9 +106,9 @@ SetType::readFromDb() throw (r_Error)
     DBObject::readTimer.resume();
 #endif
     EXEC SQL BEGIN DECLARE SECTION;
-        double  mddtypeid1;
-        char    settypename1[VARCHAR_MAXLEN];
-        long    settypeid1;
+        long long mddtypeid1;
+        char      settypename1[VARCHAR_MAXLEN];
+        long      settypeid1;
     EXEC SQL END DECLARE SECTION;
 
     settypeid1 = myOId.getCounter();

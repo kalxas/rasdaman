@@ -51,7 +51,7 @@ RMTimer OId::oidAlloc("OId","allocateOId");
 RMTimer OId::oidResolve("OId","resolveOId");
 #endif
 
-double OId::ID_MULTIPLIER = 512;
+long long OId::ID_MULTIPLIER = 512;
 
 OId::OIdCounter OId::nextMDDOID = 0;
 
@@ -213,7 +213,7 @@ OId::getCounter() const
     return oid;
 }
 
-OId::operator double() const
+OId::operator long long() const
 {
     RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator() " << oid);
     return oid * OId::ID_MULTIPLIER + oidtype;
@@ -319,21 +319,23 @@ OId::operator>=(const OId& old) const
 }
 
 bool
-operator== (const double one, const OId& two)
+operator== (const long long one, const OId& two)
 {
     RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator==(" << one << "," << two << ")");
-    bool retval=false;
-    if (((double)two) == one)
-        retval=true;
+    bool retval = false;
+    // see conversion operator above
+    if (((long long)two) == one)
+        retval = true;
     return retval;
 }
 
 bool
-operator== (const OId& two, const double one)
+operator== (const OId& two, const long long one)
 {
     RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator==(" << two << "," << one << ")");
     bool retval=false;
-    if (((double)two) == one)
+    // see conversion operator above
+    if (((long long)two) == one)
         retval=true;
     return retval;
 }

@@ -53,11 +53,11 @@ StructType::insertInDb() throw (r_Error)
 {
     RMDBGENTER(5, RMDebug::module_catalogif, "StructType", "insertInDb() " << myOId);
     EXEC SQL BEGIN DECLARE SECTION;
-        long    structtypeid;
-        char    structtypename[VARCHAR_MAXLEN];
-        double  elementtype;
-        char    elementname[VARCHAR_MAXLEN];
-        short   count;
+        long      structtypeid;
+        char      structtypename[VARCHAR_MAXLEN];
+        long long elementtype;
+        char      elementname[VARCHAR_MAXLEN];
+        short     count;
     EXEC SQL END DECLARE SECTION;
 
     (void) strncpy( structtypename, (char*) getTypeName(), (size_t) sizeof(structtypename) );
@@ -137,11 +137,11 @@ StructType::readFromDb() throw (r_Error)
     short count = 0;
 
     EXEC SQL BEGIN DECLARE SECTION;
-        long    basetypeid1;
-        double  elementtypeid1;
-        char    basetypename1[VARCHAR_MAXLEN];
-        char    elementname1[VARCHAR_MAXLEN];
-        long    count1;     // added PB 2005­jan-09
+        long      basetypeid1;
+        long long elementtypeid1;
+        char      basetypename1[VARCHAR_MAXLEN];
+        char      elementname1[VARCHAR_MAXLEN];
+        long      count1;     // added PB 2005­jan-09
     EXEC SQL END DECLARE SECTION;
 
     basetypeid1 = myOId.getCounter();

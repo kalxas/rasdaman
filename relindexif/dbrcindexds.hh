@@ -50,22 +50,31 @@ See indexmgr/indexds.hh for documentation.
 
 Data to store:
 RAS_RCINDEXDYN
-    OId NUMBER(15,0),
-    Count   NUMBER(3,0),
+    OId     bigint
+    Count   integer
     DynData VARCHAR(3990)
 NB: under Oracle 9i, Dyndata is defined as:
     DynData BLOB NOT NULL
 This should be done for the other systems too,
 as VARCHAR usually is subject to charset translation
-which we don't want on our binary data.
+which we do not want on our binary data.
 
-DynData holds: r_Dimension, OId::OIdType, OId::OIdCounter, InlineMinterval, InlineMinterval
-As:
-    r_Dimension dimension   4
-    OId::OIdType    myBaseOIdType   2
-    OId::OIdCounter myBaseCounter   4
-    unsigned int    mySize      4
-    InlineMinterval myDomain    10 * dim
+    // Old Blob format rasdaman < 9.0
+    dimension       int                         (r_Dimension is int)
+    myBaseOIdType   short                       (enum is int)
+    myBaseCounter   int                         (old OId::OIdCounter is int)
+    mySize          int                         (unsigned int)
+    boundssize      sizeof(r_Range) * dimension (r_Range is int)
+    fixessize       sizeof(char) * dimension
+
+    // New Blob format (optimized for 64-bit alignment, rasdaman >= 9.0)
+    header          int32                       (>=1008 is new format, otherwise considered to be old format)
+    dimension       int32                       (r_Dimension is int)
+    myBaseOIdType   long long                   (enum is int)
+    myBaseCounter   long long                   (OId::OIdCounter is long long)
+    mySize          long long                   (long long)
+    boundssize      sizeof(r_Range) * dimension (r_Range is int)
+    fixessize       sizeof(char) * dimension
 
 */
 /**
@@ -84,7 +93,7 @@ public:
         Create a new index which handles the domain definedDomain, with tiles of domain
         tileConfig.  As soon as you create this index it will check if the tileConfig fits
         the definedDomain (the tileConfig must completely cover the definedDomain) and then
-        allocate as many oids as are neccessary to fill the definedDomain.
+        allocate as many oids as are necessary to fill the definedDomain.
     */
 
     virtual r_Minterval getCoveredDomain() const;

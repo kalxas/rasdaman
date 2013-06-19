@@ -53,11 +53,11 @@ the counter is used to pinpoint the exact instance of the object.
 
 currently there are 19 different persistent classes.
 
-the counter and type information is encoded into a double:
+the counter and type information is encoded into a long long:
 ID_MULTIPLIER * counter + type;
 the counters for each oid type are stored in the database.  their exact value is read
-when the transaction starts.   the values are updated in the database at the end of a
-transaction.  this can be a problem with multiple concurrent open read/write
+when the transaction starts. The values are updated in the database at the end of a
+transaction. This can be a problem with multiple concurrent open read/write
 transactions.
 */
 
@@ -93,13 +93,13 @@ public:
     There is as always an exception: INNEROID is only used by DBTCIndex internally
     */
 
-    typedef int OIdCounter;
+    typedef long long OIdCounter;
     /*@Doc:
     every persistent object needs a unique OIdCounter within all persistent objects
     with the same OIdType.
     */
 
-    typedef double OIdPrimitive;
+    typedef long long OIdPrimitive;
     /*@Doc:
     an oid can be converted from and to a primitive of this type.
     */
@@ -142,7 +142,7 @@ public:
 
     OId(OIdPrimitive oidd);
     /*@Doc:
-    generate a oid from a double.
+    generate an oid from a long long.
     */
 
     OId();
@@ -157,12 +157,12 @@ public:
 
     void print_status(std::ostream& s = std::cout) const;
     /*@Doc:
-    prints a double
+    prints a long long
     */
 
-    operator double() const;
+    operator long long() const;
     /*@Doc:
-    converts the oid to a double:
+    converts the oid to a long long:
     oid * OId::ID_MULTIPLIER + oidtype;
     */
 

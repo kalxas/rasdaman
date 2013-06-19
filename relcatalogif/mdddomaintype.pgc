@@ -55,7 +55,7 @@ MDDDomainType::insertInDb() throw (r_Error)
     char* domstr = 0;
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddtypeid;
-        double  mddbasetypeid;
+        long    mddbasetypeid;
         char    mddtypename[VARCHAR_MAXLEN];
         long    domainid;
     EXEC SQL END DECLARE SECTION;
@@ -84,7 +84,7 @@ MDDDomainType::readFromDb() throw (r_Error)
     EXEC SQL BEGIN DECLARE SECTION;
         long    mddtypeid1;
         char    mddtypename1[STRING_MAXLEN];
-        double  mddbasetypeid1;
+        long    mddbasetypeid1;
         long    domainid1;
     EXEC SQL END DECLARE SECTION;
 
