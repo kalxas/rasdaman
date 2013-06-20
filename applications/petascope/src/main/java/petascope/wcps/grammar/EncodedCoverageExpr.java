@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 
 /**
@@ -62,22 +62,22 @@ public class EncodedCoverageExpr implements IParseTreeNode {
         String result = "";
 
         if (store) {
-            result = "<" + WCPSConstants.MSG_ENCODE + " " + WCPSConstants.MSG_STORE + 
-                    "=\"" + WCPSConstants.MSG_TRUE + "\">";
+            result = "<" + WcpsConstants.MSG_ENCODE + " " + WcpsConstants.MSG_STORE + 
+                    "=\"" + WcpsConstants.MSG_TRUE + "\">";
         } else {
-            result = "<" + WCPSConstants.MSG_ENCODE + " " + WCPSConstants.MSG_STORE + 
-                    "=\"" + WCPSConstants.MSG_FALSE + "\">";
+            result = "<" + WcpsConstants.MSG_ENCODE + " " + WcpsConstants.MSG_STORE + 
+                    "=\"" + WcpsConstants.MSG_FALSE + "\">";
         }
 
         result += expr.toXML();
-        result += "<" + WCPSConstants.MSG_FORMAT + ">" + format + "</" + WCPSConstants.MSG_FORMAT + ">";
+        result += "<" + WcpsConstants.MSG_FORMAT + ">" + format + "</" + WcpsConstants.MSG_FORMAT + ">";
 
         if (extraParams != null) {
-            result += "<" + WCPSConstants.MSG_EXTRA_PARAMETERS + ">" + extraParams + "</" + 
-                    WCPSConstants.MSG_EXTRA_PARAMETERS + ">";
+            result += "<" + WcpsConstants.MSG_EXTRA_PARAMETERS + ">" + extraParams + "</" + 
+                    WcpsConstants.MSG_EXTRA_PARAMETERS + ">";
         }
 
-        result += "</" + WCPSConstants.MSG_ENCODE + ">";
+        result += "</" + WcpsConstants.MSG_ENCODE + ">";
 
         return result;
     }

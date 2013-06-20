@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * ImageCrsDomainMetadataExpr Group
@@ -40,7 +40,7 @@ public class ImageCrsDomainMetadataExpr implements IParseTreeNode {
     }
 
     public String toXML() {
-        String result = cov.toXML() + "<" + WCPSConstants.MSG_AXIS + ">" + axis + "</" + WCPSConstants.MSG_AXIS + ">";
+        String result = cov.toXML() + "<" + WcpsConstants.MSG_AXIS + ">" + axis + "</" + WcpsConstants.MSG_AXIS + ">";
 
         return result;
     }

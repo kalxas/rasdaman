@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
@@ -44,51 +44,51 @@ public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICov
 
         boolean okay = false;    // will be true if the node is recognized
 
-        if (nodeName.equals(WCPSConstants.MSG_PLUS_S)) {
-            operation = WCPSConstants.MSG_PLUS;
+        if (nodeName.equals(WcpsConstants.MSG_PLUS_S)) {
+            operation = WcpsConstants.MSG_PLUS;
             okay = true;
-        } else if (nodeName.equals(WCPSConstants.MSG_MINUS_S)) {
-            operation = WCPSConstants.MSG_MINUS;
+        } else if (nodeName.equals(WcpsConstants.MSG_MINUS_S)) {
+            operation = WcpsConstants.MSG_MINUS;
             okay = true;
-        } else if (nodeName.equals(WCPSConstants.MSG_MULT)) {
-            operation = WCPSConstants.MSG_STAR;
+        } else if (nodeName.equals(WcpsConstants.MSG_MULT)) {
+            operation = WcpsConstants.MSG_STAR;
             okay = true;
-        } else if (nodeName.equals(WCPSConstants.MSG_DIV_S)) {
-            operation = WCPSConstants.MSG_DIV;
+        } else if (nodeName.equals(WcpsConstants.MSG_DIV_S)) {
+            operation = WcpsConstants.MSG_DIV;
             okay = true;
-        } else if (nodeName.equals(WCPSConstants.MSG_AND) || nodeName.equals(WCPSConstants.MSG_OR) || nodeName.equals("xor")) {
+        } else if (nodeName.equals(WcpsConstants.MSG_AND) || nodeName.equals(WcpsConstants.MSG_OR) || nodeName.equals("xor")) {
             operation = nodeName;
             okay = true;
-        } else if (nodeName.equals(WCPSConstants.MSG_EQUALS)) {
-            operation = WCPSConstants.MSG_EQUAL;
+        } else if (nodeName.equals(WcpsConstants.MSG_EQUALS)) {
+            operation = WcpsConstants.MSG_EQUAL;
             okay = true;
-        } else if (nodeName.equals(WCPSConstants.MSG_LESS_THAN)) {
+        } else if (nodeName.equals(WcpsConstants.MSG_LESS_THAN)) {
             operation = "<";
             okay = true;
-        } else if (nodeName.equals(WCPSConstants.MSG_GREATER_THAN)) {
+        } else if (nodeName.equals(WcpsConstants.MSG_GREATER_THAN)) {
             operation = ">";
             okay = true;
-        } else if (nodeName.equals(WCPSConstants.MSG_LESS_OR_EQUAL)) {
+        } else if (nodeName.equals(WcpsConstants.MSG_LESS_OR_EQUAL)) {
             operation = "<=";
             okay = true;
-        } else if (nodeName.equals(WCPSConstants.MSG_GREATER_OR_EQUAL)) {
+        } else if (nodeName.equals(WcpsConstants.MSG_GREATER_OR_EQUAL)) {
             operation = ">=";
             okay = true;
-        } else if (nodeName.equals(WCPSConstants.MSG_NOT_EQUALS)) {
+        } else if (nodeName.equals(WcpsConstants.MSG_NOT_EQUALS)) {
             operation = "!=";
             okay = true;
-        } else if (nodeName.equals(WCPSConstants.MSG_OVERLAY)) {
-            operation = WCPSConstants.MSG_OVERLAY;
+        } else if (nodeName.equals(WcpsConstants.MSG_OVERLAY)) {
+            operation = WcpsConstants.MSG_OVERLAY;
             okay = true;
         }
 
         if (!okay) {
-            throw new WCPSException(WCPSConstants.ERRTXT_UNEXPECTED_BINARY + " : " + nodeName);
+            throw new WCPSException(WcpsConstants.ERRTXT_UNEXPECTED_BINARY + " : " + nodeName);
         }
-        log.trace("  " + WCPSConstants.MSG_OPERATION + ": " + operation);
+        log.trace("  " + WcpsConstants.MSG_OPERATION + ": " + operation);
         
         Node operand = node.getFirstChild();
-        while (operand.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while (operand.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             operand = operand.getNextSibling();
         }
 
@@ -107,7 +107,7 @@ public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICov
 
     public String toRasQL() {
         String ret = "";
-        if (operation.equals(WCPSConstants.MSG_OVERLAY)) {
+        if (operation.equals(WcpsConstants.MSG_OVERLAY)) {
             // overlay is reversed in rasql
             ret = "((" + second.toRasQL() + ")" + operation + "(" + first.toRasQL() + "))";
         } else {

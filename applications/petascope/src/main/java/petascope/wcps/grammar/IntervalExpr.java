@@ -23,7 +23,7 @@ package petascope.wcps.grammar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * IntervalExpr
@@ -37,25 +37,25 @@ public class IntervalExpr implements IParseTreeNode {
     String function;
 
     public IntervalExpr(IndexExpr n1, IndexExpr n2) {
-        log.trace(WCPSConstants.MSG_CREATING_INTERVALEXPR);
+        log.trace(WcpsConstants.MSG_CREATING_INTERVALEXPR);
         this.e1 = n1;
         this.e2 = n2;
-        function = WCPSConstants.MSG_TWO_INDEXES;
+        function = WcpsConstants.MSG_TWO_INDEXES;
     }
 
     public IntervalExpr(String coverage, String axis) {
-        log.trace(WCPSConstants.MSG_CREATING_INTERVALEXPR + ": " + coverage + " " + WCPSConstants.MSG_AND + 
-                " " + WCPSConstants.MSG_AXIS + ": " + axis);
-        function = WCPSConstants.MSG_CRS_METADATA;
+        log.trace(WcpsConstants.MSG_CREATING_INTERVALEXPR + ": " + coverage + " " + WcpsConstants.MSG_AND + 
+                " " + WcpsConstants.MSG_AXIS + ": " + axis);
+        function = WcpsConstants.MSG_CRS_METADATA;
         this.e1 = new ImageCrsDomainMetadataExpr(coverage, axis);
     }
 
     public String toXML() {
         String result = "";
 
-        if (function.equals(WCPSConstants.MSG_TWO_INDEXES)) {
+        if (function.equals(WcpsConstants.MSG_TWO_INDEXES)) {
             result = e1.toXML() + e2.toXML();
-        } else if (function.equals(WCPSConstants.MSG_CRS_METADATA)) {
+        } else if (function.equals(WcpsConstants.MSG_CRS_METADATA)) {
             result = e1.toXML();
         }
 

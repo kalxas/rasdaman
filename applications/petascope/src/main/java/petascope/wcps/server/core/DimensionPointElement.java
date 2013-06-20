@@ -32,7 +32,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 
 public class DimensionPointElement extends AbstractRasNode {
@@ -52,7 +52,7 @@ public class DimensionPointElement extends AbstractRasNode {
     public DimensionPointElement(Node node, XmlQuery xq, CoverageInfo covInfo)
             throws WCPSException {
 
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         
@@ -73,14 +73,14 @@ public class DimensionPointElement extends AbstractRasNode {
         String name;
 
         while (node != null && finished == false) {
-            if (node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+            if (node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
                 node = node.getNextSibling();
                 continue;
             }
 
             // Try Axis
             try {
-                log.trace("  " + WCPSConstants.MSG_MATCHING_AXIS_NAME);
+                log.trace("  " + WcpsConstants.MSG_MATCHING_AXIS_NAME);
                 axis = new AxisName(node, xq);
                 node = node.getNextSibling();
                 continue;
@@ -89,11 +89,11 @@ public class DimensionPointElement extends AbstractRasNode {
             
             // Try CRS name
             try {
-                log.trace("  " + WCPSConstants.MSG_MATCHING_CRS);
+                log.trace("  " + WcpsConstants.MSG_MATCHING_CRS);
                 crs = new Crs(node, xq);
                 node = node.getNextSibling();
                 if (axis == null) {
-                    throw new WCPSException(WCPSConstants.ERRTXT_EXPECTED_AXIS_NODE);
+                    throw new WCPSException(WcpsConstants.ERRTXT_EXPECTED_AXIS_NODE);
                 }
                 continue;
             } catch (WCPSException e) {
@@ -114,14 +114,14 @@ public class DimensionPointElement extends AbstractRasNode {
 //            }
 
             // Then it must be a "slicingPosition"
-            if (node.getNodeName().equals(WCPSConstants.MSG_SLICING_POSITION)) {
-                log.trace("  " + WCPSConstants.MSG_SLICE_POSITION);
+            if (node.getNodeName().equals(WcpsConstants.MSG_SLICING_POSITION)) {
+                log.trace("  " + WcpsConstants.MSG_SLICE_POSITION);
                 domain = new ScalarExpr(node.getFirstChild(), xq);
                 if (axis == null) {
-                    throw new WCPSException(WCPSConstants.ERRTXT_EXPECTED_AXIS_NODE_SLICINGP);
+                    throw new WCPSException(WcpsConstants.ERRTXT_EXPECTED_AXIS_NODE_SLICINGP);
                 }
             } else {
-                throw new WCPSException(WCPSConstants.ERRTXT_UNEXPETCTED_NODE + ": " + node.getFirstChild().getNodeName());
+                throw new WCPSException(WcpsConstants.ERRTXT_UNEXPETCTED_NODE + ": " + node.getFirstChild().getNodeName());
             }
             
             if (axis != null && domain != null) {
@@ -142,10 +142,10 @@ public class DimensionPointElement extends AbstractRasNode {
             DomainElement axisDomain = meta.getDomainByName(axisName);
             if (axisDomain != null) {
                 String crsName = axisDomain.getCrs();
-                log.info(WCPSConstants.MSG_USING_NATIVE_CRS + ": " + crsName);
+                log.info(WcpsConstants.MSG_USING_NATIVE_CRS + ": " + crsName);
                 crs = new Crs(crsName);
             } else {
-                log.warn(WCPSConstants.WARNTXT_NO_NATIVE_CRS_P1 + " " + axisName + WCPSConstants.WARNTXT_NO_NATIVE_CRS_P2);
+                log.warn(WcpsConstants.WARNTXT_NO_NATIVE_CRS_P1 + " " + axisName + WcpsConstants.WARNTXT_NO_NATIVE_CRS_P2);
                 crs = new Crs(CrsUtil.GRID_CRS);
                 this.transformedCoordinates = true;
             }
@@ -159,11 +159,11 @@ public class DimensionPointElement extends AbstractRasNode {
     /* If input coordinates are geo-, convert them to pixel coordinates. */
     private void convertToPixelCoordinate() throws WCPSException {
         if (meta.getBbox() == null && crs != null) {
-            throw new RuntimeException(WCPSConstants.MSG_COVERAGE + " '" + meta.getCoverageName()
-                    + "' " + WCPSConstants.ERRTXT_IS_NOT_GEOREFERENCED);
+            throw new RuntimeException(WcpsConstants.MSG_COVERAGE + " '" + meta.getCoverageName()
+                    + "' " + WcpsConstants.ERRTXT_IS_NOT_GEOREFERENCED);
         }
         if (crs != null && domain.isSingleValue()) {
-            log.debug(WCPSConstants.DEBUGTXT_REQUESTED_SUBSETTING, crs.getName(), meta.getBbox().getCrsName());
+            log.debug(WcpsConstants.DEBUGTXT_REQUESTED_SUBSETTING, crs.getName(), meta.getBbox().getCrsName());
             try {
                 this.transformedCoordinates = true;
                 // Convert to pixel coordinates
@@ -173,7 +173,7 @@ public class DimensionPointElement extends AbstractRasNode {
                 coord = crs.convertToPixelIndices(meta, axisName, val, domIsNum);
             } catch (PetascopeException e) {
                 this.transformedCoordinates = false;
-                log.error(WCPSConstants.ERRTXT_ERROR_WHILE_TRANSFORMING);
+                log.error(WcpsConstants.ERRTXT_ERROR_WHILE_TRANSFORMING);
                 throw new WCPSException(e.getExceptionCode(), e.getMessage());
             }
         } // else no crs was embedded in the slice expression

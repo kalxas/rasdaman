@@ -36,7 +36,7 @@ import java.util.Vector;
 import org.w3c.dom.*;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 import petascope.wcs2.templates.Templates;
 
 public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageInfo {
@@ -50,7 +50,7 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
 
     public ConstructCoverageExpr(Node node, XmlQuery xq)
             throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
 
@@ -59,9 +59,9 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
 
         while (node != null) {
             String name = node.getNodeName();
-            if (name.equals(WCPSConstants.MSG_NAME)) {
+            if (name.equals(WcpsConstants.MSG_NAME)) {
                 covName = node.getTextContent();
-            } else if (name.equals(WCPSConstants.MSG_AXIS_ITERATOR)) {
+            } else if (name.equals(WcpsConstants.MSG_AXIS_ITERATOR)) {
                 AxisIterator it = new AxisIterator(node.getFirstChild(), xq, newIteratorName);
                 iterators.add(it);
                 // Top level structures need to know about these iterators
@@ -74,10 +74,10 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
                     try {
                         buildMetadata(xq);
                     } catch (PetascopeException ex) {
-                        throw new WCPSException(WCPSConstants.ERRTXT_CANNOT_BUILD_COVERAGE);
+                        throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE);
                     }
                 } else {
-                    throw new WCPSException(WCPSConstants.ERRTXT_CANNOT_BUILD_COVERAGE);
+                    throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE);
                 }
                 // And only then start parsing the "values" section 
                 values = new CoverageExpr(node, xq);
@@ -87,7 +87,7 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
             }
 
             node = node.getNextSibling();
-            while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+            while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
                 node = node.getNextSibling();
             }
         }
@@ -96,14 +96,14 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
 
         // Sanity check: metadata should have already been build
         if (info == null) {
-            throw new WCPSException(WCPSConstants.ERRTXT_CANNOT_BUILD_COVERAGE);
+            throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE);
         }
     }
 
     public String toRasQL() {
-        String result = WCPSConstants.MSG_MARRAY + " ";
+        String result = WcpsConstants.MSG_MARRAY + " ";
         result += axisIteratorString;
-        result += " " + WCPSConstants.MSG_VALUES + " " + values.toRasQL();
+        result += " " + WcpsConstants.MSG_VALUES + " " + values.toRasQL();
 
         return result;
     }
@@ -116,7 +116,7 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
      * that will be used to build to RasQL query */
     private void buildAxisIteratorDomain() {
         axisIteratorString = "";
-        axisIteratorString += newIteratorName + " " + WCPSConstants.MSG_IN + " [";
+        axisIteratorString += newIteratorName + " " + WcpsConstants.MSG_IN + " [";
 
         for (int i = 0; i < iterators.size(); i++) {
             if (i > 0) {
@@ -166,7 +166,7 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
         }
 
         // "unsigned int" is default datatype
-        rangeList.add(new RangeElement(WCPSConstants.MSG_DYNAMIC_TYPE, WCPSConstants.MSG_UNSIGNED_INT, null));
+        rangeList.add(new RangeElement(WcpsConstants.MSG_DYNAMIC_TYPE, WcpsConstants.MSG_UNSIGNED_INT, null));
         Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
         CoverageMetadata metadata = new CoverageMetadata(
                 coverageName,
@@ -176,7 +176,7 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
                 crs,
                 cellDomainList,
                 domainList,
-                Pair.of(BigDecimal.ZERO, ""),
+                Pair.of(BigInteger.ZERO, ""),
                 rangeList
                 );
         // Let the top-level query know the full metadata about us

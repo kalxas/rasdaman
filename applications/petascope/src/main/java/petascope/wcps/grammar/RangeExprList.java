@@ -22,7 +22,7 @@
 package petascope.wcps.grammar;
 
 import java.util.*;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * RangeExprList
@@ -47,7 +47,7 @@ public class RangeExprList implements IParseTreeNode {
         Iterator<RangeExpr> it = list.iterator();
 
         while (it.hasNext()) {
-            result += "<" + WCPSConstants.MSG_NULL + ">" + it.next().toXML() + "</" + WCPSConstants.MSG_NULL + ">";
+            result += "<" + WcpsConstants.MSG_NULL + ">" + it.next().toXML() + "</" + WcpsConstants.MSG_NULL + ">";
         }
 
         return result;

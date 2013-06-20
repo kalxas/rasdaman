@@ -38,7 +38,7 @@ import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 import petascope.wcs2.templates.Templates;
 
 public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
@@ -51,7 +51,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
     private String value; // It can be NumericScalar or StringScalar
 
     public ScalarExpr(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         
@@ -64,7 +64,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
         if (child == null) {
             try {
                 child = new MetadataScalarExpr(node, xq);
-                log.trace(WCPSConstants.MSG_MATCHED_METADATA_SCALAR_EXPR);
+                log.trace(WcpsConstants.MSG_MATCHED_METADATA_SCALAR_EXPR);
             } catch (WCPSException e) {
                 child = null;
             }
@@ -74,7 +74,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
         if (child == null) {
             try {
                 child = new BooleanScalarExpr(node, xq);
-                log.trace(WCPSConstants.MSG_MATCHED_BOOLEAN_SCALAR_EXPR);
+                log.trace(WcpsConstants.MSG_MATCHED_BOOLEAN_SCALAR_EXPR);
             } catch (WCPSException e) {
                 child = null;
             }
@@ -86,7 +86,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
                 child = new NumericScalarExpr(node, xq);
                 singleValue = ((NumericScalarExpr) child).isSingleValue();
                 value = "" + ((NumericScalarExpr) child).getSingleValue();
-                log.trace(WCPSConstants.MSG_MATCHED_NUMERIC_SCALAR_EXPR);
+                log.trace(WcpsConstants.MSG_MATCHED_NUMERIC_SCALAR_EXPR);
             } catch (WCPSException e) {
                 child = null;
             }
@@ -96,7 +96,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
         if (child == null) {
             try {
                 child = new ReduceScalarExpr(node, xq);
-                log.trace(WCPSConstants.MSG_MATCHED_REDUCE_SCALAR_EXPR);
+                log.trace(WcpsConstants.MSG_MATCHED_REDUCE_SCALAR_EXPR);
             } catch (WCPSException e) {
                 child = null;
             }
@@ -107,7 +107,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
             try {
                 child = new StringScalarExpr(node, xq);
                 singleValue = ((StringScalarExpr) child).isSingleValue();
-                log.trace(WCPSConstants.MSG_MATCHED_STRING_SCALAR_EXPR);
+                log.trace(WcpsConstants.MSG_MATCHED_STRING_SCALAR_EXPR);
                 value = ((StringScalarExpr) child).getValue();
             } catch (WCPSException e) {
                 child = null;
@@ -116,8 +116,8 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
 
         // Error check
         if (child == null) {
-            log.error("  " + WCPSConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
-            throw new WCPSException(WCPSConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
+            log.error("  " + WcpsConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
+            throw new WCPSException(WcpsConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
         } else {
             // Add it to the children for XML tree re-traversing
             super.children.add(child);
@@ -141,7 +141,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
     private CoverageMetadata createScalarExprMetadata(XmlQuery xq) throws WCPSException {
         List<CellDomainElement> cellDomainList = new LinkedList<CellDomainElement>();
         List<RangeElement> rangeList = new LinkedList<RangeElement>();
-        String coverageName = WCPSConstants.MSG_SCALAR_EXPR;
+        String coverageName = WcpsConstants.MSG_SCALAR_EXPR;
         List<DomainElement> domainList = new LinkedList<DomainElement>();
         List<String> crs = new ArrayList<String>(1);
         crs.add(CrsUtil.GRID_CRS);
@@ -164,7 +164,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
                 false)
                 );
         // "unsigned int" is default datatype
-        rangeList.add(new RangeElement(WCPSConstants.MSG_DYNAMIC_TYPE, WCPSConstants.MSG_UNSIGNED_INT, null));
+        rangeList.add(new RangeElement(WcpsConstants.MSG_DYNAMIC_TYPE, WcpsConstants.MSG_UNSIGNED_INT, null));
 
         try {
             Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
@@ -176,7 +176,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
                     crs,
                     cellDomainList,
                     domainList,
-                    Pair.of(BigDecimal.ZERO, ""),
+                    Pair.of(BigInteger.ZERO, ""),
                     rangeList
                     );
             return metadata;

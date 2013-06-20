@@ -26,7 +26,7 @@ import org.w3c.dom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
@@ -40,12 +40,12 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
     private String exMessage = "";
 
     public CoverageExpr(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
 
         if (node == null) {
-            throw new WCPSException(WCPSConstants.ERRTXT_COVERAGEEXPRTYPE_PASING_ERR);
+            throw new WCPSException(WcpsConstants.ERRTXT_COVERAGEEXPRTYPE_PASING_ERR);
         }
 
         String nodeName = node.getNodeName();
@@ -53,12 +53,12 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
         simpleCoverage = false;
 
-        if (nodeName.equals(WCPSConstants.MSG_COVERAGE)) {
+        if (nodeName.equals(WcpsConstants.MSG_COVERAGE)) {
             simpleCoverage = true;
             childInfo = node.getFirstChild().getNodeValue();
 
             if (!xq.isIteratorDefined(childInfo)) {
-                throw new WCPSException(WCPSConstants.MSG_ITERATOR + " " + childInfo + " " + WCPSConstants.ERRTXT_NOT_DEFINED);
+                throw new WCPSException(WcpsConstants.MSG_ITERATOR + " " + childInfo + " " + WcpsConstants.ERRTXT_NOT_DEFINED);
             }
 
             Iterator<String> coverages = xq.getCoverages(childInfo);
@@ -73,23 +73,23 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
                     if (!tmp.isCompatible(info)) {
                         throw new WCPSException(
-                                WCPSConstants.ERRTXT_INCOMPATIBLE_COVERAGES);
+                                WcpsConstants.ERRTXT_INCOMPATIBLE_COVERAGES);
                     }
                 }
             } catch (Exception ex) {
                 throw new WCPSException(ex.getMessage(), ex);
             }
 
-            log.trace(WCPSConstants.MSG_FOUND_SIMPLE_COVERAGE_DEF + ": " + childInfo + ", "
+            log.trace(WcpsConstants.MSG_FOUND_SIMPLE_COVERAGE_DEF + ": " + childInfo + ", "
                     + info.toString());
-        } else if (nodeName.equals(WCPSConstants.MSG_CRS_TRANSFORM)) {
+        } else if (nodeName.equals(WcpsConstants.MSG_CRS_TRANSFORM)) {
             // TODO: implement CrsTransform class
             child = new CrsTransformCoverageExpr(node, xq);
-        } else if (nodeName.equals(WCPSConstants.MSG_SCALE)) {
+        } else if (nodeName.equals(WcpsConstants.MSG_SCALE)) {
             child = new ScaleCoverageExpr(node, xq);
-        } else if (nodeName.equals(WCPSConstants.MSG_CONSTRUCT)) {
+        } else if (nodeName.equals(WcpsConstants.MSG_CONSTRUCT)) {
             child = new ConstructCoverageExpr(node.getFirstChild(), xq);
-        } else if (nodeName.equals(WCPSConstants.MSG_CONST)) {
+        } else if (nodeName.equals(WcpsConstants.MSG_CONST)) {
             child = new ConstantCoverageExpr(node.getFirstChild(), xq);
         } //        else if (nodeName.equals("variableRef"))
         //        {
@@ -102,7 +102,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
             if (child == null) {
                 try {
                     child = new SetMetadataCoverageExpr(node, xq);
-                    log.trace("  " + WCPSConstants.MSG_MATCHED_SET_METADATA);
+                    log.trace("  " + WcpsConstants.MSG_MATCHED_SET_METADATA);
                 } catch (WCPSException e) {
                     child = null;
                     exMessage = e.getMessage();
@@ -113,10 +113,10 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
             if (child == null) {
                 try {
                     child = new InducedOperationCoverageExpr(node, xq);
-                    log.trace("  " + WCPSConstants.MSG_MATCHED_INDUCED_COVERAGE);
+                    log.trace("  " + WcpsConstants.MSG_MATCHED_INDUCED_COVERAGE);
                 } catch (WCPSException e) {
                     child = null;
-                    if (e.getMessage().equals(WCPSConstants.MSG_METHOD_NOT_IMPL)) {
+                    if (e.getMessage().equals(WcpsConstants.MSG_METHOD_NOT_IMPL)) {
                         throw e;
                     }
                 }
@@ -125,7 +125,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
             if (child == null) {
                 try {
                     child = new SubsetOperationCoverageExpr(node, xq);
-                    log.trace("  " + WCPSConstants.MSG_MATCHED_SUBSET_OP);
+                    log.trace("  " + WcpsConstants.MSG_MATCHED_SUBSET_OP);
                 } catch (WCPSException e) {
                     child = null;
                     exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
@@ -136,7 +136,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
                 try {
                     child = new ScalarExpr(node, xq);
                     this.scalarExpr = true;
-                    log.trace(WCPSConstants.MSG_MATCHED_SCALAR_EXPR);
+                    log.trace(WcpsConstants.MSG_MATCHED_SCALAR_EXPR);
                 } catch (WCPSException e) {
                     child = null;
                     exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
@@ -145,7 +145,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
         }
 
         if (!simpleCoverage && (child == null)) {
-            throw new WCPSException(WCPSConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": "
+            throw new WCPSException(WcpsConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": "
                     + node.getNodeName() + " - " + exMessage);
         }
 

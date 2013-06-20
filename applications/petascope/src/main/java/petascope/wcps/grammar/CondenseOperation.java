@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * CondenseOperationType
@@ -39,18 +39,18 @@ public class CondenseOperation implements IParseTreeNode {
     public String toXML() {
         String result = "";
 
-        if (op.equalsIgnoreCase(WCPSConstants.MSG_PLUS)) {
-            result = WCPSConstants.MSG_OP_PLUS;
-        } else if (op.equalsIgnoreCase(WCPSConstants.MSG_STAR)) {
-            result = WCPSConstants.MSG_OP_MULT;
-        } else if (op.equalsIgnoreCase(WCPSConstants.MSG_MAX)) {
-            result = WCPSConstants.MSG_OP_MAX;
-        } else if (op.equalsIgnoreCase(WCPSConstants.MSG_MIN)) {
-            result = WCPSConstants.MSG_OP_MIN;
-        } else if (op.equalsIgnoreCase(WCPSConstants.MSG_AND)) {
-            result = WCPSConstants.MSG_OP_AND;
-        } else if (op.equalsIgnoreCase(WCPSConstants.MSG_OR)) {
-            result = WCPSConstants.MSG_OP_OR;
+        if (op.equalsIgnoreCase(WcpsConstants.MSG_PLUS)) {
+            result = WcpsConstants.MSG_OP_PLUS;
+        } else if (op.equalsIgnoreCase(WcpsConstants.MSG_STAR)) {
+            result = WcpsConstants.MSG_OP_MULT;
+        } else if (op.equalsIgnoreCase(WcpsConstants.MSG_MAX)) {
+            result = WcpsConstants.MSG_OP_MAX;
+        } else if (op.equalsIgnoreCase(WcpsConstants.MSG_MIN)) {
+            result = WcpsConstants.MSG_OP_MIN;
+        } else if (op.equalsIgnoreCase(WcpsConstants.MSG_AND)) {
+            result = WcpsConstants.MSG_OP_AND;
+        } else if (op.equalsIgnoreCase(WcpsConstants.MSG_OR)) {
+            result = WcpsConstants.MSG_OP_OR;
         }
 
         result = "<" + result + "/>";

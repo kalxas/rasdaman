@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * ForClauseElements
@@ -48,10 +48,10 @@ public class ForClauseElements implements IParseTreeNode {
     public String toXML() {
         String result = "";
 
-        result += "<" + WCPSConstants.MSG_COVERAGE_ITERATOR + ">";
-        result += "<" + WCPSConstants.MSG_ITERATORVAR + ">" + var + "</" + WCPSConstants.MSG_ITERATORVAR + ">";
+        result += "<" + WcpsConstants.MSG_COVERAGE_ITERATOR + ">";
+        result += "<" + WcpsConstants.MSG_ITERATORVAR + ">" + var + "</" + WcpsConstants.MSG_ITERATORVAR + ">";
         result += coverageList.toXML();
-        result += "</" + WCPSConstants.MSG_COVERAGE_ITERATOR + ">";
+        result += "</" + WcpsConstants.MSG_COVERAGE_ITERATOR + ">";
 
         if (next != null) {
             result += next.toXML();

@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * ExtendExpr
@@ -39,7 +39,7 @@ public class ExtendExpr implements IParseTreeNode {
     }
 
     public String toXML() {
-        return "<" + WCPSConstants.MSG_EXTEND + ">" + coverageExpr.toXML() + intervalList.toXML() + 
-                "</" + WCPSConstants.MSG_EXTEND + ">";
+        return "<" + WcpsConstants.MSG_EXTEND + ">" + coverageExpr.toXML() + intervalList.toXML() + 
+                "</" + WcpsConstants.MSG_EXTEND + ">";
     }
 }

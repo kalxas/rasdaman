@@ -29,7 +29,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class CoverageInfo {
     
@@ -75,7 +75,7 @@ public class CoverageInfo {
 
     public boolean isCompatible(CoverageInfo other) {
         if (getNumDimensions() != other.getNumDimensions()) {
-            log.error(WCPSConstants.ERRTXT_NUMBER_DIM_DOES_NOT_MATCH);
+            log.error(WcpsConstants.ERRTXT_NUMBER_DIM_DOES_NOT_MATCH);
             return false;
         }
 
@@ -90,14 +90,14 @@ public class CoverageInfo {
                 you = other.getCellDomainElement(index++);
 
                 if (!me.getHi().equals(you.getHi())) {
-                    log.error(WCPSConstants.ERRTXT_HIGH_VALUES_DONOT_MATCH + ": "
+                    log.error(WcpsConstants.ERRTXT_HIGH_VALUES_DONOT_MATCH + ": "
                             + me.getHi().toString() + ", "
                             + you.getHi().toString());
                     return false;
                 }
 
                 if (!me.getLo().equals(you.getLo())) {
-                    log.error(WCPSConstants.ERRTXT_LOW_VALUES_DONOT_MATCH + ": "
+                    log.error(WcpsConstants.ERRTXT_LOW_VALUES_DONOT_MATCH + ": "
                             + me.getLo().toString() + ", "
                             + you.getLo().toString());
                     return false;
@@ -115,8 +115,8 @@ public class CoverageInfo {
                 you = other.getDomainElement(index++);
 
                 if (!me.getLabel().equals(you.getLabel())) {
-                    log.error(WCPSConstants.ERRTXT_DOMAIN_ELEMENT_DONNOT_MATCH + ": '"
-                            + me.getLabel() + "' " + WCPSConstants.MSG_AND + " '"
+                    log.error(WcpsConstants.ERRTXT_DOMAIN_ELEMENT_DONNOT_MATCH + ": '"
+                            + me.getLabel() + "' " + WcpsConstants.MSG_AND + " '"
                             + you.getLabel() + "'.");
                     return false;
                 }
@@ -173,8 +173,8 @@ public class CoverageInfo {
             index++;
         }
 
-        log.error(WCPSConstants.ERRTXT_AXIS_NAME_NOT_FOUND + ": " + type);
-        throw new WCPSException(WCPSConstants.ERRTXT_DOMAIN_NAME_NOT_FOUND + ": " + type);
+        log.error(WcpsConstants.ERRTXT_AXIS_NAME_NOT_FOUND + ": " + type);
+        throw new WCPSException(WcpsConstants.ERRTXT_DOMAIN_NAME_NOT_FOUND + ": " + type);
     }
     
     public int getDomainIndexByName(String name) throws WCPSException {
@@ -189,8 +189,8 @@ public class CoverageInfo {
             index++;
         }
         
-        log.error(WCPSConstants.ERRTXT_AXIS_NAME_NOT_FOUND + ": " + name);
-        throw new WCPSException(WCPSConstants.ERRTXT_DOMAIN_NAME_NOT_FOUND + ": " + name);
+        log.error(WcpsConstants.ERRTXT_AXIS_NAME_NOT_FOUND + ": " + name);
+        throw new WCPSException(WcpsConstants.ERRTXT_DOMAIN_NAME_NOT_FOUND + ": " + name);
     }
 
     @Override

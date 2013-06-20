@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 
 /**
@@ -55,11 +55,11 @@ public class WCPSRequest implements IParseTreeNode {
 
     @Override
     public String toXML() {
-        String result = WCPSConstants.MSG_XML_HEADER + "\n";
+        String result = WcpsConstants.MSG_XML_HEADER + "\n";
 
         result +=
-                "<" + WCPSConstants.MSG_PROCESS_COVERAGE_REQUEST + " " + WCPSConstants.MSG_XMLNS + ">\n";
-        result += "<" + WCPSConstants.MSG_QUERY + "><" + WCPSConstants.MSG_XML_SYNTAX + ">";
+                "<" + WcpsConstants.MSG_PROCESS_COVERAGE_REQUEST + " " + WcpsConstants.MSG_XMLNS + ">\n";
+        result += "<" + WcpsConstants.MSG_QUERY + "><" + WcpsConstants.MSG_XML_SYNTAX + ">";
 
         result += forClause.toXML();
 
@@ -71,8 +71,8 @@ public class WCPSRequest implements IParseTreeNode {
             result += returnClause.toXML();
         }
 
-        result += "</" + WCPSConstants.MSG_XML_SYNTAX + "></" + WCPSConstants.MSG_QUERY + ">";
-        result += "</" + WCPSConstants.MSG_PROCESS_COVERAGE_REQUEST + ">";
+        result += "</" + WcpsConstants.MSG_XML_SYNTAX + "></" + WcpsConstants.MSG_QUERY + ">";
+        result += "</" + WcpsConstants.MSG_PROCESS_COVERAGE_REQUEST + ">";
 
         return result;
     }

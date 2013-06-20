@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.exceptions.WCPSException;
 import petascope.util.Pair;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
@@ -38,27 +38,27 @@ public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICov
     public SubsetOperationCoverageExpr(Node node, XmlQuery xq)
             throws WCPSException {
 
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
 
         if (node == null) {
-            throw new WCPSException(WCPSConstants.ERRTXT_SUBSET_OP_COV_EXPR);
+            throw new WCPSException(WcpsConstants.ERRTXT_SUBSET_OP_COV_EXPR);
         }
 
         String nodeName = node.getNodeName();
         log.trace(nodeName);
 
-        if (nodeName.equals(WCPSConstants.MSG_TRIM)) {
-            log.trace("  " + WCPSConstants.MSG_TRIM + " " + WCPSConstants.MSG_CHILD);
+        if (nodeName.equals(WcpsConstants.MSG_TRIM)) {
+            log.trace("  " + WcpsConstants.MSG_TRIM + " " + WcpsConstants.MSG_CHILD);
             child = new TrimCoverageExpr(node, xq);
             info = ((TrimCoverageExpr) child).getCoverageInfo();
-        } else if (nodeName.equals(WCPSConstants.MSG_EXTEND)) {
-            log.trace("  " + WCPSConstants.MSG_EXTEND + " " + WCPSConstants.MSG_CHILD);
+        } else if (nodeName.equals(WcpsConstants.MSG_EXTEND)) {
+            log.trace("  " + WcpsConstants.MSG_EXTEND + " " + WcpsConstants.MSG_CHILD);
             child = new ExtendCoverageExpr(node, xq);
             info = ((ExtendCoverageExpr) child).getCoverageInfo();
-        } else if (nodeName.equals(WCPSConstants.MSG_SLICE)) {
-            log.trace("  " + WCPSConstants.MSG_SLICE + " " + WCPSConstants.MSG_CHILD);
+        } else if (nodeName.equals(WcpsConstants.MSG_SLICE)) {
+            log.trace("  " + WcpsConstants.MSG_SLICE + " " + WcpsConstants.MSG_CHILD);
             try {
                 child = new SliceCoverageExpr(node, xq);
             } catch (WCPSException ex) {
@@ -66,8 +66,8 @@ public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICov
             } 
             info = ((SliceCoverageExpr) child).getCoverageInfo();
         } else {
-            log.error("  " + WCPSConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);
-            throw new WCPSException(WCPSConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);
+            log.error("  " + WcpsConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);
+            throw new WCPSException(WcpsConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);
         }
         
         // Keep the children to re-traverse the XML tree

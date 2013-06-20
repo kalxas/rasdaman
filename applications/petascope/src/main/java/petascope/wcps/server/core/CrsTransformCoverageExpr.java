@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 //TODO(smsorin): how do we do combine this ?
 
@@ -46,7 +46,7 @@ public class CrsTransformCoverageExpr extends AbstractRasNode implements ICovera
             //      extract xy pixels 
             //      project(arr, bbox, s_crs, t_crs);
             // end
-        throw new WCPSException(ExceptionCode.NoApplicableCode, WCPSConstants.MSG_CRS_TRANSFORM_EXPR);
+        throw new WCPSException(ExceptionCode.NoApplicableCode, WcpsConstants.MSG_CRS_TRANSFORM_EXPR);
     }
 
     @Override

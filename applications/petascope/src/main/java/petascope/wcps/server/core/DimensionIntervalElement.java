@@ -30,7 +30,7 @@ import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.CrsUtil;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * @author <?>
@@ -63,7 +63,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
     public DimensionIntervalElement(Node node, XmlQuery xq, CoverageInfo covInfo)
             throws WCPSException {
         
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         log.trace(node.getNodeName());
@@ -81,7 +81,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
         }
         
         while (node != null && finished == false) {
-            if (node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+            if (node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
                 node = node.getNextSibling();
                 continue;
             }
@@ -99,7 +99,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 crs = new Crs(node, xq);
                 node = node.getNextSibling();
                 if (axis == null) {
-                    throw new WCPSException(WCPSConstants.ERRTXT_EXPECTED_AXIS_NODE);
+                    throw new WCPSException(WcpsConstants.ERRTXT_EXPECTED_AXIS_NODE);
                 }
                 continue;
             } catch (WCPSException e) {
@@ -120,23 +120,23 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
             //            }
             
             // Then it must be a pair of nodes "lowerBound" + "upperBound"
-            if (node.getNodeName().equals(WCPSConstants.MSG_LOWER_BOUND)) {
+            if (node.getNodeName().equals(WcpsConstants.MSG_LOWER_BOUND)) {
                 counter = 2;
                 domain1 = new ScalarExpr(node.getFirstChild(), xq);
                 if (axis == null) {
-                    log.error(WCPSConstants.ERRTXT_EXPECTED_AXIS_NODE_LOWERB);
-                    throw new WCPSException(WCPSConstants.ERRTXT_EXPECTED_AXIS_NODE_LOWERB);
+                    log.error(WcpsConstants.ERRTXT_EXPECTED_AXIS_NODE_LOWERB);
+                    throw new WCPSException(WcpsConstants.ERRTXT_EXPECTED_AXIS_NODE_LOWERB);
                 }
-            } else if (node.getNodeName().equals(WCPSConstants.MSG_UPPER_BOUND)) {
+            } else if (node.getNodeName().equals(WcpsConstants.MSG_UPPER_BOUND)) {
                 counter = 2;
                 domain2 = new ScalarExpr(node.getFirstChild(), xq);
                 if (axis == null) {
-                    log.error(WCPSConstants.ERRTXT_EXPECTED_AXIS_NODE_UPPERB);
-                    throw new WCPSException(WCPSConstants.ERRTXT_EXPECTED_AXIS_NODE_UPPERB);
+                    log.error(WcpsConstants.ERRTXT_EXPECTED_AXIS_NODE_UPPERB);
+                    throw new WCPSException(WcpsConstants.ERRTXT_EXPECTED_AXIS_NODE_UPPERB);
                 }
             } else {
-                log.error("  " + WCPSConstants.ERRTXT_UNEXPETCTED_NODE + ": " + node.getFirstChild().getNodeName());
-                throw new WCPSException(WCPSConstants.ERRTXT_UNEXPETCTED_NODE + ": " + node.getFirstChild().getNodeName());
+                log.error("  " + WcpsConstants.ERRTXT_UNEXPETCTED_NODE + ": " + node.getFirstChild().getNodeName());
+                throw new WCPSException(WcpsConstants.ERRTXT_UNEXPETCTED_NODE + ": " + node.getFirstChild().getNodeName());
             }
             
             if (axis != null && counter == 1 && domain1 != null) {
@@ -168,7 +168,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                     crs = new Crs(CrsUtil.GRID_CRS);
                 }
             } else {
-                log.warn(WCPSConstants.WARNTXT_NO_NATIVE_CRS_P1 + " " + axisName + WCPSConstants.WARNTXT_NO_NATIVE_CRS_P2);
+                log.warn(WcpsConstants.WARNTXT_NO_NATIVE_CRS_P1 + " " + axisName + WcpsConstants.WARNTXT_NO_NATIVE_CRS_P2);
                 crs = new Crs(CrsUtil.GRID_CRS);
                 this.transformedCoordinates = true;
 
@@ -187,8 +187,8 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
     private void convertToPixelCoordinates() throws WCPSException {
 
         if (meta.getBbox() == null && crs != null) {
-            throw new RuntimeException(WCPSConstants.MSG_COVERAGE + " '" + meta.getCoverageName()
-                    + "' " + WCPSConstants.ERRTXT_IS_NOT_GEOREFERENCED);
+            throw new RuntimeException(WcpsConstants.MSG_COVERAGE + " '" + meta.getCoverageName()
+                    + "' " + WcpsConstants.ERRTXT_IS_NOT_GEOREFERENCED);
         }
         if (counter == 2 && crs != null && domain1.isSingleValue() && domain2.isSingleValue()) {
             log.debug("[Transformed] requested subsettingCrs is '{}', should match now native CRS '{}'",
@@ -207,14 +207,14 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
             } catch (PetascopeException e) {
                 this.transformedCoordinates = false;
                 throw new WCPSException(ExceptionCode.InvalidMetadata,
-                        WCPSConstants.ERRTXT_ERROR_WHILE_CONVERTING);            }
+                        WcpsConstants.ERRTXT_ERROR_WHILE_CONVERTING);            }
         }
     }
     
     /* Not used */
     @Override
     public String toRasQL() {
-        return WCPSConstants.MSG_DOMAIN_INTERVAL_ELEMENT_NOT;
+        return WcpsConstants.MSG_DOMAIN_INTERVAL_ELEMENT_NOT;
     }
     
     @Override

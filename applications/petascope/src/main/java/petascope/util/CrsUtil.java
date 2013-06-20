@@ -209,21 +209,24 @@ public class CrsUtil {
         return transform(doubleCoords);
     }
     
+    // TODO: ask SECORE which auths are supported.
     /**
      * @param   String crsID    OGC identification URL of CRS.
      * @return  boolean         True if a supported CRS (currently EPSG codes only).
      */
     public static boolean isSupportedCrsCode(String crsID) {
-        try {
-            // read from List e return
-            return crsID.equals(GRID_CRS)
-                    || (CrsUri.getAuthority(crsID).equals(EPSG_AUTH) && CrsUri.getVersion(crsID).equals(CRS_DEFAULT_VERSION)); //&& SUPPORTED_EPSG.contains(Integer.parseInt(CrsUri.getCode(crsID))));
-            //      || CrsUri.getAuthority(crsID).equals(IAU_AUTH) && ....
-            //      ...
-        } catch (Exception e) {
-            log.warn(e.getMessage());
-            return false;
-        }
+    //   try {
+    //        // read from List e return
+    //        return crsID.equals(GRID_CRS)
+    //                || (CrsUri.getAuthority(crsID).equals(EPSG_AUTH) && CrsUri.getVersion(crsID).equals(CRS_DEFAULT_VERSION)) //&& SUPPORTED_EPSG.contains(Integer.parseInt(CrsUri.getCode(crsID))));
+    //                || 
+    //        //      || CrsUri.getAuthority(crsID).equals(IAU_AUTH) && ....
+    //        //      ...
+    //    } catch (Exception e) {
+    //        log.warn(e.getMessage());
+    //        return false;
+    //    }
+        return true;
     }
     
     /**

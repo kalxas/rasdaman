@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import petascope.exceptions.WCPSException;
 import petascope.util.Pair;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 import petascope.util.WcsUtil;
 
 public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo {
@@ -56,14 +56,14 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         while (child != null) {
             nodeName = child.getNodeName();
 
-            if (nodeName.equals("#" + WCPSConstants.MSG_TEXT)) {
+            if (nodeName.equals("#" + WcpsConstants.MSG_TEXT)) {
                 child = child.getNextSibling();
                 continue;
             }
 
-            if (nodeName.equals(WCPSConstants.MSG_AXIS)) {
+            if (nodeName.equals(WcpsConstants.MSG_AXIS)) {
                 // Start a new axis and save it
-                log.trace("  " + WCPSConstants.MSG_AXIS);
+                log.trace("  " + WcpsConstants.MSG_AXIS);
                 try {
                     elem = new DimensionPointElement(child, xq, coverageInfo);
                 } catch (WCPSException ex) {
@@ -73,15 +73,15 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
                 child = elem.getNextNode();
             } else {
                 try {
-                    log.trace("  " + WCPSConstants.MSG_COVERAGE);
+                    log.trace("  " + WcpsConstants.MSG_COVERAGE);
                     coverageExprType = new CoverageExpr(child, xq);
                     coverageInfo = coverageExprType.getCoverageInfo();
                     super.children.add(coverageExprType);
                     child = child.getNextSibling();
                     continue;
                 } catch (WCPSException e) {
-                    log.error("  " + WCPSConstants.ERRTXT_EXPECTED_COVERAGE_NODE_GOT + " " + nodeName);
-                    throw new WCPSException(WCPSConstants.ERRTXT_UNKNOWN_NODE_FOR_SLICE_COV + ":" + child.getNodeName());
+                    log.error("  " + WcpsConstants.ERRTXT_EXPECTED_COVERAGE_NODE_GOT + " " + nodeName);
+                    throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_NODE_FOR_SLICE_COV + ":" + child.getNodeName());
                 }
             }
         }
@@ -90,7 +90,7 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         super.children.addAll(axisList);     
         
         dims = coverageInfo.getNumDimensions();
-        log.trace("  " + WCPSConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
+        log.trace("  " + WcpsConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
         dimNames = new String[dims];
 
         for (int j = 0; j < dims; ++j) {
@@ -116,8 +116,8 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             } catch (NumberFormatException e) {
                 slicingPosInt = 1;
             }
-            log.trace("  " + WCPSConstants.MSG_SLICE_AT_AXIS_ID + ": " + axisId + ", " + WCPSConstants.MSG_AXIS + 
-                    " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName() + ", " + WCPSConstants.MSG_SLICING_POSITION2 + ": " + slicingPosInt);
+            log.trace("  " + WcpsConstants.MSG_SLICE_AT_AXIS_ID + ": " + axisId + ", " + WcpsConstants.MSG_AXIS + 
+                    " " + WcpsConstants.MSG_NAME + ": " + axis.getAxisName() + ", " + WcpsConstants.MSG_SLICING_POSITION2 + ": " + slicingPosInt);
             coverageInfo.setCellDimension(
                     axisId,
                     new CellDomainElement(

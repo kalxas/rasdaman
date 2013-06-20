@@ -34,7 +34,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 import petascope.util.CrsUtil;
 import petascope.util.TimeUtil;
 
@@ -49,21 +49,21 @@ public class Crs extends AbstractRasNode {
     }
     
     public Crs(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         log.trace(node.getNodeName());
         
-        if (node != null && node.getNodeName().equals(WCPSConstants.MSG_SRS_NAME)) {
+        if (node != null && node.getNodeName().equals(WcpsConstants.MSG_SRS_NAME)) {
             String val = node.getTextContent();
             this.crsName = val;
             //if (crsName.equals(DomainElement.IMAGE_CRS) || crsName.equals(DomainElement.WGS84_CRS)) {
-            log.trace(WCPSConstants.MSG_FOUND_CRS + ": " + crsName);
+            log.trace(WcpsConstants.MSG_FOUND_CRS + ": " + crsName);
             //} else {
             //    throw new WCPSException("Invalid CRS: '" + crsName + "'");
             //}
         } else {
-            throw new WCPSException(WCPSConstants.ERRTXT_COULD_NOT_FIND_SRSNAME);
+            throw new WCPSException(WcpsConstants.ERRTXT_COULD_NOT_FIND_SRSNAME);
         }
         
         // If coverage is not dynamic, it can be irregular: I need to query the DB to convert to pixels.
@@ -105,14 +105,14 @@ public class Crs extends AbstractRasNode {
         
         // Inconsistency check
         if (cdom == null || dom == null) {
-            log.error(WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ": " + covMeta.getCoverageName());
-            throw new PetascopeException(ExceptionCode.NoApplicableCode, WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ":" + covMeta.getCoverageName());
+            log.error(WcpsConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WcpsConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ": " + covMeta.getCoverageName());
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, WcpsConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WcpsConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ":" + covMeta.getCoverageName());
         }
         
         // Get cellDomain extremes
         int pxLo = cdom.getLo().intValue();
         int pxHi = cdom.getHi().intValue();
-        log.trace(WCPSConstants.MSG_CELL_DOMAIN_EXTREMES + pxLo + ", " + WCPSConstants.MSG_HIGH_U + ":" + pxHi);
+        log.trace(WcpsConstants.MSG_CELL_DOMAIN_EXTREMES + pxLo + ", " + WcpsConstants.MSG_HIGH_U + ":" + pxHi);
         
         // Get Domain extremes (real sdom)
         BigDecimal domLo = dom.getMinValue();

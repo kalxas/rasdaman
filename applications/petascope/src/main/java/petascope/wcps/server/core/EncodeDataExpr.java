@@ -34,7 +34,7 @@ import petascope.core.IDynamicMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.MiscUtil;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 import petascope.wcs2.extensions.FormatExtension;
 
 // This is the equivalent of the "ProcessingExprType" complex XML type.
@@ -56,20 +56,20 @@ public class EncodeDataExpr extends AbstractRasNode {
         for (child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
             nodeName = child.getNodeName();
             
-            if (nodeName.equals("#" + WCPSConstants.MSG_TEXT)) {
+            if (nodeName.equals("#" + WcpsConstants.MSG_TEXT)) {
                 continue;
             }
 
-            if (nodeName.equals(WCPSConstants.MSG_FORMAT)) {
+            if (nodeName.equals(WcpsConstants.MSG_FORMAT)) {
                 format = child.getFirstChild().getNodeValue();
                 mime = request.getMetadataSource().formatToMimetype(format);
-                log.trace("  " + WCPSConstants.MSG_FORMAT + ": " + format + ", " + WCPSConstants.MSG_MIME + ": " + mime);
+                log.trace("  " + WcpsConstants.MSG_FORMAT + ": " + format + ", " + WcpsConstants.MSG_MIME + ": " + mime);
                 continue;
             }
 
-            if (nodeName.equals(WCPSConstants.MSG_EXTRA_PARAMETERS)) {
+            if (nodeName.equals(WcpsConstants.MSG_EXTRA_PARAMETERS)) {
                 extraParams = child.getFirstChild().getNodeValue();
-                log.trace("  " + WCPSConstants.MSG_EXTRA_PARAMS + ": " + extraParams);
+                log.trace("  " + WcpsConstants.MSG_EXTRA_PARAMS + ": " + extraParams);
                 continue;
             }
 
@@ -83,9 +83,9 @@ public class EncodeDataExpr extends AbstractRasNode {
             super.children.add(coverageExprType);
         }
 
-        Node _store = node.getAttributes().getNamedItem(WCPSConstants.MSG_STORE);
+        Node _store = node.getAttributes().getNamedItem(WcpsConstants.MSG_STORE);
         if (_store != null) {
-            store = _store.getNodeValue().equals(WCPSConstants.MSG_TRUE);
+            store = _store.getNodeValue().equals(WcpsConstants.MSG_TRUE);
         }
     }
 
@@ -99,7 +99,7 @@ public class EncodeDataExpr extends AbstractRasNode {
         String result = "";
         IDynamicMetadataSource metadataSource = Wcps.getDynamicMetadataSource();
 
-        if (format.equals(WCPSConstants.MSG_RAW)) {
+        if (format.equals(WcpsConstants.MSG_RAW)) {
             result = coverageExprType.toRasQL();
         } else {
             // check if there is a gdal id, it may be a rasdaman specific format like CSV
@@ -117,7 +117,7 @@ public class EncodeDataExpr extends AbstractRasNode {
             
             // determine function name either encode() or csv() (and similar)
             if (encode) {
-                result = WCPSConstants.MSG_ENCODE;
+                result = WcpsConstants.MSG_ENCODE;
             } else {
                 result = format;
             }

@@ -34,7 +34,7 @@ import org.xml.sax.InputSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.ras.RasUtil;
 import petascope.core.IDynamicMetadataSource;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /** A WCPS ProcessCoveragesRequest request provides a (just one) rasdaman query, that it executes.
  *
@@ -63,23 +63,23 @@ public class ProcessCoveragesRequest {
         Node child = node.getFirstChild();
         this.rasqlQuery = null;
 
-        if (child.getNodeName().equals(WCPSConstants.MSG_PROCESS_COVERAGE_REQUEST) == false) {
-            throw new WCPSException(WCPSConstants.ERRTXT_THE_DOC_UNRECOG_NODE
+        if (child.getNodeName().equals(WcpsConstants.MSG_PROCESS_COVERAGE_REQUEST) == false) {
+            throw new WCPSException(WcpsConstants.ERRTXT_THE_DOC_UNRECOG_NODE
                     + child.getNodeName());
         }
 
         child = child.getFirstChild();
-        while (child.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while (child.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             child = child.getNextSibling();
         }
 
-        if (child.getNodeName().equals(WCPSConstants.MSG_QUERY) == false) {
-            throw new WCPSException(WCPSConstants.ERRTXT_COULD_NOT_FIND_NODE_QUERY + child.getNodeName());
+        if (child.getNodeName().equals(WcpsConstants.MSG_QUERY) == false) {
+            throw new WCPSException(WcpsConstants.ERRTXT_COULD_NOT_FIND_NODE_QUERY + child.getNodeName());
         }
 
         // "child" is now the node <query>.
         Node queryNode = child.getFirstChild();
-        while (queryNode.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while (queryNode.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             queryNode = queryNode.getNextSibling();
         }
 
@@ -88,41 +88,41 @@ public class ProcessCoveragesRequest {
          * 1) the xml contains an <xmlSyntax> request
          * 2) the xml contains an <abstractSyntax> request
          */
-        if (queryNode.getNodeName().equals(WCPSConstants.MSG_XML_SYNTAX)) {
-            log.debug(WCPSConstants.DEBUGTXT_FOUND_XML_SYTANX_QUERY);
+        if (queryNode.getNodeName().equals(WcpsConstants.MSG_XML_SYNTAX)) {
+            log.debug(WcpsConstants.DEBUGTXT_FOUND_XML_SYTANX_QUERY);
             this.xmlQuery = new XmlQuery(this.source);
             try {
                 xmlQuery.startParsing(queryNode);
             } catch (WCPSException ex) {
                 throw ex;
             }
-        } else if (queryNode.getNodeName().equals(WCPSConstants.MSG_ABSTRACT_SYNTAX)) {
+        } else if (queryNode.getNodeName().equals(WcpsConstants.MSG_ABSTRACT_SYNTAX)) {
             String abstractQuery = queryNode.getFirstChild().getNodeValue();
-            log.debug(WCPSConstants.DEBUGTXT_FOUND_ABSTRACT_SSYNTAX_QUERY + abstractQuery);
+            log.debug(WcpsConstants.DEBUGTXT_FOUND_ABSTRACT_SSYNTAX_QUERY + abstractQuery);
             String xmlString = RasUtil.abstractWCPStoXML(abstractQuery);
             InputSource xmlStringSource = new InputSource(new StringReader(xmlString));
-            log.debug(WCPSConstants.DEBUGTXT_CONVERTED_ABSTRACT_SYNTAX_QUERY);
-            log.debug(WCPSConstants.MSG_STAR_LINE);
+            log.debug(WcpsConstants.DEBUGTXT_CONVERTED_ABSTRACT_SYNTAX_QUERY);
+            log.debug(WcpsConstants.MSG_STAR_LINE);
             log.debug(xmlString);
-            log.debug(WCPSConstants.MSG_STAR_LINE);
+            log.debug(WcpsConstants.MSG_STAR_LINE);
             ProcessCoveragesRequest newRequest = wcps.pcPrepare(url, database, xmlStringSource);
             this.xmlQuery = newRequest.getXmlRequestStructure();
         } else {
-            throw new WCPSException(WCPSConstants.ERRTXT_ERROR_UNEXPECTED_NODE + queryNode.getNodeName());
+            throw new WCPSException(WcpsConstants.ERRTXT_ERROR_UNEXPECTED_NODE + queryNode.getNodeName());
         }
 
         // If everything went well, we now have a proper value for "xmlQuery"
         this.rasqlQuery = xmlQuery.toRasQL();
         if (isRasqlQuery()) {
-            log.debug(WCPSConstants.DEBUGTXT_FINAL_RASQL_QUERY + rasqlQuery);
+            log.debug(WcpsConstants.DEBUGTXT_FINAL_RASQL_QUERY + rasqlQuery);
         } else {
-            log.debug(WCPSConstants.DEBUGTXT_FINALMETADATA_RESULT + rasqlQuery);
+            log.debug(WcpsConstants.DEBUGTXT_FINALMETADATA_RESULT + rasqlQuery);
         }
         this.mime = xmlQuery.getMimeType();
     }
     
     public boolean isRasqlQuery() {
-        return rasqlQuery != null && rasqlQuery.startsWith(WCPSConstants.MSG_SELECT);
+        return rasqlQuery != null && rasqlQuery.trim().startsWith("select");
     }
 
     public String getMime() {
@@ -141,8 +141,8 @@ public class ProcessCoveragesRequest {
         try {
             return RasUtil.executeRasqlQuery(rasqlQuery);
         } catch (RasdamanException ex) {
-            throw new WCPSException(ExceptionCode.ResourceError, WCPSConstants.ERRTXT_COULD_NOT_EVAL_RASDAMAN_Q_P1
-                        + getRasqlQuery() + WCPSConstants.ERRTXT_COULD_NOT_EVAL_RASDAMAN_Q_P2 + ex.getMessage(), ex);
+            throw new WCPSException(ExceptionCode.ResourceError, WcpsConstants.ERRTXT_COULD_NOT_EVAL_RASDAMAN_Q_P1
+                        + getRasqlQuery() + WcpsConstants.ERRTXT_COULD_NOT_EVAL_RASDAMAN_Q_P2 + ex.getMessage(), ex);
         }
     }
 }

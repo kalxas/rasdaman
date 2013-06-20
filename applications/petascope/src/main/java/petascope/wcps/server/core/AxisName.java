@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.exceptions.ExceptionCode;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class AxisName extends AbstractRasNode {
     
@@ -35,17 +35,17 @@ public class AxisName extends AbstractRasNode {
     private String name;
 
     public AxisName(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
 
-        if (node != null && node.getNodeName().equals(WCPSConstants.MSG_AXIS)) {
+        if (node != null && node.getNodeName().equals(WcpsConstants.MSG_AXIS)) {
             log.trace(node.getNodeName());
             String axis = node.getTextContent();
             this.name = axis;
-            log.trace("  " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_NAME + ": " + name);
+            log.trace("  " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_NAME + ": " + name);
         } else {
-            throw new WCPSException(ExceptionCode.InvalidRequest, WCPSConstants.ERRTXT_COULD_NOT_FIND_AXIS + " !");
+            throw new WCPSException(ExceptionCode.InvalidRequest, WcpsConstants.ERRTXT_COULD_NOT_FIND_AXIS + " !");
         }
     }
 

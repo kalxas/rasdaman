@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * BooleanScalarExpr
@@ -67,14 +67,14 @@ public class BooleanScalarExpr implements IParseTreeNode {
 
     public String toXML() {
         if (op == null) {
-            return "<" + WCPSConstants.MSG_BOOLEAN_CONSTANT + ">" + booleanConstant + "</" +
-                    WCPSConstants.MSG_BOOLEAN_CONSTANT + ">";
-        } else if (op.equals(WCPSConstants.MSG_NOT)) {
-            return "<" + WCPSConstants.MSG_BOOLEAN_NOT + ">" + left.toXML() + "</" + 
-                    WCPSConstants.MSG_BOOLEAN_NOT + ">";
-        } else if (op.equals(WCPSConstants.MSG_BIT)) {
-            return "<" + WCPSConstants.MSG_BIT + ">" + left.toXML() + right.toXML() + 
-                    "</" + WCPSConstants.MSG_BIT + ">";
+            return "<" + WcpsConstants.MSG_BOOLEAN_CONSTANT + ">" + booleanConstant + "</" +
+                    WcpsConstants.MSG_BOOLEAN_CONSTANT + ">";
+        } else if (op.equals(WcpsConstants.MSG_NOT)) {
+            return "<" + WcpsConstants.MSG_BOOLEAN_NOT + ">" + left.toXML() + "</" + 
+                    WcpsConstants.MSG_BOOLEAN_NOT + ">";
+        } else if (op.equals(WcpsConstants.MSG_BIT)) {
+            return "<" + WcpsConstants.MSG_BIT + ">" + left.toXML() + right.toXML() + 
+                    "</" + WcpsConstants.MSG_BIT + ">";
         } else {
             if (this.left != null) {
                 node1 = this.left.toXML();
@@ -84,25 +84,25 @@ public class BooleanScalarExpr implements IParseTreeNode {
                 node2 = this.right.toXML();
             }
 
-            if (op.equals(WCPSConstants.MSG_AND)) {
-                op = WCPSConstants.MSG_BOOLEAN_AND;
-            } else if (op.equals(WCPSConstants.MSG_OR)) {
-                op = WCPSConstants.MSG_BOOLEAN_OR;
-            } else if (op.equals(WCPSConstants.MSG_XOR)) {
-                op = WCPSConstants.MSG_BOOLEAN_XOR;
+            if (op.equals(WcpsConstants.MSG_AND)) {
+                op = WcpsConstants.MSG_BOOLEAN_AND;
+            } else if (op.equals(WcpsConstants.MSG_OR)) {
+                op = WcpsConstants.MSG_BOOLEAN_OR;
+            } else if (op.equals(WcpsConstants.MSG_XOR)) {
+                op = WcpsConstants.MSG_BOOLEAN_XOR;
 
-            } else if (op.equals(WCPSConstants.MSG_EQUALS)) {
-                op = WCPSConstants.MSG_BOOLEAN_EQUALNUMERIC;
-            } else if (op.equals(WCPSConstants.MSG_NOT_EQUALS)) {
-                op = WCPSConstants.MSG_BOOLEAN_NOTEQUALNUMERIC;
-            } else if (op.equals(WCPSConstants.MSG_LESS_THAN)) {
-                op = WCPSConstants.MSG_BOOLEAN_LESSTHAN;
-            } else if (op.equals(WCPSConstants.MSG_GREATER_THAN)) {
-                op = WCPSConstants.MSG_BOOLEAN_GREATERTHAN;
-            } else if (op.equals(WCPSConstants.MSG_LESS_OR_EQUAL)) {
-                op = WCPSConstants.MSG_BOOLEAN_LESSOREQUAL;
-            } else if (op.equals(WCPSConstants.MSG_GREATER_OR_EQUAL)) {
-                op = WCPSConstants.MSG_BOOLEAN_GREATEROREQUAL;
+            } else if (op.equals(WcpsConstants.MSG_EQUALS)) {
+                op = WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC;
+            } else if (op.equals(WcpsConstants.MSG_NOT_EQUALS)) {
+                op = WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC;
+            } else if (op.equals(WcpsConstants.MSG_LESS_THAN)) {
+                op = WcpsConstants.MSG_BOOLEAN_LESSTHAN;
+            } else if (op.equals(WcpsConstants.MSG_GREATER_THAN)) {
+                op = WcpsConstants.MSG_BOOLEAN_GREATERTHAN;
+            } else if (op.equals(WcpsConstants.MSG_LESS_OR_EQUAL)) {
+                op = WcpsConstants.MSG_BOOLEAN_LESSOREQUAL;
+            } else if (op.equals(WcpsConstants.MSG_GREATER_OR_EQUAL)) {
+                op = WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL;
             }
 
             return "<" + op + ">" + node1 + node2 + "</" + op + ">";

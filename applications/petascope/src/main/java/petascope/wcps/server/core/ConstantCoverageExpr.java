@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 import petascope.wcs2.templates.Templates;
 
 public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageInfo {
@@ -53,7 +53,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
 
     public ConstantCoverageExpr(Node node, XmlQuery xq)
             throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         log.trace(node.getNodeName());
@@ -62,22 +62,22 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
 
         while (node != null) {
             String name = node.getNodeName();
-            if (name.equals(WCPSConstants.MSG_NAME)) {
+            if (name.equals(WcpsConstants.MSG_NAME)) {
                 covName = node.getTextContent();
-                log.trace("  " + WCPSConstants.MSG_COVERAGE + " " + covName);
-            } else if (name.equals(WCPSConstants.MSG_AXIS_ITERATOR )) {
-                log.trace("  " + WCPSConstants.MSG_ADD_AXIS_ITERATOR);
-                AxisIterator it = new AxisIterator(node.getFirstChild(), xq, WCPSConstants.MSG_TEMP);
+                log.trace("  " + WcpsConstants.MSG_COVERAGE + " " + covName);
+            } else if (name.equals(WcpsConstants.MSG_AXIS_ITERATOR )) {
+                log.trace("  " + WcpsConstants.MSG_ADD_AXIS_ITERATOR);
+                AxisIterator it = new AxisIterator(node.getFirstChild(), xq, WcpsConstants.MSG_TEMP);
                 iterators.add(it);
             } else {
-                log.trace("  " + WCPSConstants.MSG_VALUE_LISt);
+                log.trace("  " + WcpsConstants.MSG_VALUE_LISt);
                 valueList = new ConstantList(node, xq);
                 node = valueList.getLastNode();                
                 super.children.add(valueList);
             }
 
             node = node.getNextSibling();
-            while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+            while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
                 node = node.getNextSibling();
             }
         }
@@ -85,17 +85,17 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
         try {
             buildMetadata(xq);
         } catch (PetascopeException ex) {
-            throw new WCPSException(WCPSConstants.ERRTXT_CANNOT_BUILD_COVERAGE+ " !!!");
+            throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE+ " !!!");
         }
         buildAxisIteratorDomain();
 
         // Sanity check: dimensions should match number of constants in the list
         if (valueList.getSize() != requiredListSize) {
-            throw new WCPSException(WCPSConstants.ERRTXT_CONST_DIMS_DOESNOT_MATCH);
+            throw new WCPSException(WcpsConstants.ERRTXT_CONST_DIMS_DOESNOT_MATCH);
         }
         // Sanity check: metadata should have already been build
         if (info == null) {
-            throw new WCPSException(WCPSConstants.ERRTXT_COULD_BUILD_CONST_COVERAGE);
+            throw new WCPSException(WcpsConstants.ERRTXT_COULD_BUILD_CONST_COVERAGE);
         }
     }
 
@@ -134,7 +134,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
 
     /** Builds full metadata for the newly constructed coverage **/
     private void buildMetadata(XmlQuery xq) throws WCPSException, PetascopeException {
-        log.trace("  " + WCPSConstants.MSG_BUILDING_METADATA);
+        log.trace("  " + WcpsConstants.MSG_BUILDING_METADATA);
         List<CellDomainElement> cellDomainList = new LinkedList<CellDomainElement>();
         List<RangeElement> rangeList = new LinkedList<RangeElement>();
         String coverageName = covName;
@@ -171,7 +171,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
         
         // TODO: check element datatypes and their consistency
         // "unsigned int" is default datatype
-        rangeList.add(new RangeElement(WCPSConstants.MSG_DYNAMIC_TYPE, WCPSConstants.MSG_UNSIGNED_INT, null));
+        rangeList.add(new RangeElement(WcpsConstants.MSG_DYNAMIC_TYPE, WcpsConstants.MSG_UNSIGNED_INT, null));
         Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
         CoverageMetadata metadata = new CoverageMetadata(
                 coverageName,
@@ -181,7 +181,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
                 crs,
                 cellDomainList,
                 domainList,
-                Pair.of(BigDecimal.ZERO, ""),
+                Pair.of(BigInteger.ZERO, ""),
                 rangeList
                 );
         // Let the top-level query know the full metadata about us

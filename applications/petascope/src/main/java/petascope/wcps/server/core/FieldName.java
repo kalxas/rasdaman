@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class FieldName extends AbstractRasNode {
     
@@ -34,21 +34,21 @@ public class FieldName extends AbstractRasNode {
     private String name;
 
     public FieldName(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
 
         if (node == null) {
-            throw new WCPSException(WCPSConstants.ERRTXT_FIELDNAME_TYPE_PARSING_ERR);
+            throw new WCPSException(WcpsConstants.ERRTXT_FIELDNAME_TYPE_PARSING_ERR);
         }
 
         String nodeName = node.getNodeName();
         log.trace(nodeName);
 
-        if (nodeName.equals(WCPSConstants.MSG_NAME)) {
+        if (nodeName.equals(WcpsConstants.MSG_NAME)) {
             this.name = node.getTextContent();
 
-            log.trace("  " + WCPSConstants.MSG_FOUND_FIELD_NAME + ": " + name);
+            log.trace("  " + WcpsConstants.MSG_FOUND_FIELD_NAME + ": " + name);
         }
     }
 

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class ConstantList extends AbstractRasNode {
     
@@ -39,7 +39,7 @@ public class ConstantList extends AbstractRasNode {
     public ConstantList(Node node, XmlQuery xq) throws WCPSException {
         list = new ArrayList<String>();
 
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         
@@ -48,24 +48,24 @@ public class ConstantList extends AbstractRasNode {
         while (node != null) {
             String nodeName = node.getNodeName();
 
-            if (nodeName.equals(WCPSConstants.MSG_VALUE)) {
+            if (nodeName.equals(WcpsConstants.MSG_VALUE)) {
                 val = node.getTextContent();
                 checkConstant(val);
-                log.trace("  " + WCPSConstants.MSG_ADDING_VALUES + ": " + val);
+                log.trace("  " + WcpsConstants.MSG_ADDING_VALUES + ": " + val);
                 list.add(val);
                 lastNode = node;
             } else {
-                log.error("  " + WCPSConstants.ERRTXT_UNKNOWN_NODE_CONST_LIST+ ": " + nodeName);
-                throw new WCPSException(WCPSConstants.ERRTXT_UNKNOWN_NODE_CONST_LIST + ": " + nodeName);
+                log.error("  " + WcpsConstants.ERRTXT_UNKNOWN_NODE_CONST_LIST+ ": " + nodeName);
+                throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_NODE_CONST_LIST + ": " + nodeName);
             }
 
             node = node.getNextSibling();
-            while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+            while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
                 node = node.getNextSibling();
             }
         }
 
-        log.trace("  " + WCPSConstants.MSG_PARSED_CONST_LIST + " " + list.size() + " " + WCPSConstants.MSG_ELEMENST);
+        log.trace("  " + WcpsConstants.MSG_PARSED_CONST_LIST + " " + list.size() + " " + WcpsConstants.MSG_ELEMENST);
     }
 
     private void checkConstant(String val) throws WCPSException {
@@ -87,7 +87,7 @@ public class ConstantList extends AbstractRasNode {
         }
 
         if (ok == false) {
-            throw new WCPSException("'" + val + "' " + WCPSConstants.ERRTXT_NOT_INT_FLOAT_COMPLEX);
+            throw new WCPSException("'" + val + "' " + WcpsConstants.ERRTXT_NOT_INT_FLOAT_COMPLEX);
         }
     }
 

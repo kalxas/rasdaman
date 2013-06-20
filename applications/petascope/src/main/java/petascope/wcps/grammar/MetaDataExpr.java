@@ -23,7 +23,7 @@ package petascope.wcps.grammar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * MetaDataExpr
@@ -40,7 +40,7 @@ public class MetaDataExpr implements IParseTreeNode {
     IParseTreeNode param;
 
     public MetaDataExpr(DomainExpr dom) {
-        function = WCPSConstants.MSG_DOMAIN;
+        function = WcpsConstants.MSG_DOMAIN;
         param = dom;
     }
 
@@ -60,37 +60,37 @@ public class MetaDataExpr implements IParseTreeNode {
     public String toXML() {
         String result = "";
 
-        if (function.equalsIgnoreCase(WCPSConstants.MSG_IMAGE_CRSDOMAIN)) {
-            result += "<" + WCPSConstants.MSG_IMAGE_CRSDOMAIN + ">";
+        if (function.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRSDOMAIN)) {
+            result += "<" + WcpsConstants.MSG_IMAGE_CRSDOMAIN + ">";
             result += expr.toXML();
 
             if (field != null) {
-                result += "<" + WCPSConstants.MSG_AXIS + ">" + field + "</" + 
-                        WCPSConstants.MSG_AXIS + ">";
+                result += "<" + WcpsConstants.MSG_AXIS + ">" + field + "</" + 
+                        WcpsConstants.MSG_AXIS + ">";
             }
 
-            result += "</" + WCPSConstants.MSG_IMAGE_CRSDOMAIN + ">";
-        } else if (function.equalsIgnoreCase(WCPSConstants.MSG_DOMAIN)) {
-            result = "<" + WCPSConstants.MSG_DOMAIN_METADATA_CAMEL + ">" + param.toXML() + "</" + 
-                    WCPSConstants.MSG_DOMAIN_METADATA_CAMEL + ">";
-        } else if (function.equalsIgnoreCase(WCPSConstants.MSG_INTERPOLATION_DEFAULT)) {
-            result += "<" + WCPSConstants.MSG_INTERPOLATION_DEFAULT + ">";
+            result += "</" + WcpsConstants.MSG_IMAGE_CRSDOMAIN + ">";
+        } else if (function.equalsIgnoreCase(WcpsConstants.MSG_DOMAIN)) {
+            result = "<" + WcpsConstants.MSG_DOMAIN_METADATA_CAMEL + ">" + param.toXML() + "</" + 
+                    WcpsConstants.MSG_DOMAIN_METADATA_CAMEL + ">";
+        } else if (function.equalsIgnoreCase(WcpsConstants.MSG_INTERPOLATION_DEFAULT)) {
+            result += "<" + WcpsConstants.MSG_INTERPOLATION_DEFAULT + ">";
             result += expr.toXML();
-            result += "<" + WCPSConstants.MSG_NAME + ">" + param + "</" + WCPSConstants.MSG_PARAM + ">";
-            result += "</" + WCPSConstants.MSG_INTERPOLATION_DEFAULT + ">";
-        } else if (function.equalsIgnoreCase(WCPSConstants.MSG_INTERPOLATION_SET)) {
-            result += "<" + WCPSConstants.MSG_INTERPOLATION_SET + ">";
+            result += "<" + WcpsConstants.MSG_NAME + ">" + param + "</" + WcpsConstants.MSG_PARAM + ">";
+            result += "</" + WcpsConstants.MSG_INTERPOLATION_DEFAULT + ">";
+        } else if (function.equalsIgnoreCase(WcpsConstants.MSG_INTERPOLATION_SET)) {
+            result += "<" + WcpsConstants.MSG_INTERPOLATION_SET + ">";
             result += expr.toXML();
-            result += "<" + WCPSConstants.MSG_NAME + ">" + param + "</" + WCPSConstants.MSG_PARAM + ">";
-            result += "</" + WCPSConstants.MSG_INTERPOLATION_SET + ">";
-        } else if (function.equalsIgnoreCase(WCPSConstants.MSG_IDENTIFIER)
-                || function.equalsIgnoreCase(WCPSConstants.MSG_IMAGE_CRS) || function.equalsIgnoreCase(WCPSConstants.MSG_CRS_SET)
-                || function.equalsIgnoreCase(WCPSConstants.MSG_NULL_SET)) {
+            result += "<" + WcpsConstants.MSG_NAME + ">" + param + "</" + WcpsConstants.MSG_PARAM + ">";
+            result += "</" + WcpsConstants.MSG_INTERPOLATION_SET + ">";
+        } else if (function.equalsIgnoreCase(WcpsConstants.MSG_IDENTIFIER)
+                || function.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRS) || function.equalsIgnoreCase(WcpsConstants.MSG_CRS_SET)
+                || function.equalsIgnoreCase(WcpsConstants.MSG_NULL_SET)) {
             result += "<" + function + ">";
             result += expr.toXML();
             result += "</" + function + ">";
         } else {
-            log.error(WCPSConstants.ERRTXT_UNKNOWN_METADATAEXPR + ": " + function);
+            log.error(WcpsConstants.ERRTXT_UNKNOWN_METADATAEXPR + ": " + function);
         }
 
         return result;

@@ -38,7 +38,7 @@ import petascope.core.IDynamicMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * This is the WCPS entry point. Processing a ProcessCoverage request happens in two stages.
@@ -56,7 +56,7 @@ public class Wcps {
 
     public Wcps(File pcSchema, IMetadataSource metadataSource) throws WCPSException, PetascopeException {
         try {
-            log.info(WCPSConstants.MSG_WCPS_LOADING_PARSING_XML);
+            log.info(WcpsConstants.MSG_WCPS_LOADING_PARSING_XML);
             DocumentBuilderFactory dbconfig = DocumentBuilderFactory.newInstance();
 
             dbconfig.setValidating(false);    // use XML schema not DTD
@@ -64,13 +64,13 @@ public class Wcps {
             dbconfig.setIgnoringElementContentWhitespace(true);    // remve the ignorable whitespace
 
             wcpsDocumentBuilder = dbconfig.newDocumentBuilder();
-            log.info(WCPSConstants.MSG_WCPS_FINISHED_LOADING_SCHEMA);
+            log.info(WcpsConstants.MSG_WCPS_FINISHED_LOADING_SCHEMA);
             
             dynamicMetadataSource.set(new DynamicMetadataSource(metadataSource));
             
         } catch (Exception e) {
             throw new WCPSException(
-                    WCPSConstants.ERRTXT_ERROR_WHILE_LOADING_DOC, e);
+                    WcpsConstants.ERRTXT_ERROR_WHILE_LOADING_DOC, e);
         }
     }
 
@@ -80,7 +80,7 @@ public class Wcps {
     }
 
     public List<byte[]> pcExecute(String url, String database, ProcessCoveragesRequest pcRequest) throws WCPSException {
-        throw new WCPSException(ExceptionCode.ResourceError, WCPSConstants.ERRTXT_METHOD_NOT_IMPL);
+        throw new WCPSException(ExceptionCode.ResourceError, WcpsConstants.ERRTXT_METHOD_NOT_IMPL);
     }
 
     public ProcessCoveragesRequest pcPrepare(String url, String database, File f)

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.exceptions.WCPSException;
 import petascope.util.Pair;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 import petascope.util.WcsUtil;
 
 public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
@@ -57,28 +57,28 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
         while (child != null) {
             nodeName = child.getNodeName();
 
-            if (nodeName.equals("#" + WCPSConstants.MSG_TEXT)) {
+            if (nodeName.equals("#" + WcpsConstants.MSG_TEXT)) {
                 child = child.getNextSibling();
                 continue;
             }
 
-            if (nodeName.equals(WCPSConstants.MSG_AXIS)) {
+            if (nodeName.equals(WcpsConstants.MSG_AXIS)) {
                 // Start a new axis and save it
-                log.trace("  " + WCPSConstants.MSG_AXIS);
+                log.trace("  " + WcpsConstants.MSG_AXIS);
                 elem = new DimensionIntervalElement(child, xq, coverageInfo);
                 axisList.add(elem);
                 child = elem.getNextNode();
             } else {
                 try {
-                    log.trace("  " + WCPSConstants.MSG_COVERAGE);
+                    log.trace("  " + WcpsConstants.MSG_COVERAGE);
                     coverageExprType = new CoverageExpr(child, xq);
                     coverageInfo = coverageExprType.getCoverageInfo();
                     super.children.add(coverageExprType);
                     child = child.getNextSibling();
                     continue;
                 } catch (WCPSException e) {
-                    log.error("  " + WCPSConstants.ERRTXT_EXPECTED_COVERAGE_NODE_GOT + " " + nodeName);
-                    throw new WCPSException(WCPSConstants.ERRTXT_UNKNOWN_NODE_FOR_TRIM_COV + ":" + child.getNodeName() 
+                    log.error("  " + WcpsConstants.ERRTXT_EXPECTED_COVERAGE_NODE_GOT + " " + nodeName);
+                    throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_NODE_FOR_TRIM_COV + ":" + child.getNodeName() 
                             + "[" + e.getMessage() + "]");
                 }
             }
@@ -89,7 +89,7 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
         
         // Afterward
         dims = coverageInfo.getNumDimensions();
-        log.trace("  " + WCPSConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
+        log.trace("  " + WcpsConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
         dimNames = new String[dims];
 
         for (int j = 0; j < dims; ++j) {
@@ -99,7 +99,7 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
         Iterator<DimensionIntervalElement> i = axisList.iterator();
 
-        log.trace("  " + WCPSConstants.MSG_AXIS_LIST_COUNT + ": " + axisList.size());
+        log.trace("  " + WcpsConstants.MSG_AXIS_LIST_COUNT + ": " + axisList.size());
         DimensionIntervalElement axis;
         int axisId;
         int axisLo, axisHi;
@@ -108,13 +108,13 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
         while (i.hasNext()) {
             axis = i.next();
             axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
-            log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_ID + ": " + axisId);
-            log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName());
+            log.trace("    " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_ID + ": " + axisId);
+            log.trace("    " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_NAME + ": " + axis.getAxisName());
 
             axisLo = Integer.parseInt(axis.getLowCoord());
             axisHi = Integer.parseInt(axis.getHighCoord());
             dimNames[axisId] = axisLo + ":" + axisHi;
-            log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_COORDS + ": " + dimNames[axisId]);
+            log.trace("    " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_COORDS + ": " + dimNames[axisId]);
             coverageInfo.setCellDimension(
                     axisId,
                     new CellDomainElement(

@@ -23,14 +23,14 @@ package petascope.wcps.server.core;
 
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class CondenseOperation extends AbstractRasNode {
 
     private String name;
 
     public CondenseOperation(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
 
@@ -38,29 +38,29 @@ public class CondenseOperation extends AbstractRasNode {
         this.name = formatOperation(text);
 
         if (name == null) {
-            throw new WCPSException(WCPSConstants.ERRTXT_UNKNOWN_CONDENSE_OP + ": " + text);
+            throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_CONDENSE_OP + ": " + text);
         }
     }
 
     private String formatOperation(String name) {
         String shortOp = null;
-        if (name.equals(WCPSConstants.MSG_OP_PLUS)) {
-            shortOp = WCPSConstants.MSG_PLUS;
+        if (name.equals(WcpsConstants.MSG_OP_PLUS)) {
+            shortOp = WcpsConstants.MSG_PLUS;
         }
-        if (name.equals(WCPSConstants.MSG_OP_MULT)) {
-            shortOp = WCPSConstants.MSG_STAR;
+        if (name.equals(WcpsConstants.MSG_OP_MULT)) {
+            shortOp = WcpsConstants.MSG_STAR;
         }
-        if (name.equals(WCPSConstants.MSG_OP_MIN)) {
-            shortOp = WCPSConstants.MSG_MIN;
+        if (name.equals(WcpsConstants.MSG_OP_MIN)) {
+            shortOp = WcpsConstants.MSG_MIN;
         }
-        if (name.equals(WCPSConstants.MSG_OP_MAX)) {
-            shortOp = WCPSConstants.MSG_MAX;
+        if (name.equals(WcpsConstants.MSG_OP_MAX)) {
+            shortOp = WcpsConstants.MSG_MAX;
         }
-        if (name.equals(WCPSConstants.MSG_OP_AND)) {
-            shortOp = WCPSConstants.MSG_AND;
+        if (name.equals(WcpsConstants.MSG_OP_AND)) {
+            shortOp = WcpsConstants.MSG_AND;
         }
-        if (name.equals(WCPSConstants.MSG_OP_OR)) {
-            shortOp = WCPSConstants.MSG_OR;
+        if (name.equals(WcpsConstants.MSG_OP_OR)) {
+            shortOp = WcpsConstants.MSG_OR;
         }
 
         return shortOp;

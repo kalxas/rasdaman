@@ -27,7 +27,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 // TODO: implement class MetadataScalarExprType
 public class MetadataScalarExpr extends AbstractRasNode {
@@ -44,7 +44,7 @@ public class MetadataScalarExpr extends AbstractRasNode {
         log.trace(nodeName);
         
         Node child = node.getFirstChild();
-        while (child != null && child.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while (child != null && child.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             child = child.getNextSibling();
         }
         
@@ -56,21 +56,21 @@ public class MetadataScalarExpr extends AbstractRasNode {
         
         op = nodeName;
         AxisName axis = null;
-        if (nodeName.equals(WCPSConstants.MSG_DOMAIN_METADATA_CAMEL)) {
+        if (nodeName.equals(WcpsConstants.MSG_DOMAIN_METADATA_CAMEL)) {
             axis = new AxisName(child, xq);            
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
             DomainElement domainElement = coverageInfo.getDomainElement(axisIndex);
             lo = domainElement.getMinValue().toString();
             hi = domainElement.getMaxValue().toString();
-        } else if (nodeName.equals(WCPSConstants.MSG_IMAGE_CRSDOMAIN)) {
+        } else if (nodeName.equals(WcpsConstants.MSG_IMAGE_CRSDOMAIN)) {
             axis = new AxisName(child, xq);
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
             CellDomainElement cellDomain = coverageInfo.getCellDomainElement(axisIndex);
             lo = cellDomain.getLo().toString();
             hi = cellDomain.getHi().toString();
-        } else if (!nodeName.equals(WCPSConstants.MSG_SET_IDENTIFIER ) && 
-                   !nodeName.equals(WCPSConstants.MSG_IMAGE_CRS2)) {
-            throw new WCPSException(WCPSConstants.ERRTXT_NO_METADATA_NODE + nodeName);
+        } else if (!nodeName.equals(WcpsConstants.MSG_SET_IDENTIFIER ) && 
+                   !nodeName.equals(WcpsConstants.MSG_IMAGE_CRS2)) {
+            throw new WCPSException(WcpsConstants.ERRTXT_NO_METADATA_NODE + nodeName);
         }
         
         // Store the child for XML tree re-traversing
@@ -79,11 +79,11 @@ public class MetadataScalarExpr extends AbstractRasNode {
 
     public String toRasQL() {
         String ret = "";
-        if (op.equals(WCPSConstants.MSG_IDENTIFIER)) {
+        if (op.equals(WcpsConstants.MSG_IDENTIFIER)) {
             ret = coverageInfo.getCoverageName();
-        } else if (op.equals(WCPSConstants.MSG_IMAGE_CRS)) {
+        } else if (op.equals(WcpsConstants.MSG_IMAGE_CRS)) {
             ret = CrsUtil.GRID_CRS;
-        } else if (op.equals(WCPSConstants.MSG_DOMAIN_METADATA_CAMEL) || op.equals(WCPSConstants.MSG_IMAGE_CRSDOMAIN)) {
+        } else if (op.equals(WcpsConstants.MSG_DOMAIN_METADATA_CAMEL) || op.equals(WcpsConstants.MSG_IMAGE_CRSDOMAIN)) {
             ret = "(" + lo + "," + hi + ")";
         }
         return ret;

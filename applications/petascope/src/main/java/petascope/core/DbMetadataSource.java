@@ -746,7 +746,7 @@ public class DbMetadataSource implements IMetadataSource {
                 // Variables for metadata object creation of gridded coverage
                 LinkedHashMap<List<BigDecimal>,Boolean> gridAxes;    // Offset-vector -> isIrregular
                 List<BigDecimal>         gridOrigin;  // each BD is a coordinate's component                
-                Pair<BigDecimal, String> rasdamanColl;// collName -> OID
+                Pair<BigInteger, String> rasdamanColl;// collName -> OID
         
                 // This is a gridded coverage //
                                 
@@ -789,7 +789,7 @@ public class DbMetadataSource implements IMetadataSource {
                     }
                     // Store fetched data: OID -> collName
                     rasdamanColl = Pair.of(
-                            r.getBigDecimal(RASDAMAN_COLLECTION_OID), 
+                            r.getBigDecimal(RASDAMAN_COLLECTION_OID).toBigInteger(), 
                             r.getString(RASDAMAN_COLLECTION_NAME)
                             );
             
@@ -1445,7 +1445,7 @@ public class DbMetadataSource implements IMetadataSource {
      * @return             The minimum and maximum pixel values of the array.
      * @throws PetascopeException 
      */
-    public Pair<String, String> getIndexDomain(String collName, BigDecimal collOid, int rasdamanAxisOrder) throws PetascopeException {
+    public Pair<String, String> getIndexDomain(String collName, BigInteger collOid, int rasdamanAxisOrder) throws PetascopeException {
                 
         // Run RasQL query
         Object obj = null;

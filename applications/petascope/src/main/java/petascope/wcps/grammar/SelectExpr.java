@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * SelectExpr
@@ -44,12 +44,12 @@ public class SelectExpr implements IParseTreeNode {
     }
 
     public String toXML() {
-        String result = "<" + WCPSConstants.MSG_FIELD_SELECT + ">";
+        String result = "<" + WcpsConstants.MSG_FIELD_SELECT + ">";
 
         result += coverageExpr.toXML();
-        result += "<" + WCPSConstants.MSG_FIELD + "><" + WCPSConstants.MSG_NAME + ">" + 
-                field + "</" + WCPSConstants.MSG_NAME + "></" + WCPSConstants.MSG_FIELD + ">";
-        result += "</" + WCPSConstants.MSG_FIELD_SELECT + ">";
+        result += "<" + WcpsConstants.MSG_FIELD + "><" + WcpsConstants.MSG_NAME + ">" + 
+                field + "</" + WcpsConstants.MSG_NAME + "></" + WcpsConstants.MSG_FIELD + ">";
+        result += "</" + WcpsConstants.MSG_FIELD_SELECT + ">";
         return result;
     }
 }

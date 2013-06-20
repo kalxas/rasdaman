@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * GeneralCondenseExpr
@@ -38,7 +38,7 @@ public class GeneralCondenseExpr implements IParseTreeNode {
     public GeneralCondenseExpr(CondenseOperation op, AxisIteratorList al) {
         this.op = op;
         alist = al;
-        alist.setTag(WCPSConstants.MSG_ITERATOR);
+        alist.setTag(WcpsConstants.MSG_ITERATOR);
         where = null;
         using = null;
     }
@@ -52,18 +52,18 @@ public class GeneralCondenseExpr implements IParseTreeNode {
     }
 
     public String toXML() {
-        String result = "<" + WCPSConstants.MSG_CONDENSE + ">";
+        String result = "<" + WcpsConstants.MSG_CONDENSE + ">";
 
         result += op.toXML();
         result += alist.toXML();
 
         if (where != null) {
-            result += "<" + WCPSConstants.MSG_WHERE + ">" + where.toXML() + "</" + 
-                    WCPSConstants.MSG_WHERE + ">";
+            result += "<" + WcpsConstants.MSG_WHERE + ">" + where.toXML() + "</" + 
+                    WcpsConstants.MSG_WHERE + ">";
         }
 
         result += using.toXML();
-        result += "</" + WCPSConstants.MSG_CONDENSE + ">";
+        result += "</" + WcpsConstants.MSG_CONDENSE + ">";
 
         return result;
     }

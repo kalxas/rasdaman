@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class VariableReference extends AbstractRasNode {
     
@@ -35,18 +35,18 @@ public class VariableReference extends AbstractRasNode {
     private String translatedName;
 
     public VariableReference(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         log.trace(node.getNodeName());
 
-        if (node != null && node.getNodeName().equals(WCPSConstants.MSG_VARIABLE_REF)) {
+        if (node != null && node.getNodeName().equals(WcpsConstants.MSG_VARIABLE_REF)) {
             name = node.getTextContent();
             translatedName = xq.getReferenceVariableName(name);
-            log.trace("  " + WCPSConstants.MSG_VARIABLE + " " + name + " " + WCPSConstants.MSG_HAS_BEEN_RENAMED+ " " + translatedName);
+            log.trace("  " + WcpsConstants.MSG_VARIABLE + " " + name + " " + WcpsConstants.MSG_HAS_BEEN_RENAMED+ " " + translatedName);
         } else {
-            log.error("  " + WCPSConstants.ERRTXT_NOT_VAR_REF_FOUND);
-            throw new WCPSException(WCPSConstants.ERRTXT_COULD_NOT_FIND_ANY_VAR_REF);
+            log.error("  " + WcpsConstants.ERRTXT_NOT_VAR_REF_FOUND);
+            throw new WCPSException(WcpsConstants.ERRTXT_COULD_NOT_FIND_ANY_VAR_REF);
         }
     }
 

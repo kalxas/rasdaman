@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * FieldInterpolationElement
@@ -39,7 +39,7 @@ public class FieldInterpolationElement implements IParseTreeNode {
     }
 
     public String toXML() {
-        String result = "<" + WCPSConstants.MSG_NAME + ">" + name + "</" + WCPSConstants.MSG_NAME + ">" + node.toXML();
+        String result = "<" + WcpsConstants.MSG_NAME + ">" + name + "</" + WcpsConstants.MSG_NAME + ">" + node.toXML();
 
         return result;
     }

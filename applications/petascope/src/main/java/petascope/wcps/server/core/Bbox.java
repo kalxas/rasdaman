@@ -37,7 +37,7 @@ import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
 import petascope.util.AxisTypes;
 import petascope.exceptions.PetascopeException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /** 
  * NOTE: the WGS84 bounding needs to take care to transform only the /spatial/ axes,
@@ -76,7 +76,7 @@ public class Bbox implements Cloneable {
         for (DomainElement el : domains) {
             if ((el.getMinValue() == null) || (el.getMaxValue() == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    WCPSConstants.ERRTXT_INVALID_BOUNDING_BOX);
+                    WcpsConstants.ERRTXT_INVALID_BOUNDING_BOX);
             }            
             minValues.add(el.getMinValue());
             maxValues.add(el.getMaxValue());
@@ -85,7 +85,7 @@ public class Bbox implements Cloneable {
         }
         
         if (crs == null) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata, WCPSConstants.ERRTXT_INVALID_CRS);
+            throw new WCPSException(ExceptionCode.InvalidMetadata, WcpsConstants.ERRTXT_INVALID_CRS);
         } else {
             // Store the native (C)CRS from the list of single CRSs associated to the coverage
             crsName = crs;
@@ -185,7 +185,7 @@ public class Bbox implements Cloneable {
             if (i > 0) extents += ", ";
             extents += types.get(i) + "(" + getMinValue(i) + ", " + getMaxValue(i) + ")";
         }        
-        return WCPSConstants.MSG_CRS_C + " '" + getCrsName() + "' { " + WCPSConstants.MSG_BOUNDING_BOX + " [" + extents + "] }";
+        return WcpsConstants.MSG_CRS_C + " '" + getCrsName() + "' { " + WcpsConstants.MSG_BOUNDING_BOX + " [" + extents + "] }";
     }
 
     /**

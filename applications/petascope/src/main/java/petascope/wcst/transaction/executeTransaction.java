@@ -573,7 +573,7 @@ public class executeTransaction {
                 crs,
                 cellList,
                 domList,
-                Pair.of(BigDecimal.ZERO, ""),
+                Pair.of(BigInteger.ZERO, ""),
                 rList
                 );
 

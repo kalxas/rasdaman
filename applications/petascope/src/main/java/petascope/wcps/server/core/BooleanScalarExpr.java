@@ -21,12 +21,11 @@
  */
 package petascope.wcps.server.core;
 
-import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class BooleanScalarExpr extends AbstractRasNode {
     
@@ -39,31 +38,31 @@ public class BooleanScalarExpr extends AbstractRasNode {
 
     public BooleanScalarExpr(Node node, XmlQuery xq) throws WCPSException {
         if (node == null) {
-            throw new WCPSException(WCPSConstants.ERRTXT_UNEXPECTED_NULL_NODE + " !");
+            throw new WCPSException(WcpsConstants.ERRTXT_UNEXPECTED_NULL_NODE + " !");
         }
 
         String nodeName = node.getNodeName();
 
         simple = false;
 
-        if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_CONSTANT)) {
+        if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_CONSTANT)) {
             simple = true;
             value = node.getFirstChild().getNodeValue();
-        } else if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_AND)
-                || nodeName.equals(WCPSConstants.MSG_BOOLEAN_OR)
-                || nodeName.equals(WCPSConstants.MSG_BOOLEAN_XOR)
-                || nodeName.equals(WCPSConstants.MSG_BOOLEAN_LESSTHAN)
-                || nodeName.equals(WCPSConstants.MSG_BOOLEAN_LESSOREQUAL)
-                || nodeName.equals(WCPSConstants.MSG_BOOLEAN_GREATERTHAN)
-                || nodeName.equals(WCPSConstants.MSG_BOOLEAN_GREATEROREQUAL)
-                || nodeName.equals(WCPSConstants.MSG_BOOLEAN_EQUALNUMERIC)
-                || nodeName.equals(WCPSConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)
-                || nodeName.equals(WCPSConstants.MSG_BOOLEAN_EQUAL_STRING)
-                || nodeName.equals(WCPSConstants.MSG_BOOLEAN_NOT_EQUAL_STRING)) {
+        } else if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_AND)
+                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_OR)
+                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_XOR)
+                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_LESSTHAN)
+                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_LESSOREQUAL)
+                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_GREATERTHAN)
+                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL)
+                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC)
+                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)
+                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_EQUAL_STRING)
+                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_NOT_EQUAL_STRING)) {
             // Logical operations
-            if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_AND)
-                    || nodeName.equals(WCPSConstants.MSG_BOOLEAN_OR)
-                    || nodeName.equals(WCPSConstants.MSG_BOOLEAN_XOR)) {
+            if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_AND)
+                    || nodeName.equals(WcpsConstants.MSG_BOOLEAN_OR)
+                    || nodeName.equals(WcpsConstants.MSG_BOOLEAN_XOR)) {
                 // Remove the "boolean" in front
                 op = nodeName.substring(7).toLowerCase();
 
@@ -74,25 +73,25 @@ public class BooleanScalarExpr extends AbstractRasNode {
                 second = new BooleanScalarExpr(child, xq);
             } else // Boolean Comparison operations between numbers or strings
             {
-                if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_LESSTHAN) || nodeName.equals(WCPSConstants.MSG_BOOLEAN_LESSOREQUAL)
-                        || nodeName.equals(WCPSConstants.MSG_BOOLEAN_GREATERTHAN) || nodeName.equals(WCPSConstants.MSG_BOOLEAN_GREATEROREQUAL)
-                        || nodeName.equals(WCPSConstants.MSG_BOOLEAN_EQUALNUMERIC) || nodeName.equals(WCPSConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)) {
-                    if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_LESSTHAN)) {
+                if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_LESSTHAN) || nodeName.equals(WcpsConstants.MSG_BOOLEAN_LESSOREQUAL)
+                        || nodeName.equals(WcpsConstants.MSG_BOOLEAN_GREATERTHAN) || nodeName.equals(WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL)
+                        || nodeName.equals(WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC) || nodeName.equals(WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)) {
+                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_LESSTHAN)) {
                         op = "<";
                     }
-                    if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_LESSOREQUAL)) {
+                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_LESSOREQUAL)) {
                         op = "<=";
                     }
-                    if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_GREATERTHAN)) {
+                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_GREATERTHAN)) {
                         op = ">";
                     }
-                    if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_GREATEROREQUAL)) {
+                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL)) {
                         op = ">=";
                     }
-                    if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_EQUALNUMERIC)) {
+                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC)) {
                         op = "=";
                     }
-                    if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)) {
+                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)) {
                         op = "!=";
                     }
 
@@ -102,10 +101,10 @@ public class BooleanScalarExpr extends AbstractRasNode {
                     child = child.getNextSibling();
                     second = new NumericScalarExpr(child, xq);
                 } else {
-                    if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_EQUAL_STRING)) {
+                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_EQUAL_STRING)) {
                         op = "=";
                     }
-                    if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_NOT_EQUAL_STRING)) {
+                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_NOT_EQUAL_STRING)) {
                         op = "!=";
                     }
 
@@ -117,18 +116,18 @@ public class BooleanScalarExpr extends AbstractRasNode {
                 }
             }
 
-        } else if (nodeName.equals(WCPSConstants.MSG_BOOLEAN_NOT)) {
-            op = WCPSConstants.MSG_NOT;
+        } else if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_NOT)) {
+            op = WcpsConstants.MSG_NOT;
             first = new BooleanScalarExpr(node.getFirstChild(), xq);
-        } else if (nodeName.equals(WCPSConstants.MSG_BIT)) {
-            op = WCPSConstants.MSG_BIT;
+        } else if (nodeName.equals(WcpsConstants.MSG_BIT)) {
+            op = WcpsConstants.MSG_BIT;
             first = new CoverageExpr(node.getFirstChild(), xq);
             second = new NumericScalarExpr(node.getFirstChild().getNextSibling(), xq);
         } else {
-            throw new WCPSException(WCPSConstants.ERRTXT_UNEXPECTED_BINARY_EXPR_NODE + " : "
+            throw new WCPSException(WcpsConstants.ERRTXT_UNEXPECTED_BINARY_EXPR_NODE + " : "
                     + node.getNodeName());
         }
-        log.trace(WCPSConstants.MSG_BOOLEAN_SCALAR_EXPR + ": " + node.getNodeName());
+        log.trace(WcpsConstants.MSG_BOOLEAN_SCALAR_EXPR + ": " + node.getNodeName());
         
         // Keep children for XML tree crawling
         super.children.add(first);
@@ -140,10 +139,10 @@ public class BooleanScalarExpr extends AbstractRasNode {
             return value;
         }
 
-        if (op.equals(WCPSConstants.MSG_NOT)) {
-            return WCPSConstants.MSG_NOT + "(" + first.toRasQL() + ")";
-        } else if (op.equals(WCPSConstants.MSG_BIT)) {
-            return WCPSConstants.MSG_BIT + "(" + first.toRasQL() + "," + second.toRasQL() + ")";
+        if (op.equals(WcpsConstants.MSG_NOT)) {
+            return WcpsConstants.MSG_NOT + "(" + first.toRasQL() + ")";
+        } else if (op.equals(WcpsConstants.MSG_BIT)) {
+            return WcpsConstants.MSG_BIT + "(" + first.toRasQL() + "," + second.toRasQL() + ")";
         }
 
         return "(" + first.toRasQL() + ")" + op + "(" + second.toRasQL() + ")";

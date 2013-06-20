@@ -30,7 +30,7 @@ import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * This is an axis in geographic coordinates. See the WCPS standard.
@@ -66,7 +66,7 @@ public class DomainElement implements Cloneable {
 
         if (axisLabel == null) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WCPSConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_NULL);
+                    WcpsConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_NULL);
         }
 
         // store to fields
@@ -82,7 +82,7 @@ public class DomainElement implements Cloneable {
             maxValue = max;
         } else {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    WCPSConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_EMPTY);
+                    WcpsConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_EMPTY);
         }
 
         if ((crsUri == null) || crsUri.equals(CrsUtil.GRID_CRS)) {
@@ -94,7 +94,7 @@ public class DomainElement implements Cloneable {
             // Consistency checks
             if (maxValue.compareTo(minValue) < 0) {
                 throw new WCPSException(ExceptionCode.InvalidMetadata,
-                        WCPSConstants.ERRTXT_INVALID_DOM_BOUNDS);
+                        WcpsConstants.ERRTXT_INVALID_DOM_BOUNDS);
             }
             
             BigDecimal diffBD = maxValue.subtract(minValue);
@@ -129,7 +129,7 @@ public class DomainElement implements Cloneable {
                     );
         } catch (Exception ime) {
             throw new RuntimeException(
-                    WCPSConstants.ERRTXT_INVALID_METADAT_WHILE_CLONE,
+                    WcpsConstants.ERRTXT_INVALID_METADAT_WHILE_CLONE,
                     ime);
         }
     }
@@ -190,7 +190,7 @@ public class DomainElement implements Cloneable {
     
     @Override
     public String toString() {
-        String d = WCPSConstants.MSG_DOMAIN_CAMEL + "#" + iOrder + " {"  
+        String d = WcpsConstants.MSG_DOMAIN_CAMEL + "#" + iOrder + " {"  
                 + "Name:" + label 
                 + " | Type:" + type
                 + " | UoM:" + uom

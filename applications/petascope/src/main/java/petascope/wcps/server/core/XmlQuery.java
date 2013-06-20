@@ -21,16 +21,21 @@
  */
 package petascope.wcps.server.core;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.core.IDynamicMetadataSource;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.Pair;
+import petascope.util.Triple;
+import petascope.util.WcpsConstants;
 
 /**
  *
@@ -61,7 +66,7 @@ public class XmlQuery extends AbstractRasNode {
     private HashMap<String, Integer> varDimension;
     // VariableNewName is used to translate the old var name into the multi-dim var name
     private HashMap<String, String> variableTranslator;
-    private String varPrefix = WCPSConstants.MSG_I + "_";
+    private String varPrefix = WcpsConstants.MSG_I + "_";
     private char varSuffix = 'i';
 
     public String getMimeType() {
@@ -86,24 +91,24 @@ public class XmlQuery extends AbstractRasNode {
     }
 
     public void startParsing(Node node) throws WCPSException, PetascopeException {
-        log.debug(WCPSConstants.DEBUGTXT_PROCESSING_XML_REQUEST + ": " + node.getNodeName());
+        log.debug(WcpsConstants.DEBUGTXT_PROCESSING_XML_REQUEST + ": " + node.getNodeName());
 
         Node x = node.getFirstChild();
 
 
         while (x != null) {
-            if (x.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+            if (x.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
                 x = x.getNextSibling();
                 continue;
             }
 
-            log.info(WCPSConstants.MSG_THE_CURRENT_NODE + ": " + x.getNodeName());
+            log.info(WcpsConstants.MSG_THE_CURRENT_NODE + ": " + x.getNodeName());
 
-            if (x.getNodeName().equals(WCPSConstants.MSG_COVERAGE_ITERATOR)) {
+            if (x.getNodeName().equals(WcpsConstants.MSG_COVERAGE_ITERATOR)) {
                 iterators.add(new CoverageIterator(x, this));
-            } else if (x.getNodeName().equals(WCPSConstants.MSG_WHERE)) {
+            } else if (x.getNodeName().equals(WcpsConstants.MSG_WHERE)) {
                 where = new BooleanScalarExpr(x.getFirstChild(), this);
-            } else if (x.getNodeName().equals(WCPSConstants.MSG_ENCODE)) {
+            } else if (x.getNodeName().equals(WcpsConstants.MSG_ENCODE)) {
                 EncodeDataExpr encode;
 
                 try {
@@ -116,7 +121,7 @@ public class XmlQuery extends AbstractRasNode {
             } else {
                 // It has to be a scalar Expr 
                 coverageExpr = new ScalarExpr(x, this);
-                mime = WCPSConstants.MSG_TEXT_PLAIN;
+                mime = WcpsConstants.MSG_TEXT_PLAIN;
             }
 
             x = x.getNextSibling();
@@ -163,7 +168,7 @@ public class XmlQuery extends AbstractRasNode {
             }
         }
 
-        throw new WCPSException(WCPSConstants.MSG_ITERATOR + " " + iteratorName + " " + WCPSConstants.ERRTXT_NOT_DEFINED);
+        throw new WCPSException(WcpsConstants.MSG_ITERATOR + " " + iteratorName + " " + WcpsConstants.ERRTXT_NOT_DEFINED);
     }
 
     public boolean isDynamicCoverage(String coverageName) {
@@ -219,28 +224,59 @@ public class XmlQuery extends AbstractRasNode {
 
     public String toRasQL() {
         String result = "";
+        boolean whereIsNull = true;
+        
         if (coverageExpr instanceof ScalarExpr &&
             ((ScalarExpr)coverageExpr).isMetadataExpr()) {
             // in this case we shouldn't make any rasql query
             result = coverageExpr.toRasQL();
         } else {
             // rasql query
-            result = WCPSConstants.MSG_SELECT + " " + coverageExpr.toRasQL() + " " + WCPSConstants.MSG_FROM + " ";
+            result = " select " + coverageExpr.toRasQL() + " from ";
             Iterator<CoverageIterator> it = iterators.iterator();
             boolean first = true;
 
+            // Compose list of coverages (FROM clause) and fetch the corresponendt OID
+            // rasdamanColls = {{OID, name, alias},...}
+            List<Triple<BigInteger,String,String>> rasdamanColls = new ArrayList<Triple<BigInteger,String,String>>();
             while (it.hasNext()) {
                 if (first) {
                     first = false;
                 } else {
                     result += ", ";
                 }
-
-                result += it.next().toRasQL();
+                
+                CoverageIterator cNext = it.next();
+                // The COVERAGE name not necessarily coincide with the COLLECTION name
+                // Need to fetch coll-name and OID:
+                try {                    
+                rasdamanColls.add(Triple.of(
+                        meta.read(cNext.getCoverages().next()).getRasdamanCollection().fst,
+                        meta.read(cNext.getCoverages().next()).getRasdamanCollection().snd,
+                        cNext.getIteratorName()
+                        ));
+                } catch (PetascopeException ex) {
+                    log.error("Cannot read metadata of coverage " + cNext.getCoverages().next() + ": dynamic coverage?");
+                    log.error(ex.getMessage());
+                }
+                
+                // Append ``collection'' name (+ alias) to RasQL `FROM'
+                result += rasdamanColls.get(rasdamanColls.size()-1).snd + " AS " + cNext.getIteratorName();
             }
 
-            if (where != null) {
-                result += " " + WCPSConstants.MSG_WHERE+ " " + where.toRasQL();
+            // Add embedded WHERE conditions
+            if (null != where) {
+                result += " where " + where.toRasQL();
+                whereIsNull = false;
+            }
+            
+            // Add/append OID constraints (1 W*S coverage = 1 MDD) in the WHERE clause
+            for (Triple<BigInteger,String,String> rasdamanColl : rasdamanColls) {
+                result += (whereIsNull) 
+                        ? " where oid(" + rasdamanColl.trd + ")=" + rasdamanColl.fst
+                        : " and oid("   + rasdamanColl.trd + ")=" + rasdamanColl.fst
+                        ;
+                whereIsNull = false;
             }
         }        
         return result;

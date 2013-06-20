@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * DomainExpr
@@ -41,9 +41,9 @@ public class DomainExpr implements IParseTreeNode {
     public String toXML() {
         String result = "";
 
-        result += "<" + WCPSConstants.MSG_COVERAGE + ">" + var + "</" + WCPSConstants.MSG_COVERAGE + ">";
-        result += "<" + WCPSConstants.MSG_AXIS + ">" + axis + "</" + WCPSConstants.MSG_AXIS + ">";
-        result += "<" + WCPSConstants.MSG_CRS + ">" + crs + "</" + WCPSConstants.MSG_CRS + ">";
+        result += "<" + WcpsConstants.MSG_COVERAGE + ">" + var + "</" + WcpsConstants.MSG_COVERAGE + ">";
+        result += "<" + WcpsConstants.MSG_AXIS + ">" + axis + "</" + WcpsConstants.MSG_AXIS + ">";
+        result += "<" + WcpsConstants.MSG_CRS + ">" + crs + "</" + WcpsConstants.MSG_CRS + ">";
         return result;
     }
 }

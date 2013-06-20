@@ -66,7 +66,7 @@ public class CoverageMetadata implements Cloneable {
     private List<String> crsUris; // 1+ single CRS URIs
     private Set<Pair<String,String>> extraMetadata; // {metadata_type,metadata_value}
     private List<RangeElement> range;
-    Pair<BigDecimal, String> rasdamanCollection;
+    Pair<BigInteger, String> rasdamanCollection;
     private Bbox bbox = null;
     
     // legacy petascope.wcs
@@ -88,7 +88,7 @@ public class CoverageMetadata implements Cloneable {
             List<CellDomainElement>       cellDomain, 
             List<BigDecimal>              gridOrigin,
             LinkedHashMap<List<BigDecimal>,Boolean> gridAxes, // must be LinkedHash: preserve order of insertion
-            Pair<BigDecimal, String>      rasdamanCollection,
+            Pair<BigInteger, String>      rasdamanCollection,
             List<RangeElement>            rangeElements
             ) throws PetascopeException {
  
@@ -166,7 +166,7 @@ public class CoverageMetadata implements Cloneable {
             List<String>             crsUris,
             List<CellDomainElement>  cellDomain, 
             List<DomainElement>      domain,
-            Pair<BigDecimal, String> rasdamanCollection,
+            Pair<BigInteger, String> rasdamanCollection,
             List<RangeElement>       rangeElements
             ) throws PetascopeException {
         
@@ -193,7 +193,7 @@ public class CoverageMetadata implements Cloneable {
             List<String>             crsUris,
             List<CellDomainElement>  cellDomain, 
             List<DomainElement>      domain,
-            Pair<BigDecimal, String> rasdamanCollection,
+            Pair<BigInteger, String> rasdamanCollection,
             List<RangeElement>       rangeElements
             ) throws PetascopeException {
         
@@ -534,7 +534,7 @@ public class CoverageMetadata implements Cloneable {
     }
         
     
-    public Pair<BigDecimal, String> getRasdamanCollection() {
+    public Pair<BigInteger, String> getRasdamanCollection() {
         return this.rasdamanCollection;
     }
     

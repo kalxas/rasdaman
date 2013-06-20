@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 import petascope.wcs2.parsers.GetCoverageRequest;
 
 //A coverage axis in pixel coordinates. See the WCPS standard.
@@ -43,13 +43,13 @@ public class CellDomainElement implements Cloneable {
     public CellDomainElement(BigInteger lo, BigInteger hi, int order) throws WCPSException {        
         if ((lo == null) || (hi == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WCPSConstants.ERRTXT_INVALID_CELL_DOMAIN);
+                    WcpsConstants.ERRTXT_INVALID_CELL_DOMAIN);
         }
         if (lo.compareTo(hi) == 1) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WCPSConstants.ERRTXT_INVALID_CELL_DOMAIN_LOWER + " " + lo + " " + WCPSConstants.ERRTXT_CANNOT_BE_LARGER + " " + hi);
+                    WcpsConstants.ERRTXT_INVALID_CELL_DOMAIN_LOWER + " " + lo + " " + WcpsConstants.ERRTXT_CANNOT_BE_LARGER + " " + hi);
         }
-        log.trace(WCPSConstants.MSG_CELL_DOMAIN + " " + lo + ":" + hi);
+        log.trace(WcpsConstants.MSG_CELL_DOMAIN + " " + lo + ":" + hi);
 
         minValue = lo;
         maxValue = hi;
@@ -63,7 +63,7 @@ public class CellDomainElement implements Cloneable {
                     BigInteger.ZERO.add(maxValue), new Integer(iOrder));
         } catch (WCPSException ime) {
             throw new RuntimeException(
-                    WCPSConstants.ERRTXT_INVALID_METADATA,
+                    WcpsConstants.ERRTXT_INVALID_METADATA,
                     ime);
         }
     }
@@ -95,7 +95,7 @@ public class CellDomainElement implements Cloneable {
     
     @Override
     public String toString() {
-        return WCPSConstants.MSG_CELL_DOMAIN_ELEMENT + "#" + iOrder + " [" + minValue + ", " + maxValue + "]";
+        return WcpsConstants.MSG_CELL_DOMAIN_ELEMENT + "#" + iOrder + " [" + minValue + ", " + maxValue + "]";
     }
 
     public GetCoverageRequest.DimensionSubset getSubsetElement() {

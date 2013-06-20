@@ -22,7 +22,7 @@
 package petascope.wcps.grammar;
 
 import java.util.*;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * ConstantList
@@ -47,7 +47,7 @@ public class ConstantList implements IParseTreeNode {
         Iterator<String> it = list.iterator();
 
         while (it.hasNext()) {
-            result += "<" + WCPSConstants.MSG_VALUE + ">" + it.next() + "</" + WCPSConstants.MSG_VALUE + ">";
+            result += "<" + WcpsConstants.MSG_VALUE + ">" + it.next() + "</" + WcpsConstants.MSG_VALUE + ">";
         }
 
         return result;

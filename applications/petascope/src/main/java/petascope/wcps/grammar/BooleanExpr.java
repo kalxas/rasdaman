@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * BooleanExpr
@@ -47,9 +47,9 @@ public class BooleanExpr implements IParseTreeNode {
     public String toXML() {
         String result = "";
 
-        if (op.equalsIgnoreCase(WCPSConstants.MSG_NOT)) {
+        if (op.equalsIgnoreCase(WcpsConstants.MSG_NOT)) {
             result = e1.toXML();
-        } else if (op.equalsIgnoreCase(WCPSConstants.MSG_BIT)) {
+        } else if (op.equalsIgnoreCase(WcpsConstants.MSG_BIT)) {
             result = e1.toXML() + e2.toXML();
         }
 

@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * TrimExpr
@@ -39,6 +39,6 @@ public class TrimExpr implements IParseTreeNode {
     }
 
     public String toXML() {
-        return "<" + WCPSConstants.MSG_TRIM + ">" + expr.toXML() + list.toXML() + "</" + WCPSConstants.MSG_TRIM + ">";
+        return "<" + WcpsConstants.MSG_TRIM + ">" + expr.toXML() + list.toXML() + "</" + WcpsConstants.MSG_TRIM + ">";
     }
 }

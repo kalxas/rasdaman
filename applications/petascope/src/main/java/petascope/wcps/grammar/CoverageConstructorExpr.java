@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * CoverageConstructorExpr
@@ -37,18 +37,18 @@ public class CoverageConstructorExpr implements IParseTreeNode {
     public CoverageConstructorExpr(String name, AxisIteratorList alist, CoverageExpr expr) {
         this.name = name;
         this.alist = alist;
-        alist.setTag(WCPSConstants.MSG_AXIS_ITERATOR);
+        alist.setTag(WcpsConstants.MSG_AXIS_ITERATOR);
         this.expr = expr;
     }
 
     public String toXML() {
         String result = "";
 
-        result += "<" + WCPSConstants.MSG_NAME + ">" + name + "</" + WCPSConstants.MSG_NAME + ">";
+        result += "<" + WcpsConstants.MSG_NAME + ">" + name + "</" + WcpsConstants.MSG_NAME + ">";
         result += alist.toXML();
         result += expr.toXML();
 
-        result = "<" + WCPSConstants.MSG_CONSTRUCT + ">" + result + "</" + WCPSConstants.MSG_CONSTRUCT + ">";
+        result = "<" + WcpsConstants.MSG_CONSTRUCT + ">" + result + "</" + WcpsConstants.MSG_CONSTRUCT + ">";
         return result;
     }
 }

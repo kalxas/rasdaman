@@ -41,7 +41,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 
@@ -58,10 +58,10 @@ public class WcpsServlet extends HttpServlet {
     private String rasdamanDatabase;
     private String rasdamanUrl;
     // path to the default HTML response of the servlet
-    private String servletHtmlPath = WCPSConstants.MSG_SERVLET_HTMLPATH;
+    private String servletHtmlPath = WcpsConstants.MSG_SERVLET_HTMLPATH;
     // String containing the HTML code for the default response
     private String defaultHtmlResponse;
-    private final String WCPS_PROCESS_COVERAGE_XSD = WCPSConstants.MSG_WCPS_PROCESS_COVERAGE_XSD;
+    private final String WCPS_PROCESS_COVERAGE_XSD = WcpsConstants.MSG_WCPS_PROCESS_COVERAGE_XSD;
     
     @Override
     public void init() throws ServletException {
@@ -153,8 +153,8 @@ public class WcpsServlet extends HttpServlet {
                 
                 log.debug("WCPS: received XML via a multipart POST request");
             } else {
-                String xml = request.getParameter(WCPSConstants.MSG_XML);
-                String query = request.getParameter(WCPSConstants.MSG_QUERY);
+                String xml = request.getParameter(WcpsConstants.MSG_XML);
+                String query = request.getParameter(WcpsConstants.MSG_QUERY);
                 
                 if (xml != null) {
                     log.debug("WCPS: received XML via a 'xml' parameter in a POST request");

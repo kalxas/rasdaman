@@ -27,7 +27,7 @@ package petascope.util;
  * 
  * @author <a href="mailto:a.rezaeim@jacobs-university.de">Alireza Rezaei Mahdiraji</a>
  */
-public interface WCPSConstants {
+public interface WcpsConstants {
     
     /**
      * General messages  
@@ -261,7 +261,7 @@ public interface WCPSConstants {
     public static final String MSG_SCALE                        = "scale";
     public static final String MSG_SCALAR_EXPR                  = "scalarExpr";
     public static final String MSG_SELECT                       = "select";
-    public static final String MSG_SERVLET_HTMLPATH                 = "/templates/wcps-servlet.html";
+    public static final String MSG_SERVLET_HTMLPATH             = "/templates/wcps-servlet.html";
     public static final String MSG_SET_IDENTIFIER               = "setIdentifier";
     public static final String MSG_SET_CRSSET                   = "setCrsSet";
     public static final String MSG_SET_INTERPOLATION_DEFAULT    = "setInterpolationDefault";
@@ -389,8 +389,6 @@ public interface WCPSConstants {
     public static final String ERRTXT_INCOMPATIBLE_COVERAGES       = "Incompatible coverages within the same iterator";
     public static final String ERRTXT_INTERNAL_ERROR_THIS          = "Internal error: this should have been a variable name";
     public static final String ERRTXT_INVALID_BOUNDING_BOX         = "Invalid bounding box: null element encountered.";
-    public static final String ERRTXT_INVALID_CAST_FROM_Part1      = "Invalid cast from";
-    public static final String ERRTXT_INVALID_CAST_FROM_PART2      = "XML node to CoverageIterator node";
     public static final String ERRTXT_INVALID_CELL_DOMAIN          = "Invalid cell domain element: Bounds may not be null";
     public static final String ERRTXT_INVALID_CELL_DOMAIN_LOWER    = "Invalid cell domain element: Lower bound";
     public static final String ERRTXT_INVALID_COVERAGE_EXPR        = "Invalid coverage Expression, next node";
