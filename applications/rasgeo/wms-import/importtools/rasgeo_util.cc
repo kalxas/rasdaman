@@ -1725,10 +1725,10 @@ RasgeoUtil::doStuff(int argc, char** argv, ImportType iType ) throw(ImportError,
             // sqrt(bufsize/pixsize) gives max edge length
             edgeLength = (r_Range)std::max(
                              (r_Range)floor(pow(updateBufferSize / mddType->base_type().size(), 1/(double)2.0) ),
-                             1);
+                             (r_Range)1);
         }
         // window is 0..n-1 x 0..n-1
-        tileDom = r_Minterval(2) << r_Sinterval(0, edgeLength - 1) << r_Sinterval(0, edgeLength - 1);
+        tileDom = r_Minterval(2) << r_Sinterval((r_Range)0, edgeLength - 1) << r_Sinterval((r_Range) 0, edgeLength - 1);
         iter = new r_MiterArea(&tileDom, &tempDom);
 #endif
         TALK( "Tiling domain " << tempDom << ", into tiles " << tileDom );

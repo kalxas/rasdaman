@@ -61,8 +61,8 @@ DBHierIndex::insertInDb() throw (r_Error)
     RMDBGENTER(5, RMDebug::module_indexif, "DBHierIndex", "insertInDb() " << myOId);
     ENTER( "DBHierIndex::insertInDb(), myOId=" << myOId );
 
-    // old format a 13, new format 1009 (to align with dbrcindex.pgc)
-    long long header = 1009; 
+    // old format a 13, new format >= 1009 (to align with dbrcindex.pgc)
+    long long header = 1010; 
 
 #ifdef NOTYET   // should be in future
     /*
@@ -168,7 +168,7 @@ DBHierIndex::insertInDb() throw (r_Error)
     //populate the buffers with data
     KeyObjectVector::iterator it = myKeyObjects.begin();
     InlineMinterval indom;
-    for (unsigned int i = 0; i < size2; i++, it++)
+    for (long i = 0; i < size2; i++, it++)
     {
         indom = (*it).getDomain();
         indom.insertInDb(&(lowerboundsbuf[(i+1)*dimension2]), &(upperboundsbuf[(i+1)*dimension2]), &(lowerfixedbuf[(i+1)*dimension2]), &(upperfixedbuf[(i+1)*dimension2]));
@@ -283,7 +283,7 @@ DBHierIndex::readFromDb() throw (r_Error)
 #endif // NOTYET
 
     int headersize;
-    int header;
+    long long header;
     int blobformat;
 
     long long id1;
@@ -367,23 +367,41 @@ DBHierIndex::readFromDb() throw (r_Error)
   
     r_Bytes idssize; 	
     r_Bytes newidssize;
+	r_Bytes boundssize;
+    r_Bytes newboundssize;
+    
+    // blobformat == 8: old format, contains 13 in first byte
+    // blobformat == 9: OIDcounter is now long, but r_Range is still int
+    // blobformat == 10: r_Range is long as well
 	
+    TALK( "blobbuffer[0]: "<<blobbuffer[0] )
     if (blobbuffer[0] == 13) { // old format
         blobformat = 8;
         idssize = sizeof(int) * size1;
 		newidssize = sizeof(OId::OIdCounter) * size1;		
         //number of bytes for types of entries
+        //number of bytes for bounds for "size" entries and mydomain
+        boundssize = sizeof(int) * (size1 + 1) * dimension1;
+        newboundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
         headersize = 1;
     } else {
-        blobformat = 9;
-        idssize = sizeof(OId::OIdCounter) * size1;
-        //number of bytes for types of entries
         headersize = 8;
+        memcpy(&header, &blobbuffer[0], headersize);
+        if (header == 1009) {
+            blobformat = 9;
+            idssize = sizeof(OId::OIdCounter) * size1;
+            boundssize = sizeof(int) * (size1 + 1) * dimension1;
+            newboundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
+        } else {
+            blobformat = 10;
+            idssize = sizeof(OId::OIdCounter) * size1;
+            //number of bytes for types of entries
+            boundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
+        }
     }
+    
     TALK( "blobformat: " << blobformat );
 
-    //number of bytes for bounds for "size" entries and mydomain
-    r_Bytes boundssize = sizeof(r_Range) * (size1 + 1) * dimension1;
     //number of bytes for fixes for "size" entries and mydomain
     r_Bytes fixessize = sizeof(char) * (size1 + 1) * dimension1;
     //number of bytes for types of entries
@@ -402,19 +420,34 @@ DBHierIndex::readFromDb() throw (r_Error)
     char* upperfixedbuf = (char*)mymalloc(fixessize);
     char* lowerfixedbuf = (char*)mymalloc(fixessize);
 */
+    OId::OIdCounter* entryidsbuf;
     r_Range* upperboundsbuf;
     r_Range* lowerboundsbuf;
     char* upperfixedbuf;
     char* lowerfixedbuf;
 
+    int* oldupperboundsbuf;
+    int* oldlowerboundsbuf;
     unsigned int* oldentryidsbuf;
-	
-    OId::OIdCounter* entryidsbuf;
+
     if (blobformat == 8) {
+        // old entries need to be allocated because the data is not aligned
         oldentryidsbuf = (unsigned int*)mymalloc(idssize);
+        oldupperboundsbuf = (int*) mymalloc(boundssize);
+        oldlowerboundsbuf = (int*) mymalloc(boundssize);
+
+        // new entries need to be allocated because blobbuffer is smaller
         entryidsbuf = (long long*)mymalloc(newidssize);
+        upperboundsbuf = (long long*) mymalloc(newboundssize);
+        lowerboundsbuf = (long long*) mymalloc(newboundssize);
+    } else if (blobformat == 9) {
+        // r_Range is still an int
+        oldupperboundsbuf = (int*) mymalloc(boundssize);
+        oldlowerboundsbuf = (int*) mymalloc(boundssize);
+        upperboundsbuf = (long long*) mymalloc(newboundssize);
+        lowerboundsbuf = (long long*) mymalloc(newboundssize);
     } else {
-        entryidsbuf = (OId::OIdCounter*)mymalloc(idssize);
+        // can be just pointers into blobbuffer
 	}
 	/*	
     char* entrytypesbuf = (char*)mymalloc(typessize);
@@ -450,21 +483,34 @@ DBHierIndex::readFromDb() throw (r_Error)
     memcpy(upperfixedbuf,  &completebuffer[boundssize * 2 + fixessize + headersize], fixessize);
 	 */
 
-    lowerboundsbuf = (r_Range*) &completebuffer[headersize];
-    upperboundsbuf = (r_Range*) &completebuffer[boundssize + headersize];
+    if (blobformat <= 9) { // for blobformat 8 and 9 were only 
+        memcpy(oldlowerboundsbuf, &completebuffer[headersize], boundssize);
+        memcpy(oldupperboundsbuf, &completebuffer[boundssize + headersize], boundssize);
+        // we need to copy all values over
+        for (long i = 0; i < (size1 + 1) * dimension1; i++) {
+            lowerboundsbuf[i] = (r_Range) oldlowerboundsbuf[i];
+            upperboundsbuf[i] = (r_Range) oldupperboundsbuf[i];
+        }
+    } else {
+        lowerboundsbuf = (r_Range*) &completebuffer[headersize];
+        upperboundsbuf = (r_Range*) &completebuffer[boundssize + headersize];
+    }
+    
     lowerfixedbuf = &completebuffer[boundssize * 2 + headersize];
     upperfixedbuf = &completebuffer[boundssize * 2 + fixessize + headersize];
-	
+
     if (blobformat == 8) {
         memcpy(oldentryidsbuf, &completebuffer[boundssize * 2 + fixessize * 2 + headersize], idssize);
-        for (int i = 0; i < size1; i++) {
+        // we need to copy all values over
+        for (long i = 0; i < size1; i++) {
             entryidsbuf[i] = (OId::OIdCounter) oldentryidsbuf[i];
         }
-    } 
-    else {
+    } else {
        /* HST
         memcpy(entryidsbuf,    &completebuffer[boundssize * 2 + fixessize * 2 + headersize], idssize);
         */
+        lowerfixedbuf = &completebuffer[boundssize * 2 + headersize];
+        upperfixedbuf = &completebuffer[boundssize * 2 + fixessize + headersize];
         entryidsbuf = (OId::OIdCounter*) &completebuffer[boundssize * 2 + fixessize * 2 + headersize];
     }
 	
@@ -475,7 +521,7 @@ DBHierIndex::readFromDb() throw (r_Error)
     completebuffer = NULL;
 	*/
     // rebuild the attributes from the buffers
-    int i = 0;
+    long i = 0;
     myDomain = InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[i*dimension1]));
     RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "domain " << myDomain << " constructed from " << InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])));
     KeyObject theKey = KeyObject(DBObjectId(), myDomain);
@@ -496,11 +542,21 @@ DBHierIndex::readFromDb() throw (r_Error)
     free(entryidsbuf);
     free(entrytypesbuf);
 */
+    // we only needed to allocated bounds for format 8 and 9
+    if (blobformat <= 9) {
+        free(upperboundsbuf);
+        free(lowerboundsbuf);
+        free(oldupperboundsbuf);
+        free(oldlowerboundsbuf);
+	}
+    
+    // we only need to allocate entries for format 8
     if (blobformat == 8) {
         free(oldentryidsbuf);
         free(entryidsbuf);
     }
- 
+
+    // Expand r_Range to long long
     free (completebuffer);
     completebuffer = NULL;
 
@@ -521,7 +577,7 @@ DBHierIndex::updateInDb() throw (r_Error)
     RMDBGENTER(5, RMDebug::module_indexif, "DBHierIndex", "updateInDb() " << myOId);
     ENTER( "DBHierIndex::updateInDb(), myOId=" << myOId );
 
-    long long header = 1009; 
+    long long header = 1010; 
 
 #ifdef NOTYET   // should be in future
     /*
@@ -582,7 +638,7 @@ DBHierIndex::updateInDb() throw (r_Error)
 
     KeyObjectVector::iterator it = myKeyObjects.begin();
     InlineMinterval indom;
-    for (unsigned int i = 0; i < size4; i++, it++)
+    for (long i = 0; i < size4; i++, it++)
     {
         indom = (*it).getDomain();
         indom.insertInDb(&(lowerboundsbuf[(i+1)*dimension4]), &(upperboundsbuf[(i+1)*dimension4]), &(lowerfixedbuf[(i+1)*dimension4]), &(upperfixedbuf[(i+1)*dimension4]));

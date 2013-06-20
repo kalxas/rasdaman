@@ -485,7 +485,7 @@ processImageFiles(vector<string>& filenames, string collname,
 
     Header newGeoRegion;
 
-    int tilecounter = 1;
+    long long tilecounter = 1;
     vector<string>::const_iterator iter;
     for (iter = filenames.begin(); iter != filenames.end(); ++iter, ++tilecounter)
     {
@@ -514,11 +514,11 @@ processImageFiles(vector<string>& filenames, string collname,
         printRegion(insertGeoRegion, "insertGeoRegion");
 
         // determine the image region to be read from the src in pixel space
-        r_Long read_scol = ((insertGeoRegion.xmin - srcGeoRegion.xmin) / srcGeoRegion.cellsize.x) + 0.5;
-        r_Long read_srow = ((srcGeoRegion.ymax - insertGeoRegion.ymax) / srcGeoRegion.cellsize.y) + 0.5;
+        r_Range read_scol = ((insertGeoRegion.xmin - srcGeoRegion.xmin) / srcGeoRegion.cellsize.x) + 0.5;
+        r_Range read_srow = ((srcGeoRegion.ymax - insertGeoRegion.ymax) / srcGeoRegion.cellsize.y) + 0.5;
         r_Minterval readGDALImgDOM(2);
-        readGDALImgDOM  << r_Sinterval(read_scol, (r_Long)(read_scol + insertGeoRegion.ncols - 1))
-                        << r_Sinterval(read_srow, (r_Long)(read_srow + insertGeoRegion.nrows - 1));
+        readGDALImgDOM  << r_Sinterval(read_scol, (r_Range)(read_scol + insertGeoRegion.ncols - 1))
+                        << r_Sinterval(read_srow, (r_Range)(read_srow + insertGeoRegion.nrows - 1));
 
         NMDebugAI(<< "src img size:     " << srcGeoRegion.ncols << " x " << srcGeoRegion.nrows << endl);
         NMDebugAI(<< "readGDALImgDOM:   " << readGDALImgDOM.get_string_representation() << endl << endl);
@@ -746,12 +746,12 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs, string& collname, vec
         r_Point seqWriteShift = r_Point(writeShift);
 
         // calc the sequential read variables
-        int startcolumn = readGDALImgDOM[0].low();
-        int startrow = readGDALImgDOM[1].low();
-        int endrow = startrow + chunksize -1;
-        int rowstoread = chunksize;
+        r_Range startcolumn = readGDALImgDOM[0].low();
+        r_Range startrow = readGDALImgDOM[1].low();
+        r_Range endrow = startrow + chunksize -1;
+        r_Range rowstoread = chunksize;
 
-        for (int iter=0; iter <= niter; iter++)
+        for (r_Range iter=0; iter <= niter; iter++)
         {
             NMDebugAI(<< "importing chunk " << iter+1 << " of " << (rest > 0 ? niter+1 : niter) <<
                       ": row " << seqWriteShift[1] << " to " << seqWriteShift[1] + rowstoread-1 << endl << endl);
@@ -760,14 +760,14 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs, string& collname, vec
             r_Minterval rint;
             if (asCube)
             {
-                rint = r_Minterval(3) << r_Sinterval(0, (r_Long)readGDALImgDOM[0].get_extent()-1)
-                       << r_Sinterval(0, (r_Long)rowstoread-1)
-                       << r_Sinterval(0, 0);
+                rint = r_Minterval(3) << r_Sinterval((r_Range)0, (r_Range)readGDALImgDOM[0].get_extent()-1)
+                       << r_Sinterval((r_Range)0, (r_Range)rowstoread-1)
+                       << r_Sinterval((r_Range)0, (r_Range)0);
             }
             else
             {
-                rint = r_Minterval(2) << r_Sinterval(0, (r_Long)readGDALImgDOM[0].get_extent()-1)
-                       << r_Sinterval(0, (r_Long)rowstoread-1);
+                rint = r_Minterval(2) << r_Sinterval((r_Range)0, (r_Range)readGDALImgDOM[0].get_extent()-1)
+                       << r_Sinterval((r_Range)0, (r_Range)rowstoread-1);
             }
 
             // allocate the memory for the 'transfer buffer'

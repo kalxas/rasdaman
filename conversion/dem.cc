@@ -644,17 +644,17 @@ r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
 
         //FIXME correction for strange efect of r_Long cast with 1e-6
         if(collBBox.flipx)
-            desc.destInterv << r_Sinterval((r_Long)((collBBox.endx - max.x)/collBBox.resx + 1e-6),
-                                           (r_Long)((collBBox.endx - min.x)/collBBox.resx + 1e-6));
+            desc.destInterv << r_Sinterval((r_Range)((collBBox.endx - max.x)/collBBox.resx + 1e-6),
+                                           (r_Range)((collBBox.endx - min.x)/collBBox.resx + 1e-6));
         else
-            desc.destInterv << r_Sinterval((r_Long)((min.x - collBBox.startx)/collBBox.resx + 1e-6),
-                                           (r_Long)((max.x - collBBox.startx)/collBBox.resx + 1e-6));
+            desc.destInterv << r_Sinterval((r_Range)((min.x - collBBox.startx)/collBBox.resx + 1e-6),
+                                           (r_Range)((max.x - collBBox.startx)/collBBox.resx + 1e-6));
         if(collBBox.flipy)
-            desc.destInterv << r_Sinterval((r_Long)((collBBox.endy - max.y)/collBBox.resy + 1e-6),
-                                           (r_Long)((collBBox.endy - min.y)/collBBox.resy + 1e-6));
+            desc.destInterv << r_Sinterval((r_Range)((collBBox.endy - max.y)/collBBox.resy + 1e-6),
+                                           (r_Range)((collBBox.endy - min.y)/collBBox.resy + 1e-6));
         else
-            desc.destInterv << r_Sinterval((r_Long)((min.y - collBBox.starty)/collBBox.resy + 1e-6),
-                                           (r_Long)((max.y - collBBox.starty)/collBBox.resy + 1e-6));
+            desc.destInterv << r_Sinterval((r_Range)((min.y - collBBox.starty)/collBBox.resy + 1e-6),
+                                           (r_Range)((max.y - collBBox.starty)/collBBox.resy + 1e-6));
 
         RMInit::logOut  << "r_Conv_DEM::convertFrom(...) dest interval=" << desc.destInterv << endl;
 
@@ -810,7 +810,7 @@ r_Conv_DEM::convertTo(const char* options) throw (r_Error)
 
         //--computing the marray domain
         desc.destInterv = r_Minterval(srcIntervDim);
-        desc.destInterv << r_Sinterval((r_Long)0, (r_Long)lenFile - 1);
+        desc.destInterv << r_Sinterval((r_Range)0, (r_Range)lenFile - 1);
 
         RMInit::logOut  << "r_Conv_DEM::convertTo(...) dest interval=" << desc.destInterv << endl;
         RMInit::logOut  << "r_Conv_DEM::convertTo(...) dest type=" << desc.destType->type_id() << endl;

@@ -126,7 +126,7 @@ public:
     bool fillMArrayOutside(const string& bgr = "") throw(r_Error);
 
     // just for debugging
-    void print(int onlyLine=-1);
+    void print(r_Range onlyLine=-1);
     void printLine(r_Range line);
 
 private:

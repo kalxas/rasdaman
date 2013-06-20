@@ -839,7 +839,7 @@ main( int argc, char** argv )
 
             openImage(fName,false);     // open image for reading
 
-            for( int k = 0; k < imgRows; k += tileRows )
+            for(r_Range k = 0; k < imgRows; k += tileRows )
             {
                 // create domain of next tile
                 cacheDom =  r_Minterval(2)

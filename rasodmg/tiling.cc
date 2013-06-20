@@ -184,7 +184,7 @@ r_Size_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize
     // compute the domain of the small tiles
     // tiles are n-dimensional cubes with edge length n-th root of max tile size
     RMDBGMIDDLE(4, RMDebug::module_rasodmg, "r_Size_Tiling", "tile size " << get_tile_size())
-    r_Range edgeLength = (r_Range)std::max((r_Range)floor(pow(get_tile_size()/cellTypeSize, 1/(double)dim)), 1);
+    r_Range edgeLength = (r_Range)std::max((r_Range)floor(pow(get_tile_size()/cellTypeSize, 1/(double)dim)), (r_Range)1);
     r_Dimension dimcnt = 0;
     for (dimcnt = 0; dimcnt < dim; dimcnt++)
         tileDom << r_Sinterval((r_Range)0, edgeLength - 1);

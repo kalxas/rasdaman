@@ -79,7 +79,7 @@ SRCIndexLogic::computeNormalizedDomain(const r_Point& mddDomainExtent, const r_P
             RMInit::logOut << "SRCIndexLogic::computeNormalizedDomain() the mdd domain does not fit the tile configuration" << endl;
             throw r_Error(TILECONFIGMARRAYINCOMPATIBLE);
         }
-        normalizedDomain[dim] = r_Sinterval(0, normalized);
+        normalizedDomain[dim] = r_Sinterval(0LL, normalized);
     }
     RMDBGONCE(4, RMDebug::module_indexmgr, "SRCIndexLogic", "computeNormalizedDomain(" << mddDomainExtent << ", " << tileConfigExtent << ") " << normalizedDomain);
     return normalizedDomain;

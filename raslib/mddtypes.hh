@@ -97,7 +97,7 @@ typedef uint64_t r_Area;
 //@Args: as int
 //@Memo: Module: {\bf raslib}.
 
-typedef int r_Range;
+typedef long long r_Range;
 
 /**
   {\tt typedef int r_Range;}

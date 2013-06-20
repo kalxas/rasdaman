@@ -543,19 +543,19 @@ int r_PolygonCutOut::computeInside(r_Point start, r_Point end)
 }
 
 
-r_PolygonCutOut::TablePoint& r_PolygonCutOut::getTP(int line, int column)
+r_PolygonCutOut::TablePoint& r_PolygonCutOut::getTP(r_Range line, r_Range column)
 {
     TablePoint *tp = table + (line * tableWidth + column);
     return *tp;
 }
 
-void r_PolygonCutOut::print(int onlyLine)
+void r_PolygonCutOut::print(r_Range onlyLine)
 {
     std::cout<<"r_PolygonCutOut::print: "<<tableWidth<<':'<<tableHeight<<std::endl;
 
     if(onlyLine==-1) // print all
     {
-        for(int i=0; i<tableHeight; i++)
+        for(r_Range i=0; i<tableHeight; i++)
             printLine(i);
     }
     else
@@ -567,11 +567,11 @@ void r_PolygonCutOut::print(int onlyLine)
 
 void r_PolygonCutOut::printLine(r_Range line)
 {
-    int count=usedCount[line];
+    r_Range count=usedCount[line];
     TablePoint *tp = &getTP(line,0);
 
     std::cout<<"line "<<line<<'('<<count<<") ";
-    for(int i=0; i<count; i++)
+    for(r_Range i=0; i<count; i++)
     {
         char inside='0';
         if(tp[i].inside==-1) inside='-';
@@ -582,9 +582,9 @@ void r_PolygonCutOut::printLine(r_Range line)
     std::cout<<std::endl;
 }
 
-void r_PolygonCutOut::addPoint(int tableLine,r_Range coordX, int inside,int cosFunc)
+void r_PolygonCutOut::addPoint(r_Range tableLine, r_Range coordX, int inside,int cosFunc)
 {
-    int which = usedCount[tableLine];
+    r_Range which = usedCount[tableLine];
     TablePoint *tp = &getTP(tableLine,which);
 
     tp->x       = coordX;
@@ -593,9 +593,9 @@ void r_PolygonCutOut::addPoint(int tableLine,r_Range coordX, int inside,int cosF
     usedCount[tableLine]++;
 }
 
-void r_PolygonCutOut::replacePoint(int tableLine,r_Range coordX,int inside, int cosFunc)
+void r_PolygonCutOut::replacePoint(r_Range tableLine,r_Range coordX,int inside, int cosFunc)
 {
-    int which = usedCount[tableLine]-1;
+    r_Range which = usedCount[tableLine]-1;
     TablePoint *tp = &getTP(tableLine,which);
     tp->x       = coordX;
     tp->inside  = inside;
