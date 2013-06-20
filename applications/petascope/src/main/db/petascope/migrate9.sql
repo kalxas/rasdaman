@@ -428,6 +428,9 @@ $$
 
         -- If >1 MDD per collection, I raise a warning: must be only one per /coverage/ (the lower one is taken)
         FOR _tup IN EXECUTE _qry LOOP
+
+            SELECT * FROM pgstattuple('pg_catalog.pg_proc'); -- DEBUG
+
             -- If more than 1 OID send WARNING but the continue
             IF _first_oid IS NOT NULL THEN
                 _log := 'collection ' || coverage_name || ' has multiple MDDs: only OID ' 
@@ -615,8 +618,8 @@ $$
         _qry := ' SELECT ARRAY[' || cget('PS_COVERAGE_ID')   || '::text,' 
                                  || cget('PS_COVERAGE_NAME') || '] AS row ' ||
                         ' FROM ' || cget('TABLE_PS_COVERAGE');
-        FOR _tup IN EXECUTE _qry LOOP
---            BEGIN;
+        BEGIN
+            FOR _tup IN EXECUTE _qry LOOP
                 RAISE NOTICE '%: migrating coverage % (ID %)...', ME, _tup.row[2], _tup.row[1];
                 IF NOT migrate_coverage(_tup.row[2], _mime_id, _gmlcov_type_id) THEN
                     _failed_migrations := _failed_migrations+1;
@@ -625,8 +628,13 @@ $$
                     _successful_migrations := _successful_migrations+1;
                     RAISE NOTICE '%: coverage ''%'' successfully migrated.', ME, _tup.row[2];
                 END IF;
---            COMMIT; --~ coverage transactions
-        END LOOP;
+            END LOOP;
+        EXCEPTION
+            WHEN undefined_function THEN
+                RAISE EXCEPTION '%: PostgreSQL `dblink` function is not installed.', ME 
+                      USING HINT    = 'Please install it and retry.',
+                            ERRCODE = 'undefined_function';
+        END;
 
         -- Add final report of migration
         PERFORM cset('TABLE_REPORT', 'tmp_report');
