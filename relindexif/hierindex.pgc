@@ -499,7 +499,8 @@ DBHierIndex::readFromDb() throw (r_Error)
     if (blobformat == 8) {
         free(oldentryidsbuf);
         free(entryidsbuf);
-    
+    }
+ 
     free (completebuffer);
     completebuffer = NULL;
 
