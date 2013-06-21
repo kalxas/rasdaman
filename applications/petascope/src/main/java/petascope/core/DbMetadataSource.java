@@ -41,9 +41,11 @@ import java.util.Set;
 import org.hsqldb.lib.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.ConfigManager;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
+import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
@@ -270,11 +272,11 @@ public class DbMetadataSource implements IMetadataSource {
     
     /*------------------------------------------------*/
     
-    public DbMetadataSource(String driver, String url, String user, String pass) throws PetascopeException {
+    public DbMetadataSource(String driver, String url, String user, String pass) throws PetascopeException, SecoreException {
         this(driver, url, user, pass, true);
     }
     
-    public DbMetadataSource(String driver, String url, String user, String pass, boolean checkAtInit) throws PetascopeException {
+    public DbMetadataSource(String driver, String url, String user, String pass, boolean checkAtInit) throws PetascopeException, SecoreException {
         try {
             this.driver = driver;
             Class.forName(driver).newInstance();
@@ -480,6 +482,10 @@ public class DbMetadataSource implements IMetadataSource {
                 initializing = false;
             }
             
+        } catch (SecoreException sEx) {
+            throw sEx;
+        } catch (PetascopeException pEx) {
+            throw pEx;
         } catch (SQLException sqle) {
             if (s != null) {
                 try {
@@ -640,7 +646,7 @@ public class DbMetadataSource implements IMetadataSource {
      * @throws PetascopeException
      */
     @Override
-    public CoverageMetadata read(String coverageName) throws PetascopeException {
+    public CoverageMetadata read(String coverageName) throws PetascopeException, SecoreException {
         
         log.debug("Reading metadata for coverage '{}'", coverageName);
         
@@ -741,7 +747,7 @@ public class DbMetadataSource implements IMetadataSource {
             }            
             
             // Now read the coverage-type-specific domain-set information
-            if (coverageType.matches(".+" + XMLSymbols.LABEL_GRID_COVERAGE)) {
+            if (coverageType.matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE)) {
                 
                 // Variables for metadata object creation of gridded coverage
                 LinkedHashMap<List<BigDecimal>,Boolean> gridAxes;    // Offset-vector -> isIrregular
@@ -1042,6 +1048,9 @@ public class DbMetadataSource implements IMetadataSource {
                         "Coverages of type '" + coverageType + "' are not supported.");
             }
             
+        } catch (SecoreException sEx) {
+            log.error("Error while parsing the CRS definitions to SECORE (" + ConfigManager.SECORE_URL + ").");
+            throw sEx;
         } catch (PetascopeException ime) {
             log.error("Failed reading metadata", ime);
             if (checkAtInit && !initializing) {

@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
 
@@ -37,8 +38,7 @@ public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICov
     private CoverageInfo info;
     private String operation;
 
-    public BinaryOperationCoverageExpr(Node node, XmlQuery xq)
-            throws WCPSException {
+    public BinaryOperationCoverageExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         String nodeName = node.getNodeName();
         log.trace(nodeName);
 

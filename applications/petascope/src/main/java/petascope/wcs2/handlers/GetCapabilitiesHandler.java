@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import petascope.exceptions.PetascopeException;
 import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -35,18 +34,16 @@ import petascope.ConfigManager;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
-import petascope.util.WcsUtil;
 import static petascope.util.XMLSymbols.*;
 import petascope.util.XMLUtil;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcs2.Wcs2Servlet;
-import petascope.wcs2.extensions.ExtensionsRegistry;
-import petascope.wcps.server.core.Bbox;
-import static petascope.util.XMLSymbols.*;
 import petascope.wcs2.extensions.Extension;
+import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.parsers.BaseRequest;
 import petascope.wcs2.parsers.GetCapabilitiesRequest;
@@ -68,7 +65,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
     }
 
     @Override
-    public Response handle(GetCapabilitiesRequest request) throws WCSException {
+    public Response handle(GetCapabilitiesRequest request) throws WCSException, SecoreException {
         Document ret = constructDocument(LABEL_CAPABILITIES, NAMESPACE_WCS);
 
         Element root = ret.getRootElement();
@@ -195,9 +192,12 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                     cs.appendChild(c);
                 }*/
             }
-        } catch (PetascopeException ex) {
-            log.error("Error", ex);
-            throw new WCSException(ex.getExceptionCode(), ex.getExceptionText());
+        } catch (SecoreException sEx) {
+            log.error("SECORE error", sEx);
+            throw new SecoreException(sEx.getExceptionCode(), sEx);
+        } catch (PetascopeException pEx) {
+            log.error("Petascope error", pEx);
+            throw new WCSException(pEx.getExceptionCode(), pEx.getExceptionText());
         }
         root.appendChild(contents);
 

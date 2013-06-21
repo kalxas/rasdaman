@@ -24,6 +24,7 @@ package petascope.wcps.server.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.Pair;
 import petascope.util.WcpsConstants;
@@ -35,8 +36,7 @@ public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICov
     private IRasNode child;
     private CoverageInfo info = null;
 
-    public SubsetOperationCoverageExpr(Node node, XmlQuery xq)
-            throws WCPSException {
+    public SubsetOperationCoverageExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
 
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();

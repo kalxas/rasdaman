@@ -171,6 +171,7 @@ public class ExceptionCode {
     public static final ExceptionCode RasdamanRequestFailed = new ExceptionCode("RasdamanRequestFailed", null, 0);
     public static final ExceptionCode RasdamanUnavailable = new ExceptionCode("RasdamanUnavailable", null, 0);
     public static final ExceptionCode RasdamanError = new ExceptionCode("RasdamanError", null, 0);
+    public static final ExceptionCode ResolverError = new ExceptionCode("ResolverError", null, 0);
     public static final ExceptionCode ResourceError = new ExceptionCode("ResourceError", null, 0);
     public static final ExceptionCode RuntimeError = new ExceptionCode("RuntimeError", null, 0);
     public static final ExceptionCode SecoreError = new ExceptionCode("SecoreError", null, 0);

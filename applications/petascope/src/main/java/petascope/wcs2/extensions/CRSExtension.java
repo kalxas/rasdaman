@@ -24,21 +24,18 @@ package petascope.wcs2.extensions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import petascope.core.DbMetadataSource;
-import petascope.exceptions.WCSException;
-import petascope.util.AxisTypes;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import petascope.exceptions.WCSException;
-import petascope.wcs2.parsers.GetCoverageRequest;
-import petascope.util.CrsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCSException;
+import petascope.util.CrsUtil;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
@@ -76,7 +73,8 @@ public class CRSExtension implements Extension {
      * @param request The WCS request, which is directly modified.
      * @param m       Metadata of the GetCoverage request 
      */
-    protected void handle (GetCoverageRequest request, GetCoverageMetadata m) throws WCSException, PetascopeException {
+    protected void handle (GetCoverageRequest request, GetCoverageMetadata m) 
+            throws WCSException, PetascopeException, SecoreException {
         /**
          * NOTE1 (campalani): CrsExt transform cannot be done when only easting or
          *  only northing is known, so it must be done *outside* DimensionIntervalElement.

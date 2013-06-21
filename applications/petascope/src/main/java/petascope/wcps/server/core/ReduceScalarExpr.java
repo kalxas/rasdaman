@@ -24,6 +24,7 @@ package petascope.wcps.server.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
 
@@ -34,7 +35,7 @@ public class ReduceScalarExpr extends AbstractRasNode {
     CoverageExpr expr;
     String op;
 
-    public ReduceScalarExpr(Node node, XmlQuery xq) throws WCPSException {
+    public ReduceScalarExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         log.trace(node.getNodeName());
         if (node.getNodeName().equals(WcpsConstants.MSG_REDUCE)) {
             node = node.getFirstChild();

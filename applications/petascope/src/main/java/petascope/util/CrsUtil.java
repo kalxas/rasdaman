@@ -257,7 +257,7 @@ public class CrsUtil {
      * @param  String URI   The URI of the /atomic/ CRS to be parsed (URI need to be decomposed first).
      */
     // (!!) Always use decomposeUri() output to feed this method: it currently understands single CRSs.
-    public static CrsDefinition parseGmlDefinition(String crsUri) throws PetascopeException {        
+    public static CrsDefinition parseGmlDefinition(String crsUri) throws PetascopeException, SecoreException {        
         CrsDefinition crs = null;
         List<List<String>> axes = new ArrayList<List<String>>();
            
@@ -294,7 +294,7 @@ public class CrsUtil {
             Element exEl = XMLUtil.firstChildRecursive(root, ".*" + XMLSymbols.LABEL_EXCEPTION_TEXT);                    
             if (exEl != null) {
                 log.error(crsUri + ": " + exEl.getValue());
-                throw new SecoreException(exEl.getValue());
+                throw new SecoreException(ExceptionCode.ResolverError, exEl.getValue());
             }
 
             // Check if it exists:
@@ -393,7 +393,7 @@ public class CrsUtil {
                         Element uomExEl = XMLUtil.firstChildRecursive(root, XMLSymbols.LABEL_EXCEPTION_TEXT);
                         if (uomExEl != null) {
                             log.error(crsUri + ": " + uomExEl.getValue());
-                            throw new SecoreException(uomExEl.getValue());
+                            throw new SecoreException(ExceptionCode.ResolverError, uomExEl.getValue());
                         }
                         
                         // Get the UoM value
@@ -440,16 +440,18 @@ public class CrsUtil {
                 
             } // else: no need to parse the datum
         } catch (ValidityException ex) {
-            throw new PetascopeException(ExceptionCode.InternalComponentError,
+            throw new SecoreException(ExceptionCode.InternalComponentError,
                     (uom.isEmpty() ? crsUri : uom) + " definition is not valid.", ex);
         } catch (ParsingException ex) {
             log.debug(ex.getMessage() + "\n at line " + ex.getLineNumber() + ", column " + ex.getColumnNumber());
-            throw new PetascopeException(ExceptionCode.InternalComponentError,
+            throw new SecoreException(ExceptionCode.InternalComponentError,
                     (uom.isEmpty() ? crsUri : uom) + " definition is malformed.", ex);
         } catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.InternalComponentError,
+            throw new SecoreException(ExceptionCode.InternalComponentError,
                     (uom.isEmpty() ? crsUri : uom) + ": could not connect to resolver. The site may be down.", ex);
             // Retry to connect to internal resolver? Extract WHAT(crs,uom...), AUTH, CODE, VERSION and ask Kahlua?
+        } catch (SecoreException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new PetascopeException(ExceptionCode.InternalComponentError,
                     (uom.isEmpty() ? crsUri : uom) + ": general exception while parsing definition.", ex);
@@ -575,7 +577,7 @@ public class CrsUtil {
          * @param uri
          * @return True if uri's definition has already been parsed and cached.
          */
-        public static boolean isCached(String uri) throws PetascopeException {
+        public static boolean isCached(String uri) throws PetascopeException, SecoreException {
             for (String cachedUri : parsedCRSs.keySet()) {
                 if (areEquivalent(cachedUri, uri)) {
                     log.debug(uri + " CRS is already decoded in cache.");
@@ -640,7 +642,7 @@ public class CrsUtil {
          * @param uri2
          * @return true if uri1 and uri2 point to the same GML definition
          */
-        public static boolean areEquivalent(String uri1, String uri2) throws PetascopeException {            
+        public static boolean areEquivalent(String uri1, String uri2) throws PetascopeException, SecoreException {            
             //return getAuthority(uri1).equals(getAuthority(uri2))
             //        && getVersion(uri1).equals(getVersion(uri2))
             //        &&    getCode(uri1).equals(getCode(uri2));
@@ -692,17 +694,23 @@ public class CrsUtil {
                         log.error("Error while comparing " +getAuthority(uri1) + "(" + getVersion(uri1) + "):" + 
                                 getCode(uri1) + "/" + getAuthority(uri2) + "(" + getVersion(uri2) + "):" + 
                                 getCode(uri2) + ": " + exEl.getValue());
-                        throw new SecoreException(exEl.getValue());
+                        throw new SecoreException(ExceptionCode.ResolverError, exEl.getValue());
                     } else {   
                         // Cache this new comparison
                         Element eqEl = XMLUtil.firstChildRecursive(root, XMLSymbols.LABEL_EQUAL);
                         equal = Boolean.parseBoolean(eqEl.getValue());
                     }
                     
+                } catch (ValidityException ex) {
+                    throw new SecoreException(ExceptionCode.InternalComponentError, 
+                            equalityUri + " returned an invalid document.", ex);
                 } catch (ParsingException ex) {
                     throw new PetascopeException(ExceptionCode.XmlNotValid.locator(
                             "line: " + ex.getLineNumber() + ", column:" + ex.getColumnNumber()),
                             ex.getMessage(), ex);
+                } catch (IOException ex) {
+                    throw new SecoreException(ExceptionCode.InternalComponentError, 
+                             equalityUri + ": could not connect to resolver. The site may be down.", ex);
                 } catch (SecoreException ex) {
                     throw ex;
                 } catch (Exception ex) {
@@ -815,7 +823,7 @@ public class CrsUtil {
          * @param uri   The URI which needs to be parsed
          * @return      The cached CrsDefinition, null otherwise
          */
-        public static CrsDefinition getCachedDefinition(String uri) throws PetascopeException {
+        public static CrsDefinition getCachedDefinition(String uri) throws PetascopeException, SecoreException {
             for (String cachedUri : parsedCRSs.keySet()) {
                 if (areEquivalent(cachedUri, uri)) {
                     return parsedCRSs.get(cachedUri);

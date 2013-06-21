@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.MiscUtil;
 import petascope.util.Pair;
@@ -61,7 +62,8 @@ public class GeotiffFormatExtension extends AbstractFormatExtension {
     }
 
     @Override
-    public Response handle(GetCoverageRequest request, DbMetadataSource meta) throws PetascopeException, WCSException {
+    public Response handle(GetCoverageRequest request, DbMetadataSource meta) 
+            throws PetascopeException, WCSException, SecoreException {
         GetCoverageMetadata m = new GetCoverageMetadata(request, meta);
 
         // First, transform possible non-native CRS subsets

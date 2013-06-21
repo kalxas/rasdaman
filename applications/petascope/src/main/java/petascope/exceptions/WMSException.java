@@ -34,11 +34,11 @@ import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import javax.imageio.ImageIO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.wms.Globals;
 import petascope.wms.WmsServlet;
-import javax.imageio.ImageIO;
 
 // import rasj.*;
 

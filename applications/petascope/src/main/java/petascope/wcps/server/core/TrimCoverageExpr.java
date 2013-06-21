@@ -29,6 +29,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.Pair;
 import petascope.util.WcpsConstants;
@@ -45,7 +46,7 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     private int dims;
     private DimensionIntervalElement elem;
 
-    public TrimCoverageExpr(Node node, XmlQuery xq) throws WCPSException {
+    public TrimCoverageExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         log.trace(node.getNodeName());
         
         Node child;

@@ -21,7 +21,6 @@
  */
 package petascope.core;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -30,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 
 /**
  * A IMetadataSource that allows WCPS to store information about on-the-fly
@@ -52,7 +52,7 @@ public class DynamicMetadataSource implements IDynamicMetadataSource {
     // Other metadata class that serves as backend
     private IMetadataSource metadataSource;
 
-    public DynamicMetadataSource(IMetadataSource metadataSource) throws PetascopeException {
+    public DynamicMetadataSource(IMetadataSource metadataSource) throws PetascopeException, SecoreException {
         log.trace("Creating dynamic metadata source from: " + metadataSource.getClass().getSimpleName());
         this.metadataSource = metadataSource;
         staticCoverageNames = metadataSource.coverages();
@@ -100,7 +100,7 @@ public class DynamicMetadataSource implements IDynamicMetadataSource {
     }
 
     @Override
-    public CoverageMetadata read(String coverageName) throws PetascopeException {
+    public CoverageMetadata read(String coverageName) throws PetascopeException, SecoreException {
         log.trace("Reading metadata for dynamic coverage: " + coverageName);
         if ((coverageName == null) || coverageName.equals("")) {
             throw new PetascopeException(ExceptionCode.InvalidRequest,

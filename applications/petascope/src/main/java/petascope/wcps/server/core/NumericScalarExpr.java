@@ -25,6 +25,7 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
 
@@ -37,7 +38,7 @@ public class NumericScalarExpr extends AbstractRasNode {
     private boolean twoChildren;
     private double dvalue;
 
-    public NumericScalarExpr(Node node, XmlQuery xq) throws WCPSException {
+    public NumericScalarExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         twoChildren = false;
 
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {

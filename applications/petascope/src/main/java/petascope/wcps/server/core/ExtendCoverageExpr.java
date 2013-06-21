@@ -21,7 +21,6 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.exceptions.WCPSException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -29,6 +28,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
 
 public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo {
@@ -42,7 +43,7 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
     private int dims;
     private DimensionIntervalElement elem;
 
-    public ExtendCoverageExpr(Node node, XmlQuery xq) throws WCPSException {
+    public ExtendCoverageExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         
         log.trace(node.getNodeName());
 

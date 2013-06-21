@@ -26,14 +26,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.core.IDynamicMetadataSource;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
-import petascope.util.Pair;
 import petascope.util.Triple;
 import petascope.util.WcpsConstants;
 
@@ -82,7 +81,7 @@ public class XmlQuery extends AbstractRasNode {
         varDimension = new HashMap<String, Integer>();
     }
 
-    public XmlQuery(Node node) throws WCPSException, PetascopeException {
+    public XmlQuery(Node node) throws WCPSException, PetascopeException, SecoreException {
         iterators = new ArrayList<CoverageIterator>();
         dynamicIterators = new ArrayList<CoverageIterator>();
         variableTranslator = new HashMap<String, String>();
@@ -90,7 +89,7 @@ public class XmlQuery extends AbstractRasNode {
         this.startParsing(node);
     }
 
-    public void startParsing(Node node) throws WCPSException, PetascopeException {
+    public void startParsing(Node node) throws WCPSException, PetascopeException, SecoreException {
         log.debug(WcpsConstants.DEBUGTXT_PROCESSING_XML_REQUEST + ": " + node.getNodeName());
 
         Node x = node.getFirstChild();
@@ -258,6 +257,8 @@ public class XmlQuery extends AbstractRasNode {
                 } catch (PetascopeException ex) {
                     log.error("Cannot read metadata of coverage " + cNext.getCoverages().next() + ": dynamic coverage?");
                     log.error(ex.getMessage());
+                } catch (SecoreException ex) {
+                    log.error("Problem with SECORE resolver: " + ex.getMessage());
                 }
                 
                 // Append ``collection'' name (+ alias) to RasQL `FROM'

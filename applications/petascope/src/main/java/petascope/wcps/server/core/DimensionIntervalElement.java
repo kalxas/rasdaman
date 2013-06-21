@@ -21,14 +21,14 @@
  */
 package petascope.wcps.server.core;
 
-import java.util.Iterator;
-import petascope.exceptions.PetascopeException;
-import petascope.core.CoverageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.core.CoverageMetadata;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WcpsConstants;
 
@@ -61,7 +61,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
      * @throws WCPSException
      */
     public DimensionIntervalElement(Node node, XmlQuery xq, CoverageInfo covInfo)
-            throws WCPSException {
+            throws WCPSException, SecoreException {
         
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();

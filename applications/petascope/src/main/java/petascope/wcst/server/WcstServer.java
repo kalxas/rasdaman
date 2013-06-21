@@ -55,6 +55,7 @@ import petascope.PetascopeXmlNamespaceMapper;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.SecoreException;
 
 /**
  * The Web Coverage Service, with the Transactional extension (WcstServer)
@@ -86,7 +87,8 @@ public class WcstServer {
     /**
      * Web service operation
      */
-    public String Transaction(String stringXml) throws WCSTException, RasdamanException, WCPSException, PetascopeException {
+    public String Transaction(String stringXml) 
+            throws WCSTException, RasdamanException, WCPSException, PetascopeException, SecoreException {
         // Actual contents of these two strings do not matter
         String output = "Default output. ";
         String errmsg = "No error. ";

@@ -21,12 +21,13 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.exceptions.WCPSException;
 import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
 
 public class AxisIterator extends AbstractRasNode {
@@ -37,7 +38,7 @@ public class AxisIterator extends AbstractRasNode {
     private AxisName axis;
     private NumericScalarExpr hi, lo;
 
-    public AxisIterator(Node node, XmlQuery xq, String newIteratorName) throws WCPSException {
+    public AxisIterator(Node node, XmlQuery xq, String newIteratorName) throws WCPSException, SecoreException {
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }

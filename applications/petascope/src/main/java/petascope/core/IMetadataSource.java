@@ -21,10 +21,9 @@
  */
 package petascope.core;
 
-import java.util.Collection;
 import java.util.Set;
 import petascope.exceptions.PetascopeException;
-import petascope.wcps.server.core.Wcps;
+import petascope.exceptions.SecoreException;
 
 /**
  * A IMetadataSource is anything that can read metadata for a given coverage
@@ -41,5 +40,5 @@ public interface IMetadataSource {
     String formatToGdalid(String format);
     String gdalidToFormat(String gdalid);
     
-    CoverageMetadata read(String coverageName) throws PetascopeException;
+    CoverageMetadata read(String coverageName) throws PetascopeException, SecoreException;
 }

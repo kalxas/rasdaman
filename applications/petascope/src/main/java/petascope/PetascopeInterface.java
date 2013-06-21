@@ -54,6 +54,7 @@ import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.WCSTException;
@@ -507,8 +508,9 @@ public class PetascopeInterface extends HttpServlet {
      * @throws WCSException
      * @throws PetascopeException
      */
-    private void handleWcsRequest(String version, String operation,
-            String request, boolean soap, HttpServletResponse response, HttpServletRequest srvRequest) throws WCSException, PetascopeException {
+    private void handleWcsRequest(String version, String operation, String request, boolean soap, 
+            HttpServletResponse response, HttpServletRequest srvRequest) 
+            throws WCSException, PetascopeException,SecoreException {
         if (version == null) {
             throw new WCSException(ExceptionCode.InvalidRequest, "No WCS version specified.");
         }
@@ -530,8 +532,8 @@ public class PetascopeInterface extends HttpServlet {
      * @throws WCSException in case of I/O error, or if the server is unable to
      * handle the request
      */
-    private void handleWcs1Request(String operation, String request,
-            HttpServletResponse response) throws WCSException, PetascopeException {
+    private void handleWcs1Request(String operation, String request, HttpServletResponse response) 
+            throws WCSException, PetascopeException, SecoreException {
         log.info("Handling WCS 1.1 request");
 
         // compute result
@@ -623,7 +625,7 @@ public class PetascopeInterface extends HttpServlet {
     }
 
     private void handleProcessCoverages(String xmlRequest, HttpServletResponse response)
-            throws WCSException, PetascopeException {
+            throws WCSException, PetascopeException, SecoreException {
         OutputStream webOut = null;
         try {
             log.debug("Received a ProcessCoverages request: \n{}", xmlRequest);
@@ -697,8 +699,7 @@ public class PetascopeInterface extends HttpServlet {
     }
 
     private void handleTransaction(String request, HttpServletResponse httpResponse)
-            throws WCSTException, RasdamanException, WCPSException,
-            PetascopeException {
+            throws WCSTException, RasdamanException, WCPSException, PetascopeException, SecoreException {
         try {
             String outputXml = wcst.Transaction(request);
             PrintWriter out = new PrintWriter(httpResponse.getOutputStream());

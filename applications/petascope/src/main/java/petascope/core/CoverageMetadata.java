@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
@@ -73,6 +74,9 @@ public class CoverageMetadata implements Cloneable {
     private String abstractStr = "";
     private String keywordsStr = "";
 
+    // Overload for empty metadata object
+    public CoverageMetadata() {}
+    
     // Constructor overload: when domain is given by origin plus offset-vector
     public CoverageMetadata(
             String                        coverageName, 
@@ -85,7 +89,7 @@ public class CoverageMetadata implements Cloneable {
             LinkedHashMap<List<BigDecimal>,Boolean> gridAxes, // must be LinkedHash: preserve order of insertion
             Pair<BigInteger, String>      rasdamanCollection,
             List<RangeElement>            rangeElements
-            ) throws PetascopeException {
+            ) throws PetascopeException, SecoreException {
  
         // Build domain elements from origin and vectors
         // Note: i-th grid axis need not be aligned with i-th CRS axis
@@ -163,7 +167,7 @@ public class CoverageMetadata implements Cloneable {
             List<DomainElement>      domain,
             Pair<BigInteger, String> rasdamanCollection,
             List<RangeElement>       rangeElements
-            ) throws PetascopeException {
+            ) throws PetascopeException, SecoreException {
         
         // use helper so that constructor overload do not need to call this() as first command
         setupMetadata(
@@ -190,7 +194,7 @@ public class CoverageMetadata implements Cloneable {
             List<DomainElement>      domain,
             Pair<BigInteger, String> rasdamanCollection,
             List<RangeElement>       rangeElements
-            ) throws PetascopeException {
+            ) throws PetascopeException, SecoreException {
         
         this.coverageName = coverageName;
         this.coverageType = coverageType;
@@ -344,6 +348,9 @@ public class CoverageMetadata implements Cloneable {
         } catch (PetascopeException ime) {
             throw new RuntimeException("Invalid metadata while cloning "
                     + "Metadata. This is a software bug in WCPS.", ime);
+        } catch (SecoreException sEx) {
+            log.error("SECORE error while cloning: ", sEx.getMessage());
+            return new CoverageMetadata();
         }
     }
 

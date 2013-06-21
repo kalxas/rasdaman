@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.core.IDynamicMetadataSource;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.MiscUtil;
 import petascope.util.WcpsConstants;
@@ -48,7 +49,7 @@ public class EncodeDataExpr extends AbstractRasNode {
     private String mime;
     private Boolean store;
 
-    public EncodeDataExpr(Node node, XmlQuery request) throws WCPSException {
+    public EncodeDataExpr(Node node, XmlQuery request) throws WCPSException, SecoreException {
         Node child;
         String nodeName;
         log.trace(node.getNodeName());

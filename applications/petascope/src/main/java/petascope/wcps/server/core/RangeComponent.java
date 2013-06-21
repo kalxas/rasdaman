@@ -23,8 +23,9 @@ package petascope.wcps.server.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
 
 
@@ -41,8 +42,7 @@ public class RangeComponent extends AbstractRasNode implements ICoverageInfo {
     private CoverageInfo info = null;
     private CoverageExpr expr = null;
 
-    public RangeComponent(Node node, XmlQuery xq)
-            throws WCPSException {
+    public RangeComponent(Node node, XmlQuery xq) throws WCPSException, SecoreException {
 
         String nodeName = node.getNodeName();
         log.trace(nodeName);

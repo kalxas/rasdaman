@@ -21,12 +21,6 @@
  */
 package petascope.wcps.server.servlet;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import petascope.core.DbMetadataSource;
-import petascope.wcps.server.core.ProcessCoveragesRequest;
-import petascope.wcps.server.core.Wcps;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,14 +30,20 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
+import petascope.core.DbMetadataSource;
 import petascope.util.WcpsConstants;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
+import petascope.wcps.server.core.ProcessCoveragesRequest;
+import petascope.wcps.server.core.Wcps;
 
 //important limitation: this will only return the first result if several are available.
 //The reason is that WCPS currently has no standardized way to return multiple byte streams to

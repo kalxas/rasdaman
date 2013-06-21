@@ -21,8 +21,9 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
 
 public class CoverageExprPairType extends AbstractRasNode implements ICoverageInfo {
@@ -31,8 +32,7 @@ public class CoverageExprPairType extends AbstractRasNode implements ICoverageIn
     private CoverageInfo info;
     private boolean ok = false;
 
-    public CoverageExprPairType(Node node, XmlQuery xq)
-            throws WCPSException {
+    public CoverageExprPairType(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         String nodeName = node.getNodeName();
 
         try {

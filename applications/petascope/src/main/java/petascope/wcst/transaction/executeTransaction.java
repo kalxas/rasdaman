@@ -60,6 +60,7 @@ import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSTException;
 import petascope.util.AxisTypes;
@@ -137,7 +138,7 @@ public class executeTransaction {
      * @return a TransactionResponse object.
      * @throws WCSTException
      */
-    public TransactionResponseType get() throws WCSTException, WCPSException, PetascopeException {
+    public TransactionResponseType get() throws WCSTException, WCPSException, PetascopeException, SecoreException {
         try {
             if (finished == false) {
                 metaDb.ensureConnection();
@@ -157,7 +158,7 @@ public class executeTransaction {
     /**
      * Computes the response to the Transaction request given to the constructor.
      */
-    public void process() throws WCSTException, WCPSException, PetascopeException {
+    public void process() throws WCSTException, WCPSException, PetascopeException, SecoreException {
         if (!input.getService().equalsIgnoreCase("WCS")) {
             throw new WCSTException(ExceptionCode.InvalidParameterValue, "Service. Explanation: Service must be \"WCS\" !");
         }
@@ -231,6 +232,8 @@ public class executeTransaction {
             }
 
             throw e;
+        } catch (SecoreException sEx) {
+            throw sEx;
         }
     }
 
@@ -494,7 +497,8 @@ public class executeTransaction {
      * @param img The image, fetched from external reference
      * @throws WCSTException on error
      */
-    private CoverageMetadata createNewCoverageMetadata(String identifier, BufferedImage img) throws WCPSException, PetascopeException {
+    private CoverageMetadata createNewCoverageMetadata(String identifier, BufferedImage img) 
+            throws WCPSException, PetascopeException, SecoreException {
         CoverageMetadata m = null;
         log.debug("Creating metadata with default values...");
 
@@ -571,7 +575,8 @@ public class executeTransaction {
      *
      * @param elem the JAXB node equivalent to the <Coverage> node
      */
-    private void processInputCoverageNode(CoverageType elem) throws WCSTException, WCPSException, PetascopeException {
+    private void processInputCoverageNode(CoverageType elem) 
+            throws WCSTException, WCPSException, PetascopeException, SecoreException {
         if (elem.getAction() == null) {
             throw new WCSTException(ExceptionCode.InvalidParameterValue, "Action. Explanation: "
                     + "Every <Coverage> node must contain an <Action> child node.");
@@ -611,7 +616,8 @@ public class executeTransaction {
      * @param identifier Name of coverage to update
      * @param references List of references with data for update
      */
-    private void actionUpdateAll(String identifier, List references) throws WCSTException, PetascopeException {
+    private void actionUpdateAll(String identifier, List references) 
+            throws WCSTException, PetascopeException, SecoreException {
         log.trace("Executing action Update All ...");
         actionUpdateDataPart(identifier, references);
         actionUpdateMetadata(identifier, references);
@@ -731,7 +737,8 @@ public class executeTransaction {
      * @param identifier
      * @param references
      */
-    private void actionUpdateDataPart(String identifier, List references) throws WCSTException, PetascopeException {
+    private void actionUpdateDataPart(String identifier, List references) 
+            throws WCSTException, PetascopeException, SecoreException {
         log.trace("Executing action UpdateDataPart ...");
 
         // Error checking
@@ -825,7 +832,8 @@ public class executeTransaction {
      * @param references
      * @throws wcs.server.core.WCSTException
      */
-    private void actionAddCoverage(String identifier, List references) throws WCSTException, WCPSException, PetascopeException {
+    private void actionAddCoverage(String identifier, List references) 
+            throws WCSTException, WCPSException, PetascopeException, SecoreException {
         log.trace("Executing action AddCoverage ...");
 
         // Obtain the references

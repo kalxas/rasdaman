@@ -21,11 +21,12 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.exceptions.WCPSException;
 import java.util.Vector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
 
 public class CondenseScalarExpr extends AbstractRasNode {
@@ -39,7 +40,7 @@ public class CondenseScalarExpr extends AbstractRasNode {
     private String axisIteratorString;
     private String newIteratorName;
 
-    public CondenseScalarExpr(Node node, XmlQuery xq) throws WCPSException {
+    public CondenseScalarExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         if (node.getNodeName().equals(WcpsConstants.MSG_CONDENSE)) {
             node = node.getFirstChild();
         }

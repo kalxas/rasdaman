@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.ListIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.core.DbMetadataSource;
-import petascope.exceptions.ExceptionCode;
 import petascope.core.CoverageMetadata;
+import petascope.core.DbMetadataSource;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.Pair;
 import petascope.util.WcsUtil;
@@ -65,7 +65,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
     @Override
     public Response handle(GetCoverageRequest request, DbMetadataSource meta)
-            throws PetascopeException, WCSException {
+            throws PetascopeException, WCSException, SecoreException {
         GetCoverageMetadata m = new GetCoverageMetadata(request, meta);
         
         // First, transform possible non-native CRS subsets

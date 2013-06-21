@@ -24,16 +24,16 @@ package petascope.wcps.server.core;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import petascope.core.CoverageMetadata;
-import petascope.exceptions.PetascopeException;
-import petascope.exceptions.WCPSException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import java.util.Vector;
 import org.w3c.dom.*;
+import petascope.core.CoverageMetadata;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.WcpsConstants;
@@ -49,7 +49,7 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
     private String newIteratorName;
 
     public ConstructCoverageExpr(Node node, XmlQuery xq)
-            throws WCPSException {
+            throws WCPSException, SecoreException {
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
@@ -73,8 +73,10 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
                 if (covName != null && iterators.size() > 0) {
                     try {
                         buildMetadata(xq);
-                    } catch (PetascopeException ex) {
-                        throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE);
+                    } catch (PetascopeException pEx) {
+                        throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE, pEx);
+                    } catch (SecoreException sEx) {
+                        throw sEx;
                     }
                 } else {
                     throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE);
@@ -130,7 +132,7 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
     }
 
     /** Builds full metadata for the newly constructed coverage **/
-    private void buildMetadata(XmlQuery xq) throws WCPSException, PetascopeException {
+    private void buildMetadata(XmlQuery xq) throws WCPSException, PetascopeException, SecoreException {
         List<CellDomainElement> cellDomainList = new LinkedList<CellDomainElement>();
         List<RangeElement> rangeList = new LinkedList<RangeElement>();
         String coverageName = covName;

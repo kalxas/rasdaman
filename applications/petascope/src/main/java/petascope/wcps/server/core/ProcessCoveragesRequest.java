@@ -34,6 +34,7 @@ import org.xml.sax.InputSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.ras.RasUtil;
 import petascope.core.IDynamicMetadataSource;
+import petascope.exceptions.SecoreException;
 import petascope.util.WcpsConstants;
 
 /** A WCPS ProcessCoveragesRequest request provides a (just one) rasdaman query, that it executes.
@@ -54,7 +55,7 @@ public class ProcessCoveragesRequest {
     private XmlQuery xmlQuery;
 
     public ProcessCoveragesRequest(String url, String database, Node node, IDynamicMetadataSource source, Wcps wcps)
-            throws WCPSException, SAXException, IOException, PetascopeException {
+            throws WCPSException, SAXException, IOException, PetascopeException, SecoreException {
         super();
         this.source = source;
         this.url = url;

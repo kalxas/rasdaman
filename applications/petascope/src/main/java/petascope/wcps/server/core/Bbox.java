@@ -27,16 +27,17 @@
 package petascope.wcps.server.core;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.util.ArrayList;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
-import petascope.util.CrsUtil;
 import petascope.util.AxisTypes;
-import petascope.exceptions.PetascopeException;
+import petascope.util.CrsUtil;
 import petascope.util.WcpsConstants;
 
 /** 
@@ -62,7 +63,8 @@ public class Bbox implements Cloneable {
     private Boolean hasWgs84Bbox = false;
     private List<DomainElement> domains; // Cloning
     
-    public Bbox(String crs, List<DomainElement> domains, String coverage) throws WCPSException, WCSException, PetascopeException {
+    public Bbox(String crs, List<DomainElement> domains, String coverage) 
+            throws WCPSException, WCSException, PetascopeException, SecoreException {
         
         this.domains = new ArrayList();
         this.domains.addAll(domains);
@@ -173,6 +175,9 @@ public class Bbox implements Cloneable {
             log.warn(e.getMessage());
             return null;
         } catch (PetascopeException e) {
+            log.warn(e.getMessage());
+            return null;
+        } catch (SecoreException e) {
             log.warn(e.getMessage());
             return null;
         }

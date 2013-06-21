@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
 import petascope.util.WcpsConstants;
 
 public class BooleanScalarExpr extends AbstractRasNode {
@@ -36,7 +37,7 @@ public class BooleanScalarExpr extends AbstractRasNode {
     private boolean simple;    // true if the expression is just a value
     private String value;
 
-    public BooleanScalarExpr(Node node, XmlQuery xq) throws WCPSException {
+    public BooleanScalarExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         if (node == null) {
             throw new WCPSException(WcpsConstants.ERRTXT_UNEXPECTED_NULL_NODE + " !");
         }

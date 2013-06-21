@@ -24,9 +24,6 @@ package petascope.wcps.server.core;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import petascope.core.CoverageMetadata;
-import petascope.exceptions.PetascopeException;
-import petascope.exceptions.WCPSException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -35,6 +32,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.core.CoverageMetadata;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.WcpsConstants;
@@ -52,7 +53,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
     private int requiredListSize = 1;
 
     public ConstantCoverageExpr(Node node, XmlQuery xq)
-            throws WCPSException {
+            throws WCPSException, SecoreException {
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
@@ -84,8 +85,10 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
 
         try {
             buildMetadata(xq);
-        } catch (PetascopeException ex) {
-            throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE+ " !!!");
+        } catch (PetascopeException pEx) {
+            throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE+ " !!!", pEx);
+        } catch (SecoreException sEx) {
+            throw sEx;
         }
         buildAxisIteratorDomain();
 
@@ -133,7 +136,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
     }
 
     /** Builds full metadata for the newly constructed coverage **/
-    private void buildMetadata(XmlQuery xq) throws WCPSException, PetascopeException {
+    private void buildMetadata(XmlQuery xq) throws WCPSException, PetascopeException, SecoreException {
         log.trace("  " + WcpsConstants.MSG_BUILDING_METADATA);
         List<CellDomainElement> cellDomainList = new LinkedList<CellDomainElement>();
         List<RangeElement> rangeList = new LinkedList<RangeElement>();

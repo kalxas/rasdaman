@@ -37,6 +37,7 @@ import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
@@ -105,7 +106,7 @@ public class convertGetCoverage {
      * @return a WCPS abstract syntax query as a string
      * @throws wcs.server.core.WCSException
      */
-    public String get() throws WCSException, PetascopeException {
+    public String get() throws WCSException, PetascopeException, SecoreException {
         try {
             if (!finished) {
                 process();
@@ -134,7 +135,7 @@ public class convertGetCoverage {
      * Converts WCS node 2 (Domain subsetting) to WCPS info
      * @throws wcs_web_service.WCSException
      */
-    private void readField2() throws WCSException, PetascopeException {
+    private void readField2() throws WCSException, PetascopeException, SecoreException {
         if (!wcs.isSetDomainSubset()) {
             throw new WCSException(ExceptionCode.MissingParameterValue, "DomainSubset");
         }
@@ -311,7 +312,7 @@ public class convertGetCoverage {
      * @throws wcs_web_service.WCSException
      */
     @SuppressWarnings("static-access")
-    public void process() throws WCSException, PetascopeException {
+    public void process() throws WCSException, PetascopeException, SecoreException {
         /** * Processing starts here ... with the nodes of the WCS * */
         // Service Description
         log.debug("WCS service: \"" + wcs.SERVICE + "\"");

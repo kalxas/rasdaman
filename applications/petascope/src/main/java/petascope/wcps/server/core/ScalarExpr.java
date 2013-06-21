@@ -22,8 +22,6 @@
 package petascope.wcps.server.core;
 
 import java.math.BigDecimal;
-import petascope.core.CoverageMetadata;
-import petascope.exceptions.WCPSException;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,7 +31,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.core.CoverageMetadata;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
@@ -50,7 +50,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
     private boolean singleValue = false;
     private String value; // It can be NumericScalar or StringScalar
 
-    public ScalarExpr(Node node, XmlQuery xq) throws WCPSException {
+    public ScalarExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
