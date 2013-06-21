@@ -26,11 +26,16 @@ import petascope.exceptions.RasdamanException;
 import petascope.exceptions.WCPSException;
 import java.io.IOException;
 import java.io.StringReader;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Iterator;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
+import petascope.ConfigManager;
+import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.util.ras.RasUtil;
 import petascope.core.IDynamicMetadataSource;
@@ -51,11 +56,13 @@ public class ProcessCoveragesRequest {
     private String url;
     private Wcps wcps;
     private String rasqlQuery;
+    private String postgisQuery;
     private String mime;
     private XmlQuery xmlQuery;
 
     public ProcessCoveragesRequest(String url, String database, Node node, IDynamicMetadataSource source, Wcps wcps)
-            throws WCPSException, SAXException, IOException, PetascopeException, SecoreException {
+            throws WCPSException, SAXException, IOException, PetascopeException, SecoreException, SQLException {
+
         super();
         this.source = source;
         this.url = url;
@@ -112,7 +119,32 @@ public class ProcessCoveragesRequest {
         }
 
         // If everything went well, we now have a proper value for "xmlQuery"
-        this.rasqlQuery = xmlQuery.toRasQL();
+        
+        String coverage_name = null;
+        Iterator<CoverageIterator> it = this.xmlQuery.getCoverageIterator().iterator();
+        Iterator<String> coverageNamesIt = it.next().getCoverages();
+        //coverage_name = coverageNamesIt.next();
+        while( coverageNamesIt.hasNext() ){
+            coverage_name = coverageNamesIt.next();
+        }
+
+        
+        
+        // store itereator in a var then store the names of coverages and loop throught (while iterator.next())
+        // and check types if there is raster and multi threw exception PetascopeException InvalidRequest
+        // Can overalay be used to overaly diff coverages types 
+        
+        // Get coverage subtype using coverage name
+        String coverageType = source.read(coverage_name).getCoverageType();
+                
+        if(coverageType.equals(WcpsConstants.MSG_MULTIPOINT_COVERAGE)){ 
+            this.postgisQuery = xmlQuery.toPostGISQuery();
+        }else{
+            this.rasqlQuery = this.xmlQuery.toRasQL();
+        } 
+        
+        //this.rasqlQuery = xmlQuery.toRasQL();
+        
         if (isRasqlQuery()) {
             log.debug("Final RasQL query: " + rasqlQuery);
         } else {
@@ -125,6 +157,10 @@ public class ProcessCoveragesRequest {
         return rasqlQuery != null && rasqlQuery.trim().startsWith("select");
     }
 
+    public boolean isPostGISQuery() {
+        return postgisQuery != null && (postgisQuery.contains("BOX3D") || postgisQuery.contains("ST_MakeEnvelope"));
+    }   
+    
     public String getMime() {
         return mime;
     }
@@ -132,17 +168,32 @@ public class ProcessCoveragesRequest {
     private XmlQuery getXmlRequestStructure() {
         return xmlQuery;
     }
+    
+    public String getPostGISQuery() {
+        return this.postgisQuery;
+    }
 
     public String getRasqlQuery() {
         return this.rasqlQuery;
     }
 
-    public Object execute() throws WCPSException {
+    public Object execute() throws WCPSException, PetascopeException, SecoreException, SQLException {
+
         try {
-            return RasUtil.executeRasqlQuery(rasqlQuery);
+            if(isPostGISQuery()){
+                DbMetadataSource meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
+                    ConfigManager.METADATA_URL,
+                    ConfigManager.METADATA_USER,
+                    ConfigManager.METADATA_PASS, false);
+                return meta.executePostGISQuery(postgisQuery); 
+                
+            } else if (isRasqlQuery()){
+                return RasUtil.executeRasqlQuery(rasqlQuery);
+            }
         } catch (RasdamanException ex) {
             throw new WCPSException(ExceptionCode.ResourceError, "Could not evaluate rasdaman query: '"
                         + getRasqlQuery() + "'\n Cause: " + ex.getMessage(), ex);
         }
+        return null;
     }
 }

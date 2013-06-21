@@ -22,6 +22,8 @@
 package petascope.wcps.server.core;
 
 import java.math.BigInteger;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,6 +31,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.ConfigManager;
+import petascope.core.DbMetadataSource;
 import petascope.core.IDynamicMetadataSource;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -285,5 +289,117 @@ public class XmlQuery extends AbstractRasNode {
 
     public IDynamicMetadataSource getMetadataSource() {
         return meta;
+    }
+    
+    public ArrayList<CoverageIterator> getCoverageIterator(){
+        return iterators;
+    }
+    
+    public String toPostGISQuery() throws PetascopeException, SecoreException, SQLException {
+        
+        Iterator<CoverageIterator> it = iterators.iterator();
+        CoverageIterator cNext = it.next();
+        String coverageName = cNext.getCoverages().next();
+        
+        String result = "";
+        // Get bbox parameters 
+        int bracketOpen = coverageExpr.toRasQL().indexOf("["); 
+        int bracketClose = coverageExpr.toRasQL().indexOf("]");
+        String[] trimParams = coverageExpr.toRasQL().substring(bracketOpen + 1, bracketClose).split(",");
+                
+        result = WcpsConstants.MSG_SELECT + " value, St_X(coordinate) AS x, "
+                    + "St_Y(coordinate) AS y, St_Z(coordinate) AS z " + 
+                WcpsConstants.MSG_FROM + " ps9_coverage c, ps9_multipoint_domain_set AS d, ps9_multipoint_range_set AS r " +
+                WcpsConstants.MSG_WHERE +
+                " c.name='" + coverageName + "' AND c.id = d.coverage_id AND d.id = r.point_id "  ; 
+        String xmin = "";
+        String ymin = "";
+        String zmin = "";
+        String xmax = "";
+        String ymax = "";
+        String zmax = "";
+
+        xmin = trimParams[0].split(":")[0];
+        ymin = trimParams[1].split(":")[0]; 
+        zmin = trimParams[2].split(":")[0]; 
+
+        if ( trimParams[0].split(":").length == 2 ){
+            xmax = trimParams[0].split(":")[1];
+        } else if ( trimParams[0].split(":").length == 1 ){
+            xmax = trimParams[0].split(":")[0];
+        }
+        if ( trimParams[1].split(":").length == 2 ){
+            ymax = trimParams[1].split(":")[1]; 
+        } else if ( trimParams[1].split(":").length == 1 ) {
+            ymax = trimParams[1].split(":")[0]; 
+        }
+        if ( trimParams[2].split(":").length == 2 ){
+            zmax = trimParams[2].split(":")[1];
+        } else if ( trimParams[2].split(":").length == 1 ) {
+            zmax = trimParams[2].split(":")[0];
+        }
+
+        DbMetadataSource meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
+                ConfigManager.METADATA_URL,
+                ConfigManager.METADATA_USER,
+                ConfigManager.METADATA_PASS, false);
+        String query = "";
+        ResultSet res = null;
+        if (xmin.equals(WcpsConstants.MSG_STAR)) {
+            query = "SELECT min(St_X(coordinate)) as m FROM ps9_multipoint_domain_set";
+            res = meta.executePostGISQuery(query);
+            while(res.next()){
+                xmin = res.getString("m");
+            }
+        } 
+        if (ymin.equals(WcpsConstants.MSG_STAR)) {
+            query = "SELECT min(St_Y(coordinate)) as m FROM ps9_multipoint_domain_set";
+            res = meta.executePostGISQuery(query);
+            while(res.next()){
+                ymin = res.getString("m");
+            }
+        } 
+        if (zmin.equals(WcpsConstants.MSG_STAR)) {
+            query = "SELECT min(St_Z(coordinate)) as m FROM ps9_multipoint_domain_set";
+            res = meta.executePostGISQuery(query);
+            while(res.next()){
+                zmin = res.getString("m");
+            }
+        } 
+        if (xmax.equals(WcpsConstants.MSG_STAR)){
+            query = "SELECT max(St_X(coordinate)) as m FROM ps9_multipoint_domain_set";
+            res = meta.executePostGISQuery(query);
+            while(res.next()){
+                xmax = res.getString("m");
+            }
+        } else if (xmax.equals("")){
+            xmax = xmin;
+        }
+
+        if (ymax.equals(WcpsConstants.MSG_STAR)){
+            query = "SELECT max(St_Y(coordinate)) as m FROM ps9_multipoint_domain_set";
+            res = meta.executePostGISQuery(query);
+            while(res.next()){
+                ymax = res.getString("m");
+            } 
+        } else if (ymax.equals("")){
+            ymax = ymin;
+        } 
+
+        if (zmax.equals(WcpsConstants.MSG_STAR)){
+            query = "SELECT max(St_Z(coordinate)) as m FROM ps9_multipoint_domain_set";
+            res = meta.executePostGISQuery(query);
+            while(res.next()){
+                zmax = res.getString("m");
+            }
+        } else if (zmax.equals("")){
+            zmax = zmin;
+        }    
+
+        result += " AND d.coordinate && 'BOX3D(" + xmin + " " + ymin + " " + zmin + "," + 
+                xmax + " " + ymax + " " + zmax + ")'::box3d "; 
+
+  
+        return result;
     }
 }

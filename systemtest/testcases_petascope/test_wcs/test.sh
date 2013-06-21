@@ -107,6 +107,7 @@ check_wget
 
 # run import if necessary
 import_data
+import_pointcloud_data
 
 mkdir -p "$OUTPUT_PATH"
 

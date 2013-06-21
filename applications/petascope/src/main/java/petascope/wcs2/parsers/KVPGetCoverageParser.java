@@ -51,7 +51,6 @@ import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
  */
 public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
 
-    //                                                      dim=$1  crs=$2      low=$4  high=$5
     private static final Pattern PATTERN = Pattern.compile("([^,\\(]+)(,([^\\(]+))?\\(([^,\\)]+)(,([^\\)]+))?\\)");
     private static final String QUOTED_SUBSET = "^\".*\"$"; // switch from numeric to ISO8601 coordinates for time
 

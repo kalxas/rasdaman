@@ -23,6 +23,7 @@ package petascope.wcps.server.core;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -86,33 +87,33 @@ public class Wcps {
     }
 
     public ProcessCoveragesRequest pcPrepare(String url, String database, File f)
-            throws WCPSException, SAXException, IOException, SecoreException {
+            throws WCPSException, SAXException, IOException, SecoreException, SQLException {
         return pcPrepare(url, database, wcpsDocumentBuilder.parse(f));
     }
 
     public ProcessCoveragesRequest pcPrepare(String url, String database, InputStream is,
             String systemId)
-            throws WCPSException, SAXException, IOException, SecoreException {
+            throws WCPSException, SAXException, IOException, SecoreException, SQLException {
         return pcPrepare(url, database, wcpsDocumentBuilder.parse(is, systemId));
     }
 
     public ProcessCoveragesRequest pcPrepare(String url, String database, String uri)
-            throws WCPSException, SAXException, IOException, SecoreException {
+            throws WCPSException, SAXException, IOException, SecoreException, SQLException {
         return pcPrepare(url, database, wcpsDocumentBuilder.parse(uri));
     }
 
     public ProcessCoveragesRequest pcPrepare(String url, String database, InputSource is)
-            throws WCPSException, SAXException, IOException, SecoreException {
+            throws WCPSException, SAXException, IOException, SecoreException, SQLException {
         return pcPrepare(url, database, wcpsDocumentBuilder.parse(is));
     }
 
     public ProcessCoveragesRequest pcPrepare(String url, String database, InputStream is)
-            throws WCPSException, SAXException, IOException, SecoreException {
+            throws WCPSException, SAXException, IOException, SecoreException, SQLException {
         return pcPrepare(url, database, wcpsDocumentBuilder.parse(is));
     }
 
     private ProcessCoveragesRequest pcPrepare(String url, String database, Document doc)
-            throws WCPSException, SAXException, IOException, SecoreException {
+            throws WCPSException, SAXException, IOException, SecoreException, SQLException {
         try {
             return new ProcessCoveragesRequest(url, database, doc, getDynamicMetadataSource(), this);
         } catch (PetascopeException ex) {

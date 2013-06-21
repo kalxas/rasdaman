@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -35,16 +36,20 @@ import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
+import petascope.util.WcpsConstants;
+import petascope.wcps.server.core.AxisIterator;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.InterpolationMethod;
 import petascope.wcps.server.core.RangeElement;
 import petascope.wcs.server.core.TimeString;
+import petascope.wcs2.templates.Templates;
 
 /**
  * This class implements coverage metadata. For information on what each field
@@ -74,7 +79,7 @@ public class CoverageMetadata implements Cloneable {
     private InterpolationMethod      interpolationDefault;
     private Set<InterpolationMethod> interpolationSet;
     private String      nullDefault;
-    private Set<String> nullSet;
+    private Set<String> nullSet = new HashSet<String>();
     private String titleStr    = "";
     private String abstractStr = "";
     private String keywordsStr = "";
@@ -204,6 +209,68 @@ public class CoverageMetadata implements Cloneable {
                 rasdamanCollection,
                 rangeElements
                 );
+    }
+    
+    // MultiPoint
+    public CoverageMetadata(String coverageName, 
+            String coverageType, 
+            String nativeFormat,
+            Set<Pair<String,String>> extraMeta,
+            List<Pair<CrsDefinition.Axis,String>> crsAxes, // axis -> URI
+            List<CellDomainElement> cellDomain,
+            List<RangeElement> rangeElements
+            ) throws WCPSException{
+        List<String> crsUris = new ArrayList<String>();
+        
+        this.coverageName = coverageName;
+        this.coverageType = coverageType;
+        this.nativeFormat = nativeFormat;
+        this.extraMetadata = extraMeta;
+        
+        // Build the list of CRS URIS
+         for (Pair<CrsDefinition.Axis,String> pair : crsAxes) {
+            if (!crsUris.contains(pair.snd)) {
+                     crsUris.add(pair.snd);
+            }
+         }   
+         this.crsUris = crsUris;
+         
+         
+        List<CellDomainElement> cellDomainList = new LinkedList<CellDomainElement>();
+        List<RangeElement> rangeList = new LinkedList<RangeElement>();
+        List<DomainElement> domainList = new LinkedList<DomainElement>();
+        List<String> crs = new ArrayList<String>(1);
+        crs.add(CrsUtil.GRID_CRS);
+        
+        for(int i=0; i < crsAxes.size(); i++){
+            // Build domain metadata
+            cellDomainList.add(new CellDomainElement(
+                BigInteger.ONE, 
+                BigInteger.ONE,
+                0)
+                ); 
+            domainList.add( new DomainElement(
+                BigDecimal.ONE,
+                BigDecimal.ONE,
+                crsAxes.get(i).fst.getAbbreviation(), 
+                crsAxes.get(i).fst.getType(),
+                CrsUtil.PURE_UOM,
+                crs.get(0),
+                0,
+                BigInteger.ONE,
+                false)
+                );
+            
+        }
+                 
+        // "unsigned int" is default datatype
+        rangeList.add(new RangeElement(WcpsConstants.MSG_DYNAMIC_TYPE, WcpsConstants.MSG_UNSIGNED_INT, null));
+
+        this.domain = domainList;
+        this.cellDomain = cellDomainList;
+        this.range = rangeElements;
+        
+        
     }
     
     // constructor's helper

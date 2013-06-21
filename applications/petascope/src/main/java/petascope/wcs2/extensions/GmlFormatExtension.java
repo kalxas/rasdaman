@@ -54,7 +54,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
     private static final Logger log = LoggerFactory.getLogger(GmlFormatExtension.class);
     public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:"; // FIXME: now URNs are deprecated
-    protected static final String MULTIPOINTSCHEMA = "ps_multipoint";
+    protected static final String MULTIPOINTSCHEMA = "ps9_multipoint_domain_set";
     protected static final String TAG_DATABLOCK = "DataBlock";
     protected static final String TAG_RANGEPARAMETERS = "rangeParameters";
     protected static final String TAG_TUPLELIST = "tupleList"; 
@@ -139,6 +139,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
         CoverageMetadata cov = m.getMetadata();
         String ret = WcsUtil.getGML(m, Templates.MULTIPOINT_COVERAGE, false);
         String pointMembers = "";
+        String rangeMembers = "";
         String low = "", high = "";
 
         try {
@@ -168,8 +169,13 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
                     if (subsetElement instanceof DimensionSlice) {
                         DimensionSlice slice = (DimensionSlice) subsetElement;
-                        cellDomain.setHi(new BigInteger(slice.getSlicePoint()));
-                        cellDomain.setLo(new BigInteger(slice.getSlicePoint()));
+                        String[] boundary = slice.getSlicePoint().split(":");
+                        cellDomain.setLo(new BigInteger(boundary[0]));
+                        if( boundary.length == 2 ){
+                            cellDomain.setHi(new BigInteger(boundary[1]));
+                        }else if(boundary.length == 1){
+                            cellDomain.setHi(new BigInteger(boundary[0]));
+                        }
                         cellDomain.setSubsetElement(subsetElement);
                     }
                 }
@@ -182,8 +188,16 @@ public class GmlFormatExtension extends AbstractFormatExtension {
             }
 
             /* get coverage data */
-            pointMembers = meta.coverageData(MULTIPOINTSCHEMA, coverageID, req.
+            /*pointMembers = meta.coverageDomainData(MULTIPOINTSCHEMA, coverageID, req.
                     getCoverageId(), cellDomainList);
+            rangeMembers = meta.coverageRangeSet(MULTIPOINTSCHEMA, coverageID, req.
+                    getCoverageId(), cellDomainList);
+            */
+            String[] members = meta.multipointDomainRangeData(MULTIPOINTSCHEMA, coverageID, req.
+                    getCoverageId(), cellDomainList);
+            pointMembers = members[0];
+            rangeMembers = members[1];
+            
             Pair<String, String> pair = constructWcpsQuery(req, cov, CSV_ENCODING, null);
 
             /* generate the result */
@@ -192,6 +206,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
                     low).replaceAll("\\{"          + Templates.KEY_HIGH + "\\}", 
                     high).replaceAll("\\{"         + Templates.KEY_AXISLABELS + "\\}", 
                     pair.snd).replaceAll("\\{"     + Templates.KEY_MULUOMLABLES + "\\}", pair.snd);
+             ret = ret.replaceAll("\\{" + Templates.KEY_GMLQLIST + "\\}", rangeMembers);
 
         } catch (PetascopeException ex) {
             log.error("Error", ex);

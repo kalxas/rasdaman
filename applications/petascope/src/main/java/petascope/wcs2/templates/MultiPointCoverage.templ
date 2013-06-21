@@ -47,7 +47,10 @@
     </gml:domainSet>
 
   <gml:rangeSet>
-        <gml:QuantityList uom="{uomCode}">{gmlQList}</gml:QuantityList>
+        <gml:DataBlock>
+        <gml:rangeParameters/>
+            <gml:tupleList>{gmlQList}</gml:tupleList>
+        </gml:DataBlock>
   </gml:rangeSet>
 
   <gmlcov:rangeType>

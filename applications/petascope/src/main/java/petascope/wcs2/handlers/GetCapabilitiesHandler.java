@@ -157,40 +157,42 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 /** Append Native Bbox **/
                 Bbox bbox = meta.read(coverageName).getBbox();
 
-                c = new Element(LABEL_BBOX, NAMESPACE_OWS);
-                // lower-left + upper-right coords
-                cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
-                cc.appendChild(bbox.getLowerCorner());
-                c.appendChild(cc);
-                cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
-                cc.appendChild(bbox.getUpperCorner());
-                c.appendChild(cc);
-                
-                // dimensions and crs attributes
-                Attribute crs = new Attribute(ATT_CRS, bbox.getCrsName());
-                Attribute dimensions = new Attribute(ATT_DIMENSIONS, "" + bbox.getDimensionality());
-                c.addAttribute(crs);
-                c.addAttribute(dimensions);
-                cs.appendChild(c);
-                
-                /** WGS84 Bbox **/
-                // Doesn't conform to WCS 2.0.1 so commented out -- DM 2012-oct-19 
-                /*if (bbox.hasWgs84Bbox()) {                    
-                    c = new Element(LABEL_WGS84_BBOX, NAMESPACE_OWS);
+                if (null != bbox) {
+                    c = new Element(LABEL_BBOX, NAMESPACE_OWS);
                     // lower-left + upper-right coords
                     cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
-                    cc.appendChild(bbox.getWgs84LowerCorner());
+                    cc.appendChild(bbox.getLowerCorner());
                     c.appendChild(cc);
                     cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
-                    cc.appendChild(bbox.getWgs84UpperCorner());
+                    cc.appendChild(bbox.getUpperCorner());
                     c.appendChild(cc);
+                    
                     // dimensions and crs attributes
-                    crs = new Attribute(ATT_CRS, bbox.getWgs84CrsName());
-                    dimensions = new Attribute(ATT_DIMENSIONS, "" + bbox.getDimensionality());
+                    Attribute crs = new Attribute(ATT_CRS, bbox.getCrsName());
+                    Attribute dimensions = new Attribute(ATT_DIMENSIONS, "" + bbox.getDimensionality());
                     c.addAttribute(crs);
                     c.addAttribute(dimensions);
                     cs.appendChild(c);
-                }*/
+                    
+                    /** WGS84 Bbox **/
+                    // Doesn't conform to WCS 2.0.1 so commented out -- DM 2012-oct-19
+                    /*if (bbox.hasWgs84Bbox()) {
+                     * c = new Element(LABEL_WGS84_BBOX, NAMESPACE_OWS);
+                     * // lower-left + upper-right coords
+                     * cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
+                     * cc.appendChild(bbox.getWgs84LowerCorner());
+                     * c.appendChild(cc);
+                     * cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
+                     * cc.appendChild(bbox.getWgs84UpperCorner());
+                     * c.appendChild(cc);
+                     * // dimensions and crs attributes
+                     * crs = new Attribute(ATT_CRS, bbox.getWgs84CrsName());
+                     * dimensions = new Attribute(ATT_DIMENSIONS, "" + bbox.getDimensionality());
+                     * c.addAttribute(crs);
+                     * c.addAttribute(dimensions);
+                     * cs.appendChild(c);
+                     * }*/
+                }
             }
         } catch (SecoreException sEx) {
             log.error("SECORE error", sEx);

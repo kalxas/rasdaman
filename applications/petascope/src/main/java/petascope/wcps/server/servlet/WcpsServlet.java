@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 import java.util.Iterator;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -39,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.core.DbMetadataSource;
+import petascope.util.PostgisQueryResult;
 import petascope.util.WcpsConstants;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
@@ -184,6 +186,24 @@ public class WcpsServlet extends HttpServlet {
             response.setContentType(mime);
             webOut = response.getOutputStream();
             
+            /* Alireza
+            Object res = processCoverageRequest.execute();
+            if (res instanceof RasQueryResult){
+                log.debug("executing request");
+                log.debug("[" + mime + "] " + query);
+
+                for (String s : ((RasQueryResult) res).getScalars()) {
+                    webOut.write(s.getBytes());
+                }
+                for (byte[] bs : ((RasQueryResult) res).getMdds()) {
+                    webOut.write(bs);
+                }
+            
+            } else if (res instanceof String){
+                webOut.write(out.getBytes());
+            }
+            */
+            
             if (processCoverageRequest.isRasqlQuery()) {
                 log.debug("executing request");
                 log.debug("[" + mime + "] " + query);
@@ -195,6 +215,11 @@ public class WcpsServlet extends HttpServlet {
                 for (byte[] bs : res.getMdds()) {
                     webOut.write(bs);
                 }
+            // Execute the query ... (?)  
+            } else if(processCoverageRequest.isPostGISQuery()){ 
+                PostgisQueryResult res = new PostgisQueryResult(processCoverageRequest.execute()); 
+                webOut.write(res.toCSV(res.getValues()).getBytes());
+
             } else {
                 log.debug("metadata result, no rasql to execute");
                 webOut.write(query.getBytes());

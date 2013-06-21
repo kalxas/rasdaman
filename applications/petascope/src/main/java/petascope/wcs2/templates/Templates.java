@@ -54,6 +54,7 @@ public class Templates {
     public static final String OFFSET_VECTOR = "OffsetVector";
     public static final String MULTIPOINT_COVERAGE = "MultiPointCoverage";
     public static final String MULTIPOINT_POINTMEMBERS = "PointMembers";
+    public static final String MULTIPOINT_RANGE = "MultiPointRange";
     public static final String SOAP_MESSAGE = "SOAPMessage";
     public static final String SOAP_FAULT = "SOAPFault";
     public static final String EXCEPTION_REPORT = "ExceptionReport";
@@ -100,6 +101,7 @@ public class Templates {
     public static final String KEY_UOMLABELS = "uomLabels";
     public static final String KEY_UPPERCORNER = "upperCorner";
     public static final String KEY_URL = "URL";
+    public static final String KEY_GMLQLIST = "gmlQList";
     
     /* Other constants */
     public static final String PREFIX_MP = "multipoint_";
@@ -119,6 +121,7 @@ public class Templates {
         loadTemplate(OFFSET_VECTOR);
         loadTemplate(MULTIPOINT_COVERAGE);
         loadTemplate(MULTIPOINT_POINTMEMBERS);
+        //loadTemplate(MULTIPOINT_RANGE);
         loadTemplate(SOAP_MESSAGE);
         loadTemplate(SOAP_FAULT);
         loadTemplate(EXCEPTION_REPORT);

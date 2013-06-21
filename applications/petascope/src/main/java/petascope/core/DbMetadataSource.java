@@ -50,6 +50,7 @@ import petascope.exceptions.SecoreException;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
+import petascope.util.WcpsConstants;
 import petascope.util.XMLSymbols;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
@@ -1060,6 +1061,61 @@ public class DbMetadataSource implements IMetadataSource {
                 cache.put(coverageName, covMeta);
                 return covMeta;
                 
+             } else if(coverageType.matches(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)) {
+                 
+                cellDomainElements = new ArrayList<CellDomainElement>(1); 
+                List<RangeElement> rangeElements = new ArrayList<RangeElement>();
+
+                sqlQuery =
+                        " SELECT "   + RANGETYPE_COMPONENT_NAME        + ", "
+                                     + RANGETYPE_COMPONENT_TYPE_ID     + ", "
+                                     + RANGETYPE_COMPONENT_FIELD_TABLE + ", "
+                                     + RANGETYPE_COMPONENT_FIELD_ID    +
+                        " FROM "     + TABLE_RANGETYPE_COMPONENT       +
+                        " WHERE "    + RANGETYPE_COMPONENT_COVERAGE_ID + "=" + coverageId +
+                        " ORDER BY " + RANGETYPE_COMPONENT_ORDER       + " ASC "
+                        ;
+                log.debug("SQL query: " + sqlQuery);
+                r = s.executeQuery(sqlQuery);
+                if (!r.next()) {
+                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                            "Coverage '" + coverageName + "' is missing the range-type metadata.");
+                }
+                do {
+                    // Check if it is a SWE:quantity (currently the only supported SWE field)
+                    if (!r.getString(RANGETYPE_COMPONENT_FIELD_TABLE).equals(TABLE_QUANTITY)) {
+                        throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
+                                "Band " + r.getString(RANGETYPE_COMPONENT_NAME) + " of coverage '" +
+                                coverageName + "' is not a continuous quantity.");
+                    }
+                    
+                    // Now read the intervals:
+                    List<Pair<BigDecimal,BigDecimal>> allowedIntervals = new ArrayList<Pair<BigDecimal,BigDecimal>>();
+                    for (Pair qI : quantityInterval) {
+                        if (qI.fst.equals(r.getInt(RANGETYPE_COMPONENT_FIELD_ID))) {
+                            // Fetch the associated interval
+                            allowedIntervals.add(intervals.get((Integer)qI.snd));
+                        }
+                    }
+    
+                    // Create the RangeElement (WCPS): {name, type, UoM}
+                    rangeElements.add(new RangeElement(
+                            r.getString(RANGETYPE_COMPONENT_NAME),
+                            rangeDataTypes.get(r.getInt(RANGETYPE_COMPONENT_TYPE_ID)),
+                            quantities.get(r.getInt(RANGETYPE_COMPONENT_FIELD_ID)),
+                            allowedIntervals)
+                            ); 
+                    log.debug("Added range element: " + rangeElements.get(rangeElements.size()-1));
+                    
+                } while (r.next());
+                
+              
+                CoverageMetadata covMeta = new CoverageMetadata(coverageName, coverageType, 
+                        coverageNativeFormat, extraMetadata, crsAxes, cellDomainElements, rangeElements);
+             
+                cache.put(coverageName, covMeta);
+                return covMeta;
+                
             } else {
                 // TODO manage Multi*Coverage alternatives
                 throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
@@ -1310,8 +1366,8 @@ public class DbMetadataSource implements IMetadataSource {
     public Collection<String> getDataTypes() {
         return rangeDataTypes.values();
     }
-
-        /**
+    
+    /**
      * Fetches Coverage Data from Non-Raster Coverage created in PetascopeDB
      * @param schemaName
      * @param coverageID
@@ -1365,6 +1421,7 @@ public class DbMetadataSource implements IMetadataSource {
 
                     count++;
                 }
+
                 if(isInSubset){
 
                     String rowID = "p" + (++pointCount) + "_" + coverageName;
@@ -1400,6 +1457,89 @@ public class DbMetadataSource implements IMetadataSource {
                     "Metadata database error", sqle);
         }
     }
+
+    /**
+     * Fetches MultiPoint Coverage Domain and Range Data from MultiPoint Coverage created in PetascopeDB
+     * @author Alireza
+     * @param schemaName
+     * @param coverageID
+     * @param coverageName
+     * @param cellDomainList
+     * @return
+     * @throws PetascopeException
+     */
+    public String[] multipointDomainRangeData(String schemaName, String coverageID, String coverageName, 
+                               List<CellDomainElement> cellDomainList) throws PetascopeException {
+        String[] members = {"", ""};
+        Statement s = null;
+        int pointCount = 0;
+
+        try {
+            ensureConnection();
+            s = conn.createStatement();
+
+            String xmin = cellDomainList.get(0).getLo().toString();
+            String xmax = cellDomainList.get(0).getHi().toString();
+            String ymin = cellDomainList.get(1).getLo().toString();
+            String ymax = cellDomainList.get(1).getHi().toString();
+            String zmin = cellDomainList.get(2).getLo().toString();
+            String zmax = cellDomainList.get(2).getHi().toString();
+            
+            String genQuery = WcpsConstants.MSG_SELECT + " St_X(coordinate) AS x, "
+                + "St_Y(coordinate) AS y, St_Z(coordinate) AS z, value " + 
+                WcpsConstants.MSG_FROM +
+                    " ps9_multipoint_domain_set AS d, ps9_multipoint_range_set AS r " + 
+                WcpsConstants.MSG_WHERE + " d.id = r.point_id AND d.coordinate && "
+                    + "'BOX3D(" + xmin + " " + ymin + " " + zmin + "," + 
+                    xmax + " " + ymax + " " + zmax + ")'::box3d AND coverage_id=(SELECT id FROM ps9_coverage "
+                    + "WHERE name='" + coverageID + "')";
+
+            ResultSet r = s.executeQuery(genQuery);
+            StringBuilder pointMembers = new StringBuilder();
+            StringBuilder rangeMembers = new StringBuilder();;
+            String tuple = "";
+            String rowID = "";
+
+            while (r.next()) {
+                
+                tuple = Double.toString(r.getDouble(1)).concat(" ").concat(Double.toString(r.getDouble(2))).
+                        concat(" ").concat(Double.toString(r.getDouble(3)));
+   
+                rowID = "p" + (++pointCount) + "_" + coverageName;
+
+                pointMembers = pointMembers.append(Templates.getTemplate(Templates.MULTIPOINT_POINTMEMBERS,
+                    Pair.of("\\{gmlPointId\\}", rowID),
+                    Pair.of("\\{gmlPos\\}", tuple))).append("\n");
+                
+                rangeMembers = rangeMembers.append(r.getArray(4).toString().replace("{", "").replace("}", "")).
+                        append(" ");
+                                
+                log.debug("pointCount : " + pointCount);
+                          
+            }
+
+            s.close();
+            
+            members[0] = pointMembers.toString();
+            members[1] = rangeMembers.toString();
+            
+            return members;
+
+        } catch (SQLException sqle) {
+            if (s != null) {
+                try {
+                    s.close();
+                } catch (SQLException f) {
+                }
+            }
+
+            close();
+
+            throw new PetascopeException(ExceptionCode.ResourceError,
+                    "Metadata database error", sqle);
+        }
+    }
+     
     
     /**
      * Method to retrieve subset indexes of an irregularly spaced axis, subject to specified bounds.
@@ -1578,5 +1718,29 @@ public class DbMetadataSource implements IMetadataSource {
         }
         
         return null;
+    }
+    
+    public ResultSet executePostGISQuery(String postGisQuery) throws PetascopeException{
+        Statement s = null;
+        ResultSet r = null;
+        try{      
+            log.debug("PostGIS Query: " + postGisQuery);
+            s = conn.createStatement();
+            r = s.executeQuery(postGisQuery);
+            
+        }catch (SQLException sqle) {
+            /* Abort this transaction */
+            try {
+                if (s != null) {
+                    s.close();
+                }
+                abortAndClose();
+            } catch (SQLException f) {
+            }
+
+            throw new PetascopeException(ExceptionCode.ResourceError,
+                    "Metadata database error", sqle);
+        }
+        return r;
     }
 }

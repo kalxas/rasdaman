@@ -106,6 +106,17 @@ CREATE TABLE ps9_coverage (
 CREATE TRIGGER coverage_name_trigger BEFORE INSERT OR UPDATE ON ps9_coverage
        FOR EACH ROW EXECUTE PROCEDURE coverage_name_pattern();
 
+-- TABLE: **ps9_bbox** =====================================================
+-- This table stores the mins and maxs for each dimension. 
+
+CREATE TABLE ps9_bounding_box (
+    id             serial PRIMARY KEY,
+    coverage_id    integer NOT NULL,
+    lower_left     numeric[] NOT NULL,
+    upper_right    numeric[] NOT NULL,
+    CHECK (array_dims(lower_left) = array_dims(upper_right)),
+    FOREIGN KEY (coverage_id) REFERENCES ps9_coverage (id) ON DELETE CASCADE
+); 
 
 -- TABLE: **ps9_rasdaman_collection** ==========================================
 -- This table collects all the rasdaman collections, which are then referenced in ps9_range_set.
@@ -392,6 +403,41 @@ CREATE TABLE ps9_service_provider (
 );
 CREATE TRIGGER single_service_provider_trigger BEFORE INSERT ON ps9_service_provider
        FOR EACH ROW EXECUTE PROCEDURE single_service_provider();
+
+-- ######################################################################### --
+--                        MULTIPOINT Tables                                  --
+-- ######################################################################### --
+
+-- TABLE: **ps9_multipoint_domain_set**###################################### --
+-- Geometry of MultiPoint                                                    --
+
+CREATE TABLE ps9_multipoint_domain_set (
+    id      serial  PRIMARY KEY,
+    coverage_id integer NOT NULL,
+    coordinate  geometry NOT NULL,
+    -- Constraints and FKs
+    --UNIQUE (coverage_id, coordinate),
+    FOREIGN KEY (coverage_id) REFERENCES ps9_domain_set (coverage_id) ON DELETE CASCADE
+);
+CREATE INDEX coordinate_gist_idx ON ps9_multipoint_domain_set USING GIST(coordinate);
+VACUUM ANALYZE ps9_multipoint_domain_set ;
+CREATE INDEX coverage_id_idx ON ps9_multipoint_domain_set (coverage_id);
+
+CREATE INDEX coord_x_idx ON ps9_multipoint_domain_set (St_X(coordinate));
+CREATE INDEX coord_y_idx ON ps9_multipoint_domain_set (St_Y(coordinate));
+CREATE INDEX coord_z_idx ON ps9_multipoint_domain_set (St_Z(coordinate));
+
+
+
+-- TABLE: **ps9_multipoint_domain_set**###################################### --
+-- Range of MultiPoint  
+
+CREATE TABLE ps9_multipoint_range_set (
+    point_id    integer PRIMARY KEY,
+    value       numeric[]   NOT NULL, --e.g., {r,g,b}
+    -- Constraints and FKs
+    FOREIGN KEY (point_id) REFERENCES ps9_multipoint_domain_set (id) ON DELETE CASCADE
+);
 
 
 -- MAP MODEL (WMS) ------------------------------------------------------------

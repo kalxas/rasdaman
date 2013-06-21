@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -60,6 +61,7 @@ import petascope.exceptions.WCSException;
 import petascope.exceptions.WCSTException;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
+import petascope.util.PostgisQueryResult;
 import petascope.util.StringUtil;
 import petascope.util.WcpsConstants;
 import petascope.util.XMLUtil;
@@ -510,7 +512,8 @@ public class PetascopeInterface extends HttpServlet {
      */
     private void handleWcsRequest(String version, String operation, String request, boolean soap, 
             HttpServletResponse response, HttpServletRequest srvRequest) 
-            throws WCSException, PetascopeException,SecoreException {
+            throws WCSException, PetascopeException, SecoreException, SQLException {
+
         if (version == null) {
             throw new WCSException(ExceptionCode.InvalidRequest, "No WCS version specified.");
         }
@@ -533,7 +536,8 @@ public class PetascopeInterface extends HttpServlet {
      * handle the request
      */
     private void handleWcs1Request(String operation, String request, HttpServletResponse response) 
-            throws WCSException, PetascopeException, SecoreException {
+            throws WCSException, PetascopeException, SecoreException, SQLException {
+
         log.info("Handling WCS 1.1 request");
 
         // compute result
@@ -625,7 +629,8 @@ public class PetascopeInterface extends HttpServlet {
     }
 
     private void handleProcessCoverages(String xmlRequest, HttpServletResponse response)
-            throws WCSException, PetascopeException, SecoreException {
+            throws WCSException, PetascopeException, SecoreException, SQLException {
+
         OutputStream webOut = null;
         try {
             log.debug("Received a ProcessCoverages request: \n{}", xmlRequest);
@@ -676,6 +681,11 @@ public class PetascopeInterface extends HttpServlet {
                 } else {
                     log.warn("WCPS: Warning! No result returned from rasql query.");
                 }
+            // Execute the query ... (?)  
+            } else if(processCoverageRequest.isPostGISQuery()){ 
+                PostgisQueryResult res = new PostgisQueryResult(processCoverageRequest.execute()); 
+                webOut.write(res.toCSV(res.getValues()).getBytes());
+    
             } else {
                 log.debug("metadata result, no rasql to execute");
                 webOut.write(query.getBytes());

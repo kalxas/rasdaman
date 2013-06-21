@@ -453,3 +453,30 @@ function import_data()
     fi
   done
 }
+
+#
+# Import point cloud demo data 
+#
+
+function import_pointcloud_data()
+{
+
+  PC_DATASET="Parksmall" 
+  PC_FILE="Parksmall.xyz"
+  PC_CRS="http://www.opengis.net/def/crs/EPSG/0/4327"
+
+  id=`$PSQL -c  "select id from ps9_coverage where name='$PC_DATASET'" | head -3 | tail -1`
+  test "$id" != "0"
+  if [ $? -eq 0 ]; then
+    logn "dropping $PC_DATASET... "
+    $PSQL -c  "delete from ps9_coverage where name='$PC_DATASET'"
+    echo ok.
+  else 
+    log "$PC_DATASET not found in the database."
+  fi
+  
+  logn "importing $PC_DATASET... "
+  python "$UTIL_SCRIPT_DIR"/import_pointcloud.py --file "$TESTDATA_PATH/$PC_FILE" --crs "$PC_CRS"
+  echo ok.
+
+}

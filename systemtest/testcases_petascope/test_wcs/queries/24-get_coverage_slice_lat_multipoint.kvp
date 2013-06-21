@@ -1,0 +1,1 @@
+version=2.0.0&service=WCS&request=GetCoverage&coverageid=Parksmall&subset=Lat(456300)

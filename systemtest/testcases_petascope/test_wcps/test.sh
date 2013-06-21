@@ -98,6 +98,8 @@ check_wget
 
 # run import if necessary
 import_data
+import_pointcloud_data
+
 
 mkdir -p "$OUTPUT_PATH"
 pushd "$QUERIES_PATH" > /dev/null
@@ -109,7 +111,7 @@ for f in *.test; do
   # test single file
   #[ "$f" == "48-slice_scale.test" ] || continue
   # test single file (regexp)
-  #[[ "$f" == 53* ]] || continue
+  #[[ "$f" == 62* ]] || continue
 
   # test header
   loge ""
