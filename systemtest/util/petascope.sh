@@ -87,10 +87,10 @@ function import_eobs()
   
   X=100
   Y=231
-  min_x_geo_coord=25
-  min_y_geo_coord=-40
-  max_x_geo_coord=75
-  max_y_geo_coord=75
+  min_x_geo_coord='25'
+  min_y_geo_coord='-40.5'
+  max_x_geo_coord='75.5'
+  max_y_geo_coord='75.5'
 
   $RASQL -q "create collection $c ShortSet3" > /dev/null || exit $RC_ERROR
   $RASQL -q "insert into $c values (short) inv_netcdf(\$1, \"vars=tg\")" -f "$TESTDATA_PATH"/eobs.nc > /dev/null || exit $RC_ERROR
