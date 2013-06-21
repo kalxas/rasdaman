@@ -41,7 +41,6 @@ import petascope.util.Vectors;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
-import petascope.wcps.server.core.InterpolationMethod;
 import petascope.wcps.server.core.RangeElement;
 import petascope.wcs.server.core.TimeString;
 
@@ -70,10 +69,6 @@ public class CoverageMetadata implements Cloneable {
     private Bbox bbox = null;
     
     // legacy petascope.wcs
-    private InterpolationMethod      interpolationDefault;
-    private Set<InterpolationMethod> interpolationSet;
-    private String      nullDefault;
-    private Set<String> nullSet;
     private String titleStr    = "";
     private String abstractStr = "";
     private String keywordsStr = "";
@@ -379,26 +374,6 @@ public class CoverageMetadata implements Cloneable {
     public String getKeywords() {
         return keywordsStr;
     }
-
-    public String getInterpolationDefault() {
-        return interpolationDefault.getInterpolationType();
-    }
-
-    public Iterator<InterpolationMethod> getInterpolationMethodIterator() {
-        return interpolationSet.iterator();
-    }
-
-    public void setInterpolationSet(Set<InterpolationMethod> interpolationSet) {
-        this.interpolationSet = interpolationSet;
-    }
-    
-    public void setDefaultInterpolation(InterpolationMethod interpolationDefault) {
-        this.interpolationDefault = interpolationDefault;
-    }
-
-    public String getNullResistanceDefault() {
-        return interpolationDefault.getNullResistance();
-    }
             
     public Iterator<CellDomainElement> getCellDomainIterator() {
         return cellDomain.iterator();
@@ -414,10 +389,6 @@ public class CoverageMetadata implements Cloneable {
 
     public Iterator<RangeElement> getRangeIterator() {
         return range.iterator();
-    }
-
-    public Iterator<String> getNullSetIterator() {
-        return nullSet.iterator();
     }
 
     public int getDimension() {

@@ -118,8 +118,6 @@ public class ConfigManager {
     public static URI WPS_DESCRIBE_PROCESS_URI;
 
     /* WCS-T Settings. Overridden by user-preferences in <code>settings.properties</code> */
-    public static String WCST_DEFAULT_INTERPOLATION = "none";
-    public static String WCST_DEFAULT_NULL_RESISTANCE = "none";
     public static String WCST_DEFAULT_DATATYPE = "unsigned char";
     
     /* CRS RESOLVERS' timeouts (milliseconds) */
@@ -149,8 +147,6 @@ public class ConfigManager {
     private static final String KEY_RASDAMAN_RETRY_TIMEOUT = "rasdaman_retry_timeout";
     private static final String KEY_RASDAMAN_RETRY_ATTEMPTS = "rasdaman_retry_attempts";
     private static final String KEY_CCIP_VERSION = "ccip_version";
-    private static final String KEY_WCST_DEFAULT_INTERPOLATION = "default_interpolation";
-    private static final String KEY_WCST_DEFAULT_NULL_RESISTANCE = "default_null_resistance";
     private static final String KEY_WCST_DEFAULT_DATATYPE = "default_datatype";
     private static final String KEY_SECORE_URL = "secore_url";
     private static final String KEY_SECORE_VERSION = "secore_version";
@@ -281,15 +277,7 @@ public class ConfigManager {
         }
 
         /* User preferences override default values for WCS-T */
-        String tmp = get(KEY_WCST_DEFAULT_INTERPOLATION);
-        if (tmp.length() > 0) {
-            WCST_DEFAULT_INTERPOLATION = tmp;
-        }
-        tmp = get(KEY_WCST_DEFAULT_NULL_RESISTANCE);
-        if (tmp.length() > 0) {
-            WCST_DEFAULT_NULL_RESISTANCE = tmp;
-        }
-        tmp = get(KEY_WCST_DEFAULT_DATATYPE);
+        String tmp = get(KEY_WCST_DEFAULT_DATATYPE);
         if (tmp.length() > 0) {
             WCST_DEFAULT_DATATYPE = tmp;
         }
@@ -314,8 +302,6 @@ public class ConfigManager {
         log.info("       *** WCS-T ***       ");
         log.info("WCS-T Language: " + WCST_LANGUAGE);
         log.info("WCS-T Version : " + WCST_VERSION);
-        log.info("WCS-T Default Interpolation: " + WCST_DEFAULT_INTERPOLATION);
-        log.info("WCS-T Default Null Resistance: " + WCST_DEFAULT_NULL_RESISTANCE);
         log.info("WCS-T Default Datatype: " + WCST_DEFAULT_DATATYPE);
         log.info("");
         log.info("       *** WCPS ***       ");

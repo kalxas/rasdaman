@@ -26,8 +26,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import petascope.core.DbMetadataSource;
 import petascope.core.CoverageMetadata;
+import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
@@ -38,7 +38,6 @@ import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.RangeElement;
-import petascope.wcps.server.core.SDU;
 
 /**
  * This class holds the GetCoverage response data.
@@ -218,10 +217,6 @@ public class GetCoverageMetadata {
             componentName = range.getName();        
             
             Set<String> nullSet = new HashSet<String>();
-            Iterator<String> nit = cov.getNullSetIterator();
-            while (nit.hasNext()) {
-                    nullSet.add(SDU.str2string(nit.next()).get(i));
-            }
             nilValues = ListUtil.ltos(nullSet, " ");
             
             type = range.getType();

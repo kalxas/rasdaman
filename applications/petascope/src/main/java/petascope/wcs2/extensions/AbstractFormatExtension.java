@@ -24,12 +24,11 @@ package petascope.wcs2.extensions;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.core.DbMetadataSource;
 import petascope.core.CoverageMetadata;
+import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
@@ -40,7 +39,6 @@ import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.CellDomainElement;
-import petascope.wcps.server.core.Crs;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.Wcps;
 import petascope.wcs2.parsers.GetCoverageMetadata;
@@ -49,8 +47,6 @@ import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSubset;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
 import petascope.wcs2.parsers.GetCoverageRequest.Scaling;
-import petascope.util.CrsUtil;
-import petascope.util.TimeUtil;
 
 /**
  * An abstract implementation of {@link FormatExtension}, which provides some

@@ -21,19 +21,6 @@
  */
 package petascope.wcst.transaction;
 
-import java.sql.SQLException;
-import net.opengis.ows.v_1_0_0.BoundingBoxType;
-import net.opengis.wcs.ows.v_1_1_0.InterpolationMethodType;
-import net.opengis.wcs.v_1_1_0.CoverageDescriptionType;
-import net.opengis.wcs.v_1_1_0.CoverageDescriptions;
-import net.opengis.wcs.v_1_1_0.CoverageSummaryType;
-import net.opengis.wcs.v_1_1_0.FieldType;
-import net.opengis.wcs.v_1_1_0.RangeType;
-import org.apache.commons.io.IOUtils;
-import petascope.exceptions.PetascopeException;
-import petascope.exceptions.RasdamanException;
-import petascope.exceptions.WCPSException;
-import petascope.wcps.server.core.SDU;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,6 +32,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.InvalidParameterException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -56,20 +44,34 @@ import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
-import net.opengis.wcs.ows.v_1_1_0.InterpolationMethods;
+import net.opengis.ows.v_1_0_0.BoundingBoxType;
+import net.opengis.wcs.v_1_1_0.CoverageDescriptionType;
+import net.opengis.wcs.v_1_1_0.CoverageDescriptions;
+import net.opengis.wcs.v_1_1_0.CoverageSummaryType;
+import net.opengis.wcs.v_1_1_0.FieldType;
+import net.opengis.wcs.v_1_1_0.RangeType;
+import org.apache.commons.io.IOUtils;
 import org.odmg.ODMGException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.core.DbMetadataSource;
-import petascope.core.CoverageMetadata;
-import petascope.exceptions.ExceptionCode;
 import petascope.ConfigManager;
+import petascope.core.CoverageMetadata;
+import petascope.core.DbMetadataSource;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.RasdamanException;
+import petascope.exceptions.WCPSException;
+import petascope.exceptions.WCSTException;
+import petascope.util.AxisTypes;
+import petascope.util.CrsUtil;
+import petascope.util.Pair;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.InterpolationMethod;
 import petascope.wcps.server.core.RangeElement;
-import petascope.exceptions.WCSTException;
-import petascope.util.AxisTypes;
+import petascope.wcps.server.core.SDU;
+import petascope.wcs2.templates.Templates;
+import petascope.wcst.transaction.tools.RasdamanUtils;
 import wcst.transaction.schema.CodeType;
 import wcst.transaction.schema.CoverageType;
 import wcst.transaction.schema.KeywordsType;
@@ -78,10 +80,6 @@ import wcst.transaction.schema.ManifestType;
 import wcst.transaction.schema.ReferenceType;
 import wcst.transaction.schema.TransactionResponseType;
 import wcst.transaction.schema.TransactionType;
-import petascope.wcst.transaction.tools.RasdamanUtils;
-import petascope.util.CrsUtil;
-import petascope.util.Pair;
-import petascope.wcs2.templates.Templates;
 
 /**
  * This class takes a WCS-T Transaction XML request and executes the request,
@@ -550,19 +548,6 @@ public class executeTransaction {
         List<RangeElement> rList = new ArrayList<RangeElement>(1);
         rList.add(range);
 
-        // Interpolation methods: only the default
-        String interpMeth = ConfigManager.WCST_DEFAULT_INTERPOLATION;
-        String nullRes = ConfigManager.WCST_DEFAULT_NULL_RESISTANCE;
-        InterpolationMethod interpDef = new InterpolationMethod(interpMeth, nullRes);
-        Set<InterpolationMethod> interpList = new HashSet<InterpolationMethod>(1);
-        interpList.add(interpDef);
-
-        // Null sets
-            /* TODO: update for multi-band images */
-        String nullVal = "0";
-        Set<String> nullSet = new HashSet<String>(1);
-        nullSet.add(nullVal);
-
         // Descriptions
         Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
         m = new CoverageMetadata(
@@ -668,44 +653,11 @@ public class executeTransaction {
                 String datatype = field.getDefinition().getDataType().getValue();
                 RangeElement fieldRange = new RangeElement(name, datatype, null); // FIXME uom = null
                 rangeList.add(fieldRange);
-
-                InterpolationMethods methods = field.getInterpolationMethods();
-                String interpType = methods.getDefaultMethod().getValue();
-                String nullResist = methods.getDefaultMethod().getNullResistance();
-                InterpolationMethod interp = new InterpolationMethod(interpType, nullResist);
-                interpSet.add(interp);
-
-                Iterator<InterpolationMethodType> it = methods.getOtherMethod().iterator();
-                while (it.hasNext()) {
-                    InterpolationMethodType imt = it.next();
-                    String type = imt.getValue();
-                    String resis = imt.getNullResistance();
-                    interp = new InterpolationMethod(type, resis);
-                    interpSet.add(interp);
-                }
             }
             meta.setRange(rangeList);
-            meta.setInterpolationSet(interpSet);
         }
 
-        /* (D) Table ps_coverage: Update default interpolation method and null resistance */
-
-        /*
-         *  We store interpolation methods at coverage level, not field level.
-         * So we only look at the interpolation method list of the first field,
-         * and use it on the whole coverage
-         */
-        if (desc.isSetRange()) {
-            log.debug("Updating default interpolation method...");
-            InterpolationMethodType def1 = desc.getRange().getField().get(0).getInterpolationMethods().getDefaultMethod();
-            String method = def1.getValue();
-            String resist = def1.getNullResistance();
-
-            InterpolationMethod meth = new InterpolationMethod(method, resist);
-            meta.setDefaultInterpolation(meth);
-        }
-
-        /* (E) Table ps_celldomain: Update cell domain of the coverage. */
+        /* (D) Table ps_celldomain: Update cell domain of the coverage. */
         /* NOTE: Only works for 2-D (x/y) or 3-D (x/y/t) coverages */
 
         if (desc.isSetDomain()) {
@@ -767,7 +719,7 @@ public class executeTransaction {
                     "This server did not implement the parsing of 'TimePeriod' nodes.");
         }
 
-        /* (F) Table ps_crss: Update supported CRS */
+        /* (E) Table ps_crss: Update supported CRS */
         // TODO later ... we don't support CRSs as of yet
 
         return meta;

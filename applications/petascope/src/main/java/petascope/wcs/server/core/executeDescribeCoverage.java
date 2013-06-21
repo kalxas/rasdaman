@@ -22,14 +22,15 @@
 package petascope.wcs.server.core;
 
 import java.util.ArrayList;
-import petascope.core.CoverageMetadata;
-import petascope.core.DbMetadataSource;
-import petascope.exceptions.WCSException;
-import petascope.exceptions.ExceptionCode;
+import java.util.Iterator;
+import java.util.List;
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 import net.opengis.ows.v_1_0_0.BoundingBoxType;
+import net.opengis.ows.v_1_0_0.KeywordsType;
+import net.opengis.wcs.ows.v_1_1_0.AnyValue;
 import net.opengis.wcs.ows.v_1_1_0.DomainMetadataType;
-import net.opengis.wcs.ows.v_1_1_0.InterpolationMethodType;
-import net.opengis.wcs.ows.v_1_1_0.InterpolationMethods;
 import net.opengis.wcs.ows.v_1_1_0.UnNamedDomainType;
 import net.opengis.wcs.v_1_1_0.CoverageDescriptionType;
 import net.opengis.wcs.v_1_1_0.CoverageDescriptions;
@@ -38,19 +39,16 @@ import net.opengis.wcs.v_1_1_0.DescribeCoverage;
 import net.opengis.wcs.v_1_1_0.FieldType;
 import net.opengis.wcs.v_1_1_0.RangeType;
 import net.opengis.wcs.v_1_1_0.SpatialDomainType;
-import petascope.wcps.server.core.*;
-import java.util.Iterator;
-import java.util.List;
-import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
-import net.opengis.ows.v_1_0_0.KeywordsType;
-import net.opengis.wcs.ows.v_1_1_0.AnyValue;
 import net.opengis.wcs.v_1_1_0.TimeSequenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.CoverageMetadata;
+import petascope.core.DbMetadataSource;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import petascope.wcps.server.core.*;
 
 /**
  * This class takes a WCS DescribeCoverage XML request and executes request,
@@ -234,29 +232,6 @@ public class executeDescribeCoverage {
             dommeta.setValue(range.getType());
             domtype.setDataType(dommeta);
             field.setDefinition(domtype);
-
-            InterpolationMethods interp = new InterpolationMethods();
-
-            InterpolationMethodType meth = new InterpolationMethodType();
-
-            meth.setValue(cov.getInterpolationDefault());
-            meth.setNullResistance(cov.getNullResistanceDefault());
-            interp.setDefaultMethod(meth);
-
-            Iterator<InterpolationMethod> interpIt = cov.getInterpolationMethodIterator();
-
-            while (interpIt.hasNext()) {
-                InterpolationMethod wcpsInterp = interpIt.next();
-
-                meth = new InterpolationMethodType();
-                meth.setValue(wcpsInterp.getInterpolationType());
-                meth.setNullResistance(wcpsInterp.getNullResistance());
-                if ((wcpsInterp.getInterpolationType().equals(interp.getDefaultMethod().getValue()) == false) || (wcpsInterp.getNullResistance().equals(interp.getDefaultMethod().getNullResistance()) == false)) {
-                    interp.getOtherMethod().add(meth);
-                }
-            }
-
-            field.setInterpolationMethods(interp);
             wcsRange.getField().add(field);
         }
         desc.setRange(wcsRange);

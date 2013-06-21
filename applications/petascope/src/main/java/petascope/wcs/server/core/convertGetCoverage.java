@@ -21,8 +21,9 @@
  */
 package petascope.wcs.server.core;
 
-import petascope.exceptions.WCSException;
-import petascope.exceptions.ExceptionCode;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import net.opengis.gml.v_3_1_1.TimePositionType;
 import net.opengis.ows.v_1_0_0.BoundingBoxType;
 import net.opengis.wcs.v_1_1_0.DomainSubsetType;
@@ -30,19 +31,14 @@ import net.opengis.wcs.v_1_1_0.GetCoverage;
 import net.opengis.wcs.v_1_1_0.GridCrsType;
 import net.opengis.wcs.v_1_1_0.RangeSubsetType;
 import net.opengis.wcs.v_1_1_0.TimePeriodType;
-import petascope.core.DbMetadataSource;
-import petascope.wcps.server.core.ProcessCoveragesRequest;
-import petascope.exceptions.WCPSException;
-import petascope.wcps.server.core.DomainElement;
-import petascope.ConfigManager;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import org.antlr.runtime.RecognitionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
+import petascope.core.DbMetadataSource;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.WCPSException;
+import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
 import petascope.util.ras.RasUtil;
 
