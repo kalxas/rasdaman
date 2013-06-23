@@ -28,7 +28,7 @@
 -----------------------------------------------------------------------
 -- PREREQUISITES
 --   - PL/pgSQL is installed.
---   - `utilities.sql' and `global_const.sql' have been imported within this session.
+--   - `utilities.sql' and `global_const.sql' have been imported.
 -----------------------------------------------------------------------
 
 -- TRIGGER: **coverage_name_trigger********************************************
@@ -49,11 +49,11 @@ $$
         END IF;
         RETURN NEW;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- TRIGGER: **storage_type_trigger*********************************************
--- Check referencial integrity on multiple references tables
+-- Check referential integrity on multiple references tables
 CREATE OR REPLACE FUNCTION storage_ref_integrity () 
 RETURNS trigger AS 
 $$
@@ -67,10 +67,10 @@ $$
         END IF;
         RETURN NEW;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 -- TRIGGER: **field_type_trigger***********************************************
--- Check referencial integrity on multiple references tables
+-- Check referential integrity on multiple references tables
 CREATE OR REPLACE FUNCTION field_ref_integrity () 
 RETURNS trigger AS 
 $$
@@ -85,7 +85,7 @@ $$
         END IF;
         RETURN NEW;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 -- TRIGGER: **range_component_order_trigger************************************
 -- Checks that the components inserted for this coverage by now follow a sequential order from 0.
@@ -110,7 +110,7 @@ $$
         END IF;
         RETURN NEW;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 -- TRIGGER: **uom_code_trigger*************************************************
 -- This type specifies a character string of length at least one, and restricted 
@@ -133,10 +133,10 @@ $$
         END IF;
         RETURN NEW;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 -- TRIGGER: **crs_integrity*****************************************************
--- Check referencial integrity on ps_crs.
+-- Check referential integrity on ps_crs.
 CREATE OR REPLACE FUNCTION crs_ref_integrity () 
 RETURNS trigger AS 
 $$
@@ -153,11 +153,11 @@ $$
         END LOOP;
         RETURN NEW;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- TRIGGER: **crs_compound_integrity***********************************************
--- Check referencial integrity on ps_crs.
+-- Check referential integrity on ps_crs.
 CREATE OR REPLACE FUNCTION crs_compound_components () 
 RETURNS trigger AS 
 $$
@@ -172,7 +172,7 @@ $$
         END IF;
         RETURN NEW;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- TRIGGER: **rasdaman_axis_order_trigger**************************************
@@ -197,7 +197,7 @@ $$
         END IF;
         RETURN NEW;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- TRIGGER: **offsetvector_origin_trigger**************************************
@@ -232,7 +232,7 @@ $$
 	END IF;
         RETURN NEW;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 -- TRIGGER: **coefficients_integrity_trigger***********************************
 -- Checks that the coefficients are ordered (0,1,2,...) and their values are strictly increasing.
@@ -270,7 +270,7 @@ $$
         END IF; 
         RETURN NEW;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- TRIGGER: **single_service_trigger*******************************************
@@ -288,7 +288,7 @@ $$
         END IF;
         RETURN NEW;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 -- TRIGGER: **single_service_provider_trigger**********************************
 -- Checks that no second service is inserted.
@@ -305,4 +305,4 @@ $$
         END IF;
         RETURN NEW;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;

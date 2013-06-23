@@ -39,7 +39,7 @@
 
 
 -- FUNCTION: ** query_result ****************************************************
--- Prtins the output of a query.
+-- Returns the output of a generic query.
 CREATE OR REPLACE FUNCTION query_result(
     this_query text
 ) RETURNS SETOF record AS 
@@ -47,7 +47,7 @@ $$
     BEGIN
       RETURN QUERY EXECUTE this_query;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- FUNCTION: ** selected_field **************************************************
@@ -72,7 +72,7 @@ CREATE OR REPLACE FUNCTION select_field (
         EXECUTE _qry INTO STRICT _result_value;
         RETURN  _result_value;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- FUNCTION: ** table_exists (table_name) *************************************
@@ -88,7 +88,7 @@ $$
                     AND schemaname = current_schema();
         RETURN FOUND;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- FUNCTION: ** table_has_id(table_name, id_field, id_value) ******************
@@ -120,7 +120,7 @@ $$
         END LOOP;
         RETURN false; -- no tuple with specified id
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- FUNCTION: ** matches_pattern(string, pattern) ******************************
@@ -135,7 +135,7 @@ $$
         PERFORM regexp_matches(this_string, this_pattern);
         RETURN FOUND;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- FUNCTION: ** numeric_column2array (table, numeric_column, where_clause, order_by_column) ****
@@ -164,7 +164,7 @@ $$
         END LOOP;
         RETURN _out_array;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- FUNCTION: ** array_sort (anyarray) *****************************************
@@ -222,7 +222,7 @@ $$
         END IF;
         RETURN true; -- 0-element arrays as well are considered sequential
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- FUNCTION: ** is_increasing (array, is_strict) *******************************
@@ -248,7 +248,18 @@ $$
         END IF;
         RETURN true; -- 0-element arrays as well are returning true
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
+
+
+-- FUNCTION: ** index_of (element, array) **************************************
+-- Returns the index of the element in an array (-1 if not present).
+CREATE FUNCTION index_of(needle ANYELEMENT, haystack ANYARRAY)
+RETURNS INT AS $$
+    SELECT i
+      FROM generate_subscripts($2, 1) AS i
+     WHERE $2[i] = $1
+  ORDER BY i
+$$ LANGUAGE sql STABLE;
 
 
 -- FUNCTION: ** table_is_empty (table) ****************************************
@@ -276,7 +287,7 @@ $$
         END LOOP;
         RETURN true; -- table is empty
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- FUNCTION: ** resolution2vector  **********************************************
@@ -311,11 +322,11 @@ $$
         END LOOP;
         RETURN _out_array;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --
--- Functions for the management of session-wide constants:
+-- Functions for the management of constants:
 --
 --   :: check_constants_tables_exists()    
 --   :: cget(key)           -> constant getter
@@ -358,7 +369,7 @@ $$
             RAISE NOTICE '%: created table for numeric constants.', ME;
         END IF;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 -- Set a variable -----------------------------------------------------
 -- String -------------------------
@@ -374,7 +385,7 @@ BEGIN
     -- Check if table exists (create it otherwise)
     PERFORM check_constants_tables_exists();
 
-    -- Has this constant already been defined previously in this session?
+    -- Has this constant already been defined previously?
     PERFORM * FROM ps9_string_constants
              WHERE key = xKey;
 
@@ -385,7 +396,7 @@ BEGIN
     END IF;
     RETURN;
 END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 -- Numeric -------------------------
 CREATE OR REPLACE  FUNCTION cset (
     IN xKey   text, 
@@ -399,7 +410,7 @@ $$
         -- Check if table exists (create it otherwise)
         PERFORM check_constants_tables_exists();
 
-        -- Has this constant already been defined previously in this session?
+        -- Has this constant already been defined previously?
         PERFORM * FROM ps9_numeric_constants
                  WHERE key = xKey;
 
@@ -410,7 +421,7 @@ $$
         END IF;
         RETURN;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 -- Get a variable's value ---------------------------------------------
 -- String -------------------------
@@ -426,7 +437,7 @@ $$
         -- Check if table exists (create it otherwise)
         PERFORM check_constants_tables_exists();
 
-        -- Has this constant already been defined previously in this session?
+        -- Has this constant already been defined previously?
         PERFORM value FROM ps9_string_constants 
                      WHERE key = xKey;
 
@@ -438,7 +449,7 @@ $$
         SELECT value INTO xValue FROM ps9_string_constants WHERE key = xKey;
         RETURN;
 END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 -- Numeric -------------------------
 CREATE OR REPLACE FUNCTION ncget(
     IN  xKey   text, 
@@ -452,7 +463,7 @@ $$
         -- Check if table exists (create it otherwise)
         PERFORM check_constants_tables_exists();
 
-        -- Has this constant already been defined previously in this session?
+        -- Has this constant already been defined previously?
         PERFORM value FROM ps9_numeric_constants 
                      WHERE key = xKey;
 
@@ -464,5 +475,5 @@ $$
         SELECT value INTO xValue FROM ps9_numeric_constants WHERE key = xKey;
         RETURN;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 -----------------------------------------------------------------------

@@ -50,7 +50,7 @@
 --
 -- PREREQUISITES
 --   - PL/pgSQL is installed.
---   - `triggers.sql' has been imported within this session.
+--   - `triggers9.sql' has been imported.
 -----------------------------------------------------------------------
 
 -- COVERAGE MODEL (WCS/WCPS) --------------------------------------------------

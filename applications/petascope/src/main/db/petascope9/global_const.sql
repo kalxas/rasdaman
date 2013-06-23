@@ -22,14 +22,14 @@
 -- ~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=
 
 -- ####################################################################
--- |          session-wide constants for database scripting           |
+-- |                 constants for database scripting                 |
 -- ####################################################################
 --
 -- PURPOSE
 -- Sets constant variables for database SQL scripts which
 -- 
 -- PREREQUISITES:
---   - `utilities.sql' has been imported within the session for `cset()'
+--   - `utilities.sql' has been imported for `cset()'
 --
 -- TODO: global_const.sql.in with replacement of %SECORE% configured host
 -----------------------------------------------------------------------
@@ -43,6 +43,7 @@ $$
     SELECT cset( 'UOM_PATTERN',        E'^[^: \\n\\r\\t]+$');
     SELECT cset('ID_FIELD',             'id');
     SELECT cset('UOM_PURE_NUM',         '10' || chr(x'2070'::int));
+    SELECT cset('SWE_QUANTITY_FIELD',   'Quantity');
     -- CRS URIs
     SELECT cset('SECORE_ENTRY',    'http://kahlua.eecs.jacobs-university.de:8080/def/'); -- TODO use @SECORE
     SELECT cset('CRS_ANSI',         cget('SECORE_ENTRY') || 'crs/OGC/0.1/ANSI-Date');
@@ -181,6 +182,13 @@ $$
     SELECT cset('TABLE_PS9_GML_SUBTYPE',                      cget('PS9_PREFIX') || '_gml_subtype');
           SELECT cset('PS9_GML_SUBTYPE_ID',                  'id');
           SELECT cset('PS9_GML_SUBTYPE_SUBTYPE',             'subtype');
+    SELECT cset('TABLE_PS9_INTERVAL',                         cget('PS9_PREFIX') || '_interval');
+          SELECT cset('PS9_INTERVAL_ID',                     'id');
+          SELECT cset('PS9_INTERVAL_MAX',                    'min');
+          SELECT cset('PS9_INTERVAL_MIN',                    'max');
+    SELECT cset('TABLE_PS9_INTERVAL_QUANTITY',                cget('PS9_PREFIX') || '_interval_quantity');
+          SELECT cset('PS9_INTERVAL_QUANTITY_QID',           'quantity_id');
+          SELECT cset('PS9_INTERVAL_QUANTITY_IID',           'interval_id');
     SELECT cset('TABLE_PS9_MIME_TYPE',                        cget('PS9_PREFIX') || '_mime_type');
           SELECT cset('PS9_MIME_TYPE_ID',                    'id');
           SELECT cset('PS9_MIME_TYPE_MIME',                  'mime_type');
@@ -189,12 +197,13 @@ $$
           SELECT cset('PS9_QUANTITY_UOM_ID',                 'uom_id');
           SELECT cset('PS9_QUANTITY_URI',                    'definition_uri');
           SELECT cset('PS9_QUANTITY_DESCRIPTION',            'description');
-    SELECT cset('TABLE_PS9_RANGESET',                         cget('PS9_PREFIX') || '_range_set');
-          SELECT cset('PS9_RANGESET_COVERAGE_ID',            'coverage_id');
-          SELECT cset('PS9_RANGESET_STORAGE_ID',             'storage_id');
     SELECT cset('TABLE_PS9_RANGE_DATATYPE',                   cget('PS9_PREFIX') || '_range_data_type');
           SELECT cset('PS9_RANGE_DATATYPE_ID',               'id');
           SELECT cset('PS9_RANGE_DATATYPE_NAME',             'name');
+    SELECT cset('TABLE_PS9_RANGESET',                         cget('PS9_PREFIX') || '_range_set');
+          SELECT cset('PS9_RANGESET_COVERAGE_ID',            'coverage_id');
+          SELECT cset('PS9_RANGESET_STORAGE_ID',             'storage_id');
+          SELECT cset('PS9_RANGESET_STORAGE_TABLE',          'storage_table');
     SELECT cset('TABLE_PS9_RANGETYPE_COMPONENT',              cget('PS9_PREFIX') || '_range_type_component');
           SELECT cset('PS9_RANGETYPE_COMPONENT_ID',          'id');
           SELECT cset('PS9_RANGETYPE_COMPONENT_COVERAGE_ID', 'coverage_id');
@@ -202,10 +211,12 @@ $$
           SELECT cset('PS9_RANGETYPE_COMPONENT_TYPE_ID',     'data_type_id');
           SELECT cset('PS9_RANGETYPE_COMPONENT_ORDER',       'component_order');
           SELECT cset('PS9_RANGETYPE_COMPONENT_FIELD_ID',    'field_id');
+          SELECT cset('PS9_RANGETYPE_COMPONENT_FIELD_TABLE', 'field_table');
     SELECT cset('TABLE_PS9_RASDAMAN_COLLECTION',              cget('PS9_PREFIX') || '_rasdaman_collection');
           SELECT cset('PS9_RASDAMAN_COLLECTION_ID',          'id');
           SELECT cset('PS9_RASDAMAN_COLLECTION_NAME',        'name');
           SELECT cset('PS9_RASDAMAN_COLLECTION_OID',         'oid');
+          SELECT cset('PS9_RASDAMAN_COLLECTION_BASETYPE',    'base_type');
     SELECT cset('TABLE_PS9_RECTILINEAR_AXIS',                 cget('PS9_PREFIX') || '_rectilinear_axis');
           SELECT cset('PS9_RECTILINEAR_AXIS_ID',             'grid_axis_id');
           SELECT cset('PS9_RECTILINEAR_AXIS_OFFSET_VECTOR',  'offset_vector');

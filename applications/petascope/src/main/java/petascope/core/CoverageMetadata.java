@@ -108,9 +108,9 @@ public class CoverageMetadata implements Cloneable {
                         axis.getKey() + " offset vector: currently only CRS-aligned offset-vectors are supported.");
             }
                         
-            // Build the list of CRS URIS
-            if (uris.contains(crsAxes.get(axisNonZeroIndices.get(0)).snd)) {
-                     uris.add(crsAxes.get(axisNonZeroIndices.get(0)).snd);
+            // Build the list of CRS URIs
+            if (!uris.contains(crsAxes.get(axisNonZeroIndices.get(0)).snd)) {
+                      uris.add(crsAxes.get(axisNonZeroIndices.get(0)).snd);
             }
             
             // Get correspondent cellDomain element
@@ -130,7 +130,7 @@ public class CoverageMetadata implements Cloneable {
                     crsAxes.get(axisNonZeroIndices.get(0)).fst.getAbbreviation(),
                     crsAxes.get(axisNonZeroIndices.get(0)).fst.getType(),
                     crsAxes.get(axisNonZeroIndices.get(0)).fst.getUoM(),
-                    crsAxes.get(axisNonZeroIndices.get(0)).snd, // URI of CRS /this/ axis belongs to.y
+                    crsAxes.get(axisNonZeroIndices.get(0)).snd,
                     axisOrder,
                     gridAxisPoints,
                     axis.getValue()

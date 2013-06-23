@@ -30,8 +30,8 @@
 --
 -- PREREQUISITES
 --   - PL/pgSQL is installed.
---   - Schema has been created (`init9.sql')
---   - `global_const.sql' has been imported within this session.
+--   - Schema has been created (`schema9.sql')
+--   - `global_const.sql' has been imported.
 -----------------------------------------------------------------------
 
 

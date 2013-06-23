@@ -75,10 +75,12 @@ $$
         RAISE NOTICE '%: available CRSs have been migrated.', ME;
         RETURN;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 --
 -- Copy the UoM codes possibly inserted by the user
+--
+-- TODO : migrate_quantities() instead and insert allowed intervals as well!
 --
 CREATE OR REPLACE FUNCTION migrate_uoms () 
 RETURNS void AS 
@@ -134,7 +136,7 @@ $$
         RAISE NOTICE '%: UoMs have been migrated.', ME;
         RETURN;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 -- CHECK: SELECT DISTINCT u.id, u.code, q.definition_uri FROM ps9_uom AS u, ps9_quantity AS q WHERE u.id=q.uom_id;
 
 
@@ -553,7 +555,7 @@ $$
         PERFORM cset(coverage_name, '---');
         RETURN true;
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 
 -- ######################################################################### --
@@ -684,12 +686,9 @@ $$
 
         ', ME, _successful_migrations, _failed_migrations;
 
-        -- TODO: single transaction for each coverage migration
-        -- ...
-
         RETURN; 
     END;
-$$ LANGUAGE 'plpgsql';
+$$ LANGUAGE plpgsql;
 
 --
 -- Run the migration and print the report:
