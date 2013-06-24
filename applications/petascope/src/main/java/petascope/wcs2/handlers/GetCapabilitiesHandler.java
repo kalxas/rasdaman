@@ -144,18 +144,18 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 Element c = null;
                 Element cc = null; 
                 c = new Element(LABEL_COVERAGE_ID, NAMESPACE_WCS);
-                String coverageId = it.next();
-                GetCoverageRequest tmp = new GetCoverageRequest(coverageId);
+                String coverageName = it.next();
+                GetCoverageRequest tmp = new GetCoverageRequest(coverageName);
                 GetCoverageMetadata m  = new GetCoverageMetadata(tmp, meta);
-                c.appendChild(coverageId);
+                c.appendChild(coverageName);
                 cs.appendChild(c);
                 c = new Element(LABEL_COVERAGE_SUBTYPE, NAMESPACE_WCS);
-                c.appendChild(meta.coverageType(coverageId));
+                c.appendChild(meta.read(coverageName).getCoverageType());
                 cs.appendChild(c);
                 contents.appendChild(cs);
                 
                 /** Append Native Bbox **/
-                Bbox bbox = meta.read(coverageId).getBbox();
+                Bbox bbox = meta.read(coverageName).getBbox();
 
                 c = new Element(LABEL_BBOX, NAMESPACE_OWS);
                 // lower-left + upper-right coords

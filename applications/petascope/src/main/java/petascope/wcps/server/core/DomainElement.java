@@ -24,6 +24,8 @@ package petascope.wcps.server.core;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.CrsDefinition;
@@ -46,9 +48,10 @@ public class DomainElement implements Cloneable {
     private String type;
     private String uom;
     private int iOrder;
-    private BigDecimal resolution;
-    private BigInteger dimensionality; // # of dimensions
+    private BigDecimal offsetVector;
+    private BigInteger dimensionality; // # of grid points along this axis
     private boolean    isIrregular;
+    private List<BigDecimal> coefficients;
     private CrsDefinition.Axis axisDef;
 
     // constructor
@@ -75,6 +78,7 @@ public class DomainElement implements Cloneable {
         type = axisType;
         dimensionality = dim;
         this.isIrregular = isIrregular;
+        coefficients = new ArrayList<BigDecimal>();
         iOrder = order;
 
         if ((min != null) && (max != null)) {
@@ -87,7 +91,9 @@ public class DomainElement implements Cloneable {
 
         if ((crsUri == null) || crsUri.equals(CrsUtil.GRID_CRS)) {
                crs = CrsUtil.GRID_CRS;
-        } else crs = crsUri;
+        } else {
+            crs = crsUri;
+        }
         
         // Compute resolution (with irregular axes a resolution cannot be defined)
         if (!isIrregular) {
@@ -98,7 +104,7 @@ public class DomainElement implements Cloneable {
             }
             
             BigDecimal diffBD = maxValue.subtract(minValue);
-            resolution        = diffBD.divide(new BigDecimal(dimensionality), RoundingMode.UP);
+            offsetVector      = diffBD.divide(new BigDecimal(dimensionality), RoundingMode.UP);
         }
         
         log.trace(toString());
@@ -116,7 +122,7 @@ public class DomainElement implements Cloneable {
             String cloneType    = type     == null ? null : type.toString();
             int order         = new Integer(iOrder);
             boolean isIrr     = isIrregular ? true : false;
-            return new DomainElement(
+            DomainElement cloned = new DomainElement(
                     cloneMin, 
                     cloneMax, 
                     cloneLabel, 
@@ -127,6 +133,8 @@ public class DomainElement implements Cloneable {
                     dimensionality, 
                     isIrr
                     );
+            cloned.setCoefficients(this.coefficients);
+            return cloned;
         } catch (Exception ime) {
             throw new RuntimeException(
                     WcpsConstants.ERRTXT_INVALID_METADAT_WHILE_CLONE,
@@ -152,12 +160,12 @@ public class DomainElement implements Cloneable {
         return minValue;
     }
     
-    public BigDecimal getResolution() {
-        return resolution;
+    public BigDecimal getOffsetVector() {
+        return offsetVector;
     }
     
-    public void setResolution(BigDecimal res) {
-        resolution = res;
+    public void setOffsetVector(BigDecimal res) {
+        offsetVector = res;
     }
 
     public String getType() {
@@ -186,6 +194,14 @@ public class DomainElement implements Cloneable {
     
     public boolean isIrregular() {
         return isIrregular;
+    }
+    
+    public void setCoefficients(List<BigDecimal> coeffs) {
+        this.coefficients = new ArrayList<BigDecimal>(coeffs);
+    }
+    
+    public List<BigDecimal> getCoefficients() {
+        return new ArrayList<BigDecimal>(this.coefficients);
     }
     
     @Override

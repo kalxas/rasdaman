@@ -24,6 +24,7 @@ package petascope.wcs2.parsers;
 import java.util.ArrayList;
 import java.util.List;
 import petascope.util.ListUtil;
+import petascope.util.KVPSymbols;
 
 /**
  * A DescribeCoverage request object, populated by a parser.
@@ -48,6 +49,6 @@ public class DescribeCoverageRequest extends BaseRequest {
     @Override
     public String toString() {
         return VALUE_DESCRIBECOVERAGE + ": " + 
-                KVPDescribeCoverageParser.KEY_COVERAGEID + "s=" + ListUtil.ltos(coverageIds,",");
+                KVPSymbols.KEY_COVERAGEID + "s=" + ListUtil.ltos(coverageIds,",");
     }
 }

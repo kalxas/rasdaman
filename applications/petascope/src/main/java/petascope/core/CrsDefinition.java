@@ -121,6 +121,13 @@ public class CrsDefinition {
     public List<Axis> getAxes() {
         return axes;
     }
+    public List<String> getAxesLabels() {
+        List<String> abbrevs = new ArrayList<String>();
+        for (Axis axis : axes) {
+            abbrevs.add(axis.getAbbreviation());
+        }
+        return abbrevs;
+    }
     public int getDimensions() {
         return axes.size();
     }

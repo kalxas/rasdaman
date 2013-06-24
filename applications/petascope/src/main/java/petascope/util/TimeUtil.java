@@ -121,17 +121,18 @@ public class TimeUtil {
     }
     
     /**     
-     * Count how many temporal units fit inside a time interval
+     * Count how many temporal units (i.e. offset vectors) fit inside a time interval.
      * @param timestampLo       Lower bound of time interval
      * @param timestampHi       Upper bound of time interval
      * @param timeResolution    Temporal resolution of the unit
-     * @return How many *full* pixels (units) fit into the time interval.
+     * @return How many *full* time units fit into the time interval (timestampHi-timestampLo).
      */    
-    public static int countPixels(String timestampLo, String timestampHi, String timeResolution) {
+    public static int countOffsets(String timestampLo, String timestampHi, String timeResolution) {
         
         // if Hi is /before/ Lo, than return 0
-        if (isOrderedTimeSubset(timestampHi, timestampLo))
+        if (isOrderedTimeSubset(timestampHi, timestampLo)) {
             return 0;
+        }
         
         Integer pixelCounter = 0;
 

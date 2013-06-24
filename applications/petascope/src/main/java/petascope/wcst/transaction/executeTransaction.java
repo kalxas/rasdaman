@@ -556,7 +556,7 @@ public class executeTransaction {
         Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
         m = new CoverageMetadata(
                 identifier,
-                Templates.RECTIFIED_GRID_COVERAGE,
+                Templates.GRID_ORIGIN,
                 "", // native format
                 emptyMetadata,
                 crs,

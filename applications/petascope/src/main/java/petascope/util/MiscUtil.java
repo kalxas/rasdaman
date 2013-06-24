@@ -35,10 +35,11 @@ public class MiscUtil {
 
     public static <T> List<T> toList(T... e) {
          List<T> ret = new ArrayList<T>();
-         if (e != null)
+         if (e != null) {
              for (T o : e) {
                 ret.add(o);
             }
+         }
          return ret;
     }
     
@@ -70,7 +71,6 @@ public class MiscUtil {
         return targetChilds;
     }
     
-         
     /**
      * Inner class which gathers the required geo-parameters for GTiff/JPEG2000 encoding.
      */

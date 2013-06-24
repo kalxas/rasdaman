@@ -103,7 +103,7 @@ public class CRSExtension implements Extension {
             for (String crsUri : CrsUtil.CrsUri.decomposeUri(subsettingCrs)) {
                 // Decode URI from either resolver query or cache:
                 log.info("Decoding " + crsUri + " ...");
-                CrsDefinition crsUriDef = CrsUtil.parseGmlDefinition(crsUri);
+                CrsDefinition crsUriDef = CrsUtil.getGmlDefinition(crsUri);
                 for (CrsDefinition.Axis axis : crsUriDef.getAxes()) {
                     // If this axis is specified in the subsets, then keep it; discard it otherwise.
                     if (subsetsLabels.contains(axis.getAbbreviation())) {
@@ -278,7 +278,7 @@ public class CRSExtension implements Extension {
         // Register to the CrsExt object only the dimensions that need to be reprojected
         String outputCrs = request.getCrsExt().getOutputCrs();
         for (String crsUri : CrsUtil.CrsUri.decomposeUri(outputCrs)) {
-            CrsDefinition crsUriDef = CrsUtil.parseGmlDefinition(crsUri);
+            CrsDefinition crsUriDef = CrsUtil.getGmlDefinition(crsUri);
             for (CrsDefinition.Axis axis : crsUriDef.getAxes()) {
                 if (!CrsUtil.CrsUri.areEquivalent(cmeta.getDomainByName(axis.getAbbreviation()).getCrs(), crsUri)) {
                     // Output Reprojection requested on this axis

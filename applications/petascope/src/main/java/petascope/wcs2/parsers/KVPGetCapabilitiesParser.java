@@ -35,11 +35,6 @@ import static petascope.util.KVPSymbols.*;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class KVPGetCapabilitiesParser extends KVPParser<GetCapabilitiesRequest> {
-    
-    // Keys
-    public static final String KEY_ACCEPTFORMATS = "acceptformats";
-    public static final String KEY_ACCEPTLANG = "acceptlanguages";
-    public static final String KEY_ACCEPTVERSIONS = "acceptversions";
 
     @Override
     public GetCapabilitiesRequest parse(HTTPRequest request) throws WCSException {

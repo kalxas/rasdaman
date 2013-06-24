@@ -57,6 +57,7 @@ import rasj.RasImplementation;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.RangeElement;
+import petascope.wcs2.extensions.GmlFormatExtension;
 import petascope.wcs2.parsers.GetCoverageMetadata.RangeField;
 import petascope.wcs2.templates.Templates;
 import petascope.wcs2.templates.WcsNamespaceContext;
@@ -420,7 +421,7 @@ public class GetCoverageOld {
 
             component = component.replaceAll("\\{rangeFieldId\\}", rangeId);
             component = component.replaceAll("\\{fieldName\\}", range.getName());
-            component = component.replaceAll("\\{datatype\\}", RangeField.DATATYPE_URN_PREFIX + range.getType());
+            component = component.replaceAll("\\{datatype\\}", GmlFormatExtension.DATATYPE_URN_PREFIX + range.getType());
 
             // Compute the null values for this range field
             Set<String> nullVals = new HashSet<String>();

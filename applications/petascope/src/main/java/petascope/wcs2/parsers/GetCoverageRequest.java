@@ -77,11 +77,6 @@ import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
  */
 public class GetCoverageRequest extends BaseRequest {
     
-    /* WCS GetCoverage request constants */    
-    public static final String GRID_COVERAGE = "GridCoverage";
-    public static final String RECTIFIED_GRID_COVERAGE = "RectifiedGridCoverage";
-    public static final String REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
-    public static final String MULTIPOINT_COVERAGE = "MultiPointCoverage";
     private final String coverageId;
     private final String format;
     private final boolean multipart;

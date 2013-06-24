@@ -16,6 +16,7 @@
  */
 package petascope.util;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -118,7 +119,7 @@ public class ListUtil {
 
     /* head(e_1,...,e_n) --> e_1 */
     public static <T> T head(List<T> l) {
-        if (l == null || l.size() == 0) {
+        if (l == null || l.isEmpty()) {
             return null;
         } else {
             return l.get(0);
@@ -130,7 +131,7 @@ public class ListUtil {
         if (l == null) {
             return null;
         }
-        if (l.size() == 0 || l.size() == 1) {
+        if (l.isEmpty() || l.size() == 1) {
             return Collections.<T>emptyList();
         }
         return ListUtil.sublist(l, 1, l.size() - 1);
@@ -159,10 +160,11 @@ public class ListUtil {
 
     public static <T> List<T> toList(T... e) {
          List<T> ret = new ArrayList<T>();
-         if (e != null)
+         if (e != null) {
              for (T o : e) {
                 ret.add(o);
             }
+         }
          return ret;
     }
 
@@ -208,5 +210,28 @@ public class ListUtil {
             ret[i + a.length] = b[i];
         }
         return ret;
+    }
+    
+    // Returns the index of the last element lower than "el".
+    // NOTE: it is assumed the array has been sorted and is non-decreasing.
+    public static <T extends Number> int minIndex(List<T> a, T el) {
+        
+        if (el.getClass().equals(BigDecimal.class)) {
+            for (int i=0; i < a.size(); i++) {
+                if (((BigDecimal)a.get(i)).compareTo((BigDecimal)el) >= 0) {
+                    return i;
+                }
+            }
+            
+        } else {
+            for (int i=0; i < a.size(); i++) {
+                if (a.get(i).doubleValue() >= el.doubleValue()) {
+                    return i;
+                }
+            }
+        }
+        
+        // "el" was outside bounds
+        return a.size();
     }
 }

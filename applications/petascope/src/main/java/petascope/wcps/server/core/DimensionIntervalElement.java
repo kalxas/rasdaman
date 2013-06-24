@@ -201,13 +201,14 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 boolean dom1IsNum = !domain1.isStringScalarExpr();
                 boolean dom2IsNum = !domain2.isStringScalarExpr();
                 String axisName = axis.toRasQL();
-                int[] pCoord = crs.convertToPixelIndices(meta, axisName, val1, dom1IsNum, val2, dom2IsNum);
+                long[] pCoord = crs.convertToPixelIndices(meta, axisName, val1, dom1IsNum, val2, dom2IsNum);
                 cellCoord1 = pCoord[0];
                 cellCoord2 = pCoord[1];
             } catch (PetascopeException e) {
                 this.transformedCoordinates = false;
                 throw new WCPSException(ExceptionCode.InvalidMetadata,
-                        WcpsConstants.ERRTXT_ERROR_WHILE_CONVERTING);            }
+                        WcpsConstants.ERRTXT_ERROR_WHILE_CONVERTING, e);
+            }
         }
     }
     

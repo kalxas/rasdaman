@@ -20,6 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.wcs2.parsers;
+import petascope.util.KVPSymbols;
 
 /**
  * A GetCapabilities request object, populated by a parser.
@@ -57,8 +58,9 @@ public class GetCapabilitiesRequest extends Request {
     @Override
     public String toString() {
         return VALUE_GETCAPABILITIES + ": " + 
-                KVPGetCapabilitiesParser.KEY_ACCEPTVERSIONS + "=" + acceptVersion + ", " + 
-                KVPGetCapabilitiesParser.KEY_ACCEPTFORMATS  + "=" + acceptFormats + ", " +
-                KVPGetCapabilitiesParser.KEY_ACCEPTLANG     + "=" + acceptLanguages;
+                KVPSymbols.KEY_ACCEPTVERSIONS  + "=" + acceptVersion + ", " + 
+                KVPSymbols.KEY_ACCEPTFORMATS   + "=" + acceptFormats + ", " +
+                KVPSymbols.KEY_ACCEPTLANGUAGES + "=" + acceptLanguages;
+        
     }
 }

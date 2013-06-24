@@ -34,10 +34,12 @@ import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.WcsUtil;
+import petascope.util.XMLSymbols;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.RangeElement;
+import petascope.wcs2.extensions.GmlFormatExtension;
 
 /**
  * This class holds the GetCoverage response data.
@@ -94,6 +96,9 @@ public class GetCoverageMetadata {
         }
         
         gridType = coverageType.replace("Coverage", "");
+        if (coverageType.equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
+            gridType = XMLSymbols.LABEL_RGBV; // No other grid implementations supported currently
+        }
         gridDimension = metadata.getDimension();
         gridId = coverageId + "-grid";
         
@@ -202,8 +207,6 @@ public class GetCoverageMetadata {
     
     public static class RangeField {
         
-        public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:";
-        
         private String fieldName;
         private String componentName;
         private String nilValues;
@@ -229,7 +232,7 @@ public class GetCoverageMetadata {
         }
 
         public String getDatatype() {
-            return DATATYPE_URN_PREFIX + type;
+            return GmlFormatExtension.DATATYPE_URN_PREFIX + type;
         }
         
         public String getAllowedValues() {

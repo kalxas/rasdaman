@@ -21,10 +21,13 @@
  */
 package petascope.wcs2.extensions;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
@@ -32,11 +35,14 @@ import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import petascope.util.ListUtil;
 import petascope.util.Pair;
+import petascope.util.StringUtil;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
@@ -62,18 +68,22 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * Update m with the correct bounds and axes (mostly useful when there's
      * slicing/trimming in the request)
      */
-    protected void setBounds(GetCoverageRequest request, GetCoverageMetadata m, DbMetadataSource meta)
-            throws PetascopeException, WCSException {
+    protected void updateGetCoverageMetadata(GetCoverageRequest request, GetCoverageMetadata m)
+            throws PetascopeException, SecoreException, WCSException {
         
-        // Init variables
+        // Init variables, to be then filled scanning the request subsets
         String axesLabels = "";
         String lowerDom = "";
         String upperDom = "";
         String lowerCellDom = "";
         String upperCellDom = "";
+        // CRS need to be sliced accordingly upon dimension slicings
+        String crsName;
+        Set<String> slicedAxes = new HashSet<String>();
         boolean domUpdated;
-        Iterator<DomainElement>         domsIt = m.getMetadata().getDomainIterator();
-        Iterator<CellDomainElement> cellDomsIt = m.getMetadata().getCellDomainIterator();
+        CoverageMetadata meta = m.getMetadata();
+        Iterator<DomainElement>         domsIt = meta.getDomainIterator();
+        Iterator<CellDomainElement> cellDomsIt = meta.getCellDomainIterator();
         DomainElement domainEl;
         CellDomainElement cellDomainEl;
         List<DimensionSubset> subsList = request.getSubsets();
@@ -87,7 +97,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             // Loop through each subsets in the request and check if this axis is involved
             Iterator<DimensionSubset> subsIt = subsList.iterator();
             DimensionSubset subset;
-            CoverageMetadata metadata = m.getMetadata();
             while (subsIt.hasNext()) {
                 subset = subsIt.next();
                 if (subset.getDimension().equals(domainEl.getLabel())) {
@@ -100,12 +109,22 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             // TODO: if request is specified via grid coords, need a backwards transform here 
                             //       {cellDomain->domain} to show domain values in the WCS response:
                             //       Crs.convertToDomainCoords()
-                            lowerDom += Math.max(
+                            if (((DimensionTrim)subset).getTrimLow().contains("\"")) {
+                                // TODO convert to domain values (TimeUtil.countPixels(datumOrigin, stringLo, axisUoM);
+                                // ...
+                            } else {
+                                lowerDom += Math.max(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
                                     domainEl.getMinValue().doubleValue()) + " ";
-                            upperDom += Math.min(
+                            }
+                            if (((DimensionTrim)subset).getTrimHigh().contains("\"")) {
+                                // TODO convert to domain values (TimeUtil.countPixels(datumOrigin, stringLo, axisUoM);
+                                // ...
+                            } else {
+                                upperDom += Math.min(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimHigh()),
                                     domainEl.getMaxValue().doubleValue()) + " ";
+                            }
                             // Append updated pixel bounds                            
                             String decimalsExp = "\\.[0-9]+";
                             long[] cellDom = (CrsUtil.GRID_CRS.equals(subset.getCrs()) || // : subset=x,CRS:1(x1,x2) || subsettingCrs=CRS:1
@@ -120,7 +139,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             lowerCellDom += cellDom[0] + " ";
                             upperCellDom += cellDom[1] + " ";
                         } else if (subset instanceof DimensionSlice) {
-                            log.info("Axis " + domainEl.getLabel() + " has been sliced: remove it from the boundedBy element.");
+                            log.info("Axis " + domainEl.getLabel() + " has been sliced: remove it from the boundedBy element and track the axis for CRS slicing.");
+                            slicedAxes.add(subset.getDimension());
                         } else {
                             throw new WCSException(ExceptionCode.InternalComponentError,
                                     "Subset '" + subset + "' is not recognized as trim nor slice.");
@@ -128,7 +148,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                         // flag: if no subset has updated the bounds, then need to append the bbox value
                         domUpdated = true;
                     } catch (NumberFormatException ex) {
-                        String message = "Error while casting a subset to numeric format for comparison.";
+                        String message = "Error while casting a subset to numeric format for comparison: " + ex.getMessage();
                         log.error(message);
                         throw new WCSException(ExceptionCode.InvalidRequest, message);
                     } catch (PetascopeException ex) {
@@ -145,6 +165,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 upperCellDom += cellDomainEl.getHi() + " ";
             }
         } // END domains iterator
+        
         // Update axes labels
         m.setAxisLabels(axesLabels);
         // Update **pixel-domain** bounds
@@ -153,6 +174,14 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         // Update **domain** bounds
         m.setDomLow(lowerDom);
         m.setDomHigh(upperDom);
+        // Update the **CRS**
+        if (!slicedAxes.isEmpty()) {
+            crsName = CrsUtil.sliceAxesOut(meta.getCrsUris(), slicedAxes);
+            m.setCrs(crsName);
+            m.setUomLabels(StringUtil.listToTuple(
+                    CrsUtil.getAxesUoMs(CrsUtil.CrsUri.decomposeUri(crsName)),
+                    ' '));
+        }
     }
 
     /**
@@ -213,26 +242,43 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @param cel the CellDomainElement for the dimension
      * @return the corresponding CRS coordinates
      */
-    private long toPixels(double val, DomainElement el, CellDomainElement cel) {
+    private long toPixels(double lo, DomainElement domEl, CellDomainElement cdomEl) {
     
         // Get cellDomain extremes
-        long pxLo = cel.getLo().longValue();
-        long pxHi = cel.getHi().longValue();
-        
-        // Get Domain extremes (real sdom)
-        double domLo = el.getMinValue().doubleValue();
-        double domHi = el.getMaxValue().doubleValue();
+        long pxMin = cdomEl.getLo().longValue();
+        long pxMax = cdomEl.getHi().longValue();
 
-        // Get cell dimension 
-        double cellWidth = (domHi-domLo)/(double)((pxHi-pxLo)+1);
+        // Get Domain extremes (real sdom)
+        double domMin = domEl.getMinValue().doubleValue();
+        double domMax = domEl.getMaxValue().doubleValue();
+
+        // Get offset vector (= cell width in case of regular axis): 
+        double cellWidth = domEl.getOffsetVector().doubleValue(); // (domHi-domLo)/(double)((pxHi-pxLo)+1);
 
         // Conversion to pixel domain
-        if (!el.getLabel().equals(AxisTypes.Y_AXIS)) {
-            return (long)Math.floor((val - domLo) / cellWidth) + pxLo;
+        long indexValLo;
+        long indexValHi;
+        if (!domEl.getLabel().equals(AxisTypes.Y_AXIS)) {
+            indexValLo = (long)Math.floor((lo - domMin) / cellWidth) + pxMin;
+            //indexValHi = (long)Math.floor((hi - domMin) / cellWidth) + pxMin;
         } else {
-            return (long)Math.floor((domHi - val) / cellWidth) + pxLo;
+            //indexValLo = (long)Math.floor((domMax - hi) / cellWidth) + pxMin;
+            //indexValHi = (long)Math.floor((domMax - lo) / cellWidth) + pxMin;
+            indexValLo = (long)Math.floor((domMax - lo) / cellWidth) + pxMin;
         }
-
+        
+        // If axis is irregular, the "pixel" domain needs to be translated
+        if (!domEl.getCoefficients().isEmpty()) {
+            indexValLo = ListUtil.minIndex(domEl.getCoefficients(), new BigDecimal(indexValLo));
+            //indexValHi = ListUtil.minIndex(domEl.getCoefficients(), new BigDecimal(indexValHi));
+        }
+        
+        // Check outside bounds:
+        //indexValLo = (indexValLo<pxMin) ? pxMin : ((indexValLo>pxMax)?pxMax:indexValLo);
+        //indexValHi = (indexValHi<pxMin) ? pxMin : ((indexValHi>pxMax)?pxMax:indexValHi);
+        
+        //return new long[]{indexValLo, indexValHi};
+        return indexValLo;
     }
 
     /**
@@ -281,7 +327,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                         "The axis label " + dim + " was not found in the list of available axes");
             }
 
-            String crs = de.getCrs();
+            // Parametrized CRSs can have quotes and other reserved entities which break abstract WCPS queries (and XML)
+            String crs = StringUtil.escapeXmlPredefinedEntities(de.getCrs());
 
             if (subset instanceof DimensionTrim) {
                 DimensionTrim trim = (DimensionTrim) subset;
@@ -303,8 +350,9 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         if (req.isScaled()) {
             if (!((cov.getCoverageType().equals("GridCoverage")) || 
                     (cov.getCoverageType().equals("RectifiedGridCoverage")) || 
-                    (cov.getCoverageType().equals("ReferenceableGridCoverage")))) 
+                    (cov.getCoverageType().equals("ReferenceableGridCoverage")))) {
                 throw new WCSException(ExceptionCode.InvalidCoverageType.locator(req.getCoverageId())); 
+            }
             Scaling s = req.getScaling();            
             int axesNumber = 0; // for checking if all axes in the query were used
             proc = "scale(" + proc + ", {";
@@ -355,8 +403,9 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                     break;
                 }
             }
-            if (axesNumber != s.getAxesNumber())                    
+            if (axesNumber != s.getAxesNumber()) {    
                 throw new WCSException(ExceptionCode.ScaleAxisUndefined); 
+            }
             //TODO find out which axis was not found and add the locator to scaleFactor or scaleExtent or scaleDomain
             proc = proc.substring(0, proc.length() - 1);
             proc += "})";            

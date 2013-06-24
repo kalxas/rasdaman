@@ -55,6 +55,7 @@ public interface XMLSymbols {
     String NAMESPACE_XML = "http://www.w3.org/XML/1998/namespace";
     String NAMESPACE_GML = "http://www.opengis.net/gml/3.2";
     String NAMESPACE_GMLCOV = "http://www.opengis.net/gmlcov/1.0";
+    String NAMESPACE_GMLRGRID = "http://www.opengis.net/gml/3.3/rgrid";
     String NAMESPACE_SWE = "http://www.opengis.net/swe/2.0";
     String NAMESPACE_OWS = "http://www.opengis.net/ows/2.0";
     String NAMESPACE_WCS_OLD = "http://www.opengis.net/wcs/1.1";
@@ -146,6 +147,12 @@ public interface XMLSymbols {
     String LABEL_REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
     String LABEL_METADATA = "metadata";
     
+    // gml 3.3
+    String LABEL_COEFFICIENTS = "coefficients";
+    String LABEL_RGBA = "ReferenceableGridByArray";
+    String LABEL_RGBV = "ReferenceableGridByVectors";
+    String LABEL_RGBT = "ReferenceableGridByTransformation";    
+    
     // soap
     String LABEL_BODY = "Body";
     
@@ -208,4 +215,18 @@ public interface XMLSymbols {
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     
     String SCHEMA_LOCATION_WCS = "http://schemas.opengis.net/wcs/2.0/wcsAll.xsd";
+    String SCHEMA_LOCATION_GML = "http://schemas.opengis.net/gml/3.2.1/gml.xsd";
+    String SCHEMA_LOCATION_GMLRGRID = "http://schemas.opengis.net/gml/3.3/referencableGrid.xsd";
+    
+    // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Predefined entities' names
+    //
+    // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    
+    String PREDEFINED_ENTITY_AMPERSAND        = "amp";
+    String PREDEFINED_ENTITY_APOSTROPHE       = "apos";
+    String PREDEFINED_ENTITY_LESSTHAN_SIGN    = "lt";
+    String PREDEFINED_ENTITY_GREATERTHAN_SIGN = "gt";
+    String PREDEFINED_ENTITY_QUOTES           = "quot";
 }

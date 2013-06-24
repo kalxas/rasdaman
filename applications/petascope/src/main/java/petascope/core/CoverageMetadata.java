@@ -112,10 +112,15 @@ public class CoverageMetadata implements Cloneable {
                 throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
                         axis.getKey() + " offset vector: currently only CRS-aligned offset-vectors are supported.");
             }
+            
+            // Store 
+            boolean isIrregular = axis.getValue();
+            String crsUri = crsAxes.get(axisNonZeroIndices.get(0)).snd;
+            CrsDefinition.Axis crsAxis = crsAxes.get(axisNonZeroIndices.get(0)).fst;
                         
             // Build the list of CRS URIs
-            if (!uris.contains(crsAxes.get(axisNonZeroIndices.get(0)).snd)) {
-                      uris.add(crsAxes.get(axisNonZeroIndices.get(0)).snd);
+            if (!uris.contains(crsUri)) {
+                      uris.add(crsUri);
             }
             
             // Get correspondent cellDomain element
@@ -125,22 +130,28 @@ public class CoverageMetadata implements Cloneable {
             // NOTE: grid-axis and CRS-axis are aligned
             // (!) MIN=origin, MAX=origin+N*offsetVector  => grid-point is point (not pixel)
             BigDecimal resolution     = axis.getKey().get(axisNonZeroIndices.get(0));
-            BigDecimal axisLo         =    gridOrigin.get(axisNonZeroIndices.get(0));
+            BigDecimal axisLo         = gridOrigin.get(axisNonZeroIndices.get(0));
             BigInteger gridAxisPoints = BigInteger.valueOf(1).add(cEl.getHi().subtract(cEl.getLo()));
-            BigDecimal axisHi         = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints)));
+            BigDecimal axisHi         = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints.subtract(BigInteger.ONE))));
             
             DomainElement domEl = new DomainElement(
-                    axisLo,
-                    axisHi,
-                    crsAxes.get(axisNonZeroIndices.get(0)).fst.getAbbreviation(),
-                    crsAxes.get(axisNonZeroIndices.get(0)).fst.getType(),
-                    crsAxes.get(axisNonZeroIndices.get(0)).fst.getUoM(),
-                    crsAxes.get(axisNonZeroIndices.get(0)).snd,
+                    axisLo.compareTo(axisHi) <= 0 ? axisLo : axisHi,    // offset-vector can be negative,
+                    axisLo.compareTo(axisHi) <= 0 ? axisHi : axisLo,    //   then (axisLo>axisHi)
+                    crsAxis.getAbbreviation(),
+                    crsAxis.getType(),
+                    crsAxis.getUoM(),
+                    crsUri,
                     axisOrder,
                     gridAxisPoints,
-                    axis.getValue()
+                    isIrregular
                     );
             domEl.setAxisDef(crsAxes.get(axisNonZeroIndices.get(0)).fst); // added utilities from domain elements
+            if (isIrregular) {
+                // Set the offset vector: DomainElement can compute it only if the axis is regular (max-min/cells)
+                domEl.setOffsetVector(resolution);
+                // TODO: compute the MIN/MAX values looking at the extreme coefficients
+                // ...
+            }
             domainElements.add(domEl);
             log.debug("Added WCPS `domain' element: " + domEl); 
             axisOrder += 1;                

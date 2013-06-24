@@ -81,7 +81,8 @@ public class Wcps {
         wcpsDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
-    public List<byte[]> pcExecute(String url, String database, ProcessCoveragesRequest pcRequest) throws WCPSException {
+    public List<byte[]> pcExecute(String url, String database, ProcessCoveragesRequest pcRequest) 
+            throws WCPSException {
         throw new WCPSException(ExceptionCode.ResourceError, WcpsConstants.ERRTXT_METHOD_NOT_IMPL);
     }
 

@@ -282,8 +282,8 @@ public interface WcpsConstants {
     public static final String MSG_STORE                        = "store";
     public static final String MSG_STRLOW                       = "StrLow";
     public static final String MSG_STRHI                        = "StrHi";
-    public static final String MSG_STRING_CONSTANT               = "stringConstant";
-    public static final String MSG_STRING_IDENTIFIER             = "stringIdentifier";
+    public static final String MSG_STRING_CONSTANT              = "stringConstant";
+    public static final String MSG_STRING_IDENTIFIER            = "stringIdentifier";
     public static final String MSG_SRS_NAME                     = "srsName";
     public static final String MSG_SCALARS                      = "scalars";
     public static final String MSG_TAN                          = "tan";
@@ -354,8 +354,6 @@ public interface WcpsConstants {
     public static final String ERRTXT_COULD_NOT_EVAL_RASDAMAN_Q_P2 = "'\n Cause: ";
     public static final String ERRTXT_COULD_NOT_FIND_ANY_VAR_REF   = "Could not find any variable reference";
     public static final String ERRTXT_COULD_NOT_FIND_AXIS          = "Could not find an axis node";
-    public static final String ERRTXT_COULD_NOT_FIND_COVERAGE_P1   = "Could not find the \"";
-    public static final String ERRTXT_COULD_NOT_FIND_COVERAGE_P2   = "\" axis for coverage";
     public static final String ERRTXT_COULD_NOT_FIND_SRSNAME       = "Could not find a 'srsName' node.";
     public static final String ERRTXT_COULD_NOT_FIND_NODE_QUERY    = "Could not find node <query>: ";
     public static final String ERRTXT_COULD_NOT_FIND_THE_X         = "Could not find the X or Y axis for coverage";

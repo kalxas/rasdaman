@@ -35,9 +35,6 @@ import petascope.wcs2.handlers.RequestHandler;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class KVPDescribeCoverageParser extends KVPParser<DescribeCoverageRequest> {
-    
-    // Keys
-    public static final String KEY_COVERAGEID = "coverageid";  
 
     @Override
     public DescribeCoverageRequest parse(HTTPRequest request) throws WCSException {

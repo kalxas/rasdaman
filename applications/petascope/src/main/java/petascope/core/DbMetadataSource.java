@@ -30,6 +30,7 @@ import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -732,9 +733,14 @@ public class DbMetadataSource implements IMetadataSource {
             while (rs.next()) {
                 log.debug("CRS id: " + rs.getInt(2)); 
                 String uri = crss.get(rs.getInt(2));
+                if (null == uri) {
+                    log.error("No CRS found in " + TABLE_CRS + " with id " + rs.getInt(2) + ".");
+                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                            "No CRS found in " + TABLE_CRS + " with id " + rs.getInt(2) + ".");
+                }
                 log.info("Decoding " + uri + " ...");
                 // If not cached, parse the SECORE-resolved definition ot this CRS
-                CrsDefinition crsDef = CrsUtil.parseGmlDefinition(uri);
+                CrsDefinition crsDef = CrsUtil.getGmlDefinition(uri);
                 for (CrsDefinition.Axis axis : crsDef.getAxes()) {
                     crsAxes.add(Pair.of(axis, uri));
                 }
@@ -954,18 +960,29 @@ public class DbMetadataSource implements IMetadataSource {
                                     ") for coverage '" + coverageName + "'.");
                         }
                                        
-                        // Check if it has coefficients -> is irregular
+                        // Check if it has coefficients -> is irregular 
+                        // At the same time check that the number of coefficients is consistent with the `sdom' of the collection:
+                        cellDimensions = getIndexDomain(rasdamanColl.snd, rasdamanColl.fst, gridAxes.size());
                         sqlQuery =
-                                " SELECT * FROM " + TABLE_VECTOR_COEFFICIENTS   +
-                                " WHERE "         + VECTOR_COEFFICIENTS_AXIS_ID + "=" + axisId +
-                                " LIMIT 1 "
+                                " SELECT COUNT(*) FROM " + TABLE_VECTOR_COEFFICIENTS   +
+                                               " WHERE " + VECTOR_COEFFICIENTS_AXIS_ID + "=" + axisId
                                 ;
                         log.debug("SQL query: " + sqlQuery);
                         rAxis = s.executeQuery(sqlQuery);
                         Boolean isIrregular = false;
                         if (rAxis.next()) {
-                            // this axis has coefficients
-                            isIrregular = true;
+                            int coeffNumber = rAxis.getInt(1);
+                            if (coeffNumber > 0) {
+                                // this axis has coefficients
+                                isIrregular = true;
+                                // check consistency with `sdom'
+                                int sdomCount   = new Integer(petascope.util.StringUtil.getCount(cellDimensions.fst, cellDimensions.snd));
+                                if (coeffNumber != sdomCount) {
+                                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                                            "Coverage '" + coverageName + " has a wrong number of coefficients for axis " + axisId
+                                            + " (" + coeffNumber + ") and is not consistent with its rasdaman `sdom' (" + sdomCount + ").");
+                                }
+                            }
                         }
                         log.trace("Axis " + gridAxes.size() + " of coverage '" + coverageName + 
                                   "' is " + (isIrregular ? "" : "not ") + "irregular.");
@@ -974,8 +991,6 @@ public class DbMetadataSource implements IMetadataSource {
                         gridAxes.put(offsetVector, isIrregular);
                         
                         /* Create CellDomainElement and DomainElement for this axis: */
-                        // Fetch pixel dimensions from rasdaman
-                        cellDimensions = getIndexDomain(rasdamanColl.snd, rasdamanColl.fst, gridAxes.size()-1);
                         // CellDomain
                         cell = new CellDomainElement(
                                 BigInteger.valueOf(Integer.parseInt(cellDimensions.fst)),
@@ -1335,10 +1350,11 @@ public class DbMetadataSource implements IMetadataSource {
                         /* ignore the dimension for the slicePoint if subsetting operation is slicing */
                         if(subset instanceof GetCoverageRequest.DimensionTrim || low.compareTo(high) != 0){
 
-                            if((count+1) != cellDomainList.size())
+                            if((count+1) != cellDomainList.size()) {
                                 tuple += Double.toString(columnValue) + " ";
-                            else
+                            } else {
                                 tuple += Double.toString(columnValue);
+                            }
                         }
                     }else{
                         isInSubset = false;
@@ -1350,17 +1366,15 @@ public class DbMetadataSource implements IMetadataSource {
 
                     String rowID = "p" + (++pointCount) + "_" + coverageName;
 
-                    if(pointMembers!=null)
-
+                    if(pointMembers!=null) {
                       pointMembers += Templates.getTemplate(Templates.MULTIPOINT_POINTMEMBERS,
                       Pair.of("\\{gmlPointId\\}", rowID),
-                      Pair.of("\\{gmlPos\\}", tuple));
-
-                    else
-
+                      Pair.of("\\{gmlPos\\}", tuple));                    
+                    } else {
                       pointMembers = Templates.getTemplate(Templates.MULTIPOINT_POINTMEMBERS,
                       Pair.of("\\{gmlPointId\\}", rowID),
                       Pair.of("\\{gmlPos\\}", tuple));
+                    }
 
                     pointMembers += "\n";
                 }               
@@ -1384,50 +1398,62 @@ public class DbMetadataSource implements IMetadataSource {
         }
     }
     
-    /*
-     * Method to retrieve subset pixel indexes of an irregularly spaced axis.
-     * In case of timestamps, make sure they are in a PSQL-supported format:
-     * http://www.postgresql.org/docs/8.4/static/datatype-datetime.html
-     * @param  covName             Coverage human-readable name
-     * @param  iOrder              Order of the axis in the CRS: to indentify it in case the coverage has 2+ irregular axes.
-     * @param  stringLo            The lower bound of the subset
-     * @param  stringHi            The upper bound of the subset
-     * @return ArrayList<int>   The subset pixel indexes
+    /**
+     * Method to retrieve subset indexes of an irregularly spaced axis, subject to specified bounds.
+     * Bounds must be numeric (timestamps have already been indexed before function call)
+     * @param covName  Coverage human-readable name
+     * @param iOrder   Order of the axis in the CRS: to indentify it in case the coverage has 2+ irregular axes.
+     * @param lo       The lower index of the subset
+     * @param hi       The upper index of the subset
+     * @param min      The lower bound
+     * @param max      The upper bound
+     * @return Index of coefficients which enclose the interval.
+     * @throws PetascopeException 
      */
-    public int[] getIndexFromIrregularAxis(String covName, int iOrder, String stringLo, String stringHi, String castType)
+    public long[] getIndexesFromIrregularRectilinearAxis(String covName, int iOrder, BigDecimal lo, BigDecimal hi, long min, long max)
             throws PetascopeException {
         
-        int[] outCells = new int[2];
+        long[] outCells = new long[2];
         Statement s = null;
         
         try {
             ensureConnection();
             s = conn.createStatement();
             
-            /*ResultSet r = s.executeQuery(
-                    " SELECT MIN(" + TABLE_IRRSERIES + "." + IRRSERIES_CELL +
-                    "), MAX(" + TABLE_IRRSERIES + "." + IRRSERIES_CELL +
-                    ") FROM " + TABLE_COVERAGE + ", " + TABLE_DOMAIN + ", " + TABLE_IRRSERIES +
-                    " WHERE " + TABLE_IRRSERIES + "." + IRRSERIES_AXIS +
-                    " = "   + TABLE_DOMAIN    + "." + DOMAIN_ID +
-                    " AND " + TABLE_DOMAIN   + "." + DOMAIN_COVERAGE +
-                    " = " + TABLE_COVERAGE + "." + COVERAGE_ID +
-                    " AND " + TABLE_COVERAGE + "." + COVERAGE_NAME + "='" + covName + "'" +
-                    " AND " + TABLE_DOMAIN   + "." + DOMAIN_I + "=" + iOrder +
-                    " AND CAST(" + TABLE_IRRSERIES + "." + IRRSERIES_ENDVALUE +
-                    " AS " + castType + ") >= '" + stringLo + "'" +
-                    " AND CAST(" + TABLE_IRRSERIES + "." + IRRSERIES_STARTVALUE +
-                    //" AS " + castType + ") < '" + stringHi + "'");    // [a,b) subsets
-                    " AS " + castType + ") <= '" + stringHi + "'");     // [a,b] subsets
+            String sqlQuery =
+                    " SELECT COALESCE(MIN(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," + min + "), " +
+                           " COALESCE(MAX(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," + max + ") "  + 
+                          " FROM " + TABLE_VECTOR_COEFFICIENTS + ", " 
+                                   + TABLE_GRID_AXIS           + ", "
+                                   + TABLE_COVERAGE            + 
+                         " WHERE " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_AXIS_ID +
+                             " = " + TABLE_GRID_AXIS           + "." + GRID_AXIS_ID +
+                           " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_COVERAGE_ID +
+                             " = " + TABLE_COVERAGE  + "." + COVERAGE_ID +
+                           " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_RASDAMAN_ORDER  + "="  + iOrder  +
+                           " AND " + TABLE_COVERAGE  + "." + COVERAGE_NAME             + "='" + covName + "'" +
+                           " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT 
+                                   + " >= " + lo +
+                           " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
+                                // + " < "  + stringHi  // [a,b) subsets
+                                   + " <= " + hi  // [a,b] subsets
+                    ;
+            log.debug("SQL query : " + sqlQuery);
+            ResultSet r = s.executeQuery(sqlQuery);
             if (r.next()) {
-                outCells[0] = r.getInt(KEYWORD_MIN);
-                outCells[1] = r.getInt(KEYWORD_MAX);
+                outCells[0] = r.getInt(1);
+                outCells[1] = r.getInt(2);
+                if (lo.compareTo(hi) == 0 && outCells[0] == min && outCells[1] == max) {
+                    // Aggregators have been coalesced to boundary values but because there is no intersection on this slice
+                    throw new PetascopeException(ExceptionCode.InvalidRequest,
+                            covName + " does not intersect with slicing point '" + lo + "'."
+                            );
+                }
             } else {
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
-                        "No tuples returned from " + TABLE_IRRSERIES + ": check the metadata.");
+                        "No tuples returned from " + TABLE_VECTOR_COEFFICIENTS + ": check the metadata.");
             }
-             */   
-            
+               
             s.close();
             return outCells;
             
@@ -1447,8 +1473,75 @@ public class DbMetadataSource implements IMetadataSource {
     }
     
     /**
+     * Retrieves the coefficients of an irregular axis of a certain interval
+     * @param covName  Coverage human-readable name
+     * @param iOrder   Order of the axis in the CRS: to indentify it in case the coverage has 2+ irregular axes.
+     * @param lo       The lower index of the subset
+     * @param hi       The upper index of the subset
+     * @return The ordered list of coefficients of the grid points inside the interval.
+     * @throws PetascopeException 
+     */    
+    public List<BigDecimal> getCoefficientsOfInterval(String covName, int iOrder, BigDecimal lo, BigDecimal hi)
+            throws PetascopeException {
+
+        List<BigDecimal> coefficients = new ArrayList<BigDecimal>();
+        Statement s = null;
+        
+        try {
+            ensureConnection();
+            s = conn.createStatement();
+            
+            String sqlQuery =
+                    " SELECT ARRAY_AGG(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT + ") " + 
+                          " FROM " + TABLE_VECTOR_COEFFICIENTS + ", " 
+                                   + TABLE_GRID_AXIS           + ", "
+                                   + TABLE_COVERAGE            + 
+                         " WHERE " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_AXIS_ID +
+                             " = " + TABLE_GRID_AXIS           + "." + GRID_AXIS_ID +
+                           " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_COVERAGE_ID +
+                             " = " + TABLE_COVERAGE  + "." + COVERAGE_ID +
+                           " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_RASDAMAN_ORDER  + "="  + iOrder  +
+                           " AND " + TABLE_COVERAGE  + "." + COVERAGE_NAME             + "='" + covName + "'" +
+                           " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT 
+                                   + " >= " + lo +
+                           " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
+                                // + " < "  + stringHi  // [a,b) subsets
+                                   + " <= " + hi        // [a,b] subsets
+                    ;
+            log.debug("SQL query : " + sqlQuery);
+            ResultSet r = s.executeQuery(sqlQuery);
+            
+            if (r.next()) {
+                // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute},
+                // of indexes 1 and 2 respectively:
+                ResultSet rs = r.getArray(1).getResultSet();
+                while (rs.next()) {
+                    coefficients.add(rs.getBigDecimal(2));
+                }
+                
+                s.close();
+                Arrays.sort(coefficients.toArray());
+            }
+            return coefficients;
+            
+        } catch (SQLException sqle) {
+            /* Abort this transaction */
+            try {
+                if (s != null) {
+                    s.close();
+                }
+                abortAndClose();
+            } catch (SQLException f) {
+                log.warn(f.getMessage());
+            }
+            throw new PetascopeException(ExceptionCode.InvalidRequest,
+                    "Metadata database error", sqle);
+        }
+    }
+    
+    /**
      * Get the lower and upper bound of the specified coverage's dimension in pixel coordinates.
-     * PURPOSE: remove redundant pixel-domain dimensions info in the metadata database.
+     * PURPOSE: remove redundant pixel-domain dimensions info in the petascopedb.
      * @param collName     The coverage name.
      * @param dimType      The dimension of collName of which the extent.
      * @return             The minimum and maximum pixel values of the array.

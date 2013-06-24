@@ -30,6 +30,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.MiscUtil;
 import petascope.util.Pair;
+import petascope.util.XMLSymbols;
 import petascope.util.ras.RasQueryResult;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.GetCoverageMetadata;
@@ -76,21 +77,21 @@ public class GeotiffFormatExtension extends AbstractFormatExtension {
         rsubExt.handle(request, m);       
         
         try {
-            setBounds(request, m, meta);
+            // GetCoverage metadata was initialized with native coverage metadata, but subsets may have changed it:
+            updateGetCoverageMetadata(request, m);
         } catch (PetascopeException pEx) {
             throw pEx;
         }
                 
-        if (m.getGridDimension() != 2 || !(
-                m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE) ||
-                m.getCoverageType().equals(GetCoverageRequest.RECTIFIED_GRID_COVERAGE))) {
+        if (m.getGridDimension() != 2 || 
+                !(m.getCoverageType().matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE))) {
             log.error("Cannot format a GTiff on a " + m.getGridDimension() +"-dimensional grid." );
             throw new WCSException(ExceptionCode.NoApplicableCode, "The GeoTIFF format extension "
                     + "only supports GridCoverage and RectifiedGridCoverage with exactly two dimensions");
         }
         
         Pair<Object, String> p = null;
-        if (m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE)) {
+        if (m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
             // return plain TIFF
             crsProperties = (new MiscUtil()).new CrsProperties();
             p = executeRasqlQuery(request, m, meta, TIFF_ENCODING, crsProperties.toString());

@@ -28,11 +28,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.Pair;
 import petascope.util.WcsUtil;
+import petascope.util.XMLSymbols;
 import petascope.util.ras.RasQueryResult;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcs2.handlers.Response;
@@ -51,7 +53,7 @@ import petascope.wcs2.templates.Templates;
 public class GmlFormatExtension extends AbstractFormatExtension {
 
     private static final Logger log = LoggerFactory.getLogger(GmlFormatExtension.class);
-    public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:";
+    public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:"; // FIXME: now URNs are deprecated
     protected static final String MULTIPOINTSCHEMA = "ps_multipoint";
     protected static final String TAG_DATABLOCK = "DataBlock";
     protected static final String TAG_RANGEPARAMETERS = "rangeParameters";
@@ -76,21 +78,38 @@ public class GmlFormatExtension extends AbstractFormatExtension {
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
         rsubExt.handle(request, m);
         
-        if (m.getCoverageType().equals(GetCoverageRequest.MULTIPOINT_COVERAGE)) {
+        if (m.getCoverageType().equals(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)) {
             Response r = handleMultiPoint(request, request.getCoverageId(), meta, m);
             String xml = r.getXml();
             return new Response(r.getData(), xml, r.getMimeType());
-        }
-       
-        try {
-            setBounds(request, m, meta);
-        } catch (PetascopeException pEx) {
-            throw pEx;
-        }
-        
-        String gml = WcsUtil.getGML(m, Templates.GRID_COVERAGE, true);
-        gml = addCoverageData(gml, request, meta, m);
-        return new Response(gml);
+            
+        } else if (m.getCoverageType().matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE)) {
+            
+            // Use the GridCoverage template, which works with any subtype of AbstractGridCoverage via the {domainSetaddition}            
+            try {
+                // GetCoverage metadata was initialized with native coverage metadata, but subsets may have changed it:
+                updateGetCoverageMetadata(request, m);
+            } catch (PetascopeException pEx) {
+                throw pEx;
+            }
+            
+            String gml = WcsUtil.getGML(m, Templates.GRID_COVERAGE, true);
+            gml = addCoverageData(gml, request, meta, m);
+            
+            // RGBV coverages
+            if (m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
+                gml = addCoefficients(gml, m);
+                // Grid and Coverage bounds need to be updated: there was coefficient knowledge before 
+                updateGetCoverageMetadata(request, m);
+                gml = WcsUtil.getBounds(gml, m);
+                
+            }
+            return new Response(gml);
+            
+        } else {            
+            throw new WCSException(ExceptionCode.UnsupportedCoverageConfiguration,
+                    "The coverage type '" + m.getCoverageType() + "' is not supported.");                    
+        }                
     }
     
     protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, GetCoverageMetadata m) 
@@ -108,6 +127,26 @@ public class GmlFormatExtension extends AbstractFormatExtension {
         return gml;
     }
 
+    /**
+     * Add the coefficients in a gmlrgrid:ReferenceableGridByVectors.
+     * They are not known at the time of initializing the GML output, but only after processing
+     * the coverage data (see petascope.wcps.server.core.crs and DbMetadataSource.getCoefficientsOfInterval()).
+     * @param gml  The GML output already filled with data and metadata.
+     * @param m    The metadata specific to the WCS GetCoverage request
+     * @return GML where {coefficients} have been replaced with real values.
+     * @throws WCSException
+     * @throws PetascopeException 
+     */
+    protected String addCoefficients(String gml, GetCoverageMetadata m) 
+            throws WCSException, PetascopeException {
+        String[] axisNames = m.getAxisLabels().split(" ");
+        // Loop through the N dimensions (rely on order)
+        for (int i = 0; i < axisNames.length; i++) {
+            gml = gml.replaceFirst("\\{" + Templates.KEY_COEFFICIENTS + "\\}", WcsUtil.getCoefficients(m, axisNames[i]));
+        }
+        return gml;
+    }
+    
     /**
      * Handles a request for MultiPoint Coverages and returns a response XML
      * @param req

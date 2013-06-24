@@ -263,7 +263,7 @@ $$
                 cget('TABLE_PS9_VECTOR_COEFFICIENTS'),   -- table
                 cget('PS9_VECTOR_COEFFICIENTS_VALUE'),   -- numeric column to check
                 ' WHERE ' || cget('PS9_VECTOR_COEFFICIENTS_ID') || ' = ' || NEW.grid_axis_id, -- select /this/ axis
-                cget('VECTOR_COEFFICIENTS_ORDER')    -- order-by column
+                cget('PS9_VECTOR_COEFFICIENTS_ORDER')    -- order-by column
             )), true)) -- is_strict
             THEN RAISE EXCEPTION '%: last inserted coefficient (%) is not valid. ''%'' must be in a strictly increasing sequence.', 
                                  ME, NEW.coefficient, cget('PS9_VECTOR_COEFFICIENTS_VALUE');

@@ -170,7 +170,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
             Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
             CoverageMetadata metadata = new CoverageMetadata(
                     coverageName,
-                    Templates.RECTIFIED_GRID_COVERAGE,
+                    Templates.GRID_ORIGIN,
                     "", // native format
                     emptyMetadata,
                     crs,

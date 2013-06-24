@@ -28,22 +28,22 @@ package petascope.util;
  */
 public interface KVPSymbols {
     
-    String KEY_COVERAGEID = "coverageid";
-    String KEY_VERSION = "version";
-    String KEY_MEDIATYPE = "mediatype";
-    String KEY_FORMAT = "format";
-    String KEY_SUBSETCRS = "subsettingcrs";
-    String KEY_OUTPUTCRS = "outputcrs";
-    String KEY_SCALEFACTOR = "scalefactor";
-    String KEY_SCALEAXES = "scaleaxes";
-    String KEY_SCALESIZE = "scalesize";
-    String KEY_SCALEEXTENT = "scaleextent";
-    String KEY_RANGESUBSET = "rangesubset";
-    String KEY_SUBSET = "subset";
-    String KEY_REQUEST = "request";
-    String KEY_SERVICE = "service";
-    String KEY_ACCEPTVERSIONS = "acceptversions";
-    String KEY_ACCEPTFORMATS = "acceptformats";
-    String KEY_ACCEPTLANGUAGES = "acceptlanguages";
+    String KEY_ACCEPTFORMATS       = "acceptformats";
+    String KEY_ACCEPTLANGUAGES     = "acceptlanguages";
+    String KEY_ACCEPTVERSIONS      = "acceptversions";   
+    String KEY_COVERAGEID          = "coverageid";
+    String KEY_FORMAT              = "format";
+    String KEY_MEDIATYPE           = "mediatype";
+    String KEY_OUTPUTCRS           = "outputcrs";
+    String KEY_RANGESUBSET         = "rangesubset";
+    String KEY_REQUEST             = "request";
+    String KEY_SCALEAXES           = "scaleaxes";
+    String KEY_SCALEEXTENT         = "scaleextent";
+    String KEY_SCALEFACTOR         = "scalefactor";
+    String KEY_SCALESIZE           = "scalesize";
+    String KEY_SUBSETCRS           = "subsettingcrs";
+    String KEY_SERVICE             = "service";
+    String KEY_SUBSET              = "subset";
+    String KEY_VERSION             = "version";
     
 }
