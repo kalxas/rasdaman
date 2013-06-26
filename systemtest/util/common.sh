@@ -62,7 +62,13 @@ export RASQL="rasql --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADM
               --passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
 export RASCONTROL="rascontrol --host $RASMGR_HOST --port $RASMGR_PORT"
 export RASDL="rasdl -d $RASDB"
-export PSQL="psql -d $PS_DB --port $PS_PORT"
+
+# check connection itself
+export PGSQL="psql -d $RASDB --host $PG_HOST --port $PG_PORT"
+
+# check for petascope
+export PSQL="psql -d $PS_DB --host $PG_HOST --port $PG_PORT"
+
 export WGET="wget"
 export GDALINFO="gdalinfo -noct -checksum"
 
@@ -153,13 +159,9 @@ function check_postgres()
   if [ $? -ne 0 ]; then
     pgrep postmaster > /dev/null || error "The PostgreSQL service is not started."
   fi
-  $PSQL --list > /dev/null 2>&1
+  $PGSQL --list > /dev/null 2>&1
   if [ $? -eq 2 ]; then
-    error "Wrong PostgreSQL credentials for user $PS_USER"
-  fi
-  $PSQL --list | egrep "\b$PS_DB\b" > /dev/null
-  if [ $? -ne 0 ]; then
-    error "No petascope database present, please install petascope first."
+    error "Wrong PostgreSQL credentials for current user"
   fi
 }
 
@@ -173,6 +175,10 @@ function check_wget()
 
 function check_petascope()
 {
+  $PSQL --list | egrep "\b$PS_DB\b" > /dev/null
+  if [ $? -ne 0 ]; then
+    error "No petascope database present, please install petascope first."
+  fi
   $WGET -q $WCPS_URL -O /dev/null
   if [ $? -ne 0 ]; then
     error "failed connecting to petascope at $WCPS_URL, please deploy it first."
