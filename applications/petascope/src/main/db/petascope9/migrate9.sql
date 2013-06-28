@@ -314,7 +314,9 @@ $$
         -- Determine the origin of the gridded coverage
         -- NOTE: coverage model is currently pixel-based, and not point-based
         --       but the origin is a point and should be in the centre of the pixel instead = numlo + 0.5*res
-        _qry := ' SELECT ARRAY[' || cget('PS_DOMAIN_NUMLO')    || '] AS row ' ||
+        _qry := ' SELECT ARRAY[(CASE ' || cget('PS_DOMAIN_NAME')  || ' WHEN ''y'' '   ||
+                              ' THEN ' || cget('PS_DOMAIN_NUMHI') ||
+                              ' ELSE ' || cget('PS_DOMAIN_NUMLO') || ' END)] AS row ' ||
                         ' FROM ' || cget('TABLE_PS_DOMAIN')    || 
                        ' WHERE ' || cget('PS_DOMAIN_COVERAGE') || '=' || _coverage_id ||
                     ' ORDER BY ' || cget('PS_DOMAIN_I')        || ' ASC';
@@ -335,8 +337,9 @@ $$
         -- Get the resolution (offset vectors) of each axis of this coverage [DIM,i,res]
         _qry := ' SELECT ARRAY[' || '(SELECT COUNT(' || cget('PS_DOMAIN_I')        || ') FROM ' || cget('TABLE_PS_DOMAIN')
                                  ||        ' WHERE ' || cget('PS_DOMAIN_COVERAGE') ||    '='    || _coverage_id || '),'
-                                 || cget('TABLE_PS_DOMAIN')  || '.' || cget('PS_DOMAIN_I') || ','  ||
-                            '((' || cget('PS_DOMAIN_NUMHI')  || '-' || cget('PS_DOMAIN_NUMLO')     || ') / '          ||
+                                 || cget('TABLE_PS_DOMAIN')  || '.' || cget('PS_DOMAIN_I')      || ','  ||
+                       '((-1^((' || cget('TABLE_PS_DOMAIN')  || '.' || cget('PS_DOMAIN_NAME')   || '=''y'')::int)) * '
+                            ' (' || cget('PS_DOMAIN_NUMHI')  || '-' || cget('PS_DOMAIN_NUMLO')     || ') / '          ||
                              '(' || cget('PS_CELLDOMAIN_HI') || '-' || cget('PS_CELLDOMAIN_LO')    || '+1))] AS row ' ||
                         ' FROM ' || cget('TABLE_PS_DOMAIN')     || ',' || cget('TABLE_PS_CELLDOMAIN')    || 
                        ' WHERE ' || cget('TABLE_PS_DOMAIN')     || '.' || cget('PS_DOMAIN_COVERAGE')     || '=' || _coverage_id || 

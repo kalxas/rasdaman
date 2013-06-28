@@ -135,6 +135,7 @@ $$
     SELECT cset('TABLE_PS_DOMAIN',               cget('PS_PREFIX') || '_domain');
           SELECT cset('PS_DOMAIN_ID',           'id');
           SELECT cset('PS_DOMAIN_COVERAGE',     'coverage');
+          SELECT cset('PS_DOMAIN_NAME',         'name');
           SELECT cset('PS_DOMAIN_NUMLO',        'numlo');
           SELECT cset('PS_DOMAIN_NUMHI',        'numhi');
           SELECT cset('PS_DOMAIN_I',            'i');
