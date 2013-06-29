@@ -64,10 +64,10 @@ export RASCONTROL="rascontrol --host $RASMGR_HOST --port $RASMGR_PORT"
 export RASDL="rasdl -d $RASDB"
 
 # check connection itself
-export PGSQL="psql -d $RASDB --host $PG_HOST --port $PG_PORT"
+export PGSQL="psql -d $RASDB --port $PG_PORT"
 
 # check for petascope
-export PSQL="psql -d $PS_DB --host $PG_HOST --port $PG_PORT"
+export PSQL="psql -d $PS_DB --port $PG_PORT"
 
 export WGET="wget"
 export GDALINFO="gdalinfo -noct -checksum"
