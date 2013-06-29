@@ -434,8 +434,6 @@ $$
         -- If >1 MDD per collection, I raise a warning: must be only one per /coverage/ (the lower one is taken)
         FOR _tup IN EXECUTE _qry LOOP
 
-            SELECT * FROM pgstattuple('pg_catalog.pg_proc'); -- DEBUG
-
             -- If more than 1 OID send WARNING but the continue
             IF _first_oid IS NOT NULL THEN
                 _log := 'collection ' || coverage_name || ' has multiple MDDs: only OID ' 
