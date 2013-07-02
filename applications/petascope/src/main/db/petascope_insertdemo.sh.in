@@ -209,7 +209,7 @@ fi
 #
 logn "  inserting into petascope... "
 id=`$PSQL -c "select id from PS_Coverage where name = '$c' " | head -3 | tail -1`
-if [ "$id" == "(0 rows)" ]; then
+if [ "$id" == \(0*\) ]; then
   $PSQL -c "insert into PS_Coverage (name, nulldefault, interpolationtypedefault, nullresistancedefault, type) values ( '$c','0', 5, 2, 'RectifiedGridCoverage')" > /dev/null
   c_id=$($PSQL -c  "select id from PS_Coverage where name = '$c' " | head -3 | tail -1) > /dev/null
   $PSQL -c "insert into PS_CellDomain (coverage, i, lo, hi )  values ( $c_id, 0, 0, 885)" > /dev/null
