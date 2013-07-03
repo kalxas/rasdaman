@@ -166,9 +166,15 @@ BLOBTile::BLOBTile(const OId& id, r_Bytes newSize, r_Data_Format newFmt)
 BLOBTile::~BLOBTile()
 {
     RMDBGENTER(3, RMDebug::module_blobif, "BLOBTile", "~BLOBTile() " << myOId);
-    // unsigned long int addr = (unsigned long int) this;
-    // RMInit::logOut << "BLOBTile::~BLOBTile( "  << myOId << ", ptr = " << addr << " )" << endl;
-    validate();
+    if (TileCache::cacheLimit == 0)
+    {
+        validateReal();
+        destroyReal();
+    }
+    else
+    {
+        validate();
+    }
     RMDBGEXIT(3, RMDebug::module_blobif, "BLOBTile", "~BLOBTile() " << myOId << ")");
 }
 
