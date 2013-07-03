@@ -187,6 +187,7 @@ void TileCache::remove(KeyType key)
             cacheSize -= tile->getSize();
             removeValue(tile);
             tile->validateReal();
+            tile->destroyReal();
             delete tile;
         }
         cache.erase(key);
@@ -229,6 +230,7 @@ void TileCache::clear()
         TTALK("TileCache::clear() - removing key " << it->first);
         BLOBTile* tile = it->second;
         tile->validateReal();
+        tile->destroyReal();
         delete tile;
     }
     cache.clear();
@@ -242,16 +244,17 @@ void TileCache::readjustCache()
     TENTER("TileCache::readjustCache( cache size = " << cacheSize << ", cache limit = " << cacheLimit << " )"); 
     if (cacheSize > cacheLimit)
     {
-        long count = 0;
-        TTALK("freeing up space from cache...");
-        while (cacheSize > cacheLimit && lru.size() > 0)
-        {
-            BLOBTile* tile = lru.back();
-            lru.pop_back();
-            remove(tile->myOId);
-            ++count;
-        }
-        TTALK("removed " << count << " blobs from cache.");
+        clear();
+//        long count = 0;
+//        TTALK("freeing up space from cache...");
+//        while (cacheSize > cacheLimit && lru.size() > 0)
+//        {
+//            BLOBTile* tile = lru.back();
+//            lru.pop_back();
+//            remove(tile->myOId);
+//            ++count;
+//        }
+//        TTALK("removed " << count << " blobs from cache.");
     }
     TLEAVE("TileCache::readjustCache()");  
 }
