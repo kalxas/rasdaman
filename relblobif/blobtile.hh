@@ -40,9 +40,9 @@ class OId;
 class r_Error;
 
 #include "dbtile.hh"
-#include "raslib/mddtypes.hh"
 #include "tilecache.hh"
-#include "test/test_tilecache.hh"
+#include "tilecachevalue.hh"
+#include "raslib/mddtypes.hh"
 
 //@ManMemo: Module: {\bf relblobif}.
 
@@ -131,23 +131,6 @@ public:
     delete the blobtile and range consecutive tiles.
     */
 
-    static void killReal(const OId& target, unsigned int range = 0);
-    /*@Doc:
-    delete a blobtile without loading it first into memory.
-    is used by the indexes.
-    delete the blobtile and range consecutive tiles.
-    */
-    
-    BLOBTile* clone();
-    /*@Doc:
-     return a clone of this blobtile
-    */
-    
-    void from(BLOBTile* tile);
-    /*@Doc:
-     reconstruct from tile
-    */
-
     static r_Bytes BLOBBufferLength;
     /*@Doc:
     info on the length of the BLOBBuffer
@@ -175,42 +158,18 @@ protected:
     deletes a blob from TILES, sets size to 0 and flags to -1
     */
 
-    virtual void updateInDbReal() throw (r_Error);
+    static void writeCachedToDb(CacheValue* value);
     /*@Doc:
-    update the contents of a Tile in the db
+     write cached data to the database
     */
-
-    virtual void insertInDbReal() throw (r_Error);
-    /*@Doc:
-    inserts the Blob into the db.
-    */
-
-    virtual void readFromDbReal() throw (r_Error);
-    /*@Doc:
-    read blob from db into blobtile
-    */
-
-    virtual void deleteFromDbReal() throw (r_Error);
-    /*@Doc:
-    deletes a blob from TILES, sets size to 0 and flags to -1
-    */
-
-    void validateReal() throw (r_Error);
-    /*@Doc:
-    writes the object to database/deletes it or updates it.
-    any r_Errors from insertInDb, updateInDb, deleteFromDb, readFromDb are passed to the
-    caller.
-    */
-    
-    void destroyReal() throw (r_Error);
 
 private:
     static char* BLOBBuffer;
     /*@Doc:
     for writing into the DB.  currently not needed by oracle.
     */
+    
     friend class TileCache;
-    friend class TileCacheTest;
 };
 
 #endif

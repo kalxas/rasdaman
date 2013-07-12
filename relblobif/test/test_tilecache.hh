@@ -26,41 +26,4 @@ rasdaman GmbH.
 #include <vector>
 #include "reladminif/oidif.hh"
 
-/**
- * Test tile caching.
- * 
- * @author Dimitar Misev
- */
-class TileCacheTest {
-public:
-    /// constructor
-    TileCacheTest();
-
-    /// insert a number of blobs
-    void insertBlobs();
-    
-    /// insert more blobs (over cache limit) so that cache readjustments kicks in
-    void insertBlobsReadjust();
-    
-    /// remove all blobs from the cache
-    void removeBlobs();
-    
-    /// permanently delete all blobs created in this test
-    void deleteBlobs();
-    
-    /// get the blobs created in this test
-    void getBlobs();
-    
-    /// test cache clearing
-    void clearCache();
-
-private:
-    
-    /// a list of the blob oids that are created during the test
-    std::vector<OId> oids;
-
-    /// helper for creating a new blob
-    BLOBTile* createBlob();
-};
-
 #endif

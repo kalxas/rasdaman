@@ -52,11 +52,6 @@ static const char rcsid[] = "@(#)blobif,DBTile: $Id: dbtile.cc,v 1.12 2005/09/03
 #include <cstring>
 #include <vector>
 
-#ifdef BASEDB_ORACLE
-#include <oratypes.h>
-#include <oci.h>
-#include <sqlca.h>
-#endif
 
 
 r_Data_Format
@@ -283,12 +278,12 @@ DBTile::DBTile(const OId& id) throw (r_Error)
 DBTile::~DBTile()
 {
     RMDBGENTER(3, RMDebug::module_blobif, "DBTile", "~DBTile() " << myOId);
-//    if (cells)
-//    {
-//        TALK( "DBTile::~DBTile() freeing blob cells" );
-//        free(cells);
-//    }
-//    cells = NULL;
+    if (cells)
+    {
+        TALK( "DBTile::~DBTile() freeing blob cells" );
+        free(cells);
+    }
+    cells = NULL;
     RMDBGEXIT(3, RMDebug::module_blobif, "DBTile", "~DBTile() " << myOId);
 }
 

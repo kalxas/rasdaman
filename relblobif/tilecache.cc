@@ -23,32 +23,10 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "tilecache.hh"
-#include "raslib/rmdebug.hh"
-#include "debug/debug-srv.hh"
 
 #include <algorithm>
 
-//#define DEBUG_CACHE
-
-#define OID_KEY(key) (key.getCounter())
-
-#ifdef DEBUG_CACHE
-    #define TENTER(msg) RMInit::logOut << "ENTER " << msg << endl;
-#else
-    #define TENTER(msg) ENTER(msg);
-#endif
-
-#ifdef DEBUG_CACHE
-    #define TLEAVE(msg) RMInit::logOut << "LEAVE " << msg << endl;
-#else
-    #define TLEAVE(msg) LEAVE(msg);
-#endif
-
-#ifdef DEBUG_CACHE
-    #define TTALK(msg) RMInit::logOut << "  " << msg << endl;
-#else
-    #define TTALK(msg) TALK(msg);
-#endif
+using namespace std;
 
 CacheType TileCache::cache;
 CacheLRU TileCache::lru;
@@ -56,72 +34,20 @@ CacheLRU TileCache::lru;
 long TileCache::cacheLimit = 0L;
 long TileCache::cacheSize = 0L;
 
-bool TileCache::insert(KeyType key, ValueType value)
+void TileCache::insert(KeyType key, ValueType value)
 {
     if (key == 0)
     {
         // invalid key
-        return false;
+        return;
     }
     
     TENTER("TileCache::insert( " << key << " )");
     
-    bool ret = false;
-    BLOBTile* tileToCache = value;
-    printBlob(tileToCache, "tile to cache");
-    if (!contains(key))
+    CacheValue* tileToCache = value;
+    if (contains(key))
     {
-        BLOBTile* cached = tileToCache->clone();
-        printBlob(cached, "cloned tile to be cached");
-        cache.insert(CachePairType(key, cached));
-        updateValue(cached);
-        cacheSize += cached->getSize();
-        readjustCache();
-        ret = true;
-    }
-    else
-    {
-        BLOBTile* tile = cache[key];
-        if (tile == NULL)
-        {
-            RMInit::logOut << "Error: cached NULL value!" << endl;
-            remove(key);
-        }
-        else if (tile == tileToCache)
-        {
-            BLOBTile* cloned = tileToCache->clone();
-            update(key, cloned, false);
-        }
-        else
-        {
-            tile->from(tileToCache);
-            printBlob(tile, "cached tile");
-            updateValue(tile);
-        }
-        TTALK("already inserted");
-    }
-    TLEAVE("TileCache::insert()");
-    return ret;
-}
-
-bool TileCache::update(KeyType key, ValueType value, bool deleteTile)
-{
-    if (key == 0)
-    {
-        return false;
-    }
-    TENTER("TileCache::update( " << key << " )");
-    
-    bool ret = false;
-    BLOBTile* tileToCache = value;
-    printBlob(tileToCache, "tile to cache");
-    if (!contains(key))
-    {
-        insert(key, value);
-    }
-    else
-    {
-        BLOBTile* tile = cache[key];
+        CacheValue* tile = cache[key];
         if (tile == NULL)
         {
             RMInit::logOut << "Error: cached NULL value!" << endl;
@@ -129,31 +55,27 @@ bool TileCache::update(KeyType key, ValueType value, bool deleteTile)
         }
         else
         {
-            cache.erase(key);
-            removeValue(tile);
             cacheSize -= tile->getSize();
-            printBlob(tile, "removed tile");
-            tile->_isModified = false;
-            if (deleteTile)
-            {
-                delete tile;
-            }
-            
-            cache.insert(CachePairType(key, tileToCache));
-            updateValue(tileToCache);
-            cacheSize += tileToCache->getSize();
-            readjustCache();
+            updateValue(tile);
+            cache.erase(key);
+            delete tile;
         }
         TTALK("already inserted");
     }
-    TLEAVE("TileCache::update()");
-    return ret;
+    
+    cache.insert(CachePairType(key, tileToCache));
+    TTALK("inserted to cache, check if contains = " << contains(key));
+    updateValue(tileToCache);
+    cacheSize += tileToCache->getSize();
+    readjustCache();
+    
+    TLEAVE("TileCache::insert()");
 }
 
 ValueType TileCache::get(KeyType key)
 {
     TENTER("TileCache::get( " << key << " )");
-    BLOBTile* ret = NULL;
+    CacheValue* ret = NULL;
     if (contains(key))
     {
         ret = cache[key];
@@ -172,23 +94,23 @@ ValueType TileCache::get(KeyType key)
 
 bool TileCache::contains(KeyType key)
 {
-    return cache.find(key) != cache.end();
+    bool ret = cache.find(key) != cache.end();
+    TTALK("TileCache::contains( " << key << " = " << ret << " )");
+    return ret;
 }
 
-void TileCache::remove(KeyType key)
+ValueType TileCache::remove(KeyType key)
 {
     TENTER("TileCache::remove( " << key << " )");
+    CacheValue* ret = NULL;
     if (contains(key))
     {
-        BLOBTile* tile = cache[key];
-        if (tile != NULL)
+        ret = cache[key];
+        if (ret != NULL)
         {
-            printBlob(tile, "tile to remove from cache");
-            cacheSize -= tile->getSize();
-            removeValue(tile);
-            tile->validateReal();
-            tile->destroyReal();
-            delete tile;
+            cacheSize -= ret->getSize();
+            removeValue(ret);
+            BLOBTile::writeCachedToDb(ret);
         }
         cache.erase(key);
     }
@@ -197,27 +119,7 @@ void TileCache::remove(KeyType key)
         TTALK("key not found");
     }
     TLEAVE("TileCache::remove()");
-}
-
-void TileCache::removeKey(KeyType key)
-{
-    TENTER("TileCache::remove( " << key << " )");
-    if (contains(key))
-    {
-        BLOBTile* tile = cache[key];
-        if (tile != NULL)
-        {
-            printBlob(tile, "tile to remove from cache");
-            cacheSize -= tile->getSize();
-            removeValue(tile);
-        }
-        cache.erase(key);
-    }
-    else
-    {
-        TTALK("key not found");
-    }
-    TLEAVE("TileCache::remove()");
+    return ret;
 }
 
 void TileCache::clear()
@@ -228,48 +130,50 @@ void TileCache::clear()
     for (it_type it = cache.begin(); it != cache.end(); it++)
     {
         TTALK("TileCache::clear() - removing key " << it->first);
-        BLOBTile* tile = it->second;
-        tile->validateReal();
-        tile->destroyReal();
-        delete tile;
+        CacheValue* value = it->second;
+        BLOBTile::writeCachedToDb(value);
     }
     cache.clear();
     lru.clear();
     cacheSize = 0;
+    
     TLEAVE("TileCache::clear()");
 }
 
 void TileCache::readjustCache()
 {
-    TENTER("TileCache::readjustCache( cache size = " << cacheSize << ", cache limit = " << cacheLimit << " )"); 
+    TENTER("TileCache::readjustCache( cache size = " << cacheSize << ", cache limit = " << cacheLimit << " )");
     if (cacheSize > cacheLimit)
     {
-        clear();
-//        long count = 0;
-//        TTALK("freeing up space from cache...");
-//        while (cacheSize > cacheLimit && lru.size() > 0)
-//        {
-//            BLOBTile* tile = lru.back();
-//            lru.pop_back();
-//            remove(tile->myOId);
-//            ++count;
-//        }
-//        TTALK("removed " << count << " blobs from cache.");
+        long count = 0;
+        TTALK("freeing up space from cache...");
+        while (cacheSize > cacheLimit && lru.size() > 0)
+        {
+            CacheValue* value = lru.back();
+            lru.pop_back();
+            remove(value->getOId().getCounter());
+            ++count;
+        }
+        TTALK("removed " << count << " blobs from cache.");
     }
-    TLEAVE("TileCache::readjustCache()");  
+    TLEAVE("TileCache::readjustCache()");
 }
 
 void TileCache::updateValue(ValueType value)
 {
+    TENTER("TileCache::updateValue()");
     CacheLRU::iterator pos = std::find(lru.begin(), lru.end(), value);
     if (pos != lru.end())
     {
+        TTALK("moving to beginning of LRU list.");
         lru.splice(lru.begin(), lru, pos);
     }
     else
     {
+        TTALK("inserting at beginning of LRU list.");
         lru.insert(lru.begin(), value);
     }
+    TLEAVE("TileCache::updateValue()");
 }
 
 void TileCache::removeValue(ValueType value)
@@ -281,14 +185,9 @@ void TileCache::removeValue(ValueType value)
     }
 }
 
-bool TileCache::insert(OId& key, ValueType value)
+void TileCache::insert(OId& key, ValueType value)
 {
-    return insert(OID_KEY(key), value);
-}
-
-bool TileCache::update(OId& key, ValueType value)
-{
-    return update(OID_KEY(key), value);
+    insert(OID_KEY(key), value);
 }
 
 ValueType TileCache::get(OId& key)
@@ -301,30 +200,7 @@ bool TileCache::contains(OId& key)
     return contains(OID_KEY(key));
 }
 
-void TileCache::remove(OId& key)
+ValueType TileCache::remove(OId& key)
 {
     remove(OID_KEY(key));
-}
-
-void TileCache::removeKey(OId& key)
-{
-    removeKey(OID_KEY(key));
-}
-
-void
-TileCache::printBlob(BLOBTile* tile, char *msg)
-{
-#ifdef DEBUG_CACHE
-    unsigned long int addr = (unsigned long int) tile;
-    
-    RMInit::logOut << " -> " << msg << endl;
-    RMInit::logOut << "    ptr        " << addr << endl;
-    RMInit::logOut << "    oid        " << tile->myOId << endl;
-    RMInit::logOut << "    size       " << tile->size << endl;
-    RMInit::logOut << "    modified   " << tile->_isModified << endl;
-    RMInit::logOut << "    cached     " << tile->_isCached << endl;
-    RMInit::logOut << "    in db      " << tile->_isInDatabase << endl;
-    RMInit::logOut << "    persistent " << tile->_isPersistent << endl;
-    RMInit::logOut << "" << endl;
-#endif
 }
