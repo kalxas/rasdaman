@@ -430,7 +430,6 @@ openDatabase() throw (r_Error)
         server = new ServerComm(300, 120, 7013, (char*) serverName, 7001, "NT1");
 
 
-        AdminIf* myAdmin = AdminIf::instance();
         database.open(baseName);
 
         //ta.begin( &database );
@@ -438,8 +437,9 @@ openDatabase() throw (r_Error)
         r = new ServerComm::ClientTblElt("rasadmin", 2);
         server->addClientTblEntry (r);
         accessControl.setServerName("NT1");
-        accessControl.crunchCapability("$I1$ER.$BRASBASE$T1:3:2008:23:39:24$NNT1$D983893f406445a922cba0301bc5a85ec$K");
         server->openDB(2, baseName, "rasadmin");
+        AdminIf* myAdmin = AdminIf::instance();
+        accessControl.crunchCapability("$I1$EW.$BRASBASE$T1:3:2008:23:39:24$NNT1$D67ad694a78d58682e483328bbd549ca5$K");
         SET_OUTPUT(TRUE);
 
         TALK( "ok" );
