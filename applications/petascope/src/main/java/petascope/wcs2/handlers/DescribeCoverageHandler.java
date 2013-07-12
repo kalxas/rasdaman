@@ -26,7 +26,6 @@ import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.DescribeCoverageRequest;
 import nu.xom.Document;
 import petascope.util.XMLUtil;
-import petascope.wcs2.extensions.AbstractFormatExtension;
 import petascope.wcs2.templates.Templates;
 import java.io.IOException;
 import petascope.exceptions.ExceptionCode;
@@ -39,7 +38,6 @@ import petascope.util.WcsUtil;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import static petascope.util.XMLSymbols.*;
 import static petascope.util.XMLUtil.*;
-import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcs2.extensions.FormatExtension;
 
 /**
@@ -56,7 +54,7 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
     }
 
     @Override
-    public Response handle(DescribeCoverageRequest request) throws WCSException {
+    public Response handle(DescribeCoverageRequest request) throws WCSException, PetascopeException {
         
         Document ret = constructDocument(LABEL_COVERAGE_DESCRIPTIONS, NAMESPACE_WCS);
         Element root = ret.getRootElement();
@@ -69,6 +67,11 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
                 GetCoverageRequest tmp = new GetCoverageRequest(coverageId);
                 GetCoverageMetadata m = new GetCoverageMetadata(tmp, meta);
                 descr = WcsUtil.getGML(m, Templates.COVERAGE_DESCRIPTION, true);
+                // RGBV coverages
+                if (m.getCoverageType().equals(LABEL_REFERENCEABLE_GRID_COVERAGE)) {
+                    descr = WcsUtil.addCoefficients(descr, m);
+                    descr = WcsUtil.getBounds(descr, m);
+                }
             } catch (WCSException ex) {
                 if (ex.getExceptionCode().getExceptionCode().equals(ExceptionCode.NoSuchCoverage.getExceptionCode())) {
                     if (exc == null) {
@@ -78,6 +81,8 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
                         code.setLocator(code.getLocator() + " " + ex.getExceptionCode().getLocator());
                     }
                 }
+            } catch (PetascopeException ex) {
+                throw ex;
             }
             if (exc != null) {
                 continue;

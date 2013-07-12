@@ -221,8 +221,7 @@ public class ListUtil {
                 if (((BigDecimal)a.get(i)).compareTo((BigDecimal)el) >= 0) {
                     return i;
                 }
-            }
-            
+            }            
         } else {
             for (int i=0; i < a.size(); i++) {
                 if (a.get(i).doubleValue() >= el.doubleValue()) {
@@ -232,6 +231,6 @@ public class ListUtil {
         }
         
         // "el" was outside bounds
-        return a.size();
+        return a.size()-1;
     }
 }

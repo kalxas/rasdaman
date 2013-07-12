@@ -244,8 +244,7 @@ public class WcsUtil {
                 Pair.of("\\{" + Templates.KEY_AXISLABELS          + "\\}", m.getAxisLabels()),
                 Pair.of("\\{" + Templates.KEY_GRIDTYPE            + "\\}", m.getGridType()),
                 Pair.of("\\{" + Templates.KEY_SRSGROUP            + "\\}", getSrsGroup(m)),
-                Pair.of("\\{" + Templates.KEY_SRSNAME             + "\\}", getSrsName(m)),
-                
+                Pair.of("\\{" + Templates.KEY_SRSNAME             + "\\}", getSrsName(m)),                
                 Pair.of("\\{" + Templates.KEY_METADATA            + "\\}", gmlcovFormattedMetadata));
 
         // RGBV need to replace bounds after knowledge of the retrieved coefficients
@@ -286,7 +285,7 @@ public class WcsUtil {
                  .replaceAll("\\{" + Templates.KEY_HIGH        + "\\}", m.getHigh())
                  .replaceAll("\\{" + Templates.KEY_AXISLABELS  + "\\}", m.getAxisLabels())
                  .replaceAll("\\{" + Templates.KEY_LOWERCORNER + "\\}", m.getDomLow())
-                 .replaceAll("\\{" + Templates.KEY_UPPERCORNER      + "\\}", m.getDomHigh());
+                 .replaceAll("\\{" + Templates.KEY_UPPERCORNER + "\\}", m.getDomHigh());
         return gml;
     }
     
@@ -360,6 +359,26 @@ public class WcsUtil {
         }
         return coefficients;
     }
+        
+    /**
+     * Add the coefficients in a gmlrgrid:ReferenceableGridByVectors.
+     * They are not known at the time of initializing the GML output, but only after processing
+     * the coverage data (see petascope.wcps.server.core.crs and DbMetadataSource.getCoefficientsOfInterval()).
+     * @param gml  The GML output already filled with data and metadata.
+     * @param m    The metadata specific to the WCS GetCoverage request
+     * @return GML where {coefficients} have been replaced with real values.
+     * @throws WCSException
+     * @throws PetascopeException 
+     */
+    public static String addCoefficients(String gml, GetCoverageMetadata m) 
+            throws WCSException, PetascopeException {
+        String[] axisNames = m.getAxisLabels().split(" ");
+        // Loop through the N dimensions (rely on order)
+        for (int i = 0; i < axisNames.length; i++) {
+            gml = gml.replaceFirst("\\{" + Templates.KEY_COEFFICIENTS + "\\}", WcsUtil.getCoefficients(m, axisNames[i]));
+        }
+        return gml;
+    }    
 
     // Builds the XML for the gmlrgrid:RefernceableGridByVectors domain-set
     private static String getGeneralGridAxes(GetCoverageMetadata m) {

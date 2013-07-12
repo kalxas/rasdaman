@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.parsers;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -88,8 +89,8 @@ public class GetCoverageMetadata {
             axisLabels += dom.getLabel() + " ";
             low  += cell.getLo() + " ";
             high += cell.getHi() + " ";
-            domLow  += dom.getMinValue() + " ";
-            domHigh += dom.getMaxValue() + " ";
+            domLow  += dom.getMinValue().toPlainString() + " ";
+            domHigh += dom.getMaxValue().toPlainString() + " ";
             if (dom.getUom() != null) {
                 uomLabels += dom.getUom() + " ";
             }

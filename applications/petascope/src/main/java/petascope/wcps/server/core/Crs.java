@@ -214,16 +214,16 @@ public class Crs extends AbstractRasNode {
                 out = dbMeta.getIndexesFromIrregularRectilinearAxis(
                         covMeta.getCoverageName(),
                         covMeta.getDomainIndexByName(axisName), // i-order of axis
-                        new BigDecimal(numLo), 
-                        new BigDecimal(numHi),
+                        (new BigDecimal(numLo)).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
+                        (new BigDecimal(numHi)).subtract(domMin),  // 
                         pxMin, pxMax);
                 
                 // Retrieve the coefficients values and store them in the DomainElement
                 dom.setCoefficients(dbMeta.getCoefficientsOfInterval(
                         covMeta.getCoverageName(),
                         covMeta.getDomainIndexByName(axisName), // i-order of axis
-                        new BigDecimal(numLo), 
-                        new BigDecimal(numHi)
+                        (new BigDecimal(numLo)).subtract(domMin), 
+                        (new BigDecimal(numHi)).subtract(domMin)
                         ));
                 
                 // Add sdom lower bound

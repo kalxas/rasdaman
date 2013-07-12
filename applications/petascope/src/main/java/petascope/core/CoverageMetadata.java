@@ -91,7 +91,7 @@ public class CoverageMetadata implements Cloneable {
             List<Pair<CrsDefinition.Axis,String>> crsAxes, // axis -> URI
             List<CellDomainElement>       cellDomain, 
             List<BigDecimal>              gridOrigin,
-            LinkedHashMap<List<BigDecimal>,Boolean> gridAxes, // must be LinkedHash: preserve order of insertion
+            LinkedHashMap<List<BigDecimal>,BigDecimal> gridAxes, // must be LinkedHash: preserve order of insertion
             Pair<BigInteger, String>      rasdamanCollection,
             List<RangeElement>            rangeElements
             ) throws PetascopeException, SecoreException {
@@ -103,7 +103,7 @@ public class CoverageMetadata implements Cloneable {
         List<String>                uris   = new ArrayList<String>();
         int axisOrder = 0;
         
-        for (Entry<List<BigDecimal>,Boolean> axis : gridAxes.entrySet()) {
+        for (Entry<List<BigDecimal>,BigDecimal> axis : gridAxes.entrySet()) {
             // Check consistency
             List<Integer> axisNonZeroIndices = Vectors.nonZeroComponentsIndices(
                     axis.getKey().toArray(new BigDecimal[axis.getKey().size()])
@@ -114,7 +114,7 @@ public class CoverageMetadata implements Cloneable {
             }
             
             // Store 
-            boolean isIrregular = axis.getValue();
+            boolean isIrregular = !(null == axis.getValue());
             String crsUri = crsAxes.get(axisNonZeroIndices.get(0)).snd;
             CrsDefinition.Axis crsAxis = crsAxes.get(axisNonZeroIndices.get(0)).fst;
                         
@@ -132,7 +132,14 @@ public class CoverageMetadata implements Cloneable {
             BigDecimal resolution     = axis.getKey().get(axisNonZeroIndices.get(0));
             BigDecimal axisLo         = gridOrigin.get(axisNonZeroIndices.get(0));
             BigInteger gridAxisPoints = BigInteger.valueOf(1).add(cEl.getHi().subtract(cEl.getLo()));
-            BigDecimal axisHi         = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints.subtract(BigInteger.ONE))));
+            BigDecimal axisHi;
+            if (!isIrregular) {
+                // use the resolution
+                axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints.subtract(BigInteger.ONE))));
+            } else {
+                // get the greatest coefficient
+                axisHi = axisLo.add(resolution.multiply(axis.getValue()));
+            }
             
             DomainElement domEl = new DomainElement(
                     axisLo.compareTo(axisHi) <= 0 ? axisLo : axisHi,    // offset-vector can be negative,

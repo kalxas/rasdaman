@@ -58,7 +58,7 @@ public class TimeUtil {
     
     /**
      * @param   String timestamp    Timestamp string requested by the client
-     * @return  boolean             True if valid ISO timestamp (YYYY-MM-DD).
+     * @return  boolean             True if valid ISO timestamp.
      */
     public static boolean isValidTimestamp (String timestamp) {
         
@@ -76,8 +76,8 @@ public class TimeUtil {
     }
     
     /**
-     * @param   String timestampLo    YYYY-MM-DD timestamp
-     * @param   String timestampHi    YYYY-MM-DD timestamp
+     * @param   String timestampLo    timestamp
+     * @param   String timestampHi    timestamp
      * @return  boolean               Is Lo (*strictly*) lower than Hi ? 
      */
     public static boolean isOrderedTimeSubset (String timestampLo, String timestampHi) {
@@ -92,7 +92,7 @@ public class TimeUtil {
     }
     
     /**
-     * @param   String timestamp    YYYY-MM-DD timestamp
+     * @param   String timestamp    A timestamp
      * @return  int                 ANSI day number.
      */
     @Deprecated
@@ -157,9 +157,10 @@ public class TimeUtil {
         dtHead = dtHead.plus(yearRes, monthRes, dayRes, hourRes, minuteRes, secondRes, DATETIME_NANOSECOND_DEFAULT, DateTime.DayOverflow.FirstDay);
         while (dtHead.lteq(dtSubsetHi)) {
             // Increment
+            // FIXME: performance killer! Go with binary search.
             pixelCounter += 1;
             dtHead = dtHead.plus(yearRes, monthRes, dayRes, hourRes, minuteRes, secondRes, DATETIME_NANOSECOND_DEFAULT, DateTime.DayOverflow.FirstDay);
-            //log.debug("dtHead#" + pixelCounter + ": " + dtHead);
+            log.debug("dtHead#" + pixelCounter + ": " + dtHead);
         }
         
         return pixelCounter;

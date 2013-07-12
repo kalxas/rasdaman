@@ -756,7 +756,7 @@ public class DbMetadataSource implements IMetadataSource {
             if (coverageType.matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE)) {
                 
                 // Variables for metadata object creation of gridded coverage
-                LinkedHashMap<List<BigDecimal>,Boolean> gridAxes;    // Offset-vector -> isIrregular
+                LinkedHashMap<List<BigDecimal>,BigDecimal> gridAxes;    // Offset-vector -> greatest-coefficient (null if no coeffs) 
                 List<BigDecimal>         gridOrigin;  // each BD is a coordinate's component                
                 Pair<BigInteger, String> rasdamanColl;// collName -> OID
         
@@ -894,7 +894,7 @@ public class DbMetadataSource implements IMetadataSource {
                 // Read axis-specific information, independently of its nature (rectilinear, regularly-spaced, etc.)
                 // Axis id -> {offset-vector, isIrregular}
                 // NOTE: use LinkedHashMap to preserve insertion order.
-                gridAxes = new LinkedHashMap<List<BigDecimal>,Boolean>();
+                gridAxes = new LinkedHashMap<List<BigDecimal>,BigDecimal>();
                 Pair<String, String> cellDimensions;
                 sqlQuery =
                     " SELECT "   + GRID_AXIS_ID             + ", "
@@ -964,17 +964,20 @@ public class DbMetadataSource implements IMetadataSource {
                         // At the same time check that the number of coefficients is consistent with the `sdom' of the collection:
                         cellDimensions = getIndexDomain(rasdamanColl.snd, rasdamanColl.fst, gridAxes.size());
                         sqlQuery =
-                                " SELECT COUNT(*) FROM " + TABLE_VECTOR_COEFFICIENTS   +
-                                               " WHERE " + VECTOR_COEFFICIENTS_AXIS_ID + "=" + axisId
+                                " SELECT COUNT(*), MAX(" + VECTOR_COEFFICIENTS_COEFFICIENT + ") " +
+                                                 "FROM " + TABLE_VECTOR_COEFFICIENTS       +
+                                               " WHERE " + VECTOR_COEFFICIENTS_AXIS_ID     + "="  + axisId
                                 ;
                         log.debug("SQL query: " + sqlQuery);
                         rAxis = s.executeQuery(sqlQuery);
-                        Boolean isIrregular = false;
+                        BigDecimal maxCoeff = null;
+                        boolean isIrregular = false;
                         if (rAxis.next()) {
                             int coeffNumber = rAxis.getInt(1);
                             if (coeffNumber > 0) {
                                 // this axis has coefficients
                                 isIrregular = true;
+                                maxCoeff = rAxis.getBigDecimal(2);
                                 // check consistency with `sdom'
                                 int sdomCount   = new Integer(petascope.util.StringUtil.getCount(cellDimensions.fst, cellDimensions.snd));
                                 if (coeffNumber != sdomCount) {
@@ -988,7 +991,7 @@ public class DbMetadataSource implements IMetadataSource {
                                   "' is " + (isIrregular ? "" : "not ") + "irregular.");
                         
                         // Build up the axis map
-                        gridAxes.put(offsetVector, isIrregular);
+                        gridAxes.put(offsetVector, maxCoeff);
                         
                         /* Create CellDomainElement and DomainElement for this axis: */
                         // CellDomain

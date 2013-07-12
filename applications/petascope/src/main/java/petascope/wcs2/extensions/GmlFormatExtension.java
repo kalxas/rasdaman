@@ -98,7 +98,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
             
             // RGBV coverages
             if (m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
-                gml = addCoefficients(gml, m);
+                gml = WcsUtil.addCoefficients(gml, m);
                 // Grid and Coverage bounds need to be updated: there was coefficient knowledge before 
                 updateGetCoverageMetadata(request, m);
                 gml = WcsUtil.getBounds(gml, m);
@@ -123,26 +123,6 @@ public class GmlFormatExtension extends AbstractFormatExtension {
                         "<" + TAG_TUPLELIST + ">" + data + "</" + TAG_TUPLELIST + ">" + 
                     "</" + TAG_DATABLOCK + ">";
             gml = gml.replace("{" + Templates.KEY_COVERAGEDATA + "}", data);
-        }
-        return gml;
-    }
-
-    /**
-     * Add the coefficients in a gmlrgrid:ReferenceableGridByVectors.
-     * They are not known at the time of initializing the GML output, but only after processing
-     * the coverage data (see petascope.wcps.server.core.crs and DbMetadataSource.getCoefficientsOfInterval()).
-     * @param gml  The GML output already filled with data and metadata.
-     * @param m    The metadata specific to the WCS GetCoverage request
-     * @return GML where {coefficients} have been replaced with real values.
-     * @throws WCSException
-     * @throws PetascopeException 
-     */
-    protected String addCoefficients(String gml, GetCoverageMetadata m) 
-            throws WCSException, PetascopeException {
-        String[] axisNames = m.getAxisLabels().split(" ");
-        // Loop through the N dimensions (rely on order)
-        for (int i = 0; i < axisNames.length; i++) {
-            gml = gml.replaceFirst("\\{" + Templates.KEY_COEFFICIENTS + "\\}", WcsUtil.getCoefficients(m, axisNames[i]));
         }
         return gml;
     }

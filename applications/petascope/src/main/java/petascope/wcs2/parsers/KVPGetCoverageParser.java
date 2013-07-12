@@ -174,15 +174,15 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                     throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator(subsetKey));
                 }
 
-                // Check time-subset validity (YYYY-MM-DD) e convert to ANSI
+                // Check time-subset validity (currently, what Date4J can accept)
                 if (null != low && low.matches(QUOTED_SUBSET)) {
                     if (low != null && !TimeUtil.isValidTimestamp(low)) {
-                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + low + "\" is not valid (pattern is YYYY-MM-DD).");
+                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + low + "\" is not valid or supported.");
                     }
                 }
                 if (null != high && high.matches(QUOTED_SUBSET)) {
                     if (high != null && !TimeUtil.isValidTimestamp(high)) {
-                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + high + "\" is not valid (pattern is YYYY-MM-DD).");
+                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + high + "\" is not valid or supported.");
                     }
                 }
                 if (null != low && null != high && low.matches(QUOTED_SUBSET) && high.matches(QUOTED_SUBSET)) {

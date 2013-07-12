@@ -359,11 +359,12 @@ public class Bbox implements Cloneable {
             //if (getType(i).equals(AxisTypes.T_AXIS)) {
             //    tmp = tmp.replaceFirst(" ", TimeUtil.ISO8601_T_KEY);
             //}
-            output += tmp;
+            output += (new BigDecimal(tmp)).toPlainString();
         }
         return output;
     }
     // Used when get the corner only for a subset of the whole available axes (eg. gml:origin after slicing)
+    // Convert numbers to plain Strings: double get `E' formatting otherwise.
     public String getLowerCorner(String[] axisLabels) {
         String output = "";
         double tmp;
@@ -376,7 +377,7 @@ public class Bbox implements Cloneable {
             //if (getType(i).equals(AxisTypes.T_AXIS)) {
             //    tmp = tmp.replaceFirst(" ", TimeUtil.ISO8601_T_KEY);
             //}
-            output += tmp;
+            output += (new BigDecimal(tmp)).toPlainString();
         }
         return output;
     }

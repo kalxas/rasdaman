@@ -113,17 +113,17 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                 // TODO convert to domain values (TimeUtil.countPixels(datumOrigin, stringLo, axisUoM);
                                 // ...
                             } else {
-                                lowerDom += Math.max(
+                                lowerDom += new BigDecimal(Math.max(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
-                                    domainEl.getMinValue().doubleValue()) + " ";
+                                    domainEl.getMinValue().doubleValue())).toPlainString() + " ";
                             }
                             if (((DimensionTrim)subset).getTrimHigh().contains("\"")) {
                                 // TODO convert to domain values (TimeUtil.countPixels(datumOrigin, stringLo, axisUoM);
                                 // ...
                             } else {
-                                upperDom += Math.min(
+                                upperDom += new BigDecimal(Math.min(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimHigh()),
-                                    domainEl.getMaxValue().doubleValue()) + " ";
+                                    domainEl.getMaxValue().doubleValue())).toPlainString() + " ";
                             }
                             // Append updated pixel bounds                            
                             String decimalsExp = "\\.[0-9]+";
