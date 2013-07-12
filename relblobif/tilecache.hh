@@ -24,13 +24,13 @@ rasdaman GmbH.
 #define _TILECACHE_HH_
 
 #include "blobtile.hh"
-#include "test/test_tilecache.hh"
+#include "tilecachevalue.hh"
 #include <map>
 #include <list>
 #include <set>
 
 typedef int KeyType;
-typedef BLOBTile* ValueType;
+typedef CacheValue* ValueType;
 typedef std::pair<KeyType, ValueType> CachePairType;
 typedef std::list<ValueType> CacheLRU;
 typedef std::map<KeyType, ValueType> CacheType;
@@ -44,12 +44,8 @@ class TileCache
 {
 public:
     /// cache blob with key = oid
-    static bool insert(KeyType key, ValueType value);
-    static bool insert(OId& key, ValueType value);
-    
-    /// update cached blob with key = oid, and flag indicating whether to delete the tile pointer
-    static bool update(KeyType key, ValueType value, bool deleteTile = true);
-    static bool update(OId& key, ValueType value);
+    static void insert(KeyType key, ValueType value);
+    static void insert(OId& key, ValueType value);
     
     /// retrieve cached blob given its oid; returns NULL in case of a miss
     static ValueType get(KeyType key);
@@ -60,15 +56,14 @@ public:
     static bool contains(OId& key);
     
     /// remove cached blob; this triggers validateReal on the cached blob
-    static void remove(KeyType key);
-    static void remove(OId& key);
-    
-    /// remove cached blob; this does not trigger validateReal unlike remove
-    static void removeKey(KeyType key);
-    static void removeKey(OId& key);
+    static ValueType remove(KeyType key);
+    static ValueType remove(OId& key);
     
     /// remove all blobs, effectively emptying the cache
     static void clear();
+    
+    /// remove least recently used blobs from the cache, when cache size > cache limit
+    static void readjustCache();
     
     /// cache size limit in bytes
     static long cacheLimit;
@@ -88,14 +83,8 @@ private:
     /// remove value from the LRU list
     static void removeValue(ValueType value);
     
-    /// remove least recently used blobs from the cache, when cache size > cache limit
-    static void readjustCache();
-    
-    /// utility method to debug tiles
-    static void printBlob(BLOBTile* tile, char *msg);
-    
     /// give the test class private access
-    friend class TileCacheTest;
+//    friend class TileCacheTest;
 };
 
 #endif
