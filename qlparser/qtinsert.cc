@@ -699,5 +699,6 @@ QtInsert::getTileConfig(QtMDDConfig* cfg)
     QtData* data = op->evaluate(nextTupel);
     QtMintervalData* intervalData = (QtMintervalData*) data;
     tileConfig = intervalData->getMintervalData();
+    delete data;
     return tileConfig;
 }

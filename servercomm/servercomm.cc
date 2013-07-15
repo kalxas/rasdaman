@@ -66,6 +66,7 @@ static const char rcsid[] = "@(#)servercomm, ServerComm: $Id: servercomm.cc,v 1.
 #include <malloc.h>
 #endif
 #include <time.h>      // for time()
+#include <stdlib.h>
 #include <string.h>
 
 #include <signal.h>    // for signal()
@@ -1332,6 +1333,7 @@ int AccessControl::crunchCapability(const char *capability)
     // end of cServername is $D, $->0 by digest
 
     struct tm brokentime;
+    memset(&brokentime, 0, sizeof(struct tm));
     strptime(timeout,"%d:%m:%Y:%H:%M:%S",&brokentime);
     double DeltaT= difftime (mktime(&brokentime),time(NULL) );
 
