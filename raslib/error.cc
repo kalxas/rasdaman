@@ -245,6 +245,10 @@ void r_Error::initTextTable()
                 r_Error::errorTexts->push_back( pair<pair<int,char>,char*> (pair<int,char>( errNo, errKind ), errText) );
                 numOfEntries++;
             }
+            else
+            {
+                free(errText);
+            }
         }
         // RMInit::logOut << "number of error texts loaded: " << numOfEntries << endl;
         errorTextsLoaded = true;

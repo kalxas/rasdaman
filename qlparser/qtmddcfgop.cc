@@ -48,14 +48,16 @@ using namespace std;
 
 QtMddCfgOp::QtMddCfgOp()
     :  QtOperation(),
-       input(NULL)
+       input(NULL),
+       mddCfgObj(NULL)
 {
 }
 
 
 QtMddCfgOp::QtMddCfgOp( QtOperation* inputInit )
     :  QtOperation(),
-       input( inputInit )
+       input( inputInit ),
+       mddCfgObj(NULL)
 {
     if( input )
         input->setParent( this );
@@ -94,6 +96,11 @@ QtMddCfgOp::~QtMddCfgOp()
     {
         delete input;
         input=NULL;
+    }
+    if ( mddCfgObj )
+    {
+        delete mddCfgObj;
+        mddCfgObj=NULL;
     }
 }
 

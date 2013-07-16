@@ -137,6 +137,11 @@ public:
     /*@Doc:
     Construct object with specific modes.
     */
+    
+    StorageLayout(const StorageLayout& other);
+    /*@Doc:
+    Copy constructor.
+    */
 
     // StorageLayout(const char* storageLayoutName);
     /*@Doc:

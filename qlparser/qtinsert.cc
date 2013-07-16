@@ -700,5 +700,6 @@ QtInsert::getTileConfig(QtMDDConfig* cfg)
     QtMintervalData* intervalData = (QtMintervalData*) data;
     tileConfig = intervalData->getMintervalData();
     delete data;
+    delete nextTupel;
     return tileConfig;
 }

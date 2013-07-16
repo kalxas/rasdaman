@@ -807,6 +807,11 @@ QtUpdate::checkType()
         compatible = updateSource->getNodeType() == QT_CONVERSION ||
                      (convChildren != NULL && !convChildren->empty()) ||
                      type1->compatibleWith(type2); //(strcmp(type1, type2) == 0);
+        if (convChildren)
+        {
+            delete convChildren;
+            convChildren = NULL;
+        }
 
         if( !compatible )
         {
