@@ -126,6 +126,13 @@ int main(int argc, char **argv)
     executeQuery("update test_tilecache as m set m[*:*,*:*,0] assign marray x in [0:19,0:9] values (char) 4");
     executeQuery("update test_tilecache as m set m[*:*,*:*,1] assign marray x in [0:19,0:9] values (char) 5");
     executeQuery("update test_tilecache as m set m[*:*,*:*,2] assign marray x in [0:19,0:9] values (char) 6");
+    executeQuery("update test_tilecache as m set m[*:*,*:*,3] assign marray x in [0:19,0:9] values (char) 7");
+    executeQuery("update test_tilecache as m set m[*:*,*:*,4] assign marray x in [0:19,0:9] values (char) 7");
+    executeQuery("update test_tilecache as m set m[*:*,*:*,5] assign marray x in [0:19,0:9] values (char) 7");
+    executeQuery("update test_tilecache as m set m[*:*,*:*,6] assign marray x in [0:19,0:9] values (char) 7");
+    executeQuery("update test_tilecache as m set m[*:*,*:*,7] assign marray x in [0:19,0:9] values (char) 7");
+    executeQuery("update test_tilecache as m set m[*:*,*:*,8] assign marray x in [0:19,0:9] values (char) 7");
+    executeQuery("update test_tilecache as m set m[*:*,*:*,9] assign marray x in [0:19,0:9] values (char) 7");
     executeQuery("commit");
     
     executeQuery("drop collection test_tilecache");

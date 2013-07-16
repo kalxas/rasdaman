@@ -28,8 +28,10 @@ rasdaman GmbH.
 #include "raslib/rmdebug.hh"
 #include "debug/debug-srv.hh"
 
+#include <set>
+
 // enable this to turn on only cache debugging
-#define DEBUG_CACHE
+//#define DEBUG_CACHE
 
 #define OID_KEY(key) (key.getCounter())
 
@@ -55,7 +57,7 @@ class CacheValue
 {
 public:
     /// create new item for caching
-    CacheValue(char* data, r_Bytes size, bool insert, bool update, OId& newOId, long blobOid = -1, r_Data_Format dataformat = r_Array);
+    CacheValue(char* data, r_Bytes size, bool update, OId& newOId, long blobOid = -1, void* tile = NULL, r_Data_Format dataformat = r_Array);
     
     /// destructor
     ~CacheValue();
@@ -75,14 +77,15 @@ public:
     /// data format of cached data
     r_Data_Format getDataFormat();
     
-    /// is cached data supposed to be inserted in the database?
-    bool isInsert();
+    /// get a set of the tiles that reference this cached data
+    std::set<void*> getReferencingTiles();
+    void setReferencingTiles(std::set<void*> newTiles);
+    void addReferencingTiles(std::set<void*> newTiles);
+    void addReferencingTile(void* newTile);
+    void removeReferencingTile(void* tile);
     
     /// is cached data supposed to be updated in the database?
     bool isUpdate();
-    
-    /// set if cached data is supposed to be inserted in the database
-    void setInsert(bool insert);
     
     /// set if cached data is supposed to be updated in the database
     void setUpdate(bool update);
@@ -93,9 +96,9 @@ private:
     long blobOid;
     char* data;
     r_Bytes size;
-    bool insert;
     bool update;
     r_Data_Format dataFormat;
+    std::set<void*> referencingTiles;
 };
 
 #endif

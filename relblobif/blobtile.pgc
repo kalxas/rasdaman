@@ -45,6 +45,7 @@ static const char rcsid[] = "@(#)blobif,BLOBTile: $Id: blobtile.ec,v 1.8 2003/12
 
 #include <stdio.h>
 #include <stdlib.h>             /* atoi */
+#include <set>
 
 // PG stuff:
 #include "libpq-fe.h"       /* C interface to PgSQL */
@@ -147,10 +148,7 @@ BLOBTile::updateInDb() throw (r_Error)
 
     if (TileCache::cacheLimit > 0)
     {
-        char* data = (char*) mymalloc( size * sizeof(char) );
-        memcpy( data, cells, size * sizeof(char) );
-        RMInit::logOut << "BLOBTile::updateInDb() - copying cells: " << (void*)cells << ", to new cells: " << (void*)data << endl;
-        CacheValue* value = new CacheValue( data, size, false, true, myOId, tile );
+        CacheValue* value = new CacheValue( cells, size, true, myOId, tile, this );
         TileCache::insert( myOId, value );
     }
     else
@@ -204,6 +202,7 @@ BLOBTile::updateInDb() throw (r_Error)
         PQclear( pgResult );
         generateException();
     }
+    PQclear( pgResult );
 
     // (4) --- update map ref
     DBObject::updateInDb();
@@ -243,7 +242,7 @@ BLOBTile::insertInDb() throw (r_Error)
 
     indbmyOId2 = myOId.getCounter();
     TALK( "myOId.getCounter = " << indbmyOId2 );
-
+    
     // (1) --- open, write, close blob; generates new 'oid' for subsequent storage in tuple
     TALK( "lo_creat()" );
     blobOid = lo_creat( pgConn, INV_READ|INV_WRITE );   // create -- not clear what INV_* here means so indicate all
@@ -253,29 +252,38 @@ BLOBTile::insertInDb() throw (r_Error)
         LEAVE( "BLOBTile::insertInDb(): cannot create blob, error " << PQerrorMessage(pgConn) );
         generateException();
     }
-    TALK( "lo_open() for oid " << blobOid );
-    int fd = lo_open( pgConn, blobOid, INV_WRITE );     // no error code indicated, 0 seems to be no error
-    TALK( "lo_write() for fd " << fd << " and " << size << " bytes" );
-    int loResult = lo_write( pgConn, fd, cells, size );
-    if (loResult < 0)
+    
+    if (TileCache::cacheLimit > 0)
     {
-        RMInit::logOut << "BLOBTile::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn) << endl;
-        LEAVE( "BLOBTile::insertInDb(): cannot write blob, error " << PQerrorMessage(pgConn) );
-        generateException();
+        CacheValue* value = new CacheValue( cells, size, true, myOId, blobOid, this );
+        TileCache::insert( myOId, value );
     }
-    else if (loResult != size)          // did not get all
+    else
     {
-        RMInit::dbgOut << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << size << " bytes" << endl;
-        LEAVE( "BLOBTile::insertInDb(): wrote " << loResult << " instead of " << size << " bytes" );
-        generateException();
-    }
-    TALK( "lo_close()" );
-    loResult = lo_close( pgConn, fd );
-    if (loResult < 0)               // cannot close, don't know if data are there
-    {
-        RMInit::logOut << "BLOBTile::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn) << endl;
-        LEAVE( "BLOBTile::insertInDb(): ignoring lo_close() error: " << PQerrorMessage(pgConn) );
-        generateException();
+        TALK( "lo_open() for oid " << blobOid );
+        int fd = lo_open( pgConn, blobOid, INV_WRITE );     // no error code indicated, 0 seems to be no error
+        TALK( "lo_write() for fd " << fd << " and " << size << " bytes" );
+        int loResult = lo_write( pgConn, fd, cells, size );
+        if (loResult < 0)
+        {
+            RMInit::logOut << "BLOBTile::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn) << endl;
+            LEAVE( "BLOBTile::insertInDb(): cannot write blob, error " << PQerrorMessage(pgConn) );
+            generateException();
+        }
+        else if (loResult != size)          // did not get all
+        {
+            RMInit::dbgOut << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << size << " bytes" << endl;
+            LEAVE( "BLOBTile::insertInDb(): wrote " << loResult << " instead of " << size << " bytes" );
+            generateException();
+        }
+        TALK( "lo_close()" );
+        loResult = lo_close( pgConn, fd );
+        if (loResult < 0)               // cannot close, don't know if data are there
+        {
+            RMInit::logOut << "BLOBTile::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn) << endl;
+            LEAVE( "BLOBTile::insertInDb(): ignoring lo_close() error: " << PQerrorMessage(pgConn) );
+            generateException();
+        }
     }
 
     /*
@@ -738,8 +746,8 @@ BLOBTile::readFromDb() throw (r_Error)
         {
             size = cached->getSize();
         }
-        cells = (char*) mymalloc( size * sizeof(char) );    // allocate buffer for blob
-        memcpy( cells, cached->getData(), size * sizeof(char) );
+        cells = cached->getData();
+        cached->addReferencingTile(this);
         
         TALK("BLOBTile::readFromDb() - data cached, copying cells: " << (void*)cached->getData() << ", to new cells: " << (void*)cells);
     }
@@ -782,10 +790,7 @@ BLOBTile::readFromDb() throw (r_Error)
             TALK( "BLOBTile::readFromDb: ignoring lo_close() error: " << ignoredPgResult );
         }
         
-        char* data = (char*) mymalloc( size * sizeof(char) );
-        memcpy( data, cells, size * sizeof(char) );
-        TALK("BLOBTile::readFromDb() - caching data, copying cells: " << (void*)cells << ", to new cells: " << (void*)data);
-        CacheValue* value = new CacheValue( data, size, false, false, myOId, blobOid, dataFormat );
+        CacheValue* value = new CacheValue( cells, size, false, myOId, blobOid, this, dataFormat );
         TileCache::insert( myOId, value );
     }
     RMDBGIF(20, RMDebug::module_blobif, "BLOBTileOutput", for (int a = 0; a < size; a++)\
@@ -806,29 +811,14 @@ void BLOBTile::writeCachedToDb(CacheValue* value)
 {
     ENTER( "BLOBTile::write()");
     
-    if (value && (value->isInsert() || value->isUpdate()))
+    if (value && value->isUpdate())
     {
         Oid blobOid = -1;
         r_Bytes size = value->getSize();
         char* cells = value->getData();
         OId myOId = value->getOId();
         
-        if (value->isInsert())
-        {
-            // (1) --- open, write, close blob; generates new 'oid' for subsequent storage in tuple
-            TALK( "lo_creat()" );
-            blobOid = lo_creat( pgConn, INV_READ|INV_WRITE );   // create -- not clear what INV_* here means so indicate all
-            if (blobOid == 0)
-            {
-                RMInit::logOut << "BLOBTile::insertInDb() cannot create blob, error: " << PQerrorMessage(pgConn) << endl;
-                LEAVE( "BLOBTile::insertInDb(): cannot create blob, error " << PQerrorMessage(pgConn) );
-                generateException();
-            }
-        }
-        else
-        {
-            blobOid = value->getBlobOid();
-        }
+        blobOid = value->getBlobOid();
         
         TALK( "lo_open() for oid " << blobOid );
         int fd = lo_open( pgConn, blobOid, INV_WRITE );     // no error code indicated, 0 seems to be no error

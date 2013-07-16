@@ -25,6 +25,7 @@ rasdaman GmbH.
 #include "tilecache.hh"
 
 #include <algorithm>
+#include <set>
 
 using namespace std;
 
@@ -55,16 +56,27 @@ void TileCache::insert(KeyType key, ValueType value)
         }
         else
         {
+            // update referencing tiles
+            tileToCache->addReferencingTiles(tile->getReferencingTiles());
+            
             cacheSize -= tile->getSize();
-            updateValue(tile);
+            removeValue(tile);
+            if (tile->getData() == tileToCache->getData())
+            {
+                delete tile;
+                tile = NULL;
+            }
             cache.erase(key);
-            delete tile;
+            if (tile)
+            {
+                delete tile;
+                tile = NULL;
+            }
         }
         TTALK("already inserted");
     }
     
     cache.insert(CachePairType(key, tileToCache));
-    TTALK("inserted to cache, check if contains = " << contains(key));
     updateValue(tileToCache);
     cacheSize += tileToCache->getSize();
     readjustCache();
@@ -147,12 +159,23 @@ void TileCache::readjustCache()
     {
         long count = 0;
         TTALK("freeing up space from cache...");
-        while (cacheSize > cacheLimit && lru.size() > 0)
+        
+        if (cacheSize > cacheLimit && lru.size() > 0)
         {
-            CacheValue* value = lru.back();
-            lru.pop_back();
-            remove(value->getOId().getCounter());
-            ++count;
+            CacheLRU::reverse_iterator it;
+            for (it = lru.rbegin(); it != lru.rend(); it++)
+            {
+                CacheValue* value = *it;
+                if (value->getReferencingTiles().empty())
+                {
+                    remove(value->getOId().getCounter());
+                    ++count;
+                    if (cacheSize <= cacheLimit || lru.empty())
+                    {
+                        break;
+                    }
+                }
+            }
         }
         TTALK("removed " << count << " blobs from cache.");
     }

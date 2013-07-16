@@ -27,7 +27,6 @@ rasdaman GmbH.
 #include "tilecachevalue.hh"
 #include <map>
 #include <list>
-#include <set>
 
 typedef int KeyType;
 typedef CacheValue* ValueType;
