@@ -280,10 +280,21 @@ DBTile::~DBTile()
     RMDBGENTER(3, RMDebug::module_blobif, "DBTile", "~DBTile() " << myOId);
     if (cells)
     {
-        TALK( "DBTile::~DBTile() freeing blob cells" );
-        free(cells);
+        if (TileCache::cacheLimit > 0)
+        {
+            if (!TileCache::contains(myOId))
+            {
+                TALK( "DBTile::~DBTile() freeing blob cells" );
+                free(cells);
+                cells = NULL;
+            }
+            else
+            {
+                CacheValue* value = TileCache::get(myOId);
+                value->removeReferencingTile(this);
+            }
+        }
     }
-    cells = NULL;
     RMDBGEXIT(3, RMDebug::module_blobif, "DBTile", "~DBTile() " << myOId);
 }
 

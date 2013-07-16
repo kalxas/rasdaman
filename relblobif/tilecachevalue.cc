@@ -23,21 +23,25 @@ rasdaman GmbH.
 
 #include "config.h"
 #include "tilecachevalue.hh"
+#include "tilecache.hh"
 
 #include <cstdlib>
 #include <iostream>
 
-CacheValue::CacheValue(char* newData, r_Bytes newSize, bool newInsert, bool newUpdate, OId& newOId, long newBlobOid, r_Data_Format newDataformat) :
-data(newData), insert(newInsert), update(newUpdate), size(newSize), myOId(newOId), blobOid(newBlobOid), dataFormat(newDataformat)
+using namespace std;
+
+CacheValue::CacheValue(char* newData, r_Bytes newSize, bool newUpdate, OId& newOId, long newBlobOid, void* tile, r_Data_Format newDataformat) :
+data(newData), update(newUpdate), size(newSize), myOId(newOId), blobOid(newBlobOid), dataFormat(newDataformat)
 {
     TENTER("CacheValue::CacheValue( ptr = " << (void*)this << ", data = " << (void*)newData << ", size = " << newSize << ", oid = " << newOId.getCounter() << " )");
+    referencingTiles.insert(tile);
     TLEAVE("CacheValue::CacheValue()");
 }
 
 CacheValue::~CacheValue()
 {
     TENTER("CacheValue::~CacheValue( ptr = " << (void*)this << " )");
-    if (data)
+    if (data && referencingTiles.empty())
     {
         TTALK("freeing data = " << (void*)data);
         free(data);
@@ -56,6 +60,35 @@ r_Data_Format CacheValue::getDataFormat()
     return dataFormat;
 }
 
+set<void*> CacheValue::getReferencingTiles()
+{
+    return referencingTiles;
+}
+
+void CacheValue::setReferencingTiles(set<void*> newTiles)
+{
+    referencingTiles = newTiles;
+}
+
+void CacheValue::addReferencingTiles(std::set<void*> newTiles)
+{
+    set<void*>::iterator it;
+    for (it = newTiles.begin(); it != newTiles.end(); it++)
+    {
+        referencingTiles.insert(*it);
+    }
+}
+
+void CacheValue::addReferencingTile(void* newTile)
+{
+    referencingTiles.insert(newTile);
+}
+
+void CacheValue::removeReferencingTile(void* tile)
+{
+    referencingTiles.erase(tile);
+}
+
 long CacheValue::getBlobOid()
 {
     return blobOid;
@@ -71,19 +104,9 @@ OId CacheValue::getOId()
     return myOId;
 }
 
-bool CacheValue::isInsert()
-{
-    return insert;
-}
-
 bool CacheValue::isUpdate()
 {
     return update;
-}
-
-void CacheValue::setInsert(bool newInsert)
-{
-    insert = newInsert;
 }
 
 void CacheValue::setUpdate(bool newUpdate)
