@@ -93,6 +93,25 @@ StorageLayout::StorageLayout(const DBStorageLayoutId& id)
     RMDBGONCE(4, RMDebug::module_storagemgr, "StorageLayout", "StorageLayout(" << id.getOId() << ")")
 }
 
+StorageLayout::StorageLayout(const StorageLayout& other)
+    :   myLayout(other.myLayout),
+        extraFeatures(NULL)
+{
+    StgMddConfig* o = other.extraFeatures;
+    if (o)
+    {
+        if (extraFeatures == NULL)
+        {
+            extraFeatures = new StgMddConfig();
+        }
+        extraFeatures->setBBoxes(o->getBBoxes());
+        extraFeatures->setBorderThreshold(o->getBorderThreshold());
+        extraFeatures->setCellSize(o->getCellSize());
+        extraFeatures->setDirDecompose(o->getDirDecompose());
+        extraFeatures->setInterestThreshold(o->getInterestThreshold());
+    }
+}
+
 /*
 const char*
 StorageLayout::getName() const
@@ -293,6 +312,11 @@ StorageLayout::getLayout(const r_Minterval& tileDomain)
 
 StorageLayout::~StorageLayout()
 {
+    if (extraFeatures)
+    {
+        delete extraFeatures;
+        extraFeatures = NULL;
+    }
 }
 
 std::vector< r_Minterval >

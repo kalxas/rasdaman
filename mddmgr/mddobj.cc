@@ -248,6 +248,11 @@ MDDObj::insertTile(Tile* newTile)
                 //FIXME: should not be neccessary
                 myMDDIndex->insertTile((Tile*)tile);
             }
+            if (indexTiles)
+            {
+                delete indexTiles;
+                indexTiles = NULL;
+            }
         }
         checkEquality = false;
     }
@@ -388,10 +393,16 @@ MDDObj::~MDDObj()
 {
     RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "~MDDObj() " << (r_Ptr)this)
 
-    delete myMDDIndex;
-    myMDDIndex = NULL;
-    delete myStorageLayout;
-    myStorageLayout = NULL;
+    if (myMDDIndex)
+    {
+        delete myMDDIndex;
+        myMDDIndex = NULL;
+    }
+    if (myStorageLayout)
+    {
+        delete myStorageLayout;
+        myStorageLayout = NULL;
+    }
 }
 
 void
