@@ -40,6 +40,7 @@ import petascope.util.XMLUtil;
 public class Templates {
 
     private static final Logger log = LoggerFactory.getLogger(Templates.class);
+   
     public static final String TEMPLATES_DIR = "petascope/wcs2/templates";
     public static final String TEMPLATES_EXT = ".templ";
     public static final String SERVICE_METADATA = "ServiceMetadata";
@@ -56,6 +57,9 @@ public class Templates {
     public static final String SOAP_MESSAGE = "SOAPMessage";
     public static final String SOAP_FAULT = "SOAPFault";
     public static final String EXCEPTION_REPORT = "ExceptionReport";
+    
+    // Keys for replacements in templates
+    public static final String KEY_URL = "URL";    
     
     /**
      * template name -> (template as string, template as XOM element)

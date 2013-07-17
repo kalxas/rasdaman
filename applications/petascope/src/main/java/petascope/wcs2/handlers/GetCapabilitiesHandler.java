@@ -69,21 +69,25 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
 
         // Service Identification
         Element serviceIdentification = Templates.getXmlTemplate(Templates.SERVICE_IDENTIFICATION,
-                Pair.of("\\{URL\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
-                ? ConfigManager.PETASCOPE_SERVLET_URL
-                : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
+                Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null 
+                ? ConfigManager.PETASCOPE_SERVLET_URL 
+                : Wcs2Servlet.LOCAL_SERVLET_ADDRESS)
+                );      
         if (serviceIdentification != null) {
             for (String id : ExtensionsRegistry.getExtensionIds()) {
                 Element profile = new Element(PREFIX_OWS + ":" + LABEL_PROFILE, NAMESPACE_OWS);
                 profile.appendChild(id);
-                serviceIdentification.appendChild(profile);
+                // Insert it right after ServiceTypeVersion, see http://schemas.opengis.net/ows/2.0/owsServiceIdentification.xsd
+                serviceIdentification.insertChild(profile, 
+                        serviceIdentification.indexOf(
+                        serviceIdentification.getFirstChildElement(LABEL_SERVICE_TYPE_VERSION, NAMESPACE_OWS)) + 1);
             }
             root.appendChild(serviceIdentification.copy());
         }
 
         // Service Provider
         Element serviceProvider = Templates.getXmlTemplate(Templates.SERVICE_PROVIDER,
-                Pair.of("\\{URL\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
+                Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
                 ? ConfigManager.PETASCOPE_SERVLET_URL
                 : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
         if (serviceProvider != null) {
@@ -92,7 +96,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
 
         // Operations Metadata
         Element operationsMetadata = Templates.getXmlTemplate(Templates.OPERATIONS_METADATA,
-                Pair.of("\\{URL\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
+                Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
                 ? ConfigManager.PETASCOPE_SERVLET_URL
                 : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
         if (operationsMetadata != null) {
@@ -137,8 +141,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             it = meta.coverages().iterator();
             while (it.hasNext()) {
                 Element cs = new Element(LABEL_COVERAGE_SUMMARY, NAMESPACE_WCS);
-                Element c = null;
-                Element cc = null; 
+                Element c;
                 c = new Element(LABEL_COVERAGE_ID, NAMESPACE_WCS);
                 String coverageId = it.next();
                 c.appendChild(coverageId);
