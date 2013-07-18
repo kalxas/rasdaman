@@ -93,7 +93,7 @@ JDFLAGS   = -sourcepath $(SRC_MAIN)  \
 
 # Create war
 .PHONY: war
-war: compile
+war: compileit
 	$(MKDIR) $(DIST)
 	$(CD) $(WEB); $(JAR) $(JARFLAGS) ../../$(WAR) .
 
@@ -121,9 +121,9 @@ $(all_javas):
 	$(MKDIR) $(CLASSES)
 	$(FIND) $(SRC_MAIN) $(TEST) -name '*.java' | grep -v 'n52' > $@
 
-# compile - Compile the source
-.PHONY: compile
-compile: $(all_javas) $(GEN_DOCS)
+# compileit - Compile the source
+.PHONY: compileit
+compileit: $(all_javas) $(GEN_DOCS)
 	$(MKDIR) $(BUILD)
 	$(SED) 's|@confdir@|$(DESTDIR)$(sysconfdir)/|g' $(SRC_WEB)/WEB-INF/web.xml.in > $(SRC_WEB)/WEB-INF/web.xml
 	$(CP) $(SRC_WEB)/* $(WEB)
@@ -188,7 +188,7 @@ clean:
 
 # build jar file
 .PHONY: jar
-jar: compile
+jar: compileit
 	$(CD) $(CLASSES); $(JAR) $(JARFLAGS) ../../../petascope.jar .
 
 # inject petascope libs into the 52n wps 

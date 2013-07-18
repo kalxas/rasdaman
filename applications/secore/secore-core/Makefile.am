@@ -85,7 +85,7 @@ JDFLAGS   = -sourcepath $(SRC_MAIN)  \
 
 # Create jar
 .PHONY: jar
-jar: compile
+jar: compileit
 	$(MKDIR) $(DIST)
 	$(CD) $(CLASSES); $(JAR) $(JARFLAGS) ../../$(JAR_FILE) .
 
@@ -108,9 +108,9 @@ $(all_javas):
 	$(MKDIR) $(CLASSES)
 	$(FIND) $(SRC_MAIN) -name '*.java' > $@
 
-# compile - Compile the source
-.PHONY: compile
-compile: $(all_javas) $(GEN_DOCS)
+# compileit - Compile the source
+.PHONY: compileit
+compileit: $(all_javas) $(GEN_DOCS)
 	$(MKDIR) $(BUILD)
 	$(JAVAC) $(JFLAGS) @$<
 
