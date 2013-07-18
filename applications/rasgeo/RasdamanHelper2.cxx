@@ -205,28 +205,28 @@ unsigned int RasdamanHelper2::getTypeSize(r_Type::r_Type_Id rtype) throw (r_Erro
     switch (rtype)
     {
     case r_Type::CHAR:
-        ret = sizeof(unsigned char);
+        ret = sizeof(r_Char);
         break;
     case r_Type::ULONG:
-        ret = sizeof(unsigned long);
+        ret = sizeof(r_ULong);
         break;
     case r_Type::USHORT:
-        ret = sizeof(unsigned short);
+        ret = sizeof(r_UShort);
         break;
     case r_Type::LONG:
-        ret = sizeof(long);
+        ret = sizeof(r_Long);
         break;
     case r_Type::SHORT:
-        ret = sizeof(short);
+        ret = sizeof(r_Short);
         break;
     case r_Type::OCTET:
-        ret = sizeof(char);
+        ret = sizeof(r_Octet);
         break;
     case r_Type::DOUBLE:
-        ret = sizeof(double);
+        ret = sizeof(r_Double);
         break;
     case r_Type::FLOAT:
-        ret = sizeof(float);
+        ret = sizeof(r_Float);
         break;
     default:
         throw r_Error(r_Error::r_Error_TypeInvalid);
