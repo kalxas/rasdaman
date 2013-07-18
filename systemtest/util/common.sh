@@ -218,7 +218,7 @@ function check_collection()
 {
   id=`$PSQL -c  "select id from PS_Coverage where name = '$COLLS' " | head -3 | tail -1`
   test1=0
-  if [[ "$id" != \(0*\) ]]; then
+  if [[ "$id" == \(0*\) ]]; then
     test1=1
   fi
 

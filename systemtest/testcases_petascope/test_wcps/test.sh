@@ -123,6 +123,8 @@ for f in *.test; do
 
   [ -f "$f" ] || continue
   
+  #[[ "$f" == 57-* ]] || continue
+  
   # check if rasdaman is running
   $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string > /dev/null 2>&1
   if [ $? -ne 0 ]; then
