@@ -808,6 +808,8 @@ deleteExp: DELETE FROM iteratedCollection WHERE generalExp
 	  FREESTACK($4)
 	}
 /* // doesn't work yet, somewhere later the server crashes -- PB 2006-jan-03
+ * uncommented and fixed, ticket 336 -- DM 2013-jul-18
+ */
 	| DELETE FROM iteratedCollection
 	{
 	  try {
@@ -824,6 +826,15 @@ deleteExp: DELETE FROM iteratedCollection WHERE generalExp
             YYABORT;
 	  }
 
+	  // create a QtONCStreamList and add the QtAccess object of collection Spec
+	  QtIterator::QtONCStreamList* streamList = new QtIterator::QtONCStreamList(1);
+	  (*streamList)[0] = $3;
+	  parseQueryTree->removeDynamicObject( $3 );
+	  
+	  // create a SelectionIterator
+	  QtSelectionIterator* si = new QtSelectionIterator();
+	  si->setStreamInputs( streamList );
+
 	  // create delete node
 	  QtDelete* delNode = new QtDelete();
 	  delNode->setStreamInput( $3 );
@@ -835,7 +846,6 @@ deleteExp: DELETE FROM iteratedCollection WHERE generalExp
 	  FREESTACK($1)
 	  FREESTACK($2)
 	}
-*/
 	;
 
 updateSpec: variable                 
