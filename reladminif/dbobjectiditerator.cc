@@ -71,10 +71,7 @@ DBObjectIdIterator<T>::not_done() const
         }
         else
         {
-            if (counter == mySet->size())
-                retval = false;
-            else
-                retval = true;
+            retval = true;
         }
     }
     RMDBGEXIT(7, RMDebug::module_adminif, "DBObjectIdIterator","not_done() " << retval);

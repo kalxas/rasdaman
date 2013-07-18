@@ -109,7 +109,28 @@ if [ $? -eq 0 ]; then
 	sdom1=`$RASQL -q "select sdom(c) from $TMP_COLLECTION as c" --out string`
 	sdom2=`$RASQL -q "select sdom(c) from $TEST_COLLECTION as c" --out string`
 	if [ "$sdom1" == "$sdom2" ]; then
-	  echo ok.
+		echo ok.
+		NUM_SUC=$(($NUM_SUC + 1))
+	else
+		echo failed.
+		NUM_FAIL=$(($NUM_FAIL + 1))
+	fi
+else
+	echo failed.
+	NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+
+# ------------------------------------------------------------------------------
+
+# insert another object, so we test deleting all objects from one collection
+$RASQL --quiet -q "select c / 2 into $TMP_COLLECTION from $TEST_COLLECTION as c"
+
+logn "delete all MDDs from a collection... "
+$RASQL --quiet -q "delete from $TMP_COLLECTION"
+if [ $? -eq 0 ]; then
+	sdom=`$RASQL --quiet -q "select sdom(c) from $TMP_COLLECTION as c" --out string`
+	if [ -z "$sdom" ]; then
+		echo ok.
 		NUM_SUC=$(($NUM_SUC + 1))
 	else
 		echo failed.
