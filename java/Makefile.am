@@ -43,6 +43,7 @@ examples: src/examples/*.java all
 tests: src/tests/*.java all
 	mkdir -p bin
 	javac -d bin src/tests/*.java -cp dist/rasj.jar:../applications/petascope/lib/junit-4.5.jar
+	java -cp bin:dist/rasj.jar tests.UpdateTest
 	java -cp bin:dist/rasj.jar:../applications/petascope/lib/junit-4.5.jar org.junit.runner.JUnitCore tests.SimultaneousConnectionsTest
 	
 clean:
