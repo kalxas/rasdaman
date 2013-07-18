@@ -40,6 +40,8 @@ import rasj.global.*;
 
 import java.util.*;
 import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class implements the ODMG OQLQuery interface.
@@ -72,6 +74,8 @@ public class RasOQLQuery implements OQLQuery, RasCommDefs
      * Stores the number of MDD parameters
      */
     private int numberOfParams = 0;
+    
+    private static Pattern MDD_CONSTANT_PATTERN = Pattern.compile("\\W\\$([0-9]+)\\W");
 
     /**
      * Constructor
@@ -157,17 +161,14 @@ public class RasOQLQuery implements OQLQuery, RasCommDefs
               }
 
             // test for correct number of query parameters
-            StringTokenizer strTok = new StringTokenizer(queryString);
-            String token = "";
+            Matcher matcher = MDD_CONSTANT_PATTERN.matcher(queryString);
             int counter = 0;
-            while(strTok.hasMoreTokens())
+            while(matcher.find())
               {
-                token = strTok.nextToken();
-                if(token.charAt(0) == '$')
-                  {
                     try
                       {
-                        if(Integer.parseInt(token.substring(1, 2)) > counter)
+                        String group = matcher.group(1);
+                        if(Integer.parseInt(group) > counter)
                         counter++;
                       }
                     catch(NumberFormatException e)
@@ -176,7 +177,6 @@ public class RasOQLQuery implements OQLQuery, RasCommDefs
                         Debug.leaveVerbose( "RasOQLQuery.execute done. number format exception in query parsing." );
                         throw new QueryParameterCountInvalidException("There are was a NumberFormatException while parsing the query.");
                       }
-                  }
               }
             if(counter != numberOfParams)
               {
