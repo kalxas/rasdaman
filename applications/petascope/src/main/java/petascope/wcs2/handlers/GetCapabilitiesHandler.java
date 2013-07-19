@@ -114,18 +114,28 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             for (String mimeType : mimeTypes) {
                 Element formatSupported = new Element(PREFIX_WCS + ":" + LABEL_FORMAT_SUPPORTED, NAMESPACE_WCS);
                 formatSupported.appendChild(mimeType);
-                serviceMetadata.appendChild(formatSupported);
+                // Insert it on top, in case the template already contains some other fixed content
+                serviceMetadata.insertChild(formatSupported, 0);
             }
             //:~
             
             //: CRS [Req9: /req/crs/wcsServiceMetadata-outputCrs]
-            Element crsExtension = new Element(PREFIX_WCS + ":" + LABEL_EXTENSION, NAMESPACE_WCS);
             Element crsMetadata  = new Element(PREFIX_CRS + ":" + LABEL_CRS_METADATA, NAMESPACE_CRS);
             Element supportedCrs = new Element(PREFIX_CRS + ":" + ATT_SUPPORTED_CRS, NAMESPACE_CRS);
             supportedCrs.appendChild(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH));
             crsMetadata.appendChild(supportedCrs);
-            crsExtension.appendChild(crsMetadata);
-            serviceMetadata.appendChild(crsExtension);
+            Element wcsExtension = serviceMetadata.getFirstChildElement(LABEL_EXTENSION, NAMESPACE_WCS);
+            // Check if an extension is already defined in the template, otherwise create a new one
+            if (null == wcsExtension) {
+                // Add the new child element
+                wcsExtension = new Element(PREFIX_WCS + ":" + LABEL_EXTENSION, NAMESPACE_WCS);
+                wcsExtension.appendChild(crsMetadata);
+                serviceMetadata.appendChild(wcsExtension);
+            } else {
+                // Just update the child element
+                wcsExtension.appendChild(crsMetadata);
+            }
+            
             //:~
             root.appendChild(serviceMetadata.copy());
         }
