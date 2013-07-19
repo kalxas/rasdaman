@@ -1,0 +1,7 @@
+for c in (mean_summer_airtemp)
+  return condense +
+  over $x x(500:600),
+       $y y(500:600)
+  where (max(c[x($x:$x),y($y:$y)]) < 100)
+  using c[x($x),y($y)]
+

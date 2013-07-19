@@ -31,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.core.Metadata;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
@@ -95,6 +96,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
                     dvalue = ((NumericScalarExpr) child).getSingleValue();
                     log.trace(WCPSConstants.MSG_MATCHED_NUMERIC_SCALAR_EXPR);
                 } catch (WCPSException e) {
+                    if (e.getExceptionCode() == ExceptionCode.MissingCRS) throw(e);
                     child = null;
                 }
             }

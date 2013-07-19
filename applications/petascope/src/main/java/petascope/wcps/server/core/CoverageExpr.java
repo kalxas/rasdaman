@@ -25,6 +25,7 @@ import java.util.Iterator;
 import org.w3c.dom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.WCPSConstants;
 
@@ -142,7 +143,10 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
                         child = new SubsetOperationCoverageExpr(node, xq);
                         log.trace("  " + WCPSConstants.MSG_MATCHED_SUBSET_OP);
                     } catch (WCPSException e) {
-                        child = null;
+                        if ( e.getExceptionCode() == ExceptionCode.MissingCRS) { 
+                            throw(e);
+                        }
+                        child = null; 
                         exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
                     }
                 }

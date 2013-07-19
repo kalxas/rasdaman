@@ -130,6 +130,7 @@ public class ExceptionCode {
                 + "\n  httpErrorCode = " + httpErrorCode
                 + "\n}";
     }
+    
     public static final ExceptionCode BadResponseHandler = new ExceptionCode("BadResponseHandler", null, 0);
     public static final ExceptionCode BadPostParameter = new ExceptionCode("BadPostParameter", null, 0);
     public static final ExceptionCode InternalComponentError = new ExceptionCode("InternalComponentError", null, 0);
@@ -206,4 +207,8 @@ public class ExceptionCode {
             "Extent interval passed has upper bound smaller than lower bound", 404);
     public static final ExceptionCode ScaleAxisUndefined = new ExceptionCode("ScaleAxisUndefined",
             "CRS axis indicated is not an axis occurring in this coverage", 404);
+    // Fix ticket #394
+    public static final ExceptionCode MissingCRS = new ExceptionCode("MissingCRS", "CRS could be missing in the query. Please check",404);
+   
 }
+    

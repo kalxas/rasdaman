@@ -29,6 +29,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.Pair;
 import petascope.util.WCPSConstants;
@@ -103,15 +105,32 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
         DimensionIntervalElement axis;
         int axisId;
         int axisLo, axisHi;
-
+      
         while (i.hasNext()) {
             axis = i.next();
             axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
             log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_ID + ": " + axisId);
             log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName());
-
-            axisLo = Integer.parseInt(axis.getLoCellCoord());
-            axisHi = Integer.parseInt(axis.getHiCellCoord());
+            
+            // Fixing bug #394 [author Swing:It]
+            // axisLo = Integer.parseInt(axis.getLoCellCoord());
+            // axisHi = Integer.parseInt(axis.getHiCellCoord());
+            // Start fix
+            
+            try {
+                 log.trace("  " + WCPSConstants.MSG_AXIS + ": Getting coordinates.");
+                 axisLo = Integer.parseInt(axis.getLoCellCoord());
+                 axisHi = Integer.parseInt(axis.getHiCellCoord());
+            } catch (NumberFormatException e) {
+                
+                    String errmsg = "  " + WCPSConstants.ERRTXT_NOT_A_NUMBER + ". " + WCPSConstants.ERRTXT_CRS_COULD_BE_MISSING;
+                    log.error(errmsg + ": " + axis.getAxisName());
+                    
+                    throw new WCPSException(ExceptionCode.MissingCRS, errmsg);
+              }
+            
+            // End fix #394       
+            
             dimNames[axisId] = axisLo + ":" + axisHi;
             log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_COORDS + ": " + dimNames[axisId]);
             coverageInfo.setCellDimension(

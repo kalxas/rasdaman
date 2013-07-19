@@ -466,6 +466,12 @@ public interface WCPSConstants {
     /**
      * Debug messages  
      */
+    
+    // Fixing #394 [author Swing:It]
+    public static final String ERRTXT_NOT_A_NUMBER                  = "Value found is not numeric";
+    public static final String ERRTXT_CRS_COULD_BE_MISSING          = "CRS missing? ";
+    // End fix #394
+     
     public static final String DEBUGTXT_CONVERTED_ABSTRACT_SYNTAX_QUERY= "Coverted the Abstract syntax query to an XML query:";
     public static final String DEBUGTXT_FINALMETADATA_RESULT           = "Final metadata result: ";
     public static final String DEBUGTXT_FINAL_RASQL_QUERY              = "Final RasQL query: ";
@@ -479,5 +485,5 @@ public interface WCPSConstants {
      */
     public static final String WARNTXT_NO_NATIVE_CRS_P1                = "No native CRS specified for axis";
     public static final String WARNTXT_NO_NATIVE_CRS_P2                = "assuming pixel coordinates.";
-    
+   
 }

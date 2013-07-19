@@ -30,6 +30,7 @@ import petascope.wcps.server.core.Wcps;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import javax.servlet.ServletException;
@@ -238,9 +239,8 @@ public class WcpsServlet extends HttpServlet {
                 "<html><head><title>Web Coverage Processing Service</title></head><body>");
         out.println("<h1>An error has occured</h1>");
         out.println("<p>" + message + "</p>");
-        out.println("<p>Stack trace:<br/><small>");
-        e.printStackTrace(out);
-        out.println("</small></p></body></html>");
+        log.error("StackTrace:", e);
+        out.println("</body></html>");
         out.close();
         log.error("WCPS: done with error");
     }
