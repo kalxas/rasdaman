@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.extensions;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -320,23 +321,23 @@ public class CRSExtension implements Extension {
         String subsetAxisName = subset.getDimension();
         
         // Set bounds
-        double bboxMin = cellSpace ?
-                meta.getMetadata().getCellDomainByName(subsetAxisName).getLo().doubleValue() :
-                new Double(meta.getBbox().getMinValue(subsetAxisName));
-        double bboxMax = cellSpace ?
-                meta.getMetadata().getCellDomainByName(subsetAxisName).getHi().doubleValue() :
-                new Double(meta.getBbox().getMaxValue(subsetAxisName));
+        BigDecimal bboxMin = cellSpace ?
+                new BigDecimal(meta.getMetadata().getCellDomainByName(subsetAxisName).getLo()) :
+                meta.getBbox().getMinValue(subsetAxisName);
+        BigDecimal bboxMax = cellSpace ?
+                new BigDecimal(meta.getMetadata().getCellDomainByName(subsetAxisName).getHi()) :
+                meta.getBbox().getMaxValue(subsetAxisName);
         
         // Check overlap: to avoid leaks, check assumes subsets might not be well ordered (e.g. subsetMin>subsetMax):
         if (subset instanceof DimensionTrim) {
-            double subsetMin = new Double(((DimensionTrim)subset).getTrimLow());
-            double subsetMax = new Double(((DimensionTrim)subset).getTrimHigh());            
-            if ((subsetMin < bboxMin && subsetMax < bboxMin) || 
-                    (subsetMin > bboxMax && subsetMax > bboxMax))
+            BigDecimal subsetMin = new BigDecimal(((DimensionTrim)subset).getTrimLow());
+            BigDecimal subsetMax = new BigDecimal(((DimensionTrim)subset).getTrimHigh());
+            if (subsetMin.compareTo(bboxMin) < 0 && subsetMax.compareTo(bboxMin) < 0 || 
+                    (subsetMin.compareTo(bboxMax) > 0 && subsetMax.compareTo(bboxMax) > 0))
                 return false;
         } else if (subset instanceof DimensionSlice &&
-                (new Double(((DimensionSlice)subset).getSlicePoint()) < bboxMin ||
-                 new Double(((DimensionSlice)subset).getSlicePoint()) > bboxMax))
+                (new BigDecimal(((DimensionSlice)subset).getSlicePoint()).compareTo(bboxMin) < 0 ||
+                 new BigDecimal(((DimensionSlice)subset).getSlicePoint()).compareTo(bboxMax) > 0))
             return false;
         
         return true;

@@ -196,31 +196,31 @@ public class Bbox implements Cloneable {
     /**
      * @return the minValues of a specified axis.
      */
-    public double getMinValue(String axisName) {
+    public BigDecimal getMinValue(String axisName) {
         for (int i=0; i<names.size(); i++) { 
             if (names.get(i).equals(axisName)) {
                 return getMinValue(i);
             }
         }
-        return Double.NaN;
+        return null;
     }    
-    public double getMinValue(int index) {
-        return minValues.get(index).doubleValue();
+    public BigDecimal getMinValue(int index) {
+        return minValues.get(index);
     }
     
     /**
      * @return the maxValue of a specified axis.
      */
-    public double getMaxValue(String axisName) {
+    public BigDecimal getMaxValue(String axisName) {
         for (int i=0; i<names.size(); i++) { 
             if (names.get(i).equals(axisName)) {
                 return getMaxValue(i);
             }
         }
-        return Double.NaN;
+        return null;
     }    
-    public double getMaxValue(int index) {
-        return maxValues.get(index).doubleValue();
+    public BigDecimal getMaxValue(int index) {
+        return maxValues.get(index);
     }
     
     /**
@@ -349,7 +349,7 @@ public class Bbox implements Cloneable {
      */
     public String getLowerCorner() {
         String output = "";
-        double tmp;
+        BigDecimal tmp;
         // Loop through the N dimensions
         for (int i = 0; i < getDimensionality(); i++) {
             if (i>0) output += " ";
@@ -359,7 +359,7 @@ public class Bbox implements Cloneable {
             //if (getType(i).equals(AxisTypes.T_AXIS)) {
             //    tmp = tmp.replaceFirst(" ", TimeUtil.ISO8601_T_KEY);
             //}
-            output += (new BigDecimal(tmp)).toPlainString();
+            output += tmp.toPlainString();
         }
         return output;
     }
@@ -367,7 +367,7 @@ public class Bbox implements Cloneable {
     // Convert numbers to plain Strings: double get `E' formatting otherwise.
     public String getLowerCorner(String[] axisLabels) {
         String output = "";
-        double tmp;
+        BigDecimal tmp;
         // Loop through the N dimensions
         for (int i = 0; i < axisLabels.length; i++) {
             if (i>0) output += " ";
@@ -377,13 +377,13 @@ public class Bbox implements Cloneable {
             //if (getType(i).equals(AxisTypes.T_AXIS)) {
             //    tmp = tmp.replaceFirst(" ", TimeUtil.ISO8601_T_KEY);
             //}
-            output += (new BigDecimal(tmp)).toPlainString();
+            output += tmp.toPlainString();
         }
         return output;
     }
     public String getWgs84LowerCorner() {
         String output = "";
-        double tmp;
+        BigDecimal tmp;
         // Loop through the N dimensions
         for (int i = 0; i < getDimensionality(); i++) {
             if (i>0) output += " ";
@@ -395,14 +395,14 @@ public class Bbox implements Cloneable {
                 // Disable: breaks XML schema (requires xs:double)
                 //if (getType(i).equals(AxisTypes.T_AXIS))
                 //    tmp = tmp.replaceFirst(" ", TimeUtil.ISO8601_T_KEY);
-                output += tmp;
+                output += tmp.toPlainString();
             }
         }
         return output;
     }        
     public String getUpperCorner() {
         String output = "";
-        double tmp;
+        BigDecimal tmp;
         // Loop through the N dimensions
         for (int i = 0; i < getDimensionality(); i++) {
             if (i>0) output += " ";
@@ -411,14 +411,14 @@ public class Bbox implements Cloneable {
             // Disable: breaks XML schema (requires xs:double)
             //if (getType(i).equals(AxisTypes.T_AXIS))
             //    tmp = tmp.replaceFirst(" ", TimeUtil.ISO8601_T_KEY);
-            output += tmp;
+            output += tmp.toPlainString();
         }
         return output;
     }
     // Used when get the corner only for a subset of the whole available axes 
     public String getUpperCorner(String[] axisLabels) {
         String output = "";
-        double tmp;
+        BigDecimal tmp;
         // Loop through the N dimensions
         for (int i = 0; i < axisLabels.length; i++) {
             if (i>0) output += " ";
@@ -428,13 +428,13 @@ public class Bbox implements Cloneable {
             //if (getType(i).equals(AxisTypes.T_AXIS)) {
             //    tmp = tmp.replaceFirst(" ", TimeUtil.ISO8601_T_KEY);
             //}
-            output += tmp;
+            output += tmp.toPlainString();
         }
         return output;
     }
     public String getWgs84UpperCorner() {
         String output = "";
-        double tmp;
+        BigDecimal tmp;
         // Loop through the N dimensions
         for (int i = 0; i < getDimensionality(); i++) {
             if (i>0) output += " ";
@@ -446,7 +446,7 @@ public class Bbox implements Cloneable {
                 // Disable: breaks XML schema (requires xs:double)
                 //if (getType(i).equals(AxisTypes.T_AXIS))
                 //    tmp = tmp.replaceFirst(" ", TimeUtil.ISO8601_T_KEY);
-                output += tmp;
+                output += tmp.toPlainString();
             }
         }
         return output;

@@ -181,21 +181,19 @@ public class executeDescribeCoverage {
         List<String> lowers = new ArrayList<String>();
         List<String> uppers = new ArrayList<String>();
         
-        if (boundbox != null) {
-            for (int i = 0; i < boundbox.getDimensionality(); i++) {
-                lowers.add(new Double(boundbox.getMinValue(i)).toString());
-                uppers.add(new Double(boundbox.getMaxValue(i)).toString());
-                
-                try {
-                    bboxType.getLowerCorner().add(Double.parseDouble(lowers.get(i)));
-                    bboxType.getUpperCorner().add(Double.parseDouble(uppers.get(i)));
-                } catch (NumberFormatException e) {
-                    log.error("WCS 1.0 still requires numeric bounding boxes only: ignoring " + 
-                            boundbox.getCoverageName() + "::" + boundbox.getType(i) + " axis.");
-                }
-            }            
-            bbox = bboxType;
+        for (int i = 0; i < boundbox.getDimensionality(); i++) {
+            lowers.add(boundbox.getMinValue(i).toPlainString());
+            uppers.add(boundbox.getMaxValue(i).toPlainString());
+            
+            try {
+                bboxType.getLowerCorner().add(Double.parseDouble(lowers.get(i)));
+                bboxType.getUpperCorner().add(Double.parseDouble(uppers.get(i)));
+            } catch (NumberFormatException e) {
+                log.error("WCS 1.0 still requires numeric bounding boxes only: ignoring " +
+                        boundbox.getCoverageName() + "::" + boundbox.getType(i) + " axis.");
+            }
         }
+        bbox = bboxType;
 
         domain = new CoverageDomainType();
         SpatialDomainType spatial = new SpatialDomainType();
