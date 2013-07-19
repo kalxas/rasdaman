@@ -457,7 +457,14 @@ void QueryTree::rewriteDomainObjects(r_Minterval *greatDomain, string *greatIter
                 )
             );
 
-            (*iter)->setMintervalOp( new QtPointOp( lop ) );
+            // set properly parent to new op -- DM 2013-jun-26
+            QtOperation* mintervalOp = (*iter)->getMintervalOp();
+            QtOperation* newMintervalOp = new QtPointOp( lop );
+            if (mintervalOp)
+            {
+                newMintervalOp->setParent(*iter);
+            }
+            (*iter)->setMintervalOp( newMintervalOp );
 
             // 4. set varname to greatIterator
             QtVariable *var1 = new QtVariable( string(*greatIterator) );
