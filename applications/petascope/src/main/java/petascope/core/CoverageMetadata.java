@@ -135,7 +135,7 @@ public class CoverageMetadata implements Cloneable {
             BigDecimal axisHi;
             if (!isIrregular) {
                 // use the resolution
-                axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints.subtract(BigInteger.ONE))));
+                axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints)));
             } else {
                 // get the greatest coefficient
                 axisHi = axisLo.add(resolution.multiply(axis.getValue()));

@@ -721,7 +721,7 @@ public class CrsUtil {
                     log.debug(uri + " has been sliced.");
                     updatedSingleUris.add(CrsUri.buildSlicedUri(uri, axesLabels));
                 } else if (axesLabels.size() == getTotalDimensionality(uri)) {
-                    log.debug(uri + " has not been sliced at all :keep it as-is.");
+                    log.debug(uri + " has not been sliced at all: keep it as-is.");
                     updatedSingleUris.add(uri);
                 } else if (axesLabels.size() > getTotalDimensionality(uri)) {
                     log.error(uri + " is left with a non-positive number of axis: something went wrong.");
