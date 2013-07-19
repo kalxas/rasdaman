@@ -73,6 +73,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         
         // Init variables, to be then filled scanning the request subsets
         String axesLabels = "";
+        String uomLabels = "";
         String lowerDom = "";
         String upperDom = "";
         String lowerCellDom = "";
@@ -103,8 +104,9 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                     try {
                         // Compare subset with domain borders and update
                         if (subset instanceof DimensionTrim) {
-                            // Append axis label
+                            // Append axis/uom label
                             axesLabels += subset.getDimension() + " ";
+                            uomLabels  += domainEl.getUom() + " ";
                             // Append updated bounds 
                             // TODO: if request is specified via grid coords, need a backwards transform here 
                             //       {cellDomain->domain} to show domain values in the WCS response:
@@ -159,15 +161,16 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             if (!domUpdated) {
                 // This dimension is not involved in any subset: use bbox bounds
                 axesLabels += domainEl.getLabel() + " ";
-                lowerDom += domainEl.getMinValue() + " ";
-                upperDom += domainEl.getMaxValue() + " ";
+                uomLabels  += domainEl.getUom()   + " ";
+                lowerDom   += domainEl.getMinValue() + " ";
+                upperDom   += domainEl.getMaxValue() + " ";
                 lowerCellDom += cellDomainEl.getLo() + " ";
                 upperCellDom += cellDomainEl.getHi() + " ";
             }
         } // END domains iterator
         
         // Update axes labels
-        m.setAxisLabels(axesLabels);
+        m.setAxisLabels(axesLabels);        
         // Update **pixel-domain** bounds
         m.setLow(lowerCellDom);
         m.setHigh(upperCellDom);
@@ -178,9 +181,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         if (!slicedAxes.isEmpty()) {
             crsName = CrsUtil.sliceAxesOut(meta.getCrsUris(), slicedAxes);
             m.setCrs(crsName);
-            m.setUomLabels(StringUtil.listToTuple(
-                    CrsUtil.getAxesUoMs(CrsUtil.CrsUri.decomposeUri(crsName)),
-                    ' '));
+            m.setUomLabels(uomLabels);
         }
     }
 
