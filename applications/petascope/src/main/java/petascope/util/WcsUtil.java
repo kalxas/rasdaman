@@ -22,7 +22,10 @@
 package petascope.util;
 
 import java.io.StringWriter;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import javax.xml.bind.JAXBException;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
@@ -352,8 +355,16 @@ public class WcsUtil {
         
         // "optional" coefficients
         if (domEl.isIrregular()) {
+            List<BigDecimal> coeffs = domEl.getCoefficients();
+            // Adjust their values to the origin of the requested grid
+            List<String> subsetLabels = Arrays.asList(m.getAxisLabels().split(" "));
+            if (subsetLabels.contains(axisName)) {
+                BigDecimal subsetLo = new BigDecimal(m.getDomLow().split(" ")[subsetLabels.indexOf(axisName)]);
+                coeffs = Vectors.add(coeffs, (domEl.getMinValue().subtract(subsetLo)).divide(domEl.getOffsetVector()));
+            }
+            // Create the XML element
             coefficients = "\n          <" + XMLSymbols.LABEL_COEFFICIENTS  + ">" +
-                    StringUtil.listToTuple(domEl.getCoefficients(), ' ') +
+                    StringUtil.listToTuple(coeffs, ' ') +
                     "</" + XMLSymbols.LABEL_COEFFICIENTS + ">"
                     ;
         }
@@ -406,7 +417,7 @@ public class WcsUtil {
             // Fill with origin and offset-vector(s)
             String outGml = Templates.getTemplate(Templates.GRID_ORIGIN,
                     Pair.of("\\{" + Templates.KEY_POINTID   + "\\}", m.getCoverageId() + Templates.SUFFIX_ORIGIN),
-                    Pair.of("\\{" + Templates.KEY_ORIGINPOS + "\\}", bbox.getLowerCorner(m.getAxisLabels().split(" ")))
+                    Pair.of("\\{" + Templates.KEY_ORIGINPOS + "\\}", m.getDomLow())
                     );
             if (m.getCoverageType().equals(XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE)) {
                 // Fill with offset-vector(s)

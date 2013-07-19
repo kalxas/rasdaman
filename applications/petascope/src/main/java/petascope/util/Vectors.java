@@ -21,6 +21,7 @@
  */
 package petascope.util;
 
+import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -200,5 +201,36 @@ public class Vectors {
     public static <T extends Number> String toString(T[] v) {
         List<T> vList = Arrays.asList(v);
         return vList.toString();
+    }
+
+    /**
+     * Add a scalar to each component of a numeric vector.
+     *
+     * @param <T>  The generic numeric type (no primitives)
+     * @param a    The numeric vector
+     * @param b    The scalar
+     * @return [a0+b,a1+b,__,aN+b]
+     */
+    public static <T extends Number> T[] add(T[] a, T b) {
+        // init
+        Number[] vOut = new Number[a.length];
+
+        for (int i=0; i<a.length; i++) {
+            if (b.getClass().equals(BigDecimal.class)) {
+                vOut[i] = ((BigDecimal)a[i]).add((BigDecimal)b);
+            } else {
+                vOut[i] = a[i].doubleValue() + b.doubleValue();
+            }
+        }
+
+        return (T[])vOut;
+    }
+    // Overload for lists
+    public static <T extends Number> List<T> add(List<T> a, T b) {
+        Number[] aa = a.toArray((T[]) Array.newInstance(b.getClass(),0));
+        List<Number> aaa = Arrays.asList(aa);
+        Number[] aaaa =  add((T[])aaa.toArray(),b);
+        return Arrays.asList((T[])aaaa);
+        //return Arrays.asList((add((T[])a.toArray(), b));
     }
 }
