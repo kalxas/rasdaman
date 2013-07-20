@@ -57,7 +57,7 @@ public class NumericScalarExpr extends AbstractRasNode {
             try {
                 dvalue = Double.parseDouble(value);
             } catch (NumberFormatException e) {
-                throw new WCPSException(WcpsConstants.ERRTXT_COULD_NOT_UNDERSTAND_CONST + value);
+                throw new WCPSException("Could not understand constant: " + value);
             }
         } else if (nodeName.equals(WcpsConstants.MSG_COMPLEX_CONSTANT)
                 || nodeName.equals(WcpsConstants.MSG_CONDENSE)
@@ -90,21 +90,19 @@ public class NumericScalarExpr extends AbstractRasNode {
                 first = new NumericScalarExpr(child, xq);
                 second = new NumericScalarExpr(child.getNextSibling(), xq);
             } catch (WCPSException e) {
-                log.error(WcpsConstants.ERRTXT_FAILED_PARSE_NUM_EXPR);
+                log.error("Failed to parse a numeric expression pair.");
             }
         } else if (nodeName.equals(WcpsConstants.MSG_VARIABLE_REF)) {
             try {
                 op = code(nodeName);
                 twoChildren = false;
                 first = new VariableReference(node, xq);
-                log.trace(WcpsConstants.MSG_MATCHING_VAR_REF + first.toRasQL());
+                log.trace("Matched variable reference: " + first.toRasQL());
             } catch (WCPSException e) {
-                log.error(WcpsConstants.ERRTXT_FAILED_MATCH_VAR_REF
-                        + e.toString());
+                log.error("Failed to match variable reference: " + e.toString());
             }
         } else {
-            throw new WCPSException(WcpsConstants.ERRTXT_UNEXPECTED_NUM_SCALAR_EXPR
-                    + node.getNodeName());
+            throw new WCPSException("Unexpected NumericScalarExpression node: " + node.getNodeName());
         }
         log.trace("  " + WcpsConstants.MSG_OPERATION + ": " + op + ", " + WcpsConstants.MSG_BINARY + ": " + twoChildren);
         
@@ -137,7 +135,7 @@ public class NumericScalarExpr extends AbstractRasNode {
             result = "(" + first.toRasQL() + ")" + op
                     + "(" + second.toRasQL() + ")";
         } else {
-            return " " + WcpsConstants.ERRTXT_ERROR + " ";
+            return " " + WcpsConstants.MSG_ERROR + " ";
         }
 
         return result;

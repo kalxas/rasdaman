@@ -46,7 +46,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
         }
 
         if (node == null) {
-            throw new WCPSException(WcpsConstants.ERRTXT_COVERAGEEXPRTYPE_PASING_ERR);
+            throw new WCPSException("CoverageExprType parsing error.");
         }
 
         String nodeName = node.getNodeName();
@@ -59,7 +59,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
             childInfo = node.getFirstChild().getNodeValue();
 
             if (!xq.isIteratorDefined(childInfo)) {
-                throw new WCPSException(WcpsConstants.MSG_ITERATOR + " " + childInfo + " " + WcpsConstants.ERRTXT_NOT_DEFINED);
+                throw new WCPSException(WcpsConstants.MSG_ITERATOR + " " + childInfo + " not defined");
             }
 
             Iterator<String> coverages = xq.getCoverages(childInfo);
@@ -73,16 +73,14 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
                             coverages.next()));
 
                     if (!tmp.isCompatible(info)) {
-                        throw new WCPSException(
-                                WcpsConstants.ERRTXT_INCOMPATIBLE_COVERAGES);
+                        throw new WCPSException("Incompatible coverages within the same iterator.");
                     }
                 }
             } catch (Exception ex) {
                 throw new WCPSException(ex.getMessage(), ex);
             }
 
-            log.trace(WcpsConstants.MSG_FOUND_SIMPLE_COVERAGE_DEF + ": " + childInfo + ", "
-                    + info.toString());
+            log.trace("Found simple coverage definition: " + childInfo + ", " + info.toString());
         } else if (nodeName.equals(WcpsConstants.MSG_CRS_TRANSFORM)) {
             // TODO: implement CrsTransform class
             child = new CrsTransformCoverageExpr(node, xq);
@@ -103,7 +101,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
             if (child == null) {
                 try {
                     child = new SetMetadataCoverageExpr(node, xq);
-                    log.trace("  " + WcpsConstants.MSG_MATCHED_SET_METADATA);
+                    log.trace("Matched set metadata operation.");
                 } catch (WCPSException e) {
                     child = null;
                     exMessage = e.getMessage();
@@ -114,10 +112,10 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
             if (child == null) {
                 try {
                     child = new InducedOperationCoverageExpr(node, xq);
-                    log.trace("  " + WcpsConstants.MSG_MATCHED_INDUCED_COVERAGE);
+                    log.trace("Matched induced coverage expression operation.");
                 } catch (WCPSException e) {
                     child = null;
-                    if (e.getMessage().equals(WcpsConstants.MSG_METHOD_NOT_IMPL)) {
+                    if (e.getMessage().equals("Method not implemented")) {
                         throw e;
                     }
                 }
@@ -126,7 +124,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
             if (child == null) {
                 try {
                     child = new SubsetOperationCoverageExpr(node, xq);
-                    log.trace("  " + WcpsConstants.MSG_MATCHED_SUBSET_OP);
+                    log.trace("Matched subset operation.");
                 } catch (WCPSException e) {
                     child = null;
                     exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
@@ -137,7 +135,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
                 try {
                     child = new ScalarExpr(node, xq);
                     this.scalarExpr = true;
-                    log.trace(WcpsConstants.MSG_MATCHED_SCALAR_EXPR);
+                    log.trace("Matched scalar expression.");
                 } catch (WCPSException e) {
                     child = null;
                     exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
@@ -146,7 +144,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
         }
 
         if (!simpleCoverage && (child == null)) {
-            throw new WCPSException(WcpsConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": "
+            throw new WCPSException("Invalid coverage Expression, next node: "
                     + node.getNodeName() + " - " + exMessage);
         }
 

@@ -43,7 +43,7 @@ public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICov
         }
 
         if (node == null) {
-            throw new WCPSException(WcpsConstants.ERRTXT_SUBSET_OP_COV_EXPR);
+            throw new WCPSException("SubsetOperationCoverageExpr parsing error.");
         }
 
         String nodeName = node.getNodeName();
@@ -66,8 +66,8 @@ public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICov
             } 
             info = ((SliceCoverageExpr) child).getCoverageInfo();
         } else {
-            log.error("  " + WcpsConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);
-            throw new WCPSException(WcpsConstants.ERRTXT_FAILED_TO_MATCH_SUBSET + ": " + nodeName);
+            log.error("Failed to match SubsetOperation: " + nodeName);
+            throw new WCPSException("failed to match SubsetOperation: " + nodeName);
         }
         
         // Keep the children to re-traverse the XML tree

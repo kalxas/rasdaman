@@ -45,7 +45,7 @@ public class ComplexConstant extends AbstractRasNode {
             ok = false;
         }
         if (ok == false) {
-            throw new WCPSException(WcpsConstants.ERRTXT_COULD_NOT_PARSE_COMPLEX_CONST + " !");
+            throw new WCPSException("Could not parse Complex Constant.");
         }
 
         // parse the real part
@@ -55,8 +55,7 @@ public class ComplexConstant extends AbstractRasNode {
             try {
                 Float real = Float.parseFloat(re);
             } catch (NumberFormatException e2) {
-                throw new WCPSException(WcpsConstants.ERRTXT_COULD_NOT_PARSE_FLOAT+ " "
-                        + WcpsConstants.ERRTXT_COULD_NOT_PARSE_REAL_PART + ":" + re);
+                throw new WCPSException("Could not parse float or integer number for real part of complex number: " + re);
             }
         }
         // parse the imaginary part
@@ -66,8 +65,7 @@ public class ComplexConstant extends AbstractRasNode {
             try {
                 Float imag = Float.parseFloat(im);
             } catch (NumberFormatException e2) {
-                throw new WCPSException(WcpsConstants.ERRTXT_COULD_NOT_PARSE_FLOAT + " "
-                        + WcpsConstants.ERRTXT_COULD_NOT_PARSE_IMG_PART + im);
+                throw new WCPSException("Could not parse float or integer number for imaginary part of complex number: " + im);
             }
         }
     }
@@ -84,7 +82,7 @@ public class ComplexConstant extends AbstractRasNode {
             } else if (name.equals(WcpsConstants.MSG_IM)) {
                 im = node.getNodeValue();
             } else {
-                throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_PROC_COMPLEX_CONST + ": " + name);
+                throw new WCPSException("Unknown node while processing complex constant: " + name);
             }
 
             node = node.getNextSibling();
@@ -97,8 +95,7 @@ public class ComplexConstant extends AbstractRasNode {
             try {
                 Float real = Float.parseFloat(re);
             } catch (NumberFormatException e2) {
-                throw new WCPSException(WcpsConstants.ERRTXT_COULD_NOT_PARSE_FLOAT + " "
-                        + WcpsConstants.ERRTXT_COULD_NOT_PARSE_REAL_PART + ":" + re);
+                throw new WCPSException("Could not parse float or integer number for real part of complex number: " + re);
             }
         }
         // parse the imaginary part
@@ -108,8 +105,7 @@ public class ComplexConstant extends AbstractRasNode {
             try {
                 Float imag = Float.parseFloat(im);
             } catch (NumberFormatException e2) {
-                throw new WCPSException(WcpsConstants.ERRTXT_COULD_NOT_PARSE_FLOAT + " "
-                        + WcpsConstants.ERRTXT_COULD_NOT_PARSE_IMG_PART + im);
+                throw new WCPSException("Could not parse float or integer number for imaginary part of complex number: " + im);
             }
         }
     }

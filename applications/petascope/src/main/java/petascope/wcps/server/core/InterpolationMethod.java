@@ -39,9 +39,8 @@ public class InterpolationMethod implements Cloneable {
                 || interpolationType.equals(WcpsConstants.MSG_CUBIC )
                 || interpolationType.equals(WcpsConstants.MSG_QUADRATIC)
                 || interpolationType.equals(WcpsConstants.MSG_NONE))) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata, WcpsConstants.ERRTXT_INVALID_INTERPOLATION_MET_P1
-                    + interpolationType
-                    + WcpsConstants.ERRTXT_INVALID_INTERPOLATION_MET_P2);
+            throw new WCPSException(ExceptionCode.InvalidMetadata, "Invalid interpolation method: "
+                    + interpolationType + " is not a legal interpolation type");
         }
 
         this.interpolationType = interpolationType;
@@ -49,9 +48,8 @@ public class InterpolationMethod implements Cloneable {
         if ((nullResistance == null)
                 || !(nullResistance.equals(WcpsConstants.MSG_FULL) || nullResistance.equals(WcpsConstants.MSG_NONE)
                 || nullResistance.equals(WcpsConstants.MSG_HALF) || nullResistance.equals(WcpsConstants.MSG_OTHER))) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata, WcpsConstants.ERRTXT_INVALID_INTERPOLATION_MET_P1
-                    + nullResistance
-                    + WcpsConstants.ERRTXT_INVALID_INTERPOLATION_MET_P3);
+            throw new WCPSException(ExceptionCode.InvalidMetadata, "Invalid interpolation method: "
+                    + nullResistance + " is not a legal null resistance");
         }
 
         this.nullResistance = nullResistance;
@@ -62,9 +60,7 @@ public class InterpolationMethod implements Cloneable {
         try {
             return new InterpolationMethod(interpolationType, nullResistance);
         } catch (WCPSException ime) {
-            throw new RuntimeException(
-                    WcpsConstants.ERRTXT_INVALID_METADATA_CLONING_INT,
-                    ime);
+            throw new RuntimeException("Invalid metadata while cloning InterpolationMethod. This is a software bug in WCPS.", ime);
         }
 
     }

@@ -43,10 +43,10 @@ public class VariableReference extends AbstractRasNode {
         if (node != null && node.getNodeName().equals(WcpsConstants.MSG_VARIABLE_REF)) {
             name = node.getTextContent();
             translatedName = xq.getReferenceVariableName(name);
-            log.trace("  " + WcpsConstants.MSG_VARIABLE + " " + name + " " + WcpsConstants.MSG_HAS_BEEN_RENAMED+ " " + translatedName);
+            log.trace("Variable " + name + " has been renamed into " + translatedName);
         } else {
-            log.error("  " + WcpsConstants.ERRTXT_NOT_VAR_REF_FOUND);
-            throw new WCPSException(WcpsConstants.ERRTXT_COULD_NOT_FIND_ANY_VAR_REF);
+            log.error("No variable reference found");
+            throw new WCPSException("Could not find any variable reference.");
         }
     }
 

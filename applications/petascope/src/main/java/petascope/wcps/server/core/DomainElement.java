@@ -69,7 +69,7 @@ public class DomainElement implements Cloneable {
 
         if (axisLabel == null) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WcpsConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_NULL);
+                    "Invalid domain element: Element name and type cannot be null.");
         }
 
         // store to fields
@@ -86,7 +86,7 @@ public class DomainElement implements Cloneable {
             maxValue = max;
         } else {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    WcpsConstants.ERRTXT_INVALID_DOMAIN_ELEMENT_EMPTY);
+                    "Invalid domain element: Element name cannot be empty.");
         }
 
         if ((crsUri == null) || crsUri.equals(CrsUtil.GRID_CRS)) {
@@ -100,7 +100,7 @@ public class DomainElement implements Cloneable {
             // Consistency checks
             if (maxValue.compareTo(minValue) < 0) {
                 throw new WCPSException(ExceptionCode.InvalidMetadata,
-                        WcpsConstants.ERRTXT_INVALID_DOM_BOUNDS);
+                        "Invalid domain element: upper-bound is greater then lower-bound.");
             }
             
             BigDecimal diffBD = maxValue.subtract(minValue);
@@ -136,9 +136,7 @@ public class DomainElement implements Cloneable {
             cloned.setCoefficients(this.coefficients);
             return cloned;
         } catch (Exception ime) {
-            throw new RuntimeException(
-                    WcpsConstants.ERRTXT_INVALID_METADAT_WHILE_CLONE,
-                    ime);
+            throw new RuntimeException("Invalid metadata while cloning DomainElement. This is a software bug in WCPS.", ime);
         }
     }
 
@@ -206,7 +204,7 @@ public class DomainElement implements Cloneable {
     
     @Override
     public String toString() {
-        String d = WcpsConstants.MSG_DOMAIN_CAMEL + "#" + iOrder + " {"  
+        String d = "Domain #" + iOrder + " {"  
                 + "Name:" + label 
                 + " | Type:" + type
                 + " | UoM:" + uom

@@ -90,7 +90,7 @@ public class MetaDataExpr implements IParseTreeNode {
             result += expr.toXML();
             result += "</" + function + ">";
         } else {
-            log.error(WcpsConstants.ERRTXT_UNKNOWN_METADATAEXPR + ": " + function);
+            log.error("Unknown MetadataExpr operation: " + function);
         }
 
         return result;

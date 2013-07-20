@@ -45,7 +45,7 @@ public class AxisName extends AbstractRasNode {
             this.name = axis;
             log.trace("  " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_NAME + ": " + name);
         } else {
-            throw new WCPSException(ExceptionCode.InvalidRequest, WcpsConstants.ERRTXT_COULD_NOT_FIND_AXIS + " !");
+            throw new WCPSException(ExceptionCode.InvalidRequest, "Could not find an axis node.");
         }
     }
 

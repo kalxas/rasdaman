@@ -70,9 +70,9 @@ public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICove
                     try {
                         params = c.getFirstChild().getNodeValue();
                         int i = Integer.parseInt(params);
-                        log.trace(WcpsConstants.MSG_FOUND_BITINDEX + " = " + params);
+                        log.trace("Found bitIndex = " + params);
                     } catch (NumberFormatException e) {
-                        throw new WCPSException(WcpsConstants.ERRTXT_INVALID_NUMBER_AS_BITINDEX + ": " + params);
+                        throw new WCPSException("Invalid Number as bitIndex: " + params);
                     }
                 } else {
                     child = new CoverageExpr(c, xq);
@@ -120,7 +120,7 @@ public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICove
                 c = c.getNextSibling();
             }
         } else {
-            throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_UNARY_OP + ": " + nodeName);
+            throw new WCPSException("Unknown unary operation: " + nodeName);
         }
 
         info = new CoverageInfo(child.getCoverageInfo());
@@ -156,6 +156,6 @@ public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICove
             return WcpsConstants.MSG_BIT + "(" + child.toRasQL() + "," + params + ")";
         }
 
-        return " " + WcpsConstants.ERRTXT_ERROR + " ";
+        return " " + WcpsConstants.MSG_ERROR + " ";
     }
 }

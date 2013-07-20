@@ -81,8 +81,8 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
                     child = child.getNextSibling();
                     continue;
                 } catch (WCPSException e) {
-                    log.error("  " + WcpsConstants.ERRTXT_EXPECTED_COVERAGE_NODE_GOT + " " + nodeName);
-                    throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_NODE_FOR_SLICE_COV + ":" + child.getNodeName());
+                    log.error("Expected coverage node, got " + nodeName);
+                    throw new WCPSException("Unknown node for SliceCoverage expression: " + child.getNodeName());
                 }
             }
         }
@@ -91,7 +91,7 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         super.children.addAll(axisList);     
         
         dims = coverageInfo.getNumDimensions();
-        log.trace("  " + WcpsConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
+        log.trace("Number of dimensions: " + dims);
         dimNames = new String[dims];
 
         for (int j = 0; j < dims; ++j) {
@@ -117,8 +117,7 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             } catch (NumberFormatException e) {
                 slicingPosInt = 1;
             }
-            log.trace("  " + WcpsConstants.MSG_SLICE_AT_AXIS_ID + ": " + axisId + ", " + WcpsConstants.MSG_AXIS + 
-                    " " + WcpsConstants.MSG_NAME + ": " + axis.getAxisName() + ", " + WcpsConstants.MSG_SLICING_POSITION2 + ": " + slicingPosInt);
+            log.trace("Slice at axis id: " + axisId + ", axis name: " + axis.getAxisName() + ", slicing position: " + slicingPosInt);
             coverageInfo.setCellDimension(
                     axisId,
                     new CellDomainElement(

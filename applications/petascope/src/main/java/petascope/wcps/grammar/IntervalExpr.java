@@ -37,15 +37,14 @@ public class IntervalExpr implements IParseTreeNode {
     String function;
 
     public IntervalExpr(IndexExpr n1, IndexExpr n2) {
-        log.trace(WcpsConstants.MSG_CREATING_INTERVALEXPR);
+        log.trace("Creating IntervalExpr of two indexes.");
         this.e1 = n1;
         this.e2 = n2;
         function = WcpsConstants.MSG_TWO_INDEXES;
     }
 
     public IntervalExpr(String coverage, String axis) {
-        log.trace(WcpsConstants.MSG_CREATING_INTERVALEXPR + ": " + coverage + " " + WcpsConstants.MSG_AND + 
-                " " + WcpsConstants.MSG_AXIS + ": " + axis);
+        log.trace("Creating IntervalExpr of two indexes: " + coverage + " and axis : " + axis);
         function = WcpsConstants.MSG_CRS_METADATA;
         this.e1 = new ImageCrsDomainMetadataExpr(coverage, axis);
     }

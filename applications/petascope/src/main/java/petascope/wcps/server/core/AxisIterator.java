@@ -53,9 +53,9 @@ public class AxisIterator extends AbstractRasNode {
                 // This variable will be referenced later on. Translate it.
                 xq.addReferenceVariable(var, newIteratorName);
                 varTranslation = xq.getReferenceVariableName(var);
-                log.trace("  " + WcpsConstants.MSG_ITERATOR + " " + WcpsConstants.MSG_VAR + ": " + var);
-                log.trace("  " + WcpsConstants.MSG_REFERENCE_TO + ": " + newIteratorName);
-                log.trace("  " + WcpsConstants.MSG_VAR + " " + WcpsConstants.MSG_TRANSLATION + ": " + varTranslation);
+                log.trace("Iterator var: " + var);
+                log.trace("reference to: " + newIteratorName);
+                log.trace("Var translation: " + varTranslation);
             } else if (nodeName.equals(WcpsConstants.MSG_AXIS)) {
                 axis = new AxisName(node, xq);
             } else {
@@ -67,7 +67,7 @@ public class AxisIterator extends AbstractRasNode {
                     hi = new NumericScalarExpr(node, xq);
                 } else {
                     throw new WCPSException(ExceptionCode.UnsupportedCombination,
-                            WcpsConstants.ERRTXT_UNKNOWN_NODE + ": " + nodeName);
+                            "Unknown node in AxisIterator: " + nodeName);
                 }
             }
 

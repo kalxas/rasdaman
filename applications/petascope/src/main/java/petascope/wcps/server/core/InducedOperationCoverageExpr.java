@@ -52,10 +52,10 @@ public class InducedOperationCoverageExpr extends AbstractRasNode implements ICo
                 try {
                     child = new UnaryOperationCoverageExpr(node, xq);
                     info = new CoverageInfo((((ICoverageInfo) child).getCoverageInfo()));
-                    log.trace("  " + WcpsConstants.MSG_INDUCED_OP_SUCCESS + ": " + node.getNodeName());
+                    log.trace("induced Operation SUCCESS: " + node.getNodeName());
                 } catch (WCPSException e) {
                     child = null;
-                    if (e.getMessage().equals(WcpsConstants.MSG_METHOD_NOT_IMPL)) {
+                    if (e.getMessage().equals("Method not implemented")) {
                         throw e;
                     }
                 }
@@ -65,15 +65,14 @@ public class InducedOperationCoverageExpr extends AbstractRasNode implements ICo
                 try {
                     child = new BinaryOperationCoverageExpr(node, xq);
                     info = new CoverageInfo((((ICoverageInfo) child).getCoverageInfo()));
-                    log.trace("  " + WcpsConstants.MSG_BINARY_OP_SUCCESS + ": " + node.getNodeName());
+                    log.trace("Binary operation SUCCESS: " + node.getNodeName());
                 } catch (WCPSException e) {
                     child = null;
                 }
             }
 
             if (child == null) {
-                throw new WCPSException(WcpsConstants.ERRTXT_INVALID_INDUCED_COV_EXPR + ": "
-                        + node.getNodeName());
+                throw new WCPSException("Invalid induced coverage expression, next node: " + node.getNodeName());
             } else {
                 // Keep the child to let the XML tree be traversed
                 super.children.add(child);

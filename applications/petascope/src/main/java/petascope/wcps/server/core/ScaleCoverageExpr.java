@@ -68,20 +68,20 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
                 axisList.add(elem);
                 child = elem.getNextNode();
             } else if (nodeName.equals(WcpsConstants.MSG_NAME)) {
-                log.trace("  " + WcpsConstants.MSG_FIELD_INTERPOLATION);
+                log.trace("Field interpolation");
                 fieldInterp = new FieldInterpolationElement(child, xq);
                 child = fieldInterp.getNextNode();
             } else {
                 // has to be the coverage expression
                 try {
-                    log.trace("  " + WcpsConstants.MSG_COVERAGE_EXPR);
+                    log.trace("coverage expression");
                     coverageExprType = new CoverageExpr(child, xq);
                     coverageInfo = coverageExprType.getCoverageInfo();
                     super.children.add(coverageExprType);
                     child = child.getNextSibling();
                 } catch (WCPSException ex) {
-                    log.error(" " + WcpsConstants.ERRTXT_UNKNOWN_NODE_FOR_SCALE_COV + child.getNodeName());
-                    throw new WCPSException(ExceptionCode.InvalidMetadata, WcpsConstants.ERRTXT_UNKNOWN_NODE_FOR_SCALE_COV + child.getNodeName());
+                    log.error("Unknown node for ScaleCoverageExpr expression: " + child.getNodeName());
+                    throw new WCPSException(ExceptionCode.InvalidMetadata, "Unknown node for ScaleCoverageExpr expression: " + child.getNodeName());
                 }
             }
         }
@@ -90,7 +90,7 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         super.children.addAll(axisList);
                 
         dims = axisList.size();
-        log.trace("  " + WcpsConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
+        log.trace("Number of dimensions: " + dims);
         dim = new String[dims];
 
         for (int j = 0; j < dims; ++j) {
@@ -100,7 +100,7 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
 
         Iterator<DimensionIntervalElement> i = axisList.iterator();
 
-        log.trace("  " + WcpsConstants.MSG_AXIS_LIST_COUNT + ":" + axisList.size());
+        log.trace("Axis list count: " + axisList.size());
         DimensionIntervalElement axis;
         int axisId, scaleId = 0;
         int axisLo, axisHi;
@@ -109,13 +109,13 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         while (i.hasNext()) {
             axis = i.next();
             axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
-            log.trace("    " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_ID + ": " + axisId);
-            log.trace("    " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_NAME + ": " + axis.getAxisName());
+            log.trace("Axis ID: " + axisId);
+            log.trace("Axis name: " + axis.getAxisName());
 
             axisLo = Integer.parseInt(axis.getLowCoord());
             axisHi = Integer.parseInt(axis.getHighCoord());
             dim[scaleId] = axisLo + ":" + axisHi;
-            log.trace("    " + WcpsConstants.MSG_AXIS_COORDS + ": " + dim[scaleId]);
+            log.trace("axis coords: " + dim[scaleId]);
             ++scaleId;
             
             coverageInfo.setCellDimension(axisId,

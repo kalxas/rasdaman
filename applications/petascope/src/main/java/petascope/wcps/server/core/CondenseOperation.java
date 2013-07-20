@@ -38,7 +38,7 @@ public class CondenseOperation extends AbstractRasNode {
         this.name = formatOperation(text);
 
         if (name == null) {
-            throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_CONDENSE_OP + ": " + text);
+            throw new WCPSException("Unknown condense operation: " + text);
         }
     }
 

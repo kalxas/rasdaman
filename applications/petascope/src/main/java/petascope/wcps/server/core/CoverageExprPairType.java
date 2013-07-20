@@ -62,7 +62,7 @@ public class CoverageExprPairType extends AbstractRasNode implements ICoverageIn
         if (ok == true) {
             return first.toRasQL() + second.toRasQL();
         } else {
-            return " " + WcpsConstants.ERRTXT_ERROR + " ";
+            return " " + WcpsConstants.MSG_ERROR + " ";
         }
     }
 

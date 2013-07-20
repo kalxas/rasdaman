@@ -70,7 +70,7 @@ public class EncodeDataExpr extends AbstractRasNode {
 
             if (nodeName.equals(WcpsConstants.MSG_EXTRA_PARAMETERS)) {
                 extraParams = child.getFirstChild().getNodeValue();
-                log.trace("  " + WcpsConstants.MSG_EXTRA_PARAMS + ": " + extraParams);
+                log.trace("extra params: " + extraParams);
                 continue;
             }
 

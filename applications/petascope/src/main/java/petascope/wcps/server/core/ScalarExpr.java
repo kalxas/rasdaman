@@ -64,7 +64,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
         if (child == null) {
             try {
                 child = new MetadataScalarExpr(node, xq);
-                log.trace(WcpsConstants.MSG_MATCHED_METADATA_SCALAR_EXPR);
+                log.trace("Matched metadata scalar expression.");
             } catch (WCPSException e) {
                 child = null;
             }
@@ -74,7 +74,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
         if (child == null) {
             try {
                 child = new BooleanScalarExpr(node, xq);
-                log.trace(WcpsConstants.MSG_MATCHED_BOOLEAN_SCALAR_EXPR);
+                log.trace("Matched boolean scalar expression.");
             } catch (WCPSException e) {
                 child = null;
             }
@@ -86,7 +86,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
                 child = new NumericScalarExpr(node, xq);
                 singleValue = ((NumericScalarExpr) child).isSingleValue();
                 value = "" + ((NumericScalarExpr) child).getSingleValue();
-                log.trace(WcpsConstants.MSG_MATCHED_NUMERIC_SCALAR_EXPR);
+                log.trace("Matched numeric scalar expression.");
             } catch (WCPSException e) {
                 child = null;
             }
@@ -96,7 +96,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
         if (child == null) {
             try {
                 child = new ReduceScalarExpr(node, xq);
-                log.trace(WcpsConstants.MSG_MATCHED_REDUCE_SCALAR_EXPR);
+                log.trace("Matched reduce scalar expression.");
             } catch (WCPSException e) {
                 child = null;
             }
@@ -107,7 +107,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
             try {
                 child = new StringScalarExpr(node, xq);
                 singleValue = ((StringScalarExpr) child).isSingleValue();
-                log.trace(WcpsConstants.MSG_MATCHED_STRING_SCALAR_EXPR);
+                log.trace("Matched string scalar expression.");
                 value = ((StringScalarExpr) child).getValue();
             } catch (WCPSException e) {
                 child = null;
@@ -116,8 +116,8 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
 
         // Error check
         if (child == null) {
-            log.error("  " + WcpsConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
-            throw new WCPSException(WcpsConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
+            log.error("Invalid coverage Expression, next node: " + node.getNodeName());
+            throw new WCPSException("Invalid coverage Expression, next node: " + node.getNodeName());
         } else {
             // Add it to the children for XML tree re-traversing
             super.children.add(child);

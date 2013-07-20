@@ -40,20 +40,20 @@ public class IndexExpr implements IParseTreeNode {
     String op;
 
     public IndexExpr(String constant) {
-        log.trace(WcpsConstants.MSG_INDEX_EXPR + ": " + constant);
+        log.trace("IndexExpr: " + constant);
         function = WcpsConstants.MSG_CONSTANT;
         this.constant = constant;
     }
 
     public IndexExpr(String op, NumericScalarExpr e1) {
-        log.trace(WcpsConstants.MSG_INDEX_EXPR + ": " + op + " " + WcpsConstants.MSG_NUM);
+        log.trace("IndexExpr: " + op + " num");
         this.op = op;
         this.e1 = e1;
         function = WcpsConstants.MSG_OP1;
     }
 
     public IndexExpr(String op, IndexExpr e1, IndexExpr e2) {
-        log.trace(WcpsConstants.MSG_INDEX_EXPR + ": " + WcpsConstants.MSG_A + " " + op + " " + WcpsConstants.MSG_B);
+        log.trace("IndexExpr: a " + op + " b");
         this.op = op;
         this.e1 = e1;
         this.e2 = e2;

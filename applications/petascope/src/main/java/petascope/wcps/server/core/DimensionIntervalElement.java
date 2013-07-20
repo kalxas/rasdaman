@@ -99,7 +99,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 crs = new Crs(node, xq);
                 node = node.getNextSibling();
                 if (axis == null) {
-                    throw new WCPSException(WcpsConstants.ERRTXT_EXPECTED_AXIS_NODE);
+                    throw new WCPSException("Expected Axis node before CRS.");
                 }
                 continue;
             } catch (WCPSException e) {
@@ -124,19 +124,19 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 counter = 2;
                 domain1 = new ScalarExpr(node.getFirstChild(), xq);
                 if (axis == null) {
-                    log.error(WcpsConstants.ERRTXT_EXPECTED_AXIS_NODE_LOWERB);
-                    throw new WCPSException(WcpsConstants.ERRTXT_EXPECTED_AXIS_NODE_LOWERB);
+                    log.error("Expected <axis> node before <lowerBound>.");
+                    throw new WCPSException("Expected <axis> node before <lowerBound>.");
                 }
             } else if (node.getNodeName().equals(WcpsConstants.MSG_UPPER_BOUND)) {
                 counter = 2;
                 domain2 = new ScalarExpr(node.getFirstChild(), xq);
                 if (axis == null) {
-                    log.error(WcpsConstants.ERRTXT_EXPECTED_AXIS_NODE_UPPERB);
-                    throw new WCPSException(WcpsConstants.ERRTXT_EXPECTED_AXIS_NODE_UPPERB);
+                    log.error("Expected <lowerBound> node before <upperBound>.");
+                    throw new WCPSException("Expected <lowerBound> node before <upperBound>.");
                 }
             } else {
-                log.error("  " + WcpsConstants.ERRTXT_UNEXPETCTED_NODE + ": " + node.getFirstChild().getNodeName());
-                throw new WCPSException(WcpsConstants.ERRTXT_UNEXPETCTED_NODE + ": " + node.getFirstChild().getNodeName());
+                log.error("Unexpected node: " + node.getFirstChild().getNodeName());
+                throw new WCPSException("Unexpected node: " + node.getFirstChild().getNodeName());
             }
             
             if (axis != null && counter == 1 && domain1 != null) {
@@ -168,7 +168,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                     crs = new Crs(CrsUtil.GRID_CRS);
                 }
             } else {
-                log.warn(WcpsConstants.WARNTXT_NO_NATIVE_CRS_P1 + " " + axisName + WcpsConstants.WARNTXT_NO_NATIVE_CRS_P2);
+                log.warn("No native CRS specified for axis " + axisName + ": assuming pixel coordinates.");
                 crs = new Crs(CrsUtil.GRID_CRS);
                 this.transformedCoordinates = true;
 
@@ -187,8 +187,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
     private void convertToPixelCoordinates() throws WCPSException {
 
         if (meta.getBbox() == null && crs != null) {
-            throw new RuntimeException(WcpsConstants.MSG_COVERAGE + " '" + meta.getCoverageName()
-                    + "' " + WcpsConstants.ERRTXT_IS_NOT_GEOREFERENCED);
+            throw new RuntimeException(WcpsConstants.MSG_COVERAGE + " '" + meta.getCoverageName() + "' is not georeferenced.");
         }
         if (counter == 2 && crs != null && domain1.isSingleValue() && domain2.isSingleValue()) {
             log.debug("[Transformed] requested subsettingCrs is '{}', should match now native CRS '{}'",
@@ -207,7 +206,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
             } catch (PetascopeException e) {
                 this.transformedCoordinates = false;
                 throw new WCPSException(ExceptionCode.InvalidMetadata,
-                        WcpsConstants.ERRTXT_ERROR_WHILE_CONVERTING, e);
+                        "Error while converting to pixel coordinates.", e);
             }
         }
     }
@@ -215,7 +214,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
     /* Not used */
     @Override
     public String toRasQL() {
-        return WcpsConstants.MSG_DOMAIN_INTERVAL_ELEMENT_NOT;
+        return "<DimensionIntervalElement Not Converted to RasQL>";
     }
     
     @Override

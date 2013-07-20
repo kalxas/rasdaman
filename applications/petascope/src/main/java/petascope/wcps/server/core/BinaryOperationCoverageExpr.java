@@ -83,7 +83,7 @@ public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICov
         }
 
         if (!okay) {
-            throw new WCPSException(WcpsConstants.ERRTXT_UNEXPECTED_BINARY + " : " + nodeName);
+            throw new WCPSException("Unexpected binary operation : " + nodeName);
         }
         log.trace("  " + WcpsConstants.MSG_OPERATION + ": " + operation);
         

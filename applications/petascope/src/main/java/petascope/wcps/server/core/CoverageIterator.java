@@ -57,13 +57,13 @@ public class CoverageIterator extends AbstractRasNode {
 
             if (it.getNodeName().equals(WcpsConstants.MSG_ITERATORVAR)) {
                 iteratorName = it.getFirstChild().getNodeValue();
-                log.trace("  " + WcpsConstants.MSG_ITERATOR_VARIABLE + " : " + iteratorName);
+                log.trace("Iterator variable: " + iteratorName);
             } else if (it.getNodeName().equals(WcpsConstants.MSG_COVERAGE_NAME)) {
                 String cn = it.getFirstChild().getNodeValue();
-                log.trace("  " + WcpsConstants.MSG_COVERAGE_REFERENCE + " : " + cn);
+                log.trace("Coverage reference : " + cn);
                 if (!xq.getMetadataSource().coverages().contains(cn)) {
-                    log.error("  " + WcpsConstants.ERRTXT_UNKNOWN_COVERAGE + " " + cn);
-                    throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_COVERAGE + " " + cn);
+                    log.error("Unknown coverage " + cn);
+                    throw new WCPSException("Unknown coverage " + cn);
                 }
 
                 coverageNames.add(cn);
@@ -74,7 +74,7 @@ public class CoverageIterator extends AbstractRasNode {
     }
 
     public CoverageIterator(String iterator, String coverage) throws WCPSException {
-        log.trace(WcpsConstants.MSG_ITERATOR + ": " + iterator + ", " + WcpsConstants.MSG_FOR_COVERAGE + ": " + coverage);
+        log.trace("Iterator: " + iterator + ", for coverage: " + coverage);
         coverageNames = new ArrayList<String>();
         iteratorName = iterator;
         coverageNames.add(coverage);

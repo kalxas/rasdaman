@@ -50,7 +50,7 @@ public class StringScalarExpr extends AbstractRasNode {
             op = WcpsConstants.MSG_CONSTANT;
             string = node.getFirstChild().getNodeValue();
         } else {
-            throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_STRING_NODE_EXPR + ": " + node.getNodeName());
+            throw new WCPSException("Unknown String expr node: " + node.getNodeName());
         }
         
         log.trace("  " + WcpsConstants.MSG_OPERATION + ": " + op + ", " + WcpsConstants.MSG_VALUE + ": " + string);

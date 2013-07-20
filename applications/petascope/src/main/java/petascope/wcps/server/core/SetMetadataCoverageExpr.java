@@ -30,7 +30,7 @@ public class SetMetadataCoverageExpr extends AbstractRasNode implements ICoverag
 
     public SetMetadataCoverageExpr(Node node, XmlQuery xq)
             throws WCPSException {
-        throw new WCPSException(WcpsConstants.MSG_METHOD_NOT_IMPL);
+        throw new WCPSException("Method not implemented");
     }
 
     public String toRasQL() {

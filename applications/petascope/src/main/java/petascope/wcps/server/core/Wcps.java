@@ -57,7 +57,7 @@ public class Wcps {
 
     public Wcps(File pcSchema, IMetadataSource metadataSource) throws WCPSException, PetascopeException {
         try {
-            log.info(WcpsConstants.MSG_WCPS_LOADING_PARSING_XML);
+            log.info("WCPS: Loading and parsing XML Schema ...");
             DocumentBuilderFactory dbconfig = DocumentBuilderFactory.newInstance();
 
             dbconfig.setValidating(false);    // use XML schema not DTD
@@ -65,13 +65,12 @@ public class Wcps {
             dbconfig.setIgnoringElementContentWhitespace(true);    // remve the ignorable whitespace
 
             wcpsDocumentBuilder = dbconfig.newDocumentBuilder();
-            log.info(WcpsConstants.MSG_WCPS_FINISHED_LOADING_SCHEMA);
+            log.info("WCPS: Finished loading the schema.");
             
             dynamicMetadataSource.set(new DynamicMetadataSource(metadataSource));
             
         } catch (Exception e) {
-            throw new WCPSException(
-                    WcpsConstants.ERRTXT_ERROR_WHILE_LOADING_DOC, e);
+            throw new WCPSException("Error while loading the document builder interface.", e);
         }
     }
 
@@ -83,7 +82,7 @@ public class Wcps {
 
     public List<byte[]> pcExecute(String url, String database, ProcessCoveragesRequest pcRequest) 
             throws WCPSException {
-        throw new WCPSException(ExceptionCode.ResourceError, WcpsConstants.ERRTXT_METHOD_NOT_IMPL);
+        throw new WCPSException(ExceptionCode.ResourceError, "Method not implemented. pcExecute");
     }
 
     public ProcessCoveragesRequest pcPrepare(String url, String database, File f)

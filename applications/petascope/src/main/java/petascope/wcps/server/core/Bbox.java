@@ -78,7 +78,7 @@ public class Bbox implements Cloneable {
         for (DomainElement el : domains) {
             if ((el.getMinValue() == null) || (el.getMaxValue() == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    WcpsConstants.ERRTXT_INVALID_BOUNDING_BOX);
+                    "Invalid bounding box: null element encountered.");
             }            
             minValues.add(el.getMinValue());
             maxValues.add(el.getMaxValue());
@@ -87,7 +87,7 @@ public class Bbox implements Cloneable {
         }
         
         if (crs == null) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata, WcpsConstants.ERRTXT_INVALID_CRS);
+            throw new WCPSException(ExceptionCode.InvalidMetadata, "Invalid CRS name: null element encountered.");
         } else {
             // Store the native (C)CRS from the list of single CRSs associated to the coverage
             crsName = crs;
@@ -190,7 +190,7 @@ public class Bbox implements Cloneable {
             if (i > 0) extents += ", ";
             extents += types.get(i) + "(" + getMinValue(i) + ", " + getMaxValue(i) + ")";
         }        
-        return WcpsConstants.MSG_CRS_C + " '" + getCrsName() + "' { " + WcpsConstants.MSG_BOUNDING_BOX + " [" + extents + "] }";
+        return "CRS '" + getCrsName() + "' { Bounding Box [" + extents + "] }";
     }
 
     /**

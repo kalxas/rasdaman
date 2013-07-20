@@ -51,12 +51,12 @@ public class ConstantList extends AbstractRasNode {
             if (nodeName.equals(WcpsConstants.MSG_VALUE)) {
                 val = node.getTextContent();
                 checkConstant(val);
-                log.trace("  " + WcpsConstants.MSG_ADDING_VALUES + ": " + val);
+                log.trace("Adding value: " + val);
                 list.add(val);
                 lastNode = node;
             } else {
-                log.error("  " + WcpsConstants.ERRTXT_UNKNOWN_NODE_CONST_LIST+ ": " + nodeName);
-                throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_NODE_CONST_LIST + ": " + nodeName);
+                log.error("Unknown node in constant list: " + nodeName);
+                throw new WCPSException("Unknown node in constant list: " + nodeName);
             }
 
             node = node.getNextSibling();
@@ -65,7 +65,7 @@ public class ConstantList extends AbstractRasNode {
             }
         }
 
-        log.trace("  " + WcpsConstants.MSG_PARSED_CONST_LIST + " " + list.size() + " " + WcpsConstants.MSG_ELEMENST);
+        log.trace("Parsed constant list with " + list.size() + " elements.");
     }
 
     private void checkConstant(String val) throws WCPSException {
@@ -87,7 +87,7 @@ public class ConstantList extends AbstractRasNode {
         }
 
         if (ok == false) {
-            throw new WCPSException("'" + val + "' " + WcpsConstants.ERRTXT_NOT_INT_FLOAT_COMPLEX);
+            throw new WCPSException("'" + val + "' is not an integer, float, or complex constant.");
         }
     }
 

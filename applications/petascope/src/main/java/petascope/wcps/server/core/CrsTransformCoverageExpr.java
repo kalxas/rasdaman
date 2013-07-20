@@ -46,7 +46,7 @@ public class CrsTransformCoverageExpr extends AbstractRasNode implements ICovera
             //      extract xy pixels 
             //      project(arr, bbox, s_crs, t_crs);
             // end
-        throw new WCPSException(ExceptionCode.NoApplicableCode, WcpsConstants.MSG_CRS_TRANSFORM_EXPR);
+        throw new WCPSException(ExceptionCode.NoApplicableCode, "crsTransform expression not implemented.");
     }
 
     @Override

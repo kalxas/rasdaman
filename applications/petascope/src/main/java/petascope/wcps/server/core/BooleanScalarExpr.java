@@ -39,7 +39,7 @@ public class BooleanScalarExpr extends AbstractRasNode {
 
     public BooleanScalarExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         if (node == null) {
-            throw new WCPSException(WcpsConstants.ERRTXT_UNEXPECTED_NULL_NODE + " !");
+            throw new WCPSException("Unexpected null node.");
         }
 
         String nodeName = node.getNodeName();
@@ -125,10 +125,9 @@ public class BooleanScalarExpr extends AbstractRasNode {
             first = new CoverageExpr(node.getFirstChild(), xq);
             second = new NumericScalarExpr(node.getFirstChild().getNextSibling(), xq);
         } else {
-            throw new WCPSException(WcpsConstants.ERRTXT_UNEXPECTED_BINARY_EXPR_NODE + " : "
-                    + node.getNodeName());
+            throw new WCPSException("Unexpected Binary Expression node : " + node.getNodeName());
         }
-        log.trace(WcpsConstants.MSG_BOOLEAN_SCALAR_EXPR + ": " + node.getNodeName());
+        log.trace("Boolean Scalar Expr SUCCESS: " + node.getNodeName());
         
         // Keep children for XML tree crawling
         super.children.add(first);

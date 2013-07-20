@@ -33,7 +33,8 @@ public class FieldInterpolationElement extends AbstractRasNode {
 
     public FieldInterpolationElement(Node node, XmlQuery xq) throws WCPSException {
 
-        throw new WCPSException(WcpsConstants.ERRTXT_NO_INTERPOLATION);
+        throw new WCPSException("Currently, our implementation does not allow specifying interpolation methods or "
+            + "null resistances for the scale operation.");
 
         /*
         while ((node != null) && node.getNodeName().equals("#text")) {

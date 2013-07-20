@@ -73,21 +73,21 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
             try {
                 // Start a new axis and save it
                 elem = new DimensionIntervalElement(child, xq, coverageInfo);
-                log.trace("  " + WcpsConstants.MSG_ADD_NEW_AXIS + ": " + elem.getAxisName());
+                log.trace("added new axis to list: " + elem.getAxisName());
                 axisList.add(elem);
                 super.children.add(elem);
                 child = elem.getNextNode();
                 continue;
             } catch (WCPSException e) {
-                log.error(WcpsConstants.ERRTXT_THIS_WAS_NO_DIM + ": " + child.getNodeName());
+                log.error("This was no DimensionIntervalELement: " + child.getNodeName());
             }
 
             // else unknown element
-            throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_NODE_EXTENDCOVERAGE + child.getNodeName());
+            throw new WCPSException("Unknown node for ExtendCoverage expression: " + child.getNodeName());
         }
 
         dims = coverageInfo.getNumDimensions();
-        log.trace("  " + WcpsConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
+        log.trace("Number of dimensions: " + dims);
         dim = new String[dims];
 
         for (int j = 0; j < dims; ++j) {
@@ -104,9 +104,9 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
         while (i.hasNext()) {
             axis = i.next();
             axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
-            log.trace("  " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_ID + ": " + axisId);
-            log.trace("  " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_NAME + ": " + axis.getAxisName());
-            log.trace("  " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_COORDS + ": ");
+            log.trace("Axis ID: " + axisId);
+            log.trace("Axis name: " + axis.getAxisName());
+            log.trace("Axis coords: ");
 
             axisLo = Integer.parseInt(axis.getLowCoord());
             axisHi = Integer.parseInt(axis.getHighCoord());

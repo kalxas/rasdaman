@@ -61,7 +61,7 @@ public class RangeComponent extends AbstractRasNode implements ICoverageInfo {
             if (nodeName.equals(WcpsConstants.MSG_FIELD)) {
                 this.field = node.getTextContent();
                 log.trace("  " + WcpsConstants.MSG_FIELD + ": " + field);
-            } else
+            } else {
                 try
                 {
                     this.expr = new CoverageExpr(node, xq);
@@ -69,9 +69,10 @@ public class RangeComponent extends AbstractRasNode implements ICoverageInfo {
                 }
                 catch (WCPSException e)
                 {
-                    log.error(WcpsConstants.ERRTXT_COULD_NOT_MATCH_COV_EXPR + nodeName);
+                    log.error("Could not match CoverageExpr inside RangeExpr. Next node: " + nodeName);
                     throw e;
                 }
+            }
 
             node = node.getNextSibling();
         }

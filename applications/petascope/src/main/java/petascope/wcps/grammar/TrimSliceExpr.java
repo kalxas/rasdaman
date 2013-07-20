@@ -46,7 +46,7 @@ public class TrimSliceExpr implements IParseTreeNode {
     }
     
     public void add(IParseTreeNode n) {
-        log.trace(WcpsConstants.MSG_ADD_SUBSET);
+        log.trace("Add subset.");
         subsets.add(n);
     }
 

@@ -75,7 +75,7 @@ public class CoverageInfo {
 
     public boolean isCompatible(CoverageInfo other) {
         if (getNumDimensions() != other.getNumDimensions()) {
-            log.error(WcpsConstants.ERRTXT_NUMBER_DIM_DOES_NOT_MATCH);
+            log.error("The number of dimensions does not match.");
             return false;
         }
 
@@ -90,14 +90,14 @@ public class CoverageInfo {
                 you = other.getCellDomainElement(index++);
 
                 if (!me.getHi().equals(you.getHi())) {
-                    log.error(WcpsConstants.ERRTXT_HIGH_VALUES_DONOT_MATCH + ": "
+                    log.error("High values don't match: "
                             + me.getHi().toString() + ", "
                             + you.getHi().toString());
                     return false;
                 }
 
                 if (!me.getLo().equals(you.getLo())) {
-                    log.error(WcpsConstants.ERRTXT_LOW_VALUES_DONOT_MATCH + ": "
+                    log.error("Low values do not match: "
                             + me.getLo().toString() + ", "
                             + you.getLo().toString());
                     return false;
@@ -115,7 +115,7 @@ public class CoverageInfo {
                 you = other.getDomainElement(index++);
 
                 if (!me.getLabel().equals(you.getLabel())) {
-                    log.error(WcpsConstants.ERRTXT_DOMAIN_ELEMENT_DONNOT_MATCH + ": '"
+                    log.error("Domain element names don't match: '"
                             + me.getLabel() + "' " + WcpsConstants.MSG_AND + " '"
                             + you.getLabel() + "'.");
                     return false;
@@ -173,8 +173,8 @@ public class CoverageInfo {
             index++;
         }
 
-        log.error(WcpsConstants.ERRTXT_AXIS_NAME_NOT_FOUND + ": " + type);
-        throw new WCPSException(WcpsConstants.ERRTXT_DOMAIN_NAME_NOT_FOUND + ": " + type);
+        log.error("Axis name not found: " + type);
+        throw new WCPSException("Domain name not found: " + type);
     }
     
     public int getDomainIndexByName(String name) throws WCPSException {
@@ -189,8 +189,8 @@ public class CoverageInfo {
             index++;
         }
         
-        log.error(WcpsConstants.ERRTXT_AXIS_NAME_NOT_FOUND + ": " + name);
-        throw new WCPSException(WcpsConstants.ERRTXT_DOMAIN_NAME_NOT_FOUND + ": " + name);
+        log.error("Axis name not found: " + name);
+        throw new WCPSException("Domain name not found: " + name);
     }
 
     @Override

@@ -90,7 +90,7 @@ public class XmlQuery extends AbstractRasNode {
     }
 
     public void startParsing(Node node) throws WCPSException, PetascopeException, SecoreException {
-        log.debug(WcpsConstants.DEBUGTXT_PROCESSING_XML_REQUEST + ": " + node.getNodeName());
+        log.debug("Processing XML Request: " + node.getNodeName());
 
         Node x = node.getFirstChild();
 
@@ -101,7 +101,7 @@ public class XmlQuery extends AbstractRasNode {
                 continue;
             }
 
-            log.info(WcpsConstants.MSG_THE_CURRENT_NODE + ": " + x.getNodeName());
+            log.info("The current node is: " + x.getNodeName());
 
             if (x.getNodeName().equals(WcpsConstants.MSG_COVERAGE_ITERATOR)) {
                 iterators.add(new CoverageIterator(x, this));
@@ -167,7 +167,7 @@ public class XmlQuery extends AbstractRasNode {
             }
         }
 
-        throw new WCPSException(WcpsConstants.MSG_ITERATOR + " " + iteratorName + " " + WcpsConstants.ERRTXT_NOT_DEFINED);
+        throw new WCPSException(WcpsConstants.MSG_ITERATOR + " " + iteratorName + " not defined");
     }
 
     public boolean isDynamicCoverage(String coverageName) {

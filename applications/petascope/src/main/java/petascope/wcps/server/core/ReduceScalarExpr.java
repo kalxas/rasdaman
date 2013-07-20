@@ -58,7 +58,7 @@ public class ReduceScalarExpr extends AbstractRasNode {
             if (!op.equals(WcpsConstants.MSG_ALL) && !op.equals(WcpsConstants.MSG_SOME)) {
                 op = op + "_" + WcpsConstants.MSG_CELLS;
             }
-            log.trace(WcpsConstants.MSG_REDUCE_OPERATION + op);
+            log.trace("Reduce operation: " + op);
 
             node = node.getFirstChild();
 
@@ -72,7 +72,7 @@ public class ReduceScalarExpr extends AbstractRasNode {
             super.children.add(expr);
             
         } else {
-            throw new WCPSException(WcpsConstants.ERRTXT_INVALID_REDUCE_SCALAR_EXPR + nodeName);
+            throw new WCPSException("invalid ReduceScalarExprType node: " + nodeName);
         }
     }
 

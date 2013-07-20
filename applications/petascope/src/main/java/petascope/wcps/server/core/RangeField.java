@@ -41,7 +41,7 @@ public class RangeField extends AbstractRasNode {
         log.trace(node.getNodeName());
 
         if (node == null) {
-            throw new WCPSException(WcpsConstants.ERRTXT_RANGE_FIELD_TYPE);
+            throw new WCPSException("RangeFieldType parsing error.");
         }
 
         String nodeName = node.getNodeName();
@@ -49,7 +49,7 @@ public class RangeField extends AbstractRasNode {
         if (nodeName.equals(WcpsConstants.MSG_TYPE)) {
             this.type = node.getTextContent();
 
-            log.trace(WcpsConstants.MSG_RANGE_RANGE_FILED_TYPE + type);
+            log.trace("Range field type: " + type);
         }
     }
 

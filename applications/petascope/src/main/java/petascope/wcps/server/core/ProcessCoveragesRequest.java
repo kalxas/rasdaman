@@ -65,8 +65,7 @@ public class ProcessCoveragesRequest {
         this.rasqlQuery = null;
 
         if (child.getNodeName().equals(WcpsConstants.MSG_PROCESS_COVERAGE_REQUEST) == false) {
-            throw new WCPSException(WcpsConstants.ERRTXT_THE_DOC_UNRECOG_NODE
-                    + child.getNodeName());
+            throw new WCPSException("The document contains an unrecognized node : " + child.getNodeName());
         }
 
         child = child.getFirstChild();
@@ -75,7 +74,7 @@ public class ProcessCoveragesRequest {
         }
 
         if (child.getNodeName().equals(WcpsConstants.MSG_QUERY) == false) {
-            throw new WCPSException(WcpsConstants.ERRTXT_COULD_NOT_FIND_NODE_QUERY + child.getNodeName());
+            throw new WCPSException("Could not find node <query>: " + child.getNodeName());
         }
 
         // "child" is now the node <query>.
@@ -90,7 +89,7 @@ public class ProcessCoveragesRequest {
          * 2) the xml contains an <abstractSyntax> request
          */
         if (queryNode.getNodeName().equals(WcpsConstants.MSG_XML_SYNTAX)) {
-            log.debug(WcpsConstants.DEBUGTXT_FOUND_XML_SYTANX_QUERY);
+            log.debug("Found XML Syntax query.");
             this.xmlQuery = new XmlQuery(this.source);
             try {
                 xmlQuery.startParsing(queryNode);
@@ -99,25 +98,25 @@ public class ProcessCoveragesRequest {
             }
         } else if (queryNode.getNodeName().equals(WcpsConstants.MSG_ABSTRACT_SYNTAX)) {
             String abstractQuery = queryNode.getFirstChild().getNodeValue();
-            log.debug(WcpsConstants.DEBUGTXT_FOUND_ABSTRACT_SSYNTAX_QUERY + abstractQuery);
+            log.debug("Found Abstract Syntax query: " + abstractQuery);
             String xmlString = RasUtil.abstractWCPStoXML(abstractQuery);
             InputSource xmlStringSource = new InputSource(new StringReader(xmlString));
-            log.debug(WcpsConstants.DEBUGTXT_CONVERTED_ABSTRACT_SYNTAX_QUERY);
-            log.debug(WcpsConstants.MSG_STAR_LINE);
+            log.debug("Coverted the Abstract syntax query to an XML query:");
+            log.debug("***********************************************");
             log.debug(xmlString);
-            log.debug(WcpsConstants.MSG_STAR_LINE);
+            log.debug("***********************************************");
             ProcessCoveragesRequest newRequest = wcps.pcPrepare(url, database, xmlStringSource);
             this.xmlQuery = newRequest.getXmlRequestStructure();
         } else {
-            throw new WCPSException(WcpsConstants.ERRTXT_ERROR_UNEXPECTED_NODE + queryNode.getNodeName());
+            throw new WCPSException("Error, unexpected node: " + queryNode.getNodeName());
         }
 
         // If everything went well, we now have a proper value for "xmlQuery"
         this.rasqlQuery = xmlQuery.toRasQL();
         if (isRasqlQuery()) {
-            log.debug(WcpsConstants.DEBUGTXT_FINAL_RASQL_QUERY + rasqlQuery);
+            log.debug("Final RasQL query: " + rasqlQuery);
         } else {
-            log.debug(WcpsConstants.DEBUGTXT_FINALMETADATA_RESULT + rasqlQuery);
+            log.debug("Final metadata result: " + rasqlQuery);
         }
         this.mime = xmlQuery.getMimeType();
     }
@@ -142,8 +141,8 @@ public class ProcessCoveragesRequest {
         try {
             return RasUtil.executeRasqlQuery(rasqlQuery);
         } catch (RasdamanException ex) {
-            throw new WCPSException(ExceptionCode.ResourceError, WcpsConstants.ERRTXT_COULD_NOT_EVAL_RASDAMAN_Q_P1
-                        + getRasqlQuery() + WcpsConstants.ERRTXT_COULD_NOT_EVAL_RASDAMAN_Q_P2 + ex.getMessage(), ex);
+            throw new WCPSException(ExceptionCode.ResourceError, "Could not evaluate rasdaman query: '"
+                        + getRasqlQuery() + "'\n Cause: " + ex.getMessage(), ex);
         }
     }
 }

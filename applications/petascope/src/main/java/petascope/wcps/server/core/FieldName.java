@@ -39,7 +39,7 @@ public class FieldName extends AbstractRasNode {
         }
 
         if (node == null) {
-            throw new WCPSException(WcpsConstants.ERRTXT_FIELDNAME_TYPE_PARSING_ERR);
+            throw new WCPSException("FieldNameType parsing error.");
         }
 
         String nodeName = node.getNodeName();
@@ -48,7 +48,7 @@ public class FieldName extends AbstractRasNode {
         if (nodeName.equals(WcpsConstants.MSG_NAME)) {
             this.name = node.getTextContent();
 
-            log.trace("  " + WcpsConstants.MSG_FOUND_FIELD_NAME + ": " + name);
+            log.trace("Found field name: " + name);
         }
     }
 

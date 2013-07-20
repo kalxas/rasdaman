@@ -117,7 +117,7 @@ public class SetMetaDataExpr implements IParseTreeNode {
 
             result = "<" + WcpsConstants.MSG_SET_INTERPOLATION_SET + ">" + result + "</" + WcpsConstants.MSG_SET_INTERPOLATION_SET + ">";
         } else {
-            log.error(WcpsConstants.ERRTXT_UNKNOWN_SET_METADATA_EXPR+ ": " + function);
+            log.error("Unknown SetMetadataExpr operation: " + function);
         }
 
         return result;

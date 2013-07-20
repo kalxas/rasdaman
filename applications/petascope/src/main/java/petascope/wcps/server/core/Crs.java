@@ -58,12 +58,12 @@ public class Crs extends AbstractRasNode {
             String val = node.getTextContent();
             this.crsName = val;
             //if (crsName.equals(DomainElement.IMAGE_CRS) || crsName.equals(DomainElement.WGS84_CRS)) {
-            log.trace(WcpsConstants.MSG_FOUND_CRS + ": " + crsName);
+            log.trace("Found CRS: " + crsName);
             //} else {
             //    throw new WCPSException("Invalid CRS: '" + crsName + "'");
             //}
         } else {
-            throw new WCPSException(WcpsConstants.ERRTXT_COULD_NOT_FIND_SRSNAME);
+            throw new WCPSException("Could not find a 'srsName' node.");
         }
         
         // If coverage is not dynamic, it can be irregular: I need to query the DB to convert to pixels.
@@ -116,7 +116,7 @@ public class Crs extends AbstractRasNode {
         // Get cellDomain extremes
         long pxMin = cdom.getLo().longValue();
         long pxMax = cdom.getHi().longValue();
-        log.trace(WcpsConstants.MSG_CELL_DOMAIN_EXTREMES + pxMin + ", " + WcpsConstants.MSG_HIGH_U + ":" + pxMax);
+        log.trace("CellDomain extremes values: LOW: " + pxMin + ", HIGH:" + pxMax);
         
         // Get Domain extremes (real sdom)
         BigDecimal domMin = dom.getMinValue();

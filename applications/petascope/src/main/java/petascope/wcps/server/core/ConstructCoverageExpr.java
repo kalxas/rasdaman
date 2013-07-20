@@ -74,12 +74,12 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
                     try {
                         buildMetadata(xq);
                     } catch (PetascopeException pEx) {
-                        throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE, pEx);
+                        throw new WCPSException("Cannot build coverage metadata.", pEx);
                     } catch (SecoreException sEx) {
                         throw sEx;
                     }
                 } else {
-                    throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE);
+                    throw new WCPSException("Cannot build coverage metadata.");
                 }
                 // And only then start parsing the "values" section 
                 values = new CoverageExpr(node, xq);
@@ -98,7 +98,7 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
 
         // Sanity check: metadata should have already been build
         if (info == null) {
-            throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE);
+            throw new WCPSException("Cannot build coverage metadata.");
         }
     }
 

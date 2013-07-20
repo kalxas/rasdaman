@@ -70,7 +70,7 @@ public class MetadataScalarExpr extends AbstractRasNode {
             hi = cellDomain.getHi().toString();
         } else if (!nodeName.equals(WcpsConstants.MSG_SET_IDENTIFIER ) && 
                    !nodeName.equals(WcpsConstants.MSG_IMAGE_CRS2)) {
-            throw new WCPSException(WcpsConstants.ERRTXT_NO_METADATA_NODE + nodeName);
+            throw new WCPSException("No metadata node: " + nodeName);
         }
         
         // Store the child for XML tree re-traversing

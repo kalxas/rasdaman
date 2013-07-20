@@ -78,8 +78,8 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
                     child = child.getNextSibling();
                     continue;
                 } catch (WCPSException e) {
-                    log.error("  " + WcpsConstants.ERRTXT_EXPECTED_COVERAGE_NODE_GOT + " " + nodeName);
-                    throw new WCPSException(WcpsConstants.ERRTXT_UNKNOWN_NODE_FOR_TRIM_COV + ":" + child.getNodeName() 
+                    log.error("Expected coverage node, got " + nodeName);
+                    throw new WCPSException("Unknown node for TrimCoverage expression: " + child.getNodeName() 
                             + "[" + e.getMessage() + "]");
                 }
             }
@@ -90,7 +90,7 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
         
         // Afterward
         dims = coverageInfo.getNumDimensions();
-        log.trace("  " + WcpsConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
+        log.trace("Number of dimensions: " + dims);
         dimNames = new String[dims];
 
         for (int j = 0; j < dims; ++j) {
@@ -100,7 +100,7 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
         Iterator<DimensionIntervalElement> i = axisList.iterator();
 
-        log.trace("  " + WcpsConstants.MSG_AXIS_LIST_COUNT + ": " + axisList.size());
+        log.trace("Axis list count: " + axisList.size());
         DimensionIntervalElement axis;
         int axisId;
         int axisLo, axisHi;
@@ -109,8 +109,8 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
         while (i.hasNext()) {
             axis = i.next();
             axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
-            log.trace("    " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_ID + ": " + axisId);
-            log.trace("    " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_NAME + ": " + axis.getAxisName());
+            log.trace("Axis ID: " + axisId);
+            log.trace("Axis name: " + axis.getAxisName());
 
             axisLo = Integer.parseInt(axis.getLowCoord());
             axisHi = Integer.parseInt(axis.getHighCoord());

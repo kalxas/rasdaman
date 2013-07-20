@@ -43,11 +43,11 @@ public class CellDomainElement implements Cloneable {
     public CellDomainElement(BigInteger lo, BigInteger hi, int order) throws WCPSException {        
         if ((lo == null) || (hi == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WcpsConstants.ERRTXT_INVALID_CELL_DOMAIN);
+                    "Invalid cell domain element: Bounds may not be null.");
         }
         if (lo.compareTo(hi) == 1) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WcpsConstants.ERRTXT_INVALID_CELL_DOMAIN_LOWER + " " + lo + " " + WcpsConstants.ERRTXT_CANNOT_BE_LARGER + " " + hi);
+                    "Invalid cell domain element: lower bound " + lo + " cannot be larger than upper bound " + hi);
         }
         log.trace(WcpsConstants.MSG_CELL_DOMAIN + " " + lo + ":" + hi);
 
@@ -62,9 +62,7 @@ public class CellDomainElement implements Cloneable {
             return new CellDomainElement(BigInteger.ZERO.add(minValue),
                     BigInteger.ZERO.add(maxValue), new Integer(iOrder));
         } catch (WCPSException ime) {
-            throw new RuntimeException(
-                    WcpsConstants.ERRTXT_INVALID_METADATA,
-                    ime);
+            throw new RuntimeException("Invalid metadata while cloning CellDomainElement. This is a software bug in WCPS.", ime);
         }
     }
 

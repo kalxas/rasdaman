@@ -67,11 +67,11 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
                 covName = node.getTextContent();
                 log.trace("  " + WcpsConstants.MSG_COVERAGE + " " + covName);
             } else if (name.equals(WcpsConstants.MSG_AXIS_ITERATOR )) {
-                log.trace("  " + WcpsConstants.MSG_ADD_AXIS_ITERATOR);
+                log.trace("over: add axis iterator.");
                 AxisIterator it = new AxisIterator(node.getFirstChild(), xq, WcpsConstants.MSG_TEMP);
                 iterators.add(it);
             } else {
-                log.trace("  " + WcpsConstants.MSG_VALUE_LISt);
+                log.trace("value list");
                 valueList = new ConstantList(node, xq);
                 node = valueList.getLastNode();                
                 super.children.add(valueList);
@@ -86,7 +86,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
         try {
             buildMetadata(xq);
         } catch (PetascopeException pEx) {
-            throw new WCPSException(WcpsConstants.ERRTXT_CANNOT_BUILD_COVERAGE+ " !!!", pEx);
+            throw new WCPSException("Cannot build coverage metadata.", pEx);
         } catch (SecoreException sEx) {
             throw sEx;
         }
@@ -94,11 +94,11 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
 
         // Sanity check: dimensions should match number of constants in the list
         if (valueList.getSize() != requiredListSize) {
-            throw new WCPSException(WcpsConstants.ERRTXT_CONST_DIMS_DOESNOT_MATCH);
+            throw new WCPSException("The number of constants in the list do not match the dimensions specified.");
         }
         // Sanity check: metadata should have already been build
         if (info == null) {
-            throw new WCPSException(WcpsConstants.ERRTXT_COULD_BUILD_CONST_COVERAGE);
+            throw new WCPSException("Could not build constant coverage metadata.");
         }
     }
 
@@ -137,7 +137,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
 
     /** Builds full metadata for the newly constructed coverage **/
     private void buildMetadata(XmlQuery xq) throws WCPSException, PetascopeException, SecoreException {
-        log.trace("  " + WcpsConstants.MSG_BUILDING_METADATA);
+        log.trace("Building metadata...");
         List<CellDomainElement> cellDomainList = new LinkedList<CellDomainElement>();
         List<RangeElement> rangeList = new LinkedList<RangeElement>();
         String coverageName = covName;

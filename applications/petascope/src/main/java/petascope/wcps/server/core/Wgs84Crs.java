@@ -41,11 +41,10 @@ public class Wgs84Crs implements Cloneable {
 
     public Wgs84Crs(Double l1, Double h1, Double l2, Double h2, Double o1, Double o2) throws WCPSException {
         if ((l1 == null) || (h1 == null) || (l2 == null) || (h2 == null)) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    WcpsConstants.ERRTXT_INVALID_WGS84_BBOX);
+            throw new WCPSException(ExceptionCode.InvalidMetadata, "Invalid WGS 84 bounding box: null element encountered.");
         }
         if ((o1 == null) || (o2 == null)) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata, WcpsConstants.ERRTXT_INVALID_WGS84_BBOX);
+            throw new WCPSException(ExceptionCode.InvalidMetadata, "Invalid WGS 84 bounding box: null element encountered.");
         }
 
         low1 = l1;
@@ -68,9 +67,9 @@ public class Wgs84Crs implements Cloneable {
     }
 
     public String toString() {
-        String d = WcpsConstants.MSG_CRS_C + " '" + getName() + "' { " + WcpsConstants.MSG_BOUNDING_BOX + " [" + WcpsConstants.MSG_X + "(" + getLow1() + ", " + getHigh1() + "), "
-                + WcpsConstants.MSG_Y + "(" + getLow2() + ", " + getHigh2() + ")], "
-                + WcpsConstants.MSG_OFFSETS + " [" + WcpsConstants.MSG_X + "(" + getOffset1() + "), " + WcpsConstants.MSG_Y + "(" + getOffset2() + ")]}";
+        String d = "CRS '" + getName() + "' { Bounding Box [ X(" + getLow1() + ", " + getHigh1() + "), "
+                + "Y(" + getLow2() + ", " + getHigh2() + ")], "
+                + " offsets [ X(" + getOffset1() + "), Y(" + getOffset2() + ")]}";
         return d;
     }
 

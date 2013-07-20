@@ -51,14 +51,12 @@ public class RangeElement implements Cloneable {
     public RangeElement(String name, String type, String uom) throws WCPSException {
         if ((name == null) || (type == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WcpsConstants.ERRTXT_INVALID_RANGE_TYPE_P1 + 
-                    WcpsConstants.ERRTXT_INVALID_RANGE_TYPE_P2);
+                    "Invalid range element: element name and type cannot be null.");
         }
 
         if (name.equals("")) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WcpsConstants.ERRTXT_INVALID_RANGE_TYPE_P1 + 
-                    WcpsConstants.ERRTXT_INVALID_RANGE_TYPE_P3);
+                    "Invalid range element: element name cannot be empty.");
         }
 
         if (!(type.equals(WcpsConstants.MSG_BOOLEAN) || type.equals(WcpsConstants.MSG_CHAR) || type.equals("unsigned char")
@@ -67,8 +65,7 @@ public class RangeElement implements Cloneable {
                 || type.equals(WcpsConstants.MSG_UNSIGNED_LONG) || type.equals(WcpsConstants.MSG_FLOAT)
                 || type.equals(WcpsConstants.MSG_DOUBLE) || type.equals(WcpsConstants.MSG_COMPLEX) || type.equals(WcpsConstants.MSG_COMPLEX + "2"))) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WcpsConstants.ERRTXT_INVALID_RANGE_TYPE_P1 + 
-                    WcpsConstants.ERRTXT_INVALID_RANGE_TYPE_P4 + type);
+                    "Invalid range element: invalid element type:" + type);
         }
 
         this.name = name;
@@ -87,9 +84,7 @@ public class RangeElement implements Cloneable {
                     new String(uom),
                     new ArrayList<Pair<BigDecimal,BigDecimal>>(allowedIntervals));
         } catch (WCPSException ime) {
-            throw new RuntimeException(
-                    WcpsConstants.ERRTXT_INVALID_METADATA_CLONING_RAN,
-                    ime);
+            throw new RuntimeException("Invalid metadata while cloning RangeElement. This is a software bug in WCPS.", ime);
         }
     }
 
@@ -179,8 +174,7 @@ public class RangeElement implements Cloneable {
                 || type.equals(WcpsConstants.MSG_UNSIGNED_LONG) || type.equals(WcpsConstants.MSG_FLOAT)
                 || type.equals(WcpsConstants.MSG_DOUBLE) || type.equals(WcpsConstants.MSG_COMPLEX) || type.equals(WcpsConstants.MSG_COMPLEX + "2"))) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WcpsConstants.ERRTXT_INVALID_RANGE_TYPE_P1 + 
-                    WcpsConstants.ERRTXT_INVALID_RANGE_TYPE_P4 + type);
+                    "Invalid range element: invalid element type:" + type);
         }
 
         this.type = type;
@@ -188,7 +182,7 @@ public class RangeElement implements Cloneable {
     }
 
     public String toString() {
-        String r = WcpsConstants.MSG_RANGE_ELEMENT + " { " + WcpsConstants.MSG_NAME + " '" + name + "', " + WcpsConstants.MSG_TYPE + " '" + type + "'}";
+        String r = "Range Element { name '" + name + "', type '" + type + "'}";
         return r;
     }
 }

@@ -40,13 +40,13 @@ public class NumericScalarExpr implements IParseTreeNode {
     NumericScalarExpr leftNumericScalarExpr, rightNumericScalarExpr;
 
     public NumericScalarExpr(CondenseExpr c) {
-        log.trace(WcpsConstants.MSG_NUMERIC_SCALAR_EXPR_CONDENSE);
+        log.trace("NumericScalarExpr condense");
         condense = c;
         function = WcpsConstants.MSG_CONDENSE;
     }
 
     public NumericScalarExpr(String val) {
-        log.trace(WcpsConstants.MSG_NUMERIC_SCALAR_EXPR + " " + val);
+        log.trace("NumericScalarExpr " + val);
         if (val.contains(WcpsConstants.MSG_PLUS_I)) {
             ComplexConst cc = new ComplexConst(val);
 
@@ -59,7 +59,7 @@ public class NumericScalarExpr implements IParseTreeNode {
     }
 
     public NumericScalarExpr(String op, NumericScalarExpr expr) {
-        log.trace(WcpsConstants.MSG_NUMERIC_SCALAR_EXPR + " " + op + " "+ WcpsConstants.MSG_NUM);
+        log.trace("NumericScalarExpr " + op + " num");
         leftNumericScalarExpr = expr;
 
         if (op.equals("-")) {
@@ -71,22 +71,22 @@ public class NumericScalarExpr implements IParseTreeNode {
         if (op.equals(WcpsConstants.MSG_ABS)) {
             function = WcpsConstants.MSG_NUMERIC_ABS;
         } else {
-            log.error(WcpsConstants.MSG_UNARY_OPERATOR + " " + op + " " + WcpsConstants.ERRTXT_IS_NOT_RECOGNIZED);
+            log.error("Unary Operator " + op + " is not recognized.");
         }
     }
 
     public NumericScalarExpr(String varOp, String varName) {
-        log.trace(WcpsConstants.MSG_NUMERIC_SCALAR_EXPR + " " + varOp + ", " + varName);
+        log.trace("NumericScalarExpr " + varOp + ", " + varName);
         if (varOp.equals(WcpsConstants.MSG_VAR)) {
             function = WcpsConstants.MSG_VARIABLE_REF;
             constValue = varName;
         } else {
-            log.error(WcpsConstants.ERRTXT_INTERNAL_ERROR_THIS + ":" + varName);
+            log.error("Internal error. This should have been a variable name: " + varName);
         }
     }
 
     public NumericScalarExpr(String op, NumericScalarExpr lbe, NumericScalarExpr rbe) {
-        log.trace(WcpsConstants.MSG_NUMERIC_SCALAR_EXPR + " " + WcpsConstants.MSG_A + " " + op + " " + WcpsConstants.MSG_B);
+        log.trace("NumericScalarExpr a " + op + " b");
         leftNumericScalarExpr = lbe;
         rightNumericScalarExpr = rbe;
 
@@ -99,7 +99,7 @@ public class NumericScalarExpr implements IParseTreeNode {
         } else if (op.equals(WcpsConstants.MSG_DIV)) {
             function = WcpsConstants.MSG_NUMERIC_DIV;
         } else {
-            log.error(WcpsConstants.MSG_OPERATOR + " " + op + " " + WcpsConstants.ERRTXT_IS_NOT_RECOGNIZED);
+            log.error("Operator " + op + " is not recognized.");
         }
     }
 
