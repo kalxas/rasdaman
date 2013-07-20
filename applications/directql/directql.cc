@@ -439,7 +439,7 @@ openDatabase() throw (r_Error)
         accessControl.setServerName("NT1");
         server->openDB(2, baseName, "rasadmin");
         AdminIf* myAdmin = AdminIf::instance();
-        accessControl.crunchCapability("$I1$EW.$BRASBASE$T1:3:2008:23:39:24$NNT1$D67ad694a78d58682e483328bbd549ca5$K");
+        accessControl.crunchCapability("$I1$ERW$BRASBASE$T1:3:2008:23:39:24$NNT1$D3839d047344677ddb1ff1a24dada286e$K");
         SET_OUTPUT(TRUE);
 
         TALK( "ok" );
