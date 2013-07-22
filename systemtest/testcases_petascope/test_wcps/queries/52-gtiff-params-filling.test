@@ -1,6 +1,6 @@
 for c in (eobstest) return encode(
   c[
     t(1),
-    x:"http://www.opengis.net/def/crs/EPSG/0/4326" (20:35),
-    y:"http://www.opengis.net/def/crs/EPSG/0/4326" (10:15)]), 
+    Long:"http://www.opengis.net/def/crs/EPSG/0/4326" (20:35),
+    Lat:"http://www.opengis.net/def/crs/EPSG/0/4326" (10:15)]), 
 "tiff")

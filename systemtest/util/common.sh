@@ -211,11 +211,11 @@ function check_gdal()
 #
 function check_collection()
 {
-  id=`$PSQL -c  "select id from PS_Coverage where name = '$COLLS' " | head -3 | tail -1`
-  test "$id" != "(0 rows)"
+  id="$( $PSQL -c  "select id from ps9_coverage where name = '$COLL' " | head -3 | tail -1 )"
+  expr "$id" : '(1 .*)' > /dev/null
   test1=$?
 
-  $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$COLLS\b" > /dev/null
+  $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$COLL\b" > /dev/null
   test2=$?
   [ $test1 -eq 0 -a $test2 -eq 0 ]
 }
@@ -260,7 +260,7 @@ function check_type()
 
 
 # ------------------------------------------------------------------------------
-# drop collections in global variable $COLLS
+# drop collections in global variable $COLL
 #
 function drop_colls()
 {
@@ -268,7 +268,9 @@ function drop_colls()
   for c in $*; do
     $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$c\b" > /dev/null
     if [ $? -eq 0 ]; then
+      logn "dropping collection $c... "
       $RASQL -q "drop collection $c" > /dev/null
+      echo Ok.
     fi
   done
 }

@@ -185,8 +185,8 @@ $$
           SELECT cset('PS9_GML_SUBTYPE_SUBTYPE',             'subtype');
     SELECT cset('TABLE_PS9_INTERVAL',                         cget('PS9_PREFIX') || '_interval');
           SELECT cset('PS9_INTERVAL_ID',                     'id');
-          SELECT cset('PS9_INTERVAL_MAX',                    'min');
-          SELECT cset('PS9_INTERVAL_MIN',                    'max');
+          SELECT cset('PS9_INTERVAL_MIN',                    'min');
+          SELECT cset('PS9_INTERVAL_MAX',                    'max');
     SELECT cset('TABLE_PS9_INTERVAL_QUANTITY',                cget('PS9_PREFIX') || '_interval_quantity');
           SELECT cset('PS9_INTERVAL_QUANTITY_QID',           'quantity_id');
           SELECT cset('PS9_INTERVAL_QUANTITY_IID',           'interval_id');

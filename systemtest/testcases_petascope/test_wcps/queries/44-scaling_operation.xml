@@ -32,14 +32,14 @@
         <scale>
           <trim>
             <coverage>c</coverage>
-            <axis>x</axis>
+            <axis>i</axis>
             <lowerBound>
               <numericConstant>120</numericConstant>
             </lowerBound>
             <upperBound>
               <numericConstant>130</numericConstant>
             </upperBound>
-            <axis>y</axis>
+            <axis>j</axis>
             <lowerBound>
               <numericConstant>50</numericConstant>
             </lowerBound>
@@ -47,14 +47,14 @@
               <numericConstant>60</numericConstant>
             </upperBound>
           </trim>
-          <axis>x</axis>
+          <axis>i</axis>
           <lowerBound>
             <numericConstant>0</numericConstant>
           </lowerBound>
           <upperBound>
             <numericConstant>100</numericConstant>
           </upperBound>
-          <axis>y</axis>
+          <axis>j</axis>
           <lowerBound>
             <numericConstant>0</numericConstant>
           </lowerBound>

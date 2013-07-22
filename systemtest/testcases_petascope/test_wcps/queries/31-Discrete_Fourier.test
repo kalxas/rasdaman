@@ -3,13 +3,13 @@ encode(
 
 	coverage DFT
 	over $xx x(65:70),
-		 $xy y(65:70)
+	     $xy y(65:70)
 	values
 		condense + 
 		over $ux x(65:70),
-			 $uy y(65:70)
+		     $uy y(65:70)
 		using
-			c[x($ux),y($uy)]
+			c[i($ux),j($uy)]
 			*
 			cos(
 				( -2 * (22.0/7.0) )
