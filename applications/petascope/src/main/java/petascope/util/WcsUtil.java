@@ -333,7 +333,7 @@ public class WcsUtil {
     // Note still it is assumed that grid dimensions are exactly aligned with CRS axes.
     private static String getOffsets(GetCoverageMetadata m, String axisName) {
         String output = "";
-        String[] axisNames = m.getAxisLabels().split(" ");
+        String[] axisNames = m.getAxisLabels().isEmpty() ? new String[0] : m.getAxisLabels().split(" ");
         // Loop through the N dimensions
         for (int i = 0; i < axisNames.length; i++) {
             if (i>0) {
