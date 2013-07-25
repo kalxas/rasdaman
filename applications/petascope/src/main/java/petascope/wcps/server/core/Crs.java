@@ -305,10 +305,7 @@ public class Crs extends AbstractRasNode {
              * s3(9.7°,11°  ) -->  [cell0:cell1]
              * s4(9.2°,9.8° ) -->  [cell0:cell0]
              */
-            if (dom.getUom().equals(CrsUtil.PIXEL_UOM)) {
-                // Gridspace referenced image: subsets *are* pixels
-                out = new long[] { (long)coordLo, (long)coordHi };
-            } else if (zeroIsMin) {
+            if (zeroIsMin) {
                 // Normal linear numerical axis
                 out = new long[] {
                     (long)Math.floor((coordLo    - domMin.doubleValue()) / cellWidth) + pxMin,
@@ -326,9 +323,9 @@ public class Crs extends AbstractRasNode {
         }
         
         // Check outside bounds:
-        out[0] = (out[0]<pxMin) ? pxMin : ((out[0]>pxMax)?pxMax:out[0]);
-        out[1] = (out[1]<pxMin) ? pxMin : ((out[1]>pxMax)?pxMax:out[1]);
-        log.debug("Transformed rebounded coords indices (" + out[0] + "," + out[1] + ")");
+        //out[0] = (out[0]<pxMin) ? pxMin : ((out[0]>pxMax)?pxMax:out[0]);
+        //out[1] = (out[1]<pxMin) ? pxMin : ((out[1]>pxMax)?pxMax:out[1]);
+        //log.debug("Transformed rebounded coords indices (" + out[0] + "," + out[1] + ")");
         
         return out;
     }

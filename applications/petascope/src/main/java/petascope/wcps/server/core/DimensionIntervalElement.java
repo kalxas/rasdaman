@@ -235,18 +235,26 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
     }
     
     public String getLowCoord() {
+        return this.domain1.toRasQL();
+    }
+    public String getHighCoord() {
+        return this.domain2.toRasQL();
+    }
+
+    public String getLowCellCoord() {        
         if (transformedCoordinates) {
             return String.valueOf(cellCoord1);
         } else {
             return this.domain1.toRasQL();
         }
     }
-    
-    public String getHighCoord() {
+
+    public String getHighCellCoord() {        
         if (transformedCoordinates) {
             return String.valueOf(cellCoord2);
         } else {
             return this.domain2.toRasQL();
         }
     }
+
 }

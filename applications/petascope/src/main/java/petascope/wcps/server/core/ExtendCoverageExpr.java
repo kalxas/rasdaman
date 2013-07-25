@@ -108,8 +108,8 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
             log.trace("Axis name: " + axis.getAxisName());
             log.trace("Axis coords: ");
 
-            axisLo = Integer.parseInt(axis.getLowCoord());
-            axisHi = Integer.parseInt(axis.getHighCoord());
+            axisLo = Integer.parseInt(axis.getLowCellCoord());
+            axisHi = Integer.parseInt(axis.getHighCellCoord());
             dim[axisId] = axisLo + ":" + axisHi;
             coverageInfo.setCellDimension(
                     axisId,
