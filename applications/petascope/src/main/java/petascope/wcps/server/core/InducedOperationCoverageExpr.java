@@ -48,7 +48,7 @@ public class InducedOperationCoverageExpr extends AbstractRasNode implements ICo
         } else {    // Try one of the groups
             child = null;
 
-            if (child == null) {
+            if (UnaryOperationCoverageExpr.NODE_NAMES.contains(nodeName)) {
                 try {
                     child = new UnaryOperationCoverageExpr(node, xq);
                     info = new CoverageInfo((((ICoverageInfo) child).getCoverageInfo()));
@@ -61,7 +61,7 @@ public class InducedOperationCoverageExpr extends AbstractRasNode implements ICo
                 }
             }
 
-            if (child == null) {
+            if (BinaryOperationCoverageExpr.NODE_NAMES.contains(nodeName)) {
                 try {
                     child = new BinaryOperationCoverageExpr(node, xq);
                     info = new CoverageInfo((((ICoverageInfo) child).getCoverageInfo()));

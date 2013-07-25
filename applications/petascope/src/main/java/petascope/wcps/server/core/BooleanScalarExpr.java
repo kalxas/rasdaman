@@ -21,6 +21,9 @@
  */
 package petascope.wcps.server.core;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
@@ -31,6 +34,27 @@ import petascope.util.WcpsConstants;
 public class BooleanScalarExpr extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(BooleanScalarExpr.class);
+    
+    public static final Set<String> NODE_NAMES = new HashSet<String>();
+    private static final String[] NODE_NAMES_ARRAY = {
+        WcpsConstants.MSG_BOOLEAN_CONSTANT,
+        WcpsConstants.MSG_BOOLEAN_AND,
+        WcpsConstants.MSG_BOOLEAN_OR,
+        WcpsConstants.MSG_BOOLEAN_XOR,
+        WcpsConstants.MSG_BOOLEAN_LESSTHAN,
+        WcpsConstants.MSG_BOOLEAN_LESSOREQUAL,
+        WcpsConstants.MSG_BOOLEAN_GREATERTHAN,
+        WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL,
+        WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC,
+        WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC,
+        WcpsConstants.MSG_BOOLEAN_EQUAL_STRING,
+        WcpsConstants.MSG_BOOLEAN_NOT_EQUAL_STRING,
+        WcpsConstants.MSG_BOOLEAN_NOT,
+        WcpsConstants.MSG_BIT,
+    };
+    static {
+        NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
+    }
 
     private IRasNode first, second;
     private String op;

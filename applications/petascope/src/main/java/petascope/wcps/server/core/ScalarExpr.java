@@ -55,62 +55,83 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
             node = node.getNextSibling();
         }
         
-        log.trace(node.getNodeName());
+        String nodeName = node.getNodeName();
+        
+        Node childNode = node;
+        while ((childNode != null) && childNode.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
+            childNode = childNode.getNextSibling();
+        }
+        String n = childNode.getNodeName();
 
         // Try one of the groups
         child = null;
 
 //      MetadataScalarExprType
         if (child == null) {
-            try {
-                child = new MetadataScalarExpr(node, xq);
-                log.trace("Matched metadata scalar expression.");
-            } catch (WCPSException e) {
-                child = null;
+            if (MetadataScalarExpr.NODE_NAMES.contains(nodeName)) {
+                try {
+                    child = new MetadataScalarExpr(node, xq);
+                    log.trace("Matched metadata scalar expression.");
+                } catch (WCPSException e) {
+                    child = null;
+                }
             }
         }
 
 //            BooleanScalarExprType
         if (child == null) {
-            try {
-                child = new BooleanScalarExpr(node, xq);
-                log.trace("Matched boolean scalar expression.");
-            } catch (WCPSException e) {
-                child = null;
+            if (BooleanScalarExpr.NODE_NAMES.contains(nodeName)) {
+                try {
+                    child = new BooleanScalarExpr(node, xq);
+                    log.trace("Matched boolean scalar expression.");
+                } catch (WCPSException e) {
+                    child = null;
+                }
             }
         }
 
 //            NumericScalarExprType
         if (child == null) {
-            try {
-                child = new NumericScalarExpr(node, xq);
-                singleValue = ((NumericScalarExpr) child).isSingleValue();
-                value = "" + ((NumericScalarExpr) child).getSingleValue();
-                log.trace("Matched numeric scalar expression.");
-            } catch (WCPSException e) {
-                child = null;
+            if (NumericScalarExpr.NODE_NAMES.contains(n)) {
+                try {
+                    child = new NumericScalarExpr(node, xq);
+                    singleValue = ((NumericScalarExpr) child).isSingleValue();
+                    value = "" + ((NumericScalarExpr) child).getSingleValue();
+                    log.trace("Matched boolean scalar expression.");
+                } catch (WCPSException e) {
+                    child = null;
+                }
             }
         }
 
 //            ReduceScalarExprType
         if (child == null) {
-            try {
-                child = new ReduceScalarExpr(node, xq);
-                log.trace("Matched reduce scalar expression.");
-            } catch (WCPSException e) {
-                child = null;
+            if (node.getNodeName().equals(WcpsConstants.MSG_REDUCE)) {
+                childNode = node.getFirstChild();
+            }
+            while ((childNode != null) && childNode.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
+                childNode = childNode.getNextSibling();
+            }
+            n = childNode.getNodeName().toLowerCase();
+            if (ReduceScalarExpr.NODE_NAMES.contains(n)) {
+                try {
+                    child = new ReduceScalarExpr(node, xq);
+                    log.trace("Matched boolean scalar expression.");
+                } catch (WCPSException e) {
+                    child = null;
+                }
             }
         }
 
 //            StringScalarExprType
         if (child == null) {
-            try {
-                child = new StringScalarExpr(node, xq);
-                singleValue = ((StringScalarExpr) child).isSingleValue();
-                log.trace("Matched string scalar expression.");
-                value = ((StringScalarExpr) child).getValue();
-            } catch (WCPSException e) {
-                child = null;
+            if (StringScalarExpr.NODE_NAMES.contains(n)) {
+                try {
+                    child = new StringScalarExpr(node, xq);
+                    log.trace("Matched string scalar expression.");
+                } catch (WCPSException e) {
+                    child = null;
+                }
             }
         }
 

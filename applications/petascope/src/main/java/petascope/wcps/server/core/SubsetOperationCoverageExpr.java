@@ -21,6 +21,9 @@
  */
 package petascope.wcps.server.core;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
@@ -32,6 +35,16 @@ import petascope.util.WcpsConstants;
 public class SubsetOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
     private static Logger log = LoggerFactory.getLogger(SubsetOperationCoverageExpr.class);
+    
+    public static final Set<String> NODE_NAMES = new HashSet<String>();
+    private static final String[] NODE_NAMES_ARRAY = {
+        WcpsConstants.MSG_TRIM,
+        WcpsConstants.MSG_EXTEND,
+        WcpsConstants.MSG_SLICE,
+    };
+    static {
+        NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
+    }
 
     private IRasNode child;
     private CoverageInfo info = null;

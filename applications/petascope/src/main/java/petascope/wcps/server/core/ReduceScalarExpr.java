@@ -21,6 +21,9 @@
  */
 package petascope.wcps.server.core;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
@@ -31,6 +34,20 @@ import petascope.util.WcpsConstants;
 public class ReduceScalarExpr extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(ReduceScalarExpr.class);
+    
+    public static final Set<String> NODE_NAMES = new HashSet<String>();
+    private static final String[] NODE_NAMES_ARRAY = {
+        WcpsConstants.MSG_ALL,
+        WcpsConstants.MSG_SOME,
+        WcpsConstants.MSG_COUNT,
+        WcpsConstants.MSG_ADD,
+        WcpsConstants.MSG_AVG,
+        WcpsConstants.MSG_MIN,
+        WcpsConstants.MSG_MAX,
+    };
+    static {
+        NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
+    }
 
     CoverageExpr expr;
     String op;

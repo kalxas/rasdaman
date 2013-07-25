@@ -22,6 +22,8 @@
 package petascope.wcps.server.core;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
@@ -32,6 +34,25 @@ import petascope.util.WcpsConstants;
 public class NumericScalarExpr extends AbstractRasNode {
     
     private static Logger log = LoggerFactory.getLogger(NumericScalarExpr.class);
+    
+    public static final Set<String> NODE_NAMES = new HashSet<String>();
+    private static final String[] NODE_NAMES_ARRAY = {
+        WcpsConstants.MSG_NUMERIC_CONSTANT,
+        WcpsConstants.MSG_COMPLEX_CONSTANT,
+        WcpsConstants.MSG_CONDENSE,
+        WcpsConstants.MSG_REDUCE,
+        WcpsConstants.MSG_NUMERIC_UNARY_MINUS,
+        WcpsConstants.MSG_NUMERIC_SQRT,
+        WcpsConstants.MSG_NUMERIC_ABS,
+        WcpsConstants.MSG_NUMERIC_ADD,
+        WcpsConstants.MSG_NUMERIC_MINUS,
+        WcpsConstants.MSG_NUMERIC_MULT,
+        WcpsConstants.MSG_NUMERIC_DIV,
+        WcpsConstants.MSG_VARIABLE_REF,
+    };
+    static {
+        NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
+    }
 
     private IRasNode first, second;
     private String op, value;
@@ -109,7 +130,7 @@ public class NumericScalarExpr extends AbstractRasNode {
         // Keep the children for XML tree re-traversing
         if (twoChildren) {
             super.children.addAll(Arrays.asList(first, second));
-        } else {
+        } else if (first != null) {
             super.children.add(first);
         }
     }

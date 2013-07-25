@@ -98,36 +98,49 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
             child = null;
             String firstMessage = "";
 
-            if (child == null) {
-                try {
-                    child = new SetMetadataCoverageExpr(node, xq);
-                    log.trace("Matched set metadata operation.");
-                } catch (WCPSException e) {
-                    child = null;
-                    exMessage = e.getMessage();
-                    firstMessage = exMessage;
-                }
+            Node childNode = node;
+            while ((childNode != null) && childNode.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
+                childNode = childNode.getNextSibling();
             }
+            String n = childNode.getNodeName();
+
+            // TODO: not implemented
+//            if (child == null) {
+//                try {
+//                    child = new SetMetadataCoverageExpr(node, xq);
+//                    log.trace("  " + WcpsConstants.MSG_MATCHED_SET_METADATA);
+//                } catch (WCPSException e) {
+//                    child = null;
+//                    exMessage = e.getMessage();
+//                    firstMessage = exMessage;
+//                }
+//            }
 
             if (child == null) {
-                try {
-                    child = new InducedOperationCoverageExpr(node, xq);
-                    log.trace("Matched induced coverage expression operation.");
-                } catch (WCPSException e) {
-                    child = null;
-                    if (e.getMessage().equals("Method not implemented")) {
-                        throw e;
+                if (n.equals(WcpsConstants.MSG_RANGE_CONSTRUCTOR) ||
+                    UnaryOperationCoverageExpr.NODE_NAMES.contains(n) ||
+                    BinaryOperationCoverageExpr.NODE_NAMES.contains(nodeName)) {
+                    try {
+                        child = new InducedOperationCoverageExpr(node, xq);
+                        log.trace("Matched induced coverage expression operation.");
+                    } catch (WCPSException e) {
+                        child = null;
+                        if (e.getMessage().equals("Method not implemented")) {
+                            throw e;
+                        }
                     }
                 }
             }
 
             if (child == null) {
-                try {
-                    child = new SubsetOperationCoverageExpr(node, xq);
-                    log.trace("Matched subset operation.");
-                } catch (WCPSException e) {
-                    child = null;
-                    exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
+                if (SubsetOperationCoverageExpr.NODE_NAMES.contains(n)) {
+                    try {
+                        child = new SubsetOperationCoverageExpr(node, xq);
+                        log.trace("Matched subset operation.");
+                    } catch (WCPSException e) {
+                        child = null;
+                        exMessage = exMessage.equals(firstMessage) ? e.getMessage() : exMessage;
+                    }
                 }
             }
 
