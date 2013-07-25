@@ -745,7 +745,7 @@ public class DbMetadataSource implements IMetadataSource {
                     crsAxes.add(Pair.of(axis, uri));
                 }
             }
-            log.trace("Coverage " + coverageName + " CRS decoded: it has " + (crsAxes.size()>1?" axes":" axis") + ".");
+            log.trace("Coverage " + coverageName + " CRS decoded: it has " + crsAxes.size() + (crsAxes.size()>1?" axes":" axis") + ".");
             // Check CRS
             if (crsAxes.isEmpty()) {
                 throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
