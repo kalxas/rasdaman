@@ -925,6 +925,7 @@ public class CrsUtil {
                     con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
                     con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
                     InputStream inStream = con.getInputStream();
+                    log.debug(equalityUri);
                     
                     // Build the document
                     Document doc = XMLUtil.buildDocument(null, inStream);

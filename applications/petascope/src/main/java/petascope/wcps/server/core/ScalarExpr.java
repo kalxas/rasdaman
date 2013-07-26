@@ -97,7 +97,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
                     child = new NumericScalarExpr(node, xq);
                     singleValue = ((NumericScalarExpr) child).isSingleValue();
                     value = "" + ((NumericScalarExpr) child).getSingleValue();
-                    log.trace("Matched boolean scalar expression.");
+                    log.trace("Matched numeric scalar expression.");
                 } catch (WCPSException e) {
                     child = null;
                 }
@@ -116,7 +116,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
             if (ReduceScalarExpr.NODE_NAMES.contains(n)) {
                 try {
                     child = new ReduceScalarExpr(node, xq);
-                    log.trace("Matched boolean scalar expression.");
+                    log.trace("Matched reduce scalar expression.");
                 } catch (WCPSException e) {
                     child = null;
                 }

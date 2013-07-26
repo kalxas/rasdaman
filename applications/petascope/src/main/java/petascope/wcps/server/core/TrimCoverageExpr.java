@@ -106,14 +106,15 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
         int axisLo, axisHi;
         int order = 0;
 
+        // Set the associated cell dimensions
         while (i.hasNext()) {
             axis = i.next();
             axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
             log.trace("Axis ID: " + axisId);
             log.trace("Axis name: " + axis.getAxisName());
 
-            axisLo = Integer.parseInt(axis.getLowCoord());
-            axisHi = Integer.parseInt(axis.getHighCoord());
+            axisLo = Integer.parseInt(axis.getLowCellCoord());
+            axisHi = Integer.parseInt(axis.getHighCellCoord());
             dimNames[axisId] = axisLo + ":" + axisHi;
             log.trace("    " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_COORDS + ": " + dimNames[axisId]);
             coverageInfo.setCellDimension(

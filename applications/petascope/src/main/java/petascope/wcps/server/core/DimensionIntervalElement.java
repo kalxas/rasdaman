@@ -189,24 +189,31 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
         if (meta.getBbox() == null && crs != null) {
             throw new RuntimeException(WcpsConstants.MSG_COVERAGE + " '" + meta.getCoverageName() + "' is not georeferenced.");
         }
-        if (counter == 2 && crs != null && domain1.isSingleValue() && domain2.isSingleValue()) {
-            log.debug("[Transformed] requested subsettingCrs is '{}', should match now native CRS '{}'",
-                    crs.getName(), meta.getBbox().getCrsName());
-            try {
+        if (counter == 2 && crs != null) {
+            if (domain1.isSingleValue() && domain2.isSingleValue()) {
+                log.debug("[Transformed] requested subsettingCrs is '{}', should match now native CRS '{}'",
+                        crs.getName(), meta.getBbox().getCrsName());
+                try {
+                    // Convert to pixel coordinates
+                    String val1 = domain1.getSingleValue();
+                    String val2 = domain2.getSingleValue();
+                    boolean dom1IsNum = !domain1.isStringScalarExpr();
+                    boolean dom2IsNum = !domain2.isStringScalarExpr();
+                    String axisName = axis.toRasQL();
+                    long[] pCoord = crs.convertToPixelIndices(meta, axisName, val1, dom1IsNum, val2, dom2IsNum);
+                    cellCoord1 = pCoord[0];
+                    cellCoord2 = pCoord[1];
+                    this.transformedCoordinates = true;
+                } catch (PetascopeException e) {
+                    this.transformedCoordinates = false;
+                    throw new WCPSException(ExceptionCode.InvalidMetadata,
+                            "Error while converting to pixel coordinates.", e);
+                }
+            } else {
+                // domain values are not number, but variables
+                cellCoord1 = 0L;
+                cellCoord2 = 0L;
                 this.transformedCoordinates = true;
-                // Convert to pixel coordinates
-                String val1 = domain1.getSingleValue();
-                String val2 = domain2.getSingleValue();
-                boolean dom1IsNum = !domain1.isStringScalarExpr();
-                boolean dom2IsNum = !domain2.isStringScalarExpr();
-                String axisName = axis.toRasQL();
-                long[] pCoord = crs.convertToPixelIndices(meta, axisName, val1, dom1IsNum, val2, dom2IsNum);
-                cellCoord1 = pCoord[0];
-                cellCoord2 = pCoord[1];
-            } catch (PetascopeException e) {
-                this.transformedCoordinates = false;
-                throw new WCPSException(ExceptionCode.InvalidMetadata,
-                        "Error while converting to pixel coordinates.", e);
             }
         }
     }
