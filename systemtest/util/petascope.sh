@@ -239,7 +239,7 @@ function import_mr()
 #
 function import_data()
 {
-  COLLECTIONS="rgb mr eobstest"
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp"
   
   for COLLS in $COLLECTIONS; do
     check_collection
@@ -257,6 +257,20 @@ function import_data()
           import_mr && break
         elif [ "$COLLS" == "eobstest" ]; then
           import_eobs && break
+        elif [ "$COLLS" == "mean_summer_airtemp" ]; then
+		   ALLOK=0
+           petascope_insertdemo.sh 
+           "$UTIL_SCRIPT_DIR"/../../applications/rasgeo/wms-import/utilities/init_wms.sh australia_wms mean_summer_airtemp EPSG:4326 -l '2:4:8:16' -h $PETASCOPE_HOST -p $PETASCOPE_PORT
+           if [ $? -ne 0 ] ; then 
+				ALLOK=1 
+		   fi
+           "$UTIL_SCRIPT_DIR"/../../applications/rasgeo/wms-import/utilities/fill_pyramid.sh mean_summer_airtemp --tasplit
+           if [ $? -ne 0 ] ; then 
+				ALLOK=1 
+		   fi
+           if [ $ALLOK -eq 0 ] ;  then 
+				break
+		   fi
         fi
         
         raserase_colls > /dev/null 2>&1

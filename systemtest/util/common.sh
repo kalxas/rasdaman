@@ -137,7 +137,7 @@ function check_rasdaman()
 {
   which rasmgr > /dev/null
   if [ $? -ne 0 ]; then
-    error "rasdaman not installed, please add to the PATH."
+    error "rasdaman not installed, please add rasdaman bin directory to the PATH."
   fi
   pgrep rasmgr > /dev/null
   if [ $? -ne 0 ]; then
@@ -205,7 +205,7 @@ function check_gdal()
 {
   which gdal_translate > /dev/null
   if [ $? -ne 0 ]; then
-    error "gdal missing, please add gdal_translate to the PATH."
+    error "gdal missing, please add gdal_translate to the PATH (e.g. install gdal-bin package)."
   fi
 }
 

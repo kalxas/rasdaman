@@ -52,6 +52,31 @@ echo SCRIPT_DIR is set to: $SCRIPT_DIR
 
 . "$SCRIPT_DIR"/../../util/petascope.sh
 
+
+# Getting endpoint based on script_dir (assumes dir consists of
+# test_svcName , addresses are mapped from ../../conf/test.cfg
+
+SVC_NAME=$(basename $SCRIPT_DIR)
+SVC_NAME=$(echo test_wms | cut -d "_" -f 2)
+echo Service name is: $SVC_NAME
+
+case "$SVC_NAME" in
+	wcs)
+		SVC_URL=$WCS_URL
+		;;
+	wcps)
+		SVC_URL=$WCPS_URL
+		;;
+	wms)
+		SVC_URL=$WMS_URL
+		;;
+	*)	
+		echo "Unsupported service name or wrong naming of script directory"
+		exit 1
+esac
+
+echo Service endpoint is set to: $SVC_URL
+
 #
 # constants
 #
@@ -148,12 +173,34 @@ for f in *.test; do
   cat "$f"
   echo
 
-  # URL encode query
-  f_enc=`cat $f | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
+  # TODO: urlencode and send to petascope enhancements
+  # Should get parameterised based on protocol. At the time being 
+  # uses post for wcps and kvp query string for wms and wcs
+  case $SVC_NAME in
+	wcs|wms)
+		# URL encode query
+		f_enc=`cat $f | tr -d '\n'`
+		# prepend petascope endpoint (defined in test.cfg)
+		kvp_req="$SVC_URL?$f_enc"
+		echo KVP request: $kvp_req
+		loge
 
-  # send to petascope
-  f_out="$OUTPUT_PATH/$f.out"
-  time $WGET -q --post-data "query=$f_enc" $WCPS_URL -O "$f_out"
+		# send to petascope
+		f_out="$OUTPUT_PATH/$f.out"
+		time $WGET -q $kvp_req -O "$f_out"
+		
+		;;
+		
+	wcps)
+		# URL encode query
+		f_enc=`cat $f | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
+
+		# send to petascope
+		f_out="$OUTPUT_PATH/$f.out"
+		time $WGET -q --post-data "query=$f_enc" $SVC_URL -O "$f_out"
+		
+		;;
+  esac
 
   custom_script=${f%.*}".oracle.sh"
   oracle_data=${f%.*}".oracle.data"

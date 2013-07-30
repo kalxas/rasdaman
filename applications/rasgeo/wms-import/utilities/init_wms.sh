@@ -26,6 +26,9 @@
 # Initialize pyramid levels and fill out WMS metadata (in the database) of existing 
 # rasdsaman collection. 
 #
+# Warning: prompts for password if psql not configured to avoid it!
+#  e.g. ident or trust for rasdaman and petascope db users
+#
 # SYNTAX
 # Scale factors of the pyramid levels which will be created on top of the base layer ('1').
 # Baselayer (factor1) must be already be existing in RASBASE.

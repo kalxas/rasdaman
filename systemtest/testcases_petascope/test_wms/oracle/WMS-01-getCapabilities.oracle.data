@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE WMT_MS_Capabilities SYSTEM "http://schemas.opengis.net/wms/1.1.0/capabilities_1_1_0.dtd">
+<WMT_MS_Capabilities version="1.1.0" updateSequence="0">
+
+ <Service>
+  <Name>WMS:WMS</Name>
+  <Title>default_WMS WMS Service</Title>
+  <Abstract>undefined</Abstract>
+  <KeywordList>
+   <Keyword>undefined</Keyword>
+  </KeywordList>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://localhost" />
+
+<ContactInformation>
+ <ContactPersonPrimary>
+  <ContactPerson>undefined</ContactPerson>
+  <ContactOrganization>undefined</ContactOrganization>
+ </ContactPersonPrimary>
+ <ContactAddress>
+  <AddressType>undefined</AddressType>
+  <Address>undefined</Address>
+  <City>undefined</City>
+  <StateOrProvince>undefined</StateOrProvince>
+  <PostCode>undefined</PostCode>
+  <Country>undefined</Country>
+ </ContactAddress>
+ <ContactVoiceTelephone>undefined</ContactVoiceTelephone>
+ <ContactFacsimileTelephone>undefined</ContactFacsimileTelephone>
+ <ContactElectronicMailAddress>undefined</ContactElectronicMailAddress>
+</ContactInformation>
+
+
+  <Fees>undefined</Fees>
+  <AccessConstraints>undefined</AccessConstraints>
+ </Service>
+
+<Capability>
+ <Request>
+  <GetCapabilities>
+   <Format>application/vnd.ogc.wms_xml</Format>
+   <DCPType>
+    <HTTP>
+     <Get>
+      <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://localhost:8080/petascope/wms" />
+     </Get>
+    </HTTP>
+   </DCPType>
+  </GetCapabilities>
+  <GetMap>
+  <Format>image/jpeg</Format>
+  <Format>image/png</Format>
+  <Format>image/tiff</Format>
+   <DCPType>
+    <HTTP>
+     <Get>
+      <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://localhost:8080/petascope/wms" />
+     </Get>
+    </HTTP>
+   </DCPType>
+  </GetMap>
+ </Request>
+ <Exception>
+  <Format>application/vnd.ogc.se_xml</Format>
+  <Format>application/vnd.ogc.se_inimage</Format>
+  <Format>application/vnd.ogc.se_blank</Format>
+ </Exception>
+<Layer>
+ <Name>australia_wms</Name>
+ <Title>australia_wms</Title>
+ <SRS>EPSG:4326</SRS>
+ <LatLonBoundingBox minx="111.975" miny="-44.525" maxx="156.275" maxy="-8.975" />
+ <BoundingBox SRS="EPSG:4326" minx="111.975" miny="-44.525" maxx="156.275" maxy="-8.975" />
+ <Attribution>
+  <Title>undefined</Title>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="http://www.rasdaman.com/australia_wms/about.html" />
+ </Attribution>
+  <AuthorityURL name="DIF_ID">
+   <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="undefined" />
+  </AuthorityURL>
+ <FeatureListURL>
+  <Format>application/vnd.ogc.se_xml</Format>
+  <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="undefined" />
+ </FeatureListURL>
+<Style>
+ <Name>standard</Name>
+ <Title>layer australia_wms, style standard</Title>
+ <Abstract>undefined</Abstract>
+  <StyleSheetURL>
+   <Format>text/xsl</Format>
+   <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="undefined" />
+  </StyleSheetURL>
+</Style>
+</Layer>
+</Capability>
+</WMT_MS_Capabilities>

@@ -46,14 +46,17 @@ The log is located in the log file in this directory.
 The following datasets, also avaiable as coverages for wcs are used to
 create map layers for testing.
 
-+----------+-----+-------+-----------------+-------+-----------------+------+
-| coverage | dim | type  | pixel extent    | axes  | geo-boundingbox | CRS  |
-+----------+-----+-------+-----------------+-------+-----------------+------+
-| eobstest | 3D  | short | 0:5,0:100,0:231 | t/x/y | 25,-40 - 75,75  | 4326 |
-+----------+-----+-------+-----------------+-------+-----------------+------+
++---------------------+-----+--------+-----------------+-------+-----------------+------------+
+|     coverage        | dim | type   | pixel extent    | axes  | geo-boundingbox |    CRS     |
++---------------------+-----+--------+-----------------+-------+-----------------+------------+
+| mean_summer_airtemp | 2D  | char   | 0:885,0:710     | x/y   | UL 111.9750000, |  EPSG:9001 |
+                                                                     -8.9750000 
+                                                                 LR 156.2750000,
+                                                                    -44.5250000
++---------------------+-----+--------+-----------------+-------+-----------------+------------+
+}}}
 
-These coverages are automatically inserted if necessary
-
+These coverages are automatically inserted and registered as maps if necessary
 
 ----------------
 = Adding tests =

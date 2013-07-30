@@ -8,14 +8,17 @@ RMANBASE       # base path to the checked out rasdaman source code.
 IMPORTANT: This README should be found in 
 $RMANBASE/systemtest/test_petascope/test_wcps directory.
 
+VERY IMPORTANT: This README should be used as the master reference
+for documentation of the test engine for all W*S service tests 
+
 This directory holds WCPS tests and it has the following structure.
 .
-├── oracle     # expected result outputs
-├── output     # result output from running test queris
-├── queries    # test queries in WCPS abstract syntax
-├── testdata   # contains data used by tests
-├── README     # this file
-└── test.sh    # the test script
+|── oracle     # expected result outputs
+|── output     # result output from running test queris
+|── queries    # test queries in WCPS abstract syntax
+|── testdata   # contains data used by tests
+|── README     # this file
+L── test.sh    # the test script
 
 Variables like Tomcat port, host, etc. may need to be adapted in test.cfg, 
 located at $RMANBASE/systemtest/conf/test.cfg, before running the tests. The 
@@ -59,14 +62,21 @@ The log is located in the log file in this directory.
 
 The following coverages are available for the tests:
 
-+----------+-----+-------+-----------------+-------+-----------------+------+
-| coverage | dim | type  | pixel extent    | axes  | geo-boundingbox | CRS  |
-+----------+-----+-------+-----------------+-------+-----------------+------+
-| rgb      | 2D  | rgb   | 0:399,0:343     | x/y   |        -        |  -   |
-| mr       | 2D  | char  | 0:255,0:210     | x/y   |        -        |  -   |
-| eobstest | 3D  | short | 0:5,0:100,0:231 | t/x/y | 25,-40 - 75,75  | 4326 |
-+----------+-----+-------+-----------------+-------+-----------------+------+
+{{{
++---------------------+-----+--------+-----------------+-------+-----------------+------------+
+|     coverage        | dim | type   | pixel extent    | axes  | geo-boundingbox |    CRS     |
++---------------------+-----+--------+-----------------+-------+-----------------+------------+
+| rgb                 | 2D  | rgb    | 0:399,0:343     | x/y   |        -        |     -      |   
+| mr                  | 2D  | char   | 0:255,0:210     | x/y   |        -        |     -      |   
+| mean_summer_airtemp | 2D  | char   | 0:885,0:710     | x/y   | UL 111.9750000, |  EPSG:9001 |
+                                                                     -8.9750000 
+                                                                 LR 156.2750000,
+                                                                    -44.5250000
+| eobstest            | 3D  | short  | 0:5,0:100,0:231 | t/x/y | 25,-40 - 75,75  |  EPSG:4326 |
++---------------------+-----+--------+-----------------+-------+-----------------+------------+
+}}}
 
+NOTE: Keep the table in sync with: http://rasdaman.org/wiki/RasdamanTestSuites
 These coverages are automatically inserted if necessary
 
 
