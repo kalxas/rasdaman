@@ -34,7 +34,7 @@ import petascope.util.WcpsConstants;
 
 /**
  * @author <?>
- * @author <a href="mailto:cmppri@unife.it">Piero Campalani</a>
+ * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public class DimensionIntervalElement extends AbstractRasNode implements ICoverageInfo {
 

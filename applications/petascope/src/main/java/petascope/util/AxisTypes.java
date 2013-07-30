@@ -25,7 +25,7 @@ package petascope.util;
  * NOTE: these must be unique: axis abbreviations read through a CRS
  * definition must be assigned then to one of these values.
  * 
- * @author <a href="mailto:cmppri@unife.it">Piero Campalani</a>
+ * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public interface AxisTypes {
     public static final String X_AXIS       = "x";

@@ -50,7 +50,7 @@ import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
  * dictionary (axisName, CrsExt) for output reprojection to correctly
  * forward the task to WCPS.
  * 
- * @author <a href="mailto:cmppri@unife.it">Piero Campalani</a>
+ * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public class CRSExtension implements Extension {
     

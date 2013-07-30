@@ -28,7 +28,7 @@ import petascope.util.WcpsConstants;
 /**
  * DimensionCrsElement
  *
- * @author <a href="mailto:cmppri@unife.it">Piero Campalani</a>
+ * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public class DimensionCrsElement implements IParseTreeNode {
 

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * Class that offers several utilities to handle timestamps formatting and elaborations.
  * Purpose: hide the library-specific details (DateTime) and let the client work with ISO strings.
  *
- * @author <a href="mailto:cmppri@unife.it">Piero Campalani</a>
+ * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public class TimeUtil {
     

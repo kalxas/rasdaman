@@ -38,7 +38,7 @@ import petascope.util.XMLSymbols;
  * NOTE: this class represents an /atomic/ CRS, whereas Compound-CRSs (CCRS) are 
  * contemplated by the composition of a CoverageMetadata with N CrsDefinition objects.
  * 
- * @author <a href="mailto:cmppri@unife.it">Piero Campalani</a>
+ * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public class CrsDefinition {
     
