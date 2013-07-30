@@ -21,8 +21,8 @@
  */
 package petascope.wcs2.parsers;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -204,6 +204,23 @@ public class GetCoverageMetadata {
     
     public void setUomLabels(String newUoms) {
         uomLabels = newUoms;
+    }
+    
+    /**
+     * Check if the *output* coverage is an irregular grid.
+     * @return True if at least one of the non-sliced axes are irregular.
+     */
+    public boolean hasIrregularAxis() {
+        List<String> labels = new ArrayList<String>();
+        labels.addAll(Arrays.asList(axisLabels.split(" +")));
+        
+        for (String axisLabel : labels) {
+            DomainElement domEl = metadata.getDomainByName(axisLabel);
+            if (domEl.isIrregular()) {
+                return true;
+            }
+        }
+        return false;
     }
     
     public static class RangeField {
