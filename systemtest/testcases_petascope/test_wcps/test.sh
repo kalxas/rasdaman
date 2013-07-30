@@ -25,6 +25,7 @@
 #  test.sh
 # Description
 #  Command-line utility for testing WCPS functionality in petascope.
+#  Designed as a generic engine, reusable for all W*S test suites.
 #
 # PRECONDITIONS
 #   Postgres, Rasdaman installed and running
@@ -33,14 +34,21 @@
 #
 # CHANGE HISTORY
 #       2012-Jun-14     DM         created
-#       2012-May-26     NK         added oracle verification
+#       2013-May-26     NK         added oracle verification
+#       2013-Jul-23     AB         re-use fixes (in test_wms definition)
 #
 
 PROG=`basename $0`
 
 SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
+
+# This loop reading links does not allow re-use of the engine in 
+# other same-structure dirs such as test_wcs or test_wms, hence 
+# commenting it out (consider removal altogether)
+## while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
 SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+echo SCRIPT_DIR is set to: $SCRIPT_DIR
 
 . "$SCRIPT_DIR"/../../util/petascope.sh
 

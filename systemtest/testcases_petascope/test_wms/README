@@ -1,0 +1,68 @@
+-------------
+= WMS tests =
+-------------
+
+Environment variables used later on in this document:
+RMANBASE       # base path to the checked out rasdaman source code.
+
+IMPORTANT: This README should be found in 
+$RMANBASE/systemtest/test_petascope/test_wms directory.
+
+VERY IMPORTANT: This folder is based on the same test engine used
+for wcps testing and contents are linked to the test_wcps folder
+whenever possible.
+
+This directory holds WMS tests and it has the following structure.
+.
+|── oracle     # expected result outputs
+|── output     # result output from running test queries (removable)
+|── queries    # test queries in WMS kvp syntax 
+|── testdata   # contains data used by tests (link to wcps)
+|── README     # this file
+L── test.sh    # the test script (link to wcps)
+
+Variables like Tomcat port, host, etc. may need to be adapted in test.cfg, 
+located at $RMANBASE/systemtest/conf/test.cfg, before running the tests. The 
+testdata folder contains the testing images and data. All the queries are 
+contained in the queries directory, to add a new test please refer to the 
+"Adding tests" section in this document.
+
+To run the tests, execute:
+
+  ./test.sh
+
+Do not execute "sh test.sh" as the script is written for bash, and sh is often
+linked to a restricted version of bash like dash, or similar.
+
+The test.sh script works as desctibed in 
+$RMANBASE/systemtest/test_petascope/test_wcps/README use that as reference
+
+The log is located in the log file in this directory.
+
+------------
+= Testdata = (draft)
+------------
+
+The following datasets, also avaiable as coverages for wcs are used to
+create map layers for testing.
+
++----------+-----+-------+-----------------+-------+-----------------+------+
+| coverage | dim | type  | pixel extent    | axes  | geo-boundingbox | CRS  |
++----------+-----+-------+-----------------+-------+-----------------+------+
+| eobstest | 3D  | short | 0:5,0:100,0:231 | t/x/y | 25,-40 - 75,75  | 4326 |
++----------+-----+-------+-----------------+-------+-----------------+------+
+
+These coverages are automatically inserted if necessary
+
+
+----------------
+= Adding tests =
+----------------
+
+See test_wcps README
+
+-----------------
+= Failing tests =
+-----------------
+
+At present no tests are failing.
