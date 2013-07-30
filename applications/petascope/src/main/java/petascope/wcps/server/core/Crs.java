@@ -35,7 +35,6 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
 import petascope.util.WcpsConstants;
-import petascope.util.CrsUtil;
 import petascope.util.TimeUtil;
 
 public class Crs extends AbstractRasNode {
@@ -44,8 +43,13 @@ public class Crs extends AbstractRasNode {
     private String crsName;
     private DbMetadataSource dbMeta;
     
-    public Crs(String srsName) {
+    public Crs(String srsName, XmlQuery xq) {
         crsName = srsName;
+        IDynamicMetadataSource dmeta = xq.getMetadataSource();
+        if (dmeta instanceof DynamicMetadataSource &&
+                ((DynamicMetadataSource)dmeta).getMetadataSource() instanceof DbMetadataSource) {
+            dbMeta = (DbMetadataSource) ((DynamicMetadataSource)dmeta).getMetadataSource();
+        }
     }
     
     public Crs(Node node, XmlQuery xq) throws WCPSException {
@@ -170,17 +174,9 @@ public class Crs extends AbstractRasNode {
             }
             
             // Check intersection with extents
-            if (dom.getUom().equals(CrsUtil.PIXEL_UOM)) {
-                // Pixel-domain axis: get info from cellDomain (sdom) directly.
-                if (coordLo > pxMax || coordHi < pxMin) {
-                    throw new PetascopeException(ExceptionCode.InvalidSubsetting,
-                            axisName + " axis: subset (" + coordLo + ":" + coordHi + ") is out of bounds.");
-                }
-            } else {
-                if (coordLo > domMax.doubleValue() || coordHi < domMin.doubleValue()) {
-                    throw new PetascopeException(ExceptionCode.InvalidSubsetting,
-                            axisName + " axis: subset (" + coordLo + ":" + coordHi + ") is out of bounds.");
-                }
+            if (coordLo > domMax.doubleValue() || coordHi < domMin.doubleValue()) {
+                throw new PetascopeException(ExceptionCode.InvalidSubsetting,
+                        axisName + " axis: subset (" + coordLo + ":" + coordHi + ") is out of bounds.");
             }
         }
         

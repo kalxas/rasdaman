@@ -140,10 +140,10 @@ public class DimensionPointElement extends AbstractRasNode {
             if (axisDomain != null) {
                 String crsName = axisDomain.getCrs();
                 log.info("Using native CRS: " + crsName);
-                crs = new Crs(crsName);
+                crs = new Crs(crsName, xq);
             } else {
                 log.warn("No native CRS specified for axis " + axisName + ": assuming pixel coordinates.");
-                crs = new Crs(CrsUtil.GRID_CRS);
+                crs = new Crs(CrsUtil.GRID_CRS, xq);
                 this.transformedCoordinates = true;
             }
         }

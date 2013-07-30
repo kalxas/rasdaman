@@ -161,15 +161,15 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
             if (axisDomain != null) {
                 String crsName = axisDomain.getCrs();
                 log.info("  Using native CRS: " + crsName);
-                crs = new Crs(crsName);
+                crs = new Crs(crsName, xq);
                 
                 if (crsName == null) {
                     log.warn("  No native CRS specified for axis " + axisName + ", assuming pixel coordinates.");
-                    crs = new Crs(CrsUtil.GRID_CRS);
+                    crs = new Crs(CrsUtil.GRID_CRS, xq);
                 }
             } else {
                 log.warn("No native CRS specified for axis " + axisName + ": assuming pixel coordinates.");
-                crs = new Crs(CrsUtil.GRID_CRS);
+                crs = new Crs(CrsUtil.GRID_CRS, xq);
                 this.transformedCoordinates = true;
 
                 //log.error(axisName + " is not available for coverage " + meta.getCoverageName());
