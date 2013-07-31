@@ -128,4 +128,4 @@ drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
 # test summary
 #
 print_summary
-exit $RC
+exit 0
