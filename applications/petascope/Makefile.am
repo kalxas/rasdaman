@@ -54,7 +54,6 @@ NAME      = petascope
 WAR_NAME  = $(NAME).war
 WAR       = $(DIST)/$(WAR_NAME)
 APIDOCS   = $(BUILD)/apidocs
-SUBDIRS	  = ../../java
 
 # Unix tools
 FIND      = find
@@ -124,6 +123,7 @@ $(all_javas):
 # compileit - Compile the source
 .PHONY: compileit
 compileit: $(all_javas) $(GEN_DOCS)
+	$(MAKE) -C ../../java $(MAKECMDGOALS)
 	$(MKDIR) $(BUILD)
 	$(SED) 's|@confdir@|$(DESTDIR)$(sysconfdir)/|g' $(SRC_WEB)/WEB-INF/web.xml.in > $(SRC_WEB)/WEB-INF/web.xml
 	$(CP) $(SRC_WEB)/* $(WEB)
