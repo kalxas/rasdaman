@@ -53,8 +53,6 @@ WAR       = $(DIST)/$(WAR_NAME)
 APIDOCS   = $(BUILD)/apidocs
 SECORE_CORE = ../secore-core
 
-SUBDIRS	  = ../secore-core
-
 # Unix tools
 FIND      = find
 MKDIR     = mkdir -p
@@ -87,7 +85,6 @@ JDFLAGS   = -sourcepath $(SRC_MAIN)  \
 #                                 TARGETS
 # ------------------------------------------------------------------------------
 
-
 # Create war
 .PHONY: war
 war: compileit
@@ -119,6 +116,7 @@ $(all_javas):
 # compileit - Compile the source
 .PHONY: compileit
 compileit: $(all_javas) $(GEN_DOCS)
+	$(MAKE) -C $(SECORE_CORE) $(MAKECMDGOALS)
 	$(MKDIR) $(BUILD)
 	$(CP) $(SRC_WEB)/* $(WEB)
 	$(CP) $(SECORE_CORE)/etc $(WEB)
