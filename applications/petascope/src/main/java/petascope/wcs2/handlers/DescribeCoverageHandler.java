@@ -66,7 +66,7 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
             try {
                 GetCoverageRequest tmp = new GetCoverageRequest(coverageId);
                 GetCoverageMetadata m = new GetCoverageMetadata(tmp, meta);
-                descr = WcsUtil.getGML(m, Templates.COVERAGE_DESCRIPTION, true);
+                descr = WcsUtil.getGML(m, Templates.COVERAGE_DESCRIPTION, true, meta);
                 // RGBV coverages
                 if (m.getCoverageType().equals(LABEL_REFERENCEABLE_GRID_COVERAGE)) {
                     descr = WcsUtil.addCoefficients(descr, m);

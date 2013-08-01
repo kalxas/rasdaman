@@ -303,6 +303,16 @@ function import_mr()
   $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
               (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=1), \
               '{0,$y_res}');" > /dev/null || exit $RC_ERROR
+
+  # add GMLCOV and OWS extra metadata
+  GMLCOV=gmlcov
+  OWS=ows
+  $PSQL -c "INSERT INTO ps9_extra_metadata (coverage_id, metadata_type_id, value) VALUES (\
+              $c_id, (SELECT id FROM ps9_extra_metadata_type WHERE type='$OWS'),\
+              'test ows metadata');" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps9_extra_metadata (coverage_id, metadata_type_id, value) VALUES (\
+              $c_id, (SELECT id FROM ps9_extra_metadata_type WHERE type='$GMLCOV'),\
+              'test gmlcov metadata');" > /dev/null || exit $RC_ERROR
 }
 
 # ------------------------------------------------------------------------------

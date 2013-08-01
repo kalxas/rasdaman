@@ -1368,6 +1368,27 @@ public class DbMetadataSource implements IMetadataSource {
     }
     
     /**
+     * Returns the GMLCOV parent type of a coverage.
+     * The parent->child mapping is taken from petascopedb::PS9_GML_SUBTYPE table.
+     * @param type  The GMLCOV type of the child.
+     * @return The GMLCOV type of the correspondent parent; an empty string otherwise in case of
+     * unknown or root (eg AbstractCoverage) type.
+     */
+    public String getParentCoverageType(String type) {
+        String parentType = "";
+
+        if (gmlChildParent.containsKey(type)) {
+            for (Map.Entry<String, String> childParent : gmlChildParent.entrySet()) {
+                if (childParent.getKey().equals(type)) {
+                    parentType = childParent.getValue();
+                }
+            }
+        }
+
+        return parentType;
+    }
+
+    /**
      * Fetches Coverage Data from Non-Raster Coverage created in PetascopeDB
      * @param schemaName
      * @param coverageID

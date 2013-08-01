@@ -93,7 +93,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
                 throw pEx;
             }
             
-            String gml = WcsUtil.getGML(m, Templates.GRID_COVERAGE, true);
+            String gml = WcsUtil.getGML(m, Templates.GRID_COVERAGE, true, meta);
             gml = addCoverageData(gml, request, meta, m);
             
             // RGBV coverages
@@ -137,7 +137,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
     private Response handleMultiPoint(GetCoverageRequest req, String coverageID, DbMetadataSource meta, GetCoverageMetadata m)
             throws WCSException {
         CoverageMetadata cov = m.getMetadata();
-        String ret = WcsUtil.getGML(m, Templates.MULTIPOINT_COVERAGE, false);
+        String ret = WcsUtil.getGML(m, Templates.MULTIPOINT_COVERAGE, false, meta);
         String pointMembers = "";
         String rangeMembers = "";
         String low = "", high = "";

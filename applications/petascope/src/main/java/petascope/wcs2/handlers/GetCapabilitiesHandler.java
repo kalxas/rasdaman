@@ -39,6 +39,7 @@ import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import static petascope.util.XMLSymbols.*;
+import petascope.util.WcsUtil;
 import petascope.util.XMLUtil;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcs2.Wcs2Servlet;
@@ -141,8 +142,8 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             it = meta.coverages().iterator();
             while (it.hasNext()) {                
                 Element cs = new Element(LABEL_COVERAGE_SUMMARY, NAMESPACE_WCS);
-                Element c = null;
-                Element cc = null; 
+                Element c;
+                Element cc;
                 c = new Element(LABEL_COVERAGE_ID, NAMESPACE_WCS);
                 String coverageName = it.next();
                 GetCoverageRequest tmp = new GetCoverageRequest(coverageName);
@@ -150,8 +151,14 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 c.appendChild(coverageName);
                 cs.appendChild(c);
                 c = new Element(LABEL_COVERAGE_SUBTYPE, NAMESPACE_WCS);
-                c.appendChild(meta.read(coverageName).getCoverageType());
+                String covType = meta.read(coverageName).getCoverageType();
+                c.appendChild(covType);
                 cs.appendChild(c);
+                // Add hierarchy of parent types
+                String parentCovType = meta.getParentCoverageType(covType);
+                if (!parentCovType.isEmpty()) {
+                    cs.appendChild(WcsUtil.addSubTypeParents(parentCovType, meta));
+                }
                 contents.appendChild(cs);
                 
                 /** Append Native Bbox **/

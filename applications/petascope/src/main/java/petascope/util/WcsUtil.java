@@ -23,12 +23,12 @@ package petascope.util;
 
 import java.io.StringWriter;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import javax.xml.bind.JAXBException;
 import net.opengis.ows.v_1_0_0.ExceptionReport;
+import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.PetascopeXmlNamespaceMapper;
@@ -37,6 +37,9 @@ import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
+import static petascope.util.XMLSymbols.LABEL_COVERAGE_SUBTYPE;
+import static petascope.util.XMLSymbols.LABEL_COVERAGE_SUBTYPE_PARENT;
+import static petascope.util.XMLSymbols.NAMESPACE_WCS;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcs2.parsers.GetCoverageMetadata;
@@ -206,7 +209,7 @@ public class WcsUtil {
         return exceptionReportToXml(e.getReport());
     }
 
-    public static String getGML(GetCoverageMetadata m, String template, boolean replaceBounds) {
+    public static String getGML(GetCoverageMetadata m, String template, boolean replaceBounds, DbMetadataSource meta) {
         
         // TODO
         // Automatize the creation of the header: namespaces, schema locations, etc. (Mind XMLSymbols).
@@ -238,6 +241,7 @@ public class WcsUtil {
                 Pair.of("\\{" + Templates.KEY_DOMAINSET_ADDITIONS + "\\}", getDomainSetAdditions(m)), // need to be first: it adds other shared "{%}" keys (eg `uomLabels')
                 Pair.of("\\{" + Templates.KEY_COVERAGEID          + "\\}", m.getCoverageId()),
                 Pair.of("\\{" + Templates.KEY_COVERAGETYPE        + "\\}", m.getCoverageType()),
+                Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPEPARENT + "\\}", addSubTypeParents(meta.getParentCoverageType(m.getCoverageType()), meta).toXML()),
                 Pair.of("\\{" + Templates.KEY_GRIDID              + "\\}", m.getGridId()),
                 Pair.of("\\{" + Templates.KEY_MPID                + "\\}", Templates.PREFIX_MP + m.getGridId()),
                 Pair.of("\\{" + Templates.KEY_GRIDDIMENSION       + "\\}", String.valueOf(m.getGridDimension())),
@@ -254,7 +258,7 @@ public class WcsUtil {
         if (replaceBounds && !m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
             ret = getBounds(ret, m);
         }
-        
+
         return ret;
     }
 
@@ -276,7 +280,7 @@ public class WcsUtil {
             return CrsUtil.GRID_CRS;
         }
     }
-    
+
     /**
      * Replaces the bounds of the grid
      * @param gml  The GML response
@@ -447,6 +451,32 @@ public class WcsUtil {
         if (type.equals(KEY_FLOAT))  { return Pair.of(FLOAT_MIN,  FLOAT_MAX);  } else 
         if (type.equals(KEY_DOUBLE)) { return Pair.of(DOUBLE_MIN, DOUBLE_MAX); }
         return Pair.of("", "");
+    }
+
+    /**
+     * Returns the XML genealogy of a specified GMLCOV type by recursive calls.
+     * @param covType  The GMLCOV child type
+     * @param meta     The link to the db info
+     * @return The XML sequence of parent types (wcs:CoverageSubtypeParent)
+     */
+    public static Element addSubTypeParents(String covType, DbMetadataSource meta) {
+
+        Element hierarchy = null;
+
+        if (!covType.isEmpty()) {
+            hierarchy = new Element(LABEL_COVERAGE_SUBTYPE_PARENT, NAMESPACE_WCS);
+
+            // Add the type
+            Element c = new Element(LABEL_COVERAGE_SUBTYPE, NAMESPACE_WCS);
+            c.appendChild(covType);
+            hierarchy.appendChild(c);
+            // Add the parent (if exists)
+            String parentCovType = meta.getParentCoverageType(covType);
+            if (!parentCovType.isEmpty()) {
+                hierarchy.appendChild(addSubTypeParents(parentCovType, meta));
+            }
+        }
+        return hierarchy;
     }
 
     /**

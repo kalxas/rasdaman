@@ -74,6 +74,7 @@ public class Templates {
     public static final String KEY_COVERAGEDATA = "coverageData";
     public static final String KEY_COVERAGEID = "coverageId";
     public static final String KEY_COVERAGESUBTYPE = "coverageSubtype";
+    public static final String KEY_COVERAGESUBTYPEPARENT = "coverageSubtypeParent";
     public static final String KEY_COVERAGETYPE = "coverageType";
     public static final String KEY_DATATYPE = "datatype";
     public static final String KEY_FIELDDESCR = "fieldDescr";
