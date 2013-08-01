@@ -55,15 +55,15 @@ $$
         _tup record;
     BEGIN
         -- Select all the CRSs (starting with http)
-        _qry := ' SELECT DISTINCT ARRAY[' || cget('PS_CRS_NAME')  || '] AS row ' ||
-                                 ' FROM ' || cget('TABLE_PS_CRS'); -- || 
+        _qry := ' SELECT DISTINCT ARRAY[' || quote_ident(cget('PS_CRS_NAME'))  || '] AS row ' ||
+                                 ' FROM ' || quote_ident(cget('TABLE_PS_CRS')); -- || 
 --                                ' WHERE ' || cget('PS_CRS_NAME')  || ' ILIKE ''http%''';
         FOR _tup IN EXECUTE _qry LOOP
             BEGIN 
                 -- Add them to ps9_crs
-                _qry := ' INSERT INTO ' || cget('TABLE_PS9_CRS') || 
-                                  ' ( ' || cget('PS9_CRS_URI')   || ' ) ' ||
-                          ' VALUES (''' ||  _tup.row[1]          || ''')';
+                _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_CRS')) || 
+                                  ' ( ' || quote_ident(cget('PS9_CRS_URI'))   || ' ) ' ||
+                            ' VALUES (' || quote_literal(_tup.row[1])          || ')';
                 RAISE DEBUG '%: EXECUTING : %;', ME, _qry;
                 EXECUTE _qry;
                 RAISE NOTICE '%: CRS ''%'' has been migrated', ME, _tup.row[1];
@@ -93,10 +93,11 @@ $$
         _tup record;
     BEGIN
         -- Select all the UoM (except )
-        _qry := ' SELECT DISTINCT ARRAY[' || cget('PS_UOM_UOM') || ',' || cget('PS_UOM_LINK') || '] AS row ' ||
-                ' FROM '  || cget('TABLE_PS_UOM') ||
-                ' WHERE ' || cget('PS_UOM_UOM')   || '!~''10'   || chr(x'2070'::int)  || '''' ||
-                ' AND '   || cget('PS_UOM_UOM')   || '!=''1''' ;
+        _qry := ' SELECT DISTINCT ARRAY[' || quote_ident(cget('PS_UOM_UOM')) || ',' 
+                          || quote_ident(cget('PS_UOM_LINK')) || '] AS row ' ||
+                ' FROM '  || quote_ident(cget('TABLE_PS_UOM')) ||
+                ' WHERE ' || quote_ident(cget('PS_UOM_UOM'))   || '!~''10'   || chr(x'2070'::int) || '''' ||
+                ' AND '   || quote_ident(cget('PS_UOM_UOM'))   || '!=''1''' ;
 	RAISE DEBUG '%: EXECUTING %', ME, _qry;  
 	FOR _tup IN EXECUTE _qry LOOP
             BEGIN
@@ -107,22 +108,22 @@ $$
 
                 RAISE NOTICE '%: migrating (%,%) unit of measure...', ME, _tup.row[1], _tup.row[2];
                 -- UoM
-                _qry := ' INSERT INTO ' || cget('TABLE_PS9_UOM') || 
-                                  ' ( ' || cget('PS9_UOM_CODE')  || ' ) ' ||
-                         ' VALUES ( ''' ||  _tup.row[1]          || ''' ) ';
+                _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_UOM')) || 
+                                  ' ( ' || quote_ident(cget('PS9_UOM_CODE'))  || ' ) ' ||
+                           ' VALUES ( ' || quote_literal( _tup.row[1])        || ' ) ';
 	        RAISE DEBUG '%: EXECUTING %', ME, _qry;  
 		EXECUTE _qry;
                 -- Quantity
-                _qry := ' INSERT INTO ' || cget('TABLE_PS9_QUANTITY')  || 
-                                  ' ( ' || cget('PS9_QUANTITY_UOM_ID') || ','
-                                        || cget('PS9_QUANTITY_URI')    || ' ) ' ||  
+                _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_QUANTITY'))  || 
+                                  ' ( ' || quote_ident(cget('PS9_QUANTITY_UOM_ID')) || ','
+                                        || quote_ident(cget('PS9_QUANTITY_URI'))    || ' ) ' ||  
                         ' VALUES ( '    || 
                                         select_field(
                                           cget('TABLE_PS9_UOM'), 
                                           cget('PS9_UOM_ID'), 0, 
-                                          ' WHERE ' || cget('PS9_UOM_CODE') || '='
-                                               '''' || _tup.row[1] || '''')
-                                        ||  ' , ''' || _tup.row[2] || ''')';
+                                          ' WHERE ' || quote_ident(cget('PS9_UOM_CODE')) || '='
+                                                    || quote_literal(_tup.row[1]) )
+                                          ||  ' , ' || quote_literal(_tup.row[2])        || ')';
 	        RAISE DEBUG '%: EXECUTE %', ME, _qry;  
                 EXECUTE _qry;  
             EXCEPTION
@@ -173,15 +174,15 @@ $$
 	_coverage_id := select_field(
                           cget('TABLE_PS_COVERAGE'), 
                           cget('PS_COVERAGE_ID'), 0, 
-                          ' WHERE ' || cget('PS_COVERAGE_NAME') || '='''
-                                    || coverage_name            || ''''
+                          ' WHERE ' || quote_ident(cget('PS_COVERAGE_NAME')) || '='
+                                    || quote_literal(coverage_name)
         );
         RAISE DEBUG '%: corresponding % in % is ''%''', ME, cget('PS_COVERAGE_ID'), cget('TABLE_PS_COVERAGE'), _coverage_id; 
 
         -- Fetch the GML type of the coverage
-        _qry := ' SELECT ARRAY[' || cget('PS_COVERAGE_TYPE')  || '] AS row '
-                        ' FROM ' || cget('TABLE_PS_COVERAGE') || 
-                       ' WHERE ' || cget('PS_COVERAGE_NAME')  || '=''' || coverage_name || '''';
+        _qry := ' SELECT ARRAY[' || quote_ident(cget('PS_COVERAGE_TYPE'))  || '] AS row '
+                        ' FROM ' || quote_ident(cget('TABLE_PS_COVERAGE')) || 
+                       ' WHERE ' || quote_ident(cget('PS_COVERAGE_NAME'))  || '=' || quote_literal(coverage_name);
         RAISE DEBUG '%: EXECUTING %', ME, _qry; 
         EXECUTE _qry INTO STRICT _tup;
         RAISE NOTICE '%: ''%'' is of type ''%''', ME, coverage_name, _tup.row[1];
@@ -200,8 +201,8 @@ $$
             _gml_type_id := select_field (
                               cget('TABLE_PS9_GML_SUBTYPE'), 
                               cget('PS9_GML_SUBTYPE_ID'), 0, 
-                              ' WHERE ' || cget('PS9_GML_SUBTYPE_SUBTYPE')
-                               || '=''' || _tup.row[1] || ''''
+                              ' WHERE ' || quote_ident(cget('PS9_GML_SUBTYPE_SUBTYPE'))
+                                 || '=' || quote_literal(_tup.row[1])
             );
             RAISE DEBUG '%: ''%'' has id %.', ME, _tup.row[1], _gml_type_id; 
         EXCEPTION 
@@ -215,11 +216,11 @@ $$
 
         -- Fill ps9_coverage with name, GML type and native format
         BEGIN
-            _qry := ' INSERT INTO ' || cget('TABLE_PS9_COVERAGE')       || 
-                              ' ( ' || cget('PS9_COVERAGE_NAME')        || ',' 
-                                    || cget('PS9_COVERAGE_GML_TYPE_ID') || ','
-                                    || cget('PS9_COVERAGE_FORMAT_ID')   || ' ) '  ||
-                      ' VALUES (''' || coverage_name    || ''', '
+            _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_COVERAGE'))       || 
+                              ' ( ' || quote_ident(cget('PS9_COVERAGE_NAME'))        || ',' 
+                                    || quote_ident(cget('PS9_COVERAGE_GML_TYPE_ID')) || ','
+                                    || quote_ident(cget('PS9_COVERAGE_FORMAT_ID'))   || ' ) '  ||
+                        ' VALUES (' || quote_literal(coverage_name) || ', '
                                     || _gml_type_id     || ',' 
                                     || native_format_id || ')';
             RAISE DEBUG '%: EXECUTING %', ME, _qry; 
@@ -238,46 +239,46 @@ $$
         _coverage9_id := select_field(
                            cget('TABLE_PS9_COVERAGE'), 
                            cget('PS9_COVERAGE_ID'), 0, 
-                           ' WHERE ' || cget('PS9_COVERAGE_NAME') || '='''
-                                     || coverage_name             || ''''
+                           ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '='''
+                                     || quote_literal(coverage_name)
         );
         RAISE NOTICE '%: coverage ''%'' has been inserted in % with id %.', ME, coverage_name, cget('TABLE_PS9_COVERAGE'), _coverage9_id;
 
         -- Retrieve possible extra GMLCOV metadata:
-        _qry := ' SELECT ARRAY[' || cget('PS_METADATA_METADATA') || '] AS row '
-                        ' FROM ' || cget('TABLE_PS_METADATA')    || 
-                       ' WHERE ' || cget('PS_METADATA_COVERAGE') || '=' || _coverage_id;
+        _qry := ' SELECT ARRAY[' || quote_ident(cget('PS_METADATA_METADATA')) || '] AS row '
+                        ' FROM ' || quote_ident(cget('TABLE_PS_METADATA'))    || 
+                       ' WHERE ' || quote_ident(cget('PS_METADATA_COVERAGE')) || '=' || _coverage_id;
         RAISE DEBUG '%: EXECUTING %', ME, _qry; 
 
         -- Add (possibly multiple) gmlcov:metadata 
         -- <element ref="gmlcov:metadata" minOccurs="0" maxOccurs="unbounded"/>
         FOR _tup IN EXECUTE _qry LOOP
             -- Add this metadata
-            _qry := ' INSERT INTO ' || cget('TABLE_PS9_EXTRA_METADATA')       ||
-                              ' ( ' || cget('PS9_EXTRA_METADATA_COVERAGE_ID') ||  ','
-                                    || cget('PS9_EXTRA_METADATA_TYPE')        ||  ',' 
-                                    || cget('PS9_EXTRA_METADATA_VALUE')       || ' ) ' ||
+            _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_EXTRA_METADATA'))       ||
+                              ' ( ' || quote_ident(cget('PS9_EXTRA_METADATA_COVERAGE_ID')) ||  ','
+                                    || quote_ident(cget('PS9_EXTRA_METADATA_TYPE'))        ||  ',' 
+                                    || quote_ident(cget('PS9_EXTRA_METADATA_VALUE'))       || ' ) ' ||
                         ' VALUES (' || _coverage9_id           || ',' 
                                     || gmlcov_metadata_type_id || ',' ||
-                               '''' || _tup.row[1]              || ''')';
+                                    || quote_literal(_tup.row[1])     || ')';
             EXECUTE _qry;
             RAISE NOTICE '%: GMLCOV metadata ''%..'' of coverage ''%'' has been migrated.', 
                          ME, substring(_tup.row[1],0,10), coverage_name;
         END LOOP; --~// ps9_extra_metadata
 
         -- Build the native CRS (can be compound): squash duplicates to show single CRS in output (e.g. x/y to EPSG:4326)
-        _qry := ' SELECT DISTINCT ARRAY[' || cget('PS_CRS_NAME')   || '] AS row FROM ('   ||
-                      ' SELECT ' || cget('TABLE_PS_CRS')    || '.' || cget('PS_CRS_NAME') ||
-                        ' FROM ' || cget('TABLE_PS_DOMAIN') || ','
-                                 || cget('TABLE_PS_CRS')    || ',' 
-                                 || cget('TABLE_PS_CRSSET') || 
-                       ' WHERE ' || cget('TABLE_PS_DOMAIN') || '.'  || cget('PS_DOMAIN_ID')       || '=' 
-                                 || cget('TABLE_PS_CRSSET') || '.'  || cget('PS_CRSSET_AXIS')     || 
-                         ' AND ' || cget('TABLE_PS_CRS')    || '.'  || cget('PS_CRS_ID')          || '='
-                                 || cget('TABLE_PS_CRSSET') || '.'  || cget('PS_CRSSET_CRS')      ||
-                         ' AND ' || cget('TABLE_PS_DOMAIN') || '.'  || cget('PS_DOMAIN_COVERAGE') || '='''
-                                 || _coverage_id            || '''' ||
-                    ' ORDER BY ' || cget('TABLE_PS_DOMAIN') || '.'  || cget('PS_DOMAIN_I')        || ' ASC) as crss';
+        _qry := ' SELECT DISTINCT ARRAY[' || quote_ident(cget('PS_CRS_NAME'))   || '] AS row FROM ('   ||
+                      ' SELECT ' || quote_ident(cget('TABLE_PS_CRS'))    || '.' || quote_ident(cget('PS_CRS_NAME')) ||
+                        ' FROM ' || quote_ident(cget('TABLE_PS_DOMAIN')) || ','
+                                 || quote_ident(cget('TABLE_PS_CRS'))    || ',' 
+                                 || quote_ident(cget('TABLE_PS_CRSSET')) || 
+                       ' WHERE ' || quote_ident(cget('TABLE_PS_DOMAIN')) || '.'  || quote_ident(cget('PS_DOMAIN_ID'))       || '=' 
+                                 || quote_ident(cget('TABLE_PS_CRSSET')) || '.'  || quote_ident(cget('PS_CRSSET_AXIS'))     || 
+                         ' AND ' || quote_ident(cget('TABLE_PS_CRS'))    || '.'  || quote_ident(cget('PS_CRS_ID'))          || '='
+                                 || quote_ident(cget('TABLE_PS_CRSSET')) || '.'  || quote_ident(cget('PS_CRSSET_CRS'))      ||
+                         ' AND ' || quote_ident(cget('TABLE_PS_DOMAIN')) || '.'  || quote_ident(cget('PS_DOMAIN_COVERAGE')) || '='''
+                                 || _coverage_id                 || '''' ||
+                    ' ORDER BY ' || quote_ident(cget('TABLE_PS_DOMAIN')) || '.'  || quote_ident(cget('PS_DOMAIN_I'))        || ' ASC) as crss';
         RAISE DEBUG '%: EXECUTING %', ME, _qry; 
         -- Build the array of CRS FKs
         BEGIN 
@@ -288,8 +289,8 @@ $$
                     select_field(
                       cget('TABLE_PS9_CRS'), 
                       cget('PS9_CRS_ID'), 0, 
-                      ' WHERE ' || cget('PS9_CRS_URI') || '='
-                           '''' || _tup.row[1] || ''' '
+                      ' WHERE ' || quote_ident(cget('PS9_CRS_URI')) || '='
+                                || quote_literal(_tup.row[1])
                     )
                 );
             END LOOP; --~// native CRS array
@@ -303,10 +304,10 @@ $$
         END;
 
         -- Finally, set the native CRS for this coverage
-        _qry := ' INSERT INTO ' || cget('TABLE_PS9_DOMAINSET')       ||
-                          ' ( ' || cget('PS9_DOMAINSET_COVERAGE_ID') || ','
-                                || cget('PS9_DOMAINSET_CRS_ID')      || ' ) '   ||
-                    ' VALUES (' || _coverage9_id || ',''' || _native_crs::text  || ''')';
+        _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_DOMAINSET'))       ||
+                          ' ( ' || quote_ident(cget('PS9_DOMAINSET_COVERAGE_ID')) || ','
+                                || quote_ident(cget('PS9_DOMAINSET_CRS_ID'))      || ' ) '   ||
+                    ' VALUES (' || _coverage9_id || ',''' || _native_crs::text    || ''')';
         RAISE DEBUG '%: EXECUTING %', ME, _qry; 
         EXECUTE _qry;
         RAISE NOTICE '%: set CRS ''%'' for coverage ''%''.', ME, _native_crs, coverage_name;
@@ -314,48 +315,56 @@ $$
         -- Determine the origin of the gridded coverage
         -- NOTE: coverage model is currently pixel-based, and not point-based
         --       but the origin is a point and should be in the centre of the pixel instead = numlo + 0.5*res
-        _qry := ' SELECT ARRAY[(CASE ' || cget('PS_DOMAIN_NAME')  || ' WHEN ''y'' '   ||
-                              ' THEN ' || cget('PS_DOMAIN_NUMHI') ||
-                              ' ELSE ' || cget('PS_DOMAIN_NUMLO') || ' END)] AS row ' ||
-                        ' FROM ' || cget('TABLE_PS_DOMAIN')    || 
-                       ' WHERE ' || cget('PS_DOMAIN_COVERAGE') || '=' || _coverage_id ||
-                    ' ORDER BY ' || cget('PS_DOMAIN_I')        || ' ASC';
+        _qry := ' SELECT ARRAY[(CASE ' || quote_ident(cget('PS_DOMAIN_NAME'))  || ' WHEN ''y'' '   ||
+                              ' THEN ' || quote_ident(cget('PS_DOMAIN_NUMHI')) ||
+                              ' ELSE ' || quote_ident(cget('PS_DOMAIN_NUMLO')) || ' END)] AS row ' ||
+                        ' FROM ' || quote_ident(cget('TABLE_PS_DOMAIN'))    || 
+                       ' WHERE ' || quote_ident(cget('PS_DOMAIN_COVERAGE')) || '=' || _coverage_id ||
+                    ' ORDER BY ' || quote_ident(cget('PS_DOMAIN_I'))        || ' ASC';
         RAISE DEBUG '%: EXECUTING %', ME, _qry; 
         FOR _tup IN EXECUTE _qry LOOP
             _grid_origin := array_append(_grid_origin, _tup.row[1]::numeric);
         END LOOP; --~// grid origin array
 
         -- Finally, set the origin for this coverage
-        _qry := ' INSERT INTO ' || cget('TABLE_PS9_GRIDDED_DOMAINSET')          || 
-                           ' (' || cget('PS9_GRIDDED_DOMAINSET_COVERAGE_ID')    || ',' 
-                                || cget('PS9_GRIDDED_DOMAINSET_ORIGIN')         || ') '  ||
+        _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_GRIDDED_DOMAINSET'))          || 
+                           ' (' || quote_ident(cget('PS9_GRIDDED_DOMAINSET_COVERAGE_ID'))    || ',' 
+                                || quote_ident(cget('PS9_GRIDDED_DOMAINSET_ORIGIN'))         || ') '  ||
                     ' VALUES (' || _coverage9_id || ',''' || _grid_origin::text || ''') ';
         RAISE DEBUG '%: EXECUTING %', ME, _qry; 
         EXECUTE _qry;
         RAISE NOTICE '%: set origin ''%'' for coverage ''%''.', ME, _grid_origin, coverage_name;
 
         -- Get the resolution (offset vectors) of each axis of this coverage [DIM,i,res]
-        _qry := ' SELECT ARRAY[' || '(SELECT COUNT(' || cget('PS_DOMAIN_I')        || ') FROM ' || cget('TABLE_PS_DOMAIN')
-                                 ||        ' WHERE ' || cget('PS_DOMAIN_COVERAGE') ||    '='    || _coverage_id || '),'
-                                 || cget('TABLE_PS_DOMAIN')  || '.' || cget('PS_DOMAIN_I')      || ','  ||
-                       '((-1^((' || cget('TABLE_PS_DOMAIN')  || '.' || cget('PS_DOMAIN_NAME')   || '=''y'')::int)) * '
-                            ' (' || cget('PS_DOMAIN_NUMHI')  || '-' || cget('PS_DOMAIN_NUMLO')     || ') / '          ||
-                             '(' || cget('PS_CELLDOMAIN_HI') || '-' || cget('PS_CELLDOMAIN_LO')    || '+1))] AS row ' ||
-                        ' FROM ' || cget('TABLE_PS_DOMAIN')     || ',' || cget('TABLE_PS_CELLDOMAIN')    || 
-                       ' WHERE ' || cget('TABLE_PS_DOMAIN')     || '.' || cget('PS_DOMAIN_COVERAGE')     || '=' || _coverage_id || 
-                         ' AND ' || cget('TABLE_PS_CELLDOMAIN') || '.' || cget('PS_CELLDOMAIN_COVERAGE') || '=' || _coverage_id ||
-                         ' AND ' || cget('TABLE_PS_DOMAIN')     || '.' || cget('PS_DOMAIN_I')     || '='
-                                 || cget('TABLE_PS_CELLDOMAIN') || '.' || cget('PS_CELLDOMAIN_I') ||
-                    ' ORDER BY ' || cget('TABLE_PS_DOMAIN')     || '.' || cget('PS_DOMAIN_I')     || ' ASC';
+        _qry := ' SELECT ARRAY[' || '(SELECT COUNT(' || quote_ident(cget('PS_DOMAIN_I'))        
+                                 ||        ') FROM ' || quote_ident(cget('TABLE_PS_DOMAIN'))
+                                 ||        ' WHERE ' || quote_ident(cget('PS_DOMAIN_COVERAGE')) || '=' || _coverage_id || '),'
+                                 || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
+                                 || quote_ident(cget('PS_DOMAIN_I'))      || ',' ||
+                       '((-1^((' || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.' 
+                                 || quote_ident(cget('PS_DOMAIN_NAME'))   || '=''y'')::int)) * '
+                            ' (' || quote_ident(cget('PS_DOMAIN_NUMHI'))  || '-' 
+                                 || quote_ident(cget('PS_DOMAIN_NUMLO'))  || ') / ' ||
+                             '(' || quote_ident(cget('PS_CELLDOMAIN_HI')) || '-' 
+                                 || quote_ident(cget('PS_CELLDOMAIN_LO')) || '+1))] AS row ' ||
+                        ' FROM ' || quote_ident(cget('TABLE_PS_DOMAIN'))        || ',' 
+                                 || quote_ident(cget('TABLE_PS_CELLDOMAIN'))    || 
+                       ' WHERE ' || quote_ident(cget('TABLE_PS_DOMAIN'))        || '.' 
+                                 || quote_ident(cget('PS_DOMAIN_COVERAGE'))     || '=' || _coverage_id || 
+                         ' AND ' || quote_ident(cget('TABLE_PS_CELLDOMAIN'))    || '.' 
+                                 || quote_ident(cget('PS_CELLDOMAIN_COVERAGE')) || '=' || _coverage_id ||
+                         ' AND ' || quote_ident(cget('TABLE_PS_DOMAIN')) || '.' || quote_ident(cget('PS_DOMAIN_I'))     || '='
+                                 || quote_ident(cget('TABLE_PS_CELLDOMAIN'))    || '.' || quote_ident(cget('PS_CELLDOMAIN_I')) ||
+                    ' ORDER BY ' || quote_ident(cget('TABLE_PS_DOMAIN')) || '.' || quote_ident(cget('PS_DOMAIN_I'))     || ' ASC';
         RAISE DEBUG '%: EXECUTING %', ME, _qry; 
         -- Finally, set the offset vectors for the coverage
         FOR _tup IN EXECUTE _qry LOOP
 
             BEGIN 
                 -- Insert the axis in ps9_grid_axis
-                _qry := ' INSERT INTO ' || cget('TABLE_PS9_GRID_AXIS')          || 
-                                   ' (' || cget('PS9_GRID_AXIS_COVERAGE_ID')    || ',' 
-                                        || cget('PS9_GRID_AXIS_RASDAMAN_ORDER') || ') ' ||
+                _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_GRID_AXIS'))          || 
+                                   ' (' || quote_ident(cget('PS9_GRID_AXIS_COVERAGE_ID'))    || ',' 
+                                        || quote_ident(cget('PS9_GRID_AXIS_RASDAMAN_ORDER')) || ') ' ||
                             ' VALUES (' || _coverage9_id || ',' || _tup.row[2]   || ')';
                 RAISE DEBUG '%: EXECUTING %', ME, _qry; 
                 EXECUTE _qry;
@@ -372,8 +381,8 @@ $$
             _grid_axis_id := select_field(
                                cget('TABLE_PS9_GRID_AXIS'), 
                                cget('PS9_GRID_AXIS_ID'), 0, 
-                              ' WHERE ' || cget('PS9_GRID_AXIS_COVERAGE_ID')    || '=' || _coverage9_id ||
-                                ' AND ' || cget('PS9_GRID_AXIS_RASDAMAN_ORDER') || '=' || _tup.row[2]
+                              ' WHERE ' || quote_ident(cget('PS9_GRID_AXIS_COVERAGE_ID'))    || '=' || _coverage9_id ||
+                                ' AND ' || quote_ident(cget('PS9_GRID_AXIS_RASDAMAN_ORDER')) || '=' || _tup.row[2]
             );
             RAISE DEBUG '%: inserted axis has id %.', ME, _grid_axis_id;
 
@@ -394,9 +403,9 @@ $$
 
             BEGIN
                 -- Finally, set the offset vector for this axis
-                _qry := ' INSERT INTO ' || cget('TABLE_PS9_RECTILINEAR_AXIS')             || 
-                                    '(' || cget('PS9_RECTILINEAR_AXIS_ID')                || ','  
-                                        || cget('PS9_RECTILINEAR_AXIS_OFFSET_VECTOR')     || ') ' ||
+                _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_RECTILINEAR_AXIS'))         || 
+                                    '(' || quote_ident(cget('PS9_RECTILINEAR_AXIS_ID'))            || ','  
+                                        || quote_ident(cget('PS9_RECTILINEAR_AXIS_OFFSET_VECTOR')) || ') ' ||
                             ' VALUES (' || _grid_axis_id || ',''' || _offset_vector::text || ''')';
                 RAISE DEBUG '%: EXECUTING %', ME, _qry; 
                 EXECUTE _qry;
@@ -418,17 +427,24 @@ $$
         -- Fetch the OID of this coverage from RASBASE = ras_mddobjects.mddid*512+1
         -- TODO: add installation of additional PG libraries for `dblink' function
         -- dblink usage: SELECT * FROM dblink('<connection>', '<query>') AS foo(<colname> <coltype>, ...);
-        _qry := 'SELECT ARRAY[oid] AS row FROM dblink( ''dbname=' || cget('DB_RASBASE') || ''',$q$' ||
-                  ' SELECT 1+(512*' || cget('TABLE_RAS_MDD_OBJECTS')      || '.'        || cget('RAS_MDD_OBJECTS_MDDID') || ') ' ||
-                           ' FROM ' || cget('TABLE_RAS_MDD_OBJECTS')      || ','
-                                    || cget('TABLE_RAS_MDD_COLLNAMES')    || ','
-                                    || cget('TABLE_RAS_MDD_COLLECTIONS')  ||
-                          ' WHERE ' || cget('TABLE_RAS_MDD_OBJECTS')      || '.'   || cget('RAS_MDD_OBJECTS_MDDID')         || '=' 
-                                    || cget('TABLE_RAS_MDD_COLLECTIONS')  || '.'   || cget('RAS_MDD_COLLECTIONS_MDDID')     ||
-                            ' AND ' || cget('TABLE_RAS_MDD_COLLECTIONS')  || '.'   || cget('RAS_MDD_COLLECTIONS_MDDCOLLID') || '='
-                                    || cget('TABLE_RAS_MDD_COLLNAMES')    || '.'   || cget('RAS_MDD_COLLNAMES_COLLID')      || 
-                            ' AND ' || cget('RAS_MDD_COLLNAMES_COLLNAME') || '=''' || coverage_name || ''' '
-                       ' ORDER BY ' || cget('TABLE_RAS_MDD_OBJECTS')      || '.'   || cget('RAS_MDD_OBJECTS_MDDID') || '$q$) AS rec(oid numeric)';
+        _qry := 'SELECT ARRAY[oid] AS row FROM dblink( ''dbname=' || quote_ident(cget('DB_RASBASE')) || ''',$q$' ||
+                  ' SELECT 1+(512*' || quote_ident(cget('TABLE_RAS_MDD_OBJECTS'))      || '.'
+                                    || quote_ident(cget('RAS_MDD_OBJECTS_MDDID'))      || ') ' ||
+                           ' FROM ' || quote_ident(cget('TABLE_RAS_MDD_OBJECTS'))      || ','
+                                    || quote_ident(cget('TABLE_RAS_MDD_COLLNAMES'))    || ','
+                                    || quote_ident(cget('TABLE_RAS_MDD_COLLECTIONS'))  ||
+                          ' WHERE ' || quote_ident(cget('TABLE_RAS_MDD_OBJECTS'))      || '.'
+                                    || quote_ident(cget('RAS_MDD_OBJECTS_MDDID'))      || '=' 
+                                    || quote_ident(cget('TABLE_RAS_MDD_COLLECTIONS'))  || '.'
+                                    || quote_ident(cget('RAS_MDD_COLLECTIONS_MDDID'))  ||
+                            ' AND ' || quote_ident(cget('TABLE_RAS_MDD_COLLECTIONS'))  || '.'
+                                    || quote_ident(cget('RAS_MDD_COLLECTIONS_MDDCOLLID'0) || '='
+                                    || quote_ident(cget('TABLE_RAS_MDD_COLLNAMES'))    || '.' 
+                                    || quote_ident(cget('RAS_MDD_COLLNAMES_COLLID'))   || 
+                            ' AND ' || quote_ident(cget('RAS_MDD_COLLNAMES_COLLNAME')) || '='
+                                    || quote_literal(coverage_name) || ' '
+                       ' ORDER BY ' || quote_ident(cget('TABLE_RAS_MDD_OBJECTS'))      || '.' 
+                                    || quote_ident(cget('RAS_MDD_OBJECTS_MDDID'))      || '$q$) AS rec(oid numeric)';
         RAISE DEBUG '%: EXECUTING %', ME, _qry; 
 
         -- If >1 MDD per collection, I raise a warning: must be only one per /coverage/ (the lower one is taken)
@@ -446,10 +462,10 @@ $$
             _first_oid := _tup.row[1];
 
             -- Insert the rasdaman collection in the database
-            _qry := ' INSERT INTO ' || cget('TABLE_PS9_RASDAMAN_COLLECTION') || 
-                               ' (' || cget('PS9_RASDAMAN_COLLECTION_NAME')  || ','
-                                    || cget('PS9_RASDAMAN_COLLECTION_OID')   || ') ' ||
-                      ' VALUES (''' || coverage_name || ''',' 
+            _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_RASDAMAN_COLLECTION')) || 
+                               ' (' || quote_ident(cget('PS9_RASDAMAN_COLLECTION_NAME'))  || ','
+                                    || quote_ident(cget('PS9_RASDAMAN_COLLECTION_OID'))   || ') ' ||
+                        ' VALUES (' || quote_literal(coverage_name) || ',' 
                                     || _first_oid    || ')';
             RAISE DEBUG '%: EXECUTING %', ME, _qry; 
             EXECUTE _qry;
@@ -458,14 +474,14 @@ $$
             _rascoll_id := select_field(
                              cget('TABLE_PS9_RASDAMAN_COLLECTION'), 
                              cget('PS9_RASDAMAN_COLLECTION_ID'), 0,
-                             ' WHERE ' || cget('PS9_RASDAMAN_COLLECTION_NAME') || '='
-                                  '''' || coverage_name || ''''
+                             ' WHERE ' || quote_ident(cget('PS9_RASDAMAN_COLLECTION_NAME')) || '='
+                                       || quote_literal(coverage_name)
             );
 
             -- Finally, set the range set for the coverage
-            _qry := ' INSERT INTO ' || cget('TABLE_PS9_RANGESET')          || 
-                               ' (' || cget('PS9_RANGESET_COVERAGE_ID')    || ','
-                                    || cget('PS9_RANGESET_STORAGE_ID')     || ') ' ||
+            _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_RANGESET'))       || 
+                               ' (' || quote_ident(cget('PS9_RANGESET_COVERAGE_ID')) || ','
+                                    || quote_ident(cget('PS9_RANGESET_STORAGE_ID'))  || ') ' ||
                         ' VALUES (' || _coverage9_id || ',' || _rascoll_id || ')';
             RAISE DEBUG '%: EXECUTING %', ME, _qry; 
             EXECUTE _qry;
@@ -480,19 +496,24 @@ $$
         -- NOTE: in the new schema, range type components are separate from independent quantities.
         --       since an independent quantity label was missing, the datatype has been migrated
         --       to the quantity `description', and this will be used to properly bind range component to the quantity.
-        _qry := ' SELECT ARRAY[' || cget('TABLE_PS_RANGE')    || '.' || cget('PS_RANGE_I')       || '::text,' 
-                                 || cget('TABLE_PS_RANGE')    || '.' || cget('PS_RANGE_NAME')    || ',' 
-                                 || cget('TABLE_PS_DATATYPE') || '.' || cget('PS_DATATYPE_TYPE') || ',' 
-                                 || cget('TABLE_PS_UOM')      || '.' || cget('PS_UOM_UOM')       || '] as row ' ||
-                        ' FROM ' || cget('TABLE_PS_RANGE') ||
-                               ' LEFT OUTER JOIN ' || cget('TABLE_PS_UOM')   || 
-                                            ' ON ' || cget('TABLE_PS_UOM')   || '.' || cget('PS_UOM_ID')    || '='
-                                                   || cget('TABLE_PS_RANGE') || '.' || cget('PS_RANGE_UOM') ||
-                               ' INNER JOIN ' || cget('TABLE_PS_DATATYPE')   || 
-                                       ' ON ' || cget('TABLE_PS_DATATYPE')   || '.' || cget('PS_DATATYPE_ID') || '='
-                                              || cget('TABLE_PS_RANGE')      || '.' || cget('PS_RANGE_TYPE')  ||
-                      ' WHERE ' || cget('TABLE_PS_RANGE') || '.' || cget('PS_RANGE_COVERAGE') || '=' || _coverage_id ||
-                   ' ORDER BY ' || cget('TABLE_PS_RANGE') || '.' || cget('PS_RANGE_I');
+        _qry := ' SELECT ARRAY[' || quote_ident(cget('TABLE_PS_RANGE'))    || '.' || quote_ident(cget('PS_RANGE_I'))       || '::text,' 
+                                 || quote_ident(cget('TABLE_PS_RANGE'))    || '.' || quote_ident(cget('PS_RANGE_NAME'))    || ',' 
+                                 || quote_ident(cget('TABLE_PS_DATATYPE')) || '.' || quote_ident(cget('PS_DATATYPE_TYPE')) || ',' 
+                                 || quote_ident(cget('TABLE_PS_UOM'))      || '.' || quote_ident(cget('PS_UOM_UOM'))       || '] as row ' ||
+                        ' FROM ' || quote_ident(cget('TABLE_PS_RANGE')) ||
+                               ' LEFT OUTER JOIN ' || quote_ident(cget('TABLE_PS_UOM'))   || 
+                                            ' ON ' || quote_ident(cget('TABLE_PS_UOM'))   || '.'
+                                                   || quote_ident(cget('PS_UOM_ID'))      || '='
+                                                   || quote_ident(cget('TABLE_PS_RANGE')) || '.'
+                                                   || quote_ident(cget('PS_RANGE_UOM'))   ||
+                               ' INNER JOIN ' || quote_ident(cget('TABLE_PS_DATATYPE'))   || 
+                                       ' ON ' || quote_ident(cget('TABLE_PS_DATATYPE'))   || '.'
+                                              || quote_ident(cget('PS_DATATYPE_ID'))      || '='
+                                              || quote_ident(cget('TABLE_PS_RANGE'))      || '.' 
+                                              || quote_ident(cget('PS_RANGE_TYPE'))       ||
+                      ' WHERE ' || quote_ident(cget('TABLE_PS_RANGE'))    || '.' 
+                                || quote_ident(cget('PS_RANGE_COVERAGE')) || '=' || _coverage_id ||
+                   ' ORDER BY ' || quote_ident(cget('TABLE_PS_RANGE'))    || '.' || quote_ident(cget('PS_RANGE_I'0);
         RAISE DEBUG '%: EXECUTING %', ME, _qry; 
         FOR _tup IN EXECUTE _qry LOOP
 
@@ -500,8 +521,8 @@ $$
             _datatype_id := select_field(
                               cget('TABLE_PS9_RANGE_DATATYPE'), 
                               cget('PS9_RANGE_DATATYPE_ID'), 0,
-                              ' WHERE ' || cget('PS9_RANGE_DATATYPE_NAME') || '='
-                                   '''' || _tup.row[3] || ''''
+                              ' WHERE ' || quote_ident(cget('PS9_RANGE_DATATYPE_NAME')) || '='
+                                        || quote_literal(_tup.row[3])
             );
 
             -- Fetch the ID of this quantity
@@ -511,11 +532,16 @@ $$
                 END IF;
 
                 -- If it is a user defined ps_uom.uom, fetch its ID in ps9_uom:
-                _qry := ' SELECT ' || cget('TABLE_PS9_QUANTITY') || '.' || cget('PS9_QUANTITY_ID')       ||
-                          ' FROM ' || cget('TABLE_PS9_UOM')      || ',' || cget('TABLE_PS9_QUANTITY')    ||
-                         ' WHERE ' || cget('TABLE_PS9_UOM')      || '.' || cget('PS9_UOM_ID')            || '='
-                                   || cget('TABLE_PS9_QUANTITY') || '.' || cget('PS9_QUANTITY_UOM_ID')   ||
-                           ' AND ' || cget('TABLE_PS9_UOM')      || '.' || cget('PS9_UOM_CODE') || '=''' || _tup.row[4] || '''';
+                _qry := ' SELECT ' || quote_ident(cget('TABLE_PS9_QUANTITY'))  || '.'
+                                   || quote_ident(cget('PS9_QUANTITY_ID'))     ||
+                          ' FROM ' || quote_ident(cget('TABLE_PS9_UOM'))       || ','
+                                   || quote_ident(cget('TABLE_PS9_QUANTITY'))  ||
+                         ' WHERE ' || quote_ident(cget('TABLE_PS9_UOM'))       || '.' 
+                                   || quote_ident(cget('PS9_UOM_ID'))          || '='
+                                   || quote_ident(cget('TABLE_PS9_QUANTITY'))  || '.' 
+                                   || quote_ident(cget('PS9_QUANTITY_UOM_ID')) ||
+                           ' AND ' || quote_ident(cget('TABLE_PS9_UOM'))       || '.' 
+                                   || quote_ident(cget('PS9_UOM_CODE')) || '=' || quote_literal(_tup.row[4]);
                 RAISE DEBUG '%: EXECUTING %', ME, _qry; 
                 EXECUTE _qry INTO STRICT _quantity_id;
             EXCEPTION
@@ -524,21 +550,21 @@ $$
                     _quantity_id := select_field(
                                       cget('TABLE_PS9_QUANTITY'), 
                                       cget('PS9_QUANTITY_ID'), 0,
-                                      ' WHERE ' || cget('PS9_QUANTITY_DESCRIPTION') || '='
-                                           '''' || _tup.row[3] || ''''
+                                      ' WHERE ' || quote_ident(cget('PS9_QUANTITY_DESCRIPTION')) || '='
+                                                || quote_literal(_tup.row[3])
                     );
             END;
             RAISE DEBUG '%: quantity ID for ''%'' UoM is %.', ME, _tup.row[4], _quantity_id;
 
             -- Finally, set this range type component for the coverage
-            _qry := ' INSERT INTO ' || cget('TABLE_PS9_RANGETYPE_COMPONENT')           ||
-                               ' (' || cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID')     || ','
-                                    || cget('PS9_RANGETYPE_COMPONENT_ORDER')           || ','
-                                    || cget('PS9_RANGETYPE_COMPONENT_NAME')            || ','
-                                    || cget('PS9_RANGETYPE_COMPONENT_TYPE_ID')         || ','
-                                    || cget('PS9_RANGETYPE_COMPONENT_FIELD_ID')        || ') '         ||
-                        ' VALUES (' || _coverage9_id || ','   || _tup.row[1]  || ','''  
-                                    || _tup.row[2]   || ''',' || _datatype_id || ','   || _quantity_id || ')';
+            _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT'))           ||
+                               ' (' || quote_ident(cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID'))     || ','
+                                    || quote_ident(cget('PS9_RANGETYPE_COMPONENT_ORDER'))           || ','
+                                    || quote_ident(cget('PS9_RANGETYPE_COMPONENT_NAME'))            || ','
+                                    || quote_ident(cget('PS9_RANGETYPE_COMPONENT_TYPE_ID'))         || ','
+                                    || quote_ident(cget('PS9_RANGETYPE_COMPONENT_FIELD_ID'))        || ') '         ||
+                        ' VALUES (' || _coverage9_id || ',' || _tup.row[1]  || ','  
+                                    || quote_literal(_tup.row[2])    || ',' || _datatype_id || ','  || _quantity_id || ')';
             RAISE DEBUG '%: EXECUTING %', ME, _qry; 
             EXECUTE _qry;
             RAISE NOTICE '%: range-type component ''%'' has been set for coverage ''%''.', 
@@ -592,8 +618,8 @@ $$
             _mime_id := select_field(
                           cget('TABLE_PS9_MIME_TYPE'), 
                           cget('PS9_MIME_TYPE_ID'), 0, 
-                          ' WHERE ' || cget('PS9_MIME_TYPE_MIME') || '='
-                               '''' || cget('OCTET_STREAM_MIME')  || '''');
+                          ' WHERE ' || quote_ident(cget('PS9_MIME_TYPE_MIME')) || 
+                                '=' || quote_literal(cget('OCTET_STREAM_MIME'));
             RAISE DEBUG '%: MIME type id for % is %.', ME, cget('OCTET_STREAM_MIME'), _mime_id; 
         EXCEPTION 
             WHEN no_data_found THEN
@@ -607,8 +633,8 @@ $$
             _gmlcov_type_id := select_field (
                                  cget('TABLE_PS9_EXTRA_METADATA_TYPE'), 
                                  cget('PS9_EXTRA_METADATA_TYPE_ID'), 0, 
-                                 ' WHERE ' || cget('PS9_EXTRA_METADATA_TYPE_TYPE') || '='
-                                      '''' || cget('GMLCOV_METADATA_TYPE')         || ''''
+                                 ' WHERE ' || quote_ident(cget('PS9_EXTRA_METADATA_TYPE_TYPE')) ||
+                                       '=' || quote_literal(cget('GMLCOV_METADATA_TYPE'))
             );
         EXCEPTION 
             WHEN no_data_found THEN
@@ -618,9 +644,9 @@ $$
         END; 
 
         -- Migrate coverae by coverage
-        _qry := ' SELECT ARRAY[' || cget('PS_COVERAGE_ID')   || '::text,' 
-                                 || cget('PS_COVERAGE_NAME') || '] AS row ' ||
-                        ' FROM ' || cget('TABLE_PS_COVERAGE');
+        _qry := ' SELECT ARRAY[' || quote_ident(cget('PS_COVERAGE_ID'))   || '::text,' 
+                                 || quote_ident(cget('PS_COVERAGE_NAME')) || '] AS row ' ||
+                        ' FROM ' || quote_ident(cget('TABLE_PS_COVERAGE'));
         BEGIN
             FOR _tup IN EXECUTE _qry LOOP
                 RAISE NOTICE '%: migrating coverage % (ID %)...', ME, _tup.row[2], _tup.row[1];
@@ -642,27 +668,41 @@ $$
         -- Add final report of migration
         PERFORM cset('TABLE_REPORT', 'tmp_report');
         PERFORM cset('REPORT_LOG',   'log');
-        _qry := ' CREATE TEMPORARY TABLE ' || cget('TABLE_REPORT')  || ' AS '   ||
-                        ' SELECT ' || cget('TABLE_PS_COVERAGE')     || '.'      || cget('PS_COVERAGE_NAME')        || ', '
-                                   || cget('TABLE_PS9_GML_SUBTYPE') || '.'      || cget('PS9_GML_SUBTYPE_SUBTYPE') || ', '
-                ' COUNT(DISTINCT ' || cget('TABLE_PS9_RANGETYPE_COMPONENT')     || '.'
-                                   || cget('PS9_RANGETYPE_COMPONENT_ID')        || ') AS bands, '
-                ' COUNT(DISTINCT ' || cget('TABLE_PS9_GRID_AXIS')   || '.'      || cget('PS9_GRID_AXIS_ID')        || ') AS dims, '
-                   ' (SELECT ''''::text) AS ' || cget('REPORT_LOG') || ' FROM ' || cget('TABLE_PS_COVERAGE')       ||
-                          ' LEFT OUTER JOIN ' || cget('TABLE_PS9_COVERAGE')     ||
-                                       ' ON ' || cget('TABLE_PS9_COVERAGE')     || '.' || cget('PS9_COVERAGE_NAME')        || '=' 
-                                              || cget('TABLE_PS_COVERAGE')      || '.' || cget('PS_COVERAGE_NAME')         ||
-                          ' LEFT OUTER JOIN ' || cget('TABLE_PS9_GML_SUBTYPE')  ||  
-                                       ' ON ' || cget('TABLE_PS9_GML_SUBTYPE')  || '.' || cget('PS9_GML_SUBTYPE_ID')       || '='
-                                              || cget('TABLE_PS9_COVERAGE')     || '.' || cget('PS9_COVERAGE_GML_TYPE_ID') ||
-                          ' LEFT OUTER JOIN ' || cget('TABLE_PS9_RANGETYPE_COMPONENT') ||
-                                       ' ON ' || cget('TABLE_PS9_RANGETYPE_COMPONENT') || '.' || cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID') || '='
-                                              || cget('TABLE_PS9_COVERAGE'   )  || '.' || cget('PS9_COVERAGE_ID') ||
-                          ' LEFT OUTER JOIN ' || cget('TABLE_PS9_GRID_AXIS')    ||
-                                       ' ON ' || cget('TABLE_PS9_GRID_AXIS')    || '.' || cget('PS9_GRID_AXIS_COVERAGE_ID') || '='
-                                              || cget('TABLE_PS9_COVERAGE')     || '.' || cget('PS9_COVERAGE_ID')           ||
-                          ' GROUP BY ' || cget('TABLE_PS_COVERAGE')      || '.' || cget('PS_COVERAGE_NAME')        || ',' 
-                                       || cget('TABLE_PS9_GML_SUBTYPE')  || '.' || cget('PS9_GML_SUBTYPE_SUBTYPE');
+        _qry := ' CREATE TEMPORARY TABLE ' || quote_ident(cget('TABLE_REPORT'))    || ' AS ' ||
+                        ' SELECT ' || quote_ident(cget('TABLE_PS_COVERAGE'))       || '.'
+                                   || quote_ident(cget('PS_COVERAGE_NAME'))        || ', '
+                                   || quote_ident(cget('TABLE_PS9_GML_SUBTYPE'))   || '.'
+                                   || quote_ident(cget('PS9_GML_SUBTYPE_SUBTYPE')) || ', '
+                ' COUNT(DISTINCT ' || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT')) || '.'
+                                   || quote_ident(cget('PS9_RANGETYPE_COMPONENT_ID'))    || ') AS bands, '
+                ' COUNT(DISTINCT ' || quote_ident(cget('TABLE_PS9_GRID_AXIS'))           || '.' 
+                                   || quote_ident(cget('PS9_GRID_AXIS_ID'))              || ') AS dims, '
+                   ' (SELECT ''''::text) AS ' || quote_ident(cget('REPORT_LOG'))               || ' FROM ' 
+                                              || quote_ident(cget('TABLE_PS_COVERAGE'))        ||
+                          ' LEFT OUTER JOIN ' || quote_ident(cget('TABLE_PS9_COVERAGE'))       ||
+                                       ' ON ' || quote_ident(cget('TABLE_PS9_COVERAGE'))       || '.'
+                                              || quote_ident(cget('PS9_COVERAGE_NAME'))        || '=' 
+                                              || quote_ident(cget('TABLE_PS_COVERAGE'))        || '.'
+                                              || quote_ident(cget('PS_COVERAGE_NAME'))         ||
+                          ' LEFT OUTER JOIN ' || quote_ident(cget('TABLE_PS9_GML_SUBTYPE'))    ||  
+                                       ' ON ' || quote_ident(cget('TABLE_PS9_GML_SUBTYPE'))    || '.' 
+                                              || quote_ident(cget('PS9_GML_SUBTYPE_ID'))       || '='
+                                              || quote_ident(cget('TABLE_PS9_COVERAGE'))       || '.' 
+                                              || quote_ident(cget('PS9_COVERAGE_GML_TYPE_ID')) ||
+                          ' LEFT OUTER JOIN ' || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT'))       ||
+                                       ' ON ' || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT'))       || '.'
+                                              || quote_ident(cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID')) || '='
+                                              || quote_ident(cget('TABLE_PS9_COVERAGE'   ))               || '.'
+                                              || quote_ident(cget('PS9_COVERAGE_ID'))                     ||
+                          ' LEFT OUTER JOIN ' || quote_ident(cget('TABLE_PS9_GRID_AXIS'))       ||
+                                       ' ON ' || quote_ident(cget('TABLE_PS9_GRID_AXIS'))       || '.' 
+                                              || quote_ident(cget('PS9_GRID_AXIS_COVERAGE_ID')) || '='
+                                              || quote_ident(cget('TABLE_PS9_COVERAGE'))        || '.' 
+                                              || quote_ident(cget('PS9_COVERAGE_ID'))           ||
+                          ' GROUP BY ' || quote_ident(cget('TABLE_PS_COVERAGE'))       || '.' 
+                                       || quote_ident(cget('PS_COVERAGE_NAME'))        || ',' 
+                                       || quote_ident(cget('TABLE_PS9_GML_SUBTYPE'))   || '.' 
+                                       || quote_ident(cget('PS9_GML_SUBTYPE_SUBTYPE'));
         RAISE DEBUG '%: EXECUTING : %;', ME, _qry;
         EXECUTE _qry;
         
@@ -670,10 +710,10 @@ $$
         _qry := ' SELECT ARRAY[' || cget('PS_COVERAGE_NAME') || '] AS row FROM ' || cget('TABLE_PS_COVERAGE');
         FOR _tup in EXECUTE _qry LOOP
             -- Update the report table with the exit log from coverage migration procedure
-            _qry := ' UPDATE ' || cget('TABLE_REPORT') || ' SET ' 
-                               || cget('REPORT_LOG')   || '='
-                          '''' || cget(_tup.row[1])    || ''''
-                       ' WHERE name=''' || _tup.row[1] || '''';
+            _qry := ' UPDATE ' || quote_ident(cget('TABLE_REPORT')) || ' SET ' 
+                               || quote_ident(cget('REPORT_LOG'))   || '='
+                               || quote_literal(cget(_tup.row[1]))  ||
+                       ' WHERE name=' || quote_literal(_tup.row[1]);
             RAISE DEBUG '%: EXECUTING : %;', ME, _qry;
             EXECUTE _qry;
         END LOOP;
@@ -695,6 +735,6 @@ $$ LANGUAGE plpgsql;
 -- Run the migration and print the report:
 --
 SELECT db_migration();
-SELECT * FROM query_result('SELECT * FROM ' || cget('TABLE_REPORT')) 
+SELECT * FROM query_result('SELECT * FROM ' || quote_ident(cget('TABLE_REPORT'))) 
          AS foo  (name text, "GML type" text, "#bands" bigint, "#dimensions" bigint, log text)
          ORDER BY name;

@@ -66,7 +66,9 @@ CREATE OR REPLACE FUNCTION select_field (
         _qry          text;
         _result_value ALIAS FOR $0;
     BEGIN
-        _qry := 'SELECT ' || selected_field || ' FROM ' || selected_table || ' ' || where_clause;
+        _qry := 'SELECT ' || quote_ident(selected_field) || 
+                 ' FROM ' || quote_ident(selected_table) ||
+                      ' ' || where_clause;
         RAISE DEBUG '%: %', ME, _qry; 
 	
         EXECUTE _qry INTO STRICT _result_value;
@@ -84,7 +86,7 @@ $$
     BEGIN
         -- check if the table exists
         PERFORM *  FROM pg_tables 
-                  WHERE tablename  = this_table 
+                  WHERE tablename  = this_table
                     AND schemaname = current_schema();
         RETURN FOUND;
     END;
@@ -113,7 +115,8 @@ $$
         END IF;
 
         -- check for referential integrity
-	_qry := 'SELECT * FROM ' || this_table || ' WHERE ' || id_field || '=' || id_value;
+	_qry := 'SELECT * FROM ' || quote_ident(this_table) || 
+                       ' WHERE ' || quote_ident(id_field)   || '=' || quote_literal(id_value);
 	RAISE DEBUG 'Executing: %', _qry;
 	FOR _tup IN EXECUTE _qry LOOP -- EXECUTE does not affect FOUND
             RETURN true; -- the tuple has been found
@@ -155,8 +158,9 @@ $$
         _tup       record;
         _out_array numeric[];
     BEGIN
-        _qry := 'SELECT ARRAY[CAST(' || numeric_column || ' AS numeric)] AS row FROM ' || this_table || ' ' 
-                || where_clause      || ' ORDER BY '   || orderby_column;
+        _qry := 'SELECT ARRAY[CAST(' || quote_ident(numeric_column) || ' AS numeric)] AS row FROM '
+                || quote_ident(this_table)           || ' ' 
+                || where_clause      || ' ORDER BY ' || quote_ident(orderby_column);
 	RAISE DEBUG 'Executing: %', _qry;
 	FOR _tup IN EXECUTE _qry LOOP 
             -- Extract the numeric column value
@@ -174,9 +178,9 @@ LANGUAGE SQL
 AS
 $$
     SELECT ARRAY(
-      SELECT $1[s.i] AS "foo"
+      SELECT $1[s.i] AS "element"
       FROM generate_series(array_lower($1,1), array_upper($1,1)) AS s(i)
-      ORDER BY foo
+      ORDER BY element
     );
 $$;
 
@@ -187,10 +191,10 @@ CREATE OR REPLACE FUNCTION array_sort_distinct (anyarray)
 RETURNS anyarray AS 
 $$
     SELECT ARRAY(
-      SELECT DISTINCT $1[s.i] AS "foo"
+      SELECT DISTINCT $1[s.i] AS "element"
       FROM
           generate_series(array_lower($1,1), array_upper($1,1)) AS s(i)
-      ORDER BY foo
+      ORDER BY element
     );
 $$ LANGUAGE 'sql';
 
@@ -281,7 +285,7 @@ $$
         END IF;
 
         -- check that it is empty
-        _qry := 'SELECT * FROM ' || this_table;
+        _qry := 'SELECT * FROM ' || quote_ident(this_table);
 	FOR _tup IN EXECUTE _qry LOOP -- EXECUTE does not affect FOUND
             RETURN false; -- the tuple has been found
         END LOOP;

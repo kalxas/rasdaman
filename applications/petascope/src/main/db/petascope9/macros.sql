@@ -78,8 +78,8 @@ $$
 	_coverage_id := select_field(
                           cget('TABLE_PS9_COVERAGE'), 
                           cget('PS9_COVERAGE_ID'), 0, 
-                          ' WHERE ' || cget('PS9_COVERAGE_NAME') || '=' ||
-                               '''' || coverage_name || ''''
+                          ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '=' 
+                                    || quote_literal(coverage_name)
         );
         RAISE DEBUG '%: % of coverage is ''%''', ME, cget('PS9_COVERAGE_ID'), _coverage_id; 
 
@@ -97,16 +97,16 @@ $$
             RAISE DEBUG '%: % seems a gridded coverage, proceed.', ME, coverage_name; 
 
             -- Get the list of CRSs associated to this coverage:
-            _qry := ' SELECT ' || cget('TABLE_PS9_CRS') || '.' || cget('PS9_CRS_ID')  || ', '
-                               || cget('TABLE_PS9_CRS') || '.' || cget('PS9_CRS_URI') ||
-                    ' FROM '   || cget('TABLE_PS9_CRS') || ',' ||
-                                  cget('TABLE_PS9_DOMAINSET')  || 
-                    ' WHERE ARRAY['  || cget('TABLE_PS9_CRS')  || '.' || cget('PS9_CRS_ID') || '] <@ '
-                               || cget('TABLE_PS9_DOMAINSET')  || '.' || cget('PS9_DOMAINSET_CRS_ID') ||
-                    ' AND '    || cget('TABLE_PS9_DOMAINSET')         || '.' 
-                               || cget('PS9_DOMAINSET_COVERAGE_ID')   || '=' || _coverage_id ||
-                    ' ORDER BY index_of(' || cget('TABLE_PS9_CRS')    || '.' || cget('PS9_CRS_ID')    || ','
-                               || cget('TABLE_PS9_DOMAINSET')  || '.' || cget('PS9_DOMAINSET_CRS_ID') || ')';
+            _qry := ' SELECT ' || quote_ident(cget('TABLE_PS9_CRS')) || '.' || quote_ident(cget('PS9_CRS_ID'))  || ', '
+                               || quote_ident(cget('TABLE_PS9_CRS')) || '.' || quote_ident(cget('PS9_CRS_URI')) ||
+                    ' FROM '   || quote_ident(cget('TABLE_PS9_CRS')) || ',' ||
+                                  quote_ident(cget('TABLE_PS9_DOMAINSET'))  || 
+                    ' WHERE ARRAY['  || quote_ident(cget('TABLE_PS9_CRS'))  || '.' || quote_ident(cget('PS9_CRS_ID')) || '] <@ '
+                               || quote_ident(cget('TABLE_PS9_DOMAINSET'))  || '.' || quote_ident(cget('PS9_DOMAINSET_CRS_ID')) ||
+                    ' AND '    || quote_ident(cget('TABLE_PS9_DOMAINSET'))         || '.' 
+                               || quote_ident(cget('PS9_DOMAINSET_COVERAGE_ID'))   || '=' || _coverage_id ||
+                    ' ORDER BY index_of(' || quote_ident(cget('TABLE_PS9_CRS'))    || '.' || quote_ident(cget('PS9_CRS_ID'))    || ','
+                               || quote_ident(cget('TABLE_PS9_DOMAINSET'))  || '.' || quote_ident(cget('PS9_DOMAINSET_CRS_ID')) || ')';
             RAISE DEBUG '%: EXECUTING : %;', ME, _qry;
 
             -- Output table
@@ -160,8 +160,8 @@ $$
 	_coverage_id := select_field(
                           cget('TABLE_PS9_COVERAGE'), 
                           cget('PS9_COVERAGE_ID'), 0, 
-                          ' WHERE ' || cget('PS9_COVERAGE_NAME') || '=' ||
-                               '''' || coverage_name || ''''
+                          ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '=' ||
+                                    || quote_literal(coverage_name)
         );
         RAISE DEBUG '%: % of coverage is ''%''', ME, cget('PS9_COVERAGE_ID'), _coverage_id; 
 
@@ -179,20 +179,23 @@ $$
             RAISE DEBUG '%: % seems a gridded coverage, proceed.', ME, coverage_name; 
 
             -- Geometric details per axis:
-            _qry := ' SELECT ' || cget('TABLE_PS9_GRID_AXIS')          || '.' || cget('PS9_GRID_AXIS_RASDAMAN_ORDER') || ', '
-                               || cget('TABLE_PS9_GRIDDED_DOMAINSET')  || '.' || cget('PS9_GRIDDED_DOMAINSET_ORIGIN') || ', '
-                               || cget('TABLE_PS9_RECTILINEAR_AXIS')   || '.' || cget('PS9_RECTILINEAR_AXIS_OFFSET_VECTOR') || 
-                    ' FROM  '  || cget('TABLE_PS9_GRID_AXIS')          || ', ' 
-                               || cget('TABLE_PS9_GRIDDED_DOMAINSET')  || ', '
-                               || cget('TABLE_PS9_RECTILINEAR_AXIS')   ||
-                    ' WHERE '  || cget('TABLE_PS9_GRIDDED_DOMAINSET')  || '.' 
-                               || cget('PS9_GRIDDED_DOMAINSET_COVERAGE_ID')   || '='
-                               || cget('TABLE_PS9_GRID_AXIS') ||  '.'  || cget('PS9_GRID_AXIS_COVERAGE_ID') ||
-                    ' AND '    || cget('TABLE_PS9_GRID_AXIS') ||  '.'  || cget('PS9_GRID_AXIS_ID') || '='
-                               || cget('TABLE_PS9_RECTILINEAR_AXIS')   || '.' || cget('PS9_RECTILINEAR_AXIS_ID') ||
-                    ' AND '    || cget('TABLE_PS9_GRIDDED_DOMAINSET')  || '.' 
-                               || cget('PS9_GRIDDED_DOMAINSET_COVERAGE_ID') || '=' || _coverage_id ||
-                  ' ORDER BY ' || cget('TABLE_PS9_GRID_AXIS') ||  '.'  || cget('PS9_GRID_AXIS_RASDAMAN_ORDER');
+            _qry := ' SELECT ' || quote_ident(cget('TABLE_PS9_GRID_AXIS'))          || '.' 
+                               || quote_ident(cget('PS9_GRID_AXIS_RASDAMAN_ORDER')) || ', '
+                               || quote_ident(cget('TABLE_PS9_GRIDDED_DOMAINSET'))  || '.' 
+                               || quote_ident(cget('PS9_GRIDDED_DOMAINSET_ORIGIN')) || ', '
+                               || quote_ident(cget('TABLE_PS9_RECTILINEAR_AXIS'))   || '.' 
+                               || quote_ident(cget('PS9_RECTILINEAR_AXIS_OFFSET_VECTOR'))  || 
+                    ' FROM  '  || quote_ident(cget('TABLE_PS9_GRID_AXIS'))          || ', ' 
+                               || quote_ident(cget('TABLE_PS9_GRIDDED_DOMAINSET'))  || ', '
+                               || quote_ident(cget('TABLE_PS9_RECTILINEAR_AXIS'))   ||
+                    ' WHERE '  || quote_ident(cget('TABLE_PS9_GRIDDED_DOMAINSET'))  || '.' 
+                               || quote_ident(cget('PS9_GRIDDED_DOMAINSET_COVERAGE_ID'))   || '='
+                               || quote_ident(cget('TABLE_PS9_GRID_AXIS')) ||  '.'  || quote_ident(cget('PS9_GRID_AXIS_COVERAGE_ID')) ||
+                    ' AND '    || quote_ident(cget('TABLE_PS9_GRID_AXIS')) ||  '.'  || quote_ident(cget('PS9_GRID_AXIS_ID')) || '='
+                               || quote_ident(cget('TABLE_PS9_RECTILINEAR_AXIS'))   || '.' || quote_ident(cget('PS9_RECTILINEAR_AXIS_ID')) ||
+                    ' AND '    || quote_ident(cget('TABLE_PS9_GRIDDED_DOMAINSET'))  || '.' 
+                               || quote_ident(cget('PS9_GRIDDED_DOMAINSET_COVERAGE_ID')) || '=' || _coverage_id ||
+                  ' ORDER BY ' || quote_ident(cget('TABLE_PS9_GRID_AXIS')) ||  '.'  || quote_ident(cget('PS9_GRID_AXIS_RASDAMAN_ORDER'));
             RAISE DEBUG '%: %', ME, _qry; 
 
             -- Output table
@@ -239,8 +242,8 @@ $$
         _coverage_id := select_field(
                           cget('TABLE_PS9_COVERAGE'), 
                           cget('PS9_COVERAGE_ID'), 0, 
-                          ' WHERE ' || cget('PS9_COVERAGE_NAME') || '=' ||
-                               '''' || coverage_name || ''''
+                          ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '=' ||
+                                    || quote_literal(coverage_name)
         );
         RAISE DEBUG '%: % of coverage is ''%''', ME, cget('PS9_COVERAGE_ID'), _coverage_id; 
 
@@ -249,8 +252,8 @@ $$
         _storage_table := select_field(
                           cget('TABLE_PS9_RANGESET'),
                           cget('PS9_RANGESET_STORAGE_TABLE'), ''::text, 
-                          ' WHERE ' || cget('PS9_RANGESET_COVERAGE_ID') || '=' ||
-                               '''' || _coverage_id || ''''
+                          ' WHERE ' || quote_ident(cget('PS9_RANGESET_COVERAGE_ID')) || '=' ||
+                                    || quote_literal(_coverage_id)
         );
         RAISE DEBUG '%: storage table of the coverage is ''%''', ME, _storage_table;
 
@@ -266,18 +269,18 @@ $$
             _storage_id := select_field(
                           cget('TABLE_PS9_RANGESET'),
                           cget('PS9_RANGESET_STORAGE_ID'), 0, 
-                          ' WHERE ' || cget('PS9_RANGESET_COVERAGE_ID') || '=' ||
-                               '''' || _coverage_id || ''''
+                          ' WHERE ' || quote_ident(cget('PS9_RANGESET_COVERAGE_ID')) || '=' ||
+                                    || quote_literal(_coverage_id)
             );
             RAISE DEBUG '%: storage id of the coverage is ''%''', ME, _storage_id; 
  
             -- Build the final query string
-            _qry = ' SELECT ''' || coverage_name || '''::text, '
-                                || cget('PS9_RASDAMAN_COLLECTION_NAME')      || '::text, '
-                                || cget('PS9_RASDAMAN_COLLECTION_OID')       || ', '
-                                || cget('PS9_RASDAMAN_COLLECTION_BASETYPE')  ||
-                   ' FROM '     || cget('TABLE_PS9_RASDAMAN_COLLECTION')     ||
-                   ' WHERE '    || cget('PS9_RASDAMAN_COLLECTION_ID') || '=' || _storage_id;
+            _qry = ' SELECT ' || quote_literal(coverage_name) || '::text, '
+                              || quote_ident(cget('PS9_RASDAMAN_COLLECTION_NAME'))      || '::text, '
+                              || quote_ident(cget('PS9_RASDAMAN_COLLECTION_OID'))       || ', '
+                              || quote_ident(cget('PS9_RASDAMAN_COLLECTION_BASETYPE'))  ||
+                   ' FROM '   || quote_ident(cget('TABLE_PS9_RASDAMAN_COLLECTION'))     ||
+                   ' WHERE '  || quote_ident(cget('PS9_RASDAMAN_COLLECTION_ID')) || '=' || _storage_id;
             RAISE DEBUG '%: %', ME, _qry; 
  
             -- print the result
@@ -337,8 +340,8 @@ $$
         _coverage_id := select_field(
                           cget('TABLE_PS9_COVERAGE'), 
                           cget('PS9_COVERAGE_ID'), 0, 
-                          ' WHERE ' || cget('PS9_COVERAGE_NAME') || '=' ||
-                               '''' || coverage_name || ''''
+                          ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '=' ||
+                                    || quote_literal(coverage_name)
         );
         RAISE DEBUG '%: % of coverage is ''%''', ME, cget('PS9_COVERAGE_ID'), _coverage_id; 
 
@@ -348,9 +351,9 @@ $$
             _field_table := select_field(
                               cget('TABLE_PS9_RANGETYPE_COMPONENT'),
                               cget('PS9_RANGETYPE_COMPONENT_FIELD_TABLE'), ''::text, 
-                              ' WHERE ' || cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID') || '=' ||
-                                   '''' || _coverage_id || '''' ||
-                           ' GROUP BY ' || cget('PS9_RANGETYPE_COMPONENT_FIELD_TABLE')
+                              ' WHERE ' || quote_ident(cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID')) 
+                                        || '=' || _coverage_id ||
+                           ' GROUP BY ' || quote_ident(cget('PS9_RANGETYPE_COMPONENT_FIELD_TABLE'))
              );
             RAISE DEBUG '%: field table of the coverage is ''%''', ME, _field_table;
         EXCEPTION
@@ -361,44 +364,44 @@ $$
         END;
 
         -- Build the final query string
-        _qry := ' SELECT ' || cget('TABLE_PS9_RANGETYPE_COMPONENT') || '.' 
-                           || cget('PS9_RANGETYPE_COMPONENT_ORDER') || ', ' 
-                           || cget('TABLE_PS9_RANGETYPE_COMPONENT') || '.'
-                           || cget('PS9_RANGETYPE_COMPONENT_NAME')  || ', '
-                      '''' || cget('SWE_QUANTITY_FIELD')            || '''::text, '
-                           || cget('TABLE_PS9_RANGE_DATATYPE')      || '.'
-                           || cget('PS9_RANGE_DATATYPE_NAME')       || ', '
-                           || cget('TABLE_PS9_UOM')                 || '.'
-                           || cget('PS9_UOM_CODE')                  || ', '
-               ' ''('' ||' || cget('TABLE_PS9_INTERVAL') ||   '.'   || cget('PS9_INTERVAL_MIN') || ' || '','' || '
-                           || cget('TABLE_PS9_INTERVAL') ||   '.'   || cget('PS9_INTERVAL_MAX') || ' || '')''::text ' ||
-                ' FROM '   || cget('TABLE_PS9_RANGETYPE_COMPONENT') ||
-               ' INNER JOIN ' || cget('TABLE_PS9_RANGE_DATATYPE')   ||
-                       ' ON ' || cget('TABLE_PS9_RANGE_DATATYPE')         || '.' 
-                              || cget('PS9_RANGE_DATATYPE_ID')            || '=' 
-                              || cget('TABLE_PS9_RANGETYPE_COMPONENT')    || '.' 
-                              || cget('PS9_RANGETYPE_COMPONENT_TYPE_ID')  ||
-               ' INNER JOIN ' || cget('TABLE_PS9_QUANTITY') ||
-                       ' ON ' || cget('TABLE_PS9_QUANTITY')               || '.' 
-                              || cget('PS9_QUANTITY_ID')                  || '='
-                              || cget('TABLE_PS9_RANGETYPE_COMPONENT')    || '.' 
-                              || cget('PS9_RANGETYPE_COMPONENT_FIELD_ID') ||
-               ' INNER JOIN ' || cget('TABLE_PS9_UOM')      ||
-                       ' ON ' || cget('TABLE_PS9_UOM')      || '.' || cget('PS9_UOM_ID')          || '='
-                              || cget('TABLE_PS9_QUANTITY') || '.' || cget('PS9_QUANTITY_UOM_ID') || 
-          ' LEFT OUTER JOIN ' || cget('TABLE_PS9_INTERVAL_QUANTITY') ||
-                       ' ON ' || cget('TABLE_PS9_INTERVAL_QUANTITY') || '.' 
-                              || cget('PS9_INTERVAL_QUANTITY_QID')   || '='
-                              || cget('TABLE_PS9_QUANTITY')          || '.' 
-                              || cget('PS9_QUANTITY_ID')             ||
-          ' LEFT OUTER JOIN ' || cget('TABLE_PS9_INTERVAL')   ||
-                       ' ON ' || cget('TABLE_PS9_INTERVAL')          || '.' 
-                              || cget('PS9_INTERVAL_ID')             || '='
-                              || cget('TABLE_PS9_INTERVAL_QUANTITY') || '.' 
-                              || cget('PS9_INTERVAL_QUANTITY_IID')   ||
-                    ' WHERE ' || cget('TABLE_PS9_RANGETYPE_COMPONENT')        || '.' 
-                              || cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID')  || '=' || _coverage_id ||
-                 ' ORDER BY ' || cget('TABLE_PS9_RANGETYPE_COMPONENT') || '.' || cget('PS9_RANGETYPE_COMPONENT_ORDER');
+        _qry := ' SELECT ' || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT')) || '.' 
+                           || quote_ident(cget('PS9_RANGETYPE_COMPONENT_ORDER')) || ', ' 
+                           || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT')) || '.'
+                           || quote_ident(cget('PS9_RANGETYPE_COMPONENT_NAME'))  || ', '
+                           || quote_literal(cget('SWE_QUANTITY_FIELD'))          || '::text, '
+                           || quote_ident(cget('TABLE_PS9_RANGE_DATATYPE'))      || '.'
+                           || quote_ident(cget('PS9_RANGE_DATATYPE_NAME'))       || ', '
+                           || quote_ident(cget('TABLE_PS9_UOM'))                 || '.'
+                           || quote_ident(cget('PS9_UOM_CODE'))                  || ', '
+               ' ''('' ||' || quote_ident(cget('TABLE_PS9_INTERVAL')) ||   '.'   || quote_ident(cget('PS9_INTERVAL_MIN')) || ' || '','' || '
+                           || quote_ident(cget('TABLE_PS9_INTERVAL')) ||   '.'   || quote_ident(cget('PS9_INTERVAL_MAX')) || ' || '')''::text ' ||
+                ' FROM '   || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT')) ||
+               ' INNER JOIN ' || quote_ident(cget('TABLE_PS9_RANGE_DATATYPE'))   ||
+                       ' ON ' || quote_ident(cget('TABLE_PS9_RANGE_DATATYPE'))         || '.' 
+                              || quote_ident(cget('PS9_RANGE_DATATYPE_ID'))            || '=' 
+                              || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT'))    || '.' 
+                              || quote_ident(cget('PS9_RANGETYPE_COMPONENT_TYPE_ID'))  ||
+               ' INNER JOIN ' || quote_ident(cget('TABLE_PS9_QUANTITY')) ||
+                       ' ON ' || quote_ident(cget('TABLE_PS9_QUANTITY'))               || '.' 
+                              || quote_ident(cget('PS9_QUANTITY_ID'))                  || '='
+                              || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT'))    || '.' 
+                              || quote_ident(cget('PS9_RANGETYPE_COMPONENT_FIELD_ID')) ||
+               ' INNER JOIN ' || quote_ident(cget('TABLE_PS9_UOM'))      ||
+                       ' ON ' || quote_ident(cget('TABLE_PS9_UOM'))      || '.' || quote_ident(cget('PS9_UOM_ID'))          || '='
+                              || quote_ident(cget('TABLE_PS9_QUANTITY')) || '.' || quote_ident(cget('PS9_QUANTITY_UOM_ID')) || 
+          ' LEFT OUTER JOIN ' || quote_ident(cget('TABLE_PS9_INTERVAL_QUANTITY')) ||
+                       ' ON ' || quote_ident(cget('TABLE_PS9_INTERVAL_QUANTITY')) || '.' 
+                              || quote_ident(cget('PS9_INTERVAL_QUANTITY_QID'))   || '='
+                              || quote_ident(cget('TABLE_PS9_QUANTITY'))          || '.' 
+                              || quote_ident(cget('PS9_QUANTITY_ID'))             ||
+          ' LEFT OUTER JOIN ' || quote_ident(cget('TABLE_PS9_INTERVAL'))   ||
+                       ' ON ' || quote_ident(cget('TABLE_PS9_INTERVAL'))          || '.' 
+                              || quote_ident(cget('PS9_INTERVAL_ID'))             || '='
+                              || quote_ident(cget('TABLE_PS9_INTERVAL_QUANTITY')) || '.' 
+                              || quote_ident(cget('PS9_INTERVAL_QUANTITY_IID'))   ||
+                    ' WHERE ' || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT'))        || '.' 
+                              || quote_ident(cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID'))  || '=' || _coverage_id ||
+                 ' ORDER BY ' || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT')) || '.' || quote_ident(cget('PS9_RANGETYPE_COMPONENT_ORDER'));
         RAISE DEBUG '%: %', ME, _qry; 
 
         -- print the result

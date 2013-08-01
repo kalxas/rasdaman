@@ -101,7 +101,7 @@ $$
               numeric_column2array(
                 cget('TABLE_PS9_RANGETYPE_COMPONENT'),   -- table
                 cget('PS9_RANGETYPE_COMPONENT_ORDER'),   -- numeric column to check
-                ' WHERE ' || cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID') || ' = ' 
+                ' WHERE ' || quote_ident(cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID')) || ' = ' 
                           || NEW.coverage_id, -- select /this/ coverage
                 cget('PS9_RANGETYPE_COMPONENT_ORDER')    -- order-by column
               )::integer[]), 0)) -- the integer sequence must start from 0
@@ -189,7 +189,8 @@ $$
               numeric_column2array(
                 cget('TABLE_PS9_GRID_AXIS'),          -- table
                 cget('PS9_GRID_AXIS_RASDAMAN_ORDER'), -- numeric column to check
-                ' WHERE ' || cget('PS9_GRID_AXIS_COVERAGE_ID') || ' = ' || NEW.gridded_coverage_id, -- select /this/ coverage
+                ' WHERE ' || quote_ident(cget('PS9_GRID_AXIS_COVERAGE_ID')) || ' = ' 
+                          || NEW.gridded_coverage_id, -- select /this/ coverage
                 cget('PS9_GRID_AXIS_RASDAMAN_ORDER')  -- order-by column
               )::integer[]), 0)) -- the integer sequence must start from 0
             THEN RAISE EXCEPTION '%: last inserted rasdaman order (%) is not valid. ''%'' must be in a ordered sequence starting from 0.', 
@@ -214,11 +215,16 @@ $$
         _qry text;
     BEGIN
         -- Check if origin has been inserted
-	_qry :=    'SELECT ' || cget('TABLE_PS9_GRIDDED_DOMAINSET') || '.' || cget('PS9_GRIDDED_DOMAINSET_ORIGIN')
-		||  ' FROM ' || cget('TABLE_PS9_GRIDDED_DOMAINSET') || ',' || cget('TABLE_PS9_GRID_AXIS')
-                || ' WHERE ' || cget('TABLE_PS9_GRIDDED_DOMAINSET') || '.' || cget('PS9_GRIDDED_DOMAINSET_COVERAGE_ID') 
-                ||       '=' || cget('TABLE_PS9_GRID_AXIS')   || '.' || cget('PS9_GRID_AXIS_COVERAGE_ID')
-                ||   ' AND ' || cget('TABLE_PS9_GRID_AXIS')   || '.' || cget('PS9_GRID_AXIS_ID') || '=' || NEW.grid_axis_id;
+	_qry :=    'SELECT ' || quote_ident(cget('TABLE_PS9_GRIDDED_DOMAINSET'))  || '.' 
+                             || quote_ident(cget('PS9_GRIDDED_DOMAINSET_ORIGIN')) ||
+                    ' FROM ' || quote_ident(cget('TABLE_PS9_GRIDDED_DOMAINSET'))  || ',' 
+                             || quote_ident(cget('TABLE_PS9_GRID_AXIS'))          ||
+                   ' WHERE ' || quote_ident(cget('TABLE_PS9_GRIDDED_DOMAINSET'))  || '.' 
+                             || quote_ident(cget('PS9_GRIDDED_DOMAINSET_COVERAGE_ID')) ||
+                         '=' || quote_ident(cget('TABLE_PS9_GRID_AXIS'))          || '.' 
+                             || quote_ident(cget('PS9_GRID_AXIS_COVERAGE_ID'))    ||
+                     ' AND ' || quote_ident(cget('TABLE_PS9_GRID_AXIS'))          || '.' 
+                             || quote_ident(cget('PS9_GRID_AXIS_ID'))      || '=' || NEW.grid_axis_id;
 	RAISE DEBUG '%: EXECUTE %', ME, _qry;
 	EXECUTE _qry INTO STRICT _grid_origin;  -- error if not exactly one row is returned
         IF _grid_origin IS NULL THEN
@@ -250,7 +256,7 @@ $$
               numeric_column2array(
                 cget('TABLE_PS9_VECTOR_COEFFICIENTS'),   -- table
                 cget('PS9_VECTOR_COEFFICIENTS_ORDER'),   -- numeric column to check
-                ' WHERE ' || cget('PS9_VECTOR_COEFFICIENTS_ID') || ' = ' || NEW.grid_axis_id, -- select /this/ axis
+                ' WHERE ' || quote_ident(cget('PS9_VECTOR_COEFFICIENTS_ID')) || ' = ' || NEW.grid_axis_id, -- select /this/ axis
                 cget('PS9_VECTOR_COEFFICIENTS_ORDER')    -- order-by column
               )::integer[]), 0)) -- the integer sequence must start from 
             THEN RAISE EXCEPTION '%: last inserted coefficient order (%) is not valid. ''%'' must be in a ordered sequence starting from 0.', 
@@ -262,7 +268,7 @@ $$
             SELECT numeric_column2array(
                 cget('TABLE_PS9_VECTOR_COEFFICIENTS'),   -- table
                 cget('PS9_VECTOR_COEFFICIENTS_VALUE'),   -- numeric column to check
-                ' WHERE ' || cget('PS9_VECTOR_COEFFICIENTS_ID') || ' = ' || NEW.grid_axis_id, -- select /this/ axis
+                ' WHERE ' || quote_ident(cget('PS9_VECTOR_COEFFICIENTS_ID')) || ' = ' || NEW.grid_axis_id, -- select /this/ axis
                 cget('PS9_VECTOR_COEFFICIENTS_ORDER')    -- order-by column
             )), true)) -- is_strict
             THEN RAISE EXCEPTION '%: last inserted coefficient (%) is not valid. ''%'' must be in a strictly increasing sequence.', 

@@ -3,10 +3,10 @@ The new tables for `petascopedb' can be added with:
 $ cd petascope9/
 $ psql -U petauser --set ON_ERROR_STOP=on --single-transaction -f utilities.sql    petascopedb
 $ psql -U petauser --set ON_ERROR_STOP=on --single-transaction -f global_const.sql petascopedb
-$ psql -U petauser --set ON_ERROR_STOP=on --single-transaction -f macros.sql       petascopedb
 $ psql -U petauser --set ON_ERROR_STOP=on --single-transaction -f triggers9.sql    petascopedb
 $ psql -U petauser --set ON_ERROR_STOP=on --single-transaction -f schema9.sql      petascopedb
 $ psql -U petauser --set ON_ERROR_STOP=on --single-transaction -f populate9.sql    petascopedb
+$ psql -U petauser --set ON_ERROR_STOP=on --single-transaction -f macros.sql       petascopedb
 
 Currently, the prefix ``ps9_'' will highlight the new tables for Petascope 9.
 To *visualize* the schema structure you could look into the 
