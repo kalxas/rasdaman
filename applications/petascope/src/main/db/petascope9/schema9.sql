@@ -412,17 +412,15 @@ CREATE TRIGGER single_service_provider_trigger BEFORE INSERT ON ps9_service_prov
 -- Geometry of MultiPoint                                                    --
 
 CREATE TABLE ps9_multipoint_domain_set (
-    id      serial  PRIMARY KEY,
-    coverage_id integer NOT NULL,
-    coordinate  geometry NOT NULL,
+    id           serial  PRIMARY KEY,
+    coverage_id  integer NOT NULL,
+    coordinate   geometry NOT NULL,
     -- Constraints and FKs
     --UNIQUE (coverage_id, coordinate),
     FOREIGN KEY (coverage_id) REFERENCES ps9_domain_set (coverage_id) ON DELETE CASCADE
 );
 CREATE INDEX coordinate_gist_idx ON ps9_multipoint_domain_set USING GIST(coordinate);
-VACUUM ANALYZE ps9_multipoint_domain_set ;
 CREATE INDEX coverage_id_idx ON ps9_multipoint_domain_set (coverage_id);
-
 CREATE INDEX coord_x_idx ON ps9_multipoint_domain_set (St_X(coordinate));
 CREATE INDEX coord_y_idx ON ps9_multipoint_domain_set (St_Y(coordinate));
 CREATE INDEX coord_z_idx ON ps9_multipoint_domain_set (St_Z(coordinate));
