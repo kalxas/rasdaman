@@ -19,15 +19,17 @@ The output from each test is written to the output directory.
 
 The following coverages are available for the tests:
 
-+----------+-----+-------+-----------------+-------+-----------------+------+
-| coverage | dim | type  | pixel extent    | axes  | geo-boundingbox | CRS  |
-+----------+-----+-------+-----------------+-------+-----------------+------+
-| rgb      | 2D  | rgb   | 0:399,0:343     | x/y   |        -        |  -   |
-| mr       | 2D  | char  | 0:255,0:210     | x/y   |        -        |  -   |
-| eobstest | 3D  | short | 0:5,0:100,0:231 | t/x/y | 25,-40 - 75,75  | 4326 |
-+----------+-----+-------+-----------------+-------+-----------------+------+
++------------+-----+-------+-----------------+------------+-----------------+---------+
+|  coverage  | dim | type  | pixel extent    |    axes    | geo-boundingbox |   CRS   |
++------------+-----+-------+-----------------+------------+-----------------+---------+
+| rgb        | 2D  | rgb   | 0:399,0:343     | i/j        |        -        | Index2D |
+| mr         | 2D  | char  | 0:255,0:210     | i/j        |        -        | Index2D |
+| eobstest   | 3D  | short | 0:5,0:100,0:231 | t/Long/Lat | 25,-40 - 75,75  | t/WGS84 |
+| irr_cube_1 | 3D  | short | 0:99,0:99,0:5   | i/j/k      |        -        | Index3D |
++------------+-----+-------+-----------------+------------+-----------------+---------+
 
-These coverages are automatically inserted if necessary
+rasdaman collection names are equal to the coverage names for OGC web services.
+These coverages are automatically re-inserted when running the tests.
 
 
 ----------------

@@ -309,7 +309,7 @@ function import_mr()
 #
 # import 3D irregular time-series
 #
-function import_rectirrgrid()
+function import_irr_cube_1()
 {
   c=$COLL # = collection name = coverage name
   X=10    # regular axis
@@ -418,7 +418,7 @@ function import_rectirrgrid()
 #
 function import_data()
 {
-  COLLECTIONS="rgb mr eobstest rectirrgrid"
+  COLLECTIONS="rgb mr eobstest irr_cube_1"
   
   for COLL in $COLLECTIONS; do
     check_collection
@@ -436,8 +436,8 @@ function import_data()
           import_mr && break
         elif [ "$COLL" == "eobstest" ]; then
           import_eobs && break
-        elif [ "$COLL" == "rectirrgrid" ]; then
-          import_rectirrgrid && break
+        elif [ "$COLL" == "irr_cube_1" ]; then
+          import_irr_cube_1 && break
         fi
         
         raserase_colls > /dev/null 2>&1
