@@ -59,6 +59,7 @@
 --  (2 rows)
 --
 -- (Create ad-hoc type so that it need not be specified by the caller:)
+DROP TYPE IF EXISTS getCrs_out_type CASCADE;
 CREATE TYPE getCrs_out_type AS ("id" integer, "uri" text);
 --
 CREATE OR REPLACE FUNCTION getCrs (
@@ -140,6 +141,7 @@ $$ LANGUAGE plpgsql;
 --               2 | {0,25,-40.5}  | {0.0,0.0,0.5}
 -- (3 rows)
 --
+DROP TYPE IF EXISTS getDomainSet_out_type CASCADE;
 CREATE TYPE getDomainSet_out_type AS ("rasdaman_order" integer, "grid_origin" numeric[], "offset_vector" numeric[]);
 --
 CREATE OR REPLACE FUNCTION getDomainSet(
@@ -217,6 +219,7 @@ $$ LANGUAGE plpgsql;
 --  (1 row)
 --
 -- NOTE: currently working only for (gridded) coverages stored as rasdaman collections.
+DROP TYPE IF EXISTS getRangeSet_out_type CASCADE;
 CREATE TYPE getRangeSet_out_type AS ("coverage name" text, "collection name" text, "collection OID" numeric, "base_type" text);
 --
 CREATE OR REPLACE FUNCTION getRangeSet(
@@ -314,6 +317,7 @@ $$ LANGUAGE plpgsql;
 --                 0 | value | Quantity | short | 10⁰  | (-32768,32767)
 --  (1 row)
 --
+DROP TYPE IF EXISTS getRangeType_out_type CASCADE;
 CREATE TYPE getRangeType_out_type AS 
        ("component order" integer, "name" text, "SWE type" text, "data type" text, "UoM" text, "allowed interval(s)" text);
 --
