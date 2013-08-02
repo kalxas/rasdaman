@@ -74,9 +74,9 @@ public class ExtensionsRegistry {
         registerExtension(new MultipartGeotiffFormatExtension());
         registerExtension(new MultipartJPEG2000FormatExtension());
         registerExtension(new MultipartNetcdfFormatExtension());
-        registerExtension(new CRSExtension());
+        // registerExtension(new CRSExtension());//only available at r'e
         registerExtension(new RangeSubsettingExtension());
-        registerExtension(new ScalingExtension());
+        // registerExtension(new ScalingExtension());//only available at r'e
         // Add crs.discrete.coverage and crs.gridded.coverage extensions ?
     }
 
