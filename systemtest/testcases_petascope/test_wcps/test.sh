@@ -57,7 +57,7 @@ echo SCRIPT_DIR is set to: $SCRIPT_DIR
 # test_svcName , addresses are mapped from ../../conf/test.cfg
 
 SVC_NAME=$(basename $SCRIPT_DIR)
-SVC_NAME=$(echo test_wms | cut -d "_" -f 2)
+SVC_NAME=$(echo "$SVC_NAME" | cut -d "_" -f 2)
 echo Service name is: $SVC_NAME
 
 case "$SVC_NAME" in
