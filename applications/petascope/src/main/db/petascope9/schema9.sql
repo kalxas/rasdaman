@@ -56,6 +56,49 @@
 -- COVERAGE MODEL (WCS/WCPS) --------------------------------------------------
 -------------------------------------------------------------------------------
 
+-- TABLE: **ps9_keyword** =====================================================
+-- Keywords for the OWS data description (/ows:Description/ows:Keywords)
+CREATE TABLE ps9_keyword (
+    id           serial    PRIMARY KEY,
+    value        text      NOT NULL, -- /ows:Keywords/ows:Keyword
+    language     text      NULL,     -- /ows:Keywords/ows:Keyword/@xml:lang
+    -- Constraints and FKs
+    UNIQUE (value, language)
+);
+
+
+-- TABLE: **ps9_keyword_group** ================================================
+-- Keywords for the OWS data description (/ows:Description/ows:Keywords)
+CREATE TABLE ps9_keyword_group (
+    id             serial    PRIMARY KEY,
+    keyword_ids    integer[] NOT NULL, -- /ows:Keywords/ows:Keyword = string [+ @xml:lang]
+    type           text      NULL,     -- /ows:Keywords/ows:Type
+    type_codespace text      NULL,     -- /ows:Keywords/ows:Type/@codeSpace
+    -- Constraints and FKs
+    UNIQUE (keyword_ids, type, type_codespace),
+    CONSTRAINT keyword_ids_is_1D        CHECK (array_lower(keyword_ids, 2) IS NULL),
+    CONSTRAINT keyword_ids_is_not_empty CHECK (array_lower(keyword_ids, 1) IS NOT NULL) -- Contains at least 1 element
+);
+CREATE TRIGGER keyword_integrity_trigger AFTER INSERT OR UPDATE ON ps9_keyword_group
+       FOR EACH ROW EXECUTE PROCEDURE keyword_ref_integrity();
+
+
+-- TABLES: **ps9_description** =================================================
+-- Table for ows:Description elements, used both in coverage summaries and service identification.
+CREATE TABLE ps9_description (
+    id                serial    PRIMARY KEY,
+    titles            text[]    NULL,  -- /ows:Description/ows:Title
+    abstracts         text[]    NULL,  -- /ows:Description/ows:Abstract
+    keyword_group_ids integer[] NULL,  -- /ows:Description/ows:Keywords
+    -- Constraints and FKs
+    CONSTRAINT titles_is_1D            CHECK (array_lower(titles, 2)            IS NULL),
+    CONSTRAINT abstracts_is_1D         CHECK (array_lower(abstracts, 2)         IS NULL),
+    CONSTRAINT keyword_group_ids_is_1D CHECK (array_lower(keyword_group_ids, 2) IS NULL)
+);
+CREATE TRIGGER keyword_group_integrity_trigger AFTER INSERT OR UPDATE ON ps9_description
+       FOR EACH ROW EXECUTE PROCEDURE keyword_group_ref_integrity();
+
+
 -- TABLE: **ps9_gml_type** =====================================================
 -- Catalogue table storing the available GML grid types.
 CREATE TABLE ps9_gml_subtype (
@@ -99,9 +142,11 @@ CREATE TABLE ps9_coverage (
     name             text         UNIQUE NOT NULL,
     gml_type_id      integer      NOT NULL,
     native_format_id integer      NOT NULL,
+    --description_id   integer      NULL,
     -- Constraints and FKs
     FOREIGN KEY (gml_type_id)      REFERENCES ps9_gml_subtype  (id) ON DELETE RESTRICT,
-    FOREIGN KEY (native_format_id) REFERENCES ps9_mime_type (id) ON DELETE RESTRICT
+    --FOREIGN KEY (description_id)   REFERENCES ps9_description  (id) ON DELETE RESTRICT, -- no descriptions by now
+    FOREIGN KEY (native_format_id) REFERENCES ps9_mime_type    (id) ON DELETE RESTRICT
 );
 CREATE TRIGGER coverage_name_trigger BEFORE INSERT OR UPDATE ON ps9_coverage
        FOR EACH ROW EXECUTE PROCEDURE coverage_name_pattern();
@@ -114,7 +159,12 @@ CREATE TABLE ps9_bounding_box (
     coverage_id    integer NOT NULL,
     lower_left     numeric[] NOT NULL,
     upper_right    numeric[] NOT NULL,
-    CHECK (array_dims(lower_left) = array_dims(upper_right)),
+    -- Constraints and FKs
+    CONSTRAINT lower_left_is_1D         CHECK (array_lower(lower_left, 2)  IS NULL),
+    CONSTRAINT lower_left_is_not_empty  CHECK (array_lower(lower_left, 1)  IS NOT NULL),
+    CONSTRAINT upper_right_is_1D        CHECK (array_lower(upper_right, 2) IS NULL),
+    CONSTRAINT upper_right_is_not_empty CHECK (array_lower(upper_right, 1) IS NOT NULL),
+    CONSTRAINT ll_ur_integrity          CHECK (array_dims(lower_left) = array_dims(upper_right)),
     FOREIGN KEY (coverage_id) REFERENCES ps9_coverage (id) ON DELETE CASCADE
 ); 
 
@@ -243,9 +293,10 @@ CREATE TABLE ps9_crs (
 -- independently of its type.
 CREATE TABLE ps9_domain_set (
     coverage_id     integer    PRIMARY KEY,
-    native_crs_id   integer[]  NOT NULL,   -- compound CRSs to be stored as array of FKs
+    native_crs_ids  integer[]  NOT NULL,   -- compound CRSs to be stored as array of FKs
     -- Constraints and FKs
-    CONSTRAINT native_crs_is_1D CHECK (array_lower(native_crs_id, 2) IS NULL), 
+    CONSTRAINT native_crs_ids_is_1D        CHECK (array_lower(native_crs_ids, 2) IS NULL),
+    CONSTRAINT natice_crs_ids_is_not_empty CHECK (array_lower(native_crs_ids, 1) IS NOT NULL), -- Contains at least 1 element
     FOREIGN KEY (coverage_id)   REFERENCES ps9_coverage (id) ON DELETE CASCADE
 );
 CREATE TRIGGER crs_integrity BEFORE INSERT OR UPDATE ON ps9_domain_set
@@ -264,6 +315,7 @@ CREATE TABLE ps9_gridded_domain_set (
     -- Constraints and FKs
     CONSTRAINT origin_lower_bound_is_1 CHECK (array_lower(grid_origin, 1) = 1),     -- Indexing starts from 1
     CONSTRAINT origin_is_1D            CHECK (array_lower(grid_origin, 2) IS NULL), -- Cannot have more than 1 tuple of coordinates 
+    CONSTRAINT origin_is_not_empty     CHECK (array_lower(grid_origin, 1) IS NOT NULL), -- Contains at least 1 element
     FOREIGN KEY (coverage_id) REFERENCES ps9_domain_set (coverage_id) ON DELETE CASCADE
 );
 -- TRIGGER: **unique_domain_subtype_trigger************************************
@@ -297,8 +349,9 @@ CREATE TABLE ps9_rectilinear_axis (
     offset_vector      numeric[]  NOT NULL, -- directional resolution (point location relative to the origin)
     -- Constraints and FKs
     FOREIGN KEY (grid_axis_id) REFERENCES ps9_grid_axis (id) ON DELETE CASCADE,
-    CONSTRAINT offsetvector_lower_bound_is_1 CHECK (array_lower(offset_vector, 1) = 1),    -- Indexing starts from 1
-    CONSTRAINT offsetvector_is_1D            CHECK (array_lower(offset_vector, 2) IS NULL) -- Cannot have more than 1 tuple of coordinates 
+    CONSTRAINT offsetvector_lower_bound_is_1 CHECK (array_lower(offset_vector, 1) = 1),     -- Indexing starts from 1
+    CONSTRAINT offsetvector_is_1D            CHECK (array_lower(offset_vector, 2) IS NULL), -- Cannot have more than 1 tuple of coordinates 
+    CONSTRAINT offset_vector_is_not_empty    CHECK (array_lower(offset_vector, 1) IS NOT NULL) -- Contains at least 1 element
 );
 
 CREATE TRIGGER offsetvector_origin_trigger BEFORE INSERT OR UPDATE ON ps9_rectilinear_axis
@@ -350,35 +403,19 @@ CREATE TABLE ps9_extra_metadata (
 -- TABLE: **ps9_service_identification** =======================================
 -- Metadata for the WCS service (/wcs:Capabilities/ows:ServiceIdentification)
 CREATE TABLE ps9_service_identification (
-    id         serial    PRIMARY KEY,
-    title      text      NULL,
-    abstract   text      NULL
-);
-CREATE TRIGGER single_service_trigger BEFORE INSERT ON ps9_service_identification
-       FOR EACH ROW EXECUTE PROCEDURE single_service();
-
-
--- TABLE: **ps9_keywords** =====================================================
--- Keywords for the WCS service identification (/wcs:Capabilities/ows:ServiceIdentification/ows:keywords)
-CREATE TABLE ps9_keyword (
-    id             serial    PRIMARY KEY,
-    value          text      NOT NULL,
-    type           text      NULL,
-    type_codespace text      NULL,
+    id                 serial    PRIMARY KEY,
+    description_id     integer   NULL,
+    type               text      NOT NULL,
+    type_codespace     text      NULL,
+    type_versions      text[]    NOT NULL,
+    fees               text      NULL,
+    access_constraints text[]    NULL,
     -- Constraints and FKs
-    UNIQUE (value, type, type_codespace)
-);
-
-
--- TABLE: **ps9_service_keyword** ==============================================
--- n:m Association table between ps9_service_identification and ps9_keyword, although now only one service is allowed.
-CREATE TABLE ps9_service_keyword (
-    service_id     integer,
-    keyword_id     integer,
-    -- Constraints and FKs
-    PRIMARY KEY (service_id, keyword_id),
-    FOREIGN KEY (service_id) REFERENCES ps9_service_identification (id) ON DELETE CASCADE,
-    FOREIGN KEY (keyword_id) REFERENCES ps9_keyword                (id) ON DELETE RESTRICT
+    UNIQUE (type),
+    CONSTRAINT access_constraints_is_1D   CHECK (array_lower(access_constraints, 2) IS NULL),
+    CONSTRAINT type_versions_is_1D        CHECK (array_lower(type_versions, 2)      IS NULL),
+    CONSTRAINT type_versions_is_not_empty CHECK (array_lower(type_versions, 1)      IS NOT NULL),
+    FOREIGN KEY (description_id) REFERENCES ps9_description (id) ON DELETE RESTRICT
 );
 
 
@@ -391,18 +428,21 @@ CREATE TABLE ps9_service_provider (
     contact_individual_name     text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:IndividualName
     contact_position_name       text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:PositionName
     contact_phone               text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Phone
-    contact_delivery_point      text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:DeliveryPoint
+    contact_delivery_points   text[] NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:DeliveryPoint
     contact_city                text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:City
     contact_administrative_area text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:AdministrativeArea
     contact_postal_code         text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:PostalCode
     contact_country             text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:Country
-    contact_email_address       text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:ElectronicMailAddress
+    contact_email_addresses   text[] NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Address/ows:ElectronicMailAddress
     contact_hours_of_service    text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:HoursOfService
     contact_instructions        text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:ContactInstructions
-    contact_role                text NULL  -- //ows:ServiceProvider/ows:ServiceContact/ows:Role
+    contact_role                text NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:Role
+    CONSTRAINT delivery_points_is_1D CHECK (array_lower(contact_delivery_points, 2) IS NULL),
+    CONSTRAINT email_addresses_is_1D CHECK (array_lower(contact_email_addresses, 2) IS NULL)
 );
 CREATE TRIGGER single_service_provider_trigger BEFORE INSERT ON ps9_service_provider
        FOR EACH ROW EXECUTE PROCEDURE single_service_provider();
+
 
 -- ######################################################################### --
 --                        MULTIPOINT Tables                                  --

@@ -32,10 +32,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.core.DbMetadataSource;
+import petascope.core.ServiceMetadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
+import petascope.ows.Description;
+import petascope.ows.ServiceIdentification;
+import petascope.ows.ServiceProvider;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import static petascope.util.XMLSymbols.*;
@@ -72,17 +76,85 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         Element root = ret.getRootElement();
         root.addAttribute(new Attribute(ATT_VERSION, BaseRequest.VERSION_STRING));
 
+        // Fetch the metadata of the service from petascopedb
+        ServiceMetadata sMeta = meta.getServiceMetadata();
+
         // Service Identification
         Element serviceIdentification = Templates.getXmlTemplate(Templates.SERVICE_IDENTIFICATION,
                 Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
                 ? ConfigManager.PETASCOPE_SERVLET_URL
                 : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
         if (serviceIdentification != null) {
-            for (String id : ExtensionsRegistry.getExtensionIds()) {
-                Element profile = new Element(PREFIX_OWS + ":" + LABEL_PROFILE, NAMESPACE_OWS);
-                profile.appendChild(id);
-                serviceIdentification.appendChild(profile);
+            // Data from petascopedb tables
+            ServiceIdentification sId = sMeta.getIdentification();
+            Description sDescr        = sId.getDescription();
+            Element c;
+            // title(s)
+            for (String title : sDescr.getTitles()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_TITLE, NAMESPACE_OWS);
+                c.appendChild(title);
+                // add it on top of template-coded ServiceType and ServiceTypeVersion
+                serviceIdentification.insertChild(c,1);
             }
+            // abstract(s)
+            for (String servAbstract : sDescr.getAbstracts()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_ABSTRACT, NAMESPACE_OWS);
+                c.appendChild(servAbstract);
+                serviceIdentification.insertChild(c,
+                        serviceIdentification.indexOf( // this time I a title /might/ be there
+                        serviceIdentification.getFirstChildElement(LABEL_SERVICE_TYPE, NAMESPACE_OWS)));
+            }
+            // Keywords
+            for (Description.KeywordsGroup kGroup : sDescr.getKeywordGroups()) {
+                Element keywords = new Element(PREFIX_OWS + ":" + LABEL_KEYWORDS, NAMESPACE_OWS);
+                for (Pair<String,String> key : kGroup.getValues()) {
+                    // Keyword
+                    c = new Element(PREFIX_OWS + ":" + LABEL_KEYWORD, NAMESPACE_OWS);
+                    // Value
+                    c.appendChild(key.fst);
+                    if (!key.snd.isEmpty()) {
+                        // Add language attribute
+                        c.addAttribute(new Attribute(PREFIX_XML + ":" + ATT_LANG, NAMESPACE_XML, key.snd));
+                    }
+                    keywords.appendChild(c);
+                }
+                // Type [+codeSpace]
+                if (!kGroup.getType().isEmpty()) {
+                    c = new Element(PREFIX_OWS + ":" + LABEL_TYPE, NAMESPACE_OWS);
+                    c.appendChild(kGroup.getType());
+                    if (!kGroup.getTypeCodeSpace().isEmpty()) {
+                        c.addAttribute(new Attribute(ATT_CODESPACE, kGroup.getTypeCodeSpace()));
+                    }
+                    keywords.appendChild(c);
+                }
+                // Add the ows:Keywords element to the service identification
+                serviceIdentification.insertChild(keywords,
+                        serviceIdentification.indexOf(
+                        serviceIdentification.getFirstChildElement(LABEL_SERVICE_TYPE, NAMESPACE_OWS)));
+            }
+
+            // ows:ServiceType and ows:ServiceTypeVersion are in the ServiceIdentification template.
+
+            // Profiles
+            for (String id : ExtensionsRegistry.getExtensionIds()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_PROFILE, NAMESPACE_OWS);
+                c.appendChild(id);
+                serviceIdentification.appendChild(c);
+            }
+
+            // Fees and constraints
+            if (!sId.getFees().isEmpty()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_FEES, NAMESPACE_OWS);
+                c.appendChild(sId.getFees());
+                serviceIdentification.appendChild(c);
+            }
+            for (String constraint : sId.getAccessConstraints()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_ACCESS_CONSTRAINTS, NAMESPACE_OWS);
+                c.appendChild(constraint);
+                serviceIdentification.appendChild(c);
+            }
+
+            // Add to capabilities
             root.appendChild(serviceIdentification.copy());
         }
 
@@ -92,6 +164,70 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 ? ConfigManager.PETASCOPE_SERVLET_URL
                 : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
         if (serviceProvider != null) {
+            // Data from petascopedb tables
+            ServiceProvider sPro = sMeta.getProvider();
+            Element c;
+            // name: mandatory
+            c = new Element(PREFIX_OWS + ":" + LABEL_PROVIDER_NAME, NAMESPACE_OWS);
+            c.appendChild(sPro.getName());
+            serviceProvider.appendChild(c);
+            // optional site
+            if (!sPro.getSite().isEmpty()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_PROVIDER_SITE, NAMESPACE_OWS);
+                c.appendChild(sPro.getSite());
+                serviceProvider.appendChild(c);
+            }
+            // mandatory service contact
+            c = new Element(PREFIX_OWS + ":" + LABEL_SERVICE_CONTACT, NAMESPACE_OWS);
+            Element cc;
+            // name
+            if (!sPro.getContact().getIndividualName().isEmpty()) {
+                cc = new Element(PREFIX_OWS + ":" + LABEL_INDIVIDUAL_NAME, NAMESPACE_OWS);
+                cc.appendChild(sPro.getContact().getIndividualName());
+                c.appendChild(cc);
+            }
+            // position
+            if (!sPro.getContact().getPositionName().isEmpty()) {
+                cc = new Element(PREFIX_OWS + ":" + LABEL_POSITION_NAME, NAMESPACE_OWS);
+                cc.appendChild(sPro.getContact().getPositionName());
+                c.appendChild(cc);
+            }
+            //
+            cc = new Element(PREFIX_OWS + ":" + LABEL_CONTACT_INFO, NAMESPACE_OWS);
+            Element ccc;
+            // phone
+            if (!sPro.getContact().getContactInfo().getPhone().isEmpty()) {
+                ccc = new Element(PREFIX_OWS + ":" + LABEL_PHONE, NAMESPACE_OWS);
+                ccc.appendChild(sPro.getContact().getContactInfo().getPhone());
+                cc.appendChild(ccc);
+            }
+            // address
+            Element address = new Element(PREFIX_OWS + ":" + LABEL_ADDRESS, NAMESPACE_OWS);
+            for (Pair<String,String> xmlValue : sPro.getContact().getContactInfo().getAddress().getAddressMetadata()) {
+                ccc = new Element(PREFIX_OWS + ":" + xmlValue.fst, NAMESPACE_OWS);
+                ccc.appendChild(xmlValue.snd);
+                address.appendChild(ccc);
+            }
+            cc.appendChild(address);
+            // hours of service
+            if (!sPro.getContact().getContactInfo().getHoursOfService().isEmpty()) {
+                ccc = new Element(PREFIX_OWS + ":" + LABEL_HOURS_OF_SERVICE, NAMESPACE_OWS);
+                ccc.appendChild(sPro.getContact().getContactInfo().getHoursOfService());
+                cc.appendChild(ccc);
+            }
+            // Add ContactInfo to ServiceContact (mandatory)
+            c.appendChild(cc);
+            // role
+            if (!sPro.getContact().getRole().isEmpty()) {
+                cc = new Element(PREFIX_OWS + ":" + LABEL_ROLE, NAMESPACE_OWS);
+                cc.appendChild(sPro.getContact().getRole());
+                c.appendChild(cc);
+            }
+
+            // Add ServiceContact
+            serviceProvider.appendChild(c);
+
+            // Add to capabilities
             root.appendChild(serviceProvider.copy());
         }
 

@@ -69,6 +69,51 @@ $$
     END;
 $$ LANGUAGE plpgsql;
 
+
+-- TRIGGER: **keyword_integrity_trigger***********************************************
+-- Check referential integrity on ps9_keyword.
+CREATE OR REPLACE FUNCTION keyword_ref_integrity ()
+RETURNS trigger AS
+$$
+    DECLARE
+        -- Log
+	ME constant text := 'keyword_ref_integrity()';
+    BEGIN
+        -- check for referential integrity
+        FOR i IN array_lower(NEW.keyword_ids, 1)..array_upper(NEW.keyword_ids, 1) LOOP
+            IF NOT table_has_id(cget('TABLE_PS9_KEYWORD'), cget('PS9_KEYWORD_ID'), NEW.keyword_ids[i]) THEN
+                RAISE EXCEPTION '%: invalid reference to ''%'', no row has id ''%''.',
+                                ME, cget('TABLE_PS9_KEYWORD'), NEW.keyword_ids[i];
+            END IF;
+        END LOOP;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+
+-- TRIGGER: **keyword_group_integrity_trigger***********************************************
+-- Check referential integrity on ps9_keyword_group.
+CREATE OR REPLACE FUNCTION keyword_group_ref_integrity ()
+RETURNS trigger AS
+$$
+    DECLARE
+        -- Log
+	ME constant text := 'keyword_group_ref_integrity()';
+    BEGIN
+        -- check for referential integrity
+        IF NEW.keyword_group_ids IS NOT NULL THEN -- 1+ keyword group is not mandatory
+            FOR i IN array_lower(NEW.keyword_group_ids, 1)..array_upper(NEW.keyword_group_ids, 1) LOOP
+                IF NOT table_has_id(cget('TABLE_PS9_KEYWORD_GROUP'), cget('PS9_KEYWORD_GROUP_ID'), NEW.keyword_group_ids[i]) THEN
+                    RAISE EXCEPTION '%: invalid reference to ''%'', no row has id ''%''.',
+                                    ME, cget('TABLE_PS9_KEYWORD_GROUP'), NEW.keyword_group_ids[i];
+                END IF;
+            END LOOP;
+        END IF;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+
 -- TRIGGER: **field_type_trigger***********************************************
 -- Check referential integrity on multiple references tables
 CREATE OR REPLACE FUNCTION field_ref_integrity () 
@@ -86,6 +131,7 @@ $$
         RETURN NEW;
     END;
 $$ LANGUAGE plpgsql;
+
 
 -- TRIGGER: **range_component_order_trigger************************************
 -- Checks that the components inserted for this coverage by now follow a sequential order from 0.
@@ -112,6 +158,7 @@ $$
     END;
 $$ LANGUAGE plpgsql;
 
+
 -- TRIGGER: **uom_code_trigger*************************************************
 -- This type specifies a character string of length at least one, and restricted 
 -- such that it must not contain any of the following characters: ":" (colon), " " (space), 
@@ -135,6 +182,7 @@ $$
     END;
 $$ LANGUAGE plpgsql;
 
+
 -- TRIGGER: **crs_integrity*****************************************************
 -- Check referential integrity on ps_crs.
 CREATE OR REPLACE FUNCTION crs_ref_integrity () 
@@ -145,10 +193,10 @@ $$
 	ME constant text := 'crs_ref_integrity()';
     BEGIN
         -- check for referential integrity
-        FOR i IN array_lower(NEW.native_crs_id, 1)..array_upper(NEW.native_crs_id, 1) LOOP
-            IF NOT table_has_id(cget('TABLE_PS9_CRS'), cget('PS9_CRS_ID'), NEW.native_crs_id[i]) THEN
+        FOR i IN array_lower(NEW.native_crs_ids, 1)..array_upper(NEW.native_crs_ids, 1) LOOP
+            IF NOT table_has_id(cget('TABLE_PS9_CRS'), cget('PS9_CRS_ID'), NEW.native_crs_ids[i]) THEN
                 RAISE EXCEPTION '%: invalid reference to ''%'', no row has id ''%''.', 
-                                ME, cget('TABLE_PS9_CRS'), NEW.native_crs_id[i];
+                                ME, cget('TABLE_PS9_CRS'), NEW.native_crs_ids[i];
             END IF;
         END LOOP;
         RETURN NEW;
@@ -166,9 +214,9 @@ $$
 	ME constant text := 'crs_compound_components()';
     BEGIN
         -- check that there are no duplicated in the CRS compound
-        IF NOT (SELECT is_increasing(array_sort(NEW.native_crs_id)::integer[], true))
+        IF NOT (SELECT is_increasing(array_sort(NEW.native_crs_ids)::integer[], true))
             THEN RAISE EXCEPTION '%: invalid compound CRS (%). The single composing CRSs must be unique.', 
-                            ME, NEW.native_crs_id;
+                            ME, NEW.native_crs_ids;
         END IF;
         RETURN NEW;
     END;
@@ -240,8 +288,7 @@ $$
     END;
 $$ LANGUAGE plpgsql;
 
--- TRIGGER: **coefficients_integrity_trigger***********************************
--- Checks that the coefficients are ordered (0,1,2,...) and their values are strictly increasing.
+
 -- TRIGGER: **coefficients_integrity_trigger***********************************
 -- Checks that the coefficients are ordered (0,1,2,...) and their values are strictly increasing.
 CREATE OR REPLACE FUNCTION coefficients_integrity () 
@@ -278,23 +325,6 @@ $$
     END;
 $$ LANGUAGE plpgsql;
 
-
--- TRIGGER: **single_service_trigger*******************************************
--- Checks that no second service is inserted.
-CREATE OR REPLACE FUNCTION single_service () 
-RETURNS trigger AS 
-$$
-    DECLARE
-        -- Log
-	ME constant text := 'single_service()';
-    BEGIN
-        -- check there is no other service there
-        IF NOT (SELECT table_is_empty(cget('TABLE_PS9_SERVICE_IDENTIFICATION'))) THEN
-            RAISE EXCEPTION '%: cannot insert more than one WCS service.''', ME;
-        END IF;
-        RETURN NEW;
-    END;
-$$ LANGUAGE plpgsql;
 
 -- TRIGGER: **single_service_provider_trigger**********************************
 -- Checks that no second service is inserted.

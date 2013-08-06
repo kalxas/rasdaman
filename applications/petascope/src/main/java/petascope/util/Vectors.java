@@ -82,8 +82,8 @@ public class Vectors {
      * Calculates the scalar multiplication of a vector by a scalar.
      * 
      * @param <T> The generic numeric type (no primitives)
-     * @param s1  The scalar
-     * @param v2  The vector
+     * @param s  The scalar
+     * @param v  The vector
      * @return The same vector with magnitude multiplied by the scalar factor.
      */
     public static <T extends Number> Number[] scalarMultiplication(T s, T[] v) {
@@ -106,9 +106,10 @@ public class Vectors {
     /**
      * Verifies if 2 or more vectors are pairwise orthogonal.
      * 
-     * @param <T>  The generic numeric type (no primitives)
-     * @param args A sequence of generic vectors
+     * @param <T>     The generic numeric type (no primitives)
+     * @param vectors A sequence of generic vectors
      * @return True if the set of vectors form an orthogonal set.
+     * @throws PetascopeException
      */
     public static <T extends Number> boolean areOrthogonal(List<List<T>> vectors) throws PetascopeException {
 
@@ -172,6 +173,7 @@ public class Vectors {
      * @param dimension The dimensionality of the vector
      * @param unitIndex The position of the non-zero component (first is 0)
      * @return An array of `dimension` components, with `unitIndex` component equal to 1 (0 otherwise).
+     * @throws PetascopeException
      */
     public static Integer[] unitVector(int dimension, int unitIndex) throws PetascopeException {
         

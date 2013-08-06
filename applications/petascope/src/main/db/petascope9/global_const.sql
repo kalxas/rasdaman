@@ -37,19 +37,35 @@
 CREATE OR REPLACE FUNCTION set_constants() RETURNS void AS 
 $$
     -- General
-    SELECT cset('OCTET_STREAM_MIME',    'application/x-octet-stream');
     SELECT cset('GMLCOV_METADATA_TYPE', 'gmlcov');
-    SELECT cset('NAME_PATTERN',        E'^[_A-Za-z][-._A-Za-z0-9]*$');
-    SELECT cset( 'UOM_PATTERN',        E'^[^: \\n\\r\\t]+$');
     SELECT cset('ID_FIELD',             'id');
-    SELECT cset('UOM_PURE_NUM',         '10' || chr(x'2070'::int));
+    SELECT cset('NAME_PATTERN',        E'^[_A-Za-z][-._A-Za-z0-9]*$');
+    SELECT cset('OCTET_STREAM_MIME',    'application/x-octet-stream');
     SELECT cset('SWE_QUANTITY_FIELD',   'Quantity');
+    SELECT cset('UOM_PATTERN',        E'^[^: \\n\\r\\t]+$');
+    SELECT cset('UOM_PURE_NUM',         '10' || chr(x'2070'::int));
+    -- Service and service provider metadata
+    SELECT cset('WCS_SERVICE_TYPE',             'OGC WCS');
+    SELECT cset('WCS_SERVICE_TYPE_VERSIONS',    '2.0.0'); -- use commas for different supported versions
+    SELECT cset('WCS_SERVICE_TITLE',            'rasdaman');
+    SELECT cset('WCS_SERVICE_ABSTRACT',         'rasdaman server - free download from www.rasdaman.org');
+    SELECT cset('WCS_PROVIDER_NAME',            'Jacobs University Bremen');
+    SELECT cset('WCS_PROVIDER_SITE',            'http://rasdaman.org/');
+    SELECT cset('WCS_PROVIDER_CONTACT_NAME',    'Prof. Dr. Peter Baumann');
+    SELECT cset('WCS_PROVIDER_CONTACT_CITY',    'Bremen');
+    SELECT cset('WCS_PROVIDER_CONTACT_PCODE',   '28717');
+    SELECT cset('WCS_PROVIDER_CONTACT_COUNTRY', 'Germany');
+    SELECT cset('WCS_PROVIDER_CONTACT_EMAIL',   'p.baumann@jacobs-university.de');
+    SELECT cset('WCS_PROVIDER_CONTACT_ROLE',    'Project Leader');
     -- CRS URIs
-    SELECT cset('SECORE_ENTRY',    'http://kahlua.eecs.jacobs-university.de:8080/def/'); -- TODO use @SECORE
-    SELECT cset('CRS_ANSI',         cget('SECORE_ENTRY') || 'crs/OGC/0.1/ANSI-Date');
-    SELECT cset('CRS_INDEX_1D',     cget('SECORE_ENTRY') || 'crs/OGC/0.1/Index1D');
-    SELECT cset('CRS_INDEX_2D',     cget('SECORE_ENTRY') || 'crs/OGC/0.1/Index2D');
-    SELECT cset('CRS_INDEX_3D',     cget('SECORE_ENTRY') || 'crs/OGC/0.1/Index3D');
+    SELECT cset('KAHLUA_SECORE_ENTRY',   'http://kahlua.eecs.jacobs-university.de:8080/def/');
+    SELECT cset('CRS_ANSI',         cget('KAHLUA_SECORE_ENTRY') || 'crs/OGC/0.1/ANSI-Date');
+    SELECT cset('CRS_INDEX_1D',     cget('KAHLUA_SECORE_ENTRY') || 'crs/OGC/0.1/Index1D');
+    SELECT cset('CRS_INDEX_2D',     cget('KAHLUA_SECORE_ENTRY') || 'crs/OGC/0.1/Index2D');
+    SELECT cset('CRS_INDEX_3D',     cget('KAHLUA_SECORE_ENTRY') || 'crs/OGC/0.1/Index3D');
+    SELECT cset('CRS_EOBSTEST_T',   cget('KAHLUA_SECORE_ENTRY') || 'crs/OGC/0.1/Temporal?epoch="1950-01-01T00:00:00"&uom="d"');
+    SELECT cset('CRS_WGS84_2D',     cget('KAHLUA_SECORE_ENTRY') || 'crs/EPSG/0/4326');
+    SELECT cset('CRS_WGS84_3D',     cget('KAHLUA_SECORE_ENTRY') || 'crs/EPSG/0/4327');
     -- GML coverage types
     SELECT cset('GML_ABSTRACT_COV',              'AbstractCoverage');
     SELECT cset('GML_ABSTRACT_DISCRETE_COV',     'AbstractDiscreteCoverage');
@@ -165,7 +181,7 @@ $$
           SELECT cset('PS9_CRS_URI',                         'uri');
     SELECT cset('TABLE_PS9_DOMAINSET',                        cget('PS9_PREFIX') || '_domain_set');
           SELECT cset('PS9_DOMAINSET_COVERAGE_ID',           'coverage_id');
-          SELECT cset('PS9_DOMAINSET_CRS_ID',                'native_crs_id');
+          SELECT cset('PS9_DOMAINSET_CRS_IDS',               'native_crs_ids');
     SELECT cset('TABLE_PS9_GRIDDED_DOMAINSET',                cget('PS9_PREFIX') || '_gridded_domain_set');
           SELECT cset('PS9_GRIDDED_DOMAINSET_COVERAGE_ID',   'coverage_id');
           SELECT cset('PS9_GRIDDED_DOMAINSET_ORIGIN',        'grid_origin');
@@ -173,6 +189,8 @@ $$
           SELECT cset('PS9_GRID_AXIS_ID',                    'id');
           SELECT cset('PS9_GRID_AXIS_COVERAGE_ID',           'gridded_coverage_id');
           SELECT cset('PS9_GRID_AXIS_RASDAMAN_ORDER',        'rasdaman_order');
+    SELECT cset('TABLE_PS9_DESCRIPTION',                      cget('PS9_PREFIX') || '_description');
+          SELECT cset('PS9_DESCRIPTION_KEYWORD_GROUP_IDS',    'keyword_group_ids');
     SELECT cset('TABLE_PS9_EXTRA_METADATA',                   cget('PS9_PREFIX') || '_extra_metadata');
           SELECT cset('PS9_EXTRA_METADATA_COVERAGE_ID',      'coverage_id');
           SELECT cset('PS9_EXTRA_METADATA_TYPE',             'metadata_type_id');
@@ -183,6 +201,11 @@ $$
     SELECT cset('TABLE_PS9_GML_SUBTYPE',                      cget('PS9_PREFIX') || '_gml_subtype');
           SELECT cset('PS9_GML_SUBTYPE_ID',                  'id');
           SELECT cset('PS9_GML_SUBTYPE_SUBTYPE',             'subtype');
+    SELECT cset('TABLE_PS9_KEYWORD',                          cget('PS9_PREFIX') || '_keyword');
+          SELECT cset('PS9_KEYWORD_ID',                      'id');
+    SELECT cset('TABLE_PS9_KEYWORD_GROUP',                    cget('PS9_PREFIX') || '_keyword_group');
+          SELECT cset('PS9_KEYWORD_GROUP_ID',                 'id');
+          SELECT cset('PS9_KEYWORD_GROUP_KEYWORD_IDS',        'keyword_ids');
     SELECT cset('TABLE_PS9_INTERVAL',                         cget('PS9_PREFIX') || '_interval');
           SELECT cset('PS9_INTERVAL_ID',                     'id');
           SELECT cset('PS9_INTERVAL_MIN',                    'min');
@@ -222,6 +245,8 @@ $$
           SELECT cset('PS9_RECTILINEAR_AXIS_ID',             'grid_axis_id');
           SELECT cset('PS9_RECTILINEAR_AXIS_OFFSET_VECTOR',  'offset_vector');
     SELECT cset('TABLE_PS9_SERVICE_IDENTIFICATION',           cget('PS9_PREFIX') || '_service_identification');
+          SELECT cset('PS9_SERVICE_IDENTIFICATION_ID',       'id');
+          SELECT cset('PS9_SERVICE_IDENTIFICATION_TYPE',     'type');
     SELECT cset('TABLE_PS9_SERVICE_PROVIDER',                 cget('PS9_PREFIX') || '_service_provider');
     SELECT cset('TABLE_PS9_UOM',                              cget('PS9_PREFIX') || '_uom');
           SELECT cset('PS9_UOM_ID',                          'id');

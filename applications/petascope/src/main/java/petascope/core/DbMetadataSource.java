@@ -23,6 +23,7 @@ package petascope.core;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -47,6 +48,8 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
 import petascope.exceptions.SecoreException;
+import petascope.ows.Description;
+import petascope.ows.ServiceProvider;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
@@ -133,22 +136,35 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String RANGE_DATATYPE_NAME      = "name";
     public static final String RANGE_DATATYPE_MEANING   = "meaning";
     
-    /* WCS Service-related tables */
-    // TABLE_SERVICE_IDENTIFICATION : metadata for the WCS service
-    public static final String TABLE_SERVICE_IDENTIFICATION         = TABLES_PREFIX + "service_identification";
-    public static final String SERVICE_IDENTIFICATION_ID            = "id";
-    public static final String SERVICE_IDENTIFICATION_TITLE         = "title";
-    public static final String SERVICE_IDENTIFICATION_ABSTRACT      = "abstract";
+    /* Transversal OWS-related tables */
+    // TABLE_DESCRIPTION : ows:Description used in coverage summaries and service identification
+    public static final String TABLE_DESCRIPTION                    = TABLES_PREFIX + "description";
+    public static final String DESCRIPTION_ID                       = "id";
+    public static final String DESCRIPTION_TITLES                   = "titles";
+    public static final String DESCRIPTION_ABSTRACTS                = "abstracts";
+    public static final String DESCRIPTION_KEYWORD_GROUP_IDS        = "keyword_group_ids";
     // TABLE_KEYWORD : keywords for the WCS service identification
     public static final String TABLE_KEYWORD                        = TABLES_PREFIX + "keyword";
     public static final String KEYWORD_ID                           = "id";
     public static final String KEYWORD_VALUE                        = "value";
-    public static final String KEYWORD_TYPE                         = "type";
-    public static final String KEYWORD_TYPE_CODESPACE               = "type_codespace";
-    // TABLE_SERVICE_KEYWORD : association table between TABLE_SERVICE_IDENTIFICATION and TABLE_KEYWORD
-    public static final String TABLE_SERVICE_KEYWORD                = TABLES_PREFIX + "service_keyword";
-    public static final String SERVICE_KEYWORD_SID                  = "service_id";
-    public static final String SERVICE_KEYWORD_KID                  = "keyword_id";
+    public static final String KEYWORD_LANGUAGE                     = "language";
+    // TABLE_KEYWORD_GROUP
+    public static final String TABLE_KEYWORD_GROUP                  = TABLES_PREFIX + "keyword_group";
+    public static final String KEYWORD_GROUP_ID                     = "id";
+    public static final String KEYWORD_GROUP_KEYWORD_IDS            = "keyword_ids";
+    public static final String KEYWORD_GROUP_TYPE                   = "type";
+    public static final String KEYWORD_GROUP_TYPE_CODESPACE         = "type_codespace";
+    
+    /* WCS Service-related tables */
+    // TABLE_SERVICE_IDENTIFICATION : metadata for the WCS service
+    public static final String TABLE_SERVICE_IDENTIFICATION          = TABLES_PREFIX + "service_identification";
+    public static final String SERVICE_IDENTIFICATION_ID             = "id";
+    public static final String SERVICE_IDENTIFICATION_TYPE           = "type";
+    public static final String SERVICE_IDENTIFICATION_TYPE_CODESPACE = "type_codespace";
+    public static final String SERVICE_IDENTIFICATION_TYPE_VERSIONS  = "type_versions";
+    public static final String SERVICE_IDENTIFICATION_DESCRIPTION_ID = "description_id";
+    public static final String SERVICE_IDENTIFICATION_FEES           = "fees";
+    public static final String SERVICE_IDENTIFICATION_CONSTRAINTS    = "access_constraints";
     // TABLE_SERVICE_PROVIDER : metadata for the WCS service provider
     public static final String TABLE_SERVICE_PROVIDER               = TABLES_PREFIX + "service_provider";
     public static final String SERVICE_PROVIDER_ID                  = "id";
@@ -157,12 +173,12 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String SERVICE_PROVIDER_CONTACT_NAME        = "contact_individual_name";
     public static final String SERVICE_PROVIDER_CONTACT_POSITION    = "contact_position_name";
     public static final String SERVICE_PROVIDER_CONTACT_PHONE       = "contact_phone";
-    public static final String SERVICE_PROVIDER_CONTACT_DELIVERY    = "contact_delivery_point";
+    public static final String SERVICE_PROVIDER_CONTACT_DELIVERY    = "contact_delivery_points";
     public static final String SERVICE_PROVIDER_CONTACT_CITY        = "contact_city";
     public static final String SERVICE_PROVIDER_CONTACT_AREA        = "contact_administrative_area";
     public static final String SERVICE_PROVIDER_CONTACT_PCODE       = "contact_postal_code";
     public static final String SERVICE_PROVIDER_CONTACT_COUNTRY     = "contact_country";
-    public static final String SERVICE_PROVIDER_CONTACT_EMAIL       = "contact_email_address";
+    public static final String SERVICE_PROVIDER_CONTACT_EMAIL       = "contact_email_addresses";
     public static final String SERVICE_PROVIDER_CONTACT_HOURS       = "contact_hours_of_service";
     public static final String SERVICE_PROVIDER_CONTACT_INSTRUCTIONS = "contact_instructions";
     public static final String SERVICE_PROVIDER_CONTACT_ROLE        = "contact_role";
@@ -174,6 +190,7 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String COVERAGE_NAME                    = "name";
     public static final String COVERAGE_GML_TYPE_ID             = "gml_type_id";
     public static final String COVERAGE_NATIVE_FORMAT_ID        = "native_format_id";
+    public static final String COVERAGE_DESCRIPTION_ID          = "description_id";
     // TABLE_EXTRAMETADATA : descriptive metadata 
     public static final String TABLE_EXTRAMETADATA              = TABLES_PREFIX + "extra_metadata";
     public static final String EXTRAMETADATA_ID                 = "id";
@@ -184,7 +201,7 @@ public class DbMetadataSource implements IMetadataSource {
     // TABLE_DOMAINSET : common geometric information for any type of coverage
     public static final String TABLE_DOMAINSET                  = TABLES_PREFIX + "domain_set";
     public static final String DOMAINSET_COVERAGE_ID            = "coverage_id";
-    public static final String DOMAINSET_NATIVE_CRS_ID          = "native_crs_id";
+    public static final String DOMAINSET_NATIVE_CRS_IDS         = "native_crs_ids";
     // TABLE_GRIDDED_DOMAINSET : geometry information specific to gridded coverages
     public static final String TABLE_GRIDDED_DOMAINSET          = TABLES_PREFIX + "gridded_domain_set";
     public static final String GRIDDED_DOMAINSET_COVERAGE_ID    = "coverage_id";  
@@ -235,6 +252,7 @@ public class DbMetadataSource implements IMetadataSource {
     
     /* Contents of (static) dictionary-tables */
     // TODO: map DB tables to dedicated classes instead of Map objects
+    private ServiceMetadata sMeta;
     private Map<Integer, String> crss;
     private Map<Integer, String> extraMetadataTypes;
     private Map<Integer, String> gmlSubTypes;
@@ -274,11 +292,13 @@ public class DbMetadataSource implements IMetadataSource {
     
     /*------------------------------------------------*/
     
-    public DbMetadataSource(String driver, String url, String user, String pass) throws PetascopeException, SecoreException {
+    public DbMetadataSource(String driver, String url, String user, String pass)
+            throws PetascopeException, SecoreException {
         this(driver, url, user, pass, true);
     }
     
-    public DbMetadataSource(String driver, String url, String user, String pass, boolean checkAtInit) throws PetascopeException, SecoreException {
+    public DbMetadataSource(String driver, String url, String user, String pass, boolean checkAtInit)
+            throws PetascopeException, SecoreException {
         try {
             this.driver = driver;
             Class.forName(driver).newInstance();
@@ -309,6 +329,153 @@ public class DbMetadataSource implements IMetadataSource {
             s = conn.createStatement();
             String sqlQuery; // buffer for SQL queries
             
+            /* TABLE_DESCRIPTION */
+            // titles/abstracts/keywords
+            // NOTE: do not read them now: there might be unused descriptions in PS9_DESCRIPTIONS.
+
+
+            // Service metadata: init
+            sMeta = new ServiceMetadata();
+
+            /* TABLE_SERVICE_IDENTIFICATION */
+            sqlQuery =
+                    " SELECT " + SERVICE_IDENTIFICATION_ID             + ", "
+                               + SERVICE_IDENTIFICATION_TYPE           + ", "
+                               + SERVICE_IDENTIFICATION_TYPE_CODESPACE + ", "
+                               + SERVICE_IDENTIFICATION_TYPE_VERSIONS  + ", "
+                               + SERVICE_IDENTIFICATION_DESCRIPTION_ID + ", "
+                               + SERVICE_IDENTIFICATION_FEES           + ", "
+                               + SERVICE_IDENTIFICATION_CONSTRAINTS    +
+                    " FROM "   + TABLE_SERVICE_IDENTIFICATION          +
+                    " WHERE "  + SERVICE_IDENTIFICATION_TYPE + " ILIKE '%WCS%';"
+                    ;
+            log.debug("SQL query: " + sqlQuery);
+            ResultSet r = s.executeQuery(sqlQuery);
+            if (r.next()) {
+                String serviceType        = r.getString(SERVICE_IDENTIFICATION_TYPE);
+                String typeCodespace      = r.getString(SERVICE_IDENTIFICATION_TYPE_CODESPACE);
+                List<String> typeVersions = sqlArray2StringList(r.getArray(SERVICE_IDENTIFICATION_TYPE_VERSIONS));
+                sMeta.addServiceIdentification(serviceType, typeCodespace, typeVersions);
+                // Additional optional elements
+                Integer serviceIdentId = r.getInt(SERVICE_IDENTIFICATION_ID); // to be effectively used in case multiple services will be allowed.
+                Integer descriptionId  = r.getInt(SERVICE_IDENTIFICATION_DESCRIPTION_ID);
+                String fees            = r.getString(SERVICE_IDENTIFICATION_FEES);
+                Array constraints      = r.getArray(SERVICE_IDENTIFICATION_CONSTRAINTS);
+                // Add to ServiceMetadata
+                if (descriptionId != 0) {
+                    // add method for reading a description
+                    Description serviceDescription = readDescription(descriptionId);
+                    sMeta.getIdentification().setDescription(serviceDescription);
+                }
+                if (null != fees) {
+                    sMeta.getIdentification().setFees(fees);
+                }
+                if (null != constraints) {
+                    ResultSet constraintsRs = constraints.getResultSet();
+                    while (constraintsRs.next()) {
+                        sMeta.getIdentification().addAccessConstraint(constraintsRs.getString(2));
+                    }
+                }
+            }
+
+
+            /* TABLE_SERVICE_PROVIDER */
+            sqlQuery =
+                    " SELECT " + SERVICE_PROVIDER_NAME                 + ", "
+                               + SERVICE_PROVIDER_SITE                 + ", "
+                               + SERVICE_PROVIDER_CONTACT_NAME         + ", "
+                               + SERVICE_PROVIDER_CONTACT_POSITION     + ", "
+                               + SERVICE_PROVIDER_CONTACT_PHONE        + ", "
+                               + SERVICE_PROVIDER_CONTACT_DELIVERY     + ", "
+                               + SERVICE_PROVIDER_CONTACT_CITY         + ", "
+                               + SERVICE_PROVIDER_CONTACT_AREA         + ", "
+                               + SERVICE_PROVIDER_CONTACT_PCODE        + ", "
+                               + SERVICE_PROVIDER_CONTACT_COUNTRY      + ", "
+                               + SERVICE_PROVIDER_CONTACT_EMAIL        + ", "
+                               + SERVICE_PROVIDER_CONTACT_HOURS        + ", "
+                               + SERVICE_PROVIDER_CONTACT_INSTRUCTIONS + ", "
+                               + SERVICE_PROVIDER_CONTACT_ROLE         +
+                    " FROM "   + TABLE_SERVICE_PROVIDER;
+                    ;
+            log.debug("SQL query: " + sqlQuery);
+            r = s.executeQuery(sqlQuery);
+            if (r.next()) {
+                String providerName = r.getString(SERVICE_PROVIDER_NAME); // mandatory
+                sMeta.addServiceProvider(providerName);
+                // Optional fields
+                String providerSite = r.getString(SERVICE_PROVIDER_SITE);
+                if (null != providerSite) {
+                    sMeta.getProvider().setSite(providerSite);
+                }
+                //
+                ServiceProvider sProvider = sMeta.getProvider();
+                String contactName = r.getString(SERVICE_PROVIDER_CONTACT_NAME);
+                if (null != contactName) {
+                    sProvider.getContact().setIndividualName(contactName);
+                }
+                //
+                String contactPosition = r.getString(SERVICE_PROVIDER_CONTACT_POSITION);
+                if (null != contactPosition) {
+                    sProvider.getContact().setPositionName(contactPosition);
+                }
+                //
+                String contactPhone = r.getString(SERVICE_PROVIDER_CONTACT_PHONE);
+                if (null != contactPhone) {
+                    sProvider.getContact().getContactInfo().setPhone(contactPhone);
+                }
+                //
+                Array deliveries =  r.getArray(SERVICE_PROVIDER_CONTACT_DELIVERY);
+                if (null != deliveries) {
+                    ResultSet deliveriesRs = deliveries.getResultSet();
+                    while (deliveriesRs.next()) {
+                        sProvider.getContact().getContactInfo().getAddress().addDeliveryPoint(deliveriesRs.getString(2));
+                    }
+                }
+                //
+                String contactCity = r.getString(SERVICE_PROVIDER_CONTACT_CITY);
+                if (null != contactCity) {
+                    sProvider.getContact().getContactInfo().getAddress().setCity(contactCity);
+                }
+                //
+                String contactArea = r.getString(SERVICE_PROVIDER_CONTACT_AREA);
+                if (null != contactArea) {
+                    sProvider.getContact().getContactInfo().getAddress().setAdministrativeArea(contactArea);
+                }
+                //
+                String contactPostalCode = r.getString(SERVICE_PROVIDER_CONTACT_PCODE);
+                if (null != contactPostalCode) {
+                    sProvider.getContact().getContactInfo().getAddress().setPostalCode(contactPostalCode);
+                }
+                //
+                String contactCountry = r.getString(SERVICE_PROVIDER_CONTACT_COUNTRY);
+                if (null != contactCountry) {
+                    sProvider.getContact().getContactInfo().getAddress().setCountry(contactCountry);
+                }
+                //
+                Array emails = r.getArray(SERVICE_PROVIDER_CONTACT_EMAIL);
+                if (null != emails) {
+                    ResultSet emailsRs = emails.getResultSet();
+                    while (emailsRs.next()) {
+                        sProvider.getContact().getContactInfo().getAddress().addEmailAddress(emailsRs.getString(2));
+                    }
+                }
+                //
+                String contactHours = r.getString(SERVICE_PROVIDER_CONTACT_HOURS);
+                if (null != contactHours) {
+                    sProvider.getContact().getContactInfo().setHoursOfService(contactHours);
+                }
+                //
+                String contactInstructions = r.getString(SERVICE_PROVIDER_CONTACT_INSTRUCTIONS);
+                if (null != contactInstructions) {
+                    sProvider.getContact().getContactInfo().setInstructions(contactInstructions);
+                }
+                //
+                String contactRole = r.getString(SERVICE_PROVIDER_CONTACT_ROLE);
+                if (null != contactRole) {
+                    sProvider.getContact().setRole(contactRole);
+                }
+            }
+
             /* TABLE_EXTRAMETADATA_TYPE */
             extraMetadataTypes    = new HashMap<Integer, String>();
             revExtraMetadataTypes = new HashMap<String, Integer>();
@@ -318,7 +485,7 @@ public class DbMetadataSource implements IMetadataSource {
                     " FROM "   + TABLE_EXTRAMETADATA_TYPE
                     ;
             log.debug("SQL query: " + sqlQuery);
-            ResultSet r = s.executeQuery(sqlQuery);
+            r = s.executeQuery(sqlQuery);
             while (r.next()) {
                 extraMetadataTypes.put(   r.getInt(EXTRAMETADATA_TYPE_ID),      r.getString(EXTRAMETADATA_TYPE_TYPE));
                 revExtraMetadataTypes.put(r.getString(EXTRAMETADATA_TYPE_TYPE), r.getInt(EXTRAMETADATA_TYPE_ID));
@@ -716,7 +883,7 @@ public class DbMetadataSource implements IMetadataSource {
             DomainElement     dom;
             List<CellDomainElement> cellDomainElements = new ArrayList<CellDomainElement>(r.getFetchSize());
             sqlQuery =
-                    " SELECT " + DOMAINSET_NATIVE_CRS_ID +
+                    " SELECT " + DOMAINSET_NATIVE_CRS_IDS +
                     " FROM "   + TABLE_DOMAINSET         +
                     " WHERE "  + DOMAINSET_COVERAGE_ID   + "=" + coverageId
                     ;
@@ -730,7 +897,7 @@ public class DbMetadataSource implements IMetadataSource {
             List<Pair<CrsDefinition.Axis,String>> crsAxes = new ArrayList<Pair<CrsDefinition.Axis,String>>();
             // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute}, 
             // of indexes 1 and 2 respectively:
-            ResultSet rs = r.getArray(DOMAINSET_NATIVE_CRS_ID).getResultSet();
+            ResultSet rs = r.getArray(DOMAINSET_NATIVE_CRS_IDS).getResultSet();
             while (rs.next()) {
                 log.debug("CRS id: " + rs.getInt(2)); 
                 String uri = crss.get(rs.getInt(2));
@@ -1271,8 +1438,8 @@ public class DbMetadataSource implements IMetadataSource {
         return result;
     }
     
-    /** Update metadata for an existing coverage. All information may change (including
-     * name), but the ID of the tuple in PS_Coverage will stay the same.
+    /** Update metadata for an existing coverage.
+     * All information may change (including name), but the ID of the tuple in PS_Coverage will stay the same.
      *
      * @param meta CoverageMetadata object, container of the new information.
      * @param commit True if we want to commit immediately, false to delay commit indefinitely
@@ -1386,6 +1553,14 @@ public class DbMetadataSource implements IMetadataSource {
         }
 
         return parentType;
+    }
+
+    /**
+     * Metadata of the WCS service fetched from petascopedb tables.
+     * @return  The object with all the user-defined service metadata
+     */
+    public ServiceMetadata getServiceMetadata() {
+        return sMeta;
     }
 
     /**
@@ -1706,8 +1881,9 @@ public class DbMetadataSource implements IMetadataSource {
     /**
      * Get the lower and upper bound of the specified coverage's dimension in pixel coordinates.
      * PURPOSE: remove redundant pixel-domain dimensions info in the petascopedb.
-     * @param collName     The coverage name.
-     * @param dimType      The dimension of collName of which the extent.
+     * @param collName     The collection name
+     * @param collOid      The OID of the collection
+     * @param rasdamanAxisOrder The order of the axis to be looked for
      * @return             The minimum and maximum pixel values of the array.
      * @throws PetascopeException 
      */
@@ -1763,5 +1939,118 @@ public class DbMetadataSource implements IMetadataSource {
                     "Metadata database error", sqle);
         }
         return r;
+    }
+
+    /**
+     * Turns a SQL array to Java list (integer values case)
+     * @param sqlArray
+     * @return
+     * @throws SQLException
+     */
+    private List<Integer> sqlArray2IntList(Array sqlArray) throws SQLException {
+        List<Integer> outList = new ArrayList<Integer>();
+        if (null != sqlArray) {
+            ResultSet arrayRs = sqlArray.getResultSet();
+            while (arrayRs.next()) {
+                outList.add(arrayRs.getInt(2));
+            }
+        }
+        return outList;
+    }
+
+    /**
+     * Turns a SQL array to Java list (strings case)
+     * @param sqlArray
+     * @return
+     * @throws SQLException
+     */
+    private List<String> sqlArray2StringList(Array sqlArray) throws SQLException {
+        List<String> outList = new ArrayList<String>();
+        if (null != sqlArray) {
+            ResultSet arrayRs = sqlArray.getResultSet();
+            while (arrayRs.next()) {
+                outList.add(arrayRs.getString(2));
+            }
+        }
+        return outList;
+    }
+
+    private Description readDescription(Integer descriptionId) throws SQLException {
+
+        Description owsDescription = new Description();
+        Statement s = conn.createStatement();
+        ResultSet r;
+        String sqlQuery;
+
+        /* PS9_DESCRIPTION */
+        sqlQuery =
+                " SELECT " + DESCRIPTION_TITLES            + ", "
+                           + DESCRIPTION_ABSTRACTS         + ", "
+                           + DESCRIPTION_KEYWORD_GROUP_IDS +
+                " FROM "   + TABLE_DESCRIPTION +
+                " WHERE "  + DESCRIPTION_ID    + "=" + descriptionId
+                ;
+        log.debug("SQL query: " + sqlQuery);
+        r = s.executeQuery(sqlQuery);
+        if (r.next()) {
+            // Get titles and abstracts
+            List<String> titles    = sqlArray2StringList(r.getArray(DESCRIPTION_TITLES));
+            for (String title : titles) {
+                owsDescription.addTitle(title);
+            }
+            List<String> abstracts = sqlArray2StringList(r.getArray(DESCRIPTION_ABSTRACTS));
+            for (String descrAbstract : abstracts) {
+                owsDescription.addAbstract(descrAbstract);
+            }
+            
+            // Get keywords
+            List<Integer> keywordGroupIds = sqlArray2IntList(r.getArray(DESCRIPTION_KEYWORD_GROUP_IDS));
+            for (Integer groupId : keywordGroupIds) {
+
+                /* PS9_KEYWORD_GROUP */        
+                sqlQuery = 
+                        " SELECT " + KEYWORD_GROUP_KEYWORD_IDS    + ", "
+                                   + KEYWORD_GROUP_TYPE           + ", "
+                                   + KEYWORD_GROUP_TYPE_CODESPACE +
+                        " FROM "   + TABLE_KEYWORD_GROUP +
+                        " WHERE "  + KEYWORD_GROUP_ID    + "=" + groupId
+                        ;
+                log.debug("SQL query: " + sqlQuery);
+                ResultSet rr = s.executeQuery(sqlQuery);
+                List<Pair<String,String>> keysAndLangs = new ArrayList<Pair<String,String>>();
+                while (rr.next()) {
+                    // type and type-codespace
+                    String groupType     = rr.getString(KEYWORD_GROUP_TYPE);
+                    String typeCodespace = rr.getString(KEYWORD_GROUP_TYPE_CODESPACE);
+                    List<Integer> keywordIds = sqlArray2IntList(rr.getArray(KEYWORD_GROUP_KEYWORD_IDS));
+
+                    for (Integer keyId : keywordIds) {
+                        // keywords
+                        Statement ss = conn.createStatement();
+
+                        /* PS9_KEYWORD */
+                        sqlQuery =
+                                " SELECT " + KEYWORD_VALUE    + ", "
+                                           + KEYWORD_LANGUAGE +
+                                " FROM "   + TABLE_KEYWORD    +
+                                " WHERE "  + KEYWORD_ID + "=" + keyId
+                                ;
+                        log.debug("SQL query: " + sqlQuery);
+                        ResultSet rrr = ss.executeQuery(sqlQuery);
+                        while (rrr.next()) {
+                            String kValue  = rrr.getString(KEYWORD_VALUE);
+                            String kLang   = rrr.getString(KEYWORD_LANGUAGE);
+                            // Add this keyword
+                            keysAndLangs.add(Pair.of(kValue, kLang));
+                        }
+                    }
+
+                    // Add the group of keywords
+                    owsDescription.addKeywordGroup(keysAndLangs, groupType, typeCodespace);
+                }
+            }
+        } // else: no harm, Descriptions are optional
+
+        return owsDescription;
     }
 }

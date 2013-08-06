@@ -124,7 +124,7 @@ function import_eobs()
   # describe the geo (`index` in this case..) domain
   $PSQL -c "INSERT INTO ps9_crs (uri) VALUES ('$c_crs_t');" > /dev/null # no harm if duplicate error is thrown
   $PSQL -c "INSERT INTO ps9_crs (uri) VALUES ('$c_crs_s');" > /dev/null # 
-  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_id) \
+  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[\
               (SELECT id FROM ps9_crs WHERE uri='$c_crs_t'),
               (SELECT id FROM ps9_crs WHERE uri='$c_crs_s')]\
@@ -216,7 +216,7 @@ function import_rgb()
 
   # describe the geo (`index` in this case..) domain
   $PSQL -c "INSERT INTO ps9_crs (uri) VALUES ('$c_crs');" > /dev/null # no harm if duplicate error is thrown
-  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_id) \
+  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[(SELECT id FROM ps9_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
             VALUES ($c_id, '{$min_x_geo_coord, $max_y_geo_coord}');" > /dev/null || exit $RC_ERROR
@@ -288,7 +288,7 @@ function import_mr()
 
   # describe the geo (`index` in this case..) domain
   $PSQL -c "INSERT INTO ps9_crs (uri) VALUES ('$c_crs');" > /dev/null # no harm if duplicate error is thrown
-  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_id) \
+  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[(SELECT id FROM ps9_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
             VALUES ($c_id, '{$min_x_geo_coord, $max_y_geo_coord}');" > /dev/null || exit $RC_ERROR
@@ -392,7 +392,7 @@ function import_irr_cube_1()
 
   # describe the geo (`index` in this case..) domain
   $PSQL -c "INSERT INTO ps9_crs (uri) VALUES ('$c_crs');" > /dev/null # no harm if duplicate error is thrown
-  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_id) \
+  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[(SELECT id FROM ps9_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
             VALUES ($c_id, '{$min_x_geo_coord, $min_y_geo_coord, $min_z_geo_coord}');" > /dev/null || exit $RC_ERROR
@@ -473,7 +473,7 @@ function import_pointcloud_data()
 
   PC_DATASET="Parksmall" 
   PC_FILE="Parksmall.xyz"
-  PC_CRS="http://www.opengis.net/def/crs/EPSG/0/4327"
+  PC_CRS="http://kahlua.eecs.jacobs-university.de:8080/def/crs/EPSG/0/4327"
 
   id=`$PSQL -c  "select id from ps9_coverage where name='$PC_DATASET'" | head -3 | tail -1`
   test "$id" != "0"

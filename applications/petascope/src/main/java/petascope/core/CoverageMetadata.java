@@ -42,14 +42,12 @@ import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
 import petascope.util.WcpsConstants;
-import petascope.wcps.server.core.AxisIterator;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.InterpolationMethod;
 import petascope.wcps.server.core.RangeElement;
 import petascope.wcs.server.core.TimeString;
-import petascope.wcs2.templates.Templates;
 
 /**
  * This class implements coverage metadata. For information on what each field

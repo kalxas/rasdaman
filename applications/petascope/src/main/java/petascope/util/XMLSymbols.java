@@ -115,17 +115,41 @@ public interface XMLSymbols {
     String LABEL_RANGECOMPONENT = "rangeComponent";
 
     // ows
+    // // Service Identification
     String LABEL_SERVICE_IDENTIFICATION = "ServiceIdentification";
-    String LABEL_TITLE = "ServiceIdentification";
-    String LABEL_ABSTRACT = "ServiceIdentification";
+    String LABEL_TITLE = "Title";
+    String LABEL_ABSTRACT = "Abstract";
+    String LABEL_KEYWORDS = "Keywords";
+    String LABEL_KEYWORD = "Keyword";
+    String LABEL_TYPE = "Type";
     String LABEL_SERVICE_TYPE = "ServiceType";
     String LABEL_SERVICE_TYPE_VERSION = "ServiceTypeVersion";
+    String LABEL_FEES = "Fees";
+    String LABEL_ACCESS_CONSTRAINTS = "AccessConstraints";
     String LABEL_PROFILE = "Profile";
+    // // Service Provider
     String LABEL_SERVICE_PROVIDER = "ServiceProvider";
     String LABEL_PROVIDER_NAME = "ProviderName";
     String LABEL_PROVIDER_SITE = "ProviderSite";
+    // // // Service Contact
     String LABEL_SERVICE_CONTACT = "ServiceContact";
+    String LABEL_INDIVIDUAL_NAME = "IndividualName";
     String LABEL_POSITION_NAME = "PositionName";
+    String LABEL_ROLE = "Role";
+    // // // // Contact Info
+    String LABEL_CONTACT_INFO = "ContactInfo";
+    String LABEL_PHONE = "Phone";
+    String LABEL_HOURS_OF_SERVICE = "HoursOfService";
+    String LABEL_CONTACT_INSTRUCTIONS = "ContactInstructions";
+    // // // // // Address
+    String LABEL_ADDRESS = "Address";
+    String LABEL_DELIVERY_POINT = "DeliveryPoint";
+    String LABEL_CITY = "City";
+    String LABEL_ADMINISTRATIVE_AREA = "AdministrativeArea";
+    String LABEL_POSTAL_CODE = "PostalCode";
+    String LABEL_COUNTRY = "Country";
+    String LABEL_EMAIL_ADDRESS = "ElectronicMailAddress";
+    // // OperationsMetadata
     String LABEL_OPERATIONS_METADATA = "OperationsMetadata";
     String LABEL_OPERATION = "Operation";
     String LABEL_DCP = "DCP";
@@ -185,6 +209,8 @@ public interface XMLSymbols {
     String ATT_SERVICE = "service";
     String ATT_VERSION = "version";
     String ATT_SCHEMA_LOCATION = "schemaLocation";
+    String ATT_CODESPACE = "codeSpace";
+    String ATT_LANG = "lang";
     
     // crs-extension
     String ATT_SUPPORTED_CRS = "supportedCrs";

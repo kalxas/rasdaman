@@ -10,10 +10,10 @@ import ntpath
 MAX_BATCH_INSERT = 100
 DB_TABLE_PREFIX = "ps9"
 
-DB_NAME = "petascopedb" 
+DB_NAME = "petascopedb"
 HOST_NAME = "localhost"
-USER_NAME = "postgres"
-PASSW = "postgres"
+USER_NAME = "petauser"
+PASSW = "petapasswd"
 
 conn = psycopg2.connect("dbname=%s  host=%s user=%s password=%s" % (DB_NAME, HOST_NAME, USER_NAME, PASSW))
 cursor = conn.cursor()
@@ -75,7 +75,7 @@ else:
 		conn.commit()	
 		
 		# Setting the crs for the new coverage to index3d (4)
-		#insert_stmt = """INSERT INTO ps9_domain_set(coverage_id, native_crs_id ) VALUES(%d, '{4}');""" % (coverage_id)
+		#insert_stmt = """INSERT INTO ps9_domain_set(coverage_id, native_crs_ids ) VALUES(%d, '{4}');""" % (coverage_id)
 		#cursor.execute(insert_stmt);
 		#conn.commit()
 		

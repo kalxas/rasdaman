@@ -36,20 +36,38 @@
 
 
 -- Default service and service provider metadata:
-INSERT INTO ps9_service_identification (title, abstract) VALUES ('rasdaman', 'rasdaman server - free download from www.rasdaman.org');
+INSERT INTO ps9_description (titles, abstracts) VALUES (
+       ARRAY[cget('WCS_SERVICE_TITLE')],
+       ARRAY[cget('WCS_SERVICE_ABSTRACT')]);
+INSERT INTO ps9_service_identification (type, type_versions, description_id) VALUES (
+              cget('WCS_SERVICE_TYPE'),
+        ARRAY[cget('WCS_SERVICE_TYPE_VERSIONS')],
+       (SELECT id FROM  ps9_description
+                  WHERE    titles=ARRAY[cget('WCS_SERVICE_TITLE')]
+                  AND   abstracts=ARRAY[cget('WCS_SERVICE_ABSTRACT')])
+       );
 INSERT INTO ps9_service_provider
-       (name, site, contact_individual_name, contact_city, contact_postal_code, contact_country, contact_email_address, contact_role) 
-       VALUES ('Jacobs University Bremen', 'http://rasdaman.org/', 'Prof. Dr. Peter Baumann', 
-               'Bremen', '28717', 'Germany', 'p.baumann@jacobs-university.de', 'Project Leader');
+       (name, site, contact_individual_name, contact_city, contact_postal_code, contact_country, contact_email_addresses, contact_role)
+       VALUES (cget('WCS_PROVIDER_NAME'),
+               cget('WCS_PROVIDER_SITE'),
+               cget('WCS_PROVIDER_CONTACT_NAME'),
+               cget('WCS_PROVIDER_CONTACT_CITY'),
+               cget('WCS_PROVIDER_CONTACT_PCODE'),
+               cget('WCS_PROVIDER_CONTACT_COUNTRY'),
+         ARRAY[cget('WCS_PROVIDER_CONTACT_EMAIL')],
+               cget('WCS_PROVIDER_CONTACT_ROLE'));
 
 --
--- CRS for ANSI-Date (rasdaman 8.4 legacy)
+-- CRSs for systemtest datasets for ANSI-Date (rasdaman 8.4 legacy)
 --
 -- TODO: init9.sql.in to replace with configure %SECORE% host
 INSERT INTO ps9_crs (uri) VALUES (cget('CRS_ANSI'));
 INSERT INTO ps9_crs (uri) VALUES (cget('CRS_INDEX_1D'));
 INSERT INTO ps9_crs (uri) VALUES (cget('CRS_INDEX_2D'));
 INSERT INTO ps9_crs (uri) VALUES (cget('CRS_INDEX_3D'));
+INSERT INTO ps9_crs (uri) VALUES (cget('CRS_EOBSTEST_T'));
+INSERT INTO ps9_crs (uri) VALUES (cget('CRS_WGS84_2D'));
+INSERT INTO ps9_crs (uri) VALUES (cget('CRS_WGS84_3D'));
 
 --
 -- GML coverage types:
@@ -94,19 +112,32 @@ INSERT INTO ps9_extra_metadata_type (type) VALUES (cget('METADATA_TYPE_ATTRTABLE
 --
 -- Range data types (OGC 08-068r2, Tab.2)
 --
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_BOOLEAN'),  cget('DT_BOOLEAN_MEANING'));
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_CHAR'),     cget('DT_CHAR_MEANING'));
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_UCHAR'),    cget('DT_UCHAR_MEANING'));
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_SHORT'),    cget('DT_SHORT_MEANING'));
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_USHORT'),   cget('DT_USHORT_MEANING'));
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_INT'),      cget('DT_INT_MEANING'));
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_UINT'),     cget('DT_UINT_MEANING'));
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_LONG'),     cget('DT_LONG_MEANING'));
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_ULONG'),    cget('DT_ULONG_MEANING'));
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_FLOAT'),    cget('DT_FLOAT_MEANING'));
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_DOUBLE'),   cget('DT_DOUBLE_MEANING'));
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_COMPLEX'),  cget('DT_COMPLEX_MEANING'));
-INSERT INTO ps9_range_data_type (name, meaning) VALUES (cget('DT_COMPLEX2'), cget('DT_COMPLEX2_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_BOOLEAN'),  cget('DT_BOOLEAN_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_CHAR'),     cget('DT_CHAR_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_UCHAR'),    cget('DT_UCHAR_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_SHORT'),    cget('DT_SHORT_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_USHORT'),   cget('DT_USHORT_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_INT'),      cget('DT_INT_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_UINT'),     cget('DT_UINT_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_LONG'),     cget('DT_LONG_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_ULONG'),    cget('DT_ULONG_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_FLOAT'),    cget('DT_FLOAT_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_DOUBLE'),   cget('DT_DOUBLE_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_COMPLEX'),  cget('DT_COMPLEX_MEANING'));
+INSERT INTO ps9_range_data_type (name, meaning)
+     VALUES (cget('DT_COMPLEX2'), cget('DT_COMPLEX2_MEANING'));
 
 --
 -- Allowed intervals (see petascope.util.WcsUtil.java)
@@ -179,6 +210,7 @@ INSERT INTO ps9_interval_quantity (quantity_id, interval_id)
                (SELECT id FROM ps9_interval WHERE max=ncget('DOUBLE_MAX')));
 
 -- Formats/MIME types/GDAL ids:
+-- TODO string constants to global_const.sql
 INSERT INTO ps9_mime_type (mime_type)
      VALUES ('application/x-octet-stream');
 INSERT INTO ps9_format (name, mime_type_id) 
