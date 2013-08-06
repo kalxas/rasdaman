@@ -28,6 +28,7 @@ import nu.xom.Document;
 import petascope.util.XMLUtil;
 import petascope.wcs2.templates.Templates;
 import java.io.IOException;
+import java.math.BigDecimal;
 import petascope.exceptions.ExceptionCode;
 import nu.xom.Element;
 import org.slf4j.Logger;
@@ -38,6 +39,7 @@ import petascope.util.WcsUtil;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import static petascope.util.XMLSymbols.*;
 import static petascope.util.XMLUtil.*;
+import petascope.wcps.server.core.DomainElement;
 import petascope.wcs2.extensions.FormatExtension;
 
 /**
@@ -69,6 +71,16 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
                 descr = WcsUtil.getGML(m, Templates.COVERAGE_DESCRIPTION, true, meta);
                 // RGBV coverages
                 if (m.getCoverageType().equals(LABEL_REFERENCEABLE_GRID_COVERAGE)) {
+                    // Fetch the coefficients (of the irregular axes)
+                    for (DomainElement domEl : m.getMetadata().getDomainList()) {
+                        if (domEl.isIrregular()) {
+                            domEl.setCoefficients(meta.getAllCoefficients(
+                                    m.getMetadata().getCoverageName(),
+                                    m.getMetadata().getDomainIndexByName(domEl.getLabel()) // i-order of axis
+                                    ));
+                        }
+                    }
+                    // Add to GML
                     descr = WcsUtil.addCoefficients(descr, m);
                     descr = WcsUtil.getBounds(descr, m);
                 }

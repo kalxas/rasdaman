@@ -1761,17 +1761,17 @@ public class DbMetadataSource implements IMetadataSource {
             
             String sqlQuery =
                     " SELECT COALESCE(MIN(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," + min + "), " +
-                           " COALESCE(MAX(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," + max + ") "  + 
-                          " FROM " + TABLE_VECTOR_COEFFICIENTS + ", " 
+                           " COALESCE(MAX(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_ORDER + ")," + max + ") "  +
+                          " FROM " + TABLE_VECTOR_COEFFICIENTS + ", "
                                    + TABLE_GRID_AXIS           + ", "
-                                   + TABLE_COVERAGE            + 
+                                   + TABLE_COVERAGE            +
                          " WHERE " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_AXIS_ID +
                              " = " + TABLE_GRID_AXIS           + "." + GRID_AXIS_ID +
                            " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_COVERAGE_ID +
                              " = " + TABLE_COVERAGE  + "." + COVERAGE_ID +
                            " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_RASDAMAN_ORDER  + "="  + iOrder  +
                            " AND " + TABLE_COVERAGE  + "." + COVERAGE_NAME             + "='" + covName + "'" +
-                           " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT 
+                           " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
                                    + " >= " + lo +
                            " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
                                 // + " < "  + stringHi  // [a,b) subsets
@@ -1814,27 +1814,27 @@ public class DbMetadataSource implements IMetadataSource {
     /**
      * Retrieves the coefficients of an irregular axis of a certain interval
      * @param covName  Coverage human-readable name
-     * @param iOrder   Order of the axis in the CRS: to indentify it in case the coverage has 2+ irregular axes.
+     * @param iOrder   Order of the axis in the CRS: to identify it in case the coverage has 2+ irregular axes.
      * @param lo       The lower index of the subset
      * @param hi       The upper index of the subset
      * @return The ordered list of coefficients of the grid points inside the interval.
-     * @throws PetascopeException 
-     */    
+     * @throws PetascopeException
+     */
     public List<BigDecimal> getCoefficientsOfInterval(String covName, int iOrder, BigDecimal lo, BigDecimal hi)
             throws PetascopeException {
 
         List<BigDecimal> coefficients = new ArrayList<BigDecimal>();
         Statement s = null;
-        
+
         try {
             ensureConnection();
             s = conn.createStatement();
-            
+
             String sqlQuery =
-                    " SELECT ARRAY_AGG(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT + ") " + 
-                          " FROM " + TABLE_VECTOR_COEFFICIENTS + ", " 
+                    " SELECT ARRAY_AGG(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT + ") " +
+                          " FROM " + TABLE_VECTOR_COEFFICIENTS + ", "
                                    + TABLE_GRID_AXIS           + ", "
-                                   + TABLE_COVERAGE            + 
+                                   + TABLE_COVERAGE            +
                          " WHERE " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_AXIS_ID +
                              " = " + TABLE_GRID_AXIS           + "." + GRID_AXIS_ID +
                            " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_COVERAGE_ID +
@@ -1849,7 +1849,7 @@ public class DbMetadataSource implements IMetadataSource {
                     ;
             log.debug("SQL query : " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
-            
+
             if (r.next()) {
                 // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute},
                 // of indexes 1 and 2 respectively:
@@ -1857,12 +1857,12 @@ public class DbMetadataSource implements IMetadataSource {
                 while (rs.next()) {
                     coefficients.add(rs.getBigDecimal(2));
                 }
-                
+
                 s.close();
                 Arrays.sort(coefficients.toArray());
             }
             return coefficients;
-            
+
         } catch (SQLException sqle) {
             /* Abort this transaction */
             try {
@@ -1877,7 +1877,67 @@ public class DbMetadataSource implements IMetadataSource {
                     "Metadata database error", sqle);
         }
     }
-    
+
+    /**
+     * Retrieves the complete set of coefficients of an irregular axis.
+     * @param covName  Coverage human-readable name
+     * @param iOrder   Order of the axis in the CRS: to identify it in case the coverage has 2+ irregular axes.
+     * @return The ordered list of coefficients of the grid points inside the interval.
+     * @throws PetascopeException
+     */
+    public List<BigDecimal> getAllCoefficients(String covName, int iOrder)
+            throws PetascopeException {
+
+        List<BigDecimal> coefficients = new ArrayList<BigDecimal>();
+        Statement s = null;
+
+        try {
+            ensureConnection();
+            s = conn.createStatement();
+
+            String sqlQuery =
+                    " SELECT ARRAY_AGG(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT + ") " + 
+                          " FROM " + TABLE_VECTOR_COEFFICIENTS + ", " 
+                                   + TABLE_GRID_AXIS           + ", "
+                                   + TABLE_COVERAGE            + 
+                         " WHERE " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_AXIS_ID +
+                             " = " + TABLE_GRID_AXIS           + "." + GRID_AXIS_ID +
+                           " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_COVERAGE_ID +
+                             " = " + TABLE_COVERAGE  + "." + COVERAGE_ID +
+                           " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_RASDAMAN_ORDER  + "="  + iOrder  +
+                           " AND " + TABLE_COVERAGE  + "." + COVERAGE_NAME             + "='" + covName + "'"
+                    ;
+            log.debug("SQL query : " + sqlQuery);
+            ResultSet r = s.executeQuery(sqlQuery);
+
+            if (r.next()) {
+                // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute},
+                // of indexes 1 and 2 respectively:
+                ResultSet rs = r.getArray(1).getResultSet();
+                while (rs.next()) {
+                    coefficients.add(rs.getBigDecimal(2));
+                }
+
+                s.close();
+                Arrays.sort(coefficients.toArray());
+            }
+            return coefficients;
+
+        } catch (SQLException sqle) {
+            /* Abort this transaction */
+            try {
+                if (s != null) {
+                    s.close();
+                }
+                abortAndClose();
+            } catch (SQLException f) {
+                log.warn(f.getMessage());
+            }
+            throw new PetascopeException(ExceptionCode.InvalidRequest,
+                    "Metadata database error", sqle);
+        }
+    }
+
     /**
      * Get the lower and upper bound of the specified coverage's dimension in pixel coordinates.
      * PURPOSE: remove redundant pixel-domain dimensions info in the petascopedb.
