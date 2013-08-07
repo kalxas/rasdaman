@@ -211,6 +211,7 @@ public interface XMLSymbols {
     String ATT_SCHEMA_LOCATION = "schemaLocation";
     String ATT_CODESPACE = "codeSpace";
     String ATT_LANG = "lang";
+    String ATT_HREF = "href";
     
     // crs-extension
     String ATT_SUPPORTED_CRS = "supportedCrs";

@@ -174,7 +174,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             // optional site
             if (!sPro.getSite().isEmpty()) {
                 c = new Element(PREFIX_OWS + ":" + LABEL_PROVIDER_SITE, NAMESPACE_OWS);
-                c.appendChild(sPro.getSite());
+                c.addAttribute(new Attribute(PREFIX_XLINK + ":" + ATT_HREF, NAMESPACE_XLINK, sPro.getSite()));
                 serviceProvider.appendChild(c);
             }
             // mandatory service contact
