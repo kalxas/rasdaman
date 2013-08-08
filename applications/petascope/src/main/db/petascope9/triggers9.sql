@@ -46,7 +46,6 @@ $$
     BEGIN
         -- check that each service type version follows a valid pattern x.y.z, (y,z < 99).
         FOR i IN array_lower(NEW.type_versions, 1) .. array_upper(NEW.type_versions, 1) LOOP
-            RAISE NOTICE '%: checking version %...', ME, NEW.type_versions[i]
             IF NOT matches_pattern(NEW.type_versions[i], cget('SERVICE_VERSION_PATTERN')) THEN
                 RAISE EXCEPTION '%: ''%'' does not follow a valid pattern (%).', ME, NEW.type_versions[i], cget('SERVICE_VERSION_PATTERN');
             END IF;
