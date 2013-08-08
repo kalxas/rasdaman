@@ -39,14 +39,16 @@ $$
     -- General
     SELECT cset('GMLCOV_METADATA_TYPE', 'gmlcov');
     SELECT cset('ID_FIELD',             'id');
-    SELECT cset('NAME_PATTERN',        E'^[_A-Za-z][-._A-Za-z0-9]*$');
     SELECT cset('OCTET_STREAM_MIME',    'application/x-octet-stream');
     SELECT cset('SWE_QUANTITY_FIELD',   'Quantity');
-    SELECT cset('UOM_PATTERN',        E'^[^: \\n\\r\\t]+$');
     SELECT cset('UOM_PURE_NUM',         '10' || chr(x'2070'::int));
+    -- Regex patterns
+    SELECT cset('NAME_PATTERN',            E'^[_A-Za-z][-._A-Za-z0-9]*$');
+    SELECT cset('SERVICE_VERSION_PATTERN', E'^\\d+\\.\\d?\\d\\.\\d?\\d$');
+    SELECT cset('UOM_PATTERN',             E'^[^: \\n\\r\\t]+$');
     -- Service and service provider metadata
     SELECT cset('WCS_SERVICE_TYPE',             'OGC WCS');
-    SELECT cset('WCS_SERVICE_TYPE_VERSIONS',    '2.0.0'); -- use commas for different supported versions
+    SELECT cset('WCS_SERVICE_TYPE_VERSIONS',    '2.0.1'); -- use commas for different supported versions
     SELECT cset('WCS_SERVICE_TITLE',            'rasdaman');
     SELECT cset('WCS_SERVICE_ABSTRACT',         'rasdaman server - free download from www.rasdaman.org');
     SELECT cset('WCS_PROVIDER_NAME',            'Jacobs University Bremen');

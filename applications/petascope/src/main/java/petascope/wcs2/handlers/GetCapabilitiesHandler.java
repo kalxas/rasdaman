@@ -73,13 +73,16 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
     public Response handle(GetCapabilitiesRequest request) throws WCSException, SecoreException {
         Document ret = constructDocument(LABEL_CAPABILITIES, NAMESPACE_WCS);
 
-        Element root = ret.getRootElement();
-        root.addAttribute(new Attribute(ATT_VERSION, BaseRequest.VERSION_STRING));
-
+        
         // Fetch the metadata of the service from petascopedb
         ServiceMetadata sMeta = meta.getServiceMetadata();
 
+        Element root = ret.getRootElement();
+        root.addAttribute(new Attribute(ATT_VERSION, sMeta.getIdentification().getTypeVersions().get(0)));
+
+        //
         // Service Identification
+        //
         Element serviceIdentification = Templates.getXmlTemplate(Templates.SERVICE_IDENTIFICATION,
                 Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
                 ? ConfigManager.PETASCOPE_SERVLET_URL
@@ -100,9 +103,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             for (String servAbstract : sDescr.getAbstracts()) {
                 c = new Element(PREFIX_OWS + ":" + LABEL_ABSTRACT, NAMESPACE_OWS);
                 c.appendChild(servAbstract);
-                serviceIdentification.insertChild(c,
-                        serviceIdentification.indexOf( // this time I a title /might/ be there
-                        serviceIdentification.getFirstChildElement(LABEL_SERVICE_TYPE, NAMESPACE_OWS)));
+                serviceIdentification.appendChild(c);
             }
             // Keywords
             for (Description.KeywordsGroup kGroup : sDescr.getKeywordGroups()) {
@@ -128,12 +129,18 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                     keywords.appendChild(c);
                 }
                 // Add the ows:Keywords element to the service identification
-                serviceIdentification.insertChild(keywords,
-                        serviceIdentification.indexOf(
-                        serviceIdentification.getFirstChildElement(LABEL_SERVICE_TYPE, NAMESPACE_OWS)));
+                serviceIdentification.appendChild(keywords);
             }
 
-            // ows:ServiceType and ows:ServiceTypeVersion are in the ServiceIdentification template.
+            // ows:ServiceType and ows:ServiceTypeVersion
+            c = new Element(PREFIX_OWS + ":" + LABEL_SERVICE_TYPE, NAMESPACE_OWS);
+            c.appendChild(sId.getType());
+            serviceIdentification.appendChild(c);
+            for (String version : sId.getTypeVersions()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_SERVICE_TYPE_VERSION, NAMESPACE_OWS);
+                c.appendChild(version);
+                serviceIdentification.appendChild(c);
+            }
 
             // Profiles
             for (String id : ExtensionsRegistry.getExtensionIds()) {
@@ -158,7 +165,9 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             root.appendChild(serviceIdentification.copy());
         }
 
+        //
         // Service Provider
+        //
         Element serviceProvider = Templates.getXmlTemplate(Templates.SERVICE_PROVIDER,
                 Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
                 ? ConfigManager.PETASCOPE_SERVLET_URL
@@ -231,7 +240,9 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             root.appendChild(serviceProvider.copy());
         }
 
+        //
         // Operations Metadata
+        //
         Element operationsMetadata = Templates.getXmlTemplate(Templates.OPERATIONS_METADATA,
                 Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
                 ? ConfigManager.PETASCOPE_SERVLET_URL
@@ -240,7 +251,9 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             root.appendChild(operationsMetadata.copy());
         }
 
+        //
         // ServiceMetadata
+        //
         Element serviceMetadata = Templates.getXmlTemplate(Templates.SERVICE_METADATA);
         if (serviceMetadata != null) {
             // add supported formats
@@ -260,18 +273,28 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             //:~
             
             //: CRS [Req9: /req/crs/wcsServiceMetadata-outputCrs]
-            Element crsExtension = new Element(PREFIX_WCS + ":" + LABEL_EXTENSION, NAMESPACE_WCS);
             Element crsMetadata  = new Element(PREFIX_CRS + ":" + LABEL_CRS_METADATA, NAMESPACE_CRS);
             Element supportedCrs = new Element(PREFIX_CRS + ":" + ATT_SUPPORTED_CRS, NAMESPACE_CRS);
             supportedCrs.appendChild(CrsUtil.CrsUriDir(CrsUtil.OPENGIS_URI_PREFIX, CrsUtil.EPSG_AUTH));
             crsMetadata.appendChild(supportedCrs);
-            crsExtension.appendChild(crsMetadata);
-            serviceMetadata.appendChild(crsExtension);
+            Element wcsExtension = serviceMetadata.getFirstChildElement(LABEL_EXTENSION, NAMESPACE_WCS);
+            // Check if an extension is already defined in the template, otherwise create a new one
+            if (null == wcsExtension) {
+                // Add the new child element
+                wcsExtension = new Element(PREFIX_WCS + ":" + LABEL_EXTENSION, NAMESPACE_WCS);
+                wcsExtension.appendChild(crsMetadata);
+                serviceMetadata.appendChild(wcsExtension);
+            } else {
+                // Just update the child element
+                wcsExtension.appendChild(crsMetadata);
+            }
             //:~
             root.appendChild(serviceMetadata.copy());
         }
 
+        //
         // Contents
+        //
         Element contents = new Element(LABEL_CONTENTS, NAMESPACE_WCS);
         Iterator<String> it;
         try {

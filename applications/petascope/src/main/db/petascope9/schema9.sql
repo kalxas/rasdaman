@@ -405,11 +405,11 @@ CREATE TABLE ps9_extra_metadata (
 CREATE TABLE ps9_service_identification (
     id                 serial    PRIMARY KEY,
     description_id     integer   NULL,
-    type               text      NOT NULL,
-    type_codespace     text      NULL,
-    type_versions      text[]    NOT NULL,
-    fees               text      NULL,
-    access_constraints text[]    NULL,
+    type               text      NOT NULL, -- //ows:ServiceIdentification/ows:ServiceType/
+    type_codespace     text      NULL,     -- //ows:ServiceIdentification/ows:ServiceType/@codeSpace
+    type_versions      text[]    NOT NULL, -- //ows:ServiceIdentification/ows:ServiceTypeVersion (Latest version first).
+    fees               text      NULL,     -- //ows:ServiceIdentification/ows:Fees
+    access_constraints text[]    NULL,     -- //ows:ServiceIdentification/ows:AccessConstraints
     -- Constraints and FKs
     UNIQUE (type),
     CONSTRAINT access_constraints_is_1D   CHECK (array_lower(access_constraints, 2) IS NULL),
@@ -417,6 +417,8 @@ CREATE TABLE ps9_service_identification (
     CONSTRAINT type_versions_is_not_empty CHECK (array_lower(type_versions, 1)      IS NOT NULL),
     FOREIGN KEY (description_id) REFERENCES ps9_description (id) ON DELETE RESTRICT
 );
+CREATE TRIGGER service_version_pattern_trigger BEFORE INSERT OR UPDATE ON ps9_service_identification
+       FOR EACH ROW EXECUTE PROCEDURE service_version_pattern();
 
 
 -- TABLE: **ps9_service_provider** =============================================

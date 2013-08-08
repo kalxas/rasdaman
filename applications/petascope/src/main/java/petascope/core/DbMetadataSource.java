@@ -48,6 +48,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
 import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCSException;
 import petascope.ows.Description;
 import petascope.ows.ServiceProvider;
 import petascope.util.CrsUtil;
@@ -58,6 +59,7 @@ import petascope.util.XMLSymbols;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.*;
+import petascope.wcs2.parsers.BaseRequest;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.templates.Templates;
 
@@ -347,11 +349,18 @@ public class DbMetadataSource implements IMetadataSource {
                                + SERVICE_IDENTIFICATION_FEES           + ", "
                                + SERVICE_IDENTIFICATION_CONSTRAINTS    +
                     " FROM "   + TABLE_SERVICE_IDENTIFICATION          +
-                    " WHERE "  + SERVICE_IDENTIFICATION_TYPE + " ILIKE '%WCS%';"
+                    " WHERE "  + SERVICE_IDENTIFICATION_TYPE + " ILIKE '%" + BaseRequest.SERVICE + "%';"
                     ;
             log.debug("SQL query: " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
-            if (r.next()) {
+            if (!r.next()) {
+                throw new WCSException(ExceptionCode.InvalidServiceConfiguration,
+                        "Missing service configuration in the database.");
+            } else do {
+                if (r.getRow() > 1) {
+                    throw new WCSException(ExceptionCode.InvalidServiceConfiguration,
+                        "Duplicate service configuration in the database.");
+                }
                 String serviceType        = r.getString(SERVICE_IDENTIFICATION_TYPE);
                 String typeCodespace      = r.getString(SERVICE_IDENTIFICATION_TYPE_CODESPACE);
                 List<String> typeVersions = sqlArray2StringList(r.getArray(SERVICE_IDENTIFICATION_TYPE_VERSIONS));
@@ -376,7 +385,7 @@ public class DbMetadataSource implements IMetadataSource {
                         sMeta.getIdentification().addAccessConstraint(constraintsRs.getString(2));
                     }
                 }
-            }
+            } while (r.next());
 
 
             /* TABLE_SERVICE_PROVIDER */

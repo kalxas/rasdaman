@@ -31,6 +31,31 @@
 --   - `utilities.sql' and `global_const.sql' have been imported.
 -----------------------------------------------------------------------
 
+
+-- TRIGGER: **service_version_pattern_trigger********************************************
+-- The string value shall contain one x.y.z "version" value (e.g., "2.1.3"). 
+-- A version number shall contain three non-negative integers separated by decimal points, 
+-- in the form "x.y.z". The integers y and z shall not exceed 99.
+-- (http://schemas.opengis.net/ows/2.0/owsCommon.xsd).
+CREATE OR REPLACE FUNCTION service_version_pattern () 
+RETURNS trigger AS 
+$$
+    DECLARE
+        -- Log
+	ME constant text := 'service_version_pattern()';
+    BEGIN
+        -- check that each service type version follows a valid pattern x.y.z, (y,z < 99).
+        FOR i IN array_lower(NEW.type_versions, 1) .. array_upper(NEW.type_versions, 1) LOOP
+            RAISE NOTICE '%: checking version %...', ME, NEW.type_versions[i]
+            IF NOT matches_pattern(NEW.type_versions[i], cget('SERVICE_VERSION_PATTERN')) THEN
+                RAISE EXCEPTION '%: ''%'' does not follow a valid pattern (%).', ME, NEW.type_versions[i], cget('SERVICE_VERSION_PATTERN');
+            END IF;
+        END LOOP;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+
 -- TRIGGER: **coverage_name_trigger********************************************
 -- A coverage name must start with a char and must not contain colons: [\i-[:]][\c-[:]]*
 --   \i matches any character that may be the first character of an XML name, i.e. [_:A-Za-z]
