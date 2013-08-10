@@ -94,7 +94,7 @@ class CrsCompoundHandler extends AbstractHandler {
           "   </metaDataProperty>\n" +
           "   <scope>not known</scope>\n" +
           "   <identifier codeSpace='" + Config.getInstance().getCodespace() +
-          "'>" + request.getFullUri().replaceAll("&", "%26") + "</identifier>" +
+          "'>" + request.getFullUri().replaceAll("&", "%26") + "</identifier>\n" +
           "   <name>" + name + "</name>\n" + comp +
           "</CompoundCRS>";
       log.debug("Done, returning response.");
