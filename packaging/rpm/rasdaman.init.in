@@ -81,21 +81,21 @@ start() {
   fi
 
   # Check for the PGDATA structure
-  if [ -f "$PGDATA/PG_VERSION" ] && [ -d "$PGDATA/base" ]
-  then
-    echo
-    echo $"PostgreSQL database was found."
-    echo $"Version is not checked here."
-    echo $"Location $PGDATA."
-  else
-    # No existing PGDATA! Warn the user to initdb it.
-    echo
-    echo "$PGDATA is missing. Use \"service rasmgr initdb\" to initialize the cluster first."
-    echo "PostgreSQL database will be initialized automatically."
-    echo_failure
-    echo
-    exit 1
-  fi
+  #if [ -f "$PGDATA/PG_VERSION" ] && [ -d "$PGDATA/base" ]
+  #then
+  #  echo
+  #  echo $"PostgreSQL database was found."
+  #  echo $"Version is not checked here."
+  #  echo $"Location $PGDATA."
+  #else
+  #  # No existing PGDATA! Warn the user to initdb it.
+  #  echo
+  #  echo "$PGDATA is missing. Use \"service rasmgr initdb\" to initialize the cluster first."
+  #  echo "PostgreSQL database will be initialized automatically."
+  #  echo_failure
+  #  echo
+  #  exit 1
+  #fi
 
   echo -n $"Starting $prog: "
   $SU -l rasdaman -s "$rasshell" -c "$rasmgr &" >> "$raslog" 2>&1 < /dev/null
