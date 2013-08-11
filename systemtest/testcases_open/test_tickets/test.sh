@@ -75,7 +75,8 @@ mkdir -p "$OUTPUT_PATH"
 function cleanup()
 {
   drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
-  
+  drop_petascope_data
+
   loge "--------------------------------------------------------"
   loge
   if [ $NUM_TOTAL -ne 0 ]; then

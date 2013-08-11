@@ -376,6 +376,7 @@ function run_test()
   oldf="$f"
   if [ -n "$FIXED" -a $FIXED -eq 1 ]; then
     f="$fixedf"
+    FIXED=0
   fi
   
   # various other files expected  by the run_*_test functions
@@ -484,7 +485,7 @@ function run_test()
       elif [ -f "$oracle" ]; then
       
         filetype=`file "$oracle" | awk -F ':' '{print $2;}'`
-        echo "$filetype" | egrep -i "(xml|ascii|text|TIFF)" > /dev/null
+        echo "$filetype" | egrep -i "(xml|ascii|text)" > /dev/null
         rc=$?
         gdalinfo "$out" > /dev/null 2>&1
         if [ $? -eq 0 -a $rc -ne 0 ]; then

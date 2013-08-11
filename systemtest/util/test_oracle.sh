@@ -128,7 +128,7 @@ for f in *; do
   fi
   
   # uncomment for single test run
-  #[[ "$f" == 02-* ]] || continue
+  #[[ "$f" == 62-* ]] || continue
   
   # check if rasdaman is running
   $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string > /dev/null 2>&1
