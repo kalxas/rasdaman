@@ -24,28 +24,58 @@
 # ------------------------------------------------------------------------------
 #
 # SYNOPSIS
-#	  petascope.sh
+#  petascope.sh
 # Description
-#	  Common functionality used by petascope test scripts, like
-#   - shortcuts for commands
-#   - dropping and inserting coverages
+#  Common functionality pertaining to petascope, like
+#   - import/removal of petascope data
 #
 ################################################################################
 
-SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ] ; do SOURCE="$(readlink "$SOURCE")"; done
-UTIL_SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-
-. "$UTIL_SCRIPT_DIR"/common.sh
-
 
 # ------------------------------------------------------------------------------
+# check if coverage exists in rasdaman and petascope
+# arg 1: coverage name
+#
+function check_cov()
+{
+  local c="$1"
+  id=`$PSQL -c  "select id from PS_Coverage where name = '$c' " | head -3 | tail -1`
+  test1=0
+  if [[ "$id" == \(0*\) ]]; then
+    test1=1
+  fi
+
+  $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$c\b" > /dev/null
+  test2=$?
+  [ $test1 -eq 0 -a $test2 -eq 0 ]
+}
+
+#
+# Check if petascope is initialized and running
+#
+function check_petascope()
+{
+  $PSQL --list | egrep "\b$PS_DB\b" > /dev/null
+  if [ $? -ne 0 ]; then
+    log "no petascope database present, please install petascope first."
+    return 1
+  fi
+  $WGET -q $WCPS_URL -O /dev/null
+  if [ $? -ne 0 ]; then
+    log "failed connecting to petascope at $WCPS_URL, please deploy it first."
+    return 1
+  fi
+  return 0
+}
+
+# ------------------------------------------------------------------------------
+#
 # drop coverages in global variable $COLLS
 #
 function drop_petascope()
 {
   check_postgres
-  for c in $COLLS; do
+  for c in $*; do
     logn "deleting coverage $c from petascope... "
 
     c_id=$($PSQL -c  "select id from PS_Coverage where name = '$c' " | head -3 | tail -1) > /dev/null
@@ -83,6 +113,10 @@ function drop_petascope()
 #
 function import_eobs()
 {
+  local TESTDATA_PATH="$1"
+  if [ ! -f "$TESTDATA_PATH/eobs.nc" ]; then
+    error "testdata file $TESTDATA_PATH/eobs.nc not found"
+  fi
   c=$COLLS
   
   X=100
@@ -137,6 +171,10 @@ function import_eobs()
 #
 function import_rgb()
 {
+  local TESTDATA_PATH="$1"
+  if [ ! -f "$TESTDATA_PATH/rgb.png" ]; then
+    error "testdata file $TESTDATA_PATH/rgb.png not found"
+  fi
   c=$COLLS
   X=400
   Y=344
@@ -189,6 +227,11 @@ function import_rgb()
 #
 function import_mr()
 {
+  local TESTDATA_PATH="$1"
+  if [ ! -f "$TESTDATA_PATH/mr_1.png" ]; then
+    error "testdata file $TESTDATA_PATH/mr_1.png not found"
+  fi
+  
   c=$COLLS
   X=256
   Y=211
@@ -236,41 +279,33 @@ function import_mr()
 # ------------------------------------------------------------------------------
 #
 # import testdata: data is only imported if it isn't already in petascope
+# $1 - testdata dir holding files to be imported
 #
-function import_data()
+function import_petascope_data()
 {
-  COLLECTIONS="rgb mr eobstest mean_summer_airtemp"
+  local TESTDATA_PATH="$1"
+  if [ ! -d "$TESTDATA_PATH" ]; then
+    error "testdata path $TESTDATA_PATH not found."
+  fi
+  
+  COLLECTIONS="rgb mr eobstest"
   
   for COLLS in $COLLECTIONS; do
-    check_collection
+    check_cov $COLLS
     if [ $? -ne 0 ]; then
-      drop_colls
-      drop_petascope
+      drop_colls $COLLS
+      drop_petascope $COLLS
       logn "importing $COLLS... "
       
       counter=0
       while [ 1 -eq 1 ]; do
       
         if [ "$COLLS" == "rgb" ]; then
-          import_rgb && break
+          import_rgb "$TESTDATA_PATH" && break
         elif [ "$COLLS" == "mr" ]; then
-          import_mr && break
+          import_mr "$TESTDATA_PATH" && break
         elif [ "$COLLS" == "eobstest" ]; then
-          import_eobs && break
-        elif [ "$COLLS" == "mean_summer_airtemp" ]; then
-		   ALLOK=0
-           petascope_insertdemo.sh 
-           "$UTIL_SCRIPT_DIR"/../../applications/rasgeo/wms-import/utilities/init_wms.sh australia_wms mean_summer_airtemp EPSG:4326 -l '2:4:8:16' -h $PETASCOPE_HOST -p $PETASCOPE_PORT
-           if [ $? -ne 0 ] ; then 
-				ALLOK=1 
-		   fi
-           "$UTIL_SCRIPT_DIR"/../../applications/rasgeo/wms-import/utilities/fill_pyramid.sh mean_summer_airtemp --tasplit
-           if [ $? -ne 0 ] ; then 
-				ALLOK=1 
-		   fi
-           if [ $ALLOK -eq 0 ] ;  then 
-				break
-		   fi
+          import_eobs "$TESTDATA_PATH" && break
         fi
         
         raserase_colls > /dev/null 2>&1
@@ -285,4 +320,11 @@ function import_data()
       log "$COLLS already imported."
     fi
   done
+}
+
+function drop_petascope_data()
+{
+  COLLS="rgb mr eobstest"
+  drop_petascope $COLLS
+  drop_colls $COLLS
 }

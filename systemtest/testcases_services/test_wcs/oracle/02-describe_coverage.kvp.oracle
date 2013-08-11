@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:crs="http://www.opengis.net/wcs/service-extension/crs/1.0">
+  <wcs:CoverageDescription gml:id="mr" xmlns="http://www.opengis.net/gml/3.2" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:swe="http://www.opengis.net/swe/2.0">
+    <boundedBy>
+      <Envelope srsName="CRS:1" axisLabels="x y" uomLabels="" srsDimension="2">
+        <lowerCorner>0.0 0.0</lowerCorner>
+        <upperCorner>256.0 211.0</upperCorner>
+      </Envelope>
+    </boundedBy>
+    <wcs:CoverageId>mr</wcs:CoverageId>
+    <domainSet>
+      <RectifiedGrid dimension="2" gml:id="mr-grid">
+        <limits>
+          <GridEnvelope>
+            <low>0 0</low>
+            <high>256 211</high>
+          </GridEnvelope>
+        </limits>
+        <axisLabels>x y</axisLabels>
+        <gml:origin>
+          <gml:Point gml:id="mr-origin" srsName="CRS:1">
+            <gml:pos>0.0 0.0</gml:pos>
+          </gml:Point>
+        </gml:origin>
+        <gml:offsetVector srsName="CRS:1">1.0 0</gml:offsetVector>
+        <gml:offsetVector srsName="CRS:1">0 1.0</gml:offsetVector>
+      </RectifiedGrid>
+    </domainSet>
+    <gmlcov:rangeType>
+      <swe:DataRecord>
+        <swe:field name="value">
+          <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:char">
+            <swe:description/>
+            <swe:uom code="unknown"/>
+            <swe:constraint>
+              <swe:AllowedValues>
+                <swe:interval>-128 128</swe:interval>
+              </swe:AllowedValues>
+            </swe:constraint>
+          </swe:Quantity>
+        </swe:field>
+      </swe:DataRecord>
+    </gmlcov:rangeType>
+    <wcs:ServiceParameters>
+      <wcs:CoverageSubtype>RectifiedGridCoverage</wcs:CoverageSubtype>
+      <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+    </wcs:ServiceParameters>
+    <gmlcov:metadata/>
+  </wcs:CoverageDescription>
+</wcs:CoverageDescriptions>

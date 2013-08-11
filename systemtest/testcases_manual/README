@@ -1,0 +1,3 @@
+This directory contains tests that are not run automatically by a make check in
+the systemtest directory. To run these tests, go to the specific subdir and run
+./test.sh

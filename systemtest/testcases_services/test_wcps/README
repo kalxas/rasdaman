@@ -1,0 +1,115 @@
+--------------
+= WCPS tests =
+--------------
+
+Environment variables used later on in this document:
+RMANBASE       # base path to the checked out rasdaman source code.
+
+IMPORTANT: This README should be found in 
+$RMANBASE/systemtest/test_petascope/test_wcps directory.
+
+This directory holds WCPS tests and it has the following structure.
+.
+├── oracle     # expected result outputs
+├── output     # result output from running test queris
+├── queries    # test queries in WCPS abstract syntax
+├── testdata   # contains data used by tests
+├── README     # this file
+└── test.sh    # the test script
+
+Variables like Tomcat port, host, etc. may need to be adapted in test.cfg, 
+located at $RMANBASE/systemtest/conf/test.cfg, before running the tests. The 
+testdata folder contains the testing images and data. All the queries are 
+contained in the queries directory, to add a new test please refer to the 
+"Adding tests" section in this document.
+The oracle folder contains oracles required for the test verification. 
+To generate a new oracle, just remove the existing oracle and run the tests.
+The respective output from the test will be automatically copied to the 
+oracle dir. For more information please refer to the "Adding tests" section 
+in this document.
+
+To run the tests, execute:
+
+  ./test.sh
+
+Do not execute "sh test.sh" as the script is written for bash, and sh is often
+linked to a restricted version of bash like dash, or similar.
+
+The test.sh script works as follow:
+
+It runs each query from the file with extension .test against the configured
+WCPS endpoint, taking the filename as "testname". The output from each test is 
+written to the output directory as testname.out. If a script testname.check.sh 
+is found in the queries dir, it is executed (passing the path to the output 
+file and oracle file as parameters) and the test is passed if this script 
+returns 0. The testname.check.sh allows for custom test verificaton to be 
+inserted into the process. If testname.check.sh is not found, the output 
+is compared to oracle/testname.oracle by means of type conversion with GDAL,
+ensuring that the comparison is portable and works on different platforms.. 
+The script translates images to the GTiff format before doing byte comparison, 
+while it directly compares to the oracle if the output is ASCII Text.
+test.sh outputs either a list of failed tests (returning non-zero exit code) 
+or the message all tests passed (returning 0 as its exit code).
+
+Furthermore, if a testname.pre.sh script is found in the queries dir, it will
+be run before executing the test. This can be used for setting up the test, by
+importing special data for example. Similarly, if a testname.post.sh script is
+found, it will be executed after the test is run.
+
+The log is located in the log file in this directory.
+
+------------
+= Testdata =
+------------
+
+The following coverages are available for the tests:
+
++----------+-----+-------+-----------------+-------+-----------------+------+
+| coverage | dim | type  | pixel extent    | axes  | geo-boundingbox | CRS  |
++----------+-----+-------+-----------------+-------+-----------------+------+
+| rgb      | 2D  | rgb   | 0:399,0:343     | x/y   |        -        |  -   |
+| mr       | 2D  | char  | 0:255,0:210     | x/y   |        -        |  -   |
+| eobstest | 3D  | short | 0:5,0:100,0:231 | t/x/y | 25,-40 - 75,75  | 4326 |
++----------+-----+-------+-----------------+-------+-----------------+------+
+
+These coverages are automatically inserted if necessary
+
+
+----------------
+= Adding tests =
+----------------
+
+This test suite only supports WCPS queries.
+
+To add new tests to the test suite, simply add new WCPS queries to the queries
+directory. Then run the test.sh script, which will automatically add the output
+to the oracle dir, under name testname.oracle. Manually inspect and verify 
+whether the output is correct.
+If custom verification is required (ex. it is an image that is not portable)
+create the queries/testname.check.sh script for verification (in this script you
+can use any tool for verification of the output, just be sure that it is available
+on the system or output a message if it is not found since this script will be
+executed on a variety of systems, not just your own machine.
+ 
+Due to the nature of the test verification there is also a possibility of 
+adding a failing test. A similar procedure is used and an error message is used 
+as oracle.
+
+If additional steps are required before/after running the tests, add
+testname.pre.sh/testname.post.sh scripts to the queries dir.
+
+Please adhere to the naming convention, continuing from the last number:
+
+WCPS abstract: number-meaningful_name.test
+WCPS XML     : number-meaningful_name.xml
+pre script   : number-meaningful_name.test.pre.sh
+post script  : number-meaningful_name.test.post.sh
+check script : number-meaningful_name.test.check.sh
+oracle       : number-meaningful_name.test.oracle
+
+-----------------
+= Failing tests =
+-----------------
+
+At present no tests are failing.
+

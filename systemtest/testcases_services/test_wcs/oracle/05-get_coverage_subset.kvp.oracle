@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of PetaScope.
+ *
+ * PetaScope is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU  General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * PetaScope is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU  General Public License for more details.
+ *
+ * You should have received a copy of the GNU  General Public
+ * License along with PetaScope. If not, see "http://www.gnu.org/licenses/".
+ *
+ * For more information please see "http://www.PetaScope.org"
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ *
+ * Copyright 2009 Jacobs University Bremen, Peter Baumann.
+-->
+
+
+<gmlcov:RectifiedGridCoverage
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="mr"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="CRS:1" axisLabels="x y" uomLabels="" srsDimension="2">
+      <lowerCorner>10.0 10.0</lowerCorner>
+      <upperCorner>20.0 20.0</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <RectifiedGrid dimension="2" gml:id="mr-grid">
+      <limits>
+        <GridEnvelope>
+          <low>10 10</low>
+          <high>20 20</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>x y</axisLabels>
+    <gml:origin>
+        <gml:Point gml:id="mr-origin" srsName="CRS:1">
+            <gml:pos>10.0 10.0</gml:pos>
+        </gml:Point>
+    </gml:origin>
+    <gml:offsetVector srsName="CRS:1">1.0 0</gml:offsetVector>
+    <gml:offsetVector srsName="CRS:1">0 1.0</gml:offsetVector>
+    </RectifiedGrid>
+  </domainSet>
+
+  <rangeSet>
+<DataBlock><rangeParameters/><tupleList>0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0</tupleList></DataBlock>
+  </rangeSet>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="value">
+      <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:char">
+        <swe:description></swe:description>
+        <swe:uom code="unknown"/>
+        <swe:constraint>
+          <swe:AllowedValues>
+            <swe:interval>-128 128</swe:interval>
+          </swe:AllowedValues>
+        </swe:constraint>
+      </swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+  <gmlcov:metadata></gmlcov:metadata>
+</gmlcov:RectifiedGridCoverage>

@@ -59,7 +59,7 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 #
 ORACLE_PATH="$SCRIPT_DIR/oracle"
 [ -d "$ORACLE_PATH" ] || error "Expected results directory not found: $ORACLE_PATH"
-QUERY_PATH="$SCRIPT_DIR/test_rasql"
+QUERY_PATH="$SCRIPT_DIR/queries"
 [ -d "$QUERY_PATH" ] || error "Rasql query dir not found: $QUERY_PATH"
 OUTPUT_PATH="$SCRIPT_DIR/output"
 mkdir -p "$OUTPUT_PATH"

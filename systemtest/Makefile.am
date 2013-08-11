@@ -24,8 +24,7 @@
 # MAKEFILE FOR:  
 #   perform systemtest (overall rasdaman test suite)
 # 
-# COMMENTS: 
-# - not yet operational
+# COMMENTS:
 #
 ##################################################################
 ######################### Definitions ############################
@@ -36,37 +35,42 @@
 ########################### Targets ##############################
 TESTSEQUENCE = $(shell) ls -d testcases_mandatory/* \
                              testcases_open/* \
-                             testcases_fixed/*
+                             testcases_fixed/* \
+                             testcases_services/*
 # general system test
 .PHONY: check
 check:
 	ret=0; \
 	for testcase in ${TESTSEQUENCE}; do\
-		 RMANBASE=${RMANBASE}\
-		 PATH=${bindir}:${PATH}\
-		 PROGTEST=$${testcase}/*.sh;\
-     if [ ! -f $$testcase/*.sh ]; then\
-       continue;\
-     fi;\
-     $$testcase/*.sh;\
-     tmp=$$?;\
-		 if [ $$tmp -ne 0 ]; \
-		 then\
-      ret=$$tmp;\
-			echo $${PROGTEST} ... FAIL>>log;\
-		 else \
-		 	echo $${PROGTEST} ... OK>>log;\
-		 fi; \
-		 echo "	"see detail in $$testcase/log>>log;\
+		PATH=${bindir}:${PATH}\
+		PROGTEST=$${testcase}/*.sh;\
+		if [ ! -f $$testcase/*.sh ]; then\
+			continue;\
+		fi;\
+		echo; \
+		echo; \
+		$$testcase/*.sh;\
+		tmp=$$?;\
+		if [ $$tmp -eq 2 ]; then\
+			echo $${PROGTEST} ... SKIPPED>>logtmp;\
+		elif [ $$tmp -ne 0 ]; then\
+			ret=$$tmp;\
+			echo $${PROGTEST} ... FAIL>>logtmp;\
+		else \
+			echo $${PROGTEST} ... OK>>logtmp;\
+		fi; \
+		echo "	"see detail in $$testcase/log>>logtmp;\
 	done;\
-	cat log;\
-	rm log;\
-  exit $$ret;
-	
+	echo -e "\n\nTEST SUMMARY\n";\
+	cat logtmp;\
+	rm logtmp;\
+	exit $$ret;
+
+.PHONY: clean
 clean:
-	for testcase in ${TESTSEQUENCE}; do \
-               PATH=${bindir}:${PATH}   rm -rf $${testcase}/log* $${testcase}/failed_cases; \
-        done;
+	for testcase in testcases_*/test_*; do \
+		rm -rf $${testcase}/log* $${testcase}/failed_cases $${testcase}/output; \
+	done;
 
 ######################## Dependencies ############################
 

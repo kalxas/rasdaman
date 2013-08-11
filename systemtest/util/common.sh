@@ -24,12 +24,14 @@
 # ------------------------------------------------------------------------------
 #
 # SYNOPSIS
-#	  common.sh
+#    common.sh
 # Description
-#	  Common functionality used by test scripts, like
+#    Common functionality used by test scripts, like
 #   - shortcuts for commands
 #   - logging functions
 #   - various check functions
+#   - test data import
+#   - generic test case runner
 #
 ################################################################################
 
@@ -45,6 +47,7 @@ UTIL_SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 #
 RC_OK=0
 RC_ERROR=1
+RC_SKIP=2
 
 
 # ------------------------------------------------------------------------------
@@ -54,6 +57,11 @@ NUM_TOTAL=0 # the number of manipulations
 NUM_FAIL=0  # the number of fail manipulations
 NUM_SUC=0   # the number of success manipulations
 
+# testing data
+TEST_GREY=test_grey
+TEST_GREY2=test_grey2
+TEST_RGB2=test_rgb2
+
 
 # ------------------------------------------------------------------------------
 # command shortcuts
@@ -62,6 +70,10 @@ export RASQL="rasql --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADM
               --passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
 export RASCONTROL="rascontrol --host $RASMGR_HOST --port $RASMGR_PORT"
 export RASDL="rasdl -d $RASDB"
+
+export START_RAS=start_rasdaman.sh
+export STOP_RAS=stop_rasdaman.sh
+export CREATE_DB=create_db.sh
 
 # check connection itself
 export PGSQL="psql -d $RASDB --port $PG_PORT"
@@ -78,6 +90,8 @@ export GDALINFO="gdalinfo -noct -checksum"
 #
 LOG="$SCRIPT_DIR/log"
 OLDLOG="$LOG.save"
+FAILED="$SCRIPT_DIR/failed_cases"
+FIXED=0
 
 function log()
 {
@@ -115,10 +129,12 @@ function error()
 #
 if [ -n "$SCRIPT_DIR" ]; then
   if [ -f $LOG ]; then
-	  echo Old logfile found, copying it to $OLDLOG
+    echo Old logfile found, copying it to $OLDLOG
     rm -f $OLDLOG
-	  mv $LOG $OLDLOG
+    mv $LOG $OLDLOG
   fi
+  
+  rm -f "$FAILED"
   
   # all output that goes to stdout is redirected to log too
   exec >  >(tee -a $LOG)
@@ -173,24 +189,14 @@ function check_wget()
   fi
 }
 
-function check_petascope()
-{
-  $PSQL --list | egrep "\b$PS_DB\b" > /dev/null
-  if [ $? -ne 0 ]; then
-    error "No petascope database present, please install petascope first."
-  fi
-  $WGET -q $WCPS_URL -O /dev/null
-  if [ $? -ne 0 ]; then
-    error "failed connecting to petascope at $WCPS_URL, please deploy it first."
-  fi
-}
-
 function check_secore()
 {
   $WGET -q "${SECORE_URL}/crs" -O /dev/null
   if [ $? -ne 0 ]; then
-    error "failed connecting to SECORE at $SECORE_URL, please deploy it first."
+    log "failed connecting to SECORE at $SECORE_URL, please deploy it first."
+    return 1
   fi
+  return 0
 }
 
 function check_netcdf()
@@ -205,142 +211,8 @@ function check_gdal()
 {
   which gdal_translate > /dev/null
   if [ $? -ne 0 ]; then
-    error "gdal missing, please add gdal_translate to the PATH (e.g. install gdal-bin package)."
+    error "gdal missing, please add gdal_translate to the PATH."
   fi
-}
-
-# ------------------------------------------------------------------------------
-# check if collection exists in rasdaman and petascope
-# arg 1: collection name
-# arg 2: error message in case collection doesn't exist
-#
-function check_collection()
-{
-  id=`$PSQL -c  "select id from PS_Coverage where name = '$COLLS' " | head -3 | tail -1`
-  test1=0
-  if [[ "$id" == \(0*\) ]]; then
-    test1=1
-  fi
-
-  $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$COLLS\b" > /dev/null
-  test2=$?
-  [ $test1 -eq 0 -a $test2 -eq 0 ]
-}
-
-# ------------------------------------------------------------------------------
-# check if collection exists in rasdaman
-# arg 1: collection name
-#
-function check_coll()
-{
-  local coll_name="$1"
-  $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$coll_name\b" > /dev/null
-}
-
-
-# ------------------------------------------------------------------------------
-# check user-defined types, if not present testdata/types.dl is read by rasdl.
-# arg 1: set type name
-#
-function check_user_type()
-{
-  SET_TYPE="$1"
-  $RASDL -p | egrep --quiet  "\b$SET_TYPE\b"
-  if [ $? -ne 0 ]; then
-    $RASDL -r $TESTDATA_PATH/types.dl -i > /dev/null
-  fi
-}
-
-
-# ------------------------------------------------------------------------------
-# check built-in types, if not present error is thrown
-# arg 1: set type name
-#
-function check_type()
-{
-  SET_TYPE="$1"
-  $RASDL -p | egrep --quiet  "\b$SET_TYPE\b"
-  if [ $? -ne 0 ]; then
-    error "rasdaman basic type $SET_TYPE not found, please insert with rasdl first."
-  fi
-}
-
-
-# ------------------------------------------------------------------------------
-# drop collections in global variable $COLLS
-#
-function drop_colls()
-{
-  check_rasdaman
-  for c in $*; do
-    $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$c\b" > /dev/null
-    if [ $? -eq 0 ]; then
-      $RASQL -q "drop collection $c" > /dev/null
-    fi
-  done
-}
-
-
-# ------------------------------------------------------------------------------
-# insert data into collection
-# arg 1: coll name
-# arg 2: file name
-# arg 3: extra conversion options
-# arg 4: conversion function
-#
-function insert_into()
-{
-  local coll_name="$1"
-  local file_name="$2"
-  local extraopts="$3"
-  local inv_fun="$4"
-
-  local values="$inv_fun(\$1 $extraopts)"
-  if [ -z "$inv_fun" ]; then
-    values="\$1"
-  fi
-
-  logn "inserting data... "
-  $RASQL --quiet -q "insert into $coll_name values $values" -f $file_name > /dev/null
-  feedback
-}
-
-
-# ------------------------------------------------------------------------------
-# select data from collection
-# arg 1: coll name
-# arg 2: file name
-# arg 3: conversion function
-#
-function export_to_file()
-{
-  local coll_name="$1"
-  local file_name="$2"
-  local fun="$3"
-
-  local values="$fun(c)"
-  if [ -z "$fun" ]; then
-    values="c"
-  fi
-
-  logn "selecting data... "
-  $RASQL --quiet -q "select $values from $coll_name as c" --out file --outfile $file_name > /dev/null
-  feedback
-}
-
-
-# ------------------------------------------------------------------------------
-# create rasdaman collection
-# arg 1: coll name
-# arg 2: coll type
-#
-function create_coll()
-{
-  local coll_name="$1"
-  local coll_type="$2"
-  logn "creating collection... "
-  $RASQL --quiet -q "create collection $coll_name $coll_type" > /dev/null
-  feedback
 }
 
 
@@ -349,9 +221,12 @@ function create_coll()
 #
 function print_summary()
 {
-  NUM_TOTAL=$(($NUM_SUC + $NUM_FAIL))
+  if [ $NUM_TOTAL -eq 0 ]; then
+    NUM_TOTAL=$(($NUM_FAIL + $NUM_SUC))
+  fi
   NOW=`date`
 
+  echo
   log "-------------------------------------------------------"
   log "Test summary"
   log ""
@@ -359,13 +234,310 @@ function print_summary()
   log "  Total tests run : $NUM_TOTAL"
   log "  Successful tests: $NUM_SUC"
   log "  Failed tests    : $NUM_FAIL"
+  log "  Skipped tests   : $(($NUM_TOTAL - ($NUM_FAIL + $NUM_SUC)))"
   log "  Detail test log : $LOG"
   log "-------------------------------------------------------"
 
   # compute return code
-  if [ $NUM_TOTAL -eq $NUM_SUC ]; then
+  if [ $NUM_FAIL -eq 0 ]; then
     RC=$RC_OK
   else
     RC=$RC_ERROR
   fi
 }
+
+#
+# check if result matches expected result, automatically updating the number of
+# failed/successfull tests.
+# arg 1: expected result
+# arg 2: actual result
+# arg 3: message to print
+#
+function check_result()
+{
+  exp="$1"
+  res="$2"
+  msg="$3"
+  
+  logn "$msg... "
+  if [ "$exp" != "$res" ]; then
+    NUM_FAIL=$(($NUM_FAIL + 1))
+    echo failed.
+    log "expected: $exp, got $res"
+  else
+    NUM_SUC=$(($NUM_SUC + 1))
+    echo ok.
+  fi
+}
+
+function check()
+{
+  if [ $? -ne 0 ]; then
+    loge failed.
+    NUM_FAIL=$(($NUM_FAIL + 1))
+  else
+    loge ok.
+    NUM_SUC=$(($NUM_SUC + 1))
+  fi
+  NUM_TOTAL=$(($NUM_TOTAL + 1))
+}
+
+#
+# Check return code ($?) and update variables tracking number of 
+# failed/successfull tests.
+# In case of the open tests TEST SKIPPED is printed instead of TEST FAILED.
+#
+function update_result()
+{
+  if [ $? != 0 ]; then
+    
+    echo "$SCRIPT_DIR" | grep "testcases_open" > /dev/null
+    rc_open=$?
+    echo "$f" | egrep "\.fixed$" > /dev/null
+    rc_fixed=$?
+    
+    if [ $rc_open -ne 0 -o $rc_fixed -eq 0 ]; then
+      NUM_FAIL=$(($NUM_FAIL + 1))
+      log " ->  TEST FAILED"
+    else
+      log " ->  TEST SKIPPED"
+    fi
+    if [ -n "$FAILED" ]; then
+      echo "----------------------------------------------------------------------" >> $FAILED
+      if [ -n "$f" ]; then
+        echo $f >> $FAILED
+      fi
+      cat "$f" >> $FAILED
+    fi
+  else
+    NUM_SUC=$(($NUM_SUC + 1))
+    log " ->  TEST PASSED"
+  fi
+  echo "--------------------------------------------------------------------------------------------"
+  NUM_TOTAL=$(($NUM_TOTAL + 1))
+}
+
+# ------------------------------------------------------------------------------
+#
+# run rasql query test
+# expects several global variables to be set:
+# - $f      - input file
+# - $out    - output file
+# - $oracle - oracle file with expected result
+# - $custom_script - bash script to be executed for special comparison of result
+#                    to oracle.
+#
+function run_rasql_test()
+{
+  rm -f "$out"
+  local QUERY=`cat $f`
+  $RASQL -q "$QUERY" --out file --outfile "$out"
+  
+  # move to proper output file
+  for tmpf in `ls "$out".*  2> /dev/null`; do
+    mv "$tmpf" "$out"
+    break
+  done
+  
+  # if the result is a scalar, there will be no tmp file by rasql, 
+  # here we output the Result element scalar into tmp.unknown
+  if [ ! -f "$out" ]; then
+    $RASQL -q "$QUERY" --out string | grep Result > $out
+  fi
+  
+  cmp "$oracle" "$out"
+  update_result
+}
+
+
+# ------------------------------------------------------------------------------
+#
+# run a test suite, expected global vars:
+#  $SVC_NAME - service name, e.g. wcps, wcs, etc.
+#  $f        - test file
+#
+function run_test()
+{
+  if [ ! -f "$f" ]; then
+    error "test case not found: $f"
+  fi
+  
+  # check if rasdaman is running and exit if not
+  $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string > /dev/null 2>&1
+  if [ $? -ne 0 ]; then
+    log "rasdaman down, exiting..."
+    cleanup
+  fi
+  
+  # get test type - file extension
+  test_type=`echo "$f" | sed 's/.*\.//'`
+  
+  # if testcase marked as fixed temporarily we remove the .fixed extension
+  oldf="$f"
+  if [ -n "$FIXED" -a $FIXED -eq 1 ]; then
+    f="$fixedf"
+  fi
+  
+  # various other files expected  by the run_*_test functions
+  oracle="$ORACLE_PATH/$f.oracle"
+  out="$OUTPUT_PATH/$f.out"
+  rm -f "$out"
+  pre_script="$QUERIES_PATH/$f.pre.sh"
+  post_script="$QUERIES_PATH/$f.post.sh"
+  check_script="$QUERIES_PATH/$f.check.sh"
+  
+  # restore original filename
+  f="$oldf"
+  
+  # temporary files
+  oracle_tmp="$OUTPUT_PATH/temporary_oracle"
+  output_tmp="$OUTPUT_PATH/temporary_out"
+  
+  #
+  # run pre script if present
+  #
+  if [ -f "$pre_script" ]; then
+    log "running pre-test script..."
+    $pre_script
+    if [ $? -ne 0 ]; then
+      log "warning: pre script failed execution - $pre_script"
+    fi
+  fi
+  
+  if [[ "$f" == *.sh ]]; then
+    
+    #
+    # 0. run custom test script if present
+    #
+    $f "$out" "$oracle"
+    update_result
+    
+  else
+    
+    QUERY=`cat $f | tr -d '\n'`
+    
+    #
+    # 1. execute test query
+    #
+    case "$SVC_NAME" in
+      wcps)   # URL encode query
+              QUERY=`cat $f | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
+              # send to petascope
+              $WGET -q --post-data "query=$QUERY" $WCPS_URL -O "$out"
+              ;;
+      wcs)    case "$test_type" in
+                kvp) $WGET -q "$WCS_URL?$QUERY" -O "$out"
+                     ;;
+                xml) postdata=`mktemp`
+                     echo "request=" > "$postdata"
+                     cat "$f" >> "$postdata"
+                     $WGET -q --post-file="$postdata" -O "$out"
+                     rm -f "$postdata"
+                     ;;
+                *)   error "unknown wcs test type: $test_type"
+              esac
+              ;;
+      wms)    $WGET -q "$WMS_URL?$QUERY" -O "$out"
+              ;;
+      secore) $WGET -q "$SECORE_URL$QUERY" -O "$out"
+              ;;
+      select|rasql)
+              QUERY=`cat $f`
+              $RASQL -q "$QUERY" --out file --outfile "$out" --quiet > /dev/null
+              
+              # move to proper output file
+              for tmpf in `ls "$out".*  2> /dev/null`; do
+                [ -f "$tmpf" ] || continue
+                mv "$tmpf" "$out"
+                break
+              done
+              
+              # if the result is a scalar, there will be no tmp file by rasql, 
+              # here we output the Result element scalar into tmp.unknown
+              if [ ! -f "$out" ]; then
+                $RASQL -q "$QUERY" --out string | grep Result > $out
+              fi
+              ;;
+      *)      error "unknown service: $SVC_NAME"
+    esac
+    
+    #
+    # 2. check result
+    #
+    if [ -n "$check_script" -a -f "$check_script" ]; then
+      log "custom script"
+      "$check_script" "$out" "$oracle"
+      update_result
+    else
+    
+      grep "$oracle" "Stack trace" > /dev/null 2>&1
+      if [ $? -eq 0 ]; then
+        # do exception comparison
+        log "exception comparison"
+        local lineNo=$(grep -n "Stack trace" "$oracle")
+        lineNo=$(sed 's/[^0-9]*//g' <<< $lineNo)
+        head -"$lineNo" "$out" > "$output_tmp"
+        head -"$lineNo" "$oracle" > "$oracle_tmp"
+        cmp "$output_tmp" "$oracle_tmp" 2>&1
+        update_result
+        
+      elif [ -f "$oracle" ]; then
+      
+        filetype=`file "$oracle" | awk -F ':' '{print $2;}'`
+        echo "$filetype" | egrep -i "(xml|ascii|text|TIFF)" > /dev/null
+        rc=$?
+        gdalinfo "$out" > /dev/null 2>&1
+        if [ $? -eq 0 -a $rc -ne 0 ]; then
+          # do image comparison
+          log "image comparison"
+          gdal_translate -of GTiff -co "TILED=YES" "$out" "$output_tmp" > /dev/null
+          gdal_translate -of GTiff -co "TILED=YES" "$oracle" "$oracle_tmp" > /dev/null
+          cmp "$output_tmp" "$oracle_tmp" 2>&1
+        else
+          # byte comparison
+          log "byte comparison"
+          cmp "$oracle" "$out" 2>&1
+        fi
+        update_result
+        
+      else
+        log " -> NO ORACLE FOUND"
+        log " -> copying $out to $oracle"
+        cp "$out" "$oracle"
+        NUM_FAIL=$(($NUM_FAIL + 1))
+      fi
+    fi
+    
+    #rm -f "$oracle_tmp" "$output_tmp"
+  fi
+  
+  #
+  # run post script if present
+  #
+  if [ -f "$post_script" ]; then
+    log "running post-test script..."
+    $post_script
+    if [ $? -ne 0 ]; then
+      log "warning: post script failed execution - $post_script"
+    fi
+  fi
+}
+
+# ------------------------------------------------------------------------------
+# rasdaman administration
+#
+
+function restart_rasdaman()
+{
+  logn "restarting rasdaman... "
+  $STOP_RAS > /dev/null 2>&1
+  sleep 2
+  $START_RAS > /dev/null 2>&1
+  loge ok.
+}
+
+#
+# load all modules
+#
+. "$UTIL_SCRIPT_DIR"/rasql.sh
+. "$UTIL_SCRIPT_DIR"/petascope.sh

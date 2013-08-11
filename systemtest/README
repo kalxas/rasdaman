@@ -1,0 +1,25 @@
+-----------------------
+= Rasdaman systemtest =
+-----------------------
+
+This directory holds the rasdaman systemtest. By default the test depends on
+several tools and services running:
+ - rasdaman (compiled with netcdf support)
+ - postgres
+ - gdal
+
+
+-------------
+= Execution =
+-------------
+
+To run the systemtest, execute in this directory:
+
+  make check
+
+By default this will run all test_*/test.sh scripts in the following dirs:
+
+  testcases_fixed
+  testcases_mandatory
+  testcases_open
+  testcases_services (if petascope is installed and available)

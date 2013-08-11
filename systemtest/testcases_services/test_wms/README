@@ -1,0 +1,25 @@
+-------------
+= WMS tests =
+-------------
+
+For full information refer to ../test_wcps/README. This README contains only the
+additional information specific to WMS tests.
+
+------------
+= Testdata =
+------------
+
+The following datasets, also avaiable as coverages for wcs are used to
+create map layers for testing.
+
++---------------------+-----+--------+-----------------+-------+-----------------+------------+
+|     coverage        | dim | type   | pixel extent    | axes  | geo-boundingbox |    CRS     |
++---------------------+-----+--------+-----------------+-------+-----------------+------------+
+| mean_summer_airtemp | 2D  | char   | 0:885,0:710     | x/y   | UL 111.9750000, |  EPSG:9001 |
+|                     |     |        |                 |       |     -8.9750000  |            |
+|                     |     |        |                 |       | LR 156.2750000, |            |
+|                     |     |        |                 |       |    -44.5250000  |            |
++---------------------+-----+--------+-----------------+-------+-----------------+------------+
+
+These coverages are automatically inserted and registered as maps if necessary.
+
