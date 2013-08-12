@@ -134,6 +134,28 @@ ValueType TileCache::remove(KeyType key)
     return ret;
 }
 
+void TileCache::removeKey(KeyType key)
+{
+    TENTER("TileCache::removeKey( " << key << " )");
+    CacheValue* ret = NULL;
+    if (contains(key))
+    {
+        ret = cache[key];
+        if (ret != NULL)
+        {
+            cacheSize -= ret->getSize();
+            removeValue(ret);
+            delete ret;
+            ret = NULL;
+        }
+        cache.erase(key);
+    }
+    else
+    {
+        TTALK("key not found");
+    }
+    TLEAVE("TileCache::removeKey()");
+}
 void TileCache::clear()
 {
     TENTER("TileCache::clear() - clear cache of size: " << cache.size());
@@ -225,5 +247,10 @@ bool TileCache::contains(OId& key)
 
 ValueType TileCache::remove(OId& key)
 {
-    remove(OID_KEY(key));
+    return remove(OID_KEY(key));
+}
+
+void TileCache::removeKey(OId& key)
+{
+    removeKey(OID_KEY(key));
 }

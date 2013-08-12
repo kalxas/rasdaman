@@ -294,6 +294,12 @@ DBTile::~DBTile()
                 value->removeReferencingTile(this);
             }
         }
+        else
+        {
+            TALK( "DBTile::~DBTile() freeing blob cells" );
+            free(cells);
+            cells = NULL;
+        }
     }
     RMDBGEXIT(3, RMDebug::module_blobif, "DBTile", "~DBTile() " << myOId);
 }
