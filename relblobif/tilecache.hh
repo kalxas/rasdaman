@@ -59,6 +59,10 @@ public:
     static ValueType remove(OId& key);
     
     /// remove all blobs, effectively emptying the cache
+    static void removeKey(KeyType key);
+    static void removeKey(OId& key);
+    
+    /// remove all blobs, effectively emptying the cache
     static void clear();
     
     /// remove least recently used blobs from the cache, when cache size > cache limit

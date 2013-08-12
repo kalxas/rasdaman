@@ -382,6 +382,12 @@ BLOBTile::deleteFromDb() throw (r_Error)
         LEAVE( "BLOBTile::deleteFromDb(): cannot unlink blob with id '" << blobOid << "' for oid " << blobId << PQerrorMessage(pgConn) );
         generateException();
     }
+    
+    // remove from cache if necessary
+    if (TileCache::cacheLimit > 0)
+    {
+        TileCache::removeKey(myOId);
+    }
 
     /*
     #ifdef NOTYET
@@ -396,7 +402,7 @@ BLOBTile::deleteFromDb() throw (r_Error)
         }
     #endif NOTYET
     */
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DELETE FROM RAS_TILES WHERE BlobId = ", blobOid );
+    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DELETE FROM RAS_TILES WHERE BlobId = %ld", blobId );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
@@ -496,6 +502,12 @@ BLOBTile::kill(const OId& target, unsigned int range)
             LEAVE( "BLOBTile::kill(): cannot unlink blob with id '" << blobOid << "' for oid " << blobId << ": " << PQerrorMessage(pgConn) );
             check("BLOBTile::kill() - unlink blob\0");
             generateException();
+        }
+        
+        // remove from cache if necessary
+        if (TileCache::cacheLimit > 0)
+        {
+            TileCache::removeKey(indbmyOId5);
         }
 
         /*
@@ -614,6 +626,8 @@ BLOBTile::kill(const OId& target, unsigned int range)
             }
             blobOid = atoi( PQgetvalue( pgResult, 0, 0 ) ); // extract value from result
 
+            OId tmpOid(blobOid);
+
             // delete blob identified by blobOid
             int loResult = lo_unlink( pgConn, blobOid );
             if (loResult < 0)
@@ -621,6 +635,12 @@ BLOBTile::kill(const OId& target, unsigned int range)
                 LEAVE( "BLOBTile::kill: Fatal error: cannot unlink blob with id '" << blobOid << "' for oid " << blobId );
                 check("BLOBTile::kill() - unlink blob\0");
                 generateException();
+            }
+        
+            // remove from cache if necessary
+            if (TileCache::cacheLimit > 0)
+            {
+                TileCache::removeKey(tmpOid);
             }
             /*
             #ifdef NOTYET
