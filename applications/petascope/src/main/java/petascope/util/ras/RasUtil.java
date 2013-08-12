@@ -39,6 +39,7 @@ import petascope.ConfigManager;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.RasdamanException;
 import petascope.exceptions.WCPSException;
+import petascope.util.WCPSConstants;
 import petascope.wcps.grammar.WCPSRequest;
 import petascope.wcps.grammar.wcpsLexer;
 import petascope.wcps.grammar.wcpsParser;
@@ -299,7 +300,13 @@ public class RasUtil {
             throw new WCPSException(ExceptionCode.InvalidParameterValue, "Can't execute null query");
         }
         log.trace("Executing abstract WCPS query");
-        return executeRasqlQuery(abstractWCPSToRasql(query, wcps));
+        String rasquery = abstractWCPSToRasql(query, wcps);
+        // Check if it is a rasql query 
+        if ( rasquery != null && rasquery.startsWith(WCPSConstants.MSG_SELECT) ) {
+            return executeRasqlQuery(abstractWCPSToRasql(query, wcps));
+        }
+        return rasquery;
+        
     }
 
     /**
