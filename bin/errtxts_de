@@ -155,10 +155,10 @@
 424^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Einige Operanden haben weniger Dimensionen als die für Konkatenation spezifizierte Dimension.
 425^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die r_Mintervale des Operanden der Konkatination konnten nicht verbunden werden.
 #
-426^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die Bedingung MDDs haben nicht die gleichen Domäne.
-427^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die Bedingung MDDs haben nicht die gleichen Fliesen.
+426^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die Bedingung und Ergebnis MDDs haben nicht die gleichen Domäne.
+427^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die Bedingung und Ergebnis MDDs haben nicht die gleichen Fliesen.
 428^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Mindestens eine Bedingung ist kein boolean MDD.
-429^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Wenigstens ein Ergebnis-Typ ist nicht Basistyp.
+429^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Wenigstens ein Ergebnis-Typ ist nicht Basistyp oder MDD.
 430^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die Ergebnisse haben inkompatible Typen.
 431^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Mindestens eine Bedingung ist kein boolean.
 #

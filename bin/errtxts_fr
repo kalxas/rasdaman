@@ -150,10 +150,10 @@
 424^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Certains opérandes ont moins de dimensions que celui spécifié pour la concaténation.
 425^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: r_Mintervals d'opérandes de concaténation pas fusionnables.
 #
-426^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Les MDD conditions n'ont pas le même domaine.
-427^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Les MDD conditions n'ont pas le même tuiles.
+426^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Les MDD et résultat conditions n'ont pas le même domaine.
+427^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Les MDD et résultat conditions n'ont pas le même tuiles.
 428^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Au moins une des conditions n'est pas booléen MDD.
-429^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Au moins un type de résultat n'est pas type de base.
+429^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Au moins un type de résultat n'est pas type de base ou MDD.
 430^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Les résultats ont des types incompatible.
 431^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Au moins une des conditions n'est pas booléene.
 #
