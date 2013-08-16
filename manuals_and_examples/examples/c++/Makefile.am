@@ -37,10 +37,10 @@ insertppm_SOURCES = insertppm.cc
 insertppm_LDADD = ../../../rasodmg/librasodmg.a ../../../clientcomm/libclientcomm.a \
         ../../../raslib/libraslib.a \
         ../../../conversion/libconversion.a ../../../network/libnetwork.a ../../../commline/libcommline.a \
-         -lnetpbm -ljpeg -lpng -ltiff -lmfhdf -ldf -lcrypto -lm -lz
+         -lnetpbm -ljpeg -lpng -ltiff -lcrypto -lm -lz
 
 query_SOURCES = query.cc
 query_LDADD = ../../../rasodmg/librasodmg.a ../../../clientcomm/libclientcomm.a \
         ../../../raslib/libraslib.a \
         ../../../conversion/libconversion.a ../../../network/libnetwork.a ../../../commline/libcommline.a \
-         -lnetpbm -ljpeg -lpng -ltiff -lmfhdf -ldf -lcrypto -lm -lz
+         -lnetpbm -ljpeg -lpng -ltiff -lcrypto -lm -lz
