@@ -10,12 +10,12 @@ nodebug==1            { print $0; next; }
 /static.*clnt_res;/    { print $0; print "\tenum clnt_stat stat;\n"; next; }
 /if.*clnt_call/       { x=$0;
                         sub(/if *\( *clnt_call/, "if ( (stat = clnt_call", x);
-                        sub(/\) *!= *RPC_SUCCESS *)/, ") ) != RPC_SUCCESS )", x); 
+                        sub(/\) *!= *RPC_SUCCESS *\)/, ") ) != RPC_SUCCESS )", x); 
                         print x;
                         next;
                       }
 /\) *!= *RPC_SUCCESS/ { x=$0; 
-                        sub(/\) *!= *RPC_SUCCESS *)/, ") ) != RPC_SUCCESS )", x);
+                        sub(/\) *!= *RPC_SUCCESS *\)/, ") ) != RPC_SUCCESS )", x);
                         print x;
                         next;
                       }

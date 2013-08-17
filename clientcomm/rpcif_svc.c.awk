@@ -38,14 +38,14 @@ BEGIN			{
 			}
 /^void$/		{
 			print "//patched by awk 3";
-			print "char\*";
+			print "char*";
 			print "//end patched by awk 3";
 			next;
 			}
 /^{$/			{
 			print $0;
 			print "//patched by awk 4";
-			print "char\* retvalTxt = 0;";
+			print "char* retvalTxt = 0;";
 			print "//end patched by awk 4";
 			next;
 			}
