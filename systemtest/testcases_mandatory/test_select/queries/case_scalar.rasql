@@ -1,0 +1,1 @@
+select case when avg_cells(test_grey2)>39 then 1c else 0c end from test_grey2
