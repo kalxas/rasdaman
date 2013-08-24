@@ -469,6 +469,25 @@ function run_test()
       log "custom script"
       "$check_script" "$out" "$oracle"
       update_result
+
+    # do the secore comparison
+    elif [ "$SVCNAME"=secore ]; then
+      sed 's/gml://g' "$out" > "$output_tmp"
+      sed 's/gml://g' "$oracle" > "$oracle_tmp"
+      
+      sed -i $'s/\r//' "$output_tmp"
+      sed -i $'s/\r//' "$oracle_tmp"
+
+      sed -i '/xlink:href/d' "$output_tmp"
+      sed -i '/xlink:href/d' "$oracle_tmp"
+
+      sort "$output_tmp" -o "$output_tmp"
+      sort "$oracle_tmp" -o "$oracle_tmp"
+      
+      cmp "$oracle_tmp" "$output_tmp" 
+      update_result
+      #check_result 0 "$?" "$oracle"
+    
     else
     
       grep "$oracle" "Stack trace" > /dev/null 2>&1

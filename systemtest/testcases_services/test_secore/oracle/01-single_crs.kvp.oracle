@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<GeodeticCRS xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gml="http://www.opengis.net/gml" xmlns:epsg="urn:x-ogp:spec:schema-xsd:EPSG:0.1:dataset" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns="http://www.opengis.net/gml" gml:id="epsg-crs-4327">
-  <metaDataProperty>
+<gml:GeodeticCRS xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:epsg="urn:x-ogp:spec:schema-xsd:EPSG:1.0:dataset" xmlns:rim="urn:oasis:names:tc:ebxml-regrep:xsd:rim:3.0" gml:id="epsg-crs-4327" xmlns:gco="http://www.isotc211.org/2005/gco" xmlns:gmd="http://www.isotc211.org/2005/gmd">
+  <gml:metaDataProperty>
     <epsg:CommonMetaData>
       <epsg:type>geographic 3D</epsg:type>
       <epsg:alias alias="DGN-95 (geographic 3D)" code="1991" codeSpace="http://www.opengis.net/def/naming-system/EPSG/0/7311">
@@ -14,45 +14,44 @@
       <epsg:show>true</epsg:show>
       <epsg:isDeprecated>true</epsg:isDeprecated>
     </epsg:CommonMetaData>
-  </metaDataProperty>
-  <identifier codeSpace="OGP">http://www.opengis.net/def/crs/EPSG/0/4327</identifier>
-  <name>WGS 84 (geographic 3D)</name>
-  <epsg:AreaOfUse gml:id="epsg-area-1262">
-    <metaDataProperty>
+  </gml:metaDataProperty>
+  <gml:identifier codeSpace="OGP">http://www.opengis.net/def/crs/EPSG/0/4327</gml:identifier>
+  <gml:name>WGS 84 (geographic 3D)</gml:name>
+  <epsg:AreaOfUse xmlns:gmd="http://www.isotc211.org/2005/gmd" xmlns:gco="http://www.isotc211.org/2005/gco">
+    <gmd:description>
+      <gco:CharacterString>World.</gco:CharacterString>
+    </gmd:description>
+    <gmd:geographicElement>
+      <gmd:EX_GeographicBoundingBox>
+        <gmd:westBoundLongitude>
+          <gco:Decimal>-180</gco:Decimal>
+        </gmd:westBoundLongitude>
+        <gmd:eastBoundLongitude>
+          <gco:Decimal>180</gco:Decimal>
+        </gmd:eastBoundLongitude>
+        <gmd:southBoundLatitude>
+          <gco:Decimal>-90</gco:Decimal>
+        </gmd:southBoundLatitude>
+        <gmd:northBoundLatitude>
+          <gco:Decimal>90</gco:Decimal>
+        </gmd:northBoundLatitude>
+      </gmd:EX_GeographicBoundingBox>
+    </gmd:geographicElement>
+    <gml:metaDataProperty>
       <epsg:CommonMetaData>
         <epsg:informationSource>OGP</epsg:informationSource>
         <epsg:revisionDate>2001-06-05</epsg:revisionDate>
         <epsg:show>false</epsg:show>
         <epsg:isDeprecated>false</epsg:isDeprecated>
       </epsg:CommonMetaData>
-    </metaDataProperty>
-    <identifier codeSpace="OGP">http://www.opengis.net/def/area/EPSG/0/1262</identifier>
-    <name>World</name>
-    <gmd:EX_Extent>
-      <gmd:description>
-        <gco:CharacterString>World.</gco:CharacterString>
-      </gmd:description>
-      <gmd:geographicElement>
-        <gmd:EX_GeographicBoundingBox>
-          <gmd:westBoundLongitude>
-            <gco:Decimal>-180</gco:Decimal>
-          </gmd:westBoundLongitude>
-          <gmd:eastBoundLongitude>
-            <gco:Decimal>180</gco:Decimal>
-          </gmd:eastBoundLongitude>
-          <gmd:southBoundLatitude>
-            <gco:Decimal>-90</gco:Decimal>
-          </gmd:southBoundLatitude>
-          <gmd:northBoundLatitude>
-            <gco:Decimal>90</gco:Decimal>
-          </gmd:northBoundLatitude>
-        </gmd:EX_GeographicBoundingBox>
-      </gmd:geographicElement>
-    </gmd:EX_Extent>
+    </gml:metaDataProperty>
+    <gml:identifier codeSpace="OGP">http://www.opengis.net/def/area/EPSG/0/1262</gml:identifier>
+    <gml:name>World</gml:name>
+    <empty/>
   </epsg:AreaOfUse>
-  <scope>Used by the GPS satellite navigation system.</scope>
-  <EllipsoidalCS gml:id="epsg-cs-6401">
-    <metaDataProperty>
+  <gml:scope>Used by the GPS satellite navigation system.</gml:scope>
+  <gml:EllipsoidalCS gml:id="epsg-cs-6401">
+    <gml:metaDataProperty>
       <epsg:CommonMetaData>
         <epsg:type>ellipsoidal</epsg:type>
         <epsg:informationSource>OGP</epsg:informationSource>
@@ -62,37 +61,37 @@
         </epsg:changes>
         <epsg:isDeprecated>true</epsg:isDeprecated>
       </epsg:CommonMetaData>
-    </metaDataProperty>
-    <identifier codeSpace="OGP">http://www.opengis.net/def/cs/EPSG/0/6401</identifier>
-    <name>Ellipsoidal 3D CS. Axes: latitude, longitude, ellipsoidal height. Orientations: north, east, up. UoM: DMSH, DMSH, m.</name>
-    <remarks>Used in geographic 3D coordinate reference systems. Preferred axis unit format for human interface.</remarks>
-    <axis>
-      <CoordinateSystemAxis gml:id="epsg-axis-53" gml:uom="http://www.opengis.net/def/uom/EPSG/0/9108">
-        <descriptionReference xlink:href="http://www.opengis.net/def/axis-name/EPSG/0/9901"/>
-        <identifier codeSpace="OGP">http://www.opengis.net/def/axis/EPSG/0/53</identifier>
-        <axisAbbrev>Lat</axisAbbrev>
-        <axisDirection codeSpace="EPSG">north</axisDirection>
-      </CoordinateSystemAxis>
-    </axis>
-    <axis>
-      <CoordinateSystemAxis gml:id="epsg-axis-54" gml:uom="http://www.opengis.net/def/uom/EPSG/0/9108">
-        <descriptionReference xlink:href="http://www.opengis.net/def/axis-name/EPSG/0/9902"/>
-        <identifier codeSpace="OGP">http://www.opengis.net/def/axis/EPSG/0/54</identifier>
-        <axisAbbrev>Long</axisAbbrev>
-        <axisDirection codeSpace="EPSG">east</axisDirection>
-      </CoordinateSystemAxis>
-    </axis>
-    <axis>
-      <CoordinateSystemAxis gml:id="epsg-axis-55" gml:uom="http://www.opengis.net/def/uom/EPSG/0/9001">
-        <descriptionReference xlink:href="http://www.opengis.net/def/axis-name/EPSG/0/9903"/>
-        <identifier codeSpace="OGP">http://www.opengis.net/def/axis/EPSG/0/55</identifier>
-        <axisAbbrev>h</axisAbbrev>
-        <axisDirection codeSpace="EPSG">up</axisDirection>
-      </CoordinateSystemAxis>
-    </axis>
-  </EllipsoidalCS>
-  <GeodeticDatum gml:id="epsg-datum-6326">
-    <metaDataProperty>
+    </gml:metaDataProperty>
+    <gml:identifier codeSpace="OGP">http://www.opengis.net/def/cs/EPSG/0/6401</gml:identifier>
+    <gml:name>Ellipsoidal 3D CS. Axes: latitude, longitude, ellipsoidal height. Orientations: north, east, up. UoM: DMSH, DMSH, m.</gml:name>
+    <gml:remarks>Used in geographic 3D coordinate reference systems. Preferred axis unit format for human interface.</gml:remarks>
+    <gml:axis>
+      <gml:CoordinateSystemAxis gml:id="epsg-axis-53" uom="http://www.opengis.net/def/uom/EPSG/0/9108">
+        <gml:descriptionReference xlink:href="http://www.opengis.net/def/axis-name/EPSG/0/9901"/>
+        <gml:identifier codeSpace="OGP">http://www.opengis.net/def/axis/EPSG/0/53</gml:identifier>
+        <gml:axisAbbrev>Lat</gml:axisAbbrev>
+        <gml:axisDirection codeSpace="EPSG">north</gml:axisDirection>
+      </gml:CoordinateSystemAxis>
+    </gml:axis>
+    <gml:axis>
+      <gml:CoordinateSystemAxis gml:id="epsg-axis-54" uom="http://www.opengis.net/def/uom/EPSG/0/9108">
+        <gml:descriptionReference xlink:href="http://www.opengis.net/def/axis-name/EPSG/0/9902"/>
+        <gml:identifier codeSpace="OGP">http://www.opengis.net/def/axis/EPSG/0/54</gml:identifier>
+        <gml:axisAbbrev>Long</gml:axisAbbrev>
+        <gml:axisDirection codeSpace="EPSG">east</gml:axisDirection>
+      </gml:CoordinateSystemAxis>
+    </gml:axis>
+    <gml:axis>
+      <gml:CoordinateSystemAxis gml:id="epsg-axis-55" uom="http://www.opengis.net/def/uom/EPSG/0/9001">
+        <gml:descriptionReference xlink:href="http://www.opengis.net/def/axis-name/EPSG/0/9903"/>
+        <gml:identifier codeSpace="OGP">http://www.opengis.net/def/axis/EPSG/0/55</gml:identifier>
+        <gml:axisAbbrev>h</gml:axisAbbrev>
+        <gml:axisDirection codeSpace="EPSG">up</gml:axisDirection>
+      </gml:CoordinateSystemAxis>
+    </gml:axis>
+  </gml:EllipsoidalCS>
+  <gml:GeodeticDatum gml:id="epsg-datum-6326">
+    <gml:metaDataProperty>
       <epsg:CommonMetaData>
         <epsg:type>geodetic</epsg:type>
         <epsg:alias alias="WGS 84" code="332" codeSpace="http://www.opengis.net/def/naming-system/EPSG/0/7302"/>
@@ -109,48 +108,47 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
         </epsg:changes>
         <epsg:isDeprecated>false</epsg:isDeprecated>
       </epsg:CommonMetaData>
-    </metaDataProperty>
-    <identifier codeSpace="OGP">http://www.opengis.net/def/datum/EPSG/0/6326</identifier>
-    <name>World Geodetic System 1984</name>
-    <remarks>EPSG's WGS 84 datum has been the then current realisation. No distinction is made between the original WGS 84 frame, WGS 84 (G730), WGS 84 (G873) and WGS 84 (G1150). Since 1997, WGS 84 has been maintained within 10cm of the then current ITRF.</remarks>
-    <epsg:AreaOfUse gml:id="epsg-area-1262">
-      <metaDataProperty>
+    </gml:metaDataProperty>
+    <gml:identifier codeSpace="OGP">http://www.opengis.net/def/datum/EPSG/0/6326</gml:identifier>
+    <gml:name>World Geodetic System 1984</gml:name>
+    <gml:remarks>EPSG's WGS 84 datum has been the then current realisation. No distinction is made between the original WGS 84 frame, WGS 84 (G730), WGS 84 (G873) and WGS 84 (G1150). Since 1997, WGS 84 has been maintained within 10cm of the then current ITRF.</gml:remarks>
+    <epsg:AreaOfUse>
+      <gmd:description xmlns:gmd="http://www.isotc211.org/2005/gmd">
+        <gco:CharacterString xmlns:gco="http://www.isotc211.org/2005/gco">World.</gco:CharacterString>
+      </gmd:description>
+      <gmd:geographicElement xmlns:gmd="http://www.isotc211.org/2005/gmd">
+        <gmd:EX_GeographicBoundingBox>
+          <gmd:westBoundLongitude>
+            <gco:Decimal xmlns:gco="http://www.isotc211.org/2005/gco">-180</gco:Decimal>
+          </gmd:westBoundLongitude>
+          <gmd:eastBoundLongitude>
+            <gco:Decimal xmlns:gco="http://www.isotc211.org/2005/gco">180</gco:Decimal>
+          </gmd:eastBoundLongitude>
+          <gmd:southBoundLatitude>
+            <gco:Decimal xmlns:gco="http://www.isotc211.org/2005/gco">-90</gco:Decimal>
+          </gmd:southBoundLatitude>
+          <gmd:northBoundLatitude>
+            <gco:Decimal xmlns:gco="http://www.isotc211.org/2005/gco">90</gco:Decimal>
+          </gmd:northBoundLatitude>
+        </gmd:EX_GeographicBoundingBox>
+      </gmd:geographicElement>
+      <gml:metaDataProperty>
         <epsg:CommonMetaData>
           <epsg:informationSource>OGP</epsg:informationSource>
           <epsg:revisionDate>2001-06-05</epsg:revisionDate>
           <epsg:show>false</epsg:show>
           <epsg:isDeprecated>false</epsg:isDeprecated>
         </epsg:CommonMetaData>
-      </metaDataProperty>
-      <identifier codeSpace="OGP">http://www.opengis.net/def/area/EPSG/0/1262</identifier>
-      <name>World</name>
-      <gmd:EX_Extent>
-        <gmd:description>
-          <gco:CharacterString>World.</gco:CharacterString>
-        </gmd:description>
-        <gmd:geographicElement>
-          <gmd:EX_GeographicBoundingBox>
-            <gmd:westBoundLongitude>
-              <gco:Decimal>-180</gco:Decimal>
-            </gmd:westBoundLongitude>
-            <gmd:eastBoundLongitude>
-              <gco:Decimal>180</gco:Decimal>
-            </gmd:eastBoundLongitude>
-            <gmd:southBoundLatitude>
-              <gco:Decimal>-90</gco:Decimal>
-            </gmd:southBoundLatitude>
-            <gmd:northBoundLatitude>
-              <gco:Decimal>90</gco:Decimal>
-            </gmd:northBoundLatitude>
-          </gmd:EX_GeographicBoundingBox>
-        </gmd:geographicElement>
-      </gmd:EX_Extent>
+      </gml:metaDataProperty>
+      <gml:identifier codeSpace="OGP">http://www.opengis.net/def/area/EPSG/0/1262</gml:identifier>
+      <gml:name>World</gml:name>
+      <epsg:geometryFile xlink:href="http://www.opengis.net/def/extent-polygon/EPSG/0/1262" xlink:type="simple"/>
     </epsg:AreaOfUse>
-    <scope>Satellite navigation.</scope>
-    <anchorDefinition>Defined through a consistent set of station coordinates. These have changed with time: by 0.7m on 29/6/1994 [WGS 84 (G730)], a further 0.2m on 29/1/1997 [WGS 84 (G873)] and a further 0.06m on 20/1/2002 [WGS 84 (G1150)].</anchorDefinition>
-    <realizationEpoch>1984-01-01</realizationEpoch>
-    <PrimeMeridian gml:id="epsg-meridian-8901">
-      <metaDataProperty>
+    <gml:scope>Satellite navigation.</gml:scope>
+    <gml:anchorDefinition>Defined through a consistent set of station coordinates. These have changed with time: by 0.7m on 29/6/1994 [WGS 84 (G730)], a further 0.2m on 29/1/1997 [WGS 84 (G873)] and a further 0.06m on 20/1/2002 [WGS 84 (G1150)].</gml:anchorDefinition>
+    <gml:realizationEpoch>1984-01-01</gml:realizationEpoch>
+    <gml:PrimeMeridian gml:id="epsg-meridian-8901">
+      <gml:metaDataProperty>
         <epsg:CommonMetaData>
           <epsg:revisionDate>1995-06-02</epsg:revisionDate>
           <epsg:changes>
@@ -158,13 +156,13 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
           </epsg:changes>
           <epsg:isDeprecated>false</epsg:isDeprecated>
         </epsg:CommonMetaData>
-      </metaDataProperty>
-      <identifier codeSpace="OGP">http://www.opengis.net/def/meridian/EPSG/0/8901</identifier>
-      <name>Greenwich</name>
-      <greenwichLongitude uom="http://www.opengis.net/def/uom/EPSG/0/9102">0</greenwichLongitude>
-    </PrimeMeridian>
-    <Ellipsoid gml:id="epsg-ellipsoid-7030">
-      <metaDataProperty>
+      </gml:metaDataProperty>
+      <gml:identifier codeSpace="OGP">http://www.opengis.net/def/meridian/EPSG/0/8901</gml:identifier>
+      <gml:name>Greenwich</gml:name>
+      <gml:greenwichLongitude uom="http://www.opengis.net/def/uom/EPSG/0/9102">0</gml:greenwichLongitude>
+    </gml:PrimeMeridian>
+    <gml:Ellipsoid gml:id="epsg-ellipsoid-7030">
+      <gml:metaDataProperty>
         <epsg:CommonMetaData>
           <epsg:alias alias="WGS84" code="67" codeSpace="http://www.opengis.net/def/naming-system/EPSG/0/7301"/>
           <epsg:informationSource>DMA Technical Manual 8350.2-B</epsg:informationSource>
@@ -174,16 +172,16 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
           </epsg:changes>
           <epsg:isDeprecated>false</epsg:isDeprecated>
         </epsg:CommonMetaData>
-      </metaDataProperty>
-      <identifier codeSpace="OGP">http://www.opengis.net/def/ellipsoid/EPSG/0/7030</identifier>
-      <name>WGS 84</name>
-      <remarks>Inverse flattening derived from four defining parameters (semi-major axis; C20 = -484.16685*10e-6; earth's angular velocity w = 7292115e11 rad/sec; gravitational constant GM = 3986005e8 m*m*m/s/s).</remarks>
-      <semiMajorAxis uom="http://www.opengis.net/def/uom/EPSG/0/9001">6378137</semiMajorAxis>
-      <secondDefiningParameter>
-        <SecondDefiningParameter>
-          <inverseFlattening uom="http://www.opengis.net/def/uom/EPSG/0/9201">298.257223563</inverseFlattening>
-        </SecondDefiningParameter>
-      </secondDefiningParameter>
-    </Ellipsoid>
-  </GeodeticDatum>
-</GeodeticCRS>
+      </gml:metaDataProperty>
+      <gml:identifier codeSpace="OGP">http://www.opengis.net/def/ellipsoid/EPSG/0/7030</gml:identifier>
+      <gml:name>WGS 84</gml:name>
+      <gml:remarks>Inverse flattening derived from four defining parameters (semi-major axis; C20 = -484.16685*10e-6; earth's angular velocity w = 7292115e11 rad/sec; gravitational constant GM = 3986005e8 m*m*m/s/s).</gml:remarks>
+      <gml:semiMajorAxis uom="http://www.opengis.net/def/uom/EPSG/0/9001">6378137</gml:semiMajorAxis>
+      <gml:secondDefiningParameter>
+        <gml:SecondDefiningParameter>
+          <gml:inverseFlattening uom="http://www.opengis.net/def/uom/EPSG/0/9201">298.257223563</gml:inverseFlattening>
+        </gml:SecondDefiningParameter>
+      </gml:secondDefiningParameter>
+    </gml:Ellipsoid>
+  </gml:GeodeticDatum>
+</gml:GeodeticCRS>
