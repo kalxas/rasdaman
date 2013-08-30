@@ -36,9 +36,10 @@
 	PYRAMID_ARG='-l'
 	HOST_ARG='-h'
 	PORT_ARG='-p'
+	CONNFILE_ARG='-c'
 	ME="$( basename $0 )"
 	USAGE="
-	usage: $ME <layerName> <collName> <crs> [$PYRAMID_ARG <pyramidLevels>] [$HOST_ARG <host>] [$PORT_ARG <port>]
+	usage: $ME <layerName> <collName> <crs> [$PYRAMID_ARG <pyramidLevels>] [$HOST_ARG <host>] [$PORT_ARG <port>] [$CONNFILE_ARG <path_to_rasconnect>]
 	where
 		<layerName>	the arbitrary name for the /new/ WMS layer;
 		<collName> 	must be an existing collection in rasdaman (but not already a published WMS coverage);
@@ -48,10 +49,12 @@
 		<host:port> 	of the WMS (->Petascope): important for for pluggin the WMS service into client softwares [default localhost:8080]. 
 				Argument are considered if this is the first WMS layer that is added, 
 				hence no WMS service has previously been defined.
+		<path_to_rasconnect>	metadata db connection info (see ./rasgeo/README),
+				defaults to $HOME/.rasdaman/rasconnect
 	"
 	# In case the usage changes, consequently adjust these values:
 	MIN_ARGS=3
-	MAX_ARGS=9
+	MAX_ARGS=11
 #
 # DESCRIPTION
 #       Given an existing 2D coverage in rasdaman, the script fetches its metadata
@@ -79,6 +82,7 @@
 #       2008-may-02     P.Baumann       metadata now in database
 #       2012-jun-01     pcampalani	Backporting for Petascope: automatic fetch of collection metadata
 #                                       and petascopedb sync.
+#       2013-aug-29     A.Beccati       connection file as a parameter to allow calling script from other user context or from a web server profile
 #
 # TODO: 
 #    - add option to cutomize the style: currently the layer are limited to RGB and Grey sets, "as is".
@@ -90,9 +94,13 @@
 # --- DEFAULTS ------------------------------------------------------
 # --- values here can (and should) be adjusted to local choices -----
 
-# user / password for logging in to rasdaman
 # (defined here so that they do not appear in command line)
-USER=rasadmin
+# Added also to dbconnect file so that no hardcoded values are used
+# TODO: keeping them initialized here for backward compatibility,
+# remove from there (they'll be overwritten by connect file) as soon as
+# new connect file is deployed officially (might require migration,
+# warning already added)
+USER=rasadmin 
 PASSWD=rasadmin
 
 # script directory
@@ -105,6 +113,10 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
       HOST_KEY=host
     PGPORT_KEY=pgport
  RASDBNAME_KEY=rasdbname
+   RASUSER_KEY=rasuser # user for RASBASE (not used here)
+ RASPASSWD_KEY=raspassword # user password for RASBASE (not used here)
+      USER_KEY=rasloginuser # user for logging in to rasdaman
+    PASSWD_KEY=rasloginpassword # password for logging in to rasdaman
 PETADBNAME_KEY=petadbname
   PETAUSER_KEY=petauser
 PETAPASSWD_KEY=petapassword
@@ -312,6 +324,7 @@ while [ $# -gt 0 ]; do
           $PYRAMID_ARG) LEVELS_STRING="$2";  shift;;
  	  $HOST_ARG)    PETASCOPE_HOST="$2"; shift;;
  	  $PORT_ARG)    PETASCOPE_PORT="$2"; shift;;
+ 	  $CONNFILE_ARG)   CONNECT_FILE="$2" ; shift;;
 	esac
         shift
 done
@@ -327,7 +340,31 @@ fi
     RAS_HOST=$(cat $CONNECT_FILE  | grep $HOST_KEY       | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
      PG_PORT=$(cat $CONNECT_FILE  | grep $PGPORT_KEY     | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
   RASDB_NAME=$(cat $CONNECT_FILE  | grep $RASDBNAME_KEY  | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
-PETADB_NAME="$(cat $CONNECT_FILE  | grep $PETADBNAME_KEY | "$AWK" 'BEGIN { FS="=" }; { print $2 }')"
+  RASUSER=$(cat $CONNECT_FILE  | grep $RASUSER_KEY  | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+  RASPASSWD=$(cat $CONNECT_FILE  | grep $RASPASSWD_KEY  | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+
+  #TODO: remove check and defaults after deprecation of old format, rename without T
+  TUSER=$(cat $CONNECT_FILE  | grep $USER_KEY  | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+  TPASSWD=$(cat $CONNECT_FILE  | grep $PASSWD_KEY  | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
+  
+  #TODO: remove check and defaults after deprecation of old format
+  if [ -z "$TUSER" ] ; then
+    echo "$ME: WARNING: Parameter $USER_KEY missing from connect file: $CONNECT_FILE , please update it!"
+    echo "$ME: Using default $USER_KEY = $USER"
+  else
+    USER="$TUSER"
+  fi
+
+  #TODO: remove check and defaults after deprecation of old format
+  if [ -z "$TPASSWD" ] ; then
+    echo "$ME: WARNING: Parameter $PASSWD_KEY missing from connect file: $CONNECT_FILE , please update it!"
+    echo "$ME: Using default $PASSWD_KEY = $PASSWD"
+  else
+    PASSWD="$TPASSWD"
+  fi
+
+
+ PETADB_NAME="$(cat $CONNECT_FILE  | grep $PETADBNAME_KEY | "$AWK" 'BEGIN { FS="=" }; { print $2 }')"
     PETAUSER=$(cat $CONNECT_FILE  | grep $PETAUSER_KEY   | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
   PETAPASSWD=$(cat $CONNECT_FILE  | grep $PETAPASSWD_KEY | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
 
