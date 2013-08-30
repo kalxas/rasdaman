@@ -7,3 +7,7 @@ rasuser=rasdaman
 raspassword=rasdaman
 petauser=rasdaman
 petapassword=rasdaman
+# user for logging in to rasdaman
+rasloginuser=rasadmin
+# password for logging in to rasdaman
+rasloginpassword=rasadmin

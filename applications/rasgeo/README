@@ -56,6 +56,12 @@ security requirements. The structure of the file is as follows
     raspassword=rasadmin
     petauser=petauser
     petapassword=petapasswd
+    
+    TODO: After 0.5, include these two parameters for rasdaman administrative login
+    # user for logging in to rasdaman
+    rasloginuser=rasadmin
+    # password for logging in to rasdaman
+    rasloginpassword=rasadmin
 
 
 Note:
