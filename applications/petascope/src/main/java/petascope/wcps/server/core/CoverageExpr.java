@@ -91,7 +91,10 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
             child = new ConstructCoverageExpr(node.getFirstChild(), xq);
         } else if (nodeName.equals(WCPSConstants.MSG_CONST)) {
             child = new ConstantCoverageExpr(node.getFirstChild(), xq);
-        } //        else if (nodeName.equals("variableRef"))
+        } else if (nodeName.equals(WCPSConstants.MSG_SWITCH)) {
+            child = new SwitchExpr(node, xq);
+        }
+        //        else if (nodeName.equals("variableRef"))
         //        {
         //            child = new VariableReference(node, xq);
         //        }

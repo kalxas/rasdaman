@@ -1,0 +1,1 @@
+for c in mr return encode(switch case c>20 return (char)2 case c>10 return (char)1 default return (char)0,"csv")
