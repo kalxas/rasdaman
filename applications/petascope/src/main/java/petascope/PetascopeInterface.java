@@ -324,6 +324,13 @@ public class PetascopeInterface extends HttpServlet {
                     request = request2;
                 }
 
+                if(params.get(WCPS_QUERY_GET_PARAMETER) == null && params.get("request") == null){
+                    for(String postParam : params.keySet()){
+                        throw new WCSException(ExceptionCode.BadPostParameter,
+                                "Bad Post parameter '" + postParam + "', expected parameters are 'query'/'request'");
+                    }
+                }
+                
                 // Empty request ?
                 if (request == null && (requestBody == null || requestBody.length() == 0)) {
                     if (paramMap.size() > 0) {

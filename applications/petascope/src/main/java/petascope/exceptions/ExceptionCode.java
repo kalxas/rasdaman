@@ -131,6 +131,7 @@ public class ExceptionCode {
                 + "\n}";
     }
     public static final ExceptionCode BadResponseHandler = new ExceptionCode("BadResponseHandler", null, 0);
+    public static final ExceptionCode BadPostParameter = new ExceptionCode("BadPostParameter", null, 0);
     public static final ExceptionCode InternalComponentError = new ExceptionCode("InternalComponentError", null, 0);
     public static final ExceptionCode InternalSqlError = new ExceptionCode("InternalSqlError", null, 0);
     public static final ExceptionCode InvalidEncodingSyntax = new ExceptionCode("InvalidEncodingSyntax",
