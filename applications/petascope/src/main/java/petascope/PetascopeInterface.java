@@ -262,7 +262,7 @@ public class PetascopeInterface extends HttpServlet {
                     if (service.equals("WCS")) {
                         // extract version
                         String version = null;
-                        String operation = paramMap.get("request");
+                        String operation = paramMap.get(WCPS_REQUEST_GET_PARAMETER);
 
                         //This might be a REST operation, try to get the operation from the uri
                         if (operation == null && splitURI.size() > 2) {
@@ -297,7 +297,7 @@ public class PetascopeInterface extends HttpServlet {
 
                         // handle request
                         request = StringUtil.urldecode(httpRequest.getQueryString(), httpRequest.getContentType());
-                        handleWcsRequest(version, paramMap.get("request"), request, false, httpResponse, httpRequest);
+                        handleWcsRequest(version, paramMap.get(WCPS_REQUEST_GET_PARAMETER), request, false, httpResponse, httpRequest);
                         return;
                     }
                 }
@@ -319,12 +319,12 @@ public class PetascopeInterface extends HttpServlet {
                     log.debug("Received Abstract Syntax Request via GET: \n\t\t{}", request2);
                     request2 = RasUtil.abstractWCPStoXML(request2);
                 }
-                request = StringUtil.urldecode(params.get("request"), httpRequest.getContentType());
+                request = StringUtil.urldecode(params.get(WCPS_REQUEST_GET_PARAMETER), httpRequest.getContentType());
                 if (request == null && request2 != null) {
                     request = request2;
                 }
 
-                if(params.get(WCPS_QUERY_GET_PARAMETER) == null && params.get("request") == null){
+                if(params.get(WCPS_QUERY_GET_PARAMETER) == null && params.get(WCPS_REQUEST_GET_PARAMETER) == null){
                     for(String postParam : params.keySet()){
                         throw new WCSException(ExceptionCode.BadPostParameter,
                                 "Bad Post parameter '" + postParam + "', expected parameters are 'query'/'request'");
@@ -742,4 +742,5 @@ public class PetascopeInterface extends HttpServlet {
     private static final String CORS_ACCESS_CONTROL_ALLOW_HEADERS = "Content-Type";
     private static final String CORS_ACCESS_CONTROL_MAX_AGE = "1728000";
     private static final String WCPS_QUERY_GET_PARAMETER = "query";
+    private static final String WCPS_REQUEST_GET_PARAMETER = "request";
 }
