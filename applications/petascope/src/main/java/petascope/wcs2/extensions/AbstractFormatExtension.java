@@ -364,13 +364,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             format += "\", \"" + params;
         }
 
-        // If outputCrs != Native CRS then add crsTrasform WCPS expression
-        if (!format.equalsIgnoreCase("sdom") && cov.getBbox() != null
-                && !CrsUtil.CrsUri.areEquivalent(req.getCRS().get(0).getOutputCrs(), cov.getBbox().getCrsName())) {
-            proc = "crsTransform(" + proc + ", { x:\"" + req.getCRS().get(0).getOutputCrs() + "\","
-                    + "y:\"" + req.getCRS().get(0).getOutputCrs() + "\"}, { })";
-            // TODO: manage interpolation formats list.
-        }
         String query = "for c in (" + req.getCoverageId() + ") return encode(" + proc + ", \"" + format + "\")";
         log.debug("==========================================================");
         log.debug(query);
