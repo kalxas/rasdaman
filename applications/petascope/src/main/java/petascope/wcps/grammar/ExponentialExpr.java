@@ -21,18 +21,39 @@
  */
 package petascope.wcps.grammar;
 
+import org.slf4j.LoggerFactory;
+import petascope.util.WCPSConstants;
+
 /**
  * ExponentialExpr
  * Creation date: (3/3/2003 2:28:43 AM)
  * @author: mattia parigiani, Sorin Stancu-Mara, Andrei Aiordachioaie
  */
 public class ExponentialExpr implements IParseTreeNode {
+    
+    private static org.slf4j.Logger log = LoggerFactory.getLogger(IndexExpr.class);
 
     CoverageExpr coverageExpr;
     String expOperator;
+    Double powerArg = null;
 
     public ExponentialExpr(String op, CoverageExpr ce) {
         expOperator = op;
+        coverageExpr = ce;
+    }
+
+    public ExponentialExpr(String op, String arg, CoverageExpr ce) {
+        expOperator = op;
+        if (arg == null) {
+            log.error("Power exponent is null.");
+            throw new IllegalArgumentException("Power exponent is null.");
+        }
+        try {
+            powerArg = Double.parseDouble(arg);
+        } catch (NumberFormatException ex) {
+            log.error("Power exponent is not a valid floating point number: " + arg);
+            throw new IllegalArgumentException("Power exponent is not a valid floating point number: " + arg);
+        }
         coverageExpr = ce;
     }
 
@@ -41,6 +62,11 @@ public class ExponentialExpr implements IParseTreeNode {
 
         result += "<" + expOperator + ">";
         result += coverageExpr.toXML();
+        if (powerArg != null) {
+            result += "<" + WCPSConstants.MSG_NUMERIC_CONSTANT + ">" + 
+                    powerArg + 
+                    "</" + WCPSConstants.MSG_NUMERIC_CONSTANT + ">";
+        }
         result += "</" + expOperator + ">";
         return result;
     }

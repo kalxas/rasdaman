@@ -90,3 +90,5 @@ output
 applications/petascope/src/main/webapp/WEB-INF/web.xml
 compile
 /applications/petascope/dist/
+wcps.tokens
+failed_cases

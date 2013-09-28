@@ -237,6 +237,7 @@ public interface WCPSConstants {
     public static final String MSG_OVERLAY                      = "overlay";
     public static final String MSG_PARAM                        = "param";
     public static final String MSG_PLUS_S                       = "plus";
+    public static final String MSG_POW                          = "pow";
     public static final String MSG_QUERY                        = "query";
     public static final String MSG_XOR                          = "xor";
     public static final String MSG_PARSED_CONST_LIST            = "parsed constant list with";

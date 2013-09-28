@@ -1,0 +1,1 @@
+for c in (mr) return encode( pow( c[x(100:110),y(100:110)], 2 ), "csv" )

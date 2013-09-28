@@ -49,6 +49,7 @@ public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICov
         WCPSConstants.MSG_GREATER_OR_EQUAL,
         WCPSConstants.MSG_OVERLAY,
         WCPSConstants.MSG_NOT_EQUALS,
+        WCPSConstants.MSG_POW,
     };
     static {
         NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
@@ -102,6 +103,9 @@ public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICov
         } else if (nodeName.equals(WCPSConstants.MSG_OVERLAY)) {
             operation = WCPSConstants.MSG_OVERLAY;
             okay = true;
+        } else if (nodeName.equals(WCPSConstants.MSG_POW)) {
+            operation = WCPSConstants.MSG_POW;
+            okay = true;
         }
 
         if (!okay) {
@@ -132,6 +136,8 @@ public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICov
         if (operation.equals(WCPSConstants.MSG_OVERLAY)) {
             // overlay is reversed in rasql
             ret = "((" + second.toRasQL() + ")" + operation + "(" + first.toRasQL() + "))";
+        } else if (operation.equals(WCPSConstants.MSG_POW)) {
+            ret = operation + "(" + first.toRasQL() + ", " + second.toRasQL() + ")";
         } else {
             ret = "((" + first.toRasQL() + ")" + operation + "(" + second.toRasQL() + "))";
         }

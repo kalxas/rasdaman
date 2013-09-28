@@ -243,6 +243,7 @@ unaryArithmeticExpr returns[CoverageExpr value]
     ;
 exponentialExpr returns[ExponentialExpr value]
     : op=(EXP|LOG|LN) LPAREN e1=coverageExpr RPAREN { $value = new ExponentialExpr($op.text, $e1.value); }
+    | op=POW LPAREN e2=coverageExpr COMMA e3=(FLOATCONSTANT|INTEGERCONSTANT) RPAREN { $value = new ExponentialExpr($op.text, $e3.text, $e2.value); }
     ;
 trigonometricExpr returns[TrigonometricExpr value]
     : op=(SIN|COS|TAN|SINH|COSH|TANH|ARCSIN|ARCCOS|ARCTAN) LPAREN e1=coverageExpr RPAREN { $value = new TrigonometricExpr($op.text, $e1.value); }
@@ -470,6 +471,7 @@ ARCTAN: ('a'|'A')('r'|'R')('c'|'C')('t'|'T')('a'|'A')('n'|'N');
 EXP: ('e'|'E')('x'|'X')('p'|'P');
 LN: ('l'|'L')('n'|'N');
 LOG: ('l'|'L')('o'|'O')('g'|'G');
+POW: ('p'|'P')('o'|'O')('w'|'W');
 ROUND: ('r'|'R')('o'|'O')('u'|'U')('n'|'N')('d'|'D');
 ABS: ('a'|'A')('b'|'B')('s'|'S');
 OVERLAY: ('o'|'O')('v'|'V')('e'|'E')('r'|'R')('l'|'L')('a'|'A')('y'|'Y');
