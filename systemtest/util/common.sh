@@ -84,6 +84,11 @@ export PSQL="psql -d $PS_DB --port $PG_PORT"
 export WGET="wget"
 export GDALINFO="gdalinfo -noct -checksum"
 
+export WMS_IMPORT_DIR="$UTIL_SCRIPT_DIR"/../../applications/rasgeo/wms-import
+export INITWMS="$WMS_IMPORT_DIR/utilities/init_wms.sh"
+export FILLPYR="$WMS_IMPORT_DIR/utilities/fill_pyramid.sh"
+export DROPWMS="$WMS_IMPORT_DIR/utilities/drop_wms.sh"
+
 
 # ------------------------------------------------------------------------------
 # logging

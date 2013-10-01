@@ -223,7 +223,7 @@ function import_rgb()
 
 # ------------------------------------------------------------------------------
 #
-# import 2D rgb data
+# import 2D char data
 #
 function import_mr()
 {
@@ -278,6 +278,71 @@ function import_mr()
 
 # ------------------------------------------------------------------------------
 #
+# import 2D geo-referenced data
+#
+function import_mst()
+{
+  local TESTDATA_PATH="$1"
+  if [ ! -f "$TESTDATA_PATH/mean_summer_airtemp.tif" ]; then
+    error "testdata file $TESTDATA_PATH/mean_summer_airtemp.tif not found"
+  fi
+  
+  c=$COLLS
+  X=885
+  Y=710
+
+  min_x_geo_coord="111.975"
+  min_y_geo_coord="-44.525"
+  max_x_geo_coord="156.275"
+  max_y_geo_coord="-8.975"
+
+  $RASQL -q "create collection $c GreySet" > /dev/null || exit $RC_ERROR
+  $RASQL -q "insert into $c values inv_tiff(\$1)" -f "$TESTDATA_PATH"/mean_summer_airtemp.tif > /dev/null || exit $RC_ERROR
+
+  # general coverage information (name, type, ...)
+  $PSQL -c "insert into PS_Coverage (name, nulldefault, interpolationtypedefault, nullresistancedefault, type) values ( '$c','0', 5, 2, 'RectifiedGridCoverage')" > /dev/null
+
+  # get the coverage id
+  c_id=$($PSQL -c  "select id from PS_Coverage where name = '$c' " | head -3 | tail -1) > /dev/null
+
+  # describe the pixel domain
+  $PSQL -c "insert into PS_CellDomain (coverage, i, lo, hi )  values ( $c_id, 0, 0, $X)" > /dev/null
+  $PSQL -c "insert into PS_CellDomain (coverage, i, lo, hi )  values ( $c_id, 1, 0, $Y)" > /dev/null
+
+  # describe the geo domain
+  $PSQL -c "insert into PS_Domain (coverage, i, name, type, numLo, numHi) values ( $c_id, 0, 'x', 1, $min_x_geo_coord, $max_x_geo_coord )" > /dev/null
+  $PSQL -c "insert into PS_Domain (coverage, i, name, type, numLo, numHi) values ( $c_id, 1, 'y', 2, $min_y_geo_coord, $max_y_geo_coord )" > /dev/null
+
+  # describe the datatype of the coverage cell values
+  $PSQL -c "insert into PS_Range (coverage, i, name, type) values ($c_id, 0, 'value', 2)" > /dev/null
+
+  # set of interpolation methods and null values for the coverage
+  $PSQL -c "insert into PS_InterpolationSet (coverage, interpolationType, nullResistance) values ( $c_id, 5, 2)" > /dev/null
+  $PSQL -c "insert into PS_NullSet (coverage, nullValue) values ( $c_id, '0')" > /dev/null
+
+  # geo-referecing information about the coverage
+  $PSQL -c "insert into PS_CrsDetails (coverage, low1, high1, low2, high2) values ( $c_id, $min_x_geo_coord, $max_x_geo_coord, $min_y_geo_coord, $max_y_geo_coord)" > /dev/null
+
+  # set the crs for the axes
+  x_id=$($PSQL -c "select id from PS_domain where coverage = $c_id and type=1" | head -3 | tail -1) > /dev/null
+  y_id=$($PSQL -c "select id from PS_domain where coverage = $c_id and type=2" | head -3 | tail -1) > /dev/null
+  $PSQL -c "insert into PS_crsset ( axis, crs) values ( $x_id, 9)" > /dev/null
+  $PSQL -c "insert into PS_crsset ( axis, crs) values ( $y_id, 9)" > /dev/null
+
+  # initialize WMS
+  "$INITWMS" australia_wms mean_summer_airtemp EPSG:4326 -l '2:4:8:16' -h localhost -p $WCPS_PORT > /dev/null
+  if [ $? -ne 0 ]; then
+    log "Warning: WMS initialization for mean_summer_airtemp failed."
+  fi
+  "$FILLPYR" mean_summer_airtemp --tasplit > /dev/null
+  if [ $? -ne 0 ]; then
+    log "Warning: WMS pyramid creation for mean_summer_airtemp failed."
+  fi
+}
+
+
+# ------------------------------------------------------------------------------
+#
 # import testdata: data is only imported if it isn't already in petascope
 # $1 - testdata dir holding files to be imported
 #
@@ -288,7 +353,7 @@ function import_petascope_data()
     error "testdata path $TESTDATA_PATH not found."
   fi
   
-  COLLECTIONS="rgb mr eobstest"
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp"
   
   for COLLS in $COLLECTIONS; do
     check_cov $COLLS
@@ -306,6 +371,8 @@ function import_petascope_data()
           import_mr "$TESTDATA_PATH" && break
         elif [ "$COLLS" == "eobstest" ]; then
           import_eobs "$TESTDATA_PATH" && break
+        elif [ "$COLLS" == "mean_summer_airtemp" ]; then
+          import_mst "$TESTDATA_PATH" && break
         fi
         
         raserase_colls > /dev/null 2>&1
@@ -324,7 +391,9 @@ function import_petascope_data()
 
 function drop_petascope_data()
 {
-  COLLS="rgb mr eobstest"
+  COLLS="rgb mr eobstest mean_summer_airtemp"
   drop_petascope $COLLS
   drop_colls $COLLS
+  log "dropping wms..."
+  "$DROPWMS" australia_wms > /dev/null
 }
