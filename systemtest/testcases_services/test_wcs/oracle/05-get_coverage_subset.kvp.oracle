@@ -42,8 +42,8 @@
     <RectifiedGrid dimension="2" gml:id="mr-grid">
       <limits>
         <GridEnvelope>
-          <low>10 10</low>
-          <high>20 20</high>
+          <low>10 191</low>
+          <high>20 201</high>
         </GridEnvelope>
       </limits>
       <axisLabels>x y</axisLabels>
