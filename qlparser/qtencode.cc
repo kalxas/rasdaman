@@ -62,6 +62,7 @@ using namespace std;
 #define PARAM_NODATA "nodata"
 
 #define NODATA_VALUE_SEPARATOR " ,"
+#define NODATA_DEFAULT_VALUE 0.0
 
 QtEncode::QtEncode(QtOperation *mddOp, char* formatIn) throw (r_Error)
 : QtUnaryOperation(mddOp), format(formatIn), fParams(NULL)
@@ -299,7 +300,6 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     strcpy(tmpFileName, "/tmp/rasdaman-XXXXXX");
     
     int fd = mkstemp(tmpFileName);
-    unlink(tmpFileName);
     if (fd < 1)
     {
         RMInit::logOut << "QtEncode::evaluateMDD - Error: Creation of temp file failed with error:\n" << strerror(errno) << endl;
@@ -341,6 +341,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     fseek(fileD, 0, SEEK_SET);
     fread(fileContents, 1, size, fileD);
     fclose(fileD);
+    unlink(tmpFileName);
 
     // result domain: it is now format encoded so we just consider it as a char array
     r_Minterval mddDomain = r_Minterval(1) << r_Sinterval((r_Range) 0, (r_Range) size - 1);
@@ -493,6 +494,11 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
     
         
     // set nodata value
+    if (gParams.nodata.empty())
+    {
+        // if no nodata is specified, set default -- DM 2013-oct-01, ticket 477
+        gParams.nodata.push_back(NODATA_DEFAULT_VALUE);
+    }
     if (gParams.nodata.size() > 0)
     {
         for (int band = 0; band < nBands; band++)

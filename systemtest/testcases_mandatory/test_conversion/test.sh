@@ -128,6 +128,34 @@ drop_colls test_tmp
 rm -f $f*
 }
 
+################## test nodata ###############################
+
+create_coll test_tmp RGBSet
+insert_into test_tmp "$TESTDATA_PATH/rgb.png" "" "inv_png"
+
+$RASQL -q 'select encode(c, "GTiff") from test_tmp as c' --out file --outfile nodata > /dev/null
+res=`gdalinfo nodata.tif | grep "NoData Value=0" | wc -l`
+if [ $res -eq 3 ]; then
+  log "default nodata value test passed."
+  NUM_SUC=$(($NUM_SUC + 1))
+else
+  log "default nodata value test failed."
+  NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+rm -f nodata*
+$RASQL -q 'select encode(c, "GTiff", "nodata=200") from test_tmp as c' --out file --outfile nodata > /dev/null
+res=`gdalinfo nodata.tif | grep "NoData Value=200" | wc -l`
+if [ $res -eq 3 ]; then
+  log "custom nodata value test passed."
+  NUM_SUC=$(($NUM_SUC + 1))
+else
+  log "custom nodata value test failed."
+  NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+rm -f nodata*
+
+drop_colls test_tmp
+
 ################## jpeg() and inv_jpeg() #######################
 run_test jpeg jpeg jpg jpg GreySet
 
