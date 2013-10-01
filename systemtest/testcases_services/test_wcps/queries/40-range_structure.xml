@@ -64,7 +64,7 @@
                         </component>
                     </rangeConstructor>
                 </mult>
-                <format>jpeg</format>
+                <format>png</format>
             </encode>
         </xmlSyntax>
     </query>

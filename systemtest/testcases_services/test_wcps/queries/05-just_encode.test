@@ -1,1 +1,1 @@
-for c in ( rgb ) return encode( c, "jpeg" )
+for c in ( rgb ) return encode( c, "png" )

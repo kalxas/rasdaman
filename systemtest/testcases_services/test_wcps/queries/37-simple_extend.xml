@@ -24,7 +24,7 @@
                         <numericConstant>500</numericConstant>
                     </upperBound>
                 </extend>
-                <format>jpeg</format>
+                <format>png</format>
             </encode>
         </xmlSyntax>
     </query>

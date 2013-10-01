@@ -14,4 +14,4 @@ for c in (rgb) return encode((char)
 				)[x($kx),y($ky)]
 					*
 				(c[x($px+$kx),y($py+$ky)]).red
-	, "jpeg")
+	, "png")

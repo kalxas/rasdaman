@@ -32,7 +32,7 @@
                         <type>char</type>
                     </cast>
                 </plus>
-                <format>jpeg</format>
+                <format>png</format>
             </encode>
         </xmlSyntax>
     </query>

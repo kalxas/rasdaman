@@ -106,7 +106,7 @@
           </construct>
           <type>char</type>
         </cast>
-        <format>jpeg</format>
+        <format>png</format>
       </encode>
     </xmlSyntax>
   </query>

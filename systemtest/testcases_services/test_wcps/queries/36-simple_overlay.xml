@@ -17,7 +17,7 @@
                         <type>char</type>
                     </cast>
                 </overlay>
-                <format>jpeg</format>
+                <format>png</format>
             </encode>
         </xmlSyntax>
     </query>

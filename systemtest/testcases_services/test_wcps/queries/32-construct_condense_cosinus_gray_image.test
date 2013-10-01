@@ -6,4 +6,4 @@
            condense +
            over $kx x(0:10),
                 $ky y(0:10)
-           using cos(0.6)   , "jpeg")
+           using cos(0.6)   , "png")

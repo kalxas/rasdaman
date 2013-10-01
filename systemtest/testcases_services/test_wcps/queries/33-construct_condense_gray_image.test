@@ -6,4 +6,4 @@ for c in (mr) return encode((char)
            condense +
            over $kx x(0:10),
                 $ky y(0:10)
-           using 1   , "jpeg")
+           using 1   , "png")

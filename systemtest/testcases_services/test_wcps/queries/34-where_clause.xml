@@ -18,7 +18,7 @@
             </where>
             <encode store="false">
                 <coverage>c</coverage>
-                <format>jpeg</format>
+                <format>png</format>
             </encode>
         </xmlSyntax>
     </query>

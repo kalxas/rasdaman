@@ -1,1 +1,1 @@
-select jpeg((m).red) from rgb AS m
+select png((m).red) from rgb AS m
