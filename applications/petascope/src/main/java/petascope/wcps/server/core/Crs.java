@@ -88,10 +88,10 @@ public class Crs extends AbstractRasNode {
                 log.error(WCPSConstants.ERRTXT_COULD_NOT_FIND_THE_X + ": " + meta.getCoverageName());
                 throw new PetascopeException(ExceptionCode.NoApplicableCode, WCPSConstants.ERRTXT_COULD_NOT_FIND_THE_X + ": " + meta.getCoverageName());
             }
-            int x0 = X.getLo().intValue();
-            int x1 = X.getHi().intValue();
-            int y0 = Y.getLo().intValue();
-            int y1 = Y.getHi().intValue();
+            int x0 = X.getLoInt();
+            int x1 = X.getHiInt();
+            int y0 = Y.getLoInt();
+            int y1 = Y.getHiInt();
             int W = x1-x0;
             int H = y1-y0;
 
@@ -192,8 +192,8 @@ public class Crs extends AbstractRasNode {
         }
         
         // Get cellDomain extremes
-        int pxLo = cdom.getLo().intValue();
-        int pxHi = cdom.getHi().intValue();
+        int pxLo = cdom.getLoInt();
+        int pxHi = cdom.getHiInt();
         log.trace(WCPSConstants.MSG_CELL_DOMAIN_EXTREMES + pxLo + ", " + WCPSConstants.MSG_HIGH_U + ":" + pxHi);
         
         // Get Domain extremes (real sdom)

@@ -691,8 +691,8 @@ public class Metadata implements Cloneable {
         if (cellT == null) {
             return -1;
         }
-        BigInteger big = cellT.getHi().subtract(cellT.getLo());
-        return big.longValue();
+        long big = cellT.getHiInt() - cellT.getLoInt();
+        return big;
     }
 
     public String getMetadata() {

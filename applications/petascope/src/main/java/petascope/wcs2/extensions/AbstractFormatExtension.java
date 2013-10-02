@@ -119,8 +119,10 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                         Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
                                         Double.parseDouble(((DimensionTrim) subset).getTrimHigh()));
                             // In any case, properly trim the bounds by the image extremes
-                            lowerCellDom += ((cellDomainEl.getLo().compareTo(BigInteger.valueOf(cellDom[0])) > 0) ? cellDomainEl.getLo() : cellDom[0]) + " ";
-                            upperCellDom += ((cellDomainEl.getHi().compareTo(BigInteger.valueOf(cellDom[1])) < 0) ? cellDomainEl.getHi() : cellDom[1]) + " ";
+                            int cellDomainElLo = cellDomainEl.getLoInt();
+                            int cellDomainElHi = cellDomainEl.getHiInt();
+                            lowerCellDom += (cellDomainElLo > cellDom[0]) ? cellDomainElLo + " " : cellDom[0] + " ";
+                            upperCellDom += (cellDomainElHi < cellDom[1]) ? cellDomainElHi + " " : cellDom[1] + " ";
                         } else if (subset instanceof DimensionSlice) {
                             log.info("Axis " + domainEl.getName() + " has been sliced: remove it from the boundedBy element.");
                         } else {
@@ -208,8 +210,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
     private long toPixels(double val, DomainElement el, CellDomainElement cel) {
     
         // Get cellDomain extremes
-        long pxLo = cel.getLo().longValue();
-        long pxHi = cel.getHi().longValue();
+        long pxLo = cel.getLoInt();
+        long pxHi = cel.getHiInt();
         
         // Get Domain extremes (real sdom)
         double domLo = el.getNumLo();
@@ -307,8 +309,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             while (it.hasNext() && cit.hasNext()) {
                 DomainElement el = it.next();
                 CellDomainElement cel = cit.next();
-                long lo = cel.getLo().longValue();
-                long hi = cel.getHi().longValue();
+                long lo = cel.getLoInt();
+                long hi = cel.getHiInt();
                 String dim = el.getName();
                 String crs = CrsUtil.GRID_CRS;
                 if (newdim.containsKey(dim)) {

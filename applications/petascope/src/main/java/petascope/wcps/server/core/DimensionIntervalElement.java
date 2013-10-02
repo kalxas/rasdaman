@@ -203,7 +203,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 try {
                     cellCoord1 = (long)(domain1.getSingleValue());
                     cellCoord2 = (long)(domain2.getSingleValue());
-                    this.transformedCoordinates = true;
+                    this.transformedCoordinates = false;
                 } catch (ClassCastException ex) {
                     String message = ex.getMessage();
                     log.error(message);

@@ -501,10 +501,10 @@ public class executeTransaction {
         String nullDefault = "0";
 
         // Cell domains
-        BigInteger lowX = new BigInteger("0");
-        BigInteger highX = new BigInteger(String.valueOf(img.getHeight() - 1));
-        BigInteger lowY = new BigInteger("0");
-        BigInteger highY = new BigInteger(String.valueOf(img.getWidth() - 1));
+        String lowX = "0";
+        String highX = (img.getHeight() - 1) + "";
+        String lowY = "0";
+        String highY = (img.getWidth() - 1) + "";
         CellDomainElement cellX = new CellDomainElement(lowX, highX, AxisTypes.X_AXIS);
         CellDomainElement cellY = new CellDomainElement(lowY, highY, AxisTypes.Y_AXIS);
         List<CellDomainElement> cellList = new ArrayList<CellDomainElement>(2);
@@ -1093,8 +1093,8 @@ public class executeTransaction {
         long hiX = upper.get(0).longValue();
         long hiY = upper.get(1).longValue();
 
-        CellDomainElement cellX = new CellDomainElement(BigInteger.valueOf(loX), BigInteger.valueOf(hiX), AxisTypes.X_AXIS);
-        CellDomainElement cellY = new CellDomainElement(BigInteger.valueOf(loY), BigInteger.valueOf(hiY), AxisTypes.Y_AXIS);
+        CellDomainElement cellX = new CellDomainElement(loX + "", hiX + "", AxisTypes.X_AXIS);
+        CellDomainElement cellY = new CellDomainElement(loY + "", hiY + "", AxisTypes.Y_AXIS);
 
         List<CellDomainElement> list = new ArrayList<CellDomainElement>();
         list.add(cellX);

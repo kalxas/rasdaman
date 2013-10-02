@@ -143,7 +143,7 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
             AxisIterator ai = i.next();
             String axisName = ai.getVar();
             String axisType = ai.getAxisType();
-            cellDomainList.add(new CellDomainElement(ai.getLow(), ai.getHigh(), axisType));
+            cellDomainList.add(new CellDomainElement(ai.getLow().toString(), ai.getHigh().toString(), axisType));
             String crs = CrsUtil.GRID_CRS;
             HashSet<String> crsset = new HashSet<String>();
             crsset.add(crs);

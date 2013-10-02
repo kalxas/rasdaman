@@ -487,7 +487,7 @@ public class DbMetadataSource implements IMetadataSource {
             List<CellDomainElement> cellDomain = new ArrayList<CellDomainElement>();
 
             while (r.next()) {
-                cell = new CellDomainElement(BigInteger.valueOf(r.getInt("lo")), BigInteger.valueOf(r.getInt("hi")), r.getString("name"));
+                cell = new CellDomainElement(r.getString("lo"), r.getString("hi"), r.getString("name"));
                 cellDomain.add(cell);
                 if (X == null && cell.getName().equalsIgnoreCase("x")) {
                     X = cell;
@@ -558,7 +558,7 @@ public class DbMetadataSource implements IMetadataSource {
                 
                 DomainElement d = new DomainElement(r.getString("name"), axisTypes.get(r.getInt("type")),
                         numLo, numHi, strLo, strHi, crsSet, axisTypes.values(), r.getString("uom"));
-                d.setResolution(cellDomain.get(domain.size()).getHi().subtract(cellDomain.get(domain.size()).getLo()).intValue()+1);
+                d.setResolution(cellDomain.get(domain.size()).getHiInt() - cellDomain.get(domain.size()).getLoInt() + 1);
                 domain.add(d);
             }
 
@@ -581,10 +581,10 @@ public class DbMetadataSource implements IMetadataSource {
             r = s.executeQuery("SELECT * FROM PS_CrsDetails WHERE coverage = '" + coverage + "'");
             if (r.next()) {
                 /* Domain extent */
-                int x0 = (X==null) ? null : X.getLo().intValue();
-                int y0 = (Y==null) ? null : Y.getLo().intValue();
-                int x1 = (X==null) ? null : X.getHi().intValue();
-                int y1 = (Y==null) ? null : Y.getHi().intValue();
+                int x0 = (X==null) ? null : X.getLoInt();
+                int y0 = (Y==null) ? null : Y.getLoInt();
+                int x1 = (X==null) ? null : X.getHiInt();
+                int y1 = (Y==null) ? null : Y.getHiInt();
                 /* CRS Bounding box */
                 l1 = r.getDouble("low1");
                 l2 = r.getDouble("low2");

@@ -98,8 +98,8 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
         while (cdit.hasNext() && dit.hasNext()) {
             CellDomainElement cell = cdit.next();
             DomainElement dom = dit.next();
-            high[i] = cell.getHi().doubleValue();
-            low[i] = cell.getLo().doubleValue();
+            high[i] = Double.valueOf(cell.getHiInt());
+            low[i] = Double.valueOf(cell.getLo());
             axesLabels[i] = dom.getName();
             limits[i] = low[i] + ":" + high[i];
             sliced[i] = false;

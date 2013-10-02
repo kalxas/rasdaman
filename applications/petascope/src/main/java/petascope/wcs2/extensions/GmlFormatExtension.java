@@ -130,15 +130,15 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
                     if (subsetElement instanceof DimensionTrim) {
                         DimensionTrim trim = (DimensionTrim) subsetElement;
-                        cellDomain.setHi(new BigInteger(trim.getTrimHigh()));
-                        cellDomain.setLo(new BigInteger(trim.getTrimLow()));
+                        cellDomain.setHi(trim.getTrimHigh());
+                        cellDomain.setLo(trim.getTrimLow());
                         cellDomain.setSubsetElement(subsetElement);
                     }
 
                     if (subsetElement instanceof DimensionSlice) {
                         DimensionSlice slice = (DimensionSlice) subsetElement;
-                        cellDomain.setHi(new BigInteger(slice.getSlicePoint()));
-                        cellDomain.setLo(new BigInteger(slice.getSlicePoint()));
+                        cellDomain.setHi(slice.getSlicePoint());
+                        cellDomain.setLo(slice.getSlicePoint());
                         cellDomain.setSubsetElement(subsetElement);
                     }
                 }

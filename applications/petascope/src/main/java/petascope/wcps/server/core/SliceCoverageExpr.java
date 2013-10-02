@@ -100,7 +100,7 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         Iterator<DimensionPointElement> i = axisList.iterator();
         DimensionPointElement axis;
         int axisId;
-        int slicingPosInt;
+        String slicingPosInt;
         String slicingPosStr;
 
         while (i.hasNext()) {
@@ -111,16 +111,15 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             dimNames[axisId] = slicingPosStr;
             // Slicing position can be a constant number or a variable reference
             try {
-                slicingPosInt = Integer.parseInt(slicingPosStr);
+                slicingPosInt = slicingPosStr;
             } catch (NumberFormatException e) {
-                slicingPosInt = 1;
+                slicingPosInt = "1";
             }
             log.trace("  " + WCPSConstants.MSG_SLICE_AT_AXIS_ID + ": " + axisId + ", " + WCPSConstants.MSG_AXIS + 
                     " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName() + ", " + WCPSConstants.MSG_SLICING_POSITION2 + ": " + slicingPosInt);
             coverageInfo.setCellDimension(
                     axisId,
-                    new CellDomainElement(
-                    BigInteger.valueOf(slicingPosInt), BigInteger.valueOf(slicingPosInt), axis.getAxisName()));
+                    new CellDomainElement(slicingPosInt, slicingPosInt, axis.getAxisName()));
 
         }
 

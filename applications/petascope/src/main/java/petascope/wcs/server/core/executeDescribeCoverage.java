@@ -152,10 +152,10 @@ public class executeDescribeCoverage {
         CellDomainElement X = cov.getXCellDomain();
         CellDomainElement Y = cov.getYCellDomain();
         if (X != null && Y != null) {
-            lo1 = X.getLo().doubleValue();
-            hi1 = X.getHi().doubleValue();
-            lo2 = Y.getLo().doubleValue();
-            hi2 = Y.getHi().doubleValue();
+            lo1 = new Double(X.getLoInt());
+            hi1 = new Double(X.getHiInt());
+            lo2 = new Double(Y.getLoInt());
+            hi2 = new Double(Y.getHiInt());
 
             bbox.setCrs(CrsUtil.GRID_CRS);
 
@@ -175,10 +175,10 @@ public class executeDescribeCoverage {
         //bbox84.setCrs(DomainElement.WGS84_CRS);
         bboxType.setCrs(boundbox.getCrsName());
         if (boundbox != null) {
-            lo1 = boundbox.getLow1().doubleValue();
-            hi1 = boundbox.getHigh1().doubleValue();
-            lo2 = boundbox.getLow2().doubleValue();
-            hi2 = boundbox.getHigh2().doubleValue();
+            lo1 = boundbox.getLow1();
+            hi1 = boundbox.getHigh1();
+            lo2 = boundbox.getLow2();
+            hi2 = boundbox.getHigh2();
 
             bboxType.getLowerCorner().add(lo1);
             bboxType.getLowerCorner().add(lo2);
@@ -201,8 +201,8 @@ public class executeDescribeCoverage {
         if (T != null) {
             log.trace("Found time-axis for coverage: [" + T.getLo() + ", " + T.getHi() + "]");
             TimeSequenceType temporal = new TimeSequenceType();
-            temporal.getTimePositionOrTimePeriod().add(T.getLo().intValue());
-            temporal.getTimePositionOrTimePeriod().add(T.getHi().intValue());
+            temporal.getTimePositionOrTimePeriod().add(T.getLoInt());
+            temporal.getTimePositionOrTimePeriod().add(T.getHiInt());
             domain.setTemporalDomain(temporal);
         }
 

@@ -36,11 +36,11 @@ public class CellDomainElement implements Cloneable {
 
     GetCoverageRequest.DimensionSubset subsetElement;
 
-    private BigInteger hi;                      //FIXME: should be double
-    private BigInteger lo;                      //FIXME: should be double
+    private String hi;                      //FIXME: should be double
+    private String lo;                      //FIXME: should be double
     private String name;
 
-    public CellDomainElement(BigInteger lo, BigInteger hi, String dimname) throws WCPSException {
+    public CellDomainElement(String lo, String hi, String dimname) throws WCPSException {
         if ((lo == null) || (hi == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 
                     WCPSConstants.ERRTXT_INVALID_CELL_DOMAIN);
@@ -61,8 +61,7 @@ public class CellDomainElement implements Cloneable {
     @Override
     public CellDomainElement clone() {
         try {
-            return new CellDomainElement(BigInteger.ZERO.add(lo),
-                    BigInteger.ZERO.add(hi), name);
+            return new CellDomainElement(lo, hi, name);
         } catch (WCPSException ime) {
             throw new RuntimeException(
                     WCPSConstants.ERRTXT_INVALID_METADATA,
@@ -76,18 +75,39 @@ public class CellDomainElement implements Cloneable {
 
     }
 
-    public BigInteger getHi() {
+    public String getHi() {
         return hi;
-
     }
 
-    public void setHi(BigInteger hi){this.hi = hi;}
+    public int getHiInt() {
+        try {
+            return Integer.valueOf(hi);
+        } catch (NumberFormatException ex) {
+            log.error("Lower bound of interval is not a number: " + hi);
+            throw new RuntimeException("Lower bound of interval is not a number: " + hi);
+        }
+    }
 
-    public BigInteger getLo() {
+    public void setHi(String hi) {
+        this.hi = hi;
+    }
+
+    public String getLo() {
         return lo;
     }
 
-    public void setLo(BigInteger lo){this.lo = lo;}
+    public int getLoInt() {
+        try {
+            return Integer.valueOf(lo);
+        } catch (NumberFormatException ex) {
+            log.error("Lower bound of interval is not a number: " + lo);
+            throw new RuntimeException("Lower bound of interval is not a number: " + lo);
+        }
+    }
+
+    public void setLo(String lo) {
+        this.lo = lo;
+    }
 
     @Override
     public String toString() {

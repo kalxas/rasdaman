@@ -211,8 +211,8 @@ public class GetCoverageOld {
             DomainElement dom = it2.next();
             log.trace(cell.toString());
             log.trace(dom.toString());
-            high[i] = cell.getHi();
-            low[i] = cell.getLo();
+            high[i] = BigInteger.valueOf(cell.getHiInt());
+            low[i] = BigInteger.valueOf(cell.getLoInt());
             axesLabels[i] = dom.getName();
             limits[i] = low[i] + ":" + high[i];
             sliced[i] = false;

@@ -102,7 +102,7 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         log.trace("  " + WCPSConstants.MSG_AXIS_LIST_COUNT + ":" + axisList.size());
         DimensionIntervalElement axis;
         int axisId, scaleId = 0;
-        int axisLo, axisHi;
+        String axisLo, axisHi;
 
         while (i.hasNext()) {
             axis = i.next();
@@ -110,15 +110,14 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_ID + ": " + axisId);
             log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName());
 
-            axisLo = Integer.parseInt(axis.getLoCellCoord());
-            axisHi = Integer.parseInt(axis.getHiCellCoord());
+            axisLo = axis.getLoCellCoord();
+            axisHi = axis.getHiCellCoord();
             dim[scaleId] = axisLo + ":" + axisHi;
             log.trace("    " + WCPSConstants.MSG_AXIS_COORDS + ": " + dim[scaleId]);
             ++scaleId;
             
             coverageInfo.setCellDimension(axisId,
-                    new CellDomainElement(
-                    BigInteger.valueOf(axisLo), BigInteger.valueOf(axisHi), axis.getAxisName()));
+                    new CellDomainElement(axisLo, axisHi, axis.getAxisName()));
         }
 
     }

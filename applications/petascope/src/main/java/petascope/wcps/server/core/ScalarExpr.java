@@ -171,7 +171,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
         List<DomainElement> domainList = new LinkedList<DomainElement>();
 
         // Build domain metadata
-        cellDomainList.add(new CellDomainElement(new BigInteger("1"), new BigInteger("1"), AxisTypes.X_AXIS));
+        cellDomainList.add(new CellDomainElement("1", "1", AxisTypes.X_AXIS));
         String crs = CrsUtil.GRID_CRS;
         HashSet<String> crsset = new HashSet<String>();
         crsset.add(crs);

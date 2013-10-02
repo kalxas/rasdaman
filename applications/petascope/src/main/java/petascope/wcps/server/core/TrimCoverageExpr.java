@@ -104,7 +104,7 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
         log.trace("  " + WCPSConstants.MSG_AXIS_LIST_COUNT + ": " + axisList.size());
         DimensionIntervalElement axis;
         int axisId;
-        int axisLo, axisHi;
+        String axisLo, axisHi;
       
         while (i.hasNext()) {
             axis = i.next();
@@ -117,17 +117,9 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
             // axisHi = Integer.parseInt(axis.getHiCellCoord());
             // Start fix
             
-            try {
-                 log.trace("  " + WCPSConstants.MSG_AXIS + ": Getting coordinates.");
-                 axisLo = Integer.parseInt(axis.getLoCellCoord());
-                 axisHi = Integer.parseInt(axis.getHiCellCoord());
-            } catch (NumberFormatException e) {
-                
-                    String errmsg = "  " + WCPSConstants.ERRTXT_NOT_A_NUMBER + ". " + WCPSConstants.ERRTXT_CRS_COULD_BE_MISSING;
-                    log.error(errmsg + ": " + axis.getAxisName());
-                    
-                    throw new WCPSException(ExceptionCode.MissingCRS, errmsg);
-              }
+            log.trace("  " + WCPSConstants.MSG_AXIS + ": Getting coordinates.");
+            axisLo = axis.getLoCellCoord();
+            axisHi = axis.getHiCellCoord();
             
             // End fix #394       
             
@@ -135,8 +127,7 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
             log.trace("    " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_COORDS + ": " + dimNames[axisId]);
             coverageInfo.setCellDimension(
                     axisId,
-                    new CellDomainElement(
-                    BigInteger.valueOf(axisLo), BigInteger.valueOf(axisHi), axis.getAxisName()));
+                    new CellDomainElement(axisLo, axisHi, axis.getAxisName()));
         }
 
     }
