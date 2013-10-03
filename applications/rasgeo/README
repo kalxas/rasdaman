@@ -217,6 +217,13 @@ IMPORT OPTIONS EXPLAINED
              always relativ to zero; if used together with the -d option, new
              slices are successively imported either on top or underneath of
              each other relative to the given z-shift (s. USE CASES below)
+             
+-tiling -> specify tiling that will be used when importing the data. The tiling
+             argument is passed on verbatim to rasdaman, so it should conform to
+             the rasql tiling grammar (more at http://rasdaman.org/wiki/Tiling):
+             
+                [ TILING tilingName tilingOptions [ TILE SIZE tileSize ] ]
+                [ INDEX indexName ]
 
 
 Raster Attribute Table Support
