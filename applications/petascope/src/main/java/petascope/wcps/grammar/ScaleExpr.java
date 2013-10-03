@@ -33,11 +33,18 @@ public class ScaleExpr implements IParseTreeNode {
     CoverageExpr coverageExpr;
     FieldInterpolationList interpMethods;
     DimensionIntervalList intervalList;
+    MetaDataExpr metadataExpr;
 
     public ScaleExpr(CoverageExpr ce, DimensionIntervalList ail)
     {
         coverageExpr = ce;
         intervalList = ail;
+    }
+
+    public ScaleExpr(CoverageExpr ce, MetaDataExpr me)
+    {
+        coverageExpr = ce;
+        metadataExpr = me;
     }
 
     public void addInterpolationList(FieldInterpolationList iml)
@@ -48,7 +55,12 @@ public class ScaleExpr implements IParseTreeNode {
     public String toXML() {
         String result = "";
 
-        result += coverageExpr.toXML() + intervalList.toXML();
+        result += coverageExpr.toXML();
+        if (intervalList != null) {
+            result += intervalList.toXML();
+        } else {
+            result += metadataExpr.toXML();
+        }
         if (interpMethods != null)
             result += interpMethods.toXML();
         

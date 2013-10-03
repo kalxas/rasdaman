@@ -70,6 +70,24 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
                 log.trace("  " + WCPSConstants.MSG_FIELD_INTERPOLATION);
                 fieldInterp = new FieldInterpolationElement(child, xq);
                 child = fieldInterp.getNextNode();
+            } else if (nodeName.equals(WCPSConstants.MSG_IMAGE_CRSDOMAIN)) {
+                log.trace("  " + WCPSConstants.MSG_IMAGE_CRSDOMAIN);
+                child = child.getFirstChild();
+                while (child != null && child.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+                    child = child.getNextSibling();
+                }
+                
+                CoverageExpr covExprType = new CoverageExpr(child, xq);
+                CoverageInfo covInfo = covExprType.getCoverageInfo();
+                int n = covInfo.getNumDimensions();
+                for (int i = 0; i < n; i++) {
+                    CellDomainElement cde = covInfo.getCellDomainElement(i);
+                    DimensionIntervalElement die = new DimensionIntervalElement(cde.getLoInt(), cde.getHiInt(), cde.getName());
+                    axisList.add(die);
+                }
+                if (child != null) {
+                    child = child.getNextSibling();
+                }
             } else {
                 // has to be the coverage expression
                 try {

@@ -47,6 +47,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
     private ScalarExpr domain2;  // lower and upper bound, or "DomainMetadataExprType" and null
     private long cellCoord1;    // Subsets (after conversion to pixel indices)
     private long cellCoord2;
+    private String axisName;
     private int counter = 0;            // counter for the domain vars
     private Metadata meta = null;       // metadata about the current coverage
     private boolean finished = false;
@@ -212,6 +213,13 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
             }
         }
     }
+    
+    public DimensionIntervalElement(long cellCoordLo, long cellCoordHi, String axisName) {
+        this.cellCoord1 = cellCoordLo;
+        this.cellCoord2 = cellCoordHi;
+        this.axisName = axisName;
+        this.transformedCoordinates = true;
+    }
 
     /* If input coordinates are geo-, convert them to pixel coordinates. */
     private void convertToPixelCoordinates() throws WCPSException {
@@ -255,7 +263,11 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
     }
 
     public String getAxisName() {
-        return this.axis.toRasQL();
+        if (axisName != null) {
+            return axisName;
+        } else {
+            return this.axis.toRasQL();
+        }
     }
 
     public String getAxisCoords() {
