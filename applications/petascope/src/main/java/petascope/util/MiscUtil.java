@@ -23,8 +23,20 @@
 package petascope.util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+import org.slf4j.LoggerFactory;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.WCPSException;
+import petascope.wcps.server.core.CoverageExpr;
+import petascope.wcps.server.core.CoverageInfo;
 import petascope.wcps.server.core.IRasNode;
+import petascope.wcps.server.core.SliceCoverageExpr;
+import petascope.wcps.server.core.TrimCoverageExpr;
 
 /**
  * Various utility methods.
@@ -32,6 +44,8 @@ import petascope.wcps.server.core.IRasNode;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class MiscUtil {
+    
+    private static org.slf4j.Logger log = LoggerFactory.getLogger(MiscUtil.class);
 
     public static <T> List<T> toList(T... e) {
          List<T> ret = new ArrayList<T>();
@@ -70,74 +84,34 @@ public class MiscUtil {
         return targetChilds;
     }
     
-         
     /**
-     * Inner class which gathers the required geo-parameters for GTiff/JPEG2000 encoding.
-     */
-    public class CrsProperties {
-        /* Encoding parameters */
-        private static final String CRS_PARAM  = "crs";
-        private static final String XMAX_PARAM = "xmax";
-        private static final String XMIN_PARAM = "xmin";
-        private static final String YMAX_PARAM = "ymax";
-        private static final String YMIN_PARAM = "ymin";
-        private static final char PS = ';'; // parameter separator
+     * Recursive method to extract nodes of a specified classes into the XML tree of a WCPS query.
+     * @param <T>   The generic type
+     * @param node  The root node
+     * @param types  Explicit target types argument
+     * @return  A list of the children of `node` of class `type`.
+     */     
+    public static List<IRasNode> childrenOfTypes(IRasNode root, Class... types) {
+        List<IRasNode> ret = new ArrayList<IRasNode>();
         
-        /* Members */
-        private double lowX;
-        private double highX;
-        private double lowY;
-        private double highY;
-        private String crs;
-        
-        /* Constructors */
-        // Unreferenced gml:Grid
-        public CrsProperties() {
-            lowX  = 0.0D;
-            highX = 0.0D;
-            lowY  = 0.0D;
-            highY = 0.0D;
-            crs   = "";
-        }
-        // Georeferenced gml:RectifiedGrid
-        public CrsProperties(double xMin, double xMax, double yMin, double yMax, String crs) {
-            lowX  = xMin;
-            highX = xMax;
-            lowY  = yMin;
-            highY = yMax;
-            this.crs = crs;
-        }
-        public CrsProperties(String xMin, String xMax, String yMin, String yMax, String crs) {
-            this(Double.parseDouble(xMin), Double.parseDouble(xMax),
-                    Double.parseDouble(yMin), Double.parseDouble(yMax), crs);
+        // Recursive depth-first search
+        if (root.hasChildren()) {
+            // pre-order op
+            List<IRasNode> children = root.getChildren();
+                        
+            for (int i=0; i<children.size(); i++) {
+                // visit children
+                ret.addAll(childrenOfTypes(children.get(i), types));
+                // in-order op
+                for (Class c : types) {
+                    if (c.isInstance(children.get(i))) {
+                        ret.add(children.get(i));
+                    }
+                }
+            }
         }
         
-        // Interface
-        public double getXmin() {
-            return lowX;
-        }
-        public double getXmax() {
-            return highX;
-        }
-        public double getYmin() {
-            return lowY;
-        }
-        public double getYmax() {
-            return highY;
-        }
-        public String getCrs() {
-            return crs;
-        }
-        
-        // Methods
-        // Returns the paramters as they are exptected from rasql encode() function
-        @Override
-        public String toString() {
-            return XMIN_PARAM  + "=" + lowX  + PS +
-                    XMAX_PARAM + "=" + highX + PS +
-                    YMIN_PARAM + "=" + lowY  + PS +
-                    YMAX_PARAM + "=" + highY + PS +
-                    CRS_PARAM  + "=" + CrsUtil.CrsUri.getAuthority(crs) + ":" + CrsUtil.CrsUri.getCode(crs);
-        }
+        return ret;
     }
+    
 }

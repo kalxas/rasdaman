@@ -22,11 +22,13 @@
 package petascope.wcps.server.core;
 
 import java.util.Iterator;
+import java.util.List;
 import org.w3c.dom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
+import petascope.util.MiscUtil;
 import petascope.util.WCPSConstants;
 
 public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
@@ -39,6 +41,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
     private boolean scalarExpr = false;
     private boolean simpleCoverage;    // True if the coverage is just a string
     private String exMessage = "";
+    private static List<SliceCoverageExpr> slices = null;
 
     public CoverageExpr(Node node, XmlQuery xq) throws WCPSException {
         while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
@@ -209,5 +212,27 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
         } else {
             return child.toRasQL();
         }
+    }
+    
+    /**
+     * Check if axisName is sliced from this coverage expression.
+     * 
+     * @param axisName axis name
+     * @return true if axis is involved in a slice operation, false otherwise
+     */
+    public boolean slicedAxis(String axisName) {
+        boolean ret = false;
+        // Fetch slices, so that we know which axes should be discarded from the computation
+        if (slices == null) {
+            slices = MiscUtil.childrenOfType(this, SliceCoverageExpr.class);
+        }
+        
+        for (SliceCoverageExpr slice : slices) {
+            if (slice.slicesDimension(axisName)) {
+                ret = true;
+                break;
+            }
+        }
+        return ret;
     }
 };

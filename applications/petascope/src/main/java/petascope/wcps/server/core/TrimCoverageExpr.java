@@ -21,7 +21,6 @@
  */
 package petascope.wcps.server.core;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -29,8 +28,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
-import petascope.exceptions.ExceptionCode;
-import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.Pair;
 import petascope.util.WCPSConstants;
@@ -154,7 +151,7 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
         return ret;
     }
     
-    Pair<String[], String> computeRasQL() {
+    public Pair<String[], String> computeRasQL() {
         Pair<String[], String> res = null;
         IRasNode c = coverageExprType.getChild();
         if (c instanceof SubsetOperationCoverageExpr) {
@@ -178,14 +175,14 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     /** 
      * @return How many dimensions are specified in this trim expression
      */
-    int numberOfDimensions() {
+    public int numberOfDimensions() {
         return dims;
     }
     
     /**
      * @return The list of axes names specified in this trim expression
      */
-    List<String> getDimensionsNames() {
+    public List<String> getDimensionsNames() {
         return new ArrayList(Arrays.asList(dimNames));
     }
     
@@ -194,7 +191,7 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
      * @param axisName  The name of the axis (specified in the request)
      * @return True is `axisName` is trimmed here.
      */    
-    boolean trimsDimension(String axisName) {
+    public boolean trimsDimension(String axisName) {
         for (DimensionIntervalElement trim : axisList) {
             if (trim.getAxisName().equals(axisName)) {
                 return true;
@@ -205,10 +202,12 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
     /**
      * Fetch the trim values that were requested on a specified axis
+     *
      * @param axisName The name of the axis (specified in the request)
-     * @return An array of 2 elements [lo,hi], with the trimming values on the specified axis.
+     * @return An array of 2 elements [lo,hi], with the trimming values on the
+     * specified axis.
      */
-    Double[] trimmingValues(String axisName) {
+    public Double[] trimmingValues(String axisName) {
         for (DimensionIntervalElement trim : axisList) {
             if (trim.getAxisName().equals(axisName)) {
                 return new Double[]{trim.getLoCoord(), trim.getHiCoord()};

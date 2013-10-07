@@ -269,6 +269,10 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
             return this.axis.toRasQL();
         }
     }
+    
+    public String getCrs() {
+        return this.crs.toRasQL();
+    }    
 
     public String getAxisCoords() {
         return this.domain1.toRasQL() + " : " + this.domain2.toRasQL();

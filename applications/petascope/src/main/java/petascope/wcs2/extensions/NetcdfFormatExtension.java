@@ -27,6 +27,7 @@ import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
+import petascope.util.CrsUtil;
 import petascope.util.MiscUtil;
 import petascope.util.Pair;
 import petascope.util.ras.RasQueryResult;
@@ -45,11 +46,11 @@ import petascope.wcs2.parsers.GetCoverageRequest;
 public class NetcdfFormatExtension extends AbstractFormatExtension {
     
     /* Member */
-    MiscUtil.CrsProperties crsProperties;
+    CrsUtil.CrsProperties crsProperties;
     private static final Logger log = LoggerFactory.getLogger(NetcdfFormatExtension.class);
     
     /* Interface */
-    public MiscUtil.CrsProperties getCrsProperties() {
+    public CrsUtil.CrsProperties getCrsProperties() {
         return crsProperties;
     }
     
@@ -83,7 +84,7 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
         Pair<Object, String> p = null;
         if (m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE)) {
             // return plain Netcdf
-            crsProperties = (new MiscUtil()).new CrsProperties();
+            crsProperties = new CrsUtil.CrsProperties();
             p = executeRasqlQuery(request, m, meta, NETCDF_ENCODING, null);
         } else {
             // RectifiedGrid: geometry is associated with a CRS -> return Netcdf with geo-metadata
@@ -91,7 +92,7 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
             String[] domLo = m.getDomLow().split(" ");
             String[] domHi = m.getDomHigh().split(" ");
 
-            crsProperties = (new MiscUtil()).new CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName()); 
+            crsProperties = new CrsUtil.CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName()); 
             p = executeRasqlQuery(request, m, meta, NETCDF_ENCODING, crsProperties.toString());
         }
 

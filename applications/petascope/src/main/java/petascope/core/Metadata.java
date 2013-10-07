@@ -63,6 +63,7 @@ public class Metadata implements Cloneable {
     private Bbox bbox = null;
     private CellDomainElement cellX, cellY, cellT;
     private DomainElement domX, domY, domT;
+    private String coverageCrs;
     private String metadata;
 
     public Metadata(List<CellDomainElement> cellDomain, List<RangeElement> range,
@@ -75,6 +76,14 @@ public class Metadata implements Cloneable {
         this.keywordsStr = keywords;
     }
 
+    public Metadata(List<CellDomainElement> cellDomain, List<RangeElement> range,
+            Set<String> nullSet, String nullDefault, Set<InterpolationMethod> interpolationSet,
+            InterpolationMethod interpolationDefault, String coverageName, String coverageType, String coverageCrs,
+            List<DomainElement> domain, Bbox bbox, String title, String abstr, String keywords) throws PetascopeException {
+        this(cellDomain, range, nullSet, nullDefault, interpolationSet, interpolationDefault, coverageName, coverageType, domain, bbox);
+        this.coverageCrs = coverageCrs;
+    }
+    
     public Metadata(List<CellDomainElement> cellDomain, List<RangeElement> range,
             Set<String> nullSet, String nullDefault, Set<InterpolationMethod> interpolationSet,
             InterpolationMethod interpolationDefault, String coverageName, String coverageType,
@@ -335,7 +344,7 @@ public class Metadata implements Cloneable {
                 is.add(m.next().clone());
             }
 
-            return new Metadata(cd, r, ns, new String(nullDefault), is, interpolationDefault.clone(), new String(coverageName), new String(coverageType), d, bbox, getAbstract(), getTitle(), getKeywords());
+            return new Metadata(cd, r, ns, new String(nullDefault), is, interpolationDefault.clone(), new String(coverageName), new String(coverageType), new String(coverageCrs), d, bbox, getAbstract(), getTitle(), getKeywords());
         } catch (PetascopeException ime) {
             throw new RuntimeException("Invalid metadata while cloning "
                     + "Metadata. This is a software bug in WCPS.", ime);
@@ -359,6 +368,10 @@ public class Metadata implements Cloneable {
     public String getCoverageName() {
         return coverageName;
     }
+    
+    public String getCoverageCrs() {
+        return coverageCrs;
+    }    
 
     public String getCoverageType() {
         return coverageType;
@@ -535,6 +548,14 @@ public class Metadata implements Cloneable {
         this.coverageName = coverageName;
     }
 
+    public void setCoverageCrs(String coverageCrs) throws PetascopeException {
+        if (coverageCrs == null) {
+            throw new PetascopeException(ExceptionCode.InvalidMetadata, "Metadata transformation: Coverage CRS cannot be null");
+        }
+
+        this.coverageCrs = coverageCrs;
+    }
+    
     public void setRangeType(String type) throws PetascopeException {
         Iterator<RangeElement> i = range.iterator();
 

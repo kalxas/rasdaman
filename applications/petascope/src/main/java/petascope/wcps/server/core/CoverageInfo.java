@@ -37,6 +37,7 @@ public class CoverageInfo {
     private List<CellDomainElement> cellDomains;
     private List<DomainElement> domains;
     private String coverageName;
+    private String coverageCrs;
     private Bbox bbox;
 
     public CoverageInfo(CoverageInfo other) {
@@ -49,7 +50,8 @@ public class CoverageInfo {
             domains.add(other.getDomainElement(i));
         }
 
-        coverageName = other.getCoverageName();        
+        coverageName = other.getCoverageName();  
+        coverageCrs = other.getCoverageCrs();
         bbox = other.getBbox();
     }
 
@@ -69,6 +71,7 @@ public class CoverageInfo {
         }
 
         coverageName = m.getCoverageName();
+        coverageCrs=m.getCoverageCrs();
         bbox = m.getBbox();        
     }
 
@@ -126,7 +129,7 @@ public class CoverageInfo {
         return true;
     }
 
-    int getNumDimensions() {
+    public int getNumDimensions() {
         return cellDomains.size();
     }
 
@@ -140,6 +143,10 @@ public class CoverageInfo {
 
     public String getCoverageName() {
         return coverageName;
+    }
+   
+    public String getCoverageCrs() {
+        return coverageCrs;
     }
     
     public Bbox getBbox() {

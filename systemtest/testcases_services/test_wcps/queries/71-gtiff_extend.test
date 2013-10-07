@@ -1,0 +1,1 @@
+for t in (eobstest) return encode(extend( t[t(1)],  { x(-45:90),  y(5:80) }, "tiff" ) 

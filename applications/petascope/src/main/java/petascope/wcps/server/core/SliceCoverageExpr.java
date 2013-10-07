@@ -21,7 +21,6 @@
  */
 package petascope.wcps.server.core;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -147,7 +146,7 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         return ret;
     }
     
-    Pair<String[], String> computeRasQL() {
+    public Pair<String[], String> computeRasQL() {
         Pair<String[], String> res = null;
         IRasNode c = coverageExprType.getChild();
         if (c instanceof SubsetOperationCoverageExpr) {
@@ -171,14 +170,14 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
     /**  
      * @return How many dimensions are specified in this slice expression
      */
-    int numberOfDimensions() {
+    public int numberOfDimensions() {
         return dims;
     }
     
     /**
      * @return The list of axes names specified in this slice expression
      */
-    List<String> getDimensionsNames() {
+    public List<String> getDimensionsNames() {
         return new ArrayList(Arrays.asList(dimNames));
     }
     
@@ -187,7 +186,7 @@ public class SliceCoverageExpr extends AbstractRasNode implements ICoverageInfo 
      * @param axisName  The name of the axis (specified in the request)
      * @return True is `axisName` is sliced here.
      */    
-    boolean slicesDimension(String axisName) {
+    public boolean slicesDimension(String axisName) {
         for (DimensionPointElement slice : axisList) {
             if (slice.getAxisName().equals(axisName)) {
                 return true;

@@ -22,7 +22,6 @@
 package petascope.wcps.server.core;
 
 import petascope.exceptions.WCPSException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -90,7 +89,7 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
         dim = new String[dims];
 
         for (int j = 0; j < dims; ++j) {
-            dim[j] = "*:*";
+            dim[j] = null;
         }
 
 
@@ -101,6 +100,12 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
 
         while (i.hasNext()) {
             axis = i.next();
+            
+            // check if axis is sliced from the coverage, it should not go into the extend
+            if (coverageExprType.slicedAxis(axis.getAxisName())) {
+                continue;
+            }
+            
             axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
             log.trace("  " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_ID + ": " + axisId);
             log.trace("  " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName());
@@ -122,16 +127,49 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
     public String toRasQL() {
         String result = WCPSConstants.MSG_EXTEND + "(" + coverageExprType.toRasQL() + ",[";
 
-        for (int j = 0; j < dims; ++j) {
-            if (j > 0) {
+        for (int j = 0, i = 0; j < dims; ++j) {
+            if (dim[j] == null) {
+                continue;
+            }
+            if (i > 0) {
                 result += ",";
             }
-
+            ++i;
             result += dim[j];
         }
 
         result += "])";
 
         return result;
+    }
+    
+    /** 
+     * Utility to check whether a specified axis is involved in this extend expression
+     * @param axisName  The name of the axis (specified in the request)
+     * @return True is `axisName` is extended here.
+     */    
+    public boolean extendsDimension(String axisName) {
+        for (DimensionIntervalElement extend : axisList) {
+            if (extend.getAxisName().equals(axisName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
+     * Fetch the extend values that were requested on a specified axis
+     *
+     * @param axisName The name of the axis (specified in the request)
+     * @return An array of 2 elements [lo,hi], with the extending values on the
+     * specified axis.
+     */
+    public Double[] extendingValues(String axisName) {
+        for (DimensionIntervalElement extend : axisList) {
+            if (extend.getAxisName().equals(axisName)) {
+                return new Double[]{extend.getLoCoord(), extend.getHiCoord()};
+            }
+        }
+        return new Double[]{};
     }
 }

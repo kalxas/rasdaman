@@ -27,6 +27,8 @@ import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
+import petascope.util.CrsUtil;
+import petascope.util.CrsUtil.CrsProperties;
 import petascope.util.MiscUtil;
 import petascope.util.Pair;
 import petascope.util.ras.RasQueryResult;
@@ -45,11 +47,11 @@ import petascope.wcs2.parsers.GetCoverageRequest;
 public class JPEG2000FormatExtension extends AbstractFormatExtension {
     
     /* Member */
-    MiscUtil.CrsProperties crsProperties;
+    CrsUtil.CrsProperties crsProperties;
     private static final Logger log = LoggerFactory.getLogger(JPEG2000FormatExtension.class);
     
     /* Interface */
-    public MiscUtil.CrsProperties getCrsProperties() {
+    public CrsUtil.CrsProperties getCrsProperties() {
         return crsProperties;
     }
     
@@ -84,7 +86,7 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension {
         Pair<Object, String> p = null;
         if (m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE)) {
             // return plain JPEG
-            crsProperties = (new MiscUtil()).new CrsProperties();
+            crsProperties = new CrsUtil.CrsProperties();
             p = executeRasqlQuery(request, m, meta, JP2_ENCODING, null);
         } else {
             // RectifiedGrid: geometry is associated with a CRS -> return JPEG2000 with geo-metadata
@@ -97,7 +99,7 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension {
                 throw new WCSException(ExceptionCode.InvalidRequest, "Output dimensionality of the requested coverage is " +
                         (domLo.length==2?domHi.length:domLo.length) + " whereas JPEG2000 requires 2-dimensional grids.");
             }
-            crsProperties = (new MiscUtil()).new CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName());
+            crsProperties = new CrsUtil.CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName());
             p = executeRasqlQuery(request, m, meta, JP2_ENCODING, crsProperties.toString());
         }
 
