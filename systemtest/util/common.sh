@@ -445,7 +445,8 @@ function run_test()
               ;;
       wms)    $WGET -q "$WMS_URL?$QUERY" -O "$out"
               ;;
-      secore) $WGET -q "$SECORE_URL$QUERY" -O "$out"
+      secore) QUERY=`echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g' | tr -d '\t' | tr -d ' '`
+              $WGET -q "$SECORE_URL$QUERY" -O "$out"
               ;;
       select|rasql)
               QUERY=`cat $f`
@@ -480,11 +481,13 @@ function run_test()
       sed 's/gml://g' "$out" > "$output_tmp"
       sed 's/gml://g' "$oracle" > "$oracle_tmp"
       
-      sed -i $'s/\r//' "$output_tmp"
-      sed -i $'s/\r//' "$oracle_tmp"
+      sed -i $'s/\r//g' "$output_tmp"
+      sed -i $'s/\r//g' "$oracle_tmp"
 
       sed -i '/xlink:href/d' "$output_tmp"
       sed -i '/xlink:href/d' "$oracle_tmp"
+
+      sed -i 's|'$SECORE_URL'||g' "$output_tmp" "$oracle_tmp"
 
       sort "$output_tmp" -o "$output_tmp"
       sort "$oracle_tmp" -o "$oracle_tmp"

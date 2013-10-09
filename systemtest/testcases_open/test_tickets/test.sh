@@ -143,7 +143,11 @@ for f in *; do
     test_type=`echo "$fixedf" | sed 's/.*\.//'`
     FIXED=1
   fi
-  SVC_NAME="$test_type"
+  if [ "$test_type" == "kvp" -o "$test_type" == "xml" ]; then
+    SVC_NAME="wcs"
+  else
+    SVC_NAME="$test_type"
+  fi
   
   # get ticket number
   ticket_no=`echo "$f" | awk -F '_' '{ print $1; }' | awk -F '-' '{ print $2; }'`

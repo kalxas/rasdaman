@@ -70,8 +70,8 @@ mkdir -p "$OUTPUT_PATH"
 #
 function cleanup()
 {
-  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
-  drop_petascope_data
+  [ "$SVC_NAME" == "secore" ] || drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
+  [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" ] || drop_petascope_data
   print_summary
   if [ $NUM_FAIL -ne 0 ]; then
     exit $RC_ERROR
