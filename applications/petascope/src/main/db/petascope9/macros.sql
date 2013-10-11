@@ -102,11 +102,11 @@ $$
                     ' FROM '   || quote_ident(cget('TABLE_PS9_CRS')) || ',' ||
                                   quote_ident(cget('TABLE_PS9_DOMAINSET'))  || 
                     ' WHERE ARRAY['  || quote_ident(cget('TABLE_PS9_CRS'))  || '.' || quote_ident(cget('PS9_CRS_ID')) || '] <@ '
-                               || quote_ident(cget('TABLE_PS9_DOMAINSET'))  || '.' || quote_ident(cget('PS9_DOMAINSET_CRS_ID')) ||
+                               || quote_ident(cget('TABLE_PS9_DOMAINSET'))  || '.' || quote_ident(cget('PS9_DOMAINSET_CRS_IDS')) ||
                     ' AND '    || quote_ident(cget('TABLE_PS9_DOMAINSET'))         || '.' 
                                || quote_ident(cget('PS9_DOMAINSET_COVERAGE_ID'))   || '=' || _coverage_id ||
                     ' ORDER BY index_of(' || quote_ident(cget('TABLE_PS9_CRS'))    || '.' || quote_ident(cget('PS9_CRS_ID'))    || ','
-                               || quote_ident(cget('TABLE_PS9_DOMAINSET'))  || '.' || quote_ident(cget('PS9_DOMAINSET_CRS_ID')) || ')';
+                               || quote_ident(cget('TABLE_PS9_DOMAINSET'))  || '.' || quote_ident(cget('PS9_DOMAINSET_CRS_IDS')) || ')';
             RAISE DEBUG '%: EXECUTING : %;', ME, _qry;
 
             -- Output table
@@ -160,7 +160,7 @@ $$
 	_coverage_id := select_field(
                           cget('TABLE_PS9_COVERAGE'), 
                           cget('PS9_COVERAGE_ID'), 0, 
-                          ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '=' ||
+                          ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '='
                                     || quote_literal(coverage_name)
         );
         RAISE DEBUG '%: % of coverage is ''%''', ME, cget('PS9_COVERAGE_ID'), _coverage_id; 
@@ -242,7 +242,7 @@ $$
         _coverage_id := select_field(
                           cget('TABLE_PS9_COVERAGE'), 
                           cget('PS9_COVERAGE_ID'), 0, 
-                          ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '=' ||
+                          ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '='
                                     || quote_literal(coverage_name)
         );
         RAISE DEBUG '%: % of coverage is ''%''', ME, cget('PS9_COVERAGE_ID'), _coverage_id; 
@@ -252,7 +252,7 @@ $$
         _storage_table := select_field(
                           cget('TABLE_PS9_RANGESET'),
                           cget('PS9_RANGESET_STORAGE_TABLE'), ''::text, 
-                          ' WHERE ' || quote_ident(cget('PS9_RANGESET_COVERAGE_ID')) || '=' ||
+                          ' WHERE ' || quote_ident(cget('PS9_RANGESET_COVERAGE_ID')) || '='
                                     || quote_literal(_coverage_id)
         );
         RAISE DEBUG '%: storage table of the coverage is ''%''', ME, _storage_table;
@@ -269,7 +269,7 @@ $$
             _storage_id := select_field(
                           cget('TABLE_PS9_RANGESET'),
                           cget('PS9_RANGESET_STORAGE_ID'), 0, 
-                          ' WHERE ' || quote_ident(cget('PS9_RANGESET_COVERAGE_ID')) || '=' ||
+                          ' WHERE ' || quote_ident(cget('PS9_RANGESET_COVERAGE_ID')) || '='
                                     || quote_literal(_coverage_id)
             );
             RAISE DEBUG '%: storage id of the coverage is ''%''', ME, _storage_id; 
@@ -340,7 +340,7 @@ $$
         _coverage_id := select_field(
                           cget('TABLE_PS9_COVERAGE'), 
                           cget('PS9_COVERAGE_ID'), 0, 
-                          ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '=' ||
+                          ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '='
                                     || quote_literal(coverage_name)
         );
         RAISE DEBUG '%: % of coverage is ''%''', ME, cget('PS9_COVERAGE_ID'), _coverage_id; 
