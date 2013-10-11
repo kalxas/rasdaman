@@ -36,6 +36,7 @@ import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import static petascope.util.XMLSymbols.LABEL_COVERAGE_SUBTYPE;
 import static petascope.util.XMLSymbols.LABEL_COVERAGE_SUBTYPE_PARENT;
@@ -91,9 +92,11 @@ public class WcsUtil {
     /**
      * Utility method to read coverage's metadata
      */
-    public static CoverageMetadata getMetadata(DbMetadataSource meta, String coverageId) throws WCSException {
+    public static CoverageMetadata getMetadata(DbMetadataSource meta, String coverageId) throws SecoreException, WCSException {
         try {
             return meta.read(coverageId);
+        } catch (SecoreException ex) {
+            throw ex;
         } catch (Exception e) {
             e.printStackTrace();
             throw new WCSException(ExceptionCode.NoApplicableCode.locator(coverageId),

@@ -30,6 +30,7 @@ import java.util.Set;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
@@ -65,7 +66,7 @@ public class GetCoverageMetadata {
     private String crs;     // dynamically adapt to coverage slicing
     private Bbox bbox;
 
-    public GetCoverageMetadata(GetCoverageRequest request, DbMetadataSource meta) throws WCSException {
+    public GetCoverageMetadata(GetCoverageRequest request, DbMetadataSource meta) throws SecoreException, WCSException {
         coverageId = request.getCoverageId();
         axisLabels = uomLabels = "";
         low = high = "";

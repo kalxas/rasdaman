@@ -26,12 +26,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.util.IOUtil;
+import petascope.util.StringUtil;
 import petascope.util.XMLUtil;
 import petascope.wps.server.WpsServer;
 
@@ -109,9 +113,8 @@ public class ConfigManager {
     public static boolean CCIP_HACK = false;
         
     // SECORE connection settings
-    public static String SECORE_URL = "http://localhost:8080/def";
-    public static String SECORE_VERSION = "0.1.0";
-    public static String SECORE_LANGUAGE = "en";
+    public static List<String> SECORE_URLS = Arrays.asList(new String[]{"http://localhost:8080/def"});
+    public static List<String> SECORE_VERSIONS = Arrays.asList(new String[]{"0.1.0"});
     
     /* WPS variables*/
     public static URI WPS_GET_CAPABILITIES_URI;
@@ -148,8 +151,8 @@ public class ConfigManager {
     private static final String KEY_RASDAMAN_RETRY_ATTEMPTS = "rasdaman_retry_attempts";
     private static final String KEY_CCIP_VERSION = "ccip_version";
     private static final String KEY_WCST_DEFAULT_DATATYPE = "default_datatype";
-    private static final String KEY_SECORE_URL = "secore_url";
-    private static final String KEY_SECORE_VERSION = "secore_version";
+    private static final String KEY_SECORE_URLS = "secore_urls";
+    private static final String KEY_SECORE_VERSIONS = "secore_versions";
     
     private static final String TEMPLATES_PATH = "../templates/";
     private static final String GETCAPABILITIES_XML = "GetCapabilities.xml";
@@ -264,9 +267,15 @@ public class ConfigManager {
 
         CCIP_HACK = Boolean.parseBoolean(get(KEY_CCIP_VERSION));
         
-        // SECORE URL
-        SECORE_URL     = get(KEY_SECORE_URL);
-        SECORE_VERSION = get(KEY_SECORE_VERSION);
+        // SECORE
+        SECORE_URLS     = StringUtil.csv2list(get(KEY_SECORE_URLS));
+        SECORE_VERSIONS = StringUtil.csv2list(get(KEY_SECORE_VERSIONS));
+        // check that a version is assigned to every URI, set the last version to the orphan URIs otherwise
+        // NOTE: throwing an exception for a missing version is too harsh.
+        if (SECORE_VERSIONS.size() < SECORE_URLS.size()) {
+            String lastVersion = SECORE_VERSIONS.get(SECORE_VERSIONS.size()-1);
+            SECORE_VERSIONS.addAll(StringUtil.repeat(lastVersion, SECORE_URLS.size()-SECORE_VERSIONS.size()));
+        }
 
         //WPS 1.0.0 describeprocess and getcapabilities documents
         try {
@@ -296,8 +305,8 @@ public class ConfigManager {
         log.info("Rasdaman version : " + RASDAMAN_VERSION);
         log.info("");
         log.info("       *** SECORE ***       ");
-        log.info("SECORE URL       : " + SECORE_URL);        
-        log.info("SECORE version   : " + SECORE_VERSION);
+        log.info("SECORE URL       : " + SECORE_URLS);
+        log.info("SECORE version   : " + SECORE_VERSIONS);
         log.info("");
         log.info("       *** WCS-T ***       ");
         log.info("WCS-T Language: " + WCST_LANGUAGE);

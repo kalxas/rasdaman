@@ -1299,7 +1299,7 @@ public class DbMetadataSource implements IMetadataSource {
             }
             
         } catch (SecoreException sEx) {
-            log.error("Error while parsing the CRS definitions to SECORE (" + ConfigManager.SECORE_URL + ").");
+            log.error("Error while parsing the CRS definitions to SECORE (" + ConfigManager.SECORE_URLS + ").");
             throw sEx;
         } catch (PetascopeException ime) {
             log.error("Failed reading metadata", ime);

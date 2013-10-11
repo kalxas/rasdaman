@@ -231,13 +231,17 @@ public class CrsUtil {
     }
     
     /**
+     * @param   String resolver     The prefix of the resolver URL (http://<host>/def/)
      * @param   String committee    The committee defining the CRS (e.g. EPSG)
      * @param   String version      Version of the CRS
      * @param   String code         Code of the CRS
      * @return  String              The URI of the CRS (based on SECORE URL by default)
      */
+    public static String CrsUri(String resolver, String committee, String version, String code) {
+        return resolver + "/" + KEY_RESOLVER_CRS + "/" + committee + "/" + version + "/" + code;
+    }
     public static String CrsUri(String committee, String version, String code) {
-        return ConfigManager.SECORE_URL + "/" + KEY_RESOLVER_CRS + "/" + committee + "/" + version + "/" + code;
+        return getResolverUri() + "/" + KEY_RESOLVER_CRS + "/" + committee + "/" + version + "/" + code;
     }
     public static String CrsUri(String committee, String code) {
         return CrsUri(committee, CRS_DEFAULT_VERSION, code);
@@ -250,217 +254,239 @@ public class CrsUtil {
         return CrsUriDir(prefix, committee, CRS_DEFAULT_VERSION);
     }  
     public static String CrsUriDir(String committee) {
-        return CrsUriDir(ConfigManager.SECORE_URL, committee, CRS_DEFAULT_VERSION);
-    }  
+        return CrsUriDir(getResolverUri(), committee, CRS_DEFAULT_VERSION);
+    }
+
     /**
      * Parser of GML definitions of Coordinate Reference Systems:
      * parse the specified (resolver) URI recursively and creates the CrsDefinition object(s) along.
-     * @param  String URI   The URI of the /atomic/ CRS to be parsed (URI need to be decomposed first).
+     * @param  givenCrsUri   The URI of the /atomic/ CRS to be parsed (URI need to be decomposed first).
+     * @return The parsed CRS definition
+     * @throws PetascopeException
+     * @throws SecoreException
      */
     // (!!) Always use decomposeUri() output to feed this method: it currently understands single CRSs.
-    public static CrsDefinition getGmlDefinition(String crsUri) throws PetascopeException, SecoreException {        
+    public static CrsDefinition getGmlDefinition(String givenCrsUri) throws PetascopeException, SecoreException {
         CrsDefinition crs = null;
         List<List<String>> axes = new ArrayList<List<String>>();
         
         // Remove any possible slicing suffixes: 
-        crsUri = crsUri.replaceAll(SLICED_AXIS_SEPARATOR + ".*$", "");
+        givenCrsUri = givenCrsUri.replaceAll(SLICED_AXIS_SEPARATOR + ".*$", "");
         
         // Check first if the definition is already in cache:
-        if (CrsUri.isCached(crsUri)) {
-            log.info(crsUri + " definition is already in cache: do not need to fetch GML definition.");
-            return CrsUri.getCachedDefinition(crsUri);
+        if (CrsUri.isCached(givenCrsUri)) {
+            log.info(givenCrsUri + " definition is already in cache: do not need to fetch GML definition.");
+            return CrsUri.getCachedDefinition(givenCrsUri);
         }
 
         // Check if the URI syntax is valid
-        if (!CrsUri.isValid(crsUri)) {
-            log.info(crsUri + " definition seems not valid.");
-            throw new PetascopeException(ExceptionCode.InvalidMetadata, crsUri + " definition seems not valid.");
+        if (!CrsUri.isValid(givenCrsUri)) {
+            log.info(givenCrsUri + " definition seems not valid.");
+            throw new PetascopeException(ExceptionCode.InvalidMetadata, givenCrsUri + " definition seems not valid.");
         }        
         
         // Need to parse the XML
-        log.info(crsUri + " definition needs to be parsed from resolver.");
+        log.info(givenCrsUri + " definition needs to be parsed from resolver.");
         String uom = "";
-        URL uomUrl = null;
         String datumOrigin = ""; // for TemporalCRSs
         
-        // TODO: allow retry to a resolver mirror in case the server is temporarily down.
-        try {
-            URL url = new URL(crsUri);
-            URLConnection con = url.openConnection();
-            con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
-            con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
-            InputStream inStream = con.getInputStream();
-            
-            // Build the document
-            Document doc = XMLUtil.buildDocument(null, inStream);
-            Element root = doc.getRootElement();
-            
-            // Catch some exception in the GML
-            Element exEl = XMLUtil.firstChildRecursive(root, ".*" + XMLSymbols.LABEL_EXCEPTION_TEXT);                    
-            if (exEl != null) {
-                log.error(crsUri + ": " + exEl.getValue());
-                throw new SecoreException(ExceptionCode.ResolverError, exEl.getValue());
-            }
+        // Prepare fallback URIs in case of service unavailablilty of given resolver
+        List<String> crsUris = new ArrayList<String>();
+        crsUris.add(givenCrsUri);
+        String lastUri = givenCrsUri;
+        for (String resolverUri : ConfigManager.SECORE_URLS) {
+                lastUri = CrsUri(resolverUri,
+                        CrsUri.getAuthority(givenCrsUri),
+                        CrsUri.getVersion(givenCrsUri),
+                        CrsUri.getCode(givenCrsUri));
+                crsUris.add(lastUri);
+        }
 
-            // Check if it exists:
-            if (!root.getLocalName().matches(".*" + XMLSymbols.CRS_GMLSUFFIX)) {
-                log.error(crsUri + " does not seem to be a CRS definition");
-                throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS URI: " + crsUri);
-            }
-            
-            // This value will be then stored in the CrsDefinition
-            String crsType = root.getLocalName();
-            log.debug("CRS element found: '" + crsType + "'.");
-            
-            // Get the *CS element: **don't** look recursive otherwise you can getinto the underlying geodetic CRS of a projected one (eg EPSG:32634)
-            Element csEl = XMLUtil.firstChildPattern(root, ".*" + XMLSymbols.CS_GMLSUFFIX);
-            // Check if it exists
-            if (csEl == null) {
-                log.error(crsUri + ": missing the Coordinate System element.");
-                throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
-            }
-            log.debug("CS element found: " + csEl.getLocalName());
-            
-            // Skip optional association role [eg cartesianCS(CartesianCS)]
-            if (XMLUtil.firstChildPattern(csEl, ".*" + XMLSymbols.CS_GMLSUFFIX) != null) {
-                csEl = XMLUtil.firstChildPattern(csEl, ".*" + XMLSymbols.CS_GMLSUFFIX);
+        // Start parsing
+        for (String crsUri : crsUris) {
+            URL uomUrl = null;
+            try {
+                URL url = new URL(crsUri);
+                URLConnection con = url.openConnection();
+                con.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
+                con.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
+                InputStream inStream = con.getInputStream();
+
+                // Build the document
+                Document doc = XMLUtil.buildDocument(null, inStream);
+                Element root = doc.getRootElement();
+                
+                // Catch some exception in the GML
+                Element exEl = XMLUtil.firstChildRecursivePattern(root, ".*" + XMLSymbols.LABEL_EXCEPTION_TEXT);
+                if (exEl != null) {
+                    log.error(crsUri + ": " + exEl.getValue());
+                    throw new SecoreException(ExceptionCode.ResolverError, exEl.getValue());
+                }
+
+                // Check if it exists:
+                if (!root.getLocalName().matches(".*" + XMLSymbols.CRS_GMLSUFFIX)) {
+                    log.error(crsUri + " does not seem to be a CRS definition");
+                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS URI: " + crsUri);
+                }
+
+                // This value will be then stored in the CrsDefinition
+                String crsType = root.getLocalName();
+                log.debug("CRS element found: '" + crsType + "'.");
+
+                // Get the *CS element: **don't** look recursive otherwise you can getinto the underlying geodetic CRS of a projected one (eg EPSG:32634)
+                Element csEl = XMLUtil.firstChildPattern(root, ".*" + XMLSymbols.CS_GMLSUFFIX);
+                // Check if it exists
+                if (csEl == null) {
+                    log.error(crsUri + ": missing the Coordinate System element.");
+                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
+                }
                 log.debug("CS element found: " + csEl.getLocalName());
-            }
-            
-            // Init CrsDefinition, then add axes later on
-            crs = new CrsDefinition(
-                    CrsUri.getAuthority(crsUri),
-                    CrsUri.getVersion(crsUri),
-                    CrsUri.getCode(crsUri),
-                    crsType);
-            
-            List<Element> axesList = XMLUtil.ch(csEl, XMLSymbols.LABEL_CRSAXIS);
-            
-            // Check if there is at least one axis definition
-            if (axesList.isEmpty()) {
-                log.error(crsUri + ": missing the axis element(s).");
-                throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
-            }
-            
-            for (Element axisEl : axesList) {
-                
-                // Get CoordinateSystemAxis mandatory element
-                Element csaEl = XMLUtil.firstChildRecursive(axisEl, XMLSymbols.LABEL_CSAXIS);
-                if (csaEl == null) {
-                    log.error(crsUri + ": missing the CoordinateSystemAxis element.");
-                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
-                }
-                
-                // Get abbreviation 
-                Element axisAbbrevEl = XMLUtil.firstChildRecursive(csaEl, XMLSymbols.LABEL_AXISABBREV);
-                Element axisDirEl    = XMLUtil.firstChildRecursive(csaEl, XMLSymbols.LABEL_AXISDIRECTION);
-                
-                // Check if they are defined: otherwise exception must be thrown
-                if (axisAbbrevEl == null | axisDirEl == null) {
-                    log.error(crsUri + ": axis definition misses abbreviation and/or direction.");
-                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
-                }
-                String axisAbbrev = axisAbbrevEl.getValue();
-                String axisDir    = axisDirEl.getValue();
-                
-                // Get the UoM of this axis
-                String uomName;
-                Attribute uomAtt = null;
-                for (int l = 0; l < csaEl.getAttributeCount(); l++) {
-                    uomAtt = csaEl.getAttribute(l);
-                    if (uomAtt.getLocalName().equals(XMLSymbols.ATT_UOM)) {
-                        break;
-                    }
+
+                // Skip optional association role [eg cartesianCS(CartesianCS)]
+                if (XMLUtil.firstChildPattern(csEl, ".*" + XMLSymbols.CS_GMLSUFFIX) != null) {
+                    csEl = XMLUtil.firstChildPattern(csEl, ".*" + XMLSymbols.CS_GMLSUFFIX);
+                    log.debug("CS element found: " + csEl.getLocalName());
                 }
 
-                // Check if it exists, otherwise set an empty UoM and throw a warning message
-                if (uomAtt == null) {
-                    log.warn(crsUri + ": missing unit of measure in " + axisAbbrev + " axis definition: setting empty UoM.");
-                    uomName = "";
-                } else {
-                    
-                    // UoM attribute can be either a String or as well a dereferenced definition (URL)
-                    if (!uomAtt.getValue().contains(HTTP_PREFIX)) {
-                        uomName = uomAtt.getValue().split(" ")[0]; // UoM is meant as one word only
-                    } else {                    
-                        // Need to parse a new XML definition
-                        uomUrl = new URL(uomAtt.getValue());
-                        URLConnection uomCon = uomUrl.openConnection();
-                        uomCon.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
-                        uomCon.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
-                        InputStream uomInStream = uomCon.getInputStream();
-                        
-                        // Build the document
-                        Document uomDoc = XMLUtil.buildDocument(null, uomInStream);
-                        Element uomRoot = uomDoc.getRootElement();
-                        
-                        // Catch some exception in the GML
-                        Element uomExEl = XMLUtil.firstChildRecursive(root, XMLSymbols.LABEL_EXCEPTION_TEXT);
-                        if (uomExEl != null) {
-                            log.error(crsUri + ": " + uomExEl.getValue());
-                            throw new SecoreException(ExceptionCode.ResolverError, uomExEl.getValue());
-                        }
-                        
-                        // Get the UoM value
-                        Element uomNameEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_NAME);
-                        if (uomNameEl == null) {
-                            log.error(uom + ": UoM definition misses name.");
-                            throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid UoM definition: " + uom);
-                        }
-                        uomName = uomNameEl.getValue().split(" ")[0]; // Some UoM might have further comments after actual UoM (eg EPSG:4326)
+                // Init CrsDefinition, then add axes later on
+                crs = new CrsDefinition(
+                        CrsUri.getAuthority(crsUri),
+                        CrsUri.getVersion(crsUri),
+                        CrsUri.getCode(crsUri),
+                        crsType);
+
+                List<Element> axesList = XMLUtil.ch(csEl, XMLSymbols.LABEL_CRSAXIS);
+
+                // Check if there is at least one axis definition
+                if (axesList.isEmpty()) {
+                    log.error(crsUri + ": missing the axis element(s).");
+                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
+                }
+                
+                for (Element axisEl : axesList) {
+
+                    // Get CoordinateSystemAxis mandatory element
+                    Element csaEl = XMLUtil.firstChildRecursive(axisEl, XMLSymbols.LABEL_CSAXIS);
+                    if (csaEl == null) {
+                        log.error(crsUri + ": missing the CoordinateSystemAxis element.");
+                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
                     }
+                    
+                    // Get abbreviation
+                    Element axisAbbrevEl = XMLUtil.firstChildRecursive(csaEl, XMLSymbols.LABEL_AXISABBREV);
+                    Element axisDirEl    = XMLUtil.firstChildRecursive(csaEl, XMLSymbols.LABEL_AXISDIRECTION);
+
+                    // Check if they are defined: otherwise exception must be thrown
+                    if (axisAbbrevEl == null | axisDirEl == null) {
+                        log.error(crsUri + ": axis definition misses abbreviation and/or direction.");
+                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
+                    }
+                    String axisAbbrev = axisAbbrevEl.getValue();
+                    String axisDir    = axisDirEl.getValue();
+                    
+                    // Get the UoM of this axis
+                    String uomName;
+                    Attribute uomAtt = null;
+                    for (int l = 0; l < csaEl.getAttributeCount(); l++) {
+                        uomAtt = csaEl.getAttribute(l);
+                        if (uomAtt.getLocalName().equals(XMLSymbols.ATT_UOM)) {
+                            break;
+                        }
+                    }
+
+                    // Check if it exists, otherwise set an empty UoM and throw a warning message
+                    if (uomAtt == null) {
+                        log.warn(crsUri + ": missing unit of measure in " + axisAbbrev + " axis definition: setting empty UoM.");
+                        uomName = "";
+                    } else {
+                        
+                        // UoM attribute can be either a String or as well a dereferenced definition (URL)
+                        if (!uomAtt.getValue().contains(HTTP_PREFIX)) {
+                            uomName = uomAtt.getValue().split(" ")[0]; // UoM is meant as one word only
+                        } else {
+                            // Need to parse a new XML definition
+                            uomUrl = new URL(uomAtt.getValue());
+                            URLConnection uomCon = uomUrl.openConnection();
+                            uomCon.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
+                            uomCon.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
+                            InputStream uomInStream = uomCon.getInputStream();
+
+                            // Build the document
+                            Document uomDoc = XMLUtil.buildDocument(null, uomInStream);
+                            Element uomRoot = uomDoc.getRootElement();
+
+                            // Catch some exception in the GML
+                            Element uomExEl = XMLUtil.firstChildRecursive(root, XMLSymbols.LABEL_EXCEPTION_TEXT);
+                            if (uomExEl != null) {
+                                log.error(crsUri + ": " + uomExEl.getValue());
+                                throw new SecoreException(ExceptionCode.ResolverError, uomExEl.getValue());
+                            }
+
+                            // Get the UoM value
+                            Element uomNameEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_NAME);
+                            if (uomNameEl == null) {
+                                log.error(uom + ": UoM definition misses name.");
+                                throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid UoM definition: " + uom);
+                            }
+                            uomName = uomNameEl.getValue().split(" ")[0]; // Some UoM might have further comments after actual UoM (eg EPSG:4326)
+                        }
+                    }
+
+                    log.debug("Axis element found: " + axisAbbrev + "[" + uomName + "]");
+                    
+                    // Add axis to the definition (temporarily first, then force XY order)
+                    List<String> tmp = new ArrayList<String>();
+                    tmp.addAll(Arrays.asList(axisDir, axisAbbrev, uomName));
+                    axes.add(tmp);
+
+                } // END axes loop
+
+                // If this is a TemporalCRS definition, read the TemporalDatum's origin
+                if (crsType.equals(XMLSymbols.LABEL_TEMPORALCRS)) {
+
+                    Element datumEl = XMLUtil.firstChildRecursivePattern(root, ".*" + XMLSymbols.DATUM_GMLSUFFIX);
+                    if (datumEl == null) {
+                        log.warn(crsUri + ": missing the datum element.");
+                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
+                    }
+
+                    log.debug("Datum element found: '" + datumEl.getLocalName() + "'.");
+
+                    // Get the origin of the datum
+                    Element datumOriginEl = XMLUtil.firstChildRecursive(datumEl, XMLSymbols.LABEL_ORIGIN);
+                    if (datumOriginEl == null) {
+                        log.warn(crsUri + ": missing the origin of the datum.");
+                        throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
+                    }
+                    datumOrigin = datumOriginEl.getValue();
+
+                    // Add datum origin to the definition object
+                    crs.setDatumOrigin(datumOrigin);
+                    log.debug("Found datum origin: " + datumOrigin);
+
+                } // else: no need to parse the datum
+                break; // fallback only on IO problems
+            } catch (ValidityException ex) {
+                throw new SecoreException(ExceptionCode.InternalComponentError,
+                        (null==uomUrl ? crsUri : uomUrl) + " definition is not valid.", ex);
+            } catch (ParsingException ex) {
+                log.debug(ex.getMessage() + "\n at line " + ex.getLineNumber() + ", column " + ex.getColumnNumber());
+                throw new SecoreException(ExceptionCode.InternalComponentError,
+                        (null==uomUrl ? crsUri : uomUrl) + " definition is malformed.", ex);
+            } catch (IOException ex) {
+                if (crsUri.equals(lastUri) || null != uomUrl) {
+                    throw new SecoreException(ExceptionCode.InternalComponentError,
+                            (null==uomUrl ? crsUri : uomUrl) + ": could not connect to resolver. The site may be down.", ex);
+                } else {
+                    log.info("Connection problem with " + (null==uomUrl ? crsUri : uomUrl) + ": " + ex.getMessage());
+                    log.info("Attempting to fetch the CRS definition via fallback resolver.");
                 }
-                
-                log.debug("Axis element found: " + axisAbbrev + "[" + uomName + "]");
-                                
-                // Add axis to the definition (temporarily first, then force XY order)
-                List<String> tmp = new ArrayList<String>();
-                tmp.addAll(Arrays.asList(axisDir, axisAbbrev, uomName));
-                axes.add(tmp);
-                
-            } // END axes loop
-            
-            // If this is a TemporalCRS definition, read the TemporalDatum's origin
-            if (crsType.equals(XMLSymbols.LABEL_TEMPORALCRS)) {
-                
-                Element datumEl = XMLUtil.firstChildRecursivePattern(root, ".*" + XMLSymbols.DATUM_GMLSUFFIX);
-                if (datumEl == null) {
-                    log.warn(crsUri + ": missing the datum element.");
-                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
-                }
-                
-                log.debug("Datum element found: '" + datumEl.getLocalName() + "'.");
-                
-                // Get the origin of the datum
-                Element datumOriginEl = XMLUtil.firstChildRecursive(datumEl, XMLSymbols.LABEL_ORIGIN);
-                if (datumOriginEl == null) {
-                    log.warn(crsUri + ": missing the origin of the datum.");
-                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid CRS definition: " + crsUri);
-                }                
-                datumOrigin = datumOriginEl.getValue();
-                
-                // Add datum origin to the definition object
-                crs.setDatumOrigin(datumOrigin);
-                log.debug("Found datum origin: " + datumOrigin);
-                
-            } // else: no need to parse the datum
-        } catch (ValidityException ex) {
-            throw new SecoreException(ExceptionCode.InternalComponentError,
-                    (null==uomUrl ? crsUri : uomUrl) + " definition is not valid.", ex);
-        } catch (ParsingException ex) {
-            log.debug(ex.getMessage() + "\n at line " + ex.getLineNumber() + ", column " + ex.getColumnNumber());
-            throw new SecoreException(ExceptionCode.InternalComponentError,
-                    (null==uomUrl ? crsUri : uomUrl) + " definition is malformed.", ex);
-        } catch (IOException ex) {
-            throw new SecoreException(ExceptionCode.InternalComponentError,
-                    (null==uomUrl ? crsUri : uomUrl) + ": could not connect to resolver. The site may be down.", ex);
-            // Retry to connect to internal resolver? Extract WHAT(crs,uom...), AUTH, CODE, VERSION and ask Kahlua?
-            // Problem: different hosts might have own definitions of the same object.
-        } catch (SecoreException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new PetascopeException(ExceptionCode.InternalComponentError,
-                    (null==uomUrl ? crsUri : uomUrl) + ": general exception while parsing definition.", ex);
+            } catch (SecoreException ex) {
+                throw ex;
+            } catch (Exception ex) {
+                throw new PetascopeException(ExceptionCode.InternalComponentError,
+                        (null==uomUrl ? crsUri : uomUrl) + ": general exception while parsing definition.", ex);
+            }
         }
         
         /* ISSUE: order in rasdaman in always easting then northing, but
@@ -476,8 +502,8 @@ public class CrsUtil {
         }
         
         // Cache the definition
-        parsedCRSs.put(crsUri, crs);
-        log.info(crsUri + " into cache for future (inter-requests) use.");
+        parsedCRSs.put(givenCrsUri, crs);
+        log.info(givenCrsUri + " into cache for future (inter-requests) use.");
         
         return crs;
     }
@@ -736,6 +762,14 @@ public class CrsUtil {
     }
     
     /**
+     * Method to return the default SECORE URI (first in the configuration list)
+     * @return
+     */
+    private static String getResolverUri() {
+        return ConfigManager.SECORE_URLS.get(0);
+    }
+
+    /**
      * Nested class to offer utilities for CRS *URI* handling.
      */
     public static class CrsUri {
@@ -811,6 +845,8 @@ public class CrsUtil {
          * Checks if a specified URI (or an equivalent one) has already been cached.
          * @param uri
          * @return True if uri's definition has already been parsed and cached.
+         * @throws PetascopeException
+         * @throws SecoreException
          */
         public static boolean isCached(String uri) throws PetascopeException, SecoreException {
             for (String cachedUri : parsedCRSs.keySet()) {
@@ -880,6 +916,7 @@ public class CrsUtil {
         /**
          * Return true whether 2 CRS URLs are equivalent definitions.
          * It exploits SECORE's equality handling capabilities and caches new comparisons.
+         * If configured SECORE is not available, further configured fallback URIs are queried.
          * @param uri1
          * @param uri2
          * @return true if uri1 and uri2 point to the same GML definition
@@ -909,15 +946,59 @@ public class CrsUtil {
                         "comparison is cached: *no* need to ask SECORE.");
                 return crsComparisons.get(URLs);
             } else {
-                // New comparison: need to ask SECORE
+                // New comparison: need to ask SECORE(s)
                 log.info(getAuthority(uri1) + "(" + getVersion(uri1) + "):" + getCode(uri1) + "/" +
                          getAuthority(uri2) + "(" + getVersion(uri2) + "):" + getCode(uri2) + " " + 
                         "comparison is *not* cached: need to ask SECORE.");
-                String equalityUri = ConfigManager.SECORE_URL + "/" + KEY_RESOLVER_EQUAL + "?" +
-                        "1=" + URLs.get(0) + "&" +
-                        "2=" + URLs.get(1);
-                Boolean equal;
-                
+                Boolean equal = null;
+                for (String resolverUri : ConfigManager.SECORE_URLS) {
+                    try {
+                        log.debug("Checking equivalence of CRSs via " + resolverUri + "...");
+                        equal = checkEquivalence(resolverUri, uri1, uri2);
+                        break; // No need to check against any resolver
+                    } catch (SecoreException ex) {
+                        // Skip to next loop cycle: try with an other configured resolver URI.
+                        log.warn(ex.getMessage());
+                    } catch (PetascopeException ex) {
+                        throw ex;
+                    }
+                }
+
+                if (null == equal) {
+                    throw new SecoreException(ExceptionCode.InternalComponentError,
+                            "None of the configured CRS URIs resolvers seems available: please check network or add further fallback endpoints.");
+                }
+
+                // cache the comparison
+                crsComparisons.put(URLs, equal);
+                return equal;
+            }
+        }
+
+        /**
+         * Check equivalence of two CRS URIs through a single resolver.
+         * @param resolverUri
+         * @param uri1
+         * @param uri2
+         * @return
+         * @throws PetascopeException
+         * @throws SecoreException
+         */
+        private static boolean checkEquivalence(String resolverUri, String uri1, String uri2) throws PetascopeException, SecoreException {
+
+            /* Tentative 1: comarison of given URIs
+             * Tentative 2: both URIs at resolver
+             */
+
+            String equalityUri_given = resolverUri + "/" + KEY_RESOLVER_EQUAL + "?" +
+                        "1=" + uri1 + "&" +
+                        "2=" + uri2;
+            String equalityUri_atResolver = resolverUri + "/" + KEY_RESOLVER_EQUAL + "?" +
+                        "1=" + CrsUtil.CrsUri(resolverUri, getAuthority(uri1), getVersion(uri1), getCode(uri1)) + "&" +
+                        "2=" + CrsUtil.CrsUri(resolverUri, getAuthority(uri2), getVersion(uri2), getCode(uri2));
+            Boolean equal = false;
+
+            for (String equalityUri : new String[]{equalityUri_given, equalityUri_atResolver}) {
                 try {
                     // Create InputStream and set the timeouts
                     URL url = new URL(equalityUri);
@@ -934,36 +1015,34 @@ public class CrsUtil {
                     // Catch some exception
                     Element exEl = XMLUtil.firstChildRecursive(root, XMLSymbols.LABEL_EXCEPTION_TEXT);
                     if (exEl != null) {
-                        log.error("Error while comparing " +getAuthority(uri1) + "(" + getVersion(uri1) + "):" + 
-                                getCode(uri1) + "/" + getAuthority(uri2) + "(" + getVersion(uri2) + "):" + 
-                                getCode(uri2) + ": " + exEl.getValue());
-                        throw new SecoreException(ExceptionCode.ResolverError, exEl.getValue());
-                    } else {   
+                        log.error("Exception returned: " + exEl.getValue());
+                        if (equalityUri.equals(equalityUri_atResolver)) {
+                            throw new SecoreException(ExceptionCode.ResolverError, exEl.getValue());
+                        } // else try with URIs at resolver
+                    } else {
                         // Cache this new comparison
                         Element eqEl = XMLUtil.firstChildRecursive(root, XMLSymbols.LABEL_EQUAL);
                         equal = Boolean.parseBoolean(eqEl.getValue());
                     }
                     
                 } catch (ValidityException ex) {
-                    throw new SecoreException(ExceptionCode.InternalComponentError, 
+                    throw new SecoreException(ExceptionCode.InternalComponentError,
                             equalityUri + " returned an invalid document.", ex);
                 } catch (ParsingException ex) {
                     throw new PetascopeException(ExceptionCode.XmlNotValid.locator(
                             "line: " + ex.getLineNumber() + ", column:" + ex.getColumnNumber()),
                             ex.getMessage(), ex);
                 } catch (IOException ex) {
-                    throw new SecoreException(ExceptionCode.InternalComponentError, 
-                             equalityUri + ": could not connect to resolver. The site may be down.", ex);
+                    throw new SecoreException(ExceptionCode.InternalComponentError,
+                            equalityUri + ": could not connect to resolver. The site may be down.", ex);
                 } catch (SecoreException ex) {
                     throw ex;
                 } catch (Exception ex) {
                     throw new PetascopeException(ExceptionCode.XmlNotValid, ex.getMessage(), ex);
                 }
-                
-                // cache comparison
-                crsComparisons.put(URLs, equal);
                 return equal;
             }
+            return false;
         }
         
         // Getters (decomposeUri() first: they work on atomic CRS URIs, check validity as well first)
@@ -1079,6 +1158,8 @@ public class CrsUtil {
          * but equivalent CRS URI (eg KVP/SOAP or KVP pairs order).
          * @param uri   The URI which needs to be parsed
          * @return      The cached CrsDefinition, null otherwise
+         * @throws PetascopeException
+         * @throws SecoreException
          */
         public static CrsDefinition getCachedDefinition(String uri) throws PetascopeException, SecoreException {
             for (String cachedUri : parsedCRSs.keySet()) {
@@ -1101,7 +1182,7 @@ public class CrsUtil {
                 return (crsUris.iterator().next());
             } else {
                 // By default, use SECORE host in the CCRS URL
-                String ccrsOut = ConfigManager.SECORE_URL + "/" +  KEY_RESOLVER_CCRS + "?";
+                String ccrsOut = getResolverUri() + "/" +  KEY_RESOLVER_CCRS + "?";
                 Iterator it = crsUris.iterator();
                 for (int i = 0; i < crsUris.size(); i++) {
                     ccrsOut += (i+1) + "=" + it.next();
@@ -1118,6 +1199,8 @@ public class CrsUtil {
          * NOTE: this notation is *not* standard (yet?).
          * @param singleCrsUri
          * @param leftAxesLabels
+         * @throws PetascopeException
+         * @throws SecoreException
          * @return 
          */
         public static String buildSlicedUri(String singleCrsUri, List<String> leftAxesLabels) 

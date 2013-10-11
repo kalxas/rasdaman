@@ -79,11 +79,11 @@ public class CrsDefinition {
             
     // Members
     private static final Logger log = LoggerFactory.getLogger(CrsDefinition.class);
-    private String     authority;
-    private String     version;
-    private String     code;
-    private String     type;        // Geodetic, Geographic, Vertical, Temporal, etc.
-    private List<Axis> axes;
+    private final String     authority;
+    private final String     version;
+    private final String     code;
+    private final String     type;        // Geodetic, Geographic, Vertical, Temporal, etc.
+    private final List<Axis> axes;
     private String     datumOrigin; // for TemporalCRSs
     
     // Constructor (each axis is defined later on by the GML parser)
@@ -162,10 +162,10 @@ public class CrsDefinition {
     
     // Inner class
     public class Axis implements Cloneable {
-        private String direction;
-        private String abbreviation;
-        private String uom;   
-        private String type;        
+        private final String direction;
+        private final String abbreviation;
+        private final String uom;
+        private final String type;
         
         // Constructor
         // (NOTE) Only the outer class can call it: an Axis must be always put inside a CRS definition.

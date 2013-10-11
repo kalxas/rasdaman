@@ -34,6 +34,7 @@ import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.WcsUtil;
 import petascope.wcs2.parsers.GetCoverageRequest;
@@ -56,7 +57,7 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
     }
 
     @Override
-    public Response handle(DescribeCoverageRequest request) throws WCSException, PetascopeException {
+    public Response handle(DescribeCoverageRequest request) throws WCSException, PetascopeException, SecoreException {
         
         Document ret = constructDocument(LABEL_COVERAGE_DESCRIPTIONS, NAMESPACE_WCS);
         Element root = ret.getRootElement();

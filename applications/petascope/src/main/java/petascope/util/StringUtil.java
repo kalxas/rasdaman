@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -41,6 +42,8 @@ import java.util.StringTokenizer;
  */
 public class StringUtil {
     
+    private static String COMMA = ",";
+
     /**
      * Remove leading/trailing spaces and any newlines.
      *
@@ -396,5 +399,37 @@ public class StringUtil {
         BigInteger bLo = new BigInteger(lo);
         BigInteger bHi = new BigInteger(hi);
         return bHi.subtract(bLo).add(BigInteger.ONE).toString();
+    }
+
+    /**
+     * Returns a list of String literals from a comma-separated value String.
+     * @param csvString
+     * @return
+     */
+    public static List<String> csv2list(String csvString) {
+        List<String> outList = new ArrayList<String>();
+
+        for (String element : csvString.split(COMMA)) {
+            if (!element.isEmpty()) {
+                outList.add(element);
+            }
+        }
+        return outList;
+    }
+
+    /**
+     * Repeats a String literal N times.
+     * @param value     The single input literal to be repeated
+     * @param times     How many repetitions
+     * @return
+     */
+    public static List<String> repeat(String value, int times) {
+        List<String> outList = new ArrayList<String>(times);
+
+        for (int i=0; i<times; i++) {
+            outList.add(value);
+        }
+
+        return outList;
     }
 }
