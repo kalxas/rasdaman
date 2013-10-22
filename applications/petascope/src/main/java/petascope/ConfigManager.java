@@ -42,7 +42,12 @@ import petascope.wps.server.WpsServer;
 /**
  * Configuration Manager class: a single entry point for all server settings.
  * Implements the singleton design pattern.
- *
+ * 
+ * Note (AB): Although this class implements the singleton pattern, it offers
+ * public static members that come pre-initialized, allowing use of values that
+ * are not provided by the configuration file without getting an instance. These
+ * should be made private and only the get method on the unique instance allowed
+ * 
  * @author Andrei Aiordachioaie
  * @author Dimitar Misev
  */
@@ -86,6 +91,8 @@ public class ConfigManager {
     public static String RASDAMAN_DATABASE = "RASBASE";
     public static String RASDAMAN_USER = "rasguest";
     public static String RASDAMAN_PASS = "rasguest";
+    public static String RASDAMAN_ADMIN_USER = "rasadmin";
+    public static String RASDAMAN_ADMIN_PASS = "rasadmin";
     public static String RASDAMAN_VERSION = "8";
     
     //Time in seconds between each re-connect attempt
@@ -142,6 +149,8 @@ public class ConfigManager {
     private static final String KEY_RASDAMAN_URL = "rasdaman_url";
     private static final String KEY_RASDAMAN_USER = "rasdaman_user";
     private static final String KEY_RASDAMAN_PASS = "rasdaman_pass";
+    private static final String KEY_RASDAMAN_ADMIN_USER = "rasdaman_admin_user";
+    private static final String KEY_RASDAMAN_ADMIN_PASS = "rasdaman_admin_pass";
     private static final String KEY_RASDAMAN_VERSION = "rasdaman_version";
     private static final String KEY_METADATA_DRIVER = "metadata_driver";
     private static final String KEY_METADATA_URL = "metadata_url";
@@ -257,6 +266,8 @@ public class ConfigManager {
         RASDAMAN_URL            = get(KEY_RASDAMAN_URL);
         RASDAMAN_USER           = get(KEY_RASDAMAN_USER);
         RASDAMAN_PASS           = get(KEY_RASDAMAN_PASS);
+        RASDAMAN_ADMIN_USER     = get(KEY_RASDAMAN_ADMIN_USER);
+        RASDAMAN_ADMIN_PASS     = get(KEY_RASDAMAN_ADMIN_PASS);
         RASDAMAN_VERSION        = get(KEY_RASDAMAN_VERSION);
         METADATA_DRIVER         = get(KEY_METADATA_DRIVER);
         METADATA_URL            = get(KEY_METADATA_URL);
@@ -299,10 +310,11 @@ public class ConfigManager {
         log.info("Metadata Username: " + METADATA_USER);
         log.info("");
         log.info("       *** RASDAMAN ***       ");
-        log.info("Rasdaman URL     : " + RASDAMAN_URL);
-        log.info("Rasdaman DB      : " + RASDAMAN_DATABASE);
-        log.info("Rasdaman user    : " + RASDAMAN_USER);
-        log.info("Rasdaman version : " + RASDAMAN_VERSION);
+        log.info("Rasdaman URL        : " + RASDAMAN_URL);
+        log.info("Rasdaman DB         : " + RASDAMAN_DATABASE);
+        log.info("Rasdaman user       : " + RASDAMAN_USER);
+        log.info("Rasdaman version    : " + RASDAMAN_VERSION);
+        log.info("Rasdaman admin user : " + RASDAMAN_ADMIN_USER);
         log.info("");
         log.info("       *** SECORE ***       ");
         log.info("SECORE URL       : " + SECORE_URLS);
