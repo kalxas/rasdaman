@@ -42,6 +42,7 @@ import petascope.core.DbMetadataSource;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.util.StringUtil;
 import petascope.util.WcsUtil;
 import petascope.wcs2.extensions.ExtensionsRegistry;
@@ -142,6 +143,7 @@ public class Wcs2Servlet extends HttpServlet {
                 if (request == null || request.length() == 0) {
                     if (req.getQueryString() != null && req.getQueryString().length() > 0) {
                         request = req.getQueryString();
+                        request = StringUtil.urldecode(request, req.getContentType());
                     } else {
                         printUsage(res, request);
                         return;
@@ -156,6 +158,8 @@ public class Wcs2Servlet extends HttpServlet {
                 throw e;
             } catch (PetascopeException e) {
                 throw new WCSException(e.getExceptionCode(), e.getMessage());
+            } catch (SecoreException e) {
+                throw new WCSException(e.getExceptionCode(), e);
             } catch (Exception e) {
                 log.error("Runtime error : {}", e.getMessage());
                 throw new WCSException(ExceptionCode.RuntimeError,
@@ -174,7 +178,7 @@ public class Wcs2Servlet extends HttpServlet {
      * @throws WCSException in case of I/O error, or if the server is unable to handle the request
      */
     private void handleWcs2Request(String input, boolean soap, HttpServletResponse response, HttpServletRequest srvRequest)
-            throws WCSException, PetascopeException {
+            throws WCSException, PetascopeException, SecoreException {
         try {
             HTTPRequest request = this.parseUrl(srvRequest, input);
             log.info("Handling WCS 2.0 request");
@@ -217,11 +221,12 @@ public class Wcs2Servlet extends HttpServlet {
                     }
                 }
             }
+        } catch (PetascopeException ex) {
+            throw ex;
+        } catch (SecoreException ex) {
+            throw ex;
         } catch (Exception ex) {
-            if (!(ex instanceof PetascopeException)) {
-                ex = new WCSException(ExceptionCode.RuntimeError, ex);
-            }
-            throw ((PetascopeException) ex);
+            throw new WCSException(ExceptionCode.RuntimeError, ex);
         }
     }
 

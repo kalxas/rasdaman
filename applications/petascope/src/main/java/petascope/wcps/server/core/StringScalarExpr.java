@@ -27,17 +27,18 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class StringScalarExpr extends AbstractRasNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(StringScalarExpr.class);
-    
+
     public static final Set<String> NODE_NAMES = new HashSet<String>();
     private static final String[] NODE_NAMES_ARRAY = {
-        WCPSConstants.MSG_STRING_IDENTIFIER,
-        WCPSConstants.MSG_STRING_CONSTANT,
+        WcpsConstants.MSG_STRING_IDENTIFIER,
+        WcpsConstants.MSG_STRING_CONSTANT,
     };
     static {
         NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
@@ -46,36 +47,47 @@ public class StringScalarExpr extends AbstractRasNode {
     private String op, string;
     private CoverageExpr cov;
 
-    public StringScalarExpr(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && (node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT))) {
+    public StringScalarExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
+        while ((node != null) && (node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT))) {
             node = node.getNextSibling();
         }
         log.trace(node.getNodeName());
 
-        if (node.getNodeName().equals(WCPSConstants.MSG_STRING_IDENTIFIER)) {
+        if (node.getNodeName().equals(WcpsConstants.MSG_STRING_IDENTIFIER)) {
             Node child = node.getFirstChild();
             cov = new CoverageExpr(child, xq);
             super.children.add(cov);
-            op = WCPSConstants.MSG_ID_LOWERCASE;
-        } else if (node.getNodeName().equals(WCPSConstants.MSG_STRING_CONSTANT)) {
-            op = WCPSConstants.MSG_CONSTANT;
-            string = node.getNodeValue();
+            op = WcpsConstants.MSG_ID_LOWERCASE;
+        } else if (node.getNodeName().equals(WcpsConstants.MSG_STRING_CONSTANT)) {
+            op = WcpsConstants.MSG_CONSTANT;
+            string = node.getFirstChild().getNodeValue();
         } else {
-            throw new WCPSException(WCPSConstants.ERRTXT_UNKNOWN_STRING_NODE_EXPR + ": " + node.getNodeName());
+            throw new WCPSException("Unknown String expr node: " + node.getNodeName());
         }
-        
-        log.trace("  " + WCPSConstants.MSG_OPERATION + ": " + op + ", " + WCPSConstants.MSG_VALUE + ": " + string);
+
+        log.trace("  " + WcpsConstants.MSG_OPERATION + ": " + op + ", " + WcpsConstants.MSG_VALUE + ": " + string);
     }
 
     public String toRasQL() {
         String result = "";
-        if (op.equals(WCPSConstants.MSG_CONSTANT)) {
+        if (op.equals(WcpsConstants.MSG_CONSTANT)) {
             result = string;
         }
-        if (op.equals(WCPSConstants.MSG_ID_LOWERCASE)) {
+        if (op.equals(WcpsConstants.MSG_ID_LOWERCASE)) {
             result = cov.toRasQL();
         }
 
         return result;
+    }
+
+    // Equivalent of NumericScalarExpr::getSingleValue() for String subset expressions (e.g. timestamps)
+    public String getValue() {
+        if (op.equals(WcpsConstants.MSG_CONSTANT)) {
+            return string;
+        } else return "";
+    }
+
+    public boolean isSingleValue() {
+        return op.equals(WcpsConstants.MSG_CONSTANT);
     }
 }

@@ -22,8 +22,11 @@
 package petascope.util;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -31,7 +34,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 
 /**
  * String utilities.
@@ -39,7 +41,9 @@ import java.util.logging.Logger;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class StringUtil {
-    
+
+    private static String COMMA = ",";
+
     /**
      * Remove leading/trailing spaces and any newlines.
      *
@@ -293,5 +297,139 @@ public class StringUtil {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Replaces all <tt>'&'</tt> characters with <tt>'&amp;'</tt>
+     * @param aURL
+     * @return
+     */
+    private static String escapeAmpersands(String aString){
+        return aString.replace("&", "&" + XMLSymbols.PREDEFINED_ENTITY_AMPERSAND + ";");
+    }
+
+    /**
+     * Replaces all <tt>'\''</tt> characters with <tt>'&apos;'</tt>
+     * @param aURL
+     * @return
+     */
+    private static String escapeApostrophes(String aString){
+        return aString.replace("'", "&" + XMLSymbols.PREDEFINED_ENTITY_APOSTROPHE + ";");
+    }
+
+    /**
+     * Replaces all <tt>'<'</tt> characters with <tt>'&lt;'</tt>
+     * @param aURL
+     * @return
+     */
+    private static String escapeLessThanSigns(String aString){
+        return aString.replace("<", "&" + XMLSymbols.PREDEFINED_ENTITY_LESSTHAN_SIGN + ";");
+    }
+
+    /**
+     * Replaces all <tt>'>'</tt> characters with <tt>'&gt;'</tt>
+     * @param aURL
+     * @return
+     */
+    private static String escapeGreaterThanSigns(String aString){
+        return aString.replace(">", "&" + XMLSymbols.PREDEFINED_ENTITY_GREATERTHAN_SIGN + ";");
+    }
+
+    /**
+     * Replaces all <tt>'\"'</tt> characters with <tt>'&quot;'</tt>
+     * @param aURL
+     * @return
+     */
+    private static String escapeQuotes(String aString){
+        return aString.replace("\"", "&" + XMLSymbols.PREDEFINED_ENTITY_QUOTES + ";");
+    }
+
+    /**
+     * Fix a string for valid insertion in XML document (escape reserved entities).
+     * http://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
+     * @param aURL
+     * @return
+     */
+    public static String escapeXmlPredefinedEntities(String aString){
+        String escapedString;
+
+        escapedString = escapeAmpersands(aString);
+        escapedString = escapeApostrophes(escapedString);
+        escapedString = escapeLessThanSigns(escapedString);
+        escapedString = escapeGreaterThanSigns(escapedString);
+        escapedString = escapeQuotes(escapedString);
+
+        return escapedString;
+    }
+
+    /**
+     * Creates a tuple from a list of Strings, separated by the specified tuple separator.
+     * E.g.: listToTuple({"abc", "def"}, ',') --> "abc,def"
+     * @param list  A list of Strings
+     * @param ts    The tuple separator
+     * @return A single String which lists each "list" element, separated by "ts".
+     */
+    public static <T> String listToTuple(List<T> list, char ts) {
+        String tuple = "";
+        for (T el : list) {
+            tuple += el.toString() + (list.indexOf(el)==list.size()-1 ? "" : ts);
+        }
+        return tuple;
+    }
+
+    /**
+     * Takes two numeric strings and returns their range.
+     * @param lo
+     * @param hi
+     * @return hi-lo
+     */
+    public static String getRange(String lo, String hi) {
+        BigDecimal bLo = new BigDecimal(lo);
+        BigDecimal bHi = new BigDecimal(hi);
+        return bHi.subtract(bLo).toString();
+    }
+
+    /**
+     * Takes two (discrete) numeric strings and returns their range.
+     * @param lo
+     * @param hi
+     * @return hi-lo
+     */
+    public static String getCount(String lo, String hi) {
+        BigInteger bLo = new BigInteger(lo);
+        BigInteger bHi = new BigInteger(hi);
+        return bHi.subtract(bLo).add(BigInteger.ONE).toString();
+    }
+
+    /**
+     * Returns a list of String literals from a comma-separated value String.
+     * @param csvString
+     * @return
+     */
+    public static List<String> csv2list(String csvString) {
+        List<String> outList = new ArrayList<String>();
+
+        for (String element : csvString.split(COMMA)) {
+            if (!element.isEmpty()) {
+                outList.add(element);
+            }
+        }
+        return outList;
+    }
+
+    /**
+     * Repeats a String literal N times.
+     * @param value     The single input literal to be repeated
+     * @param times     How many repetitions
+     * @return
+     */
+    public static List<String> repeat(String value, int times) {
+        List<String> outList = new ArrayList<String>(times);
+
+        for (int i=0; i<times; i++) {
+            outList.add(value);
+        }
+
+        return outList;
     }
 }

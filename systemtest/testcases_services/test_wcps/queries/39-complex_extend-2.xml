@@ -10,7 +10,7 @@
                 <plus>
                     <extend>
                         <coverage>t</coverage>
-                        <axis>x</axis>
+                        <axis>i</axis>
                         <srsName>CRS:1</srsName>
                         <lowerBound>
                             <numericConstant>0</numericConstant>
@@ -18,7 +18,7 @@
                         <upperBound>
                             <numericConstant>500</numericConstant>
                         </upperBound>
-                        <axis>y</axis>
+                        <axis>j</axis>
                         <srsName>CRS:1</srsName>
                         <lowerBound>
                             <numericConstant>0</numericConstant>

@@ -21,29 +21,18 @@
  */
 package petascope.wcst.transaction;
 
-import java.sql.SQLException;
-import net.opengis.ows.v_1_0_0.BoundingBoxType;
-import net.opengis.wcs.ows.v_1_1_0.InterpolationMethodType;
-import net.opengis.wcs.v_1_1_0.CoverageDescriptionType;
-import net.opengis.wcs.v_1_1_0.CoverageDescriptions;
-import net.opengis.wcs.v_1_1_0.CoverageSummaryType;
-import net.opengis.wcs.v_1_1_0.FieldType;
-import net.opengis.wcs.v_1_1_0.RangeType;
-import org.apache.commons.io.IOUtils;
-import petascope.exceptions.PetascopeException;
-import petascope.exceptions.RasdamanException;
-import petascope.exceptions.WCPSException;
-import petascope.wcps.server.core.SDU;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.security.InvalidParameterException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -55,20 +44,35 @@ import javax.imageio.ImageIO;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
-import net.opengis.wcs.ows.v_1_1_0.InterpolationMethods;
+import net.opengis.ows.v_1_0_0.BoundingBoxType;
+import net.opengis.wcs.v_1_1_0.CoverageDescriptionType;
+import net.opengis.wcs.v_1_1_0.CoverageDescriptions;
+import net.opengis.wcs.v_1_1_0.CoverageSummaryType;
+import net.opengis.wcs.v_1_1_0.FieldType;
+import net.opengis.wcs.v_1_1_0.RangeType;
+import org.apache.commons.io.IOUtils;
 import org.odmg.ODMGException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.core.DbMetadataSource;
-import petascope.core.Metadata;
-import petascope.exceptions.ExceptionCode;
 import petascope.ConfigManager;
+import petascope.core.CoverageMetadata;
+import petascope.core.DbMetadataSource;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
+import petascope.exceptions.RasdamanException;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
+import petascope.exceptions.WCSTException;
+import petascope.util.AxisTypes;
+import petascope.util.CrsUtil;
+import petascope.util.Pair;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.InterpolationMethod;
 import petascope.wcps.server.core.RangeElement;
-import petascope.exceptions.WCSTException;
-import petascope.util.AxisTypes;
+import petascope.wcps.server.core.SDU;
+import petascope.wcs2.templates.Templates;
+import petascope.wcst.transaction.tools.RasdamanUtils;
 import wcst.transaction.schema.CodeType;
 import wcst.transaction.schema.CoverageType;
 import wcst.transaction.schema.KeywordsType;
@@ -77,8 +81,6 @@ import wcst.transaction.schema.ManifestType;
 import wcst.transaction.schema.ReferenceType;
 import wcst.transaction.schema.TransactionResponseType;
 import wcst.transaction.schema.TransactionType;
-import petascope.wcst.transaction.tools.RasdamanUtils;
-import petascope.util.CrsUtil;
 
 /**
  * This class takes a WCS-T Transaction XML request and executes the request,
@@ -136,7 +138,7 @@ public class executeTransaction {
      * @return a TransactionResponse object.
      * @throws WCSTException
      */
-    public TransactionResponseType get() throws WCSTException, WCPSException, PetascopeException {
+    public TransactionResponseType get() throws WCSTException, WCPSException, PetascopeException, SecoreException {
         try {
             if (finished == false) {
                 metaDb.ensureConnection();
@@ -156,7 +158,7 @@ public class executeTransaction {
     /**
      * Computes the response to the Transaction request given to the constructor.
      */
-    public void process() throws WCSTException, WCPSException, PetascopeException {
+    public void process() throws WCSTException, WCPSException, PetascopeException, SecoreException {
         if (!input.getService().equalsIgnoreCase("WCS")) {
             throw new WCSTException(ExceptionCode.InvalidParameterValue, "Service. Explanation: Service must be \"WCS\" !");
         }
@@ -230,6 +232,8 @@ public class executeTransaction {
             }
 
             throw e;
+        } catch (SecoreException sEx) {
+            throw sEx;
         }
     }
 
@@ -420,11 +424,11 @@ public class executeTransaction {
      * Updates the coverage metadata: textual descriptions. The title and the abstract
      * could be specified in multiple languages, but we only store english.
      *
-     * @param meta Metadata object to be modified
+     * @param meta CoverageMetadata object to be modified
      * @param summary summary object, that contains title, abstract and coverage keywords
      * @return modified metadata object
      */
-    private Metadata updateMetadataWithSummary(Metadata meta,
+    private CoverageMetadata updateMetadataWithSummary(CoverageMetadata meta,
             CoverageSummaryType summary) throws WCSTException {
         log.debug("Updating metadata with values from Coverage Summary...");
 
@@ -493,8 +497,9 @@ public class executeTransaction {
      * @param img The image, fetched from external reference
      * @throws WCSTException on error
      */
-    private Metadata createNewCoverageMetadata(String identifier, BufferedImage img) throws WCPSException, PetascopeException {
-        Metadata m = null;
+    private CoverageMetadata createNewCoverageMetadata(String identifier, BufferedImage img)
+            throws WCPSException, PetascopeException, SecoreException {
+        CoverageMetadata m = null;
         log.debug("Creating metadata with default values...");
 
         // TODO: When we accept multi-band images, update nullDefault
@@ -505,19 +510,38 @@ public class executeTransaction {
         String highX = (img.getHeight() - 1) + "";
         String lowY = "0";
         String highY = (img.getWidth() - 1) + "";
-        CellDomainElement cellX = new CellDomainElement(lowX, highX, AxisTypes.X_AXIS);
-        CellDomainElement cellY = new CellDomainElement(lowY, highY, AxisTypes.Y_AXIS);
+        CellDomainElement cellX = new CellDomainElement(lowX, highX, 0);
+        CellDomainElement cellY = new CellDomainElement(lowY, highY, 1);
         List<CellDomainElement> cellList = new ArrayList<CellDomainElement>(2);
         cellList.add(cellX);
         cellList.add(cellY);
 
         // Domains
-        Set<String> crsSet = new HashSet<String>(1);
-        crsSet.add(CrsUtil.GRID_CRS);
-        String str1 = null, str2 = null;
+        List<String> crs = new ArrayList<String>(1);
+        crs.add(CrsUtil.GRID_CRS);
+        String str1 = null;
+        String str2 = null;
         /* Since we currently do not use the Domain sizes, we can set them to 0 and 1 */
-        DomainElement domX = new DomainElement(AxisTypes.X_AXIS, AxisTypes.X_AXIS, 0.0, 1.0, str1, str2, crsSet, metaDb.getAxisNames(), null);
-        DomainElement domY = new DomainElement(AxisTypes.Y_AXIS, AxisTypes.Y_AXIS, 0.0, 1.0, str1, str2, crsSet, metaDb.getAxisNames(), null);
+        DomainElement domX = new DomainElement(
+                BigDecimal.ZERO,
+                BigDecimal.ONE,
+                AxisTypes.X_AXIS,
+                AxisTypes.X_AXIS,
+                CrsUtil.PURE_UOM,
+                crs.get(0),
+                0,
+                BigInteger.ONE,
+                false);
+        DomainElement domY = new DomainElement(
+                BigDecimal.ZERO,
+                BigDecimal.ONE,
+                AxisTypes.Y_AXIS,
+                AxisTypes.Y_AXIS,
+                CrsUtil.PURE_UOM,
+                crs.get(0),
+                1,
+                BigInteger.ONE,
+                false);
         List<DomainElement> domList = new ArrayList<DomainElement>(2);
         domList.add(domX);
         domList.add(domY);
@@ -528,30 +552,21 @@ public class executeTransaction {
         List<RangeElement> rList = new ArrayList<RangeElement>(1);
         rList.add(range);
 
-        // Interpolation methods: only the default
-        String interpMeth = ConfigManager.WCST_DEFAULT_INTERPOLATION;
-        String nullRes = ConfigManager.WCST_DEFAULT_NULL_RESISTANCE;
-        InterpolationMethod interp = new InterpolationMethod(interpMeth, nullRes);
-        Set<InterpolationMethod> interpList = new HashSet<InterpolationMethod>(1);
-        interpList.add(interp);
-
-        // Null sets
-            /* TODO: update for multi-band images */
-        String nullVal = "0";
-        Set<String> nullSet = new HashSet<String>(1);
-        nullSet.add(nullVal);
-
         // Descriptions
-        String abstr = null;
-        String title = "Coverage " + identifier;
-        String type = "GridCoverage"; // FIXME
-        String keywords = null;
+        Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
+        m = new CoverageMetadata(
+                identifier,
+                Templates.GRID_ORIGIN,
+                "", // native format
+                emptyMetadata,
+                crs,
+                cellList,
+                domList,
+                Pair.of(BigInteger.ZERO, ""),
+                rList
+                );
 
-
-        m = new Metadata(cellList, rList, nullSet, nullDefault, interpList,
-                interp, identifier, type, domList, null, title, abstr, keywords);
-
-        log.debug("Done creating default metadata");
+        log.debug("Done creating default metadata.");
         return m;
     }
 
@@ -560,7 +575,8 @@ public class executeTransaction {
      *
      * @param elem the JAXB node equivalent to the <Coverage> node
      */
-    private void processInputCoverageNode(CoverageType elem) throws WCSTException, WCPSException, PetascopeException {
+    private void processInputCoverageNode(CoverageType elem)
+            throws WCSTException, WCPSException, PetascopeException, SecoreException {
         if (elem.getAction() == null) {
             throw new WCSTException(ExceptionCode.InvalidParameterValue, "Action. Explanation: "
                     + "Every <Coverage> node must contain an <Action> child node.");
@@ -600,7 +616,8 @@ public class executeTransaction {
      * @param identifier Name of coverage to update
      * @param references List of references with data for update
      */
-    private void actionUpdateAll(String identifier, List references) throws WCSTException, PetascopeException {
+    private void actionUpdateAll(String identifier, List references)
+            throws WCSTException, PetascopeException, SecoreException {
         log.trace("Executing action Update All ...");
         actionUpdateDataPart(identifier, references);
         actionUpdateMetadata(identifier, references);
@@ -608,12 +625,12 @@ public class executeTransaction {
     }
 
     /**
-     * Updates the Metadata DB with the information contained in the CoverageDescriptions XML object
+     * Updates the CoverageMetadata DB with the information contained in the CoverageDescriptions XML object
      *
      * @param identifier ID of the coverage
      * @param desc object that contains the coverage description.
      */
-    private Metadata updateMetadataWithDescription(Metadata meta, CoverageDescriptionType desc) throws WCPSException, WCSTException {
+    private CoverageMetadata updateMetadataWithDescription(CoverageMetadata meta, CoverageDescriptionType desc) throws WCPSException, WCSTException {
         log.debug("Updating metadata with values from CoverageDescription...");
 
         /* (B) Table ps_descriptions: Update coverage title, abstract, keywords */
@@ -642,44 +659,11 @@ public class executeTransaction {
                 String datatype = field.getDefinition().getDataType().getValue();
                 RangeElement fieldRange = new RangeElement(name, datatype, null); // FIXME uom = null
                 rangeList.add(fieldRange);
-
-                InterpolationMethods methods = field.getInterpolationMethods();
-                String interpType = methods.getDefaultMethod().getValue();
-                String nullResist = methods.getDefaultMethod().getNullResistance();
-                InterpolationMethod interp = new InterpolationMethod(interpType, nullResist);
-                interpSet.add(interp);
-
-                Iterator<InterpolationMethodType> it = methods.getOtherMethod().iterator();
-                while (it.hasNext()) {
-                    InterpolationMethodType imt = it.next();
-                    String type = imt.getValue();
-                    String resis = imt.getNullResistance();
-                    interp = new InterpolationMethod(type, resis);
-                    interpSet.add(interp);
-                }
             }
             meta.setRange(rangeList);
-            meta.setInterpolationSet(interpSet);
         }
 
-        /* (D) Table ps_coverage: Update default interpolation method and null resistance */
-
-        /*
-         *  We store interpolation methods at coverage level, not field level.
-         * So we only look at the interpolation method list of the first field,
-         * and use it on the whole coverage
-         */
-        if (desc.isSetRange()) {
-            log.debug("Updating default interpolation method...");
-            InterpolationMethodType def1 = desc.getRange().getField().get(0).getInterpolationMethods().getDefaultMethod();
-            String method = def1.getValue();
-            String resist = def1.getNullResistance();
-
-            InterpolationMethod meth = new InterpolationMethod(method, resist);
-            meta.setDefaultInterpolation(meth);
-        }
-
-        /* (E) Table ps_celldomain: Update cell domain of the coverage. */
+        /* (D) Table ps_celldomain: Update cell domain of the coverage. */
         /* NOTE: Only works for 2-D (x/y) or 3-D (x/y/t) coverages */
 
         if (desc.isSetDomain()) {
@@ -741,7 +725,7 @@ public class executeTransaction {
                     "This server did not implement the parsing of 'TimePeriod' nodes.");
         }
 
-        /* (F) Table ps_crss: Update supported CRS */
+        /* (E) Table ps_crss: Update supported CRS */
         // TODO later ... we don't support CRSs as of yet
 
         return meta;
@@ -753,12 +737,13 @@ public class executeTransaction {
      * @param identifier
      * @param references
      */
-    private void actionUpdateDataPart(String identifier, List references) throws WCSTException, PetascopeException {
+    private void actionUpdateDataPart(String identifier, List references)
+            throws WCSTException, PetascopeException, SecoreException {
         log.trace("Executing action UpdateDataPart ...");
 
         // Error checking
         // Only change the metadata for an existing coverage
-        Metadata m = metaDb.read(identifier);
+        CoverageMetadata m = metaDb.read(identifier);
 
         // Obtain the references
         ReferenceType pixels, desc;
@@ -793,7 +778,7 @@ public class executeTransaction {
         log.trace("Executing action Update Metadata...");
 
         // Only change the metadata for an existing coverage
-        Metadata m = null;
+        CoverageMetadata m = null;
         try {
             m = metaDb.read(identifier);
         } catch (Exception e) {
@@ -825,14 +810,14 @@ public class executeTransaction {
 
         // (2) Do the actual processing
         try {
-            Metadata oldMeta = m;
-            Metadata newMeta = updateMetadataWithDescription(oldMeta, desc);
+            CoverageMetadata oldMeta = m;
+            CoverageMetadata newMeta = updateMetadataWithDescription(oldMeta, desc);
             if (summ != null) {
-                Metadata tempMeta = newMeta;
+                CoverageMetadata tempMeta = newMeta;
                 newMeta = updateMetadataWithSummary(newMeta, summ);
             }
 
-            metaDb.updateCoverageMetadata(m, false);
+            //metaDb.updateCoverageMetadata(m, false);
         } catch (Exception e) {
             throw new WCSTException(ExceptionCode.NoApplicableCode, "Error while updating metadata.", e);
         }
@@ -847,7 +832,8 @@ public class executeTransaction {
      * @param references
      * @throws wcs.server.core.WCSTException
      */
-    private void actionAddCoverage(String identifier, List references) throws WCSTException, WCPSException, PetascopeException {
+    private void actionAddCoverage(String identifier, List references)
+            throws WCSTException, WCPSException, PetascopeException, SecoreException {
         log.trace("Executing action AddCoverage ...");
 
         // Obtain the references
@@ -918,14 +904,14 @@ public class executeTransaction {
         /**
          * (3) Build the metadata object and store it in the db.
          */
-        Metadata m = createNewCoverageMetadata(identifier, img);
+        CoverageMetadata m = createNewCoverageMetadata(identifier, img);
         m = updateMetadataWithDescription(m, desc);
         /* Top level descriptions overwrite other metadata sources */
         if (summ != null) {
             m = updateMetadataWithSummary(m, summ);
         }
 
-        metaDb.insertNewCoverageMetadata(m, false);
+        //metaDb.insertNewCoverageMetadata(m, false);
 
         /**
          * (4) Indicate success: Add this ID to the output XML document
@@ -952,7 +938,7 @@ public class executeTransaction {
 
         // (2) Do the actual processing
         try {
-            Metadata m = metaDb.read(identifier);
+            CoverageMetadata m = metaDb.read(identifier);
             deleteCoverageFromRasdaman(identifier);
             metaDb.delete(m, false);
         } catch (Exception e) {
@@ -1078,7 +1064,7 @@ public class executeTransaction {
         return null;
     }
 
-    private Metadata updateImageCrsBoundingBox(Metadata meta, BoundingBoxType bbox) throws WCPSException {
+    private CoverageMetadata updateImageCrsBoundingBox(CoverageMetadata meta, BoundingBoxType bbox) throws WCPSException {
         List<Double> lower = bbox.getLowerCorner();
         List<Double> upper = bbox.getUpperCorner();
 
@@ -1093,8 +1079,8 @@ public class executeTransaction {
         long hiX = upper.get(0).longValue();
         long hiY = upper.get(1).longValue();
 
-        CellDomainElement cellX = new CellDomainElement(loX + "", hiX + "", AxisTypes.X_AXIS);
-        CellDomainElement cellY = new CellDomainElement(loY + "", hiY + "", AxisTypes.Y_AXIS);
+        CellDomainElement cellX = new CellDomainElement(loX + "", hiX + "", 0);
+        CellDomainElement cellY = new CellDomainElement(loY + "", hiY + "", 1);
 
         List<CellDomainElement> list = new ArrayList<CellDomainElement>();
         list.add(cellX);

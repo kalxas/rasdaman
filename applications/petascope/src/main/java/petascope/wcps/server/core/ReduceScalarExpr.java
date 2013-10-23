@@ -27,22 +27,23 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class ReduceScalarExpr extends AbstractRasNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(ReduceScalarExpr.class);
-    
+
     public static final Set<String> NODE_NAMES = new HashSet<String>();
     private static final String[] NODE_NAMES_ARRAY = {
-        WCPSConstants.MSG_ALL,
-        WCPSConstants.MSG_SOME,
-        WCPSConstants.MSG_COUNT,
-        WCPSConstants.MSG_ADD,
-        WCPSConstants.MSG_AVG,
-        WCPSConstants.MSG_MIN,
-        WCPSConstants.MSG_MAX,
+        WcpsConstants.MSG_ALL,
+        WcpsConstants.MSG_SOME,
+        WcpsConstants.MSG_COUNT,
+        WcpsConstants.MSG_ADD,
+        WcpsConstants.MSG_AVG,
+        WcpsConstants.MSG_MIN,
+        WcpsConstants.MSG_MAX,
     };
     static {
         NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
@@ -51,44 +52,44 @@ public class ReduceScalarExpr extends AbstractRasNode {
     CoverageExpr expr;
     String op;
 
-    public ReduceScalarExpr(Node node, XmlQuery xq) throws WCPSException {
+    public ReduceScalarExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         log.trace(node.getNodeName());
-        if (node.getNodeName().equals(WCPSConstants.MSG_REDUCE)) {
+        if (node.getNodeName().equals(WcpsConstants.MSG_REDUCE)) {
             node = node.getFirstChild();
         }
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
 
         String nodeName = node.getNodeName().toLowerCase();
 
-        if (nodeName.equals(WCPSConstants.MSG_ALL) ||
-                nodeName.equals(WCPSConstants.MSG_SOME) ||
-                nodeName.equals(WCPSConstants.MSG_COUNT) || 
-                nodeName.equals(WCPSConstants.MSG_ADD) || 
-                nodeName.equals(WCPSConstants.MSG_AVG) || 
-                nodeName.equals(WCPSConstants.MSG_MIN) || 
-                nodeName.equals(WCPSConstants.MSG_MAX)) {
+        if (nodeName.equals(WcpsConstants.MSG_ALL) ||
+                nodeName.equals(WcpsConstants.MSG_SOME) ||
+                nodeName.equals(WcpsConstants.MSG_COUNT) ||
+                nodeName.equals(WcpsConstants.MSG_ADD) ||
+                nodeName.equals(WcpsConstants.MSG_AVG) ||
+                nodeName.equals(WcpsConstants.MSG_MIN) ||
+                nodeName.equals(WcpsConstants.MSG_MAX)) {
             op = nodeName;
 
-            if (!op.equals(WCPSConstants.MSG_ALL) && !op.equals(WCPSConstants.MSG_SOME)) {
-                op = op + "_" + WCPSConstants.MSG_CELLS;
+            if (!op.equals(WcpsConstants.MSG_ALL) && !op.equals(WcpsConstants.MSG_SOME)) {
+                op = op + "_" + WcpsConstants.MSG_CELLS;
             }
-            log.trace(WCPSConstants.MSG_REDUCE_OPERATION + op);
+            log.trace("Reduce operation: " + op);
 
             node = node.getFirstChild();
 
-            while ((node != null) && (node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT))) {
+            while ((node != null) && (node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT))) {
                 node = node.getNextSibling();
             }
 
             expr = new CoverageExpr(node, xq);
-            
+
             // Keep the child for XML tree re-traversing
             super.children.add(expr);
-            
+
         } else {
-            throw new WCPSException(WCPSConstants.ERRTXT_INVALID_REDUCE_SCALAR_EXPR + nodeName);
+            throw new WCPSException("invalid ReduceScalarExprType node: " + nodeName);
         }
     }
 

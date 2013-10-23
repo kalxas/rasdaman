@@ -21,13 +21,13 @@
  */
 package petascope.core;
 
-import java.util.Collection;
 import java.util.Set;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 
 /**
  * A IMetadataSource is anything that can read metadata for a given coverage
- * name. It must be able to list all coverages which it knows, return Metadata
+ * name. It must be able to list all coverages which it knows, return CoverageMetadata
  * for each one, and also map a format (e.g. "png") to its formatToMimetype
  * (e.g. "image/png").
  */
@@ -40,7 +40,5 @@ public interface IMetadataSource {
     String formatToGdalid(String format);
     String gdalidToFormat(String gdalid);
 
-    Metadata read(String coverageName) throws PetascopeException;
-
-    Collection<String> getAxisNames();
+    CoverageMetadata read(String coverageName) throws PetascopeException, SecoreException;
 }

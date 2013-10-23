@@ -21,7 +21,8 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.StringUtil;
+import petascope.util.WcpsConstants;
 
 /**
  * DimensionPointElement
@@ -48,14 +49,15 @@ public class DimensionPointElement implements IParseTreeNode {
     public String toXML() {
         String result = "";
 
-        result += "<" + WCPSConstants.MSG_AXIS + ">" + axis + "</" + WCPSConstants.MSG_AXIS + ">";
+        result += "<" + WcpsConstants.MSG_AXIS + ">" + axis + "</" + WcpsConstants.MSG_AXIS + ">";
 
         if (crs != null) {
-            result += "<" + WCPSConstants.MSG_SRS_NAME + ">" + crs + "</" + WCPSConstants.MSG_SRS_NAME + ">";
+            result += "<"  + WcpsConstants.MSG_SRS_NAME + ">" + StringUtil.escapeXmlPredefinedEntities(crs)
+                    + "</" + WcpsConstants.MSG_SRS_NAME + ">";
         }
 
-        result += "<" + WCPSConstants.MSG_SLICING_POSITION + ">" + point.toXML() + 
-                "</" + WCPSConstants.MSG_SLICING_POSITION + ">";
+        result += "<" + WcpsConstants.MSG_SLICING_POSITION + ">" + point.toXML() +
+                "</" + WcpsConstants.MSG_SLICING_POSITION + ">";
 
         return result;
     }

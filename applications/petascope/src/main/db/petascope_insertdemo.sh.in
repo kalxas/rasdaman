@@ -54,6 +54,7 @@ SETTINGS=@sysconfdir@/petascope.properties
 # petascope updateN.sql scripts
 SCRIPT_DIR=@pkgdatadir@/petascope
 
+
 # ------------------------------------------------------------------------------
 # functions
 # ------------------------------------------------------------------------------
@@ -184,48 +185,4 @@ check_rasdaman
 #
 # insert sample data to rasdaman
 #
-c="mean_summer_airtemp"
-log "sample coverage $c"
-
-logn "  inserting into rasdaman... "
-
-$RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | grep "$c" > /dev/null
-if [ $? -ne 0 ]; then
-  $RASQL -q "create collection $c GreySet" > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    echo "failed creating collection."
-    $RASQL -q "create collection $c GreySet"
-    exit $CODE_FAIL
-  else
-    $RASQL -q "insert into $c values inv_tiff(\$1)" --file $SCRIPT_DIR/mean_summer_airtemp.tif > /dev/null 2>&1
-    feedback
-  fi
-else
-  echo "already inserted."
-fi
-
-#
-# insert metadata into petascope
-#
-logn "  inserting into petascope... "
-id=`$PSQL -c "select id from PS_Coverage where name = '$c' " | head -3 | tail -1`
-if [ "$id" == \(0*\) ]; then
-  $PSQL -c "insert into PS_Coverage (name, nulldefault, interpolationtypedefault, nullresistancedefault, type) values ( '$c','0', 5, 2, 'RectifiedGridCoverage')" > /dev/null
-  c_id=$($PSQL -c  "select id from PS_Coverage where name = '$c' " | head -3 | tail -1) > /dev/null
-  $PSQL -c "insert into PS_CellDomain (coverage, i, lo, hi )  values ( $c_id, 0, 0, 885)" > /dev/null
-  $PSQL -c "insert into PS_CellDomain (coverage, i, lo, hi )  values ( $c_id, 1, 0, 710)" > /dev/null
-  $PSQL -c "insert into PS_Domain (coverage, i, name, type, numLo, numHi) values ( $c_id, 0, 'x', 1, 111.975, 156.275 )" > /dev/null
-  $PSQL -c "insert into PS_Domain (coverage, i, name, type, numLo, numHi) values ( $c_id, 1, 'y', 2, -44.525, -8.975 )" > /dev/null
-  $PSQL -c "insert into PS_Range (coverage, i, name, type) values ($c_id, 0, 'pan', 7)" > /dev/null
-  $PSQL -c "insert into PS_InterpolationSet (coverage, interpolationType, nullResistance) values ( $c_id, 5, 2)" > /dev/null
-  $PSQL -c "insert into PS_NullSet (coverage, nullValue) values ( $c_id, '0')" > /dev/null
-  $PSQL -c "insert into PS_CrsDetails (coverage, low1, high1, low2, high2) values ( $c_id, 111.975, 156.275, -44.525, -8.975)" > /dev/null
-  x_id=$($PSQL -c "select id from PS_domain where coverage = $c_id and type=1" | head -3 | tail -1) > /dev/null
-  y_id=$($PSQL -c "select id from PS_domain where coverage = $c_id and type=2" | head -3 | tail -1) > /dev/null
-  $PSQL -c "insert into PS_Crsset ( axis, crs) values ( $x_id, 9)" > /dev/null
-  $PSQL -c "insert into PS_Crsset ( axis, crs) values ( $y_id, 9)" > /dev/null
-  $PSQL -c "insert into PS_Descriptions (coverage, title, abstract, keywords) values ( $c_id, 'mean_summer_airtemp', 'This coverage shows the mean summer air temperatures over Australia in the period 2001-2007', 'summer temperature, australia')" > /dev/null
-  feedback
-else
-  echo "already inserted."
-fi
+import_mst "$SCRIPT_DIR" # FIXME COPY FUNCTION HERE AND OPEN TICKET

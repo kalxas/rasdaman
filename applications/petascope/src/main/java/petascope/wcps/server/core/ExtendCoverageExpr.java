@@ -21,17 +21,19 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.exceptions.WCPSException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
-import petascope.util.WCPSConstants;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
+import petascope.util.WcpsConstants;
 
 public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo {
-    
+
     private static Logger log = LoggerFactory.getLogger(ExtendCoverageExpr.class);
 
     private List<DimensionIntervalElement> axisList;
@@ -41,8 +43,8 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
     private int dims;
     private DimensionIntervalElement elem;
 
-    public ExtendCoverageExpr(Node node, XmlQuery xq) throws WCPSException {
-        
+    public ExtendCoverageExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
+
         log.trace(node.getNodeName());
 
         Node child;
@@ -54,7 +56,7 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
         while (child != null) {
             nodeName = child.getNodeName();
 
-            if (nodeName.equals("#" + WCPSConstants.MSG_TEXT)) {
+            if (nodeName.equals("#" + WcpsConstants.MSG_TEXT)) {
                 child = child.getNextSibling();
                 continue;
             }
@@ -70,22 +72,22 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
 
             try {
                 // Start a new axis and save it
-                elem = new DimensionIntervalElement(child, xq, coverageInfo, false);
-                log.trace("  " + WCPSConstants.MSG_ADD_NEW_AXIS + ": " + elem.getAxisName());
+                elem = new DimensionIntervalElement(child, xq, coverageInfo);
+                log.trace("added new axis to list: " + elem.getAxisName());
                 axisList.add(elem);
                 super.children.add(elem);
                 child = elem.getNextNode();
                 continue;
             } catch (WCPSException e) {
-                log.error(WCPSConstants.ERRTXT_THIS_WAS_NO_DIM + ": " + child.getNodeName());
+                log.error("This was no DimensionIntervalELement: " + child.getNodeName());
             }
 
             // else unknown element
-            throw new WCPSException(WCPSConstants.ERRTXT_UNKNOWN_NODE_EXTENDCOVERAGE + child.getNodeName());
+            throw new WCPSException("Unknown node for ExtendCoverage expression: " + child.getNodeName());
         }
 
         dims = coverageInfo.getNumDimensions();
-        log.trace("  " + WCPSConstants.MSG_NUMBER_OF_DIMENSIONS + ": " + dims);
+        log.trace("Number of dimensions: " + dims);
         dim = new String[dims];
 
         for (int j = 0; j < dims; ++j) {
@@ -97,26 +99,29 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
         DimensionIntervalElement axis;
         int axisId;
         String axisLo, axisHi;
+        int order =0;
 
         while (i.hasNext()) {
             axis = i.next();
-            
+
             // check if axis is sliced from the coverage, it should not go into the extend
             if (coverageExprType.slicedAxis(axis.getAxisName())) {
                 continue;
             }
-            
-            axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
-            log.trace("  " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_ID + ": " + axisId);
-            log.trace("  " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_NAME + ": " + axis.getAxisName());
-            log.trace("  " + WCPSConstants.MSG_AXIS + " " + WCPSConstants.MSG_COORDS + ": ");
 
-            axisLo = axis.getLoCellCoord();
-            axisHi = axis.getHiCellCoord();
+            axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
+            log.trace("Axis ID: " + axisId);
+            log.trace("Axis name: " + axis.getAxisName());
+            log.trace("Axis coords: ");
+
+            axisLo = axis.getLowCellCoord();
+            axisHi = axis.getHighCellCoord();
             dim[axisId] = axisLo + ":" + axisHi;
             coverageInfo.setCellDimension(
                     axisId,
-                    new CellDomainElement(axisLo, axisHi, axis.getAxisName()));
+                    new CellDomainElement(axisLo, axisHi, order)
+                    );
+            order += 1;
         }
     }
 
@@ -125,7 +130,7 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
     }
 
     public String toRasQL() {
-        String result = WCPSConstants.MSG_EXTEND + "(" + coverageExprType.toRasQL() + ",[";
+        String result = WcpsConstants.MSG_EXTEND + "(" + coverageExprType.toRasQL() + ",[";
 
         for (int j = 0, i = 0; j < dims; ++j) {
             if (dim[j] == null) {
@@ -142,12 +147,12 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
 
         return result;
     }
-    
-    /** 
+
+    /**
      * Utility to check whether a specified axis is involved in this extend expression
      * @param axisName  The name of the axis (specified in the request)
      * @return True is `axisName` is extended here.
-     */    
+     */
     public boolean extendsDimension(String axisName) {
         for (DimensionIntervalElement extend : axisList) {
             if (extend.getAxisName().equals(axisName)) {
@@ -156,19 +161,27 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
         }
         return false;
     }
-    
+
     /**
      * Fetch the extend values that were requested on a specified axis
      *
      * @param axisName The name of the axis (specified in the request)
      * @return An array of 2 elements [lo,hi], with the extending values on the
      * specified axis.
+     * @throws NumberformatException
      */
-    public Double[] extendingValues(String axisName) {
+    public Double[] extendingValues(String axisName) throws NumberFormatException {
+        try {
         for (DimensionIntervalElement extend : axisList) {
             if (extend.getAxisName().equals(axisName)) {
-                return new Double[]{extend.getLoCoord(), extend.getHiCoord()};
+                return new Double[]{
+                    Double.parseDouble(extend.getLowCoord()),
+                    Double.parseDouble(extend.getHighCoord())};
             }
+        }
+        } catch (NumberFormatException ex) {
+            log.error("Cannot extend non-numerical intervals: " + ex.getMessage());
+            throw ex;
         }
         return new Double[]{};
     }

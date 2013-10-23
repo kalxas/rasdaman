@@ -22,7 +22,7 @@
 package petascope.wcps.grammar;
 
 import java.util.*;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * Switch Expression
@@ -31,18 +31,18 @@ import petascope.util.WCPSConstants;
 
 public class SwitchExpr implements IParseTreeNode{
     LinkedList<CoverageExpr> argsList;
-    
+
     public SwitchExpr(){
         argsList = new LinkedList<CoverageExpr>();
     }
-    
+
     public void add(CoverageExpr e){
         argsList.add(e);
     }
-    
+
     @Override
     public String toXML() {
-        String result = "<" + WCPSConstants.MSG_SWITCH + ">";
+        String result = "<" + WcpsConstants.MSG_SWITCH + ">";
 
         Iterator<CoverageExpr> it = argsList.iterator();
         int pos = 0;
@@ -50,32 +50,32 @@ public class SwitchExpr implements IParseTreeNode{
             String currentChild = it.next().toXML();
             if(pos == argsList.size() - 1){
                 //the default result sits here
-                result += "<" + WCPSConstants.MSG_DEFAULT + ">";
-                result += "<" + WCPSConstants.MSG_RESULT + ">";
+                result += "<" + WcpsConstants.MSG_DEFAULT + ">";
+                result += "<" + WcpsConstants.MSG_RESULT + ">";
                 result += currentChild;
-                result += "</" + WCPSConstants.MSG_RESULT + ">";
-                result += "</" + WCPSConstants.MSG_DEFAULT + ">";
+                result += "</" + WcpsConstants.MSG_RESULT + ">";
+                result += "</" + WcpsConstants.MSG_DEFAULT + ">";
             }
             else{
                 if(pos % 2 == 0){
                     //conditions sit here
-                    result += "<" + WCPSConstants.MSG_CASE + ">";
-                    result += "<" + WCPSConstants.MSG_CONDITION + ">";
+                    result += "<" + WcpsConstants.MSG_CASE + ">";
+                    result += "<" + WcpsConstants.MSG_CONDITION + ">";
                     result += currentChild;
-                    result += "</" + WCPSConstants.MSG_CONDITION + ">";
+                    result += "</" + WcpsConstants.MSG_CONDITION + ">";
                 }
                 else{
                     //results sit here
-                    result += "<" + WCPSConstants.MSG_RESULT + ">";
+                    result += "<" + WcpsConstants.MSG_RESULT + ">";
                     result += currentChild;
-                    result += "</" + WCPSConstants.MSG_RESULT + ">";
-                    result += "</" + WCPSConstants.MSG_CASE + ">";
+                    result += "</" + WcpsConstants.MSG_RESULT + ">";
+                    result += "</" + WcpsConstants.MSG_CASE + ">";
                 }
             }
             pos++;
-        }    
-        result += "</" + WCPSConstants.MSG_SWITCH + ">";
+        }
+        result += "</" + WcpsConstants.MSG_SWITCH + ">";
         return result;
     }
-    
+
 }

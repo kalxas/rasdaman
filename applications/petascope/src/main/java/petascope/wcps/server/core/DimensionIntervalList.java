@@ -21,17 +21,18 @@
  */
 package petascope.wcps.server.core;
 
-import petascope.exceptions.WCPSException;
 import java.util.ArrayList;
 import java.util.List;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
 
 public class DimensionIntervalList {
 
     private ArrayList<IRasNode> list;
 
     public DimensionIntervalList(Node node, XmlQuery xq, CoverageInfo info)
-            throws WCPSException {
+            throws WCPSException, SecoreException {
 
         while (node != null) {
             list = new ArrayList<IRasNode>();

@@ -25,17 +25,18 @@ package petascope.wcs2.extensions;
 import petascope.HTTPRequest;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.Request;
 
 /**
  * WCS 2.0 protocol binding extension.
- * 
+ *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public interface ProtocolExtension extends  Extension {
-    
+
     /**
      * @return true if this protocol extension can handle the request, or false otherwise
      */
@@ -49,5 +50,6 @@ public interface ProtocolExtension extends  Extension {
      * @return result from executing the requested operation
      * @throws WCSException
      */
-    Response handle(HTTPRequest request, DbMetadataSource meta) throws PetascopeException, WCSException;
+    Response handle(HTTPRequest request, DbMetadataSource meta)
+            throws PetascopeException, WCSException, SecoreException;
 }

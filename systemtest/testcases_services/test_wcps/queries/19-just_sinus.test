@@ -1,1 +1,1 @@
-for c in (rgb) return encode(sin((c.1)[ x(100:200), y(100:200) ]), "png")
+for c in (rgb) return encode(sin((c.1)[ i(100:200), j(100:200) ]), "png")

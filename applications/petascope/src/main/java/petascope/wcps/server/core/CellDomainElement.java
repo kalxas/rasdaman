@@ -26,53 +26,52 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 import petascope.wcs2.parsers.GetCoverageRequest;
 
 //A coverage axis in pixel coordinates. See the WCPS standard.
 public class CellDomainElement implements Cloneable {
-    
+
     private static Logger log = LoggerFactory.getLogger(CellDomainElement.class);
 
     GetCoverageRequest.DimensionSubset subsetElement;
 
     private String hi;                      //FIXME: should be double
     private String lo;                      //FIXME: should be double
-    private String name;
+    private int iOrder;
 
-    public CellDomainElement(String lo, String hi, String dimname) throws WCPSException {
+    public CellDomainElement(String lo, String hi, int order) throws WCPSException {
         if ((lo == null) || (hi == null)) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WCPSConstants.ERRTXT_INVALID_CELL_DOMAIN);
+            throw new WCPSException(ExceptionCode.InvalidMetadata,
+                    "Invalid cell domain element: Bounds may not be null.");
         }
-
         if (lo.compareTo(hi) == 1) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata, 
-                    WCPSConstants.ERRTXT_INVALID_CELL_DOMAIN_LOWER + " " + lo + " " + WCPSConstants.ERRTXT_CANNOT_BE_LARGER + " " + hi);
+            throw new WCPSException(ExceptionCode.InvalidMetadata,
+                    "Invalid cell domain element: lower bound " + lo + " cannot be larger than upper bound " + hi);
         }
-        log.trace(WCPSConstants.MSG_CELL_DOMAIN + " " + lo + ":" + hi);
+        log.trace(WcpsConstants.MSG_CELL_DOMAIN + " " + lo + ":" + hi);
 
         this.lo = lo;
         this.hi = hi;
-        this.name = dimname;
-
+        iOrder = order;
     }
 
     @Override
     public CellDomainElement clone() {
         try {
-            return new CellDomainElement(lo, hi, name);
+            return new CellDomainElement(lo, hi, new Integer(iOrder));
         } catch (WCPSException ime) {
-            throw new RuntimeException(
-                    WCPSConstants.ERRTXT_INVALID_METADATA,
-                    ime);
+            throw new RuntimeException("Invalid metadata while cloning CellDomainElement. This is a software bug in WCPS.", ime);
         }
-
     }
 
     public boolean equals(CellDomainElement cde) {
-        return lo.equals(cde.lo) && hi.equals(cde.hi);
+        return lo.equals(cde.getLo())
+                && hi.equals(cde.getHi());
+    }
 
+    public String getLo() {
+        return lo;
     }
 
     public String getHi() {
@@ -88,12 +87,12 @@ public class CellDomainElement implements Cloneable {
         }
     }
 
-    public void setHi(String hi) {
-        this.hi = hi;
+    public void setLo(String lo) {
+        this.lo = lo;
     }
 
-    public String getLo() {
-        return lo;
+    public void setHi(String hi) {
+        this.hi = hi;
     }
 
     public int getLoInt() {
@@ -105,25 +104,20 @@ public class CellDomainElement implements Cloneable {
         }
     }
 
-    public void setLo(String lo) {
-        this.lo = lo;
+    public int getOrder() {
+        return iOrder;
     }
 
     @Override
     public String toString() {
-        String result = WCPSConstants.MSG_CELL_DOMAIN_ELEMENT + " [" + lo + ", " + hi + "]";
-        return result;
+        return WcpsConstants.MSG_CELL_DOMAIN_ELEMENT + "#" + iOrder + " [" + lo + ", " + hi + "]";
     }
 
     public GetCoverageRequest.DimensionSubset getSubsetElement() {
         return subsetElement;
     }
 
-    public void setSubsetElement(GetCoverageRequest.DimensionSubset subsetElement) {
-        this.subsetElement = subsetElement;
-    }
-    
-    public String getName() {
-        return name;
+    public void setSubsetElement(GetCoverageRequest.DimensionSubset subsetEl) {
+        subsetElement = subsetEl;
     }
 }

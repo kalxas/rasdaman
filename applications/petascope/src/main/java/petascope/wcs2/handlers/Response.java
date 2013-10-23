@@ -39,7 +39,7 @@ public class Response {
     }
 
     public Response(String xml) {
-        this(null, xml, FormatExtension.MIME_GML);
+        this(null, xml, null); //FormatExtension.MIME_GML);
     }
 
     public Response(byte[] data, String xml, String mimeType) {

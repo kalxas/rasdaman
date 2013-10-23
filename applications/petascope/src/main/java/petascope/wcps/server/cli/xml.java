@@ -29,7 +29,7 @@ import java.io.FileInputStream;
 import java.io.StringReader;
 import java.util.Properties;
 import org.xml.sax.InputSource;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * This is a small application around the WCPS core. It takes XML requests as files and runs them
@@ -48,8 +48,8 @@ public class xml {
         System.out.println("Working in " + cwd.getAbsolutePath());
         String pcSchemaFileName =
                 //		"src/conf/" +
-                WCPSConstants.MSG_XML + File.separator + WCPSConstants.MSG_OGC + File.separator + WCPSConstants.MSG_WCPS
-                + File.separator + "1.0.0" + File.separator + WCPSConstants.MSG_WCPS_COVERAGES;
+                WcpsConstants.MSG_XML + File.separator + WcpsConstants.MSG_OGC + File.separator + WcpsConstants.MSG_WCPS
+                + File.separator + "1.0.0" + File.separator + WcpsConstants.MSG_WCPS_COVERAGES;
         File pcSchemaFile = new File(pcSchemaFileName);
 
         if (!pcSchemaFile.exists()) {
@@ -63,12 +63,12 @@ public class xml {
         try {
             Properties dbParams = new Properties();
 
-            dbParams.load(new FileInputStream(WCPSConstants.DBPARAM_SETTING_PROPERTIES));
+            dbParams.load(new FileInputStream(WcpsConstants.DBPARAM_SETTING_PROPERTIES));
             metadataSource =
-                    new DbMetadataSource(dbParams.getProperty(WCPSConstants.DBPARAM_METADATA_DRIVER),
-                    dbParams.getProperty(WCPSConstants.DBPARAM_METADATA_URL),
-                    dbParams.getProperty(WCPSConstants.DBPARAM_METADATA_USER),
-                    dbParams.getProperty(WCPSConstants.DBPARAM_METADATA_PASS), false);
+                    new DbMetadataSource(dbParams.getProperty(WcpsConstants.DBPARAM_METADATA_DRIVER),
+                    dbParams.getProperty(WcpsConstants.DBPARAM_METADATA_URL),
+                    dbParams.getProperty(WcpsConstants.DBPARAM_METADATA_USER),
+                    dbParams.getProperty(WcpsConstants.DBPARAM_METADATA_PASS), false);
             wcps = new Wcps(pcSchemaFile, metadataSource);
         } catch (Exception e) {
             System.err.println("WCPS: could not initialize WCPS:");
@@ -118,7 +118,7 @@ public class xml {
 
         try {
             ProcessCoveragesRequest r = wcps.pcPrepare(rasserviceURL,
-                    WCPSConstants.MSG_RASSERVICE, is);
+                    WcpsConstants.MSG_RASSERVICE, is);
             System.err.println("Request " + i);
             String rasql = r.getRasqlQuery();
             String mime = r.getMime();

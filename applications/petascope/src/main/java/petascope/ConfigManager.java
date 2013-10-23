@@ -26,12 +26,16 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.util.IOUtil;
+import petascope.util.StringUtil;
 import petascope.util.XMLUtil;
 import petascope.wps.server.WpsServer;
 
@@ -83,12 +87,7 @@ public class ConfigManager {
     public static String RASDAMAN_USER = "rasguest";
     public static String RASDAMAN_PASS = "rasguest";
     public static String RASDAMAN_VERSION = "8";
-
-    // XML validation schema control setting
-    public static String XML_VALIDATION = "false";
     
-    //Retry settings when opening a connection to rasdaman server. Ernesto Rodriguez <ernesto4160@gmail.com>
-
     //Time in seconds between each re-connect attempt
     public static String RASDAMAN_RETRY_TIMEOUT="5"; 
 
@@ -113,15 +112,21 @@ public class ConfigManager {
     // will make this flag true.
     public static boolean CCIP_HACK = false;
 
+    // SECORE connection settings
+    public static List<String> SECORE_URLS = Arrays.asList(new String[]{"http://localhost:8080/def"});
+    public static List<String> SECORE_VERSIONS = Arrays.asList(new String[]{"0.1.0"});
+
     /* WPS variables*/
     public static URI WPS_GET_CAPABILITIES_URI;
     public static URI WPS_DESCRIBE_PROCESS_URI;
 
     /* WCS-T Settings. Overridden by user-preferences in <code>settings.properties</code> */
-    public static String WCST_DEFAULT_INTERPOLATION = "none";
-    public static String WCST_DEFAULT_NULL_RESISTANCE = "none";
     public static String WCST_DEFAULT_DATATYPE = "unsigned char";
     
+    /* CRS RESOLVERS' timeouts (milliseconds) */
+    public static final int CRSRESOLVER_CONN_TIMEOUT = 2000;
+    public static final int CRSRESOLVER_READ_TIMEOUT = 10000;
+
     /* Singleton instance */
     private static ConfigManager instance;
     private static Properties props;
@@ -132,7 +137,26 @@ public class ConfigManager {
     private static final String SETTINGS_FILE = "petascope.properties";
     private static final String LOG_PROPERTIES_FILE = "log4j.properties";
     
-    // path to the default HTML response of the interface servlet
+    // keys
+    private static final String KEY_RASDAMAN_DATABASE = "rasdaman_database";
+    private static final String KEY_RASDAMAN_URL = "rasdaman_url";
+    private static final String KEY_RASDAMAN_USER = "rasdaman_user";
+    private static final String KEY_RASDAMAN_PASS = "rasdaman_pass";
+    private static final String KEY_RASDAMAN_VERSION = "rasdaman_version";
+    private static final String KEY_METADATA_DRIVER = "metadata_driver";
+    private static final String KEY_METADATA_URL = "metadata_url";
+    private static final String KEY_METADATA_USER = "metadata_user";
+    private static final String KEY_METADATA_PASS = "metadata_pass";
+    private static final String KEY_RASDAMAN_RETRY_TIMEOUT = "rasdaman_retry_timeout";
+    private static final String KEY_RASDAMAN_RETRY_ATTEMPTS = "rasdaman_retry_attempts";
+    private static final String KEY_CCIP_VERSION = "ccip_version";
+    private static final String KEY_WCST_DEFAULT_DATATYPE = "default_datatype";
+    private static final String KEY_SECORE_URLS = "secore_urls";
+    private static final String KEY_SECORE_VERSIONS = "secore_versions";
+
+    private static final String TEMPLATES_PATH = "../templates/";
+    private static final String GETCAPABILITIES_XML = "GetCapabilities.xml";
+    private static final String DESCRIBEPROCESS_XML = "DescribeProcess.xml";
 
     /**
      * Private constructor. Use <i>getInstance()</i>.
@@ -228,40 +252,41 @@ public class ConfigManager {
     }
 
     private void initSettings() {
-        // TODO: use String constants
-        RASDAMAN_DATABASE = get("rasdaman_database");
-        RASDAMAN_URL = get("rasdaman_url");
-        RASDAMAN_USER = get("rasdaman_user");
-        RASDAMAN_PASS = get("rasdaman_pass");
-        RASDAMAN_VERSION = get("rasdaman_version");
-        METADATA_DRIVER = get("metadata_driver");
-        METADATA_URL = get("metadata_url");
-        METADATA_USER = get("metadata_user");
-        METADATA_PASS = get("metadata_pass");
-        RASDAMAN_RETRY_TIMEOUT=get("rasdaman_retry_timeout");
-        RASDAMAN_RETRY_ATTEMPTS=get("rasdaman_retry_attempts");
-        XML_VALIDATION = get("xml_validation");
 
-        CCIP_HACK = Boolean.parseBoolean(get("ccip_version"));
+        RASDAMAN_DATABASE       = get(KEY_RASDAMAN_DATABASE);
+        RASDAMAN_URL            = get(KEY_RASDAMAN_URL);
+        RASDAMAN_USER           = get(KEY_RASDAMAN_USER);
+        RASDAMAN_PASS           = get(KEY_RASDAMAN_PASS);
+        RASDAMAN_VERSION        = get(KEY_RASDAMAN_VERSION);
+        METADATA_DRIVER         = get(KEY_METADATA_DRIVER);
+        METADATA_URL            = get(KEY_METADATA_URL);
+        METADATA_USER           = get(KEY_METADATA_USER);
+        METADATA_PASS           = get(KEY_METADATA_PASS);
+        RASDAMAN_RETRY_TIMEOUT  = get(KEY_RASDAMAN_RETRY_TIMEOUT);
+        RASDAMAN_RETRY_ATTEMPTS = get(KEY_RASDAMAN_RETRY_ATTEMPTS);
+
+        CCIP_HACK = Boolean.parseBoolean(get(KEY_CCIP_VERSION));
+
+        // SECORE
+        SECORE_URLS     = StringUtil.csv2list(get(KEY_SECORE_URLS));
+        SECORE_VERSIONS = StringUtil.csv2list(get(KEY_SECORE_VERSIONS));
+        // check that a version is assigned to every URI, set the last version to the orphan URIs otherwise
+        // NOTE: throwing an exception for a missing version is too harsh.
+        if (SECORE_VERSIONS.size() < SECORE_URLS.size()) {
+            String lastVersion = SECORE_VERSIONS.get(SECORE_VERSIONS.size()-1);
+            SECORE_VERSIONS.addAll(StringUtil.repeat(lastVersion, SECORE_URLS.size()-SECORE_VERSIONS.size()));
+        }
 
         //WPS 1.0.0 describeprocess and getcapabilities documents
         try {
-            WPS_GET_CAPABILITIES_URI = WpsServer.class.getResource("../templates/GetCapabilities.xml").toURI();
-            WPS_DESCRIBE_PROCESS_URI = WpsServer.class.getResource("../templates/DescribeProcess.xml").toURI();
+            WPS_GET_CAPABILITIES_URI = WpsServer.class.getResource(TEMPLATES_PATH + GETCAPABILITIES_XML).toURI();
+            WPS_DESCRIBE_PROCESS_URI = WpsServer.class.getResource(TEMPLATES_PATH + DESCRIBEPROCESS_XML).toURI();
         } catch (Exception e) {
             log.warn("Could not find WPS GetCapabilities and DescribeProcess Documents");
         }
 
         /* User preferences override default values for WCS-T */
-        String tmp = get("default_interpolation");
-        if (tmp.length() > 0) {
-            WCST_DEFAULT_INTERPOLATION = tmp;
-        }
-        tmp = get("default_null_resistance");
-        if (tmp.length() > 0) {
-            WCST_DEFAULT_NULL_RESISTANCE = tmp;
-        }
-        tmp = get("default_datatype");
+        String tmp = get(KEY_WCST_DEFAULT_DATATYPE);
         if (tmp.length() > 0) {
             WCST_DEFAULT_DATATYPE = tmp;
         }
@@ -279,11 +304,13 @@ public class ConfigManager {
         log.info("Rasdaman user    : " + RASDAMAN_USER);
         log.info("Rasdaman version : " + RASDAMAN_VERSION);
         log.info("");
+        log.info("       *** SECORE ***       ");
+        log.info("SECORE URL       : " + SECORE_URLS);
+        log.info("SECORE version   : " + SECORE_VERSIONS);
+        log.info("");
         log.info("       *** WCS-T ***       ");
         log.info("WCS-T Language: " + WCST_LANGUAGE);
         log.info("WCS-T Version : " + WCST_VERSION);
-        log.info("WCS-T Default Interpolation: " + WCST_DEFAULT_INTERPOLATION);
-        log.info("WCS-T Default Null Resistance: " + WCST_DEFAULT_NULL_RESISTANCE);
         log.info("WCS-T Default Datatype: " + WCST_DEFAULT_DATATYPE);
         log.info("");
         log.info("       *** WCPS ***       ");

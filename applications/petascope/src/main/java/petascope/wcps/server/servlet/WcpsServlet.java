@@ -21,30 +21,32 @@
  */
 package petascope.wcps.server.servlet;
 
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import petascope.core.DbMetadataSource;
-import petascope.wcps.server.core.ProcessCoveragesRequest;
-import petascope.wcps.server.core.Wcps;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.sql.ResultSet;
 import java.util.Iterator;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
-import petascope.util.WCPSConstants;
+import petascope.core.DbMetadataSource;
+import petascope.util.PostgisQueryResult;
+import petascope.util.WcpsConstants;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
+import petascope.wcps.server.core.ProcessCoveragesRequest;
+import petascope.wcps.server.core.Wcps;
 
 //important limitation: this will only return the first result if several are available.
 //The reason is that WCPS currently has no standardized way to return multiple byte streams to
@@ -52,111 +54,111 @@ import petascope.util.ras.RasUtil;
 //This is the servlet interface of WCPS. It mostly consists of sanity checks and initialization,
 //the meat is onyl a few lines. The WCPS class does the actual work.
 public class WcpsServlet extends HttpServlet {
-    
+
     private static Logger log = LoggerFactory.getLogger(WcpsServlet.class);
-    
+
     private DbMetadataSource meta;
     private String rasdamanDatabase;
     private String rasdamanUrl;
     // path to the default HTML response of the servlet
-    private String servletHtmlPath = WCPSConstants.MSG_SERVLET_HTMLPATH;
+    private String servletHtmlPath = WcpsConstants.MSG_SERVLET_HTMLPATH;
     // String containing the HTML code for the default response
     private String defaultHtmlResponse;
-    private final String WCPS_PROCESS_COVERAGE_XSD = WCPSConstants.MSG_WCPS_PROCESS_COVERAGE_XSD;
-    
+    private final String WCPS_PROCESS_COVERAGE_XSD = WcpsConstants.MSG_WCPS_PROCESS_COVERAGE_XSD;
+
     @Override
     public void init() throws ServletException {
         try {
             String confDir = this.getServletContext().getInitParameter(ConfigManager.CONF_DIR);
             ConfigManager.getInstance(confDir);
-            
+
             System.out.println("WCPS: initializing metadata database");
             meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
                     ConfigManager.METADATA_URL,
                     ConfigManager.METADATA_USER,
                     ConfigManager.METADATA_PASS, false);
             System.out.println("WCPS: initializing WCPS core");
-            
+
             servletHtmlPath = getServletContext().getRealPath(servletHtmlPath);
             defaultHtmlResponse = FileUtils.readFileToString(new File(servletHtmlPath));
-            
+
             System.out.println("WCPS: initialization complete");
         } catch (Exception e) {
             System.out.println("WCPS: initialization error");
             System.out.println("WCPS: closing metadata database");
-            
+
             if (meta != null) {
                 meta.close();
             }
-            
+
             System.out.println("WCPS: done with init error");
             throw new ServletException("WCPS initialization error", e);
-        }        
+        }
     }
-    
+
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         log.debug("WCPS: invoked with GET");
         printUsage(response);
     }
-    
+
     @Override
     public void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         log.debug("WCPS: invoked with POST");
         OutputStream webOut = null;
-        
-        meta.clearCache();        
+
+        meta.clearCache();
         Wcps wcps;
-        
+
         try{
             wcps = new Wcps(new File(getServletContext().getRealPath(WCPS_PROCESS_COVERAGE_XSD)), meta);
         }catch (Exception e) {
-            
+
             throw new ServletException("Error initializing WCPS",e);
         }
-        
+
         try {
             String xmlRequest = null;
             response.setHeader("Access-Control-Allow-Origin", "*");
-            
+
             if (ServletFileUpload.isMultipartContent(request)) {
                 @SuppressWarnings("unchecked")
                         Iterator<FileItem> fileItems =
                         (Iterator<FileItem>) (new ServletFileUpload(
                         new DiskFileItemFactory())).parseRequest(
                         request).iterator();
-                
+
                 if (!fileItems.hasNext()) {
                     throw new IOException(
                             "Multipart POST request contains no parts");
                 }
-                
+
                 FileItem fileItem = fileItems.next();
-                
+
                 if (fileItems.hasNext()) {
                     throw new IOException(
                             "Multipart POST request contains too many parts");
                 }
-                
+
                 if (!fileItem.isFormField()
                         && fileItem.getContentType().equals("text/xml")) {
                     xmlRequest = fileItem.getString();
                 }
-                
+
                 if (xmlRequest == null) {
                     log.warn(
                             "WCPS: no XML file was uploaded within multipart POST request");
                     printUsage(response);
                     return;
                 }
-                
+
                 log.debug("WCPS: received XML via a multipart POST request");
             } else {
-                String xml = request.getParameter(WCPSConstants.MSG_XML);
-                String query = request.getParameter(WCPSConstants.MSG_QUERY);
-                
+                String xml = request.getParameter(WcpsConstants.MSG_XML);
+                String query = request.getParameter(WcpsConstants.MSG_QUERY);
+
                 if (xml != null) {
                     log.debug("WCPS: received XML via a 'xml' parameter in a POST request");
                     xmlRequest = xml;
@@ -164,7 +166,7 @@ public class WcpsServlet extends HttpServlet {
                     log.debug("WCPS: received the following  query via a 'query' "
                             + "parameter in a POST request:");
                     log.debug(query);
-                    
+
                     xmlRequest = RasUtil.abstractWCPStoXML(query);
                 } else {
                     log.debug("WCPS: no request was received");
@@ -172,19 +174,37 @@ public class WcpsServlet extends HttpServlet {
                     return;
                 }
             }
-            
+
             log.debug("-------------------------------------------------------");
             log.debug("Converting to rasql");
             ProcessCoveragesRequest processCoverageRequest = wcps.pcPrepare(
                     ConfigManager.RASDAMAN_URL, ConfigManager.RASDAMAN_DATABASE, IOUtils.toInputStream(xmlRequest));
             log.debug("-------------------------------------------------------");
-            
+
             String query = processCoverageRequest.getRasqlQuery();
             String mime = processCoverageRequest.getMime();
-            
+
             response.setContentType(mime);
             webOut = response.getOutputStream();
-            
+
+            /* Alireza
+            Object res = processCoverageRequest.execute();
+            if (res instanceof RasQueryResult){
+                log.debug("executing request");
+                log.debug("[" + mime + "] " + query);
+
+                for (String s : ((RasQueryResult) res).getScalars()) {
+                    webOut.write(s.getBytes());
+                }
+                for (byte[] bs : ((RasQueryResult) res).getMdds()) {
+                    webOut.write(bs);
+                }
+
+            } else if (res instanceof String){
+                webOut.write(out.getBytes());
+            }
+            */
+
             if (processCoverageRequest.isRasqlQuery()) {
                 log.debug("executing request");
                 log.debug("[" + mime + "] " + query);
@@ -196,6 +216,11 @@ public class WcpsServlet extends HttpServlet {
                 for (byte[] bs : res.getMdds()) {
                     webOut.write(bs);
                 }
+            // Execute the query ... (?)
+            } else if(processCoverageRequest.isPostGISQuery()){
+                PostgisQueryResult res = new PostgisQueryResult(processCoverageRequest.execute());
+                webOut.write(res.toCSV(res.getValues()).getBytes());
+
             } else {
                 log.debug("metadata result, no rasql to execute");
                 webOut.write(query.getBytes());
@@ -212,19 +237,19 @@ public class WcpsServlet extends HttpServlet {
             }
         }
     }
-    
+
     @Override
     public void destroy() {
         super.destroy();
-        
+
     }
-    
+
     @Override
     public String getServletInfo() {
         return "Web Coverage Processing Service (Project PetaScope)";
-        
+
     }
-    
+
     private void printError(HttpServletResponse response, String message, Exception e)
             throws IOException {
         log.error("WCPS: error");
@@ -234,7 +259,7 @@ public class WcpsServlet extends HttpServlet {
         e.printStackTrace(System.out);
         log.error("WCPS: end of error message");
         PrintWriter out = new PrintWriter(response.getOutputStream());
-        
+
         out.println(
                 "<html><head><title>Web Coverage Processing Service</title></head><body>");
         out.println("<h1>An error has occured</h1>");
@@ -244,17 +269,17 @@ public class WcpsServlet extends HttpServlet {
         out.close();
         log.error("WCPS: done with error");
     }
-    
+
     private void printUsage(HttpServletResponse response) throws IOException {
         log.error("WCPS: setting response mimetype to text/html; charset=utf-8");
         log.error("WCPS: returning usage message");
         response.setContentType("text/html; charset=utf-8");
         PrintWriter out = new PrintWriter(response.getOutputStream());
-        
+
         out.println(defaultHtmlResponse);
-        
+
         out.close();
         log.warn("WCPS: done nothing");
-        
+
     }
 }

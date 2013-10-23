@@ -130,16 +130,17 @@ public class ExceptionCode {
                 + "\n  httpErrorCode = " + httpErrorCode
                 + "\n}";
     }
-    
+
     public static final ExceptionCode BadResponseHandler = new ExceptionCode("BadResponseHandler", null, 0);
     public static final ExceptionCode BadPostParameter = new ExceptionCode("BadPostParameter", null, 0);
     public static final ExceptionCode InternalComponentError = new ExceptionCode("InternalComponentError", null, 0);
     public static final ExceptionCode InternalSqlError = new ExceptionCode("InternalSqlError", null, 0);
+    public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel",
+            "The dimension subsetting operation specified an axis label that does not exist in the Envelope " +
+            "or has been used more than once in the GetCoverage request.", 404);
+    public static final ExceptionCode InvalidCoverageConfiguration = new ExceptionCode("InvalidCoverageConfiguration", null, 500);
     public static final ExceptionCode InvalidEncodingSyntax = new ExceptionCode("InvalidEncodingSyntax",
             "Document received does not conform with protocol syntax", 400);
-    public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel",
-            "The dimension subsetting operation specified an axis label that does not exist in the Envelope"
-            + "or has been used more than once in the GetCoverage request.", 404);
     public static final ExceptionCode InvalidMetadata = new ExceptionCode("InvalidMetadata", null, 0);
     public static final ExceptionCode InvalidParameterValue = new ExceptionCode("InvalidParameterValue",
             "Operation request contains an invalid parameter value", 400);
@@ -172,11 +173,15 @@ public class ExceptionCode {
     public static final ExceptionCode RasdamanRequestFailed = new ExceptionCode("RasdamanRequestFailed", null, 0);
     public static final ExceptionCode RasdamanUnavailable = new ExceptionCode("RasdamanUnavailable", null, 0);
     public static final ExceptionCode RasdamanError = new ExceptionCode("RasdamanError", null, 0);
+    public static final ExceptionCode ResolverError = new ExceptionCode("ResolverError", null, 0);
     public static final ExceptionCode ResourceError = new ExceptionCode("ResourceError", null, 0);
     public static final ExceptionCode RuntimeError = new ExceptionCode("RuntimeError", null, 0);
+    public static final ExceptionCode SecoreError = new ExceptionCode("SecoreError", null, 0);
     public static final ExceptionCode ServletConnectionError = new ExceptionCode("ServletConnectionError", null, 0);
     public static final ExceptionCode UnknownError = new ExceptionCode("UnknownError", null, 0);
     public static final ExceptionCode UnsupportedCombination = new ExceptionCode("UnsupportedCombination", null, 0);
+    public static final ExceptionCode UnsupportedCoverageConfiguration = new ExceptionCode("UnsupportedCoverageConfiguration",
+            "One or more of the available coverages is not queryable due to unimplemented service features.", 501);
     public static final ExceptionCode VersionNegotiationFailed = new ExceptionCode("VersionNegotiationFailed",
             "List of versions in AcceptVersions parameter value in GetCapabilities operation "
             + "request did not include any version supported by this server", 400);
@@ -209,6 +214,6 @@ public class ExceptionCode {
             "CRS axis indicated is not an axis occurring in this coverage", 404);
     // Fix ticket #394
     public static final ExceptionCode MissingCRS = new ExceptionCode("MissingCRS", "CRS could be missing in the query. Please check",404);
-   
+
 }
-    
+

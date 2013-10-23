@@ -23,7 +23,7 @@ package petascope.wcps.grammar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * SetMetaDataExpr
@@ -31,7 +31,7 @@ import petascope.util.WCPSConstants;
  * @author: mattia parigiani, Sorin Stancu-Mara, Andrei Aiordachioaie
  */
 public class SetMetaDataExpr implements IParseTreeNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(SetMetaDataExpr.class);
 
     CoverageExpr expr;
@@ -81,43 +81,43 @@ public class SetMetaDataExpr implements IParseTreeNode {
     public String toXML() {
         String result = "";
 
-        if (function.equalsIgnoreCase(WCPSConstants.MSG_SET_IDENTIFIER)) {
-            result += "<" + WCPSConstants.MSG_IDENTIFIER + ">" + field + "</" + WCPSConstants.MSG_IDENTIFIER + ">";
+        if (function.equalsIgnoreCase(WcpsConstants.MSG_SET_IDENTIFIER)) {
+            result += "<" + WcpsConstants.MSG_IDENTIFIER + ">" + field + "</" + WcpsConstants.MSG_IDENTIFIER + ">";
             result += expr.toXML();
 
-            result = "<" + WCPSConstants.MSG_SET_IDENTIFIER + ">" + result + "</" + 
-                    WCPSConstants.MSG_SET_IDENTIFIER + ">";
-        } else if (function.equalsIgnoreCase(WCPSConstants.MSG_SET_CRSSET)) {
-            result += expr.toXML();
-
-            if (param != null) {
-                result += param.toXML();
-            }
-
-            result = "<" + WCPSConstants.MSG_SET_CRSSET + ">" + result + "</" + WCPSConstants.MSG_SET_CRSSET + ">";
-        } else if (function.equalsIgnoreCase(WCPSConstants.MSG_SET_NULL_SET)) {
+            result = "<" + WcpsConstants.MSG_SET_IDENTIFIER + ">" + result + "</" +
+                    WcpsConstants.MSG_SET_IDENTIFIER + ">";
+        } else if (function.equalsIgnoreCase(WcpsConstants.MSG_SET_CRSSET)) {
             result += expr.toXML();
 
             if (param != null) {
                 result += param.toXML();
             }
 
-            result = "<" + WCPSConstants.MSG_SET_NULL_SET + ">" + result + "</" + WCPSConstants.MSG_SET_NULL_SET + ">";
-        } else if (function.equalsIgnoreCase(WCPSConstants.MSG_SET_INTERPOLATION_DEFAULT)) {
+            result = "<" + WcpsConstants.MSG_SET_CRSSET + ">" + result + "</" + WcpsConstants.MSG_SET_CRSSET + ">";
+        } else if (function.equalsIgnoreCase(WcpsConstants.MSG_SET_NULL_SET)) {
             result += expr.toXML();
-            result += "<" + WCPSConstants.MSG_FIELD + ">" + field + "</" + WCPSConstants.MSG_FIELD + ">";
+
+            if (param != null) {
+                result += param.toXML();
+            }
+
+            result = "<" + WcpsConstants.MSG_SET_NULL_SET + ">" + result + "</" + WcpsConstants.MSG_SET_NULL_SET + ">";
+        } else if (function.equalsIgnoreCase(WcpsConstants.MSG_SET_INTERPOLATION_DEFAULT)) {
+            result += expr.toXML();
+            result += "<" + WcpsConstants.MSG_FIELD + ">" + field + "</" + WcpsConstants.MSG_FIELD + ">";
             result += param.toXML();
 
-            result = "<" + WCPSConstants.MSG_SET_INTERPOLATION_DEFAULT + ">" + result
-                    + "</" + WCPSConstants.MSG_SET_INTERPOLATION_DEFAULT + ">";
-        } else if (function.equalsIgnoreCase(WCPSConstants.MSG_SET_INTERPOLATION_SET)) {
+            result = "<" + WcpsConstants.MSG_SET_INTERPOLATION_DEFAULT + ">" + result
+                    + "</" + WcpsConstants.MSG_SET_INTERPOLATION_DEFAULT + ">";
+        } else if (function.equalsIgnoreCase(WcpsConstants.MSG_SET_INTERPOLATION_SET)) {
             result += expr.toXML();
-            result += "<" + WCPSConstants.MSG_FIELD + ">" + field + "</" + WCPSConstants.MSG_FIELD + ">";
+            result += "<" + WcpsConstants.MSG_FIELD + ">" + field + "</" + WcpsConstants.MSG_FIELD + ">";
             result += param.toXML();
 
-            result = "<" + WCPSConstants.MSG_SET_INTERPOLATION_SET + ">" + result + "</" + WCPSConstants.MSG_SET_INTERPOLATION_SET + ">";
+            result = "<" + WcpsConstants.MSG_SET_INTERPOLATION_SET + ">" + result + "</" + WcpsConstants.MSG_SET_INTERPOLATION_SET + ">";
         } else {
-            log.error(WCPSConstants.ERRTXT_UNKNOWN_SET_METADATA_EXPR+ ": " + function);
+            log.error("Unknown SetMetadataExpr operation: " + function);
         }
 
         return result;

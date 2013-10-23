@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * ComplexConst
@@ -39,7 +39,7 @@ public class ComplexConst {
     }
 
     public ComplexConst(String val) {
-        int pos = val.indexOf(WCPSConstants.MSG_PLUS_I, 0);
+        int pos = val.indexOf(WcpsConstants.MSG_PLUS_I, 0);
 
         if (pos != -1) {
             re = val.substring(0, pos - 1);
@@ -48,8 +48,8 @@ public class ComplexConst {
     }
 
     public String toXML() {
-        return "<" + WCPSConstants.MSG_COMPLEX_CONSTANT + "><" + WCPSConstants.MSG_RE + ">" + re + 
-                "</" + WCPSConstants.MSG_RE + "><" + WCPSConstants.MSG_IM + ">" + im + "</" + 
-                WCPSConstants.MSG_IM + "></" + WCPSConstants.MSG_COMPLEX_CONSTANT + ">";
+        return "<" + WcpsConstants.MSG_COMPLEX_CONSTANT + "><" + WcpsConstants.MSG_RE + ">" + re +
+                "</" + WcpsConstants.MSG_RE + "><" + WcpsConstants.MSG_IM + ">" + im + "</" +
+                WcpsConstants.MSG_IM + "></" + WcpsConstants.MSG_COMPLEX_CONSTANT + ">";
     }
 }

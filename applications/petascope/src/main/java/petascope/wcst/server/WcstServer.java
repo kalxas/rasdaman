@@ -55,6 +55,7 @@ import petascope.PetascopeXmlNamespaceMapper;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.SecoreException;
 
 /**
  * The Web Coverage Service, with the Transactional extension (WcstServer)
@@ -81,20 +82,13 @@ public class WcstServer {
         if (source.getDataTypes().contains(cfg) == false) {
             throw new WCSException(ExceptionCode.InvalidPropertyValue, "The following setting is not a valid datatype: " + cfg);
         }
-        cfg = ConfigManager.WCST_DEFAULT_INTERPOLATION;
-        if (source.getInterpolationTypes().contains(cfg) == false) {
-            throw new WCSException(ExceptionCode.InvalidPropertyValue, "The following setting is not a valid interpolation method: " + cfg);
-        }
-        cfg = ConfigManager.WCST_DEFAULT_NULL_RESISTANCE;
-        if (source.getNullResistances().contains(cfg) == false) {
-            throw new WCSException(ExceptionCode.InvalidPropertyValue, "The following setting is not a valid null resistance: " + cfg);
-        }
     }
 
     /**
      * Web service operation
      */
-    public String Transaction(String stringXml) throws WCSTException, RasdamanException, WCPSException, PetascopeException {
+    public String Transaction(String stringXml)
+            throws WCSTException, RasdamanException, WCPSException, PetascopeException, SecoreException {
         // Actual contents of these two strings do not matter
         String output = "Default output. ";
         String errmsg = "No error. ";

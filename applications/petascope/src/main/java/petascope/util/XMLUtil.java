@@ -1,15 +1,15 @@
 /*
  * JOMDoc - A Java library for OMDoc documents (http://omdoc.org/jomdoc).
- * 
+ *
  * Original author    Dimitar Misev <d.misev@jacobs-university.de>
  * Web                http://kwarc.info/dmisev/
  * Created            Apr 4, 2008, 5:18:39 PM
- * 
+ *
  * Filename           $Id: XMLUtil.java 1976 2010-07-31 12:07:20Z dmisev $
  * Revision           $Revision: 1976 $
  * Last modified on   $Date: 2010-07-31 14:07:20 +0200 (Sat, 31 Jul 2010) $
  *               by   $Author: dmisev $
- * 
+ *
  * Copyright (C) 2007,2008 the KWARC group (http://kwarc.info)
  * Licensed under the GNU  Public License v3 (GPL3).
  * For other licensing contact Michael Kohlhase <m.kohlhase@jacobs-university.de>
@@ -65,7 +65,7 @@ import petascope.util.traverse.TraversableXOM;
 
 /**
  * Common utility methods for working with XML.
- * 
+ *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class XMLUtil {
@@ -104,7 +104,7 @@ public class XMLUtil {
     static {
         init();
     }
-    
+
     public static void init() {
         if (factory != null) {
             return;
@@ -133,7 +133,7 @@ public class XMLUtil {
 //                }
 //            }
 //        }
-        
+
         XMLReader xmlReader = null;
         try {
             xmlReader = factory.newSAXParser().getXMLReader();
@@ -206,7 +206,7 @@ public class XMLUtil {
 
         try {
             doc = builder.get().build(in, baseURI);
-        } catch (ParsingException ex) { 
+        } catch (ParsingException ex) {
             log.error(StringUtil.join("Error while building XML document: " + baseURI, ex.getMessage(),
                     "line: " + ex.getLineNumber() + ", column: " + ex.getColumnNumber()));
             throw ex;
@@ -779,6 +779,25 @@ public class XMLUtil {
         return null;
     }
 
+    /**
+     * Returns first child element whose name matches a certain pattern.
+     * @param e         Root element
+     * @param pattern   The pattern to match
+     * @return          The first child element which matches the pattern (if it exists)
+     */
+    public static Element firstChildPattern(Element e, String pattern) {
+        Node n = null;
+        for (int i = 0; i < e.getChildCount(); i++) {
+            n = e.getChild(i);
+            if (n instanceof Element) {
+                if (pattern == null || ((Element) n).getLocalName().matches(pattern)) {
+                    return (Element) n;
+                }
+            }
+        }
+        return null;
+    }
+
     public static Element firstChildRecursive(Element e, String name) {
         Node n = null;
         for (int i = 0; i < e.getChildCount(); i++) {
@@ -788,6 +807,29 @@ public class XMLUtil {
                     return (Element) n;
                 }
                 Element ret = firstChildRecursive((Element) n, name);
+                if (ret != null) {
+                    return ret;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns first child element whose name matches a certain pattern, recursively through the XML nodes.
+     * @param e         Root element
+     * @param pattern   The pattern to match
+     * @return          The first child element which matches the pattern (if it exists)
+     */
+    public static Element firstChildRecursivePattern(Element e, String pattern) {
+        Node n = null;
+        for (int i = 0; i < e.getChildCount(); i++) {
+            n = e.getChild(i);
+            if (n instanceof Element) {
+                if (pattern == null || ((Element) n).getLocalName().matches(pattern)) {
+                    return (Element) n;
+                }
+                Element ret = firstChildRecursivePattern((Element) n, pattern);
                 if (ret != null) {
                     return ret;
                 }

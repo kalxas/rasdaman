@@ -9,7 +9,7 @@
  *
  * Last modified on   $Date:2007-10-25 18:50:01 +0200 (Thu, 25 Oct 2007) $
  *               by   $Author:nmueller $
- * 
+ *
  * Copyright (C) 2007,2008 the KWARC group (http://kwarc.info)
  * Licensed under the GNU  Public License v3 (GPL3).
  * For other licensing contact Michael Kohlhase <m.kohlhase@jacobs-university.de>
@@ -44,8 +44,8 @@ public interface XMLSymbols {
     String PREFIX_XSI = "xsi";
     String PREFIX_XLINK = "xlink";
     String PREFIX_CRS = "crs";
-    
-    
+
+
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Namespaces
@@ -55,6 +55,7 @@ public interface XMLSymbols {
     String NAMESPACE_XML = "http://www.w3.org/XML/1998/namespace";
     String NAMESPACE_GML = "http://www.opengis.net/gml/3.2";
     String NAMESPACE_GMLCOV = "http://www.opengis.net/gmlcov/1.0";
+    String NAMESPACE_GMLRGRID = "http://www.opengis.net/gml/3.3/rgrid";
     String NAMESPACE_SWE = "http://www.opengis.net/swe/2.0";
     String NAMESPACE_OWS = "http://www.opengis.net/ows/2.0";
     String NAMESPACE_WCS_OLD = "http://www.opengis.net/wcs/1.1";
@@ -63,8 +64,8 @@ public interface XMLSymbols {
     String NAMESPACE_XSI = "http://www.w3.org/2001/XMLSchema-instance";
     String NAMESPACE_XLINK = "http://www.w3.org/1999/xlink";
     String NAMESPACE_CRS = "http://www.opengis.net/wcs/service-extension/crs/1.0";
-    
-    
+
+
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // XML element labels
@@ -78,6 +79,7 @@ public interface XMLSymbols {
     String LABEL_COVERAGE_SUMMARY = "CoverageSummary";
     String LABEL_COVERAGE_ID = "CoverageId";
     String LABEL_COVERAGE_SUBTYPE = "CoverageSubtype";
+    String LABEL_COVERAGE_SUBTYPE_PARENT = "CoverageSubtypeParent";
     String LABEL_COVERAGE_DESCRIPTIONS = "CoverageDescriptions";
     String LABEL_COVERAGE_DESCRIPTION = "CoverageDescription";
     String LABEL_DIMENSION = "Dimension";
@@ -113,17 +115,41 @@ public interface XMLSymbols {
     String LABEL_RANGECOMPONENT = "rangeComponent";
 
     // ows
+    // // Service Identification
     String LABEL_SERVICE_IDENTIFICATION = "ServiceIdentification";
-    String LABEL_TITLE = "ServiceIdentification";
-    String LABEL_ABSTRACT = "ServiceIdentification";
+    String LABEL_TITLE = "Title";
+    String LABEL_ABSTRACT = "Abstract";
+    String LABEL_KEYWORDS = "Keywords";
+    String LABEL_KEYWORD = "Keyword";
+    String LABEL_TYPE = "Type";
     String LABEL_SERVICE_TYPE = "ServiceType";
     String LABEL_SERVICE_TYPE_VERSION = "ServiceTypeVersion";
+    String LABEL_FEES = "Fees";
+    String LABEL_ACCESS_CONSTRAINTS = "AccessConstraints";
     String LABEL_PROFILE = "Profile";
+    // // Service Provider
     String LABEL_SERVICE_PROVIDER = "ServiceProvider";
     String LABEL_PROVIDER_NAME = "ProviderName";
     String LABEL_PROVIDER_SITE = "ProviderSite";
+    // // // Service Contact
     String LABEL_SERVICE_CONTACT = "ServiceContact";
+    String LABEL_INDIVIDUAL_NAME = "IndividualName";
     String LABEL_POSITION_NAME = "PositionName";
+    String LABEL_ROLE = "Role";
+    // // // // Contact Info
+    String LABEL_CONTACT_INFO = "ContactInfo";
+    String LABEL_PHONE = "Phone";
+    String LABEL_HOURS_OF_SERVICE = "HoursOfService";
+    String LABEL_CONTACT_INSTRUCTIONS = "ContactInstructions";
+    // // // // // Address
+    String LABEL_ADDRESS = "Address";
+    String LABEL_DELIVERY_POINT = "DeliveryPoint";
+    String LABEL_CITY = "City";
+    String LABEL_ADMINISTRATIVE_AREA = "AdministrativeArea";
+    String LABEL_POSTAL_CODE = "PostalCode";
+    String LABEL_COUNTRY = "Country";
+    String LABEL_EMAIL_ADDRESS = "ElectronicMailAddress";
+    // // OperationsMetadata
     String LABEL_OPERATIONS_METADATA = "OperationsMetadata";
     String LABEL_OPERATION = "Operation";
     String LABEL_DCP = "DCP";
@@ -133,11 +159,47 @@ public interface XMLSymbols {
     String LABEL_ACCEPT_VERSIONS = "AcceptVersions";
     String LABEL_ACCEPT_FORMATS = "AcceptFormats";
     String LABEL_ACCEPT_LANGUAGES = "AcceptLanguages";
-    
+
+    // gmlcov
+    String LABEL_ABSTRACT_COVERAGE = "AbstractCoverage";
+    String LABEL_ABSTRACT_DISCRETE_COVERAGE = "AbstractDiscreteCoverage";
+    String LABEL_GRID_COVERAGE  = "GridCoverage";
+    String LABEL_MULTIPOINT_COVERAGE = "MultiPointCoverage";
+    String LABEL_MULTICURVE_COVERAGE = "GridCoverage";
+    String LABEL_MULTISURFACE_COVERAGE = "GridCoverage";
+    String LABEL_MULTISOLID_COVERAGE = "GridCoverage";
+    String LABEL_RECTIFIED_GRID_COVERAGE = "RectifiedGridCoverage";
+    String LABEL_REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
+    String LABEL_METADATA = "metadata";
+
+    // gml 3.3
+    String LABEL_COEFFICIENTS = "coefficients";
+    String LABEL_RGBA = "ReferenceableGridByArray";
+    String LABEL_RGBV = "ReferenceableGridByVectors";
+    String LABEL_RGBT = "ReferenceableGridByTransformation";
+
     // soap
     String LABEL_BODY = "Body";
-    
-    
+
+    // CRS definitions
+    String LABEL_CRSAXIS       = "axis";
+    String LABEL_CSAXIS        = "CoordinateSystemAxis";
+    String LABEL_AXISABBREV    = "axisAbbrev";
+    String LABEL_AXISDIRECTION = "axisDirection";
+    String LABEL_CSA           = "CoordinateSystemAxis";
+    String LABEL_NAME          = "name";
+    String LABEL_ORIGIN        = "origin";
+    String LABEL_TEMPORALCRS   = "TemporalCRS";
+    // (suffixes: e.g. ProjectedCRS, TemporalCRS, etc.)
+    String CRS_GMLSUFFIX   = "CRS";
+    String CS_GMLSUFFIX    = "CS";
+    String DATUM_GMLSUFFIX = "Datum";
+
+    // SECORE equality test
+    String LABEL_COMPARISON_RESULT = "comparisonResult";
+    String LABEL_EQUAL             = "equal";
+    String LABEL_EXCEPTION_TEXT    = "ExceptionText";
+
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
     // Attributes
@@ -147,7 +209,10 @@ public interface XMLSymbols {
     String ATT_SERVICE = "service";
     String ATT_VERSION = "version";
     String ATT_SCHEMA_LOCATION = "schemaLocation";
-    
+    String ATT_CODESPACE = "codeSpace";
+    String ATT_LANG = "lang";
+    String ATT_HREF = "href";
+
     // crs-extension
     String ATT_SUPPORTED_CRS = "supportedCrs";
     String ATT_SUBSET_CRS = "subsettingCrs";
@@ -157,6 +222,9 @@ public interface XMLSymbols {
     String ATT_UPPERCORNER = "UpperCorner";
     String ATT_CRS = "crs";
     String ATT_DIMENSIONS = "dimensions";
+
+    // CRS definitions
+    String ATT_UOM = "uom";
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -173,6 +241,20 @@ public interface XMLSymbols {
     // Schema locations
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     String SCHEMA_LOCATION_WCS = "http://schemas.opengis.net/wcs/2.0/wcsAll.xsd";
+    String SCHEMA_LOCATION_GML = "http://schemas.opengis.net/gml/3.2.1/gml.xsd";
+    String SCHEMA_LOCATION_GMLRGRID = "http://schemas.opengis.net/gml/3.3/referencableGrid.xsd";
+
+    // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Predefined entities' names
+    //
+    // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    String PREDEFINED_ENTITY_AMPERSAND        = "amp";
+    String PREDEFINED_ENTITY_APOSTROPHE       = "apos";
+    String PREDEFINED_ENTITY_LESSTHAN_SIGN    = "lt";
+    String PREDEFINED_ENTITY_GREATERTHAN_SIGN = "gt";
+    String PREDEFINED_ENTITY_QUOTES           = "quot";
 }

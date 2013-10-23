@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * ScaleExpr
@@ -64,7 +64,7 @@ public class ScaleExpr implements IParseTreeNode {
         if (interpMethods != null)
             result += interpMethods.toXML();
         
-        result = "<" + WCPSConstants.MSG_SCALE + ">" + result + "</" + WCPSConstants.MSG_SCALE + ">";
+        result = "<" + WcpsConstants.MSG_SCALE + ">" + result + "</" + WcpsConstants.MSG_SCALE + ">";
 
         return result;
     }

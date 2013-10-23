@@ -1,4 +1,4 @@
-/* 
+/*
  * JOMDoc - A Java library for OMDoc documents (http://omdoc.org/jomdoc).
  *
  * Original author    Normen Müller <n.mueller@jacobs-university.de>
@@ -9,13 +9,14 @@
  *
  * Last modified on   $Date:2007-10-25 18:50:01 +0200 (Thu, 25 Oct 2007) $
  *               by   $Author:nmueller $
- * 
+ *
  * Copyright (C) 2007,2008 the KWARC group (http://kwarc.info)
  * Licensed under the GNU  Public License v3 (GPL3).
  * For other licensing contact Michael Kohlhase <m.kohlhase@jacobs-university.de>
  */
 package petascope.util;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,7 +27,7 @@ import nu.xom.Node;
 
 /**
  * List utilities.
- * 
+ *
  * @author Normen M&#xFC;ller&nbsp;&#60;n.mueller@jacobs-university.de&#62;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
@@ -51,7 +52,7 @@ public class ListUtil {
 
     /**
      * Converts a collection to a string, separating the elements by ","
-     * 
+     *
      * @param l The StringList
      * @param c The delimiter
      * @return A String of the ListElements separated by c.
@@ -70,7 +71,7 @@ public class ListUtil {
 
     /**
      * Converts a collection  to a string
-     * 
+     *
      * @param l the element list
      * @return A String of the ListElements separated by new lines
      */
@@ -98,7 +99,7 @@ public class ListUtil {
 
     /**
      * Converts a string to a list
-     * 
+     *
      * @param s The StringList
      * @param c The delimiter
      * @return A String of the ListElements separated by c.
@@ -118,7 +119,7 @@ public class ListUtil {
 
     /* head(e_1,...,e_n) --> e_1 */
     public static <T> T head(List<T> l) {
-        if (l == null || l.size() == 0) {
+        if (l == null || l.isEmpty()) {
             return null;
         } else {
             return l.get(0);
@@ -130,21 +131,21 @@ public class ListUtil {
         if (l == null) {
             return null;
         }
-        if (l.size() == 0 || l.size() == 1) {
+        if (l.isEmpty() || l.size() == 1) {
             return Collections.<T>emptyList();
         }
         return ListUtil.sublist(l, 1, l.size() - 1);
     }
 
     /**
-     * con (e, [x_1,...x_n]) --> [e,x_1,...x_n] 
+     * con (e, [x_1,...x_n]) --> [e,x_1,...x_n]
      */
     public static <T> List<T> cons(T e, List<T> l) {
         return concat(Collections.singletonList(e), l);
     }
 
     /**
-     * [x_1,...x_n]@[y_1,...y_m] --> [x_1,...x_n,y_1,...,y_m] 
+     * [x_1,...x_n]@[y_1,...y_m] --> [x_1,...x_n,y_1,...,y_m]
      */
     public static <T> List<T> concat(List<T> l, List<T> r) {
         List<T> res = new ArrayList<T>();
@@ -159,10 +160,11 @@ public class ListUtil {
 
     public static <T> List<T> toList(T... e) {
          List<T> ret = new ArrayList<T>();
-         if (e != null)
+         if (e != null) {
              for (T o : e) {
                 ret.add(o);
             }
+         }
          return ret;
     }
 
@@ -208,5 +210,27 @@ public class ListUtil {
             ret[i + a.length] = b[i];
         }
         return ret;
+    }
+
+    // Returns the index of the last element lower than "el".
+    // NOTE: it is assumed the array has been sorted and is non-decreasing.
+    public static <T extends Number> int minIndex(List<T> a, T el) {
+
+        if (el.getClass().equals(BigDecimal.class)) {
+            for (int i=0; i < a.size(); i++) {
+                if (((BigDecimal)a.get(i)).compareTo((BigDecimal)el) >= 0) {
+                    return i;
+                }
+            }
+        } else {
+            for (int i=0; i < a.size(); i++) {
+                if (a.get(i).doubleValue() >= el.doubleValue()) {
+                    return i;
+                }
+            }
+        }
+
+        // "el" was outside bounds
+        return a.size()-1;
     }
 }

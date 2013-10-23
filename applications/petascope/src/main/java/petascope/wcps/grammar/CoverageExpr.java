@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 
 /**
@@ -38,23 +38,23 @@ public class CoverageExpr implements IParseTreeNode {
 
     public CoverageExpr(IParseTreeNode n) {
         expr = n;
-        function = WCPSConstants.MSG_CHILD;
+        function = WcpsConstants.MSG_CHILD;
     }
 
     public CoverageExpr(String n) {
         coverageName = n;
-        function = WCPSConstants.MSG_COVERAGE;
+        function = WcpsConstants.MSG_COVERAGE;
     }
 
     /* Unary Induced Expressions */
     public CoverageExpr(String op, CoverageExpr ce) {
         expr = ce;
-        function = WCPSConstants.MSG_UNARY_OP;
+        function = WcpsConstants.MSG_UNARY_OP;
         this.op = op;
     }
 
     public CoverageExpr(String op, CoverageExpr e1, CoverageExpr e2) {
-        function = WCPSConstants.MSG_BINARY_OP;
+        function = WcpsConstants.MSG_BINARY_OP;
         this.op = op;
         this.e1 = e1;
         this.e2 = e2;
@@ -64,22 +64,22 @@ public class CoverageExpr implements IParseTreeNode {
     public String toXML() {
         String result = "";
 
-        if (function.equals(WCPSConstants.MSG_COVERAGE)) {
-            result = "<" + WCPSConstants.MSG_COVERAGE + ">" + coverageName + "</" + 
-                    WCPSConstants.MSG_COVERAGE + ">";
-        } else if (function.equals(WCPSConstants.MSG_BINARY_OP)) {
+        if (function.equals(WcpsConstants.MSG_COVERAGE)) {
+            result = "<" + WcpsConstants.MSG_COVERAGE + ">" + coverageName + "</" +
+                    WcpsConstants.MSG_COVERAGE + ">";
+        } else if (function.equals(WcpsConstants.MSG_BINARY_OP)) {
             formatOperation();
             result = "<" + op + ">" + e1.toXML() + e2.toXML() + "</" + op + ">";
-        } else if (function.equals(WCPSConstants.MSG_UNARY_OP)) {
+        } else if (function.equals(WcpsConstants.MSG_UNARY_OP)) {
             formatOperation();
-            if (op.equals(WCPSConstants.MSG_PLUS_S)) {
-                op = WCPSConstants.MSG_UNARY_PLUS;
+            if (op.equals(WcpsConstants.MSG_PLUS_S)) {
+                op = WcpsConstants.MSG_UNARY_PLUS;
             }
-            if (op.equals(WCPSConstants.MSG_MINUS)) {
-                op = WCPSConstants.MSG_UNARY_MINUS;
+            if (op.equals(WcpsConstants.MSG_MINUS)) {
+                op = WcpsConstants.MSG_UNARY_MINUS;
             }
             result = "<" + op + ">" + expr.toXML() + "</" + op + ">";
-        } else if (function.equals(WCPSConstants.MSG_CHILD)) {
+        } else if (function.equals(WcpsConstants.MSG_CHILD)) {
             result = expr.toXML();
         }
 
@@ -87,38 +87,38 @@ public class CoverageExpr implements IParseTreeNode {
     }
 
     private void formatOperation() {
-        if (op.equals(WCPSConstants.MSG_PLUS)) {
-            op = WCPSConstants.MSG_PLUS_S;
+        if (op.equals(WcpsConstants.MSG_PLUS)) {
+            op = WcpsConstants.MSG_PLUS_S;
         }
-        if (op.equals(WCPSConstants.MSG_MINUS)) {
-            op = WCPSConstants.MSG_MINUS_S;
+        if (op.equals(WcpsConstants.MSG_MINUS)) {
+            op = WcpsConstants.MSG_MINUS_S;
         }
-        if (op.equals(WCPSConstants.MSG_STAR)) {
-            op = WCPSConstants.MSG_MULT;
+        if (op.equals(WcpsConstants.MSG_STAR)) {
+            op = WcpsConstants.MSG_MULT;
         }
-        if (op.equals(WCPSConstants.MSG_DIV)) {
-            op = WCPSConstants.MSG_DIV_S;
+        if (op.equals(WcpsConstants.MSG_DIV)) {
+            op = WcpsConstants.MSG_DIV_S;
         }
 
         // AND, OR, XOR stay the same
 
         if (op.equals("=")) {
-            op = WCPSConstants.MSG_EQUALS;
+            op = WcpsConstants.MSG_EQUALS;
         }
         if (op.equals("<")) {
-            op = WCPSConstants.MSG_LESS_THAN;
+            op = WcpsConstants.MSG_LESS_THAN;
         }
         if (op.equals(">")) {
-            op = WCPSConstants.MSG_GREATER_THAN;
+            op = WcpsConstants.MSG_GREATER_THAN;
         }
         if (op.equals("<=")) {
-            op = WCPSConstants.MSG_LESS_OR_EQUAL;
+            op = WcpsConstants.MSG_LESS_OR_EQUAL;
         }
         if (op.equals(">=")) {
-            op = WCPSConstants.MSG_GREATER_OR_EQUAL;
+            op = WcpsConstants.MSG_GREATER_OR_EQUAL;
         }
         if (op.equals("!=")) {
-            op = WCPSConstants.MSG_NOT_EQUALS;
+            op = WcpsConstants.MSG_NOT_EQUALS;
         }
 
         // OVERLAY stays the same

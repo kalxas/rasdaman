@@ -32,19 +32,28 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.core.DbMetadataSource;
+import petascope.core.ServiceMetadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
+import petascope.ows.Description;
+import petascope.ows.ServiceIdentification;
+import petascope.ows.ServiceProvider;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import static petascope.util.XMLSymbols.*;
+import petascope.util.WcsUtil;
 import petascope.util.XMLUtil;
+import petascope.wcps.server.core.Bbox;
 import petascope.wcs2.Wcs2Servlet;
 import petascope.wcs2.extensions.Extension;
 import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.parsers.BaseRequest;
 import petascope.wcs2.parsers.GetCapabilitiesRequest;
+import petascope.wcs2.parsers.GetCoverageMetadata;
+import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.templates.Templates;
 
 /**
@@ -61,40 +70,180 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
     }
 
     @Override
-    public Response handle(GetCapabilitiesRequest request) throws WCSException {
+    public Response handle(GetCapabilitiesRequest request) throws WCSException, SecoreException {
         Document ret = constructDocument(LABEL_CAPABILITIES, NAMESPACE_WCS);
 
-        Element root = ret.getRootElement();
-        root.addAttribute(new Attribute(ATT_VERSION, BaseRequest.VERSION_STRING));
 
+        // Fetch the metadata of the service from petascopedb
+        ServiceMetadata sMeta = meta.getServiceMetadata();
+
+        Element root = ret.getRootElement();
+        root.addAttribute(new Attribute(ATT_VERSION, sMeta.getIdentification().getTypeVersions().get(0)));
+
+        //
         // Service Identification
+        //
         Element serviceIdentification = Templates.getXmlTemplate(Templates.SERVICE_IDENTIFICATION,
-                Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null 
-                ? ConfigManager.PETASCOPE_SERVLET_URL 
+                Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
+                ? ConfigManager.PETASCOPE_SERVLET_URL
                 : Wcs2Servlet.LOCAL_SERVLET_ADDRESS)
-                );      
+                );
         if (serviceIdentification != null) {
-            for (String id : ExtensionsRegistry.getExtensionIds()) {
-                Element profile = new Element(PREFIX_OWS + ":" + LABEL_PROFILE, NAMESPACE_OWS);
-                profile.appendChild(id);
-                // Insert it right after ServiceTypeVersion, see http://schemas.opengis.net/ows/2.0/owsServiceIdentification.xsd
-                serviceIdentification.insertChild(profile, 
-                        serviceIdentification.indexOf(
-                        serviceIdentification.getFirstChildElement(LABEL_SERVICE_TYPE_VERSION, NAMESPACE_OWS)) + 1);
+            // Data from petascopedb tables
+            ServiceIdentification sId = sMeta.getIdentification();
+            Description sDescr        = sId.getDescription();
+            Element c;
+            // title(s)
+            for (String title : sDescr.getTitles()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_TITLE, NAMESPACE_OWS);
+                c.appendChild(title);
+                // add it on top of template-coded ServiceType and ServiceTypeVersion
+                serviceIdentification.insertChild(c,1);
             }
+            // abstract(s)
+            for (String servAbstract : sDescr.getAbstracts()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_ABSTRACT, NAMESPACE_OWS);
+                c.appendChild(servAbstract);
+                serviceIdentification.appendChild(c);
+            }
+            // Keywords
+            for (Description.KeywordsGroup kGroup : sDescr.getKeywordGroups()) {
+                Element keywords = new Element(PREFIX_OWS + ":" + LABEL_KEYWORDS, NAMESPACE_OWS);
+                for (Pair<String,String> key : kGroup.getValues()) {
+                    // Keyword
+                    c = new Element(PREFIX_OWS + ":" + LABEL_KEYWORD, NAMESPACE_OWS);
+                    // Value
+                    c.appendChild(key.fst);
+                    if (!key.snd.isEmpty()) {
+                        // Add language attribute
+                        c.addAttribute(new Attribute(PREFIX_XML + ":" + ATT_LANG, NAMESPACE_XML, key.snd));
+                    }
+                    keywords.appendChild(c);
+                }
+                // Type [+codeSpace]
+                if (!kGroup.getType().isEmpty()) {
+                    c = new Element(PREFIX_OWS + ":" + LABEL_TYPE, NAMESPACE_OWS);
+                    c.appendChild(kGroup.getType());
+                    if (!kGroup.getTypeCodeSpace().isEmpty()) {
+                        c.addAttribute(new Attribute(ATT_CODESPACE, kGroup.getTypeCodeSpace()));
+                    }
+                    keywords.appendChild(c);
+                }
+                // Add the ows:Keywords element to the service identification
+                serviceIdentification.appendChild(keywords);
+            }
+
+            // ows:ServiceType and ows:ServiceTypeVersion
+            c = new Element(PREFIX_OWS + ":" + LABEL_SERVICE_TYPE, NAMESPACE_OWS);
+            c.appendChild(sId.getType());
+            serviceIdentification.appendChild(c);
+            for (String version : sId.getTypeVersions()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_SERVICE_TYPE_VERSION, NAMESPACE_OWS);
+                c.appendChild(version);
+                serviceIdentification.appendChild(c);
+            }
+
+            // Profiles
+            for (String id : ExtensionsRegistry.getExtensionIds()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_PROFILE, NAMESPACE_OWS);
+                c.appendChild(id);
+                serviceIdentification.appendChild(c);
+            }
+
+            // Fees and constraints
+            if (!sId.getFees().isEmpty()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_FEES, NAMESPACE_OWS);
+                c.appendChild(sId.getFees());
+                serviceIdentification.appendChild(c);
+            }
+            for (String constraint : sId.getAccessConstraints()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_ACCESS_CONSTRAINTS, NAMESPACE_OWS);
+                c.appendChild(constraint);
+                serviceIdentification.appendChild(c);
+            }
+
+            // Add to capabilities
             root.appendChild(serviceIdentification.copy());
         }
 
+        //
         // Service Provider
+        //
         Element serviceProvider = Templates.getXmlTemplate(Templates.SERVICE_PROVIDER,
                 Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
                 ? ConfigManager.PETASCOPE_SERVLET_URL
                 : Wcs2Servlet.LOCAL_SERVLET_ADDRESS));
         if (serviceProvider != null) {
+            // Data from petascopedb tables
+            ServiceProvider sPro = sMeta.getProvider();
+            Element c;
+            // name: mandatory
+            c = new Element(PREFIX_OWS + ":" + LABEL_PROVIDER_NAME, NAMESPACE_OWS);
+            c.appendChild(sPro.getName());
+            serviceProvider.appendChild(c);
+            // optional site
+            if (!sPro.getSite().isEmpty()) {
+                c = new Element(PREFIX_OWS + ":" + LABEL_PROVIDER_SITE, NAMESPACE_OWS);
+                c.addAttribute(new Attribute(PREFIX_XLINK + ":" + ATT_HREF, NAMESPACE_XLINK, sPro.getSite()));
+                serviceProvider.appendChild(c);
+            }
+            // mandatory service contact
+            c = new Element(PREFIX_OWS + ":" + LABEL_SERVICE_CONTACT, NAMESPACE_OWS);
+            Element cc;
+            // name
+            if (!sPro.getContact().getIndividualName().isEmpty()) {
+                cc = new Element(PREFIX_OWS + ":" + LABEL_INDIVIDUAL_NAME, NAMESPACE_OWS);
+                cc.appendChild(sPro.getContact().getIndividualName());
+                c.appendChild(cc);
+            }
+            // position
+            if (!sPro.getContact().getPositionName().isEmpty()) {
+                cc = new Element(PREFIX_OWS + ":" + LABEL_POSITION_NAME, NAMESPACE_OWS);
+                cc.appendChild(sPro.getContact().getPositionName());
+                c.appendChild(cc);
+            }
+            //
+            cc = new Element(PREFIX_OWS + ":" + LABEL_CONTACT_INFO, NAMESPACE_OWS);
+            Element ccc;
+            // phone
+            if (!sPro.getContact().getContactInfo().getPhone().isEmpty()) {
+                ccc = new Element(PREFIX_OWS + ":" + LABEL_PHONE, NAMESPACE_OWS);
+                ccc.appendChild(sPro.getContact().getContactInfo().getPhone());
+                cc.appendChild(ccc);
+            }
+            // address
+            Element address = new Element(PREFIX_OWS + ":" + LABEL_ADDRESS, NAMESPACE_OWS);
+            for (Pair<String,String> xmlValue : sPro.getContact().getContactInfo().getAddress().getAddressMetadata()) {
+                ccc = new Element(PREFIX_OWS + ":" + xmlValue.fst, NAMESPACE_OWS);
+                ccc.appendChild(xmlValue.snd);
+                address.appendChild(ccc);
+            }
+            cc.appendChild(address);
+            // hours of service
+            if (!sPro.getContact().getContactInfo().getHoursOfService().isEmpty()) {
+                ccc = new Element(PREFIX_OWS + ":" + LABEL_HOURS_OF_SERVICE, NAMESPACE_OWS);
+                ccc.appendChild(sPro.getContact().getContactInfo().getHoursOfService());
+                cc.appendChild(ccc);
+            }
+            // Add ContactInfo to ServiceContact (mandatory)
+            c.appendChild(cc);
+            // role
+            if (!sPro.getContact().getRole().isEmpty()) {
+                cc = new Element(PREFIX_OWS + ":" + LABEL_ROLE, NAMESPACE_OWS);
+                cc.appendChild(sPro.getContact().getRole());
+                c.appendChild(cc);
+            }
+
+            // Add ServiceContact
+            serviceProvider.appendChild(c);
+
+            // Add to capabilities
             root.appendChild(serviceProvider.copy());
         }
 
+        //
         // Operations Metadata
+        //
         Element operationsMetadata = Templates.getXmlTemplate(Templates.OPERATIONS_METADATA,
                 Pair.of("\\{" + Templates.KEY_URL + "\\}", ConfigManager.PETASCOPE_SERVLET_URL != null
                 ? ConfigManager.PETASCOPE_SERVLET_URL
@@ -103,7 +252,9 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             root.appendChild(operationsMetadata.copy());
         }
 
+        //
         // ServiceMetadata
+        //
         Element serviceMetadata = Templates.getXmlTemplate(Templates.SERVICE_METADATA);
         if (serviceMetadata != null) {
             // add supported formats
@@ -122,11 +273,11 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 serviceMetadata.insertChild(formatSupported, 0);
             }
             //:~
-            
+
             //: CRS [Req9: /req/crs/wcsServiceMetadata-outputCrs]
             Element crsMetadata  = new Element(PREFIX_CRS + ":" + LABEL_CRS_METADATA, NAMESPACE_CRS);
             Element supportedCrs = new Element(PREFIX_CRS + ":" + ATT_SUPPORTED_CRS, NAMESPACE_CRS);
-            supportedCrs.appendChild(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH));
+            supportedCrs.appendChild(CrsUtil.CrsUriDir(CrsUtil.OPENGIS_URI_PREFIX, CrsUtil.EPSG_AUTH));
             crsMetadata.appendChild(supportedCrs);
             Element wcsExtension = serviceMetadata.getFirstChildElement(LABEL_EXTENSION, NAMESPACE_WCS);
             // Check if an extension is already defined in the template, otherwise create a new one
@@ -139,12 +290,13 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 // Just update the child element
                 wcsExtension.appendChild(crsMetadata);
             }
-            
             //:~
             root.appendChild(serviceMetadata.copy());
         }
 
+        //
         // Contents
+        //
         Element contents = new Element(LABEL_CONTENTS, NAMESPACE_WCS);
         Iterator<String> it;
         try {
@@ -152,18 +304,70 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             while (it.hasNext()) {
                 Element cs = new Element(LABEL_COVERAGE_SUMMARY, NAMESPACE_WCS);
                 Element c;
+                Element cc;
                 c = new Element(LABEL_COVERAGE_ID, NAMESPACE_WCS);
-                String coverageId = it.next();
-                c.appendChild(coverageId);
+                String coverageName = it.next();
+                GetCoverageRequest tmp = new GetCoverageRequest(coverageName);
+                GetCoverageMetadata m  = new GetCoverageMetadata(tmp, meta);
+                c.appendChild(coverageName);
                 cs.appendChild(c);
                 c = new Element(LABEL_COVERAGE_SUBTYPE, NAMESPACE_WCS);
-                c.appendChild(meta.coverageType(coverageId));
+                String covType = meta.read(coverageName).getCoverageType();
+                c.appendChild(covType);
                 cs.appendChild(c);
+                // Add hierarchy of parent types
+                String parentCovType = meta.getParentCoverageType(covType);
+                if (!parentCovType.isEmpty()) {
+                    cs.appendChild(WcsUtil.addSubTypeParents(parentCovType, meta));
+                }
                 contents.appendChild(cs);
+
+                /** Append Native Bbox **/
+                Bbox bbox = meta.read(coverageName).getBbox();
+
+                if (null != bbox) {
+                    c = new Element(LABEL_BBOX, NAMESPACE_OWS);
+                    // lower-left + upper-right coords
+                    cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
+                    cc.appendChild(bbox.getLowerCorner());
+                    c.appendChild(cc);
+                    cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
+                    cc.appendChild(bbox.getUpperCorner());
+                    c.appendChild(cc);
+
+                    // dimensions and crs attributes
+                    Attribute crs = new Attribute(ATT_CRS, bbox.getCrsName());
+                    Attribute dimensions = new Attribute(ATT_DIMENSIONS, "" + bbox.getDimensionality());
+                    c.addAttribute(crs);
+                    c.addAttribute(dimensions);
+                    cs.appendChild(c);
+
+                    /** WGS84 Bbox **/
+                    // Doesn't conform to WCS 2.0.1 so commented out -- DM 2012-oct-19
+                    /*if (bbox.hasWgs84Bbox()) {
+                     * c = new Element(LABEL_WGS84_BBOX, NAMESPACE_OWS);
+                     * // lower-left + upper-right coords
+                     * cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
+                     * cc.appendChild(bbox.getWgs84LowerCorner());
+                     * c.appendChild(cc);
+                     * cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
+                     * cc.appendChild(bbox.getWgs84UpperCorner());
+                     * c.appendChild(cc);
+                     * // dimensions and crs attributes
+                     * crs = new Attribute(ATT_CRS, bbox.getWgs84CrsName());
+                     * dimensions = new Attribute(ATT_DIMENSIONS, "" + bbox.getDimensionality());
+                     * c.addAttribute(crs);
+                     * c.addAttribute(dimensions);
+                     * cs.appendChild(c);
+                     * }*/
+                }
             }
-        } catch (PetascopeException ex) {
-            log.error("Error", ex);
-            throw new WCSException(ex.getExceptionCode(), ex.getExceptionText());
+        } catch (SecoreException sEx) {
+            log.error("SECORE error", sEx);
+            throw new SecoreException(sEx.getExceptionCode(), sEx);
+        } catch (PetascopeException pEx) {
+            log.error("Petascope error", pEx);
+            throw new WCSException(pEx.getExceptionCode(), pEx.getExceptionText());
         }
         root.appendChild(contents);
 

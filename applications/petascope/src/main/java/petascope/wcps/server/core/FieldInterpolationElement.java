@@ -23,7 +23,7 @@ package petascope.wcps.server.core;
 
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class FieldInterpolationElement extends AbstractRasNode {
 
@@ -33,7 +33,8 @@ public class FieldInterpolationElement extends AbstractRasNode {
 
     public FieldInterpolationElement(Node node, XmlQuery xq) throws WCPSException {
 
-        throw new WCPSException(WCPSConstants.ERRTXT_NO_INTERPOLATION);
+        throw new WCPSException("Currently, our implementation does not allow specifying interpolation methods or "
+            + "null resistances for the scale operation.");
 
         /*
         while ((node != null) && node.getNodeName().equals("#text")) {

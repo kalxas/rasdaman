@@ -27,8 +27,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class RangeCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
@@ -37,25 +38,24 @@ public class RangeCoverageExpr extends AbstractRasNode implements ICoverageInfo 
     private CoverageInfo info = null;
     List<IRasNode> components;
 
-    public RangeCoverageExpr(Node node, XmlQuery xq)
-            throws WCPSException {
+    public RangeCoverageExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         
         log.trace(node.getNodeName());
 
         components = new ArrayList<IRasNode>();
 
-        if (node.getNodeName().equals(WCPSConstants.MSG_RANGE_CONSTRUCTOR))
+        if (node.getNodeName().equals(WcpsConstants.MSG_RANGE_CONSTRUCTOR))
             node = node.getFirstChild();
 
-        if (node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT))
+        if (node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT))
                 node = node.getNextSibling();
 
         while (node != null) {
-            if (node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+            if (node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
                 node = node.getNextSibling();
                 continue;
             }
-            if (node.getNodeName().equals(WCPSConstants.MSG_COMPONENT)) {
+            if (node.getNodeName().equals(WcpsConstants.MSG_COMPONENT)) {
                 RangeComponent elem = new RangeComponent(node, xq);
                 info = elem.getCoverageInfo();
                 components.add(elem);

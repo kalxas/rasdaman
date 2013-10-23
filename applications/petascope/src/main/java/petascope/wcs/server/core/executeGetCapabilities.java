@@ -46,7 +46,7 @@ import net.opengis.wcs.v_1_1_0.Contents;
 import net.opengis.wcs.v_1_1_0.CoverageSummaryType;
 import net.opengis.wcs.v_1_1_0.GetCapabilities;
 import petascope.core.DbMetadataSource;
-import petascope.core.Metadata;
+import petascope.core.CoverageMetadata;
 import javax.xml.XMLConstants;
 import net.opengis.ows.v_1_0_0.AddressType;
 import net.opengis.wcs.ows.v_1_1_0.RequestMethodType;
@@ -106,7 +106,7 @@ public class executeGetCapabilities {
         try {
             buildField1();      // Service Identification
             buildField2();      // Service Provider
-            buildField3();      // Operations Metadata
+            buildField3();      // Operations CoverageMetadata
             buildField4();      // Contents
 
             finishBuild();      // Add the remaining required attributes
@@ -164,7 +164,7 @@ public class executeGetCapabilities {
     }
 
     /**
-     * Builds the output node "Operations Metadata"
+     * Builds the output node "Operations CoverageMetadata"
      * @throws java.sql.SQLException
      */
     private void buildField3() throws SQLException {
@@ -253,7 +253,7 @@ public class executeGetCapabilities {
 
         coverages = meta.coverages().iterator();
         while (coverages.hasNext()) {
-            Metadata metadata = null;
+            CoverageMetadata metadata = null;
             try {
                 metadata = meta.read(coverages.next());
             } catch (Exception e) {

@@ -70,7 +70,6 @@ public class ExtensionsRegistry {
         registerExtension(new GmlFormatExtension());
         registerExtension(new GeotiffFormatExtension());
         registerExtension(new JPEG2000FormatExtension());
-        registerExtension(new NetcdfFormatExtension());
         registerExtension(new MultipartGeotiffFormatExtension());
         registerExtension(new MultipartJPEG2000FormatExtension());
         registerExtension(new MultipartNetcdfFormatExtension());

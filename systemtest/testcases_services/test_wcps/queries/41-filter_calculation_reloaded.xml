@@ -79,14 +79,14 @@
                       </slice>
                       <slice>
                         <coverage>c</coverage>
-                        <axis>x</axis>
+                        <axis>i</axis>
                         <slicingPosition>
                           <numericAdd>
                             <variableRef>px</variableRef>
                             <variableRef>kx</variableRef>
                           </numericAdd>
                         </slicingPosition>
-                        <axis>y</axis>
+                        <axis>j</axis>
                         <slicingPosition>
                           <numericAdd>
                             <variableRef>py</variableRef>

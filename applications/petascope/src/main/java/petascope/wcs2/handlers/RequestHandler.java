@@ -22,6 +22,7 @@
 package petascope.wcs2.handlers;
 
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 
 /**
@@ -38,5 +39,5 @@ public interface RequestHandler<T> {
     /**
      * Execute the operation given the request, and return the result.
      */
-    public Response handle(T request) throws PetascopeException, WCSException;
+    public Response handle(T request) throws PetascopeException, WCSException, SecoreException;
 }

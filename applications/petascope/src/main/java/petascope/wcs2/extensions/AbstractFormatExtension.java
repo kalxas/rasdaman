@@ -21,26 +21,30 @@
  */
 package petascope.wcs2.extensions;
 
-import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
-import petascope.core.Metadata;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import petascope.util.ListUtil;
 import petascope.util.Pair;
+import petascope.util.StringUtil;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.CellDomainElement;
-import petascope.wcps.server.core.Crs;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.Wcps;
 import petascope.wcs2.parsers.GetCoverageMetadata;
@@ -64,18 +68,23 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * Update m with the correct bounds and axes (mostly useful when there's
      * slicing/trimming in the request)
      */
-    protected void setBounds(GetCoverageRequest request, GetCoverageMetadata m, DbMetadataSource meta)
-            throws PetascopeException, WCSException {
-        
-        // Init variables
+    protected void updateGetCoverageMetadata(GetCoverageRequest request, GetCoverageMetadata m)
+            throws PetascopeException, SecoreException, WCSException {
+
+        // Init variables, to be then filled scanning the request subsets
         String axesLabels = "";
+        String uomLabels = "";
         String lowerDom = "";
         String upperDom = "";
         String lowerCellDom = "";
         String upperCellDom = "";
+        // CRS need to be sliced accordingly upon dimension slicings
+        String crsName;
+        Set<String> slicedAxes = new HashSet<String>();
         boolean domUpdated;
-        Iterator<DomainElement>         domsIt = m.getMetadata().getDomainIterator();
-        Iterator<CellDomainElement> cellDomsIt = m.getMetadata().getCellDomainIterator();
+        CoverageMetadata meta = m.getMetadata();
+        Iterator<DomainElement>         domsIt = meta.getDomainIterator();
+        Iterator<CellDomainElement> cellDomsIt = meta.getCellDomainIterator();
         DomainElement domainEl;
         CellDomainElement cellDomainEl;
         List<DimensionSubset> subsList = request.getSubsets();
@@ -89,42 +98,55 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             // Loop through each subsets in the request and check if this axis is involved
             Iterator<DimensionSubset> subsIt = subsList.iterator();
             DimensionSubset subset;
-            Metadata metadata = m.getMetadata();
             while (subsIt.hasNext()) {
                 subset = subsIt.next();
-                if (subset.getDimension().equals(domainEl.getName())) {
+                if (subset.getDimension().equals(domainEl.getLabel())) {
                     try {
                         // Compare subset with domain borders and update
                         if (subset instanceof DimensionTrim) {
-                            // Append axis label
+                            // Append axis/uom label
                             axesLabels += subset.getDimension() + " ";
-                            // Append updated bounds 
-                            // TODO: if request is specified via grid coords, need a backwards transform here 
+                            uomLabels  += domainEl.getUom() + " ";
+                            // Append updated bounds
+                            // TODO: if request is specified via grid coords, need a backwards transform here
                             //       {cellDomain->domain} to show domain values in the WCS response:
                             //       Crs.convertToDomainCoords()
-                            lowerDom += Math.max(
+                            if (((DimensionTrim)subset).getTrimLow().contains("\"")) {
+                                // TODO convert to domain values (TimeUtil.countPixels(datumOrigin, stringLo, axisUoM);
+                                // ...
+                            } else {
+                                lowerDom += new BigDecimal(Math.max(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
-                                    domainEl.getNumLo()) + " ";
-                            upperDom += Math.min(
+                                    domainEl.getMinValue().doubleValue())).toPlainString() + " ";
+                            }
+                            if (((DimensionTrim)subset).getTrimHigh().contains("\"")) {
+                                // TODO convert to domain values (TimeUtil.countPixels(datumOrigin, stringLo, axisUoM);
+                                // ...
+                            } else {
+                                upperDom += new BigDecimal(Math.min(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimHigh()),
-                                    domainEl.getNumHi()) + " ";
-                            // Append updated pixel bounds                            
+                                    domainEl.getMaxValue().doubleValue())).toPlainString() + " ";
+                            }
+                            // Append updated pixel bounds
                             String decimalsExp = "\\.[0-9]+";
-                            int[] cellDom = (CrsUtil.GRID_CRS.equals(subset.getCrs()) || // : subset=x,CRS:1(x1,x2) || subsettingCrs=CRS:1
-                                    (!request.getCRS().isEmpty() && CrsUtil.GRID_CRS.equals(request.getCRS().get(0).getSubsettingCrs())))
-                                    ? new int[]{ // NOTE: e.g. parseInt("10.0") throws exception: need to remove decimals.
-                                        Integer.parseInt(((DimensionTrim) subset).getTrimLow().replaceAll( decimalsExp, "").trim()), 
-                                        Integer.parseInt(((DimensionTrim) subset).getTrimHigh().replaceAll(decimalsExp, "").trim())} // subsets are already grid indexes
-                                    : Crs.convertToPixelIndices(metadata, subset.getDimension(),       // otherwise, need to convert them
-                                        Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
-                                        Double.parseDouble(((DimensionTrim) subset).getTrimHigh()));
-                            // In any case, properly trim the bounds by the image extremes
+                            long[] cellDom = (CrsUtil.GRID_CRS.equals(subset.getCrs()) || // : subset=x,CRS:1(x1,x2) || subsettingCrs=CRS:1
+                                    (request.getCrsExt() != null && CrsUtil.GRID_CRS.equals(request.getCrsExt().getSubsettingCrs())))
+                                    ? new long[] { // NOTE: e.g. parseInt("10.0") throws exception: need to remove decimals.
+                                        Integer.parseInt(((DimensionTrim) subset).getTrimLow().replaceAll( decimalsExp, "").trim()),
+                                        Integer.parseInt(((DimensionTrim) subset).getTrimHigh().replaceAll(decimalsExp, "").trim())} // subsets are alsready grid indexes
+                                    : new long[] {
+                                        toPixels(Double.parseDouble(((DimensionTrim) subset).getTrimLow()),  domainEl, cellDomainEl), // otherwise, need to convert them
+                                        toPixels(Double.parseDouble(((DimensionTrim) subset).getTrimHigh()), domainEl, cellDomainEl)
+                                    };
+                                    // In any case, properly trim the bounds by the image extremes
                             int cellDomainElLo = cellDomainEl.getLoInt();
                             int cellDomainElHi = cellDomainEl.getHiInt();
                             lowerCellDom += (cellDomainElLo > cellDom[0]) ? cellDomainElLo + " " : cellDom[0] + " ";
                             upperCellDom += (cellDomainElHi < cellDom[1]) ? cellDomainElHi + " " : cellDom[1] + " ";
+
                         } else if (subset instanceof DimensionSlice) {
-                            log.info("Axis " + domainEl.getName() + " has been sliced: remove it from the boundedBy element.");
+                            log.info("Axis " + domainEl.getLabel() + " has been sliced: remove it from the boundedBy element and track the axis for CRS slicing.");
+                            slicedAxes.add(subset.getDimension());
                         } else {
                             throw new WCSException(ExceptionCode.InternalComponentError,
                                     "Subset '" + subset + "' is not recognized as trim nor slice.");
@@ -132,7 +154,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                         // flag: if no subset has updated the bounds, then need to append the bbox value
                         domUpdated = true;
                     } catch (NumberFormatException ex) {
-                        String message = "Error while casting a subset to numeric format for comparison.";
+                        String message = "Error while casting a subset to numeric format for comparison: " + ex.getMessage();
                         log.error(message);
                         throw new WCSException(ExceptionCode.InvalidRequest, message);
                     } catch (PetascopeException ex) {
@@ -142,13 +164,15 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             } // END subsets iterator
             if (!domUpdated) {
                 // This dimension is not involved in any subset: use bbox bounds
-                axesLabels += domainEl.getName() + " ";
-                lowerDom += domainEl.getNumLo() + " ";
-                upperDom += domainEl.getNumHi() + " ";
+                axesLabels += domainEl.getLabel() + " ";
+                uomLabels  += domainEl.getUom()   + " ";
+                lowerDom   += domainEl.getMinValue() + " ";
+                upperDom   += domainEl.getMaxValue() + " ";
                 lowerCellDom += cellDomainEl.getLo() + " ";
                 upperCellDom += cellDomainEl.getHi() + " ";
             }
         } // END domains iterator
+
         // Update axes labels
         m.setAxisLabels(axesLabels);
         // Update **pixel-domain** bounds
@@ -157,6 +181,12 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         // Update **domain** bounds
         m.setDomLow(lowerDom);
         m.setDomHigh(upperDom);
+        // Update the **CRS**
+        if (!slicedAxes.isEmpty()) {
+            crsName = CrsUtil.sliceAxesOut(meta.getCrsUris(), slicedAxes);
+            m.setCrs(crsName);
+            m.setUomLabels(uomLabels);
+        }
     }
 
     /**
@@ -168,7 +198,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @throws WCSException
      */
     protected Pair<Object, String> executeRasqlQuery(GetCoverageRequest request,
-            GetCoverageMetadata m, DbMetadataSource meta, String format, String params) throws WCSException {
+            GetCoverageMetadata m, DbMetadataSource meta, String format, String params)
+            throws PetascopeException, RasdamanException, WCPSException, WCSException {
 
         //This variable is now local to the method to avoid concurrency problems
         Wcps wcps;
@@ -178,14 +209,22 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         } catch (Exception ex) {
             throw new WCSException(ExceptionCode.InternalComponentError, "Error initializing WCPS engine", ex);
         }
-        // Possible required CRS subsetting transforms have been done now, proceed to WCPS:
-        Pair<String, String> pair = constructWcpsQuery(request, m.getMetadata(), format, params);
+
+        // Add double quotes in possible timestamp-based temporal subsets:
+        // WCPS needs then to recognize a StringExpression from a NumericalExpression:
+        // --> set quotes directly in the WCS request if timestamps want to be used (' = %27, " = %22)
+        // since there are cases which can create conflict (eg 2010 is year 2010 or numeric temporal coordinate 2010?)
+
+        // Proceed to WCPS:
         String rquery = null;
+        Pair<String, String> pair;
         try {
+            pair = constructWcpsQuery(request, m.getMetadata(), format, params);
             rquery = RasUtil.abstractWCPSToRasql(pair.fst, wcps);
-        } catch (WCPSException ex) {
-            throw new WCSException(ExceptionCode.WcpsError, "Error converting WCPS query to rasql query: " + ex.getMessage(), ex);
+        } catch (PetascopeException ex) {
+            throw new PetascopeException(ex.getExceptionCode(), "Error converting WCPS query to rasql query: " + ex.getMessage(), ex);
         }
+
         Object res = null;
         try {
             if ("sdom".equals(format) && !rquery.contains(":")) {
@@ -196,9 +235,10 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         } catch (RasdamanException ex) {
             throw new WCSException(ExceptionCode.RasdamanRequestFailed, "Error executing rasql query: " + ex.getMessage(), ex);
         }
+
         return Pair.of(res, pair.snd);
     }
-    
+
     /**
      * Method for converting CRS coordinates to pixel coordinates without checking limits (like in wcps.server.core.CRS.java)
      *
@@ -207,26 +247,43 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @param cel the CellDomainElement for the dimension
      * @return the corresponding CRS coordinates
      */
-    private long toPixels(double val, DomainElement el, CellDomainElement cel) {
-    
-        // Get cellDomain extremes
-        long pxLo = cel.getLoInt();
-        long pxHi = cel.getHiInt();
-        
-        // Get Domain extremes (real sdom)
-        double domLo = el.getNumLo();
-        double domHi = el.getNumHi();
+    private long toPixels(double lo, DomainElement domEl, CellDomainElement cdomEl) {
 
-        // Get cell dimension 
-        double cellWidth = (domHi-domLo)/(double)((pxHi-pxLo)+1);
+        // Get cellDomain extremes
+        long pxMin = cdomEl.getLoInt();
+        long pxMax = cdomEl.getHiInt();
+
+        // Get Domain extremes (real sdom)
+        double domMin = domEl.getMinValue().doubleValue();
+        double domMax = domEl.getMaxValue().doubleValue();
+
+        // Get offset vector (= cell width in case of regular axis):
+        double cellWidth = domEl.getOffsetVector().doubleValue(); // (domHi-domLo)/(double)((pxHi-pxLo)+1);
 
         // Conversion to pixel domain
-        if (!el.getName().equals(AxisTypes.Y_AXIS)) {
-            return (long)Math.floor((val - domLo) / cellWidth) + pxLo;
+        long indexValLo;
+        long indexValHi;
+        if (!domEl.getLabel().equals(AxisTypes.Y_AXIS)) {
+            indexValLo = (long)Math.floor((lo - domMin) / cellWidth) + pxMin;
+            //indexValHi = (long)Math.floor((hi - domMin) / cellWidth) + pxMin;
         } else {
-            return (long)Math.floor((domHi - val) / cellWidth) + pxLo;
+            //indexValLo = (long)Math.floor((domMax - hi) / cellWidth) + pxMin;
+            //indexValHi = (long)Math.floor((domMax - lo) / cellWidth) + pxMin;
+            indexValLo = (long)Math.floor((domMax - lo) / cellWidth) + pxMin;
         }
 
+        // If axis is irregular, the "pixel" domain needs to be translated
+        if (!domEl.getCoefficients().isEmpty()) {
+            indexValLo = ListUtil.minIndex(domEl.getCoefficients(), new BigDecimal(indexValLo));
+            //indexValHi = ListUtil.minIndex(domEl.getCoefficients(), new BigDecimal(indexValHi));
+        }
+
+        // Check outside bounds:
+        //indexValLo = (indexValLo<pxMin) ? pxMin : ((indexValLo>pxMax)?pxMax:indexValLo);
+        //indexValHi = (indexValHi<pxMin) ? pxMin : ((indexValHi>pxMax)?pxMax:indexValHi);
+
+        //return new long[]{indexValLo, indexValHi};
+        return indexValLo;
     }
 
     /**
@@ -236,26 +293,27 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @param cov coverage metadata
      * @return (WCPS query in abstract syntax, axes)
      */
-    protected Pair<String, String> constructWcpsQuery(GetCoverageRequest req, Metadata cov, String format, String params) throws WCSException {
+    protected Pair<String, String> constructWcpsQuery(GetCoverageRequest req, CoverageMetadata cov, String format, String params)
+            throws WCSException, PetascopeException {
         String axes = "";
         //keep a list of the axes defined in the coverage
         ArrayList<String> axesList = new ArrayList<String>();
         Iterator<DomainElement> dit = cov.getDomainIterator();
         while (dit.hasNext()) {
-            String axis = dit.next().getName();
+            String axis = dit.next().getLabel();
             axes += axis + " ";
             axesList.add(axis);
         }
         String proc = "c";
 
         //Process rangesubsetting based on the coverage alias
-        if (req.hasRangeSubsetting() && cov.getRange() != null && cov.getRange().size() > 1) {
+        if (req.hasRangeSubsetting()) {
             proc = RangeSubsettingExtension.processWCPSRequest(proc, req.getRangeSubset());
         }
         //End range subsetting processing
-        
-        HashMap<String, Pair<String, String>> newdim = new HashMap<String, Pair<String, String>>(); // saves the new limits of the axes after trimming or slicing       
-       
+
+        HashMap<String, Pair<String, String>> newdim = new HashMap<String, Pair<String, String>>(); // saves the new limits of the axes after trimming or slicing
+
         // process subsetting operations
         /**
          * NOTE: trims and slices are nested in each dimension: this inhibits
@@ -274,17 +332,15 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                         "The axis label " + dim + " was not found in the list of available axes");
             }
 
-            String crs = CrsUtil.GRID_CRS;
-            // Subset-CRS might be embedded in a trimmig spec (~WCPS, e.g. KVP req) or with subsettingCrs attribute:
-            if (subset.getCrs() != null || (req.getCRS().size() == 1 && req.getCRS().get(0).getSubsettingCrs() != null)) {
-                crs = (subset.getCrs() != null) ? subset.getCrs() : req.getCRS().get(0).getSubsettingCrs();
-            }
+            // Parametrized CRSs can have quotes and other reserved entities which break abstract WCPS queries (and XML)
+            String crs = StringUtil.escapeXmlPredefinedEntities(de.getCrs());
 
             if (subset instanceof DimensionTrim) {
                 DimensionTrim trim = (DimensionTrim) subset;
                 proc = "trim(" + proc + ",{" + dim + ":\"" + crs + "\" ("
                         + trim.getTrimLow() + ":" + trim.getTrimHigh() + ")})";
                 newdim.put(dim, new Pair(trim.getTrimLow(), trim.getTrimHigh()));
+
             } else if (subset instanceof DimensionSlice) {
                 DimensionSlice slice = (DimensionSlice) subset;
                 proc = "slice(" + proc + ",{" + dim + ":\"" + crs + "\" (" + slice.getSlicePoint() + ")})";
@@ -294,14 +350,15 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 axes = axes.replaceFirst(dim + " ?", ""); // remove axis
             }
         }
-        
-        
+
+
         if (req.isScaled()) {
-            if (!((cov.getCoverageType().equals("GridCoverage")) || 
-                    (cov.getCoverageType().equals("RectifiedGridCoverage")) || 
-                    (cov.getCoverageType().equals("ReferenceableGridCoverage")))) 
-                throw new WCSException(ExceptionCode.InvalidCoverageType.locator(req.getCoverageId())); 
-            Scaling s = req.getScaling();            
+            if (!((cov.getCoverageType().equals("GridCoverage")) ||
+                    (cov.getCoverageType().equals("RectifiedGridCoverage")) ||
+                    (cov.getCoverageType().equals("ReferenceableGridCoverage")))) {
+                throw new WCSException(ExceptionCode.InvalidCoverageType.locator(req.getCoverageId()));
+            }
+            Scaling s = req.getScaling();
             int axesNumber = 0; // for checking if all axes in the query were used
             proc = "scale(" + proc + ", {";
             Iterator<DomainElement> it = cov.getDomainIterator();
@@ -311,55 +368,56 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 CellDomainElement cel = cit.next();
                 long lo = cel.getLoInt();
                 long hi = cel.getHiInt();
-                String dim = el.getName();
+                String dim = el.getLabel();
                 String crs = CrsUtil.GRID_CRS;
                 if (newdim.containsKey(dim)) {
                     lo = toPixels(Double.parseDouble(newdim.get(dim).fst), el, cel);
                     hi = toPixels(Double.parseDouble(newdim.get(dim).snd), el, cel);
                 }
                 switch (s.getType()) {
-                    case 1: 
+                    case 1:
                             proc = proc + dim + ":\"" + crs + "\"(" + Math.round(Math.floor(lo/s.getFactor()))
-                                    + ":" + Math.round(Math.floor(hi/s.getFactor())) + "),";                    
-                    break;                        
-                    case 2: 
-                        if (s.isPresentFactor(dim)) {   
+                                    + ":" + Math.round(Math.floor(hi/s.getFactor())) + "),";
+                    break;
+                    case 2:
+                        if (s.isPresentFactor(dim)) {
                             proc = proc + dim + ":\"" + crs + "\"(" + Math.round(Math.floor(lo/s.getFactor(dim)))
-                                    + ":" + Math.round(Math.floor(hi/s.getFactor(dim))) + "),";                   
+                                    + ":" + Math.round(Math.floor(hi/s.getFactor(dim))) + "),";
                             axesNumber++;
                         } else {
-                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";           
-                        }                                        
+                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
+                        }
                     break;
-                    case 3: 
-                        if (s.isPresentSize(dim)) {  
+                    case 3:
+                        if (s.isPresentSize(dim)) {
                             proc = proc + dim + ":\"" + crs + "\"(" + lo
-                                    + ":" + (lo + s.getSize(dim)-1) + "),";    
+                                    + ":" + (lo + s.getSize(dim)-1) + "),";
                             axesNumber++;
                         } else {
-                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";              
-                        }                           
+                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
+                        }
                     break;
-                    case 4: 
+                    case 4:
                         if (s.isPresentExtent(dim)) {
-                            proc = proc + dim + ":\"" + crs + "\"(" + s.getExtent(dim).fst 
-                                    + ":" + s.getExtent(dim).snd + "),";  
+                            proc = proc + dim + ":\"" + crs + "\"(" + s.getExtent(dim).fst
+                                    + ":" + s.getExtent(dim).snd + "),";
                             axesNumber++;
                         } else {
-                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";  
+                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
                         }
                     break;
                 }
             }
-            if (axesNumber != s.getAxesNumber())                    
-                throw new WCSException(ExceptionCode.ScaleAxisUndefined); 
+            if (axesNumber != s.getAxesNumber()) {
+                throw new WCSException(ExceptionCode.ScaleAxisUndefined);
+            }
             //TODO find out which axis was not found and add the locator to scaleFactor or scaleExtent or scaleDomain
             proc = proc.substring(0, proc.length() - 1);
-            proc += "})";            
-            
-        } 
-        log.trace(proc); // query after scaling    
-        
+            proc += "})";
+
+        }
+        log.trace(proc); // query after scaling
+
         if (params != null) {
             // Additional paramters (e.g. bbox/crs in case of GTiff encoding)
             // NOTE: the whole format string is eventually wrapped into quotes (see below)

@@ -22,22 +22,26 @@
 package petascope.wcs2.parsers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
-import petascope.core.Metadata;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
+import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.WcsUtil;
+import petascope.util.XMLSymbols;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.RangeElement;
-import petascope.wcps.server.core.SDU;
+import petascope.wcs2.extensions.GmlFormatExtension;
 
 /**
  * This class holds the GetCoverage response data.
@@ -46,7 +50,7 @@ import petascope.wcps.server.core.SDU;
  */
 public class GetCoverageMetadata {
 
-    private final Metadata metadata;
+    private final CoverageMetadata metadata;
     private final String coverageId;
     private String coverageType;
     private String axisLabels;
@@ -59,10 +63,10 @@ public class GetCoverageMetadata {
     private String gridId;
     private Integer gridDimension;
     private List<RangeField> rangeFields;
-    //private Wgs84Crs crs;
+    private String crs;     // dynamically adapt to coverage slicing
     private Bbox bbox;
 
-    public GetCoverageMetadata(GetCoverageRequest request, DbMetadataSource meta) throws WCSException {
+    public GetCoverageMetadata(GetCoverageRequest request, DbMetadataSource meta) throws SecoreException, WCSException {
         coverageId = request.getCoverageId();
         axisLabels = uomLabels = "";
         low = high = "";
@@ -74,29 +78,32 @@ public class GetCoverageMetadata {
                     "One of the identifiers passed does not match with any of the coverages offered by this server");
         }
         metadata = WcsUtil.getMetadata(meta, coverageId) ;
-        
+
         coverageType = metadata.getCoverageType();
-        
+
         // Analyze the grid components and their values
         Iterator<DomainElement> dit = metadata.getDomainIterator();
         Iterator<CellDomainElement> cdit = metadata.getCellDomainIterator();
         while (dit.hasNext() && cdit.hasNext()) {
             DomainElement dom = dit.next();
             CellDomainElement cell = cdit.next();
-            axisLabels += dom.getName() + " ";
+            axisLabels += dom.getLabel() + " ";
             low  += cell.getLo() + " ";
             high += cell.getHi() + " ";
-            domLow  += dom.getNumLo() + " ";
-            domHigh += dom.getNumHi() + " ";
+            domLow  += dom.getMinValue().toPlainString() + " ";
+            domHigh += dom.getMaxValue().toPlainString() + " ";
             if (dom.getUom() != null) {
                 uomLabels += dom.getUom() + " ";
             }
         }
-        
+
         gridType = coverageType.replace("Coverage", "");
+        if (coverageType.equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
+            gridType = XMLSymbols.LABEL_RGBV; // No other grid implementations supported currently
+        }
         gridDimension = metadata.getDimension();
         gridId = coverageId + "-grid";
-        
+
         rangeFields = new ArrayList<RangeField>();
         Iterator<RangeElement> rit = metadata.getRangeIterator();
         int i = -1;
@@ -105,6 +112,7 @@ public class GetCoverageMetadata {
             rangeFields.add(new RangeField(metadata, range, ++i));
         }
         bbox = metadata.getBbox();
+        crs = CrsUtil.CrsUri.createCompound(metadata.getCrsUris());
     }
 
     public String getAxisLabels() {
@@ -154,7 +162,7 @@ public class GetCoverageMetadata {
         return uomLabels.trim();
     }
 
-    public Metadata getMetadata() {
+    public CoverageMetadata getMetadata() {
         return metadata;
     }
 
@@ -162,9 +170,13 @@ public class GetCoverageMetadata {
         return bbox;
     }
 
+    public String getCrs() {
+        return crs;
+    }
+
     public void setAxisLabels(String axisLabels) {
         this.axisLabels = axisLabels;
-        setGridDimension(axisLabels.isEmpty() ? 0 : axisLabels.split(" +").length);
+        setGridDimension(axisLabels.split(" +").length);
     }
 
     // Update pixel bounds of the grid (upon trimming and slicing)
@@ -174,52 +186,74 @@ public class GetCoverageMetadata {
     public void setLow(String low) {
         this.low = low;
     }
-    
+
     // Update bounds of coverage (upon trimming and slicing)
     public void setDomHigh(String high) {
-        this.domHigh = high;
+        domHigh = high;
     }
     public void setDomLow(String low) {
-        this.domLow = low;
+        domLow = low;
     }
-    
+
     public void setGridDimension(Integer gridDimension) {
         this.gridDimension = gridDimension;
     }
-    
+
+    public void setCrs(String newUri) {
+        crs = newUri;
+    }
+
+    public void setUomLabels(String newUoms) {
+        uomLabels = newUoms;
+    }
+
+    /**
+     * Check if the *output* coverage is an irregular grid.
+     * @return True if at least one of the non-sliced axes are irregular.
+     */
+    public boolean hasIrregularAxis() {
+        List<String> labels = new ArrayList<String>();
+        labels.addAll(Arrays.asList(axisLabels.split(" +")));
+
+        for (String axisLabel : labels) {
+            DomainElement domEl = metadata.getDomainByName(axisLabel);
+            if (domEl.isIrregular()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static class RangeField {
-        
-        public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:";
-        
-        private String fieldName, componentName;
+
+        private String fieldName;
+        private String componentName;
         private String nilValues;
         private String uomCode;
         private String type;
         private String description;
 
-        public RangeField(Metadata cov, RangeElement range, int i) {
+        public RangeField(CoverageMetadata cov, RangeElement range, int i) {
+
             fieldName = range.getName();
             componentName = range.getName();
-            
+
             Set<String> nullSet = new HashSet<String>();
-            Iterator<String> nit = cov.getNullSetIterator();
-            while (nit.hasNext()) {
-                nullSet.add(SDU.str2string(nit.next()).get(i));
-            }
             nilValues = ListUtil.ltos(nullSet, " ");
+
             type = range.getType();
             uomCode = range.getUom();
             if (uomCode == null) {
-                uomCode = "unknown";
+                uomCode = CrsUtil.PURE_UOM;
             }
             description = "";
             range.isBoolean();
         }
 
         public String getDatatype() {
-            return DATATYPE_URN_PREFIX + type;
+            return GmlFormatExtension.DATATYPE_URN_PREFIX + type;
         }
-        
+
         public String getAllowedValues() {
             if (type.equals("boolean")) {
                 return "<swe:value>true</swe:value><swe:value>false</swe:value>";

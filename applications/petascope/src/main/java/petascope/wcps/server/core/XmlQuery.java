@@ -21,23 +21,31 @@
  */
 package petascope.wcps.server.core;
 
+import java.math.BigInteger;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.ConfigManager;
+import petascope.core.DbMetadataSource;
 import petascope.core.IDynamicMetadataSource;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.Triple;
+import petascope.util.WcpsConstants;
 
 /**
  *
  * @author Andrei Aiordachioaie
  */
 public class XmlQuery extends AbstractRasNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(XmlQuery.class);
 
     private String mime;
@@ -61,7 +69,7 @@ public class XmlQuery extends AbstractRasNode {
     private HashMap<String, Integer> varDimension;
     // VariableNewName is used to translate the old var name into the multi-dim var name
     private HashMap<String, String> variableTranslator;
-    private String varPrefix = WCPSConstants.MSG_I + "_";
+    private String varPrefix = WcpsConstants.MSG_I + "_";
     private char varSuffix = 'i';
 
     public String getMimeType() {
@@ -77,7 +85,7 @@ public class XmlQuery extends AbstractRasNode {
         varDimension = new HashMap<String, Integer>();
     }
 
-    public XmlQuery(Node node) throws WCPSException, PetascopeException {
+    public XmlQuery(Node node) throws WCPSException, PetascopeException, SecoreException {
         iterators = new ArrayList<CoverageIterator>();
         dynamicIterators = new ArrayList<CoverageIterator>();
         variableTranslator = new HashMap<String, String>();
@@ -85,25 +93,25 @@ public class XmlQuery extends AbstractRasNode {
         this.startParsing(node);
     }
 
-    public void startParsing(Node node) throws WCPSException, PetascopeException {
-        log.debug(WCPSConstants.DEBUGTXT_PROCESSING_XML_REQUEST + ": " + node.getNodeName());
+    public void startParsing(Node node) throws WCPSException, PetascopeException, SecoreException {
+        log.debug("Processing XML Request: " + node.getNodeName());
 
         Node x = node.getFirstChild();
 
 
         while (x != null) {
-            if (x.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+            if (x.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
                 x = x.getNextSibling();
                 continue;
             }
 
-            log.info(WCPSConstants.MSG_THE_CURRENT_NODE + ": " + x.getNodeName());
+            log.info("The current node is: " + x.getNodeName());
 
-            if (x.getNodeName().equals(WCPSConstants.MSG_COVERAGE_ITERATOR)) {
+            if (x.getNodeName().equals(WcpsConstants.MSG_COVERAGE_ITERATOR)) {
                 iterators.add(new CoverageIterator(x, this));
-            } else if (x.getNodeName().equals(WCPSConstants.MSG_WHERE)) {
+            } else if (x.getNodeName().equals(WcpsConstants.MSG_WHERE)) {
                 where = new BooleanScalarExpr(x.getFirstChild(), this);
-            } else if (x.getNodeName().equals(WCPSConstants.MSG_ENCODE)) {
+            } else if (x.getNodeName().equals(WcpsConstants.MSG_ENCODE)) {
                 EncodeDataExpr encode;
 
                 try {
@@ -114,9 +122,9 @@ public class XmlQuery extends AbstractRasNode {
                 coverageExpr = encode;
                 mime = encode.getMime();
             } else {
-                // It has to be a scalar Expr 
+                // It has to be a scalar Expr
                 coverageExpr = new ScalarExpr(x, this);
-                mime = WCPSConstants.MSG_TEXT_PLAIN;
+                mime = WcpsConstants.MSG_TEXT_PLAIN;
             }
 
             x = x.getNextSibling();
@@ -163,7 +171,7 @@ public class XmlQuery extends AbstractRasNode {
             }
         }
 
-        throw new WCPSException(WCPSConstants.MSG_ITERATOR + " " + iteratorName + " " + WCPSConstants.ERRTXT_NOT_DEFINED);
+        throw new WCPSException(WcpsConstants.MSG_ITERATOR + " " + iteratorName + " not defined");
     }
 
     public boolean isDynamicCoverage(String coverageName) {
@@ -219,16 +227,21 @@ public class XmlQuery extends AbstractRasNode {
 
     public String toRasQL() {
         String result = "";
+        boolean whereIsNull = true;
+
         if (coverageExpr instanceof ScalarExpr &&
             ((ScalarExpr)coverageExpr).isMetadataExpr()) {
             // in this case we shouldn't make any rasql query
             result = coverageExpr.toRasQL();
         } else {
             // rasql query
-            result = WCPSConstants.MSG_SELECT + " " + coverageExpr.toRasQL() + " " + WCPSConstants.MSG_FROM + " ";
+            result = " select " + coverageExpr.toRasQL() + " from ";
             Iterator<CoverageIterator> it = iterators.iterator();
             boolean first = true;
 
+            // Compose list of coverages (FROM clause) and fetch the corresponendt OID
+            // rasdamanColls = {{OID, name, alias},...}
+            List<Triple<BigInteger,String,String>> rasdamanColls = new ArrayList<Triple<BigInteger,String,String>>();
             while (it.hasNext()) {
                 if (first) {
                     first = false;
@@ -236,17 +249,157 @@ public class XmlQuery extends AbstractRasNode {
                     result += ", ";
                 }
 
-                result += it.next().toRasQL();
+                CoverageIterator cNext = it.next();
+                // The COVERAGE name not necessarily coincide with the COLLECTION name
+                // Need to fetch coll-name and OID:
+                try {
+                rasdamanColls.add(Triple.of(
+                        meta.read(cNext.getCoverages().next()).getRasdamanCollection().fst,
+                        meta.read(cNext.getCoverages().next()).getRasdamanCollection().snd,
+                        cNext.getIteratorName()
+                        ));
+                } catch (PetascopeException ex) {
+                    log.error("Cannot read metadata of coverage " + cNext.getCoverages().next() + ": dynamic coverage?");
+                    log.error(ex.getMessage());
+                } catch (SecoreException ex) {
+                    log.error("Problem with SECORE resolver: " + ex.getMessage());
+                }
+
+                // Append ``collection'' name (+ alias) to RasQL `FROM'
+                result += rasdamanColls.get(rasdamanColls.size()-1).snd + " AS " + cNext.getIteratorName();
             }
 
-            if (where != null) {
-                result += " " + WCPSConstants.MSG_WHERE+ " " + where.toRasQL();
+            // Add embedded WHERE conditions
+            if (null != where) {
+                result += " where " + where.toRasQL();
+                whereIsNull = false;
             }
-        }        
+
+            // Add/append OID constraints (1 W*S coverage = 1 MDD) in the WHERE clause
+            for (Triple<BigInteger,String,String> rasdamanColl : rasdamanColls) {
+                result += (whereIsNull)
+                        ? " where oid(" + rasdamanColl.trd + ")=" + rasdamanColl.fst
+                        : " and oid("   + rasdamanColl.trd + ")=" + rasdamanColl.fst
+                        ;
+                whereIsNull = false;
+            }
+        }
         return result;
     }
 
     public IDynamicMetadataSource getMetadataSource() {
         return meta;
+    }
+
+    public ArrayList<CoverageIterator> getCoverageIterator(){
+        return iterators;
+    }
+
+    public String toPostGISQuery() throws PetascopeException, SecoreException, SQLException {
+
+        Iterator<CoverageIterator> it = iterators.iterator();
+        CoverageIterator cNext = it.next();
+        String coverageName = cNext.getCoverages().next();
+
+        String result = "";
+        // Get bbox parameters
+        int bracketOpen = coverageExpr.toRasQL().indexOf("[");
+        int bracketClose = coverageExpr.toRasQL().indexOf("]");
+        String[] trimParams = coverageExpr.toRasQL().substring(bracketOpen + 1, bracketClose).split(",");
+
+        result = WcpsConstants.MSG_SELECT + " value, St_X(coordinate) AS x, "
+                    + "St_Y(coordinate) AS y, St_Z(coordinate) AS z " +
+                WcpsConstants.MSG_FROM + " ps9_coverage c, ps9_multipoint_domain_set AS d, ps9_multipoint_range_set AS r " +
+                WcpsConstants.MSG_WHERE +
+                " c.name='" + coverageName + "' AND c.id = d.coverage_id AND d.id = r.point_id "  ;
+        String xmin = "";
+        String ymin = "";
+        String zmin = "";
+        String xmax = "";
+        String ymax = "";
+        String zmax = "";
+
+        xmin = trimParams[0].split(":")[0];
+        ymin = trimParams[1].split(":")[0];
+        zmin = trimParams[2].split(":")[0];
+
+        if ( trimParams[0].split(":").length == 2 ){
+            xmax = trimParams[0].split(":")[1];
+        } else if ( trimParams[0].split(":").length == 1 ){
+            xmax = trimParams[0].split(":")[0];
+        }
+        if ( trimParams[1].split(":").length == 2 ){
+            ymax = trimParams[1].split(":")[1];
+        } else if ( trimParams[1].split(":").length == 1 ) {
+            ymax = trimParams[1].split(":")[0];
+        }
+        if ( trimParams[2].split(":").length == 2 ){
+            zmax = trimParams[2].split(":")[1];
+        } else if ( trimParams[2].split(":").length == 1 ) {
+            zmax = trimParams[2].split(":")[0];
+        }
+
+        DbMetadataSource meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
+                ConfigManager.METADATA_URL,
+                ConfigManager.METADATA_USER,
+                ConfigManager.METADATA_PASS, false);
+        String query = "";
+        ResultSet res = null;
+        if (xmin.equals(WcpsConstants.MSG_STAR)) {
+            query = "SELECT min(St_X(coordinate)) as m FROM ps9_multipoint_domain_set";
+            res = meta.executePostGISQuery(query);
+            while(res.next()){
+                xmin = res.getString("m");
+            }
+        }
+        if (ymin.equals(WcpsConstants.MSG_STAR)) {
+            query = "SELECT min(St_Y(coordinate)) as m FROM ps9_multipoint_domain_set";
+            res = meta.executePostGISQuery(query);
+            while(res.next()){
+                ymin = res.getString("m");
+            }
+        }
+        if (zmin.equals(WcpsConstants.MSG_STAR)) {
+            query = "SELECT min(St_Z(coordinate)) as m FROM ps9_multipoint_domain_set";
+            res = meta.executePostGISQuery(query);
+            while(res.next()){
+                zmin = res.getString("m");
+            }
+        }
+        if (xmax.equals(WcpsConstants.MSG_STAR)){
+            query = "SELECT max(St_X(coordinate)) as m FROM ps9_multipoint_domain_set";
+            res = meta.executePostGISQuery(query);
+            while(res.next()){
+                xmax = res.getString("m");
+            }
+        } else if (xmax.equals("")){
+            xmax = xmin;
+        }
+
+        if (ymax.equals(WcpsConstants.MSG_STAR)){
+            query = "SELECT max(St_Y(coordinate)) as m FROM ps9_multipoint_domain_set";
+            res = meta.executePostGISQuery(query);
+            while(res.next()){
+                ymax = res.getString("m");
+            }
+        } else if (ymax.equals("")){
+            ymax = ymin;
+        }
+
+        if (zmax.equals(WcpsConstants.MSG_STAR)){
+            query = "SELECT max(St_Z(coordinate)) as m FROM ps9_multipoint_domain_set";
+            res = meta.executePostGISQuery(query);
+            while(res.next()){
+                zmax = res.getString("m");
+            }
+        } else if (zmax.equals("")){
+            zmax = zmin;
+        }
+
+        result += " AND d.coordinate && 'BOX3D(" + xmin + " " + ymin + " " + zmin + "," +
+                xmax + " " + ymax + " " + zmax + ")'::box3d ";
+
+
+        return result;
     }
 }

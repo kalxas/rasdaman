@@ -23,9 +23,10 @@ package petascope.wcps.server.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
-import petascope.util.WCPSConstants;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
+import petascope.util.WcpsConstants;
 
 
 
@@ -41,27 +42,26 @@ public class RangeComponent extends AbstractRasNode implements ICoverageInfo {
     private CoverageInfo info = null;
     private CoverageExpr expr = null;
 
-    public RangeComponent(Node node, XmlQuery xq)
-            throws WCPSException {
+    public RangeComponent(Node node, XmlQuery xq) throws WCPSException, SecoreException {
 
         String nodeName = node.getNodeName();
         log.trace(nodeName);
-        if (nodeName.equals(WCPSConstants.MSG_COMPONENT))
+        if (nodeName.equals(WcpsConstants.MSG_COMPONENT))
             node = node.getFirstChild();
             
         while (node != null)
         {
             nodeName = node.getNodeName();
-            if (nodeName.equals("#" + WCPSConstants.MSG_TEXT))
+            if (nodeName.equals("#" + WcpsConstants.MSG_TEXT))
             {
                 node = node.getNextSibling();
                 continue;
             }
 
-            if (nodeName.equals(WCPSConstants.MSG_FIELD)) {
+            if (nodeName.equals(WcpsConstants.MSG_FIELD)) {
                 this.field = node.getTextContent();
-                log.trace("  " + WCPSConstants.MSG_FIELD + ": " + field);
-            } else
+                log.trace("  " + WcpsConstants.MSG_FIELD + ": " + field);
+            } else {
                 try
                 {
                     this.expr = new CoverageExpr(node, xq);
@@ -69,9 +69,10 @@ public class RangeComponent extends AbstractRasNode implements ICoverageInfo {
                 }
                 catch (WCPSException e)
                 {
-                    log.error(WCPSConstants.ERRTXT_COULD_NOT_MATCH_COV_EXPR + nodeName);
+                    log.error("Could not match CoverageExpr inside RangeExpr. Next node: " + nodeName);
                     throw e;
                 }
+            }
 
             node = node.getNextSibling();
         }

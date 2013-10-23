@@ -24,6 +24,7 @@ package petascope.wcs2.handlers;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcs2.extensions.FormatExtension;
@@ -41,12 +42,17 @@ public class GetCoverageHandler extends AbstractRequestHandler<GetCoverageReques
     }
 
     @Override
-    public Response handle(GetCoverageRequest request) throws PetascopeException, WCSException {
+    public Response handle(GetCoverageRequest request)
+            throws PetascopeException, WCSException, SecoreException {
         FormatExtension formatExtension = ExtensionsRegistry.getFormatExtension(request);
         if (formatExtension == null) {
-            throw new WCSException(ExceptionCode.NoApplicableCode, 
+            throw new WCSException(ExceptionCode.NoApplicableCode,
                     "No appropriate format extension was found that can handle the request");
         }
-        return formatExtension.handle(request, meta);
+        try {
+            return formatExtension.handle(request, meta);
+        } catch (PetascopeException ex) {
+            throw ex;
+        }
     }
 }

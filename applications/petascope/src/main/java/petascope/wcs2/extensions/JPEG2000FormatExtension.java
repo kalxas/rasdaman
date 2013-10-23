@@ -26,11 +26,11 @@ import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
-import petascope.util.CrsUtil.CrsProperties;
-import petascope.util.MiscUtil;
 import petascope.util.Pair;
+import petascope.util.XMLSymbols;
 import petascope.util.ras.RasQueryResult;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.GetCoverageMetadata;
@@ -38,23 +38,23 @@ import petascope.wcs2.parsers.GetCoverageRequest;
 
 /**
  * Return coverage as a JPEG2000 file.
- * 
+ *
  * The only coverage types supported by this specification are GridCoverage and
  * RectifiedGridCoverage with exactly 2 dimensions.
  *
  * @author <a href="mailto:m.rusu@jacobs-university.de">Mihaela Rusu</a>
  */
 public class JPEG2000FormatExtension extends AbstractFormatExtension {
-    
+
     /* Member */
     CrsUtil.CrsProperties crsProperties;
     private static final Logger log = LoggerFactory.getLogger(JPEG2000FormatExtension.class);
-    
+
     /* Interface */
     public CrsUtil.CrsProperties getCrsProperties() {
         return crsProperties;
     }
-    
+
     /* Methods */
     @Override
     public boolean canHandle(GetCoverageRequest req) {
@@ -63,28 +63,29 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension {
     }
 
     @Override
-    public Response handle(GetCoverageRequest request, DbMetadataSource meta) throws PetascopeException, WCSException {
+    public Response handle(GetCoverageRequest request, DbMetadataSource meta)
+            throws PetascopeException, WCSException, SecoreException {
         GetCoverageMetadata m = new GetCoverageMetadata(request, meta);
 
         //Handle the range subset feature
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
-        rsubExt.handle(request, m);        
-        
+        rsubExt.handle(request, m);
+
         try {
-            setBounds(request, m, meta);
+            // GetCoverage metadata was initialized with native coverage metadata, but subsets may have changed it:
+            updateGetCoverageMetadata(request, m);
         } catch (PetascopeException pEx) {
             throw pEx;
         }
-        
-        if (m.getGridDimension() != 2 || !(
-                m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE) ||
-                m.getCoverageType().equals(GetCoverageRequest.RECTIFIED_GRID_COVERAGE))) {
+
+        if (m.getGridDimension() != 2 || m.hasIrregularAxis() ||
+                !(m.getCoverageType().matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE))) {
             throw new WCSException(ExceptionCode.NoApplicableCode, "The JPEG2000 format extension "
-                    + "only supports GridCoverage and RectifiedGridCoverage with exactly two dimensions");
+                    + "only supports regularly gridded coverages with exactly two dimensions");
         }
-        
+
         Pair<Object, String> p = null;
-        if (m.getCoverageType().equals(GetCoverageRequest.GRID_COVERAGE)) {
+        if (m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
             // return plain JPEG
             crsProperties = new CrsUtil.CrsProperties();
             p = executeRasqlQuery(request, m, meta, JP2_ENCODING, null);

@@ -26,7 +26,7 @@ import org.w3c.dom.*;
 import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class RangeField extends AbstractRasNode {
     
@@ -35,21 +35,21 @@ public class RangeField extends AbstractRasNode {
     private String type;
 
     public RangeField(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         log.trace(node.getNodeName());
 
         if (node == null) {
-            throw new WCPSException(WCPSConstants.ERRTXT_RANGE_FIELD_TYPE);
+            throw new WCPSException("RangeFieldType parsing error.");
         }
 
         String nodeName = node.getNodeName();
 
-        if (nodeName.equals(WCPSConstants.MSG_TYPE)) {
+        if (nodeName.equals(WcpsConstants.MSG_TYPE)) {
             this.type = node.getTextContent();
 
-            log.trace(WCPSConstants.MSG_RANGE_RANGE_FILED_TYPE + type);
+            log.trace("Range field type: " + type);
         }
     }
 

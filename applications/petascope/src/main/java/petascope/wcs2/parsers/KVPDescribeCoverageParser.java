@@ -40,7 +40,9 @@ public class KVPDescribeCoverageParser extends KVPParser<DescribeCoverageRequest
     public DescribeCoverageRequest parse(HTTPRequest request) throws WCSException {
         String input = request.getRequestString();
         Map<String, List<String>> p = StringUtil.parseQuery(input);
-        checkEncodingSyntax(p, KEY_COVERAGEID, KEY_VERSION);
+        checkEncodingSyntax(p,
+                KEY_COVERAGEID,
+                KEY_VERSION);
         DescribeCoverageRequest ret = new DescribeCoverageRequest();
         ret.getCoverageIds().addAll(p.get(KEY_COVERAGEID));
         return ret;

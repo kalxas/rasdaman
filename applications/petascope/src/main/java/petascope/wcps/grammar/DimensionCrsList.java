@@ -26,7 +26,7 @@ import java.util.*;
 /**
  * DimensionCrsList
  *
- * @author <a href="mailto:cmppri@unife.it">Piero Campalani</a>
+ * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public class DimensionCrsList implements IParseTreeNode {
 

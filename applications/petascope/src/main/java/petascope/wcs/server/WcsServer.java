@@ -49,6 +49,7 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.exceptions.SecoreException;
 
 /**
  * The Web Coverage Service (WcsServer)
@@ -133,7 +134,8 @@ public class WcsServer {
     /**
      * WcsServer GetCoverage operation
      */
-    public String GetCoverage(String stringXml, Wcps wcps) throws WCSException {
+    public String GetCoverage(String stringXml, Wcps wcps)
+            throws WCSException, PetascopeException, SecoreException {
         String output = "Default output. ";
 
         try {
@@ -153,8 +155,10 @@ public class WcsServer {
             log.trace("Done! User has his WCPS request !");
         } catch (JAXBException ex) {
             throw new WCSException(ExceptionCode.XmlStructuresError, "Could not marshall/unmarshall XML structures.", ex);
-        } catch (WCPSException e) {
-            throw new WCSException(ExceptionCode.InternalComponentError, e.getMessage(), e);
+        } catch (WCPSException ex) {
+            throw new WCSException(ExceptionCode.InternalComponentError, ex.getMessage(), ex);
+        } catch (SecoreException sEx) {
+            throw sEx;
         }
 
         log.trace("---------------------OUTPUT--------------------------");

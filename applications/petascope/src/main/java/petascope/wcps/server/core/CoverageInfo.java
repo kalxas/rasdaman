@@ -21,17 +21,18 @@
  */
 package petascope.wcps.server.core;
 
+import petascope.core.CoverageMetadata;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.core.Metadata;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.CrsUtil;
+import petascope.util.WcpsConstants;
 
 public class CoverageInfo {
-    
+
     private static Logger log = LoggerFactory.getLogger(CoverageInfo.class);
 
     private List<CellDomainElement> cellDomains;
@@ -50,12 +51,12 @@ public class CoverageInfo {
             domains.add(other.getDomainElement(i));
         }
 
-        coverageName = other.getCoverageName();  
+        coverageName = other.getCoverageName();
         coverageCrs = other.getCoverageCrs();
         bbox = other.getBbox();
     }
 
-    public CoverageInfo(Metadata m) {
+    public CoverageInfo(CoverageMetadata m) {
         cellDomains = new ArrayList<CellDomainElement>();
         domains = new ArrayList<DomainElement>();
         Iterator<CellDomainElement> itcde = m.getCellDomainIterator();
@@ -71,13 +72,13 @@ public class CoverageInfo {
         }
 
         coverageName = m.getCoverageName();
-        coverageCrs=m.getCoverageCrs();
-        bbox = m.getBbox();        
+        coverageCrs= CrsUtil.CrsUri.createCompound(m.getCrsUris());
+        bbox = m.getBbox();
     }
 
     public boolean isCompatible(CoverageInfo other) {
         if (getNumDimensions() != other.getNumDimensions()) {
-            log.trace(WCPSConstants.ERRTXT_NUMBER_DIM_DOES_NOT_MATCH);
+            log.error("The number of dimensions does not match.");
             return false;
         }
 
@@ -92,14 +93,14 @@ public class CoverageInfo {
                 you = other.getCellDomainElement(index++);
 
                 if (!me.getHi().equals(you.getHi())) {
-                    log.trace(WCPSConstants.ERRTXT_HIGH_VALUES_DONOT_MATCH + ": "
+                    log.error("High values don't match: "
                             + me.getHi().toString() + ", "
                             + you.getHi().toString());
                     return false;
                 }
 
                 if (!me.getLo().equals(you.getLo())) {
-                    log.trace(WCPSConstants.ERRTXT_LOW_VALUES_DONOT_MATCH + ": "
+                    log.error("Low values do not match: "
                             + me.getLo().toString() + ", "
                             + you.getLo().toString());
                     return false;
@@ -116,10 +117,10 @@ public class CoverageInfo {
                 me = it.next();
                 you = other.getDomainElement(index++);
 
-                if (!me.getName().equals(you.getName())) {
-                    log.trace(WCPSConstants.ERRTXT_DOMAIN_ELEMENT_DONNOT_MATCH + ": '"
-                            + me.getName() + "' " + WCPSConstants.MSG_AND + " '"
-                            + you.getName() + "'.");
+                if (!me.getLabel().equals(you.getLabel())) {
+                    log.error("Domain element names don't match: '"
+                            + me.getLabel() + "' " + WcpsConstants.MSG_AND + " '"
+                            + you.getLabel() + "'.");
                     return false;
                 }
 
@@ -144,11 +145,11 @@ public class CoverageInfo {
     public String getCoverageName() {
         return coverageName;
     }
-   
+
     public String getCoverageCrs() {
         return coverageCrs;
     }
-    
+
     public Bbox getBbox() {
         return bbox;
     }
@@ -167,25 +168,41 @@ public class CoverageInfo {
         cellDomains.set(dim, cde);
     }
 
-    public int getDomainIndexByName(String name) throws WCPSException {
+    public int getDomainIndexByType(String type) throws WCPSException {
         Iterator<DomainElement> it = domains.iterator();
         int index = 0;
 
         while (it.hasNext()) {
-            if (name.equals(it.next().getName())) {
+            if (type.equals(it.next().getType())) {
                 return index;
             }
 
             index++;
         }
 
-        log.error(WCPSConstants.ERRTXT_DOMAIN_NAME_NOT_FOUND + ": " + name);
-        throw new WCPSException(WCPSConstants.ERRTXT_DOMAIN_NAME_NOT_FOUND + ": " + name);
+        log.error("Axis name not found: " + type);
+        throw new WCPSException("Domain name not found: " + type);
+    }
+
+    public int getDomainIndexByName(String name) throws WCPSException {
+        Iterator<DomainElement> it = domains.iterator();
+        int index = 0;
+
+        while (it.hasNext()) {
+            if (name.equals(it.next().getLabel())) {
+                return index;
+            }
+
+            index++;
+        }
+
+        log.error("Axis name not found: " + name);
+        throw new WCPSException("Domain name not found: " + name);
     }
 
     @Override
     public String toString() {
         return coverageName;
     }
-    
+
 }

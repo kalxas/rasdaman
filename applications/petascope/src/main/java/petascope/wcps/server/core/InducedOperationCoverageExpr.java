@@ -24,8 +24,9 @@ package petascope.wcps.server.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 public class InducedOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
@@ -35,13 +36,12 @@ public class InducedOperationCoverageExpr extends AbstractRasNode implements ICo
     private CoverageInfo info;
     private String operation = "";
 
-    public InducedOperationCoverageExpr(Node node, XmlQuery xq)
-            throws WCPSException {
+    public InducedOperationCoverageExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         String nodeName = node.getNodeName();
         
         log.trace(nodeName);
 
-        if (nodeName.equals(WCPSConstants.MSG_RANGE_CONSTRUCTOR)) {
+        if (nodeName.equals(WcpsConstants.MSG_RANGE_CONSTRUCTOR)) {
             operation = nodeName;
             child = new RangeCoverageExpr(node, xq);
             info = new CoverageInfo((((ICoverageInfo) child).getCoverageInfo()));
@@ -52,10 +52,10 @@ public class InducedOperationCoverageExpr extends AbstractRasNode implements ICo
                 try {
                     child = new UnaryOperationCoverageExpr(node, xq);
                     info = new CoverageInfo((((ICoverageInfo) child).getCoverageInfo()));
-                    log.trace("  " + WCPSConstants.MSG_INDUCED_OP_SUCCESS + ": " + node.getNodeName());
+                    log.trace("induced Operation SUCCESS: " + node.getNodeName());
                 } catch (WCPSException e) {
                     child = null;
-                    if (e.getMessage().equals(WCPSConstants.MSG_METHOD_NOT_IMPL)) {
+                    if (e.getMessage().equals("Method not implemented")) {
                         throw e;
                     }
                 }
@@ -65,15 +65,14 @@ public class InducedOperationCoverageExpr extends AbstractRasNode implements ICo
                 try {
                     child = new BinaryOperationCoverageExpr(node, xq);
                     info = new CoverageInfo((((ICoverageInfo) child).getCoverageInfo()));
-                    log.trace("  " + WCPSConstants.MSG_BINARY_OP_SUCCESS + ": " + node.getNodeName());
+                    log.trace("Binary operation SUCCESS: " + node.getNodeName());
                 } catch (WCPSException e) {
                     child = null;
                 }
             }
 
             if (child == null) {
-                throw new WCPSException(WCPSConstants.ERRTXT_INVALID_INDUCED_COV_EXPR + ": "
-                        + node.getNodeName());
+                throw new WCPSException("Invalid induced coverage expression, next node: " + node.getNodeName());
             } else {
                 // Keep the child to let the XML tree be traversed
                 super.children.add(child);

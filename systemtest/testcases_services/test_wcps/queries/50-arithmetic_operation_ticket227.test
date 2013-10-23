@@ -1,4 +1,4 @@
-for c in (mr) return 
+for c in (mr) return
    encode(
-      count(trim(c, {x(100:101),y(100:101)}) > 0) * 2, 
+      count(trim(c, {i(100:101),j(100:101)}) > 0) * 2,
    "csv")

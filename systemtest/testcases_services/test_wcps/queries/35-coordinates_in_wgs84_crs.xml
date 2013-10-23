@@ -9,7 +9,7 @@
             <encode store="false">
                 <trim>
                     <coverage>c</coverage>
-                    <axis>x</axis>
+                    <axis>i</axis>
                     <srsName>CRS:1</srsName>
                     <lowerBound>
                         <numericConstant>1</numericConstant>
@@ -17,7 +17,7 @@
                     <upperBound>
                         <numericConstant>100</numericConstant>
                     </upperBound>
-                    <axis>y</axis>
+                    <axis>j</axis>
                     <srsName>CRS:1</srsName>
                     <lowerBound>
                         <numericConstant>1</numericConstant>

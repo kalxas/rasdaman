@@ -27,14 +27,15 @@
     xmlns='http://www.opengis.net/gml/3.2'
     xmlns:gml='http://www.opengis.net/gml/3.2'
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:gmlrgrid='http://www.opengis.net/gml/3.3/rgrid'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="eobstest"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="http://www.opengis.net/def/crs-compound?1=CRS:1&amp;2=http://www.opengis.net/def/crs/EPSG/0/4326" axisLabels="t" uomLabels="" srsDimension="1">
-      <lowerCorner>0.0</lowerCorner>
-      <upperCorner>5.0</upperCorner>
+    <Envelope srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+      <lowerCorner>0</lowerCorner>
+      <upperCorner>6</upperCorner>
     </Envelope>
   </boundedBy>
 
@@ -47,12 +48,12 @@
         </GridEnvelope>
       </limits>
       <axisLabels>t</axisLabels>
-    <gml:origin>
-        <gml:Point gml:id="eobstest-origin" srsName="http://www.opengis.net/def/crs-compound?1=CRS:1&amp;2=http://www.opengis.net/def/crs/EPSG/0/4326">
-            <gml:pos>0.0</gml:pos>
-        </gml:Point>
-    </gml:origin>
-    <gml:offsetVector srsName="http://www.opengis.net/def/crs-compound?1=CRS:1&amp;2=http://www.opengis.net/def/crs/EPSG/0/4326">0.9</gml:offsetVector>
+      <origin>
+          <Point gml:id="eobstest-origin" srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+              <pos>0</pos>
+          </Point>
+      </origin>
+    <offsetVector srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">1</offsetVector>
     </RectifiedGrid>
   </domainSet>
 
@@ -65,7 +66,7 @@
     <swe:field name="value">
       <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:short">
         <swe:description></swe:description>
-        <swe:uom code="unknown"/>
+        <swe:uom code="10⁰"/>
         <swe:constraint>
           <swe:AllowedValues>
             <swe:interval>-32768 32767</swe:interval>
@@ -75,5 +76,5 @@
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-  <gmlcov:metadata></gmlcov:metadata>
+  
 </gmlcov:RectifiedGridCoverage>

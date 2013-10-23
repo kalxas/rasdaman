@@ -27,19 +27,20 @@
     xmlns='http://www.opengis.net/gml/3.2'
     xmlns:gml='http://www.opengis.net/gml/3.2'
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:gmlrgrid='http://www.opengis.net/gml/3.3/rgrid'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="mr"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="CRS:1" axisLabels="" uomLabels="" srsDimension="0">
+    <Envelope srsName="http://localhost:8080/def/crs-compound?" axisLabels="" uomLabels="" srsDimension="1">
       <lowerCorner></lowerCorner>
       <upperCorner></upperCorner>
     </Envelope>
   </boundedBy>
 
   <domainSet>
-    <RectifiedGrid dimension="0" gml:id="mr-grid">
+    <RectifiedGrid dimension="1" gml:id="mr-grid">
       <limits>
         <GridEnvelope>
           <low></low>
@@ -47,12 +48,12 @@
         </GridEnvelope>
       </limits>
       <axisLabels></axisLabels>
-    <gml:origin>
-        <gml:Point gml:id="mr-origin" srsName="CRS:1">
-            <gml:pos></gml:pos>
-        </gml:Point>
-    </gml:origin>
-    <gml:offsetVector srsName="CRS:1"></gml:offsetVector>
+      <origin>
+          <Point gml:id="mr-origin" srsName="http://localhost:8080/def/crs-compound?" axisLabels="" uomLabels="" srsDimension="1">
+              <pos></pos>
+          </Point>
+      </origin>
+    <offsetVector srsName="http://localhost:8080/def/crs-compound?" axisLabels="" uomLabels="" srsDimension="1"></offsetVector>
     </RectifiedGrid>
   </domainSet>
 
@@ -65,15 +66,15 @@
     <swe:field name="value">
       <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:char">
         <swe:description></swe:description>
-        <swe:uom code="unknown"/>
+        <swe:uom code="10⁰"/>
         <swe:constraint>
           <swe:AllowedValues>
-            <swe:interval>-128 128</swe:interval>
+            <swe:interval>-128 127</swe:interval>
           </swe:AllowedValues>
         </swe:constraint>
       </swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-  <gmlcov:metadata></gmlcov:metadata>
+  
 </gmlcov:RectifiedGridCoverage>

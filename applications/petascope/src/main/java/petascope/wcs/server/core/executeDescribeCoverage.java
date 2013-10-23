@@ -21,11 +21,15 @@
  */
 package petascope.wcs.server.core;
 
-import petascope.core.Metadata;
-import petascope.core.DbMetadataSource;
-import petascope.exceptions.WCSException;
-import petascope.exceptions.ExceptionCode;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 import net.opengis.ows.v_1_0_0.BoundingBoxType;
+import net.opengis.ows.v_1_0_0.KeywordsType;
+import net.opengis.wcs.ows.v_1_1_0.AnyValue;
 import net.opengis.wcs.ows.v_1_1_0.DomainMetadataType;
 import net.opengis.wcs.ows.v_1_1_0.InterpolationMethodType;
 import net.opengis.wcs.ows.v_1_1_0.InterpolationMethods;
@@ -37,17 +41,16 @@ import net.opengis.wcs.v_1_1_0.DescribeCoverage;
 import net.opengis.wcs.v_1_1_0.FieldType;
 import net.opengis.wcs.v_1_1_0.RangeType;
 import net.opengis.wcs.v_1_1_0.SpatialDomainType;
-import petascope.wcps.server.core.*;
-import java.util.Iterator;
-import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
-import net.opengis.ows.v_1_0_0.KeywordsType;
-import net.opengis.wcs.ows.v_1_1_0.AnyValue;
 import net.opengis.wcs.v_1_1_0.TimeSequenceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.CoverageMetadata;
+import petascope.core.DbMetadataSource;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.WCSException;
+import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import petascope.wcps.server.core.*;
 
 /**
  * This class takes a WCS DescribeCoverage XML request and executes request,
@@ -110,7 +113,7 @@ public class executeDescribeCoverage {
     /**
      * Retrieve details for one coverage.
      * @param name Name of the coverage
-     * @return CoverageDescriptionType object, that can just be plugged in the respose object
+     * @return CoverageDescriptionType object, that can just be plugged in the response object
      */
     private CoverageDescriptionType getCoverageDescription(String name) throws WCSException {
         log.trace("Building coverage description for coverage '" + name + "' ...");
@@ -123,7 +126,7 @@ public class executeDescribeCoverage {
         }
 
         // Read all coverage metadata
-        Metadata cov = null;
+        CoverageMetadata cov = null;
 
         try {
             cov = meta.read(name);
@@ -145,48 +148,52 @@ public class executeDescribeCoverage {
 
         // Coverage Domain
         CoverageDomainType domain = null;
-        Double lo1 = 0.0, lo2 = 0.0, hi1 = 0.0, hi2 = 0.0;
+
 
         /* Default Bounding Box (uses GRID_CRS): use image size */
         BoundingBoxType bbox = new BoundingBoxType();
-        CellDomainElement X = cov.getXCellDomain();
-        CellDomainElement Y = cov.getYCellDomain();
+        CellDomainElement X = cov.getCellDomain(AxisTypes.X_AXIS);
+        CellDomainElement Y = cov.getCellDomain(AxisTypes.Y_AXIS);
+        Double loX, loY, hiX, hiY;
+
         if (X != null && Y != null) {
-            lo1 = new Double(X.getLoInt());
-            hi1 = new Double(X.getHiInt());
-            lo2 = new Double(Y.getLoInt());
-            hi2 = new Double(Y.getHiInt());
+            loX = new Double(X.getLoInt());
+            hiX = new Double(X.getHiInt());
+            loY = new Double(Y.getLoInt());
+            hiY = new Double(Y.getHiInt());
 
             bbox.setCrs(CrsUtil.GRID_CRS);
 
-            bbox.getLowerCorner().add(lo1);
-            bbox.getLowerCorner().add(lo2);
-            bbox.getUpperCorner().add(hi1);
-            bbox.getUpperCorner().add(hi2);
+            bbox.getLowerCorner().add(loX);
+            bbox.getLowerCorner().add(loY);
+            bbox.getUpperCorner().add(hiX);
+            bbox.getUpperCorner().add(hiY);
         } else {
             throw new WCSException(ExceptionCode.NoApplicableCode, "Internal error: Could "
-                    + "not find X and Y cell domain extents.");
+                    + "not find " + AxisTypes.X_AXIS + " and " + AxisTypes.Y_AXIS + " cell domain extents.");
         }
 
         /* Try to use bounding box, if available */
-        //Wgs84Crs crs = cov.getCrs();
         Bbox boundbox = cov.getBbox();
         BoundingBoxType bboxType = new BoundingBoxType();
-        //bbox84.setCrs(DomainElement.WGS84_CRS);
         bboxType.setCrs(boundbox.getCrsName());
-        if (boundbox != null) {
-            lo1 = boundbox.getLow1();
-            hi1 = boundbox.getHigh1();
-            lo2 = boundbox.getLow2();
-            hi2 = boundbox.getHigh2();
 
-            bboxType.getLowerCorner().add(lo1);
-            bboxType.getLowerCorner().add(lo2);
-            bboxType.getUpperCorner().add(hi1);
-            bboxType.getUpperCorner().add(hi2);
+        List<String> lowers = new ArrayList<String>();
+        List<String> uppers = new ArrayList<String>();
 
-            bbox = bboxType;
+        for (int i = 0; i < boundbox.getDimensionality(); i++) {
+            lowers.add(boundbox.getMinValue(i).toPlainString());
+            uppers.add(boundbox.getMaxValue(i).toPlainString());
+
+            try {
+                bboxType.getLowerCorner().add(Double.parseDouble(lowers.get(i)));
+                bboxType.getUpperCorner().add(Double.parseDouble(uppers.get(i)));
+            } catch (NumberFormatException e) {
+                log.error("WCS 1.0 still requires numeric bounding boxes only: ignoring " +
+                        boundbox.getCoverageName() + "::" + boundbox.getType(i) + " axis.");
+            }
         }
+        bbox = bboxType;
 
         domain = new CoverageDomainType();
         SpatialDomainType spatial = new SpatialDomainType();
@@ -197,7 +204,7 @@ public class executeDescribeCoverage {
 
 
         /* Find a time-axis if exists */
-        CellDomainElement T = cov.getTCellDomain();
+        CellDomainElement T = cov.getCellDomain(AxisTypes.T_AXIS);
         if (T != null) {
             log.trace("Found time-axis for coverage: [" + T.getLo() + ", " + T.getHi() + "]");
             TimeSequenceType temporal = new TimeSequenceType();
@@ -227,7 +234,6 @@ public class executeDescribeCoverage {
             field.setDefinition(domtype);
 
             InterpolationMethods interp = new InterpolationMethods();
-
             InterpolationMethodType meth = new InterpolationMethodType();
 
             meth.setValue(cov.getInterpolationDefault());
@@ -242,7 +248,8 @@ public class executeDescribeCoverage {
                 meth = new InterpolationMethodType();
                 meth.setValue(wcpsInterp.getInterpolationType());
                 meth.setNullResistance(wcpsInterp.getNullResistance());
-                if ((wcpsInterp.getInterpolationType().equals(interp.getDefaultMethod().getValue()) == false) || (wcpsInterp.getNullResistance().equals(interp.getDefaultMethod().getNullResistance()) == false)) {
+                if ((wcpsInterp.getInterpolationType().equals(interp.getDefaultMethod().getValue()) == false) ||
+                        (wcpsInterp.getNullResistance().equals(interp.getDefaultMethod().getNullResistance()) == false)) {
                     interp.getOtherMethod().add(meth);
                 }
             }

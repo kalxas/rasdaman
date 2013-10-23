@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of PetaScope.
+ *
+ * PetaScope is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU  General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * PetaScope is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU  General Public License for more details.
+ *
+ * You should have received a copy of the GNU  General Public
+ * License along with PetaScope. If not, see "http://www.gnu.org/licenses/".
+ *
+ * For more information please see "http://www.PetaScope.org"
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ *
+ * Copyright 2009 Jacobs University Bremen, Peter Baumann.
+-->
+
+
+<gmlcov:ReferenceableGridCoverage
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:gmlrgrid='http://www.opengis.net/gml/3.3/rgrid'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="irr_cube_1"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index3D" axisLabels="i j k" uomLabels="pixels pixels pixels" srsDimension="3">
+      <lowerCorner>0 3 3</lowerCorner>
+      <upperCorner>2 5 8</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <ReferenceableGridByVectors dimension="3" gml:id="irr_cube_1-grid">
+      <limits>
+        <GridEnvelope>
+          <low>0 3 0</low>
+          <high>2 5 2</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>i j k</axisLabels>
+      <origin>
+          <Point gml:id="irr_cube_1-origin" srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index3D" axisLabels="i j k" uomLabels="pixels pixels pixels" srsDimension="3">
+              <pos>0 3 3</pos>
+          </Point>
+      </origin>
+      <generalGridAxis>
+        <GeneralGridAxis>
+              <offsetVector srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index3D" axisLabels="i j k" uomLabels="pixels pixels pixels" srsDimension="3">1 0 0</offsetVector>
+          <gridAxesSpanned>i</gridAxesSpanned>
+          <sequenceRule axisOrder="+1">Linear</sequenceRule>
+        </GeneralGridAxis>
+      </generalGridAxis>
+      <generalGridAxis>
+        <GeneralGridAxis>
+              <offsetVector srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index3D" axisLabels="i j k" uomLabels="pixels pixels pixels" srsDimension="3">0 1 0</offsetVector>
+          <gridAxesSpanned>j</gridAxesSpanned>
+          <sequenceRule axisOrder="+1">Linear</sequenceRule>
+        </GeneralGridAxis>
+      </generalGridAxis>
+      <generalGridAxis>
+        <GeneralGridAxis>
+              <offsetVector srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index3D" axisLabels="i j k" uomLabels="pixels pixels pixels" srsDimension="3">0 0 1</offsetVector>
+          <coefficients>0 2 5</coefficients>
+          <gridAxesSpanned>k</gridAxesSpanned>
+          <sequenceRule axisOrder="+1">Linear</sequenceRule>
+        </GeneralGridAxis>
+      </generalGridAxis>
+    </ReferenceableGridByVectors>
+  </domainSet>
+
+  <rangeSet>
+<DataBlock><rangeParameters/><tupleList>303,503,803,304,504,804,305,505,805,313,513,813,314,514,814,315,515,815,323,523,823,324,524,824,325,525,825</tupleList></DataBlock>
+  </rangeSet>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="value">
+      <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:unsigned short">
+        <swe:description></swe:description>
+        <swe:uom code="10⁰"/>
+        <swe:constraint>
+          <swe:AllowedValues>
+            <swe:interval>0 65535</swe:interval>
+          </swe:AllowedValues>
+        </swe:constraint>
+      </swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+  
+</gmlcov:ReferenceableGridCoverage>

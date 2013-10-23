@@ -21,13 +21,14 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.StringUtil;
+import petascope.util.WcpsConstants;
 
 
 /**
  * DimensionCrsElement
  *
- * @author <a href="mailto:cmppri@unife.it">Piero Campalani</a>
+ * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public class DimensionCrsElement implements IParseTreeNode {
 
@@ -46,10 +47,11 @@ public class DimensionCrsElement implements IParseTreeNode {
     public String toXML() {
         String result = "";
 
-        result += "<" + WCPSConstants.MSG_AXIS + ">" + axis + "</" + WCPSConstants.MSG_AXIS + ">";
+        result += "<" + WcpsConstants.MSG_AXIS + ">" + axis + "</" + WcpsConstants.MSG_AXIS + ">";
 
         if (crs != null) {
-            result += "<" + WCPSConstants.MSG_SRS_NAME + ">" + crs + "</" + WCPSConstants.MSG_SRS_NAME + ">";
+            result += "<"  + WcpsConstants.MSG_SRS_NAME + ">" + StringUtil.escapeXmlPredefinedEntities(crs)
+                    + "</" + WcpsConstants.MSG_SRS_NAME + ">";
         }
 
         return result;

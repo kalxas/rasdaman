@@ -25,7 +25,7 @@ import java.util.List;
 
 public interface IRasNode {
 
-    public String toRasQL();   
+    public String toRasQL();
     public List<IRasNode> getChildren();
     public boolean hasChildren();    
 }

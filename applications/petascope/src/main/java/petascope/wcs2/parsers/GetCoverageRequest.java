@@ -23,8 +23,10 @@ package petascope.wcs2.parsers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.wcs2.extensions.FormatExtension;
@@ -74,76 +76,72 @@ import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class GetCoverageRequest extends BaseRequest {
-    
-    public static final String GRID_COVERAGE = "GridCoverage";
-    public static final String RECTIFIED_GRID_COVERAGE = "RectifiedGridCoverage";
-    public static final String REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
-    public static final String MULTIPOINT_COVERAGE = "MultiPointCoverage";
+
     private final String coverageId;
     private final String format;
     private final boolean multipart;
     private final List<DimensionSubset> subsets;
-    private final List<CRS> crsExt;    // use List to allow lazy init of final CRS
-    private final RangeSubset rangeSubset;   
+    private final RangeSubset rangeSubset;
     private final Scaling scale;
+    private final CrsExt crsExt;
 
     public GetCoverageRequest(String coverageId) {
         this(coverageId, FormatExtension.MIME_GML, false);
     }
-    
+
     public GetCoverageRequest(String coverageId, String format, boolean multipart) {
         this.coverageId = coverageId;
         this.format = format;
         this.multipart = multipart;
         this.subsets = new ArrayList<DimensionSubset>();
-        this.crsExt = new ArrayList<CRS>();
         this.rangeSubset = new RangeSubset();
         this.scale = new Scaling();
+        crsExt = new CrsExt();
     }
-    
+
     public String getCoverageId() {
         return coverageId;
     }
-    
+
     public List<DimensionSubset> getSubsets() {
         return subsets;
     }
-    
+
     public DimensionSubset getSubset(String dim) {
         ListIterator<DimensionSubset> it = subsets.listIterator();
         while (it.hasNext()) {
             if (dim.equals(it.next().getDimension())) {
-                it.previous();                
+                it.previous();
                 return it.next();
             }
-        }        
+        }
         return null;
     }
-    
+
     public String getFormat() {
         return format;
     }
-    
+
     public boolean isMultipart() {
         return multipart;
     }
-    
-    public List<CRS> getCRS() {
+
+    public CrsExt getCrsExt() {
         return crsExt;
     }
-    
+
     public RangeSubset getRangeSubset() {
         return rangeSubset;
     }
-    
+
     public Scaling getScaling() {
         return scale;
     }
-    
+
     public boolean isScaled() {
         return scale.isSet();
     }
-    
+
     public boolean hasRangeSubsetting(){
         return !this.rangeSubset.isEmpty();
     }
@@ -157,83 +155,70 @@ public class GetCoverageRequest extends BaseRequest {
         }
         return ret.toString();
     }
-    
+
     public static class DimensionSubset {
-        
+
         protected final String dimension;
         //protected final String crs;
         protected String crs;
-        protected boolean transformed; // on subsettingCrs specification (campalani)
+        protected boolean transformed;
 
         public DimensionSubset(String dimension) {
             this(dimension, null);
         }
-        
+
         public DimensionSubset(String dimension, String crs) {
             this.dimension = dimension;
             this.crs = crs;
             this.transformed = false;
         }
-        
+
         public String getDimension() {
             return dimension;
         }
-        
+
         public String getCrs() {
             return crs;
         }
 
-        /**
-         * NOTE(campalani): to avoid second wrong CRS transformsetBounds (both
-         * setBounds and addCoverageData loop through AbstractFormatExtension) *
-         */
-        public boolean isCrsTransformed() {
-            return transformed;
-        }
-        
-        public void isCrsTransformed(boolean value) {
-            transformed = value;
-        }
         // When transforming a subset, change crs accordingly
-
         public void setCrs(String value) {
             crs = value;
         }
-        
+
         @Override
         public String toString() {
             return dimension + ((crs != null) ? "," + crs : "");
         }
     }
-    
+
     public static class DimensionTrim extends DimensionSubset {
 
         //private final String trimLow;
         //private final String trimHigh;
         private String trimLow;
         private String trimHigh;
-        
+
         public DimensionTrim(String dimension, String trimLow, String trimHigh) {
             this(dimension, null, trimLow, trimHigh);
         }
-        
+
         public DimensionTrim(String dimension, String crs, String trimLow, String trimHigh) {
             super(dimension, crs);
             this.trimLow = trimLow;
             this.trimHigh = trimHigh;
         }
-        
+
         public String getTrimHigh() {
             return trimHigh;
         }
-        
+
         public String getTrimLow() {
             return trimLow;
         }
 
         /**
-         * @param value Set new lower bound to 1D domain (due to a CRS
-         * transformation).
+         * @param value Set new lower bound to 1D domain (due to a CrsExt transformation).
          */
         public void setTrimLow(String value) {
             trimLow = value;
@@ -244,8 +229,7 @@ public class GetCoverageRequest extends BaseRequest {
         }
 
         /**
-         * @param value Set new upper bound to 1D domain (due to a CRS
-         * transformation).
+         * @param value Set new upper bound to 1D domain (due to a CrsExt transformation).
          */
         public void setTrimHigh(String value) {
             trimHigh = value;
@@ -254,31 +238,31 @@ public class GetCoverageRequest extends BaseRequest {
         public void setTrimHigh(Double value) {
             setTrimHigh(value.toString());
         }
-        
+
         @Override
         public String toString() {
             return super.toString() + "(" + trimLow + "," + trimHigh + ")";
         }
     }
-    
+
     public static class DimensionSlice extends DimensionSubset {
 
         //private final String slicePoint;
         private String slicePoint;
-        
+
         public DimensionSlice(String dimension, String slicePoint) {
             this(dimension, null, slicePoint);
         }
-        
+
         public DimensionSlice(String dimension, String crs, String slicePoint) {
             super(dimension, crs);
             this.slicePoint = slicePoint;
         }
-        
+
         public String getSlicePoint() {
             return slicePoint;
         }
-        
+
         public void setSlicePoint(String value) {
             slicePoint = value;
         }
@@ -286,54 +270,79 @@ public class GetCoverageRequest extends BaseRequest {
         public void setSlicePoint(Double value) {
             setSlicePoint(value.toString());
         }
-        
+
         @Override
         public String toString() {
             return super.toString() + "(" + slicePoint + ")";
         }
     }
 
-    // CRS-extension additional (optional) parameters
-    public static class CRS {
-
+    // CrsExt-extension additional (optional) parameters
+    public class CrsExt {
         private String subsettingCrs;
         private String outputCrs;
+        // Dictionary <axis;outpurCrs> to build up the WCPS query
+        // only containing the *reprojection* needed (see CRSExtension.java)
+        private HashMap<String, String> outputAxisCrsMap;
 
-        // Constructor
-        public CRS(String subset, String out) {
-            subsettingCrs = subset;
-            outputCrs = out;
+        {
+            outputAxisCrsMap = new HashMap<String, String>();
         }
 
         // Interface
         public String getSubsettingCrs() {
             return subsettingCrs;
-        }        
-        
-        public String getOutputCrs() {            
+        }
+
+        public String getOutputCrs() {
             return outputCrs;
         }
 
-        // NOTE(campalani): initial null values (when no CRS values as specified
+        // Returns axis name(s) associated to a certain CrsExt among the subsets
+        // 1+ axes can be associated to the same CrsExt for output reprojection (e.g. xy!)
+        public List<String> getAxisNames(String crsUri) {
+            List<String> names = new ArrayList<String>();
+            Iterator it = outputAxisCrsMap.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, String> entry = (Map.Entry<String, String>)it.next();
+                if (entry.getValue().equals(crsUri)) {
+                    names.add(entry.getKey());
+                }
+            }
+            return names;
+        }
+
+        // Returns the subsettingCrs URI associated to a certain axis
+        public String getCrsUriReprojection(String axisName) {
+            return outputAxisCrsMap.get(axisName);
+        }
+
+        // NOTE(campalani): initial null values (when no CrsExt values as specified
         //  need to be replaced with default values, relative to requested coverage.
         public void setSubsettingCrs(String value) {
             subsettingCrs = value;
         }
-        
+
         public void setOutputCrs(String value) {
             outputCrs = value;
         }
+
+        // Methods
+        // Add en entry in the output reprojection dictionary
+        public void addAxisOutputReprojection(String axisName, String crsUri) {
+            outputAxisCrsMap.put(axisName, crsUri);
+        }
     }
-    
+
     public static class Scaling {
-    
+
         private boolean set;
         private int type;
         private float factor;
         private HashMap<String, Float> fact;
         private HashMap<String, Long> sz;
         private HashMap<String, Pair<Long, Long>> extent;
-        
+
         public Scaling() {
             set = false;
             type = 0;
@@ -342,67 +351,67 @@ public class GetCoverageRequest extends BaseRequest {
             sz = new HashMap<String, Long>();
             extent = new HashMap<String, Pair<Long, Long>>();
         }
-        
+
         public boolean isSet() {
             return set;
         }
-        
+
         public int getType() {
             return type;
         }
-        
+
         public float getFactor() {
             return factor;
         }
-        
+
         public boolean isPresentFactor(String axis) {
             return fact.containsKey(axis);
         }
-        
+
         public float getFactor(String axis) {
             return fact.get(axis);
         }
-        
+
         public boolean isPresentSize(String axis) {
             return sz.containsKey(axis);
         }
-        
+
         public boolean isPresentExtent(String axis) {
             return extent.containsKey(axis);
         }
-        
+
         public long getSize(String axis) {
             return sz.get(axis);
         }
-        
+
         public Pair<Long, Long> getExtent(String axis) {
             return extent.get(axis);
         }
-        
+
         public void setFactor(float f) {
             this.factor = f;
             this.set = true;
         }
-        
+
         public void addFactor(String axis, float f) {
             this.fact.put(axis, f);
-            this.set = true;            
+            this.set = true;
         }
-        
+
         public void addSize(String axis, long sz) {
             this.sz.put(axis, sz);
             this.set = true;
         }
-        
+
         public void addExtent(String axis, Pair<Long, Long> ex) {
             this.extent.put(axis, ex);
             this.set = true;
         }
-        
+
         public void setType(int t) {
             this.type = t;
         }
-        
+
         public int getAxesNumber() {
             switch (this.type) {
                 case 1: return 0;

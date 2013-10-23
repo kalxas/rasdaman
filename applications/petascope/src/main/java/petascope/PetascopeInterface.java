@@ -30,6 +30,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -54,13 +55,15 @@ import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.WCSTException;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
+import petascope.util.PostgisQueryResult;
 import petascope.util.StringUtil;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 import petascope.util.XMLUtil;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
@@ -514,8 +517,10 @@ public class PetascopeInterface extends HttpServlet {
      * @throws WCSException
      * @throws PetascopeException
      */
-    private void handleWcsRequest(String version, String operation,
-            String request, boolean soap, HttpServletResponse response, HttpServletRequest srvRequest) throws WCSException, PetascopeException {
+    private void handleWcsRequest(String version, String operation, String request, boolean soap,
+            HttpServletResponse response, HttpServletRequest srvRequest)
+            throws WCSException, PetascopeException, SecoreException, SQLException {
+
         if (version == null) {
             throw new WCSException(ExceptionCode.InvalidRequest, "No WCS version specified.");
         }
@@ -537,8 +542,9 @@ public class PetascopeInterface extends HttpServlet {
      * @throws WCSException in case of I/O error, or if the server is unable to
      * handle the request
      */
-    private void handleWcs1Request(String operation, String request,
-            HttpServletResponse response) throws WCSException, PetascopeException {
+    private void handleWcs1Request(String operation, String request, HttpServletResponse response)
+            throws WCSException, PetascopeException, SecoreException, SQLException {
+
         log.info("Handling WCS 1.1 request");
 
         // compute result
@@ -630,7 +636,8 @@ public class PetascopeInterface extends HttpServlet {
     }
 
     private void handleProcessCoverages(String xmlRequest, HttpServletResponse response)
-            throws WCSException, PetascopeException {
+            throws WCSException, PetascopeException, SecoreException, SQLException {
+
         OutputStream webOut = null;
         try {
             log.debug("Received a ProcessCoverages request: \n{}", xmlRequest);
@@ -638,7 +645,7 @@ public class PetascopeInterface extends HttpServlet {
             log.debug("-------------------------------------------------------");
             log.debug("Converting to rasql");
             wcps = new Wcps(new File(getServletContext().getRealPath(
-                    WCPSConstants.MSG_WCPS_PROCESS_COVERAGE_XSD)), meta);
+                    WcpsConstants.MSG_WCPS_PROCESS_COVERAGE_XSD)), meta);
             ProcessCoveragesRequest processCoverageRequest =
                     wcps.pcPrepare(ConfigManager.RASDAMAN_URL, ConfigManager.RASDAMAN_DATABASE,
                     IOUtils.toInputStream(xmlRequest));
@@ -681,6 +688,11 @@ public class PetascopeInterface extends HttpServlet {
                 } else {
                     log.warn("WCPS: Warning! No result returned from rasql query.");
                 }
+            // Execute the query ... (?)
+            } else if(processCoverageRequest.isPostGISQuery()){
+                PostgisQueryResult res = new PostgisQueryResult(processCoverageRequest.execute());
+                webOut.write(res.toCSV(res.getValues()).getBytes());
+
             } else {
                 log.debug("metadata result, no rasql to execute");
                 webOut.write(query.getBytes());
@@ -704,8 +716,7 @@ public class PetascopeInterface extends HttpServlet {
     }
 
     private void handleTransaction(String request, HttpServletResponse httpResponse)
-            throws WCSTException, RasdamanException, WCPSException,
-            PetascopeException {
+            throws WCSTException, RasdamanException, WCPSException, PetascopeException, SecoreException {
         try {
             String outputXml = wcst.Transaction(request);
             PrintWriter out = new PrintWriter(httpResponse.getOutputStream());

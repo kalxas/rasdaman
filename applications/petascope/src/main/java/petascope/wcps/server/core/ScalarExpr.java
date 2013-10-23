@@ -21,8 +21,9 @@
  */
 package petascope.wcps.server.core;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,32 +31,35 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
-import petascope.core.Metadata;
 import petascope.exceptions.ExceptionCode;
+import petascope.core.CoverageMetadata;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
-import petascope.util.WCPSConstants;
+import petascope.util.Pair;
+import petascope.util.WcpsConstants;
+import petascope.wcs2.templates.Templates;
 
 public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
-    
+
     private static Logger log = LoggerFactory.getLogger(ScalarExpr.class);
 
     private IRasNode child;
     private CoverageInfo info;
-    private boolean singleNumericValue = false;
-    private double dvalue;
+    private boolean singleValue = false;
+    private String value; // It can be NumericScalar or StringScalar
 
-    public ScalarExpr(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+    public ScalarExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
-        
+
         String nodeName = node.getNodeName();
-        
+
         Node childNode = node;
-        while ((childNode != null) && childNode.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((childNode != null) && childNode.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             childNode = childNode.getNextSibling();
         }
         String n = childNode.getNodeName();
@@ -68,7 +72,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
             if (MetadataScalarExpr.NODE_NAMES.contains(nodeName)) {
                 try {
                     child = new MetadataScalarExpr(node, xq);
-                    log.trace(WCPSConstants.MSG_MATCHED_METADATA_SCALAR_EXPR);
+                    log.trace("Matched metadata scalar expression.");
                 } catch (WCPSException e) {
                     child = null;
                 }
@@ -80,7 +84,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
             if (BooleanScalarExpr.NODE_NAMES.contains(nodeName)) {
                 try {
                     child = new BooleanScalarExpr(node, xq);
-                    log.trace(WCPSConstants.MSG_MATCHED_BOOLEAN_SCALAR_EXPR);
+                    log.trace("Matched boolean scalar expression.");
                 } catch (WCPSException e) {
                     child = null;
                 }
@@ -92,9 +96,9 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
             if (NumericScalarExpr.NODE_NAMES.contains(n)) {
                 try {
                     child = new NumericScalarExpr(node, xq);
-                    singleNumericValue = ((NumericScalarExpr) child).isSingleValue();
-                    dvalue = ((NumericScalarExpr) child).getSingleValue();
-                    log.trace(WCPSConstants.MSG_MATCHED_NUMERIC_SCALAR_EXPR);
+                    singleValue = ((NumericScalarExpr) child).isSingleValue();
+                    value = "" + ((NumericScalarExpr) child).getSingleValue();
+                    log.trace("Matched numeric scalar expression.");
                 } catch (WCPSException e) {
                     if (e.getExceptionCode() == ExceptionCode.MissingCRS) throw(e);
                     child = null;
@@ -104,17 +108,17 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
 
 //            ReduceScalarExprType
         if (child == null) {
-            if (node.getNodeName().equals(WCPSConstants.MSG_REDUCE)) {
+            if (node.getNodeName().equals(WcpsConstants.MSG_REDUCE)) {
                 childNode = node.getFirstChild();
             }
-            while ((childNode != null) && childNode.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+            while ((childNode != null) && childNode.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
                 childNode = childNode.getNextSibling();
             }
             n = childNode.getNodeName().toLowerCase();
             if (ReduceScalarExpr.NODE_NAMES.contains(n)) {
                 try {
                     child = new ReduceScalarExpr(node, xq);
-                    log.trace(WCPSConstants.MSG_MATCHED_REDUCE_SCALAR_EXPR);
+                    log.trace("Matched reduce scalar expression.");
                 } catch (WCPSException e) {
                     child = null;
                 }
@@ -126,7 +130,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
             if (StringScalarExpr.NODE_NAMES.contains(n)) {
                 try {
                     child = new StringScalarExpr(node, xq);
-                    log.trace(WCPSConstants.MSG_MATCHED_STRING_SCALAR_EXPR);
+                    log.trace("Matched string scalar expression.");
                 } catch (WCPSException e) {
                     child = null;
                 }
@@ -135,13 +139,14 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
 
         // Error check
         if (child == null) {
-            throw new WCPSException(WCPSConstants.ERRTXT_INVALID_COVERAGE_EXPR + ": " + node.getNodeName());
+            log.error("Invalid coverage Expression, next node: " + node.getNodeName());
+            throw new WCPSException("Invalid coverage Expression, next node: " + node.getNodeName());
         } else {
             // Add it to the children for XML tree re-traversing
             super.children.add(child);
         }
 
-        Metadata meta = createScalarExprMetadata(xq);
+        CoverageMetadata meta = createScalarExprMetadata(xq);
         info = new CoverageInfo(meta);
     }
 
@@ -156,39 +161,43 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
     }
 
     /** Builds full metadata for the newly constructed coverage **/
-    private Metadata createScalarExprMetadata(XmlQuery xq) throws WCPSException {
+    private CoverageMetadata createScalarExprMetadata(XmlQuery xq) throws WCPSException {
         List<CellDomainElement> cellDomainList = new LinkedList<CellDomainElement>();
         List<RangeElement> rangeList = new LinkedList<RangeElement>();
-        //HashSet<String> nullSet = new HashSet<String>();
-        Set<String> nullSet = new HashSet<String>();
-        String nullDefault = "0";
-        nullSet.add(nullDefault);
-        //HashSet<InterpolationMethod> interpolationSet = new HashSet<InterpolationMethod>();
-        Set<InterpolationMethod> interpolationSet = new HashSet<InterpolationMethod>();
-        InterpolationMethod interpolationDefault = new InterpolationMethod(WCPSConstants.MSG_NONE, WCPSConstants.MSG_NONE);
-        interpolationSet.add(interpolationDefault);
-        String coverageName = WCPSConstants.MSG_SCALAR_EXPR;
+        String coverageName = WcpsConstants.MSG_SCALAR_EXPR;
         List<DomainElement> domainList = new LinkedList<DomainElement>();
+        List<String> crs = new ArrayList<String>(1);
+        crs.add(CrsUtil.GRID_CRS);
 
         // Build domain metadata
-        cellDomainList.add(new CellDomainElement("1", "1", AxisTypes.X_AXIS));
-        String crs = CrsUtil.GRID_CRS;
-        HashSet<String> crsset = new HashSet<String>();
-        crsset.add(crs);
-        Collection<String> allowedAxes = xq.getMetadataSource().getAxisNames();
-        DomainElement domain = new DomainElement(AxisTypes.X_AXIS, AxisTypes.X_AXIS, 1.0, 1.0, null, null, crsset, allowedAxes, null);
-        domainList.add(domain);
+        cellDomainList.add(new CellDomainElement("1", "1", 0));
+        domainList.add( new DomainElement(
+                BigDecimal.ONE,
+                BigDecimal.ONE,
+                AxisTypes.X_AXIS,
+                AxisTypes.X_AXIS,
+                CrsUtil.PURE_UOM,
+                crs.get(0),
+                0,
+                BigInteger.ONE,
+                false)
+                );
         // "unsigned int" is default datatype
-        rangeList.add(new RangeElement(WCPSConstants.MSG_DYNAMIC_TYPE, WCPSConstants.MSG_UNSIGNED_INT, null));
+        rangeList.add(new RangeElement(WcpsConstants.MSG_DYNAMIC_TYPE, WcpsConstants.MSG_UNSIGNED_INT, null));
 
         try {
-            /** NOTE(campalani): nullSet and interpolationSet need to be declared
-             * as "Set" to be accepted by Metadata constructor (see above). 
-             * Then, Java polymorphism will understand the subtype (e.g. HashSet) on its own.
-             */            
-            Metadata metadata = new Metadata(cellDomainList, rangeList, nullSet,
-                    nullDefault, interpolationSet, interpolationDefault,
-                        coverageName, WCPSConstants.MSG_GRID_COVERAGE, domainList, null);
+            Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
+            CoverageMetadata metadata = new CoverageMetadata(
+                    coverageName,
+                    Templates.GRID_ORIGIN,
+                    "", // native format
+                    emptyMetadata,
+                    crs,
+                    cellDomainList,
+                    domainList,
+                    Pair.of(BigInteger.ZERO, ""),
+                    rangeList
+                    );
             return metadata;
         } catch (PetascopeException ex) {
             throw (WCPSException) ex;
@@ -198,21 +207,26 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
     }
 
     public boolean isSingleValue() {
-        return singleNumericValue;
+        return singleValue;
     }
 
-    public double getSingleValue() {
-        return dvalue;
+    public String getSingleValue() {
+        return value;
     }
-    
+
     /** (campalani)
-     * @param newD Replace numeric single value (e.g. when a coordinate transform is operated on this element).
+     * @param newValue Replace single value (e.g. when a coordinate transform is operated on this element).
      */
-    public void setSingleValue(double newD) {
-        dvalue = newD;
+    public void setSingleValue(String newValue) {
+        value = newValue;
     }
-    
+
     public boolean isMetadataExpr() {
         return child instanceof MetadataScalarExpr;
+    }
+
+    // Purpose: differentiate between a numeric- and a timestamp-based temporal subset
+    public boolean isStringScalarExpr() {
+        return child instanceof StringScalarExpr;
     }
 }

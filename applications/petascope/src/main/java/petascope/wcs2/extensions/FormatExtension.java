@@ -24,17 +24,18 @@ package petascope.wcs2.extensions;
 
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.handlers.Response;
 
 /**
  * Applies specific formatting to the result.
- * 
+ *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public interface FormatExtension extends  Extension {
-    
+
     String MIME_TEXT = "text/plain";
     String MIME_MULTIPART = "multipart/mixed";
     String MIME_GML = "application/gml+xml";
@@ -42,30 +43,31 @@ public interface FormatExtension extends  Extension {
     String MIME_TIFF = "image/tiff";
     String MIME_JP2 = "image/jp2";
     String MIME_NETCDF = "application/netcdf";
-    
+
     String CSV_ENCODING = "csv";
     String TIFF_ENCODING = "tiff";
     String JP2_ENCODING = "jpeg2000";
     String PNG_ENCODING = "png";
     String NETCDF_ENCODING = "netcdf";
-    
+
     /**
      * Check if this format extension is the right one for req
-     * 
+     *
      * @param req GetCoverage request
      * @return true if this extension can encode the response for req according to the format, or false otherwise
      */
     boolean canHandle(GetCoverageRequest req);
-    
+
     /**
      * Return a properly encoded response, given the request req.
-     * 
+     *
      * @param req GetCoverage request
      * @param meta database metadata
      * @return response encoded in the respective format
      */
-    Response handle(GetCoverageRequest req, DbMetadataSource meta) throws PetascopeException, WCSException;
-    
+    Response handle(GetCoverageRequest req, DbMetadataSource meta)
+            throws PetascopeException, WCSException, SecoreException;
+
     /**
      * @return the mime-type of the particular format handled by this extension
      */

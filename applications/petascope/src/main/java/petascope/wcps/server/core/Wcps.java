@@ -23,6 +23,7 @@ package petascope.wcps.server.core;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -32,13 +33,14 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import petascope.core.IMetadataSource;
 import petascope.core.DynamicMetadataSource;
 import petascope.core.IDynamicMetadataSource;
+import petascope.core.IMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * This is the WCPS entry point. Processing a ProcessCoverage request happens in two stages.
@@ -48,7 +50,7 @@ for the time being, is just a list of rasdaman queries (RasQuery). The second st
 which executes a ProcessCoverageRequests and returns data.
  */
 public class Wcps {
-    
+
     private static Logger log = LoggerFactory.getLogger(Wcps.class);
 
     private DocumentBuilder wcpsDocumentBuilder;
@@ -56,7 +58,7 @@ public class Wcps {
 
     public Wcps(File pcSchema, IMetadataSource metadataSource) throws WCPSException, PetascopeException {
         try {
-            log.info(WCPSConstants.MSG_WCPS_LOADING_PARSING_XML);
+            log.info("WCPS: Loading and parsing XML Schema ...");
             DocumentBuilderFactory dbconfig = DocumentBuilderFactory.newInstance();
 
             dbconfig.setValidating(false);    // use XML schema not DTD
@@ -64,58 +66,54 @@ public class Wcps {
             dbconfig.setIgnoringElementContentWhitespace(true);    // remve the ignorable whitespace
 
             wcpsDocumentBuilder = dbconfig.newDocumentBuilder();
-            log.info(WCPSConstants.MSG_WCPS_FINISHED_LOADING_SCHEMA);
-            
+            log.info("WCPS: Finished loading the schema.");
+
             dynamicMetadataSource.set(new DynamicMetadataSource(metadataSource));
-            
+
         } catch (Exception e) {
-            throw new WCPSException(
-                    WCPSConstants.ERRTXT_ERROR_WHILE_LOADING_DOC, e);
+            throw new WCPSException("Error while loading the document builder interface.", e);
         }
     }
 
-    public Wcps(IMetadataSource metadataSource) throws ParserConfigurationException, PetascopeException {
+    public Wcps(IMetadataSource metadataSource)
+            throws ParserConfigurationException, PetascopeException, SecoreException {
         dynamicMetadataSource.set(new DynamicMetadataSource(metadataSource));
         wcpsDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
     }
 
-    public List<byte[]> pcExecute(String url, String database, ProcessCoveragesRequest pcRequest) throws WCPSException {
-        throw new WCPSException(ExceptionCode.ResourceError, WCPSConstants.ERRTXT_METHOD_NOT_IMPL);
+    public List<byte[]> pcExecute(String url, String database, ProcessCoveragesRequest pcRequest)
+            throws WCPSException {
+        throw new WCPSException(ExceptionCode.ResourceError, "Method not implemented. pcExecute");
     }
 
     public ProcessCoveragesRequest pcPrepare(String url, String database, File f)
-            throws WCPSException, SAXException,
-            IOException {
+            throws WCPSException, SAXException, IOException, SecoreException, SQLException {
         return pcPrepare(url, database, wcpsDocumentBuilder.parse(f));
     }
 
     public ProcessCoveragesRequest pcPrepare(String url, String database, InputStream is,
             String systemId)
-            throws WCPSException, SAXException,
-            IOException {
+            throws WCPSException, SAXException, IOException, SecoreException, SQLException {
         return pcPrepare(url, database, wcpsDocumentBuilder.parse(is, systemId));
     }
 
     public ProcessCoveragesRequest pcPrepare(String url, String database, String uri)
-            throws WCPSException, SAXException,
-            IOException {
+            throws WCPSException, SAXException, IOException, SecoreException, SQLException {
         return pcPrepare(url, database, wcpsDocumentBuilder.parse(uri));
     }
 
     public ProcessCoveragesRequest pcPrepare(String url, String database, InputSource is)
-            throws WCPSException, SAXException,
-            IOException {
+            throws WCPSException, SAXException, IOException, SecoreException, SQLException {
         return pcPrepare(url, database, wcpsDocumentBuilder.parse(is));
     }
 
     public ProcessCoveragesRequest pcPrepare(String url, String database, InputStream is)
-            throws WCPSException, SAXException,
-            IOException {
+            throws WCPSException, SAXException, IOException, SecoreException, SQLException {
         return pcPrepare(url, database, wcpsDocumentBuilder.parse(is));
     }
 
     private ProcessCoveragesRequest pcPrepare(String url, String database, Document doc)
-            throws WCPSException, SAXException, IOException {
+            throws WCPSException, SAXException, IOException, SecoreException, SQLException {
         try {
             return new ProcessCoveragesRequest(url, database, doc, getDynamicMetadataSource(), this);
         } catch (PetascopeException ex) {

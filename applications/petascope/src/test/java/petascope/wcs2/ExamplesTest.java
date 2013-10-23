@@ -36,9 +36,8 @@ import petascope.ConfigManager;
 import petascope.HTTPRequest;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.WCPSException;
+import petascope.exceptions.SecoreException;
 import petascope.util.IOUtil;
-import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.Wcps;
 import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcs2.extensions.ProtocolExtension;
@@ -59,7 +58,7 @@ public class ExamplesTest extends BaseTestCase {
     private final Wcps wcps;
     private PrintStream l;
 
-    public ExamplesTest() throws PetascopeException, ServletException, ParserConfigurationException {
+    public ExamplesTest() throws PetascopeException, ServletException, ParserConfigurationException, SecoreException {
         files = new ArrayList<File>(FileUtils.listFiles(new File(TESTDATA_PATH), new String[]{"in"}, false));
         Collections.sort(files, new Comparator<File>() {
 

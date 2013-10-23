@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * DimensionIntervalExpr
@@ -35,27 +35,27 @@ public class DimensionIntervalExpr implements IParseTreeNode {
     String str;
 
     public DimensionIntervalExpr(ScalarExpr exp1, ScalarExpr exp2) {
-        fun = WCPSConstants.MSG_SCALARS;
+        fun = WcpsConstants.MSG_SCALARS;
         e1 = exp1;
         e2 = exp2;
     }
 
     public DimensionIntervalExpr(String cov, String axis, String crs) {
-        fun = WCPSConstants.MSG_DOMAIN_METADATA;
-        str = "<" + WCPSConstants.MSG_COVERAGE + ">" + cov + "</" + WCPSConstants.MSG_COVERAGE + ">";
-        str += "<" + WCPSConstants.MSG_AXIS + ">" + axis + "</" + WCPSConstants.MSG_AXIS + ">";
-        str += "<" + WCPSConstants.MSG_CRS + ">" + crs + "</" + WCPSConstants.MSG_CRS + ">";
+        fun = WcpsConstants.MSG_DOMAIN_METADATA;
+        str = "<" + WcpsConstants.MSG_COVERAGE + ">" + cov + "</" + WcpsConstants.MSG_COVERAGE + ">";
+        str += "<" + WcpsConstants.MSG_AXIS + ">" + axis + "</" + WcpsConstants.MSG_AXIS + ">";
+        str += "<" + WcpsConstants.MSG_CRS + ">" + crs + "</" + WcpsConstants.MSG_CRS + ">";
     }
 
     public String toXML() {
         String result = "";
 
-        if (fun.equals(WCPSConstants.MSG_SCALARS)) {
-            result += "<" + WCPSConstants.MSG_LOWER_BOUND + ">" + e1.toXML() + "</" + 
-                    WCPSConstants.MSG_LOWER_BOUND + ">";
-            result += "<" + WCPSConstants.MSG_UPPER_BOUND + ">" + e2.toXML() + "</" + 
-                    WCPSConstants.MSG_UPPER_BOUND + ">";
-        } else if (fun.equals(WCPSConstants.MSG_DOMAIN_METADATA)) {
+        if (fun.equals(WcpsConstants.MSG_SCALARS)) {
+            result += "<" + WcpsConstants.MSG_LOWER_BOUND + ">" + e1.toXML() + "</" +
+                    WcpsConstants.MSG_LOWER_BOUND + ">";
+            result += "<" + WcpsConstants.MSG_UPPER_BOUND + ">" + e2.toXML() + "</" +
+                    WcpsConstants.MSG_UPPER_BOUND + ">";
+        } else if (fun.equals(WcpsConstants.MSG_DOMAIN_METADATA)) {
             result = str;
         }
 

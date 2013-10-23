@@ -41,12 +41,12 @@ import petascope.wcs2.handlers.RequestHandler;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public abstract class KVPParser<T extends Request> extends AbstractRequestParser<T> {
-    
+
     private static Logger log = LoggerFactory.getLogger(KVPParser.class);
 
     @Override
     public boolean canParse(HTTPRequest request) {
-        return request.getRequestString() != null && !request.getRequestString().startsWith("<") 
+        return request.getRequestString() != null && !request.getRequestString().startsWith("<")
                 && request.getRequestString().contains(getOperationName());
     }
 
@@ -69,7 +69,7 @@ public abstract class KVPParser<T extends Request> extends AbstractRequestParser
     protected void checkEncodingSyntax(Map<String, List<String>> m, String... keys) throws WCSException {
         List<String> possibleKeys = ListUtil.toList(keys);
         Set<String> requestKeys = m.keySet();
-        
+
         String request = get(KEY_REQUEST, m);
         if (!RequestHandler.GET_CAPABILITIES.equals(request)) {
             String version = get(KEY_VERSION, m);

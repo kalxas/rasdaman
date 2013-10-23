@@ -27,14 +27,15 @@
     xmlns='http://www.opengis.net/gml/3.2'
     xmlns:gml='http://www.opengis.net/gml/3.2'
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:gmlrgrid='http://www.opengis.net/gml/3.3/rgrid'
     xmlns:swe='http://www.opengis.net/swe/2.0'
     xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="mr"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="CRS:1" axisLabels="x y" uomLabels="" srsDimension="2">
-      <lowerCorner>10.0 10.0</lowerCorner>
-      <upperCorner>20.0 20.0</upperCorner>
+    <Envelope srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index2D" axisLabels="i j" uomLabels="pixels pixels" srsDimension="2">
+      <lowerCorner>10 10</lowerCorner>
+      <upperCorner>20 20</upperCorner>
     </Envelope>
   </boundedBy>
 
@@ -42,18 +43,18 @@
     <RectifiedGrid dimension="2" gml:id="mr-grid">
       <limits>
         <GridEnvelope>
-          <low>10 191</low>
-          <high>20 201</high>
+          <low>10 10</low>
+          <high>20 20</high>
         </GridEnvelope>
       </limits>
-      <axisLabels>x y</axisLabels>
-    <gml:origin>
-        <gml:Point gml:id="mr-origin" srsName="CRS:1">
-            <gml:pos>10.0 10.0</gml:pos>
-        </gml:Point>
-    </gml:origin>
-    <gml:offsetVector srsName="CRS:1">1.0 0</gml:offsetVector>
-    <gml:offsetVector srsName="CRS:1">0 1.0</gml:offsetVector>
+      <axisLabels>i j</axisLabels>
+      <origin>
+          <Point gml:id="mr-origin" srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index2D" axisLabels="i j" uomLabels="pixels pixels" srsDimension="2">
+              <pos>10 10</pos>
+          </Point>
+      </origin>
+    <offsetVector srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index2D" axisLabels="i j" uomLabels="pixels pixels" srsDimension="2">1 0</offsetVector>
+    <offsetVector srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index2D" axisLabels="i j" uomLabels="pixels pixels" srsDimension="2">0 1</offsetVector>
     </RectifiedGrid>
   </domainSet>
 
@@ -66,15 +67,15 @@
     <swe:field name="value">
       <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:char">
         <swe:description></swe:description>
-        <swe:uom code="unknown"/>
+        <swe:uom code="10⁰"/>
         <swe:constraint>
           <swe:AllowedValues>
-            <swe:interval>-128 128</swe:interval>
+            <swe:interval>-128 127</swe:interval>
           </swe:AllowedValues>
         </swe:constraint>
       </swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-  <gmlcov:metadata></gmlcov:metadata>
+  
 </gmlcov:RectifiedGridCoverage>

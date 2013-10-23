@@ -2,5 +2,5 @@ service=WCS&
 version=2.0.1&
 request=GetCoverage&
 coverageId=eobstest&
-subset=x(30)&
-subset=y(30)
+subset=Long(30)&
+subset=Lat(30)

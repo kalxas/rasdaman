@@ -21,40 +21,40 @@
  */
 package petascope.wcps.server.core;
 
-import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
-import petascope.core.Metadata;
-import petascope.exceptions.ExceptionCode;
+import petascope.core.CoverageMetadata;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
+
 
 public class DimensionPointElement extends AbstractRasNode {
 
     Logger log = LoggerFactory.getLogger(DimensionPointElement.class);
-    
+
     private IRasNode child;
     private ScalarExpr domain;
     private AxisName axis;
     private Crs crs;
     private boolean finished = false;
     private Node nextNode;
-    private Metadata meta = null;       // metadata about the current coverage
+    private CoverageMetadata meta = null;       // metadata about the current coverage
     private boolean transformedCoordinates = false;
     private long coord;
-    
-    public DimensionPointElement(Node node, XmlQuery xq, CoverageInfo covInfo)
-            throws WCPSException {
 
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+    public DimensionPointElement(Node node, XmlQuery xq, CoverageInfo covInfo)
+            throws WCPSException, SecoreException {
+
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
-        
+
         log.trace(node.getNodeName());
-        
+
         if (covInfo.getCoverageName() != null) {
             // Add Bbox information from coverage metadata, may be useful
             // for converting geo-coordinates to pixel-coordinates
@@ -66,18 +66,18 @@ public class DimensionPointElement extends AbstractRasNode {
                 throw new WCPSException(ex.getMessage(), ex);
             }
         }
-        
+
         String name;
 
         while (node != null && finished == false) {
-            if (node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+            if (node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
                 node = node.getNextSibling();
                 continue;
             }
 
             // Try Axis
             try {
-                log.trace("  " + WCPSConstants.MSG_MATCHING_AXIS_NAME);
+                log.trace("Matching axis name.");
                 axis = new AxisName(node, xq);
                 node = node.getNextSibling();
                 continue;
@@ -86,11 +86,11 @@ public class DimensionPointElement extends AbstractRasNode {
 
             // Try CRS name
             try {
-                log.trace("  " + WCPSConstants.MSG_MATCHING_CRS);
+                log.trace("Matching crs.");
                 crs = new Crs(node, xq);
                 node = node.getNextSibling();
                 if (axis == null) {
-                    throw new WCPSException(WCPSConstants.ERRTXT_EXPECTED_AXIS_NODE);
+                    throw new WCPSException("Expected Axis node before CRS.");
                 }
                 continue;
             } catch (WCPSException e) {
@@ -111,14 +111,14 @@ public class DimensionPointElement extends AbstractRasNode {
 //            }
 
             // Then it must be a "slicingPosition"
-            if (node.getNodeName().equals(WCPSConstants.MSG_SLICING_POSITION)) {
-                log.trace("  " + WCPSConstants.MSG_SLICE_POSITION);
+            if (node.getNodeName().equals(WcpsConstants.MSG_SLICING_POSITION)) {
+                log.trace("Slice position");
                 domain = new ScalarExpr(node.getFirstChild(), xq);
                 if (axis == null) {
-                    throw new WCPSException(WCPSConstants.ERRTXT_EXPECTED_AXIS_NODE_SLICINGP);
+                    throw new WCPSException("Expected <axis> node before <slicingPosition>.");
                 }
             } else {
-                throw new WCPSException(WCPSConstants.ERRTXT_UNEXPETCTED_NODE + ": " + node.getFirstChild().getNodeName());
+                throw new WCPSException("Unexpected node: " + node.getFirstChild().getNodeName());
             }
 
             if (axis != null && domain != null) {
@@ -131,68 +131,48 @@ public class DimensionPointElement extends AbstractRasNode {
 
             node = node.getNextSibling();
         }
-        
+
         if (crs == null) {
             // if no CRS is specified assume native CRS -- DM 2012-mar-05
             String axisName = axis.toRasQL();
 
             DomainElement axisDomain = meta.getDomainByName(axisName);
             if (axisDomain != null) {
-              Iterator<String> crsIt = axisDomain.getCrsSet().iterator();
-              if (crsIt.hasNext()) {
-                String crsname = crsIt.next();
-                log.info(WCPSConstants.MSG_USING_NATIVE_CRS + ": " + crsname);
-                crs = new Crs(crsname);
-              } else {
-                log.warn(WCPSConstants.WARNTXT_NO_NATIVE_CRS_P1 + " " + axisName + ", " + WCPSConstants.WARNTXT_NO_NATIVE_CRS_P2);
-                crs = new Crs(CrsUtil.GRID_CRS);
-              }
+                String crsName = axisDomain.getCrs();
+                log.info("Using native CRS: " + crsName);
+                crs = new Crs(crsName, xq);
+            } else {
+                log.warn("No native CRS specified for axis " + axisName + ": assuming pixel coordinates.");
+                crs = new Crs(CrsUtil.GRID_CRS, xq);
+                this.transformedCoordinates = true;
             }
         }
-        
-        // Pixel indices are retrieved from bbox, which is stored for XY plane only.
-        if (finished == true) {
-            if (!crs.getName().equals(CrsUtil.GRID_CRS)) {
-                convertToPixelCoordinate();
-            } else {
-                // Set grid values which were directly set in the requests
-                try {
-                    coord = (long)(domain.getSingleValue());
-                    this.transformedCoordinates = false;
-                } catch (ClassCastException ex) {
-                    String message = ex.getMessage();
-                    log.error(message);
-                    throw new WCPSException(ExceptionCode.InternalComponentError, message);
-                }
-            }
+
+        if (finished == true && crs != null && !crs.getName().equals(CrsUtil.GRID_CRS)) {
+            convertToPixelCoordinate();
         }
     }
 
     /* If input coordinates are geo-, convert them to pixel coordinates. */
     private void convertToPixelCoordinate() throws WCPSException {
-        //if (meta.getCrs() == null && crs != null && crs.getName().equals(DomainElement.WGS84_CRS)) {
         if (meta.getBbox() == null && crs != null) {
-            throw new RuntimeException(WCPSConstants.MSG_COVERAGE + " '" + meta.getCoverageName()
-                    //+ "' is not georeferenced with 'EPSG:4326' coordinate system.");
-                    + "' " + WCPSConstants.ERRTXT_IS_NOT_GEOREFERENCED);
-        }        
+            throw new RuntimeException(WcpsConstants.MSG_COVERAGE + " '" + meta.getCoverageName() + "' is not georeferenced.");
+        }
         if (crs != null && domain.isSingleValue()) {
-            //if (crs.getName().equals(DomainElement.WGS84_CRS)) {
-                //log.debug("CRS is '{}' and should be equal to '{}'", crs.getName(), DomainElement.WGS84_CRS);
-                log.debug(WCPSConstants.DEBUGTXT_REQUESTED_SUBSETTING, crs.getName(), meta.getBbox().getCrsName());
-                try {
-                    this.transformedCoordinates = true;
-                    // Convert to pixel coordinates
-                    Double val = domain.getSingleValue();
-                    String axisName = axis.toRasQL(); //.toUpperCase();
-                    coord = crs.convertToPixelIndices(meta, axisName, val);
-                } catch (PetascopeException e) {
-                    this.transformedCoordinates = false;
-                    log.error(WCPSConstants.ERRTXT_ERROR_WHILE_TRANSFORMING);
-                    throw new WCPSException(e.getExceptionCode(), e.getMessage());
-                }
-            //}
-        } // else no crs was embedded in the slice expression 
+            log.debug("[Transformed] requested subsettingCrs is '{}', should match now native CRS is '{}'", crs.getName(), meta.getBbox().getCrsName());
+            try {
+                this.transformedCoordinates = true;
+                // Convert to pixel coordinates
+                String val = domain.getSingleValue();
+                boolean domIsNum = !domain.isStringScalarExpr();
+                String axisName = axis.toRasQL();
+                coord = crs.convertToPixelIndices(meta, axisName, val, domIsNum);
+            } catch (PetascopeException e) {
+                this.transformedCoordinates = false;
+                log.error("Error while transforming geo-coordinates to pixel coordinates. The metadata is probably not valid.");
+                throw new WCPSException(e.getExceptionCode(), e.getMessage());
+            }
+        } // else no crs was embedded in the slice expression
     }
 
     @Override

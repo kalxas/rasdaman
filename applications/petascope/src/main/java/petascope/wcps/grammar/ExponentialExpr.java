@@ -22,7 +22,7 @@
 package petascope.wcps.grammar;
 
 import org.slf4j.LoggerFactory;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 /**
  * ExponentialExpr
@@ -30,7 +30,7 @@ import petascope.util.WCPSConstants;
  * @author: mattia parigiani, Sorin Stancu-Mara, Andrei Aiordachioaie
  */
 public class ExponentialExpr implements IParseTreeNode {
-    
+
     private static org.slf4j.Logger log = LoggerFactory.getLogger(IndexExpr.class);
 
     CoverageExpr coverageExpr;
@@ -63,9 +63,9 @@ public class ExponentialExpr implements IParseTreeNode {
         result += "<" + expOperator + ">";
         result += coverageExpr.toXML();
         if (powerArg != null) {
-            result += "<" + WCPSConstants.MSG_NUMERIC_CONSTANT + ">" + 
-                    powerArg + 
-                    "</" + WCPSConstants.MSG_NUMERIC_CONSTANT + ">";
+            result += "<" + WcpsConstants.MSG_NUMERIC_CONSTANT + ">" +
+                    powerArg +
+                    "</" + WcpsConstants.MSG_NUMERIC_CONSTANT + ">";
         }
         result += "</" + expOperator + ">";
         return result;

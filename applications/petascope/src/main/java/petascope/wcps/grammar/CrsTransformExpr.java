@@ -21,7 +21,7 @@
  */
 package petascope.wcps.grammar;
 
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 
 
 /**
@@ -51,8 +51,8 @@ public class CrsTransformExpr implements IParseTreeNode {
             result += e3.toXML();
         // else: set default values?
 
-        result = "<" + WCPSConstants.MSG_CRS_TRANSFORM + ">" + result + "</" + 
-                WCPSConstants.MSG_CRS_TRANSFORM + ">";
+        result = "<" + WcpsConstants.MSG_CRS_TRANSFORM + ">" + result + "</" +
+                WcpsConstants.MSG_CRS_TRANSFORM + ">";
         return result;
     }
 }

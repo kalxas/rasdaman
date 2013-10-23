@@ -5,15 +5,15 @@
     <ows:Abstract>rasdaman server - free download from www.rasdaman.org</ows:Abstract>
     <ows:ServiceType>OGC WCS</ows:ServiceType>
     <ows:ServiceTypeVersion>2.0.1</ows:ServiceTypeVersion>
-    <ows:Profile>http://www.opengis.net/spec/WCS_coverage-encoding_geotiff/1.0/</ows:Profile>
-    <ows:Profile>http://www.opengis.net/spec/WCS_coverage-encoding_netcdf/1.0/</ows:Profile>
-    <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_soap/1.0</ows:Profile>
-    <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_post-xml/1.0</ows:Profile>
-    <ows:Profile>http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage</ows:Profile>
-    <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_get-kvp/1.0/conf/get-kvp</ows:Profile>
-    <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_get-rest/1.0/conf/get-rest</ows:Profile>
-    <ows:Profile>http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_coverage-encoding_jpeg2000/1.0/</ows:Profile>
+    <ows:Profile>http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/</ows:Profile>
+    <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_get-rest/1.0/conf/get-rest</ows:Profile>
+    <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_get-kvp/1.0/conf/get-kvp</ows:Profile>
+    <ows:Profile>http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage</ows:Profile>
+    <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_post-xml/1.0</ows:Profile>
+    <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_soap/1.0</ows:Profile>
+    <ows:Profile>http://www.opengis.net/spec/WCS_coverage-encoding_netcdf/1.0/</ows:Profile>
+    <ows:Profile>http://www.opengis.net/spec/WCS_coverage-encoding_geotiff/1.0/</ows:Profile>
   </ows:ServiceIdentification>
   <ows:ServiceProvider xmlns="http://www.opengis.net/ows/2.0">
     <ows:ProviderName>Jacobs University Bremen</ows:ProviderName>
@@ -70,13 +70,12 @@
     </ows:Constraint>
   </ows:OperationsMetadata>
   <wcs:ServiceMetadata xmlns="http://www.opengis.net/ows/2.0">
-    <wcs:formatSupported>application/netcdf</wcs:formatSupported>
-    <wcs:formatSupported>image/tiff</wcs:formatSupported>
     <wcs:formatSupported>image/jp2</wcs:formatSupported>
+    <wcs:formatSupported>image/tiff</wcs:formatSupported>
     <wcs:formatSupported>application/gml+xml</wcs:formatSupported>
     <wcs:Extension>
       <crs:CrsMetadata>
-        <crs:supportedCrs>http://www.opengis.net/def/crs/EPSG/0/</crs:supportedCrs>
+        <crs:supportedCrs>http://www.opengis.net/crs/EPSG/0/</crs:supportedCrs>
       </crs:CrsMetadata>
     </wcs:Extension>
   </wcs:ServiceMetadata>

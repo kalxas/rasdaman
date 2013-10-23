@@ -28,16 +28,19 @@ import nu.xom.Document;
 import petascope.util.XMLUtil;
 import petascope.wcs2.templates.Templates;
 import java.io.IOException;
+import java.math.BigDecimal;
 import petascope.exceptions.ExceptionCode;
 import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.WcsUtil;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import static petascope.util.XMLSymbols.*;
 import static petascope.util.XMLUtil.*;
+import petascope.wcps.server.core.DomainElement;
 import petascope.wcs2.extensions.FormatExtension;
 
 /**
@@ -54,7 +57,7 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
     }
 
     @Override
-    public Response handle(DescribeCoverageRequest request) throws WCSException {
+    public Response handle(DescribeCoverageRequest request) throws WCSException, PetascopeException, SecoreException {
         
         Document ret = constructDocument(LABEL_COVERAGE_DESCRIPTIONS, NAMESPACE_WCS);
         Element root = ret.getRootElement();
@@ -66,7 +69,22 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
             try {
                 GetCoverageRequest tmp = new GetCoverageRequest(coverageId);
                 GetCoverageMetadata m = new GetCoverageMetadata(tmp, meta);
-                descr = WcsUtil.getGML(m, Templates.COVERAGE_DESCRIPTION, true);
+                descr = WcsUtil.getGML(m, Templates.COVERAGE_DESCRIPTION, true, meta);
+                // RGBV coverages
+                if (m.getCoverageType().equals(LABEL_REFERENCEABLE_GRID_COVERAGE)) {
+                    // Fetch the coefficients (of the irregular axes)
+                    for (DomainElement domEl : m.getMetadata().getDomainList()) {
+                        if (domEl.isIrregular()) {
+                            domEl.setCoefficients(meta.getAllCoefficients(
+                                    m.getMetadata().getCoverageName(),
+                                    m.getMetadata().getDomainIndexByName(domEl.getLabel()) // i-order of axis
+                                    ));
+                        }
+                    }
+                    // Add to GML
+                    descr = WcsUtil.addCoefficients(descr, m);
+                    descr = WcsUtil.getBounds(descr, m);
+                }
             } catch (WCSException ex) {
                 if (ex.getExceptionCode().getExceptionCode().equals(ExceptionCode.NoSuchCoverage.getExceptionCode())) {
                     if (exc == null) {
@@ -76,6 +94,8 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
                         code.setLocator(code.getLocator() + " " + ex.getExceptionCode().getLocator());
                     }
                 }
+            } catch (PetascopeException ex) {
+                throw ex;
             }
             if (exc != null) {
                 continue;

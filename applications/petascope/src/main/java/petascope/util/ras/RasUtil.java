@@ -28,7 +28,6 @@ import org.antlr.runtime.CommonTokenStream;
 import org.antlr.runtime.RecognitionException;
 import org.apache.commons.io.IOUtils;
 import org.odmg.Database;
-import org.odmg.Implementation;
 import org.odmg.ODMGException;
 import org.odmg.OQLQuery;
 import org.odmg.QueryException;
@@ -39,7 +38,7 @@ import petascope.ConfigManager;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.RasdamanException;
 import petascope.exceptions.WCPSException;
-import petascope.util.WCPSConstants;
+import petascope.util.WcpsConstants;
 import petascope.wcps.grammar.WCPSRequest;
 import petascope.wcps.grammar.wcpsLexer;
 import petascope.wcps.grammar.wcpsParser;
@@ -302,7 +301,7 @@ public class RasUtil {
         log.trace("Executing abstract WCPS query");
         String rasquery = abstractWCPSToRasql(query, wcps);
         // Check if it is a rasql query 
-        if ( rasquery != null && rasquery.startsWith(WCPSConstants.MSG_SELECT) ) {
+        if ( rasquery != null && rasquery.startsWith(WcpsConstants.MSG_SELECT) ) {
             return executeRasqlQuery(abstractWCPSToRasql(query, wcps));
         }
         return rasquery;

@@ -21,221 +21,330 @@
  */
 package petascope.wcps.server.core;
 
-import java.util.Iterator;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import petascope.core.CoverageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
-import petascope.core.Metadata;
+import petascope.core.CrsDefinition;
+import petascope.core.DbMetadataSource;
+import petascope.core.DynamicMetadataSource;
+import petascope.core.IDynamicMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
-import petascope.util.AxisTypes;
-import petascope.util.WCPSConstants;
+import petascope.util.CrsUtil;
+import petascope.util.WcpsConstants;
+import petascope.util.TimeUtil;
 
 public class Crs extends AbstractRasNode {
 
     private static final Logger log = LoggerFactory.getLogger(Crs.class);
     private String crsName;
+    private DbMetadataSource dbMeta;
 
-    public Crs(String srsName) {
-	 crsName = srsName;
-     }
+    public Crs(String srsName, XmlQuery xq) {
+        crsName = srsName;
+        IDynamicMetadataSource dmeta = xq.getMetadataSource();
+        if (dmeta instanceof DynamicMetadataSource &&
+                ((DynamicMetadataSource)dmeta).getMetadataSource() instanceof DbMetadataSource) {
+            dbMeta = (DbMetadataSource) ((DynamicMetadataSource)dmeta).getMetadataSource();
+        }
+    }
 
     public Crs(Node node, XmlQuery xq) throws WCPSException {
-        while ((node != null) && node.getNodeName().equals("#" + WCPSConstants.MSG_TEXT)) {
+        while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
         log.trace(node.getNodeName());
 
-        if (node != null && node.getNodeName().equals(WCPSConstants.MSG_SRS_NAME)) {
+        if (node != null && node.getNodeName().equals(WcpsConstants.MSG_SRS_NAME)) {
             String val = node.getTextContent();
             this.crsName = val;
-            //if (crsName.equals(DomainElement.IMAGE_CRS) || CrsUtil.CrsUri.areEquivalent(crsName, DomainElement.WGS84_CRS) {
-                log.trace("  " + WCPSConstants.MSG_FOUND_CRS + ": " + crsName);
+            //if (crsName.equals(DomainElement.IMAGE_CRS) || crsName.equals(DomainElement.WGS84_CRS)) {
+            log.trace("Found CRS: " + crsName);
             //} else {
             //    throw new WCPSException("Invalid CRS: '" + crsName + "'");
             //}
         } else {
-            throw new WCPSException(WCPSConstants.ERRTXT_COULD_NOT_FIND_SRSNAME);
+            throw new WCPSException("Could not find a 'srsName' node.");
+        }
+
+        // If coverage is not dynamic, it can be irregular: I need to query the DB to convert to pixels.
+        IDynamicMetadataSource dmeta = xq.getMetadataSource();
+        if (dmeta instanceof DynamicMetadataSource &&
+                ((DynamicMetadataSource)dmeta).getMetadataSource() instanceof DbMetadataSource) {
+            dbMeta = (DbMetadataSource) ((DynamicMetadataSource)dmeta).getMetadataSource();
         }
     }
 
-    /***
-     * Converts an array of 4 coordinates (bounding box) expressed in the
-     * current CRS to pixel coordinates.
-     * NOTE: origin of pixel grid is UPPER-LEFT corner (!!)
-     * @param u2 Left-most  X point (CRS coordinate)
-     * @param u3 Right-most X point (CRS coordinate)
-     * @param v2 Lower-most Y point (CRS coordinate)
-     * @param v3 Upper-most Y point (CRS coordinate)
-     * @return array of integers, pixel coordinates that represent the given CRS
-     * coordinates.
-     */
-    @Deprecated
-    public long[] convertToPixelCoordinates(Metadata meta, String axisName, Double u2, Double u3, Double v2, Double v3) throws PetascopeException {
-        //Wgs84Crs crs = meta.getCrs();
-        Bbox bbox = meta.getBbox();
-        long px0 = -1, px1 = -1, py0 = -1, py1 = -1;
-        // Convert bounding box values to pixel coordinates
-        //if (CrsUtil.CrsUri.areEquivalent(crsName, DomainElement.WGS84_CRS)) {
-            //log.trace("Converting WGS84 axis {} interval to pixel coordinates ...", axisName);
-            log.trace(WCPSConstants.MSG_CONVERTING_CURELY_AXIS, bbox.getCrsName(), axisName);
-            /* Image coordinates */
-            Iterator<CellDomainElement> it = meta.getCellDomainIterator();
-            CellDomainElement X = it.next();
-            CellDomainElement Y = it.next();
-            if (X == null || Y == null) {
-                log.error(WCPSConstants.ERRTXT_COULD_NOT_FIND_THE_X + ": " + meta.getCoverageName());
-                throw new PetascopeException(ExceptionCode.NoApplicableCode, WCPSConstants.ERRTXT_COULD_NOT_FIND_THE_X + ": " + meta.getCoverageName());
-            }
-            int x0 = X.getLoInt();
-            int x1 = X.getHiInt();
-            int y0 = Y.getLoInt();
-            int y1 = Y.getHiInt();
-            int W = x1-x0;
-            int H = y1-y0;
-
-            log.trace(WCPSConstants.MSG_PIXEL_COORDINATES_X01 + " (" + x0 + "," + x1 + ") + " + WCPSConstants.MSG_Y01 + " (" + y0 + "," + y1 + ")");
-            /* BBOX span */
-            double x2 = bbox.getLow1();
-            double y2 = bbox.getLow2();
-            double x3 = bbox.getHigh1();
-            double y3 = bbox.getHigh2();
-            double bboxW = x3-x2;
-            double bboxH = y3-y2;
-            log.trace(WCPSConstants.MSG_BBOX_COORD_X23 + " (" + x2 + "," + x3 + ") + " + WCPSConstants.MSG_Y23 + " (" + y2 + "," + y3 + ")");
-            /* For WGS84, the offset = (# pixels)/(CRS span) */
-            double oX = bbox.getOffset1();
-            double oY = bbox.getOffset2();
-
-            /* The actual conversion is below: */
-            if (axisName.equals(WCPSConstants.MSG_X)) {
-                px0 = Math.round((u2 - x2) / oX) + x0;
-                //px0 = Math.round(W*(u2-x2)/bboxW);
-                px1 = Math.round((u3 - u2) / oX) + px0;
-                //px1 = Math.round(W*(u3-x2)/bboxW);
-                // Check outside bounds:
-                px0 = (px0<x0) ? (x0) : ((px0>x1)?x1:px0);
-                px1 = (px1<x0) ? (x0) : ((px1>x1)?x1:px1);
-                log.debug(WCPSConstants.MSG_CRS_COORD_ON_AXIS_X + " (" + u2 + "," + u3 + ")");
-                log.debug(WCPSConstants.MSG_PIXEL_COORD_ON_AXIS_X + " (" + px0 + "," + px1 + ") ");
-            }
-            if (axisName.equals("Y")) {
-                py0 = Math.round((y3 - v3) / oY) + y0;
-                //py0 = Math.round(H*(v2-y3)/(-bboxH));
-                py1 = Math.round((v3 - v2) / oY) + py0;
-                //py1 = Math.round(H*(v3-y3)/(-bboxH));
-                // Check outside bounds:
-                py0 = (py0<y0) ? (y0) : ((py0>y1)?y1:py0);
-                py1 = (py1<y0) ? (y0) : ((py1>y1)?y1:py1);
-                log.debug(WCPSConstants.MSG_CRS_COORD_ON_AXIS_Y + " (" + v2 + "," + v3 + ")");
-                log.debug(WCPSConstants.MSG_PIXEL_COORD_ON_AXIS_Y + " (" + py0 + "," + py1 + ")");
-            }
-
-        //}
-            
-        long[] longCoord = {(px0<px1)?px0:px1, (px0<px1)?px1:px0, (py0<py1)?py0:py1, (py0<py1)?py1:py0};        
-        
-        return longCoord;
-    }
-    
-    /***
-     * Converts an interval subset to CRS:1 domain (grid indices) with rebounding enabled.
-     * NOTE1:   origin of pixel grid is UPPER-LEFT corner (!!)
-     * NOTE2:   Currently it works for axis whose domain is numerical.
-     *          To be updated when *strlo* and *strhi* extents will be effectively possible (e.g. temporal axis).
-     * @param coordMin Min value of interval
-     * @param coordMax Max value of interval
-     * @param zeroIsMin Is 0-index corresponding to minimum domain value? For 'y' axis this is not true.
-     * @return Interval transformed values.
-     * coordinates.
-     */
-    public static int[] convertToPixelIndices(Metadata meta, String axisName, Double coordLo, Double coordHi) throws PetascopeException {
-        return convertToPixelIndices(meta, axisName, coordLo, coordHi, true);
-    }
-    
-    /***
+    /**
      * Converts an interval subset to CRS:1 domain (grid indices).
-     * NOTE1:   origin of pixel grid is UPPER-LEFT corner (!!)
-     * NOTE2:   Currently it works for axis whose domain is numerical.
-     *          To be updated when *strlo* and *strhi* extents will be effectively possible (e.g. temporal axis).
-     * @param coordMin Min value of interval
-     * @param coordMax Max value of interval
-     * @param zeroIsMin Is 0-index corresponding to minimum domain value? For 'y' axis this is not true.
-     * @param rebound true indicates to trim interval down to the intersection with
-     *  the coverage bounding box, false prevents this.
-     * @return Interval transformed values.
-     * coordinates.
+     * @param covMeta       Metadata of the coverage
+     * @param axisName      The axis label of the subset
+     * @param stringLo      The lower bound of the subset
+     * @param loIsNumeric   True if the bound is a numeric value (otherwise timestamp)
+     * @param stringHi      The upper bound of the subset
+     * @param hiIsNumeric   True if the bound is a numeric value (otherwise timestamp)
+     * @return              The pixel indices corresponding to this subset
+     * @throws WCPSException
      */
-    public static int[] convertToPixelIndices(Metadata meta, String axisName, Double coordLo, Double coordHi, boolean rebound) throws PetascopeException {
-       
+    public long[] convertToPixelIndices(CoverageMetadata covMeta, String axisName,
+            String stringLo, boolean loIsNumeric, String stringHi, boolean hiIsNumeric)
+            throws PetascopeException {
+        // TODO: although now grid axes are meant to be aligned with CRS axes, the conversion
+        //       here should involve vectorial operations (use petascope.util.Vectors.java),
+        //       eg dot-product, etc.
+
+        long[] out = new long[2];
+
         // IMPORTANT: y axis are decreasing wrt pixel domain
-        boolean zeroIsMin = !axisName.equals(AxisTypes.Y_AXIS);
-        
-        // Put in order to prevent call error
-        if (coordHi < coordLo) {
-            log.error(WCPSConstants.ERRTXT_ARGUMENT_HIGH_IS_LOWER_P1 + ": " + coordHi + "<" + coordLo + " " + WCPSConstants.ERRTXT_ARGUMENT_HIGH_IS_LOWER_P2);
-            throw new PetascopeException(ExceptionCode.InvalidSubsetting,
-                    WCPSConstants.ERRTXT_ARGUMENT_HIGH_IS_LOWER_P1 + ": " + coordHi + "<" + coordLo + " " + WCPSConstants.ERRTXT_ARGUMENT_HIGH_IS_LOWER_P2);
+        // TODO: generalize behaviour by using offset vectors.
+        boolean zeroIsMin = !CrsDefinition.Y_ALIASES.contains(axisName);
+
+        DomainElement      dom = covMeta.getDomainByName(axisName);
+        CellDomainElement cdom = covMeta.getCellDomainByName(axisName);
+
+        // null-pointers check
+        if (null == cdom || null == dom) {
+            log.error("Could not find the \"" + axisName + "\" axis for coverage:" + covMeta.getCoverageName());
+            throw new PetascopeException(ExceptionCode.NoApplicableCode, "Could not find the \"" + axisName + "\" axis for coverage:" + covMeta.getCoverageName());
         }
-        
-        // Convert domain-space values to cell-space indices
-        log.trace(WCPSConstants.MSG_CONVERTING_CURELY_AXIS_INDX, axisName);
-        
-        // Image coordinates
-        DomainElement dom = meta.getDomainByName(axisName);
-        CellDomainElement cdom = meta.getCellDomainByName(axisName);
-        if (cdom == null || dom == null) {
-            log.error(WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ": " + meta.getCoverageName());
-            throw new PetascopeException(ExceptionCode.NoApplicableCode,
-                    WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P1 + axisName + WCPSConstants.ERRTXT_COULD_NOT_FIND_COVERAGE_P2 + ":" + meta.getCoverageName());
-        }
-        
+
+        // Get datum origin can also be null if !temporal axis: use axisType to guard)
+        String datumOrigin = dom.getAxisDef().getCrsDefinition().getDatumOrigin();
+
+        // Get Unit of Measure of this axis:
+        String axisUoM = dom.getUom();
+
         // Get cellDomain extremes
-        int pxLo = cdom.getLoInt();
-        int pxHi = cdom.getHiInt();
-        log.trace(WCPSConstants.MSG_CELL_DOMAIN_EXTREMES + pxLo + ", " + WCPSConstants.MSG_HIGH_U + ":" + pxHi);
-        
+        long pxMin = cdom.getLoInt();
+        long pxMax = cdom.getHiInt();
+        log.trace("CellDomain extremes values: LOW: " + pxMin + ", HIGH:" + pxMax);
+
         // Get Domain extremes (real sdom)
-        double domLo = dom.getNumLo();
-        double domHi = dom.getNumHi();
-        log.trace(WCPSConstants.MSG_DOMAIN_EXTREMES_COORD + ": (" + domLo + "," + domHi + ")");
+        BigDecimal domMin = dom.getMinValue();
+        BigDecimal domMax = dom.getMaxValue();
+        log.trace("Domain extremes coordinates: (" + domMin + ", " + domMax + ")");
+        log.trace("Subset cooordinates: (" + stringLo + ", " + stringHi + ")");
 
-        // Get cell dimension 
-        double cellWidth = (domHi-domLo)/(double)((pxHi-pxLo)+1);
+        /*---------------------------------*/
+        /*         VALIDITY CHECKS         */
+        /*---------------------------------*/
+        log.trace("Checking order, format and bounds of axis {} ...", axisName);
 
-        // Conversion to pixel domain
-        int[] out;
-        if (zeroIsMin) {
-            out = new int[] {
-                (int)Math.floor((coordLo - domLo) / cellWidth) + pxLo,
-                (int)Math.floor((coordHi - domLo) / cellWidth) + pxLo
-            };
+        // Requires homogeneity in the bounds of a subset
+        if (loIsNumeric ^ hiIsNumeric) { // XOR
+            log.error("(" + stringLo + "," + stringHi + ") subset is invalid.");
+            throw new PetascopeException(ExceptionCode.InvalidRequest,
+                    "(" + stringLo + "," + stringHi + ") subset requires bounds of the same domain.");
+        }
+        //~(From now on, some tests can be made on a single bound)
+        boolean subsetWithTimestamps = !loIsNumeric; // = !hiIsNumeric
+
+        // if subsets are not numeric, /now/ they other choice is that they are timestamps: check the format is valid
+        if (subsetWithTimestamps && !TimeUtil.isValidTimestamp(stringLo)) {
+            throw new WCPSException(ExceptionCode.InvalidRequest,
+                    "Subset '" + stringLo + "' is not valid nor as a number, nor as a supported time description. "
+                  + "See Date4J javadoc for supported formats.");
+        }
+        if (subsetWithTimestamps && !TimeUtil.isValidTimestamp(stringHi)) {
+            throw new WCPSException(ExceptionCode.InvalidRequest,
+                    "Subset '" + stringHi + "' is not valid nor as a number, nor as a supported time description. "
+                  + "See Date4J javadoc for supported formats.");
+        }
+
+        // Check order of subset: separate treatment for temporal axis with timestamps subsets
+        if (subsetWithTimestamps) {
+            // Check order
+            if (!TimeUtil.isOrderedTimeSubset(stringLo, stringHi)) {
+                throw new PetascopeException(ExceptionCode.InvalidSubsetting,
+                        axisName + " axis: lower bound " + stringLo + " is greater then the upper bound " + stringHi);
+            }
         } else {
-            out = new int[] {
-                // First coordHi, so that left-hand index is the lower one
-                (int)Math.floor((domHi - coordHi) / cellWidth) + pxLo,
-                (int)Math.floor((domHi - coordLo) / cellWidth) + pxLo
-            };
+
+            // Numerical axis:
+            double coordLo = Double.parseDouble(stringLo);
+            double coordHi = Double.parseDouble(stringHi);
+
+            // Check order
+            if (coordHi < coordLo) {
+                throw new PetascopeException(ExceptionCode.InvalidSubsetting,
+                        axisName + " axis: lower bound " + coordLo + " is greater the upper bound " + coordHi);
+            }
+
+            // Check intersection with extents
+            if (coordLo > domMax.doubleValue() || coordHi < domMin.doubleValue()) {
+                throw new PetascopeException(ExceptionCode.InvalidSubsetting,
+                        axisName + " axis: subset (" + coordLo + ":" + coordHi + ") is out of bounds.");
+            }
         }
-        log.trace(WCPSConstants.MSG_TRANSFORMED_COORDS_INDX + " (" + out[0] + "," + out[1] + ")");
-        
+
+        /*---------------------------------*/
+        /*             CONVERT             */
+        /*---------------------------------*/
+        log.trace("Converting axis {} interval to pixel indices ...", axisName);
+        // There can be several different cases depending on spacing and type of this axis:
+        if (dom.isIrregular()) {
+
+            // Consistency check
+            // TODO need to find a way to solve `static` issue of dbMeta
+            if (dbMeta == null) {
+                throw new PetascopeException(ExceptionCode.InternalComponentError,
+                        "Axis " + axisName + " is irregular but is not linked to DbMetadataSource.");
+            }
+
+            // Need to query the database (IRRSERIES table) to get the extents
+            try {
+                String numLo = stringLo;
+                String numHi = stringHi;
+
+                if (subsetWithTimestamps) {
+                    // Need to convert timestamps to TemporalCRS numeric coordinates
+                    numLo = "" + TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM);
+                    numHi = "" + TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM);
+                }
+
+                // Retrieve correspondent cell indexes (unique method for numerical/timestamp values)
+                // TODO: I need to extract all the values, not just the extremes
+                out = dbMeta.getIndexesFromIrregularRectilinearAxis(
+                        covMeta.getCoverageName(),
+                        covMeta.getDomainIndexByName(axisName), // i-order of axis
+                        (new BigDecimal(numLo)).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
+                        (new BigDecimal(numHi)).subtract(domMin),  //
+                        pxMin, pxMax);
+
+                // Retrieve the coefficients values and store them in the DomainElement
+                dom.setCoefficients(dbMeta.getCoefficientsOfInterval(
+                        covMeta.getCoverageName(),
+                        covMeta.getDomainIndexByName(axisName), // i-order of axis
+                        (new BigDecimal(numLo)).subtract(domMin),
+                        (new BigDecimal(numHi)).subtract(domMin)
+                        ));
+
+                // Add sdom lower bound
+                out[0] = out[0] + pxMin;
+
+            } catch (Exception e) {
+                throw new PetascopeException(ExceptionCode.InternalComponentError,
+                        "Error while fetching cell boundaries of irregular axis '" +
+                        axisName + "' of coverage " + covMeta.getCoverageName() + ": " + e.getMessage(), e);
+            }
+
+        } else {
+            // The axis is regular: need to differentiate between numeric and timestamps
+            if (subsetWithTimestamps) {
+                // Need to convert timestamps to TemporalCRS numeric coordinates
+                int numLo = TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM);
+                int numHi = TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM);
+
+                // Consistency check
+                if (numHi < domMin.doubleValue() || numLo > domMax.doubleValue()) {
+                    throw new PetascopeException(ExceptionCode.InternalComponentError,
+                            "Translated pixel indixes of regular temporal axis (" +
+                            numLo + ":" + numHi +") exceed the allowed values.");
+                }
+
+                // Replace timestamps with numeric subsets
+                stringLo = "" + numLo;
+                stringHi = "" + numHi;
+                // Now subsets can be tranlsated to pixels with normal numeric proportion
+            }
+
+            // Indexed CRSs do not require conversion
+            if (axisUoM.equals(CrsUtil.GRID_UOM)) {
+                return new long[]{
+                    (long)Double.parseDouble(stringLo),
+                    (long)Double.parseDouble(stringHi)
+                };
+            }
+
+
+            /* Loop to get the pixel subset values.
+             * Different cases (0%-overlap subsets are excluded by the checks above)
+             *        MIN                                                     MAX
+             *         |-------------+-------------+-------------+-------------|
+             *              cell0         cell1         cell2         cell3
+             * i)   |_____________________|
+             * ii)                              |__________________|
+             * iii)                                                         |_________________|
+             */
+            // Numeric interval: simple mathematical proportion
+            double coordLo = Double.parseDouble(stringLo);
+            double coordHi = Double.parseDouble(stringHi);
+
+            // Get cell dimension -- Use BigDecimals to avoid finite arithmetic rounding issues of Doubles
+            //double cellWidth = dom.getResolution().doubleValue();
+            double cellWidth = (
+                    domMax.subtract(domMin))
+                   .divide((BigDecimal.valueOf(pxMax+1)).subtract(BigDecimal.valueOf(pxMin)), RoundingMode.UP)
+                   .doubleValue();
+            //      = (dDomHi-dDomLo)/(double)((pxHi-pxLo)+1);
+
+            // Open interval on the right: take away epsilon from upper bound:
+            //double coordHiEps = coordHi - cellWidth/10000;    // [a,b) subsets
+            double coordHiEps = coordHi;                        // [a,b] subsets
+
+            // Conversion to pixel domain
+            /*
+             * Policy = minimum encompassing BoundingBox returned (of course)
+             *
+             *     9°       10°       11°       12°       13°
+             *     o---------o---------o---------o---------o
+             *     |  cell0  |  cell1  |  cell2  |  cell3  |
+             *     [=== s1 ==]
+             *          [=== s2 ==]
+             *           [===== s3 ====]
+             *      [= s4 =]
+             *
+             * -- [a,b] closed intervals:
+             * s1(9°  ,10°  ) -->  [cell0:cell1]
+             * s2(9.5°,10.5°) -->  [cell0:cell1]
+             * s3(9.7°,11°  ) -->  [cell0:cell2]
+             * s4(9.2°,9.8° ) -->  [cell0:cell0]
+             *
+             * -- [a,b) open intervals:
+             * s1(9°  ,10°  ) -->  [cell0:cell0]
+             * s2(9.5°,10.5°) -->  [cell0:cell1]
+             * s3(9.7°,11°  ) -->  [cell0:cell1]
+             * s4(9.2°,9.8° ) -->  [cell0:cell0]
+             */
+            if (zeroIsMin) {
+                // Normal linear numerical axis
+                out = new long[] {
+                    (long)Math.floor((coordLo    - domMin.doubleValue()) / cellWidth) + pxMin,
+                    (long)Math.floor((coordHiEps - domMin.doubleValue()) / cellWidth) + pxMin
+                };
+                // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
+                if (coordLo == coordHi && coordHi == domMax.doubleValue()) {
+                    out[0] -= 1;
+                }
+            } else {
+                // Linear negative axis (eg northing of georeferenced images)
+                out = new long[] {
+                    // First coordHi, so that left-hand index is the lower one
+                    (long)Math.ceil((domMax.doubleValue() - coordHiEps) / cellWidth) + pxMin,
+                    (long)Math.ceil((domMax.doubleValue() - coordLo)    / cellWidth) + pxMin
+                };
+                // NOTE: the if a slice equals the lower bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
+                if (coordLo == coordHi && coordHi == domMin.doubleValue()) {
+                    out[0] -= 1;
+                }
+            }
+            log.debug("Transformed coords indices (" + out[0] + "," + out[1] + ")");
+        }
+
         // Check outside bounds:
-        if (out[0] > pxHi || out[1] < pxLo) {
-            String message = "Subsetting on axis " + axisName + " is outside bounds (" + domLo + "," + domHi + ").";
-            log.error(message);
-            throw new PetascopeException(ExceptionCode.InvalidRequest, message);
-        } else if (rebound) {
-            out[0] = (out[0]<pxLo) ? pxLo : ((out[0]>pxHi)?pxHi:out[0]);
-            out[1] = (out[1]<pxLo) ? pxLo : ((out[1]>pxHi)?pxHi:out[1]);
-            log.trace(WCPSConstants.MSG_TRANSFORMED_REBOUNDED_COORDS + " (" + out[0] + "," + out[1] + ")");
-        }
+        //out[0] = (out[0]<pxMin) ? pxMin : ((out[0]>pxMax)?pxMax:out[0]);
+        //out[1] = (out[1]<pxMin) ? pxMin : ((out[1]>pxMax)?pxMax:out[1]);
+        //log.debug("Transformed rebounded coords indices (" + out[0] + "," + out[1] + ")");
 
         return out;
     }
     // Dummy overload (for DimensionPointElements)
-    public static int convertToPixelIndices(Metadata meta, String axisName, Double value) throws PetascopeException {
-        return convertToPixelIndices(meta, axisName, value, value)[0];
+    public long convertToPixelIndices(CoverageMetadata meta, String axisName, String value, boolean isNumeric) throws PetascopeException {
+        return convertToPixelIndices(meta, axisName, value, isNumeric, value, isNumeric)[0];
     }
 
     @Override

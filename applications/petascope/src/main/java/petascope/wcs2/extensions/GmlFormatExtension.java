@@ -21,17 +21,19 @@
  */
 package petascope.wcs2.extensions;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.ListIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
-import petascope.core.Metadata;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.Pair;
 import petascope.util.WcsUtil;
+import petascope.util.XMLSymbols;
 import petascope.util.ras.RasQueryResult;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcs2.handlers.Response;
@@ -50,8 +52,11 @@ import petascope.wcs2.templates.Templates;
 public class GmlFormatExtension extends AbstractFormatExtension {
 
     private static final Logger log = LoggerFactory.getLogger(GmlFormatExtension.class);
-    public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:";
-    protected static final String MULTIPOINTSCHEMA = "ps_multipoint";
+    public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:"; // FIXME: now URNs are deprecated
+    protected static final String MULTIPOINTSCHEMA = "ps9_multipoint_domain_set";
+    protected static final String TAG_DATABLOCK = "DataBlock";
+    protected static final String TAG_RANGEPARAMETERS = "rangeParameters";
+    protected static final String TAG_TUPLELIST = "tupleList";
 
     @Override
     public boolean canHandle(GetCoverageRequest req) {
@@ -61,37 +66,58 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
     @Override
     public Response handle(GetCoverageRequest request, DbMetadataSource meta)
-            throws PetascopeException, WCSException {
+            throws PetascopeException, WCSException, SecoreException {
         GetCoverageMetadata m = new GetCoverageMetadata(request, meta);
 
         //Handle the range subset feature
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
         rsubExt.handle(request, m);
-        
-        if (m.getCoverageType().equals(GetCoverageRequest.MULTIPOINT_COVERAGE)) {
+
+        if (m.getCoverageType().equals(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)) {
             Response r = handleMultiPoint(request, request.getCoverageId(), meta, m);
             String xml = r.getXml();
             return new Response(r.getData(), xml, r.getMimeType());
+
+        } else if (m.getCoverageType().matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE)) {
+
+            // Use the GridCoverage template, which works with any subtype of AbstractGridCoverage via the {domainSetaddition}
+            try {
+                // GetCoverage metadata was initialized with native coverage metadata, but subsets may have changed it:
+                updateGetCoverageMetadata(request, m);
+            } catch (PetascopeException pEx) {
+                throw pEx;
+            }
+
+            String gml = WcsUtil.getGML(m, Templates.GRID_COVERAGE, true, meta);
+            gml = addCoverageData(gml, request, meta, m);
+
+            // RGBV coverages
+            if (m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
+                gml = WcsUtil.addCoefficients(gml, m);
+                // Grid and Coverage bounds need to be updated: there was coefficient knowledge before
+                updateGetCoverageMetadata(request, m);
+                gml = WcsUtil.getBounds(gml, m);
+
+            }
+            return new Response(gml);
+
+        } else {
+            throw new WCSException(ExceptionCode.UnsupportedCoverageConfiguration,
+                    "The coverage type '" + m.getCoverageType() + "' is not supported.");
         }
-       
-        try {
-            setBounds(request, m, meta);
-        } catch (PetascopeException pEx) {
-            throw pEx;
-        }
-        
-        String gml = WcsUtil.getGML(m, Templates.GRID_COVERAGE, true);
-        gml = addCoverageData(gml, request, meta, m);
-        return new Response(gml);
     }
-    
-    protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, GetCoverageMetadata m) throws WCSException {
+
+    protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, GetCoverageMetadata m)
+            throws WCSException, PetascopeException {
         RasQueryResult res = new RasQueryResult(executeRasqlQuery(request, m, meta, CSV_ENCODING, null).fst);
         if (!res.getMdds().isEmpty()) {
             String data = new String(res.getMdds().get(0));
             data = WcsUtil.csv2tupleList(data);
-            data = "<DataBlock><rangeParameters/><tupleList>" + data + "</tupleList></DataBlock>";
-            gml = gml.replace("{coverageData}", data);
+            data = "<" + TAG_DATABLOCK + ">" +
+                        "<" +  TAG_RANGEPARAMETERS + "/>" +
+                        "<" + TAG_TUPLELIST + ">" + data + "</" + TAG_TUPLELIST + ">" +
+                    "</" + TAG_DATABLOCK + ">";
+            gml = gml.replace("{" + Templates.KEY_COVERAGEDATA + "}", data);
         }
         return gml;
     }
@@ -105,9 +131,10 @@ public class GmlFormatExtension extends AbstractFormatExtension {
      */
     private Response handleMultiPoint(GetCoverageRequest req, String coverageID, DbMetadataSource meta, GetCoverageMetadata m)
             throws WCSException {
-        Metadata cov = m.getMetadata();
-        String ret = WcsUtil.getGML(m, Templates.MULTIPOINT_COVERAGE, false);
+        CoverageMetadata cov = m.getMetadata();
+        String ret = WcsUtil.getGML(m, Templates.MULTIPOINT_COVERAGE, false, meta);
         String pointMembers = "";
+        String rangeMembers = "";
         String low = "", high = "";
 
         try {
@@ -137,8 +164,14 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
                     if (subsetElement instanceof DimensionSlice) {
                         DimensionSlice slice = (DimensionSlice) subsetElement;
-                        cellDomain.setHi(slice.getSlicePoint());
-                        cellDomain.setLo(slice.getSlicePoint());
+
+                        String[] boundary = slice.getSlicePoint().split(":");
+                        cellDomain.setLo(boundary[0]);
+                        if( boundary.length == 2 ){
+                            cellDomain.setHi(boundary[1]);
+                        }else if(boundary.length == 1){
+                            cellDomain.setHi(boundary[0]);
+                        }
                         cellDomain.setSubsetElement(subsetElement);
                     }
                 }
@@ -151,19 +184,29 @@ public class GmlFormatExtension extends AbstractFormatExtension {
             }
 
             /* get coverage data */
-            pointMembers = meta.coverageData(MULTIPOINTSCHEMA, coverageID, req.
+            /*pointMembers = meta.coverageDomainData(MULTIPOINTSCHEMA, coverageID, req.
                     getCoverageId(), cellDomainList);
+            rangeMembers = meta.coverageRangeSet(MULTIPOINTSCHEMA, coverageID, req.
+                    getCoverageId(), cellDomainList);
+            */
+            String[] members = meta.multipointDomainRangeData(MULTIPOINTSCHEMA, coverageID, req.
+                    getCoverageId(), cellDomainList);
+            pointMembers = members[0];
+            rangeMembers = members[1];
+
             Pair<String, String> pair = constructWcpsQuery(req, cov, CSV_ENCODING, null);
 
             /* generate the result */
-            ret = ret.replaceAll("\\{pointMembers\\}", pointMembers).replaceAll("\\{low\\}", low).
-                    replaceAll("\\{high\\}", high).replaceAll("\\{axisLabels\\}", pair.snd).
-                    replaceAll("\\{mulUomLabels\\}", pair.snd);
+            ret = ret.replaceAll("\\{" + Templates.KEY_POINTMEMBERS + "\\}",
+                    pointMembers).replaceAll("\\{" + Templates.KEY_LOW + "\\}",
+                    low).replaceAll("\\{"          + Templates.KEY_HIGH + "\\}",
+                    high).replaceAll("\\{"         + Templates.KEY_AXISLABELS + "\\}",
+                    pair.snd).replaceAll("\\{"     + Templates.KEY_MULUOMLABLES + "\\}", pair.snd);
+             ret = ret.replaceAll("\\{" + Templates.KEY_GMLQLIST + "\\}", rangeMembers);
 
         } catch (PetascopeException ex) {
             log.error("Error", ex);
         }
-
         return new Response(ret);
     }
 

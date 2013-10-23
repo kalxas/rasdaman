@@ -22,12 +22,12 @@ rasdaman GmbH.
  */
 package petascope.wcs2.handlers;
 
-import petascope.wcs2.parsers.Request;
 import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
 import petascope.core.DbMetadataSource;
 import static petascope.util.XMLSymbols.*;
+import petascope.wcs2.parsers.Request;
 
 /**
  * An abstract implementation of {@link WcsOperation}, which provides some
