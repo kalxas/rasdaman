@@ -450,33 +450,20 @@ CREATE TRIGGER single_service_provider_trigger BEFORE INSERT ON ps9_service_prov
 --                        MULTIPOINT Tables                                  --
 -- ######################################################################### --
 
--- TABLE: **ps9_multipoint_domain_set**###################################### --
--- Geometry of MultiPoint                                                    --
+-- TABLE: **ps9_multipoint**###################################### --
+-- Geometry and Range of MultiPoint                                                    --
+-- For performance reasons domainset and rangeset of multipoint coverages are merged in one table.
 
-CREATE TABLE ps9_multipoint_domain_set (
-    id           serial  PRIMARY KEY,
-    coverage_id  integer NOT NULL,
-    coordinate   geometry NOT NULL,
+CREATE TABLE ps9_multipoint (
+    id          serial  PRIMARY KEY,
+    coverage_id integer NOT NULL,
+    coordinate  geometry NOT NULL,
+    value	numeric[] NOT NULL, --i.e., {r,g,b}
     -- Constraints and FKs
-    --UNIQUE (coverage_id, coordinate),
     FOREIGN KEY (coverage_id) REFERENCES ps9_domain_set (coverage_id) ON DELETE CASCADE
 );
-CREATE INDEX coordinate_gist_idx ON ps9_multipoint_domain_set USING GIST(coordinate);
-CREATE INDEX coverage_id_idx ON ps9_multipoint_domain_set (coverage_id);
-CREATE INDEX coord_x_idx ON ps9_multipoint_domain_set (St_X(coordinate));
-CREATE INDEX coord_y_idx ON ps9_multipoint_domain_set (St_Y(coordinate));
-CREATE INDEX coord_z_idx ON ps9_multipoint_domain_set (St_Z(coordinate));
-
-
--- TABLE: **ps9_multipoint_domain_set**###################################### --
--- Range of MultiPoint
-
-CREATE TABLE ps9_multipoint_range_set (
-    point_id    integer PRIMARY KEY,
-    value       numeric[]   NOT NULL, --e.g., {r,g,b}
-    -- Constraints and FKs
-    FOREIGN KEY (point_id) REFERENCES ps9_multipoint_domain_set (id) ON DELETE CASCADE
-);
+CREATE INDEX coordinate_gist_idx ON ps9_multipoint USING GIST(coordinate gist_geometry_ops_2d);
+CREATE INDEX coverage_id_idx ON ps9_multipoint (coverage_id);
 
 
 -- MAP MODEL (WMS) ------------------------------------------------------------

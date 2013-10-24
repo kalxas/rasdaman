@@ -53,7 +53,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
     private static final Logger log = LoggerFactory.getLogger(GmlFormatExtension.class);
     public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:"; // FIXME: now URNs are deprecated
-    protected static final String MULTIPOINTSCHEMA = "ps9_multipoint_domain_set";
+    protected static final String MULTIPOINTSCHEMA = "ps9_multipoint";
     protected static final String TAG_DATABLOCK = "DataBlock";
     protected static final String TAG_RANGEPARAMETERS = "rangeParameters";
     protected static final String TAG_TUPLELIST = "tupleList";
@@ -136,6 +136,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
         String pointMembers = "";
         String rangeMembers = "";
         String low = "", high = "";
+        StringBuilder sb = new StringBuilder();
 
         try {
 
@@ -183,12 +184,6 @@ public class GmlFormatExtension extends AbstractFormatExtension {
                 high += aCellDomainList.getHi() + " ";
             }
 
-            /* get coverage data */
-            /*pointMembers = meta.coverageDomainData(MULTIPOINTSCHEMA, coverageID, req.
-                    getCoverageId(), cellDomainList);
-            rangeMembers = meta.coverageRangeSet(MULTIPOINTSCHEMA, coverageID, req.
-                    getCoverageId(), cellDomainList);
-            */
             String[] members = meta.multipointDomainRangeData(MULTIPOINTSCHEMA, coverageID, req.
                     getCoverageId(), cellDomainList);
             pointMembers = members[0];
@@ -196,18 +191,20 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
             Pair<String, String> pair = constructWcpsQuery(req, cov, CSV_ENCODING, null);
 
-            /* generate the result */
-            ret = ret.replaceAll("\\{" + Templates.KEY_POINTMEMBERS + "\\}",
-                    pointMembers).replaceAll("\\{" + Templates.KEY_LOW + "\\}",
+            ret = ret.replaceAll("\\{" + Templates.KEY_LOW + "\\}",
                     low).replaceAll("\\{"          + Templates.KEY_HIGH + "\\}",
                     high).replaceAll("\\{"         + Templates.KEY_AXISLABELS + "\\}",
                     pair.snd).replaceAll("\\{"     + Templates.KEY_MULUOMLABLES + "\\}", pair.snd);
-             ret = ret.replaceAll("\\{" + Templates.KEY_GMLQLIST + "\\}", rangeMembers);
+
+            String[] split1 = ret.split("\\{pointMembers\\}");
+            String[] split2 = split1[1].split("\\{gmlQList\\}");
+
+            sb.append(split1[0]).append(pointMembers).append(split2[0]).append(rangeMembers).append(split2[1]);
 
         } catch (PetascopeException ex) {
             log.error("Error", ex);
         }
-        return new Response(ret);
+        return new Response(sb.toString());
     }
 
     @Override

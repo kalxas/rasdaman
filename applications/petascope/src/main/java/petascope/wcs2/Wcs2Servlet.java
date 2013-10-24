@@ -50,9 +50,9 @@ import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.ProtocolExtension;
 import petascope.wcs2.handlers.Response;
 
-/** 
+/**
  * A servlet handling WCS 2.0 requests.
- * 
+ *
  * @author Dimitar Misev
  */
 public class Wcs2Servlet extends HttpServlet {
@@ -70,7 +70,7 @@ public class Wcs2Servlet extends HttpServlet {
 
         String confDir = this.getServletContext().getInitParameter(ConfigManager.CONF_DIR);
         ConfigManager.getInstance(confDir);
-        
+
         log.info("WCS 2.0 servlet starting");
 
         // Read servlet HTML usage message from disk
@@ -123,6 +123,9 @@ public class Wcs2Servlet extends HttpServlet {
 
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res) {
+
+        long startTime = System.currentTimeMillis();
+
         setServletURL(req);
         meta.clearCache();
 
@@ -149,7 +152,7 @@ public class Wcs2Servlet extends HttpServlet {
                         return;
                     }
                 }
-                
+
                 log.debug("Petascope Request: \n------START REQUEST--------\n"
                         + request + "\n------END REQUEST------\n");
 
@@ -168,11 +171,13 @@ public class Wcs2Servlet extends HttpServlet {
         } catch (WCSException e) {
             printError(res, request, e);
         }
+        long elapsedTimeMillis = System.currentTimeMillis() - startTime;
+        log.debug("Total Petascope Processing Time : " + elapsedTimeMillis);
     }
 
     /**
      * Handle WCS 2.0 request.
-     * 
+     *
      * @param input request string
      * @param response
      * @throws WCSException in case of I/O error, or if the server is unable to handle the request
@@ -190,7 +195,7 @@ public class Wcs2Servlet extends HttpServlet {
             log.info("Protocol binding extension found: {}", pext.
                     getExtensionIdentifier());
             Response res = pext.handle(request, meta);
-            
+
             OutputStream os = response.getOutputStream();
             if (res.getXml() != null && res.getData() != null) {
                 MultipartResponse multi = new MultipartResponse(response);
@@ -270,7 +275,7 @@ public class Wcs2Servlet extends HttpServlet {
             log.trace("done with error");
         }
     }
-    
+
     /**
      * Parses the HTTP servlet request into a Petascope Servlet Request
      * @param srvRequest the http servlet request
@@ -290,5 +295,5 @@ public class Wcs2Servlet extends HttpServlet {
         HTTPRequest srvReq = new HTTPRequest(contextPath,
                 pathInfo, srvRequest.getQueryString(), request);
         return srvReq;
-    }    
+    }
 }

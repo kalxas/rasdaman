@@ -1672,7 +1672,7 @@ public class DbMetadataSource implements IMetadataSource {
                                List<CellDomainElement> cellDomainList) throws PetascopeException {
         String[] members = {"", ""};
         Statement s = null;
-        int pointCount = 0;
+        //int pointCount = 0;
 
         try {
             ensureConnection();
@@ -1685,36 +1685,59 @@ public class DbMetadataSource implements IMetadataSource {
             String zmin = cellDomainList.get(2).getLo().toString();
             String zmax = cellDomainList.get(2).getHi().toString();
 
-            String genQuery = WcpsConstants.MSG_SELECT + " St_X(coordinate) AS x, "
-                + "St_Y(coordinate) AS y, St_Z(coordinate) AS z, value " +
-                WcpsConstants.MSG_FROM +
-                    " ps9_multipoint_domain_set AS d, ps9_multipoint_range_set AS r " +
-                WcpsConstants.MSG_WHERE + " d.id = r.point_id AND d.coordinate && "
-                    + "'BOX3D(" + xmin + " " + ymin + " " + zmin + "," +
-                    xmax + " " + ymax + " " + zmax + ")'::box3d AND coverage_id=(SELECT id FROM ps9_coverage "
-                    + "WHERE name='" + coverageID + "')";
+            String query = "";
+            ResultSet res = null;
+            if (xmin.equals("1") && xmax.equals("1")) {
+                query = "SELECT min(St_X(coordinate)) mi,max(St_X(coordinate)) as ma FROM ps9_multipoint";
+                res = executePostGISQuery(query);
+                while(res.next()){
+                    xmin = res.getString("mi");
+                    xmax = res.getString("ma");
+                }
+            }
+            if (ymin.equals("1") && ymax.equals("1")) {
+                query = "SELECT min(St_Y(coordinate)) mi,max(St_Y(coordinate)) as ma FROM ps9_multipoint";
+                res = executePostGISQuery(query);
+                while(res.next()){
+                    ymin = res.getString("mi");
+                    ymax = res.getString("ma");
+                }
+            }
+            if (zmin.equals("1") && zmax.equals("1")) {
+                query = "SELECT min(St_Z(coordinate)) mi,max(St_Z(coordinate)) as ma FROM ps9_multipoint";
+                res = executePostGISQuery(query);
+                while(res.next()){
+                    zmin = res.getString("mi");
+                    zmax = res.getString("ma");
+                }
+            }
 
+            String genQuery = WcpsConstants.MSG_SELECT + " St_X(coordinate) || ' ' || St_Y(coordinate) || ' ' || St_Z(coordinate), "
+                    + "value[1] || ',' || value[2] || ',' || value[3]  " +
+                WcpsConstants.MSG_FROM +
+                    " ps9_multipoint AS d " +
+                WcpsConstants.MSG_WHERE + " d.coordinate && "
+                    + "'BOX3D(" + xmin + " " + ymin + " " + zmin + "," +
+                    xmax + " " + ymax + " " + zmax + ")'::box3d AND coverage_id=(SELECT id FROM ps9_coverage " +
+                    "WHERE name='" + coverageID + "')";
+
+            log.debug("postGISQuery: " + genQuery);
+            long startTime = System.currentTimeMillis();
             ResultSet r = s.executeQuery(genQuery);
+            long elapsedTimeMillis = System.currentTimeMillis() - startTime;
+            log.debug("Database Time : " + elapsedTimeMillis);
             StringBuilder pointMembers = new StringBuilder();
             StringBuilder rangeMembers = new StringBuilder();;
-            String tuple = "";
-            String rowID = "";
+
+            startTime = System.currentTimeMillis();
 
             while (r.next()) {
 
-                tuple = Double.toString(r.getDouble(1)).concat(" ").concat(Double.toString(r.getDouble(2))).
-                        concat(" ").concat(Double.toString(r.getDouble(3)));
+                pointMembers.append(r.getString(1)).append(" ");
+                rangeMembers.append(r.getString(2)).
+                append(" ");
 
-                rowID = "p" + (++pointCount) + "_" + coverageName;
-
-                pointMembers = pointMembers.append(Templates.getTemplate(Templates.MULTIPOINT_POINTMEMBERS,
-                    Pair.of("\\{gmlPointId\\}", rowID),
-                    Pair.of("\\{gmlPos\\}", tuple))).append("\n");
-
-                rangeMembers = rangeMembers.append(r.getArray(4).toString().replace("{", "").replace("}", "")).
-                        append(" ");
-
-                log.debug("pointCount : " + pointCount);
+                //log.debug("pointCount : " + pointCount);
 
             }
 

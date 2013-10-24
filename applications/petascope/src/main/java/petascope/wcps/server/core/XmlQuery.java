@@ -309,19 +309,15 @@ public class XmlQuery extends AbstractRasNode {
 
         result = WcpsConstants.MSG_SELECT + " value, St_X(coordinate) AS x, "
                     + "St_Y(coordinate) AS y, St_Z(coordinate) AS z " +
-                WcpsConstants.MSG_FROM + " ps9_coverage c, ps9_multipoint_domain_set AS d, ps9_multipoint_range_set AS r " +
+                WcpsConstants.MSG_FROM + " ps9_coverage c, ps9_multipoint AS d " +
                 WcpsConstants.MSG_WHERE +
-                " c.name='" + coverageName + "' AND c.id = d.coverage_id AND d.id = r.point_id "  ;
-        String xmin = "";
-        String ymin = "";
-        String zmin = "";
+                " c.name='" + coverageName + "' AND c.id = d.coverage_id "  ;
+        String xmin = trimParams[0].split(":")[0];
+        String ymin = trimParams[1].split(":")[0];
+        String zmin = trimParams[2].split(":")[0];
         String xmax = "";
         String ymax = "";
         String zmax = "";
-
-        xmin = trimParams[0].split(":")[0];
-        ymin = trimParams[1].split(":")[0];
-        zmin = trimParams[2].split(":")[0];
 
         if ( trimParams[0].split(":").length == 2 ){
             xmax = trimParams[0].split(":")[1];
@@ -346,28 +342,28 @@ public class XmlQuery extends AbstractRasNode {
         String query = "";
         ResultSet res = null;
         if (xmin.equals(WcpsConstants.MSG_STAR)) {
-            query = "SELECT min(St_X(coordinate)) as m FROM ps9_multipoint_domain_set";
+            query = "SELECT min(St_X(coordinate)) as m FROM ps9_multipoint";
             res = meta.executePostGISQuery(query);
             while(res.next()){
                 xmin = res.getString("m");
             }
         }
         if (ymin.equals(WcpsConstants.MSG_STAR)) {
-            query = "SELECT min(St_Y(coordinate)) as m FROM ps9_multipoint_domain_set";
+            query = "SELECT min(St_Y(coordinate)) as m FROM ps9_multipoint";
             res = meta.executePostGISQuery(query);
             while(res.next()){
                 ymin = res.getString("m");
             }
         }
         if (zmin.equals(WcpsConstants.MSG_STAR)) {
-            query = "SELECT min(St_Z(coordinate)) as m FROM ps9_multipoint_domain_set";
+            query = "SELECT min(St_Z(coordinate)) as m FROM ps9_multipoint";
             res = meta.executePostGISQuery(query);
             while(res.next()){
                 zmin = res.getString("m");
             }
         }
         if (xmax.equals(WcpsConstants.MSG_STAR)){
-            query = "SELECT max(St_X(coordinate)) as m FROM ps9_multipoint_domain_set";
+            query = "SELECT max(St_X(coordinate)) as m FROM ps9_multipoint";
             res = meta.executePostGISQuery(query);
             while(res.next()){
                 xmax = res.getString("m");
@@ -377,7 +373,7 @@ public class XmlQuery extends AbstractRasNode {
         }
 
         if (ymax.equals(WcpsConstants.MSG_STAR)){
-            query = "SELECT max(St_Y(coordinate)) as m FROM ps9_multipoint_domain_set";
+            query = "SELECT max(St_Y(coordinate)) as m FROM ps9_multipoint";
             res = meta.executePostGISQuery(query);
             while(res.next()){
                 ymax = res.getString("m");
@@ -387,7 +383,7 @@ public class XmlQuery extends AbstractRasNode {
         }
 
         if (zmax.equals(WcpsConstants.MSG_STAR)){
-            query = "SELECT max(St_Z(coordinate)) as m FROM ps9_multipoint_domain_set";
+            query = "SELECT max(St_Z(coordinate)) as m FROM ps9_multipoint";
             res = meta.executePostGISQuery(query);
             while(res.next()){
                 zmax = res.getString("m");

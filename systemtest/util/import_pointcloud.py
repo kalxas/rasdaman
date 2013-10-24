@@ -10,7 +10,7 @@ import ntpath
 MAX_BATCH_INSERT = 100
 DB_TABLE_PREFIX = "ps9"
 
-DB_NAME = "test_import"
+DB_NAME = "petascopedb"
 HOST_NAME = "localhost"
 USER_NAME = "petauser"
 PASSW = "petapassword"
@@ -38,7 +38,13 @@ else:
 	try:
 		# Inserting the general coverage info to ps9_coverage table
 		insert_stmt = ""
-		insert_stmt = "INSERT INTO " + DB_TABLE_PREFIX + "_coverage(name, gml_type_id, native_format_id) VALUES('%s', (SELECT id FROM " + DB_TABLE_PREFIX + "_gml_subtype WHERE subtype='MultiPointCoverage'), (SELECT id FROM " + DB_TABLE_PREFIX + "_mime_type WHERE mime_Type='application/x-octet-stream'));"
+		insert_stmt = ''.join(["INSERT INTO ",
+			DB_TABLE_PREFIX,
+			"_coverage(name, gml_type_id, native_format_id) VALUES('%s', (SELECT id FROM ",
+			DB_TABLE_PREFIX,
+			"_gml_subtype WHERE subtype='MultiPointCoverage'), (SELECT id FROM ",
+			DB_TABLE_PREFIX,
+			"_mime_type WHERE mime_Type='application/x-octet-stream'));"])
 		insert_stmt = insert_stmt % (coverage_name)
 		cursor.execute(insert_stmt)
 		conn.commit()
@@ -90,7 +96,6 @@ else:
 		crs_stmt = "SELECT id FROM " + DB_TABLE_PREFIX + "_crs WHERE uri='%s'" % (args.crs)
 		cursor.execute(crs_stmt)
 		crs_id = cursor.fetchone()[0]
-		#print 'crs_id: ', crs_id
 
 		# Insert (coverage_id, crs_id) into ps9_domain_set
 		crs_stmt = "INSERT INTO " + DB_TABLE_PREFIX + "_domain_set VALUES(%d,'{%d}')" % (coverage_id, crs_id)
@@ -100,16 +105,12 @@ else:
 
 		with open(args.files,'r') as f:
 			# Get the latest point id
-			#point_id_stmt = "SELECT max(id) FROM ps9_multipoint_domain_set"
-			point_id_stmt = "SELECT last_value FROM " + DB_TABLE_PREFIX + "_multipoint_domain_set_id_seq"
+			point_id_stmt = "SELECT last_value FROM " + DB_TABLE_PREFIX + "_multipoint_id_seq"
 			cursor.execute(point_id_stmt)
 			point_id = int(cursor.fetchone()[0] or 1)
-			#print 'point_id: ', point_id
 
 			geo_insert_stmt = []
-			range_insert_stmt = []
-			geo_insert_stmt.append("INSERT INTO " + DB_TABLE_PREFIX + "_multipoint_domain_set(coverage_id,coordinate) VALUES")
-			range_insert_stmt.append("INSERT INTO " + DB_TABLE_PREFIX + "_multipoint_range_set(point_id,value) VALUES")
+			geo_insert_stmt.append("INSERT INTO " + DB_TABLE_PREFIX + "_multipoint(coverage_id,coordinate,value) VALUES")
 
 			lcount = 0
 			moreLine = True
@@ -130,52 +131,22 @@ else:
 
 					if len(geo_insert_stmt) > 1:
 						geo_insert_stmt.append(",");
-					geo_insert_stmt.append("""(%d,'POINT(%s %s %s)')""" % (int(coverage_id),x,y,z))
-
-					# Get the latest point id
-					#point_id_stmt = "SELECT max(id) FROM ps9_multipoint_domain_set"
-					#cursor.execute(point_id_stmt)
-					#point_id = cursor.fetchone()[0]
-					#print 'print_id: ', point_id
-
-					if len(range_insert_stmt) > 1:
-						range_insert_stmt.append(",")
-					point_id += 1
-					range_insert_stmt.append("""(%d,'{%s,%s,%s}')""" % (point_id,r,g,b))
+					geo_insert_stmt.append("""(%d,'POINT(%s %s %s)','{%s,%s,%s}')""" % (int(coverage_id),x,y,z,r,g,b))
 
 					if lcount == MAX_BATCH_INSERT:
 						lcount = 0
 						geo_insert_stmt.append(';')
-						#print 'domain insert: ', ''.join(geo_insert_stmt)
-						#cursor.execute('BEGIN')
 						cursor.execute(''.join(geo_insert_stmt));
-						#cursor.execute('COMMIT')
 						conn.commit()
 						geo_insert_stmt = []
-						geo_insert_stmt.append("INSERT INTO " + DB_TABLE_PREFIX + "_multipoint_domain_set(coverage_id,coordinate) VALUES")
-						#logger.info('\n %d rows were added to ps9_multipoint_domain_set.' % MAX_BATCH_INSERT)
+						geo_insert_stmt.append("INSERT INTO " + DB_TABLE_PREFIX + "_multipoint(coverage_id,coordinate,value) VALUES")
 
-						range_insert_stmt.append(';')
-						#print 'range insert: ', ''.join(range_insert_stmt)
-						cursor.execute(''.join(range_insert_stmt));
-						conn.commit()
-						range_insert_stmt = []
-						range_insert_stmt.append("INSERT INTO " + DB_TABLE_PREFIX + "_multipoint_range_set(point_id,value) VALUES")
-						#logger.info('\n %d rows were added to ps9_multipoint_range_set.' % MAX_BATCH_INSERT)
 
 			if len(geo_insert_stmt) > 1:
 				geo_insert_stmt.append(';')
-				#print ''.join(geo_insert_stmt)
 				cursor.execute(''.join(geo_insert_stmt));
 				conn.commit()
-				#logger.info('\n %d rows were added to ps9_multipoint_range_set.' % MAX_BATCH_INSERT)
 
-			if len(range_insert_stmt) > 1:
-				range_insert_stmt.append(';')
-				#print ''.join(range_insert_stmt)
-				cursor.execute(''.join(range_insert_stmt));
-				conn.commit()
-				#logger.info('\n %d rows were added to ps9_multipoint_range_set.' % MAX_BATCH_INSERT)
 		logger.info(' %s is imported.' % coverage_name)
 
 	except IOError:

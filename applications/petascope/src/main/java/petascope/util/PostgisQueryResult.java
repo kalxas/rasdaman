@@ -43,8 +43,10 @@ public class PostgisQueryResult {
 
     public String toCSV(List<String> data){
         StringBuilder csv = new StringBuilder();
+        String delim = "";
         for(String d: data){
-            csv = csv.append(d).append(",");
+            csv.append(delim).append(d);
+            delim = ",";
         }
         return csv.toString();
     }
