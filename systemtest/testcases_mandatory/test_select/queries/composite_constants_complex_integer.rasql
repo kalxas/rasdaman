@@ -1,0 +1,1 @@
+select complex( 42, 73 ) from test_grey
