@@ -10,12 +10,10 @@ import ntpath
 MAX_BATCH_INSERT = 100
 DB_TABLE_PREFIX = "ps9"
 
-DB_NAME = "petascopedb"
-HOST_NAME = "localhost"
-USER_NAME = "petauser"
-PASSW = "petapassword"
+DB_NAME = os.environ['PS_DB']
+HOST_NAME = os.environ['PG_HOST']
 
-conn = psycopg2.connect("dbname=%s  host=%s user=%s password=%s" % (DB_NAME, HOST_NAME, USER_NAME, PASSW))
+conn = psycopg2.connect("dbname=%s  host=%s" % (DB_NAME, HOST_NAME))
 cursor = conn.cursor()
 conn.autocommit = True
 
