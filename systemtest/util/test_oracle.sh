@@ -124,7 +124,7 @@ for f in *; do
   
   if [ "$SVC_NAME" == "wcps" ]; then
     # skip rasql/xml tests in WCPS test suite for now
-    [[ "$f" == *.rasql || "$f" == *.xml ]] && continue
+    [[ "$f" == *.rasql || "$f" == *.sql || "$f" == *.xml ]] && continue
   fi
   
   # uncomment for single test run
