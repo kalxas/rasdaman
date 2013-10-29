@@ -36,21 +36,21 @@
 
   <gml:boundedBy>
         <gml:Envelope srsName="http://www.opengis.net/def/crs/EPSG/0/4979" axisLabels="Lat Long h" uomLabels="Long h" srsDimension="3">
-            <gml:lowerCorner>456300 1 1 </gml:lowerCorner>
-            <gml:upperCorner>456300 1 1 </gml:upperCorner>
+            <gml:lowerCorner>456377.59377495 1 1 </gml:lowerCorner>
+            <gml:upperCorner>456377.59377495 1 1 </gml:upperCorner>
         </gml:Envelope>
   </gml:boundedBy>
 
   <gml:domainSet>
         <gmlcov:SimpleMultiPoint gml:id="multipoint_Parksmall-grid" srsName="http://www.opengis.net/def/crs/EPSG/0/4979">
-            <gmlcov:positions></gmlcov:positions>
+            <gmlcov:positions>339868.06245005998 53.92999958 339867.49995003 53.92999958 339867.15615001001 53.958999579999997 339867.87495005003 53.924899580000002 339867.74995004002 53.919899579999999 </gmlcov:positions>
         </gmlcov:SimpleMultiPoint>
     </gml:domainSet>
 
   <gml:rangeSet>
         <gml:DataBlock>
         <gml:rangeParameters/>
-            <gml:tupleList></gml:tupleList>
+            <gml:tupleList>231,207,173 255,255,255 255,255,255 208,180,156 224,197,170 </gml:tupleList>
         </gml:DataBlock>
   </gml:rangeSet>
 

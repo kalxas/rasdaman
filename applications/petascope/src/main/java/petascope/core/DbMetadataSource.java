@@ -1712,31 +1712,37 @@ public class DbMetadataSource implements IMetadataSource {
                 }
             }
 
-            String genQuery = WcpsConstants.MSG_SELECT + " St_X(coordinate) || ' ' || St_Y(coordinate) || ' ' || St_Z(coordinate), "
-                    + "value[1] || ',' || value[2] || ',' || value[3]  " +
-                WcpsConstants.MSG_FROM +
-                    " ps9_multipoint AS d " +
-                WcpsConstants.MSG_WHERE + " d.coordinate && "
-                    + "'BOX3D(" + xmin + " " + ymin + " " + zmin + "," +
-                    xmax + " " + ymax + " " + zmax + ")'::box3d AND coverage_id=(SELECT id FROM ps9_coverage " +
-                    "WHERE name='" + coverageID + "')";
-
+            // Check for slicing
+            String genQuery = "";
+            String selectClause = WcpsConstants.MSG_SELECT + " value[1] || ',' || value[2] || ',' || value[3],";
+            String whereClause = WcpsConstants.MSG_WHERE + " coverage_id=(SELECT id FROM ps9_coverage " +
+                    "WHERE name='" + coverageID + "') "; 
+            
+            if (xmin.equals(xmax)) {
+                selectClause += "St_Y(coordinate) || ' ' || St_Z(coordinate)"; 
+                whereClause += " AND St_X(coordinate) = " + xmin; 
+            } else if (ymin.equals(ymax)) {
+                selectClause += "St_X(coordinate) || ' ' || St_Z(coordinate)"; 
+                whereClause += " AND St_Y(coordinate) = " + ymin;
+            } else if (zmin.equals(zmax)) {
+                selectClause += "St_X(coordinate) || ' ' || St_Y(coordinate)"; 
+                whereClause += " AND St_Z(coordinate) = " + zmin;
+            } else {
+                 selectClause += "St_X(coordinate) || ' ' || St_Y(coordinate) || ' ' || St_Z(coordinate)"; 
+                 whereClause += " AND  d.coordinate && "
+                    + "'BOX3D(" + xmin + " " + ymin + " " + zmin + "," + xmax + " " + ymax + " " + zmax + ")'::box3d";
+            }
+            genQuery = selectClause + WcpsConstants.MSG_FROM + " ps9_multipoint AS d " + whereClause; 
             log.debug("postGISQuery: " + genQuery);
-            long startTime = System.currentTimeMillis();
+            
             ResultSet r = s.executeQuery(genQuery);
-            long elapsedTimeMillis = System.currentTimeMillis() - startTime;
-            log.debug("Database Time : " + elapsedTimeMillis);
             StringBuilder pointMembers = new StringBuilder();
             StringBuilder rangeMembers = new StringBuilder();;
 
-            startTime = System.currentTimeMillis();
-
             while (r.next()) {
 
-                pointMembers.append(r.getString(1)).append(" ");
-                rangeMembers.append(r.getString(2)).
-                append(" ");
-
+                rangeMembers.append(r.getString(1)).append(" ");
+                pointMembers.append(r.getString(2)).append(" ");
                 //log.debug("pointCount : " + pointCount);
 
             }
