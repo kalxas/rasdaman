@@ -157,8 +157,8 @@ function import_eobs()
               (SELECT id FROM ps9_quantity WHERE description='$c_basetype' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
-  $PSQL -c "INSERT INTO ps9_crs (uri) VALUES ('$c_crs_t');" > /dev/null # no harm if duplicate error is thrown
-  $PSQL -c "INSERT INTO ps9_crs (uri) VALUES ('$c_crs_s');" > /dev/null #
+  $PSQL -c "INSERT INTO ps9_crs (uri) SELECT '$c_crs_t' WHERE NOT EXISTS (SELECT 1 FROM ps9_crs WHERE uri='$c_crs_t');" > /dev/null
+  $PSQL -c "INSERT INTO ps9_crs (uri) SELECT '$c_crs_s' WHERE NOT EXISTS (SELECT 1 FROM ps9_crs WHERE uri='$c_crs_s');" > /dev/null
   $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[\
               (SELECT id FROM ps9_crs WHERE uri='$c_crs_t'),
@@ -254,7 +254,7 @@ function import_rgb()
               (SELECT id FROM ps9_quantity WHERE description='$c_basetype' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
-  $PSQL -c "INSERT INTO ps9_crs (uri) VALUES ('$c_crs');" > /dev/null # no harm if duplicate error is thrown
+  $PSQL -c "INSERT INTO ps9_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps9_crs WHERE uri='$c_crs');" > /dev/null
   $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[(SELECT id FROM ps9_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
@@ -331,7 +331,7 @@ function import_mr()
               (SELECT id FROM ps9_quantity WHERE description='$c_basetype' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
-  $PSQL -c "INSERT INTO ps9_crs (uri) VALUES ('$c_crs');" > /dev/null # no harm if duplicate error is thrown
+  $PSQL -c "INSERT INTO ps9_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps9_crs WHERE uri='$c_crs');" > /dev/null
   $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[(SELECT id FROM ps9_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
@@ -438,7 +438,7 @@ function import_irr_cube_1()
               (SELECT id FROM ps9_quantity WHERE description='$c_basetype' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
-  $PSQL -c "INSERT INTO ps9_crs (uri) VALUES ('$c_crs');" > /dev/null # no harm if duplicate error is thrown
+  $PSQL -c "INSERT INTO ps9_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps9_crs WHERE uri='$c_crs');" > /dev/null
   $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[(SELECT id FROM ps9_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
@@ -527,7 +527,7 @@ function import_mst()
               (SELECT id FROM ps9_quantity WHERE description='$c_basetype' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
-  $PSQL -c "INSERT INTO ps9_crs (uri) VALUES ('$c_crs');" > /dev/null # no harm if duplicate error is thrown
+  $PSQL -c "INSERT INTO ps9_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps9_crs WHERE uri='$c_crs');" > /dev/null
   $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[(SELECT id FROM ps9_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
