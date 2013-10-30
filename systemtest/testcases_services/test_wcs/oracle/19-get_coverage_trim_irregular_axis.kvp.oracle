@@ -87,7 +87,7 @@
     <swe:field name="value">
       <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:unsigned short">
         <swe:description></swe:description>
-        <swe:uom code="10⁰"/>
+        <swe:uom code="10^0"/>
         <swe:constraint>
           <swe:AllowedValues>
             <swe:interval>0 65535</swe:interval>

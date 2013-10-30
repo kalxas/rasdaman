@@ -41,7 +41,7 @@ $$
     SELECT cset('ID_FIELD',             'id');
     SELECT cset('OCTET_STREAM_MIME',    'application/x-octet-stream');
     SELECT cset('SWE_QUANTITY_FIELD',   'Quantity');
-    SELECT cset('UOM_PURE_NUM',         '10' || chr(x'2070'::int));
+    SELECT cset('UOM_PURE_NUM',         '10^0');
     -- Regex patterns
     SELECT cset('NAME_PATTERN',            E'^[_A-Za-z][-._A-Za-z0-9]*$');
     SELECT cset('SERVICE_VERSION_PATTERN', E'^\\d+\\.\\d?\\d\\.\\d?\\d$');

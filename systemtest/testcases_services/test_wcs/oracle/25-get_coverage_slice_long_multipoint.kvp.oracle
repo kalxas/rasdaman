@@ -59,7 +59,7 @@
           <swe:field name="red">
       <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:unsigned char">
         <swe:description></swe:description>
-        <swe:uom code="10⁰"/>
+        <swe:uom code="10^0"/>
         <swe:constraint>
           <swe:AllowedValues>
             <swe:interval>0 255</swe:interval>
@@ -69,7 +69,7 @@
     </swe:field>    <swe:field name="green">
       <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:unsigned char">
         <swe:description></swe:description>
-        <swe:uom code="10⁰"/>
+        <swe:uom code="10^0"/>
         <swe:constraint>
           <swe:AllowedValues>
             <swe:interval>0 255</swe:interval>
@@ -79,7 +79,7 @@
     </swe:field>    <swe:field name="blue">
       <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:unsigned char">
         <swe:description></swe:description>
-        <swe:uom code="10⁰"/>
+        <swe:uom code="10^0"/>
         <swe:constraint>
           <swe:AllowedValues>
             <swe:interval>0 255</swe:interval>

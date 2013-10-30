@@ -569,7 +569,6 @@ function import_petascope_data()
   fi
 
   COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 Parksmall"
-  COLLECTIONS="rgb mr eobstest irr_cube_1 Parksmall"
 
   for COLLS in $COLLECTIONS; do
     check_cov $COLLS
