@@ -492,6 +492,8 @@ function import_mst()
 
   min_x_geo_coord="111.975"
   max_y_geo_coord="-8.975"
+  x_res='0.05'
+  y_res='-0.05'
 
   c_band='value'
 
