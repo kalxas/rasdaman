@@ -123,10 +123,14 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
                     "A GetCoverage request can specify only one CoverageId");
         }
         String mediaType = ListUtil.head(rUrl.getByKey("mediatype"));
+        // Test /conf/core/getCoverage-acceptable-mediaType
+        if (mediaType != null && !mediaType.equals(FormatExtension.MIME_MULTIPART)) {
+            throw new WCSException(ExceptionCode.InvalidMediatype);
+        }
         String format = ListUtil.head(rUrl.getByKey("format"));
         if (FormatExtension.MIME_MULTIPART.equals(mediaType) && FormatExtension.MIME_GML.equals(format)) {
             throw new WCSException(ExceptionCode.InvalidRequest,
-                    "The 'MEDIATYPE=multipart/mixed & FORMAT=application/gml+xml' combination is not applicable");
+                    "The 'MEDIATYPE=multipart/related & FORMAT=application/gml+xml' combination is not applicable");
         }
 
         GetCoverageRequest ret = new GetCoverageRequest(coverageIds.get(0), format,

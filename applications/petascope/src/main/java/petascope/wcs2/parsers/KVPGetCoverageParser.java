@@ -98,6 +98,10 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                     "A GetCoverage request can specify only one " + KEY_COVERAGEID + ".");
         }
         String mediaType = ListUtil.head(p.get(KEY_MEDIATYPE));
+        // Test /conf/core/getCoverage-acceptable-mediaType
+        if (mediaType != null && !mediaType.equals(FormatExtension.MIME_MULTIPART)) {
+            throw new WCSException(ExceptionCode.InvalidMediatype);
+        }
         String format = ListUtil.head(p.get(KEY_FORMAT));
 
         if (FormatExtension.MIME_MULTIPART.equals(mediaType)

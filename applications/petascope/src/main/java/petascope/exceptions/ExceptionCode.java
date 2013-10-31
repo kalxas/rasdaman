@@ -138,6 +138,8 @@ public class ExceptionCode {
     public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel",
             "The dimension subsetting operation specified an axis label that does not exist in the Envelope " +
             "or has been used more than once in the GetCoverage request.", 404);
+    public static final ExceptionCode InvalidMediatype = new ExceptionCode("InvalidMediatype",
+            "Request contains an invalid mediatype: it must contain a MIME type identifier of fixed value multipart/related.", 404);
     public static final ExceptionCode InvalidCoverageConfiguration = new ExceptionCode("InvalidCoverageConfiguration", null, 500);
     public static final ExceptionCode InvalidEncodingSyntax = new ExceptionCode("InvalidEncodingSyntax",
             "Document received does not conform with protocol syntax", 400);

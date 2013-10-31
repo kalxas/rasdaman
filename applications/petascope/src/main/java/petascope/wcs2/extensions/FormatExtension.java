@@ -37,7 +37,7 @@ import petascope.wcs2.handlers.Response;
 public interface FormatExtension extends  Extension {
 
     String MIME_TEXT = "text/plain";
-    String MIME_MULTIPART = "multipart/mixed";
+    String MIME_MULTIPART = "multipart/related";
     String MIME_GML = "application/gml+xml";
     String MIME_XML = "text/xml";
     String MIME_TIFF = "image/tiff";
