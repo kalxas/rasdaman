@@ -447,6 +447,7 @@ public class PetascopeInterface extends HttpServlet {
         if (e instanceof WCSException) {
             // We can send an error report
             String output = exceptionToXml((WCSException) e);
+            response.setStatus(((WCSException) e).getExceptionCode().getHttpErrorCode());
             response.setContentType("text/xml; charset=utf-8");
             out.println(output);
             out.close();
@@ -627,11 +628,14 @@ public class PetascopeInterface extends HttpServlet {
                     }
                 }
             }
-        } catch (Exception ex) {
-            if (!(ex instanceof PetascopeException)) {
-                ex = new WCSException(ExceptionCode.RuntimeError, ex);
-            }
-            throw ((PetascopeException) ex);
+        } catch (WCSException e) {
+            throw e;
+        } catch (PetascopeException e) {
+            throw new WCSException(e.getExceptionCode(), e.getMessage());
+        } catch (Exception e) {
+            log.error("Runtime error : {}", e.getMessage());
+            throw new WCSException(ExceptionCode.RuntimeError,
+                    "Runtime error while processing request", e);
         }
     }
 

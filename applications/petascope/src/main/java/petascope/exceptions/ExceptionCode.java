@@ -52,7 +52,7 @@ public class ExceptionCode {
      * @param exceptionCode Code representing type of this exception
      */
     public ExceptionCode(String exceptionCode) {
-        this(exceptionCode, null, 0);
+        this(exceptionCode, null, 404);
     }
 
     /**
