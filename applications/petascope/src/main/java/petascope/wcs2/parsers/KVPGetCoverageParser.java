@@ -22,9 +22,11 @@
 package petascope.wcs2.parsers;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -160,6 +162,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         }
 
         HashMap<String, String> subsets = parseSubsetParams(input);
+        Set<String> subsetsDims = new HashSet<String>();
         for (Map.Entry<String, String> subset : subsets.entrySet()) {
             String subsetKey = (String) subset.getKey();
             String subsetValue = (String) subset.getValue();
@@ -169,6 +172,10 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                 String crs = matcher.group(3);
                 String low = matcher.group(4);
                 String high = matcher.group(6);
+                if (!subsetsDims.add(dim)) {
+                    // /conf/core/getCoverage-request-no-duplicate-dimension
+                    throw new WCSException(ExceptionCode.InvalidAxisLabel, "Dimension " + dim + " is duplicated in the request subsets.");
+                }
                 if (high == null) {
                     ret.getSubsets().add(new DimensionSlice(dim, crs, low));
                 } else if (dim != null) {

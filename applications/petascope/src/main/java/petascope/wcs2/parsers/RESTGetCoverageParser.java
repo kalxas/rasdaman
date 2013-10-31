@@ -23,7 +23,9 @@ package petascope.wcs2.parsers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import petascope.HTTPRequest;
@@ -73,6 +75,7 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
      */
     public void parseSubsets(RESTUrl rUrl, GetCoverageRequest ret) throws WCSException {
         ArrayList<String> subsets = rUrl.getByKey(REST_SUBSET_PARAM);
+        Set<String> subsetsDims = new HashSet<String>();
         for (String subsetValue : subsets) {
             Matcher matcher = SUBSET_REGEX.matcher(subsetValue);
             if (matcher.find()) {
@@ -80,6 +83,10 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
                 String crs = matcher.group(3);
                 String low = matcher.group(4);
                 String high = matcher.group(6);
+                if (!subsetsDims.add(dim)) {
+                    // /conf/core/getCoverage-request-no-duplicate-dimension
+                    throw new WCSException(ExceptionCode.InvalidAxisLabel, "Dimension " + dim + " is duplicated in the request subsets.");
+                }
                 if (high == null) {
                     ret.getSubsets().add(new GetCoverageRequest.DimensionSlice(dim, crs, low));
                 } else if (dim != null) {
