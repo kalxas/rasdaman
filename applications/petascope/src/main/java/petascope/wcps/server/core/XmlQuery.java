@@ -392,8 +392,29 @@ public class XmlQuery extends AbstractRasNode {
             zmax = zmin;
         }
 
-        result += " AND d.coordinate && 'BOX3D(" + xmin + " " + ymin + " " + zmin + "," +
+        // Handling Slicing 
+        String selectClause = WcpsConstants.MSG_SELECT + " value,";
+        String whereClause = WcpsConstants.MSG_WHERE +
+                " c.name='" + coverageName + "' AND c.id = d.coverage_id ";
+        
+        if ( xmin.equals(xmax) ) {
+            selectClause += " St_Y(coordinate) || ',' || St_Z(coordinate) AS coord "; 
+            whereClause += " AND St_X(coordinate)=" + xmin;
+        } else if ( ymin.equals(ymax) ) {
+            selectClause += " St_X(coordinate) || ',' || St_Z(coordinate) AS coord "; 
+            whereClause += " AND St_Y(coordinate)=" + ymin;
+        } else if ( zmin.equals(zmax) ) {
+            selectClause += " St_X(coordinate) || ',' || St_Y(coordinate) AS coord "; 
+            whereClause += " AND St_Z(coordinate)=" + zmin;
+        } else {
+            selectClause += " St_X(coordinate) || ',' || St_Y(coordinate) || ',' || St_Z(coordinate) AS coord "; 
+            whereClause += " AND d.coordinate && 'BOX3D(" + xmin + " " + ymin + " " + zmin + "," + 
                 xmax + " " + ymax + " " + zmax + ")'::box3d ";
+        }
+        
+        result = selectClause + 
+                WcpsConstants.MSG_FROM + " ps9_coverage c, ps9_multipoint AS d " +
+                whereClause;
 
 
         return result;

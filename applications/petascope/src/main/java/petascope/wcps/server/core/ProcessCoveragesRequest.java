@@ -158,7 +158,10 @@ public class ProcessCoveragesRequest {
     }
 
     public boolean isPostGISQuery() {
-        return postgisQuery != null && (postgisQuery.contains("BOX3D") || postgisQuery.contains("ST_MakeEnvelope"));
+        return postgisQuery != null && (postgisQuery.contains("BOX3D") || postgisQuery.contains("ST_MakeEnvelope")
+                || postgisQuery.contains("St_X")
+                || postgisQuery.contains("St_Y")
+                || postgisQuery.contains("St_Z"));
     }
 
     public String getMime() {

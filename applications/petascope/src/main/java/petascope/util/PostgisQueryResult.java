@@ -24,9 +24,7 @@ public class PostgisQueryResult {
         if (result instanceof ResultSet) {
             String coord = "";
             while (((ResultSet) result).next()) {
-                    coord = ((ResultSet)result).getString("x").concat(",").concat(((ResultSet)result).getString("y")).
-                            concat(",").concat(((ResultSet)result).getString("z"));
-                    coordinates.add(coord);
+                    coordinates.add(((ResultSet)result).getString("coord"));
                     values.add(((ResultSet)result).getString("value"));
             }
         }
