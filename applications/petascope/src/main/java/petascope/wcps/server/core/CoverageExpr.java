@@ -145,7 +145,8 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
                         child = new SubsetOperationCoverageExpr(node, xq);
                         log.trace("Matched subset operation.");
                     } catch (WCPSException e) {
-                        if ( e.getExceptionCode() == ExceptionCode.MissingCRS) { 
+                        if (e.getExceptionCode().equals(ExceptionCode.MissingCRS) ||
+                            e.getExceptionCode().equals(ExceptionCode.InvalidSubsetting)) {
                             throw(e);
                         }
                         child = null; 

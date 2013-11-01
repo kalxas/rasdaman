@@ -226,8 +226,8 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                     this.transformedCoordinates = true;
                 } catch (PetascopeException e) {
                     this.transformedCoordinates = false;
-                    throw new WCPSException(ExceptionCode.InvalidMetadata,
-                            "Error while converting to pixel coordinates.", e);
+                    log.error("Error while transforming geo-coordinates to pixel coordinates. The metadata is probably not valid.");
+                    throw new WCPSException(e.getExceptionCode(), e.getMessage());
                 }
             } else {
                 // domain values are not number, but variables

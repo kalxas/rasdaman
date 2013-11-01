@@ -256,6 +256,8 @@ public class RasUtil {
         try {
             pcReq = wcps.pcPrepare(ConfigManager.RASDAMAN_URL,
                     ConfigManager.RASDAMAN_DATABASE, IOUtils.toInputStream(query));
+        } catch (WCPSException ex) {
+            throw ex;
         } catch (Exception ex) {
             throw new WCPSException(ExceptionCode.InternalComponentError,
                     "Error translating XML WCPS query to rasql - " + ex.getMessage(), ex);

@@ -158,6 +158,7 @@ public class ExceptionCode {
             + "is greater than current value of service metadata updateSequence number", 400);
     public static final ExceptionCode IOConnectionError = new ExceptionCode("IOConnectionError", null, 0);
     public static final ExceptionCode MaliciousQuery = new ExceptionCode("MaliciousQuery", null, 0);
+    public static final ExceptionCode MissingCRS = new ExceptionCode("MissingCRS", "CRS could be missing in the query. Please check", 404);
     public static final ExceptionCode MissingParameterValue = new ExceptionCode("MissingParameterValue",
             "Operation request does not include a parameter value, and this server did "
             + "not declare a default value for that parameter. Locator: Name of missing parameter", 400);
@@ -214,8 +215,5 @@ public class ExceptionCode {
             "Extent interval passed has upper bound smaller than lower bound", 404);
     public static final ExceptionCode ScaleAxisUndefined = new ExceptionCode("ScaleAxisUndefined",
             "CRS axis indicated is not an axis occurring in this coverage", 404);
-    // Fix ticket #394
-    public static final ExceptionCode MissingCRS = new ExceptionCode("MissingCRS", "CRS could be missing in the query. Please check",404);
-
 }
 

@@ -704,7 +704,7 @@ public class PetascopeInterface extends HttpServlet {
 
             log.debug("WCPS: done");
         } catch (WCPSException e) {
-            throw new WCSException(ExceptionCode.InternalComponentError, e.getMessage(), e);
+            throw new WCSException(e.getExceptionCode(), e.getMessage(), e);
         } catch (SAXException e) {
             throw new WCSException(ExceptionCode.XmlNotValid, e.getMessage(), e);
         } catch (IOException e) {

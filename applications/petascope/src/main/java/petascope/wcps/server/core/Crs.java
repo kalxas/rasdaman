@@ -145,11 +145,13 @@ public class Crs extends AbstractRasNode {
 
         // if subsets are not numeric, /now/ they other choice is that they are timestamps: check the format is valid
         if (subsetWithTimestamps && !TimeUtil.isValidTimestamp(stringLo)) {
+            log.error("Invalid temporal subset: " + stringLo);
             throw new WCPSException(ExceptionCode.InvalidRequest,
                     "Subset '" + stringLo + "' is not valid nor as a number, nor as a supported time description. "
                   + "See Date4J javadoc for supported formats.");
         }
         if (subsetWithTimestamps && !TimeUtil.isValidTimestamp(stringHi)) {
+            log.error("Invalid temporal subset: " + stringHi);
             throw new WCPSException(ExceptionCode.InvalidRequest,
                     "Subset '" + stringHi + "' is not valid nor as a number, nor as a supported time description. "
                   + "See Date4J javadoc for supported formats.");
@@ -159,6 +161,7 @@ public class Crs extends AbstractRasNode {
         if (subsetWithTimestamps) {
             // Check order
             if (!TimeUtil.isOrderedTimeSubset(stringLo, stringHi)) {
+                log.error("Temporal subset is not ordered: [" + stringLo + ", " + stringHi + "]");
                 throw new PetascopeException(ExceptionCode.InvalidSubsetting,
                         axisName + " axis: lower bound " + stringLo + " is greater then the upper bound " + stringHi);
             }
@@ -170,12 +173,14 @@ public class Crs extends AbstractRasNode {
 
             // Check order
             if (coordHi < coordLo) {
+                log.error("Subset is not ordered: [" + coordLo + ", " + coordHi + "]");
                 throw new PetascopeException(ExceptionCode.InvalidSubsetting,
                         axisName + " axis: lower bound " + coordLo + " is greater the upper bound " + coordHi);
             }
 
             // Check intersection with extents
             if (coordLo > domMax.doubleValue() || coordHi < domMin.doubleValue()) {
+                log.error("Subset " + "[" + coordLo + ", " + coordHi + "] is out of coverage bounds [" + domMin + ", " + domMax + "]");
                 throw new PetascopeException(ExceptionCode.InvalidSubsetting,
                         axisName + " axis: subset (" + coordLo + ":" + coordHi + ") is out of bounds.");
             }
