@@ -24,7 +24,7 @@
 # ------------------------------------------------------------------------------
 #
 # SYNOPSIS
-# ./update_petascopedb.sh
+# ./update_petascopedb.sh [--empty] [--migrate]
 #
 # Description
 #  Command-line utility for updating the petascope database. The updating is
@@ -43,7 +43,28 @@
 #     have appropriate write rights in postgres.
 #  3) share/rasdaman/petascope should contain the SQL update scripts
 
-PROG=`basename $0`
+PROG=$( basename $0 )
+
+# argument name
+EMPTY_ARG='--empty'
+MIGRATE_ARG='--migrate'
+
+# argument variables (flags)
+EMPTY_DB=''
+MIGRATE_COVERAGES=''
+
+# synopsis message
+USAGE="
+    usage: $PROG [$EMPTY_ARG] [$MIGRATE_ARG]
+    where:
+    $EMPTY_ARG
+        Do not INSERT any metadata in the database (not recommended).
+    $MIGRATE_ARG
+        Migrate pre-existing coverages in ps_* tables to the new schema (ps9_* tables).
+"
+# In case the usage changes, consequently adjust these values:
+MIN_ARGS=0
+MAX_ARGS=2
 
 CODE_OK=0
 CODE_FAIL=255
@@ -95,20 +116,48 @@ check_postgres() {
     pgrep postmaster > /dev/null || error "The PostgreSQL service is not started."
   fi
 }
+check_dblink() {
+  if [ -z "$DBLINK_SQL" ]; then
+    error "dblink PostgreSQL additional module was not found: please install."
+  fi
+}
 check_paths() {
   if [ ! -f "$SETTINGS" ]; then
-	  error "petascope settings not found: $SETTINGS"
+    error "petascope settings not found: $SETTINGS"
   fi
   if [ ! -d "$SCRIPT_DIR" ]; then
     error "SQL update script directory not found: $SCRIPT_DIR"
   fi
 }
-
+check_args_number() {
+  if [ $1 -lt $MIN_ARGS -o $1 -gt $MAX_ARGS ]
+  then
+    error "$USAGE"
+fi
+}
+check_ret() {
+  if [ "$1" -ne 0 ]; then
+    error "FAILED (return value $1)."
+  fi
+}
 # ------------------------------------------------------------------------------
 # work
 # ------------------------------------------------------------------------------
 
 check_paths
+
+#
+# check command arguments
+#
+check_args_number $#
+while [ $# -gt 0 ]; do
+  case "$1" in
+    $EMPTY_ARG) EMPTY_DB="$1";;
+    $MIGRATE_ARG) MIGRATE_COVERAGES="$1";;
+    *) error "$USAGE";;
+  esac
+  shift
+done
 
 #
 # postgres connection details
@@ -140,6 +189,19 @@ fi
 #
 PSQL="psql -U $PS_USER -d $PS_DB -p $PS_PORT"
 CREATEDB="createdb -U $PS_USER -p $PS_PORT"
+SINGLE_TRANSACTION="--set ON_ERROR_STOP=on --single-transaction"
+
+#
+# SQL scripts
+#
+UTILITIES_SQL="utilities.sql"
+GLOBAL_CONST_SQL="global_const.sql"
+TRIGGERS_SQL="triggers.sql"
+SCHEMA_SQL="schema.sql"
+POPULATE_SQL="populate.sql"
+MIGRATE_SQL="migrate.sql"
+MACROS_SQL="macros.sql"
+DBLINK_SQL=$( locate dblink.sql | head -n 1 )
 
 # print some info
 log "postgres settings read from $SETTINGS"
@@ -161,60 +223,50 @@ fi
 
 
 #
-# determine the update number
-#
-$PSQL -c "select * from $PS_DBUPDATE" > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-  # create from scratch
-	counter=0
-else
-  # update from the last update number
-	counter=`$PSQL -c "select update from $PS_DBUPDATE where id=1" | head -n 3 | tail -n 1 | awk '{print $1}'`
-	if [ "$counter" -ne "$counter" ] 2>/dev/null; then
-    error "couldn't determine last update from the $PS_DBUPDATE table"
-  fi
-fi
-
-#
 # some updates are written in PL/pgSQL, so install the extension in postgres
 #
-createlang plpgsql -U $PS_USER $PS_DB > /dev/null 2>&1
+createlang plpgsql -U $PS_USER -p $PS_PORT $PS_DB > /dev/null 2>&1
 rc=$?
 if [ $rc -ne 0 -a $rc -ne 2 ]; then
   error "failed creating PL/pgSQL extension in PostgreSQL, please install it first on your system."
 fi
 
 #
-# insert the database updates
+# run the SQL scripts
 #
-echo
-log "executing updates:"
-updated=0
-while [ -f "$SCRIPT_DIR/update$counter.sql" ]; do
-  logn "  update $counter... "
-        # Note for future .sql files: do not add manual BEGIN/COMMIT transactions, they are handled by psql
-	$PSQL --set ON_ERROR_STOP=on --single-transaction -f "$SCRIPT_DIR/update$counter.sql" > /dev/null 2>&1
-	# Check if the update was successful
-	ret=$?
-	if [ "$ret" -ne 0 ]; then
-		echo "FAILED (return value $ret)."
-		break # So that ps_dbupdates is updated to its partial update anyway.
-  else
-    echo ok.
-	fi
-	counter=$(($counter+1))
-	updated=1
-done
+log "Loading utilities and global constants ... "
+$PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$UTILITIES_SQL" > /dev/null 2>&1
+check_ret $?
+$PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$GLOBAL_CONST_SQL"  > /dev/null 2>&1
+check_ret $?
 
-#
-# save the last update number
-#
-if [ $updated -eq 1 ]; then
-  $PSQL -c "update $PS_DBUPDATE set update=$counter where id=1" > /dev/null 2>&1
-  log "updated database to update $((counter-1))"
-else
-  log "database already up-to-date, nothing to update."
+log "Loading triggers ... "
+$PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$TRIGGERS_SQL" > /dev/null 2>&1
+check_ret $?
+
+log "Creating schema for PS9_* tables ... "
+$PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$SCHEMA_SQL" > /dev/null 2>&1
+check_ret $?
+
+if [ -z "$EMPTY_DB" ]; then
+  log "Populating tables with some required metadata ... "
+  $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$POPULATE_SQL" > /dev/null 2>&1
+  check_ret $?
 fi
+
+if [ -n "$MIGRATE_COVERAGES" ]; then
+  log "Installing dblink module to $PS_DB and RASBASE db... "
+  check_dblink
+  psql -U "$PS_USER" -p "$PS_PORT" -f "$DBLINK_SQL" -d "$PS_DB"  > /dev/null 2>&1
+  psql -U "$PS_USER" -p "$PS_PORT" -f "$DBLINK_SQL" -d "RASBASE" > /dev/null 2>&1
+  log "Migrating existing coverages from PS_* tables ... "
+  $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$MIGRATE_SQL"
+  check_ret $?
+fi
+
+log "Loading macros ... "
+$PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$MACROS_SQL" > /dev/null 2>&1
+check_ret $?
 
 #
 # done

@@ -239,7 +239,7 @@ $$
         _coverage9_id := select_field(
                            cget('TABLE_PS9_COVERAGE'),
                            cget('PS9_COVERAGE_ID'), 0,
-                           ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '='''
+                           ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '='
                                      || quote_literal(coverage_name)
         );
         RAISE NOTICE '%: coverage ''%'' has been inserted in % with id %.', ME, coverage_name, cget('TABLE_PS9_COVERAGE'), _coverage9_id;
@@ -306,7 +306,7 @@ $$
         -- Finally, set the native CRS for this coverage
         _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_DOMAINSET'))       ||
                           ' ( ' || quote_ident(cget('PS9_DOMAINSET_COVERAGE_ID')) || ','
-                                || quote_ident(cget('PS9_DOMAINSET_CRS_ID'))      || ' ) '   ||
+                                || quote_ident(cget('PS9_DOMAINSET_CRS_IDS'))      || ' ) '   ||
                     ' VALUES (' || _coverage9_id || ',''' || _native_crs::text    || ''')';
         RAISE DEBUG '%: EXECUTING %', ME, _qry;
         EXECUTE _qry;
@@ -427,7 +427,7 @@ $$
         -- Fetch the OID of this coverage from RASBASE = ras_mddobjects.mddid*512+1
         -- TODO: add installation of additional PG libraries for `dblink' function
         -- dblink usage: SELECT * FROM dblink('<connection>', '<query>') AS foo(<colname> <coltype>, ...);
-        _qry := 'SELECT ARRAY[oid] AS row FROM dblink( ''dbname=' || quote_ident(cget('DB_RASBASE')) || ''',$q$' ||
+        _qry := 'SELECT ARRAY[oid] AS row FROM dblink( ''dbname=' || cget('DB_RASBASE') || ''',$q$' ||
                   ' SELECT 1+(512*' || quote_ident(cget('TABLE_RAS_MDD_OBJECTS'))      || '.'
                                     || quote_ident(cget('RAS_MDD_OBJECTS_MDDID'))      || ') ' ||
                            ' FROM ' || quote_ident(cget('TABLE_RAS_MDD_OBJECTS'))      || ','
@@ -438,11 +438,11 @@ $$
                                     || quote_ident(cget('TABLE_RAS_MDD_COLLECTIONS'))  || '.'
                                     || quote_ident(cget('RAS_MDD_COLLECTIONS_MDDID'))  ||
                             ' AND ' || quote_ident(cget('TABLE_RAS_MDD_COLLECTIONS'))  || '.'
-                                    || quote_ident(cget('RAS_MDD_COLLECTIONS_MDDCOLLID'0) || '='
+                                    || quote_ident(cget('RAS_MDD_COLLECTIONS_MDDCOLLID')) || '='
                                     || quote_ident(cget('TABLE_RAS_MDD_COLLNAMES'))    || '.'
                                     || quote_ident(cget('RAS_MDD_COLLNAMES_COLLID'))   ||
                             ' AND ' || quote_ident(cget('RAS_MDD_COLLNAMES_COLLNAME')) || '='
-                                    || quote_literal(coverage_name) || ' '
+                                    || quote_literal(coverage_name) || ' ' ||
                        ' ORDER BY ' || quote_ident(cget('TABLE_RAS_MDD_OBJECTS'))      || '.'
                                     || quote_ident(cget('RAS_MDD_OBJECTS_MDDID'))      || '$q$) AS rec(oid numeric)';
         RAISE DEBUG '%: EXECUTING %', ME, _qry;
@@ -513,7 +513,7 @@ $$
                                               || quote_ident(cget('PS_RANGE_TYPE'))       ||
                       ' WHERE ' || quote_ident(cget('TABLE_PS_RANGE'))    || '.'
                                 || quote_ident(cget('PS_RANGE_COVERAGE')) || '=' || _coverage_id ||
-                   ' ORDER BY ' || quote_ident(cget('TABLE_PS_RANGE'))    || '.' || quote_ident(cget('PS_RANGE_I'0);
+                   ' ORDER BY ' || quote_ident(cget('TABLE_PS_RANGE'))    || '.' || quote_ident(cget('PS_RANGE_I'));
         RAISE DEBUG '%: EXECUTING %', ME, _qry;
         FOR _tup IN EXECUTE _qry LOOP
 
@@ -619,7 +619,8 @@ $$
                           cget('TABLE_PS9_MIME_TYPE'),
                           cget('PS9_MIME_TYPE_ID'), 0,
                           ' WHERE ' || quote_ident(cget('PS9_MIME_TYPE_MIME')) ||
-                                '=' || quote_literal(cget('OCTET_STREAM_MIME'));
+                                '=' || quote_literal(cget('OCTET_STREAM_MIME'))
+            );
             RAISE DEBUG '%: MIME type id for % is %.', ME, cget('OCTET_STREAM_MIME'), _mime_id;
         EXCEPTION
             WHEN no_data_found THEN

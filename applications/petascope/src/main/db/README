@@ -1,26 +1,33 @@
--- update_petascopedb.sh 
+-- update_petascopedb.sh
 
 Automate update of the petascope database. This script expects a local
-settings.properties file, if it's not found then it automatically copies the
+`petascope.properties` file, if it is not found then it automatically copies the
 default sample file from src/main/resources. It is recommended that you
 manually copy the sample file and adapt to your environment if needed, and then
-execute update_petascopedb.sh
+execute `update_petascopedb.sh`.
 
-When installing petascope for the first time, update_petascopedb.sh will create the
-initial database and insert the NIR sample data in rasdaman. Otherwise it will
-only update the database (if there are any new updates since the last update).
+When installing petascope for the first time, `update_petascopedb.sh` will create the
+initial database. Otherwise it will only try migrating existing covereges in case
+the `--migrate` option is set.
 
-In either case, it expects:
- * an existing database in PostgreSQL as specified by the property metadata_url
-   in settings.properties
- * and a PostgreSQL user that can modify this database and can login via ident
-   authentication
+In either case, it expect a PostgreSQL user that can modify the configured database 
+and can login via ident authentication.
 
-IMPORTANT: don't execute update_petascopedb.sh with sh, but with bash. Best is to
-chmod +x update_petascopedb.sh, and execute it with ./update_petascopedb.sh
+IMPORTANT: do not execute `update_petascopedb.sh` with sh, but with bash. Best is to
+`chmod +x update_petascopedb.sh`, and execute it with `./update_petascopedb.sh`.
 
--- updateN.sql
+-- petascope/*.sql
 
-These files contain SQL statements that update the petascope database. Any
-changes should be put in a new updateN.sql file, where N is the next update
-number. The update can then be executed with the update_petascopedb.sh script.
+These files contain SQL statements for the creation of the database schema, 
+and for migrating existing coverages in the old PS_* tables.
+
+Currently, the prefix ``PS9_'' will prepend the tables' names for Petascope 9.
+To visualize the schema structure look into the
+`<rasdaman>/manuals_and_examples/manuals/doc-petascope-schema/' folder for help.
+To see the available tables and triggers from command line, type:
+
+petascopedb=# \dt ps9_*
+petascopedb=# \dft
+
+To migrate the existing coverages in PS_* tables to PS9_* ones, run the update script with
+the `--migrate` option set.
