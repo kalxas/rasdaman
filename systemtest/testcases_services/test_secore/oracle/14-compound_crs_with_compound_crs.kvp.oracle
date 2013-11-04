@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <ows:ExceptionReport version="2.0.0" xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
-  <ows:Exception exceptionCode="InvalidParameterValue">
-    <ows:ExceptionText>Invalid crs-compound request, expected number 3 but got 2</ows:ExceptionText>
+  <ows:Exception exceptionCode="InvalidParameterValue" locator="2">
+    <ows:ExceptionText>Expected URL to simple definition as parameter value of 2, but got a URL to a compound CRS</ows:ExceptionText>
   </ows:Exception>
 </ows:ExceptionReport>

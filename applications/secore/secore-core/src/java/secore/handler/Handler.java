@@ -19,8 +19,10 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package secore;
+package secore.handler;
 
+import secore.req.ResolveResponse;
+import secore.req.ResolveRequest;
 import secore.util.SecoreException;
 
 /**
@@ -40,7 +42,7 @@ public interface Handler {
    *  key will result in an exception.
    * @return true if this handler can handle the given request, false otherwise
    */
-  boolean canHandle(ResolveRequest request);
+  boolean canHandle(ResolveRequest request) throws SecoreException;
   
   /**
    * In this method a specific handler tries to handle a request represented
@@ -57,7 +59,7 @@ public interface Handler {
    * @throws SecoreException if a problem arises while the request is being handled,
    *  an exception is thrown
    */
-  GmlResponse handle(ResolveRequest request) throws SecoreException;
+  ResolveResponse handle(ResolveRequest request) throws SecoreException;
   
   /**
    * @return this handler's operation id, e.g. crs, axis, crs-compound

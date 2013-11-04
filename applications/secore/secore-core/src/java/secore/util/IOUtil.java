@@ -22,9 +22,11 @@
 package secore.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Scanner;
 import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +116,7 @@ public class IOUtil {
     if (f != null) {
       return f;
     } else {
-      throw new IOException("Failed opening file " + fileName);
+      throw new IOException("Failed finding file " + fileName);
     }
   }
   
@@ -129,16 +131,43 @@ public class IOUtil {
       File indexFile;
       try {
         // get path to $CATALINA_HOME/webapps/def/index.jsp
-        indexFile = IOUtil.findFile(Constants.INDEX_FILE);
+        try {
+          indexFile = IOUtil.findFile(Constants.INDEX_FILE);
+        } catch (Exception ex) {
+          log.error("Couldn't find index file.", ex);
+          return secoreDbDir;
+        }
         // get path to $CATALINA_HOME/webapps/
         File webappsDir = indexFile.getParentFile().getParentFile();
         // return $CATALINA_HOME/webapps/.secoredb
         secoreDbDir = webappsDir.getAbsolutePath() +
             File.separator + Constants.SECORE_DB_DIR;
+        File secoreDbDirFile = new File(secoreDbDir);
+        if (!secoreDbDirFile.exists()) {
+          if (!secoreDbDirFile.mkdir()) {
+            log.warn("Failed creating database directory: " + secoreDbDir);
+            secoreDbDir = null;
+          }
+        }
       } catch (Exception ex) {
         log.warn("Couldn't determine the database directory for SECORE.", ex);
       }
     }
     return secoreDbDir;
+  }
+  
+  /**
+   * Read file and return contents as string.
+   * @param file path to file
+   * @return file contents as string
+   */
+  public static String fileToString(String file) {
+    String ret = "";
+    try {
+      ret = new Scanner(new File(file)).useDelimiter("\\A").next();
+    } catch (FileNotFoundException ex) {
+      log.error("File " + file + " not found.", ex);
+    }
+    return ret;
   }
 }

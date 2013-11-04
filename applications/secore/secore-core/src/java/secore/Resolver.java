@@ -21,7 +21,15 @@
  */
 package secore;
 
-import secore.util.Pair;
+import secore.handler.GeneralHandler;
+import secore.handler.AxisHandler;
+import secore.handler.Handler;
+import secore.handler.CrsCompoundHandler;
+import secore.handler.ParameterizedCrsHandler;
+import secore.handler.EqualityHandler;
+import secore.handler.IncompleteUrlHandler;
+import secore.req.ResolveResponse;
+import secore.req.ResolveRequest;
 import secore.util.SecoreException;
 import secore.util.ExceptionCode;
 import java.io.BufferedReader;
@@ -31,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.req.RequestParam;
 import static secore.util.Constants.*;
 
 /**
@@ -49,9 +58,9 @@ public class Resolver {
     registerHandler(new EqualityHandler());
     registerHandler(new CrsCompoundHandler());
     registerHandler(new ParameterizedCrsHandler());
+    registerHandler(new IncompleteUrlHandler());
     registerHandler(new GeneralHandler());
     registerHandler(new AxisHandler());
-    
   }
 
   /**
@@ -73,14 +82,14 @@ public class Resolver {
    * @throws SecoreException when the resolver can not handle the given request, or in
    *  case of a mall-formed request.
    */
-  public static GmlResponse resolve(ResolveRequest request) throws SecoreException {
-    List<Pair<String, String>> args = request.getParams();
-    if (args == null || args.isEmpty()) {
+  public static ResolveResponse resolve(ResolveRequest request) throws SecoreException {
+    List<RequestParam> args = request.getParams();
+    if (args == null) {
       throw new SecoreException(ExceptionCode.MissingParameterValue, "No arguments provided");
     }
-    for (Pair<String, String> arg : args) {
-      if (arg.fst == null) {
-        throw new SecoreException(ExceptionCode.InvalidRequest, "Null key encountered");
+    for (RequestParam arg : args) {
+      if (arg.val == null) {
+        throw new SecoreException(ExceptionCode.InvalidRequest, "Null value encountered");
       }
     }
     for (Handler handler : handlers) {
@@ -89,7 +98,8 @@ public class Resolver {
         return handler.handle(request);
       }
     }
-    throw new SecoreException(ExceptionCode.OperationNotSupported.locator(request.getOperation()), "Operation not defined");
+    throw new SecoreException(ExceptionCode.OperationNotSupported.locator(request.getOriginalRequest()), 
+        "Can not resolve request: " + request.getOriginalRequest());
   }
 
   /**
@@ -100,7 +110,7 @@ public class Resolver {
    * @throws SecoreException when the resolver can not handle the given request, or in
    *  case of a mall-formed request.
    */
-  public static GmlResponse resolve(URL url) throws SecoreException {
+  public static ResolveResponse resolve(URL url) throws SecoreException {
     BufferedReader in = null;
     StringBuilder data = new StringBuilder(1000);
     
@@ -126,6 +136,6 @@ public class Resolver {
     if (ret.endsWith(NEW_LINE)) {
       ret = ret.substring(0, ret.length() - 1);
     }
-    return new GmlResponse(ret);
+    return new ResolveResponse(ret);
   }
 }

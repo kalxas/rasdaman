@@ -1,1 +1,7 @@
-TODO : should return error, see ticket #356.
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<ows:ExceptionReport version="2.0.0" xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <ows:Exception exceptionCode="InvalidRequest">
+    <ows:ExceptionText>Expected parameterized CRS definition, but http://localhost:8080/def/crs/EPSG/0/4327?foo=qwerty points to GeodeticCRS. Identifiers of simple definitions are not supposed to contain extra parameters, aside from the authority, version and code.</ows:ExceptionText>
+  </ows:Exception>
+</ows:ExceptionReport>

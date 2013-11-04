@@ -19,12 +19,8 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package secore;
+package secore.req;
 
-import secore.GmlResponse;
-import secore.util.Constants;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -32,7 +28,7 @@ import static org.junit.Assert.*;
  *
  * @author Dimitar Misev
  */
-public class GmlResponseTest {
+public class ResolveResponseTest {
 
   /**
    * Test of getData method, of class GmlResponse.
@@ -40,15 +36,15 @@ public class GmlResponseTest {
   @Test
   public void testGetData() {
     System.out.println("getData");
-    String data = "<hello>\n" +
+    String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<hello>\n" +
         "   <metaDataProperty>\n" +
         "      <adsf/>\n" +
         "   </metaDataProperty>\n" +
         "</hello>";
-    GmlResponse instance = new GmlResponse(data);
-    String expResult = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<hello>\n" +
+    ResolveResponse instance = new ResolveResponse(data);
+    String expResult = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+        + "<hello xmlns:gco=\"http://www.isotc211.org/2005/gco\" xmlns:gmd=\"http://www.isotc211.org/2005/gmd\">\n" +
         "   <metaDataProperty>\n" +
-        "      <credits xmlns=\"http://rasdaman.org/ns\">" + Constants.COPYRIGHT + "</credits>\n" +
         "      <adsf/>\n" +
         "   </metaDataProperty>\n" +
         "</hello>";

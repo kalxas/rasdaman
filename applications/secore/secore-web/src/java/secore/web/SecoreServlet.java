@@ -21,8 +21,8 @@
  */
 package secore.web;
 
-import secore.GmlResponse;
-import secore.ResolveRequest;
+import secore.req.ResolveResponse;
+import secore.req.ResolveRequest;
 import secore.Resolver;
 import secore.db.DbManager;
 import secore.util.StringUtil;
@@ -53,14 +53,11 @@ public class SecoreServlet extends HttpServlet {
 
   @Override
   public void init() throws ServletException {
-    //Config.getInstance();
-    log.info("Initializing SECORE web front-end...");
-    DbManager.getInstance().getDb();
-    log.info("Initialization done.");
   }
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    StringUtil.SERVLET_CONTEXT = req.getContextPath();
     String uri = req.getRequestURL().toString();
     uri = StringUtil.removeDuplicateDef(uri);
     String qs = req.getQueryString();
@@ -69,10 +66,13 @@ public class SecoreServlet extends HttpServlet {
     }
     try {
       log.debug("Request URI: " + uri);
-      ResolveRequest request = StringUtil.buildRequest(uri);
-      log.trace("Translated request\n" + request);
-      GmlResponse res = Resolver.resolve(request);
-      writeResult(req, resp, XML_DECL + res.getData());
+      ResolveRequest request = new ResolveRequest(uri);
+      StringUtil.SERVICE_URI = request.getServiceUri();
+      log.debug("Set service URI to " + StringUtil.SERVICE_URI);
+      DbManager.getInstance().getDb();
+      
+      ResolveResponse res = Resolver.resolve(request);
+      writeResult(req, resp, res.getData());
     } catch (SecoreException ex) {
         writeError(resp, ex);
     }
@@ -85,7 +85,6 @@ public class SecoreServlet extends HttpServlet {
       SecoreException ce = new SecoreException(ExceptionCode.NoSuchDefinition, "The requested resource was not found");
       writeError(resp, ce);
     } else {
-      s = StringUtil.fixLinks(s); // remove URNs
       out.write(s);
     }
     out.flush();

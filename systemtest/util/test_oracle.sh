@@ -97,11 +97,12 @@ if [ $? -eq 0 ]; then
 fi
 echo "$SCRIPT_DIR" | grep "testcases_services" > /dev/null
 if [ $? -eq 0 ]; then
-  check_petascope || exit $RC_SKIP
+  if [ "$SVC_NAME" != "secore" ]; then
+    check_petascope || exit $RC_SKIP
+  fi
 fi
-check_petascope
 check_postgres
-check_rasdaman
+[ "$SVC_NAME" != "secore" ] && check_rasdaman
 check_wget
 check_gdal
 

@@ -21,25 +21,26 @@
  */
 package secore.db;
 
-import secore.util.IOUtil;
 import secore.util.SecoreException;
 import secore.util.ExceptionCode;
-import java.io.File;
-import java.io.FilenameFilter;
-import java.util.HashMap;
 import java.util.Map;
 import org.basex.core.BaseXException;
+import org.basex.core.Command;
 import org.basex.core.Context;
-import org.basex.core.cmd.Add;
 import org.basex.core.cmd.Close;
 import org.basex.core.cmd.CreateDB;
 import org.basex.core.cmd.CreateIndex;
+import org.basex.core.cmd.InfoDB;
 import org.basex.core.cmd.Open;
 import org.basex.core.cmd.Set;
 import org.basex.core.cmd.XQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import secore.util.Constants;
+import secore.util.IOUtil;
+import secore.util.Pair;
+import secore.util.StringUtil;
+import secore.util.XMLUtil;
 
 /**
  * BaseX backend.
@@ -50,111 +51,139 @@ public class BaseX implements Database {
   
   private static Logger log = LoggerFactory.getLogger(BaseX.class);
   
-  protected static final String GML_DB = "gml";
   private static final String XML_EXTENSION = ".xml";
   
   private static final String TEXT_INDEX_TYPE = "text";
 
   private Context context;
-  private boolean closed;
-
-  public boolean open() {
+  
+  // collection name -> absolute path to initalization file
+  private java.util.Set<String> collections;
+  
+  public BaseX(Map<String, String> collections) {
+    this.collections = collections.keySet();
+    
     context = new Context();
-    try {
-      // determine configuration directory in which to put the database
-      String secoreDbDir = IOUtil.getDbDir();
-      if (secoreDbDir != null) {
-        new Set(Constants.DBPATH_BASEX_PROPERTY, secoreDbDir).execute(context);
-        log.debug("Secore database directory: " + secoreDbDir);
-      }
-
-      new Set("CREATEFILTER", "*" + XML_EXTENSION).execute(context);
-      new Open(GML_DB).execute(context);
-      new CreateIndex(TEXT_INDEX_TYPE).execute(context);
-    } catch (Exception ex) {
-      log.debug("The database doesn't seem to exist");
+    
+    for (String coll : this.collections) {
       try {
-        log.info("Initializing database " + GML_DB);
-        new CreateDB(GML_DB).execute(context);
-        log.info("Database successfully initialized.");
-      } catch (Exception e) {
-        log.error("Failed initializing the " + GML_DB + " database", e);
-        return false;
+        new Set("CREATEFILTER", "*" + XML_EXTENSION).execute(context);
+        new Open(coll).execute(context);
+        new CreateIndex(TEXT_INDEX_TYPE).execute(context);
+        log.info("Database connection to " + coll + " successfully opened.");
+      } catch (Exception ex) {
+        log.debug("The database " + coll + " doesn't seem to exist");
+        try {
+          log.info("Initializing database " + coll);
+          String xml = IOUtil.fileToString(collections.get(coll));
+          
+          xml = StringUtil.fixLinks(xml, StringUtil.SERVICE_URI);
+          log.trace("Creating database with content (trimmed to first 3000 characters):\n{}", 
+              xml.substring(0, Math.min(xml.length(), 3000)));
+          new CreateDB(coll, xml).execute(context);
+          log.info("Database successfully initialized.");
+          log.trace("Database information:\n" + new InfoDB().execute(context));
+        } catch (Exception e) {
+          log.error("Failed initializing the " + coll + " database", e);
+        }
+      } finally {
+        close();
       }
     }
-    log.info("Database connection successfully opened.");
-    closed = false;
-    return true;
   }
-
-  public boolean closed() {
-    return closed;
-  }
-
-  public boolean close() {
+  
+  public void close() {
     try {
       new Close().execute(context);
-      closed = true;
-      log.debug("Database connection successfully closed.");
-      return true;
     } catch (Exception ex) {
-      log.error("Failed closing the database connection.", ex);
     }
-    return false;
   }
 
-  public String query(String query) throws SecoreException {
-    log.trace("Executing query: " + query);
+  private String query(String query, String databaseName) throws SecoreException {
     try {
       long start = System.currentTimeMillis();
+      new Open(databaseName).execute(context);
       String ret = null;
-      if (DbManager.cacheContains(query)) {
-        ret = DbManager.getCached(query);
+      boolean user = DbManager.USER_DB.equals(databaseName);
+      boolean cached = false;
+      if (DbManager.cacheContains(query, user)) {
+        Pair<String, Boolean> tmp = DbManager.getCached(query);
+        ret = tmp.fst;
+        cached = true;
       } else {
         ret = new XQuery(query).execute(context);
-        DbManager.updateCache(query, ret);
       }
       long end = System.currentTimeMillis();
-      log.trace("Query successfully executed in " + (end - start) + "ms");
+      if (!StringUtil.emptyQueryResult(ret)) {
+        log.trace("Query successfully executed in " + (end - start) + "ms");
+        log.trace("Result (trimmed to first 300 characters):\n" + ret.substring(0, Math.min(300, ret.length())));
+        if (!cached) {
+          DbManager.updateCache(query, ret, user);
+        }
+      }
       return ret;
     } catch (Exception e) {
       throw new SecoreException(ExceptionCode.InternalComponentError, "Failed at querying the database", e);
+    } finally {
+      close();
     }
-
   }
 
-  public boolean add(String path) {
+  public String query(String query) throws SecoreException {
+    log.trace("Executing query");
+    String ret = null;
+    ret = queryUser(query);
+    if (StringUtil.emptyQueryResult(ret)) {
+      ret = queryEpsg(query);
+    }
+    return ret;
+  }
+
+  public String updateQuery(String query) throws SecoreException {
+    log.trace("Executing update query");
+    query = StringUtil.fixLinks(query, StringUtil.SERVICE_URI);
+    String ret = queryUser(query);
+    return ret;
+  }
+  
+  public String queryEpsg(String query) throws SecoreException {
+    String ret = null;
+    if (query == null) {
+      return Constants.EMPTY;
+    }
+    query = query.replaceAll(Constants.COLLECTION_NAME, DbManager.EPSG_DB);
+    log.trace("Executing query against the EPSG database: " + query);
+    ret = query(query, DbManager.EPSG_DB);
+    return ret;
+  }
+  
+  public String queryUser(String query) throws SecoreException {
+    String ret = null;
+    if (query == null) {
+      return Constants.EMPTY;
+    }
+    query = query.replaceAll(Constants.COLLECTION_NAME, DbManager.USER_DB);
+    log.trace("Executing query against the USER database: " + query);
+    ret = query(query, DbManager.USER_DB);
+    return ret;
+  }
+  
+  /**
+   * Allow executing BaseX command in the current context.
+   * 
+   * @param cmd command to execute
+   * @return execution result
+   * @throws SecoreException Just wraps around the BaseX exception
+   */
+  public Object executeCommand(Command cmd) throws SecoreException {
+    Object ret = null;
     try {
-      String name = IOUtil.getFilename(path);
-      // The XQuery base-uri() function returns a file path
-      String docs = new XQuery("for $doc in collection('" + GML_DB + "')"
-          + "return base-uri($doc)").execute(context);
-      if (docs.contains(name)) {
-        return false;
-      }
-      new Add(path, name).execute(context);
+      ret = cmd.execute(context);
     } catch (BaseXException ex) {
-      log.error("Failed adding document " + path + " to the " + GML_DB + " database.", ex);
-      return false;
+      throw new SecoreException(ExceptionCode.InternalComponentError,
+          "Failed executing BaseX command: " + cmd.toString(), ex);
     }
-    log.debug("Loaded GML file to database: " + path);
-    return true;
+    return ret;
   }
-
-  public void addAll(String dir) {
-    try {
-      File fdir = new File(dir);
-      File[] files = fdir.listFiles(new FilenameFilter() {
-        public boolean accept(File file, String string) {
-          return string.endsWith(XML_EXTENSION);
-        }
-      });
-      for (File file : files) {
-        add(file.toURI().toString());
-      }
-    } catch (Exception ex) {
-      log.error("Failed loading GML definitions from " + dir, ex);
-      throw new RuntimeException("Failed loading GML definitions from " + dir, ex);
-    }
-  }
+  
 }

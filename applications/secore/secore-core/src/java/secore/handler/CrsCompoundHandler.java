@@ -19,18 +19,20 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package secore;
+package secore.handler;
 
+import secore.req.ResolveResponse;
+import secore.req.ResolveRequest;
 import secore.util.Config;
-import secore.util.Pair;
 import secore.util.StringUtil;
 import secore.util.SecoreException;
 import secore.util.ExceptionCode;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.Resolver;
+import secore.req.RequestParam;
 import static secore.util.Constants.*;
 
 /**
@@ -38,48 +40,69 @@ import static secore.util.Constants.*;
  *
  * @author Dimitar Misev
  */
-class CrsCompoundHandler extends AbstractHandler {
+public class CrsCompoundHandler extends AbstractHandler {
   
   private static Logger log = LoggerFactory.getLogger(CrsCompoundHandler.class);
 
-  public GmlResponse handle(ResolveRequest request) throws SecoreException {
+  public ResolveResponse handle(ResolveRequest request) throws SecoreException {
     log.debug("Handling resolve request...");
     
-    List<Pair<String, String>> params = request.getParams();
+    List<RequestParam> params = request.getParams();
     
     if (request.getOperation().equals(getOperation()) && params.size() >= 1) {
       
       // component CRS URIs
-      List<String> components = getComponentCRSs(request, 2);
+      List<RequestParam> components = request.getParams();
       
       // do some checking first, whether they are existing references
       String name = EMPTY;
       String comp = EMPTY;
       String code = EMPTY;
-      for (String component : components) {
-        try {
-          URL crsRef = new URL(component);
-          String res = Resolver.resolve(crsRef).getData();
-          if (res.equals(EMPTY)) {
-            throw new SecoreException(ExceptionCode.NoSuchDefinition,
-                "Invalid CRS definition received for " + component);
-          }
-          if (!name.equals(EMPTY)) {
-            name += " / ";
-          }
-          name += StringUtil.getElementValue(res, NAME_LABEL);
-          String id = StringUtil.getElementValue(res, IDENTIFIER_LABEL);
-          if (id == null) {
-            throw new SecoreException(ExceptionCode.XmlNotValid,
-                "Invalid CRS definition received for " + component);
-          }
-          comp += "   <componentReferenceSystem xlink:href='" + id + "'/>\n";
-          code += "-" + id.substring(id.lastIndexOf(':') + 1);
-        } catch (Exception ex) {
-          log.error("Failed resolving CRS definition: " + component, ex);
-          throw new SecoreException(ExceptionCode.NoSuchDefinition,
-              "Failed resolving CRS definition: " + component, ex);
+      int i = 0;
+      for (RequestParam component : components) {
+        if (!(component.val instanceof ResolveRequest)) {
+          throw new SecoreException(ExceptionCode.InvalidParameterValue.locator(component.key),
+              "Invalid parameter value received for " + component.key + ": " + component.val);
         }
+        ++i;
+        if (component.key == null || !String.valueOf(i).equals(component.key)) {
+          throw new SecoreException(ExceptionCode.InvalidParameterValue,
+              "Invalid " + getOperation() + " request, expected number " + i
+              + " as key for parameter, but but was " + component.key);
+        }
+        String res = null;
+        ResolveRequest req = (ResolveRequest) component.val;
+        if (req.getOperation().equals(Handler.OP_CRS_COMPOUND)) {
+          throw new SecoreException(ExceptionCode.InvalidParameterValue.locator(component.key),
+              "Expected URL to simple definition as parameter value of " + component.key + 
+              ", but got a URL to a compound CRS");
+        }
+        if (req.isLocal()) {
+          res = Resolver.resolve(req).getData();
+        } else {
+          try {
+            res = Resolver.resolve(new URL(req.getOriginalRequest())).getData();
+          } catch (Exception ex) {
+            log.error("Failed resolving CRS definition: " + component, ex);
+            throw new SecoreException(ExceptionCode.NoSuchDefinition,
+                "Failed resolving CRS definition: " + component, ex);
+          }
+        }
+        if (res.equals(EMPTY)) {
+          throw new SecoreException(ExceptionCode.NoSuchDefinition,
+              "Invalid CRS definition received for " + component);
+        }
+        if (!name.equals(EMPTY)) {
+          name += " / ";
+        }
+        name += StringUtil.getElementValue(res, NAME_LABEL);
+        String id = StringUtil.getElementValue(res, IDENTIFIER_LABEL);
+        if (id == null) {
+          throw new SecoreException(ExceptionCode.XmlNotValid,
+              "Invalid CRS definition received for " + component);
+        }
+        comp += "   <componentReferenceSystem xlink:href='" + id + "'/>\n";
+        code += "-" + id.substring(id.lastIndexOf(':') + 1);
       }
       
       String res = 
@@ -94,11 +117,11 @@ class CrsCompoundHandler extends AbstractHandler {
           "   </metaDataProperty>\n" +
           "   <scope>not known</scope>\n" +
           "   <identifier codeSpace='" + Config.getInstance().getCodespace() +
-          "'>" + request.getFullUri().replaceAll("&", "%26") + "</identifier>\n" +
+          "'>" + request.getOriginalRequest().replaceAll("&", "%26") + "</identifier>\n" +
           "   <name>" + name + "</name>\n" + comp +
           "</CompoundCRS>";
       log.debug("Done, returning response.");
-      return new GmlResponse(res);
+      return new ResolveResponse(res);
     } else {
       log.error("Can't handle the given parameters, exiting with error.");
       throw new SecoreException(ExceptionCode.MissingParameterValue, 
@@ -107,7 +130,7 @@ class CrsCompoundHandler extends AbstractHandler {
   }
   
   private void checkCrsRef(String crsRef) throws SecoreException {
-    if (!crsRef.contains("/def/crs")) {
+    if (!crsRef.contains(StringUtil.SERVLET_CONTEXT + "/crs")) {
        log.error("Invalid crs-compound request, expected a CRS reference, but got " + crsRef);
        throw new SecoreException(ExceptionCode.InvalidParameterValue, 
            "Invalid " + getOperation() + " request, expected a CRS reference, but got " + crsRef);

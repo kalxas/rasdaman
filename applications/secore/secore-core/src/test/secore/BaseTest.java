@@ -22,9 +22,19 @@
 package secore;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.basex.core.cmd.DropDB;
+import secore.db.BaseX;
+import secore.db.DbManager;
+import secore.util.SecoreException;
 
 /**
  * Stuff commonly needed by JUnit tests.
@@ -34,6 +44,8 @@ import java.io.InputStreamReader;
 public abstract class BaseTest {
   
   public static final String TESTDATA_PATH = "etc/testdata/";
+  
+  public static final String TEST_HOST = "http://localhost:8080/def";
   
   public String getData(String file) {
     String path = TESTDATA_PATH + file;
@@ -50,5 +62,29 @@ public abstract class BaseTest {
     } catch (Exception ex) {
     }
     return null;
+  }
+  
+  public void putData(String file, String data) {
+    String path = TESTDATA_PATH + file;
+    try {
+      BufferedWriter writer = new BufferedWriter(
+          new OutputStreamWriter(new DataOutputStream(new FileOutputStream(path))));
+      writer.append(data);
+      writer.flush();
+      writer.close();
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+  
+  public static BaseX resetDb() {
+    BaseX db = ((BaseX) DbManager.getInstance().getDb());
+    try {
+      db.executeCommand(new DropDB(DbManager.EPSG_DB));
+      db.executeCommand(new DropDB(DbManager.USER_DB));
+    } catch (SecoreException ex) {
+    }
+    DbManager.getInstance().setDb(null);
+    return ((BaseX) DbManager.getInstance().getDb());
   }
 }

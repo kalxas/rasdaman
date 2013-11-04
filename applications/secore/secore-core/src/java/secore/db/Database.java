@@ -31,26 +31,6 @@ import secore.util.SecoreException;
 public interface Database {
   
   /**
-   * Open a connection to the database.
-   * 
-   * @return true if successful, false otherwise
-   */
-  boolean open();
-  
-  /**
-   * Check whether we're connected to the database.
-   * 
-   * @return true if not connected, false otherwise.
-   */
-  boolean closed();
-  
-  /**
-   * Close the database
-   * @return true if successful, false otherwise
-   */
-  boolean close();
-  
-  /**
    * Query the database
    * @param query XQuery query
    * @return a the result as a string
@@ -59,18 +39,26 @@ public interface Database {
   String query(String query) throws SecoreException;
   
   /**
-   * Add a document to the database. This method assumes there is a connection
-   * to the database (see {@link #open()}).
-   * 
-   * @param path points to an XML file to be loaded in the database
-   * @return true if successful, false otherwise
+   * Query the EPSG database
+   * @param query XQuery query
+   * @return a the result as a string
+   * @throws Exception in case of an error in the query evaluation
    */
-  boolean add(String path);
+  String queryEpsg(String query) throws SecoreException;
   
   /**
-   * Add all XML documents in the given directory.
-   * 
-   * @param dir directory containing *.xml files
+   * Query the user-defined database
+   * @param query XQuery query
+   * @return a the result as a string
+   * @throws Exception in case of an error in the query evaluation
    */
-  void addAll(String dir);
+  String queryUser(String query) throws SecoreException;
+  
+  /**
+   * Submit query that updates the database
+   * @param query XQuery query
+   * @return a the result as a string
+   * @throws Exception in case of an error in the query evaluation
+   */
+  String updateQuery(String query) throws SecoreException;
 }

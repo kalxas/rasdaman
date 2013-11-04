@@ -19,14 +19,17 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package secore;
+package secore.handler;
 
-import secore.util.Pair;
+import secore.req.ResolveResponse;
+import secore.req.ResolveRequest;
 import secore.util.SecoreException;
 import secore.util.ExceptionCode;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.req.RequestParam;
+import secore.util.Constants;
 
 /**
  * Resolves axis identifiers.
@@ -40,16 +43,16 @@ public class AxisHandler extends AbstractHandler {
   private static final String ELEMENT = "synonym";
   private static final String IDENTIFIER = "identifier";
 
-  public GmlResponse handle(ResolveRequest request) throws SecoreException {
+  public ResolveResponse handle(ResolveRequest request) throws SecoreException {
     log.debug("Handling resolve request...");
-    List<Pair<String, String>> params = request.getParams();
+    List<RequestParam> params = request.getParams();
     if (request.getOperation().equals(getOperation()) && params.size() == 1) {
-      String name = params.get(0).fst;
+      String name = params.get(0).val + "";
       String id = resolveAttribute(ELEMENT, name);
       log.debug("Retrieved the identifier '" + id + "' of the synonym for " + name);
-      String res = resolve(IDENTIFIER, id, 0);
+      String res = resolve(IDENTIFIER, id, Constants.ZERO);
       log.debug("Done, returning response.");
-      return new GmlResponse(res);
+      return new ResolveResponse(res);
     } else {
       log.error("Can't handle the given parameters, exiting with error.");
       throw new SecoreException(ExceptionCode.MissingParameterValue, "Insufficient parameters provided");

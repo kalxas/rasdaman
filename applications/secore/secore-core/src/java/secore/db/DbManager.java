@@ -21,12 +21,15 @@
  */
 package secore.db;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import secore.util.Config;
-import secore.util.IOUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.util.Config;
+import secore.util.Constants;
+import secore.util.IOUtil;
+import secore.util.Pair;
 
 /**
  * Holds an instance to the database.
@@ -37,25 +40,40 @@ public class DbManager {
   
   private static Logger log = LoggerFactory.getLogger(DbManager.class);
   
+  // should be "epsgdb" or so, but for backwards compatibility we stick to "gml"
+  public static String EPSG_DB = "gml";
+  public static String EPSG_DB_FILE = "GmlDictionary.xml";
+  public static String USER_DB = "userdb";
+  public static String USER_DB_FILE = "UserDictionary.xml";
+  
   private Database db;
   private static DbManager instance;
   
-  private static final Map<String, String> cache = new HashMap<String, String>();
+  private static final Map<String, Pair<String, Boolean>> cache = 
+      new HashMap<String, Pair<String, Boolean>>();
   
   private DbManager() {
-    db = new BaseX();
-    if (!db.open()) {
-      throw new RuntimeException("Failed connecting to the database");
+    // collection name -> absolute path to initalization file
+    Map<String, String> collections = new HashMap<String, String>();
+    String file = null;
+    try {
+      file = IOUtil.findFile(Config.getInstance().getGmlDefPath() + EPSG_DB_FILE).toString();
+      collections.put(EPSG_DB, file);
+    } catch (IOException ex) {
+      log.warn("Failed finding EPSG init file", ex);
     }
     try {
-      db.addAll(IOUtil.findFile(Config.getInstance().getGmlDefPath()).toString());
-    } catch (Exception ex) {
-      throw new RuntimeException("Failed loading GML definitions to the database", ex);
+      file = IOUtil.findFile(Config.getInstance().getGmlDefPath() + USER_DB_FILE).toString();
+      collections.put(USER_DB, file);
+    } catch (IOException ex) {
+      log.warn("Failed finding USER init file", ex);
     }
+    
+    db = new BaseX(collections);
   }
   
   public static DbManager getInstance() {
-    if (instance == null) {
+    if (instance == null || instance.getDb() == null) {
       instance = new DbManager();
     }
     return instance;
@@ -65,15 +83,7 @@ public class DbManager {
     return db;
   }
   
-  /**
-   * @param db the new database instance
-   * @throws IllegalArgumentException if db is null
-   */
   public void setDb(Database db) {
-    if (db == null) {
-      throw new IllegalArgumentException();
-    }
-    this.db.close();
     this.db = db;
   }
   
@@ -85,15 +95,17 @@ public class DbManager {
     cache.clear();
   }
   
-  public static void updateCache(String key, String value) {
-    cache.put(key, value);
+  public static void updateCache(String key, String value, Boolean user) {
+    if (value != null && !value.equals(Constants.EMPTY_XML)) {
+      cache.put(key, Pair.of(value, user));
+    }
   }
   
-  public static String getCached(String key) {
+  public static Pair<String, Boolean> getCached(String key) {
     return cache.get(key);
   }
   
-  public static boolean cacheContains(String key) {
-    return cache.containsKey(key);
+  public static boolean cacheContains(String key, Boolean user) {
+    return cache.containsKey(key) && cache.get(key).snd.equals(user);
   }
 }

@@ -63,8 +63,8 @@ SHELL     = bash
 # Java tools
 JAVA      = java
 JAVAC     = javac
-JJARS_CP  = lib/basex-api.jar:lib/BaseX.jar:lib/log4j-1.2.16.jar:lib/nanoxml-2.2.3.jar:lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar:lib/slf4j-api-1.6.2.jar:lib/slf4j-log4j12-1.6.2.jar:lib/xmlunit-1.3.jar:lib/xqj-api-1.0.jar 
-JJARS_PATHS = lib/basex-api.jar lib/BaseX.jar lib/log4j-1.2.16.jar lib/nanoxml-2.2.3.jar lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/xmlunit-1.3.jar lib/xqj-api-1.0.jar
+JJARS_CP  = lib/basex-api.jar:lib/BaseX.jar:lib/log4j-1.2.16.jar:lib/nanoxml-2.2.3.jar:lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar:lib/slf4j-api-1.6.2.jar:lib/slf4j-log4j12-1.6.2.jar:lib/xmlunit-1.3.jar
+JJARS_PATHS = lib/basex-api.jar lib/BaseX.jar lib/log4j-1.2.16.jar lib/nanoxml-2.2.3.jar lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar lib/slf4j-api-1.6.2.jar lib/slf4j-log4j12-1.6.2.jar lib/xmlunit-1.3.jar
 JFLAGS    = -sourcepath $(SRC_MAIN) \
                -d $(CLASSES)        \
                -cp $(JJARS_CP)      \

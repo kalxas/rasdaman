@@ -22,7 +22,6 @@ rasdaman GmbH.
 */
 
 /*
- * This contains the core code, that does the handling of CRS identifier and
- * returns back the result.1
+ * Entry point of secore, registry of handlers and resolver of requests.
  */
 package secore;

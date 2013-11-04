@@ -487,6 +487,12 @@ function run_test()
       sed -i '/xlink:href/d' "$output_tmp"
       sed -i '/xlink:href/d' "$oracle_tmp"
 
+      sed -i '/identifier /d' "$output_tmp"
+      sed -i '/identifier /d' "$oracle_tmp"
+
+      sed -i 's|xmlns:[^=]*="[^"]*"||g' "$output_tmp"
+      sed -i 's|xmlns:[^=]*="[^"]*"||g' "$oracle_tmp"
+
       sed -i 's|'$SECORE_URL'||g' "$output_tmp" "$oracle_tmp"
 
       sort "$output_tmp" -o "$output_tmp"

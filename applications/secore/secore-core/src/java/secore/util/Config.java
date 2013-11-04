@@ -127,7 +127,11 @@ public class Config {
   }
 
   public String getGmlDefPath() {
-    return get(GML_DEF_KEY);
+    String ret = get(GML_DEF_KEY);
+    if (ret != null && !ret.endsWith(File.separator)) {
+      ret += File.separator;
+    }
+    return ret;
   }
   
   public String getServiceUrl() {

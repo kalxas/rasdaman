@@ -21,11 +21,19 @@
  */
 package secore;
 
+import secore.req.ResolveResponseTest;
+import secore.handler.ParameterizedCrsHandlerTest;
+import secore.handler.GeneralHandlerTest;
 import secore.db.DbManagerTest;
 import secore.util.ConfigTest;
 import secore.util.StringUtilTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
+import secore.handler.CrsCompoundHandlerTest;
+import secore.handler.EqualityHandlerTest;
+import secore.handler.IncompleteUrlHandlerTest;
+import secore.req.RequestParamTest;
+import secore.req.ResolveRequestTest;
 
 /**
  * Test suite runner.
@@ -34,10 +42,18 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    StringUtilTest.class,
-    ConfigTest.class,
-    DbManagerTest.class,
-    AxisHandlerTest.class
+  RequestParamTest.class,
+  ResolveRequestTest.class,
+  ResolveResponseTest.class,
+  StringUtilTest.class,
+  ConfigTest.class,
+  DbManagerTest.class,
+  
+  GeneralHandlerTest.class,
+  ParameterizedCrsHandlerTest.class,
+  CrsCompoundHandlerTest.class,
+  EqualityHandlerTest.class,
+  IncompleteUrlHandlerTest.class
 })
 public class AllTests {
 }

@@ -34,8 +34,10 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.req.ResolveRequest;
 import secore.util.Config;
 import secore.util.Constants;
+import secore.util.StringUtil;
 
 /**
  *
@@ -43,7 +45,7 @@ import secore.util.Constants;
  */
 public class SecoreFilter implements Filter {
   
-  private static Logger log = LoggerFactory.getLogger(SecoreServlet.class);
+  private static Logger log = LoggerFactory.getLogger(SecoreFilter.class);
   
   private static final boolean debug = true;
   // The filter configuration object we are associated with.  If
@@ -93,6 +95,17 @@ public class SecoreFilter implements Filter {
     try {
       String uri = ((HttpServletRequest) request).getRequestURI();
       log.debug("Request URI: " + uri);
+      try {
+        if (!StringUtil.SERVICE_URI_SET) {
+          String url = ((HttpServletRequest) request).getRequestURL().toString();
+          ResolveRequest req = new ResolveRequest(url);
+          StringUtil.SERVICE_URI = req.getServiceUri();
+          StringUtil.SERVICE_URI_SET = true;
+          log.trace("Service URI: " + StringUtil.SERVICE_URI);
+        }
+      } catch (Exception ex) {
+      }
+      StringUtil.SERVLET_CONTEXT = ((HttpServletRequest) request).getContextPath();
       if (uri.endsWith(Constants.ADMIN_FILE)) {
           log.debug("Call " + Constants.ADMIN_FILE);
           uri = uri.substring(0, uri.length() - Constants.ADMIN_FILE.length());
@@ -104,10 +117,13 @@ public class SecoreFilter implements Filter {
       } else if (uri.endsWith(Constants.DEMO_FILE)) {
           log.debug("Call " + Constants.DEMO_FILE);
           request.getRequestDispatcher("/WEB-INF/" + Constants.DEMO_FILE).forward(request, response);
+      } else if (uri.endsWith(Constants.UPDATEDB_FILE)) {
+          log.debug("Call " + Constants.UPDATEDB_FILE);
+          request.getRequestDispatcher("/WEB-INF/" + Constants.UPDATEDB_FILE).forward(request, response);
       } else if (uri.endsWith(Constants.INDEX_FILE)) {
           log.debug("Call " + Constants.INDEX_FILE);
           request.getRequestDispatcher("/" + Constants.INDEX_FILE).forward(request, response);
-      } else if (uri.startsWith("/def")) {
+      } else if (uri.startsWith(StringUtil.SERVLET_CONTEXT)) {
           request.getRequestDispatcher(uri).forward(request, response);
       } else {
           chain.doFilter(request, response); // Goes to default servlet.

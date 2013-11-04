@@ -21,9 +21,9 @@
  */
 package secore.db;
 
-import secore.db.DbManager;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import secore.util.StringUtil;
 
 /**
  *
@@ -36,30 +36,24 @@ public class DbManagerTest {
    */
   @Test
   public void testGetInstance() {
-    assertFalse(DbManager.getInstance().getDb().closed());
+    assertNotNull(DbManager.getInstance().getDb());
   }
 
   @Test
   public void testQuery() throws Exception {
     String query =
-            "declare namespace gml = \"http://www.opengis.net/gml\";\n"
+            "declare namespace gml = \"" + StringUtil.getGmlNamespace() + "\";\n"
           + "let $d := doc('gml')\n"
-          + "return $d//gml:identifier[text() = 'urn:ogc:def:crs:EPSG::4326']";
+          + "return $d//gml:identifier[contains(text(), '/crs/EPSG/0/4326')]";
     String result = DbManager.getInstance().getDb().query(query);
-    assertTrue(result.matches("<identifier [^>]+>urn:ogc:def:crs:EPSG::4326</identifier>"));
+    assertTrue(result.matches("<gml:identifier [^>]+>.+/crs/EPSG/0/4326</gml:identifier>"));
   }
 
   @Test
   public void testDocumentNames() throws Exception {
     String query =
-           "for $doc in collection('gml') return base-uri($doc)";
+           "for $doc in collection() return base-uri($doc)";
     String result = DbManager.getInstance().getDb().query(query);
-    System.out.println(result);
-  }
-  
-  @Test
-  public void testClose() {
-    DbManager.getInstance().getDb().close();
-    assertTrue(DbManager.getInstance().getDb().closed());
+    assertEquals("userdb/userdb.xml", result);
   }
 }

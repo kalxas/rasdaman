@@ -19,16 +19,17 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package secore;
+package secore.handler;
 
+import secore.req.ResolveResponse;
+import secore.req.ResolveRequest;
 import java.util.ArrayList;
 import secore.util.SecoreException;
 import secore.util.ExceptionCode;
-import secore.util.Pair;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import secore.util.Constants;
+import secore.req.RequestParam;
 import static secore.util.Constants.*;
 import secore.util.StringUtil;
 
@@ -49,45 +50,44 @@ public class GeneralHandler extends AbstractHandler {
   public static final String EXPAND_KEY = "expand";
   public static final String EXPAND_FULL = "full";
   public static final String EXPAND_NONE = "none";
-  public static final int EXPAND_DEFAULT = 2;
+  public static final String EXPAND_DEFAULT = "2";
   // flag indicating whether to resolve the target CRS
   public static final String RESOLVE_TARGET_KEY = "resolve-target";
   public static final String RESOLVE_TARGET_YES = "yes";
   public static final String RESOLVE_TARGET_NO = "no";
 
   @Override
-  public boolean canHandle(ResolveRequest request) {
-    return request.getOperation() != null && request.getParams().size() == 3;
+  public boolean canHandle(ResolveRequest request) throws SecoreException {
+    boolean ret = request.getOperation() != null && 
+        !OP_CRS_COMPOUND.equals(request.getOperation()) &&
+        !OP_EQUAL.equals(request.getOperation());
+    if (ret && request.getParams().size() < 3) {
+      throw new SecoreException(ExceptionCode.MissingParameterValue, "Insufficient parameters provided");
+    }
+    ret = ret && request.getParams().size() == 3;
+    return ret;
   }
 
-  public GmlResponse handle(ResolveRequest request) throws SecoreException {
+  public ResolveResponse handle(ResolveRequest request) throws SecoreException {
     log.debug("Handling resolve request...");
     return resolveRequest(request);
   }
 
-  public GmlResponse resolveRequest(ResolveRequest request) throws SecoreException {
-    Pair<String, String> urnUrlPair = parseRequest(request);
+  public ResolveResponse resolveRequest(ResolveRequest request) throws SecoreException {
+    String url = parseRequest(request);
     
-    GmlResponse ret = resolve(IDENTIFIER_LABEL,
-        urnUrlPair, request.getExpandDepth(), new ArrayList<Parameter>());
+    ResolveResponse ret = resolveId(url, request.getExpandDepth(), new ArrayList<Parameter>());
+    
+    ret = new ResolveResponse(StringUtil.replaceElementValue(
+        ret.getData(), IDENTIFIER_LABEL, request.getOriginalRequest()));
     
     // check if the result is a parameterized CRS, and forward to the ParameterizedCrsHandler
-    if (ret != null && ret.getData() != null &&
-        StringUtil.getRootElementName(ret.getData()).equals(ParameterizedCrsHandler.PARAMETERIZED_CRS)) {
-      ret = resolve(IDENTIFIER_LABEL, urnUrlPair, 0, new ArrayList<Parameter>());
+    if (ParameterizedCrsHandler.isParameterizedCrsDefinition(ret.getData())) {
+      ret = resolveId(url, ZERO, new ArrayList<Parameter>());
       ParameterizedCrsHandler phandler = new ParameterizedCrsHandler();
       phandler.setDefinition(ret);
       ret = phandler.handle(request);
     }
-    
-    return ret;
-  }
-
-  public GmlResponse resolveParameterizedRequest(ResolveRequest request) throws SecoreException {
-    Pair<String, String> urnUrlPair = parseRequest(request);
-    
-    GmlResponse ret = resolve(IDENTIFIER_LABEL,
-        urnUrlPair, request.getExpandDepth(), new ArrayList<Parameter>());
     
     return ret;
   }
@@ -100,24 +100,23 @@ public class GeneralHandler extends AbstractHandler {
    * @return pair of URN/URL IDENTIFIER_LABELs to be looked up in the database.
    * @throws SecoreException in case of an invalid request
    */
-  Pair<String, String> parseRequest(ResolveRequest request) throws SecoreException {
-    List<Pair<String, String>> params = request.getParams();
+  protected String parseRequest(ResolveRequest request) throws SecoreException {
+    List<RequestParam> params = request.getParams();
 
     if (request.getOperation() != null && params.size() == 3) {
       String authority = EMPTY;
       String version = EMPTY;
       String code = EMPTY;
-      String res = null;
       for (int i = 0; i < params.size(); i++) {
-        String key = params.get(i).fst;
-        String val = params.get(i).snd;
-        if (val == null) {
+        String key = params.get(i).key;
+        String val = params.get(i).val.toString();
+        if (key == null) {
           if (authority.equals(EMPTY)) {
-            authority = key;
+            authority = val;
           } else if (version.equals(EMPTY)) {
-            version = key;
+            version = val;
           } else if (code.equals(EMPTY)) {
-            code = key;
+            code = val;
           }
         } else if (key.equalsIgnoreCase(AUTHORITY_KEY)) {
           authority = val;
@@ -145,12 +144,10 @@ public class GeneralHandler extends AbstractHandler {
             .locator(CODE_KEY), "Insufficient parameters provided");
       }
 
-      // try to resolve a URN first
-      String urn = URN_PREFIX + URN_SEPARATOR + request.getOperation() + URN_SEPARATOR + authority
-          + URN_SEPARATOR + (version.equals(DEFAULT_VERSION) ? EMPTY : version) + URN_SEPARATOR + code;
-      String url = request.getService() + request.getOperation() + REST_SEPARATOR
+      String url = (request.isLocal() ? "" : request.getServiceUri())
+          + request.getOperation() + REST_SEPARATOR
           + authority + REST_SEPARATOR + version + REST_SEPARATOR + code;
-      return Pair.of(urn, url);
+      return url;
     } else {
       log.error("Can't handle the given parameters, exiting with error.");
       throw new SecoreException(ExceptionCode.MissingParameterValue, "Insufficient parameters provided");

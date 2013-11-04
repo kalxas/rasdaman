@@ -19,29 +19,29 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package secore;
+package secore.req;
 
-import secore.ResolveRequest;
-import secore.GmlResponse;
-import secore.Resolver;
-import secore.util.StringUtil;
-import org.junit.Test;
+import secore.util.Constants;
 
 /**
+ * Simple, string parameter values.
  *
  * @author Dimitar Misev
  */
-public class ParameterizedCrsHandlerTest {
+public class SimpleParamValue implements ParamValue {
+  
+  private final String val;
 
-  /**
-   * Test of handle method, of class ParameterizedCrsHandler.
-   */
-  @Test
-  public void testHandle() throws Exception {
-    System.out.println("handle");
-    ResolveRequest request = StringUtil
-        .buildRequest("/def/crs/AUTO/1.3/42001?lon=-100");
-    GmlResponse res = Resolver.resolve(request);
-    System.out.println(res.getData());
+  public SimpleParamValue(String val) {
+    this.val = val;
+  }
+
+  public String getValue() {
+    return val;
+  }
+  
+  @Override
+  public String toString() {
+    return val == null ? Constants.EMPTY : val;
   }
 }

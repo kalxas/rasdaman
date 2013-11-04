@@ -19,19 +19,20 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package secore;
+package secore.handler;
 
+import secore.req.ResolveResponse;
+import secore.req.ResolveRequest;
 import secore.db.DbManager;
 import secore.util.SecoreException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.req.RequestParam;
 import static secore.util.Constants.*;
 import secore.util.ExceptionCode;
-import secore.util.Pair;
+import secore.util.StringUtil;
 
 /**
  * An abstract implementation of {@link Handler}, which provides some
@@ -42,11 +43,8 @@ import secore.util.Pair;
 public abstract class AbstractHandler implements Handler {
   
   private static Logger log = LoggerFactory.getLogger(AbstractHandler.class);
-  
-  // regex pattern matching empty XML returned from BaseX
-  private static final Pattern EMPTY_XML = Pattern.compile("(<\\?xml.*\\?>\\n)?<empty/>");
 
-  public boolean canHandle(ResolveRequest request) {
+  public boolean canHandle(ResolveRequest request) throws SecoreException {
     return getOperation().equals(request.getOperation());
   }
 
@@ -61,39 +59,16 @@ public abstract class AbstractHandler implements Handler {
    * @return the definition (parent element of el)
    * @throws SecoreException usually if the text content of el hasn't been matched with id
    */
-  protected GmlResponse resolve(String el, Pair<String, String> urnUrlPair, int depth, List<Parameter> parameters) throws SecoreException {
-    // try to resolve a URN first
-    log.trace("Resolving URN identifier");
-    String res = resolve(IDENTIFIER_LABEL, urnUrlPair.fst, depth, parameters);
+  protected ResolveResponse resolveId(String url, String depth, List<Parameter> parameters) throws SecoreException {
+    ResolveResponse ret = new ResolveResponse(resolve(IDENTIFIER_LABEL, url, depth, parameters));
 
-    if (!validDefinition(res)) {
-      log.trace("URN resolution failed, trying to resolve URL identifier");
-      res = resolve(IDENTIFIER_LABEL, urnUrlPair.snd, depth, parameters);
-    }
-
-    if (!validDefinition(res)) {
+    if (!ret.isValidDefinition()) {
       // no definition found
-      log.error("Failed resolving " + urnUrlPair.snd);
-      throw new SecoreException(ExceptionCode.NoSuchDefinition, "Failed resolving " + urnUrlPair.snd);
+      log.error("Failed resolving " + url);
+      throw new SecoreException(ExceptionCode.NoSuchDefinition, "Failed resolving " + url);
     }
-
-    // TODO check for the result, e.g. if the operation is datum than the result can only be GeodeticDatum
-    log.debug("Done, returning response.");
     
-    return new GmlResponse(res);
-  }
-
-  /**
-   * Check if def is not an empty XML document.
-   * @param def XML definition to be checked.
-   * @return true if not empty, false otherwise.
-   */
-  private boolean validDefinition(String def) {
-    if (def != null) {
-      Matcher matcher = EMPTY_XML.matcher(def);
-      return !matcher.matches();
-    }
-    return false;
+    return ret;
   }
 
   /**
@@ -106,7 +81,7 @@ public abstract class AbstractHandler implements Handler {
    * @return the definition (parent element of el)
    * @throws SecoreException usually if the text content of el hasn't been matched with id
    */
-  public String resolve(String el, String id, int depth) throws SecoreException {
+  protected String resolve(String el, String id, String depth) throws SecoreException {
     return resolve(el, id, depth, new ArrayList<Parameter>());
   }
 
@@ -121,27 +96,34 @@ public abstract class AbstractHandler implements Handler {
    * @return the definition (parent element of el)
    * @throws SecoreException usually if the text content of el hasn't been matched with id
    */
-  public String resolve(String el, String id, int depth, List<Parameter> parameters) throws SecoreException {
+  protected String resolve(String el, String id, String depth, List<Parameter> parameters) throws SecoreException {
     String work = null;
     
     if (!parameters.isEmpty()) {
       String targets = EMPTY;
+      int i = 0;
       for (Parameter parameter : parameters) {
         if (!targets.equals(EMPTY)) {
           targets += COMMA + NEW_LINE;
         }
-        targets += "  replace value of node $res" + parameter.getTarget() +
-            " with '" + parameter.getValue() + "'";
+        targets += "     if (exists($tmp" + parameter.getTarget() + 
+            ")) then replace value of node $tmp" + parameter.getTarget() +
+            " with '" + parameter.getValue() + "' else {}";
+        if (i++ == 0) {
+          targets += NEW_LINE;
+        }
       }
       work =
-        "	copy $res := local:flatten(doc('gml'), $id, 0)\n" +
-        " modify (\n" +
-        targets + 
-        " )\n" +
-        "	return $res\n";
+        "	for $res in local:flatten(collection('" + COLLECTION_NAME + "'), $id, 0)\n" +
+        " return\n" +
+        "   copy $tmp := $res\n" +
+        "   modify (\n" +
+            targets + 
+        "   )\n" +
+        "   return $tmp\n";
     } else {
       work =
-        "	let $res := local:flatten(doc('gml'), $id, 0)\n" +
+        "	let $res := local:flatten(collection('" + COLLECTION_NAME + "'), $id, 0)\n" +
         "	return $res\n";
     }
     
@@ -149,15 +131,13 @@ public abstract class AbstractHandler implements Handler {
     String query =
         "declare namespace gml = \"" + NAMESPACE_GML + "\";\n" +
         "declare namespace xlink = \"" + NAMESPACE_XLINK + "\";\n" +
-        "\n" +
         "declare function local:getid($d as document-node(), $id as xs:string) as element() {\n" +
-        "	let $ret := $d//gml:" + el + "[text() = $id]/..\n" +
+        "	let $ret := $d//gml:" + el + "[contains(text(), $id)]/..\n" +
         "	return  if (empty($ret)) then\n" +
-        "					 <empty/>\n" +
+        "	        <empty/>\n" +
         "	       else\n" +
         "	       	$ret[last()]\n" +
         "};\n" +
-        "\n" +
         "declare function local:flatten($d as document-node(), $id as xs:string, $depth as xs:integer) as element()* {\n" +
         "  copy $el := local:getid($d, $id)\n" +
         "  modify\n" +
@@ -169,7 +149,6 @@ public abstract class AbstractHandler implements Handler {
         "  )\n" +
         "  return $el\n" +
         "};\n" +
-        "\n" +
         "declare function local:work($id as xs:string) as element() {\n" +
         work +
         "};\n" +
@@ -189,22 +168,22 @@ public abstract class AbstractHandler implements Handler {
    */
   public String resolveAttribute(String el, String id) throws SecoreException {
     String query = "declare namespace gml = \"" + NAMESPACE_GML + "\";\n"
-      + "let $d := doc('gml')\n"
+      + "let $d := collection('" + COLLECTION_NAME + "')\n"
       + "return data($d//gml:" + el + "[text() = '" + id + "']/../@identifier)";
     return DbManager.getInstance().getDb().query(query);
   }
   
   public List<String> getComponentCRSs(ResolveRequest request, int componentNo) throws SecoreException {
     
-    List<Pair<String, String>> params = request.getParams();
+    List<RequestParam> params = request.getParams();
 
     // component CRS URIs
     List<String> components = new ArrayList<String>();
 
     // get the component CRSs
     for (int i = 0; i < params.size(); i++) {
-      String key = params.get(i).fst;
-      String val = params.get(i).snd;
+      String key = params.get(i).key;
+      String val = params.get(i).val.toString();
       if (val != null) {
         try {
           int ind = Integer.parseInt(key);
@@ -251,7 +230,7 @@ public abstract class AbstractHandler implements Handler {
   }
   
   private void checkCrsRef(String crsRef) throws SecoreException {
-    if (!crsRef.contains("/def/crs")) {
+    if (!crsRef.contains(StringUtil.SERVLET_CONTEXT + "/crs")) {
        log.error("Invalid " + getOperation() + " request, expected a CRS reference, but got " + crsRef);
        throw new SecoreException(ExceptionCode.InvalidParameterValue, 
            "Invalid " + getOperation() + " request, expected a CRS reference, but got " + crsRef);

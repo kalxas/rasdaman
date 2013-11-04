@@ -43,9 +43,9 @@
     if (null != mod) {
       if (!mod.equals(Constants.EMPTY)) {
         String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
-            + "let $x := doc('gml')//gml:axis[@identifier = '" +  request.getParameter("axisid") + "']" + Constants.NEW_LINE
+            + "let $x := collection('" + Constants.COLLECTION_NAME + "')//gml:axis[@identifier = '" +  request.getParameter("axisid") + "']" + Constants.NEW_LINE
             + "return replace node $x with " + mod;
-        String result = DbManager.getInstance().getDb().query(query);
+        String result = DbManager.getInstance().getDb().updateQuery(query);
         out.println("<br/><span style=\"font-size:x-large;\">The database has been updated</span><br/>");
       } else {
         out.println("<br/><span style=\"font-size:x-large;\"><span style=\"color:red\">Empty definition submitted! The database remains unchanged<span></span><br/>");
@@ -57,9 +57,9 @@
     if (null != newd) {
       if (!newd.equals(Constants.EMPTY)) {
         String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
-            + "let $x := doc('gml')//gml:synonyms" + Constants.NEW_LINE
+            + "let $x := collection('" + Constants.COLLECTION_NAME + "')//gml:synonyms" + Constants.NEW_LINE
             + "return insert node "+newd+" into $x";
-        String result = DbManager.getInstance().getDb().query(query);
+        String result = DbManager.getInstance().getDb().updateQuery(query);
         out.println("<br/><span style=\"font-size:x-large;\">The database has been updated</span><br/>");
       } else {
         out.println("<br/><span style=\"font-size:x-large;\"><span style=\"color:red\">Empty definition submitted! The database remains unchanged<span></span><br/>");
@@ -72,7 +72,7 @@
         toedit = Constants.EMPTY;
       }  
       String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
-          + "let $d := doc('gml')" + Constants.NEW_LINE    
+          + "let $d := collection('" + Constants.COLLECTION_NAME + "')" + Constants.NEW_LINE    
           + "return $d//gml:axis[@identifier = '" +  toedit + "']";
       String result = DbManager.getInstance().getDb().query(query);
       out.println("<br/><span style=\"font-size:x-large;\">This reference axis and its synonyms below will be replaced by your submission:</span>");
@@ -106,14 +106,14 @@
             todel = Constants.EMPTY;
           }  
           String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
-              + "let $d := doc('gml')" + Constants.NEW_LINE    
+              + "let $d := collection('" + Constants.COLLECTION_NAME + "')" + Constants.NEW_LINE    
               + "return delete node $d//gml:axis[@identifier = '" +  todel + "']";
-          String result = DbManager.getInstance().getDb().query(query);
+          String result = DbManager.getInstance().getDb().updateQuery(query);
         }
         out.println("<br/><span style=\"font-size:x-large;\">The list of the reference axes for which synonyms are provided:</span>");
         out.println("<br/><span style=\"font-size:x-large;\"><a href='"+ Constants.SYNONYMS_FILE + Constants.FRAGMENT_SEPARATOR + "add=true'>Add new</a></span><br/>");
         String query = "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
-            + "for $x in data(doc('gml')//gml:synonym/../@identifier)"
+            + "for $x in data(collection('" + Constants.COLLECTION_NAME + "')//gml:synonym/../@identifier)"
             + "return <el>{$x}</el>";
         String result = DbManager.getInstance().getDb().query(query);
         result = result.replace("</el>", Constants.EMPTY);
@@ -130,7 +130,7 @@
             }
             query = "declare namespace epsg=\"urn:x-ogp:spec:schema-xsd:EPSG:0.1:dataset\";" + Constants.NEW_LINE
                     + "declare namespace gml = \"" + Constants.NAMESPACE_GML + "\";" + Constants.NEW_LINE
-              + "let $d := doc('gml')" + Constants.NEW_LINE
+              + "let $d := collection('" + Constants.COLLECTION_NAME + "')" + Constants.NEW_LINE
               + "return $d//epsg:AxisName[gml:identifier[text() = '" + id + "']]/gml:name";
             result = DbManager.getInstance().getDb().query(query);
             out.print("<tr><td>" + id + " (" + result + ")</td><td><a href='" + Constants.SYNONYMS_FILE + Constants.FRAGMENT_SEPARATOR + "edit=" + id + "'>Edit synonyms</a></td><td><a href='"+Constants.SYNONYMS_FILE + Constants.FRAGMENT_SEPARATOR + "delete=" + id + "' onclick='javascript:return confirm(\"Do you really want to delete the reference " + id + " and all the existent synonyms?\");'>Remove</a></td></tr>");

@@ -61,7 +61,8 @@
           } else {%>
             <h1>Coordinate Reference System Resolver</h1>
             <span style="font-size:x-large;"><%out.print("<a href='" + Constants.ADMIN_FILE + "'>Browse the definitions tree</a><br/>");%></span>
-            <span style="font-size:x-large;"><%out.print("<a href='" + Constants.SYNONYMS_FILE + "'>View and edit axes synonyms</a><br/>");%></span>
+            <span style="font-size:x-large;"><%out.print("<a href='" + Constants.UPDATEDB_FILE + "'>Update the EPSG database</a><br/>");%></span>
+<!--            <span style="font-size:x-large;"><%out.print("<a href='" + Constants.SYNONYMS_FILE + "'>View and edit axes synonyms</a><br/>");%></span>-->
             <span style="font-size:x-large;"><%out.print("<a href='" + Constants.INDEX_FILE + "?query=true'>Query the database directly</a><br/>");%></span>
             <span style="font-size:x-large;"><%out.print("<a href='" + Constants.DEMO_FILE + "'>View examples</a><br/>");%></span>
         <%}

@@ -19,52 +19,69 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package secore;
+package secore.handler;
 
-import secore.ResolveRequest;
-import secore.GmlResponse;
-import secore.CrsCompoundHandler;
-import secore.Resolver;
+import secore.req.ResolveResponse;
+import secore.req.ResolveRequest;
 import java.net.URL;
-import secore.db.DbManager;
-import secore.db.Database;
 import secore.util.Config;
-import secore.util.StringUtil;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
+import secore.BaseTest;
+import static secore.BaseTest.TEST_HOST;
+import static secore.BaseTest.resetDb;
+import secore.Resolver;
+import secore.util.Constants;
+import secore.util.StringUtil;
 
 /**
  *
  * @author Dimitar Misev
  */
-public class CrsCombineHandlerTest extends BaseTest {
+public class CrsCompoundHandlerTest extends BaseTest {
   
-  private static Database db;
   private static CrsCompoundHandler handler;
 
   @BeforeClass
   public static void setUpClass() throws Exception {
     Config.getInstance();
     handler = new CrsCompoundHandler();
-  }
-
-  @AfterClass
-  public static void tearDownClass() throws Exception {
-    DbManager.getInstance().getDb().close();
+    StringUtil.SERVICE_URI = Constants.LOCAL_URI;
+    resetDb();
   }
 
   /**
    * Test of handle method, of class CrsCombineHandler.
    */
+//  @Ignore
+  @Test
+  public void testHandleParameterizedCrs() throws Exception {
+    System.out.println("testHandleParameterizedCrs");
+    String uri = "local/crs-compound?"
+        + "1=local/crs?authority=AUTO%26version=1.3%26code=42001%26lon=10&"
+        + "2=local/crs/EPSG/0/4440";
+    ResolveRequest req = new ResolveRequest(uri);
+    ResolveResponse res = handler.handle(req);
+//    putData("AUTO+4440.exp", res.getData());
+    String expResult = getData("AUTO+4440.exp");
+    assertEquals(expResult, res.getData());
+  }
+
+  /**
+   * Test of handle method, of class CrsCombineHandler.
+   */
+//  @Ignore
   @Test
   public void testHandle() throws Exception {
-    String uri = "/def/crs-combine?"
-        + "1=http://localhost:8081/def/crs/EPSG/0/4326&"
-        + "2=http://localhost:8081/def/crs/EPSG/0/4440";
-    ResolveRequest req = StringUtil.buildRequest(uri);
-    GmlResponse res = handler.handle(req);
+    System.out.println("testHandle");
+    String uri = "local/crs-compound?"
+        + "1=local/crs/EPSG/0/4326&"
+        + "2=local/crs/EPSG/0/4440";
+    ResolveRequest req = new ResolveRequest(uri);
+    ResolveResponse res = handler.handle(req);
+//    putData("4326+4440.exp", res.getData());
     String expResult = getData("4326+4440.exp");
     assertEquals(expResult, res.getData());
   }
@@ -72,22 +89,26 @@ public class CrsCombineHandlerTest extends BaseTest {
   /**
    * Test of handle method, of class CrsCombineHandler.
    */
+//  @Ignore
   @Test
   public void testHandle2() throws Exception {
-    String uri = "http://localhost:8081/def/crs-combine?"
-        + "1=http://localhost:8081/def/crs/EPSG/0/4326&"
-        + "2=http://localhost:8081/def/crs/EPSG/0/4440";
-    GmlResponse res = Resolver.resolve(new URL(uri));
-    String expResult = getData("4326+4440.exp");
+    System.out.println("testHandle2");
+    String uri = TEST_HOST + "/crs-compound?"
+        + "1=local/crs/EPSG/0/4326&"
+        + "2=local/crs/EPSG/0/4440";
+    ResolveResponse res = Resolver.resolve(new URL(uri));
+//    putData("4326+4440.exp2", res.getData());
+    String expResult = getData("4326+4440.exp2");
     assertEquals(expResult, res.getData());
   }
+  
 
   /**
    * Test of getOperation method, of class CrsCombineHandler.
    */
   @Test
   public void testGetOperation() {
-    String expResult = "crs-combine";
+    String expResult = "crs-compound";
     String result = handler.getOperation();
     assertEquals(expResult, result);
   }

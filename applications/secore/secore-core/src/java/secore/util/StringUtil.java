@@ -21,7 +21,7 @@
  */
 package secore.util;
 
-import secore.ResolveRequest;
+import secore.req.ResolveRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.Collection;
@@ -35,7 +35,6 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import secore.db.DbManager;
 import static secore.util.Constants.*;
 
 /**
@@ -47,11 +46,12 @@ public class StringUtil {
 
   private static Logger log = LoggerFactory.getLogger(StringUtil.class);
   
-  private static final String HTTP_PREFIX = "http://";
-  private static final String JAVA_SCRIPT_ENGINE = "JavaScript";
+  public static String SERVLET_CONTEXT = "/def";
+  public static String SERVICE_URI = Config.getInstance().getServiceUrl();
+  public static boolean SERVICE_URI_SET = false;
+  // this URI is changed by the servlet during the first request.
   
-  private static final String UTF_ENCODING = "UTF-8";
-  private static final String DEF = "/def/";
+  public static String START_DIGIT_REGEXP = "^\\d+=.+";
   
   private static final ScriptEngineManager engineManager;
   private static final ScriptEngine engine;
@@ -84,105 +84,85 @@ public class StringUtil {
     String decoded = encodedText;
     if (encodedText.indexOf(WHITESPACE) == -1) {
       try {
-        decoded = URLDecoder.decode(encodedText, UTF_ENCODING);
+        decoded = URLDecoder.decode(encodedText, UTF8_ENCODING);
       } catch (UnsupportedEncodingException ex) {
         decoded = URLDecoder.decode(encodedText);
       }
     }
     return decoded;
   }
+  
+  public static boolean isUrn(String s) {
+    return s != null && s.startsWith(URN_PREFIX);
+  }
 
   public static String stripDef(String s) {
-    if (s.contains(DEF)) {
-      return s.substring(s.indexOf(DEF) + DEF.length());
+    String servletContext = SERVLET_CONTEXT + REST_SEPARATOR;
+    s = wrapUri(s);
+    int fragmentPos = s.indexOf(FRAGMENT_SEPARATOR);
+    if (fragmentPos == -1) {
+      fragmentPos = Integer.MAX_VALUE;
     }
-    return s.substring(1);
-  }
-  
-  public static String removeDuplicateDef(String s) {
-    int ind = s.indexOf("/def");
-    return s.substring(0, ind) + s.substring(ind + "/def".length());
-  }
-
-  public static String getServiceUrl(String s) {
-    if (s.contains(DEF)) {
-      return s.substring(0, s.indexOf(DEF) + DEF.length());
+    if (s.contains(servletContext) && s.indexOf(servletContext) < fragmentPos) {
+      s = s.substring(s.indexOf(servletContext) + servletContext.length());
+    } else if (isUrn(s)) {
+      s = s.substring(URN_PREFIX.length() + 1, s.length());
+    } else if (s.startsWith(LOCAL_URI)) {
+      s = s.substring(LOCAL_URI.length());
+    }
+    if (s.startsWith(REST_SEPARATOR)) {
+      return s.substring(1);
     }
     return s;
   }
+  
+  public static String removeDuplicateDef(String s) {
+    int ind = s.indexOf(SERVLET_CONTEXT);
+    return s.substring(0, ind) + s.substring(ind + SERVLET_CONTEXT.length());
+  }
 
-  public static ResolveRequest buildRequest(String uri) throws SecoreException {
-    log.trace("Building request for URI: " + uri);
-    uri = StringUtil.urldecode(uri);
-    String fullUri = uri;
-    log.trace("Decoded URI: " + uri);
-    String serviceUri = StringUtil.getServiceUrl(uri);
-    uri = StringUtil.stripDef(uri);
-    log.trace("Parameters: " + uri);
-
-    // set operation
-    int ind1 = uri.indexOf(REST_SEPARATOR);
-    int ind2 = uri.indexOf(FRAGMENT_SEPARATOR);
-    int ind = -1;
-    if (ind1 != -1 && (ind2 == -1 || ind1 < ind2)) {
-      ind = ind1;
-    } else if (ind2 != -1 && (ind1 == -1 || ind2 < ind1)) {
-      ind = ind2;
-    } else {
-      log.error("Couldn't determine request operation in " + uri);
-      throw new SecoreException(ExceptionCode.InvalidRequest, "Malformed request: " + uri);
-    }
-    String operation = uri.substring(0, ind);
-    uri = uri.substring(ind + 1);
-    ResolveRequest ret = new ResolveRequest(operation, serviceUri, fullUri);
-
-    // set params
-    String[] pairs = null;
-    if (uri.contains(HTTP_PREFIX)) {
-      // special case for crs-compound/equal
-      while ((ind = uri.indexOf(HTTP_PREFIX, HTTP_PREFIX.length() + 5)) != -1) {
-        String key = uri.substring(0, ind);
-        if (key.matches(".+&\\d+=")) {
-          key = key.substring(0, key.lastIndexOf(PAIR_SEPARATOR));
-          uri = uri.substring(key.length() + 1);
-        } else {
-          uri = uri.substring(ind);
-        }
-        addParam(ret, key);
+  public static String getServiceUri(String s) {
+    String servletContext = SERVLET_CONTEXT + REST_SEPARATOR;
+    String ret = s;
+    if (s.contains(servletContext)) {
+      ret = s.substring(0, s.indexOf(servletContext) + servletContext.length());
+    } else if (isUrn(s)) {
+      ret = SERVICE_URI;
+      if (!ret.endsWith(REST_SEPARATOR)) {
+        ret += REST_SEPARATOR;
       }
-      addParam(ret, uri);
-    } else {
-      // all other cases
-      pairs = uri.split("[/\\?&]");
-      for (String pair : pairs) {
-        if (!pair.equals(EMPTY)) {
-          String key = pair;
-          String val = null;
-          if (pair.contains(KEY_VALUE_SEPARATOR)) {
-            String[] tmp = pair.split(KEY_VALUE_SEPARATOR);
-            key = tmp[0];
-            if (tmp.length > 1) {
-              val = tmp[1];
-            }
-          }
-          ret.addParam(key, val);
-        }
+      if (!ret.endsWith(servletContext)) {
+        ret += servletContext;
       }
+    } else if (s.startsWith(LOCAL_URI)) {
+      ret = LOCAL_URI;
+    } else if (!s.startsWith(HTTP_PREFIX)) {
+      ret = "";
     }
-    log.trace("Built request: " + ret);
+    ret = wrapUri(ret);
     return ret;
   }
 
-  private static void addParam(ResolveRequest req, String param) throws SecoreException {
-    if (param.matches("\\d+=.+")) {
-      String[] tmp = param.split(KEY_VALUE_SEPARATOR);
-      // In case of compounding or equality testing && 1+ URLs are KV-paired,
-      // then need to *re-merge* the remaining components of the split, otherwise
-      // only the first KV pair is added as parameter.
-      req.addParam(tmp[0], join(tmp, 1, tmp.length, KEY_VALUE_SEPARATOR));
-    } else {
-      req.addParam(param, null);
+  /**
+   * Only supports simple definition URNs. No support for compund or parameterized
+   * URNs.
+   * 
+   * @param uri a URN to be converted into a URI
+   */
+  public static String convertUrnToUrl(String uri) {
+    String ret = getServiceUri(uri);
+    
+    uri = StringUtil.stripDef(uri);
+    String[] values = uri.split(URN_SEPARATOR);
+    for (String value : values) {
+      if (!EMPTY.equals(value)) {
+        ret += value;
+      } else {
+        ret += ZERO;
+      }
+      ret += REST_SEPARATOR;
     }
+    return ret;
   }
   
   /**
@@ -193,7 +173,7 @@ public class StringUtil {
    * @param separator The separator String
    * @return          The joined String
    */
-  private static String join(String[] array, int start, int end, String separator) {
+  public static String join(String[] array, int start, int end, String separator) {
     String joined = "";
     for (int i = Math.max(start, 0);  i < Math.min(end, array.length); i++) {
       joined += (joined.isEmpty() ? "" : separator) + array[i];
@@ -213,6 +193,25 @@ public class StringUtil {
     Matcher matcher = pattern.matcher(xml);
     if (matcher.find()) {
       ret = matcher.group(2);
+    }
+    return ret;
+  }
+
+  /**
+   * Replace the value of an element in given xml with replacement.
+   * @param xml xml
+   * @param elname element name
+   * @param replacement new element value
+   * @return the text content of elname
+   */
+  public static String replaceElementValue(String xml, String elname, String replacement) {
+    String ret = xml;
+    Pattern pattern = Pattern.compile("<(.+:)?" + elname + "[^>]*>([^<]+)</(.+:)?" + elname + ">.*");
+    Matcher matcher = pattern.matcher(xml);
+    if (matcher.find()) {
+      String match = ">" + matcher.group(2) + "<";
+      replacement = replacement.replace("&", "%26");
+      ret = xml.replace(match, ">" + replacement + "<");
     }
     return ret;
   }
@@ -285,7 +284,7 @@ public class StringUtil {
     }
     return l;
   }
-
+  
   /**
    * Replace all URNs in s with URLs in REST format.
    * 
@@ -293,12 +292,39 @@ public class StringUtil {
    * @return the definition with the fixed links
    */
   public static String fixLinks(String s) {
+    return fixLinks(s, Config.getInstance().getServiceUrl());
+  }
+  
+  /**
+   * Replace all URNs in s with URLs in REST format, given a service URI.
+   * 
+   * @param s a GML definition
+   * @return the definition with the fixed links
+   */
+  public static String fixLinks(String s, String serviceUri) {
     // $1 = operation
     // $2 = authority
     // $3 = code
     // TODO fix handling of version, 0 is assumed now
-    return s.replaceAll(URN_PREFIX + ":(.+):(.+)::(.+)",
-        Config.getInstance().getServiceUrl() + "/$1/$2/0/$3");
+    String ret = s;
+    if (serviceUri != null) {
+      serviceUri = wrapUri(serviceUri);
+      ret = ret.replaceAll(URN_PREFIX + ":([^:]+):([^:]+):([^:]+):([^<>'\"]+)", serviceUri + "$1/$2/$3/$4");
+      ret = ret.replaceAll(URN_PREFIX + ":([^:]+):([^:]+)::([^<>'\"]+)", serviceUri + "$1/$2/0/$3");
+    }
+    return ret;
+  }
+  
+  /**
+   * Replace all URNs in s with URLs in REST format, given a service URI.
+   * Also replace { and } with {{ and }}, so that a def can be properly inserted
+   * in the XML database.
+   * 
+   * @param s a GML definition
+   * @return the definition with the fixed links and curly braces
+   */
+  public static String fixDef(String s, String serviceUri) {
+    return fixLinks(s, serviceUri).replaceAll("\\{", "{{").replaceAll("\\}", "}}");
   }
   
   /**
@@ -306,25 +332,63 @@ public class StringUtil {
    * @throws SecoreException 
    */
   public static String getGmlNamespace() {
-    String ret = EMPTY;
-    String prefix = "declare namespace gml = \"";
-    String suffix = "let $x := doc('gml')/gml:Dictionary\n" +
-                    "return namespace-uri($x)";
-    
-    // iterate through possible namespaces to find the one we need
-    for (String ns : GML_NAMESPACES) {
-      String query = prefix + ns + "\";\n" + suffix;
-      try {
-        ret = DbManager.getInstance().getDb().query(query);
-      } catch (Exception ex) {
-      }
-      if (!EMPTY.equals(ret)) {
-        break;
-      }
+//    String ret = EMPTY;
+//    String prefix = "declare namespace gml = \"";
+//    String suffix = "let $x := doc('gml')/gml:Dictionary\n" +
+//                    "return namespace-uri($x)";
+//    
+//    // iterate through possible namespaces to find the one we need
+//    for (String ns : GML_NAMESPACES) {
+//      String query = prefix + ns + "\";\n" + suffix;
+//      try {
+//        ret = DbManager.getInstance().getEpsgDb().query(query);
+//      } catch (Exception ex) {
+//      }
+//      if (!EMPTY.equals(ret)) {
+//        break;
+//      }
+//    }
+//    if (EMPTY.equals(ret)) {
+//      throw new RuntimeException("Couldn't determine the GML namespace used in the database.");
+//    }
+//    return ret;
+    return GML_NAMESPACES[1];
+  }
+  
+  /**
+   * @param s string
+   * @return the original s without any colon at the end
+   */
+  public static String removeLastColon(String s) {
+    if (s.endsWith(URN_SEPARATOR)) {
+      s = s.substring(0, s.length() - 1);
     }
-    if (EMPTY.equals(ret)) {
-      throw new RuntimeException("Couldn't determine the GML namespace used in the database.");
+    return s;
+  }
+  
+  public static boolean emptyQueryResult(String result) {
+    return result == null 
+        || result.equals(EMPTY_XML) 
+        || result.replaceAll("[\\n\\r]", "").equals(EMPTY);
+  }
+  
+  /**
+   * @return uri with / appended if it's not already.
+   */
+  public static String wrapUri(String uri) {
+    if (uri != null && !uri.endsWith(REST_SEPARATOR)) {
+      uri += REST_SEPARATOR;
     }
-    return ret;
+    return uri;
+  }
+  
+  /**
+   * @return uri with the last '/' removed.
+   */
+  public static String unwrapUri(String uri) {
+    while (uri != null && uri.endsWith(REST_SEPARATOR)) {
+      uri = uri.substring(0, uri.length() - 1);
+    }
+    return uri;
   }
 }

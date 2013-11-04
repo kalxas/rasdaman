@@ -19,25 +19,30 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package secore;
+package secore.req;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import secore.util.Constants;
 import static secore.util.Constants.*;
+import secore.util.StringUtil;
 
 /**
  * Wrapper for GML responses.
  *
  * @author Dimitar Misev
  */
-public class GmlResponse {
+public class ResolveResponse {
   
-  private static Logger log = LoggerFactory.getLogger(GmlResponse.class);
+  private static Logger log = LoggerFactory.getLogger(ResolveResponse.class);
+  
+  // regex pattern matching empty XML returned from BaseX
+  private static final Pattern EMPTY_XML = Pattern.compile("(<\\?xml.*\\?>\\n)?<empty/>");
   
   private final String data;
 
-  public GmlResponse(String data) {
+  public ResolveResponse(String data) {
     // Add copyright
 
 // results in invalid GML, so commented out until we find a way to inject the credits
@@ -57,12 +62,18 @@ public class GmlResponse {
           secondPart;
     }
 */
-    
-    // add missing namespaces
-    int topLevelTagEnd = data.indexOf(">", XML_DECL.length() + 1);
-    if (topLevelTagEnd != -1) {
-      data = addMissingNamespace(data, GMD_PREFIX, GMD_NAMESPACE, topLevelTagEnd);
-      data = addMissingNamespace(data, GCO_PREFIX, GCO_NAMESPACE, topLevelTagEnd);
+    if (!StringUtil.emptyQueryResult(data)) {
+      if (!data.startsWith("<?xml")) {
+        data = XML_DECL + data;
+      }
+
+      // add missing namespaces
+      int offset = data.indexOf("<", 1) + 1;
+      int topLevelTagEnd = data.indexOf(">", offset);
+      if (topLevelTagEnd != -1) {
+        data = addMissingNamespace(data, GMD_PREFIX, GMD_NAMESPACE, topLevelTagEnd);
+        data = addMissingNamespace(data, GCO_PREFIX, GCO_NAMESPACE, topLevelTagEnd);
+      }
     }
     
     this.data = data;
@@ -93,5 +104,18 @@ public class GmlResponse {
    */
   public String getData() {
     return data;
+  }
+  
+  /**
+   * Check if def is not an empty XML document.
+   * @param def XML definition to be checked.
+   * @return true if not empty, false otherwise.
+   */
+  public boolean isValidDefinition() {
+    if (data != null) {
+      Matcher matcher = EMPTY_XML.matcher(data);
+      return !EMPTY.equals(data) && !matcher.matches();
+    }
+    return false;
   }
 }

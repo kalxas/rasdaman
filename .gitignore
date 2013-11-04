@@ -92,3 +92,4 @@ compile
 /applications/petascope/dist/
 wcps.tokens
 failed_cases
+/applications/secore/secore-web/dist/

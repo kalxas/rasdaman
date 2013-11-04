@@ -19,15 +19,18 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package secore;
+package secore.handler;
 
+import secore.req.ResolveResponse;
+import secore.req.ResolveRequest;
 import java.net.URL;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.Resolver;
+import secore.req.RequestParam;
 import static secore.util.Constants.*;
 import secore.util.ExceptionCode;
-import secore.util.Pair;
 import secore.util.SecoreException;
 import secore.util.StringUtil;
 import secore.util.XMLDiff;
@@ -41,31 +44,40 @@ public class EqualityHandler extends AbstractHandler {
 
   private static Logger log = LoggerFactory.getLogger(EqualityHandler.class);
   
-  public GmlResponse handle(ResolveRequest request) throws SecoreException {
+  public ResolveResponse handle(ResolveRequest request) throws SecoreException {
     log.debug("Handling resolve request...");
     
-    List<Pair<String, String>> params = request.getParams();
+    List<RequestParam> params = request.getParams();
     
     if (request.getOperation().equals(getOperation()) && params.size() == 2) {
       
-      List<String> components = getComponentCRSs(request, 2);
+      List<RequestParam> components = request.getParams();
       
       // do some checking first, whether they are existing references
       String def1 = EMPTY;
       String def2 = EMPTY;
       
-      for (String component : components) {
+      for (RequestParam component : components) {
         try {
-          URL defRef = new URL(component);
-          String res = Resolver.resolve(defRef).getData();
-          if (res.equals(EMPTY)) {
+          if (!(component.val instanceof ResolveRequest)) {
+            throw new SecoreException(ExceptionCode.InvalidParameterValue,
+                "Invalid parameter value received for " + component.key + ": " + component.val);
+          }
+          String res = null;
+          ResolveRequest req = (ResolveRequest) component.val;
+          if (req.isLocal()) {
+            res = Resolver.resolve(req).getData();
+          } else {
+            res = Resolver.resolve(new URL(req.getOriginalRequest())).getData();
+          }
+          if (EMPTY.equals(res)) {
             throw new SecoreException(ExceptionCode.NoSuchDefinition,
-                "Invalid definition received for " + component);
+                "Invalid definition received for " + component.val);
           }
           String id = StringUtil.getElementValue(res, IDENTIFIER_LABEL);
           if (id == null) {
             throw new SecoreException(ExceptionCode.XmlNotValid,
-                "Invalid definition received for " + component);
+                "Invalid definition received for " + component.val);
           }
           if (def1.equals(EMPTY)) {
             def1 = res;
@@ -73,7 +85,7 @@ public class EqualityHandler extends AbstractHandler {
             def2 = res;
           }
         } catch (Exception ex) {
-          log.error("Failed resolving definition: " + component, ex);
+          log.error("Failed resolving definition: " + component.val, ex);
           throw new SecoreException(ExceptionCode.NoSuchDefinition,
               "Failed resolving definition: " + component, ex);
         }
@@ -84,7 +96,7 @@ public class EqualityHandler extends AbstractHandler {
       log.trace(res);
       
       log.debug("Done, returning response.");
-      return new GmlResponse(res);
+      return new ResolveResponse(res);
     } else {
       log.error("Can't handle the given parameters, exiting with error.");
       throw new SecoreException(ExceptionCode.MissingParameterValue, 

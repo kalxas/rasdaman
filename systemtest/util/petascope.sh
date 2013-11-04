@@ -547,11 +547,11 @@ function import_mst()
               '{$y_res, 0}');" > /dev/null || exit $RC_ERROR
 
   # initialize WMS
-  "$INITWMS" australia_wms mean_summer_airtemp EPSG:4326 -l '2:4:8:16' -h localhost -p $WCPS_PORT > /dev/null
+  "$INITWMS" australia_wms mean_summer_airtemp EPSG:4326 -l '2:4:8:16' -h localhost -p $WCPS_PORT > /dev/null 2>&1
   if [ $? -ne 0 ]; then
     log "Warning: WMS initialization for mean_summer_airtemp failed."
   fi
-  "$FILLPYR" mean_summer_airtemp --tasplit > /dev/null
+  "$FILLPYR" mean_summer_airtemp --tasplit > /dev/null 2>&1
   if [ $? -ne 0 ]; then
     log "Warning: WMS pyramid creation for mean_summer_airtemp failed."
   fi

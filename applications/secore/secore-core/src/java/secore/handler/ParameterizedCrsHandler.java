@@ -19,8 +19,10 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package secore;
+package secore.handler;
 
+import secore.req.ResolveResponse;
+import secore.req.ResolveRequest;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,11 +35,11 @@ import secore.util.StringUtil;
 import secore.util.XMLUtil;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
-import javax.script.ScriptException;
 import net.n3.nanoxml.IXMLElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static secore.ParameterizedCrsHandler.*;
+import static secore.handler.ParameterizedCrsHandler.*;
+import secore.req.RequestParam;
 import static secore.util.Constants.*;
 
 
@@ -90,27 +92,29 @@ public class ParameterizedCrsHandler extends GeneralHandler {
   
   // the definition of the parameterized CRS may be resolved previously
   // by the general handler.
-  private GmlResponse definition = null;
+  private ResolveResponse definition = null;
 
   @Override
-  public boolean canHandle(ResolveRequest request) {
-    return request.getOperation() != null
-        && request.getOperation().equals(OP_CRS) && request.getParams().size() > 3;
+  public boolean canHandle(ResolveRequest request) throws SecoreException {
+    boolean ret = request.getOperation() != null
+        && request.getOperation().equals(OP_CRS)
+        && request.getParams().size() > 3;
+    return ret;
   }
 
   @Override
-  public GmlResponse handle(ResolveRequest request) throws SecoreException {
+  public ResolveResponse handle(ResolveRequest request) throws SecoreException {
     log.debug("Handling resolve request...");
     
     // first resolve the parameterized CRS
     ResolveRequest req = new ResolveRequest(request.getOperation(),
-        request.getService(), request.getFullUri());
+        request.getServiceUri(), request.getOriginalRequest());
     req.addParam(EXPAND_KEY, EXPAND_NONE);
     int i = 0;
-    for (Pair<String, String> p : request.getParams()) {
-      String key = p.fst;
-      String val = p.snd;
-      if (val == null) { // it's REST
+    for (RequestParam p : request.getParams()) {
+      String key = p.key;
+      String val = p.val.toString();
+      if (key == null) { // it's REST
         req.addParam(key, val);
         ++i;
       } else {
@@ -127,15 +131,22 @@ public class ParameterizedCrsHandler extends GeneralHandler {
     if (req.getParams().size() != 3) {
       throw new SecoreException(ExceptionCode.InvalidRequest, "Invalid Parameterized CRS request");
     }
-    GmlResponse gml = definition;
+    ResolveResponse gml = definition;
     if (gml == null) {
-      gml = resolveParameterizedRequest(req);
+      gml = resolveId(parseRequest(req),
+          req.getExpandDepth(), new ArrayList<Parameter>());
     }
+    log.trace(gml.getData());
     
     // check if the result is a ParameterizedCRS
     String rootElementName = StringUtil.getRootElementName(gml.getData());
     if (!PARAMETERIZED_CRS.equals(rootElementName)) {
-      return gml;
+      // http://rasdaman.org/ticket/356
+      throw new SecoreException(ExceptionCode.InvalidRequest,
+            "Expected parameterized CRS definition, but " + req.getOriginalRequest()
+          + " points to " + rootElementName + ". Identifiers of simple definitions are not"
+          + " supposed to contain extra parameters, aside from the authority,"
+          + " version and code.");
     }
     
     // handling of parameterized CRS
@@ -169,40 +180,36 @@ public class ParameterizedCrsHandler extends GeneralHandler {
     }
     
     // parse the query parameters, and accordingly update the template parameters
-    for (Pair<String, String> p : request.getParams()) {
-      String name = p.fst;
-      String value = p.snd;
+    for (RequestParam p : request.getParams()) {
+      String name = p.key;
+      String value = p.val.toString();
       
       log.debug("key: " + name + ", value: " + value);
       
-      if (name.equalsIgnoreCase(RESOLVE_TARGET_KEY) && value != null) {
-        if (value.equalsIgnoreCase(RESOLVE_TARGET_NO)) {
-          // no resolving, just return original definition
-          return gml;
-        } else if (!value.equalsIgnoreCase(RESOLVE_TARGET_YES)) {
-          throw new SecoreException(ExceptionCode.InvalidRequest.locator(name),
-              "Invalid value for parameter " + name + ", expected 'yes' or 'no'.");
+      if (name != null) {
+        if (name.equalsIgnoreCase(RESOLVE_TARGET_KEY) && value != null) {
+          if (value.equalsIgnoreCase(RESOLVE_TARGET_NO)) {
+            // no resolving, just return original definition
+            return gml;
+          } else if (!value.equalsIgnoreCase(RESOLVE_TARGET_YES)) {
+            throw new SecoreException(ExceptionCode.InvalidRequest.locator(name),
+                "Invalid value for parameter " + name + ", expected 'yes' or 'no'.");
+          }
+        } else if (!name.equalsIgnoreCase(AUTHORITY_KEY)
+            && !name.equalsIgnoreCase(CODE_KEY)
+            && !name.equalsIgnoreCase(VERSION_KEY)) {
+          Parameter parameter = parameters.get(name);
+          if (parameter == null) {
+            throw new SecoreException(ExceptionCode.InvalidRequest.locator(name),
+                "Specified parameter not supported by this Parameterized CRS.");
+          }
+          parameter.setValue(value);
         }
-      } else if (!name.equalsIgnoreCase(AUTHORITY_KEY) && 
-          !name.equalsIgnoreCase(CODE_KEY) &&
-          !name.equalsIgnoreCase(VERSION_KEY) && value != null) {
-        Parameter parameter = parameters.get(name);
-        if (parameter == null) {
-          throw new SecoreException(ExceptionCode.InvalidRequest.locator(name),
-              "Specified parameter not supported by this Parameterized CRS.");
-        }
-        parameter.setValue(value);
       }
     }
     
     // do the actual work
     parameters.evaluateParameters();
-    
-    // get the target CRS
-    ResolveRequest targetCRSRequest = StringUtil.buildRequest(targetCRS);
-    
-    // get (URN, URL) for the target CRS
-    Pair<String, String> urnUrlPair = parseRequest(targetCRSRequest);
     
     // extract parameters with targets
     List<Parameter> params = new ArrayList<Parameter>();
@@ -212,15 +219,29 @@ public class ParameterizedCrsHandler extends GeneralHandler {
       }
     }
     
-    return resolve(IDENTIFIER_LABEL, urnUrlPair, 2, params);
+    // resolve the target CRS
+    ResolveRequest targetCRSRequest = new ResolveRequest(targetCRS);
+    String url = parseRequest(targetCRSRequest);
+    ResolveResponse ret = resolveId(url, EXPAND_DEFAULT, params);
+    
+    // update identifier to include parameters
+    String xml = StringUtil.replaceElementValue(
+        ret.getData(), IDENTIFIER_LABEL, request.getOriginalRequest());
+    ret = new ResolveResponse(xml);
+    
+    return ret;
   }
 
-  public GmlResponse getDefinition() {
+  public ResolveResponse getDefinition() {
     return definition;
   }
 
-  public void setDefinition(GmlResponse definition) {
+  public void setDefinition(ResolveResponse definition) {
     this.definition = definition;
+  }
+  
+  public static boolean isParameterizedCrsDefinition(String def) {
+    return PARAMETERIZED_CRS.equals(StringUtil.getRootElementName(def));
   }
   
 }
@@ -323,7 +344,7 @@ class Parameter {
   
   private static Logger log = LoggerFactory.getLogger(Parameter.class);
   
-  public static final Pattern PATTERN = Pattern.compile("\\$\\{([^\\}]+)\\}");
+  public static final Pattern PATTERN = Pattern.compile("\\$\\{?\\{([^\\}]+)\\}\\}?");
   
   private final String name;
   private String value;
@@ -364,7 +385,7 @@ class Parameter {
   }
   
   public void substituteReference(String name, String value) {
-    this.value = this.value.replaceAll("\\$\\{" + name + "\\}", value);
+    this.value = this.value.replaceAll("\\$\\{?\\{" + name + "\\}\\}?", value);
   }
   
   /**
@@ -408,5 +429,16 @@ class Parameter {
 
   public void setValue(String value) {
     this.value = value;
+  }
+
+  @Override
+  public String toString() {
+    return "Parameter{" 
+        + "\n\tname=" + name 
+        + "\n\tvalue=" + value 
+        + "\n\ttarget=" + target 
+        + "\n\trefs=" + refs 
+        + "\n\tevaluated=" + evaluated 
+        + "\n}";
   }
 }

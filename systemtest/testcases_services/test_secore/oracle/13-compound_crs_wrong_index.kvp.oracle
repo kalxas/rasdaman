@@ -2,6 +2,6 @@
 
 <ows:ExceptionReport version="2.0.0" xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
   <ows:Exception exceptionCode="InvalidParameterValue">
-    <ows:ExceptionText>Invalid crs-compound request, expected number 1 but got 3</ows:ExceptionText>
+    <ows:ExceptionText>Invalid crs-compound request, expected number 1 as key for parameter, but but was 2</ows:ExceptionText>
   </ows:Exception>
 </ows:ExceptionReport>
