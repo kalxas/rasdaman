@@ -197,6 +197,7 @@ SINGLE_TRANSACTION="--set ON_ERROR_STOP=on --single-transaction"
 UTILITIES_SQL="utilities.sql"
 GLOBAL_CONST_SQL="global_const.sql"
 TRIGGERS_SQL="triggers.sql"
+WMS_SCHEMA_SQL="wms_schema.sql"
 SCHEMA_SQL="schema.sql"
 POPULATE_SQL="populate.sql"
 MIGRATE_SQL="migrate.sql"
@@ -242,6 +243,10 @@ check_ret $?
 
 log "Loading triggers ... "
 $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$TRIGGERS_SQL" > /dev/null 2>&1
+check_ret $?
+
+log "Loading WMS schema ... "
+$PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$WMS_SCHEMA_SQL" > /dev/null 2>&1
 check_ret $?
 
 log "Creating schema for PS9_* tables ... "

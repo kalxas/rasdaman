@@ -53,6 +53,18 @@
 --   - `triggers9.sql' has been imported.
 -----------------------------------------------------------------------
 
+-- TABLE: **ps9_dbupdates** =====================================================
+-- This table stores latest database update
+CREATE TABLE ps9_dbupdates (
+    id      SERIAL    PRIMARY KEY,
+    update  integer   NOT NULL
+);
+CREATE TRIGGER single_dbupdate_trigger BEFORE INSERT ON ps9_dbupdates
+       FOR EACH ROW EXECUTE PROCEDURE single_dbupdate();
+-- Initialize it to `0': first update script will be update1.sql
+INSERT INTO ps9_dbupdates (update) VALUES (0);
+
+
 -- COVERAGE MODEL (WCS/WCPS) --------------------------------------------------
 -------------------------------------------------------------------------------
 
@@ -447,4 +459,12 @@ CREATE TRIGGER single_service_provider_trigger BEFORE INSERT ON ps9_service_prov
 
 
 -- MAP MODEL (WMS) ------------------------------------------------------------
--- ...
+-------------------------------------------------------------------------------
+-- No changes since previous schema
+-- $ git show release_8.5:applications/petascope/src/main/db/petascope/update5.sql
+-- Need to re-create them only in case this is a branch new database: old updateN.sql have been dropped.
+SELECT create_if_exists_ps_services();
+SELECT create_if_exists_ps_layers();
+SELECT create_if_exists_ps_servicelayer();
+SELECT create_if_exists_ps_styles();
+SELECT create_if_exists_ps_pyramidlevels();

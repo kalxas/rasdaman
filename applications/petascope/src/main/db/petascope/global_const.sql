@@ -131,7 +131,7 @@ $$
     SELECT cset('FLOAT_MAX',               3.4028234^38::numeric);
     SELECT cset('DOUBLE_MIN',   -1.7976931348623157^308::numeric);
     SELECT cset('DOUBLE_MAX',    1.7976931348623157^308::numeric);
-    -- PS_
+    -- PS_ (COVERAGE)
     SELECT cset('PS_PREFIX','ps');
     SELECT cset('TABLE_PS_COVERAGE',             cget('PS_PREFIX') || '_coverage');
           SELECT cset('PS_COVERAGE_ID',         'id');
@@ -171,6 +171,12 @@ $$
     SELECT cset('TABLE_PS_DATATYPE',             cget('PS_PREFIX') || '_datatype');
           SELECT cset('PS_DATATYPE_ID',         'id');
           SELECT cset('PS_DATATYPE_TYPE',       'datatype');
+    -- PS_ (WMS)
+    SELECT cset('TABLE_PS_SERVICES',           cget('PS_PREFIX') || '_services');
+    SELECT cset('TABLE_PS_LAYERS',             cget('PS_PREFIX') || '_layers');
+    SELECT cset('TABLE_PS_SERVICELAYER',       cget('PS_PREFIX') || '_servicelayer');
+    SELECT cset('TABLE_PS_STYLES',             cget('PS_PREFIX') || '_styles');
+    SELECT cset('TABLE_PS_PYRAMIDLEVELS',      cget('PS_PREFIX') || '_pyramidlevels');
     -- PS9_
     SELECT cset('PS9_PREFIX', 'ps9');
     SELECT cset('TABLE_PS9_COVERAGE',                         cget('PS9_PREFIX') || '_coverage');
@@ -181,6 +187,7 @@ $$
     SELECT cset('TABLE_PS9_CRS',                              cget('PS9_PREFIX') || '_crs');
           SELECT cset('PS9_CRS_ID',                          'id');
           SELECT cset('PS9_CRS_URI',                         'uri');
+    SELECT cset('TABLE_PS9_DBUPDATES',                        cget('PS9_PREFIX') || '_dbupdates');
     SELECT cset('TABLE_PS9_DOMAINSET',                        cget('PS9_PREFIX') || '_domain_set');
           SELECT cset('PS9_DOMAINSET_COVERAGE_ID',           'coverage_id');
           SELECT cset('PS9_DOMAINSET_CRS_IDS',               'native_crs_ids');

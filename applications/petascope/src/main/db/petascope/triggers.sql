@@ -366,3 +366,21 @@ $$
         RETURN NEW;
     END;
 $$ LANGUAGE plpgsql;
+
+
+-- TRIGGER: **single_dbupdate**************************************************
+-- Checks that no second service is inserted.
+CREATE OR REPLACE FUNCTION single_dbupdate ()
+RETURNS trigger AS
+$$
+    DECLARE
+        -- Log
+	ME constant text := 'single_dbupdate()';
+    BEGIN
+        -- check there is no other tuple in the table
+        IF NOT (SELECT table_is_empty(cget('TABLE_PS9_DBUPDATES'))) THEN
+            RAISE EXCEPTION '%: cannot insert more than one dbupdate ID.''', ME;
+        END IF;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
