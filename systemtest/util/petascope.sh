@@ -570,7 +570,7 @@ function import_petascope_data()
     error "testdata path $TESTDATA_PATH not found."
   fi
 
-  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 Parksmall"
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1"
 
   for COLLS in $COLLECTIONS; do
     check_cov $COLLS
@@ -612,7 +612,7 @@ function import_petascope_data()
 
 function drop_petascope_data()
 {
-  COLLS="rgb mr eobstest mean_summer_airtemp irr_cube_1 Parksmall"
+  COLLS="rgb mr eobstest mean_summer_airtemp irr_cube_1"
   drop_petascope $COLLS
   drop_colls $COLLS
   log "dropping wms..."
