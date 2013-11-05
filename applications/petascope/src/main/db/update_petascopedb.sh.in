@@ -75,8 +75,10 @@ SETTINGS=@sysconfdir@/petascope.properties
 # petascope updateN.sql scripts
 SCRIPT_DIR=@pkgdatadir@/petascope
 
-# petascopedb tables
-PS_DBUPDATE=ps_dbupdates
+# petascopedb tables and fields
+PS9_DBUPDATES=ps9_dbupdates
+DBUPDATES_ID=id
+DBUPDATES_UPDATE=update
 
 # ------------------------------------------------------------------------------
 # functions
@@ -235,30 +237,41 @@ fi
 #
 # run the SQL scripts
 #
-log "Loading utilities and global constants ... "
+
+# utilities + constants (cget/cset)
+log "Updating utilities and global constants ... "
 $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$UTILITIES_SQL" > /dev/null 2>&1
 check_ret $?
 $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$GLOBAL_CONST_SQL"  > /dev/null 2>&1
 check_ret $?
 
-log "Loading triggers ... "
+# triggers
+log "Updating triggers ... "
 $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$TRIGGERS_SQL" > /dev/null 2>&1
 check_ret $?
 
-log "Loading WMS schema ... "
+# `create if not exists` functions for WMS tables (untouched from rasdaman 8)
+log "Updating WMS schema ... "
 $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$WMS_SCHEMA_SQL" > /dev/null 2>&1
 check_ret $?
 
-log "Creating schema for PS9_* tables ... "
-$PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$SCHEMA_SQL" > /dev/null 2>&1
-check_ret $?
+# Create new schema, if not already there
+$PSQL -c "SELECT * FROM $PS9_DBUPDATES" > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    log "Creating schema for PS9_* tables ... "
+    $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$SCHEMA_SQL" > /dev/null 2>&1
+    check_ret $?
 
-if [ -z "$EMPTY_DB" ]; then
-  log "Populating tables with some required metadata ... "
-  $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$POPULATE_SQL" > /dev/null 2>&1
-  check_ret $?
+    if [ -z "$EMPTY_DB" ]; then
+        log "Populating tables with some required metadata ... "
+        $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$POPULATE_SQL" > /dev/null 2>&1
+        check_ret $?
+    fi
+else
+    log "PS9 tables seem to be already there in the database: schema will not be updated."
 fi
 
+# migration
 if [ -n "$MIGRATE_COVERAGES" ]; then
   log "Installing dblink module to $PS_DB and RASBASE db... "
   check_dblink
@@ -269,9 +282,64 @@ if [ -n "$MIGRATE_COVERAGES" ]; then
   check_ret $?
 fi
 
-log "Loading macros ... "
+# sql macros
+log "Updating macros ... "
 $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$MACROS_SQL" > /dev/null 2>&1
 check_ret $?
+
+
+#
+# insert the database updates (if present)
+#
+
+# determine the update number
+$PSQL -c "SELECT * FROM $PS9_DBUPDATES" > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+    # create from scratch
+    counter=1
+else
+    # update from the last update number
+    counter=$( $PSQL -c "SELECT ($DBUPDATES_UPDATE + 1) FROM $PS9_DBUPDATES" | head -n 3 | tail -n 1 | awk '{print $1}' )
+    if [ "$counter" -ne "$counter" ] 2>/dev/null; then
+        error "couldn't determine last update from the $PS9_DBUPDATES table"
+    else
+        log "database last update number is $(($counter-1))"
+  fi
+fi
+
+update_files=$( ls "$SCRIPT_DIR" | grep "update[1-9][0-9]*.sql" | wc -l )
+log "detected $update_files updates in $SCRIPT_DIR... "
+
+
+updated=0
+while [ -f "$SCRIPT_DIR/update$counter.sql" ]; do
+    logn "  update $counter... "
+
+    # Note for future .sql files: do not add manual BEGIN/COMMIT transactions, they are handled by psql
+    $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/update$counter.sql" > /dev/null 2>&1
+
+    # Check if the update was successful
+    ret=$?
+    if [ "$ret" -ne 0 ]; then
+        echo "FAILED (return value $ret)."
+	break # So that ps_dbupdates is updated to its partial update anyway.
+    else
+        echo ok.
+    fi
+
+    counter=$(($counter+1))
+    updated=1
+done
+
+#
+# save the last update number
+#
+if [ $updated -eq 1 ]; then
+    $PSQL -c "UPDATE $PS9_DBUPDATES SET $DBUPDATES_UPDATE = $counter-1" > /dev/null 2>&1
+    log "updated database to update $((counter-1))"
+else
+    log "database already up-to-date, nothing to update."
+fi
 
 #
 # done
