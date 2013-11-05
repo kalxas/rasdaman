@@ -5,7 +5,7 @@
 --	...
 -- Problem in Petascope to load NULL optional parameters: set an `undefined' default
 --  like initgeo does for layers.
-CREATE FUNCTION create_if_exists_ps_services() RETURNS VOID AS
+CREATE OR REPLACE FUNCTION create_if_exists_ps_services() RETURNS VOID AS
 $$
 DECLARE
     -- Log
@@ -58,7 +58,7 @@ LANGUAGE plpgsql;
 
 -- TABLE: **ps_layers** =============================================
 -- Layer of a WMS service
-CREATE FUNCTION create_if_exists_ps_layers() RETURNS VOID AS
+CREATE OR REPLACE FUNCTION create_if_exists_ps_layers() RETURNS VOID AS
 $$
 DECLARE
     -- Log
@@ -108,7 +108,7 @@ LANGUAGE plpgsql;
 
 -- TABLE: **ps_servicelayer** =============================================
 -- n:m association table between ps_services and ps_layers
-CREATE FUNCTION create_if_exists_ps_servicelayer() RETURNS VOID AS
+CREATE OR REPLACE FUNCTION create_if_exists_ps_servicelayer() RETURNS VOID AS
 $$
 DECLARE
     -- Log
@@ -141,7 +141,7 @@ LANGUAGE plpgsql;
 -- A layer can be associated with N styles.
 -- Must be compatible with a RGB set, e.g.:
 -- Negative filter: name = 'negative', rasqlOp = '{255c,255c,255c} - negative*{1c,1c,1c}'
-CREATE FUNCTION create_if_exists_ps_styles() RETURNS VOID AS
+CREATE OR REPLACE FUNCTION create_if_exists_ps_styles() RETURNS VOID AS
 $$
 DECLARE
     -- Log
@@ -181,7 +181,7 @@ LANGUAGE plpgsql;
 -- TABLE: **ps_pyramidlevels** =============================================
 -- A WMS layer is usually made up of a pyramid of images
 -- One actual collection in Rasdaman for each scale step.
-CREATE FUNCTION create_if_exists_ps_pyramidlevels() RETURNS VOID AS
+CREATE OR REPLACE FUNCTION create_if_exists_ps_pyramidlevels() RETURNS VOID AS
 $$
 DECLARE
     -- Log
