@@ -44,6 +44,7 @@ import org.hsqldb.lib.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
+import static petascope.ConfigManager.METADATA_URL;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
@@ -81,6 +82,15 @@ public class DbMetadataSource implements IMetadataSource {
      */
 
     public static final String TABLES_PREFIX = "ps9_";
+    public static final int TABLES_NUMBER = 30; // NB: Keep it up-to-date
+
+    public static final String POSTGRE_PREFIX = "pg_";
+    public static final String CURRENT_SCHEMA = "CURRENT_SCHEMA";
+
+    /* PostgreSQL tables */
+    public static final String TABLE_TABLES_CATALOG = POSTGRE_PREFIX + "catalog." + POSTGRE_PREFIX + "tables";
+    public static final String TABLES_CATALOG_SCHEMANAME = "schemaname";
+    public static final String TABLES_CATALOG_TABLENAME = "tablename";
 
     /* Dictionary tables (coverage-independent) */
     // TABLE_EXTRAMETADATA_TYPE : types of extra-metadata for a coverage (eg GMLCOV, OWS, etc.)
@@ -338,6 +348,15 @@ public class DbMetadataSource implements IMetadataSource {
 
             // Service metadata: init
             sMeta = new ServiceMetadata();
+
+            // Check PS9_ tables habe been created
+            int detectedTables = countTables(TABLES_PREFIX + "%");
+            if (detectedTables != TABLES_NUMBER) {
+                log.error("Missing " + TABLES_PREFIX + "* tables in the database.");
+                throw new PetascopeException(ExceptionCode.InternalComponentError,
+                            "There are " + detectedTables + " out of " + TABLES_NUMBER + " tables with prefix " + TABLES_PREFIX + " in " + METADATA_URL +
+                            " Petascope cannot be started: please update the database to version 9 by running `update_petascopedb.sh [--migrate]`");
+            }
 
             /* TABLE_SERVICE_IDENTIFICATION */
             sqlQuery =
@@ -1716,25 +1735,25 @@ public class DbMetadataSource implements IMetadataSource {
             String genQuery = "";
             String selectClause = WcpsConstants.MSG_SELECT + " value[1] || ',' || value[2] || ',' || value[3],";
             String whereClause = WcpsConstants.MSG_WHERE + " coverage_id=(SELECT id FROM ps9_coverage " +
-                    "WHERE name='" + coverageID + "') "; 
-            
+                    "WHERE name='" + coverageID + "') ";
+
             if (xmin.equals(xmax)) {
-                selectClause += "St_Y(coordinate) || ' ' || St_Z(coordinate)"; 
-                whereClause += " AND St_X(coordinate) = " + xmin; 
+                selectClause += "St_Y(coordinate) || ' ' || St_Z(coordinate)";
+                whereClause += " AND St_X(coordinate) = " + xmin;
             } else if (ymin.equals(ymax)) {
-                selectClause += "St_X(coordinate) || ' ' || St_Z(coordinate)"; 
+                selectClause += "St_X(coordinate) || ' ' || St_Z(coordinate)";
                 whereClause += " AND St_Y(coordinate) = " + ymin;
             } else if (zmin.equals(zmax)) {
-                selectClause += "St_X(coordinate) || ' ' || St_Y(coordinate)"; 
+                selectClause += "St_X(coordinate) || ' ' || St_Y(coordinate)";
                 whereClause += " AND St_Z(coordinate) = " + zmin;
             } else {
-                 selectClause += "St_X(coordinate) || ' ' || St_Y(coordinate) || ' ' || St_Z(coordinate)"; 
+                 selectClause += "St_X(coordinate) || ' ' || St_Y(coordinate) || ' ' || St_Z(coordinate)";
                  whereClause += " AND  d.coordinate && "
                     + "'BOX3D(" + xmin + " " + ymin + " " + zmin + "," + xmax + " " + ymax + " " + zmax + ")'::box3d";
             }
-            genQuery = selectClause + WcpsConstants.MSG_FROM + " ps9_multipoint AS d " + whereClause; 
+            genQuery = selectClause + WcpsConstants.MSG_FROM + " ps9_multipoint AS d " + whereClause;
             log.debug("postGISQuery: " + genQuery);
-            
+
             ResultSet r = s.executeQuery(genQuery);
             StringBuilder pointMembers = new StringBuilder();
             StringBuilder rangeMembers = new StringBuilder();;
@@ -2145,5 +2164,30 @@ public class DbMetadataSource implements IMetadataSource {
         } // else: no harm, Descriptions are optional
 
         return owsDescription;
+    }
+
+    private int countTables(String iPattern) throws PetascopeException, SQLException {
+
+        Statement s = conn.createStatement();
+        ResultSet r;
+        String sqlQuery;
+        int count = 0;
+
+        sqlQuery =
+                " SELECT COUNT(*) FROM " + TABLE_TABLES_CATALOG +
+                " WHERE " + TABLES_CATALOG_SCHEMANAME + "=" + CURRENT_SCHEMA +
+                  " AND " + TABLES_CATALOG_TABLENAME  + " ILIKE \'" + iPattern + "\'"
+                ;
+        log.debug("SQL query: " + sqlQuery);
+        r = s.executeQuery(sqlQuery);
+
+        if (r.next()) {
+            count = r.getInt(1);
+        } else {
+            throw new PetascopeException(ExceptionCode.InternalSqlError,
+                    "No tuples returned while counting tables with pattern " + iPattern);
+        }
+
+        return count;
     }
 }
