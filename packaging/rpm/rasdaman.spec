@@ -1,7 +1,7 @@
 %global rasdir %{_sharedstatedir}/rasdaman
 Name:           rasdaman
-Version:        8.3.1
-Release:        3%{?dist}
+Version:        9.0.0
+Release:        beta1%{?dist}
 Summary:        rasdaman - Raster Data Manager
 
 Group:          Applications/Databases

@@ -62,6 +62,6 @@ dist_log_DATA=empty
 #
 BUILT_SOURCES = version
 version:
-	echo '#define RMANVERSION "'`(git for-each-ref --sort='*authordate' --format='%(tag)' refs/tags 2>/dev/null | tail -n 1 2>/dev/null || echo v8.4) | sed s/-[0-9]*//1`-`git describe | awk -F '-' '{ print $$NF; }' || echo 0`'"' > version.h.tmp
+	echo '#define RMANVERSION "'`(git for-each-ref --sort='*authordate' --format='%(tag)' refs/tags 2>/dev/null | tail -n 1 2>/dev/null || echo v9.0.0) | sed s/-[0-9]*//1`-`git describe | awk -F '-' '{ print $$NF; }' || echo 0`'"' > version.h.tmp
 	test -f version.h && cmp version.h.tmp version.h || mv version.h.tmp version.h
 	rm -f version.h.tmp 2>/dev/null   
