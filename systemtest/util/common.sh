@@ -477,7 +477,7 @@ function run_test()
       update_result
 
     # do the secore comparison
-    elif [ "$SVCNAME"=secore ]; then
+    elif [ "$SVC_NAME" = "secore" ]; then
       sed 's/gml://g' "$out" > "$output_tmp"
       sed 's/gml://g' "$oracle" > "$oracle_tmp"
       

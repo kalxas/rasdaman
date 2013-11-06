@@ -134,8 +134,6 @@ allow developers to create user interfaces for displaying data from a raster dat
 %setup -q
 
 %build
-sed -i 's#    JAVA_DIR = petascope raswct petascope/src/main/db secore#    JAVA_DIR = petascope raswct petascope/src/main/db#' applications/Makefile.am
-
 autoreconf -fi
 
 CC="gcc -L%{_libdir}/hdf -I/usr/include/netpbm -fpermissive -g -O2" CXX="g++ -L%{_libdir}/hdf -I/usr/include/gdal -I/usr/include/netpbm -fpermissive -g -O2" \
