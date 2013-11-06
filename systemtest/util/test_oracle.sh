@@ -115,6 +115,8 @@ echo
 
 pushd "$QUERIES_PATH" > /dev/null
 
+check_multipoint
+multi_coll_enabled=$(check_multipoint)
 for f in *; do
   
   # skip non-files
@@ -126,8 +128,13 @@ for f in *; do
   if [ "$SVC_NAME" == "wcps" ]; then
     # skip rasql/xml tests in WCPS test suite for now
     [[ "$f" == *.rasql || "$f" == *.sql || "$f" == *.xml ]] && continue
+    # Skip multipoint tests if multipoint is not enabled
+    [[ $multi_coll_enabled -ne 0 ]] && [[ "$f" == *multipoint* ]] && continue
   fi
-  
+  if [ "$SVC_NAME" == "wcs" ]; then
+    # Skip multipoint tests if multipoint is not enabled
+    [[ $multi_coll_enabled -ne 0 ]] && [[ "$f" == *multipoint* ]] && continue
+  fi  
   # uncomment for single test run
   #[[ "$f" == 62-* ]] || continue
   

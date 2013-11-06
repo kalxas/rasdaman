@@ -69,6 +69,24 @@ function check_petascope()
 }
 
 # ------------------------------------------------------------------------------
+# 
+# Check if multipoint is enabled
+# return
+#   0 - if multipoint is enabled
+#   1 - if it is not enabled
+#
+
+function check_multipoint()
+{
+  M=`psql -d petascopedb -c "SELECT * FROM information_schema.tables WHERE table_schema = 'public'" | grep ps9_multipoint`
+  if [ ! "$M" ]; then
+    echo 1
+  else
+    echo 0
+  fi 
+}
+
+# ------------------------------------------------------------------------------
 #
 # drop coverages in global variable $COLLS
 #
@@ -84,7 +102,7 @@ function drop_petascope()
       $PSQL -c "DELETE FROM ps9_coverage WHERE id=$c_id" > /dev/null
       $PSQL -c "DELETE FROM ps9_rasdaman_collection WHERE name='$c'" > /dev/null
 
-      echo ok.
+      echo ok.		
     else
       echo no such coverage found.
     fi
@@ -570,8 +588,12 @@ function import_petascope_data()
     error "testdata path $TESTDATA_PATH not found."
   fi
 
-  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1"
-
+  res=$(check_multipoint)
+  local multi_coll=""
+  if [ $res -eq 0 ]; then
+    multi_coll=" Parksmall"
+  fi
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1$multi_coll" 
   for COLLS in $COLLECTIONS; do
     check_cov $COLLS
     if [ $? -ne 0 ]; then
@@ -612,7 +634,11 @@ function import_petascope_data()
 
 function drop_petascope_data()
 {
-  COLLS="rgb mr eobstest mean_summer_airtemp irr_cube_1"
+  res=$(check_multipoint)
+  if [ $res -eq 0 ]; then
+    multi_coll=" Parksmall"
+  fi
+  COLLS="rgb mr eobstest mean_summer_airtemp irr_cube_1$multi_coll"
   drop_petascope $COLLS
   drop_colls $COLLS
   log "dropping wms..."

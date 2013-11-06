@@ -201,6 +201,7 @@ GLOBAL_CONST_SQL="global_const.sql"
 TRIGGERS_SQL="triggers.sql"
 WMS_SCHEMA_SQL="wms_schema.sql"
 SCHEMA_SQL="schema.sql"
+SCHEMA_MULTIPOINT="schema_multipoint.sql"
 POPULATE_SQL="populate.sql"
 MIGRATE_SQL="migrate.sql"
 MACROS_SQL="macros.sql"
@@ -269,6 +270,20 @@ if [ $? -ne 0 ]; then
     fi
 else
     log "PS9 tables seem to be already there in the database: schema will not be updated."
+fi
+
+# Enabling PostGIS and Creating Multipoint schema
+log "Looking for postgis.sql file in /usr, needed to enable multipoint support in petascope..."
+POSTGIS_SQL_FILE=`find /usr/ -name postgis.sql` 
+if [ -n "$POSTGIS_SQL_FILE" ]; then
+  POSTGIS_VERSION=`grep -r "INSTALL VERSION"  /usr/share/postgresql/9.1/contrib/postgis-2.1/postgis.sql | awk '{ print $4; }'`
+  log "Detected PostGIS version: $POSTGIS_VERSION"
+  log "Enabling PostGIS in PetascopeDB ..."
+  $PSQL -f  "$POSTGIS_SQL_FILE"  > /dev/null
+  log "Creating Multipoint schema ... " 
+  $PSQL -f "$SCRIPT_DIR/$SCHEMA_MULTIPOINT" > /dev/null
+else
+  log "Warning: postgis.sql not found, please install PostGIS >= 2.0 and rerun this script to enable support for multipoint coverages."
 fi
 
 # migration

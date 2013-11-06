@@ -1,0 +1,1 @@
+for c in ( Parksmall ) return encode( slice( c, {Long(339867.65615004)} ), "csv" )
