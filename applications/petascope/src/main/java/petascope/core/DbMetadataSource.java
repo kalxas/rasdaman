@@ -82,7 +82,7 @@ public class DbMetadataSource implements IMetadataSource {
      */
 
     public static final String TABLES_PREFIX = "ps9_";
-    public static final int TABLES_NUMBER = 30; // NB: Keep it up-to-date
+    public static final int MIN_TABLES_NUMBER = 30; // NB: Keep it up-to-date
 
     public static final String POSTGRE_PREFIX = "pg_";
     public static final String CURRENT_SCHEMA = "CURRENT_SCHEMA";
@@ -351,10 +351,10 @@ public class DbMetadataSource implements IMetadataSource {
 
             // Check PS9_ tables habe been created
             int detectedTables = countTables(TABLES_PREFIX + "%");
-            if (detectedTables != TABLES_NUMBER) {
+            if (detectedTables < MIN_TABLES_NUMBER) {
                 log.error("Missing " + TABLES_PREFIX + "* tables in the database.");
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
-                            "There are " + detectedTables + " out of " + TABLES_NUMBER + " tables with prefix " + TABLES_PREFIX + " in " + METADATA_URL + ".\n" +
+                            "There are " + detectedTables + " out of " + MIN_TABLES_NUMBER + " tables with prefix " + TABLES_PREFIX + " in " + METADATA_URL + ".\n" +
                             "Petascope cannot be started: please update the database to version 9 by running `update_petascopedb.sh [--migrate]`");
             }
 
