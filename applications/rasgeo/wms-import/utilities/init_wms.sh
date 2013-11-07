@@ -258,10 +258,10 @@ TIFF_FORMAT='image/tiff'
 WMS_FORMATS="$JPEG_FORMAT;$PNG_FORMAT;$TIFF_FORMAT"  
 WMS_SERVICE_INSERT="$SCRIPT_DIR/add_wms_service.sh"
 # PSQL return values
-  PG_INSERT_OK="INSERT 0 1"
-PG_SELECT_NULL="(0 rows)"
-  PG_SELECT_OK="(1 row)"
- PG_SELECT_OK2="(2 rows)"
+  PG_INSERT_OK=".* 0 1"
+PG_SELECT_NULL="(0 .*)"
+  PG_SELECT_OK="(1 .*)"
+ PG_SELECT_OK2="(2 .*)"
 
 # HTTP code
 HTTP_OK_CODE=200

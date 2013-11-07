@@ -143,9 +143,8 @@ SERVICES_BASELAYER=baselayername
 SERVICES_VENDORCAP=vendorcapabilities
 
 # Database response patterns
-SELECT_NULL="(0 rows)"
-PG_INSERT_OK='INSERT 0 1'
-UNDEFINED_KEYWORD='undefined'
+SELECT_NULL="(0 .*)"
+PG_INSERT_OK='.* 0 1'
 
 ###################
 # ARGUMENTS CHECK #

@@ -104,8 +104,8 @@ PYRAMIDLEVELS_COLLECTIONNAME=collectionname
 PYRAMIDLEVELS_SCALEFACTOR=scalefactor
 
 # PSQL return values
-PG_SELECT_NULL="(0 rows)"
-  PG_SELECT_OK="(1 row)"
+PG_SELECT_NULL="(0 .*)"
+  PG_SELECT_OK="(1 .*)"
 
 # WMS service
 PETASCOPE_HOST='localhost'
