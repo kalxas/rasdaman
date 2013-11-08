@@ -32,7 +32,7 @@
 	usage: $ME <collName> [$ARG_TASPLIT]
 	where
 		<collName> 	must be an existing collection in rasdaman with an associated pyramid.
-		$ARG_TASPLIT	split transaction into small units (saves main memory). 
+		$ARG_TASPLIT	split transaction into small units (saves main memory).
 	"
 
 	# In case the usage changes, consequently adjust these values:
@@ -56,7 +56,7 @@
 #       - Output of rasdaman SELECT still matches with "Result object ...".
 #       - of course, rasdaman and postgres are up and running.
 #
-# TODO: 
+# TODO:
 #    ...
 #
 # --- DEFAULTS ------------------------------------------------------
@@ -119,22 +119,9 @@ MDDCOLLNAMES_COLLNAME=mddcollname
 SETTYPES_SETTYPEID=settypeid
 SETTYPES_TYPENAME=settypename
 
-# Tables to be updated in the metadata database
-     TABLE_COVERAGE=ps_coverage
-   TABLE_CELLDOMAIN=ps_celldomain
+# WMS tables to be updated in the metadata database
        TABLE_LAYERS=ps_layers
 TABLE_PYRAMIDLEVELS=ps_pyramidlevels
-# PS_COVERAGE
-COVERAGE_ID=id
-COVERAGE_NAME=name
-# PS_CELLDOMAIN
-CELLDOMAIN_COVERAGE=coverage
-CELLDOMAIN_LO=lo
-CELLDOMAIN_HI=hi
-CELLDOMAIN_I=i
-# PS_COVERAGE
-COVERAGE_ID=id
-COVERAGE_NAME=name
 # PS_LAYER
 LAYERS_LAYERID=layerid
 LAYERS_NAME=name
@@ -153,7 +140,7 @@ PG_SELECT_NULL="(0 .*)"
 
 # check whether the required tools are available
 # i) installed
-if [ ! -f "$IMPORT_BIN" ]; then 
+if [ ! -f "$IMPORT_BIN" ]; then
 	echo "$ME: ERROR: 'fillpyramid' not found, please install."
 	exit $RC_ERROR
 fi
@@ -163,7 +150,7 @@ if [ ! -f "$AWK" ]; then
 fi
 
 # ii) executable
-if [ ! -x "$IMPORT_BIN" ]; then 
+if [ ! -x "$IMPORT_BIN" ]; then
 	echo "$ME: ERROR: $IMPORT_BIN is not executable."
 	exit $RC_ERROR
 fi
@@ -183,10 +170,10 @@ fi
 echo -en "\n$ME: Parsing arguments... "
 COLLNAME=$1
 TASPLIT=''
-if [ $# -eq $MAX_ARGS ]; then 
-	if [ "$2" = "$ARG_TASPLIT" ]; then 
+if [ $# -eq $MAX_ARGS ]; then
+	if [ "$2" = "$ARG_TASPLIT" ]; then
 		TASPLIT="$2"
-	else 
+	else
 		echo "$ME: unknown argument '$2'."
 		echo "$USAGE"
 		exit $RC_ERROR
@@ -203,9 +190,9 @@ PETADB_NAME="$(cat $CONNECT_FILE | grep $PETADBNAME_KEY | "$AWK" 'BEGIN { FS="="
 
 echo "$ME: Using databases {$RASDB_NAME,$PETADB_NAME}@$RAS_HOST:$PG_PORT."
 
-# Check existence of rasdaman collection 
+# Check existence of rasdaman collection
 collExists=0
-while read coll; do 
+while read coll; do
 	if [ "$coll" = "$COLLNAME" ]; then collExists=1; fi
 done <<< "$( rasql -q "select r from RAS_COLLECTIONNAMES as r" --out string | grep "Result object" | "$AWK" 'BEGIN { FS=" "}; { print $4 };' )"
 if [ "$collExists" -eq 0 ]; then
@@ -223,7 +210,7 @@ echo "$ret" | grep "$PG_SELECT_OK" 1>/dev/null
 if [ "$?" -ne 0 ]; then
 	echo "$ME: ERROR: "$MAPNAME" already exists in $PETADB_NAME@$RAS_HOST:$PG_PORT."
 	exit $RC_ERROR
-else 
+else
 	layerId=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $5 };' )
 	layerName=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $7 };' )
 	echo "$ME: Associated WMS layer: $layerName (ID #$layerId)."
@@ -235,24 +222,10 @@ fi
 echo -n "$ME: Fetching dimensions of $COLLNAME... "
 
 # Read the pixel dimensions:
-query="	SELECT $CELLDOMAIN_LO, $CELLDOMAIN_HI FROM $TABLE_CELLDOMAIN, $TABLE_COVERAGE
-	WHERE $CELLDOMAIN_COVERAGE = $TABLE_COVERAGE.$COVERAGE_ID 
-	AND $TABLE_COVERAGE.$COVERAGE_NAME = '$COLLNAME'
-	ORDER BY $CELLDOMAIN_I;"
-ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_PORT" "$PETADB_NAME" )
-#
-echo "$ret" | grep "$PG_SELECT_OK2" 1>/dev/null
-if [ "$?" -eq 0 ]; then
-	PIXEL_XMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $5 };' )
-	PIXEL_XMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $7 };' )
-	PIXEL_YMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $8 };' )
-	PIXEL_YMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $10 };' )
-	echo "read [$PIXEL_XMIN:$PIXEL_XMAX,$PIXEL_YMIN:$PIXEL_YMAX]"
-else 
-	echo 
-	echo "$ME: ERROR while fetching pixel-domain information of $COLLNAME from $PETADB_NAME@$RAS_HOST:$PG_PORT."
-	exit $RC_ERROR
-fi
+PIXEL_XMIN=$( rasql -q "select sdom(c)[0].lo from $COLLNAME as c" --out string | grep "1:" | awk 'BEGIN { FS=":" }; { print $2 };' | tr -d ' ' )
+PIXEL_XMAX=$( rasql -q "select sdom(c)[0].hi from $COLLNAME as c" --out string | grep "1:" | awk 'BEGIN { FS=":" }; { print $2 };' | tr -d ' ' )
+PIXEL_YMIN=$( rasql -q "select sdom(c)[1].lo from $COLLNAME as c" --out string | grep "1:" | awk 'BEGIN { FS=":" }; { print $2 };' | tr -d ' ' )
+PIXEL_YMAX=$( rasql -q "select sdom(c)[1].hi from $COLLNAME as c" --out string | grep "1:" | awk 'BEGIN { FS=":" }; { print $2 };' | tr -d ' ' )
 
 # Build up the levelstring 'pyramid_level_coll:factor':
 query=" SELECT $TABLE_PYRAMIDLEVELS.$PYRAMIDLEVELS_COLLECTIONNAME, $TABLE_PYRAMIDLEVELS.$PYRAMIDLEVELS_SCALEFACTOR
@@ -260,19 +233,19 @@ query=" SELECT $TABLE_PYRAMIDLEVELS.$PYRAMIDLEVELS_COLLECTIONNAME, $TABLE_PYRAMI
 	WHERE $TABLE_PYRAMIDLEVELS.$PYRAMIDLEVELS_LAYERID = $TABLE_LAYERS.$LAYERS_LAYERID
 	AND $TABLE_LAYERS.$LAYERS_NAME = '$layerName';"
 levelsString=""	# argument for import executable: exclude baselayer from inputs: grep $COLLNAME_ instead of $COLLNAME.
-while read line; do 
+while read line; do
 	pyramidName=$( echo "$line" | "$AWK" 'BEGIN {FS=" " }; { print $1 };' )
 	pyramidFactor=$( echo "$line" | "$AWK" 'BEGIN {FS=" " }; { print $3 };' )
 	echo "$ME: Found pyramid level $pyramidName with scale factor $pyramidFactor..."
-	if [ "$levelsString" == "" ]; then 
+	if [ "$levelsString" == "" ]; then
 		levelsString="$pyramidName:$pyramidFactor"
-	else 
+	else
 		levelsString="$levelsString;$pyramidName:$pyramidFactor"
 	fi
 done <<< "$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_PORT" "$PETADB_NAME"  | grep "$COLLNAME"_ )"
 
 # Check type of collection and translate it to be compatible with import binary.
-query="	SELECT $SETTYPES_TYPENAME FROM $TABLE_MDDCOLLNAMES, $TABLE_SETTYPES 
+query="	SELECT $SETTYPES_TYPENAME FROM $TABLE_MDDCOLLNAMES, $TABLE_SETTYPES
 	WHERE $TABLE_MDDCOLLNAMES.$MDDCOLLNAMES_SETTYPEID = $TABLE_SETTYPES.$SETTYPES_SETTYPEID
 	AND $MDDCOLLNAMES_COLLNAME = '$COLLNAME';"
 ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_PORT" "$RASDB_NAME" )
@@ -281,7 +254,7 @@ echo "$ret" | grep "$PG_SELECT_OK" 1>/dev/null
 if [ "$?" -eq 0 ]; then
 	MAPTYPE=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $3 };' )
 	echo "$ME: Map is of type $MAPTYPE."
-else 
+else
 	echo "$ME: ERROR: could not fetch data type from $RASDB_NAME."
 	exit $RC_ERROR
 fi
@@ -299,7 +272,7 @@ ARG_VERBOSE='-v'
 echo "$ME: executing '$IMPORT_BIN $TASPLIT $ARG_VERBOSE $ARG_COLLNAME $COLLNAME $ARG_MDDDOMAIN [$PIXEL_XMIN:$PIXEL_XMAX,$PIXEL_YMIN:$PIXEL_YMAX] $ARG_MDDTYPE $mddType $ARG_SCALELEVELS $levelsString $ARG_USER $USER $ARG_PASSWD $PASSWD'"...
 "$IMPORT_BIN" $TASPLIT $ARG_VERBOSE "$ARG_COLLNAME" "$COLLNAME" "$ARG_MDDDOMAIN" "[$PIXEL_XMIN:$PIXEL_XMAX,$PIXEL_YMIN:$PIXEL_YMAX]" $ARG_MDDTYPE $mddType $ARG_SCALELEVELS "$levelsString" $ARG_USER $USER $ARG_PASSWD $PASSWD
 
-echo 
+echo
 echo "$ME: done."
 exit $RC_OK
 # --- END ACTION --------------------------------------------------------

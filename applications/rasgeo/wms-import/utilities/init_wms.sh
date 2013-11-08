@@ -23,8 +23,8 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 # ~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=~=
 #
-# Initialize pyramid levels and fill out WMS metadata (in the database) of existing 
-# rasdsaman collection. 
+# Initialize pyramid levels and fill out WMS metadata (in the database) of existing
+# rasdsaman collection.
 #
 # Warning: prompts for password if psql not configured to avoid it!
 #  e.g. ident or trust for rasdaman and petascope db users
@@ -37,24 +37,29 @@
 	HOST_ARG='-h'
 	PORT_ARG='-p'
 	CONNFILE_ARG='-c'
+	LATFIRST_ARG='--lat-first'
+	LATFIRST=''
+        EPSG_4326='EPSG:4326'
 	ME="$( basename $0 )"
 	USAGE="
-	usage: $ME <layerName> <collName> <crs> [$PYRAMID_ARG <pyramidLevels>] [$HOST_ARG <host>] [$PORT_ARG <port>] [$CONNFILE_ARG <path_to_rasconnect>]
+	usage: $ME <layerName> <collName> <crs> [$LATFIRST_ARG] [$PYRAMID_ARG <pyramidLevels>] [$HOST_ARG <host>] [$PORT_ARG <port>] [$CONNFILE_ARG <path_to_rasconnect>]
 	where
 		<layerName>	the arbitrary name for the /new/ WMS layer;
 		<collName> 	must be an existing collection in rasdaman (but not already a published WMS coverage);
-		<crs> 		the 2D Coordinate Reference System and must be expressed as AUTHORITY:CODE (e.g. EPSG:4326);
-		<pyramidLevels> must be a string of colon-separated scale factors, one for each pyramid. 
+		<crs> 		the 2D Coordinate Reference System and must be expressed as AUTHORITY:CODE (e.g. $EPSG_4326);
+                $LATFIRST_ARG   set when the CRS defines northing coordinate first (this is set by default with $EPSG_4326)
+                                (the metadata db where the geo-information is fetched strictly follows the orders in the CRS definition).
+		<pyramidLevels> must be a string of colon-separated scale factors, one for each pyramid.
 				Default is '$LEVELS_STRING'. Each scale factor must be twice the previous one.
-		<host:port> 	of the WMS (->Petascope): important for for pluggin the WMS service into client softwares [default localhost:8080]. 
-				Argument are considered if this is the first WMS layer that is added, 
+		<host:port> 	of the WMS (->Petascope): important for for pluggin the WMS service into client softwares [default localhost:8080].
+				Argument are considered if this is the first WMS layer that is added,
 				hence no WMS service has previously been defined.
 		<path_to_rasconnect>	metadata db connection info (see ./rasgeo/README),
 				defaults to $HOME/.rasdaman/rasconnect
 	"
 	# In case the usage changes, consequently adjust these values:
 	MIN_ARGS=3
-	MAX_ARGS=11
+	MAX_ARGS=12
 #
 # DESCRIPTION
 #       Given an existing 2D coverage in rasdaman, the script fetches its metadata
@@ -84,7 +89,7 @@
 #                                       and petascopedb sync.
 #       2013-aug-29     A.Beccati       connection file as a parameter to allow calling script from other user context or from a web server profile
 #
-# TODO: 
+# TODO:
 #    - add option to cutomize the style: currently the layer are limited to RGB and Grey sets, "as is".
 #    - add possibility to publish a 2D slice out of a nD collection as WMS layer.
 #    - check consitency of user specified CRS?
@@ -100,7 +105,7 @@
 # remove from there (they'll be overwritten by connect file) as soon as
 # new connect file is deployed officially (might require migration,
 # warning already added)
-USER=rasadmin 
+USER=rasadmin
 PASSWD=rasadmin
 
 # script directory
@@ -132,7 +137,7 @@ AWK="$( which gawk )" # see #295
 DC="$( which dc )"
 
 # temp file names
-TEMPFILE=`mktemp /tmp/$ME.output.XXXXXX`
+TEMPFILE=$( mktemp /tmp/$ME.output.XXXXXX )
 
 # number of digits (precision) used for floating point computation (resolution)
 PRECISION=10
@@ -160,29 +165,21 @@ MDDCOLLNAMES_COLLNAME=mddcollname
 SETTYPES_SETTYPEID=settypeid
 SETTYPES_TYPENAME=settypename
 
-# Tables to be updated in the metadata database
-     TABLE_COVERAGE=ps_coverage
-   TABLE_CELLDOMAIN=ps_celldomain
-   TABLE_CRSDETAILS=ps_crsdetails
+# WMS tables to be updated in the metadata database
      TABLE_SERVICES=ps_services
  TABLE_SERVICELAYER=ps_servicelayer
        TABLE_LAYERS=ps_layers
        TABLE_STYLES=ps_styles
 TABLE_PYRAMIDLEVELS=ps_pyramidlevels
 # PS_COVERAGE
+TABLE_COVERAGE=ps9_coverage
 COVERAGE_ID=id
 COVERAGE_NAME=name
-# PS_CELLDOMAIN
-CELLDOMAIN_COVERAGE=coverage
-CELLDOMAIN_LO=lo
-CELLDOMAIN_HI=hi
-CELLDOMAIN_I=i
-# PS_CRSDETAILS
-CRSDETAILS_COVERAGE=coverage
-CRSDETAILS_LOW1=low1
-CRSDETAILS_HIGH1=high1
-CRSDETAILS_LOW2=low2
-CRSDETAILS_HIGH2=high2
+# GetDomainSet macro
+DOMAINSET_MACRO=getDomainSet
+DOMAINSET_GRIDORIGIN=grid_origin
+DOMAINSET_OFFSETVECTOR=offset_vector
+DOMAINSET_RASDAMANORDER=rasdaman_order
 # PS_SERVICES
 SERVICES_SERVICEID=serviceid
 SERVICES_NAME=name
@@ -255,7 +252,7 @@ TIFF_FORMAT='image/tiff'
 #IOW_FORMAT='application/vnd.ogc.se_inimage'
 #BLANK_FORMAT='application/vnd.ogc.se_blank'
 # Format list must use colons ';' as separator, see  petascope.wms.WmsConfig.java::buildWMSFormatsList()
-WMS_FORMATS="$JPEG_FORMAT;$PNG_FORMAT;$TIFF_FORMAT"  
+WMS_FORMATS="$JPEG_FORMAT;$PNG_FORMAT;$TIFF_FORMAT"
 WMS_SERVICE_INSERT="$SCRIPT_DIR/add_wms_service.sh"
 # PSQL return values
   PG_INSERT_OK=".* 0 1"
@@ -272,11 +269,11 @@ HTTP_OK_CODE=200
 
 # check whether the required tools are available
 # i) installed
-if [ ! -f "$WGET" ]; then 
+if [ ! -f "$WGET" ]; then
 	echo "$ME: ERROR: 'wget' not found, please install."
 	exit $RC_ERROR
 fi
-if [ ! -f "$WMS_SERVICE_INSERT" ]; then 
+if [ ! -f "$WMS_SERVICE_INSERT" ]; then
 	echo "$ME: ERROR: 'initpyramid' not found, please install."
 	exit $RC_ERROR
 fi
@@ -290,7 +287,7 @@ if [ ! -f "$AWK" ]; then
 fi
 
 # ii) executable
-if [ ! -x "$WGET" ]; then 
+if [ ! -x "$WGET" ]; then
 	echo "$ME: ERROR: $WGET is not executable."
 	exit $RC_ERROR
 fi
@@ -319,22 +316,17 @@ MAPNAME=$1
 COLLNAME=$2
 CRS=$3
 echo -en "\n$ME: Parsing arguments... "
-while [ $# -gt 0 ]; do 
+while [ $# -gt 0 ]; do
 	case "$1" in
-          $PYRAMID_ARG) LEVELS_STRING="$2";  shift;;
- 	  $HOST_ARG)    PETASCOPE_HOST="$2"; shift;;
- 	  $PORT_ARG)    PETASCOPE_PORT="$2"; shift;;
- 	  $CONNFILE_ARG)   CONNECT_FILE="$2" ; shift;;
+          $LATFIRST_ARG) LATFIRST="$1"      ; shift;;
+          $PYRAMID_ARG)  LEVELS_STRING="$2" ; shift;;
+          $HOST_ARG)     PETASCOPE_HOST="$2"; shift;;
+          $PORT_ARG)     PETASCOPE_PORT="$2"; shift;;
+          $CONNFILE_ARG) CONNECT_FILE="$2"  ; shift;;
 	esac
         shift
 done
 PETASCOPEWMS_URL="http://$PETASCOPE_HOST:$PETASCOPE_PORT/$WMS_PATH"
-
-if [ ! -d $RMANHOME ]
-then
-	echo "$ME: ERROR: environment variable RMANHOME does not point to the rasdaman/rasgeo directory: $RMANHOME"
-	exit $RC_ERROR
-fi
 
 # Connection params
     RAS_HOST=$(cat $CONNECT_FILE  | grep $HOST_KEY       | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
@@ -346,7 +338,7 @@ fi
   #TODO: remove check and defaults after deprecation of old format, rename without T
   TUSER=$(cat $CONNECT_FILE  | grep $USER_KEY  | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
   TPASSWD=$(cat $CONNECT_FILE  | grep $PASSWD_KEY  | "$AWK" 'BEGIN { FS="=" }; { print $2 }')
-  
+
   #TODO: remove check and defaults after deprecation of old format
   if [ -z "$TUSER" ] ; then
     echo "$ME: WARNING: Parameter $USER_KEY missing from connect file: $CONNECT_FILE , please update it!"
@@ -370,13 +362,38 @@ fi
 
 echo "$ME: Using databases {$RASDB_NAME,$PETADB_NAME}@$RAS_HOST:$PG_PORT."
 
-# Check existence of rasdaman collection 
+# LatFirst default for EPSG:4326
+if [ "$CRS" = "$EPSG_4326" ]; then
+    echo "$ME: $EPSG_4326 CRS was specified: setting latitude coordinate first when reading the geo-bounds from $PETADB_NAME."
+    LATFIRST='notnull'
+fi
+
+if [ ! -d $RMANHOME ]
+then
+	echo "$ME: ERROR: environment variable RMANHOME does not point to the rasdaman/rasgeo directory: $RMANHOME"
+	exit $RC_ERROR
+fi
+
+
+# --- END PARAMETER EVALUATION --------------------------------------
+# --- VALIDITY CHECKS -----------------------------------------------
+
+
+# Check existence of rasdaman collection
 collExists=0
-while read coll; do 
+while read coll; do
 	if [ "$coll" = "$COLLNAME" ]; then collExists=1; fi
 done <<< "$( rasql -q "select r from RAS_COLLECTIONNAMES as r" --out string | grep "Result object" | "$AWK" 'BEGIN { FS=" "}; { print $4 };' )"
 if [ "$collExists" -eq 0 ]; then
 	echo "$ME: ERROR: "$COLLNAME" must be an existing collection in $RASDB_NAME@$RAS_HOST:$PG_PORT."
+	exit $RC_ERROR
+fi
+
+# Check the collection is 2-dimensional
+# See ticket #331 for publication of 2D slices of a n-D collection.
+DIMENSIONS=$( rasql -q "select sdom(c) from $COLLNAME as c" --out string | sed -nr 's/.*1: (\[.*,.*\])/\1/p' | grep -o ':' | wc -l )
+if [ "$DIMENSIONS" -ne 2 ]; then
+	echo "$ME: ERROR: "$MAPNAME" has $DIMENSIONS dimensions: only 2D collections can be published."
 	exit $RC_ERROR
 fi
 
@@ -404,13 +421,14 @@ if [ "$?" -ne 0 ]; then
 fi
 
 
-# --- END PARAMETER EVALUATION --------------------------------------
-# --- FUNCTIONS --------------------------------------
+# --- END VALIDITY CHECKS -------------------------------------------
+# --- FUNCTIONS -----------------------------------------------------
+
 
 # Deletes previously inserted pyramid collections in RASBASE after failures in metadata insertion:
 function rollback {
 	echo "$ME: Rollback: "
-	while read coll; do 
+	while read coll; do
 		echo -n "  Deleting $coll... "
 		rasql -q "drop collection $coll" --user $USER --passwd $PASSWD 1>/dev/null
 		echo "Done."
@@ -423,7 +441,7 @@ function rollback {
 echo "$ME: Fetching metadata of $COLLNAME... "
 
 # Fetch metadata of the collection:
-query="	SELECT $SETTYPES_TYPENAME FROM $TABLE_MDDCOLLNAMES, $TABLE_SETTYPES 
+query="	SELECT $SETTYPES_TYPENAME FROM $TABLE_MDDCOLLNAMES, $TABLE_SETTYPES
 	WHERE $TABLE_MDDCOLLNAMES.$MDDCOLLNAMES_SETTYPEID = $TABLE_SETTYPES.$SETTYPES_SETTYPEID
 	AND $MDDCOLLNAMES_COLLNAME = '$COLLNAME';"
 ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_PORT" "$RASDB_NAME" )
@@ -431,10 +449,11 @@ ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_POR
 echo "$ret" | grep "$PG_SELECT_OK" 1>/dev/null
 if [ "$?" -eq 0 ]; then
 	MAPTYPE=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $3 };' )
-else 
+else
 	echo "$ME: ERROR: could not fetch data type from $RASDB_NAME."
 	exit $RC_ERROR
 fi
+
 # standardise maptype keyword, with special care for initpyramid call
 if [ "$MAPTYPE" == "$GREY_COLLTYPE" ]; then
 	INITMAP_MAPTYPE=$MAPTYPE_GREY_INIT
@@ -453,43 +472,62 @@ else
 	exit $RC_ERROR
 fi
 
-# Read bounding-box from the metadata (still ps_crsdetails)
-query="	SELECT $CRSDETAILS_LOW1, $CRSDETAILS_LOW2, $CRSDETAILS_HIGH1, $CRSDETAILS_HIGH2
-	FROM $TABLE_CRSDETAILS, $TABLE_COVERAGE
-	WHERE $TABLE_CRSDETAILS.$CRSDETAILS_COVERAGE = $TABLE_COVERAGE.$COVERAGE_ID
-	AND $TABLE_COVERAGE.$COVERAGE_NAME = '$COLLNAME';"
+# Read the pixel dimensions:
+PIXEL_XMIN=$( rasql -q "select sdom(c)[0].lo from $COLLNAME as c" --out string | grep "1:" | awk 'BEGIN { FS=":" }; { print $2 };' | tr -d ' ' )
+PIXEL_XMAX=$( rasql -q "select sdom(c)[0].hi from $COLLNAME as c" --out string | grep "1:" | awk 'BEGIN { FS=":" }; { print $2 };' | tr -d ' ' )
+PIXEL_YMIN=$( rasql -q "select sdom(c)[1].lo from $COLLNAME as c" --out string | grep "1:" | awk 'BEGIN { FS=":" }; { print $2 };' | tr -d ' ' )
+PIXEL_YMAX=$( rasql -q "select sdom(c)[1].hi from $COLLNAME as c" --out string | grep "1:" | awk 'BEGIN { FS=":" }; { print $2 };' | tr -d ' ' )
+# Number of cells per dimension
+ WIDTH=$(( $PIXEL_XMAX - $PIXEL_XMIN + 1 ))
+HEIGHT=$(( $PIXEL_YMAX - $PIXEL_YMIN + 1 ))
+
+# Read bounding-box from the metadata database
+# Interim solution for LatIsFirst issue:
+# WMS currently works with LongitudeFirst policy, whereas PS9_ tables strictly  follows the order of the axes in the CRS definition.
+# EPSG:4326 puts Latitude first and we set Latitude first by default with this widely used CRS.
+# The parameter `--lat-first' can always be set by the user when a CRS is used where latitude is the first coordinate in the tuple.
+# Assumption: rasdaman dimension 0 is easting, dimension 1 is northing.
+# TODO: add auto-recognition of which geo-axis is represented by a rasdaman grid axis by analyzing offset vectors.
+X_INDEX=1
+Y_INDEX=2
+if [ -n "$LATFIRST" ]; then
+    # LatFirst is set: swap indexes of coordinates in the tuple
+    X_INDEX=2
+    Y_INDEX=1
+fi
+# dimension 0 (x) --------------------------------------------------------------------------
+query="
+    SELECT ${DOMAINSET_GRIDORIGIN}[${X_INDEX}],
+           ${DOMAINSET_GRIDORIGIN}[${X_INDEX}] + (${DOMAINSET_OFFSETVECTOR}[${X_INDEX}]*${WIDTH})
+    FROM ${DOMAINSET_MACRO}('${COLLNAME}')
+    WHERE ${DOMAINSET_RASDAMANORDER}=0;
+"
 ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_PORT" "$PETADB_NAME" )
-#
 echo "$ret" | grep "$PG_SELECT_OK" 1>/dev/null
 if [ "$?" -eq 0 ]; then
-	XMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $9 };' )
-	YMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $11 };' )
-	XMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $13 };' )
-	YMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $15 };' )
-else 
+	XMIN=$( echo "$ret" | head -n 3 | tail -n 1 | "$AWK" 'BEGIN { FS="|" }; { print ($1<$2)?$1:$2; }' | tr -d ' ' )
+	XMAX=$( echo "$ret" | head -n 3 | tail -n 1 | "$AWK" 'BEGIN { FS="|" }; { print ($1<$2)?$2:$1; }' | tr -d ' ' )
+else
+	echo "$ME: ERROR while fetching bounding box information of $COLLNAME from $PETADB_NAME@$RAS_HOST:$PG_PORT."
+	exit $RC_ERROR
+fi
+# dimension 1 (y) --------------------------------------------------------------------------
+query="
+    SELECT ${DOMAINSET_GRIDORIGIN}[${Y_INDEX}],
+           ${DOMAINSET_GRIDORIGIN}[${Y_INDEX}] + (${DOMAINSET_OFFSETVECTOR}[${Y_INDEX}]*${HEIGHT})
+    FROM ${DOMAINSET_MACRO}('${COLLNAME}')
+    WHERE ${DOMAINSET_RASDAMANORDER}=1;
+"
+ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_PORT" "$PETADB_NAME" )
+echo "$ret" | grep "$PG_SELECT_OK" 1>/dev/null
+if [ "$?" -eq 0 ]; then
+	YMIN=$( echo "$ret" | head -n 3 | tail -n 1 | "$AWK" 'BEGIN { FS="|" }; { print ($1<$2)?$1:$2; }' | tr -d ' ' )
+	YMAX=$( echo "$ret" | head -n 3 | tail -n 1 | "$AWK" 'BEGIN { FS="|" }; { print ($1<$2)?$2:$1; }' | tr -d ' ' )
+else
 	echo "$ME: ERROR while fetching bounding box information of $COLLNAME from $PETADB_NAME@$RAS_HOST:$PG_PORT."
 	exit $RC_ERROR
 fi
 
-# Read the pixel dimensions:
-query="
-	SELECT $CELLDOMAIN_LO, $CELLDOMAIN_HI FROM $TABLE_CELLDOMAIN, $TABLE_COVERAGE
-	WHERE $CELLDOMAIN_COVERAGE = $TABLE_COVERAGE.$COVERAGE_ID 
-	AND $TABLE_COVERAGE.$COVERAGE_NAME = '$COLLNAME'
-	ORDER BY $CELLDOMAIN_I;
-"
-ret=$( echo "$query" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_PORT" "$PETADB_NAME" )
-#
-echo "$ret" | grep "$PG_SELECT_OK2" 1>/dev/null
-if [ "$?" -eq 0 ]; then
-	PIXEL_XMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $5 };' )
-	PIXEL_XMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $7 };' )
-	PIXEL_YMIN=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $8 };' )
-	PIXEL_YMAX=$(  echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $10 };' )
-else 
-	echo "$ME: ERROR while fetching pixel-domain information of $COLLNAME from $PETADB_NAME@$RAS_HOST:$PG_PORT."
-	exit $RC_ERROR
-fi
 # resolution (it is assumed to be equal in both X and Y directions)
 XMIN_DC=$( echo $XMIN | sed s/-/_/ )
 XMAX_DC=$( echo $XMAX | sed s/-/_/ )
@@ -527,8 +565,8 @@ then
 elif [ "$MAPTYPE" == "$DEM_COLLTYPE" ]
 then
 	# parse the max_value of the collection so that the servlet does not need to find it at every request:
-	maxValue="$( rasql -q "select $QL_MAXCELLS(x) from $COLLNAME as x" --out string | 
-			grep "$QL_OUT" | "$AWK" 'BEGIN { FS=" " }; { print $4 };' )"	
+	maxValue="$( rasql -q "select $QL_MAXCELLS(x) from $COLLNAME as x" --out string |
+			grep "$QL_OUT" | "$AWK" 'BEGIN { FS=" " }; { print $4 };' )"
 	RASQLOP="(char)(255*standard/$maxValue)*{1c,1c,1c}"
 else	# has been checked earlier, but we want to be sure
 	echo "$ME: $MAPTYPE is not a WMS supported map type (allowed types: $GREY_COLLTYPE, $RGB_COLLTYPE, $DEM_COLLTYPE)."
@@ -560,7 +598,7 @@ while [ "$serviceID" = "" ]; do
 	echo "$ret" | grep "$PG_SELECT_OK" 1>/dev/null
 	if [ "$?" -eq 0 ]; then
 		serviceID=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $3 };' )
-	else 
+	else
 		echo -n "NO --> Add it to the database... "
 		$WMS_SERVICE_INSERT --name "$WMS_SERVICENAME" --title "$WMS_SERVICENAME WMS Service" --host $PETASCOPE_HOST --port $PETASCOPE_PORT --path $WMS_PATH --formats "$WMS_FORMATS" --availability $DEFAULT_AVAILABILITY  --baselayer-name "$MAPNAME"
 		if [ "$?" -eq "$RC_ERROR" ]; then
@@ -590,12 +628,12 @@ queryLayers="INSERT INTO $TABLE_LAYERS (\
 ret=$( echo "$queryLayers" | psql -f - --single-transaction -h "$RAS_HOST" -p "$PG_PORT" "$PETADB_NAME" )
 
 echo "$ret" | grep "$PG_INSERT_OK" 1>/dev/null
-if [ "$?" -ne 0 ]; then 
+if [ "$?" -ne 0 ]; then
 	echo "$ME: ERROR while updating $TABLE_LAYERS table of $PETADB_NAME@$RAS_HOST:$PG_PORT. Postgres response:"
 	echo "$ret"
 	rollback
 	exit $RC_ERROR
-else 
+else
 	layerID=$( echo "$ret" | sed ':a;N;$!ba;s/\n/ /g' | "$AWK" 'BEGIN { FS=" " }; { print $3 };' )
 fi
 echo "Done."
@@ -615,9 +653,9 @@ queryStyles="INSERT INTO $TABLE_STYLES (\
 	  0, 0, '$UNDEFINED_KEYWORD',
 	    '$UNDEFINED_KEYWORD', '$RASQLOP' );"
 # INSERT INTO ps_pyramidlevels
-# [petascope.wms.commander.Globals.java] 
-#  "Scale factor relative to the original map. The original map has a scale factor of 1 by definition, 
-#   upper pyramid layers have a factor greater than 1; no factor should appear more than once, 
+# [petascope.wms.commander.Globals.java]
+#  "Scale factor relative to the original map. The original map has a scale factor of 1 by definition,
+#   upper pyramid layers have a factor greater than 1; no factor should appear more than once,
 #   otherwise WMS behavior is undefined (mandatory)."
 # Baselayer metadata
 queriesPyramids="
@@ -638,7 +676,7 @@ for COLLECTION in $PYRAMID; do
 		$layerID, '$COLLECTION', $RES );"
 	# Update resolution
 	RES=$( dc -e "$PRECISION k $RES 2 * n" )
-	# Update inserts 
+	# Update inserts
 	TOT_INSERTS=$(( $TOT_INSERTS + 1 ))
 done
 
@@ -670,7 +708,7 @@ if [[ "$ReloadCapRespCode" -ne $HTTP_OK_CODE ]]; then
 	echo "$ME: ERROR while reloading WMS capabilities. HTTP code: $ReloadCapRespCode."
 	echo "$ME: Try reloading them manually: \"$ReloadCapReq\""
 	exit $RC_ERROR
-else 
+else
 	echo "$ME: Database $PETADB_NAME has been updated and WMS servlet ($PETASCOPEWMS_URL) refreshed."
 fi
 
