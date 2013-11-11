@@ -21,7 +21,6 @@
  */
 package petascope.wcps.server.core;
 
-import java.math.BigInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;

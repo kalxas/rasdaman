@@ -119,7 +119,7 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
             dim[axisId] = axisLo + ":" + axisHi;
             coverageInfo.setCellDimension(
                     axisId,
-                    new CellDomainElement(axisLo, axisHi, order)
+                    new CellDomainElement(axisLo, axisHi, axisId)
                     );
             order += 1;
         }

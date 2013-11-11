@@ -21,7 +21,6 @@
  */
 package petascope.wcps.server.core;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
@@ -83,9 +83,25 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
                 int n = covInfo.getNumDimensions();
                 for (int i = 0; i < n; i++) {
                     CellDomainElement cde = covInfo.getCellDomainElement(i);
+                    if (cde.getHi().equals(cde.getLo())) {
+                        log.trace("Ignoring slice in scale interval: " + covInfo.getDomainElement(cde.getOrder()).getLabel() + "(" + cde.getLo() + ")");
+                        continue;
+                    }
                     // pc NOTE[MERGE]: using order of CellDomainElement as axis label: otherwise need to restore labels in CellDomainElement?
-                    DimensionIntervalElement die = new DimensionIntervalElement(cde.getLoInt(), cde.getHiInt(), covInfo.getDomainElement(cde.getOrder()).getLabel());
-                    axisList.add(die);
+                    try {
+                        DimensionIntervalElement die = new DimensionIntervalElement(
+                                covInfo.getDomainElement(cde.getOrder()).getCrs(),
+                                cde.getLoInt(),
+                                cde.getHiInt(),
+                                covInfo.getDomainElement(cde.getOrder()).getLabel()
+                        );
+                        axisList.add(die);
+
+                    } catch (PetascopeException ex) {
+                        throw new WCPSException("Error while setting up scaling dimensions.", ex);
+                    } catch (SecoreException ex) {
+                        throw ex;
+                    }
                 }
                 if (child != null) {
                     child = child.getNextSibling();
@@ -128,7 +144,9 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
 
         while (i.hasNext()) {
             axis = i.next();
-            axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
+            // Matching axes of different coverages (might have different labels):
+            // (ALT: create the DimensionIntervalElements by passing the coverage info)
+            axisId = coverageInfo.getDomainIndexByType(axis.getAxisType());
             log.trace("Axis ID: " + axisId);
             log.trace("Axis name: " + axis.getAxisName());
 

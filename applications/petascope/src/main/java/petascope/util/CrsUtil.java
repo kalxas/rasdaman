@@ -40,6 +40,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.core.CrsDefinition;
+import static petascope.core.CrsDefinition.ELEV_ALIASES;
+import static petascope.core.CrsDefinition.X_ALIASES;
+import static petascope.core.CrsDefinition.Y_ALIASES;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -601,6 +604,35 @@ public class CrsUtil {
     // Overload for a single URI
     public static String getAxisLabel(String singleCrsUri, Integer axisOrder) throws PetascopeException, SecoreException {
         return getAxisLabel(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})), axisOrder);
+    }
+
+    /**
+     * Discover which is the type of the specified (CRS) axis.
+     * @param crs   An ordered list of single CRS URIs
+     * @param axisName The order of the axis (//CoordinateSystemAxis) in the (C)CRS [0 is first]
+     * @return The type of the specified axis
+     * @throws PetascopeException
+     * @throws SecoreException
+     */
+    public static String getAxisType(CrsDefinition crs, String axisName) {
+
+        String type;
+
+        // init
+        if (X_ALIASES.contains(axisName)) {
+            type = AxisTypes.X_AXIS;
+        } else if (Y_ALIASES.contains(axisName)) {
+            type = AxisTypes.Y_AXIS;
+        } else if (ELEV_ALIASES.contains(axisName)) {
+            type = AxisTypes.ELEV_AXIS;
+            // A TemporalCRS has just one axis:
+        } else if (crs.getType().equals(XMLSymbols.LABEL_TEMPORALCRS)) {
+            type = AxisTypes.T_AXIS;
+        } else {
+            type = AxisTypes.OTHER;
+        }
+
+        return type;
     }
 
     /**

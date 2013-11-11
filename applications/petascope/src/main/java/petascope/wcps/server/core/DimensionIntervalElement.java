@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.core.CoverageMetadata;
+import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -48,6 +49,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
     private long cellCoord1;    // Subsets (after conversion to pixel indices)
     private long cellCoord2;
     private String axisName;
+    private String axisType;
     private int counter = 0;            // counter for the domain vars
     private CoverageMetadata meta = null;       // metadata about the current coverage
     private boolean finished = false;
@@ -155,10 +157,9 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
             node = node.getNextSibling();
         }
 
+        this.axisName = axis.toRasQL();
         if (crs == null) {
             // if no CRS is specified assume native CRS -- DM 2012-mar-05
-            String axisName = axis.toRasQL();
-
             DomainElement axisDomain = meta.getDomainByName(axisName);
             if (axisDomain != null) {
                 String crsName = axisDomain.getCrs();
@@ -174,6 +175,16 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                 crs = new Crs(CrsUtil.GRID_CRS, xq);
                 this.transformedCoordinates = true;
             }
+        }
+
+        // Axis type        
+        try {
+            String axisSingleCrs = covInfo.getDomainElement(covInfo.getDomainIndexByName(axisName)).getCrs();
+            this.axisType = CrsUtil.getAxisType(CrsUtil.getGmlDefinition(axisSingleCrs), axisName);
+        } catch (PetascopeException ex) {
+            throw new WCPSException("Failed while getting the type of axis " + axisName + " for CRS " + crs.getName(), ex);
+        } catch (SecoreException ex) {
+            throw ex;
         }
 
         // Pixel indices are retrieved from bbox, which is stored for XY plane only.
@@ -196,11 +207,12 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
         }
     }
 
-    public DimensionIntervalElement(long cellCoordLo, long cellCoordHi, String axisName) {
+    public DimensionIntervalElement(String crs, long cellCoordLo, long cellCoordHi, String axisName) throws PetascopeException, SecoreException {
         this.cellCoord1 = cellCoordLo;
         this.cellCoord2 = cellCoordHi;
         this.axisName = axisName;
         this.transformedCoordinates = true;
+        this.axisType = CrsUtil.getAxisType(CrsUtil.getGmlDefinition(crs), axisName);
     }
 
     /* If input coordinates are geo-, convert them to pixel coordinates. */
@@ -258,6 +270,14 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
             return axisName;
         } else {
             return this.axis.toRasQL();
+        }
+    }
+
+    public String getAxisType() {
+        if (axisType != null) {
+            return axisType;
+        } else {
+            return "";
         }
     }
 

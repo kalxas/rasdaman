@@ -128,7 +128,7 @@ public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
             log.trace("    " + WcpsConstants.MSG_AXIS + " " + WcpsConstants.MSG_COORDS + ": " + dimNames[axisId]);
             coverageInfo.setCellDimension(
                     axisId,
-                    new CellDomainElement(axisLo, axisHi, order)
+                    new CellDomainElement(axisLo, axisHi, axisId)
                     );
             order += 1;
         }

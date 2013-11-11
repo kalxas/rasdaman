@@ -51,7 +51,7 @@ function check_coll()
 #
 function check_user_type()
 {
-  SET_TYPE="$1"
+  local SET_TYPE="$1"
   $RASDL -p | egrep --quiet  "\b$SET_TYPE\b"
   if [ $? -ne 0 ]; then
     $RASDL -r $TESTDATA_PATH/types.dl -i > /dev/null
@@ -85,6 +85,20 @@ function drop_colls()
       $RASQL -q "drop collection $c" > /dev/null
     fi
   done
+}
+
+
+# ------------------------------------------------------------------------------
+# drop types
+# arg 1: set type
+# arg 2: mdd type
+# arg 3: pixel type, can be empty if there's none
+#
+function drop_types()
+{
+  $RASDL --delsettype "$1" > /dev/null
+  $RASDL --delmddtype "$2" > /dev/null
+  [ -n "$3" ] && $RASDL --delbasetype "$3" > /dev/null
 }
 
 

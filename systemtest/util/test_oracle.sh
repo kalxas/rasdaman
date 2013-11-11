@@ -66,12 +66,25 @@ OUTPUT_PATH="$SCRIPT_DIR/output"
 mkdir -p "$OUTPUT_PATH"
 
 #
+# indicates whether to drop data before/after running tests: 0 = no, 1 = yes
+# --drop turns this option on
+#
+DROP_DATA=0
+
+drop_data()
+{
+  [ $DROP_DATA -eq 0 ] && return
+  [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "nullvalues" ] || drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
+  [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ] || drop_petascope_data
+  [ "$SVC_NAME" == "nullvalues" ] && drop_nullvalues_data
+}
+
+#
 # cleanup stuff
 #
-function cleanup()
+cleanup()
 {
-  [ "$SVC_NAME" == "secore" ] || drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
-  [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" ] || drop_petascope_data
+  drop_data
   print_summary
   if [ $NUM_FAIL -ne 0 ]; then
     exit $RC_ERROR
@@ -106,9 +119,18 @@ check_postgres
 check_wget
 check_gdal
 
+#
+# check options
+#
+for i in $*; do
+  case $i in
+    --drop)    DROP_DATA=1;;
+    *) error "unknown option: $i"
+  esac
+done
+
 # run import if necessary
-drop_petascope_data > /dev/null 2>&1
-drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 > /dev/null 2>&1
+drop_data
 [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" ] || import_petascope_data "$TESTDATA_PATH"
 [ "$SVC_NAME" == "select" ] && import_rasql_data "$TESTDATA_PATH"
 echo
@@ -136,14 +158,7 @@ for f in *; do
     [[ $multi_coll_enabled -ne 0 ]] && [[ "$f" == *multipoint* ]] && continue
   fi  
   # uncomment for single test run
-  #[[ "$f" == 62-* ]] || continue
-  
-  # check if rasdaman is running
-  $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    log "rasdaman down, exiting..."
-    cleanup
-  fi
+  #[[ "$f" == 83-* ]] || continue
   
   # print test header
   echo "running test: $f"

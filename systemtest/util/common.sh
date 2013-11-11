@@ -374,15 +374,15 @@ function run_test()
     cleanup
   fi
   
-  # get test type - file extension
-  test_type=`echo "$f" | sed 's/.*\.//'`
-  
   # if testcase marked as fixed temporarily we remove the .fixed extension
   oldf="$f"
   if [ -n "$FIXED" -a $FIXED -eq 1 ]; then
     f="$fixedf"
     FIXED=0
   fi
+  
+  # get test type - file extension
+  test_type=`echo "$f" | sed 's/.*\.//'`
   
   # various other files expected  by the run_*_test functions
   oracle="$ORACLE_PATH/$f.oracle"

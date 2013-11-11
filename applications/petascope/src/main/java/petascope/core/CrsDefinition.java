@@ -174,18 +174,7 @@ public class CrsDefinition {
             this.uom     = uom;
 
             // Projected/Geographic CRS can have multiple axes
-            if (X_ALIASES.contains(abbreviation)) {
-                type = AxisTypes.X_AXIS;
-            } else if (Y_ALIASES.contains(abbreviation)) {
-                type = AxisTypes.Y_AXIS;
-            } else if (ELEV_ALIASES.contains(abbreviation)) {
-                type = AxisTypes.ELEV_AXIS;
-            // TemporalCRS has just one axis
-            } else if (CrsDefinition.this.type.equals(XMLSymbols.LABEL_TEMPORALCRS)) {
-                type = AxisTypes.T_AXIS;
-            } else {
-                type = AxisTypes.OTHER;
-            }
+            type = CrsUtil.getAxisType(this.getCrsDefinition(), abbr);
         }
 
         // Access
