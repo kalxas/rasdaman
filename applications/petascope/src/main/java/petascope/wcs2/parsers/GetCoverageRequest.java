@@ -228,6 +228,10 @@ public class GetCoverageRequest extends BaseRequest {
             setTrimLow(value.toString());
         }
 
+        public void setTrimLow(Integer value) {
+            setTrimLow(value.toString());
+        }
+
         /**
          * @param value Set new upper bound to 1D domain (due to a CrsExt transformation).
          */
@@ -236,6 +240,10 @@ public class GetCoverageRequest extends BaseRequest {
         }
 
         public void setTrimHigh(Double value) {
+            setTrimHigh(value.toString());
+        }
+
+        public void setTrimHigh(Integer value) {
             setTrimHigh(value.toString());
         }
 

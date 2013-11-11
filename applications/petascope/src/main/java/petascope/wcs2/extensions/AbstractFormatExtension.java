@@ -43,6 +43,7 @@ import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.StringUtil;
+import petascope.util.TimeUtil;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
@@ -112,21 +113,23 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             //       {cellDomain->domain} to show domain values in the WCS response:
                             //       Crs.convertToDomainCoords()
                             if (((DimensionTrim)subset).getTrimLow().contains("\"")) {
-                                // TODO convert to domain values (TimeUtil.countPixels(datumOrigin, stringLo, axisUoM);
-                                // ...
-                            } else {
-                                lowerDom += new BigDecimal(Math.max(
+                                // Convert timestamp to temporal numeric coordinate
+                                String datumOrigin = domainEl.getAxisDef().getCrsDefinition().getDatumOrigin();
+                                String stringLo = ((DimensionTrim)subset).getTrimLow();
+                                ((DimensionTrim)subset).setTrimLow(TimeUtil.countOffsets(datumOrigin, stringLo, domainEl.getUom()));
+                            }
+                            lowerDom += new BigDecimal(Math.max(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
                                     domainEl.getMinValue().doubleValue())).toPlainString() + " ";
-                            }
                             if (((DimensionTrim)subset).getTrimHigh().contains("\"")) {
-                                // TODO convert to domain values (TimeUtil.countPixels(datumOrigin, stringLo, axisUoM);
-                                // ...
-                            } else {
-                                upperDom += new BigDecimal(Math.min(
+                                // Convert timestamp to temporal numeric coordinate
+                                String datumOrigin = domainEl.getAxisDef().getCrsDefinition().getDatumOrigin();
+                                String stringHi = ((DimensionTrim)subset).getTrimHigh();
+                                ((DimensionTrim)subset).setTrimHigh(TimeUtil.countOffsets(datumOrigin, stringHi, domainEl.getUom()));
+                            }
+                            upperDom += new BigDecimal(Math.min(
                                     Double.parseDouble(((DimensionTrim) subset).getTrimHigh()),
                                     domainEl.getMaxValue().doubleValue())).toPlainString() + " ";
-                            }
                             // Append updated pixel bounds
                             String decimalsExp = "\\.[0-9]+";
                             long[] cellDom = (CrsUtil.GRID_CRS.equals(subset.getCrs()) || // : subset=x,CRS:1(x1,x2) || subsettingCrs=CRS:1
