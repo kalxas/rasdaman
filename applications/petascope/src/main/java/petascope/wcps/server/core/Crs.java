@@ -241,8 +241,8 @@ public class Crs extends AbstractRasNode {
             // The axis is regular: need to differentiate between numeric and timestamps
             if (subsetWithTimestamps) {
                 // Need to convert timestamps to TemporalCRS numeric coordinates
-                int numLo = TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM);
-                int numHi = TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM);
+                Double numLo = TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM);
+                Double numHi = TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM);
 
                 // Consistency check
                 if (numHi < domMin.doubleValue() || numLo > domMax.doubleValue()) {

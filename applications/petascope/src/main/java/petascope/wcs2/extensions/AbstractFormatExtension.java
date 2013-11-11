@@ -105,6 +105,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                     try {
                         // Compare subset with domain borders and update
                         if (subset instanceof DimensionTrim) {
+                            String trimLow = ((DimensionTrim)subset).getTrimLow();
+                            String trimHigh = ((DimensionTrim)subset).getTrimHigh();
                             // Append axis/uom label
                             axesLabels += subset.getDimension() + " ";
                             uomLabels  += domainEl.getUom() + " ";
@@ -112,34 +114,33 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             // TODO: if request is specified via grid coords, need a backwards transform here
                             //       {cellDomain->domain} to show domain values in the WCS response:
                             //       Crs.convertToDomainCoords()
-                            if (((DimensionTrim)subset).getTrimLow().contains("\"")) {
+                            if (trimLow.contains("\"")) {
                                 // Convert timestamp to temporal numeric coordinate
                                 String datumOrigin = domainEl.getAxisDef().getCrsDefinition().getDatumOrigin();
-                                String stringLo = ((DimensionTrim)subset).getTrimLow();
-                                ((DimensionTrim)subset).setTrimLow(TimeUtil.countOffsets(datumOrigin, stringLo, domainEl.getUom()));
+                                trimLow = "" + (TimeUtil.countOffsets(datumOrigin, trimLow, domainEl.getUom()));
                             }
                             lowerDom += new BigDecimal(Math.max(
-                                    Double.parseDouble(((DimensionTrim) subset).getTrimLow()),
+                                    Double.parseDouble(trimLow),
                                     domainEl.getMinValue().doubleValue())).toPlainString() + " ";
-                            if (((DimensionTrim)subset).getTrimHigh().contains("\"")) {
+                            if (trimHigh.contains("\"")) {
                                 // Convert timestamp to temporal numeric coordinate
                                 String datumOrigin = domainEl.getAxisDef().getCrsDefinition().getDatumOrigin();
-                                String stringHi = ((DimensionTrim)subset).getTrimHigh();
-                                ((DimensionTrim)subset).setTrimHigh(TimeUtil.countOffsets(datumOrigin, stringHi, domainEl.getUom()));
+                                String stringHi = trimHigh;
+                                trimHigh = "" + (TimeUtil.countOffsets(datumOrigin, stringHi, domainEl.getUom()));
                             }
                             upperDom += new BigDecimal(Math.min(
-                                    Double.parseDouble(((DimensionTrim) subset).getTrimHigh()),
+                                    Double.parseDouble(trimHigh),
                                     domainEl.getMaxValue().doubleValue())).toPlainString() + " ";
                             // Append updated pixel bounds
                             String decimalsExp = "\\.[0-9]+";
                             long[] cellDom = (CrsUtil.GRID_CRS.equals(subset.getCrs()) || // : subset=x,CRS:1(x1,x2) || subsettingCrs=CRS:1
                                     (request.getCrsExt() != null && CrsUtil.GRID_CRS.equals(request.getCrsExt().getSubsettingCrs())))
                                     ? new long[] { // NOTE: e.g. parseInt("10.0") throws exception: need to remove decimals.
-                                        Integer.parseInt(((DimensionTrim) subset).getTrimLow().replaceAll( decimalsExp, "").trim()),
-                                        Integer.parseInt(((DimensionTrim) subset).getTrimHigh().replaceAll(decimalsExp, "").trim())} // subsets are alsready grid indexes
+                                        Integer.parseInt(trimLow.replaceAll( decimalsExp, "").trim()),
+                                        Integer.parseInt(trimHigh.replaceAll(decimalsExp, "").trim())} // subsets are alsready grid indexes
                                     : new long[] {
-                                        toPixels(Double.parseDouble(((DimensionTrim) subset).getTrimLow()),  domainEl, cellDomainEl), // otherwise, need to convert them
-                                        toPixels(Double.parseDouble(((DimensionTrim) subset).getTrimHigh()), domainEl, cellDomainEl)
+                                        toPixels(Double.parseDouble(trimLow),  domainEl, cellDomainEl), // otherwise, need to convert them
+                                        toPixels(Double.parseDouble(trimHigh), domainEl, cellDomainEl)
                                     };
                                     // In any case, properly trim the bounds by the image extremes
                             int cellDomainElLo = cellDomainEl.getLoInt();

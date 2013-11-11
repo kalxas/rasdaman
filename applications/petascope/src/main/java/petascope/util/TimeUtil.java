@@ -127,14 +127,20 @@ public class TimeUtil {
      * @param timeResolution    Temporal resolution of the unit
      * @return How many *full* time units fit into the time interval (timestampHi-timestampLo).
      */
-    public static int countOffsets(String timestampLo, String timestampHi, String timeResolution) {
+    public static Double countOffsets(String timestampLo, String timestampHi, String timeResolution) {
+
+        int  sign = 1;
 
         // if Hi is /before/ Lo, than return 0
         if (isOrderedTimeSubset(timestampHi, timestampLo)) {
-            return 0;
+            // -> Lo>Hi: swap the interval bounds and return a negative offset
+            String buf = timestampLo;
+            timestampLo = timestampHi;
+            timestampHi = buf;
+            sign = -1;
         }
 
-        Integer pixelCounter = 0;
+        Double offsetsCounter = .0;
 
         timestampLo = fix(timestampLo);
         timestampHi = fix(timestampHi);
@@ -154,16 +160,21 @@ public class TimeUtil {
         int minuteRes = (dtResolution.getMinute() == DATETIME_MINUTE_DEFAULT ) ? 0 : (dtResolution.getMinute() - DATETIME_MINUTE_DEFAULT);
         int secondRes = (dtResolution.getSecond() == DATETIME_SECOND_DEFAULT ) ? 0 : (dtResolution.getSecond() - DATETIME_SECOND_DEFAULT);
 
+        DateTime dtLastHead = dtHead;
         dtHead = dtHead.plus(yearRes, monthRes, dayRes, hourRes, minuteRes, secondRes, DATETIME_NANOSECOND_DEFAULT, DateTime.DayOverflow.FirstDay);
         while (dtHead.lteq(dtSubsetHi)) {
             // Increment
             // FIXME: performance killer! Go with binary search.
-            pixelCounter += 1;
+            offsetsCounter += 1;
+            dtLastHead = dtHead;
             dtHead = dtHead.plus(yearRes, monthRes, dayRes, hourRes, minuteRes, secondRes, DATETIME_NANOSECOND_DEFAULT, DateTime.DayOverflow.FirstDay);
-            log.debug("dtHead#" + pixelCounter + ": " + dtHead);
+            log.debug("dtHead#" + offsetsCounter + ": " + dtHead);
         }
 
-        return pixelCounter;
+        // Add fractional part to avoid integer resolution on temporal subsets and miss out-of-bound subsets
+        offsetsCounter += 1 - (double)dtHead.numSecondsFrom(dtSubsetHi) / dtHead.numSecondsFrom(dtLastHead);
+
+        return sign*offsetsCounter;
     }
 
     /**
