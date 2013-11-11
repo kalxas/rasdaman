@@ -131,6 +131,8 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
                 try {
                     child = new StringScalarExpr(node, xq);
                     log.trace("Matched string scalar expression.");
+                    singleValue = ((StringScalarExpr) child).isSingleValue();
+                    value = ((StringScalarExpr) child).getValue();
                 } catch (WCPSException e) {
                     child = null;
                 }

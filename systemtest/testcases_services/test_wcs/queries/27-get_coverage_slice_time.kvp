@@ -1,0 +1,5 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=eobstest&
+subset=t("1950-01-01")
