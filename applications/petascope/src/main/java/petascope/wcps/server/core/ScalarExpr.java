@@ -114,8 +114,8 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
             while ((childNode != null) && childNode.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
                 childNode = childNode.getNextSibling();
             }
-            n = childNode.getNodeName().toLowerCase();
-            if (ReduceScalarExpr.NODE_NAMES.contains(n)) {
+            String n_lower = childNode.getNodeName().toLowerCase();
+            if (ReduceScalarExpr.NODE_NAMES.contains(n_lower)) {
                 try {
                     child = new ReduceScalarExpr(node, xq);
                     log.trace("Matched reduce scalar expression.");
