@@ -30,7 +30,6 @@ import java.util.regex.Matcher;
 import java.util.HashMap;
 import secore.util.SecoreException;
 import secore.util.ExceptionCode;
-import secore.util.Pair;
 import secore.util.StringUtil;
 import secore.util.XMLUtil;
 import java.util.ArrayList;
@@ -164,10 +163,6 @@ public class ParameterizedCrsHandler extends GeneralHandler {
         targetCRS = c.getAttribute("xlink:" + TARGET_CRS_HREF, null);
       } else if (c.getName().equals(PARAMETERS)) {
         parameters.parse(c);
-      } else {
-        throw new SecoreException(ExceptionCode.XmlNotValid.locator(c.getName()),
-            "Unexpected element name " + c.getName() + ", expected one of " +
-            "parameters, " + IDENTIFIER_LABEL + ", or targetCRS");
       }
     }
     if (identifier == null) {
