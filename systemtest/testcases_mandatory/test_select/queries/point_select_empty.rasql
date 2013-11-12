@@ -1,0 +1,1 @@
+select c[500,500] from test_rgb2 as c
