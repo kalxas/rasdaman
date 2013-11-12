@@ -30,6 +30,7 @@ import org.basex.core.Context;
 import org.basex.core.cmd.Close;
 import org.basex.core.cmd.CreateDB;
 import org.basex.core.cmd.CreateIndex;
+import org.basex.core.cmd.Get;
 import org.basex.core.cmd.InfoDB;
 import org.basex.core.cmd.Open;
 import org.basex.core.cmd.Set;
@@ -48,23 +49,42 @@ import secore.util.XMLUtil;
  * @author Dimitar Misev
  */
 public class BaseX implements Database {
-  
-  private static Logger log = LoggerFactory.getLogger(BaseX.class);
-  
-  private static final String XML_EXTENSION = ".xml";
-  
-  private static final String TEXT_INDEX_TYPE = "text";
 
+  private static Logger log = LoggerFactory.getLogger(BaseX.class);
+  private static final String XML_EXTENSION = ".xml";
+  private static final String TEXT_INDEX_TYPE = "text";
   private Context context;
-  
   // collection name -> absolute path to initalization file
   private java.util.Set<String> collections;
-  
+
   public BaseX(Map<String, String> collections) {
     this.collections = collections.keySet();
-    
+
     context = new Context();
-    
+
+    try {
+      // determine configuration directory in which to put the database
+      String configuredDir = new Get(Constants.DBPATH_BASEX_PROPERTY).execute(context);
+      if (configuredDir != null) {
+        configuredDir = configuredDir.trim(); // remove ending new line
+        configuredDir = configuredDir.replace(Constants.DEFAULT_SECORE_DB_DIR_PREFIX, "");
+      }
+      if (Constants.DEFAULT_SECORE_DB_DIR.equals(configuredDir)) {
+        String secoreDbDir = IOUtil.getDbDir();
+        if (secoreDbDir != null) {
+          new Set(Constants.DBPATH_BASEX_PROPERTY, secoreDbDir).execute(context);
+          log.debug("Secore database directory: " + secoreDbDir);
+        } else {
+          log.warn("Default secore database directory, please "
+              + "consider updating DBPATH in .basex: " + configuredDir);
+        }
+      } else {
+        log.debug("Secore database directory from .basex: '" + configuredDir + "'");
+      }
+    } catch (Exception ex) {
+      log.warn("Failed setting secore database directory, using DBPATH value from .basex");
+    }
+
     for (String coll : this.collections) {
       try {
         new Set("CREATEFILTER", "*" + XML_EXTENSION).execute(context);
@@ -76,9 +96,9 @@ public class BaseX implements Database {
         try {
           log.info("Initializing database " + coll);
           String xml = IOUtil.fileToString(collections.get(coll));
-          
+
           xml = StringUtil.fixLinks(xml, StringUtil.SERVICE_URI);
-          log.trace("Creating database with content (trimmed to first 3000 characters):\n{}", 
+          log.trace("Creating database with content (trimmed to first 3000 characters):\n{}",
               xml.substring(0, Math.min(xml.length(), 3000)));
           new CreateDB(coll, xml).execute(context);
           log.info("Database successfully initialized.");
@@ -91,7 +111,7 @@ public class BaseX implements Database {
       }
     }
   }
-  
+
   public void close() {
     try {
       new Close().execute(context);
@@ -145,7 +165,7 @@ public class BaseX implements Database {
     String ret = queryUser(query);
     return ret;
   }
-  
+
   public String queryEpsg(String query) throws SecoreException {
     String ret = null;
     if (query == null) {
@@ -156,7 +176,7 @@ public class BaseX implements Database {
     ret = query(query, DbManager.EPSG_DB);
     return ret;
   }
-  
+
   public String queryUser(String query) throws SecoreException {
     String ret = null;
     if (query == null) {
@@ -167,10 +187,10 @@ public class BaseX implements Database {
     ret = query(query, DbManager.USER_DB);
     return ret;
   }
-  
+
   /**
    * Allow executing BaseX command in the current context.
-   * 
+   *
    * @param cmd command to execute
    * @return execution result
    * @throws SecoreException Just wraps around the BaseX exception
@@ -185,5 +205,4 @@ public class BaseX implements Database {
     }
     return ret;
   }
-  
 }

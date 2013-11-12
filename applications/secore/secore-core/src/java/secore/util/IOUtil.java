@@ -139,7 +139,7 @@ public class IOUtil {
         }
         // get path to $CATALINA_HOME/webapps/
         File webappsDir = indexFile.getParentFile().getParentFile();
-        // return $CATALINA_HOME/webapps/.secoredb
+        // return $CATALINA_HOME/webapps/secoredb
         secoreDbDir = webappsDir.getAbsolutePath() +
             File.separator + Constants.SECORE_DB_DIR;
         File secoreDbDirFile = new File(secoreDbDir);

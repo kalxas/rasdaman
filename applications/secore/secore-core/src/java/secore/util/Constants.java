@@ -85,6 +85,8 @@ public interface Constants {
   
   // constants related to the secore database location
   String DBPATH_BASEX_PROPERTY = "dbpath";
+  String DEFAULT_SECORE_DB_DIR = "nullBaseXData";
+  String DEFAULT_SECORE_DB_DIR_PREFIX = "DBPATH: ";
   String SECORE_DB_DIR = "secoredb";
   
   // URL to the EPSG registry website

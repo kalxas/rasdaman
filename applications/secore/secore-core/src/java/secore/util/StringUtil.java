@@ -86,7 +86,6 @@ public class StringUtil {
       try {
         decoded = URLDecoder.decode(encodedText, UTF8_ENCODING);
       } catch (UnsupportedEncodingException ex) {
-        decoded = URLDecoder.decode(encodedText);
       }
     }
     return decoded;
