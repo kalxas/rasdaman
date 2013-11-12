@@ -118,14 +118,14 @@ public class IncompleteUrlHandler extends AbstractHandler {
     if (StringUtil.emptyQueryResult(res)) {
       res = "";
     } else {
-      Pair<Boolean, Set<Pair<String, Boolean>>> tmp = SecoreUtil.sortElements(url, res);
+      Set<Pair<String, Boolean>> tmp = SecoreUtil.sortElements(url, res);
       res = "";
       String serviceUri = request.getServiceUri().replaceAll("/def/?", "").replaceAll("^/", "");
       String fullUri = serviceUri + url;
       if (!fullUri.endsWith(REST_SEPARATOR)) {
         fullUri += REST_SEPARATOR;
       }
-      for (Pair<String, Boolean> p : tmp.snd) {
+      for (Pair<String, Boolean> p : tmp) {
         res += "  <" + IDENTIFIER_LABEL + ">" + fullUri + p.fst + "</" + IDENTIFIER_LABEL + ">\n";
       }
     }

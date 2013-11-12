@@ -47,19 +47,21 @@
 
 
     <%
-      out.println("<span style=\"font-size:x-large;\">"
-          + "<a href='" + StringUtil.SERVLET_CONTEXT + "/" + Constants.INDEX_FILE + "'>Index</a></span><br/>");
+      out.println("<span style=\"font-size:large;\">"
+          + "<a href='" + StringUtil.SERVLET_CONTEXT + "/" + Constants.INDEX_FILE + "'>Index</a></span>");
     // Future work: assure a smooth transition between URNs and URLs for the new identifiers
       String url = (String) request.getAttribute("url");
 
       String up = url.substring(0, url.lastIndexOf(Constants.REST_SEPARATOR, url.length() - 2));
       if (!up.isEmpty()) {
-        out.println("<br/><span style=\"font-size:x-large;\">"
+        out.println(" | <span style=\"font-size:large;\">"
             + "<a href='" + up + "/" + Constants.ADMIN_FILE + "'>Up one level</a></span> ");
       }
 
-      out.println("<br/><span style=\"font-size:x-large;\">Current Prefix: " + url + "</span>");
-      out.println("<br/><span style=\"font-size:x-large;\">The list of the nodes known at this level</span><br/>");
+      out.println("<br/><span style=\"font-size:large;\">Nodes at prefix: " + url + "</span>");
+      out.println("<br/><span style=\"font-size:large;\"><a href='" + url + 
+          Constants.ADMIN_FILE + Constants.FRAGMENT_SEPARATOR
+          + "add=true'>Add new definition?</a></span><br/><hr/>");
 
 
       // Handle changed GML deffinitions
@@ -68,9 +70,9 @@
         if (!mod.equals(Constants.EMPTY)) {
           String newUrl = StringUtil.getElementValue(mod, Constants.IDENTIFIER_LABEL);
           SecoreUtil.updateDef(mod, newUrl);
-          out.println("<br/><span style=\"font-size:x-large;\">The database has been updated.</span><br/>");
+          out.println("<br/><span style=\"font-size:large;\">The database has been updated.</span><br/>");
         } else {
-          out.println("<br/><span style=\"font-size:x-large;\"><span style=\"color:red\">"
+          out.println("<br/><span style=\"font-size:large;\"><span style=\"color:red\">"
               + "Empty definition submitted. The database remains unchanged.<span></span><br/>");
         }
       }
@@ -80,9 +82,9 @@
       if (null != newd) {
         if (!newd.equals(Constants.EMPTY)) {
           SecoreUtil.insertDef(newd, url);
-          out.println("<br/><span style=\"font-size:x-large;\">The database has been updated.</span><br/>");
+          out.println("<br/><span style=\"font-size:large;\">The database has been updated.</span><br/>");
         } else {
-          out.println("<br/><span style=\"font-size:x-large;\"><span style=\"color:red\">"
+          out.println("<br/><span style=\"font-size:large;\"><span style=\"color:red\">"
               + "Empty definition submitted. The database remains unchanged.<span></span><br/>");
         }
       }
@@ -91,7 +93,7 @@
       String toadd = request.getParameter("add");
       if (null != toadd && toadd.equals("true")) {
     %>
-    <span style="font-size:x-large;">Add a new GML definition in the space below:</span><br/>
+    <span style="font-size:large;">Add a new GML definition in the space below:</span><br/>
     <form action="<%=url + Constants.ADMIN_FILE%>" method="post" name="gmlform">
       <textarea cols="150" rows="20" name="adddef" wrap="virtual"></textarea><br/>
       <input type="submit" name="Add" value="Add" />
@@ -111,7 +113,7 @@
       if (StringUtil.emptyQueryResult(result)) {
         result = SecoreUtil.queryDef(url, true, false, false);
     %>
-    <span style="font-size:x-large;">The definition below will be replaced by your submission:</span><br/>
+    <span style="font-size:large;">The definition below will be replaced by your submission:</span><br/>
     <form action="<%=url + Constants.ADMIN_FILE%>" method="post" name="gmlform">
       <textarea cols="150" rows="20" name="changedef" wrap="virtual"><%out.print(result);%></textarea><br/>
       <input type="submit" name="Save" value="Save" />
@@ -119,17 +121,11 @@
     <%
     } else {
       // sort elements at this level in a tree set
-      Pair<Boolean, Set<Pair<String, Boolean>>> res = SecoreUtil.sortElements(url, result);
-      // Show the link for creating new elements at the bottom of the hierarchy
-      if (res.fst) {
-        out.println("<span style=\"font-size:x-large;\"><a href='"
-            + url + Constants.ADMIN_FILE + Constants.FRAGMENT_SEPARATOR
-            + "add=true'>Add a new entry at this level:</a></span><br/>");
-      }
-      if (res.snd.isEmpty()) {
+      Set<Pair<String, Boolean>> res = SecoreUtil.sortElements(url, result);
+      if (res.isEmpty()) {
         result = SecoreUtil.queryDef(url, true, false, false);
     %>
-    <span style="font-size:x-large;">The definition below will be replaced by your submission:</span><br/>
+    <span style="font-size:large;">The definition below will be replaced by your submission:</span><br/>
     <form action="<%=url + Constants.ADMIN_FILE%>" method="post" name="gmlform">
       <textarea cols="150" rows="20" name="changedef" wrap="virtual"><%out.print(result);%></textarea><br/>
       <input type="submit" name="Save" value="Save" />
@@ -140,7 +136,7 @@
     <table>
       <%
         // Display the list in a table
-        for (Pair<String, Boolean> p : res.snd) {
+        for (Pair<String, Boolean> p : res) {
           String l = p.fst;
           String remove = "";
           if (p.snd) {

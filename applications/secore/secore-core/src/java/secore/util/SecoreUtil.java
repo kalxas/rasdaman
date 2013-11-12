@@ -152,7 +152,7 @@ public class SecoreUtil {
     DbManager.clearCache();
   }
 
-  public static Pair<Boolean, Set<Pair<String, Boolean>>> sortElements(String url, String result) {
+  public static Set<Pair<String, Boolean>> sortElements(String url, String result) {
     url = StringUtil.wrapUri(url);
     log.debug("sortElements: " + url);
     result = result.replace("</el>", "");
@@ -168,7 +168,6 @@ public class SecoreUtil {
       }
     });
 
-    boolean bottom = false;
     for (String tmpid : ids) {
       String[] pair = tmpid.split(" ");
       String id = pair[0];
@@ -191,11 +190,8 @@ public class SecoreUtil {
           }
           if (tmp.indexOf(REST_SEPARATOR) >= 0) {
             tmp = tmp.substring(0, tmp.indexOf(REST_SEPARATOR));
-          } else {
-            bottom = true;
           }
           if (tmp.equals(EMPTY)) {
-            bottom = false;
             continue;
           }
         }
@@ -214,6 +210,6 @@ public class SecoreUtil {
         }
       }
     }
-    return Pair.of(bottom, list);
+    return list;
   }
 }
