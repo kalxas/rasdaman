@@ -56,7 +56,7 @@ public class ConfigManager {
     private static final Logger log = LoggerFactory.getLogger(ConfigManager.class);
 
     /* Major version number. This is the first release (1). */
-    private final static String MAJOR = "2";
+    public final static String MAJOR = "2";
     /* 
      * Minor version number.
      * v2 adds the reference implementation of WCS 2.0.
@@ -64,9 +64,9 @@ public class ConfigManager {
      * v4 adds a WPS implementation.
      * v5 adds integration to n52 WPS framework
      */
-    private final static String MINOR = "0";
+    public final static String MINOR = "0";
     /* Bug-fix count. We have a hack: every WCPS response is written to disk. */
-    private final static String BUGFIX = "0";
+    public final static String BUGFIX = "0";
 
     public final static String PETASCOPE_VERSION = MAJOR + "." + MINOR + "." + BUGFIX;
     public final static String PETASCOPE_LANGUAGE = "en";
@@ -141,31 +141,31 @@ public class ConfigManager {
     // confdir parameter name
     public static final String CONF_DIR = "confDir";
     public static final String CONF_DIR_DEFAULT = "@confdir@";
-    private static final String SETTINGS_FILE = "petascope.properties";
-    private static final String LOG_PROPERTIES_FILE = "log4j.properties";
+    public static final String SETTINGS_FILE = "petascope.properties";
+    public static final String LOG_PROPERTIES_FILE = "log4j.properties";
     
     // keys
-    private static final String KEY_RASDAMAN_DATABASE = "rasdaman_database";
-    private static final String KEY_RASDAMAN_URL = "rasdaman_url";
-    private static final String KEY_RASDAMAN_USER = "rasdaman_user";
-    private static final String KEY_RASDAMAN_PASS = "rasdaman_pass";
-    private static final String KEY_RASDAMAN_ADMIN_USER = "rasdaman_admin_user";
-    private static final String KEY_RASDAMAN_ADMIN_PASS = "rasdaman_admin_pass";
-    private static final String KEY_RASDAMAN_VERSION = "rasdaman_version";
-    private static final String KEY_METADATA_DRIVER = "metadata_driver";
-    private static final String KEY_METADATA_URL = "metadata_url";
-    private static final String KEY_METADATA_USER = "metadata_user";
-    private static final String KEY_METADATA_PASS = "metadata_pass";
-    private static final String KEY_RASDAMAN_RETRY_TIMEOUT = "rasdaman_retry_timeout";
-    private static final String KEY_RASDAMAN_RETRY_ATTEMPTS = "rasdaman_retry_attempts";
-    private static final String KEY_CCIP_VERSION = "ccip_version";
-    private static final String KEY_WCST_DEFAULT_DATATYPE = "default_datatype";
-    private static final String KEY_SECORE_URLS = "secore_urls";
-    private static final String KEY_SECORE_VERSIONS = "secore_versions";
+    public static final String KEY_RASDAMAN_DATABASE = "rasdaman_database";
+    public static final String KEY_RASDAMAN_URL = "rasdaman_url";
+    public static final String KEY_RASDAMAN_USER = "rasdaman_user";
+    public static final String KEY_RASDAMAN_PASS = "rasdaman_pass";
+    public static final String KEY_RASDAMAN_ADMIN_USER = "rasdaman_admin_user";
+    public static final String KEY_RASDAMAN_ADMIN_PASS = "rasdaman_admin_pass";
+    public static final String KEY_RASDAMAN_VERSION = "rasdaman_version";
+    public static final String KEY_METADATA_DRIVER = "metadata_driver";
+    public static final String KEY_METADATA_URL = "metadata_url";
+    public static final String KEY_METADATA_USER = "metadata_user";
+    public static final String KEY_METADATA_PASS = "metadata_pass";
+    public static final String KEY_RASDAMAN_RETRY_TIMEOUT = "rasdaman_retry_timeout";
+    public static final String KEY_RASDAMAN_RETRY_ATTEMPTS = "rasdaman_retry_attempts";
+    public static final String KEY_CCIP_VERSION = "ccip_version";
+    public static final String KEY_WCST_DEFAULT_DATATYPE = "default_datatype";
+    public static final String KEY_SECORE_URLS = "secore_urls";
+    public static final String KEY_SECORE_VERSIONS = "secore_versions";
 
-    private static final String TEMPLATES_PATH = "../templates/";
-    private static final String GETCAPABILITIES_XML = "GetCapabilities.xml";
-    private static final String DESCRIBEPROCESS_XML = "DescribeProcess.xml";
+    public static final String TEMPLATES_PATH = "../templates/";
+    public static final String GETCAPABILITIES_XML = "GetCapabilities.xml";
+    public static final String DESCRIBEPROCESS_XML = "DescribeProcess.xml";
 
     /**
      * Private constructor. Use <i>getInstance()</i>.
