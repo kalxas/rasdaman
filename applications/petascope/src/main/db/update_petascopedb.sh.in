@@ -240,33 +240,38 @@ fi
 #
 
 # utilities + constants (cget/cset)
-log "Updating utilities and global constants ... "
+logn "Updating utilities and global constants ... "
 $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$UTILITIES_SQL" > /dev/null 2>&1
 check_ret $?
 $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$GLOBAL_CONST_SQL"  > /dev/null 2>&1
 check_ret $?
+echo "ok."
 
 # triggers
-log "Updating triggers ... "
+logn "Updating triggers ... "
 $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$TRIGGERS_SQL" > /dev/null 2>&1
 check_ret $?
+echo "ok."
 
 # `create if not exists` functions for WMS tables (untouched from rasdaman 8)
-log "Updating WMS schema ... "
+logn "Updating WMS schema ... "
 $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$WMS_SCHEMA_SQL" > /dev/null 2>&1
 check_ret $?
+echo "ok."
 
 # Create new schema, if not already there
 $PSQL -c "SELECT * FROM $PS9_DBUPDATES" > /dev/null 2>&1
 if [ $? -ne 0 ]; then
-    log "Creating schema for PS9_* tables ... "
+    logn "Creating schema for PS9_* tables ... "
     $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$SCHEMA_SQL" > /dev/null 2>&1
     check_ret $?
+    echo "ok."
 
     if [ -z "$EMPTY_DB" ]; then
-        log "Populating tables with some required metadata ... "
+        logn "Populating tables with some required metadata ... "
         $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$POPULATE_SQL" > /dev/null 2>&1
         check_ret $?
+        echo "ok."
     fi
 else
     log "PS9 tables seem to be already there in the database: schema will not be updated."
@@ -278,29 +283,34 @@ POSTGIS_SQL_FILE=`find /usr/ -name postgis.sql`
 if [ -n "$POSTGIS_SQL_FILE" ]; then
   POSTGIS_VERSION=`grep -r "INSTALL VERSION"  /usr/share/postgresql/9.1/contrib/postgis-2.1/postgis.sql | awk '{ print $4; }'`
   log "Detected PostGIS version: $POSTGIS_VERSION"
-  log "Enabling PostGIS in PetascopeDB ..."
+  logn "Enabling PostGIS in PetascopeDB ..."
   $PSQL -f  "$POSTGIS_SQL_FILE"  > /dev/null
-  log "Creating Multipoint schema ... " 
+  echo "ok."
+  logn "Creating Multipoint schema ... "
   $PSQL -f "$SCRIPT_DIR/$SCHEMA_MULTIPOINT" > /dev/null
+  echo "ok."
 else
   log "Warning: postgis.sql not found, please install PostGIS >= 2.0 and rerun this script to enable support for multipoint coverages."
 fi
 
 # migration
 if [ -n "$MIGRATE_COVERAGES" ]; then
-  log "Installing dblink module to $PS_DB and RASBASE db... "
+  logn "Installing dblink module to $PS_DB and RASBASE db... "
   check_dblink
   psql -U "$PS_USER" -p "$PS_PORT" -f "$DBLINK_SQL" -d "$PS_DB"  > /dev/null 2>&1
   psql -U "$PS_USER" -p "$PS_PORT" -f "$DBLINK_SQL" -d "RASBASE" > /dev/null 2>&1
-  log "Migrating existing coverages from PS_* tables ... "
+  echo "ok."
+  logn "Migrating existing coverages from PS_* tables ... "
   $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$MIGRATE_SQL"
   check_ret $?
+  echo "ok."
 fi
 
 # sql macros
-log "Updating macros ... "
+logn "Updating macros ... "
 $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$MACROS_SQL" > /dev/null 2>&1
 check_ret $?
+echo "ok."
 
 
 #
