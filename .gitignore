@@ -93,3 +93,4 @@ compile
 wcps.tokens
 failed_cases
 /applications/secore/secore-web/dist/
+ProcessCoverages.java

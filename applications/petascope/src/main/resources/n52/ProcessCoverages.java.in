@@ -39,7 +39,7 @@ import petascope.exceptions.WCPSException;
 import petascope.util.ListUtil;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
-import petascope.wcps.server.core.WCPS;
+import petascope.wcps.server.core.Wcps;
 
 /**
  *
@@ -54,8 +54,11 @@ public class ProcessCoverages extends AbstractAlgorithm {
     private String outputIDScalarList = "ScalarList";
     private List<String> errors;
     
-    private WCPS wcps;
+    private Wcps wcps;
     private DbMetadataSource meta;
+    
+    // below is replaced by the petascope Makefile
+    public static final String RASDAMAN_CONFIG_DIR = "@confDir@";
 
     public ProcessCoverages() {
         super();
@@ -63,14 +66,14 @@ public class ProcessCoverages extends AbstractAlgorithm {
 
         try {
             log.info("WCPS: initializing metadata database");
-            ConfigManager.getInstance();
+            ConfigManager.getInstance(RASDAMAN_CONFIG_DIR);
             meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
                     ConfigManager.METADATA_URL,
                     ConfigManager.METADATA_USER,
                     ConfigManager.METADATA_PASS, false);
 
             log.debug("WCPS: initializing WCPS core");
-            wcps = new WCPS(meta);
+            wcps = new Wcps(meta);
 
             log.info("WCPS: initialization complete");
         } catch (Exception e) {

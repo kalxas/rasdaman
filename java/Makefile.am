@@ -48,3 +48,6 @@ tests: src/tests/*.java all
 	
 clean:
 	rm -rf bin dist
+
+wps:
+  

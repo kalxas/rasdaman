@@ -200,6 +200,7 @@ wps: jar
 	$(CP) $(BUILD)/petascope.jar lib/*.jar $(BUILD)/wps/WEB-INF/lib
 	$(CD) $(BUILD)/wps; $(JAR) $(JARFLAGS) ../wps.war .
 	$(CP) $(BUILD)/wps.war $(DESTDIR)$(wardir)
+	$(SED) -e 's|@confDir@|$(sysconfdir)|g' $(SRC_RES)/n52/ProcessCoverages.java.in > $(SRC_RES)/n52/ProcessCoverages.java
 
 .PHONY: all
 all: war
