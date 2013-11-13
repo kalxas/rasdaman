@@ -108,7 +108,7 @@ public abstract class AbstractHandler implements Handler {
         }
         targets += "     if (exists($tmp" + parameter.getTarget() + 
             ")) then replace value of node $tmp" + parameter.getTarget() +
-            " with '" + parameter.getValue() + "' else {}";
+            " with '" + parameter.getValue() + "' else ()";
         if (i++ == 0) {
           targets += NEW_LINE;
         }
