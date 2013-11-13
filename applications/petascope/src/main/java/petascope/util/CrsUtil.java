@@ -83,7 +83,7 @@ public class CrsUtil {
     // NOTE: "CRS:1" axes to have a GML definition that will be parsed.
     public static final String GRID_CRS  = "CRS:1";
     public static final String GRID_UOM = "GridSpacing"; // See Uom in Index[1-9]D CRS defs
-    public static final String PURE_UOM  = "10⁰";
+    public static final String PURE_UOM  = "10^0";
 
     public static final String CRS_DEFAULT_VERSION = "0";
     //public static final String CRS_DEFAULT_FORMAT  = "application/gml+xml";
