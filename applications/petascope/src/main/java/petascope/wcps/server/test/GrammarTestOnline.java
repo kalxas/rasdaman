@@ -32,6 +32,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import org.apache.commons.io.FileUtils;
+import petascope.util.StringUtil;
 
 /** Runs the available Grammar tests against a deployed version of Petascope,
  * available at some URL.
@@ -166,7 +167,7 @@ public class GrammarTestOnline {
         // Specify the content type that we will send binary data
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-        String data = param + "=" + URLEncoder.encode(query);
+        String data = param + "=" + StringUtil.urlencode(query);
         DataOutputStream out = new DataOutputStream(conn.getOutputStream());
         out.writeBytes(data);
         out.flush();

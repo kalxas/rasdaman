@@ -39,6 +39,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WMSException;
+import petascope.util.StringUtil;
 
 
 public class WmsRequest
@@ -52,9 +53,12 @@ public class WmsRequest
     public static final String WMSREQ_GET_EXPORT_INFO = "GetExportInfo";
     public static final String WMSREQ_RELOAD_CAPABILITIES = "ReloadCapabilities";
     public static final String WMSREQ_FETCH_CONFIGURATION_FILE = "FetchConfigurationFile";
-    @Deprecated public static final String WMSREQ_CAPABILITIES = "capabilities";
-    @Deprecated public static final String WMSREQ_MAP = "map";
-    @Deprecated public static final String WMSREQ_FEATURE_INFO = "feature_info";
+//    @Deprecated
+    public static final String WMSREQ_CAPABILITIES = "capabilities";
+//    @Deprecated
+    public static final String WMSREQ_MAP = "map";
+//    @Deprecated
+    public static final String WMSREQ_FEATURE_INFO = "feature_info";
     // Custom DEM
     public static final String WMSREQ_CUSTOMDEM_T = "T";
     public static final String WMSREQ_CUSTOMDEM_MINLEVEL = "minLevel";
@@ -422,7 +426,7 @@ public class WmsRequest
         requestParams = new Hashtable();
         
         String encodedQueryString = req.getQueryString();
-        String queryString = java.net.URLDecoder.decode( encodedQueryString );
+        String queryString = StringUtil.urldecode(encodedQueryString, req.getContentType());
         
         talkSparse( "WmsRequest::prepareRequestParamTable: raw request    : " + encodedQueryString );
         talkSparse( "WmsRequest::prepareRequestParamTable: decoded request: " + queryString );

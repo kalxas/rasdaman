@@ -41,6 +41,9 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class StringUtil {
+    
+    public static final String MIME_URLENCODED = "application/x-www-form-urlencoded";
+    public static final String ENCODING_UTF8 = "UTF-8";
 
     private static String COMMA = ",";
 
@@ -179,17 +182,21 @@ public class StringUtil {
         }
     }
 
-    /** URL-decode a string, if needed */
+    /**
+     * URL-decode a string, if needed
+     */
     public static String urldecode(String encodedText, String contentType) {
         if (encodedText == null) {
             return null;
         }
         String decoded = encodedText;
-        if (contentType == null || (contentType.equals("application/x-www-form-urlencoded") && encodedText.indexOf(" ") == -1)) {
+        // fix ticket 466
+        // if (contentType == null || (contentType.equals("application/x-www-form-urlencoded") && encodedText.indexOf(" ") == -1)) {
+        if (contentType == null 
+            || (contentType.toLowerCase().startsWith(MIME_URLENCODED) && encodedText.indexOf(" ") == -1)) {
             try {
-                decoded = URLDecoder.decode(encodedText, "UTF-8");
+                decoded = URLDecoder.decode(encodedText, ENCODING_UTF8);
             } catch (UnsupportedEncodingException ex) {
-                decoded = URLDecoder.decode(encodedText);
             }
         }
         return decoded;
@@ -197,9 +204,9 @@ public class StringUtil {
 
     public static String urlencode(String text) {
         try {
-            return URLEncoder.encode(text, "UTF-8");
+            return URLEncoder.encode(text, ENCODING_UTF8);
         } catch (UnsupportedEncodingException ex) {
-            return URLEncoder.encode(text);
+            return text;
         }
     }
 

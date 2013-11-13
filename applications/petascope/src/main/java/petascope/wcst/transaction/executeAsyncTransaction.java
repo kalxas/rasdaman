@@ -42,6 +42,7 @@ import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSTException;
+import petascope.util.StringUtil;
 import wcst.transaction.schema.TransactionResponseType;
 
 /**
@@ -157,7 +158,7 @@ public class executeAsyncTransaction extends Thread {
         // Specify the content type that we will send binary data
         conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-        String data = "xml=" + URLEncoder.encode(content);
+        String data = "xml=" + StringUtil.urlencode(content);
         DataOutputStream out = new DataOutputStream(conn.getOutputStream());
 
         out.writeBytes(data);

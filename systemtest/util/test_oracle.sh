@@ -118,6 +118,7 @@ check_postgres
 [ "$SVC_NAME" != "secore" ] && check_rasdaman
 check_wget
 check_gdal
+multi_coll_enabled=$(check_multipoint)
 
 #
 # check options
@@ -137,8 +138,7 @@ echo
 
 pushd "$QUERIES_PATH" > /dev/null
 
-check_multipoint
-multi_coll_enabled=$(check_multipoint)
+
 for f in *; do
   
   # skip non-files

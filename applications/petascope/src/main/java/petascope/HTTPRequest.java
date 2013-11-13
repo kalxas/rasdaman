@@ -100,7 +100,6 @@ public class HTTPRequest {
      * string, XML expects an XML compatible string etc In the future these 
      * parsers should extract the needed information from the HTTPRequest
      *
-     * @deprecated
      * @return the request string as expected by parsers
      */
     public String getRequestString() {
