@@ -1105,67 +1105,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
                         ByteArrayInputStream bis = new ByteArrayInputStream(binData);
                         DataInputStream dis = new DataInputStream(bis);
                         // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                        switch(et.getTypeID())
-                          {
-                          case RasGlobalDefs.RAS_MINTERVAL:
-                            resultBag.add(new RasMInterval(new String(binData)));
-                            break;
-                          case RasGlobalDefs.RAS_SINTERVAL:
-                            resultBag.add(new RasSInterval(new String(binData)));
-                            break;
-                          case RasGlobalDefs.RAS_POINT:
-                            resultBag.add(new RasPoint(new String(binData)));
-                            break;
-                          case RasGlobalDefs.RAS_OID:
-                            resultBag.add(new RasOID(new String(binData)));
-                            break;
-                          case RAS_BOOLEAN:
-                          case RAS_BYTE:
-                          case RAS_CHAR:
-                            byte b = binData[0];
-                            resultBag.add(new Byte(b));
-                            break;
-                          case RAS_DOUBLE:
-                            double d = dis.readDouble();
-                            resultBag.add(new Double(d));
-                            break;
-                          case RAS_FLOAT:
-                            float f = dis.readFloat();
-                            resultBag.add(new Float(f));
-                            break;
-                          case RAS_ULONG:
-                            byte[] bu = new byte[8];
-                            bu[0] = 0;
-                            bu[1] = 0;
-                            bu[2] = 0;
-                            bu[3] = 0;
-                            bu[4] = dis.readByte();
-                            bu[5] = dis.readByte();
-                            bu[6] = dis.readByte();
-                            bu[7] = dis.readByte();
-                            ByteArrayInputStream bis2 = new ByteArrayInputStream(bu);
-                            DataInputStream dis2 = new DataInputStream(bis2);
-                            long ul = dis2.readLong();
-                            resultBag.add(new Long(ul));
-                            break;
-                          case RAS_LONG:
-                          case RAS_INT:
-                            int i = dis.readInt();
-                            resultBag.add(new Integer(i));
-                            break;
-                          case RAS_USHORT:
-                            int j = dis.readUnsignedShort();
-                            resultBag.add(new Integer(j));
-                            break;
-                          case RAS_SHORT:
-                            short s = dis.readShort();
-                            resultBag.add(new Short(s));
-                            break;
-                          default:
-                              Debug.talkCritical( "RasRNPImplementation.getResponse: type not supported: " + et );
-                              Debug.leaveVerbose( "RasRNPImplementation.getResponse: done, unsupported type." );
-                              throw new RasTypeNotSupportedException(et + " as ElementType ");
-                        }
+                        resultBag.add(getElement(dis, et, binData));
                      }
                      result = resultBag;
                      // close stream
@@ -1237,6 +1177,75 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
         Debug.leaveVerbose( "RasRNPImplementation.getResponse: done. result=" + result );
         return result; 	  
       }
+  
+  public static Object getElement(DataInputStream dis, RasType et, byte[] binData) throws IOException, RasResultIsNoIntervalException {
+    Object ret = null;
+    switch (et.getTypeID()) {
+      case RasGlobalDefs.RAS_MINTERVAL:
+        ret = new RasMInterval(new String(binData));
+        break;
+      case RasGlobalDefs.RAS_SINTERVAL:
+        ret = new RasSInterval(new String(binData));
+        break;
+      case RasGlobalDefs.RAS_POINT:
+        ret = new RasPoint(new String(binData));
+        break;
+      case RasGlobalDefs.RAS_OID:
+        ret = new RasOID(new String(binData));
+        break;
+      case RAS_BOOLEAN:
+      case RAS_BYTE:
+      case RAS_CHAR:
+        byte b = binData[0];
+        ret = new Byte(b);
+        break;
+      case RAS_DOUBLE:
+        double d = dis.readDouble();
+        ret = new Double(d);
+        break;
+      case RAS_FLOAT:
+        float f = dis.readFloat();
+        ret = new Float(f);
+        break;
+      case RAS_ULONG:
+        byte[] bu = new byte[8];
+        bu[0] = 0;
+        bu[1] = 0;
+        bu[2] = 0;
+        bu[3] = 0;
+        bu[4] = dis.readByte();
+        bu[5] = dis.readByte();
+        bu[6] = dis.readByte();
+        bu[7] = dis.readByte();
+        ByteArrayInputStream bis2 = new ByteArrayInputStream(bu);
+        DataInputStream dis2 = new DataInputStream(bis2);
+        long ul = dis2.readLong();
+        ret = new Long(ul);
+        break;
+      case RAS_LONG:
+      case RAS_INT:
+        int i = dis.readInt();
+        ret = new Integer(i);
+        break;
+      case RAS_USHORT:
+        int j = dis.readUnsignedShort();
+        ret = new Integer(j);
+        break;
+      case RAS_SHORT:
+        ret = new Short(dis.readShort());
+        break;
+      case RAS_STRUCTURE:
+      case RAS_RGB:
+        RasStructureType st = (RasStructureType) et;
+        ret = new RasStructure(st, dis);
+        break;
+      default:
+        Debug.talkCritical("RasRNPImplementation.getResponse: type not supported: " + et);
+        Debug.leaveVerbose("RasRNPImplementation.getResponse: done, unsupported type.");
+        throw new RasTypeNotSupportedException(et + " as ElementType ");
+    }
+    return ret;
+  }
 
     public void setUserIdentification(String userName, String plainPass)
       { 

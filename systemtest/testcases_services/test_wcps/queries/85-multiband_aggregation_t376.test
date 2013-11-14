@@ -1,0 +1,3 @@
+for c in (rgb)
+return
+  avg(c[i(100:102),j(100:102)])

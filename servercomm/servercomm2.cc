@@ -111,6 +111,7 @@ extern "C" int gethostname(char *name, int namelen);
 
 // include and extern declarations for the query parsing
 #include "qlparser/querytree.hh"
+#include "relcatalogif/structtype.hh"
 extern int           yyparse(void *);
 extern void          yyreset();
 #ifdef NOPRE
@@ -2906,6 +2907,85 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
     return returnValue;
 }
 
+void
+ServerComm::getNextStructElement( char*     &buffer,
+                            unsigned int    &bufferSize,
+                            BaseType*       baseType)
+{
+    RMDBGENTER(1, RMDebug::module_servercomm, "ServerComm", "getNextStructElement(...)")
+
+    switch (baseType->getType())
+    {
+    case USHORT:
+    {
+        r_UShort tmp = *(r_UShort*) buffer;
+        *(r_UShort*) buffer = r_Endian::swap(tmp);
+    }
+        break;
+
+    case SHORT:
+    {
+        r_Short tmp = *(r_Short*) buffer;
+        *(r_Short*) buffer = r_Endian::swap(tmp);
+    }
+        break;
+
+    case LONG:
+    {
+        r_Long tmp = *(r_Long*) buffer;
+        *(r_Long*) buffer = r_Endian::swap(tmp);
+    }
+        break;
+
+    case ULONG:
+    {
+        r_ULong tmp = *(r_ULong*) buffer;
+        *(r_ULong*) buffer = r_Endian::swap(tmp);
+    }
+        break;
+
+    case FLOAT:
+    {
+        uint32_t value = bswap_32(*(uint32_t*) buffer);
+        // use memcpy because older (<4.5?) gcc versions
+        // choke if we assign to buffer directly
+        memcpy(buffer, &value, sizeof (uint32_t));
+    }
+        break;
+
+    case DOUBLE:
+    {
+        uint64_t value = bswap_64(*(uint64_t*) buffer);
+        // use memcpy because older (<4.5?) gcc versions
+        // choke if we assign to buffer directly
+        memcpy(buffer, &value, sizeof (uint64_t));
+    }
+        break;
+
+    case STRUCT:
+    {
+        StructType* st = (StructType*) baseType;
+        int numElems = st->getNumElems();
+        int i;
+        for (i = 0; i < numElems; i++)
+        {
+            BaseType* bt = (BaseType*) st->getElemType(i);
+            unsigned int elemTypeSize = bt->getSize();
+            getNextStructElement(buffer, elemTypeSize, bt);
+            buffer += elemTypeSize;
+        }
+    }
+        break;
+
+    default:
+    {
+        RMDBGENTER(0, RMDebug::module_servercomm, "ServerComm", "getNextStructElement(...) bad dataType " << baseType->getType());
+    }
+        break;
+    }
+
+    RMDBGEXIT(1, RMDebug::module_servercomm, "ServerComm", "getNextStructElement(...)")
+}
 
 unsigned short
 ServerComm::getNextElement( unsigned long   callingClientId,
@@ -3041,6 +3121,23 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                                 // use memcpy because older (<4.5?) gcc versions
                                 // choke if we assign to buffer directly
 				memcpy(buffer, &value, sizeof(uint64_t));
+                            }
+                            break;
+
+                            case QT_COMPLEX:
+                            {
+                                StructType* st = (StructType*) scalarDataObj->getValueType();
+                                int numElems = st->getNumElems();
+                                int i;
+                                char* tmp = buffer;
+                                for (i = 0; i < numElems; i++)
+                                {
+                                    BaseType* bt = (BaseType*) st->getElemType(i);
+                                    unsigned int elemTypeSize = bt->getSize();
+                                    getNextStructElement(buffer, elemTypeSize, bt);
+                                    buffer += elemTypeSize;
+                                }
+                                buffer = tmp;
                             }
                             break;
 
