@@ -64,6 +64,8 @@ using namespace std;
 #define NODATA_VALUE_SEPARATOR " ,"
 #define NODATA_DEFAULT_VALUE 0.0
 
+const QtNode::QtNodeType QtEncode::nodeType = QtNode::QT_ENCODE;
+
 QtEncode::QtEncode(QtOperation *mddOp, char* formatIn) throw (r_Error)
 : QtUnaryOperation(mddOp), format(formatIn), fParams(NULL)
 {
@@ -116,13 +118,16 @@ QtEncode::initParams(char* paramsIn)
     string nodata;
     setString(PARAM_NODATA, &nodata);
     
-    char* pch = (char*) nodata.c_str();
-    pch = strtok (pch, NODATA_VALUE_SEPARATOR);
-    while (pch != NULL)
+    if (!nodata.empty())
     {
-        double value = strtod(pch, NULL);
-        gParams.nodata.push_back(value);
-        pch = strtok (NULL, NODATA_VALUE_SEPARATOR);
+        char* pch = (char*) nodata.c_str();
+        pch = strtok (pch, NODATA_VALUE_SEPARATOR);
+        while (pch != NULL)
+        {
+            double value = strtod(pch, NULL);
+            gParams.nodata.push_back(value);
+            pch = strtok (NULL, NODATA_VALUE_SEPARATOR);
+        }
     }
 }
 
@@ -149,6 +154,7 @@ QtEncode::setString(const char* paramName, string* value)
 QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
 {
     RMDBCLASS("QtEncode", "evaluate( QtDataList* )", "qlparser", __FILE__, __LINE__)
+    ENTER("QtEncode::evaluate( QtDataList* )");
     startTimer("QtEncode");
 
     QtData* returnValue = NULL;
@@ -176,14 +182,13 @@ QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
 
         // delete old operand
         if (operand) operand->deleteRef();
-
-        return returnValue;
     }
     else
         RMInit::logOut << "Error: QtEncode::evaluate() - operand is not provided." << std::endl;
     
     stopTimer();
 
+    LEAVE("QtEncode::evaluate( QtDataList* )");
     return returnValue;
 }
 
@@ -409,7 +414,7 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
     char* datasetCells = (char*) malloc(typeSize * height * width);
     char* dst;
     char* src;
-    int col_offset;
+    int col_offset, band_offset;
     if (datasetCells == NULL)
     {
         RMInit::logOut << "QtEncode::convertTileToDataset - Error: Could not allocate memory. " << endl;
@@ -422,11 +427,12 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
     for (int band = 0; band < nBands; band++)
     {
         dst = (char*) datasetCells;
+        band_offset = band * typeSize;
         
         for (int row = 0; row < height; row++)
             for (int col = 0; col < width; col++, dst+=typeSize)
             {
-                col_offset = ((row + height * col) * nBands * typeSize + band);
+                col_offset = ((row + height * col) * nBands * typeSize + band_offset);
                 src = tileCells + col_offset;
                 if (isNotBoolean)
                 {
@@ -645,4 +651,10 @@ QtEncode::checkType(QtTypeTuple* typeTuple)
         RMInit::logOut << "Error: QtEncode::checkType() - operand branch invalid." << endl;
 
     return dataStreamType;
+}
+
+const QtNode::QtNodeType
+QtEncode::getNodeType() const
+{
+  return nodeType;
 }
