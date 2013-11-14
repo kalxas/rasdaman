@@ -90,13 +90,21 @@ public class WcsUtil {
     public static final String DOUBLE_MAX = "+/-1.7e+308";
 
     /**
-     * Utility method to read coverage's metadata
+     * Utility method to read coverage's metadata.
+     * @param meta
+     * @param coverageId
+     * @return
+     * @throws SecoreException
+     * @throws WCSException 
      */
-    public static CoverageMetadata getMetadata(DbMetadataSource meta, String coverageId) throws SecoreException, WCSException {
+    public static CoverageMetadata getMetadata(DbMetadataSource meta, String coverageId) 
+            throws SecoreException, WCSException {
         try {
             return meta.read(coverageId);
         } catch (SecoreException ex) {
             throw ex;
+        } catch (PetascopeException ex) {
+            throw new WCSException(ex.getExceptionCode(), ex);
         } catch (Exception e) {
             e.printStackTrace();
             throw new WCSException(ExceptionCode.NoApplicableCode.locator(coverageId),

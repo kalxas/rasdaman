@@ -60,14 +60,14 @@ $$
     SELECT cset('WCS_PROVIDER_CONTACT_EMAIL',   'p.baumann@jacobs-university.de');
     SELECT cset('WCS_PROVIDER_CONTACT_ROLE',    'Project Leader');
     -- CRS URIs
-    SELECT cset('KAHLUA_SECORE_ENTRY',   'http://kahlua.eecs.jacobs-university.de:8080/def/');
-    SELECT cset('CRS_ANSI',         cget('KAHLUA_SECORE_ENTRY') || 'crs/OGC/0.1/ANSI-Date');
-    SELECT cset('CRS_INDEX_1D',     cget('KAHLUA_SECORE_ENTRY') || 'crs/OGC/0.1/Index1D');
-    SELECT cset('CRS_INDEX_2D',     cget('KAHLUA_SECORE_ENTRY') || 'crs/OGC/0.1/Index2D');
-    SELECT cset('CRS_INDEX_3D',     cget('KAHLUA_SECORE_ENTRY') || 'crs/OGC/0.1/Index3D');
-    SELECT cset('CRS_EOBSTEST_T',   cget('KAHLUA_SECORE_ENTRY') || 'crs/OGC/0.1/Temporal?epoch="1950-01-01T00:00:00"&uom="d"');
-    SELECT cset('CRS_WGS84_2D',     cget('KAHLUA_SECORE_ENTRY') || 'crs/EPSG/0/4326');
-    SELECT cset('CRS_WGS84_3D',     cget('KAHLUA_SECORE_ENTRY') || 'crs/EPSG/0/4327');
+    SELECT cset('SECORE_ENTRY',         '%SECORE_URL%'); -- [!] This shall match with Petascope constant to replace it with the configured resolver.
+    SELECT cset('CRS_ANSI',         cget('SECORE_ENTRY') || '/crs/OGC/0/AnsiDate');
+    SELECT cset('CRS_INDEX_1D',     cget('SECORE_ENTRY') || '/crs/OGC/0/Index1D');
+    SELECT cset('CRS_INDEX_2D',     cget('SECORE_ENTRY') || '/crs/OGC/0/Index2D');
+    SELECT cset('CRS_INDEX_3D',     cget('SECORE_ENTRY') || '/crs/OGC/0/Index3D');
+    SELECT cset('CRS_EOBSTEST_T',   cget('SECORE_ENTRY') || '/crs/OGC/0/Temporal?epoch="1950-01-01T00:00:00"&uom="d"');
+    SELECT cset('CRS_WGS84_2D',     cget('SECORE_ENTRY') || '/crs/EPSG/0/4326');
+    SELECT cset('CRS_WGS84_3D',     cget('SECORE_ENTRY') || '/crs/EPSG/0/4327');
     -- GML coverage types
     SELECT cset('GML_ABSTRACT_COV',              'AbstractCoverage');
     SELECT cset('GML_ABSTRACT_DISCRETE_COV',     'AbstractDiscreteCoverage');

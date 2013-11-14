@@ -33,7 +33,7 @@
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index2D" axisLabels="i j" uomLabels="pixels pixels" srsDimension="2">
+    <Envelope srsName="http://localhost:8080/def/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
       <lowerCorner>0 0</lowerCorner>
       <upperCorner>400 344</upperCorner>
     </Envelope>
@@ -49,12 +49,12 @@
       </limits>
       <axisLabels>i j</axisLabels>
       <origin>
-          <Point gml:id="rgb-origin" srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index2D" axisLabels="i j" uomLabels="pixels pixels" srsDimension="2">
+          <Point gml:id="rgb-origin" srsName="http://localhost:8080/def/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
               <pos>0 0</pos>
           </Point>
       </origin>
-    <offsetVector srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index2D" axisLabels="i j" uomLabels="pixels pixels" srsDimension="2">1 0</offsetVector>
-    <offsetVector srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index2D" axisLabels="i j" uomLabels="pixels pixels" srsDimension="2">0 1</offsetVector>
+    <offsetVector srsName="http://localhost:8080/def/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">1 0</offsetVector>
+    <offsetVector srsName="http://localhost:8080/def/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0 1</offsetVector>
     </RectifiedGrid>
   </domainSet>
 

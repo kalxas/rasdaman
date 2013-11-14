@@ -33,7 +33,7 @@
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+    <Envelope srsName="http://localhost:8080/def/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
       <lowerCorner>0</lowerCorner>
       <upperCorner>4</upperCorner>
     </Envelope>
@@ -49,11 +49,11 @@
       </limits>
       <axisLabels>t</axisLabels>
       <origin>
-          <Point gml:id="eobstest-origin" srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+          <Point gml:id="eobstest-origin" srsName="http://localhost:8080/def/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
               <pos>0</pos>
           </Point>
       </origin>
-    <offsetVector srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">1</offsetVector>
+    <offsetVector srsName="http://localhost:8080/def/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">1</offsetVector>
     </RectifiedGrid>
   </domainSet>
 

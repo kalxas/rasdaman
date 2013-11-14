@@ -26,7 +26,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -122,6 +121,9 @@ public class ConfigManager {
     // SECORE connection settings
     public static List<String> SECORE_URLS = Arrays.asList(new String[]{"http://localhost:8080/def"});
     public static List<String> SECORE_VERSIONS = Arrays.asList(new String[]{"0.1.0"});
+    // SECORE keyword used in PS9_CRS table to be replaces with the first configured resolver
+    public static final String SECORE_URL_KEYWORD = "%SECORE_URL%";
+    // [!] Must match with what manually inserted in petascopedb (mind also global_const.sql URLs)
 
     /* WPS variables*/
     public static URI WPS_GET_CAPABILITIES_URI;

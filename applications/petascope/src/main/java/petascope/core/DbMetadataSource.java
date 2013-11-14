@@ -45,6 +45,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import static petascope.ConfigManager.METADATA_URL;
+import static petascope.ConfigManager.SECORE_URLS;
+import static petascope.ConfigManager.SECORE_URL_KEYWORD;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
@@ -530,8 +532,9 @@ public class DbMetadataSource implements IMetadataSource {
             log.debug("SQL query: " + sqlQuery);
             r = s.executeQuery(sqlQuery);
             while (r.next()) {
-                crss.put(   r.getInt(CRS_ID),     r.getString(CRS_URI));
-                revCrss.put(r.getString(CRS_URI), r.getInt(CRS_ID));
+                // Replace possible %SECORE_URL% prefixes with resolvable configured SECORE URLs:
+                crss.put(   r.getInt(CRS_ID), r.getString(CRS_URI).replace(SECORE_URL_KEYWORD, SECORE_URLS.get(0)));
+                revCrss.put(r.getString(CRS_URI).replace(SECORE_URL_KEYWORD, SECORE_URLS.get(0)), r.getInt(CRS_ID));
             }
 
             /* TABLE_GML_SUBTYPE */
@@ -1321,8 +1324,7 @@ public class DbMetadataSource implements IMetadataSource {
                 throw new PetascopeException(ExceptionCode.ResourceError,
                         "Previously valid metadata is now invalid. The metadata for coverage '" + coverageName + "' has been modified incorrectly.", ime);
             } else {
-                throw new PetascopeException(ExceptionCode.InvalidRequest,
-                        "Coverage '" + coverageName + "' has invalid metadata", ime);
+                throw new PetascopeException(ime.getExceptionCode(), ime);
             }
         } catch (SQLException sqle) {
             log.error("Failed reading metadata", sqle);
@@ -1343,6 +1345,7 @@ public class DbMetadataSource implements IMetadataSource {
      *
      * @param meta CoverageMetadata container for the information to be stored in the metadata database
      * @param commit Boolean value, specifying if we want to commit immediately or not
+     * @throws PetascopeException
      */
     // TODO (WCS-T)
     /*private void write(CoverageMetadata meta, boolean commit) throws PetascopeException {
@@ -1353,7 +1356,6 @@ public class DbMetadataSource implements IMetadataSource {
             insertNewCoverageMetadata(meta, commit);
         }
     }*/
-
     public void delete(CoverageMetadata meta, boolean commit) throws PetascopeException {
         String coverageName = meta.getCoverageName();
         if (existsCoverageName(coverageName) == false) {

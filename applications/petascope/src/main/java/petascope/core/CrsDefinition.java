@@ -26,9 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
-import petascope.util.XMLSymbols;
 
 /**
  * Class to host the info of a (GML) Coordinate Reference System (CRS) definition

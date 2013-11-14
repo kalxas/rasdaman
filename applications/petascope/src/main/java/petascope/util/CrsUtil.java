@@ -23,6 +23,7 @@ package petascope.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
@@ -81,7 +82,7 @@ public class CrsUtil {
 
     // NOTE: "CRS:1" axes to have a GML definition that will be parsed.
     public static final String GRID_CRS  = "CRS:1";
-    public static final String GRID_UOM = "pixels";
+    public static final String GRID_UOM = "GridSpacing"; // See Uom in Index[1-9]D CRS defs
     public static final String PURE_UOM  = "10⁰";
 
     public static final String CRS_DEFAULT_VERSION = "0";
@@ -300,7 +301,7 @@ public class CrsUtil {
         String datumOrigin = ""; // for TemporalCRSs
 
         // Prepare fallback URIs in case of service unavailablilty of given resolver
-        List<String> crsUris = new ArrayList<String>();
+        Set<String> crsUris = new HashSet<String>();
         crsUris.add(givenCrsUri);
         String lastUri = givenCrsUri;
         for (String resolverUri : ConfigManager.SECORE_URLS) {
@@ -415,29 +416,36 @@ public class CrsUtil {
                         } else {
                             // Need to parse a new XML definition
                             uomUrl = new URL(uomAtt.getValue());
-                            URLConnection uomCon = uomUrl.openConnection();
-                            uomCon.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
-                            uomCon.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
-                            InputStream uomInStream = uomCon.getInputStream();
-
-                            // Build the document
-                            Document uomDoc = XMLUtil.buildDocument(null, uomInStream);
-                            Element uomRoot = uomDoc.getRootElement();
-
-                            // Catch some exception in the GML
-                            Element uomExEl = XMLUtil.firstChildRecursive(root, XMLSymbols.LABEL_EXCEPTION_TEXT);
-                            if (uomExEl != null) {
-                                log.error(crsUri + ": " + uomExEl.getValue());
-                                throw new SecoreException(ExceptionCode.ResolverError, uomExEl.getValue());
-                            }
-
-                            // Get the UoM value
-                            Element uomNameEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_NAME);
-                            if (uomNameEl == null) {
-                                log.error(uom + ": UoM definition misses name.");
-                                throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid UoM definition: " + uom);
-                            }
-                            uomName = uomNameEl.getValue().split(" ")[0]; // Some UoM might have further comments after actual UoM (eg EPSG:4326)
+                            try {
+                                URLConnection uomCon = uomUrl.openConnection();
+                                uomCon.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
+                                uomCon.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
+                                InputStream uomInStream = uomCon.getInputStream();
+                                
+                                // Build the document
+                                Document uomDoc =   XMLUtil.buildDocument(null, uomInStream);
+                                Element uomRoot = uomDoc.getRootElement();
+                                
+                                // Catch some exception in the GML
+                                Element uomExEl = XMLUtil.firstChildRecursive(root, XMLSymbols.LABEL_EXCEPTION_TEXT);
+                                if (uomExEl != null) {
+                                    log.error(crsUri + ": " + uomExEl.getValue());
+                                    throw new SecoreException(ExceptionCode.ResolverError, uomExEl.getValue());
+                                }
+                                
+                                // Get the UoM value
+                                Element uomNameEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_NAME);
+                                if (uomNameEl == null) {
+                                    log.error(uom + ": UoM definition misses name.");
+                                    throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid UoM definition: " + uom);
+                                }
+                                uomName = uomNameEl.getValue().split(" ")[0]; // Some UoM might have further comments after actual UoM (eg EPSG:4326)
+                            } catch (ParsingException pEx) {
+                                uomName = extractUomNameFromUri(uomUrl);
+                            } catch (IOException ioEx) {                                    
+                                // The UoM is not a resolvable URI: use its last field as name (FS='/')
+                                uomName = extractUomNameFromUri(uomUrl);
+                            } // NOTE: with Java 7 you can put exception types in OR in a single catch clause.
                         }
                     }
 
@@ -475,11 +483,14 @@ public class CrsUtil {
 
                 } // else: no need to parse the datum
                 break; // fallback only on IO problems
+            } catch (MalformedURLException ex) {
+                log.error("Malformed URI: " + ex.getMessage());
+                throw new SecoreException(ExceptionCode.InvalidMetadata, ex);
             } catch (ValidityException ex) {
                 throw new SecoreException(ExceptionCode.InternalComponentError,
                         (null==uomUrl ? crsUri : uomUrl) + " definition is not valid.", ex);
             } catch (ParsingException ex) {
-                log.debug(ex.getMessage() + "\n at line " + ex.getLineNumber() + ", column " + ex.getColumnNumber());
+                log.error(ex.getMessage() + "\n at line " + ex.getLineNumber() + ", column " + ex.getColumnNumber());
                 throw new SecoreException(ExceptionCode.InternalComponentError,
                         (null==uomUrl ? crsUri : uomUrl) + " definition is malformed.", ex);
             } catch (IOException ex) {
@@ -517,6 +528,33 @@ public class CrsUtil {
         return crs;
     }
 
+    /**
+     * Extracts the UoM name from the URI as last field in the RESTful . 
+     * 10^0 as UoM for pure numbers is otherwise returned.
+     * @param uomUrl
+     * @return The UoM label for the URI.
+     */
+    private static String extractUomNameFromUri(URL uomUrl) {
+        String uomName = PURE_UOM;
+        String uomPath = uomUrl.getPath();
+        if (null == uomPath) {
+            log.warn(uomUrl + " does not have a query part: fallback to dimensionless axis.");
+        } else {
+            Pattern p = Pattern.compile(CrsUri.LAST_PATH_PATTERN);
+            Matcher m = p.matcher(uomPath);
+            while(m.find()) {
+                if (m.groupCount() == 1) {
+                    uomName = m.group(1);
+                    log.debug("Extracted name of the UoM from " + uomUrl + " is " + uomName + ".");
+                } else {
+                    log.warn("Cannot extract name of UoM from " + uomUrl + " with pattern \'" + CrsUri.LAST_PATH_PATTERN + "\'.");
+                    log.warn("Will use whole URL as UoM name.");
+                    uomName = uomUrl.toString();
+                }
+            }
+        }
+        return uomName;
+    }
     /**
      * In case northing is first, force easting/northing axis order.
      * @param axesMetadata The axis metadata as parsed from GML definition (Dir, Abbrev, UoM).
@@ -812,6 +850,8 @@ public class CrsUtil {
      */
     public static class CrsUri {
 
+        public static final String LAST_PATH_PATTERN = ".*/(.*)$";
+        
         private static final String COMPOUND_SPLIT   = "(\\?|&)\\d+=";
         private static final String COMPOUND_PATTERN = "^" + HTTP_URL_PATTERN + KEY_RESOLVER_CCRS;
 
@@ -957,6 +997,8 @@ public class CrsUtil {
          * If configured SECORE is not available, further configured fallback URIs are queried.
          * @param uri1
          * @param uri2
+         * @throws PetascopeException
+         * @throws SecoreException
          * @return true if uri1 and uri2 point to the same GML definition
          */
         public static boolean areEquivalent(String uri1, String uri2) throws PetascopeException, SecoreException {
@@ -1023,6 +1065,10 @@ public class CrsUtil {
          * @throws SecoreException
          */
         private static boolean checkEquivalence(String resolverUri, String uri1, String uri2) throws PetascopeException, SecoreException {
+
+            // Escape key entities: parametrized CRS with KV pairs can clash otherwise
+            uri1 = StringUtil.escapeXmlPredefinedEntities(uri1);
+            uri2 = StringUtil.escapeXmlPredefinedEntities(uri2);
 
             /* Tentative 1: comarison of given URIs
              * Tentative 2: both URIs at resolver

@@ -33,7 +33,7 @@
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index3D" axisLabels="i j k" uomLabels="pixels pixels pixels" srsDimension="3">
+    <Envelope srsName="http://localhost:8080/def/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">
       <lowerCorner>0 3 3</lowerCorner>
       <upperCorner>2 5 8</upperCorner>
     </Envelope>
@@ -49,27 +49,27 @@
       </limits>
       <axisLabels>i j k</axisLabels>
       <origin>
-          <Point gml:id="irr_cube_1-origin" srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index3D" axisLabels="i j k" uomLabels="pixels pixels pixels" srsDimension="3">
+          <Point gml:id="irr_cube_1-origin" srsName="http://localhost:8080/def/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">
               <pos>0 3 3</pos>
           </Point>
       </origin>
       <generalGridAxis>
         <GeneralGridAxis>
-              <offsetVector srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index3D" axisLabels="i j k" uomLabels="pixels pixels pixels" srsDimension="3">1 0 0</offsetVector>
+              <offsetVector srsName="http://localhost:8080/def/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">1 0 0</offsetVector>
           <gridAxesSpanned>i</gridAxesSpanned>
           <sequenceRule axisOrder="+1">Linear</sequenceRule>
         </GeneralGridAxis>
       </generalGridAxis>
       <generalGridAxis>
         <GeneralGridAxis>
-              <offsetVector srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index3D" axisLabels="i j k" uomLabels="pixels pixels pixels" srsDimension="3">0 1 0</offsetVector>
+              <offsetVector srsName="http://localhost:8080/def/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">0 1 0</offsetVector>
           <gridAxesSpanned>j</gridAxesSpanned>
           <sequenceRule axisOrder="+1">Linear</sequenceRule>
         </GeneralGridAxis>
       </generalGridAxis>
       <generalGridAxis>
         <GeneralGridAxis>
-              <offsetVector srsName="http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index3D" axisLabels="i j k" uomLabels="pixels pixels pixels" srsDimension="3">0 0 1</offsetVector>
+              <offsetVector srsName="http://localhost:8080/def/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">0 0 1</offsetVector>
           <coefficients>0 2 5</coefficients>
           <gridAxesSpanned>k</gridAxesSpanned>
           <sequenceRule axisOrder="+1">Linear</sequenceRule>

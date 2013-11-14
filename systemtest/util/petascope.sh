@@ -132,8 +132,8 @@ function import_eobs()
   c_basetype='short'
   c_covtype='RectifiedGridCoverage'
 
-  c_crs_t='http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Temporal?epoch="1950-01-01T00:00:00"&uom="d"'
-  c_crs_s='http://kahlua.eecs.jacobs-university.de:8080/def/crs/EPSG/0/4326'
+  c_crs_t="$SECORE_URL"'/crs/OGC/0/Temporal?epoch="1950-01-01T00:00:00"&uom="d"'
+  c_crs_s="$SECORE_URL"'/crs/EPSG/0/4326'
   min_t_geo_coord=0
   min_x_geo_coord=25
   max_y_geo_coord='75.5'
@@ -219,7 +219,7 @@ function import_rgb()
   c_basetype='unsigned char'
   c_covtype='RectifiedGridCoverage'
 
-  c_crs='http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index2D'
+  c_crs="$SECORE_URL"'/crs/OGC/0/Index2D'
   min_x_geo_coord=0
   max_y_geo_coord=344
   x_res='1'
@@ -309,7 +309,7 @@ function import_mr()
   c_basetype='char'
   c_covtype='RectifiedGridCoverage'
 
-  c_crs='http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index2D'
+  c_crs="$SECORE_URL"'/crs/OGC/0/Index2D'
   min_x_geo_coord=0
   max_y_geo_coord=211
   x_res='1'
@@ -395,7 +395,7 @@ function import_irr_cube_1()
   c_basetype='unsigned short' # See ql-guide.pdf, Table 1 ``rasdl base types''
   c_covtype='ReferenceableGridCoverage' # See GMLCOV
 
-  c_crs='http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index3D'
+  c_crs="$SECORE_URL"'/crs/OGC/0/Index3D'
   min_x_geo_coord=0
   min_y_geo_coord=0
   min_z_geo_coord=0
@@ -506,7 +506,7 @@ function import_mst()
   c_basetype='char'
   c_covtype='RectifiedGridCoverage'
 
-  c_crs='http://kahlua.eecs.jacobs-university.de:8080/def/crs/EPSG/0/4326'
+  c_crs="$SECORE_URL"'/crs/EPSG/0/4326'
 
   min_x_geo_coord="111.975"
   max_y_geo_coord="-8.975"
@@ -594,6 +594,7 @@ function import_petascope_data()
     multi_coll=" Parksmall"
   fi
   COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1$multi_coll" 
+  COLLECTIONS="rgb mr eobstest irr_cube_1$multi_coll" 
   for COLLS in $COLLECTIONS; do
     check_cov $COLLS
     if [ $? -ne 0 ]; then
@@ -636,9 +637,9 @@ function drop_petascope_data()
 {
   res=$(check_multipoint)
   if [ $res -eq 0 ]; then
-    multi_coll=" Parksmall"
+    multi_coll="Parksmall"
   fi
-  COLLS="rgb mr eobstest mean_summer_airtemp irr_cube_1$multi_coll"
+  COLLS="rgb mr eobstest mean_summer_airtemp irr_cube_1 $multi_coll"
   drop_petascope $COLLS
   drop_colls $COLLS
   log "dropping wms..."
@@ -658,7 +659,7 @@ function import_pointcloud_data()
 
   PC_DATASET="Parksmall"
   PC_FILE="Parksmall.xyz"
-  PC_CRS="http://kahlua.eecs.jacobs-university.de:8080/def/crs/EPSG/0/4327"
+  PC_CRS="$SECORE_URL"'/crs/EPSG/0/4327'
 
   id=`$PSQL -c  "select id from ps9_coverage where name='$PC_DATASET'" | head -3 | tail -1`
   test "$id" != "0"
