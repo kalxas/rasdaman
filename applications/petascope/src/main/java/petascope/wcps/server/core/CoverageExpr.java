@@ -180,6 +180,9 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
             // Keep child for XML tree crawling
             super.children.add(child);
         }
+
+        // Fetch slices, so that we know which axes should be discarded from the computation
+        slices = MiscUtil.childrenOfType(this, SliceCoverageExpr.class);
     }
 
     @Override
@@ -222,10 +225,6 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
      */
     public boolean slicedAxis(String axisName) {
         boolean ret = false;
-        // Fetch slices, so that we know which axes should be discarded from the computation
-        if (slices == null) {
-            slices = MiscUtil.childrenOfType(this, SliceCoverageExpr.class);
-        }
         
         for (SliceCoverageExpr slice : slices) {
             if (slice.slicesDimension(axisName)) {

@@ -23,20 +23,9 @@
 package petascope.util;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Logger;
 import org.slf4j.LoggerFactory;
-import petascope.exceptions.ExceptionCode;
-import petascope.exceptions.WCPSException;
-import petascope.wcps.server.core.CoverageExpr;
-import petascope.wcps.server.core.CoverageInfo;
 import petascope.wcps.server.core.IRasNode;
-import petascope.wcps.server.core.SliceCoverageExpr;
-import petascope.wcps.server.core.TrimCoverageExpr;
 
 /**
  * Various utility methods.
@@ -60,7 +49,7 @@ public class MiscUtil {
     /**
      * Recursive generic method to extract nodes of a specified class into the XML tree of a WCPS query.
      * @param <T>   The generic type
-     * @param node  The root node
+     * @param root  The root node
      * @param type  Explicit target type argument
      * @return  A list of the children of `node` of class `type`.
      */     
@@ -87,8 +76,7 @@ public class MiscUtil {
     
     /**
      * Recursive method to extract nodes of a specified classes into the XML tree of a WCPS query.
-     * @param <T>   The generic type
-     * @param node  The root node
+     * @param root   The root node
      * @param types  Explicit target types argument
      * @return  A list of the children of `node` of class `type`.
      */     
