@@ -2526,7 +2526,6 @@ numericalLit : FloatLit
         }
         $$.bytes = sizeof(double);
         $$.info = $1.info;
-	    FREESTACK($1);
     };
 
 complexLit: LCPAR scalarLitList RCPAR           
