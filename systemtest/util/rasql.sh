@@ -74,7 +74,7 @@ function check_type()
 
 
 # ------------------------------------------------------------------------------
-# drop collections in global variable $COLLS
+# drop collections passed as argument
 #
 function drop_colls()
 {

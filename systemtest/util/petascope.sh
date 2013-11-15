@@ -88,7 +88,7 @@ function check_multipoint()
 
 # ------------------------------------------------------------------------------
 #
-# drop coverages in global variable $COLLS
+# drop coverages in global variable $COLL
 #
 function drop_petascope()
 {
@@ -122,7 +122,7 @@ function import_eobs()
   if [ ! -f "$TESTDATA_PATH/eobs.nc" ]; then
     error "testdata file $TESTDATA_PATH/eobs.nc not found"
   fi
-  c=$COLLS
+  c=$COLL
 
   X=101
   Y=232
@@ -211,7 +211,7 @@ function import_rgb()
   if [ ! -f "$TESTDATA_PATH/rgb.png" ]; then
     error "testdata file $TESTDATA_PATH/rgb.png not found"
   fi
-  c=$COLLS
+  c=$COLL
   X=400
   Y=344
 
@@ -301,7 +301,7 @@ function import_mr()
     error "testdata file $TESTDATA_PATH/mr_1.png not found"
   fi
 
-  c=$COLLS
+  c=$COLL
   X=256
   Y=211
 
@@ -385,7 +385,7 @@ function import_irr_cube_1()
 {
   # No need to check for file: the payload is dynamically created here inside the function
 
-  c=$COLLS # = collection name = coverage name
+  c=$COLL # = collection name = coverage name
   X=10    # regular axis
   Y=10    # regular axis
   Z=6     # irregular axis
@@ -498,7 +498,7 @@ function import_mst()
     error "testdata file $TESTDATA_PATH/mean_summer_airtemp.tif not found"
   fi
 
-  c=$COLLS
+  c=$COLL
   X=885
   Y=710
 
@@ -591,30 +591,30 @@ function import_petascope_data()
   res=$(check_multipoint)
   local multi_coll=""
   if [ $res -eq 0 ]; then
-    multi_coll=" Parksmall"
+    multi_coll="Parksmall"
   fi
-  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1$multi_coll"
-  for COLLS in $COLLECTIONS; do
-    check_cov $COLLS
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 $multi_coll"
+  for COLL in $COLLECTIONS; do
+    check_cov $COLL
     if [ $? -ne 0 ]; then
-      drop_colls $COLLS
-      drop_petascope $COLLS
-      logn "importing $COLLS... "
+      drop_colls $COLL
+      drop_petascope $COLL
+      logn "importing $COLL... "
 
       counter=0
       while [ 1 -eq 1 ]; do
 
-        if [ "$COLLS" == "rgb" ]; then
+        if [ "$COLL" == "rgb" ]; then
           import_rgb "$TESTDATA_PATH" && break
-        elif [ "$COLLS" == "mr" ]; then
+        elif [ "$COLL" == "mr" ]; then
           import_mr "$TESTDATA_PATH" && break
-        elif [ "$COLLS" == "eobstest" ]; then
+        elif [ "$COLL" == "eobstest" ]; then
           import_eobs "$TESTDATA_PATH" && break
-        elif [ "$COLLS" == "mean_summer_airtemp" ]; then
+        elif [ "$COLL" == "mean_summer_airtemp" ]; then
           import_mst "$TESTDATA_PATH" && break
-        elif [ "$COLLS" == "irr_cube_1" ]; then
+        elif [ "$COLL" == "irr_cube_1" ]; then
           import_irr_cube_1 "$TESTDATA_PATH" && break
-        elif [ "$COLLS" == "Parksmall" ]; then
+        elif [ "$COLL" == "Parksmall" ]; then
           import_pointcloud_data "$TESTDATA_PATH" && break
         fi
 
@@ -627,7 +627,7 @@ function import_petascope_data()
       done
       echo ok.
     else
-      log "$COLLS already imported."
+      log "$COLL already imported."
     fi
   done
 }
@@ -638,9 +638,9 @@ function drop_petascope_data()
   if [ $res -eq 0 ]; then
     multi_coll="Parksmall"
   fi
-  COLLS="rgb mr eobstest mean_summer_airtemp irr_cube_1 $multi_coll"
-  drop_petascope $COLLS
-  drop_colls $COLLS
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 $multi_coll"
+  drop_petascope $COLLECTIONS
+  drop_colls $COLLECTIONS
   log "dropping wms..."
   "$DROPWMS" australia_wms > /dev/null
 }

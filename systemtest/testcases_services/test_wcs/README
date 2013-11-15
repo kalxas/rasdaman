@@ -1,0 +1,14 @@
+--------------
+= WCS tests =
+--------------
+
+For general information refer to:
+
+   rasdaman/testcases_services/test_wcps/README
+
+
+-----------------
+= Failing tests =
+-----------------
+
+[pcampalani 15-nov-2013] All WCS tests pass.

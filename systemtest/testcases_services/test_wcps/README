@@ -5,7 +5,7 @@
 Environment variables used later on in this document:
 RMANBASE       # base path to the checked out rasdaman source code.
 
-IMPORTANT: This README should be found in 
+IMPORTANT: This README should be found in
 $RMANBASE/systemtest/test_petascope/test_wcps directory.
 
 This directory holds WCPS tests and it has the following structure.
@@ -17,15 +17,15 @@ This directory holds WCPS tests and it has the following structure.
 ├── README     # this file
 └── test.sh    # the test script
 
-Variables like Tomcat port, host, etc. may need to be adapted in test.cfg, 
-located at $RMANBASE/systemtest/conf/test.cfg, before running the tests. The 
-testdata folder contains the testing images and data. All the queries are 
-contained in the queries directory, to add a new test please refer to the 
+Variables like Tomcat port, host, etc. may need to be adapted in test.cfg,
+located at $RMANBASE/systemtest/conf/test.cfg, before running the tests. The
+testdata folder contains the testing images and data. All the queries are
+contained in the queries directory, to add a new test please refer to the
 "Adding tests" section in this document.
-The oracle folder contains oracles required for the test verification. 
+The oracle folder contains oracles required for the test verification.
 To generate a new oracle, just remove the existing oracle and run the tests.
-The respective output from the test will be automatically copied to the 
-oracle dir. For more information please refer to the "Adding tests" section 
+The respective output from the test will be automatically copied to the
+oracle dir. For more information please refer to the "Adding tests" section
 in this document.
 
 To run the tests, execute:
@@ -38,17 +38,17 @@ linked to a restricted version of bash like dash, or similar.
 The test.sh script works as follow:
 
 It runs each query from the file with extension .test against the configured
-WCPS endpoint, taking the filename as "testname". The output from each test is 
-written to the output directory as testname.out. If a script testname.check.sh 
-is found in the queries dir, it is executed (passing the path to the output 
-file and oracle file as parameters) and the test is passed if this script 
-returns 0. The testname.check.sh allows for custom test verificaton to be 
-inserted into the process. If testname.check.sh is not found, the output 
+WCPS endpoint, taking the filename as "testname". The output from each test is
+written to the output directory as testname.out. If a script testname.check.sh
+is found in the queries dir, it is executed (passing the path to the output
+file and oracle file as parameters) and the test is passed if this script
+returns 0. The testname.check.sh allows for custom test verificaton to be
+inserted into the process. If testname.check.sh is not found, the output
 is compared to oracle/testname.oracle by means of type conversion with GDAL,
-ensuring that the comparison is portable and works on different platforms.. 
-The script translates images to the GTiff format before doing byte comparison, 
+ensuring that the comparison is portable and works on different platforms..
+The script translates images to the GTiff format before doing byte comparison,
 while it directly compares to the oracle if the output is ASCII Text.
-test.sh outputs either a list of failed tests (returning non-zero exit code) 
+test.sh outputs either a list of failed tests (returning non-zero exit code)
 or the message all tests passed (returning 0 as its exit code).
 
 Furthermore, if a testname.pre.sh script is found in the queries dir, it will
@@ -64,16 +64,20 @@ The log is located in the log file in this directory.
 
 The following coverages are available for the tests:
 
-+--------------+-----+-------+-----------------+-------+-----------------+---------+
-| coverage     | dim | type  | pixel extent    | axes  | geo-boundingbox |   CRS   |
-+--------------+-----+-------+-----------------+-------+-----------------+---------+
-| rgb          | 2D  | rgb   | 0:399,0:343     | x/y   |        -        |  -      |
-| mr           | 2D  | char  | 0:255,0:210     | x/y   |        -        |  -      |
-| eobstest     | 3D  | short | 0:5,0:100,0:231 | t/x/y | 25,-40 - 75,75  | 4326    |
-| mean_summer_ | 2D  | char  | 0:885,0:710     | x/y   | 111.975,-44.525 | 4326    |
-|      airtemp |     |       |                 |       | 156.275,-8.975  |         |
-| irr_cube_1   | 3D  | short | 0:99,0:99,0:5   | i/j/k |        -        | Index3D |
-+--------------+-----+-------+-----------------+-------+-----------------+---------+
++--------------+-----+-------+-----------------+------------+-----------------+----------+
+| coverage     | dim | type  | pixel extent    |    axes    | geo-boundingbox |   CRS    |
++--------------+-----+-------+-----------------+------------+-----------------+----------+
+| rgb          | 2D  | rgb   | 0:399,0:343     | i/j        |        -        | Index2D  |
+|              |     |       |                 |            |                 |          |
+| mr           | 2D  | char  | 0:255,0:210     | i/j        |        -        | Index2D  |
+|              |     |       |                 |            |                 |          |
+| eobstest     | 3D  | short | 0:5,0:100,0:231 | t/Long/Lat | 25,-40 - 75,75  | EPSG:4326|
+|              |     |       |                 |            |                 |          |
+| mean_summer_ | 2D  | char  | 0:885,0:710     | Long/Lat   | 111.975,-44.525 | EPSG:4326|
+| airtemp      |     |       |                 |            | 156.275,-8.975  |          |
+|              |     |       |                 |            |                 |          |
+| irr_cube_1   | 3D  | short | 0:99,0:99,0:5   | i/j/k      |        -        | Index3D  |
++--------------+-----+-------+-----------------+------------+-----------------+----------+
 
 These coverages are automatically inserted if necessary.
 
@@ -86,16 +90,16 @@ This test suite only supports WCPS queries.
 
 To add new tests to the test suite, simply add new WCPS queries to the queries
 directory. Then run the test.sh script, which will automatically add the output
-to the oracle dir, under name testname.oracle. Manually inspect and verify 
+to the oracle dir, under name testname.oracle. Manually inspect and verify
 whether the output is correct.
 If custom verification is required (ex. it is an image that is not portable)
 create the queries/testname.check.sh script for verification (in this script you
 can use any tool for verification of the output, just be sure that it is available
 on the system or output a message if it is not found since this script will be
 executed on a variety of systems, not just your own machine.
- 
-Due to the nature of the test verification there is also a possibility of 
-adding a failing test. A similar procedure is used and an error message is used 
+
+Due to the nature of the test verification there is also a possibility of
+adding a failing test. A similar procedure is used and an error message is used
 as oracle.
 
 If additional steps are required before/after running the tests, add
@@ -103,16 +107,20 @@ testname.pre.sh/testname.post.sh scripts to the queries dir.
 
 Please adhere to the naming convention, continuing from the last number:
 
-WCPS abstract: number-meaningful_name.test
-WCPS XML     : number-meaningful_name.xml
-pre script   : number-meaningful_name.test.pre.sh
-post script  : number-meaningful_name.test.post.sh
-check script : number-meaningful_name.test.check.sh
-oracle       : number-meaningful_name.test.oracle
+WCPS abstract: number-meaningful_name[.error].test
+WCPS XML     : number-meaningful_name[.error].xml
+pre script   : number-meaningful_name[.error].test.pre.sh
+post script  : number-meaningful_name[.error].test.post.sh
+check script : number-meaningful_name[.error].test.check.sh
+oracle       : number-meaningful_name[.error].test.oracle
+
+If the test is meant to raise an exception, add a further `.error' suffix
+to the file name before its extension, for both query and oracle.
+
 
 -----------------
 = Failing tests =
 -----------------
 
-At present no tests are failing.
-
+[pcampalani 15-nov-2013] 31-Discrete_Fourier.test: see ticket #485.
+[pcampalani 15-nov-2013] 73-rasutil-query-metadata-t422.test: re-opened ticket #343.

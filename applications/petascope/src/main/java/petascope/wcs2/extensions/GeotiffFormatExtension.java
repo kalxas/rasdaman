@@ -80,7 +80,7 @@ public class GeotiffFormatExtension extends AbstractFormatExtension {
 
         if (m.getGridDimension() != 2 || m.hasIrregularAxis() ||
                 !(m.getCoverageType().matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE))) {
-            throw new WCSException(ExceptionCode.NoApplicableCode, "The GeoTIFF format extension "
+            throw new WCSException(ExceptionCode.InvalidRequest, "The GeoTIFF format extension "
                     + "only supports regularly gridded coverages with exactly two dimensions");
         }
 

@@ -21,12 +21,11 @@
  * Copyright 2009 Jacobs University Bremen, Peter Baumann.
 -->
 
-<ows:ExceptionReport version="2.0.0" 
+<ows:ExceptionReport version="2.0.0"
     xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"
     xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <ows:Exception exceptionCode="NoApplicableCode">
+    <ows:Exception exceptionCode="InvalidRequest">
         <ows:ExceptionText>The JPEG2000 format extension only supports regularly gridded coverages with exactly two dimensions</ows:ExceptionText>
     </ows:Exception>
 
 </ows:ExceptionReport>
-

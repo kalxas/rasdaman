@@ -80,7 +80,7 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension {
 
         if (m.getGridDimension() != 2 || m.hasIrregularAxis() ||
                 !(m.getCoverageType().matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE))) {
-            throw new WCSException(ExceptionCode.NoApplicableCode, "The JPEG2000 format extension "
+            throw new WCSException(ExceptionCode.InvalidRequest, "The JPEG2000 format extension "
                     + "only supports regularly gridded coverages with exactly two dimensions");
         }
 
