@@ -213,6 +213,7 @@ int string_yyinput( char* buf, int max_size )
 "shift"                                  { SETTOKEN( SHIFT, commandToken, SHIFT ) }
 "scale"                                  { SETTOKEN( SCALE, commandToken, SCALE ) }
 "dbinfo"                                 { SETTOKEN( DBINFO, commandToken, DBINFO ) }
+"version"                                { SETTOKEN( RAS_VERSION, commandToken, RAS_VERSION ) }
 
 "."                                      { SETTOKEN( DOT, commandToken, DOT ) }
 ","                                      { SETTOKEN( COMMA, commandToken, COMMA ) }

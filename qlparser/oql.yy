@@ -215,7 +215,7 @@ struct QtUpdateSpecElement
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
 			 STRCT COMPLEX RE IM TIFF BMP HDF NETCDF CSV JPEG PNG VFF TOR DEM INV_TIFF INV_BMP INV_HDF INV_NETCDF
 			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM ENCODE CONCAT ALONG DBINFO
-                         CASE WHEN THEN ELSE END COMMIT
+                         CASE WHEN THEN ELSE END COMMIT RAS_VERSION
 
 %left COLON VALUES USING WHERE
 %left OVERLAY
@@ -585,7 +585,14 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 	  
 	  FREESTACK($1)
 	  FREESTACK($3)
-	};
+	}
+    | SELECT RAS_VERSION LRPAR RRPAR
+	{
+	  parseQueryTree->setRoot( NULL );
+	  parseQueryTree->setInfoType( QueryTree::QT_INFO_VERSION );
+	  FREESTACK($3)
+	  FREESTACK($4)
+    };
 	
 updateExp: UPDATE iteratedCollection SET updateSpec ASSIGN generalExp WHERE generalExp         
 	{

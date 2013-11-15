@@ -37,6 +37,7 @@ static const char rcsid[] = "@(#)qlparser, QueryTree: $Id: querytree.cc,v 1.52 2
 
 
 #include "config.h"
+#include "version.h"
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
 #else
@@ -59,6 +60,7 @@ using namespace std;
 #include "qlparser/qtdomainoperation.hh"
 #include "qlparser/qtexecute.hh"
 
+#include "raslib/type.hh"
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/settype.hh"
@@ -68,12 +70,12 @@ unsigned int QueryTree::nextCSENo = 0;
 SymbolTable<int> QueryTree::symtab;
 
 QueryTree::QueryTree()
-    : rootNode(NULL)
+    : rootNode(NULL), infoType(QT_INFO_UNKNOWN)
 {
 }
 
 QueryTree::QueryTree(QtNode* root)
-    : rootNode(root)
+    : rootNode(root), infoType(QT_INFO_UNKNOWN)
 {
 }
 
@@ -93,6 +95,8 @@ void
 QueryTree::checkSemantics()
 {
     RMDBCLASS( "QueryTree", "checkSemantics()", "qlparser", __FILE__, __LINE__ )
+    if (!rootNode)
+        return;
 
     switch( rootNode->getNodeType() )
     {
@@ -251,6 +255,43 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
         RMInit::logOut << "Evaluated query tree:" << endl;
         rootNode->printTree(2, RMInit::logOut);
 #endif
+    } else if (infoType == QT_INFO_VERSION) {
+        ostringstream version("");
+
+#ifdef RMANVERSION
+        version << "rasdaman " << RMANVERSION;
+#else
+        version << "Unknown version";
+#endif
+
+#ifdef GCCTARGET
+        version << " on " << GCCTARGET;
+#endif
+
+#ifdef GCCVERSION
+        version << ", compiled by " << GCCVERSION;
+#endif
+
+        // result domain: it is now format encoded so we just consider it as a char array
+        r_Type* type = r_Type::get_any_type("char");
+        const BaseType* baseType = TypeFactory::mapType(type->name());
+
+        string infoString = version.str();
+        int contentLength = infoString.length();
+        char* contents = strdup(infoString.c_str());
+
+        r_Minterval mddDomain = r_Minterval(1) << r_Sinterval((r_Range) 0, (r_Range) contentLength - 1);
+        Tile *resultTile = new Tile(mddDomain, baseType, contents, contentLength, r_Array);
+
+        // create a transient MDD object for the query result
+        MDDBaseType* mddBaseType = new MDDBaseType("tmp", baseType);
+        TypeFactory::addTempType(mddBaseType);
+        MDDObj* resultMDD = new MDDObj(mddBaseType, resultTile->getDomain());
+        resultMDD->insertTile(resultTile);
+
+        // create a new QtMDD object as carrier object for the transient MDD object
+        returnValue = new vector<QtData*>();
+        returnValue->push_back(new QtMDD((MDDObj*) resultMDD));
     }
     
     return returnValue;
@@ -482,4 +523,10 @@ void QueryTree::rewriteDomainObjects(r_Minterval *greatDomain, string *greatIter
 void QueryTree::addCString( char *str )
 {
     lexedCStringList.push_back( str );
+}
+
+
+void QueryTree::setInfoType(QtInfoType newInfoType)
+{
+    infoType = newInfoType;
 }

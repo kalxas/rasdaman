@@ -83,13 +83,11 @@ class QueryTree
 {
 public:
 
-
-    enum OptimizationLevel
+    /// indicate the type of information requested in a SELECT query
+    enum QtInfoType
     {
-        NO_OPTIMIZATIONS = 0,
-        STANDARDIZATION = 1,
-        SIMPLIFICATION = 2,
-        SUBEXPRESSIONS = 3
+        QT_INFO_UNKNOWN = 0,
+        QT_INFO_VERSION = 1
     };
 
     /// default constructor
@@ -145,6 +143,8 @@ public:
     inline QtNode* getRoot() const;
     ///
     inline void setRoot( QtNode* root );
+
+    void setInfoType(QtInfoType newInfoType);
 
     ///
     //@}
@@ -248,6 +248,9 @@ private:
       This list is used to store elements of type char* generated during the lexing
       process and not freed yet. In case of an error this list is freed.
     */
+
+    /// indicates if we want some information, like in SELECT VERSION()
+    QtInfoType infoType;
 
 };
 
