@@ -244,6 +244,11 @@ AC_ARG_ENABLE([debug],
                               [this feature enables generation of binaries that contain extra code for debug output. The output is usually very verbose. It is not recommended for production use.])],
               [RMANDEBUG=on],
               [RMANDEBUG=])
+AC_ARG_WITH([debug-symbols],
+            [AS_HELP_STRING([--with-debug-symbols],
+                            [compile rasdaman with debug symbols])],
+            [with_debug_symbols=yes],
+            [with_debug_symbols=no])
 
 AC_ARG_ENABLE([benchmark],
               [AS_HELP_STRING([--enable-benchmark],
@@ -373,8 +378,12 @@ AS_IF([test "x$RMANDEBUG" != x],
        CXXFLAGS+=" -g3 -gdwarf-2 -O0 "
       ], 
       [
-       AC_DEFINE([__NO_MATH_INLINES])
-       CXXFLAGS+=" -O2 "
+       AS_IF([test "x$with_debug_symbols" == xyes],
+       [CXXFLAGS+=" -g3 -gdwarf-2 -O0 "],
+       [
+        AC_DEFINE([__NO_MATH_INLINES])
+        CXXFLAGS+=" -O2 "
+       ])
       ])
 # CXXFLAGS+= -fPIC  ???NEEDED???
 AC_DEFINE_UNQUOTED([BASEDBSTRING], ["$BASEDBSTRING"])
