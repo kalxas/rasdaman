@@ -138,7 +138,7 @@ public class DimensionPointElement extends AbstractRasNode {
 
             DomainElement axisDomain = meta.getDomainByName(axisName);
             if (axisDomain != null) {
-                String crsName = axisDomain.getCrs();
+                String crsName = axisDomain.getNativeCrs();
                 log.info("Using native CRS: " + crsName);
                 crs = new Crs(crsName, xq);
             } else {

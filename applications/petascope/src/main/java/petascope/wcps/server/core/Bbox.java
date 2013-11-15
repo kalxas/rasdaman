@@ -107,7 +107,7 @@ public class Bbox implements Cloneable {
         for (DomainElement el : domains) {
             // X AXIS
             if (el.getType().equals(AxisTypes.X_AXIS)) {
-                crsSourceX = el.getCrs();
+                crsSourceX = el.getNativeCrs();
                 if (CrsUtil.CrsUri.areEquivalent(crsSourceX, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE))) {
                     wgs84minLon = el.getMinValue().doubleValue();
                     wgs84maxLon = el.getMaxValue().doubleValue();
@@ -117,7 +117,7 @@ public class Bbox implements Cloneable {
                 }
             // Y AXIS
             } else if (el.getType().equals(AxisTypes.Y_AXIS)) {
-                crsSourceY = el.getCrs();
+                crsSourceY = el.getNativeCrs();
                 if (CrsUtil.CrsUri.areEquivalent(crsSourceY, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE))) {
                     wgs84minLat = el.getMinValue().doubleValue();
                     wgs84maxLat = el.getMaxValue().doubleValue();
@@ -260,7 +260,7 @@ public class Bbox implements Cloneable {
                         dom.getType().equals(AxisTypes.Y_AXIS)) {
                     crsUris.add(CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE));
                 } else
-                    crsUris.add(dom.getCrs());
+                    crsUris.add(dom.getNativeCrs());
             }
 
             // Build the compound CRS:

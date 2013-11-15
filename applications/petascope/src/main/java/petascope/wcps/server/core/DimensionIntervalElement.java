@@ -162,7 +162,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
             // if no CRS is specified assume native CRS -- DM 2012-mar-05
             DomainElement axisDomain = meta.getDomainByName(axisName);
             if (axisDomain != null) {
-                String crsName = axisDomain.getCrs();
+                String crsName = axisDomain.getNativeCrs();
                 log.info("  Using native CRS: " + crsName);
                 crs = new Crs(crsName, xq);
 
@@ -179,7 +179,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
 
         // Axis type        
         try {
-            String axisSingleCrs = covInfo.getDomainElement(covInfo.getDomainIndexByName(axisName)).getCrs();
+            String axisSingleCrs = covInfo.getDomainElement(covInfo.getDomainIndexByName(axisName)).getNativeCrs();
             this.axisType = CrsUtil.getAxisType(CrsUtil.getGmlDefinition(axisSingleCrs), axisName);
         } catch (PetascopeException ex) {
             throw new WCPSException("Failed while getting the type of axis " + axisName + " for CRS " + crs.getName(), ex);

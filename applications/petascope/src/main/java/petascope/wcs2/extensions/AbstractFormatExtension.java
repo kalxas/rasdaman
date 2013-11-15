@@ -348,7 +348,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             }
 
             // Parametrized CRSs can have quotes and other reserved entities which break abstract WCPS queries (and XML)
-            String crs = StringUtil.escapeXmlPredefinedEntities(de.getCrs());
+            String crs = StringUtil.escapeXmlPredefinedEntities(de.getNativeCrs());
 
             if (subset instanceof DimensionTrim) {
                 DimensionTrim trim = (DimensionTrim) subset;

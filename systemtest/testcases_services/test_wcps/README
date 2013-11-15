@@ -123,4 +123,3 @@ to the file name before its extension, for both query and oracle.
 -----------------
 
 [pcampalani 15-nov-2013] 31-Discrete_Fourier.test: see ticket #485.
-[pcampalani 15-nov-2013] 73-rasutil-query-metadata-t422.test: re-opened ticket #343.

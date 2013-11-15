@@ -25,7 +25,10 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.CrsDefinition;
@@ -40,7 +43,8 @@ public class DomainElement implements Cloneable {
 
     private static Logger log = LoggerFactory.getLogger(DomainElement.class);
 
-    private String crs;
+    private String nativeCrs;
+    private Set<String> crsSet;
     private String label;
     private BigDecimal maxValue;
     private BigDecimal minValue;
@@ -72,6 +76,7 @@ public class DomainElement implements Cloneable {
         }
 
         // store to fields
+        crsSet = new HashSet<String>(2); // capacity is 2: internal+external CRS (CRS extension is not enabled)
         label = axisLabel;
         uom = axisUom;
         type = axisType;
@@ -88,10 +93,13 @@ public class DomainElement implements Cloneable {
                     "Invalid domain element: Element name cannot be empty.");
         }
 
+        // native CRS and crsSet := Native + GridCRS (no CRS extension enables)
         if ((crsUri == null) || crsUri.equals(CrsUtil.GRID_CRS)) {
-               crs = CrsUtil.GRID_CRS;
+               nativeCrs = CrsUtil.GRID_CRS;
+               crsSet.add(nativeCrs);
         } else {
-            crs = crsUri;
+            nativeCrs = crsUri;
+            crsSet.addAll(Arrays.asList(nativeCrs, CrsUtil.GRID_CRS));
         }
 
         // Compute resolution (with irregular axes a resolution cannot be defined)
@@ -113,12 +121,12 @@ public class DomainElement implements Cloneable {
     public DomainElement clone() {
 
         try {
-            BigDecimal cloneMin = minValue == null ? null : minValue;
-            BigDecimal cloneMax = maxValue == null ? null : maxValue;
-            String cloneCrs     = crs      == null ? null : crs.toString();
-            String cloneUom     = uom      == null ? null : uom.toString();
-            String cloneLabel   = label    == null ? null : label.toString();
-            String cloneType    = type     == null ? null : type.toString();
+            BigDecimal cloneMin = minValue  == null ? null : minValue;
+            BigDecimal cloneMax = maxValue  == null ? null : maxValue;
+            String cloneCrs     = nativeCrs == null ? null : nativeCrs.toString();
+            String cloneUom     = uom       == null ? null : uom.toString();
+            String cloneLabel   = label     == null ? null : label.toString();
+            String cloneType    = type      == null ? null : type.toString();
             int order         = new Integer(iOrder);
             boolean isIrr     = isIrregular ? true : false;
             DomainElement cloned = new DomainElement(
@@ -169,8 +177,12 @@ public class DomainElement implements Cloneable {
         return type;
     }
 
-    public String getCrs() {
-        return crs;
+    public String getNativeCrs() {
+        return nativeCrs;
+    }
+
+    public Set<String> getCrsSet() {
+        return crsSet;
     }
 
     public String getUom() {
@@ -209,7 +221,7 @@ public class DomainElement implements Cloneable {
                 + " | UoM:" + uom
                 + " | [" + minValue
                 + ","    + maxValue + "]"
-                + " | CRS:" + crs + "'}";
+                + " | CRS:" + nativeCrs + "'}";
         return d;
     }
 }

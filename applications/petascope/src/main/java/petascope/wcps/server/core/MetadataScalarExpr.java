@@ -43,6 +43,7 @@ public class MetadataScalarExpr extends AbstractRasNode {
         WcpsConstants.MSG_IMAGE_CRSDOMAIN,
         WcpsConstants.MSG_CRS_SET,
         WcpsConstants.MSG_IDENTIFIER,
+        WcpsConstants.MSG_IMAGE_CRS2
     };
     static {
         NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
@@ -89,8 +90,7 @@ public class MetadataScalarExpr extends AbstractRasNode {
                 DomainElement domainElement = coverageInfo.getDomainElement(i);
                 String axName = domainElement.getLabel();
                 crss+=axName + ":";
-                Set<String> set = new HashSet<String>();
-                set.add(domainElement.getCrs());
+                Set<String> set = domainElement.getCrsSet();
                 for(String str:set){
                     crss+=(str + " ");
                 }
@@ -117,10 +117,12 @@ public class MetadataScalarExpr extends AbstractRasNode {
         String ret = "";
         if (op.equals(WcpsConstants.MSG_IDENTIFIER)) {
             ret = coverageInfo.getCoverageName();
-        } else if (op.equals(WcpsConstants.MSG_IMAGE_CRS)) {
+        } else if (op.equals(WcpsConstants.MSG_IMAGE_CRS2)) {
             ret = CrsUtil.GRID_CRS;
         } else if (op.equals(WcpsConstants.MSG_DOMAIN_METADATA_CAMEL) || op.equals(WcpsConstants.MSG_IMAGE_CRSDOMAIN)) {
             ret = "(" + lo + "," + hi + ")";
+        } else if(op.equals(WcpsConstants.MSG_CRS_SET)){
+            ret = crss;
         }
         return ret;
     }
