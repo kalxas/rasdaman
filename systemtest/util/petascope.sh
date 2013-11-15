@@ -593,8 +593,7 @@ function import_petascope_data()
   if [ $res -eq 0 ]; then
     multi_coll=" Parksmall"
   fi
-  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1$multi_coll" 
-  COLLECTIONS="rgb mr eobstest irr_cube_1$multi_coll" 
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1$multi_coll"
   for COLLS in $COLLECTIONS; do
     check_cov $COLLS
     if [ $? -ne 0 ]; then
