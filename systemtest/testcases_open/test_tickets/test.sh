@@ -69,14 +69,22 @@ OUTPUT_PATH="$SCRIPT_DIR/output"
 mkdir -p "$OUTPUT_PATH"
 rm -f "$OUTPUT_PATH"/*
 
+#
+# indicates whether to drop data before/after running tests: 0 = no, 1 = yes
+# --drop turns this option on
+#
+DROP_DATA=0
+
 
 #
 # cleanup stuff
 #
 function cleanup()
 {
-  drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
-  drop_petascope_data
+  if [ $DROP_DATA -ne 0 ]; then
+    drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
+    drop_petascope_data
+  fi
 
   loge "--------------------------------------------------------"
   loge
@@ -111,6 +119,16 @@ check_postgres
 check_rasdaman
 check_wget
 check_gdal
+
+#
+# check options
+#
+for i in $*; do
+  case $i in
+    --drop)    DROP_DATA=1;;
+    *) error "unknown option: $i"
+  esac
+done
 
 # run import if necessary
 import_petascope_data "$PETASCOPE_TESTDATA_PATH"
