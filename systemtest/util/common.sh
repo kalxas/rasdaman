@@ -431,28 +431,28 @@ function run_test()
               QUERY=`cat $f | xxd -plain | tr -d '\n' | sed 's/\(..\)/%\1/g'`
               # send to petascope
               $WGET -q --post-data "query=$QUERY" $WCPS_URL -O "$out"
-	      WGET_EXIT_CODE=$?
+              WGET_EXIT_CODE=$?
               ;;
       wcs)    case "$test_type" in
                 kvp) $WGET -q "$WCS_URL?$QUERY" -O "$out"
-	             WGET_EXIT_CODE=$?
+                     WGET_EXIT_CODE=$?
                      ;;
                 xml) postdata=`mktemp`
                      echo "request=" > "$postdata"
                      cat "$f" >> "$postdata"
                      $WGET -q --post-file="$postdata" -O "$out"
-	             WGET_EXIT_CODE=$?
+                     WGET_EXIT_CODE=$?
                      rm -f "$postdata"
                      ;;
                 *)   error "unknown wcs test type: $test_type"
               esac
               ;;
       wms)    $WGET -q "$WMS_URL?$QUERY" -O "$out"
-	      WGET_EXIT_CODE=$?
+              WGET_EXIT_CODE=$?
               ;;
       secore) QUERY=`echo "$QUERY" | sed 's|%SECORE_URL%|'$SECORE_URL'|g' | tr -d '\t' | tr -d ' '`
               $WGET -q "$SECORE_URL$QUERY" -O "$out"
-	      WGET_EXIT_CODE=$?
+              WGET_EXIT_CODE=$?
               ;;
       select|rasql)
               QUERY=`cat $f`
@@ -513,9 +513,9 @@ function run_test()
       grep "$oracle" "Stack trace" > /dev/null 2>&1
       if [ $? -eq 0 ]; then
         # do exception comparison
-	# NOTE: this part of code is entered only if the server returns a success code 2xx
-	#       but with an exception body, since `wget` does _not_ fetch the content of an error response.
-	#       This however is not a recommended server behaviour.
+        # NOTE: this part of code is entered only if the server returns a success code 2xx
+        #       but with an exception body, since `wget` does _not_ fetch the content of an error response.
+        #       This however is not a recommended server behaviour.
         log "exception comparison"
         local lineNo=$(grep -n "Stack trace" "$oracle")
         lineNo=$(sed 's/[^0-9]*//g' <<< $lineNo)
@@ -527,8 +527,8 @@ function run_test()
       elif [[ "$oracle" == *.error.* ]]; then
 
         # This test is supposed to raise an exception: check wget exit code instead of the response.
-	test "$WGET_CODE_SERVER_ERROR" = "$WGET_EXIT_CODE"
-	update_result
+        test "$WGET_CODE_SERVER_ERROR" = "$WGET_EXIT_CODE"
+        update_result
 
       elif [ -f "$oracle" ]; then
       
