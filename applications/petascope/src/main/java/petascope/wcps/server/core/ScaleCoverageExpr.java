@@ -38,6 +38,7 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
     private static Logger log = LoggerFactory.getLogger(ScaleCoverageExpr.class);
 
     private List<DimensionIntervalElement> axisList;
+    private List<Integer> axisRasIndexes;
     private CoverageExpr coverageExprType;
     private CoverageInfo coverageInfo;
     private String[] dim;
@@ -51,6 +52,7 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         String nodeName;
 
         axisList = new ArrayList<DimensionIntervalElement>();
+        axisRasIndexes = new ArrayList<Integer>();
 
         child = node.getFirstChild();
         while (child != null) {
@@ -125,6 +127,8 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         super.children.addAll(axisList);
 
         dims = axisList.size();
+        // NOTE(pcampalani): `dim' should be initialized with full dimensionality, so to leave *:* in unscaled dimensions
+        // (currently RasQL returns: "error 232: Exception: The interval has at least one open bound.")
         log.trace("Number of dimensions: " + dims);
         dim = new String[dims];
 
@@ -147,6 +151,7 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             // Matching axes of different coverages (might have different labels):
             // (ALT: create the DimensionIntervalElements by passing the coverage info)
             axisId = coverageInfo.getDomainIndexByType(axis.getAxisType());
+            axisRasIndexes.add(axisId); // for proper to RasQL (see ticket #377)
             log.trace("Axis ID: " + axisId);
             log.trace("Axis name: " + axis.getAxisName());
 
@@ -172,7 +177,7 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
                 result += ",";
             }
 
-            result += dim[j];
+            result += dim[axisRasIndexes.indexOf(j)];
         }
 
         result += "] )";
