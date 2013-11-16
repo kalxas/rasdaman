@@ -527,6 +527,7 @@ function run_test()
       elif [[ "$oracle" == *.error.* ]]; then
 
         # This test is supposed to raise an exception: check wget exit code instead of the response.
+        log "http exit code comparison"
         test "$WGET_CODE_SERVER_ERROR" = "$WGET_EXIT_CODE"
         update_result
 

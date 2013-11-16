@@ -59,7 +59,9 @@ public class Crs extends AbstractRasNode {
         }
         log.trace(node.getNodeName());
 
-        if (node != null && node.getNodeName().equals(WcpsConstants.MSG_SRS_NAME)) {
+        if (node != null && (
+                node.getNodeName().equals(WcpsConstants.MSG_SRS_NAME) || // TODO: unify syntax to either `crs' or `srsName' in petascope.wcps.grammar
+                node.getNodeName().equals(WcpsConstants.MSG_CRS))) {
             String val = node.getTextContent();
             this.crsName = val;
             //if (crsName.equals(DomainElement.IMAGE_CRS) || crsName.equals(DomainElement.WGS84_CRS)) {

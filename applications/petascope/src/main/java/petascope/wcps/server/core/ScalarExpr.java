@@ -74,6 +74,8 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
                     child = new MetadataScalarExpr(node, xq);
                     log.trace("Matched metadata scalar expression.");
                 } catch (WCPSException e) {
+                    // Wrong/unsupported input
+                    if (e.getExceptionCode() == ExceptionCode.UnsupportedCombination) throw(e);
                     child = null;
                 }
             }

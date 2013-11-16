@@ -27,6 +27,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
@@ -72,18 +74,38 @@ public class MetadataScalarExpr extends AbstractRasNode {
 
         op = nodeName;
         AxisName axis = null;
+        Crs crs = null;
         if (nodeName.equals(WcpsConstants.MSG_DOMAIN_METADATA_CAMEL)) {
             axis = new AxisName(child, xq);
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
             DomainElement domainElement = coverageInfo.getDomainElement(axisIndex);
-            lo = domainElement.getMinValue().toString();
-            hi = domainElement.getMaxValue().toString();
+            // CRS
+            // Return the result in the specified CRS:
+            // (No CRS extension in r'c: only either native or grid CRS allowed)
+            child = child.getNextSibling();
+            crs = new Crs(child, xq);
+            try {
+                if (crs.getName().equals(CrsUtil.GRID_CRS)) {
+                    CellDomainElement cellDomainElement = coverageInfo.getCellDomainElement(axisIndex);
+                    lo = cellDomainElement.getLo().toString();
+                    hi = cellDomainElement.getHi().toString();
+                } else if (CrsUtil.CrsUri.areEquivalent(crs.getName(), domainElement.getNativeCrs())) {
+                    lo = domainElement.getMinValue().toString();
+                    hi = domainElement.getMaxValue().toString();
+                } else {
+                    throw new WCPSException(ExceptionCode.UnsupportedCombination,
+                            "Cannot return domain metadata of this coverage for non-native CRS " + crs.getName());
+                }
+            } catch (PetascopeException ex) {
+                log.error("Error while comparing input CRS and native CRS: " + ex.getMessage());
+                throw new WCPSException(ex.getExceptionCode(), ex);
+            }
         } else if (nodeName.equals(WcpsConstants.MSG_IMAGE_CRSDOMAIN)) {
             axis = new AxisName(child, xq);
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
-            CellDomainElement cellDomain = coverageInfo.getCellDomainElement(axisIndex);
-            lo = cellDomain.getLo().toString();
-            hi = cellDomain.getHi().toString();
+            CellDomainElement cellDomainElement = coverageInfo.getCellDomainElement(axisIndex);
+            lo = cellDomainElement.getLo().toString();
+            hi = cellDomainElement.getHi().toString();
         } else if (nodeName.equals(WcpsConstants.MSG_CRS_SET)){
             int n = coverageInfo.getNumDimensions();
             for(int i=0; i<n;i++){
