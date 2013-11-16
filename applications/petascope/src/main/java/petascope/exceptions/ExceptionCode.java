@@ -31,7 +31,7 @@ public class ExceptionCode {
     /**
      * Default HTTP exit code for an exception
      */
-    private static final int DEFAULT_EXIT_CODE = 500;
+    public static final int DEFAULT_EXIT_CODE = 500;
 
     /**
      * Code representing type of this exception

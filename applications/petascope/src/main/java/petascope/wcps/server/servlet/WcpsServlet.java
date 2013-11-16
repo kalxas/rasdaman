@@ -41,6 +41,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.core.DbMetadataSource;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.SecoreException;
+import petascope.exceptions.WCPSException;
+import petascope.exceptions.WCSException;
 import petascope.util.PostgisQueryResult;
 import petascope.util.WcpsConstants;
 import petascope.util.ras.RasQueryResult;
@@ -226,7 +230,14 @@ public class WcpsServlet extends HttpServlet {
                 webOut.write(query.getBytes());
             }
             log.debug("WCPS: done");
+        } catch (WCPSException e) {
+            response.setStatus(e.getExceptionCode().getHttpErrorCode());
+            printError(response, "WCPS Error: " + e.getMessage(), e);
+        } catch (SecoreException e) {
+            response.setStatus(e.getExceptionCode().getHttpErrorCode());
+            printError(response, "SECORE Error: " + e.getMessage(), e);
         } catch (Exception e) {
+            response.setStatus(ExceptionCode.DEFAULT_EXIT_CODE);
             printError(response, "Error: " + e.getMessage(), e);
         } finally {
             if (webOut != null) {
