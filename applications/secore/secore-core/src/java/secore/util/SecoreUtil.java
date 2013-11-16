@@ -29,6 +29,10 @@ public class SecoreUtil {
     log.trace("Insert definition with identifier: " + id);
     
     newd = StringUtil.fixDef(newd, StringUtil.SERVICE_URI);
+    String newdId = StringUtil.getElementValue(newd, IDENTIFIER_LABEL);
+    if (newdId != null) {
+      id = newdId;
+    }
 
     String result = queryDef(id, true, true, false);
     if (StringUtil.emptyQueryResult(result)) {
