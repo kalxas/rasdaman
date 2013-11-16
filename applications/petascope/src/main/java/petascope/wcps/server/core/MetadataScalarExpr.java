@@ -113,6 +113,14 @@ public class MetadataScalarExpr extends AbstractRasNode {
         if (axis != null) super.children.add(axis);
     }
 
+    public String getLo() {
+        return lo;
+    }
+
+    public String getHi() {
+        return hi;
+    }
+
     public String toRasQL() {
         String ret = "";
         if (op.equals(WcpsConstants.MSG_IDENTIFIER)) {

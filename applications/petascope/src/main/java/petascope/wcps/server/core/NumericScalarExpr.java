@@ -59,6 +59,17 @@ public class NumericScalarExpr extends AbstractRasNode {
     private boolean twoChildren;
     private double dvalue;
 
+    public NumericScalarExpr(String value) throws WCPSException, SecoreException {
+        this.value = value;
+        try {
+            dvalue = Double.parseDouble(value);
+        } catch (NumberFormatException e) {
+            throw new WCPSException("Could not understand constant: " + value);
+        }
+        this.twoChildren = false;
+        this.op = WcpsConstants.MSG_VALUE;
+    }
+
     public NumericScalarExpr(Node node, XmlQuery xq) throws WCPSException, SecoreException {
         twoChildren = false;
 

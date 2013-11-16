@@ -150,7 +150,7 @@ axisIteratorList returns[AxisIteratorList value]
 intervalExpr returns[IntervalExpr value]
     : lo=indexExpr COLON hi=indexExpr
     	{ $value = new IntervalExpr($lo.value, $hi.value); }
-    | IMAGECRSDOMAIN LPAREN e1=coverageName COMMA e2=axisName RPAREN
+    | IMAGECRSDOMAIN LPAREN e1=coverageExpr COMMA e2=axisName RPAREN
     	{ $value = new IntervalExpr($e1.value, $e2.value); }
     ;
 coverageConstantExpr returns[CoverageConstantExpr value]

@@ -43,10 +43,10 @@ public class IntervalExpr implements IParseTreeNode {
         function = WcpsConstants.MSG_TWO_INDEXES;
     }
 
-    public IntervalExpr(String coverage, String axis) {
+    public IntervalExpr(CoverageExpr coverage, String axis) {
         log.trace("Creating IntervalExpr of two indexes: " + coverage + " and axis : " + axis);
-        function = WcpsConstants.MSG_CRS_METADATA;
-        this.e1 = new ImageCrsDomainMetadataExpr(coverage, axis);
+        function = WcpsConstants.MSG_IMAGE_CRSDOMAIN;
+        this.e1 = new MetaDataExpr(function, coverage, axis);
     }
 
     public String toXML() {
@@ -54,7 +54,7 @@ public class IntervalExpr implements IParseTreeNode {
 
         if (function.equals(WcpsConstants.MSG_TWO_INDEXES)) {
             result = e1.toXML() + e2.toXML();
-        } else if (function.equals(WcpsConstants.MSG_CRS_METADATA)) {
+        } else if (function.equals(WcpsConstants.MSG_IMAGE_CRSDOMAIN)) {
             result = e1.toXML();
         }
 

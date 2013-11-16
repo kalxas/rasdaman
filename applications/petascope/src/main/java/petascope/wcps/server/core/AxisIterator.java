@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
@@ -58,9 +59,11 @@ public class AxisIterator extends AbstractRasNode {
                 log.trace("Var translation: " + varTranslation);
             } else if (nodeName.equals(WcpsConstants.MSG_AXIS)) {
                 axis = new AxisName(node, xq);
+            } else if (nodeName.equals(WcpsConstants.MSG_IMAGE_CRSDOMAIN)) {
+                MetadataScalarExpr mse = new MetadataScalarExpr(node, xq);
+                lo = new NumericScalarExpr(mse.getLo());
+                hi = new NumericScalarExpr(mse.getHi());
             } else {
-                // Should contain the limits
-                // TODO: Implement ImageCrsDomainMetadataType class
                 if (lo == null) {
                     lo = new NumericScalarExpr(node, xq);
                 } else if (hi == null) {

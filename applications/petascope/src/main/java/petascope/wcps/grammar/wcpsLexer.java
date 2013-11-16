@@ -1,4 +1,4 @@
-// $ANTLR 3.2 Sep 23, 2009 12:02:23 wcps.g 2013-10-18 16:58:31
+// $ANTLR 3.2 debian-7 wcps.g 2013-11-16 14:40:39
 package petascope.wcps.grammar;
 
 import org.antlr.runtime.*;
@@ -46,8 +46,8 @@ public class wcpsLexer extends Lexer {
     public static final int CONDENSE=42;
     public static final int WHITESPACE=115;
     public static final int SEMICOLON=49;
-    public static final int MULT=24;
     public static final int VALUE=47;
+    public static final int MULT=24;
     public static final int LIST=48;
     public static final int COMPLEX2=96;
     public static final int ABS=61;
@@ -102,8 +102,8 @@ public class wcpsLexer extends Lexer {
     public static final int VALUES=50;
     public static final int ARCTAN=78;
     public static final int NOTEQUALS=17;
-    public static final int STRUCT=58;
     public static final int SHORT=91;
+    public static final int STRUCT=58;
     public static final int MIN=40;
     public static final int SQRT=60;
     public static final int MINUS=23;
