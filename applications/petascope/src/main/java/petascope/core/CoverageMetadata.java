@@ -115,8 +115,8 @@ public class CoverageMetadata implements Cloneable {
                 throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
                         axis.getKey() + " offset vector: currently only CRS-aligned offset-vectors are supported.");
             }
-            
-            // Store 
+
+            // Store
             boolean isIrregular = !(null == axis.getValue());
             String crsUri = crsAxes.get(axisNonZeroIndices.get(0)).snd;
             CrsDefinition.Axis crsAxis = crsAxes.get(axisNonZeroIndices.get(0)).fst;
@@ -607,6 +607,12 @@ public class CoverageMetadata implements Cloneable {
     /**
      * @return The set of (optional) extra metadata for this coverage of the specified type
      * See TABLE_EXTRAMETADATA_TYPE for the dictionary of metadata types.
+     */
+    /**
+     * Get the set of (optional) extra metadata for this coverage of the specified type.
+     * See TABLE_EXTRAMETADATA_TYPE for the dictionary of metadata types.
+     * @param metadataType
+     * @return
      */
     public Set<String> getExtraMetadata(String metadataType) {
         Set<String> selectedExtraMetadata = new HashSet<String>();

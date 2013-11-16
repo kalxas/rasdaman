@@ -898,7 +898,7 @@ public class DbMetadataSource implements IMetadataSource {
             Set<Pair<String,String>> extraMetadata = new HashSet<Pair<String,String>>();
             while (r.next()) {
                 Pair<String,String> typeValue = Pair.of(
-                        r.getString(EXTRAMETADATA_METADATA_TYPE_ID),
+                        extraMetadataTypes.get(r.getInt(EXTRAMETADATA_METADATA_TYPE_ID)),
                         r.getString(EXTRAMETADATA_VALUE)
                         );
                 extraMetadata.add(typeValue);
