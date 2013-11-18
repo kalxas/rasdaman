@@ -30,8 +30,6 @@
 --
 -- PREREQUISITES:
 --   - `utilities.sql' has been imported for `cset()'
---
--- TODO: global_const.sql.in with replacement of %SECORE% configured host
 -----------------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION set_constants() RETURNS void AS
