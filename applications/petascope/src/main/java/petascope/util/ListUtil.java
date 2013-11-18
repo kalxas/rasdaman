@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -232,5 +233,51 @@ public class ListUtil {
 
         // "el" was outside bounds
         return a.size()-1;
+    }
+
+
+    /**
+     * Returns the relative orders of the element in a numeric list.
+     * @param <T>
+     * @param list
+     * @return
+     */
+    public static <T extends Number> List<Integer> relativeOrders(List<T> list) {
+        List<Integer> relativeOrders = new ArrayList<Integer>(list.size());
+
+        // sort the input list
+        List<T> sortedList = new ArrayList<T>(list.size());
+        sortedList.addAll(list);
+        Collections.sort(sortedList, new NumericComparator());
+
+        for (T el : list) {
+            relativeOrders.add(sortedList.indexOf(el));
+        }
+
+        return relativeOrders;
+    }
+
+    /**
+     * Generic comparator for numbers.
+     * @param <T>
+     */
+    private static class NumericComparator<T extends Number> implements Comparator<T> {
+
+        @Override
+        public int compare(T number1, T number2) {
+            int out = 0; // n1=n2
+
+            if (number1.getClass().equals(BigDecimal.class)) {
+                out = ((BigDecimal)number1).compareTo((BigDecimal)number2);
+            } else {
+                if (number1.doubleValue() > number2.doubleValue()) {
+                    out = 1;
+                } else if (number1.doubleValue() < number2.doubleValue()) {
+                    out = -1;
+                }
+            }
+
+            return out;
+        }
     }
 }

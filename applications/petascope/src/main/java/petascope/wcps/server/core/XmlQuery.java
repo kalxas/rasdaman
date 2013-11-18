@@ -236,7 +236,7 @@ public class XmlQuery extends AbstractRasNode {
             result = coverageExpr.toRasQL();
         } else {
             // rasql query
-            result = RASQL_SELECT + " " + coverageExpr.toRasQL() + " " + RASQL_FROM;
+            result = RASQL_SELECT + " " + coverageExpr.toRasQL() + " " + RASQL_FROM + " ";
             Iterator<CoverageIterator> it = iterators.iterator();
             boolean first = true;
 

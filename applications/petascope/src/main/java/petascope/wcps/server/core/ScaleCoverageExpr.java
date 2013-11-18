@@ -31,6 +31,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
+import petascope.util.ListUtil;
 import petascope.util.WcpsConstants;
 import static petascope.util.ras.RasConstants.*;
 
@@ -39,7 +40,7 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
     private static Logger log = LoggerFactory.getLogger(ScaleCoverageExpr.class);
 
     private List<DimensionIntervalElement> axisList;
-    private List<Integer> axisRasIndexes;
+    private List<Integer> axisRasOrder;
     private CoverageExpr coverageExprType;
     private CoverageInfo coverageInfo;
     private String[] dim;
@@ -53,7 +54,9 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
         String nodeName;
 
         axisList = new ArrayList<DimensionIntervalElement>();
-        axisRasIndexes = new ArrayList<Integer>();
+        // Listed axes do not need to follow the rasdaman axes order, need to track it:
+        axisRasOrder = new ArrayList<Integer>();
+        // NOTE: relative orders are stored.
 
         child = node.getFirstChild();
         while (child != null) {
@@ -152,7 +155,7 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
             // Matching axes of different coverages (might have different labels):
             // (ALT: create the DimensionIntervalElements by passing the coverage info)
             axisId = coverageInfo.getDomainIndexByType(axis.getAxisType());
-            axisRasIndexes.add(axisId); // for proper to RasQL (see ticket #377)
+            axisRasOrder.add(axisId); // for proper to RasQL (see ticket #377)
             log.trace("Axis ID: " + axisId);
             log.trace("Axis name: " + axis.getAxisName());
 
@@ -171,14 +174,15 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
     }
 
     public String toRasQL() {
+
         String result = RASQL_SCALE + "( " + coverageExprType.toRasQL() + ", [";
+        List<Integer> relOrders = ListUtil.relativeOrders(axisRasOrder); // E.g. [3, 9, 1] --> [1, 2, 0]
 
         for (int j = 0; j < dims; ++j) {
             if (j > 0) {
                 result += ",";
             }
-
-            result += dim[axisRasIndexes.indexOf(j)];
+            result += dim[relOrders.indexOf(j)];
         }
 
         result += "] )";
