@@ -107,9 +107,9 @@ public class ConfigManager {
     public static String WPS_LANGUAGE = "en";
     public static String WPS_VERSION = "1.0.0";
     public static String WCS_DEFAULT_LANGUAGE = "en";
-    public static String WCS_DEFAULT_VERSION = "2.0.0";
+    public static String WCS_DEFAULT_VERSION = "2.0.1";
     public static String WCS_LANGUAGES = "en";
-    public static String WCS_VERSIONS = "1.1.2,2.0.0";
+    public static String WCS_VERSIONS = "1.1.2," + WCS_DEFAULT_VERSION;
     public static String WMS_LANGUAGES = "en";
     public static String WMS_VERSIONS = "1.0.0,1.1.0";  // (!) Keep consistent with WmsRequest.java
     public static String RASDAMAN_LANGUAGE = "en";

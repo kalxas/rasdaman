@@ -23,6 +23,7 @@ package petascope.wcs2.parsers;
 
 import java.util.ArrayList;
 import java.util.List;
+import petascope.ConfigManager;
 
 /**
  * Contains the common stuff found in DescribeCoverage, GetCoverage.
@@ -40,7 +41,7 @@ public class BaseRequest extends Request {
      * WCS version, fixed to 2.0
      */
     public static final String VERSION = "2\\.0\\.\\d+";
-    public static final String VERSION_STRING = "2.0.1";
+    public static final String VERSION_STRING = ConfigManager.WCS_DEFAULT_VERSION;
 
     /**
      * A placeholder for further request parameters defined by WCS extension standards
