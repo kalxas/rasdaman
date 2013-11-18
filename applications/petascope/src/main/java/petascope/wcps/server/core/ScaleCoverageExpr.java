@@ -32,6 +32,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
+import static petascope.util.ras.RasConstants.*;
 
 public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
@@ -170,7 +171,7 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
     }
 
     public String toRasQL() {
-        String result = WcpsConstants.MSG_SCALE + "( " + coverageExprType.toRasQL() + ", [";
+        String result = RASQL_SCALE + "( " + coverageExprType.toRasQL() + ", [";
 
         for (int j = 0; j < dims; ++j) {
             if (j > 0) {

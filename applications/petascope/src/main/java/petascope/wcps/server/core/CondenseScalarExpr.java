@@ -28,6 +28,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
+import static petascope.util.ras.RasConstants.*;
 
 public class CondenseScalarExpr extends AbstractRasNode {
     
@@ -94,7 +95,7 @@ public class CondenseScalarExpr extends AbstractRasNode {
      * that will be used to build to RasQL query */
     private void buildAxisIteratorDomain() {
         axisIteratorString = "";
-        axisIteratorString += newIteratorName + " " + WcpsConstants.MSG_IN + " [";
+        axisIteratorString += newIteratorName + " " + RASQL_IN + " [";
 
         for (int i = 0; i < iterators.size(); i++) {
             if (i > 0) {

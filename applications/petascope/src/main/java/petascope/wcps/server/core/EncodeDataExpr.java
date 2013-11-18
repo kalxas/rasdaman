@@ -31,6 +31,7 @@ import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.MiscUtil;
 import petascope.util.WcpsConstants;
+import static petascope.util.ras.RasConstants.*;
 import petascope.wcs2.extensions.FormatExtension;
 
 // This is the equivalent of the "ProcessingExprType" complex XML type.
@@ -116,7 +117,7 @@ public class EncodeDataExpr extends AbstractRasNode {
             
             // determine function name either encode() or csv() (and similar)
             if (encode) {
-                result = WcpsConstants.MSG_ENCODE;
+                result = RASQL_ENCODE;
             } else {
                 result = format;
             }

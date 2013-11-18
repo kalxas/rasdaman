@@ -24,6 +24,7 @@
 package petascope.util.ras;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import rasj.RasGMArray;
 
@@ -33,7 +34,7 @@ import rasj.RasGMArray;
  * @author Dimitar Misev
  */
 public class RasQueryResult extends AbstractRasQueryResult {
-    
+
     private final List<String> scalars;
     private final List<byte[]> mdds;
 
@@ -44,12 +45,10 @@ public class RasQueryResult extends AbstractRasQueryResult {
         inspect();
     }
 
-    @Override
     public void mdd(RasGMArray res) {
         mdds.add(res.getArray());
     }
 
-    @Override
     public void scalar(Object res) {
         scalars.add(res.toString());
     }
@@ -60,5 +59,23 @@ public class RasQueryResult extends AbstractRasQueryResult {
 
     public List<String> getScalars() {
         return scalars;
+    }
+
+    @Override
+    public String toString() {
+
+        String out = "";
+        StringBuilder sb = new StringBuilder(out);
+
+        if (!getMdds().isEmpty()) {
+            for (byte[] mdd : getMdds()) {
+                sb.append(new String(mdd)); // don't use mdd.toString()
+            }
+        } else if (!getScalars().isEmpty()) {
+            for (String scalar : getScalars()) {
+                sb.append(scalar);
+            }
+        }
+        return sb.toString();
     }
 }

@@ -42,6 +42,7 @@ import petascope.core.DbMetadataSource;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.RasdamanException;
 import petascope.exceptions.SecoreException;
 import petascope.util.StringUtil;
 import petascope.util.WcsUtil;
@@ -69,7 +70,12 @@ public class Wcs2Servlet extends HttpServlet {
     public void init() throws ServletException {
 
         String confDir = this.getServletContext().getInitParameter(ConfigManager.CONF_DIR);
-        ConfigManager.getInstance(confDir);
+
+        try {
+            ConfigManager.getInstance(confDir);
+        } catch (RasdamanException ex) {
+            throw new ServletException(ex);
+        }
 
         log.info("WCS 2.0 servlet starting");
 

@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.RasdamanException;
 import petascope.util.KVPSymbols;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
@@ -56,12 +57,16 @@ public class RasqlServlet extends HttpServlet {
     private static Logger log = LoggerFactory.getLogger(RasqlServlet.class);
     
     // indicates that the default HTTP response status should be used
-    private static int USE_DEFAULT_STATUS = -1;
+    private static final int USE_DEFAULT_STATUS = -1;
 
     @Override
     public void init() throws ServletException {
         String confDir = this.getServletContext().getInitParameter(ConfigManager.CONF_DIR);
-        ConfigManager.getInstance(confDir);
+        try {
+            ConfigManager.getInstance(confDir);
+        } catch (RasdamanException e) {
+            throw new ServletException(e);
+        }
     }
 
     private void setServletURL(HttpServletRequest req) {

@@ -39,6 +39,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.Triple;
 import petascope.util.WcpsConstants;
+import static petascope.util.ras.RasConstants.*;
 
 /**
  *
@@ -235,7 +236,7 @@ public class XmlQuery extends AbstractRasNode {
             result = coverageExpr.toRasQL();
         } else {
             // rasql query
-            result = " select " + coverageExpr.toRasQL() + " from ";
+            result = RASQL_SELECT + " " + coverageExpr.toRasQL() + " " + RASQL_FROM;
             Iterator<CoverageIterator> it = iterators.iterator();
             boolean first = true;
 
@@ -266,7 +267,7 @@ public class XmlQuery extends AbstractRasNode {
                 }
 
                 // Append ``collection'' name (+ alias) to RasQL `FROM'
-                result += rasdamanColls.get(rasdamanColls.size()-1).snd + " AS " + cNext.getIteratorName();
+                result += rasdamanColls.get(rasdamanColls.size()-1).snd + " " + RASQL_AS + " " + cNext.getIteratorName();
             }
 
             // Add embedded WHERE conditions
@@ -278,8 +279,8 @@ public class XmlQuery extends AbstractRasNode {
             // Add/append OID constraints (1 W*S coverage = 1 MDD) in the WHERE clause
             for (Triple<BigInteger,String,String> rasdamanColl : rasdamanColls) {
                 result += (whereIsNull)
-                        ? " where oid(" + rasdamanColl.trd + ")=" + rasdamanColl.fst
-                        : " and oid("   + rasdamanColl.trd + ")=" + rasdamanColl.fst
+                        ? " " + RASQL_WHERE + " " + RASQL_OID + "(" + rasdamanColl.trd + ")=" + rasdamanColl.fst
+                        : " " + RASQL_AND   + " " + RASQL_OID + "(" + rasdamanColl.trd + ")=" + rasdamanColl.fst
                         ;
                 whereIsNull = false;
             }

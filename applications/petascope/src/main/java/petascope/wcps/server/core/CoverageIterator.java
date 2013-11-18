@@ -30,6 +30,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.util.WcpsConstants;
+import static petascope.util.ras.RasConstants.*;
 
 public class CoverageIterator extends AbstractRasNode {
 
@@ -92,7 +93,7 @@ public class CoverageIterator extends AbstractRasNode {
 
     public String toRasQL() {
         // TODO(andreia) : How to translate multiple coverages?
-        return coverageNames.get(0) + " " + WcpsConstants.MSG_AS + " " + iteratorName;
+        return coverageNames.get(0) + " " + RASQL_AS + " " + iteratorName;
         // FIXME : toRasQL here is more complex: coverageName = collectionName+OID
     }
 }

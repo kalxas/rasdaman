@@ -30,6 +30,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
+import static petascope.util.ras.RasConstants.*;
 
 public class NumericScalarExpr extends AbstractRasNode {
 
@@ -157,11 +158,11 @@ public class NumericScalarExpr extends AbstractRasNode {
             } else if (op.equals("-")) {
                     result = "-" + first.toRasQL();
             } else if (op.equals(WcpsConstants.MSG_SQRT)) {
-                    result = WcpsConstants.MSG_SQRT + "(" + first.toRasQL() + ")";
+                    result = RASQL_SQRT + "(" + first.toRasQL() + ")";
             } else if (op.equals(WcpsConstants.MSG_CHILD)) {
                 result = first.toRasQL();
             } else if (op.equals(WcpsConstants.MSG_ABS)) {
-                result = WcpsConstants.MSG_ABS + "(" + first.toRasQL() + ")";
+                result = RASQL_ABS + "(" + first.toRasQL() + ")";
             }
         }else if (twoChildren == true) {
             result = "(" + first.toRasQL() + ")" + op

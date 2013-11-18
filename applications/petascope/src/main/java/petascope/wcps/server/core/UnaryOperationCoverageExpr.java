@@ -30,6 +30,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
+import static petascope.util.ras.RasConstants.*;
 
 public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
@@ -168,13 +169,13 @@ public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICove
             // Use rasql's direct "type-casting" facility for constant scalar expressions
             // For example, (char)1 does not work, but 1c is a valid expression.
             if (child.isScalarExpr() && params.equals(WcpsConstants.MSG_CHAR))
-                return child.toRasQL() + WcpsConstants.MSG_C;
+                return child.toRasQL() + RASQL_C;
             else
                 return "(" + params + ")(" + child.toRasQL() + ")";
         } else if (operation.equals(WcpsConstants.MSG_SELECT)) {
             return "(" + child.toRasQL() + ")." + params;
         } else if (operation.equals(WcpsConstants.MSG_BIT)) {
-            return WcpsConstants.MSG_BIT + "(" + child.toRasQL() + "," + params + ")";
+            return RASQL_BIT + "(" + child.toRasQL() + "," + params + ")";
         }
 
         return " " + WcpsConstants.MSG_ERROR + " ";

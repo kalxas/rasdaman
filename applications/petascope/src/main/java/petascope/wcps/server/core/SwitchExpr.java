@@ -9,6 +9,7 @@ import org.w3c.dom.NodeList;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
+import static petascope.util.ras.RasConstants.*;
 
 /*
  * This file is part of rasdaman community.
@@ -90,23 +91,23 @@ public class SwitchExpr extends AbstractRasNode implements ICoverageInfo{
     }
 
     public String toRasQL() {
-        String result = WcpsConstants.MSG_CASE + " ";
+        String result = RASQL_CASE + " ";
         int pos = 0;
         Iterator<CoverageExpr> it = argsList.iterator();
         while(it.hasNext()){
             String currentChild = it.next().toRasQL();
             if(pos == argsList.size() - 1){
                 //we got the default result here
-                result += WcpsConstants.MSG_ELSE + " " + currentChild + " " + WcpsConstants.MSG_END;
+                result += RASQL_ELSE + " " + currentChild + " " + RASQL_END;
             }
             else{
                 if(pos % 2 == 0){
                     //we got conditions here
-                    result += WcpsConstants.MSG_WHEN + " " + currentChild + " ";
+                    result += RASQL_WHEN + " " + currentChild + " ";
                 }
                 else{
                     //we got results here
-                    result += WcpsConstants.MSG_THEN + " " + currentChild + " ";
+                    result += RASQL_THEN + " " + currentChild + " ";
                 }
             }
             pos++;

@@ -30,6 +30,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
+import static petascope.util.ras.RasConstants.*;
 
 public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
@@ -135,9 +136,9 @@ public class BinaryOperationCoverageExpr extends AbstractRasNode implements ICov
         String ret = "";
         if (operation.equals(WcpsConstants.MSG_OVERLAY)) {
             // overlay is reversed in rasql
-            ret = "((" + second.toRasQL() + ")" + operation + "(" + first.toRasQL() + "))";
+            ret = "((" + second.toRasQL() + ")" + RASQL_OVERLAY + "(" + first.toRasQL() + "))";
         } else if (operation.equals(WcpsConstants.MSG_POW)) {
-            ret = operation + "(" + first.toRasQL() + ", " + second.toRasQL() + ")";
+            ret = RASQL_POW + "(" + first.toRasQL() + ", " + second.toRasQL() + ")";
         } else {
             ret = "((" + first.toRasQL() + ")" + operation + "(" + second.toRasQL() + "))";
         }

@@ -28,7 +28,7 @@ import rasj.RasGMArray;
 
 /**
  * A rasdaman query result holder.
- * 
+ *
  * @author Dimitar Misev
  */
 public interface IRasQueryResult {
@@ -45,11 +45,20 @@ public interface IRasQueryResult {
 
     /**
      * Executed when the result contains mdds
+     * @param res
      */
     void mdd(RasGMArray res);
 
     /**
      * Executed when the result contains scalars
+     * @param res
      */
     void scalar(Object res);
+
+    /**
+     * Simulate the "--out string" RasQL option
+     * @return
+     */
+    @Override
+    String toString();
 }

@@ -31,6 +31,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
+import static petascope.util.ras.RasConstants.*;
 
 public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo {
 
@@ -130,7 +131,7 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
     }
 
     public String toRasQL() {
-        String result = WcpsConstants.MSG_EXTEND + "(" + coverageExprType.toRasQL() + ",[";
+        String result = RASQL_EXTEND + "(" + coverageExprType.toRasQL() + ",[";
 
         for (int j = 0, i = 0; j < dims; ++j) {
             if (dim[j] == null) {
@@ -168,7 +169,7 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
      * @param axisName The name of the axis (specified in the request)
      * @return An array of 2 elements [lo,hi], with the extending values on the
      * specified axis.
-     * @throws NumberformatException
+     * @throws NumberFormatException
      */
     public Double[] extendingValues(String axisName) throws NumberFormatException {
         try {

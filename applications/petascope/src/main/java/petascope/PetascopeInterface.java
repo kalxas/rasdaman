@@ -106,7 +106,11 @@ public class PetascopeInterface extends HttpServlet {
         String confDir = this.getServletContext().getInitParameter(ConfigManager.CONF_DIR);
 
         // Initialize the singleton configuration manager. Now all classes can read the settings.
-        ConfigManager.getInstance(confDir);
+        try {
+            ConfigManager.getInstance(confDir);
+        } catch (RasdamanException ex) {
+            throw new ServletException(ex);
+        }
 
         // Initialize the logging system
         log.info("Petascope {} starting", ConfigManager.PETASCOPE_VERSION);

@@ -24,6 +24,7 @@ package petascope.wcps.server.core;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
 import petascope.util.WcpsConstants;
+import static petascope.util.ras.RasConstants.*;
 
 public class ComplexConstant extends AbstractRasNode {
 
@@ -111,6 +112,6 @@ public class ComplexConstant extends AbstractRasNode {
     }
 
     public String toRasQL() {
-        return WcpsConstants.MSG_COMPLEX + " ( " + re + ", " + im + " ) ";
+        return RASQL_COMPLEX + " ( " + re + ", " + im + " ) ";
     }
 }

@@ -24,7 +24,6 @@ package petascope.util;
 /**
  *  All String constants used by the WCPS are defined as String constants.
  *
- *
  * @author <a href="mailto:a.rezaeim@jacobs-university.de">Alireza Rezaei Mahdiraji</a>
  */
 public interface WcpsConstants {
@@ -104,7 +103,6 @@ public interface WcpsConstants {
     public static final String MSG_DYNAMIC_TYPE                 = "dynamic_type";
     public static final String MSG_ELSE                         = "else";
     public static final String MSG_ENCODE                       = "encode";
-    public static final String MSG_END                          = "end";
     public static final String MSG_EQUAL                        = "=";
     public static final String MSG_EQUALS                       = "equals";
     public static final String MSG_ERROR                        = "error";
@@ -142,7 +140,6 @@ public interface WcpsConstants {
     public static final String MSG_LOG                          = "log";
     public static final String MSG_LONG                         = "long";
     public static final String MSG_LOWER_BOUND                  = "lowerBound";
-    public static final String MSG_MARRAY                       = "marray";
     public static final String MSG_MAX                          = "max";
     public static final String MSG_MIME                         = "mime";
     public static final String MSG_MIN                          = "min";
@@ -225,7 +222,6 @@ public interface WcpsConstants {
     public static final String MSG_TEXT                         = "text";
     public static final String MSG_TEXT_PLAIN                   = "text/plain";
     public static final String MSG_TEMP                         = "temp";
-    public static final String MSG_THEN                         = "then";
     public static final String MSG_TRANSLATION                  = "translation";
     public static final String MSG_TRIM                         = "trim";
     public static final String MSG_TYPE                         = "type";
@@ -254,7 +250,6 @@ public interface WcpsConstants {
     public static final String MSG_XMLNS                        = "xmlns=\"http://www.opengis.net/wcps/1.0\" service=\"WCPS\" version=\"1.0.0\"";
     public static final String MSG_XML_SYNTAX                   = "xmlSyntax";
     public static final String MSG_Y                            = "Y";
-    public static final String MSG_WHEN                         = "when";
 
     /**
      * DBParam messages

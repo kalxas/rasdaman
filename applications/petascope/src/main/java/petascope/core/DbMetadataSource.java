@@ -59,6 +59,7 @@ import petascope.util.Pair;
 import petascope.util.Vectors;
 import petascope.util.WcpsConstants;
 import petascope.util.XMLSymbols;
+import static petascope.util.ras.RasConstants.*;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.*;
@@ -2006,8 +2007,9 @@ public class DbMetadataSource implements IMetadataSource {
         // Run RasQL query
         Object obj = null;
         String rasQuery =
-                "SELECT sdom(c)["   + rasdamanAxisOrder + "]" +
-                " FROM " + collName + " AS c WHERE oid(c) = " + collOid
+                RASQL_SELECT + " " + RASQL_SDOM + "(c)["   + rasdamanAxisOrder + "]" +
+                RASQL_FROM   + " " + collName + " " + RASQL_AS + " c " +
+                RASQL_WHERE  + " " + RASQL_OID + "(c) = " + collOid
                 ;
         log.debug("RasQL query : " + rasQuery);
         try {

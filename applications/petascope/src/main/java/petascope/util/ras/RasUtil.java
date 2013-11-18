@@ -22,6 +22,8 @@
 
 package petascope.util.ras;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.antlr.runtime.ANTLRStringStream;
 import org.antlr.runtime.CharStream;
 import org.antlr.runtime.CommonTokenStream;
@@ -39,6 +41,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.RasdamanException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
+import static petascope.util.ras.RasConstants.RASQL_VERSION;
 import petascope.wcps.grammar.WCPSRequest;
 import petascope.wcps.grammar.wcpsLexer;
 import petascope.wcps.grammar.wcpsParser;
@@ -57,42 +60,59 @@ public class RasUtil {
     private static final Logger log = LoggerFactory.getLogger(RasUtil.class);
 
     //Default time between re-connect attempts in seconds (If setting not found)
-    private static final int DEFAULT_TIMEOUT = 5; 
+    private static final int DEFAULT_TIMEOUT = 5;
 
     //Default number of re-connect attempts  (If setting not fount)
-    private static final int DEFAULT_RECONNECT_ATTEMPTS = 3; 
-    
+    private static final int DEFAULT_RECONNECT_ATTEMPTS = 3;
+
+    // Useful patterns to extract data from the ``--out string'' RasQL output
+    private static final String VERSION_PATTERN = "rasdaman (\\S+)-\\S+ .*$"; // group _1_ is version
+
+    /**
+     * Execute a RasQL query with configured credentials.
+     * @param query
+     * @return
+     * @throws RasdamanException
+     */
     public static Object executeRasqlQuery(String query) throws RasdamanException {
         return executeRasqlQuery(query, ConfigManager.RASDAMAN_USER, ConfigManager.RASDAMAN_PASS);
     }
 
+    /**
+     * Execute a RasQL query with specified credentials.
+     * @param query
+     * @param username
+     * @param password
+     * @return
+     * @throws RasdamanException
+     */
     // FIXME - should return just String?
     public static Object executeRasqlQuery(String query, String username, String password) throws RasdamanException {
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
         impl.setUserIdentification(username, password);
         Database db = impl.newDatabase();
-	int maxAttempts, timeout, attempts = 0;	
+	int maxAttempts, timeout, attempts = 0;
 
 	//The result of the query will be assigned to ret
 	//Should allways return a result (empty result possible)
 	//since a RasdamanException will be thrown in case of error
 	Object ret=null;
 
-	try {	    
-	    timeout = Integer.parseInt(ConfigManager.RASDAMAN_RETRY_TIMEOUT) * 1000;	    
+	try {
+	    timeout = Integer.parseInt(ConfigManager.RASDAMAN_RETRY_TIMEOUT) * 1000;
 	} catch(NumberFormatException ex) {
 	    timeout = DEFAULT_TIMEOUT * 1000;
-	    log.info("The setting rasdaman_retry_timeout is not defined. Assuming " + DEFAULT_TIMEOUT + " seconds between re-connect attemtps to a rasdaman server.");
+	    log.info("The setting " + ConfigManager.RASDAMAN_RETRY_TIMEOUT + " is not defined. Assuming " + DEFAULT_TIMEOUT + " seconds between re-connect attemtps to a rasdaman server.");
         }
 
-        try {       
+        try {
             maxAttempts = Integer.parseInt(ConfigManager.RASDAMAN_RETRY_ATTEMPTS);
         } catch(NumberFormatException ex) {
             maxAttempts = DEFAULT_RECONNECT_ATTEMPTS;
-            log.info("The setting rasdaman_retry_attepts is not defined. Assuming " + DEFAULT_RECONNECT_ATTEMPTS + " attempts to connect to a rasdaman server.");
+            log.info("The setting " + ConfigManager.RASDAMAN_RETRY_ATTEMPTS + " is not defined. Assuming " + DEFAULT_RECONNECT_ATTEMPTS + " attempts to connect to a rasdaman server.");
         }
-        
-        Transaction tr;        
+
+        Transaction tr;
 
         //Try to connect until the maximum number of attempts is reached
         //This loop handles connection attempts to a saturated rasdaman
@@ -101,7 +121,7 @@ public class RasUtil {
         boolean queryCompleted = false, dbOpened = false;
         while(!queryCompleted) {
 
-	    //Try to obtain a free rasdaman server
+            //Try to obtain a free rasdaman server
             try {
                 db.open(ConfigManager.RASDAMAN_DATABASE, Database.OPEN_READ_ONLY);
                 dbOpened = true;
@@ -109,7 +129,7 @@ public class RasUtil {
                 tr.begin();
                 OQLQuery q = impl.newOQLQuery();
 
-		//A free rasdaman server was obtain, executing query
+                //A free rasdaman server was obtain, executing query
                 try {
                     q.create(query);
                     log.trace("Executing query {}", query);
@@ -117,8 +137,8 @@ public class RasUtil {
                     tr.commit();
                     queryCompleted = true;
                 } catch (QueryException ex) {
-		    
-		    //Executing a rasdaman query failed
+
+                    //Executing a rasdaman query failed
                     tr.abort();
                     throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
                             "Error evaluating rasdaman query: '" + query, ex);
@@ -127,19 +147,19 @@ public class RasUtil {
                     throw new RasdamanException(ExceptionCode.RasdamanRequestFailed,
                             "Requested more data than the server can handle at once.");
                 } finally {
-		    
-		    //Done connection with rasdaman, closing database.
+
+                    //Done connection with rasdaman, closing database.
                     try {
                         db.close();
                     } catch (ODMGException ex) {
                         log.info("Error closing database connection: ", ex);
                     }
-                }		
+                }
             } catch(RasConnectionFailedException ex) {
 
-		//A connection with a Rasdaman server could not be established
-		//retry shortly unless connection attpempts exceded the maximum
-		//possible connection attempts.
+                //A connection with a Rasdaman server could not be established
+                //retry shortly unless connection attpempts exceded the maximum
+                //possible connection attempts.
                 attempts++;
                 if(dbOpened)
                     try {
@@ -149,11 +169,11 @@ public class RasUtil {
                     }
                 dbOpened = false;
                 if(!(attempts < maxAttempts))
-		    //Throw a RasConnectionFailedException if the connection
-		    //attempts exceeds the maximum connection attempts.
+                    //Throw a RasConnectionFailedException if the connection
+                    //attempts exceeds the maximum connection attempts.
                     throw ex;
 
-		//Sleep before trying to open another connection
+                //Sleep before trying to open another connection
                 try {
                     Thread.sleep(timeout);
                 } catch(InterruptedException e) {
@@ -161,32 +181,33 @@ public class RasUtil {
                             " was interrupted while searching a free server.");
                     throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
                             "Unable to get a free rasdaman server.");
-		}
-	    } catch(ODMGException ex) {
+                }
+            } catch(ODMGException ex) {
 
-		//The maximum ammount of connection attempts was exceded
-		//and a connection could not be established. Return
-		//an exception indicating Rasdaman is unavailable.
+                //The maximum ammount of connection attempts was exceded
+                //and a connection could not be established. Return
+                //an exception indicating Rasdaman is unavailable.
 
-		log.info("A Rasdaman request could not be fullfilled sicne no "+
-		        "free Rasdaman server were available. Consider adjusting "+
-			"the values of rasdaman_retry_attempts and rasdaman_retry_timeout "+
-			"or adding more Rasdaman servers.",ex);
+                log.info("A Rasdaman request could not be fullfilled sicne no "+
+                        "free Rasdaman server were available. Consider adjusting "+
+                        "the values of rasdaman_retry_attempts and rasdaman_retry_timeout "+
+                        "or adding more Rasdaman servers.",ex);
 
-		throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
-		        "Unable to get a free rasdaman server.");
-	    }
-	}            
+                throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
+                        "Unable to get a free rasdaman server.");
+            }
+        }
         return ret;
     }
-    
+
     /**
      * Convert WCPS query in abstract syntax to a rasql query. This is done as
      * abstract -> XML -> rasql conversion.
-     * 
+     *
      * @param query WCPS query in abstract syntax
      * @param wcps WCPS engine
      * @return the corresponding rasql query
+     * @throws WCPSException
      */
     public static String abstractWCPSToRasql(String query, Wcps wcps) throws WCPSException {
         if (query == null) {
@@ -203,10 +224,10 @@ public class RasUtil {
             throw ex;
         }
     }
-    
+
     /**
      * Convert abstract WCPS query to XML syntax.
-     * 
+     *
      * @param query WCPS query in abstract syntax
      * @return the same query in XML
      * @throws WCPSException in case of error during the parsing/translation
@@ -239,13 +260,14 @@ public class RasUtil {
         }
         return ret;
     }
-    
+
     /**
      * Convert WCPS query in XML syntax to a rasql query.
-     * 
+     *
      * @param query WCPS query in XML syntax
      * @param wcps WCPS engine
      * @return the corresponding rasql query
+     * @throws WCPSException
      */
     public static String xmlWCPSToRasql(String query, Wcps wcps) throws WCPSException {
         if (query == null) {
@@ -269,11 +291,12 @@ public class RasUtil {
 
     /**
      * Execute a WCPS query given in abstract or XML syntax.
-     * 
+     *
      * @param query a WCPS query given in abstract syntax
      * @param wcps WCPS engine
      * @return result from executing query
-     * @throws WCPSException 
+     * @throws WCPSException
+     * @throws RasdamanException
      */
     public static Object executeWcpsQuery(String query, Wcps wcps) throws WCPSException, RasdamanException {
         if (query == null) {
@@ -290,11 +313,12 @@ public class RasUtil {
 
     /**
      * Execute a WCPS query given in abstract syntax.
-     * 
+     *
      * @param query a WCPS query given in abstract syntax
      * @param wcps WCPS engine
      * @return result from executing query
-     * @throws WCPSException 
+     * @throws WCPSException
+     * @throws RasdamanException
      */
     public static Object executeAbstractWcpsQuery(String query, Wcps wcps) throws WCPSException, RasdamanException {
         if (query == null) {
@@ -302,21 +326,22 @@ public class RasUtil {
         }
         log.trace("Executing abstract WCPS query");
         String rasquery = abstractWCPSToRasql(query, wcps);
-        // Check if it is a rasql query 
+        // Check if it is a rasql query
         if ( rasquery != null && rasquery.startsWith(WcpsConstants.MSG_SELECT) ) {
             return executeRasqlQuery(abstractWCPSToRasql(query, wcps));
         }
         return rasquery;
-        
+
     }
 
     /**
      * Execute a WCPS query given in XML syntax.
-     * 
+     *
      * @param query a WCPS query given in XML syntax
      * @param wcps WCPS engine
      * @return the result from executing query
-     * @throws WCPSException 
+     * @throws WCPSException
+     * @throws RasdamanException
      */
     public static Object executeXmlWcpsQuery(String query, Wcps wcps) throws WCPSException, RasdamanException {
         if (query == null) {
@@ -324,5 +349,32 @@ public class RasUtil {
         }
         log.trace("Executing XML WCPS query");
         return executeRasqlQuery(xmlWCPSToRasql(query, wcps));
+    }
+
+    /**
+     * Fetch rasdaman version by parsing RasQL ``version()'' output.
+     *
+     * @return The rasdaman version
+     * @throws RasdamanException
+     */
+    public static String getRasdamanVersion() throws RasdamanException {
+
+        String version = "";
+        Object tmpResult = RasUtil.executeRasqlQuery("select " + RASQL_VERSION + "()");
+
+        if (null != tmpResult) {
+            RasQueryResult queryResult = new RasQueryResult(tmpResult);
+
+            // Some regexp to extract the version from the whole verbose output
+            Pattern p = Pattern.compile(VERSION_PATTERN);
+            Matcher m = p.matcher(queryResult.toString());
+
+            if (m.find()) {
+                version = m.group(1);
+            }
+        }
+
+        log.debug("Read rasdaman version: \"" + version + "\"");
+        return version;
     }
 }

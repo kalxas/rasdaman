@@ -33,20 +33,22 @@ import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.exceptions.RasdamanException;
 import petascope.util.IOUtil;
 import petascope.util.StringUtil;
 import petascope.util.XMLUtil;
+import petascope.util.ras.RasUtil;
 import petascope.wps.server.WpsServer;
 
 /**
  * Configuration Manager class: a single entry point for all server settings.
  * Implements the singleton design pattern.
- * 
+ *
  * Note (AB): Although this class implements the singleton pattern, it offers
  * public static members that come pre-initialized, allowing use of values that
  * are not provided by the configuration file without getting an instance. These
  * should be made private and only the get method on the unique instance allowed
- * 
+ *
  * @author Andrei Aiordachioaie
  * @author Dimitar Misev
  */
@@ -56,7 +58,7 @@ public class ConfigManager {
 
     /* Major version number. This is the first release (1). */
     public final static String MAJOR = "2";
-    /* 
+    /*
      * Minor version number.
      * v2 adds the reference implementation of WCS 2.0.
      * v3 adds WGS84 handling in WCPS requests
@@ -72,17 +74,17 @@ public class ConfigManager {
     /* This URL gets initialized automatically when the first request is received.
      * Its value is used in the Capabilities response */
     public static String PETASCOPE_SERVLET_URL;
-    
+
     /*
      * settings.properties
      */
-    
+
     // petascope metadata (stored in postgres)
     public static String METADATA_DRIVER = "org.postgresql.Driver";
     public static String METADATA_URL = "jdbc:postgresql://localhost:5432/petascopedb";
     public static String METADATA_USER = "petauser";
     public static String METADATA_PASS = "petapasswd";
-    
+
     // rasdaman connection settings
     public static String RASDAMAN_SERVER = "'localhost";
     public static String RASDAMAN_PORT = "7001";
@@ -92,14 +94,14 @@ public class ConfigManager {
     public static String RASDAMAN_PASS = "rasguest";
     public static String RASDAMAN_ADMIN_USER = "rasadmin";
     public static String RASDAMAN_ADMIN_PASS = "rasadmin";
-    public static String RASDAMAN_VERSION = "8";
-    
+    public static String RASDAMAN_VERSION = "v9.0.0beta1";
+
     //Time in seconds between each re-connect attempt
-    public static String RASDAMAN_RETRY_TIMEOUT="5"; 
+    public static String RASDAMAN_RETRY_TIMEOUT="5";
 
     //Maximum number of re-connect attempts
-    public static String RASDAMAN_RETRY_ATTEMPTS="3"; 
-    
+    public static String RASDAMAN_RETRY_ATTEMPTS="3";
+
     public static String WCST_LANGUAGE  = "en";
     public static String WCST_VERSION = "1.1.4";
     public static String WCPS_LANGUAGE = "en";
@@ -113,7 +115,7 @@ public class ConfigManager {
     public static String WMS_LANGUAGES = "en";
     public static String WMS_VERSIONS = "1.0.0,1.1.0";  // (!) Keep consistent with WmsRequest.java
     public static String RASDAMAN_LANGUAGE = "en";
-    
+
     // depends on ccip_version in the petascope settings, ccip_version=true
     // will make this flag true.
     public static boolean CCIP_HACK = false;
@@ -131,7 +133,7 @@ public class ConfigManager {
 
     /* WCS-T Settings. Overridden by user-preferences in <code>settings.properties</code> */
     public static String WCST_DEFAULT_DATATYPE = "unsigned char";
-    
+
     /* CRS RESOLVERS' timeouts (milliseconds) */
     public static final int CRSRESOLVER_CONN_TIMEOUT = 2000;
     public static final int CRSRESOLVER_READ_TIMEOUT = 10000;
@@ -139,13 +141,13 @@ public class ConfigManager {
     /* Singleton instance */
     private static ConfigManager instance;
     private static Properties props;
-    
+
     // confdir parameter name
     public static final String CONF_DIR = "confDir";
     public static final String CONF_DIR_DEFAULT = "@confdir@";
     public static final String SETTINGS_FILE = "petascope.properties";
     public static final String LOG_PROPERTIES_FILE = "log4j.properties";
-    
+
     // keys
     public static final String KEY_RASDAMAN_DATABASE = "rasdaman_database";
     public static final String KEY_RASDAMAN_URL = "rasdaman_url";
@@ -173,9 +175,10 @@ public class ConfigManager {
      * Private constructor. Use <i>getInstance()</i>.
      *
      * @param confDir Path to the settings directory
+     * @throws RasdamanException
      */
-    private ConfigManager(String confDir) {
-        
+    private ConfigManager(String confDir) throws RasdamanException {
+
         if (confDir == null) {
             StringBuilder msg = new StringBuilder();
             msg.append("Your web.xml file is missing the configuration dir parameter.\n");
@@ -185,28 +188,28 @@ public class ConfigManager {
             msg.append("    <param-name>confDir</param-name>\n");
             msg.append("    <param-value>/path/to/petascope/configuration/files</param-value>\n");
             msg.append("</context-param>\n");
-            
+
             System.err.println(msg.toString());
             throw new IllegalArgumentException(msg.toString());
         }
-        
+
         if (confDir.equals(CONF_DIR_DEFAULT)) {
             String msg = "Please set a valid path in your $CATALINA_HOME/webapps/petascope/WEB-INF/web.xml for the confDir parameter.";
             System.err.println(msg);
             throw new IllegalArgumentException(msg);
         }
-        
+
         if (!(new File(confDir)).isDirectory()) {
             String msg = "Configuration directory not found, please update the confDir in your $CATALINA_HOME/webapps/petascope/WEB-INF/web.xml";
             System.err.println(msg);
             throw new IllegalArgumentException(msg);
         }
-        
+
         confDir = IOUtil.wrapDir(confDir);
-        
+
         // moved configuration files from the war file to a directory specified in web.xml -- DM 2012-jul-09
         System.out.println("Configuration dir: " + confDir);
-        
+
         // load logging configuration
         try {
             PropertyConfigurator.configure(confDir + LOG_PROPERTIES_FILE);
@@ -215,10 +218,10 @@ public class ConfigManager {
             ex.printStackTrace();
             BasicConfigurator.configure();
         }
-        
+
         // init XML parser
         XMLUtil.init();
-        
+
         // load petascope configuration
         props = new Properties();
         try {
@@ -237,11 +240,11 @@ public class ConfigManager {
      * Returns the instance of the ConfigManager. If no such instance exists,
      * it creates one with the specified settings file.
      *
-     * @param settingsPath Path to the settings file
-     * @param servletRoot Path to the deployed servlet root
+     * @param confDir Path to the settings file
      * @return instance of the ConfigManager class
+     * @throws RasdamanException
      */
-    public static ConfigManager getInstance(String confDir) {
+    public static ConfigManager getInstance(String confDir) throws RasdamanException {
         if (instance == null) {
             instance = new ConfigManager(confDir);
         }
@@ -262,7 +265,11 @@ public class ConfigManager {
         return result;
     }
 
-    private void initSettings() {
+    /**
+     * Overwrite defaults settings with user-defined values in petascope.properties
+     * @throws RasdamanException
+     */
+    private void initSettings() throws RasdamanException {
 
         RASDAMAN_DATABASE       = get(KEY_RASDAMAN_DATABASE);
         RASDAMAN_URL            = get(KEY_RASDAMAN_URL);
@@ -270,7 +277,6 @@ public class ConfigManager {
         RASDAMAN_PASS           = get(KEY_RASDAMAN_PASS);
         RASDAMAN_ADMIN_USER     = get(KEY_RASDAMAN_ADMIN_USER);
         RASDAMAN_ADMIN_PASS     = get(KEY_RASDAMAN_ADMIN_PASS);
-        RASDAMAN_VERSION        = get(KEY_RASDAMAN_VERSION);
         METADATA_DRIVER         = get(KEY_METADATA_DRIVER);
         METADATA_URL            = get(KEY_METADATA_URL);
         METADATA_USER           = get(KEY_METADATA_USER);
@@ -279,6 +285,9 @@ public class ConfigManager {
         RASDAMAN_RETRY_ATTEMPTS = get(KEY_RASDAMAN_RETRY_ATTEMPTS);
 
         CCIP_HACK = Boolean.parseBoolean(get(KEY_CCIP_VERSION));
+
+        // Get rasdaman version from RasQL (see #546)
+        RASDAMAN_VERSION = RasUtil.getRasdamanVersion();
 
         // SECORE
         SECORE_URLS     = StringUtil.csv2list(get(KEY_SECORE_URLS));
