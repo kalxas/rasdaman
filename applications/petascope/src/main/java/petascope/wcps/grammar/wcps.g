@@ -17,7 +17,8 @@ History:
                         dimensionCrsList/dimensionCrsElement (-> change WCPS documentation?).
                         fieldInterpolationList's content set as optional (allow empty list {}).
 02 04 2012 campalani    Missing braces around DimensionIntervalList in scaleExpr.
-05 06 2012 misev    Allow mixing of slices and trims
+05 06 2012 misev        Allow mixing of slices and trims
+18 11 2013 campalani    Allow asterisk in trims like in RasQL, see numericScalarExpr.
 */
 grammar wcps;
 options{
@@ -352,6 +353,7 @@ numericScalarFactor returns[NumericScalarExpr value]
     | op=ROUND LPAREN e1=numericScalarExpr RPAREN { $value = new NumericScalarExpr($op.text, $e1.value); }
     | e=INTEGERCONSTANT { $value = new NumericScalarExpr($e.text); }
     | e=FLOATCONSTANT { $value = new NumericScalarExpr($e.text); }
+    | e=MULT { $value = new NumericScalarExpr($e.text); }
     | e2=complexConstant { $value = new NumericScalarExpr($e2.value); }
     | e3=condenseExpr { $value = new NumericScalarExpr($e3.value); }
     | e4=variableName { $value = new NumericScalarExpr("var", $e4.value); }

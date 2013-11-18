@@ -1,0 +1,1 @@
+for c in ( mr ) return encode( c[ i(*:*), j(0) ], "csv" )

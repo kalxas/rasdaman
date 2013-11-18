@@ -30,6 +30,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
+import static petascope.util.WcpsConstants.MSG_STAR;
 import static petascope.util.ras.RasConstants.*;
 
 public class NumericScalarExpr extends AbstractRasNode {
@@ -65,7 +66,9 @@ public class NumericScalarExpr extends AbstractRasNode {
         try {
             dvalue = Double.parseDouble(value);
         } catch (NumberFormatException e) {
-            throw new WCPSException("Could not understand constant: " + value);
+            if (!value.equals(MSG_STAR)) {
+                throw new WCPSException("Could not understand constant: " + value);
+            }
         }
         this.twoChildren = false;
         this.op = WcpsConstants.MSG_VALUE;
@@ -90,7 +93,9 @@ public class NumericScalarExpr extends AbstractRasNode {
             try {
                 dvalue = Double.parseDouble(value);
             } catch (NumberFormatException e) {
-                throw new WCPSException("Could not understand constant: " + value);
+                if (!value.equals(MSG_STAR)) {
+                    throw new WCPSException("Could not understand constant: " + value);
+                }
             }
         } else if (nodeName.equals(WcpsConstants.MSG_COMPLEX_CONSTANT)
                 || nodeName.equals(WcpsConstants.MSG_CONDENSE)

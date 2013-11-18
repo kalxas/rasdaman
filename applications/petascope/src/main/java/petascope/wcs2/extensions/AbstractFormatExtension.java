@@ -50,6 +50,7 @@ import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.Wcps;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
+import static petascope.wcs2.parsers.GetCoverageRequest.ASTERISK;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSubset;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
@@ -66,8 +67,13 @@ public abstract class AbstractFormatExtension implements FormatExtension {
     private static final Logger log = LoggerFactory.getLogger(AbstractFormatExtension.class);
 
     /**
-     * Update m with the correct bounds and axes (mostly useful when there's
-     * slicing/trimming in the request)
+     * Update m with the correct bounds and axes (mostly useful when there is slicing/trimming in the request)
+     *
+     * @param request
+     * @param m
+     * @throws PetascopeException
+     * @throws SecoreException
+     * @throws WCSException
      */
     protected void updateGetCoverageMetadata(GetCoverageRequest request, GetCoverageMetadata m)
             throws PetascopeException, SecoreException, WCSException {
@@ -105,8 +111,12 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                     try {
                         // Compare subset with domain borders and update
                         if (subset instanceof DimensionTrim) {
+
+                            // Replace asterisks and fetch subset bounds
+                            stars2bounds((DimensionTrim)subset, domainEl);
                             String trimLow = ((DimensionTrim)subset).getTrimLow();
                             String trimHigh = ((DimensionTrim)subset).getTrimHigh();
+
                             // Append axis/uom label
                             axesLabels += subset.getDimension() + " ";
                             uomLabels  += domainEl.getUom() + " ";
@@ -161,7 +171,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                         String message = "Error while casting a subset to numeric format for comparison: " + ex.getMessage();
                         log.error(message);
                         throw new WCSException(ExceptionCode.InvalidRequest, message);
-                    } catch (PetascopeException ex) {
+                    } catch (WCSException ex) {
                         throw ex;
                     }
                 }
@@ -444,5 +454,19 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         log.debug(query);
         log.debug("==========================================================");
         return Pair.of(query, axes.trim());
+    }
+
+    /**
+     * Replaces asterisk in a trimming with real numeric bounds.
+     * @param trim  the input subsetting (trimming)
+     * @param domEl The axis on which the subset is requested
+     */
+    private void stars2bounds(DimensionTrim trim, DomainElement domEl) {
+        if (trim.getTrimLow().equals(ASTERISK)) {
+            trim.setTrimLow(domEl.getMinValue().toPlainString());
+        }
+        if (trim.getTrimHigh().equals(ASTERISK)) {
+            trim.setTrimHigh(domEl.getMaxValue().toPlainString());
+        }
     }
 }

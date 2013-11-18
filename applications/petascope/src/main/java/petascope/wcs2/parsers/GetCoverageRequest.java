@@ -77,6 +77,8 @@ import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
  */
 public class GetCoverageRequest extends BaseRequest {
 
+    public static final String ASTERISK = "*";
+
     private final String coverageId;
     private final String format;
     private final boolean multipart;

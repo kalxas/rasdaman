@@ -32,6 +32,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WcpsConstants;
+import static petascope.util.WcpsConstants.MSG_STAR;
 
 /**
  * @author <?>
@@ -158,6 +159,11 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
         }
 
         this.axisName = axis.toRasQL();
+
+        // Convert possible asterisks to real bounds
+        stars2bounds(domain1, domain2, meta.getDomainByName(axisName));
+
+        // Assign native CRS if not set in the interval
         if (crs == null) {
             // if no CRS is specified assume native CRS -- DM 2012-mar-05
             DomainElement axisDomain = meta.getDomainByName(axisName);
@@ -177,7 +183,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
             }
         }
 
-        // Axis type        
+        // Axis type
         try {
             String axisSingleCrs = covInfo.getDomainElement(covInfo.getDomainIndexByName(axisName)).getNativeCrs();
             this.axisType = CrsUtil.getAxisType(CrsUtil.getGmlDefinition(axisSingleCrs), axisName);
@@ -312,4 +318,19 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
         }
     }
 
+    /**
+     * Replaces possibly inserted asterisks with real bounds of this axis.
+     * @param lo
+     * @param hi
+     * @param domEl
+     */
+    private void stars2bounds(ScalarExpr lo, ScalarExpr hi, DomainElement domEl) {
+
+        if (lo.toRasQL().equals(MSG_STAR)) {
+            lo.setSingleValue(domEl.getMinValue().toString());
+        }
+        if (hi.toRasQL().equals(MSG_STAR)) {
+            hi.setSingleValue(domEl.getMaxValue().toString());
+        }
+    }
 }

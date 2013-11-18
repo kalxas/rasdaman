@@ -25,11 +25,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.core.CoverageMetadata;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WcpsConstants;
+import static petascope.util.WcpsConstants.MSG_STAR;
 
 
 public class DimensionPointElement extends AbstractRasNode {
@@ -119,6 +121,11 @@ public class DimensionPointElement extends AbstractRasNode {
                 }
             } else {
                 throw new WCPSException("Unexpected node: " + node.getFirstChild().getNodeName());
+            }
+
+            if (domain.toRasQL().equals(MSG_STAR)) {
+                // Throw InvalidSubsetting to let the exception surface out of WCPS parsing (see CoverageExpr)
+                throw new WCPSException(ExceptionCode.InvalidSubsetting, "Cannot use asterisk in slicing expression.");
             }
 
             if (axis != null && domain != null) {

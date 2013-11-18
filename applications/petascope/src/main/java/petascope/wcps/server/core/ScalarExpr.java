@@ -102,7 +102,8 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
                     value = "" + ((NumericScalarExpr) child).getSingleValue();
                     log.trace("Matched numeric scalar expression.");
                 } catch (WCPSException e) {
-                    if (e.getExceptionCode() == ExceptionCode.MissingCRS) throw(e);
+                    if (e.getExceptionCode().equals(ExceptionCode.MissingCRS) ||
+                        e.getExceptionCode().equals(ExceptionCode.InvalidSubsetting)) throw(e);
                     child = null;
                 }
             }
@@ -219,7 +220,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
     }
 
     /** (campalani)
-     * @param newValue Replace single value (e.g. when a coordinate transform is operated on this element).
+     * @param newValue Replace single value (e.g. when a coordinate transform is operated on this element or with asterisks in trims).
      */
     public void setSingleValue(String newValue) {
         value = newValue;
