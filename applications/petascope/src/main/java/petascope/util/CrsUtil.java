@@ -301,15 +301,18 @@ public class CrsUtil {
         String datumOrigin = ""; // for TemporalCRSs
 
         // Prepare fallback URIs in case of service unavailablilty of given resolver
-        Set<String> crsUris = new HashSet<String>();
+        List<String> crsUris = new ArrayList<String>();
         crsUris.add(givenCrsUri);
         String lastUri = givenCrsUri;
         for (String resolverUri : ConfigManager.SECORE_URLS) {
-                lastUri = CrsUri(resolverUri,
+            String fullUri = CrsUri(resolverUri,
                         CrsUri.getAuthority(givenCrsUri),
                         CrsUri.getVersion(givenCrsUri),
                         CrsUri.getCode(givenCrsUri));
+            if (!crsUris.contains(fullUri)) {
+                lastUri = fullUri;
                 crsUris.add(lastUri);
+            }
         }
 
         // Start parsing
