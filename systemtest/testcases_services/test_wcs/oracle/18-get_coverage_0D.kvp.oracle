@@ -29,18 +29,18 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:gmlrgrid='http://www.opengis.net/gml/3.3/rgrid'
     xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="mr"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="mr"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="http://localhost:8080/def/crs-compound?" axisLabels="" uomLabels="" srsDimension="1">
+    <Envelope srsName="/crs-compound?" axisLabels="" uomLabels="" srsDimension="1">
       <lowerCorner></lowerCorner>
       <upperCorner></upperCorner>
     </Envelope>
   </boundedBy>
 
   <domainSet>
-    <RectifiedGrid dimension="1" gml:id="mr-grid">
+    <RectifiedGrid dimension="1" id="mr-grid">
       <limits>
         <GridEnvelope>
           <low></low>
@@ -49,11 +49,11 @@
       </limits>
       <axisLabels></axisLabels>
       <origin>
-          <Point gml:id="mr-origin" srsName="http://localhost:8080/def/crs-compound?" axisLabels="" uomLabels="" srsDimension="1">
+          <Point id="mr-origin" srsName="/crs-compound?" axisLabels="" uomLabels="" srsDimension="1">
               <pos></pos>
           </Point>
       </origin>
-    <offsetVector srsName="http://localhost:8080/def/crs-compound?" axisLabels="" uomLabels="" srsDimension="1"></offsetVector>
+    <offsetVector srsName="/crs-compound?" axisLabels="" uomLabels="" srsDimension="1"></offsetVector>
     </RectifiedGrid>
   </domainSet>
 
@@ -76,5 +76,5 @@
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-  
+  <gmlcov:metadata>test gmlcov metadata</gmlcov:metadata>
 </gmlcov:RectifiedGridCoverage>

@@ -29,18 +29,18 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:gmlrgrid='http://www.opengis.net/gml/3.3/rgrid'
     xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="irr_cube_1"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="irr_cube_1"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="http://localhost:8080/def/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
+    <Envelope srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
       <lowerCorner>0 3</lowerCorner>
       <upperCorner>2 5</upperCorner>
     </Envelope>
   </boundedBy>
 
   <domainSet>
-    <ReferenceableGridByVectors dimension="2" gml:id="irr_cube_1-grid">
+    <ReferenceableGridByVectors dimension="2" id="irr_cube_1-grid">
       <limits>
         <GridEnvelope>
           <low>0 3</low>
@@ -49,20 +49,20 @@
       </limits>
       <axisLabels>i j</axisLabels>
       <origin>
-          <Point gml:id="irr_cube_1-origin" srsName="http://localhost:8080/def/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
+          <Point id="irr_cube_1-origin" srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
               <pos>0 3</pos>
           </Point>
       </origin>
       <generalGridAxis>
         <GeneralGridAxis>
-              <offsetVector srsName="http://localhost:8080/def/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">1 0</offsetVector>
+              <offsetVector srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">1 0</offsetVector>
           <gridAxesSpanned>i</gridAxesSpanned>
           <sequenceRule axisOrder="+1">Linear</sequenceRule>
         </GeneralGridAxis>
       </generalGridAxis>
       <generalGridAxis>
         <GeneralGridAxis>
-              <offsetVector srsName="http://localhost:8080/def/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0 1</offsetVector>
+              <offsetVector srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0 1</offsetVector>
           <gridAxesSpanned>j</gridAxesSpanned>
           <sequenceRule axisOrder="+1">Linear</sequenceRule>
         </GeneralGridAxis>

@@ -29,18 +29,18 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:gmlrgrid='http://www.opengis.net/gml/3.3/rgrid'
     xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="eobstest"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="eobstest"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="http://localhost:8080/def/crs/EPSG/0/4326" axisLabels="Long Lat" uomLabels="degree degree" srsDimension="2">
+    <Envelope srsName="/crs/EPSG/0/4326" axisLabels="Long Lat" uomLabels="degree degree" srsDimension="2">
       <lowerCorner>30 30</lowerCorner>
       <upperCorner>35 31</upperCorner>
     </Envelope>
   </boundedBy>
 
   <domainSet>
-    <RectifiedGrid dimension="2" gml:id="eobstest-grid">
+    <RectifiedGrid dimension="2" id="eobstest-grid">
       <limits>
         <GridEnvelope>
           <low>10 141</low>
@@ -49,12 +49,12 @@
       </limits>
       <axisLabels>Long Lat</axisLabels>
       <origin>
-          <Point gml:id="eobstest-origin" srsName="http://localhost:8080/def/crs/EPSG/0/4326" axisLabels="Long Lat" uomLabels="degree degree" srsDimension="2">
+          <Point id="eobstest-origin" srsName="/crs/EPSG/0/4326" axisLabels="Long Lat" uomLabels="degree degree" srsDimension="2">
               <pos>30 30</pos>
           </Point>
       </origin>
-    <offsetVector srsName="http://localhost:8080/def/crs/EPSG/0/4326" axisLabels="Long Lat" uomLabels="degree degree" srsDimension="2">0.5 0</offsetVector>
-    <offsetVector srsName="http://localhost:8080/def/crs/EPSG/0/4326" axisLabels="Long Lat" uomLabels="degree degree" srsDimension="2">0 0.5</offsetVector>
+    <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Long Lat" uomLabels="degree degree" srsDimension="2">0.5 0</offsetVector>
+    <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Long Lat" uomLabels="degree degree" srsDimension="2">0 0.5</offsetVector>
     </RectifiedGrid>
   </domainSet>
 

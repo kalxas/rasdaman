@@ -29,18 +29,18 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:gmlrgrid='http://www.opengis.net/gml/3.3/rgrid'
     xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="eobstest"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="eobstest"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;&amp;2=http://localhost:8080/def/crs/EPSG/0/4326@Lat" axisLabels="t Lat" uomLabels="d degree" srsDimension="2">
+    <Envelope srsName="/crs-compound?1=/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;&amp;2=/crs/EPSG/0/4326@Lat" axisLabels="t Lat" uomLabels="d degree" srsDimension="2">
       <lowerCorner>0 -40.5</lowerCorner>
       <upperCorner>6 75.5</upperCorner>
     </Envelope>
   </boundedBy>
 
   <domainSet>
-    <RectifiedGrid dimension="2" gml:id="eobstest-grid">
+    <RectifiedGrid dimension="2" id="eobstest-grid">
       <limits>
         <GridEnvelope>
           <low>0 0</low>
@@ -49,12 +49,12 @@
       </limits>
       <axisLabels>t Lat</axisLabels>
       <origin>
-          <Point gml:id="eobstest-origin" srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;&amp;2=http://localhost:8080/def/crs/EPSG/0/4326@Lat" axisLabels="t Lat" uomLabels="d degree" srsDimension="2">
+          <Point id="eobstest-origin" srsName="/crs-compound?1=/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;&amp;2=/crs/EPSG/0/4326@Lat" axisLabels="t Lat" uomLabels="d degree" srsDimension="2">
               <pos>0 -40.5</pos>
           </Point>
       </origin>
-    <offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;&amp;2=http://localhost:8080/def/crs/EPSG/0/4326@Lat" axisLabels="t Lat" uomLabels="d degree" srsDimension="2">1 0</offsetVector>
-    <offsetVector srsName="http://localhost:8080/def/crs-compound?1=http://localhost:8080/def/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;&amp;2=http://localhost:8080/def/crs/EPSG/0/4326@Lat" axisLabels="t Lat" uomLabels="d degree" srsDimension="2">0 0.5</offsetVector>
+    <offsetVector srsName="/crs-compound?1=/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;&amp;2=/crs/EPSG/0/4326@Lat" axisLabels="t Lat" uomLabels="d degree" srsDimension="2">1 0</offsetVector>
+    <offsetVector srsName="/crs-compound?1=/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;&amp;2=/crs/EPSG/0/4326@Lat" axisLabels="t Lat" uomLabels="d degree" srsDimension="2">0 0.5</offsetVector>
     </RectifiedGrid>
   </domainSet>
 

@@ -47,3 +47,10 @@ instead of hard-wiring endpoints, e.g.:
 
   WRONG: /crs-compound?1=http://localhost:8080/def/crs/EPSG/0/4327&2=http://localhost:8080/def/crs?authority=EPSG&version=0&code=5715
 CORRECT: /crs-compound?1=%SECORE_URL%/crs/EPSG/0/4327&2=%SECORE_URL%/crs?authority=EPSG&version=0&code=5715
+
+
+-----------------
+= Failing tests =
+-----------------
+
+[pcampalani 19-nov-2013] None.

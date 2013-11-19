@@ -139,9 +139,9 @@ if [ -n "$SCRIPT_DIR" ]; then
     rm -f $OLDLOG
     mv $LOG $OLDLOG
   fi
-  
+
   rm -f "$FAILED"
-  
+
   # all output that goes to stdout is redirected to log too
   exec >  >(tee -a $LOG)
   exec 2> >(tee -a $LOG >&2)
@@ -264,7 +264,7 @@ function check_result()
   exp="$1"
   res="$2"
   msg="$3"
-  
+
   logn "$msg... "
   if [ "$exp" != "$res" ]; then
     NUM_FAIL=$(($NUM_FAIL + 1))
@@ -289,19 +289,19 @@ function check()
 }
 
 #
-# Check return code ($?) and update variables tracking number of 
+# Check return code ($?) and update variables tracking number of
 # failed/successfull tests.
 # In case of the open tests TEST SKIPPED is printed instead of TEST FAILED.
 #
 function update_result()
 {
   if [ $? != 0 ]; then
-    
+
     echo "$SCRIPT_DIR" | grep "testcases_open" > /dev/null
     rc_open=$?
     echo "$f" | egrep "\.fixed$" > /dev/null
     rc_fixed=$?
-    
+
     if [ $rc_open -ne 0 -o $rc_fixed -eq 0 ]; then
       NUM_FAIL=$(($NUM_FAIL + 1))
       log " ->  TEST FAILED"
@@ -338,21 +338,39 @@ function run_rasql_test()
   rm -f "$out"
   local QUERY=`cat $f`
   $RASQL -q "$QUERY" --out file --outfile "$out"
-  
+
   # move to proper output file
   for tmpf in `ls "$out".*  2> /dev/null`; do
     mv "$tmpf" "$out"
     break
   done
-  
-  # if the result is a scalar, there will be no tmp file by rasql, 
+
+  # if the result is a scalar, there will be no tmp file by rasql,
   # here we output the Result element scalar into tmp.unknown
   if [ ! -f "$out" ]; then
     $RASQL -q "$QUERY" --out string | grep Result > $out
   fi
-  
+
   cmp "$oracle" "$out"
   update_result
+}
+
+
+# ------------------------------------------------------------------------------
+#
+# Remove URLs and some prefixes which might break a tests during oracle comparison
+#
+function prepare_xml_file()
+{
+  xml_file="${1}"
+  if [ -n "${1}" ]; then
+      sed -i 's/gml://g' "$xml_file"
+      sed -i $'s/\r//g' "$xml_file"
+      sed -i '/xlink:href/d' "$xml_file"
+      sed -i '/identifier /d' "$xml_file"
+      sed -i 's|xmlns:[^=]*="[^"]*"||g' "$xml_file"
+      sed -i 's#http:\/\/\w\+\(:[0-9]\+\)\?\/def##g' "$xml_file" # not only test.cfg SECORE_URL, but also what's in ps9_crs!
+  fi
 }
 
 
@@ -367,24 +385,24 @@ function run_test()
   if [ ! -f "$f" ]; then
     error "test case not found: $f"
   fi
-  
+
   # check if rasdaman is running and exit if not
   $RASQL -q 'select c from RAS_COLLECTIONNAMES as c' --out string > /dev/null 2>&1
   if [ $? -ne 0 ]; then
     log "rasdaman down, exiting..."
     cleanup
   fi
-  
+
   # if testcase marked as fixed temporarily we remove the .fixed extension
   oldf="$f"
   if [ -n "$FIXED" -a $FIXED -eq 1 ]; then
     f="$fixedf"
     FIXED=0
   fi
-  
+
   # get test type - file extension
   test_type=`echo "$f" | sed 's/.*\.//'`
-  
+
   # various other files expected  by the run_*_test functions
   oracle="$ORACLE_PATH/$f.oracle"
   out="$OUTPUT_PATH/$f.out"
@@ -392,14 +410,14 @@ function run_test()
   pre_script="$QUERIES_PATH/$f.pre.sh"
   post_script="$QUERIES_PATH/$f.post.sh"
   check_script="$QUERIES_PATH/$f.check.sh"
-  
+
   # restore original filename
   f="$oldf"
-  
+
   # temporary files
   oracle_tmp="$OUTPUT_PATH/temporary_oracle"
   output_tmp="$OUTPUT_PATH/temporary_out"
-  
+
   #
   # run pre script if present
   #
@@ -410,19 +428,19 @@ function run_test()
       log "warning: pre script failed execution - $pre_script"
     fi
   fi
-  
+
   if [[ "$f" == *.sh ]]; then
-    
+
     #
     # 0. run custom test script if present
     #
     $f "$out" "$oracle"
     update_result
-    
+
   else
-    
+
     QUERY=`cat $f | tr -d '\n'`
-    
+
     #
     # 1. execute test query
     #
@@ -457,15 +475,15 @@ function run_test()
       select|rasql)
               QUERY=`cat $f`
               $RASQL -q "$QUERY" --out file --outfile "$out" --quiet > /dev/null
-              
+
               # move to proper output file
               for tmpf in `ls "$out".*  2> /dev/null`; do
                 [ -f "$tmpf" ] || continue
                 mv "$tmpf" "$out"
                 break
               done
-              
-              # if the result is a scalar, there will be no tmp file by rasql, 
+
+              # if the result is a scalar, there will be no tmp file by rasql,
               # here we output the Result element scalar into tmp.unknown
               if [ ! -f "$out" ]; then
                 $RASQL -q "$QUERY" --out string | grep Result > $out
@@ -473,9 +491,19 @@ function run_test()
               ;;
       *)      error "unknown service: $SVC_NAME"
     esac
-    
+
     #
-    # 2. check result
+    # 2a. create $oracle from $ouput, if missing
+    #
+    if [ ! -f "$oracle" ]; then
+        log " -> NO ORACLE FOUND"
+        log " -> copying $out to $oracle"
+        prepare_xml_file "$out"
+        cp "$out" "$oracle"
+    fi
+
+    #
+    # 2b. check result
     #
     if [ -n "$check_script" -a -f "$check_script" ]; then
       log "custom script"
@@ -484,32 +512,19 @@ function run_test()
 
     # do the secore comparison
     elif [ "$SVC_NAME" = "secore" ]; then
-      sed 's/gml://g' "$out" > "$output_tmp"
-      sed 's/gml://g' "$oracle" > "$oracle_tmp"
-      
-      sed -i $'s/\r//g' "$output_tmp"
-      sed -i $'s/\r//g' "$oracle_tmp"
 
-      sed -i '/xlink:href/d' "$output_tmp"
-      sed -i '/xlink:href/d' "$oracle_tmp"
+      # remove possible uncertainty
+      prepare_xml_file "$out"
 
-      sed -i '/identifier /d' "$output_tmp"
-      sed -i '/identifier /d' "$oracle_tmp"
+      #sort "$out" -o "$out"
+      #sort "$oracle" -o "$oracle"
 
-      sed -i 's|xmlns:[^=]*="[^"]*"||g' "$output_tmp"
-      sed -i 's|xmlns:[^=]*="[^"]*"||g' "$oracle_tmp"
-
-      sed -i 's|'$SECORE_URL'||g' "$output_tmp" "$oracle_tmp"
-
-      sort "$output_tmp" -o "$output_tmp"
-      sort "$oracle_tmp" -o "$oracle_tmp"
-      
-      cmp "$oracle_tmp" "$output_tmp" 
+      cmp "$oracle" "$out"
       update_result
       #check_result 0 "$?" "$oracle"
-    
+
     else
-    
+
       grep "$oracle" "Stack trace" > /dev/null 2>&1
       if [ $? -eq 0 ]; then
         # do exception comparison
@@ -523,7 +538,7 @@ function run_test()
         head -"$lineNo" "$oracle" > "$oracle_tmp"
         cmp "$output_tmp" "$oracle_tmp" 2>&1
         update_result
-        
+
       elif [[ "$oracle" == *.error.* ]]; then
 
         # This test is supposed to raise an exception: check wget exit code instead of the response.
@@ -532,7 +547,7 @@ function run_test()
         update_result
 
       elif [ -f "$oracle" ]; then
-      
+
         filetype=`file "$oracle" | awk -F ':' '{print $2;}'`
         echo "$filetype" | egrep -i "(xml|ascii|text)" > /dev/null
         rc=$?
@@ -545,22 +560,27 @@ function run_test()
           cmp "$output_tmp" "$oracle_tmp" 2>&1
         else
           # byte comparison
+          if [[ "$filetype" == *XML* ]]; then
+              log "preparing XML output for oracle comparison"
+              prepare_xml_file "$out"
+          fi
           log "byte comparison"
           cmp "$oracle" "$out" 2>&1
         fi
         update_result
-        
-      else
+
+      else # keep this to re-copy oracle in case it was accidentally deleted since Sec.2a (rare)
         log " -> NO ORACLE FOUND"
         log " -> copying $out to $oracle"
+        prepare_xml_file "$out"
         cp "$out" "$oracle"
         NUM_FAIL=$(($NUM_FAIL + 1))
       fi
     fi
-    
+
     #rm -f "$oracle_tmp" "$output_tmp"
   fi
-  
+
   #
   # run post script if present
   #

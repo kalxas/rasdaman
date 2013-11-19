@@ -32,27 +32,27 @@
       xmlns:wcs='http://www.opengis.net/wcs/2.0'
       xmlns:gmlce='http://www.opengis.net/gml/3.3/ce'
       xsi:schemaLocation='http://www.opengis.net/gmlcov/1.0 http://schemas.opengis.net/gmlcov/1.0/gmlcovAll.xsd'
-    gml:id="Parksmall">
+    id="Parksmall">
 
-  <gml:boundedBy>
-        <gml:Envelope srsName="http://www.opengis.net/def/crs/EPSG/0/4979" axisLabels="Lat Long h" uomLabels="Lat h" srsDimension="3">
-            <gml:lowerCorner>1 339866.84375 1 </gml:lowerCorner>
-            <gml:upperCorner>1 339866.84375 1 </gml:upperCorner>
-        </gml:Envelope>
-  </gml:boundedBy>
+  <boundedBy>
+        <Envelope srsName="http://www.opengis.net/def/crs/EPSG/0/4979" axisLabels="Lat Long h" uomLabels="Lat h" srsDimension="3">
+            <lowerCorner>1 339866.84375 1 </lowerCorner>
+            <upperCorner>1 339866.84375 1 </upperCorner>
+        </Envelope>
+  </boundedBy>
 
-  <gml:domainSet>
-        <gmlcov:SimpleMultiPoint gml:id="multipoint_Parksmall-grid" srsName="http://www.opengis.net/def/crs/EPSG/0/4979">
+  <domainSet>
+        <gmlcov:SimpleMultiPoint id="multipoint_Parksmall-grid" srsName="http://www.opengis.net/def/crs/EPSG/0/4979">
             <gmlcov:positions>456378.65627500002 53.924899580000002 456378.68757499999 53.922999580000003 456378.59377499 53.927999579999998 456378.53127499 53.933899580000002 456378.28127497999 53.949999579999997 456378.00007497001 53.964999579999997 456378.71877500002 53.921999579999998 456378.25007498002 53.950999580000001 456378.90617501002 53.911899579999996 456378.78117500001 53.916999580000002 456378.78117500001 53.916999580000002 456378.31257498002 53.948999579999999 456378.43757498998 53.941999580000001 456378.31257498002 53.947999580000001 456378.56257498998 53.934999580000003 </gmlcov:positions>
         </gmlcov:SimpleMultiPoint>
-    </gml:domainSet>
+    </domainSet>
 
-  <gml:rangeSet>
-        <gml:DataBlock>
-        <gml:rangeParameters/>
-            <gml:tupleList>255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 </gml:tupleList>
-        </gml:DataBlock>
-  </gml:rangeSet>
+  <rangeSet>
+        <DataBlock>
+        <rangeParameters/>
+            <tupleList>255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 </tupleList>
+        </DataBlock>
+  </rangeSet>
 
   <gmlcov:rangeType>
     <swe:DataRecord>

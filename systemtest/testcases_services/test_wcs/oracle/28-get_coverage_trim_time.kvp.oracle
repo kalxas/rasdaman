@@ -29,18 +29,18 @@
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:gmlrgrid='http://www.opengis.net/gml/3.3/rgrid'
     xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="eobstest"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="eobstest"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="http://localhost:8080/def/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+    <Envelope srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
       <lowerCorner>0</lowerCorner>
       <upperCorner>4</upperCorner>
     </Envelope>
   </boundedBy>
 
   <domainSet>
-    <RectifiedGrid dimension="1" gml:id="eobstest-grid">
+    <RectifiedGrid dimension="1" id="eobstest-grid">
       <limits>
         <GridEnvelope>
           <low>0</low>
@@ -49,11 +49,11 @@
       </limits>
       <axisLabels>t</axisLabels>
       <origin>
-          <Point gml:id="eobstest-origin" srsName="http://localhost:8080/def/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+          <Point id="eobstest-origin" srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
               <pos>0</pos>
           </Point>
       </origin>
-    <offsetVector srsName="http://localhost:8080/def/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">1</offsetVector>
+    <offsetVector srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">1</offsetVector>
     </RectifiedGrid>
   </domainSet>
 

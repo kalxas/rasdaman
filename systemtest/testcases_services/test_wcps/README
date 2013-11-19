@@ -25,8 +25,10 @@ contained in the queries directory, to add a new test please refer to the
 The oracle folder contains oracles required for the test verification.
 To generate a new oracle, just remove the existing oracle and run the tests.
 The respective output from the test will be automatically copied to the
-oracle dir. For more information please refer to the "Adding tests" section
-in this document.
+oracle dir. In case of XML documents, it is highly recommended to let the
+systemtest add the oracle automatically since the body of the result is
+modified by the engine to have more robust comparisons.
+For more information please refer to the "Adding tests" section in this document.
 
 To run the tests, execute:
 
