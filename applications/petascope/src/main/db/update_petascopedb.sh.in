@@ -278,19 +278,41 @@ else
 fi
 
 # Enabling PostGIS and Creating Multipoint schema
-log "Looking for postgis.sql file in /usr, needed to enable multipoint support in petascope..."
-POSTGIS_SQL_FILE=`find /usr/ -name postgis.sql` 
-if [ -n "$POSTGIS_SQL_FILE" ]; then
-  POSTGIS_VERSION=`grep -r "INSTALL VERSION"  /usr/share/postgresql/9.1/contrib/postgis-2.1/postgis.sql | awk '{ print $4; }'`
-  log "Detected PostGIS version: $POSTGIS_VERSION"
-  logn "Enabling PostGIS in PetascopeDB ..."
-  $PSQL -f  "$POSTGIS_SQL_FILE"  > /dev/null
-  echo "ok."
-  logn "Creating Multipoint schema ... "
-  $PSQL -f "$SCRIPT_DIR/$SCHEMA_MULTIPOINT" > /dev/null
-  echo "ok."
+        POSTGIS_SQL='postgis.sql'
+    SPATIAL_REF_SQL='spatial_ref_sys.sql'
+POSTGIS_REQ_VERSION=2
+ GEOM_COLUMNS_TABLE='geometry_columns'
+#
+logn "Looking for $POSTGIS_SQL and $SPATIAL_REF_SQL files (multipoint support) ..."
+    POSTGIS_SQL_PATH=$( locate -qb '\'"${POSTGIS_SQL}"     | head -n 1 )
+SPATIAL_REF_SQL_PATH=$( locate -qb '\'"${SPATIAL_REF_SQL}" | head -n 1 )
+echo " Ok."
+#
+if [ -n "$POSTGIS_SQL_PATH" -a -n "$SPATIAL_REF_SQL_PATH" ]; then
+    log "Using \`\`${POSTGIS_SQL_PATH}'' and \`\`${SPATIAL_REF_SQL_PATH}''."
+    # version >= 2.0 ?
+    POSTGIS_VERSION=$( grep "INSTALL VERSION" "$POSTGIS_SQL_PATH" | awk '{ print $4; }' )
+    log "Detected PostGIS version: $POSTGIS_VERSION"
+    if [ "${POSTGIS_VERSION%%\.*}" -lt "$POSTGIS_REQ_VERSION" ]; then
+      log "Warning: PostGIS version $POSTGIS_REQ_VERSION is required, please update and retry."
+    fi
+    # enable PostGIS (if not already enabled)
+    $PSQL -c "SELECT * FROM $GEOM_COLUMNS_TABLE LIMIT 1;" > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        logn "Enabling PostGIS in $PS_DB ... "
+        $PSQL -f "$POSTGIS_SQL_PATH"     -v ON_ERROR_STOP=1 > /dev/null # do not use SINGLE_TRANSACTION opt here (it is self-wrapped)
+        $PSQL -f "$SPATIAL_REF_SQL_PATH" -v ON_ERROR_STOP=1 > /dev/null #
+        echo "ok."
+    else
+        log "PostGIS seems already enabled in $PS_DB (table $GEOM_COLUMNS_TABLE detected)."
+    fi;
+    # add tables for multipoint
+    logn "Adding tables for multipoint coverages support ... "
+    $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$SCHEMA_MULTIPOINT" > /dev/null 2>&1
+    echo "ok."
 else
-  log "Warning: postgis.sql not found, please install PostGIS >= 2.0 and rerun this script to enable support for multipoint coverages."
+    log "Warning: $POSTGIS_SQL and/or $SPATIAL_REF_SQL not found, please install PostGIS (>= ${POSTGIS_REQ_VERSION}.0) and retry."
+    log "In case of fresh installations of PostGIS, please update the locate database and retry (\`\`man updatedb'')"
 fi
 
 # migration
