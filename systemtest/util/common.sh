@@ -510,19 +510,6 @@ function run_test()
       "$check_script" "$out" "$oracle"
       update_result
 
-    # do the secore comparison
-    elif [ "$SVC_NAME" = "secore" ]; then
-
-      # remove possible uncertainty
-      prepare_xml_file "$out"
-
-      #sort "$out" -o "$out"
-      #sort "$oracle" -o "$oracle"
-
-      cmp "$oracle" "$out"
-      update_result
-      #check_result 0 "$?" "$oracle"
-
     else
 
       grep "$oracle" "Stack trace" > /dev/null 2>&1
