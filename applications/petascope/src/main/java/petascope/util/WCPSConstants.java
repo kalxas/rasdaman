@@ -330,6 +330,15 @@ public interface WCPSConstants {
     public static final String MSG_Y                            = "Y";
     public static final String MSG_Y01                          = "Y01";
     public static final String MSG_Y23                          = "Y23";
+    public static final String MSG_SWITCH                       = "switch";
+    public static final String MSG_CASE                         = "case";
+    public static final String MSG_CONDITION                    = "condition";
+    public static final String MSG_RESULT                       = "result";
+    public static final String MSG_DEFAULT                      = "default";
+    public static final String MSG_WHEN                         = "when";
+    public static final String MSG_THEN                         = "then";
+    public static final String MSG_ELSE                         = "else";
+    public static final String MSG_END                          = "end";
        
     /**
      * DBParam messages  
@@ -451,6 +460,7 @@ public interface WCPSConstants {
     public static final String ERRTXT_SUBSET_OP_COV_EXPR           = "SubsetOperationCoverageExpr parsing error.";
     public static final String ERRTXT_THE_DOC_UNRECOG_NODE         = "The document contains an unrecognized node : ";
     public static final String ERRTXT_UNKNOWN_PROC_COMPLEX_CONST   = "Unknown node while processing complex constant";
+    public static final String ERRTXT_MISSING_SWITCH_DEFAULT       = "The default branch of the switch is missing.";
 
     /**
      * Debug messages  

@@ -157,10 +157,10 @@
 424^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Some operands have less dimensions than the one specified for concatenation.
 425^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: r_Mintervals of concatenation operands not mergeable.
 #
-426^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The condition MDDs don't have the same domain.
-427^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The condition MDDs don't have the same tiling.
+426^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The condition and result MDDs don't have the same domain.
+427^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The condition and result MDDs don't have the same tiling.
 428^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: At least one condition is not boolean MDD.
-429^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: At least one result type is not base type.
+429^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: At least one result type is not base type or MDD.
 430^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The results have incompatible types.
 431^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: At least one condition is not boolean.
 #

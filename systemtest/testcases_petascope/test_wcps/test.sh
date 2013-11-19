@@ -114,7 +114,7 @@ check_wget
 check_gdal
 
 # run import if necessary
-import_data
+#import_data
 
 mkdir -p "$OUTPUT_PATH"
 pushd "$QUERIES_PATH" > /dev/null

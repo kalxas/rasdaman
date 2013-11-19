@@ -97,6 +97,7 @@ coverageValue returns[CoverageExpr value]
     | e4=scaleExpr { $value = new CoverageExpr($e4.value); }
     | e3=crsTransformExpr { $value = new CoverageExpr($e3.value); }
     | e1=coverageAtom { $value = $e1.value; }
+    | e6=switchExpr { $value = new CoverageExpr($e6.value); }
     ;
 coverageAtom returns[CoverageExpr value]
     : e2=scalarExpr { $value = new CoverageExpr($e2.value); }
@@ -172,6 +173,7 @@ coverageAtomConstructor returns[CoverageExpr value]
     | e9=coverageConstructorExpr  { $value = new CoverageExpr($e9.value); }
     | e10=setMetaDataExpr  { $value = new CoverageExpr($e10.value); }
     | e11=rangeConstructorExpr  { $value = new CoverageExpr($e11.value); }
+    | e12=switchExpr { $value = new CoverageExpr($e12.value); }
     ;
 coverageConstructorExpr returns[CoverageConstructorExpr value]
 	: COVERAGE coverage=coverageName OVER ail=axisIteratorList VALUES se=coverageAtomConstructor
@@ -422,8 +424,12 @@ coverageVariable returns[String value]
 coverageName returns[String value]
 	: name { $value = $name.value; }
 	;
+switchExpr returns[SwitchExpr value]
+    : SWITCH CASE cond = coverageExpr RETURN res = coverageExpr {$value = new SwitchExpr(); $value.add($cond.value); $value.add($res.value);}
+        (CASE cond = coverageExpr RETURN res = coverageExpr {$value.add($cond.value); $value.add($res.value);})*
+        DEFAULT RETURN def = coverageExpr {$value.add($def.value);}
+    ;
 
-	
 /* Lexer rules */
 PLUS:	 '+';
 MINUS:	 '-';
@@ -526,6 +532,9 @@ FLOAT: ('f'|'F')('l'|'L')('o'|'O')('a'|'A')('t'|'T');
 DOUBLE: ('d'|'D')('o'|'O')('u'|'U')('b'|'B')('l'|'L')('e'|'E');
 COMPLEX: ('c'|'C')('o'|'O')('m'|'M')('p'|'P')('l'|'L')('e'|'E')('x'|'X');
 COMPLEX2: ('c'|'C')('o'|'O')('m'|'M')('p'|'P')('l'|'L')('e'|'E')('x'|'X')'2';
+SWITCH: ('s' | 'S')('w' | 'W')('i' | 'I')('t' | 'T')('c' | 'C')('h' | 'H');
+CASE: ('c' | 'C')('a' | 'A')('s' | 'S')('e' | 'E');
+DEFAULT: ('d' | 'D')('e' | 'E')('f' | 'F')('a' | 'A')('u' | 'U')('l' | 'L')('t' | 'T');
 BOOLEANCONSTANT: (('t'|'T')('r'|'R')('u'|'U')('e'|'E'))|(('f'|'F')('a'|'A')('l'|'L')('s'|'S')('e'|'E'));
 INTEGERCONSTANT:  (PLUS|MINUS)? ('0'..'9')+;
 FLOATCONSTANT: INTEGERCONSTANT ('.')('0'..'9'+)(('e'|'E')(('-'|'+')?)('0'..'9'+))?;
