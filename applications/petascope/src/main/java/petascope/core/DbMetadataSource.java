@@ -1775,7 +1775,7 @@ public class DbMetadataSource implements IMetadataSource {
                  whereClause  += " AND " + TABLE_MULTIPOINT + "." + MULTIPOINT_COORDINATE + " && "
                     + "'BOX3D(" + xmin + " " + ymin + " " + zmin + "," + xmax + " " + ymax + " " + zmax + ")'::box3d";
             }
-            genQuery = selectClause + " FROM " + TABLE_MULTIPOINT + whereClause;
+            genQuery = selectClause + " FROM " + TABLE_MULTIPOINT + whereClause + " ORDER BY " + MULTIPOINT_ID;
             log.debug("postGISQuery: " + genQuery);
 
             ResultSet r = s.executeQuery(genQuery);
