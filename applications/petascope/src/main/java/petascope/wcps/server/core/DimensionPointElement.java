@@ -155,7 +155,10 @@ public class DimensionPointElement extends AbstractRasNode {
             }
         }
 
-        if (finished == true && crs != null && !crs.getName().equals(CrsUtil.GRID_CRS)) {
+        if (finished == true &&
+                covInfo.isGridded() &&
+                crs != null &&
+                !crs.getName().equals(CrsUtil.GRID_CRS)) {
             convertToPixelCoordinate();
         }
     }

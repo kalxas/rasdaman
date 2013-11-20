@@ -30,16 +30,18 @@ import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WcpsConstants;
+import petascope.util.XMLSymbols;
 
 public class CoverageInfo {
 
     private static Logger log = LoggerFactory.getLogger(CoverageInfo.class);
 
-    private List<CellDomainElement> cellDomains;
-    private List<DomainElement> domains;
-    private String coverageName;
-    private String coverageCrs;
-    private Bbox bbox;
+    private final List<CellDomainElement> cellDomains;
+    private final List<DomainElement> domains;
+    private final String coverageName;
+    private final String coverageCrs;
+    private final Bbox bbox;
+    private final boolean gridded;
 
     public CoverageInfo(CoverageInfo other) {
         cellDomains = new ArrayList<CellDomainElement>();
@@ -54,6 +56,7 @@ public class CoverageInfo {
         coverageName = other.getCoverageName();
         coverageCrs = other.getCoverageCrs();
         bbox = other.getBbox();
+        gridded = other.isGridded();
     }
 
     public CoverageInfo(CoverageMetadata m) {
@@ -74,6 +77,8 @@ public class CoverageInfo {
         coverageName = m.getCoverageName();
         coverageCrs= CrsUtil.CrsUri.createCompound(m.getCrsUris());
         bbox = m.getBbox();
+        // is the coverage gridded or e.g. multipoint?
+        gridded = m.getCoverageType().matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE);
     }
 
     public boolean isCompatible(CoverageInfo other) {
@@ -198,6 +203,13 @@ public class CoverageInfo {
 
         log.error("Axis name not found: " + name);
         throw new WCPSException("Domain name not found: " + name);
+    }
+
+    /**
+     * @return True if the coverage is gridded, false otherwise.
+     */
+    public boolean isGridded() {
+        return this.gridded;
     }
 
     @Override

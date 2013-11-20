@@ -44,6 +44,7 @@ import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.StringUtil;
 import petascope.util.TimeUtil;
+import static petascope.util.XMLSymbols.*;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
@@ -378,9 +379,9 @@ public abstract class AbstractFormatExtension implements FormatExtension {
 
 
         if (req.isScaled()) {
-            if (!((cov.getCoverageType().equals("GridCoverage")) ||
-                    (cov.getCoverageType().equals("RectifiedGridCoverage")) ||
-                    (cov.getCoverageType().equals("ReferenceableGridCoverage")))) {
+            if (!((cov.getCoverageType().equals(LABEL_GRID_COVERAGE)) ||
+                    (cov.getCoverageType().equals(LABEL_RECTIFIED_GRID_COVERAGE)) ||
+                    (cov.getCoverageType().equals(LABEL_REFERENCEABLE_GRID_COVERAGE)))) {
                 throw new WCSException(ExceptionCode.InvalidCoverageType.locator(req.getCoverageId()));
             }
             Scaling s = req.getScaling();

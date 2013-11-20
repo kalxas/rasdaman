@@ -194,7 +194,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
         }
 
         // Pixel indices are retrieved from bbox, which is stored for XY plane only.
-        if (finished == true) {
+        if (finished == true && covInfo.isGridded()) {
             if (!crs.getName().equals(CrsUtil.GRID_CRS)) {
                 convertToPixelCoordinates();
             } else {

@@ -124,4 +124,5 @@ to the file name before its extension, for both query and oracle.
 = Failing tests =
 -----------------
 
+[pcampalani 20-nov-2013] 86-get_metadata_domain.test: see ticket #550.
 [pcampalani 15-nov-2013] 31-Discrete_Fourier.test: see ticket #485.

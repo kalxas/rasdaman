@@ -218,29 +218,22 @@ public class CoverageMetadata implements Cloneable {
             List<CellDomainElement> cellDomain,
             List<RangeElement> rangeElements
             ) throws WCPSException{
-        List<String> crsUris = new ArrayList<String>();
 
+        crsUris = new ArrayList<String>();
         this.coverageName = coverageName;
         this.coverageType = coverageType;
         this.nativeFormat = nativeFormat;
         this.extraMetadata = extraMeta;
 
-        // Build the list of CRS URIS
-         for (Pair<CrsDefinition.Axis,String> pair : crsAxes) {
-            if (!crsUris.contains(pair.snd)) {
-                     crsUris.add(pair.snd);
-            }
-         }
-         this.crsUris = crsUris;
-
 
         List<CellDomainElement> cellDomainList = new LinkedList<CellDomainElement>();
         List<RangeElement> rangeList = new LinkedList<RangeElement>();
         List<DomainElement> domainList = new LinkedList<DomainElement>();
-        List<String> crs = new ArrayList<String>(1);
-        crs.add(CrsUtil.GRID_CRS);
 
         for(int i=0; i < crsAxes.size(); i++){
+            // Get CRS
+            String crsUri = crsAxes.get(i).snd;
+            crsUris.add(crsUri);
             // Build domain metadata
             cellDomainList.add(new CellDomainElement("1", "1", 0));
             domainList.add( new DomainElement(
@@ -249,7 +242,7 @@ public class CoverageMetadata implements Cloneable {
                 crsAxes.get(i).fst.getAbbreviation(),
                 crsAxes.get(i).fst.getType(),
                 CrsUtil.PURE_UOM,
-                crs.get(0),
+                crsUri,
                 0,
                 BigInteger.ONE,
                 false)
