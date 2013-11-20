@@ -35,22 +35,22 @@
     id="Parksmall">
 
   <boundedBy>
-        <Envelope srsName="http://www.opengis.net/def/crs/EPSG/0/4979" axisLabels="Lat Long h" uomLabels="Long h" srsDimension="3">
+        <Envelope srsName="/crs/EPSG/0/4979" axisLabels="Lat Long h" uomLabels="Long h" srsDimension="3">
             <lowerCorner>456377.59377495 1 1 </lowerCorner>
             <upperCorner>456377.59377495 1 1 </upperCorner>
         </Envelope>
   </boundedBy>
 
   <domainSet>
-        <gmlcov:SimpleMultiPoint id="multipoint_Parksmall-grid" srsName="http://www.opengis.net/def/crs/EPSG/0/4979">
-            <gmlcov:positions>339868.06245005998 53.92999958 339867.49995003 53.92999958 339867.15615001001 53.958999579999997 339867.87495005003 53.924899580000002 339867.74995004002 53.919899579999999 </gmlcov:positions>
+        <gmlcov:SimpleMultiPoint id="multipoint_Parksmall-grid" srsName="/crs/EPSG/0/4979">
+            <gmlcov:positions>339867.87495005003 53.924899580000002 339867.74995004002 53.919899579999999 339868.06245005998 53.92999958 339867.15615001001 53.958999579999997 339867.49995003 53.92999958 </gmlcov:positions>
         </gmlcov:SimpleMultiPoint>
     </domainSet>
 
   <rangeSet>
         <DataBlock>
         <rangeParameters/>
-            <tupleList>231,207,173 255,255,255 255,255,255 208,180,156 224,197,170 </tupleList>
+            <tupleList>208,180,156 224,197,170 231,207,173 255,255,255 255,255,255 </tupleList>
         </DataBlock>
   </rangeSet>
 

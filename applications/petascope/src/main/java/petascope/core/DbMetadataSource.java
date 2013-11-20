@@ -57,7 +57,6 @@ import petascope.ows.ServiceProvider;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
-import petascope.util.WcpsConstants;
 import petascope.util.XMLSymbols;
 import static petascope.util.ras.RasConstants.*;
 import petascope.util.ras.RasQueryResult;
@@ -145,6 +144,12 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String TABLE_INTERVAL_QUANTITY  = TABLES_PREFIX + "interval_quantity";
     public static final String INTERVAL_QUANTITY_IID    = "quantity_id";
     public static final String INTERVAL_QUANTITY_QID    = "interval_id";
+    // TABLE_MULTIPOINT : store geometry and rangeset of multipoint coverages
+    public static final String TABLE_MULTIPOINT       = TABLES_PREFIX + "multipoint";
+    public static final String MULTIPOINT_ID          = "id";
+    public static final String MULTIPOINT_COVERAGE_ID = "coverage_id";
+    public static final String MULTIPOINT_COORDINATE  = "coordinate";
+    public static final String MULTIPOINT_VALUE       = "value";
     // TABLE_RANGE_DATATYPE : WCPS range types [OGC 08-068r2, Tab.2]
     public static final String TABLE_RANGE_DATATYPE     = TABLES_PREFIX + "range_data_type";
     public static final String RANGE_DATATYPE_ID        = "id";
@@ -1690,7 +1695,7 @@ public class DbMetadataSource implements IMetadataSource {
      * @return
      * @throws PetascopeException
      */
-    public String[] multipointDomainRangeData(String schemaName, String coverageID, String coverageName,
+    public String[] multipointDomainRangeData(String schemaName, int coverageID, String coverageName,
                                List<CellDomainElement> cellDomainList) throws PetascopeException {
         String[] members = {"", ""};
         Statement s = null;
@@ -1707,54 +1712,70 @@ public class DbMetadataSource implements IMetadataSource {
             String zmin = cellDomainList.get(2).getLo().toString();
             String zmax = cellDomainList.get(2).getHi().toString();
 
-            String query = "";
+            String sqlQuery = "";
             ResultSet res = null;
             if (xmin.equals("1") && xmax.equals("1")) {
-                query = "SELECT min(St_X(coordinate)) mi,max(St_X(coordinate)) as ma FROM ps9_multipoint";
-                res = executePostGISQuery(query);
+                sqlQuery =
+                        "SELECT min(St_X(" + MULTIPOINT_COORDINATE + "))," +
+                              " max(St_X(" + MULTIPOINT_COORDINATE + ")) " +
+                        " FROM " + TABLE_MULTIPOINT
+                        ;
+                res = executePostGISQuery(sqlQuery);
                 while(res.next()){
-                    xmin = res.getString("mi");
-                    xmax = res.getString("ma");
+                    xmin = res.getString(1);
+                    xmax = res.getString(2);
                 }
             }
             if (ymin.equals("1") && ymax.equals("1")) {
-                query = "SELECT min(St_Y(coordinate)) mi,max(St_Y(coordinate)) as ma FROM ps9_multipoint";
-                res = executePostGISQuery(query);
+                sqlQuery =
+                        "SELECT min(St_Y(" + MULTIPOINT_COORDINATE + "))," +
+                              " max(St_Y(" + MULTIPOINT_COORDINATE + ")) " +
+                        " FROM " + TABLE_MULTIPOINT
+                        ;
+                res = executePostGISQuery(sqlQuery);
                 while(res.next()){
-                    ymin = res.getString("mi");
-                    ymax = res.getString("ma");
+                    ymin = res.getString(1);
+                    ymax = res.getString(2);
                 }
             }
             if (zmin.equals("1") && zmax.equals("1")) {
-                query = "SELECT min(St_Z(coordinate)) mi,max(St_Z(coordinate)) as ma FROM ps9_multipoint";
-                res = executePostGISQuery(query);
+                sqlQuery =
+                        "SELECT min(St_Z(" + MULTIPOINT_COORDINATE + "))," +
+                              " max(St_Z(" + MULTIPOINT_COORDINATE + ")) " +
+                        " FROM " + TABLE_MULTIPOINT
+                        ;
+                res = executePostGISQuery(sqlQuery);
                 while(res.next()){
-                    zmin = res.getString("mi");
-                    zmax = res.getString("ma");
+                    zmin = res.getString(1);
+                    zmax = res.getString(2);
                 }
             }
 
             // Check for slicing
             String genQuery = "";
-            String selectClause = WcpsConstants.MSG_SELECT + " value[1] || ',' || value[2] || ',' || value[3],";
-            String whereClause = WcpsConstants.MSG_WHERE + " coverage_id=(SELECT id FROM ps9_coverage " +
-                    "WHERE name='" + coverageID + "') ";
+            String selectClause =
+                    "SELECT " + MULTIPOINT_VALUE + "[1] || ',' || "
+                              + MULTIPOINT_VALUE + "[2] || ',' || "
+                              + MULTIPOINT_VALUE + "[3],"
+                    ;
+            String whereClause =
+                    " WHERE "  + MULTIPOINT_COVERAGE_ID + " = " + coverageID;
 
             if (xmin.equals(xmax)) {
-                selectClause += "St_Y(coordinate) || ' ' || St_Z(coordinate)";
-                whereClause += " AND St_X(coordinate) = " + xmin;
+                selectClause +=      "St_Y(" + MULTIPOINT_COORDINATE + ") || ' ' || St_Z(" + MULTIPOINT_COORDINATE + ")";
+                whereClause  += " AND St_X(" + MULTIPOINT_COORDINATE + ") = " + xmin;
             } else if (ymin.equals(ymax)) {
-                selectClause += "St_X(coordinate) || ' ' || St_Z(coordinate)";
-                whereClause += " AND St_Y(coordinate) = " + ymin;
+                selectClause +=      "St_X(" + MULTIPOINT_COORDINATE + ") || ' ' || St_Z(" + MULTIPOINT_COORDINATE + ")";
+                whereClause  += " AND St_Y(" + MULTIPOINT_COORDINATE + ") = " + ymin;
             } else if (zmin.equals(zmax)) {
-                selectClause += "St_X(coordinate) || ' ' || St_Y(coordinate)";
-                whereClause += " AND St_Z(coordinate) = " + zmin;
+                selectClause +=      "St_X(" + MULTIPOINT_COORDINATE + ") || ' ' || St_Y(" + MULTIPOINT_COORDINATE + ")";
+                whereClause  += " AND St_Z(" + MULTIPOINT_COORDINATE + ") = " + zmin;
             } else {
-                 selectClause += "St_X(coordinate) || ' ' || St_Y(coordinate) || ' ' || St_Z(coordinate)";
-                 whereClause += " AND  d.coordinate && "
+                 selectClause += "St_X(" + MULTIPOINT_COORDINATE + ") || ' ' || St_Y(" + MULTIPOINT_COORDINATE + ") || ' ' || St_Z(" + MULTIPOINT_COORDINATE + ")";
+                 whereClause  += " AND " + TABLE_MULTIPOINT + "." + MULTIPOINT_COORDINATE + " && "
                     + "'BOX3D(" + xmin + " " + ymin + " " + zmin + "," + xmax + " " + ymax + " " + zmax + ")'::box3d";
             }
-            genQuery = selectClause + WcpsConstants.MSG_FROM + " ps9_multipoint AS d " + whereClause;
+            genQuery = selectClause + " FROM " + TABLE_MULTIPOINT + whereClause;
             log.debug("postGISQuery: " + genQuery);
 
             ResultSet r = s.executeQuery(genQuery);

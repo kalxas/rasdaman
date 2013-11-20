@@ -125,11 +125,11 @@ public class GmlFormatExtension extends AbstractFormatExtension {
     /**
      * Handles a request for MultiPoint Coverages and returns a response XML
      * @param req
-     * @param coverageID
+     * @param coverageName
      * @return
      * @throws WCSException
      */
-    private Response handleMultiPoint(GetCoverageRequest req, String coverageID, DbMetadataSource meta, GetCoverageMetadata m)
+    private Response handleMultiPoint(GetCoverageRequest req, String coverageName, DbMetadataSource meta, GetCoverageMetadata m)
             throws WCSException {
         CoverageMetadata cov = m.getMetadata();
         String ret = WcsUtil.getGML(m, Templates.MULTIPOINT_COVERAGE, false, meta);
@@ -184,8 +184,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
                 high += aCellDomainList.getHi() + " ";
             }
 
-            String[] members = meta.multipointDomainRangeData(MULTIPOINTSCHEMA, coverageID, req.
-                    getCoverageId(), cellDomainList);
+            String[] members = meta.multipointDomainRangeData(MULTIPOINTSCHEMA, meta.coverageID(coverageName), coverageName, cellDomainList);
             pointMembers = members[0];
             rangeMembers = members[1];
 

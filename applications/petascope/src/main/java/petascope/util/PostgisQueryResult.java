@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import static petascope.core.DbMetadataSource.MULTIPOINT_COORDINATE;
+import static petascope.core.DbMetadataSource.MULTIPOINT_VALUE;
 /**
  *
  * @author alireza
@@ -24,8 +26,8 @@ public class PostgisQueryResult {
         if (result instanceof ResultSet) {
             String coord = "";
             while (((ResultSet) result).next()) {
-                    coordinates.add(((ResultSet)result).getString("coord"));
-                    values.add(((ResultSet)result).getString("value"));
+                    coordinates.add(((ResultSet)result).getString(MULTIPOINT_COORDINATE));
+                    values.add(((ResultSet)result).getString(MULTIPOINT_VALUE));
             }
         }
 
