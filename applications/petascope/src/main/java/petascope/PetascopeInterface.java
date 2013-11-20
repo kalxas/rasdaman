@@ -399,6 +399,8 @@ public class PetascopeInterface extends HttpServlet {
                 }
             } catch (WCSException e) {
                 throw e;
+            } catch (SecoreException e) {
+                throw new WCSException(ExceptionCode.SecoreError, e);
             } catch (Exception e) {
                 // Finally, cast all other exceptions into a WCSException
                 log.error("Runtime error : {}", e.getMessage());
@@ -590,7 +592,7 @@ public class PetascopeInterface extends HttpServlet {
      * handle the request
      */
     private void handleWcs2Request(String request, boolean soap, HttpServletResponse response, HttpServletRequest srvRequest)
-            throws WCSException, PetascopeException {
+            throws WCSException, PetascopeException, SecoreException {
         try {
             log.info("Handling WCS 2.0 request");
             HTTPRequest petascopeRequest = this.parseUrl(srvRequest, request);
@@ -633,6 +635,8 @@ public class PetascopeInterface extends HttpServlet {
                 }
             }
         } catch (WCSException e) {
+            throw e;
+        } catch (SecoreException e) {
             throw e;
         } catch (PetascopeException e) {
             throw new WCSException(e.getExceptionCode(), e.getMessage());

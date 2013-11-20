@@ -23,9 +23,11 @@ package petascope.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,6 +51,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
+import static petascope.util.StringUtil.ENCODING_UTF8;
 import petascope.wcps.server.core.CoverageExpr;
 import petascope.wcps.server.core.CoverageInfo;
 import petascope.wcps.server.core.ExtendCoverageExpr;
@@ -1067,11 +1070,17 @@ public class CrsUtil {
          * @throws PetascopeException
          * @throws SecoreException
          */
-        private static boolean checkEquivalence(String resolverUri, String uri1, String uri2) throws PetascopeException, SecoreException {
+        private static boolean checkEquivalence(String resolverUri, String uri1, String uri2)
+                throws PetascopeException, SecoreException {
 
             // Escape key entities: parametrized CRS with KV pairs can clash otherwise
-            uri1 = StringUtil.escapeXmlPredefinedEntities(uri1);
-            uri2 = StringUtil.escapeXmlPredefinedEntities(uri2);
+            try {
+                uri1 = URLEncoder.encode(uri1, ENCODING_UTF8);
+                uri2 = URLEncoder.encode(uri2, ENCODING_UTF8);
+            } catch (UnsupportedEncodingException e) {
+                log.warn(e.getLocalizedMessage());
+                log.warn("URIs will not be URL-encoded.");
+            }
 
             /* Tentative 1: comarison of given URIs
              * Tentative 2: both URIs at resolver
