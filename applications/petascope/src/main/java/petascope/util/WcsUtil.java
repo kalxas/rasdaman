@@ -39,6 +39,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.DomainElement;
+import petascope.wcps.server.core.SDU;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageMetadata.RangeField;
 import petascope.wcs2.parsers.GetCoverageRequest;
@@ -194,6 +195,7 @@ public class WcsUtil {
             metadata = "";
         }
         String ret = Templates.getTemplate(template,
+                Pair.of("\\{descriptions\\}", getDescriptions(m)),
                 Pair.of("\\{coverageId\\}", m.getCoverageId()),
                 Pair.of("\\{coverageType\\}", m.getCoverageType()),
                 Pair.of("\\{gridId\\}", m.getGridId()),
@@ -238,7 +240,7 @@ public class WcsUtil {
         return CrsUtil.CrsUri.createCompound(extCrsSet).replace("&", "&amp;");
     }
 
-    /* [DescribeCoveage]: gml:boundedBy element filled with bbox of the coverage 
+    /* [DescribeCoveage]: gml:boundedBy element filled with bbox of the coverage
      * [GetCoveage]:      gml:boundedBy element filled with requested subset of the coverage
      * Bounds are updated by petascope.wcs2.extensions.AbstractFormatExtension.setBounds()
      */
@@ -249,7 +251,7 @@ public class WcsUtil {
         return m.getDomHigh();
     }
     // NOTE1: rotated ReferenceableGridCoverage are not supported:
-    // need to yield the offsets anyway for GML response: unity vectors.   
+    // need to yield the offsets anyway for GML response: unity vectors.
     // NOTE2: an ad-hoc templates was needed since dimensionality of the coverage is
     // not fixed and each offset vector needs a GML row.
     private static String getOffsetsGml(GetCoverageMetadata m) {
@@ -265,7 +267,7 @@ public class WcsUtil {
             }
         return output;
     }
-    
+
     // Function the builds the string of offsets vector for a specified dimension.
     private static String getOffsets(GetCoverageMetadata m, String axisName) {
         String output = "";
@@ -296,9 +298,33 @@ public class WcsUtil {
             }
         }
         return ret;
-    }    
+    }
 
-        public static Pair<String, String> toInterval(String type) {
+    private static String getDescriptions(GetCoverageMetadata m) {
+        StringBuilder ret = new StringBuilder();
+        // titles
+        if (!m.getMetadata().getTitle().isEmpty()) {
+            ret.append("  <ows:Title>");
+            ret.append(m.getMetadata().getTitle());
+            ret.append("</ows:Title>\n");
+        }
+        // abstracts
+        if (!m.getMetadata().getAbstract().isEmpty()) {
+            ret.append("  <ows:Abstract>");
+            ret.append(m.getMetadata().getAbstract());
+            ret.append("</ows:Abstract>\n");
+        }
+        // keywords
+        Iterator<String> keys = SDU.str2string(m.getMetadata().getKeywords()).iterator();
+        while (keys.hasNext()) {
+            ret.append("  <ows:Keywords>");
+            ret.append(keys.next());
+            ret.append("</ows:Keywords>\n");
+        }
+        return ret.toString();
+    }
+
+    public static Pair<String, String> toInterval(String type) {
         if (type.equals("char")) {
             return Pair.of("-128", "128");
         } else if (type.equals("unsigned char")) {
@@ -365,11 +391,11 @@ public class WcsUtil {
             return i.toString();
         }
     }
-    
+
     public static boolean hasSingleCrs(Metadata covMeta) {
         Set<String> crss = new HashSet<String>();
         Iterator<DomainElement> domIt = covMeta.getDomainIterator();
-        
+
         while (domIt.hasNext()) {
             crss.add(domIt.next().getExternalCrs());
         }
