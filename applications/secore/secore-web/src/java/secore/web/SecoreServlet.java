@@ -62,7 +62,7 @@ public class SecoreServlet extends HttpServlet {
     uri = StringUtil.removeDuplicateDef(uri);
     String qs = req.getQueryString();
     if (qs != null && !qs.equals(EMPTY)) {
-      uri += FRAGMENT_SEPARATOR + qs;
+      uri += QUERY_SEPARATOR + qs;
     }
     try {
       log.debug("Request URI: " + uri);

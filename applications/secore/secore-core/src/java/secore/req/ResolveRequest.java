@@ -110,7 +110,7 @@ public class ResolveRequest implements ParamValue {
     // 3. crs
     // 4. '' (empty string)
     int ind1 = uri.indexOf(REST_SEPARATOR);
-    int ind2 = uri.indexOf(FRAGMENT_SEPARATOR);
+    int ind2 = uri.indexOf(QUERY_SEPARATOR);
     int ind = -1;
     if (ind1 != -1 && (ind2 == -1 || ind1 < ind2)) {
       ind = ind1;
@@ -129,7 +129,7 @@ public class ResolveRequest implements ParamValue {
     }
     
     // remove first separator
-    if (uri.startsWith(FRAGMENT_SEPARATOR) || uri.startsWith(PAIR_SEPARATOR)) {
+    if (uri.startsWith(QUERY_SEPARATOR) || uri.startsWith(PAIR_SEPARATOR)) {
       uri = uri.substring(1);
     }
     

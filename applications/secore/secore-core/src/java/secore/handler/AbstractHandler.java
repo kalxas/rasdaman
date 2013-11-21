@@ -127,6 +127,9 @@ public abstract class AbstractHandler implements Handler {
         "	return $res\n";
     }
     
+    // remove host from id
+    id = StringUtil.uriToPath(id);
+
     // construct query
     String query =
         "declare namespace gml = \"" + NAMESPACE_GML + "\";\n" +
@@ -209,10 +212,10 @@ public abstract class AbstractHandler implements Handler {
           }
           // append to last component
           String component = components.get(ind);
-          if (component.contains(FRAGMENT_SEPARATOR)) {
+          if (component.contains(QUERY_SEPARATOR)) {
             component += PAIR_SEPARATOR;
           } else {
-            component += FRAGMENT_SEPARATOR;
+            component += QUERY_SEPARATOR;
           }
           components.set(ind, component + key + KEY_VALUE_SEPARATOR + val);
         }

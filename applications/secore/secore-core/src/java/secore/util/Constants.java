@@ -41,7 +41,8 @@ public interface Constants {
   String ZERO = "0";
   
   String PAIR_SEPARATOR = "&";
-  String FRAGMENT_SEPARATOR = "?";
+  String QUERY_SEPARATOR = "?";
+  String FRAGMENT_SEPARATOR = "#";
   String KEY_VALUE_SEPARATOR = "=";
   
   String NEW_LINE = "\n";

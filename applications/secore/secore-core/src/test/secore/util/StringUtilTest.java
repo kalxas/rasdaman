@@ -21,8 +21,11 @@
  */
 package secore.util;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import static secore.util.StringUtil.uriToPath;
 
 /**
  *
@@ -60,5 +63,44 @@ public class StringUtilTest {
     System.out.println(result);
     String expResult = "<gml:identifier codeSpace=\"OGP\">http://www.opengis.net/def/cs/OGC/0.1/Cartesian2D</gml:identifier>";
     assertEquals(expResult, result);
+  }
+
+  @Test
+  public void testUrlToPath() {
+    String url = "http://localhost:8080/def/EPSG/0/4326";
+    String exp = "/def/EPSG/0/4326";
+    try {
+      String res = StringUtil.uriToPath(url);
+      assertEquals(exp, StringUtil.uriToPath(url));
+    } catch (SecoreException ex) {
+      fail(ex.toString());
+    }
+
+    url = "http://localhost:8080/def/EPSG/0/4326?test=2";
+    exp = "/def/EPSG/0/4326?test=2";
+    try {
+      String res = StringUtil.uriToPath(url);
+      assertEquals(exp, res);
+    } catch (SecoreException ex) {
+      fail(ex.toString());
+    }
+
+    url = "http://localhost:8080/def/EPSG/0/4326?test=2#324";
+    exp = "/def/EPSG/0/4326?test=2#324";
+    try {
+      String res = StringUtil.uriToPath(url);
+      assertEquals(exp, res);
+    } catch (SecoreException ex) {
+      fail(ex.toString());
+    }
+
+    url = "def/EPSG/0/4326?test=2";
+    exp = "def/EPSG/0/4326?test=2";
+    try {
+      String res = StringUtil.uriToPath(url);
+      assertEquals(exp, res);
+    } catch (SecoreException ex) {
+      fail(ex.toString());
+    }
   }
 }

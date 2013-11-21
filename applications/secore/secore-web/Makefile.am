@@ -120,7 +120,6 @@ compileit: $(all_javas) $(GEN_DOCS)
 	$(MKDIR) $(BUILD)
 	$(CP) $(SRC_WEB)/* $(WEB)
 	$(CP) $(SECORE_CORE)/etc $(WEB)
-	$(SED) 's|@basexHome@|$(DESTDIR)$(wardir)/secoredb|g' $(SRC_WEB)/WEB-INF/web.xml.in > $(SRC_WEB)/WEB-INF/web.xml
 	$(TAR) xzf $(WEB)/etc/gml.tar.gz -C $(WEB)/etc/; $(RM) $(WEB)/etc/gml.tar.gz $(WEB)/etc/testdata
 	$(MKDIR) $(WEB)/WEB-INF/lib
 	$(CP) $(JJARS_PATHS) $(WEB)/WEB-INF/lib

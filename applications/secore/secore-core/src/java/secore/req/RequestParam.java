@@ -128,7 +128,7 @@ public class RequestParam implements Comparable<RequestParam> {
    * the separator is '/'.
    */
   public String getFragmentSeparator() {
-    String ret = Constants.FRAGMENT_SEPARATOR;
+    String ret = Constants.QUERY_SEPARATOR;
     if (isRest()) {
       ret = Constants.REST_SEPARATOR;
     }

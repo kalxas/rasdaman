@@ -23,11 +23,16 @@ package secore.util;
 
 import secore.req.ResolveRequest;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.script.ScriptEngine;
@@ -98,7 +103,7 @@ public class StringUtil {
   public static String stripDef(String s) {
     String servletContext = SERVLET_CONTEXT + REST_SEPARATOR;
     s = wrapUri(s);
-    int fragmentPos = s.indexOf(FRAGMENT_SEPARATOR);
+    int fragmentPos = s.indexOf(QUERY_SEPARATOR);
     if (fragmentPos == -1) {
       fragmentPos = Integer.MAX_VALUE;
     }
@@ -389,5 +394,39 @@ public class StringUtil {
       uri = uri.substring(0, uri.length() - 1);
     }
     return uri;
+  }
+
+  /**
+   * Remove the scheme/host/port from the given url, e.g.
+   *
+   * http://localhost:8080/def/EPSG/0/4326?test=2
+   *
+   * becomes
+   *
+   * /def/EPSG/0/4326?test=2
+   *
+   * @param uri input URL, can be null, absolute, relative
+   * @return the path+query portions of url
+   */
+  public static String uriToPath(String uri) throws SecoreException {
+    String ret = uri;
+    if (uri != null) {
+      URI tmp = null;
+      try {
+        tmp = new URI(uri);
+      } catch (URISyntaxException ex) {
+        String err = "The given identifier is not a valid URI: " + uri;
+        log.error(err, ex);
+        throw new SecoreException(ExceptionCode.InvalidRequest, err, ex);
+      }
+      ret = tmp.getPath();
+      if (tmp.getQuery() != null) {
+        ret += QUERY_SEPARATOR + tmp.getQuery();
+      }
+      if (tmp.getFragment() != null) {
+        ret += FRAGMENT_SEPARATOR + tmp.getFragment();
+      }
+    }
+    return ret;
   }
 }
