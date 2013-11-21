@@ -57,6 +57,7 @@ public class DomainElement implements Cloneable {
             String strHi, Set<String> crss, Collection<String> axes, String uom) throws WCPSException
             {
         this.allowedAxes = axes;
+        this.uom = uom;
 
         if ((name == null) || (type == null)) {
             throw new WCPSException(ExceptionCode.InvalidMetadata, 

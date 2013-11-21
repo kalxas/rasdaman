@@ -287,7 +287,8 @@ public class WcsUtil {
                 String outGml = Templates.getTemplate(Templates.RECTIFIED_GRID_COVERAGE,
                         Pair.of("\\{pointId\\}", m.getCoverageId() + "-origin"),
                         Pair.of("\\{srsName\\}", getSrsName(m)),
-                        Pair.of("\\{originPos\\}", m.getDomLow()));
+                        Pair.of("\\{originPos\\}", m.getDomLow()),
+                        Pair.of(("\\{uomLabels\\}"), m.getUomLabels()));
                 String offsetsGml = getOffsetsGml(m);
                 return outGml + "\n" + offsetsGml;
             } else {

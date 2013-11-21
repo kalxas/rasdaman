@@ -76,7 +76,7 @@ public class DbMetadataSource implements IMetadataSource {
     private Map<Integer, String> dataTypes;
     private Map<Integer, String> interpolationTypes;
     private Map<Integer, String> nullResistances;
-    private Map<Integer, String> rangeUoms;
+    private Map<Integer, String> uoms;
     private Map<String, String> supportedFormats;
     private Map<String, String> gdalFormatsIds; // GDAL code -> format name
 
@@ -87,7 +87,7 @@ public class DbMetadataSource implements IMetadataSource {
     private Map<String, Integer> revDataTypes;
     private Map<String, Integer> revInterpolationTypes;
     private Map<String, Integer> revNullResistances;
-    private Map<String, Integer> revRangeUoms;
+    private Map<String, Integer> revUoms;
     private Map<String, String> revSupportedFormats;    // Not used
     private Map<String, String> revGdalFormatsIds; // format name -> GDAL code
 
@@ -171,13 +171,13 @@ public class DbMetadataSource implements IMetadataSource {
                 revNullResistances.put(r.getString("nullResistance"), r.getInt("id"));
             }
             
-            rangeUoms = new HashMap<Integer, String>();
-            revRangeUoms = new HashMap<String, Integer>();
+            uoms = new HashMap<Integer, String>();
+            revUoms = new HashMap<String, Integer>();
             r = s.executeQuery("SELECT id, uom FROM PS_Uom");
 
             while (r.next()) {
-                rangeUoms.put(r.getInt("id"), r.getString("uom"));
-                revRangeUoms.put(r.getString("uom"), r.getInt("id"));
+                uoms.put(r.getInt("id"), r.getString("uom"));
+                revUoms.put(r.getString("uom"), r.getInt("id"));
             }            
 
             crss = new HashMap<Integer, String>();
@@ -505,7 +505,7 @@ public class DbMetadataSource implements IMetadataSource {
             List<RangeElement> range = new ArrayList<RangeElement>();
 
             while (r.next()) {
-                range.add(new RangeElement(r.getString("name"), dataTypes.get(r.getInt("type")), rangeUoms.get(r.getInt("uom"))));
+                range.add(new RangeElement(r.getString("name"), dataTypes.get(r.getInt("type")), uoms.get(r.getInt("uom"))));
             }
 
             r = s.executeQuery("SELECT interpolationType, nullResistance FROM PS_InterpolationSet WHERE coverage = '" + coverage + "'");
@@ -557,7 +557,7 @@ public class DbMetadataSource implements IMetadataSource {
                 }
                 
                 DomainElement d = new DomainElement(r.getString("name"), axisTypes.get(r.getInt("type")),
-                        numLo, numHi, strLo, strHi, crsSet, axisTypes.values(), r.getString("uom"));
+                        numLo, numHi, strLo, strHi, crsSet, axisTypes.values(), uoms.get(r.getInt("uom")));
                 d.setResolution(cellDomain.get(domain.size()).getHi().subtract(cellDomain.get(domain.size()).getLo()).intValue()+1);
                 domain.add(d);
             }
