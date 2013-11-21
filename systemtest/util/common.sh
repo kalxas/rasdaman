@@ -552,7 +552,8 @@ function run_test()
               prepare_xml_file "$out"
           fi
           log "byte comparison"
-          cmp "$oracle" "$out" 2>&1
+          # diff comparison ignoring EOLs [see ticket #551]
+          diff -b "$oracle" "$out" 2>&1
         fi
         update_result
 
