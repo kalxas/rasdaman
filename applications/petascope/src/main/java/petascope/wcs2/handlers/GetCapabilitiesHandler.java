@@ -50,7 +50,6 @@ import petascope.wcs2.Wcs2Servlet;
 import petascope.wcs2.extensions.Extension;
 import petascope.wcs2.extensions.ExtensionsRegistry;
 import petascope.wcs2.extensions.FormatExtension;
-import petascope.wcs2.parsers.BaseRequest;
 import petascope.wcs2.parsers.GetCapabilitiesRequest;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;

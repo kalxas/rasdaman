@@ -59,11 +59,13 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.WCSTException;
+import petascope.util.KVPSymbols;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.PostgisQueryResult;
 import petascope.util.StringUtil;
 import petascope.util.WcpsConstants;
+import petascope.util.XMLSymbols;
 import petascope.util.XMLUtil;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
@@ -76,6 +78,7 @@ import petascope.wcs2.extensions.ProtocolExtension;
 import petascope.wcs2.extensions.RESTProtocolExtension;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.handlers.Response;
+import petascope.wcs2.parsers.BaseRequest;
 import petascope.wcs2.templates.Templates;
 import petascope.wcst.server.WcstServer;
 
@@ -99,6 +102,14 @@ public class PetascopeInterface extends HttpServlet {
     private Wcps wcps;
     /* Instance of WcsServer service */
     private WcsServer wcs;
+
+    private static final String CORS_ACCESS_CONTROL_ALLOW_ORIGIN = "*";
+    private static final String CORS_ACCESS_CONTROL_ALLOW_METHODS = "POST, GET, OPTIONS";
+    private static final String CORS_ACCESS_CONTROL_ALLOW_HEADERS = "Content-Type";
+    private static final String CORS_ACCESS_CONTROL_MAX_AGE = "1728000";
+
+    private static final String WCPS_QUERY_GET_PARAMETER = "query";
+    private static final String WCPS_REQUEST_GET_PARAMETER = "request";
 
     /* Initialize the various services: WCPS, WcsServer and WcsServer-T */
     @Override
@@ -227,7 +238,8 @@ public class PetascopeInterface extends HttpServlet {
     public void doGet(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         setServletURL(httpRequest);
         meta.clearCache();
-        String request = null, requestBody = null;
+        String request = null;
+        String requestBody = null;
 
         /* Process the request */
         try {
@@ -245,7 +257,7 @@ public class PetascopeInterface extends HttpServlet {
                 log.trace("Request parameters : {}", params);
 
                 // GET interface processing
-                String service = paramMap.get("service");
+                String service = paramMap.get(KVPSymbols.KEY_SERVICE);
 
                 // REST interface checks
                 // get the uri contained after the context name i.e after petascope
@@ -266,7 +278,7 @@ public class PetascopeInterface extends HttpServlet {
 //                        WpsServer wpsServer = new WpsServer(httpResponse, httpRequest);
 //                        request = wpsServer.request;
 //                    } else
-                    if (service.equals("WCS")) {
+                    if (service.equals(petascope.wcs2.parsers.BaseRequest.SERVICE)) {
                         // extract version
                         String version = null;
                         String operation = paramMap.get(WCPS_REQUEST_GET_PARAMETER);
@@ -277,15 +289,15 @@ public class PetascopeInterface extends HttpServlet {
                         }
 
                         if (operation.equals(RequestHandler.GET_CAPABILITIES)) {
-                            version = paramMap.get("acceptversions");
+                            version = paramMap.get(KVPSymbols.KEY_ACCEPTVERSIONS);
                             if (version == null && splitURI.size() > 1) {
                                 version = splitURI.get(1);
                             }
-                            log.trace("acceptversions: " + version);
+                            log.trace(KVPSymbols.KEY_ACCEPTVERSIONS + ": " + version);
                             if (version == null) {
                                 version = ConfigManager.WCS_DEFAULT_VERSION;
                             } else {
-                                String[] versions = version.split(",");
+                                String[] versions = version.split(KVPSymbols.VERSIONS_SEP);
                                 version = "";
                                 for (String v : versions) {
                                     if (ConfigManager.WCS_VERSIONS.contains(v)
@@ -296,7 +308,7 @@ public class PetascopeInterface extends HttpServlet {
                                 }
                             }
                         } else if (operation.equals(RequestHandler.DESCRIBE_COVERAGE) || operation.equals(RequestHandler.GET_COVERAGE)) {
-                            version = paramMap.get("version");
+                            version = paramMap.get(KVPSymbols.KEY_VERSION);
                             if (version == null && splitURI.size() > 1) {
                                 version = splitURI.get(1);
                             }
@@ -316,7 +328,7 @@ public class PetascopeInterface extends HttpServlet {
                 if (request2 == null) {
                     request2 = StringUtil.urldecode(params.get(WCPS_QUERY_GET_PARAMETER), httpRequest.getContentType());
                 }
-                
+
                 if (request2 == null && splitURI.get(0).equalsIgnoreCase(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER)) {
                     if (splitURI.size() > 2 && splitURI.get(1).equals(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER)) {
                         String queryDecoded = StringUtil.urldecode(splitURI.get(2), httpRequest.getContentType());
@@ -337,7 +349,7 @@ public class PetascopeInterface extends HttpServlet {
                                 "Bad Post parameter '" + postParam + "', expected parameters are 'query'/'request'");
                     }
                 }
-                
+
                 // Empty request ?
                 if (request == null && (requestBody == null || requestBody.length() == 0)) {
                     if (paramMap.size() > 0) {
@@ -349,7 +361,7 @@ public class PetascopeInterface extends HttpServlet {
                     }
                 }
 
-                // No parameters, just XML in the request body
+                //   No parameters, just XML in the request body:
                 if (request == null && requestBody != null && requestBody.length() > 0) {
                     request = StringUtil.urldecode(requestBody, httpRequest.getContentType());
                 }
@@ -362,22 +374,21 @@ public class PetascopeInterface extends HttpServlet {
                 if (root == null) {
                     return;
                 }
-                if (root.equals("Envelope")) {
+                if (root.equals(XMLSymbols.LABEL_ENVELOPE)) {
                     handleWcs2Request(request, true, httpResponse, httpRequest);
-                    return;
-                } else if (root.endsWith("ProcessCoveragesRequest")) {  /* ProcessCoverages is defined in the WCPS extension to WcsServer */
+                } else if (root.endsWith(XMLSymbols.LABEL_PROCESSCOVERAGE_REQUEST)) {
+                    /* ProcessCoverages is defined in the WCPS extension to WcsServer */
                     handleProcessCoverages(request, httpResponse);
-                    return;
-                } else if (root.endsWith("Transaction")) { /* Transaction is defined in the WcsServer-T extension to WcsServer */
+                } else if (root.endsWith(XMLSymbols.LABEL_TRANSACTION)) {
+                    /* Transaction is defined in the WcsServer-T extension to WcsServer */
                     handleTransaction(request, httpResponse);
-                    return;
                 } else if (root.equals(RequestHandler.GET_CAPABILITIES)) {
                     // extract the version that the client prefers
                     Document doc = XMLUtil.buildDocument(null, request);
                     String version = "";
-                    List<Element> acceptVersions = XMLUtil.collectAll(doc.getRootElement(), "AcceptVersions");
+                    List<Element> acceptVersions = XMLUtil.collectAll(doc.getRootElement(), XMLSymbols.LABEL_ACCEPT_VERSIONS);
                     if (!acceptVersions.isEmpty()) {
-                        List<Element> versions = XMLUtil.collectAll(ListUtil.head(acceptVersions), "Version");
+                        List<Element> versions = XMLUtil.collectAll(ListUtil.head(acceptVersions), XMLSymbols.LABEL_VERSION);
                         for (Element v : versions) {
                             String val = XMLUtil.getText(v);
                             if (val != null && ConfigManager.WCS_VERSIONS.contains(val)) {
@@ -391,7 +402,7 @@ public class PetascopeInterface extends HttpServlet {
                     handleWcsRequest(version, root, request, true, httpResponse, httpRequest);
                 } else if (root.equals(RequestHandler.DESCRIBE_COVERAGE) || root.equals(RequestHandler.GET_COVERAGE)) {
                     Document doc = XMLUtil.buildDocument(null, request);
-                    String version = doc.getRootElement().getAttributeValue("version");
+                    String version = doc.getRootElement().getAttributeValue(KVPSymbols.KEY_VERSION);
                     handleWcsRequest(version, root, request, true, httpResponse, httpRequest);
                 } else {
                     // error
@@ -556,11 +567,11 @@ public class PetascopeInterface extends HttpServlet {
 
         // compute result
         String result = null;
-        if (operation.endsWith("GetCapabilities")) {
+        if (operation.endsWith(RequestHandler.GET_CAPABILITIES)) {
             result = wcs.GetCapabilities(request);
-        } else if (operation.endsWith("DescribeCoverage")) {
+        } else if (operation.endsWith(RequestHandler.DESCRIBE_COVERAGE)) {
             result = wcs.DescribeCoverage(request);
-        } else if (operation.endsWith("GetCoverage")) {
+        } else if (operation.endsWith(RequestHandler.GET_COVERAGE)) {
             String xmlRequest = wcs.GetCoverage(request, wcps);
             log.debug("Received GetCoverage Request: \n{}", xmlRequest);
             // redirect the request to WCPS
@@ -759,11 +770,4 @@ public class PetascopeInterface extends HttpServlet {
                 pathInfo, srvRequest.getQueryString(), request);
         return srvReq;
     }
-    
-    private static final String CORS_ACCESS_CONTROL_ALLOW_ORIGIN = "*";
-    private static final String CORS_ACCESS_CONTROL_ALLOW_METHODS = "POST, GET, OPTIONS";
-    private static final String CORS_ACCESS_CONTROL_ALLOW_HEADERS = "Content-Type";
-    private static final String CORS_ACCESS_CONTROL_MAX_AGE = "1728000";
-    private static final String WCPS_QUERY_GET_PARAMETER = "query";
-    private static final String WCPS_REQUEST_GET_PARAMETER = "request";
 }

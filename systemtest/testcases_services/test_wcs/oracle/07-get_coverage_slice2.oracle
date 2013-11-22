@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of PetaScope.
+ *
+ * PetaScope is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU  General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * PetaScope is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU  General Public License for more details.
+ *
+ * You should have received a copy of the GNU  General Public
+ * License along with PetaScope. If not, see "http://www.gnu.org/licenses/".
+ *
+ * For more information please see "http://www.PetaScope.org"
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ *
+ * Copyright 2009 Jacobs University Bremen, Peter Baumann.
+-->
+
+
+<gmlcov:RectifiedGridCoverage
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:gmlrgrid='http://www.opengis.net/gml/3.3/rgrid'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="eobstest"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+      <lowerCorner>0</lowerCorner>
+      <upperCorner>6</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <RectifiedGrid dimension="1" id="eobstest-grid">
+      <limits>
+        <GridEnvelope>
+          <low>0</low>
+          <high>5</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>t</axisLabels>
+      <origin>
+          <Point id="eobstest-origin" srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+              <pos>0</pos>
+          </Point>
+      </origin>
+    <offsetVector srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">1</offsetVector>
+    </RectifiedGrid>
+  </domainSet>
+
+  <rangeSet>
+<DataBlock><rangeParameters/><tupleList>-9999,-9999,-9999,-9999,-9999,-9999</tupleList></DataBlock>
+  </rangeSet>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="value">
+      <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:short">
+        <swe:description></swe:description>
+        <swe:uom code="10^0"/>
+        <swe:constraint>
+          <swe:AllowedValues>
+            <swe:interval>-32768 32767</swe:interval>
+          </swe:AllowedValues>
+        </swe:constraint>
+      </swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+
+</gmlcov:RectifiedGridCoverage>

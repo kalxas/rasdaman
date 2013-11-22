@@ -45,6 +45,7 @@ public interface KVPSymbols {
     String KEY_SERVICE             = "service";
     String KEY_SUBSET              = "subset";
     String KEY_VERSION             = "version";
+    String VERSIONS_SEP            = ",";
 
     // rasql KVP
     String KEY_PASSWORD = "password";

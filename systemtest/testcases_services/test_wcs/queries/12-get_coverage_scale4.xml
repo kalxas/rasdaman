@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:GetCoverage
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:wcs="http://www.opengis.net/wcs/2.0"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:scal="http://www.opengis.net/wcs/scaling/1.0"
+    xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
+    service="WCS" version="2.0.1">
+  <wcs:CoverageId>mr</wcs:CoverageId>
+  <scal:Scaling>
+    <scal:ScaleToExtent>
+      <scal:TargetAxisExtent>
+        <scal:axis>j</scal:axis>
+        <scal:low>16</scal:low>
+        <scal:high>34</scal:high>
+      </scal:TargetAxisExtent>
+    </scal:ScaleToExtent>
+  </scal:Scaling>
+</wcs:GetCoverage>

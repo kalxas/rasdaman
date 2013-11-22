@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ * This file is part of PetaScope.
+ *
+ * PetaScope is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU  General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * PetaScope is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU  General Public License for more details.
+ *
+ * You should have received a copy of the GNU  General Public
+ * License along with PetaScope. If not, see "http://www.gnu.org/licenses/".
+ *
+ * For more information please see "http://www.PetaScope.org"
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ *
+ * Copyright 2009 Jacobs University Bremen, Peter Baumann.
+-->
+
+
+
+<gmlcov:MultiPointCoverage   xmlns='http://www.opengis.net/gml/3.2'
+      xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+      xmlns:gml='http://www.opengis.net/gml/3.2'
+      xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+      xmlns:swe='http://www.opengis.net/swe/2.0'
+      xmlns:wcs='http://www.opengis.net/wcs/2.0'
+      xmlns:gmlce='http://www.opengis.net/gml/3.3/ce'
+      xsi:schemaLocation='http://www.opengis.net/gmlcov/1.0 http://schemas.opengis.net/gmlcov/1.0/gmlcovAll.xsd'
+    id="Parksmall">
+
+  <boundedBy>
+        <Envelope srsName="/crs/EPSG/0/4979" axisLabels="Lat Long h" uomLabels="Lat h" srsDimension="3">
+            <lowerCorner>1 339866.84375 1 </lowerCorner>
+            <upperCorner>1 339866.84375 1 </upperCorner>
+        </Envelope>
+  </boundedBy>
+
+  <domainSet>
+        <gmlcov:SimpleMultiPoint id="multipoint_Parksmall-grid" srsName="/crs/EPSG/0/4979">
+            <gmlcov:positions>456378.65627500002 53.924899580000002 456378.68757499999 53.922999580000003 456378.59377499 53.927999579999998 456378.53127499 53.933899580000002 456378.28127497999 53.949999579999997 456378.00007497001 53.964999579999997 456378.71877500002 53.921999579999998 456378.25007498002 53.950999580000001 456378.90617501002 53.911899579999996 456378.78117500001 53.916999580000002 456378.78117500001 53.916999580000002 456378.31257498002 53.948999579999999 456378.43757498998 53.941999580000001 456378.31257498002 53.947999580000001 456378.56257498998 53.934999580000003 </gmlcov:positions>
+        </gmlcov:SimpleMultiPoint>
+    </domainSet>
+
+  <rangeSet>
+        <DataBlock>
+        <rangeParameters/>
+            <tupleList>255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 255,255,255 </tupleList>
+        </DataBlock>
+  </rangeSet>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+          <swe:field name="red">
+      <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:unsigned char">
+        <swe:description></swe:description>
+        <swe:uom code="10^0"/>
+        <swe:constraint>
+          <swe:AllowedValues>
+            <swe:interval>0 255</swe:interval>
+          </swe:AllowedValues>
+        </swe:constraint>
+      </swe:Quantity>
+    </swe:field>    <swe:field name="green">
+      <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:unsigned char">
+        <swe:description></swe:description>
+        <swe:uom code="10^0"/>
+        <swe:constraint>
+          <swe:AllowedValues>
+            <swe:interval>0 255</swe:interval>
+          </swe:AllowedValues>
+        </swe:constraint>
+      </swe:Quantity>
+    </swe:field>    <swe:field name="blue">
+      <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:unsigned char">
+        <swe:description></swe:description>
+        <swe:uom code="10^0"/>
+        <swe:constraint>
+          <swe:AllowedValues>
+            <swe:interval>0 255</swe:interval>
+          </swe:AllowedValues>
+        </swe:constraint>
+      </swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+
+</gmlcov:MultiPointCoverage>

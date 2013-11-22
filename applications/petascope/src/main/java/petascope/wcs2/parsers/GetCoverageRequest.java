@@ -88,12 +88,12 @@ public class GetCoverageRequest extends BaseRequest {
     private final CrsExt crsExt;
 
     public GetCoverageRequest(String coverageId) {
-        this(coverageId, FormatExtension.MIME_GML, false);
+        this(coverageId, FormatExtension.MIME_GML, false); // GML is default
     }
 
     public GetCoverageRequest(String coverageId, String format, boolean multipart) {
         this.coverageId = coverageId;
-        this.format = format;
+        this.format = (null == format || format.isEmpty()) ? FormatExtension.MIME_GML : format ; // GML is default
         this.multipart = multipart;
         this.subsets = new ArrayList<DimensionSubset>();
         this.rangeSubset = new RangeSubset();

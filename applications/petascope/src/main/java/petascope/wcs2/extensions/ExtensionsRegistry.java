@@ -79,7 +79,10 @@ public class ExtensionsRegistry {
     }
 
     /**
-     * Add new extension to the registry. It will replace any other extension which has the same extension identifier.
+     * Add new extension to the registry.
+     * It will replace any other extension which has the same extension identifier.
+     *
+     * @param extension
      */
     public static void registerExtension(Extension extension) {
         log.info("Registered extension {}", extension);

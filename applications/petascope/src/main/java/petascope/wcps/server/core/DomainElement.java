@@ -44,7 +44,7 @@ public class DomainElement implements Cloneable {
     private static Logger log = LoggerFactory.getLogger(DomainElement.class);
 
     private String nativeCrs;
-    private Set<String> crsSet;
+    private List<String> crsSet; // keep order for oracles
     private String label;
     private BigDecimal maxValue;
     private BigDecimal minValue;
@@ -76,7 +76,7 @@ public class DomainElement implements Cloneable {
         }
 
         // store to fields
-        crsSet = new HashSet<String>(2); // capacity is 2: internal+external CRS (CRS extension is not enabled)
+        crsSet = new ArrayList<String>(2); // capacity is 2: internal+external CRS (CRS extension is not enabled)
         label = axisLabel;
         uom = axisUom;
         type = axisType;
@@ -181,7 +181,7 @@ public class DomainElement implements Cloneable {
         return nativeCrs;
     }
 
-    public Set<String> getCrsSet() {
+    public List<String> getCrsSet() {
         return crsSet;
     }
 

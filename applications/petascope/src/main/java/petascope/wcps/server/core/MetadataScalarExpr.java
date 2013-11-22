@@ -23,6 +23,7 @@ package petascope.wcps.server.core;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,8 +113,8 @@ public class MetadataScalarExpr extends AbstractRasNode {
                 DomainElement domainElement = coverageInfo.getDomainElement(i);
                 String axName = domainElement.getLabel();
                 crss+=axName + ":";
-                Set<String> set = domainElement.getCrsSet();
-                for(String str:set){
+                List<String> crsSet = domainElement.getCrsSet();
+                for(String str : crsSet){
                     crss+=(str + " ");
                 }
                 //delete last space

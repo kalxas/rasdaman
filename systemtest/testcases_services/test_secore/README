@@ -53,4 +53,4 @@ CORRECT: /crs-compound?1=%SECORE_URL%/crs/EPSG/0/4327&2=%SECORE_URL%/crs?authori
 = Failing tests =
 -----------------
 
-[pcampalani 19-nov-2013] None.
+[pcampalani 19-nov-2013] 09-single_crs_illegal_optional_parameter.rest: difference in ows:ExceptionText but will be fixed with #556.

@@ -33,7 +33,6 @@ import java.util.regex.Pattern;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
-import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import static petascope.util.KVPSymbols.*;
 import petascope.util.ListUtil;
@@ -62,7 +61,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
      * subsets defined as subsetD(where D is any distinct string)(e.g.
      * &subsetA=x(200,300))
      *
-     * @param requestParams - the request parameters as a string
+     * @param request - the request parameters as a string
      * @return ret - a hashmap containing the subsets
      */
     public HashMap<String, String> parseSubsetParams(String request) {
@@ -114,8 +113,12 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                     "' combination is not applicable");
         }
 
-        GetCoverageRequest ret = new GetCoverageRequest(coverageIds.get(0), format,
-                FormatExtension.MIME_MULTIPART.equals(mediaType));
+        // init GetCoverage request
+        GetCoverageRequest ret = new GetCoverageRequest(
+                coverageIds.get(0),
+                format,
+                FormatExtension.MIME_MULTIPART.equals(mediaType)
+        );
 
         //Parse rangeSubset parameters if any for the RangeSubset Extension
         RangeSubsettingExtension.parseGetCoverageKVPRequest(p, ret);

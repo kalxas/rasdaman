@@ -370,6 +370,7 @@ function prepare_xml_file()
       sed -i '/identifier /d' "$xml_file"
       sed -i 's|xmlns:[^=]*="[^"]*"||g' "$xml_file"
       sed -i 's#http:\/\/\(\w\|[.-]\)\+\(:[0-9]\+\)\?\/def##g' "$xml_file" # not only test.cfg SECORE_URL, but also what's in ps9_crs!
+      sed -i 's|at=[^ ]*||g' "$xml_file"                                   # e.g. See ``/crs/OGC/0'' Vs ``/crs?authority=OGC&version=0''.
   fi
 }
 
@@ -404,12 +405,13 @@ function run_test()
   test_type=`echo "$f" | sed 's/.*\.//'`
 
   # various other files expected  by the run_*_test functions
-  oracle="$ORACLE_PATH/$f.oracle"
+  # NOTE: remove input protocol extension: all queries with the same basename shall refer to the same oracle.
+  oracle="$ORACLE_PATH/${f%\.*}.oracle"
   out="$OUTPUT_PATH/$f.out"
   rm -f "$out"
-  pre_script="$QUERIES_PATH/$f.pre.sh"
-  post_script="$QUERIES_PATH/$f.post.sh"
-  check_script="$QUERIES_PATH/$f.check.sh"
+  pre_script="$QUERIES_PATH/${f%\.*}.pre.sh"
+  post_script="$QUERIES_PATH/${f%\.*}.post.sh"
+  check_script="$QUERIES_PATH/${f%\.*}.check.sh"
 
   # restore original filename
   f="$oldf"
@@ -456,11 +458,11 @@ function run_test()
                      WGET_EXIT_CODE=$?
                      ;;
                 xml) postdata=`mktemp`
-                     echo "request=" > "$postdata"
+                     echo -n "request=" > "$postdata"
                      cat "$f" >> "$postdata"
-                     $WGET -q --post-file="$postdata" -O "$out"
+                     $WGET -q --header "Content-Type: text/xml" --post-file "$postdata" "$WCS_URL" -O "$out"
                      WGET_EXIT_CODE=$?
-                     rm -f "$postdata"
+                     rm "$postdata"
                      ;;
                 *)   error "unknown wcs test type: $test_type"
               esac
@@ -553,7 +555,7 @@ function run_test()
           fi
           log "byte comparison"
           # diff comparison ignoring EOLs [see ticket #551]
-          diff -b "$oracle" "$out" 2>&1
+          diff -b "$oracle" "$out" 2>&1 > /dev/null
         fi
         update_result
 

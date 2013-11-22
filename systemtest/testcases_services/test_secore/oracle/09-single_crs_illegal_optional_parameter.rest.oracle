@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-
-<ows:ExceptionReport version="2.0.0" xsd:schemaLocation="http://www.opengis.net/ows/2.0 http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd"   >
-  <ows:Exception exceptionCode="InvalidRequest">
-    <ows:ExceptionText>Expected parameterized CRS definition, but /crs/EPSG/0/4327?foo=qwerty points to GeodeticCRS. Identifiers of simple definitions are not supposed to contain extra parameters, aside from the authority, version and code.</ows:ExceptionText>
-  </ows:Exception>
-</ows:ExceptionReport>

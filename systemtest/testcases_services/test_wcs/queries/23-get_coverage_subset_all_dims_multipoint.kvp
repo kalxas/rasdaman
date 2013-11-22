@@ -1,1 +1,7 @@
-version=2.0.0&service=WCS&request=GetCoverage&coverageid=Parksmall&subset=Lat(456300,456399)&subset=Long(339866,339867)&subset=h(50,59)
+version=2.0.1&
+service=WCS&
+request=GetCoverage&
+coverageid=Parksmall&
+subset=Lat(456300,456399)&
+subset=Long(339866,339867)&
+subset=h(50,59)

@@ -1,2 +1,5 @@
-version=2.0.0&service=WCS&request=GetCoverage&coverageid=Parksmall&subset=h(53.76599957)
-
+version=2.0.1&
+service=WCS&
+request=GetCoverage&
+coverageid=Parksmall&
+subset=h(53.76599957)

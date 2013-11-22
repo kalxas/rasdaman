@@ -26,7 +26,6 @@ package petascope.wcs2.parsers;
  * convenience methods to concrete implementations.
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
+ * @param <T>
  */
-public abstract class AbstractRequestParser<T extends Request> implements  RequestParser<T>  {
-
-}
+public abstract class AbstractRequestParser<T extends Request> implements  RequestParser<T>  {}

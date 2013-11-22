@@ -73,7 +73,8 @@ public interface XMLSymbols {
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // wcs
-    String LABEL_SERVICE_METADATA = "ServiceMetadata";
+    String LABEL_BBOX = "BoundingBox";
+    String LABEL_BOUNDEDBY = "BoundedBy";
     String LABEL_CAPABILITIES = "Capabilities";
     String LABEL_CONTENTS = "Contents";
     String LABEL_COVERAGE_SUMMARY = "CoverageSummary";
@@ -85,12 +86,16 @@ public interface XMLSymbols {
     String LABEL_DIMENSION = "Dimension";
     String LABEL_DIMENSION_TRIM = "DimensionTrim";
     String LABEL_DIMENSION_SLICE = "DimensionSlice";
+    String LABEL_ENVELOPE = "Envelope";
+    String LABEL_FORMAT = "format";
+    String LABEL_MEDIATYPE = "mediaType";
+    String LABEL_PROCESSCOVERAGE_REQUEST = "ProcessCoveragesRequest";
+    String LABEL_SERVICE_METADATA = "ServiceMetadata";
+    String LABEL_SLICE_POINT = "SlicePoint";
+    String LABEL_TRANSACTION = "Transaction";
     String LABEL_TRIM_LOW = "TrimLow";
     String LABEL_TRIM_HIGH = "TrimHigh";
-    String LABEL_SLICE_POINT = "SlicePoint";
     String LABEL_WGS84_BBOX = "Wgs84BoundingBox";
-    String LABEL_BBOX = "BoundingBox";
-    String LABEL_BOUNDEDBY = "BoundedBy";
     // wcs crs-extension
     String LABEL_CRS_METADATA = "CrsMetadata";
     String LABEL_CRS = "CRS";
@@ -111,8 +116,9 @@ public interface XMLSymbols {
     String LABEL_RANGEITEM = "rangeItem";
     String LABEL_RANGEINTERVAL = "rangeInterval";
     String LABEL_STARTCOMPONENT = "startComponent";
-    String LABEL_ENDCOMPONENT = "startComponent";
+    String LABEL_ENDCOMPONENT = "endComponent";
     String LABEL_RANGECOMPONENT = "rangeComponent";
+    String LABEL_RANGESUBSET = "rangeSubset";
 
     // ows
     // // Service Identification

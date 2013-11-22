@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:GetCoverage
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:wcs="http://www.opengis.net/wcs/2.0"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
+    service="WCS" version="2.0.1">
+  <wcs:CoverageId>mr</wcs:CoverageId>
+  <wcs:DimensionSlice>
+    <wcs:Dimension>j</wcs:Dimension>
+    <wcs:SlicePoint>5</wcs:SlicePoint>
+  </wcs:DimensionSlice>
+  <gml:format>image/tiff</gml:format>
+</wcs:GetCoverage>

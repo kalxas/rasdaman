@@ -47,7 +47,7 @@ public class GetCoverageHandler extends AbstractRequestHandler<GetCoverageReques
         FormatExtension formatExtension = ExtensionsRegistry.getFormatExtension(request);
         if (formatExtension == null) {
             throw new WCSException(ExceptionCode.NoApplicableCode,
-                    "No appropriate format extension was found that can handle the request");
+                    "No appropriate format extension was found that can handle the request for format : " + request.getFormat());
         }
         try {
             return formatExtension.handle(request, meta);

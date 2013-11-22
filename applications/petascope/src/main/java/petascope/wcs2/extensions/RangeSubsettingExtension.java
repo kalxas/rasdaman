@@ -30,6 +30,9 @@ import nu.xom.Elements;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.XMLSymbols;
+import static petascope.util.XMLSymbols.LABEL_RANGEITEM;
+import static petascope.util.XMLSymbols.LABEL_RANGESUBSET;
+import static petascope.util.XMLUtil.ch;
 import petascope.wcs2.helpers.rangesubsetting.RangeComponent;
 import petascope.wcs2.helpers.rangesubsetting.RangeInterval;
 import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
@@ -97,36 +100,48 @@ public class RangeSubsettingExtension implements Extension {
      *
      * @param gcRequest - the request to add the parsed info
      * @param rangeElem - the XML element to be parsed
+     * @throws WCSException
      */
     public static void parseGetCoverageXMLRequest(GetCoverageRequest gcRequest, Element rangeElem) throws WCSException {
-        if (!rangeElem.getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_RANGEITEM)) {
+
+        // check
+        if (!rangeElem.getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_RANGESUBSET)) {
             throw new WCSException(ExceptionCode.InternalComponentError,
-                    "The parser was expecting a" + XMLSymbols.LABEL_RANGEITEM + " element, " + rangeElem.getLocalName() + " given");
+                    "The parser was expecting a" + XMLSymbols.LABEL_RANGESUBSET + " element, " + rangeElem.getLocalName() + " given");
         }
-        Elements children = rangeElem.getChildElements();
-        for (int i = 0; i < children.size(); i++) {
-            Element currentChild = children.get(i);
-            if (currentChild.getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_RANGEINTERVAL)) {
-                Elements components = currentChild.getChildElements();
-                if (components.size() != 2) {
-                    throw new WCSException(ExceptionCode.InternalComponentError,
-                            "A RangeInterval element needs to have exactly one startComponent and one endComponent");
-                }
-                String startComponent = null, endComponent = null;
-                for (int j = 0; j < components.size(); j++) {
-                    if (components.get(j).getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_STARTCOMPONENT)) {
-                        startComponent = components.get(j).getValue().trim();
-                    } else if (components.get(j).getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_ENDCOMPONENT)) {
-                        endComponent = components.get(j).getValue().trim();
+
+        // loop through the listed rangeItems
+        for (Element currentElem : ch(rangeElem)) {
+            if (currentElem.getLocalName().equalsIgnoreCase(LABEL_RANGEITEM)) {
+
+                Elements children = currentElem.getChildElements();
+                for (int i = 0; i < children.size(); i++) {
+                    Element currentChild = children.get(i);
+
+                    if (currentChild.getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_RANGEINTERVAL)) {
+                        Elements components = currentChild.getChildElements();
+                        if (components.size() != 2) {
+                            throw new WCSException(ExceptionCode.InternalComponentError,
+                                    "A RangeInterval element needs to have exactly one startComponent and one endComponent");
+                        }
+                        String startComponent = null, endComponent = null;
+                        for (int j = 0; j < components.size(); j++) {
+                            if (components.get(j).getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_STARTCOMPONENT)) {
+                                startComponent = components.get(j).getValue().trim();
+                            } else if (components.get(j).getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_ENDCOMPONENT)) {
+                                endComponent = components.get(j).getValue().trim();
+                            }
+                        }
+                        if (startComponent == null || endComponent == null) {
+                            throw new WCSException(ExceptionCode.InternalComponentError,
+                                    "A RangeInterval element needs to have exactly one startComponent and one endComponent");
+                        }
+                        gcRequest.getRangeSubset().addRangeItem(new RangeInterval(startComponent, endComponent));
+
+                    } else if (currentChild.getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_RANGECOMPONENT)) {
+                        gcRequest.getRangeSubset().addRangeItem(new RangeComponent(currentChild.getValue().trim()));
                     }
                 }
-                if (startComponent == null || endComponent == null) {
-                    throw new WCSException(ExceptionCode.InternalComponentError,
-                            "A RangeInterval element needs to have exactly one startComponent and one endComponent");
-                }
-                gcRequest.getRangeSubset().addRangeItem(new RangeInterval(startComponent, endComponent));
-            } else if (currentChild.getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_RANGECOMPONENT)) {
-                gcRequest.getRangeSubset().addRangeItem(new RangeComponent(currentChild.getValue().trim()));
             }
         }
     }
@@ -168,7 +183,7 @@ public class RangeSubsettingExtension implements Extension {
     }
     public static final String RANGESUBSET_KVP_PARAMNAME = "rangesubset";
     public static final String RANGESUBSET_KVP_RANGE_SEPARATOR = ":";
-        
+
     public static final String RANGESUBSET_REST_PARAMNAME = "rangesubset";
     public static final String RANGESUBSET_REST_RANGE_SEPARATOR = RESTParser.RANGE_SEPARATOR;
 }

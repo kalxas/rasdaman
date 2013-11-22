@@ -42,7 +42,9 @@ import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.TimeUtil;
 import static petascope.util.XMLSymbols.*;
+import petascope.util.XMLUtil;
 import static petascope.util.XMLUtil.*;
+import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
@@ -90,21 +92,43 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
             validateInput(request.getRequestString(), schema);
         }
 
-        // parsing
+        // check how many coveradeIds (== 1)
         Element root = parseInput(request.getRequestString());
-        List<Element> coverageIds = collectAll(root, PREFIX_WCS,
-                LABEL_COVERAGE_ID, CTX_WCS);
+        List<Element> coverageIds = collectAll(root, PREFIX_WCS, LABEL_COVERAGE_ID, CTX_WCS);
         if (coverageIds.size() != 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
                     "A GetCoverage request can specify only one CoverageId");
         }
-        GetCoverageRequest ret = new GetCoverageRequest(getText(coverageIds.get(0)));
+
+        // Get params required for contructor: format and mediatype
+        Element formatEl    = XMLUtil.firstChildRecursive(root, LABEL_FORMAT);
+        Element mediaTypeEl = XMLUtil.firstChildRecursive(root, LABEL_MEDIATYPE);
+        String format    = null != formatEl    ?    formatEl.getValue() : "";
+        String mediaType = null != mediaTypeEl ? mediaTypeEl.getValue() : "";
+
+        // sanity check
+        if (FormatExtension.MIME_MULTIPART.equals(mediaType)
+                && FormatExtension.MIME_GML.equals(format)) {
+            throw new WCSException(ExceptionCode.InvalidRequest, "The '" +
+                    LABEL_MEDIATYPE + "=" + FormatExtension.MIME_MULTIPART + "' & '" +
+                    LABEL_FORMAT    + "=" + FormatExtension.MIME_GML +
+                    "' combination is not applicable");
+        }
+
+        // init GetCoverage request
+        GetCoverageRequest ret = new GetCoverageRequest(
+                getText(coverageIds.get(0)),
+                format,
+                FormatExtension.MIME_MULTIPART.equals(mediaType)
+        );
+
+        // parse
         List<Element> children = ch(root);
         for (Element e : children) {
             String name = e.getLocalName();
             List<Element> c = ch(e);
             try {
-                if(name.equals(LABEL_EXTENSION)){
+                if(name.equals(LABEL_EXTENSION)) {
                     this.parseExtensions(ret, c);
                 }
                 if (name.equals(LABEL_DIMENSION_TRIM)) {
@@ -281,7 +305,6 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                         }
                     }
                 }
-
             } catch (Exception ex) {
                 if (((PetascopeException)ex).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.NotASubsettingCrs.getExceptionCode())
                     || ((PetascopeException)ex).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.NotAnOutputCrs.getExceptionCode()))
@@ -299,16 +322,17 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
     }
 
     /**
-     * Handles XML elements with label Extension. Each extension should add
-     * a parsing method inside
+     * Handles XML elements with label Extension.
+     * Each extension should add a parsing method inside.
+     *
      * @param gcRequest the coverage to which to add the parsed information
      * @param extensionChildren the children of the extension element
      * @throws WCSException
      */
     private void parseExtensions(GetCoverageRequest gcRequest, List<Element> extensionChildren) throws WCSException{
-        for(Element currentElem : extensionChildren){
+        for (Element currentElem : extensionChildren) {
             //Parse RangeSubsetting elements
-            if(currentElem.getLocalName().equalsIgnoreCase(LABEL_RANGEITEM)){
+            if (currentElem.getLocalName().equalsIgnoreCase(LABEL_RANGESUBSET)) {
                 RangeSubsettingExtension.parseGetCoverageXMLRequest(gcRequest, currentElem);
             }
         }

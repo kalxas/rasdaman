@@ -484,7 +484,7 @@ public class XMLUtil {
                     return null;
                 }
                 ++start;
-                return xml.substring(start, end);
+                return xml.substring(start, end).trim();
             } else {
                 ++start;
             }
