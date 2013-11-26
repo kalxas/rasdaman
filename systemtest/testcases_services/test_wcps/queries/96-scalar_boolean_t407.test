@@ -1,0 +1,1 @@
+for c in ( rgb ) return encode(255 * (c.red > 150) + (c.red > 150)*255 , "png" )
