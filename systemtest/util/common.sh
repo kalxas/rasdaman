@@ -458,8 +458,7 @@ function run_test()
                      WGET_EXIT_CODE=$?
                      ;;
                 xml) postdata=`mktemp`
-                     echo -n "request=" > "$postdata"
-                     cat "$f" >> "$postdata"
+                     cat "$f" > "$postdata"
                      $WGET -q --header "Content-Type: text/xml" --post-file "$postdata" "$WCS_URL" -O "$out"
                      WGET_EXIT_CODE=$?
                      rm "$postdata"

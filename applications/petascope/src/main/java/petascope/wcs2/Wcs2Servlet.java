@@ -162,7 +162,7 @@ public class Wcs2Servlet extends HttpServlet {
                 log.debug("Petascope Request: \n------START REQUEST--------\n"
                         + request + "\n------END REQUEST------\n");
 
-                handleWcs2Request(request, false, res, req);
+                handleWcs2Request(request, res, req);
             } catch (WCSException e) {
                 throw e;
             } catch (PetascopeException e) {
@@ -188,7 +188,7 @@ public class Wcs2Servlet extends HttpServlet {
      * @param response
      * @throws WCSException in case of I/O error, or if the server is unable to handle the request
      */
-    private void handleWcs2Request(String input, boolean soap, HttpServletResponse response, HttpServletRequest srvRequest)
+    private void handleWcs2Request(String input, HttpServletResponse response, HttpServletRequest srvRequest)
             throws WCSException, PetascopeException, SecoreException {
         try {
             HTTPRequest request = this.parseUrl(srvRequest, input);

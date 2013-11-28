@@ -316,7 +316,7 @@ public class PetascopeInterface extends HttpServlet {
 
                         // handle request
                         request = StringUtil.urldecode(httpRequest.getQueryString(), httpRequest.getContentType());
-                        handleWcsRequest(version, paramMap.get(WCPS_REQUEST_GET_PARAMETER), request, false, httpResponse, httpRequest);
+                        handleWcsRequest(version, paramMap.get(WCPS_REQUEST_GET_PARAMETER), request, httpResponse, httpRequest);
                         return;
                     }
                 }
@@ -341,13 +341,6 @@ public class PetascopeInterface extends HttpServlet {
                 request = StringUtil.urldecode(params.get(WCPS_REQUEST_GET_PARAMETER), httpRequest.getContentType());
                 if (request == null && request2 != null) {
                     request = request2;
-                }
-
-                if(params.get(WCPS_QUERY_GET_PARAMETER) == null && params.get(WCPS_REQUEST_GET_PARAMETER) == null){
-                    for(String postParam : params.keySet()){
-                        throw new WCSException(ExceptionCode.BadPostParameter,
-                                "Bad Post parameter '" + postParam + "', expected parameters are 'query'/'request'");
-                    }
                 }
 
                 // Empty request ?
@@ -375,7 +368,7 @@ public class PetascopeInterface extends HttpServlet {
                     return;
                 }
                 if (root.equals(XMLSymbols.LABEL_ENVELOPE)) {
-                    handleWcs2Request(request, true, httpResponse, httpRequest);
+                    handleWcs2Request(request, httpResponse, httpRequest);
                 } else if (root.endsWith(XMLSymbols.LABEL_PROCESSCOVERAGE_REQUEST)) {
                     /* ProcessCoverages is defined in the WCPS extension to WcsServer */
                     handleProcessCoverages(request, httpResponse);
@@ -399,11 +392,11 @@ public class PetascopeInterface extends HttpServlet {
                     } else {
                         version = ConfigManager.WCS_DEFAULT_VERSION;  // by default the latest supported by petascope
                     }
-                    handleWcsRequest(version, root, request, true, httpResponse, httpRequest);
+                    handleWcsRequest(version, root, request, httpResponse, httpRequest);
                 } else if (root.equals(RequestHandler.DESCRIBE_COVERAGE) || root.equals(RequestHandler.GET_COVERAGE)) {
                     Document doc = XMLUtil.buildDocument(null, request);
                     String version = doc.getRootElement().getAttributeValue(KVPSymbols.KEY_VERSION);
-                    handleWcsRequest(version, root, request, true, httpResponse, httpRequest);
+                    handleWcsRequest(version, root, request, httpResponse, httpRequest);
                 } else {
                     // error
                     handleUnknownRequest(request, httpResponse);
@@ -535,7 +528,7 @@ public class PetascopeInterface extends HttpServlet {
      * @throws WCSException
      * @throws PetascopeException
      */
-    private void handleWcsRequest(String version, String operation, String request, boolean soap,
+    private void handleWcsRequest(String version, String operation, String request,
             HttpServletResponse response, HttpServletRequest srvRequest)
             throws WCSException, PetascopeException, SecoreException, SQLException {
 
@@ -543,7 +536,7 @@ public class PetascopeInterface extends HttpServlet {
             throw new WCSException(ExceptionCode.InvalidRequest, "No WCS version specified.");
         }
         if (version.startsWith("2")) {
-            handleWcs2Request(request, soap, response, srvRequest);
+            handleWcs2Request(request, response, srvRequest);
         } else if (version.startsWith("1")) {
             handleWcs1Request(operation, request, response);
         } else {
@@ -602,7 +595,7 @@ public class PetascopeInterface extends HttpServlet {
      * @throws WCSException in case of I/O error, or if the server is unable to
      * handle the request
      */
-    private void handleWcs2Request(String request, boolean soap, HttpServletResponse response, HttpServletRequest srvRequest)
+    private void handleWcs2Request(String request, HttpServletResponse response, HttpServletRequest srvRequest)
             throws WCSException, PetascopeException, SecoreException {
         try {
             log.info("Handling WCS 2.0 request");
