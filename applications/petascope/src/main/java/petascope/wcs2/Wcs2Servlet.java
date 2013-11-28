@@ -203,6 +203,7 @@ public class Wcs2Servlet extends HttpServlet {
             Response res = pext.handle(request, meta);
 
             OutputStream os = response.getOutputStream();
+            response.setStatus(res.getExitCode());
             if (res.getXml() != null && res.getData() != null) {
                 MultipartResponse multi = new MultipartResponse(response);
                 multi.startResponse(FormatExtension.MIME_GML);

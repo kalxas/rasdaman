@@ -21,8 +21,6 @@
  */
 package petascope.wcs2.handlers;
 
-import petascope.wcs2.extensions.FormatExtension;
-
 /**
  * Bean holding the response from executing a request operation.
  *
@@ -33,21 +31,38 @@ public class Response {
     private final byte[] data;
     private final String xml;
     private final String mimeType;
+    private final int exit_code;
+    private static final int DEFAULT_CODE = 200;
 
+    // constructrs
     public Response(byte[] data) {
-        this(data, null, null);
+        this(data, null, null, DEFAULT_CODE);
+    }
+
+    public Response(byte[] data, int code) {
+        this(data, null, null, code);
     }
 
     public Response(String xml) {
         this(null, xml, null); //FormatExtension.MIME_GML);
     }
 
+    public Response(String xml, int code) {
+        this(null, xml, null, code);
+    }
+
     public Response(byte[] data, String xml, String mimeType) {
+        this(data, xml, mimeType, DEFAULT_CODE);
+    }
+
+    public Response(byte[] data, String xml, String mimeType, int code) {
         this.data = data;
         this.xml = xml;
         this.mimeType = mimeType;
+        this.exit_code = code;
     }
 
+    // interface
     public byte[] getData() {
         return data;
     }
@@ -59,5 +74,9 @@ public class Response {
     public String getXml() {
         return xml;
     }
-    
+
+    public int getExitCode() {
+        return exit_code;
+    }
+
 }

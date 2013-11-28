@@ -65,10 +65,18 @@ public class SOAPProtocolExtension extends AbstractProtocolExtension {
                         Pair.of("\\{body\\}", XMLUtil.removeXmlDecl(ret.getXml()))), ret.getMimeType());
             }
             return ret;
+        } catch (WCSException ex) {
+            log.error("WCS error", ex);
+            return new Response(
+                    Templates.getTemplate(Templates.SOAP_FAULT, Pair.of("\\{exceptionReport\\}",
+                    XMLUtil.removeXmlDecl(WcsUtil.exceptionToXml((PetascopeException) ex)))),
+                    ex.getExceptionCode().getHttpErrorCode());
         } catch (Exception ex) {
             log.error("Error", ex);
-            return new Response(Templates.getTemplate(Templates.SOAP_FAULT,
-                    Pair.of("\\{exceptionReport\\}", XMLUtil.removeXmlDecl(WcsUtil.exceptionToXml((PetascopeException) ex)))));
+            return new Response(
+                    Templates.getTemplate(Templates.SOAP_FAULT, Pair.of("\\{exceptionReport\\}",
+                    XMLUtil.removeXmlDecl(WcsUtil.exceptionToXml((PetascopeException) ex)))),
+                    ExceptionCode.DEFAULT_EXIT_CODE);
         }
     }
     
