@@ -24,6 +24,7 @@ package petascope.wcs2.parsers;
 import java.util.List;
 import java.util.Map;
 import petascope.HTTPRequest;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.StringUtil;
 import static petascope.util.KVPSymbols.*;
@@ -44,7 +45,12 @@ public class KVPDescribeCoverageParser extends KVPParser<DescribeCoverageRequest
                 KEY_COVERAGEID,
                 KEY_VERSION);
         DescribeCoverageRequest ret = new DescribeCoverageRequest();
-        ret.getCoverageIds().addAll(p.get(KEY_COVERAGEID));
+        List<String> coverageIds = p.get(KEY_COVERAGEID); // null if no key
+        if (null == coverageIds || coverageIds.isEmpty()) {
+            throw new WCSException(ExceptionCode.InvalidRequest,
+                    "A DescribeCoverage request must specify at least one " + KEY_COVERAGEID + ".");
+        }
+        ret.getCoverageIds().addAll(coverageIds);
         return ret;
     }
 

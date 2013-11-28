@@ -38,6 +38,7 @@ import static petascope.util.XMLUtil.*;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.ConfigManager;
 import static petascope.ConfigManager.XML_VALIDATION_T;
+import petascope.exceptions.ExceptionCode;
 
 /**
  * Parse a GetCapabilities XML request.
@@ -79,6 +80,10 @@ public class XMLDescribeCoverageParser extends XMLParser<DescribeCoverageRequest
         Element root = parseInput(request.getRequestString());
         List<Element> coverageIds = collectAll(root, PREFIX_WCS,
                 LABEL_COVERAGE_ID, CTX_WCS);
+        if (coverageIds.isEmpty()) {
+            log.error("Missing required " + LABEL_COVERAGE_ID + " element in request.");
+            throw new WCSException(ExceptionCode.InvalidRequest, "No <" + LABEL_COVERAGE_ID + "> found in request.");
+        }
         DescribeCoverageRequest ret = new DescribeCoverageRequest();
         for (Element coverageId : coverageIds) {
             ret.getCoverageIds().add(getText(coverageId));

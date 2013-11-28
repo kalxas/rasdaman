@@ -93,8 +93,8 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         Map<String, List<String>> p = StringUtil.parseQuery(input);
         checkEncodingSyntax(p, KEY_COVERAGEID, KEY_VERSION, KEY_MEDIATYPE, KEY_FORMAT, KEY_SUBSETCRS, KEY_OUTPUTCRS,
                 KEY_SCALEFACTOR, KEY_SCALEAXES, KEY_SCALESIZE, KEY_SCALEEXTENT, KEY_RANGESUBSET);
-        List<String> coverageIds = p.get(KEY_COVERAGEID);
-        if (coverageIds.size() != 1) {
+        List<String> coverageIds = p.get(KEY_COVERAGEID); // null if no key
+        if (null == coverageIds || coverageIds.size() != 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
                     "A GetCoverage request can specify only one " + KEY_COVERAGEID + ".");
         }

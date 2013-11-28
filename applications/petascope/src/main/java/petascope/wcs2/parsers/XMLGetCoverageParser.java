@@ -97,7 +97,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
         List<Element> coverageIds = collectAll(root, PREFIX_WCS, LABEL_COVERAGE_ID, CTX_WCS);
         if (coverageIds.size() != 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
-                    "A GetCoverage request can specify only one CoverageId");
+                    "A GetCoverage request must specify one " + LABEL_COVERAGE_ID + ".");
         }
 
         // Get params required for contructor: format and mediatype
