@@ -37,7 +37,7 @@
     </Envelope>
   </boundedBy>
   <wcs:CoverageId>{coverageId}</wcs:CoverageId>
-
+  {metadata}
   <domainSet>
     <{gridType} dimension="{gridDimension}" gml:id="{gridId}">
       <limits>
@@ -61,5 +61,4 @@
     <wcs:CoverageSubtype>{coverageSubtype}</wcs:CoverageSubtype>{coverageSubtypeParent}
     <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
   </wcs:ServiceParameters>
-  {metadata}
 </wcs:CoverageDescription>
