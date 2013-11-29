@@ -37,6 +37,7 @@ public interface XMLSymbols {
     String PREFIX_XMLNS = "xmlns";
     String PREFIX_GML = "gml";
     String PREFIX_GMLCOV = "gmlcov";
+    String PREFIX_GMLRGRID = "gmlrgrid";
     String PREFIX_SWE = "swe";
     String PREFIX_OWS = "ows";
     String PREFIX_WCS = "wcs";

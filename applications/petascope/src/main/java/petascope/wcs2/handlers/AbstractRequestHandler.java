@@ -34,6 +34,7 @@ import petascope.wcs2.parsers.Request;
  * convenience methods to concrete implementations.
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
+ * @param <T>
  */
 public abstract class AbstractRequestHandler<T extends Request> implements RequestHandler<T> {
     
@@ -44,22 +45,31 @@ public abstract class AbstractRequestHandler<T extends Request> implements Reque
     }
 
     /**
+     * Initializes an XML document with some required namespaces.
+     *
+     * @param name
+     * @param namespace
      * @return document with root element with name in namespace
      */
     protected Document constructDocument(String name, String namespace) {
         Element root = new Element(name, namespace);
 
-        root.addNamespaceDeclaration(PREFIX_XSI, NAMESPACE_XSI);
-        root.addNamespaceDeclaration(PREFIX_XLINK, NAMESPACE_XLINK);
-        root.addNamespaceDeclaration(PREFIX_OWS, NAMESPACE_OWS);
-        root.addNamespaceDeclaration(PREFIX_WCS, NAMESPACE_WCS);
-        root.addNamespaceDeclaration(PREFIX_GML, NAMESPACE_GML);
-        root.addNamespaceDeclaration(PREFIX_CRS, NAMESPACE_CRS);
         root.setNamespacePrefix(PREFIX_WCS);
         root.setNamespaceURI(NAMESPACE_WCS);
 
-        root.addAttribute(new Attribute(PREFIX_XSI + ":" + ATT_SCHEMA_LOCATION,
-                NAMESPACE_XSI, NAMESPACE_WCS + " " + SCHEMA_LOCATION_WCS));
+        // xmlns:
+        root.addNamespaceDeclaration(PREFIX_CRS, NAMESPACE_CRS);
+        root.addNamespaceDeclaration(PREFIX_OWS, NAMESPACE_OWS);
+        root.addNamespaceDeclaration(PREFIX_GML, NAMESPACE_GML);
+        root.addNamespaceDeclaration(PREFIX_XSI, NAMESPACE_XSI);
+        root.addNamespaceDeclaration(PREFIX_XLINK, NAMESPACE_XLINK);
+        root.addNamespaceDeclaration(PREFIX_WCS, NAMESPACE_WCS);
+
+        // schemaLocation
+        root.addAttribute(
+                new Attribute(PREFIX_XSI + ":" + ATT_SCHEMA_LOCATION, NAMESPACE_XSI,
+                          NAMESPACE_WCS  + " " + SCHEMA_LOCATION_WCS)
+                );
 
         return new Document(root);
     }

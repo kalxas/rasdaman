@@ -43,6 +43,7 @@ public class Templates {
 
     public static final String TEMPLATES_DIR = "petascope/wcs2/templates";
     public static final String TEMPLATES_EXT = ".templ";
+
     public static final String SERVICE_METADATA = "ServiceMetadata";
     public static final String OPERATIONS_METADATA = "OperationsMetadata";
     public static final String SERVICE_IDENTIFICATION = "ServiceIdentification";
