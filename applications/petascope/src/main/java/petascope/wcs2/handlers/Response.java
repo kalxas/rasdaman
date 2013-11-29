@@ -21,6 +21,8 @@
  */
 package petascope.wcs2.handlers;
 
+import static petascope.wcs2.extensions.FormatExtension.MIME_XML;
+
 /**
  * Bean holding the response from executing a request operation.
  *
@@ -48,7 +50,7 @@ public class Response {
     }
 
     public Response(String xml, int code) {
-        this(null, xml, null, code);
+        this(null, xml, MIME_XML, code);
     }
 
     public Response(byte[] data, String xml, String mimeType) {
