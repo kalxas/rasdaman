@@ -56,6 +56,7 @@ AC_CHECK_LIB([storagemgr], [main])
 AC_CHECK_LIB([tiff], [TIFFGetField], , [AC_MSG_FAILURE([libtiff.a not found! Please install.])])
 # FIXME: Replace `main' with a function in `-lz':
 AC_CHECK_LIB([z], [main], , [AC_MSG_FAILURE([libz.a not found! Please install.])])
+AC_CHECK_LIB([sigsegv], [sigsegv_install_handler], , [AC_MSG_RESULT(no)])
 
 ### Due to a strange bug with fnmatch.h, we cannot search for libgdal with AC_CHECK_LIB. 
 ### We add the linking flags manually

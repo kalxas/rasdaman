@@ -30,6 +30,9 @@
 #include <sstream>
 #include <string>
 #include <algorithm>
+#ifdef HAVE_LIBSIGSEGV
+#include <sigsegv.h>
+#endif
 
 #include "rerase.h"
 #include "include/globals.hh"
@@ -55,9 +58,26 @@ void showEraseHelp()
     std::cout << std::endl;
 }
 
+#if HAVE_SIGSEGV_RECOVERY
+int
+handler (void *fault_address, int serious)
+{
+    // clean up connection in case of segfault
+    if (rasconn)
+    {
+        delete rasconn;
+    }
+}
+#endif
+
 
 int main(int argc, char** argv)
 {
+#if HAVE_SIGSEGV_RECOVERY
+    sigsegv_install_handler(&handler);
+#endif
+    rasconn = NULL;
+
     NMDebugCtx(ctxRerase, << "...");
 
     if (argc < 2)
@@ -128,8 +148,8 @@ int main(int argc, char** argv)
         }
     }
 
-    RasdamanConnector rasconn(connfile);
-    RasdamanHelper2 helper(&rasconn);
+    rasconn = new RasdamanConnector(connfile);
+    RasdamanHelper2 helper(rasconn);
 
     if (collname.empty())
     {
@@ -162,7 +182,16 @@ int main(int argc, char** argv)
     {
         NMErr(ctxRerase, << re.what());
         NMDebugCtx(ctxRerase, << "done!");
+        if (rasconn)
+        {
+            delete rasconn;
+        }
         return EXIT_FAILURE;
+    }
+
+    if (rasconn)
+    {
+        delete rasconn;
     }
 
     NMDebugCtx(ctxRerase, << "done!");

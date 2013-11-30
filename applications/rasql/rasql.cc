@@ -65,6 +65,9 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include <string.h>
 #include <sstream>
 #include <fstream>
+#ifdef HAVE_LIBSIGSEGV
+#include <sigsegv.h>
+#endif
 
 using namespace std;
 
@@ -912,6 +915,15 @@ void doStuff( int argc, char** argv ) throw (r_Error)
     LEAVE( "doStuff" );
 }
 
+#if HAVE_SIGSEGV_RECOVERY
+int
+handler (void *fault_address, int serious)
+{
+    // clean up connection in case of segfault
+    closeTransaction(false);
+}
+#endif
+
 /*
  * returns 0 on success, -1 on error
  */
@@ -920,6 +932,10 @@ int main(int argc, char** argv)
     SET_OUTPUT( false );        // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_SUCCESS;  // overall result status
+
+#if HAVE_SIGSEGV_RECOVERY
+    sigsegv_install_handler(&handler);
+#endif
 
     try
     {
