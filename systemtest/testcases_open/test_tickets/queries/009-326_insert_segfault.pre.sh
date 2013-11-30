@@ -36,6 +36,9 @@ $RASQL -q "select marray i in [0:20,0:20] values 1c from mr as c" --out file --o
 mv $f.unknown $f
 
 $RASQL -q "create collection $c GreySet" > /dev/null
-$RASQL -q "insert into $c values \$1" -f $f --mdddomain "[0:100021,0:100021]" --mddtype GreyImage > /dev/null
+$RASQL -q "insert into $c values \$1" -f $f --mdddomain "[0:100021,0:100021]" --mddtype GreyImage > /dev/null 2>&1
+if [ $? -eq 134 ]; then
+  $RASQL -q "insert into $c values \$1" -f $f --mdddomain "[0:20,0:20]" --mddtype GreyImage > /dev/null
+fi
 
 rm -f $f

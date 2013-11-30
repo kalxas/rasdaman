@@ -821,6 +821,18 @@ void doStuff( int argc, char** argv ) throw (r_Error)
         fseek( fileD, 0, SEEK_END );
         long size = ftell( fileD );
         TALK( "file size is " << size << " bytes" );
+
+        // if no domain specified (this is the case with encoded files), then set to byte stream:
+        if ( ! mddDomainDef )
+        {
+            mddDomain = r_Minterval( 1 ) << r_Sinterval ((r_Range) 0, (r_Range) size-1 );
+            TALK( "domain set to " << mddDomain );
+        }
+        else if (size != mddDomain.cell_count() * mddType->base_type().size())
+        {
+            throw RasqlError( FILESIZEMISMATCH );
+        }
+
         try
         {
             fileContents = new char[size];
@@ -835,17 +847,6 @@ void doStuff( int argc, char** argv ) throw (r_Error)
         fread( fileContents, 1, size, fileD );
         fclose( fileD );
 
-        // if no domain specified (this is the case with encoded files), then set to byte stream:
-        if ( ! mddDomainDef )
-        {
-            mddDomain = r_Minterval( 1 ) << r_Sinterval ((r_Range) 0, (r_Range) size-1 );
-            TALK( "domain set to " << mddDomain );
-        }
-
-        // this check only works for binary arrays, but doesn't work for images for which a
-        // type/domain is given with --mddtype/--mdddomain -- DM 2012-feb-20
-//      if (size != mddDomain.cell_count() * mddType->base_type().size())
-//          throw RasqlError( FILESIZEMISMATCH );
         LOG( "ok" << endl );
 
         TALK( "setting up MDD with domain " << mddDomain << " and base type " << mddTypeName );

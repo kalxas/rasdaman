@@ -35,4 +35,3 @@ c=test_float
 
 $RASQL -q "create collection $c FloatPixelSet" > /dev/null
 $RASQL -q "insert into $c values marray i in [0:20,0:20] values {100.0f, 50.0f, 20.0f}" > /dev/null
-
