@@ -363,6 +363,7 @@ function run_rasql_test()
 function prepare_xml_file()
 {
   xml_file="${1}"
+  logn "Preparing XML file $xml_file for oracle comparison... "
   if [ -n "${1}" ]; then
       sed -i 's/gml://g' "$xml_file"
       sed -i $'s/\r//g' "$xml_file"
@@ -372,6 +373,7 @@ function prepare_xml_file()
       sed -i 's#http:\/\/\(\w\|[.-]\)\+\(:[0-9]\+\)\?\/def##g' "$xml_file" # not only test.cfg SECORE_URL, but also what's in ps9_crs!
       sed -i 's|at=[^ ]*||g' "$xml_file"                                   # e.g. See ``/crs/OGC/0'' Vs ``/crs?authority=OGC&version=0''.
   fi
+  loge "ok."
 }
 
 
@@ -496,10 +498,13 @@ function run_test()
     #
     # 2a. create $oracle from $ouput, if missing
     #
+    outfiletype=`file "$out" | awk -F ':' '{print $2;}'`
     if [ ! -f "$oracle" ]; then
         log " -> NO ORACLE FOUND"
         log " -> copying $out to $oracle"
-        prepare_xml_file "$out"
+        if [[ "$outfiletype" == *XML* ]]; then
+            prepare_xml_file "$out"
+        fi
         cp "$out" "$oracle"
     fi
 
@@ -549,7 +554,6 @@ function run_test()
         else
           # byte comparison
           if [[ "$filetype" == *XML* ]]; then
-              log "preparing XML output for oracle comparison"
               prepare_xml_file "$out"
           fi
           log "byte comparison"
@@ -561,7 +565,9 @@ function run_test()
       else # keep this to re-copy oracle in case it was accidentally deleted since Sec.2a (rare)
         log " -> NO ORACLE FOUND"
         log " -> copying $out to $oracle"
-        prepare_xml_file "$out"
+        if [[ "$outfiletype" == *XML* ]]; then
+            prepare_xml_file "$out"
+        fi
         cp "$out" "$oracle"
         NUM_FAIL=$(($NUM_FAIL + 1))
       fi
