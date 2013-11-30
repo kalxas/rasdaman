@@ -38,7 +38,7 @@ fi
 
 #----------------------------GENERAL CONSTANTS-------------------------------------------
 RASDAMAN_NAME=rasdaman
-RASDAMAN_VERSION="8.4"
+RASDAMAN_VERSION="9.0"
 RASDAMAN_GIT_REPOSITORY="git://kahlua.eecs.jacobs-university.de/rasdaman.git"
 TODAY=`date -u`
 DEBIAN_BUILD="debuild -uc -us"
@@ -52,8 +52,8 @@ FORCE_DISTRIB_VERSION=0
 
 #-------------BUILD CONSTANTS----------------------------------
 #Default to debian and ubuntu_lucid packages
-RASDAMAN_BUILD_DEPENDENCIES="libgdal-dev autoconf automake autotools-dev bison comerr-dev flex gawk git-core g++ krb5-multidev libecpg-compat3 libecpg-dev libecpg6 liberror-perl libgfortran3 libgssrpc4 libjpeg62-dev libkadm5clnt-mit7 libkadm5srv-mit7 libkdb5-4 libkrb5-dev libltdl-dev libncurses5-dev libnetpbm10-dev libpgtypes3 libpng12-dev libpq-dev libreadline-dev libreadline6-dev libssl-dev libtiff4-dev libtiffxx0c2 libtool m4 postgresql-8.4 postgresql-common zlib1g-dev doxygen openjdk-6-jdk tomcat6 libxp-dev"
-RASDAMAN_BUILD_DEPENDENCIES_ONEIRIC="libgdal-dev autoconf automake autotools-dev bison comerr-dev flex gawk git-core g++ krb5-multidev libecpg-compat3 libecpg-dev libecpg6 liberror-perl libgfortran3 libgssrpc4 libjpeg62-dev libkadm5clnt-mit8 libkadm5srv-mit8 libkdb5-5 libkrb5-dev libltdl-dev libncurses5-dev libnetpbm10-dev libpgtypes3 libpng12-dev libpq-dev libreadline-dev libreadline6-dev libssl-dev libtiff4-dev libtiffxx0c2 libtool m4 postgresql-8.4 postgresql-common zlib1g-dev doxygen openjdk-6-jdk tomcat6 libxp-dev"
+RASDAMAN_BUILD_DEPENDENCIES="libgdal-dev autoconf automake autotools-dev bison comerr-dev flex gawk git-core g++ krb5-multidev libecpg-compat3 libecpg-dev libecpg6 liberror-perl libgfortran3 libgssrpc4 libjpeg62-dev libkadm5clnt-mit7 libkadm5srv-mit7 libkdb5-4 libkrb5-dev libltdl-dev libncurses5-dev libnetpbm10-dev libpgtypes3 libpng12-dev libpq-dev libreadline-dev libreadline6-dev libssl-dev libtiff4-dev libtiffxx0c2 libtool m4 postgresql-8.4 postgresql-common zlib1g-dev doxygen openjdk-6-jdk tomcat6 libxp-dev libsigsegv-dev"
+RASDAMAN_BUILD_DEPENDENCIES_ONEIRIC="libgdal-dev autoconf automake autotools-dev bison comerr-dev flex gawk git-core g++ krb5-multidev libecpg-compat3 libecpg-dev libecpg6 liberror-perl libgfortran3 libgssrpc4 libjpeg62-dev libkadm5clnt-mit8 libkadm5srv-mit8 libkdb5-5 libkrb5-dev libltdl-dev libncurses5-dev libnetpbm10-dev libpgtypes3 libpng12-dev libpq-dev libreadline-dev libreadline6-dev libssl-dev libtiff4-dev libtiffxx0c2 libtool m4 postgresql-8.4 postgresql-common zlib1g-dev doxygen openjdk-6-jdk tomcat6 libxp-dev libsigsegv-dev"
 DEBIAN_BUILD_DEPENDENCIES="devscripts build-essential ubuntu-dev-tools debhelper fakeroot"
 #-------------END BUILD CONSTANTS-----------------------------
 
@@ -65,7 +65,7 @@ RASDAMAN_PACKAGE_PRIORITY="extra"
 RASDAMAN_PACKAGE_MAINTAINER_NAME="Alex Dumitru"
 RASDAMAN_PACKAGE_MAINTAINER_EMAIL="alex@flanche.net"
 RASDAMAN_PACKAGE_MAINTAINER="$RASDAMAN_PACKAGE_MAINTAINER_NAME <$RASDAMAN_PACKAGE_MAINTAINER_EMAIL>"
-RASDAMAN_PACKAGE_HOMEPAGE="http://rasdaman.eecs.jacobs-university.de/"
+RASDAMAN_PACKAGE_HOMEPAGE="http://rasdaman.de/"
 RASDAMAN_PACKAGE_ARCHITECTURE="any"
 RASDAMAN_PACKAGE_DEPENDENCIES=`echo "$RASDAMAN_BUILD_DEPENDENCIES" | tr ' ' ','`
 #-----------END CONTROL SECTION CONSTANTS----------------
@@ -140,7 +140,7 @@ Priority: $RASDAMAN_PACKAGE_PRIORITY
 Maintainer: $RASDAMAN_PACKAGE_MAINTAINER
 Build-Depends: debhelper (>= 7)
 Standards-Version: 3.8.3
-Homepage: http://rasdaman.eecs.jacobs-university.de/
+Homepage: http://rasdaman.de/
 
 Package: $RASDAMAN_NAME
 Architecture: $RASDAMAN_PACKAGE_ARCHITECTURE

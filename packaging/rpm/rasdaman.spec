@@ -20,6 +20,7 @@ BuildRequires: libtiff-devel
 BuildRequires: hdf-devel
 BuildRequires: libjpeg-devel
 BuildRequires: readline-devel
+BuildRequires: libsigsegv-devel
 BuildRequires: zlib-devel
 BuildRequires: libpng-devel
 BuildRequires: netpbm-devel
@@ -144,11 +145,12 @@ CC="gcc -L%{_libdir}/hdf -I/usr/include/netpbm -fpermissive -g -O2" CXX="g++ -L%
 		--localstatedir=%{_localstatedir} \
 		--sysconfdir=%{_sysconfdir}/rasdaman \
 		--with-logdir=%{_localstatedir}/log/rasdaman \
-	  --with-hdf4 \
-	  --with-netcdf \
+		--with-hdf4 \
+		--with-netcdf \
 		--with-pic \
 		--with-docs \
-    --with-wardir=%{_sharedstatedir}/tomcat6/webapps
+		--with-debug-symbols \
+		--with-wardir=%{_sharedstatedir}/tomcat6/webapps
 sed -i 's/^metadata_user=.\+/metadata_user=tomcat6/' applications/petascope/src/main/resources/petascope.properties
 sed -i 's/^metadata_pass=.\+/metadata_pass=/' applications/petascope/src/main/resources/petascope.properties
 sed -i 's#@confdir@#%{_sysconfdir}/rasdaman#' applications/petascope/src/main/webapp/WEB-INF/web.xml.in
@@ -313,6 +315,11 @@ fi
 %{_datadir}/rasdaman/raswct
 
 %changelog
+
+* Mon Nov 30  2013 Dimitar Misev <misev@rasdaman.com> - 9.0.0-beta2
+
+- Add libsigsegv-devel dependency
+- Add --with-debug-symbols to configure parameters
 
 * Mon Nov 12  2012 Dimitar Misev <misev@rasdaman.com> - 8.3.1-3
 
