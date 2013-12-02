@@ -241,7 +241,7 @@ public class CoverageMetadata implements Cloneable {
                 BigDecimal.ONE,
                 crsAxes.get(i).fst.getAbbreviation(),
                 crsAxes.get(i).fst.getType(),
-                CrsUtil.PURE_UOM,
+                crsAxes.get(i).fst.getUoM(),
                 crsUri,
                 0,
                 BigInteger.ONE,
