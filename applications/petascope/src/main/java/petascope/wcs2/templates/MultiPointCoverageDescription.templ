@@ -23,8 +23,7 @@
 -->
 
 
-
-<gmlcov:MultiPointCoverage
+<wcs:CoverageDescription
     xmlns='http://www.opengis.net/gml/3.2'
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
     xmlns:gml='http://www.opengis.net/gml/3.2'
@@ -36,23 +35,22 @@
                         http://www.opengis.net/gml/3.3/ce http://schemas.opengis.net/gml/3.3/geometryCompact.xsd'
     gml:id="{coverageId}">
 
-  <gml:domainSet>
+  <wcs:CoverageId>{coverageId}</wcs:CoverageId>
+  {metadata}
+  <domainSet>
     <gmlcov:SimpleMultiPoint gml:id="{mpId}" srsName="{srsName}" axisLabels="{axisLabels}" uomLabels="{uomLabels}" srsDimension="{gridDimension}">
       <gmlcov:positions>{pointMembers}</gmlcov:positions>
     </gmlcov:SimpleMultiPoint>
-  </gml:domainSet>
-
-  <gml:rangeSet>
-    <gml:DataBlock>
-      <gml:rangeParameters/>
-      <gml:tupleList>{gmlQList}</gml:tupleList>
-    </gml:DataBlock>
-  </gml:rangeSet>
+  </domainSet>
 
   <gmlcov:rangeType>
     <swe:DataRecord>
       {rangeFields}
     </swe:DataRecord>
   </gmlcov:rangeType>
-  {metadata}
-</gmlcov:MultiPointCoverage>
+
+  <wcs:ServiceParameters>
+    <wcs:CoverageSubtype>{coverageSubtype}</wcs:CoverageSubtype>{coverageSubtypeParent}
+    <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+  </wcs:ServiceParameters>
+</wcs:CoverageDescription>

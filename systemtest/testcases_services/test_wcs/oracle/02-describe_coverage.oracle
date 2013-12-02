@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd"      >
-  <wcs:CoverageDescription id="mr" xmlns="http://www.opengis.net/gml/3.2"  >
+<wcs:CoverageDescriptions       >
+  <wcs:CoverageDescription id="mr"  xmlns="http://www.opengis.net/gml/3.2"   >
     <boundedBy>
       <Envelope srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
         <lowerCorner>0 0</lowerCorner>

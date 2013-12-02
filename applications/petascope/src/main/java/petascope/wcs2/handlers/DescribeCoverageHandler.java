@@ -29,17 +29,21 @@ import petascope.util.XMLUtil;
 import petascope.wcs2.templates.Templates;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
 import petascope.exceptions.ExceptionCode;
 import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
+import static petascope.core.DbMetadataSource.TABLE_MULTIPOINT;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.WcsUtil;
+import petascope.util.XMLSymbols;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import static petascope.util.XMLSymbols.*;
 import static petascope.util.XMLUtil.*;
+import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcs2.extensions.FormatExtension;
 
@@ -69,7 +73,15 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
             try {
                 GetCoverageRequest tmp = new GetCoverageRequest(coverageId);
                 GetCoverageMetadata m = new GetCoverageMetadata(tmp, meta);
-                descr = WcsUtil.getGML(m, Templates.COVERAGE_DESCRIPTION, true, meta);
+
+                // choose template: currently multipoint or *grid
+                String descrTemplate = !m.getCoverageType().equals(XMLSymbols.LABEL_MULTIPOINT_COVERAGE) ?
+                        Templates.GRID_COVERAGE_DESCRIPTION :
+                        Templates.MULTIPOINT_COVERAGE_DESCRIPTION
+                        ;
+
+                // produce the GML response
+                descr = WcsUtil.getGML(m, descrTemplate, true, meta);
                 // RGBV coverages
                 if (m.getCoverageType().equals(LABEL_REFERENCEABLE_GRID_COVERAGE)) {
                     // Fetch the coefficients (of the irregular axes)
@@ -84,6 +96,12 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
                     // Add to GML
                     descr = WcsUtil.addCoefficients(descr, m);
                     descr = WcsUtil.getBounds(descr, m);
+                } else if (m.getCoverageType().equals(LABEL_MULTIPOINT_COVERAGE)) {
+                    // Multipoint coverages: add point positions
+                    List<CellDomainElement> cellDomainList = m.getMetadata().getCellDomainList();
+                    String[] members = meta.multipointDomainRangeData(TABLE_MULTIPOINT, meta.coverageID(coverageId), coverageId, cellDomainList);
+                    String pointMembers = members[0];
+                    descr = descr.replaceAll("\\{" + Templates.KEY_POINTMEMBERS + "\\}", pointMembers);
                 }
             } catch (WCSException ex) {
                 if (ex.getExceptionCode().getExceptionCode().equals(ExceptionCode.NoSuchCoverage.getExceptionCode())) {

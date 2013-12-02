@@ -233,7 +233,11 @@ public class CoverageMetadata implements Cloneable {
         for(int i=0; i < crsAxes.size(); i++){
             // Get CRS
             String crsUri = crsAxes.get(i).snd;
-            crsUris.add(crsUri);
+            // Build the list of CRS URIs
+            if (!crsUris.contains(crsUri)) {
+                crsUris.add(crsUri);
+            }
+
             // Build domain metadata
             cellDomainList.add(new CellDomainElement("1", "1", 0));
             domainList.add( new DomainElement(

@@ -174,6 +174,7 @@ public class XMLUtil {
      * @param file input XML file
      * @return XOM Document
      * @throws IOException
+     * @throws ParsingException
      */
     public static Document buildDocument(File file) throws IOException, ParsingException {
         return buildDocument(file.toURI().toString(), new FileInputStream(file));
@@ -185,6 +186,8 @@ public class XMLUtil {
      * @param baseURI
      * @param document input XML string
      * @return XOM Document
+     * @throws IOException
+     * @throws ParsingException
      */
     public static Document buildDocument(String baseURI, String document) throws IOException, ParsingException {
         InputStream in = new ByteArrayInputStream(document.getBytes(XML_STD_ENCODING));
@@ -200,6 +203,8 @@ public class XMLUtil {
      * @param baseURI
      * @param in an input stream
      * @return the document
+     * @throws IOException
+     * @throws ParsingException
      */
     public static Document buildDocument(String baseURI, InputStream in) throws IOException, ParsingException {
         Document doc = null;
@@ -235,6 +240,8 @@ public class XMLUtil {
      * @param files the XML files to build
      * @return the Documents
      * @throws java.io.IOException
+     * @throws IOException
+     * @throws ParsingException
      */
     public static List<Document> buildDocuments(Collection<File> files) throws IOException, ParsingException {
         List<Document> ret = new ArrayList<Document>();
@@ -258,6 +265,8 @@ public class XMLUtil {
      * Serialize a XOM Document.
      *
      * @param xomDocument the XOM Document to be serialized
+     * @param noPrettyPrint
+     * @return
      * @throws IOException
      */
     public static String serialize(Document xomDocument, boolean noPrettyPrint) throws IOException {
@@ -282,6 +291,7 @@ public class XMLUtil {
      *
      * @param xomDocument the XOM Document to be serialized
      * @param os stream where to write the result
+     * @param noPrettyPrint
      * @throws IOException
      */
     public static void serialize(Document xomDocument, OutputStream os, boolean noPrettyPrint) throws IOException {
@@ -307,6 +317,8 @@ public class XMLUtil {
      * Serialize a XOM Document without pretty printing the result.
      *
      * @param xomDocument the XOM Document to be serialized
+     * @param file
+     * @param noPrettyPrint
      * @throws IOException
      */
     public static void serialize(Document xomDocument, File file, boolean noPrettyPrint) throws IOException {
@@ -314,6 +326,7 @@ public class XMLUtil {
     }
 
     /**
+     * @param doc
      * @return the document name
      */
     public static String docName(Document doc) {
@@ -331,6 +344,10 @@ public class XMLUtil {
         return ret;
     }
 
+    /**
+     * @param e
+     * @return
+     */
     public static String getBaseURI(Element e) {
         if (e == null) {
             return null;
@@ -348,6 +365,10 @@ public class XMLUtil {
         return ret;
     }
 
+    /**
+     * @param doc
+     * @return
+     */
     public static String getBaseURI(Document doc) {
         if (doc != null) {
             return doc.getBaseURI();
@@ -356,6 +377,7 @@ public class XMLUtil {
     }
 
     /**
+     * @param e
      * @return the depth of <code>e</code> in the XML tree
      */
     public static int depth(Element e) {
@@ -417,7 +439,9 @@ public class XMLUtil {
      * Return new element with the same name and attributes as the given element.
      * Note that we don't care about the prefix/namespaces here.
      *
+     * @param e
      * @param ignoreAttributes set of attributes to ignore when copying
+     * @return
      */
     public static Element copyTag(Element e, Set<String> ignoreAttributes) {
         Element ret = null;
@@ -437,8 +461,9 @@ public class XMLUtil {
     }
 
     /**
-     * cp(<label att_1="val_1"...att_n="val_n">ch</label>) --> <label att_1="val_1"...att_n="val_n">ch'</label>,
-     * where ch'!=Element
+     * cp(<label att_1="val_1"...att_n="val_n">ch</label>) --> <label att_1="val_1"...att_n="val_n">ch'</label>, where ch'!=Element
+     * @param n
+     * @return
      */
     public static Node cp(Node n) {
         if (n instanceof Element) {
@@ -461,10 +486,19 @@ public class XMLUtil {
         }
     }
 
+    /**
+     * @param xml
+     * @param tag
+     * @return
+     */
     public static boolean isFirstTag(String xml, String tag) {
         return tag.equals(getRootElementName(xml));
     }
 
+    /**
+     * @param xml
+     * @return
+     */
     public static String getRootElementName(String xml) {
         int start = 0;
         while (start < xml.length()) {
@@ -492,6 +526,10 @@ public class XMLUtil {
         return null;
     }
 
+    /**
+     * @param xml
+     * @return
+     */
     public static String removeXmlDecl(String xml) {
         if (xml.startsWith("<?xml")) {
             xml = xml.substring(xml.indexOf("<", 1));
@@ -501,6 +539,8 @@ public class XMLUtil {
 
     /**
      * Return the text that some node contains.
+     * @param node
+     * @return
      */
     public static String getText(Element node) {
         if (node == null) {

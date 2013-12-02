@@ -266,7 +266,9 @@ public class WcsUtil {
                 Pair.of("\\{" + Templates.KEY_METADATA            + "\\}", gmlcovFormattedMetadata));
 
         // RGBV need to replace bounds after knowledge of the retrieved coefficients
-        if (replaceBounds && !m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
+        if (replaceBounds &&
+                !m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE) &&
+                !m.getCoverageType().equals(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)) {
             ret = getBounds(ret, m);
         }
 

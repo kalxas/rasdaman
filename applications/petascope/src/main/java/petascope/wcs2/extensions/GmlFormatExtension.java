@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
+import static petascope.core.DbMetadataSource.TABLE_MULTIPOINT;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -53,7 +54,6 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
     private static final Logger log = LoggerFactory.getLogger(GmlFormatExtension.class);
     public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:"; // FIXME: now URNs are deprecated
-    protected static final String MULTIPOINTSCHEMA = "ps9_multipoint";
     protected static final String TAG_DATABLOCK = "DataBlock";
     protected static final String TAG_RANGEPARAMETERS = "rangeParameters";
     protected static final String TAG_TUPLELIST = "tupleList";
@@ -168,9 +168,9 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
                         String[] boundary = slice.getSlicePoint().split(":");
                         cellDomain.setLo(boundary[0]);
-                        if( boundary.length == 2 ){
+                        if ( boundary.length == 2 ) {
                             cellDomain.setHi(boundary[1]);
-                        }else if(boundary.length == 1){
+                        } else if (boundary.length == 1) {
                             cellDomain.setHi(boundary[0]);
                         }
                         cellDomain.setSubsetElement(subsetElement);
@@ -178,26 +178,12 @@ public class GmlFormatExtension extends AbstractFormatExtension {
                 }
             }
 
-            /* iterate the coverage metadata */
-            for (CellDomainElement aCellDomainList : cellDomainList) {
-                low += aCellDomainList.getLo() + " ";
-                high += aCellDomainList.getHi() + " ";
-            }
-
-            String[] members = meta.multipointDomainRangeData(MULTIPOINTSCHEMA, meta.coverageID(coverageName), coverageName, cellDomainList);
+            // Add domainSet and rangeSet of the points
+            String[] members = meta.multipointDomainRangeData(TABLE_MULTIPOINT, meta.coverageID(coverageName), coverageName, cellDomainList);
             pointMembers = members[0];
             rangeMembers = members[1];
-
-            Pair<String, String> pair = constructWcpsQuery(req, cov, CSV_ENCODING, null);
-
-            ret = ret.replaceAll("\\{" + Templates.KEY_LOW + "\\}",
-                    low).replaceAll("\\{"          + Templates.KEY_HIGH + "\\}",
-                    high).replaceAll("\\{"         + Templates.KEY_AXISLABELS + "\\}",
-                    pair.snd).replaceAll("\\{"     + Templates.KEY_MULUOMLABLES + "\\}", pair.snd);
-
-            String[] split1 = ret.split("\\{pointMembers\\}");
-            String[] split2 = split1[1].split("\\{gmlQList\\}");
-
+            String[] split1 = ret.split("\\{" + Templates.KEY_POINTMEMBERS + "\\}");
+            String[] split2 = split1[1].split("\\{" + Templates.KEY_GMLQLIST + "\\}");
             sb.append(split1[0]).append(pointMembers).append(split2[0]).append(rangeMembers).append(split2[1]);
 
         } catch (PetascopeException ex) {

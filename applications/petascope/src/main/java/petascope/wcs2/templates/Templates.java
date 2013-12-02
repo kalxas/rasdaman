@@ -44,22 +44,24 @@ public class Templates {
     public static final String TEMPLATES_DIR = "petascope/wcs2/templates";
     public static final String TEMPLATES_EXT = ".templ";
 
-    public static final String SERVICE_METADATA = "ServiceMetadata";
-    public static final String OPERATIONS_METADATA = "OperationsMetadata";
-    public static final String SERVICE_IDENTIFICATION = "ServiceIdentification";
-    public static final String SERVICE_PROVIDER = "ServiceProvider";
-    public static final String COVERAGE_DESCRIPTION = "CoverageDescription";
-    public static final String RANGE_FIELD = "RangeField";
+    public static final String EXCEPTION_REPORT = "ExceptionReport";
     public static final String GENERAL_GRID_AXIS = "GeneralGridAxis";
     public static final String GRID_COVERAGE = "GridCoverage";
+    public static final String GRID_COVERAGE_DESCRIPTION = "GridCoverageDescription";
     public static final String GRID_ORIGIN = "GridOrigin";
-    public static final String OFFSET_VECTOR = "OffsetVector";
+    public static final String OPERATIONS_METADATA = "OperationsMetadata";
     public static final String MULTIPOINT_COVERAGE = "MultiPointCoverage";
-    public static final String MULTIPOINT_POINTMEMBERS = "PointMembers";
+    public static final String MULTIPOINT_COVERAGE_DESCRIPTION = "MultiPointCoverageDescription";
     public static final String MULTIPOINT_RANGE = "MultiPointRange";
-    public static final String SOAP_MESSAGE = "SOAPMessage";
+    public static final String OFFSET_VECTOR = "OffsetVector";
+    public static final String MULTIPOINT_POINTMEMBERS = "PointMembers";
+    public static final String RANGE_FIELD = "RangeField";
+    public static final String SERVICE_IDENTIFICATION = "ServiceIdentification";
+    public static final String SERVICE_METADATA = "ServiceMetadata";
+    public static final String SERVICE_PROVIDER = "ServiceProvider";
     public static final String SOAP_FAULT = "SOAPFault";
-    public static final String EXCEPTION_REPORT = "ExceptionReport";
+    public static final String SOAP_MESSAGE = "SOAPMessage";
+
 
     /**
      * template name -> (template as string, template as XOM element)
@@ -67,7 +69,6 @@ public class Templates {
     private static final Map<String, String> templates = new HashMap<String, String>();
 
     /* Keywords in WCS templates (alphabetic order) */
-    public static final String KEY_DOMAINSET_ADDITIONS = "domainSetAdditions";
     public static final String KEY_ALLOWEDVALUES = "allowedValues";
     public static final String KEY_AXISLABELS = "axisLabels";
     public static final String KEY_COEFFICIENTS = "coefficients";
@@ -79,6 +80,7 @@ public class Templates {
     public static final String KEY_COVERAGESUBTYPEPARENT = "coverageSubtypeParent";
     public static final String KEY_COVERAGETYPE = "coverageType";
     public static final String KEY_DATATYPE = "datatype";
+    public static final String KEY_DOMAINSET_ADDITIONS = "domainSetAdditions";
     public static final String KEY_FIELDDESCR = "fieldDescr";
     public static final String KEY_FIELDNAME = "fieldName";
     public static final String KEY_GRIDAXISSPANNED = "gridAxisSpanned";
@@ -90,7 +92,6 @@ public class Templates {
     public static final String KEY_LOWERCORNER = "lowerCorner";
     public static final String KEY_METADATA = "metadata";
     public static final String KEY_MPID = "mpId";
-    public static final String KEY_MULUOMLABLES = "mulUomLabels";
     public static final String KEY_NILVALUES = "nilValues";
     public static final String KEY_OFFSET_VECTOR= "offsetVector";
     public static final String KEY_OFFSETS= "offsets";
@@ -116,13 +117,14 @@ public class Templates {
         loadTemplate(OPERATIONS_METADATA);
         loadTemplate(SERVICE_IDENTIFICATION);
         loadTemplate(SERVICE_PROVIDER);
-        loadTemplate(COVERAGE_DESCRIPTION);
+        loadTemplate(GRID_COVERAGE_DESCRIPTION);
         loadTemplate(RANGE_FIELD);
         loadTemplate(GENERAL_GRID_AXIS);
         loadTemplate(GRID_COVERAGE);
         loadTemplate(GRID_ORIGIN);
         loadTemplate(OFFSET_VECTOR);
         loadTemplate(MULTIPOINT_COVERAGE);
+        loadTemplate(MULTIPOINT_COVERAGE_DESCRIPTION);
         loadTemplate(MULTIPOINT_POINTMEMBERS);
         //loadTemplate(MULTIPOINT_RANGE);
         loadTemplate(SOAP_MESSAGE);
