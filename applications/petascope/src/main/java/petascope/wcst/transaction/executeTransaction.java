@@ -66,6 +66,7 @@ import petascope.exceptions.WCSTException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
+import petascope.util.XMLSymbols;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.InterpolationMethod;
@@ -556,7 +557,7 @@ public class executeTransaction {
         Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
         m = new CoverageMetadata(
                 identifier,
-                Templates.GRID_ORIGIN,
+                XMLSymbols.LABEL_GRID_COVERAGE,
                 "", // native format
                 emptyMetadata,
                 crs,

@@ -74,24 +74,20 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
                 GetCoverageRequest tmp = new GetCoverageRequest(coverageId);
                 GetCoverageMetadata m = new GetCoverageMetadata(tmp, meta);
 
-                // choose template: currently multipoint or *grid
-                String descrTemplate = !m.getCoverageType().equals(XMLSymbols.LABEL_MULTIPOINT_COVERAGE) ?
-                        Templates.GRID_COVERAGE_DESCRIPTION :
-                        Templates.MULTIPOINT_COVERAGE_DESCRIPTION
-                        ;
+                // get template: currently multipoint or *grid
+                String descrTemplate = Templates.COVERAGE_DESCRIPTION;
 
                 // produce the GML response
-                descr = WcsUtil.getGML(m, descrTemplate, true, meta);
+                descr = WcsUtil.getGML(m, descrTemplate, meta);
                 // RGBV coverages
                 if (m.getCoverageType().equals(LABEL_REFERENCEABLE_GRID_COVERAGE)) {
                     // Fetch the coefficients (of the irregular axes)
                     for (DomainElement domEl : m.getMetadata().getDomainList()) {
-                        if (domEl.isIrregular()) {
-                            domEl.setCoefficients(meta.getAllCoefficients(
-                                    m.getMetadata().getCoverageName(),
-                                    m.getMetadata().getDomainIndexByName(domEl.getLabel()) // i-order of axis
-                                    ));
-                        }
+                        domEl.setCoefficients(
+                                meta.getAllCoefficients(
+                                m.getMetadata().getCoverageName(),
+                                m.getMetadata().getDomainIndexByName(domEl.getLabel()) // i-order of axis
+                                ));
                     }
                     // Add to GML
                     descr = WcsUtil.addCoefficients(descr, m);

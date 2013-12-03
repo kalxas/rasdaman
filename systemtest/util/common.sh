@@ -384,6 +384,7 @@ function prepare_xml_file()
       sed -i '/xlink:href/d' "$xml_file"
       sed -i '/identifier /d' "$xml_file"
       sed -i 's|xmlns:[^=]*="[^"]*"||g' "$xml_file"
+      sed -i 's|xsi:schemaLocation="[^"]*"||g' "$xml_file"
       sed -i 's#http:\/\/\(\w\|[.-]\)\+\(:[0-9]\+\)\?\/def##g' "$xml_file" # not only test.cfg SECORE_URL, but also what's in ps9_crs!
       sed -i 's|at=[^ ]*||g' "$xml_file"                                   # e.g. See ``/crs/OGC/0'' Vs ``/crs?authority=OGC&version=0''.
   fi

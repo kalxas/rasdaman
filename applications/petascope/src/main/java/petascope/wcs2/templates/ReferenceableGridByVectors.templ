@@ -1,0 +1,17 @@
+    <gmlrgrid:ReferenceableGridByVectors dimension="{gridDimension}" gml:id="{gridId}"
+        xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid"
+        xsi:schemaLocation="http://www.opengis.net/gml/3.3/rgrid http://schemas.opengis.net/gml/3.3/referenceableGrid.xsd">
+      <limits>
+        <GridEnvelope>
+          <low>{low}</low>
+          <high>{high}</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>{axisLabels}</axisLabels>
+      <gmlrgrid:origin>
+        <Point gml:id="{pointId}" {srsGroup}>
+          <pos>{originPos}</pos>
+        </Point>
+      </gmlrgrid:origin>
+{generalGridAxes}
+    </gmlrgrid:ReferenceableGridByVectors>

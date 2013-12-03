@@ -1595,97 +1595,6 @@ public class DbMetadataSource implements IMetadataSource {
     }
 
     /**
-     * Fetches Coverage Data from Non-Raster Coverage created in PetascopeDB
-     * @param schemaName
-     * @param coverageID
-     * @param coverageName
-     * @param cellDomainList
-     * @return
-     * @throws PetascopeException
-     */
-    public String coverageData(String schemaName, String coverageID, String coverageName,
-                               List<CellDomainElement> cellDomainList) throws PetascopeException {
-
-        Statement s = null;
-        int pointCount = 0;
-
-        try {
-            ensureConnection();
-            s = conn.createStatement();
-
-            String genQuery = "SELECT * FROM " + schemaName + " WHERE coverage=" + coverageID;
-
-            ResultSet r = s.executeQuery(genQuery);
-            String pointMembers = "";
-
-            while (r.next()) {
-
-                String tuple = "";
-                boolean isInSubset = true;
-                int count = 0;
-
-                for (CellDomainElement cell : cellDomainList){
-
-                    double columnValue = r.getDouble(count+3);
-                    Double low = Double.parseDouble(cell.getLo().toString());
-                    Double high = Double.parseDouble(cell.getHi().toString());
-                    GetCoverageRequest.DimensionSubset subset = cell.getSubsetElement();
-
-                    if(columnValue >= low && columnValue <= high){
-
-                        /* ignore the dimension for the slicePoint if subsetting operation is slicing */
-                        if(subset instanceof GetCoverageRequest.DimensionTrim || low.compareTo(high) != 0){
-
-                            if((count+1) != cellDomainList.size()) {
-                                tuple += Double.toString(columnValue) + " ";
-                            } else {
-                                tuple += Double.toString(columnValue);
-                            }
-                        }
-                    }else{
-                        isInSubset = false;
-                    }
-
-                    count++;
-                }
-
-                if(isInSubset){
-
-                    String rowID = "p" + (++pointCount) + "_" + coverageName;
-
-                    if(pointMembers!=null) {
-                      pointMembers += Templates.getTemplate(Templates.MULTIPOINT_POINTMEMBERS,
-                      Pair.of("\\{gmlPointId\\}", rowID),
-                      Pair.of("\\{gmlPos\\}", tuple));
-                    } else {
-                      pointMembers = Templates.getTemplate(Templates.MULTIPOINT_POINTMEMBERS,
-                      Pair.of("\\{gmlPointId\\}", rowID),
-                      Pair.of("\\{gmlPos\\}", tuple));
-                    }
-
-                    pointMembers += "\n";
-                }
-            }
-
-            s.close();
-            return pointMembers;
-
-        } catch (SQLException sqle) {
-            if (s != null) {
-                try {
-                    s.close();
-                } catch (SQLException f) {
-                }
-            }
-
-            close();
-
-            throw new PetascopeException(ExceptionCode.ResourceError,
-                    "Metadata database error", sqle);
-        }
-    }
-
-    /**
      * Fetches MultiPoint Coverage Domain and Range Data from MultiPoint Coverage created in PetascopeDB
      * @author Alireza
      * @param schemaName
@@ -1986,7 +1895,7 @@ public class DbMetadataSource implements IMetadataSource {
             log.debug("SQL query : " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
 
-            if (r.next()) {
+            if (r.next() && null != r.getArray(1)) {
                 // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute},
                 // of indexes 1 and 2 respectively:
                 ResultSet rs = r.getArray(1).getResultSet();

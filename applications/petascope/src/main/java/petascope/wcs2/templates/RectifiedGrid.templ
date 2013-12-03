@@ -1,0 +1,15 @@
+    <RectifiedGrid dimension="{gridDimension}" gml:id="{gridId}">
+      <limits>
+        <GridEnvelope>
+          <low>{low}</low>
+          <high>{high}</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>{axisLabels}</axisLabels>
+      <origin>
+          <Point gml:id="{pointId}" {srsGroup}>
+              <pos>{originPos}</pos>
+          </Point>
+      </origin>
+{offsetVectors}
+    </RectifiedGrid>

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
  * This file is part of PetaScope.
  *
@@ -23,44 +22,39 @@
 -->
 
 
-<wcs:CoverageDescription
-    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+<gmlcov:{coverageType}
     xmlns='http://www.opengis.net/gml/3.2'
     xmlns:gml='http://www.opengis.net/gml/3.2'
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
-    xmlns:gmlrgrid='http://www.opengis.net/gml/3.3/rgrid'
     xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
     xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="{coverageId}"
-    xsi:schemaLocation='http://www.opengis.net/gml/3.3/rgrid http://schemas.opengis.net/gml/3.3/referenceableGrid.xsd'>
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
   <boundedBy>
-    <Envelope srsName="{srsName}" axisLabels="{axisLabels}" uomLabels="{uomLabels}" srsDimension="{gridDimension}">
+    <Envelope {srsGroup}>
       <lowerCorner>{lowerCorner}</lowerCorner>
       <upperCorner>{upperCorner}</upperCorner>
     </Envelope>
   </boundedBy>
-  <wcs:CoverageId>{coverageId}</wcs:CoverageId>
-  {metadata}
+
   <domainSet>
-    <{gridType} dimension="{gridDimension}" gml:id="{gridId}">
-      <limits>
-        <GridEnvelope>
-          <low>{low}</low>
-          <high>{high}</high>
-        </GridEnvelope>
-      </limits>
-      <axisLabels>{axisLabels}</axisLabels>
-{domainSetAdditions}
-    </{gridType}>
+{domainSet}
   </domainSet>
+
+  <rangeSet>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList>{coverageData}</tupleList>
+    </DataBlock>
+  </rangeSet>
+
+  </rangeSet>
 
   <gmlcov:rangeType>
     <swe:DataRecord>
-      {rangeFields}
+{rangeFields}
     </swe:DataRecord>
   </gmlcov:rangeType>
-
-  <wcs:ServiceParameters>
-    <wcs:CoverageSubtype>{coverageSubtype}</wcs:CoverageSubtype>{coverageSubtypeParent}
-    <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
-  </wcs:ServiceParameters>
-</wcs:CoverageDescription>
+{gmlcovMetadata}
+</gmlcov:{coverageType}>

@@ -54,9 +54,6 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
     private static final Logger log = LoggerFactory.getLogger(GmlFormatExtension.class);
     public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:"; // FIXME: now URNs are deprecated
-    protected static final String TAG_DATABLOCK = "DataBlock";
-    protected static final String TAG_RANGEPARAMETERS = "rangeParameters";
-    protected static final String TAG_TUPLELIST = "tupleList";
 
     @Override
     public boolean canHandle(GetCoverageRequest req) {
@@ -88,13 +85,13 @@ public class GmlFormatExtension extends AbstractFormatExtension {
                 throw pEx;
             }
 
-            String gml = WcsUtil.getGML(m, Templates.GRID_COVERAGE, true, meta);
+            String gml = WcsUtil.getGML(m, Templates.COVERAGE, meta);
             gml = addCoverageData(gml, request, meta, m);
 
             // RGBV coverages
             if (m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
                 gml = WcsUtil.addCoefficients(gml, m);
-                // Grid and Coverage bounds need to be updated: there was coefficient knowledge before
+                // Grid and Coverage bounds need to be updated, now we know the coefficients
                 updateGetCoverageMetadata(request, m);
                 gml = WcsUtil.getBounds(gml, m);
 
@@ -107,16 +104,22 @@ public class GmlFormatExtension extends AbstractFormatExtension {
         }
     }
 
+    /**
+     * Inserts rangeSet values for grid-coverages.
+     * @param gml
+     * @param request
+     * @param meta
+     * @param m
+     * @return
+     * @throws WCSException
+     * @throws PetascopeException
+     */
     protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, GetCoverageMetadata m)
             throws WCSException, PetascopeException {
         RasQueryResult res = new RasQueryResult(executeRasqlQuery(request, m, meta, CSV_ENCODING, null).fst);
         if (!res.getMdds().isEmpty()) {
             String data = new String(res.getMdds().get(0));
             data = WcsUtil.csv2tupleList(data);
-            data = "<" + TAG_DATABLOCK + ">" +
-                        "<" +  TAG_RANGEPARAMETERS + "/>" +
-                        "<" + TAG_TUPLELIST + ">" + data + "</" + TAG_TUPLELIST + ">" +
-                    "</" + TAG_DATABLOCK + ">";
             gml = gml.replace("{" + Templates.KEY_COVERAGEDATA + "}", data);
         }
         return gml;
@@ -132,7 +135,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
     private Response handleMultiPoint(GetCoverageRequest req, String coverageName, DbMetadataSource meta, GetCoverageMetadata m)
             throws WCSException {
         CoverageMetadata cov = m.getMetadata();
-        String ret = WcsUtil.getGML(m, Templates.MULTIPOINT_COVERAGE, false, meta);
+        String ret = WcsUtil.getGML(m, Templates.COVERAGE, meta);
         String pointMembers = "";
         String rangeMembers = "";
         String low = "", high = "";
@@ -183,7 +186,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
             pointMembers = members[0];
             rangeMembers = members[1];
             String[] split1 = ret.split("\\{" + Templates.KEY_POINTMEMBERS + "\\}");
-            String[] split2 = split1[1].split("\\{" + Templates.KEY_GMLQLIST + "\\}");
+            String[] split2 = split1[1].split("\\{" + Templates.KEY_COVERAGEDATA + "\\}");
             sb.append(split1[0]).append(pointMembers).append(split2[0]).append(rangeMembers).append(split2[1]);
 
         } catch (PetascopeException ex) {

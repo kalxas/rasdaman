@@ -1,4 +1,4 @@
-/*
+    /*
  * This file is part of rasdaman community.
  *
  * Rasdaman community is free software: you can redistribute it and/or modify
@@ -39,6 +39,7 @@ import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.WcpsConstants;
+import petascope.util.XMLSymbols;
 import petascope.wcs2.templates.Templates;
 
 public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageInfo {
@@ -175,7 +176,7 @@ public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageIn
         Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
         CoverageMetadata metadata = new CoverageMetadata(
                 coverageName,
-                Templates.GRID_ORIGIN,
+                XMLSymbols.LABEL_GRID_COVERAGE,
                 "", // native format
                 emptyMetadata, // extra-metadata
                 crs,

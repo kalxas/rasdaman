@@ -95,9 +95,9 @@ public class WcsUtil {
      * @param coverageId
      * @return
      * @throws SecoreException
-     * @throws WCSException 
+     * @throws WCSException
      */
-    public static CoverageMetadata getMetadata(DbMetadataSource meta, String coverageId) 
+    public static CoverageMetadata getMetadata(DbMetadataSource meta, String coverageId)
             throws SecoreException, WCSException {
         try {
             return meta.read(coverageId);
@@ -220,71 +220,92 @@ public class WcsUtil {
         return exceptionReportToXml(e.getReport());
     }
 
-    public static String getGML(GetCoverageMetadata m, String template, boolean replaceBounds, DbMetadataSource meta) {
+    public static String getGML(GetCoverageMetadata m, String template, DbMetadataSource meta) throws WCSException {
 
         // TODO
         // Automatize the creation of the header: namespaces, schema locations, etc. (Mind XMLSymbols).
+
+        // Domain set
+        String domainSet = "";
+        if (m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
+            domainSet += Templates.getTemplate(Templates.GRID);
+        } else if (m.getCoverageType().equals(XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE)) {
+            domainSet += Templates.getTemplate(Templates.RECTIFIED_GRID);
+        } else if (m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
+            domainSet += Templates.getTemplate(Templates.REFERENCEABLE_GRID_BY_VECTORS);
+        } else if (m.getCoverageType().equals(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)) {
+            domainSet += Templates.getTemplate(Templates.SIMPLE_MULTIPOINT);
+        } else {
+            log.error("Unsupported coverage type: " + m.getCoverageType());
+            throw new WCSException(ExceptionCode.UnsupportedCoverageConfiguration,
+                    "Unsupported coverage type: " + m.getCoverageType());
+        }
 
         // Range type
         String rangeFields = "";
         for (RangeField range : m.getRangeFields()) {
             rangeFields += Templates.getTemplate(Templates.RANGE_FIELD,
-                    Pair.of("\\{" + Templates.KEY_FIELDNAME     + "\\}", range.getFieldName()),
+                    Pair.of("\\{" + Templates.KEY_ALLOWEDVALUES + "\\}", range.getAllowedValues()),
+                    Pair.of("\\{" + Templates.KEY_CODE          + "\\}", range.getUomCode()),
                     Pair.of("\\{" + Templates.KEY_COMPONENTNAME + "\\}", range.getComponentName()),
                     Pair.of("\\{" + Templates.KEY_DATATYPE      + "\\}", range.getDatatype()),
-                    Pair.of("\\{" + Templates.KEY_NILVALUES     + "\\}", range.getNilValues()),
+                    Pair.of("\\{" + Templates.KEY_FIELDNAME     + "\\}", range.getFieldName()),
                     Pair.of("\\{" + Templates.KEY_FIELDDESCR    + "\\}", range.getDescription()),
-                    Pair.of("\\{" + Templates.KEY_ALLOWEDVALUES + "\\}", range.getAllowedValues()),
-                    Pair.of("\\{" + Templates.KEY_CODE          + "\\}", range.getUomCode())
+                    Pair.of("\\{" + Templates.KEY_NILVALUES     + "\\}", range.getNilValues())
                     );
         }
 
-        // GMLCOV metadata
-        Set<String> gmlcovMetadata = m.getMetadata().getExtraMetadata(XMLSymbols.PREFIX_GMLCOV);
-        String gmlcovFormattedMetadata = "";
-        for (String metadataValue : gmlcovMetadata) {
-            gmlcovFormattedMetadata += "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_METADATA + ">" + metadataValue
-                    + "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_METADATA + ">";
-        }
-
-        // Whole document
+        // Whole document: replace keywords with values
         String ret = Templates.getTemplate(template,
-                Pair.of("\\{" + Templates.KEY_DOMAINSET_ADDITIONS + "\\}", getDomainSetAdditions(m)), // need to be first: it adds other shared "{%}" keys (eg `uomLabels')
-                Pair.of("\\{" + Templates.KEY_COVERAGEID          + "\\}", m.getCoverageId()),
-                Pair.of("\\{" + Templates.KEY_COVERAGETYPE        + "\\}", m.getCoverageType()),
+                Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
+                // [!] domainSet has to be replaced first: it contains keywords to be replaced
+                // grid
+                Pair.of("\\{" + Templates.KEY_AXISLABELS            + "\\}", m.getAxisLabels()),
+                Pair.of("\\{" + Templates.KEY_GRIDDIMENSION         + "\\}", String.valueOf(m.getGridDimension())),
+                Pair.of("\\{" + Templates.KEY_GRIDID                + "\\}", m.getGridId()),
+                // + rectified grid
+                Pair.of("\\{" + Templates.KEY_ORIGINPOS             + "\\}", m.getDomLow()),
+                Pair.of("\\{" + Templates.KEY_POINTID               + "\\}", m.getCoverageId() + Templates.SUFFIX_ORIGIN),
+                Pair.of("\\{" + Templates.KEY_OFFSET_VECTORS        + "\\}", getOffsetVectors(m)),
+                // + referenceable grid
+                Pair.of("\\{" + Templates.KEY_GENERAL_GRID_AXES     + "\\}", getGeneralGridAxes(m)),
+                // multipoint
+                Pair.of("\\{" + Templates.KEY_MPID                  + "\\}", Templates.PREFIX_MP + m.getGridId()),
+                // coverage
+                Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
+                Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
+                Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPE       + "\\}", m.getCoverageType()),
                 Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPEPARENT + "\\}", addSubTypeParents(meta.getParentCoverageType(m.getCoverageType()), meta).toXML()),
-                Pair.of("\\{" + Templates.KEY_GRIDID              + "\\}", m.getGridId()),
-                Pair.of("\\{" + Templates.KEY_MPID                + "\\}", Templates.PREFIX_MP + m.getGridId()),
-                Pair.of("\\{" + Templates.KEY_GRIDDIMENSION       + "\\}", String.valueOf(m.getGridDimension())),
-                Pair.of("\\{" + Templates.KEY_UOMLABELS           + "\\}", m.getUomLabels()),
-                Pair.of("\\{" + Templates.KEY_RANGEFIELDS         + "\\}", rangeFields),
-                Pair.of("\\{" + Templates.KEY_COVERAGESUBTYPE     + "\\}", m.getCoverageType()),
-                Pair.of("\\{" + Templates.KEY_AXISLABELS          + "\\}", m.getAxisLabels()),
-                Pair.of("\\{" + Templates.KEY_GRIDTYPE            + "\\}", m.getGridType()),
-                Pair.of("\\{" + Templates.KEY_SRSGROUP            + "\\}", getSrsGroup(m)),
-                Pair.of("\\{" + Templates.KEY_SRSNAME             + "\\}", getSrsName(m)),
-                Pair.of("\\{" + Templates.KEY_METADATA            + "\\}", gmlcovFormattedMetadata));
+                Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
+                Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields),
+                Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)));
 
-        // RGBV need to replace bounds after knowledge of the retrieved coefficients
-        if (replaceBounds &&
-                !m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE) &&
-                !m.getCoverageType().equals(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)) {
+        // RGBV cannot replace bounds now, see GmlFormatExtension class
+        if (!m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
             ret = getBounds(ret, m);
         }
 
         return ret;
     }
 
-    public static String getSrsGroup(GetCoverageMetadata m) {
-        Bbox bbox = m.getBbox();
-        if (bbox != null) {
-            return " " + Templates.KEY_SRSNAME + "=\"" + bbox.getCrsName() + "\" " +
-                    Templates.KEY_SRSDIMENSION + "=\"" + m.getGridDimension() + "\"";
-        } else {
-            return "";
-        }
+    /**
+     * Creates the String for gml:SRSReferenceGroup attributes group.
+     * @param m
+     * @return
+     */
+    private static String getSrsGroup(GetCoverageMetadata m) {
+        return XMLSymbols.ATT_SRS_NAME       + "=\"" + getSrsName(m)        + "\" " +
+                XMLSymbols.ATT_AXIS_LABELS   + "=\"" + m.getAxisLabels()    + "\" " +
+                XMLSymbols.ATT_UOM_LABELS    + "=\"" + m.getUomLabels()     + "\" " +
+                XMLSymbols.ATT_SRS_DIMENSION + "=\"" + m.getGridDimension() + "\"";
     }
 
+    /**
+     * Returns the full URI of the native CRS of a coverage.
+     * Special XML entities are escaped (&entity;).
+     * @param m
+     * @return
+     */
     public static String getSrsName(GetCoverageMetadata m) {
         if (m.getCrs() != null) {
             // Need to encode the '&' that are in CCRS
@@ -303,12 +324,30 @@ public class WcsUtil {
     public static String getBounds(String gml, GetCoverageMetadata m) {
         gml = gml.replaceAll("\\{" + Templates.KEY_LOW         + "\\}", m.getLow())
                  .replaceAll("\\{" + Templates.KEY_HIGH        + "\\}", m.getHigh())
-                 .replaceAll("\\{" + Templates.KEY_AXISLABELS  + "\\}", m.getAxisLabels())
                  .replaceAll("\\{" + Templates.KEY_LOWERCORNER + "\\}", m.getDomLow())
                  .replaceAll("\\{" + Templates.KEY_UPPERCORNER + "\\}", m.getDomHigh());
         return gml;
     }
 
+    /**
+     * Returns the configured GMLCOV metadata.
+     * This information is returned along with <gmlcov:metadata> root element.
+     * The content is extracted from petascopedb::ps9_extrametadata.
+     * @param m
+     * @return
+     */
+    private static String getGmlcovMetadata (GetCoverageMetadata m) {
+        // GMLCOV metadata
+        Set<String> gmlcovMetadata = m.getMetadata().getExtraMetadata(XMLSymbols.PREFIX_GMLCOV);
+        String gmlcovFormattedMetadata = "";
+        for (String metadataValue : gmlcovMetadata) {
+            gmlcovFormattedMetadata += "  " +
+                    "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_METADATA + ">"
+                    + StringUtil.escapeXmlPredefinedEntities(metadataValue) +
+                    "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_METADATA + ">";
+        }
+        return gmlcovFormattedMetadata;
+    }
     /**
      * Replaces the bounds of the grid
      * @param gml
@@ -322,10 +361,11 @@ public class WcsUtil {
         return gml;
     }*/
 
-    // NOTE1: rotated ReferenceableGridCoverage are not supported:
-    // need to yield the offsets anyway for GML response: unity vectors.
-    // NOTE2: an ad-hoc templates was needed since dimensionality of the coverage is
-    // not fixed and each offset vector needs a GML row.
+    /**
+     * Builds the gml:offsetVectors element for a rectified grid.
+     * @param m
+     * @return
+     */
     private static String getOffsetVectors(GetCoverageMetadata m) {
         String output = "";
         String[] axisNames = m.getAxisLabels().split(" ");
@@ -334,20 +374,29 @@ public class WcsUtil {
             if (i>0) {
                 output += "\n";
             }
-            output += getOffsetVectors(m, axisNames[i]);
+            output += getOffsetVector(m, axisNames[i]);
         }
         return output;
     }
-    // Overload
-    //for offset-vectors of a single grid axis:
-    private static String getOffsetVectors(GetCoverageMetadata m, String axisName) {
+
+    /**
+     * Builds the gml:offsetVector element for a rectified grid along a grid axis.
+     * @param m
+     * @param axisName
+     * @return
+     */
+    private static String getOffsetVector(GetCoverageMetadata m, String axisName) {
         String output = Templates.getTemplate(Templates.OFFSET_VECTOR,
                     Pair.of("\\{" + Templates.KEY_OFFSETS + "\\}", getOffsets(m, axisName)));
         return output;
     }
 
-    // Function the builds the content of offsets vector GML elements for a specified dimension.
-    // Note still it is assumed that grid dimensions are exactly aligned with CRS axes.
+    /**
+     * Gets the components of the offset vector of a certain axis of a grid.
+     * @param m
+     * @param axisName
+     * @return
+     */
     private static String getOffsets(GetCoverageMetadata m, String axisName) {
         String output = "";
         String[] axisNames = m.getAxisLabels().isEmpty() ? new String[0] : m.getAxisLabels().split(" ");
@@ -361,9 +410,13 @@ public class WcsUtil {
         return output;
     }
 
-    // Builds the XML for the coefficients of an irregular axis in a gmlrgrid:ReferenceableGridByVectors
-    // If the axis is regular, an empty string is returned.
-    // NOTE: change request to GML to let the coefficients be /optional/ (Campalani et al., EnviroInfo2013).
+    /**
+     * Extracts the coefficients of an axis.
+     * Empty string is returned on regular ones.
+     * @param m
+     * @param axisName
+     * @return
+     */
     public static String getCoefficients(GetCoverageMetadata m, String axisName) {
         // init
         String coefficients = "";
@@ -380,16 +433,13 @@ public class WcsUtil {
                 coeffs = Vectors.add(coeffs, (domEl.getMinValue().subtract(subsetLo)).divide(domEl.getOffsetVector()));
             }
             // Create the XML element
-            coefficients = "\n          <" + XMLSymbols.LABEL_COEFFICIENTS  + ">" +
-                    StringUtil.listToTuple(coeffs, ' ') +
-                    "</" + XMLSymbols.LABEL_COEFFICIENTS + ">"
-                    ;
+            coefficients = StringUtil.listToTuple(coeffs, ' ');
         }
         return coefficients;
     }
 
     /**
-     * Add the coefficients in a gmlrgrid:ReferenceableGridByVectors.
+     * Add the coefficients in a gmlrgrid:GeneralGridAxis.
      * They are not known at the time of initializing the GML output, but only after processing
      * the coverage data (see petascope.wcps.server.core.crs and DbMetadataSource.getCoefficientsOfInterval()).
      * @param gml  The GML output already filled with data and metadata.
@@ -408,7 +458,11 @@ public class WcsUtil {
         return gml;
     }
 
-    // Builds the XML for the gmlrgrid:RefernceableGridByVectors domain-set
+    /**
+     * Returnes a gmlrgrid:generalGridZxis element, with replacements.
+     * @param m
+     * @return
+     */
     private static String getGeneralGridAxes(GetCoverageMetadata m) {
         Bbox bbox = m.getBbox();
         String output = "";
@@ -420,36 +474,11 @@ public class WcsUtil {
             }
             output += Templates.getTemplate(Templates.GENERAL_GRID_AXIS,
                     Pair.of("\\{" + Templates.KEY_GRIDAXISSPANNED + "\\}", axisNames[i]),
-                    Pair.of("\\{" + Templates.KEY_OFFSET_VECTOR   + "\\}", getOffsetVectors(m, axisNames[i]))
+                    Pair.of("\\{" + Templates.KEY_OFFSETS         + "\\}", getOffsets(m, axisNames[i]))
                     // coefficients are visible /after/ WCPS processing
                     );
         }
         return output;
-    }
-
-    private static String getDomainSetAdditions(GetCoverageMetadata m) {
-        String ret = "";
-        Bbox bbox = m.getBbox();
-        if (bbox != null) {
-            // Fill with origin and offset-vector(s)
-            String outGml = Templates.getTemplate(Templates.GRID_ORIGIN,
-                    Pair.of("\\{" + Templates.KEY_POINTID   + "\\}", m.getCoverageId() + Templates.SUFFIX_ORIGIN),
-                    Pair.of("\\{" + Templates.KEY_ORIGINPOS + "\\}", m.getDomLow())
-                    );
-            if (m.getCoverageType().equals(XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE)) {
-                // Fill with offset-vector(s)
-                String offsetsGml = getOffsetVectors(m);
-                outGml += "\n" + offsetsGml;
-            } else if (m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
-                // Fill with origin and GeneralGridAxis element(s)
-                outGml += "\n" + getGeneralGridAxes(m);
-            }
-
-            return outGml;
-        } else {
-            log.warn("Bbox object is missing for coverage " + m.getMetadata().getCoverageName());
-        }
-        return ret;
     }
 
     public static Pair<String, String> toInterval(String type) {

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
  * This file is part of PetaScope.
  *
@@ -23,23 +22,28 @@
 -->
 
 
-
 <gmlcov:MultiPointCoverage
     xmlns='http://www.opengis.net/gml/3.2'
-    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
     xmlns:gml='http://www.opengis.net/gml/3.2'
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0'
-    xmlns:gmlce='http://www.opengis.net/gml/3.3/ce'
-    xsi:schemaLocation='http://www.opengis.net/gmlcov/1.0 http://schemas.opengis.net/gmlcov/1.0/gmlcovAll.xsd
-                        http://www.opengis.net/gml/3.3/ce http://schemas.opengis.net/gml/3.3/geometryCompact.xsd'
-    id="Parksmall">
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="Parksmall"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="/crs/EPSG/0/4327" axisLabels="Lat Long h" uomLabels="degree degree metre" srsDimension="3">
+      <lowerCorner>1 1 1</lowerCorner>
+      <upperCorner>1 1 1</upperCorner>
+    </Envelope>
+  </boundedBy>
 
   <domainSet>
-    <gmlcov:SimpleMultiPoint id="multipoint_Parksmall-grid" srsName="/crs/EPSG/0/4327" axisLabels="Lat Long h" uomLabels="degree degree metre" srsDimension="3">
-      <gmlcov:positions>456378.65627500002 53.924899580000002 456378.68757499999 53.922999580000003 456378.59377499 53.927999579999998 456378.53127499 53.933899580000002 456378.28127497999 53.949999579999997 456378.00007497001 53.964999579999997 456378.71877500002 53.921999579999998 456378.25007498002 53.950999580000001 456378.90617501002 53.911899579999996 456378.78117500001 53.916999580000002 456378.78117500001 53.916999580000002 456378.31257498002 53.948999579999999 456378.43757498998 53.941999580000001 456378.31257498002 53.947999580000001 456378.56257498998 53.934999580000003 </gmlcov:positions>
-    </gmlcov:SimpleMultiPoint>
+    <gmlce:SimpleMultiPoint id="multipoint_Parksmall-grid" srsName="/crs/EPSG/0/4327" axisLabels="Lat Long h" uomLabels="degree degree metre" srsDimension="3"
+        xmlns:gmlce='http://www.opengis.net/gml/3.3/ce'
+        xsi:schemaLocation='http://www.opengis.net/gml/3.3/ce http://schemas.opengis.net/gml/3.3/geometryCompact.xsd'>
+      <posList>456378.65627500002 53.924899580000002 456378.68757499999 53.922999580000003 456378.59377499 53.927999579999998 456378.53127499 53.933899580000002 456378.28127497999 53.949999579999997 456378.00007497001 53.964999579999997 456378.71877500002 53.921999579999998 456378.25007498002 53.950999580000001 456378.90617501002 53.911899579999996 456378.78117500001 53.916999580000002 456378.78117500001 53.916999580000002 456378.31257498002 53.948999579999999 456378.43757498998 53.941999580000001 456378.31257498002 53.947999580000001 456378.56257498998 53.934999580000003 </posList>
+    </gmlce:SimpleMultiPoint>
   </domainSet>
 
   <rangeSet>
@@ -49,9 +53,11 @@
     </DataBlock>
   </rangeSet>
 
+  </rangeSet>
+
   <gmlcov:rangeType>
     <swe:DataRecord>
-          <swe:field name="red">
+    <swe:field name="red">
       <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:unsigned char">
         <swe:description></swe:description>
         <swe:uom code="10^0"/>

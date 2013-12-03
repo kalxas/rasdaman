@@ -25,22 +25,21 @@
 
 <wcs:CoverageDescription
     xmlns='http://www.opengis.net/gml/3.2'
-    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
     xmlns:gml='http://www.opengis.net/gml/3.2'
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0'
-    xmlns:gmlce='http://www.opengis.net/gml/3.3/ce'
-    xsi:schemaLocation='http://www.opengis.net/gmlcov/1.0 http://schemas.opengis.net/gmlcov/1.0/gmlcovAll.xsd
-                        http://www.opengis.net/gml/3.3/ce http://schemas.opengis.net/gml/3.3/geometryCompact.xsd'
-    gml:id="{coverageId}">
-
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="{coverageId}">
+  <boundedBy>
+    <Envelope {srsGroup}>
+      <lowerCorner>{lowerCorner}</lowerCorner>
+      <upperCorner>{upperCorner}</upperCorner>
+    </Envelope>
+  </boundedBy>
   <wcs:CoverageId>{coverageId}</wcs:CoverageId>
-  {metadata}
+{gmlcovMetadata}
   <domainSet>
-    <gmlcov:SimpleMultiPoint gml:id="{mpId}" srsName="{srsName}" axisLabels="{axisLabels}" uomLabels="{uomLabels}" srsDimension="{gridDimension}">
-      <gmlcov:positions>{pointMembers}</gmlcov:positions>
-    </gmlcov:SimpleMultiPoint>
+{domainSet}
   </domainSet>
 
   <gmlcov:rangeType>

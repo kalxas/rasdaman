@@ -37,6 +37,7 @@ import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.WcpsConstants;
+import petascope.util.XMLSymbols;
 import static petascope.util.ras.RasConstants.*;
 import petascope.wcs2.templates.Templates;
 
@@ -170,7 +171,7 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
         Set<Pair<String,String>> emptyMetadata = new HashSet<Pair<String,String>>();
         CoverageMetadata metadata = new CoverageMetadata(
                 coverageName,
-                Templates.GRID_ORIGIN,
+                XMLSymbols.LABEL_GRID_COVERAGE,
                 "", // native format
                 emptyMetadata,
                 crs,

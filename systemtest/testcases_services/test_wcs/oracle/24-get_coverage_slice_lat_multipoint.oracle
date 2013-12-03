@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
  * This file is part of PetaScope.
  *
@@ -23,23 +22,28 @@
 -->
 
 
-
 <gmlcov:MultiPointCoverage
     xmlns='http://www.opengis.net/gml/3.2'
-    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
     xmlns:gml='http://www.opengis.net/gml/3.2'
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
     xmlns:swe='http://www.opengis.net/swe/2.0'
-    xmlns:wcs='http://www.opengis.net/wcs/2.0'
-    xmlns:gmlce='http://www.opengis.net/gml/3.3/ce'
-    xsi:schemaLocation='http://www.opengis.net/gmlcov/1.0 http://schemas.opengis.net/gmlcov/1.0/gmlcovAll.xsd
-                        http://www.opengis.net/gml/3.3/ce http://schemas.opengis.net/gml/3.3/geometryCompact.xsd'
-    id="Parksmall">
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="Parksmall"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="/crs/EPSG/0/4327" axisLabels="Lat Long h" uomLabels="degree degree metre" srsDimension="3">
+      <lowerCorner>1 1 1</lowerCorner>
+      <upperCorner>1 1 1</upperCorner>
+    </Envelope>
+  </boundedBy>
 
   <domainSet>
-    <gmlcov:SimpleMultiPoint id="multipoint_Parksmall-grid" srsName="/crs/EPSG/0/4327" axisLabels="Lat Long h" uomLabels="degree degree metre" srsDimension="3">
-      <gmlcov:positions>339868.06245005998 53.92999958 339867.49995003 53.92999958 339867.15615001001 53.958999579999997 339867.87495005003 53.924899580000002 339867.74995004002 53.919899579999999 </gmlcov:positions>
-    </gmlcov:SimpleMultiPoint>
+    <gmlce:SimpleMultiPoint id="multipoint_Parksmall-grid" srsName="/crs/EPSG/0/4327" axisLabels="Lat Long h" uomLabels="degree degree metre" srsDimension="3"
+        xmlns:gmlce='http://www.opengis.net/gml/3.3/ce'
+        xsi:schemaLocation='http://www.opengis.net/gml/3.3/ce http://schemas.opengis.net/gml/3.3/geometryCompact.xsd'>
+      <posList>339868.06245005998 53.92999958 339867.49995003 53.92999958 339867.15615001001 53.958999579999997 339867.87495005003 53.924899580000002 339867.74995004002 53.919899579999999 </posList>
+    </gmlce:SimpleMultiPoint>
   </domainSet>
 
   <rangeSet>
@@ -49,9 +53,11 @@
     </DataBlock>
   </rangeSet>
 
+  </rangeSet>
+
   <gmlcov:rangeType>
     <swe:DataRecord>
-          <swe:field name="red">
+    <swe:field name="red">
       <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:unsigned char">
         <swe:description></swe:description>
         <swe:uom code="10^0"/>

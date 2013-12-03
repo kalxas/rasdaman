@@ -84,7 +84,7 @@ public class GetCoverageOld {
 
     public GetCoverageOld(DbMetadataSource metadata) throws WCSException {
         meta = metadata;
-        GetCoverageResponse = Templates.getTemplate(Templates.GRID_COVERAGE);
+        GetCoverageResponse = Templates.getTemplate(Templates.COVERAGE);
         if (GetCoverageResponse == null) {
             throw new WCSException(ExceptionCode.InvalidServiceConfiguration, "Could not find template file.");
         }

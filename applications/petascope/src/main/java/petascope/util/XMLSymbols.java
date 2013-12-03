@@ -73,7 +73,7 @@ public interface XMLSymbols {
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    // wcs
+    // wcs/gml
     String LABEL_BBOX = "BoundingBox";
     String LABEL_BOUNDEDBY = "BoundedBy";
     String LABEL_CAPABILITIES = "Capabilities";
@@ -84,6 +84,7 @@ public interface XMLSymbols {
     String LABEL_COVERAGE_SUBTYPE_PARENT = "CoverageSubtypeParent";
     String LABEL_COVERAGE_DESCRIPTIONS = "CoverageDescriptions";
     String LABEL_COVERAGE_DESCRIPTION = "CoverageDescription";
+    String LABEL_DATABLOCK = "DataBlock";
     String LABEL_DIMENSION = "Dimension";
     String LABEL_DIMENSION_TRIM = "DimensionTrim";
     String LABEL_DIMENSION_SLICE = "DimensionSlice";
@@ -91,11 +92,13 @@ public interface XMLSymbols {
     String LABEL_FORMAT = "format";
     String LABEL_MEDIATYPE = "mediaType";
     String LABEL_PROCESSCOVERAGE_REQUEST = "ProcessCoveragesRequest";
+    String LABEL_RANGEPARAMETERS = "rangeParameters";
     String LABEL_SERVICE_METADATA = "ServiceMetadata";
     String LABEL_SLICE_POINT = "SlicePoint";
     String LABEL_TRANSACTION = "Transaction";
     String LABEL_TRIM_LOW = "TrimLow";
     String LABEL_TRIM_HIGH = "TrimHigh";
+    String LABEL_TUPLELIST = "tupleList";
     String LABEL_WGS84_BBOX = "Wgs84BoundingBox";
     // wcs crs-extension
     String LABEL_CRS_METADATA = "CrsMetadata";
@@ -179,7 +182,7 @@ public interface XMLSymbols {
     String LABEL_REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
     String LABEL_METADATA = "metadata";
 
-    // gml 3.3
+    // gmlrgrid
     String LABEL_COEFFICIENTS = "coefficients";
     String LABEL_RGBA = "ReferenceableGridByArray";
     String LABEL_RGBV = "ReferenceableGridByVectors";
@@ -219,6 +222,12 @@ public interface XMLSymbols {
     String ATT_CODESPACE = "codeSpace";
     String ATT_LANG = "lang";
     String ATT_HREF = "href";
+
+    // gml:SRSReferenceGroup
+    String ATT_SRS_NAME = "srsName";
+    String ATT_SRS_DIMENSION = "srsDimension";
+    String ATT_UOM_LABELS = "uomLabels";
+    String ATT_AXIS_LABELS = "axisLabels";
 
     // crs-extension
     String ATT_SUPPORTED_CRS = "supportedCrs";

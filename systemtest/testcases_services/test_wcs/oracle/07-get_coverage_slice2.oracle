@@ -23,12 +23,11 @@
 
 
 <gmlcov:RectifiedGridCoverage
-    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
     xmlns='http://www.opengis.net/gml/3.2'
     xmlns:gml='http://www.opengis.net/gml/3.2'
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
-    xmlns:gmlrgrid='http://www.opengis.net/gml/3.3/rgrid'
     xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
     xmlns:wcs='http://www.opengis.net/wcs/2.0' id="eobstest"
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
@@ -53,12 +52,17 @@
               <pos>0</pos>
           </Point>
       </origin>
-    <offsetVector srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">1</offsetVector>
+      <offsetVector srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">1</offsetVector>
     </RectifiedGrid>
   </domainSet>
 
   <rangeSet>
-<DataBlock><rangeParameters/><tupleList>-9999,-9999,-9999,-9999,-9999,-9999</tupleList></DataBlock>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList>-9999,-9999,-9999,-9999,-9999,-9999</tupleList>
+    </DataBlock>
+  </rangeSet>
+
   </rangeSet>
 
   <gmlcov:rangeType>
