@@ -6,8 +6,13 @@ autom4te.cache
 .deps
 *.o
 *.a
+*.patch
 #These are all generated files under openrasdaman
 applications/rasql/rasql
+clientcomm/rpcif.h
+clientcomm/rpcif_clnt.cc
+clientcomm/rpcif_svc.cc
+clientcomm/rpcif_xdr.c
 config.log
 config.status
 insertutils/insertppm
@@ -67,7 +72,7 @@ rasdaman_insertdemo.sh
 web.xml
 applications/raswct/bin
 glassfish-web.xml
-sun-web.xml
+java/dist/
 web.xml
 fillpyramid
 initpyramid
@@ -75,8 +80,14 @@ config.h
 *~
 stamp-h1
 version.h
+lex.yy.c
 bin/update_db.sh
 applications/directql/directql
+applications/petascope/src/main/db/petascope_insertdemo.sh
+applications/petascope/src/main/db/update_petascopedb.sh
+bin/update_db.sh
+applications/raswct/bin
+*.lis
 configure
 install-sh
 depcomp
@@ -92,5 +103,6 @@ compile
 /applications/petascope/dist/
 wcps.tokens
 failed_cases
+sun-web.xml
 /applications/secore/secore-web/dist/
 ProcessCoverages.java

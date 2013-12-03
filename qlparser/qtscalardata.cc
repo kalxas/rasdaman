@@ -174,7 +174,7 @@ QtScalarData::getSpelling() const
 {
     string result;
 
-    // buffer for hex representation of chars
+    /*// buffer for hex representation of chars
     int        bufferLen = valueType->getSize() * 2 + 1  + 2; // added final "+2" to remove memleak -- PB 2006-aug-17
     char*      buffer    = new char[ bufferLen ];
     // replaced deprecated ostrstream -- PB 2005-jan-14
@@ -186,10 +186,20 @@ QtScalarData::getSpelling() const
 
     bufferStream << ends;
 
-    result.append( string( buffer ) );
+    result.append( string( buffer ) );*/
 
-    delete[] buffer;
-    buffer = NULL;
+    ostringstream stream;
+    if ( valueType ) {
+        valueType->printCell( stream, valueBuffer );
+    } else {
+        for( int i = 0; i < valueType->getSize(); i++ )
+          stream << hex << valueBuffer[i];
+        stream << ends;
+    }
+    result.append( stream.str() );
+
+    /*delete[] buffer;
+    buffer = NULL;*/
     return result;
 }
 

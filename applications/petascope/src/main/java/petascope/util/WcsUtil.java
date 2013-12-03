@@ -273,7 +273,7 @@ public class WcsUtil {
         return ret;
     }
 
-    private static String getSrsGroup(GetCoverageMetadata m) {
+    public static String getSrsGroup(GetCoverageMetadata m) {
         Bbox bbox = m.getBbox();
         if (bbox != null) {
             return " " + Templates.KEY_SRSNAME + "=\"" + bbox.getCrsName() + "\" " +
@@ -283,7 +283,7 @@ public class WcsUtil {
         }
     }
 
-    private static String getSrsName(GetCoverageMetadata m) {
+    public static String getSrsName(GetCoverageMetadata m) {
         if (m.getCrs() != null) {
             // Need to encode the '&' that are in CCRS
             return StringUtil.escapeXmlPredefinedEntities(m.getCrs());

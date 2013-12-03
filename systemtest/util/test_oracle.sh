@@ -37,6 +37,7 @@
 #       2013-May-26     NK         added oracle verification
 #       2013-Jul-23     AB         re-use fixes (in test_wms definition)
 #       2013-Aug-06     DM         refactor functionality into common.sh
+#       2013-Dec-03     DM         known_fails file listing queries that are known to fail
 #
 
 PROG=`basename $0`
@@ -64,6 +65,7 @@ ORACLE_PATH="$SCRIPT_DIR/oracle"
 [ -d "$ORACLE_PATH" ] || error "Oracles directory not found: $ORACLE_PATH"
 OUTPUT_PATH="$SCRIPT_DIR/output"
 mkdir -p "$OUTPUT_PATH"
+KNOWN_FAILS="$SCRIPT_DIR/known_fails"
 
 #
 # indicates whether to drop data before/after running tests: 0 = no, 1 = yes
@@ -156,16 +158,17 @@ for f in *; do
   if [ "$SVC_NAME" == "wcs" ]; then
     # Skip multipoint tests if multipoint is not enabled
     [[ $multi_coll_enabled -ne 0 ]] && [[ "$f" == *multipoint* ]] && continue
-  fi  
+  fi
+
   # uncomment for single test run
-  #[[ "$f" == 83-* ]] || continue
-  
+  #[[ "$f" == 01-* ]] || continue
+
   # print test header
   echo "running test: $f"
   echo
   cat "$f"
   echo
-  
+
   run_test
   
 done

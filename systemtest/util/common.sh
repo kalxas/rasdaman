@@ -295,16 +295,24 @@ function check()
 #
 function update_result()
 {
-  if [ $? != 0 ]; then
+  local rc=$?
 
+  grep "$f" "$KNOWN_FAILS" > /dev/null 2>&1
+  local known_fail=$?
+
+  if [ $rc != 0 ]; then
     echo "$SCRIPT_DIR" | grep "testcases_open" > /dev/null
     rc_open=$?
     echo "$f" | egrep "\.fixed$" > /dev/null
     rc_fixed=$?
 
     if [ $rc_open -ne 0 -o $rc_fixed -eq 0 ]; then
-      NUM_FAIL=$(($NUM_FAIL + 1))
-      log " ->  TEST FAILED"
+      if [ $known_fail -ne 0 ]; then
+        NUM_FAIL=$(($NUM_FAIL + 1))
+        log " ->  TEST FAILED"
+      else
+        log " -> TEST SKIPPED"
+      fi
     else
       log " ->  TEST SKIPPED"
     fi
@@ -314,10 +322,16 @@ function update_result()
         echo $f >> $FAILED
       fi
       cat "$f" >> $FAILED
+      echo "" >> $FAILED
     fi
   else
     NUM_SUC=$(($NUM_SUC + 1))
     log " ->  TEST PASSED"
+    if [ $known_fail -eq 0 ]; then
+      log " ->"
+      log " -> Case known to fail has been fixed!"
+      log " -> Please remove $f from $KNOWN_FAILS"
+    fi
   fi
   echo "--------------------------------------------------------------------------------------------"
   NUM_TOTAL=$(($NUM_TOTAL + 1))

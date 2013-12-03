@@ -34,7 +34,7 @@ inline r_Dimension
 r_Point::dimension() const
 {
   return dimensionality;
-};
+}
 
 const int
 r_Point::compare_with( const r_Point& p ) const

@@ -63,6 +63,9 @@ public class Bbox implements Cloneable {
     private Boolean hasWgs84Bbox = false;
     private List<DomainElement> domains; // Cloning
 
+    // spatial bbox
+    private Double minX, maxX, minY, maxY, minZ, maxZ;
+
     public Bbox(String crs, List<DomainElement> domains, String coverage)
             throws WCPSException, WCSException, PetascopeException, SecoreException {
 
@@ -105,26 +108,35 @@ public class Bbox implements Cloneable {
         double highY = 0D;
         String crsSourceX="", crsSourceY="";
         for (DomainElement el : domains) {
+            Double min = el.getMinValue().doubleValue();
+            Double max = el.getMaxValue().doubleValue();
             // X AXIS
             if (el.getType().equals(AxisTypes.X_AXIS)) {
                 crsSourceX = el.getNativeCrs();
                 if (CrsUtil.CrsUri.areEquivalent(crsSourceX, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE))) {
-                    wgs84minLon = el.getMinValue().doubleValue();
-                    wgs84maxLon = el.getMaxValue().doubleValue();
+                    wgs84minLon = min;
+                    wgs84maxLon = max;
                 } else {
-                    lowX  = el.getMinValue().doubleValue();
-                    highX = el.getMaxValue().doubleValue();
+                    lowX  = min;
+                    highX = max;
                 }
+                minX = min;
+                maxX = max;
             // Y AXIS
             } else if (el.getType().equals(AxisTypes.Y_AXIS)) {
                 crsSourceY = el.getNativeCrs();
                 if (CrsUtil.CrsUri.areEquivalent(crsSourceY, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE))) {
-                    wgs84minLat = el.getMinValue().doubleValue();
-                    wgs84maxLat = el.getMaxValue().doubleValue();
+                    wgs84minLat = min;
+                    wgs84maxLat = max;
                 } else {
-                    lowY  = el.getMinValue().doubleValue();
-                    highY = el.getMaxValue().doubleValue();
+                    lowY  = min;
+                    highY = max;
                 }
+                minY = min;
+                maxY = max;
+            } else if (el.getType().equals(AxisTypes.ELEV_AXIS)) {
+                minZ = min;
+                maxZ = max;
             }
         }
 
@@ -450,5 +462,46 @@ public class Bbox implements Cloneable {
             }
         }
         return output;
+    }
+
+    /**
+     * @return minimum X coordinate (spatial), or null if non is set.
+     */
+    public Double getMinX() {
+        return minX;
+    }
+
+    /**
+     * @return maximum X coordinate (spatial), or null if non is set.
+     */
+    public Double getMaxX() {
+        return maxX;
+    }
+    /**
+     * @return minimum Y coordinate (spatial), or null if non is set.
+     */
+    public Double getMinY() {
+        return minY;
+    }
+
+    /**
+     * @return maximum Y coordinate (spatial), or null if non is set.
+     */
+    public Double getMaxY() {
+        return maxY;
+    }
+
+    /**
+     * @return minimum Z coordinate (spatial), or null if non is set.
+     */
+    public Double getMinZ() {
+        return minZ;
+    }
+
+    /**
+     * @return maximum Z coordinate (spatial), or null if non is set.
+     */
+    public Double getMaxZ() {
+        return maxZ;
     }
 }

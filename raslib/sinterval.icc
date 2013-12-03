@@ -34,28 +34,28 @@ inline r_Range
 r_Sinterval::low() const
 {
   return lower_bound;
-};
+}
 
 
 inline r_Range
 r_Sinterval::high() const
 {
   return upper_bound;
-};
+}
  
 
 inline bool
 r_Sinterval::is_low_fixed() const
 {
   return low_fixed;
-};
+}
  
 
 inline bool
 r_Sinterval::is_high_fixed() const
 {
   return high_fixed;
-};
+}
  
 
 inline void
@@ -63,7 +63,7 @@ r_Sinterval::set_low( char )
 {
   lower_bound  = 0;
   low_fixed = false;
-};
+}
  
 
 inline void
@@ -71,6 +71,6 @@ r_Sinterval::set_high( char )
 {
   upper_bound   = 0;
   high_fixed = false;
-};
+}
  
 
