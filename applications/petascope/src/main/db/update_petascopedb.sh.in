@@ -205,7 +205,7 @@ SCHEMA_MULTIPOINT="schema_multipoint.sql"
 POPULATE_SQL="populate.sql"
 MIGRATE_SQL="migrate.sql"
 MACROS_SQL="macros.sql"
-DBLINK_SQL=$( locate dblink.sql | head -n 1 )
+DBLINK_SQL=$( locate -b '\'dblink.sql | head -n 1 )
 
 # print some info
 log "postgres settings read from $SETTINGS"
