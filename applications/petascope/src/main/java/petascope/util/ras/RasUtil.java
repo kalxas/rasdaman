@@ -360,7 +360,13 @@ public class RasUtil {
     public static String getRasdamanVersion() throws RasdamanException {
 
         String version = "";
-        Object tmpResult = RasUtil.executeRasqlQuery("select " + RASQL_VERSION + "()");
+        Object tmpResult = null;
+        try {
+            RasUtil.executeRasqlQuery("select " + RASQL_VERSION + "()");
+        } catch (Exception ex) {
+            log.warn("Failed retreiving rasdaman version", ex);
+            version = "9.0";
+        }
 
         if (null != tmpResult) {
             RasQueryResult queryResult = new RasQueryResult(tmpResult);
