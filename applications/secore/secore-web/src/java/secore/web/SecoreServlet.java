@@ -95,6 +95,7 @@ public class SecoreServlet extends HttpServlet {
     log.error("Exception caught:", ex);
     String output = exceptionToXml(ex);
     resp.setContentType(CONTENT_TYPE);
+    resp.setStatus(ex.getExceptionCode().getHttpErrorCode());
     PrintWriter out = resp.getWriter();
     out.println(output);
     out.close();

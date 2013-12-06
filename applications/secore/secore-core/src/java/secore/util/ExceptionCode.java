@@ -55,7 +55,17 @@ public class ExceptionCode {
      * @param exceptionCode Code representing type of this exception
      */
     public ExceptionCode(String exceptionCode) {
-        this(exceptionCode, null, 0);
+        this(exceptionCode, null);
+    }
+
+    /**
+     * Create new ExceptionCode with default HTTP error code 500.
+     *
+     * @param exceptionCode Code representing type of this exception
+     * @param description Exception code description
+     */
+    public ExceptionCode(String exceptionCode, String description) {
+        this(exceptionCode, description, Constants.DEFAULT_HTTP_ERROR_CODE);
     }
 
     /**
@@ -131,11 +141,11 @@ public class ExceptionCode {
                 + "\n}";
     }
 
-    public static final ExceptionCode InternalComponentError = new ExceptionCode("InternalComponentError", null, 0);
+    public static final ExceptionCode InternalComponentError = new ExceptionCode("InternalComponentError", null);
     public static final ExceptionCode InvalidParameterValue = new ExceptionCode("InvalidParameterValue",
             "Operation request contains an invalid parameter value", 400);
-    public static final ExceptionCode InvalidRequest = new ExceptionCode("InvalidRequest", null, 0);
-    public static final ExceptionCode IOConnectionError = new ExceptionCode("IOConnectionError", null, 0);
+    public static final ExceptionCode InvalidRequest = new ExceptionCode("InvalidRequest", null);
+    public static final ExceptionCode IOConnectionError = new ExceptionCode("IOConnectionError", null);
     public static final ExceptionCode MissingParameterValue = new ExceptionCode("MissingParameterValue",
             "Operation request does not include a parameter value, and this server did "
             + "not declare a default value for that parameter. Locator: Name of missing parameter", 400);
@@ -144,6 +154,6 @@ public class ExceptionCode {
         + "offered by this server. Locator: List of violating definition identifiers", 404);
     public static final ExceptionCode OperationNotSupported = new ExceptionCode("OperationNotSupported",
             "Request is for an operation that is not supported by this server. Locator: Name of operation not supported", 501);
-    public static final ExceptionCode UnknownError = new ExceptionCode("UnknownError", null, 0);
-    public static final ExceptionCode XmlNotValid = new ExceptionCode("XmlNotValid", null, 0);
+    public static final ExceptionCode UnknownError = new ExceptionCode("UnknownError", null);
+    public static final ExceptionCode XmlNotValid = new ExceptionCode("XmlNotValid", null);
 }

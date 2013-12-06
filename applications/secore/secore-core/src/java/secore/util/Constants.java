@@ -93,4 +93,5 @@ public interface Constants {
   // URL to the EPSG registry website
   long MAX_UPLOAD_FILE_SIZE = 100000000;
   String UTF8_ENCODING = "UTF-8";
+  int DEFAULT_HTTP_ERROR_CODE = 500;
 }
