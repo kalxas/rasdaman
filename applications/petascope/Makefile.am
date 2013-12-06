@@ -55,6 +55,8 @@ WAR_NAME  = $(NAME).war
 WAR       = $(DIST)/$(WAR_NAME)
 APIDOCS   = $(BUILD)/apidocs
 
+SETTINGS_FILE = $(SRC_RES)/petascope.properties
+
 # Unix tools
 FIND      = find
 MKDIR     = mkdir -p
@@ -151,13 +153,33 @@ if GENERATE_DOCS
 	$(MKDIR) $(DESTDIR)$(pkgdatadir)/doc
 	$(CP) $(APIDOCS) $(DESTDIR)$(pkgdatadir)/doc/petascope
 endif
-	if test -f $(DESTDIR)$(sysconfdir)/petascope.properties; then \
-		echo "$@ will not overwrite existing $(DESTDIR)$(sysconfdir)/petascope.properties"; \
+	NEWCONF=$(DESTDIR)$(sysconfdir)/petascope.properties; \
+	if test -f $(NEWCONF); then \
+		echo "$@ existing $$NEWCONF"; \
+		grep 'secore_urls' $$NEWCONF > /dev/null 2>&1; \
+		if test $$? -ne 0; then \
+			echo "$@ found a pre 9.0 petascope.properties, migrating to 9.0 format..."; \
+			OLDCONF=$(DESTDIR)$(sysconfdir)/petascope.properties.bak.pre9.0; \
+			echo "$@ moving old configuration to $$OLDCONF"; \
+			mv $(DESTDIR)$(sysconfdir)/petascope.properties $$OLDCONF; \
+			echo " $(INSTALL_DATA) $(SETTINGS_FILE) $$NEWCONF"; \
+			$(INSTALL_DATA) $(SETTINGS_FILE) $$NEWCONF; \
+			for p in metadata_driver metadata_url metadata_user metadata_pass rasdaman_url rasdaman_user rasdaman_pass rasdaman_admin_user rasdaman_admin_pass rasdaman_retry_attempts rasdaman_retry_timeout; do \
+			  pg=`grep "$$p=" $$OLDCONF`; \
+			  echo "$@ updating parameter $$p to original value: $$pg"; \
+			  if test -n "$$pg"; then \
+			    sed -i 's|'$$p'=.*|'$$pg'|g' $$NEWCONF; \
+			  fi; \
+			done; \
+			echo "$@ 9.0 petascope configuration installed at $$NEWCONF, please edit and adapt."; \
+		else \
+			echo "$@ will not overwrite existing $$NEWCONF"; \
+		fi; \
 	else \
 		$(MKDIR_P) $(DESTDIR)$(sysconfdir); \
-		echo " $(INSTALL_DATA) src/main/resources/petascope.properties $(DESTDIR)$(sysconfdir)/petascope.properties"; \
-		$(INSTALL_DATA) src/main/resources/petascope.properties $(DESTDIR)$(sysconfdir)/petascope.properties; \
-	fi;
+		echo " $(INSTALL_DATA) $(SETTINGS_FILE) $$NEWCONF"; \
+		$(INSTALL_DATA) $(SETTINGS_FILE) $$NEWCONF; \
+	fi; \
 	if test -f $(DESTDIR)$(sysconfdir)/log4j.properties; then \
 		echo "$@ will not overwrite existing $(DESTDIR)$(sysconfdir)/log4j.properties"; \
 	else \
@@ -165,16 +187,6 @@ endif
 		echo " $(INSTALL_DATA) src/main/resources/log4j.properties $(DESTDIR)$(sysconfdir)/log4j.properties"; \
 		$(INSTALL_DATA) src/main/resources/log4j.properties $(DESTDIR)$(sysconfdir)/log4j.properties; \
 	fi;
-
-# setup database
-.PHONY: setupdb
-setupdb:
-	@${CD} db && ./update_db.sh
-
-# destroy petascope database
-.PHONY: dropdb
-dropdb:
-	@${CD} db && ./update_db.sh dropall
 
 # run any JUnit tests
 .PHONY: test

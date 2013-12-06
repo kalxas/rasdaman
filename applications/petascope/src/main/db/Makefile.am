@@ -37,3 +37,10 @@ update_petascopedb.sh petascope_insertdemo.sh:
 	$(script_edit) '$@.in' >$@
 	chmod +x $@
 	chmod a-w $@
+
+install-data-hook:
+	grep "These SQL statements will create the metadata database required by WCPS." $(DESTDIR)$(pkgdatadir)/petascope/update0.sql > /dev/null 2>&1; \
+	if test $$? -eq 0; then \
+		echo "$@ removing pre 9.0 update*.sql scripts from $(DESTDIR)$(pkgdatadir)/petascope"; \
+		$(RM) --verbose $(DESTDIR)$(pkgdatadir)/petascope/update*.sql; \
+	fi;
