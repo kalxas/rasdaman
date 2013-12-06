@@ -30,6 +30,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import secore.req.RequestParam;
+import secore.util.Constants;
 import static secore.util.Constants.*;
 import secore.util.ExceptionCode;
 import secore.util.StringUtil;
@@ -135,7 +136,7 @@ public abstract class AbstractHandler implements Handler {
         "declare namespace gml = \"" + NAMESPACE_GML + "\";\n" +
         "declare namespace xlink = \"" + NAMESPACE_XLINK + "\";\n" +
         "declare function local:getid($d as document-node(), $id as xs:string) as element() {\n" +
-        "	let $ret := $d//gml:" + el + "[contains(text(), $id)]/..\n" +
+        "	let $ret := $d//gml:" + el + "[fn:ends-with(text(), $id)]/..\n" +
         "	return  if (empty($ret)) then\n" +
         "	        <empty/>\n" +
         "	       else\n" +
