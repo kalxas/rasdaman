@@ -179,7 +179,7 @@ function import_mst()
   $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[(SELECT id FROM ps9_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
-            VALUES ($c_id, '{$min_x_geo_coord, $max_y_geo_coord}');" > /dev/null || exit $RC_ERROR
+            VALUES ($c_id, '{$max_y_geo_coord, $min_x_geo_coord}');" > /dev/null || exit $RC_ERROR
   # grid axes:
   $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
