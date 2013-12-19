@@ -1391,25 +1391,46 @@ DatabaseIf::destroyDB(const char* dbName) throw(r_Error)
     RMDBGEXIT(4, RMDebug::module_adminif, "DatabaseIf", "destroyDB(" << dbName << ")");
 }
 
+#ifndef RMANVERSION
+#define RMANVERSION "v9.0.0-unknown"
+#endif
+#define LONGVER 9000
 long
 DatabaseIf::rmanverToLong()
 {
-	string s(RMANVERSION);
-	string versionstr;
-	string final;
-	int i;
-	int c;
-	long longver;
-	size_t first = s.find_first_of("0123456789");
-	size_t last = s.find_first_of("-");
-	versionstr = s.substr(first, last - first);
-	for (i = 0, c = 0; i < versionstr.length(); i++) {
-		if (versionstr[i] != '.') {
-			final[c] = versionstr[i];
-			c++;
-		}
-	}
-	longver = atol(final.c_str()) * 10;
-	return longver;
+        string s(RMANVERSION);
+        // return default version if RMANVERSION length is 0
+        if(s.empty())
+                return LONGVER;
+        string versionstr;
+        string final;
+        int i;
+        int c;
+        long longver = 0;
+        size_t first = s.find_first_of("0123456789");
+        // return default version if no number found in s
+        if (first == string::npos)
+                return LONGVER;
+        size_t last = s.find_first_of("-");
+        versionstr = s.substr(first, last - first);
+
+        // split the versionstr using . as delimiter
+        string delim = ".";
+        size_t start = 0;
+        size_t end = versionstr.find(delim);
+        int mulfactor = 1000;
+        double verpart;
+        while (end != string::npos)
+        {
+                // convert the split part to double
+                verpart = atol(versionstr.substr(start, end - start).c_str());
+                longver += verpart * mulfactor;
+                mulfactor /= 10;
+                start = end + delim.length();
+                end = versionstr.find(delim, start);
+        }
+        verpart =  atol(versionstr.substr(start, versionstr.length()).c_str());
+        longver += verpart * mulfactor;
+        return longver;
 }
 
