@@ -129,7 +129,7 @@ public class ConfigManager {
     // SECORE connection settings
     public static List<String> SECORE_URLS = Arrays.asList(new String[]{"http://localhost:8080/def"});
     public static List<String> SECORE_VERSIONS = Arrays.asList(new String[]{"0.1.0"});
-    // SECORE keyword used in PS9_CRS table to be replaces with the first configured resolver
+    // SECORE keyword used in PS_CRS table to be replaces with the first configured resolver
     public static final String SECORE_URL_KEYWORD = "%SECORE_URL%";
     // [!] Must match with what manually inserted in petascopedb (mind also global_const.sql URLs)
 

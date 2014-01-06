@@ -78,8 +78,8 @@ $$ LANGUAGE plpgsql;
 
 -- TRIGGER: **storage_type_trigger*********************************************
 -- Check referential integrity on multiple references tables
-CREATE OR REPLACE FUNCTION storage_ref_integrity () 
-RETURNS trigger AS 
+CREATE OR REPLACE FUNCTION storage_ref_integrity ()
+RETURNS trigger AS
 $$
     DECLARE
         -- Log
@@ -179,6 +179,91 @@ $$
                             ME, NEW.component_order, cget('PS9_RANGETYPE_COMPONENT_ORDER');
         END IF;
         RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+
+-- TRIGGER: **range_component_drop************************************
+-- Emulate DROP CASCADE on ps_quantity, but cascading the drop only if no other tuple
+-- in ps_range_component is referencing
+CREATE OR REPLACE FUNCTION range_component_drop ()
+RETURNS trigger AS
+$$
+    DECLARE
+        -- Log
+	ME constant text := 'range_component_drop()';
+        -- Local variables
+        _qry  text;
+        _tup  record;
+    BEGIN
+        -- Check if the referenced quantity exists:
+        --> this is ensured on INSERT/UPDATE by field_integrity_trigger()
+
+        -- Check if this rangeType component is the last one referencing this quantity
+        _qry := ' SELECT * FROM ' || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT')) ||
+                        ' WHERE ' || quote_ident(cget('PS9_RANGETYPE_COMPONENT_FIELD_ID'))
+                                  ||    '='    || OLD.field_id ||
+                          ' AND ' || quote_ident(cget('PS9_RANGETYPE_COMPONENT_FIELD_TABLE'))
+                                  || ' ILIKE ' || quote_literal(OLD.field_table)
+                                  ;
+        RAISE DEBUG '%: EXECUTE %', ME, _qry;
+        FOR _tup IN EXECUTE _qry LOOP
+            -- This is not the last rangeType component referencing this SWE field: won't cascade.
+            RETURN OLD;
+        END LOOP;
+
+        -- This is the last rangeType component referencing this SWE field:
+        -- cascade-drop it, if it is not a primitive (keep persistent mapping of allowed values for standard primitive types)
+        IF OLD.field_table = cget('TABLE_PS9_QUANTITY') THEN
+            SELECT drop_quantity(OLD.field_id); -- drop if not primitive
+        END IF;
+
+        RETURN OLD;
+    END;
+$$ LANGUAGE plpgsql;
+
+
+-- TRIGGER: **range_component_drop************************************
+-- Emulate DROP CASCADE on ps_quantity, but cascading the drop only if no other tuple
+-- in ps_range_component is referencing
+CREATE OR REPLACE FUNCTION range_set_drop ()
+RETURNS trigger AS
+$$
+    DECLARE
+        -- Log
+	ME constant text := 'range_set_drop()';
+        -- Local variables
+        _qry  text;
+        _tup  record;
+    BEGIN
+        -- Check if the referenced collection exists:
+        --> this is ensured on INSERT/UPDATE by storage_ref_integrity_trigger()
+
+        -- Check if this rangeSet component is the last one referencing this collection
+        _qry := ' SELECT * FROM ' || quote_ident(cget('TABLE_PS9_RANGETYPE_SET')) ||
+                        ' WHERE ' || quote_ident(cget('PS9_RANGESET_STORAGE_ID'))
+                                  ||    '='    || OLD.storage_id ||
+                          ' AND ' || quote_ident(cget('PS9_RANGESET_STORAGE_TABLE'))
+                                  || ' ILIKE ' || quote_literal(OLD.storage_table)
+                                  ;
+        RAISE DEBUG '%: EXECUTE %', ME, _qry;
+        FOR _tup IN EXECUTE _qry LOOP
+            -- This is not the last rangeSet component referencing this collection: won't cascade.
+            RETURN OLD;
+        END LOOP;
+
+        -- This is the last rangeSet component referencing this collection:
+        IF  OLD.storage_table = quote_ident(cget('TABLE_P9_RASDAMAN_COLLECTION')) THEN
+            RAISE DEBUG '%: delete rasdaman collection tuple with ID #%.', ME, OLD.storage_id;
+            _qry := ' DELETE FROM ' || OLD.storage_table ||
+                          ' WHERE ' || quote_ident(cget('PS9_RASDAMAN_COLLECTION_ID')) ||
+                                '=' || OLD.storage_id
+                                    ;
+            RAISE DEBUG '%: EXECUTE %', ME, _qry;
+            EXECUTE _qry;
+        END IF;
+
+        RETURN OLD;
     END;
 $$ LANGUAGE plpgsql;
 

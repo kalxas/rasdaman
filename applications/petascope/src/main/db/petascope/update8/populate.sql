@@ -157,56 +157,57 @@ INSERT INTO ps9_interval (min, max) VALUES (ncget('DOUBLE_MIN'), ncget('DOUBLE_M
 INSERT INTO ps9_uom (code) VALUES (cget('UOM_PURE_NUM'));
 
 -- Insert quantities for each data type (allowed values determine a quantity)
-INSERT INTO ps9_quantity (uom_id, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_CHAR'));
-INSERT INTO ps9_quantity (uom_id, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_UCHAR'));
-INSERT INTO ps9_quantity (uom_id, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_SHORT'));
-INSERT INTO ps9_quantity (uom_id, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_USHORT'));
-INSERT INTO ps9_quantity (uom_id, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_INT'));
-INSERT INTO ps9_quantity (uom_id, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_UINT'));
-INSERT INTO ps9_quantity (uom_id, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_LONG'));
-INSERT INTO ps9_quantity (uom_id, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_ULONG'));
-INSERT INTO ps9_quantity (uom_id, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_FLOAT'));
-INSERT INTO ps9_quantity (uom_id, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_DOUBLE'));
+-- Put keyword PRIMITIVE in the description to avoid DROP CASCADE (see range_type_drop() trigger).
+INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_CHAR'),   cget('PRIMITIVE'));
+INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_UCHAR'),  cget('PRIMITIVE'));
+INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_SHORT'),  cget('PRIMITIVE'));
+INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_USHORT'), cget('PRIMITIVE'));
+INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_INT'),    cget('PRIMITIVE'));
+INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_UINT'),   cget('PRIMITIVE'));
+INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_LONG'),   cget('PRIMITIVE'));
+INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_ULONG'),  cget('PRIMITIVE'));
+INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_FLOAT'),  cget('PRIMITIVE'));
+INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_DOUBLE'), cget('PRIMITIVE'));
 -- .. and their allowed values:
 INSERT INTO ps9_interval_quantity (quantity_id, interval_id)
-       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_CHAR')),
+       VALUES ((SELECT id FROM ps9_quantity WHERE label=cget('DT_CHAR')   AND description=cget('PRIMITIVE')),
                (SELECT id FROM ps9_interval WHERE max=ncget('CHAR_MAX')));
 INSERT INTO ps9_interval_quantity (quantity_id, interval_id)
-       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_UCHAR')),
+       VALUES ((SELECT id FROM ps9_quantity WHERE label=cget('DT_UCHAR')  AND description=cget('PRIMITIVE')),
                (SELECT id FROM ps9_interval WHERE max=ncget('UCHAR_MAX')));
 INSERT INTO ps9_interval_quantity (quantity_id, interval_id)
-       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_SHORT')),
+       VALUES ((SELECT id FROM ps9_quantity WHERE label=cget('DT_SHORT')  AND description=cget('PRIMITIVE')),
                (SELECT id FROM ps9_interval WHERE max=ncget('SHORT_MAX')));
 INSERT INTO ps9_interval_quantity (quantity_id, interval_id)
-       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_USHORT')),
+       VALUES ((SELECT id FROM ps9_quantity WHERE label=cget('DT_USHORT') AND description=cget('PRIMITIVE')),
                (SELECT id FROM ps9_interval WHERE max=ncget('USHORT_MAX')));
 INSERT INTO ps9_interval_quantity (quantity_id, interval_id)
-       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_INT')),
+       VALUES ((SELECT id FROM ps9_quantity WHERE label=cget('DT_INT')    AND description=cget('PRIMITIVE')),
                (SELECT id FROM ps9_interval WHERE max=ncget('INT_MAX')));
 INSERT INTO ps9_interval_quantity (quantity_id, interval_id)
-       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_UINT')),
+       VALUES ((SELECT id FROM ps9_quantity WHERE label=cget('DT_UINT')   AND description=cget('PRIMITIVE')),
                (SELECT id FROM ps9_interval WHERE max=ncget('UINT_MAX')));
 INSERT INTO ps9_interval_quantity (quantity_id, interval_id)
-       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_LONG')),
+       VALUES ((SELECT id FROM ps9_quantity WHERE label=cget('DT_LONG')   AND description=cget('PRIMITIVE')),
                (SELECT id FROM ps9_interval WHERE max=ncget('LONG_MAX')));
 INSERT INTO ps9_interval_quantity (quantity_id, interval_id)
-       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_ULONG')),
+       VALUES ((SELECT id FROM ps9_quantity WHERE label=cget('DT_ULONG')  AND description=cget('PRIMITIVE')),
                (SELECT id FROM ps9_interval WHERE max=ncget('ULONG_MAX')));
 INSERT INTO ps9_interval_quantity (quantity_id, interval_id)
-       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_FLOAT')),
+       VALUES ((SELECT id FROM ps9_quantity WHERE label=cget('DT_FLOAT')  AND description=cget('PRIMITIVE')),
                (SELECT id FROM ps9_interval WHERE max=ncget('FLOAT_MAX')));
 INSERT INTO ps9_interval_quantity (quantity_id, interval_id)
-       VALUES ((SELECT id FROM ps9_quantity WHERE description=cget('DT_DOUBLE')),
+       VALUES ((SELECT id FROM ps9_quantity WHERE label=cget('DT_DOUBLE') AND description=cget('PRIMITIVE')),
                (SELECT id FROM ps9_interval WHERE max=ncget('DOUBLE_MAX')));
 
 -- Formats/MIME types/GDAL ids:

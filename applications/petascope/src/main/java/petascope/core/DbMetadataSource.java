@@ -83,7 +83,7 @@ public class DbMetadataSource implements IMetadataSource {
      *  Petascopedb Tables and Fields
      */
 
-    public static final String TABLES_PREFIX = "ps9_";
+    public static final String TABLES_PREFIX = "ps_";
     public static final int MIN_TABLES_NUMBER = 30; // NB: Keep it up-to-date
 
     public static final String POSTGRE_PREFIX = "pg_";
@@ -351,13 +351,13 @@ public class DbMetadataSource implements IMetadataSource {
 
             /* TABLE_DESCRIPTION */
             // titles/abstracts/keywords
-            // NOTE: do not read them now: there might be unused descriptions in PS9_DESCRIPTIONS.
+            // NOTE: do not read them now: there might be unused descriptions in PS_DESCRIPTIONS.
 
 
             // Service metadata: init
             sMeta = new ServiceMetadata();
 
-            // Check PS9_ tables habe been created
+            // Check PS_ tables habe been created
             int detectedTables = countTables(TABLES_PREFIX + "%");
             if (detectedTables < MIN_TABLES_NUMBER) {
                 log.error("Missing " + TABLES_PREFIX + "* tables in the database.");
@@ -1567,7 +1567,7 @@ public class DbMetadataSource implements IMetadataSource {
 
     /**
      * Returns the GMLCOV parent type of a coverage.
-     * The parent->child mapping is taken from petascopedb::PS9_GML_SUBTYPE table.
+     * The parent->child mapping is taken from petascopedb::PS_GML_SUBTYPE table.
      * @param type  The GMLCOV type of the child.
      * @return The GMLCOV type of the correspondent parent; an empty string otherwise in case of
      * unknown or root (eg AbstractCoverage) type.
@@ -2028,7 +2028,7 @@ public class DbMetadataSource implements IMetadataSource {
         ResultSet r;
         String sqlQuery;
 
-        /* PS9_DESCRIPTION */
+        /* PS_DESCRIPTION */
         sqlQuery =
                 " SELECT " + DESCRIPTION_TITLES            + ", "
                            + DESCRIPTION_ABSTRACTS         + ", "
@@ -2053,7 +2053,7 @@ public class DbMetadataSource implements IMetadataSource {
             List<Integer> keywordGroupIds = sqlArray2IntList(r.getArray(DESCRIPTION_KEYWORD_GROUP_IDS));
             for (Integer groupId : keywordGroupIds) {
 
-                /* PS9_KEYWORD_GROUP */
+                /* PS_KEYWORD_GROUP */
                 sqlQuery =
                         " SELECT " + KEYWORD_GROUP_KEYWORD_IDS    + ", "
                                    + KEYWORD_GROUP_TYPE           + ", "
@@ -2074,7 +2074,7 @@ public class DbMetadataSource implements IMetadataSource {
                         // keywords
                         Statement ss = conn.createStatement();
 
-                        /* PS9_KEYWORD */
+                        /* PS_KEYWORD */
                         sqlQuery =
                                 " SELECT " + KEYWORD_VALUE    + ", "
                                            + KEYWORD_LANGUAGE +

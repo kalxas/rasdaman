@@ -32,7 +32,8 @@
 --   - `utilities.sql' has been imported for `cset()'
 -----------------------------------------------------------------------
 
-CREATE OR REPLACE FUNCTION set_constants() RETURNS void AS
+-- set constants, parametrizing the prefix of the _new_ tables (see further comments below)
+CREATE OR REPLACE FUNCTION set_constants(new_tables_prefix text) RETURNS void AS
 $$
     -- General
     SELECT cset('GMLCOV_METADATA_TYPE', 'gmlcov');
@@ -44,6 +45,7 @@ $$
     SELECT cset('NAME_PATTERN',            E'^[_A-Za-z][-._A-Za-z0-9]*$');
     SELECT cset('SERVICE_VERSION_PATTERN', E'^\\d+\\.\\d?\\d\\.\\d?\\d$');
     SELECT cset('UOM_PATTERN',             E'^[^: \\n\\r\\t]+$');
+    SELECT cset('INDEX_ND_PATTERN',        E'Index\\dD'); -- Used when converting CRS:1 to Index CRSs during migration.
     -- Service and service provider metadata
     SELECT cset('WCS_SERVICE_TYPE',             'OGC WCS');
     SELECT cset('WCS_SERVICE_TYPE_VERSIONS',    '2.0.1'); -- use commas for different supported versions
@@ -57,12 +59,17 @@ $$
     SELECT cset('WCS_PROVIDER_CONTACT_COUNTRY', 'Germany');
     SELECT cset('WCS_PROVIDER_CONTACT_EMAIL',   'p.baumann@jacobs-university.de');
     SELECT cset('WCS_PROVIDER_CONTACT_ROLE',    'Project Leader');
-    -- CRS URIs
+    -- CRSs
+    SELECT cset('CRS_1',                'CRS:1'); -- resolution formula is different on CRS:1 grids (-1 term is dropped).
+    SELECT cset('CRS_4326',             '4326'); -- resolution formula is different on CRS:1 grids (-1 term is dropped).
     SELECT cset('SECORE_ENTRY',         '%SECORE_URL%'); -- [!] This shall match with Petascope constant to replace it with the configured resolver.
+    SELECT cset('TIME_AXIS_TYPE',       't'); -- CRS becomes CRS_ANSI for temporal axis on pre-upgrade 8.X coverages.
     SELECT cset('CRS_ANSI',         cget('SECORE_ENTRY') || '/crs/OGC/0/AnsiDate');
     SELECT cset('CRS_INDEX_1D',     cget('SECORE_ENTRY') || '/crs/OGC/0/Index1D');
     SELECT cset('CRS_INDEX_2D',     cget('SECORE_ENTRY') || '/crs/OGC/0/Index2D');
     SELECT cset('CRS_INDEX_3D',     cget('SECORE_ENTRY') || '/crs/OGC/0/Index3D');
+    SELECT cset('CRS_INDEX_4D',     cget('SECORE_ENTRY') || '/crs/OGC/0/Index4D');
+    SELECT cset('CRS_INDEX_5D',     cget('SECORE_ENTRY') || '/crs/OGC/0/Index5D');
     SELECT cset('CRS_EOBSTEST_T',   cget('SECORE_ENTRY') || '/crs/OGC/0/Temporal?epoch="1950-01-01T00:00:00"&uom="d"');
     SELECT cset('CRS_WGS84_2D',     cget('SECORE_ENTRY') || '/crs/EPSG/0/4326');
     SELECT cset('CRS_WGS84_3D',     cget('SECORE_ENTRY') || '/crs/EPSG/0/4327');
@@ -81,6 +88,7 @@ $$
     SELECT cset('METADATA_TYPE_GMLCOV',       'gmlcov');
     SELECT cset('METADATA_TYPE_ATTRTABLE',    'attrtable_name');
     -- Range data types
+    SELECT cset('PRIMITIVE',    'primitive'); -- these types/quantities will not be dropped (CASCADE)
     SELECT cset('DT_BOOLEAN',   'boolean');
     SELECT cset('DT_CHAR',      'char');
     SELECT cset('DT_UCHAR',     'unsigned char');
@@ -131,27 +139,27 @@ $$
     SELECT cset('DOUBLE_MAX',    1.7976931348623157^308::numeric);
     -- PS_ (COVERAGE)
     SELECT cset('PS_PREFIX','ps');
+    SELECT cset('TABLE_PS_AXISTYPE',             cget('PS_PREFIX') || '_axistype');
+          SELECT cset('PS_AXISTYPE_ID',         'id');
+          SELECT cset('PS_AXISTYPE_TYPE',       'axistype');
     SELECT cset('TABLE_PS_COVERAGE',             cget('PS_PREFIX') || '_coverage');
           SELECT cset('PS_COVERAGE_ID',         'id');
           SELECT cset('PS_COVERAGE_NAME',       'name');
           SELECT cset('PS_COVERAGE_TYPE',       'type');
-    SELECT cset('TABLE_PS_UOM',                  cget('PS_PREFIX') || '_uom');
-          SELECT cset('PS_UOM_ID',              'id');
-          SELECT cset('PS_UOM_UOM',             'uom');
-          SELECT cset('PS_UOM_LINK',            'link');
-    SELECT cset('TABLE_PS_METADATA',             cget('PS_PREFIX') || '_metadata');
-          SELECT cset('PS_METADATA_COVERAGE',   'coverage');
-          SELECT cset('PS_METADATA_METADATA',   'metadata');
     SELECT cset('TABLE_PS_CRS',                  cget('PS_PREFIX') || '_crs');
           SELECT cset('PS_CRS_ID',              'id');
           SELECT cset('PS_CRS_NAME',            'name');
     SELECT cset('TABLE_PS_CRSSET',               cget('PS_PREFIX') || '_crsset');
           SELECT cset('PS_CRSSET_AXIS',         'axis');
           SELECT cset('PS_CRSSET_CRS',          'crs');
+    SELECT cset('TABLE_PS_DATATYPE',             cget('PS_PREFIX') || '_datatype');
+          SELECT cset('PS_DATATYPE_ID',         'id');
+          SELECT cset('PS_DATATYPE_TYPE',       'datatype');
     SELECT cset('TABLE_PS_DOMAIN',               cget('PS_PREFIX') || '_domain');
           SELECT cset('PS_DOMAIN_ID',           'id');
           SELECT cset('PS_DOMAIN_COVERAGE',     'coverage');
           SELECT cset('PS_DOMAIN_NAME',         'name');
+          SELECT cset('PS_DOMAIN_TYPE',         'type');
           SELECT cset('PS_DOMAIN_NUMLO',        'numlo');
           SELECT cset('PS_DOMAIN_NUMHI',        'numhi');
           SELECT cset('PS_DOMAIN_I',            'i');
@@ -160,15 +168,19 @@ $$
           SELECT cset('PS_CELLDOMAIN_I',        'i');
           SELECT cset('PS_CELLDOMAIN_LO',       'lo');
           SELECT cset('PS_CELLDOMAIN_HI',       'hi');
+    SELECT cset('TABLE_PS_METADATA',             cget('PS_PREFIX') || '_metadata');
+          SELECT cset('PS_METADATA_COVERAGE',   'coverage');
+          SELECT cset('PS_METADATA_METADATA',   'metadata');
     SELECT cset('TABLE_PS_RANGE',                cget('PS_PREFIX') || '_range');
           SELECT cset('PS_RANGE_COVERAGE',      'coverage');
           SELECT cset('PS_RANGE_I',             'i');
           SELECT cset('PS_RANGE_NAME',          'name');
           SELECT cset('PS_RANGE_TYPE',          'type');
           SELECT cset('PS_RANGE_UOM',           'uom');
-    SELECT cset('TABLE_PS_DATATYPE',             cget('PS_PREFIX') || '_datatype');
-          SELECT cset('PS_DATATYPE_ID',         'id');
-          SELECT cset('PS_DATATYPE_TYPE',       'datatype');
+    SELECT cset('TABLE_PS_UOM',                  cget('PS_PREFIX') || '_uom');
+          SELECT cset('PS_UOM_ID',              'id');
+          SELECT cset('PS_UOM_UOM',             'uom');
+          SELECT cset('PS_UOM_LINK',            'link');
     -- PS_ (WMS)
     SELECT cset('TABLE_PS_SERVICES',           cget('PS_PREFIX') || '_services');
     SELECT cset('TABLE_PS_LAYERS',             cget('PS_PREFIX') || '_layers');
@@ -176,7 +188,10 @@ $$
     SELECT cset('TABLE_PS_STYLES',             cget('PS_PREFIX') || '_styles');
     SELECT cset('TABLE_PS_PYRAMIDLEVELS',      cget('PS_PREFIX') || '_pyramidlevels');
     -- PS9_
-    SELECT cset('PS9_PREFIX', 'ps9');
+    -- This prefix is set as argument since during upgrade these tables have a first
+    -- interim prefix 'ps9_' to avoid clash while co-existing with old tables,
+    -- and then are renamed back to 'ps_*'.
+    SELECT cset('PS9_PREFIX', $1);
     SELECT cset('TABLE_PS9_COVERAGE',                         cget('PS9_PREFIX') || '_coverage');
           SELECT cset('PS9_COVERAGE_ID',                     'id');
           SELECT cset('PS9_COVERAGE_NAME',                   'name');
@@ -228,6 +243,7 @@ $$
           SELECT cset('PS9_QUANTITY_UOM_ID',                 'uom_id');
           SELECT cset('PS9_QUANTITY_URI',                    'definition_uri');
           SELECT cset('PS9_QUANTITY_DESCRIPTION',            'description');
+          SELECT cset('PS9_QUANTITY_LABEL',                  'label');
     SELECT cset('TABLE_PS9_RANGE_DATATYPE',                   cget('PS9_PREFIX') || '_range_data_type');
           SELECT cset('PS9_RANGE_DATATYPE_ID',               'id');
           SELECT cset('PS9_RANGE_DATATYPE_NAME',             'name');
@@ -276,4 +292,4 @@ $$
     -- TODO: WCPS/GDAL/MIME format IDs
     -- ...
 $$ LANGUAGE 'sql';
-SELECT set_constants();
+SELECT set_constants('ps9');

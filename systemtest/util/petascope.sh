@@ -39,7 +39,7 @@
 function check_cov()
 {
   local c="$1"
-  id=`$PSQL -c  "select id from PS9_Coverage where name = '$c' " | head -3 | tail -1`
+  id=`$PSQL -c  "select id from ps_coverage where name = '$c' " | head -3 | tail -1`
   test1=0
   if [[ "$id" == \(0*\) ]]; then
     test1=1
@@ -78,7 +78,7 @@ function check_petascope()
 
 function check_multipoint()
 {
-  M=`psql -d petascopedb -c "SELECT * FROM information_schema.tables WHERE table_schema = 'public'" | grep ps9_multipoint`
+  M=`psql -d petascopedb -c "SELECT * FROM information_schema.tables WHERE table_schema = 'public'" | grep ps_multipoint`
   if [ ! "$M" ]; then
     echo 1
   else
@@ -96,12 +96,10 @@ function drop_petascope()
   for c in $*; do
     logn "deleting coverage $c from petascope... "
 
-    c_id=$($PSQL -c  "select id from ps9_coverage where name = '$c' " | head -3 | tail -1) > /dev/null
+    c_id=$($PSQL -c  "select id from ps_coverage where name = '$c' " | head -3 | tail -1) > /dev/null
     if [[ "$c_id" != \(0\ *\) ]]; then
-      # Drop the coverage cascades to the other tables (for rasdaman collection an explicit trigger would be needed -- TODO)
-      $PSQL -c "DELETE FROM ps9_coverage WHERE id=$c_id" > /dev/null
-      $PSQL -c "DELETE FROM ps9_rasdaman_collection WHERE name='$c'" > /dev/null
-
+      # Drop the coverage cascades to the other tables
+      $PSQL -c "DELETE FROM ps_coverage WHERE id=$c_id" > /dev/null
       echo ok.		
     else
       echo no such coverage found.
@@ -151,52 +149,52 @@ function import_eobs()
   $RASQL -q "insert into $c values ($c_basetype) inv_netcdf(\$1, \"vars=tg\")" -f "$TESTDATA_PATH"/eobs.nc > /dev/null || exit $RC_ERROR
 
   # general coverage information (name, type, ...)
-  $PSQL -c "INSERT INTO ps9_coverage (name, gml_type_id, native_format_id) \
-            VALUES ('$c', (SELECT id FROM ps9_gml_subtype WHERE subtype='$c_covtype'), \
-            (SELECT id FROM ps9_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_coverage (name, gml_type_id, native_format_id) \
+            VALUES ('$c', (SELECT id FROM ps_gml_subtype WHERE subtype='$c_covtype'), \
+            (SELECT id FROM ps_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
 
   # get the coverage id
-  c_id=$($PSQL -c  "SELECT id FROM ps9_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
+  c_id=$($PSQL -c  "SELECT id FROM ps_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
 
   # get the collection OID (note: take the first OID)
   c_oid=$($RASQL -q "select oid(m) from $c as m" --out string | grep ' 1:' | awk -F ':' '{print $2}' | tr -d ' \n') > /dev/null || exit $RC_ERROR
 
   # range set: link the coverage to the rasdaman collection
-  $PSQL -c "INSERT INTO ps9_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
-  $PSQL -c "INSERT INTO ps9_range_set (coverage_id, storage_id) VALUES (\
-              (SELECT id FROM ps9_coverage WHERE name='$c'), \
-              (SELECT id FROM ps9_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
+  $PSQL -c "INSERT INTO ps_range_set (coverage_id, storage_id) VALUES (\
+              (SELECT id FROM ps_coverage WHERE name='$c'), \
+              (SELECT id FROM ps_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
 
   # describe the datatype of the coverage cell values (range type)
   # note: assign dimensionless quantity
-  $PSQL -c "INSERT INTO ps9_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
+  $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band', 0, \
-              (SELECT id FROM ps9_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps9_quantity WHERE description='$c_basetype' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
-  $PSQL -c "INSERT INTO ps9_crs (uri) SELECT '$c_crs_t' WHERE NOT EXISTS (SELECT 1 FROM ps9_crs WHERE uri='$c_crs_t');" > /dev/null
-  $PSQL -c "INSERT INTO ps9_crs (uri) SELECT '$c_crs_s' WHERE NOT EXISTS (SELECT 1 FROM ps9_crs WHERE uri='$c_crs_s');" > /dev/null
-  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
+  $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs_t' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs_t');" > /dev/null
+  $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs_s' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs_s');" > /dev/null
+  $PSQL -c "INSERT INTO ps_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[\
-              (SELECT id FROM ps9_crs WHERE uri='$c_crs_t'),
-              (SELECT id FROM ps9_crs WHERE uri='$c_crs_s')]\
+              (SELECT id FROM ps_crs WHERE uri='$c_crs_t'),
+              (SELECT id FROM ps_crs WHERE uri='$c_crs_s')]\
             );" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
+  $PSQL -c "INSERT INTO ps_gridded_domain_set (coverage_id, grid_origin) \
             VALUES ($c_id, '{$min_t_geo_coord, $max_y_geo_coord, $min_x_geo_coord}');" > /dev/null || exit $RC_ERROR
   # grid axes:
-  $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 2);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 2);" > /dev/null || exit $RC_ERROR
   # offset vectors (note: WGS84 has `Lat` first)
-  $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=0), \
+  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=0), \
               '{$t_res,0,0}');" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=1), \
+  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=1), \
               '{0,0,$x_res}');" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=2), \
+  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=2), \
               '{0,$y_res,0}');" > /dev/null || exit $RC_ERROR
 }
 
@@ -212,8 +210,6 @@ function import_rgb()
     error "testdata file $TESTDATA_PATH/rgb.png not found"
   fi
   c=$COLL
-  X=400
-  Y=344
 
   c_colltype='RGBSet'
   c_basetype='unsigned char'
@@ -221,7 +217,7 @@ function import_rgb()
 
   c_crs="$SECORE_URL"'/crs/OGC/0/Index2D'
   min_x_geo_coord=0
-  max_y_geo_coord=344
+  max_y_geo_coord=343
   x_res='1'
   y_res='-1'
 
@@ -237,55 +233,55 @@ function import_rgb()
   $RASQL -q "insert into $c values inv_png(\$1)" -f "$TESTDATA_PATH"/rgb.png > /dev/null || exit $RC_ERROR
 
   # general coverage information (name, type, ...)
-  $PSQL -c "INSERT INTO ps9_coverage (name, gml_type_id, native_format_id) \
-            VALUES ('$c', (SELECT id FROM ps9_gml_subtype WHERE subtype='$c_covtype'), \
-            (SELECT id FROM ps9_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_coverage (name, gml_type_id, native_format_id) \
+            VALUES ('$c', (SELECT id FROM ps_gml_subtype WHERE subtype='$c_covtype'), \
+            (SELECT id FROM ps_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
 
   # get the coverage id
-  c_id=$($PSQL -c  "SELECT id FROM ps9_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
+  c_id=$($PSQL -c  "SELECT id FROM ps_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
 
   # get the collection OID (note: take the first OID)
   c_oid=$($RASQL -q "select oid(m) from $c as m" --out string | grep ' 1:' | awk -F ':' '{print $2}' | tr -d ' \n') > /dev/null || exit $RC_ERROR
 
   # range set: link the coverage to the rasdaman collection
-  $PSQL -c "INSERT INTO ps9_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
-  $PSQL -c "INSERT INTO ps9_range_set (coverage_id, storage_id) VALUES (\
-              (SELECT id FROM ps9_coverage WHERE name='$c'), \
-              (SELECT id FROM ps9_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
+  $PSQL -c "INSERT INTO ps_range_set (coverage_id, storage_id) VALUES (\
+              (SELECT id FROM ps_coverage WHERE name='$c'), \
+              (SELECT id FROM ps_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
 
   # describe the datatype of the coverage cell values (range type)
   # note: assign dimensionless quantity
   # R
-  $PSQL -c "INSERT INTO ps9_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
+  $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band1', 0, \
-              (SELECT id FROM ps9_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps9_quantity WHERE description='$c_basetype' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
   # G
-  $PSQL -c "INSERT INTO ps9_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
+  $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band2', 1, \
-              (SELECT id FROM ps9_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps9_quantity WHERE description='$c_basetype' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
   # B
-  $PSQL -c "INSERT INTO ps9_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
+  $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band3', 2, \
-              (SELECT id FROM ps9_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps9_quantity WHERE description='$c_basetype' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
-  $PSQL -c "INSERT INTO ps9_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps9_crs WHERE uri='$c_crs');" > /dev/null
-  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
-            VALUES ($c_id, ARRAY[(SELECT id FROM ps9_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
+  $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs');" > /dev/null
+  $PSQL -c "INSERT INTO ps_domain_set (coverage_id, native_crs_ids) \
+            VALUES ($c_id, ARRAY[(SELECT id FROM ps_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_gridded_domain_set (coverage_id, grid_origin) \
             VALUES ($c_id, '{$min_x_geo_coord, $max_y_geo_coord}');" > /dev/null || exit $RC_ERROR
   # grid axes:
-  $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
   # offset vectors
-  $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=0), \
+  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=0), \
               '{$x_res,0}');" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=1), \
+  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=1), \
               '{0,$y_res}');" > /dev/null || exit $RC_ERROR
 }
 
@@ -302,8 +298,6 @@ function import_mr()
   fi
 
   c=$COLL
-  X=256
-  Y=211
 
   c_colltype='GreySet'
   c_basetype='char'
@@ -311,7 +305,7 @@ function import_mr()
 
   c_crs="$SECORE_URL"'/crs/OGC/0/Index2D'
   min_x_geo_coord=0
-  max_y_geo_coord=211
+  max_y_geo_coord=210
   x_res='1'
   y_res='-1'
 
@@ -325,55 +319,55 @@ function import_mr()
   $RASQL -q "insert into $c values ($c_basetype) inv_png(\$1)" -f "$TESTDATA_PATH"/mr_1.png > /dev/null || exit $RC_ERROR
 
   # general coverage information (name, type, ...)
-  $PSQL -c "INSERT INTO ps9_coverage (name, gml_type_id, native_format_id) \
-            VALUES ('$c', (SELECT id FROM ps9_gml_subtype WHERE subtype='$c_covtype'), \
-            (SELECT id FROM ps9_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_coverage (name, gml_type_id, native_format_id) \
+            VALUES ('$c', (SELECT id FROM ps_gml_subtype WHERE subtype='$c_covtype'), \
+            (SELECT id FROM ps_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
 
   # get the coverage id
-  c_id=$($PSQL -c  "SELECT id FROM ps9_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
+  c_id=$($PSQL -c  "SELECT id FROM ps_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
 
   # get the collection OID (note: take the first OID)
   c_oid=$($RASQL -q "select oid(m) from $c as m" --out string | grep ' 1:' | awk -F ':' '{print $2}' | tr -d ' \n') > /dev/null || exit $RC_ERROR
 
   # range set: link the coverage to the rasdaman collection
-  $PSQL -c "INSERT INTO ps9_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
-  $PSQL -c "INSERT INTO ps9_range_set (coverage_id, storage_id) VALUES (\
-              (SELECT id FROM ps9_coverage WHERE name='$c'), \
-              (SELECT id FROM ps9_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
+  $PSQL -c "INSERT INTO ps_range_set (coverage_id, storage_id) VALUES (\
+              (SELECT id FROM ps_coverage WHERE name='$c'), \
+              (SELECT id FROM ps_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
 
   # describe the datatype of the coverage cell values (range type)
   # note: assign dimensionless quantity
-  $PSQL -c "INSERT INTO ps9_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
+  $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band', 0, \
-              (SELECT id FROM ps9_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps9_quantity WHERE description='$c_basetype' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
-  $PSQL -c "INSERT INTO ps9_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps9_crs WHERE uri='$c_crs');" > /dev/null
-  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
-            VALUES ($c_id, ARRAY[(SELECT id FROM ps9_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
+  $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs');" > /dev/null
+  $PSQL -c "INSERT INTO ps_domain_set (coverage_id, native_crs_ids) \
+            VALUES ($c_id, ARRAY[(SELECT id FROM ps_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_gridded_domain_set (coverage_id, grid_origin) \
             VALUES ($c_id, '{$min_x_geo_coord, $max_y_geo_coord}');" > /dev/null || exit $RC_ERROR
   # grid axes:
-  $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
 
   # offset vectors
-  $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=0), \
+  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=0), \
               '{$x_res,0}');" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=1), \
+  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=1), \
               '{0,$y_res}');" > /dev/null || exit $RC_ERROR
 
   # add GMLCOV and OWS extra metadata
   GMLCOV=gmlcov
   OWS=ows
-  $PSQL -c "INSERT INTO ps9_extra_metadata (coverage_id, metadata_type_id, value) VALUES (\
-              $c_id, (SELECT id FROM ps9_extra_metadata_type WHERE type='$OWS'),\
+  $PSQL -c "INSERT INTO ps_extra_metadata (coverage_id, metadata_type_id, value) VALUES (\
+              $c_id, (SELECT id FROM ps_extra_metadata_type WHERE type='$OWS'),\
               'test ows metadata');" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_extra_metadata (coverage_id, metadata_type_id, value) VALUES (\
-              $c_id, (SELECT id FROM ps9_extra_metadata_type WHERE type='$GMLCOV'),\
+  $PSQL -c "INSERT INTO ps_extra_metadata (coverage_id, metadata_type_id, value) VALUES (\
+              $c_id, (SELECT id FROM ps_extra_metadata_type WHERE type='$GMLCOV'),\
               'test gmlcov metadata');" > /dev/null || exit $RC_ERROR
 }
 
@@ -432,56 +426,56 @@ function import_irr_cube_1()
 
 
   # general coverage information (name, type, ...)
-  $PSQL -c "INSERT INTO ps9_coverage (name, gml_type_id, native_format_id) \
-            VALUES ('$c', (SELECT id FROM ps9_gml_subtype WHERE subtype='$c_covtype'), \
-            (SELECT id FROM ps9_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_coverage (name, gml_type_id, native_format_id) \
+            VALUES ('$c', (SELECT id FROM ps_gml_subtype WHERE subtype='$c_covtype'), \
+            (SELECT id FROM ps_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
 
   # get the coverage id
-  c_id=$($PSQL -c  "SELECT id FROM ps9_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
+  c_id=$($PSQL -c  "SELECT id FROM ps_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
 
   # get the collection OID (note: take the first OID)
   c_oid=$($RASQL -q "select oid(m) from $c as m" --out string | grep ' 1:' | awk -F ':' '{print $2}' | tr -d ' \n') > /dev/null || exit $RC_ERROR
 
   # range set: link the coverage to the rasdaman collection
-  $PSQL -c "INSERT INTO ps9_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
-  $PSQL -c "INSERT INTO ps9_range_set (coverage_id, storage_id) VALUES (\
-              (SELECT id FROM ps9_coverage WHERE name='$c'), \
-              (SELECT id FROM ps9_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
+  $PSQL -c "INSERT INTO ps_range_set (coverage_id, storage_id) VALUES (\
+              (SELECT id FROM ps_coverage WHERE name='$c'), \
+              (SELECT id FROM ps_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
 
   # describe the datatype of the coverage cell values (range type)
   # note: assign dimensionless quantity
-  $PSQL -c "INSERT INTO ps9_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
+  $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band', 0, \
-              (SELECT id FROM ps9_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps9_quantity WHERE description='$c_basetype' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
-  $PSQL -c "INSERT INTO ps9_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps9_crs WHERE uri='$c_crs');" > /dev/null
-  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
-            VALUES ($c_id, ARRAY[(SELECT id FROM ps9_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
+  $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs');" > /dev/null
+  $PSQL -c "INSERT INTO ps_domain_set (coverage_id, native_crs_ids) \
+            VALUES ($c_id, ARRAY[(SELECT id FROM ps_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_gridded_domain_set (coverage_id, grid_origin) \
             VALUES ($c_id, '{$min_x_geo_coord, $min_y_geo_coord, $min_z_geo_coord}');" > /dev/null || exit $RC_ERROR
 
   # grid axes:
-  $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 2);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 2);" > /dev/null || exit $RC_ERROR
 
   # offset vectors
-  $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=0), \
+  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=0), \
               '{$x_res,0,0}');" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=1), \
+  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=1), \
               '{0,$y_res,0}');" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=2), \
+  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=2), \
               '{0,0,$z_res}');" > /dev/null || exit $RC_ERROR
 
   # coefficients
   for i in "${!Z_coeffs[@]}"; do
-      $PSQL -c "INSERT INTO ps9_vector_coefficients (grid_axis_id, coefficient, coefficient_order) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=2), \
+      $PSQL -c "INSERT INTO ps_vector_coefficients (grid_axis_id, coefficient, coefficient_order) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=2), \
               ${Z_coeffs[$i]}, $i)" > /dev/null || exit $RC_ERROR
   done
 }
@@ -523,45 +517,45 @@ function import_mst()
   $RASQL -q "insert into $c values ($c_basetype) inv_tiff(\$1)" -f "$TESTDATA_PATH"/mean_summer_airtemp.tif > /dev/null || exit $RC_ERROR
 
   # general coverage information (name, type, ...)
-  $PSQL -c "INSERT INTO ps9_coverage (name, gml_type_id, native_format_id) \
-            VALUES ('$c', (SELECT id FROM ps9_gml_subtype WHERE subtype='$c_covtype'), \
-            (SELECT id FROM ps9_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_coverage (name, gml_type_id, native_format_id) \
+            VALUES ('$c', (SELECT id FROM ps_gml_subtype WHERE subtype='$c_covtype'), \
+            (SELECT id FROM ps_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
 
   # get the coverage id
-  c_id=$($PSQL -c  "SELECT id FROM ps9_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
+  c_id=$($PSQL -c  "SELECT id FROM ps_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
 
   # get the collection OID (note: take the first OID)
   c_oid=$($RASQL -q "select oid(m) from $c as m" --out string | grep ' 1:' | awk -F ':' '{print $2}' | tr -d ' \n') > /dev/null || exit $RC_ERROR
 
   # range set: link the coverage to the rasdaman collection
-  $PSQL -c "INSERT INTO ps9_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
-  $PSQL -c "INSERT INTO ps9_range_set (coverage_id, storage_id) VALUES (\
-              (SELECT id FROM ps9_coverage WHERE name='$c'), \
-              (SELECT id FROM ps9_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
+  $PSQL -c "INSERT INTO ps_range_set (coverage_id, storage_id) VALUES (\
+              (SELECT id FROM ps_coverage WHERE name='$c'), \
+              (SELECT id FROM ps_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
 
   # describe the datatype of the coverage cell values (range type)
   # note: assign dimensionless quantity
-  $PSQL -c "INSERT INTO ps9_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
+  $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band', 0, \
-              (SELECT id FROM ps9_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps9_quantity WHERE description='$c_basetype' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
-  $PSQL -c "INSERT INTO ps9_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps9_crs WHERE uri='$c_crs');" > /dev/null
-  $PSQL -c "INSERT INTO ps9_domain_set (coverage_id, native_crs_ids) \
-            VALUES ($c_id, ARRAY[(SELECT id FROM ps9_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_gridded_domain_set (coverage_id, grid_origin) \
+  $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs');" > /dev/null
+  $PSQL -c "INSERT INTO ps_domain_set (coverage_id, native_crs_ids) \
+            VALUES ($c_id, ARRAY[(SELECT id FROM ps_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_gridded_domain_set (coverage_id, grid_origin) \
             VALUES ($c_id, '{$max_y_geo_coord, $min_x_geo_coord}');" > /dev/null || exit $RC_ERROR
   # grid axes:
-  $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
+  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
 
   # offset vectors
-  $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=0), \
+  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=0), \
               '{0, $x_res}');" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps9_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps9_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=1), \
+  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
+              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=1), \
               '{$y_res, 0}');" > /dev/null || exit $RC_ERROR
 
   # initialize WMS
@@ -594,6 +588,7 @@ function import_petascope_data()
     multi_coll="Parksmall"
   fi
   COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 $multi_coll"
+  COLLECTIONS="rgb mr eobstest irr_cube_1 $multi_coll"
   for COLL in $COLLECTIONS; do
     check_cov $COLL
     if [ $? -ne 0 ]; then
@@ -639,6 +634,7 @@ function drop_petascope_data()
     multi_coll="Parksmall"
   fi
   COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 $multi_coll"
+  COLLECTIONS="rgb mr eobstest irr_cube_1 $multi_coll"
   drop_petascope $COLLECTIONS
   drop_colls $COLLECTIONS
   log "dropping wms..."
@@ -660,11 +656,11 @@ function import_pointcloud_data()
   PC_FILE="Parksmall.xyz"
   PC_CRS="$SECORE_URL"'/crs/EPSG/0/4327'
 
-  id=`$PSQL -c  "select id from ps9_coverage where name='$PC_DATASET'" | head -3 | tail -1`
+  id=`$PSQL -c  "select id from ps_coverage where name='$PC_DATASET'" | head -3 | tail -1`
   test "$id" != "0"
   if [ $? -eq 0 ]; then
     logn "dropping $PC_DATASET... "
-    $PSQL -c  "delete from ps9_coverage where name='$PC_DATASET'"
+    $PSQL -c  "delete from ps_coverage where name='$PC_DATASET'"
     echo ok.
   else
     log "$PC_DATASET not found in the database."

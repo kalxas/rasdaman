@@ -332,7 +332,7 @@ public class WcsUtil {
     /**
      * Returns the configured GMLCOV metadata.
      * This information is returned along with <gmlcov:metadata> root element.
-     * The content is extracted from petascopedb::ps9_extrametadata.
+     * The content is extracted from petascopedb::ps_extrametadata.
      * @param m
      * @return
      */

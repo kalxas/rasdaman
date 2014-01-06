@@ -66,13 +66,13 @@ $$
                             ' VALUES (' || quote_literal(_tup.row[1])          || ')';
                 RAISE DEBUG '%: EXECUTING : %;', ME, _qry;
                 EXECUTE _qry;
-                RAISE NOTICE '%: CRS ''%'' has been migrated', ME, _tup.row[1];
+                RAISE LOG '%: CRS ''%'' has been migrated', ME, _tup.row[1];
             EXCEPTION
                 WHEN unique_violation THEN  -- ignore: if the CRS is already stored, this is not a problem.
                     RAISE DEBUG '%: CRS ''%'' is already stored in %.', ME, _tup.row[1], cget('TABLE_PS9_CRS');
             END;
         END LOOP;
-        RAISE NOTICE '%: available CRSs have been migrated.', ME;
+        RAISE LOG '%: available CRSs have been migrated.', ME;
         RETURN;
     END;
 $$ LANGUAGE plpgsql;
@@ -106,7 +106,7 @@ $$
                    _tup.row[2] = '';
                 END IF;
 
-                RAISE NOTICE '%: migrating (%,%) unit of measure...', ME, _tup.row[1], _tup.row[2];
+                RAISE LOG '%: migrating (%,%) unit of measure...', ME, _tup.row[1], _tup.row[2];
                 -- UoM
                 _qry := ' INSERT INTO ' || quote_ident(cget('TABLE_PS9_UOM')) ||
                                   ' ( ' || quote_ident(cget('PS9_UOM_CODE'))  || ' ) ' ||
@@ -134,7 +134,7 @@ $$
                     RAISE WARNING '%: ''%'' is already present in %, will ignore it.', ME, _tup.row[1], cget('TABLE_PS9_UOM');
             END;
         END LOOP;
-        RAISE NOTICE '%: UoMs have been migrated.', ME;
+        RAISE LOG '%: UoMs have been migrated.', ME;
         RETURN;
     END;
 $$ LANGUAGE plpgsql;
@@ -164,10 +164,13 @@ $$
         _rascoll_id    integer;
         _quantity_id   integer;
         _datatype_id   integer;
+        _crs_axis_counter  integer;
+        _previous_crs      text;
+        _previous_axistype text;
+        _first_oid         numeric;
         --
         _qry text;
         _tup record;
-        _first_oid numeric;
         _log text;
     BEGIN
         -- Fetch the coverage (PS_) id
@@ -185,7 +188,7 @@ $$
                        ' WHERE ' || quote_ident(cget('PS_COVERAGE_NAME'))  || '=' || quote_literal(coverage_name);
         RAISE DEBUG '%: EXECUTING %', ME, _qry;
         EXECUTE _qry INTO STRICT _tup;
-        RAISE NOTICE '%: ''%'' is of type ''%''', ME, coverage_name, _tup.row[1];
+        RAISE LOG '%: ''%'' is of type ''%''', ME, coverage_name, _tup.row[1];
 
         -- Additional check that this is a gridded coverage
         IF _tup.row[1] NOT LIKE '%Grid%' THEN
@@ -242,7 +245,7 @@ $$
                            ' WHERE ' || quote_ident(cget('PS9_COVERAGE_NAME')) || '='
                                      || quote_literal(coverage_name)
         );
-        RAISE NOTICE '%: coverage ''%'' has been inserted in % with id %.', ME, coverage_name, cget('TABLE_PS9_COVERAGE'), _coverage9_id;
+        RAISE LOG '%: coverage ''%'' has been inserted in % with id %.', ME, coverage_name, cget('TABLE_PS9_COVERAGE'), _coverage9_id;
 
         -- Retrieve possible extra GMLCOV metadata:
         _qry := ' SELECT ARRAY[' || quote_ident(cget('PS_METADATA_METADATA')) || '] AS row '
@@ -262,41 +265,105 @@ $$
                                     || gmlcov_metadata_type_id || ',' ||
                                     || quote_literal(_tup.row[1])     || ')';
             EXECUTE _qry;
-            RAISE NOTICE '%: GMLCOV metadata ''%..'' of coverage ''%'' has been migrated.',
+            RAISE LOG '%: GMLCOV metadata ''%..'' of coverage ''%'' has been migrated.',
                          ME, substring(_tup.row[1],0,10), coverage_name;
         END LOOP; --~// ps9_extra_metadata
 
-        -- Build the native CRS (can be compound): squash duplicates to show single CRS in output (e.g. x/y to EPSG:4326)
-        _qry := ' SELECT DISTINCT ARRAY[' || quote_ident(cget('PS_CRS_NAME'))   || '] AS row FROM ('   ||
-                      ' SELECT ' || quote_ident(cget('TABLE_PS_CRS'))    || '.' || quote_ident(cget('PS_CRS_NAME')) ||
-                        ' FROM ' || quote_ident(cget('TABLE_PS_DOMAIN')) || ','
-                                 || quote_ident(cget('TABLE_PS_CRS'))    || ','
-                                 || quote_ident(cget('TABLE_PS_CRSSET')) ||
-                       ' WHERE ' || quote_ident(cget('TABLE_PS_DOMAIN')) || '.'  || quote_ident(cget('PS_DOMAIN_ID'))       || '='
-                                 || quote_ident(cget('TABLE_PS_CRSSET')) || '.'  || quote_ident(cget('PS_CRSSET_AXIS'))     ||
-                         ' AND ' || quote_ident(cget('TABLE_PS_CRS'))    || '.'  || quote_ident(cget('PS_CRS_ID'))          || '='
-                                 || quote_ident(cget('TABLE_PS_CRSSET')) || '.'  || quote_ident(cget('PS_CRSSET_CRS'))      ||
-                         ' AND ' || quote_ident(cget('TABLE_PS_DOMAIN')) || '.'  || quote_ident(cget('PS_DOMAIN_COVERAGE')) || '='''
-                                 || _coverage_id                 || '''' ||
-                    ' ORDER BY ' || quote_ident(cget('TABLE_PS_DOMAIN')) || '.'  || quote_ident(cget('PS_DOMAIN_I'))        || ' ASC) as crss';
+        -- Build the native CRS (can be compound):
+        -- select CRS identifiers per each axis then need to turn CRS:1 to Index CRSS
+        -- axis order/type  |   CRS   | CRS URI
+        --       0/t        |   .*    |  1= %SECORE_URL%/crs/OGC/0/AnsiDate
+        --       1/x        |   *4326 |  2= %SECORE_URL%/crs/EPSG/0/4326
+        --       2/y        |   *4326 |
+        --       3/other    |   CRS:1 |  3= %SECORE_URL%/crs/OGC/0/Index2D
+        --       4/other    |   CRS:1 |
+        _qry := ' SELECT ARRAY[' || quote_ident(cget('TABLE_PS_CRS'))      || '.'
+                                 || quote_ident(cget('PS_CRS_NAME'))       || ','
+                                 || quote_ident(cget('TABLE_PS_AXISTYPE')) || '.'
+                                 || quote_ident(cget('PS_AXISTYPE_TYPE'))  || '] AS row ' ||
+                  ' FROM ' || quote_ident(cget('TABLE_PS_DOMAIN'))   || ','
+                           || quote_ident(cget('TABLE_PS_CRS'))      || ','
+                           || quote_ident(cget('TABLE_PS_CRSSET'))   || ','
+                           || quote_ident(cget('TABLE_PS_AXISTYPE')) ||
+                 ' WHERE ' || quote_ident(cget('TABLE_PS_DOMAIN'))   || '.'  || quote_ident(cget('PS_DOMAIN_ID'))       || '='
+                           || quote_ident(cget('TABLE_PS_CRSSET'))   || '.'  || quote_ident(cget('PS_CRSSET_AXIS'))     ||
+                   ' AND ' || quote_ident(cget('TABLE_PS_CRS'))      || '.'  || quote_ident(cget('PS_CRS_ID'))          || '='
+                           || quote_ident(cget('TABLE_PS_CRSSET'))   || '.'  || quote_ident(cget('PS_CRSSET_CRS'))      ||
+                   ' AND ' || quote_ident(cget('TABLE_PS_DOMAIN'))   || '.'  || quote_ident(cget('PS_DOMAIN_TYPE'))     || '='
+                           || quote_ident(cget('TABLE_PS_AXISTYPE')) || '.'  || quote_ident(cget('PS_AXISTYPE_ID'))     ||
+                   ' AND ' || quote_ident(cget('TABLE_PS_DOMAIN'))   || '.'  || quote_ident(cget('PS_DOMAIN_COVERAGE')) || '='''
+                           || _coverage_id                           || '''' ||
+              ' ORDER BY ' || quote_ident(cget('TABLE_PS_DOMAIN'))   || '.'  || quote_ident(cget('PS_DOMAIN_I'))        || ' ASC'
+              ;
         RAISE DEBUG '%: EXECUTING %', ME, _qry;
         -- Build the array of CRS FKs
         BEGIN
+            -- init
+            _crs_axis_counter := 1;
+            _previous_crs := '';
+            -- loop through the CRS names
             FOR _tup IN EXECUTE _qry LOOP
-                RAISE DEBUG '%: appending ''%''...', ME, _tup.row[1];
-                _native_crs := array_append(
-                    _native_crs,
-                    select_field(
-                      cget('TABLE_PS9_CRS'),
-                      cget('PS9_CRS_ID'), 0,
-                      ' WHERE ' || quote_ident(cget('PS9_CRS_URI')) || '='
-                                || quote_literal(_tup.row[1])
+                -- first loop
+                IF _previous_crs = '' THEN
+                   _previous_crs := _tup.row[1];
+                   _previous_axistype := _tup.row[2];
+                -- further loops:
+                ELSIF _previous_crs = _tup.row[1] AND _previous_axistype <> cget('TIME_AXIS_TYPE') THEN
+                    -- continue to the next tuple and increase the counter: I need it to understand which Index CRS to assign (if CRS:1)
+                    -- NOTE: temporal CRS have max 1 axis, but can have any CRS (also CRS:1) in the old schema
+                    _crs_axis_counter := _crs_axis_counter + 1;
+                ELSE
+                    -- CRS/axis_type has changed: action
+                    IF _previous_axistype = cget('TIME_AXIS_TYPE') THEN
+                        -- temporal axis: ANSI date CRS (see wiki:PetascopeTimeHandling)
+                        _previous_crs := cget('CRS_ANSI');
+                        RAISE DEBUG '%: % replaced with % CRS URI.', ME, _previous_crs, cget('CRS_ANSI');
+                    ELSIF _previous_crs = cget('CRS_1') THEN
+                        -- CRS:1 axes: rename to appropriate Index CRS
+                        _previous_crs := index_crs_uri(_crs_axis_counter);
+                        RAISE DEBUG '%: % replaced with % CRS URI.', ME, cget('CRS_1'), _previous_crs;
+                        -- NOTE: currently SECORE stores Index CRSs for max 3D
+                    END IF;
+                    -- add CRS to array of CRS ids
+                    RAISE DEBUG '%: appending ''%'' to native CRS..', ME, _previous_crs;
+                    _native_crs := array_append(_native_crs, select_field(
+                            cget('TABLE_PS9_CRS'),
+                            cget('PS9_CRS_ID'), 0,
+                            ' WHERE ' || quote_ident(cget('PS9_CRS_URI')) || '='
+                                      || quote_literal(_previous_crs)
+                        )
+                    );
+                    -- shift-tuple/reset
+                    _previous_crs      := _tup.row[1];
+                    _previous_axistype := _tup.row[2];
+                    _crs_axis_counter  := 1;
+                END IF;
+            END LOOP; --~// native CRS array
+            -- add CRS for the last tuple
+            IF _crs_axis_counter > 1 THEN
+                IF _previous_axistype = cget('TIME_AXIS_TYPE') THEN
+                    -- temporal axis: ANSI date CRS (see wiki:PetascopeTimeHandling)
+                    _previous_crs := cget('CRS_ANSI');
+                    RAISE DEBUG '%: % replaced with % CRS URI.', ME, _previous_crs, cget('CRS_ANSI');
+                ELSIF _previous_crs = cget('CRS_1') THEN
+                    -- CRS:1 axes: rename to appropriate Index CRS
+                    _previous_crs := index_crs_uri(_crs_axis_counter);
+                    RAISE DEBUG '%: % replaced with % CRS URI.', ME, cget('CRS_1'), _previous_crs;
+                    -- NOTE: currently SECORE stores Index CRSs for max 3D
+                END IF;
+                -- add to array of ids
+                RAISE DEBUG '%: appending ''%''...', ME, _previous_crs;
+                _native_crs := array_append(_native_crs, select_field(
+                        cget('TABLE_PS9_CRS'),
+                        cget('PS9_CRS_ID'), 0,
+                        ' WHERE ' || quote_ident(cget('PS9_CRS_URI')) || '='
+                                  || quote_literal(_previous_crs)
                     )
                 );
-            END LOOP; --~// native CRS array
+            END IF;
         EXCEPTION
             WHEN no_data_found THEN
-                _log := 'CRS "' || _tup.row[1] || '" has not been migrated (not an URI?). Please fix it then retry.';
+                _log := 'CRS "' || _previous_crs || '" has not been migrated (not an URI?). Please fix it then retry.';
                 RAISE WARNING '%: %', ME, _log;
                 -- to temporary table for final report
                 PERFORM cset(coverage_name, _log);
@@ -310,20 +377,54 @@ $$
                     ' VALUES (' || _coverage9_id || ',''' || _native_crs::text    || ''')';
         RAISE DEBUG '%: EXECUTING %', ME, _qry;
         EXECUTE _qry;
-        RAISE NOTICE '%: set CRS ''%'' for coverage ''%''.', ME, _native_crs, coverage_name;
+        RAISE LOG '%: set CRS ''%'' for coverage ''%''.', ME, _native_crs, coverage_name;
 
-        -- Determine the origin of the gridded coverage
+        -- Determine the origin of the gridded coverage: order tuple of coordinates by their order in the _CRS_ definition
+        -- so in case of EPGS:4326 (__LIKE '%4326'__ to take both URIs and AUTH:CODE notations) x and y values
+        -- are swapped.
+        --
         -- NOTE: coverage model is currently pixel-based, and not point-based
         --       but the origin is a point and should be in the centre of the pixel instead = numlo + 0.5*res
-        _qry := ' SELECT ARRAY[(CASE ' || quote_ident(cget('PS_DOMAIN_NAME'))  || ' WHEN ''y'' '   ||
-                              ' THEN ' || quote_ident(cget('PS_DOMAIN_NUMHI')) ||
-                              ' ELSE ' || quote_ident(cget('PS_DOMAIN_NUMLO')) || ' END)] AS row ' ||
-                        ' FROM ' || quote_ident(cget('TABLE_PS_DOMAIN'))    ||
-                       ' WHERE ' || quote_ident(cget('PS_DOMAIN_COVERAGE')) || '=' || _coverage_id ||
-                    ' ORDER BY ' || quote_ident(cget('PS_DOMAIN_I'))        || ' ASC';
+        --
+        -- Example of query for eobstest (t+WGS84):
+        -- SELECT ARRAY[
+        --   (i + (
+        --     ((quote_literal(( SELECT gridaxis_crs(3,ps_domain.i))) NOT LIKE quote_literal('%4326'))::int) * 0 +
+        --     ((quote_literal(( SELECT gridaxis_crs(3,ps_domain.i))) LIKE     quote_literal('%4326'))::int) *
+        --      (-1^((ps_domain.name='y')::int))
+        --   )),(
+        --     CASE name WHEN 'y' THEN numhi ELSE numlo END
+        -- )] AS row
+        --    FROM ps_domain
+        --    WHERE coverage=3
+        -- ORDER BY row ASC;
+        --
+        --    row
+        -- ----------
+        --  {0,0}     -> t min
+        --  {1,75.5}  -> y max
+        --  {2,25}    -> x min
+        -- (3 rows)
+        --
+        -- NOTE: CRS axis order needs to be the first element in the outpout ARRAY for ORDER BY to be effective.
+        _qry := ' SELECT ARRAY[(' || quote_ident(cget('PS_DOMAIN_I')) ||
+                         ' + (((quote_literal(( SELECT gridaxis_crs(' || _coverage_id      || ','
+                                  || quote_ident(cget('PS_DOMAIN_I')) || '))) NOT LIKE '   ||
+                               'quote_literal(''%' || cget('CRS_4326')|| '''))::int) * 0 ' ||
+                         ' + ((quote_literal(( SELECT gridaxis_crs(' || _coverage_id      || ','
+                                  || quote_ident(cget('PS_DOMAIN_I')) || '))) LIKE '       ||
+                               'quote_literal(''%' || cget('CRS_4326')|| '''))::int) * '   ||
+                         '(-1^((' || quote_ident(cget('PS_DOMAIN_NAME'))
+                                  || '=''y'')::int)))),' ||
+                         '(CASE ' || quote_ident(cget('PS_DOMAIN_NAME'))  || ' WHEN ''y'' '   ||
+                         ' THEN ' || quote_ident(cget('PS_DOMAIN_NUMHI')) ||
+                         ' ELSE ' || quote_ident(cget('PS_DOMAIN_NUMLO')) || ' END)] AS row ' ||
+                      ' FROM ' || quote_ident(cget('TABLE_PS_DOMAIN'))    ||
+                     ' WHERE ' || quote_ident(cget('PS_DOMAIN_COVERAGE')) || '=' || _coverage_id ||
+                     ' ORDER BY row ASC';
         RAISE DEBUG '%: EXECUTING %', ME, _qry;
         FOR _tup IN EXECUTE _qry LOOP
-            _grid_origin := array_append(_grid_origin, _tup.row[1]::numeric);
+            _grid_origin := array_append(_grid_origin, _tup.row[2]::numeric);
         END LOOP; --~// grid origin array
 
         -- Finally, set the origin for this coverage
@@ -333,20 +434,82 @@ $$
                     ' VALUES (' || _coverage9_id || ',''' || _grid_origin::text || ''') ';
         RAISE DEBUG '%: EXECUTING %', ME, _qry;
         EXECUTE _qry;
-        RAISE NOTICE '%: set origin ''%'' for coverage ''%''.', ME, _grid_origin, coverage_name;
+        RAISE LOG '%: set origin ''%'' for coverage ''%''.', ME, _grid_origin, coverage_name;
 
-        -- Get the resolution (offset vectors) of each axis of this coverage [DIM,i,res]
+        -- Get the resolution (offset vectors) of each axis of this coverage [DIM,i,res].
+        -- This query needs to account for two special cases:
+        --   1. CRS:1
+        --      The formula for the axis resolution [(dom.hi-dom.lo)/(cdom.hi-cdom.lo+1)] is not valid for indexed coverages:
+        --      the term `+1' in the denominator would nned to be left out; in order to be more robust on
+        --      possibly wrong values in ps_domain (rasimport was sometimes putting 0.0 and 1.0), when CRS:1
+        --      is found, resolution is directly  set to -1^(axis==y) without computing the formula.
+        --   2. EPSG:4326 (__LIKE '%4326'__ to take both URIs and AUTH:CODE notations)
+        --      In this case the order of rasdaman axis and CRS axis needs to be swapped, since latitude comes
+        --      first in the CRS definition.
+        --
+        --      Example of query+output in case of 0.5-degree resolution latlong 2D coverage:
+        --
+        --      SELECT ARRAY[(SELECT COUNT(i) FROM ps_domain WHERE coverage=1), ps_domain.i,
+        --      (
+        --        ps_domain.i + (
+        --        ((quote_literal(( SELECT gridaxis_crs(1,ps_domain.i))) NOT LIKE '%4326')::int) * 0 +
+        --        ((quote_literal(( SELECT gridaxis_crs(1,ps_domain.i))) LIKE     '%4326')::int) *
+        --         (-1^((ps_domain.name='y')::int))
+        --      )),(
+        --         (-1^((ps_domain.name='y')::int)) *
+        --        ((quote_literal(( SELECT gridaxis_crs(1,ps_domain.i)))  = quote_literal('CRS:1'))::int) +
+        --        ((-1^((ps_domain.name='y')::int)) * (numhi - numlo) / (hi - lo + 1)) *
+        --        ((quote_literal(( SELECT gridaxis_crs(1,ps_domain.i))) != quote_literal('CRS:1'))::int)
+        --      )] AS row FROM ps_domain,ps_celldomain
+        --               WHERE ps_domain.coverage = <cov_id>
+        --                 AND ps_celldomain.coverage = <cov_id>
+        --                 AND ps_domain.i = ps_celldomain.i
+        --      ORDER BY ps_domain.i ASC;
+        --
+        --        row
+        --    ------------
+        --     {2,0,1,0.5}
+        --     {2,1,0,-0.5}
+        --    (2 rows)
+        -- OUTPUT: [#dimensions, gridaxis_order, crsaxis_order, offset_vector
+        --
+        -- NOTE: quote_literal needs to be explicitly in the query since gridaxis_crs is paremetrized on the ps_domain.i value
+        --       hence cannot be computed here while building the query. When comparing string, *both* need quote_literal to
+        --       make the comparison work. See e.g. ``SELECT quote_literal(0) = '0'; ''.
         _qry := ' SELECT ARRAY[' || '(SELECT COUNT(' || quote_ident(cget('PS_DOMAIN_I'))
                                  ||        ') FROM ' || quote_ident(cget('TABLE_PS_DOMAIN'))
                                  ||        ' WHERE ' || quote_ident(cget('PS_DOMAIN_COVERAGE')) || '=' || _coverage_id || '),'
                                  || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
-                                 || quote_ident(cget('PS_DOMAIN_I'))      || ',' ||
+                                 || quote_ident(cget('PS_DOMAIN_I'))      || ', ('
+                                 || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
+                                 || quote_ident(cget('PS_DOMAIN_I'))      || ' + ((('
+                                 || 'quote_literal(( SELECT gridaxis_crs('|| _coverage_id || ','
+                                 ||  quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
+                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || '))) NOT LIKE '
+                                 || 'quote_literal(''%' || cget('CRS_4326')|| '''))::int) * 0 + (('
+                                 || 'quote_literal(( SELECT gridaxis_crs('|| _coverage_id || ','
+                                 ||  quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
+                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || '))) LIKE '
+                                 || 'quote_literal(''%' || cget('CRS_4326')|| '''))::int) * '       ||
+                        '(-1^((' || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
+                                 || quote_ident(cget('PS_DOMAIN_NAME'))   || '=''y'')::int)))),' ||
                        '((-1^((' || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
-                                 || quote_ident(cget('PS_DOMAIN_NAME'))   || '=''y'')::int)) * '
+                                 || quote_ident(cget('PS_DOMAIN_NAME'))   || '=''y'')::int)) * (('
+                                 || 'quote_literal(( SELECT gridaxis_crs('|| _coverage_id || ','
+                                 ||  quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
+                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || '))) = '
+                                 || 'quote_literal(''' || cget('CRS_1')   || '''))::int) + '       ||
+                       '((-1^((' || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
+                                 || quote_ident(cget('PS_DOMAIN_NAME'))   || '=''y'')::int)) * ' ||
                             ' (' || quote_ident(cget('PS_DOMAIN_NUMHI'))  || '-'
-                                 || quote_ident(cget('PS_DOMAIN_NUMLO'))  || ') / ' ||
+                                 || quote_ident(cget('PS_DOMAIN_NUMLO'))  || ') / '              ||
                              '(' || quote_ident(cget('PS_CELLDOMAIN_HI')) || '-'
-                                 || quote_ident(cget('PS_CELLDOMAIN_LO')) || '+1))] AS row ' ||
+                                 || quote_ident(cget('PS_CELLDOMAIN_LO')) || ' + 1)) * (('
+                                 -- IF CRS:1 THEN domain=cellDomain --> `+1' term to be dropped
+                                 || 'quote_literal(( SELECT gridaxis_crs('|| _coverage_id || ','
+                                 ||  quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
+                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || '))) != '
+                                 || 'quote_literal(''' || cget('CRS_1')   || '''))::int))] AS row ' || -- T->1, F->0
                         ' FROM ' || quote_ident(cget('TABLE_PS_DOMAIN'))        || ','
                                  || quote_ident(cget('TABLE_PS_CELLDOMAIN'))    ||
                        ' WHERE ' || quote_ident(cget('TABLE_PS_DOMAIN'))        || '.'
@@ -389,8 +552,8 @@ $$
             BEGIN
                 -- Build the offset vector from the scalar resolution: res -> (0,__,res,__,0)
                 _offset_vector := resolution2vector(
-                                    _tup.row[3]::numeric,  -- resolution
-                                    _tup.row[2]::integer,  -- axis order
+                                    _tup.row[4]::numeric,  -- resolution
+                                    _tup.row[3]::integer,  -- axis order (in the CRS!)
                                     _tup.row[1]::integer); -- dimensions
             EXCEPTION
                 WHEN raise_exception THEN
@@ -409,7 +572,7 @@ $$
                             ' VALUES (' || _grid_axis_id || ',''' || _offset_vector::text || ''')';
                 RAISE DEBUG '%: EXECUTING %', ME, _qry;
                 EXECUTE _qry;
-                RAISE NOTICE '%: set offset vector ''%'' for axis % of coverage ''%''.',
+                RAISE LOG '%: set offset vector ''%'' for axis % of coverage ''%''.',
                              ME, _offset_vector, _tup.row[2], coverage_name;
             EXCEPTION
                 WHEN raise_exception THEN
@@ -485,7 +648,7 @@ $$
                         ' VALUES (' || _coverage9_id || ',' || _rascoll_id || ')';
             RAISE DEBUG '%: EXECUTING %', ME, _qry;
             EXECUTE _qry;
-            RAISE NOTICE '%: range-set linked to (%,%) rasdaman MDD for coverage ''%''.',
+            RAISE LOG '%: range-set linked to (%,%) rasdaman MDD for coverage ''%''.',
                          ME, coverage_name, _tup.row[1], coverage_name;
         END LOOP;
 
@@ -550,7 +713,7 @@ $$
                     _quantity_id := select_field(
                                       cget('TABLE_PS9_QUANTITY'),
                                       cget('PS9_QUANTITY_ID'), 0,
-                                      ' WHERE ' || quote_ident(cget('PS9_QUANTITY_DESCRIPTION')) || '='
+                                      ' WHERE ' || quote_ident(cget('PS9_QUANTITY_LABEL')) || '='
                                                 || quote_literal(_tup.row[3])
                     );
             END;
@@ -567,7 +730,7 @@ $$
                                     || quote_literal(_tup.row[2])    || ',' || _datatype_id || ','  || _quantity_id || ')';
             RAISE DEBUG '%: EXECUTING %', ME, _qry;
             EXECUTE _qry;
-            RAISE NOTICE '%: range-type component ''%'' has been set for coverage ''%''.',
+            RAISE LOG '%: range-type component ''%'' has been set for coverage ''%''.',
                          ME, _tup.row[2], coverage_name;
         END LOOP;
 
@@ -577,7 +740,7 @@ $$
         -- ...
 
 
-        RAISE NOTICE '%: end of ''%'' migration.', ME, coverage_name;
+        RAISE LOG '%: end of ''%'' migration.', ME, coverage_name;
         -- to temporary table for final report
         PERFORM cset(coverage_name, '---');
         RETURN true;
@@ -606,9 +769,6 @@ $$
         _tup           record;
         _report        text;
     BEGIN
-        -- Load all the constants
-        PERFORM set_constants();
-
         -- Migrate units of measures and CRSs
         PERFORM migrate_uoms();
         PERFORM migrate_crss();
@@ -644,25 +804,25 @@ $$
                 RETURN;
         END;
 
-        -- Migrate coverae by coverage
+        -- Migrate coverage by coverage
         _qry := ' SELECT ARRAY[' || quote_ident(cget('PS_COVERAGE_ID'))   || '::text,'
                                  || quote_ident(cget('PS_COVERAGE_NAME')) || '] AS row ' ||
                         ' FROM ' || quote_ident(cget('TABLE_PS_COVERAGE'));
         BEGIN
             FOR _tup IN EXECUTE _qry LOOP
-                RAISE NOTICE '%: migrating coverage % (ID %)...', ME, _tup.row[2], _tup.row[1];
+                RAISE LOG '%: migrating coverage % (ID %)...', ME, _tup.row[2], _tup.row[1];
                 IF NOT migrate_coverage(_tup.row[2], _mime_id, _gmlcov_type_id) THEN
                     _failed_migrations := _failed_migrations+1;
                     RAISE WARNING '%: migration of coverage ''%'' was unsuccessful.', ME, _tup.row[2];
                 ELSE
                     _successful_migrations := _successful_migrations+1;
-                    RAISE NOTICE '%: coverage ''%'' successfully migrated.', ME, _tup.row[2];
+                    RAISE LOG '%: coverage ''%'' successfully migrated.', ME, _tup.row[2];
                 END IF;
             END LOOP;
         EXCEPTION
             WHEN undefined_function THEN
-                RAISE EXCEPTION '%: PostgreSQL `dblink` function is not installed.', ME
-                      USING HINT    = 'Please install it and retry.',
+                RAISE EXCEPTION '%: Problem encountered while migrating coverage ''%''', ME, _tup.row[2]
+                      USING HINT    = 'Please enable DEBUG logging level and contact community developers.',
                             ERRCODE = 'undefined_function';
         END;
 

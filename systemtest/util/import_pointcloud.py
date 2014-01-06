@@ -8,7 +8,7 @@ import psycopg2
 import ntpath
 
 MAX_BATCH_INSERT = 100
-DB_TABLE_PREFIX = "ps9"
+DB_TABLE_PREFIX = "ps"
 
 DB_NAME = os.environ['PS_DB']
 HOST_NAME = os.environ['PG_HOST']
@@ -34,7 +34,7 @@ else:
 	if fileExtension == '.xyz':
 		logger.info('\nReading a %s file' % fileExtension)
 	try:
-		# Inserting the general coverage info to ps9_coverage table
+		# Inserting the general coverage info to ps_coverage table
 		insert_stmt = ""
 		insert_stmt = ''.join(["INSERT INTO ",
 			DB_TABLE_PREFIX,
@@ -46,7 +46,7 @@ else:
 		insert_stmt = insert_stmt % (coverage_name)
 		cursor.execute(insert_stmt)
 		conn.commit()
-		#logger.info('\nInserting general information of the coverage into ps9_coverage table')
+		#logger.info('\nInserting general information of the coverage into ps_coverage table')
 
 		# Inserting additional descriptive information
 		#TBD
@@ -57,29 +57,29 @@ else:
 		cursor.execute(coverage_id_stmt)
 		coverage_id = cursor.fetchone()[0]
 
-		# Inserting the range type (attributes) information (rgb) in ps9_range_type_component
-		# 	coverage_id | name (band name) | data_type_id (8-bit signed integer from ps9_range_data_type) |
-		# 	component_order (r:0 g:1 b:2) | field_id (from ps9_quantity col for unsigned char) | field_table (ps9_quantity)
-		insert_stmt = """INSERT INTO ps9_range_type_component (coverage_id,
+		# Inserting the range type (attributes) information (rgb) in ps_range_type_component
+		# 	coverage_id | name (band name) | data_type_id (8-bit signed integer from ps_range_data_type) |
+		# 	component_order (r:0 g:1 b:2) | field_id (from ps_quantity col for unsigned char) | field_table (ps_quantity)
+		insert_stmt = """INSERT INTO %_range_type_component (coverage_id,
 			name, data_type_id, component_order, field_id, field_table) VALUES (%d, 'red',
-			3, 0, 2, 'ps9_quantity');""" % (coverage_id)
+			3, 0, 2, '%_quantity');""" % (DB_TABLE_PREFIX, coverage_id, DB_TABLE_PREFIX)
 		cursor.execute(insert_stmt);
 		conn.commit()
 
-		insert_stmt = """INSERT INTO ps9_range_type_component (coverage_id,
+		insert_stmt = """INSERT INTO %_range_type_component (coverage_id,
 			name, data_type_id, component_order, field_id, field_table) VALUES (%d, 'green',
-			3, 1, 2, 'ps9_quantity');""" % (coverage_id)
+			3, 1, 2, '%_quantity');""" % (DB_TABLE_PREFIX, coverage_id, DB_TABLE_PREFIX)
 		cursor.execute(insert_stmt);
 		conn.commit()
 
-		insert_stmt = """INSERT INTO ps9_range_type_component (coverage_id,
+		insert_stmt = """INSERT INTO %_range_type_component (coverage_id,
 			name, data_type_id, component_order, field_id, field_table) VALUES (%d, 'blue',
-			3, 2, 2, 'ps9_quantity');""" % (coverage_id)
+			3, 2, 2, '%_quantity');""" % (DB_TABLE_PREFIX, coverage_id, DB_TABLE_PREFIX)
 		cursor.execute(insert_stmt);
 		conn.commit()
 
 		# Setting the crs for the new coverage to index3d (4)
-		#insert_stmt = """INSERT INTO ps9_domain_set(coverage_id, native_crs_ids ) VALUES(%d, '{4}');""" % (coverage_id)
+		#insert_stmt = """INSERT INTO ps_domain_set(coverage_id, native_crs_ids ) VALUES(%d, '{4}');""" % (coverage_id)
 		#cursor.execute(insert_stmt);
 		#conn.commit()
 
@@ -90,16 +90,16 @@ else:
 			crs_stmt = "INSERT INTO " + DB_TABLE_PREFIX + "_crs(uri) VALUES('%s')" % (args.crs)
 			cursor.execute(crs_stmt)
 			conn.commit()
-			#logger.info('The crs was added to the ps9_crs.')
+			#logger.info('The crs was added to the ps_crs.')
 		crs_stmt = "SELECT id FROM " + DB_TABLE_PREFIX + "_crs WHERE uri='%s'" % (args.crs)
 		cursor.execute(crs_stmt)
 		crs_id = cursor.fetchone()[0]
 
-		# Insert (coverage_id, crs_id) into ps9_domain_set
+		# Insert (coverage_id, crs_id) into ps_domain_set
 		crs_stmt = "INSERT INTO " + DB_TABLE_PREFIX + "_domain_set VALUES(%d,'{%d}')" % (coverage_id, crs_id)
 		cursor.execute(crs_stmt)
 		conn.commit()
-		#logger.info('(coverage_id, crs_id) was added into ps9_domain_set.')
+		#logger.info('(coverage_id, crs_id) was added into ps_domain_set.')
 
 		with open(args.files,'r') as f:
 			# Get the latest point id

@@ -207,6 +207,8 @@ CREATE TABLE ps9_range_set (
 );
 CREATE TRIGGER storage_integrity_trigger BEFORE INSERT OR UPDATE ON ps9_range_set
        FOR EACH ROW EXECUTE PROCEDURE storage_ref_integrity();
+CREATE TRIGGER range_set_drop_trigger AFTER DELETE ON ps9_range_set
+       FOR EACH ROW EXECUTE PROCEDURE range_set_drop();
 
 
 -- TABLE: **ps9_data_type** ====================================================
@@ -241,6 +243,8 @@ CREATE TRIGGER field_integrity_trigger BEFORE INSERT OR UPDATE ON ps9_range_type
        FOR EACH ROW EXECUTE PROCEDURE field_ref_integrity();
 CREATE TRIGGER range_component_order_trigger AFTER INSERT OR UPDATE ON ps9_range_type_component
        FOR EACH ROW EXECUTE PROCEDURE range_component_order_integrity();
+CREATE TRIGGER range_component_drop_trigger AFTER DELETE ON ps9_range_type_component
+       FOR EACH ROW EXECUTE PROCEDURE range_component_drop();
 
 -- TABLE: **ps9_uom** ==========================================================
 -- Catalogue table with Unit Of Measures (UoMs) for the rangeSet of a coverage.
@@ -456,15 +460,3 @@ CREATE TABLE ps9_service_provider (
 );
 CREATE TRIGGER single_service_provider_trigger BEFORE INSERT ON ps9_service_provider
        FOR EACH ROW EXECUTE PROCEDURE single_service_provider();
-
-
--- MAP MODEL (WMS) ------------------------------------------------------------
--------------------------------------------------------------------------------
--- No changes since previous schema
--- $ git show release_8.5:applications/petascope/src/main/db/petascope/update5.sql
--- Need to re-create them only in case this is a branch new database: old updateN.sql have been dropped.
-SELECT create_if_exists_ps_services();
-SELECT create_if_exists_ps_layers();
-SELECT create_if_exists_ps_servicelayer();
-SELECT create_if_exists_ps_styles();
-SELECT create_if_exists_ps_pyramidlevels();

@@ -37,6 +37,9 @@
 #
 #  Database connection details are read from etc/petascope.properties
 #
+#  In case of creation of the database from scratch the update counter will start
+#  from $FIRST_COUNTER update file, which is the update file of the last /upgrade/.
+#
 # PRECONDITIONS
 #  1) PostgreSQL server must be running
 #  2) etc/petascope.properties should be present, and the metadata_user should
@@ -45,40 +48,51 @@
 
 PROG=$( basename $0 )
 
-# argument name
-EMPTY_ARG='--empty'
-MIGRATE_ARG='--migrate'
-
-# argument variables (flags)
-EMPTY_DB=''
-MIGRATE_COVERAGES=''
+# argument name + flags
+REVERT_ARG='--revert'
+CLEANUP_ARG='--cleanup'
+HELP_ARG='--help'
 
 # synopsis message
 USAGE="
-    usage: $PROG [$EMPTY_ARG] [$MIGRATE_ARG]
+    usage: $PROG [$REVERT_ARG] [$CLEANUP_ARG] [$HELP_ARG]
     where:
-    $EMPTY_ARG
-        Do not INSERT any metadata in the database (not recommended).
-    $MIGRATE_ARG
-        Migrate pre-existing coverages in ps_* tables to the new schema (ps9_* tables).
+    $REVERT_ARG
+        Restore tables to a pre-upgrade backed-up schema (ps_pre_updateX).
+    $CLEANUP_ARG
+        Drops all schemas in petascopedb, but the public one.
+    $HELP_ARG
+        Show this message.
 "
 # In case the usage changes, consequently adjust these values:
 MIN_ARGS=0
 MAX_ARGS=2
 
-CODE_OK=0
-CODE_FAIL=255
+export CODE_OK=0
+export CODE_FAIL=255
 
 # petascope settings file
 SETTINGS=@sysconfdir@/petascope.properties
 
-# petascope updateN.sql scripts
-SCRIPT_DIR=@pkgdatadir@/petascope
+# petascope updateN.* scripts
+export SCRIPT_DIR=@pkgdatadir@/petascope
 
 # petascopedb tables and fields
-PS9_DBUPDATES=ps9_dbupdates
+PS_DBUPDATES=ps_dbupdates
 DBUPDATES_ID=id
 DBUPDATES_UPDATE=update
+
+# first update counter in case of no existing petascopedb database
+FIRST_COUNTER=8 # start from update8.sh for rasdaman 9.0 upgrade
+
+# array for storing backup schema names
+declare -a BACKUP_SCHEMAS=''
+export BACKUP_SCHEMA_PREFIX='ps_pre_'
+
+# WMS tables : special case, no need for upgrade, just mv (export for update8)
+export WMS_SCHEMA_SQL="update5.sql"
+declare -a WMS_TABLES='' # bash cannot export arrays -> use function
+export WMS_TABLES_CSV='' #
 
 # ------------------------------------------------------------------------------
 # functions
@@ -118,11 +132,6 @@ check_postgres() {
     pgrep postmaster > /dev/null || error "The PostgreSQL service is not started."
   fi
 }
-check_dblink() {
-  if [ -z "$DBLINK_SQL" ]; then
-    error "dblink PostgreSQL additional module was not found: please install."
-  fi
-}
 check_paths() {
   if [ ! -f "$SETTINGS" ]; then
     error "petascope settings not found: $SETTINGS"
@@ -142,24 +151,117 @@ check_ret() {
     error "FAILED (return value $1)."
   fi
 }
+
+#
+# PostgreSQL utilities
+#
+get_wms_tables() {
+  WMS_TABLES=($( grep -i "CREATE TABLE ps_" "$SCRIPT_DIR/$WMS_SCHEMA_SQL" | grep -io "ps_.*" ))
+  WMS_TABLES_CSV=$(echo \'$( echo ${WMS_TABLES[@]} | sed "s/ /','/g" )\')
+}
+move_wms_tables() {
+  # move WMS tables from schema $1 to schema $2 (DEFAULT public).
+  if [ -z "$1" ]
+  then
+      log "missing source and/or destination schema names as argument of ${FUNCNAME[0]}."
+  else
+      source_schema="$1"
+      destination_schema=${2:-public}
+      # wms tables back to public
+      get_wms_tables # fill WMS_TABLES and WMS_TABLES_CSV arrays
+      count_qry="SELECT COUNT(*) FROM pg_tables WHERE tablename ILIKE ANY(ARRAY[${WMS_TABLES_CSV}]) AND schemaname = '$source_schema'"
+      wms_schema_tables_count=$( $PSQL -P t -P format=unaligned -c "$count_qry"  2>/dev/null )
+      if [ $wms_schema_tables_count -eq ${#WMS_TABLES[@]} ]
+      then
+          logn "moving WMS tables from '$source_schema' to '$destination_schema' schema... "
+          for wms_table in "${WMS_TABLES[@]}"
+          do
+              $PSQL -c "ALTER TABLE $source_schema.$wms_table SET SCHEMA $destination_schema" > /dev/null 2>&1
+          done
+          echo "ok."
+      fi
+  fi
+}
+drop_postgresql_schema() {
+  if [ -z "$1" ]
+  then
+      log "missing schema name as argument of ${FUNCNAME[0]}."
+  else
+      # drop specified schema
+      logn "dropping PostgreSQL schema '$1'... "
+      $PSQL -c "DROP SCHEMA IF EXISTS $1 CASCADE" > /dev/null 2>&1
+      echo "ok."
+  fi
+}
+schema_is_empty() {
+  # returns true (0) if the specified schema (DEFAULT public) is empty
+  petascopedb_schema=${1:-public}
+  sql_qry="SELECT COUNT(tablename) FROM pg_tables WHERE schemaname = '$petascopedb_schema'"
+  schema_tables_count=$( $PSQL -P t -P format=unaligned -c "$sql_qry" 2>/dev/null )
+  [ "$schema_tables_count" -eq 0 ] && return 0 || return 1
+}
+#
+# revert/cleanup
+#
+get_backup_schema_names() {
+  # match schemas with pattern ``ps_pre_*''
+  BACKUP_SCHEMAS=($( $PSQL -P t -P format=unaligned -c "\dn ${BACKUP_SCHEMA_PREFIX}*"  2>/dev/null | awk -F '|' '{ print $1 }' ))
+}
+revert_schema() {
+  get_backup_schema_names
+  case ${#BACKUP_SCHEMAS[@]} in
+  0) log "no backup schemas found: nothing to revert."
+     ;;
+  1) # revert move of WMS tables from backup schema to public that was done during upgrade
+     schema_is_empty "${BACKUP_SCHEMAS[0]}"
+     if [ $? -ne 0 ]
+     then
+         move_wms_tables 'public' "${BACKUP_SCHEMAS[0]}"
+         # drop public schema
+         drop_postgresql_schema 'public'
+         # rename backup schema from backup to public
+         logn "renaming '${BACKUP_SCHEMAS[0]}' schema to 'public'... "
+         $PSQL -c "ALTER SCHEMA ${BACKUP_SCHEMAS[0]} RENAME TO public" > /dev/null 2>&1
+         check_ret $?
+         echo "ok."
+     else
+         error "backup schema '${BACKUP_SCHEMAS[0]}' is empty."
+     fi
+     ;;
+  *) error "more than one backup schema found: '${BACKUP_SCHEMAS[@]}'. Please leave a single backup schema in the database and retry."
+  esac
+}
+cleanup_schemas() {
+  # get name of backup schemas
+  get_backup_schema_names
+  if [ ${#BACKUP_SCHEMAS[@]} -eq 0 ]
+  then
+      log "no backup schemas found: nothing to cleanup."
+  else
+      # drop backup schema(s)
+      for schema in "${BACKUP_SCHEMAS[@]}"
+      do
+          drop_postgresql_schema "$schema"
+      done
+  fi
+}
+
+# exporting functions for child scripts
+export -f log
+export -f logn
+export -f error
+export -f feedback
+export -f check_ret
+export -f schema_is_empty
+export -f get_wms_tables
+export -f move_wms_tables
+export -f drop_postgresql_schema
+
 # ------------------------------------------------------------------------------
 # work
 # ------------------------------------------------------------------------------
 
 check_paths
-
-#
-# check command arguments
-#
-check_args_number $#
-while [ $# -gt 0 ]; do
-  case "$1" in
-    $EMPTY_ARG) EMPTY_DB="$1";;
-    $MIGRATE_ARG) MIGRATE_COVERAGES="$1";;
-    *) error "$USAGE";;
-  esac
-  shift
-done
 
 #
 # postgres connection details
@@ -189,23 +291,11 @@ fi
 #
 # commands
 #
-PSQL="psql -U $PS_USER -d $PS_DB -p $PS_PORT"
-CREATEDB="createdb -U $PS_USER -p $PS_PORT"
-SINGLE_TRANSACTION="--set ON_ERROR_STOP=on --single-transaction"
-
-#
-# SQL scripts
-#
-UTILITIES_SQL="utilities.sql"
-GLOBAL_CONST_SQL="global_const.sql"
-TRIGGERS_SQL="triggers.sql"
-WMS_SCHEMA_SQL="wms_schema.sql"
-SCHEMA_SQL="schema.sql"
-SCHEMA_MULTIPOINT="schema_multipoint.sql"
-POPULATE_SQL="populate.sql"
-MIGRATE_SQL="migrate.sql"
-MACROS_SQL="macros.sql"
-DBLINK_SQL=$( locate -b '\'dblink.sql | head -n 1 )
+export PS_USER
+export PS_DB
+export PSQL="psql -U $PS_USER -d $PS_DB -p $PS_PORT"
+export CREATEDB="createdb -U $PS_USER -p $PS_PORT -O $PS_USER"
+export SINGLE_TRANSACTION="--set ON_ERROR_STOP=on --single-transaction"
 
 # print some info
 log "postgres settings read from $SETTINGS"
@@ -215,11 +305,35 @@ log "  db: $PS_DB"
 
 check_postgres
 
+
+#
+# check command arguments
+#
+check_args_number $#
+while [ $# -gt 0 ]
+do
+  case "$1" in
+  $REVERT_ARG)
+      revert_schema
+      exit $CODE_OK
+      ;;
+  $CLEANUP_ARG)
+      cleanup_schemas
+      exit $CODE_OK
+      ;;
+  $HELP | *)
+      error "$USAGE"
+      ;;
+  esac
+  shift
+done
+
 #
 # create db if not present
 #
 psql -U $PS_USER -p $PS_PORT --list 2>&1 | egrep "\b$PS_DB\b" > /dev/null
-if [ $? -ne 0 ]; then
+if [ $? -ne 0 ]
+then
   logn "no petascope database found, creating... "
   $CREATEDB $PS_DB > /dev/null
   feedback
@@ -231,108 +345,10 @@ fi
 #
 createlang plpgsql -U $PS_USER -p $PS_PORT $PS_DB > /dev/null 2>&1
 rc=$?
-if [ $rc -ne 0 -a $rc -ne 2 ]; then
+if [ $rc -ne 0 -a $rc -ne 2 ]
+then
   error "failed creating PL/pgSQL extension in PostgreSQL, please install it first on your system."
 fi
-
-#
-# run the SQL scripts
-#
-
-# utilities + constants (cget/cset)
-logn "Updating utilities and global constants ... "
-$PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$UTILITIES_SQL" > /dev/null 2>&1
-check_ret $?
-$PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$GLOBAL_CONST_SQL"  > /dev/null 2>&1
-check_ret $?
-echo "ok."
-
-# triggers
-logn "Updating triggers ... "
-$PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$TRIGGERS_SQL" > /dev/null 2>&1
-check_ret $?
-echo "ok."
-
-# `create if not exists` functions for WMS tables (untouched from rasdaman 8)
-logn "Updating WMS schema ... "
-$PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$WMS_SCHEMA_SQL" > /dev/null 2>&1
-check_ret $?
-echo "ok."
-
-# Create new schema, if not already there
-$PSQL -c "SELECT * FROM $PS9_DBUPDATES" > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    logn "Creating schema for PS9_* tables ... "
-    $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$SCHEMA_SQL" > /dev/null 2>&1
-    check_ret $?
-    echo "ok."
-
-    if [ -z "$EMPTY_DB" ]; then
-        logn "Populating tables with some required metadata ... "
-        $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$POPULATE_SQL" > /dev/null 2>&1
-        check_ret $?
-        echo "ok."
-    fi
-else
-    log "PS9 tables seem to be already there in the database: schema will not be updated."
-fi
-
-# Enabling PostGIS and Creating Multipoint schema
-        POSTGIS_SQL='postgis.sql'
-    SPATIAL_REF_SQL='spatial_ref_sys.sql'
-POSTGIS_REQ_VERSION=2
- GEOM_COLUMNS_TABLE='geometry_columns'
-#
-logn "Looking for $POSTGIS_SQL and $SPATIAL_REF_SQL files (multipoint support) ..."
-    POSTGIS_SQL_PATH=$( locate -qb '\'"${POSTGIS_SQL}"     | head -n 1 )
-SPATIAL_REF_SQL_PATH=$( locate -qb '\'"${SPATIAL_REF_SQL}" | head -n 1 )
-echo " Ok."
-#
-if [ -n "$POSTGIS_SQL_PATH" -a -n "$SPATIAL_REF_SQL_PATH" ]; then
-    log "Using \`\`${POSTGIS_SQL_PATH}'' and \`\`${SPATIAL_REF_SQL_PATH}''."
-    # version >= 2.0 ?
-    POSTGIS_VERSION=$( grep "INSTALL VERSION" "$POSTGIS_SQL_PATH" | awk '{ print $4; }' )
-    log "Detected PostGIS version: $POSTGIS_VERSION"
-    if [ "${POSTGIS_VERSION%%\.*}" -lt "$POSTGIS_REQ_VERSION" ]; then
-      log "Warning: PostGIS version $POSTGIS_REQ_VERSION is required, please update and retry."
-    fi
-    # enable PostGIS (if not already enabled)
-    $PSQL -c "SELECT * FROM $GEOM_COLUMNS_TABLE LIMIT 1;" > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        logn "Enabling PostGIS in $PS_DB ... "
-        $PSQL -f "$POSTGIS_SQL_PATH"     -v ON_ERROR_STOP=1 > /dev/null # do not use SINGLE_TRANSACTION opt here (it is self-wrapped)
-        $PSQL -f "$SPATIAL_REF_SQL_PATH" -v ON_ERROR_STOP=1 > /dev/null #
-        echo "ok."
-    else
-        log "PostGIS seems already enabled in $PS_DB (table $GEOM_COLUMNS_TABLE detected)."
-    fi;
-    # add tables for multipoint
-    logn "Adding tables for multipoint coverages support ... "
-    $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$SCHEMA_MULTIPOINT" > /dev/null 2>&1
-    echo "ok."
-else
-    log "Warning: $POSTGIS_SQL and/or $SPATIAL_REF_SQL not found, please install PostGIS (>= ${POSTGIS_REQ_VERSION}.0) and retry."
-    log "In case of fresh installations of PostGIS, please update the locate database and retry (\`\`man updatedb'')"
-fi
-
-# migration
-if [ -n "$MIGRATE_COVERAGES" ]; then
-  logn "Installing dblink module to $PS_DB and RASBASE db... "
-  check_dblink
-  psql -U "$PS_USER" -p "$PS_PORT" -f "$DBLINK_SQL" -d "$PS_DB"  > /dev/null 2>&1
-  psql -U "$PS_USER" -p "$PS_PORT" -f "$DBLINK_SQL" -d "RASBASE" > /dev/null 2>&1
-  echo "ok."
-  logn "Migrating existing coverages from PS_* tables ... "
-  $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$MIGRATE_SQL"
-  check_ret $?
-  echo "ok."
-fi
-
-# sql macros
-logn "Updating macros ... "
-$PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/$MACROS_SQL" > /dev/null 2>&1
-check_ret $?
-echo "ok."
 
 
 #
@@ -340,30 +356,50 @@ echo "ok."
 #
 
 # determine the update number
-$PSQL -c "SELECT * FROM $PS9_DBUPDATES" > /dev/null 2>&1
-if [ $? -ne 0 ]; then
-    # create from scratch
-    counter=1
+$PSQL -c "SELECT * FROM $PS_DBUPDATES" > /dev/null 2>&1
+if [ $? -ne 0 ]
+then
+    # no relations in the database: create from scratch
+    counter="$FIRST_COUNTER"
 else
     # update from the last update number
-    counter=$( $PSQL -c "SELECT ($DBUPDATES_UPDATE + 1) FROM $PS9_DBUPDATES" | head -n 3 | tail -n 1 | awk '{print $1}' )
+    counter=$( $PSQL -c "SELECT $DBUPDATES_UPDATE FROM $PS_DBUPDATES" | head -n 3 | tail -n 1 | awk '{print $1}' )
     if [ "$counter" -ne "$counter" ] 2>/dev/null; then
-        error "couldn't determine last update from the $PS9_DBUPDATES table"
+        error "couldn't determine last update from the $PS_DBUPDATES table"
     else
         log "database last update number is $(($counter-1))"
   fi
 fi
 
-update_files=$( ls "$SCRIPT_DIR" | grep "update[1-9][0-9]*.sql" | wc -l )
+update_files=$( ls "$SCRIPT_DIR" | grep "update[0-9]*\\." | wc -l )
 log "detected $update_files updates in $SCRIPT_DIR... "
+log "starting from update counter n.$counter"
 
 
-updated=0
-while [ -f "$SCRIPT_DIR/update$counter.sql" ]; do
+updated=0 # bool flag
+while [ -f "$SCRIPT_DIR"/update${counter}.* ]
+do
     logn "  update $counter... "
 
-    # Note for future .sql files: do not add manual BEGIN/COMMIT transactions, they are handled by psql
-    $PSQL $SINGLE_TRANSACTION -f "$SCRIPT_DIR/update$counter.sql" > /dev/null 2>&1
+    declare -a UPDATE_FILE=($( ls $SCRIPT_DIR/update${counter}.*  2>/dev/null ))
+    EXTENSION=${UPDATE_FILE##*.}
+
+    if [ ${#UPDATE_FILE[@]} -gt 1 ]
+    then
+       error "multiple update files detected (${UPDATE_FILE[@]}) for counter $counter: please remove duplicates."
+    fi
+
+    if [ "$EXTENSION" = "sql" ]
+    then
+        # Note for future .sql files: do not add manual BEGIN/COMMIT transactions, they are handled by psql
+        $PSQL $SINGLE_TRANSACTION -f "$UPDATE_FILE" > /dev/null 2>&1
+    elif [ "$EXTENSION" = "sh" ]
+    then
+        # run shell script that handles the update
+        "$UPDATE_FILE"
+    else
+        error "unsupported update-file extension '$EXTENSION': must be 'sql' or 'sh'."
+    fi
 
     # Check if the update was successful
     ret=$?
@@ -374,16 +410,20 @@ while [ -f "$SCRIPT_DIR/update$counter.sql" ]; do
         echo ok.
     fi
 
-    counter=$(($counter+1))
+    counter=$(( $counter+1 ))
     updated=1
 done
 
 #
 # save the last update number
 #
-if [ $updated -eq 1 ]; then
-    $PSQL -c "UPDATE $PS9_DBUPDATES SET $DBUPDATES_UPDATE = $counter-1" > /dev/null 2>&1
-    log "updated database to update $((counter-1))"
+if [ $updated -eq 1 ]
+then
+    $PSQL -c "UPDATE $PS_DBUPDATES SET $DBUPDATES_UPDATE = $counter" > /dev/null 2>&1
+    log "updated database to update $(( $counter-1 ))"
+elif [ ! -f "$SCRIPT_DIR"/update${counter}.* ]
+then
+    log "no update file for counter ${counter} was found: nothing to update."
 else
     log "database already up-to-date, nothing to update."
 fi
