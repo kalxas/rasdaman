@@ -1,0 +1,24 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+    <xi:include href="layout.html" />
+    <xi:include href="macros.html" />
+    <head>
+        <title>Trac - Patch Manager</title>
+    </head>
+
+    <body>
+        <h2>Submitted patch</h2>
+        <table border='0'>
+            <tr><td>Name</td><td>${From}</td></tr>
+            <tr><td>Subject</td><td>${Subject}</td></tr>
+            <tr><td>Date</td><td>${Date}</td></tr>
+        </table>
+        <p>
+            <a href="$base_url/patchmanager">Back to patch list</a>
+        </p>
+    </body>
+</html>

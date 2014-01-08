@@ -106,3 +106,9 @@ failed_cases
 sun-web.xml
 /applications/secore/secore-web/dist/
 ProcessCoverages.java
+
+# patchmanager
+patch_manager/install_patchmanager.cfg
+patch_manager/PatchManager.egg-info
+patch_manager/build
+patch_manager/dist

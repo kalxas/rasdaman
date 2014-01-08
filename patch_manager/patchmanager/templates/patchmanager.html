@@ -1,0 +1,123 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+    <xi:include href="layout.html" />
+    <xi:include href="macros.html" />
+    <head>
+        <style type="text/css">
+            .go {
+                border: none;
+                background-color: transparent;
+                cursor: pointer;
+                width: 15px;
+                position:relative;
+                left: -5px;
+            }
+        </style>
+        <title>Timeline</title>
+    </head>
+    <xi:include href="patchmanager.js"/>
+    <body>
+        <h1>Submitted patches</h1>
+        <div id="page">
+            Page ${totalPage}
+            <py:for each="num in range(1,  currentPage)">
+                <a href="$base_url/patchmanager/page/$num">$num</a>
+            </py:for>
+            $currentPage
+            <py:for each="num in range(currentPage + 1, totalPages + 1)">
+                <a href="$base_url/patchmanager/page/$num">$num</a>
+            </py:for>&nbsp;&nbsp;Show:
+            <a href="$base_url/patchmanager/all">all</a>,
+            <a href="$base_url/patchmanager/applied">applied</a>,
+            <a href="$base_url/patchmanager/pending">pending</a>,
+            <a href="$base_url/patchmanager/rejected">rejected</a>
+        </div>
+        <div id="content" class="patchmanager" style="position:relative; padding-top: 7px">
+
+            <py:for each="line in messages">
+                ${line} <br/>
+            </py:for>
+
+            <FORM id="form">
+                <TABLE border="1">
+                    <TR>
+                        <TH></TH>
+                        <TH><b>Patch Description</b></TH>
+                        <TH><b>Author</b></TH>
+                        <TH><b>Branch</b></TH>
+                        <!--  <TH>Commit time</TH>-->
+                        <TH><b>Submit Time</b></TH>
+                        <TH width="90"><b>Action</b></TH>
+                        <TH><b>Status</b></TH>
+                    </TR>
+                    <py:for each="patch in enumerate(patches)">
+                        <TR>
+                            <TD><INPUT type="checkbox" name="select" value="${patch[1]['id']}"/> </TD>
+                            <TD>&nbsp;${patch[1]['subject']}&nbsp;</TD>
+                            <TD><script language="JavaScript"> document.write(decodePart("${patch[1]['email']}")); </script></TD>
+                            <!-- <TD>${patch[1]['commit_time']}</TD> -->
+                            <TD>&nbsp;${patch[1]['branch']}&nbsp;</TD>
+                            <TD>&nbsp;${patch[1]['submit_time']}&nbsp;</TD>
+                            <TD>&nbsp;
+                                <button title="Download patch" type="submit" name="patchop" class="go" value="Download Selected-${patch[1]['id']}">
+                                    <img src="${href.chrome('/patchmanager/icons/download.png')}" alt="Download patch"  />
+                                </button>
+                                <py:if test="ADMIN==True">
+<!--                                    <button title="Update patch" type="submit" name="patchop" class="go" value="Update-${patch[1]['id']}">
+                                        <img src="${href.chrome('/patchmanager/icons/update.png')}" alt="Update patch"  />
+                                    </button>-->
+                                    <button title="Apply patch" type="submit" name="patchop" class="go" value="Apply-${patch[1]['id']}">
+                                        <img src="${href.chrome('/patchmanager/icons/apply.png')}" alt="Apply patch"  />
+                                    </button>
+                                    <button title="Reject patch" type="submit" name="patchop" class="go" value="Reject-${patch[1]['id']}">
+                                        <img src="${href.chrome('/patchmanager/icons/reject.png')}" alt="Reject patch"  />
+                                    </button>
+                                    <button title="Delete patch" type="submit" name="patchop" class="go" value="Delete-${patch[1]['id']}">
+                                        <img src="${href.chrome('/patchmanager/icons/delete.png')}" alt="Delete patch"  />
+                                    </button>
+                                </py:if>
+                            </TD>
+                            <TD><span style="color:${patch[1]['status_color']}">&nbsp;${patch[1]['status']}&nbsp;</span></TD>
+                        </TR>
+                    </py:for>
+                </TABLE>
+                <div  style="position:relative; padding-top: 8px">
+                    <input type="submit" value="Download Selected" name="patchop"/>
+                    <py:if test="ADMIN==True">
+                        <input type="submit" value="Delete" name="patchop"/>
+                        <input type="submit" value="Try Apply" name="patchop"/>
+                        <input type="submit" value="Apply" name="patchop"/>
+                        <input type="submit" value="Reject" name="patchop"/>
+                    </py:if></div>
+            </FORM>
+
+            <h1 style="position:relative; padding-top: 10px">Submit a new patch</h1>
+            <p>Select your locally generated patch file below for upload.
+                Note that the patch can only be accepted if you agree to the
+                <a href="http://rasdaman.org/wiki/ContributorAgreement">Rasdaman Contribution Agreement</a>
+                by ticking the checkbox.
+            </p>
+            <p>See <a href="http://rasdaman.org/wiki/FAQ#IwanttosubmitapatchhowdoIdothis">How to submit patches</a> for a step-by-step guide, in particular regarding the patch subject format.
+               In order to ensure quick processing and to avoid rejection, you may want to make sure your patch adheres to the <a href="http://rasdaman.org/wiki/CodeGuide">rasdaman code guide</a>.</p>
+            <form enctype="multipart/form-data" method="post">
+                <input type="file" name="patchfile"/> <br/>
+                <textarea id="agreement" name="agreement" cols="80" rows="20" style="display:none" READONLY="true">${TEXT}</textarea>
+                <p>Select the code branch below to which you want to commit (<a href="http://rasdaman.org/wiki/RasdamanReleaseProcess">help</a>); if you are not sure what this means just leave the default (master).</p>
+                <select name="selectbranch">
+                    <py:for each="ha in enumerate(branches)">
+                        <option value = "${ha[1]['branch']}"> ${ha[1]['branch']} </option>
+                    </py:for>
+                </select>
+                <br/>
+                <br/>
+                <input type="checkbox" id="agree" name="agree"/> I agree to the <a href="http://rasdaman.org/wiki/ContributorAgreement" onClick="return changeState()">Rasdaman Contribution Agreement.</a> <br/>
+                <br/>
+                <input type="submit" name="patchop" value="Upload patch" onClick="return check()" style="position:relative; padding-top: 5px"/>
+            </form>
+        </div>
+    </body>
+</html>
