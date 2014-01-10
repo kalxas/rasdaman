@@ -59,6 +59,7 @@ using namespace std;
 #include "mymalloc/mymalloc.h"
 
 #include <iostream>
+#include <string.h>
 
 
 const QtNode::QtNodeType QtDomainOperation::nodeType = QtNode::QT_DOMAIN_OPERATION;
@@ -396,19 +397,13 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                 const BaseType* cellType = ((MDDBaseType*)(currentMDDObj->getMDDBaseType()))->getBaseType();
 
                 RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtDomainOperation", "  point access: " << projPoint )
-                const char* resultCell = NULL;
+                char* resultCell = NULL;
                 if (projPoint.dimension() == currentMDDObj->getDimension())
                     resultCell = currentMDDObj->pointQuery( projPoint );
                 if (resultCell == NULL)
                 {
-                    RMInit::logOut << "Error: QtDomainOperation::evaluate() - projected cell is not defined." << endl;
-                    parseInfo.setErrorNo(356);
-
-                    // delete index and operand data
-                    indexData->deleteRef();
-                    operand  ->deleteRef();
-
-                    throw parseInfo;
+                    resultCell = new char[cellType->getSize()];
+                    memset(resultCell, 0, cellType->getSize());
                 }
 
                 // allocate cell buffer

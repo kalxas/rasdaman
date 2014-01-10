@@ -65,6 +65,10 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include <string.h>
 #include <sstream>
 #include <fstream>
+#ifdef HAVE_LIBSIGSEGV
+#include <sigsegv.h>
+#endif
+#include "raslib/commonutil.hh"
 
 using namespace std;
 
@@ -816,8 +820,20 @@ void doStuff( int argc, char** argv ) throw (r_Error)
             throw RasqlError( FILEINACCESSIBLE );
 
         fseek( fileD, 0, SEEK_END );
-        int size = ftell( fileD );
+        long size = ftell( fileD );
         TALK( "file size is " << size << " bytes" );
+
+        // if no domain specified (this is the case with encoded files), then set to byte stream:
+        if ( ! mddDomainDef )
+        {
+            mddDomain = r_Minterval( 1 ) << r_Sinterval ((r_Range) 0, (r_Range) size-1 );
+            TALK( "domain set to " << mddDomain );
+        }
+        else if (size != mddDomain.cell_count() * mddType->base_type().size())
+        {
+            throw RasqlError( FILESIZEMISMATCH );
+        }
+
         try
         {
             fileContents = new char[size];
@@ -832,17 +848,6 @@ void doStuff( int argc, char** argv ) throw (r_Error)
         fread( fileContents, 1, size, fileD );
         fclose( fileD );
 
-        // if no domain specified (this is the case with encoded files), then set to byte stream:
-        if ( ! mddDomainDef )
-        {
-            mddDomain = r_Minterval( 1 ) << r_Sinterval ( 0, size-1 );
-            TALK( "domain set to " << mddDomain );
-        }
-
-        // this check only works for binary arrays, but doesn't work for images for which a
-        // type/domain is given with --mddtype/--mdddomain -- DM 2012-feb-20
-//      if (size != mddDomain.cell_count() * mddType->base_type().size())
-//          throw RasqlError( FILESIZEMISMATCH );
         LOG( "ok" << endl );
 
         TALK( "setting up MDD with domain " << mddDomain << " and base type " << mddTypeName );
@@ -912,6 +917,16 @@ void doStuff( int argc, char** argv ) throw (r_Error)
     LEAVE( "doStuff" );
 }
 
+#if HAVE_SIGSEGV_RECOVERY
+int
+handler (void *fault_address, int serious)
+{
+    print_stacktrace(fault_address);
+    // clean up connection in case of segfault
+    closeTransaction(false);
+}
+#endif
+
 /*
  * returns 0 on success, -1 on error
  */
@@ -920,6 +935,10 @@ int main(int argc, char** argv)
     SET_OUTPUT( false );        // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_SUCCESS;  // overall result status
+
+#if HAVE_SIGSEGV_RECOVERY
+    sigsegv_install_handler(&handler);
+#endif
 
     try
     {

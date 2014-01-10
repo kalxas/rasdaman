@@ -333,10 +333,10 @@ Ops::getBinaryOp( Ops::OpType op, const BaseType* resType, const BaseType* op1Ty
             return new OpANDCLong(resType, op1Type, op2Type, resOff, op1Off,
                                   op2Off);
         case Ops::OP_OR:
-            return new OpANDCLong(resType, op1Type, op2Type, resOff, op1Off,
+            return new OpORCLong(resType, op1Type, op2Type, resOff, op1Off,
                                   op2Off);
         case Ops::OP_XOR:
-            return new OpANDCLong(resType, op1Type, op2Type, resOff, op1Off,
+            return new OpXORCLong(resType, op1Type, op2Type, resOff, op1Off,
                                   op2Off);
         }
     }

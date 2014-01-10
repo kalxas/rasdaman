@@ -41,6 +41,9 @@
 #include <limits>
 #include "nmlog.h"
 #include <algorithm>
+#ifdef HAVE_LIBSIGSEGV
+#include <sigsegv.h>
+#endif
 
 
 
@@ -1046,11 +1049,28 @@ bool parseTypeString(std::string typestr, std::vector<std::string>& types)
     return types.size() == 2 ? true : false;
 }
 
+#if HAVE_SIGSEGV_RECOVERY
+int
+handler (void *fault_address, int serious)
+{
+    // clean up connection in case of segfault
+    if (rasconn)
+    {
+        delete rasconn;
+    }
+}
+#endif
+
 // ----------------------------------------- MAIN ------------------------------------------------
 
 int
 main(int argc, char** argv)
 {
+#if HAVE_SIGSEGV_RECOVERY
+    sigsegv_install_handler(&handler);
+#endif
+    rasconn = NULL;
+
     NMDebugCtx(ctxRimport, << "...");
 
     // show help if no arguments are passed
@@ -1309,8 +1329,8 @@ main(int argc, char** argv)
     // IMPORT IMAGE(S)
     try
     {
-        RasdamanConnector rasconn(connfile);
-        RasdamanHelper2 helper(&rasconn);
+        rasconn = new RasdamanConnector(connfile);
+        RasdamanHelper2 helper(rasconn);
         //printImageInformation(header, helper);
 
         // check, whether the collection already exists
@@ -1369,7 +1389,16 @@ main(int argc, char** argv)
     catch (r_Error& re)
     {
         NMErr(ctxRimport, << re.what());
+        if (rasconn)
+        {
+            delete rasconn;
+        }
         return EXIT_FAILURE;
+    }
+
+    if (rasconn)
+    {
+        delete rasconn;
     }
 
     NMDebugCtx(ctxRimport, << "done!");

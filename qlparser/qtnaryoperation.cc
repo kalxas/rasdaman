@@ -193,24 +193,27 @@ QtNaryOperation::getChilds( QtChildType flag )
     QtNodeList* resultList=NULL;
     QtNodeList* subList=NULL;
 
-    QtOperationList::iterator iter;
-
-    resultList = new QtNodeList();
-
-    for( iter=operationList->begin(); iter!=operationList->end(); iter++ )
+    if( operationList )
     {
-        if( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
+
+        QtOperationList::iterator iter;
+
+        resultList = new QtNodeList();
+
+        for( iter=operationList->begin(); iter!=operationList->end(); iter++ )
         {
-            subList = (*iter)->getChilds( flag );
-            resultList->splice(resultList->begin(), *subList);
-            delete subList;
-            subList=NULL;
-        };
+            if( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
+            {
+                subList = (*iter)->getChilds( flag );
+                resultList->splice(resultList->begin(), *subList);
+                delete subList;
+                subList=NULL;
+            };
 
-        if( flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES )
-            resultList->push_back( *iter );
-    };
-
+            if( flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES )
+                resultList->push_back( *iter );
+        }
+    }
     return resultList;
 }
 

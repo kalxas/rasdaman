@@ -75,6 +75,13 @@ public class RasStructureType extends RasBaseType
 	return RasGlobalDefs.RAS_STRUCTURE;
     }
 
+  public RasBaseType[] getBaseTypes() {
+    return baseTypes;
+  }
+
+  public String[] getAttributes() {
+    return attributes;
+  }
 
     public boolean isStructType()
     {

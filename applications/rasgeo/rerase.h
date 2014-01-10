@@ -57,6 +57,9 @@ int indentLevel;
 bool debugOutput;
 #endif
 
+// db connector object
+RasdamanConnector* rasconn;
+
 void showEraseHelp();
 int erasePSMetaData(RasdamanHelper2& helper);
 int eraseNMMetaData(RasdamanHelper2& helper);

@@ -3,7 +3,7 @@
 
 AC_PREREQ(2.61)
 # CAVEAT: in the following two lines keep version numbers in sync!
-AC_INIT(Rasdaman, 8.3.1, baumann@rasdaman.com)
+AC_INIT(Rasdaman, 8.5.1, baumann@rasdaman.com)
 AM_INIT_AUTOMAKE([1.9 tar-pax])
 # Define CXXFLAGS before AC_PROG_CXX or it will automatically add -g -O2 on some systems
 USER_CFLAGS="$CFLAGS"
@@ -56,6 +56,7 @@ AC_CHECK_LIB([storagemgr], [main])
 AC_CHECK_LIB([tiff], [TIFFGetField], , [AC_MSG_FAILURE([libtiff.a not found! Please install.])])
 # FIXME: Replace `main' with a function in `-lz':
 AC_CHECK_LIB([z], [main], , [AC_MSG_FAILURE([libz.a not found! Please install.])])
+AC_CHECK_LIB([sigsegv], [sigsegv_install_handler], , [AC_MSG_FAILURE([libsigsegv not found! Please install.])])
 
 ### Due to a strange bug with fnmatch.h, we cannot search for libgdal with AC_CHECK_LIB. 
 ### We add the linking flags manually
@@ -245,6 +246,14 @@ AC_ARG_ENABLE([debug],
               [RMANDEBUG=on],
               [RMANDEBUG=])
 
+
+AC_ARG_WITH([debug-symbols],
+            [AS_HELP_STRING([--without-debug-symbols],
+                            [compile rasdaman without debug symbols])],
+            [with_debug_symbols=no],
+            [with_debug_symbols=yes])
+AC_MSG_NOTICE(compiling with debug symbols... $with_debug_symbols)
+
 AC_ARG_ENABLE([benchmark],
               [AS_HELP_STRING([--enable-benchmark],
                               [this feature enables generation of binaries that contain extra code for benchmark output.])],
@@ -370,11 +379,15 @@ done
 AS_IF([test "x$RMANDEBUG" != x],
       [AC_DEFINE([RMANDEBUG])
        AC_DEFINE([DEBUG])
-       CXXFLAGS+=" -g3 -gdwarf-2 -O0 "
+       CXXFLAGS+=" -g3 -gdwarf-2 -O0 -rdynamic "
       ], 
       [
-       AC_DEFINE([__NO_MATH_INLINES])
-       CXXFLAGS+=" -O2 "
+       AS_IF([test "x$with_debug_symbols" == xyes],
+       [CXXFLAGS+=" -g3 -gdwarf-2 -O0 -rdynamic "],
+       [
+        AC_DEFINE([__NO_MATH_INLINES])
+        CXXFLAGS+=" -O2 "
+       ])
       ])
 # CXXFLAGS+= -fPIC  ???NEEDED???
 AC_DEFINE_UNQUOTED([BASEDBSTRING], ["$BASEDBSTRING"])

@@ -50,6 +50,7 @@ libraslib_a_SOURCES= sinterval.hh dlist.hh point.hh minterval.hh error.hh \
                      endian.cc flatbasetype.cc complex.cc complextype.cc shhopt.c \
                      error.icc minterval.icc miterd.icc miterf.icc \
                      miter.icc oid.icc point.icc rmdebug.icc sinterval.icc \
-                     rmdebug.hh rm.hh odmgtypes.hh miterf.hh template_inst.hh
+                     rmdebug.hh rm.hh odmgtypes.hh miterf.hh template_inst.hh \
+                     commonutil.hh commonutil.cc
 
 SUBDIRS = test

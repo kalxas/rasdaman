@@ -84,6 +84,9 @@ public:
     /// debugging method
     virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
 
+    /// method for identification of nodes
+    virtual const QtNodeType getNodeType() const;
+
 private:
 
     /// method for encoding the given MDD
@@ -101,9 +104,6 @@ private:
     void initParams(char* params);
     void setDouble(const char* paramName, double* value);
     void setString(const char* paramName, std::string* value);
-
-    /// attribute for identification of nodes
-    static const QtNodeType nodeType = QT_ENCODE;
     
     QtOperation *mddOp;
     char* format;
@@ -122,6 +122,9 @@ private:
     };
     
     GenericParams gParams;
+
+    /// attribute for identification of nodes
+    static const QtNodeType nodeType;
 };
 
 #endif  // _QTENCODE__

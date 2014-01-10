@@ -445,7 +445,16 @@ public:
     /// get the next scalar element in the actual transfer collection.
     virtual unsigned short getNextElement( unsigned long callingClientId,
                                            char*         &buffer,
-                                           unsigned int  &bufferSize );
+                                           unsigned int  &bufferSize);
+
+    /**
+     * Called by getNextElement to help handling of struct elements. It works
+     * for nested structs as well. Only used in case endianess needs changing.
+     */
+    virtual void getNextStructElement(
+                                           char*         &buffer,
+                                           unsigned int  &bufferSize,
+                                           BaseType*     baseType);
     /**
       The Method gets the next non-MDD element in the actual transfer collection.
       The first parameter is the unique client id. The second parameter returns a

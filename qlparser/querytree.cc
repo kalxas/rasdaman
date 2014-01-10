@@ -37,6 +37,7 @@ static const char rcsid[] = "@(#)qlparser, QueryTree: $Id: querytree.cc,v 1.52 2
 
 
 #include "config.h"
+#include "version.h"
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
 #else
@@ -59,6 +60,7 @@ using namespace std;
 #include "qlparser/qtdomainoperation.hh"
 #include "qlparser/qtexecute.hh"
 
+#include "raslib/type.hh"
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/mdddomaintype.hh"
 #include "relcatalogif/settype.hh"
@@ -93,6 +95,8 @@ void
 QueryTree::checkSemantics()
 {
     RMDBCLASS( "QueryTree", "checkSemantics()", "qlparser", __FILE__, __LINE__ )
+    if (!rootNode)
+        return;
 
     switch( rootNode->getNodeType() )
     {

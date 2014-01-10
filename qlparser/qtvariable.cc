@@ -42,7 +42,7 @@ using namespace std;
 
 #include "qlparser/qtvariable.hh"
 #include "qlparser/qtmdd.hh"
-
+#include "mymalloc/mymalloc.h"
 #include "mddmgr/mddobj.hh"
 
 
@@ -265,9 +265,39 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
                 }
                 catch( r_Eno_interval )
                 {
-                    RMInit::logOut << "Error: QtVariable::evaluate() - Specified domain does not intersect with spatial domain of MDD." << endl;
-                    parseInfo.setErrorNo(356);
-                    throw parseInfo;
+                    // ticket:358
+                    // Instead of throwing an exception, return an MDD initialized
+                    // with null values when selecting an area that doesn't intersect
+                    // with any existing tiles in the database -- DM 2013-nov-15
+                    RMInit::logOut << "Warning: specified domain " << loadDomain
+                            << " does not intersect with spatial domain of MDD, returning empty result." << endl;
+
+                    const MDDBaseType* mddType = currentMDDObj->getMDDBaseType();
+                    const unsigned int mddTypeSize = mddType->getBaseType()->getSize();
+                    const r_Area cellCount = loadDomain.cell_count();
+                    const r_Bytes arrayLength = cellCount * mddTypeSize;
+
+                    // create a transient MDD object for the query result
+                    MDDObj* resultMDD = new MDDObj( mddType, loadDomain );
+                    char* data = (char*)mymalloc( arrayLength );
+
+                    // fill with null value
+                    memset( data, 0, arrayLength );
+
+                    // create transient tile
+                    Tile* resTile = new Tile( loadDomain, mddType->getBaseType(), (char*)data, arrayLength );
+                    resTile->setPersistent(false);
+
+                    // insert Tile in result mddObj
+                    resultMDD->insertTile( resTile );
+                    returnValue = new QtMDD( (MDDObj*)resultMDD );
+
+                    stopTimer();
+                    return returnValue;
+
+//                    RMInit::logOut << "Error: QtVariable::evaluate() - Specified domain does not intersect with spatial domain of MDD." << endl;
+//                    parseInfo.setErrorNo(356);
+//                    throw parseInfo;
                 }
                 catch( r_Error& err )
                 {
