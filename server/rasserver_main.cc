@@ -65,7 +65,11 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include "servercomm/httpserver.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "relblobif/tilecache.hh"
+#include "raslib/commonutil.hh"
 #include <signal.h>
+#ifdef HAVE_LIBSIGSEGV
+#include <sigsegv.h>
+#endif
 
 RMINITGLOBALS('C');
 
@@ -111,9 +115,25 @@ const char* rasmgrHost = 0;
 int         rasmgrPort = DEFAULT_PORT;
 const char* serverName  = 0;
 int         serverListenPort = 0;
+ServerComm* server = NULL;
+
+#ifdef HAVE_SIGSEGV_RECOVERY
+int handler(void *fault_address, int serious) {
+  print_stacktrace(fault_address);
+  if (server != NULL)
+    delete server;
+  server = NULL;
+  RMInit::logOut << endl << "rasserver terminated." << endl;
+  exit(RC_ERROR);
+}
+#endif
 
 int main ( int argc, char** argv )
 {
+#if HAVE_SIGSEGV_RECOVERY
+    sigsegv_install_handler(&handler);
+#endif
+
     SET_OUTPUT( true );     // enable debug output, if compiled so
     ENTER( "rasserver.main()" );
 
@@ -156,8 +176,6 @@ int main ( int argc, char** argv )
     RMInit::logOut << "ok" << endl;
 
     int returnCode = 0;
-    ServerComm* server = NULL;
-
     try
     {
         TALK( "selecting server type..." );

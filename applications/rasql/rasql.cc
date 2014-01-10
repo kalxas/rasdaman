@@ -68,6 +68,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #ifdef HAVE_LIBSIGSEGV
 #include <sigsegv.h>
 #endif
+#include "raslib/commonutil.hh"
 
 using namespace std;
 
@@ -920,6 +921,7 @@ void doStuff( int argc, char** argv ) throw (r_Error)
 int
 handler (void *fault_address, int serious)
 {
+    print_stacktrace(fault_address);
     // clean up connection in case of segfault
     closeTransaction(false);
 }

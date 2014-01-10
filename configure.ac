@@ -245,11 +245,14 @@ AC_ARG_ENABLE([debug],
                               [this feature enables generation of binaries that contain extra code for debug output. The output is usually very verbose. It is not recommended for production use.])],
               [RMANDEBUG=on],
               [RMANDEBUG=])
+
+
 AC_ARG_WITH([debug-symbols],
-            [AS_HELP_STRING([--with-debug-symbols],
-                            [compile rasdaman with debug symbols])],
-            [with_debug_symbols=yes],
-            [with_debug_symbols=no])
+            [AS_HELP_STRING([--without-debug-symbols],
+                            [compile rasdaman without debug symbols])],
+            [with_debug_symbols=no],
+            [with_debug_symbols=yes])
+AC_MSG_NOTICE(compiling with debug symbols... $with_debug_symbols)
 
 AC_ARG_ENABLE([benchmark],
               [AS_HELP_STRING([--enable-benchmark],
@@ -376,11 +379,11 @@ done
 AS_IF([test "x$RMANDEBUG" != x],
       [AC_DEFINE([RMANDEBUG])
        AC_DEFINE([DEBUG])
-       CXXFLAGS+=" -g3 -gdwarf-2 -O0 "
+       CXXFLAGS+=" -g3 -gdwarf-2 -O0 -rdynamic "
       ], 
       [
        AS_IF([test "x$with_debug_symbols" == xyes],
-       [CXXFLAGS+=" -g3 -gdwarf-2 -O0 "],
+       [CXXFLAGS+=" -g3 -gdwarf-2 -O0 -rdynamic "],
        [
         AC_DEFINE([__NO_MATH_INLINES])
         CXXFLAGS+=" -O2 "
