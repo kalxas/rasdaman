@@ -101,7 +101,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </tr>
 </thead>
 <tbody valign='top'>
-<tr class='even'>
+<tr class='odd'>
  <td class='indexedColumn' title='Indexed'>serviceid</td>
  <td class='detail'>int4</td>
  <td class='detail' align='right'>10</td>
@@ -111,7 +111,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'></td>
  <td class='detail'>
   <table border='0' width='100%' cellspacing='0' cellpadding='0'>
-   <tr class='relative even' valign='top'>
+   <tr class='relative odd' valign='top'>
     <td class='relatedTable detail' title="ps_servicelayer.serviceid refs ps_services.serviceid via ps_servicelayer_serviceid_fkey"><a href='ps_services.html'>ps_services</a><span class='relatedKey'>.serviceid</span>
     </td>
     <td class='constraint detail'>ps_servicelayer_serviceid_fkey<span title='Restrict delete:
@@ -121,7 +121,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='indexedColumn' title='Indexed'>layerid</td>
  <td class='detail'>int4</td>
  <td class='detail' align='right'>10</td>
@@ -131,7 +131,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'></td>
  <td class='detail'>
   <table border='0' width='100%' cellspacing='0' cellpadding='0'>
-   <tr class='relative odd' valign='top'>
+   <tr class='relative even' valign='top'>
     <td class='relatedTable detail' title="ps_servicelayer.layerid refs ps_layers.layerid via ps_servicelayer_layerid_fkey"><a href='ps_layers.html'>ps_layers</a><span class='relatedKey'>.layerid</span>
     </td>
     <td class='constraint detail'>ps_servicelayer_layerid_fkey<span title='Restrict delete:
@@ -141,7 +141,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
+<tr class='odd'>
  <td class='detail'>layerseq</td>
  <td class='detail'>int4</td>
  <td class='detail' align='right'>10</td>
@@ -153,7 +153,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='comment detail'></td>
 </tr>
 </table>
-<p title='3 columns'>Table contained 0 rows at Mon Nov 19 22:04 CET 2012<p/>
+<p title='3 columns'>Table contained 0 rows at Tue Jan 21 09:26 CET 2014<p/>
 </td></tr></table>
 <div class='indent'>
 <b>Indexes:</b>
@@ -171,7 +171,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
   <td class='indexedColumn'>serviceid + layerid</td>
   <td class='detail'>Must be unique</td>
   <td class='detail' style='text-align:left;'><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
-  <td class='constraint' style='text-align:left;'>ps_servicelayer_serviceid_key</td>
+  <td class='constraint' style='text-align:left;'>ps_servicelayer_serviceid_layerid_key</td>
  </tr>
 </table>
 </div>
@@ -179,17 +179,17 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <br><form action='get'><b>Close relationships</b><span class='degrees' id='degrees' title='Detail diminishes with increased separation from ps_servicelayer'>
 &nbsp;within <label for='oneDegree'><input type='radio' name='degrees' id='oneDegree' checked>one</label>  <label for='twoDegrees'><input type='radio' name='degrees' id='twoDegrees'>two degrees</label> of separation</span><b>:</b></form>
 <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" href="ps_servicelayer.html" title="ps_servicelayer" alt="" coords="281,328,431,448">
-<area shape="rect" href="ps_layers.html" title="ps_layers" alt="" coords="56,673,176,1217">
-<area shape="rect" href="ps_services.html" title="ps_services" alt="" coords="16,11,216,645">
+<area shape="rect" id="node1" href="ps_servicelayer.html" title="ps_servicelayer" alt="" coords="269,323,440,453">
+<area shape="rect" id="node3" href="ps_layers.html" title="ps_layers" alt="" coords="44,667,185,1223">
+<area shape="rect" id="node5" href="ps_services.html" title="ps_services" alt="" coords="5,5,224,651">
 </map>
   <a name='diagram'><img id='oneDegreeImg' src='../diagrams/ps_servicelayer.1degree.png' usemap='#oneDegreeRelationshipsDiagram' class='diagram' border='0' alt='' align='left'></a>
 <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" href="ps_pyramidlevels.html" title="ps_pyramidlevels" alt="" coords="288,108,424,177">
-<area shape="rect" href="ps_layers.html" title="ps_layers" alt="" coords="56,59,176,603">
-<area shape="rect" href="ps_servicelayer.html" title="ps_servicelayer" alt="" coords="281,416,431,536">
-<area shape="rect" href="ps_services.html" title="ps_services" alt="" coords="16,631,216,1265">
-<area shape="rect" href="ps_styles.html" title="ps_styles" alt="" coords="303,11,409,80">
+<area shape="rect" id="node1" href="ps_pyramidlevels.html" title="ps_pyramidlevels" alt="" coords="277,103,432,183">
+<area shape="rect" id="node3" href="ps_layers.html" title="ps_layers" alt="" coords="44,54,185,610">
+<area shape="rect" id="node4" href="ps_servicelayer.html" title="ps_servicelayer" alt="" coords="269,412,440,543">
+<area shape="rect" id="node7" href="ps_services.html" title="ps_services" alt="" coords="5,626,224,1273">
+<area shape="rect" id="node8" href="ps_styles.html" title="ps_styles" alt="" coords="292,5,417,85">
 </map>
 
   <a name='diagram'><img id='twoDegreesImg' src='../diagrams/ps_servicelayer.2degrees.png' usemap='#twoDegreesRelationshipsDiagram' class='diagram' border='0' alt='' align='left'></a>

@@ -1,4 +1,4 @@
-// dot 2.20.2 on Linux 2.6.32-45-generic
+// dot 2.26.3 on Linux 3.2.0-2-amd64
 // SchemaSpy rev 590
 digraph "oneDegreeRelationshipsDiagram" {
   graph [
