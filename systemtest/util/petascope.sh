@@ -138,8 +138,8 @@ function import_eobs()
 function import_rgb()
 {
   c=$COLLS
-  X=400
-  Y=344
+  X=399
+  Y=343
 
   min_x_geo_coord=0
   min_y_geo_coord=0
@@ -190,8 +190,8 @@ function import_rgb()
 function import_mr()
 {
   c=$COLLS
-  X=256
-  Y=211
+  X=255
+  Y=210
 
   min_x_geo_coord=0
   min_y_geo_coord=0
