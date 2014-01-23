@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import secore.handler.QueryHandler;
 import secore.req.RequestParam;
 import static secore.util.Constants.*;
 
@@ -57,6 +58,7 @@ public class Resolver {
     handlers = new ArrayList<Handler>();
     registerHandler(new EqualityHandler());
     registerHandler(new CrsCompoundHandler());
+    registerHandler(new QueryHandler());
     registerHandler(new ParameterizedCrsHandler());
     registerHandler(new IncompleteUrlHandler());
     registerHandler(new GeneralHandler());

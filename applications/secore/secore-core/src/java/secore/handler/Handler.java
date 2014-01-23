@@ -36,6 +36,7 @@ public interface Handler {
   String OP_CRS = "crs";
   String OP_CRS_COMPOUND = "crs-compound";
   String OP_EQUAL = "equal";
+  String OP_QUERY = "query";
   
   /**
    * @param request a list of key-value pairs. The value can be null, but a null
