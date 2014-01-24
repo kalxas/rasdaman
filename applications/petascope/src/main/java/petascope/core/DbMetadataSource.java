@@ -140,10 +140,10 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String QUANTITY_DESCRIPTION     = "description";
     public static final String QUANTITY_DEFINITION      = "definition_uri";
     public static final String QUANTITY_SIGNIFICANT_FIGURES = "significant_figures";
-    // TABLE_INTERVAL_QUANTITY : association table between TABLE_INTERVAL and TABLE_QUANTITY
-    public static final String TABLE_INTERVAL_QUANTITY  = TABLES_PREFIX + "interval_quantity";
-    public static final String INTERVAL_QUANTITY_IID    = "quantity_id";
-    public static final String INTERVAL_QUANTITY_QID    = "interval_id";
+    // TABLE_QUANTITY_INTERVAL : association table between TABLE_INTERVAL and TABLE_QUANTITY
+    public static final String TABLE_QUANTITY_INTERVAL  = TABLES_PREFIX + "quantity_interval";
+    public static final String QUANTITY_INTERVAL_IID    = "interval_id";
+    public static final String QUANTITY_INTERVAL_QID    = "quantity_id";
     // TABLE_MULTIPOINT : store geometry and rangeset of multipoint coverages
     public static final String TABLE_MULTIPOINT       = TABLES_PREFIX + "multipoint";
     public static final String MULTIPOINT_ID          = "id";
@@ -282,7 +282,7 @@ public class DbMetadataSource implements IMetadataSource {
     private Map<String,  String> gdalFormatsIds; // GDAL code -> format name
     private Map<Integer, String> quantities; // id -> quantity's UoM
     private Map<Integer, Pair<BigDecimal,BigDecimal>> intervals; // id -> (min,max)
-    private Set<Pair<Integer, Integer>> quantityInterval; // A quantity can be constrained by 1+ intervals of allowed values
+    private Set<Pair<Integer, Integer>> quantityInterval; // {QID,IID} (A quantity can be constrained by 1+ intervals of allowed values)
     private Map<Integer, String> rangeDataTypes;
 
     /* Contents of (static) dictionary-tables (reversed) */
@@ -637,14 +637,14 @@ public class DbMetadataSource implements IMetadataSource {
             // Quantity <-> Intervals of allowed values
             quantityInterval = new HashSet<Pair<Integer, Integer>>();
             sqlQuery =
-                    "SELECT " + INTERVAL_QUANTITY_QID + ","
-                              + INTERVAL_QUANTITY_IID +
-                    " FROM "  + TABLE_INTERVAL_QUANTITY
+                    "SELECT " + QUANTITY_INTERVAL_QID + ","
+                              + QUANTITY_INTERVAL_IID +
+                    " FROM "  + TABLE_QUANTITY_INTERVAL
                     ;
             log.debug("SQL query: " + sqlQuery);
             r = s.executeQuery(sqlQuery);
             while (r.next()) {
-                quantityInterval.add(Pair.of(r.getInt(INTERVAL_QUANTITY_QID), r.getInt(INTERVAL_QUANTITY_IID)));
+                quantityInterval.add(Pair.of(r.getInt(QUANTITY_INTERVAL_QID), r.getInt(QUANTITY_INTERVAL_IID)));
             }
 
             // Range data types (WCPS rangeType())

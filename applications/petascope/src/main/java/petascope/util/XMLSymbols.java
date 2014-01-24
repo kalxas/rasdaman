@@ -174,13 +174,16 @@ public interface XMLSymbols {
     String LABEL_ABSTRACT_COVERAGE = "AbstractCoverage";
     String LABEL_ABSTRACT_DISCRETE_COVERAGE = "AbstractDiscreteCoverage";
     String LABEL_GRID_COVERAGE  = "GridCoverage";
+    String LABEL_METADATA = "metadata";
     String LABEL_MULTIPOINT_COVERAGE = "MultiPointCoverage";
     String LABEL_MULTICURVE_COVERAGE = "GridCoverage";
     String LABEL_MULTISURFACE_COVERAGE = "GridCoverage";
     String LABEL_MULTISOLID_COVERAGE = "GridCoverage";
     String LABEL_RECTIFIED_GRID_COVERAGE = "RectifiedGridCoverage";
     String LABEL_REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
-    String LABEL_METADATA = "metadata";
+
+    // swe
+    String LABEL_INTERVAL = "interval";
 
     // gmlrgrid
     String LABEL_COEFFICIENTS = "coefficients";

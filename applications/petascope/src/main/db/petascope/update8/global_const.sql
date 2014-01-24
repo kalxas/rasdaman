@@ -232,9 +232,9 @@ $$
           SELECT cset('PS9_INTERVAL_ID',                     'id');
           SELECT cset('PS9_INTERVAL_MIN',                    'min');
           SELECT cset('PS9_INTERVAL_MAX',                    'max');
-    SELECT cset('TABLE_PS9_INTERVAL_QUANTITY',                cget('PS9_PREFIX') || '_interval_quantity');
-          SELECT cset('PS9_INTERVAL_QUANTITY_QID',           'quantity_id');
-          SELECT cset('PS9_INTERVAL_QUANTITY_IID',           'interval_id');
+    SELECT cset('TABLE_PS9_QUANTITY_INTERVAL',                cget('PS9_PREFIX') || '_quantity_interval');
+          SELECT cset('PS9_QUANTITY_INTERVAL_QID',           'quantity_id');
+          SELECT cset('PS9_QUANTITY_INTERVAL_IID',           'interval_id');
     SELECT cset('TABLE_PS9_MIME_TYPE',                        cget('PS9_PREFIX') || '_mime_type');
           SELECT cset('PS9_MIME_TYPE_ID',                    'id');
           SELECT cset('PS9_MIME_TYPE_MIME',                  'mime_type');

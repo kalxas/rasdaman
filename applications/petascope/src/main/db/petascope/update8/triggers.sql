@@ -215,7 +215,7 @@ $$
         -- This is the last rangeType component referencing this SWE field:
         -- cascade-drop it, if it is not a primitive (keep persistent mapping of allowed values for standard primitive types)
         IF OLD.field_table = cget('TABLE_PS9_QUANTITY') THEN
-            SELECT drop_quantity(OLD.field_id); -- drop if not primitive
+            PERFORM drop_quantity(OLD.field_id); -- drop (if not primitive) quantity and associated UoM and allowed values
         END IF;
 
         RETURN OLD;
@@ -223,7 +223,7 @@ $$
 $$ LANGUAGE plpgsql;
 
 
--- TRIGGER: **range_component_drop************************************
+-- TRIGGER: **range_set_drop**********************************************************
 -- Emulate DROP CASCADE on ps_quantity, but cascading the drop only if no other tuple
 -- in ps_range_component is referencing
 CREATE OR REPLACE FUNCTION range_set_drop ()
@@ -240,7 +240,7 @@ $$
         --> this is ensured on INSERT/UPDATE by storage_ref_integrity_trigger()
 
         -- Check if this rangeSet component is the last one referencing this collection
-        _qry := ' SELECT * FROM ' || quote_ident(cget('TABLE_PS9_RANGETYPE_SET')) ||
+        _qry := ' SELECT * FROM ' || quote_ident(cget('TABLE_PS9_RANGESET')) ||
                         ' WHERE ' || quote_ident(cget('PS9_RANGESET_STORAGE_ID'))
                                   ||    '='    || OLD.storage_id ||
                           ' AND ' || quote_ident(cget('PS9_RANGESET_STORAGE_TABLE'))
@@ -253,7 +253,7 @@ $$
         END LOOP;
 
         -- This is the last rangeSet component referencing this collection:
-        IF  OLD.storage_table = quote_ident(cget('TABLE_P9_RASDAMAN_COLLECTION')) THEN
+        IF  OLD.storage_table = quote_ident(cget('TABLE_PS9_RASDAMAN_COLLECTION')) THEN
             RAISE DEBUG '%: delete rasdaman collection tuple with ID #%.', ME, OLD.storage_id;
             _qry := ' DELETE FROM ' || OLD.storage_table ||
                           ' WHERE ' || quote_ident(cget('PS9_RASDAMAN_COLLECTION_ID')) ||

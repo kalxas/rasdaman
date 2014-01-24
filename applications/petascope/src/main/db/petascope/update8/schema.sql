@@ -283,10 +283,10 @@ CREATE TABLE ps9_quantity (
 );
 
 
--- TABLE: **ps9_interval_quantity** ============================================
+-- TABLE: **ps9_quantity_interval** ============================================
 -- n:m Association table between ps9_quantity and ps9_interval: a quantity can
 -- be constraint by multiple allowed intervals, which exist independently.
-CREATE TABLE ps9_interval_quantity (
+CREATE TABLE ps9_quantity_interval (
     quantity_id     integer,
     interval_id     integer,
     -- Constraints and FKs

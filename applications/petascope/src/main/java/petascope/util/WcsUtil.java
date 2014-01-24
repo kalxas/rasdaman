@@ -245,7 +245,7 @@ public class WcsUtil {
         String rangeFields = "";
         for (RangeField range : m.getRangeFields()) {
             rangeFields += Templates.getTemplate(Templates.RANGE_FIELD,
-                    Pair.of("\\{" + Templates.KEY_ALLOWEDVALUES + "\\}", range.getAllowedValues()),
+                    Pair.of("\\{" + Templates.KEY_ALLOWEDVALUES + "\\}", getAllowedValues(range)),
                     Pair.of("\\{" + Templates.KEY_CODE          + "\\}", range.getUomCode()),
                     Pair.of("\\{" + Templates.KEY_COMPONENTNAME + "\\}", range.getComponentName()),
                     Pair.of("\\{" + Templates.KEY_DATATYPE      + "\\}", range.getDatatype()),
@@ -328,6 +328,20 @@ public class WcsUtil {
                  .replaceAll("\\{" + Templates.KEY_UPPERCORNER + "\\}", m.getDomHigh());
         return gml;
     }
+
+    /**
+     * Get the allowed intervals for this specified quantity (SWE).
+     * @param range  Range type field.
+     * @return <swe:interval> elements.
+     */
+    public static String getAllowedValues(RangeField range) {
+            String gmlAllowedValues = "";
+            for (String interval : range.getAllowedValues()) {
+                gmlAllowedValues +=   "<" + XMLSymbols.PREFIX_SWE + ":" + XMLSymbols.LABEL_INTERVAL + ">"
+                        + interval + "</" + XMLSymbols.PREFIX_SWE + ":" + XMLSymbols.LABEL_INTERVAL + ">";
+            }
+            return gmlAllowedValues;
+        }
 
     /**
      * Returns the configured GMLCOV metadata.

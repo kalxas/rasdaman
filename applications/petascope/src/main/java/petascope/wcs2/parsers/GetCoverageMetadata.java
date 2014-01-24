@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.parsers;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -232,6 +233,7 @@ public class GetCoverageMetadata {
         private String uomCode;
         private String type;
         private String description;
+        private List<String> allowedValues = new ArrayList<String>();
 
         public RangeField(CoverageMetadata cov, RangeElement range, int i) {
 
@@ -248,19 +250,22 @@ public class GetCoverageMetadata {
             }
             description = "";
             range.isBoolean();
+
+            for (Pair<BigDecimal,BigDecimal> interval : range.getAllowedIntervals()) {
+                allowedValues.add(interval.fst.toString() + " " + interval.snd.toString());
+            }
         }
 
         public String getDatatype() {
             return GmlFormatExtension.DATATYPE_URN_PREFIX + type;
         }
 
-        public String getAllowedValues() {
-            if (type.equals("boolean")) {
-                return "<swe:value>true</swe:value><swe:value>false</swe:value>";
-            } else {
-                Pair<String, String> p = WcsUtil.toInterval(type);
-                return "<swe:interval>" + p.fst + " " + p.snd + "</swe:interval>";
+        public List<String> getAllowedValues() {
+            List<String> outAllowedValues = new ArrayList<String>(allowedValues.size());
+            for (String interval : allowedValues) {
+                outAllowedValues.add(interval);
             }
+            return outAllowedValues;
         }
 
         public String getFieldName() {

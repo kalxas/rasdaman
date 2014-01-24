@@ -512,15 +512,15 @@ $$
         _qry := ' SELECT COUNT(*) AS referencing_quantities ' ||
                   ' FROM ' || quote_ident(cget('TABLE_PS9_QUANTITY'))       || ','
                            || quote_ident(cget('TABLE_PS9_INTERVAL'))       || ','
-                           || quote_ident(cget('TABLE_PS9_INTERVAL_QUANTITY'))   ||
+                           || quote_ident(cget('TABLE_PS9_QUANTITY_INTERVAL'))   ||
                  ' WHERE ' || quote_ident(cget('TABLE_PS9_QUANTITY'))       || '.'
                            || quote_ident(cget('PS9_QUANTITY_ID'))          || '='
-                           || quote_ident(cget('TABLE_PS9_INTERVAL_QUANTITY'))     || '.'
-                           || quote_ident(cget('PS9_INTERVAL_QUANTITY_QID'))       ||
+                           || quote_ident(cget('TABLE_PS9_QUANTITY_INTERVAL'))     || '.'
+                           || quote_ident(cget('PS9_QUANTITY_INTERVAL_QID'))       ||
                    ' AND ' || quote_ident(cget('TABLE_PS9_INTERVAL'))       || '.'
                            || quote_ident(cget('PS9_INTERVAL_ID'))          || '='
-                           || quote_ident(cget('TABLE_PS9_INTERVAL_QUANTITY'))     || '.'
-                           || quote_ident(cget('PS9_INTERVAL_QUANTITY_IID'))||
+                           || quote_ident(cget('TABLE_PS9_QUANTITY_INTERVAL'))     || '.'
+                           || quote_ident(cget('PS9_QUANTITY_INTERVAL_IID'))||
                    ' AND ' || quote_ident(cget('TABLE_PS9_INTERVAL'))       || '.'
                            || quote_ident(cget('PS9_INTERVAL_ID'))   || '=' || interval_id
                            ;
@@ -575,8 +575,8 @@ $$ LANGUAGE plpgsql;
 
 
 -- FUNCTION: ** drop_quantity (integer) ********************************************
--- Drops a quantity if not a primitive, and if not: cascade drop to intervals not
--- referenced by primitive quantities.
+-- Drops a quantity if not a primitive, and if not: cascade drop to interval(s) and UoM
+-- referenced by primitive quantities
 CREATE OR REPLACE FUNCTION drop_quantity (
     quantity_id  integer
 ) RETURNS VOID AS
@@ -594,13 +594,13 @@ $$
 
             -- If it defines allowed values, need to drop the association and as well the interval(s)
             IF table_has_id(
-              quote_ident(cget('TABLE_PS9_INTERVAL_QUANTITY')),
-              quote_ident(cget('PS9_INTERVAL_QUANTITY_QID')), quantity_id) THEN
+              quote_ident(cget('TABLE_PS9_QUANTITY_INTERVAL')),
+              quote_ident(cget('PS9_QUANTITY_INTERVAL_QID')), quantity_id) THEN
 
                 -- Get interval(s) id
-                _qry := ' SELECT ARRAY[' || quote_ident(cget('PS9_INTERVAL_QUANTITY_IID'))   || '] AS row ' ||
-                                ' FROM ' || quote_ident(cget('TABLE_PS9_INTERVAL_QUANTITY')) ||
-                               ' WHERE ' || quote_ident(cget('PS9_INTERVAL_QUANTITY_QID'))   || '=' || quantity_id
+                _qry := ' SELECT ARRAY[' || quote_ident(cget('PS9_QUANTITY_INTERVAL_IID'))   || '] AS row ' ||
+                                ' FROM ' || quote_ident(cget('TABLE_PS9_QUANTITY_INTERVAL')) ||
+                               ' WHERE ' || quote_ident(cget('PS9_QUANTITY_INTERVAL_QID'))   || '=' || quantity_id
                          ;
 
                 RAISE DEBUG '%: EXECUTE %', ME, _qry;
@@ -609,9 +609,9 @@ $$
 
                     -- Drop association with interval
                     RAISE DEBUG '%: delete {quantity,interval} association {%,%}.', ME, quantity_id, _interval_id;
-                    _qry := ' DELETE FROM ' || quote_ident(cget('TABLE_PS9_INTERVAL_QUANTITY')) ||
-                                  ' WHERE ' || quote_ident(cget('PS9_INTERVAL_QUANTITY_QID'))   || '=' ||  quantity_id ||
-                                    ' AND ' || quote_ident(cget('PS9_INTERVAL_QUANTITY_IID'))   || '=' || _interval_id
+                    _qry := ' DELETE FROM ' || quote_ident(cget('TABLE_PS9_QUANTITY_INTERVAL')) ||
+                                  ' WHERE ' || quote_ident(cget('PS9_QUANTITY_INTERVAL_QID'))   || '=' ||  quantity_id ||
+                                    ' AND ' || quote_ident(cget('PS9_QUANTITY_INTERVAL_IID'))   || '=' || _interval_id
                         ;
                     RAISE DEBUG '%: EXECUTE %', ME, _qry;
                     EXECUTE _qry;

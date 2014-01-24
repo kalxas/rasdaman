@@ -309,10 +309,10 @@ $$ LANGUAGE plpgsql;
 -- petascopedb-#         ON ps9_quantity.id = ps9_range_type_component.field_id
 -- petascopedb-# INNER JOIN ps9_uom
 -- petascopedb-#         ON ps9_uom.id = ps9_quantity.uom_id
--- petascopedb-# LEFT OUTER JOIN ps9_interval_quantity
--- petascopedb-#              ON ps9_interval_quantity.quantity_id = ps9_quantity.id
+-- petascopedb-# LEFT OUTER JOIN ps9_quantity_interval
+-- petascopedb-#              ON ps9_quantity_interval.quantity_id = ps9_quantity.id
 -- petascopedb-# LEFT OUTER JOIN ps9_interval
--- petascopedb-#              ON ps9_interval.id = ps9_interval_quantity.interval_id
+-- petascopedb-#              ON ps9_interval.id = ps9_quantity_interval.interval_id
 -- petascopedb-# WHERE ps9_range_type_component.coverage_id = <coverage_id>;
 --
 --   component_order | name  | ?column? | name  | code |    ?column?
@@ -389,16 +389,16 @@ $$
                ' INNER JOIN ' || quote_ident(cget('TABLE_PS9_UOM'))      ||
                        ' ON ' || quote_ident(cget('TABLE_PS9_UOM'))      || '.' || quote_ident(cget('PS9_UOM_ID'))          || '='
                               || quote_ident(cget('TABLE_PS9_QUANTITY')) || '.' || quote_ident(cget('PS9_QUANTITY_UOM_ID')) ||
-          ' LEFT OUTER JOIN ' || quote_ident(cget('TABLE_PS9_INTERVAL_QUANTITY')) ||
-                       ' ON ' || quote_ident(cget('TABLE_PS9_INTERVAL_QUANTITY')) || '.'
-                              || quote_ident(cget('PS9_INTERVAL_QUANTITY_QID'))   || '='
+          ' LEFT OUTER JOIN ' || quote_ident(cget('TABLE_PS9_QUANTITY_INTERVAL')) ||
+                       ' ON ' || quote_ident(cget('TABLE_PS9_QUANTITY_INTERVAL')) || '.'
+                              || quote_ident(cget('PS9_QUANTITY_INTERVAL_QID'))   || '='
                               || quote_ident(cget('TABLE_PS9_QUANTITY'))          || '.'
                               || quote_ident(cget('PS9_QUANTITY_ID'))             ||
           ' LEFT OUTER JOIN ' || quote_ident(cget('TABLE_PS9_INTERVAL'))   ||
                        ' ON ' || quote_ident(cget('TABLE_PS9_INTERVAL'))          || '.'
                               || quote_ident(cget('PS9_INTERVAL_ID'))             || '='
-                              || quote_ident(cget('TABLE_PS9_INTERVAL_QUANTITY')) || '.'
-                              || quote_ident(cget('PS9_INTERVAL_QUANTITY_IID'))   ||
+                              || quote_ident(cget('TABLE_PS9_QUANTITY_INTERVAL')) || '.'
+                              || quote_ident(cget('PS9_QUANTITY_INTERVAL_IID'))   ||
                     ' WHERE ' || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT'))        || '.'
                               || quote_ident(cget('PS9_RANGETYPE_COMPONENT_COVERAGE_ID'))  || '=' || _coverage_id ||
                  ' ORDER BY ' || quote_ident(cget('TABLE_PS9_RANGETYPE_COMPONENT')) || '.' || quote_ident(cget('PS9_RANGETYPE_COMPONENT_ORDER'));

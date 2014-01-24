@@ -105,6 +105,15 @@ public class RangeElement implements Cloneable {
         return type;
     }
 
+    public List<Pair<BigDecimal,BigDecimal>> getAllowedIntervals() {
+        List<Pair<BigDecimal,BigDecimal>> outAllowedIntervals = new ArrayList<Pair<BigDecimal,BigDecimal>>();
+
+        for (Pair<BigDecimal,BigDecimal> interval : allowedIntervals) {
+            outAllowedIntervals.add(interval);
+        }
+        return outAllowedIntervals;
+    }
+
     public boolean isBoolean() {
         return type.equals(WcpsConstants.MSG_BOOLEAN);
 
