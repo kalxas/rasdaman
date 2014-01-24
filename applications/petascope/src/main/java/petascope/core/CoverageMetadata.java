@@ -39,6 +39,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import static petascope.util.CrsUtil.GRID_UOM;
 import petascope.util.Pair;
 import petascope.util.Vectors;
 import petascope.util.WcpsConstants;
@@ -94,7 +95,7 @@ public class CoverageMetadata implements Cloneable {
             List<Pair<CrsDefinition.Axis,String>> crsAxes, // axis -> URI
             List<CellDomainElement>       cellDomain,
             List<BigDecimal>              gridOrigin,
-            LinkedHashMap<List<BigDecimal>,BigDecimal> gridAxes, // must be LinkedHash: preserve order of insertion
+            LinkedHashMap<List<BigDecimal>,BigDecimal> gridAxes, // offsetVector -> coefficients (must be LinkedHash: preserve order of insertion)
             Pair<BigInteger, String>      rasdamanCollection,
             List<RangeElement>            rangeElements
             ) throws PetascopeException, SecoreException {
@@ -137,8 +138,16 @@ public class CoverageMetadata implements Cloneable {
             BigInteger gridAxisPoints = BigInteger.valueOf(1).add(BigInteger.valueOf(cEl.getHiInt()-cEl.getLoInt()));
             BigDecimal axisHi;
             if (!isIrregular) {
-                // use the resolution
-                axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints)));
+                // use the resolution: for Indexed CRSs, the formula is different than non-indexed CRSs (+1 term in the denominator)
+                // linear CRS: axisHi = (axisLo + #GridPoints)
+                // linear CRS: axisHi = (axisLo + #GridPoints - 1)
+                if (crsAxis.getUoM().equals(GRID_UOM)) {
+                    // indexed CRS
+                    axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints).add(BigDecimal.valueOf(-1))));
+                } else {
+                    // linear CRS
+                    axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints)));
+                }
             } else {
                 // get the greatest coefficient
                 axisHi = axisLo.add(resolution.multiply(axis.getValue()));

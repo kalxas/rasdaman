@@ -34,7 +34,7 @@
   <boundedBy>
     <Envelope srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
       <lowerCorner>0 0</lowerCorner>
-      <upperCorner>400 344</upperCorner>
+      <upperCorner>399 343</upperCorner>
     </Envelope>
   </boundedBy>
 
