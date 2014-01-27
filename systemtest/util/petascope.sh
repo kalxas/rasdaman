@@ -84,13 +84,18 @@ function drop_petascope()
 function import_eobs()
 {
   c=$COLLS
-  
   X=100
   Y=231
+  Z=5
+
+  wcps_datatype='short'
+
   min_x_geo_coord='25'
   min_y_geo_coord='-40.5'
   max_x_geo_coord='75.5'
   max_y_geo_coord='75.5'
+  min_t_geo_coord='0'
+  max_t_geo_coord='5' # indexed here, still no t-CRS
 
   $RASQL -q "create collection $c ShortSet3" > /dev/null || exit $RC_ERROR
   $RASQL -q "insert into $c values (short) inv_netcdf(\$1, \"vars=tg\")" -f "$TESTDATA_PATH"/eobs.nc > /dev/null || exit $RC_ERROR
@@ -102,17 +107,19 @@ function import_eobs()
   c_id=$($PSQL -c  "select id from PS_Coverage where name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
 
   # describe the pixel domain
-  $PSQL -c "insert into PS_CellDomain (coverage, i, lo, hi )  values ( $c_id, 0, 0, 5 )" > /dev/null || exit $RC_ERROR
+  $PSQL -c "insert into PS_CellDomain (coverage, i, lo, hi )  values ( $c_id, 0, 0, $Z )" > /dev/null || exit $RC_ERROR
   $PSQL -c "insert into PS_CellDomain (coverage, i, lo, hi )  values ( $c_id, 1, 0, $X )" > /dev/null || exit $RC_ERROR
   $PSQL -c "insert into PS_CellDomain (coverage, i, lo, hi )  values ( $c_id, 2, 0, $Y )" > /dev/null || exit $RC_ERROR
 
   # describe the geo domain
-  $PSQL -c "insert into PS_Domain (coverage, i, name, type, numLo, numHi) values ( $c_id, 0, 't', 5, 0, 5 )" > /dev/null
+  $PSQL -c "insert into PS_Domain (coverage, i, name, type, numLo, numHi) values ( $c_id, 0, 't', 5, $min_t_geo_coord, $max_t_geo_coord )" > /dev/null
   $PSQL -c "insert into PS_Domain (coverage, i, name, type, numLo, numHi) values ( $c_id, 1, 'x', 1, $min_x_geo_coord, $max_x_geo_coord )" > /dev/null || exit $RC_ERROR
   $PSQL -c "insert into PS_Domain (coverage, i, name, type, numLo, numHi) values ( $c_id, 2, 'y', 2, $min_y_geo_coord, $max_y_geo_coord )" > /dev/null || exit $RC_ERROR
 
   # describe the datatype of the coverage cell values
-  $PSQL -c "insert into PS_Range (coverage, i, name, type) values ($c_id, 0, 'value', 4)" > /dev/null || exit $RC_ERROR
+  datatype_qry="SELECT id FROM ps_datatype WHERE datatype = '$wcps_datatype'"
+  datatype_id=($( $PSQL -X -P t -P format=unaligned -c "${datatype_qry}" ))
+  $PSQL -c "insert into PS_Range (coverage, i, name, type) values ($c_id, 0, 'value', $datatype_id)" > /dev/null || exit $RC_ERROR
 
   # set of interpolation methods and null values for the coverage
   $PSQL -c "insert into PS_InterpolationSet (coverage, interpolationType, nullResistance) values ( $c_id, 5, 2)" > /dev/null || exit $RC_ERROR
@@ -141,6 +148,8 @@ function import_rgb()
   X=399
   Y=343
 
+  wcps_datatype='unsigned char'
+
   min_x_geo_coord=0
   min_y_geo_coord=0
   max_x_geo_coord=$X
@@ -164,9 +173,11 @@ function import_rgb()
   $PSQL -c "insert into PS_Domain (coverage, i, name, type, numLo, numHi) values ( $c_id, 1, 'y', 2, $min_y_geo_coord, $max_y_geo_coord )" > /dev/null
 
   # describe the datatype of the coverage cell values
-  $PSQL -c "insert into PS_Range (coverage, i, name, type) values ($c_id, 0, 'red', 7)" > /dev/null
-  $PSQL -c "insert into PS_Range (coverage, i, name, type) values ($c_id, 1, 'green', 7)" > /dev/null
-  $PSQL -c "insert into PS_Range (coverage, i, name, type) values ($c_id, 2, 'blue', 7)" > /dev/null
+  datatype_qry="SELECT id FROM ps_datatype WHERE datatype = '$wcps_datatype'"
+  datatype_id=($( $PSQL -X -P t -P format=unaligned -c "${datatype_qry}" ))
+  $PSQL -c "insert into PS_Range (coverage, i, name, type) values ($c_id, 0, 'red', $datatype_id)" > /dev/null
+  $PSQL -c "insert into PS_Range (coverage, i, name, type) values ($c_id, 1, 'green', $datatype_id)" > /dev/null
+  $PSQL -c "insert into PS_Range (coverage, i, name, type) values ($c_id, 2, 'blue', $datatype_id)" > /dev/null
 
   # set of interpolation methods and null values for the coverage
   $PSQL -c "insert into PS_InterpolationSet (coverage, interpolationType, nullResistance) values ( $c_id, 5, 2)" > /dev/null
@@ -193,6 +204,8 @@ function import_mr()
   X=255
   Y=210
 
+  wcps_datatype='unsigned char'
+
   min_x_geo_coord=0
   min_y_geo_coord=0
   max_x_geo_coord=$X
@@ -216,7 +229,9 @@ function import_mr()
   $PSQL -c "insert into PS_Domain (coverage, i, name, type, numLo, numHi) values ( $c_id, 1, 'y', 2, $min_y_geo_coord, $max_y_geo_coord )" > /dev/null
 
   # describe the datatype of the coverage cell values
-  $PSQL -c "insert into PS_Range (coverage, i, name, type) values ($c_id, 0, 'value', 2)" > /dev/null
+  datatype_qry="SELECT id FROM ps_datatype WHERE datatype = '$wcps_datatype'"
+  datatype_id=($( $PSQL -X -P t -P format=unaligned -c "${datatype_qry}" ))
+  $PSQL -c "insert into PS_Range (coverage, i, name, type) values ($c_id, 0, 'value', $datatype_id)" > /dev/null
 
   # set of interpolation methods and null values for the coverage
   $PSQL -c "insert into PS_InterpolationSet (coverage, interpolationType, nullResistance) values ( $c_id, 5, 2)" > /dev/null
