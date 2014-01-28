@@ -262,7 +262,10 @@ public class PetascopeInterface extends HttpServlet {
                 // REST interface checks
                 // get the uri contained after the context name i.e after petascope
                 // in example.com/petascope/rest/wcs/... returns [rest,wcs]
-                String[] prsUrl = httpRequest.getPathInfo().substring(1).split("/");
+                String pathInfo = httpRequest.getPathInfo();
+                log.debug("Analyzing path info \"{}\" for REST interface checks.", pathInfo);
+                // Java API: "This method returns null if there was no extra path information."
+                String[] prsUrl = (null == pathInfo) ? new String[0] : pathInfo.substring(1).split("/");
                 ArrayList<String> splitURI = new ArrayList<String>(Arrays.asList(
                         prsUrl
                         ));
@@ -329,7 +332,9 @@ public class PetascopeInterface extends HttpServlet {
                     request2 = StringUtil.urldecode(params.get(WCPS_QUERY_GET_PARAMETER), httpRequest.getContentType());
                 }
 
-                if (request2 == null && splitURI.get(0).equalsIgnoreCase(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER)) {
+                // splitURI list can be of size 0 if there is not path info in the HTTP request.
+                if (request2 == null && splitURI.size() > 0 &&
+                        splitURI.get(0).equalsIgnoreCase(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER)) {
                     if (splitURI.size() > 2 && splitURI.get(1).equals(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER)) {
                         String queryDecoded = StringUtil.urldecode(splitURI.get(2), httpRequest.getContentType());
                         request2 = RasUtil.abstractWCPSToRasql(queryDecoded, wcps);
@@ -751,13 +756,15 @@ public class PetascopeInterface extends HttpServlet {
      * @param request the request string needed by parsers
      * @return complete ServletRequest
      */
+    // TODO: duplicate code in Wcs2Servlet class: to be addressed in ticket #307.
     private HTTPRequest parseUrl(HttpServletRequest srvRequest, String request) {
         String contextPath = "", pathInfo = "";
         //get rid of the prefix slashes
         if (srvRequest.getContextPath().length() > 1) {
             contextPath = srvRequest.getContextPath().substring(1);
         }
-        if (srvRequest.getPathInfo().length() > 1) {
+        // [If no extra path info are specified in the request, .getPathInfo() returns `null`]
+        if (srvRequest.getPathInfo() != null && srvRequest.getPathInfo().length() > 1) {
             pathInfo = srvRequest.getPathInfo().substring(1);
         }
         HTTPRequest srvReq = new HTTPRequest(contextPath,

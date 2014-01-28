@@ -50,7 +50,7 @@ BUILD     = build
 DIST      = $(BUILD)/dist
 WEB       = $(BUILD)/web
 CLASSES   = $(WEB)/WEB-INF/classes
-NAME      = petascope
+NAME      = rasdaman
 WAR_NAME  = $(NAME).war
 WAR       = $(DIST)/$(WAR_NAME)
 APIDOCS   = $(BUILD)/apidocs
@@ -201,7 +201,7 @@ clean:
 # build jar file
 .PHONY: jar
 jar: compileit
-	$(CD) $(CLASSES); $(JAR) $(JARFLAGS) ../../../petascope.jar .
+	$(CD) $(CLASSES); $(JAR) $(JARFLAGS) ../../../$(NAME).jar .
 
 # inject petascope libs into the 52n wps 
 .PHONY: wps

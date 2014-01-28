@@ -51,25 +51,42 @@
 		<param-value>/wms-messages/raswms_msgs_en</param-value>
         </init-param>
     </servlet>
+
     <servlet-mapping>
         <servlet-name>PetaScope Interface</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>wcpsServlet</servlet-name>
-        <url-pattern>/wcps</url-pattern>
+        <servlet-name>PetaScope Interface</servlet-name>
+        <url-pattern>/ows/wps</url-pattern>
     </servlet-mapping>
+        <servlet-mapping>
+        <servlet-name>WmsServlet</servlet-name>
+        <url-pattern>/ows/wms</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>PetaScope Interface</servlet-name>
+        <url-pattern>/ows/wcs</url-pattern>
+    </servlet-mapping>
+    <!-- the above should be replaced with a WCS Interface that handles
+     different versions of the WCS protocol, invoking the proper classes
+     and providing overall access to wcs wcs2 and wcst
+     PC: by now, keep the mapping to WCS2 dedicated servlet at least-->
+    <servlet-mapping>
+        <servlet-name>Wcs2Servlet</servlet-name>
+        <url-pattern>/ows/wcs2</url-pattern>
+    </servlet-mapping>
+    <!--
     <servlet-mapping>
         <servlet-name>wcstServlet</servlet-name>
         <url-pattern>/wcst</url-pattern>
     </servlet-mapping>
+    -->
+
     <servlet-mapping>
-        <servlet-name>Wcs2Servlet</servlet-name>
-        <url-pattern>/wcs2</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>WmsServlet</servlet-name>
-        <url-pattern>/wms</url-pattern>
+        <servlet-name>wcpsServlet</servlet-name>
+        <url-pattern>/ows/wcps</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>RasqlServlet</servlet-name>
