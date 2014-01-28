@@ -41,12 +41,10 @@ rasmgr_SOURCES=ras_crypto.cc rasmgr_config.cc rasmgr_host.cc rasmgr_main.cc rasm
 
 rasmgr_LDADD= ../raslib/libraslib.a ../network/libnetwork.a ../commline/libcommline.a
 
-SUBDIRS=../mymalloc ../network ../commline ../raslib
+SUBDIRS=../mymalloc ../network ../commline ../raslib ../relblobif ../reladminif
 
 $(RECURSIVE_CLEAN_TARGETS):
 	@$(MAKE) $(AM_MAKEFLAGS) `echo $@ | sed s/-recursive/-am/`
-
-
 
 
 #ifdef STATIC_LIBS

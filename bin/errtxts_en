@@ -286,7 +286,10 @@
 # 3xxx errors: Data format conversion errors
 #
 3000^E^Format conversion error: DEM area does not contain any non-null value, empty result generated.
-
+#
+# 4xxx errors: Lock manager errors
+#
+4000^E^Error: One or more of the target tiles are locked by another transaction.
 #
 # The last, the unexpected error in server
 #

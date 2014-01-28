@@ -954,6 +954,19 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
         if(check("DatabaseIf::create() CREATE TABLE RAS_BASETYPENAMES\0"))
             generateException();
 
+        /* CREATE TABLE, INDEX for the LockManager: START */
+        EXEC SQL CREATE TABLE RAS_LOCKEDTILES (
+            TileID bigint NOT NULL,
+            RasServerID varchar(40) NOT NULL,
+            RasClientID varchar(24) NOT NULL,
+            SharedLock integer NOT NULL,
+            ExclusiveLock integer,
+            UNIQUE(TileID, ExclusiveLock)
+        );
+        if(check("DatabaseIf::create() CREATE TABLE RAS_LOCKEDTILES\0"))
+            generateException();
+        /* CREATE TABLE, INDEX for the LockManager: END */
+
         EXEC SQL CREATE UNIQUE INDEX RAS_BASETYPENAMES_IX
         ON RAS_BASETYPENAMES (BaseTypeId);
         if(check("DatabaseIf::create() CREATE UNIQUE INDEX RAS_BASETYPENAMES_IX\0"))
@@ -1372,6 +1385,16 @@ DatabaseIf::destroyDB(const char* dbName) throw(r_Error)
 
     EXEC SQL DROP TABLE IF EXISTS RAS_UDFNSCONTENT;
     check("DatabaseIf::destroyDB() DROP TABLE RAS_UDFNSCONTENT");
+
+    /* DROP INDEX, TABLE for LockManager: START */
+
+    EXEC SQL DROP INDEX IF EXISTS RAS_LOCKMANAGER_IX;
+	check("DatabaseIf::destroyDB() DROP INDEX RAS_LOCKMANAGER_IX\0");
+
+    EXEC SQL DROP TABLE IF EXISTS RAS_LOCKEDTILES;
+	check("DatabaseIf::destroyDB() DROP TABLE RAS_LOCKEDTILES\0");
+
+	/* DROP INDEX, TABLE for LockManager: END */
 
     EXEC SQL DROP INDEX IF EXISTS RAS_RCINDEXDYN_IX;
     check("DatabaseIf::destroyDB() DROP INDEX RAS_RCINDEXDYN_IX\0");

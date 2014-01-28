@@ -266,6 +266,14 @@
 2020^E^Interner Fehler: Binärer Export für Objekt ist nicht unterstützt.
 2021^E^Interner Fehler: Binärer Import für Objekt ist nicht unterstützt.
 #
+# 3xxx errors: Data format conversion errors
+#
+3000^E^Formatkonvertierungsfehler: DEM enthält keinen Wert, der nicht null ist. Es wurde ein leeres Ergebnis erzeugt.
+#
+# 4xxx errors: Lock manager errors
+#
+4000^E^Fehler: Eine oder mehrere Zielkacheln sind durch eine andere Transaktion gesperrt.
+#
 # The last, the unexpected error in server
 #
 10000^E^Unerwarteter interner Serverfehler.

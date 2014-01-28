@@ -51,6 +51,8 @@ using namespace std;
 
 #include "servercomm/servercomm.hh"
 
+#include "lockmgr/lockmanager.hh"
+
 extern ServerComm::ClientTblElt* currentClientTblElt;
 
 const QtNode::QtNodeType QtMDDAccess::nodeType = QT_MDD_ACCESS;
@@ -105,11 +107,10 @@ QtMDDAccess::open()
     pauseTimer();
 }
 
-
 QtNode::QtDataList*
 QtMDDAccess::next()
 {
-    RMDBCLASS( "QtMDDAccess", "next()", "qlparser", __FILE__, __LINE__ )
+	RMDBCLASS( "QtMDDAccess", "next()", "qlparser", __FILE__, __LINE__ )
     resumeTimer();
 
     QtDataList* returnValue = NULL;
@@ -123,8 +124,14 @@ QtMDDAccess::next()
 
         // encapsulate the next MDDObj in an QtMDD object
         ptr =  mddIter->getElement();
-        QtMDD*  elem = new QtMDD( ptr, iteratorName );
 
+#ifdef LOCKMANAGER_ON
+        unsigned long clientId = currentClientTblElt->clientId;
+        LockManager *lockmanager = LockManager::Instance();
+        lockmanager->lockTiles(clientId, ptr->getTiles());
+#endif
+
+        QtMDD*  elem = new QtMDD( ptr, iteratorName );
 
 
         // create the list

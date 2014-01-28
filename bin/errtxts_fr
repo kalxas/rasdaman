@@ -272,7 +272,10 @@
 # 3xxx errors: Data format conversion errors
 #
 3000^E^Erreur de conversionde format: la zone MNE contient des valeurs nulles, une resultat vide a ete genere.
-
+#
+# 4xxx erreur: Lock manager erreur
+#
+4000^E^Erreur: Une ou plusieurs des tuiles de cible est verrouillé par une autre transaction.
 #
 # The last, the unexpected error in server
 #

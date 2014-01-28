@@ -1,0 +1,521 @@
+#include "ecpg_lockmanager.hh"
+
+/**
+ * This class contains the SQL-specific implementation of the lock manager.
+ */
+
+// Global private static pointer used to ensure a single instance of the class,
+// originally set to NULL
+ECPG_LockManager * ECPG_LockManager::ECPG_LM_Instance = NULL;
+
+/**
+ * Private copy constructor such that it cannot be called from the outside.
+ *
+ * This constructor calls the default constructor which does not do anything.
+ *
+ * @param mgr
+ *     object of the class as parameter of the copy constructor
+ */
+ECPG_LockManager::ECPG_LockManager(ECPG_LockManager const& mgr)
+{
+    ECPG_LockManager();
+}
+
+/**
+ * Private = operator such that it cannot be called from the outside.
+ *
+ * The overloading of this operator calls the default constructor which does not do anything.
+ *
+ * @param mgr
+ *     object of the class as parameter of the = operator
+ */
+ECPG_LockManager& ECPG_LockManager::operator=(ECPG_LockManager const& mgr)
+{
+    ECPG_LockManager();
+}
+
+/**
+ * Private default constructor such that it cannot be called from the outside.
+ *
+ * The constructor itself is empty, i.e., it does not do anything.
+ */
+ECPG_LockManager::ECPG_LockManager()
+{
+}
+
+/**
+ * Function for creating and returning an instance of the class.
+ *
+ * This function is called to create an instance of the class.
+ * Calling the constructor publicly is not allowed. The constructor
+ * is private and is only called by this Instance function.
+ *
+ * @return a pointer to the created instance of the class
+ */
+ECPG_LockManager * ECPG_LockManager::Instance()
+{
+   // Allow only one instance of class to be generated
+   if (!ECPG_LM_Instance)
+   {
+        ECPG_LM_Instance = new ECPG_LockManager();
+    }
+   return ECPG_LM_Instance;
+}
+
+/**
+ * Function for connecting to the database via the lockmanager's own connection.
+ *
+ * @param pDatabaseTarget
+ *     the string corresponding to the name of the database
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pUserName
+ *     the string corresponding to the username which should be used for the connection
+ * @param pPassword
+ *     the string corresponding to the password which should be used for the connection
+ * @return a bool value corresponding to the success of the connection
+ */
+bool ECPG_LockManager::connect(const char * pDatabaseTarget, const char * pConnectionName, const char * pUsername, const char * pPassword)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    const char *target = pDatabaseTarget;
+    const char *connectionName = pConnectionName;
+    const char *user = pUsername;
+    const char *password = pPassword;
+    EXEC SQL END DECLARE SECTION;
+    if (pUsername && pPassword)
+    {
+        EXEC SQL CONNECT TO :target AS :connectionName USER :user USING :password;
+    }
+    else if (pUsername)
+    {
+        EXEC SQL CONNECT TO :target AS :connectionName USER :user;
+    }
+    else
+    {
+        EXEC SQL CONNECT TO :target AS :connectionName;
+    }
+    return SQLCODE==0;
+}
+
+/**
+ * Function for disconnecting from the database via the lockmanager's own connection.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @return a bool value corresponding to the success of disconnecting from the database
+ */
+bool ECPG_LockManager::disconnect(const char *pConnectionName)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    const char *connectionName = pConnectionName;
+    EXEC SQL END DECLARE SECTION;
+    EXEC SQL DISCONNECT :connectionName;
+    return SQLCODE==0;
+}
+
+/**
+ * Function for beginning a transaction within the database via the lockmanager's own connection.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ */
+void ECPG_LockManager::beginTransaction(const char * pConnectionName)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    const char *connectionName = pConnectionName;
+    EXEC SQL END DECLARE SECTION;
+    EXEC SQL AT :connectionName BEGIN TRANSACTION;
+}
+
+/**
+ * Function for ending a transaction within the database via the lockmanager's own connection.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ */
+void ECPG_LockManager::endTransaction(const char * pConnectionName)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    const char *connectionName = pConnectionName;
+    EXEC SQL END DECLARE SECTION;
+    EXEC SQL AT :connectionName COMMIT;
+}
+
+/**
+ * Function for creating a shared lock in the lock table.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ * @param pRasClientId
+ *     the string corresponding to the id of the corresponding client to the rasserver
+ * @param pTileId
+ *     the id corresponding to the tile to be locked
+ */
+void ECPG_LockManager::lockTileShared(const char * pConnectionName, const char * pRasServerId, const char * pRasClientId, long long pTileId)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    const char *connectionName = pConnectionName;
+    long long tileId = pTileId;
+    const char *rasServerId = pRasServerId;
+    const char *rasClientId = pRasClientId;
+    const char *insert_query = "INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, RasClientID, SharedLock) SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT TileID from RAS_LOCKEDTILES WHERE TileID = ? AND ExclusiveLock = ?);";
+    EXEC SQL END DECLARE SECTION;
+    EXEC SQL AT :connectionName PREPARE insert_query FROM :insert_query;
+    EXEC SQL AT :connectionName EXECUTE insert_query USING :tileId, :rasServerId, :rasClientId, 1, :tileId, 1;
+}
+
+/**
+ * Function for creating an exclusive lock in the lock table.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ * @param pRasClientId
+ *     the string corresponding to the id of the corresponding client to the rasserver
+ * @param pTileId
+ *     the id corresponding to the tile to be locked
+ */
+void ECPG_LockManager::lockTileExclusive(const char * pConnectionName, const char * pRasServerId, const char * pRasClientId, long long pTileId)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    const char *connectionName = pConnectionName;
+    long long tileId = pTileId;
+    const char *rasServerId = pRasServerId;
+    const char *rasClientId = pRasClientId;
+    const char *insert_query = "INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, RasClientID, SharedLock, ExclusiveLock) SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (SELECT TileID from RAS_LOCKEDTILES WHERE TileID = ?);";
+    EXEC SQL END DECLARE SECTION;
+    EXEC SQL AT :connectionName PREPARE insert_query FROM :insert_query;
+    EXEC SQL AT :connectionName EXECUTE insert_query USING :tileId, :rasServerId, :rasClientId, 0, 1, :tileId;
+}
+
+/**
+ * Function for deleting a lock from the lock table.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ * @param pRasClientId
+ *     the string corresponding to the id of the corresponding client to the rasserver
+ * @param pTileId
+ *     the id corresponding to the tile to be unlocked
+ */
+void ECPG_LockManager::unlockTile(const char * pConnectionName, const char * pRasServerId, const char * pRasClientId, long long pTileId)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    const char *connectionName = pConnectionName;
+    long long tileId = pTileId;
+    const char *rasServerId = pRasServerId;
+    const char *rasClientId = pRasClientId;
+    EXEC SQL END DECLARE SECTION;
+    EXEC SQL AT :connectionName DELETE FROM RAS_LOCKEDTILES
+        WHERE (TileID = :tileId AND RasServerID = :rasServerId AND RasClientIPD = :rasClientId);
+}
+
+/**
+ * Function for deleting all locks from the lock table corresponding to a specific rasserver and specific client.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ * @param pRasClientId
+ *     the string corresponding to the id of the corresponding client to the rasserver
+ */
+void ECPG_LockManager::unlockAllTiles(const char * pConnectionName, const char * pRasServerId, const char * pRasClientId)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    const char *connectionName = pConnectionName;
+    const char *rasServerId = pRasServerId;
+    const char *rasClientId = pRasClientId;
+    EXEC SQL END DECLARE SECTION;
+    EXEC SQL AT :connectionName DELETE FROM RAS_LOCKEDTILES
+        WHERE (RasServerID = :rasServerId AND RasClientID = :rasClientId);
+}
+
+/**
+ * Function for checking if a specific tile is locked or not.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ * @param pRasClientId
+ *     the string corresponding to the id of the corresponding client to the rasserver
+ * @param pTileId
+ *     the id corresponding to the tile to be checked
+ * @return a bool value corresponding to the fact that the tile is locked or not
+ */
+bool ECPG_LockManager::isTileLocked(const char * pConnectionName, const char * pRasServerId, const char * pRasClientId, long long pTileId)
+{
+    int result;
+    if (!pRasServerId && !pRasClientId)
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        long long tileId = pTileId;
+        const char *select_query
+            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ?);";
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
+        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId;
+        result=rowCount;
+    }
+    else if (!pRasServerId && pRasClientId)
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        const char * rasClientId = pRasClientId;
+        long long tileId = pTileId;
+        const char *select_query
+            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ?);";
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
+        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasClientId;
+        result=rowCount;
+    }
+    else if (pRasServerId && !pRasClientId)
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        const char * rasServerId = pRasServerId;
+        long long tileId = pTileId;
+        const char *select_query
+            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ?);";
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
+        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasServerId;
+        result=rowCount;
+    }
+    else
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        const char * rasServerId = pRasServerId;
+        const char * rasClientId = pRasClientId;
+        long long tileId = pTileId;
+        const char *select_query
+            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ?);";
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
+        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasServerId, :rasClientId;
+        result=rowCount;
+    }
+    if (result > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/**
+ * Function for checking if a specific tile has a shared lock or not.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ * @param pRasClientId
+ *     the string corresponding to the id of the corresponding client to the rasserver
+ * @param pTileId
+ *     the id corresponding to the tile to be checked
+ * @return a bool value corresponding to the fact that the tile has a shared locked or not
+ */
+bool ECPG_LockManager::isTileLockedShared(const char * pConnectionName, const char * pRasServerId, const char * pRasClientId, long long pTileId)
+{
+    int result;
+    if (!pRasServerId && !pRasClientId)
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        long long tileId = pTileId;
+        const char *select_query
+            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND SharedLock = ?);";
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
+        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, 1;
+        result=rowCount;
+    }
+    else if (!pRasServerId && pRasClientId)
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        const char * rasClientId = pRasClientId;
+        long long tileId = pTileId;
+        const char *select_query
+            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ? AND SharedLock = ?);";
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
+        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasClientId, 1;
+        result=rowCount;
+    }
+    else if (pRasServerId && !pRasClientId)
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        const char * rasServerId = pRasServerId;
+        long long tileId = pTileId;
+        const char *select_query
+            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND SharedLock = ?);";
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
+        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasServerId, 1;
+        result=rowCount;
+    }
+    else
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        const char * rasServerId = pRasServerId;
+        const char * rasClientId = pRasClientId;
+        long long tileId = pTileId;
+        const char *select_query
+            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ? AND SharedLock = ?);";
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
+        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasServerId, :rasClientId, 1;
+        result=rowCount;
+    }
+    if (result > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/**
+ * Function for checking if a specific tile has an exclusive lock or not.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ * @param pRasClientId
+ *     the string corresponding to the id of the corresponding client to the rasserver
+ * @param pTileId
+ *     the id corresponding to the tile to be checked
+ * @return a bool value corresponding to the fact that the tile has an exclusive locked or not
+ */
+bool ECPG_LockManager::isTileLockedExclusive(const char * pConnectionName, const char * pRasServerId, const char * pRasClientId, long long pTileId)
+{
+    int result;
+    if (!pRasServerId && !pRasClientId)
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        long long tileId = pTileId;
+        const char *select_query
+            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND ExclusiveLock = ?);";
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
+        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, 1;
+        result=rowCount;
+    }
+    else if (!pRasServerId && pRasClientId)
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        const char * rasClientId = pRasClientId;
+        long long tileId = pTileId;
+        const char *select_query
+            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ? AND ExclusiveLock = ?);";
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
+        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasClientId, 1;
+        result=rowCount;
+    }
+    else if (pRasServerId && !pRasClientId)
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        const char * rasServerId = pRasServerId;
+        long long tileId = pTileId;
+        const char *select_query
+            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND ExclusiveLock = ?);";
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
+        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasServerId, 1;
+        result=rowCount;
+    }
+    else
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        const char * rasServerId = pRasServerId;
+        const char * rasClientId = pRasClientId;
+        long long tileId = pTileId;
+        const char *select_query
+            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ? AND ExclusiveLock = ?);";
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
+        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasServerId, :rasClientId, 1;
+        result=rowCount;
+    }
+    if (result > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/**
+ * Function for clearing the locks from the lock table corresponding to a specific rasserver.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ */
+void ECPG_LockManager::clearLockTable(const char * pConnectionName, const char *pRasServerId)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    const char *connectionName = pConnectionName;
+    const char *rasServerId = pRasServerId;
+    EXEC SQL END DECLARE SECTION;
+    EXEC SQL AT :connectionName DELETE FROM RAS_LOCKEDTILES
+        WHERE (RasServerID = :rasServerId);
+}
+
+/**
+ * Function for clearing the locks from the lock table corresponding to a specific rasserver without
+ * having a spefication of the port.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ */
+void ECPG_LockManager::clearWLikeLockTable(const char * pConnectionName, const char *pRasServerId)
+{
+    EXEC SQL BEGIN DECLARE SECTION;
+    const char *connectionName = pConnectionName;
+    const char *rasServerId = pRasServerId;
+    EXEC SQL END DECLARE SECTION;
+    EXEC SQL AT :connectionName DELETE FROM RAS_LOCKEDTILES
+        WHERE (RasServerID LIKE '%' || :rasServerId);
+}

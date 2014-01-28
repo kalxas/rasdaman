@@ -111,7 +111,7 @@ Configuration::Configuration():
     testModus    = false;
     debugSupport = false;
     rtHlTest     = true;  // by default RasMgr tests at runtime if it's the only one
-    allowMultiWT = false; // rasmgr doesn't allow multiple write transactions for a db
+    allowMultiWT = true; // rasmgr allows multiple write transactions for a db
 
     LEAVE( "Configuration::Configuration: leave." );
 }

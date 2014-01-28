@@ -105,6 +105,8 @@ extern "C" int gethostname(char *name, int namelen);
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtstringdata.hh"
 
+#include "lockmgr/lockmanager.hh"
+
 // console output describing successful/unsuccessful actions
 #define MSG_OK          "ok"
 #define MSG_FAILED      "failed"
@@ -185,6 +187,10 @@ ServerComm::openDB( unsigned long callingClientId,
 
     RMInit::logOut << "Request: 'open DB', name = " << dbName << "'..." << std::flush;
 
+#if LOCKMANAGER_ON
+    LockManager * lockManager = LockManager::Instance();
+    lockManager->connect();
+#endif
     ClientTblElt* context = getClientContext( callingClientId );
 
     if( context != 0 )
@@ -303,6 +309,11 @@ ServerComm::closeDB( unsigned long callingClientId )
         RMInit::logOut << "Error: client not registered." << std::endl;
         returnValue = 1;
     }
+
+#if LOCKMANAGER_ON
+    LockManager * lockManager = LockManager::Instance();
+    lockManager->disconnect();
+#endif
 
     RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "closeDB" )
     return returnValue;
@@ -472,6 +483,11 @@ ServerComm::commitTA( unsigned long callingClientId )
         // release transfer collection/iterator within the transaction they are created
         context->releaseTransferStructures();
 
+#ifdef LOCKMANAGER_ON
+        LockManager *lockmanager = LockManager::Instance();
+        lockmanager->unlockAllTiles(callingClientId);
+#endif
+
         // commit the transaction
         context->transaction.commit();
 
@@ -527,7 +543,12 @@ ServerComm::abortTA( unsigned long callingClientId )
         // abort the transaction
         context->transaction.abort();
 
-        // unlock the semaphor
+#ifdef LOCKMANAGER_ON
+        LockManager *lockmanager = LockManager::Instance();
+        lockmanager->unlockAllTiles(callingClientId);
+#endif
+
+        // unlock the semaphore
         transactionActive = 0;
 
         returnValue = 0;
@@ -2061,6 +2082,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
 #endif
 
                 RMInit::logOut << "evaluating..." << std::flush;
+
                 qtree->evaluateUpdate();
 
                 // release data

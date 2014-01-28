@@ -146,8 +146,9 @@ public:
 
                 r_Error_MemoryAllocation,
 
-                r_Error_InvalidOptimizationLevel
+                r_Error_InvalidOptimizationLevel,
 
+                r_Error_TileCannotBeLocked
               };
 
     /// default constructor

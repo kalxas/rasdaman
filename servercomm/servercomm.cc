@@ -202,7 +202,7 @@ ServerComm::ServerComm( unsigned long timeOut, unsigned long managementInterval 
  ************************************************************************/
 ServerComm::~ServerComm()
 {
-    // delete communication object
+// delete communication object
     if( admin ) delete admin;
 
     actual_servercomm = 0;
@@ -386,8 +386,7 @@ void
 ServerComm::stopRpcServer()
 {
     RMInit::logOut << "Shutdown request received." << endl;
-
-    // Determine when next garbage collection would have occured
+    // Determine when next garbage collection would have occurred
     unsigned long nextGarbColl = time( NULL );
     struct itimerval rttimer;
     getitimer( ITIMER_REAL, &rttimer );

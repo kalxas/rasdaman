@@ -46,13 +46,13 @@ rasserver_LDADD=../servercomm/libservercomm.a ../qlparser/libqlparser.a ../conve
                 ../catalogmgr/libcatalogmgr.a ../relmddif/librelmddif.a ../relstorageif/librelstorageif.a \
                 ../relcatalogif/librelcatalogif.a ../indexmgr/libindexmgr.a ../relblobif/librelblobif.a \
                 ../relindexif/librelindexif.a ../httpserver/libhttpserver.a \
-                ../network/libnetwork.a ../commline/libcommline.a \
+                ../network/libnetwork.a ../commline/libcommline.a ../lockmgr/liblockmanager.a \
                 ../relcatalogif/librelcatalogif.a ../raslib/libraslib.a @BASEDBLDFLAGS@ @GDAL_LDFLAGS@
 
 SUBDIRS = ../relblobif ../relindexif ../relmddif ../relcatalogif ../reladminif ../relstorageif \
           ../indexmgr ../catalogmgr ../tilemgr ../storagemgr ../commline ../network \
           ../raslib ../servercomm ../rasodmg ../qlparser ../conversion \
-          ../mddmgr ../httpserver ../mymalloc 
+          ../mddmgr ../httpserver ../mymalloc ../lockmgr
 
 $(RECURSIVE_CLEAN_TARGETS):
 	@$(MAKE) $(AM_MAKEFLAGS) `echo $@ | sed s/-recursive/-am/`

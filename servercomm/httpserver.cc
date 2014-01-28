@@ -432,7 +432,7 @@ throw( r_Error )
     const char* dummy[] = { "rasserver", "-c", "httpserver.conf" };
 
     signal (SIGTERM, termSignalHandler);
-    cout   << "RasDaMan server "<<serverName<<" is up." << endl;
+    cout << "RasDaMan server "<<serverName<<" is up." << endl;
     RMInit::logOut << "RasDaMan server "<<serverName<<" is up." << endl;
 
     doIt_httpserver( 3, const_cast<char**>(dummy));
@@ -469,6 +469,7 @@ HttpServer::stopRpcServer()
     RMInit::logOut << "Clearing clients..." << endl;
 
     clearLastClient();
+
     RMInit::logOut << "informing rasmgr..." << endl;
     informRasMGR(SERVER_DOWN);
     cout   << "rasdaman server " << serverName << " is down." << endl;

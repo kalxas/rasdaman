@@ -136,6 +136,8 @@ AC_CONFIG_FILES([Makefile
                  rasmgr/Makefile
                  rascontrol/Makefile
                  rasdl/Makefile
+                 lockmgr/Makefile
+                 lockmgr/test/Makefile
                  applications/Makefile
                  applications/rasql/Makefile
                  applications/directql/Makefile
