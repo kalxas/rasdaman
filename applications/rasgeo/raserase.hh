@@ -31,9 +31,8 @@
  *   meta data)
  */
 
-#ifndef RERASE_H_
-#define RERASE_H_
-#define ctxRerase "ctxRerase"
+#ifndef RASERASE_HH_
+#define RASERASE_HH_
 
 /// RASDAMAN includes
 #ifdef EARLY_TEMPLATE
@@ -48,21 +47,18 @@
 #include "libpq-fe.h"
 
 /// RasdamanHelper & RasdamanConnector
-#include "RasdamanHelper2.h"
-#include "RasdamanConnector.h"
+#include "RasdamanHelper2.hh"
+#include "RasdamanConnector.hh"
 
-// required variables, if rasdaman is compiled with DEBUG enabled
-#ifdef RMANDEBUG
-int indentLevel;
-bool debugOutput;
-#endif
-
-// db connector object
-RasdamanConnector* rasconn;
+//// required variables, if rasdaman is compiled with DEBUG enabled
+//#ifdef RMANDEBUG
+//int indentLevel;
+//bool debugOutput;
+//#endif
 
 void showEraseHelp();
 int erasePSMetaData(RasdamanHelper2& helper);
 int eraseNMMetaData(RasdamanHelper2& helper);
 
 
-#endif /* RERASE_H_ */
+#endif /* RASERASE_HH_ */

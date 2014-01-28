@@ -43,9 +43,8 @@
  */
 
 
-#ifndef __rimport_h
-#define __rimport_h
-#define ctxRimport "rimport"
+#ifndef __rasimport_hh
+#define __rasimport_hh
 
 #include <cstring>
 
@@ -66,16 +65,13 @@
 #include "libpq-fe.h"
 
 /// RasdamanHelper
-#include "RasdamanHelper2.h"
+#include "RasdamanHelper2.hh"
 
 // required variables, if rasdaman is compiled with DEBUG enabled
-#ifdef RMANDEBUG
-int indentLevel;
-bool debugOutput;
-#endif
-
-// db connector object
-RasdamanConnector* rasconn;
+//#ifdef RMANDEBUG
+//int indentLevel;
+//bool debugOutput;
+//#endif
 
 /// DATA STRUCTURES
 struct NMsize
@@ -112,7 +108,9 @@ struct Header
     double stats_stddev;
 
     int epsg_code;  // epsg coordinate reference system code
-    std::string crs_name;   // string representation of the coordinate reference system
+    std::vector<std::string> crs_uris;   // string representation of the coordinate reference system
+    std::vector<int> crs_order;             // z-axis order (default: xyz = 0:1:2)
+    bool isRegular;                         // indicates whether the image is rectified (true) or referencable (false)
     r_Type::r_Type_Id rmantype; // the rasdaman pixel type of the image
     GDALDataType gdaltype;          // the gdal pixel type of the image
     int nbands;         // number of bands of the image
@@ -131,16 +129,27 @@ void resetHeader(Header& header);
 r_Type::r_Type_Id getRmanDataType(GDALDataType type);
 bool tileOverlaps(Header& header, vector<double>& bnd);
 bool parseCoordinateString(string bndstr, vector<double>& bnd);
-bool parseTypeString(std::string typestr, std::vector<std::string>& types);
+
+bool checkCRSOrderSequence(std::vector<double>& sequence, std::vector<int>& order);
+bool checkZCoords(std::vector<double>& coords);
+
+/** parses a colon (':') separated sequence of strings and appends them to the vector 'items';
+ *  a value of nelem > 0 specifies the minimum number of expected items to be found
+ */
+bool parseStringSequence(const std::string& sequence,
+        std::vector<std::string>& items, int nelem=-1,
+        const std::string& sep=":");
 void showHelp();
 
-int importImage(RasdamanHelper2& helper, GDALDataset* pDs, string& collname, vector<double>& oids,
+int importImage(RasdamanHelper2& helper, GDALDataset* pDs, const string& collname, vector<double>& oids,
                 r_Minterval& readGDALImgDOM, r_Point& writeShift, Header& newGeoRegion,
-                bool asCube, std::string marraytypename, string tiling);
+                bool asCube, const string& marraytypename, const string& tiling, const string& coveragename,
+                double zcoord);
 
-int processImageFiles(vector<string>& filenames, string collname, vector<double>& oids,
-                      Header& processRegion, string mode3D, r_Point& shiftPt, RasdamanHelper2& helper,
-                      std::string marraytypename, string tiling);
+int processImageFiles(vector<string>& filenames, const string& collname, vector<double>& oids,
+                      Header& processRegion, const string& mode3D, r_Point& shiftPt, RasdamanHelper2& helper,
+                      const string& marraytypename, const string& tiling, const string& coveragename,
+                      const vector<double>& zcoords);
 
 void intersectRegions2D(Header& inoutRegion, Header& intersectRegion);
 void intersectRegions2D(Header& inoutRegion, std::vector<double>& intersectRegions);
@@ -153,4 +162,4 @@ void copyRegion2D(Header& outRegion, std::vector<double>& inRegion);
 void printRegion(Header& reg, string descr);
 void printRegion(std::vector<double>& sdom, string descr);
 
-#endif // __rimport_h
+#endif // __rasimport_hh

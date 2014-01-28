@@ -39,22 +39,21 @@
 #include "sys/types.h"
 #include "unistd.h"
 #include <limits>
-#include "nmlog.h"
 #include <algorithm>
-#ifdef HAVE_LIBSIGSEGV
-#include <sigsegv.h>
-#endif
 
 
-
-#include "rimport.h"
+#include "rasimport.hh"
 #include "include/globals.hh"
+
+#define DEBUG_MAIN
+#include "debug-clt.hh"
 
 using namespace std;
 
-#ifdef DEBUG
-int nmlog::nmindent = -1;
-#endif
+// global string constants
+const string ctx = "rasimport::";
+
+#define CRS_RESOLVER_PREFIX "%SECORE%"
 
 // ---------------------------------------------------- HELPERs ----------
 
@@ -65,7 +64,9 @@ getDirContent(string path, string suffix, vector<string>& names)
     struct dirent *dirp;
     if ((dp = opendir(path.c_str())) == NULL)
     {
-        NMErr(ctxRimport, << "could not read directory '" << path << "'!" << std::endl);
+        cerr << ctx << "::getDirContent(): "
+        << "could not read directory '" << path << "'!"
+        << endl;
         return 0;
     }
 
@@ -86,8 +87,9 @@ getDirContent(string path, string suffix, vector<string>& names)
             }
             else
             {
-                NMErr(ctxRimport, << "file access failure - skip image '" <<
-                      filename << "'!" << std::endl);
+                cerr << ctx << "getDirContent(): "
+                << "file access failure - skip image '"
+                << filename << "'!" << endl;
                 continue;
             }
         }
@@ -97,7 +99,7 @@ getDirContent(string path, string suffix, vector<string>& names)
 }
 
 bool
-hasSuffix(std::string name, std::string suffix)
+hasSuffix(string name, string suffix)
 {
     string::size_type dpos = name.find_last_of(".", name.length() - 1);
     if (dpos == string::npos)
@@ -106,11 +108,11 @@ hasSuffix(std::string name, std::string suffix)
     if (suffix.compare("*") == 0 || suffix.empty())
         return true;
 
-    std::string test = name.substr(dpos + 1, name.length() - dpos + 1);
-    std::string given = suffix;
+    string test = name.substr(dpos + 1, name.length() - dpos + 1);
+    string given = suffix;
 
-    std::transform(test.begin(), test.end(), test.begin(), ::tolower);
-    std::transform(given.begin(), given.end(), given.begin(), ::tolower);
+    transform(test.begin(), test.end(), test.begin(), ::tolower);
+    transform(given.begin(), given.end(), given.begin(), ::tolower);
 
     return given.compare(test) == 0 ? true : false;
 }
@@ -119,6 +121,7 @@ void
 readImageInformation(vector<string>& vnames, Header& header, vector<double>& bnd,
                      vector<string>& vvalidtiles, bool b3D, double cellsizez)
 {
+    ENTER(ctx << "readImageInformation()");
     Header tileHeader;
     vector<string>::const_iterator iter;
 
@@ -128,8 +131,9 @@ readImageInformation(vector<string>& vnames, Header& header, vector<double>& bnd
         resetHeader(tileHeader);
         if (!readTileInformation(*iter, tileHeader))
         {
-            NMErr(ctxRimport, << "read tile error: skipped file '" << (*iter)
-                  << "'!" << endl);
+            cerr << ctx << "readImageInformation(): "
+            << "read tile error: skipped file '" << (*iter)
+            << "'!" << endl;
             continue;
         }
 
@@ -147,8 +151,11 @@ readImageInformation(vector<string>& vnames, Header& header, vector<double>& bnd
         // first of all given files
         if (numfiles == 0)
         {
-            if (!tileHeader.crs_name.empty())
-                header.crs_name = tileHeader.crs_name;
+            if (tileHeader.crs_uris.size() == 1)
+            {
+                if (header.crs_uris.size() == 0)
+                    header.crs_uris.push_back(tileHeader.crs_uris[0]);
+            }
             header.nbands = tileHeader.nbands;
 
             header.cellsize.x = tileHeader.cellsize.x;
@@ -225,7 +232,8 @@ readImageInformation(vector<string>& vnames, Header& header, vector<double>& bnd
         }
     }
 
-    NMDebug(<< "rimport successfully analysed " << numfiles << " files." << endl << endl);
+    TALK("rasimport successfully analysed " << numfiles << " files." << endl << endl);
+    LEAVE(ctx << "readImageInformation()");
 
 }
 
@@ -235,10 +243,8 @@ printImageInformation(Header& header, RasdamanHelper2& helper)
     cout.precision(15);
     cout << "Update Region:" << endl;
     cout << "-------------" << endl << endl;
-    cout << "coordinate reference system: " << header.crs_name << endl;
     cout << "EPSG-code: " << header.epsg_code << endl;
     cout << "bands:     " << header.nbands << endl;
-    //cout << "origin:    " << header.origin.x << ", " << header.origin.y << endl;
     cout << "data type: " << helper.getDataTypeString(header.rmantype) << endl;
     cout << "cellsize:  " << header.cellsize.x << ", " << header.cellsize.y
          << ", " << header.cellsize.z << endl;
@@ -257,7 +263,9 @@ printImageInformation(Header& header, RasdamanHelper2& helper)
 void
 resetHeader(Header& header)
 {
-    header.crs_name = "CRS:1";
+    header.crs_uris.clear();
+    header.crs_order.clear();
+    header.isRegular = true;
     header.epsg_code = -1;
     header.origin.x = numeric_limits<double>::max();
     header.origin.y = numeric_limits<double>::max() * -1;
@@ -326,26 +334,26 @@ getRmanDataType(GDALDataType type)
 
 bool readTileInformation(string filename, Header& header)
 {
+    ENTER(ctx << "readTileInformation()");
     GDALDataset* pDs = (GDALDataset*)GDALOpen(filename.c_str(), GA_ReadOnly);
 
     if (pDs == 0)
         return false;
 
-    NMDebugInd(1, << "analysing file '" << filename << "' ("
-               << pDs->GetDriver()->GetDescription() << "/" <<
-               pDs->GetDriver()->GetMetadataItem(GDAL_DMD_LONGNAME) << ")" << endl);
+    TALK("analysing file '" << filename << "' ("
+        << pDs->GetDriver()->GetDescription() << "/" <<
+        pDs->GetDriver()->GetMetadataItem(GDAL_DMD_LONGNAME) << ")");
 
     readTileInformation(pDs, header);
 
     GDALClose(pDs);
+    LEAVE(ctx << "readTileInformation()");
     return true;
 }
 
 bool
 readTileInformation(GDALDataset* pDS, Header& header)
 {
-    NMDebugCtx("rimport", << "...");
-
     double xmin;
     double xmax;
     double ymin;
@@ -359,7 +367,9 @@ readTileInformation(GDALDataset* pDS, Header& header)
     double pixelwidth = affine[1] < 0 ? affine[1] * -1 : affine[1];
     double pixelheight = affine[5] < 0 ? affine[5] * -1 : affine[5];
 
-    header.crs_name = pDS->GetProjectionRef();
+    // TODO: parse WKT crs description and extract the outer most
+    // EPSG code from the authority parameter
+    header.crs_uris.push_back(pDS->GetProjectionRef());
     header.nbands = pDS->GetRasterCount();
     header.ncols = pDS->GetRasterXSize();
     header.nrows = pDS->GetRasterYSize();
@@ -389,7 +399,6 @@ readTileInformation(GDALDataset* pDS, Header& header)
     header.origin.x = header.xmin;
     header.origin.y = header.ymax;
 
-    NMDebugCtx("rimport", << "done!");
     return true;
 }
 
@@ -407,10 +416,10 @@ void intersectRegions2D(Header& inoutRegion, Header& intersectRegion)
     io.nrows = ((io.ymax - io.ymin) / intersectRegion.cellsize.y) + 0.5;
 }
 
-void intersectRegions2D(Header& inoutRegion, std::vector<double>& intersectRegion)
+void intersectRegions2D(Header& inoutRegion, vector<double>& intersectRegion)
 {
     Header& io = inoutRegion;
-    std::vector<double>& s = intersectRegion;
+    vector<double>& s = intersectRegion;
 
     io.xmin = io.xmin > s[1] ? io.xmin : s[1];
     io.xmax = io.xmax < s[2] ? io.xmax : s[2];
@@ -433,10 +442,10 @@ void unionRegions2D(Header& inoutRegion, Header& unionRegion)
     io.nrows = ((io.ymax - io.ymin) / unionRegion.cellsize.y) + 0.5;
 }
 
-void unionRegions2D(Header& inoutRegion, std::vector<double>& unionRegion)
+void unionRegions2D(Header& inoutRegion, vector<double>& unionRegion)
 {
     Header& io = inoutRegion;
-    std::vector<double>& u = unionRegion;
+    vector<double>& u = unionRegion;
 
     io.xmin = io.xmin < u[0] ? io.xmin : u[0];
     io.xmax = io.xmax > u[1] ? io.xmax : u[1];
@@ -452,7 +461,7 @@ void copyRegion2D(Header& outRegion, Header& inRegion)
     outRegion.ymax = inRegion.ymax;
 }
 
-void copyRegion2D(Header& outRegion, std::vector<double>& inRegion)
+void copyRegion2D(Header& outRegion, vector<double>& inRegion)
 {
     outRegion.xmin = inRegion[0];
     outRegion.xmax = inRegion[1];
@@ -460,11 +469,60 @@ void copyRegion2D(Header& outRegion, std::vector<double>& inRegion)
     outRegion.ymax = inRegion[3];
 }
 
+bool checkCRSOrderSequence(vector<double>& sequence, vector<int>& order)
+{
+    // need at least two axes
+    if (sequence.size() < 2)
+        return false;
+
+    // temp copy for maintaining user specified axis order
+    vector<double> vtmp;
+    for (int i=0; i < sequence.size(); ++i)
+        vtmp.push_back(sequence[i]);
+
+    // check for proper sequence
+    sort(vtmp.begin(), vtmp.end());
+
+    // sequence has to be zero-based
+    bool bsound = vtmp[0] == 0 ? true : false;
+    int pos = 0;
+    while (pos < vtmp.size()-1 && bsound)
+    {
+        if (vtmp[pos] + 1 != vtmp[pos+1])
+            bsound = false;
+        ++pos;
+    }
+
+    if (!bsound)
+        return false;
+
+    order.clear();
+    for (int t=0; t < sequence.size(); ++t)
+        order.push_back(static_cast<int>(sequence[t]));
+
+    return true;
+}
+
+bool checkZCoords(std::vector<double>& coords)
+{
+    bool inorder = true;
+    int pos = 0;
+    while (pos < coords.size()-1 && inorder)
+    {
+        if (coords[pos+1] <= coords[pos])
+            inorder = false;
+        ++pos;
+    }
+
+    return inorder;
+}
+
 int
-processImageFiles(vector<string>& filenames, string collname,
+processImageFiles(vector<string>& filenames, const string& collname,
                   vector<double>& oids, Header& processRegion,
-                  string mode3D, r_Point& shiftPt, RasdamanHelper2& helper,
-                  std::string marraytypename, std::string tiling)
+                  const string& mode3D, r_Point& shiftPt, RasdamanHelper2& helper,
+                  const string& marraytypename, const string& tiling,
+                  const string& coveragename, const vector<double>& zcoords)
 {
     /* PROCEDURE
      * - read source geospatial region (srcGeoRegion)
@@ -473,18 +531,24 @@ processImageFiles(vector<string>& filenames, string collname,
      * - shift the insertGeoRegion by the user specified shift vector (shiftPt)
      * - determine the appropriate shift vector (writeShift) for writing the source region into the
      *   rasdaman data base (only applies when in update mode)
-     * - in 3D mode: determine the new z-value depending on the specified parameter
-     *   (i.e. top or bottom), the user specified shift vector, and whether we're in updating
+     * - in 3D mode: determine the new z-value (for regularly spaced grids) depending on the specified parameter
+     *   (i.e. top or bottom), the user specified shift vector, and whether we're in update
      *   mode or not
+     * - for irregularly spaced grids along the z-axis, we determine whether we can append the given
+     *   z-coordinate, if not we quit (note: we ever only append due to ps constraints and that 'cause don't
+     *   want the hassle of shifting part of the image)
      * - import the image (importImage deals with sequential and band processing)
      * - write RATs
      * - write petascope meta data
      */
 
 
-    NMDebugCtx(ctxRimport, << "...");
+    ENTER(ctx << "processImageFiles()");
 
-    bool b3D = (!mode3D.empty() || shiftPt.dimension() == 3) ? true : false;
+    bool b3D = (    !mode3D.empty()
+                || shiftPt.dimension() == 3
+                || zcoords.size() > 0
+               ) ? true : false;
 
     Header newGeoRegion;
 
@@ -497,7 +561,10 @@ processImageFiles(vector<string>& filenames, string collname,
         GDALDataset* pDs = (GDALDataset*)GDALOpen((*iter).c_str(), GA_ReadOnly);
         if (pDs == 0)
         {
-            NMErr(ctxRimport, << "failed opening data set '" << *iter << "'!");
+            cerr << ctx << "processImageFiles(): "
+            << "failed opening data set '" << *iter << "'!"
+            << endl;
+            LEAVE(ctx << "processImageFiles()");
             return 0;
         }
 
@@ -523,8 +590,8 @@ processImageFiles(vector<string>& filenames, string collname,
         readGDALImgDOM  << r_Sinterval(read_scol, (r_Range)(read_scol + insertGeoRegion.ncols - 1))
                         << r_Sinterval(read_srow, (r_Range)(read_srow + insertGeoRegion.nrows - 1));
 
-        NMDebugAI(<< "src img size:     " << srcGeoRegion.ncols << " x " << srcGeoRegion.nrows << endl);
-        NMDebugAI(<< "readGDALImgDOM:   " << readGDALImgDOM.get_string_representation() << endl << endl);
+        TALK("src img size:     " << srcGeoRegion.ncols << " x " << srcGeoRegion.nrows);
+        TALK("readGDALImgDOM:   " << readGDALImgDOM.get_string_representation() << endl);
 
         // shift the insertGeoRegion by the user specified shiftVector; account for (geo) spatial
         // image domains with negative values: positive shift (e.g. 150:200) shifts to the north east
@@ -545,7 +612,8 @@ processImageFiles(vector<string>& filenames, string collname,
 
         // determine the shift vector (relative to the current (present) image domain)
         // to apply while writing the src image into the rasdaman data base
-        vector<double> isdom = helper.getNMMetaGeoDomain(oids.size() >= 1 ? oids[0] : -1);
+        // -> retrieve geospatial domain in default xyz axis order from petascope
+        vector<double> isdom = helper.getMetaGeoDomain(oids.size() >= 1 ? oids[0] : -1);
 
         resetHeader(newGeoRegion);
         copyRegion2D(newGeoRegion, insertGeoRegion);
@@ -569,12 +637,39 @@ processImageFiles(vector<string>& filenames, string collname,
             // get present image domain for calculation of pixel shift
             r_Minterval aint = helper.getImageSdom(collname, oids[0]);
 
-            NMDebugAI(<< "current img sdom: " << aint.get_string_representation() << endl << endl);
+            TALK("current img sdom: " << aint.get_string_representation());
             if (b3D)
             {
+                // if we're processing an irregular z-axis
+                if (!processRegion.isRegular && zcoords.size() > 0)
+                {
+                    long idx = -1;
+                    if (tilecounter >=1 && tilecounter <= zcoords.size())
+                        idx = helper.canAppendReferencedZCoeff(oids[0],
+                                zcoords[tilecounter-1]);
+                    else
+                    {
+                        cerr << ctx << "processImageFiles(): "
+                        << "number of input files and specified z-coordinates don't match!"
+                        << endl;
+                        LEAVE(ctx << "processImageFiles()");
+                        return 0;
+                    }
+
+                    if (idx >= 0 && idx == aint[2].high() + 1)
+                        zshift = idx;
+                    else
+                    {
+                        cerr << ctx << "processImageFiles(): "
+                        << "cannot append z-coordinate: " << zcoords[tilecounter-1] << " !"
+                        << endl;
+                        LEAVE(ctx << "processImageFiles()");
+                        return 0;
+                    }
+                }
                 // if we've got a z-shift given, we always shift relative to
                 // z = 0
-                if (shiftPt.dimension() == 3)
+                else if (shiftPt.dimension() == 3)
                 {
                     if (mode3D == "top")
                         zshift = shiftPt[2] + tilecounter - 1;
@@ -589,9 +684,7 @@ processImageFiles(vector<string>& filenames, string collname,
                         zshift = aint[2].low() - 1;
                 }
 
-                writeShift = r_Point(3)
-                             << aint[0].low() + xshift
-                             << aint[1].low() + yshift
+                writeShift = r_Point(3) << (aint[0].low() + xshift) << (aint[1].low() + yshift)
                              << zshift;
             }
             else
@@ -605,9 +698,14 @@ processImageFiles(vector<string>& filenames, string collname,
         {
             if (b3D)
             {
+                if (!processRegion.isRegular)
+                {
+                    // we ever only append
+                    zshift = tilecounter -1;
+                }
                 // if we've got a z-shift given, we always shift relative to
                 // z = 0
-                if (shiftPt.dimension() == 3)
+                else if (shiftPt.dimension() == 3)
                 {
                     if (mode3D == "top")
                         zshift = shiftPt[2] + tilecounter - 1;
@@ -629,8 +727,14 @@ processImageFiles(vector<string>& filenames, string collname,
                 writeShift = r_Point(2) << 0 << 0;
             }
         }
-        newZ = zshift * processRegion.cellsize.z;
-        NMDebugAI(<< "writeShift: " << writeShift.get_string_representation() << endl << endl);
+        if (processRegion.isRegular)
+            newZ = zshift * processRegion.cellsize.z;
+        else
+        {
+            if (tilecounter-1 <= zcoords.size())
+                newZ = zcoords[tilecounter-1];
+        }
+        TALK("writeShift: " << writeShift.get_string_representation() << endl);
 
         // determine the new image region (valid after the src has been written into
         // the data base) by union the present image region with the region to
@@ -642,23 +746,23 @@ processImageFiles(vector<string>& filenames, string collname,
         {
             if ( newZ < newGeoRegion.zmin || newZ > newGeoRegion.zmax )
             {
-                NMDebugAI(<< "import layer outside z boundary, abortion!" << std::endl);
+                TALK("import layer outside z boundary, abortion!");
                 continue;
             }
 
             if (!bUpdate)
             {
                 newGeoRegion.zmin = newGeoRegion.zmax = newZ;
-                NMDebugAI( << "inserting 1st 3D slice at zcoord: " << newZ << endl);
+                TALK("inserting 1st 3D slice at zcoord: " << newZ);
             }
             else
             {
-                NMDebugAI( << "inserting 2nd+ 3D slice | newZ: " << newZ << endl);
+                TALK("inserting 2nd+ 3D slice | newZ: " << newZ);
                 newGeoRegion.zmin = (newZ < isdom[4]) ? newZ : isdom[4];
-                NMDebugAI( << "new zmin: " << newGeoRegion.zmin << endl);
+                TALK("new zmin: " << newGeoRegion.zmin);
 
                 newGeoRegion.zmax = (newZ > isdom[5]) ? newZ : isdom[5];
-                NMDebugAI( << "new zmax: " << newGeoRegion.zmax << endl);
+                TALK("new zmax: " << newGeoRegion.zmax);
             }
         }
 
@@ -673,15 +777,22 @@ processImageFiles(vector<string>& filenames, string collname,
         newGeoRegion.stats_mean = processRegion.stats_mean;
         newGeoRegion.stats_stddev = processRegion.stats_stddev;
         newGeoRegion.epsg_code = processRegion.epsg_code;
-        newGeoRegion.crs_name = processRegion.crs_name;
+        newGeoRegion.crs_uris = processRegion.crs_uris;
         newGeoRegion.rmantype = processRegion.rmantype;
         newGeoRegion.gdaltype = srcGeoRegion.gdaltype;
         newGeoRegion.nbands = processRegion.nbands;
+        newGeoRegion.isRegular = processRegion.isRegular;
+        newGeoRegion.crs_order = processRegion.crs_order;
 
         printRegion(newGeoRegion, "newGeoRegion");
 
+        double irregularZ;
+        if (zcoords.size() > 0 && tilecounter-1 <= zcoords.size())
+            irregularZ = zcoords[tilecounter-1];
+
         importImage(helper, pDs, collname, oids, readGDALImgDOM, writeShift,
-                    newGeoRegion, b3D, marraytypename, tiling);
+                    newGeoRegion, b3D, marraytypename, tiling, coveragename,
+                    irregularZ);
 
         // release data set
         GDALClose(pDs);
@@ -690,31 +801,37 @@ processImageFiles(vector<string>& filenames, string collname,
         // don't import RAT at all in mosaicing mode
         if (filenames.size() == 1 && !bUpdate)
         {
-            for (int v=0; v < oids.size(); ++v)
+            // one image per band -> oids index = band index -1
+            if (oids.size() > 1)
+            {
+                for (int v=0; v < oids.size(); ++v)
+                {
+                    helper.writeRAT(*iter, oids[v], v+1);
+                }
+            }
+            // one image, possibly multiple bands ...
+            else
             {
                 for (int b=1; b <= processRegion.nbands; ++b)
                 {
-                    helper.writeNMRAT(*iter, oids[v], b);
+                    helper.writeRAT(*iter, oids[0], b);
                 }
             }
         }
     }
 
-    // update the petascope meta data with the newGeoRegion
-    helper.writePSMetadata(collname, newGeoRegion.crs_name, newGeoRegion.rmantype, newGeoRegion.nbands,
-                           newGeoRegion.xmin, newGeoRegion.xmax, newGeoRegion.ymin, newGeoRegion.ymax,
-                           newGeoRegion.zmin, newGeoRegion.zmax, newGeoRegion.ncols, newGeoRegion.nrows, newGeoRegion.nlayers);
-
-
-    NMDebugCtx(ctxRimport, << "done!");
+    LEAVE(ctx << "processImageFiles()");
     return 1;
 }
 
-int importImage(RasdamanHelper2& helper, GDALDataset* pDs, string& collname, vector<double>& oids,
-                r_Minterval& readGDALImgDOM, r_Point& writeShift, Header& newGeoRegion,
-                bool asCube, std::string marraytypename, std::string tiling)
+int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
+                const string& collname, vector<double>& oids,
+                r_Minterval& readGDALImgDOM, r_Point& writeShift,
+                Header& newGeoRegion, bool asCube,
+                const string& marraytypename, const string& tiling,
+                const string& coveragename, double irregularZ)
 {
-    NMDebugCtx(ctxRimport, << "...");
+    ENTER(ctx << "importImage()");
 
     // get the pixel's data type length (in bytes)
     unsigned int pixelsize = helper.getTypeSize(newGeoRegion.rmantype);
@@ -737,10 +854,10 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs, string& collname, vec
     double imgsize_mib = (imgsize_bytes /  (1024.0 * 1024.0));
 
     // some debug output
-    NMDebugInd(2, << "...size of import region: " << readGDALImgDOM[0].get_extent() << "x" << readGDALImgDOM[1].get_extent()
-               << "x" << pixelsize << " = " << imgsize_mib << " MiB" << std::endl);
-    NMDebugInd(2, << "...processing scheme: " << niter << " x " << chunksize << " + " << rest
-               << " rows" << std::endl);
+    TALK("...size of import region: " << readGDALImgDOM[0].get_extent() << "x" << readGDALImgDOM[1].get_extent()
+               << "x" << pixelsize << " = " << imgsize_mib << " MiB");
+    TALK("...processing scheme: " << niter << " x " << chunksize << " + " << rest
+               << " rows");
 
     // process individual bands
     for (unsigned int b=1; b <= newGeoRegion.nbands; ++b)
@@ -756,8 +873,8 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs, string& collname, vec
 
         for (r_Range iter=0; iter <= niter; iter++)
         {
-            NMDebugAI(<< "importing chunk " << iter+1 << " of " << (rest > 0 ? niter+1 : niter) <<
-                      ": row " << seqWriteShift[1] << " to " << seqWriteShift[1] + rowstoread-1 << endl << endl);
+            TALK("importing chunk " << iter+1 << " of " << (rest > 0 ? niter+1 : niter)
+                 << ": row " << seqWriteShift[1] << " to " << seqWriteShift[1] + rowstoread-1 << endl);
 
             // create the interval object for writing the image buffer to rasdaman
             r_Minterval rint;
@@ -777,8 +894,10 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs, string& collname, vec
             void* gdalbuf = CPLMalloc(pixelsize * readGDALImgDOM[0].get_extent() * rowstoread);
             if (gdalbuf == NULL)
             {
-                NMErr(ctxRimport, << "memory allocation failed!");
+                cerr << ctx << "importImage(): "
+                << "memory allocation failed!" << endl;
                 GDALClose(pDs);
+                LEAVE(ctx << "importImage()");
                 return 0;
             }
 
@@ -856,19 +975,32 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs, string& collname, vec
             procoid = oids.at(0);
             nmdatatype = marraytypename;
         }
-        helper.writeNMMetadata(collname, procoid, newGeoRegion.epsg_code,
-                               newGeoRegion.crs_name, newGeoRegion.xmin, newGeoRegion.xmax,
-                               newGeoRegion.ymin, newGeoRegion.ymax, newGeoRegion.zmin,
-                               newGeoRegion.zmax, newGeoRegion.cellsize.x,
-                               newGeoRegion.cellsize.y, newGeoRegion.cellsize.z,
-                               nmdatatype,
-                               newGeoRegion.stats_min, newGeoRegion.stats_max,
-                               newGeoRegion.stats_mean, newGeoRegion.stats_stddev,
-                               "");
+
+        long zpos = 0;
+        if (asCube)
+            zpos = writeShift[2];
+
+        helper.writePSMetadata(
+                procoid,
+                collname,
+                coveragename,
+                newGeoRegion.crs_uris,
+                newGeoRegion.crs_order,
+                nmdatatype,
+                newGeoRegion.xmin, newGeoRegion.xmax,
+                newGeoRegion.ymin, newGeoRegion.ymax,
+                newGeoRegion.zmin, newGeoRegion.zmax,
+                newGeoRegion.cellsize.x,
+                newGeoRegion.cellsize.y,
+                newGeoRegion.cellsize.z,
+                newGeoRegion.isRegular,
+                zpos,
+                irregularZ);
+
 
     } // end band processing
 
-    NMDebugCtx(ctxRimport, << "done!");
+    LEAVE(ctx << "importImage()");
     return 1;
 }
 
@@ -884,9 +1016,9 @@ tileOverlaps(Header& header, vector<double>& bnd)
     // bnd[2] = ymin; bnd[3] = ymax;
     // bnd[4] = zmin; bnd[5] = zmax;
 
-    NMDebugCtx(ctxRimport, << "...");
+    ENTER(ctx << "tileOverlaps()");
 
-    NMDebugAI(<< "testing the following regions ... " << endl);
+    TALK("testing the following regions ... ");
     printRegion(header, "input image:");
     printRegion(bnd, "user bnd:");
 
@@ -905,24 +1037,20 @@ tileOverlaps(Header& header, vector<double>& bnd)
         yoverlap = true;
     }
 
-    NMDebugAI( << "do regions overlap? -> " << ((xoverlap && yoverlap) ? "yes" : "no") << endl << endl);
+    TALK("do regions overlap? -> " << ((xoverlap && yoverlap) ? "yes" : "no") << endl);
 
-    NMDebugCtx(ctxRimport, << "done!");
+    LEAVE(ctx << "tileOverlaps()");
     return (xoverlap && yoverlap) ? true : false;
 }
 
 bool parseCoordinateString(string bndstr, vector<double>& bnd)
 {
-    //NMDebugCtx(ctxRimport, << "...");
-
     size_t startpos = 0;
     size_t endpos = 0;
     string sub;
     while ((endpos = bndstr.find(':', startpos)) != string::npos)
     {
         sub = bndstr.substr(startpos, endpos-startpos);
-        //NMDebugInd(1, << "start: " << startpos << "  endpos: " << endpos <<
-        //      "  substring: " << sub << endl);
         bnd.push_back(atof(sub.c_str()));
         startpos = endpos+1;
     }
@@ -931,8 +1059,6 @@ bool parseCoordinateString(string bndstr, vector<double>& bnd)
     {
         endpos = bndstr.size()-1;
         sub = bndstr.substr(startpos, endpos-startpos+1);
-        //NMDebugInd(1, << "start: " << startpos << "  endpos: " << endpos <<
-        //      "  substring: " << sub << endl);
         bnd.push_back(atof(sub.c_str()));
     }
     else if (startpos == 0 && bndstr.size() != 0)
@@ -942,7 +1068,6 @@ bool parseCoordinateString(string bndstr, vector<double>& bnd)
     else
         return false;
 
-    //NMDebugCtx(ctxRimport, << "done!");
     return true;
 }
 
@@ -950,28 +1075,34 @@ bool parseCoordinateString(string bndstr, vector<double>& bnd)
 void printRegion(Header& reg, string descr)
 {
 #ifdef DEBUG
-    std::cout.precision(9);
-    string s = "    ";
+    if (debugOutput)
+    {
+        cout.precision(9);
+        string s = "    ";
 
-    std::cout << s << descr << std::endl;
-    std::cout << s << reg.xmin << s << reg.xmax << std::endl;
-    std::cout << s << reg.ymin << s << reg.ymax << std::endl;
-    std::cout << s << reg.zmin << s << reg.zmax << std::endl;
-    std::cout << std::endl;
+        cout << s << descr << endl;
+        cout << s << reg.xmin << s << reg.xmax << endl;
+        cout << s << reg.ymin << s << reg.ymax << endl;
+        cout << s << reg.zmin << s << reg.zmax << endl;
+        cout << endl;
+    }
 #endif
 }
 
-void printRegion(std::vector<double>& sdom, string descr)
+void printRegion(vector<double>& sdom, string descr)
 {
 #ifdef DEBUG
-    std::cout.precision(9);
-    string s = "    ";
+    if (debugOutput)
+    {
+        cout.precision(9);
+        string s = "    ";
 
-    std::cout << s << descr << std::endl;
-    std::cout << s << sdom[0] << s << sdom[1] << std::endl;
-    std::cout << s << sdom[2] << s << sdom[3] << std::endl;
-    std::cout << s << sdom[4] << s << sdom[5] << std::endl;
-    std::cout << std::endl;
+        cout << s << descr << endl;
+        cout << s << sdom[0] << s << sdom[1] << endl;
+        cout << s << sdom[2] << s << sdom[3] << endl;
+        cout << s << sdom[4] << s << sdom[5] << endl;
+        cout << endl;
+    }
 #endif
 }
 
@@ -979,142 +1110,134 @@ void printRegion(std::vector<double>& sdom, string descr)
 
 void showHelp()
 {
-    std::cout << std::endl << "rasimport v0.5" << std::endl << std::endl;
+    cout << endl << "rasimport v1.0" << endl << endl;
 
-    std::cout << "Usage: rasimport {-f <image file name> | -d <image directory> "
-              "[-s <tiff | img | jpeg | ... ]} -coll <collection name> "
+    cout << "Usage: rasimport {-f <image file name> | -d <image directory> "
+              "[-s <tiff | img | jpeg | ... >]} --coll <collection name> "
               "[-t <ImageTypeName:CollectionTypeName>] "
-              "[-conn <connection file>] [-3D <top | bottom> [-csz <z-axis cell size>]] "
-              "[-bnd <xmin:xmax:ymin:ymax[:zmin:zmax]>] [-oid <local_image_OID[:local_image_OID[: ... ]]>] "
-              "[-shift <x:y[:z]>]" << std::endl << std::endl;
+              "[--conn <connection file>] [--3D <top | bottom> [--csz <z-axis cell size>]] "
+              "[--bnd <xmin:xmax:ymin:ymax[:zmin:zmax]>] [--oid <local_image_OID[:local_image_OID[: ... ]]>] "
+              "[--shift <x:y[:z]>] "
+              "[--coverage-name <coverage name>] [--crs-order <2:0[:1[:...]]>] [--crs-uri <uri1[:uri2[:...]]>] "
+              "[--geo-bbox <xmin:xmax:ymin:ymax[:zmin:zmax]>] "
+              "[--metadata <key1=value1[:key2=value2[: ...]]>] "
+              "[--z-coords <z1[:z2[:...]]>]" << endl << endl;
 
-    std::cout << "   -f      path to image file" << std::endl;
-    std::cout << "   -d      path pointing to image directory" << std::endl;
-    std::cout << "   -s      filter files in directory ('-d') by the given suffix; if omitted, all files are considered" << std::endl;
-    std::cout << "   -coll   name of target rasdaman collection" << std::endl;
-    std::cout << "   -t      image and collection type (e.g. RGBImage:RGBSet)" << std::endl;
-    std::cout << "   -3D     mode for 2D (x/y) image slice import into 3D cubes" << std::endl;
-    std::cout << "   -csz    z-axis cell size; if omitted, rasimport assumes x-, y-, and z-cell sizes are identical!" << std::endl;
-    std::cout << "   -bnd    spatial import boundary (e.g. xmin:xmax:ymin:ymax)" << std::endl;
-    std::cout << "   -oid    local object identifier(s) (OID(s)) specifying the target image(s) of an update operation" << std::endl;
-    std::cout << "   -shift  shifts the origin of the import image by the specified vector (e.g. x:y)" << std::endl;
-    std::cout << "   -conn   connection file specifying rasdaman and postgres DB connection parameters" << std::endl << std::endl;
+    cout << " -d    path pointing to image directory" << endl;
+    cout << " -f    path to image file" << endl;
+    cout << " -s    filter files in directory ('-d') by the given suffix; if omitted, all files are considered" << endl;
+    cout << " -t    image and collection type (e.g. RGBImage:RGBSet)" << endl;
+    cout << " --3D     mode for 2D (x/y) image slice import into 3D cubes" << endl;
+    cout << " --bnd    spatial import boundary (i.e. sub-setting import file(s)) (e.g. xmin:xmax:ymin:ymax)" << endl;
+    cout << " --coll   name of target rasdaman collection" << endl;
+    cout << " --conn   connection file specifying rasdaman and postgres DB connection parameters" << endl;
+    cout << " --csz    z-axis cell size; if omitted, rasimport assumes x-, y-, and z-cell sizes are identical!" << endl;
+    cout << " --oid    local object identifier(s) (OID(s)) specifying the target image(s) of an update operation" << endl;
+    cout << " --shift  shifts the origin of the import image by the specified vector (e.g. x:y)" << endl;
+    cout << " --tiling rasql-based specification of the tiling scheme to be applied to the imported data" << endl;
+    cout << " --coverage-name  name under which the imported image is exposed as WCPS/WCS coverage" << endl;
+    cout << " --crs-order      order in which CRSs are specified by the --crs-uri identifer(s)"<< endl;
+    cout << "                  (e.g. '--crs-order 2:0:1' for axis order <z:x:y>)" << endl;
+    cout << " --crs-uri        resolvable coordinate reference system (CRS) identifier(s)" << endl;
+    cout << "                  (e.g. {resolver_prefix}/def/crs/OGC/0.1/Index2D)" << endl;
+    cout << " --geo-bbox       geospatial boundary of the image (edges) (e.g. xmin:xmax:ymin:ymax)" << endl;
+    cout << " --metadata       extra metadata to be stored with the coverage in the petascope database" << endl;
+    cout << " --z-coords       (irregularly spaced) z-axis coordinate(s) of the 2D image slice(s) to be imported" << endl << endl;
 
-    std::cout << "Note: Coordinates have to be given in the appropriate (geospatial) coordinate reference system of the image(s)!" << std::endl;
+    cout << "Note: Coordinates have to be given in the appropriate (geospatial) coordinate reference system of the image(s)!" << endl;
 
-    std::cout << std::endl;
+    cout << endl;
 }
 
-bool parseTypeString(std::string typestr, std::vector<std::string>& types)
+bool parseStringSequence(const string& sequence,
+        vector<string>& items, int nelem,
+        const string& sep)
 {
-    //NMDebugCtx(ctxRimport, << "...");
-
-    // this function fills the vector specifying the types required
-    // for inserting an image with a component type (multi-band)
-    // layout of types:
-    // 0: registered name of marray type (imgae type)
-    // 1: registered name of set type (collection type)
-
     size_t startpos = 0;
     size_t endpos = 0;
     string sub;
-    while ((endpos = typestr.find(':', startpos)) != string::npos)
+    while ((endpos = sequence.find(sep, startpos)) != string::npos)
     {
-        sub = typestr.substr(startpos, endpos-startpos);
-        //NMDebugInd(1, << "start: " << startpos << "  endpos: " << endpos <<
-        //      "  substring: " << sub << endl);
-        types.push_back(sub.c_str());
+        sub = sequence.substr(startpos, endpos-startpos);
+        items.push_back(sub.c_str());
         startpos = endpos+1;
     }
-    // get the last coordinate
+    // get the last item
     if (startpos != 0)
     {
-        endpos = typestr.size()-1;
-        sub = typestr.substr(startpos, endpos-startpos+1);
-        //NMDebugInd(1, << "start: " << startpos << "  endpos: " << endpos <<
-        //      "  substring: " << sub << endl);
-        types.push_back(sub.c_str());
+        endpos = sequence.size()-1;
+        sub = sequence.substr(startpos, endpos-startpos+1);
+        items.push_back(sub.c_str());
     }
-    else if (startpos == 0 && typestr.size() != 0)
+    else if (startpos == 0 && sequence.size() != 0)
     {
-        types.push_back(typestr.c_str());
+        items.push_back(sequence.c_str());
     }
     else
         return false;
 
-    //NMDebugCtx(ctxRimport, << "done!");
-
-    // we return success only when we got 5 values here
-    // we don't check them for now, users must be careful!
-    return types.size() == 2 ? true : false;
+    // if nelem is meaningful, we evaluate, otherwise we just
+    // claim everything was fine
+    return nelem > 0 ? (items.size() == nelem ? true : false) : true;
 }
-
-#if HAVE_SIGSEGV_RECOVERY
-int
-handler (void *fault_address, int serious)
-{
-    // clean up connection in case of segfault
-    if (rasconn)
-    {
-        delete rasconn;
-    }
-}
-#endif
 
 // ----------------------------------------- MAIN ------------------------------------------------
 
 int
 main(int argc, char** argv)
 {
-#if HAVE_SIGSEGV_RECOVERY
-    sigsegv_install_handler(&handler);
-#endif
-    rasconn = NULL;
-
-    NMDebugCtx(ctxRimport, << "...");
+    SET_OUTPUT(1);
+    ENTER(ctx << "main()");
 
     // show help if no arguments are passed
     if (argc < 2)
     {
         showHelp();
+        LEAVE(ctx << "main()");
         return EXIT_SUCCESS;
     }
 
+    // data structure to hold selected image metadata
+    // ToDo: sort out which data elements of the structure
+    //       are still actually been used and ditch surplus ones
+    Header header;
+    resetHeader(header);
+
     // declare variables for command line arguments
+    string filepath;                                        // -f
+    string dirpath;                                         // -d
+    string suffix;                                          // -s
+    string collname;                                        // --coll
+    string connfile;                                        // --conn
+    string mode3D;                                          // --3D
+    string tilingSpec;                                      // --tiling
 
-    std::string filepath;                                        // -f
-    std::string dirpath;                                         // -d
-    std::string suffix;                                          // -s
-    std::string collname;                                        // -coll
-    std::string connfile;                                        // -conn
-    std::string mode3D;                                          // -3D
-    std::string tilingSpec;										 // -tiling
+    double cellsizez = -1;                                       // --csz
+    vector<double> bnd;                                     // --bnd
+    vector<double> oids;                                    // --oid
+    bool bupdate = false;
+    vector<double> shift;                                   // --shift
+    vector<string>  usertype;                               // -t
 
-    double cellsizez = -1;                                       // -csz
-    std::vector<double> bnd;                                     // -bnd
-    std::vector<double> oids;                                        // -oid
-    std::vector<double> shift;                                   // -shift
-    vector<string>  usertype;                                    // -types
+    string usercovname;                                     // --coverage-name
+    vector<string> crsuri;                                  // --crs-uri
+    vector<double> zcoords;                                    // --z-coords
+    vector<double> geobbox;                                 // --geo-bbox
+    string metadata;                                        // --metadata
 
     // parse command line arguments
     int arg = 1;
     while (arg < argc-1)
     {
-        std::string theArg = argv[arg];
-        std::transform(theArg.begin(), theArg.end(),
+        string theArg = argv[arg];
+        string __arg = theArg;
+        transform(theArg.begin(), theArg.end(),
                        theArg.begin(), ::tolower);
 
         if (theArg == "-f")
         {
             filepath = argv[arg+1];
-// filepath access check is disabled to allow the specification of netcdf subdatasets
-// i.e. file access checking is left with the GDAL library.
-//          if (::access(filepath.c_str(), R_OK) != 0)
-//          {
-//              NMErr(ctxRimport, << "invalid parameter for -f: could not "
-//                      "access file '" << filepath << "'!");
-//              return EXIT_FAILURE;
-//          }
+            //ToDo: anything to check here?
         }
         else if (theArg == "-d")
         {
@@ -1125,8 +1248,11 @@ main(int argc, char** argv)
             DIR* dirp = opendir(dirpath.c_str());
             if (dirp == NULL)
             {
-                NMErr(ctxRimport, << "invalid parameter for -d: could not "
-                      "access directory '" << dirpath << "'!");
+                cerr << ctx << "main(): "
+                << "invalid parameter for -d: could not "
+                << "access directory '" << dirpath << "'!"
+                << endl;
+                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
@@ -1134,66 +1260,157 @@ main(int argc, char** argv)
         {
             suffix = argv[arg+1];
         }
-        else if (theArg == "-coll")
+        else if (theArg == "--coverage-name")
+        {
+            usercovname = argv[arg+1];
+            if (usercovname.empty())
+            {
+                cerr << ctx << "main(): "
+                  << "missing parameter for --coverage-name: please "
+                << "specify a coverage name!"
+                << endl;
+                  LEAVE(ctx << "main()");
+                return EXIT_FAILURE;
+            }
+        }
+        else if (theArg == "--crs-uri")
+        {
+            string sequence = argv[arg+1];
+            stringstream div;
+            div << ":" << CRS_RESOLVER_PREFIX;
+            if (!parseStringSequence(sequence, crsuri, 0 , div.str()))
+            {
+                cerr << ctx << "main(): "
+                  << "missing parameter for --crs-uri: please "
+                << "specify a coordinate reference system identifier! "
+                << "E.g.: " << CRS_RESOLVER_PREFIX << "/def/crs/EPSG/0/4326" << endl;
+                  LEAVE(ctx << "main()");
+                return EXIT_FAILURE;
+            }
+        }
+        else if (theArg == "--coll")
         {
             collname = argv[arg+1];
             if (collname.empty())
             {
-                NMErr(ctxRimport, << "missing parameter for -coll: please "
-                      "specify a target collection!");
+                cerr << ctx << "main(): "
+                << "missing parameter for --coll: please "
+                << "specify a target collection!"
+                << endl;
+                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
-        else if (theArg == "-conn")
+        else if (theArg == "--conn")
         {
             connfile = argv[arg+1];
             if (access(connfile.c_str(), R_OK) != 0)
             {
-                NMErr(ctxRimport, << "invalid parameter for -conn: could "
-                      "not access connection file '" << connfile << "'!");
+                cerr << ctx << "main(): "
+                << "invalid parameter for --conn: could "
+                << "not access connection file '"
+                << connfile << "'!" << endl;
+                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
-        else if (theArg == "-3d")
+        else if (theArg == "--3d")
         {
             mode3D = argv[arg+1];
-            std::transform(mode3D.begin(), mode3D.end(), mode3D.begin(),
+            transform(mode3D.begin(), mode3D.end(), mode3D.begin(),
                            ::tolower);
             if (mode3D != "top" && mode3D != "bottom")
             {
-                NMErr(ctxRimport, << "invalid parameter for -3D: valid "
-                      "parameters are {top | bottom}!");
+                cerr << ctx << "main(): "
+                << "invalid parameter for -3D: valid "
+                << "parameters are {top | bottom}!"
+                << endl;
+                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
-        else if (theArg == "-bnd")
+        else if (theArg == "--bnd")
         {
-            std::string tmp = argv[arg+1];
+            string tmp = argv[arg+1];
             if (!parseCoordinateString(tmp, bnd))
             {
-                NMErr(ctxRimport, << "invalid parameter for -bnd: "
-                      "failed reading spatial boundary!");
+                cerr << ctx << "main(): "
+                << "invalid parameter for --bnd: "
+                << "failed reading spatial boundary!"
+                << endl;
+                LEAVE(ctx << "main()");
+                return EXIT_FAILURE;
+            }
+        }
+        else if (theArg == "--crs-order")
+        {
+            string tmp = argv[arg+1];
+            vector<double> vtmp;
+            if (    !parseCoordinateString(tmp, vtmp)
+                ||  !checkCRSOrderSequence(vtmp, header.crs_order)
+               )
+            {
+                cerr << ctx << "main(): "
+                << "invalid parameter for --crs-order: please "
+                << "specify an appropriate order, e.g. for yxz-order: --crs-order 1:0:2"
+                << endl;
+                LEAVE(ctx << "main()");
+                return EXIT_FAILURE;
+            }
+        }
+        else if (theArg == "--z-coords")
+        {
+            string tmp = argv[arg+1];
+            if (    !parseCoordinateString(tmp, zcoords)
+                ||  !checkZCoords(zcoords)
+               )
+            {
+                cerr << ctx << "main(): "
+                << "invalid parameter for --z-coords: please "
+                << "specify one or more z-axis coordinates in "
+                << "strictly ascending order, e.g.: --z-coords 1000:1050:1080"
+                << endl;
+                LEAVE(ctx << "main()");
+                return EXIT_FAILURE;
+            }
+        }
+        else if (theArg == "--geo-bbox")
+        {
+            string tmp = argv[arg+1];
+            if (!parseCoordinateString(tmp, geobbox))
+            {
+                cerr << ctx << "main(): "
+                << "invalid parameter for --geo-bbox: "
+                << "failed reading spatial boundary!"
+                << endl;
+                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
         else if (theArg == "-t")
         {
-            std::string tmp = argv[arg+1];
-            if (!parseTypeString(tmp, usertype))
+            string tmp = argv[arg+1];
+            if (!parseStringSequence(tmp, usertype, 2))
             {
-                NMErr(ctxRimport, << "invalid parameter for -t "
-                      "(valid example: -t RGBImage:RGBSet)");
+                cerr << ctx << "main(): "
+                << "invalid parameter for -t "
+                << "(valid example: -t RGBImage:RGBSet)"
+                << endl;
+                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
-        else if (theArg == "-oid")
+        else if (theArg == "--oid")
         {
-            std::string tmp = argv[arg+1];
-            std::vector<double> tmpoids;
+            string tmp = argv[arg+1];
+            vector<double> tmpoids;
             if (!parseCoordinateString(tmp, tmpoids))
             {
-                NMErr(ctxRimport, << "invalid parameter for -oid: "
-                      "failed reading object identifier(s)!");
+                cerr << ctx << "main(): "
+                << "invalid parameter for --oid: "
+                << "failed reading object identifier(s)!"
+                << endl;
+                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
 
@@ -1203,70 +1420,133 @@ main(int argc, char** argv)
                 if (tmpoids[t] > 0)
                     oids.push_back(tmpoids[t]);
             }
+            bupdate = true;
         }
-        else if (theArg == "-csz")
+        else if (theArg == "--csz")
         {
             cellsizez = atof(argv[arg+1]);
             if (cellsizez <= 0)
             {
-                NMErr(ctxRimport, << "invalid parameter for -csz: "
-                      "z-axis cell size must be numeric and > 0!");
+                cerr << ctx << "main(): "
+                << "invalid parameter for --csz: "
+                << "z-axis cell size must be numeric and > 0!"
+                << endl;
+                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
-        else if (theArg == "-shift")
+        else if (theArg == "--shift")
         {
-            std::string tmp = argv[arg+1];
+            string tmp = argv[arg+1];
             if (!parseCoordinateString(tmp, shift))
             {
-                NMErr(ctxRimport, << "invalid parameter for -shift: "
-                      "failed reading shift coordinates!");
+                cerr << ctx << "main(): "
+                << "invalid parameter for --shift: "
+                << "failed reading shift coordinates!"
+                << endl;
+                LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
         }
-        else if (theArg == "-tiling")
+        else if (theArg == "--tiling")
         {
-        	tilingSpec = argv[arg+1];
+            tilingSpec = argv[arg+1];
+        }
+        else if (theArg == "--metadata")
+        {
+            // meta data is going to be checked later,
+            // which is something we may want to change ...
+            // here, we only check, whether the string is empty or not
+            metadata = argv[arg+1];
+            if (metadata.empty() ||
+                metadata.find('=') == string::npos)
+            {
+                cerr << ctx << "main(): "
+                << "empty or invalid parameter for --metadata!"
+                << endl;
+                LEAVE(ctx << "main()");
+                return EXIT_FAILURE;
+            }
         }
         else if (theArg == "--help")
         {
             showHelp();
+            LEAVE(ctx << "main()");
             return EXIT_SUCCESS;
         }
         arg++;
     }
 
+    string lastarg = argv[argc-1];
+    if (lastarg == "--help")
+    {
+        showHelp();
+        LEAVE(ctx << "main()");
+        return EXIT_SUCCESS;
+    }
+
     // ---------------------------------------------------------------------
     // let's see what we've got so far
-    NMDebugInd(1, << "filepath: " << filepath << std::endl);
-    NMDebugInd(1, << "dirpath: " << dirpath << std::endl);
-    NMDebugInd(1, << "suffix: " << suffix << std::endl);
-    NMDebugInd(1, << "collname: " << collname << std::endl);
-    NMDebugInd(1, << "connfile: " << connfile << std::endl);
-    NMDebugInd(1, << "mode3D: " << mode3D << std::endl);
-    NMDebugInd(1, << "csz: " << cellsizez << std::endl);
+    TALK("filepath: " << filepath);
+    TALK("dirpath: " << dirpath);
+    TALK("suffix: " << suffix);
+    TALK("collname: " << collname);
+    TALK("connfile: " << connfile);
+    TALK("mode3D: " << mode3D);
+    TALK("csz: " << cellsizez);
+    TALK("coverage name: " << usercovname);
 
-    NMDebugInd(1, << "bnd: ");
+    stringstream debugstr;
+    debugstr << "bnd: ";
     for (int i=0; i < bnd.size(); i++)
-        NMDebug(<< bnd[i] << " ");
-    NMDebug(<< std::endl);
+        debugstr<< bnd[i] << " ";
+    TALK(debugstr.str());
+    debugstr.str("");
 
-    NMDebugInd(1, << "oid: ");
+    debugstr << "oid: ";
     for (int v=0; v < oids.size(); v++)
-        NMDebug(<< oids[v] << " ");
-    NMDebug(<< std::endl);
+        debugstr<< oids[v] << " ";
+    TALK(debugstr.str());
+    debugstr.str("");
 
-    NMDebugInd(1, << "shift: ");
+    debugstr << "shift: ";
     for (int s=0; s < shift.size(); s++)
-        NMDebug(<< shift[s] << " ");
-    NMDebug(<< std::endl);
+        debugstr<< shift[s] << " ";
+    TALK(debugstr.str());
+    debugstr.str("");
 
-    NMDebugInd(1, << "data types: ");
+    debugstr << "data types: ";
     for (int t=0; t < usertype.size(); t++)
-        NMDebug(<< usertype.at(t) << " ");
-    NMDebug(<< std::endl);
+        debugstr<< usertype.at(t) << " ";
+    TALK(debugstr.str());
+    debugstr.str("");
 
-    NMDebugInd(1, << "tiling scheme: " << tilingSpec << std::endl);
+    debugstr << "geo-bbox: ";
+    for (int i=0; i < geobbox.size(); i++)
+        debugstr<< geobbox[i] << " ";
+    TALK(debugstr.str());
+    debugstr.str("");
+
+    debugstr << "CRS order: ";
+    for (int i=0; i < header.crs_order.size(); i++)
+        debugstr<< header.crs_order[i] << " ";
+    TALK(debugstr.str());
+    debugstr.str("");
+
+    debugstr << "CRS URIs: ";
+    for (int i=0; i < crsuri.size(); i++)
+        debugstr<< crsuri[i] << "\n          ";
+    TALK(debugstr.str());
+    debugstr.str("");
+
+    TALK("tiling scheme: " << tilingSpec);
+    TALK("metadata: " << metadata);
+
+    debugstr << "z-axis coordinates: ";
+    for (int i=0; i < zcoords.size(); i++)
+        debugstr<< zcoords[i] << " ";
+    TALK(debugstr.str());
+    debugstr.str("");
 
     // -----------------------------------------------------------------------
     // EVALUATE ARGUMENTS
@@ -1276,14 +1556,17 @@ main(int argc, char** argv)
         connfile = string(getenv("HOME")) + "/" + RAS_USER_RESOURCEDIR + "/rasconnect";
         if (access(connfile.c_str(), R_OK) != 0)
         {
-            NMErr(ctxRimport, << "could not access connection file '"
-                  << connfile << "'!");
+            cerr << ctx << "main(): "
+            << "could not access connection file '"
+            << connfile << "'!"
+            << endl;
+            LEAVE(ctx << "main()");
             return EXIT_FAILURE;
         }
     }
 
     // create the list of filenames
-    std::vector< std::string > vnames;
+    vector< string > vnames;
     if (!filepath.empty())
     {
         vnames.push_back(filepath);
@@ -1295,8 +1578,11 @@ main(int argc, char** argv)
 
     if (vnames.size() == 0)
     {
-        NMErr(ctxRimport, << "No input files specified!");
+        cerr << ctx << "main(): "
+        << "no input files specified!"
+        << endl;
         showHelp();
+        LEAVE(ctx << "main()");
         return EXIT_FAILURE;
     }
     else
@@ -1306,43 +1592,123 @@ main(int argc, char** argv)
         sort(vnames.begin(), vnames.end());
     }
 
+    // check 3d paramters
+    bool b3D = (    !mode3D.empty()
+                ||  shift.size() == 3
+                ||  zcoords.size() > 0
+               ) ? true : false;
+
+    // check crs_order
+    // if none has been specified at all (i.e. crs_order is empty)
+    // we set the default;
+    if (header.crs_order.size() == 0)
+    {
+        header.crs_order.push_back(0);
+        header.crs_order.push_back(1);
+        if (b3D)
+        {
+            header.crs_order.push_back(2);
+        }
+    }
+    // if an order had been specified, it should fit
+    // other user settings
+    else if (b3D && header.crs_order.size() != 3)
+    {
+        cerr << ctx << "main(): "
+        << "invalid CRS axis order specified! Double check number of specified axes!"
+        << endl;
+        showHelp();
+        LEAVE(ctx << "main()");
+        return EXIT_FAILURE;
+    }
+
     // initiate gdal
     GDALAllRegister();
 
-    // read input image(s) --> populate Header structure
+    // read input image(s) using GDAL --> populate Header structure
     // overall processing region (applies to multiple files)
-    Header header;
-    resetHeader(header);
-
-    bool b3D = (!mode3D.empty() || shift.size() == 3) ? true : false;
     vector< string > vimportnames;
     readImageInformation(vnames, header, bnd,
                          vimportnames, b3D, cellsizez);
 
     if (vimportnames.size() == 0)
     {
-        NMErr(ctxRimport, << "Empty import region!" << std::endl);
+        cerr << ctx << "main(): "
+        << "empty import region!"
+        << endl;
+        LEAVE(ctx << "main()");
         return EXIT_FAILURE;
     }
+
+    // we set the image to 'irregular' when we've got
+    // z-axis coordinates specified;
+    if (zcoords.size() > 0)
+        header.isRegular = false;
 
     // -----------------------------------------------------------------------
     // IMPORT IMAGE(S)
     try
     {
-        rasconn = new RasdamanConnector(connfile);
-        RasdamanHelper2 helper(rasconn);
-        //printImageInformation(header, helper);
+        RasdamanConnector rasconn(connfile);
+        RasdamanHelper2 helper(&rasconn);
+
+        // if the user hasn't specified any crs uri, we try to derive a resolvable CRS identifier
+        // from the GDAL WKT CRS definition, if available; we notify the user if something DIDN't work,
+        // if we found a description and did find an epsg code, we don't bother the user
+        if (crsuri.size() == 0)
+        {
+		    string epsg;
+            string uris;
+            stringstream securi;
+            securi << CRS_RESOLVER_PREFIX << "/dev/crs/OGC/0/";
+            if (!header.crs_uris[0].empty())
+            {
+
+                uris = helper.getCRSURIfromWKT(header.crs_uris[0], b3D ? 3 : 2, epsg);
+
+                if (epsg.empty())
+                {
+			        cout << "Couldn't find EPSG code in CRS WKT! Set CRS URI to:" << std::endl;
+                }
+            }
+            else
+            {
+		        cout << "Couldn't find any CRS info in file metadata! Set CRS URI to:" << std::endl;
+                if (b3D)
+                    securi << "Index3D";
+                else
+                    securi << "Index2D";
+
+                uris = securi.str();
+
+            }
+
+            if (epsg.empty())
+            {
+		           cout << uris << std::endl;
+            }
+
+            header.crs_uris.clear();
+            header.crs_uris.push_back(uris);
+        }
+        else
+        {
+		    header.crs_uris.clear();
+            for (int c=0; c < crsuri.size(); ++c)
+                header.crs_uris.push_back(crsuri[c]);
+        }
+
+        ///////////////////////////////////////////////////////////////
 
         // check, whether the collection already exists
         if (helper.doesCollectionExist(collname) < 0)
         {
             // the user is always right, use his type!
-            //if (header.nbands > 1 && usertype.size() == 2)
             if (usertype.size() == 2)
                 helper.insertUserCollection(collname, usertype.at(1));
             else
                 helper.insertCollection(collname, header.rmantype,
-                                        !mode3D.empty());
+                                        b3D);
         }
 
         // note: shiftPt is in pixel coordinates
@@ -1380,27 +1746,73 @@ main(int argc, char** argv)
             marraytypename = usertype.at(0);
 
         if (!processImageFiles(vimportnames, collname, oids, header, mode3D,
-                               shiftPt, helper, marraytypename, tilingSpec))
+                               shiftPt, helper, marraytypename,
+                               tilingSpec, usercovname, zcoords))
         {
-            NMErr(ctxRimport, << "Failed processing image file(s)!");
+            cerr << ctx << "main(): "
+            << "failed processing image file(s)!"
+            << endl;
+            LEAVE(ctx << "main()");
             return EXIT_FAILURE;
         }
-    }
+
+        bool bDomvalid = false;
+        if (header.isRegular && geobbox.size() >= 4)
+        {
+
+            if (geobbox[1] > geobbox[0] && geobbox[3] > geobbox[2])
+            {
+                bDomvalid = true;
+            }
+
+            if (bDomvalid && geobbox.size() >= 6)
+            {
+                if (geobbox[5] > geobbox[4])
+                    bDomvalid = false;
+            }
+        }
+
+        // insert / update extra metadata
+        for (int q=0; q < oids.size(); ++q)
+        {
+            if (bDomvalid)
+            {
+                helper.writePSMetadata(
+                        oids[q],
+                        collname,
+                        usercovname,
+                        header.crs_uris,
+                        header.crs_order,
+                        marraytypename,
+                        geobbox[0], geobbox[1], geobbox[2], geobbox[3],
+                        geobbox[4], geobbox[5], header.cellsize.x, header.cellsize.y,
+                        header.cellsize.z,
+                        true,
+                        -1,
+                        0.0);
+            }
+
+            if (metadata.size() > 0)
+            {
+                if (!helper.writeExtraMetadata(oids[q], metadata))
+                {
+                    cerr << ctx << "main(): "
+                    << "ERROR: --metadata: Issue(s) writing extra metadata! See debug output for more info."
+                    << endl;
+                    LEAVE(ctx << main);
+                    return EXIT_FAILURE;
+                }
+            }
+        }
+     }
     catch (r_Error& re)
     {
-        NMErr(ctxRimport, << re.what());
-        if (rasconn)
-        {
-            delete rasconn;
-        }
+        cerr << ctx << "main(): "
+        << re.what() << endl;
+        LEAVE(ctx << "main()");
         return EXIT_FAILURE;
     }
 
-    if (rasconn)
-    {
-        delete rasconn;
-    }
-
-    NMDebugCtx(ctxRimport, << "done!");
+    LEAVE(ctx << "main()");
     return EXIT_SUCCESS;
 }

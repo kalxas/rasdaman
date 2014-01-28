@@ -34,17 +34,16 @@
  *
  */
 
-#ifndef RASDAMANCONNECTOR_H_
-#define RASDAMANCONNECTOR_H_
+#ifndef RASDAMANCONNECTOR_HH_
+#define RASDAMANCONNECTOR_HH_
 
-#define ctxrconnector "RasdamanConnector"
-
+#include <string>
+#include <iostream>
 #include "rasdaman.hh"
 #include "raslib/error.hh"
 
 // postgresql
 #include "libpq-fe.h"
-#include "nmlog.h"
 
 class RasdamanConnector
 {
@@ -57,31 +56,35 @@ public:
      *  \param hostname hostname (e.g. localhost)
      *  \param RasDbName rasdaman data base name (e.g. RASBASE)
      *  \param PetaDbName petascope data base name
-     *  \param RasUser rasdaman data base user
+     *  \param RasDbUser rasdaman data base user (e.g. PostgreSQL user)
+     *  \param RasDbPasswd rasdaman data base user's password
+     *  \param RasUser rasdaman user (rasmgr login)
+     *  \param RasPasswd password of rasdaman (rasmgr) user
      *  \param PetaUser petascope data base user
-     *  \param RasPasswd password of rasdaman data base user
      *  \param PetaPasswd password of petascope data base user
      */
 
     RasdamanConnector(int rasport, int pgport,
-                      std::string hostname, std::string RasDbName,
-                      std::string PetaDbName, std::string RasUser,
-                      std::string PetaUser, std::string RasPasswd,
-                      std::string PetaPasswd);
+                      std::string hostname,
+                      std::string RasDbName, std::string PetaDbName,
+                      std::string RasDbuser, std::string RasDbPasswd,
+                      std::string RasUser, std::string RasPasswd,
+                      std::string PetaUser, std::string PetaPasswd);
 
     /*! This constructor allows parsing a configuration file, which
      *  contains the required connection parameters. The configuration
      *  file is expected to have the following structure (sample file): \newline \newline
      *
-     *  host=localhost \newline
-     *  rasport=7001 \newline
-     *  pgport=5432 \newline
-     *  rasdbname=RASBASE \newline
-     *  petadbname=PETASCOPE \newline
-     *  rasuser=rasdaman \newline
-     *  raspassword=rasdaman \newline
-     *  petauser=rasdaman \newline
-     *  petapassword=rasdaman \newline
+     *    rasport=7001 \newline
+     *    pgport=5432    \newline
+     *    rasdbname=RASBASE \ newline
+     *    petadbname=petascopedb \newline
+     *    rasdbuser=rasdaman \newline
+     *    rasdbpasswd=rasdaman \newline
+     *    rasuser=rasadmin    \newline
+     *    raspassword=rasadmin    \newline
+     *    petauser=rasdaman    \newline
+     *    petapassword=rasdaman
      *
      *  \param configfile filename of the configuration file
      *
@@ -131,6 +134,11 @@ public:
         return this->m_PetaDbName;
     };
     /*! get configured connection details */
+    std::string getRasDbUser()
+    {
+        return this->m_RasDbUser;
+    };
+    /*! get configured connection details */
     std::string getRasUser()
     {
         return this->m_RasUser;
@@ -140,6 +148,7 @@ public:
     {
         return this->m_PetaUser;
     };
+
 
     /*! get a connection string for the petascope data base which can be
      *  used with PQconnectdb()  */
@@ -175,20 +184,27 @@ protected:
     /*! petascope data base name */
     std::string m_PetaDbName;
     /*! rasdaman data base user */
+    std::string m_RasDbUser;
+    /*! password of rasdaman data base user */
+    std::string m_RasDbPasswd;
+    /*! rasmgr user */
     std::string m_RasUser;
+    /*! rasmgr user's password */
+    std::string m_RasPasswd;
     /*! petascope data base user */
     std::string m_PetaUser;
-    /*! password of rasdaman data base user */
-    std::string m_RasPasswd;
     /*! password of petascope data base user */
     std::string m_PetaPasswd;
-
     /*! rasdaman data base object */
     r_Database m_db;
     /*! pointer to a petascope data base connection */
     PGconn* m_petaconn;
     /*! pointer to a rasdaman data base connection */
     PGconn* m_rasconn;
+
+private:
+    /*! string constant defining class context for debug output */
+    static const std::string ctx;
 };
 
-#endif /* RASDAMANCONNECTOR_H_ */
+#endif /* RASDAMANCONNECTOR_HH_ */

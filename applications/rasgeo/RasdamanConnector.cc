@@ -25,9 +25,11 @@
  */
 
 #include "config.h"
-#include "RasdamanConnector.h"
+#include "RasdamanConnector.hh"
 #include <fstream>
 #include <unistd.h>
+
+const std::string RasdamanConnector::ctx = "RasdamanConnector::";
 
 RasdamanConnector::RasdamanConnector()
 {
@@ -36,13 +38,15 @@ RasdamanConnector::RasdamanConnector()
 }
 
 RasdamanConnector::RasdamanConnector(int rasport, int pgport,
-                                     std::string hostname, std::string RasDbName,
-                                     std::string PetaDbName, std::string RasUser,
-                                     std::string PetaUser, std::string RasPasswd,
-                                     std::string PetaPasswd) :
+        std::string hostname,
+        std::string RasDbName, std::string PetaDbName,
+        std::string RasDbuser, std::string RasDbPasswd,
+        std::string RasUser, std::string RasPasswd,
+        std::string PetaUser, std::string PetaPasswd) :
     m_iRasPort(rasport), m_iPgPort(pgport),
     m_sHostName(hostname), m_RasDbName(RasDbName),
-    m_PetaDbName(PetaDbName), m_RasUser(RasUser),
+    m_PetaDbName(PetaDbName), m_RasDbUser(RasDbuser),
+    m_RasDbPasswd(RasDbPasswd), m_RasUser(RasUser),
     m_PetaUser(PetaUser), m_RasPasswd(RasPasswd),
     m_PetaPasswd(PetaPasswd)
 {
@@ -82,7 +86,7 @@ int RasdamanConnector::parseConfig(std::string configfile) throw (r_Error)
         return 0;
     }
 
-    fstream confinfo(configfile.c_str());
+    ifstream confinfo(configfile.c_str());
     if (!confinfo.good())
     {
         throw r_Error(r_Error::r_Error_NameInvalid);
@@ -116,10 +120,14 @@ int RasdamanConnector::parseConfig(std::string configfile) throw (r_Error)
         else if (key == "petadbname")
             this->m_PetaDbName = value;
         else if (key == "rasuser")
+            this->m_RasDbUser = value;
+        else if (key == "raspassword")
+            this->m_RasDbPasswd = value;
+        else if (key == "rasloginuser")
             this->m_RasUser = value;
         else if (key == "petauser")
             this->m_PetaUser = value;
-        else if (key == "raspassword")
+        else if (key == "rasloginpassword")
             this->m_RasPasswd = value;
         else if (key == "petapassword")
             this->m_PetaPasswd = value;
@@ -153,7 +161,7 @@ std::string RasdamanConnector::removeWhiteSpaces(std::string str)
 
 void RasdamanConnector::connect()
 {
-    // connect to RASBASE the rasdaman way
+    // connect to RASBASE the rasdaman way (i.e. via rasmgr)
     if (m_db.get_status() != r_Database::read_only &&
             m_db.get_status() != r_Database::read_write)
         m_db.open(m_RasDbName.c_str());
@@ -165,20 +173,20 @@ void RasdamanConnector::connect()
         this->m_petaconn = PQconnectdb(this->getPetaPGConnectString().c_str());
         if (PQstatus(this->m_petaconn) != CONNECTION_OK)
         {
-            NMDebug(<< std::endl);
-            NMErr(ctxrconnector, << "connection with '" << this->getPetaDbName() << "' failed!");
+            std::cerr << ctx << "connect(): "
+            << "connection with '" << this->getPetaDbName() << "' failed!" << std::endl;
         }
     }
 
-    // get a direct connection ot the rasdaman data base, but, before
+    // get a direct connection to the rasdaman data base (in PostgreSQL), but, before
     // we do anything, check, whether there is already a connection alive
     if (PQstatus(this->m_rasconn) != CONNECTION_OK)
     {
         this->m_rasconn = PQconnectdb(this->getRasPGConnectString().c_str());
         if (PQstatus(this->m_rasconn) != CONNECTION_OK)
         {
-            NMDebug(<< std::endl);
-            NMErr(ctxrconnector, << "connection with '" << this->getRasDbName() << "' failed!");
+            std::cerr << ctx << "connect(): "
+            << "connection with '" << this->getRasDbName() << "' failed!" << std::endl;
         }
     }
 }
@@ -226,9 +234,8 @@ std::string RasdamanConnector::getRasPGConnectString(void)
     connstr << "host=" << this->m_sHostName <<
             " port=" << this->m_iPgPort <<
             " dbname=" << this->m_RasDbName <<
-            " user=" << this->m_RasUser <<
-            " password=" << this->m_RasPasswd;
+            " user=" << this->m_RasDbUser <<
+            " password=" << this->m_RasDbPasswd;
 
     return connstr.str();
 }
-
