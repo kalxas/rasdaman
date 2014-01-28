@@ -68,12 +68,12 @@
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="value">
-      <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:char">
+      <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:unsigned char">
         <swe:description></swe:description>
         <swe:uom code="10^0"/>
         <swe:constraint>
           <swe:AllowedValues>
-            <swe:interval>-128 127</swe:interval>
+            <swe:interval>0 255</swe:interval>
           </swe:AllowedValues>
         </swe:constraint>
       </swe:Quantity>

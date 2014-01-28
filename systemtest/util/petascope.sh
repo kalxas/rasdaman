@@ -128,6 +128,7 @@ function import_eobs()
 
   c_colltype='ShortSet3'
   c_basetype='short'
+  c_rangetype='short'
   c_covtype='RectifiedGridCoverage'
 
   c_crs_t="$SECORE_URL"'/crs/OGC/0/Temporal?epoch="1950-01-01T00:00:00"&uom="d"'
@@ -169,8 +170,8 @@ function import_eobs()
   # note: assign dimensionless quantity
   $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band', 0, \
-              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_rangetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
   $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs_t' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs_t');" > /dev/null
@@ -212,7 +213,8 @@ function import_rgb()
   c=$COLL
 
   c_colltype='RGBSet'
-  c_basetype='unsigned char'
+  c_basetype='char'
+  c_rangetype='unsigned char'
   c_covtype='RectifiedGridCoverage'
 
   c_crs="$SECORE_URL"'/crs/OGC/0/Index2D'
@@ -230,7 +232,7 @@ function import_rgb()
   #
 
   $RASQL -q "create collection $c $c_colltype" > /dev/null || exit $RC_ERROR
-  $RASQL -q "insert into $c values inv_png(\$1)" -f "$TESTDATA_PATH"/rgb.png > /dev/null || exit $RC_ERROR
+  $RASQL -q "insert into $c values ($c_basetype) inv_png(\$1)" -f "$TESTDATA_PATH"/rgb.png > /dev/null || exit $RC_ERROR
 
   # general coverage information (name, type, ...)
   $PSQL -c "INSERT INTO ps_coverage (name, gml_type_id, native_format_id) \
@@ -254,18 +256,18 @@ function import_rgb()
   # R
   $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band1', 0, \
-              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_rangetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
   # G
   $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band2', 1, \
-              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_rangetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
   # B
   $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band3', 2, \
-              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_rangetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
   $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs');" > /dev/null
@@ -301,6 +303,7 @@ function import_mr()
 
   c_colltype='GreySet'
   c_basetype='char'
+  c_rangetype='unsigned char'
   c_covtype='RectifiedGridCoverage'
 
   c_crs="$SECORE_URL"'/crs/OGC/0/Index2D'
@@ -339,8 +342,8 @@ function import_mr()
   # note: assign dimensionless quantity
   $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band', 0, \
-              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_rangetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
   $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs');" > /dev/null
@@ -387,6 +390,7 @@ function import_irr_cube_1()
 
   c_colltype='UShortSet3'     # See `rasdl -p` -> ``set types'
   c_basetype='unsigned short' # See ql-guide.pdf, Table 1 ``rasdl base types''
+  c_rangetype='unsigned short'
   c_covtype='ReferenceableGridCoverage' # See GMLCOV
 
   c_crs="$SECORE_URL"'/crs/OGC/0/Index3D'
@@ -446,8 +450,8 @@ function import_irr_cube_1()
   # note: assign dimensionless quantity
   $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band', 0, \
-              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_rangetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
   $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs');" > /dev/null
@@ -498,6 +502,7 @@ function import_mst()
 
   c_colltype='GreySet'
   c_basetype='char'
+  c_rangetype='unsigned char'
   c_covtype='RectifiedGridCoverage'
 
   c_crs="$SECORE_URL"'/crs/EPSG/0/4326'
@@ -537,8 +542,8 @@ function import_mst()
   # note: assign dimensionless quantity
   $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band', 0, \
-              (SELECT id FROM ps_range_data_type WHERE name='$c_basetype'), \
-              (SELECT id FROM ps_quantity WHERE label='$c_basetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_rangetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
   $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs');" > /dev/null
