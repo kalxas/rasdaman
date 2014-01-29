@@ -273,6 +273,8 @@ public class CrsUtil {
     /**
      * Parser of GML definitions of Coordinate Reference Systems:
      * parse the specified (resolver) URI recursively and creates the CrsDefinition object(s) along.
+     * Sliced axes list (e.g. <uri>@<not_sliced_axis>) is dropped from the URI to keep it actionable
+     * (SECORE does not understand this notation, nor it is standardized).
      * @param  givenCrsUri   The URI of the /atomic/ CRS to be parsed (URI need to be decomposed first).
      * @return The parsed CRS definition
      * @throws PetascopeException
@@ -427,18 +429,18 @@ public class CrsUtil {
                                 uomCon.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
                                 uomCon.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
                                 InputStream uomInStream = uomCon.getInputStream();
-                                
+
                                 // Build the document
                                 Document uomDoc =   XMLUtil.buildDocument(null, uomInStream);
                                 Element uomRoot = uomDoc.getRootElement();
-                                
+
                                 // Catch some exception in the GML
                                 Element uomExEl = XMLUtil.firstChildRecursive(root, XMLSymbols.LABEL_EXCEPTION_TEXT);
                                 if (uomExEl != null) {
                                     log.error(crsUri + ": " + uomExEl.getValue());
                                     throw new SecoreException(ExceptionCode.ResolverError, uomExEl.getValue());
                                 }
-                                
+
                                 // Get the UoM value
                                 Element uomNameEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_NAME);
                                 if (uomNameEl == null) {
@@ -448,7 +450,7 @@ public class CrsUtil {
                                 uomName = uomNameEl.getValue().split(" ")[0]; // Some UoM might have further comments after actual UoM (eg EPSG:4326)
                             } catch (ParsingException pEx) {
                                 uomName = extractUomNameFromUri(uomUrl);
-                            } catch (IOException ioEx) {                                    
+                            } catch (IOException ioEx) {
                                 // The UoM is not a resolvable URI: use its last field as name (FS='/')
                                 uomName = extractUomNameFromUri(uomUrl);
                             } // NOTE: with Java 7 you can put exception types in OR in a single catch clause.
@@ -535,7 +537,7 @@ public class CrsUtil {
     }
 
     /**
-     * Extracts the UoM name from the URI as last field in the RESTful . 
+     * Extracts the UoM name from the URI as last field in the RESTful .
      * 10^0 as UoM for pure numbers is otherwise returned.
      * @param uomUrl
      * @return The UoM label for the URI.
@@ -605,10 +607,12 @@ public class CrsUtil {
         for (String singleCrs : crsUris) {
             crsDef = CrsUtil.getGmlDefinition(singleCrs); // cache is used, no SECORE access here
             for (CrsDefinition.Axis crsAxis : crsDef.getAxes()) {
-                if (crsAxis.getAbbreviation().equals(axisAbbrev)) {
-                    return counter;
+                if (!CrsUri.isSliced(singleCrs, crsAxis.getAbbreviation())) {
+                    if (crsAxis.getAbbreviation().equals(axisAbbrev)) {
+                        return counter;
+                    }
+                    counter += 1;
                 }
-                counter += 1;
             }
         }
 
@@ -635,10 +639,12 @@ public class CrsUtil {
         for (String singleCrs : crsUris) {
             crsDef = CrsUtil.getGmlDefinition(singleCrs);
             for (CrsDefinition.Axis crsAxis : crsDef.getAxes()) {
-                if (counter == axisOrder) {
-                    return crsAxis.getAbbreviation();
+                if (!CrsUri.isSliced(singleCrs, crsAxis.getAbbreviation())) {
+                    if (counter == axisOrder) {
+                        return crsAxis.getAbbreviation();
+                    }
+                    counter += 1;
                 }
-                counter += 1;
             }
         }
 
@@ -651,12 +657,40 @@ public class CrsUtil {
     }
 
     /**
+     * Get an ordered list of axis labels for a CCRS.
+     * @param crsUris  An ordered list of single CRS URIs
+     * @return The ordered list of labels (//CoordinateSystemAxis/axisAbbrev) of the (C)CRS.
+     * @throws PetascopeException
+     * @throws SecoreException
+     */
+    public static List<String> getAxesLabels(List<String> crsUris) throws PetascopeException, SecoreException {
+
+        // init
+        List<String> axesLabels = new ArrayList<String>(getTotalDimensionality(crsUris));
+        CrsDefinition crsDef;
+
+        // scan the CRS axes
+        for (String singleCrs : crsUris) {
+            crsDef = CrsUtil.getGmlDefinition(singleCrs);
+            for (CrsDefinition.Axis crsAxis : crsDef.getAxes()) {
+                if (!CrsUri.isSliced(singleCrs, crsAxis.getAbbreviation())) {
+                    axesLabels.add(crsAxis.getAbbreviation());
+                }
+            }
+        }
+
+        return axesLabels;
+    }
+    // Overload for single URI
+    public static List<String> getAxesLabels(String singleCrsUri) throws PetascopeException, SecoreException {
+        return getAxesLabels(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})));
+    }
+
+    /**
      * Discover which is the type of the specified (CRS) axis.
      * @param crs   An ordered list of single CRS URIs
      * @param axisName The order of the axis (//CoordinateSystemAxis) in the (C)CRS [0 is first]
      * @return The type of the specified axis
-     * @throws PetascopeException
-     * @throws SecoreException
      */
     public static String getAxisType(CrsDefinition crs, String axisName) {
 
@@ -680,34 +714,6 @@ public class CrsUtil {
     }
 
     /**
-     * Get an ordered list of axis labels for a CCRS.
-     * @param crsUris  An ordered list of single CRS URIs
-     * @return The ordered list of labels (//CoordinateSystemAxis/axisAbbrev) of the (C)CRS.
-     * @throws PetascopeException
-     * @throws SecoreException
-     */
-    public static List<String> getAxesLabels(List<String> crsUris) throws PetascopeException, SecoreException {
-
-        // init
-        List<String> axesLabels = new ArrayList<String>(getTotalDimensionality(crsUris));
-        CrsDefinition crsDef;
-
-        // scan the CRS axes
-        for (String singleCrs : crsUris) {
-            crsDef = CrsUtil.getGmlDefinition(singleCrs);
-            for (CrsDefinition.Axis crsAxis : crsDef.getAxes()) {
-                axesLabels.add(crsAxis.getAbbreviation());
-            }
-        }
-
-        return axesLabels;
-    }
-    // Overload for single URI
-    public static List<String> getAxesLabels(String singleCrsUri) throws PetascopeException, SecoreException {
-        return getAxesLabels(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})));
-    }
-
-    /**
      * Get an ordered list of axis UoMs for a CCRS.
      * @param crsUris  An ordered list of single CRS URIs
      * @return The ordered list of UoM (//CoordinateSystemAxis/@uom) of the (C)CRS.
@@ -724,7 +730,9 @@ public class CrsUtil {
         for (String singleCrs : crsUris) {
             crsDef = CrsUtil.getGmlDefinition(singleCrs);
             for (CrsDefinition.Axis crsAxis : crsDef.getAxes()) {
-                axesUoMs.add(crsAxis.getUoM());
+                if (!CrsUri.isSliced(singleCrs, crsAxis.getAbbreviation())) {
+                    axesUoMs.add(crsAxis.getUoM());
+                }
             }
         }
 
@@ -751,7 +759,9 @@ public class CrsUtil {
         // scan the CRS axes
         for (String singleCrs : crsUris) {
             crsDef = CrsUtil.getGmlDefinition(singleCrs);
-            counter += crsDef.getDimensions();
+            for (String axisLabel : crsDef.getAxesLabels()) {
+                counter += CrsUri.isSliced(singleCrs, axisLabel) ? 0 : 1;
+            }
         }
 
         return counter;
@@ -857,7 +867,7 @@ public class CrsUtil {
     public static class CrsUri {
 
         public static final String LAST_PATH_PATTERN = ".*/(.*)$";
-        
+
         private static final String COMPOUND_SPLIT   = "(\\?|&)\\d+=";
         private static final String COMPOUND_PATTERN = "^" + HTTP_URL_PATTERN + KEY_RESOLVER_CCRS;
 
@@ -904,7 +914,7 @@ public class CrsUtil {
                         log.debug("Found atomic CRS from compound:" + splitted[i]);
                     }
                 }
-            } else {
+            } else if (!uri.isEmpty()) {
                 crss.add(uri);
             }
 
@@ -1273,31 +1283,35 @@ public class CrsUtil {
          * @return  The compounding of the listed CRS URIs.
          */
         public static String createCompound(List<String> crsUris) {
-            if (crsUris.size() == 1) {
-                // Only one CRS: no need to compound
-                return (crsUris.iterator().next());
-            } else {
-                // By default, use SECORE host in the CCRS URL
-                String ccrsOut = getResolverUri() + "/" +  KEY_RESOLVER_CCRS + "?";
-                Iterator it = crsUris.iterator();
-                for (int i = 0; i < crsUris.size(); i++) {
-                    ccrsOut += (i+1) + "=" + it.next();
-                    if (it.hasNext()) {
-                        ccrsOut += "&";
+            String ccrsOut = "";
+            switch (crsUris.size()) {
+                case 0: // no URIs: return empty string
+                    break;
+                case 1: // Only one CRS: no need to compound
+                    ccrsOut = crsUris.iterator().next();
+                    break;
+                default : // By default, use SECORE host in the CCRS URL
+                    ccrsOut = getResolverUri() + "/" +  KEY_RESOLVER_CCRS + "?";
+                    Iterator it = crsUris.iterator();
+                    for (int i = 0; i < crsUris.size(); i++) {
+                        ccrsOut += (i+1) + "=" + it.next();
+                        if (it.hasNext()) {
+                            ccrsOut += "&";
+                        }
                     }
-                }
-                return ccrsOut;
+                    break;
             }
+            return ccrsOut;
         }
 
         /**
-         * B
-         * NOTE: this notation is *not* standard (yet?).
+         * Appends a CSV list of axes which have not been sliced by a 0D subset.
+         * NOTE: this notation is *not* standard.
          * @param singleCrsUri
          * @param leftAxesLabels
          * @throws PetascopeException
          * @throws SecoreException
-         * @return
+         * @return buildSlicedUri("http://www.opengis.net/def/crs/EPSG/0/4327",{Lat,Long}) -> "http://www.opengis.net/def/crs/EPSG/0/4327@Lat,Long"
          */
         public static String buildSlicedUri(String singleCrsUri, List<String> leftAxesLabels)
                 throws PetascopeException, SecoreException {
@@ -1319,6 +1333,37 @@ public class CrsUtil {
 
                 return slicedUri;
             }
+        }
+
+        /**
+         * Determines if an axis has been sliced from the CRS URI.
+         * @param crsUris
+         * @param axisLabel
+         * @return True if axis is in the list of sliced axes. Example:
+         * isSliced("http://www.opengis.net/def/crs/EPSG/0/4327@Long,h", "Lat") --> TRUE {only Long and h are left in th CRS}.
+         */
+        public static Boolean isSliced(List<String> crsUris, String axisLabel) {
+            Boolean isSliced = true;
+            for (String singleCrsUri : crsUris) {
+                String slicePath = singleCrsUri.replaceAll("^.*" + SLICED_AXIS_SEPARATOR, "");
+                if (slicePath.equals(singleCrsUri)) {
+                    // there was no @<slicePath> after the URI: no axes are sliced
+                    isSliced = false;
+                } else {
+                    // There is a CSV list of axes: those are the ones who are left (not sliced)
+                    List<String> slicedAxesList = Arrays.asList(slicePath.split(","));
+                    for (String slicedAxis : slicedAxesList) {
+                        if (slicedAxis.equals(axisLabel)) {
+                            isSliced = false;
+                        }
+                    }
+                }
+            }
+            return isSliced;
+        }
+        // Overload
+        public static Boolean isSliced(String singleCrsUri, String axisLabel) {
+            return isSliced(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})), axisLabel);
         }
     }
 

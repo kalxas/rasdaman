@@ -91,8 +91,8 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
         } else {
             // RectifiedGrid: geometry is associated with a CRS -> return Netcdf with geo-metadata
             // Need to use the GetCoverage metadata which has updated bounds [see super.setBounds()]
-            String[] domLo = m.getDomLow().split(" ");
-            String[] domHi = m.getDomHigh().split(" ");
+            String[] domLo = m.getGisDomLow().split(" ");
+            String[] domHi = m.getGisDomHigh().split(" ");
 
             crsProperties = new CrsUtil.CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName());
             p = executeRasqlQuery(request, m, meta, NETCDF_ENCODING, crsProperties.toString());

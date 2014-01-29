@@ -32,7 +32,7 @@
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="/crs-compound?" axisLabels="" uomLabels="" srsDimension="1">
+    <Envelope srsName="" axisLabels="" uomLabels="" srsDimension="0">
       <lowerCorner></lowerCorner>
       <upperCorner></upperCorner>
     </Envelope>
@@ -48,11 +48,11 @@
       </limits>
       <axisLabels></axisLabels>
       <origin>
-          <Point id="mr-origin" srsName="/crs-compound?" axisLabels="" uomLabels="" srsDimension="1">
+          <Point id="mr-origin" srsName="" axisLabels="" uomLabels="" srsDimension="0">
               <pos></pos>
           </Point>
       </origin>
-      <offsetVector srsName="/crs-compound?" axisLabels="" uomLabels="" srsDimension="1"></offsetVector>
+      <offsetVector srsName="" axisLabels="" uomLabels="" srsDimension="0"></offsetVector>
     </RectifiedGrid>
   </domainSet>
 

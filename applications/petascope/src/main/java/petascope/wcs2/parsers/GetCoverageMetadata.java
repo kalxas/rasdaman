@@ -31,6 +31,7 @@ import java.util.Set;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
@@ -54,22 +55,28 @@ public class GetCoverageMetadata {
     private final CoverageMetadata metadata;
     private final String coverageId;
     private String coverageType;
-    private String axisLabels;
-    private String uomLabels;
-    private String low;     // Grid lower bound (px)
-    private String high;    // Grid upper bound (px)
-    private String domLow;  // Domain request lower bound
-    private String domHigh; // Domain request upper bound
     private String gridType;
     private String gridId;
     private Integer gridDimension;
     private List<RangeField> rangeFields;
     private String crs;     // dynamically adapt to coverage slicing
     private Bbox bbox;
+    // <gml:axisLabels> : grid (rasdaman) order
+    private String gridAxisLabels;
+    // <gml:GridEnvelope> : grid (rasdaman) order
+    private String low;     // Grid lower bound (px)
+    private String high;    // Grid upper bound (px)
+    // <gml:Envelope> + origin and offset vectors : CRS order
+    private String domLow;  // Domain request lower bound
+    private String domHigh; // Domain request upper bound
+    // GeoTiff/JP2000/NetCDF/etc encoding: LONG first = rasdaman order (common GIS practice)
+    // http://www.remotesensing.org/geotiff/faq.html?What%20is%20the%20purpose%20of%20GeoTIFF%20format%20for%20satellite%20data#AxisOrder
+    private String gisDomLow;  // Domain request lower bound (always easting first)
+    private String gisDomHigh; // Domain request upper bound (always easting first)
 
     public GetCoverageMetadata(GetCoverageRequest request, DbMetadataSource meta) throws SecoreException, WCSException {
         coverageId = request.getCoverageId();
-        axisLabels = uomLabels = "";
+        gridAxisLabels = "";
         low = high = "";
         domLow = domHigh = "";
         gridType = gridId = "";
@@ -88,14 +95,23 @@ public class GetCoverageMetadata {
         while (dit.hasNext() && cdit.hasNext()) {
             DomainElement dom = dit.next();
             CellDomainElement cell = cdit.next();
-            axisLabels += dom.getLabel() + " ";
+            gridAxisLabels += dom.getLabel() + " ";
             low  += cell.getLo() + " ";
             high += cell.getHi() + " ";
+            gisDomLow  += dom.getMinValue().toPlainString() + " ";
+            gisDomHigh += dom.getMaxValue().toPlainString() + " ";
+        }
+
+        // Loop through CRS axes
+        crs = CrsUtil.CrsUri.createCompound(metadata.getCrsUris());
+        try {
+        for (String axisLabel : CrsUtil.getAxesLabels(metadata.getCrsUris())) {
+            DomainElement dom = metadata.getDomainByName(axisLabel);
             domLow  += dom.getMinValue().toPlainString() + " ";
             domHigh += dom.getMaxValue().toPlainString() + " ";
-            if (dom.getUom() != null) {
-                uomLabels += dom.getUom() + " ";
-            }
+        }
+        } catch (PetascopeException pEx) {
+            throw (WCSException)pEx;
         }
 
         gridType = coverageType.replace("Coverage", "");
@@ -113,11 +129,10 @@ public class GetCoverageMetadata {
             rangeFields.add(new RangeField(metadata, range, ++i));
         }
         bbox = metadata.getBbox();
-        crs = CrsUtil.CrsUri.createCompound(metadata.getCrsUris());
     }
 
-    public String getAxisLabels() {
-        return axisLabels.trim();
+    public String getGridAxisLabels() {
+        return gridAxisLabels.trim();
     }
 
     public String getCoverageId() {
@@ -155,12 +170,17 @@ public class GetCoverageMetadata {
     public String getDomLow() {
         return domLow.trim();
     }
-    public List<RangeField> getRangeFields() {
-        return rangeFields;
+
+    public String getGisDomHigh() {
+        return gisDomHigh.trim();
     }
 
-    public String getUomLabels() {
-        return uomLabels.trim();
+    public String getGisDomLow() {
+        return gisDomLow.trim();
+    }
+
+    public List<RangeField> getRangeFields() {
+        return rangeFields;
     }
 
     public CoverageMetadata getMetadata() {
@@ -176,7 +196,7 @@ public class GetCoverageMetadata {
     }
 
     public void setAxisLabels(String axisLabels) {
-        this.axisLabels = axisLabels;
+        this.gridAxisLabels = axisLabels;
         setGridDimension(axisLabels.split(" +").length);
     }
 
@@ -196,6 +216,14 @@ public class GetCoverageMetadata {
         domLow = low;
     }
 
+    // Update bounds of coverage (upon trimming and slicing) forcing easting first (= rasdaman grid order)
+    public void setGisDomHigh(String high) {
+        gisDomHigh = high;
+    }
+    public void setGisDomLow(String low) {
+        gisDomLow = low;
+    }
+
     public void setGridDimension(Integer gridDimension) {
         this.gridDimension = gridDimension;
     }
@@ -204,17 +232,13 @@ public class GetCoverageMetadata {
         crs = newUri;
     }
 
-    public void setUomLabels(String newUoms) {
-        uomLabels = newUoms;
-    }
-
     /**
      * Check if the *output* coverage is an irregular grid.
      * @return True if at least one of the non-sliced axes are irregular.
      */
     public boolean hasIrregularAxis() {
         List<String> labels = new ArrayList<String>();
-        labels.addAll(Arrays.asList(axisLabels.split(" +")));
+        labels.addAll(Arrays.asList(gridAxisLabels.split(" +")));
 
         for (String axisLabel : labels) {
             DomainElement domEl = metadata.getDomainByName(axisLabel);

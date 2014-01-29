@@ -92,8 +92,8 @@ public class GeotiffFormatExtension extends AbstractFormatExtension {
         } else {
             // RectifiedGrid: geometry is associated with a CRS -> return GeoTIFF
             // Need to use the GetCoverage metadata which has updated bounds [see super.setBounds()]
-            String[] domLo = m.getDomLow().split(" ");
-            String[] domHi = m.getDomHigh().split(" ");
+            String[] domLo = m.getGisDomLow().split(" ");
+            String[] domHi = m.getGisDomHigh().split(" ");
             if (domLo.length != 2 || domHi.length != 2) {
                 // Output grid dimensions have already been checked (see above), but double-check on the domain bounds:
                 log.error("Cannot format GTiff: output dimensionality is not 2.");

@@ -258,6 +258,26 @@ public class ListUtil {
     }
 
     /**
+     * Print all elements in the list, separated by the specified Field Separator.
+     * @param <T>
+     * @param l    The list
+     * @param FS   The field separator (e.g. comma for CSV outputs)
+     * @return Readable listing of all elements in the list. Example: printList({a,b,c}, "-") --> "a-b-c"
+     */
+    public static <T> String printList(List<T> l, String FS) {
+        String out = "";
+        StringBuilder sb = new StringBuilder(out);
+        if (l.size()>0) {
+            for (int i=0; i<l.size()-1; i++) {
+                sb.append(l.get(i));
+                sb.append(FS);
+            }
+            sb.append(l.get(l.size()-1));
+        }
+        return sb.toString();
+    }
+
+    /**
      * Generic comparator for numbers.
      * @param <T>
      */

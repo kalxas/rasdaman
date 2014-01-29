@@ -308,7 +308,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
             } catch (Exception ex) {
                 if (((PetascopeException)ex).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.NotASubsettingCrs.getExceptionCode())
                     || ((PetascopeException)ex).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.NotAnOutputCrs.getExceptionCode()))
-                    throw (WCSException)ex;
+                    throw new WCSException(ex.getMessage(), ex);
                 else
                     throw new WCSException(ExceptionCode.InvalidRequest, "Error parsing dimension subset:\n\n" + e.toXML(), ex);
                 }

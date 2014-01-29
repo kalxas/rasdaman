@@ -80,7 +80,7 @@ public class Vectors {
 
     /**
      * Calculates the scalar multiplication of a vector by a scalar.
-     *
+     * T is BigDecimal for either both or none (cast error otherwise).
      * @param <T> The generic numeric type (no primitives)
      * @param s  The scalar
      * @param v  The vector
@@ -93,7 +93,8 @@ public class Vectors {
         // mulitply each component
         for (int i=0; i<v.length; i++) {
             if (s.getClass().equals(BigDecimal.class)) {
-                vOut[i] = ((BigDecimal)v[i]).multiply((BigDecimal)s);
+                // Force explicitly to 0 (if v[i]==0) otherwise 0*<non-zero scalenumber> = "0.0"
+                vOut[i] = ((BigDecimal)v[i]).doubleValue() == 0 ? BigDecimal.ZERO : ((BigDecimal)v[i]).multiply((BigDecimal)s);
             } else {
                 vOut[i] = v[i].doubleValue() * s.doubleValue();
             }
@@ -175,7 +176,7 @@ public class Vectors {
      * @return An array of `dimension` components, with `unitIndex` component equal to 1 (0 otherwise).
      * @throws PetascopeException
      */
-    public static Integer[] unitVector(int dimension, int unitIndex) throws PetascopeException {
+    public static BigDecimal[] unitVector(int dimension, int unitIndex) throws PetascopeException {
 
         // check consistency
         if (unitIndex >= dimension) {
@@ -183,11 +184,11 @@ public class Vectors {
                     "Trying to create a " + dimension + "D unit-vector with " + unitIndex + " as non-zero component.");
         }
 
-        Integer[] unitVector = new Integer[dimension];
+        BigDecimal[] unitVector = new BigDecimal[dimension];
 
         // build the unit vector
         for (int i=0; i<dimension; i++) {
-            unitVector[i] = (i==unitIndex) ? 1 : 0;
+            unitVector[i] = (i==unitIndex) ? BigDecimal.ONE : BigDecimal.ZERO;
         }
 
         return unitVector;

@@ -27,7 +27,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
@@ -79,23 +81,35 @@ public abstract class AbstractFormatExtension implements FormatExtension {
     protected void updateGetCoverageMetadata(GetCoverageRequest request, GetCoverageMetadata m)
             throws PetascopeException, SecoreException, WCSException {
 
-        // Init variables, to be then filled scanning the request subsets
+        // Init variables, to be then filled scanning the request subsets.
+
+        // Grid axis labels, and grid bounds : grid (rasdaman) order
         String axesLabels = "";
-        String uomLabels = "";
-        String lowerDom = "";
-        String upperDom = "";
         String lowerCellDom = "";
         String upperCellDom = "";
+        // Tuples of external CRS bounds : CRS order
+        // Create a key-ordered map {axisLabel->dom} so that the correct order can be reconstructed automatically.
+        Map<Integer,String> lowerDom = new TreeMap<Integer,String>();
+        Map<Integer,String> upperDom = new TreeMap<Integer,String>();
+        // Same as lowerDom/upperDom but forcing easting first, for GIS binary formats encoding.
+        String lowerGisDom = "";
+        String upperGisDom = "";
+
         // CRS need to be sliced accordingly upon dimension slicings
         String crsName;
         Set<String> slicedAxes = new HashSet<String>();
-        boolean domUpdated;
+
+        // miscellanea
         CoverageMetadata meta = m.getMetadata();
+        boolean domUpdated;
         Iterator<DomainElement>         domsIt = meta.getDomainIterator();
         Iterator<CellDomainElement> cellDomsIt = meta.getCellDomainIterator();
         DomainElement domainEl;
         CellDomainElement cellDomainEl;
         List<DimensionSubset> subsList = request.getSubsets();
+
+        // NOTE: single loop since still N=M for Petascope, being N = dim(grid) and M=dim(CRS).
+        // Keep domainElement order (grid order), but need to re-order the coordinates in the tuple for lowerDom/upperDom
         while (domsIt.hasNext()) {
             // Check if one subset trims on /this/ dimension:
             // Order and quantity of subsets not necessarily coincide with domain of the coverage
@@ -120,7 +134,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
 
                             // Append axis/uom label
                             axesLabels += subset.getDimension() + " ";
-                            uomLabels  += domainEl.getUom() + " ";
                             // Append updated bounds
                             // TODO: if request is specified via grid coords, need a backwards transform here
                             //       {cellDomain->domain} to show domain values in the WCS response:
@@ -130,18 +143,24 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                 String datumOrigin = domainEl.getAxisDef().getCrsDefinition().getDatumOrigin();
                                 trimLow = "" + (TimeUtil.countOffsets(datumOrigin, trimLow, domainEl.getUom()));
                             }
-                            lowerDom += new BigDecimal(Math.max(
+                            String lower = new BigDecimal(Math.max(
                                     Double.parseDouble(trimLow),
-                                    domainEl.getMinValue().doubleValue())).toPlainString() + " ";
+                                    domainEl.getMinValue().doubleValue())).toPlainString();
+                            lowerGisDom += lower + " ";
+                            // The map is automatically sorted by key value (axis order in the CRS definition)
+                            lowerDom.put(CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()), lower);
                             if (trimHigh.contains("\"")) {
                                 // Convert timestamp to temporal numeric coordinate
                                 String datumOrigin = domainEl.getAxisDef().getCrsDefinition().getDatumOrigin();
                                 String stringHi = trimHigh;
                                 trimHigh = "" + (TimeUtil.countOffsets(datumOrigin, stringHi, domainEl.getUom()));
                             }
-                            upperDom += new BigDecimal(Math.min(
+                            String upper = new BigDecimal(Math.min(
                                     Double.parseDouble(trimHigh),
-                                    domainEl.getMaxValue().doubleValue())).toPlainString() + " ";
+                                    domainEl.getMaxValue().doubleValue())).toPlainString();
+                            upperGisDom += upper + " ";
+                            // The map is automatically sorted by key value (axis order in the CRS definition)
+                            upperDom.put(CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()), upper);
                             // Append updated pixel bounds
                             String decimalsExp = "\\.[0-9]+";
                             long[] cellDom = (CrsUtil.GRID_CRS.equals(subset.getCrs()) || // : subset=x,CRS:1(x1,x2) || subsettingCrs=CRS:1
@@ -180,11 +199,18 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             if (!domUpdated) {
                 // This dimension is not involved in any subset: use bbox bounds
                 axesLabels += domainEl.getLabel() + " ";
-                uomLabels  += domainEl.getUom()   + " ";
-                lowerDom   += domainEl.getMinValue() + " ";
-                upperDom   += domainEl.getMaxValue() + " ";
                 lowerCellDom += cellDomainEl.getLo() + " ";
                 upperCellDom += cellDomainEl.getHi() + " ";
+                lowerGisDom += domainEl.getMinValue().toPlainString() + " ";
+                upperGisDom += domainEl.getMaxValue().toPlainString() + " ";
+                // The map is automatically sorted by key value (axis order in the CRS definition)
+                lowerDom.put(
+                        CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()),
+                        domainEl.getMinValue().toPlainString());
+                upperDom.put(
+                        CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()),
+                        domainEl.getMaxValue().toPlainString());
+
             }
         } // END domains iterator
 
@@ -193,14 +219,15 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         // Update **pixel-domain** bounds
         m.setLow(lowerCellDom);
         m.setHigh(upperCellDom);
-        // Update **domain** bounds
-        m.setDomLow(lowerDom);
-        m.setDomHigh(upperDom);
+        // Update **domain** bounds (GIS- and CRS-induced)
+         m.setDomLow(ListUtil.printList(new ArrayList<String>(lowerDom.values()), " "));
+        m.setDomHigh(ListUtil.printList(new ArrayList<String>(upperDom.values()), " "));
+        m.setGisDomLow(lowerGisDom);
+        m.setGisDomHigh(upperGisDom);
         // Update the **CRS**
         if (!slicedAxes.isEmpty()) {
             crsName = CrsUtil.sliceAxesOut(meta.getCrsUris(), slicedAxes);
             m.setCrs(crsName);
-            m.setUomLabels(uomLabels);
         }
     }
 

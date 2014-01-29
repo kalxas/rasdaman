@@ -41,7 +41,7 @@ import java.util.StringTokenizer;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class StringUtil {
-    
+
     public static final String MIME_URLENCODED = "application/x-www-form-urlencoded";
     public static final String ENCODING_UTF8 = "UTF-8";
 
@@ -192,7 +192,7 @@ public class StringUtil {
         String decoded = encodedText;
         // fix ticket 466
         // if (contentType == null || (contentType.equals("application/x-www-form-urlencoded") && encodedText.indexOf(" ") == -1)) {
-        if (contentType == null 
+        if (contentType == null
             || (contentType.toLowerCase().startsWith(MIME_URLENCODED) && encodedText.indexOf(" ") == -1)) {
             try {
                 decoded = URLDecoder.decode(encodedText, ENCODING_UTF8);
@@ -367,21 +367,6 @@ public class StringUtil {
         escapedString = escapeQuotes(escapedString);
 
         return escapedString;
-    }
-
-    /**
-     * Creates a tuple from a list of Strings, separated by the specified tuple separator.
-     * E.g.: listToTuple({"abc", "def"}, ',') --> "abc,def"
-     * @param list  A list of Strings
-     * @param ts    The tuple separator
-     * @return A single String which lists each "list" element, separated by "ts".
-     */
-    public static <T> String listToTuple(List<T> list, char ts) {
-        String tuple = "";
-        for (T el : list) {
-            tuple += el.toString() + (list.indexOf(el)==list.size()-1 ? "" : ts);
-        }
-        return tuple;
     }
 
     /**

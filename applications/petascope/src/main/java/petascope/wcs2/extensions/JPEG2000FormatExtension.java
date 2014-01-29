@@ -92,8 +92,8 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension {
         } else {
             // RectifiedGrid: geometry is associated with a CRS -> return JPEG2000 with geo-metadata
             // Need to use the GetCoverage metadata which has updated bounds [see super.setBounds()]
-            String[] domLo = m.getDomLow().split(" ");
-            String[] domHi = m.getDomHigh().split(" ");
+            String[] domLo = m.getGisDomLow().split(" ");
+            String[] domHi = m.getGisDomHigh().split(" ");
             if (domLo.length != 2 || domHi.length != 2) {
                 // Output grid dimensions have already been checked (see above), but double-check on the domain bounds:
                 log.error("Cannot format JPEG2000: output dimensionality is not 2.");

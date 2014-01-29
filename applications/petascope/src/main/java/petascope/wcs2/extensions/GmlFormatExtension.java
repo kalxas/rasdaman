@@ -133,7 +133,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
      * @throws WCSException
      */
     private Response handleMultiPoint(GetCoverageRequest req, String coverageName, DbMetadataSource meta, GetCoverageMetadata m)
-            throws WCSException {
+            throws WCSException, SecoreException {
         CoverageMetadata cov = m.getMetadata();
         String ret = WcsUtil.getGML(m, Templates.COVERAGE, meta);
         String pointMembers = "";

@@ -220,7 +220,8 @@ public class WcsUtil {
         return exceptionReportToXml(e.getReport());
     }
 
-    public static String getGML(GetCoverageMetadata m, String template, DbMetadataSource meta) throws WCSException {
+    public static String getGML(GetCoverageMetadata m, String template, DbMetadataSource meta)
+            throws WCSException, SecoreException {
 
         // TODO
         // Automatize the creation of the header: namespaces, schema locations, etc. (Mind XMLSymbols).
@@ -260,13 +261,13 @@ public class WcsUtil {
                 Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
                 // [!] domainSet has to be replaced first: it contains keywords to be replaced
                 // grid
-                Pair.of("\\{" + Templates.KEY_AXISLABELS            + "\\}", m.getAxisLabels()),
+                Pair.of("\\{" + Templates.KEY_AXISLABELS            + "\\}", m.getGridAxisLabels()),
                 Pair.of("\\{" + Templates.KEY_GRIDDIMENSION         + "\\}", String.valueOf(m.getGridDimension())),
                 Pair.of("\\{" + Templates.KEY_GRIDID                + "\\}", m.getGridId()),
                 // + rectified grid
                 Pair.of("\\{" + Templates.KEY_ORIGINPOS             + "\\}", m.getDomLow()),
                 Pair.of("\\{" + Templates.KEY_POINTID               + "\\}", m.getCoverageId() + Templates.SUFFIX_ORIGIN),
-                Pair.of("\\{" + Templates.KEY_OFFSET_VECTORS        + "\\}", getOffsetVectors(m)),
+                Pair.of("\\{" + Templates.KEY_OFFSET_VECTORS        + "\\}", getGmlOffsetVectors(m)),
                 // + referenceable grid
                 Pair.of("\\{" + Templates.KEY_GENERAL_GRID_AXES     + "\\}", getGeneralGridAxes(m)),
                 // multipoint
@@ -293,11 +294,23 @@ public class WcsUtil {
      * @param m
      * @return
      */
-    private static String getSrsGroup(GetCoverageMetadata m) {
-        return XMLSymbols.ATT_SRS_NAME       + "=\"" + getSrsName(m)        + "\" " +
-                XMLSymbols.ATT_AXIS_LABELS   + "=\"" + m.getAxisLabels()    + "\" " +
-                XMLSymbols.ATT_UOM_LABELS    + "=\"" + m.getUomLabels()     + "\" " +
-                XMLSymbols.ATT_SRS_DIMENSION + "=\"" + m.getGridDimension() + "\"";
+    private static String getSrsGroup(GetCoverageMetadata m) throws WCSException, SecoreException {
+        String srsGroup ;
+        List<String> ccrsUri = CrsUtil.CrsUri.decomposeUri(m.getCrs());
+        try {
+            srsGroup =
+                    XMLSymbols.ATT_SRS_NAME      + "=\"" + getSrsName(m) + "\" " +
+                    XMLSymbols.ATT_AXIS_LABELS   + "=\"" + ListUtil.printList(CrsUtil.getAxesLabels(ccrsUri), " ") + "\" " +
+                    XMLSymbols.ATT_UOM_LABELS    + "=\"" + ListUtil.printList(CrsUtil.getAxesUoMs(ccrsUri),   " ") + "\" " +
+                    XMLSymbols.ATT_SRS_DIMENSION + "=\"" + CrsUtil.getTotalDimensionality(ccrsUri) + "\"";
+        } catch (PetascopeException pEx) {
+            log.error("Error while retrieving CRS metadata for GML: " + pEx.getMessage());
+            throw new WCSException(pEx.getExceptionText(), pEx);
+        } catch (SecoreException sEx) {
+            log.error("Error while retrieving CRS metadata for GML: " + sEx.getMessage());
+            throw sEx;
+        }
+        return srsGroup;
     }
 
     /**
@@ -362,33 +375,22 @@ public class WcsUtil {
         }
         return gmlcovFormattedMetadata;
     }
-    /**
-     * Replaces the bounds of the grid
-     * @param gml
-     * @param m
-     * @return
-     */
-    /*public static String getBounds(String gml, GetCoverageMetadata m) {
-        gml = gml.replaceAll("\\{" + Templates.KEY_LOW        + "\\}", m.getLow())
-                 .replaceAll("\\{" + Templates.KEY_HIGH       + "\\}", m.getHigh())
-                 .replaceAll("\\{" + Templates.KEY_AXISLABELS + "\\}", m.getAxisLabels());
-        return gml;
-    }*/
 
     /**
      * Builds the gml:offsetVectors element for a rectified grid.
+     * The order of such elements has to follow the order of grid axes (as they are stored in rasdaman).
      * @param m
-     * @return
+     * @return All required gml:offsetVector elements for the coverage.
      */
-    private static String getOffsetVectors(GetCoverageMetadata m) {
+    private static String getGmlOffsetVectors(GetCoverageMetadata m) throws WCSException, SecoreException {
         String output = "";
-        String[] axisNames = m.getAxisLabels().split(" ");
+        String[] axisNames = m.getGridAxisLabels().split(" ");
         // Loop through the N dimensions
         for (int i = 0; i < axisNames.length; i++) {
             if (i>0) {
                 output += "\n";
             }
-            output += getOffsetVector(m, axisNames[i]);
+            output += getGmlOffsetVector(m, axisNames[i]);
         }
         return output;
     }
@@ -397,29 +399,45 @@ public class WcsUtil {
      * Builds the gml:offsetVector element for a rectified grid along a grid axis.
      * @param m
      * @param axisName
-     * @return
+     * @return The single gml:offsetVector element for axis "axisName" of the coverage.
      */
-    private static String getOffsetVector(GetCoverageMetadata m, String axisName) {
+    private static String getGmlOffsetVector(GetCoverageMetadata m, String axisName) throws WCSException, SecoreException {
         String output = Templates.getTemplate(Templates.OFFSET_VECTOR,
-                    Pair.of("\\{" + Templates.KEY_OFFSETS + "\\}", getOffsets(m, axisName)));
+                    Pair.of("\\{" + Templates.KEY_OFFSETS + "\\}", getVectorComponents(m, axisName)));
         return output;
     }
 
     /**
      * Gets the components of the offset vector of a certain axis of a grid.
+     * The order of components here has to follow the axis order in the CRS definition.
      * @param m
      * @param axisName
-     * @return
+     * @return The tuple of CRS coordinates for a specified offset vector.
      */
-    private static String getOffsets(GetCoverageMetadata m, String axisName) {
+    private static String getVectorComponents(GetCoverageMetadata m, String axisName) throws WCSException, SecoreException {
         String output = "";
-        String[] axisNames = m.getAxisLabels().isEmpty() ? new String[0] : m.getAxisLabels().split(" ");
-        // Loop through the N dimensions
-        for (int i = 0; i < axisNames.length; i++) {
-            if (i>0) {
-                output += " ";
+        List<String> ccrsUri = CrsUtil.CrsUri.decomposeUri(m.getCrs());
+
+        if (!ccrsUri.isEmpty()) {
+            try {
+                if (CrsUtil.getAxesLabels(ccrsUri).contains(axisName)) { // guard for 0D coverages
+                    // Example, axisName is third axis in the 3D CRS definition:
+                    // offsetVector() := resolution * {0,0,1} = {0,0,resolution}
+                    BigDecimal[] vectorComponents = (BigDecimal[])Vectors.scalarMultiplication(
+                            m.getMetadata().getDomainByName(axisName).getOffsetVector(), // axis resolution
+                            Vectors.unitVector( // {0,0,__,1,__,0,0}
+                            CrsUtil.getTotalDimensionality(ccrsUri),
+                            CrsUtil.getCrsAxisOrder(ccrsUri, axisName)
+                            ));
+                    output = ListUtil.printList(Arrays.asList(vectorComponents), " ");
+                }
+            } catch (PetascopeException pEx) {
+                log.error("Error while retrieving CRS metadata for GML: " + pEx.getMessage());
+                throw new WCSException(pEx.getExceptionText(), pEx);
+            } catch (SecoreException sEx) {
+                log.error("Error while retrieving CRS metadata for GML: " + sEx.getMessage());
+                throw sEx;
             }
-            output += (axisNames[i].equals(axisName)) ? m.getMetadata().getDomainByName(axisNames[i]).getOffsetVector() : "0";
         }
         return output;
     }
@@ -441,13 +459,13 @@ public class WcsUtil {
         if (domEl.isIrregular()) {
             List<BigDecimal> coeffs = domEl.getCoefficients();
             // Adjust their values to the origin of the requested grid
-            List<String> subsetLabels = Arrays.asList(m.getAxisLabels().split(" "));
+            List<String> subsetLabels = Arrays.asList(m.getGridAxisLabels().split(" "));
             if (subsetLabels.contains(axisName)) {
                 BigDecimal subsetLo = new BigDecimal(m.getDomLow().split(" ")[subsetLabels.indexOf(axisName)]);
                 coeffs = Vectors.add(coeffs, (domEl.getMinValue().subtract(subsetLo)).divide(domEl.getOffsetVector()));
             }
             // Create the XML element
-            coefficients = StringUtil.listToTuple(coeffs, ' ');
+            coefficients = ListUtil.printList(coeffs, " ");
         }
         return coefficients;
     }
@@ -464,7 +482,7 @@ public class WcsUtil {
      */
     public static String addCoefficients(String gml, GetCoverageMetadata m)
             throws WCSException, PetascopeException {
-        String[] axisNames = m.getAxisLabels().split(" ");
+        String[] axisNames = m.getGridAxisLabels().split(" ");
         // Loop through the N dimensions (rely on order)
         for (int i = 0; i < axisNames.length; i++) {
             gml = gml.replaceFirst("\\{" + Templates.KEY_COEFFICIENTS + "\\}", WcsUtil.getCoefficients(m, axisNames[i]));
@@ -477,10 +495,10 @@ public class WcsUtil {
      * @param m
      * @return
      */
-    private static String getGeneralGridAxes(GetCoverageMetadata m) {
+    private static String getGeneralGridAxes(GetCoverageMetadata m) throws WCSException, SecoreException {
         Bbox bbox = m.getBbox();
         String output = "";
-        String[] axisNames = m.getAxisLabels().split(" ");
+        String[] axisNames = m.getGridAxisLabels().split(" ");
         // Loop through the N dimensions
         for (int i = 0; i < axisNames.length; i++) {
             if (i>0) {
@@ -488,7 +506,7 @@ public class WcsUtil {
             }
             output += Templates.getTemplate(Templates.GENERAL_GRID_AXIS,
                     Pair.of("\\{" + Templates.KEY_GRIDAXISSPANNED + "\\}", axisNames[i]),
-                    Pair.of("\\{" + Templates.KEY_OFFSETS         + "\\}", getOffsets(m, axisNames[i]))
+                    Pair.of("\\{" + Templates.KEY_OFFSETS         + "\\}", getVectorComponents(m, axisNames[i]))
                     // coefficients are visible /after/ WCPS processing
                     );
         }
