@@ -131,6 +131,7 @@ compileit: $(all_javas) $(GEN_DOCS)
 	$(CP) $(SRC_WEB)/* $(WEB)
 	$(CP) templates xml $(WEB)
 	$(MKDIR) $(WEB)/WEB-INF/lib
+	make -C ../../java
 	$(CP) $(JJARS_PATHS) $(WEB)/WEB-INF/lib
 	$(CP) $(SRC_MAIN)/* $(CLASSES) # copy resources (xml, xsd, properties)
 	$(MKDIR) $(WEB)/WEB-INF/wms-messages
