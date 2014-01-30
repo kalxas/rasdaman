@@ -25,7 +25,7 @@
 bin_SCRIPTS = update_petascopedb.sh petascope_insertdemo.sh
 EXTRA_DIST = update_petascopedb.sh.in petascope_insertdemo.sh.in
 CLEANFILES = update_petascopedb.sh petascope_insertdemo.sh
-nobase_dist_pkgdata_DATA=petascope/*
+#nobase_dist_pkgdata_DATA=petascope/*
 
 script_edit = $(SED) \
      -e 's|@sysconfdir[@]|$(sysconfdir)|g' \
@@ -37,3 +37,6 @@ update_petascopedb.sh petascope_insertdemo.sh:
 	$(script_edit) '$@.in' >$@
 	chmod +x $@
 	chmod a-w $@
+
+install-data-hook:
+	cp -r petascope/ $(DESTDIR)$(pkgdatadir)/
