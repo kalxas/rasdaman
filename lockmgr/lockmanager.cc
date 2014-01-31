@@ -300,8 +300,20 @@ void LockManager::generateServerId(char * pResultRasServerId)
     int port = configuration.getListenPort();
     char * rasmgrHost = (char *)configuration.getRasmgrHost();
     int rasmgrPort = configuration.getRasmgrPort();
-    snprintf(pResultRasServerId, 255, "%s-%d-%s-%d", rasmgrHost, rasmgrPort, serverName, port);
-    TALK( "Lock manager, generateServerId: id = " << pResultRasServerId );
+    int return_code = snprintf(pResultRasServerId, 255, "%s-%d-%s-%d", rasmgrHost, rasmgrPort, serverName, port);
+    if ((return_code >= 0) && (return_code<255))
+    {
+        TALK( "Lock manager, generateServerId: id = " << pResultRasServerId );
+    }
+    else if (return_code >= 255)
+    {
+	TALK( "Lock manager, generateServerId: concatenation was successful but the result is too long and was truncated!" );
+    }
+    else
+    {
+        TALK( "Lock manager, generateServerId: concatenation of id components failed!" );
+        throw r_Error(r_Error::r_Error_General);
+    }
 }
 
 /**
