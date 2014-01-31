@@ -23,7 +23,7 @@ and for migrating existing coverages in the old PS_* tables.
 
 Currently, the prefix ``PS9_'' will prepend the tables' names for Petascope 9.
 To visualize the schema structure look into the
-`<rasdaman>/manuals_and_examples/manuals/doc-petascope-schema/' folder for help.
+`<rasdaman>/manuals_and_examples/manuals/doc-petascope/dbschema/' folder for help.
 To see the available tables and triggers from command line, type:
 
 petascopedb=# \dt ps9_*

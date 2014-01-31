@@ -37,6 +37,9 @@ VERSION_NUMBER = 1.0
 
 if GENERATE_DOCS
   GEN_DOCS = javadoc
+  DOC          = doc
+  DOCPETASCOPE = $(DOC)/doc-petascope
+  APIFOLDER    = $(DOCPETASCOPE)/classes
 endif
 
 # Location of trees.
@@ -87,6 +90,7 @@ JAVADOC   = javadoc
 JDFLAGS   = -sourcepath $(SRC_MAIN)  \
             -d $(APIDOCS)	     \
             -source 1.5 -classpath $(JJARS_CP)
+
 # ------------------------------------------------------------------------------
 #                                 TARGETS
 # ------------------------------------------------------------------------------
@@ -151,8 +155,8 @@ install: war
 	$(MKDIR) $(DESTDIR)$(wardir)
 	$(CP) $(WAR) $(DESTDIR)$(wardir)
 if GENERATE_DOCS
-	$(MKDIR) $(DESTDIR)$(pkgdatadir)/doc
-	$(CP) $(APIDOCS) $(DESTDIR)$(pkgdatadir)/doc/petascope
+	$(MKDIR) -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
+	$(CP) $(APIDOCS)/* $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
 endif
 	NEWCONF=$(DESTDIR)$(sysconfdir)/petascope.properties; \
 	if test -f $(NEWCONF); then \

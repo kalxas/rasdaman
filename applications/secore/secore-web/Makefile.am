@@ -37,6 +37,9 @@ VERSION_NUMBER = 1.0
 
 if GENERATE_DOCS
   GEN_DOCS = javadoc
+  DOC          = doc
+  DOCSECOREWEB = $(DOC)/doc-secore/web
+  APIFOLDER    = $(DOCSECOREWEB)/classes
 endif
 
 # Location of trees.
@@ -141,8 +144,8 @@ install: war
 	$(MKDIR_P) $(DESTDIR)$(wardir)/secoredb
 	chmod 777 $(DESTDIR)$(wardir)/secoredb
 if GENERATE_DOCS
-	$(MKDIR) $(DESTDIR)$(pkgdatadir)/doc
-	$(CP) $(APIDOCS) $(DESTDIR)$(pkgdatadir)/doc/secore-web
+	$(MKDIR) -p $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
+	$(CP) $(APIDOCS)/* $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
 endif
 
 # clean up
