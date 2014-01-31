@@ -40,8 +40,10 @@ rasdaman GmbH.
 #include "raslib/point.hh"
 #include "raslib/type.hh"
 #include "raslib/mddtypes.hh"
+#include "rasodmg/set.hh"
 
 #include <iostream>
+#include <vector>
 
 // forward declarations
 class r_Storage_Layout;
@@ -70,7 +72,7 @@ public:
     r_GMarray() throw(r_Error);
 
     /// constructor for uninitialized MDD objects
-    r_GMarray(const r_Minterval& init_domain, r_Bytes type_length, r_Storage_Layout* stl = 0) throw (r_Error);
+    r_GMarray(const r_Minterval& init_domain, r_Bytes type_length, r_Storage_Layout* stl = 0, bool initialize = false) throw (r_Error);
     /**
       If a storage layout pointer is provided, the object refered to is
       taken and memory control moves to the \Ref{r_GMarray} class.
@@ -113,6 +115,10 @@ public:
     inline char*         get_array();
     /// get the internal representation of the array for reading
     inline const char*   get_array() const;
+    /// get the internal representation of the array
+    inline r_Set< r_GMarray* >*        get_tiled_array();
+    /// get the internal representation of the array for reading
+    inline const r_Set< r_GMarray* >*  get_tiled_array() const;
     /// get size of internal array representation in byets
     inline r_Bytes get_array_size() const;
     /// get length of cell type in bytes
@@ -135,6 +141,8 @@ public:
     inline void  set_spatial_domain(const r_Minterval& domain);
     /// set the internal representation of the array
     inline void  set_array(char*);
+    /// set the internal representation of the array
+    inline void  set_tiled_array( r_Set< r_GMarray* >* newData );
     /// set size of internal memory representation in bytes
     inline void  set_array_size(r_Bytes);
     /// set length of cell type in bytes
@@ -169,6 +177,9 @@ protected:
 
     /// pointer to the internal array representation
     char* data;
+
+    /// array internally sub-tiled
+    r_Set< r_GMarray* >* tiled_data;
 
     /// size of internal array representation in bytes
     r_Bytes data_size;

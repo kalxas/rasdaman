@@ -163,6 +163,7 @@ private:
     char *data;
     /// the size of the internal buffer
     int  buffSize;
+    int  maxBuffSize;
     /// the filled size
     int  fillSize;
     /// the send size.

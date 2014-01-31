@@ -40,6 +40,7 @@ akg::CommBuffer::CommBuffer() throw()
 {
     data     = NULL;
     buffSize = 0;
+    maxBuffSize = 0;
     fillSize = 0;
     sendSize = 0;
     allocated= false;
@@ -48,27 +49,46 @@ akg::CommBuffer::CommBuffer() throw()
 akg::CommBuffer::CommBuffer(int size) throw()
 {
     assert(size > 0);
+    maxBuffSize = 0;
     allocate(size);
 }
 
 akg::CommBuffer::CommBuffer(void *externalBuffer,int totalSize, int dataSize) throw()
 {
     data = NULL;
+    maxBuffSize = 0;
     takeOver(externalBuffer,totalSize,dataSize);
 }
 
 akg::CommBuffer::~CommBuffer() throw()
 {
-    freeBuffer();
+    if (data != NULL)
+    {
+        delete[] data;
+        data = NULL;
+    }
 }
 
 bool  akg::CommBuffer::allocate(int size) throw()
 {
     assert(size > 0);
 
-    freeBuffer();
-    data = new char[size];
-    // new throws?
+    if (data != NULL && maxBuffSize >= size)
+    {
+        // already allocated enough buffer, nothing to do
+    }
+    else
+    {
+        freeBuffer();
+        if (data)
+        {
+            delete[] data;
+            data = NULL;
+        }
+        data = new char[size];
+        maxBuffSize = size;
+    }
+
     buffSize=size;
     allocated=true;
     return true;
@@ -76,8 +96,9 @@ bool  akg::CommBuffer::allocate(int size) throw()
 
 void akg::CommBuffer::freeBuffer() throw()
 {
-    if(allocated == true && data != NULL) delete[] data;
-    data     = NULL;
+    // optimize -- buffer is only freed in the destructor -- DM 2014-feb-03
+//    if(allocated == true && data != NULL) delete[] data;
+//    data     = NULL;
     buffSize = 0;
     fillSize = 0;
     sendSize = 0;
@@ -92,6 +113,11 @@ void akg::CommBuffer::takeOver(void *externalBuffer,int totalSize, int dataSize)
     assert(totalSize >= dataSize);
 
     freeBuffer();
+    if (data)
+    {
+        delete[] data;
+        data = NULL;
+    }
     data     = (char*)externalBuffer;
     buffSize = totalSize;
     fillSize = dataSize;

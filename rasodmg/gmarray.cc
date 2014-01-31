@@ -47,6 +47,7 @@ static const char rcsidgarray[] = "@(#)rasodmg, r_GMarray: $Id: gmarray.cc,v 1.4
 #include "rasodmg/storagelayout.hh"
 #include "rasodmg/alignedtiling.hh"
 #include "clientcomm/clientcomm.hh"
+#include "mymalloc/mymalloc.h"
 
 #ifdef GMARRAY_NOT_SET
 #undef __EXECUTABLE__
@@ -66,6 +67,7 @@ static const char rcsidgarray[] = "@(#)rasodmg, r_GMarray: $Id: gmarray.cc,v 1.4
 r_GMarray::r_GMarray() throw(r_Error)
     : r_Object(1),
       data(0),
+      tiled_data(0),
       data_size(0),
       type_length(0),
       current_format(r_Array),
@@ -76,9 +78,10 @@ r_GMarray::r_GMarray() throw(r_Error)
 
 
 
-r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storage_Layout* stl) throw (r_Error)
+r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storage_Layout* stl, bool initialize) throw (r_Error)
     : r_Object(1),
       data(0),
+      tiled_data(0),
       data_size(0),
       domain(initDomain),
       type_length(initLength),
@@ -121,8 +124,11 @@ r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storag
         }
     }
     data_size = domain.cell_count() * initLength;
-    data = new char[ data_size ];
-    memset(data, 0, data_size);
+    if (initialize)
+    {
+      data = new char[ data_size ];
+      memset(data, 0, data_size);
+    }
 }
 
 
@@ -130,6 +136,7 @@ r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storag
 r_GMarray::r_GMarray(const r_GMarray &obj) throw(r_Error)
     : r_Object(obj, 1),
       data(0),
+      tiled_data(0),
       data_size(0),
       domain(obj.spatial_domain()),
       type_length(obj.type_length),
@@ -158,6 +165,7 @@ r_GMarray::r_GMarray(const r_GMarray &obj) throw(r_Error)
 r_GMarray::r_GMarray(r_GMarray &obj) throw(r_Error)
     : r_Object(obj, 1),
       data(obj.data),
+      tiled_data(obj.tiled_data),
       data_size(obj.data_size),
       domain(obj.spatial_domain()),
       type_length(obj.type_length),
@@ -168,6 +176,7 @@ r_GMarray::r_GMarray(r_GMarray &obj) throw(r_Error)
 
     obj.data_size      = 0;
     obj.data           = 0;
+    obj.tiled_data          = 0;
     obj.domain         = r_Minterval();
     obj.type_length    = 0;
 
@@ -196,6 +205,11 @@ r_GMarray::r_deactivate()
     {
         delete[] data;
         data = 0;
+    }
+    if (tiled_data)
+    {
+        delete tiled_data;
+        tiled_data = NULL;
     }
 
     // invoke deactivate of members with dynamic memory
