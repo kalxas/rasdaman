@@ -127,25 +127,7 @@ r_Storage_Layout::decomposeMDD(const r_GMarray* mar) const throw (r_Error)
     std::vector<r_Minterval>* tiles=NULL;
     r_Set<r_GMarray*>* result=NULL;
 
-    if (!til->is_compatible(mar->spatial_domain(), cell_size))
-    {
-        RMInit::logOut << "r_Storage_Layout::decomposeMDD() gmarray is not compatible with tiling" << endl;
-        RMInit::logOut << "\tgmarray domain   : " << mar->spatial_domain() << endl;
-        RMInit::logOut << "\tgmarray type size: " << mar->get_type_length() << endl;
-        RMInit::logOut << "\tstorage layout   : " << *this << endl;
-        throw r_Error(STORAGERLAYOUTINCOMPATIBLEWITHGMARRAY);
-    }
-
-
-
-    try
-    {
-        tiles = til->compute_tiles(mar->spatial_domain(), cell_size);
-    }
-    catch(r_Error& err)
-    {
-        throw;
-    }
+    tiles = decomposeMDD(mar->spatial_domain(), cell_size);
 
     result = new r_Set<r_GMarray*>;
 
@@ -154,6 +136,32 @@ r_Storage_Layout::decomposeMDD(const r_GMarray* mar) const throw (r_Error)
 
     delete tiles;
     return result;
+}
+
+std::vector<r_Minterval>*
+r_Storage_Layout::decomposeMDD(const r_Minterval& domain, const r_Bytes cell_size) const throw (r_Error)
+{
+    std::vector<r_Minterval>* tiles=NULL;
+
+    if (!til->is_compatible(domain, cell_size))
+    {
+        RMInit::logOut << "r_Storage_Layout::decomposeMDD() gmarray is not compatible with tiling" << endl;
+        RMInit::logOut << "\tgmarray domain   : " << domain << endl;
+        RMInit::logOut << "\tgmarray type size: " << cell_size << endl;
+        RMInit::logOut << "\tstorage layout   : " << *this << endl;
+        throw r_Error(STORAGERLAYOUTINCOMPATIBLEWITHGMARRAY);
+    }
+
+    try
+    {
+        tiles = til->compute_tiles(domain, cell_size);
+    }
+    catch(r_Error& err)
+    {
+        throw;
+    }
+
+    return tiles;
 }
 
 void

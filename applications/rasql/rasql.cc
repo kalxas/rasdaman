@@ -65,6 +65,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include <string.h>
 #include <sstream>
 #include <fstream>
+#include <vector>
 #ifdef HAVE_LIBSIGSEGV
 #include <sigsegv.h>
 #endif
@@ -85,6 +86,8 @@ using namespace std;
 #include "rasodmg/marray.hh"
 #include "rasodmg/iterator.hh"
 #include "rasodmg/oqlquery.hh"
+#include "rasodmg/storagelayout.hh"
+#include "rasodmg/alignedtiling.hh"
 
 #include "raslib/type.hh"
 
@@ -792,7 +795,8 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName ) throw(RasqlError,
 
 void doStuff( int argc, char** argv ) throw (r_Error)
 {
-    char *fileContents = NULL;      // contents of file satisfying "$1" parameter in query
+    char *fileContents = NULL;                       // contents of file satisfying "$1" parameter in query
+    r_Set< r_GMarray* >* fileContentsChunked = NULL; // file contents partitioned into smaller chunks
     r_Ref<r_GMarray> fileMDD = NULL;    // MDD to satisfy a "$1" parameter
     r_Marray_Type *mddType = NULL;      // this MDD's type
 
@@ -823,38 +827,80 @@ void doStuff( int argc, char** argv ) throw (r_Error)
         long size = ftell( fileD );
         TALK( "file size is " << size << " bytes" );
 
-        // if no domain specified (this is the case with encoded files), then set to byte stream:
+        // if no domain specified (this is the case with encoded files), then set to byte stream
         if ( ! mddDomainDef )
         {
             mddDomain = r_Minterval( 1 ) << r_Sinterval ((r_Range) 0, (r_Range) size-1 );
             TALK( "domain set to " << mddDomain );
+
+            // compute tiles
+            r_Storage_Layout *storage_layout = new r_Storage_Layout(new r_Aligned_Tiling(1));
+            std::vector<r_Minterval>* tiles = storage_layout->decomposeMDD(mddDomain, 1);
+
+            // read data in each tile chunk
+            long offset = 0;
+            fileContentsChunked = new r_Set< r_GMarray* >();
+            std::vector<r_Minterval>::iterator chunkIt;
+            for (chunkIt = tiles->begin(); chunkIt != tiles->end(); chunkIt++)
+            {
+                r_Minterval chunkDom = *chunkIt;
+                long chunkSize = chunkDom.cell_count();
+                char* chunkData = new char[chunkSize];
+                fseek( fileD, offset, SEEK_SET );
+                fread( chunkData, 1, chunkSize, fileD );
+                r_GMarray* chunkMDD = new r_GMarray(chunkDom, 1, NULL, false);
+                chunkMDD->set_array(chunkData);
+                fileContentsChunked->insert_element(chunkMDD);
+                offset += chunkSize;
+            }
+
+            // cleanup
+            if (tiles)
+            {
+              delete tiles;
+              tiles = NULL;
+            }
+            if (storage_layout)
+            {
+              delete storage_layout;
+              storage_layout = NULL;
+            }
         }
         else if (size != mddDomain.cell_count() * mddType->base_type().size())
         {
             throw RasqlError( FILESIZEMISMATCH );
         }
-
-        try
+        else
         {
-            fileContents = new char[size];
-        }
-        catch(std::bad_alloc)
-        {
-            TALK( "Unable to claim memory: " << size << " Bytes" );
-            throw RasqlError( UNABLETOCLAIMRESOURCEFORFILE );
+            try
+            {
+                fileContents = new char[size];
+                fseek( fileD, 0, SEEK_SET );
+                fread( fileContents, 1, size, fileD );
+            }
+            catch(std::bad_alloc)
+            {
+                TALK( "Unable to claim memory: " << chunks << " Bytes" );
+                throw RasqlError( UNABLETOCLAIMRESOURCEFORFILE );
+            }
         }
 
-        fseek( fileD, 0, SEEK_SET );
-        fread( fileContents, 1, size, fileD );
         fclose( fileD );
 
         LOG( "ok" << endl );
 
         TALK( "setting up MDD with domain " << mddDomain << " and base type " << mddTypeName );
-        fileMDD = new (mddTypeName) r_GMarray( mddDomain, mddType->base_type().size() );
+        fileMDD = new (mddTypeName) r_GMarray( mddDomain, mddType->base_type().size(), 0, false );
         fileMDD->set_type_schema( mddType );
         fileMDD->set_array_size( mddDomain.cell_count() * mddType->base_type().size() );
-        fileMDD->set_array( fileContents );
+        if (fileContents != NULL)
+        {
+          fileMDD->set_array( fileContents );
+        }
+        else
+        {
+          fileMDD->set_tiled_array( fileContentsChunked );
+        }
 
         query << *fileMDD;
 

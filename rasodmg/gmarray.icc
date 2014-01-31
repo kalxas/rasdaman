@@ -53,6 +53,19 @@ r_GMarray::get_array() const
     return data;
 }
 
+inline r_Set< r_GMarray* >*
+r_GMarray::get_tiled_array()
+{
+    return tiled_data;
+};
+
+
+inline const r_Set< r_GMarray* >*
+r_GMarray::get_tiled_array() const
+{
+    return tiled_data;
+}
+
 
 inline void
 r_GMarray::set_array( char* newData )
@@ -60,6 +73,12 @@ r_GMarray::set_array( char* newData )
     // In case the array already has an array allocated, free it first.
 //  if (data != NULL) delete [] data;
     data = newData;
+};
+
+inline void
+r_GMarray::set_tiled_array( r_Set< r_GMarray* >* newData )
+{
+    tiled_data = newData;
 };
 
 

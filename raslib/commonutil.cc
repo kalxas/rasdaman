@@ -29,6 +29,7 @@
 #include <sigsegv.h>
 #include <cstring>
 #include <cstdlib>
+#include <cstdio>
 
 // max length of segfault backtrace output
 #define BACKTRACE_TRUNC 50
@@ -91,6 +92,7 @@ void print_stacktrace(void *fault_address) {
         RMInit::logOut << "[bt]: (" << j << ") " << messages[i] << " (" << sourceFileLine << ") - "
                 << real_name << "+" << offset_begin << offset_end
                 << std::endl;
+        printf("[bt]: (%d) %s (%s) - %s+%s%s\n", j, messages[i], sourceFileLine, real_name, offset_begin, offset_end);
 
       }        // otherwise, output the mangled function name
       else {

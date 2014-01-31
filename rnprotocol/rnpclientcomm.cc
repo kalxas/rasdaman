@@ -40,6 +40,7 @@ rasdaman GmbH.
 #include "rnpclientcomm.hh"
 #include "rasdaman.hh"
 #include "debug.hh"
+#include "rasodmg/gmarray.hh"
 
 
 // waiting time increment upon subsecuqnet connect tries in RNP [msecs] -- PB 2005-sep-09
@@ -1020,9 +1021,17 @@ void RnpClientComm::executeQuery( const r_OQL_Query& query ) throw( r_Error )
                     break;
                 }
 
-                r_Set< r_GMarray* >* bagOfTiles;
 
-                bagOfTiles = mdd->get_storage_layout()->decomposeMDD( mdd );
+                r_Set< r_GMarray* >* bagOfTiles = NULL;
+
+                if (mdd->get_array())
+                {
+                    bagOfTiles = mdd->get_storage_layout()->decomposeMDD( mdd );
+                }
+                else
+                {
+                    bagOfTiles = mdd->get_tiled_array();
+                }
 
                 r_Iterator< r_GMarray* > iter2 = bagOfTiles->create_iterator();
 
@@ -1041,6 +1050,7 @@ void RnpClientComm::executeQuery( const r_OQL_Query& query ) throw( r_Error )
 
                     // delete current tile (including data block)
                     delete origTile;
+                    origTile = NULL;
 
                     if( status > 0 )
                     {
@@ -1051,6 +1061,7 @@ void RnpClientComm::executeQuery( const r_OQL_Query& query ) throw( r_Error )
 
                 bagOfTiles->remove_all();
                 delete bagOfTiles;
+                bagOfTiles = NULL;
 
                 executeEndInsertMDD(false);
             }

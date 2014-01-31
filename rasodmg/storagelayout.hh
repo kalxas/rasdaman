@@ -35,6 +35,7 @@ rasdaman GmbH.
 
 
 #include <iostream>
+#include <vector>
 using std::cout;
 
 #include "raslib/mddtypes.hh"
@@ -97,6 +98,9 @@ public:
 
     /// Function for decomposing large MDDs into a set of smaller tiles
     virtual r_Set< r_GMarray* >* decomposeMDD(const r_GMarray* mar) const throw (r_Error);
+
+    /// Function for decomposing large MDDs into a set of smaller tiles
+    virtual std::vector<r_Minterval>* decomposeMDD(const r_Minterval& domain, const r_Bytes cell_size) const throw (r_Error);
 
     /// writes the state of the object to the specified stream
     void print_status(std::ostream& s = cout) const;
