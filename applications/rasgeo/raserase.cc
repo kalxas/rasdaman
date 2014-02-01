@@ -28,6 +28,7 @@
 #include <sstream>
 #include <string>
 #include <algorithm>
+#include <unistd.h>
 
 #include "raserase.hh"
 #include "include/globals.hh"
