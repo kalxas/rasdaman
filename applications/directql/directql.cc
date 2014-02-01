@@ -106,6 +106,7 @@ using namespace std;
 #include "directql_error.hh"
 
 #include "servercomm/servercomm.hh"
+#include "relblobif/tilecache.hh"
 
 
 #ifdef __VISUALC__
@@ -941,24 +942,43 @@ void doStuff( int argc, char** argv ) throw (r_Error)
         LOG( "Getting result..." << flush );
         if( output )
         {
-            LOG( "Getting mdd..." << endl << flush );
-            status = server->getNextMDD(2, mddDomain, typeName, typeStructure, oid, currentFormat);
-            
-            // this is normally done in getNextTile(). But this is not called, so we do it here.
-            (*(r->transferDataIter))++;
-            if( *(r->transferDataIter) != r->transferData->end() )
+            if (status == 0)
             {
-                // clean r->transtile if necessary
-                if( r->transTiles )
+                LOG( "Getting mdd..." << endl << flush );
+                status = server->getNextMDD(2, mddDomain, typeName, typeStructure, oid, currentFormat);
+
+                // this is normally done in getNextTile(). But this is not called, so we do it here.
+                (*(r->transferDataIter))++;
+                if( *(r->transferDataIter) != r->transferData->end() )
                 {
-                    delete r->transTiles;
-                    r->transTiles = 0;
+                    // clean r->transtile if necessary
+                    if( r->transTiles )
+                    {
+                        delete r->transTiles;
+                        r->transTiles = 0;
+                    }
+                    // clean r->tileIter if necessary
+                    if( r->tileIter )
+                    {
+                        delete r->tileIter;
+                        r->tileIter = 0;
+                    }
                 }
-                // clean r->tileIter if necessary
-                if( r->tileIter )
+            }
+            else if (status == 1)
+            {
+                LOG( "Getting scalars..." << endl << flush );
+
+                int numElem = 0;
+                char* buffer;
+                unsigned int bufferSize;
+                unsigned short moreElems = 0;
+
+                while( moreElems == 0 )
                 {
-                    delete r->tileIter;
-                    r->tileIter = 0;
+                    moreElems = server->getNextElement(2, buffer, bufferSize);
+                    numElem++;
+                    printf("\tResult element %d: %s\n", numElem, buffer);
                 }
             }
         }
@@ -982,6 +1002,8 @@ int main(int argc, char** argv)
     SET_OUTPUT( true );     // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_SUCCESS;  // overall result status
+
+    TileCache::cacheLimit = 0;
 
     try
     {
