@@ -125,6 +125,7 @@ compileit: $(all_javas) $(GEN_DOCS)
 	$(CP) $(SECORE_CORE)/etc $(WEB)
 	$(TAR) xzf $(WEB)/etc/gml.tar.gz -C $(WEB)/etc/; $(RM) $(WEB)/etc/gml.tar.gz $(WEB)/etc/testdata
 	$(MKDIR) $(WEB)/WEB-INF/lib
+	test -f $(SECORE_CORE)/build/dist/secore-core.jar || make -C $(SECORE_CORE)
 	$(CP) $(JJARS_PATHS) $(WEB)/WEB-INF/lib
 	$(CP) $(SRC_MAIN)/* $(CLASSES) # copy resources (xml, xsd, properties)
 	$(FIND) $(BUILD) -name '*.java' | xargs $(RM)
