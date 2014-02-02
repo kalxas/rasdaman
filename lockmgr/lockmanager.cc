@@ -307,7 +307,7 @@ void LockManager::generateServerId(char * pResultRasServerId)
     }
     else if (return_code >= 255)
     {
-	TALK( "Lock manager, generateServerId: concatenation was successful but the result is too long and was truncated!" );
+        TALK( "Lock manager, generateServerId: concatenation was successful but the result is too long and was truncated!" );
     }
     else
     {
@@ -383,16 +383,11 @@ void LockManager::lockTiles(unsigned long pClientId, std::vector <Tile *> * tile
         {
             TALK( "Lock manager, lock tiles: Tile found to lock in iterator." );
             DBTileId dbTileId = (*tileIterator)->getDBTile();
-            if (dbTileId)
+            OId::OIdCounter oid = dbTileId.getObjId().getCounter();
+            if (oid > 0)
             {
-                TALK( "Lock manager, lock tiles: DB tile found to lock." );
-                TALK( "Lock manager, lock tiles: Print DBTileID " );
-                OId oid = dbTileId.getOId();
-                if (oid)
-                {
-                    TALK( "Lock manager, lock tiles: Locking tile " << oid.getCounter() );
-                    lockTileInternal(rasServerId, clientId, oid.getCounter(), lockType);
-                }
+                TALK( "Lock manager, lock tiles: Locking tile " << oid.getCounter() );
+                lockTileInternal(rasServerId, clientId, oid, lockType);
             }
         }
         endTransaction();

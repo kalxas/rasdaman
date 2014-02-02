@@ -270,6 +270,13 @@ public:
     returns pointerCaching
     */
 
+    OId getObjId();
+    /*@Doc:
+    returns the id of the managed object. Not that this is unsafe; if the object
+     is not set, the objId will be 0. This is primarily used for the locking
+     functionality where we care only about the id - do not use it otherwise.
+    */
+
 private:
 
 

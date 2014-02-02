@@ -482,6 +482,12 @@ const T *DBRef<T>::ptr(void) const throw(r_Error)
     return object;
 }
 
+template <class T>
+OId DBRef<T>::getObjId()
+{
+    return objId;
+}
+
 
 template <class T>
 DBRef<T>::operator T*() throw (r_Error)
