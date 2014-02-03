@@ -69,40 +69,6 @@
 #include "debug/debug-clt.hh"
 #endif
 
-// to make postgres related code not too ugly and a little bit easier
-// to read, we define a macro for testing whether the query caused
-// trouble or not
-#define PGFAILED(fun, msg, res) \
-    if (PQresultStatus(res) != PGRES_COMMAND_OK) \
-    {\
-        std::cerr << "RasdamanHelper2::" << fun << " " << msg \
-                  << std::endl << PQresultErrorMessage(res) << std::endl; \
-        PQclear(res); \
-        LEAVE(RasdamanHelper2::fun); \
-        return 0; \
-    }\
-
-#define PGDATAFAILED(fun, msg, res) \
-    if (PQresultStatus(res) != PGRES_TUPLES_OK) \
-    {\
-        std::cerr << "RasdamanHelper2::" << fun << " " << msg \
-                  << std::endl << PQresultErrorMessage(res) << std::endl; \
-        PQclear(res); \
-        LEAVE(RasdamanHelper2::fun); \
-        return 0; \
-    }\
-
-#define PGDATAFAILED_RET(fun, msg, res, ret) \
-    if (PQresultStatus(res) != PGRES_TUPLES_OK) \
-    {\
-        std::cerr << "RasdamanHelper2::" << fun << " " << msg \
-                  << std::endl << PQresultErrorMessage(res) << std::endl; \
-        PQclear(res); \
-        LEAVE(RasdamanHelper2::fun); \
-        return ret; \
-    }\
-
-
 RasdamanHelper2::RasdamanHelper2(RasdamanConnector* rasconn)
 {
     this->m_pRasconn = rasconn;
@@ -116,6 +82,31 @@ RasdamanHelper2::~RasdamanHelper2()
         this->m_transaction.abort();
 }
 
+
+bool RasdamanHelper2::PGFAILED(std::string fun, std::string msg, PGresult* res)
+{
+    if (PQresultStatus(res) != PGRES_COMMAND_OK)
+    {
+        std::cerr << "RasdamanHelper2::" << fun << " " << msg
+                  << std::endl << PQresultErrorMessage(res) << std::endl;
+        PQclear(res);
+        return true;
+    }
+
+    return false;
+}
+
+bool RasdamanHelper2::PGDATAFAILED(std::string fun, std::string msg, PGresult* res)
+{
+    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    {
+        std::cerr << "RasdamanHelper2::" << fun << " " << msg
+                  << std::endl << PQresultErrorMessage(res) << std::endl;
+        PQclear(res);
+        return true;
+    }
+    return false;
+}
 
 std::string
 RasdamanHelper2::getCRSURIfromWKT(const std::string& crsWKT,
@@ -1943,7 +1934,12 @@ RasdamanHelper2::getCRSOrder(double oid)
           <<    "order by rasdaman_order asc";
     TALK("'" << query.str() << "' ...");
     res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-    PGDATAFAILED_RET("getCRSOrder()", "retrieving offset_vector information failed!", res, order);
+    if (PGDATAFAILED("getCRSOrder()", "retrieving offset_vector information failed!", res))
+	{
+		LEAVE(ctx << "getCRSOrder()");
+		return order;
+	}
+
 
     // iterate over the offset tuples and determine the index of the non-zero offset per axis
     order.resize(PQntuples(res));
@@ -1969,7 +1965,6 @@ RasdamanHelper2::getCRSOrder(double oid)
                 order[v] = i;
         }
     }
-
 
     LEAVE(ctx << "getCRSOrder()");
     return order;
@@ -2036,7 +2031,12 @@ RasdamanHelper2::getMetaCellSize(double oid, bool defaultOrder)
           <<     "order by rasdaman_order asc";
     TALK("'" << query.str() << "' ...");
     res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-    PGDATAFAILED_RET("getMetaCellSize()", "retrieving irregular axes information failed!", res, cellsize);
+    if (PGDATAFAILED("getMetaCellSize()", "retrieving irregular axes information failed!", res))
+	{
+		LEAVE(ctx << "getMetaCellSize()");
+		return cellsize;
+	}
+
 
     // map axis id (key) and rasdaman order of irregular axes
     std::map<int, int> irrRas;
@@ -2064,7 +2064,11 @@ RasdamanHelper2::getMetaCellSize(double oid, bool defaultOrder)
           <<    "order by rasdaman_order asc";
     TALK("'" << query.str() << "' ...");
     res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-    PGDATAFAILED_RET("getMetaCellSize()", "retrieving offset_vector information failed!", res, cellsize);
+    if (PGDATAFAILED("getMetaCellSize()", "retrieving offset_vector information failed!", res))
+	{
+		LEAVE(ctx << "getMetaCellSize()");
+		return cellsize;
+	}
 
     // initiate cellsize vector with negatives, indicating
     // no valid value (e.g. for irregular axes)
@@ -2109,7 +2113,7 @@ RasdamanHelper2::getMetaCellSize(double oid, bool defaultOrder)
         }
     }
 
-    LEAVE(ctx << getMetaCellSize());
+    LEAVE(ctx << "getMetaCellSize()");
     return cellsize;
 }
 
@@ -2506,7 +2510,11 @@ RasdamanHelper2::canAppendReferencedZCoeff(double oid, double coefficient)
           << "order by coefficient_order desc";
     TALK("'" << query.str() << "' ...");
     res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-    PGDATAFAILED_RET("canAppendReferencedZCoeff", "querying coefficients failed!", res, -1);
+    if (PGDATAFAILED("canAppendReferencedZCoeff", "querying coefficients failed!", res))
+	{
+		LEAVE(ctx << "canAppendReferencedZCoeff");
+		return -1;
+	}
 
     long idx = -1;
     double coeff;
@@ -2558,7 +2566,11 @@ RasdamanHelper2::getCoverageIdFromOID(double oid)
           <<     "on v1.sid = v2.collid where oid = " << oid;
     TALK("'" << query.str() << "' ...");
     res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-    PGDATAFAILED_RET("getCoverageIdFromOID", "querying coverage id failed!", res, -1);
+    if (PGDATAFAILED("getCoverageIdFromOID", "querying coverage id failed!", res))
+	{
+		LEAVE(ctx << "getCoverageIdFromOID()");
+		return id;
+	}
 
     if (PQntuples(res) > 0)
         id = ::atol(PQgetvalue(res, 0, 0));
@@ -2606,7 +2618,11 @@ RasdamanHelper2::getOIDFromCoverageName(const std::string& coverage)
           <<         "on v2.storage_id = v3.id";
     TALK("'" << query.str() << "' ...");
     res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-    PGDATAFAILED_RET("getOIDFromCoverageName()", "querying OID failed!", res, oid);
+    if (PGDATAFAILED("getOIDFromCoverageName()", "querying OID failed!", res))
+	{
+		LEAVE(ctx << "getOIDFromCoverageName()");
+		return oid;
+	}
 
     if (PQntuples(res) > 0)
         oid = ::atol(PQgetvalue(res, 0, 0));
@@ -2737,15 +2753,12 @@ RasdamanHelper2::writePSMetadata(
           << gmlsubtype << "'";
     TALK("'" << query.str() << "' ...");
     res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    if (PGDATAFAILED("writePSMetadata()", "failed to query gml_subtype_id!", res))
     {
-        std::cerr << ctx << "writePSMetadata(): "
-                  << "failed to query gml_subtype_id!"
-                  << std::endl;
-        PQclear(res);
         LEAVE(ctx << "writePSMetadata()");
         return 0;
     }
+
     long gml_type_id = ::atol(PQgetvalue(res,0,0));
     query.str("");
     PQclear(res);
@@ -2754,15 +2767,12 @@ RasdamanHelper2::writePSMetadata(
     // query the native_format_id (mime_type_id)
     query << "select id from " << PSPREFIX << "_mime_type where mime_type = 'application/x-ogc-rasdaman'";
     res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-    if (PQresultStatus(res) != PGRES_TUPLES_OK)
+    if (PGDATAFAILED("writePSMetadata()", "failed to query mimetype_id!", res))
     {
-        std::cerr << ctx << "writePSMetadata(): "
-                  << "failed to query mimetype_id!"
-                  << std::endl;
-        PQclear(res);
         LEAVE(ctx << "writePSMetadata()");
         return 0;
     }
+
     long mimetype_id = ::atol(PQgetvalue(res, 0,0));
     query.str("");
     PQclear(res);
@@ -2785,67 +2795,82 @@ RasdamanHelper2::writePSMetadata(
               << " where id = " << covid;
         TALK("'" << query.str() << "' ...");
     }
-      res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-       PGFAILED("writePSMetadata()", "failed inserting ps_coverage data!", res);
-       query.str("");
-       PQclear(res);
+    res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
+    if (PGFAILED("writePSMetadata()", "failed inserting ps_coverage data!", res))
+    {
+        LEAVE(ctx << "writePSMetadata()");
+        return 0;
+    }
+    query.str("");
+    PQclear(res);
 
 
-       if (covid < 0)
-       {
-           query << "select id from " << PSPREFIX << "_coverage where name = '" << coveragename << "'";
-           TALK("'" << query.str() << "' ...");
-             res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-             PGDATAFAILED("writePSMetadata()", "failed querying ps_coverage id!", res);
-             covid = atol(PQgetvalue(res,0,0));
-             TALK("coverage id = " << covid);
-
-             query.str("");
-             PQclear(res);
-       }
-
-       //////////////////////////  PS_CRS /////////////////////////////////////////
-       // iterate over the given crs_uris and determine their respective id from the table
-       // if the respective crs-uri is missing, try to add it
-       std::vector<long> crs_ids;// = -1;
-       for (int c=0; c < crs.size(); ++c)
-       {
-        query << "select id from " << PSPREFIX << "_crs where uri = '" << crs[c] << "'";
-        TALK("'" << query.str() << "' ... ");
+    if (covid < 0)
+    {
+        query << "select id from " << PSPREFIX << "_coverage where name = '" << coveragename << "'";
+        TALK("'" << query.str() << "' ...");
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGDATAFAILED("writePSMetadata", "failed to fetch the CRS URI!", res);
-        if (PQntuples(res) >= 1)
+        if (PGDATAFAILED("writePSMetadata()", "failed querying ps_coverage id!", res))
         {
-            crs_ids.push_back(atol(PQgetvalue(res, 0, 0)));
-            TALK("crs_id = " << crs_ids[c]);
+            LEAVE(ctx << "writePSMetadata()");
+            return 0;
         }
-        else
-        {
-            PQclear(res);
-            query.str("");
-            query << "insert into " << PSPREFIX << "_crs (uri) values ('" << crs[c] << "')";
-            res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-            PGFAILED("writePSMetadata", "failed to insert CRS URI!", res);
+        covid = atol(PQgetvalue(res,0,0));
+        TALK("coverage id = " << covid);
 
-            PQclear(res);
-            query.str("");
-            query << "select id from " << PSPREFIX << "_crs where uri = '" << crs[c] << "'";
-            TALK(query.str() << " ... ");
-            res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-            if (PQntuples(res) >= 1)
-            {
-                crs_ids.push_back(atol(PQgetvalue(res, 0, 0)));
-                TALK("crs_id = " << crs_ids[c]);
-            }
-        }
-        PQclear(res);
         query.str("");
+        PQclear(res);
+    }
 
-       }
+    //////////////////////////  PS_CRS /////////////////////////////////////////
+    // iterate over the given crs_uris and determine their respective id from the table
+    // if the respective crs-uri is missing, try to add it
+    std::vector<long> crs_ids;// = -1;
+    for (int c=0; c < crs.size(); ++c)
+    {
+		query << "select id from " << PSPREFIX << "_crs where uri = '" << crs[c] << "'";
+		TALK("'" << query.str() << "' ... ");
+		res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
+		if (PGDATAFAILED("writePSMetadata", "failed to fetch the CRS URI!", res))
+		{
+			LEAVE(ctx << "writePSMetadata()");
+			return 0;
+		}
 
+		if (PQntuples(res) >= 1)
+		{
+			crs_ids.push_back(atol(PQgetvalue(res, 0, 0)));
+			TALK("crs_id = " << crs_ids[c]);
+		}
+		else
+		{
+			PQclear(res);
+			query.str("");
+			query << "insert into " << PSPREFIX << "_crs (uri) values ('" << crs[c] << "')";
+			res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
+			if (PGFAILED("writePSMetadata", "failed to insert CRS URI!", res))
+			{
+				LEAVE(ctx << "writePSMetadata()");
+				return 0;
+			}
 
-       ////////////////////////// CREATE rasdaman 2 crs order MAPPING ////////////////////////
-       // we create an array to map rasdaman (default xyz) order to the specified crs order //
+			PQclear(res);
+			query.str("");
+			query << "select id from " << PSPREFIX << "_crs where uri = '" << crs[c] << "'";
+			TALK(query.str() << " ... ");
+			res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
+			if (PQntuples(res) >= 1)
+			{
+				crs_ids.push_back(atol(PQgetvalue(res, 0, 0)));
+				TALK("crs_id = " << crs_ids[c]);
+			}
+		}
+		PQclear(res);
+		query.str("");
+    }
+
+    ////////////////////////// CREATE rasdaman 2 crs order MAPPING ////////////////////////
+    // we create an array to map rasdaman (default xyz) order to the specified crs order //
     std::vector<int> ras2crs = this->getRas2CrsMapping(crs_order);
 
     //////////////////////////// PS_DOMAIN_SET //////////////////////////////////
@@ -2875,7 +2900,11 @@ RasdamanHelper2::writePSMetadata(
               << values.str();
         TALK("'" << query.str() << "'...");
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGFAILED("writePSMetdata()", "failed to insert crs info into ps_domain_set!", res);
+        if (PGFAILED("writePSMetdata()", "failed to insert crs info into ps_domain_set!", res))
+        {
+            LEAVE(ctx << "writePSMetadata()");
+            return 0;
+        }
     }
     else
     {
@@ -2885,7 +2914,11 @@ RasdamanHelper2::writePSMetadata(
               << values.str() << " where coverage_id = " << covid;
         TALK("'" << query.str() << "'...");
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGFAILED("writePSMetadata()", "failed to update crs info into ps_domain_set!", res);
+        if (PGFAILED("writePSMetadata()", "failed to update crs info into ps_domain_set!", res))
+        {
+            LEAVE(ctx << "writePSMetadata()");
+            return 0;
+        }
     }
     query.str("");
     PQclear(res);
@@ -2951,7 +2984,11 @@ RasdamanHelper2::writePSMetadata(
               << values.str();
         TALK("'" << query.str() << "' ...");
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGFAILED("writePSMetdata()", "failed to insert origin into ps_gridded_domain_set!", res);
+        if (PGFAILED("writePSMetdata()", "failed to insert origin into ps_gridded_domain_set!", res))
+        {
+            LEAVE(ctx << "writePSMetadata()");
+            return 0;
+        }
     }
     else
     {
@@ -2961,7 +2998,11 @@ RasdamanHelper2::writePSMetadata(
               << values.str() << " where coverage_id = " << covid;
         TALK("'" << query.str() << "' ...");
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGFAILED("writePSMetadata()", "failed to update origin info in ps_gridded_domain_set!", res);
+        if (PGFAILED("writePSMetadata()", "failed to update origin info in ps_gridded_domain_set!", res))
+        {
+            LEAVE(ctx << "writePSMetadata()");
+            return 0;
+        }
     }
     query.str("");
     PQclear(res);
@@ -3065,7 +3106,12 @@ RasdamanHelper2::writePSMetadata(
               << " values "<< values.str();
         TALK("'" << query.str() << "' ...");
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGFAILED("writePSMetdata()", "failed to insert bbox into ps_bounding_box!", res);
+        if (PGFAILED("writePSMetdata()", "failed to insert bbox into ps_bounding_box!", res))
+		{
+			LEAVE(ctx << "writePSMetadata()");
+			return 0;
+		}
+
     }
     else
     {
@@ -3075,7 +3121,11 @@ RasdamanHelper2::writePSMetadata(
               << values.str() << " where coverage_id = " << covid;
         TALK("'" << query.str() << "' ...");
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGFAILED("writePSMetadata()", "failed to update bbox in ps_bounding_box!", res);
+        if (PGFAILED("writePSMetadata()", "failed to update bbox in ps_bounding_box!", res))
+		{
+			LEAVE(ctx << "writePSMetadata()");
+			return 0;
+		}
     }
     query.str("");
     PQclear(res);
@@ -3098,14 +3148,23 @@ RasdamanHelper2::writePSMetadata(
                 << " values " << values.str();
         TALK("'" << query.str() << "' ...");
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGFAILED("writePSMetdata()", "failed to insert rasdaman collection info into ps_rasdaman_collection!", res);
+        if (PGFAILED("writePSMetdata()", "failed to insert rasdaman collection info into ps_rasdaman_collection!", res))
+		{
+			LEAVE(ctx << "writePSMetadata()");
+			return 0;
+		}
 
         PQclear(res);
         query.str("");
         query << "select id from " << PSPREFIX << "_rasdaman_collection where oid = " << oid;
         TALK("'" << query.str() << "' ...");
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGDATAFAILED("writePSMetdata()", "failed to query rasdaman collection info we just inserted!", res);
+        if (PGDATAFAILED("writePSMetdata()", "failed to query rasdaman collection info we just inserted!", res))
+		{
+			LEAVE(ctx << "writePSMetadata()");
+			return 0;
+		}
+
         storageid = atol(PQgetvalue(res, 0, 0));
         TALK("storage_id = " << storageid);
 
@@ -3124,7 +3183,11 @@ RasdamanHelper2::writePSMetadata(
                 << values.str();
         TALK("'" << query.str() << "' ...");
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGFAILED("writePSMetdata()", "failed to insert into ps_range_set!", res);
+        if (PGFAILED("writePSMetdata()", "failed to insert into ps_range_set!", res))
+		{
+			LEAVE(ctx << "writePSMetadata()");
+			return 0;
+		}
 
         PQclear(res);
         query.str("");
@@ -3132,7 +3195,12 @@ RasdamanHelper2::writePSMetadata(
                 << storageid;
         TALK("'" << query.str() << "' ...");
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGDATAFAILED("writePSMetdata()", "failed to query ps_range_set info we just inserted!", res);
+        if (PGDATAFAILED("writePSMetdata()", "failed to query ps_range_set info we just inserted!", res))
+		{
+			LEAVE(ctx << "writePSMetadata()");
+			return 0;
+		}
+
         rangesetid = atol(PQgetvalue(res, 0, 0));
         TALK("range_set_id = " << rangesetid);
 
@@ -3151,7 +3219,11 @@ RasdamanHelper2::writePSMetadata(
                     << " values (" << covid << "," << d << ")";
             TALK("'" << query.str() << "' ...");
             res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-            PGFAILED("writePSMetdata()", "failed to insert into into ps_grid_axis!", res);
+            if (PGFAILED("writePSMetdata()", "failed to insert into into ps_grid_axis!", res))
+            {
+                LEAVE(ctx << "writePSMetadata()");
+                return 0;
+            }
         }
         PQclear(res);
         query.str("");
@@ -3161,7 +3233,11 @@ RasdamanHelper2::writePSMetadata(
           << covid << " order by rasdaman_order asc";
     TALK("'" << query.str() << "' ...");
     res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-    PGDATAFAILED("writePSMetdata()", "failed to query ps_grid_axis ids!", res);
+    if (PGDATAFAILED("writePSMetdata()", "failed to query ps_grid_axis ids!", res))
+	{
+		LEAVE(ctx << "writePSMetadata()");
+		return 0;
+	}
 
     // get axis ids and order them according to crs_order
     long axisids[3];
@@ -3193,7 +3269,11 @@ RasdamanHelper2::writePSMetadata(
                       << " values (" << axisids[ras2crs[d]] << "," << voffsets[ras2crs[d]] << ")";
             TALK("'" << query.str() << "' ...");
             res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-            PGFAILED("writePSMetdata()", "failed to insert info into ps_rectilinear_axis!", res);
+            if (PGFAILED("writePSMetdata()", "failed to insert info into ps_rectilinear_axis!", res))
+            {
+                LEAVE(ctx << "writePSMetadata()");
+                return 0;
+            }
             PQclear(res);
             query.str("");
         }
@@ -3217,7 +3297,11 @@ RasdamanHelper2::writePSMetadata(
 
             TALK("'" << query.str() << "' ...");
             res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-            PGFAILED("writePSMetdata()", "failed to insert info into ps_vector_coefficients!", res);
+            if (PGFAILED("writePSMetdata()", "failed to insert info into ps_vector_coefficients!", res))
+            {
+                LEAVE(ctx << "writePSMetadata()");
+                return 0;
+            }
             PQclear(res);
             query.str("");
         }
@@ -3239,7 +3323,11 @@ RasdamanHelper2::writePSMetadata(
             query.str("");
             query << "insert into " << PSPREFIX << "_uom (code) values ('undefined')";
             res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-            PGFAILED("writePSMetadata()", "failed to insert 'undefined' into ps_uom!", res);
+            if (PGFAILED("writePSMetadata()", "failed to insert 'undefined' into ps_uom!", res))
+            {
+                LEAVE(ctx << "writePSMetadata()");
+                return 0;
+            }
             PQclear(res);
             query.str("");
 
@@ -3264,13 +3352,21 @@ RasdamanHelper2::writePSMetadata(
             query << "insert into " << PSPREFIX << "_quantity (uom_id, label, description) "
                   << " values (" << undef_uom_id << ", 'pixel_value', '')";
             res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-            PGFAILED("writePSMetadata()", "failed to insert info into ps_quantity!", res);
+            if (PGFAILED("writePSMetadata()", "failed to insert info into ps_quantity!", res))
+            {
+                LEAVE(ctx << "writePSMetadata()");
+                return 0;
+            }
             PQclear(res);
             query.str("");
 
             query << "select id from " << PSPREFIX << "_quantity where label = 'pixel_value'";
             res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-            PGDATAFAILED("writePSMetadata()", "failed querying id for label = 'pixel_value'!", res);
+            if (PGDATAFAILED("writePSMetadata()", "failed querying id for label = 'pixel_value'!", res))
+            {
+                LEAVE(ctx << "writePSMetadata()");
+                return 0;
+            }
         }
         quantity_id = atol(PQgetvalue(res, 0, 0));
         query.str("");
@@ -3321,13 +3417,17 @@ RasdamanHelper2::writePSMetadata(
                   << comma << "'" << PSPREFIX << "_quantity')";
             TALK("'" << query.str() << "' ...");
             res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-            PGFAILED("writePSMetadata()", "failed writing range_type_component!", res);
+            if (PGFAILED("writePSMetadata()", "failed writing range_type_component!", res))
+            {
+                LEAVE(ctx << "writePSMetadata()");
+                return 0;
+            }
             PQclear(res);
             query.str("");
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////
-    /////////////////////// END OF 'NOT FOR UPDATE' ////////////////////////////////////////
+    /////////////////////// END OF MOSTLY 'NOT FOR UPDATE' /////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////
 
     LEAVE(ctx << "writePSMetadata()");
@@ -3394,14 +3494,22 @@ RasdamanHelper2::deletePSMetadata(const std::string& collname,
         query.str("");
         query << "delete from " << PSPREFIX << "_coverage where id = " << covid;
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGFAILED("deletePSMetadata()", "failed deleting coverage metadata!", res);
+        if (PGFAILED("deletePSMetadata()", "failed deleting coverage metadata!", res))
+		{
+			LEAVE(ctx << "deletePSMetadata()");
+			return 0;
+		}
         PQclear(res);
 
         // delete reference to rasdaman collection
         query.str("");
         query << "delete from " << PSPREFIX << "_rasdaman_collection where oid = " << oid;
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-        PGFAILED("deletePSMetadata()", "failed deleting coverage metadata!", res);
+        if (PGFAILED("deletePSMetadata()", "failed deleting coverage metadata!", res))
+		{
+			LEAVE(ctx << "deletePSMetadata()");
+			return 0;
+		}
         PQclear(res);
         query.str("");
 

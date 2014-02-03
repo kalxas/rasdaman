@@ -437,6 +437,11 @@ protected:
     //  gets read or write by this helper
     long m_maximgsize;
 
+
+    /* just to make PG-heavy code a little bit easier to read ...*/
+    bool PGDATAFAILED(std::string fun, std::string msg, PGresult* res);
+    bool PGFAILED(std::string fun, std::string msg, PGresult* res);
+
 };
 
 #endif /* RASDAMANHELPER2_HH_ */
