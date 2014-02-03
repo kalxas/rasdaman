@@ -56,6 +56,8 @@ rasdaman GmbH.
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <string>
+#include <sstream>
 
 #include "csv.hh"
 
@@ -103,7 +105,7 @@ r_Conv_CSV::~r_Conv_CSV(void)
  * on this format so on change update RasUtil as well.
  */
 template <class baseType, class castType>
-void r_Conv_CSV::print(std::ofstream &f, baseType* val, int *dims, int dim)
+void r_Conv_CSV::print(std::stringstream &f, baseType* val, int *dims, int dim)
 {
     ENTER("r_Conv_CSV::print( dimensions: " << dim << " )");
 
@@ -165,7 +167,7 @@ void r_Conv_CSV::print(std::ofstream &f, baseType* val, int *dims, int dim)
     LEAVE("r_Conv_CSV::print()");
 }
 
-void r_Conv_CSV::printStructVal(std::ofstream &f)
+void r_Conv_CSV::printStructVal(std::stringstream &f)
 {
     r_Structure_Type *st = (r_Structure_Type*) desc.srcType;
     r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
@@ -219,7 +221,7 @@ void r_Conv_CSV::printStructVal(std::ofstream &f)
     }
 }
 
-void r_Conv_CSV::printStruct(std::ofstream &f, int *dims, int dim)
+void r_Conv_CSV::printStruct(std::stringstream &f, int *dims, int dim)
 {
     if (dim == 1)
     {
@@ -247,18 +249,11 @@ void r_Conv_CSV::printStruct(std::ofstream &f, int *dims, int dim)
 
 r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
 {
+
     ENTER("r_Conv_CSV::convertTo()");
-    char name[] = "csvtempXXXXXX";
-    int tempFD;
-    tempFD = mkstemp(name);
-    if(tempFD == -1)
-    {
-        RMInit::logOut << "r_Conv_CSV::convertTo(" << (options?options:"NULL")
-                        << ") desc.srcType (" << desc.srcType->type_id()
-                        << ") unable to generate a tempory file !" << endl;
-        throw r_Error();
-    }
-    std::ofstream ftemp(name);
+
+    std::stringstream csvtemp;
+
     //int size = getTypeSize(desc.baseType);
     int rank, i;
     int *dimsizes;
@@ -274,43 +269,43 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
     if (desc.srcType->isStructType())
     {
         val = (char*) src;
-        printStruct(ftemp, dimsizes, rank);
+        printStruct(csvtemp, dimsizes, rank);
         val = NULL;
     }
     else
         switch (desc.baseType)
         {
         case ctype_int8:
-            print<const r_Octet, int>(ftemp, (const r_Octet*)src, dimsizes, rank);
+            print<const r_Octet, int>(csvtemp, (const r_Octet*)src, dimsizes, rank);
             break;
         case ctype_uint8:
         case ctype_char:
         case ctype_bool:
-            print<r_Char, int>(ftemp, (r_Char*)src, dimsizes, rank);
+            print<r_Char, int>(csvtemp, (r_Char*)src, dimsizes, rank);
             break;
         case ctype_int16:
-            print<r_Short, int>(ftemp, (r_Short*)src, dimsizes, rank);
+            print<r_Short, int>(csvtemp, (r_Short*)src, dimsizes, rank);
             break;
         case ctype_uint16:
-            print<r_UShort, int>(ftemp, (r_UShort*) src, dimsizes, rank);
+            print<r_UShort, int>(csvtemp, (r_UShort*) src, dimsizes, rank);
             break;
         case ctype_int32:
-            print<r_Long, int>(ftemp, (r_Long*) src, dimsizes, rank);
+            print<r_Long, int>(csvtemp, (r_Long*) src, dimsizes, rank);
             break;
         case ctype_uint32:
-            print<r_ULong, int>(ftemp, (r_ULong*) src, dimsizes, rank);
+            print<r_ULong, int>(csvtemp, (r_ULong*) src, dimsizes, rank);
             break;
         case ctype_int64:
-            print<long long, long long>(ftemp, (long long*) src, dimsizes, rank);
+            print<long long, long long>(csvtemp, (long long*) src, dimsizes, rank);
             break;
         case ctype_uint64:
-            print<unsigned long long, unsigned long long>(ftemp, (unsigned long long*) src, dimsizes, rank);
+            print<unsigned long long, unsigned long long>(csvtemp, (unsigned long long*) src, dimsizes, rank);
             break;
         case ctype_float32:
-            print<r_Float, float>(ftemp, (r_Float*) src, dimsizes, rank);
+            print<r_Float, float>(csvtemp, (r_Float*) src, dimsizes, rank);
             break;
         case ctype_float64:
-            print<r_Double, float>(ftemp, (r_Double*) src, dimsizes, rank);
+            print<r_Double, float>(csvtemp, (r_Double*) src, dimsizes, rank);
             break;
         default:
         {
@@ -322,36 +317,27 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
 
     delete [] dimsizes;
     dimsizes=NULL;
-    ftemp.close();
 
-    FILE *fp;
-    int filesize;
-
-    if ((fp = fopen(name, "rb")) == NULL)
-    {
-        RMInit::logOut << "r_Conv_CSV::convertTo(): unable to read back file." << endl;
-        LEAVE("r_Conv_CSV::convertTo()");
-        throw r_Error(r_Error::r_Error_General);
-    }
-    fseek(fp, 0, SEEK_END);
-    filesize = ftell(fp);
+    int stringsize;
+    csvtemp.seekp(0, ios::end);
+    stringsize = csvtemp.tellp();
 
     desc.destInterv = r_Minterval(1);
-    desc.destInterv << r_Sinterval((r_Range)0, (r_Range)filesize - 1);
+    desc.destInterv << r_Sinterval((r_Range)0, (r_Range)stringsize - 1);
 
-    if ((desc.dest = (char*)mystore.storage_alloc(filesize)) == NULL)
+    if ((desc.dest = (char*)mystore.storage_alloc(stringsize)) == NULL)
     {
         RMInit::logOut << "r_Conv_CSV::convertTo(): out of memory error" << endl;
-        fclose(fp);
         LEAVE("r_Conv_CSV::convertTo()");
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
-    fseek(fp, 0, SEEK_SET);
-    fread(desc.dest, 1, filesize, fp);
+    std::string tmpstr = csvtemp.str();
 
-    fclose(fp);
+    char *cstr = new char[tmpstr.size() + 1];
+    std::copy(tmpstr.begin(), tmpstr.end(), cstr);
+    cstr[tmpstr.size()] = '\0';
 
-    remove(name);
+    desc.dest = cstr;
 
     // Result is just a bytestream
     desc.destType = r_Type::get_any_type("char");
