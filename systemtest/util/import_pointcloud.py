@@ -60,21 +60,21 @@ else:
 		# Inserting the range type (attributes) information (rgb) in ps_range_type_component
 		# 	coverage_id | name (band name) | data_type_id (8-bit signed integer from ps_range_data_type) |
 		# 	component_order (r:0 g:1 b:2) | field_id (from ps_quantity col for unsigned char) | field_table (ps_quantity)
-		insert_stmt = """INSERT INTO %_range_type_component (coverage_id,
+		insert_stmt = """INSERT INTO %s_range_type_component (coverage_id,
 			name, data_type_id, component_order, field_id, field_table) VALUES (%d, 'red',
-			3, 0, 2, '%_quantity');""" % (DB_TABLE_PREFIX, coverage_id, DB_TABLE_PREFIX)
+			3, 0, 2, '%s_quantity');""" % (DB_TABLE_PREFIX, coverage_id, DB_TABLE_PREFIX)
 		cursor.execute(insert_stmt);
 		conn.commit()
 
-		insert_stmt = """INSERT INTO %_range_type_component (coverage_id,
+		insert_stmt = """INSERT INTO %s_range_type_component (coverage_id,
 			name, data_type_id, component_order, field_id, field_table) VALUES (%d, 'green',
-			3, 1, 2, '%_quantity');""" % (DB_TABLE_PREFIX, coverage_id, DB_TABLE_PREFIX)
+			3, 1, 2, '%s_quantity');""" % (DB_TABLE_PREFIX, coverage_id, DB_TABLE_PREFIX)
 		cursor.execute(insert_stmt);
 		conn.commit()
 
-		insert_stmt = """INSERT INTO %_range_type_component (coverage_id,
+		insert_stmt = """INSERT INTO %s_range_type_component (coverage_id,
 			name, data_type_id, component_order, field_id, field_table) VALUES (%d, 'blue',
-			3, 2, 2, '%_quantity');""" % (DB_TABLE_PREFIX, coverage_id, DB_TABLE_PREFIX)
+			3, 2, 2, '%s_quantity');""" % (DB_TABLE_PREFIX, coverage_id, DB_TABLE_PREFIX)
 		cursor.execute(insert_stmt);
 		conn.commit()
 
