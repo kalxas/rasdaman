@@ -296,10 +296,30 @@ void LockManager::clearLockTableInternal(const char *pRasServerId)
  */
 void LockManager::generateServerId(char * pResultRasServerId)
 {
-    char * serverName = (char *)configuration.getServerName();
-    int port = configuration.getListenPort();
-    char * rasmgrHost = (char *)configuration.getRasmgrHost();
-    int rasmgrPort = configuration.getRasmgrPort();
+    char * serverName;
+    int port;
+    char * rasmgrHost;
+    int rasmgrPort;
+    if (configuration.getServerName() != NULL)
+    {
+        serverName = (char *)configuration.getServerName();
+        port = configuration.getListenPort();
+    }
+    else
+    {
+        serverName = (char *)"defaultServer";
+        port = 0;
+    }
+    if (configuration.getRasmgrHost() != NULL)
+    {
+        rasmgrHost = (char *)configuration.getRasmgrHost();
+        rasmgrPort = configuration.getRasmgrPort();
+    }
+    else
+    {
+        rasmgrHost = (char *)"defaultRasmgrHost";
+        rasmgrPort = 0;
+    }
     int return_code = snprintf(pResultRasServerId, 255, "%s-%d-%s-%d", rasmgrHost, rasmgrPort, serverName, port);
     if ((return_code >= 0) && (return_code<255))
     {

@@ -108,6 +108,7 @@ using namespace std;
 #include "servercomm/servercomm.hh"
 #include "relblobif/tilecache.hh"
 
+#include "lockmgr/lockmanager.hh"
 
 #ifdef __VISUALC__
 #undef __EXECUTABLE__
@@ -448,6 +449,10 @@ openDatabase() throw (r_Error)
         LOG( "ok" << endl << flush );
     }
 
+#if LOCKMANAGER_ON
+    LockManager * lockManager = LockManager::Instance();
+    lockManager->connect();
+#endif
     LEAVE( "openDatabase" );
 } // openDatabase()
 
@@ -461,7 +466,10 @@ closeDatabase() throw (r_Error)
         TALK( "database was open, closing it" );
         dbIsOpen = false;
     }
-
+#if LOCKMANAGER_ON
+    LockManager * lockManager = LockManager::Instance();
+    lockManager->disconnect();
+#endif
     LEAVE( "closeDatabase" );
     return;
 } // closeDatabase()
@@ -476,13 +484,13 @@ openTransaction(bool readwrite) throw (r_Error)
         if (readwrite)
         {
             TALK( "transaction was closed, opening rw..." );
-            ta.begin(&database);
+            ta.begin(&database, !readwrite);
             TALK( "ok" );
         }
         else
         {
             TALK( "transaction was closed, opening ro..." );
-            ta.begin(&database);
+            ta.begin(&database, !readwrite);
             TALK( "ok" );
         }
 
@@ -513,7 +521,10 @@ closeTransaction( bool doCommit ) throw (r_Error)
         }
         taIsOpen = false;
     }
-
+#if LOCKMANAGER_ON
+    LockManager * lockManager = LockManager::Instance();
+    lockManager->clearLockTable();
+#endif
     LEAVE( "closeTransaction" );
     return;
 } // closeTransaction()
