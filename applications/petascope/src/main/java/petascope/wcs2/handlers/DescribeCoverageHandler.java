@@ -107,6 +107,8 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
                         code = exc.getExceptionCode();
                         code.setLocator(code.getLocator() + " " + ex.getExceptionCode().getLocator());
                     }
+                } else {
+                    throw ex;
                 }
             } catch (PetascopeException ex) {
                 throw ex;

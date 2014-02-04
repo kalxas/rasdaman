@@ -1330,7 +1330,7 @@ public class DbMetadataSource implements IMetadataSource {
                 throw new PetascopeException(ExceptionCode.ResourceError,
                         "Previously valid metadata is now invalid. The metadata for coverage '" + coverageName + "' has been modified incorrectly.", ime);
             } else {
-                throw new PetascopeException(ime.getExceptionCode(), ime);
+                throw ime;
             }
         } catch (SQLException sqle) {
             log.error("Failed reading metadata", sqle);
@@ -1949,18 +1949,24 @@ public class DbMetadataSource implements IMetadataSource {
         }
 
         // Parse the result
+        Pair<String, String> bounds = Pair.of("","");
         if (obj != null) {
             RasQueryResult res = new RasQueryResult(obj);
             if (!res.getScalars().isEmpty()) {
                 // TODO: can be done better with Minterval instead of sdom2bounds
-                Pair<String, String> bounds = Pair.of(
+                bounds = Pair.of(
                         StringUtil.split(res.getScalars().get(0), ":")[0],
                         StringUtil.split(res.getScalars().get(0), ":")[1]);
-                return bounds;
+            } else {
+                log.error("Marray " + collOid + " of collection " + collName + " was not found.");
+                throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                        "Marray " + collOid + " of collection " + collName + " was not found: wrong OID in " + TABLE_RASDAMAN_COLLECTION + "?");
             }
+        } else {
+            log.error("Empty response from rasdaman.");
+            throw new PetascopeException(ExceptionCode.RasdamanError, "Empty response from rasdaman.");
         }
-
-        return null;
+        return bounds;
     }
 
     public ResultSet executePostGISQuery(String postGisQuery) throws PetascopeException{
