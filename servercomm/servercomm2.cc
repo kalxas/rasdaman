@@ -187,10 +187,6 @@ ServerComm::openDB( unsigned long callingClientId,
 
     RMInit::logOut << "Request: 'open DB', name = " << dbName << "'..." << std::flush;
 
-#if LOCKMANAGER_ON
-    LockManager * lockManager = LockManager::Instance();
-    lockManager->connect();
-#endif
     ClientTblElt* context = getClientContext( callingClientId );
 
     if( context != 0 )
@@ -309,11 +305,6 @@ ServerComm::closeDB( unsigned long callingClientId )
         RMInit::logOut << "Error: client not registered." << std::endl;
         returnValue = 1;
     }
-
-#if LOCKMANAGER_ON
-    LockManager * lockManager = LockManager::Instance();
-    lockManager->disconnect();
-#endif
 
     RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "closeDB" )
     return returnValue;

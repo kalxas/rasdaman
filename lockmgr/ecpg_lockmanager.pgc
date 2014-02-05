@@ -130,18 +130,18 @@ bool ECPG_LockManager::connect(const char * pDatabaseTarget, const char * pConne
     }
     EXEC SQL AT :connectionName PREPARE insert_query1 FROM "INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, RasClientID, SharedLock) SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT TileID from RAS_LOCKEDTILES WHERE TileID = ? AND ExclusiveLock = ?);";
     EXEC SQL AT :connectionName PREPARE insert_query2 FROM "INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, RasClientID, SharedLock, ExclusiveLock) SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (SELECT TileID from RAS_LOCKEDTILES WHERE TileID = ?);";
-        EXEC SQL AT :connectionName PREPARE select_query1 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ?);";
-        EXEC SQL AT :connectionName PREPARE select_query2 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ?);";
-        EXEC SQL AT :connectionName PREPARE select_query3 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ?);";
-        EXEC SQL AT :connectionName PREPARE select_query4 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ?);";
-        EXEC SQL AT :connectionName PREPARE select_query5 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND SharedLock = ?);";
-        EXEC SQL AT :connectionName PREPARE select_query6 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ? AND SharedLock = ?);";
-        EXEC SQL AT :connectionName PREPARE select_query7 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND SharedLock = ?);";
-        EXEC SQL AT :connectionName PREPARE select_query8 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ? AND SharedLock = ?);";
-        EXEC SQL AT :connectionName PREPARE select_query9 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND ExclusiveLock = ?);";
-        EXEC SQL AT :connectionName PREPARE select_query10 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ? AND ExclusiveLock = ?);";
-        EXEC SQL AT :connectionName PREPARE select_query11 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND ExclusiveLock = ?);";
-        EXEC SQL AT :connectionName PREPARE select_query12 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ? AND ExclusiveLock = ?);";
+    EXEC SQL AT :connectionName PREPARE select_query1 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ?);";
+    EXEC SQL AT :connectionName PREPARE select_query2 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ?);";
+    EXEC SQL AT :connectionName PREPARE select_query3 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ?);";
+    EXEC SQL AT :connectionName PREPARE select_query4 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ?);";
+    EXEC SQL AT :connectionName PREPARE select_query5 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND SharedLock = ?);";
+    EXEC SQL AT :connectionName PREPARE select_query6 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ? AND SharedLock = ?);";
+    EXEC SQL AT :connectionName PREPARE select_query7 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND SharedLock = ?);";
+    EXEC SQL AT :connectionName PREPARE select_query8 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ? AND SharedLock = ?);";
+    EXEC SQL AT :connectionName PREPARE select_query9 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND ExclusiveLock = ?);";
+    EXEC SQL AT :connectionName PREPARE select_query10 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ? AND ExclusiveLock = ?);";
+    EXEC SQL AT :connectionName PREPARE select_query11 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND ExclusiveLock = ?);";
+    EXEC SQL AT :connectionName PREPARE select_query12 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ? AND ExclusiveLock = ?);";
     return SQLCODE==0;
 }
 

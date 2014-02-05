@@ -58,6 +58,9 @@ class LockManager
         // copy constructor is private such that it cannot be called from the outside
         LockManager(LockManager const&);
 
+        // destructor is private such that it cannot be called from the outside
+        ~LockManager();
+
         // assignment operator is private such that it cannot be called from the outside
         LockManager& operator=(LockManager const&);
 

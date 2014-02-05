@@ -62,8 +62,19 @@ LockManager * LockManager::LM_instance = NULL;
  * @param mgr
  *     object of the class as parameter of the copy constructor
  */
-LockManager::LockManager(LockManager const& mgr) {
+LockManager::LockManager(LockManager const& mgr)
+{
     LockManager();
+}
+
+/**
+ * Private destructor such that it cannot be called from the outside.
+ *
+ * This destructor disconnects the lockmanager from the database.
+ */
+LockManager::~LockManager()
+{
+    LM_instance->disconnect();
 }
 
 /**
@@ -74,7 +85,8 @@ LockManager::LockManager(LockManager const& mgr) {
  * @param mgr
  *     object of the class as parameter of the = operator
  */
-LockManager& LockManager::operator=(LockManager const& mgr) {
+LockManager& LockManager::operator=(LockManager const& mgr)
+{
     LockManager();
 }
 
@@ -93,8 +105,10 @@ LockManager::LockManager()
  * Function for creating and returning an instance of the class.
  *
  * This function is called to create an instance of the class.
- *  Calling the constructor publicly is not allowed. The constructor
- *  is private and is only called by this Instance function.
+ * Calling the constructor publicly is not allowed. The constructor
+ * is private and is only called by this Instance function.
+ * This function is also responsible for establishing the lockmanager's
+ * connection to the database.
  *
  * @return a pointer to the created instance of the class
  */
@@ -106,6 +120,7 @@ LockManager * LockManager::Instance()
         TALK( "Lock manager: new instance" );
         LM_instance = new LockManager();
         LM_instance->ecpg_LockManager = ECPG_LockManager::Instance();
+        LM_instance->connect();
     }
     return LM_instance;
 }
@@ -119,7 +134,22 @@ LockManager * LockManager::Instance()
  */
 void LockManager::connect()
 {
-    bool connect_ok = ecpg_LockManager->connect("RASBASE:5432", connectionName, NULL, NULL);
+    const char * dbConnectionId;
+    const char * dbUser;
+    const char * dbPassword;
+    if (configuration.getDbConnectionID() != NULL)
+    {
+        dbConnectionId = configuration.getDbConnectionID();
+        dbUser = configuration.getDbUser();
+        dbPassword = configuration.getDbPasswd();
+    }
+    else
+    {
+        dbConnectionId = (const char *)"RASBASE:5432";
+        dbUser = NULL;
+        dbPassword = NULL;
+    }
+    bool connect_ok = ecpg_LockManager->connect(dbConnectionId, connectionName, dbUser, dbPassword);
     if (!connect_ok)
     {
         TALK( "Lock manager: Database is not connected!" );

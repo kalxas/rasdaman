@@ -448,11 +448,6 @@ openDatabase() throw (r_Error)
         dbIsOpen = true;
         LOG( "ok" << endl << flush );
     }
-
-#if LOCKMANAGER_ON
-    LockManager * lockManager = LockManager::Instance();
-    lockManager->connect();
-#endif
     LEAVE( "openDatabase" );
 } // openDatabase()
 
@@ -466,10 +461,6 @@ closeDatabase() throw (r_Error)
         TALK( "database was open, closing it" );
         dbIsOpen = false;
     }
-#if LOCKMANAGER_ON
-    LockManager * lockManager = LockManager::Instance();
-    lockManager->disconnect();
-#endif
     LEAVE( "closeDatabase" );
     return;
 } // closeDatabase()
