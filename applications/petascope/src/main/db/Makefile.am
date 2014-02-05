@@ -39,4 +39,4 @@ update_petascopedb.sh petascope_insertdemo.sh:
 	chmod a-w $@
 
 install-data-hook:
-	cp -r petascope/ $(DESTDIR)$(pkgdatadir)/
+	cp -pr petascope/ $(DESTDIR)$(pkgdatadir)/

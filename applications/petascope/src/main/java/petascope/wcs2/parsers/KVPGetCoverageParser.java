@@ -38,12 +38,12 @@ import static petascope.util.KVPSymbols.*;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.StringUtil;
-import petascope.util.TimeUtil;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
+import static petascope.wcs2.parsers.GetCoverageRequest.QUOTED_SUBSET;
 
 /**
  * Parse a GetCapabilities KVP request.
@@ -53,7 +53,6 @@ import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
 public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
 
     private static final Pattern PATTERN = Pattern.compile("([^,\\(]+)(,([^\\(]+))?\\(([^,\\)]+)(,([^\\)]+))?\\)");
-    private static final String QUOTED_SUBSET = "^\".*\"$"; // switch from numeric to ISO8601 coordinates for time
 
     /**
      * Parses any subset parameters defined as in OGC 09-147r1 standard(e.g.
@@ -180,29 +179,17 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
                     throw new WCSException(ExceptionCode.InvalidAxisLabel, "Dimension " + dim + " is duplicated in the request subsets.");
                 }
                 if (high == null) {
-                    ret.getSubsets().add(new DimensionSlice(dim, crs, low));
+                    ret.addSubset(ret.new DimensionSlice(dim, crs, low));
+                    if (null != low && low.matches(QUOTED_SUBSET)) {
+                        ((DimensionSlice)ret.getSubset(dim)).timestampSubsetCheck();
+                    }
                 } else if (dim != null) {
-                    ret.getSubsets().add(new DimensionTrim(dim, crs, low, high));
+                    ret.addSubset(ret.new DimensionTrim(dim, crs, low, high));
+                    if (null != low && (low.matches(QUOTED_SUBSET) || high.matches(QUOTED_SUBSET))) {
+                        ((DimensionTrim)ret.getSubset(dim)).timestampSubsetCheck();
+                    }
                 } else {
                     throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator(subsetKey));
-                }
-
-                // Check time-subset validity (currently, what Date4J can accept)
-                if (null != low && low.matches(QUOTED_SUBSET)) {
-                    if (low != null && !TimeUtil.isValidTimestamp(low)) {
-                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + low + "\" is not valid or supported.");
-                    }
-                }
-                if (null != high && high.matches(QUOTED_SUBSET)) {
-                    if (high != null && !TimeUtil.isValidTimestamp(high)) {
-                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + high + "\" is not valid or supported.");
-                    }
-                }
-                if (null != low && null != high && low.matches(QUOTED_SUBSET) && high.matches(QUOTED_SUBSET)) {
-                    // Check low<high
-                    if (low != null && high != null && !TimeUtil.isOrderedTimeSubset(low, high)) {
-                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + low + ":" + high + "\" is invalid: check order.");
-                    }
                 }
             } else {
                 throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator(subsetKey));

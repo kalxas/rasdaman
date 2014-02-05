@@ -27,7 +27,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
@@ -51,6 +55,8 @@ import petascope.wcs2.extensions.GmlFormatExtension;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class GetCoverageMetadata {
+
+    private static final Logger log = LoggerFactory.getLogger(GetCoverageMetadata.class);
 
     private final CoverageMetadata metadata;
     private final String coverageId;
@@ -153,6 +159,57 @@ public class GetCoverageMetadata {
 
     public String getGridType() {
         return gridType;
+    }
+
+    /**
+     * Returns the origin of the grid coverage.
+     * Depending on the direction of an axis, with respect to the associated CRS dimension,
+     * the origin can be lower or upper bound of a domain element.
+     * For instance, usually rasdaman puts grid origin in the UL corner of an imported geoimage.
+     *      *
+     * @return The white-space separated list of coordinates of the grid origin (CRS order!) of the requested [subsetted] coverage.
+     * @throws SecoreException
+     * @throws WCSException
+     */
+    public String getGridOrigin() throws SecoreException, WCSException {
+        // The origin of the grid (as is in rasdaman) is not always domLow:
+        // the _direction_ of each dimension needs to be taken into account.
+        Iterator<String> domLowComponentsIt  = new ArrayList(Arrays.asList(domLow.trim().split(" "))).listIterator();
+        Iterator<String> domHighComponentsIt = new ArrayList(Arrays.asList(domHigh.trim().split(" "))).listIterator();
+        List<String> gridAxisLabelsList = new ArrayList(Arrays.asList(gridAxisLabels.trim().split(" ")));
+
+        // Use TreeMap to store grid origin coordinates and order by CRS axis order (key)
+        // No need to use GetCoverage CRS, I can use full set of URIs since order is preserved even if there are slicings.
+        Map<Integer,String> gridOrigin = new TreeMap<Integer,String>();
+
+        try {
+            List<String> crsAxisLabels = CrsUtil.getAxesLabels(CrsUtil.CrsUri.decomposeUri(crs)); // full list of CRS axis label
+
+            // Assumption : grid axis label = CRS axis label (aligned axes)
+            for (String crsAxisLabel : crsAxisLabels) {
+                if (gridAxisLabelsList.contains(crsAxisLabel)) {
+                    Integer gridAxisOrder     = gridAxisLabelsList.indexOf(crsAxisLabel);
+                    Boolean positiveDirection = metadata.getDomainByName(crsAxisLabel).isPositiveForwards();
+                    Integer crsAxisOrder      = CrsUtil.getCrsAxisOrder(metadata.getCrsUris(), crsAxisLabel);
+                    log.debug("Grid axis n." + gridAxisOrder + " (" + crsAxisLabel + ") is parallel to CRS axis n." + crsAxisOrder + ".");
+                    if (positiveDirection) {
+                        gridOrigin.put(crsAxisOrder, domLowComponentsIt.next());
+                        domHighComponentsIt.next(); // sync
+                    } else {
+                        gridOrigin.put(crsAxisOrder, domHighComponentsIt.next());
+                        domLowComponentsIt.next(); // sync
+                    }
+                } // else: sliced CRS axis: skip
+            }
+        } catch (PetascopeException ex) {
+            log.error("error while calculating GetCoverage grid origin: " + ex.getMessage());
+            throw new WCSException(ex.getExceptionCode(), ex);
+        } catch (SecoreException ex) {
+            log.error("SECORE error while calculating GetCoverage grid origin.");
+            throw ex;
+        }
+
+        return ListUtil.printList(new ArrayList<String>(gridOrigin.values()), " ");
     }
 
     public String getHigh() {

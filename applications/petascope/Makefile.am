@@ -242,5 +242,5 @@ DISTFILES = $(EXTRA_DIST)
 # Put petascope into archive for RPM generation
 .PHONY: distdir
 distdir:
-	mkdir -p $(distdir)
+	$(MKDIR) $(distdir)
 	cp -R $(DISTFILES) $(distdir)

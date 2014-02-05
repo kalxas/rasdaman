@@ -44,8 +44,8 @@
         >
       <limits>
         <GridEnvelope>
-          <low>0 3 0</low>
-          <high>2 5 2</high>
+          <low>0 3 3</low>
+          <high>2 5 5</high>
         </GridEnvelope>
       </limits>
       <axisLabels>i j k</axisLabels>

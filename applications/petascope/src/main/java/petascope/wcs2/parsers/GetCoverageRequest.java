@@ -27,8 +27,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.WCSException;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
+import petascope.util.TimeUtil;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
 
@@ -78,6 +81,7 @@ import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
 public class GetCoverageRequest extends BaseRequest {
 
     public static final String ASTERISK = "*";
+    public static final String QUOTED_SUBSET = "^\".*\"$"; // switch from numeric to ISO8601 coordinates for time
 
     private final String coverageId;
     private final String format;
@@ -107,6 +111,10 @@ public class GetCoverageRequest extends BaseRequest {
 
     public List<DimensionSubset> getSubsets() {
         return subsets;
+    }
+
+    public void addSubset(DimensionSubset sub) {
+        subsets.add(sub);
     }
 
     public DimensionSubset getSubset(String dim) {
@@ -158,12 +166,12 @@ public class GetCoverageRequest extends BaseRequest {
         return ret.toString();
     }
 
-    public static class DimensionSubset {
+    public class DimensionSubset {
 
         protected final String dimension;
         //protected final String crs;
         protected String crs;
-        protected boolean transformed;
+        protected boolean isNumeric = true;
 
         public DimensionSubset(String dimension) {
             this(dimension, null);
@@ -172,7 +180,12 @@ public class GetCoverageRequest extends BaseRequest {
         public DimensionSubset(String dimension, String crs) {
             this.dimension = dimension;
             this.crs = crs;
-            this.transformed = false;
+        }
+
+        public DimensionSubset(String dimension, String crs, boolean isNumeric) {
+            this.dimension = dimension;
+            this.crs = crs;
+            this.isNumeric = isNumeric;
         }
 
         public String getDimension() {
@@ -188,13 +201,17 @@ public class GetCoverageRequest extends BaseRequest {
             crs = value;
         }
 
+        public boolean isNumeric() {
+            return isNumeric;
+        }
+
         @Override
         public String toString() {
             return dimension + ((crs != null) ? "," + crs : "");
         }
     }
 
-    public static class DimensionTrim extends DimensionSubset {
+    public class DimensionTrim extends DimensionSubset {
 
         //private final String trimLow;
         //private final String trimHigh;
@@ -209,6 +226,7 @@ public class GetCoverageRequest extends BaseRequest {
             super(dimension, crs);
             this.trimLow = trimLow;
             this.trimHigh = trimHigh;
+            isNumeric = !trimLow.matches(QUOTED_SUBSET) && !trimHigh.matches(QUOTED_SUBSET);
         }
 
         public String getTrimHigh() {
@@ -224,14 +242,17 @@ public class GetCoverageRequest extends BaseRequest {
          */
         public void setTrimLow(String value) {
             trimLow = value;
+            isNumeric = !trimLow.matches(QUOTED_SUBSET);
         }
 
         public void setTrimLow(Double value) {
             setTrimLow(value.toString());
+            isNumeric = true;
         }
 
         public void setTrimLow(Integer value) {
             setTrimLow(value.toString());
+            isNumeric = true;
         }
 
         /**
@@ -239,14 +260,40 @@ public class GetCoverageRequest extends BaseRequest {
          */
         public void setTrimHigh(String value) {
             trimHigh = value;
+            isNumeric = !trimHigh.matches(QUOTED_SUBSET);
         }
 
         public void setTrimHigh(Double value) {
             setTrimHigh(value.toString());
+            isNumeric = true;
         }
 
         public void setTrimHigh(Integer value) {
             setTrimHigh(value.toString());
+            isNumeric = true;
+        }
+
+        /**
+         * Integrity of time subsets (quoted subsets): valid and ordered bounds.
+         * @throws WCSException
+         */
+        public void timestampSubsetCheck() throws WCSException {
+            if (null != getTrimLow() && getTrimLow().matches(QUOTED_SUBSET)) {
+                if (!TimeUtil.isValidTimestamp(getTrimLow())) {
+                    throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + getTrimLow() + "\" is not valid or supported.");
+                }
+            }
+            if (null != getTrimHigh() && getTrimHigh().matches(QUOTED_SUBSET)) {
+                if (!TimeUtil.isValidTimestamp(getTrimHigh())) {
+                    throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + getTrimHigh() + "\" is not valid or supported.");
+                }
+            }
+            if (null != getTrimLow() && null != getTrimHigh() && getTrimLow().matches(QUOTED_SUBSET) && getTrimHigh().matches(QUOTED_SUBSET)) {
+                // Check low<high
+                if (!TimeUtil.isOrderedTimeSubset(getTrimLow(), getTrimHigh())) {
+                    throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + getTrimLow() + ":" + getTrimHigh() + "\" is invalid: check order.");
+                }
+            }
         }
 
         @Override
@@ -255,9 +302,8 @@ public class GetCoverageRequest extends BaseRequest {
         }
     }
 
-    public static class DimensionSlice extends DimensionSubset {
+    public class DimensionSlice extends DimensionSubset {
 
-        //private final String slicePoint;
         private String slicePoint;
 
         public DimensionSlice(String dimension, String slicePoint) {
@@ -267,6 +313,7 @@ public class GetCoverageRequest extends BaseRequest {
         public DimensionSlice(String dimension, String crs, String slicePoint) {
             super(dimension, crs);
             this.slicePoint = slicePoint;
+            isNumeric = !slicePoint.matches(QUOTED_SUBSET);
         }
 
         public String getSlicePoint() {
@@ -275,10 +322,24 @@ public class GetCoverageRequest extends BaseRequest {
 
         public void setSlicePoint(String value) {
             slicePoint = value;
+            isNumeric = !slicePoint.matches(QUOTED_SUBSET);
         }
 
         public void setSlicePoint(Double value) {
             setSlicePoint(value.toString());
+            isNumeric = true;
+        }
+
+        /**
+         * Integrity of time subsets (quoted subsets): valid and ordered bounds.
+         * @throws WCSException
+         */
+        public void timestampSubsetCheck() throws WCSException {
+            if (null != getSlicePoint() && getSlicePoint().matches(QUOTED_SUBSET)) {
+                if (!TimeUtil.isValidTimestamp(getSlicePoint())) {
+                    throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + getSlicePoint() + "\" is not valid or supported.");
+                }
+            }
         }
 
         @Override

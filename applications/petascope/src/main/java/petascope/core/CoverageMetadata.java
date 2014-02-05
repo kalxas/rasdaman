@@ -108,7 +108,7 @@ public class CoverageMetadata implements Cloneable {
         int axisOrder = 0;
 
         for (Entry<List<BigDecimal>,BigDecimal> axis : gridAxes.entrySet()) {
-            // Check consistency
+            // Check consistency: (vectors || CRS axis) [rotated grids not yet supported]
             List<Integer> axisNonZeroIndices = Vectors.nonZeroComponentsIndices(
                     axis.getKey().toArray(new BigDecimal[axis.getKey().size()])
                     );
@@ -117,22 +117,24 @@ public class CoverageMetadata implements Cloneable {
                         axis.getKey() + " offset vector: currently only CRS-aligned offset-vectors are supported.");
             }
 
-            // Store
+            // Get the correspondent CRS axis definition
             boolean isIrregular = !(null == axis.getValue());
-            String crsUri = crsAxes.get(axisNonZeroIndices.get(0)).snd;
-            CrsDefinition.Axis crsAxis = crsAxes.get(axisNonZeroIndices.get(0)).fst;
+            Integer crsAxisOrder = axisNonZeroIndices.get(0);
+            String crsUri = crsAxes.get(crsAxisOrder).snd;
+            CrsDefinition.Axis crsAxis = crsAxes.get(crsAxisOrder).fst;
 
-            // Build the list of CRS URIs
+            // Build the list of non-duplicated CRS URIs
             if (!uris.contains(crsUri)) {
                       uris.add(crsUri);
             }
 
-            // Get correspondent cellDomain element
+            // Get correspondent cellDomain element (grid axes in object gridAxes follow rasdaman storage order)
             CellDomainElement cEl = cDom.next();
 
             // compute min-max bounds of this axis
             // NOTE: grid-axis and CRS-axis are aligned
-            // (!) MIN=origin, MAX=origin+N*offsetVector  => grid-point is point (not pixel)
+            // (!) domain.lo = min(origin, origin+N*offsetVector)  => grid-point is point (not pixel)
+            //     domain.hi = max(origin, origin+N*offsetVector)
             BigDecimal resolution     = axis.getKey().get(axisNonZeroIndices.get(0));
             BigDecimal axisLo         = gridOrigin.get(axisNonZeroIndices.get(0));
             BigInteger gridAxisPoints = BigInteger.valueOf(1).add(BigInteger.valueOf(cEl.getHiInt()-cEl.getLoInt()));
@@ -155,19 +157,20 @@ public class CoverageMetadata implements Cloneable {
 
             DomainElement domEl = new DomainElement(
                     axisLo.compareTo(axisHi) <= 0 ? axisLo : axisHi,    // offset-vector can be negative,
-                    axisLo.compareTo(axisHi) <= 0 ? axisHi : axisLo,    //   then (axisLo>axisHi)
+                    axisLo.compareTo(axisHi) <= 0 ? axisHi : axisLo,    // then (axisLo>axisHi)
                     crsAxis.getAbbreviation(),
                     crsAxis.getType(),
                     crsAxis.getUoM(),
                     crsUri,
                     axisOrder,
                     gridAxisPoints,
+                    resolution.compareTo(BigDecimal.ZERO) > 0,
                     isIrregular
                     );
             domEl.setAxisDef(crsAxes.get(axisNonZeroIndices.get(0)).fst); // added utilities from domain elements
             if (isIrregular) {
                 // Set the offset vector: DomainElement can compute it only if the axis is regular (max-min/cells)
-                domEl.setOffsetVector(resolution);
+                domEl.setScalarResolution(resolution);
                 // TODO: compute the MIN/MAX values looking at the extreme coefficients
                 // ...
             }
@@ -258,7 +261,7 @@ public class CoverageMetadata implements Cloneable {
                 crsUri,
                 0,
                 BigInteger.ONE,
-                false)
+                true, false)
                 );
         }
 
@@ -505,6 +508,28 @@ public class CoverageMetadata implements Cloneable {
 
     public Iterator<DomainElement> getDomainIterator() {
         return domain.iterator();
+    }
+
+    /**
+     * Returns the scalar (signed) resolution of the grid axis of specified order.
+     * @param order  The order of the grid axis (rasdaman order).
+     * @return The non-zero component of the offset vector of the axis.
+     */
+    public BigDecimal getDomainDirectionalResolution(int order) {
+        // guards
+        if (null != getDomainList() && null != getDomainList().get(order)) {
+            return getDomainList().get(order).getDirectionalResolution();
+        }
+        return BigDecimal.valueOf(-1);
+    }
+
+    /**
+     * Returns the scalar (signed) resolution of the grid axis of specified name.
+     * @param name  The name of the grid axis (rasdaman order).
+     * @return The non-zero component of the offset vector of the axis.
+     */
+    public BigDecimal getDomainDirectionalResolution(String name) {
+        return getDomainDirectionalResolution(getDomainIndexByName(name));
     }
 
     public Iterator<RangeElement> getRangeIterator() {

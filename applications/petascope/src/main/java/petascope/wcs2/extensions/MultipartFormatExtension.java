@@ -24,12 +24,12 @@ package petascope.wcs2.extensions;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.wcs2.handlers.Response;
-import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
 
 /**
@@ -65,7 +65,7 @@ public class MultipartFormatExtension extends  GmlFormatExtension {
     }
 
     @Override
-    protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, GetCoverageMetadata m)
+    protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, CoverageMetadata covmeta)
             throws WCSException {
         return gml;
     }

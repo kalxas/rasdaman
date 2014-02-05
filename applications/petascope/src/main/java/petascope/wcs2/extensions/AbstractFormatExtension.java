@@ -57,6 +57,7 @@ import static petascope.wcs2.parsers.GetCoverageRequest.ASTERISK;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSubset;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
+import static petascope.wcs2.parsers.GetCoverageRequest.QUOTED_SUBSET;
 import petascope.wcs2.parsers.GetCoverageRequest.Scaling;
 
 /**
@@ -74,11 +75,12 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      *
      * @param request
      * @param m
+     * @param dbMeta
      * @throws PetascopeException
      * @throws SecoreException
      * @throws WCSException
      */
-    protected void updateGetCoverageMetadata(GetCoverageRequest request, GetCoverageMetadata m)
+    protected void updateGetCoverageMetadata(GetCoverageRequest request, GetCoverageMetadata m, DbMetadataSource dbMeta)
             throws PetascopeException, SecoreException, WCSException {
 
         // Init variables, to be then filled scanning the request subsets.
@@ -168,10 +170,9 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                     ? new long[] { // NOTE: e.g. parseInt("10.0") throws exception: need to remove decimals.
                                         Integer.parseInt(trimLow.replaceAll( decimalsExp, "").trim()),
                                         Integer.parseInt(trimHigh.replaceAll(decimalsExp, "").trim())} // subsets are alsready grid indexes
-                                    : new long[] {
-                                        toPixels(Double.parseDouble(trimLow),  domainEl, cellDomainEl), // otherwise, need to convert them
-                                        toPixels(Double.parseDouble(trimHigh), domainEl, cellDomainEl)
-                                    };
+                                    : CrsUtil.convertToPixelIndices(m.getMetadata(), dbMeta, domainEl.getLabel(),
+                                        trimLow,   !trimLow.matches(QUOTED_SUBSET),
+                                        trimHigh, !trimHigh.matches(QUOTED_SUBSET));
                                     // In any case, properly trim the bounds by the image extremes
                             int cellDomainElLo = cellDomainEl.getLoInt();
                             int cellDomainElHi = cellDomainEl.getHiInt();
@@ -236,7 +237,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * format of result. Request subsets values are pre-transformed if necessary
      * (e.g. CRS reprojection, timestamps).
      * @param request
-     * @param m
+     * @param covmeta
      * @param meta
      * @param format
      * @param params
@@ -247,7 +248,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @throws WCSException
      */
     protected Pair<Object, String> executeRasqlQuery(GetCoverageRequest request,
-            GetCoverageMetadata m, DbMetadataSource meta, String format, String params)
+            CoverageMetadata covmeta, DbMetadataSource meta, String format, String params)
             throws PetascopeException, RasdamanException, WCPSException, WCSException {
 
         //This variable is now local to the method to avoid concurrency problems
@@ -268,7 +269,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         String rquery = null;
         Pair<String, String> pair;
         try {
-            pair = constructWcpsQuery(request, m.getMetadata(), format, params);
+            pair = constructWcpsQuery(request, meta, covmeta, format, params);
             rquery = RasUtil.abstractWCPSToRasql(pair.fst, wcps);
         } catch (PetascopeException ex) {
             throw new PetascopeException(ex.getExceptionCode(), "Error converting WCPS query to rasql query: " + ex.getMessage(), ex);
@@ -289,64 +290,19 @@ public abstract class AbstractFormatExtension implements FormatExtension {
     }
 
     /**
-     * Method for converting CRS coordinates to pixel coordinates without checking limits (like in wcps.server.core.CRS.java)
-     *
-     * @param val the value to be converted
-     * @param el the DomainElement for the dimension
-     * @param cel the CellDomainElement for the dimension
-     * @return the corresponding CRS coordinates
-     */
-    private long toPixels(double lo, DomainElement domEl, CellDomainElement cdomEl) {
-
-        // Get cellDomain extremes
-        long pxMin = cdomEl.getLoInt();
-        long pxMax = cdomEl.getHiInt();
-
-        // Get Domain extremes (real sdom)
-        double domMin = domEl.getMinValue().doubleValue();
-        double domMax = domEl.getMaxValue().doubleValue();
-
-        // Get offset vector (= cell width in case of regular axis):
-        double cellWidth = domEl.getOffsetVector().doubleValue(); // (domHi-domLo)/(double)((pxHi-pxLo)+1);
-
-        // Conversion to pixel domain
-        long indexValLo;
-        long indexValHi;
-        if (!domEl.getLabel().equals(AxisTypes.Y_AXIS)) {
-            indexValLo = (long)Math.floor((lo - domMin) / cellWidth) + pxMin;
-            //indexValHi = (long)Math.floor((hi - domMin) / cellWidth) + pxMin;
-        } else {
-            //indexValLo = (long)Math.floor((domMax - hi) / cellWidth) + pxMin;
-            //indexValHi = (long)Math.floor((domMax - lo) / cellWidth) + pxMin;
-            indexValLo = (long)Math.floor((domMax - lo) / cellWidth) + pxMin;
-        }
-
-        // If axis is irregular, the "pixel" domain needs to be translated
-        if (!domEl.getCoefficients().isEmpty()) {
-            indexValLo = ListUtil.minIndex(domEl.getCoefficients(), new BigDecimal(indexValLo));
-            //indexValHi = ListUtil.minIndex(domEl.getCoefficients(), new BigDecimal(indexValHi));
-        }
-
-        // Check outside bounds:
-        //indexValLo = (indexValLo<pxMin) ? pxMin : ((indexValLo>pxMax)?pxMax:indexValLo);
-        //indexValHi = (indexValHi<pxMin) ? pxMin : ((indexValHi>pxMax)?pxMax:indexValHi);
-
-        //return new long[]{indexValLo, indexValHi};
-        return indexValLo;
-    }
-
-    /**
      * Given a GetCoverage request, construct an abstract WCPS query.
      *
      * @param req GetCoverage request
      * @param cov coverage metadata
+     * @param dbMeta
      * @param format
      * @param params
      * @return (WCPS query in abstract syntax, axes)
      * @throws WCSException
      * @throws PetascopeException
      */
-    protected Pair<String, String> constructWcpsQuery(GetCoverageRequest req, CoverageMetadata cov, String format, String params)
+    protected Pair<String, String> constructWcpsQuery(GetCoverageRequest req, DbMetadataSource dbMeta,
+            CoverageMetadata cov, String format, String params)
             throws WCSException, PetascopeException {
         String axes = "";
         //keep a list of the axes defined in the coverage
@@ -422,10 +378,13 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 long lo = cel.getLoInt();
                 long hi = cel.getHiInt();
                 String dim = el.getLabel();
-                String crs = CrsUtil.GRID_CRS;
+                String crs = el.getNativeCrs();
                 if (newdim.containsKey(dim)) {
-                    lo = toPixels(Double.parseDouble(newdim.get(dim).fst), el, cel);
-                    hi = toPixels(Double.parseDouble(newdim.get(dim).snd), el, cel);
+                    long[] lohi = CrsUtil.convertToPixelIndices(cov, dbMeta, dim,
+                            newdim.get(dim).fst, req.getSubset(dim).isNumeric(),
+                            newdim.get(dim).snd, req.getSubset(dim).isNumeric());
+                    lo = lohi[0];
+                    hi = lohi[1];
                 }
                 switch (s.getType()) {
                     case 1:

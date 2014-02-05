@@ -42,18 +42,18 @@
     <RectifiedGrid dimension="2" id="eobstest-grid">
       <limits>
         <GridEnvelope>
-          <low>10 141</low>
-          <high>20 143</high>
+          <low>10 89</low>
+          <high>20 91</high>
         </GridEnvelope>
       </limits>
       <axisLabels>Long Lat</axisLabels>
       <origin>
           <Point id="eobstest-origin" srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">
-              <pos>30 30</pos>
+              <pos>31 30</pos>
           </Point>
       </origin>
       <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">0 0.5</offsetVector>
-      <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">0.5 0</offsetVector>
+      <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">-0.5 0</offsetVector>
     </RectifiedGrid>
   </domainSet>
 

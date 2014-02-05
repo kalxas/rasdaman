@@ -49,9 +49,11 @@ public class DomainElement implements Cloneable {
     private String type;
     private String uom;
     private int iOrder;
-    private BigDecimal offsetVector;
+    private BigDecimal scalarResolution; // positive absolute resolution value
+    private boolean    positiveForwards; // grid axis direction = CRS axis direction (or viceversa)
     private BigInteger dimensionality; // # of grid points along this axis
     private boolean    isIrregular;
+    private boolean    isNumeric;
     private List<BigDecimal> coefficients;
     private CrsDefinition.Axis axisDef;
 
@@ -65,6 +67,7 @@ public class DomainElement implements Cloneable {
             String crsUri,
             int order,
             BigInteger dim,
+            boolean positiveForwards,
             boolean isIrregular)
             throws WCPSException {
 
@@ -80,6 +83,7 @@ public class DomainElement implements Cloneable {
         type = axisType;
         dimensionality = dim;
         this.isIrregular = isIrregular;
+        this.positiveForwards = positiveForwards;
         coefficients = new ArrayList<BigDecimal>();
         iOrder = order;
 
@@ -109,7 +113,7 @@ public class DomainElement implements Cloneable {
             }
 
             BigDecimal diffBD = maxValue.subtract(minValue);
-            offsetVector      = diffBD.divide(new BigDecimal(dimensionality), RoundingMode.UP);
+            scalarResolution  = diffBD.divide(new BigDecimal(dimensionality), RoundingMode.UP);
         }
 
         log.trace(toString());
@@ -126,7 +130,8 @@ public class DomainElement implements Cloneable {
             String cloneLabel   = label     == null ? null : label.toString();
             String cloneType    = type      == null ? null : type.toString();
             int order         = new Integer(iOrder);
-            boolean isIrr     = isIrregular ? true : false;
+            boolean posForwards = positiveForwards ? true : false;
+            boolean isIrr       =      isIrregular ? true : false;
             DomainElement cloned = new DomainElement(
                     cloneMin,
                     cloneMax,
@@ -136,6 +141,7 @@ public class DomainElement implements Cloneable {
                     cloneCrs,
                     order,
                     dimensionality,
+                    posForwards,
                     isIrr
                     );
             cloned.setCoefficients(this.coefficients);
@@ -163,12 +169,26 @@ public class DomainElement implements Cloneable {
         return minValue;
     }
 
-    public BigDecimal getOffsetVector() {
-        return offsetVector;
+    /**
+     * Cell width for this domain element.
+     * @return Positive scalar value: (M-m)/W
+     */
+    public BigDecimal getScalarResolution() {
+        return scalarResolution;
     }
 
-    public void setOffsetVector(BigDecimal res) {
-        offsetVector = res;
+    public void setScalarResolution(BigDecimal res) {
+        scalarResolution = res;
+    }
+
+    /**
+     * Scalar resolution, with negative sign in case the direction of
+     * the grid axis associated with this domain element points to the opposite
+     * direction of the related CRS axis.
+     * @return [-]getScalarResolution()
+     */
+    public BigDecimal getDirectionalResolution() {
+        return positiveForwards ? scalarResolution : BigDecimal.valueOf(-1).multiply(scalarResolution);
     }
 
     public String getType() {
@@ -203,6 +223,13 @@ public class DomainElement implements Cloneable {
         return isIrregular;
     }
 
+    /**
+     * @return True if the direction of the grid axis associated with this domain element is
+     * positive forwards with respect to the correspondent axis of the native CRS.
+     */
+    public boolean isPositiveForwards() {
+        return positiveForwards;
+    }
     public void setCoefficients(List<BigDecimal> coeffs) {
         this.coefficients = new ArrayList<BigDecimal>(coeffs);
     }

@@ -57,7 +57,7 @@ public class TimeUtil {
     private static Logger log = LoggerFactory.getLogger(TimeUtil.class);
 
     /**
-     * @param   String timestamp    Timestamp string requested by the client
+     * @param   timestamp    Timestamp string requested by the client
      * @return  boolean             True if valid ISO timestamp.
      */
     public static boolean isValidTimestamp (String timestamp) {
@@ -76,8 +76,8 @@ public class TimeUtil {
     }
 
     /**
-     * @param   String timestampLo    timestamp
-     * @param   String timestampHi    timestamp
+     * @param   timestampLo    timestamp
+     * @param   timestampHi    timestamp
      * @return  boolean               Is Lo (*strictly*) lower than Hi ?
      */
     public static boolean isOrderedTimeSubset (String timestampLo, String timestampHi) {
@@ -92,7 +92,7 @@ public class TimeUtil {
     }
 
     /**
-     * @param   String timestamp    A timestamp
+     * @param   timestamp    A timestamp
      * @return  int                 ANSI day number.
      */
     @Deprecated

@@ -24,6 +24,8 @@ package petascope.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -42,18 +44,22 @@ import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
+import petascope.core.CoverageMetadata;
 import petascope.core.CrsDefinition;
 import static petascope.core.CrsDefinition.ELEV_ALIASES;
 import static petascope.core.CrsDefinition.X_ALIASES;
 import static petascope.core.CrsDefinition.Y_ALIASES;
+import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import static petascope.util.StringUtil.ENCODING_UTF8;
+import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.CoverageExpr;
 import petascope.wcps.server.core.CoverageInfo;
+import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.ExtendCoverageExpr;
 import petascope.wcps.server.core.IRasNode;
 import petascope.wcps.server.core.TrimCoverageExpr;
@@ -107,6 +113,7 @@ public class CrsUtil {
     private static Map<List<String>, MathTransform> loadedTransforms = new HashMap<List<String>, MathTransform>();  // CRS reprojections
     private static Map<String, CrsDefinition>       parsedCRSs       = new HashMap<String, CrsDefinition>();        // CRS definitions
     private static Map<List<String>, Boolean>       crsComparisons   = new HashMap<List<String>, Boolean>();        // CRS equality tests
+    private static Map<List<String>, long[]>  gridIndexConversions   = new HashMap<List<String>, long[]>();         // subset2gridIndex conversions
 
     private List<String> crssMap;
     private CoordinateReferenceSystem sCrsID, tCrsID;
@@ -504,7 +511,7 @@ public class CrsUtil {
             } catch (IOException ex) {
                 if (crsUri.equals(lastUri) || null != uomUrl) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                            (null==uomUrl ? crsUri : uomUrl) + ": could not connect to resolver. The site may be down.", ex);
+                            (null==uomUrl ? crsUri : uomUrl) + ": resolver exception: " + ex.getMessage(), ex);
                 } else {
                     log.info("Connection problem with " + (null==uomUrl ? crsUri : uomUrl) + ": " + ex.getMessage());
                     log.info("Attempting to fetch the CRS definition via fallback resolver.");
@@ -862,6 +869,311 @@ public class CrsUtil {
     }
 
     /**
+     * Utility to convert CRS subsets to grid indexes.
+     * Each grid axis is aligned with an axis of the native (compound) CRS.
+     * Conversions are cached, so that multiple calls do not duplicate computations.
+     * For WCS each request indeed you convert to build the RasQL query to fetch the data,
+     * and additionally you need the same indexes to update the coverage description.
+     * @param covMeta
+     * @param dbMeta
+     * @param axisName
+     * @param stringLo
+     * @param loIsNumeric
+     * @param stringHi
+     * @param hiIsNumeric
+     * @return
+     * @throws PetascopeException
+     */
+    public static long[] convertToPixelIndices(CoverageMetadata covMeta, DbMetadataSource dbMeta, String axisName,
+            String stringLo, boolean loIsNumeric, String stringHi, boolean hiIsNumeric)
+            throws PetascopeException {
+
+        // out indexes
+        long[] subsetGridIndexes = new long[2];
+
+        // Check the cache: signature is {coverage name, axis name, lo, hi}
+        List<String> cacheKey = new ArrayList<String>(Arrays.asList(new String[] {
+            covMeta.getCoverageName(),
+            axisName,
+            stringLo,
+            stringHi
+        }));
+        // query the cache (for irregular axes: need to fetch the coefficients and set them in the DomainElement: no cache)
+        if (gridIndexConversions.containsKey(cacheKey)
+                &&  !covMeta.getDomainByName(axisName).isIrregular()) {
+            return gridIndexConversions.get(cacheKey);
+
+        } else {
+            // Conversion is not cached: compute it
+            DomainElement      dom = covMeta.getDomainByName(axisName);
+            CellDomainElement cdom = covMeta.getCellDomainByName(axisName);
+
+            // null-pointers check
+            if (null == cdom || null == dom) {
+                log.error("Could not find the \"" + axisName + "\" axis for coverage:" + covMeta.getCoverageName());
+                throw new PetascopeException(ExceptionCode.NoApplicableCode, "Could not find the \"" + axisName + "\" axis for coverage:" + covMeta.getCoverageName());
+            }
+
+            // Get datum origin can also be null if !temporal axis: use axisType to guard)
+            String datumOrigin = dom.getAxisDef().getCrsDefinition().getDatumOrigin();
+
+            // Get Unit of Measure of this axis:
+            String axisUoM = dom.getUom();
+
+            // Get cellDomain extremes
+            long pxMin = cdom.getLoInt();
+            long pxMax = cdom.getHiInt();
+            log.trace("CellDomain extremes values: LOW: " + pxMin + ", HIGH:" + pxMax);
+
+            // Get Domain extremes (real sdom)
+            BigDecimal domMin = dom.getMinValue();
+            BigDecimal domMax = dom.getMaxValue();
+            log.trace("Domain extremes coordinates: (" + domMin + ", " + domMax + ")");
+            log.trace("Subset cooordinates: (" + stringLo + ", " + stringHi + ")");
+
+            /*---------------------------------*/
+            /*         VALIDITY CHECKS         */
+            /*---------------------------------*/
+            log.trace("Checking order, format and bounds of axis {} ...", axisName);
+
+            // Requires homogeneity in the bounds of a subset
+            if (loIsNumeric ^ hiIsNumeric) { // XOR
+                log.error("(" + stringLo + "," + stringHi + ") subset is invalid.");
+                throw new PetascopeException(ExceptionCode.InvalidRequest,
+                        "(" + stringLo + "," + stringHi + ") subset requires bounds of the same domain.");
+            }
+            //~(From now on, some tests can be made on a single bound)
+            boolean subsetWithTimestamps = !loIsNumeric; // = !hiIsNumeric
+
+            // if subsets are not numeric, /now/ they other choice is that they are timestamps: check the format is valid
+            if (subsetWithTimestamps && !TimeUtil.isValidTimestamp(stringLo)) {
+                log.error("Invalid temporal subset: " + stringLo);
+                throw new WCPSException(ExceptionCode.InvalidRequest,
+                        "Subset '" + stringLo + "' is not valid nor as a number, nor as a supported time description. "
+                        + "See Date4J javadoc for supported formats.");
+            }
+            if (subsetWithTimestamps && !TimeUtil.isValidTimestamp(stringHi)) {
+                log.error("Invalid temporal subset: " + stringHi);
+                throw new WCPSException(ExceptionCode.InvalidRequest,
+                        "Subset '" + stringHi + "' is not valid nor as a number, nor as a supported time description. "
+                        + "See Date4J javadoc for supported formats.");
+            }
+
+            // Check order of subset: separate treatment for temporal axis with timestamps subsets
+            if (subsetWithTimestamps) {
+                // Check order
+                if (!TimeUtil.isOrderedTimeSubset(stringLo, stringHi)) {
+                    log.error("Temporal subset is not ordered: [" + stringLo + ", " + stringHi + "]");
+                    throw new PetascopeException(ExceptionCode.InvalidSubsetting,
+                            axisName + " axis: lower bound " + stringLo + " is greater then the upper bound " + stringHi);
+                }
+            } else {
+
+                // Numerical axis:
+                double coordLo = Double.parseDouble(stringLo);
+                double coordHi = Double.parseDouble(stringHi);
+
+                // Check order
+                if (coordHi < coordLo) {
+                    log.error("Subset is not ordered: [" + coordLo + ", " + coordHi + "]");
+                    throw new PetascopeException(ExceptionCode.InvalidSubsetting,
+                            axisName + " axis: lower bound " + coordLo + " is greater the upper bound " + coordHi);
+                }
+
+                // Check intersection with extents
+                if (coordLo > domMax.doubleValue() || coordHi < domMin.doubleValue()) {
+                    log.error("Subset " + "[" + coordLo + ", " + coordHi + "] is out of coverage bounds [" + domMin + ", " + domMax + "]");
+                    throw new PetascopeException(ExceptionCode.InvalidSubsetting,
+                            axisName + " axis: subset (" + coordLo + ":" + coordHi + ") is out of bounds.");
+                }
+            }
+
+            /*---------------------------------*/
+            /*             CONVERT             */
+            /*---------------------------------*/
+            log.trace("Converting axis {} interval to pixel indices ...", axisName);
+            // There can be several different cases depending on spacing and type of this axis:
+            if (dom.isIrregular()) {
+
+                // Consistency check
+                // TODO need to find a way to solve `static` issue of dbMeta
+                if (dbMeta == null) {
+                    throw new PetascopeException(ExceptionCode.InternalComponentError,
+                            "Axis " + axisName + " is irregular but is not linked to DbMetadataSource.");
+                }
+
+                // Need to query the database (IRRSERIES table) to get the extents
+                try {
+                    String numLo = stringLo;
+                    String numHi = stringHi;
+
+                    if (subsetWithTimestamps) {
+                        // Need to convert timestamps to TemporalCRS numeric coordinates
+                        numLo = "" + TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM);
+                        numHi = "" + TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM);
+                    }
+
+                    // Retrieve correspondent cell indexes (unique method for numerical/timestamp values)
+                    // TODO: I need to extract all the values, not just the extremes
+                    subsetGridIndexes = dbMeta.getIndexesFromIrregularRectilinearAxis(
+                            covMeta.getCoverageName(),
+                            covMeta.getDomainIndexByName(axisName), // i-order of axis
+                            (new BigDecimal(numLo)).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
+                            (new BigDecimal(numHi)).subtract(domMin),  //
+                            pxMin, pxMax);
+
+                    // Retrieve the coefficients values and store them in the DomainElement
+                    dom.setCoefficients(dbMeta.getCoefficientsOfInterval(
+                            covMeta.getCoverageName(),
+                            covMeta.getDomainIndexByName(axisName), // i-order of axis
+                            (new BigDecimal(numLo)).subtract(domMin),
+                            (new BigDecimal(numHi)).subtract(domMin)
+                            ));
+
+                    // Add sdom lower bound
+                    subsetGridIndexes[0] = subsetGridIndexes[0] + pxMin;
+
+                } catch (PetascopeException e) {
+                    throw new PetascopeException(ExceptionCode.InternalComponentError,
+                            "Error while fetching cell boundaries of irregular axis '" +
+                            axisName + "' of coverage " + covMeta.getCoverageName() + ": " + e.getMessage(), e);
+                }
+
+            } else {
+                // The axis is regular: need to differentiate between numeric and timestamps
+                // TODO: enable negative directions in time axis too (dom.isPositiveForwards())
+                if (subsetWithTimestamps) {
+                    // Need to convert timestamps to TemporalCRS numeric coordinates
+                    Double numLo = TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM);
+                    Double numHi = TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM);
+
+                    // Consistency check
+                    if (numHi < domMin.doubleValue() || numLo > domMax.doubleValue()) {
+                        throw new PetascopeException(ExceptionCode.InternalComponentError,
+                                "Translated pixel indixes of regular temporal axis (" +
+                                numLo + ":" + numHi +") exceed the allowed values.");
+                    }
+
+                    // Replace timestamps with numeric subsets
+                    stringLo = "" + numLo;
+                    stringHi = "" + numHi;
+                    // Now subsets can be tranlsated to pixels with normal numeric proportion
+                }
+
+                // Indexed CRSs (integer "GridSpacing" UoM): no need for math proportion, coords are just int offsets.
+                // This is not the same as CRS:1 which access direct grid coordinates.
+                // Index CRSs have indexed coordinates, but still offset vectors can determine a different reference (eg origin is UL corner).
+                if (axisUoM.equals(CrsUtil.GRID_UOM)) {
+                    int count = 0;
+                    // S = subset value, px_s = subset grid index
+                    // m = min(grid index), M = max(grid index)
+                    // {isPositiveForwards / isNegativeForwards}
+                    // Formula : px_s = grid_origin + [{S/M} - {m/S}]
+                    for (String subset : (Arrays.asList(new String[] {stringLo, stringHi}))) {
+                        long hiBound = dom.isPositiveForwards() ? (long)Double.parseDouble(subset) : pxMax;
+                        long loBound = dom.isPositiveForwards() ? pxMin : (long)Double.parseDouble(subset);
+                        subsetGridIndexes[count] =  domMin.longValue() + (hiBound - loBound);
+                        count += 1;
+                    }
+                    log.debug("Subset grid indexes for input Index CRS subsets: (" +
+                            subsetGridIndexes[0] + "," + subsetGridIndexes[1] + ")");
+                } else {
+
+                    /* Loop to get the pixel subset values.
+                    * Different cases (0%-overlap subsets are excluded by the checks above)
+                    *        MIN                                                     MAX
+                    *         |-------------+-------------+-------------+-------------|
+                    *              cell0         cell1         cell2         cell3
+                    * i)   |_____________________|
+                    * ii)                              |__________________|
+                    * iii)                                                         |_________________|
+                    */
+                    // Numeric interval: simple mathematical proportion
+                    double coordLo = Double.parseDouble(stringLo);
+                    double coordHi = Double.parseDouble(stringHi);
+
+                    // Get cell dimension -- Use BigDecimals to avoid finite arithmetic rounding issues of Doubles
+                    //double cellWidth = dom.getResolution().doubleValue();
+                    double cellWidth = (
+                            domMax.subtract(domMin))
+                            .divide((BigDecimal.valueOf(pxMax+1)).subtract(BigDecimal.valueOf(pxMin)), RoundingMode.UP)
+                            .doubleValue();
+                    //      = (dDomHi-dDomLo)/(double)((pxHi-pxLo)+1);
+
+                    // Open interval on the right: take away epsilon from upper bound:
+                    //double coordHiEps = coordHi - cellWidth/10000;    // [a,b) subsets
+                    double coordHiEps = coordHi;                        // [a,b] subsets
+
+                    // Conversion to pixel domain
+                    /*
+                    * Policy = minimum encompassing BoundingBox returned (of course)
+                    *
+                    *     9°       10°       11°       12°       13°
+                    *     o---------o---------o---------o---------o
+                    *     |  cell0  |  cell1  |  cell2  |  cell3  |
+                    *     [=== s1 ==]
+                    *          [=== s2 ==]
+                    *           [===== s3 ====]
+                    *      [= s4 =]
+                    *
+                    * -- [a,b] closed intervals:
+                    * s1(9°  ,10°  ) -->  [cell0:cell1]
+                    * s2(9.5°,10.5°) -->  [cell0:cell1]
+                    * s3(9.7°,11°  ) -->  [cell0:cell2]
+                    * s4(9.2°,9.8° ) -->  [cell0:cell0]
+                    *
+                    * -- [a,b) open intervals:
+                    * s1(9°  ,10°  ) -->  [cell0:cell0]
+                    * s2(9.5°,10.5°) -->  [cell0:cell1]
+                    * s3(9.7°,11°  ) -->  [cell0:cell1]
+                    * s4(9.2°,9.8° ) -->  [cell0:cell0]
+                    */
+                    if (dom.isPositiveForwards()) {
+                        // Normal linear numerical axis
+                        subsetGridIndexes = new long[] {
+                            (long)Math.floor((coordLo    - domMin.doubleValue()) / cellWidth) + pxMin,
+                            (long)Math.floor((coordHiEps - domMin.doubleValue()) / cellWidth) + pxMin
+                        };
+                        // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
+                        if (coordLo == coordHi && coordHi == domMax.doubleValue()) {
+                            subsetGridIndexes[0] -= 1;
+                        }
+                    } else {
+                        // Linear negative axis (eg northing of georeferenced images)
+                        subsetGridIndexes = new long[] {
+                            // First coordHi, so that left-hand index is the lower one
+                            (long)Math.ceil((domMax.doubleValue() - coordHiEps) / cellWidth) + pxMin,
+                            (long)Math.ceil((domMax.doubleValue() - coordLo)    / cellWidth) + pxMin
+                        };
+                        // NOTE: the if a slice equals the lower bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
+                        if (coordLo == coordHi && coordHi == domMin.doubleValue()) {
+                            subsetGridIndexes[0] -= 1;
+                        }
+                    }
+                    log.debug("Transformed coords indices (" + subsetGridIndexes[0] + "," + subsetGridIndexes[1] + ")");
+                }
+            }
+
+            // Check lo<hi integrity (subsetHi becomes lower grid bound if the axis is positive backwards):
+            if (subsetGridIndexes[0] > subsetGridIndexes[1]) { // = (dom.isPositiveForwards())
+                subsetGridIndexes = new long[] {subsetGridIndexes[1], subsetGridIndexes[0]}; // swap
+                log.debug("Fix grid indexes order: (" + subsetGridIndexes[0] + "," + subsetGridIndexes[1] + ")");
+            }
+        }
+
+        // Add to cache
+        gridIndexConversions.put(cacheKey, subsetGridIndexes);
+
+        return subsetGridIndexes;
+    }
+    // Overload (for slices)
+    // [!] NOTE: do not use this method in case of trims: no lo<hi guard can be applied if interval elements are converted separately.
+    public static long convertToPixelIndices(CoverageMetadata meta, DbMetadataSource dbMeta, String axisName, String value, boolean isNumeric) throws PetascopeException {
+        return convertToPixelIndices(meta, dbMeta, axisName, value, isNumeric, value, isNumeric)[0];
+    }
+
+
+    /**
      * Nested class to offer utilities for CRS *URI* handling.
      */
     public static class CrsUri {
@@ -1062,7 +1374,7 @@ public class CrsUtil {
 
                 if (null == equal) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                            "None of the configured CRS URIs resolvers seems available: please check network or add further fallback endpoints.");
+                            "None of the configured CRS URIs resolvers seems available: please check network or add further fallback endpoints. Please see server logs for further info.");
                 }
 
                 // cache the comparison
@@ -1140,7 +1452,7 @@ public class CrsUtil {
                             ex.getMessage(), ex);
                 } catch (IOException ex) {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
-                            equalityUri + ": could not connect to resolver. The site may be down.", ex);
+                            equalityUri + ": resolver exception: " + ex.getMessage(), ex);
                 } catch (SecoreException ex) {
                     throw ex;
                 } catch (Exception ex) {

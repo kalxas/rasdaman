@@ -73,7 +73,7 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension {
 
         try {
             // GetCoverage metadata was initialized with native coverage metadata, but subsets may have changed it:
-            updateGetCoverageMetadata(request, m);
+            updateGetCoverageMetadata(request, m, meta);
         } catch (PetascopeException pEx) {
             throw pEx;
         }
@@ -88,7 +88,7 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension {
         if (m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
             // return plain JPEG
             crsProperties = new CrsUtil.CrsProperties();
-            p = executeRasqlQuery(request, m, meta, JP2_ENCODING, null);
+            p = executeRasqlQuery(request, m.getMetadata(), meta, JP2_ENCODING, null);
         } else {
             // RectifiedGrid: geometry is associated with a CRS -> return JPEG2000 with geo-metadata
             // Need to use the GetCoverage metadata which has updated bounds [see super.setBounds()]
@@ -101,7 +101,7 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension {
                         (domLo.length==2?domHi.length:domLo.length) + " whereas JPEG2000 requires 2-dimensional grids.");
             }
             crsProperties = new CrsUtil.CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName());
-            p = executeRasqlQuery(request, m, meta, JP2_ENCODING, crsProperties.toString());
+            p = executeRasqlQuery(request, m.getMetadata(), meta, JP2_ENCODING, crsProperties.toString());
         }
 
         RasQueryResult res = new RasQueryResult(p.fst);

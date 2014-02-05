@@ -80,21 +80,20 @@ public class GmlFormatExtension extends AbstractFormatExtension {
             // Use the GridCoverage template, which works with any subtype of AbstractGridCoverage via the {domainSetaddition}
             try {
                 // GetCoverage metadata was initialized with native coverage metadata, but subsets may have changed it:
-                updateGetCoverageMetadata(request, m);
+                updateGetCoverageMetadata(request, m, meta);
             } catch (PetascopeException pEx) {
                 throw pEx;
             }
 
             String gml = WcsUtil.getGML(m, Templates.COVERAGE, meta);
-            gml = addCoverageData(gml, request, meta, m);
+            gml = addCoverageData(gml, request, meta, m.getMetadata());
 
             // RGBV coverages
             if (m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
                 gml = WcsUtil.addCoefficients(gml, m);
                 // Grid and Coverage bounds need to be updated, now we know the coefficients
-                updateGetCoverageMetadata(request, m);
+                updateGetCoverageMetadata(request, m, meta);
                 gml = WcsUtil.getBounds(gml, m);
-
             }
             return new Response(gml);
 
@@ -114,7 +113,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
      * @throws WCSException
      * @throws PetascopeException
      */
-    protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, GetCoverageMetadata m)
+    protected String addCoverageData(String gml, GetCoverageRequest request, DbMetadataSource meta, CoverageMetadata m)
             throws WCSException, PetascopeException {
         RasQueryResult res = new RasQueryResult(executeRasqlQuery(request, m, meta, CSV_ENCODING, null).fst);
         if (!res.getMdds().isEmpty()) {

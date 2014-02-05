@@ -29,7 +29,6 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
-import petascope.util.MiscUtil;
 import petascope.util.Pair;
 import petascope.util.XMLSymbols;
 import petascope.util.ras.RasQueryResult;
@@ -73,7 +72,7 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
         rsubExt.handle(request, m);
 
         try {
-            updateGetCoverageMetadata(request, m);
+            updateGetCoverageMetadata(request, m, meta);
         } catch (PetascopeException pEx) {
             throw pEx;
         }
@@ -87,7 +86,7 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
         if (m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
             // return plain Netcdf
             crsProperties = new CrsUtil.CrsProperties();
-            p = executeRasqlQuery(request, m, meta, NETCDF_ENCODING, null);
+            p = executeRasqlQuery(request, m.getMetadata(), meta, NETCDF_ENCODING, null);
         } else {
             // RectifiedGrid: geometry is associated with a CRS -> return Netcdf with geo-metadata
             // Need to use the GetCoverage metadata which has updated bounds [see super.setBounds()]
@@ -95,7 +94,7 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
             String[] domHi = m.getGisDomHigh().split(" ");
 
             crsProperties = new CrsUtil.CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName());
-            p = executeRasqlQuery(request, m, meta, NETCDF_ENCODING, crsProperties.toString());
+            p = executeRasqlQuery(request, m.getMetadata(), meta, NETCDF_ENCODING, crsProperties.toString());
         }
 
         RasQueryResult res = new RasQueryResult(p.fst);

@@ -186,7 +186,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
                 crs.get(0),
                 0,
                 BigInteger.ONE,
-                false)
+                true, false)
                 );
         // "unsigned int" is default datatype
         rangeList.add(new RangeElement(WcpsConstants.MSG_DYNAMIC_TYPE, WcpsConstants.MSG_UNSIGNED_INT, null));

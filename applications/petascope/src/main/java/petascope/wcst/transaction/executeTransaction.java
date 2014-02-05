@@ -532,7 +532,7 @@ public class executeTransaction {
                 crs.get(0),
                 0,
                 BigInteger.ONE,
-                false);
+                true, false);
         DomainElement domY = new DomainElement(
                 BigDecimal.ZERO,
                 BigDecimal.ONE,
@@ -542,7 +542,7 @@ public class executeTransaction {
                 crs.get(0),
                 1,
                 BigInteger.ONE,
-                false);
+                false, false);
         List<DomainElement> domList = new ArrayList<DomainElement>(2);
         domList.add(domX);
         domList.add(domY);

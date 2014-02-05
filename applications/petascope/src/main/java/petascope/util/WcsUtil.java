@@ -265,7 +265,7 @@ public class WcsUtil {
                 Pair.of("\\{" + Templates.KEY_GRIDDIMENSION         + "\\}", String.valueOf(m.getGridDimension())),
                 Pair.of("\\{" + Templates.KEY_GRIDID                + "\\}", m.getGridId()),
                 // + rectified grid
-                Pair.of("\\{" + Templates.KEY_ORIGINPOS             + "\\}", m.getDomLow()),
+                Pair.of("\\{" + Templates.KEY_ORIGINPOS             + "\\}", m.getGridOrigin()),
                 Pair.of("\\{" + Templates.KEY_POINTID               + "\\}", m.getCoverageId() + Templates.SUFFIX_ORIGIN),
                 Pair.of("\\{" + Templates.KEY_OFFSET_VECTORS        + "\\}", getGmlOffsetVectors(m)),
                 // + referenceable grid
@@ -424,7 +424,7 @@ public class WcsUtil {
                     // Example, axisName is third axis in the 3D CRS definition:
                     // offsetVector() := resolution * {0,0,1} = {0,0,resolution}
                     BigDecimal[] vectorComponents = (BigDecimal[])Vectors.scalarMultiplication(
-                            m.getMetadata().getDomainByName(axisName).getOffsetVector(), // axis resolution
+                            m.getMetadata().getDomainByName(axisName).getDirectionalResolution(), // axis resolution
                             Vectors.unitVector( // {0,0,__,1,__,0,0}
                             CrsUtil.getTotalDimensionality(ccrsUri),
                             CrsUtil.getCrsAxisOrder(ccrsUri, axisName)
@@ -462,7 +462,7 @@ public class WcsUtil {
             List<String> subsetLabels = Arrays.asList(m.getGridAxisLabels().split(" "));
             if (subsetLabels.contains(axisName)) {
                 BigDecimal subsetLo = new BigDecimal(m.getDomLow().split(" ")[subsetLabels.indexOf(axisName)]);
-                coeffs = Vectors.add(coeffs, (domEl.getMinValue().subtract(subsetLo)).divide(domEl.getOffsetVector()));
+                coeffs = Vectors.add(coeffs, (domEl.getMinValue().subtract(subsetLo)).divide(domEl.getScalarResolution()));
             }
             // Create the XML element
             coefficients = ListUtil.printList(coeffs, " ");

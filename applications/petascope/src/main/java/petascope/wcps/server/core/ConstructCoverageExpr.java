@@ -34,6 +34,7 @@ import petascope.core.CoverageMetadata;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
+import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.WcpsConstants;
@@ -160,6 +161,7 @@ public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageI
                     crs.get(0),
                     order,
                     BigInteger.valueOf(ai.getHigh().intValue()-ai.getLow().intValue()+1),
+                    !axisType.equals(AxisTypes.Y_AXIS),
                     false); // FIXME uom = null
             cellDomainList.add(cellDomain);
             domainList.add(domain);
