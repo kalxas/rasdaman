@@ -287,7 +287,7 @@ fi
 %files petascope
 %defattr(-,root,root,-)
 %{_datadir}/rasdaman/petascope/*
-%{_sharedstatedir}/tomcat6/webapps/petascope.war
+%{_sharedstatedir}/tomcat6/webapps/rasdaman.war
 %{_sharedstatedir}/tomcat6/webapps/def.war
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/petascope.properties
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/log4j.properties

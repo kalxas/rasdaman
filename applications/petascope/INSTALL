@@ -21,7 +21,7 @@ BUILD AND INSTALL:
   This compiles the code, creates a war archive in build/dist and Javadoc in
   build/apidocs and creates/updates the database.
   
-- Deploy the war file build/dist/petascope.war, with Tomcat. If CATALINA_HOME
+- Deploy the war file build/dist/rasdaman.war, with Tomcat. If CATALINA_HOME
   is properly set to the Tomcat's home directory, you can also do:
   
     $ make install
