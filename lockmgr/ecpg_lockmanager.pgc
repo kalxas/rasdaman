@@ -128,6 +128,20 @@ bool ECPG_LockManager::connect(const char * pDatabaseTarget, const char * pConne
     {
         EXEC SQL CONNECT TO :target AS :connectionName;
     }
+    EXEC SQL AT :connectionName PREPARE insert_query1 FROM "INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, RasClientID, SharedLock) SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT TileID from RAS_LOCKEDTILES WHERE TileID = ? AND ExclusiveLock = ?);";
+    EXEC SQL AT :connectionName PREPARE insert_query2 FROM "INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, RasClientID, SharedLock, ExclusiveLock) SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (SELECT TileID from RAS_LOCKEDTILES WHERE TileID = ?);";
+        EXEC SQL AT :connectionName PREPARE select_query1 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ?);";
+        EXEC SQL AT :connectionName PREPARE select_query2 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ?);";
+        EXEC SQL AT :connectionName PREPARE select_query3 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ?);";
+        EXEC SQL AT :connectionName PREPARE select_query4 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ?);";
+        EXEC SQL AT :connectionName PREPARE select_query5 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND SharedLock = ?);";
+        EXEC SQL AT :connectionName PREPARE select_query6 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ? AND SharedLock = ?);";
+        EXEC SQL AT :connectionName PREPARE select_query7 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND SharedLock = ?);";
+        EXEC SQL AT :connectionName PREPARE select_query8 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ? AND SharedLock = ?);";
+        EXEC SQL AT :connectionName PREPARE select_query9 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND ExclusiveLock = ?);";
+        EXEC SQL AT :connectionName PREPARE select_query10 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ? AND ExclusiveLock = ?);";
+        EXEC SQL AT :connectionName PREPARE select_query11 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND ExclusiveLock = ?);";
+        EXEC SQL AT :connectionName PREPARE select_query12 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ? AND ExclusiveLock = ?);";
     return SQLCODE==0;
 }
 
@@ -194,10 +208,8 @@ void ECPG_LockManager::lockTileShared(const char * pConnectionName, const char *
     long long tileId = pTileId;
     const char *rasServerId = pRasServerId;
     const char *rasClientId = pRasClientId;
-    const char *insert_query = "INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, RasClientID, SharedLock) SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT TileID from RAS_LOCKEDTILES WHERE TileID = ? AND ExclusiveLock = ?);";
     EXEC SQL END DECLARE SECTION;
-    EXEC SQL AT :connectionName PREPARE insert_query FROM :insert_query;
-    EXEC SQL AT :connectionName EXECUTE insert_query USING :tileId, :rasServerId, :rasClientId, 1, :tileId, 1;
+    EXEC SQL AT :connectionName EXECUTE insert_query1 USING :tileId, :rasServerId, :rasClientId, 1, :tileId, 1;
 }
 
 /**
@@ -219,10 +231,8 @@ void ECPG_LockManager::lockTileExclusive(const char * pConnectionName, const cha
     long long tileId = pTileId;
     const char *rasServerId = pRasServerId;
     const char *rasClientId = pRasClientId;
-    const char *insert_query = "INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, RasClientID, SharedLock, ExclusiveLock) SELECT ?, ?, ?, ?, ? WHERE NOT EXISTS (SELECT TileID from RAS_LOCKEDTILES WHERE TileID = ?);";
     EXEC SQL END DECLARE SECTION;
-    EXEC SQL AT :connectionName PREPARE insert_query FROM :insert_query;
-    EXEC SQL AT :connectionName EXECUTE insert_query USING :tileId, :rasServerId, :rasClientId, 0, 1, :tileId;
+    EXEC SQL AT :connectionName EXECUTE insert_query2 USING :tileId, :rasServerId, :rasClientId, 0, 1, :tileId;
 }
 
 /**
@@ -291,12 +301,9 @@ bool ECPG_LockManager::isTileLocked(const char * pConnectionName, const char * p
         EXEC SQL BEGIN DECLARE SECTION;
         const char *connectionName = pConnectionName;
         long long tileId = pTileId;
-        const char *select_query
-            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ?);";
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
-        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
-        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId;
+        EXEC SQL AT :connectionName EXECUTE select_query1 INTO :rowCount USING :tileId;
         result=rowCount;
     }
     else if (!pRasServerId && pRasClientId)
@@ -305,12 +312,9 @@ bool ECPG_LockManager::isTileLocked(const char * pConnectionName, const char * p
         const char *connectionName = pConnectionName;
         const char * rasClientId = pRasClientId;
         long long tileId = pTileId;
-        const char *select_query
-            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ?);";
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
-        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
-        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasClientId;
+        EXEC SQL AT :connectionName EXECUTE select_query2 INTO :rowCount USING :tileId, :rasClientId;
         result=rowCount;
     }
     else if (pRasServerId && !pRasClientId)
@@ -319,12 +323,9 @@ bool ECPG_LockManager::isTileLocked(const char * pConnectionName, const char * p
         const char *connectionName = pConnectionName;
         const char * rasServerId = pRasServerId;
         long long tileId = pTileId;
-        const char *select_query
-            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ?);";
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
-        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
-        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasServerId;
+        EXEC SQL AT :connectionName EXECUTE select_query3 INTO :rowCount USING :tileId, :rasServerId;
         result=rowCount;
     }
     else
@@ -334,12 +335,9 @@ bool ECPG_LockManager::isTileLocked(const char * pConnectionName, const char * p
         const char * rasServerId = pRasServerId;
         const char * rasClientId = pRasClientId;
         long long tileId = pTileId;
-        const char *select_query
-            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ?);";
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
-        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
-        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasServerId, :rasClientId;
+        EXEC SQL AT :connectionName EXECUTE select_query4 INTO :rowCount USING :tileId, :rasServerId, :rasClientId;
         result=rowCount;
     }
     if (result > 0)
@@ -373,12 +371,9 @@ bool ECPG_LockManager::isTileLockedShared(const char * pConnectionName, const ch
         EXEC SQL BEGIN DECLARE SECTION;
         const char *connectionName = pConnectionName;
         long long tileId = pTileId;
-        const char *select_query
-            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND SharedLock = ?);";
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
-        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
-        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, 1;
+        EXEC SQL AT :connectionName EXECUTE select_query5 INTO :rowCount USING :tileId, 1;
         result=rowCount;
     }
     else if (!pRasServerId && pRasClientId)
@@ -387,12 +382,9 @@ bool ECPG_LockManager::isTileLockedShared(const char * pConnectionName, const ch
         const char *connectionName = pConnectionName;
         const char * rasClientId = pRasClientId;
         long long tileId = pTileId;
-        const char *select_query
-            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ? AND SharedLock = ?);";
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
-        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
-        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasClientId, 1;
+        EXEC SQL AT :connectionName EXECUTE select_query6 INTO :rowCount USING :tileId, :rasClientId, 1;
         result=rowCount;
     }
     else if (pRasServerId && !pRasClientId)
@@ -401,12 +393,9 @@ bool ECPG_LockManager::isTileLockedShared(const char * pConnectionName, const ch
         const char *connectionName = pConnectionName;
         const char * rasServerId = pRasServerId;
         long long tileId = pTileId;
-        const char *select_query
-            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND SharedLock = ?);";
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
-        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
-        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasServerId, 1;
+        EXEC SQL AT :connectionName EXECUTE select_query7 INTO :rowCount USING :tileId, :rasServerId, 1;
         result=rowCount;
     }
     else
@@ -416,12 +405,9 @@ bool ECPG_LockManager::isTileLockedShared(const char * pConnectionName, const ch
         const char * rasServerId = pRasServerId;
         const char * rasClientId = pRasClientId;
         long long tileId = pTileId;
-        const char *select_query
-            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ? AND SharedLock = ?);";
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
-        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
-        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasServerId, :rasClientId, 1;
+        EXEC SQL AT :connectionName EXECUTE select_query8 INTO :rowCount USING :tileId, :rasServerId, :rasClientId, 1;
         result=rowCount;
     }
     if (result > 0)
@@ -455,12 +441,9 @@ bool ECPG_LockManager::isTileLockedExclusive(const char * pConnectionName, const
         EXEC SQL BEGIN DECLARE SECTION;
         const char *connectionName = pConnectionName;
         long long tileId = pTileId;
-        const char *select_query
-            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND ExclusiveLock = ?);";
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
-        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
-        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, 1;
+        EXEC SQL AT :connectionName EXECUTE select_query9 INTO :rowCount USING :tileId, 1;
         result=rowCount;
     }
     else if (!pRasServerId && pRasClientId)
@@ -469,12 +452,9 @@ bool ECPG_LockManager::isTileLockedExclusive(const char * pConnectionName, const
         const char *connectionName = pConnectionName;
         const char * rasClientId = pRasClientId;
         long long tileId = pTileId;
-        const char *select_query
-            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasClientID = ? AND ExclusiveLock = ?);";
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
-        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
-        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasClientId, 1;
+        EXEC SQL AT :connectionName EXECUTE select_query10 INTO :rowCount USING :tileId, :rasClientId, 1;
         result=rowCount;
     }
     else if (pRasServerId && !pRasClientId)
@@ -483,12 +463,9 @@ bool ECPG_LockManager::isTileLockedExclusive(const char * pConnectionName, const
         const char *connectionName = pConnectionName;
         const char * rasServerId = pRasServerId;
         long long tileId = pTileId;
-        const char *select_query
-            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND ExclusiveLock = ?);";
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
-        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
-        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasServerId, 1;
+        EXEC SQL AT :connectionName EXECUTE select_query11 INTO :rowCount USING :tileId, :rasServerId, 1;
         result=rowCount;
     }
     else
@@ -498,12 +475,9 @@ bool ECPG_LockManager::isTileLockedExclusive(const char * pConnectionName, const
         const char * rasServerId = pRasServerId;
         const char * rasClientId = pRasClientId;
         long long tileId = pTileId;
-        const char *select_query
-            = "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND RasClientID = ? AND ExclusiveLock = ?);";
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
-        EXEC SQL AT :connectionName PREPARE select_query FROM :select_query;
-        EXEC SQL AT :connectionName EXECUTE select_query INTO :rowCount USING :tileId, :rasServerId, :rasClientId, 1;
+        EXEC SQL AT :connectionName EXECUTE select_query12 INTO :rowCount USING :tileId, :rasServerId, :rasClientId, 1;
         result=rowCount;
     }
     if (result > 0)
