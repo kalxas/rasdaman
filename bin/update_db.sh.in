@@ -106,7 +106,7 @@ check_paths
 # postgres connection details (defaults used)
 #
 RAS_DB=RASBASE
-RAS_PORT=5432
+RAS_PORT=${PGPORT-5432}
 
 
 #
