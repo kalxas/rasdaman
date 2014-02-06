@@ -9,6 +9,7 @@
     <ows:Profile>http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_get-rest/1.0/conf/get-rest</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_get-kvp/1.0/conf/get-kvp</ows:Profile>
+    <ows:Profile>http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_post-xml/1.0</ows:Profile>
     <ows:Profile>http://www.opengis.net/spec/WCS_protocol-binding_soap/1.0</ows:Profile>
@@ -70,14 +71,9 @@
     </ows:Constraint>
   </ows:OperationsMetadata>
   <wcs:ServiceMetadata xmlns="http://www.opengis.net/ows/2.0">
-    <wcs:formatSupported>image/jp2</wcs:formatSupported>
-    <wcs:formatSupported>image/tiff</wcs:formatSupported>
-    <wcs:formatSupported>application/gml+xml</wcs:formatSupported>
-    <wcs:Extension>
-      <crs:CrsMetadata>
-        <crs:supportedCrs>http://www.opengis.net/crs/EPSG/0/</crs:supportedCrs>
-      </crs:CrsMetadata>
-    </wcs:Extension>
+    %formatSupported%
+    %formatSupported%
+    %formatSupported%
   </wcs:ServiceMetadata>
   <Contents xmlns="http://www.opengis.net/wcs/2.0">
   </Contents>

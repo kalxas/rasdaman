@@ -40,7 +40,6 @@ import petascope.exceptions.RasdamanException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
-import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
@@ -324,13 +323,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         HashMap<String, Pair<String, String>> newdim = new HashMap<String, Pair<String, String>>(); // saves the new limits of the axes after trimming or slicing
 
         // process subsetting operations
-        /**
-         * NOTE: trims and slices are nested in each dimension: this inhibits
-         * WCPS subsetExpr to actually accept CRS != Native CRS of Image, since
-         * both X and Y coordinates need to be known at time of reprojection:
-         * CRS reprojection is hence done a priori, but this does not hurt that
-         * much actually.
-         */
         for (DimensionSubset subset : req.getSubsets()) {
             String dim = subset.getDimension();
             DomainElement de = cov.getDomainByName(dim);
@@ -359,7 +351,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 axes = axes.replaceFirst(dim + " ?", ""); // remove axis
             }
         }
-
 
         if (req.isScaled()) {
             if (!((cov.getCoverageType().equals(LABEL_GRID_COVERAGE)) ||

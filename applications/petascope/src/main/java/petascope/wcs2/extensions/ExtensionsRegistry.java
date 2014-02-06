@@ -39,7 +39,6 @@ public class ExtensionsRegistry {
     
     public static final String XML_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_post-xml/1.0";
     public static final String KVP_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_get-kvp/1.0/conf/get-kvp";
-    //@todo add a real url here
     public static final String REST_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_get-rest/1.0/conf/get-rest";    
     public static final String SOAP_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_soap/1.0";
     public static final String ENCODING_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage";
@@ -49,8 +48,6 @@ public class ExtensionsRegistry {
     public static final String CRS_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs";
     public static final String RANGE_SUBSETTING_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/";
     public static final String SCALING_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling";
-    //public static final String CRS_DISCRETE_COVERAGE_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs-discrete-coverage";
-    //public static final String CRS_GRIDDED_COVERAGE_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs-grid-coverage";
     
     private static final Set<Extension> extensions = new HashSet<Extension>();
     private static final Set<String> extensionIds = new HashSet<String>();
@@ -74,8 +71,7 @@ public class ExtensionsRegistry {
         registerExtension(new MultipartJPEG2000FormatExtension());
         registerExtension(new MultipartNetcdfFormatExtension());
         registerExtension(new RangeSubsettingExtension());
-        // registerExtension(new ScalingExtension());//only available at r'e
-        // Add crs.discrete.coverage and crs.gridded.coverage extensions ?
+        registerExtension(new ScalingExtension());
     }
 
     /**

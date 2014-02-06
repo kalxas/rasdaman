@@ -38,7 +38,6 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
-import petascope.util.Pair;
 import static petascope.util.XMLSymbols.*;
 import petascope.util.XMLUtil;
 import static petascope.util.XMLUtil.*;
@@ -143,43 +142,11 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                     if (null != getText(c.get(1)) && getText(c.get(1)).matches(QUOTED_SUBSET)) {
                         ((DimensionSlice)ret.getSubset(getText(c.get(0)))).timestampSubsetCheck();
                     }
-                } else if (name.equals(LABEL_CRS)) {
-                    String subCrs = null, outCrs = null;
-                    for (Element attr : c) {
-                        if (attr.getLocalName().equals(ATT_SUBSET_CRS)) {
-                            if (subCrs == null) subCrs = getText(attr);
-                            else throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"" + LABEL_SUBSETTING_CRS + "\" parameters in the request: must be unique.");
-                            // check validity of CrsExt specification
-                            if (!CrsUtil.CrsUri.isValid(subCrs))
-                                throw new WCSException(ExceptionCode.NotASubsettingCrs,
-                                        LABEL_SUBSETTING_CRS + "\"" + subCrs + "\" is not valid.");
-                            if (!CrsUtil.isSupportedCrsCode(subCrs))
-                                throw new WCSException(ExceptionCode.SubsettingCrsNotSupported,
-                                        LABEL_SUBSETTING_CRS + "\"" + subCrs + "\" is not supported.");
-                        }
-                        else if (attr.getLocalName().equals(ATT_OUTPUT_CRS)) {
-                            if (outCrs == null) outCrs = getText(attr);
-                            else throw new WCSException(ExceptionCode.InvalidRequest, "Multiple \"" + LABEL_OUTPUT_CRS + "\" parameters in the request: must be unique.");
-                            // check validity of CrsExt specification
-                            if (!CrsUtil.CrsUri.isValid(outCrs))
-                                throw new WCSException(ExceptionCode.NotAnOutputCrs,
-                                        LABEL_OUTPUT_CRS + " \"" + outCrs + "\" is not valid.");
-                            if (!CrsUtil.isSupportedCrsCode(outCrs))
-                                throw new WCSException(ExceptionCode.SubsettingCrsNotSupported,
-                                        LABEL_OUTPUT_CRS + " \"" + outCrs + "\" is not supported.");
-                        }
-                    }
-                    ret.getCrsExt().setSubsettingCrs(subCrs);
-                    ret.getCrsExt().setOutputCrs(outCrs);
                 }
-            } catch (Exception ex) {
-                if (((PetascopeException)ex).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.NotASubsettingCrs.getExceptionCode())
-                    || ((PetascopeException)ex).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.NotAnOutputCrs.getExceptionCode()))
-                    throw new WCSException(ex.getMessage(), ex);
-                else
-                    throw new WCSException(ExceptionCode.InvalidRequest, "Error parsing dimension subset:\n\n" + e.toXML(), ex);
-                }
+            } catch (WCSException ex) {
+                throw new WCSException(ExceptionCode.InvalidRequest, "Error parsing dimension subset:\n\n" + e.toXML(), ex);
             }
+        }
         return ret;
     }
 

@@ -273,23 +273,6 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             }
             //:~
 
-            //: CRS [Req9: /req/crs/wcsServiceMetadata-outputCrs]
-            Element crsMetadata  = new Element(PREFIX_CRS + ":" + LABEL_CRS_METADATA, NAMESPACE_CRS);
-            Element supportedCrs = new Element(PREFIX_CRS + ":" + ATT_SUPPORTED_CRS, NAMESPACE_CRS);
-            supportedCrs.appendChild(CrsUtil.CrsUriDir(CrsUtil.OPENGIS_URI_PREFIX, CrsUtil.EPSG_AUTH));
-            crsMetadata.appendChild(supportedCrs);
-            Element wcsExtension = serviceMetadata.getFirstChildElement(LABEL_EXTENSION, NAMESPACE_WCS);
-            // Check if an extension is already defined in the template, otherwise create a new one
-            if (null == wcsExtension) {
-                // Add the new child element
-                wcsExtension = new Element(PREFIX_WCS + ":" + LABEL_EXTENSION, NAMESPACE_WCS);
-                wcsExtension.appendChild(crsMetadata);
-                serviceMetadata.appendChild(wcsExtension);
-            } else {
-                // Just update the child element
-                wcsExtension.appendChild(crsMetadata);
-            }
-            //:~
             root.appendChild(serviceMetadata.copy());
         }
 

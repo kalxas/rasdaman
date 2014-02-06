@@ -217,15 +217,6 @@ public class ExceptionCode {
     public static final ExceptionCode WcsError = new ExceptionCode("WcsError", 404);
     public static final ExceptionCode WcstError = new ExceptionCode("WcstError");
     public static final ExceptionCode WpsError = new ExceptionCode("WpsError");
-    // WCS CRS-extension
-    public static final ExceptionCode NotASubsettingCrs = new ExceptionCode("NotASubsettingCrs",
-            "Parameter indicated in the subsettingCrs parameter is not a valid CRS", 400);
-    public static final ExceptionCode SubsettingCrsNotSupported = new ExceptionCode("SubsettingCrsNotSupported",
-            "CRS indicated in the subsettingCrs parameter is not supported by this server", 501);
-    public static final ExceptionCode NotAnOutputCrs = new ExceptionCode("NotAnOutputCrs",
-            "Parameter indicated in the outputCrs parameter is not a valid CRS", 400);
-    public static final ExceptionCode OutputCrsNotSupported = new ExceptionCode("OutputCrsNotSupported",
-            "CRS indicated in the outputCrs parameter is not supported by this server", 501);
     public static final ExceptionCode MultipleRangeSubsets = new ExceptionCode("Invalid RangeSubsets parameters",
             "Multiple RangeSubset parameters have been provided, only one can be accepted", 400);
     public static final ExceptionCode NoSuchField = new ExceptionCode("NoSuchField",
