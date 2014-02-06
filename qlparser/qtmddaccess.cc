@@ -51,7 +51,9 @@ using namespace std;
 
 #include "servercomm/servercomm.hh"
 
+#ifdef LOCKMANAGER_ON
 #include "lockmgr/lockmanager.hh"
+#endif
 
 extern ServerComm::ClientTblElt* currentClientTblElt;
 

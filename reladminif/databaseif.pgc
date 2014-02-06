@@ -98,7 +98,7 @@ DatabaseIf::disconnect() throw (r_Error)
     }
 
     TALK( "EXEC SQL DISCONNECT CURRENT" );
-    EXEC SQL DISCONNECT CURRENT;
+    EXEC SQL DISCONNECT rasdaConn;
     if (SQLCODE != SQLOK)
     {
         check("DatabaseIf::disconnect() DISCONNECT\0");

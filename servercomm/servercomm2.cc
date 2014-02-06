@@ -105,7 +105,9 @@ extern "C" int gethostname(char *name, int namelen);
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtstringdata.hh"
 
+#ifdef LOCKMANAGER_ON
 #include "lockmgr/lockmanager.hh"
+#endif
 
 // console output describing successful/unsuccessful actions
 #define MSG_OK          "ok"

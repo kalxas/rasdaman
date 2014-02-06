@@ -108,7 +108,9 @@ using namespace std;
 #include "servercomm/servercomm.hh"
 #include "relblobif/tilecache.hh"
 
+#ifdef LOCKMANAGER_ON
 #include "lockmgr/lockmanager.hh"
+#endif
 
 #ifdef __VISUALC__
 #undef __EXECUTABLE__
@@ -512,7 +514,7 @@ closeTransaction( bool doCommit ) throw (r_Error)
         }
         taIsOpen = false;
     }
-#if LOCKMANAGER_ON
+#ifdef LOCKMANAGER_ON
     LockManager * lockManager = LockManager::Instance();
     lockManager->clearLockTable();
 #endif

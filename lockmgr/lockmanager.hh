@@ -33,7 +33,6 @@ rasdaman GmbH.
 
 #ifndef _LOCKMANAGER_HH_
 #define _LOCKMANAGER_HH_
-#define LOCKMANAGER_ON
 
 #include "reladminif/oidif.hh"
 #include "tilemgr/tile.hh"
@@ -41,9 +40,6 @@ rasdaman GmbH.
 #include <vector>
 
 enum Lock {EXCLUSIVE_LOCK, SHARED_LOCK};
-
-#define LOCKMANAGER_ON 1
-//#undef LOCKMANAGER_ON
 
 /**
  * This class contains the C++-part implementation of the lock manager.

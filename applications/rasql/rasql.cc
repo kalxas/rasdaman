@@ -880,7 +880,7 @@ void doStuff( int argc, char** argv ) throw (r_Error)
             }
             catch(std::bad_alloc)
             {
-                TALK( "Unable to claim memory: " << chunks << " Bytes" );
+                TALK( "Unable to claim memory: " << size << " Bytes" );
                 throw RasqlError( UNABLETOCLAIMRESOURCEFORFILE );
             }
         }

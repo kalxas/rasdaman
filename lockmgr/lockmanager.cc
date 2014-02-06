@@ -152,7 +152,8 @@ void LockManager::connect()
     bool connect_ok = ecpg_LockManager->connect(dbConnectionId, connectionName, dbUser, dbPassword);
     if (!connect_ok)
     {
-        TALK( "Lock manager: Database is not connected!" );
+        RMInit::logOut << "Error: Lock manager -- Database is not connected." << endl;
+        LEAVE("Error: Lock manager -- Database is not connected.");
         throw r_Error(r_Error::r_Error_DatabaseClosed, 211);
     }
 }
@@ -169,7 +170,8 @@ void LockManager::disconnect()
     bool disconnect_ok = ecpg_LockManager->disconnect(connectionName);
     if (!disconnect_ok)
     {
-        TALK( "Lock manager: Database cannot be disconnected!" );
+        RMInit::logOut << "Error: Lock manager -- Database cannot be disconnected." << endl;
+        LEAVE("Error: Lock manager -- Database cannot be disconnected.");
         throw r_Error(r_Error::r_Error_DatabaseClosed, 211);
     }
 }
@@ -230,7 +232,8 @@ void LockManager::lockTileInternal(const char * pRasServerId, const char * pRasC
     }
     if (!result)
     {
-        TALK( "Lock manager, lock tile: Tile cannot be locked!" );
+        RMInit::logOut << "Error: Lock manager -- Tile cannot be locked." << endl;
+        LEAVE("Error -- Lock manager -- Tile cannot be locked.");
         throw r_Error(r_Error::r_Error_TileCannotBeLocked, 4000);
     }
     LEAVE( "Lock manager: lock tile" );
@@ -294,7 +297,7 @@ bool LockManager::isTileLockedInternal(OId::OIdCounter pTileId, enum Lock pLockT
     {
         ecpg_LockManager->isTileLockedShared(connectionName, (char *)NULL, (char *)NULL, pTileId);
     }
-    LEAVE( "Lock manager, is tile locked" );
+    LEAVE( "Lock manager, is tile locked" << result );
     return result;
 }
 
@@ -357,11 +360,12 @@ void LockManager::generateServerId(char * pResultRasServerId)
     }
     else if (return_code >= 255)
     {
-        TALK( "Lock manager, generateServerId: concatenation was successful but the result is too long and was truncated!" );
+        TALK( "Lock manager, generateServerId: concatenation was successful but the result is too long and was truncated." );
     }
     else
     {
-        TALK( "Lock manager, generateServerId: concatenation of id components failed!" );
+        RMInit::logOut << "Error: Lock manager, generateServerId -- concatenation of id components failed." << endl;
+        LEAVE( "Error: Lock manager, generateServerId -- concatenation of id components failed.");
         throw r_Error(r_Error::r_Error_General);
     }
 }
@@ -436,7 +440,7 @@ void LockManager::lockTiles(unsigned long pClientId, std::vector <Tile *> * tile
             OId::OIdCounter oid = dbTileId.getObjId().getCounter();
             if (oid > 0)
             {
-                TALK( "Lock manager, lock tiles: Locking tile " << oid.getCounter() );
+                TALK( "Lock manager, lock tiles: Locking tile " << oid );
                 lockTileInternal(rasServerId, clientId, oid, lockType);
             }
         }
@@ -463,22 +467,18 @@ void LockManager::lockTile(unsigned long pClientId, Tile * pTile)
 {
     ENTER( "Lock manager, lock tile" );
     DBTileId dbTileId = pTile->getDBTile();
-    if (dbTileId)
+    OId::OIdCounter oid = dbTileId.getObjId().getCounter();
+    if (oid > 0)
     {
-        TALK( "Lock manager, lock tile: DB tile found to lock." );
-        OId oid = dbTileId->getOId();
-        if (oid)
-        {
-            TALK( "Lock manager, lock tile: Locking tile " << oid.getCounter() );
-            char rasServerId[255];
-            generateServerId(rasServerId);
-            char clientId[255];
-            generateClientId(pClientId, clientId);
-            enum Lock lockType = generateLockType();
-            beginTransaction();
-            lockTileInternal(rasServerId, clientId, oid.getCounter(), lockType);
-            endTransaction();
-        }
+        TALK( "Lock manager, lock tile: Locking tile " << oid );
+        char rasServerId[255];
+        generateServerId(rasServerId);
+        char clientId[255];
+        generateClientId(pClientId, clientId);
+        enum Lock lockType = generateLockType();
+        beginTransaction();
+        lockTileInternal(rasServerId, clientId, oid, lockType);
+        endTransaction();
     }
     LEAVE( "Lock manager, lock tile" );
 }
@@ -497,21 +497,17 @@ void LockManager::unlockTile(unsigned long pClientId, Tile * pTile)
 {
     ENTER( "Lock manager, unlock tile" );
     DBTileId dbTileId = pTile->getDBTile();
-    if (dbTileId)
+    OId::OIdCounter oid = dbTileId.getObjId().getCounter();
+    if (oid > 0)
     {
-        TALK( "Lock manager, unlock tile: DB tile found to lock." );
-        OId oid = dbTileId->getOId();
-        if (oid)
-        {
-            TALK("Lock manager, unlock tile: Locking tile " << oid.getCounter());
-            char rasServerId[255];
-            generateServerId(rasServerId);
-            char clientId[255];
-            generateClientId(pClientId, clientId);
-            beginTransaction();
-            unlockTileInternal(rasServerId, clientId, oid.getCounter());
-            endTransaction();
-        }
+        TALK("Lock manager, unlock tile: Locking tile " << oid);
+        char rasServerId[255];
+        generateServerId(rasServerId);
+        char clientId[255];
+        generateClientId(pClientId, clientId);
+        beginTransaction();
+        unlockTileInternal(rasServerId, clientId, oid);
+        endTransaction();
     }
     LEAVE( "Lock manager, unlock tile" );
 }
@@ -554,17 +550,13 @@ bool LockManager::isTileLocked(Tile * pTile, enum Lock lockType)
     ENTER( "Lock manager, is tile locked" );
     bool locked = false;
     DBTileId dbTileId = pTile->getDBTile();
-    if (dbTileId)
+    OId::OIdCounter oid = dbTileId.getObjId().getCounter();
+    if (oid > 0)
     {
-        TALK( "Lock manager, is tile locked: DB tile found to check lock." );
-        OId oid = dbTileId->getOId();
-        if (oid)
-        {
-            TALK( "Lock manager, is tile locked: Checking lock for " << oid.getCounter() );
-            beginTransaction();
-            bool locked = isTileLockedInternal(oid.getCounter(), lockType);
-            endTransaction();
-        }
+        TALK( "Lock manager, is tile locked: Checking lock for " << oid );
+        beginTransaction();
+        bool locked = isTileLockedInternal(oid, lockType);
+        endTransaction();
     }
     LEAVE( "Lock manager, is tile locked" );
     return locked;
@@ -589,8 +581,8 @@ void LockManager::clearLockTable()
     }
     catch(...)
     {
-        TALK( MSG_FAILED );
-        TALK( "Error: Unspecified exception." );
+        RMInit::logOut << MSG_FAILED << endl;
+        RMInit::logOut << "Error: Unspecified exception." << endl;
     }
     LEAVE( "Lock manager, clear lock table" );
 }
