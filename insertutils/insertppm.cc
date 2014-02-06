@@ -792,7 +792,8 @@ main( int argc, char** argv )
                        << r_Sinterval((r_Range)0, imgRows - 1);
 
             createMarray(cacheDom, mddPtr, pixType);
-            char *contents = mddPtr->get_array();
+            char *contents = new char[cacheDom.cell_count() * typeSize];
+            mddPtr->set_array(contents);
 
             unsigned int k = 0;
             list<string>::iterator currentFileName = fileNameList.begin();
@@ -849,7 +850,8 @@ main( int argc, char** argv )
                 LOG << "#" << k << " " << cacheDom << "..." << flush;
 
                 createMarray(cacheDom, mddPtr, pixType);
-                char *contents = mddPtr->get_array();
+                char *contents = new char[cacheDom.cell_count() * typeSize];
+                mddPtr->set_array(contents);
 
                 readRows(contents, k, min(tileRows, imgRows - k), pixType, rescale);
 
