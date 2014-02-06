@@ -95,6 +95,15 @@ public class RangeSubsettingExtension implements Extension {
     }
 
     /**
+     * Recognizes an XML root element of a RangeSubsetting extension.
+     * @param elementName
+     * @return True if this is the root of an XML RangeSubsetting extension.
+     */
+      public static boolean isXMLRangeSubsettingExtension(String elementName) {
+        return elementName.equalsIgnoreCase(LABEL_RANGESUBSET);
+    }
+
+    /**
      * Helper method to parse a RangeItem XML element and adds the parsed
      * information to the GetCoverage Request
      *
@@ -105,7 +114,7 @@ public class RangeSubsettingExtension implements Extension {
     public static void parseGetCoverageXMLRequest(GetCoverageRequest gcRequest, Element rangeElem) throws WCSException {
 
         // check
-        if (!rangeElem.getLocalName().equalsIgnoreCase(XMLSymbols.LABEL_RANGESUBSET)) {
+        if (!isXMLRangeSubsettingExtension(rangeElem.getLocalName())) {
             throw new WCSException(ExceptionCode.InternalComponentError,
                     "The parser was expecting a" + XMLSymbols.LABEL_RANGESUBSET + " element, " + rangeElem.getLocalName() + " given");
         }

@@ -32,7 +32,6 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
-import petascope.util.Pair;
 import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
 import petascope.util.ras.RasQueryResult;

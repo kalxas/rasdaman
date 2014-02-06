@@ -7,13 +7,15 @@
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
   <wcs:CoverageId>mr</wcs:CoverageId>
-  <scal:Scaling>
-    <scal:ScaleToExtent>
-      <scal:TargetAxisExtent>
-        <scal:axis>j</scal:axis>
-        <scal:low>16</scal:low>
-        <scal:high>34</scal:high>
-      </scal:TargetAxisExtent>
-    </scal:ScaleToExtent>
-  </scal:Scaling>
+  <wcs:Extension>
+    <scal:Scaling>
+      <scal:ScaleToExtent>
+        <scal:TargetAxisExtent>
+          <scal:axis>j</scal:axis>
+          <scal:low>16</scal:low>
+          <scal:high>34</scal:high>
+        </scal:TargetAxisExtent>
+      </scal:ScaleToExtent>
+    </scal:Scaling>
+  </wcs:Extension>
 </wcs:GetCoverage>

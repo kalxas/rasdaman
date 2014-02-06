@@ -23,7 +23,6 @@ package petascope.wcs2.parsers;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.List;
 import javax.xml.XMLConstants;
 import javax.xml.validation.Schema;
@@ -38,15 +37,14 @@ import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
-import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
-import petascope.util.TimeUtil;
 import static petascope.util.XMLSymbols.*;
 import petascope.util.XMLUtil;
 import static petascope.util.XMLUtil.*;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
+import petascope.wcs2.extensions.ScalingExtension;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
@@ -173,139 +171,6 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                     }
                     ret.getCrsExt().setSubsettingCrs(subCrs);
                     ret.getCrsExt().setOutputCrs(outCrs);
-
-                } else if (name.equals(LABEL_SCALING)) {
-                    log.trace("here");
-                    for (Element elem : c) {
-                        String elname = elem.getLocalName();
-                        List<Element> cE = ch(elem);
-                        if (elname.equals(LABEL_SCALEBYFACTOR)) {
-                            if (cE != null && (cE.size() != 1 || ret.isScaled())) {
-                                throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
-                            } else if (cE != null) {
-                                log.trace("here2");
-                                float scaleFactor;
-                                Element el = cE.get(0);
-                                String value = getText(el);
-                                try {
-                                    scaleFactor = Float.parseFloat(value);
-                                } catch (NumberFormatException ex) {
-                                    throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(value));
-                                }
-                                if (scaleFactor <= 0) {
-                                    throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(value));
-                                }
-                                ret.getScaling().setFactor(scaleFactor);
-                                ret.getScaling().setType(1);
-                            }
-                        } else if (elname.equals(LABEL_SCALEAXESBYFACTOR)) {
-                            if (cE != null && ret.isScaled()) {
-                                throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
-                            } else if (cE != null) {
-                                for (Element el : cE) {
-                                    List<Element> chi = ch(el);
-                                    String axis = "", fact = "";
-                                    for (Element ele : chi) {
-                                        String ename = ele.getLocalName();
-                                        if (ename.equals(LABEL_CRSAXIS)) {
-                                            axis = getText(ele);
-                                        } else if (ename.equals(LABEL_SCALEFACTOR)) {
-                                            fact = getText(ele);
-                                        }
-                                    }
-                                    if (ret.getScaling().isPresentFactor(axis)) {
-                                        throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
-                                    }
-                                    float scaleFactor;
-                                    try {
-                                        scaleFactor = Float.parseFloat(fact);
-                                    } catch (NumberFormatException ex) {
-                                        throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(fact));
-                                    }
-                                    if (scaleFactor <= 0) {
-                                        throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(fact));
-                                    }
-                                    ret.getScaling().addFactor(axis, scaleFactor);
-                                }
-                                ret.getScaling().setType(2);
-                            }
-                        } else if (elname.equals(LABEL_SCALETOSIZE)) {
-                            if (cE != null && ret.isScaled()) {
-                                throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
-                            } else if (cE != null) {
-                                for (Element el : cE) {
-                                    List<Element> chi = ch(el);
-                                    String axis = "", fact = "";
-                                    for (Element ele : chi) {
-                                        String ename = ele.getLocalName();
-                                        if (ename.equals(LABEL_CRSAXIS)) {
-                                            axis = getText(ele);
-                                        } else if (ename.equals(LABEL_TARGETSIZE)) {
-                                            fact = getText(ele);
-                                        }
-                                    }
-                                    if (ret.getScaling().isPresentFactor(axis)) {
-                                        throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
-                                    }
-                                    int scaleSize;
-                                    try {
-                                        scaleSize = Integer.parseInt(fact);
-                                    } catch (NumberFormatException ex) {
-                                        throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(fact));
-                                    }
-                                    if (scaleSize < 0) {
-                                        throw new WCSException(ExceptionCode.InvalidRequest, "Scaling size is not positive.");
-                                    }
-
-                                    ret.getScaling().addSize(axis, scaleSize);
-                                }
-                                ret.getScaling().setType(3);
-                            }
-                        } else if (elname.equals(LABEL_SCALETOEXTENT)) {
-                            if (cE != null && ret.isScaled()) {
-                                throw new WCSException(ExceptionCode.InvalidRequest, "Multiple scaling parameters in the request: must be unique.");
-                            } else if (cE != null) {
-                                for (Element el : cE) {
-                                    List<Element> chi = ch(el);
-                                    String axis = "", slo = "", shi = "";
-                                    for (Element ele : chi) {
-                                        String ename = ele.getLocalName();
-                                        if (ename.equals(LABEL_CRSAXIS)) {
-                                            axis = getText(ele);
-                                        } else if (ename.equals(LABEL_LOW)) {
-                                            slo = getText(ele);
-                                        } else if (ename.equals(LABEL_HIGH)) {
-                                            shi = getText(ele);
-                                        }
-                                    }
-                                    if (ret.getScaling().isPresentFactor(axis)) {
-                                        throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
-                                    }
-                                    int lo;
-                                    try {
-                                        lo = Integer.parseInt(slo);
-                                    } catch (NumberFormatException ex) {
-                                        throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(slo));
-                                    }
-                                    int hi;
-                                    try {
-                                        hi = Integer.parseInt(shi);
-                                    } catch (NumberFormatException ex) {
-                                        throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(shi));
-                                    }
-                                    if (ret.getScaling().isPresentExtent(axis)) {
-                                        throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
-                                    }
-                                    if (hi < lo) {
-                                        throw new WCSException(ExceptionCode.InvalidExtent.locator(shi));
-                                    }
-
-                                    ret.getScaling().addExtent(axis, new Pair(lo, hi));
-                                }
-                                ret.getScaling().setType(4);
-                            }
-                        }
-                    }
                 }
             } catch (Exception ex) {
                 if (((PetascopeException)ex).getExceptionCode().getExceptionCode().equalsIgnoreCase(ExceptionCode.NotASubsettingCrs.getExceptionCode())
@@ -334,8 +199,10 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
     private void parseExtensions(GetCoverageRequest gcRequest, List<Element> extensionChildren) throws WCSException{
         for (Element currentElem : extensionChildren) {
             //Parse RangeSubsetting elements
-            if (currentElem.getLocalName().equalsIgnoreCase(LABEL_RANGESUBSET)) {
+            if (RangeSubsettingExtension.isXMLRangeSubsettingExtension(currentElem.getLocalName())) {
                 RangeSubsettingExtension.parseGetCoverageXMLRequest(gcRequest, currentElem);
+            } else if (ScalingExtension.isXMLScalingExtension(currentElem.getLocalName())) {
+                ScalingExtension.parseGetCoverageXMLRequest(gcRequest, currentElem);
             }
         }
     }

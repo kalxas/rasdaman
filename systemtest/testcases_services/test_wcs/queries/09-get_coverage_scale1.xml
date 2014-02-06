@@ -7,9 +7,11 @@
     xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
     service="WCS" version="2.0.1">
   <wcs:CoverageId>mr</wcs:CoverageId>
-  <scal:Scaling>
-    <scal:ScaleByFactor>
-      <scal:scaleFactor>2.0</scal:scaleFactor>
-    </scal:ScaleByFactor>
-  </scal:Scaling>
+  <wcs:Extension>
+    <scal:Scaling>
+      <scal:ScaleByFactor>
+        <scal:scaleFactor>2.0</scal:scaleFactor>
+      </scal:ScaleByFactor>
+    </scal:Scaling>
+  </wcs:Extension>
 </wcs:GetCoverage>
