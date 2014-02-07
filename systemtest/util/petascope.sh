@@ -593,7 +593,6 @@ function import_petascope_data()
     multi_coll="Parksmall"
   fi
   COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 $multi_coll"
-  COLLECTIONS="rgb mr eobstest irr_cube_1 $multi_coll"
   for COLL in $COLLECTIONS; do
     check_cov $COLL
     if [ $? -ne 0 ]; then
@@ -639,7 +638,6 @@ function drop_petascope_data()
     multi_coll="Parksmall"
   fi
   COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 $multi_coll"
-  COLLECTIONS="rgb mr eobstest irr_cube_1 $multi_coll"
   drop_petascope $COLLECTIONS
   drop_colls $COLLECTIONS
   log "dropping wms..."
