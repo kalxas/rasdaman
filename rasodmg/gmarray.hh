@@ -72,7 +72,7 @@ public:
     r_GMarray() throw(r_Error);
 
     /// constructor for uninitialized MDD objects
-    r_GMarray(const r_Minterval& init_domain, r_Bytes type_length, r_Storage_Layout* stl = 0, bool initialize = false) throw (r_Error);
+    r_GMarray(const r_Minterval& init_domain, r_Bytes type_length, r_Storage_Layout* stl = 0, bool initialize = true) throw (r_Error);
     /**
       If a storage layout pointer is provided, the object refered to is
       taken and memory control moves to the \Ref{r_GMarray} class.
