@@ -49,6 +49,7 @@ akg::CommBuffer::CommBuffer() throw()
 akg::CommBuffer::CommBuffer(int size) throw()
 {
     assert(size > 0);
+    data = NULL;
     maxBuffSize = 0;
     allocate(size);
 }
@@ -120,6 +121,7 @@ void akg::CommBuffer::takeOver(void *externalBuffer,int totalSize, int dataSize)
     }
     data     = (char*)externalBuffer;
     buffSize = totalSize;
+    maxBuffSize = buffSize;
     fillSize = dataSize;
 }
 
@@ -132,10 +134,15 @@ bool akg::CommBuffer::resize(int newSize) throw()
 
     char *newData = new char[newSize];
     memcpy(newData, data, fillSize);
-    if(allocated == true ) delete[] data;
+    if(allocated == true )
+    {
+        delete[] data;
+        data = NULL;
+    }
 
     data      = newData;
     buffSize  = newSize;
+    maxBuffSize = newSize;
     allocated = true;
     return true;
 }
