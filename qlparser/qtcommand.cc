@@ -52,8 +52,8 @@ extern ServerComm::ClientTblElt* currentClientTblElt;
 
 const QtNode::QtNodeType QtCommand::nodeType = QtNode::QT_COMMAND;
 
-const string QtCommand::tmpMddTypePrefix = string("tmpMdd-");
-const string QtCommand::tmpSetTypePrefix = string("tmpSet-");
+const string QtCommand::tmpMddTypePrefix = string("autoMdd-");
+const string QtCommand::tmpSetTypePrefix = string("autoSet-");
 
 
 QtCommand::QtCommand( QtCommandType initCommand, const std::string& initCollection, const std::string& initType )
