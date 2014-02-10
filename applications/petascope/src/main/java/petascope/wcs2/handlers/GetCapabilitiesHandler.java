@@ -40,7 +40,6 @@ import petascope.exceptions.WCSException;
 import petascope.ows.Description;
 import petascope.ows.ServiceIdentification;
 import petascope.ows.ServiceProvider;
-import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import static petascope.util.XMLSymbols.*;
 import petascope.util.WcsUtil;
@@ -311,10 +310,10 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                     c = new Element(LABEL_BBOX, NAMESPACE_OWS);
                     // lower-left + upper-right coords
                     cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
-                    cc.appendChild(bbox.getLowerCorner());
+                    cc.appendChild(m.getDomLow());
                     c.appendChild(cc);
                     cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
-                    cc.appendChild(bbox.getUpperCorner());
+                    cc.appendChild(m.getDomHigh());
                     c.appendChild(cc);
 
                     // dimensions and crs attributes
