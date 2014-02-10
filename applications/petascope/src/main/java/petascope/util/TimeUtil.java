@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 public class TimeUtil {
 
     public static final String ISO8601_T_KEY = "T";
+    public static final String TIME_ZONE_KEY = "Z";
 
     // http://aurora.regenstrief.org/~ucum/ucum.html#iso1000
     public static final String ISO_YEAR_UOM   = "a";
@@ -111,6 +112,9 @@ public class TimeUtil {
 
         // Replace T key with spaces, see: http://www.date4j.net/javadoc/hirondelle/date4j/DateTime.html
         String psqlTimestamp = isoTimestamp.replaceFirst(ISO8601_T_KEY, " ");
+
+        // No time zone in the Date String: support of time zones is not out-of-the-box: future dev.
+        psqlTimestamp = isoTimestamp.replaceFirst(TIME_ZONE_KEY, "");
 
         // Remove quotes
         psqlTimestamp = psqlTimestamp.replaceAll("%22", "");
