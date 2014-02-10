@@ -133,9 +133,9 @@ function import_eobs()
 
   c_crs_t="$SECORE_URL"'/crs/OGC/0/Temporal?epoch="1950-01-01T00:00:00"&uom="d"'
   c_crs_s="$SECORE_URL"'/crs/EPSG/0/4326'
-  min_t_geo_coord=0
-  min_x_geo_coord=25
-  max_y_geo_coord='75.5'
+  grid_origin_t='0.5'   # 0 days from epoch (interval centre: 12h of 01-Jan-1950)
+  grid_origin_x='25.25' # UL pixel centre
+  grid_origin_y='75.25' #
   t_res=1
   x_res='0.5'
   y_res='-0.5'
@@ -182,7 +182,7 @@ function import_eobs()
               (SELECT id FROM ps_crs WHERE uri='$c_crs_s')]\
             );" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps_gridded_domain_set (coverage_id, grid_origin) \
-            VALUES ($c_id, '{$min_t_geo_coord, $max_y_geo_coord, $min_x_geo_coord}');" > /dev/null || exit $RC_ERROR
+            VALUES ($c_id, '{$grid_origin_t, $grid_origin_y, $grid_origin_x}');" > /dev/null || exit $RC_ERROR
   # grid axes:
   $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
@@ -218,8 +218,8 @@ function import_rgb()
   c_covtype='RectifiedGridCoverage'
 
   c_crs="$SECORE_URL"'/crs/OGC/0/Index2D'
-  min_x_geo_coord=0
-  max_y_geo_coord=343
+  grid_origin_x=0
+  grid_origin_y=343
   x_res='1'
   y_res='-1'
 
@@ -274,7 +274,7 @@ function import_rgb()
   $PSQL -c "INSERT INTO ps_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[(SELECT id FROM ps_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps_gridded_domain_set (coverage_id, grid_origin) \
-            VALUES ($c_id, '{$min_x_geo_coord, $max_y_geo_coord}');" > /dev/null || exit $RC_ERROR
+            VALUES ($c_id, '{$grid_origin_x, $grid_origin_y}');" > /dev/null || exit $RC_ERROR
   # grid axes:
   $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
@@ -307,8 +307,8 @@ function import_mr()
   c_covtype='RectifiedGridCoverage'
 
   c_crs="$SECORE_URL"'/crs/OGC/0/Index2D'
-  min_x_geo_coord=0
-  max_y_geo_coord=210
+  grid_origin_x=0
+  grid_origin_y=210
   x_res='1'
   y_res='-1'
 
@@ -350,7 +350,7 @@ function import_mr()
   $PSQL -c "INSERT INTO ps_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[(SELECT id FROM ps_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps_gridded_domain_set (coverage_id, grid_origin) \
-            VALUES ($c_id, '{$min_x_geo_coord, $max_y_geo_coord}');" > /dev/null || exit $RC_ERROR
+            VALUES ($c_id, '{$grid_origin_x, $grid_origin_y}');" > /dev/null || exit $RC_ERROR
   # grid axes:
   $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
@@ -394,9 +394,9 @@ function import_irr_cube_1()
   c_covtype='ReferenceableGridCoverage' # See GMLCOV
 
   c_crs="$SECORE_URL"'/crs/OGC/0/Index3D'
-  min_x_geo_coord=0
-  min_y_geo_coord=0
-  min_z_geo_coord=0
+  grid_origin_x=0
+  grid_origin_y=0
+  grid_origin_t=0
   x_res='1'
   y_res='1'
   z_res='1'
@@ -458,7 +458,7 @@ function import_irr_cube_1()
   $PSQL -c "INSERT INTO ps_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[(SELECT id FROM ps_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps_gridded_domain_set (coverage_id, grid_origin) \
-            VALUES ($c_id, '{$min_x_geo_coord, $min_y_geo_coord, $min_z_geo_coord}');" > /dev/null || exit $RC_ERROR
+            VALUES ($c_id, '{$grid_origin_x, $grid_origin_y, $grid_origin_t}');" > /dev/null || exit $RC_ERROR
 
   # grid axes:
   $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
@@ -507,8 +507,8 @@ function import_mst()
 
   c_crs="$SECORE_URL"'/crs/EPSG/0/4326'
 
-  min_x_geo_coord="111.975"
-  max_y_geo_coord="-8.975"
+  grid_origin_x="112" # UL pixel centre
+  grid_origin_y="-9"  #
   x_res='0.05'
   y_res='-0.05'
 
@@ -550,7 +550,7 @@ function import_mst()
   $PSQL -c "INSERT INTO ps_domain_set (coverage_id, native_crs_ids) \
             VALUES ($c_id, ARRAY[(SELECT id FROM ps_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps_gridded_domain_set (coverage_id, grid_origin) \
-            VALUES ($c_id, '{$max_y_geo_coord, $min_x_geo_coord}');" > /dev/null || exit $RC_ERROR
+            VALUES ($c_id, '{$grid_origin_y, $grid_origin_x}');" > /dev/null || exit $RC_ERROR
   # grid axes:
   $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR

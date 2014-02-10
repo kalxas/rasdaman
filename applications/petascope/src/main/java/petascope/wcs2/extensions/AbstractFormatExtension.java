@@ -42,9 +42,11 @@ import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
+import petascope.util.MiscUtil;
 import petascope.util.Pair;
 import petascope.util.StringUtil;
 import petascope.util.TimeUtil;
+import petascope.util.WcsUtil;
 import static petascope.util.XMLSymbols.*;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.CellDomainElement;
@@ -147,6 +149,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             String lower = new BigDecimal(Math.max(
                                     Double.parseDouble(trimLow),
                                     domainEl.getMinValue().doubleValue())).toPlainString();
+                            // align with sample space of grid points:
+                            lower = WcsUtil.fitToSampleSpace(lower, domainEl, false);
                             lowerGisDom += lower + " ";
                             // The map is automatically sorted by key value (axis order in the CRS definition)
                             lowerDom.put(CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()), lower);
@@ -159,6 +163,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             String upper = new BigDecimal(Math.min(
                                     Double.parseDouble(trimHigh),
                                     domainEl.getMaxValue().doubleValue())).toPlainString();
+                            // align with sample space of grid points:
+                            upper = WcsUtil.fitToSampleSpace(upper, domainEl, true);
                             upperGisDom += upper + " ";
                             // The map is automatically sorted by key value (axis order in the CRS definition)
                             upperDom.put(CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()), upper);
@@ -169,10 +175,10 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                     ? new long[] { // NOTE: e.g. parseInt("10.0") throws exception: need to remove decimals.
                                         Integer.parseInt(trimLow.replaceAll( decimalsExp, "").trim()),
                                         Integer.parseInt(trimHigh.replaceAll(decimalsExp, "").trim())} // subsets are alsready grid indexes
-                                    : CrsUtil.convertToPixelIndices(m.getMetadata(), dbMeta, domainEl.getLabel(),
+                                    : CrsUtil.convertToInternalGridIndices(m.getMetadata(), dbMeta, domainEl.getLabel(),
                                         trimLow,   !trimLow.matches(QUOTED_SUBSET),
                                         trimHigh, !trimHigh.matches(QUOTED_SUBSET));
-                                    // In any case, properly trim the bounds by the image extremes
+                            // In any case, properly trim the bounds by the image extremes
                             int cellDomainElLo = cellDomainEl.getLoInt();
                             int cellDomainElHi = cellDomainEl.getHiInt();
                             lowerCellDom += (cellDomainElLo > cellDom[0]) ? cellDomainElLo + " " : cellDom[0] + " ";
@@ -201,16 +207,15 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 axesLabels += domainEl.getLabel() + " ";
                 lowerCellDom += cellDomainEl.getLo() + " ";
                 upperCellDom += cellDomainEl.getHi() + " ";
-                lowerGisDom += domainEl.getMinValue().toPlainString() + " ";
-                upperGisDom += domainEl.getMaxValue().toPlainString() + " ";
+                lowerGisDom += MiscUtil.stripDecimalZeros(domainEl.getMinValue()) + " ";
+                upperGisDom += MiscUtil.stripDecimalZeros(domainEl.getMaxValue()) + " ";
                 // The map is automatically sorted by key value (axis order in the CRS definition)
                 lowerDom.put(
                         CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()),
-                        domainEl.getMinValue().toPlainString());
+                        MiscUtil.stripDecimalZeros(domainEl.getMinValue()).toPlainString());
                 upperDom.put(
                         CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()),
-                        domainEl.getMaxValue().toPlainString());
-
+                        MiscUtil.stripDecimalZeros(domainEl.getMaxValue()).toPlainString());
             }
         } // END domains iterator
 
@@ -371,7 +376,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 String dim = el.getLabel();
                 String crs = el.getNativeCrs();
                 if (newdim.containsKey(dim)) {
-                    long[] lohi = CrsUtil.convertToPixelIndices(cov, dbMeta, dim,
+                    long[] lohi = CrsUtil.convertToInternalGridIndices(cov, dbMeta, dim,
                             newdim.get(dim).fst, req.getSubset(dim).isNumeric(),
                             newdim.get(dim).snd, req.getSubset(dim).isNumeric());
                     lo = lohi[0];

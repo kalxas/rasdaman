@@ -73,8 +73,8 @@ public class GetCoverageMetadata {
     private String low;     // Grid lower bound (px)
     private String high;    // Grid upper bound (px)
     // <gml:Envelope> + origin and offset vectors : CRS order
-    private String domLow;  // Domain request lower bound
-    private String domHigh; // Domain request upper bound
+    private String domLow;  // Geodomain lower bound (can differ from input request if not fitting with points sample space)
+    private String domHigh; // Geodomain upper bound ('' '' )
     // GeoTiff/JP2000/NetCDF/etc encoding: LONG first = rasdaman order (common GIS practice)
     // http://www.remotesensing.org/geotiff/faq.html?What%20is%20the%20purpose%20of%20GeoTIFF%20format%20for%20satellite%20data#AxisOrder
     private String gisDomLow;  // Domain request lower bound (always easting first)
@@ -85,6 +85,7 @@ public class GetCoverageMetadata {
         gridAxisLabels = "";
         low = high = "";
         domLow = domHigh = "";
+        gisDomLow = gisDomHigh = "";
         gridType = gridId = "";
 
         if (!meta.existsCoverageName(coverageId)) {
@@ -104,18 +105,18 @@ public class GetCoverageMetadata {
             gridAxisLabels += dom.getLabel() + " ";
             low  += cell.getLo() + " ";
             high += cell.getHi() + " ";
-            gisDomLow  += dom.getMinValue().toPlainString() + " ";
-            gisDomHigh += dom.getMaxValue().toPlainString() + " ";
+            gisDomLow  += WcsUtil.fitToSampleSpace(dom.getMinValue(), dom, false) + " ";
+            gisDomHigh += WcsUtil.fitToSampleSpace(dom.getMaxValue(), dom, true) + " ";
         }
 
         // Loop through CRS axes
         crs = CrsUtil.CrsUri.createCompound(metadata.getCrsUris());
         try {
-        for (String axisLabel : CrsUtil.getAxesLabels(metadata.getCrsUris())) {
-            DomainElement dom = metadata.getDomainByName(axisLabel);
-            domLow  += dom.getMinValue().toPlainString() + " ";
-            domHigh += dom.getMaxValue().toPlainString() + " ";
-        }
+            for (String axisLabel : CrsUtil.getAxesLabels(metadata.getCrsUris())) {
+                DomainElement dom = metadata.getDomainByName(axisLabel);
+                domLow  += WcsUtil.fitToSampleSpace(dom.getMinValue(), dom, false) + " ";
+                domHigh += WcsUtil.fitToSampleSpace(dom.getMaxValue(), dom, true) + " ";
+            }
         } catch (PetascopeException pEx) {
             throw (WCSException)pEx;
         }
@@ -166,7 +167,11 @@ public class GetCoverageMetadata {
      * Depending on the direction of an axis, with respect to the associated CRS dimension,
      * the origin can be lower or upper bound of a domain element.
      * For instance, usually rasdaman puts grid origin in the UL corner of an imported geoimage.
-     *      *
+     *
+     * From GML 3.2.1:
+     * When a grid point is used to represent a sample space (e.g. image pixel), the grid point
+     * represents the center of the sample space (see ISO 19123:2005, 8.2.2).
+     *
      * @return The white-space separated list of coordinates of the grid origin (CRS order!) of the requested [subsetted] coverage.
      * @throws SecoreException
      * @throws WCSException
@@ -181,6 +186,9 @@ public class GetCoverageMetadata {
         // Use TreeMap to store grid origin coordinates and order by CRS axis order (key)
         // No need to use GetCoverage CRS, I can use full set of URIs since order is preserved even if there are slicings.
         Map<Integer,String> gridOrigin = new TreeMap<Integer,String>();
+        // local
+        BigDecimal border;
+        BigDecimal sspaceShift;
 
         try {
             List<String> crsAxisLabels = CrsUtil.getAxesLabels(CrsUtil.CrsUri.decomposeUri(crs)); // full list of CRS axis label
@@ -188,15 +196,29 @@ public class GetCoverageMetadata {
             // Assumption : grid axis label = CRS axis label (aligned axes)
             for (String crsAxisLabel : crsAxisLabels) {
                 if (gridAxisLabelsList.contains(crsAxisLabel)) {
+                    DomainElement domEl       = metadata.getDomainByName(crsAxisLabel);
                     Integer gridAxisOrder     = gridAxisLabelsList.indexOf(crsAxisLabel);
-                    Boolean positiveDirection = metadata.getDomainByName(crsAxisLabel).isPositiveForwards();
+                    Boolean positiveDirection = domEl.isPositiveForwards();
                     Integer crsAxisOrder      = CrsUtil.getCrsAxisOrder(metadata.getCrsUris(), crsAxisLabel);
+                    BigDecimal origin;
                     log.debug("Grid axis n." + gridAxisOrder + " (" + crsAxisLabel + ") is parallel to CRS axis n." + crsAxisOrder + ".");
+                    // Grid origin is in the centre of a sample space (eg pixel centre): get half-pixel value (+ or - signed)
+                    border = (positiveDirection) ?
+                            BigDecimal.valueOf(Double.parseDouble(domLowComponentsIt.next())) :
+                            BigDecimal.valueOf(Double.parseDouble(domHighComponentsIt.next()));
+                    sspaceShift = WcsUtil.getSampleSpaceShift(domEl.getDirectionalResolution(), domEl.isIrregular(), domEl.getUom());
+                    // Now apply the shift to the border values in domLow/domHigh
+                    origin = border.subtract(sspaceShift);
+                    if (origin.compareTo(BigDecimal.ZERO) == 0) {
+                        // Java bug: http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6480539
+                        // 0.0 is not stripped to 0
+                        gridOrigin.put(crsAxisOrder, BigDecimal.ZERO.toPlainString());
+                    } else {
+                        gridOrigin.put(crsAxisOrder, origin.stripTrailingZeros().toPlainString());
+                    }
                     if (positiveDirection) {
-                        gridOrigin.put(crsAxisOrder, domLowComponentsIt.next());
                         domHighComponentsIt.next(); // sync
                     } else {
-                        gridOrigin.put(crsAxisOrder, domHighComponentsIt.next());
                         domLowComponentsIt.next(); // sync
                     }
                 } // else: sliced CRS axis: skip

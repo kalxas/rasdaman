@@ -22,6 +22,7 @@
  */
 package petascope.util;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ import petascope.wcps.server.core.IRasNode;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class MiscUtil {
-    
+
     private static org.slf4j.Logger log = LoggerFactory.getLogger(MiscUtil.class);
 
     public static <T> List<T> toList(T... e) {
@@ -45,22 +46,22 @@ public class MiscUtil {
          }
          return ret;
     }
-    
+
     /**
      * Recursive generic method to extract nodes of a specified class into the XML tree of a WCPS query.
      * @param <T>   The generic type
      * @param root  The root node
      * @param type  Explicit target type argument
      * @return  A list of the children of `node` of class `type`.
-     */     
+     */
     public static <T extends IRasNode> List<T> childrenOfType(IRasNode root, Class<T> type) {
         List<T> targetChilds = new ArrayList<T>();
-        
+
         // Recursive depth-first search
         if (root.hasChildren()) {
             // pre-order op
             List<IRasNode> children = root.getChildren();
-                        
+
             for (int i=0; i<children.size(); i++) {
                 // visit children
                 targetChilds.addAll(childrenOfType(children.get(i), type));
@@ -70,24 +71,24 @@ public class MiscUtil {
                 }
             }
         }
-        
+
         return targetChilds;
     }
-    
+
     /**
      * Recursive method to extract nodes of a specified classes into the XML tree of a WCPS query.
      * @param root   The root node
      * @param types  Explicit target types argument
      * @return  A list of the children of `node` of class `type`.
-     */     
+     */
     public static List<IRasNode> childrenOfTypes(IRasNode root, Class... types) {
         List<IRasNode> ret = new ArrayList<IRasNode>();
-        
+
         // Recursive depth-first search
         if (root.hasChildren()) {
             // pre-order op
             List<IRasNode> children = root.getChildren();
-                        
+
             for (int i=0; i<children.size(); i++) {
                 // visit children
                 ret.addAll(childrenOfTypes(children.get(i), types));
@@ -99,7 +100,31 @@ public class MiscUtil {
                 }
             }
         }
-        
+
         return ret;
+    }
+
+    /**
+     * Converts BigDecimal value minimum scale equivalent representation.
+     * Java bug #6480539 is taken into account.
+     * @param bd
+     * @return bd where decimal zeros have been stripped.
+     */
+    public static BigDecimal stripDecimalZeros(BigDecimal bd) {
+
+        // strip zeros
+        BigDecimal bdOut = bd.stripTrailingZeros();
+
+        // recover zeros stripped before comma
+        if (bdOut.scale() < 0) {
+            bdOut = new BigDecimal(bdOut.intValue());
+        }
+
+        if (bdOut.compareTo(BigDecimal.ZERO) == 0) {
+            // Java bug: http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6480539
+            // 0.0 is not stripped to 0
+            bdOut = BigDecimal.ZERO;
+        }
+        return bdOut;
     }
 }

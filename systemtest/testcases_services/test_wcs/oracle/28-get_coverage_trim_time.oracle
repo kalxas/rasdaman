@@ -34,7 +34,7 @@
   <boundedBy>
     <Envelope srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
       <lowerCorner>0</lowerCorner>
-      <upperCorner>4</upperCorner>
+      <upperCorner>5</upperCorner>
     </Envelope>
   </boundedBy>
 
@@ -49,7 +49,7 @@
       <axisLabels>t</axisLabels>
       <origin>
           <Point id="eobstest-origin" srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
-              <pos>0</pos>
+              <pos>0.5</pos>
           </Point>
       </origin>
       <offsetVector srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">1</offsetVector>

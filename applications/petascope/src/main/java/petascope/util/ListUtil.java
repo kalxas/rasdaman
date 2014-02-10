@@ -268,11 +268,20 @@ public class ListUtil {
         String out = "";
         StringBuilder sb = new StringBuilder(out);
         if (l.size()>0) {
+            boolean isBigDecimal = l.get(0).getClass().equals(BigDecimal.class);
             for (int i=0; i<l.size()-1; i++) {
-                sb.append(l.get(i));
+                if (isBigDecimal) {
+                    sb.append(MiscUtil.stripDecimalZeros((BigDecimal)l.get(i)));
+                } else {
+                    sb.append(l.get(i));
+                }
                 sb.append(FS);
             }
-            sb.append(l.get(l.size()-1));
+            if (isBigDecimal) {
+                    sb.append(MiscUtil.stripDecimalZeros((BigDecimal)l.get(l.size()-1)));
+                } else {
+                    sb.append(l.get(l.size()-1));
+                }
         }
         return sb.toString();
     }

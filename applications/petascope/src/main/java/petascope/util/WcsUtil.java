@@ -23,6 +23,7 @@ package petascope.util;
 
 import java.io.StringWriter;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -38,6 +39,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
+import static petascope.util.CrsUtil.GRID_UOM;
 import static petascope.util.XMLSymbols.LABEL_COVERAGE_SUBTYPE;
 import static petascope.util.XMLSymbols.LABEL_COVERAGE_SUBTYPE_PARENT;
 import static petascope.util.XMLSymbols.NAMESPACE_WCS;
@@ -602,5 +604,86 @@ public class WcsUtil {
         } else {
             return Integer.parseInt(s[i]);
         }
+    }
+
+    /**
+     * Get the signed shift that separates the grid origin from the border (from origin to corner), along one dimension.
+     *
+     * E.g. 3x2 grid, with origin LL corner:
+     *
+     *       x--------x-------x
+     *       |        |       |
+     *   o-------o    |       |
+     *   |   |   |    |       |
+     *   |   @---|----x-------x
+     *   |       |
+     *   o-------o
+     *   <---
+     *   shift
+     *
+     *  @ = grid origin, at centre of sample space
+     *  x = grid points (at centre of their sample spaces/pixels, though not depicted)
+     *  o = corners of the sample space
+     *
+     * @param offsetVector
+     * @param isIrregular
+     * @param axisUom
+     * @return
+     */
+    public static BigDecimal getSampleSpaceShift(BigDecimal offsetVector, boolean isIrregular, String axisUom) {
+        BigDecimal shift;
+        if (isIrregular || axisUom.equals(GRID_UOM)) {
+            shift = BigDecimal.ZERO;
+        } else {
+            shift = offsetVector.divide(BigDecimal.valueOf(-2));
+        }
+        return shift;
+    }
+
+    /**
+     * Returns the next greater/lower valid value along a grid dimension.
+     * Output envelopes (BBOX) need to be aligned with the sample spaces of the grid points.
+     *
+     * @param coordinateValue
+     * @param domEl
+     * @param greaterValue
+     * @return The next greater/lower value that coincides with the envelope of a point's sample space.
+     */
+    public static BigDecimal fitToSampleSpace(BigDecimal coordinateValue, DomainElement domEl, boolean greaterValue) {
+
+        // local variables
+        BigDecimal fittedCoordinateValue;
+        BigDecimal distanceFromOrigin;
+        BigInteger cellsFromLowerBound;
+
+        if (domEl.isIrregular() || domEl.getUom().equals(GRID_UOM)) {
+            // 0D sample space: no need to fit
+            fittedCoordinateValue = coordinateValue;
+        } else {
+            // 1D sample space (along this dimension): need to fit
+            // Count the number of full sample-spaces that fit in the bbox:
+            distanceFromOrigin = coordinateValue.subtract(domEl.getMinValue());
+            cellsFromLowerBound = distanceFromOrigin.divide(domEl.getScalarResolution()).toBigInteger();
+            if (greaterValue) {
+                // User is asking the next fitted value *greater* than the given one (for upper corners)
+                cellsFromLowerBound = cellsFromLowerBound.add(BigInteger.ONE);
+            } // else : User is asking the next fitted value *lower* than the given one (for lower corners)
+            // Z_aliged = || Z_min +   (C)*Z_res   if lower
+            //            || Z_min + (C+1)*Z_res   if greater
+            fittedCoordinateValue = domEl.getMinValue().add(domEl.getScalarResolution().multiply(new BigDecimal(cellsFromLowerBound)));
+        }
+
+        // Do not go beyond the native BBOX:
+        if (fittedCoordinateValue.compareTo(domEl.getMaxValue()) > 0) {
+            fittedCoordinateValue = domEl.getMaxValue();
+        } else if (fittedCoordinateValue.compareTo(domEl.getMinValue()) < 0) {
+            fittedCoordinateValue = domEl.getMinValue();
+        }
+
+        return MiscUtil.stripDecimalZeros(fittedCoordinateValue);
+    }
+    // Overload for String input
+    public static String fitToSampleSpace(String coordinateValue, DomainElement domEl, boolean greaterValue) {
+        return fitToSampleSpace(new BigDecimal(coordinateValue), domEl, greaterValue).toPlainString();
     }
 }

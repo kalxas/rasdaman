@@ -43,6 +43,7 @@ import static petascope.util.CrsUtil.GRID_UOM;
 import petascope.util.Pair;
 import petascope.util.Vectors;
 import petascope.util.WcpsConstants;
+import petascope.util.WcsUtil;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
@@ -132,11 +133,13 @@ public class CoverageMetadata implements Cloneable {
             CellDomainElement cEl = cDom.next();
 
             // compute min-max bounds of this axis
-            // NOTE: grid-axis and CRS-axis are aligned
+            // NOTE1: grid origin is centre of sample space (e.g. pixel)
+            // NOTE2: grid-axis and CRS-axis are aligned
             // (!) domain.lo = min(origin, origin+N*offsetVector)  => grid-point is point (not pixel)
             //     domain.hi = max(origin, origin+N*offsetVector)
             BigDecimal resolution     = axis.getKey().get(axisNonZeroIndices.get(0));
-            BigDecimal axisLo         = gridOrigin.get(axisNonZeroIndices.get(0));
+            BigDecimal sspaceShift    = WcsUtil.getSampleSpaceShift(resolution, isIrregular, crsAxis.getUoM());
+            BigDecimal axisLo         = gridOrigin.get(axisNonZeroIndices.get(0)).add(sspaceShift);
             BigInteger gridAxisPoints = BigInteger.valueOf(1).add(BigInteger.valueOf(cEl.getHiInt()-cEl.getLoInt()));
             BigDecimal axisHi;
             if (!isIrregular) {

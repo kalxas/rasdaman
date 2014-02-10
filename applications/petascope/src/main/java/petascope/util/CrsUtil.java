@@ -874,6 +874,10 @@ public class CrsUtil {
      * Conversions are cached, so that multiple calls do not duplicate computations.
      * For WCS each request indeed you convert to build the RasQL query to fetch the data,
      * and additionally you need the same indexes to update the coverage description.
+     *
+     * Grid indexes are not trimmer to fit sdom, since operations like extend or scale neet to
+     * go over the bounds. It is up to the caller to trim them afterwards.
+     *
      * @param covMeta
      * @param dbMeta
      * @param axisName
@@ -884,7 +888,7 @@ public class CrsUtil {
      * @return
      * @throws PetascopeException
      */
-    public static long[] convertToPixelIndices(CoverageMetadata covMeta, DbMetadataSource dbMeta, String axisName,
+    public static long[] convertToInternalGridIndices(CoverageMetadata covMeta, DbMetadataSource dbMeta, String axisName,
             String stringLo, boolean loIsNumeric, String stringHi, boolean hiIsNumeric)
             throws PetascopeException {
 
@@ -921,9 +925,9 @@ public class CrsUtil {
             String axisUoM = dom.getUom();
 
             // Get cellDomain extremes
-            long pxMin = cdom.getLoInt();
-            long pxMax = cdom.getHiInt();
-            log.trace("CellDomain extremes values: LOW: " + pxMin + ", HIGH:" + pxMax);
+            long indexMin = cdom.getLoInt();
+            long indexMax = cdom.getHiInt();
+            log.trace("CellDomain extremes values: LOW: " + indexMin + ", HIGH:" + indexMax);
 
             // Get Domain extremes (real sdom)
             BigDecimal domMin = dom.getMinValue();
@@ -1020,7 +1024,7 @@ public class CrsUtil {
                             covMeta.getDomainIndexByName(axisName), // i-order of axis
                             (new BigDecimal(numLo)).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
                             (new BigDecimal(numHi)).subtract(domMin),  //
-                            pxMin, pxMax);
+                            indexMin, indexMax);
 
                     // Retrieve the coefficients values and store them in the DomainElement
                     dom.setCoefficients(dbMeta.getCoefficientsOfInterval(
@@ -1031,7 +1035,7 @@ public class CrsUtil {
                             ));
 
                     // Add sdom lower bound
-                    subsetGridIndexes[0] = subsetGridIndexes[0] + pxMin;
+                    subsetGridIndexes[0] = subsetGridIndexes[0] + indexMin;
 
                 } catch (PetascopeException e) {
                     throw new PetascopeException(ExceptionCode.InternalComponentError,
@@ -1070,8 +1074,8 @@ public class CrsUtil {
                     // {isPositiveForwards / isNegativeForwards}
                     // Formula : px_s = grid_origin + [{S/M} - {m/S}]
                     for (String subset : (Arrays.asList(new String[] {stringLo, stringHi}))) {
-                        long hiBound = dom.isPositiveForwards() ? (long)Double.parseDouble(subset) : pxMax;
-                        long loBound = dom.isPositiveForwards() ? pxMin : (long)Double.parseDouble(subset);
+                        long hiBound = dom.isPositiveForwards() ? (long)Double.parseDouble(subset) : indexMax;
+                        long loBound = dom.isPositiveForwards() ? indexMin : (long)Double.parseDouble(subset);
                         subsetGridIndexes[count] =  domMin.longValue() + (hiBound - loBound);
                         count += 1;
                     }
@@ -1096,7 +1100,7 @@ public class CrsUtil {
                     //double cellWidth = dom.getResolution().doubleValue();
                     double cellWidth = (
                             domMax.subtract(domMin))
-                            .divide((BigDecimal.valueOf(pxMax+1)).subtract(BigDecimal.valueOf(pxMin)), RoundingMode.UP)
+                            .divide((BigDecimal.valueOf(indexMax+1)).subtract(BigDecimal.valueOf(indexMin)), RoundingMode.UP)
                             .doubleValue();
                     //      = (dDomHi-dDomLo)/(double)((pxHi-pxLo)+1);
 
@@ -1106,7 +1110,7 @@ public class CrsUtil {
 
                     // Conversion to pixel domain
                     /*
-                    * Policy = minimum encompassing BoundingBox returned (of course)
+                    * Policy = minimum encompassing BoundingBox returned
                     *
                     *     9°       10°       11°       12°       13°
                     *     o---------o---------o---------o---------o
@@ -1131,8 +1135,8 @@ public class CrsUtil {
                     if (dom.isPositiveForwards()) {
                         // Normal linear numerical axis
                         subsetGridIndexes = new long[] {
-                            (long)Math.floor((coordLo    - domMin.doubleValue()) / cellWidth) + pxMin,
-                            (long)Math.floor((coordHiEps - domMin.doubleValue()) / cellWidth) + pxMin
+                            (long)Math.floor((coordLo    - domMin.doubleValue()) / cellWidth) + indexMin,
+                            (long)Math.floor((coordHiEps - domMin.doubleValue()) / cellWidth) + indexMin
                         };
                         // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
                         if (coordLo == coordHi && coordHi == domMax.doubleValue()) {
@@ -1142,8 +1146,8 @@ public class CrsUtil {
                         // Linear negative axis (eg northing of georeferenced images)
                         subsetGridIndexes = new long[] {
                             // First coordHi, so that left-hand index is the lower one
-                            (long)Math.ceil((domMax.doubleValue() - coordHiEps) / cellWidth) + pxMin,
-                            (long)Math.ceil((domMax.doubleValue() - coordLo)    / cellWidth) + pxMin
+                            (long)Math.floor((domMax.doubleValue() - coordHiEps) / cellWidth) + indexMin,
+                            (long)Math.floor((domMax.doubleValue() - coordLo)    / cellWidth) + indexMin
                         };
                         // NOTE: the if a slice equals the lower bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
                         if (coordLo == coordHi && coordHi == domMin.doubleValue()) {
@@ -1168,8 +1172,8 @@ public class CrsUtil {
     }
     // Overload (for slices)
     // [!] NOTE: do not use this method in case of trims: no lo<hi guard can be applied if interval elements are converted separately.
-    public static long convertToPixelIndices(CoverageMetadata meta, DbMetadataSource dbMeta, String axisName, String value, boolean isNumeric) throws PetascopeException {
-        return convertToPixelIndices(meta, dbMeta, axisName, value, isNumeric, value, isNumeric)[0];
+    public static long convertToInternalGridIndices(CoverageMetadata meta, DbMetadataSource dbMeta, String axisName, String value, boolean isNumeric) throws PetascopeException {
+        return convertToInternalGridIndices(meta, dbMeta, axisName, value, isNumeric, value, isNumeric)[0];
     }
 
 

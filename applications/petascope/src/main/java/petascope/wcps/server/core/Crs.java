@@ -35,7 +35,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
-import static petascope.util.CrsUtil.convertToPixelIndices;
+import static petascope.util.CrsUtil.convertToInternalGridIndices;
 import petascope.util.WcpsConstants;
 import petascope.util.TimeUtil;
 
@@ -96,11 +96,11 @@ public class Crs extends AbstractRasNode {
     public long[] convertToPixelIndices(CoverageMetadata covMeta, String axisName,
             String stringLo, boolean loIsNumeric, String stringHi, boolean hiIsNumeric)
             throws PetascopeException {
-        return CrsUtil.convertToPixelIndices(covMeta, dbMeta, axisName, stringLo, loIsNumeric, stringHi, hiIsNumeric);
+        return CrsUtil.convertToInternalGridIndices(covMeta, dbMeta, axisName, stringLo, loIsNumeric, stringHi, hiIsNumeric);
     }
     // Dummy overload (for DimensionPointElements)
     public long convertToPixelIndices(CoverageMetadata meta, String axisName, String value, boolean isNumeric) throws PetascopeException {
-        return CrsUtil.convertToPixelIndices(meta, dbMeta, axisName, value, isNumeric, value, isNumeric)[0];
+        return CrsUtil.convertToInternalGridIndices(meta, dbMeta, axisName, value, isNumeric, value, isNumeric)[0];
     }
 
     @Override
