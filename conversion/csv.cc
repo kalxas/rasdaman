@@ -180,6 +180,7 @@ void r_Conv_CSV::printStructVal(std::stringstream &f)
         else if ((*iter).type_of().isPrimitiveType())
         {
             r_Primitive_Type *pt = (r_Primitive_Type*) &(*iter).type_of();
+            r_Bytes typeSize = pt->size();
             switch ((*iter).type_of().type_id())
             {
             case r_Type::ULONG:
@@ -213,7 +214,7 @@ void r_Conv_CSV::printStructVal(std::stringstream &f)
                 f << (int) (pt->get_char(val));
                 break;
             }
-            val += pt->size();
+            val += typeSize;
         }
         iter++;
         if (iter != st->defines_attribute_end())
