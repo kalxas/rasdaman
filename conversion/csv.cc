@@ -318,9 +318,8 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
     delete [] dimsizes;
     dimsizes=NULL;
 
-    int stringsize;
-    csvtemp.seekp(0, ios::end);
-    stringsize = csvtemp.tellp();
+    std::string str = csvtemp.str();
+    int stringsize = str.length();
 
     desc.destInterv = r_Minterval(1);
     desc.destInterv << r_Sinterval((r_Range)0, (r_Range)stringsize - 1);
@@ -331,13 +330,7 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
         LEAVE("r_Conv_CSV::convertTo()");
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
-    std::string tmpstr = csvtemp.str();
-
-    char *cstr = new char[tmpstr.size() + 1];
-    std::copy(tmpstr.begin(), tmpstr.end(), cstr);
-    cstr[tmpstr.size()] = '\0';
-
-    desc.dest = cstr;
+    memcpy(desc.dest, str.c_str(), stringsize);
 
     // Result is just a bytestream
     desc.destType = r_Type::get_any_type("char");
