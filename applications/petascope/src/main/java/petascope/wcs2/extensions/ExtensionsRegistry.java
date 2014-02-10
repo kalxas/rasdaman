@@ -48,6 +48,7 @@ public class ExtensionsRegistry {
     public static final String CRS_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs";
     public static final String RANGE_SUBSETTING_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/";
     public static final String SCALING_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling";
+    public static final String PROCESS_COVERAGE_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_processing/2.0/conf/processing";
     
     private static final Set<Extension> extensions = new HashSet<Extension>();
     private static final Set<String> extensionIds = new HashSet<String>();
@@ -72,6 +73,7 @@ public class ExtensionsRegistry {
         registerExtension(new MultipartNetcdfFormatExtension());
         registerExtension(new RangeSubsettingExtension());
         registerExtension(new ScalingExtension());
+        registerExtension(new ProcessCoverageExtension());
     }
 
     /**

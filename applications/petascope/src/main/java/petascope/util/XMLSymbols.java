@@ -45,6 +45,7 @@ public interface XMLSymbols {
     String PREFIX_XSI = "xsi";
     String PREFIX_XLINK = "xlink";
     String PREFIX_CRS = "crs";
+    String PREFIX_PROCESS_COVERAGE = "proc";
 
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -65,6 +66,7 @@ public interface XMLSymbols {
     String NAMESPACE_XSI = "http://www.w3.org/2001/XMLSchema-instance";
     String NAMESPACE_XLINK = "http://www.w3.org/1999/xlink";
     String NAMESPACE_CRS = "http://www.opengis.net/wcs/service-extension/crs/1.0";
+    String NAMESPACE_PROCESS_COVERAGE = "http://www.opengis.net/wcs/processing/2.0";
 
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -120,6 +122,9 @@ public interface XMLSymbols {
     String LABEL_ENDCOMPONENT = "endComponent";
     String LABEL_RANGECOMPONENT = "rangeComponent";
     String LABEL_RANGESUBSET = "rangeSubset";
+    //processing coverage extension
+    String LABEL_PROCESSING_QUERY = "query";
+    String LABEL_PROCESSING_EXTRA_PARAMETER = "extraParameter";
 
     // ows
     // // Service Identification
@@ -247,6 +252,7 @@ public interface XMLSymbols {
     XPathContext CTX_XML = new XPathContext(PREFIX_XML, NAMESPACE_XML);
     XPathContext CTX_WCS = new XPathContext(PREFIX_WCS, NAMESPACE_WCS);
     XPathContext CTX_CRS = new XPathContext(PREFIX_CRS, NAMESPACE_CRS);
+    XPathContext CTX_PROCESS_COVERAGE = new XPathContext(PREFIX_PROCESS_COVERAGE, NAMESPACE_PROCESS_COVERAGE);
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

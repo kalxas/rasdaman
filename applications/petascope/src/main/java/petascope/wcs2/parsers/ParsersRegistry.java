@@ -23,6 +23,7 @@ package petascope.wcs2.parsers;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.HTTPRequest;
@@ -35,9 +36,9 @@ import petascope.HTTPRequest;
 public class ParsersRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(ParsersRegistry.class);
-    
+
     private static final Set<RequestParser> parsers = new HashSet<RequestParser>();
-    
+
     static {
         initialize();
     }
@@ -49,9 +50,11 @@ public class ParsersRegistry {
         registerParser(new XMLGetCapabilitiesParser());
         registerParser(new XMLDescribeCoverageParser());
         registerParser(new XMLGetCoverageParser());
+        registerParser(new XMLProcessCoverageParser());
         registerParser(new KVPGetCapabilitiesParser());
         registerParser(new KVPDescribeCoverageParser());
         registerParser(new KVPGetCoverageParser());
+        registerParser(new KVPProcessCoverageParser());
         registerParser(new RESTGetCapabilitiesParser());
         registerParser(new RESTDescribeCoverageParser());
         registerParser(new RESTGetCoverageParser());

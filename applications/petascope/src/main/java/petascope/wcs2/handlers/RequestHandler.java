@@ -35,6 +35,7 @@ public interface RequestHandler<T> {
     String GET_CAPABILITIES = "GetCapabilities";
     String DESCRIBE_COVERAGE = "DescribeCoverage";
     String GET_COVERAGE = "GetCoverage";
+    String PROCESS_COVERAGE = "ProcessCoverages";
 
     /**
      * Execute the operation given the request, and return the result.

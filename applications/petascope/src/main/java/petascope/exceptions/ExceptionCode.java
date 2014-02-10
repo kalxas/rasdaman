@@ -229,4 +229,6 @@ public class ExceptionCode {
             "Extent interval passed has upper bound smaller than lower bound", 400);
     public static final ExceptionCode ScaleAxisUndefined = new ExceptionCode("ScaleAxisUndefined",
             "CRS axis indicated is not an axis occurring in this coverage", 400);
+    public static final ExceptionCode WCSPMissingQueryParameter = new ExceptionCode("WCSPMissingQueryParameter",
+            "No query parameter was found in the request.");
 }

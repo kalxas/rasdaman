@@ -45,6 +45,8 @@ public class HandlersRegistry {
             return new DescribeCoverageHandler(meta);
         } else if (request instanceof GetCoverageRequest) {
             return new GetCoverageHandler(meta);
+        } else if (request instanceof ProcessCoverageRequest){
+            return new ProcessCoverageHandler(meta);
         }
         return null;
     }

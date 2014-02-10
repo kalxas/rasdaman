@@ -310,7 +310,7 @@ public class PetascopeInterface extends HttpServlet {
                                     }
                                 }
                             }
-                        } else if (operation.equals(RequestHandler.DESCRIBE_COVERAGE) || operation.equals(RequestHandler.GET_COVERAGE)) {
+                        } else if (operation.equals(RequestHandler.DESCRIBE_COVERAGE) || operation.equals(RequestHandler.PROCESS_COVERAGE) || operation.equals(RequestHandler.GET_COVERAGE)) {
                             version = paramMap.get(KVPSymbols.KEY_VERSION);
                             if (version == null && splitURI.size() > 1) {
                                 version = splitURI.get(1);
@@ -398,7 +398,7 @@ public class PetascopeInterface extends HttpServlet {
                         version = ConfigManager.WCS_DEFAULT_VERSION;  // by default the latest supported by petascope
                     }
                     handleWcsRequest(version, root, request, httpResponse, httpRequest);
-                } else if (root.equals(RequestHandler.DESCRIBE_COVERAGE) || root.equals(RequestHandler.GET_COVERAGE)) {
+                } else if (root.equals(RequestHandler.DESCRIBE_COVERAGE) || root.equals(RequestHandler.GET_COVERAGE) || root.equals(RequestHandler.PROCESS_COVERAGE)) {
                     Document doc = XMLUtil.buildDocument(null, request);
                     String version = doc.getRootElement().getAttributeValue(KVPSymbols.KEY_VERSION);
                     handleWcsRequest(version, root, request, httpResponse, httpRequest);
