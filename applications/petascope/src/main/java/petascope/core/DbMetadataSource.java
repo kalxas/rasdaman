@@ -1727,8 +1727,8 @@ public class DbMetadataSource implements IMetadataSource {
      * Bounds must be numeric (timestamps have already been indexed before function call)
      * @param covName  Coverage human-readable name
      * @param iOrder   Order of the axis in the CRS: to indentify it in case the coverage has 2+ irregular axes.
-     * @param lo       The lower index of the subset
-     * @param hi       The upper index of the subset
+     * @param lo       The distance from origin (normalized by offset vector) of low subset
+     * @param hi       The distance from origin (normalized by offset vector) of high subset
      * @param min      The lower bound
      * @param max      The upper bound
      * @return Index of coefficients which enclose the interval.
@@ -1800,8 +1800,8 @@ public class DbMetadataSource implements IMetadataSource {
      * Retrieves the coefficients of an irregular axis of a certain interval
      * @param covName  Coverage human-readable name
      * @param iOrder   Order of the axis in the CRS: to identify it in case the coverage has 2+ irregular axes.
-     * @param lo       The lower index of the subset
-     * @param hi       The upper index of the subset
+     * @param lo       The distance from origin (normalized by offset vector) of low subset
+     * @param hi       The distance from origin (normalized by offset vector) of high subset
      * @return The ordered list of coefficients of the grid points inside the interval.
      * @throws PetascopeException
      */

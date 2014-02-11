@@ -1022,16 +1022,16 @@ public class CrsUtil {
                     subsetGridIndexes = dbMeta.getIndexesFromIrregularRectilinearAxis(
                             covMeta.getCoverageName(),
                             covMeta.getDomainIndexByName(axisName), // i-order of axis
-                            (new BigDecimal(numLo)).divide(dom.getScalarResolution()).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
-                            (new BigDecimal(numHi)).divide(dom.getScalarResolution()).subtract(domMin),  //
+                            (new BigDecimal(numLo)).subtract(domMin).divide(dom.getScalarResolution()),  // coefficients are relative to the origin, but subsets are not.
+                            (new BigDecimal(numHi)).subtract(domMin).divide(dom.getScalarResolution()),  //
                             indexMin, indexMax);
 
                     // Retrieve the coefficients values and store them in the DomainElement
                     dom.setCoefficients(dbMeta.getCoefficientsOfInterval(
                             covMeta.getCoverageName(),
                             covMeta.getDomainIndexByName(axisName), // i-order of axis
-                            (new BigDecimal(numLo)).divide(dom.getScalarResolution()).subtract(domMin),
-                            (new BigDecimal(numHi)).divide(dom.getScalarResolution()).subtract(domMin)
+                            (new BigDecimal(numLo)).subtract(domMin).divide(dom.getScalarResolution()),
+                            (new BigDecimal(numHi)).subtract(domMin).divide(dom.getScalarResolution())
                             ));
 
                     // Add sdom lower bound
