@@ -38,6 +38,20 @@
 -----------------------------------------------------------------------
 
 
+-- FUNCTION: ** array index ****************************************************
+-- Returns the index of an element in the array.
+-- REF: https://wiki.postgresql.org/wiki/Array_Index
+CREATE OR REPLACE FUNCTION idx(anyarray, anyelement)
+  RETURNS int AS
+$$
+  SELECT i FROM (
+     SELECT generate_series(array_lower($1,1),array_upper($1,1))
+  ) g(i)
+  WHERE $1[i] = $2
+  LIMIT 1;
+$$ LANGUAGE sql IMMUTABLE;
+
+
 -- FUNCTION: ** query_result ****************************************************
 -- Returns the output of a generic query.
 CREATE OR REPLACE FUNCTION query_result(

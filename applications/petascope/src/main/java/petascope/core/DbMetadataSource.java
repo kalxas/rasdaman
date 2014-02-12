@@ -63,8 +63,6 @@ import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.*;
 import petascope.wcs2.parsers.BaseRequest;
-import petascope.wcs2.parsers.GetCoverageRequest;
-import petascope.wcs2.templates.Templates;
 
 /**
  * The DbMetadataSource is a IMetadataSource that uses a relational database. It
@@ -266,6 +264,9 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String RANGETYPE_COMPONENT_FIELD_ID     = "field_id";
     /* ~end TABLES */
 
+    /* Stored procedures */
+    private static String PROCEDURE_IDX = "idx";
+
     /* Status variables */
     private boolean initializing;
     private boolean checkAtInit;
@@ -273,7 +274,6 @@ public class DbMetadataSource implements IMetadataSource {
     /* Contents of (static) dictionary-tables */
     // TODO: map DB tables to dedicated classes instead of Map objects
     private ServiceMetadata sMeta;
-    private Map<Integer, String> crss;
     private Map<Integer, String> extraMetadataTypes;
     private Map<Integer, String> gmlSubTypes;
     private Map<String,  String> gmlChildParent; // GML type -> parent type
@@ -286,7 +286,6 @@ public class DbMetadataSource implements IMetadataSource {
     private Map<Integer, String> rangeDataTypes;
 
     /* Contents of (static) dictionary-tables (reversed) */
-    private Map<String, Integer> revCrss;
     private Map<String, Integer> revExtraMetadataTypes;
     private Map<String, Integer> revGmlSubTypes;
     private Map<String, Integer> revMimeTypes;
@@ -525,22 +524,6 @@ public class DbMetadataSource implements IMetadataSource {
             while (r.next()) {
                 extraMetadataTypes.put(   r.getInt(EXTRAMETADATA_TYPE_ID),      r.getString(EXTRAMETADATA_TYPE_TYPE));
                 revExtraMetadataTypes.put(r.getString(EXTRAMETADATA_TYPE_TYPE), r.getInt(EXTRAMETADATA_TYPE_ID));
-            }
-
-            /* TABLE_CRS */
-            crss    = new HashMap<Integer, String>();
-            revCrss = new HashMap<String, Integer>();
-            sqlQuery =
-                    " SELECT " + CRS_ID  + ", "
-                               + CRS_URI +
-                    " FROM "   + TABLE_CRS
-                    ;
-            log.debug("SQL query: " + sqlQuery);
-            r = s.executeQuery(sqlQuery);
-            while (r.next()) {
-                // Replace possible %SECORE_URL% prefixes with resolvable configured SECORE URLs:
-                crss.put(   r.getInt(CRS_ID), r.getString(CRS_URI).replace(SECORE_URL_KEYWORD, SECORE_URLS.get(0)));
-                revCrss.put(r.getString(CRS_URI).replace(SECORE_URL_KEYWORD, SECORE_URLS.get(0)), r.getInt(CRS_ID));
             }
 
             /* TABLE_GML_SUBTYPE */
@@ -911,32 +894,33 @@ public class DbMetadataSource implements IMetadataSource {
             }
 
             // TABLE_DOMAINSET : read the CRS, as array of single-CRS URIs
+            // IMPORTANT: keep the same order of foreign keys in the array native_crs_ids.
             CellDomainElement cell;
-            DomainElement     dom;
             List<CellDomainElement> cellDomainElements = new ArrayList<CellDomainElement>(r.getFetchSize());
+            List<Pair<CrsDefinition.Axis,String>> crsAxes = new ArrayList<Pair<CrsDefinition.Axis,String>>();
             sqlQuery =
-                    " SELECT " + DOMAINSET_NATIVE_CRS_IDS +
-                    " FROM "   + TABLE_DOMAINSET         +
-                    " WHERE "  + DOMAINSET_COVERAGE_ID   + "=" + coverageId
+                    " SELECT (SELECT " + PROCEDURE_IDX + "("
+                               + TABLE_DOMAINSET + "." + DOMAINSET_NATIVE_CRS_IDS + ","
+                               + TABLE_CRS       + "." + CRS_ID  + ")) AS idx, "
+                               + TABLE_CRS       + "." + CRS_URI +
+                      " FROM " + TABLE_DOMAINSET + "," + TABLE_CRS +
+                     " WHERE " + TABLE_DOMAINSET + "." + DOMAINSET_NATIVE_CRS_IDS + " @> " +
+                     " ARRAY[" + TABLE_CRS       + "." + CRS_ID + "] AND "
+                               + TABLE_DOMAINSET + "." + DOMAINSET_COVERAGE_ID + "=" + coverageId
+                               + " ORDER BY idx " // crucial
                     ;
             log.debug("SQL query: " + sqlQuery);
             r = s.executeQuery(sqlQuery);
             if (!r.next()) {
                 throw new PetascopeException(ExceptionCode.InvalidRequest,
                         "Coverage '" + coverageName + "' is missing the domain-set information.");
-            }
-            // Store fetched data
-            List<Pair<CrsDefinition.Axis,String>> crsAxes = new ArrayList<Pair<CrsDefinition.Axis,String>>();
-            // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute},
-            // of indexes 1 and 2 respectively:
-            ResultSet rs = r.getArray(DOMAINSET_NATIVE_CRS_IDS).getResultSet();
-            while (rs.next()) {
-                log.debug("CRS id: " + rs.getInt(2));
-                String uri = crss.get(rs.getInt(2));
+            } else do {
+                // Store fetched data
+                String uri = r.getString(CRS_URI);
                 if (null == uri) {
-                    log.error("No CRS found in " + TABLE_CRS + " with id " + rs.getInt(2) + ".");
+                    log.error("No native CRS found for this coverage.");
                     throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                            "No CRS found in " + TABLE_CRS + " with id " + rs.getInt(2) + ".");
+                        "No native CRS found for this coverage.");
                 }
                 log.info("Decoding " + uri + " ...");
                 // If not cached, parse the SECORE-resolved definition ot this CRS
@@ -944,7 +928,7 @@ public class DbMetadataSource implements IMetadataSource {
                 for (CrsDefinition.Axis axis : crsDef.getAxes()) {
                     crsAxes.add(Pair.of(axis, uri));
                 }
-            }
+            } while (r.next());
             log.trace("Coverage " + coverageName + " CRS decoded: it has " + crsAxes.size() + (crsAxes.size()>1?" axes":" axis") + ".");
             // Check CRS
             if (crsAxes.isEmpty()) {
@@ -1072,7 +1056,7 @@ public class DbMetadataSource implements IMetadataSource {
                 gridOrigin = new ArrayList<BigDecimal>();
                 // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute},
                 // of indexes 1 and 2 respectively:
-                rs = r.getArray(GRIDDED_DOMAINSET_ORIGIN).getResultSet();
+                ResultSet rs = r.getArray(GRIDDED_DOMAINSET_ORIGIN).getResultSet();
                 while (rs.next()) {
                     log.debug("Grid origin component: " + rs.getBigDecimal(2));
                     gridOrigin.add(rs.getBigDecimal(2));
