@@ -58,6 +58,13 @@ SUBDIRS=../reladminif ../relmddif ../relstorageif ../relindexif ../relcatalogif 
 $(RECURSIVE_CLEAN_TARGETS):
 	@$(MAKE) $(AM_MAKEFLAGS) `echo $@ | sed s/-recursive/-am/`
 
+odl.h: correct_odl_h
+
+.PHONY: correct_odl_h
+
+correct_odl_h:
+	if [ -e odl.hh ]; then mv odl.hh odl.h ; fi
+
 #.PHONY : doc
 #doc:
 #	-rm $(DOCDIR)/*
