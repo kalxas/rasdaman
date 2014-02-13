@@ -98,9 +98,11 @@ reset_search_path() {
   echo "ok."
 }
 rollback() {
+  log "rolling back ... "
   move_wms_tables "$INTERIM_SCHEMA" # to public
   drop_postgresql_schema "$INTERIM_SCHEMA"
   reset_search_path
+  log "rollback done."
 }
 
 #
@@ -109,17 +111,18 @@ rollback() {
 # Override check_ret() to drop interim schema automatically:
 check_ret() {
   if [ "$1" -ne 0 ]; then
-    log "ERROR encountered: rolling back to initial database state."
-    rollback
     error_message=${2:-"FAILED (return value $1)."}
-    error "$error_message"
+    log "$error_message"
+    rollback
+    error
   fi
 }
 check_dblink() {
   if [ -z "$DBLINK_SQL" ]; then
     log "dblink PostgreSQL additional module was not found (package postgresql-contrib)."
+    log "please install it if not yet done, and update the 'locate' database (sudo updatedb)."
     rollback
-    error "please install it if not yet done, and update the 'locate' database (man locate)."
+    error "cannot migrate without dblink module."
   fi
 }
 
@@ -241,8 +244,10 @@ else
         if [ "$PSQL_VERSION_M" -ge 9 -a "$PSQL_VERSION_m" -ge 1 ]
         then
             # Postgresql >= 9.1  -> use CREATE EXTENSION
+            logn "Creating 'postgis' extension in the $PS_DB..."
             $PSQL -c 'CREATE EXTENSION IF NOT EXISTS postgis' > /dev/null
             check_ret $?
+            echo "ok."
         else
             # Postgresql <  9.1  -> use psql
             if [ -n "$POSTGIS_SQL_PATH" -a -n "$SPATIAL_REF_SQL_PATH" ]

@@ -376,7 +376,6 @@ log "detected $update_files updates in $SCRIPT_DIR... "
 log "starting from update counter n.$counter"
 
 
-updated=0 # bool flag
 while [ -f "$SCRIPT_DIR"/update${counter}.* ]
 do
     logn "  update $counter... "
@@ -405,6 +404,7 @@ do
     ret=$?
     if [ "$ret" -ne 0 ]; then
         echo "FAILED (return value $ret)."
+        error_found=1
 	break # So that ps_dbupdates is updated to its partial update anyway.
     else
         echo ok.
@@ -417,15 +417,25 @@ done
 #
 # save the last update number
 #
-if [ $updated -eq 1 ]
+if [ -n $updated ]
 then
     $PSQL -c "UPDATE $PS_DBUPDATES SET $DBUPDATES_UPDATE = $counter" > /dev/null 2>&1
     log "updated database to update $(( $counter-1 ))"
-elif [ ! -f "$SCRIPT_DIR"/update${counter}.* ]
+fi
+
+#
+# closing log
+#
+if [ ! -z "$error_found" ]
 then
-    log "no update file for counter ${counter} was found: nothing to update."
+    log "database update was interrupted."
 else
-    log "database already up-to-date, nothing to update."
+    if [ -z $updated ]
+    then
+        log "database already up-to-date, nothing to update."
+    else
+        log "database updated: no further update was found in ${SCRIPT_DIR}."
+    fi
 fi
 
 #
