@@ -105,8 +105,8 @@ $$
                                || quote_ident(cget('TABLE_PS9_DOMAINSET'))  || '.' || quote_ident(cget('PS9_DOMAINSET_CRS_IDS')) ||
                     ' AND '    || quote_ident(cget('TABLE_PS9_DOMAINSET'))         || '.'
                                || quote_ident(cget('PS9_DOMAINSET_COVERAGE_ID'))   || '=' || _coverage_id ||
-                    ' ORDER BY index_of(' || quote_ident(cget('TABLE_PS9_CRS'))    || '.' || quote_ident(cget('PS9_CRS_ID'))    || ','
-                               || quote_ident(cget('TABLE_PS9_DOMAINSET'))  || '.' || quote_ident(cget('PS9_DOMAINSET_CRS_IDS')) || ')';
+                    ' ORDER BY idx(' || quote_ident(cget('TABLE_PS9_DOMAINSET'))  || '.' || quote_ident(cget('PS9_DOMAINSET_CRS_IDS')) || ','
+                                     || quote_ident(cget('TABLE_PS9_CRS'))        || '.' || quote_ident(cget('PS9_CRS_ID'))            ||')';
             RAISE DEBUG '%: EXECUTING : %;', ME, _qry;
 
             -- Output table

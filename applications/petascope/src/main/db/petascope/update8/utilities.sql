@@ -269,17 +269,6 @@ $$
 $$ LANGUAGE plpgsql;
 
 
--- FUNCTION: ** index_of (element, array) **************************************
--- Returns the index of the element in an array (-1 if not present).
-CREATE OR REPLACE FUNCTION index_of(needle ANYELEMENT, haystack ANYARRAY)
-RETURNS INT AS $$
-    SELECT i
-      FROM generate_subscripts($2, 1) AS i
-     WHERE $2[i] = $1
-  ORDER BY i
-$$ LANGUAGE sql STABLE;
-
-
 -- FUNCTION: ** table_is_empty (table) ****************************************
 -- Returns true if a table is empty.
 CREATE OR REPLACE FUNCTION table_is_empty (
