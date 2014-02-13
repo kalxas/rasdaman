@@ -330,6 +330,8 @@ void QtMarrayOp2::traverse(QtOperation *&node)
                 case QtNode::QT_IS:
                 case QtNode::QT_EQUAL:
                 case QtNode::QT_DIV:
+                case QtNode::QT_INTDIV:
+                case QtNode::QT_MOD:
                 case QtNode::QT_AND:
                 case QtNode::QT_OVERLAY:
                 case QtNode::QT_BIT:

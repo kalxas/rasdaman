@@ -305,6 +305,8 @@ int string_yyinput( char* buf, int max_size )
 "-"                                      { SETTOKEN( MINUS, commandToken, MINUS ) }
 "*"                                      { SETTOKEN( MULT, commandToken, MULT ) }
 "/"                                      { SETTOKEN( DIV, commandToken, DIV ) }
+"div"                                    { SETTOKEN( INTDIV, commandToken, INTDIV ) }
+"mod"                                    { SETTOKEN( MOD, commandToken, MOD ) }
 "="                                      { SETTOKEN( EQUAL, commandToken, EQUAL ) }
 "<"                                      { SETTOKEN( LESS, commandToken, LESS ) }
 ">"                                      { SETTOKEN( GREATER, commandToken, GREATER ) }

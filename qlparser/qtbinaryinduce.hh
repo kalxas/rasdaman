@@ -275,6 +275,64 @@ private:
 };
 
 
+//@ManMemo: Module: {\bf qlparser}
+
+/*@Doc:
+
+*/
+
+class QtIntDiv : public QtBinaryInduce
+{
+public:
+    /// constructor getting the two operands
+    QtIntDiv( QtOperation* input1, QtOperation* input2 );
+
+    /// prints the tree
+    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+
+    /// prints the algebraic expression
+    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+
+    /// method for identification of nodes
+    inline virtual const QtNodeType getNodeType() const;
+
+    /// returns FALSE saying that the operation IS NOT commutative
+    virtual bool isCommutative() const;
+
+private:
+    /// attribute for identification of nodes
+    static const QtNodeType nodeType;
+};
+
+//@ManMemo: Module: {\bf qlparser}
+
+/*@Doc:
+
+*/
+
+class QtMod : public QtBinaryInduce
+{
+public:
+    /// constructor getting the two operands
+    QtMod( QtOperation* input1, QtOperation* input2 );
+
+    /// prints the tree
+    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+
+    /// prints the algebraic expression
+    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+
+    /// method for identification of nodes
+    inline virtual const QtNodeType getNodeType() const;
+
+    /// returns FALSE saying that the operation IS NOT commutative
+    virtual bool isCommutative() const;
+
+private:
+    /// attribute for identification of nodes
+    static const QtNodeType nodeType;
+};
+
 #include "qlparser/qtbinaryinduce.icc"
 
 #endif

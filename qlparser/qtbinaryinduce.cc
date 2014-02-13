@@ -888,3 +888,95 @@ QtDiv::printAlgebraicExpression( ostream& s )
     s << ")";
 }
 
+const QtNode::QtNodeType QtIntDiv::nodeType = QT_INTDIV;
+
+QtIntDiv::QtIntDiv( QtOperation* initInput1, QtOperation* initInput2 )
+    :  QtBinaryInduce( initInput1, initInput2, Ops::OP_INTDIV )
+{
+}
+
+
+
+bool
+QtIntDiv::isCommutative() const
+{
+    return false; // NOT commutative
+}
+
+
+
+void
+QtIntDiv::printTree( int tab, ostream& s, QtChildType mode )
+{
+    s << SPACE_STR(tab).c_str() << "QtIntDiv Object " << getNodeType() << getEvaluationTime() << endl;
+
+    QtBinaryInduce::printTree( tab, s, mode );
+}
+
+
+
+void
+QtIntDiv::printAlgebraicExpression( ostream& s )
+{
+    s << "(";
+
+    if( input1 )
+        input1->printAlgebraicExpression( s );
+    else
+        s << "<nn>";
+
+    s << " div ";
+
+    if( input2 )
+        input2->printAlgebraicExpression( s );
+    else
+        s << "<nn>";
+
+    s << ")";
+}
+const QtNode::QtNodeType QtMod::nodeType = QT_MOD;
+
+QtMod::QtMod( QtOperation* initInput1, QtOperation* initInput2 )
+    :  QtBinaryInduce( initInput1, initInput2, Ops::OP_MOD )
+{
+}
+
+
+
+bool
+QtMod::isCommutative() const
+{
+    return false; // NOT commutative
+}
+
+
+
+void
+QtMod::printTree( int tab, ostream& s, QtChildType mode )
+{
+    s << SPACE_STR(tab).c_str() << "QtMod Object " << getNodeType() << getEvaluationTime() << endl;
+
+    QtBinaryInduce::printTree( tab, s, mode );
+}
+
+
+
+void
+QtMod::printAlgebraicExpression( ostream& s )
+{
+    s << "(";
+
+    if( input1 )
+        input1->printAlgebraicExpression( s );
+    else
+        s << "<nn>";
+
+    s << " mod ";
+
+    if( input2 )
+        input2->printAlgebraicExpression( s );
+    else
+        s << "<nn>";
+
+    s << ")";
+}

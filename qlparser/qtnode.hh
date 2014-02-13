@@ -107,6 +107,8 @@ public:
         QT_MIN_BINARY,
         QT_MULT,
         QT_DIV,
+        QT_INTDIV,
+        QT_MOD,
         QT_OR,
         QT_AND,
         QT_XOR,

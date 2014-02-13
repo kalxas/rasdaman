@@ -65,3 +65,14 @@ QtDiv::getNodeType() const
   return nodeType;
 }
 
+inline const QtNode::QtNodeType
+QtIntDiv::getNodeType() const
+{
+  return nodeType;
+}
+
+inline const QtNode::QtNodeType
+QtMod::getNodeType() const
+{
+  return nodeType;
+}

@@ -251,6 +251,10 @@ Ops::getBinaryOp( Ops::OpType op, const BaseType* resType, const BaseType* op1Ty
             return new OpDIVChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MULT:
             return new OpMULTChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+        case Ops::OP_INTDIV:
+            return new OpDIVChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+        case Ops::OP_MOD:
+            return new OpMODChar(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         }
     }
 #endif
@@ -293,6 +297,10 @@ Ops::getBinaryOp( Ops::OpType op, const BaseType* resType, const BaseType* op1Ty
             return new OpMIN_BINARYCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_DIV:
             return new OpDIVCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+        case Ops::OP_INTDIV:
+            return new OpDIVCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+        case Ops::OP_MOD:
+            return new OpMODCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_MULT:
             return new OpMULTCULong(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         case Ops::OP_AND:
@@ -325,6 +333,12 @@ Ops::getBinaryOp( Ops::OpType op, const BaseType* resType, const BaseType* op1Ty
                                     op2Off);
         case Ops::OP_DIV:
             return new OpDIVCLong(resType, op1Type, op2Type, resOff, op1Off,
+                                  op2Off);
+        case Ops::OP_INTDIV:
+            return new OpDIVCLong(resType, op1Type, op2Type, resOff, op1Off,
+                                  op2Off);
+        case Ops::OP_MOD:
+            return new OpMODCLong(resType, op1Type, op2Type, resOff, op1Off,
                                   op2Off);
         case Ops::OP_MULT:
             return new OpMULTCLong(resType, op1Type, op2Type, resOff, op1Off,
@@ -833,6 +847,17 @@ int Ops::isApplicable(Ops::OpType op, const BaseType* op1Type, const BaseType* o
     else if( op >= OP_IS && op <= OP_XOR )
         // result must be long in this case
         resType = TypeFactory::mapType("Long");
+    else if (op == OP_MOD || op == OP_INTDIV) {
+        if (op1Type->getType() == LONG || op2Type->getType() == LONG)
+            resType = TypeFactory::mapType("Long");
+        else if (op1Type->getType() == ULONG || op2Type->getType() == ULONG)
+            resType = TypeFactory::mapType("ULong");
+        else if (op1Type->getType() == CHAR || op2Type->getType() == CHAR)
+            resType = TypeFactory::mapType("Char");
+        else
+            // Double is the strongest type anyway
+            resType = TypeFactory::mapType("Double");
+    }
     else
         // Double is the strongest type anyway
         resType = TypeFactory::mapType("Double");
@@ -1583,6 +1608,34 @@ OpDIVCULong::operator()( char* res, const char* op1, const char* op2 )
     resType->makeFromCULong( res + resOff, &longRes);
 }
 
+OpMODCULong::OpMODCULong( const BaseType* newResType, const BaseType* newOp1Type,
+                          const BaseType* newOp2Type, unsigned int newResOff,
+                          unsigned int newOp1Off, unsigned int newOp2Off )
+    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
+               newOp1Off, newOp2Off)
+{
+}
+
+void
+OpMODCULong::operator()( char* res, const char* op1, const char* op2 )
+{
+    r_ULong longOp1 = 0;
+    r_ULong longOp2 = 0;
+    r_ULong longRes = 0;
+
+    op2Type->convertToCULong(op2 + op2Off, &longOp2);
+
+    if(longOp2 == 0)
+        // catch division by zero, perhaps should throw exception
+        longRes = 0;
+    else
+    {
+        longRes = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) % longOp2;
+    }
+
+    resType->makeFromCULong( res + resOff, &longRes);
+}
+
 OpMULTCULong::OpMULTCULong( const BaseType* newResType, const BaseType* newOp1Type,
                             const BaseType* newOp2Type, unsigned int newResOff,
                             unsigned int newOp1Off, unsigned int newOp2Off )
@@ -1875,6 +1928,34 @@ OpDIVCLong::operator()( char* res, const char* op1, const char* op2 )
     else
     {
         longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) / longOp2;
+    }
+
+    resType->makeFromCLong( res + resOff, &longRes);
+}
+
+OpMODCLong::OpMODCLong( const BaseType* newResType, const BaseType* newOp1Type,
+                        const BaseType* newOp2Type, unsigned int newResOff,
+                        unsigned int newOp1Off, unsigned int newOp2Off )
+    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
+               newOp1Off, newOp2Off)
+{
+}
+
+void
+OpMODCLong::operator()( char* res, const char* op1, const char* op2 )
+{
+    r_Long longOp1 = 0;
+    r_Long longOp2 = 0;
+    r_Long longRes = 0;
+
+    op2Type->convertToCLong(op2, &longOp2);
+
+    if(longOp2 == 0)
+        // catch division by zero, perhaps should throw exception
+        longRes = 0;
+    else
+    {
+        longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) % longOp2;
     }
 
     resType->makeFromCLong( res + resOff, &longRes);
@@ -3610,6 +3691,31 @@ OpDIVChar::operator()( char* res, const char* op1, const char* op2 )
     else
     {
         *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) /
+                                          *(unsigned char*)(op2 + op2Off);
+    }
+}
+
+//--------------------------------------------
+//  OpMODChar
+//--------------------------------------------
+
+OpMODChar::OpMODChar( const BaseType* newResType, const BaseType* newOp1Type,
+                      const BaseType* newOp2Type, unsigned int newResOff,
+                      unsigned int newOp1Off, unsigned int newOp2Off )
+    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff,
+               newOp1Off, newOp2Off)
+{
+}
+
+void
+OpMODChar::operator()( char* res, const char* op1, const char* op2 )
+{
+    if(*(unsigned char*)(op2 + op2Off) == 0)
+        // catch division by zero, perhaps should throw exception
+        *(unsigned char*)(res + resOff) = 0;
+    else
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) %
                                           *(unsigned char*)(op2 + op2Off);
     }
 }

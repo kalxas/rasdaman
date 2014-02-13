@@ -104,6 +104,8 @@ This is the ops code and the persistence code: from the typenum the oids are gen
   OP_MIN_BINARY && binary min\\
   OP_MULT && multiplication \\
   OP_DIV && division \\
+  OP_INTDIV && integer division \\
+  OP_MOD && modulo \\
   OP_IS && not implemented yet \\
   OP_AND && bitwise resp. logical AND \\
   OP_OR && bitwise resp. logical OR \\
@@ -158,7 +160,7 @@ public:
 
         /* insert new unary ops before this line */ OP_IDENTITY,
         // binary operations.
-        OP_MINUS, OP_PLUS, OP_MAX_BINARY, OP_MIN_BINARY, OP_DIV, OP_MULT,
+        OP_MINUS, OP_PLUS, OP_MAX_BINARY, OP_MIN_BINARY, OP_DIV, OP_MULT, OP_INTDIV, OP_MOD,
         OP_IS, OP_AND, OP_OR, OP_OVERLAY, OP_BIT, OP_XOR,
         /* insert new binary ops before this line */
         OP_EQUAL, OP_LESS, OP_LESSEQUAL,
@@ -1081,6 +1083,24 @@ public:
 };
 
 //@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_MOD on C type #unsigned long# and #unsigned long#, result #unsigned long#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpMODCULong : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpMODCULong(const BaseType* newResType,const BaseType* newOp1Type,
+                const BaseType* newOp2Type, unsigned int newResOff = 0,
+                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+};
+
+//@ManMemo: Module: {\bf catalogif}.
 //@Doc: OP_MULT on C type #unsigned long# and #unsigned long#, result #unsigned long#.
 /**
   * \ingroup Catalogmgrs
@@ -1295,6 +1315,24 @@ class OpDIVCLong : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpDIVCLong(const BaseType* newResType,const BaseType* newOp1Type,
+               const BaseType* newOp2Type, unsigned int newResOff = 0,
+               unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+};
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_MOD on C type #long# and #long#, result #long#.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpMODCLong : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpMODCLong(const BaseType* newResType,const BaseType* newOp1Type,
                const BaseType* newOp2Type, unsigned int newResOff = 0,
                unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
     /*@ManMemo: operator to carry out operation on {\tt op1} and
@@ -1931,6 +1969,24 @@ class OpDIVChar : public BinaryOp
 public:
     /// constructor gets RasDaMan base type of result and operands.
     OpDIVChar(const BaseType* newResType,const BaseType* newOp1Type,
+              const BaseType* newOp2Type, unsigned int newResOff = 0,
+              unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
+    /*@ManMemo: operator to carry out operation on {\tt op1} and
+                {\tt op2} with result {\tt res}. */
+    virtual void operator()( char* res, const char* op1,
+                             const char* op2 );
+};
+
+//@ManMemo: Module: {\bf catalogif}.
+//@Doc: OP_MOD specialized for RasDaMan type Char.
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpMODChar : public BinaryOp
+{
+public:
+    /// constructor gets RasDaMan base type of result and operands.
+    OpMODChar(const BaseType* newResType,const BaseType* newOp1Type,
               const BaseType* newOp2Type, unsigned int newResOff = 0,
               unsigned int newOp1Off = 0, unsigned int newOp2Off = 0 );
     /*@ManMemo: operator to carry out operation on {\tt op1} and

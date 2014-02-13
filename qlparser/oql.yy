@@ -206,7 +206,7 @@ struct QtUpdateSpecElement
 %token <commandToken>    SELECT FROM WHERE AS RESTRICT TO EXTEND BY PROJECT AT DIMENSION ALL SOME
                          COUNTCELLS ADDCELLS AVGCELLS MINCELLS MAXCELLS SDOM OVER USING LO HI UPDATE
                          SET ASSIGN MARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS MAX_BINARY MIN_BINARY MULT
-                         DIV EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
+                         DIV INTDIV MOD EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
                          REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION
                          MDDPARAM OID SHIFT SCALE SQRT ABS EXP LOG LN SIN COS TAN SINH COSH TANH ARCSIN
                          ARCCOS ARCTAN POW OVERLAY BIT UNKNOWN FASTSCALE PYRAMID MEMBERS ADD ALTER LIST 
@@ -227,7 +227,7 @@ struct QtUpdateSpecElement
 %left EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL
 %left PLUS MINUS
 %left MAX_BINARY MIN_BINARY
-%left MULT DIV
+%left MULT DIV INTDIV MOD
 %left UNARYOP BIT
 %left DOT LEPAR SDOM
 
@@ -2094,7 +2094,31 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($2)
 	}
-	| generalExp EQUAL generalExp
+	| INTDIV LRPAR generalExp COMMA generalExp RRPAR
+	{
+	  $$ = new QtIntDiv  ( $3, $5 );
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->removeDynamicObject( $3 );
+	  parseQueryTree->removeDynamicObject( $5 );
+	  parseQueryTree->addDynamicObject( $$ );
+      FREESTACK($1);
+	  FREESTACK($2);
+      FREESTACK($4);
+      FREESTACK($6);
+	}
+	| MOD LRPAR generalExp COMMA generalExp RRPAR
+	{
+	  $$ = new QtMod  ( $3, $5 );
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->removeDynamicObject( $3 );
+	  parseQueryTree->removeDynamicObject( $5 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1);
+      FREESTACK($2);
+      FREESTACK($4);
+      FREESTACK($6);
+	}
+    | generalExp EQUAL generalExp
 	{
 	  $$ = new QtEqual( $1, $3 );
 	  $$->setParseInfo( *($2.info) );
