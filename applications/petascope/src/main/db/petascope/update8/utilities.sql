@@ -744,6 +744,40 @@ $$
       ORDER BY element
     );
 $$ LANGUAGE 'sql';
+
+
+-- FUNCTION: ** translate_crs (text, text, integer) ****************************************
+-- Returns a valid URI for an axis: ANSI Date if temporal, IndexND if CRS:1 and no action on geo-axis.
+CREATE OR REPLACE FUNCTION translate_crs (
+    crs_label   text,
+    axis_type   text,
+    axis_count  integer
+) RETURNS text AS
+$$
+    DECLARE
+        -- Log
+        ME constant text := 'translate_crs()';
+        -- Local variables
+        _translated_crs_label  text;
+    BEGIN
+        _translated_crs_label := crs_label;
+        IF axis_type = cget('TIME_AXIS_TYPE') THEN
+            -- temporal axis: ANSI date CRS (see wiki:PetascopeTimeHandling)
+            _translated_crs_label := cget('CRS_ANSI');
+            RAISE DEBUG '%: % replaced with % CRS URI.', ME, crs_label, _translated_crs_label;
+        ELSIF crs_label = cget('CRS_1') THEN
+            -- CRS:1 axes: rename to appropriate Index CRS
+            _translated_crs_label := index_crs_uri(axis_count);
+            RAISE DEBUG '%: % replaced with % CRS URI.', ME, crs_label, _translated_crs_label;
+            -- NOTE: currently SECORE stores Index CRSs for max 3D
+        ELSE
+            RAISE DEBUG '%: % not to be translated.', ME, _translated_crs_label;
+        END IF;
+        RETURN _translated_crs_label;
+    END;
+$$ LANGUAGE plpgsql;
+
+
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --
 -- Functions for the management of constants:
 --

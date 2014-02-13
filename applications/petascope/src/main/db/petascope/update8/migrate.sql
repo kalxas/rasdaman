@@ -314,16 +314,8 @@ $$
                     _crs_axis_counter := _crs_axis_counter + 1;
                 ELSE
                     -- CRS/axis_type has changed: action
-                    IF _previous_axistype = cget('TIME_AXIS_TYPE') THEN
-                        -- temporal axis: ANSI date CRS (see wiki:PetascopeTimeHandling)
-                        _previous_crs := cget('CRS_ANSI');
-                        RAISE DEBUG '%: % replaced with % CRS URI.', ME, _previous_crs, cget('CRS_ANSI');
-                    ELSIF _previous_crs = cget('CRS_1') THEN
-                        -- CRS:1 axes: rename to appropriate Index CRS
-                        _previous_crs := index_crs_uri(_crs_axis_counter);
-                        RAISE DEBUG '%: % replaced with % CRS URI.', ME, cget('CRS_1'), _previous_crs;
-                        -- NOTE: currently SECORE stores Index CRSs for max 3D
-                    END IF;
+                    -- CRS:1 to IndexND and time axis to OGC:AnsiDate
+                    _previous_crs := translate_crs(_previous_crs, _previous_axistype, _crs_axis_counter);
                     -- add CRS to array of CRS ids
                     RAISE DEBUG '%: appending ''%'' to native CRS..', ME, _previous_crs;
                     _native_crs := array_append(_native_crs, select_field(
@@ -340,27 +332,17 @@ $$
                 END IF;
             END LOOP; --~// native CRS array
             -- add CRS for the last tuple
-            IF _crs_axis_counter > 1 THEN
-                IF _previous_axistype = cget('TIME_AXIS_TYPE') THEN
-                    -- temporal axis: ANSI date CRS (see wiki:PetascopeTimeHandling)
-                    _previous_crs := cget('CRS_ANSI');
-                    RAISE DEBUG '%: % replaced with % CRS URI.', ME, _previous_crs, cget('CRS_ANSI');
-                ELSIF _previous_crs = cget('CRS_1') THEN
-                    -- CRS:1 axes: rename to appropriate Index CRS
-                    _previous_crs := index_crs_uri(_crs_axis_counter);
-                    RAISE DEBUG '%: % replaced with % CRS URI.', ME, cget('CRS_1'), _previous_crs;
-                    -- NOTE: currently SECORE stores Index CRSs for max 3D
-                END IF;
-                -- add to array of ids
-                RAISE DEBUG '%: appending ''%''...', ME, _previous_crs;
-                _native_crs := array_append(_native_crs, select_field(
-                        cget('TABLE_PS9_CRS'),
-                        cget('PS9_CRS_ID'), 0,
-                        ' WHERE ' || quote_ident(cget('PS9_CRS_URI')) || '='
-                                  || quote_literal(_previous_crs)
-                    )
-                );
-            END IF;
+            -- CRS:1 to IndexND and time axis to OGC:AnsiDate
+            _previous_crs := translate_crs(_previous_crs, _previous_axistype, _crs_axis_counter);
+            -- add to array of ids
+            RAISE DEBUG '%: appending ''%''...', ME, _previous_crs;
+            _native_crs := array_append(_native_crs, select_field(
+                    cget('TABLE_PS9_CRS'),
+                    cget('PS9_CRS_ID'), 0,
+                    ' WHERE ' || quote_ident(cget('PS9_CRS_URI')) || '='
+                              || quote_literal(_previous_crs)
+                )
+            );
         EXCEPTION
             WHEN no_data_found THEN
                 _log := 'CRS "' || _previous_crs || '" has not been migrated (not an URI?). Please fix it then retry.';
@@ -440,7 +422,7 @@ $$
         -- This query needs to account for two special cases:
         --   1. CRS:1
         --      The formula for the axis resolution [(dom.hi-dom.lo)/(cdom.hi-cdom.lo+1)] is not valid for indexed coverages:
-        --      the term `+1' in the denominator would nned to be left out; in order to be more robust on
+        --      the term `+1' in the denominator would need to be left out; in order to be more robust on
         --      possibly wrong values in ps_domain (rasimport was sometimes putting 0.0 and 1.0), when CRS:1
         --      is found, resolution is directly  set to -1^(axis==y) without computing the formula.
         --   2. EPSG:4326 (__LIKE '%4326'__ to take both URIs and AUTH:CODE notations)
