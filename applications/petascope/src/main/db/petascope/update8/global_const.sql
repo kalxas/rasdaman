@@ -278,6 +278,9 @@ $$
           SELECT cset('PS9_VECTOR_COEFFICIENTS_ID',          'grid_axis_id');
           SELECT cset('PS9_VECTOR_COEFFICIENTS_VALUE',       'coefficient');
           SELECT cset('PS9_VECTOR_COEFFICIENTS_ORDER',       'coefficient_order');
+    -- PS migration (dropped after migration)
+    SELECT cset('TABLE_PS9_NORTH_FIRST_CRSS',       cget('PS9_PREFIX') || '_north_first_crs');
+          SELECT cset('PS9_NORTH_FIRST_CRSS_CODE', 'crs_code');
     -- RAS_
     SELECT cset('DB_RASBASE', 'RASBASE');
     SELECT cset('RAS_PREFIX', 'ras');

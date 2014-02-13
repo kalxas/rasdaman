@@ -668,22 +668,6 @@ $$
 $$ LANGUAGE plpgsql;
 
 
--- FUNCTION: ** index_crs_uri (integer) ********************************************
--- Returns an Index CRS of the specified dimensionality
-CREATE OR REPLACE FUNCTION index_crs_uri (
-    dimensionality  integer
-) RETURNS text AS
-$$
-    BEGIN
-        RETURN regexp_replace(
-            cget('CRS_INDEX_1D'),
-            cget('INDEX_ND_PATTERN'),
-            regexp_replace(cget('INDEX_ND_PATTERN'), '\\d', dimensionality::text))
-            ;
-    END;
-$$ LANGUAGE plpgsql;
-
-
 -- FUNCTION: ** can_drop_uom (integer) ********************************************
 -- TRUE if the UoM with the specified ID is not referenced by any quantity.
 CREATE OR REPLACE FUNCTION can_drop_uom (
@@ -733,6 +717,22 @@ $$
       ORDER BY element
     );
 $$ LANGUAGE 'sql';
+
+
+-- FUNCTION: ** index_crs_uri (integer) ********************************************
+-- Returns an Index CRS of the specified dimensionality
+CREATE OR REPLACE FUNCTION index_crs_uri (
+    dimensionality  integer
+) RETURNS text AS
+$$
+    BEGIN
+        RETURN regexp_replace(
+            cget('CRS_INDEX_1D'),
+            cget('INDEX_ND_PATTERN'),
+            regexp_replace(cget('INDEX_ND_PATTERN'), '\\d', dimensionality::text))
+            ;
+    END;
+$$ LANGUAGE plpgsql;
 
 
 -- FUNCTION: ** translate_crs (text, text, integer) ****************************************

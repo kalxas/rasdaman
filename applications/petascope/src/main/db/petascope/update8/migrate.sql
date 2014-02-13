@@ -42,6 +42,44 @@
 -----------------------------------------------------------------------
 
 --
+-- Utility to check whether a CRS defines northing coordinate first (see north_first_crss.sql).
+--
+-- Matches both URI and AUTH:CODE notation.
+-- petascopedb=# SELECT SUM((matches_pattern('www.opengis.net/def/crs/EPSG/0/4326', '.*(/|:)' || crs_code)::int)) FROM ps9_north_first_crs;
+-- petascopedb=# SELECT SUM((matches_pattern('EPSG:4326',                           '.*(/|:)' || crs_code)::int)) FROM ps9_north_first_crs;
+CREATE OR REPLACE FUNCTION defines_northing_first (
+    crs_name text
+)
+RETURNS boolean AS
+$$
+    DECLARE
+        -- Log
+        ME constant text := 'defines_northing_first()';
+        -- Local variables
+        _qry text;
+        _tup record;
+        _isNorthfirst boolean := false;
+    BEGIN
+        _qry := ' SELECT ARRAY[SUM((matches_pattern(' || quote_literal(crs_name)
+                               || ', ''.*(/|:)'' || ' || cget('PS9_NORTH_FIRST_CRSS_CODE')
+                               || ' || ''$'')::int))] AS row ' ||
+                      ' FROM ' || quote_ident(cget('TABLE_PS9_NORTH_FIRST_CRSS'))
+                ;
+        RAISE DEBUG '%: EXECUTE %', ME, _qry;
+        FOR _tup IN EXECUTE _qry LOOP
+            IF _tup.row[1] > 0 THEN
+                RAISE DEBUG '%: CRS ''%'' defines northings first.', ME, crs_name;
+                _isNorthfirst := true;
+            ELSE
+                RAISE DEBUG '%: CRS ''%'' defines eastings first.', ME, crs_name;
+            END IF;
+        END LOOP;
+        RETURN _isNorthfirst;
+    END;
+$$ LANGUAGE plpgsql;
+
+
+--
 -- Copy the existing CRSs URIs to ps9_crs
 --
 CREATE OR REPLACE FUNCTION migrate_crss ()
@@ -362,8 +400,7 @@ $$
         RAISE LOG '%: set CRS ''%'' for coverage ''%''.', ME, _native_crs, coverage_name;
 
         -- Determine the origin of the gridded coverage: order tuple of coordinates by their order in the _CRS_ definition
-        -- so in case of EPGS:4326 (__LIKE '%4326'__ to take both URIs and AUTH:CODE notations) x and y values
-        -- are swapped.
+        -- so for instance in case of EPGS:4326 _x and y values are swapped.
         --
         -- NOTE: coverage model is currently pixel-based, and not point-based
         --       but the origin is a point and should be in the centre of the pixel instead = numlo + 0.5*res
@@ -371,8 +408,8 @@ $$
         -- Example of query for eobstest (t+WGS84):
         -- SELECT ARRAY[
         --   (i + (
-        --     ((quote_literal(( SELECT gridaxis_crs(3,ps_domain.i))) NOT LIKE quote_literal('%4326'))::int) * 0 +
-        --     ((quote_literal(( SELECT gridaxis_crs(3,ps_domain.i))) LIKE     quote_literal('%4326'))::int) *
+        --     ((NOT defines_northing_first(quote_literal(( SELECT gridaxis_crs(3,ps_domain.i)))))::int) * 0 +
+        --     ((    defines_northing_first(quote_literal(( SELECT gridaxis_crs(3,ps_domain.i)))))::int) *
         --      (-1^((ps_domain.name='y')::int))
         --   )),(
         --     CASE name WHEN 'y' THEN numhi ELSE numlo END
@@ -390,12 +427,10 @@ $$
         --
         -- NOTE: CRS axis order needs to be the first element in the outpout ARRAY for ORDER BY to be effective.
         _qry := ' SELECT ARRAY[(' || quote_ident(cget('PS_DOMAIN_I')) ||
-                         ' + (((quote_literal(( SELECT gridaxis_crs(' || _coverage_id      || ','
-                                  || quote_ident(cget('PS_DOMAIN_I')) || '))) NOT LIKE '   ||
-                               'quote_literal(''%' || cget('CRS_4326')|| '''))::int) * 0 ' ||
-                         ' + ((quote_literal(( SELECT gridaxis_crs(' || _coverage_id      || ','
-                                  || quote_ident(cget('PS_DOMAIN_I')) || '))) LIKE '       ||
-                               'quote_literal(''%' || cget('CRS_4326')|| '''))::int) * '   ||
+                         ' + ((( NOT defines_northing_first(quote_literal(( SELECT gridaxis_crs('
+                                  || _coverage_id  || ',' || quote_ident(cget('PS_DOMAIN_I')) || ')))))::int) * 0 ' ||
+                         ' + ((      defines_northing_first(quote_literal(( SELECT gridaxis_crs('
+                                  || _coverage_id  || ',' || quote_ident(cget('PS_DOMAIN_I')) || ')))))::int) * '   ||
                          '(-1^((' || quote_ident(cget('PS_DOMAIN_NAME'))
                                   || '=''y'')::int)))),' ||
                          '(CASE ' || quote_ident(cget('PS_DOMAIN_NAME'))  || ' WHEN ''y'' '   ||
@@ -425,7 +460,7 @@ $$
         --      the term `+1' in the denominator would need to be left out; in order to be more robust on
         --      possibly wrong values in ps_domain (rasimport was sometimes putting 0.0 and 1.0), when CRS:1
         --      is found, resolution is directly  set to -1^(axis==y) without computing the formula.
-        --   2. EPSG:4326 (__LIKE '%4326'__ to take both URIs and AUTH:CODE notations)
+        --   2. CRSs which define northings first, then eastings (like EPSG:4326 and many other CRSs)
         --      In this case the order of rasdaman axis and CRS axis needs to be swapped, since latitude comes
         --      first in the CRS definition.
         --
@@ -434,8 +469,8 @@ $$
         --      SELECT ARRAY[(SELECT COUNT(i) FROM ps_domain WHERE coverage=1), ps_domain.i,
         --      (
         --        ps_domain.i + (
-        --        ((quote_literal(( SELECT gridaxis_crs(1,ps_domain.i))) NOT LIKE '%4326')::int) * 0 +
-        --        ((quote_literal(( SELECT gridaxis_crs(1,ps_domain.i))) LIKE     '%4326')::int) *
+        --        ((NOT defines_northing_first(quote_literal(( SELECT gridaxis_crs(1,ps_domain.i)))))::int) * 0 +
+        --        ((    defines_northing_first(quote_literal(( SELECT gridaxis_crs(1,ps_domain.i)))))::int) *
         --         (-1^((ps_domain.name='y')::int))
         --      )),(
         --         (-1^((ps_domain.name='y')::int)) *
@@ -464,15 +499,13 @@ $$
                                  || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
                                  || quote_ident(cget('PS_DOMAIN_I'))      || ', ('
                                  || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
-                                 || quote_ident(cget('PS_DOMAIN_I'))      || ' + ((('
+                                 || quote_ident(cget('PS_DOMAIN_I'))      || ' + (((NOT defines_northing_first('
                                  || 'quote_literal(( SELECT gridaxis_crs('|| _coverage_id || ','
                                  ||  quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
-                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || '))) NOT LIKE '
-                                 || 'quote_literal(''%' || cget('CRS_4326')|| '''))::int) * 0 + (('
-                                 || 'quote_literal(( SELECT gridaxis_crs('|| _coverage_id || ','
+                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || ')))))::int) * 0 + (('
+                                 || 'defines_northing_first(quote_literal(( SELECT gridaxis_crs(' || _coverage_id || ','
                                  ||  quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
-                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || '))) LIKE '
-                                 || 'quote_literal(''%' || cget('CRS_4326')|| '''))::int) * '       ||
+                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || ')))))::int) * '       ||
                         '(-1^((' || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
                                  || quote_ident(cget('PS_DOMAIN_NAME'))   || '=''y'')::int)))),' ||
                        '((-1^((' || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'

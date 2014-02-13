@@ -141,6 +141,7 @@ INTERIM_SCHEMA='tmp'                          # Temporary schema where to run th
  GLOBAL_CONST_SQL="global_const.sql"
        MACROS_SQL="macros.sql"
       MIGRATE_SQL="migrate.sql"
+   NFIRST_CRS_SQL="north_first_crss.sql"
      POPULATE_SQL="populate.sql"
        SCHEMA_SQL="schema.sql"
 SCHEMA_MULTIPOINT="schema_multipoint.sql"
@@ -294,8 +295,20 @@ then
         $PSQL -f "$DBLINK_SQL" -d "RASBASE" > /dev/null 2>&1
     fi
     echo "ok."
+
+    logn "creating table with north-first EPSG CRSs ... "
+    $PSQL $SINGLE_TRANSACTION -f "$UPGRADE_SCRIPTS_DIR/$NFIRST_CRS_SQL" > /dev/null 2>&1
+    check_ret $?
+    echo "ok."
+
     logn "migrating existing coverages from PS_* tables ... "
     $PSQL $SINGLE_TRANSACTION -f "$UPGRADE_SCRIPTS_DIR/$MIGRATE_SQL"
+    check_ret $?
+    echo "ok."
+
+    logn "drop table with north-first EPSG CRSs ... "
+    table_name=$($PSQL -X -P t -P format=unaligned -c "SELECT cget('TABLE_PS9_NORTH_FIRST_CRSS');" );
+    $PSQL -c "DROP TABLE IF EXISTS $table_name" > /dev/null 2>&1
     check_ret $?
     echo "ok."
 else
