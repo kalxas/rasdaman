@@ -4,8 +4,14 @@ import sys
 import argparse
 import os
 import logging
-import psycopg2
 import ntpath
+
+# Import psycopg2 module or exit the script if it is not installed.
+try:
+	import psycopg2
+except ImportError:
+        sys.stderr.write('\nCannot import the point cloud coverage, because the psycopg2 module is not installed.\n')
+	sys.exit(1)
 
 MAX_BATCH_INSERT = 100
 DB_TABLE_PREFIX = "ps"
