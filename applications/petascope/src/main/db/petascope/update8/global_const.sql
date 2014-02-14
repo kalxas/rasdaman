@@ -46,6 +46,8 @@ $$
     SELECT cset('SERVICE_VERSION_PATTERN', E'^\\d+\\.\\d?\\d\\.\\d?\\d$');
     SELECT cset('UOM_PATTERN',             E'^[^: \\n\\r\\t]+$');
     SELECT cset('INDEX_ND_PATTERN',        E'Index\\dD'); -- Used when converting CRS:1 to Index CRSs during migration.
+    SELECT cset('CRS_CODE_PATTERN',         '([^/:]*)$');
+    SELECT cset('EPSG_PATTERN',             'EPSG|epsg');
     -- Service and service provider metadata
     SELECT cset('WCS_SERVICE_TYPE',             'OGC WCS');
     SELECT cset('WCS_SERVICE_TYPE_VERSIONS',    '2.0.1'); -- use commas for different supported versions

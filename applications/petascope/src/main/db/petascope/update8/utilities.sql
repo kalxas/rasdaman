@@ -767,6 +767,20 @@ $$
 $$ LANGUAGE plpgsql;
 
 
+-- FUNCTION: ** get_crs_code (text) ********************************************
+-- Extracts the code from a CRS label, matching both URI and AUTH:CODE notation.
+-- petascopedb=# SELECT substring('EPSG:4326' from '([^/:]*)$');
+-- petascopedb=# SELECT substring('http://www.opengis.net/def/crs/EPSG/0/4326' from '([^/:]*)$');
+CREATE OR REPLACE FUNCTION get_crs_code (
+    crs_label text
+) RETURNS text AS
+$$
+    BEGIN
+        RETURN substring( crs_label, cget('CRS_CODE_PATTERN'));
+    END;
+$$ LANGUAGE plpgsql;
+
+
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ --
 -- Functions for the management of constants:
 --

@@ -42,13 +42,10 @@
 -----------------------------------------------------------------------
 
 --
--- Utility to check whether a CRS defines northing coordinate first (see north_first_crss.sql).
+-- Utility to check whether a CRS (EPSG code) defines northing coordinate first (see north_first_crss.sql).
 --
--- Matches both URI and AUTH:CODE notation.
--- petascopedb=# SELECT SUM((matches_pattern('www.opengis.net/def/crs/EPSG/0/4326', '.*(/|:)' || crs_code)::int)) FROM ps9_north_first_crs;
--- petascopedb=# SELECT SUM((matches_pattern('EPSG:4326',                           '.*(/|:)' || crs_code)::int)) FROM ps9_north_first_crs;
 CREATE OR REPLACE FUNCTION defines_northing_first (
-    crs_name text
+    crs_label text
 )
 RETURNS boolean AS
 $$
@@ -56,24 +53,23 @@ $$
         -- Log
         ME constant text := 'defines_northing_first()';
         -- Local variables
-        _qry text;
-        _tup record;
+        _qry      text;
+        _tup      record;
+        _crs_code text;
         _isNorthfirst boolean := false;
     BEGIN
-        _qry := ' SELECT ARRAY[SUM((matches_pattern(' || quote_literal(crs_name)
-                               || ', ''.*(/|:)'' || ' || cget('PS9_NORTH_FIRST_CRSS_CODE')
-                               || ' || ''$'')::int))] AS row ' ||
-                      ' FROM ' || quote_ident(cget('TABLE_PS9_NORTH_FIRST_CRSS'))
-                ;
-        RAISE DEBUG '%: EXECUTE %', ME, _qry;
-        FOR _tup IN EXECUTE _qry LOOP
-            IF _tup.row[1] > 0 THEN
-                RAISE DEBUG '%: CRS ''%'' defines northings first.', ME, crs_name;
+        IF matches_pattern(crs_label, cget('EPSG_PATTERN')) THEN
+            _crs_code = get_crs_code(crs_label);
+            _qry := ' SELECT ' || quote_ident(cget('PS9_NORTH_FIRST_CRSS_CODE'))  ||
+                      ' FROM ' || quote_ident(cget('TABLE_PS9_NORTH_FIRST_CRSS')) ||
+                     ' WHERE ' || quote_ident(cget('PS9_NORTH_FIRST_CRSS_CODE'))  || '::text = ' || quote_literal(_crs_code)
+                    ;
+            RAISE DEBUG '%: EXECUTE %', ME, _qry;
+            FOR _tup IN EXECUTE _qry LOOP
+                RAISE DEBUG '%: CRS ''%'' defines northings first.', ME, crs_label;
                 _isNorthfirst := true;
-            ELSE
-                RAISE DEBUG '%: CRS ''%'' defines eastings first.', ME, crs_name;
-            END IF;
-        END LOOP;
+            END LOOP;
+        END IF;
         RETURN _isNorthfirst;
     END;
 $$ LANGUAGE plpgsql;
@@ -408,8 +404,8 @@ $$
         -- Example of query for eobstest (t+WGS84):
         -- SELECT ARRAY[
         --   (i + (
-        --     ((NOT defines_northing_first(quote_literal(( SELECT gridaxis_crs(3,ps_domain.i)))))::int) * 0 +
-        --     ((    defines_northing_first(quote_literal(( SELECT gridaxis_crs(3,ps_domain.i)))))::int) *
+        --     ((NOT defines_northing_first(gridaxis_crs(<cov_id>,ps_domain.i)))::int) * 0 +
+        --     ((    defines_northing_first(gridaxis_crs(<cov_id>,ps_domain.i)))::int) *
         --      (-1^((ps_domain.name='y')::int))
         --   )),(
         --     CASE name WHEN 'y' THEN numhi ELSE numlo END
@@ -427,10 +423,10 @@ $$
         --
         -- NOTE: CRS axis order needs to be the first element in the outpout ARRAY for ORDER BY to be effective.
         _qry := ' SELECT ARRAY[(' || quote_ident(cget('PS_DOMAIN_I')) ||
-                         ' + ((( NOT defines_northing_first(quote_literal(( SELECT gridaxis_crs('
-                                  || _coverage_id  || ',' || quote_ident(cget('PS_DOMAIN_I')) || ')))))::int) * 0 ' ||
-                         ' + ((      defines_northing_first(quote_literal(( SELECT gridaxis_crs('
-                                  || _coverage_id  || ',' || quote_ident(cget('PS_DOMAIN_I')) || ')))))::int) * '   ||
+                         ' + ((( NOT defines_northing_first(gridaxis_crs('
+                                  || _coverage_id  || ',' || quote_ident(cget('PS_DOMAIN_I')) || ')))::int) * 0 ' ||
+                         ' + ((      defines_northing_first(gridaxis_crs('
+                                  || _coverage_id  || ',' || quote_ident(cget('PS_DOMAIN_I')) || ')))::int) * '   ||
                          '(-1^((' || quote_ident(cget('PS_DOMAIN_NAME'))
                                   || '=''y'')::int)))),' ||
                          '(CASE ' || quote_ident(cget('PS_DOMAIN_NAME'))  || ' WHEN ''y'' '   ||
@@ -469,14 +465,14 @@ $$
         --      SELECT ARRAY[(SELECT COUNT(i) FROM ps_domain WHERE coverage=1), ps_domain.i,
         --      (
         --        ps_domain.i + (
-        --        ((NOT defines_northing_first(quote_literal(( SELECT gridaxis_crs(1,ps_domain.i)))))::int) * 0 +
-        --        ((    defines_northing_first(quote_literal(( SELECT gridaxis_crs(1,ps_domain.i)))))::int) *
+        --        ((NOT defines_northing_first(gridaxis_crs(1,ps_domain.i)))::int) * 0 +
+        --        ((    defines_northing_first(gridaxis_crs(1,ps_domain.i)))::int) *
         --         (-1^((ps_domain.name='y')::int))
         --      )),(
         --         (-1^((ps_domain.name='y')::int)) *
-        --        ((quote_literal(( SELECT gridaxis_crs(1,ps_domain.i)))  = quote_literal('CRS:1'))::int) +
+        --        ((quote_literal(gridaxis_crs(1,ps_domain.i))  = quote_literal('CRS:1'))::int) +
         --        ((-1^((ps_domain.name='y')::int)) * (numhi - numlo) / (hi - lo + 1)) *
-        --        ((quote_literal(( SELECT gridaxis_crs(1,ps_domain.i))) != quote_literal('CRS:1'))::int)
+        --        ((quote_literal(gridaxis_crs(1,ps_domain.i)) != quote_literal('CRS:1'))::int)
         --      )] AS row FROM ps_domain,ps_celldomain
         --               WHERE ps_domain.coverage = <cov_id>
         --                 AND ps_celldomain.coverage = <cov_id>
@@ -499,20 +495,20 @@ $$
                                  || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
                                  || quote_ident(cget('PS_DOMAIN_I'))      || ', ('
                                  || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
-                                 || quote_ident(cget('PS_DOMAIN_I'))      || ' + (((NOT defines_northing_first('
-                                 || 'quote_literal(( SELECT gridaxis_crs('|| _coverage_id || ','
+                                 || quote_ident(cget('PS_DOMAIN_I'))      || ' + (((NOT '
+                                 || 'defines_northing_first(gridaxis_crs('|| _coverage_id || ','
                                  ||  quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
-                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || ')))))::int) * 0 + (('
-                                 || 'defines_northing_first(quote_literal(( SELECT gridaxis_crs(' || _coverage_id || ','
+                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || ')))::int) * 0 + (('
+                                 || 'defines_northing_first(gridaxis_crs('|| _coverage_id || ','
                                  ||  quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
-                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || ')))))::int) * '       ||
+                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || ')))::int) * '       ||
                         '(-1^((' || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
                                  || quote_ident(cget('PS_DOMAIN_NAME'))   || '=''y'')::int)))),' ||
                        '((-1^((' || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
                                  || quote_ident(cget('PS_DOMAIN_NAME'))   || '=''y'')::int)) * (('
-                                 || 'quote_literal(( SELECT gridaxis_crs('|| _coverage_id || ','
+                                 || 'quote_literal(gridaxis_crs('|| _coverage_id || ','
                                  ||  quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
-                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || '))) = '
+                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || ')) = '
                                  || 'quote_literal(''' || cget('CRS_1')   || '''))::int) + '       ||
                        '((-1^((' || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
                                  || quote_ident(cget('PS_DOMAIN_NAME'))   || '=''y'')::int)) * ' ||
@@ -521,9 +517,9 @@ $$
                              '(' || quote_ident(cget('PS_CELLDOMAIN_HI')) || '-'
                                  || quote_ident(cget('PS_CELLDOMAIN_LO')) || ' + 1)) * (('
                                  -- IF CRS:1 THEN domain=cellDomain --> `+1' term to be dropped
-                                 || 'quote_literal(( SELECT gridaxis_crs('|| _coverage_id || ','
+                                 || 'quote_literal(gridaxis_crs('|| _coverage_id || ','
                                  ||  quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
-                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || '))) != '
+                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || ')) != '
                                  || 'quote_literal(''' || cget('CRS_1')   || '''))::int))] AS row ' || -- T->1, F->0
                         ' FROM ' || quote_ident(cget('TABLE_PS_DOMAIN'))        || ','
                                  || quote_ident(cget('TABLE_PS_CELLDOMAIN'))    ||
