@@ -916,7 +916,8 @@ public class DbMetadataSource implements IMetadataSource {
                         "Coverage '" + coverageName + "' is missing the domain-set information.");
             } else do {
                 // Store fetched data
-                String uri = r.getString(CRS_URI);
+                // Replace possible %SECORE_URL% prefixes with resolvable configured SECORE URLs:
+                String uri = r.getString(CRS_URI).replace(SECORE_URL_KEYWORD, SECORE_URLS.get(0));
                 if (null == uri) {
                     log.error("No native CRS found for this coverage.");
                     throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
