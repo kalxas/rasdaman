@@ -193,6 +193,7 @@ $$
         _gml_type_id   integer; -- constant
         _native_crs    integer[];
         _grid_origin   numeric[];
+        _abs_origin_offset  text;
         _offset_vector numeric[];
         _grid_axis_id  integer;
         _rascoll_id    integer;
@@ -397,21 +398,25 @@ $$
 
         -- Determine the origin of the gridded coverage: order tuple of coordinates by their order in the _CRS_ definition
         -- so for instance in case of EPGS:4326 _x and y values are swapped.
-        --
-        -- NOTE: coverage model is currently pixel-based, and not point-based
-        --       but the origin is a point and should be in the centre of the pixel instead = numlo + 0.5*res
+        -- Grid points are pixel-centre so ORIGIN = numlo/numhi +/- 0.5*res
+        -- In the indexed CRS space, the sample space (pixel) is reduced to a 0D point, so there is no origin shift.
+        -- For time axis, CRS:1 is not to be account for, since it will be assigned AnsiDate CRS, which is not indexed.
         --
         -- Example of query for eobstest (t+WGS84):
         -- SELECT ARRAY[
-        --   (i + (
+        --   (ps_domain.i + (
         --     ((NOT defines_northing_first(gridaxis_crs(<cov_id>,ps_domain.i)))::int) * 0 +
         --     ((    defines_northing_first(gridaxis_crs(<cov_id>,ps_domain.i)))::int) *
-        --      (-1^((ps_domain.name='y')::int))
+        --      (-1^((get_axis_type(ps_domain.type)='y')::int))
         --   )),(
-        --     CASE name WHEN 'y' THEN numhi ELSE numlo END
+        --     CASE get_axis_type(ps_domain.type) WHEN 'y'
+        --          THEN ps_domain.numhi - (%abs_origin_offset%)
+        --          ELSE ps_domain.numlo + (%abs_origin_offset%)
+        --     END
         -- )] AS row
-        --    FROM ps_domain
-        --    WHERE coverage=3
+        --     FROM ps_domain, ps_celldomain
+        --    WHERE ps_domain.coverage     = <cov_id>
+        --      AND ps_celldomain.coverage = <cov_id>
         -- ORDER BY row ASC;
         --
         --    row
@@ -422,19 +427,61 @@ $$
         -- (3 rows)
         --
         -- NOTE: CRS axis order needs to be the first element in the outpout ARRAY for ORDER BY to be effective.
-        _qry := ' SELECT ARRAY[(' || quote_ident(cget('PS_DOMAIN_I')) ||
-                         ' + ((( NOT defines_northing_first(gridaxis_crs('
-                                  || _coverage_id  || ',' || quote_ident(cget('PS_DOMAIN_I')) || ')))::int) * 0 ' ||
-                         ' + ((      defines_northing_first(gridaxis_crs('
-                                  || _coverage_id  || ',' || quote_ident(cget('PS_DOMAIN_I')) || ')))::int) * '   ||
-                         '(-1^((' || quote_ident(cget('PS_DOMAIN_NAME'))
-                                  || '=''y'')::int)))),' ||
-                         '(CASE ' || quote_ident(cget('PS_DOMAIN_NAME'))  || ' WHEN ''y'' '   ||
-                         ' THEN ' || quote_ident(cget('PS_DOMAIN_NUMHI')) ||
-                         ' ELSE ' || quote_ident(cget('PS_DOMAIN_NUMLO')) || ' END)] AS row ' ||
-                      ' FROM ' || quote_ident(cget('TABLE_PS_DOMAIN'))    ||
-                     ' WHERE ' || quote_ident(cget('PS_DOMAIN_COVERAGE')) || '=' || _coverage_id ||
-                     ' ORDER BY row ASC';
+        -- _abs_origin_offset = (((quote_literal(gridaxis_crs(<cov_id>,i)) = quote_literal('CRS:1') AND
+        --                         get_axis_type(ps_domain.type)          <> 't')::int) * 0 +
+        --                      ((quote_literal(gridaxis_crs(<cov_id>,i)) != quote_literal('CRS:1') OR
+        --                         get_axis_type(ps_domain.type)           = 't')::int) * (
+        --                      ((numhi - numlo) / (hi - lo + 1)) / 2))
+        _abs_origin_offset := '(((quote_literal(gridaxis_crs(' || _coverage_id || ','
+                               || quote_ident(cget('TABLE_PS_DOMAIN'))         || '.'
+                               || quote_ident(cget('PS_DOMAIN_I'))
+                               || ')) = quote_literal(''' || cget('CRS_1')|| ''') AND get_axis_type('
+                               || quote_ident(cget('TABLE_PS_DOMAIN'))    || '.'
+                               || quote_ident(cget('PS_DOMAIN_TYPE'))     || ')<>'
+                               || quote_literal(cget('TIME_AXIS_TYPE'))   || ')::int) * 0 + (('
+                               || 'quote_literal(gridaxis_crs(' || _coverage_id  || ','
+                               || quote_ident(cget('TABLE_PS_DOMAIN'))    || '.' || quote_ident(cget('PS_DOMAIN_I'))
+                               || ')) != quote_literal(''' || cget('CRS_1')      || ''')  OR get_axis_type('
+                               || quote_ident(cget('TABLE_PS_DOMAIN'))    || '.'
+                               || quote_ident(cget('PS_DOMAIN_TYPE'))     || ')='
+                               || quote_literal(cget('TIME_AXIS_TYPE'))   || ')::int) * ((('
+                               || quote_ident(cget('TABLE_PS_DOMAIN'))    || '.'
+                               || quote_ident(cget('PS_DOMAIN_NUMHI'))    || '-'
+                               || quote_ident(cget('TABLE_PS_DOMAIN'))    || '.'
+                               || quote_ident(cget('PS_DOMAIN_NUMLO'))    || ')/('
+                               || quote_ident(cget('TABLE_PS_CELLDOMAIN'))|| '.'
+                               || quote_ident(cget('PS_CELLDOMAIN_HI'))   || '-'
+                               || quote_ident(cget('TABLE_PS_CELLDOMAIN'))|| '.'
+                               || quote_ident(cget('PS_CELLDOMAIN_LO'))   || '+1))/2))'
+                               ;
+        RAISE DEBUG '%: absolute origin offset string %', ME, _abs_origin_offset;
+        _qry := ' SELECT ARRAY[(' || quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
+                                  || quote_ident(cget('PS_DOMAIN_I'))     ||
+                         ' + ((( NOT defines_northing_first(gridaxis_crs('|| _coverage_id     || ','
+                                  || quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
+                                  || quote_ident(cget('PS_DOMAIN_I'))     || ')))::int) * 0 ' ||
+                               ' + ((defines_northing_first(gridaxis_crs('|| _coverage_id     || ','
+                                  || quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
+                                  || quote_ident(cget('PS_DOMAIN_I'))     || ')))::int) * (-1^((get_axis_type('
+                                  || quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
+                                  || quote_ident(cget('PS_DOMAIN_TYPE'))  || ')='
+                                  || quote_literal(cget('Y_AXIS_TYPE'))   || ')::int)))),' ||
+                         '(CASE ' || quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
+                                  || quote_ident(cget('PS_DOMAIN_NAME'))  || ' WHEN '
+                                  || quote_literal(cget('Y_AXIS_TYPE'))   ||
+                         ' THEN ' || quote_ident(cget('PS_DOMAIN_NUMHI')) || '-' || _abs_origin_offset ||
+                         ' ELSE ' || quote_ident(cget('PS_DOMAIN_NUMLO')) || '+' || _abs_origin_offset || ' END)] AS row ' ||
+                      ' FROM ' || quote_ident(cget('TABLE_PS_DOMAIN'))    || ','
+                               || quote_ident(cget('TABLE_PS_CELLDOMAIN'))||
+                     ' WHERE ' || quote_ident(cget('TABLE_PS_DOMAIN'))    || '.'
+                               || quote_ident(cget('PS_DOMAIN_COVERAGE')) || '=' || _coverage_id ||
+                       ' AND ' || quote_ident(cget('TABLE_PS_CELLDOMAIN'))       || '.'
+                               || quote_ident(cget('PS_CELLDOMAIN_COVERAGE'))    || '=' || _coverage_id ||
+                       ' AND ' || quote_ident(cget('TABLE_PS_DOMAIN'))    || '.'
+                               || quote_ident(cget('PS_DOMAIN_I'))        || '='
+                               || quote_ident(cget('TABLE_PS_CELLDOMAIN'))|| '.'
+                               || quote_ident(cget('PS_CELLDOMAIN_I'))    || ' ORDER BY row ASC'
+                               ;
         RAISE DEBUG '%: EXECUTING %', ME, _qry;
         FOR _tup IN EXECUTE _qry LOOP
             _grid_origin := array_append(_grid_origin, _tup.row[2]::numeric);
@@ -467,14 +514,14 @@ $$
         --        ps_domain.i + (
         --        ((NOT defines_northing_first(gridaxis_crs(1,ps_domain.i)))::int) * 0 +
         --        ((    defines_northing_first(gridaxis_crs(1,ps_domain.i)))::int) *
-        --         (-1^((ps_domain.name='y')::int))
+        --         (-1^((get_axis_type(ps_domain.type)='y')::int))
         --      )),(
-        --         (-1^((ps_domain.name='y')::int)) *
+        --         (-1^((get_axis_type(ps_domain.type)='y')::int)) *
         --        ((quote_literal(gridaxis_crs(1,ps_domain.i))  = quote_literal('CRS:1'))::int) +
-        --        ((-1^((ps_domain.name='y')::int)) * (numhi - numlo) / (hi - lo + 1)) *
+        --        ((-1^((get_axis_type(ps_domain.type)='y')::int)) * (numhi - numlo) / (hi - lo + 1)) *
         --        ((quote_literal(gridaxis_crs(1,ps_domain.i)) != quote_literal('CRS:1'))::int)
         --      )] AS row FROM ps_domain,ps_celldomain
-        --               WHERE ps_domain.coverage = <cov_id>
+        --               WHERE ps_domain.coverage     = <cov_id>
         --                 AND ps_celldomain.coverage = <cov_id>
         --                 AND ps_domain.i = ps_celldomain.i
         --      ORDER BY ps_domain.i ASC;
@@ -501,19 +548,22 @@ $$
                                  ||  quote_ident(cget('PS_DOMAIN_I'))     || ')))::int) * 0 + (('
                                  || 'defines_northing_first(gridaxis_crs('|| _coverage_id || ','
                                  ||  quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
-                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || ')))::int) * '       ||
-                        '(-1^((' || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
-                                 || quote_ident(cget('PS_DOMAIN_NAME'))   || '=''y'')::int)))),' ||
-                       '((-1^((' || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
-                                 || quote_ident(cget('PS_DOMAIN_NAME'))   || '=''y'')::int)) * (('
+                                 ||  quote_ident(cget('PS_DOMAIN_I'))     || ')))::int) * (-1^((get_axis_type('
+                                 || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
+                                 || quote_ident(cget('PS_DOMAIN_TYPE'))   || ')='
+                                 || quote_literal(cget('Y_AXIS_TYPE'))    || ')::int)))), ((-1^((get_axis_type('
+                                 || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
+                                 || quote_ident(cget('PS_DOMAIN_TYPE'))   || ')='
+                                 || quote_literal(cget('Y_AXIS_TYPE'))    || ')::int)) * (('
                                  || 'quote_literal(gridaxis_crs('|| _coverage_id || ','
                                  ||  quote_ident(cget('TABLE_PS_DOMAIN')) || '.'
                                  ||  quote_ident(cget('PS_DOMAIN_I'))     || ')) = '
-                                 || 'quote_literal(''' || cget('CRS_1')   || '''))::int) + '       ||
-                       '((-1^((' || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
-                                 || quote_ident(cget('PS_DOMAIN_NAME'))   || '=''y'')::int)) * ' ||
+                                 || 'quote_literal(''' || cget('CRS_1')   || '''))::int) + ((-1^((get_axis_type('
+                                 || quote_ident(cget('TABLE_PS_DOMAIN'))  || '.'
+                                 || quote_ident(cget('PS_DOMAIN_TYPE'))   || ')='
+                                 || quote_literal(cget('Y_AXIS_TYPE'))    || ')::int)) * ' ||
                             ' (' || quote_ident(cget('PS_DOMAIN_NUMHI'))  || '-'
-                                 || quote_ident(cget('PS_DOMAIN_NUMLO'))  || ') / '              ||
+                                 || quote_ident(cget('PS_DOMAIN_NUMLO'))  || ') / '        ||
                              '(' || quote_ident(cget('PS_CELLDOMAIN_HI')) || '-'
                                  || quote_ident(cget('PS_CELLDOMAIN_LO')) || ' + 1)) * (('
                                  -- IF CRS:1 THEN domain=cellDomain --> `+1' term to be dropped

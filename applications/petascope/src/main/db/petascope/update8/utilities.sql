@@ -332,6 +332,23 @@ $$
 $$ LANGUAGE plpgsql;
 
 
+-- FUNCTION: ** get_axis_type (int)  **********************************************
+-- Returns the type of an axis, given its FK on ps_axistype.
+-- @deprecated: this function is used during migration to retrieve information in the old schema (<update8).
+CREATE OR REPLACE FUNCTION get_axis_type (
+    axis_type_id   integer
+) RETURNS text AS
+$$
+    BEGIN
+        RETURN select_field(
+            cget('TABLE_PS_AXISTYPE'),
+            cget('PS_AXISTYPE_TYPE'), ''::text,
+            ' WHERE ' || cget('PS_AXISTYPE_ID') || '=' || axis_type_id
+            );
+    END;
+$$ LANGUAGE plpgsql;
+
+
 -- FUNCTION: ** gridaxis_crs  **********************************************
 -- Retrieves the CRS associated with a grid axis.
 -- @deprecated: this function is used during migration to retrieve information in the old schema (<update8).

@@ -66,6 +66,7 @@ $$
     SELECT cset('CRS_4326',             '4326'); -- resolution formula is different on CRS:1 grids (-1 term is dropped).
     SELECT cset('SECORE_ENTRY',         '%SECORE_URL%'); -- [!] This shall match with Petascope constant to replace it with the configured resolver.
     SELECT cset('TIME_AXIS_TYPE',       't'); -- CRS becomes CRS_ANSI for temporal axis on pre-upgrade 8.X coverages.
+    SELECT cset('Y_AXIS_TYPE',          'y'); -- Origin is Upper-Left corner
     SELECT cset('CRS_ANSI',         cget('SECORE_ENTRY') || '/crs/OGC/0/AnsiDate');
     SELECT cset('CRS_INDEX_1D',     cget('SECORE_ENTRY') || '/crs/OGC/0/Index1D');
     SELECT cset('CRS_INDEX_2D',     cget('SECORE_ENTRY') || '/crs/OGC/0/Index2D');
