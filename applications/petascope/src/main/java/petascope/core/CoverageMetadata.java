@@ -585,6 +585,19 @@ public class CoverageMetadata implements Cloneable {
         return null;
     }
 
+    /**
+     * Returns the list of domain elements whose names are specified as an ordered input list.
+     * @param names
+     * @return DomainElement objects with the specified labels.
+     */
+    public List<DomainElement> getDomainsByNames(List<String> names) {
+        List<DomainElement> domElements = new ArrayList<DomainElement>(names.size());
+        for (String domainName : names) {
+                domElements.add(getDomainByName(domainName));
+        }
+        return domElements;
+    }
+
     public CellDomainElement getCellDomainByName(String name) {
 
         for (DomainElement axis : domain) {

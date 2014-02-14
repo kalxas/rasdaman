@@ -686,4 +686,59 @@ public class WcsUtil {
     public static String fitToSampleSpace(String coordinateValue, DomainElement domEl, boolean greaterValue) {
         return fitToSampleSpace(new BigDecimal(coordinateValue), domEl, greaterValue).toPlainString();
     }
+
+    /**
+     * Returns true in case such coverage type refers to a gridded coverage.
+     * @param covType
+     * @return TRUE IF covType ~ .*GridCoverage
+     */
+    public static boolean isGrid(String covType) {
+        return covType.matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE);
+    }
+
+    /**
+     * Returns true in case such coverage type refers to a multipoint coverage.
+     * @param covType
+     * @return TRUE IF covType ~ MultiPointCoverage
+     */
+    public static boolean isMultiPoint(String covType) {
+        return covType.matches(XMLSymbols.LABEL_MULTIPOINT_COVERAGE);
+    }
+
+    /**
+     * Returns true in case the coverage of the specified type and with the given axes is aligned with the CRS axes.
+     * Currently this shall always be true for grid coverages.
+     * @param covType
+     * @param axes
+     * @return TRUE IF all grid axes are aligned with a CRS axis.
+     */
+    public static boolean isAlignedGrid(String covType, List<DomainElement> axes) {
+        return isGrid(covType);
+    }
+
+    /**
+     * Returns true in case the coverage's geometry is a rectified grid.
+     * This is not true when grid points are irregularly spaced along 1+ grid axes.
+     * @param covType
+     * @param axes
+     * @return TRUE IF all grid axes define regular spacing of grid points.
+     */
+    public static boolean isRectifiedGrid(String covType, List<DomainElement> axes) {
+        boolean isRectified = true;
+
+        if (isGrid(covType)) {
+            if (!axes.isEmpty()) { // might be if all axes are sliced
+                for (DomainElement domEl : axes) {
+                    if (null != domEl && domEl.isIrregular()) {
+                        // irregular axis: referenceable grid
+                        isRectified = false;
+                    }
+                }
+            }
+        } else { // not a grid (eg a point cloud)
+            isRectified = false;
+        }
+
+        return isRectified;
+    }
 }

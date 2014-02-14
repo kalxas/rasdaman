@@ -309,6 +309,8 @@ public class GetCoverageMetadata {
 
     public void setCrs(String newUri) {
         crs = newUri;
+        // Changing CRS means 1+ slices have been requestes: trigger an upodate of coverage type
+        updateCoverageType();
     }
 
     /**
@@ -328,15 +330,32 @@ public class GetCoverageMetadata {
         return false;
     }
 
-    public static class RangeField {
+    /**
+     * Internal trigger to update coverage type.
+     * Mainly it recognizes when a referenceable grid is sliced on its 1+
+     * irregular axes, so that it becomes a (simpler) rectified grid.
+     */
+    protected void updateCoverageType() {
+        if (WcsUtil.isGrid(getCoverageType())) {
+            if (WcsUtil.isRectifiedGrid(
+                    getCoverageType(),
+                    getMetadata().getDomainsByNames(Arrays.asList(getGridAxisLabels().split(" "))))) {
+                this.coverageType = XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE;
+            } else {
+                this.coverageType = XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE;
+            }
+        }
+    }
 
-        private String fieldName;
-        private String componentName;
-        private String nilValues;
-        private String uomCode;
-        private String type;
-        private String description;
-        private List<String> allowedValues = new ArrayList<String>();
+    public class RangeField {
+
+        private final String fieldName;
+        private final String componentName;
+        private final String nilValues;
+        private final String uomCode;
+        private final String type;
+        private final String description;
+        private final List<String> allowedValues = new ArrayList<String>();
 
         public RangeField(CoverageMetadata cov, RangeElement range, int i) {
 
@@ -347,10 +366,7 @@ public class GetCoverageMetadata {
             nilValues = ListUtil.ltos(nullSet, " ");
 
             type = range.getType();
-            uomCode = range.getUom();
-            if (uomCode == null) {
-                uomCode = CrsUtil.PURE_UOM;
-            }
+            uomCode = (null == range.getUom()) ? CrsUtil.PURE_UOM : range.getUom();
             description = "";
             range.isBoolean();
 

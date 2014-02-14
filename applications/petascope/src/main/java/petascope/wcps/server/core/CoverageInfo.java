@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WcpsConstants;
+import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
 
 public class CoverageInfo {
@@ -78,7 +79,7 @@ public class CoverageInfo {
         coverageCrs= CrsUtil.CrsUri.createCompound(m.getCrsUris());
         bbox = m.getBbox();
         // is the coverage gridded or e.g. multipoint?
-        gridded = m.getCoverageType().matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE);
+        gridded = WcsUtil.isGrid(m.getCoverageType());
     }
 
     public boolean isCompatible(CoverageInfo other) {

@@ -57,6 +57,7 @@ import petascope.ows.ServiceProvider;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
+import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
 import static petascope.util.ras.RasConstants.*;
 import petascope.util.ras.RasQueryResult;
@@ -938,7 +939,7 @@ public class DbMetadataSource implements IMetadataSource {
             }
 
             // Now read the coverage-type-specific domain-set information
-            if (coverageType.matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE)) {
+            if (WcsUtil.isGrid(coverageType)) {
 
                 // Variables for metadata object creation of gridded coverage
                 LinkedHashMap<List<BigDecimal>,BigDecimal> gridAxes;    // Offset-vector -> greatest-coefficient (null if no coeffs)
