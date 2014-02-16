@@ -47,7 +47,7 @@
 
 // some string constants
 #define PSPREFIX "ps"
-#define crsURIprefix "%SECORE%/def/crs/"
+#define crsURIprefix "%SECORE_URL%/crs/"
 #define ctx "RasdamanHelper2::"
 
 #ifdef BUILD_RASSUPPORT
@@ -1788,6 +1788,72 @@ RasdamanHelper2::queryImageOIDs(const std::string& kvp)
     LEAVE(ctx << "queryImageOIDs()");
 }
 
+std::vector<std::string>
+RasdamanHelper2::getCRSURIsfromCoverageId(long covid)
+{
+	std::vector<std::string> uris;
+
+    // check connection
+    const PGconn* conn = this->m_pRasconn->getPetaConnection();
+    if (PQstatus(conn) != CONNECTION_OK)
+    {
+        TALK("connection to '" << this->m_pRasconn->getPetaDbName() << "' failed!");
+        LEAVE(ctx << "getCRSURIfromCoverageId()");
+        return uris;
+    }
+
+    std::stringstream query;
+    PGresult* res = 0;
+
+    query << "select native_crs_ids from " << PSPREFIX << "_domain_set "
+	  << "where coverage_id = " << covid;
+    TALK("'" << query.str() << "' ...");
+    res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
+    if (PQntuples(res) < 1)
+    {
+        TALK("failed CRS ids for coverage #" << covid << " !");
+        LEAVE(ctx << "getCRSURIfromCoverageId()");
+        PQclear(res);
+        return uris;
+    }
+
+    std::string idstr = PQgetvalue(res, 0, 0);
+    PQclear(res);
+    query.str("");
+
+    // we maintain crs order
+    std::vector<double> crsids;
+    if (!this->parsePGStringArray(idstr, crsids))
+    {
+        TALK("failed parsing CRS ids for coverage #" << covid << " !");
+        LEAVE(ctx << "getCRSURIfromCoverageId()");
+        PQclear(res);
+        return uris;
+    }
+
+    // we maintain crs order
+    for (int c=0; c < crsids.size(); ++c)
+    {
+	query << "select uri from " << PSPREFIX << "_crs where id = " << (int)crsids[0];
+        TALK("'" << query.str() << "' ...");
+        res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
+        if (PQntuples(res) < 1)
+        {
+            TALK("Failed fetching CRS URI with id = " << crsids[c] << " !");
+            LEAVE(ctx << "getCRSURIfromCoverageId()");
+            PQclear(res);
+            query.str("");
+		continue;
+        }
+
+        uris.push_back(PQgetvalue(res, 0, 0));
+        PQclear(res);
+        query.str("");
+    }
+
+	return uris;
+}
+
 std::vector<double>
 RasdamanHelper2::getMetaGeoDomain(double oid, bool defaultOrder)
 {
@@ -2011,41 +2077,41 @@ RasdamanHelper2::getMetaCellSize(double oid, bool defaultOrder)
     if (defaultOrder)
         crsorder = this->getCRSOrder(oid);
 
-    // select any irregular grid axis of the given image
-    //select distinct grid_axis_id, rasdaman_order
-    //    from (select *
-    //        from ps9_grid_axis
-    //        where gridded_coverage_id = 126) v1
-    //        join (select * from ps9_vector_coefficients) v2
-    //             on v1.id = v2.grid_axis_id
-    //        order by rasdaman_order desc
-
+    //// select any irregular grid axis of the given image
+    ////select distinct grid_axis_id, rasdaman_order
+    ////    from (select *
+    ////        from ps9_grid_axis
+    ////        where gridded_coverage_id = 126) v1
+    ////        join (select * from ps9_vector_coefficients) v2
+    ////             on v1.id = v2.grid_axis_id
+    ////        order by rasdaman_order desc
+    //
     std::stringstream query;
     PGresult* res;
-    query << "select distinct grid_axis_id, rasdaman_order "
-          <<     "from (select * "
-          <<               "from " << PSPREFIX << "_grid_axis "
-          <<     "where gridded_coverage_id = " << covid << ") v1 "
-          <<     "join (select * from " << PSPREFIX << "_vector_coefficients) v2 "
-          <<               "on v1.id = v2.grid_axis_id "
-          <<     "order by rasdaman_order asc";
-    TALK("'" << query.str() << "' ...");
-    res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-    if (PGDATAFAILED("getMetaCellSize()", "retrieving irregular axes information failed!", res))
-	{
-		LEAVE(ctx << "getMetaCellSize()");
-		return cellsize;
-	}
+    //query << "select distinct grid_axis_id, rasdaman_order "
+    //      <<     "from (select * "
+    //      <<               "from " << PSPREFIX << "_grid_axis "
+    //      <<     "where gridded_coverage_id = " << covid << ") v1 "
+    //      <<     "join (select * from " << PSPREFIX << "_vector_coefficients) v2 "
+    //      <<               "on v1.id = v2.grid_axis_id "
+    //      <<     "order by rasdaman_order asc";
+    //TALK("'" << query.str() << "' ...");
+    //res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
+    //if (PGDATAFAILED("getMetaCellSize()", "retrieving irregular axes information failed!", res))
+	//{
+	//	LEAVE(ctx << "getMetaCellSize()");
+	//	return cellsize;
+	//}
 
 
-    // map axis id (key) and rasdaman order of irregular axes
-    std::map<int, int> irrRas;
-    for (int i=0; i < PQntuples(res); ++i)
-    {
-        irrRas[atoi(PQgetvalue(res, i, 0))] = (atoi(PQgetvalue(res, i, 1)));
-    }
-    PQclear(res);
-    query.str("");
+    //// map axis id (key) and rasdaman order of irregular axes
+    //std::map<int, int> irrRas;
+    //for (int i=0; i < PQntuples(res); ++i)
+    //{
+    //    irrRas[atoi(PQgetvalue(res, i, 0))] = (atoi(PQgetvalue(res, i, 1)));
+    //}
+    //PQclear(res);
+    //query.str("");
 
     // get offset vectors for grid axis in rasdaman order
     //select id, rasdaman_order, offset_vector
@@ -2081,10 +2147,10 @@ RasdamanHelper2::getMetaCellSize(double oid, bool defaultOrder)
     for (int i=0; i < PQntuples(res); ++i)
     {
         int id = atoi(PQgetvalue(res, i, 0));
-        if (irrRas.find(id) != irrRas.end())
-        {
-            continue;
-        }
+        //if (irrRas.find(id) != irrRas.end())
+        //{
+        //    continue;
+        //}
 
         std::string off_str = PQgetvalue(res, i, 2);
         TALK("offsets for axis_id=" << id << " : " << off_str);
@@ -2527,6 +2593,10 @@ RasdamanHelper2::canAppendReferencedZCoeff(double oid, double coefficient)
         if (coefficient > coeff)
             ++idx;
     }
+    else if (PQntuples(res) == 0 && coefficient >= 0)
+    {
+	idx = 0;
+    }
 
     LEAVE(ctx << "canAppendReferencedZCoeff()");
     return idx;
@@ -2667,9 +2737,14 @@ RasdamanHelper2::writePSMetadata(
                     double cellsize_z,
                     bool isRegular,
                     long irrZPos,
-                    double irregularZ)
+                    double irregularZ,
+                    const std::vector<bool>& axisIndexed)
 {
     ENTER(ctx << "writePSMetadata()");
+
+    /////////////////////////////////////////////////////////////////////////////
+    // PREPARATIONS
+    /////////////////////////////////////////////////////////////////////////////
 
     // calc some metadata based on what we know already
     unsigned int nbands = this->getBaseTypeElementCount(collname);
@@ -2691,6 +2766,10 @@ RasdamanHelper2::writePSMetadata(
         throw r_Error(r_Error::r_Error_LimitsMismatch);
         break;
     }
+
+    ////////////////////////// CREATE rasdaman 2 crs order MAPPING ////////////////////////
+    // we create an array to map rasdaman (default xyz) order to the specified crs order //
+    std::vector<int> ras2crs = this->getRas2CrsMapping(crs_order);
 
     const PGconn* conn = this->m_pRasconn->getPetaConnection();
     if (PQstatus(conn) != CONNECTION_OK)
@@ -2869,10 +2948,6 @@ RasdamanHelper2::writePSMetadata(
 		query.str("");
     }
 
-    ////////////////////////// CREATE rasdaman 2 crs order MAPPING ////////////////////////
-    // we create an array to map rasdaman (default xyz) order to the specified crs order //
-    std::vector<int> ras2crs = this->getRas2CrsMapping(crs_order);
-
     //////////////////////////// PS_DOMAIN_SET //////////////////////////////////
     // now we put the crs_id into the domain set;
     columns.str("");
@@ -2927,30 +3002,30 @@ RasdamanHelper2::writePSMetadata(
     // get min max values ordered according to crs_order
     double minmax[6]; //min0, max0, min1, max1, min2, max2;
     double csordered[3];
-    long pixordered[3];
+    double centreoff[3];
 
     for (int d=0; d < crs_order.size(); ++d)
     {
         if (crs_order[d] == 0)
         {
-            minmax[d*2]   = xmin;
-            minmax[d*2+1] = xmax;
-            csordered[d] = cellsize_x;
-            pixordered[d] = xpix;
+            minmax[d*2]   = axisIndexed[d] ? 0        : xmin;
+            minmax[d*2+1] = axisIndexed[d] ? xpix - 1 : xmax;
+            csordered[d]  = axisIndexed[d] ? 1		  : cellsize_x;
+            centreoff[d]  = axisIndexed[d] ? 0        : 0.5*cellsize_x;
         }
         else if (crs_order[d] == 1)
         {
-            minmax[d*2]   = ymin;
-            minmax[d*2+1] = ymax;
-            csordered[d] = cellsize_y;
-            pixordered[d] = ypix;
+            minmax[d*2]   = axisIndexed[d] ? 0        : ymin;
+            minmax[d*2+1] = axisIndexed[d] ? ypix - 1 : ymax;
+            csordered[d]  = axisIndexed[d] ? -1       : -cellsize_y;
+            centreoff[d]  = axisIndexed[d] ? 0        : -0.5*cellsize_y;
         }
         else if (crs_order[d] == 2)
         {
-            minmax[d*2]    = zmin;
-            minmax[d*2+1] = zmax;
-            csordered[d] = cellsize_z;
-            pixordered[d] = zpix;
+            minmax[d*2]   = isRegular  ? (axisIndexed[d] ? 0        : zmin)           : zmin;
+            minmax[d*2+1] = isRegular  ? (axisIndexed[d] ? zpix - 1 : zmax)           : zmax;
+            csordered[d]  = isRegular  ? (axisIndexed[d] ? 1        : cellsize_z)     : cellsize_z;
+            centreoff[d]  = isRegular  ? (axisIndexed[d] ? 0        : 0.5*cellsize_z) : 0;
         }
     }
 
@@ -2960,13 +3035,15 @@ RasdamanHelper2::writePSMetadata(
     columns.str("");
     columns << "(coverage_id, grid_origin)";
     values.str("");
-    double origin[] = {minmax[0],// + (0.5 * xpix),
-                       minmax[2],// + (0.5 * ypix),
-                       minmax[4]};// + (0.5 * zpix)};
+    double origin[]	= {
+				   crs_order[0] == 1 ? (axisIndexed[0] ? ypix-1 : minmax[1]+centreoff[0]) : minmax[0]+centreoff[0], //(axisIndexed[0] ? 0 : minmax[0]+centreoff[0]),
+                       crs_order[1] == 1 ? (axisIndexed[1] ? ypix-1 : minmax[3]+centreoff[1]) : minmax[2]+centreoff[1], //(axisIndexed[1] ? 0 : minmax[2]+centreoff[1]),
+                       crs_order[2] == 1 ? (axisIndexed[2] ? ypix-1 : minmax[5]+centreoff[2]) : minmax[4]+centreoff[2] //(axisIndexed[2] ? 0 : minmax[4]+centreoff[2])
+                      };
     values << "(" << covid << ", '{";// << crs_id << "}')";
     for (int d=0; d < ndims; ++d)
     {
-        values << origin[d];
+		values << origin[d];
         if (d < ndims-1)
             values << ",";
     }
@@ -3017,26 +3094,6 @@ RasdamanHelper2::writePSMetadata(
     std::string comma = ",";
     values << "(" << covid << ", '{";
 
-    // we also prepare the offset vector for the ps_rectilinear_axis table here;
-    // determine cell sizes first; and note that since origin[1] = ymin ! (we put
-    // the origin at the lower left (for 2D) pixel corner) the y-offset
-    // component is positive
-
-    // if we've got some pixel for a given axis imported yet, we work out the
-    // cellsize based on the boundary and the number of pixel, otherwise,
-    // we use the values determined by the calling application
-    double cs0 = pixordered[0] >= 0 ? (abs(minmax[1] - minmax[0])) / (double)pixordered[0] : csordered[0];
-    double cs1 = pixordered[1] >= 0 ? (abs(minmax[3] - minmax[2])) / (double)pixordered[1] : csordered[1];
-    double cs2 = pixordered[2] >= 0 ? (abs(minmax[5] - minmax[4])) / (double)pixordered[2] : csordered[2];
-
-    // ToDo:: check in conjunction with populating ps_rectilinear axis upon image insertion
-    //        (not relevant for update)
-    //        for an irregular z-axis, replace cell size value with offset to the first z-coordinate
-    if (!isRegular)
-    {
-        csordered[ras2crs[2]] = irregularZ;
-    }
-
     std::vector<std::string> voffsets;
     voffsets.resize(ndims);
     std::stringstream voffstr;
@@ -3046,7 +3103,7 @@ RasdamanHelper2::writePSMetadata(
     {
     case 1:
         values << minmax[0] << arclop << minmax[1] << valcl;
-        // x off-set
+        // dim0 off-set
         voffstr << "'{" << csordered[0] << "}'";
         voffsets[0] = voffstr.str();
         voffstr.str("");
@@ -3055,12 +3112,12 @@ RasdamanHelper2::writePSMetadata(
         values << minmax[0] << comma << minmax[2] << arclop
                << minmax[1] << comma << minmax[3] << valcl;
 
-        // x off-set
+        // dim0 off-set
         voffstr << "'{" << csordered[0] << comma << 0 << "}'";
         voffsets[0] = voffstr.str();
         voffstr.str("");
 
-        // y off-set
+        // dim1 off-set
         voffstr << "'{" << 0 << comma << csordered[1] << "}'";
         voffsets[1] = voffstr.str();
         voffstr.str("");
@@ -3071,17 +3128,17 @@ RasdamanHelper2::writePSMetadata(
         values << minmax[0] << comma << minmax[2] << comma << minmax[4] << arclop
                << minmax[1] << comma << minmax[3] << comma << minmax[5] << valcl;
 
-        // 0-dim (x) off-set
+        // 0-dim off-set
         voffstr << "'{" << csordered[0] << comma << 0 << comma << 0 << "}'";
         voffsets[0] = voffstr.str();
         voffstr.str("");
 
-        // 1-dim (y) off-set
+        // 1-dim off-set
         voffstr << "'{" << 0 << comma << csordered[1] << comma << 0 << "}'";
         voffsets[1] = voffstr.str();
         voffstr.str("");
 
-        // 2-dim (z) off-set
+        // 2-dim off-set
         voffstr << "'{" << 0 << comma << 0 << comma << csordered[2] << "}'";
         voffsets[2] = voffstr.str();
         voffstr.str("");
@@ -3251,10 +3308,6 @@ RasdamanHelper2::writePSMetadata(
     query.str("");
 
     /////////////////////////////// PS_RECTILINIEAR_AXIS ////////////////////////////////////
-    // ToDo:: check whether irregular axis treatment here is ok: as offset for the irregular
-    //        axis, we set the first z-coordinate along this axis (s. also population of voffstr
-    //        above)
-
     if (!bUpdate)
     {
 
@@ -3280,32 +3333,32 @@ RasdamanHelper2::writePSMetadata(
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////
-    // NEED TO UPDATE THIS ONE
+    // THIS IS UPDATE ONLY,
     /////////////////////////////// PS_VECTOR_COEFFICIENTS /////////////////////////////////
 
-    // we can only have the z-axis being irregular, so we look for the ordered axis index = 2
-    columns.str("");
-    columns << "(grid_axis_id, coefficient, coefficient_order)";
-    for (int d = 0; d < ndims; ++d)
-    {
-        // only irregular axes
-        if (!isRegular && crs_order[d] == 2)
-        {
-            query << "insert into " << PSPREFIX << "_vector_coefficients " << columns.str()
-                      << " values (" << axisids[d] << "," << irregularZ
-                      << ", " << irrZPos << ")";
+	// we can only have the z-axis being irregular, so we look for the ordered axis index = 2
+	columns.str("");
+	columns << "(grid_axis_id, coefficient, coefficient_order)";
+	for (int d = 0; d < ndims; ++d)
+	{
+		// only irregular axes
+		if (!isRegular && crs_order[d] == 2)
+		{
+			query << "insert into " << PSPREFIX << "_vector_coefficients " << columns.str()
+					  << " values (" << axisids[d] << "," << irregularZ
+					  << ", " << irrZPos << ")";
 
-            TALK("'" << query.str() << "' ...");
-            res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
-            if (PGFAILED("writePSMetdata()", "failed to insert info into ps_vector_coefficients!", res))
-            {
-                LEAVE(ctx << "writePSMetadata()");
-                return 0;
-            }
-            PQclear(res);
-            query.str("");
-        }
-    }
+			TALK("'" << query.str() << "' ...");
+			res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
+			if (PGFAILED("writePSMetdata()", "failed to insert info into ps_vector_coefficients!", res))
+			{
+				LEAVE(ctx << "writePSMetadata()");
+				return 0;
+			}
+			PQclear(res);
+			query.str("");
+		}
+	}
 
     if (!bUpdate)
     {

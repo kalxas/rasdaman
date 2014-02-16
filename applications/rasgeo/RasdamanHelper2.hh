@@ -359,7 +359,8 @@ public:
         double cellsize_z,
         bool isRegular,
         long irrZPos,
-        double irregularZ);
+        double irregularZ,
+        const std::vector<bool>& axisIndexed);
 
     int writeExtraMetadata(long oid,
             const std::string& metadata);
@@ -418,6 +419,9 @@ public:
      */
     std::string getCRSURIfromWKT(const std::string& crsWKT,
             unsigned char dim, std::string& epsg);
+
+    /* */
+    std::vector<std::string> getCRSURIsfromCoverageId(long covid);
 
     /* \brief Checks whether DB connection to the rasdaman database
      *        is alive by committing an empty transaction.

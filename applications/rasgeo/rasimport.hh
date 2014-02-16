@@ -133,23 +133,29 @@ bool parseCoordinateString(string bndstr, vector<double>& bnd);
 bool checkCRSOrderSequence(std::vector<double>& sequence, std::vector<int>& order);
 bool checkZCoords(std::vector<double>& coords);
 
-/** parses a colon (':') separated sequence of strings and appends them to the vector 'items';
- *  a value of nelem > 0 specifies the minimum number of expected items to be found
+void getMetaURIs(Header& header, RasdamanHelper2& helper, bool b3D);
+
+/*! parses a colon (':') separated sequence of strings and appends them to the vector 'items';
+ *  \param sequence string to be parsed
+ *  \param items string taking successully parsed substrings
+ *  \param nelem a value of nelem > 0 specifies the minimum number of expected items to be found;
+ *  \param vesp specifies 'validator' strings; i.e. the colon separator is only considered to be
+ *              valid, if a 'validator' string follows immediately
  */
 bool parseStringSequence(const std::string& sequence,
-        std::vector<std::string>& items, int nelem=-1,
-        const std::string& sep=":");
+        std::vector<std::string>& items, int nelem,
+        const std::vector<std::string>& vsep);
 void showHelp();
 
 int importImage(RasdamanHelper2& helper, GDALDataset* pDs, const string& collname, vector<double>& oids,
                 r_Minterval& readGDALImgDOM, r_Point& writeShift, Header& newGeoRegion,
                 bool asCube, const string& marraytypename, const string& tiling, const string& coveragename,
-                double zcoord);
+                double zcoord, const vector<bool>& axisIndexed);
 
 int processImageFiles(vector<string>& filenames, const string& collname, vector<double>& oids,
                       Header& processRegion, const string& mode3D, r_Point& shiftPt, RasdamanHelper2& helper,
                       const string& marraytypename, const string& tiling, const string& coveragename,
-                      const vector<double>& zcoords);
+                      const vector<double>& zcoords, const vector<bool>& axisIndexed);
 
 void intersectRegions2D(Header& inoutRegion, Header& intersectRegion);
 void intersectRegions2D(Header& inoutRegion, std::vector<double>& intersectRegions);

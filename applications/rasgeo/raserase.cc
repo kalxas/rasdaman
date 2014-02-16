@@ -69,6 +69,7 @@ int main(int argc, char** argv)
     if (argc < 2)
     {
         showEraseHelp();
+        LEAVE(ctx);
         return EXIT_SUCCESS;
     }
 

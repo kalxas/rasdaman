@@ -11,15 +11,19 @@ FEATURES
 - mosaicing (i.e. import of multiple source images into one rasdaman image)
 - subsetting of input image(s)
 - multi-band image support
-  - import of bands as individual images of a collection (e.g. NETCDF temporal bands), or
+  - import of bands as individual images of a collection (e.g. NETCDF temporal
+    bands), or
   - import of bands as pixel components of a user-defined type (e.g. RGB images)
 - supports rasql-based tiling specifications
 - creation of 3D cubes from 2D x/y slices
-- support for 'ReferencableGridCoverage' (i.e. images irregularly spaced along the 3rd dimension (z-axis))
 - raster attribute table support
 - row-based sequential processing of large image files
 - population of the petascope data base (for WCS / WCPS / WPS)
-- import of extra metadata into the petascope database
+  - Coordinate Reference System (CRS) resolver support
+  - CRS order specification
+  - support for 'ReferencableGridCoverage' (i.e. images irregularly spaced along
+    the 3rd dimension (z-axis))
+  - import of extra metadata into the petascope database
 - image deletion (incl. petascope metadata entries as well as raster attribute
   tables if applicable)
 - collection deletion
@@ -105,9 +109,9 @@ RASERASE
 raserase deletes rasdaman collections, rasdaman images, and/or petascope metadata,
 depending on the specified parameters. If only a collection name is specified,
 raserase deletes the entire collection including all its individual images and
-the associated petascope metadata, if applicable. A particular image and its metadata
-can be erased by additionally specifying the local object identifier (--oid).
-If the image is referenced in the petascope metadata, the coverage name
+the associated petascope metadata, if applicable. A particular image and its
+metadata can be erased by additionally specifying the local object identifier
+(--oid). If the image is referenced in the petascope metadata, the coverage name
 (--coverage) of the image can be used alternatively. The --ps-metadata option
 ensures, that only the petascope metadata is erased for the specified image or
 collection of images, but not the image data itself.
@@ -115,9 +119,12 @@ collection of images, but not the image data itself.
 
 SYNOPSIS:
 
+$ raserase
+
 raserase v1.0
 
-Usage: raserase {--coll <collection> [--oid <OID>] | --coverage <coverage_name>} [--conn <connection file>] [--ps-metadata]
+Usage: raserase {--coll <collection> [--oid <OID>] | --coverage <coverage_name>}
+[--conn <connection file>] [--ps-metadata]
 
  --coll        name of rasdaman collection to delete
  --conn        connection file specifying rasdaman and postgres DB
@@ -163,10 +170,10 @@ Usage: rasimport {-f <image file name> | -d <image directory> [-s <tiff | img | 
  --crs-order      order in which CRSs are specified by the '--crs-uri' identifer(s)
                   (e.g. '--crs-order 2:0:1' for axis order <z:x:y>)
  --crs-uri        resolvable coordinate reference system (CRS) identifier(s)
-                  (e.g. {resolver_prefix}/def/crs/OGC/0.1/Index2D);
+                  (e.g. http://www.opengis.net/def/crs/EPSG/0/27200);
  --geo-bbox       geospatial boundary of the image (edges) (e.g. xmin:xmax:ymin:ymax)
- --metadata       extra metadata to be stored with the coverage in the petascope database
- --z-coords       z-axis coordinate(s) of the 2D image slice(s) to be imported
+ --metadata       extra metadata (e.g. GMLCOV, OWS) to be stored with the coverage in the petascope database
+ --z-coords       (irregularly spaced) z-axis coordinate(s) of the 2D image slice(s) to be imported
 
 Note: Coordinates have to be given in the appropriate (geospatial) coordinate reference system of the particular image(s)!
 
@@ -217,9 +224,11 @@ IMPORT OPTIONS EXPLAINED
           - if necessary, rasimport adjusts the spatial domain of the target
             image accordingly and updates the associated entries in the petascope
             database
-         !- if the CRS oder of the target image does not follow the default
+         !- if the CRS order of the target image does not follow the default
             xyz axis-order, an appropriate --crs-order parameter needs to
             be specified additionally
+          - for update operations on a single image referenced in the petascope
+            metadata base, the --coverage-name parameter can also be used instead
 
 --3D    -> indicates 3D operation mode
           - if the specified target collection does not exist, rasimport creates
@@ -235,16 +244,19 @@ IMPORT OPTIONS EXPLAINED
             (s. --z-coords for further details)
 
 --bnd   -> specifies the maximum import region considered by rasimport;
-          - rasimport snaps the specified (x/y) boundary to the nearest pixel border;
+          - rasimport snaps the specified (x/y) boundary to the nearest pixel
+            border;
           - the spatial domain of the created image is the intersection of the
-            boundary region (-bnd) with the union of all input image domains
+            boundary region (--bnd) with the union of all input image domains
 
 --shift  -> shifts the origin of the import image(s) by the given vector;
            - the shift vector is applied to each input image file;
-           - if used in conjunction with the -3D option, the z-shift is
+          !- if used in conjunction with the --3D option, the z-shift is
              always relativ to zero; if used together with the -d option, new
              slices are successively imported either on top or underneath of
              each other relative to the given z-shift (s. USE CASES below)
+          !- the given shift coordinates are only applied to regularly spaced
+             axes, which are not defined as Index<n>D axes!
 
 --tiling -> specify tiling that will be used when importing the data. The tiling
             argument is passed on verbatim to rasdaman, so it should conform to
@@ -253,55 +265,87 @@ IMPORT OPTIONS EXPLAINED
                 [ TILING tilingName tilingOptions [ TILE SIZE tileSize ] ]
                 [ INDEX indexName ]
 
---crs-order -> defines the order of CRS axis as specified with --crs-uri
+--crs-order -> defines the order of CRS axes as specified with --crs-uri
              - for example the axis order latitude-longitude-time (i.e. <y:x:t>)
                would be specified with '--crs-order 1:0:2'
              - if CRS axes, specified with --crs-uri, follow the default order
                (i.e. <x:y[:z]>), this parameter can be omitted
-            !- when an image update operation is performed, the user is responsible
-               for specifying the appropriate crs-order if it differs from
-               the default xyz axis order
+            !- when an image update operation is performed, the user is
+               responsible for specifying the appropriate crs-order if it
+               differs from the default xyz axis order
 
 --crs-uri   -> resolvable coordinate reference system (CRS) identifier(s)
                (e.g. (in full) http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index2D)
-              - specifies one or more CRS identifier pointing to a CRS resolver (e.g. SECORE);
-                NOTE: rasimport expects URIs to use the petascope resolver prefix '%SECORE%',
-                e.g.: %SECORE%/def/crs/EPSG/0/4326 , rather than an actual server URI (i.e. http://...);
-                petascope replaces %SECORE% with a server specified in the '$RMANHOME/etc/petascope.properties'
-                configuration file
+              - specifies one or more CRS identifier pointing to a CRS resolver
+                (e.g. SECORE);
+                NOTE: rasimport expects URIs to either use the petascope resolver
+                prefix '%SECORE_URL%', e.g.: %SECORE_URL%/crs/EPSG/0/4326 ,
+                or to start with 'http://'. No further URI validation is performed
+                by rasimport.
+                In case the SECORE URL prefix was specified, petascope replaces
+                 %SECORE_URL% with a server specified in the
+                '$RMANHOME/etc/petascope.properties' configuration file
               - compound CRS (e.g. 2D for space and 1D for time) are defined by
-                concatenating the particular CRS identifier by colons (':')
-                (e.g. a 3D spatio-temporal image cube with axis order latitude-longitude-time could
-                be specified with --crs-uri %SECORE%/def/crs/EPSG/0/4326:%SECORE%/def/crs/OGC/0/AnsiDate
+                concatenating the particular CRS identifier by colons ':'
+                (e.g. a 3D spatio-temporal image cube with axis order latitude-
+                longitude-time could be specified with
+                --crs-uri http://www.opengis.net/def/crs/EPSG/0/4326:%SECORE_URL%/crs/OGC/0/AnsiDate
                 (cf. OGC 11-135r2)
-              - if CRS axis are not specified in default order (i.e. x:y:z), as in the example
-                given above (i.e. <y:x:t>), the axis order has to be specified
-                using --crs-order
+              - if CRS axes are not specified in default order (i.e. x:y:z), as
+                in the example given above (i.e. <y:x:t>), the axis order has to
+                be specified using the --crs-order parameter
+             !- if a regularly spaced axis is defined as indexed (e.g. --crs-uri %SECORE_URL%/crs/OGC/0/Index2D ),
+                all available GDAL readable coordinate information is lost (i.e. corner coordinates)
+                and the axis are defined in pixel space as follows:
+                origin:        {0, nrows-1, 0}
+                offset vector: x{1,0,0}, y{0,-1,0}, z{0,0,1}
+                lower_left:    {0,0,0}
+                upper_right:   {ncols-1,nrows-1,nslices-1}
+             !- rasimport only supports irregularly spaced z-axes (i.e. x/y axes are always
+                assumed to be regular)
+             !- if an irregularly spaced axis is defined as indexed the following parameters are set
+                (s. --z-coords for further details):
+                origin:        {0, nrows-1, first_z_coordinate}
+                offset vector: x{1,0,0}, y{0,-1,0}, z{0,0,cellsize_z}
+                lower_left:    {0,0,first_z_coordinate}
+                upper_right:   {ncols-1,nrows-1,last_z_coordinate}
 
 --geo-bbox   -> geospatial boundary of the image (edges) (e.g. xmin:xmax:ymin:ymax)
                - only evaluated for images with regularly spaced axes
                - overwrites any extent information derived from the original input file(s)
                  (the user is always right!)
 
---metadata   -> extra metadata to be stored with the coverage in the petascope database
-               - metadata is to be supplied as <Key=Value> strings separated by colons (':')
-                 e.g. --metadata "Source=LCDB 3:Attribute=Land Cover Class:Value=High Producing Exotic Grass"
-               - Key's
+--metadata   -> extra metadata to be stored with the coverage in the petascope
+                database
+               - metadata is to be specified as <Key=Value> strings separated by
+                 colons ':' e.g. --metadata "Source=LCDB 3:Attribute=Land Cover
+                 Class:Value=High Producing Exotic Grass"
+               - Keys are added to the ps_extra_metadata_type table
+               - Values are added to the ps_extra_metadata table
+               - NOTE: keys for GMLCOV and OWS metadata are 'gmlcov' and 'ows'
+                 respectively, e.g.: --metadata "gmlcov=my gmlcov metadata"
 
---coverage-name -> name under which the imported image is exposed as WCPS/WCS coverage
-                  - if this parameter is omitted, rasimport uses <collection name>_<OID> to
-                    create a unique name
+--coverage-name -> name under which the imported image is exposed as WCPS/WCS
+                   coverage
+                  - if this parameter is omitted, rasimport uses
+                    <collection name>_<OID> to create a unique coverage name
+                  - may be used to instead of --oid to specify a single image
+                    to be updated
 
---z-coords    -> z-axis coordinate(s) of the 2D image slice(s) to be imported
-                - only applicable to 3D images, which are irregularly spaced along
-                  the 3rd dimension (z-axis) (e.g. space-time cube)
-                - the GML coverage type in petascope (s. ps_gml_subtype) will be set to
-                  'ReferencableGridCoverage', if this parameter is specified
-               !- use the --csz and/or --shift parameters to specify z-coordinates
-                  for images which are regularly spaced along the z-axis
-               !- rasimport only supports append operations to the cube (i.e. no insert,
-                  update or prepend operations);
-               !- z-coordinates have to be specified in strictly ascending order (i+1 > i)!
+--z-coords    -> (absolute) z-axis coordinate(s) of the 2D image slice(s) to be imported
+                - only applicable to 3D images, which are irregularly spaced
+                  along the 3rd dimension (z-axis) (e.g. space-time cube)
+                - the GML coverage type in petascope (s. ps_gml_subtype) will be
+                  set to 'ReferencableGridCoverage'
+               !- use the --csz parameter to specify the irregular axis' offset
+                  vector upon import of the first image slice (can be omitted
+                  thereafter)
+               !- --shift coordinates are not applied to irregular axes
+               !- rasimport only supports append operations to the cube (i.e.
+                  no insert, update or prepend operations);
+               !- z-coordinates have to be specified in strictly ascending order
+                  (i+1 > i)!
+
 
 Raster Attribute Table Support
 ==============================
@@ -311,12 +355,12 @@ following scheme:
 
     rat<1-based band number>_<OID>
 
-The name of the individual tables is stored in the petascope ps_extra_metadata table using
-the data type 'attrtable_name', e.g.
+The name of the individual tables is stored in the petascope ps_extra_metadata
+table using the data type 'attrtable_name', e.g.
 
-    ps9petascopedb=# select name,type,value from (ps9_extra_metadata as t1 inner join
-    ps9_extra_metadata_type as t2 on t1.metadata_type_id = t2.id) as v1 inner join
-    ps9_coverage as t3 on v1.coverage_id = t3.id where type = 'attrtable_name';
+    ps9petascopedb=# select name,type,value from (ps_extra_metadata as t1 inner join
+    ps_extra_metadata_type as t2 on t1.metadata_type_id = t2.id) as v1 inner join
+    ps_coverage as t3 on v1.coverage_id = t3.id where type = 'attrtable_name';
           name       |      type      |   value
     -----------------+----------------+------------
      landuse_22017   | attrtable_name | rat1_22017
@@ -327,7 +371,7 @@ USE CASES
 =========
 
 - import of file landuse.img into collection landuse
-     user@host:/img$ rasimport -f landuse.img --coll landuse
+     $ rasimport -f landuse.img --coll landuse
 
 - import of a multi-band (RGB) image rgb.img into an image with composite
   pixeltype, which might be registered with rasdaman as follows:
@@ -339,13 +383,13 @@ USE CASES
              (rasdaman/manuals_and_examples/manuals/pdf/ql-guide.pdf) for more
              information on how to define custom data types.
 
-     user@host:/img$ rasimport -f clouds.jpg --coll clouds -t RGBImage:RGBSet
+     $ rasimport -f clouds.jpg --coll clouds -t RGBImage:RGBSet
 
 
 - import of a NETCDF subdataset with 24 bands;
   first let's have a look at the NETCDF file with gdalinfo:
 
-     alex@WorkingBee:~/garage/img$ gdalinfo tos_O1_2001-2002.nc
+     $ gdalinfo tos_O1_2001-2002.nc
      Driver: netCDF/Network Common Data Format
      Files: tos_O1_2001-2002.nc
      Size is 512, 512
@@ -364,13 +408,13 @@ USE CASES
   to import all 24 bands of subdataset 4 'NETCDF:"tos_O1_2001-2002.nc":tos' as individual
   images into collection 'seatemp24', just call
 
-  alex@WorkingBee:~/garage/img$ rasimport -f NETCDF:"tos_O1_2001-2002.nc":tos --coll seatemp24
+  $ rasimport -f NETCDF:"tos_O1_2001-2002.nc":tos --coll seatemp24
 
   note that we supply the name of the subdataset as reported by gdalinfo (see above) as
   filename of the dataset to the -f rasimport parameter; querying the spatial domain of
   the new collection then yields
 
-  alex@WorkingBee:~/garage/img$ rasql -q "select sdom(m) from seatemp24 as m" --out string
+  $ rasql -q "select sdom(m) from seatemp24 as m" --out string
   rasql: rasdaman query tool v1.0, rasdaman v8 -- generated on 27.02.2012 13:49:25.
   opening database RASBASE at localhost:7001...ok
   Executing retrieval query...ok
@@ -384,7 +428,8 @@ USE CASES
 
 
 - import of multiple *.tiff image tiles into one rasdaman image
-     user@host:/img$ rasimport -d ./mytiles -s tiff --coll imagemosaic
+
+     $ rasimport -d ./mytiles -s tiff --coll imagemosaic
 
      note: in this case '-s tiff' denotes the actual suffix of the
            image files to be considered; e.g. in a directory with this
@@ -400,25 +445,33 @@ USE CASES
            rasimport
 
 - import of a user specified region split across multiple source files into
-  one rasdaman image
-     alex@WorkingBee:~/garage/img$ rasimport -d t6 --coll t6 --bnd 2023248:2072652:5488219:5525730
+  one rasdaman image; note that if there is no suitable CRS information stored
+  in the GDAL metadata, you have to explicitly specify --crs-uri for the
+  --bnd paramter to work as expected!
 
-  The final geospatial image domain is
+     $ rasimport -d t6 --coll t6 --bnd 2023248:2072652:5488219:5525730
+     --crs-uri %SECORE_URL%/crs/EPSG/0/27200
 
-    ps9petascopedb=# select coverage_id, name, lower_left, upper_right from ps9_coverage as t1
-    inner join ps9_bounding_box as t2 on t1.id = t2.coverage_id where name = 't6_30209';
-     coverage_id |   name   |    lower_left     |    upper_right
-    -------------+----------+-------------------+-------------------
-              49 | t6_30209 | {2023250,5488220} | {2072650,5525730}
+     # resulting bounding box of the sub setting and mosaicing operation
 
+     petascopedb=# select lower_left, upper_right from ps_bounding_box,
+     ps_coverage where ps_bounding_box.coverage_id = ps_coverage.id and
+     ps_coverage.name = 't6_26113';
+         lower_left     |    upper_right
+     -------------------+-------------------
+      {2023250,5488220} | {2072650,5525730}
 
 - update of image with OID '1203' in collection 'mycollection' with 'update.img'
-     user@host:/img$ rasimport -f update.img --coll mycollection --oid 1203
 
-- creation of a 3D image from multiple x/y image slices; we've got three slices
-  and the images are stored in a separate directory:
+     $ rasimport -f update.img --coll mycollection --oid 1203
 
-     alex@workingBee:~/garage/img/cube$ ls -l
+- creation of a 3D image from multiple x/y image slices; note that this example
+  requires that image metadata contains an appropriate CRS definition for the
+  --shift upon update to work (s. further below)!
+
+  # we've got three slices and the images are stored in a separate directory:
+
+     $ ls -l
      total 36
      -rw-r--r-- 1 alex alex 10258 2011-11-04 18:07 layer0.tif
      -rw-r--r-- 1 alex alex 10258 2011-11-04 18:07 layer1.tif
@@ -426,25 +479,25 @@ USE CASES
 
   To create a 3D cube we call rasimport with the following parameters:
 
-     alex@WorkingBee:~/garage/img$ rasimport -d cube --coll cube --3D top
+     $ rasimport -d cube --coll cube --3D top
 
-  rasimport processes the images in the order they are listed by the 'ls -l'
-  command (s. above); querying the spatial domain of cube yields the following:
+  rasimport processes the images according to the alphabetically ascending order of their
+  file names; querying the spatial domain of cube yields the following:
 
-     alex@WorkingBee:~/garage/img$ rasql -q "select sdom(m) from cube as m" --out string
+     $ rasql -q "select sdom(m) from cube as m" --out string
 
        Result element 1: [0:99,0:99,0:2]
 
-   with
+     with
 
-      layer0.tif     -> [0:99,0:99,0:0]
-      layer1.tif     -> [0:99,0:99,1:1]
-      layer2.tif     -> [0:99,0:99,2:2]
+       layer0.tif     -> [0:99,0:99,0:0]
+       layer1.tif     -> [0:99,0:99,1:1]
+       layer2.tif     -> [0:99,0:99,2:2]
 
   If we want to add further layers on top of the present one, we could do
   something like this
 
-     alex@WorkingBee:~/garage/img$ rasimport -d imageDir --coll cube --oid 3974 --3d top --shift 0:0:3
+     $ rasimport -d imageDir --coll cube --oid 3974 --3d top --shift 0:0:3
 
   where the new layers are stored in 'imageDir', '3974' is the local object
   identifier of the previously created image in collection 'cube' and '0:0:3'
@@ -455,27 +508,152 @@ USE CASES
                         [0:99,0:99,0:5]
 
 
-- import of 2D x/y-image aslice.img into the 3D collection 'thecube'
-  (if 'thecube' already exists in the database, aslice.img is added
-  as new 3D image into the collection 'thecube')
-     user@host:/img/$ rasimport -f aslice.tiff --coll thecube --3D top
-
-
 - update of a multi-band (RGB) image with image rgb.img; the origin of rgb.img
   (top left corner) shall be shifted by 150 units in x and y direction relative
   to the (top left corner) origin of the original image; the individual bands
   of the original image were imported as separate images into the target collection
   rgb; the (pre-update) spatial domain of the image(s) is as follows:
 
-      r (OID: 14337) -> [0:99,0:99]
-      g (OID: 14849) -> [0:99,0:99]
-      b (OID: 15361) -> [0:99,0:99]
+       r (OID: 14337) -> [0:99,0:99]
+       g (OID: 14849) -> [0:99,0:99]
+       b (OID: 15361) -> [0:99,0:99]
 
-     user@host:/img$ rasimport -f rgb.img --coll rgb --oid 14337:14849:15361 --shift 150:150
+     $ rasimport -f rgb.img --coll rgb --oid 14337:14849:15361 --shift 150:150
+     --crs-uri %SECORE_URL%/crs/EPSG/0/27200
 
-      r (OID: 14337) -> [0:249,0:249]
-      g (OID: 14849) -> [0:249,0:249]
-      b (OID: 15361) -> [0:249,0:249]
+       r (OID: 14337) -> [0:249,0:249]
+       g (OID: 14849) -> [0:249,0:249]
+       b (OID: 15361) -> [0:249,0:249]
+
+
+- usage of --crs-uri and --crs-order parameters, e.g. import of WGS84 2D image
+  (mean_summer_airtemp.tif)
+
+     # image corner coordinates as reported by gdalinfo
+     Corner Coordinates:
+     Upper Left  ( 111.9750000,  -8.9750000)
+     Lower Left  ( 111.9750000, -44.5250000)
+     Upper Right ( 156.2750000,  -8.9750000)
+     Lower Right ( 156.2750000, -44.5250000)
+     Center      ( 134.1250000, -26.7500000)
+
+     # note that the axis order of WGS84 is latitude longitude (i.e. y:x)
+     $ rasimport -f mean_summer_airtemp.tif --coll mr --coverage-name mr1
+     --crs-uri %SECORE_URL%/crs/EPSG/0/4326 --crs-order 1:0
+
+     # RESULTS
+
+     petascopedb=# select * from getCrs('mr1');
+      id |             uri
+     ----+------------------------------
+       6 | %SECORE_URL%/crs/EPSG/0/4326
+
+     petascopedb=# select * from getDomainSet('mr1');
+      rasdaman_order | grid_origin | offset_vector
+     ----------------+-------------+---------------
+                   0 | {-9,112}    | {0,0.05}
+                   1 | {-9,112}    | {-0.05,0}
+
+     petascopedb=# select lower_left, upper_right from ps_bounding_box, ps_coverage
+     where ps_bounding_box.coverage_id = ps_coverage.id and ps_coverage.name = 'mr1';
+         lower_left     |   upper_right
+     -------------------+------------------
+      {-44.525,111.975} | {-8.975,156.275}
+
+
+- no CRS definition present in GDAL metadata and none specified either:
+
+     $ rasimport -f t1.img --coll t1 --coverage-name t1
+     Couldn't find any CRS info in file metadata! Set CRS URI to:
+     %SECORE_URL%/crs/OGC/0/Index2D
+
+     # RESULTS
+
+     petascopedb=# select * from getDomainSet('t1');
+      rasdaman_order | grid_origin | offset_vector
+     ----------------+-------------+---------------
+                   0 | {0,6879}    | {1,0}
+                   1 | {0,6879}    | {0,-1}
+
+     petascopedb=# select lower_left, upper_right from ps_bounding_box,
+     ps_coverage where ps_bounding_box.coverage_id = ps_coverage.id and
+     ps_coverage.name = 't1';
+      lower_left | upper_right
+     ------------+-------------
+      {0,0}      | {7889,6879}
+
+
+- no CRS definition present in GDAL metadata but CRS URI specified upon import
+
+     # gdalinfo extract of t1.img
+     Size is 7890, 6880
+     Coordinate System is `'
+     Origin = (2012800.000000000000000,5529800.000000000000000)
+     Pixel Size = (10.000000000000000,-10.000000000000000)
+     Corner Coordinates:
+     Upper Left  ( 2012800.000, 5529800.000)
+     Lower Left  ( 2012800.000, 5461000.000)
+     Upper Right ( 2091700.000, 5529800.000)
+     Lower Right ( 2091700.000, 5461000.000)
+     Center      ( 2052250.000, 5495400.000)
+
+     $ rasimport -f t1.img --coll t1 --coverage-name t1
+     --crs-uri %SECORE_URL%/crs/EPSG/0/27200
+
+     #RESULTS
+
+     petascopedb=# select * from getDomainSet('t2');
+      rasdaman_order |    grid_origin    | offset_vector
+     ----------------+-------------------+---------------
+                   0 | {2012805,5529795} | {10,0}
+                   1 | {2012805,5529795} | {0,-10}
+
+     petascopedb=# select lower_left, upper_right from ps_bounding_box,
+     ps_coverage where ps_bounding_box.coverage_id = ps_coverage.id and
+     ps_coverage.name = 't2';
+         lower_left     |    upper_right
+     -------------------+-------------------
+      {2012800,5461000} | {2091700,5529800}
+
+
+- import of a space-time cube, which is irregularly spaced along the time axis;
+  x and y axis coordinates are defined in pixel space, whereas the time
+  (z-coordinates) are defined as ANSI date; the order of the coordinate reference
+  system axes is given as z:x:y (i.e. 2:0:1)
+
+     $ rasimport -d mrcube --coll spacetime --coverage-name mrc1
+     --z-coords 149536:149546:149550
+     --crs-uri %SECORE_URL%/crs/OGC/0/AnsiDate:%SECORE_URL%/crs/OGC/0/Index2D
+     --crs-order 2:0:1 --csz 7
+
+     # RESULTS
+
+     petascopedb=# select * from getCrs('mrc1');
+      id |               uri
+     ----+---------------------------------
+       1 | %SECORE_URL%/crs/OGC/0/AnsiDate
+       3 | %SECORE_URL%/crs/OGC/0/Index2D
+
+     petascopedb=# select * from getDomainSet('mrc1');
+      rasdaman_order |   grid_origin    | offset_vector
+     ----------------+------------------+---------------
+                   0 | {149536,0,210.5} | {0,1,0}
+                   1 | {149536,0,210.5} | {0,0,1}
+                   2 | {149536,0,210.5} | {7,0,0}
+
+     petascopedb=# select lower_left, upper_right from ps_bounding_box,
+     ps_coverage where ps_bounding_box.coverage_id = ps_coverage.id and
+     ps_coverage.name = 'mrc1';
+       lower_left  |   upper_right
+     --------------+------------------
+      {149536,0,0} | {149550,255,210}
+
+     petascopedb=# select * from ps_vector_coefficients;
+      grid_axis_id | coefficient | coefficient_order
+     --------------+-------------+-------------------
+               123 |           0 |                 0
+               123 |     1.42857 |                 1
+               123 |           2 |                 2
 
 
 SUPPORTED DATA TYPES
