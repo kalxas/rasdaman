@@ -37,6 +37,8 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
+import petascope.swe.datamodel.AbstractSimpleComponent;
+import petascope.swe.datamodel.Quantity;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import static petascope.util.CrsUtil.GRID_UOM;
@@ -72,6 +74,7 @@ public class CoverageMetadata implements Cloneable {
     private List<String> crsUris; // 1+ single CRS URIs
     private Set<Pair<String,String>> extraMetadata; // {metadata_type,metadata_value}
     private List<RangeElement> range;
+    private List<AbstractSimpleComponent> sweComponents;
     Pair<BigInteger, String> rasdamanCollection;
     private Bbox bbox = null;
 
@@ -98,7 +101,7 @@ public class CoverageMetadata implements Cloneable {
             List<BigDecimal>              gridOrigin,
             LinkedHashMap<List<BigDecimal>,BigDecimal> gridAxes, // offsetVector -> coefficients (must be LinkedHash: preserve order of insertion)
             Pair<BigInteger, String>      rasdamanCollection,
-            List<RangeElement>            rangeElements
+            List<Pair<RangeElement,Quantity>> rangeElementQuantities
             ) throws PetascopeException, SecoreException {
 
         // Build domain elements from origin and vectors
@@ -182,6 +185,14 @@ public class CoverageMetadata implements Cloneable {
             axisOrder += 1;
         }
 
+        // Extract WCPS range elements and quantities
+        List<RangeElement> rangeEls = new ArrayList<RangeElement>(rangeElementQuantities.size());
+        sweComponents = new ArrayList<AbstractSimpleComponent>(rangeElementQuantities.size());
+        for (Pair<RangeElement,Quantity> rangeQuantity : rangeElementQuantities) {
+            rangeEls.add(rangeQuantity.fst);
+            sweComponents.add(rangeQuantity.snd);
+        }
+
         // fill up the metadata
         setupMetadata(
                 coverageName,
@@ -192,7 +203,7 @@ public class CoverageMetadata implements Cloneable {
                 cellDomain,
                 domainElements,
                 rasdamanCollection,
-                rangeElements
+                rangeEls
             );
     }
 
@@ -231,7 +242,7 @@ public class CoverageMetadata implements Cloneable {
             Set<Pair<String,String>> extraMeta,
             List<Pair<CrsDefinition.Axis,String>> crsAxes, // axis -> URI
             List<CellDomainElement> cellDomain,
-            List<RangeElement> rangeElements
+            List<Pair<RangeElement,Quantity>> rangeElementQuantities
             ) throws WCPSException{
 
         crsUris = new ArrayList<String>();
@@ -273,9 +284,14 @@ public class CoverageMetadata implements Cloneable {
 
         this.domain = domainList;
         this.cellDomain = cellDomainList;
-        this.range = rangeElements;
 
-
+        // Extract WCPS range elements and quantities
+        range = new ArrayList<RangeElement>(rangeElementQuantities.size());
+        sweComponents = new ArrayList<AbstractSimpleComponent>(rangeElementQuantities.size());
+        for (Pair<RangeElement,Quantity> rangeQuantity : rangeElementQuantities) {
+            range.add(rangeQuantity.fst);
+            sweComponents.add(rangeQuantity.snd);
+        }
     }
 
     // constructor's helper
@@ -537,6 +553,10 @@ public class CoverageMetadata implements Cloneable {
 
     public Iterator<RangeElement> getRangeIterator() {
         return range.iterator();
+    }
+
+    public Iterator<AbstractSimpleComponent> getSweComponentsIterator() {
+        return sweComponents.iterator();
     }
 
     public int getDimension() {

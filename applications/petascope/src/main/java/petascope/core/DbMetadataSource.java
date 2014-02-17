@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.hsqldb.lib.StringUtil;
 import org.slf4j.Logger;
@@ -54,6 +55,10 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.ows.Description;
 import petascope.ows.ServiceProvider;
+import petascope.swe.datamodel.AllowedValues;
+import petascope.swe.datamodel.NilValue;
+import petascope.swe.datamodel.Quantity;
+import petascope.swe.datamodel.RealPair;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
@@ -139,6 +144,12 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String QUANTITY_DESCRIPTION     = "description";
     public static final String QUANTITY_DEFINITION      = "definition_uri";
     public static final String QUANTITY_SIGNIFICANT_FIGURES = "significant_figures";
+    public static final String QUANTITY_NIL_IDS         = "nil_ids";
+    // TABLE_NIL_VALUE : catalog of NIL value/reason mappings
+    public static final String TABLE_NIL_VALUE  = TABLES_PREFIX + "nil_value";
+    public static final String NIL_VALUE_ID     = "id";
+    public static final String NIL_VALUE_VALUE  = "value";
+    public static final String NIL_VALUE_REASON = "reason";
     // TABLE_QUANTITY_INTERVAL : association table between TABLE_INTERVAL and TABLE_QUANTITY
     public static final String TABLE_QUANTITY_INTERVAL  = TABLES_PREFIX + "quantity_interval";
     public static final String QUANTITY_INTERVAL_IID    = "interval_id";
@@ -268,6 +279,10 @@ public class DbMetadataSource implements IMetadataSource {
     /* Stored procedures */
     private static String PROCEDURE_IDX = "idx";
 
+    /* SQL aliases */
+    private static String NIL_VALUES_ALIAS  = "nil_values";
+    private static String NIL_REASONS_ALIAS = "nil_reasons";
+
     /* Status variables */
     private boolean initializing;
     private boolean checkAtInit;
@@ -281,9 +296,7 @@ public class DbMetadataSource implements IMetadataSource {
     private Map<Integer, String> mimeTypes;
     private Map<String,  String> supportedFormats; // format -> MIME type
     private Map<String,  String> gdalFormatsIds; // GDAL code -> format name
-    private Map<Integer, String> quantities; // id -> quantity's UoM
-    private Map<Integer, Pair<BigDecimal,BigDecimal>> intervals; // id -> (min,max)
-    private Set<Pair<Integer, Integer>> quantityInterval; // {QID,IID} (A quantity can be constrained by 1+ intervals of allowed values)
+    private Map<Integer, Quantity> quantities; // id -> SWE Quantity
     private Map<Integer, String> rangeDataTypes;
 
     /* Contents of (static) dictionary-tables (reversed) */
@@ -292,7 +305,6 @@ public class DbMetadataSource implements IMetadataSource {
     private Map<String, Integer> revMimeTypes;
     private Map<String, String>  revSupportedFormats; // MIME type -> format
     private Map<String, String>  revGdalFormatsIds; // format name -> GDAL code
-    private Map<Pair<BigDecimal,BigDecimal>,  Integer> revIntervals; // (min,max) -> id
     private Map<String, Integer> revRangeDataTypes;
 
     /* Database access info */
@@ -585,11 +597,9 @@ public class DbMetadataSource implements IMetadataSource {
             }
 
             /* (SWE) QUANTITIES */
-            // Intervals (allowed values)
             // NOTE: PostgreSQL Numeric <-> BigDecimal
             // (see "Mapping SQL and Java Types, §8.9.1" - http://docs.oracle.com/javase/1.3/docs/guide/jdbc/getstart/mapping.html)
-            intervals    = new HashMap<Integer, Pair<BigDecimal,BigDecimal>>();
-            revIntervals = new HashMap<Pair<BigDecimal,BigDecimal>, Integer>();
+            Map<Integer, Pair<BigDecimal,BigDecimal>> intervals = new HashMap<Integer, Pair<BigDecimal,BigDecimal>>();
             sqlQuery =
                     "SELECT " + INTERVAL_ID  + ","
                               + INTERVAL_MIN + ", "
@@ -601,25 +611,10 @@ public class DbMetadataSource implements IMetadataSource {
             while (r.next()) {
                 Pair minMax = Pair.of(r.getBigDecimal(INTERVAL_MIN), r.getBigDecimal(INTERVAL_MAX));
                    intervals.put(r.getInt(INTERVAL_ID), minMax);
-                revIntervals.put(minMax, r.getInt(INTERVAL_ID));
             }
-            // Quantities (UoMs now, then all metadata when table-classes are created)
-            quantities    = new HashMap<Integer, String>();
-            sqlQuery =
-                    " SELECT " + TABLE_QUANTITY + "." + QUANTITY_ID + ", "
-                               + TABLE_UOM      + "." + UOM_CODE    +
-                    " FROM "   + TABLE_QUANTITY + ", "
-                               + TABLE_UOM      +
-                    " WHERE "  + TABLE_UOM      + "." + UOM_ID      + "="
-                               + TABLE_QUANTITY + "." + QUANTITY_UOM_ID
-                    ;
-            log.debug("SQL query: " + sqlQuery);
-            r = s.executeQuery(sqlQuery);
-            while (r.next()) {
-                   quantities.put(r.getInt(QUANTITY_ID), r.getString(UOM_CODE));
-            }
+
             // Quantity <-> Intervals of allowed values
-            quantityInterval = new HashSet<Pair<Integer, Integer>>();
+            Map<Integer, Integer> quantityInterval = new HashMap<Integer, Integer>();
             sqlQuery =
                     "SELECT " + QUANTITY_INTERVAL_QID + ","
                               + QUANTITY_INTERVAL_IID +
@@ -628,8 +623,63 @@ public class DbMetadataSource implements IMetadataSource {
             log.debug("SQL query: " + sqlQuery);
             r = s.executeQuery(sqlQuery);
             while (r.next()) {
-                quantityInterval.add(Pair.of(r.getInt(QUANTITY_INTERVAL_QID), r.getInt(QUANTITY_INTERVAL_IID)));
+                quantityInterval.put(r.getInt(QUANTITY_INTERVAL_QID), r.getInt(QUANTITY_INTERVAL_IID));
             }
+
+            // SWE Quantities
+            quantities = new HashMap<Integer, Quantity>();
+            // Query
+            String unaggregatedFields =
+                    TABLE_UOM + "." + UOM_CODE + ","
+                    + TABLE_QUANTITY + "." + QUANTITY_ID + ","
+                    + TABLE_QUANTITY + "." + QUANTITY_LABEL + ","
+                    + TABLE_QUANTITY + "." + QUANTITY_DESCRIPTION + ","
+                    + TABLE_QUANTITY + "." + QUANTITY_DEFINITION
+                    ;
+            sqlQuery =
+                    " SELECT " +  unaggregatedFields + ","
+                    + " array_agg(" + TABLE_NIL_VALUE + "." + NIL_VALUE_VALUE  + ") AS " + NIL_VALUES_ALIAS + ","
+                    + " array_agg(" + TABLE_NIL_VALUE + "." + NIL_VALUE_REASON + ") AS " + NIL_REASONS_ALIAS
+                    + " FROM " + TABLE_QUANTITY
+                    + " INNER JOIN " + TABLE_UOM + " ON ("
+                    + TABLE_UOM + "." + UOM_ID + "=" + TABLE_QUANTITY + "." + QUANTITY_UOM_ID
+                    + ") LEFT OUTER JOIN " + TABLE_NIL_VALUE + " ON ("
+                    + TABLE_QUANTITY + "." + QUANTITY_NIL_IDS + " @> ARRAY[" + TABLE_NIL_VALUE + "." + NIL_VALUE_ID + "]) "
+                    + " GROUP BY " + unaggregatedFields
+                    ;
+            // Example query+response:
+            //
+            // SELECT ps_uom.code,
+            //        ps_quantity.label, ps_quantity.description, ps_quantity.definition_uri,
+            //        array_agg(ps_nil_value.value)  AS nil_values,
+            //        array_agg(ps_nil_value.reason) AS nil_reaons
+            // FROM ps_quantity
+            // INNER JOIN ps_uom ON (ps_quantity.uom_id=ps_uom.id)
+            // LEFT OUTER JOIN ps_nil_value ON (ps_quantity.nil_ids @> ARRAY[ps_nil_value.id])
+            // GROUP BY ps_uom.code, ps_quantity.label, ps_quantity.description, ps_quantity.definition_uri;
+            //  code |     label      |   description    |definition_uri| nil_values | nil_reasons
+            // ------+----------------+------------------+--------------+------------+--------------
+            // 10^0 | char           | primitive        |              | {NULL}     | {NULL}
+            // 10^0 | test_label     | test_description | http://___   | {255,0}    | {http://___,http://___}
+            // 10^0 | unsigned char  | primitive        |              | {NULL}     | {NULL}
+            // ...
+            log.debug("SQL query: " + sqlQuery);
+            r = s.executeQuery(sqlQuery);
+            if (!r.next()) {
+                throw new WCSException(ExceptionCode.InvalidServiceConfiguration,
+                        "No SWE quantities stored in the database.");
+            } else do {
+                int qId = r.getInt(QUANTITY_ID);
+                // Select intervals associated with /this/ quantity
+                List<Pair<BigDecimal,BigDecimal>> constraints = new ArrayList<Pair<BigDecimal,BigDecimal>>();
+                for (Entry<Integer,Integer> entry : quantityInterval.entrySet()) {
+                    if (entry.getKey().equals(qId)) {
+                        constraints.add(intervals.get(entry.getValue()));
+                    }
+                }
+                // parse SQL response to create a SWE Quantity:
+                quantities.put(qId, parseSWEQuantity(r, constraints));
+            } while (r.next());
 
             // Range data types (WCPS rangeType())
             rangeDataTypes    = new HashMap<Integer, String>();
@@ -828,6 +878,7 @@ public class DbMetadataSource implements IMetadataSource {
      * @param coverageName
      * @return The CoverageMetadata object for this coverage
      * @throws PetascopeException
+     * @throws SecoreException
      */
     @Override
     public CoverageMetadata read(String coverageName) throws PetascopeException, SecoreException {
@@ -938,7 +989,53 @@ public class DbMetadataSource implements IMetadataSource {
                         "Coverage '" + coverageName + "' has no external (native) CRS.");
             }
 
+            /* RANGE-TYPE : coverage feature-space description (SWE-based) */
+            // TABLE_RANGETYPE_COMPONENT
+            // Ordered mapping of band name and its UoM
+            List<RangeElement> rangeElements = new ArrayList<RangeElement>();
+            List<Pair<RangeElement,Quantity>> rangeElementsQuantities = new ArrayList<Pair<RangeElement,Quantity>>();
+
+            sqlQuery =
+                    " SELECT "   + RANGETYPE_COMPONENT_NAME        + ", "
+                    + RANGETYPE_COMPONENT_TYPE_ID     + ", "
+                    + RANGETYPE_COMPONENT_FIELD_TABLE + ", "
+                    + RANGETYPE_COMPONENT_FIELD_ID    +
+                    " FROM "     + TABLE_RANGETYPE_COMPONENT       +
+                    " WHERE "    + RANGETYPE_COMPONENT_COVERAGE_ID + "=" + coverageId +
+                    " ORDER BY " + RANGETYPE_COMPONENT_ORDER       + " ASC "
+                    ;
+            log.debug("SQL query: " + sqlQuery);
+            r = s.executeQuery(sqlQuery);
+            if (!r.next()) {
+                throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                        "Coverage '" + coverageName + "' is missing the range-type metadata.");
+            }
+            do {
+                // Check if it is a SWE:quantity (currently the only supported SWE field)
+                if (!r.getString(RANGETYPE_COMPONENT_FIELD_TABLE).equals(TABLE_QUANTITY)) {
+                    throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
+                            "Band " + r.getString(RANGETYPE_COMPONENT_NAME) + " of coverage '" +
+                                    coverageName + "' is not a continuous quantity.");
+                }
+
+                Quantity quantity = quantities.get(r.getInt(RANGETYPE_COMPONENT_FIELD_ID));
+
+                // Create the RangeElement (WCPS): {name, type, UoM}
+                RangeElement rEl = new RangeElement(
+                        r.getString(RANGETYPE_COMPONENT_NAME),
+                        rangeDataTypes.get(r.getInt(RANGETYPE_COMPONENT_TYPE_ID)),
+                        quantity.getUom());
+                rangeElements.add(rEl);
+                log.debug("Added range element: " + rangeElements.get(rangeElements.size()-1));
+
+                // CoverageMetadata input to ensure RangeElements and Quantities have same cardinality
+                rangeElementsQuantities.add(new Pair(rEl, quantity));
+
+            } while (r.next());
+
+            /*** DOMAINSET SWITCH: grids Vs multipoints ***/
             // Now read the coverage-type-specific domain-set information
+            // Here is where different coverage types differ.
             if (WcsUtil.isGrid(coverageType)) {
 
                 // Variables for metadata object creation of gridded coverage
@@ -994,53 +1091,6 @@ public class DbMetadataSource implements IMetadataSource {
                     log.trace("Coverage '" + coverageName + "' has range-set data in " +
                             r.getString(RASDAMAN_COLLECTION_NAME) + ":" + r.getBigDecimal(RASDAMAN_COLLECTION_OID) + ".");
                 }
-
-                /* RANGE-TYPE : coverage feature-space description (SWE-based) */
-                // TABLE_RANGETYPE_COMPONENT
-                // Ordered mapping of band name and its UoM
-                List<RangeElement> rangeElements = new ArrayList<RangeElement>();
-                sqlQuery =
-                        " SELECT "   + RANGETYPE_COMPONENT_NAME        + ", "
-                                     + RANGETYPE_COMPONENT_TYPE_ID     + ", "
-                                     + RANGETYPE_COMPONENT_FIELD_TABLE + ", "
-                                     + RANGETYPE_COMPONENT_FIELD_ID    +
-                        " FROM "     + TABLE_RANGETYPE_COMPONENT       +
-                        " WHERE "    + RANGETYPE_COMPONENT_COVERAGE_ID + "=" + coverageId +
-                        " ORDER BY " + RANGETYPE_COMPONENT_ORDER       + " ASC "
-                        ;
-                log.debug("SQL query: " + sqlQuery);
-                r = s.executeQuery(sqlQuery);
-                if (!r.next()) {
-                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                            "Coverage '" + coverageName + "' is missing the range-type metadata.");
-                }
-                do {
-                    // Check if it is a SWE:quantity (currently the only supported SWE field)
-                    if (!r.getString(RANGETYPE_COMPONENT_FIELD_TABLE).equals(TABLE_QUANTITY)) {
-                        throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
-                                "Band " + r.getString(RANGETYPE_COMPONENT_NAME) + " of coverage '" +
-                                coverageName + "' is not a continuous quantity.");
-                    }
-
-                    // Now read the intervals:
-                    List<Pair<BigDecimal,BigDecimal>> allowedIntervals = new ArrayList<Pair<BigDecimal,BigDecimal>>();
-                    for (Pair qI : quantityInterval) {
-                        if (qI.fst.equals(r.getInt(RANGETYPE_COMPONENT_FIELD_ID))) {
-                            // Fetch the associated interval
-                            allowedIntervals.add(intervals.get((Integer)qI.snd));
-                        }
-                    }
-
-                    // Create the RangeElement (WCPS): {name, type, UoM}
-                    rangeElements.add(new RangeElement(
-                            r.getString(RANGETYPE_COMPONENT_NAME),
-                            rangeDataTypes.get(r.getInt(RANGETYPE_COMPONENT_TYPE_ID)),
-                            quantities.get(r.getInt(RANGETYPE_COMPONENT_FIELD_ID)),
-                            allowedIntervals)
-                            );
-                    log.debug("Added range element: " + rangeElements.get(rangeElements.size()-1));
-
-                } while (r.next());
 
                 /* DOMAIN-SET : geometry, origin, axes... */
                 sqlQuery =
@@ -1237,7 +1287,7 @@ public class DbMetadataSource implements IMetadataSource {
                         gridOrigin,
                         gridAxes,
                         rasdamanColl,
-                        rangeElements
+                        rangeElementsQuantities
                         );
                 // non-dynamic coverage:
                 covMeta.setCoverageId(coverageId);
@@ -1249,54 +1299,8 @@ public class DbMetadataSource implements IMetadataSource {
              } else if(coverageType.matches(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)) {
 
                 cellDomainElements = new ArrayList<CellDomainElement>(1);
-                List<RangeElement> rangeElements = new ArrayList<RangeElement>();
-
-                sqlQuery =
-                        " SELECT "   + RANGETYPE_COMPONENT_NAME        + ", "
-                                     + RANGETYPE_COMPONENT_TYPE_ID     + ", "
-                                     + RANGETYPE_COMPONENT_FIELD_TABLE + ", "
-                                     + RANGETYPE_COMPONENT_FIELD_ID    +
-                        " FROM "     + TABLE_RANGETYPE_COMPONENT       +
-                        " WHERE "    + RANGETYPE_COMPONENT_COVERAGE_ID + "=" + coverageId +
-                        " ORDER BY " + RANGETYPE_COMPONENT_ORDER       + " ASC "
-                        ;
-                log.debug("SQL query: " + sqlQuery);
-                r = s.executeQuery(sqlQuery);
-                if (!r.next()) {
-                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                            "Coverage '" + coverageName + "' is missing the range-type metadata.");
-                }
-                do {
-                    // Check if it is a SWE:quantity (currently the only supported SWE field)
-                    if (!r.getString(RANGETYPE_COMPONENT_FIELD_TABLE).equals(TABLE_QUANTITY)) {
-                        throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
-                                "Band " + r.getString(RANGETYPE_COMPONENT_NAME) + " of coverage '" +
-                                coverageName + "' is not a continuous quantity.");
-                    }
-
-                    // Now read the intervals:
-                    List<Pair<BigDecimal,BigDecimal>> allowedIntervals = new ArrayList<Pair<BigDecimal,BigDecimal>>();
-                    for (Pair qI : quantityInterval) {
-                        if (qI.fst.equals(r.getInt(RANGETYPE_COMPONENT_FIELD_ID))) {
-                            // Fetch the associated interval
-                            allowedIntervals.add(intervals.get((Integer)qI.snd));
-                        }
-                    }
-
-                    // Create the RangeElement (WCPS): {name, type, UoM}
-                    rangeElements.add(new RangeElement(
-                            r.getString(RANGETYPE_COMPONENT_NAME),
-                            rangeDataTypes.get(r.getInt(RANGETYPE_COMPONENT_TYPE_ID)),
-                            quantities.get(r.getInt(RANGETYPE_COMPONENT_FIELD_ID)),
-                            allowedIntervals)
-                            );
-                    log.debug("Added range element: " + rangeElements.get(rangeElements.size()-1));
-
-                } while (r.next());
-
-
                 CoverageMetadata covMeta = new CoverageMetadata(coverageName, coverageType,
-                        coverageNativeFormat, extraMetadata, crsAxes, cellDomainElements, rangeElements);
+                        coverageNativeFormat, extraMetadata, crsAxes, cellDomainElements, rangeElementsQuantities);
 
                 cache.put(coverageName, covMeta);
                 return covMeta;
@@ -2115,5 +2119,60 @@ public class DbMetadataSource implements IMetadataSource {
         }
 
         return count;
+    }
+
+    /**
+     * Creates an SWE Quantity object from the associated SQL result set and associated allowed intervals.
+     * @param rSwe Tuple containing ps_quantity and ps_nil_value.
+     * @param intervals Allowed intervals defining the constraints of the quantity on this tuple.
+     * @return
+     * @throws SQLException
+     */
+    private Quantity parseSWEQuantity(ResultSet rSwe, List<Pair<BigDecimal,BigDecimal>> intervals)
+            throws SQLException {
+
+        // locals
+        Quantity sweQuantity;
+        String label;
+        String description;
+        String definitionUri;
+        String uomCode;
+        List<NilValue> nils = new ArrayList<NilValue>();
+
+        AllowedValues allowedValues;
+        List<RealPair> pairs = new ArrayList<RealPair>(intervals.size());
+
+        // Create intervals
+        for (Pair<BigDecimal,BigDecimal> interval : intervals) {
+            pairs.add(new RealPair(interval.fst, interval.snd));
+        }
+        allowedValues = new AllowedValues(pairs);
+
+        // Parse the result set
+        label = rSwe.getString(QUANTITY_LABEL);
+        description = rSwe.getString(QUANTITY_DESCRIPTION);
+        definitionUri = rSwe.getString(QUANTITY_DEFINITION);
+        uomCode = rSwe.getString(UOM_CODE);
+
+        // Parse the NIL values
+        List<String> nilValues  = sqlArray2StringList(rSwe.getArray(NIL_VALUES_ALIAS));
+        List<String> nilReasons = sqlArray2StringList(rSwe.getArray(NIL_REASONS_ALIAS));
+        for (int i=0; i<nilValues.size(); i++) {
+            if (null != nilValues.get(i) && null != nilReasons.get(i)) {
+                nils.add(new NilValue(nilValues.get(i), nilReasons.get(i)));
+            }
+        }
+
+        // Finally, create the Quantity component
+        sweQuantity = new Quantity(
+                label,
+                description,
+                definitionUri,
+                nils,
+                uomCode,
+                allowedValues
+        );
+
+        return sweQuantity;
     }
 }

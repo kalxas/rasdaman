@@ -119,6 +119,17 @@ $$
     SELECT cset('DT_DOUBLE_MEANING',     'Double precision floating point number');
     SELECT cset('DT_COMPLEX_MEANING',    'Single precision complex number');
     SELECT cset('DT_COMPLEX2_MEANING',   'Double precision complex number');
+    -- Range data types definition URIs
+    SELECT cset('DT_CHAR_DEFINITION',       'http://www.opengis.net/def/dataType/OGC/0/signedByte');
+    SELECT cset('DT_UCHAR_DEFINITION',      'http://www.opengis.net/def/dataType/OGC/0/unsignedByte');
+    SELECT cset('DT_SHORT_DEFINITION',      'http://www.opengis.net/def/dataType/OGC/0/signedShort');
+    SELECT cset('DT_USHORT_DEFINITION',     'http://www.opengis.net/def/dataType/OGC/0/unsignedShort');
+    SELECT cset('DT_INT_DEFINITION',        'http://www.opengis.net/ def/dataType/OGC/0/signedInt');
+    SELECT cset('DT_UINT_DEFINITION',       'http://www.opengis.net/def/dataType/OGC/0/unsignedInt');
+    SELECT cset('DT_LONG_DEFINITION',       'http://www.opengis.net/def/dataType/OGC/0/signedLong');
+    SELECT cset('DT_ULONG_DEFINITION',      'http://www.opengis.net/def/dataType/OGC/0/unsignedLong');
+    SELECT cset('DT_FLOAT_DEFINITION',      'http://www.opengis.net/def/dataType/OGC/0/float32');
+    SELECT cset('DT_DOUBLE_DEFINITION',     'http://www.opengis.net/def/dataType/OGC/0/float64');
     -- Data intervals
     SELECT cset('CHAR_MIN',                        -128);
     SELECT cset('CHAR_MAX',                         127);
@@ -235,6 +246,8 @@ $$
           SELECT cset('PS9_INTERVAL_ID',                     'id');
           SELECT cset('PS9_INTERVAL_MIN',                    'min');
           SELECT cset('PS9_INTERVAL_MAX',                    'max');
+    SELECT cset('TABLE_PS9_NIL_VALUE',                        cget('PS9_PREFIX') || '_nil_value');
+          SELECT cset('PS9_NIL_VALUE_ID',                     'id');
     SELECT cset('TABLE_PS9_QUANTITY_INTERVAL',                cget('PS9_PREFIX') || '_quantity_interval');
           SELECT cset('PS9_QUANTITY_INTERVAL_QID',           'quantity_id');
           SELECT cset('PS9_QUANTITY_INTERVAL_IID',           'interval_id');
@@ -247,6 +260,7 @@ $$
           SELECT cset('PS9_QUANTITY_URI',                    'definition_uri');
           SELECT cset('PS9_QUANTITY_DESCRIPTION',            'description');
           SELECT cset('PS9_QUANTITY_LABEL',                  'label');
+          SELECT cset('PS9_QUANTITY_NIL_IDS',                'nil_ids');
     SELECT cset('TABLE_PS9_RANGE_DATATYPE',                   cget('PS9_PREFIX') || '_range_data_type');
           SELECT cset('PS9_RANGE_DATATYPE_ID',               'id');
           SELECT cset('PS9_RANGE_DATATYPE_NAME',             'name');

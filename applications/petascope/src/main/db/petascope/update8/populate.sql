@@ -158,26 +158,36 @@ INSERT INTO ps9_uom (code) VALUES (cget('UOM_PURE_NUM'));
 
 -- Insert quantities for each data type (allowed values determine a quantity)
 -- Put keyword PRIMITIVE in the description to avoid DROP CASCADE (see range_type_drop() trigger).
-INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_CHAR'),   cget('PRIMITIVE'));
-INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_UCHAR'),  cget('PRIMITIVE'));
-INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_SHORT'),  cget('PRIMITIVE'));
-INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_USHORT'), cget('PRIMITIVE'));
-INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_INT'),    cget('PRIMITIVE'));
-INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_UINT'),   cget('PRIMITIVE'));
-INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_LONG'),   cget('PRIMITIVE'));
-INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_ULONG'),  cget('PRIMITIVE'));
-INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_FLOAT'),  cget('PRIMITIVE'));
-INSERT INTO ps9_quantity (uom_id, label, description) VALUES (
-      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')), cget('DT_DOUBLE'), cget('PRIMITIVE'));
+INSERT INTO ps9_quantity (uom_id, label, description, definition_uri) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')),
+      cget('DT_CHAR'), cget('PRIMITIVE'), cget('DT_CHAR_DEFINITION'));
+INSERT INTO ps9_quantity (uom_id, label, description, definition_uri) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')),
+      cget('DT_UCHAR'), cget('PRIMITIVE'), cget('DT_UCHAR_DEFINITION'));
+INSERT INTO ps9_quantity (uom_id, label, description, definition_uri) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')),
+      cget('DT_SHORT'), cget('PRIMITIVE'), cget('DT_SHORT_DEFINITION'));
+INSERT INTO ps9_quantity (uom_id, label, description, definition_uri) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')),
+      cget('DT_USHORT'), cget('PRIMITIVE'), cget('DT_USHORT_DEFINITION'));
+INSERT INTO ps9_quantity (uom_id, label, description, definition_uri) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')),
+      cget('DT_INT'), cget('PRIMITIVE'), cget('DT_INT_DEFINITION'));
+INSERT INTO ps9_quantity (uom_id, label, description, definition_uri) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')),
+      cget('DT_UINT'), cget('PRIMITIVE'), cget('DT_UINT_DEFINITION'));
+INSERT INTO ps9_quantity (uom_id, label, description, definition_uri) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')),
+      cget('DT_LONG'),   cget('PRIMITIVE'), cget('DT_LONG_DEFINITION'));
+INSERT INTO ps9_quantity (uom_id, label, description, definition_uri) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')),
+      cget('DT_ULONG'),  cget('PRIMITIVE'), cget('DT_ULONG_DEFINITION'));
+INSERT INTO ps9_quantity (uom_id, label, description, definition_uri) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')),
+      cget('DT_FLOAT'),  cget('PRIMITIVE'), cget('DT_FLOAT_DEFINITION'));
+INSERT INTO ps9_quantity (uom_id, label, description, definition_uri) VALUES (
+      (SELECT id FROM ps9_uom WHERE code = cget('UOM_PURE_NUM')),
+      cget('DT_DOUBLE'), cget('PRIMITIVE'), cget('DT_DOUBLE_DEFINITION'));
 -- .. and their allowed values:
 INSERT INTO ps9_quantity_interval (quantity_id, interval_id)
        VALUES ((SELECT id FROM ps9_quantity WHERE label=cget('DT_CHAR')   AND description=cget('PRIMITIVE')),

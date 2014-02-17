@@ -30,14 +30,13 @@
     <gmlcov:rangeType>
       <swe:DataRecord>
         <swe:field name="value">
-          <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:unsigned char">
-            <swe:description/>
+          <swe:Quantity definition="/dataType/OGC/0/unsignedByte">
+            <swe:label>unsigned char</swe:label>
+            <swe:description>primitive</swe:description>
             <swe:uom code="10^0"/>
-            <swe:constraint>
-              <swe:AllowedValues>
-                <swe:interval>0 255</swe:interval>
-              </swe:AllowedValues>
-            </swe:constraint>
+            <swe:AllowedValues>
+              <swe:interval>0 255</swe:interval>
+            </swe:AllowedValues>
           </swe:Quantity>
         </swe:field>
       </swe:DataRecord>

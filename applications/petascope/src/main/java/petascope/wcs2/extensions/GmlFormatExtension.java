@@ -21,8 +21,14 @@
  */
 package petascope.wcs2.extensions;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 import java.util.ListIterator;
+import nu.xom.Builder;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.ParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
@@ -32,8 +38,10 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
+import petascope.util.XMLUtil;
 import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
+import static petascope.util.XMLUtil.serialize;
 import petascope.util.ras.RasQueryResult;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcs2.handlers.Response;
@@ -94,8 +102,21 @@ public class GmlFormatExtension extends AbstractFormatExtension {
                 updateGetCoverageMetadata(request, m, meta);
                 gml = WcsUtil.getBounds(gml, m);
             }
-            return new Response(gml);
 
+
+            return new Response(null, gml, FormatExtension.MIME_XML);
+            // TODO : use XOM serializer (current problem: license header is trimmed to one line and namespaces need to be added)
+            //Builder xmlBuilder = new Builder();
+            //try {
+            //    Document gmlDoc = xmlBuilder.build(new StringReader(gml));
+            //    return new Response(null, serialize(gmlDoc), FormatExtension.MIME_XML);
+            //} catch (IOException ex) {
+            //    throw new WCSException(ExceptionCode.IOConnectionError,
+            //        "Error serializing constructed document", ex);
+            //} catch (ParsingException ex) {
+            //    throw new WCSException(ExceptionCode.InternalComponentError,
+            //        "Error creating the GML response document.", ex);
+            //}
         } else {
             throw new WCSException(ExceptionCode.UnsupportedCoverageConfiguration,
                     "The coverage type '" + m.getCoverageType() + "' is not supported.");

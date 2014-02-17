@@ -23,14 +23,10 @@ package petascope.wcps.server.core;
 
 
 //A single component of a coverage's range. See the WCPS standard for more information.
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
-import petascope.util.Pair;
 import petascope.util.WcpsConstants;
 
 public class RangeElement implements Cloneable {
@@ -40,13 +36,7 @@ public class RangeElement implements Cloneable {
     private String name;
     private String type;
     private String uom;
-    private List<Pair<BigDecimal,BigDecimal>> allowedIntervals;
 
-    // Overload
-    public RangeElement(String name, String type, String uom, List<Pair<BigDecimal,BigDecimal>> allowedIntervals) throws WCPSException {
-        this(name, type, uom);
-        this.allowedIntervals = allowedIntervals;
-    }
     // Overload
     public RangeElement(String name, String type, String uom) throws WCPSException {
         if ((name == null) || (type == null)) {
@@ -81,8 +71,7 @@ public class RangeElement implements Cloneable {
             return new RangeElement(
                     new String(name),
                     new String(type),
-                    new String(uom),
-                    new ArrayList<Pair<BigDecimal,BigDecimal>>(allowedIntervals));
+                    new String(uom));
         } catch (WCPSException ime) {
             throw new RuntimeException("Invalid metadata while cloning RangeElement. This is a software bug in WCPS.", ime);
         }
@@ -103,15 +92,6 @@ public class RangeElement implements Cloneable {
 
     public String getType() {
         return type;
-    }
-
-    public List<Pair<BigDecimal,BigDecimal>> getAllowedIntervals() {
-        List<Pair<BigDecimal,BigDecimal>> outAllowedIntervals = new ArrayList<Pair<BigDecimal,BigDecimal>>();
-
-        for (Pair<BigDecimal,BigDecimal> interval : allowedIntervals) {
-            outAllowedIntervals.add(interval);
-        }
-        return outAllowedIntervals;
     }
 
     public boolean isBoolean() {

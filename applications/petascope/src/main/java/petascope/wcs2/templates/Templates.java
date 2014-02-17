@@ -74,20 +74,16 @@ public class Templates {
     private static final Map<String, String> templates = new HashMap<String, String>();
 
     /* Keywords in WCS templates (alphabetic order) */
-    public static final String KEY_ALLOWEDVALUES = "allowedValues";
     public static final String KEY_AXISLABELS = "axisLabels";
     public static final String KEY_COEFFICIENTS = "coefficients";
-    public static final String KEY_CODE = "code";
     public static final String KEY_COMPONENTNAME = "componentName";
     public static final String KEY_COVERAGEDATA = "coverageData";
     public static final String KEY_COVERAGEID = "coverageId";
     public static final String KEY_COVERAGESUBTYPE = "coverageSubtype";
     public static final String KEY_COVERAGESUBTYPEPARENT = "coverageSubtypeParent";
     public static final String KEY_COVERAGETYPE = "coverageType";
-    public static final String KEY_DATATYPE = "datatype";
     public static final String KEY_DOMAINSET = "domainSet";
-    public static final String KEY_FIELDDESCR = "fieldDescr";
-    public static final String KEY_FIELDNAME = "fieldName";
+    public static final String KEY_FIELDNAME = "componentName";
     public static final String KEY_GENERAL_GRID_AXES = "generalGridAxes";
     public static final String KEY_GRIDAXISSPANNED = "gridAxisSpanned";
     public static final String KEY_GRIDDIMENSION = "gridDimension";
@@ -105,6 +101,7 @@ public class Templates {
     public static final String KEY_POINTMEMBERS = "pointMembers";
     public static final String KEY_RANGEFIELDS = "rangeFields";
     public static final String KEY_SRSGROUP = "srsGroup";
+    public static final String KEY_SWE_COMPONENT = "sweComponent";
     public static final String KEY_UPPERCORNER = "upperCorner";
     public static final String KEY_URL = "URL";
 
@@ -171,6 +168,7 @@ public class Templates {
      * Load a template file from this package.
      *
      * @param template name of template
+     * @param replacements
      * @return the template
      */
     public static String getTemplate(String template, Pair<String, String>... replacements) {

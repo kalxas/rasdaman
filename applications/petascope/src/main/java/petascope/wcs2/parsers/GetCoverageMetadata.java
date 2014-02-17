@@ -24,11 +24,9 @@ package petascope.wcs2.parsers;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,16 +36,15 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
+import petascope.swe.datamodel.AbstractSimpleComponent;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
-import petascope.util.Pair;
 import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
 import petascope.wcps.server.core.RangeElement;
-import petascope.wcs2.extensions.GmlFormatExtension;
 
 /**
  * This class holds the GetCoverage response data.
@@ -130,10 +127,10 @@ public class GetCoverageMetadata {
 
         rangeFields = new ArrayList<RangeField>();
         Iterator<RangeElement> rit = metadata.getRangeIterator();
-        int i = -1;
+        Iterator<AbstractSimpleComponent> sweIt = metadata.getSweComponentsIterator();
         while (rit.hasNext()) {
             RangeElement range = rit.next();
-            rangeFields.add(new RangeField(metadata, range, ++i));
+            rangeFields.add(new RangeField(metadata, range, sweIt.next()));
         }
         bbox = metadata.getBbox();
     }
@@ -350,41 +347,11 @@ public class GetCoverageMetadata {
     public class RangeField {
 
         private final String fieldName;
-        private final String componentName;
-        private final String nilValues;
-        private final String uomCode;
-        private final String type;
-        private final String description;
-        private final List<String> allowedValues = new ArrayList<String>();
+        private final AbstractSimpleComponent sweComponent;
 
-        public RangeField(CoverageMetadata cov, RangeElement range, int i) {
-
+        public RangeField(CoverageMetadata cov, RangeElement range, AbstractSimpleComponent component) {
             fieldName = range.getName();
-            componentName = range.getName();
-
-            Set<String> nullSet = new HashSet<String>();
-            nilValues = ListUtil.ltos(nullSet, " ");
-
-            type = range.getType();
-            uomCode = (null == range.getUom()) ? CrsUtil.PURE_UOM : range.getUom();
-            description = "";
-            range.isBoolean();
-
-            for (Pair<BigDecimal,BigDecimal> interval : range.getAllowedIntervals()) {
-                allowedValues.add(interval.fst.toString() + " " + interval.snd.toString());
-            }
-        }
-
-        public String getDatatype() {
-            return GmlFormatExtension.DATATYPE_URN_PREFIX + type;
-        }
-
-        public List<String> getAllowedValues() {
-            List<String> outAllowedValues = new ArrayList<String>(allowedValues.size());
-            for (String interval : allowedValues) {
-                outAllowedValues.add(interval);
-            }
-            return outAllowedValues;
+            sweComponent = component;
         }
 
         public String getFieldName() {
@@ -398,20 +365,8 @@ public class GetCoverageMetadata {
             return ret;
         }
 
-        public String getDescription() {
-            return description;
-        }
-
-        public String getUomCode() {
-            return uomCode;
-        }
-
-        public String getComponentName() {
-            return getFieldName();
-        }
-
-        public String getNilValues() {
-            return nilValues;
+        public AbstractSimpleComponent getSWEComponent() {
+            return sweComponent;
         }
     }
 }

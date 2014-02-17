@@ -185,7 +185,18 @@ public interface XMLSymbols {
     String LABEL_REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
 
     // swe
+    String LABEL_ALLOWED_VALUES = "AllowedValues";
+    String LABEL_CONSTRAINT = "constraint";
+    String LABEL_DESCRIPTION = "description";
+    String LABEL_FIELD = "field";
     String LABEL_INTERVAL = "interval";
+    String LABEL_LABEL = "label";
+    String LABEL_FIELD_NAME = "name";
+    String LABEL_NILVALUE = "nilValue";
+    String LABEL_NILVALUES_ASSOCIATION_ROLE = "nilValues";
+    String LABEL_NILVALUES = "NilValues";
+    String LABEL_QUANTITY = "Quantity";
+    String LABEL_UOM = "uom";
 
     // gmlrgrid
     String LABEL_COEFFICIENTS = "coefficients";
@@ -242,6 +253,11 @@ public interface XMLSymbols {
 
     // CRS definitions
     String ATT_UOM = "uom";
+
+    // swe
+    String ATT_DEFINITION = "definition";
+    String ATT_REASON = "reason";
+    String ATT_UOMCODE = "code";
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

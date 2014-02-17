@@ -131,6 +131,16 @@ function import_eobs()
   c_rangetype='short'
   c_covtype='RectifiedGridCoverage'
 
+  # SWE metadata
+  c_swe_uom_code='Celsius'
+  c_swe_label='tg'
+  c_swe_description='mean temperature'
+  c_swe_definition_uri='http://eca.knmi.nl/download/ensembles/ensembles.php'
+  c_swe_nil_value='-9999'
+  c_swe_nil_reason='http://www.opengis.net/def/nil/OGC/0/missing'
+
+
+  # domainSet
   c_crs_t="$SECORE_URL"'/crs/OGC/0/Temporal?epoch="1950-01-01T00:00:00"&uom="d"'
   c_crs_s="$SECORE_URL"'/crs/EPSG/0/4326'
   grid_origin_t='0.5'   # 0 days from epoch (interval centre: 12h of 01-Jan-1950)
@@ -167,11 +177,37 @@ function import_eobs()
               (SELECT id FROM ps_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
 
   # describe the datatype of the coverage cell values (range type)
-  # note: assign dimensionless quantity
+  # get ID of UoM
+  _qry="SELECT id FROM ps_uom WHERE code='${c_swe_uom_code}'"
+  c_swe_uom_id=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" )
+  if [ -z "$c_swe_uom_id" ]
+  then
+      _qry="INSERT INTO ps_uom (code) VALUES ('${c_swe_uom_code}') RETURNING id"
+      c_swe_uom_id=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" | head -n 1 )
+  fi
+  # Get IDs of NILs
+  _qry="SELECT id FROM ps_nil_value WHERE value='${c_swe_nil_value}' AND reason='${c_swe_nil_reason}'"
+  c_swe_nil_id=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" )
+  if [ -z "$c_swe_nil_id" ]
+  then
+      _qry="INSERT INTO ps_nil_value (value, reason) VALUES ('${c_swe_nil_value}', '${c_swe_nil_reason}') RETURNING id"
+      c_swe_nil_id=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" | head -n 1 )
+  fi
+  # Get ID of SWE Quantity
+  _qry="SELECT id FROM ps_quantity WHERE uom_id=${c_swe_uom_id} AND label='${c_swe_label}' AND description='${c_swe_description}'"
+  c_swe_quantity_id=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" )
+  if [ -z "$c_swe_quantity_id" ]
+  then
+      _qry="INSERT INTO ps_quantity (uom_id, label, description, definition_uri, nil_ids) \
+            VALUES (${c_swe_uom_id}, '${c_swe_label}', '${c_swe_description}', '${c_swe_definition_uri}', ARRAY[${c_swe_nil_id}]) \
+            RETURNING id"
+      c_swe_quantity_id=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" | head -n 1 )
+  fi
+  # Finally, create the range type component associated to this quantity:
   $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
               $c_id, '$c_band', 0, \
               (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), \
-              (SELECT id FROM ps_quantity WHERE label='$c_rangetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
+              ${c_swe_quantity_id});" > /dev/null || exit $RC_ERROR
 
   # describe the geo (`index` in this case..) domain
   $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs_t' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs_t');" > /dev/null

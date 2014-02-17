@@ -64,20 +64,10 @@
     </DataBlock>
   </rangeSet>
 
-  </rangeSet>
-
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="value">
-      <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:short">
-        <swe:description></swe:description>
-        <swe:uom code="10^0"/>
-        <swe:constraint>
-          <swe:AllowedValues>
-            <swe:interval>-32768 32767</swe:interval>
-          </swe:AllowedValues>
-        </swe:constraint>
-      </swe:Quantity>
+      <swe:Quantity  definition="http://eca.knmi.nl/download/ensembles/ensembles.php"><swe:label>tg</swe:label><swe:description>mean temperature</swe:description><swe:nilValues><swe:NilValues><swe:nilValue reason="/nil/OGC/0/missing">-9999</swe:nilValue></swe:NilValues></swe:nilValues><swe:uom code="Celsius" /></swe:Quantity>
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>

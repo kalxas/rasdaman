@@ -292,6 +292,29 @@ $$
 $$ LANGUAGE plpgsql;
 
 
+-- TRIGGER: **nils_ref_integrity*****************************************************
+-- Check referential integrity on ps_nil_value.
+CREATE OR REPLACE FUNCTION nils_ref_integrity ()
+RETURNS trigger AS
+$$
+    DECLARE
+        -- Log
+	ME constant text := 'nils_ref_integrity()';
+    BEGIN
+        -- check for referential integrity
+        IF NEW.nil_ids IS NOT NULL THEN
+            FOR i IN array_lower(NEW.nil_ids, 1)..array_upper(NEW.nil_ids, 1) LOOP
+                IF NOT table_has_id(cget('TABLE_PS9_NIL_VALUE'), cget('PS9_NIL_VALUE_ID'), NEW.nil_ids[i]) THEN
+                    RAISE EXCEPTION '%: invalid reference to ''%'', no row has id ''%''.',
+                                    ME, cget('TABLE_PS9_NIL_VALUE'), NEW.nil_ids[i];
+                END IF;
+            END LOOP;
+        END IF;
+        RETURN NEW;
+    END;
+$$ LANGUAGE plpgsql;
+
+
 -- TRIGGER: **crs_integrity*****************************************************
 -- Check referential integrity on ps_crs.
 CREATE OR REPLACE FUNCTION crs_ref_integrity ()

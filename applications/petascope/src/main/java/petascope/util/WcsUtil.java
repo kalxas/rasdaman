@@ -248,13 +248,8 @@ public class WcsUtil {
         String rangeFields = "";
         for (RangeField range : m.getRangeFields()) {
             rangeFields += Templates.getTemplate(Templates.RANGE_FIELD,
-                    Pair.of("\\{" + Templates.KEY_ALLOWEDVALUES + "\\}", getAllowedValues(range)),
-                    Pair.of("\\{" + Templates.KEY_CODE          + "\\}", range.getUomCode()),
-                    Pair.of("\\{" + Templates.KEY_COMPONENTNAME + "\\}", range.getComponentName()),
-                    Pair.of("\\{" + Templates.KEY_DATATYPE      + "\\}", range.getDatatype()),
                     Pair.of("\\{" + Templates.KEY_FIELDNAME     + "\\}", range.getFieldName()),
-                    Pair.of("\\{" + Templates.KEY_FIELDDESCR    + "\\}", range.getDescription()),
-                    Pair.of("\\{" + Templates.KEY_NILVALUES     + "\\}", range.getNilValues())
+                    Pair.of("\\{" + Templates.KEY_SWE_COMPONENT + "\\}", range.getSWEComponent().toGML())
                     );
         }
 
@@ -343,20 +338,6 @@ public class WcsUtil {
                  .replaceAll("\\{" + Templates.KEY_UPPERCORNER + "\\}", m.getDomHigh());
         return gml;
     }
-
-    /**
-     * Get the allowed intervals for this specified quantity (SWE).
-     * @param range  Range type field.
-     * @return <swe:interval> elements.
-     */
-    public static String getAllowedValues(RangeField range) {
-            String gmlAllowedValues = "";
-            for (String interval : range.getAllowedValues()) {
-                gmlAllowedValues +=   "<" + XMLSymbols.PREFIX_SWE + ":" + XMLSymbols.LABEL_INTERVAL + ">"
-                        + interval + "</" + XMLSymbols.PREFIX_SWE + ":" + XMLSymbols.LABEL_INTERVAL + ">";
-            }
-            return gmlAllowedValues;
-        }
 
     /**
      * Returns the configured GMLCOV metadata.
@@ -513,20 +494,6 @@ public class WcsUtil {
                     );
         }
         return output;
-    }
-
-    public static Pair<String, String> toInterval(String type) {
-        if (type.equals(KEY_CHAR))   { return Pair.of(CHAR_MIN,   CHAR_MAX);   } else
-        if (type.equals(KEY_UCHAR))  { return Pair.of(UCHAR_MIN,  UCHAR_MAX);  } else
-        if (type.equals(KEY_SHORT))  { return Pair.of(SHORT_MIN,  SHORT_MAX);  } else
-        if (type.equals(KEY_USHORT)) { return Pair.of(USHORT_MIN, USHORT_MAX); } else
-        if (type.equals(KEY_INT))    { return Pair.of(INT_MIN,    INT_MAX);    } else
-        if (type.equals(KEY_UINT))   { return Pair.of(UINT_MIN,   UINT_MAX);   } else
-        if (type.equals(KEY_LONG))   { return Pair.of(LONG_MIN,   LONG_MAX);   } else
-        if (type.equals(KEY_ULONG))  { return Pair.of(ULONG_MIN,  ULONG_MAX);  } else
-        if (type.equals(KEY_FLOAT))  { return Pair.of(FLOAT_MIN,  FLOAT_MAX);  } else
-        if (type.equals(KEY_DOUBLE)) { return Pair.of(DOUBLE_MIN, DOUBLE_MAX); }
-        return Pair.of("", "");
     }
 
     /**

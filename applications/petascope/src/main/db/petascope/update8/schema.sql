@@ -268,6 +268,17 @@ CREATE TABLE ps9_interval (
 );
 
 
+-- TABLE: **ps9_nil_value** =====================================================
+-- Independent collection of NIL value/reason mappings.
+-- Can be used by SWE Quantity and Count data components.
+CREATE TABLE ps9_nil_value (
+    id       serial    PRIMARY KEY,
+    value    text      NOT NULL,
+    reason   text      NOT NULL,
+    -- Constraints and FKs
+    UNIQUE (value, reason)
+);
+
 -- TABLE: **ps9_quantity** =====================================================
 -- Independent collection of continuous quantities
 CREATE TABLE ps9_quantity (
@@ -277,10 +288,14 @@ CREATE TABLE ps9_quantity (
     description         text        DEFAULT '',-- /gmlcov:AbstractCoverage/gmlcov:rangeType/swe:field/swe:Quantity/gml:description
     definition_uri      text        NULL,      -- /gmlcov:AbstractCoverage/gmlcov:rangeType/swe:field/swe:Quantity/@definition
     significant_figures integer     NULL,      -- /gmlcov:AbstractCoverage/gmlcov:rangeType/swe:field/swe:Quantity/swe:AllowedValues/significantFigures
+    nil_ids             integer[]   NULL,      -- /gmlcov:AbstractCoverage/gmlcov:rangeType/swe:field/swe:Quantity/swe:NilValues
+
     -- Constraints and FKs
     UNIQUE (uom_id, label, description),
     FOREIGN KEY (uom_id) REFERENCES ps9_uom (id) ON DELETE RESTRICT
 );
+CREATE TRIGGER nils_ref_integrity_trigger BEFORE INSERT OR UPDATE ON ps9_quantity
+       FOR EACH ROW EXECUTE PROCEDURE nils_ref_integrity();
 
 
 -- TABLE: **ps9_quantity_interval** ============================================
