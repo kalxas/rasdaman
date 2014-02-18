@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
 import petascope.util.ListUtil;
@@ -120,9 +121,13 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
                         throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + high + "\" is not valid.");
                     }
                     // Check low<high
-                    if (low != null && high != null && low.matches(QUOTED_SUBSET) && high.matches(QUOTED_SUBSET)
-                            && !TimeUtil.isOrderedTimeSubset(low, high)) {
-                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + low + ":" + high + "\" is invalid: check order.");
+                    try {
+                        if (low != null && high != null && low.matches(QUOTED_SUBSET) && high.matches(QUOTED_SUBSET)
+                                && !TimeUtil.isOrderedTimeSubset(low, high)) {
+                            throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + low + ":" + high + "\" is invalid: check order.");
+                        }
+                    } catch (PetascopeException ex) {
+                        throw new WCSException(ex.getExceptionCode(), ex);
                     }
                 }
             } else {

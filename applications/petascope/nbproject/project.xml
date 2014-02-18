@@ -35,10 +35,6 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
-                    <file>${file.reference.date4j.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library dirs="200">
                     <file>${file.reference.gml-v_3_1_1-schema-1.0-SNAPSHOT.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
@@ -84,10 +80,6 @@
                 </library>
                 <library dirs="200">
                     <file>${file.reference.jaxb-xjc.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library dirs="200">
-                    <file>${file.reference.joda-time-1.6.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
@@ -160,6 +152,10 @@
                 </library>
                 <library dirs="200">
                     <file>${file.reference.xercesImpl-2.7.1.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library dirs="200">
+                    <file>${file.reference.joda-time-2.3.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>

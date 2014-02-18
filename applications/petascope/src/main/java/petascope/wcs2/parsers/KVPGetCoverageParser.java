@@ -32,7 +32,6 @@ import java.util.regex.Pattern;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
-import petascope.util.CrsUtil;
 import static petascope.util.KVPSymbols.*;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;

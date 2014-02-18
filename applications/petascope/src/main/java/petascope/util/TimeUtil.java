@@ -20,252 +20,189 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package petascope.util;
-
-import hirondelle.date4j.DateTime;
+import java.util.HashMap;
+import java.util.Map;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 
 /**
- * Class that offers several utilities to handle timestamps formatting and elaborations.
- * Purpose: hide the library-specific details (DateTime) and let the client work with ISO strings.
+ * Class for handling timestamps formatting and elaborations.
+ * It relies on the Joda-Time library (http://www.joda.org/joda-time/).
  *
  * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public class TimeUtil {
 
-    public static final String ISO8601_T_KEY = "T";
-    public static final String TIME_ZONE_KEY = "Z";
+    // Standard codes for supported temporal Unit of Measures (which provide ISO8601 interface to the user)
+    // http://unitsofmeasure.org/ucum.html
+    public static final String UCUM_MILLIS               = "ms";
+    public static final String UCUM_SECOND               = "s";
+    public static final String UCUM_MINUTE               = "min";
+    public static final String UCUM_HOUR                 = "h";
+    public static final String UCUM_DAY                  = "d";
+    public static final String UCUM_WEEK                 = "wk";
+    public static final String UCUM_MEAN_JULIAN_MONTH    = "mo_j";
+    public static final String UCUM_MEAN_GREGORIAN_MONTH = "mo_g";
+    public static final String UCUM_SYNODAL_MONTH        = "mo_s";
+    public static final String UCUM_MONTH                = "mo";
+    public static final String UCUM_MEAN_JULIAN_YEAR     = "a_j";
+    public static final String UCUM_MEAN_GREGORIAN_YEAR  = "a_g";
+    public static final String UCUM_TROPICAL_YEAR        = "a_t";
+    public static final String UCUM_YEAR                 = "a";
 
-    // http://aurora.regenstrief.org/~ucum/ucum.html#iso1000
-    public static final String ISO_YEAR_UOM   = "a";
-    public static final String ISO_MONTH_UOM  = "mo";
-    public static final String ISO_WEEK_UOM   = "wk";
-    public static final String ISO_DAY_UOM    = "d";
-    public static final String ISO_HOUR_UOM   = "h";
-    public static final String ISO_MINUTE_UOM = "min";
-    public static final String ISO_SECOND_UOM = "s";
+    // Milliseconds associated to each supported temporal UoM:
+    public static final Long MILLIS_MILLIS               = 1L;
+    public static final Long MILLIS_SECOND               = 1000L;
+    public static final Long MILLIS_MINUTE               = MILLIS_SECOND * 60;
+    public static final Long MILLIS_HOUR                 = MILLIS_MINUTE * 60;
+    public static final Long MILLIS_DAY                  = MILLIS_HOUR * 24;
+    public static final Long MILLIS_WEEK                 = MILLIS_DAY * 7;
+    public static final Long MILLIS_MEAN_JULIAN_YEAR     = (long) (MILLIS_DAY * 365.25);
+    public static final Long MILLIS_MEAN_GREGORIAN_YEAR  = (long) (MILLIS_DAY * 365.2425);
+    public static final Long MILLIS_TROPICAL_YEAR        = (long) (MILLIS_DAY * 365.24219);
+    public static final Long MILLIS_YEAR                 = MILLIS_MEAN_JULIAN_YEAR;
+    public static final Long MILLIS_MEAN_JULIAN_MONTH    = MILLIS_MEAN_JULIAN_YEAR / 12;
+    public static final Long MILLIS_MEAN_GREGORIAN_MONTH = MILLIS_MEAN_GREGORIAN_YEAR / 12;
+    public static final Long MILLIS_SYNODAL_MONTH        = (long) (MILLIS_DAY * 29.53059);
+    public static final Long MILLIS_MONTH                = MILLIS_MEAN_JULIAN_MONTH;
 
-    private static final int DATETIME_YEAR_DEFAULT       = 1;
-    private static final int DATETIME_MONTH_DEFAULT      = 1;
-    private static final int DATETIME_DAY_DEFAULT        = 1;
-    private static final int DATETIME_HOUR_DEFAULT       = 0;
-    private static final int DATETIME_MINUTE_DEFAULT     = 0;
-    private static final int DATETIME_SECOND_DEFAULT     = 0;
-    private static final int DATETIME_NANOSECOND_DEFAULT = 0;
-
-    @Deprecated private static final int DELTA_ANSI_MJD = 94188; // =(ANSI Day)-(Modified Julian Day)
-
+    // Logger
     private static Logger log = LoggerFactory.getLogger(TimeUtil.class);
 
     /**
+     * Registry of Temporal UoMs which support ISO timestamp conversion.
+     */
+    private static final Map<String, Long> timeUomsRegistry = new HashMap<String, Long>();
+
+    /**
+     * ISO datetime formatter.
+     * Valid formats and other ISO formatters: http://www.joda.org/joda-time/apidocs/org/joda/time/format/ISODateTimeFormat.html
+     *
+     * The default chronology in Joda-Time is ISO (ISO8601).
+     * For other Joda-Time Chronologies see http://www.joda.org/joda-time/apidocs/org/joda/time/Chronology.html.
+     * For a description of the ISO8601 calendar system see http://www.joda.org/joda-time/cal_iso.html.
+     *
+     * "For most applications, the Chronology can be ignored as it will default to the ISOChronology.
+     *  This is suitable for most uses. You would change it if you need accurate dates before October 15, 1582,
+     *  or whenever the Julian calendar ceased in the territory you're interested in).
+     *  You'd also change it if you need a specific calendar like the Coptic calendar illustrated earlier". (Joda-Time)
+     */
+    private static final DateTimeFormatter isoFmt;
+
+    static {
+        //Create an ISO formatter with optional time and UTC default time zone
+        isoFmt = ISODateTimeFormat.dateOptionalTimeParser().withZoneUTC();
+        // NOTE: if zone is not assigned, the default time zone of the JVM will be picked: no-no.
+
+        // Fill the registry of time UoMs:
+        timeUomsRegistry.put(UCUM_MILLIS, MILLIS_MILLIS);
+        timeUomsRegistry.put(UCUM_SECOND, MILLIS_SECOND);
+        timeUomsRegistry.put(UCUM_MINUTE, MILLIS_MINUTE);
+        timeUomsRegistry.put(UCUM_HOUR, MILLIS_HOUR);
+        timeUomsRegistry.put(UCUM_DAY, MILLIS_DAY);
+        timeUomsRegistry.put(UCUM_WEEK, MILLIS_WEEK);
+        timeUomsRegistry.put(UCUM_MEAN_JULIAN_MONTH, MILLIS_MEAN_JULIAN_MONTH);
+        timeUomsRegistry.put(UCUM_MEAN_GREGORIAN_MONTH, MILLIS_MEAN_GREGORIAN_MONTH);
+        timeUomsRegistry.put(UCUM_SYNODAL_MONTH, MILLIS_SYNODAL_MONTH);
+        timeUomsRegistry.put(UCUM_MONTH, MILLIS_MONTH);
+        timeUomsRegistry.put(UCUM_MEAN_JULIAN_YEAR, MILLIS_MEAN_JULIAN_YEAR);
+        timeUomsRegistry.put(UCUM_MEAN_GREGORIAN_YEAR, MILLIS_MEAN_GREGORIAN_YEAR);
+        timeUomsRegistry.put(UCUM_TROPICAL_YEAR, MILLIS_TROPICAL_YEAR);
+        timeUomsRegistry.put(UCUM_YEAR, MILLIS_YEAR);
+    }
+
+    /**
+     * Check if the input timestamp is in an understandable format.
+     *
      * @param   timestamp    Timestamp string requested by the client
-     * @return  boolean             True if valid ISO timestamp.
+     * @return  True if valid ISO timestamp.
      */
     public static boolean isValidTimestamp (String timestamp) {
-
-        timestamp = fix(timestamp);
-
+        boolean isValid = true;
         try {
-            DateTime trial = new DateTime(timestamp);
-            trial.lteq(trial); // whatever
-        } catch (Exception ex) {
+            DateTime dt = isoFmt.parseDateTime(fix(timestamp));
+        } catch (IllegalArgumentException ex) {
             log.debug(timestamp + " format is invalid or unsupported: " + ex.getMessage());
-            return false;
+            isValid = false;
         }
-
-        return true;
+        return isValid;
     }
 
     /**
+     * Verifies that the two input timestamps define a valid interval.
+     *
      * @param   timestampLo    timestamp
      * @param   timestampHi    timestamp
-     * @return  boolean               Is Lo (*strictly*) lower than Hi ?
+     * @return  True if Lo is lower or equal than Hi
+     * @throws PetascopeException
      */
-    public static boolean isOrderedTimeSubset (String timestampLo, String timestampHi) {
+    public static boolean isOrderedTimeSubset (String timestampLo, String timestampHi) throws PetascopeException {
 
-        timestampLo = fix(timestampLo);
-        timestampHi = fix(timestampHi);
-
-        DateTime dtLo = new DateTime(timestampLo);
-        DateTime dtHi = new DateTime(timestampHi);
-
-        return dtLo.lteq(dtHi);
-    }
-
-    /**
-     * @param   timestamp    A timestamp
-     * @return  int                 ANSI day number.
-     */
-    @Deprecated
-    public static int convert2AnsiDay (String timestamp) throws Exception {
-        timestamp = fix(timestamp);
-        DateTime dt = new DateTime(timestamp);
-        return dt.getModifiedJulianDayNumber() + DELTA_ANSI_MJD;
-    }
-
-    /**
-     * Remove apixes (-> more flexibility) and replace "T" ISO:8601 separator with a white space.
-     * @param isoTimestamp   ISO:8601 timestamp (possibly quoted)
-     * @return String        PSQL/DateTime compatible timestamp
-     */
-    private static String fix(String isoTimestamp) {
-
-        // Replace T key with spaces, see: http://www.date4j.net/javadoc/hirondelle/date4j/DateTime.html
-        String psqlTimestamp = isoTimestamp.replaceFirst(ISO8601_T_KEY, " ");
-
-        // No time zone in the Date String: support of time zones is not out-of-the-box: future dev.
-        psqlTimestamp = isoTimestamp.replaceFirst(TIME_ZONE_KEY, "");
-
-        // Remove quotes
-        psqlTimestamp = psqlTimestamp.replaceAll("%22", "");
-        psqlTimestamp = psqlTimestamp.replaceAll("'"  , "");
-        psqlTimestamp = psqlTimestamp.replaceAll("\""  , "");
-
-        return psqlTimestamp;
+        DateTime dtLo = isoFmt.parseDateTime(fix(timestampLo));
+        DateTime dtHi = isoFmt.parseDateTime(fix(timestampHi));
+        Duration millis;
+        try {
+            millis = new Duration(dtLo, dtHi);
+        } catch (ArithmeticException ex) {
+            log.error("Error while computing milliseconds between " + dtLo + " and " + dtHi + ".");
+            throw new PetascopeException(ExceptionCode.InternalComponentError,
+                    "Cannot convert input datetimes to numeric time coordinates: duration exceeds a 64 bit long.", ex);
+        }
+        return (millis.getMillis() >= 0);
     }
 
     /**
      * Count how many temporal units (i.e. offset vectors) fit inside a time interval.
-     * @param timestampLo       Lower bound of time interval
-     * @param timestampHi       Upper bound of time interval
-     * @param timeResolution    Temporal resolution of the unit
-     * @return How many *full* time units fit into the time interval (timestampHi-timestampLo).
+     *
+     * @param timestampLo       Lower ISO timestamp
+     * @param timestampHi       Upper ISO timestamp
+     * @param timeResolution    Temporal UoM of the CRS
+     * @param timeVector        Length of the offset vector along time [TIME(n) := timeEpoch + n*(timeResolution*timeVector)]
+     * @return How many time units (with fractional resolution) fit into the time interval [timestampHi-timestampLo]
+     * @throws PetascopeException
      */
-    public static Double countOffsets(String timestampLo, String timestampHi, String timeResolution) {
+    public static Double countOffsets(String timestampLo, String timestampHi, String timeResolution, Double timeVector)
+            throws PetascopeException {
 
-        int  sign = 1;
+        // local variables
+        Double fractionalTimeSteps;
 
-        // if Hi is /before/ Lo, than return 0
-        if (isOrderedTimeSubset(timestampHi, timestampLo)) {
-            // -> Lo>Hi: swap the interval bounds and return a negative offset
-            String buf = timestampLo;
-            timestampLo = timestampHi;
-            timestampHi = buf;
-            sign = -1;
+        DateTime dtLo = isoFmt.parseDateTime(fix(timestampLo));
+        DateTime dtHi = isoFmt.parseDateTime(fix(timestampHi));
+
+        // Determine milliseconds between these two datetimes
+        Duration millis;
+        try {
+            millis = new Duration(dtLo, dtHi);
+        } catch (ArithmeticException ex) {
+            log.error("Error while computing milliseconds between " + dtLo + " and " + dtHi + ".");
+            throw new PetascopeException(ExceptionCode.InternalComponentError,
+                    "Cannot convert input datetimes to numeric time coordinates: duration exceeds a 64 bit long.", ex);
         }
 
-        Double offsetsCounter = .0;
+        // Compute how many vectors of distance are there between dtLo and dtHi along this time CRS
+        // NOTE: not necessarily an integer number of vectors will fit in the interval, clearly.
+        // Formula:
+        //               fractionalTimeSteps := milliseconds(lo,hi) / [milliseconds(offset_vector)]
+        // WHERE milliseconds(offset_vector) := milliseconds(timeResolution) * vector_length
+        Long vectorMillis = (long) (getMillis(timeResolution) * timeVector);
+        fractionalTimeSteps = 1D*millis.getMillis() / vectorMillis;
 
-        timestampLo = fix(timestampLo);
-        timestampHi = fix(timestampHi);
-
-        DateTime dtSubsetLo   = fillAllUnits(new DateTime(timestampLo));
-        DateTime dtSubsetHi   = fillAllUnits(new DateTime(timestampHi));
-        DateTime dtResolution = fillAllUnits(isoInterval2dateTime(timeResolution));
-
-        // Start from lowerbound and increase until I exceed the upper bound
-        DateTime dtHead = new DateTime(dtSubsetLo.toString());
-
-        // Decompose resolution
-        int yearRes   = (dtResolution.getYear()   == DATETIME_YEAR_DEFAULT )   ? 0 : (dtResolution.getYear()   - DATETIME_YEAR_DEFAULT);
-        int monthRes  = (dtResolution.getMonth()  == DATETIME_MONTH_DEFAULT )  ? 0 : (dtResolution.getMonth()  - DATETIME_MONTH_DEFAULT);
-        int dayRes    = (dtResolution.getDay()    == DATETIME_DAY_DEFAULT )    ? 0 : (dtResolution.getDay()    - DATETIME_DAY_DEFAULT);
-        int hourRes   = (dtResolution.getHour()   == DATETIME_HOUR_DEFAULT )   ? 0 : (dtResolution.getHour()   - DATETIME_HOUR_DEFAULT);
-        int minuteRes = (dtResolution.getMinute() == DATETIME_MINUTE_DEFAULT ) ? 0 : (dtResolution.getMinute() - DATETIME_MINUTE_DEFAULT);
-        int secondRes = (dtResolution.getSecond() == DATETIME_SECOND_DEFAULT ) ? 0 : (dtResolution.getSecond() - DATETIME_SECOND_DEFAULT);
-
-        DateTime dtLastHead = dtHead;
-        dtHead = dtHead.plus(yearRes, monthRes, dayRes, hourRes, minuteRes, secondRes, DATETIME_NANOSECOND_DEFAULT, DateTime.DayOverflow.FirstDay);
-        while (dtHead.lteq(dtSubsetHi)) {
-            // Increment
-            // FIXME: performance killer! Go with binary search.
-            offsetsCounter += 1;
-            dtLastHead = dtHead;
-            dtHead = dtHead.plus(yearRes, monthRes, dayRes, hourRes, minuteRes, secondRes, DATETIME_NANOSECOND_DEFAULT, DateTime.DayOverflow.FirstDay);
-            log.debug("dtHead#" + offsetsCounter + ": " + dtHead);
-        }
-
-        // Add fractional part to avoid integer resolution on temporal subsets and miss out-of-bound subsets
-        offsetsCounter += 1 - (double)dtHead.numSecondsFrom(dtSubsetHi) / dtHead.numSecondsFrom(dtLastHead);
-
-        return sign*offsetsCounter;
+        log.debug("Computed " + fractionalTimeSteps + " offset-vectors between " + dtLo + " and " + dtHi + ".");
+        return fractionalTimeSteps;
     }
 
     /**
-     * @param   DateTime dt         DateTime object with incomplete units
-     * @return  DateTime            DateTime object filled with defaults values.
-     */
-    private static DateTime fillAllUnits(DateTime dt) {
-        DateTime dtOut = new DateTime(
-                dt.unitsAllAbsent(DateTime.Unit.YEAR)   ? DATETIME_YEAR_DEFAULT   : dt.getYear(),
-                dt.unitsAllAbsent(DateTime.Unit.MONTH)  ? DATETIME_MONTH_DEFAULT  : dt.getMonth(),
-                dt.unitsAllAbsent(DateTime.Unit.DAY)    ? DATETIME_DAY_DEFAULT    : dt.getDay(),
-                dt.unitsAllAbsent(DateTime.Unit.HOUR)   ? DATETIME_HOUR_DEFAULT   : dt.getHour(),
-                dt.unitsAllAbsent(DateTime.Unit.MINUTE) ? DATETIME_MINUTE_DEFAULT : dt.getMinute(),
-                dt.unitsAllAbsent(DateTime.Unit.SECOND) ? DATETIME_SECOND_DEFAULT : dt.getSecond(),
-                dt.unitsAllAbsent(DateTime.Unit.NANOSECONDS) ? DATETIME_NANOSECOND_DEFAULT : dt.getNanoseconds());
-        return dtOut;
-    }
-
-    /**
-     * @param   String isoInterval    ISO8601 interval string to be translated
-     * @return  DateTime              Corresponding DateTime object
-     */
-    private static DateTime isoInterval2dateTime(String isoInterval) {
-        // NOTE: e.g. resolution of 12 month must be set as 1 year, otherwise overflow when creating the DateTime object.
-        DateTime  dt;
-        Integer iBuf;
-        String  sBuf = "";
-        char  keyBuf = ' ';
-
-        // Init
-        int year       = 0;
-        int month      = 0;
-        int day        = 0;
-        int hour       = 0;
-        int minute     = 0;
-        int second     = 0;
-
-        // Transalte ISO resolution
-        if      (isoInterval.equals(ISO_YEAR_UOM))   year   = 1;
-        else if (isoInterval.equals(ISO_MONTH_UOM))  month  = 1;
-        else if (isoInterval.equals(ISO_WEEK_UOM))   day    = 7;
-        else if (isoInterval.equals(ISO_DAY_UOM))    day    = 1;
-        else if (isoInterval.equals(ISO_HOUR_UOM))   hour   = 1;
-        else if (isoInterval.equals(ISO_MINUTE_UOM)) minute = 1;
-        else if (isoInterval.equals(ISO_SECOND_UOM)) second = 1;
-        else {
-            log.error(isoInterval + " is unknown.");
-            return null;
-        }
-
-        // Create output object
-        dt = new DateTime(
-                year   + DATETIME_YEAR_DEFAULT,
-                month  + DATETIME_MONTH_DEFAULT,
-                day    + DATETIME_DAY_DEFAULT,
-                hour   + DATETIME_HOUR_DEFAULT,
-                minute + DATETIME_MINUTE_DEFAULT,
-                second + DATETIME_SECOND_DEFAULT,
-                DATETIME_NANOSECOND_DEFAULT);
-
-        return dt;
-    }
-
-    /**
-     * @param timestamp1  ISO:8601 timestamp
-     * @param timestamp2  ISO:8601 timestamp
-     * @return String     The minimum value.
-     */
-    public static String min(String timestamp1, String timestamp2) {
-        if (isOrderedTimeSubset(timestamp1, timestamp2))
-             return timestamp1;
-        else return timestamp2;
-    }
-
-    /**
-     * @param timestamp1  ISO:8601 timestamp
-     * @param timestamp2  ISO:8601 timestamp
-     * @return String     The maximum value.
-     */
-    public static String max(String timestamp1, String timestamp2) {
-        if (!isOrderedTimeSubset(timestamp1, timestamp2))
-             return timestamp1;
-        else return timestamp2;
-    }
-
-    /**
+     * Removes an epsilon to the input timestamp.
+     *
      * When translating to cell indexes, there is a particular case:
+     *
      *    9h00     10h00     11h00     12h00     13h00
      *     o---------o---------o---------o---------o
      *        cell0     cell1     cell2     cell3
@@ -276,16 +213,42 @@ public class TimeUtil {
      *
      * Whereas subset=t(10h01:18h00) would work fine: things work when
      * excluding the maximum, i.e. < instead of <=.
-     * @param timestamp
-     * @return String     1 nanosecond before timestamp.
+     * @param timestamp  ISO:8601 timestamp
+     * @return 1 nanosecond before timestamp.
      */
     public static String minusEpsilon(String timestamp) {
+        DateTime dt = isoFmt.parseDateTime(fix(timestamp));
+        DateTime dtEps = dt.minusMillis(1);
+        return dtEps.toString();
+    }
 
-        timestamp   = fix(timestamp);
-        DateTime dt = fillAllUnits(new DateTime(timestamp));
+    /**
+     * Get the number of milliseconds fitting in the provided UoM (UCUM abbreviation).
+     * @param ucumAbbreviation See c/s symbols in http://unitsofmeasure.org/ucum.html
+     * @return How many milliseconds [ms] are in the specified duration.
+     * @throws PetascopeException
+     */
+    private static Long getMillis(String ucumAbbreviation) throws PetascopeException {
+        Long millis = timeUomsRegistry.get(ucumAbbreviation);
+        if (null==millis) {
+            throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                    "Unsupported temporal Unit of Measure [" + ucumAbbreviation + "].");
+        }
+        return millis;
+    }
 
-        dt = dt.minus(0, 0, 0, 0, 0, 0, 1, DateTime.DayOverflow.LastDay);
+    /**
+     * Remove quotes from a timestamp, if present.
+     * @param timestamp   ISO:8601 timestamp (possibly quoted)
+     * @return String        PSQL/DateTime compatible timestamp
+     */
+    private static String fix(String timestamp) {
+        String unquotedTimestamp;
 
-        return dt.toString();
+        unquotedTimestamp = timestamp.replaceAll("%22", "");
+        unquotedTimestamp = unquotedTimestamp.replaceAll("'"  , "");
+        unquotedTimestamp = unquotedTimestamp.replaceAll("\""  , "");
+
+        return unquotedTimestamp;
     }
 }

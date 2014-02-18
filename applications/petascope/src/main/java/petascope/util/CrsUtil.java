@@ -1013,8 +1013,8 @@ public class CrsUtil {
 
                     if (subsetWithTimestamps) {
                         // Need to convert timestamps to TemporalCRS numeric coordinates
-                        numLo = "" + TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM);
-                        numHi = "" + TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM);
+                        numLo = "" + TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, dom.getScalarResolution().doubleValue());
+                        numHi = "" + TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, dom.getScalarResolution().doubleValue());
                     }
 
                     // Retrieve correspondent cell indexes (unique method for numerical/timestamp values)
@@ -1022,16 +1022,16 @@ public class CrsUtil {
                     subsetGridIndexes = dbMeta.getIndexesFromIrregularRectilinearAxis(
                             covMeta.getCoverageName(),
                             covMeta.getDomainIndexByName(axisName), // i-order of axis
-                            (new BigDecimal(numLo)).subtract(domMin).divide(dom.getScalarResolution()),  // coefficients are relative to the origin, but subsets are not.
-                            (new BigDecimal(numHi)).subtract(domMin).divide(dom.getScalarResolution()),  //
+                            (new BigDecimal(numLo)).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
+                            (new BigDecimal(numHi)).subtract(domMin),  //
                             indexMin, indexMax);
 
                     // Retrieve the coefficients values and store them in the DomainElement
                     dom.setCoefficients(dbMeta.getCoefficientsOfInterval(
                             covMeta.getCoverageName(),
                             covMeta.getDomainIndexByName(axisName), // i-order of axis
-                            (new BigDecimal(numLo)).subtract(domMin).divide(dom.getScalarResolution()),
-                            (new BigDecimal(numHi)).subtract(domMin).divide(dom.getScalarResolution())
+                            (new BigDecimal(numLo)).subtract(domMin),
+                            (new BigDecimal(numHi)).subtract(domMin)
                             ));
 
                     // Add sdom lower bound
@@ -1048,8 +1048,8 @@ public class CrsUtil {
                 // TODO: enable negative directions in time axis too (dom.isPositiveForwards())
                 if (subsetWithTimestamps) {
                     // Need to convert timestamps to TemporalCRS numeric coordinates
-                    Double numLo = TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM);
-                    Double numHi = TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM);
+                    Double numLo = TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, dom.getScalarResolution().doubleValue());
+                    Double numHi = TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, dom.getScalarResolution().doubleValue());
 
                     // Consistency check
                     if (numHi < domMin.doubleValue() || numLo > domMax.doubleValue()) {

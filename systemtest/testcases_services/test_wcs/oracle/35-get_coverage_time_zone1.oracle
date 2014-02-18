@@ -32,9 +32,9 @@
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="/crs/EPSG/0/4326@Long" axisLabels="Long" uomLabels="degree" srsDimension="1">
-      <lowerCorner>70</lowerCorner>
-      <upperCorner>70.5</upperCorner>
+    <Envelope srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+      <lowerCorner>0</lowerCorner>
+      <upperCorner>1</upperCorner>
     </Envelope>
   </boundedBy>
 
@@ -42,17 +42,17 @@
     <RectifiedGrid dimension="1" id="eobstest-grid">
       <limits>
         <GridEnvelope>
-          <low>90</low>
-          <high>90</high>
+          <low>0</low>
+          <high>0</high>
         </GridEnvelope>
       </limits>
-      <axisLabels>Long</axisLabels>
+      <axisLabels>t</axisLabels>
       <origin>
-          <Point id="eobstest-origin" srsName="/crs/EPSG/0/4326@Long" axisLabels="Long" uomLabels="degree" srsDimension="1">
-              <pos>70.25</pos>
+          <Point id="eobstest-origin" srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">
+              <pos>0.5</pos>
           </Point>
       </origin>
-      <offsetVector srsName="/crs/EPSG/0/4326@Long" axisLabels="Long" uomLabels="degree" srsDimension="1">0.5</offsetVector>
+      <offsetVector srsName="/crs/OGC/0/Temporal?epoch=&quot;1950-01-01T00:00:00&quot;&amp;uom=&quot;d&quot;" axisLabels="t" uomLabels="d" srsDimension="1">1</offsetVector>
     </RectifiedGrid>
   </domainSet>
 

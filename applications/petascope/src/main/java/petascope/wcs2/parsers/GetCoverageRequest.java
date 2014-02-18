@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import petascope.exceptions.ExceptionCode;
+import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCSException;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
@@ -290,8 +291,12 @@ public class GetCoverageRequest extends BaseRequest {
             }
             if (null != getTrimLow() && null != getTrimHigh() && getTrimLow().matches(QUOTED_SUBSET) && getTrimHigh().matches(QUOTED_SUBSET)) {
                 // Check low<high
-                if (!TimeUtil.isOrderedTimeSubset(getTrimLow(), getTrimHigh())) {
-                    throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + getTrimLow() + ":" + getTrimHigh() + "\" is invalid: check order.");
+                try {
+                    if (!TimeUtil.isOrderedTimeSubset(getTrimLow(), getTrimHigh())) {
+                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + getTrimLow() + ":" + getTrimHigh() + "\" is invalid: check order.");
+                    }
+                } catch (PetascopeException ex) {
+                    throw new WCSException(ex.getExceptionCode(), ex);
                 }
             }
         }
