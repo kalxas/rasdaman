@@ -78,7 +78,7 @@ public class XMLDescribeCoverageSchemaTest extends BaseTestCase{
     
     @Test(expected=WCSException.class)
     public void testInvalidXML() throws WCSException{
-    HTTPRequest req = new HTTPRequest("", "", "", validXML);
+    HTTPRequest req = new HTTPRequest("", "", "", invalidXML);
 	parser.parse(req);
     }
 }
