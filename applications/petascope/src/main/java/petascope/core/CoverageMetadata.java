@@ -275,7 +275,7 @@ public class CoverageMetadata implements Cloneable {
                 crsUri,
                 0,
                 BigInteger.ONE,
-                true, false)
+                true, true)
                 );
         }
 

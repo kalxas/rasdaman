@@ -254,7 +254,19 @@ public class WcsUtil {
         }
 
         // Whole document: replace keywords with values
-        String ret = Templates.getTemplate(template,
+        String ret = "";
+        if (m.getCoverageType().equals(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)){
+            ret = Templates.getTemplate(template,
+                Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
+                Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
+                Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
+                Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
+                // multipoint
+                Pair.of("\\{" + Templates.KEY_MPID                  + "\\}", Templates.PREFIX_MP + m.getGridId()),
+                Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)),
+                Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields));
+        } else {
+            ret = Templates.getTemplate(template,
                 Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
                 // [!] domainSet has to be replaced first: it contains keywords to be replaced
                 // grid
@@ -267,8 +279,6 @@ public class WcsUtil {
                 Pair.of("\\{" + Templates.KEY_OFFSET_VECTORS        + "\\}", getGmlOffsetVectors(m)),
                 // + referenceable grid
                 Pair.of("\\{" + Templates.KEY_GENERAL_GRID_AXES     + "\\}", getGeneralGridAxes(m)),
-                // multipoint
-                Pair.of("\\{" + Templates.KEY_MPID                  + "\\}", Templates.PREFIX_MP + m.getGridId()),
                 // coverage
                 Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
                 Pair.of("\\{" + Templates.KEY_COVERAGETYPE          + "\\}", m.getCoverageType()),
@@ -277,6 +287,7 @@ public class WcsUtil {
                 Pair.of("\\{" + Templates.KEY_GMLCOV_METADATA       + "\\}", getGmlcovMetadata(m)),
                 Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields),
                 Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)));
+        }
 
         // RGBV cannot replace bounds now, see GmlFormatExtension class
         if (!m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
