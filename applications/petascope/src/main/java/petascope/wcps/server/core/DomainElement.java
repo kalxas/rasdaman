@@ -23,7 +23,6 @@ package petascope.wcps.server.core;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 
 /**
@@ -53,7 +53,6 @@ public class DomainElement implements Cloneable {
     private boolean    positiveForwards; // grid axis direction = CRS axis direction (or viceversa)
     private BigInteger dimensionality; // # of grid points along this axis
     private boolean    isIrregular;
-    private boolean    isNumeric;
     private List<BigDecimal> coefficients;
     private CrsDefinition.Axis axisDef;
 
@@ -112,8 +111,8 @@ public class DomainElement implements Cloneable {
                         "Invalid domain element: upper-bound is greater then lower-bound.");
             }
 
-            BigDecimal diffBD = maxValue.subtract(minValue);
-            scalarResolution  = diffBD.divide(new BigDecimal(dimensionality), RoundingMode.UP);
+            BigDecimal diffBD = maxValue.subtract(minValue).add(uom.equals(CrsUtil.GRID_UOM) ? BigDecimal.ONE : BigDecimal.ZERO);
+            scalarResolution  = BigDecimalUtil.divide(diffBD, new BigDecimal(dimensionality));
         }
 
         log.trace(toString());

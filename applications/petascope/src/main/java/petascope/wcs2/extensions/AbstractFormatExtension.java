@@ -40,6 +40,7 @@ import petascope.exceptions.RasdamanException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.MiscUtil;
@@ -207,15 +208,15 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 axesLabels += domainEl.getLabel() + " ";
                 lowerCellDom += cellDomainEl.getLo() + " ";
                 upperCellDom += cellDomainEl.getHi() + " ";
-                lowerGisDom += MiscUtil.stripDecimalZeros(domainEl.getMinValue()) + " ";
-                upperGisDom += MiscUtil.stripDecimalZeros(domainEl.getMaxValue()) + " ";
+                lowerGisDom += BigDecimalUtil.stripDecimalZeros(domainEl.getMinValue()) + " ";
+                upperGisDom += BigDecimalUtil.stripDecimalZeros(domainEl.getMaxValue()) + " ";
                 // The map is automatically sorted by key value (axis order in the CRS definition)
                 lowerDom.put(
                         CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()),
-                        MiscUtil.stripDecimalZeros(domainEl.getMinValue()).toPlainString());
+                        BigDecimalUtil.stripDecimalZeros(domainEl.getMinValue()).toPlainString());
                 upperDom.put(
                         CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()),
-                        MiscUtil.stripDecimalZeros(domainEl.getMaxValue()).toPlainString());
+                        BigDecimalUtil.stripDecimalZeros(domainEl.getMaxValue()).toPlainString());
             }
         } // END domains iterator
 

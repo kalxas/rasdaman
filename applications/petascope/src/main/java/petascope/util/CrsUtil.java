@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -1098,9 +1097,9 @@ public class CrsUtil {
 
                     // Get cell dimension -- Use BigDecimals to avoid finite arithmetic rounding issues of Doubles
                     //double cellWidth = dom.getResolution().doubleValue();
-                    double cellWidth = (
-                            domMax.subtract(domMin))
-                            .divide((BigDecimal.valueOf(indexMax+1)).subtract(BigDecimal.valueOf(indexMin)), RoundingMode.UP)
+                    double cellWidth = BigDecimalUtil.divide(
+                            (domMax.subtract(domMin)),
+                            (BigDecimal.valueOf(indexMax+1)).subtract(BigDecimal.valueOf(indexMin)))
                             .doubleValue();
                     //      = (dDomHi-dDomLo)/(double)((pxHi-pxLo)+1);
 

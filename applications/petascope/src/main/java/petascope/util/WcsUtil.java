@@ -24,7 +24,6 @@ package petascope.util;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -457,7 +456,7 @@ public class WcsUtil {
             List<String> subsetLabels = Arrays.asList(m.getGridAxisLabels().split(" "));
             if (subsetLabels.contains(axisName)) {
                 BigDecimal subsetLo = new BigDecimal(m.getDomLow().split(" ")[subsetLabels.indexOf(axisName)]);
-                coeffs = Vectors.add(coeffs, (domEl.getMinValue().subtract(subsetLo)).divide(domEl.getScalarResolution(), RoundingMode.UP));
+                coeffs = Vectors.add(coeffs, BigDecimalUtil.divide(domEl.getMinValue().subtract(subsetLo), domEl.getScalarResolution()));
             }
             // Create the XML element
             coefficients = ListUtil.printList(coeffs, " ");
@@ -614,7 +613,7 @@ public class WcsUtil {
         if (isIrregular || axisUom.equals(GRID_UOM)) {
             shift = BigDecimal.ZERO;
         } else {
-            shift = offsetVector.divide(BigDecimal.valueOf(-2), RoundingMode.UP);
+            shift = BigDecimalUtil.divide(offsetVector, BigDecimal.valueOf(-2));
         }
         return shift;
     }
@@ -642,7 +641,7 @@ public class WcsUtil {
             // 1D sample space (along this dimension): need to fit
             // Count the number of full sample-spaces that fit in the bbox:
             distanceFromOrigin = coordinateValue.subtract(domEl.getMinValue());
-            cellsFromLowerBound = distanceFromOrigin.divide(domEl.getScalarResolution(), RoundingMode.UP).toBigInteger();
+            cellsFromLowerBound = BigDecimalUtil.divide(distanceFromOrigin, domEl.getScalarResolution()).toBigInteger();
             if (greaterValue) {
                 // User is asking the next fitted value *greater* than the given one (for upper corners)
                 cellsFromLowerBound = cellsFromLowerBound.add(BigInteger.ONE);
@@ -659,7 +658,7 @@ public class WcsUtil {
             fittedCoordinateValue = domEl.getMinValue();
         }
 
-        return MiscUtil.stripDecimalZeros(fittedCoordinateValue);
+        return BigDecimalUtil.stripDecimalZeros(fittedCoordinateValue);
     }
     // Overload for String input
     public static String fitToSampleSpace(String coordinateValue, DomainElement domEl, boolean greaterValue) {

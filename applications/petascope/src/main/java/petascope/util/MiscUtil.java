@@ -22,7 +22,6 @@
  */
 package petascope.util;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.LoggerFactory;
@@ -102,29 +101,5 @@ public class MiscUtil {
         }
 
         return ret;
-    }
-
-    /**
-     * Converts BigDecimal value minimum scale equivalent representation.
-     * Java bug #6480539 is taken into account.
-     * @param bd
-     * @return bd where decimal zeros have been stripped.
-     */
-    public static BigDecimal stripDecimalZeros(BigDecimal bd) {
-
-        // strip zeros
-        BigDecimal bdOut = bd.stripTrailingZeros();
-
-        // recover zeros stripped before comma
-        if (bdOut.scale() < 0) {
-            bdOut = new BigDecimal(bdOut.intValue());
-        }
-
-        if (bdOut.compareTo(BigDecimal.ZERO) == 0) {
-            // Java bug: http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6480539
-            // 0.0 is not stripped to 0
-            bdOut = BigDecimal.ZERO;
-        }
-        return bdOut;
     }
 }

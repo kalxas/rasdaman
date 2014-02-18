@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import nu.xom.Element;
+import petascope.util.BigDecimalUtil;
 import petascope.util.MiscUtil;
 import static petascope.util.XMLSymbols.LABEL_ALLOWED_VALUES;
 import static petascope.util.XMLSymbols.LABEL_INTERVAL;
@@ -105,7 +106,7 @@ public class AllowedValues {
             while (intervalIt.hasNext()) {
                 interval = new Element(PREFIX_SWE + ":" + LABEL_INTERVAL, NAMESPACE_SWE);
                 pair = intervalIt.next();
-                interval.appendChild(MiscUtil.stripDecimalZeros(pair.getMin()) + " " + MiscUtil.stripDecimalZeros(pair.getMax()));
+                interval.appendChild(BigDecimalUtil.stripDecimalZeros(pair.getMin()) + " " + BigDecimalUtil.stripDecimalZeros(pair.getMax()));
                 allowedValues.appendChild(interval);
             }
             return allowedValues;

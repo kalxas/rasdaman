@@ -21,9 +21,6 @@
  */
 package petascope.wcps.server.core;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Arrays;
 import petascope.core.CoverageMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +28,10 @@ import org.w3c.dom.*;
 import petascope.core.DbMetadataSource;
 import petascope.core.DynamicMetadataSource;
 import petascope.core.IDynamicMetadataSource;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
-import static petascope.util.CrsUtil.convertToInternalGridIndices;
 import petascope.util.WcpsConstants;
-import petascope.util.TimeUtil;
 
 public class Crs extends AbstractRasNode {
 

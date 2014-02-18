@@ -271,14 +271,14 @@ public class ListUtil {
             boolean isBigDecimal = l.get(0).getClass().equals(BigDecimal.class);
             for (int i=0; i<l.size()-1; i++) {
                 if (isBigDecimal) {
-                    sb.append(MiscUtil.stripDecimalZeros((BigDecimal)l.get(i)));
+                    sb.append(BigDecimalUtil.stripDecimalZeros((BigDecimal)l.get(i)));
                 } else {
                     sb.append(l.get(i));
                 }
                 sb.append(FS);
             }
             if (isBigDecimal) {
-                    sb.append(MiscUtil.stripDecimalZeros((BigDecimal)l.get(l.size()-1)));
+                    sb.append(BigDecimalUtil.stripDecimalZeros((BigDecimal)l.get(l.size()-1)));
                 } else {
                     sb.append(l.get(l.size()-1));
                 }
