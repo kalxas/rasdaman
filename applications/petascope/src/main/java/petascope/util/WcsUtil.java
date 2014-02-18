@@ -24,6 +24,7 @@ package petascope.util;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -456,7 +457,7 @@ public class WcsUtil {
             List<String> subsetLabels = Arrays.asList(m.getGridAxisLabels().split(" "));
             if (subsetLabels.contains(axisName)) {
                 BigDecimal subsetLo = new BigDecimal(m.getDomLow().split(" ")[subsetLabels.indexOf(axisName)]);
-                coeffs = Vectors.add(coeffs, (domEl.getMinValue().subtract(subsetLo)).divide(domEl.getScalarResolution()));
+                coeffs = Vectors.add(coeffs, (domEl.getMinValue().subtract(subsetLo)).divide(domEl.getScalarResolution(), RoundingMode.UP));
             }
             // Create the XML element
             coefficients = ListUtil.printList(coeffs, " ");
@@ -613,7 +614,7 @@ public class WcsUtil {
         if (isIrregular || axisUom.equals(GRID_UOM)) {
             shift = BigDecimal.ZERO;
         } else {
-            shift = offsetVector.divide(BigDecimal.valueOf(-2));
+            shift = offsetVector.divide(BigDecimal.valueOf(-2), RoundingMode.UP);
         }
         return shift;
     }
@@ -641,7 +642,7 @@ public class WcsUtil {
             // 1D sample space (along this dimension): need to fit
             // Count the number of full sample-spaces that fit in the bbox:
             distanceFromOrigin = coordinateValue.subtract(domEl.getMinValue());
-            cellsFromLowerBound = distanceFromOrigin.divide(domEl.getScalarResolution()).toBigInteger();
+            cellsFromLowerBound = distanceFromOrigin.divide(domEl.getScalarResolution(), RoundingMode.UP).toBigInteger();
             if (greaterValue) {
                 // User is asking the next fitted value *greater* than the given one (for upper corners)
                 cellsFromLowerBound = cellsFromLowerBound.add(BigInteger.ONE);
