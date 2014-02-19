@@ -38,7 +38,6 @@ import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
-import petascope.util.WcpsConstants;
 
 /**
  * NOTE: the WGS84 bounding needs to take care to transform only the /spatial/ axes,
@@ -145,31 +144,6 @@ public class Bbox implements Cloneable {
             if (!CrsUtil.CrsUri.areEquivalent(crsSourceX, crsSourceY)) {
                 throw new WCPSException(ExceptionCode.InvalidMetadata,
                         "Invalid bounding box: X and Y axis have different CRS:" + crsSourceX + "<->" + crsSourceY);
-            }
-
-            // Now crsSourceX/crsSourceY are tested to be the same: check
-            if (!CrsUtil.CrsUri.areEquivalent(crsSourceX, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE)) // --> no transform needed: WGS84 values stored above
-                    && domains.size() == 2                                      // --> CRS is 2D and spatial
-                    && getSpatialDimensionality() == 2                          //
-                    && CrsUtil.CrsUri.getAuthority(crsSourceX).equals(CrsUtil.EPSG_AUTH)) {  // CRS is EPSG
-                try {
-                    CrsUtil crsTool   = new CrsUtil(crsSourceX, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE));
-                    List<Double> temp = crsTool.transform(new double[] {lowX, lowY, highX, highY});
-                    wgs84minLon = temp.get(0);
-                    wgs84minLat = temp.get(1);
-                    wgs84maxLon = temp.get(2);
-                    wgs84maxLat = temp.get(3);
-                } catch (WCSException e) {
-                    log.warn("Error while getting WGS84 bounding box of coverage " + coverageName);
-                    log.trace(e.getMessage());
-                }
-                hasWgs84Bbox = true;
-            } else if (CrsUtil.CrsUri.areEquivalent(crsSourceX, CrsUtil.CrsUri(CrsUtil.EPSG_AUTH, CrsUtil.WGS84_EPSG_CODE))) {
-                // Coverage *is* a WGS84 coverage (no transform needed)
-                hasWgs84Bbox = true;
-            } else {
-                // Spatial bbox is non-EPSG or domain does not comprise spatial axes.
-                // TODO: manage **planetary** spatial axes.
             }
         }
 

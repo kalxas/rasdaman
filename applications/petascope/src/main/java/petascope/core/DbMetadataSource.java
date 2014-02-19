@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.hsqldb.lib.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
@@ -1945,8 +1944,8 @@ public class DbMetadataSource implements IMetadataSource {
             if (!res.getScalars().isEmpty()) {
                 // TODO: can be done better with Minterval instead of sdom2bounds
                 bounds = Pair.of(
-                        StringUtil.split(res.getScalars().get(0), ":")[0],
-                        StringUtil.split(res.getScalars().get(0), ":")[1]);
+                        res.getScalars().get(0).split(":")[0],
+                        res.getScalars().get(0).split(":")[1]);
             } else {
                 log.error("Marray " + collOid + " of collection " + collName + " was not found.");
                 throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,

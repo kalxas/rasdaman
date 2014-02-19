@@ -33,13 +33,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import nu.xom.*;
-import org.geotools.geometry.jts.JTS;
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
@@ -53,7 +46,6 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
-import petascope.exceptions.WCSException;
 import static petascope.util.StringUtil.ENCODING_UTF8;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.CoverageExpr;
@@ -109,152 +101,20 @@ public class CrsUtil {
     public static final String WGS84_EPSG_CODE = "4326";
 
     /* CACHES: avoid EPSG db and SECORE redundant access */
-    private static Map<List<String>, MathTransform> loadedTransforms = new HashMap<List<String>, MathTransform>();  // CRS reprojections
     private static Map<String, CrsDefinition>       parsedCRSs       = new HashMap<String, CrsDefinition>();        // CRS definitions
     private static Map<List<String>, Boolean>       crsComparisons   = new HashMap<List<String>, Boolean>();        // CRS equality tests
     private static Map<List<String>, long[]>  gridIndexConversions   = new HashMap<List<String>, long[]>();         // subset2gridIndex conversions
 
     private List<String> crssMap;
-    private CoordinateReferenceSystem sCrsID, tCrsID;
     private static final Logger log = LoggerFactory.getLogger(CrsUtil.class);
 
-    // Constructor
-    public CrsUtil(String sCrs, String tCrs) throws WCSException {
-        sCrsID=null;
-        tCrsID=null;
-
-        try {
-            // TODO: allow non-EPSG CRSs.
-            crssMap = new ArrayList<String>(2);
-            crssMap.addAll(Arrays.asList(sCrs, tCrs));
-
-            if (CrsUtil.loadedTransforms.containsKey(crssMap)) {
-                log.info("CRS transform already loaded in memory.");
-            } else {
-                log.info("Previously unused CRS transform: create and load in memory.");
-                sCrsID = CRS.decode(EPSG_AUTH + ":" + CrsUri.getCode(sCrs));
-                tCrsID = CRS.decode(EPSG_AUTH + ":" + CrsUri.getCode(tCrs));
-                MathTransform transform = CRS.findMathTransform(sCrsID, tCrsID);
-                CrsUtil.loadedTransforms.put(crssMap, transform);
-            }
-        } catch (NoSuchAuthorityCodeException e) {
-            log.error("Could not find CRS " + (sCrsID==null?sCrs:tCrs) + " on the EPSG db: CRS transform impossible.");
-            throw new WCSException(ExceptionCode.InvalidMetadata, "Unsopported or invalid CRS \"" + (sCrsID==null?sCrs:tCrs) + "\".");
-        } catch (FactoryException e) {
-            log.error("Error while decoding CRS " + (sCrsID==null?sCrs:tCrs) + "\n" + e.getMessage());
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error while instanciating new CrsUtil object.\".");
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error while instanciating new CrsUtil object.\".");
-        }
-    }
-
-    // Interface (unuseful now)
     /**
-     * @return Indicates whether the CrsUtil object has already been created: only DomainInterval/Points
-     *  read the WCPS CRS specification, so CrsUtil is called multiple times to transform e.g. a whole BBOX specification.
-     */
-    /*public CoordinateReferenceSystem getSourceCrs() {
-        return sCrsID;
-    }
-    public CoordinateReferenceSystem getTargetCrs() {
-        return tCrsID;
-    }*/
-
-    // Methods
-    /** Overloaded transform methods:
-     * @param   srcCoords       Array of input coordinates: min values first, max values next. E.g. [xMin,yMin,xMax,yMax].
-     * @return  List<Double>    Locations transformed to targetCRS (defined at construction time).
-     * @throws  WCSException
-     */
-    public List<Double> transform (double[] srcCoords) throws WCSException {
-
-        try {
-            double[] trasfCoords = new double[srcCoords.length];
-
-            // Transform
-            JTS.xform(CrsUtil.loadedTransforms.get(crssMap), srcCoords, trasfCoords);
-
-            /* Re-order transformed coordinates: warping between different projections
-             * might change the ordering of the points. Eg with a small horizontal subsets
-             * and a very wide vertical subset:
-             *
-             *   EPSG:32634 (UTM 34N) |  EPSG:4326 (pure WGS84)
-             *   230000x   3800000y   =  18.07lon   34.31lat
-             *   231000x   4500000y   =  17.82lon   40.61lat
-             */
-            double buf;
-            for (int i = 0; i < trasfCoords.length/2; i++) {
-                if (trasfCoords[i] > trasfCoords[i+trasfCoords.length/2]) {
-                    // Need to swap the coordinates
-                    buf = trasfCoords[i];
-                    trasfCoords[i] = trasfCoords[i+trasfCoords.length/2];
-                    trasfCoords[i+trasfCoords.length/2] = buf;
-                }
-            }
-
-            // Format output
-            List<Double> out = new ArrayList<Double>(srcCoords.length);
-            for (int i = 0; i < trasfCoords.length; i++)
-                out.add(trasfCoords[i]);
-
-            return out;
-
-        } catch (TransformException e) {
-            log.error("Error while transforming coordinates.\n" + e.getMessage());
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point.\".");
-        } catch (ClassCastException e) {
-            log.error("Inappropriate key when accessing CrsUtil.loadedTransforms.\n" + e.getMessage());
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point.\".");
-        } catch (NullPointerException e) {
-            log.error("Null key when accessing CrsUtil.loadedTransforms.\n" + e.getMessage());
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point.\".");
-        } catch (Exception e) {
-            log.error("Error while transforming point." + e.getMessage());
-            throw new WCSException(ExceptionCode.InternalComponentError, "Error while transforming point.\".");
-        }
-    }
-    // Dummy overload
-    public List<Double> transform (String[] coords) throws WCSException {
-        double[] doubleCoords = new double[coords.length];
-        int i = 0;
-        try {
-            for (i = 0; i < coords.length; i++)
-                doubleCoords[i] = Double.parseDouble(coords[i]);
-        } catch (NumberFormatException ex) {
-            throw new WCSException (ExceptionCode.InvalidParameterValue,
-                    "Coordinate " + coords[i] + " seems wrong: could not parse to number.", ex);
-        }
-        // Call the real transform method:
-        return transform(doubleCoords);
-    }
-
-    // TODO: ask SECORE which auths are supported.
-    /**
-     * @param   String crsID    OGC identification URL of CRS.
-     * @return  boolean         True if a supported CRS (currently EPSG codes only).
-     */
-    public static boolean isSupportedCrsCode(String crsID) {
-    //   try {
-    //        // read from List e return
-    //        return crsID.equals(GRID_CRS)
-    //                || (CrsUri.getAuthority(crsID).equals(EPSG_AUTH) && CrsUri.getVersion(crsID).equals(CRS_DEFAULT_VERSION)) //&& SUPPORTED_EPSG.contains(Integer.parseInt(CrsUri.getCode(crsID))));
-    //                ||
-    //        //      || CrsUri.getAuthority(crsID).equals(IAU_AUTH) && ....
-    //        //      ...
-    //    } catch (Exception e) {
-    //        log.warn(e.getMessage());
-    //        return false;
-    //    }
-        return true;
-    }
-
-    /**
-     * @param   String resolver     The prefix of the resolver URL (http://<host>/def/)
-     * @param   String committee    The committee defining the CRS (e.g. EPSG)
-     * @param   String version      Version of the CRS
-     * @param   String code         Code of the CRS
-     * @return  String              The URI of the CRS (based on SECORE URL by default)
+     * Build a CRS HTTP URI.
+     * @param   resolver     The prefix of the resolver URL (http://<host>/def/)
+     * @param   committee    The committee defining the CRS (e.g. EPSG)
+     * @param   version      Version of the CRS
+     * @param   code         Code of the CRS
+     * @return  The URI of the CRS (based on SECORE URL by default)
      */
     public static String CrsUri(String resolver, String committee, String version, String code) {
         return resolver + "/" + KEY_RESOLVER_CRS + "/" + committee + "/" + version + "/" + code;
