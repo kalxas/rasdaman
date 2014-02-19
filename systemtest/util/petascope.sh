@@ -404,10 +404,10 @@ function import_mr()
   OWS=ows
   $PSQL -c "INSERT INTO ps_extra_metadata (coverage_id, metadata_type_id, value) VALUES (\
               $c_id, (SELECT id FROM ps_extra_metadata_type WHERE type='$OWS'),\
-              'test ows metadata');" > /dev/null || exit $RC_ERROR
+              '<test>ows</test>');" > /dev/null || exit $RC_ERROR
   $PSQL -c "INSERT INTO ps_extra_metadata (coverage_id, metadata_type_id, value) VALUES (\
               $c_id, (SELECT id FROM ps_extra_metadata_type WHERE type='$GMLCOV'),\
-              'test gmlcov metadata');" > /dev/null || exit $RC_ERROR
+              '<test>gmlcov</test>');" > /dev/null || exit $RC_ERROR
 }
 
 # ------------------------------------------------------------------------------

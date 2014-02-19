@@ -8,7 +8,9 @@
       </Envelope>
     </boundedBy>
     <wcs:CoverageId>mr</wcs:CoverageId>
-    <gmlcov:metadata>test gmlcov metadata</gmlcov:metadata>
+    <gmlcov:metadata>
+      <test>gmlcov</test>
+    </gmlcov:metadata>
     <domainSet>
       <RectifiedGrid dimension="2" id="mr-grid">
         <limits>
