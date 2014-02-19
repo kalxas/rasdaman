@@ -59,6 +59,7 @@ import petascope.swe.datamodel.NilValue;
 import petascope.swe.datamodel.Quantity;
 import petascope.swe.datamodel.RealPair;
 import petascope.util.CrsUtil;
+import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
 import petascope.util.WcsUtil;
@@ -595,91 +596,6 @@ public class DbMetadataSource implements IMetadataSource {
                   revGdalFormatsIds.put(r.getString(formatNameAlias), r.getString(gdalIdAlias));
             }
 
-            /* (SWE) QUANTITIES */
-            // NOTE: PostgreSQL Numeric <-> BigDecimal
-            // (see "Mapping SQL and Java Types, §8.9.1" - http://docs.oracle.com/javase/1.3/docs/guide/jdbc/getstart/mapping.html)
-            Map<Integer, Pair<BigDecimal,BigDecimal>> intervals = new HashMap<Integer, Pair<BigDecimal,BigDecimal>>();
-            sqlQuery =
-                    "SELECT " + INTERVAL_ID  + ","
-                              + INTERVAL_MIN + ", "
-                              + INTERVAL_MAX +
-                    " FROM "  + TABLE_INTERVAL
-                    ;
-            log.debug("SQL query: " + sqlQuery);
-            r = s.executeQuery(sqlQuery);
-            while (r.next()) {
-                Pair minMax = Pair.of(r.getBigDecimal(INTERVAL_MIN), r.getBigDecimal(INTERVAL_MAX));
-                   intervals.put(r.getInt(INTERVAL_ID), minMax);
-            }
-
-            // Quantity <-> Intervals of allowed values
-            Map<Integer, Integer> quantityInterval = new HashMap<Integer, Integer>();
-            sqlQuery =
-                    "SELECT " + QUANTITY_INTERVAL_QID + ","
-                              + QUANTITY_INTERVAL_IID +
-                    " FROM "  + TABLE_QUANTITY_INTERVAL
-                    ;
-            log.debug("SQL query: " + sqlQuery);
-            r = s.executeQuery(sqlQuery);
-            while (r.next()) {
-                quantityInterval.put(r.getInt(QUANTITY_INTERVAL_QID), r.getInt(QUANTITY_INTERVAL_IID));
-            }
-
-            // SWE Quantities
-            quantities = new HashMap<Integer, Quantity>();
-            // Query
-            String unaggregatedFields =
-                    TABLE_UOM + "." + UOM_CODE + ","
-                    + TABLE_QUANTITY + "." + QUANTITY_ID + ","
-                    + TABLE_QUANTITY + "." + QUANTITY_LABEL + ","
-                    + TABLE_QUANTITY + "." + QUANTITY_DESCRIPTION + ","
-                    + TABLE_QUANTITY + "." + QUANTITY_DEFINITION
-                    ;
-            sqlQuery =
-                    " SELECT " +  unaggregatedFields + ","
-                    + " array_agg(" + TABLE_NIL_VALUE + "." + NIL_VALUE_VALUE  + ") AS " + NIL_VALUES_ALIAS + ","
-                    + " array_agg(" + TABLE_NIL_VALUE + "." + NIL_VALUE_REASON + ") AS " + NIL_REASONS_ALIAS
-                    + " FROM " + TABLE_QUANTITY
-                    + " INNER JOIN " + TABLE_UOM + " ON ("
-                    + TABLE_UOM + "." + UOM_ID + "=" + TABLE_QUANTITY + "." + QUANTITY_UOM_ID
-                    + ") LEFT OUTER JOIN " + TABLE_NIL_VALUE + " ON ("
-                    + TABLE_QUANTITY + "." + QUANTITY_NIL_IDS + " @> ARRAY[" + TABLE_NIL_VALUE + "." + NIL_VALUE_ID + "]) "
-                    + " GROUP BY " + unaggregatedFields
-                    ;
-            // Example query+response:
-            //
-            // SELECT ps_uom.code,
-            //        ps_quantity.label, ps_quantity.description, ps_quantity.definition_uri,
-            //        array_agg(ps_nil_value.value)  AS nil_values,
-            //        array_agg(ps_nil_value.reason) AS nil_reaons
-            // FROM ps_quantity
-            // INNER JOIN ps_uom ON (ps_quantity.uom_id=ps_uom.id)
-            // LEFT OUTER JOIN ps_nil_value ON (ps_quantity.nil_ids @> ARRAY[ps_nil_value.id])
-            // GROUP BY ps_uom.code, ps_quantity.label, ps_quantity.description, ps_quantity.definition_uri;
-            //  code |     label      |   description    |definition_uri| nil_values | nil_reasons
-            // ------+----------------+------------------+--------------+------------+--------------
-            // 10^0 | char           | primitive        |              | {NULL}     | {NULL}
-            // 10^0 | test_label     | test_description | http://___   | {255,0}    | {http://___,http://___}
-            // 10^0 | unsigned char  | primitive        |              | {NULL}     | {NULL}
-            // ...
-            log.debug("SQL query: " + sqlQuery);
-            r = s.executeQuery(sqlQuery);
-            if (!r.next()) {
-                throw new WCSException(ExceptionCode.InvalidServiceConfiguration,
-                        "No SWE quantities stored in the database.");
-            } else do {
-                int qId = r.getInt(QUANTITY_ID);
-                // Select intervals associated with /this/ quantity
-                List<Pair<BigDecimal,BigDecimal>> constraints = new ArrayList<Pair<BigDecimal,BigDecimal>>();
-                for (Entry<Integer,Integer> entry : quantityInterval.entrySet()) {
-                    if (entry.getKey().equals(qId)) {
-                        constraints.add(intervals.get(entry.getValue()));
-                    }
-                }
-                // parse SQL response to create a SWE Quantity:
-                quantities.put(qId, parseSWEQuantity(r, constraints));
-            } while (r.next());
-
             // Range data types (WCPS rangeType())
             rangeDataTypes    = new HashMap<Integer, String>();
             revRangeDataTypes = new HashMap<String, Integer>();
@@ -1017,7 +933,7 @@ public class DbMetadataSource implements IMetadataSource {
                                     coverageName + "' is not a continuous quantity.");
                 }
 
-                Quantity quantity = quantities.get(r.getInt(RANGETYPE_COMPONENT_FIELD_ID));
+                Quantity quantity = readSWEQuantity(r.getInt(RANGETYPE_COMPONENT_FIELD_ID));
 
                 // Create the RangeElement (WCPS): {name, type, UoM}
                 RangeElement rEl = new RangeElement(
@@ -2127,50 +2043,148 @@ public class DbMetadataSource implements IMetadataSource {
      * @return
      * @throws SQLException
      */
-    private Quantity parseSWEQuantity(ResultSet rSwe, List<Pair<BigDecimal,BigDecimal>> intervals)
-            throws SQLException {
+    private Quantity readSWEQuantity(int quantityId)
+            throws SQLException, WCSException {
 
-        // locals
+        // Quantity fields
         Quantity sweQuantity;
         String label;
         String description;
         String definitionUri;
         String uomCode;
         List<NilValue> nils = new ArrayList<NilValue>();
+        List<Pair<BigDecimal,BigDecimal>> allowedIntervals = new ArrayList<Pair<BigDecimal,BigDecimal>>();
+        // SQL interface
+        Statement s = null;
+        ResultSet rSwe;
+        String sqlQuery;
 
-        AllowedValues allowedValues;
-        List<RealPair> pairs = new ArrayList<RealPair>(intervals.size());
+        // DB connection
+        try {
+            ensureConnection();
+            s = conn.createStatement();
 
-        // Create intervals
-        for (Pair<BigDecimal,BigDecimal> interval : intervals) {
-            pairs.add(new RealPair(interval.fst, interval.snd));
-        }
-        allowedValues = new AllowedValues(pairs);
+            /////////////////////////////////////////////////////
 
-        // Parse the result set
-        label = rSwe.getString(QUANTITY_LABEL);
-        description = rSwe.getString(QUANTITY_DESCRIPTION);
-        definitionUri = rSwe.getString(QUANTITY_DEFINITION);
-        uomCode = rSwe.getString(UOM_CODE);
+            // Quantity <-> Intervals of allowed values
+            List<Integer> intervalIds = new ArrayList<Integer>();
+            sqlQuery =
+                    "SELECT " + QUANTITY_INTERVAL_QID + ","
+                    + QUANTITY_INTERVAL_IID +
+                    " FROM "  + TABLE_QUANTITY_INTERVAL +
+                    " WHERE " + QUANTITY_INTERVAL_QID + "=" + quantityId
+                    ;
+            log.debug("SQL query: " + sqlQuery);
+            rSwe = s.executeQuery(sqlQuery);
+            while (rSwe.next()) {
+                intervalIds.add(rSwe.getInt(QUANTITY_INTERVAL_IID));
+            }
 
-        // Parse the NIL values
-        List<String> nilValues  = sqlArray2StringList(rSwe.getArray(NIL_VALUES_ALIAS));
-        List<String> nilReasons = sqlArray2StringList(rSwe.getArray(NIL_REASONS_ALIAS));
-        for (int i=0; i<nilValues.size(); i++) {
-            if (null != nilValues.get(i) && null != nilReasons.get(i)) {
-                nils.add(new NilValue(nilValues.get(i), nilReasons.get(i)));
+            // IntervalIds -> Intervals
+            // NOTE: PostgreSQL Numeric <-> BigDecimal
+            // (see "Mapping SQL and Java Types, §8.9.1" - http://docs.oracle.com/javase/1.3/docs/guide/jdbc/getstart/mapping.html)
+            List<Pair<BigDecimal,BigDecimal>> intervals = new ArrayList<Pair<BigDecimal,BigDecimal>>(intervalIds.size());
+            if (!intervalIds.isEmpty()) { // allowed-intervals are optional
+                sqlQuery =
+                        "SELECT " + INTERVAL_MIN   + ", "
+                                  + INTERVAL_MAX   +
+                        " FROM "  + TABLE_INTERVAL +
+                        " WHERE " + INTERVAL_ID    + " IN ("
+                                  + ListUtil.printList(intervalIds, ",") + ")" +
+                        " ORDER BY " + INTERVAL_MIN;
+                ;
+                log.debug("SQL query: " + sqlQuery);
+                rSwe = s.executeQuery(sqlQuery);
+                while (rSwe.next()) {
+                    Pair minMax = Pair.of(rSwe.getBigDecimal(INTERVAL_MIN), rSwe.getBigDecimal(INTERVAL_MAX));
+                    intervals.add(minMax);
+                }
+            }
+            AllowedValues allowedValues;
+            List<RealPair> pairs = new ArrayList<RealPair>(intervals.size());
+            // Create intervals
+            for (Pair<BigDecimal,BigDecimal> interval : intervals) {
+                pairs.add(new RealPair(interval.fst, interval.snd));
+            }
+            allowedValues = new AllowedValues(pairs);
+
+            // Quantity attributes
+            String unaggregatedFields =
+                           TABLE_UOM + "." + UOM_CODE + ","
+                    + TABLE_QUANTITY + "." + QUANTITY_LABEL + ","
+                    + TABLE_QUANTITY + "." + QUANTITY_DESCRIPTION + ","
+                    + TABLE_QUANTITY + "." + QUANTITY_DEFINITION
+                    ;
+            sqlQuery =
+                    " SELECT " +  unaggregatedFields + ","
+                               + " array_agg(" + TABLE_NIL_VALUE + "." + NIL_VALUE_VALUE  + ") AS " + NIL_VALUES_ALIAS + ","
+                               + " array_agg(" + TABLE_NIL_VALUE + "." + NIL_VALUE_REASON + ") AS " + NIL_REASONS_ALIAS
+                    + " FROM " + TABLE_QUANTITY
+                    + " INNER JOIN " + TABLE_UOM + " ON (" + TABLE_UOM + "." + UOM_ID + "=" + TABLE_QUANTITY + "." + QUANTITY_UOM_ID
+                    + ") LEFT OUTER JOIN " + TABLE_NIL_VALUE + " ON ("
+                          + TABLE_QUANTITY + "." + QUANTITY_NIL_IDS + " @> ARRAY[" + TABLE_NIL_VALUE + "." + NIL_VALUE_ID + "]) "
+                    + " WHERE " + TABLE_QUANTITY + "." + QUANTITY_ID + "=" + quantityId
+                    + " GROUP BY " + unaggregatedFields
+                    ;
+            // Example query+response:
+            //
+            // SELECT ps_uom.code
+            //        ps_quantity.label, ps_quantity.description, ps_quantity.definition_uri,
+            //        array_agg(ps_nil_value.value)  AS nil_values,
+            //        array_agg(ps_nil_value.reason) AS nil_reaons
+            // FROM ps_quantity
+            // INNER JOIN ps_uom ON (ps_quantity.uom_id=ps_uom.id)
+            // LEFT OUTER JOIN ps_nil_value ON (ps_quantity.nil_ids @> ARRAY[ps_nil_value.id])
+            // WHERE ps_quantity.id = <quantityId>
+            // GROUP BY ps_uom.code, ps_quantity.label, ps_quantity.description, ps_quantity.definition_uri;
+            //  code |     label      |   description    |definition_uri| nil_values | nil_reasons
+            // ------+----------------+------------------+--------------+------------+--------------
+            // 10^0 | char           | primitive        |              | {NULL}     | {NULL}
+            // OR:
+            // 10^0 | test_label     | test_description | http://___   | {255,0}    | {http://___,http://___}
+            // ...
+            log.debug("SQL query: " + sqlQuery);
+            rSwe = s.executeQuery(sqlQuery);
+            if (!rSwe.next()) {
+                throw new WCSException(ExceptionCode.InvalidServiceConfiguration,
+                        "No SWE quantities stored in the database.");
+            }
+
+            // Parse the result set
+            label = rSwe.getString(QUANTITY_LABEL);
+            description = rSwe.getString(QUANTITY_DESCRIPTION);
+            definitionUri = rSwe.getString(QUANTITY_DEFINITION);
+            uomCode = rSwe.getString(UOM_CODE);
+
+            // Parse the NIL values
+            List<String> nilValues  = sqlArray2StringList(rSwe.getArray(NIL_VALUES_ALIAS));
+            List<String> nilReasons = sqlArray2StringList(rSwe.getArray(NIL_REASONS_ALIAS));
+            for (int i=0; i<nilValues.size(); i++) {
+                if (null != nilValues.get(i) && null != nilReasons.get(i)) {
+                    nils.add(new NilValue(nilValues.get(i), nilReasons.get(i)));
+                }
+            }
+
+            // Finally, create the Quantity component
+            sweQuantity = new Quantity(
+                    label,
+                    description,
+                    definitionUri,
+                    nils,
+                    uomCode,
+                    allowedValues
+                    );
+
+        } catch (SQLException sqle) {
+            throw new WCSException(ExceptionCode.ResourceError,
+                    "Error retrieving Quantity with id " + quantityId, sqle);
+        } finally {
+            if (s != null) {
+                try {
+                    s.close();
+                } catch (SQLException f) {}
             }
         }
-
-        // Finally, create the Quantity component
-        sweQuantity = new Quantity(
-                label,
-                description,
-                definitionUri,
-                nils,
-                uomCode,
-                allowedValues
-        );
 
         return sweQuantity;
     }
