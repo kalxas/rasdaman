@@ -363,9 +363,9 @@ public class WcsUtil {
         String gmlcovFormattedMetadata = "";
         for (String metadataValue : gmlcovMetadata) {
             gmlcovFormattedMetadata += "  " +
-                    "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_METADATA + ">"
-                    + StringUtil.escapeXmlPredefinedEntities(metadataValue) +
-                    "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_METADATA + ">";
+                     "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">"
+                         + metadataValue + // containts farther XML child elements: do not escape predefined entities (up to the user)
+                    "</" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + ">";
         }
         return gmlcovFormattedMetadata;
     }
