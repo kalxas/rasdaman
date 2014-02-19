@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.wcps.server.core.DomainElement;
 
 /**
  * Class for handling timestamps formatting and elaborations.
@@ -220,6 +221,32 @@ public class TimeUtil {
         DateTime dt = isoFmt.parseDateTime(fix(timestamp));
         DateTime dtEps = dt.minusMillis(1);
         return dtEps.toString();
+    }
+
+    /**
+     * Add a certain time duration to a timestamp.
+     * @param timestamp The starting time instant.
+     * @param coefficient The coefficient of the second addend.
+     * @param timeResolution The time resolution to be added to timestamp ("c" times).
+     * @return The ISO representation of timestamp+c*timeResolution.
+     * @throws PetascopeException
+     */
+    public static String plus(String timestamp, Double coefficient, String timeResolution) throws PetascopeException {
+        DateTime dt = isoFmt.parseDateTime(fix(timestamp));
+        DateTime outDt = dt.plus((long) (getMillis(timeResolution)*coefficient));
+        return outDt.toString();
+    }
+
+    /**
+     * Retrieves the time instant of a numeric time coordinate.
+     * @param numCoordinate
+     * @param datumOrigin
+     * @param timeResolution
+     * @return The time instant correspondent to the input time coordinate.
+     * @throws PetascopeException
+     */
+    public static String coordinate2timestamp(Double numCoordinate, String datumOrigin, String timeResolution) throws PetascopeException {
+            return TimeUtil.plus(datumOrigin, numCoordinate, timeResolution);
     }
 
     /**

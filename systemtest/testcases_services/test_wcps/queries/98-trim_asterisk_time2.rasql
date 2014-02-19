@@ -1,0 +1,1 @@
+select csv(c[0:2,89,90]) from eobstest AS c

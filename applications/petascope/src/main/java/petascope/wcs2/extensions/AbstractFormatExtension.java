@@ -445,12 +445,39 @@ public abstract class AbstractFormatExtension implements FormatExtension {
      * @param trim  the input subsetting (trimming)
      * @param domEl The axis on which the subset is requested
      */
-    private void stars2bounds(DimensionTrim trim, DomainElement domEl) {
-        if (trim.getTrimLow().equals(ASTERISK)) {
-            trim.setTrimLow(domEl.getMinValue().toPlainString());
-        }
-        if (trim.getTrimHigh().equals(ASTERISK)) {
-            trim.setTrimHigh(domEl.getMaxValue().toPlainString());
+    private void stars2bounds(DimensionTrim trim, DomainElement domEl) throws WCSException {
+        String lo = trim.getTrimLow();
+        String hi = trim.getTrimHigh();
+        try {
+            if (lo.equals(ASTERISK)) {
+                if (hi.matches(QUOTED_SUBSET) && TimeUtil.isValidTimestamp(hi)) {
+                    // other end of interval is a timestamp: need to make a uniform subset
+                    trim.setTrimLow(StringUtil.quote(
+                        TimeUtil.coordinate2timestamp(
+                            domEl.getMinValue().multiply(domEl.getScalarResolution()).doubleValue(),
+                            domEl.getCrsDef().getDatumOrigin(),
+                            domEl.getUom())
+                        ));
+                } else {
+                    trim.setTrimLow(domEl.getMinValue().toPlainString());
+                }
+            }
+            if (hi.equals(ASTERISK)) {
+                if (lo.matches(QUOTED_SUBSET) && TimeUtil.isValidTimestamp(lo)) {
+                    // other end of interval is a timestamp: need to make a uniform subset
+                    trim.setTrimHigh(StringUtil.quote(
+                         TimeUtil.coordinate2timestamp(
+                            domEl.getMaxValue().multiply(domEl.getScalarResolution()).doubleValue(),
+                            domEl.getCrsDef().getDatumOrigin(),
+                            domEl.getUom())
+                         ));
+                } else {
+                    trim.setTrimHigh(domEl.getMaxValue().toPlainString());
+                }
+            }
+        } catch (PetascopeException ex) {
+            log.debug("Error while converting asterisk to time instant equivalent.");
+            throw new WCSException(ExceptionCode.InternalComponentError, ex);
         }
     }
 }

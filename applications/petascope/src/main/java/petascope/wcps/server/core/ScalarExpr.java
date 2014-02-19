@@ -41,14 +41,14 @@ import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.WcpsConstants;
 import petascope.util.XMLSymbols;
-import petascope.wcs2.templates.Templates;
+import static petascope.wcs2.parsers.GetCoverageRequest.QUOTED_SUBSET;
 
 public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
 
-    private static Logger log = LoggerFactory.getLogger(ScalarExpr.class);
+    private final static Logger log = LoggerFactory.getLogger(ScalarExpr.class);
 
     private IRasNode child;
-    private CoverageInfo info;
+    private final CoverageInfo info;
     private boolean singleValue = false;
     private String value; // It can be NumericScalar or StringScalar
 
@@ -232,7 +232,9 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
     }
 
     // Purpose: differentiate between a numeric- and a timestamp-based temporal subset
-    public boolean isStringScalarExpr() {
-        return child instanceof StringScalarExpr;
+    public boolean valueIsString() {
+        // When an asterisk is translated to timestamp, the ScalarExpr is not String*,
+        // but still quotes can help distinguish a numeric subset from a timestamp.
+        return child instanceof StringScalarExpr || value.matches(QUOTED_SUBSET);
     }
 }

@@ -174,7 +174,7 @@ public class DimensionPointElement extends AbstractRasNode {
                 this.transformedCoordinates = true;
                 // Convert to pixel coordinates
                 String val = domain.getSingleValue();
-                boolean domIsNum = !domain.isStringScalarExpr();
+                boolean domIsNum = !domain.valueIsString();
                 String axisName = axis.toRasQL();
                 coord = crs.convertToPixelIndices(meta, axisName, val, domIsNum);
             } catch (PetascopeException e) {

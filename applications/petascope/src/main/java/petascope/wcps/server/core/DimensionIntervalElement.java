@@ -31,6 +31,8 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
+import petascope.util.StringUtil;
+import petascope.util.TimeUtil;
 import petascope.util.WcpsConstants;
 import static petascope.util.WcpsConstants.MSG_STAR;
 
@@ -235,10 +237,10 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                     // Convert to pixel coordinates
                     String val1 = domain1.getSingleValue();
                     String val2 = domain2.getSingleValue();
-                    boolean dom1IsNum = !domain1.isStringScalarExpr();
-                    boolean dom2IsNum = !domain2.isStringScalarExpr();
-                    String axisName = axis.toRasQL();
-                    long[] pCoord = crs.convertToPixelIndices(meta, axisName, val1, dom1IsNum, val2, dom2IsNum);
+                    boolean dom1IsNum = !domain1.valueIsString();
+                    boolean dom2IsNum = !domain2.valueIsString();
+                    String thisAxisName = axis.toRasQL();
+                    long[] pCoord = crs.convertToPixelIndices(meta, thisAxisName, val1, dom1IsNum, val2, dom2IsNum);
                     cellCoord1 = pCoord[0];
                     cellCoord2 = pCoord[1];
                     this.transformedCoordinates = true;
@@ -323,14 +325,40 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
      * @param lo
      * @param hi
      * @param domEl
+     * @throws WCPSException
      */
-    private void stars2bounds(ScalarExpr lo, ScalarExpr hi, DomainElement domEl) {
+    private void stars2bounds(ScalarExpr lo, ScalarExpr hi, DomainElement domEl) throws WCPSException {
 
-        if (lo.toRasQL().equals(MSG_STAR)) {
-            lo.setSingleValue(domEl.getMinValue().toString());
-        }
-        if (hi.toRasQL().equals(MSG_STAR)) {
-            hi.setSingleValue(domEl.getMaxValue().toString());
+        try {
+            if (lo.toRasQL().equals(MSG_STAR)) {
+                if (hi.valueIsString() && TimeUtil.isValidTimestamp(hi.toRasQL())) {
+                    // other end of interval is a timestamp: need to make a uniform subset
+                    lo.setSingleValue(StringUtil.quote(
+                        TimeUtil.coordinate2timestamp(
+                            domEl.getMinValue().multiply(domEl.getScalarResolution()).doubleValue(),
+                            domEl.getCrsDef().getDatumOrigin(),
+                            domEl.getUom())
+                        ));
+                } else {
+                    lo.setSingleValue(domEl.getMinValue().toString());
+                }
+            }
+            if (hi.toRasQL().equals(MSG_STAR)) {
+                if (lo.valueIsString() && TimeUtil.isValidTimestamp(lo.toRasQL())) {
+                    // other end of interval is a timestamp: need to make a uniform subset
+                    hi.setSingleValue(StringUtil.quote(
+                        TimeUtil.coordinate2timestamp(
+                            domEl.getMaxValue().multiply(domEl.getScalarResolution()).doubleValue(),
+                            domEl.getCrsDef().getDatumOrigin(),
+                            domEl.getUom())
+                        ));
+                } else {
+                    hi.setSingleValue(domEl.getMaxValue().toString());
+                }
+            }
+        } catch (PetascopeException ex) {
+            log.debug("Error while converting asterisk to time instant equivalent.");
+            throw new WCPSException(ExceptionCode.InternalComponentError, ex);
         }
     }
 }

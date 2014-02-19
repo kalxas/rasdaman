@@ -210,6 +210,10 @@ public class DomainElement implements Cloneable {
        return iOrder;
     }
 
+    public CrsDefinition getCrsDef() {
+        return axisDef.getCrsDefinition();
+    }
+
     public CrsDefinition.Axis getAxisDef() {
         return axisDef;
     }
