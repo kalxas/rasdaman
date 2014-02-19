@@ -68,7 +68,7 @@ public abstract class XMLParser<T extends Request> extends AbstractRequestParser
 
             String service = root.getAttributeValue(ATT_SERVICE);
             String version = root.getAttributeValue(ATT_VERSION);
-            if ((service != null && !service.equals(BaseRequest.SERVICE))
+            if ((null==service) || (!service.equals(BaseRequest.SERVICE))
                     || (version != null && !version.matches(BaseRequest.VERSION))) {
                 throw new WCSException(ExceptionCode.VersionNegotiationFailed, "Service/Version not supported.");
             }

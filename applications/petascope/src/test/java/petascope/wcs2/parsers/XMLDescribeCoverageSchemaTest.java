@@ -33,7 +33,7 @@ import petascope.HTTPRequest;
 
 /**
   Test class for the XMLDescribeCoverageParser. Tests whether the parser
-  properly validates that the recieved xml is structured according with the wcs2 
+  properly validates that the recieved xml is structured according with the wcs2
   version 2.0.0 standard.
   @author Ernesto Rodriguez <ernesto4160@gmail.com>
 */
@@ -57,11 +57,11 @@ public class XMLDescribeCoverageSchemaTest extends BaseTestCase{
 	+"xsi:schemaLocation='http://www.opengis.net/wcs/2.0 ../../wcsAll.xsd'\n"
 	+"service=\"WCS\" version=\"2.0.0\">"
 	+"<wcs:CoverageId>NIR</wcs:CoverageId></wcs:DescribeCoverage>";
-    
+
     @Before
     public void setUp() {
 
-	parser=new XMLDescribeCoverageParser();
+        parser=new XMLDescribeCoverageParser();
     }
 
     @After
@@ -71,14 +71,14 @@ public class XMLDescribeCoverageSchemaTest extends BaseTestCase{
 
     @Test
     public void testValidXML() throws WCSException{
-	HTTPRequest req = new HTTPRequest("", "", "", validXML);
-	parser.parse(req);
+        HTTPRequest req = new HTTPRequest("", "", "", validXML);
+        parser.parse(req);
     }
 
-    
+
     @Test(expected=WCSException.class)
     public void testInvalidXML() throws WCSException{
-    HTTPRequest req = new HTTPRequest("", "", "", invalidXML);
-	parser.parse(req);
+        HTTPRequest req = new HTTPRequest("", "", "", invalidXML);
+        parser.parse(req);
     }
 }
