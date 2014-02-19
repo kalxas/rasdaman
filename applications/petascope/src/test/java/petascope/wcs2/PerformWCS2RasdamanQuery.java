@@ -22,76 +22,66 @@
 
 package petascope.wcs2;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import petascope.BaseTestCase;
-import petascope.exceptions.RasdamanException;
-import org.junit.After;
-import org.junit.Before;
-import java.util.Scanner;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import java.io.IOException;
 import petascope.wcs2.extensions.*;
 import petascope.core.DbMetadataSource;
-import petascope.wcs2.handlers.Response;
-import petascope.ConfigManager;
 import petascope.HTTPRequest;
-import petascope.exceptions.WCSException;
-import petascope.exceptions.PetascopeException;
 
 /**
  * Runnable class that performs a GetCoverage request
  * which requires access to a Rasdaman server.
  * Since this class is runnable it can be used to
  * invoke multiple queries simultaneously.
- * 
+ *
  * @author Ernesto Rodriguez <ernesto4160@gmail.com>
  */
 
-public class PreformWCS2RasdamanQuery implements Runnable{
+public class PerformWCS2RasdamanQuery implements Runnable{
 
     //Request string that will be sent
-    public final String REQUEST = "service=WCS&Request=GetCoverage&version=2.0.0&CoverageId=NIR&subsetX=x(0,200)&subsetY=y(0,200)&";
+    public final String REQUEST =
+            "service=WCS&"
+            + "Request=GetCoverage&"
+            + "version=2.0.0&"
+            + "CoverageId=mr&"
+            + "subset=i(0,200)&"
+            + "subset=j(0,200)&";
 
-    private ProtocolExtension pext;
-    private DbMetadataSource meta;
+    private final ProtocolExtension pext;
+    private final DbMetadataSource meta;
     private Exception e;
-    private Response res;
     private boolean done;
 
-    public PreformWCS2RasdamanQuery(ProtocolExtension pext, DbMetadataSource meta){
+    public PerformWCS2RasdamanQuery(ProtocolExtension pext, DbMetadataSource meta){
 
-	this.pext = pext;
-	this.meta = meta;
-	this.done = false;
+        this.pext = pext;
+        this.meta = meta;
+        this.done = false;
     }
 
     public boolean isDone(){
 
-	return this.done;
+        return this.done;
     }
 
-    public Exception result(){
+    public Exception exception(){
 
-	return this.e;
+        return this.e;
     }
 
     public void run(){
 
-	this.done=false;
+        this.done=false;
 
-	try {
+        try {
 
-        HTTPRequest request = new HTTPRequest("", "", "", REQUEST);
-	    res = pext.handle(request,meta);
+            HTTPRequest request = new HTTPRequest("", "", "", REQUEST);
+            pext.handle(request,meta);
 
-	} catch(Exception e) {
+        } catch(Exception e) {
 
-	    this.e = e;
-	}
+            this.e = e;
+        }
 
-	this.done=true;
+        this.done=true;
     }
 }

@@ -188,7 +188,7 @@ public class RasUtil {
                 //and a connection could not be established. Return
                 //an exception indicating Rasdaman is unavailable.
 
-                log.info("A Rasdaman request could not be fullfilled sicne no "+
+                log.info("A Rasdaman request could not be fullfilled since no "+
                         "free Rasdaman server were available. Consider adjusting "+
                         "the values of rasdaman_retry_attempts and rasdaman_retry_timeout "+
                         "or adding more Rasdaman servers.",ex);

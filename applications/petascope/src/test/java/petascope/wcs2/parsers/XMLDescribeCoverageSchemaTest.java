@@ -22,8 +22,6 @@
 
 package petascope.wcs2.parsers;
 
-import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import petascope.BaseTestCase;
 import petascope.exceptions.WCSException;

@@ -22,24 +22,14 @@
 
 package petascope.wcs2;
 
-import org.junit.Assert;
-import org.junit.Ignore;
+import javax.servlet.ServletException;
+import junit.framework.Assert;
 import org.junit.Test;
 import petascope.BaseTestCase;
-import petascope.exceptions.RasdamanException;
-import org.junit.After;
-import org.junit.Before;
-import java.util.Scanner;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import java.io.IOException;
 import petascope.wcs2.extensions.*;
 import petascope.core.DbMetadataSource;
-import petascope.wcs2.handlers.Response;
 import petascope.ConfigManager;
-import petascope.exceptions.WCSException;
-import petascope.exceptions.PetascopeException;
-import org.xml.sax.SAXException;
+import petascope.exceptions.RasdamanException;
 
 /**
  * This a test class used to test if petascope can
@@ -55,55 +45,59 @@ public class ParseMultipleRasdamanQueryTest extends BaseTestCase{
     private final int NUM_REQUESTS = 5;
 
     /**
-     * Test case for parsing multiple queries that require
-     * rasdaman. Muliple queries will be simultaneously generated
+     * Test case for parsing multiple queries that require rasdaman.
+     * Multiple queries will be simultaneously generated
      * this method should complete without exceptions. If an
      * exception results the test case fails. The exception
      * will result if a parser is invoked multiple times
      * from different threads.
+     * @throws Exception
      */
     @Test
     public void concurrentRasdamanRequests() throws Exception {
 
-	 DbMetadataSource meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
-                    ConfigManager.METADATA_URL,
-                    ConfigManager.METADATA_USER,
-                    ConfigManager.METADATA_PASS, false);
+        /**
+         * Configuration directory containing "petascope.properties" setting file.
+         * If @confDir@ is not default, manually edit this variable to your local configuration.
+         */
+        String confDir = ConfigManager.CONF_DIR_DEFAULT;
+        try {
+            // Initialize the singleton configuration manager. Now all classes can read the settings.
+            ConfigManager.getInstance(confDir);
+        } catch (IllegalArgumentException ex) {
+            throw new ServletException(ex.getMessage());
+        } catch (RasdamanException ex) {
+            throw ex;
+        }
+
+        DbMetadataSource meta = new DbMetadataSource(
+                ConfigManager.METADATA_DRIVER,
+                ConfigManager.METADATA_URL,
+                ConfigManager.METADATA_USER,
+                ConfigManager.METADATA_PASS, false);
 
 
-	 PreformWCS2RasdamanQuery requests[] = new PreformWCS2RasdamanQuery[NUM_REQUESTS];
-	 KVPProtocolExtension pext = new KVPProtocolExtension();
+        PerformWCS2RasdamanQuery requests[] = new PerformWCS2RasdamanQuery[NUM_REQUESTS];
+        KVPProtocolExtension pext = new KVPProtocolExtension();
 
-	 for(int i = 0; i < NUM_REQUESTS; i++){
+        for(int i = 0; i < NUM_REQUESTS; i++){
 
-	     requests[i] = new PreformWCS2RasdamanQuery(pext, meta);
-	     (new Thread(requests[i])).start();
-	 }	 
+            requests[i] = new PerformWCS2RasdamanQuery(pext, meta);
+            (new Thread(requests[i])).start();
+        }
 
-	 boolean isDone = false;
+        boolean isDone = false;
 
-	 while(!isDone) {
+        while(!isDone) {
+            isDone = true;
+            for (int i = 0; i < NUM_REQUESTS; i++) {
+                if(!requests[i].isDone())
+                    isDone = false;
+            }
+        }
 
-	     isDone = true;
-
-	     for(int i = 0; i < NUM_REQUESTS; i++){
-
-		 if(!requests[i].isDone())
-		     isDone = false;
-	     }
-	 }
-
-	 for(int i = 0; i < NUM_REQUESTS; i++){
-
-	     try {
-		 
-		 throw requests[i].result();
-
-	     } catch(NullPointerException e) {
-
-		 //The request completed successfully
-	     }
-	 }	
+        for (int i = 0; i < NUM_REQUESTS; i++) {
+            Assert.assertNull("request n." + i, requests[i].exception());
+        }
     }
-
 }
