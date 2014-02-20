@@ -124,7 +124,7 @@ $$
     SELECT cset('DT_UCHAR_DEFINITION',      'http://www.opengis.net/def/dataType/OGC/0/unsignedByte');
     SELECT cset('DT_SHORT_DEFINITION',      'http://www.opengis.net/def/dataType/OGC/0/signedShort');
     SELECT cset('DT_USHORT_DEFINITION',     'http://www.opengis.net/def/dataType/OGC/0/unsignedShort');
-    SELECT cset('DT_INT_DEFINITION',        'http://www.opengis.net/ def/dataType/OGC/0/signedInt');
+    SELECT cset('DT_INT_DEFINITION',        'http://www.opengis.net/def/dataType/OGC/0/signedInt');
     SELECT cset('DT_UINT_DEFINITION',       'http://www.opengis.net/def/dataType/OGC/0/unsignedInt');
     SELECT cset('DT_LONG_DEFINITION',       'http://www.opengis.net/def/dataType/OGC/0/signedLong');
     SELECT cset('DT_ULONG_DEFINITION',      'http://www.opengis.net/def/dataType/OGC/0/unsignedLong');
