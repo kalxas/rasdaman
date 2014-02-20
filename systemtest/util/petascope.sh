@@ -681,7 +681,7 @@ function drop_petascope_data()
 }
 
 #
-# Import point cloud demo data
+# Import xyz-rgb point cloud demo data
 #
 
 function import_pointcloud_data()
@@ -691,9 +691,18 @@ function import_pointcloud_data()
     error "testdata path $TESTDATA_PATH not found."
   fi
 
-  PC_DATASET="Parksmall"
+  PC_COVERAGE="Parksmall"
   PC_FILE="Parksmall.xyz"
   PC_CRS="$SECORE_URL"'/crs/EPSG/0/4327'
+
+	# Batch insert size
+  MAX_BATCH_INSERT=500
+
+  # Number of components in each line, e.g., in xyz-rgb file is 6
+	PC_COMPONENTS=6
+
+	# Petascope table prefix
+	DB_TABLE_PREFIX="ps"
 
   id=`$PSQL -c  "select id from ps_coverage where name='$PC_DATASET'" | head -3 | tail -1`
   test "$id" != "0"
@@ -706,7 +715,81 @@ function import_pointcloud_data()
   fi
 
   logn "importing $PC_DATASET... "
-  python "$UTIL_SCRIPT_DIR"/import_pointcloud.py --file "$TESTDATA_PATH/$PC_FILE" --crs "$PC_CRS"
-  echo ok.
+
+	# Inserting the general coverage info to ps_coverage table
+	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_coverage(name, gml_type_id, native_format_id) VALUES( '$PC_COVERAGE', \
+		(SELECT id FROM ${DB_TABLE_PREFIX}_gml_subtype WHERE subtype='MultiPointCoverage'), \
+		(SELECT id FROM ${DB_TABLE_PREFIX}_mime_type WHERE mime_Type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
+
+	# Finding the coverage id
+  COVERAGE_ID=`$PSQL -c "SELECT id FROM ${DB_TABLE_PREFIX}_coverage WHERE name='$PC_COVERAGE'" | head -3 | tail -1`
+
+	# Inserting the range type (attributes) information (rgb) in ps_range_type_component
+	# coverage_id | name (band name) | data_type_id (8-bit signed integer from ps_range_data_type) |
+	# component_order (r:0 g:1 b:2) | field_id (from ps_quantity col for unsigned char) | field_table (ps_quantity)
+	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_range_type_component (coverage_id, name, data_type_id, component_order, field_id, field_table) \
+		VALUES ($COVERAGE_ID, 'red', 3, 0, 2, '${DB_TABLE_PREFIX}_quantity');" > /dev/null || exit $RC_ERROR
+
+	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_range_type_component (coverage_id, name, data_type_id, component_order, field_id, field_table) \
+		VALUES ($COVERAGE_ID, 'green', 3, 1, 2, '${DB_TABLE_PREFIX}_quantity');" > /dev/null || exit $RC_ERROR
+
+	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_range_type_component (coverage_id, name, data_type_id, component_order, field_id, field_table) \
+		VALUES ($COVERAGE_ID, 'blue', 3, 2, 2, '${DB_TABLE_PREFIX}_quantity');" > /dev/null || exit 1 $RC_ERROR
+
+	# If the crs does not exist, insert it into ps_crs and retrieve the id
+	CRS_ID=`$PSQL -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$PC_CRS';" | head -3 | tail -1`
+	if [ -z "$CRS_ID" ]; then
+	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_crs(uri) VALUES('$PC_CRS');" > /dev/null || exit 1 $RC_ERROR
+    CRS_ID=`$PSQL -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$PC_CRS';" | head -3 | tail -1`
+	fi
+
+	# Insert (coverage_id, crs_id) into ps_domain_set
+	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_domain_set VALUES($COVERAGE_ID,'{$CRS_ID}');" > /dev/null || exit $RC_ERROR
+
+	# Reading the file line by line
+	insert_stmt="INSERT INTO ${DB_TABLE_PREFIX}_multipoint(coverage_id,coordinate,value) VALUES"
+	line_count=0
+
+	while read line || [ -n "$line" ];
+	do
+	# Split the line
+    IFS=' ' read -a array <<< "$line"
+
+    # Skip the line if it is incomplete
+    [ "${#array[@]}" -ne "$PC_COMPONENTS" ] && continue
+
+    # Extract x,y,x,r,g, and b components from the array
+    x=${array[0]}
+    y=${array[1]}
+    z=${array[2]}
+    r=${array[3]}
+    g=${array[4]}
+    b=${array[5]}
+
+    if [ "$line_count" -gt 0 ]
+    then
+	insert_stmt+=","
+    fi
+    insert_stmt+="($COVERAGE_ID,'POINT($x $y $z)','{$r,$g,$b}')"
+
+    line_count=`expr $line_count + 1`
+
+    # If MAX_BATCH_INSERT limit is reached, insert into the table
+    if [ "$line_count" -eq "$MAX_BATCH_INSERT" ]
+    then
+			$PSQL -c "$insert_stmt" > /dev/null || exit $RC_ERROR
+	insert_stmt="INSERT INTO ${DB_TABLE_PREFIX}_multipoint(coverage_id,coordinate,value) VALUES"
+	line_count=0
+    fi
+
+	done < "$TESTDATA_PATH/$PC_FILE"
+
+	# Inserting remaining points
+	if [[ "$insert_stmt" == *POINT*  ]]; then
+	$PSQL -c "$insert_stmt"  > /dev/null || exit $RC_ERROR
+	fi
+
+	log "Point cloud coverage $PC_COVERAGE is imported"
+  log ok.
 
 }
