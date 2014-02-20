@@ -1128,4 +1128,18 @@ public class XMLUtil {
         }
         return ret;
     }
+
+    /**
+     * Append an XML fragment to an XOM element.
+     * @param root
+     * @param fragment
+     * @return Element of the fragment, with no parents.
+     * @throws IOException
+     * @throws ParsingException
+     */
+    public static Element parseXmlFragment(String fragment) throws IOException, ParsingException {
+        Builder docBuilder = new Builder();
+        Element fragmentNode = docBuilder.build(new StringReader(fragment)).getRootElement();
+        return (Element)fragmentNode.copy();
+    }
 }

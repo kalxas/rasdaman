@@ -28,6 +28,7 @@ import java.util.Set;
 import nu.xom.Attribute;
 import nu.xom.Document;
 import nu.xom.Element;
+import nu.xom.ParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
@@ -43,6 +44,7 @@ import petascope.ows.ServiceProvider;
 import petascope.util.Pair;
 import static petascope.util.XMLSymbols.*;
 import petascope.util.WcsUtil;
+import petascope.util.XMLSymbols;
 import petascope.util.XMLUtil;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcs2.Wcs2Servlet;
@@ -322,25 +324,15 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                     c.addAttribute(crs);
                     c.addAttribute(dimensions);
                     cs.appendChild(c);
+                }
 
-                    /** WGS84 Bbox **/
-                    // Doesn't conform to WCS 2.0.1 so commented out -- DM 2012-oct-19
-                    /*if (bbox.hasWgs84Bbox()) {
-                     * c = new Element(LABEL_WGS84_BBOX, NAMESPACE_OWS);
-                     * // lower-left + upper-right coords
-                     * cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
-                     * cc.appendChild(bbox.getWgs84LowerCorner());
-                     * c.appendChild(cc);
-                     * cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
-                     * cc.appendChild(bbox.getWgs84UpperCorner());
-                     * c.appendChild(cc);
-                     * // dimensions and crs attributes
-                     * crs = new Attribute(ATT_CRS, bbox.getWgs84CrsName());
-                     * dimensions = new Attribute(ATT_DIMENSIONS, "" + bbox.getDimensionality());
-                     * c.addAttribute(crs);
-                     * c.addAttribute(dimensions);
-                     * cs.appendChild(c);
-                     * }*/
+                // OWS Metadata (if disabled from petascope.properties, no OWS metadata is seen here: see DbMetadataSource.read())
+                Set<String> owsMetadata = m.getMetadata().getExtraMetadata(XMLSymbols.PREFIX_OWS);
+                for (String metadataValue : owsMetadata) {
+                    c = new Element(LABEL_OWSMETADATA, NAMESPACE_OWS);
+                    cc = XMLUtil.parseXmlFragment(metadataValue); // contains farther XML child elements: do not escape predefined entities (up to the user)
+                    c.appendChild(cc);
+                    cs.appendChild(c);
                 }
             }
         } catch (SecoreException sEx) {
@@ -349,6 +341,12 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         } catch (PetascopeException pEx) {
             log.error("Petascope error", pEx);
             throw new WCSException(pEx.getExceptionCode(), pEx.getExceptionText());
+        } catch (IOException ex) {
+            throw new WCSException(ExceptionCode.IOConnectionError,
+                    "Error building capabilities document", ex);
+        }  catch (ParsingException ex) {
+            throw new WCSException(ExceptionCode.InvalidCoverageConfiguration,
+                    "Error building capabilities document: invalid OWS metadata inserted?", ex);
         }
         root.appendChild(contents);
 

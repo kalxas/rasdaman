@@ -122,6 +122,11 @@ public class ConfigManager {
     public static String WMS_VERSIONS = "1.0.0,1.1.0";  // (!) Keep consistent with WmsRequest.java
     public static String RASDAMAN_LANGUAGE = "en";
 
+    // OWS Metadata enable/disable
+    public static final String ENABLE_OWS_METADATA_F = "false";
+    public static final String ENABLE_OWS_METADATA_T = "true";
+    public static String ENABLE_OWS_METADATA = ENABLE_OWS_METADATA_T;
+
     // depends on ccip_version in the petascope settings, ccip_version=true
     // will make this flag true.
     public static boolean CCIP_HACK = false;
@@ -155,6 +160,7 @@ public class ConfigManager {
     public static final String LOG_PROPERTIES_FILE = "log4j.properties";
 
     // keys
+    public static final String KEY_ENABLE_OWS_METADATA = "enable_ows_metadata";
     public static final String KEY_RASDAMAN_DATABASE = "rasdaman_database";
     public static final String KEY_RASDAMAN_URL = "rasdaman_url";
     public static final String KEY_RASDAMAN_USER = "rasdaman_user";
@@ -278,6 +284,7 @@ public class ConfigManager {
      */
     private void initSettings() throws RasdamanException {
 
+        ENABLE_OWS_METADATA     = get(KEY_ENABLE_OWS_METADATA);
         RASDAMAN_DATABASE       = get(KEY_RASDAMAN_DATABASE);
         RASDAMAN_URL            = get(KEY_RASDAMAN_URL);
         RASDAMAN_USER           = get(KEY_RASDAMAN_USER);

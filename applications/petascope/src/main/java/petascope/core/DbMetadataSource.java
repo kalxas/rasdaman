@@ -39,14 +39,17 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
+import static petascope.ConfigManager.ENABLE_OWS_METADATA;
+import static petascope.ConfigManager.ENABLE_OWS_METADATA_F;
+import static petascope.ConfigManager.KEY_ENABLE_OWS_METADATA;
 import static petascope.ConfigManager.METADATA_URL;
 import static petascope.ConfigManager.SECORE_URLS;
 import static petascope.ConfigManager.SECORE_URL_KEYWORD;
+import static petascope.ConfigManager.SETTINGS_FILE;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
@@ -63,7 +66,6 @@ import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
 import petascope.util.WcsUtil;
-import petascope.util.XMLSymbols;
 import static petascope.util.ras.RasConstants.*;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
@@ -103,6 +105,7 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String TABLE_EXTRAMETADATA_TYPE = TABLES_PREFIX + "extra_metadata_type";
     public static final String EXTRAMETADATA_TYPE_ID    = "id";
     public static final String EXTRAMETADATA_TYPE_TYPE  = "type";
+    public static final String EXTRAMETADATA_TYPE_OWS = "ows"; // need to know how OWS Metadata is recognized to enable/disable it
     // TABLE_CRS : list of /single/ Coordinate Reference Systems (no compound CRS)
     public static final String TABLE_CRS                = TABLES_PREFIX + "crs";
     public static final String CRS_ID                   = "id";
@@ -296,7 +299,6 @@ public class DbMetadataSource implements IMetadataSource {
     private Map<Integer, String> mimeTypes;
     private Map<String,  String> supportedFormats; // format -> MIME type
     private Map<String,  String> gdalFormatsIds; // GDAL code -> format name
-    private Map<Integer, Quantity> quantities; // id -> SWE Quantity
     private Map<Integer, String> rangeDataTypes;
 
     /* Contents of (static) dictionary-tables (reversed) */
@@ -857,7 +859,14 @@ public class DbMetadataSource implements IMetadataSource {
                         extraMetadataTypes.get(r.getInt(EXTRAMETADATA_METADATA_TYPE_ID)),
                         r.getString(EXTRAMETADATA_VALUE)
                         );
-                extraMetadata.add(typeValue);
+                if (typeValue.fst.equals(EXTRAMETADATA_TYPE_OWS)
+                        && ENABLE_OWS_METADATA.equalsIgnoreCase(ENABLE_OWS_METADATA_F)) {
+                        log.info("OWS Metadata elements have been disable and will not be shown in the capabilities document.");
+                    log.info("To enable it, change the " + KEY_ENABLE_OWS_METADATA + " parameter in " + SETTINGS_FILE + ".");
+                } else {
+                    // Ok to add this extra metadata:
+                    extraMetadata.add(typeValue);
+                }
             }
 
             // TABLE_DOMAINSET : read the CRS, as array of single-CRS URIs

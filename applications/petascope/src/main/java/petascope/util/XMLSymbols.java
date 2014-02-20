@@ -171,6 +171,8 @@ public interface XMLSymbols {
     String LABEL_ACCEPT_VERSIONS = "AcceptVersions";
     String LABEL_ACCEPT_FORMATS = "AcceptFormats";
     String LABEL_ACCEPT_LANGUAGES = "AcceptLanguages";
+    // // Contents
+    String LABEL_OWSMETADATA = "Metadata";
 
     // gmlcov
     String LABEL_ABSTRACT_COVERAGE = "AbstractCoverage";
