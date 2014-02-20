@@ -77,12 +77,12 @@ public class GmlFormatExtension extends AbstractFormatExtension {
         RangeSubsettingExtension rsubExt = (RangeSubsettingExtension) ExtensionsRegistry.getExtension(ExtensionsRegistry.RANGE_SUBSETTING_IDENTIFIER);
         rsubExt.handle(request, m);
 
-        if (m.getCoverageType().equals(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)) {
+        if (WcsUtil.isMultiPoint(m.getCoverageType())) {
             Response r = handleMultiPoint(request, request.getCoverageId(), meta, m);
             String xml = r.getXml();
             return new Response(r.getData(), xml, r.getMimeType());
 
-        } else if (m.getCoverageType().matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE)) {
+        } else if (WcsUtil.isGrid(m.getCoverageType())) {
 
             // Use the GridCoverage template, which works with any subtype of AbstractGridCoverage via the {domainSetaddition}
             try {

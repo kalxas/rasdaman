@@ -359,9 +359,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         }
 
         if (req.isScaled()) {
-            if (!((cov.getCoverageType().equals(LABEL_GRID_COVERAGE)) ||
-                    (cov.getCoverageType().equals(LABEL_RECTIFIED_GRID_COVERAGE)) ||
-                    (cov.getCoverageType().equals(LABEL_REFERENCEABLE_GRID_COVERAGE)))) {
+            if (!WcsUtil.isGrid(cov.getCoverageType())) {
                 throw new WCSException(ExceptionCode.InvalidCoverageType.locator(req.getCoverageId()));
             }
             Scaling s = req.getScaling();

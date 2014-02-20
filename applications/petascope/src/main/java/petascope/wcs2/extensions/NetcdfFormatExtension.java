@@ -30,6 +30,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
+import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
 import petascope.util.ras.RasQueryResult;
 import petascope.wcs2.handlers.Response;
@@ -77,7 +78,7 @@ public class NetcdfFormatExtension extends AbstractFormatExtension {
             throw pEx;
         }
 
-       if ( !(m.getCoverageType().matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE))) {
+       if (!(WcsUtil.isGrid(m.getCoverageType()))) {
        throw new WCSException(ExceptionCode.NoApplicableCode, "The Netcdf format extension "
                     + "only supports GridCoverage and RectifiedGridCoverage");
         }

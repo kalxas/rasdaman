@@ -1211,7 +1211,7 @@ public class DbMetadataSource implements IMetadataSource {
                 cache.put(coverageName, covMeta);
                 return covMeta;
 
-             } else if(coverageType.matches(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)) {
+             } else if(WcsUtil.isMultiPoint(coverageType)) {
 
                 cellDomainElements = new ArrayList<CellDomainElement>(1);
                 CoverageMetadata covMeta = new CoverageMetadata(coverageName, coverageType,

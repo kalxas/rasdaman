@@ -30,6 +30,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.CrsUtil;
 import petascope.util.Pair;
+import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
 import petascope.util.ras.RasQueryResult;
 import petascope.wcs2.handlers.Response;
@@ -78,8 +79,7 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension {
             throw pEx;
         }
 
-        if (m.getGridDimension() != 2 || m.hasIrregularAxis() ||
-                !(m.getCoverageType().matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE))) {
+        if (m.getGridDimension() != 2 || !m.hasIrregularAxis() || !(WcsUtil.isGrid(m.getCoverageType()))) {
             throw new WCSException(ExceptionCode.InvalidRequest, "The JPEG2000 format extension "
                     + "only supports regularly gridded coverages with exactly two dimensions");
         }

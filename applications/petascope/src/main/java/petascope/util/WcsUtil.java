@@ -671,7 +671,9 @@ public class WcsUtil {
      * @return TRUE IF covType ~ .*GridCoverage
      */
     public static boolean isGrid(String covType) {
-        return covType.matches(".*" + XMLSymbols.LABEL_GRID_COVERAGE);
+        return covType.equals(XMLSymbols.LABEL_GRID_COVERAGE) ||
+                covType.equals(XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE) ||
+                covType.equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE);
     }
 
     /**
