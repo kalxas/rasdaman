@@ -36,9 +36,11 @@
             <swe:label>unsigned char</swe:label>
             <swe:description>primitive</swe:description>
             <swe:uom code="10^0"/>
-            <swe:AllowedValues>
-              <swe:interval>0 255</swe:interval>
-            </swe:AllowedValues>
+            <swe:constraint>
+              <swe:AllowedValues>
+                <swe:interval>0 255</swe:interval>
+              </swe:AllowedValues>
+            </swe:constraint>
           </swe:Quantity>
         </swe:field>
       </swe:DataRecord>
