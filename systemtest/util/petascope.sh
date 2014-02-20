@@ -533,71 +533,19 @@ function import_mst()
   fi
 
   c=$COLL
-  X=885
-  Y=710
-
   c_colltype='GreySet'
-  c_basetype='char'
-  c_rangetype='unsigned char'
-  c_covtype='RectifiedGridCoverage'
-
+  c_marraytype='GreyImage'
   c_crs="$SECORE_URL"'/crs/EPSG/0/4326'
-
-  grid_origin_x="112" # UL pixel centre
-  grid_origin_y="-9"  #
-  x_res='0.05'
-  y_res='-0.05'
-
-  c_band='value'
 
   #
   # START
   #
-
-  $RASQL -q "create collection $c $c_colltype" > /dev/null || exit $RC_ERROR
-  $RASQL -q "insert into $c values ($c_basetype) inv_tiff(\$1)" -f "$TESTDATA_PATH"/mean_summer_airtemp.tif > /dev/null || exit $RC_ERROR
-
-  # general coverage information (name, type, ...)
-  $PSQL -c "INSERT INTO ps_coverage (name, gml_type_id, native_format_id) \
-            VALUES ('$c', (SELECT id FROM ps_gml_subtype WHERE subtype='$c_covtype'), \
-            (SELECT id FROM ps_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
-
-  # get the coverage id
-  c_id=$($PSQL -c  "SELECT id FROM ps_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
-
-  # get the collection OID (note: take the first OID)
-  c_oid=$($RASQL -q "select oid(m) from $c as m" --out string | grep ' 1:' | awk -F ':' '{print $2}' | tr -d ' \n') > /dev/null || exit $RC_ERROR
-
-  # range set: link the coverage to the rasdaman collection
-  $PSQL -c "INSERT INTO ps_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
-  $PSQL -c "INSERT INTO ps_range_set (coverage_id, storage_id) VALUES (\
-              (SELECT id FROM ps_coverage WHERE name='$c'), \
-              (SELECT id FROM ps_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
-
-  # describe the datatype of the coverage cell values (range type)
-  # note: assign dimensionless quantity
-  $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
-              $c_id, '$c_band', 0, \
-              (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), \
-              (SELECT id FROM ps_quantity WHERE label='$c_rangetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
-
-  # describe the geo (`index` in this case..) domain
-  $PSQL -c "INSERT INTO ps_crs (uri) SELECT '$c_crs' WHERE NOT EXISTS (SELECT 1 FROM ps_crs WHERE uri='$c_crs');" > /dev/null
-  $PSQL -c "INSERT INTO ps_domain_set (coverage_id, native_crs_ids) \
-            VALUES ($c_id, ARRAY[(SELECT id FROM ps_crs WHERE uri='$c_crs')]);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps_gridded_domain_set (coverage_id, grid_origin) \
-            VALUES ($c_id, '{$grid_origin_y, $grid_origin_x}');" > /dev/null || exit $RC_ERROR
-  # grid axes:
-  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 0);" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps_grid_axis (gridded_coverage_id, rasdaman_order) VALUES ($c_id, 1);" > /dev/null || exit $RC_ERROR
-
-  # offset vectors
-  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=0), \
-              '{0, $x_res}');" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps_rectilinear_axis (grid_axis_id, offset_vector) VALUES (\
-              (SELECT id FROM ps_grid_axis WHERE gridded_coverage_id=$c_id AND rasdaman_order=1), \
-              '{$y_res, 0}');" > /dev/null || exit $RC_ERROR
+  $RASIMPORT -f "${TESTDATA_PATH}/mean_summer_airtemp.tif" \
+             --coll $c \
+             --coverage-name $c \
+             -t  ${c_marraytype}:${c_colltype} \
+             --crs-uri  "$c_crs" \
+             --crs-order 1:0  > /dev/null || exit $RC_ERROR
 
   # initialize WMS
   "$INITWMS" australia_wms mean_summer_airtemp EPSG:4326 -l '2:4:8:16' -h localhost -p $WCPS_PORT > /dev/null 2>&1

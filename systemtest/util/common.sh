@@ -70,6 +70,7 @@ export RASQL="rasql --server $RASMGR_HOST --port $RASMGR_PORT --user $RASMGR_ADM
               --passwd $RASMGR_ADMIN_PASSWD --database $RASDB"
 export RASCONTROL="rascontrol --host $RASMGR_HOST --port $RASMGR_PORT"
 export RASDL="rasdl -d $RASDB"
+export RASIMPORT="rasimport"
 
 export START_RAS=start_rasdaman.sh
 export STOP_RAS=stop_rasdaman.sh
