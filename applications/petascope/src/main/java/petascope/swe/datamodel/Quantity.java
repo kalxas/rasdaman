@@ -31,6 +31,7 @@ import nu.xom.Element;
 import nu.xom.Serializer;
 import static petascope.util.XMLSymbols.ATT_DEFINITION;
 import static petascope.util.XMLSymbols.ATT_UOMCODE;
+import static petascope.util.XMLSymbols.LABEL_CONSTRAINT;
 import static petascope.util.XMLSymbols.LABEL_DESCRIPTION;
 import static petascope.util.XMLSymbols.LABEL_LABEL;
 import static petascope.util.XMLSymbols.LABEL_NILVALUES;
@@ -189,8 +190,11 @@ public class Quantity extends AbstractSimpleComponent {
         quantity.appendChild(child);
         // constraint
         Iterator<RealPair> constraintIt = getAllowedValues().getIntervalIterator();
+        Element constraintEl;
         if (constraintIt.hasNext()) {
-            quantity.appendChild(getAllowedValues().toGML());
+            constraintEl = new Element(PREFIX_SWE + ":" + LABEL_CONSTRAINT, NAMESPACE_SWE);
+            constraintEl.appendChild(getAllowedValues().toGML());
+            quantity.appendChild(constraintEl);
         }
 
         Document indentedQuantity = new Document(quantity);
