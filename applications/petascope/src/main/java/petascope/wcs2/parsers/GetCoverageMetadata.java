@@ -304,10 +304,22 @@ public class GetCoverageMetadata {
         this.gridDimension = gridDimension;
     }
 
+    /**
+     * Updates the CRS of a coverage.
+     * It can change when slices are requested, which cut the CRS space.
+     * Put here the trigger to update the coverage type dynamically, since it
+     * can also change upon slicings.
+     * Currently this trigger is commented out since, while Grid->RectifiedGrid->ReferenceableGrid
+     * is conceptually a chain of extension to grid geometries, that is not reflected in
+     * the schema definitions where gml:Grid has two separate disjoint extensions.
+     * Thus dynamically change from Referenceable to Rectified grids can be an unsafe operation.
+     * Disable this now: future investigations are needed.
+     * @param newUri
+     */
     public void setCrs(String newUri) {
         crs = newUri;
         // Changing CRS means 1+ slices have been requestes: trigger an upodate of coverage type
-        updateCoverageType();
+        //updateCoverageType();
     }
 
     /**

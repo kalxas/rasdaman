@@ -22,7 +22,7 @@
 -->
 
 
-<gmlcov:RectifiedGridCoverage
+<gmlcov:ReferenceableGridCoverage
     xmlns='http://www.opengis.net/gml/3.2'
     xmlns:gml='http://www.opengis.net/gml/3.2'
     xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
@@ -39,7 +39,9 @@
   </boundedBy>
 
   <domainSet>
-    <RectifiedGrid dimension="2" id="irr_cube_1-grid">
+    <gmlrgrid:ReferenceableGridByVectors dimension="2" id="irr_cube_1-grid"
+
+        >
       <limits>
         <GridEnvelope>
           <low>0 3</low>
@@ -47,14 +49,29 @@
         </GridEnvelope>
       </limits>
       <axisLabels>i j</axisLabels>
-      <origin>
-          <Point id="irr_cube_1-origin" srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
-              <pos>0 3</pos>
-          </Point>
-      </origin>
-      <offsetVector srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">1 0</offsetVector>
-      <offsetVector srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0 1</offsetVector>
-    </RectifiedGrid>
+      <gmlrgrid:origin>
+        <Point id="irr_cube_1-origin" srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
+          <pos>0 3</pos>
+        </Point>
+      </gmlrgrid:origin>
+      <gmlrgrid:generalGridAxis>
+        <gmlrgrid:GeneralGridAxis>
+          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">1 0</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients></gmlrgrid:coefficients>
+          <gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
+          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+        </gmlrgrid:GeneralGridAxis>
+      </gmlrgrid:generalGridAxis>
+      <gmlrgrid:generalGridAxis>
+        <gmlrgrid:GeneralGridAxis>
+          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0 1</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients></gmlrgrid:coefficients>
+          <gmlrgrid:gridAxesSpanned>j</gmlrgrid:gridAxesSpanned>
+          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+        </gmlrgrid:GeneralGridAxis>
+      </gmlrgrid:generalGridAxis>
+    </gmlrgrid:ReferenceableGridByVectors>
+
   </domainSet>
 
   <rangeSet>
@@ -72,4 +89,4 @@
     </swe:DataRecord>
   </gmlcov:rangeType>
 
-</gmlcov:RectifiedGridCoverage>
+</gmlcov:ReferenceableGridCoverage>
