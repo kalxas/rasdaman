@@ -29,6 +29,7 @@ ps_crs
 ps_dbupdates
 ps_keyword
 ps_keyword_group
+ps_nil_value
 ps_numeric_constants
 ps_rasdaman_collection
 ps_service_provider

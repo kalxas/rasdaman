@@ -2,6 +2,7 @@ ps_string_constants
 ps_service_provider
 ps_rasdaman_collection
 ps_numeric_constants
+ps_nil_value
 ps_keyword_group
 ps_keyword
 ps_dbupdates

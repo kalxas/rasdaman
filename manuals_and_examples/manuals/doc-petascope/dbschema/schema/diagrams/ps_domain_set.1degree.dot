@@ -39,7 +39,7 @@ digraph "oneDegreeRelationshipsDiagram" {
     <TABLE BORDER="2" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">ps_domain_set</TD></TR>
       <TR><TD PORT="coverage_id" COLSPAN="2" BGCOLOR="#bed1b8" ALIGN="LEFT">coverage_id</TD><TD PORT="coverage_id.type" ALIGN="LEFT">int4[10]</TD></TR>
-      <TR><TD PORT="native_crs_ids" COLSPAN="2" ALIGN="LEFT">native_crs_ids</TD><TD PORT="native_crs_ids.type" ALIGN="LEFT">_int4[10]</TD></TR>
+      <TR><TD PORT="native_crs_ids" COLSPAN="2" ALIGN="LEFT">native_crs_ids</TD><TD PORT="native_crs_ids.type" ALIGN="LEFT">_int4[2147483647]</TD></TR>
       <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
     </TABLE>>
     URL="ps_domain_set.html"
