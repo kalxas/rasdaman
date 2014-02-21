@@ -69,7 +69,7 @@ function check_petascope()
 }
 
 # ------------------------------------------------------------------------------
-# 
+#
 # Check if multipoint is enabled
 # return
 #   0 - if multipoint is enabled
@@ -83,7 +83,7 @@ function check_multipoint()
     echo 1
   else
     echo 0
-  fi 
+  fi
 }
 
 # ------------------------------------------------------------------------------
@@ -100,7 +100,7 @@ function drop_petascope()
     if [[ "$c_id" != \(0\ *\) ]]; then
       # Drop the coverage cascades to the other tables
       $PSQL -c "DELETE FROM ps_coverage WHERE id=$c_id" > /dev/null
-      echo ok.		
+      echo ok.
     else
       echo no such coverage found.
     fi
@@ -652,6 +652,8 @@ function import_pointcloud_data()
 	# Petascope table prefix
 	DB_TABLE_PREFIX="ps"
 
+	c_rangetype='unsigned char'
+
   id=`$PSQL -c  "select id from ps_coverage where name='$PC_DATASET'" | head -3 | tail -1`
   test "$id" != "0"
   if [ $? -eq 0 ]; then
@@ -676,13 +678,16 @@ function import_pointcloud_data()
 	# coverage_id | name (band name) | data_type_id (8-bit signed integer from ps_range_data_type) |
 	# component_order (r:0 g:1 b:2) | field_id (from ps_quantity col for unsigned char) | field_table (ps_quantity)
 	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_range_type_component (coverage_id, name, data_type_id, component_order, field_id, field_table) \
-		VALUES ($COVERAGE_ID, 'red', 3, 0, 2, '${DB_TABLE_PREFIX}_quantity');" > /dev/null || exit $RC_ERROR
+		VALUES ($COVERAGE_ID, 'red', (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), 0, (SELECT id FROM ps_quantity WHERE \
+		label='$c_rangetype' AND description='primitive' LIMIT 1), '${DB_TABLE_PREFIX}_quantity');" > /dev/null || exit $RC_ERROR
 
 	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_range_type_component (coverage_id, name, data_type_id, component_order, field_id, field_table) \
-		VALUES ($COVERAGE_ID, 'green', 3, 1, 2, '${DB_TABLE_PREFIX}_quantity');" > /dev/null || exit $RC_ERROR
+		VALUES ($COVERAGE_ID, 'green', (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), 1, (SELECT id FROM ps_quantity WHERE \
+		label='$c_rangetype' AND description='primitive' LIMIT 1), '${DB_TABLE_PREFIX}_quantity');" > /dev/null || exit $RC_ERROR
 
 	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_range_type_component (coverage_id, name, data_type_id, component_order, field_id, field_table) \
-		VALUES ($COVERAGE_ID, 'blue', 3, 2, 2, '${DB_TABLE_PREFIX}_quantity');" > /dev/null || exit 1 $RC_ERROR
+		VALUES ($COVERAGE_ID, 'blue', (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), 2, (SELECT id FROM ps_quantity WHERE \
+		label='$c_rangetype' AND description='primitive' LIMIT 1), '${DB_TABLE_PREFIX}_quantity');" > /dev/null || exit 1 $RC_ERROR
 
 	# If the crs does not exist, insert it into ps_crs and retrieve the id
 	CRS_ID=`$PSQL -X -P t -P format=unaligned -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$PC_CRS';" | head -3 | tail -1`
