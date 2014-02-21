@@ -31,6 +31,7 @@ static const char rcsid[] = "@(#)catalogif,ops.cc: $Header: /home/rasdev/CVS-rep
 #else
 #include <malloc.h> // malloc()
 #include <values.h>
+#include <math.h>
 #endif
 #include "ops.hh"
 #include "relcatalogif/alltypes.hh"
@@ -1485,7 +1486,6 @@ OpMAX_BINARYULong::OpMAX_BINARYULong( const BaseType* newResType, const BaseType
 void
 OpMAX_BINARYULong::operator()( char* res, const char* op1, const char* op2 )
 {
-    cout << "Hier krachts?" << endl;
     if( *(r_ULong*)(op1 + op1Off)>*(r_ULong*)(op2 + op2Off))
         *(r_ULong*)(res + resOff) = *(r_ULong*)(op1 + op1Off);
     else
@@ -1528,7 +1528,7 @@ OpMIN_BINARYCULong::operator()( char* res, const char* op1, const char* op2 )
 void
 OpMIN_BINARYCULong::getCondenseInit(char* init)
 {
-    r_ULong dummy = 0;
+    r_ULong dummy = UINT_MAX;
 
     resType->makeFromCULong(init, &dummy);
 }
@@ -1554,7 +1554,7 @@ OpMIN_BINARYULong::operator()( char* res, const char* op1, const char* op2 )
 void
 OpMIN_BINARYULong::getCondenseInit(char* init)
 {
-    r_ULong dummy = 0;
+    r_ULong dummy = UINT_MAX;
 
     resType->makeFromCULong(init, &dummy);
 }
@@ -1880,7 +1880,7 @@ OpMIN_BINARYCLong::operator()( char* res, const char* op1, const char* op2 )
 void
 OpMIN_BINARYCLong::getCondenseInit(char* init)
 {
-    r_Long dummy = 0;
+    r_Long dummy = INT_MAX;
 
     resType->makeFromCLong(init, &dummy);
 }
@@ -2151,7 +2151,7 @@ OpMIN_BINARYCDouble::operator()( char* res, const char* op1, const char* op2 )
 void
 OpMIN_BINARYCDouble::getCondenseInit(char* init)
 {
-    double dummy = 0.0;
+    double dummy = INFINITY;
 
     resType->makeFromCDouble(init, &dummy);
 }
