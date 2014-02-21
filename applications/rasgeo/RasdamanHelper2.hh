@@ -448,10 +448,10 @@ protected:
 
 private:
     /// proxy to PQEscapeLiteral
-    char* escapeLiteral(PGconn* conn, char* str, size_t strsize) throw (r_Error);
+    char* escapeLiteral(PGconn* conn, const char* str, size_t strsize) throw (r_Error);
 
     /// proxy to PQEscapeIdentifier
-    char* escapeIdentifier(PGconn* conn, char* str, size_t strsize) throw (r_Error);
+    char* escapeIdentifier(PGconn* conn, const char* str, size_t strsize) throw (r_Error);
 
 };
 

@@ -3676,7 +3676,7 @@ RasdamanHelper2::getDataTypeString(r_Type::r_Type_Id type)
 }
 
 char*
-RasdamanHelper2::escapeLiteral(PGconn* conn, char* str, size_t strsize) throw (r_Error)
+RasdamanHelper2::escapeLiteral(PGconn* conn, const char* str, size_t strsize) throw (r_Error)
 {
 #if PG_VERSION_NUM >= 90000
     return PQescapeLiteral(conn, str, strsize);
@@ -3702,7 +3702,7 @@ RasdamanHelper2::escapeLiteral(PGconn* conn, char* str, size_t strsize) throw (r
 }
 
 char*
-RasdamanHelper2::escapeIdentifier(PGconn* conn, char* str, size_t strsize) throw (r_Error)
+RasdamanHelper2::escapeIdentifier(PGconn* conn, const char* str, size_t strsize) throw (r_Error)
 {
 #if PG_VERSION_NUM >= 90000
     return PQescapeIdentifier(conn, str, strsize);
