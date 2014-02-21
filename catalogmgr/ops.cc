@@ -1847,7 +1847,7 @@ OpMAX_BINARYCLong::operator()( char* res, const char* op1, const char* op2 )
 void
 OpMAX_BINARYCLong::getCondenseInit(char* init)
 {
-    r_Long dummy = 0;
+    r_Long dummy = INT_MIN;
 
     resType->makeFromCLong(init, &dummy);
 }
@@ -2118,7 +2118,7 @@ OpMAX_BINARYCDouble::operator()( char* res, const char* op1, const char* op2 )
 void
 OpMAX_BINARYCDouble::getCondenseInit(char* init)
 {
-    double dummy = 0.0;
+    double dummy = -INFINITY;
 
     resType->makeFromCDouble(init, &dummy);
 }

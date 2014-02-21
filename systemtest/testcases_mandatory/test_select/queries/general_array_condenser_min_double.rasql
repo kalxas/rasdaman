@@ -1,0 +1,1 @@
+select csv(marray i in [-1:1] values condense min over j in [3:4] using (i[0] * j[0]) / 2.0) from test_grey
