@@ -77,7 +77,7 @@
 
 PROG=$( basename $0 )
 UPGRADE_SCRIPTS_DIR="$SCRIPT_DIR/${PROG%.sh}"
-DBLINK_SQL=$( locate -b dblink*.sql | head -n 1 )
+DBLINK_SQL=$( locate -b dblink*.sql 2>/dev/null | head -n 1 )
 # dblink needs to get installed via CREATE EXTENSION in Postgresql > 9.1
 PSQL_VERSION="$( $PSQL --version | head -n 1 | awk '{ print $3 }' )"
 PSQL_VERSION_M="$( echo "$PSQL_VERSION" | awk -F '.' '{ print $1 }' )"
@@ -226,8 +226,8 @@ POSTGIS_REQ_VERSION=2
  GEOM_COLUMNS_TABLE='geometry_columns'
  #
  logn "looking for $POSTGIS_SQL and $SPATIAL_REF_SQL files (multipoint support) ..."
-     POSTGIS_SQL_PATH=$( locate -qb '\'"${POSTGIS_SQL}"     | head -n 1 )
- SPATIAL_REF_SQL_PATH=$( locate -qb '\'"${SPATIAL_REF_SQL}" | head -n 1 )
+     POSTGIS_SQL_PATH=$( locate -b '\'"${POSTGIS_SQL}"     2>/dev/null | head -n 1 )
+ SPATIAL_REF_SQL_PATH=$( locate -b '\'"${SPATIAL_REF_SQL}" 2>/dev/null | head -n 1 )
 echo " Ok."
 # is postgis.sql installed?
 if [ -z "$POSTGIS_SQL_PATH" ]
