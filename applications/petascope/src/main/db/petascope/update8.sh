@@ -230,7 +230,7 @@ POSTGIS_REQ_VERSION=2
  SPATIAL_REF_SQL_PATH=$( locate -b '\'"${SPATIAL_REF_SQL}" 2>/dev/null | head -n 1 )
 echo " Ok."
 # is postgis.sql installed?
-if [ -z "$POSTGIS_SQL_PATH" ]
+if [ -z "$POSTGIS_SQL_PATH" -o ! -f "$POSTGIS_SQL_PATH" ]
 then
     log "WARNING: PostGIS (postgis.sql) not found. Multipoint support will not be installed."
 else
