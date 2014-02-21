@@ -1235,7 +1235,7 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
 		if(check("DatabaseIf::create() CREATE TABLE RAS_DBUPDATES\0"))
 			generateException();
 
-        EXEC SQL INSERT INTO RAS_DBUPDATES values ('rc', 2);
+        EXEC SQL INSERT INTO RAS_DBUPDATES values ('rc', 3);
 		if(check("DatabaseIf::create() INSERT INTO RAS_DBUPDATES\0"))
 			generateException();
 
