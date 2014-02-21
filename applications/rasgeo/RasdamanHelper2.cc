@@ -45,6 +45,8 @@
 #include "gdal_priv.h"
 #include "gdal_rat.h"
 
+#include <pg_config.h>
+
 // some string constants
 #define PSPREFIX "ps"
 #define crsURIprefix "%SECORE_URL%/crs/"
@@ -1577,7 +1579,7 @@ RasdamanHelper2::writeExtraMetadata(long oid,
         query.str("");
         PQclear(res);
 
-        char* litstr = PQescapeLiteral(const_cast<PGconn*>(petaconn),
+        char* litstr = escapeLiteral(const_cast<PGconn*>(petaconn),
                 values[k].c_str(), values[k].size());
 
         // write the name of the table into the ps_extra_metadata table
@@ -1738,8 +1740,8 @@ RasdamanHelper2::queryImageOIDs(const std::string& kvp)
     query << "select distinct k0.oid from ";
     for (int k=0; k < availkeys.size(); ++k)
     {
-        char* key = PQescapeLiteral(conn, availkeys[k].c_str(), availkeys[k].size());
-        char* val = PQescapeLiteral(conn, availvals[k].c_str(), availvals[k].size());
+        char* key = escapeLiteral(conn, availkeys[k].c_str(), availkeys[k].size());
+        char* val = escapeLiteral(conn, availvals[k].c_str(), availvals[k].size());
 
         if (k > 0)
         {
@@ -2261,7 +2263,7 @@ RasdamanHelper2::writeRAT(const std::string& filename,
     for (c=0; c < ncols; c++)
     {
         std::string gdalcolname = pRAT->GetNameOfCol(c);
-        char* colname = PQescapeIdentifier(const_cast<PGconn*>(conn),
+        char* colname = escapeIdentifier(const_cast<PGconn*>(conn),
                 gdalcolname.c_str(), gdalcolname.size());
 
         coltypes.push_back(pRAT->GetTypeOfCol(c));
@@ -2320,7 +2322,7 @@ RasdamanHelper2::writeRAT(const std::string& filename,
             case GFT_String:
                 {
                     std::string valstr = pRAT->GetValueAsString(r,c);
-                    char* litstr = PQescapeLiteral(const_cast<PGconn*>(conn),
+                    char* litstr = escapeLiteral(const_cast<PGconn*>(conn),
                                 valstr.c_str(), valstr.size());
                     query << litstr;
                     PQfreemem((void*)litstr);
@@ -3671,4 +3673,40 @@ RasdamanHelper2::getDataTypeString(r_Type::r_Type_Id type)
         break;
     }
     return stype;
+}
+
+char*
+RasdamanHelper2::escapeLiteral(PGconn* conn, char* str, size_t strsize) throw (r_Error)
+{
+#if PG_VERSION_NUM >= 90000
+    return PQescapeLiteral(conn, str, strsize);
+#elif PG_VERSION_NUM >= 80000
+    char* to = (char*) malloc(strsize * 2 + 1);
+    if (to)
+    {
+        int error;
+        PQescapeStringConn(conn, to, str, strsize, &error);
+        if (error)
+        {
+            std::cerr << "RasdamanHelper2::escapeLiteral - failed escaping string." << std::endl;
+            throw r_Error(r_Error::r_Error_General);
+        }
+    }
+    else
+    {
+        std::cerr << "RasdamanHelper2::escapeLiteral - failed allocating memory." << std::endl;
+        throw r_Error(r_Error::r_Error_MemoryAllocation);
+    }
+    return to;
+#endif
+}
+
+char*
+RasdamanHelper2::escapeIdentifier(PGconn* conn, char* str, size_t strsize) throw (r_Error)
+{
+#if PG_VERSION_NUM >= 90000
+    return PQescapeIdentifier(conn, str, strsize);
+#elif PG_VERSION_NUM >= 80000
+    return escapeLiteral(conn, str, strsize);
+#endif
 }

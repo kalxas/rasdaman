@@ -446,6 +446,13 @@ protected:
     bool PGDATAFAILED(std::string fun, std::string msg, PGresult* res);
     bool PGFAILED(std::string fun, std::string msg, PGresult* res);
 
+private:
+    /// proxy to PQEscapeLiteral
+    char* escapeLiteral(PGconn* conn, char* str, size_t strsize) throw (r_Error);
+
+    /// proxy to PQEscapeIdentifier
+    char* escapeIdentifier(PGconn* conn, char* str, size_t strsize) throw (r_Error);
+
 };
 
 #endif /* RASDAMANHELPER2_HH_ */
