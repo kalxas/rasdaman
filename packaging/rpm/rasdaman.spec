@@ -1,7 +1,7 @@
 %global rasdir %{_sharedstatedir}/rasdaman
 Name:           rasdaman
 Version:        9.0.0
-Release:        0{?dist}
+Release:        0%{?dist}
 Summary:        rasdaman - Raster Data Manager
 
 Group:          Applications/Databases
@@ -100,6 +100,7 @@ Summary:        Petascope is an add-in to the rasdaman
 Group:          Applications/Databases
 Requires:       %{name} = %{version}-%{release}
 Requires:       tomcat6
+Requires:       java-1.6.0-openjdk
 BuildArch:      noarch
 
 %description petascope
@@ -151,8 +152,10 @@ CC="gcc -L%{_libdir}/hdf -I/usr/include/netpbm -fpermissive -g -O2" CXX="g++ -L%
 		--with-docs \
 		--with-debug-symbols \
 		--with-wardir=%{_sharedstatedir}/tomcat6/webapps
-sed -i 's/^metadata_user=.\+/metadata_user=tomcat6/' applications/petascope/src/main/resources/petascope.properties
-sed -i 's/^metadata_pass=.\+/metadata_pass=/' applications/petascope/src/main/resources/petascope.properties
+sed -i 's/^metadata_user=.\+/metadata_user=inituser/' applications/petascope/src/main/resources/petascope.properties
+sed -i 's/^metadata_pass=.\+/metadata_pass=initpass/' applications/petascope/src/main/resources/petascope.properties
+sed -i 's/^rasuser=rasdaman/rasuser=petauser/' applications/rasgeo/rasconnect
+sed -i 's/^raspassword=rasdaman/raspassword=petapasswd/' applications/rasgeo/rasconnect
 sed -i 's#@confdir@#%{_sysconfdir}/rasdaman#' applications/petascope/src/main/webapp/WEB-INF/web.xml.in
 
 make %{?_smp_mflags} DESTDIR=%{buildroot}
@@ -162,6 +165,9 @@ rm -rf %{buildroot}
 
 mkdir -p %{buildroot}%{_sharedstatedir}/tomcat6/webapps/secoredb
 make install DESTDIR=%{buildroot}
+
+# copy rasgeo configuration
+install -m 755 applications/rasgeo/rasconnect %{buildroot}%{_sysconfdir}/rasdaman/rasconnect
 
 # install SYSV init stuff
 mkdir -p %{buildroot}%{_initddir}
@@ -275,6 +281,7 @@ fi
 %{_libdir}/libservercomm.a
 %{_libdir}/libstoragemgr.a
 %{_libdir}/libtilemgr.a
+%{_libdir}/liblockmanager.a
 
 %files docs
 %defattr(-,root,root,-)
@@ -309,12 +316,19 @@ fi
 %{_bindir}/drop_wms.sh
 %{_bindir}/fill_pyramid.sh
 %{_bindir}/init_wms.sh
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/rasconnect
 
 %files raswct
 %defattr(-,root,root,-)
 %{_datadir}/rasdaman/raswct
 
 %changelog
+
+* Fri Feb 21  2014 Dimitar Misev <misev@rasdaman.com> - 9.0.0
+
+- Prepare for 9.0
+- Package rasconnect configuration file for rasimport
+- Use inituser/initpass default credentials for petascope.properties
 
 * Mon Nov 30  2013 Dimitar Misev <misev@rasdaman.com> - 9.0.0-beta2
 
