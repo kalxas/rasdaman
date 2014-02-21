@@ -140,9 +140,6 @@ echo
 
 pushd "$QUERIES_PATH" > /dev/null
 
-# check if python-psycopg2 is installed
-psycopg2_installed=$(python -c "import psycopg2" 2>&1)
-
 
 for f in *; do
   
@@ -157,8 +154,6 @@ for f in *; do
     [[ "$f" == *.rasql || "$f" == *.sql || "$f" == *.xml ]] && continue
     # Skip multipoint tests if multipoint is not enabled
     [[ $multi_coll_enabled -ne 0 ]] && [[ "$f" == *multipoint* ]] && continue
-    # Skip multipoint tests if psycopg2 package is not installed
-    [[ -n $psycopg2_installed ]] && [[ "$f" == *multipoint* ]] && continue
   fi
   if [ "$SVC_NAME" == "wcs" ]; then
     # Skip multipoint tests if multipoint is not enabled

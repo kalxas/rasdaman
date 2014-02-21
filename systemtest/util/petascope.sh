@@ -685,9 +685,9 @@ function import_pointcloud_data()
 		VALUES ($COVERAGE_ID, 'blue', 3, 2, 2, '${DB_TABLE_PREFIX}_quantity');" > /dev/null || exit 1 $RC_ERROR
 
 	# If the crs does not exist, insert it into ps_crs and retrieve the id
-	CRS_ID=`$PSQL -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$PC_CRS';" | head -3 | tail -1`
-	if [ -z "$CRS_ID" ]; then
-	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_crs(uri) VALUES('$PC_CRS');" > /dev/null || exit 1 $RC_ERROR
+	CRS_ID=`$PSQL -X -P t -P format=unaligned -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$PC_CRS';" | head -3 | tail -1`
+  if [ -z "$CRS_ID" ]; then
+		$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_crs(uri) VALUES('$PC_CRS');" > /dev/null || exit 1 $RC_ERROR
     CRS_ID=`$PSQL -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$PC_CRS';" | head -3 | tail -1`
 	fi
 
