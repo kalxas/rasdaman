@@ -24,7 +24,7 @@
 # ------------------------------------------------------------------------------
 #
 # SYNOPSIS
-# ./update_petascopedb.sh [--empty] [--migrate]
+# ./update_petascopedb.sh [--revert] [--cleanup] [--help]
 #
 # Description
 #  Command-line utility for updating the petascope database. The updating is
@@ -196,7 +196,7 @@ drop_postgresql_schema() {
 schema_is_empty() {
   # returns true (0) if the specified schema (DEFAULT public) is empty
   petascopedb_schema=${1:-public}
-  sql_qry="SELECT COUNT(tablename) FROM pg_tables WHERE schemaname = '$petascopedb_schema'"
+  sql_qry="SELECT COUNT(tablename) FROM pg_tables WHERE schemaname = '$petascopedb_schema' AND tablename ILIKE E'ps\\\\_%'"
   schema_tables_count=$( $PSQL -P t -P format=unaligned -c "$sql_qry" 2>/dev/null )
   [ "$schema_tables_count" -eq 0 ] && return 0 || return 1
 }

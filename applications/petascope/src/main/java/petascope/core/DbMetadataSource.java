@@ -377,7 +377,7 @@ public class DbMetadataSource implements IMetadataSource {
                 log.error("Missing " + TABLES_PREFIX + "* tables in the database.");
                 throw new PetascopeException(ExceptionCode.InternalComponentError,
                             "There are " + detectedTables + " out of " + MIN_TABLES_NUMBER + " tables with prefix " + TABLES_PREFIX + " in " + METADATA_URL + ".\n" +
-                            "Petascope cannot be started: please update the database to version 9 by running `update_petascopedb.sh [--migrate]`");
+                            "Petascope cannot be started: please update the database to version 9 by running `update_petascopedb.sh`");
             }
 
             /* TABLE_SERVICE_IDENTIFICATION */
