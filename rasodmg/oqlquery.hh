@@ -121,10 +121,13 @@ public:
     ///
     //@}
 
-    /// returns true if the current query is an update one
+    /// returns true if the current query is an update / delete one
     int is_update_query() const;
 
-    /// returns true if the current query is an update one
+    /// returns true if the current query is an insert one
+    int is_insert_query() const;
+
+    /// returns true if the current query is an retrieval query (select)
     int is_retrieval_query() const;
 
     //@Man: Methods for internal use:
@@ -198,11 +201,29 @@ throw( r_Error );
 void r_oql_execute( r_OQL_Query& query, r_Set< r_Ref< r_GMarray > > &result )
 throw( r_Error );
 
+/*@Doc:
+  The free standing function \Ref{r_oql_execute} is called to execute an insert query
+  that returns the OID that has been inserted.
+  The first parameter, {\tt query}, is a reference to a \Ref{r_OQL_Query} object specifying
+  the query to execute. The second parameter, {\tt result}, is used for returning the
+  result of the query. The query result is of type {\tt r_Set< r_Ref_Any >}.
+  The third parameter is a dummy parameter, it is used to differentiate from retrieval queries.
+  The function used the same return values as the retrieval function above.
+
+  If the function is not called within the scope of an opened database, a \Ref{r_Error}
+  exception of kind {\tt r_Error_DatabaseClosed} is raised. If it is called outside any
+  transaction, the exception is of kind {\tt r_Error_TransactionNotOpen}.
+*/
+
+void r_oql_execute( r_OQL_Query& query, r_Set< r_Ref_Any > &result, int dummy )
+throw( r_Error );
+
 
 //@ManMemo: Module: {\bf rasodmg}
 
 /*@Doc:
-  The free standing function \Ref{r_oql_execute} is called to execute an update query.
+  The free standing function \Ref{r_oql_execute} is called to execute an update / delete query.
+  It is also used by older ( < v9.1 ) clients for insert queries.
   The first parameter, {\tt query}, is a reference to a \Ref{r_OQL_Query} object specifying
   the query to execute.
 

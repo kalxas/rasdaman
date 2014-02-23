@@ -179,6 +179,12 @@ public:
       Executes an update query of type \Ref{r_OQL_Query}.
     */
 
+    // insert returning oid, third parameter is dummy parameter
+    virtual void executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result, int dummy ) throw( r_Error ) = 0;
+    /*@Doc:
+      Executes an insert query of type \Ref{r_OQL_Query}.
+    */
+
     ///
     //@}
 

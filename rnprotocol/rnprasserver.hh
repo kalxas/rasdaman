@@ -113,6 +113,7 @@ public:
         cmd_createmdd        = 33,
         cmd_extendmdd        = 34,
         cmd_gettiledomains   = 35,
+        cmd_insertrpc        = 36,
         cmd_HowMany
     };
 

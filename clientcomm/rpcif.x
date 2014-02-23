@@ -67,6 +67,7 @@ struct ExecuteQueryParams
 
 /*Every return structure has to have unsigned short (the status variable) as its first elment!*/
 /*This is due to the patching of the rpc server communication code*/
+/* used for retrieval queries and newer (>=9.1) insert queries */
 struct ExecuteQueryRes
 {
   unsigned short status;
@@ -80,6 +81,7 @@ struct ExecuteQueryRes
 
 /*Every return structure has to have unsigned short (the status variable) as its first elment!*/
 /*This is due to the patching of the rpc server communication code*/
+/* used for update / delete queries and older (<v9.1) insert queries */
 struct ExecuteUpdateRes
 {
   unsigned short status;
@@ -404,6 +406,8 @@ program RPCIF
     /* Make the server store MDD in the r_Data_Format passed as param */
     unsigned short       RPCSETSERVERSTORAGE    ( SetServerTransferParams )    = 40;
 
+    /* Insert */
+    ExecuteQueryRes      RPCEXECUTEINSERT        ( ExecuteQueryParams )        = 41;
   } = 1;
 
 } = 0x29999999;  /* program number ranges established by ONC */

@@ -53,7 +53,7 @@ public:
     virtual ~QtUpdate();
 
     /// method for evaluating the node
-    virtual int evaluate();
+    virtual QtData* evaluate();
 
     /// return childs of the node
     virtual QtNodeList* getChilds( QtChildType flag );

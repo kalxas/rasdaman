@@ -924,7 +924,27 @@ void doStuff( int argc, char** argv ) throw (r_Error)
         }
     }
 
-    if( query.is_update_query() )
+    if( query.is_insert_query() )
+    {
+        openTransaction( true );
+
+        r_Marray<r_ULong>* mddConst = NULL;
+
+        LOG( "Executing insert query..." << flush );
+        // third param is just to differentiate from retrieval
+        r_oql_execute( query, result_set, 1 );
+        LOG( "ok" << endl );
+
+        // generate output only if explicitly requested
+        if( output )
+            printResult( /* result_set */);
+
+        if( mddConst )
+            delete mddConst;
+
+        closeTransaction( true );
+    }
+    else if ( query.is_update_query() )
     {
         openTransaction( true );
 
@@ -939,7 +959,7 @@ void doStuff( int argc, char** argv ) throw (r_Error)
 
         closeTransaction( true );
     }
-    else
+    else // retrieval query
     {
         openTransaction( false );
 

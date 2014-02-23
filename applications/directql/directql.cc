@@ -896,7 +896,88 @@ void doStuff( int argc, char** argv ) throw (r_Error)
     }
 
 
-    if( query.is_update_query() )
+    if( query.is_insert_query())
+    {
+        openTransaction( true );
+
+        r_Marray<r_ULong>* mddConst = NULL;
+
+        LOG( "Executing insert query..." << flush );
+        // third param is just to differentiate from retrieval
+        int status = 0;
+        ExecuteQueryRes result;
+        status = server->executeInsert(2, queryString, result );
+        switch (status)
+        {
+        case 0:
+            LOG("holds MDD elements" << endl);
+            break;
+        case 1:
+            LOG("holds non-MDD elements" << endl);
+            break;
+        case 2:
+            LOG("holds no elements" << endl);
+            break;
+        };
+
+        r_Minterval    mddDomain;
+        char*          typeName;
+        char*          typeStructure;
+        r_OId          oid;
+        unsigned short currentFormat;
+
+        LOG( "Getting result..." << flush );
+        if( output )
+        {
+            if (status == 0)
+            {
+                LOG( "Getting mdd..." << endl << flush );
+                status = server->getNextMDD(2, mddDomain, typeName, typeStructure, oid, currentFormat);
+
+                // this is normally done in getNextTile(). But this is not called, so we do it here.
+                (*(r->transferDataIter))++;
+                if( *(r->transferDataIter) != r->transferData->end() )
+                {
+                    // clean r->transtile if necessary
+                    if( r->transTiles )
+                    {
+                        delete r->transTiles;
+                        r->transTiles = 0;
+                    }
+                    // clean r->tileIter if necessary
+                    if( r->tileIter )
+                    {
+                        delete r->tileIter;
+                        r->tileIter = 0;
+                    }
+                }
+            }
+            else if (status == 1)
+            {
+                LOG( "Getting scalars..." << endl << flush );
+
+                int numElem = 0;
+                char* buffer;
+                unsigned int bufferSize;
+                unsigned short moreElems = 0;
+
+                while( moreElems == 0 )
+                {
+                    moreElems = server->getNextElement(2, buffer, bufferSize);
+                    numElem++;
+                    printf("\tResult element %d: %s\n", numElem, buffer);
+                }
+            }
+        }
+        //result_set = result;
+        LOG( "ok" << endl );
+
+        if( mddConst )
+            delete mddConst;
+
+        closeTransaction( true );
+    }
+    else if ( query.is_update_query() )
     {
         ExecuteUpdateRes result;
         result.token = NULL;

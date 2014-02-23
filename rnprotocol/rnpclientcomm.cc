@@ -50,8 +50,8 @@ const unsigned int RNP_PAUSE_INCREMENT = 100;
 RnpClientComm::RnpClientComm( const char* nRasmgrHost, int nRasmgrPort) throw( r_Error )
     :RnpBaseClientComm(RnpRasserver::serverID, RnpTransport::crp_Rnp)
 {
-    ENTER( "RpcClientComm::RnpClientComm( " << nRasmgrHost << "," << nRasmgrPort << " )"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "RnpClientComm(" << nRasmgrHost << "," << nRasmgrPort << ")"  );
+    ENTER( "RnpClientComm::RnpClientComm( " << nRasmgrHost << "," << nRasmgrPort << " )"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "RnpClientComm(" << nRasmgrHost << "," << nRasmgrPort << ")"  );
 
     clientID = -1;
 
@@ -77,25 +77,25 @@ RnpClientComm::RnpClientComm( const char* nRasmgrHost, int nRasmgrPort) throw( r
 
     akg::NbJob::setTimeoutInterval(3600);
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "RnpClientComm()" );
-    LEAVE( "RpcClientComm::RnpClientComm()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "RnpClientComm()" );
+    LEAVE( "RnpClientComm::RnpClientComm()"  );
 }
 
 RnpClientComm::~RnpClientComm() throw ()
 {
-    ENTER( "RpcClientComm::~RnpClientComm()"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "~RnpClientComm()"  );
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "~RnpClientComm()" );
-    LEAVE( "RpcClientComm::~RnpClientComm()"  );
+    ENTER( "RnpClientComm::~RnpClientComm()"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "~RnpClientComm()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "~RnpClientComm()" );
+    LEAVE( "RnpClientComm::~RnpClientComm()"  );
 }
 
 bool RnpClientComm::effectivTypeIsRNP() throw()
 {
     bool retval = true;
-    ENTER( "RpcClientComm::effectivTypeIsRNP()"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "effectivTypeIsRNP()"  );
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "effectivTypeIsRNP() -> " << retval );
-    LEAVE( "RpcClientComm::effectivTypeIsRNP() -> " << retval );
+    ENTER( "RnpClientComm::effectivTypeIsRNP()"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "effectivTypeIsRNP()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "effectivTypeIsRNP() -> " << retval );
+    LEAVE( "RnpClientComm::effectivTypeIsRNP() -> " << retval );
     return retval;
 }
 
@@ -103,8 +103,8 @@ int RnpClientComm::openDB( const char* database )
 {
     int retval = 0;
 
-    ENTER( "RpcClientComm::openDB(" << database << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "openDB(" << database << ")"  );
+    ENTER( "RnpClientComm::openDB(" << database << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "openDB(" << database << ")"  );
 
     strcpy(databaseName,database);
 
@@ -128,46 +128,46 @@ int RnpClientComm::openDB( const char* database )
     }
     /* */
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "openDB() -> " << retval );
-    LEAVE( "RpcClientComm::openDB() -> " << retval );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "openDB() -> " << retval );
+    LEAVE( "RnpClientComm::openDB() -> " << retval );
     return retval;
 }
 
 int RnpClientComm::closeDB()
 {
     int retval = 0;
-    ENTER( "RpcClientComm::closeDB()"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "closeDB()"  );
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "closeDB() -> " << retval );
-    LEAVE( "RpcClientComm::closeDB() -> " << retval );
+    ENTER( "RnpClientComm::closeDB()"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "closeDB()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "closeDB() -> " << retval );
+    LEAVE( "RnpClientComm::closeDB() -> " << retval );
     return retval;
 }
 
 int RnpClientComm::createDB( const char* name ) throw(r_Error)
 {
     int retval = -1;
-    ENTER( "RpcClientComm::createDB( " << (name?name:"(null)") << " )"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "createDB()"  );
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "createDB() -> " << retval );
-    LEAVE( "RpcClientComm::createDB() -> " << retval );
+    ENTER( "RnpClientComm::createDB( " << (name?name:"(null)") << " )"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "createDB()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "createDB() -> " << retval );
+    LEAVE( "RnpClientComm::createDB() -> " << retval );
     return retval;
 }
 
 int RnpClientComm::destroyDB( const char* name ) throw(r_Error)
 {
     int retval = -1;
-    ENTER( "RpcClientComm::destroyDB( " << (name?name:"(null)") << " )"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "destroyDB()"  );
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "destroyDB() -> " << retval );
-    LEAVE( "RpcClientComm::destroyDB() -> " << retval );
+    ENTER( "RnpClientComm::destroyDB( " << (name?name:"(null)") << " )"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "destroyDB()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "destroyDB() -> " << retval );
+    LEAVE( "RnpClientComm::destroyDB() -> " << retval );
     return retval;
 }
 
 int RnpClientComm::openTA( unsigned short readOnly ) throw(r_Error)
 {
     int retval = 1;
-    ENTER( "RpcClientComm::openTA(" << readOnly << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "openTA(" << readOnly << ")"  );
+    ENTER( "RnpClientComm::openTA(" << readOnly << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "openTA(" << readOnly << ")"  );
 
     bool rw = (readOnly == 0 ? true : false);
 
@@ -186,8 +186,8 @@ int RnpClientComm::openTA( unsigned short readOnly ) throw(r_Error)
         executeBeginTA(rw);
     }
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "openTA() -> " << retval );
-    LEAVE( "RpcClientComm::openTA() -> " << retval );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "openTA() -> " << retval );
+    LEAVE( "RnpClientComm::openTA() -> " << retval );
     return retval;
 }
 
@@ -195,8 +195,8 @@ int RnpClientComm::commitTA() throw(r_Error)
 {
     int retval = 1;
 
-    ENTER( "RpcClientComm::commitTA()"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "commitTA()"  );
+    ENTER( "RnpClientComm::commitTA()"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "commitTA()"  );
 
     if(useTurbo)
     {
@@ -209,8 +209,8 @@ int RnpClientComm::commitTA() throw(r_Error)
         executeDisconnect();
     }
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "commitTA() -> " << retval );
-    LEAVE( "RpcClientComm::commitTA() -> " << retval );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "commitTA() -> " << retval );
+    LEAVE( "RnpClientComm::commitTA() -> " << retval );
     return retval;
 }
 
@@ -218,8 +218,8 @@ int RnpClientComm::abortTA()
 {
     int retval = 1;
 
-    ENTER( "RpcClientComm::abortTA()"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "abortTA()"  );
+    ENTER( "RnpClientComm::abortTA()"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "abortTA()"  );
 
     try
     {
@@ -237,18 +237,18 @@ int RnpClientComm::abortTA()
     // make it nicer, but we are not allowed to throw anything! Later will change the declaration of the function
     catch(...)
     {
-        TALK( "RpcClientComm::abortTA(): caught & ignored exception." );
+        TALK( "RnpClientComm::abortTA(): caught & ignored exception." );
     }
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "abortTA() -> " << retval );
-    LEAVE( "RpcClientComm::abortTA() -> " << retval );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "abortTA() -> " << retval );
+    LEAVE( "RnpClientComm::abortTA() -> " << retval );
     return retval;
 }
 
 void RnpClientComm::insertMDD( const char* collName, r_GMarray* mar ) throw( r_Error )
 {
-    ENTER( "RpcClientComm::insertMDD(" << (collName?collName:"(null)") << "," << (long) mar << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "insertMDD(" << collName << "," << (long) mar << ")"  );
+    ENTER( "RnpClientComm::insertMDD(" << (collName?collName:"(null)") << "," << (long) mar << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "insertMDD(" << collName << "," << (long) mar << ")"  );
 
     checkForRwTransaction();
 
@@ -285,19 +285,19 @@ void RnpClientComm::insertMDD( const char* collName, r_GMarray* mar ) throw( r_E
         case 0:
             break; // OK
         case 2:
-            LEAVE( "RpcClientComm::insertMDD() Error: database class undefined." );
+            LEAVE( "RnpClientComm::insertMDD() Error: database class undefined." );
             throw r_Error( r_Error::r_Error_DatabaseClassUndefined );
             break;
         case 3:
-            LEAVE( "RpcClientComm::insertMDD() Error: collection element type mismatch." );
+            LEAVE( "RnpClientComm::insertMDD() Error: collection element type mismatch." );
             throw r_Error( r_Error::r_Error_CollectionElementTypeMismatch );
             break;
         case 4:
-            LEAVE( "RpcClientComm::insertMDD() Error: type invalid." );
+            LEAVE( "RnpClientComm::insertMDD() Error: type invalid." );
             throw r_Error( r_Error::r_Error_TypeInvalid );
             break;
         default:
-            LEAVE( "RpcClientComm::insertMDD() Error: transfer invalid." );
+            LEAVE( "RnpClientComm::insertMDD() Error: transfer invalid." );
             throw r_Error( r_Error::r_Error_TransferFailed );
             break;
         }
@@ -306,7 +306,7 @@ void RnpClientComm::insertMDD( const char* collName, r_GMarray* mar ) throw( r_E
 
         bagOfTiles = mar->get_storage_layout()->decomposeMDD( mar );
 
-        RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RpcClientComm", "decomposing into " << bagOfTiles->cardinality() << " tiles")
+        RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RnpClientComm", "decomposing into " << bagOfTiles->cardinality() << " tiles")
 
         r_Iterator< r_GMarray* > iter = bagOfTiles->create_iterator();
         r_GMarray *origTile;
@@ -315,7 +315,7 @@ void RnpClientComm::insertMDD( const char* collName, r_GMarray* mar ) throw( r_E
         {
             origTile = *iter;
 
-            RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RpcClientComm", "inserting Tile with domain " << origTile->spatial_domain() << ", " << origTile->spatial_domain().cell_count() * origTile->get_type_length() << " bytes")
+            RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RnpClientComm", "inserting Tile with domain " << origTile->spatial_domain() << ", " << origTile->spatial_domain().cell_count() * origTile->get_type_length() << " bytes")
 
             getMarRpcRepresentation( origTile, rpcMarray, mar->get_storage_layout()->get_storage_format(), baseType );
 
@@ -341,7 +341,7 @@ void RnpClientComm::insertMDD( const char* collName, r_GMarray* mar ) throw( r_E
     }
     else // begin: MDD is transferred in one piece
     {
-        RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RpcClientComm", ", one tile" )
+        RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RnpClientComm", ", one tile" )
 
         getMarRpcRepresentation( mar, rpcMarray, mar->get_storage_layout()->get_storage_format(), baseType );
 
@@ -349,34 +349,34 @@ void RnpClientComm::insertMDD( const char* collName, r_GMarray* mar ) throw( r_E
 
         freeMarRpcRepresentation( mar, rpcMarray );
 
-        RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RpcClientComm", "ok" )
+        RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RnpClientComm", "ok" )
 
         switch( status )
         {
         case 0:
             break; // OK
         case 2:
-            LEAVE( "RpcClientComm::insertMDD(): exception, status = " << status );
+            LEAVE( "RnpClientComm::insertMDD(): exception, status = " << status );
             throw r_Error( r_Error::r_Error_DatabaseClassUndefined );
             break;
         case 3:
-            LEAVE( "RpcClientComm::insertMDD(): exception, status = " << status );
+            LEAVE( "RnpClientComm::insertMDD(): exception, status = " << status );
             throw r_Error( r_Error::r_Error_CollectionElementTypeMismatch );
             break;
         case 4:
-            LEAVE( "RpcClientComm::insertMDD(): exception, status = " << status );
+            LEAVE( "RnpClientComm::insertMDD(): exception, status = " << status );
             throw r_Error( r_Error::r_Error_TypeInvalid );
             break;
         default:
-            LEAVE( "RpcClientComm::insertMDD(): exception, status = " << status );
+            LEAVE( "RnpClientComm::insertMDD(): exception, status = " << status );
             throw r_Error( r_Error::r_Error_TransferFailed );
             break;
         }
 
     } // end: MDD i transferred in one piece
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "insertMDD()" );
-    LEAVE( "RpcClientComm::insertMDD()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "insertMDD()" );
+    LEAVE( "RnpClientComm::insertMDD()"  );
 }
 
 
@@ -384,20 +384,20 @@ void RnpClientComm::insertMDD( const char* collName, r_GMarray* mar ) throw( r_E
 
 r_Ref_Any RnpClientComm::getMDDByOId( const r_OId& oid ) throw( r_Error )
 {
-    ENTER( "RpcClientComm::getMDDByOId(" << oid << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "getMDDByOId(" << oid << ")"  );
+    ENTER( "RnpClientComm::getMDDByOId(" << oid << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "getMDDByOId(" << oid << ")"  );
 
     RMInit::logOut << "Internal error: RnpClientComm::getMDDByOId() not implemented, returning empty r_Ref_Any()." << endl;
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "getMDDByOId()" );
-    LEAVE( "RpcClientComm::getMDDByOId()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "getMDDByOId()" );
+    LEAVE( "RnpClientComm::getMDDByOId()"  );
     return r_Ref_Any();
 }
 
 void RnpClientComm::insertColl( const char* collName, const char* typeName, const r_OId& oid ) throw( r_Error )
 {
-    ENTER( "RpcClientComm::insertColl(" << collName << "," << typeName << "," << oid << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "insertColl(" << collName << "," << typeName << "," << oid << ")"  );
+    ENTER( "RnpClientComm::insertColl(" << collName << "," << typeName << "," << oid << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "insertColl(" << collName << "," << typeName << "," << oid << ")"  );
 
     checkForRwTransaction();
 
@@ -408,32 +408,32 @@ void RnpClientComm::insertColl( const char* collName, const char* typeName, cons
     case 0:
         break; //OK
     case 1:
-        LEAVE( "RpcClientComm::insertColl(): exception, status = "  << status );
+        LEAVE( "RnpClientComm::insertColl(): exception, status = "  << status );
         throw r_Error( r_Error::r_Error_ClientUnknown );
         break;
     case 2:
-        LEAVE( "RpcClientComm::insertColl(): exception, status = "  << status );
+        LEAVE( "RnpClientComm::insertColl(): exception, status = "  << status );
         throw r_Error( r_Error::r_Error_DatabaseClassUndefined );
         break;
     case 3:
-        LEAVE( "RpcClientComm::insertColl(): exception, status = "  << status );
+        LEAVE( "RnpClientComm::insertColl(): exception, status = "  << status );
         throw r_Error( r_Error::r_Error_NameNotUnique );
         break;
     default:
-        LEAVE( "RpcClientComm::insertColl(): exception, status = "  << status );
+        LEAVE( "RnpClientComm::insertColl(): exception, status = "  << status );
         throw r_Error( r_Error::r_Error_General );
         break;
     }
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "insertColl()" );
-    LEAVE( "RpcClientComm::insertColl()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "insertColl()" );
+    LEAVE( "RnpClientComm::insertColl()"  );
 }
 
 
 void RnpClientComm::deleteCollByName( const char* collName ) throw( r_Error )
 {
-    ENTER( "RpcClientComm::deleteCollByName(" << (collName?collName:"(null)") << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "deleteCollByName(" << collName << ")"  );
+    ENTER( "RnpClientComm::deleteCollByName(" << (collName?collName:"(null)") << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "deleteCollByName(" << collName << ")"  );
 
     checkForRwTransaction();
 
@@ -444,14 +444,14 @@ void RnpClientComm::deleteCollByName( const char* collName ) throw( r_Error )
 
     helper012d("removeObjFromColl");
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "deleteCollByName()" );
-    LEAVE( "RpcClientComm::deleteCollByName()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "deleteCollByName()" );
+    LEAVE( "RnpClientComm::deleteCollByName()"  );
 }
 
 void RnpClientComm::deleteObjByOId( const r_OId& oid ) throw( r_Error )
 {
-    ENTER( "RpcClientComm::deleteObjByOId(" << oid << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "deleteObjByOId(" << oid << ")"  );
+    ENTER( "RnpClientComm::deleteObjByOId(" << oid << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "deleteObjByOId(" << oid << ")"  );
 
     checkForRwTransaction();
 
@@ -462,14 +462,14 @@ void RnpClientComm::deleteObjByOId( const r_OId& oid ) throw( r_Error )
 
     helper012d("deleteObjByOId");
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "deleteObjByOId()" );
-    LEAVE( "RpcClientComm::deleteObjByOId()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "deleteObjByOId()" );
+    LEAVE( "RnpClientComm::deleteObjByOId()"  );
 }
 
 void RnpClientComm::removeObjFromColl( const char* collName, const r_OId& oid ) throw ( r_Error )
 {
-    ENTER( "RpcClientComm::removeObjFromColl(" << (collName?collName:"(null)") << "," << oid << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "removeObjFromColl(" << collName << "," << oid << ")"  );
+    ENTER( "RnpClientComm::removeObjFromColl(" << (collName?collName:"(null)") << "," << oid << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "removeObjFromColl(" << collName << "," << oid << ")"  );
 
     checkForRwTransaction();
 
@@ -481,65 +481,65 @@ void RnpClientComm::removeObjFromColl( const char* collName, const r_OId& oid ) 
 
     helper012d("removeObjFromColl");
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "removeObjFromColl()" );
-    LEAVE( "RpcClientComm::removeObjFromColl()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "removeObjFromColl()" );
+    LEAVE( "RnpClientComm::removeObjFromColl()"  );
 }
 
 
 r_Ref_Any RnpClientComm::getCollByName( const char* collName ) throw( r_Error )
 {
-    ENTER( "RpcClientComm::getCollByName(" << (collName?collName:"(null)") << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "getCollByName(" << collName << ")"  );
+    ENTER( "RnpClientComm::getCollByName(" << (collName?collName:"(null)") << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "getCollByName(" << collName << ")"  );
 
     r_Ref_Any result = executeGetCollByNameOrOId ( collName, r_OId() );
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "getCollByName()" );
-    LEAVE( "RpcClientComm::getCollByName()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "getCollByName()" );
+    LEAVE( "RnpClientComm::getCollByName()"  );
     return result;
 }
 
 r_Ref_Any RnpClientComm::getCollByOId ( const r_OId& oid ) throw( r_Error )
 {
-    ENTER( "RpcClientComm::getCollByOId(" << oid << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "getCollByOId(" << oid << ")"  );
+    ENTER( "RnpClientComm::getCollByOId(" << oid << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "getCollByOId(" << oid << ")"  );
 
     r_Ref_Any result = executeGetCollByNameOrOId ( NULL, oid );
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "getCollByOId()" );
-    LEAVE( "RpcClientComm::getCollByOId()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "getCollByOId()" );
+    LEAVE( "RnpClientComm::getCollByOId()"  );
     return result;
 }
 
 r_Ref_Any RnpClientComm::getCollOIdsByName( const char* name ) throw( r_Error )
 {
-    ENTER( "RpcClientComm::getCollOIdsByName(" << (name?name:"(null)") << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "getCollOIdsByName(" << name << ")"  );
+    ENTER( "RnpClientComm::getCollOIdsByName(" << (name?name:"(null)") << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "getCollOIdsByName(" << name << ")"  );
 
     r_Ref_Any result = executeGetCollOIdsByNameOrOId ( name, r_OId() );
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "getCollOIdsByName()" );
-    LEAVE( "RpcClientComm::getCollOIdsByName()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "getCollOIdsByName()" );
+    LEAVE( "RnpClientComm::getCollOIdsByName()"  );
     return result;
 }
 
 r_Ref_Any RnpClientComm::getCollOIdsByOId ( const r_OId& oid ) throw( r_Error )
 {
-    ENTER( "RpcClientComm::getCollOIdsByOId(" << oid << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "getCollOIdsByOId(" << oid << ")"  );
+    ENTER( "RnpClientComm::getCollOIdsByOId(" << oid << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "getCollOIdsByOId(" << oid << ")"  );
 
     r_Ref_Any result = executeGetCollOIdsByNameOrOId ( NULL, oid );
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "getCollOIdsByOId()" );
-    LEAVE( "RpcClientComm::getCollOIdsByOId()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "getCollOIdsByOId()" );
+    LEAVE( "RnpClientComm::getCollOIdsByOId()"  );
     return result;
 }
 
 
-//------------------------------
+// retrieval query
 void RnpClientComm::executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result ) throw( r_Error )
 {
-    ENTER( "RpcClientComm::executeQuery(_,_)"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "executeQuery(_,_)"  );
+    ENTER( "RnpClientComm::executeQuery(_,_)"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "executeQuery(_,_)"  );
 
     int status = executeExecuteQuery( query.get_query(), result );
 
@@ -553,17 +553,17 @@ void RnpClientComm::executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& 
         break;
         //case 2:  nothing
     default:
-        RMInit::logOut << "Internal error: RpcClientComm::executeQuery(): illegal status value " << status << endl;
+        RMInit::logOut << "Internal error: RnpClientComm::executeQuery(): illegal status value " << status << endl;
     }
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "executeQuery()" );
-    LEAVE( "RpcClientComm::executeQuery()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "executeQuery()" );
+    LEAVE( "RnpClientComm::executeQuery()"  );
 }
 
 void RnpClientComm::getMDDCollection( r_Set< r_Ref_Any >& mddColl, unsigned int isQuery ) throw(r_Error)
 {
-    ENTER( "RpcClientComm::getMDDCollection(_," << isQuery << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "getMDDCollection(_," << isQuery << ")"  );
+    ENTER( "RnpClientComm::getMDDCollection(_," << isQuery << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "getMDDCollection(_," << isQuery << ")"  );
 
     unsigned short tileStatus=0;
     unsigned short mddStatus = 0;
@@ -580,7 +580,7 @@ void RnpClientComm::getMDDCollection( r_Set< r_Ref_Any >& mddColl, unsigned int 
         if( mddStatus == 2 )
         {
             RMInit::logOut << "Error: getMDDCollection(...) - no transfer collection or empty transfer collection" << endl;
-            LEAVE( "RpcClientComm::getMDDCollection(): exception, status = " << mddStatus );
+            LEAVE( "RnpClientComm::getMDDCollection(): exception, status = " << mddStatus );
             throw r_Error( r_Error::r_Error_TransferFailed );
         }
 
@@ -603,16 +603,16 @@ void RnpClientComm::getMDDCollection( r_Set< r_Ref_Any >& mddColl, unsigned int 
 
     executeEndTransfer();
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "getMDDCollection()" );
-    LEAVE( "RpcClientComm::getMDDCollection()"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "getMDDCollection()" );
+    LEAVE( "RnpClientComm::getMDDCollection()"  );
 }
 
 
 // small helper for ...
 void freeGetTileRes(GetTileRes *ptr)
 {
-    ENTER( "RpcClientComm::freeGetTileRes(_)"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "freeGetTileRes(_)"  );
+    ENTER( "RnpClientComm::freeGetTileRes(_)"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "freeGetTileRes(_)"  );
 
     if(ptr->marray->domain)
         free(ptr->marray->domain);
@@ -621,15 +621,15 @@ void freeGetTileRes(GetTileRes *ptr)
     delete ptr->marray;
     delete ptr;
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "freeGetTileRes()" );
-    LEAVE( "RpcClientComm::freeGetTileRes(_)"  );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "freeGetTileRes()" );
+    LEAVE( "RnpClientComm::freeGetTileRes(_)"  );
 }
 
 unsigned short
 RnpClientComm::getMDDCore( r_Ref< r_GMarray > &mdd, GetMDDRes *thisResult, unsigned int isQuery ) throw( r_Error )
 {
-    ENTER( "RpcClientComm::getMDDCore(_,_," << isQuery << ")"  );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "getMDDCore(_,_," << isQuery << ")"  );
+    ENTER( "RnpClientComm::getMDDCore(_,_," << isQuery << ")"  );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "getMDDCore(_,_," << isQuery << ")"  );
 
     //  create r_Minterval and oid
     r_Minterval mddDomain( thisResult->domain );
@@ -675,7 +675,7 @@ RnpClientComm::getMDDCore( r_Ref< r_GMarray > &mdd, GetMDDRes *thisResult, unsig
         {
             freeGetTileRes(tileRes);
             RMInit::logOut << "Error: rpcGetNextTile(...) - no tile to transfer or empty transfer collection" << endl;
-            LEAVE( "RpcClientComm::getMDDCore(): exception, status = " << tileStatus );
+            LEAVE( "RnpClientComm::getMDDCore(): exception, status = " << tileStatus );
             throw r_Error( r_Error::r_Error_TransferFailed );
         }
 
@@ -717,7 +717,7 @@ RnpClientComm::getMDDCore( r_Ref< r_GMarray > &mdd, GetMDDRes *thisResult, unsig
             if( subStatus == 4 )
             {
                 freeGetTileRes(tileRes);
-                LEAVE( "RpcClientComm::getMDDCore(): exception, status = " << tileStatus << ", subStatus = " << subStatus );
+                LEAVE( "RnpClientComm::getMDDCore(): exception, status = " << tileStatus << ", subStatus = " << subStatus );
                 throw r_Error( r_Error::r_Error_TransferFailed );
             }
 
@@ -794,16 +794,16 @@ RnpClientComm::getMDDCore( r_Ref< r_GMarray > &mdd, GetMDDRes *thisResult, unsig
 
     mdd = r_Ref<r_GMarray>( marray->get_oid(), marray );
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "getMDDCore() -> " << tileStatus );
-    LEAVE( "RpcClientComm::getMDDCore() -> " << tileStatus );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "getMDDCore() -> " << tileStatus );
+    LEAVE( "RnpClientComm::getMDDCore() -> " << tileStatus );
     return tileStatus;
 }
 
 
 int RnpClientComm::concatArrayData( const char *source, unsigned long srcSize, char *&dest, unsigned long &destSize, unsigned long &destLevel )
 {
-    ENTER( "RpcClientComm::concatArrayData( 0x" << hex << (unsigned long) source << dec << "," << srcSize << ",_,_,_ )" );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "concatArrayData(" << source << "," << srcSize << ",_,_,_)" );
+    ENTER( "RnpClientComm::concatArrayData( 0x" << hex << (unsigned long) source << dec << "," << srcSize << ",_,_,_ )" );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "concatArrayData(" << source << "," << srcSize << ",_,_,_)" );
 
     if (destLevel + srcSize > destSize)
     {
@@ -814,12 +814,12 @@ int RnpClientComm::concatArrayData( const char *source, unsigned long srcSize, c
         // allocate a little extra if we have to extend
         newSize = newSize + newSize / 16;
 
-        //    RMDBGOUT( 1, "RpcClientComm::concatArrayData(): need to extend from " << destSize << " to " << newSize );
+        //    RMDBGOUT( 1, "RnpClientComm::concatArrayData(): need to extend from " << destSize << " to " << newSize );
 
         if ((newArray = new char[newSize]) == NULL)
         {
-            RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "concatArrayData() -> " << -1 );
-            LEAVE( "RpcClientComm::concatArrayData() -> -1" );
+            RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "concatArrayData() -> " << -1 );
+            LEAVE( "RnpClientComm::concatArrayData() -> -1" );
             return -1;
         }
 
@@ -832,16 +832,16 @@ int RnpClientComm::concatArrayData( const char *source, unsigned long srcSize, c
     memcpy(dest + destLevel, source, srcSize);
     destLevel += srcSize;
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "concatArrayData() -> " << 0 );
-    LEAVE( "RpcClientComm::concatArrayData() -> 0" );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "concatArrayData() -> " << 0 );
+    LEAVE( "RnpClientComm::concatArrayData() -> 0" );
     return 0;
 }
 
 
 void RnpClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) throw(r_Error)
 {
-    ENTER( "RpcClientComm::getElementCollection()" );
-    RMDBGENTER( 2, RMDebug::module_clientcomm, "RpcClientComm", "getElementCollection(_)" );
+    ENTER( "RnpClientComm::getElementCollection()" );
+    RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "getElementCollection(_)" );
 
     unsigned short rpcStatus = 0;
 
@@ -856,7 +856,7 @@ void RnpClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) throw
         if( rpcStatus == 2 )
         {
             RMInit::logOut << "Error: getElementCollection(...) - no transfer collection or empty transfer collection" << endl;
-            LEAVE( "RpcClientComm::getElementCollection(): exception: rpcStatus = " << rpcStatus );
+            LEAVE( "RnpClientComm::getElementCollection(): exception: rpcStatus = " << rpcStatus );
             throw r_Error( r_Error::r_Error_TransferFailed );
         }
         // create new collection element, use type of collection resultColl
@@ -951,7 +951,7 @@ void RnpClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) throw
         }
         break;
         default:
-            RMDBGENTER(2, RMDebug::module_clientcomm, "RpcClientComm", "getElementCollection(...) bad element typeId" << elementType->type_id())
+            RMDBGENTER(2, RMDebug::module_clientcomm, "RnpClientComm", "getElementCollection(...) bad element typeId" << elementType->type_id())
             break;
         }
 
@@ -966,11 +966,11 @@ void RnpClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) throw
 
     executeEndTransfer();
 
-    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RpcClientComm", "getElementCollection()" );
-    LEAVE( "RpcClientComm::getElementCollection()" );
+    RMDBGEXIT( 2, RMDebug::module_clientcomm, "RnpClientComm", "getElementCollection()" );
+    LEAVE( "RnpClientComm::getElementCollection()" );
 }
 
-//##################################################################################
+// update query and insert (< v9.1)
 void RnpClientComm::executeQuery( const r_OQL_Query& query ) throw( r_Error )
 {
     ENTER( "RnpClientComm::executeQuery(_)" );
@@ -1072,6 +1072,123 @@ void RnpClientComm::executeQuery( const r_OQL_Query& query ) throw( r_Error )
     LEAVE( "RnpClientComm::executeQuery(_)" );
 }
 
+// insert query (>=v9.1)
+void RnpClientComm::executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result, int i) throw( r_Error )
+{
+    ENTER( "RnpClientComm::executeQuery(_,_,_)" );
+
+    checkForRwTransaction();
+
+    unsigned short status;
+
+    //
+    // Send MDD constants to the server.
+    //
+    if( query.get_constants() )
+    {
+        r_Set< r_GMarray* >* mddConstants = (r_Set< r_GMarray* >*)query.get_constants();
+
+        if(executeInitUpdate() < 0) // error would be nicer
+        {
+            LEAVE( "Error: RnpClientComm::executeQuery(): update query initialization failed." );
+            return;
+        }
+
+        r_Iterator<r_GMarray*> iter = mddConstants->create_iterator();
+
+        for( iter.reset(); iter.not_done(); iter++ )
+        {
+            r_GMarray* mdd = *iter;
+
+            const r_Base_Type* baseType = mdd->get_base_type_schema();
+
+            if( mdd )
+            {
+                status = executeStartInsertTransMDD(mdd);
+                switch( status )
+                {
+                case 0:
+                    break; // OK
+                case 2:
+                    LEAVE( "RnpClientComm::executeQuery(): exception, status = " << status );
+                    throw r_Error( r_Error::r_Error_DatabaseClassUndefined );
+                    break;
+                case 3:
+                    LEAVE( "RnpClientComm::executeQuery(): exception, status = " << status );
+                    throw r_Error( r_Error::r_Error_TypeInvalid );
+                    break;
+                default:
+                    LEAVE( "RnpClientComm::executeQuery(): exception, status = " << status );
+                    throw r_Error( r_Error::r_Error_TransferFailed );
+                    break;
+                }
+
+                r_Set< r_GMarray* >* bagOfTiles = NULL;
+
+                if (mdd->get_array())
+                {
+                    bagOfTiles = mdd->get_storage_layout()->decomposeMDD( mdd );
+                }
+                else
+                {
+                    bagOfTiles = mdd->get_tiled_array();
+                }
+
+                r_Iterator< r_GMarray* > iter2 = bagOfTiles->create_iterator();
+
+                for(iter2.reset(); iter2.not_done(); iter2.advance())
+                {
+                    RPCMarray* rpcMarray;
+
+                    r_GMarray *origTile = *iter2;
+
+                    getMarRpcRepresentation( origTile, rpcMarray, mdd->get_storage_layout()->get_storage_format(), baseType );
+
+                    status = executeInsertTile(false, rpcMarray);
+
+                    // free rpcMarray structure (rpcMarray->data.confarray_val is freed somewhere else)
+                    freeMarRpcRepresentation( origTile, rpcMarray );
+
+                    // delete current tile (including data block)
+                    delete origTile;
+                    origTile = NULL;
+
+                    if( status > 0 )
+                    {
+                        LEAVE( "RnpClientComm::executeQuery(): exception, status = " << status );
+                        throw r_Error( r_Error::r_Error_TransferFailed );
+                    }
+                }
+
+                bagOfTiles->remove_all();
+                delete bagOfTiles;
+                bagOfTiles = NULL;
+
+                executeEndInsertMDD(false);
+            }
+        }
+    }
+
+    int mystatus = executeExecuteUpdateQuery(query.get_query(), result);
+
+    TALK("executeUpdateQuery (retrieval) returns " << status );
+
+    switch(mystatus)
+    {
+    case 0:
+        getMDDCollection( result, 1 );
+        break; // 1== isQuery
+    case 1:
+        getElementCollection( result );
+        break;
+    // case 2:  nothing, should not be error?
+    default:
+        RMInit::logOut << "Internal error: RnpClientComm::executeQuery(): illegal status value " << status << endl;
+    }
+
+    LEAVE( "RnpClientComm::executeQuery(_)" );
+}
+
 
 // helper functions
 void
@@ -1079,8 +1196,8 @@ RnpClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
                                         r_Data_Format initStorageFormat,
                                         const r_Base_Type *baseType)
 {
-    ENTER( "RpcClientComm::getMarRpcRepresentation(...)");
-    RMDBGENTER(2, RMDebug::module_clientcomm, "RpcClientComm", "getMarRpcRepresentation(...)");
+    ENTER( "RnpClientComm::getMarRpcRepresentation(...)");
+    RMDBGENTER(2, RMDebug::module_clientcomm, "RnpClientComm", "getMarRpcRepresentation(...)");
 
     // allocate memory for the RPCMarray data structure and assign its fields
     rpcMarray                 = (RPCMarray*)mymalloc( sizeof(RPCMarray) );
@@ -1094,7 +1211,7 @@ RnpClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
     {
         if (endianClient != endianServer)
         {
-            RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RpcClientComm", "getMarRpcRepresentation(...) for "
+            RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RnpClientComm", "getMarRpcRepresentation(...) for "
                         << transferFormat << " endianness changed from "
                         << (r_Endian::r_Endianness)endianClient << " to " << (r_Endian::r_Endianness) endianServer);
             arraySize = mar->get_array_size();
@@ -1110,7 +1227,7 @@ RnpClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
         rpcMarray->data.confarray_len = mar->get_array_size();
         if (endianClient != endianServer)
         {
-            RMDBGMIDDLE( 2, RMDebug::module_clientcomm, "RpcClientComm",  "getMarRpcRepresentation(...) for "
+            RMDBGMIDDLE( 2, RMDebug::module_clientcomm, "RnpClientComm",  "getMarRpcRepresentation(...) for "
                          <<  transferFormat << "endianness changed from "
                          << (r_Endian::r_Endianness)endianClient << " to " << (r_Endian::r_Endianness) endianServer
                          << " because compression " << transferFormat << " failed" );
@@ -1127,7 +1244,7 @@ RnpClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
     {
         if (arraySize != mar->get_array_size())
         {
-            RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RpcClientComm", "compressed to " << (100.0*arraySize) / mar->get_array_size() << "%")
+            RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RnpClientComm", "compressed to " << (100.0*arraySize) / mar->get_array_size() << "%")
         }
         rpcMarray->currentFormat = transferFormat;
         rpcMarray->data.confarray_len = arraySize;
@@ -1135,8 +1252,8 @@ RnpClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
     }
     rpcMarray->storageFormat = storageFormat;
 
-    RMDBGEXIT(2, RMDebug::module_clientcomm, "RpcClientComm", "getMarRpcRepresentation(...)");
-    LEAVE( "RpcClientComm::getMarRpcRepresentation()");
+    RMDBGEXIT(2, RMDebug::module_clientcomm, "RnpClientComm", "getMarRpcRepresentation(...)");
+    LEAVE( "RnpClientComm::getMarRpcRepresentation()");
 }
 
 

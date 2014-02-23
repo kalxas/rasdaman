@@ -228,6 +228,16 @@ public class RasOQLQuery implements OQLQuery, RasCommDefs
                 params = "Command=" + RasODMGGlobal.commQueryExec + "&ClientID=" +
                          rasImplementation.getClientID() + "&QueryString=" + queryString;
               }
+            else if ((queryString.indexOf("insert") != -1) || (queryString.indexOf("INSERT") != -1))
+              {
+                // insert query
+                params = "Command=" + RasODMGGlobal.commInsertQueryExec + "&ClientID=" +
+                    rasImplementation.getClientID() + "&QueryString=" + queryString +
+                    "&Endianess=" + BIG_ENDIAN + "&NumberOfQueryParameters=" +
+                    numberOfParams;
+                if(numberOfParams > 0)
+                    params = params + "&BinDataSize=" + mddData.length() + "&BinData=" + mddData;
+              }
             else
               {
                 // update query

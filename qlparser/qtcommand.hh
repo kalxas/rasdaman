@@ -4,6 +4,7 @@
 #include "qlparser/qtexecute.hh"
 #include "qlparser/qtoperationiterator.hh"
 #include "qlparser/querytree.hh"
+#include "raslib/oid.hh"
 
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -68,7 +69,7 @@ public:
     QtCommand( QtCommandType initCommand, const std::string& initCollection, QtOperationIterator* collection);
 
     /// method for evaluating the node
-    virtual int evaluate();
+    virtual QtData* evaluate();
 
     /// prints the tree
     virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
@@ -85,7 +86,7 @@ public:
 private:
 
     /// create a collection
-    void createCollection(std::string collectionName, std::string typeName);
+    OId createCollection(std::string collectionName, std::string typeName);
 
     /// drop a given collection
     void dropCollection(std::string collectionName);

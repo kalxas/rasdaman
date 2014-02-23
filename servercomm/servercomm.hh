@@ -603,6 +603,44 @@ public:
       \end{tabular}
     */
 
+    // insert query returning results
+    virtual unsigned short executeInsert( unsigned long callingClientId, const char* query, ExecuteQueryRes &returnStructure );
+    /**
+      Executes a query and puts the result in the actual transfer collection.
+      The first parameter is the unique client id
+      for which the query should be executed. The second parameter is the
+      query itself represented as a string.
+
+      Return values
+      \begin{tabular}{lll}
+      0 && operation was successful - result collection holds MDD elements\\
+      1 && operation was successful - result collection holds non-MDD elements\\
+      2 && operation was successful - result collection has no elements\\
+      3 && client context not found\\
+      4 && parse errror\\
+      5 && execution error\\
+      \end{tabular}
+
+      Communication protocol (return value = 0)
+      \begin{tabular}{lll}
+      \Ref{executeQuery} && \\
+      ->                 && \Ref{getNextMDD} \\
+                         && ->               && \Ref{getNextTile} \\
+                         &&                  && : \\
+                         && :\\
+      \Ref{endTransfer} \\
+      \end{tabular}
+
+      Communication protocol (return value = 1)
+      \begin{tabular}{lll}
+      \Ref{executeQuery} && \\
+      ->                 && \Ref{getNextElement} \\
+                         && :\\
+      \Ref{endTransfer} \\
+      \end{tabular}
+    */
+
+
     ///
     /// prepares an MDD (transient) for transfer of tiles
     virtual unsigned short startInsertTransMDD( unsigned long callingClientId,

@@ -130,7 +130,7 @@ public:
     */
 
     /// executes an update tree and throws a ParseInfo if query does not begin with INSERT, DELETE, UPDATE, ...
-    void evaluateUpdate() throw (r_Error,ParseInfo);
+    vector<QtData*>* evaluateUpdate() throw (r_Error,ParseInfo);
 
     /// debugging method
     void printTree( int tab, ostream& s = cout );

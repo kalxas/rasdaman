@@ -94,6 +94,8 @@ public:
 
     int  compat_ExecuteUpdateQuery(const char *query, ExecuteUpdateRes &returnStructure);
 
+    int  compat_ExecuteInsertQuery(const char* query, ExecuteQueryRes &queryResult);
+
     int  compat_InitUpdate();
 
     int  compat_StartInsertTransMDD(const char *domain, int typeLength, const char *typeName);

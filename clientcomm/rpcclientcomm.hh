@@ -185,6 +185,9 @@ public:
       Executes an update query of type \Ref{r_OQL_Query}.
     */
 
+    // insert execution
+    void executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result, int dummy ) throw( r_Error );
+
     ///
     //@}
 

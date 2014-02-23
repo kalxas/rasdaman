@@ -96,7 +96,7 @@ QtUpdate::~QtUpdate()
 
 
 
-int
+QtData*
 QtUpdate::evaluate()
 {
     RMDBCLASS( "QtUpdate", "evaluate()", "qlparser", __FILE__, __LINE__ )

@@ -983,6 +983,7 @@ HttpServer::processRequest( unsigned long callingClientId, char* baseName, int r
             }
 
             // do we have an insert statement?
+            // we need to keep this to be compatible with older clients
             if(binDataSize > 0)
             {
                 // yes, it is an insert statement => analyze and prepare the MDDs
@@ -1236,6 +1237,472 @@ HttpServer::processRequest( unsigned long callingClientId, char* baseName, int r
 
             return returnValue;
             break;
+        case 11:
+            // commInsertExec (>= v9.1)
+            // empty transfer structures (only to be sure, this case probably cannot occur :-)
+            returnValue = 0;
+            valid = false;
+            while(!transferredMDDs.empty())
+            {
+                RMInit::logOut << "Freeing old transfer structures..." << std::flush;
+                free(transferredMDDs.back()->binData);
+                delete(transferredMDDs.back());
+                transferredMDDs.pop_back();
+                RMInit::logOut << MSG_OK << endl;
+            }
+
+            // do we have an insert statement?
+            // we need to keep this to be compatible with older clients
+            if(binDataSize > 0)
+            {
+                // yes, it is an insert statement => analyze and prepare the MDDs
+                // create an empty MDD-Set in the client context
+                initExecuteUpdate(callingClientId);
+
+                // Analyze the binData array (the uploaded mdds)
+                getMDDs(binDataSize,binData,Endianess,transferredMDDs);
+
+                // Store all MDDs
+                //RMInit::logOut << "vector has " << transferredMDDs.size() << " entries." << endl;
+                returnValue = 0;
+                while(!transferredMDDs.empty() && (returnValue == 0))
+                {
+                    //RMInit::logOut << "Element:" << transferredMDDs.back()->toString() << endl;
+                    // insert MDD into MDD-Set of client context
+                    r_Minterval tempStorage(transferredMDDs.back()->domain);
+
+                    roid = new r_OId(transferredMDDs.back()->oidString);
+                    // OID valid
+                    valid = roid->is_valid();
+                    if(valid)
+                    {
+                        // parse the query string to get the collection name
+                        char* collection;
+                        char* startPtr;
+                        char* endPtr;
+                        startPtr = endPtr = query;
+                        collection = new char[ endPtr - startPtr + 1 ];
+                        // one for insert, one for into and one for the collection name
+                        for(int i = 0; i<3; i++)
+                        {
+                            // delete spaces, tabs  ...
+                            while((*endPtr == ' ' || *endPtr == '\t' || *endPtr == '\r' || *endPtr == '\n') && *endPtr != '\0') endPtr++;
+                            startPtr = endPtr;
+                            // parse next word
+                            while(*endPtr != ' ' && *endPtr != '\t' && *endPtr != '\r' && *endPtr != '\n' && *endPtr != '\0') endPtr++;
+                            if(endPtr - startPtr >= 1)
+                            {
+                                collection = new char[endPtr - startPtr + 1];
+                                strncpy(collection, startPtr, endPtr - startPtr);
+                                collection[endPtr - startPtr] = '\0';
+                            }
+                        }
+                        //RMInit::logOut << "collection: "  << collection << endl;
+
+                        //RMInit::logOut << "OID is valid: " << endl;
+                        //roid->print_status(RMInit::logOut);
+                        execResult = startInsertPersMDD( callingClientId, collection, tempStorage,
+                                                         transferredMDDs.back()->typeLength,
+                                                         transferredMDDs.back()->objectTypeName, *roid);
+                    }
+                    // OID not valid
+                    else
+                    {
+                        //RMInit::logOut << "OID is NOT valid" << endl;
+
+                        execResult = startInsertTransMDD( callingClientId, tempStorage,
+                                                          transferredMDDs.back()->typeLength,
+                                                          transferredMDDs.back()->objectTypeName );
+                    }
+
+                    //clean roid, we don't need it anymore
+                    if(roid)
+                    {
+                        delete roid;
+                        roid = NULL;
+                    }
+
+                    if(execResult != 0)
+                    {
+                        // no or wrong mdd type - return error message
+                        unsigned long errNo;
+                        if(strlen(transferredMDDs.back()->objectTypeName) < 1)
+                            errNo=966;
+                        else
+                        {
+                            switch(execResult)
+                            {
+                            case 2:
+                                errNo = 965;
+                                break;
+                            case 3:
+                                errNo = 959;
+                                break;
+                            case 4:
+                                errNo = 952;
+                                break;
+                            case 5:
+                                errNo = 957;
+                                break;
+                            default:
+                                errNo = 350;
+                            }
+                            RMInit::logOut << "Error: while inserting MDD" << endl;
+                        }
+
+                        returnValue = encodeError(result, errNo, 0, 0, transferredMDDs.back()->objectTypeName);
+
+                        //clean up
+                        while(!transferredMDDs.empty())
+                        {
+                            RMInit::logOut << "Freeing old transfer structures..." << std::flush;
+                            free(transferredMDDs.back()->binData);
+                            delete(transferredMDDs.back());
+                            transferredMDDs.pop_back();
+                            RMInit::logOut << MSG_OK << endl;
+                        }
+
+                        return returnValue;
+                    }
+                    else
+                    {
+                        // create RPCMarray data structure - formats are currently hardcoded (r_Array)
+                        RPCMarray *rpcMarray = (RPCMarray*)mymalloc( sizeof(RPCMarray) );
+                        rpcMarray->domain         = strdup(transferredMDDs.back()->domain);
+                        rpcMarray->cellTypeLength = transferredMDDs.back()->typeLength;
+                        rpcMarray->currentFormat  = r_Array;
+                        rpcMarray->storageFormat  = r_Array;
+                        rpcMarray->data.confarray_len = transferredMDDs.back()->dataSize;
+                        rpcMarray->data.confarray_val = transferredMDDs.back()->binData;
+
+                        /*
+                        RMInit::logOut << "Creating RPCMarray with domain " << rpcMarray->domain << ", size " <<
+                          rpcMarray->data.confarray_len << ", typeLength " << rpcMarray->cellTypeLength << " ..."
+                               << flush;
+                        */
+
+                        // split tile if a tileSize (an MInterval) has been specified
+                        r_Minterval* splitInterval = NULL;
+                        if(transferredMDDs.back()->tileSize != NULL)
+                        {
+                            splitInterval = new r_Minterval(transferredMDDs.back()->tileSize);
+                            RMInit::logOut << "Splitinterval is " << splitInterval << endl;
+                        }
+                        // now insert the tile(s)
+                        if(valid)
+                        {
+                            insertTileSplitted( callingClientId, 1, rpcMarray, splitInterval );
+                        }
+                        else
+                        {
+                            insertTileSplitted( callingClientId, 0, rpcMarray, splitInterval );
+                        }
+
+                        // free the stuff
+                        free(rpcMarray->domain);
+                        free(rpcMarray);
+                        delete(transferredMDDs.back());
+                        transferredMDDs.pop_back();
+                        delete(splitInterval);
+                    }
+                }
+
+                // end insertion into client structure
+                if(valid)
+                    endInsertMDD(callingClientId, 1);
+                else
+                    endInsertMDD( callingClientId, 0 );
+            }
+
+            if(returnValue == 0)
+            {
+                //RMInit::logOut << "Executing query: " << query << flush;
+                // until now now error has occurred => execute the query
+                resultError.token=NULL;
+                resultError.typeName=NULL;
+                resultError.typeStructure=NULL;
+                if(!valid)
+                    execResult = executeInsert( callingClientId, (const char*)query , resultError );
+                // query was executed successfully
+                // now we distinguish between different result types
+                if(execResult == 0)
+                {
+                    // MDD results
+                    int totalLength = 6; // total length of result in bytes
+                    r_Long numMDD = 0;     // number of MDD objects in the result
+                    ClientTblElt* context;
+                    vector<Tile*> resultTiles; // contains all TransTiles representing the resulting MDDs
+                    resultTiles.reserve(20);
+                    vector<char*> resultTypes;
+                    resultTypes.reserve(20);
+                    vector<char*> resultDomains;
+                    resultDomains.reserve(20);
+                    vector<r_OId> resultOIDs;
+                    resultOIDs.reserve(20);
+                    // Here should be something like the following. Unfortunately,
+                    // context->transferColl seems to be 0 here. I don't know why.
+                    // Thats why a global variable was introduced in
+                    // servercomm2.cc.
+                    // CollectionType* collectionType =
+                    //   (CollectionType*) context->transferColl->getMDDCollType();
+                    // char* collTypeStructure = collectionType->getTypeStructure();
+
+                    while(getNextMDD(callingClientId, resultDom, typeName, typeStructure, oid,
+                                     currentFormat) == 0)
+                    {
+                        numMDD++;
+                        // create TransTile for whole data from the tiles stored in context->transTiles
+                        context = getClientContext( callingClientId );
+                        // that should be enough, just transfer the whole thing ;-)
+                        resultTile = new Tile( context->transTiles );
+
+                        // server endianess
+                        r_Endian::r_Endianness serverEndian = r_Endian::get_endianness();
+
+                        // This currently represents the one and only client active at one time.
+                        // stupid!!! if((context->clientId == 1) && (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) && (serverEndian != r_Endian::r_Endian_Big))
+                        if(serverEndian != r_Endian::r_Endian_Big)
+                        {
+                            // RMInit::logOut << "Changing endianness..." << flush;
+                            // calling client is a http-client(java -> always BigEndian) and server has LittleEndian
+                            char *tpstruct;
+                            r_Base_Type *useType;
+                            tpstruct = resultTile->getType()->getTypeStructure();
+                            useType = (r_Base_Type*)(r_Type::get_any_type(tpstruct));
+
+                            char* tempT = (char*)mymalloc(sizeof(char) * resultTile->getSize());
+
+                            // change the endianness of the entire tile for identical domains for src and dest
+                            r_Endian::swap_array(useType, resultDom, resultDom, resultTile->getContents(), tempT);
+                            resultTile->setContents(tempT);
+
+                            delete useType;
+                            free(tpstruct);
+
+                            // RMInit::logOut << MSG_OK << endl;
+                        }
+
+                        resultTiles.push_back(resultTile);
+                        resultTypes.push_back(typeStructure);
+                        resultDomains.push_back(resultDom.get_string_representation());
+                        resultOIDs.push_back(oid);
+                        //oid.print_status(RMInit::logOut);
+
+                        // this is normally done in getNextTile(). But this is not called, so we do it here.
+                        (*(context->transferDataIter))++;
+                        if( *(context->transferDataIter) != context->transferData->end() )
+                        {
+                            // clean context->transtile if necessary
+                            if( context->transTiles )
+                            {
+                                delete context->transTiles;
+                                context->transTiles = 0;
+                            }
+                            // clean context->tileIter if necessary
+                            if( context->tileIter )
+                            {
+                                delete context->tileIter;
+                                context->tileIter = 0;
+                            }
+                        }
+
+                        // clean typeName if necessary
+                        if( typeName )
+                        {
+                            free(typeName);
+                            typeName = 0;
+                        }
+                    }
+
+                    // clean typeName if necessary
+                    if( typeName )
+                    {
+                        free(typeName);
+                        typeName = 0;
+                    }
+
+                    // prepare for transfer
+                    // calculate total length of the result array
+                    for(i = 0; i < numMDD; i++)
+                    {
+                        totalLength += strlen(resultTypes[i]) + 1;
+                        totalLength += strlen(resultDomains[i]) + 1;
+                        // OID might be NULL
+                        if(resultOIDs[i].get_string_representation() != NULL)
+                            totalLength += strlen(resultOIDs[i].get_string_representation()) + 1;
+                        else
+                            totalLength++;
+                        totalLength += resultTiles[i]->getSize();
+                        totalLength += 4;
+                    }
+                    // for the type of the collection
+                    totalLength += strlen(globalHTTPSetTypeStructure) + 1;
+
+                    // allocate the result
+                    result = (char*)mymalloc(totalLength);
+                    currentPos = result;
+                    // fill it with data
+                    *currentPos = 1; // result is MDD collection
+                    currentPos++;
+                    *currentPos = systemEndianess;
+                    currentPos++;
+                    // type of the collection
+                    strcpy(currentPos, globalHTTPSetTypeStructure);
+                    currentPos += strlen(globalHTTPSetTypeStructure) + 1;
+                    encodeLong(currentPos, &numMDD);
+                    currentPos += sizeof(r_Long);
+                    // encode MDDs
+                    for(i = 0; i < numMDD; i++)
+                    {
+                        r_Long dummy = resultTiles[i]->getSize();
+                        strcpy(currentPos, resultTypes[i]);
+                        currentPos += strlen(resultTypes[i]) + 1;
+                        strcpy(currentPos, resultDomains[i]);
+                        currentPos += strlen(resultDomains[i]) + 1;
+                        // OID might be NULL
+                        if(resultOIDs[i].get_string_representation() != NULL)
+                        {
+                            strcpy(currentPos, resultOIDs[i].get_string_representation());
+                            currentPos += strlen(resultOIDs[i].get_string_representation()) + 1;
+                        }
+                        else
+                        {
+                            *currentPos = '\0';
+                            currentPos++;
+                        }
+                        encodeLong(currentPos, &dummy);
+                        currentPos += sizeof(r_Long);
+                        memcpy(currentPos, resultTiles[i]->getContents(), dummy);
+                        currentPos += dummy;
+                    }
+
+                    // delete all the temporary storage
+                    for(i = 0; i < numMDD; i++)
+                    {
+                        delete resultTiles[i];
+                        free(resultTypes[i]);
+                        free(resultDomains[i]);
+                    }
+
+                    returnValue = totalLength;
+
+                }
+                else if(execResult == 1)
+                {
+                    // the result is a collection of scalars.
+                    int totalLength = 6; // total length of result in bytes
+                    r_Long numElem = 0;     // number of MDD objects in the result
+                    ClientTblElt* context;
+                    vector<char*> resultElems; // contains all TransTiles representing the resulting MDDs
+                    resultElems.reserve(20);
+                    vector<unsigned int> resultLengths;
+                    resultLengths.reserve(20);
+
+                    // we have to get the type of the collection
+                    totalLength += strlen(resultError.typeStructure) + 1;
+
+                    // then we have to get all elements in the collection
+                    unsigned short dummyRes;
+                    char* buffer;
+                    unsigned int bufferSize;
+                    // This will probably not work for empty collections. Only if getNextElement
+                    // returns 2 in this case. I really don't get it.
+                    unsigned short moreElems = 0;
+
+                    while( moreElems == 0 )
+                    {
+                        moreElems = getNextElement(callingClientId, buffer, bufferSize);
+
+                        //RMInit::logOut << "More elems is " << moreElems << endl;
+                        numElem++;
+                        resultElems.push_back(buffer);
+                        resultLengths.push_back(bufferSize);
+                        // length of data
+                        totalLength += bufferSize;
+                        // this will be length of type
+                        totalLength += 1;
+                        // size of each element
+                        totalLength += sizeof(r_Long);
+                    }
+
+                    // allocate the result
+                    result = (char*)mymalloc(totalLength);
+                    currentPos = result;
+                    // fill it with data
+                    *currentPos = 2; // result is collection of other types
+                    currentPos++;
+                    *currentPos = systemEndianess;
+                    currentPos++;
+                    // type of the collection
+                    strcpy(currentPos, resultError.typeStructure);
+                    currentPos += strlen(resultError.typeStructure) + 1;
+                    // number of elements
+                    encodeLong(currentPos, &numElem);
+                    currentPos += sizeof(r_Long);
+
+                    // and finally copy them together
+                    for(i = 0; i < numElem; i++)
+                    {
+                        // This should be the type of the element
+                        *currentPos = '\0';
+                        currentPos++;
+                        // length in bytes of the element
+                        r_ULong convDummy = resultLengths[i];
+                        encodeULong(currentPos, &convDummy);
+                        currentPos += sizeof(r_ULong);
+                        // actual data
+                        memcpy(currentPos, resultElems[i], resultLengths[i]);
+                        currentPos += resultLengths[i];
+                    }
+
+                    // delete all the temporary storage
+                    for(i = 0; i < numElem; i++)
+                    {
+                        free(resultElems[i]);
+                    }
+
+                    returnValue = totalLength;
+
+                }
+                else if(execResult == 2)
+                {
+                    int totalLength = 7; // total length of result in bytes
+                    // the result collection is empty. It is returned as an empty MDD collection.
+                    // allocate the result
+                    result = (char*)mymalloc(totalLength);
+                    currentPos = result;
+                    // fill it with data
+                    *currentPos = 1; // result is MDD collection
+                    currentPos++;
+                    *currentPos = systemEndianess;
+                    currentPos++;
+                    // here the type of the collection should be added, currently empty string!
+                    *currentPos = '\0';
+                    currentPos++;
+                    // now set the number of results to zero
+                    r_Long dummy=0;
+                    encodeLong(currentPos, &dummy);
+
+                    returnValue = totalLength;
+
+                }
+                else if(execResult == 4 || execResult == 5)
+                {
+                    // parse error or execution error
+                    returnValue = encodeError(result, resultError.errorNo,resultError.lineNo, resultError.columnNo, resultError.token);
+
+                }
+                else
+                {
+                    // unknow error
+                    returnValue = -10;
+                }
+
+                cleanExecuteQueryRes(resultError);
+            }
+            return returnValue;
+            break;
+
         default:
             return -10;
             break;

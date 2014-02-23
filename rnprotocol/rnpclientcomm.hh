@@ -138,6 +138,11 @@ public:
       Executes an update query of type \Ref{r_OQL_Query}.
     */
 
+    /// insert execution
+    void executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result, int dummy ) throw( r_Error );
+    /*@Doc:
+      Executes an insert query of type \Ref{r_OQL_Query}.
+    */
     ///
     //@}
 
@@ -307,7 +312,8 @@ private:
     int  executeEndTransfer();
     GetMDDRes*  executeGetNextMDD();
     GetTileRes* executeGetNextTile();
-    void executeExecuteUpdateQuery(const char *query) throw(r_Error);
+    int executeExecuteUpdateQuery(const char *query) throw(r_Error);
+    int executeExecuteUpdateQuery(const char *query, r_Set< r_Ref_Any >& result) throw(r_Error);
     int  executeStartInsertTransMDD(r_GMarray* mdd);
     int  executeInsertTile(bool persistent, RPCMarray* tile);
     void executeEndInsertMDD(bool persistent);

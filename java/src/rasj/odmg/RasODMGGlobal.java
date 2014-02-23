@@ -55,6 +55,7 @@ public abstract class RasODMGGlobal
     public static final int commQueryExec   = 8;
     public static final int commUpdateQueryExec = 9;
     public static final int commGetNewOID = 10;
+    public static final int commInsertQueryExec = 11;
 }
 
 

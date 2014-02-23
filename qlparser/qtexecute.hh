@@ -42,7 +42,7 @@ class QtExecute : public QtNode
 {
 public:
     /// method for evaluating the execute node node
-    virtual int evaluate() = 0;
+    virtual QtData* evaluate() = 0;
 
     /// type checking
     virtual void checkType() = 0;

@@ -63,7 +63,7 @@ QtDelete::~QtDelete()
 
 
 
-int
+QtData*
 QtDelete::evaluate()
 {
     RMDBCLASS( "QtDelete", "evaluate()", "qlparser", __FILE__, __LINE__ )
@@ -146,7 +146,7 @@ QtDelete::evaluate()
     
     stopTimer();
 
-    return 0;
+    return NULL;
 }
 
 

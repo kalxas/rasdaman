@@ -297,7 +297,14 @@ int RasServerEntry::compat_getNextTile(RPCMarray** rpcMarray)
 
 int RasServerEntry::compat_ExecuteUpdateQuery(const char *query, ExecuteUpdateRes& returnStructure)
 {
+    // update query (and insert < v9.1), does not return results
     return ServerComm::executeUpdate(currentClientIdx, query, returnStructure);
+}
+
+int RasServerEntry::compat_ExecuteInsertQuery(const char* query, ExecuteQueryRes &queryResult)
+{
+    // insert query (>= v9.1), returns results
+    return ServerComm::executeInsert(currentClientIdx, query, queryResult);
 }
 
 int RasServerEntry::compat_InitUpdate()

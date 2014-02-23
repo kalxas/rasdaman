@@ -373,6 +373,7 @@ int RnpClientComm::executeStartInsertPersMDD( const char* collName, r_GMarray* m
     return result;
 }
 
+// retrieval query
 int RnpClientComm::executeExecuteQuery( const char* query, r_Set< r_Ref_Any >& result ) throw( r_Error )
 {
     ENTER( "RnpClientComm::executeExecuteQuery( query=" << (query?query:"(null)") << ", result=" << ((unsigned long) &result) << " )" );
@@ -782,7 +783,8 @@ void RnpClientComm::executeEndInsertMDD(bool persistent)
     LEAVE( "RnpClientComm::executeEndInsertMDD()" );
 }
 
-void  RnpClientComm::executeExecuteUpdateQuery(const char *query) throw(r_Error)
+// update
+int  RnpClientComm::executeExecuteUpdateQuery(const char *query) throw(r_Error)
 {
     ENTER( "RnpClientComm::executeExecuteUpdateQuery( query=" << (query?query:"(null)") << " )" );
 
@@ -824,6 +826,53 @@ void  RnpClientComm::executeExecuteUpdateQuery(const char *query) throw(r_Error)
     }
 
     LEAVE( "RnpClientComm::executeExecuteUpdateQuery()" );
+    return status;
+}
+
+// insert
+int  RnpClientComm::executeExecuteUpdateQuery(const char *query, r_Set< r_Ref_Any >& result) throw(r_Error)
+{
+    ENTER( "RnpClientComm::executeExecuteUpdateQuery( query=" << (query?query:"(null)") << " )" );
+
+    startRequest(RnpRasserver::cmd_insertrpc);
+    encoder.adjustBufferSize(strlen(query));
+    encoder.addInt32Parameter(RnpRasserver::pmt_clientid, clientID);
+    encoder.addStringParameter(RnpRasserver::pmt_querystring, query);
+    TALK( "request RnpRasserver::cmd_insertrpc with query '" << query << "', clientID 0x" << hex << clientID << dec );
+
+    sendRequestGetAnswer();
+    int status = decoder.getDataAsInteger();
+    decoder.getNextParameter();
+    int errNo  = decoder.getDataAsInteger();
+    decoder.getNextParameter();
+    int lineNo  = decoder.getDataAsInteger();
+    decoder.getNextParameter();
+    int colNo   = decoder.getDataAsInteger();
+    decoder.getNextParameter();
+    std::string token  = decoder.getDataAsString();
+    decoder.getNextParameter();
+    const char* typeName  = decoder.getDataAsString();
+    decoder.getNextParameter();
+    const char* typeStructure = decoder.getDataAsString();
+
+    if(status == 0 || status == 1 || status == 2)
+    {
+        result.set_type_by_name( typeName );
+        result.set_type_structure( typeStructure );
+    }
+
+    // status == 2 - empty result
+
+    if( status == 4 || status == 5 )
+    {
+        LEAVE( "RnpClientComm::executeExecuteUpdateQuery(_,_): exception, status = " << status );
+        throw r_Equery_execution_failed( errNo, lineNo, colNo, token.c_str() );
+    }
+
+    clearAnswer();
+
+    LEAVE( "RnpClientComm::executeExecuteUpdateQuery(_,_)" );
+    return status;
 }
 
 r_OId RnpClientComm::executeGetNewOId( unsigned short objType ) throw(r_Error)

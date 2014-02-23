@@ -299,9 +299,13 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
 
 
 
-void
+vector<QtData*>*
 QueryTree::evaluateUpdate() throw (r_Error,ParseInfo)
 {
+    QtData* resultElement = NULL;
+    // create result collection
+    vector<QtData*>* resultData = new vector<QtData*>();
+
     if( rootNode )
     {
         if( rootNode->getNodeType() != QtNode::QT_UPDATE  &&
@@ -320,13 +324,15 @@ QueryTree::evaluateUpdate() throw (r_Error,ParseInfo)
         QtExecute* executeNode = (QtExecute*) rootNode;
 
         // evaluate the update query
-        executeNode->evaluate();
+        resultElement = executeNode->evaluate();
 
 #ifdef RMANBENCHMARK
         RMInit::logOut << "Evaluated query tree:" << endl;
         rootNode->printTree(2, RMInit::logOut);
 #endif
     }
+    resultData->push_back( resultElement );
+    return resultData;
 }
 
 

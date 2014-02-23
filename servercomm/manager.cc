@@ -1057,6 +1057,48 @@ RPCFUNCTIONDEF( rpcexecuteupdate_1, ExecuteQueryParams* params )
     return &rpcExecuteUpdateRes;
 }
 
+ExecuteQueryRes*
+RPCFUNCTIONDEF( rpcexecuteinsert_1, ExecuteQueryParams* params )
+{
+    secureResultBufferForRPC = (char*)&rpcExecuteQueryRes;
+
+    unsigned short          returnValue;
+    unsigned long           callingClientId = params->clientID;
+    const char*             query = params->query;
+
+    freeDynamicRPCData();
+
+    // prevent RPC from NULL pointers
+    char *prev1 = strdup("");
+    char *prev2 = strdup("");
+    char *prev3 = strdup("");
+    rpcExecuteQueryRes.token         = prev1;
+    rpcExecuteQueryRes.typeName      = prev2;
+    rpcExecuteQueryRes.typeStructure = prev3;
+
+    accessControl.wantToWrite();
+
+    // Get a pointer to the actual servercomm object.
+    ServerComm* sc = ServerComm::actual_servercomm;
+
+    // Call the corresponding method.
+    returnValue = sc->executeInsert( callingClientId, (const char*) query, rpcExecuteQueryRes );
+
+    // if no exception was thrown we are here, first check if the pointers have changed
+    if( rpcExecuteQueryRes.token         != prev1 ) free(prev1);
+    if( rpcExecuteQueryRes.typeName      != prev2 ) free(prev2);
+    if( rpcExecuteQueryRes.typeStructure != prev3 ) free(prev3);
+
+    // than check if the pointers are NULL
+    if( !rpcExecuteQueryRes.token )         rpcExecuteQueryRes.token         = strdup("");
+    if( !rpcExecuteQueryRes.typeName )      rpcExecuteQueryRes.typeName      = strdup("");
+    if( !rpcExecuteQueryRes.typeStructure ) rpcExecuteQueryRes.typeStructure = strdup("");
+
+    // set missing parts of return structure
+    rpcExecuteQueryRes.status     = returnValue;
+
+    return &rpcExecuteQueryRes;
+}
 
 
 #ifdef LINUX

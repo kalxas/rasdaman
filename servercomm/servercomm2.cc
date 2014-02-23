@@ -2177,6 +2177,267 @@ ServerComm::executeUpdate( unsigned long callingClientId,
     return returnValue;
 }
 
+unsigned short
+ServerComm::executeInsert ( unsigned long callingClientId,
+                           const char* query,
+                           ExecuteQueryRes &returnStructure )
+{
+    RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "executeInsert (returning)" )
+
+    RMInit::logOut << "Request: '" << query << "'..." << std::flush;
+
+#ifdef RMANBENCHMARK
+    Tile::relTimer.start();
+    Tile::relTimer.pause();
+    Tile::opTimer.start();
+    Tile::opTimer.pause();
+#endif
+
+    unsigned short returnValue = 0;
+
+    ClientTblElt* context = getClientContext( callingClientId );
+
+    if( context != 0 )
+    {
+#ifdef PURIFY
+        purify_printf( "%s\n", query );
+#endif
+
+        //
+        // execute the query
+        //
+
+        QueryTree* qtree = new QueryTree();   // create a query tree object...
+        parseQueryTree   = qtree;             // ...and assign it to the global parse query tree pointer;
+
+        mddConstants     = context->transferColl; // assign the mdd constants collection to the global pointer (temporary)
+        currentClientTblElt = context;        // assign current client table element (temporary)
+
+        int ppRet = 0;
+        udfEnabled = false; // forced for RNP tests
+        if(udfEnabled)
+        {
+            //
+            // preprocess
+            //
+            RMInit::logOut << "preprocessing..." << std::flush;
+            ppInBuf = (char *)query;
+            ppreset();
+            ppRet = ppparse();
+
+            if(ppOutBuf)
+                RMInit::dbgOut << "new query: '" << ppOutBuf << "'" << std::endl;
+            else
+                RMInit::dbgOut << "new query: empty." << std::endl;
+
+            // initialize the input string parameters
+            beginParseString = ppOutBuf;
+            iterParseString  = ppOutBuf;
+        }
+        else
+        {
+            beginParseString = (char*)query;
+            iterParseString  = (char*)query;
+        }
+
+        yyreset();
+
+        RMInit::logOut << "parsing..." << std::flush;
+
+        if( ppRet == 0 && yyparse(0) == 0 )
+        {
+            try
+            {
+                RMDBGIF(1, RMDebug::module_servercomm, "ServerComm::executeUpdateReturn", \
+                        qtree->printTree( 2, RMInit::logOut );
+                       );
+
+                RMInit::logOut << "checking semantics..." << std::flush;
+
+                qtree->checkSemantics();
+
+                RMDBGIF(1, RMDebug::module_servercomm, "ServerComm::executeUpdateReturn", \
+                        qtree->printTree( 2, RMInit::logOut );
+                       );
+
+#ifdef RMANBENCHMARK
+                if( RManBenchmark > 0 )
+                    context->evaluationTimer = new RMTimer("ServerComm", "evaluation");
+#endif
+
+                RMInit::logOut << "evaluating..." << std::flush;
+
+                context->transferData = qtree->evaluateUpdate();
+            }
+            catch( ParseInfo& info )
+            {
+                // release data
+                context->releaseTransferStructures();
+
+                returnValue = 5;           // evaluation error
+
+                // set the error values of the return structure
+                returnStructure.errorNo    = info.getErrorNo();
+                returnStructure.lineNo     = info.getLineNo();
+                returnStructure.columnNo   = info.getColumnNo();
+                returnStructure.token      = strdup( info.getToken().c_str() );
+
+                RMInit::logOut << "Error: cannot parse query (1)." << std::endl;
+                info.printStatus( RMInit::logOut );
+            }
+            catch(r_Error &err)
+            {
+                context->releaseTransferStructures();
+                context->release();
+                RMInit::logOut << "Error: " << err.get_errorno() << " " << err.what() << std::endl;
+                throw;
+            }
+
+             if( returnValue == 0 )
+            {
+                if( context->transferData != 0 )
+                {
+                    // create the transfer iterator
+                    context->transferDataIter    = new vector<QtData*>::iterator;
+                    *(context->transferDataIter) = context->transferData->begin();
+
+                    //
+                    // set typeName and typeStructure
+                    //
+
+                    // The type of first result object is used to determine the type of the result
+                    // collection.
+                    if( *(context->transferDataIter) != context->transferData->end() )
+                    {
+                        QtData* firstElement = (**(context->transferDataIter));
+
+                        if( firstElement->getDataType() == QT_MDD )
+                        {
+                            QtMDD* mddObj = (QtMDD*)firstElement;
+                            const BaseType* baseType = mddObj->getMDDObject()->getCellType();
+                            r_Minterval     domain   = mddObj->getLoadDomain();
+
+                            MDDType* mddType = new MDDDomainType( "tmp", (BaseType*)baseType, domain );
+                            SetType* setType = new SetType( "tmp", mddType );
+
+                            returnStructure.typeName      = strdup( setType->getTypeName() );
+                            returnStructure.typeStructure = setType->getTypeStructure();  // no copy
+
+                            TypeFactory::addTempType( setType );
+                            TypeFactory::addTempType( mddType );
+                        }
+                        else
+                        {
+                            returnValue = 1;       // evaluation ok, non-MDD elements
+
+                            returnStructure.typeName      = strdup("");
+
+                            // hack set type
+                            char* elementType = firstElement->getTypeStructure();
+                            returnStructure.typeStructure = (char*)mymalloc( strlen(elementType) + 6 );
+                            sprintf( returnStructure.typeStructure, "set<%s>", elementType );
+                            free( elementType );
+                        }
+
+                        strcpy(globalHTTPSetTypeStructure, returnStructure.typeStructure);
+
+                        RMInit::logOut << MSG_OK << ", result type '" << returnStructure.typeStructure << "', " << context->transferData->size() << " element(s)." << std::endl;
+                    }
+                    else
+                    {
+                        RMInit::logOut << MSG_OK << ", result is empty." << std::endl;
+                        returnValue = 2;         // evaluation ok, no elements
+
+                        returnStructure.typeName      = strdup("");
+                        returnStructure.typeStructure = strdup("");
+                    }
+                }
+                else
+                {
+                    RMInit::logOut << MSG_OK << ", result is empty." << std::endl;
+                    returnValue = 2;         // evaluation ok, no elements
+                }
+            }
+        }
+        else
+        {
+            if(ppRet)
+            {
+                RMInit::logOut << MSG_OK << std::endl;
+                returnValue = 2;
+            }
+            else    // parse error
+            {
+                if( parseError )
+                {
+                    returnStructure.errorNo    = parseError->getErrorNo();
+                    returnStructure.lineNo     = parseError->getLineNo();
+                    returnStructure.columnNo   = parseError->getColumnNo();
+                    returnStructure.token      = strdup( parseError->getToken().c_str() );
+
+                    delete parseError;
+
+                    RMInit::logOut << "Error: cannot parse query (2)." << std::endl;
+                    parseError = 0;
+                }
+                else
+                {
+                    returnStructure.errorNo = 309;
+                    RMInit::logOut << "Error: unspecific internal parser error." << endl;
+                }
+
+                yyreset(); // reset the input buffer of the scanner
+
+                returnValue = 4;
+            }
+        }
+
+        parseQueryTree      = 0;
+        mddConstants        = 0;
+        currentClientTblElt = 0;
+        delete qtree;
+
+        // In case of an error or the result set is empty, no endTransfer()
+        // is called by the client.
+        // Therefore, some things have to be release here.
+        if (returnValue >= 2) {
+            context->releaseTransferStructures();
+        }
+        context->release();
+
+        // delete set of mdd constants
+        //context->releaseTransferStructures();
+
+        //
+        // done
+        //
+
+        //context->release();
+    }
+    else
+    {
+        RMInit::logOut << "Error: client not registered." << std::endl;
+        returnValue = 3;
+    }
+
+
+#ifdef RMANBENCHMARK
+    // stop evaluation timer
+    if( context->evaluationTimer )
+    {
+        delete context->evaluationTimer;
+        context->evaluationTimer = 0;
+    }
+
+    Tile::opTimer.stop();
+    Tile::relTimer.stop();
+#endif
+
+    RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "executeUpdate" )
+    return returnValue;
+}
+
+
 
 
 unsigned short

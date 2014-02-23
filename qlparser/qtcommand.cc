@@ -105,8 +105,11 @@ void QtCommand::dropCollection(string collectionName)
     }
 }
 
-void QtCommand::createCollection(string collectionName, string typeName)
+OId QtCommand::createCollection(string collectionName, string typeName)
 {
+    // allocate a new oid within the current db
+    OId oid = 0;
+
     if (currentClientTblElt)
     {
         // get collection type
@@ -114,8 +117,6 @@ void QtCommand::createCollection(string collectionName, string typeName)
 
         if (collType)
         {
-            // allocate a new oid within the current db
-            OId oid;
 #ifdef BASEDB_O2
             if (!OId::allocateMDDCollOId(&oid))
             {
@@ -154,6 +155,7 @@ void QtCommand::createCollection(string collectionName, string typeName)
             throw parseInfo;
         }
     }
+    return oid;
 }
 
 string QtCommand::getSelectedDataType(vector<QtData*>* data)
@@ -272,7 +274,7 @@ bool QtCommand::collectionExists(string collectionName)
     }
 }
 
-int
+QtData*
 QtCommand::evaluate()
 {
     RMDBGENTER(2, RMDebug::module_qlparser, "QtCommand", "evaluate()")

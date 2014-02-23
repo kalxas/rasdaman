@@ -49,7 +49,7 @@ const char* RnpRasserver::commandNames[cmd_HowMany] =
     "cmd_getobjecttype", "cmd_setformat",
 
     "cmd_createcollection", "cmd_createmdd", "cmd_extendmdd",
-    "cmd_gettiledomains"
+    "cmd_gettiledomains", "cmd_insertrpc"
 };
 
 const char* RnpRasserver::getParameterTypeName(RnpQuark pType) const throw()

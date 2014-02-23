@@ -104,16 +104,22 @@ QtInsert::~QtInsert()
     }
 }
 
-int
+QtData*
 QtInsert::evaluate()
 {
     RMDBCLASS("QtInsert", "evaluate()", "qlparser", __FILE__, __LINE__)
     startTimer("QtInsert");
       
+    // allocate a new oid within the current db
+    OId oid;
+    long long myoid;
     QtMddCfgOp* configOp = NULL;
     QtMDDConfig* mddConfig = NULL;
     QtData* sourceData = NULL;
     QtNode::QtDataList* nextTupel = NULL;
+
+    QtData* returnValue = NULL;
+
     if (dataToInsert) {
         sourceData = dataToInsert;
     }
@@ -241,14 +247,15 @@ QtInsert::evaluate()
         // convert a transient MDD object to a persistent one
         //
 
-        // allocate a new oid within the current db
-        OId oid;
 #ifdef BASEDB_O2
         if (!OId::allocateMDDOId(&oid))
         {
 #else
         OId::allocateOId(oid, OId::MDDOID);
 #endif
+        // cast to external format
+        myoid = (long long) oid;
+        RMInit::logOut << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter() << std::endl;
             // get all tiles
             vector<Tile*>* sourceTiles = sourceObj->getTiles();
 
@@ -381,7 +388,10 @@ QtInsert::evaluate()
     
     stopTimer();
 
-    return 0;
+   // return the generated OID
+   RMInit::logOut << "QtInsert::evaluate() - returning oid:" << myoid << std::endl;
+   returnValue = new QtAtomicData( (r_Long) myoid, (unsigned short) sizeof(r_Long) );
+   return returnValue;
 }
 
 QtNode::QtNodeList*

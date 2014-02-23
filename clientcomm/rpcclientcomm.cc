@@ -195,6 +195,7 @@ bool RpcClientComm::effectivTypeIsRNP() throw()
     return false;
 }
 
+// retrieving query
 void
 RpcClientComm::executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result )
 throw( r_Error )
@@ -285,7 +286,7 @@ throw( r_Error )
 }
 
 
-
+// update and insert (< v9.1)
 void
 RpcClientComm::executeQuery( const r_OQL_Query& query )
 throw( r_Error )
@@ -592,7 +593,326 @@ throw( r_Error )
     RMDBGEXIT(2, RMDebug::module_clientcomm, "RpcClientComm", "executeQuery()")
 }
 
+// insert query (>= v9.1)
+void
+RpcClientComm::executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result, int dummy )
+throw( r_Error )
+{
+    RMDBGENTER(2, RMDebug::module_clientcomm, "RpcClientComm", "executeQuery(query, result, dummy)")
 
+    if(binding_h == NULL)
+    {
+        RMInit::logOut << endl << "RpcClientComm::executeQuery(query, result, dummy) ERROR: CONNECTION TO SERVER ALREADY CLOSED" << endl << endl;
+        throw r_Error(CONNECTIONCLOSED);
+    }
+
+    // update -> check for read_only transaction
+    if( r_Transaction::actual_transaction == 0 ||
+            r_Transaction::actual_transaction->get_mode() == r_Transaction::read_only )
+    {
+        r_Error err = r_Error( r_Error::r_Error_TransactionReadOnly );
+        throw err;
+    }
+
+    unsigned short  rpcStatus;
+    unsigned short* rpcStatusPtr = 0;
+
+    //
+    // Send MDD constants to the server.
+    //
+    if( query.get_constants() )
+    {
+        r_Set< r_GMarray* >* mddConstants = (r_Set< r_GMarray* >*)query.get_constants();
+
+        setRPCActive();
+        rpcRetryCounter = 0;
+        do
+        {
+            rpcStatusPtr = rpcinitexecuteupdate_1( &clientID, binding_h );
+
+            if( !rpcStatusPtr )
+            {
+                RMInit::logOut << endl << "WARNING: RPC NULL POINTER (rpcinitexecuteupdate_1)" << endl << endl;
+                sleep(RMInit::clientcommSleep);
+            }
+            if (rpcRetryCounter > RMInit::clientcommMaxRetry)
+            {
+                RMInit::logOut << "RPC call 'rpcexecuteupdate' failed" << endl;
+                throw r_Error(CLIENTCOMMUICATIONFAILURE);
+            }
+            rpcRetryCounter++;
+        }
+        while( rpcStatusPtr == 0 );
+        rpcStatus = *rpcStatusPtr;
+        setRPCInactive();
+        r_Iterator<r_GMarray*> iter = mddConstants->create_iterator();
+
+        for( iter.reset(); iter.not_done(); iter++ )
+        {
+            r_GMarray* mdd = *iter;
+            const r_Base_Type* baseType = mdd->get_base_type_schema();
+
+            if( mdd )
+            {
+                // initiate composition of MDD at server side
+                InsertTransMDDParams* params = new InsertTransMDDParams;
+                params->clientID   = clientID;
+                params->collName   = strdup(""); // not used
+                params->domain     = mdd->spatial_domain().get_string_representation();
+                params->typeLength = mdd->get_type_length();
+                params->typeName   = (char*)mdd->get_type_name();
+
+                if(binding_h == NULL)
+                {
+                    RMInit::logOut << endl << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED" << endl << endl;
+                    throw r_Error(CONNECTIONCLOSED);
+                }
+                setRPCActive();
+                rpcRetryCounter = 0;
+                do
+                {
+                    rpcStatusPtr = rpcstartinserttransmdd_1( params, binding_h );
+
+                    if( !rpcStatusPtr )
+                    {
+                        RMInit::logOut << endl << "WARNING: RPC NULL POINTER (rpcinserttransmdd_1)" << endl << endl;
+                        sleep(RMInit::clientcommSleep);
+                    }
+                    if (rpcRetryCounter > RMInit::clientcommMaxRetry)
+                    {
+                        RMInit::logOut << "RPC call 'rpcexecutequery' failed" << endl;
+                        throw r_Error(CLIENTCOMMUICATIONFAILURE);
+                    }
+                    rpcRetryCounter++;
+                }
+                while( rpcStatusPtr == 0 );
+                rpcStatus = *rpcStatusPtr;
+                setRPCInactive();
+
+                free( params->domain );
+                free( params->collName );
+                delete params;
+
+                if( rpcStatus > 0 )
+                {
+                    r_Error err;
+
+                    switch( rpcStatus )
+                    {
+                    case 2:
+                        err = r_Error( r_Error::r_Error_DatabaseClassUndefined );
+                        break;
+                    case 3:
+                        err = r_Error( r_Error::r_Error_TypeInvalid );
+                        break;
+                    default:
+                        err = r_Error( r_Error::r_Error_TransferFailed );
+                    }
+                    RMInit::logOut << "Error: rpcinitmdd() - " << err.what() << endl;
+                    RMDBGEXIT(2, RMDebug::module_clientcomm, "RpcClientComm", "executeQuery(query) error occured")
+                    throw err;
+                }
+
+                r_Set< r_GMarray* >* bagOfTiles;
+
+
+                bagOfTiles = mdd->get_storage_layout()->decomposeMDD( mdd );
+
+                RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RpcClientComm", "decomposing into " << bagOfTiles->cardinality() << " tiles");
+
+                r_Iterator< r_GMarray* > iter2 = bagOfTiles->create_iterator();
+                r_GMarray *origTile;
+                iter2.reset();
+
+                while( iter2.not_done() )
+                {
+                    RPCMarray* rpcMarray;
+
+                    origTile = *iter2;
+
+                    // advance iter here to determine if this is the last call (not_done())
+                    iter2.advance();
+
+                    RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RpcClientComm", "inserting Tile with domain " << origTile->spatial_domain() << ", " << origTile->spatial_domain().cell_count() * origTile->get_type_length() << " bytes")
+
+                    getMarRpcRepresentation( origTile, rpcMarray, mdd->get_storage_layout()->get_storage_format(), baseType );
+
+                    InsertTileParams* params2      = new InsertTileParams;
+                    params2->clientID              = clientID;
+                    params2->isPersistent          = 0;
+                    params2->marray                = rpcMarray;
+
+
+                    if(binding_h == NULL)
+                    {
+                        RMInit::logOut << endl << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED" << endl << endl;
+                        throw r_Error(CONNECTIONCLOSED);
+                    }
+
+                    setRPCActive();
+                    rpcRetryCounter = 0;
+                    do
+                    {
+                        rpcStatusPtr = rpcinserttile_1( params2, binding_h );
+
+                        if( !rpcStatusPtr )
+                        {
+                            RMInit::logOut << endl << "WARNING: RPC NULL POINTER (rpcinserttile_1)" << endl << endl;
+                            sleep(RMInit::clientcommSleep);
+                        }
+                        if (rpcRetryCounter > RMInit::clientcommMaxRetry)
+                        {
+                            RMInit::logOut << "RPC call 'rpcinserttile' failed" << endl;
+                            throw r_Error(CLIENTCOMMUICATIONFAILURE);
+                        }
+                        rpcRetryCounter++;
+                    }
+                    while( rpcStatusPtr == 0 );
+                    rpcStatus = *rpcStatusPtr;
+                    RMDBGIF(20, RMDebug::module_clientcomm, "WAITAFTERSENDTILE", \
+                            RMInit::dbgOut << "Waiting 10 sec after send tile\n" << std::endl; \
+                            sleep(10); \
+                            RMInit::dbgOut << "Continue now\n" << std::endl; );
+                    setRPCInactive();
+
+                    // free rpcMarray structure (rpcMarray->data.confarray_val is freed somewhere else)
+                    freeMarRpcRepresentation( origTile, rpcMarray );
+                    delete params2;
+
+                    // delete current tile (including data block)
+                    delete origTile;
+
+                    if( rpcStatus > 0 )
+                    {
+                        RMInit::logOut << "Error: rpctransfertile() - general" << endl;
+                        RMDBGEXIT(2, RMDebug::module_clientcomm, "RpcClientComm", "executeQuery() error occured")
+                        throw r_Error( r_Error::r_Error_TransferFailed );
+                    }
+
+                    RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RpcClientComm", "OK")
+                }
+
+                EndInsertMDDParams* params3 = new EndInsertMDDParams;
+                params3->clientID     = clientID;
+                params3->isPersistent = 0;
+
+                if(binding_h == NULL)
+                {
+                    RMInit::logOut << endl << "RpcClientComm::executeQuery(query) ERROR: CONNECTION TO SERVER ALREADY CLOSED" << endl << endl;
+                    throw r_Error(CONNECTIONCLOSED);
+                }
+
+                setRPCActive();
+                rpcRetryCounter = 0;
+                do
+                {
+                    rpcStatusPtr = rpcendinsertmdd_1( params3, binding_h );
+
+                    if( !rpcStatusPtr )
+                    {
+                        RMInit::logOut << endl << "WARNING: RPC NULL POINTER (rpcendinsertmdd_1)" << endl << endl;
+                        sleep(RMInit::clientcommSleep);
+                    }
+                    if (rpcRetryCounter > RMInit::clientcommMaxRetry)
+                    {
+                        RMInit::logOut << "RPC call 'rpcinsertmdd' failed" << endl;
+                        throw r_Error(CLIENTCOMMUICATIONFAILURE);
+                    }
+                    rpcRetryCounter++;
+                }
+                while( rpcStatusPtr == 0 );
+                rpcStatus = *rpcStatusPtr;
+                setRPCInactive();
+
+                delete params3;
+
+                // delete transient data
+                bagOfTiles->remove_all();
+                delete bagOfTiles;
+            }
+        }
+    }
+
+    //
+    // Send the insert query.
+    //
+    ExecuteQueryParams* params = new ExecuteQueryParams;
+    ExecuteQueryRes*   res;
+    params->clientID = clientID;
+    params->query    = (char*)query.get_query();
+
+    if(binding_h == NULL)
+    {
+        RMInit::logOut << endl << "RpcClientComm::executeQuery(query, result, dummy) ERROR: CONNECTION TO SERVER ALREADY CLOSED" << endl << endl;
+        throw r_Error(CONNECTIONCLOSED);
+    }
+
+    setRPCActive();
+    rpcRetryCounter = 0;
+    do
+    {
+        res = rpcexecuteinsert_1( params, binding_h );
+
+        if( !res )
+        {
+            RMInit::logOut << endl << "WARNING: RPC NULL POINTER (rpcexecuteupdate_1)" << endl << endl;
+            sleep(RMInit::clientcommSleep);
+        }
+        if (rpcRetryCounter > RMInit::clientcommMaxRetry)
+        {
+            RMInit::logOut << "RPC call 'rpcexecuteinsert' failed" << endl;
+            throw r_Error(CLIENTCOMMUICATIONFAILURE);
+        }
+        rpcRetryCounter++;
+    }
+    while( res == 0 );
+    setRPCInactive();
+
+    delete params;
+
+    if( res->status == 0 )
+    {
+        result.set_type_by_name( res->typeName );
+        result.set_type_structure( res->typeStructure );
+
+        XDRFREE(ExecuteQueryRes, res);
+
+        getMDDCollection( result, 1 );
+    }
+    else if( res->status == 1 )
+    {
+        result.set_type_by_name( res->typeName );
+        result.set_type_structure( res->typeStructure );
+
+        XDRFREE(ExecuteQueryRes, res);
+
+        getElementCollection( result );
+    }
+    else if (res->status == 2)
+    {
+        // Result collection is empty and nothing has to be got.
+        XDRFREE(ExecuteQueryRes, res);
+    }
+    else if( res->status == 4 || res->status == 5 )
+    {
+        r_Equery_execution_failed err( res->errorNo, res->lineNo, res->columnNo, res->token );
+        XDRFREE(ExecuteQueryRes, res);
+        throw err;
+    }
+    else
+    {
+        r_Error err;
+
+        if( res->status == 3 )
+            err = r_Error( r_Error::r_Error_ClientUnknown );
+        else
+            err = r_Error( r_Error::r_Error_TransferFailed );
+
+        XDRFREE(ExecuteQueryRes, res);
+
+        throw err;
+    }
+}
 
 void
 RpcClientComm::insertColl( const char* collName, const char* typeName, const r_OId& oid )

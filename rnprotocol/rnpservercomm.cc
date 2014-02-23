@@ -356,6 +356,9 @@ void RnpRasDaManComm::decodeFragment() throw( r_Error )
         case RnpRasserver::cmd_gettiledomains:
             executeGetTileDomains();
             break;
+        case RnpRasserver::cmd_insertrpc  :
+            executeInsertQuery();
+            break;
 
         default:
             RMInit::logOut << "Protocol error: Unknown command: " << command << endl;
@@ -574,7 +577,7 @@ void RnpRasDaManComm::executeGetNewOId()
 
 void RnpRasDaManComm::executeQueryRpc()
 {
-    ENTER("executeQueryRpc() - in");
+    ENTER(__FILE__": executeQueryRpc() - in");
 
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
@@ -723,7 +726,7 @@ void RnpRasDaManComm::executeGetNextTile()
 
 void RnpRasDaManComm::executeUpdateQuery()
 {
-    ENTER("executeUpdateQuery - in");
+    ENTER(__FILE__": executeUpdateQuery - in");
     RasServerEntry& rasserver = RasServerEntry::getInstance();
 
     decoder.getNextParameter();
@@ -746,9 +749,46 @@ void RnpRasDaManComm::executeUpdateQuery()
     encoder.endFragment();
 
     if(returnStructure.token) free(returnStructure.token);
-
-    LEAVE("executeUpdateQuery - out");
 }
+
+void RnpRasDaManComm::executeInsertQuery()
+{
+    ENTER(__FILE__": executeInsertQuery - in");
+    RasServerEntry& rasserver = RasServerEntry::getInstance();
+
+    decoder.getNextParameter();
+    const char* query   = decoder.getDataAsString();
+
+    TALK("query="<<query);
+
+    ExecuteQueryRes queryResult;
+    INITPTR(queryResult.token);
+    INITPTR(queryResult.typeName);
+    INITPTR(queryResult.typeStructure);
+
+    int status = rasserver.compat_ExecuteInsertQuery(query, queryResult);
+    SECUREPTR(queryResult.token);
+    SECUREPTR(queryResult.typeName);
+    SECUREPTR(queryResult.typeStructure);
+
+    encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
+    encoder.addInt32Parameter( RnpRasserver::pmt_returnstatus,status);
+    TALK( "adding return status " << status );
+    encoder.addInt32Parameter( RnpRasserver::pmt_errorno,   queryResult.errorNo);
+    encoder.addInt32Parameter( RnpRasserver::pmt_lineno,    queryResult.lineNo);
+    encoder.addInt32Parameter( RnpRasserver::pmt_columnno,  queryResult.columnNo);
+    encoder.addStringParameter(RnpRasserver::pmt_errortoken,queryResult.token);
+    encoder.addStringParameter(RnpRasserver::pmt_typename,  queryResult.typeName);
+    encoder.addStringParameter(RnpRasserver::pmt_typestructure,queryResult.typeStructure);
+    encoder.endFragment();
+
+    FREEPTR(queryResult.token);
+    FREEPTR(queryResult.typeName);
+    FREEPTR(queryResult.typeStructure);
+
+    LEAVE(__FILE__": executeInsertQuery - out");
+}
+
 
 void RnpRasDaManComm::executeInitUpdate()
 {

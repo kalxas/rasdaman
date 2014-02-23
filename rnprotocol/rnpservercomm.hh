@@ -114,6 +114,7 @@ private: // the execution functions:
     void executeGetNextTile();
 
     void executeUpdateQuery();
+    void executeInsertQuery();
     void executeStartInsertTransMDD();
     void executeInsertTile();
     void executeEndInsertMDD();

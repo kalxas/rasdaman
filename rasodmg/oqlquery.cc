@@ -402,9 +402,8 @@ r_OQL_Query::operator<<( r_GMarray& in ) throw( r_Error )
 int
 r_OQL_Query::is_update_query() const
 {
-    return !is_retrieval_query();
+    return !is_retrieval_query() && !is_insert_query();
 }
-
 
 
 int
@@ -427,6 +426,23 @@ r_OQL_Query::is_retrieval_query() const
 }
 
 
+int
+r_OQL_Query::is_insert_query() const
+{
+    int returnValue = 0;
+
+    if (parameterizedQueryString)
+    {
+        // convert string to upper case
+        std::string upperCaseQueryString(parameterizedQueryString);
+        std::transform(upperCaseQueryString.begin(), upperCaseQueryString.end(), upperCaseQueryString.begin(), ::toupper);
+
+        // it is insert if it's an INSERT expression
+        returnValue = upperCaseQueryString.find("INSERT ") != std::string::npos;
+    }
+
+    return returnValue;
+}
 
 void
 r_OQL_Query::reset_query()
@@ -560,7 +576,7 @@ throw( r_Error )
 }
 
 
-
+// select query
 void r_oql_execute( r_OQL_Query& query, r_Set< r_Ref< r_GMarray > > &result )
 throw( r_Error )
 {
@@ -610,8 +626,36 @@ throw( r_Error )
     query.reset_query();
 }
 
+// insert query returning OID
+void r_oql_execute( r_OQL_Query& query, r_Set< r_Ref_Any > &result, int dummy )
+throw( r_Error )
+{
+    if( r_Database::actual_database == 0 || r_Database::actual_database->get_status() == r_Database::not_open )
+    {
+        r_Error err = r_Error( r_Error::r_Error_DatabaseClosed );
+        throw err;
+    }
+
+    if( r_Transaction::actual_transaction == 0 || r_Transaction::actual_transaction->get_status() != r_Transaction::active )
+    {
+        r_Error err = r_Error( r_Error::r_Error_TransactionNotOpen );
+        throw err;
+    }
+
+    try
+    {
+        r_Database::actual_database->getComm()->executeQuery( query, result, dummy );
+    }
+    catch( ... )
+    {
+        throw;  // re-throw the exception
+    }
+    // reset the arguments of the query object
+    query.reset_query();
+}
 
 
+// update and delete and insert (< v9.1)
 void r_oql_execute( r_OQL_Query& query )
 throw( r_Error )
 {
@@ -639,4 +683,3 @@ throw( r_Error )
     // reset the arguments of the query object
     query.reset_query();
 }
-
