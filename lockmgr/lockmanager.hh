@@ -76,13 +76,13 @@ class LockManager
         void endTransaction();
 
         // private function for locking a tile (shared or exclusive)
-        void lockTileInternal(const char *, const char *, OId::OIdCounter, enum Lock);
+        void lockTileInternal(const char *, OId::OIdCounter, enum Lock);
 
         // private function for unlocking a tile with respect to a specific rasserver
-        void unlockTileInternal(const char *, const char *, OId::OIdCounter);
+        void unlockTileInternal(const char *, OId::OIdCounter);
 
         // private function for unlocking all tiles with respect to a specific rasserver and corresponding client
-        void unlockAllTilesInternal(const char *, const char *);
+        void unlockAllTilesInternal(const char *);
 
         // private function for checking if a tile is locked or not by a specific type of lock
         bool isTileLockedInternal(OId::OIdCounter, enum Lock);
@@ -92,9 +92,6 @@ class LockManager
 
         // function for fetching the id of the current rasserver
         void generateServerId(char *);
-
-        // function for fetching the id of the corresponding client
-        void generateClientId(unsigned long, char *);
 
         // function for fetching the type of the operation / lock (i.e., shared or exclusive)
         enum Lock generateLockType();
@@ -112,17 +109,17 @@ class LockManager
 
         // function processes parameters and then call the corresponding private functions for
         // a vector of tiles
-        void lockTiles(unsigned long, std::vector<Tile *> *);
+        void lockTiles(std::vector<Tile *> *);
 
         // functions processes parameters and then call the corresponding private functions for locking a tile
-        void lockTile(unsigned long, Tile *);
+        void lockTile(Tile *);
 
         // function processes parameters and then call the corresponding private functions for unlocking a tile
-        void unlockTile(unsigned long, Tile *);
+        void unlockTile(Tile *);
 
         // function processes parameters and then call the corresponding private functions for
         // unlocking all tiles corresponding to a specific rasserver
-        void unlockAllTiles(unsigned long);
+        void unlockAllTiles();
 
         // function processes parameters and then call the corresponding private functions for
         // checking if a tile is locked (shared or exclusive)

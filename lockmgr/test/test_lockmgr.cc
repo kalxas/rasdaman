@@ -61,10 +61,10 @@ const char * connectionName = "testConn";
  * @param state
  *     bool value which represents if the test is a positive or negative test (check for locked or not locked)
  */
-void lockTestTileExclusive(ECPG_LockManager * pecpg_lockmanager, char * pTestServerId, char * pTestClientId, long long pTest_tileID, bool state)
+void lockTestTileExclusive(ECPG_LockManager * pecpg_lockmanager, char * pTestServerId, long long pTest_tileID, bool state)
 {
-    pecpg_lockmanager->lockTileExclusive(connectionName, pTestServerId, pTestClientId, pTest_tileID);
-    if (pecpg_lockmanager->isTileLockedExclusive(connectionName, pTestServerId, pTestClientId, pTest_tileID))
+    pecpg_lockmanager->lockTileExclusive(connectionName, pTestServerId, pTest_tileID);
+    if (pecpg_lockmanager->isTileLockedExclusive(connectionName, pTestServerId, pTest_tileID))
     {
         if (state)
         {
@@ -102,10 +102,10 @@ void lockTestTileExclusive(ECPG_LockManager * pecpg_lockmanager, char * pTestSer
  * @param state
  *     bool value which represents if the test is a positive or negative test (check for locked or not locked)
  */
-void lockTestTileShared(ECPG_LockManager * pecpg_lockmanager, char * pTestServerId, char * pTestClientId, long long pTest_tileID, bool state)
+void lockTestTileShared(ECPG_LockManager * pecpg_lockmanager, char * pTestServerId, long long pTest_tileID, bool state)
 {
-    pecpg_lockmanager->lockTileShared(connectionName, pTestServerId, pTestClientId, pTest_tileID);
-    if (pecpg_lockmanager->isTileLockedShared(connectionName, pTestServerId, pTestClientId, pTest_tileID))
+    pecpg_lockmanager->lockTileShared(connectionName, pTestServerId, pTest_tileID);
+    if (pecpg_lockmanager->isTileLockedShared(connectionName, pTestServerId, pTest_tileID))
     {
         if (state)
         {
@@ -141,10 +141,10 @@ void lockTestTileShared(ECPG_LockManager * pecpg_lockmanager, char * pTestServer
  * @param pTest_tileID
  *     id of the tile to be unlocked
  */
-void unlockTestTile(ECPG_LockManager * pecpg_lockmanager, char * pTestServerId, char * pTestClientId, long long pTest_tileID)
+void unlockTestTile(ECPG_LockManager * pecpg_lockmanager, char * pTestServerId, long long pTest_tileID)
 {
-    pecpg_lockmanager->unlockTile(connectionName, pTestServerId, pTestClientId, pTest_tileID);
-    if (!pecpg_lockmanager->isTileLocked(connectionName, pTestServerId, pTestClientId, pTest_tileID))
+    pecpg_lockmanager->unlockTile(connectionName, pTestServerId, pTest_tileID);
+    if (!pecpg_lockmanager->isTileLocked(connectionName, pTestServerId, pTest_tileID))
     {
         std::cout << "Ok: Test tile is unlocked" << endl;
     }
@@ -165,16 +165,15 @@ void test_createDeleteExclusiveLock()
     // create an exclusive lock
     long long test_tileID = -1;
     char* testServerId = (char*)"test_rasServer";
-    char* testClientId = (char*)"test_rasClient";
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileExclusive(ecpg_lockmanager, testServerId, testClientId, test_tileID, true);
+    lockTestTileExclusive(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     // call unlockAllTiles to make sure that no tiles remain locked
     ecpg_lockmanager->beginTransaction(connectionName);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
     ecpg_lockmanager->endTransaction(connectionName);
     std::cout << "test_createDeleteExclusiveLock: end" << endl;
 }
@@ -190,16 +189,15 @@ void test_createDeleteSharedLock()
     // create a shared lock
     long long test_tileID = -2;
     char* testServerId = (char*)"test_rasServer";
-    char* testClientId = (char*)"test_rasClient";
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileShared(ecpg_lockmanager, testServerId, testClientId, test_tileID, true);
+    lockTestTileShared(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     // call unlockAllTiles to make sure that no tiles remain locked
     ecpg_lockmanager->beginTransaction(connectionName);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
     ecpg_lockmanager->endTransaction(connectionName);
     std::cout << "test_createDeleteSharedLock: end" << endl;
 }
@@ -218,24 +216,23 @@ void test_createDelete2ExclusiveLocks()
     // first lock
     long long test_tileID = -1;
     char* testServerId = (char*)"test_rasServer";
-    char* testClientId = (char*)"test_rasClient";
-    lockTestTileExclusive(ecpg_lockmanager, testServerId, testClientId, test_tileID, true);
+    char* testServerId2 = (char*)"test_rasServer2";
+    lockTestTileExclusive(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     // second lock
-    char * testClientId2 = (char*)"test_rasClient2";
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileExclusive(ecpg_lockmanager, testServerId, testClientId2, test_tileID, false);
+    lockTestTileExclusive(ecpg_lockmanager, testServerId2, test_tileID, false);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId2, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId2, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     // call unlockAllTiles to make sure that no tiles remain locked
     ecpg_lockmanager->beginTransaction(connectionName);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId2);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId2);
     ecpg_lockmanager->endTransaction(connectionName);
     std::cout << "test_createDelete2ExclusiveLocks: end" << endl;
 }
@@ -254,25 +251,24 @@ void test_createDelete2SharedLocks()
     // first lock
     long long test_tileID = -2;
     char* testServerId = (char*)"test_rasServer";
-    char* testClientId = (char*)"test_rasClient";
+    char* testServerId2 = (char*)"test_rasServer2";
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileShared(ecpg_lockmanager, testServerId, testClientId, test_tileID, true);
+    lockTestTileShared(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     // second lock
-    char * testClientId2 = (char*)"test_rasClient2";
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileShared(ecpg_lockmanager, testServerId, testClientId2, test_tileID, true);
+    lockTestTileShared(ecpg_lockmanager, testServerId2, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId2, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId2, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     // call unlockAllTiles to make sure that no tiles remain locked
     ecpg_lockmanager->beginTransaction(connectionName);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId2);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId2);
     ecpg_lockmanager->endTransaction(connectionName);
     std::cout << "test_createDelete2SharedLocks: end" << endl;
 }
@@ -318,25 +314,24 @@ void test_createDeleteSharedExclusiveLock()
     // shared lock
     long long test_tileID = -2;
     char* testServerId = (char*)"test_rasServer";
-    char* testClientId = (char*)"test_rasClient";
+    char* testServerId2 = (char*)"test_rasServer2";
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileShared(ecpg_lockmanager, testServerId, testClientId, test_tileID, true);
+    lockTestTileShared(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     // exclusive lock
-    char * testClientId2 = (char*)"test_rasClient2";
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileExclusive(ecpg_lockmanager, testServerId, testClientId2, test_tileID, false);
+    lockTestTileExclusive(ecpg_lockmanager, testServerId2, test_tileID, false);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId2, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId2, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     // call unlockAllTiles to make sure that no tiles remain locked
     ecpg_lockmanager->beginTransaction(connectionName);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId2);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId2);
     ecpg_lockmanager->endTransaction(connectionName);
     std::cout << "test_createDeleteSharedExclusiveLock: end" << endl;
 }
@@ -356,25 +351,24 @@ void test_createDeleteExclusiveSharedLock()
     // exclusive lock
     long long test_tileID = -2;
     char* testServerId = (char*)"test_rasServer";
-    char* testClientId = (char*)"test_rasClient";
+    char* testServerId2 = (char*)"test_rasServer2";
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileExclusive(ecpg_lockmanager, testServerId, testClientId, test_tileID, true);
+    lockTestTileExclusive(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     // shared lock
-    char * testClientId2 = (char*)"test_rasClient2";
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileShared(ecpg_lockmanager, testServerId, testClientId2, test_tileID, false);
+    lockTestTileShared(ecpg_lockmanager, testServerId2, test_tileID, false);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId2, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId2, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     // call unlockAllTiles to make sure that no tiles remain locked
     ecpg_lockmanager->beginTransaction(connectionName);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId2);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId2);
     ecpg_lockmanager->endTransaction(connectionName);
     std::cout << "test_createDeleteExclusiveSharedLock: end" << endl;
 }
@@ -394,20 +388,19 @@ void test_createDeleteSharedExclusiveLockSameClient()
     // shared lock
     long long test_tileID = -2;
     char* testServerId = (char*)"test_rasServer";
-    char* testClientId = (char*)"test_rasClient";
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileShared(ecpg_lockmanager, testServerId, testClientId, test_tileID, true);
+    lockTestTileShared(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     // exclusive lock
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileExclusive(ecpg_lockmanager, testServerId, testClientId, test_tileID, false);
+    lockTestTileExclusive(ecpg_lockmanager, testServerId, test_tileID, false);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     // call unlockAllTiles to make sure that no tiles remain locked
     ecpg_lockmanager->beginTransaction(connectionName);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
     ecpg_lockmanager->endTransaction(connectionName);
     std::cout << "test_createDeleteSharedExclusiveLockSameClient: end" << endl;
 }
@@ -427,20 +420,19 @@ void test_createDeleteExclusiveSharedLockSameClient()
     // exclusive lock
     long long test_tileID = -2;
     char* testServerId = (char*)"test_rasServer";
-    char* testClientId = (char*)"test_rasClient";
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileExclusive(ecpg_lockmanager, testServerId, testClientId, test_tileID, true);
+    lockTestTileExclusive(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     // shared lock
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileShared(ecpg_lockmanager, testServerId, testClientId, test_tileID, false);
+    lockTestTileShared(ecpg_lockmanager, testServerId, test_tileID, false);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     // call unlockAllTiles to make sure that no tiles remain locked
     ecpg_lockmanager->beginTransaction(connectionName);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
     ecpg_lockmanager->endTransaction(connectionName);
     std::cout << "test_createDeleteExclusiveSharedLockSameClient: end" << endl;
 }
@@ -459,19 +451,18 @@ void test_createDelete2ExclusiveLocksSameClient()
     // first lock
     long long test_tileID = -1;
     char* testServerId = (char*)"test_rasServer";
-    char* testClientId = (char*)"test_rasClient";
-    lockTestTileExclusive(ecpg_lockmanager, testServerId, testClientId, test_tileID, true);
+    lockTestTileExclusive(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     // second lock
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileExclusive(ecpg_lockmanager, testServerId, testClientId, test_tileID, true);
+    lockTestTileExclusive(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     // call unlockAllTiles to make sure that no tiles remain locked
     ecpg_lockmanager->beginTransaction(connectionName);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
     ecpg_lockmanager->endTransaction(connectionName);
     std::cout << "test_createDelete2ExclusiveLocksSameClient: end" << endl;
 }
@@ -490,20 +481,19 @@ void test_createDelete2SharedLocksSameClient()
     // first lock
     long long test_tileID = -2;
     char* testServerId = (char*)"test_rasServer";
-    char* testClientId = (char*)"test_rasClient";
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileShared(ecpg_lockmanager, testServerId, testClientId, test_tileID, true);
+    lockTestTileShared(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     // second lock
     ecpg_lockmanager->beginTransaction(connectionName);
-    lockTestTileShared(ecpg_lockmanager, testServerId, testClientId, test_tileID, true);
+    lockTestTileShared(ecpg_lockmanager, testServerId, test_tileID, true);
     ecpg_lockmanager->endTransaction(connectionName);
     ecpg_lockmanager->beginTransaction(connectionName);
-    unlockTestTile(ecpg_lockmanager, testServerId, testClientId, test_tileID);
+    unlockTestTile(ecpg_lockmanager, testServerId, test_tileID);
     ecpg_lockmanager->endTransaction(connectionName);
     // call unlockAllTiles to make sure that no tiles remain locked
     ecpg_lockmanager->beginTransaction(connectionName);
-    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId, testClientId);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
     ecpg_lockmanager->endTransaction(connectionName);
     std::cout << "test_createDelete2SharedLocksSameClient: end" << endl;
 }
@@ -519,7 +509,7 @@ void test_otherDatabaseConnection()
 {
     std::cout << "test_otherDatabaseConnection: begin" << endl;
     ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
-    bool connect_ok = ecpg_lockmanager->connect("RASBASE:5432", "otherConn", NULL, NULL);
+    bool connect_ok = ecpg_lockmanager->connect("RASBASE:5432", "otherConn", (const char *)NULL, (const char *)NULL);
     if (!connect_ok)
     {
         std::cout << "Error: Connect to database via connection otherConn not successful." << endl;
@@ -567,7 +557,7 @@ int main( int ac, char** av )
 
     ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
     // connect to the database without user and password
-    bool connect_ok = ecpg_lockmanager->connect("RASBASE:5432", connectionName, NULL, NULL);
+    bool connect_ok = ecpg_lockmanager->connect("RASBASE:5432", connectionName, (const char *)NULL, (const char *)NULL);
     if (!connect_ok)
     {
         std::cout << "Error: Connect to database not successful." << endl;

@@ -216,19 +216,19 @@ void LockManager::endTransaction()
  * @param pLockType
  *     the type of the lock which is either shared or exclusive
  */
-void LockManager::lockTileInternal(const char * pRasServerId, const char * pRasClientId, OId::OIdCounter pTileId, enum Lock pLockType)
+void LockManager::lockTileInternal(const char * pRasServerId, OId::OIdCounter pTileId, enum Lock pLockType)
 {
     ENTER( "Lock manager: lock tile" );
     bool result;
     if(pLockType == EXCLUSIVE_LOCK)
     {
-        ecpg_LockManager->lockTileExclusive(connectionName, pRasServerId, pRasClientId, pTileId);
-        result = ecpg_LockManager->isTileLockedExclusive(connectionName, pRasServerId, pRasClientId, pTileId);
+        ecpg_LockManager->lockTileExclusive(connectionName, pRasServerId, pTileId);
+        result = ecpg_LockManager->isTileLockedExclusive(connectionName, pRasServerId, pTileId);
     }
     else if(pLockType == SHARED_LOCK)
     {
-        ecpg_LockManager->lockTileShared(connectionName, pRasServerId, pRasClientId, pTileId);
-        result = ecpg_LockManager->isTileLockedShared(connectionName, pRasServerId, pRasClientId, pTileId);
+        ecpg_LockManager->lockTileShared(connectionName, pRasServerId, pTileId);
+        result = ecpg_LockManager->isTileLockedShared(connectionName, pRasServerId, pTileId);
     }
     if (!result)
     {
@@ -251,10 +251,10 @@ void LockManager::lockTileInternal(const char * pRasServerId, const char * pRasC
  * @param pTileId
  *     the id corresponding to the tile to be unlocked
  */
-void LockManager::unlockTileInternal(const char * pRasServerId, const char * pRasClientId, OId::OIdCounter pTileId)
+void LockManager::unlockTileInternal(const char * pRasServerId, OId::OIdCounter pTileId)
 {
     ENTER( "Lock manager: unlock tile" );
-    ecpg_LockManager->unlockTile(connectionName, pRasServerId, pRasClientId, pTileId);
+    ecpg_LockManager->unlockTile(connectionName, pRasServerId, pTileId);
     LEAVE( "Lock manager: unlock tile" );
 }
 
@@ -268,10 +268,10 @@ void LockManager::unlockTileInternal(const char * pRasServerId, const char * pRa
  * @param pRasClientId
  *     the string corresponding to the id of the corresponding client to the rasserver
  */
-void LockManager::unlockAllTilesInternal(const char * pRasServerId, const char * pRasClientId)
+void LockManager::unlockAllTilesInternal(const char * pRasServerId)
 {
     ENTER( "Lock manager: unlock all tiles" );
-    ecpg_LockManager->unlockAllTiles(connectionName, pRasServerId, pRasClientId);
+    ecpg_LockManager->unlockAllTiles(connectionName, pRasServerId);
     LEAVE( "Lock manager: unlock all tiles" );
 }
 
@@ -291,11 +291,11 @@ bool LockManager::isTileLockedInternal(OId::OIdCounter pTileId, enum Lock pLockT
     bool result;
     if(pLockType == EXCLUSIVE_LOCK)
     {
-        ecpg_LockManager->isTileLockedExclusive(connectionName, (char *)NULL, (char *)NULL, pTileId);
+        ecpg_LockManager->isTileLockedExclusive(connectionName, (char *)NULL, pTileId);
     }
     else if(pLockType == SHARED_LOCK)
     {
-        ecpg_LockManager->isTileLockedShared(connectionName, (char *)NULL, (char *)NULL, pTileId);
+        ecpg_LockManager->isTileLockedShared(connectionName, (char *)NULL, pTileId);
     }
     LEAVE( "Lock manager, is tile locked" << result );
     return result;
@@ -394,21 +394,6 @@ enum Lock LockManager::generateLockType()
 }
 
 /**
- * Function for returning by reference a string as client id.
- *
- * The function converts an unsigned long value into a string.
- *
- * @param pClientId
- *     unsigned long values as the id of the client
- * @param pResultClientId
- *     the client id as string returned by reference
- */
-void LockManager::generateClientId(unsigned long pClientId, char * pResultClientId)
-{
-    sprintf(pResultClientId, "%024ld", pClientId);
-}
-
-/**
  * Function for locking multiple tiles.
  *
  * The internal function for locking is called.
@@ -418,7 +403,7 @@ void LockManager::generateClientId(unsigned long pClientId, char * pResultClient
  * @param tiles
  *     vector of tiles to be locked
  */
-void LockManager::lockTiles(unsigned long pClientId, std::vector <Tile *> * tiles)
+void LockManager::lockTiles(std::vector <Tile *> * tiles)
 {
     ENTER( "Lock manager, lock tiles" );
     if (tiles)
@@ -426,9 +411,7 @@ void LockManager::lockTiles(unsigned long pClientId, std::vector <Tile *> * tile
         TALK( "Lock manager, lock tiles: locking..." );
         char rasServerId[255];
         generateServerId(rasServerId);
-        char clientId[255];
-        generateClientId(pClientId, clientId);
-        TALK( "server id=" << rasServerId << ", client id=" << clientId );
+        TALK( "server id=" << rasServerId );
         enum Lock lockType = generateLockType();
         beginTransaction();
         // this iterates over the tiles of an object
@@ -441,7 +424,7 @@ void LockManager::lockTiles(unsigned long pClientId, std::vector <Tile *> * tile
             if (oid > 0)
             {
                 TALK( "Lock manager, lock tiles: Locking tile " << oid );
-                lockTileInternal(rasServerId, clientId, oid, lockType);
+                lockTileInternal(rasServerId, oid, lockType);
             }
         }
         endTransaction();
@@ -463,7 +446,7 @@ void LockManager::lockTiles(unsigned long pClientId, std::vector <Tile *> * tile
  * @param pTile
  *     pointer to the tile to be locked
  */
-void LockManager::lockTile(unsigned long pClientId, Tile * pTile)
+void LockManager::lockTile(Tile * pTile)
 {
     ENTER( "Lock manager, lock tile" );
     DBTileId dbTileId = pTile->getDBTile();
@@ -473,11 +456,9 @@ void LockManager::lockTile(unsigned long pClientId, Tile * pTile)
         TALK( "Lock manager, lock tile: Locking tile " << oid );
         char rasServerId[255];
         generateServerId(rasServerId);
-        char clientId[255];
-        generateClientId(pClientId, clientId);
         enum Lock lockType = generateLockType();
         beginTransaction();
-        lockTileInternal(rasServerId, clientId, oid, lockType);
+        lockTileInternal(rasServerId, oid, lockType);
         endTransaction();
     }
     LEAVE( "Lock manager, lock tile" );
@@ -493,7 +474,7 @@ void LockManager::lockTile(unsigned long pClientId, Tile * pTile)
  * @param pTile
  *     pointer to the tile to be unlocked
  */
-void LockManager::unlockTile(unsigned long pClientId, Tile * pTile)
+void LockManager::unlockTile(Tile * pTile)
 {
     ENTER( "Lock manager, unlock tile" );
     DBTileId dbTileId = pTile->getDBTile();
@@ -503,10 +484,8 @@ void LockManager::unlockTile(unsigned long pClientId, Tile * pTile)
         TALK("Lock manager, unlock tile: Locking tile " << oid);
         char rasServerId[255];
         generateServerId(rasServerId);
-        char clientId[255];
-        generateClientId(pClientId, clientId);
         beginTransaction();
-        unlockTileInternal(rasServerId, clientId, oid);
+        unlockTileInternal(rasServerId, oid);
         endTransaction();
     }
     LEAVE( "Lock manager, unlock tile" );
@@ -520,16 +499,14 @@ void LockManager::unlockTile(unsigned long pClientId, Tile * pTile)
  * @param pClientId
  *     unsigned long value representing the id of the locking client
  */
-void LockManager::unlockAllTiles(unsigned long pClientId)
+void LockManager::unlockAllTiles()
 {
     ENTER( "Lock manager, unlock all tiles" );
     char rasServerId[255];
     generateServerId(rasServerId);
-    char clientId[255];
-    generateClientId(pClientId, clientId);
-    TALK( "Lock manager, unlock all tiles: unlocking all tiles for " << ", server id=" << rasServerId << ", client id=" << clientId );
+    TALK( "Lock manager, unlock all tiles: unlocking all tiles for " << ", server id=" << rasServerId );
     beginTransaction();
-    unlockAllTilesInternal(rasServerId, clientId);
+    unlockAllTilesInternal(rasServerId);
     endTransaction();
     LEAVE( "Lock manager, unlock all tiles" );
 }

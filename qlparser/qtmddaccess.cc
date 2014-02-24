@@ -128,10 +128,9 @@ QtMDDAccess::next()
         ptr =  mddIter->getElement();
 
 #ifdef LOCKMANAGER_ON
-        unsigned long clientId = currentClientTblElt->clientId;
         LockManager *lockmanager = LockManager::Instance();
         std::vector< Tile* >* tiles = ptr->getTiles();
-        lockmanager->lockTiles(clientId, tiles);
+        lockmanager->lockTiles(tiles);
         delete tiles;
 #endif
 

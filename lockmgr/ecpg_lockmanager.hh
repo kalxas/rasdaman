@@ -71,25 +71,25 @@ public:
     void endTransaction(const char *);
 
     // function for setting a shared lock in the lock table according to the parameters
-    void lockTileShared(const char *, const char *, const char *, long long);
+    void lockTileShared(const char *, const char *, long long);
 
     // function for setting an exclusive lock in the lock table according to the parameters
-    void lockTileExclusive(const char *, const char *, const char *, long long);
+    void lockTileExclusive(const char *, const char *, long long);
 
     // function for removing a lock from lock table according to the parameters
-    void unlockTile(const char *, const char *, const char *, long long);
+    void unlockTile(const char *, const char *, long long);
 
     // function for unlocking all tiles corresponding to a server and client
-    void unlockAllTiles(const char *, const char *, const char *);
+    void unlockAllTiles(const char *, const char *);
 
     // function for checking if a tile is locked or not (shared or exclusive)
-    bool isTileLocked(const char *, const char *, const char *, long long);
+    bool isTileLocked(const char *, const char *, long long);
 
     // function for checking if a tile has a shared lock
-    bool isTileLockedShared(const char *, const char *, const char *, long long);
+    bool isTileLockedShared(const char *, const char *, long long);
 
     // function for checking if a tile has an exclusive lock
-    bool isTileLockedExclusive(const char *, const char *, const char *, long long);
+    bool isTileLockedExclusive(const char *, const char *, long long);
 
     // function for deleting all entries of the lock table corresponding to a given server
     // but without port specification

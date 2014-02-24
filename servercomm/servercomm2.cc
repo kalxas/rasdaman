@@ -478,7 +478,7 @@ ServerComm::commitTA( unsigned long callingClientId )
 
 #ifdef LOCKMANAGER_ON
         LockManager *lockmanager = LockManager::Instance();
-        lockmanager->unlockAllTiles(callingClientId);
+        lockmanager->unlockAllTiles();
 #endif
 
         // commit the transaction
@@ -538,7 +538,7 @@ ServerComm::abortTA( unsigned long callingClientId )
 
 #ifdef LOCKMANAGER_ON
         LockManager *lockmanager = LockManager::Instance();
-        lockmanager->unlockAllTiles(callingClientId);
+        lockmanager->unlockAllTiles();
 #endif
 
         // unlock the semaphore
