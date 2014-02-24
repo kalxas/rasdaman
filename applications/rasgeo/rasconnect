@@ -3,9 +3,12 @@ rasport=7001
 pgport=5432
 rasdbname=RASBASE
 petadbname=petascopedb
+# RASBASE login credentials
 rasuser=rasdaman
 raspassword=rasdaman
+# petascopedb login credentials
 petauser=petauser
 petapassword=petapasswd
+# rasdaman login credentials
 rasloginuser=rasadmin
 rasloginpassword=rasadmin
