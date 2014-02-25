@@ -86,12 +86,13 @@ public:
 
 
 private:
-    template <class baseType, class castType>
-    void print(std::stringstream &f, baseType* val, int *dims, int dim);
-    /// analogue of the print method for handling structures
-    void printStruct(std::stringstream &f, int *dims, int dim);
-    /// print one structure cell, this will properly recurse into nested structures (if any).
-    void printStructVal(std::stringstream &f);
+    /// logic for displaying values
+    void printValue(std::stringstream &f, const r_Base_Type &type);
+    void printStructValue(std::stringstream &f);
+    void printComplexValue(std::stringstream &f, const r_Base_Type &type);
+    void printPrimitiveValue(std::stringstream &f, const r_Base_Type &type);
+    /// logic for displaying nested arrays
+    void printArray(std::stringstream &f, int *dims, int dim, const r_Base_Type &type);
 
     char* val;
 };

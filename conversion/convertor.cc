@@ -174,6 +174,10 @@ std::string r_Convertor::type_to_string( int ctype ) throw(r_Error)
         return "double";
     case ctype_rgb:
         return "struct {char, char, char}";
+    case ctype_complex1:
+        return "complex";
+    case ctype_complex2:
+        return "complexd";
     default:
         RMInit::logOut << "Error: in conversion: unsupported type " << ctype << endl;
         r_Error err(r_Error::r_Error_General);
@@ -257,6 +261,19 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
             return ctype_struct;
         else
             return ctype_rgb;
+    }
+    else if (tp->isComplexType())
+    {
+        switch (tp->type_id())
+        {
+        case r_Type::COMPLEXTYPE1:
+            return ctype_complex1;
+        case r_Type::COMPLEXTYPE2:
+            return ctype_complex2;
+        default:
+            RMInit::logOut << "Error: in conversion: unknown type " << tp->type_id() << ", setting to void." << endl;
+            return ctype_void;
+        }
     }
     else
     {

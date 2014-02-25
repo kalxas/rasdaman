@@ -53,6 +53,7 @@ rasdaman GmbH.
 #include "raslib/parseparams.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
+#include "raslib/complextype.hh"
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -104,153 +105,99 @@ r_Conv_CSV::~r_Conv_CSV(void)
  * Please note that the implementation of the tupleList GML elements in Petascope is dependent
  * on this format so on change update RasUtil as well.
  */
-template <class baseType, class castType>
-void r_Conv_CSV::print(std::stringstream &f, baseType* val, int *dims, int dim)
+void r_Conv_CSV::printValue(std::stringstream &f, const r_Base_Type &type)
 {
-    ENTER("r_Conv_CSV::print( dimensions: " << dim << " )");
-
-    int dimensions, dimsIndex;
-    stack<int> dimensionsStack;
-    stack<int> dimsIndexStack;
-    dimensionsStack.push(dim);
-    dimsIndexStack.push(0);
-
-    while (!dimensionsStack.empty())
-    {
-        dimensions = dimensionsStack.top();
-        dimensionsStack.pop();
-        if (dimensions == DIM_BOUNDARY)
-        {
-            f << "}";
-            if (!dimensionsStack.empty() && dimensionsStack.top() != DIM_BOUNDARY)
-                f << ",";
-            continue;
-        }
-
-        dimsIndex = dimsIndexStack.top();
-        dimsIndexStack.pop();
-
-        if (dimensions == 0)
-        {
-            f << (castType)val[0];
-        }
-        else if (dimensions == 1)
-        {
-            f << "{";
-            for (int i=0; i<dims[dimsIndex]; ++i, val++)
-            {
-                f << (castType)val[0];
-                if (i<dims[dimsIndex]-1)
-                    f << ",";
-            }
-            f << "}";
-            if (!dimensionsStack.empty() && dimensionsStack.top() != DIM_BOUNDARY)
-            {
-                f << ",";
-            }
-        }
-        else
-        {
-            if (dimensions != dim)
-            {
-                f << "{";
-                dimensionsStack.push(DIM_BOUNDARY);
-            }
-            for (int i = 0; i < dims[dimsIndex]; i++)
-            {
-                dimensionsStack.push(dimensions - 1);
-                dimsIndexStack.push(dimsIndex + 1);
-            }
-        }
+    if (type.isStructType()) {
+        printStructValue(f);
+    } else if (type.isComplexType()) {
+        printComplexValue(f, type);
+    } else if (type.isPrimitiveType()) {
+        printPrimitiveValue(f, type);
+    } else {
+        RMInit::logOut << "r_Conv_CSV::convertTo(): unsupported type " << type.type_id() << endl;
+        throw r_Error(r_Error::r_Error_TypeInvalid);
     }
-
-    LEAVE("r_Conv_CSV::print()");
 }
 
-void r_Conv_CSV::printStructVal(std::stringstream &f)
+void r_Conv_CSV::printStructValue(std::stringstream &f)
 {
     r_Structure_Type *st = (r_Structure_Type*) desc.srcType;
     r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
+    f << STRUCT_DELIMITER_OPEN;
     while (iter != st->defines_attribute_end())
     {
-        if ((*iter).type_of().isStructType())
-        {
-            printStructVal(f);
-        }
-        else if ((*iter).type_of().isPrimitiveType())
-        {
-            r_Primitive_Type *pt = (r_Primitive_Type*) &(*iter).type_of();
-            r_Bytes typeSize = pt->size();
-            switch ((*iter).type_of().type_id())
-            {
-            case r_Type::ULONG:
-                f << pt->get_ulong(val);
-                break;
-            case r_Type::USHORT:
-                f << pt->get_ushort(val);
-                break;
-            case r_Type::BOOL:
-                f << pt->get_boolean(val) ? "T": "F";
-                break;
-            case r_Type::LONG:
-                f << pt->get_long(val);
-                break;
-            case r_Type::SHORT:
-                f << pt->get_short(val);
-                break;
-            case r_Type::OCTET:
-                f << (int) (pt->get_octet(val));
-                break;
-            case r_Type::DOUBLE:
-                f << pt->get_double(val);
-                break;
-            case r_Type::FLOAT:
-                f << pt->get_float(val);
-                break;
-            case r_Type::CHAR:
-                f << (int) (pt->get_char(val));
-                break;
-            default:
-                f << (int) (pt->get_char(val));
-                break;
-            }
-            val += typeSize;
-        }
+        printValue(f, (*iter).type_of());
         iter++;
         if (iter != st->defines_attribute_end())
             f << STRUCT_DELIMITER_ELEMENT;
     }
+    f << STRUCT_DELIMITER_CLOSE;
 }
 
-void r_Conv_CSV::printStruct(std::stringstream &f, int *dims, int dim)
+void r_Conv_CSV::printComplexValue(std::stringstream &f, const r_Base_Type &type)
 {
-    if (dim == 1)
+    const r_Complex_Type *ptr = (const r_Complex_Type *) &type;
+    ptr->print_value(val, f);
+    val += ptr->size();
+}
+
+void r_Conv_CSV::printPrimitiveValue(std::stringstream &f, const r_Base_Type &type)
+{
+    const r_Primitive_Type *ptr = (const r_Primitive_Type *) &type;
+    switch (ptr->type_id())
     {
-        for (int i = 0; i < dims[0]; ++i)
-        {
-            f << STRUCT_DELIMITER_OPEN;
-            printStructVal(f);
-            f << STRUCT_DELIMITER_CLOSE;
-            if (i < dims[0] - 1)
-                f << ",";
-        }
+    case r_Type::ULONG:
+        f << ptr->get_ulong(val);
+        break;
+    case r_Type::USHORT:
+        f << ptr->get_ushort(val);
+        break;
+    case r_Type::BOOL:
+        f << ptr->get_boolean(val) ? "T": "F";
+        break;
+    case r_Type::LONG:
+        f << ptr->get_long(val);
+        break;
+    case r_Type::SHORT:
+        f << ptr->get_short(val);
+        break;
+    case r_Type::OCTET:
+        f << (int) (ptr->get_octet(val));
+        break;
+    case r_Type::DOUBLE:
+        f << ptr->get_double(val);
+        break;
+    case r_Type::FLOAT:
+        f << ptr->get_float(val);
+        break;
+    case r_Type::CHAR:
+        f << (int) (ptr->get_char(val));
+        break;
+    default:
+        f << (int) (ptr->get_char(val));
+        break;
     }
-    else
+    val += ptr->size();
+}
+
+void r_Conv_CSV::printArray(std::stringstream &f, int *dims, int dim, const r_Base_Type &type)
+{
+    for (int i = 0; i < dims[0]; ++i)
     {
-        for (int i = 0; i < dims[0]; ++i)
-        {
+        if (dim == 1) {
+            printValue(f, type);
+        } else {
             f << "{";
-            printStruct(f, dims + 1, dim - 1);
+            printArray(f, dims + 1, dim - 1, type);
             f << "}";
-            if (i < dims[0] - 1)
-                f << ",";
         }
+        if (i < dims[0] - 1)
+            f << ",";
     }
 }
 
 r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
 {
-
     ENTER("r_Conv_CSV::convertTo()");
 
     std::stringstream csvtemp;
@@ -267,54 +214,24 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
     {
         dimsizes[i] = desc.srcInterv[i].high() - desc.srcInterv[i].low() + 1;
     }
-    if (desc.srcType->isStructType())
+    const r_Base_Type *base_type = (const r_Base_Type *) desc.srcType;
+    val = (char*) desc.src;
+    try
     {
-        val = (char*) src;
-        printStruct(csvtemp, dimsizes, rank);
-        val = NULL;
+        if (rank == 1) {
+            csvtemp << "{";
+            printArray(csvtemp, dimsizes, rank, *base_type);
+            csvtemp << "}";
+        } else {
+            printArray(csvtemp, dimsizes, rank, *base_type);
+        }
+        }
+    catch (r_Error &err)
+    {
+        delete [] dimsizes;
+        LEAVE("r_Conv_CSV::convertTo()");
+        throw err;
     }
-    else
-        switch (desc.baseType)
-        {
-        case ctype_int8:
-            print<const r_Octet, int>(csvtemp, (const r_Octet*)src, dimsizes, rank);
-            break;
-        case ctype_uint8:
-        case ctype_char:
-        case ctype_bool:
-            print<r_Char, int>(csvtemp, (r_Char*)src, dimsizes, rank);
-            break;
-        case ctype_int16:
-            print<r_Short, int>(csvtemp, (r_Short*)src, dimsizes, rank);
-            break;
-        case ctype_uint16:
-            print<r_UShort, int>(csvtemp, (r_UShort*) src, dimsizes, rank);
-            break;
-        case ctype_int32:
-            print<r_Long, int>(csvtemp, (r_Long*) src, dimsizes, rank);
-            break;
-        case ctype_uint32:
-            print<r_ULong, int>(csvtemp, (r_ULong*) src, dimsizes, rank);
-            break;
-        case ctype_int64:
-            print<long long, long long>(csvtemp, (long long*) src, dimsizes, rank);
-            break;
-        case ctype_uint64:
-            print<unsigned long long, unsigned long long>(csvtemp, (unsigned long long*) src, dimsizes, rank);
-            break;
-        case ctype_float32:
-            print<r_Float, float>(csvtemp, (r_Float*) src, dimsizes, rank);
-            break;
-        case ctype_float64:
-            print<r_Double, float>(csvtemp, (r_Double*) src, dimsizes, rank);
-            break;
-        default:
-        {
-            RMInit::logOut << "r_Conv_CSV::convertTo(): can not convert data of base type " << desc.baseType << endl;
-            LEAVE("r_Conv_CSV::convertTo()");
-            throw r_Error(r_Error::r_Error_TypeInvalid);
-        }
-        }
 
     delete [] dimsizes;
     dimsizes=NULL;

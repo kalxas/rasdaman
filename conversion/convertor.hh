@@ -140,6 +140,8 @@ public:
        ctype_float32 && float\\
        ctype_float64 && double\\
        ctype_struct && struct \\
+       ctype_complex1 && single precision complex \\
+       ctype_complex2 && double precision complex
        \end{tabular}
     */
 
@@ -188,7 +190,10 @@ public:
         ctype_float32,
         ctype_float64,
         // shortcut for structures
-        ctype_struct
+        ctype_struct,
+        // complex types
+        ctype_complex1,
+        ctype_complex2
     };
 
     //@{ helper structure for encoding string-to-int parameters

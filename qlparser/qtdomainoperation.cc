@@ -957,7 +957,7 @@ QtDomainOperation::checkType( QtTypeTuple* typeTuple )
                 throw parseInfo;
             }
 
-            dataStreamType.setDataType( QT_ULONG );
+            dataStreamType.setDataType( QT_LONG );
         }
         else
         {
