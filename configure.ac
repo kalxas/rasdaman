@@ -16,6 +16,9 @@ AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_LEX
+if test "$LEX" = ":"; then
+    AC_MSG_ERROR([could not find lex or flex. Please install.])
+fi
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
