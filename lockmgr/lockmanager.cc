@@ -209,8 +209,6 @@ void LockManager::endTransaction()
  *
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
- * @param pRasClientId
- *     the string corresponding to the id of the corresponding client to the rasserver
  * @param pTileId
  *     the id corresponding to the tile to be locked
  * @param pLockType
@@ -246,8 +244,6 @@ void LockManager::lockTileInternal(const char * pRasServerId, OId::OIdCounter pT
  *
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
- * @param pRasClientId
- *     the string corresponding to the id of the corresponding client to the rasserver
  * @param pTileId
  *     the id corresponding to the tile to be unlocked
  */
@@ -259,14 +255,12 @@ void LockManager::unlockTileInternal(const char * pRasServerId, OId::OIdCounter 
 }
 
 /**
- * Function for deleting all locks from the lock table corresponding to a specific rasserver and specific client.
+ * Function for deleting all locks from the lock table corresponding to a specific rasserver.
  *
  * The corresponding function from the ECPG class is called.
  *
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
- * @param pRasClientId
- *     the string corresponding to the id of the corresponding client to the rasserver
  */
 void LockManager::unlockAllTilesInternal(const char * pRasServerId)
 {
@@ -398,8 +392,6 @@ enum Lock LockManager::generateLockType()
  *
  * The internal function for locking is called.
  *
- * @param pClientId
- *     unsigned long value representing the id of the locking client
  * @param tiles
  *     vector of tiles to be locked
  */
@@ -437,12 +429,10 @@ void LockManager::lockTiles(std::vector <Tile *> * tiles)
 }
 
 /**
- * Function for locking a tile by a client.
+ * Function for locking a tile by a server.
  *
  * The internal locking function is called.
  *
- * @param pClientId
- *     unsigned long value representing the id of the locking client
  * @param pTile
  *     pointer to the tile to be locked
  */
@@ -465,12 +455,10 @@ void LockManager::lockTile(Tile * pTile)
 }
 
 /**
- * Function for unlocking a tile locked by a specific client.
+ * Function for unlocking a tile locked by a specific server.
  *
  * The internal function for unlocking a specific tile is called.
  *
- * @param pClientId
- *     unsigned long value representing the id of the locking client
  * @param pTile
  *     pointer to the tile to be unlocked
  */
@@ -492,12 +480,9 @@ void LockManager::unlockTile(Tile * pTile)
 }
 
 /**
- * Function for unlocking all tiles locked by a specific client.
+ * Function for unlocking all tiles locked by a specific server.
  *
  * The internal function for unlocking all tiles is called.
- *
- * @param pClientId
- *     unsigned long value representing the id of the locking client
  */
 void LockManager::unlockAllTiles()
 {

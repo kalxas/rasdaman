@@ -81,7 +81,7 @@ class LockManager
         // private function for unlocking a tile with respect to a specific rasserver
         void unlockTileInternal(const char *, OId::OIdCounter);
 
-        // private function for unlocking all tiles with respect to a specific rasserver and corresponding client
+        // private function for unlocking all tiles with respect to a specific rasserver
         void unlockAllTilesInternal(const char *);
 
         // private function for checking if a tile is locked or not by a specific type of lock

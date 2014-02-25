@@ -191,8 +191,6 @@ void ECPG_LockManager::endTransaction(const char * pConnectionName)
  *     the string corresponding to the connection name of the lockmanager
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
- * @param pRasClientId
- *     the string corresponding to the id of the corresponding client to the rasserver
  * @param pTileId
  *     the id corresponding to the tile to be locked
  */
@@ -213,8 +211,6 @@ void ECPG_LockManager::lockTileShared(const char * pConnectionName, const char *
  *     the string corresponding to the connection name of the lockmanager
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
- * @param pRasClientId
- *     the string corresponding to the id of the corresponding client to the rasserver
  * @param pTileId
  *     the id corresponding to the tile to be locked
  */
@@ -235,8 +231,6 @@ void ECPG_LockManager::lockTileExclusive(const char * pConnectionName, const cha
  *     the string corresponding to the connection name of the lockmanager
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
- * @param pRasClientId
- *     the string corresponding to the id of the corresponding client to the rasserver
  * @param pTileId
  *     the id corresponding to the tile to be unlocked
  */
@@ -252,14 +246,12 @@ void ECPG_LockManager::unlockTile(const char * pConnectionName, const char * pRa
 }
 
 /**
- * Function for deleting all locks from the lock table corresponding to a specific rasserver and specific client.
+ * Function for deleting all locks from the lock table corresponding to a specific rasserver.
  *
  * @param pConnectionName
  *     the string corresponding to the connection name of the lockmanager
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
- * @param pRasClientId
- *     the string corresponding to the id of the corresponding client to the rasserver
  */
 void ECPG_LockManager::unlockAllTiles(const char * pConnectionName, const char * pRasServerId)
 {
@@ -278,8 +270,6 @@ void ECPG_LockManager::unlockAllTiles(const char * pConnectionName, const char *
  *     the string corresponding to the connection name of the lockmanager
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
- * @param pRasClientId
- *     the string corresponding to the id of the corresponding client to the rasserver
  * @param pTileId
  *     the id corresponding to the tile to be checked
  * @return a bool value corresponding to the fact that the tile is locked or not
@@ -325,8 +315,6 @@ bool ECPG_LockManager::isTileLocked(const char * pConnectionName, const char * p
  *     the string corresponding to the connection name of the lockmanager
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
- * @param pRasClientId
- *     the string corresponding to the id of the corresponding client to the rasserver
  * @param pTileId
  *     the id corresponding to the tile to be checked
  * @return a bool value corresponding to the fact that the tile has a shared locked or not
@@ -372,8 +360,6 @@ bool ECPG_LockManager::isTileLockedShared(const char * pConnectionName, const ch
  *     the string corresponding to the connection name of the lockmanager
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
- * @param pRasClientId
- *     the string corresponding to the id of the corresponding client to the rasserver
  * @param pTileId
  *     the id corresponding to the tile to be checked
  * @return a bool value corresponding to the fact that the tile has an exclusive locked or not

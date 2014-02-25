@@ -79,7 +79,7 @@ public:
     // function for removing a lock from lock table according to the parameters
     void unlockTile(const char *, const char *, long long);
 
-    // function for unlocking all tiles corresponding to a server and client
+    // function for unlocking all tiles corresponding to a server
     void unlockAllTiles(const char *, const char *);
 
     // function for checking if a tile is locked or not (shared or exclusive)

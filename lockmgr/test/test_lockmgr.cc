@@ -54,8 +54,6 @@ const char * connectionName = "testConn";
  *     pointer to the lockmanager object
  * @param pTestServerId
  *     string representing the serverId
- * @param pTestClientId
- *     string representing the clientId
  * @param pTest_tileID
  *     id of the tile to be locked
  * @param state
@@ -95,8 +93,6 @@ void lockTestTileExclusive(ECPG_LockManager * pecpg_lockmanager, char * pTestSer
  *     pointer to the lockmanager object
  * @param pTestServerId
  *     string representing the serverId
- * @param pTestClientId
- *     string representing the clientId
  * @param pTest_tileID
  *     id of the tile to be locked
  * @param state
@@ -136,8 +132,6 @@ void lockTestTileShared(ECPG_LockManager * pecpg_lockmanager, char * pTestServer
  *     pointer to the lockmanager object
  * @param pTestServerId
  *     string representing the serverId
- * @param pTestClientId
- *     string representing the clientId
  * @param pTest_tileID
  *     id of the tile to be unlocked
  */
@@ -156,7 +150,7 @@ void unlockTestTile(ECPG_LockManager * pecpg_lockmanager, char * pTestServerId, 
 
 /**
  * Function implementing test case 1: create and then delete an exclusive lock
- * using test values for serverId, clientId and tileID.
+ * using test values for serverId and tileID.
  */
 void test_createDeleteExclusiveLock()
 {
@@ -180,7 +174,7 @@ void test_createDeleteExclusiveLock()
 
 /**
  * Function implementing test case 2: create and then delete a shared lock
- * using test values for serverId, clientId and tileID.
+ * using test values for serverId and tileID.
  */
 void test_createDeleteSharedLock()
 {
@@ -204,7 +198,7 @@ void test_createDeleteSharedLock()
 
 /**
  * Function implementing test case 3: create two exclusive locks
- * on the same tile but coming from two different clients.
+ * on the same tile but coming from two different servers.
  * The first lock should be created, the second one should fail.
  * At the end the locks are deleted.
  */
@@ -239,7 +233,7 @@ void test_createDelete2ExclusiveLocks()
 
 /**
  * Function implementing test case 4: create two shared locks
- * on the same tile but coming from two different clients.
+ * on the same tile but coming from two different servers.
  * The first lock should be created, the second one should fail.
  * At the end the locks are deleted.
  */
@@ -275,7 +269,7 @@ void test_createDelete2SharedLocks()
 
 /**
  * Function implementing test case 5: create and then delete an exclusive lock
- * using test values for serverId, clientId and tileID 5 times sequentially.
+ * using test values for serverId and tileID 5 times sequentially.
  */
 void test_createDelete5ExclusiveLocks()
 {
@@ -288,7 +282,7 @@ void test_createDelete5ExclusiveLocks()
 
 /**
  * Function implementing test case 6: create and then delete a shared lock
- * using test values for serverId, clientId and tileID 5 times sequentially.
+ * using test values for serverId and tileID 5 times sequentially.
  */
 void test_createDelete5SharedLocks()
 {
@@ -302,7 +296,7 @@ void test_createDelete5SharedLocks()
 /**
  * Function implementing test case 7: create a shared lock
  * and then try to create an exclusive lock on the same tile
- * but coming from two different clients.
+ * but coming from two different servers.
  * The first lock should be created, the second one should fail.
  * At the end the locks are deleted.
  */
@@ -310,7 +304,7 @@ void test_createDeleteSharedExclusiveLock()
 {
     std::cout << "test_createDeleteSharedExclusiveLock: begin" << endl;
     ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
-    // create one shared lock by a client and try to get an exclusive one by another client
+    // create one shared lock by a server and try to get an exclusive one by another server
     // shared lock
     long long test_tileID = -2;
     char* testServerId = (char*)"test_rasServer";
@@ -339,7 +333,7 @@ void test_createDeleteSharedExclusiveLock()
 /**
  * Function implementing test case 8: create an exclusive lock
  * and then try to create a shared lock on the same tile
- * but coming from two different clients.
+ * but coming from two different servers.
  * The first lock should be created, the second one should fail.
  * At the end the locks are deleted.
  */
@@ -347,7 +341,7 @@ void test_createDeleteExclusiveSharedLock()
 {
     std::cout << "test_createDeleteExclusiveSharedLock: begin" << endl;
     ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
-    // create one exclusive lock by a client and try to get a shared one by another client
+    // create one exclusive lock by a server and try to get a shared one by another server
     // exclusive lock
     long long test_tileID = -2;
     char* testServerId = (char*)"test_rasServer";
@@ -376,15 +370,15 @@ void test_createDeleteExclusiveSharedLock()
 /**
  * Function implementing test case 9: create a shared lock
  * and then try to create an exclusive lock on the same tile
- * and coming from the same client.
+ * and coming from the same server.
  * The first lock should be created, the second one should fail.
  * At the end the lock is deleted.
  */
-void test_createDeleteSharedExclusiveLockSameClient()
+void test_createDeleteSharedExclusiveLockSameServer()
 {
-    std::cout << "test_createDeleteSharedExclusiveLockSameClient: begin" << endl;
+    std::cout << "test_createDeleteSharedExclusiveLockSameServer: begin" << endl;
     ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
-    // create one shared lock by a client and try to get an exclusive one by same client
+    // create one shared lock by a server and try to get an exclusive one by same server
     // shared lock
     long long test_tileID = -2;
     char* testServerId = (char*)"test_rasServer";
@@ -402,21 +396,21 @@ void test_createDeleteSharedExclusiveLockSameClient()
     ecpg_lockmanager->beginTransaction(connectionName);
     ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
     ecpg_lockmanager->endTransaction(connectionName);
-    std::cout << "test_createDeleteSharedExclusiveLockSameClient: end" << endl;
+    std::cout << "test_createDeleteSharedExclusiveLockSameServer: end" << endl;
 }
 
 /**
  * Function implementing test case 10: create an exclusive lock
  * and then try to create a shared lock on the same tile
- * and coming from the same client.
+ * and coming from the same server.
  * The first lock should be created, the second one should fail.
  * At the end the lock is deleted.
  */
-void test_createDeleteExclusiveSharedLockSameClient()
+void test_createDeleteExclusiveSharedLockSameServer()
 {
-    std::cout << "test_createDeleteExclusiveSharedLockSameClient: begin" << endl;
+    std::cout << "test_createDeleteExclusiveSharedLockSameServer: begin" << endl;
     ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
-    // create one exclusive lock by a client and try to get a shared one by same client
+    // create one exclusive lock by a server and try to get a shared one by same server
     // exclusive lock
     long long test_tileID = -2;
     char* testServerId = (char*)"test_rasServer";
@@ -434,20 +428,20 @@ void test_createDeleteExclusiveSharedLockSameClient()
     ecpg_lockmanager->beginTransaction(connectionName);
     ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
     ecpg_lockmanager->endTransaction(connectionName);
-    std::cout << "test_createDeleteExclusiveSharedLockSameClient: end" << endl;
+    std::cout << "test_createDeleteExclusiveSharedLockSameServer: end" << endl;
 }
 
 /**
  * Function implementing test case 11: create two exclusive locks
- * on the same tile and coming from the same client.
+ * on the same tile and coming from the same server.
  * The first lock should be created, the second one should fail.
  * At the end the lock is deleted.
  */
-void test_createDelete2ExclusiveLocksSameClient()
+void test_createDelete2ExclusiveLocksSameServer()
 {
-    std::cout << "test_createDelete2ExclusiveLocksSameClient: begin" << endl;
+    std::cout << "test_createDelete2ExclusiveLocksSameServer: begin" << endl;
     ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
-    // create two exclusive locks from the same client
+    // create two exclusive locks from the same server
     // first lock
     long long test_tileID = -1;
     char* testServerId = (char*)"test_rasServer";
@@ -464,20 +458,20 @@ void test_createDelete2ExclusiveLocksSameClient()
     ecpg_lockmanager->beginTransaction(connectionName);
     ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
     ecpg_lockmanager->endTransaction(connectionName);
-    std::cout << "test_createDelete2ExclusiveLocksSameClient: end" << endl;
+    std::cout << "test_createDelete2ExclusiveLocksSameServer: end" << endl;
 }
 
 /**
  * Function implementing test case 12: create two shared locks
- * on the same tile and coming from the same client.
+ * on the same tile and coming from the same server.
  * The first lock should be created, the second one should fail.
  * At the end the lock is deleted.
  */
-void test_createDelete2SharedLocksSameClient()
+void test_createDelete2SharedLocksSameServer()
 {
-    std::cout << "test_createDelete2SharedLocksSameClient: begin" << endl;
+    std::cout << "test_createDelete2SharedLocksSameServer: begin" << endl;
     ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
-    // create two shared locks from the same client
+    // create two shared locks from the same server
     // first lock
     long long test_tileID = -2;
     char* testServerId = (char*)"test_rasServer";
@@ -495,7 +489,7 @@ void test_createDelete2SharedLocksSameClient()
     ecpg_lockmanager->beginTransaction(connectionName);
     ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
     ecpg_lockmanager->endTransaction(connectionName);
-    std::cout << "test_createDelete2SharedLocksSameClient: end" << endl;
+    std::cout << "test_createDelete2SharedLocksSameServer: end" << endl;
 }
 
 /**
@@ -543,10 +537,10 @@ void test_allCases()
     test_createDelete5SharedLocks();
     test_createDeleteSharedExclusiveLock();
     test_createDeleteExclusiveSharedLock();
-    test_createDeleteSharedExclusiveLockSameClient();
-    test_createDeleteExclusiveSharedLockSameClient();
-    test_createDelete2ExclusiveLocksSameClient();
-    test_createDelete2SharedLocksSameClient();
+    test_createDeleteSharedExclusiveLockSameServer();
+    test_createDeleteExclusiveSharedLockSameServer();
+    test_createDelete2ExclusiveLocksSameServer();
+    test_createDelete2SharedLocksSameServer();
     test_otherDatabaseConnection();
 }
 
@@ -580,23 +574,23 @@ int main( int ac, char** av )
     // Test 6: create and delete an shared lock 5 times sequentially on the same tile, delete lock at end
     //test_createDelete5SharedLocks();
 
-    // Test 7: create one shared lock, then try to get an exclusive one by another client
+    // Test 7: create one shared lock, then try to get an exclusive one by another server
     //test_createDeleteSharedExclusiveLock();
 
-    // Test 8: create one exclusive lock, then try to get a shared one by another client
+    // Test 8: create one exclusive lock, then try to get a shared one by another server
     //test_createDeleteExclusiveSharedLock();
 
-    // Test 9: create one shared lock, then try to get an exclusive one by same client
-    //test_createDeleteSharedExclusiveLockSameClient();
+    // Test 9: create one shared lock, then try to get an exclusive one by same server
+    //test_createDeleteSharedExclusiveLockSameServer();
 
-    // Test 10: create one exclusive lock, then try to get a shared one by same client
-    //test_createDeleteExclusiveSharedLockSameClient();
+    // Test 10: create one exclusive lock, then try to get a shared one by same server
+    //test_createDeleteExclusiveSharedLockSameServer();
 
-    // Test 11: try to create two exclusive locks by same client on the same tile, delete lock at end
-    //test_createDelete2ExclusiveLocksSameClient();
+    // Test 11: try to create two exclusive locks by same server on the same tile, delete lock at end
+    //test_createDelete2ExclusiveLocksSameServer();
 
-    // Test 12: try to create two shared locks by same client on the same tile, delete lock at end
-    //test_createDelete2SharedLocksSameClient();
+    // Test 12: try to create two shared locks by same server on the same tile, delete lock at end
+    //test_createDelete2SharedLocksSameServer();
 
     // Test 13: open and close the database via another connection "otherConn"
     //test_databaseConnection();
