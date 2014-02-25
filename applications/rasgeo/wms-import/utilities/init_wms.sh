@@ -241,7 +241,7 @@ DEFAULT_AVAILABILITY=2
 # WMS service
 PETASCOPE_HOST='localhost'
 PETASCOPE_PORT=8080
-WMS_PATH='petascope/wms'
+WMS_PATH='rasdaman/ows/wms'
 WMS_VERSION='1.1.0'
 WMS_RELOADCAPABILITIES='reloadcapabilities'
 JPEG_FORMAT='image/jpeg'		# For supported image output formats see petascope.wms.WmsRequest.java::WMSREQ_FORMAT_*
