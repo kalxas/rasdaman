@@ -30,7 +30,6 @@
 ##################################################################
 
 AM_LFLAGS=-I
-YACC = bison 
 AM_YFLAGS=-d -y
 AM_CXXFLAGS=@BASEDBCXXFLAGS@
 AM_LDFLAGS=

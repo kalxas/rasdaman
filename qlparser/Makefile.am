@@ -36,7 +36,6 @@ lib_LIBRARIES=libqlparser.a
 # -i generates a scanner which doesn't care about upper and lower case; doesn't work
 AM_LFLAGS=-i -I
 
-YACC = bison 
 # -d generates token definitions in .h file
 AM_YFLAGS=-d -y
 AM_CXXFLAGS=@BASEDBCXXFLAGS@ @GDAL_CXXFLAGS@

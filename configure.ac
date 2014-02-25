@@ -13,7 +13,6 @@ CFLAGS=
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_AWK
-AC_PROG_YACC
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_LEX
@@ -24,7 +23,10 @@ AC_PROG_RANLIB
 AC_PROG_RPCGEN
 AC_PROG_SED
 AM_PROG_CC_C_O
-AC_CHECK_PROGS(YACC, bison, [${am_missing_run} bison])
+AC_CHECK_PROGS(YACC, ['bison -y' byacc yacc], no)
+if test "$YACC" = "no" ; then
+   AC_MSG_ERROR([could not find bison, byacc or yacc. Please install.])
+fi
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lcrypt':
