@@ -301,7 +301,7 @@ public class CrsUtil {
                                 Element uomRoot = uomDoc.getRootElement();
 
                                 // Catch some exception in the GML
-                                Element uomExEl = XMLUtil.firstChildRecursive(root, XMLSymbols.LABEL_EXCEPTION_TEXT);
+                                Element uomExEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_EXCEPTION_TEXT);
                                 if (uomExEl != null) {
                                     log.error(crsUri + ": " + uomExEl.getValue());
                                     throw new SecoreException(ExceptionCode.ResolverError, uomExEl.getValue());
