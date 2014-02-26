@@ -173,6 +173,7 @@ public:
         QT_BIT,
         QT_PYRAMID,
         QT_ENCODE,
+        QT_DECODE,
         QT_CONCAT,
         QT_CASEOP,
         QT_INFO,

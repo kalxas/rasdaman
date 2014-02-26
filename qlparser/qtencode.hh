@@ -33,6 +33,8 @@ rasdaman GmbH.
 // GDAL headers
 #include "gdal_priv.h"
 
+#include "qlparser/qtencodedecode.hh"
+
 class GDALDataset;
 
 /**************************************************************
@@ -59,7 +61,7 @@ class GDALDataset;
  *     name1=value1;name2=value2;...
 */
 
-class QtEncode : public QtUnaryOperation
+class QtEncode : public QtUnaryOperation, public QtEncodeDecode
 {
 public:
     
@@ -95,34 +97,12 @@ private:
     /// convert rasdaman type to GDAL type
     GDALDataType getGdalType(r_Type* rasType);
     
-    /// convert GDAL format ID to rasdaman format
-    r_Data_Format getDataFormat(char* format);
 
     // convert rasdaman tile to GDAL dataset
     GDALDataset* convertTileToDataset(Tile* sourceTile, int nBands, r_Type* bandType);
-    
-    void initParams(char* params);
-    void setDouble(const char* paramName, double* value);
-    void setString(const char* paramName, std::string* value);
-    
-    QtOperation *mddOp;
-    char* format;
-    char** fParams;
-    
-    struct GenericParams
-    {
-        double xmin;
-        double xmax;
-        double ymax;
-        double ymin;
 
-        std::string crs;        // string representation of the coordinate reference system
-        std::string metadata;   // further metadata of the result
-        std::vector<double> nodata; // nodata values of the result
-    };
+	r_Data_Format getDataFormat(char* format);
     
-    GenericParams gParams;
-
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 };

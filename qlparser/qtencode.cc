@@ -43,7 +43,6 @@ rasdaman GmbH.
 #include "cpl_string.h"
 #include "vrtdataset.h"
 
-
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -51,6 +50,9 @@ rasdaman GmbH.
 #include <string>
 using namespace std;
 #endif
+
+#ifndef GDAL_PARAMS
+#define GPDAL_PARAMS true
 
 #define PARAM_XMIN "xmin"
 #define PARAM_XMAX "xmax"
@@ -63,17 +65,18 @@ using namespace std;
 
 #define NODATA_VALUE_SEPARATOR " ,"
 #define NODATA_DEFAULT_VALUE 0.0
+#endif
 
 const QtNode::QtNodeType QtEncode::nodeType = QtNode::QT_ENCODE;
 
 QtEncode::QtEncode(QtOperation *mddOp, char* formatIn) throw (r_Error)
-: QtUnaryOperation(mddOp), format(formatIn), fParams(NULL)
+: QtUnaryOperation(mddOp), QtEncodeDecode(formatIn, NULL)
 {
     GDALAllRegister();
 }
 
 QtEncode::QtEncode(QtOperation *mddOp, char* formatIn, char* paramsIn) throw (r_Error)
-: QtUnaryOperation(mddOp), format(formatIn)
+: QtUnaryOperation(mddOp), QtEncodeDecode(formatIn)
 {
     GDALAllRegister();
     initParams(paramsIn);
@@ -81,75 +84,12 @@ QtEncode::QtEncode(QtOperation *mddOp, char* formatIn, char* paramsIn) throw (r_
 
 QtEncode::~QtEncode()
 {
-    CSLDestroy(fParams);
+    
 }
 
-  void split(string &s1, string &s2, char delim){
-  }
-
-void
-QtEncode::initParams(char* paramsIn)
-{
-    // replace escaped characters
-    string params("");
-    int i = 0;
-    while (paramsIn[i] != '\0')
-    {
-        char curr = paramsIn[i];
-        char next = paramsIn[i+1];
-        ++i;
-        
-        if (curr == '\\' && (next == '"' || next == '\'' || next == '\\'))
-            continue;
-        params += curr;
-    }
-    
-    fParams = CSLTokenizeString2(params.c_str(), ";",
-                                CSLT_STRIPLEADSPACES |
-                                CSLT_STRIPENDSPACES );
-    
-    setDouble(PARAM_XMIN, &gParams.xmin);
-    setDouble(PARAM_XMAX, &gParams.xmax);
-    setDouble(PARAM_YMIN, &gParams.ymin);
-    setDouble(PARAM_YMAX, &gParams.ymax);
-    setString(PARAM_CRS,  &gParams.crs);
-    setString(PARAM_METADATA, &gParams.metadata);
-    
-    string nodata;
-    setString(PARAM_NODATA, &nodata);
-    
-    if (!nodata.empty())
-    {
-        char* pch = (char*) nodata.c_str();
-        pch = strtok (pch, NODATA_VALUE_SEPARATOR);
-        while (pch != NULL)
-        {
-            double value = strtod(pch, NULL);
-            gParams.nodata.push_back(value);
-            pch = strtok (NULL, NODATA_VALUE_SEPARATOR);
-        }
-    }
+void split(string &s1, string &s2, char delim){
 }
 
-void
-QtEncode::setDouble(const char* paramName, double* value)
-{
-    int ind;
-    if ((ind = CSLFindName(fParams, paramName)) != -1)
-        *value = strtod(CSLFetchNameValue(fParams, paramName), NULL);
-    else
-        *value = DBL_MAX;
-}
-
-void
-QtEncode::setString(const char* paramName, string* value)
-{
-    int ind;
-    if ((ind = CSLFindName(fParams, paramName)) != -1)
-        *value = CSLFetchNameValue(fParams, paramName);
-    else
-        *value = "";
-}
 
 QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
 {
@@ -460,112 +400,10 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
     }
     
     // set parameters
-    if (gParams.xmin != DBL_MAX && gParams.xmax != DBL_MAX && gParams.ymin != DBL_MAX && gParams.ymax != DBL_MAX) {
-        double adfGeoTransform[6];
-        adfGeoTransform[0] = gParams.xmin;
-        adfGeoTransform[1] = (gParams.xmax - gParams.xmin) / width;
-        adfGeoTransform[2] = 0.0;
-        adfGeoTransform[3] = gParams.ymax;
-        adfGeoTransform[4] = 0.0;
-        adfGeoTransform[5] = -(gParams.ymax - gParams.ymin) / height;
-        hMemDS->SetGeoTransform(adfGeoTransform);
-    }
-    
-    if (gParams.crs != "")
-    {
-        OGRSpatialReference srs;
-        
-        // setup input coordinate system. Try import from EPSG, Proj.4, ESRI and last, from a WKT string
-        const char *crs = gParams.crs.c_str();
-        char *wkt = NULL;
-        
-        OGRErr err = srs.SetFromUserInput(crs);
-        if (err != OGRERR_NONE)
-        {
-            RMInit::logOut << "QtEncode::convertTileToDataset - Warning: GDAL could not understand coordinate reference system: '" << crs << "'" << endl;
-        }
-        else
-        {
-            srs.exportToWkt(&wkt);
-            hMemDS->SetProjection(wkt);
-        }
-    }
-    
-    if (gParams.metadata != "")
-    {
-        char** metadata = NULL;
-        metadata = CSLAddNameValue(metadata, "metadata", gParams.metadata.c_str());
-        hMemDS->SetMetadata(metadata);
-    }
-    
-        
-    // set nodata value
-    if (gParams.nodata.empty())
-    {
-        // if no nodata is specified, set default -- DM 2013-oct-01, ticket 477
-        gParams.nodata.push_back(NODATA_DEFAULT_VALUE);
-    }
-    if (gParams.nodata.size() > 0)
-    {
-        for (int band = 0; band < nBands; band++)
-        {
-            GDALRasterBand* rasterBand = hMemDS->GetRasterBand(band + 1);
-            
-            // if only one value is provided use the same for all bands
-            if (gParams.nodata.size() == 1)
-            {
-                rasterBand->SetNoDataValue(gParams.nodata.at(0));
-            }
-            else if (gParams.nodata.size() == nBands)
-            {
-                rasterBand->SetNoDataValue(gParams.nodata.at(band));
-            }
-            else
-            {
-                // warning, nodata value no != band no -- DM 2012-dec-10
-                RMInit::logOut << "Warning: ignored setting NODATA value, number of NODATA values (" <<
-                        gParams.nodata.size() << ") doesn't match the number of bands (" << nBands << ")." << endl;
-                break;
-            }
-        }
-    }
+	setGDALParameters(hMemDS, width, height, nBands);
 
     free(datasetCells);
     return hMemDS;
-}
-
-#define EQUAL(a, b) (strcmp(a, b) == 0)
-
-r_Data_Format
-QtEncode::getDataFormat(char* format)
-{
-    r_Data_Format ret = r_Array;
-    
-    if (format)
-    {
-        char* f = strdup(format);
-        for (int i = 0; format[i]; i++)
-        {
-            if (isalpha(format[i]))
-                f[i] = tolower(format[i]);
-        }
-        
-        if (EQUAL(f, "png"))
-            ret = r_PNG;
-        else if (EQUAL(f, "netcdf"))
-            ret = r_NETCDF;
-        else if (EQUAL(f, "gtiff") || EQUAL(f, "tiff"))
-            ret = r_TIFF;
-        else if (EQUAL(f, "jpeg") || EQUAL(f, "jpeg2000"))
-            ret = r_JPEG;
-        else if (EQUAL(f, "nitf"))
-            ret = r_NTF;
-        else if (EQUAL(f, "hdf") || EQUAL(f, "hdf4") || EQUAL(f, "hdf4image") || EQUAL(f, "hdf5"))
-            ret = r_HDF;
-        else if (EQUAL(f, "bmp"))
-            ret = r_BMP;
-    }
-    return ret;
 }
 
 GDALDataType
@@ -610,6 +448,42 @@ QtEncode::getGdalType(r_Type* rasType)
         throw r_Error(r_Error::r_Error_General);
     }
     return ret;
+}
+
+#ifndef STR_EQUAL
+#define STR_EQUAL(a, b) (strcmp(a, b) == 0)
+#endif
+
+r_Data_Format
+QtEncode::getDataFormat(char* format)
+{
+	r_Data_Format ret = r_Array;
+
+	if (format)
+	{
+		char* f = strdup(format);
+		for (int i = 0; format[i]; i++)
+		{
+			if (isalpha(format[i]))
+				f[i] = tolower(format[i]);
+		}
+
+		if (STR_EQUAL(f, "png"))
+			ret = r_PNG;
+		else if (STR_EQUAL(f, "netcdf"))
+			ret = r_NETCDF;
+		else if (STR_EQUAL(f, "gtiff") || STR_EQUAL(f, "tiff"))
+			ret = r_TIFF;
+		else if (STR_EQUAL(f, "jpeg") || STR_EQUAL(f, "jpeg2000"))
+			ret = r_JPEG;
+		else if (STR_EQUAL(f, "nitf"))
+			ret = r_NTF;
+		else if (STR_EQUAL(f, "hdf") || STR_EQUAL(f, "hdf4") || STR_EQUAL(f, "hdf4image") || STR_EQUAL(f, "hdf5"))
+			ret = r_HDF;
+		else if (STR_EQUAL(f, "bmp"))
+			ret = r_BMP;
+	}
+	return ret;
 }
 
 QtNode::QtAreaType

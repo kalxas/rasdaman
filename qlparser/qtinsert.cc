@@ -208,7 +208,7 @@ QtInsert::evaluate()
                 compatible = targetMDDType->compatibleWith(sourceBaseType);
             }
         }
-        
+
         if (!compatible) {
             // free resources
             persColl->releaseAll();
