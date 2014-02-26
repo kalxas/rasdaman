@@ -297,7 +297,7 @@ $$
                                     || quote_ident(cget('PS9_EXTRA_METADATA_TYPE'))        ||  ','
                                     || quote_ident(cget('PS9_EXTRA_METADATA_VALUE'))       || ' ) ' ||
                         ' VALUES (' || _coverage9_id           || ','
-                                    || gmlcov_metadata_type_id || ',' ||
+                                    || gmlcov_metadata_type_id || ','
                                     || quote_literal(_tup.row[1])     || ')';
             EXECUTE _qry;
             RAISE LOG '%: GMLCOV metadata ''%..'' of coverage ''%'' has been migrated.',
