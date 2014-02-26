@@ -164,6 +164,12 @@ echo "ok."
 # the first schema is the $INTERIM_SCHEMA, so tables are created there now.
 #
 
+# Set standard_conforming_strings flag (on by default from PostgreSQL 9.1)
+# ``ordinary string literals ('...') treat backslashes literally, as specified in the SQL standard''
+# http://www.postgresql.org/docs/current/static/runtime-config-compatible.html#GUC-STANDARD-CONFORMING-STRINGS
+$PSQL -c "ALTER ROLE $PS_USER SET standard_conforming_strings = on" > /dev/null 2>&1
+
+
 # utilities + constants (cget/cset)
 logn "updating utilities and global constants ... "
 $PSQL $SINGLE_TRANSACTION -f "$UPGRADE_SCRIPTS_DIR/$UTILITIES_SQL" > /dev/null 2>&1

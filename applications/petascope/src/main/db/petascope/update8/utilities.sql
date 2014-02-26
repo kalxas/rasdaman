@@ -933,7 +933,7 @@ CREATE OR REPLACE FUNCTION ncget(
 $$
     DECLARE
         -- Log
-        ME constant text := 'cget()';
+        ME constant text := 'ncget()';
     BEGIN
         -- Check if table exists (create it otherwise)
         PERFORM check_constants_tables_exists();
