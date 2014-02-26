@@ -88,14 +88,14 @@ public class CrsUtil {
     public static final String CRS_DEFAULT_VERSION = "0";
     //public static final String CRS_DEFAULT_FORMAT  = "application/gml+xml";
 
-    // TODO: define a URL to let SECORE return the supported authorities?
+    // TODO: do not rely on a static set of auths, but ask SECORE to return the supported authorities: ./def/crs/
     public static final String EPSG_AUTH = "EPSG";
-    public static final String ISO_AUTH  = "ISO";
-    public static final String AUTO_AUTH = "AUTO";
-    public static final String OGC_AUTH  = "OGC";
+    //public static final String ISO_AUTH  = "ISO";
+    //public static final String AUTO_AUTH = "AUTO";
+    //public static final String OGC_AUTH  = "OGC";
     //public static final String IAU_AUTH  = "IAU2000";
     //public static final String UMC_AUTH  = "UMC";
-    public static final List<String> SUPPORTED_AUTHS = Arrays.asList(EPSG_AUTH, ISO_AUTH, AUTO_AUTH, OGC_AUTH); // IAU_AUTH, UMC_AUTH);
+    //public static final List<String> SUPPORTED_AUTHS = Arrays.asList(EPSG_AUTH, ISO_AUTH, AUTO_AUTH, OGC_AUTH); // IAU_AUTH, UMC_AUTH);
 
     // WGS84
     public static final String WGS84_EPSG_CODE = "4326";
@@ -1172,9 +1172,9 @@ public class CrsUtil {
                 if (isKvp(current) || isRest(current)) {
                     // Check if authority is supported (SECORE is now bottleneck) as well:
                     // --> http://kahlua.eecs.jacobs-university.de:8080/def/crs/browse.jsp <--
-                    if (!SUPPORTED_AUTHS.contains(getAuthority(current))) {
-                        return false;
-                    }
+                    //if (!SUPPORTED_AUTHS.contains(getAuthority(current))) {
+                    //    return false;
+                    //}
                 } else {
                     return false;
                 }
