@@ -115,6 +115,7 @@ function insert_into()
   local file_name="$2"
   local extraopts="$3"
   local inv_fun="$4"
+  local rasql_opts=$5
 
   local values="$inv_fun(\$1 $extraopts)"
   if [ -z "$inv_fun" ]; then
@@ -122,7 +123,7 @@ function insert_into()
   fi
 
   logn "inserting data... "
-  $RASQL --quiet -q "insert into $coll_name values $values" -f $file_name > /dev/null
+  $RASQL --quiet -q "insert into $coll_name values $values" -f $file_name $rasql_opts > /dev/null
   feedback
 }
 

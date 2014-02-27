@@ -74,6 +74,7 @@ check_gdal
 # check data types
 check_type GreySet
 check_type RGBSet
+check_type Gauss2Set
 check_user_type TestSet
 
 
@@ -98,13 +99,20 @@ if [ "$colltype" == RGBSet ]; then
   f=rgb
 elif [ "$colltype" == TestSet ]; then
   f=multiband
+elif [ "$colltype" == Gauss2Set ]; then
+  f=gauss
 fi
 local extraopts="$6"
+local rasqlopts="$7"
+
+if [ ! -z "$inv_fun" ]; then
+    inv_fun="inv_$inv_fun"
+fi
 
 log ----- $fun and inv_$fun conversion ------
 
 create_coll test_tmp $colltype
-insert_into test_tmp "$TESTDATA_PATH/$f.$inv_ext" "$extraopts" "inv_$inv_fun"
+insert_into test_tmp "$TESTDATA_PATH/$f.$inv_ext" "$extraopts" "$inv_fun" "$rasqlopts"
 export_to_file test_tmp "$f" "$fun"
 
 logn "comparing images: "
@@ -185,6 +193,7 @@ fi
 
 run_test csv png csv png GreySet
 run_test csv png csv png RGBSet
+run_test csv "" csv binary Gauss2Set "" "--mddtype Gauss2Image --mdddomain [0:1,-1:1]"
 
 # ------------------------------------------------------------------------------
 # test summary
