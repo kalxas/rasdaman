@@ -1,0 +1,7 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=irr_cube_1&
+subset=i(2)&
+subset=j(5)&
+subset=k(8)

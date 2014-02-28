@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of PetaScope.
+ *
+ * PetaScope is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU  General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * PetaScope is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU  General Public License for more details.
+ *
+ * You should have received a copy of the GNU  General Public
+ * License along with PetaScope. If not, see "http://www.gnu.org/licenses/".
+ *
+ * For more information please see "http://www.PetaScope.org"
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ *
+ * Copyright 2009 Jacobs University Bremen, Peter Baumann.
+-->
+
+
+<gmlcov:ReferenceableGridCoverage
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="irr_cube_1"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="" axisLabels="" uomLabels="" srsDimension="0">
+      <lowerCorner></lowerCorner>
+      <upperCorner></upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <gmlrgrid:ReferenceableGridByVectors dimension="1" id="irr_cube_1-grid"
+
+        >
+      <limits>
+        <GridEnvelope>
+          <low></low>
+          <high></high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels></axisLabels>
+      <gmlrgrid:origin>
+        <Point id="irr_cube_1-origin" srsName="" axisLabels="" uomLabels="" srsDimension="0">
+          <pos></pos>
+        </Point>
+      </gmlrgrid:origin>
+      <gmlrgrid:generalGridAxis>
+        <gmlrgrid:GeneralGridAxis>
+          <gmlrgrid:offsetVector srsName="" axisLabels="" uomLabels="" srsDimension="0"></gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients></gmlrgrid:coefficients>
+          <gmlrgrid:gridAxesSpanned></gmlrgrid:gridAxesSpanned>
+          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+        </gmlrgrid:GeneralGridAxis>
+      </gmlrgrid:generalGridAxis>
+    </gmlrgrid:ReferenceableGridByVectors>
+
+  </domainSet>
+
+  <rangeSet>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList>825</tupleList>
+    </DataBlock>
+  </rangeSet>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="value">
+      <swe:Quantity  definition="/dataType/OGC/0/unsignedShort"><swe:label>unsigned short</swe:label><swe:description>primitive</swe:description><swe:uom code="10^0" /><swe:constraint><swe:AllowedValues><swe:interval>0 65535</swe:interval></swe:AllowedValues></swe:constraint></swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+
+</gmlcov:ReferenceableGridCoverage>

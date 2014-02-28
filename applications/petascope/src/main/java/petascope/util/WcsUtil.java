@@ -448,40 +448,43 @@ public class WcsUtil {
     public static String getCoefficients(GetCoverageMetadata m, String axisName, DbMetadataSource dbMeta) throws WCSException {
         // init
         String coefficients = "";
-        CoverageMetadata meta = m.getMetadata();
-        DomainElement domEl = meta.getDomainByName(axisName);
 
-        // "optional" coefficients
-        if (domEl.isIrregular()) {
-            List<BigDecimal> coeffs = domEl.getCoefficients();
-            // When an irregular axis is not trimmed, the coefficients are not set in the domain element.
-            // Coefficients are indeed lazily loaded in memory so that possibly only the
-            // ones which have to be included in the response are actually fetched.
-            // When no subsets on an irregular domain element are requested then the domain element
-            // itself is not considered so there isno way to retrieve them
-            // We need to get the coefficients now (laziest loading):
-            if (coeffs.isEmpty()) {
-                try {
-                 domEl.setCoefficients(
-                         dbMeta.getAllCoefficients(
-                             m.getMetadata().getCoverageName(),
-                             m.getMetadata().getDomainIndexByName(domEl.getLabel()) // i-order of axis
-                         ));
-                 coeffs = domEl.getCoefficients();
-                } catch (PetascopeException ex) {
-                    log.error("Error while fetching the coefficients of " + domEl.getLabel());
-                    throw new WCSException(ex.getExceptionCode(), ex);
+        if (!axisName.isEmpty()) {
+            CoverageMetadata meta = m.getMetadata();
+            DomainElement domEl = meta.getDomainByName(axisName);
+
+            // "optional" coefficients
+            if (domEl.isIrregular()) {
+                List<BigDecimal> coeffs = domEl.getCoefficients();
+                // When an irregular axis is not trimmed, the coefficients are not set in the domain element.
+                // Coefficients are indeed lazily loaded in memory so that possibly only the
+                // ones which have to be included in the response are actually fetched.
+                // When no subsets on an irregular domain element are requested then the domain element
+                // itself is not considered so there isno way to retrieve them
+                // We need to get the coefficients now (laziest loading):
+                if (coeffs.isEmpty()) {
+                    try {
+                        domEl.setCoefficients(
+                                dbMeta.getAllCoefficients(
+                                m.getMetadata().getCoverageName(),
+                                m.getMetadata().getDomainIndexByName(domEl.getLabel()) // i-order of axis
+                                ));
+                        coeffs = domEl.getCoefficients();
+                    } catch (PetascopeException ex) {
+                        log.error("Error while fetching the coefficients of " + domEl.getLabel());
+                        throw new WCSException(ex.getExceptionCode(), ex);
+                    }
                 }
-            }
 
-            // Adjust the coefficients to the origin of the requested grid (originally they are relative to the native origin)
-            List<String> subsetLabels = Arrays.asList(m.getGridAxisLabels().split(" "));
-            if (subsetLabels.contains(axisName)) {
-                BigDecimal subsetLo = new BigDecimal(m.getDomLow().split(" ")[subsetLabels.indexOf(axisName)]);
-                coeffs = Vectors.add(coeffs, BigDecimalUtil.divide(domEl.getMinValue().subtract(subsetLo), domEl.getScalarResolution()));
+                // Adjust the coefficients to the origin of the requested grid (originally they are relative to the native origin)
+                List<String> subsetLabels = Arrays.asList(m.getGridAxisLabels().split(" "));
+                if (subsetLabels.contains(axisName)) {
+                    BigDecimal subsetLo = new BigDecimal(m.getDomLow().split(" ")[subsetLabels.indexOf(axisName)]);
+                    coeffs = Vectors.add(coeffs, BigDecimalUtil.divide(domEl.getMinValue().subtract(subsetLo), domEl.getScalarResolution()));
+                }
+                // Create the XML element
+                coefficients = ListUtil.printList(coeffs, " ");
             }
-            // Create the XML element
-            coefficients = ListUtil.printList(coeffs, " ");
         }
         return coefficients;
     }
