@@ -97,7 +97,7 @@ public class GmlFormatExtension extends AbstractFormatExtension {
 
             // RGBV coverages
             if (m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
-                gml = WcsUtil.addCoefficients(gml, m);
+                gml = WcsUtil.addCoefficients(gml, m, meta);
                 // Grid and Coverage bounds need to be updated, now we know the coefficients
                 updateGetCoverageMetadata(request, m, meta);
                 gml = WcsUtil.getBounds(gml, m);

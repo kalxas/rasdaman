@@ -88,7 +88,7 @@ public class DescribeCoverageHandler extends AbstractRequestHandler<DescribeCove
                                 ));
                     }
                     // Add to GML
-                    descr = WcsUtil.addCoefficients(descr, m);
+                    descr = WcsUtil.addCoefficients(descr, m, meta);
                     descr = WcsUtil.getBounds(descr, m);
                 } else if (m.getCoverageType().equals(LABEL_MULTIPOINT_COVERAGE)) {
                     // Multipoint coverages: add point positions

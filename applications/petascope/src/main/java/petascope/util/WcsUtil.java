@@ -441,9 +441,11 @@ public class WcsUtil {
      * Empty string is returned on regular ones.
      * @param m
      * @param axisName
-     * @return
+     * @param dbMeta
+     * @return The whitespace-separated list of vector coefficients of an axis (empty string if not defined)
+     * @throws WCSException
      */
-    public static String getCoefficients(GetCoverageMetadata m, String axisName) {
+    public static String getCoefficients(GetCoverageMetadata m, String axisName, DbMetadataSource dbMeta) throws WCSException {
         // init
         String coefficients = "";
         CoverageMetadata meta = m.getMetadata();
@@ -452,7 +454,27 @@ public class WcsUtil {
         // "optional" coefficients
         if (domEl.isIrregular()) {
             List<BigDecimal> coeffs = domEl.getCoefficients();
-            // Adjust their values to the origin of the requested grid
+            // When an irregular axis is not trimmed, the coefficients are not set in the domain element.
+            // Coefficients are indeed lazily loaded in memory so that possibly only the
+            // ones which have to be included in the response are actually fetched.
+            // When no subsets on an irregular domain element are requested then the domain element
+            // itself is not considered so there isno way to retrieve them
+            // We need to get the coefficients now (laziest loading):
+            if (coeffs.isEmpty()) {
+                try {
+                 domEl.setCoefficients(
+                         dbMeta.getAllCoefficients(
+                             m.getMetadata().getCoverageName(),
+                             m.getMetadata().getDomainIndexByName(domEl.getLabel()) // i-order of axis
+                         ));
+                 coeffs = domEl.getCoefficients();
+                } catch (PetascopeException ex) {
+                    log.error("Error while fetching the coefficients of " + domEl.getLabel());
+                    throw new WCSException(ex.getExceptionCode(), ex);
+                }
+            }
+
+            // Adjust the coefficients to the origin of the requested grid (originally they are relative to the native origin)
             List<String> subsetLabels = Arrays.asList(m.getGridAxisLabels().split(" "));
             if (subsetLabels.contains(axisName)) {
                 BigDecimal subsetLo = new BigDecimal(m.getDomLow().split(" ")[subsetLabels.indexOf(axisName)]);
@@ -470,16 +492,17 @@ public class WcsUtil {
      * the coverage data (see petascope.wcps.server.core.crs and DbMetadataSource.getCoefficientsOfInterval()).
      * @param gml  The GML output already filled with data and metadata.
      * @param m    The metadata specific to the WCS GetCoverage request
+     * @param dbMeta
      * @return GML where {coefficients} have been replaced with real values.
      * @throws WCSException
      * @throws PetascopeException
      */
-    public static String addCoefficients(String gml, GetCoverageMetadata m)
+    public static String addCoefficients(String gml, GetCoverageMetadata m, DbMetadataSource dbMeta)
             throws WCSException, PetascopeException {
         String[] axisNames = m.getGridAxisLabels().split(" ");
         // Loop through the N dimensions (rely on order)
         for (int i = 0; i < axisNames.length; i++) {
-            gml = gml.replaceFirst("\\{" + Templates.KEY_COEFFICIENTS + "\\}", WcsUtil.getCoefficients(m, axisNames[i]));
+            gml = gml.replaceFirst("\\{" + Templates.KEY_COEFFICIENTS + "\\}", WcsUtil.getCoefficients(m, axisNames[i], dbMeta));
         }
         return gml;
     }
