@@ -2444,6 +2444,75 @@ public:
 /**
   * \ingroup Catalogmgrs
   */
+class OpMINComplex : public CondenseOp
+{
+public:
+    /*@ManMemo: constructor gets RasDaMan base type of result and operand
+                and offsets to result and operand (for structs). */
+    OpMINComplex( const BaseType* newResType, const BaseType* newOpType,
+                  unsigned int newResOff = 0, unsigned int newOpOff = 0 );
+    /// constructor initializing internal accu.
+    OpMINComplex( const BaseType* newResType, char* newAccu,
+                  const BaseType* newOpType, unsigned int newResOff,
+                  unsigned int newOpOff );
+    /// operator to carry out operation on {\tt op}.
+    virtual char* operator()( const char* op, char* myAccu );
+    /// operator to carry out operation on {\tt op} using internal accu.
+    virtual char* operator()( const char* op );
+
+private:
+    OpMIN_BINARYComplex minBinary;
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpMAXComplex : public CondenseOp
+{
+public:
+    /*@ManMemo: constructor gets RasDaMan base type of result and operand
+                and offsets to result and operand (for structs). */
+    OpMAXComplex( const BaseType* newResType, const BaseType* newOpType,
+                  unsigned int newResOff = 0, unsigned int newOpOff = 0 );
+    /// constructor initializing internal accu.
+    OpMAXComplex( const BaseType* newResType, char* newAccu,
+                  const BaseType* newOpType, unsigned int newResOff,
+                  unsigned int newOpOff );
+    /// operator to carry out operation on {\tt op}.
+    virtual char* operator()( const char* op, char* myAccu );
+    /// operator to carry out operation on {\tt op} using internal accu.
+    virtual char* operator()( const char* op );
+
+private:
+    OpMAX_BINARYComplex maxBinary;
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpSUMComplex : public CondenseOp
+{
+public:
+    /*@ManMemo: constructor gets RasDaMan base type of result and operand
+                and offsets to result and operand (for structs). */
+    OpSUMComplex(const BaseType* newResType,const BaseType* newOpType,
+                 unsigned int newResOff = 0, unsigned int newOpOff = 0 );
+    /// constructor initializing internal accu.
+    OpSUMComplex(const BaseType* newResType, char* newAccu,
+                 const   BaseType* newOpType, unsigned int newResOff,
+                 unsigned int newOpOff );
+    /// operator to carry out operation on {\tt op}.
+    virtual char* operator()( const char* op, char* myAccu );
+    /// operator to carry out operation on {\tt op} using internal accu.
+    virtual char* operator()( const char* op );
+
+private:
+    OpPLUSComplex plusBinary;
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
 class OpRealPart : public UnaryOp
 {
 public:

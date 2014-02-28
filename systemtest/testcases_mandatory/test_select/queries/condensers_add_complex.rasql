@@ -1,0 +1,1 @@
+select add_cells( test_complex ) from test_complex

@@ -76,7 +76,7 @@ DROP_DATA=0
 drop_data()
 {
   [ $DROP_DATA -eq 0 ] && return
-  [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "nullvalues" ] || drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
+  [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "nullvalues" ] || drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2 $TEST_COMPLEX
   [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" -o "$SVC_NAME" == "nullvalues" ] || drop_petascope_data
   [ "$SVC_NAME" == "nullvalues" ] && drop_nullvalues_data
 }
@@ -136,6 +136,12 @@ done
 drop_data
 [ "$SVC_NAME" == "secore" -o "$SVC_NAME" == "select" ] || import_petascope_data "$TESTDATA_PATH"
 [ "$SVC_NAME" == "select" ] && import_rasql_data "$TESTDATA_PATH"
+if [ -e "$TESTDATA_PATH/complex.binary" -a "$SVC_NAME" == "select" ] ; then
+    check_type Gauss2Set
+    drop_colls $TEST_COMPLEX
+    create_coll $TEST_COMPLEX Gauss2Set
+    insert_into $TEST_COMPLEX "$TESTDATA_PATH/complex.binary" "" "" "--mddtype Gauss2Image --mdddomain [0:7,0:7]"
+fi
 echo
 
 pushd "$QUERIES_PATH" > /dev/null

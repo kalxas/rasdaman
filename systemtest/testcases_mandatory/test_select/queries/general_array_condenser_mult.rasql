@@ -1,0 +1,1 @@
+select condense * over i in sdom(data) using data[i] from test_complex as data
