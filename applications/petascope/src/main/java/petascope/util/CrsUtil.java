@@ -933,8 +933,10 @@ public class CrsUtil {
                     // {isPositiveForwards / isNegativeForwards}
                     // Formula : px_s = grid_origin + [{S/M} - {m/S}]
                     for (String subset : (Arrays.asList(new String[] {stringLo, stringHi}))) {
-                        long hiBound = dom.isPositiveForwards() ? (long)Double.parseDouble(subset) : indexMax;
-                        long loBound = dom.isPositiveForwards() ? indexMin : (long)Double.parseDouble(subset);
+                        // NOTE: on subsets.lo the /next/ integer needs to be taken : trunc(stringLo) + 1 (if it is not exact integer)
+                        boolean roundUp = subset.equals(stringLo) && ((double)Double.parseDouble(subset) != (long)Double.parseDouble(subset));
+                        long hiBound = dom.isPositiveForwards() ? (long)Double.parseDouble(subset) + (roundUp ? 1 : 0): indexMax;
+                        long loBound = dom.isPositiveForwards() ? indexMin : (long)Double.parseDouble(subset) + (roundUp ? 1 : 0);
                         subsetGridIndexes[count] =  domMin.longValue() + (hiBound - loBound);
                         count += 1;
                     }

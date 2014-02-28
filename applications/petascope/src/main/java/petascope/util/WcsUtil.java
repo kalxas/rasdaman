@@ -24,6 +24,7 @@ package petascope.util;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -650,25 +651,43 @@ public class WcsUtil {
      *
      * @param coordinateValue
      * @param domEl
-     * @param greaterValue
+     * @param isUpperBound
      * @return The next greater/lower value that coincides with the envelope of a point's sample space.
      */
-    public static BigDecimal fitToSampleSpace(BigDecimal coordinateValue, DomainElement domEl, boolean greaterValue) {
+    public static BigDecimal fitToSampleSpace(BigDecimal coordinateValue, DomainElement domEl, boolean isUpperBound) {
 
         // local variables
-        BigDecimal fittedCoordinateValue;
+        BigDecimal fittedCoordinateValue = coordinateValue;
         BigDecimal distanceFromOrigin;
         BigInteger cellsFromLowerBound;
 
-        if (domEl.isIrregular() || domEl.getUom().equals(GRID_UOM)) {
-            // 0D sample space: no need to fit
-            fittedCoordinateValue = coordinateValue;
+        if (!domEl.hasSampleSpace()) {
+            // 0D sample space: need to fit to nearest point
+            if (domEl.isIrregular() && !domEl.getCoefficients().isEmpty()) {
+                // method can be called also before fetching the coefficients down at WCPS level;
+                // in that case the the given coordinateValue already fits with the bbox: no need to seek the next point
+                List<BigDecimal> coefficients = domEl.getCoefficients();
+                // The loaded coefficients are the ones associated with points inside the input subsets
+                BigDecimal fitCoefficient = (isUpperBound) ?
+                        coefficients.get(coefficients.size()-1) : // isUpperBound : get the last point included in the response
+                        coefficients.get(0) ;                     // isLowerBound : get the first point included in the response
+                // coordinate = Origin + (coefficient * offset_vector)
+                fittedCoordinateValue = domEl.getMinValue().add(domEl.getDirectionalResolution().multiply(fitCoefficient));
+            } else if (domEl.getUom().equals(GRID_UOM)) {
+                // only integral coordinates are legal here
+                // round up on subset.lo bounds and if coordinate is not integral
+                boolean roundUp = !isUpperBound && (coordinateValue.subtract(BigDecimal.valueOf(coordinateValue.longValue())).compareTo(BigDecimal.ZERO) != 0);
+                fittedCoordinateValue = BigDecimal.valueOf(coordinateValue.longValue()); // decimals discarded
+                if (roundUp) {
+                    fittedCoordinateValue = fittedCoordinateValue.add(BigDecimal.ONE);
+                }
+            }
         } else {
-            // 1D sample space (along this dimension): need to fit
+            // 1D sample space (along this dimension): need to fit to sample space borders
             // Count the number of full sample-spaces that fit in the bbox:
             distanceFromOrigin = coordinateValue.subtract(domEl.getMinValue());
             cellsFromLowerBound = BigDecimalUtil.divide(distanceFromOrigin, domEl.getScalarResolution()).toBigInteger();
-            if (greaterValue) {
+            if (isUpperBound) {
                 // User is asking the next fitted value *greater* than the given one (for upper corners)
                 cellsFromLowerBound = cellsFromLowerBound.add(BigInteger.ONE);
             } // else : User is asking the next fitted value *lower* than the given one (for lower corners)

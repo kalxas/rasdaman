@@ -33,6 +33,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
+import static petascope.util.CrsUtil.GRID_UOM;
 
 /**
  * This is an axis in geographic coordinates. See the WCPS standard.
@@ -224,6 +225,15 @@ public class DomainElement implements Cloneable {
 
     public boolean isIrregular() {
         return isIrregular;
+    }
+
+    /**
+     * Determine whether the points along this domain element represent a non 0D sample space.
+     * This happens when the associated grid axis is regular.
+     * @return True is the domain element points do represent a sample space.
+     */
+    public boolean hasSampleSpace() {
+        return !isIrregular && !(getUom().equals(GRID_UOM));
     }
 
     /**

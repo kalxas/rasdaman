@@ -21,14 +21,8 @@
  */
 package petascope.wcs2.extensions;
 
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 import java.util.ListIterator;
-import nu.xom.Builder;
-import nu.xom.Document;
-import nu.xom.Element;
-import nu.xom.ParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
@@ -38,10 +32,8 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
-import petascope.util.XMLUtil;
 import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
-import static petascope.util.XMLUtil.serialize;
 import petascope.util.ras.RasQueryResult;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcs2.handlers.Response;

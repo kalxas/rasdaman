@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of PetaScope.
+ *
+ * PetaScope is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU  General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * PetaScope is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU  General Public License for more details.
+ *
+ * You should have received a copy of the GNU  General Public
+ * License along with PetaScope. If not, see "http://www.gnu.org/licenses/".
+ *
+ * For more information please see "http://www.PetaScope.org"
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ *
+ * Copyright 2009 Jacobs University Bremen, Peter Baumann.
+-->
+
+
+<gmlcov:ReferenceableGridCoverage
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="irr_cube_1"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">
+      <lowerCorner>0 3 5</lowerCorner>
+      <upperCorner>2 5 5</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <gmlrgrid:ReferenceableGridByVectors dimension="3" id="irr_cube_1-grid"
+
+        >
+      <limits>
+        <GridEnvelope>
+          <low>0 3 4</low>
+          <high>2 5 4</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>i j k</axisLabels>
+      <gmlrgrid:origin>
+        <Point id="irr_cube_1-origin" srsName="/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">
+          <pos>0 3 4</pos>
+        </Point>
+      </gmlrgrid:origin>
+      <gmlrgrid:generalGridAxis>
+        <gmlrgrid:GeneralGridAxis>
+          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">1 0 0</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients></gmlrgrid:coefficients>
+          <gmlrgrid:gridAxesSpanned>i</gmlrgrid:gridAxesSpanned>
+          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+        </gmlrgrid:GeneralGridAxis>
+      </gmlrgrid:generalGridAxis>
+      <gmlrgrid:generalGridAxis>
+        <gmlrgrid:GeneralGridAxis>
+          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">0 1 0</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients></gmlrgrid:coefficients>
+          <gmlrgrid:gridAxesSpanned>j</gmlrgrid:gridAxesSpanned>
+          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+        </gmlrgrid:GeneralGridAxis>
+      </gmlrgrid:generalGridAxis>
+      <gmlrgrid:generalGridAxis>
+        <gmlrgrid:GeneralGridAxis>
+          <gmlrgrid:offsetVector srsName="/crs/OGC/0/Index3D" axisLabels="i j k" uomLabels="GridSpacing GridSpacing GridSpacing" srsDimension="3">0 0 1</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients>1</gmlrgrid:coefficients>
+          <gmlrgrid:gridAxesSpanned>k</gmlrgrid:gridAxesSpanned>
+          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+        </gmlrgrid:GeneralGridAxis>
+      </gmlrgrid:generalGridAxis>
+    </gmlrgrid:ReferenceableGridByVectors>
+
+  </domainSet>
+
+  <rangeSet>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList>503,504,505,513,514,515,523,524,525</tupleList>
+    </DataBlock>
+  </rangeSet>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="value">
+      <swe:Quantity  definition="/dataType/OGC/0/unsignedShort"><swe:label>unsigned short</swe:label><swe:description>primitive</swe:description><swe:uom code="10^0" /><swe:constraint><swe:AllowedValues><swe:interval>0 65535</swe:interval></swe:AllowedValues></swe:constraint></swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+
+</gmlcov:ReferenceableGridCoverage>
