@@ -73,6 +73,9 @@
 //bool debugOutput;
 //#endif
 
+// db connector object
+RasdamanConnector* rasconn;
+
 /// DATA STRUCTURES
 struct NMsize
 {

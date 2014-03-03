@@ -29,6 +29,9 @@
 #include <string>
 #include <algorithm>
 #include <unistd.h>
+#ifdef HAVE_LIBSIGSEGV
+#include <sigsegv.h>
+#endif
 
 #include "raserase.hh"
 #include "include/globals.hh"
@@ -58,11 +61,27 @@ void showEraseHelp()
     cout << endl;
 }
 
+#if HAVE_SIGSEGV_RECOVERY
+int
+handler (void *fault_address, int serious)
+{
+    // clean up connection in case of segfault
+    if (rasconn)
+    {
+        delete rasconn;
+    }
+}
+#endif
+
 
 int main(int argc, char** argv)
 {
+#if HAVE_SIGSEGV_RECOVERY
+    sigsegv_install_handler(&handler);
+#endif
     SET_OUTPUT( true );
     const string ctx = "raserase::main()";
+    rasconn = NULL;
 
     ENTER(ctx);
 
@@ -179,9 +198,8 @@ int main(int argc, char** argv)
     // ---------------------------------------------------------------------------
     // evaluate user specifications
 
-
-    RasdamanConnector rasconn(connfile);
-    RasdamanHelper2 helper(&rasconn);
+    rasconn = new RasdamanConnector(connfile);
+    RasdamanHelper2 helper(rasconn);
 
     if (collname.empty() && coverage.empty())
     {
@@ -242,10 +260,19 @@ int main(int argc, char** argv)
     }
     catch(r_Error& re)
     {
+        if (rasconn)
+        {
+            delete rasconn;
+        }
         cerr << ctx << ": "
         << re.what() << endl;
         LEAVE(ctx);
         return EXIT_FAILURE;
+    }
+
+    if (rasconn)
+    {
+        delete rasconn;
     }
 
     LEAVE(ctx);

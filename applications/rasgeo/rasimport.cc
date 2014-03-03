@@ -1,5 +1,5 @@
 /*
- * This file is part of rasdaman communiollty.
+ * This file is part of rasdaman community.
  *
  * Rasdaman community is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,9 @@
 #include "unistd.h"
 #include <limits>
 #include <algorithm>
+#ifdef HAVE_LIBSIGSEGV
+#include <sigsegv.h>
+#endif
 
 
 #include "rasimport.hh"
@@ -1425,11 +1428,28 @@ void getMetaURIs(Header& header, RasdamanHelper2& helper, bool b3D)
     header.crs_uris.push_back(uris);
 }
 
+#if HAVE_SIGSEGV_RECOVERY
+int
+handler (void *fault_address, int serious)
+{
+    // clean up connection in case of segfault
+    if (rasconn)
+    {
+        delete rasconn;
+    }
+}
+#endif
+
 // ----------------------------------------- MAIN ------------------------------------------------
 
 int
 main(int argc, char** argv)
 {
+#if HAVE_SIGSEGV_RECOVERY
+    sigsegv_install_handler(&handler);
+#endif
+    rasconn = NULL;
+
     SET_OUTPUT(1);
     ENTER(ctx << "main()");
 
@@ -1882,8 +1902,8 @@ main(int argc, char** argv)
     // FURTHER PARAMETER EVALUATION WITH HELP FROM RASDAMANHELPER
     try
     {
-        RasdamanConnector rasconn(connfile);
-        RasdamanHelper2 helper(&rasconn);
+        rasconn = new RasdamanConnector(connfile);
+        RasdamanHelper2 helper(rasconn);
 
         double toid;
         if (!usercovname.empty())
@@ -2174,10 +2194,18 @@ main(int argc, char** argv)
      }
     catch (r_Error& re)
     {
+        if (rasconn)
+        {
+            delete rasconn;
+        }
         cerr << ctx << "main(): "
         << re.what() << endl;
         LEAVE(ctx << "main()");
         return EXIT_FAILURE;
+    }
+    if (rasconn)
+    {
+        delete rasconn;
     }
 
     LEAVE(ctx << "main()");
