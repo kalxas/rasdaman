@@ -57,7 +57,6 @@ using namespace std;
 #endif
 
 #include "raslib/rminit.hh"
-#include "lockmgr/lockmanager.hh"
 
 #include "debug-srv.hh"
 
