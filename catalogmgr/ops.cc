@@ -690,7 +690,7 @@ Ops::getCondenseOp(Ops::OpType op, const BaseType* resType, const BaseType* opTy
     else if( resType->getType() == STRUCT) {
         // res and op are structs with same structure.
         return new OpCondenseStruct( resType, opType, op, resOff, opOff );
-    } else if (resType->getType() >= COMPLEXTYPE1 && resType->getType() <= COMPLEXTYPE2) {
+    } else if (resType->getType() == COMPLEXTYPE1 || resType->getType() == COMPLEXTYPE2) {
         switch(op)
         {
             case Ops::OP_MAX:
