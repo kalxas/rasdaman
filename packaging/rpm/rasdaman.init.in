@@ -274,7 +274,7 @@ initpetascopedb(){
   grep 'metadata_user=inituser' /etc/rasdaman/petascope.properties > /dev/null
   if [ $? -eq 0 ]; then
     sed -i 's/^metadata_user=.\+/metadata_user=petauser/' /etc/rasdaman/petascope.properties
-    sed -i 's/^metadata_pass=.\+/metadata_user=petapasswd/' /etc/rasdaman/petascope.properties
+    sed -i 's/^metadata_pass=.\+/metadata_pass=petapasswd/' /etc/rasdaman/petascope.properties
 
     # setup postgres to allow connections from petascope
     grep trust $PGDATA/pg_hba.conf | grep -v METHOD > /dev/null
