@@ -1,0 +1,1 @@
+select csv(c[*:*,226:138,*:*]) from eobstest AS c

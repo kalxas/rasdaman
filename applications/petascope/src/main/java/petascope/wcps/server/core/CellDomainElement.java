@@ -44,10 +44,6 @@ public class CellDomainElement implements Cloneable {
             throw new WCPSException(ExceptionCode.InvalidMetadata,
                     "Invalid cell domain element: Bounds may not be null.");
         }
-        if (lo.compareTo(hi) == 1) {
-            throw new WCPSException(ExceptionCode.InvalidMetadata,
-                    "Invalid cell domain element: lower bound " + lo + " cannot be larger than upper bound " + hi);
-        }
         log.trace(WcpsConstants.MSG_CELL_DOMAIN + " " + lo + ":" + hi);
 
         this.lo = lo;
