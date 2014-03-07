@@ -867,30 +867,38 @@ public class CrsUtil {
 
                 // Need to query the database (IRRSERIES table) to get the extents
                 try {
+                    //
                     String numLo = stringLo;
                     String numHi = stringHi;
+                    BigDecimal normalizedNumLo;
+                    BigDecimal normalizedNumHi;
 
                     if (subsetWithTimestamps) {
-                        // Need to convert timestamps to TemporalCRS numeric coordinates
-                        numLo = "" + TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, dom.getScalarResolution().doubleValue());
-                        numHi = "" + TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, dom.getScalarResolution().doubleValue());
+                        // Need to convert timestamps to TemporalCRS numeric coordinates (normalized: "how many vectors" between subset/datum)
+                        normalizedNumLo = new BigDecimal(TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, dom.getScalarResolution().doubleValue()));
+                        normalizedNumHi = new BigDecimal(TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, dom.getScalarResolution().doubleValue()));
+                    } else {
+                        // Coefficients refer to how many offset-vectors of distance is a coordinate
+                        normalizedNumLo = BigDecimalUtil.divide(new BigDecimal(numLo), dom.getScalarResolution());
+                        normalizedNumHi = BigDecimalUtil.divide(new BigDecimal(numHi), dom.getScalarResolution());
                     }
 
                     // Retrieve correspondent cell indexes (unique method for numerical/timestamp values)
                     // TODO: I need to extract all the values, not just the extremes
+                    BigDecimal normalizedDomMin = BigDecimalUtil.divide(domMin, dom.getScalarResolution());
                     subsetGridIndexes = dbMeta.getIndexesFromIrregularRectilinearAxis(
                             covMeta.getCoverageName(),
                             covMeta.getDomainIndexByName(axisName), // i-order of axis
-                            (new BigDecimal(numLo)).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
-                            (new BigDecimal(numHi)).subtract(domMin),  //
+                            normalizedNumLo.subtract(normalizedDomMin),  // coefficients are relative to the origin, but subsets are not.
+                            normalizedNumHi.subtract(normalizedDomMin),  //
                             indexMin, indexMax);
 
                     // Retrieve the coefficients values and store them in the DomainElement
                     dom.setCoefficients(dbMeta.getCoefficientsOfInterval(
                             covMeta.getCoverageName(),
                             covMeta.getDomainIndexByName(axisName), // i-order of axis
-                            (new BigDecimal(numLo)).subtract(domMin),
-                            (new BigDecimal(numHi)).subtract(domMin)
+                            normalizedNumLo.subtract(normalizedDomMin),
+                            normalizedNumHi.subtract(normalizedDomMin)
                             ));
 
                     // Add sdom lower bound

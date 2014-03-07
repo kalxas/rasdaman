@@ -523,6 +523,88 @@ function import_irr_cube_1()
 
 # ------------------------------------------------------------------------------
 #
+# import 3D geo-referenced irregular time series
+#
+function import_irr_cube_2()
+{
+  local TESTDATA_PATH="$1"
+  data_folder="${TESTDATA_PATH}/${COLL}"
+  datatype_file="${data_folder}/GeostatPredictionTypes.txt"
+  if [ ! -d "$data_folder" ] || \
+     [ $( find "$data_folder" -name *.geo.tif | wc -l ) -ne 4 ] || \
+     [ ! -f "$datatype_file" ]
+  then
+    error "testdata in "$data_folder" not found or partially missing."
+  fi
+
+  c=$COLL
+  c_basetype='GeostatPredictionPixel'
+  c_marraytype='GeostatPredictionCube'
+  c_colltype='GeostatPredictionSet3'
+  c_crs_s="$SECORE_URL"'/crs/EPSG/0/32633'
+  c_crs_t="$SECORE_URL"'/crs/OGC/0/AnsiDate'
+  t_vector=2 # coefficients in time are relative to this bi-daily vector
+
+  # SWE metadata (prediction/variance)
+  declare -a c_swe_uom_code=('ug/m3' '(ug/m3)2')
+  declare -a c_swe_label=('prediction' 'variance')
+  declare -a c_swe_description=('kriged mean surface PM10 exposure' 'kriging error on PM10 prediction')
+
+  #
+  # START
+  #
+  # Drop/re-insert data types for this collection (re-insert on existing types throws error)
+  $RASDL --delsettype  "$c_colltype"      > /dev/null || exit $RC_ERROR
+  $RASDL --delmddtype  "$c_marraytype"    > /dev/null || exit $RC_ERROR
+  $RASDL --delbasetype "$c_basetype"      > /dev/null || exit $RC_ERROR
+  $RASDL --insert --read "$datatype_file" > /dev/null || exit $RC_ERROR
+
+  # Import
+  $RASIMPORT -d "$data_folder" \
+             -s 'tif' \
+             -t  ${c_marraytype}:${c_colltype} \
+             --coll $c \
+             --coverage-name $c \
+             --crs-uri  "$c_crs_s":"$c_crs_t" \
+             --crs-order 0:1:2  \
+             --3D top \
+             --csz "$t_vector" \
+             --z-coords 148653:148655:148657:148660 > /dev/null || exit $RC_ERROR
+             # ANSI date numbers for 2008 Jan {1-3-5-8} 00:00:00Z (ANSI dates are integers: no hour resolution)
+
+  # rasimport is still poor on SWE metadata handling: update it with richer information (range type)
+  _qry="SELECT id FROM ps_coverage WHERE name='${c}'"
+  c_id=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" )
+  for index in 0 1
+  do
+      # get ID of UoM
+      _qry="SELECT id FROM ps_uom WHERE code='${c_swe_uom_code[$index]}'"
+      c_swe_uom_id[$index]=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" )
+      if [ -z "${c_swe_uom_id[$index]}"]
+      then
+          _qry="INSERT INTO ps_uom (code) VALUES ('${c_swe_uom_code[$index]}') RETURNING id"
+          c_swe_uom_id[$index]=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" | head -n 1 )
+      fi
+      # Get ID of SWE Quantity
+      _qry="SELECT id FROM ps_quantity WHERE uom_id=${c_swe_uom_id[$index]} \
+               AND label='${c_swe_label[$index]}' \
+               AND description='${c_swe_description[$index]}'"
+      c_swe_quantity_id[$index]=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" )
+      if [ -z "${c_swe_quantity_id[$index]}" ]
+      then
+          _qry="INSERT INTO ps_quantity (uom_id, label, description) \
+                VALUES (${c_swe_uom_id[$index]}, '${c_swe_label[$index]}', '${c_swe_description[$index]}') \
+                RETURNING id"
+          c_swe_quantity_id[$index]=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" | head -n 1 )
+          fi
+      # Finally, update the range type component associated to this quantity:
+      $PSQL -c "UPDATE ps_range_type_component SET field_id=${c_swe_quantity_id[$index]} \
+                WHERE coverage_id=$c_id AND component_order=$index;" > /dev/null || exit $RC_ERROR
+  done
+}
+
+# ------------------------------------------------------------------------------
+#
 # import 2D geo-referenced data
 #
 function import_mst()
@@ -576,7 +658,7 @@ function import_petascope_data()
   if [ $res -eq 0 ]; then
     multi_coll="Parksmall"
   fi
-  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 $multi_coll"
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 irr_cube_2 $multi_coll"
   for COLL in $COLLECTIONS; do
     check_cov $COLL
     if [ $? -ne 0 ]; then
@@ -597,6 +679,8 @@ function import_petascope_data()
           import_mst "$TESTDATA_PATH" && break
         elif [ "$COLL" == "irr_cube_1" ]; then
           import_irr_cube_1 "$TESTDATA_PATH" && break
+        elif [ "$COLL" == "irr_cube_2" ]; then
+          import_irr_cube_2 "$TESTDATA_PATH" && break
         elif [ "$COLL" == "Parksmall" ]; then
           import_pointcloud_data "$TESTDATA_PATH" && break
         fi
@@ -621,7 +705,7 @@ function drop_petascope_data()
   if [ $res -eq 0 ]; then
     multi_coll="Parksmall"
   fi
-  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 $multi_coll"
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 irr_cube_2 $multi_coll"
   drop_petascope $COLLECTIONS
   drop_colls $COLLECTIONS
   log "dropping wms..."

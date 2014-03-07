@@ -143,7 +143,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             if (trimLow.contains("\"")) {
                                 // Convert timestamp to temporal numeric coordinate
                                 String datumOrigin = domainEl.getAxisDef().getCrsDefinition().getDatumOrigin();
-                                trimLow = "" + (TimeUtil.countOffsets(datumOrigin, trimLow, domainEl.getUom(), domainEl.getScalarResolution().doubleValue()));
+                                trimLow = "" + (TimeUtil.countOffsets(datumOrigin, trimLow, domainEl.getUom(), 1D)); // do not normalize by vector here: absolute time coords needed
                             }
                             String lower = new BigDecimal(Math.max(
                                     Double.parseDouble(trimLow),
@@ -157,7 +157,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                 // Convert timestamp to temporal numeric coordinate
                                 String datumOrigin = domainEl.getAxisDef().getCrsDefinition().getDatumOrigin();
                                 String stringHi = trimHigh;
-                                trimHigh = "" + (TimeUtil.countOffsets(datumOrigin, stringHi, domainEl.getUom(), domainEl.getScalarResolution().doubleValue()));
+                                trimHigh = "" + (TimeUtil.countOffsets(datumOrigin, stringHi, domainEl.getUom(), 1D)); // do not normalize by vector here: absolute time coords needed
                             }
                             String upper = new BigDecimal(Math.min(
                                     Double.parseDouble(trimHigh),

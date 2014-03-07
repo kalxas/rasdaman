@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * This file is part of PetaScope.
+ *
+ * PetaScope is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU  General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * PetaScope is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU  General Public License for more details.
+ *
+ * You should have received a copy of the GNU  General Public
+ * License along with PetaScope. If not, see "http://www.gnu.org/licenses/".
+ *
+ * For more information please see "http://www.PetaScope.org"
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ *
+ * Copyright 2009 Jacobs University Bremen, Peter Baumann.
+-->
+
+
+<gmlcov:ReferenceableGridCoverage
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="irr_cube_2"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="/crs/EPSG/0/32633" axisLabels="E N" uomLabels="metre metre" srsDimension="2">
+      <lowerCorner>95042.72735943 5094865.5579385</lowerCorner>
+      <upperCorner>105042.72735943 5124865.5579385</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <gmlrgrid:ReferenceableGridByVectors dimension="2" id="irr_cube_2-grid"
+
+        >
+      <limits>
+        <GridEnvelope>
+          <low>2 33</low>
+          <high>2 35</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>E N</axisLabels>
+      <gmlrgrid:origin>
+        <Point id="irr_cube_2-origin" srsName="/crs/EPSG/0/32633" axisLabels="E N" uomLabels="metre metre" srsDimension="2">
+          <pos>100042.72735943 5119865.5579385</pos>
+        </Point>
+      </gmlrgrid:origin>
+      <gmlrgrid:generalGridAxis>
+        <gmlrgrid:GeneralGridAxis>
+          <gmlrgrid:offsetVector srsName="/crs/EPSG/0/32633" axisLabels="E N" uomLabels="metre metre" srsDimension="2">10000 0</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients></gmlrgrid:coefficients>
+          <gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
+          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+        </gmlrgrid:GeneralGridAxis>
+      </gmlrgrid:generalGridAxis>
+      <gmlrgrid:generalGridAxis>
+        <gmlrgrid:GeneralGridAxis>
+          <gmlrgrid:offsetVector srsName="/crs/EPSG/0/32633" axisLabels="E N" uomLabels="metre metre" srsDimension="2">0 -10000</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients></gmlrgrid:coefficients>
+          <gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
+          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+        </gmlrgrid:GeneralGridAxis>
+      </gmlrgrid:generalGridAxis>
+    </gmlrgrid:ReferenceableGridByVectors>
+
+  </domainSet>
+
+  <rangeSet>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList>2.04248 1.95887,2.33427 1.96245,2.50987 1.96483</tupleList>
+    </DataBlock>
+  </rangeSet>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="b1">
+      <swe:Quantity ><swe:label>prediction</swe:label><swe:description>kriged mean surface PM10 exposure</swe:description><swe:uom code="ug/m3" /></swe:Quantity>
+    </swe:field>    <swe:field name="b2">
+      <swe:Quantity ><swe:label>variance</swe:label><swe:description>kriging error on PM10 prediction</swe:description><swe:uom code="(ug/m3)2" /></swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+
+</gmlcov:ReferenceableGridCoverage>
