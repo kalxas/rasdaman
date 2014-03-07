@@ -153,7 +153,7 @@ void r_Conv_CSV::printPrimitiveValue(std::stringstream &f, const r_Base_Type &ty
         f << ptr->get_ushort(val);
         break;
     case r_Type::BOOL:
-        f << ptr->get_boolean(val) ? "T": "F";
+        f << (int) ptr->get_boolean(val);
         break;
     case r_Type::LONG:
         f << ptr->get_long(val);
@@ -165,7 +165,7 @@ void r_Conv_CSV::printPrimitiveValue(std::stringstream &f, const r_Base_Type &ty
         f << (int) (ptr->get_octet(val));
         break;
     case r_Type::DOUBLE:
-        f << ptr->get_double(val);
+        f << (float) ptr->get_double(val);
         break;
     case r_Type::FLOAT:
         f << ptr->get_float(val);
