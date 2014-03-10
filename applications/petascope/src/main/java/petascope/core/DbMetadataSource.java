@@ -277,6 +277,12 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String RANGETYPE_COMPONENT_ORDER        = "component_order";
     public static final String RANGETYPE_COMPONENT_FIELD_TABLE  = "field_table";
     public static final String RANGETYPE_COMPONENT_FIELD_ID     = "field_id";
+
+    // Bounding Box//
+    // TABLE_BOUNDING_BOX
+    public static final String TABLE_BOUNDING_BOX        = TABLES_PREFIX + "bounding_box";
+    public static final String LOWER_LEFT                = "lower_left";
+    public static final String UPPER_RIGHT               = "upper_right";
     /* ~end TABLES */
 
     /* Stored procedures */
@@ -1221,10 +1227,35 @@ public class DbMetadataSource implements IMetadataSource {
                 return covMeta;
 
              } else if(WcsUtil.isMultiPoint(coverageType)) {
-
+                // Fetch the bbox for Multi* Coverages
+                ArrayList<BigDecimal> lowerLeft;
+                ArrayList<BigDecimal> upperRight;
+                sqlQuery =
+                    " SELECT " + LOWER_LEFT + "," + UPPER_RIGHT +
+                    " FROM "   + TABLE_BOUNDING_BOX        +
+                    " WHERE "  + GRIDDED_DOMAINSET_COVERAGE_ID  + "=" + coverageId
+                    ;
+                lowerLeft = new ArrayList<BigDecimal>();
+                upperRight = new ArrayList<BigDecimal>();
+                log.debug("SQL query: " + sqlQuery);
+                r = s.executeQuery(sqlQuery);
+                if (!r.next()) {
+                    throw new PetascopeException(ExceptionCode.InvalidMetadata,
+                            "Multi* coverage '" + coverageName + "' is missing the bounding box.");
+                } else {
+                    ResultSet rs = r.getArray(LOWER_LEFT).getResultSet();
+                    while (rs.next()) {
+                        lowerLeft.add(rs.getBigDecimal(2));
+                    }
+                    rs = r.getArray(UPPER_RIGHT).getResultSet();
+                    while (rs.next()) {
+                        upperRight.add(rs.getBigDecimal(2));
+                    }
+                }
                 cellDomainElements = new ArrayList<CellDomainElement>(1);
                 CoverageMetadata covMeta = new CoverageMetadata(coverageName, coverageType,
-                        coverageNativeFormat, extraMetadata, crsAxes, cellDomainElements, rangeElementsQuantities);
+                        coverageNativeFormat, extraMetadata, crsAxes, cellDomainElements,
+                        rangeElementsQuantities, lowerLeft, upperRight);
 
                 cache.put(coverageName, covMeta);
                 return covMeta;

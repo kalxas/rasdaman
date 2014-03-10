@@ -235,14 +235,17 @@ public class CoverageMetadata implements Cloneable {
                 );
     }
 
-    // MultiPoint
+    // Constrctor for Multi* Coverage
+
     public CoverageMetadata(String coverageName,
             String coverageType,
             String nativeFormat,
             Set<Pair<String,String>> extraMeta,
             List<Pair<CrsDefinition.Axis,String>> crsAxes, // axis -> URI
             List<CellDomainElement> cellDomain,
-            List<Pair<RangeElement,Quantity>> rangeElementQuantities
+            List<Pair<RangeElement,Quantity>> rangeElementQuantities,
+            ArrayList<BigDecimal> covLowerLeft,
+            ArrayList<BigDecimal> covUpperRight
             ) throws WCPSException{
 
         crsUris = new ArrayList<String>();
@@ -267,8 +270,8 @@ public class CoverageMetadata implements Cloneable {
             // Build domain metadata
             cellDomainList.add(new CellDomainElement("1", "1", 0));
             domainList.add( new DomainElement(
-                BigDecimal.ONE,
-                BigDecimal.ONE,
+                covLowerLeft.get(i),
+                covUpperRight.get(i),
                 crsAxes.get(i).fst.getAbbreviation(),
                 crsAxes.get(i).fst.getType(),
                 crsAxes.get(i).fst.getUoM(),

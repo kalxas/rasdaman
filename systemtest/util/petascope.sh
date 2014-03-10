@@ -826,6 +826,16 @@ function import_pointcloud_data()
 	$PSQL -c "$insert_stmt"  > /dev/null || exit $RC_ERROR
 	fi
 
+	# Inserting coverage extension into ps_bounding_box table_schema
+  lower_left=`$PSQL -X -P t -P format=unaligned -c "SELECT min(St_X(coordinate)) || ',' || min(St_Y(coordinate)) || ',' || min(St_Z(coordinate)) \
+		  FROM ${DB_TABLE_PREFIX}_coverage,    ${DB_TABLE_PREFIX}_multipoint WHERE ${DB_TABLE_PREFIX}_coverage.name='$PC_COVERAGE' \
+			AND ${DB_TABLE_PREFIX}_coverage.id=${DB_TABLE_PREFIX}_multipoint.coverage_id;" | head -3 | tail -1`
+	upper_right=`$PSQL -X -P t -P format=unaligned -c "SELECT max(St_X(coordinate)) || ',' || max(St_Y(coordinate)) || ',' || max(St_Z(coordinate)) \
+			FROM ${DB_TABLE_PREFIX}_coverage,       ${DB_TABLE_PREFIX}_multipoint 	WHERE ${DB_TABLE_PREFIX}_coverage.name='$PC_COVERAGE' \
+			AND ${DB_TABLE_PREFIX}_coverage.id = ${DB_TABLE_PREFIX}_multipoint.coverage_id;" | head -3 | tail -1`
+  $PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_bounding_box(coverage_id, lower_left, upper_right) \
+			VALUES($COVERAGE_ID,'{${lower_left}}','{${upper_right}}');" > /dev/null || exit $RC_ERROR
+
 	log "Point cloud coverage $PC_COVERAGE is imported"
   log ok.
 
