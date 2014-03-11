@@ -178,6 +178,7 @@ public:
         QT_CASEOP,
         QT_INFO,
         QT_POW,
+        QT_CONSTRUCT_COMPLEX,
         QT_LAST_NODE_TYPE
     };
 

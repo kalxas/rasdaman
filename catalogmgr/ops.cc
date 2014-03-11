@@ -441,6 +441,9 @@ Ops::getBinaryOp( Ops::OpType op, const BaseType* resType, const BaseType* op1Ty
                 return new OpMULTComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off, OpMULTComplex::SECOND);
             else
                 return new OpMULTComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off);
+
+        case Ops::OP_CONSTRUCT_COMPLEX:
+            return new OpConstructComplex(resType, op1Type, op2Type, resOff, op1Off, op2Off);
         }
     }
 
@@ -869,6 +872,15 @@ int Ops::isApplicable(Ops::OpType op, const BaseType* op1Type, const BaseType* o
         else
             // Double is the strongest type anyway
             resType = TypeFactory::mapType("Double");
+    } else if (op == OP_CONSTRUCT_COMPLEX) {
+        if (op1Type->getType() <= NUMERICAL_TYPES_END && op2Type->getType() <= NUMERICAL_TYPES_END) {
+            if (op1Type->getType() == DOUBLE || op2Type->getType() == DOUBLE)
+                resType = TypeFactory::mapType("Complex2");
+            else if (op1Type->getType() == FLOAT || op2Type->getType() == FLOAT)
+                resType = TypeFactory::mapType("Complex1");
+            else
+                resType = TypeFactory::mapType("Complex2");
+        }
     }
     else
         // Double is the strongest type anyway
@@ -1075,6 +1087,14 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
             return TypeFactory::mapType("Float");
         else if(op1->getType() == COMPLEXTYPE2)
             return TypeFactory::mapType("Double");
+    }
+    if (op == OP_CONSTRUCT_COMPLEX) {
+        if (op1->getType() == DOUBLE || op2->getType() == DOUBLE)
+            return TypeFactory::mapType("Complex2");
+        else if (op1->getType() == FLOAT || op2->getType() == FLOAT)
+            return TypeFactory::mapType("Complex1");
+        else
+            return TypeFactory::mapType("Complex2");
     }
     if( op2 == 0 )
         return (BaseType*)op1;
@@ -4573,6 +4593,26 @@ OpSUMComplex::operator()( const char* op )
     return OpSUMComplex::operator()(op, accu);
 }
 
+// *** CONSTRUCTING COMPLEX ***
+
+OpConstructComplex::OpConstructComplex(const BaseType* newResType, const BaseType* newOp1Type,
+    const BaseType* newOp2Type, unsigned int newResOff, unsigned int newOp1Off,
+    unsigned int newOp2Off)
+    : BinaryOp(newResType, newOp1Type, newOp2Type, newResOff, newOp1Off, newOp2Off)
+{
+    resReOff = ((GenericComplexType *)newResType)->getReOffset();
+    resImOff = ((GenericComplexType *)newResType)->getImOffset();
+}
+
+void
+OpConstructComplex::operator()(char *res, const char *op1, const char *op2)
+{
+    double resRe = *(op1Type->convertToCDouble(op1 + op1Off, &resRe));
+    double resIm = *(op2Type->convertToCDouble(op2 + op2Off, &resIm));
+
+    resType->makeFromCDouble(res + resOff + resReOff, &resRe);
+    resType->makeFromCDouble(res + resOff + resImOff, &resIm);
+}
 // *** REAL PART ***
 
 OpRealPart::OpRealPart(

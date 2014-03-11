@@ -93,3 +93,9 @@ QtBit::getNodeType() const
 {
 	return nodeType; 
 }
+
+inline const QtNode::QtNodeType
+QtConstructComplex::getNodeType() const
+{
+    return nodeType;
+}

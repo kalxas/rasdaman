@@ -1,0 +1,1 @@
+select complex(cos(x), -sin(x)) from test_grey as x

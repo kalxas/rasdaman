@@ -661,3 +661,45 @@ const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
 
     return dataStreamType;
 }
+
+/********************************************************
+ *  QtConstructComplex
+ ********************************************************
+ */
+
+
+const QtNode::QtNodeType QtConstructComplex::nodeType = QT_CONSTRUCT_COMPLEX;
+
+QtConstructComplex::QtConstructComplex(QtOperation* initInput1, QtOperation* initInput2)
+    :  QtBinaryInduce(initInput1, initInput2, Ops::OP_CONSTRUCT_COMPLEX) {}
+
+
+bool QtConstructComplex::isCommutative() const
+{
+    return false;
+}
+
+void QtConstructComplex::printTree(int tab, ostream& s, QtChildType mode)
+{
+    s << SPACE_STR(tab).c_str() << "QtConstructComplex Object " << getNodeType() << getEvaluationTime() << endl;
+    QtBinaryInduce::printTree(tab, s, mode);
+}
+
+void QtConstructComplex::printAlgebraicExpression(ostream& s)
+{
+    s << "complex (";
+
+    if( input2 )
+        input2->printAlgebraicExpression(s);
+    else
+        s << "<nn>";
+
+    s << ", ";
+
+    if( input1 )
+        input1->printAlgebraicExpression(s);
+    else
+        s << "<nn>";
+
+    s << ")";
+}

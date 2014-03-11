@@ -325,6 +325,17 @@ private:
     static const QtNodeType nodeType;
 };
 
+class QtConstructComplex : public QtBinaryInduce
+{
+public:
+    QtConstructComplex( QtOperation* input1, QtOperation* input2 );
+    bool isCommutative() const;
+    virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
+    virtual void printAlgebraicExpression( std::ostream& s = std::cout );
+    inline virtual const QtNodeType getNodeType() const;
+private:
+    static const QtNodeType nodeType;
+};
 
 #include "qlparser/qtbinaryinduce2.icc"
 

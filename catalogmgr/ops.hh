@@ -55,6 +55,7 @@ class r_Point;
 enum TypeEnum
 {
     ULONG, USHORT, CHAR, BOOLTYPE, LONG, SHORT, OCTET, DOUBLE, FLOAT,
+    NUMERICAL_TYPES_END = FLOAT,
     COMPLEXTYPE1,             // COMPLEX already defined as token !!!
     COMPLEXTYPE2,
     STRUCT,
@@ -161,7 +162,7 @@ public:
         /* insert new unary ops before this line */ OP_IDENTITY,
         // binary operations.
         OP_MINUS, OP_PLUS, OP_MAX_BINARY, OP_MIN_BINARY, OP_DIV, OP_MULT, OP_INTDIV, OP_MOD,
-        OP_IS, OP_AND, OP_OR, OP_OVERLAY, OP_BIT, OP_XOR,
+        OP_IS, OP_AND, OP_OR, OP_OVERLAY, OP_BIT, OP_XOR, OP_CONSTRUCT_COMPLEX,
         /* insert new binary ops before this line */
         OP_EQUAL, OP_LESS, OP_LESSEQUAL,
         OP_NOTEQUAL, OP_GREATER, OP_GREATEREQUAL
@@ -2508,6 +2509,21 @@ public:
 
 private:
     OpPLUSComplex plusBinary;
+};
+
+/**
+  * \ingroup Catalogmgrs
+  */
+class OpConstructComplex : public BinaryOp
+{
+public:
+    OpConstructComplex(const BaseType* newResType, const BaseType* newOp1Type,
+        const BaseType* newOp2Type, unsigned int newResOff = 0,
+        unsigned int newOp1Off = 0, unsigned int newOp2Off = 0);
+    virtual void operator()( char* res, const char* op1, const char* op2 );
+private:
+    unsigned int resReOff;
+    unsigned int resImOff;
 };
 
 /**
