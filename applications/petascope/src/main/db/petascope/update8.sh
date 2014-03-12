@@ -241,7 +241,7 @@ then
     log "WARNING: PostGIS (postgis.sql) not found. Multipoint support will not be installed."
 else
     # version >= 2.0 ?
-    POSTGIS_VERSION=$( grep "INSTALL VERSION" "$POSTGIS_SQL_PATH" | awk '{ print $4; }' )
+    POSTGIS_VERSION=$( grep "INSTALL VERSION" "$POSTGIS_SQL_PATH" | awk '{ print $4; }' | tr -d "'" )
     log "detected PostGIS version: $POSTGIS_VERSION"
     if [ "${POSTGIS_VERSION%%\.*}" -lt "$POSTGIS_REQ_VERSION" ]
     then
