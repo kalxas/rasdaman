@@ -843,7 +843,7 @@ main( int argc, char** argv )
                 // create domain of next tile
                 cacheDom =  r_Minterval(2)
                             << r_Sinterval((r_Range)0, imgCols - 1)
-                            << r_Sinterval(k, k + min(tileRows-1, imgRows-k-1));
+                            << r_Sinterval((r_Range)k, k + min(tileRows-1, imgRows-k-1));
 
                 LOG << "#" << k << " " << cacheDom << "..." << flush;
 
