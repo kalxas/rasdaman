@@ -201,6 +201,12 @@ schema_is_empty() {
   schema_tables_count=$( $PSQL -P t -P format=unaligned -c "$sql_qry" 2>/dev/null )
   [ "$schema_tables_count" -eq 0 ] && return 0 || return 1
 }
+set_dbupdate() {
+  counter="$1"
+  $PSQL -c "UPDATE $PS_DBUPDATES SET $DBUPDATES_UPDATE = $counter" > /dev/null 2>&1
+  log "updated database to update $(( $counter-1 ))"
+}
+
 #
 # revert/cleanup
 #
@@ -246,6 +252,13 @@ cleanup_schemas() {
       done
   fi
 }
+sigint_handler() {
+  if [ -n $updated ]
+  then
+      set_dbupdate $counter
+  fi
+  error "user interrupt."
+}
 
 # exporting functions for child scripts
 export -f log
@@ -257,6 +270,9 @@ export -f schema_is_empty
 export -f get_wms_tables
 export -f move_wms_tables
 export -f drop_postgresql_schema
+
+# trap keyboard interrupt (control-c)
+trap sigint_handler SIGINT
 
 # ------------------------------------------------------------------------------
 # work
@@ -420,8 +436,7 @@ done
 #
 if [ -n $updated ]
 then
-    $PSQL -c "UPDATE $PS_DBUPDATES SET $DBUPDATES_UPDATE = $counter" > /dev/null 2>&1
-    log "updated database to update $(( $counter-1 ))"
+    set_dbupdate $counter
 fi
 
 #

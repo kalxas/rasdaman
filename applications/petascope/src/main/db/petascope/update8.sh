@@ -126,6 +126,16 @@ check_dblink() {
   fi
 }
 
+#
+# interrupt handler
+#
+sigint_handler() {
+  rollback
+  error "user interrupt."
+}
+# trap keyboard interrupt (control-c)
+trap sigint_handler SIGINT
+
 # ------------------------------------------------------------------------------
 
 
