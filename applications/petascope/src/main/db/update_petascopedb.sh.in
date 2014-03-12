@@ -122,6 +122,7 @@ feedback() {
   fi
 }
 
+
 #
 # checks
 #
@@ -376,7 +377,7 @@ log "detected $update_files updates in $SCRIPT_DIR... "
 log "starting from update counter n.$counter"
 
 
-while [ -f "$SCRIPT_DIR"/update${counter}.* ]
+while [ -f "$SCRIPT_DIR"/update${counter}.sql -o -f "$SCRIPT_DIR"/update${counter}.sh ]
 do
     logn "  update $counter... "
 
