@@ -413,7 +413,7 @@ public class XmlQuery extends AbstractRasNode {
 
         result = selectClause +
                 " FROM " + TABLE_COVERAGE + "," + TABLE_MULTIPOINT +
-                whereClause;
+                whereClause + " ORDER BY " + TABLE_MULTIPOINT + "." + MULTIPOINT_ID;
 
         return result;
     }
