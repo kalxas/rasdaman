@@ -29,7 +29,6 @@ rasdaman GmbH.
 #include "qlparser/qtunaryoperation.hh"
 #include "tilemgr/tile.hh"
 #include "raslib/type.hh"
-#include "qlparser/qtencodedecode.hh"
 #include "relcatalogif/mdddimensiontype.hh"
 
 // GDAL headers
@@ -40,11 +39,9 @@ rasdaman GmbH.
  * library and processes them transforming them into rasdaman MDDs.
  *
  */
-class QtDecode : public QtUnaryOperation, public QtEncodeDecode {
+class QtDecode : public QtUnaryOperation{
 public:
 	QtDecode(QtOperation* newInput) throw (r_Error);
-	QtDecode(QtOperation* newInput, char* params) throw (r_Error);
-
 
 	virtual ~QtDecode();
 

@@ -58,7 +58,7 @@ private:
 	 * Converts the GDAL dataset to rasdaman dataset, using type T for the rasdaman tile.
      */
 	template<typename T>
-	static char* reolveCellsTemplate(GDALDataset *poDataset);
+	static char* resolveTileCellsByType(GDALDataset *poDataset);
 };
 
 #endif	/* GDALDATACONVERTER_HH */

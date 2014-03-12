@@ -70,13 +70,13 @@ using namespace std;
 const QtNode::QtNodeType QtEncode::nodeType = QtNode::QT_ENCODE;
 
 QtEncode::QtEncode(QtOperation *mddOp, char* formatIn) throw (r_Error)
-: QtUnaryOperation(mddOp), QtEncodeDecode(formatIn, NULL)
+: QtUnaryOperation(mddOp), format(formatIn), fParams(NULL)
 {
     GDALAllRegister();
 }
 
 QtEncode::QtEncode(QtOperation *mddOp, char* formatIn, char* paramsIn) throw (r_Error)
-: QtUnaryOperation(mddOp), QtEncodeDecode(formatIn)
+: QtUnaryOperation(mddOp), format(formatIn)
 {
     GDALAllRegister();
     initParams(paramsIn);
@@ -84,7 +84,7 @@ QtEncode::QtEncode(QtOperation *mddOp, char* formatIn, char* paramsIn) throw (r_
 
 QtEncode::~QtEncode()
 {
-    
+  CSLDestroy(fParams);
 }
 
 void split(string &s1, string &s2, char delim){
@@ -531,4 +531,140 @@ const QtNode::QtNodeType
 QtEncode::getNodeType() const
 {
   return nodeType;
+}
+
+void
+QtEncode::initParams(char* paramsIn)
+{
+	// replace escaped characters
+	string params("");
+	int i = 0;
+	while (paramsIn[i] != '\0')
+	{
+		char curr = paramsIn[i];
+		char next = paramsIn[i + 1];
+		++i;
+
+		if (curr == '\\' && (next == '"' || next == '\'' || next == '\\'))
+			continue;
+		params += curr;
+	}
+
+	fParams = CSLTokenizeString2(params.c_str(), ";",
+			CSLT_STRIPLEADSPACES |
+			CSLT_STRIPENDSPACES);
+
+	setDouble(PARAM_XMIN, &gParams.xmin);
+	setDouble(PARAM_XMAX, &gParams.xmax);
+	setDouble(PARAM_YMIN, &gParams.ymin);
+	setDouble(PARAM_YMAX, &gParams.ymax);
+	setString(PARAM_CRS, &gParams.crs);
+	setString(PARAM_METADATA, &gParams.metadata);
+
+	string nodata;
+	setString(PARAM_NODATA, &nodata);
+
+	if (!nodata.empty())
+	{
+		char* pch = (char*) nodata.c_str();
+		pch = strtok(pch, NODATA_VALUE_SEPARATOR);
+		while (pch != NULL)
+		{
+			double value = strtod(pch, NULL);
+			gParams.nodata.push_back(value);
+			pch = strtok(NULL, NODATA_VALUE_SEPARATOR);
+		}
+	}
+}
+
+void
+QtEncode::setDouble(const char* paramName, double* value)
+{
+	int ind;
+	if ((ind = CSLFindName(fParams, paramName)) != -1)
+		*value = strtod(CSLFetchNameValue(fParams, paramName), NULL);
+	else
+		*value = DBL_MAX;
+}
+
+void
+QtEncode::setString(const char* paramName, string* value)
+{
+	int ind;
+	if ((ind = CSLFindName(fParams, paramName)) != -1)
+		*value = CSLFetchNameValue(fParams, paramName);
+	else
+		*value = "";
+}
+
+void
+QtEncode::setGDALParameters(GDALDataset *gdalDataSet, int width, int height, int nBands)
+{
+	if (gParams.xmin != DBL_MAX && gParams.xmax != DBL_MAX && gParams.ymin != DBL_MAX && gParams.ymax != DBL_MAX)
+	{
+		double adfGeoTransform[6];
+		adfGeoTransform[0] = gParams.xmin;
+		adfGeoTransform[1] = (gParams.xmax - gParams.xmin) / width;
+		adfGeoTransform[2] = 0.0;
+		adfGeoTransform[3] = gParams.ymax;
+		adfGeoTransform[4] = 0.0;
+		adfGeoTransform[5] = -(gParams.ymax - gParams.ymin) / height;
+		gdalDataSet->SetGeoTransform(adfGeoTransform);
+	}
+
+	if (gParams.crs != "")
+	{
+		OGRSpatialReference srs;
+
+		// setup input coordinate system. Try import from EPSG, Proj.4, ESRI and last, from a WKT string
+		const char *crs = gParams.crs.c_str();
+		char *wkt = NULL;
+
+		OGRErr err = srs.SetFromUserInput(crs);
+		if (err != OGRERR_NONE)
+		{
+			RMInit::logOut << "QtEncode::convertTileToDataset - Warning: GDAL could not understand coordinate reference system: '" << crs << "'" << endl;
+		} else
+		{
+			srs.exportToWkt(&wkt);
+			gdalDataSet->SetProjection(wkt);
+		}
+	}
+
+	if (gParams.metadata != "")
+	{
+		char** metadata = NULL;
+		metadata = CSLAddNameValue(metadata, "metadata", gParams.metadata.c_str());
+		gdalDataSet->SetMetadata(metadata);
+	}
+
+
+	// set nodata value
+	if (gParams.nodata.empty())
+	{
+		// if no nodata is specified, set default -- DM 2013-oct-01, ticket 477
+		gParams.nodata.push_back(NODATA_DEFAULT_VALUE);
+	}
+	if (gParams.nodata.size() > 0)
+	{
+		for (int band = 0; band < nBands; band++)
+		{
+			GDALRasterBand* rasterBand = gdalDataSet->GetRasterBand(band + 1);
+
+			// if only one value is provided use the same for all bands
+			if (gParams.nodata.size() == 1)
+			{
+				rasterBand->SetNoDataValue(gParams.nodata.at(0));
+			} else if (gParams.nodata.size() == nBands)
+			{
+				rasterBand->SetNoDataValue(gParams.nodata.at(band));
+			} else
+			{
+				// warning, nodata value no != band no -- DM 2012-dec-10
+				RMInit::logOut << "Warning: ignored setting NODATA value, number of NODATA values (" <<
+						gParams.nodata.size() << ") doesn't match the number of bands (" << nBands << ")." << endl;
+				break;
+			}
+		}
+	}
 }

@@ -105,10 +105,6 @@ fi
 local extraopts="$6"
 local rasqlopts="$7"
 
-if [ ! -z "$inv_fun" ]; then
-    inv_fun="inv_$inv_fun"
-fi
-
 log ----- $fun and inv_$fun conversion ------
 
 create_coll test_tmp $colltype
@@ -139,7 +135,7 @@ rm -f $f*
 ################## test nodata ###############################
 
 create_coll test_tmp RGBSet
-insert_into test_tmp "$TESTDATA_PATH/rgb.png" "" "inv_png"
+insert_into test_tmp "$TESTDATA_PATH/rgb.png" "" "decode"
 
 $RASQL -q 'select encode(c, "GTiff") from test_tmp as c' --out file --outfile nodata > /dev/null
 res=`gdalinfo nodata.tif | grep "NoData Value=0" | wc -l`
@@ -165,20 +161,25 @@ rm -f nodata*
 drop_colls test_tmp
 
 ################## jpeg() and inv_jpeg() #######################
-run_test jpeg jpeg jpg jpg GreySet
+run_test jpeg inv_jpeg jpg jpg GreySet
+run_test jpeg decode jpg jpg GreySet
 
 ################## tiff() and inv_tiff() #######################
-run_test tiff tiff tif tif GreySet
-run_test tiff tiff tif tif TestSet ", \"sampletype=octet\""
+run_test tiff inv_tiff tif tif GreySet
+run_test tiff inv_tiff tif tif TestSet ", \"sampletype=octet\""
+run_test tiff decode tif tif GreySet
+
 
 ################## png() and inv_png() #######################
-run_test png png png png GreySet
+run_test png inv_png png png GreySet
+run_test png decode png png GreySet
 
 ################## bmp() and inv_bmp() #######################
-run_test bmp bmp bmp bmp GreySet
+run_test bmp inv_bmp bmp bmp GreySet
+run_test bmp decode bmp bmp GreySet
 
 ################## vff() and inv_vff() #######################
-run_test vff vff vff vff GreySet
+run_test vff inv_vff vff vff GreySet
 
 ################## hdf() and inv_hdf() #######################
 
@@ -191,8 +192,11 @@ fi
 
 ################## csv() #######################
 
-run_test csv png csv png GreySet
-run_test csv png csv png RGBSet
+run_test csv inv_png csv png GreySet
+run_test csv inv_png csv png RGBSet
+run_test csv decode csv png GreySet
+run_test csv decode csv png RGBSet
+
 run_test csv "" csv binary Gauss2Set "" "--mddtype Gauss2Image --mdddomain [0:1,-1:1]"
 
 # ------------------------------------------------------------------------------

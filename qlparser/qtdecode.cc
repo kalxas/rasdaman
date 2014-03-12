@@ -28,7 +28,6 @@ rasdaman GmbH.
 #include "qlparser/qtdecode.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtmintervaldata.hh"
-#include "qlparser/qtencodedecode.hh"
 #include "qlparser/typeresolverutil.hh"
 #include "qlparser/gdaldataconverter.hh"
 
@@ -64,16 +63,9 @@ using namespace std;
 const QtNode::QtNodeType QtDecode::nodeType = QtNode::QT_DECODE;
 
 QtDecode::QtDecode(QtOperation* newInput) throw (r_Error)
-: QtUnaryOperation(newInput), QtEncodeDecode(NULL, NULL)
+: QtUnaryOperation(newInput)
 {
 	GDALAllRegister();
-}
-
-QtDecode::QtDecode(QtOperation* newInput, char* params) throw (r_Error)
-: QtUnaryOperation(newInput), QtEncodeDecode(NULL)
-{
-	GDALAllRegister();
-	initParams(params);
 }
 
 QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
@@ -136,7 +128,6 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 		int width = poDataset->GetRasterXSize();
 		int height = poDataset->GetRasterYSize();
 		int nBands = poDataset->GetRasterCount();
-		setGDALParameters(poDataset, width, height, nBands);
 
 		BaseType* baseType = TypeResolverUtil::getBaseType(poDataset);
 		/*WARNING: GDALDataConverter::getTileCells() closes the GDAL dataset*/
@@ -231,7 +222,7 @@ const QtTypeElement& QtDecode::checkType(QtTypeTuple* typeTuple)
 
 void QtDecode::printTree(int tab, std::ostream& s, QtChildType mode)
 {
-	s << SPACE_STR(tab).c_str() << "QtDecode Object: from " << format << getEvaluationTime() << endl;
+	s << SPACE_STR(tab).c_str() << "QtDecode Object: " << getEvaluationTime() << endl;
 
 	QtUnaryOperation::printTree(tab, s, mode);
 }

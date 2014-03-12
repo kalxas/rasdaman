@@ -33,7 +33,6 @@ rasdaman GmbH.
 // GDAL headers
 #include "gdal_priv.h"
 
-#include "qlparser/qtencodedecode.hh"
 
 class GDALDataset;
 
@@ -61,7 +60,7 @@ class GDALDataset;
  *     name1=value1;name2=value2;...
 */
 
-class QtEncode : public QtUnaryOperation, public QtEncodeDecode
+class QtEncode : public QtUnaryOperation
 {
 public:
     
@@ -105,6 +104,28 @@ private:
     
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
+
+	void initParams(char* params);
+	void setDouble(const char* paramName, double* value);
+	void setString(const char* paramName, std::string* value);
+
+	void setGDALParameters(GDALDataset *gdalDataSet, int width, int height, int nBands);
+
+	char* format;
+	char** fParams;
+
+	struct GenericParams {
+		double xmin;
+		double xmax;
+		double ymax;
+		double ymin;
+
+		std::string crs; // string representation of the coordinate reference system
+		std::string metadata; // further metadata of the result
+		std::vector<double> nodata; // nodata values of the result
+	};
+
+	GenericParams gParams;
 };
 
 #endif  // _QTENCODE__

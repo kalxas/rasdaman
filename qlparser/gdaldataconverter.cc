@@ -22,6 +22,7 @@ rasdaman GmbH.
  */
 
 #include "qlparser/gdaldataconverter.hh"
+#include "mymalloc/mymalloc.h"
 
 // GDAL headers
 #include "ogr_spatialref.h"
@@ -40,31 +41,31 @@ char* GDALDataConverter::getTileCells(GDALDataset *poDataset)
 	{
 		case GDT_Byte:
 		{//   Eight bit unsigned integer
-			return reolveCellsTemplate<r_Char>(poDataset);
+			return resolveTileCellsByType<r_Char>(poDataset);
 		}
 		case GDT_UInt16:
 		{//     Sixteen bit unsigned integer
-			return reolveCellsTemplate<r_UShort>(poDataset);
+			return resolveTileCellsByType<r_UShort>(poDataset);
 		}
 		case GDT_Int16:
 		{ //  Sixteen bit signed integer
-			return reolveCellsTemplate<r_Short>(poDataset);
+			return resolveTileCellsByType<r_Short>(poDataset);
 		}
 		case GDT_UInt32:
 		{//     Thirty two bit unsigned integer
-			return reolveCellsTemplate<r_ULong>(poDataset);
+			return resolveTileCellsByType<r_ULong>(poDataset);
 		}
 		case GDT_Int32:
 		{ //  Thirty two bit signed integer
-			return reolveCellsTemplate<r_Long>(poDataset);
+			return resolveTileCellsByType<r_Long>(poDataset);
 		}
 		case GDT_Float32:
 		{//    Thirty two bit floating point
-			return reolveCellsTemplate<r_Float>(poDataset);
+			return resolveTileCellsByType<r_Float>(poDataset);
 		}
 		case GDT_Float64:
 		{//    Sixty four bit floating point
-			return reolveCellsTemplate<r_Double>(poDataset);
+			return resolveTileCellsByType<r_Double>(poDataset);
 		}
 		default:
 			throw r_Error(r_Error::r_Error_FeatureNotSupported);
@@ -73,12 +74,12 @@ char* GDALDataConverter::getTileCells(GDALDataset *poDataset)
 }
 
 template<typename T>
-char* GDALDataConverter::reolveCellsTemplate(GDALDataset* poDataset)
+char* GDALDataConverter::resolveTileCellsByType(GDALDataset* poDataset)
 {
 	int noOfBands = poDataset->GetRasterCount();
 	int startCoordX = 0, startCoordY = 0, width = poDataset->GetRasterXSize(), height = poDataset->GetRasterYSize();
-	T *tileCells = (T*) malloc(width * height * sizeof (T) * noOfBands);
-	char *gdalBand = (char*) malloc(width * height * sizeof (T));
+	T *tileCells = (T*) mymalloc(width * height * sizeof (T) * noOfBands);
+	char *gdalBand = (char*) mymalloc(width * height * sizeof (T));
 	if (gdalBand == NULL || tileCells == NULL)
 	{
 		throw r_Error(r_Error::r_Error_MemoryAllocation);
@@ -105,7 +106,7 @@ char* GDALDataConverter::reolveCellsTemplate(GDALDataset* poDataset)
 		{
 			for (int row = 0; row < height; row++, tilePos += noOfBands, tPos += noOfBands)
 			{
-				tilePos[0] = pos[row * width + col];
+				*tilePos = *(pos + (row * width + col));
 			}
 		}
 	}
