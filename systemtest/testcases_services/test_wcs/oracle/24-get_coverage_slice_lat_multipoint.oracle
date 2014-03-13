@@ -26,7 +26,7 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList>231,207,173 255,255,255 255,255,255 208,180,156 224,197,170 </tupleList>
+      <tupleList ts="," cs=" ">231,207,173 255,255,255 255,255,255 208,180,156 224,197,170 </tupleList>
     </DataBlock>
   </rangeSet>
 
