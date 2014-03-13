@@ -86,15 +86,12 @@ log "test initialization..."
 drop_colls $TEST_GREY $TEST_GREY2 $TEST_RGB2
 
 create_coll $TEST_GREY GreySet
-insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "inv_png"
 insert_into $TEST_GREY "$TESTDATA_PATH/mr_1.png" "" "decode"
 
 create_coll $TEST_GREY2 GreySet
-insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "inv_png"
 insert_into $TEST_GREY2 "$TESTDATA_PATH/mr2_1.png" "" "decode"
 
 create_coll $TEST_RGB2 RGBSet
-insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "inv_png"
 insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode"
 
 

@@ -268,7 +268,6 @@ function import_rgb()
   #
 
   $RASQL -q "create collection $c $c_colltype" > /dev/null || exit $RC_ERROR
-  $RASQL -q "insert into $c values ($c_basetype) inv_png(\$1)" -f "$TESTDATA_PATH"/rgb.png > /dev/null || exit $RC_ERROR
   $RASQL -q "insert into $c values ($c_basetype) decode(\$1)" -f "$TESTDATA_PATH"/rgb.png > /dev/null || exit $RC_ERROR
 
   # general coverage information (name, type, ...)
@@ -356,7 +355,6 @@ function import_mr()
   #
 
   $RASQL -q "create collection $c $c_colltype" > /dev/null || exit $RC_ERROR
-  $RASQL -q "insert into $c values ($c_basetype) inv_png(\$1)" -f "$TESTDATA_PATH"/mr_1.png > /dev/null || exit $RC_ERROR
   $RASQL -q "insert into $c values ($c_basetype) decode(\$1)" -f "$TESTDATA_PATH"/mr_1.png > /dev/null || exit $RC_ERROR
 
   # general coverage information (name, type, ...)
