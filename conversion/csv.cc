@@ -62,6 +62,7 @@ rasdaman GmbH.
 
 #include "csv.hh"
 
+#include <algorithm>
 #include <stdio.h>
 #include <iostream>
 #include <stack>
@@ -70,11 +71,17 @@ rasdaman GmbH.
 
 #define DIM_BOUNDARY -1
 
+#define ORDER_OPTION_KEY "order"
+#define ORDER_OUTER_INNER "outer_inner"
+#define ORDER_INNER_OUTER "inner_outer"
+
 using namespace std;
 
 r_Conv_CSV::r_Conv_CSV(const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error)
     : r_Convertor(src, interv, tp, true)
 {
+    if (params == NULL)
+        params = new r_Parse_Params();
 }
 
 
@@ -82,6 +89,8 @@ r_Conv_CSV::r_Conv_CSV(const char *src, const r_Minterval &interv, const r_Type 
 r_Conv_CSV::r_Conv_CSV(const char *src, const r_Minterval &interv, int tp) throw(r_Error)
     : r_Convertor(src, interv, tp)
 {
+    if (params == NULL)
+        params = new r_Parse_Params();
 }
 
 r_Conv_CSV::~r_Conv_CSV(void)
@@ -105,43 +114,45 @@ r_Conv_CSV::~r_Conv_CSV(void)
  * Please note that the implementation of the tupleList GML elements in Petascope is dependent
  * on this format so on change update RasUtil as well.
  */
-void r_Conv_CSV::printValue(std::stringstream &f, const r_Base_Type &type)
+const char *r_Conv_CSV::printValue(std::stringstream &f, const r_Base_Type &type, const char *val)
 {
     if (type.isStructType()) {
-        printStructValue(f);
+        return printStructValue(f, val);
     } else if (type.isComplexType()) {
-        printComplexValue(f, type);
+        return printComplexValue(f, type, val);
     } else if (type.isPrimitiveType()) {
-        printPrimitiveValue(f, type);
+        return printPrimitiveValue(f, type, val);
     } else {
         RMInit::logOut << "r_Conv_CSV::convertTo(): unsupported type " << type.type_id() << endl;
         throw r_Error(r_Error::r_Error_TypeInvalid);
     }
 }
 
-void r_Conv_CSV::printStructValue(std::stringstream &f)
+const char *r_Conv_CSV::printStructValue(std::stringstream &f, const char *val)
 {
     r_Structure_Type *st = (r_Structure_Type*) desc.srcType;
     r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
     f << STRUCT_DELIMITER_OPEN;
     while (iter != st->defines_attribute_end())
     {
-        printValue(f, (*iter).type_of());
+        val = printValue(f, (*iter).type_of(), val);
         iter++;
         if (iter != st->defines_attribute_end())
             f << STRUCT_DELIMITER_ELEMENT;
     }
     f << STRUCT_DELIMITER_CLOSE;
+    return val;
 }
 
-void r_Conv_CSV::printComplexValue(std::stringstream &f, const r_Base_Type &type)
+const char *r_Conv_CSV::printComplexValue(std::stringstream &f, const r_Base_Type &type, const char *val)
 {
     const r_Complex_Type *ptr = (const r_Complex_Type *) &type;
     ptr->print_value(val, f);
     val += ptr->size();
+    return val;
 }
 
-void r_Conv_CSV::printPrimitiveValue(std::stringstream &f, const r_Base_Type &type)
+const char *r_Conv_CSV::printPrimitiveValue(std::stringstream &f, const r_Base_Type &type, const char *val)
 {
     const r_Primitive_Type *ptr = (const r_Primitive_Type *) &type;
     switch (ptr->type_id())
@@ -178,17 +189,20 @@ void r_Conv_CSV::printPrimitiveValue(std::stringstream &f, const r_Base_Type &ty
         break;
     }
     val += ptr->size();
+    return val;
 }
 
-void r_Conv_CSV::printArray(std::stringstream &f, int *dims, int dim, const r_Base_Type &type)
+void r_Conv_CSV::printArray(std::stringstream &f, int *dims, size_t *offsets, int dim,
+                            const char *ptr, const r_Base_Type &type)
 {
-    for (int i = 0; i < dims[0]; ++i)
+    size_t typeSize = type.size();
+    for (int i = 0; i < dims[0]; ptr += offsets[0] * typeSize, ++i)
     {
         if (dim == 1) {
-            printValue(f, type);
+            printValue(f, type, ptr);
         } else {
             f << "{";
-            printArray(f, dims + 1, dim - 1, type);
+            printArray(f, dims + 1, offsets + 1, dim - 1, ptr, type);
             f << "}";
         }
         if (i < dims[0] - 1)
@@ -196,45 +210,71 @@ void r_Conv_CSV::printArray(std::stringstream &f, int *dims, int dim, const r_Ba
     }
 }
 
+void r_Conv_CSV::processOptions(const char *options)
+{
+    char *order_option = NULL;
+    if (options) {
+        params->add(ORDER_OPTION_KEY, &order_option, r_Parse_Params::param_type_string);
+        params->process(options);
+    }
+
+    if (!options) {
+        order = r_Conv_CSV::OUTER_INNER;
+    } else if (order_option && strcmp(order_option, ORDER_OUTER_INNER) == 0) {
+        order = r_Conv_CSV::OUTER_INNER;
+    } else if (order_option && strcmp(order_option, ORDER_INNER_OUTER) == 0) {
+        order = r_Conv_CSV::INNER_OUTER;
+    } else {
+        RMInit::logOut << "Error: illegal CSV option string: \"" << options << "\", "
+                       << "only " ORDER_OPTION_KEY "=(" ORDER_OUTER_INNER "|" ORDER_INNER_OUTER ") "
+                       << "is supported" << std::endl;
+        throw r_Error(r_Error::r_Error_General);
+    }
+    if (order_option) {
+        delete [] order_option;
+        order_option = NULL;
+    }
+}
+
 r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
 {
     ENTER("r_Conv_CSV::convertTo()");
-
+    processOptions(options);
     std::stringstream csvtemp;
 
-    //int size = getTypeSize(desc.baseType);
     int rank, i;
-    int *dimsizes;
     rank = desc.srcInterv.dimension();
-    char *src = (char*) desc.src;
 
-    dimsizes = new int[rank];
+    vector<int> dimsizes(rank);
+    vector<size_t> offsets(rank); // offsets describe how many data cells are between
+                                  // values of the same dimension slice
 
     for (i=0; i<rank; i++)
-    {
         dimsizes[i] = desc.srcInterv[i].high() - desc.srcInterv[i].low() + 1;
+    offsets[rank - 1] = 1;
+    for (int i = rank - 1; i > 0; --i)
+        offsets[i - 1] = offsets[i] * dimsizes[i];
+    if (order == r_Conv_CSV::INNER_OUTER) {
+        std::reverse(dimsizes.begin(), dimsizes.end());
+        std::reverse(offsets.begin(), offsets.end());
     }
+
     const r_Base_Type *base_type = (const r_Base_Type *) desc.srcType;
-    val = (char*) desc.src;
     try
     {
         if (rank == 1) {
             csvtemp << "{";
-            printArray(csvtemp, dimsizes, rank, *base_type);
+            printArray(csvtemp, &dimsizes[0], &offsets[0], rank, (char*) desc.src, *base_type);
             csvtemp << "}";
         } else {
-            printArray(csvtemp, dimsizes, rank, *base_type);
+            printArray(csvtemp, &dimsizes[0], &offsets[0], rank, (char*) desc.src, *base_type);
         }
-        }
+    }
     catch (r_Error &err)
     {
-        delete [] dimsizes;
         LEAVE("r_Conv_CSV::convertTo()");
         throw err;
     }
-
-    delete [] dimsizes;
-    dimsizes=NULL;
 
     std::string str = csvtemp.str();
     int stringsize = str.length();

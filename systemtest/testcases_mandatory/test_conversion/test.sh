@@ -199,6 +199,24 @@ run_test csv decode csv png RGBSet
 
 run_test csv "" csv binary Gauss2Set "" "--mddtype Gauss2Image --mdddomain [0:1,-1:1]"
 
+############## csv(order=inner_outer) #######
+log ----- csv with inner_outer order conversion ------
+create_coll test_tmp GreySet
+insert_into test_tmp "$TESTDATA_PATH/mr_1.png" "" "inv_png"
+export_to_file test_tmp "mr_1" "csv" ', "order=inner_outer"'
+logn "comparing images: "
+cmp $TESTDATA_PATH/mr_1_inner_outer.csv mr_1.csv > /dev/null
+if [ $? != "0" ]
+then
+  echo input and output do not match
+  NUM_FAIL=$(($NUM_FAIL + 1))
+else
+  echo input and output match
+  NUM_SUC=$(($NUM_SUC + 1))
+fi
+drop_colls test_tmp
+rm -f mr_1.csv
+
 # ------------------------------------------------------------------------------
 # test summary
 #

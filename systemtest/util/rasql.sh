@@ -139,8 +139,9 @@ function export_to_file()
   local coll_name="$1"
   local file_name="$2"
   local fun="$3"
+  local extraopts="$4"
 
-  local values="$fun(c)"
+  local values="$fun(c $extraopts)"
   if [ -z "$fun" ]; then
     values="c"
   fi

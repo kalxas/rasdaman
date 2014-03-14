@@ -86,15 +86,27 @@ public:
 
 
 private:
-    /// logic for displaying values
-    void printValue(std::stringstream &f, const r_Base_Type &type);
-    void printStructValue(std::stringstream &f);
-    void printComplexValue(std::stringstream &f, const r_Base_Type &type);
-    void printPrimitiveValue(std::stringstream &f, const r_Base_Type &type);
-    /// logic for displaying nested arrays
-    void printArray(std::stringstream &f, int *dims, int dim, const r_Base_Type &type);
+    enum Order {
+        OUTER_INNER,
+        INNER_OUTER
+    };
 
-    char* val;
+    /// logic for displaying values
+    //    each method has argument "val" - pointer to the beginning of the record
+    //    and returns pointer to the end of the read record
+    const char *printValue(std::stringstream &f, const r_Base_Type &type, const char *val);
+    const char *printStructValue(std::stringstream &f, const char *val);
+    const char *printComplexValue(std::stringstream &f, const r_Base_Type &type, const char *val);
+    const char *printPrimitiveValue(std::stringstream &f, const r_Base_Type &type, const char *val);
+    /// logic for displaying nested arrays
+    //     dims  - array describing how many elements are in each dimension
+    //     offsets - array describing memory offset between values in each dimension
+    //     dim   - number of dimensions
+    void printArray(std::stringstream &f, int *dims, size_t *offsets, int dim, const char *val,
+        const r_Base_Type &type);
+
+    void processOptions(const char *options);
+    Order order;
 };
 
 #endif
