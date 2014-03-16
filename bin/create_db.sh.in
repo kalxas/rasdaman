@@ -100,7 +100,7 @@ fi
 
 # - rasdaman part
 
-echo -n "$PROG: rasdaman dictionnary initialization...\c"
+echo -n "$PROG: rasdaman dictionary initialization...\c"
 @bindir@rasdl -c --connect $DATABASE_NAME && @bindir@rasdl -r $DEFINITION_FILE -i --connect $DATABASE_NAME
 if [[ $? != 0 ]]
 then
