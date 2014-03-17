@@ -222,7 +222,7 @@ public class RasObject implements RasGlobalDefs
 
     public RasType getTypeSchema()
     {
-	return null;
+	return RasType.getAnyType(typeStructure);
     }
 
     

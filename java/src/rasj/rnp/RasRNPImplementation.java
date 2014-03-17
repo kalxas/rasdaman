@@ -966,6 +966,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
                                 res.setTypeLength(rb.getSize());
                                 res.setArraySize(dataSize);
                                 res.setArray(binData);
+				res.setTypeStructure(mddBaseType);
 				//insert into result set
 				resultBag.add(res);
 				break;
@@ -1031,6 +1032,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
                                   }
                                 res.setArray(binData);
                                 res.setOID(roid);
+                                res.setTypeStructure(mddBaseType);
                                 resultBag.add(res);
                               }
 			  }

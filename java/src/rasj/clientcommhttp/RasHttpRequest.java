@@ -347,6 +347,7 @@ public class RasHttpRequest implements RasCommDefs, RasGlobalDefs
                                         res.setTypeLength(rb.getSize());
                                         res.setArraySize(dataSize);
                                         res.setArray(binData);
+                                        res.setTypeStructure(mddBaseType);
 					//insert into result set
 					resultBag.add(res);
 				        break;
@@ -425,6 +426,7 @@ public class RasHttpRequest implements RasCommDefs, RasGlobalDefs
                                             res.setArray(binData);
                                             // set oid
                                             res.setOID(roid);
+                                            res.setTypeStructure(mddBaseType);
                                             //insert into result set
                                             resultBag.add(res);
 				    }
