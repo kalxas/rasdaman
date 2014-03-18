@@ -656,7 +656,7 @@ function import_petascope_data()
   res=$(check_multipoint)
   local multi_coll=""
   if [ $res -eq 0 ]; then
-    multi_coll="Parksmall"
+    multi_coll="Parksmall wc_dtm_small"
   fi
   COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 irr_cube_2 $multi_coll"
   for COLL in $COLLECTIONS; do
@@ -683,6 +683,8 @@ function import_petascope_data()
           import_irr_cube_2 "$TESTDATA_PATH" && break
         elif [ "$COLL" == "Parksmall" ]; then
           import_pointcloud_data "$TESTDATA_PATH" && break
+        elif [ "$COLL" == "wc_dtm_small" ]; then
+          import_tin_data "$TESTDATA_PATH" && break
         fi
 
         raserase_colls > /dev/null 2>&1
@@ -703,7 +705,7 @@ function drop_petascope_data()
 {
   res=$(check_multipoint)
   if [ $res -eq 0 ]; then
-    multi_coll="Parksmall"
+    multi_coll="Parksmall wc_dtm_small"
   fi
   COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 irr_cube_2 $multi_coll"
   drop_petascope $COLLECTIONS
@@ -838,5 +840,162 @@ function import_pointcloud_data()
 
 	log "Point cloud coverage $PC_COVERAGE is imported"
   log ok.
+
+}
+
+#
+# Import tsurf tin demo data
+#
+
+function import_tin_data()
+{
+	#set -x
+	local TESTDATA_PATH="$1"
+  if [ ! -d "$TESTDATA_PATH" ]; then
+    error "testdata path $TESTDATA_PATH not found."
+  fi
+
+  TIN_COVERAGE="wc_dtm_small"
+  TIN_FILE="wc_dtm_small.ts"
+  TIN_CRS="$SECORE_URL"'/crs/EPSG/0/27700'
+
+	# Batch insert size
+  MAX_BATCH_INSERT=50
+
+	VERTEX_SECTION="VRTX"
+	TRIANGLE_SECTION="TRGL"
+	TIN_STR="TIN"
+
+	# Data type of the range set
+	c_rangetype='unsigned long'
+
+  # Number of components in each line, here is 3
+	TIN_COMPONENTS=5
+
+	# Building MultiSurface Coverage Information
+
+	# Inserting the general coverage info to ps_coverage table
+	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_coverage(name, gml_type_id, native_format_id) VALUES( '$TIN_COVERAGE', \
+		(SELECT id FROM ${DB_TABLE_PREFIX}_gml_subtype WHERE subtype='MultiSurfaceCoverage'), \
+		(SELECT id FROM ${DB_TABLE_PREFIX}_mime_type WHERE mime_Type='application/x-octet-stream'));" > /dev/null || exit 1 # replace with $RC_ERROR
+
+	# Finding the coverage id
+	COVERAGE_ID=`$PSQL -c "SELECT id FROM ${DB_TABLE_PREFIX}_coverage WHERE name='$TIN_COVERAGE'" | head -3 | tail -1`
+
+	# Inserting the range type (attributes) information in ps_range_type_component
+	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_range_type_component (coverage_id, name, data_type_id, component_order, field_id, field_table) \
+		VALUES ($COVERAGE_ID, 'tin_value', (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), 0, (SELECT id FROM ps_quantity \
+		WHERE label='$c_rangetype' AND description='primitive' LIMIT 1), '${DB_TABLE_PREFIX}_quantity');" > /dev/null || exit $RC_ERROR
+
+  # If the crs does not exist, insert it into ps_crs and retrieve the id
+	CRS_ID=`$PSQL -X -P t -P format=unaligned -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs \
+		WHERE uri='$TIN_CRS';" | head -3 | tail -1`
+	if [ -z "$CRS_ID" ]; then
+		$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_crs(uri) VALUES('$TIN_CRS');" > /dev/null || exit $RC_ERROR
+	  CRS_ID=`$PSQL -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$TIN_CRS';" | head -3 | tail -1`
+	fi
+
+  # Insert (coverage_id, crs_id) into ps_domain_set
+	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_domain_set VALUES($COVERAGE_ID,'{${CRS_ID}}');" > /dev/null || exit $RC_ERROR
+
+	# Find the start line number of vertex and triangle sections
+	VRTX_START_LINE=`grep -n "$VERTEX_SECTION" $TESTDATA_PATH/$TIN_FILE | head -n 1 | cut -f1 -d:`
+	TRGL_START_LINE=`grep -n "$TRIANGLE_SECTION" $TESTDATA_PATH/$TIN_FILE | head -n 1 | cut -f1 -d:`
+
+	# Update ps_uom with the new uom for meter (m)
+	UOM=`$PSQL -X -P t -P format=unaligned -c "SELECT id FROM ${DB_TABLE_PREFIX}_uom WHERE code='m';" | head -3 | tail -1`
+	if [ -z "$UOM" ]; then
+		  $PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_uom(code) VALUES('m');" > /dev/null || exit $RC_ERROR
+		  UOM=`$PSQL -c "SELECT id FROM ${DB_TABLE_PREFIX}_uom WHERE code='m';" | head -3 | tail -1`
+	fi
+	QUANTITY=`$PSQL -X -P t -P format=unaligned -c "SELECT id FROM ${DB_TABLE_PREFIX}_quantity \
+		WHERE label='H' AND uom_id=$UOM AND description='height';" | head -3 | tail -1`
+	if [ -z "$QUANTITY" ]; then
+		  $PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_quantity(uom_id,	label, description, definition_uri) \
+				VALUES($UOM,'H','height','$TIN_CRS2');" > /dev/null || exit $RC_ERROR
+	fi
+
+	# Total line in the file
+	END_LINE=`wc -l < $TESTDATA_PATH/$TIN_FILE`
+
+	# Loop over lines in TRGL section starting from TRGL_START_LINE
+	insert_stmt="INSERT INTO ${DB_TABLE_PREFIX}_multisurface(coverage_id,surface,value) VALUES"
+	batch_line_count=0
+	total_line_count=`expr $TRGL_START_LINE - 1`
+
+	awk "NR >= $TRGL_START_LINE" $TESTDATA_PATH/$TIN_FILE |
+	while read line;
+	do
+		total_line_count=`expr $total_line_count + 1`
+
+		# Check if the line starts with TRGL
+		if [[ "$line" == ${TRIANGLE_SECTION}* ]]
+		then
+			# Split the trgl line
+			IFS=' ' read -a tarray <<< "$line"
+
+			# Skip the line if it is incomplete
+			[ "${#tarray[@]}" -ne "$TIN_COMPONENTS" ] && continue
+
+			# Extract point id from the array an get the point coordinates
+			# Go to vertex line number using head and tail
+			line_no=`expr ${tarray[1]} + $VRTX_START_LINE - 1`
+			point1=$(head -${line_no} $TESTDATA_PATH/$TIN_FILE | tail -1 | cut -d ' ' -f 3,4,5)
+			IFS=' ' read -a parray <<< "$point1"
+			range1=${parray[2]}
+			point1="${parray[0]} ${parray[1]}"
+
+			line_no=`expr ${tarray[2]} + $VRTX_START_LINE - 1`
+			point2=$(head -${line_no} $TESTDATA_PATH/$TIN_FILE | tail -1 | cut -d ' ' -f 3,4,5)
+			IFS=' ' read -a parray <<< "$point2"
+			range2=${parray[2]}
+			point2="${parray[0]} ${parray[1]}"
+
+			line_no=`expr ${tarray[3]} + $VRTX_START_LINE - 1`
+			point3=$(head -${line_no} $TESTDATA_PATH/$TIN_FILE | tail -1 | cut -d ' ' -f 3,4,5)
+			IFS=' ' read -a parray <<< "$point3"
+			range3=${parray[2]}
+			point3="${parray[0]} ${parray[1]}"
+
+			range="${range1},${range2},${range3}"
+
+			if [ "$batch_line_count" -gt 0 ]
+				then
+					insert_stmt+=","
+			fi
+
+		  insert_stmt+="($COVERAGE_ID,'TIN(((${point1},${point2},${point3},${point1})))','{$range}')"
+			batch_line_count=`expr $batch_line_count + 1`
+
+			# If MAX_BATCH_INSERT limit is reached, insert into the table
+			if [ "$batch_line_count" -eq "$MAX_BATCH_INSERT" ]
+			then
+				$PSQL -c "$insert_stmt" > /dev/null || exit $RC_ERROR
+				insert_stmt="INSERT INTO ${DB_TABLE_PREFIX}_multisurface(coverage_id,surface,value) VALUES"
+				batch_line_count=0
+			fi
+		fi
+
+		# If it is the last line, insert the rest
+		if [ "$total_line_count" == $END_LINE ]
+		then
+			$PSQL -c "$insert_stmt" > /dev/null || exit $RC_ERROR
+		fi
+
+	done
+
+	# Inserting coverage extension into ps_bounding_box table_schema
+	lower_left=`$PSQL -X -P t -P format=unaligned -c "SELECT St_XMin(ST_Extent(surface)) || ',' || St_YMin(ST_Extent(surface)) \
+		FROM ${DB_TABLE_PREFIX}_coverage,${DB_TABLE_PREFIX}_multisurface WHERE ${DB_TABLE_PREFIX}_coverage.name='$TIN_COVERAGE' \
+		AND ${DB_TABLE_PREFIX}_coverage.id=${DB_TABLE_PREFIX}_multisurface.coverage_id;" | head -3 | tail -1`
+
+	upper_right=`$PSQL -X -P t -P format=unaligned -c "SELECT St_XMax(ST_Extent(surface)) || ',' || St_YMax(ST_Extent(surface)) \
+		FROM ${DB_TABLE_PREFIX}_coverage,${DB_TABLE_PREFIX}_multisurface 	WHERE ${DB_TABLE_PREFIX}_coverage.name='$TIN_COVERAGE' \
+		AND ${DB_TABLE_PREFIX}_coverage.id = ${DB_TABLE_PREFIX}_multisurface.coverage_id;" | head -3 | tail -1`
+	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_bounding_box(coverage_id, lower_left, upper_right) \
+		VALUES($COVERAGE_ID,'{${lower_left}}','{${upper_right}}');" > /dev/null || exit $RC_ERROR
+
+	logn "Tin coverage $TIN_COVERAGE is imported."
+	log ok.
 
 }
