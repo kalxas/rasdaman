@@ -50,7 +50,8 @@ rasdaman GmbH.
 
 #include <iostream>
 #ifndef CPPSTDLIB
-#include <ospace/string.h> // STL<ToolKit>
+#include <ospace/string.h>
+#include <gdal/gdal_priv.h> // STL<ToolKit>
 #else
 #include <string>
 using namespace std;
@@ -66,6 +67,15 @@ QtDecode::QtDecode(QtOperation* newInput) throw (r_Error)
 : QtUnaryOperation(newInput)
 {
 	GDALAllRegister();
+	format = NULL;
+	gdalParams = NULL;
+}
+
+QtDecode::QtDecode(QtOperation* newInput, char* format, char* gdalParams) throw (r_Error) :
+QtUnaryOperation(newInput), format(format)
+{
+	GDALAllRegister();
+	initGdalParamas(gdalParams);
 }
 
 QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
@@ -125,9 +135,23 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 			throw r_Error(r_Error::r_Error_FeatureNotSupported);
 		}
 
+		/*if the format is specified as the second parameter of decode()
+		  then we pass the gdal parameters and create a new gdal data set*/
+		if (format != NULL)
+		{
+			GDALDriver *driver = GetGDALDriverManager()->GetDriverByName(format);
+			if (driver == NULL)
+			{
+				RMInit::logOut << "QtDecode::evaluateMDD - Error: Unsupported format: " << format << endl;
+				throw r_Error(r_Error::r_Error_FeatureNotSupported);
+			}
+			poDataset = driver->CreateCopy(tmpFileName, poDataset, FALSE, gdalParams, NULL, NULL);
+		}
+
 		int width = poDataset->GetRasterXSize();
 		int height = poDataset->GetRasterYSize();
 		int nBands = poDataset->GetRasterCount();
+
 
 		BaseType* baseType = TypeResolverUtil::getBaseType(poDataset);
 		/*WARNING: GDALDataConverter::getTileCells() closes the GDAL dataset*/
@@ -184,6 +208,13 @@ void QtDecode::createTemporaryImageFile(char* tmpFileName, Tile* sourceTile)
 	}
 	write(fd, buff + lg, fileSize - lg);
 	close(fd);
+}
+
+void QtDecode::initGdalParamas(char* params)
+{
+	gdalParams = CSLTokenizeString2(params, PARAM_SEPARATOR, CSLT_STRIPLEADSPACES |
+			CSLT_STRIPENDSPACES);
+
 }
 
 const QtTypeElement& QtDecode::checkType(QtTypeTuple* typeTuple)

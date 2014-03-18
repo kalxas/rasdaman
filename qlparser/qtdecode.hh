@@ -34,14 +34,22 @@ rasdaman GmbH.
 // GDAL headers
 #include "gdal_priv.h"
 
+#ifndef PARAM_SEPARATOR
+#define PARAM_SEPARATOR ";"
+#endif
+
 /**
  * The class allows to decode image files (png, tiff, jpeg, etc.) using the GDAL
  * library and processes them transforming them into rasdaman MDDs.
+ *
+ * To check the supported gdal types run: gdalinfo --formats
+ * To check the information of a gdal type run: gdalinfo --format \<format-name\>
  *
  */
 class QtDecode : public QtUnaryOperation{
 public:
 	QtDecode(QtOperation* newInput) throw (r_Error);
+	QtDecode(QtOperation* newInput, char* format, char* gdalParams) throw(r_Error);
 
 	virtual ~QtDecode();
 
@@ -63,6 +71,8 @@ public:
 private:
 
 	static const QtNodeType nodeType;
+	char* format;
+	char** gdalParams;
 
 	/**
 	 * Creates a temporary file with the information received via the MDD object sent along
@@ -72,6 +82,13 @@ private:
 	 * @param sourceTile Tile created from the MDD data received along with the query.
 	 */
 	void createTemporaryImageFile(char* tmpFileName, Tile* sourceTile);
+
+	/**
+	 * Initialize the gdal parameters tokenizing the string of parameters by the
+	 * separator PARAM_SEPARATOR
+     * @param params string representation of gdal parameters separated by PARAM_SEPARATOR
+     */
+	void initGdalParamas(char* params);
 
 
 };

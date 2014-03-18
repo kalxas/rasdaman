@@ -1791,7 +1791,19 @@ functionExp: OID LRPAR collectionIterator RRPAR
         FREESTACK($1)
         FREESTACK($2)
         FREESTACK($4)
-    };
+    }
+    | DECODE LRPAR generalExp COMMA StringLit COMMA StringLit RRPAR
+	{
+	  $$ = new QtDecode( $3, $5.value, $7.value );
+	  $$->setParseInfo( *($1.info) );
+	  parseQueryTree->removeDynamicObject( $3 );
+	  parseQueryTree->addDynamicObject( $$ );
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($4)
+	  FREESTACK($6)
+	  FREESTACK($8)
+	};
 	
 
 structSelection: DOT attributeIdent                
