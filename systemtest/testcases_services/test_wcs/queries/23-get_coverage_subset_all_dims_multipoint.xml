@@ -7,17 +7,17 @@
     service="WCS" version="2.0.1">
   <wcs:CoverageId>Parksmall</wcs:CoverageId>
   <wcs:DimensionTrim>
-    <wcs:Dimension>Lat</wcs:Dimension>
+    <wcs:Dimension>E</wcs:Dimension>
     <wcs:TrimLow>456300</wcs:TrimLow>
     <wcs:TrimHigh>456399</wcs:TrimHigh>
   </wcs:DimensionTrim>
   <wcs:DimensionTrim>
-    <wcs:Dimension>Long</wcs:Dimension>
+    <wcs:Dimension>N</wcs:Dimension>
     <wcs:TrimLow>339866</wcs:TrimLow>
     <wcs:TrimHigh>339867</wcs:TrimHigh>
   </wcs:DimensionTrim>
   <wcs:DimensionTrim>
-    <wcs:Dimension>h</wcs:Dimension>
+    <wcs:Dimension>H</wcs:Dimension>
     <wcs:TrimLow>50</wcs:TrimLow>
     <wcs:TrimHigh>59</wcs:TrimHigh>
   </wcs:DimensionTrim>

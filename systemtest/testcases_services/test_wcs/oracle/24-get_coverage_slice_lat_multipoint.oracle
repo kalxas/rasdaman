@@ -9,14 +9,14 @@
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="/crs/EPSG/0/4327" axisLabels="Lat Long h" uomLabels="degree degree metre" srsDimension="3">
+    <Envelope srsName="/crs-compound?1=/crs/EPSG/0/27700&amp;2=/crs/EPSG/0/5701" axisLabels="E N H" uomLabels="metre metre metre" srsDimension="3">
       <lowerCorner>456377.03127492 339865.93754996 53.73509957</lowerCorner>
       <upperCorner>456380.49997508 339868.15615006 53.96499958</upperCorner>
     </Envelope>
   </boundedBy>
 
   <domainSet>
-    <gmlce:SimpleMultiPoint id="multipoint_Parksmall-grid" srsName="/crs/EPSG/0/4327" axisLabels="Lat Long h" uomLabels="degree degree metre" srsDimension="3"
+    <gmlce:SimpleMultiPoint id="multipoint_Parksmall-grid" srsName="/crs-compound?1=/crs/EPSG/0/27700&amp;2=/crs/EPSG/0/5701" axisLabels="E N H" uomLabels="metre metre metre" srsDimension="3"
         xmlns:gmlce='http://www.opengis.net/gml/3.3/ce'
         xsi:schemaLocation='http://www.opengis.net/gml/3.3/ce http://schemas.opengis.net/gml/3.3/geometryCompact.xsd'>
       <posList>339868.06245005998 53.92999958 339867.49995003 53.92999958 339867.15615001001 53.958999579999997 339867.87495005003 53.924899580000002 339867.74995004002 53.919899579999999 </posList>

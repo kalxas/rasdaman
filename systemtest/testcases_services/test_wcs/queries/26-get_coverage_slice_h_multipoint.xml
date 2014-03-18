@@ -7,7 +7,7 @@
     service="WCS" version="2.0.1">
   <wcs:CoverageId>Parksmall</wcs:CoverageId>
   <wcs:DimensionSlice>
-    <wcs:Dimension>h</wcs:Dimension>
+    <wcs:Dimension>H</wcs:Dimension>
     <wcs:SlicePoint>53.76599957</wcs:SlicePoint>
   </wcs:DimensionSlice>
 </wcs:GetCoverage>

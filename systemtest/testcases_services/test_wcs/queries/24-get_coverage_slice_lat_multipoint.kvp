@@ -2,4 +2,4 @@ version=2.0.1&
 service=WCS&
 request=GetCoverage&
 coverageid=Parksmall&
-subset=Lat(456377.59377495)
+subset=E(456377.59377495)

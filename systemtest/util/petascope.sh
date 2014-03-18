@@ -727,7 +727,8 @@ function import_pointcloud_data()
 
   PC_COVERAGE="Parksmall"
   PC_FILE="Parksmall.xyz"
-  PC_CRS="$SECORE_URL"'/crs/EPSG/0/4327'
+  PC_CRS1="$SECORE_URL"'/crs/EPSG/0/27700'
+	PC_CRS2="$SECORE_URL"'/crs/EPSG/0/5701'
 
 	# Batch insert size
   MAX_BATCH_INSERT=500
@@ -775,15 +776,21 @@ function import_pointcloud_data()
 		VALUES ($COVERAGE_ID, 'blue', (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), 2, (SELECT id FROM ps_quantity WHERE \
 		label='$c_rangetype' AND description='primitive' LIMIT 1), '${DB_TABLE_PREFIX}_quantity');" > /dev/null || exit 1 $RC_ERROR
 
-	# If the crs does not exist, insert it into ps_crs and retrieve the id
-	CRS_ID=`$PSQL -X -P t -P format=unaligned -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$PC_CRS';" | head -3 | tail -1`
-  if [ -z "$CRS_ID" ]; then
-		$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_crs(uri) VALUES('$PC_CRS');" > /dev/null || exit 1 $RC_ERROR
-    CRS_ID=`$PSQL -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$PC_CRS';" | head -3 | tail -1`
+	# If the crss do not exist, insert them into ps_crs and retrieve the ids
+	CRS_ID1=`$PSQL -X -P t -P format=unaligned -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$PC_CRS1';" | head -3 | tail -1`
+  if [ -z "$CRS_ID1" ]; then
+		$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_crs(uri) VALUES('$PC_CRS1');" > /dev/null || exit 1 $RC_ERROR
+    CRS_ID1=`$PSQL -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$PC_CRS1';" | head -3 | tail -1`
+	fi
+
+	CRS_ID2=`$PSQL -X -P t -P format=unaligned -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$PC_CRS2';" | head -3 | tail -1`
+  if [ -z "$CRS_ID2" ]; then
+		$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_crs(uri) VALUES('$PC_CRS2');" > /dev/null || exit 1 $RC_ERROR
+    CRS_ID2=`$PSQL -c "SELECT id FROM ${DB_TABLE_PREFIX}_crs WHERE uri='$PC_CRS2';" | head -3 | tail -1`
 	fi
 
 	# Insert (coverage_id, crs_id) into ps_domain_set
-	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_domain_set VALUES($COVERAGE_ID,'{$CRS_ID}');" > /dev/null || exit $RC_ERROR
+	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_domain_set VALUES($COVERAGE_ID,'{${CRS_ID1},${CRS_ID2}}');" > /dev/null || exit $RC_ERROR
 
 	# Reading the file line by line
 	insert_stmt="INSERT INTO ${DB_TABLE_PREFIX}_multipoint(coverage_id,coordinate,value) VALUES"

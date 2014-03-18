@@ -1,2 +1,2 @@
 for c in (Parksmall)
-return encode(c[Lat(456300:456399)],"csv")
+return encode(c[E(456300:456399)],"csv")

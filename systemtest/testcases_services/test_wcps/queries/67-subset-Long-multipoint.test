@@ -1,2 +1,2 @@
 for c in (Parksmall)
-return encode(c[Long(339866:339867)],"csv")
+return encode(c[N(339866:339867)],"csv")
