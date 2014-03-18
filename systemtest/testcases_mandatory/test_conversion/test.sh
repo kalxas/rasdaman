@@ -28,18 +28,18 @@
 #	Command-line utility for testing rasdaman.
 #	1)creating collection
 # 	2)insert images into collection
-# 	3)extract images 
+# 	3)extract images
 # 	4)compare
-# 	5)cleanup 
+# 	5)cleanup
 #
 # PRECONDITIONS
 # 	1)Postgres Server must be running
 # 	2)Rasdaman Server must be running
 # 	3)database RASBASE must exists
 # 	4)rasql utility must be fully running
-# 	5)images needed for testing shall be put in directory of images 	
-# Usage: ./test.sh 
-#        
+# 	5)images needed for testing shall be put in directory of images
+# Usage: ./test.sh
+#
 # CHANGE HISTORY
 #       2009-Sep-16     J.Yu       created
 #
@@ -128,6 +128,7 @@ else
   echo input and output match
   NUM_SUC=$(($NUM_SUC + 1))
 fi
+NUM_TOTAL=$(($NUM_TOTAL + 1))
 
 drop_colls test_tmp
 rm -f $f*
@@ -147,6 +148,7 @@ else
   log "default nodata value test failed."
   NUM_FAIL=$(($NUM_FAIL + 1))
 fi
+NUM_TOTAL=$(($NUM_TOTAL + 1))
 rm -f nodata*
 $RASQL -q 'select encode(c, "GTiff", "nodata=200") from test_tmp as c' --out file --outfile nodata > /dev/null
 res=`gdalinfo nodata.tif | grep "NoData Value=200" | wc -l`
@@ -157,6 +159,7 @@ else
   log "custom nodata value test failed."
   NUM_FAIL=$(($NUM_FAIL + 1))
 fi
+NUM_TOTAL=$(($NUM_TOTAL + 1))
 rm -f nodata*
 
 drop_colls test_tmp
@@ -194,6 +197,54 @@ if [ $? -eq 0 ]; then
   run_test hdf inv_hdf hdf hdf GreySet
 fi
 
+################ GML in JPEG2000 encoding ####################
+
+log '------ GML in JPEG2000 conversion --------'
+# JP2OpenJPEG supports GML box from GDAL 1.10: check GDAL version
+    GDALINFO="$( which gdalinfo )"
+GDAL_VERSION="$( $GDALINFO --version | awk -F ' |,' '{ print $2 }' | grep -o -e '.[0-9.]\+' )" # M.m version
+ FORMAT_CODE="JP2OpenJPEG"
+if [ ${GDAL_VERSION%.*} -eq 1 -a ${GDAL_VERSION#*.} -lt 10 ]
+then
+    log "skipping test for GMLJP2 encoding: GDAL 1.10 required (found GDAL $GDAL_VERSION)."
+elif [ -z "$( $GDALINFO --formats | grep $FORMAT_CODE )" ]
+then
+    log "skipping test for GMLJP2 encoding: $FORMAT_CODE is not enabled (see \`$GDALINFO --formats\`)."
+else
+    # params:
+            CODEC="jp2" # J2K does not foresee GML
+        TEST_FILE="${TESTDATA_PATH}/mr_1.jpg"
+         GML_FILE="${TESTDATA_PATH}/mr_1.gml"
+    ORACLE_GMLJP2="${TESTDATA_PATH}/mr_1.jp2" # do not modify this
+        COLL_NAME="mr4gmljp2"
+       OUT_GMLJP2="gmljp2.jp2" # .jp2 appended by RasQL
+    # insert/retrieve
+    create_coll "$COLL_NAME" GreySet
+    insert_into "$COLL_NAME" "$TESTDATA_PATH/mr_1.png" "" "inv_png"
+    $RASQL -q "select encode(c, \"${FORMAT_CODE}\", \
+                 \"xmin=0;xmax=666;ymin=0;ymax=999;crs=EPSG:2000;\
+                   codec=${CODEC};\
+                   config=GMLJP2OVERRIDE ${GML_FILE}\") \
+               from $COLL_NAME AS c" --out file --outfile ${OUT_GMLJP2%.*} > /dev/null
+
+    # compare/register
+    cmp $OUT_GMLJP2 $ORACLE_GMLJP2 > /dev/null
+    if [ $? != 0 ]
+    then
+        echo input and output do not match
+        NUM_FAIL=$(($NUM_FAIL + 1))
+    else
+        echo input and output match
+        NUM_SUC=$(($NUM_SUC + 1))
+    fi
+
+    # cleanup
+    drop_colls "$COLL_NAME"
+    rm $OUT_GMLJP2
+fi
+NUM_TOTAL=$(($NUM_TOTAL + 1))
+
+
 ################## csv() #######################
 
 run_test csv inv_png csv png GreySet
@@ -219,6 +270,7 @@ else
   echo input and output match
   NUM_SUC=$(($NUM_SUC + 1))
 fi
+NUM_TOTAL=$(($NUM_TOTAL + 1))
 drop_colls test_tmp
 rm -f mr_1.csv
 

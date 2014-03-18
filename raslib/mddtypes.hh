@@ -135,6 +135,7 @@ enum r_Data_Format
     r_Array,
     r_TIFF,
     r_JPEG,
+    r_JP2,
     r_HDF,
     r_NETCDF,
     r_CSV,
@@ -187,6 +188,7 @@ enum r_Data_Format
 
   {\ttr_TIFF}               && TIFF format (see \Ref{r_Conv_TIFF})\\
   {\ttr_JPEG}               && JPEG format (see \Ref{r_Conv_JPEG})\\
+  {\ttr_JP2}                && JPEG2000 format (see \Ref{r_Conv_JP2})\\
   {\ttr_HDF}                && HDF  format (see \Ref{r_Conv_HDF})\\
   {\ttr_PNG}                && PNG  format (see \Ref{r_Conv_PNG})\\
   {\ttr_BMP}                && BMP  format (see \Ref{r_Conv_BMP})\\
@@ -227,6 +229,7 @@ enum r_Data_Format
 extern const char *format_name_array;
 extern const char *format_name_tiff;
 extern const char *format_name_jpeg;
+extern const char *format_name_jp2;
 extern const char *format_name_hdf;
 extern const char *format_name_netcdf;
 extern const char *format_name_png;

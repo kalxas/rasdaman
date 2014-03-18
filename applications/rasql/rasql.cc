@@ -649,6 +649,9 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ )
                 case r_TIFF:
                     strcat( defFileName, ".tif" );
                     break;
+                case r_JP2:
+                    strcat( defFileName, ".jp2" );
+                    break;
                 case r_JPEG:
                     strcat( defFileName, ".jpg" );
                     break;

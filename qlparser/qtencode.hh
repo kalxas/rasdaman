@@ -124,6 +124,7 @@ private:
 		std::string crs; // string representation of the coordinate reference system
 		std::string metadata; // further metadata of the result
 		std::vector<double> nodata; // nodata values of the result
+		std::string codec; // nodata values of the result
 	};
 
 	GenericParams gParams;

@@ -52,6 +52,7 @@ static const char rcsid[] = "@(#)raslib, mddtypes: $Header: /home/rasdev/CVS-rep
 const char *format_name_array = "Array";
 const char *format_name_tiff = "TIFF";
 const char *format_name_jpeg = "JPEG";
+const char *format_name_jp2 = "JP2";
 const char *format_name_hdf = "HDF";
 const char *format_name_netcdf = "NETCDF";
 const char *format_name_cvs = "CVS";
@@ -99,6 +100,7 @@ const char *all_data_format_names[r_Data_Format_NUMBER] =
     format_name_array,
     format_name_tiff,
     format_name_jpeg,
+    format_name_jp2,
     format_name_cvs,
     format_name_hdf,
     format_name_netcdf,

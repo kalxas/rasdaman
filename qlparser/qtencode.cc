@@ -63,6 +63,8 @@ using namespace std;
 #define PARAM_CRS  "crs"
 #define PARAM_METADATA "metadata"
 #define PARAM_NODATA "nodata"
+#define PARAM_CONFIG "config"
+#define PARAM_CODEC "codec"
 
 #define NODATA_VALUE_SEPARATOR " ,"
 #define NODATA_DEFAULT_VALUE 0.0
@@ -278,6 +280,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
         RMInit::logOut << "QtEncode::evaluateMDD - Error: Could not convert MDD to format " << format << endl;
         throw r_Error(r_Error::r_Error_General);
     }
+
     GDALClose(gdalResult);
 
     //
@@ -420,7 +423,7 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
     }
     
     // set parameters
-	setGDALParameters(hMemDS, width, height, nBands);
+    setGDALParameters(hMemDS, width, height, nBands);
 
     free(datasetCells);
     return hMemDS;
@@ -494,8 +497,10 @@ QtEncode::getDataFormat(char* format)
 			ret = r_NETCDF;
 		else if (STR_EQUAL(f, "gtiff") || STR_EQUAL(f, "tiff"))
 			ret = r_TIFF;
-		else if (STR_EQUAL(f, "jpeg") || STR_EQUAL(f, "jpeg2000"))
+		else if (STR_EQUAL(f, "jpeg"))
 			ret = r_JPEG;
+		else if (STR_EQUAL(f, "jpeg2000") || STR_EQUAL(f, "jp2openjpeg"))
+			ret = r_JP2;
 		else if (STR_EQUAL(f, "nitf"))
 			ret = r_NTF;
 		else if (STR_EQUAL(f, "hdf") || STR_EQUAL(f, "hdf4") || STR_EQUAL(f, "hdf4image") || STR_EQUAL(f, "hdf5"))
@@ -585,6 +590,34 @@ QtEncode::initParams(char* paramsIn)
 	setDouble(PARAM_YMAX, &gParams.ymax);
 	setString(PARAM_CRS, &gParams.crs);
 	setString(PARAM_METADATA, &gParams.metadata);
+	setString(PARAM_CODEC, &gParams.codec); // JP2OpenJPEG requires this in order to add extra-boxes (JP2)
+
+        // GDAL configuration options (config="key1 value1, key2 value2, ...")
+        int ind;
+        if ((ind = CSLFindName(fParams, PARAM_CONFIG)) != -1)
+        {
+            RMInit::logOut << "Found GDAL configuration parameters." << endl;
+            // parse the KV-pairs and set them to GDAL environment
+            const char* kvPairs = CSLFetchNameValue(fParams, PARAM_CONFIG);
+            RMInit::logOut << " KV-PAIRS = '" << kvPairs << "'" << endl;
+            char** kvPairsList =  CSLTokenizeString2(kvPairs, ",",
+			CSLT_STRIPLEADSPACES |
+			CSLT_STRIPENDSPACES);
+            for (int iKvPair = 0; iKvPair < CSLCount(kvPairsList); iKvPair++)
+            {
+               // foreach KV pair in confParamList DO CPLSetConfigOption
+               const char* kvPair = kvPairsList[iKvPair];
+               char** kvPairList =  CSLTokenizeString2(kvPair, " ",
+			CSLT_STRIPLEADSPACES |
+			CSLT_STRIPENDSPACES);
+               CPLString* keyString = new CPLString((const char*)(kvPairList[0]));
+               CPLString* valueString = new CPLString((const char*)(kvPairList[1]));
+               const char* confKey = keyString->c_str();
+               const char* confValue = valueString->c_str();
+               RMInit::logOut << " KEY = '" << confKey << "' VALUE ='" << confValue << "'" << endl;
+               CPLSetConfigOption(confKey, confValue); // this option is then read by the CreateCopy() method of the GDAL format
+            }
+        }
 
 	string nodata;
 	setString(PARAM_NODATA, &nodata);
