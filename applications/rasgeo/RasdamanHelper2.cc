@@ -2314,10 +2314,20 @@ RasdamanHelper2::writeRAT(const std::string& filename,
             switch (coltypes[c])
             {
             case GFT_Integer:
-                query << pRAT->GetValueAsInt(r, c);
+			query << pRAT->GetValueAsInt(r, c);
                 break;
             case GFT_Real:
-                query << pRAT->GetValueAsDouble(r, c);
+				{
+					double val = pRAT->GetValueAsDouble(r, c);
+					if (val != val)
+					{
+						query << "\'NaN\'::numeric";
+					}
+					else
+					{
+						query << val;
+					}
+				}
                 break;
             case GFT_String:
                 {
