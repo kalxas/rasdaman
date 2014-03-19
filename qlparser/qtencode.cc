@@ -64,7 +64,6 @@ using namespace std;
 #define PARAM_METADATA "metadata"
 #define PARAM_NODATA "nodata"
 #define PARAM_CONFIG "config"
-#define PARAM_CODEC "codec"
 
 #define NODATA_VALUE_SEPARATOR " ,"
 #define NODATA_DEFAULT_VALUE 0.0
@@ -590,7 +589,6 @@ QtEncode::initParams(char* paramsIn)
 	setDouble(PARAM_YMAX, &gParams.ymax);
 	setString(PARAM_CRS, &gParams.crs);
 	setString(PARAM_METADATA, &gParams.metadata);
-	setString(PARAM_CODEC, &gParams.codec); // JP2OpenJPEG requires this in order to add extra-boxes (JP2)
 
         // GDAL configuration options (config="key1 value1, key2 value2, ...")
         int ind;

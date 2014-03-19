@@ -31,7 +31,6 @@ import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WcpsConstants;
 import petascope.util.WcsUtil;
-import petascope.util.XMLSymbols;
 
 public class CoverageInfo {
 

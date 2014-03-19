@@ -54,6 +54,7 @@ public class Templates {
     public static final String COVERAGE = "Coverage";
     public static final String COVERAGE_DESCRIPTION = "CoverageDescription";
     public static final String GRID_FUNCTION = "GridFunction";
+    public static final String GMLJP2_COVERAGE_COLLECTION = "GMLJP2CoverageCollection";
     public static final String RANGE_FIELD = "RangeField";
 
     // domainSets
@@ -124,6 +125,7 @@ public class Templates {
         loadTemplate(COVERAGE);
         loadTemplate(COVERAGE_DESCRIPTION);
         loadTemplate(GRID_FUNCTION);
+        loadTemplate(GMLJP2_COVERAGE_COLLECTION);
         loadTemplate(RANGE_FIELD);
         // domainSets
         loadTemplate(GENERAL_GRID_AXIS);

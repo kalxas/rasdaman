@@ -35,6 +35,7 @@ import petascope.wcs2.handlers.Response;
  */
 public interface FormatExtension extends  Extension {
 
+    // MIME types
     String MIME_TEXT = "text/plain";
     String MIME_MULTIPART = "multipart/related";
     String MIME_GML = "application/gml+xml";
@@ -43,9 +44,11 @@ public interface FormatExtension extends  Extension {
     String MIME_JP2 = "image/jp2";
     String MIME_NETCDF = "application/netcdf";
 
+    // GDAL drivers
     String CSV_ENCODING = "csv";
     String TIFF_ENCODING = "tiff";
     String JP2_ENCODING = "jpeg2000";
+    String OPENJP2_ENCODING = "jp2openjpeg";
     String PNG_ENCODING = "png";
     String NETCDF_ENCODING = "netcdf";
 

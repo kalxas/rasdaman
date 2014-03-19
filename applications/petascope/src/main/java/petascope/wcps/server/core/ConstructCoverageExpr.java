@@ -40,7 +40,6 @@ import petascope.util.Pair;
 import petascope.util.WcpsConstants;
 import petascope.util.XMLSymbols;
 import static petascope.util.ras.RasConstants.*;
-import petascope.wcs2.templates.Templates;
 
 public class ConstructCoverageExpr extends AbstractRasNode implements ICoverageInfo {
 

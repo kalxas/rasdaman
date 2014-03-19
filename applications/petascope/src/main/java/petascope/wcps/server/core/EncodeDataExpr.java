@@ -29,6 +29,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
+import petascope.util.GdalParameters;
 import petascope.util.MiscUtil;
 import petascope.util.WcpsConstants;
 import static petascope.util.ras.RasConstants.*;
@@ -141,17 +142,18 @@ public class EncodeDataExpr extends AbstractRasNode {
                 
                 // Get the bounds of the 2D requested coverage
                 try {
-                    CrsUtil.CrsProperties crsProperties = new CrsUtil.CrsProperties((CoverageExpr)coverageExprType, 2);
+                    GdalParameters gdalParams = new GdalParameters((CoverageExpr)coverageExprType, 2);
                     CoverageInfo info = ((CoverageExpr) coverageExprType).getCoverageInfo();
                     
                     if (info != null) {
                         // Build the whole string (dimensions of reqBounds are already checked inside getRequestBounds)
                         if (info.getBbox() != null) {
-                            crsProperties.setCrs(info.getBbox().getCrsName());
+                            gdalParams.setCrs(info.getCoverageCrs());
                         }
                         
-                        // Append params to the rasql query:
-                        extraParams = crsProperties.toString(extraParams);
+                        // Append params to the rasql query (params with same key are overwritten so that params set by WCS are not lost):
+                        gdalParams.addExtraParams(extraParams);
+                        extraParams = gdalParams.toString();
                         result = result + ", \"" + extraParams + "\"";
                     }
                 } catch (WCPSException ex) {

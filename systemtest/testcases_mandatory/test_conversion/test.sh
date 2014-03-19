@@ -223,7 +223,7 @@ else
     insert_into "$COLL_NAME" "$TESTDATA_PATH/mr_1.png" "" "inv_png"
     $RASQL -q "select encode(c, \"${FORMAT_CODE}\", \
                  \"xmin=0;xmax=666;ymin=0;ymax=999;crs=EPSG:2000;\
-                   codec=${CODEC};\
+                   CODEC=${CODEC};\
                    config=GMLJP2OVERRIDE ${GML_FILE}\") \
                from $COLL_NAME AS c" --out file --outfile ${OUT_GMLJP2%.*} > /dev/null
 

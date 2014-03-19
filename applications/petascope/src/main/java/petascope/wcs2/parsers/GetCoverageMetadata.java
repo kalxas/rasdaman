@@ -318,7 +318,7 @@ public class GetCoverageMetadata {
      */
     public void setCrs(String newUri) {
         crs = newUri;
-        // Changing CRS means 1+ slices have been requestes: trigger an upodate of coverage type
+        // Changing CRS means 1+ slices have been requested: trigger an update of coverage type
         //updateCoverageType();
     }
 

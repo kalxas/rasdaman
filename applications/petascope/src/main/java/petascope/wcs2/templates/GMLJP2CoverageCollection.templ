@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmljp2:GMLJP2CoverageCollection gml:id="JPEG2000_0"
+    xmlns="http://www.opengis.net/gml/3.2"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:gmljp2="http://www.opengis.net/gmljp2/2.0"
+    xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
+    xmlns:swe="http://www.opengis.net/swe/2.0"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' gml:id="{coverageId}_coll"
+    xsi:schemaLocation="http://www.opengis.net/gmljp2/2.0 http://www.opengis.net/gmljp2/2.0.0/gmljp2.xsd
+                        http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd">
+  <domainSet/>
+  <rangeSet>
+    <File>
+      <rangeParameters/>
+      <fileName>gmljp2://codestream</fileName>
+      <fileStructure>inapplicable</fileStructure>
+    </File>
+  </rangeSet>
+  <gmlcov:rangeType/>
+
+  <gmljp2:featureMember>
+    <gmljp2:GMLJP2RectifiedGridCoverage gml:id="{coverageId}">
+
+      <boundedBy>
+        <Envelope {srsGroup}>
+          <lowerCorner>{lowerCorner}</lowerCorner>
+          <upperCorner>{upperCorner}</upperCorner>
+        </Envelope>
+      </boundedBy>
+
+      <domainSet>
+    {domainSet}
+      </domainSet>
+
+      <rangeSet>
+        <File>
+          <rangeParameters/>
+          <fileName>gmljp2://codestream/0</fileName>
+          <fileStructure>inapplicable</fileStructure>
+        </File>
+      </rangeSet>
+
+      <gmlcov:rangeType>
+        <swe:DataRecord>
+    {rangeFields}
+        </swe:DataRecord>
+      </gmlcov:rangeType>
+    {gmlcovMetadata}
+    </gmljp2:GMLJP2RectifiedGridCoverage>
+  </gmljp2:featureMember>
+</gmljp2:GMLJP2CoverageCollection>

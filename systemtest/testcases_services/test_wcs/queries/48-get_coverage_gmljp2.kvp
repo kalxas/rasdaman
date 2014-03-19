@@ -1,0 +1,6 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=mean_summer_airtemp&
+format=image/jp2&
+mediatype=multipart/related

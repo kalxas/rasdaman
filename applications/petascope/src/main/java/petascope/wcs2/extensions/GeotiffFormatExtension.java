@@ -28,7 +28,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
-import petascope.util.CrsUtil;
+import petascope.util.GdalParameters;
 import petascope.util.Pair;
 import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
@@ -48,12 +48,12 @@ import petascope.wcs2.parsers.GetCoverageRequest;
 public class GeotiffFormatExtension extends AbstractFormatExtension {
 
     /* Member */
-    CrsUtil.CrsProperties crsProperties;
+    GdalParameters gdalParams;
     private static final Logger log = LoggerFactory.getLogger(GeotiffFormatExtension.class);
 
     /* Interface */
-    public CrsUtil.CrsProperties getCrsProperties() {
-        return crsProperties;
+    public GdalParameters getGdalParameters() {
+        return gdalParams;
     }
 
     /* Methods */
@@ -87,8 +87,8 @@ public class GeotiffFormatExtension extends AbstractFormatExtension {
         Pair<Object, String> p = null;
         if (m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
             // return plain TIFF
-            crsProperties = new CrsUtil.CrsProperties();
-            p = executeRasqlQuery(request, m.getMetadata(), meta, TIFF_ENCODING, crsProperties.toString());
+            gdalParams = new GdalParameters();
+            p = executeRasqlQuery(request, m.getMetadata(), meta, TIFF_ENCODING, gdalParams.toString());
         } else {
             // RectifiedGrid: geometry is associated with a CRS -> return GeoTIFF
             // Need to use the GetCoverage metadata which has updated bounds [see super.setBounds()]
@@ -100,8 +100,8 @@ public class GeotiffFormatExtension extends AbstractFormatExtension {
                 throw new WCSException(ExceptionCode.InvalidRequest, "Output dimensionality of the requested coverage is " +
                         (domLo.length==2?domHi.length:domLo.length) + " whereas GTiff requires 2-dimensional grids.");
             }
-            crsProperties = new CrsUtil.CrsProperties(domLo[0], domHi[0], domLo[1], domHi[1], m.getBbox().getCrsName());
-            p = executeRasqlQuery(request, m.getMetadata(), meta, TIFF_ENCODING, crsProperties.toString());
+            gdalParams = new GdalParameters(domLo[0], domHi[0], domLo[1], domHi[1], m.getCrs());
+            p = executeRasqlQuery(request, m.getMetadata(), meta, TIFF_ENCODING, gdalParams.toString());
         }
 
         RasQueryResult res = new RasQueryResult(p.fst);

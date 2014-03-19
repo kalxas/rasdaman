@@ -29,6 +29,7 @@ import petascope.core.DbMetadataSource;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
+import static petascope.wcs2.extensions.ExtensionsRegistry.GMLJP2_IDENTIFIER;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.GetCoverageRequest;
 
@@ -50,18 +51,27 @@ public class MultipartFormatExtension extends  GmlFormatExtension {
     @Override
     public Response handle(GetCoverageRequest req, DbMetadataSource meta)
             throws PetascopeException, WCSException, SecoreException {
-        // get gml response, but without the {coverageData} replaced
-        Response gml = super.handle(req, meta);
-        // get the GeoTIFF file
-        Response image = ExtensionsRegistry.getFormatExtension(false, req.getFormat()).handle(req, meta);
-        // return multipart response
-        String xml = gml.getXml().replace("{coverageData}",
-                   "<File>"
-                + "<fileName>" + "file" + "</fileName>"
-                + "<fileStructure>Record Interleaved</fileStructure>"
-                + "<mimeType>" + req.getFormat() + "</mimeType>"
-                + "</File>");
-        return new Response(image.getData(), xml, req.getFormat());
+
+        Response multipartResponse;
+
+        if (req.getFormat().equals(MIME_JP2)) {
+            // JPEG2000+multipart = GML in JPEG2000
+            multipartResponse = ((FormatExtension)ExtensionsRegistry.getExtension(GMLJP2_IDENTIFIER)).handle(req, meta);
+        } else {
+            // get gml response, but without the {coverageData} replaced
+            Response gml = super.handle(req, meta);
+            // get the GeoTIFF file
+            Response image = ExtensionsRegistry.getFormatExtension(false, req.getFormat()).handle(req, meta);
+            // return multipart response
+            String xml = gml.getXml().replace("{coverageData}",
+                    "<File>"
+                    + "<fileName>" + "file" + "</fileName>"
+                    + "<fileStructure>Record Interleaved</fileStructure>"
+                    + "<mimeType>" + req.getFormat() + "</mimeType>"
+                    + "</File>");
+            multipartResponse = new Response(image.getData(), xml, req.getFormat());
+        }
+        return multipartResponse;
     }
 
     @Override
