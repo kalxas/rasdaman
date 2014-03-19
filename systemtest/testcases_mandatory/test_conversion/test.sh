@@ -163,16 +163,19 @@ drop_colls test_tmp
 ################## jpeg() and inv_jpeg() #######################
 run_test jpeg inv_jpeg jpg jpg GreySet
 run_test jpeg decode jpg jpg GreySet
+run_test jpeg decode jpg jpg GreySet ", \"jpeg2000\", \"QUALITY=10;\""
 
 ################## tiff() and inv_tiff() #######################
 run_test tiff inv_tiff tif tif GreySet
 run_test tiff inv_tiff tif tif TestSet ", \"sampletype=octet\""
 run_test tiff decode tif tif GreySet
+run_test tiff decode tif tif GreySet ", \"gtiff\", \"ZLEVEL=1;\""
 
 
 ################## png() and inv_png() #######################
 run_test png inv_png png png GreySet
 run_test png decode png png GreySet
+run_test png decode png png GreySet ", \"png\", \"ZLEVEL=1;\""
 
 ################## bmp() and inv_bmp() #######################
 run_test bmp inv_bmp bmp bmp GreySet
