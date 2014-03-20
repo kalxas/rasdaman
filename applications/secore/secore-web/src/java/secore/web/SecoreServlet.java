@@ -67,7 +67,7 @@ public class SecoreServlet extends HttpServlet {
     try {
       log.debug("Request URI: " + uri);
       ResolveRequest request = new ResolveRequest(uri);
-      StringUtil.SERVICE_URI = request.getServiceUri();
+//      StringUtil.SERVICE_URI = request.getServiceUri();
       log.debug("Set service URI to " + StringUtil.SERVICE_URI);
       DbManager.getInstance().getDb();
       

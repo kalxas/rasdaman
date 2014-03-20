@@ -97,9 +97,13 @@ public class SecoreFilter implements Filter {
       log.debug("Request URI: " + uri);
       try {
         if (!StringUtil.SERVICE_URI_SET) {
-          String url = ((HttpServletRequest) request).getRequestURL().toString();
-          ResolveRequest req = new ResolveRequest(url);
-          StringUtil.SERVICE_URI = req.getServiceUri();
+          String serviceUrl = Config.getInstance().getServiceUrl();
+          if (serviceUrl == null || "".equals(serviceUrl)) {
+            String url = ((HttpServletRequest) request).getRequestURL().toString();
+            ResolveRequest req = new ResolveRequest(url);
+            serviceUrl = req.getServiceUri();
+          }
+          StringUtil.SERVICE_URI = serviceUrl;
           StringUtil.SERVICE_URI_SET = true;
           log.trace("Service URI: " + StringUtil.SERVICE_URI);
         }
