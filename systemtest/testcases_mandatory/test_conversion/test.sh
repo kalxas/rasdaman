@@ -190,7 +190,7 @@ run_test vff inv_vff vff vff GreySet
 grep 'HAVE_HDF 1' $SCRIPT_DIR/../../../config.h
 
 if [ $? -eq 0 ]; then
-  run_test hdf hdf hdf hdf GreySet
+  run_test hdf inv_hdf hdf hdf GreySet
 fi
 
 ################## csv() #######################
