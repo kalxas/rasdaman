@@ -35,6 +35,7 @@ rasdaman GmbH.
 
 
 class GDALDataset;
+class QtConversion;
 
 /**************************************************************
  *
@@ -126,6 +127,8 @@ private:
 	};
 
 	GenericParams gParams;
+
+    QtConversion *builtinConvertor;
 };
 
 #endif  // _QTENCODE__

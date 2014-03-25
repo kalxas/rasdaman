@@ -26,6 +26,7 @@ rasdaman GmbH.
 #include <float.h>
 
 #include "catalogmgr/typefactory.hh"
+#include "qlparser/qtconversion.hh"
 #include "qlparser/qtencode.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtmintervaldata.hh"
@@ -70,26 +71,39 @@ using namespace std;
 const QtNode::QtNodeType QtEncode::nodeType = QtNode::QT_ENCODE;
 
 QtEncode::QtEncode(QtOperation *mddOp, char* formatIn) throw (r_Error)
-: QtUnaryOperation(mddOp), format(formatIn), fParams(NULL)
+: QtUnaryOperation(mddOp), format(formatIn), fParams(NULL), builtinConvertor(NULL)
 {
     GDALAllRegister();
+
+    // If the format is not supported by GDAL, try to use builtin convertors
+    r_Data_Format dataFormat = getDataFormat(format);
+    if (dataFormat == r_CSV) {
+        builtinConvertor = new QtConversion(mddOp, QtConversion::QT_TOCSV);
+    }
 }
 
 QtEncode::QtEncode(QtOperation *mddOp, char* formatIn, char* paramsIn) throw (r_Error)
-: QtUnaryOperation(mddOp), format(formatIn)
+: QtUnaryOperation(mddOp), format(formatIn), builtinConvertor(NULL)
 {
     GDALAllRegister();
     initParams(paramsIn);
+
+    // If the format is not supported by GDAL, try to use builtin convertors
+    r_Data_Format dataFormat = getDataFormat(format);
+    if (dataFormat == r_CSV) {
+        builtinConvertor = new QtConversion(mddOp, QtConversion::QT_TOCSV, paramsIn);
+    }
 }
 
 QtEncode::~QtEncode()
 {
   CSLDestroy(fParams);
+  if (builtinConvertor) {
+      delete builtinConvertor;
+      builtinConvertor = NULL;
+      input = NULL; // input is already freed in builtinConvertor
+  }
 }
-
-void split(string &s1, string &s2, char delim){
-}
-
 
 QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
 {
@@ -100,32 +114,38 @@ QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
     QtData* returnValue = NULL;
     QtData* operand = NULL;
 
-    operand = input->evaluate(inputList);
-
-    if (operand)
+    if (builtinConvertor)
     {
-#ifdef QT_RUNTIME_TYPE_CHECK
-        if (operand->getDataType() != QT_MDD)
+        returnValue = builtinConvertor->evaluate(inputList);
+    }
+    else
+    {
+        operand = input->evaluate(inputList);
+
+        if (operand)
         {
-            RMInit::logOut << "Internal error in QtEncode::evaluate() - "
-                    << "runtime type checking failed (MDD)." << std::endl;
+#ifdef QT_RUNTIME_TYPE_CHECK
+            if (operand->getDataType() != QT_MDD)
+            {
+                RMInit::logOut << "Internal error in QtEncode::evaluate() - "
+                        << "runtime type checking failed (MDD)." << std::endl;
+
+                // delete old operand
+                if (operand) operand->deleteRef();
+                return 0;
+            }
+#endif
+
+            // Perform the actual evaluation
+            QtMDD* qtMDD = (QtMDD*) operand;
+            returnValue = evaluateMDD(qtMDD);
 
             // delete old operand
             if (operand) operand->deleteRef();
-            return 0;
         }
-#endif
-
-        // Perform the actual evaluation
-        QtMDD* qtMDD = (QtMDD*) operand;
-        returnValue = evaluateMDD(qtMDD);
-
-        // delete old operand
-        if (operand) operand->deleteRef();
+        else
+            RMInit::logOut << "Error: QtEncode::evaluate() - operand is not provided." << std::endl;
     }
-    else
-        RMInit::logOut << "Error: QtEncode::evaluate() - operand is not provided." << std::endl;
-    
     stopTimer();
 
     LEAVE("QtEncode::evaluate( QtDataList* )");
@@ -240,9 +260,9 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     }
 
     // temporary file to which the encoded result will be written
-    char tmpFileName[32];
-    memset(tmpFileName, 0, sizeof (tmpFileName));
-    strcpy(tmpFileName, "/tmp/rasdaman-XXXXXX");
+    const char TMPFILE_TEMPLATE[] = "/tmp/rasdaman-XXXXXX";
+    char tmpFileName[sizeof(TMPFILE_TEMPLATE)];
+    strcpy(tmpFileName, TMPFILE_TEMPLATE);
     
     int fd = mkstemp(tmpFileName);
     if (fd < 1)
@@ -482,6 +502,8 @@ QtEncode::getDataFormat(char* format)
 			ret = r_HDF;
 		else if (STR_EQUAL(f, "bmp"))
 			ret = r_BMP;
+		else if (STR_EQUAL(f, "csv"))
+			ret = r_CSV;
 	}
 	return ret;
 }
@@ -496,6 +518,9 @@ const QtTypeElement&
 QtEncode::checkType(QtTypeTuple* typeTuple)
 {
     RMDBCLASS("QtEncode", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__)
+
+    if (builtinConvertor)
+        return builtinConvertor->checkType(typeTuple);
 
     dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 

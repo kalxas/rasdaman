@@ -120,9 +120,9 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 		delete tiles;
 		tiles = NULL;
 
-		char tmpFileName[21];
-		memset(tmpFileName, '\0', 21);
-		strcpy(tmpFileName, "/tmp/rasdaman-XXXXXX");
+		const char TMPFILE_TEMPLATE[] = "/tmp/rasdaman-XXXXXX";
+		char tmpFileName[sizeof(TMPFILE_TEMPLATE)];
+		strcpy(tmpFileName, TMPFILE_TEMPLATE);
 		createTemporaryImageFile(tmpFileName, sourceTile);
 
 		GDALDataset *poDataset;
@@ -172,12 +172,12 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 
 		QtData* returnValue = new QtMDD((MDDObj*) resultMDD);
 
-		return returnValue;
-
 		if (operand)
 		{
 			operand->deleteRef();
 		}
+
+		return returnValue;
 	} else
 	{
 		RMInit::logOut << "Error: QtDecode::evaluate() - operand is not provided." << std::endl;

@@ -102,14 +102,15 @@ elif [ "$colltype" == TestSet ]; then
 elif [ "$colltype" == Gauss2Set ]; then
   f=gauss
 fi
-local extraopts="$6"
-local rasqlopts="$7"
+local decodeopts="$6"   # used on data insertion
+local encodeopts="$7"   # used on data selection
+local rasqlopts="$8"
 
-log ----- $fun and inv_$fun conversion ------
+log ----- $fun and $inv_fun conversion ------
 
 create_coll test_tmp $colltype
-insert_into test_tmp "$TESTDATA_PATH/$f.$inv_ext" "$extraopts" "$inv_fun" "$rasqlopts"
-export_to_file test_tmp "$f" "$fun"
+insert_into test_tmp "$TESTDATA_PATH/$f.$inv_ext" "$decodeopts" "$inv_fun" "$rasqlopts"
+export_to_file test_tmp "$f" "$fun" "$encodeopts"
 
 logn "comparing images: "
 if [ -f "$ORACLE_PATH/$f.$ext.checksum" ]; then
@@ -199,8 +200,9 @@ run_test csv inv_png csv png GreySet
 run_test csv inv_png csv png RGBSet
 run_test csv decode csv png GreySet
 run_test csv decode csv png RGBSet
+run_test encode inv_png csv png GreySet '' ', "csv"'
 
-run_test csv "" csv binary Gauss2Set "" "--mddtype Gauss2Image --mdddomain [0:1,-1:1]"
+run_test csv "" csv binary Gauss2Set "" "" "--mddtype Gauss2Image --mdddomain [0:1,-1:1]"
 
 ############## csv(order=inner_outer) #######
 log ----- csv with inner_outer order conversion ------
