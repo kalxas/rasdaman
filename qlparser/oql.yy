@@ -262,6 +262,7 @@ struct QtUpdateSpecElement
 %type <qtAtomicDataValue>     atomicLit
 %type <qtComplexDataValue>    complexLit
 %type <qtScalarDataListValue> scalarLitList dimensionLitList
+%type <floatToken>            numericalLit
 // pyramid data
 // %type <pyrElemType>           pyrElem pyrElem2
 // %type <pyrListType>           pyrList pyrList2
@@ -2545,6 +2546,45 @@ atomicLit: BooleanLit
 	  $$->setParseInfo( *($1.info) );
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($1)
+	}
+	| COMPLEX LRPAR numericalLit COMMA numericalLit RRPAR
+	{
+	  // this should construct a complex type
+	  // for both float and double cell type
+	  if($3.bytes + $5.bytes == 2 * sizeof(float) || $3.bytes + $5.bytes == 2 * sizeof(double)) {
+	    $$ = new QtAtomicData($3.value, $5.value, $3.bytes + $5.bytes);
+	  } else {
+	    if(parseError) delete parseError;
+	    parseError = new ParseInfo(311, $2.info->getToken().c_str(),
+	        $2.info->getLineNo(), $2.info->getColumnNo());
+	    FREESTACK($1)
+	    FREESTACK($2)
+	    FREESTACK($4)
+	    FREESTACK($6)
+	    QueryTree::symtab.wipe();
+	    YYABORT;
+	  }
+	  $$->setParseInfo(*($3.info));
+	  parseQueryTree->addDynamicObject($$);
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($4)
+	  FREESTACK($6)
+	};
+
+numericalLit : FloatLit
+	{
+	  $$ = $1;
+	}
+	| IntegerLit
+	{
+	  if ($1.negative) {
+	    $$.value = (double) $1.svalue;
+	  } else {
+	    $$.value = (double) $1.uvalue;
+	  }
+	  $$.bytes = sizeof(double);
+	  $$.info = $1.info;
 	};
 
 complexLit: LCPAR scalarLitList RCPAR           
