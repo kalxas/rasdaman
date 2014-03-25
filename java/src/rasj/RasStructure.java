@@ -83,4 +83,12 @@ public class RasStructure {
     ret.append(" }");
     return ret.toString();
   }
+
+  public java.util.List getElements() {
+    return elements;
+  }
+
+  public RasStructureType getType() {
+    return type;
+  }
 }
