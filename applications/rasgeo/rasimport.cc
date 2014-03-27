@@ -1329,11 +1329,11 @@ bool parseStringSequence(const string& sequence,
     for (int s=0; s < vsep.size(); ++s)
     {
         size_t st = string::npos;
-	if ((st = sequence.find(vsep[s])) != string::npos)
-	{
-		if (st < startpos)
-			startpos = st;
-	}
+		if ((st = sequence.find(vsep[s])) != string::npos)
+		{
+			if (st < startpos)
+				startpos = st;
+		}
     }
 
     if (startpos == string::npos)
@@ -1352,16 +1352,20 @@ bool parseStringSequence(const string& sequence,
 
         for (int s=0; s < vsep.size(); ++s)
         {
-		if (tmp.find(vsep[s]) == (size_t)0)
-		{
-			items.push_back(sequence.substr(itemstart, endpos-itemstart));
-			itemstart = endpos+1;
-		}
+		    if (tmp.find(vsep[s]) == (size_t)0)
+		    {
+			sub = sequence.substr(itemstart, endpos-itemstart);
+			if (!sub.empty())
+			{
+				items.push_back(sub);
+			}
+		        itemstart = endpos+1;
+		    }
         }
 
-        if (vsep.size() == 0)
+        if (vsep.size() == 0 && !sub.empty())
         {
-		items.push_back(sub);
+		    items.push_back(sub);
         }
     }
 
@@ -1369,7 +1373,7 @@ bool parseStringSequence(const string& sequence,
     // the start position of the string
     if (vsep.size() > 0)
     {
-	startpos = itemstart;
+	    startpos = itemstart;
     }
 
     // get the last item
@@ -1377,18 +1381,21 @@ bool parseStringSequence(const string& sequence,
     {
         endpos = sequence.size()-1;
         sub = sequence.substr(startpos, endpos-startpos+1);
-        items.push_back(sub.c_str());
+        if (!sub.empty())
+        {
+		items.push_back(sub);
+        }
     }
     else if (startpos == 0 && sequence.size() != 0)
     {
-        items.push_back(sequence.c_str());
+        items.push_back(sequence);
     }
     else
         return false;
 
     // if nelem is meaningful, we evaluate, otherwise we just
-    // claim everything was fine
-    return nelem > 0 ? (items.size() == nelem ? true : false) : true;
+    // claim everything was fine unless we've found at least one matching substring
+    return nelem > 0 ? (items.size() == nelem ? true : false) : (items.size() > 0 ? true : false);
 }
 
 void getMetaURIs(Header& header, RasdamanHelper2& helper, bool b3D)
@@ -1549,9 +1556,10 @@ main(int argc, char** argv)
             if (!parseStringSequence(sequence, crsuri, -1 , vsep))
             {
                 cerr << ctx << "main(): "
-                  << "missing parameter for --crs-uri: please "
-                << "specify a coordinate reference system identifier! "
-                << "E.g.: " << CRS_RESOLVER_PREFIX << "/crs/EPSG/0/4326" << endl;
+                  << "Missing or invalid parameter for --crs-uri: Please "
+                << "specify a valid coordinate reference system identifier! "
+                << "E.g.: " << CRS_RESOLVER_PREFIX << "/crs/EPSG/0/4326"
+                << " or: http://www.opengis.net/def/crs/EPSG/0/27200" << endl;
                   LEAVE(ctx << "main()");
                 return EXIT_FAILURE;
             }
@@ -1955,18 +1963,29 @@ main(int argc, char** argv)
 
         ////////////////////////////////// GET CRS INFO FROM GDAL /////////////////////////////////////////
 
+	    // initiate gdal
+	    GDALAllRegister();
+
         // if the user hasn't specified any crs uri, we try to derive a resolvable CRS identifier
-        // from the GDAL WKT CRS definition, if available; we notify the user if something DIDN't work,
+        // from the GDAL WKT CRS definition of the first specified input file, if available;
+	    // we notify the user if something DIDN't work,
         // if we found a description and did find an epsg code, we don't bother the user
-        if (crsuri.size() == 0)
+	    Header crsHeader;
+	    resetHeader(crsHeader);
+
+	    if (crsuri.size() == 0)
         {
-		getMetaURIs(header, helper, b3D);
+		if (vnames.size() > 0)
+		{
+			readTileInformation(vnames[0], crsHeader);
+			getMetaURIs(crsHeader, helper, b3D);
+		}
         }
         else
         {
-		    header.crs_uris.clear();
+		    crsHeader.crs_uris.clear();
             for (int c=0; c < crsuri.size(); ++c)
-                header.crs_uris.push_back(crsuri[c]);
+                crsHeader.crs_uris.push_back(crsuri[c]);
         }
 
         // ////////////////////////////// CHECK FOR INDEXED CRS /////////////////////////////////
@@ -1994,7 +2013,7 @@ main(int argc, char** argv)
         }
         else
         {
-		    uris = header.crs_uris;
+		    uris = crsHeader.crs_uris;
         }
 
 		for (int d=0; d < uris.size(); ++d)
@@ -2040,9 +2059,6 @@ main(int argc, char** argv)
 
         ///////////////////////////////// ANALYSE INPUT FILES /////////////////////////////////
 
-	    // initiate gdal
-	    GDALAllRegister();
-
 		// read input image(s) using GDAL --> populate Header structure
 		// overall processing region (applies to multiple files)
 		vector< string > vimportnames;
@@ -2058,6 +2074,9 @@ main(int argc, char** argv)
 			LEAVE(ctx << "main()");
 			return EXIT_FAILURE;
 		}
+
+		// copy crs info derived earlier into the processing header
+		header.crs_uris = crsHeader.crs_uris;
 
 		////////////////////////////////// CALC PIXEL SHIFT /////////////////////////////////////
 		double collexists = helper.doesCollectionExist(collname);

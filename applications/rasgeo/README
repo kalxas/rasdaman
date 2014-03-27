@@ -274,14 +274,14 @@ IMPORT OPTIONS EXPLAINED
                responsible for specifying the appropriate crs-order if it
                differs from the default xyz axis order
 
---crs-uri   -> resolvable coordinate reference system (CRS) identifier(s)
+--crs-uri   -> resolvable coordinate reference system (CRS) identifier(s) (i.e. URL)
                (e.g. (in full) http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0.1/Index2D)
               - specifies one or more CRS identifier pointing to a CRS resolver
                 (e.g. SECORE);
-                NOTE: rasimport expects URIs to either use the petascope resolver
+                NOTE: rasimport expects URLs to either use the petascope resolver
                 prefix '%SECORE_URL%', e.g.: %SECORE_URL%/crs/EPSG/0/4326 ,
                 or to start with 'http://'. No further URI validation is performed
-                by rasimport.
+                by rasimport. Any other substrings concatenated with ':' are ignored.
                 In case the SECORE URL prefix was specified, petascope replaces
                  %SECORE_URL% with a server specified in the
                 '$RMANHOME/etc/petascope.properties' configuration file
