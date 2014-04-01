@@ -592,7 +592,8 @@ QtTypeElement::setDataType( const QtDataType newDataType )
 
     case QT_MDD:
     case QT_COMPLEX:
-        RMInit::logOut << "QtTypeElement::setDataType() - MDD and complex types need to be specified further." << std::endl;
+        RMDBGIF(4, RMDebug::module_qlparser, "QtNode",
+            RMInit::logOut << "QtTypeElement::setDataType() - MDD and complex types need to be specified further." << std::endl;)
         break;
 
     case QT_STRING:

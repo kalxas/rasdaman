@@ -106,8 +106,6 @@ QueryTree::checkSemantics()
     case QtNode::QT_SELECTION_ITERATOR:
     {
         const QtTypeTuple& resultType = ((QtONCStream*)rootNode)->checkType();
-        // RMInit::logOut << "result type: " << flush;
-        // resultType.printStatus( RMInit::logOut );
     }
     break;
 
@@ -122,8 +120,6 @@ QueryTree::checkSemantics()
     default:
     {
         const QtTypeElement& resultType = ((QtOperation*)rootNode)->checkType();
-        // RMInit::logOut << "result type: " << flush;
-        // resultType.printStatus( RMInit::logOut );
     }
     break;
     }
@@ -161,9 +157,6 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
             RMInit::logOut << "QueryTree::evaluateRetrieval() - rethrow exception from oncRootNode->open()." << endl;
             throw;
         }
-
-        // removed to have uniform, compact log output -- PB 2003-nov-20
-        // RMInit::logOut << endl;
 
         // create result collection
         vector<QtData*>* resultData = new vector<QtData*>();
@@ -216,8 +209,6 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
         }
         catch(r_Error& myErr)
         {
-            RMInit::logOut << endl << "Caught BAD exception when evaluating query! " << endl;
-            RMInit::logOut << myErr.what() << endl;
             if( resultData )
             {
                 // Delete the result vector
@@ -228,7 +219,6 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
             }
 
             oncRootNode->close();
-            RMInit::logOut << "QueryTree::evaluateTree() - rethrow exception." << endl;
             throw;
         }
         catch( ... )
@@ -243,7 +233,6 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
             }
 
             oncRootNode->close();
-            RMInit::logOut << "QueryTree::evaluateTree() - rethrow exception." << endl;
             throw;
         }
 

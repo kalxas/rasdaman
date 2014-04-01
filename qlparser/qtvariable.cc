@@ -259,7 +259,6 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
                 }
                 catch( r_Edim_mismatch& )
                 {
-                    RMInit::logOut << "Error: QtVariable::evaluate() - specified domain dimensionality does not equal defined dimensionality." << endl;
                     parseInfo.setErrorNo(362);
                     throw parseInfo;
                 }

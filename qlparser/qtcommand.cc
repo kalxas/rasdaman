@@ -131,10 +131,6 @@ OId QtCommand::createCollection(string collectionName, string typeName)
                 }
                 catch (r_Error& obj)
                 {
-                    RMInit::logOut << "Error during query evaluation: collection name exists already: " << collectionName.c_str() << std::endl;
-                    if (obj.get_kind() != r_Error::r_Error_NameNotUnique)
-                        RMInit::logOut << "Exception: " << obj.what() << std::endl;
-                    ;
                     parseInfo.setErrorNo(955);
                     throw parseInfo;
                 }

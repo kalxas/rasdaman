@@ -357,7 +357,6 @@ QtConversion::evaluate( QtDataList* inputList )
         }
         catch (r_Error &err)
         {
-            RMInit::logOut << "Error: QtConversion::evaluate(): conversion failed" << std::endl;
             delete sourceTile;
             sourceTile = NULL;
             delete baseSchema;
@@ -379,7 +378,7 @@ QtConversion::evaluate( QtDataList* inputList )
             convertor=NULL;
         }
 
-        RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtConversion", "evalutate() - ok")
+        RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtConversion", "evaluate() - ok")
 
 
         //
@@ -414,9 +413,10 @@ QtConversion::evaluate( QtDataList* inputList )
                 TypeFactory::addTempType( mddBaseType );
 
                 dataStreamType.setType( mddBaseType );
-                RMInit::logOut << " QtConversion::evaluate() for conversion " << conversionType << " real result is " << std::flush;
-                dataStreamType.printStatus(RMInit::logOut);
-                RMInit::logOut << std::endl;
+                RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
+                    RMInit::logOut << " QtConversion::evaluate() for conversion " << conversionType << " real result is " << std::flush; \
+                    dataStreamType.printStatus(RMInit::logOut); \
+                    RMInit::logOut << std::endl;)
             }
         }
         else   //we assume that we deal with structure types
@@ -473,9 +473,10 @@ QtConversion::evaluate( QtDataList* inputList )
                 TypeFactory::addTempType( mddBaseType );
 
                 dataStreamType.setType( mddBaseType );
-                RMInit::logOut << " QtConversion::evaluate() for conversion " << conversionType << " real result is " << std::flush;
-                dataStreamType.printStatus(RMInit::logOut);
-                RMInit::logOut << std::endl;
+                RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
+                    RMInit::logOut << " QtConversion::evaluate() for conversion " << conversionType << " real result is " << std::flush; \
+                    dataStreamType.printStatus(RMInit::logOut); \
+                    RMInit::logOut << std::endl;)
             }
         }
 
@@ -644,9 +645,11 @@ QtConversion::checkType( QtTypeTuple* typeTuple )
 
         if(conversionType>QT_TODEM)
         {
-            RMInit::logOut << std::endl << "QtConversion::checkType() for conversion " << conversionType << " assume the result " << std::flush;
-            dataStreamType.printStatus(RMInit::logOut);
-            RMInit::logOut << std::endl;
+            RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
+                RMInit::logOut << std::endl << "QtConversion::checkType() for conversion " \
+                               << conversionType << " assume the result " << std::flush; \
+                dataStreamType.printStatus(RMInit::logOut); \
+                RMInit::logOut << std::endl;)
         }
     }
     else

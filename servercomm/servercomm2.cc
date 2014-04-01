@@ -336,7 +336,8 @@ ServerComm::createDB( char* name )
     }
     catch(r_Error& myErr)
     {
-        RMInit::logOut << "Error: exception " << myErr.get_errorno() << ": " << myErr.what() << std::endl;
+        RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+            RMInit::logOut << "Error: exception " << myErr.get_errorno() << ": " << myErr.what() << std::endl;)
     }
     catch(std::bad_alloc)
     {
@@ -433,7 +434,8 @@ ServerComm::beginTA( unsigned long callingClientId,
         }
         catch(r_Error& err)
         {
-            RMInit::logOut << "Error: exception " << err.get_errorno() << ": " << err.what() << std::endl;
+            RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                RMInit::logOut << "Error: exception " << err.get_errorno() << ": " << err.what() << std::endl; )
             context->release();
             throw;
         }
@@ -627,12 +629,14 @@ ServerComm::insertColl( unsigned long callingClientId,
             {
                 if (obj.get_kind() == r_Error::r_Error_NameNotUnique)
                 {
-                    RMInit::logOut << "Error: collection exists already." << std::endl;
+                    RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                        RMInit::logOut << "Error: collection exists already." << std::endl;);
                     returnValue = 3;
                 }
                 else
                 {
-                    RMInit::logOut << "Error: cannot create collection: " << obj.get_errorno() << " " << obj.what() << std::endl;
+                    RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                        RMInit::logOut << "Error: cannot create collection: " << obj.get_errorno() << " " << obj.what() << std::endl;);
                     //this should be another code...
                     returnValue = 3;
                 }
@@ -822,12 +826,14 @@ ServerComm::removeObjFromColl( unsigned long callingClientId,
             // collection name invalid
             if (obj.get_kind() == r_Error::r_Error_ObjectUnknown)
             {
-                RMInit::logOut << "Error: collection not found." << std::endl;
+                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                    RMInit::logOut << "Error: collection not found." << std::endl;)
                 returnValue = 2;
             }
             else
             {
-                RMInit::logOut << "Error " << obj.get_errorno() << ": " << obj.what() << std::endl;
+                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                    RMInit::logOut << "Error " << obj.get_errorno() << ": " << obj.what() << std::endl; )
                 // there should be another return code
                 returnValue = 2;
             }
@@ -940,7 +946,8 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 }
                 catch (r_Error& err)
                 {
-                    RMInit::logOut << "Error " << err.get_errorno() << ": " << err.what() << std::endl;
+                    RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                        RMInit::logOut << "Error " << err.get_errorno() << ": " << err.what() << std::endl;)
                     returnValue = 5;
                     context->release(); //!!!
                     throw;
@@ -1034,7 +1041,8 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 }
                 catch (r_Error& obj)
                 {
-                    RMInit::logOut << "Error " << obj.get_errorno() << ": " << obj.what() << std::endl;
+                    RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                        RMInit::logOut << "Error " << obj.get_errorno() << ": " << obj.what() << std::endl;)
                     context->release(); //!!!
                     throw;
                 }
@@ -1347,7 +1355,8 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                 }
                 catch (r_Error& obj)
                 {
-                    RMInit::logOut << "Error " << obj.get_errorno() << ": " << obj.what() << std::endl;
+                    RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                        RMInit::logOut << "Error " << obj.get_errorno() << ": " << obj.what() << std::endl;)
                     context->release(); //!!!
                     throw;
                 }
@@ -1428,7 +1437,8 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
                 }
                 catch (r_Error& err)
                 {
-                    RMInit::logOut << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what() << std::endl;
+                    RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                        RMInit::logOut << "Error: while creating persistent tile: " << err.get_errorno() << ": " << err.what() << std::endl;)
                     context->release(); //!!!
                     throw;
                 }
@@ -1591,7 +1601,6 @@ ServerComm::executeQuery( unsigned long callingClientId,
                 returnStructure.columnNo   = info.getColumnNo();
                 returnStructure.token      = strdup( info.getToken().c_str() );
 
-                RMInit::logOut << "Error: cannot parse query (1)." << std::endl;
                 info.printStatus( RMInit::logOut );
             }
             catch( r_Ebase_dbms& myErr )
@@ -1613,7 +1622,8 @@ ServerComm::executeQuery( unsigned long callingClientId,
             }
             catch( r_Error& myErr )
             {
-                RMInit::logOut << "Error: " << myErr.get_errorno() << " " << myErr.what() << std::endl;
+                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                    RMInit::logOut << "Error: " << myErr.get_errorno() << " " << myErr.what() << std::endl;)
 
                 // release data
                 context->releaseTransferStructures();
@@ -1752,8 +1762,6 @@ ServerComm::executeQuery( unsigned long callingClientId,
                 }
 
                 yyreset(); // reset the input buffer of the scanner
-
-                RMInit::logOut << "Error: cannot parse query (2)." << std::endl;
                 returnValue = 4;
             }
         }
@@ -2096,14 +2104,14 @@ ServerComm::executeUpdate( unsigned long callingClientId,
                 returnStructure.columnNo   = info.getColumnNo();
                 returnStructure.token      = strdup( info.getToken().c_str() );
 
-                RMInit::logOut << "Error: cannot parse query (1)." << std::endl;
                 info.printStatus( RMInit::logOut );
             }
             catch(r_Error &err)
             {
                 context->releaseTransferStructures();
                 context->release();
-                RMInit::logOut << "Error: " << err.get_errorno() << " " << err.what() << std::endl;
+                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                    RMInit::logOut << "Error: " << err.get_errorno() << " " << err.what() << std::endl;)
                 throw;
             }
         }
@@ -2124,8 +2132,6 @@ ServerComm::executeUpdate( unsigned long callingClientId,
                     returnStructure.token      = strdup( parseError->getToken().c_str() );
 
                     delete parseError;
-
-                    RMInit::logOut << "Error: cannot parse query (2)." << std::endl;
                     parseError = 0;
                 }
                 else
@@ -2282,14 +2288,14 @@ ServerComm::executeInsert ( unsigned long callingClientId,
                 returnStructure.columnNo   = info.getColumnNo();
                 returnStructure.token      = strdup( info.getToken().c_str() );
 
-                RMInit::logOut << "Error: cannot parse query (1)." << std::endl;
                 info.printStatus( RMInit::logOut );
             }
             catch(r_Error &err)
             {
                 context->releaseTransferStructures();
                 context->release();
-                RMInit::logOut << "Error: " << err.get_errorno() << " " << err.what() << std::endl;
+                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                    RMInit::logOut << "Error: " << err.get_errorno() << " " << err.what() << std::endl;)
                 throw;
             }
 
@@ -2376,8 +2382,6 @@ ServerComm::executeInsert ( unsigned long callingClientId,
                     returnStructure.token      = strdup( parseError->getToken().c_str() );
 
                     delete parseError;
-
-                    RMInit::logOut << "Error: cannot parse query (2)." << std::endl;
                     parseError = 0;
                 }
                 else
@@ -2478,7 +2482,8 @@ ServerComm::getCollByName( unsigned long callingClientId,
         }
         catch (r_Error& err)
         {
-            RMInit::logOut << "Error " << err.get_errorno() << " " << err.what() << std::endl;
+            RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                RMInit::logOut << "Error " << err.get_errorno() << " " << err.what() << std::endl;)
             context->release(); //!!!
             throw;
         }
@@ -2594,7 +2599,8 @@ ServerComm::getCollByOId( unsigned long callingClientId,
             }
             catch (r_Error& err)
             {
-                RMInit::logOut << "Error " << err.get_errorno() << " " << err.what() << std::endl;
+                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                    RMInit::logOut << "Error " << err.get_errorno() << " " << err.what() << std::endl;)
                 throw;
             }
             catch(...)  // not found (?)
@@ -2728,7 +2734,8 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
         catch (r_Error& err)
         {
             RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "caught exception")
-            RMInit::logOut << "Error " << err.get_errorno() << ": " << err.what() << std::endl;
+            RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+               RMInit::logOut << "Error " << err.get_errorno() << ": " << err.what() << std::endl;)
             returnValue = 2;  // collection name invalid
         }
         catch(...)
@@ -2866,7 +2873,8 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
             }
             catch (r_Error& err)
             {
-                RMInit::logOut << "Error " << err.get_errorno() << ": " << err.what() << std::endl;
+                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                    RMInit::logOut << "Error " << err.get_errorno() << ": " << err.what() << std::endl;)
                 returnValue = 2;  // collection name invalid
                 if (err.get_kind() != r_Error::r_Error_RefNull)
                     throw;
@@ -3158,7 +3166,8 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
         }
         catch( r_Error& myErr )
         {
-            RMInit::logOut << "Error: (kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what() << std::endl;
+            RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                RMInit::logOut << "Error: (kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what() << std::endl;)
             throw;
         }
         catch(std::bad_alloc)
@@ -3435,7 +3444,8 @@ ServerComm::getNextElement( unsigned long   callingClientId,
             }
             catch (r_Error& err)
             {
-                RMInit::logOut << "Error: exception (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what() << std::endl;
+                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                    RMInit::logOut << "Error: exception (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what() << std::endl;)
                 throw;
             }
 
@@ -3526,7 +3536,8 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
             }
             catch (r_Error& err)
             {
-                RMInit::logOut << "Error: (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what() << std::endl;
+                RMDBGIF(2, RMDebug::module_servercomm, "ServerComm",
+                    RMInit::logOut << "Error: (kind " << err.get_kind() << ", errno " << err.get_errorno() << ") " << err.what() << std::endl;)
                 context->release();
                 throw;
             }

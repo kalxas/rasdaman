@@ -242,6 +242,10 @@ Configuration::initLogFiles()
         RMInit::dbgOut.rdbuf(RMInit::logFileOut.rdbuf());
         RMInit::bmOut.rdbuf(RMInit::logFileOut.rdbuf());
     }
+#ifndef RMANDEBUG
+    RMInit::dbgFileOut.open("/dev/null",ios::app);
+    RMInit::dbgOut.rdbuf(RMInit::dbgFileOut.rdbuf());
+#endif
 }
 
 const char *

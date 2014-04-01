@@ -152,8 +152,7 @@ void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *tra
             }
             catch(r_Error &ex)
             {
-                RMInit::logOut << "Error: request terminated: " << ex.what() << endl;
-                TALK( "rasdaman exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno() );
+                TALK( "request terminated: " << ex.what() << " exception kind=" << ex.get_kind() << ", errorno=" << ex.get_errorno() );
                 wasError = true;
                 answerr_Error(ex);
 
@@ -1388,7 +1387,7 @@ void RnpRasDaManComm::answerr_Error(r_Error &err)
 {
     const char *errText = err.serialiseError();
 
-    RMInit::logOut << "Error in response: (" << errText << ") " << err.what() << endl;
+    TALK("Error in response: (" << errText << ") " << err.what());
 
     encoder.startFragment(Rnp::fgt_Error, decoder.getCommand());
     encoder.addInt32Parameter(Rnp::ert_Other, 0);
