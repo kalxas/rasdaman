@@ -24,7 +24,6 @@ package petascope.util;
 import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.MathContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -254,9 +253,19 @@ public class WcsUtil {
                     );
         }
 
+        // Coverage function: mapping the order of rangeSet values
+        String coverageFunction = "";
+        if (WcsUtil.isGrid(m.getCoverageType())) {
+            // gridded coverage:
+            coverageFunction += Templates.getTemplate(Templates.GRID_FUNCTION,
+                    Pair.of("\\{" + Templates.KEY_SEQUENCE_RULE_ORDER + "\\}", getOuterInnerAxisRuleOrder(m))
+                    );
+        } // else: coverageFunction yet to be investigated for non-gridded coverages. Might not be necessary for multi-*.
+
+
         // Whole document: replace keywords with values
         String ret = "";
-        if (m.getCoverageType().equals(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)){
+        if (WcsUtil.isMultiPoint(m.getCoverageType())){
             ret = Templates.getTemplate(template,
                 Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
                 Pair.of("\\{" + Templates.KEY_COVERAGEID            + "\\}", m.getCoverageId()),
@@ -267,9 +276,11 @@ public class WcsUtil {
                 Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)),
                 Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields));
         } else {
+            // gridded coverage:
             ret = Templates.getTemplate(template,
                 Pair.of("\\{" + Templates.KEY_DOMAINSET             + "\\}", domainSet),
-                // [!] domainSet has to be replaced first: it contains keywords to be replaced
+                Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
+                // [!] domainSet/coverageFunction have to be replaced first: they (in turn) contains keywords to be replaced
                 // grid
                 Pair.of("\\{" + Templates.KEY_AXISLABELS            + "\\}", m.getGridAxisLabels()),
                 Pair.of("\\{" + Templates.KEY_GRIDDIMENSION         + "\\}", String.valueOf(m.getGridDimension())),
@@ -534,6 +545,21 @@ public class WcsUtil {
         return output;
     }
 
+    /**
+     * Return the outer-inner axis order rule for a grid function.
+     * Specifically, this method gives the proper formatting for a gml:sequenceRule/@axisOrder attribute:
+     * Eg. "+3 +2 +1" for a 3D grid.
+     * Spanning from lower to upper coordinates ('+') is assumed for every dimension.
+     * @param m
+     * @return The whitespace-separated list of inner-outer axis order.
+     */
+    private static String getOuterInnerAxisRuleOrder(GetCoverageMetadata m) {
+        StringBuilder outRule = new StringBuilder();
+        for (int i=m.getGridDimension(); i>0; i--) {
+            outRule.append('+').append(i).append(' ');
+        }
+        return outRule.toString().trim();
+    }
     /**
      * Returns the XML genealogy of a specified GMLCOV type by recursive calls.
      * @param covType  The GMLCOV child type

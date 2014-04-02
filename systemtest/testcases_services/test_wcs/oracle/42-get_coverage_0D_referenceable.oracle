@@ -50,6 +50,13 @@
     </DataBlock>
   </rangeSet>
 
+  <coverageFunction>
+    <GridFunction>
+      <sequenceRule axisOrder="">Linear</sequenceRule>
+      <startPoint></startPoint>
+    </GridFunction>
+  </coverageFunction>
+
   <gmlcov:rangeType>
     <swe:DataRecord>
     <swe:field name="value">

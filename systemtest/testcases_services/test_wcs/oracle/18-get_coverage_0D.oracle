@@ -16,7 +16,7 @@
   </boundedBy>
 
   <domainSet>
-    <RectifiedGrid dimension="1" id="mr-grid">
+    <RectifiedGrid dimension="0" id="mr-grid">
       <limits>
         <GridEnvelope>
           <low></low>
@@ -39,6 +39,13 @@
       <tupleList ts="," cs=" ">0</tupleList>
     </DataBlock>
   </rangeSet>
+
+  <coverageFunction>
+    <GridFunction>
+      <sequenceRule axisOrder="">Linear</sequenceRule>
+      <startPoint></startPoint>
+    </GridFunction>
+  </coverageFunction>
 
   <gmlcov:rangeType>
     <swe:DataRecord>

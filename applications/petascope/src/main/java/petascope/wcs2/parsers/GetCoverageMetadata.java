@@ -273,7 +273,7 @@ public class GetCoverageMetadata {
 
     public void setAxisLabels(String axisLabels) {
         this.gridAxisLabels = axisLabels;
-        setGridDimension(axisLabels.split(" +").length);
+        setGridDimension(axisLabels.isEmpty() ? 0 : axisLabels.split(" +").length);
     }
 
     // Update pixel bounds of the grid (upon trimming and slicing)

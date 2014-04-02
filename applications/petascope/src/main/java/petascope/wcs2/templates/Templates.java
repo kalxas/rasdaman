@@ -53,6 +53,7 @@ public class Templates {
     // coverage
     public static final String COVERAGE = "Coverage";
     public static final String COVERAGE_DESCRIPTION = "CoverageDescription";
+    public static final String GRID_FUNCTION = "GridFunction";
     public static final String RANGE_FIELD = "RangeField";
 
     // domainSets
@@ -79,6 +80,7 @@ public class Templates {
     public static final String KEY_COMPONENTNAME = "componentName";
     public static final String KEY_COVERAGEDATA = "coverageData";
     public static final String KEY_COVERAGEID = "coverageId";
+    public static final String KEY_COVERAGEFUNCTION = "coverageFunction";
     public static final String KEY_COVERAGESUBTYPE = "coverageSubtype";
     public static final String KEY_COVERAGESUBTYPEPARENT = "coverageSubtypeParent";
     public static final String KEY_COVERAGETYPE = "coverageType";
@@ -100,6 +102,8 @@ public class Templates {
     public static final String KEY_POINTID = "pointId";
     public static final String KEY_POINTMEMBERS = "pointMembers";
     public static final String KEY_RANGEFIELDS = "rangeFields";
+    public static final String KEY_RULE_DEFINITION = "ruleDefinition";
+    public static final String KEY_SEQUENCE_RULE_ORDER= "sequenceRuleOrder";
     public static final String KEY_SRSGROUP = "srsGroup";
     public static final String KEY_SWE_COMPONENT = "sweComponent";
     public static final String KEY_UPPERCORNER = "upperCorner";
@@ -119,6 +123,7 @@ public class Templates {
         // coverage
         loadTemplate(COVERAGE);
         loadTemplate(COVERAGE_DESCRIPTION);
+        loadTemplate(GRID_FUNCTION);
         loadTemplate(RANGE_FIELD);
         // domainSets
         loadTemplate(GENERAL_GRID_AXIS);
