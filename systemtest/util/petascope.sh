@@ -656,7 +656,7 @@ function import_petascope_data()
   res=$(check_multipoint)
   local multi_coll=""
   if [ $res -eq 0 ]; then
-    multi_coll="Parksmall wc_dtm_small"
+    multi_coll="Parksmall"
   fi
   COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 irr_cube_2 $multi_coll"
   for COLL in $COLLECTIONS; do
@@ -683,8 +683,6 @@ function import_petascope_data()
           import_irr_cube_2 "$TESTDATA_PATH" && break
         elif [ "$COLL" == "Parksmall" ]; then
           import_pointcloud_data "$TESTDATA_PATH" && break
-        elif [ "$COLL" == "wc_dtm_small" ]; then
-          import_tin_data "$TESTDATA_PATH" && break
         fi
 
         raserase_colls > /dev/null 2>&1
@@ -705,7 +703,7 @@ function drop_petascope_data()
 {
   res=$(check_multipoint)
   if [ $res -eq 0 ]; then
-    multi_coll="Parksmall wc_dtm_small"
+    multi_coll="Parksmall"
   fi
   COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 irr_cube_2 $multi_coll"
   drop_petascope $COLLECTIONS
