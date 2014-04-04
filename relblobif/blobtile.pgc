@@ -810,8 +810,11 @@ BLOBTile::readFromDb() throw (r_Error)
             TALK( "BLOBTile::readFromDb: ignoring lo_close() error: " << ignoredPgResult );
         }
         
-        CacheValue* value = new CacheValue( cells, size, false, myOId, blobOid, this, dataFormat );
-        TileCache::insert( myOId, value );
+        if (TileCache::cacheLimit > 0)
+        {
+            CacheValue* value = new CacheValue( cells, size, false, myOId, blobOid, this, dataFormat );
+            TileCache::insert( myOId, value );
+        }
     }
     RMDBGIF(20, RMDebug::module_blobif, "BLOBTileOutput", for (int a = 0; a < size; a++)\
             RMInit::dbgOut << " " << hex << (int)(cells[a]); RMInit::dbgOut << dec << endl;)
