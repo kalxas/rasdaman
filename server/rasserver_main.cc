@@ -83,6 +83,7 @@ RMINITGLOBALS('C');
 
 #include "server/rasserver_config.hh"
 #include "rnprotocol/rnpserver.hh"
+#include "rasserver_entry.hh"
 
 // return codes
 #define RC_OK       0
@@ -120,6 +121,10 @@ ServerComm* server = NULL;
 #ifdef HAVE_SIGSEGV_RECOVERY
 int handler(void *fault_address, int serious) {
   print_stacktrace(fault_address);
+  if (TileCache::cacheLimit > 0)
+  {
+    TileCache::clear();
+  }
   if (server != NULL)
     delete server;
   server = NULL;
