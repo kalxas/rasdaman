@@ -253,37 +253,29 @@ BLOBTile::insertInDb() throw (r_Error)
         generateException();
     }
     
-    if (TileCache::cacheLimit > 0)
+    TALK( "lo_open() for oid " << blobOid );
+    int fd = lo_open( pgConn, blobOid, INV_WRITE );     // no error code indicated, 0 seems to be no error
+    TALK( "lo_write() for fd " << fd << " and " << size << " bytes" );
+    int loResult = lo_write( pgConn, fd, cells, size );
+    if (loResult < 0)
     {
-        CacheValue* value = new CacheValue( cells, size, true, myOId, blobOid, this );
-        TileCache::insert( myOId, value );
+        RMInit::logOut << "BLOBTile::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn) << endl;
+        LEAVE( "BLOBTile::insertInDb(): cannot write blob, error " << PQerrorMessage(pgConn) );
+        generateException();
     }
-    else
+    else if (loResult != size)          // did not get all
     {
-        TALK( "lo_open() for oid " << blobOid );
-        int fd = lo_open( pgConn, blobOid, INV_WRITE );     // no error code indicated, 0 seems to be no error
-        TALK( "lo_write() for fd " << fd << " and " << size << " bytes" );
-        int loResult = lo_write( pgConn, fd, cells, size );
-        if (loResult < 0)
-        {
-            RMInit::logOut << "BLOBTile::insertInDb() cannot write blob, error: " << PQerrorMessage(pgConn) << endl;
-            LEAVE( "BLOBTile::insertInDb(): cannot write blob, error " << PQerrorMessage(pgConn) );
-            generateException();
-        }
-        else if (loResult != size)          // did not get all
-        {
-            RMInit::dbgOut << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << size << " bytes" << endl;
-            LEAVE( "BLOBTile::insertInDb(): wrote " << loResult << " instead of " << size << " bytes" );
-            generateException();
-        }
-        TALK( "lo_close()" );
-        loResult = lo_close( pgConn, fd );
-        if (loResult < 0)               // cannot close, don't know if data are there
-        {
-            RMInit::logOut << "BLOBTile::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn) << endl;
-            LEAVE( "BLOBTile::insertInDb(): ignoring lo_close() error: " << PQerrorMessage(pgConn) );
-            generateException();
-        }
+        RMInit::dbgOut << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << size << " bytes" << endl;
+        LEAVE( "BLOBTile::insertInDb(): wrote " << loResult << " instead of " << size << " bytes" );
+        generateException();
+    }
+    TALK( "lo_close()" );
+    loResult = lo_close( pgConn, fd );
+    if (loResult < 0)               // cannot close, don't know if data are there
+    {
+        RMInit::logOut << "BLOBTile::insertInDb() ignoring lo_close() error: " << PQerrorMessage(pgConn) << endl;
+        LEAVE( "BLOBTile::insertInDb(): ignoring lo_close() error: " << PQerrorMessage(pgConn) );
+        generateException();
     }
 
     /*
@@ -311,6 +303,12 @@ BLOBTile::insertInDb() throw (r_Error)
 
     // (3) --- update map ref
     DBObject::insertInDb();
+
+    if (TileCache::cacheLimit > 0)
+    {
+        CacheValue* value = new CacheValue( cells, size, true, myOId, blobOid, this );
+        TileCache::insert( myOId, value );
+    }
 
     LEAVE( "BLOBTile::insertInDb(), myOId=" << myOId );
     RMDBGEXIT(3, RMDebug::module_blobif, "BLOBTile", "insertInDb() " << myOId);
@@ -776,8 +774,20 @@ BLOBTile::readFromDb() throw (r_Error)
         // (2) --- open, read, close blob
         TALK( "lo_open()" );
         int fd = lo_open( pgConn, blobOid, INV_READ );      // open; manual tells no error indication
+        if (fd < 0)
+        {
+            RMInit::logOut << "BLOBTile::readFromDb() error: cannot open BLOB with oid " << blobOid << ", error: " << PQerrorMessage(pgConn) << endl;
+            LEAVE( "BLOBTile::readFromDb: error: cannot open BLOB with oid " << blobOid << ", error: " << PQerrorMessage(pgConn) );
+            generateException();
+        }
         TALK( "lo_lseek() end" );
         size = lo_lseek( pgConn, fd, 0, SEEK_END );     // determine blob size; FIXME: more efficient method??
+        if (size <= 0)
+        {
+            RMInit::logOut << "BLOBTile::readFromDb() error: invalid BLOB size " << size << " for BLOB oid " << blobOid << endl;
+            LEAVE( "BLOBTile::readFromDb: error: invalid BLOB size " << size << " for BLOB oid " << blobOid );
+            generateException();
+        }
         TALK( "lo_lseek() start" );
         (void) lo_lseek( pgConn, fd, 0, SEEK_SET );     // rewind for reading
         cells = (char*) mymalloc( size * sizeof(char) );    // allocate buffer for blob
@@ -790,10 +800,10 @@ BLOBTile::readFromDb() throw (r_Error)
 
         TALK( "lo_read()" );                    // read blob
         int loResult = lo_read( pgConn, fd, cells, size );
-        if (loResult < 0)
+        if (loResult <= 0)
         {
-            RMInit::logOut << "BLOBTile::readFromDb() cannot read blob, error: " << PQerrorMessage(pgConn) << endl;
-            LEAVE( "BLOBTile::readFromDb: cannot read blob, error " << PQerrorMessage(pgConn) );
+            RMInit::logOut << "BLOBTile::readFromDb() cannot read blob with oid " << blobOid << ", error: " << PQerrorMessage(pgConn) << endl;
+            LEAVE( "BLOBTile::readFromDb: cannot read blob with oid " << blobOid << ", error " << PQerrorMessage(pgConn) );
             generateException();
         }
         else if (loResult != size)              // did not get all
@@ -806,8 +816,8 @@ BLOBTile::readFromDb() throw (r_Error)
         int ignoredPgResult = lo_close( pgConn, fd );       // close blob
         if (ignoredPgResult < 0)                // we note, but ignore errors, as we have the data
         {
-            RMInit::logOut << "BLOBTile::readFromDb() ignoring lo_close() error: " << ignoredPgResult << endl;
-            TALK( "BLOBTile::readFromDb: ignoring lo_close() error: " << ignoredPgResult );
+            RMInit::logOut << "BLOBTile::readFromDb() ignoring lo_close() error: " << PQerrorMessage(pgConn) << endl;
+            TALK( "BLOBTile::readFromDb: ignoring lo_close() error: " << PQerrorMessage(pgConn) );
         }
         
         if (TileCache::cacheLimit > 0)
