@@ -130,8 +130,8 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 
 		if (poDataset == NULL)
 		{
+            RMInit::logOut << "QtDecode::evaluate() - failed opening file with GDAL, eror: " << CPLGetLastErrorMsg() << endl;
 			unlink(tmpFileName);
-			RMDBGONCE(2, RMDebug::module_qlparser, "QtDecode", "evalutate() - Failed to open file with GDAL");
 			throw r_Error(r_Error::r_Error_FeatureNotSupported);
 		}
 
