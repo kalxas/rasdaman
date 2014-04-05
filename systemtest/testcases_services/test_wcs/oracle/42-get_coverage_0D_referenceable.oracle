@@ -16,7 +16,7 @@
   </boundedBy>
 
   <domainSet>
-    <gmlrgrid:ReferenceableGridByVectors dimension="1" id="irr_cube_1-grid"
+    <gmlrgrid:ReferenceableGridByVectors dimension="0" id="irr_cube_1-grid"
 
         >
       <limits>
