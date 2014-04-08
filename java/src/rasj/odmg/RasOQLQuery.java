@@ -75,7 +75,7 @@ public class RasOQLQuery implements OQLQuery, RasCommDefs
      */
     private int numberOfParams = 0;
     
-    private static Pattern MDD_CONSTANT_PATTERN = Pattern.compile("\\W\\$([0-9]+)\\W");
+    private static Pattern MDD_CONSTANT_PATTERN = Pattern.compile("\\$([0-9]+)");
 
     /**
      * Constructor
