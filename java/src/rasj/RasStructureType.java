@@ -62,10 +62,9 @@ public class RasStructureType extends RasBaseType
 	baseTypes = btyp;
 	attributes = attr;
 
-	for(int i=0; i < baseTypes.length/2; i++)
+	for(int i=0; i < baseTypes.length; i++)
         {
 	    typeSize = typeSize + baseTypes[i].getSize();
-            //System.out.println(typeSize);
         }
 	typeID = RasGlobalDefs.RAS_STRUCTURE;
     }
@@ -75,13 +74,15 @@ public class RasStructureType extends RasBaseType
 	return RasGlobalDefs.RAS_STRUCTURE;
     }
 
-  public RasBaseType[] getBaseTypes() {
-    return baseTypes;
-  }
+    public RasBaseType[] getBaseTypes()
+    {
+	return baseTypes;
+    }
 
-  public String[] getAttributes() {
-    return attributes;
-  }
+    public String[] getAttributes()
+    {
+	return attributes;
+    }
     
     public boolean isStructType()
     {
@@ -90,13 +91,12 @@ public class RasStructureType extends RasBaseType
 
     public String toString()
     {
-        //System.out.println("struct type: ");
 	String s = super.toString() + "struct " + super.typeName + "\n{\n";
-	for(int i=0; i < (attributes.length/2)-1; i++)
+	for(int i=0; i < attributes.length - 1; i++)
 	    {
 		s = s + "  " + baseTypes[i] + " " + attributes[i] + ", \n";
 
-		if(i == (attributes.length/2)-2)
+		if(i == attributes.length-2)
 		    {
 			s = s + baseTypes[i+1] + " " + attributes[i+1] + "\n}\n";
 		    }

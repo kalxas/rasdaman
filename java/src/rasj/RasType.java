@@ -285,49 +285,46 @@ public class RasType
 
     private static RasStructureType getStructureType(String structStr) throws RasTypeUnknownException
     {
-	StringTokenizer structTok = new StringTokenizer(structStr, "[]<>,: ");
+	// FIXME: doesn't work with structures inside of other structures
+	int structureEnd = structStr.indexOf("}");
+	if (structureEnd < 0)
+	    throw new RasTypeUnknownException("Incorrect structure schema");
+	StringTokenizer structTok = new StringTokenizer(structStr.substring(0,structureEnd), "[]<>,: ");
 	RasStructureType returnValue = null;
 	String structName = "";
-	RasBaseType[] baseType = new RasBaseType[structTok.countTokens()/2];
-	String[] attributeName = new String[structTok.countTokens()/2];
-	//System.out.println("enter getStructureType");
 	// get struct name
 	if(structTok.hasMoreTokens())
-		    {
-			structName = structTok.nextToken();
-                        if(structName.equals("{"))
-                          structName="";
-                        else
-                          structTok.nextToken();
-			//System.out.println("StructName:" + structName);
-		    }
+	    {
+		structName = structTok.nextToken();
+		if(structName.equals("{"))
+		    structName="";
+		else
+		    structTok.nextToken();
+	    }
 	else
 	    {
 		// no struct name
 		throw new RasTypeUnknownException("");
 	    }
 
+	int size = structTok.countTokens() / 2;
+	RasBaseType[] baseType = new RasBaseType[size];
+	String[] attributeName = new String[size];
+
 	//Fehler falls kein { so lange bis } dazwischen ,!!!
 	for(int i=0; i < attributeName.length; i++)
 	    {
 		// get type
-                String more = structTok.nextToken();
-                if(more.equals("}"))
-                  break;
-                else
-                {
-		  baseType[i] = getBaseType(more);
-		  //System.out.println("BaseType:"+ i + baseType[i]);
-		  // get attribut name
-		  if(structTok.hasMoreTokens())
-		    {
-			attributeName[i] = structTok.nextToken();
-			//System.out.println("Attribut:"+ i + attributeName[i]);
-		    }
-		  else
-		    // no attribut name
+		String more = structTok.nextToken();
+		if(more.equals("}"))
+		    break;
+		baseType[i] = getBaseType(more);
+		// get attribute name
+		if(structTok.hasMoreTokens())
+		    attributeName[i] = structTok.nextToken();
+		else
+		    // no attribute name
 		    throw new RasTypeUnknownException("");
-                }
 	    }
 
 	returnValue = new RasStructureType(structName, baseType, attributeName);
