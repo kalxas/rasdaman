@@ -315,11 +315,13 @@ public class WcsUtil {
             ret.append("</ows:Abstract>\n");
         }
         // keywords
-        Iterator<String> keys = SDU.str2string(m.getMetadata().getKeywords()).iterator();
-        while (keys.hasNext()) {
-            ret.append("  <ows:Keywords>");
-            ret.append(keys.next());
-            ret.append("</ows:Keywords>\n");
+        if (!m.getMetadata().getKeywords().isEmpty()) {
+            Iterator<String> keys = SDU.str2string(m.getMetadata().getKeywords()).iterator();
+            while (keys.hasNext()) {
+                ret.append("  <ows:Keywords>");
+                ret.append(keys.next());
+                ret.append("</ows:Keywords>\n");
+            }
         }
         return ret.toString();
     }

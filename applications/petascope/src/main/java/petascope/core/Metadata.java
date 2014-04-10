@@ -365,7 +365,7 @@ public class Metadata implements Cloneable {
     }
 
     public String getAbstract() {
-        return abstractStr;
+        return (null == abstractStr) ? "" : abstractStr;
     }
 
     public String getTitle() {
@@ -373,7 +373,7 @@ public class Metadata implements Cloneable {
     }
 
     public String getKeywords() {
-        return keywordsStr;
+        return (null == keywordsStr) ? "" : keywordsStr;
     }
 
     public Iterator<CellDomainElement> getCellDomainIterator() {
