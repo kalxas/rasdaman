@@ -33,13 +33,14 @@ rasdaman GmbH.
  * CHANGE HISTORY (append further entries):
  * when              who                what
  * -----------------------------------------------------------------------
- * 10-Sep-97        furtado     creation of preliminary version.
- * 09-Oct-97        sivan           set, get functions
- * 13-Oct-97        furtado     extended functionality, class hierarchy
- * 4-Nov-98     furtado     added RegDirIx< >.
- * 13-Nov-00        hoefner     startet to do something with this class
- * 07-Jan-09            Shams           add tiling set to the getLayout method
- * 07-Jan-09            Shams           add some methods for supporting tiling
+ * 10-Sep-97       furtado        creation of preliminary version.
+ * 09-Oct-97       sivan          set, get functions
+ * 13-Oct-97       furtado        extended functionality, class hierarchy
+ * 4-Nov-98        furtado        added RegDirIx< >.
+ * 13-Nov-00       hoefner        startet to do something with this class
+ * 07-Jan-09       Shams          add tiling set to the getLayout method
+ * 07-Jan-09       Shams          add some methods for supporting tiling
+ * 09-April-14     uadhikari      bug fix for 'area of interest' tiling
  * COMMENTS:
  *   none
  *
@@ -109,6 +110,8 @@ StorageLayout::StorageLayout(const StorageLayout& other)
         extraFeatures->setCellSize(o->getCellSize());
         extraFeatures->setDirDecompose(o->getDirDecompose());
         extraFeatures->setInterestThreshold(o->getInterestThreshold());
+        //uadhikari
+        extraFeatures->setTilingSizeStrategy_AOI(o->getTilingSizeStrategy_AOI());
     }
 }
 
@@ -243,6 +246,12 @@ StorageLayout::setDirDecomp(vector<r_Dir_Decompose>* dir)
     extraFeatures->setDirDecompose(dec);
 }
 
+//uadhikari
+void
+StorageLayout::setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input)
+{
+    extraFeatures->setTilingSizeStrategy_AOI(input);
+}
 
 std::vector< r_Minterval >
 StorageLayout::getLayout(const r_Minterval& tileDomain)
@@ -425,8 +434,9 @@ std::vector< r_Minterval >
 StorageLayout::calcInterestLayout(const r_Minterval& tileDomain)
 {
     RMInit::logOut << "Entering CalcInterest Tiling" << endl;
+    //uadhikari
     r_Interest_Tiling* tiling = new r_Interest_Tiling
-    (tileDomain.dimension(), extraFeatures->getBBoxes(), myLayout->getTileSize(), r_Interest_Tiling::SUB_TILING);
+    (tileDomain.dimension(), extraFeatures->getBBoxes(), myLayout->getTileSize(), extraFeatures->getTilingSizeStrategy_AOI());
     std::vector<r_Minterval> ret;
     std::vector<r_Minterval>* ret1 = tiling->compute_tiles
                                      (tileDomain, extraFeatures->getCellSize());

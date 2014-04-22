@@ -28,7 +28,7 @@ rasdaman GmbH.
 #include <vector>
 #include "rasodmg/dirdecompose.hh"
 #include "raslib/minterval.hh"
-
+#include "../rasodmg/interesttiling.hh"
 /****************************************************************************
  *
  *
@@ -41,6 +41,7 @@ rasdaman GmbH.
  * when         who        what
  * -----------------------------------------------------------------------
  * 17-Aug-09    aaiordachi  create class (for adding rasql tiling options)
+ * 09-April-14  uadhikari   bug fix for 'area of interest' tiling
  * COMMENTS:
  *
  ****************************************************************************/
@@ -54,7 +55,7 @@ private:
     bool subTiling;
     int cellSize;
     std::vector<r_Dir_Decompose> dirDecomp;
-
+    r_Interest_Tiling::Tilesize_Limit tilingSizeStrategy_AOI;  //uadhikari
 public:
 
     StgMddConfig();
@@ -68,6 +69,7 @@ public:
     void setBorderThreshold(unsigned int b);
     void setCellSize(int size);
     void setDirDecompose(const std::vector<r_Dir_Decompose>& input);
+    void setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input); //uadhikari
 
     // Getter functions
     std::vector<r_Minterval>& getBBoxes();
@@ -76,6 +78,7 @@ public:
     unsigned int getBorderThreshold();
     int getCellSize();
     std::vector<r_Dir_Decompose>& getDirDecompose();
+    r_Interest_Tiling::Tilesize_Limit getTilingSizeStrategy_AOI(); //uadhikari
 
 };
 #endif

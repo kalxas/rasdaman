@@ -39,7 +39,9 @@ using namespace std;
  * when         who        what
  * -----------------------------------------------------------------------
  * 17-Aug-09    aaiordachi  create class (for adding rasql tiling options)
- * COMMENTS:
+ * 09-April-14  uadhikari   bug fix for 'area of interest' tiling
+
+ *  COMMENTS:
  *
  ****************************************************************************/
 
@@ -84,6 +86,11 @@ void StgMddConfig::setDirDecompose(const vector<r_Dir_Decompose>& input)
     dirDecomp = input;
 }
 
+void StgMddConfig::setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input)
+{
+    tilingSizeStrategy_AOI = input;
+}
+
 // Getter functions
 vector<r_Minterval>& StgMddConfig::getBBoxes()
 {
@@ -115,3 +122,7 @@ vector<r_Dir_Decompose>& StgMddConfig::getDirDecompose()
     return dirDecomp;
 }
 
+r_Interest_Tiling::Tilesize_Limit StgMddConfig::getTilingSizeStrategy_AOI()
+{
+    return tilingSizeStrategy_AOI;
+}

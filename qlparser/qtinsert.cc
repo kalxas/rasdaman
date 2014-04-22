@@ -37,6 +37,8 @@ rasdaman GmbH.
  * 17-01-98     Ritsch      created
  * 2003-aug-25  PB          "insert into" type compatibility bug fixed (from K.Hahn)
  * 2008-nov-10  Shams       added storagelayout to the expression
+ * 09-April-14  uadhikari   bug fix for 'area of interest' tiling
+
  * COMMENTS:
  *
  ************************************************************/
@@ -320,6 +322,28 @@ QtInsert::evaluate()
                 {
                     tempStorageLayout.setBBoxes(intervals);
                 }
+
+                //uadhikari
+                r_Interest_Tiling::Tilesize_Limit AOI_tileSizeControl;
+                switch(mddConfig->getTilingType())
+                {
+                    case QtMDDConfig::r_AREAOFINTERESTNOLIMIT_TLG:
+                        AOI_tileSizeControl = r_Interest_Tiling::NO_LIMIT ;
+                        break;
+                    case QtMDDConfig::r_AREAOFINTERESTREGROUP_TLG:
+                        AOI_tileSizeControl = r_Interest_Tiling::REGROUP;
+                        break;
+                    case QtMDDConfig::r_AREAOFINTERESTSUBTILING_TLG:
+                        AOI_tileSizeControl = r_Interest_Tiling::SUB_TILING;
+                        break;
+                    case QtMDDConfig::r_AREAOFINTERESTREGROUPANDSUBTILING_TLG:
+                        AOI_tileSizeControl = r_Interest_Tiling::REGROUP_AND_SUBTILING;
+                        break;
+                    default: //r_AREAOFINTEREST_TLG:
+                        AOI_tileSizeControl = r_Interest_Tiling::SUB_TILING;
+                        break;
+                }
+                tempStorageLayout.setTilingSizeStrategy_AOI(AOI_tileSizeControl);
             }
 
             r_Minterval tileCfg = getTileConfig(mddConfig);
@@ -656,6 +680,14 @@ QtInsert::getTilingScheme(QtMDDConfig* cfg)
     case QtMDDConfig::r_ALIGNED_TLG :
         return r_AlignedTiling;
     case QtMDDConfig::r_AREAOFINTEREST_TLG :
+        return r_InterestTiling;
+    case QtMDDConfig::r_AREAOFINTERESTNOLIMIT_TLG:
+        return r_InterestTiling;
+    case QtMDDConfig::r_AREAOFINTERESTREGROUP_TLG:
+        return r_InterestTiling;
+    case QtMDDConfig::r_AREAOFINTERESTSUBTILING_TLG:
+        return r_InterestTiling;
+    case QtMDDConfig::r_AREAOFINTERESTREGROUPANDSUBTILING_TLG:
         return r_InterestTiling;
     case QtMDDConfig::r_REGULAR_TLG :
         return r_RegularTiling;

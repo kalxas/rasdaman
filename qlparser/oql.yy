@@ -216,7 +216,7 @@ struct QtUpdateSpecElement
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
 			 STRCT COMPLEX RE IM TIFF BMP HDF NETCDF CSV JPEG PNG VFF TOR DEM INV_TIFF INV_BMP INV_HDF INV_NETCDF
 			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM ENCODE DECODE CONCAT ALONG DBINFO
-                         CASE WHEN THEN ELSE END COMMIT RAS_VERSION
+                         CASE WHEN THEN ELSE END COMMIT RAS_VERSION REGROUP REGROUP_AND_SUBTILING NO_LIMIT
 
 %left COLON VALUES USING WHERE
 %left OVERLAY
@@ -251,7 +251,7 @@ struct QtUpdateSpecElement
 %type <integerToken>          intLitExp
 %type <operationValue>        condenseOpLit 
 %type <castTypes>	      castType
-%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp
+%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp tileSizeControl
 //%type <identifierToken>       namedCollection collectionIterator typeName attributeIdent pyrName 
 %type <identifierToken>       namedCollection collectionIterator typeName attributeIdent
 			      marrayVariable condenseVariable
@@ -2910,6 +2910,18 @@ tileTypes: REGULAR tileCfg
 	  $$.bboxList=$4;
 	  $$.tileSize = $5.tileSize;
 	}
+	| AREA OF INTEREST bboxList WITH tileSizeControl
+  {
+    $$.tilingType=$6;
+    $$.bboxList=$4;
+    $$.tileSize=StorageLayout::DefaultTileSize;
+  }
+  | AREA OF INTEREST bboxList WITH tileSizeControl tilingSize
+  {
+    $$.tilingType= $6;
+    $$.bboxList=$4;
+    $$.tileSize = $7.tileSize;
+  }
 	| STATISTIC bboxList statisticParameters
 	{
 	  $$=$3;
@@ -2923,6 +2935,25 @@ tileTypes: REGULAR tileCfg
 	}
 ;
 	
+tileSizeControl:
+  NO_LIMIT
+  {
+	$$ = QtMDDConfig::r_AREAOFINTERESTNOLIMIT_TLG;
+  }
+  | REGROUP
+  {
+    $$ = QtMDDConfig::r_AREAOFINTERESTREGROUP_TLG;
+  }
+  | SUBTILING
+  {
+    $$ = QtMDDConfig::r_AREAOFINTERESTSUBTILING_TLG;
+  }
+  | REGROUP_AND_SUBTILING
+  {
+    $$ = QtMDDConfig::r_AREAOFINTERESTREGROUPANDSUBTILING_TLG;
+  }
+;
+
 bboxList: mintervalExp
 	{
 	  $$ = new QtNode::QtOperationList(1);

@@ -276,6 +276,9 @@ int string_yyinput( char* buf, int max_size )
 "directional"			{ SETTOKEN( DIRECTIONAL, commandToken, DIRECTIONAL ) }
 "with"					{ SETTOKEN( WITH, commandToken, WITH ) }
 "subtiling"				{ SETTOKEN( SUBTILING, commandToken, SUBTILING ) }
+"no_limit"				{ SETTOKEN( NO_LIMIT, commandToken, NO_LIMIT ) }
+"regroup"				{ SETTOKEN( REGROUP, commandToken, REGROUP ) }
+"regroup_and_subtiling"	{ SETTOKEN( REGROUP_AND_SUBTILING, commandToken, REGROUP_AND_SUBTILING ) }
 "area"					{ SETTOKEN( AREA, commandToken, AREA ) }
 "of"					{ SETTOKEN( OF, commandToken, OF ) }
 "interest"				{ SETTOKEN( INTEREST, commandToken, INTEREST ) }
@@ -284,7 +287,6 @@ int string_yyinput( char* buf, int max_size )
 "size"					{ SETTOKEN( SIZE, commandToken, SIZE ) }
 "border"				{ SETTOKEN( BORDER, commandToken, BORDER ) }
 "threshold"				{ SETTOKEN( THRESHOLD, commandToken, THRESHOLD ) }
-
 "unsigned"				 { SETTOKEN( TUNSIG, typeToken, TUNSIG) }
 "bool"					 { SETTOKEN( TBOOL, typeToken, TBOOL) }
 "char"					 { SETTOKEN( TCHAR, typeToken, TCHAR) }
@@ -355,7 +357,8 @@ $[0-9]+                                  { llerror("unresolved query parameter")
 \t                                       { columnNo += 3;                            }
 \r                                       { 	                                     }
 \n                                       { columnNo  = 1; lineNo++;                  }
-.				         { SETTOKEN(UNKNOWN, commandToken, UNKNOWN ) }	 
+.				         					{ SETTOKEN(UNKNOWN, commandToken, UNKNOWN ) }
+
 
 %%
 

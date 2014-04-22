@@ -46,6 +46,8 @@ rasdaman GmbH.
  * -----------------------------------------------------------------------
  * 13-Nov-00    hoefner    creation of preliminary version
  * 07-Jan-09    Shams      add tiling attributes
+ * 09-April-14  uadhikari  bug fix for 'area of interest' tiling
+
  * COMMENTS:
  *
  ****************************************************************************/
@@ -248,6 +250,8 @@ public:
     void setCellSize(int size);
     void setDirDecomp(vector<r_Dir_Decompose>*);
 
+    //Added by uadhikari
+    void setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input);
 
 protected:
     std::vector< r_Minterval > calcRegLayout(const r_Minterval& layout) const;
