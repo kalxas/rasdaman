@@ -19,7 +19,7 @@ BuildRequires: bison
 BuildRequires: libtiff-devel
 BuildRequires: hdf-devel
 BuildRequires: libjpeg-devel
-BuildRequires: readline-devel
+BuildRequires: libedit-devel
 BuildRequires: libsigsegv-devel
 BuildRequires: zlib-devel
 BuildRequires: libpng-devel

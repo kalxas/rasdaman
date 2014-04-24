@@ -53,7 +53,7 @@ AC_CHECK_LIB([png], [png_write_row], , [AC_MSG_FAILURE([libpng.a not found! Plea
 AC_CHECK_LIB([netpbm], [ppm_readppm], , [AC_MSG_FAILURE([libnetpbm.a not found! Please install.])])
 # AC_CHECK_LIB([dfalt], [main], , [AC_MSG_FAILURE([libdf.a not found! Please install.])])
 # FIXME: Replace `main' with a function in `-lreadline':
-AC_CHECK_LIB([readline], [main], , [AC_MSG_FAILURE([libreadline.a not found! Please install.])])
+AC_CHECK_LIB([edit], [main], , [AC_MSG_FAILURE([libedit.a not found! Please install.])])
 # FIXME: Replace `main' with a function in `-lsocket':
 AC_CHECK_LIB([socket], [main])
 # FIXME: Replace `main' with a function in `-lssl':
