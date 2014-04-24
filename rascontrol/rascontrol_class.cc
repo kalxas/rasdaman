@@ -41,7 +41,7 @@ rasdaman GmbH.
 #include "rascontrol.hh"
 
 #include <editline/readline.h>
-#include <editline/history.h>
+//#include <editline/history.h>
 
 #define READLINELIB
 
