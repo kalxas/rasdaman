@@ -262,7 +262,7 @@ struct QtUpdateSpecElement
 %type <qtAtomicDataValue>     atomicLit
 %type <qtComplexDataValue>    complexLit
 %type <qtScalarDataListValue> scalarLitList dimensionLitList
-%type <floatToken>            numericalLit
+%type <floatToken>            numericalLit floatLitExp
 // pyramid data
 // %type <pyrElemType>           pyrElem pyrElem2
 // %type <pyrListType>           pyrList pyrList2
@@ -1840,7 +1840,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($2)
 	  FREESTACK($4)
  	}
-	| POW LRPAR generalExp COMMA IntegerLit RRPAR
+	| POW LRPAR generalExp COMMA intLitExp RRPAR
 	{
 	  $$ = new QtPow( $3, (double) $5.svalue );
 	  $$->setParseInfo( *($1.info) );
@@ -1851,7 +1851,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($4)
 	  FREESTACK($6)
 	}
-	| POW LRPAR generalExp COMMA FloatLit RRPAR
+	| POW LRPAR generalExp COMMA floatLitExp RRPAR
 	{
 	  $$ = new QtPow( $3, $5.value );
 	  $$->setParseInfo( *($1.info) );
@@ -2383,7 +2383,30 @@ reduceIdent: ALL
 	  FREESTACK($1)
 	};
 
-intLitExp: IntegerLit                          { $$ = $1; };
+intLitExp: IntegerLit
+    {
+      $$ = $1;
+    }
+    | MINUS intLitExp %prec UNARYOP
+    {
+      $$ = $2;
+      if ($$.negative) {
+        $$.svalue = -$$.svalue;
+      } else {
+        $$.negative = 1;
+        $$.svalue = -$$.uvalue;
+      }
+    };
+
+floatLitExp: FloatLit
+    {
+        $$ = $1;
+    }
+    | MINUS floatLitExp %prec UNARYOP
+    {
+        $$ = $2;
+        $$.value = - $$.value;
+    };
 
 generalLit: scalarLit                          { $$ = $1; }  
 	| mddLit                               { $$ = $1; }
@@ -2530,7 +2553,7 @@ atomicLit: BooleanLit
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($1)
 	}
-	| IntegerLit                          
+	| intLitExp
 	{
 	  if( $1.negative )
 	    $$ = new QtAtomicData( $1.svalue, $1.bytes );
@@ -2540,7 +2563,7 @@ atomicLit: BooleanLit
 	  parseQueryTree->addDynamicObject( $$ );
 	  FREESTACK($1)
 	}
-	| FloatLit                            
+	| floatLitExp
 	{
 	  $$ = new QtAtomicData( $1.value, $1.bytes ); 
 	  $$->setParseInfo( *($1.info) );
@@ -2572,11 +2595,11 @@ atomicLit: BooleanLit
 	  FREESTACK($6)
 	};
 
-numericalLit : FloatLit
+numericalLit : floatLitExp
 	{
 	  $$ = $1;
 	}
-	| IntegerLit
+	| intLitExp
 	{
 	  if ($1.negative) {
 	    $$.value = (double) $1.svalue;
@@ -3023,19 +3046,19 @@ statisticParameters: tilingSize borderCfg interestThreshold
 	}
 ;
 	
-tilingSize: TILE SIZE IntegerLit
+tilingSize: TILE SIZE intLitExp
 	{
 	  $$.tileSize = $3.svalue;
 	}
 ;
 
-borderCfg: BORDER THRESHOLD IntegerLit
+borderCfg: BORDER THRESHOLD intLitExp
 	{
 	  $$.borderThreshold = $3.svalue;
 	}
 ;
 
-interestThreshold: INTEREST THRESHOLD FloatLit
+interestThreshold: INTEREST THRESHOLD floatLitExp
 	{
 	  $$.interestThreshold = $3.value;
 	}
@@ -3078,7 +3101,7 @@ dirdecompvals : MULT
 	}
 ;
 
-intArray : IntegerLit
+intArray : intLitExp
 	{
 	  r_Dir_Decompose temp;
 	  temp<<$1.svalue;
@@ -3090,7 +3113,7 @@ intArray : IntegerLit
 	else
 	    $$.dirDecomp->push_back(temp);
 	}
-	| IntegerLit COMMA intArray
+	| intLitExp COMMA intArray
 	{
 	  $$.dirDecomp = $3.dirDecomp;
 	  r_Dir_Decompose temp = $$.dirDecomp->at($$.dirDecomp->size()-1);
