@@ -146,7 +146,7 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
                 {
                     if( strcmp(scalarElem->getTypeStructure(),baseStructure) != 0)
                     {
-                        RMDBGONCE(2, RMDebug::module_qlparser, "QtMDD", "Error: QtMDD() - All cell values of an MDD must be of the same type." )
+                        RMInit::logOut << "Error: QtMDD() - All cell values of an MDD must be of the same type." << std::endl;
                         free( cellBuffer );
                         cellBuffer=NULL;
                         ParseInfo errorInfo = getParseInfo();
@@ -163,7 +163,7 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
 
             if( cellCount != domain.cell_count() )
             {
-                RMDBGONCE(2, RMDebug::module_qlparser, "QtMDD", "Error: QtMDD() - Number of cells specified does not match the number of cells of the given spatial domain." )
+                RMInit::logOut << "Error: QtMDD() - Number of cells specified does not match the number of cells of the given spatial domain." << std::endl;
                 free( cellBuffer );
                 cellBuffer=NULL;
                 ParseInfo errorInfo = getParseInfo();

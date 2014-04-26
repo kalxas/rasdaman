@@ -1393,7 +1393,7 @@ void AccessControl::wantToRead()
 {
     if(okToRead==false)
     {
-        TALK( "AccessControl::wantToRead(): error: no permission for read operation." );
+        RMInit::logOut << "Error: no permission for read operation." << endl;
         throw r_Eno_permission(); //r_Error(NO_PERMISSION_FOR_OPERATION);
     }
 }
@@ -1402,7 +1402,7 @@ void AccessControl::wantToWrite()
 {
     if(okToWrite==false)
     {
-        TALK( "AccessControl::wantToWrite(): error: no permission for write operation." );
+        RMInit::logOut << "Error: no permission for write operation." << endl;
         throw r_Eno_permission(); //r_Error(NO_PERMISSION_FOR_OPERATION);
     }
 

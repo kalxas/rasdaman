@@ -102,14 +102,14 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 			tiles = currentMDDObj->intersect(qtMDD->getLoadDomain());
 		} else
 		{
-			RMDBGONCE(2, RMDebug::module_qlparser, "QtDecode", "evalutate() - no tile available to convert.")
+			RMDBGONCE(2, RMDebug::module_qlparser, "QtDecode", "evaluate() - no tile available to convert.")
 			return operand;
 		}
 
 		// check the number of tiles
 		if (!tiles->size())
 		{
-			RMDBGONCE(2, RMDebug::module_qlparser, "QtDecode", "evalutate() - no tile available to convert.")
+			RMDBGONCE(2, RMDebug::module_qlparser, "QtDecode", "evaluate() - no tile available to convert.")
 			return operand;
 		}
 
