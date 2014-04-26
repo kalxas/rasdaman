@@ -104,7 +104,7 @@ void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *tra
     RMTimer requestTime("RnpRasDaManComm","request");
 
     ENTER( "RnpRasDaManComm::processRequest, at " << now() << ", client=" << callingJob->getClientHostAddress().getStringAddress() );
-    RMInit::logOut << endl << now() << " request from " << callingJob->getClientHostAddress().getStringAddress() << endl;
+    TALK( endl << now() << " request from " << callingJob->getClientHostAddress().getStringAddress() );
 
     decoder.decode(receiverBuffer);
     RnpQuark destServerType       = decoder.getDestinationServerType();
@@ -196,7 +196,7 @@ void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *tra
     }
     encoder.endMessage();
 
-    RMInit::logOut << now() << " request completed in " << requestTime.getTime() << " usecs." << endl;
+    TALK( now() << " request completed in " << requestTime.getTime() << " usecs." );
     LEAVE( "RnpRasDaManComm::processRequest" );
 }
 

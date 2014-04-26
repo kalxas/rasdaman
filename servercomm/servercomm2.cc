@@ -186,8 +186,8 @@ ServerComm::openDB( unsigned long callingClientId,
     RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "openDB" )
 
     unsigned short returnValue=0;
-
-    RMInit::logOut << "Request: 'open DB', name = " << dbName << "'..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request: 'open DB', name = " << dbName << "'..." << std::flush; )
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -233,7 +233,7 @@ ServerComm::openDB( unsigned long callingClientId,
             context->userName = new char[strlen( userName )+1];
             strcpy( context->userName, userName );
 
-            RMInit::logOut << MSG_OK << std::endl;
+            RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << std::endl;)
         }
 
         context->release();
@@ -266,7 +266,8 @@ ServerComm::closeDB( unsigned long callingClientId )
     RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "closeDB" )
     unsigned short returnValue;
 
-    RMInit::logOut << "Request: 'close DB'..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request: 'close DB'..." << std::flush;)
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -300,7 +301,7 @@ ServerComm::closeDB( unsigned long callingClientId )
         purify_new_leaks();
 #endif
 
-        RMInit::logOut << MSG_OK << endl;
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << endl;)
     }
     else
     {
@@ -324,7 +325,8 @@ ServerComm::createDB( char* name )
 
     // FIXME: what about client id? -- PB 2005-aug-27
 
-    RMInit::logOut << "Request: 'create DB', name = " << name << "'..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request: 'create DB', name = " << name << "'..." << std::flush;)
 
     DatabaseIf* tempDbIf = new DatabaseIf;
 
@@ -332,7 +334,7 @@ ServerComm::createDB( char* name )
     try
     {
         tempDbIf->createDB( name, dbSchema );
-        RMInit::logOut << MSG_OK << endl;
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << endl;)
     }
     catch(r_Error& myErr)
     {
@@ -369,7 +371,8 @@ ServerComm::destroyDB( char* name )
 
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Request: 'destroy DB', name = " << name << "'..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request: 'destroy DB', name = " << name << "'..." << std::flush;)
 
     DatabaseIf* tempDbIf = new DatabaseIf;
 
@@ -385,7 +388,7 @@ ServerComm::destroyDB( char* name )
 
     delete tempDbIf;
 
-    RMInit::logOut << MSG_OK << std::endl;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << std::endl;)
 
     return returnValue;
 }
@@ -402,7 +405,8 @@ ServerComm::beginTA( unsigned long callingClientId,
     RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "beginTA" )
     unsigned short returnValue;
 
-    RMInit::logOut << "Request: 'begin TA', mode = " << ( readOnly ? "read" : "write" ) << "..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request: 'begin TA', mode = " << ( readOnly ? "read" : "write" ) << "..." << std::flush;)
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -430,7 +434,7 @@ ServerComm::beginTA( unsigned long callingClientId,
         {
             // start the transaction
             context->transaction.begin( &(context->database), readOnly );
-            RMInit::logOut << MSG_OK << endl;
+            RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << endl;)
         }
         catch(r_Error& err)
         {
@@ -464,7 +468,7 @@ ServerComm::commitTA( unsigned long callingClientId )
 
     ClientTblElt* context = getClientContext( callingClientId );
 
-    RMInit::logOut << "Request: 'commit TA'..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << "Request: 'commit TA'..." << std::flush;)
 
     if( context != 0 )
     {
@@ -497,7 +501,7 @@ ServerComm::commitTA( unsigned long callingClientId )
 
         context->release();
 
-        RMInit::logOut << MSG_OK << endl;
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << endl;)
     }
     else
     {
@@ -526,7 +530,7 @@ ServerComm::abortTA( unsigned long callingClientId )
     RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "abortTA" )
     unsigned short returnValue;
 
-    RMInit::logOut << "Request: 'abort TA'..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",RMInit::logOut << "Request: 'abort TA'..." << std::flush;)
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -550,7 +554,7 @@ ServerComm::abortTA( unsigned long callingClientId )
 
         context->release();
 
-        RMInit::logOut << MSG_OK << endl;
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << endl;)
     }
     else
     {
@@ -580,11 +584,13 @@ ServerComm::isTAOpen( unsigned long callingClientId )
 {
     RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "isTAOpen" )
 
-    RMInit::logOut << "Request: 'is TA open'..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request: 'is TA open'..." << std::flush;)
 
     bool returnValue = transactionActive;
 
-    RMInit::logOut << MSG_OK << (transactionActive?"yes.":"no.") << endl;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << MSG_OK << (transactionActive?"yes.":"no.") << endl;)
 
     RMDBGEXIT( 4, RMDebug::module_servercomm, "ServerComm",  "isTAOpen" )
     return returnValue;
@@ -1947,7 +1953,8 @@ ServerComm::endInsertMDD( unsigned long callingClientId,
     RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "endInsertMDD" )
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Request: 'end insert MDD'..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request: 'end insert MDD'..." << std::flush;)
 
     ClientTblElt* context = getClientContext( callingClientId );
 
@@ -1978,7 +1985,7 @@ ServerComm::endInsertMDD( unsigned long callingClientId,
             // of MDD objects will be used as constants for executeUpdate().
         }
 
-        RMInit::logOut << MSG_OK << std::endl;
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << std::endl;)
 
         context->release();
     }
@@ -2987,7 +2994,8 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
 {
     RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "getNextMDD" )
 
-    RMInit::logOut << "Request (continuing): 'get next MDD'..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request (continuing): 'get next MDD'..." << std::flush;)
 
     unsigned short returnValue = 0;
 
@@ -3126,7 +3134,8 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
 
                 if( context->transTiles->size() > 0 )
                 {
-                    RMInit::logOut << MSG_OK << ", " << context->transTiles->size() << " more tile(s)" << endl;
+                    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+                        RMInit::logOut << MSG_OK << ", " << context->transTiles->size() << " more tile(s)" << endl;)
                 }
                 else   // context->transTiles->size() == 0
                 {
@@ -3142,7 +3151,8 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                 if( context->transferDataIter && *(context->transferDataIter) == context->transferData->end() )
                 {
                     returnValue = 1;  // nothing left in the collection
-                    RMInit::logOut << MSG_OK << ", no more tiles." << std::endl;
+                    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+                        RMInit::logOut << MSG_OK << ", no more tiles." << std::endl;)
                     context->releaseTransferStructures();
                 }
                 else
@@ -3279,7 +3289,8 @@ ServerComm::getNextElement( unsigned long   callingClientId,
 {
     RMDBGENTER(1, RMDebug::module_servercomm, "ServerComm", "getNextElement(...)")
 
-    RMInit::logOut << "Request (continuing): 'get next element'..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request (continuing): 'get next element'..." << std::flush;)
 
     unsigned short returnValue = 0;
 
@@ -3359,7 +3370,7 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                         //  if((context->clientId == 1) && (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) &&  (serverEndian != r_Endian::r_Endian_Big))
                         if( (strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0) && (serverEndian != r_Endian::r_Endian_Big))
                         {
-                            RMInit::logOut << "changing endianness..." << std::flush;
+                            RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << "changing endianness..." << std::flush;)
                             // calling client is a http-client(java -> always BigEndian) and server has LittleEndian
                             switch(scalarDataObj->getDataType())
                             {
@@ -3455,12 +3466,12 @@ ServerComm::getNextElement( unsigned long   callingClientId,
             if( *(context->transferDataIter) != context->transferData->end() )
             {
                 returnValue = 0;
-                RMInit::logOut << MSG_OK << ", some more tile(s) left." << endl;
+                RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << ", some more tile(s) left." << endl;)
             }
             else
             {
                 returnValue = 1;
-                RMInit::logOut << MSG_OK << ", no more tiles." << std::endl;
+                RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << ", no more tiles." << std::endl;)
             }
         }
         else
@@ -3506,7 +3517,8 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
 {
     RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "getMDDByOId" )
 
-    RMInit::logOut << "Request: 'get MDD by OId', oid = " << oid << "..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request: 'get MDD by OId', oid = " << oid << "..." << std::flush;)
 
     unsigned short returnValue = 0;
 
@@ -3609,7 +3621,8 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
 
                 if( context->transTiles->size() > 0 )
                 {
-                    RMInit::logOut << MSG_OK << ", got " << context->transTiles->size() << " tile(s)." << endl;
+                    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+                        RMInit::logOut << MSG_OK << ", got " << context->transTiles->size() << " tile(s)." << endl;)
                 }
                 else   // context->transTiles->size() == 0
                 {
@@ -3652,7 +3665,8 @@ ServerComm::getNextTile( unsigned long   callingClientId,
 {
     RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "getNextTile" )
 
-    RMInit::logOut << "Request (continuing): 'get next tile',..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request (continuing): 'get next tile',..." << std::flush;)
 
     unsigned long  transOffset = 0;
     unsigned long  transSize = 0;
@@ -3790,7 +3804,8 @@ ServerComm::getNextTile( unsigned long   callingClientId,
                     {
                         returnValue = 1;
                         TALK( " some MDDs left..." );
-                        RMInit::logOut << MSG_OK << ", some MDD(s) left."  << endl;
+                        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+                            RMInit::logOut << MSG_OK << ", some MDD(s) left."  << endl;)
                     }
                     else
                     {
@@ -3801,13 +3816,15 @@ ServerComm::getNextTile( unsigned long   callingClientId,
                         // context->releaseTransferStructures();
 
                         returnValue = 0;
-                        RMInit::logOut << MSG_OK << ", all MDDs fetched."  << endl;
+                        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+                            RMInit::logOut << MSG_OK << ", all MDDs fetched."  << endl;)
                     }
                 }
                 else
                 {
                     returnValue = 0;
-                    RMInit::logOut << MSG_OK << ", MDD transfer complete."  << endl;
+                    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+                        RMInit::logOut << MSG_OK << ", MDD transfer complete."  << endl;)
                 }
 
                 if ((context->totalTransferedSize != context->totalRawSize) && (context->totalRawSize != 0))
@@ -3819,12 +3836,14 @@ ServerComm::getNextTile( unsigned long   callingClientId,
             {
                 if( statusValue == 1 )   // at least one block in actual tile is left
                 {
-                    RMInit::logOut << MSG_OK << ", some block(s) left."  << endl;
+                    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+                        RMInit::logOut << MSG_OK << ", some block(s) left."  << endl;)
                     returnValue = 3;
                 }
                 else  // tiles left in actual MDD
                 {
-                    RMInit::logOut << MSG_OK << ", some tile(s) left."  << endl;
+                    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+                        RMInit::logOut << MSG_OK << ", some tile(s) left."  << endl;)
                     returnValue = 2;
                 }
             }
@@ -3855,7 +3874,8 @@ ServerComm::endTransfer( unsigned long client )
     RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "endTransfer" )
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Client " << client << " called: endTransfer..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Client " << client << " called: endTransfer..." << std::flush;)
 
     ClientTblElt* context = getClientContext( client );
 
@@ -3882,7 +3902,7 @@ ServerComm::endTransfer( unsigned long client )
 
         context->release();
 
-        RMInit::logOut << MSG_OK << std::endl;
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << std::endl;)
     }
     else
     {
@@ -3904,7 +3924,8 @@ ServerComm::aliveSignal( unsigned long client )
 {
     unsigned short returnValue = 0;
 
-    RMInit::logOut << "Client " << client << " called: endTransfer..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Client " << client << " called: endTransfer..." << std::flush;)
 
     ClientTblElt* context = getClientContext( client );
 
@@ -3917,7 +3938,8 @@ ServerComm::aliveSignal( unsigned long client )
 
         context->release();
 
-        RMInit::logOut << MSG_OK << std::endl;
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+            RMInit::logOut << MSG_OK << std::endl;)
     }
     else
     {
@@ -4083,7 +4105,8 @@ ServerComm::setTransferMode( unsigned long callingClientId,
 {
     RMDBGENTER(4, RMDebug::module_servercomm, "ServerComm", "setTransferMode(" << callingClientId << ", " << format << ", " << formatParams)
 
-    RMInit::logOut << "Request: 'set transfer mode', format = '" << format << "', params = '" << formatParams << "'..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request: 'set transfer mode', format = '" << format << "', params = '" << formatParams << "'..." << std::flush;)
 
     unsigned short retval = 1;
 
@@ -4108,7 +4131,7 @@ ServerComm::setTransferMode( unsigned long callingClientId,
         }
         context->transferFormat = fmt;
 
-        RMInit::logOut << MSG_OK << std::endl;
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << std::endl;)
         retval = 0;
 
         context->release();
@@ -4132,7 +4155,8 @@ ServerComm::setStorageMode( unsigned long callingClientId,
 {
     RMDBGENTER(4, RMDebug::module_servercomm, "ServerComm", "setStorageMode(" << callingClientId << ", " << format << ", " << formatParams)
 
-    RMInit::logOut << "Request: 'set storage mode', format = " << format << ", params = " << formatParams << "..." << std::flush;
+    RMDBGIF(4, RMDebug::module_servercomm, "ServerComm",
+        RMInit::logOut << "Request: 'set storage mode', format = " << format << ", params = " << formatParams << "..." << std::flush;)
 
     unsigned short retval = 1;
 
@@ -4154,7 +4178,7 @@ ServerComm::setStorageMode( unsigned long callingClientId,
         }
         context->storageFormat = fmt;
 
-        RMInit::logOut << MSG_OK << std::endl;
+        RMDBGIF(4, RMDebug::module_servercomm, "ServerComm", RMInit::logOut << MSG_OK << std::endl;)
         retval = 0;
 
         context->release();

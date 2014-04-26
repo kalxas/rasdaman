@@ -300,7 +300,7 @@ class RMTimer : public RM_Class
 public:
     /// constructor, initializes members and starts timer.
     inline RMTimer(const char* newClass, const char* newFunc,
-                   int newBmLevel = 0);
+                   int newBmLevel = 4);
     /**
       The parameters newClass and newFunc have to be string literals. Just
       a pointer to them is stored. No output is generated if RManBenchmark

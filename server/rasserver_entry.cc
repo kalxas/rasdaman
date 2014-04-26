@@ -88,7 +88,7 @@ void RasServerEntry::compat_connectToDBMS() throw( r_Error )
 void RasServerEntry::compat_connectNewClient(const char *capability)
 {
     // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
-    RMInit::logOut << "Request: connectNewClient..." << flush;
+    RMDBGIF(4, RMDebug::module_server, "RasServerEntry", RMInit::logOut << "Request: connectNewClient..." << flush;)
 
     char client[256];
     strcpy( client, "unknown" );
@@ -124,13 +124,13 @@ void RasServerEntry::compat_connectNewClient(const char *capability)
     if(accessControl.crunchCapability(capability) == CAPABILITY_REFUSED)
         throw r_Ecapability_refused();
 
-    RMInit::logOut << MSG_OK << endl;
+    RMDBGIF(4, RMDebug::module_server, "RasServerEntry", RMInit::logOut << MSG_OK << endl;)
 }
 
 void RasServerEntry::compat_disconnectClient()
 {
     // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
-    RMInit::logOut << "Request: disconnect..." << flush;
+    RMDBGIF(4, RMDebug::module_server, "RasServerEntry", RMInit::logOut << "Request: disconnect..." << flush;)
 
     // reverted the below to execute the #if part instead of the #else
     // details at: http://kahlua.eecs.jacobs-university.de/trac/rasdaman/ticket/239
