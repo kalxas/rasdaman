@@ -35,14 +35,14 @@ install-data-hook:
 	(cd ..; doxygen manuals_and_examples/doxygen-all.cfg)
 	(cd ..; doxygen manuals_and_examples/doxygen-api.cfg)
 	(cd ..; doxygen manuals_and_examples/doxygen-basedbms.cfg)
-	$(MKDIR_P) $(pkgdatadir)/examples/c++
-	cp examples/c++/Standalone_Makefile $(pkgdatadir)/examples/c++/Makefile
-	sed -i -e '31iRASDAMAN_INSTALLATION=$(prefix)\' $(pkgdatadir)/examples/c++/Makefile
+	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)/examples/c++
+	cp examples/c++/Standalone_Makefile $(DESTDIR)$(pkgdatadir)/examples/c++/Makefile
+	sed -i -e '31iRASDAMAN_INSTALLATION=$(prefix)\' $(DESTDIR)$(pkgdatadir)/examples/c++/Makefile
 
 else
 
 install-data-hook:
-	$(MKDIR_P) $(pkgdatadir)/examples/c++
-	cp examples/c++/Standalone_Makefile $(pkgdatadir)/examples/c++/Makefile
-	sed -i -e '31iRASDAMAN_INSTALLATION=$(prefix)\' $(pkgdatadir)/examples/c++/Makefile
+	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)/examples/c++
+	cp examples/c++/Standalone_Makefile $(DESTDIR)$(pkgdatadir)/examples/c++/Makefile
+	sed -i -e '31iRASDAMAN_INSTALLATION=$(prefix)\' $(DESTDIR)$(pkgdatadir)/examples/c++/Makefile
 endif
