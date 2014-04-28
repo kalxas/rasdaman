@@ -69,6 +69,10 @@ public class RasImplementation implements Implementation
     public static final String PROTOCOL_HTTP = "HTTP" ;	// HTTP protocol indicator
     public static final String PROTOCOL_COMP = "COMPAT" ;	// "compatiblity", means: using RNP (legacy)
 
+    public static final int TYPE_TYPE_SET       = 1;
+    public static final int TYPE_TYPE_MDD       = 2;
+    public static final int TYPE_TYPE_BASE      = 3;
+
     /**
      * Standard constructor.
      * @param server - Complete URL of the RasDaMan httpserver (including port number)
@@ -344,6 +348,10 @@ public class RasImplementation implements Implementation
        rasj.global.Debug.setDebugThreshold( level );
        }
 
+    public String getTypeStructure(String typename, int typetype)
+      {
+        return imp.getTypeStructure(typename, typetype);
+      }
 }
 
 

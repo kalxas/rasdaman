@@ -57,6 +57,10 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
      public static final int pmt_capability   = 8;
      public static final int pmt_transstatus  = 9;
      public static final int pmt_objecttype   =10;
+     public static final int pmt_typename     =15;
+     public static final int pmt_typelength   =16;
+     public static final int pmt_typetype     =17;
+     public static final int pmt_typestructure=18;
 
      public static final int cmd_none         = 0;
      public static final int cmd_connect      = 1;
@@ -69,6 +73,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
      public static final int cmd_istaopen     = 8;
      public static final int cmd_queryhttp    = 9;
      public static final int cmd_getnewoid    =10;
+     public static final int cmd_gettypestruct=21;
      
      public static final int rasServerId = 3072002;
 
@@ -397,6 +402,12 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
          Debug.talkVerbose( "RasRNPImplementation.queryRequest." );
          return executeQueryRequest(parameters);
       }
+
+    public String getTypeStructure(String typename, int typetype)
+      {
+         Debug.talkVerbose( "RasRNPImplementation.getTypeStructure." );
+         return executeGetTypeStructure(typename, typetype);
+      }
 		   
     private void executeTurboOpen(String name) throws ODMGException
       {	 
@@ -599,6 +610,22 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
         int result = decoder.getDataAsInteger();
         Debug.leaveVerbose( "RasRNPImplementation.executeIsOpenTA done. result=" + result );
         return result;
+      }
+
+    private String executeGetTypeStructure(String typename, int typetype)
+      {
+        startRequest(cmd_gettypestruct);
+        encoder.addParameterInt32(pmt_clientid, clientID);
+        encoder.addParameterString(pmt_typename, typename);
+        encoder.addParameterInt32(pmt_typestructure, typetype);
+        sendRequestGetAnswer();
+
+        decoder.getFirstParameter();
+        int status = decoder.getDataAsInteger();
+        Debug.leaveVerbose("RasRNPImplementation.executeGetTypeStructure done. status=" + status);
+        decoder.getNextParameter();
+        String res = decoder.getDataAsString();
+        return res;
       }
 
 //######## These functions are kept only for testing purpose, we will emove them soon ####	 	 	 

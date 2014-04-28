@@ -791,7 +791,12 @@ public class RasODMGImplementation implements RasImplementationInterface,RasComm
         Debug.leaveVerbose( "RasODMGImplementation.executeGetFreeServer done." );
         return request.getResult();
      }   
-       
+
+   public String getTypeStructure(String typename, int typetype)
+     {
+        Debug.talkCritical( "RasODMGImplementation.getTypeStructure: not yet implemented." );
+        throw new NotImplementedException();
+     }
 
     //private int getResultCode(BufferedReader ds) throws IOException
     public int getResultCode(BufferedReader ds) throws IOException

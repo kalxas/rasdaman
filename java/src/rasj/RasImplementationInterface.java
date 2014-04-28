@@ -91,5 +91,7 @@ rasdaman GmbH.
      void setUserIdentification(String userName, String plainPass);
      
      Object queryRequest(String parameters) throws RasQueryExecutionFailedException;
+
+     String getTypeStructure(String typename, int typetype);
      }
      
