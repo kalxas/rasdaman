@@ -54,6 +54,7 @@ rasdaman GmbH.
 #define NOVALIDDOMAIN                   6
 #define MDDTYPEINVALID                  7
 #define FILESIZEMISMATCH                8
+#define NOFILEWRITEPERMISSION           9
 
 class RasqlError // : public std::exception
 {

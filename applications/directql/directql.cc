@@ -595,6 +595,7 @@ void printResult( r_Minterval    &mddDomain, char*          &typeName,
                   char*          &typeStructure,
                   r_OId          &oid,
                   unsigned short &currentFormat)
+throw(RasqlError)
 {
     ENTER( "printResult" );
 
@@ -691,6 +692,9 @@ void printResult( r_Minterval    &mddDomain, char*          &typeName,
 
                 LOG( "  Result object " << i << ": going into file " << defFileName << "..." << flush );
                 FILE *tfile = fopen( defFileName, "wb" );
+                if(tfile==NULL){
+                    throw RasqlError(NOFILEWRITEPERMISSION);
+                }
                 fwrite((void*)r_Ref<r_GMarray>(*iter)->get_array(), 1, r_Ref<r_GMarray>(*iter)->get_array_size(), tfile );
                 fclose(tfile);
                 LOG( "ok." << endl );
@@ -810,7 +814,7 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName ) throw(RasqlError,
     return retval;
 } // getTypeFromDatabase()
 
-void doStuff( int argc, char** argv ) throw (r_Error)
+void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
 {
     char *fileContents = NULL;      // contents of file satisfying "$1" parameter in query
     r_Ref<r_GMarray> fileMDD = NULL;    // MDD to satisfy a "$1" parameter

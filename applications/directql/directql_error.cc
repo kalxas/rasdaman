@@ -91,6 +91,9 @@ RasqlError::what()
     case  FILESIZEMISMATCH:
         errorMsg = "Input file size does not correspond with MDD domain specified.";
         break;
+    case NOFILEWRITEPERMISSION:
+        errorMsg = "No file write permission.";
+        break;
     default :
         errorMsg = "Unknown error code.";
         break;

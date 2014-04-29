@@ -564,7 +564,7 @@ void printScalar( const r_Scalar& scalar )
 
 
 // result_set should be parameter, but is global -- see def for reason
-void printResult( /* r_Set< r_Ref_Any > result_set */ )
+void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
 {
     ENTER( "printResult" );
 
@@ -683,6 +683,9 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ )
 
                 LOG( "  Result object " << i << ": going into file " << defFileName << "..." << flush );
                 FILE *tfile = fopen( defFileName, "wb" );
+                if(tfile==NULL){
+                    throw RasqlError(NOFILEWRITEPERMISSION);
+                }
                 fwrite((void*)r_Ref<r_GMarray>(*iter)->get_array(), 1, r_Ref<r_GMarray>(*iter)->get_array_size(), tfile );
                 fclose(tfile);
                 LOG( "ok." << endl );
@@ -796,7 +799,7 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName ) throw(RasqlError,
     return retval;
 } // getTypeFromDatabase()
 
-void doStuff( int argc, char** argv ) throw (r_Error)
+void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
 {
     char *fileContents = NULL;                       // contents of file satisfying "$1" parameter in query
     r_Set< r_GMarray* >* fileContentsChunked = NULL; // file contents partitioned into smaller chunks
