@@ -996,7 +996,6 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 				res.setTypeStructure(mddBaseType);
 				//insert into result set
 				resultBag.add(res);
-				break;
                               } 
                             else
                               {
