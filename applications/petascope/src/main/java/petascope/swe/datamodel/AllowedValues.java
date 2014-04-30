@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import nu.xom.Element;
 import petascope.util.BigDecimalUtil;
-import petascope.util.MiscUtil;
 import static petascope.util.XMLSymbols.LABEL_ALLOWED_VALUES;
 import static petascope.util.XMLSymbols.LABEL_INTERVAL;
 import static petascope.util.XMLSymbols.NAMESPACE_SWE;

@@ -23,6 +23,8 @@ package petascope.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utilities for handling BigDecimals computations and scales.
@@ -30,6 +32,7 @@ import java.math.RoundingMode;
  */
 public class BigDecimalUtil {
 
+    private static final Logger log = LoggerFactory.getLogger(BigDecimalUtil.class);
     /**
      * Scale of a quotient between two BigDecimals.
      *
@@ -50,11 +53,15 @@ public class BigDecimalUtil {
      */
     public static BigDecimal stripDecimalZeros(BigDecimal bd) {
         BigDecimal bdOut = bd.stripTrailingZeros();
-        if (bdOut.scale() < 0) {
-            bdOut = new BigDecimal(bdOut.intValue());
-        }
-        if (bdOut.compareTo(BigDecimal.ZERO) == 0) {
-            bdOut = BigDecimal.ZERO;
+        try {
+            if (bdOut.scale() < 0) {
+                bdOut = new BigDecimal(bdOut.longValueExact());
+            }
+            if (bdOut.compareTo(BigDecimal.ZERO) == 0) {
+                bdOut = BigDecimal.ZERO;
+            }
+        } catch (ArithmeticException ex) {
+            log.trace(bd + " exceeds the capacity of long integers: leaving its own representation.");
         }
         return bdOut;
     }
