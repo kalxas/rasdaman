@@ -66,6 +66,7 @@ import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
 import petascope.util.WcsUtil;
+import petascope.util.XMLSymbols;
 import static petascope.util.ras.RasConstants.*;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
@@ -291,6 +292,10 @@ public class DbMetadataSource implements IMetadataSource {
     /* SQL aliases */
     private static String NIL_VALUES_ALIAS  = "nil_values";
     private static String NIL_REASONS_ALIAS = "nil_reasons";
+
+    // parsing of sdom output
+    public static final String DIMENSION_SEPARATOR = ",";
+    public static final String DIMENSION_BOUND_SEPARATOR = ":";
 
     /* Status variables */
     private boolean initializing;
@@ -877,46 +882,49 @@ public class DbMetadataSource implements IMetadataSource {
 
             // TABLE_DOMAINSET : read the CRS, as array of single-CRS URIs
             // IMPORTANT: keep the same order of foreign keys in the array native_crs_ids.
-            CellDomainElement cell;
+            CellDomainElement cde;
             List<CellDomainElement> cellDomainElements = new ArrayList<CellDomainElement>(r.getFetchSize());
             List<Pair<CrsDefinition.Axis,String>> crsAxes = new ArrayList<Pair<CrsDefinition.Axis,String>>();
-            sqlQuery =
-                    " SELECT (SELECT " + PROCEDURE_IDX + "("
-                               + TABLE_DOMAINSET + "." + DOMAINSET_NATIVE_CRS_IDS + ","
-                               + TABLE_CRS       + "." + CRS_ID  + ")) AS idx, "
-                               + TABLE_CRS       + "." + CRS_URI +
-                      " FROM " + TABLE_DOMAINSET + "," + TABLE_CRS +
-                     " WHERE " + TABLE_DOMAINSET + "." + DOMAINSET_NATIVE_CRS_IDS + " @> " +
-                     " ARRAY[" + TABLE_CRS       + "." + CRS_ID + "] AND "
-                               + TABLE_DOMAINSET + "." + DOMAINSET_COVERAGE_ID + "=" + coverageId
-                               + " ORDER BY idx " // crucial
-                    ;
-            log.debug("SQL query: " + sqlQuery);
-            r = s.executeQuery(sqlQuery);
-            if (!r.next()) {
-                throw new PetascopeException(ExceptionCode.InvalidRequest,
-                        "Coverage '" + coverageName + "' is missing the domain-set information.");
-            } else do {
-                // Store fetched data
-                // Replace possible %SECORE_URL% prefixes with resolvable configured SECORE URLs:
-                String uri = r.getString(CRS_URI).replace(SECORE_URL_KEYWORD, SECORE_URLS.get(0));
-                if (null == uri) {
-                    log.error("No native CRS found for this coverage.");
+
+            if (!coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
+                sqlQuery =
+                        " SELECT (SELECT " + PROCEDURE_IDX + "("
+                                   + TABLE_DOMAINSET + "." + DOMAINSET_NATIVE_CRS_IDS + ","
+                                   + TABLE_CRS       + "." + CRS_ID  + ")) AS idx, "
+                                   + TABLE_CRS       + "." + CRS_URI +
+                          " FROM " + TABLE_DOMAINSET + "," + TABLE_CRS +
+                         " WHERE " + TABLE_DOMAINSET + "." + DOMAINSET_NATIVE_CRS_IDS + " @> " +
+                         " ARRAY[" + TABLE_CRS       + "." + CRS_ID + "] AND "
+                                   + TABLE_DOMAINSET + "." + DOMAINSET_COVERAGE_ID + "=" + coverageId
+                                   + " ORDER BY idx " // crucial
+                        ;
+                log.debug("SQL query: " + sqlQuery);
+                r = s.executeQuery(sqlQuery);
+                if (!r.next()) {
+                    throw new PetascopeException(ExceptionCode.InvalidRequest,
+                            "Coverage '" + coverageName + "' is missing the domain-set information.");
+                } else do {
+                    // Store fetched data
+                    // Replace possible %SECORE_URL% prefixes with resolvable configured SECORE URLs:
+                    String uri = r.getString(CRS_URI).replace(SECORE_URL_KEYWORD, SECORE_URLS.get(0));
+                    if (null == uri) {
+                        log.error("No native CRS found for this coverage.");
+                        throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                            "No native CRS found for this coverage.");
+                    }
+                    log.info("Decoding " + uri + " ...");
+                    // If not cached, parse the SECORE-resolved definition ot this CRS
+                    CrsDefinition crsDef = CrsUtil.getGmlDefinition(uri);
+                    for (CrsDefinition.Axis axis : crsDef.getAxes()) {
+                        crsAxes.add(Pair.of(axis, uri));
+                    }
+                } while (r.next());
+                log.trace("Coverage " + coverageName + " CRS decoded: it has " + crsAxes.size() + (crsAxes.size()>1?" axes":" axis") + ".");
+                // Check CRS
+                if (crsAxes.isEmpty()) {
                     throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                        "No native CRS found for this coverage.");
+                            "Coverage '" + coverageName + "' has no external (native) CRS.");
                 }
-                log.info("Decoding " + uri + " ...");
-                // If not cached, parse the SECORE-resolved definition ot this CRS
-                CrsDefinition crsDef = CrsUtil.getGmlDefinition(uri);
-                for (CrsDefinition.Axis axis : crsDef.getAxes()) {
-                    crsAxes.add(Pair.of(axis, uri));
-                }
-            } while (r.next());
-            log.trace("Coverage " + coverageName + " CRS decoded: it has " + crsAxes.size() + (crsAxes.size()>1?" axes":" axis") + ".");
-            // Check CRS
-            if (crsAxes.isEmpty()) {
-                throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                        "Coverage '" + coverageName + "' has no external (native) CRS.");
             }
 
             /* RANGE-TYPE : coverage feature-space description (SWE-based) */
@@ -1022,182 +1030,203 @@ public class DbMetadataSource implements IMetadataSource {
                             r.getString(RASDAMAN_COLLECTION_NAME) + ":" + r.getBigDecimal(RASDAMAN_COLLECTION_OID) + ".");
                 }
 
+                List<Pair<String, String>> pixelBboxes = getCollectionDomain(rasdamanColl.snd, rasdamanColl.fst);
+                Iterator<Pair<String, String>> pixelBboxesIt = pixelBboxes.iterator();
+                log.debug("done");
+
                 /* DOMAIN-SET : geometry, origin, axes... */
-                sqlQuery =
-                    " SELECT " + GRIDDED_DOMAINSET_ORIGIN       +
-                    " FROM "   + TABLE_GRIDDED_DOMAINSET        +
-                    " WHERE "  + GRIDDED_DOMAINSET_COVERAGE_ID  + "=" + coverageId
-                    ;
-                log.debug("SQL query: " + sqlQuery);
-                r = s.executeQuery(sqlQuery);
-                if (!r.next()) {
-                    throw new PetascopeException(ExceptionCode.InvalidRequest,
-                            "Gridded coverage '" + coverageName + "' is missing the origin.");
-                }
-                // Store fetched data
-                gridOrigin = new ArrayList<BigDecimal>();
-                // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute},
-                // of indexes 1 and 2 respectively:
-                ResultSet rs = r.getArray(GRIDDED_DOMAINSET_ORIGIN).getResultSet();
-                while (rs.next()) {
-                    log.debug("Grid origin component: " + rs.getBigDecimal(2));
-                    gridOrigin.add(rs.getBigDecimal(2));
-                }
-                log.trace("Gridded coverage '{}' has origin '{}'", coverageName, gridOrigin);
-                // Check origin is not empty
-                if (gridOrigin.isEmpty()) {
-                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                            "Gridded coverage '" + coverageName + "' has an empty origin.");
-                }
-                // check if origin is compatible with the native CRS
-                // (then offset-vectors are checked against origin)
-                if (gridOrigin.size() != crsAxes.size()) {
-                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                            "Native CRS of coverage '" + coverageName + " is not compatible with given origin: " +
-                            crsAxes.size() + " CRS dimensions against " + gridOrigin.size() + " origin components.");
-                }
-
-                // Read axis-specific information, independently of its nature (rectilinear, regularly-spaced, etc.)
-                // Axis id -> {offset-vector, isIrregular}
-                // NOTE: use LinkedHashMap to preserve insertion order.
-                gridAxes = new LinkedHashMap<List<BigDecimal>,BigDecimal>();
-                Pair<String, String> cellDimensions;
-                sqlQuery =
-                    " SELECT "   + GRID_AXIS_ID             + ", "
-                                 + GRID_AXIS_RASDAMAN_ORDER +
-                    " FROM "     + TABLE_GRID_AXIS          +
-                    " WHERE "    + GRID_AXIS_COVERAGE_ID    + "=" + coverageId +
-                    " ORDER BY " + GRID_AXIS_RASDAMAN_ORDER
-                    ;
-                log.debug("SQL query: " + sqlQuery);
-                r = s.executeQuery(sqlQuery);
-                if (!r.next()) {
-                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                            "Gridded coverage '" + coverageName + "' has no axes." );
-                }
-                // Cannot put r.next() in a loop since an other SQL query is sent and "r" gets closed.
-                // Store my data a priori then run the loop
-                List<Integer> axisIds = new ArrayList<Integer>(r.getFetchSize());
-                do {
-                    // Store fetched data
-                    axisIds.add(r.getInt(GRID_AXIS_ID));
-                } while (r.next());
-
-                // Proceed with axis examination
-                for (int axisId : axisIds) {
-                    log.debug("Found axis with id {}", axisId);
-                    // Read the offset vector
+                if (!coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
                     sqlQuery =
-                            " SELECT " + RECTILINEAR_AXIS_OFFSET_VECTOR +
-                            " FROM "   + TABLE_RECTILINEAR_AXIS         +
-                            " WHERE "  + RECTILINEAR_AXIS_ID      + "=" + axisId
-                            ;
+                        " SELECT " + GRIDDED_DOMAINSET_ORIGIN       +
+                        " FROM "   + TABLE_GRIDDED_DOMAINSET        +
+                        " WHERE "  + GRIDDED_DOMAINSET_COVERAGE_ID  + "=" + coverageId
+                        ;
                     log.debug("SQL query: " + sqlQuery);
-                    ResultSet rAxis = s.executeQuery(sqlQuery);
-                    if (rAxis.next()) {
+                    r = s.executeQuery(sqlQuery);
+                    if (!r.next()) {
+                        throw new PetascopeException(ExceptionCode.InvalidRequest,
+                                "Gridded coverage '" + coverageName + "' is missing the origin.");
+                    }
+                    // Store fetched data
+                    gridOrigin = new ArrayList<BigDecimal>();
+                    // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute},
+                    // of indexes 1 and 2 respectively:
+                    ResultSet rs = r.getArray(GRIDDED_DOMAINSET_ORIGIN).getResultSet();
+                    while (rs.next()) {
+                        log.debug("Grid origin component: " + rs.getBigDecimal(2));
+                        gridOrigin.add(rs.getBigDecimal(2));
+                    }
+                    log.trace("Gridded coverage '{}' has origin '{}'", coverageName, gridOrigin);
+                    // Check origin is not empty
+                    if (gridOrigin.isEmpty()) {
+                        throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                                "Gridded coverage '" + coverageName + "' has an empty origin.");
+                    }
+                    // check if origin is compatible with the native CRS
+                    // (then offset-vectors are checked against origin)
+                    if (gridOrigin.size() != crsAxes.size()) {
+                        throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                                "Native CRS of coverage '" + coverageName + " is not compatible with given origin: " +
+                                crsAxes.size() + " CRS dimensions against " + gridOrigin.size() + " origin components.");
+                    }
+
+                    // Read axis-specific information, independently of its nature (rectilinear, regularly-spaced, etc.)
+                    // Axis id -> {offset-vector, isIrregular}
+                    // NOTE: use LinkedHashMap to preserve insertion order.
+                    gridAxes = new LinkedHashMap<List<BigDecimal>,BigDecimal>();
+                    sqlQuery =
+                        " SELECT "   + GRID_AXIS_ID             + ", "
+                                     + GRID_AXIS_RASDAMAN_ORDER +
+                        " FROM "     + TABLE_GRID_AXIS          +
+                        " WHERE "    + GRID_AXIS_COVERAGE_ID    + "=" + coverageId +
+                        " ORDER BY " + GRID_AXIS_RASDAMAN_ORDER
+                        ;
+                    log.debug("SQL query: " + sqlQuery);
+                    r = s.executeQuery(sqlQuery);
+                    if (!r.next()) {
+                        throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                                "Gridded coverage '" + coverageName + "' has no axes." );
+                    }
+                    // Cannot put r.next() in a loop since an other SQL query is sent and "r" gets closed.
+                    // Store my data a priori then run the loop
+                    List<Integer> axisIds = new ArrayList<Integer>(r.getFetchSize());
+                    do {
                         // Store fetched data
-                        List<BigDecimal> offsetVector = new ArrayList<BigDecimal>();
-                        // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute},
-                        // of indexes 1 and 2 respectively:
-                        rs = rAxis.getArray(RECTILINEAR_AXIS_OFFSET_VECTOR).getResultSet();
-                        while (rs.next()) {
-                            log.debug("Offset-vector " + axisId + " component: " + rs.getBigDecimal(2));
-                            offsetVector.add(rs.getBigDecimal(2));
-                        }
-                        log.trace("Axis {} has offset-vector {}", axisId, offsetVector);
-                        // Check offset vector is not empty
-                        if (offsetVector.isEmpty()) {
-                            throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                                    "Axis " + axisId + " of '" + coverageName + "' has an empty offset vector.");
-                        }
+                        axisIds.add(r.getInt(GRID_AXIS_ID));
+                    } while (r.next());
 
-                        // Check if offset vector is aligned with a CRS axis
-                        if (Vectors.nonZeroComponentsIndices(offsetVector.toArray(new BigDecimal[offsetVector.size()])).size() > 1) {
-                            throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
-                                    "Offset vector " + offsetVector + " of coverage '" + coverageName + " is forbidden." +
-                                    "Only aligned offset vectors are currently allowed (1 non-zero component).");
-                        }
+                    // Proceed with axis examination
+                    for (int axisId : axisIds) {
+                        // pixel bbox for the current dimension
+                        Pair<String, String> pixelBbox = pixelBboxesIt.next();
 
-                        // Check consistency origin/offset-vector
-                        if (offsetVector.size() != gridOrigin.size()) {
-                            throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                                    "Incompatible dimensionality of grid origin ("   + gridOrigin.size() +
-                                    ") and offset vector of axis " + gridAxes.size() + " (" + offsetVector.size() +
-                                    ") for coverage '" + coverageName + "'.");
-                        }
-
-                        // Check if it has coefficients -> is irregular
-                        // At the same time check that the number of coefficients is consistent with the `sdom' of the collection:
-                        cellDimensions = getIndexDomain(rasdamanColl.snd, rasdamanColl.fst, gridAxes.size());
+                        log.debug("Found axis with id {}", axisId);
+                        // Read the offset vector
                         sqlQuery =
-                                " SELECT COUNT(*), MAX(" + VECTOR_COEFFICIENTS_COEFFICIENT + ") " +
-                                                 "FROM " + TABLE_VECTOR_COEFFICIENTS       +
-                                               " WHERE " + VECTOR_COEFFICIENTS_AXIS_ID     + "="  + axisId
+                                " SELECT " + RECTILINEAR_AXIS_OFFSET_VECTOR +
+                                " FROM "   + TABLE_RECTILINEAR_AXIS         +
+                                " WHERE "  + RECTILINEAR_AXIS_ID      + "=" + axisId
                                 ;
                         log.debug("SQL query: " + sqlQuery);
-                        rAxis = s.executeQuery(sqlQuery);
-                        BigDecimal maxCoeff = null;
-                        boolean isIrregular = false;
+                        ResultSet rAxis = s.executeQuery(sqlQuery);
                         if (rAxis.next()) {
-                            int coeffNumber = rAxis.getInt(1);
-                            if (coeffNumber > 0) {
-                                // this axis has coefficients
-                                isIrregular = true;
-                                maxCoeff = rAxis.getBigDecimal(2);
-                                // check consistency with `sdom'
-                                int sdomCount   = new Integer(petascope.util.StringUtil.getCount(cellDimensions.fst, cellDimensions.snd));
-                                if (coeffNumber != sdomCount) {
-                                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                                            "Coverage '" + coverageName + " has a wrong number of coefficients for axis " + axisId
-                                            + " (" + coeffNumber + ") and is not consistent with its rasdaman `sdom' (" + sdomCount + ").");
+                            // Store fetched data
+                            List<BigDecimal> offsetVector = new ArrayList<BigDecimal>();
+                            // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute},
+                            // of indexes 1 and 2 respectively:
+                            rs = rAxis.getArray(RECTILINEAR_AXIS_OFFSET_VECTOR).getResultSet();
+                            while (rs.next()) {
+                                log.debug("Offset-vector " + axisId + " component: " + rs.getBigDecimal(2));
+                                offsetVector.add(rs.getBigDecimal(2));
+                            }
+                            log.trace("Axis {} has offset-vector {}", axisId, offsetVector);
+                            // Check offset vector is not empty
+                            if (offsetVector.isEmpty()) {
+                                throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                                        "Axis " + axisId + " of '" + coverageName + "' has an empty offset vector.");
+                            }
+
+                            // Check if offset vector is aligned with a CRS axis
+                            if (Vectors.nonZeroComponentsIndices(offsetVector.toArray(new BigDecimal[offsetVector.size()])).size() > 1) {
+                                throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
+                                        "Offset vector " + offsetVector + " of coverage '" + coverageName + " is forbidden." +
+                                        "Only aligned offset vectors are currently allowed (1 non-zero component).");
+                            }
+
+                            // Check consistency origin/offset-vector
+                            if (offsetVector.size() != gridOrigin.size()) {
+                                throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                                        "Incompatible dimensionality of grid origin ("   + gridOrigin.size() +
+                                        ") and offset vector of axis " + gridAxes.size() + " (" + offsetVector.size() +
+                                        ") for coverage '" + coverageName + "'.");
+                            }
+
+                            // Check if it has coefficients -> is irregular
+                            // At the same time check that the number of coefficients is consistent with the `sdom' of the collection:
+
+                            sqlQuery =
+                                    " SELECT COUNT(*), MAX(" + VECTOR_COEFFICIENTS_COEFFICIENT + ") " +
+                                                     "FROM " + TABLE_VECTOR_COEFFICIENTS       +
+                                                   " WHERE " + VECTOR_COEFFICIENTS_AXIS_ID     + "="  + axisId
+                                    ;
+                            log.debug("SQL query: " + sqlQuery);
+                            rAxis = s.executeQuery(sqlQuery);
+                            BigDecimal maxCoeff = null;
+                            boolean isIrregular = false;
+                            if (rAxis.next()) {
+                                int coeffNumber = rAxis.getInt(1);
+                                if (coeffNumber > 0) {
+                                    // this axis has coefficients
+                                    isIrregular = true;
+                                    maxCoeff = rAxis.getBigDecimal(2);
+                                    // check consistency with `sdom'
+                                    int sdomCount   = new Integer(petascope.util.StringUtil.getCount(pixelBbox.fst, pixelBbox.snd));
+                                    if (coeffNumber != sdomCount) {
+                                        throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                                                "Coverage '" + coverageName + " has a wrong number of coefficients for axis " + axisId
+                                                + " (" + coeffNumber + ") and is not consistent with its rasdaman `sdom' (" + sdomCount + ").");
+                                    }
                                 }
                             }
+                            log.trace("Axis " + gridAxes.size() + " of coverage '" + coverageName +
+                                      "' is " + (isIrregular ? "" : "not ") + "irregular.");
+
+                            // Build up the axis map
+                            gridAxes.put(offsetVector, maxCoeff);
+
+                            /* Create CellDomainElement and DomainElement for this axis: */
+                            // CellDomain
+                            cde = new CellDomainElement(
+                                    pixelBbox.fst,
+                                    pixelBbox.snd,
+                                    gridAxes.size()-1
+                                    );
+                            cellDomainElements.add(cde);
+                            log.debug("Added WCPS `cellDomain' element: " + cde);
+
+                        } else {
+                            throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
+                                    "Axis " + axisId + " of '" + coverageName + "' has no offset vector.");
                         }
-                        log.trace("Axis " + gridAxes.size() + " of coverage '" + coverageName +
-                                  "' is " + (isIrregular ? "" : "not ") + "irregular.");
+                    } // ~end read grid axes
 
-                        // Build up the axis map
-                        gridAxes.put(offsetVector, maxCoeff);
-
-                        /* Create CellDomainElement and DomainElement for this axis: */
-                        // CellDomain
-                        cell = new CellDomainElement(
-                                cellDimensions.fst,
-                                cellDimensions.snd,
-                                gridAxes.size()-1
-                                );
-                        cellDomainElements.add(cell);
-                        log.debug("Added WCPS `cellDomain' element: " + cell);
-
-                    } else {
-                        throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
-                                "Axis " + axisId + " of '" + coverageName + "' has no offset vector.");
+                    // Check if the coverage can fit into the CRS (dimensionality)
+                    if (gridAxes.size() > crsAxes.size()) {
+                        throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                                gridAxes.size() + "D coverage '" + coverageName + "' cannot fit into its " +
+                                crsAxes.size() + "D native CRS.");
                     }
-                } // ~end read grid axes
+                    // Currently accept only N-D coverages in N-D CRS
+                    if (gridAxes.size() != crsAxes.size()) {
+                        throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
+                                gridAxes.size() + "D coverage '" + coverageName + "' must have the same dimensions as its native CRS.");
+                    }
 
-                // Check if the coverage can fit into the CRS (dimensionality)
-                if (gridAxes.size() > crsAxes.size()) {
-                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                            gridAxes.size() + "D coverage '" + coverageName + "' cannot fit into its " +
-                            crsAxes.size() + "D native CRS.");
-                }
-                // Currently accept only N-D coverages in N-D CRS
-                if (gridAxes.size() != crsAxes.size()) {
-                    throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
-                            gridAxes.size() + "D coverage '" + coverageName + "' must have the same dimensions as its native CRS.");
-                }
+                    // Check if offset-vectors are orthogonal
+                    if (!Vectors.areOrthogonal(new ArrayList(gridAxes.keySet()))) {
+                        throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
+                                "Offset-vectors for coverage '" + coverageName + "' are not orthogonal.");
+                    }
 
-                // Check if offset-vectors are orthogonal
-                if (!Vectors.areOrthogonal(new ArrayList(gridAxes.keySet()))) {
-                    throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
-                            "Offset-vectors for coverage '" + coverageName + "' are not orthogonal.");
-                }
-
-                // Check if rasdaman domain has the same dimensions
-                if (gridAxes.keySet().size() != cellDomainElements.size()) {
-                    throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                            gridAxes.keySet().size() + "D coverage '" + coverageName + "' is not compatible with " +
-                            cellDomainElements.size() + " range-set.");
+                    // Check if rasdaman domain has the same dimensions
+                    if (gridAxes.keySet().size() != cellDomainElements.size()) {
+                        throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                                gridAxes.keySet().size() + "D coverage '" + coverageName + "' is not compatible with " +
+                                cellDomainElements.size() + " range-set.");
+                    }
+                } else {
+                    gridOrigin = new ArrayList<BigDecimal>();
+                    gridAxes = new LinkedHashMap<List<BigDecimal>, BigDecimal>();
+                    int dimensionNo = pixelBboxes.size();
+                    for (int i = 0; i < dimensionNo; i++) {
+                        Pair<String, String> pixelBbox = pixelBboxesIt.next();
+                        cde = new CellDomainElement(pixelBbox.fst, pixelBbox.snd, i);
+                        cellDomainElements.add(cde);
+                        log.debug("cell domain for " + i + ": " + cde);
+                        gridOrigin.add(new BigDecimal(cde.getLo()));
+                        BigDecimal[] uv = Vectors.unitVector(dimensionNo, i);
+                        gridAxes.put(Arrays.asList(uv), null);
+                    }
                 }
 
                 /* Done with SQL statements */
@@ -1271,6 +1300,7 @@ public class DbMetadataSource implements IMetadataSource {
             throw sEx;
         } catch (PetascopeException ime) {
             log.error("Failed reading metadata", ime);
+            ime.printStackTrace();
             if (checkAtInit && !initializing) {
                 throw new PetascopeException(ExceptionCode.ResourceError,
                         "Previously valid metadata is now invalid. The metadata for coverage '" + coverageName + "' has been modified incorrectly.", ime);
@@ -1912,6 +1942,55 @@ public class DbMetadataSource implements IMetadataSource {
             throw new PetascopeException(ExceptionCode.RasdamanError, "Empty response from rasdaman.");
         }
         return bounds;
+    }
+
+    /**
+     * Get the lower and upper bound of the given collection in pixel coordinates.
+     * @param collName     The collection name
+     * @param collOid      The OID of the collection
+     * @return             The minimum and maximum pixel bounds of the array.
+     * @throws PetascopeException
+     */
+    public List<Pair<String, String>> getCollectionDomain(String collName, BigInteger collOid) throws PetascopeException {
+
+        List<Pair<String, String>> ret = new ArrayList<Pair<String, String>>();
+
+        // Run RasQL query
+        Object obj = null;
+        String rasQuery =
+                RASQL_SELECT + " " + RASQL_SDOM + "(c) " +
+                RASQL_FROM   + " " + collName + " " + RASQL_AS + " c " +
+                RASQL_WHERE  + " " + RASQL_OID + "(c) = " + collOid
+                ;
+        log.debug("RasQL query : " + rasQuery);
+        try {
+            obj = RasUtil.executeRasqlQuery(rasQuery);
+        } catch (RasdamanException ex) {
+            log.error("Error while executing RasQL query", ex);
+            throw new PetascopeException(ExceptionCode.InternalComponentError, "Error while executing RasQL query", ex);
+        }
+
+        // Parse the result
+        if (obj != null) {
+            RasQueryResult res = new RasQueryResult(obj);
+            if (!res.getScalars().isEmpty()) {
+                String s = res.getScalars().get(0).replaceAll("[\\[|\\]]", "");
+                log.debug("domain = " + s);
+                String[] dims = s.split(DIMENSION_SEPARATOR);
+                for (String dim : dims) {
+                    String[] bounds = dim.split(DIMENSION_BOUND_SEPARATOR);
+                    ret.add(Pair.of(bounds[0], bounds[1]));
+                }
+            } else {
+                log.error("Marray " + collOid + " of collection " + collName + " was not found.");
+                throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                        "Marray " + collOid + " of collection " + collName + " was not found: wrong OID in " + TABLE_RASDAMAN_COLLECTION + "?");
+            }
+        } else {
+            log.error("Empty response from rasdaman.");
+            throw new PetascopeException(ExceptionCode.RasdamanError, "Empty response from rasdaman.");
+        }
+        return ret;
     }
 
     public ResultSet executePostGISQuery(String postGisQuery) throws PetascopeException{

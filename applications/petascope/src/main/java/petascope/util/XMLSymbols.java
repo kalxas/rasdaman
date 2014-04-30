@@ -107,6 +107,7 @@ public interface XMLSymbols {
     String LABEL_COVERAGE_SUBTYPE_PARENT = "CoverageSubtypeParent";
     String LABEL_COVERAGE_DESCRIPTIONS = "CoverageDescriptions";
     String LABEL_COVERAGE_DESCRIPTION = "CoverageDescription";
+    String LABEL_COVERAGE_FUNCTION = "coverageFunction";
     String LABEL_DATABLOCK = "DataBlock";
     String LABEL_DIMENSION = "Dimension";
     String LABEL_DIMENSION_TRIM = "DimensionTrim";

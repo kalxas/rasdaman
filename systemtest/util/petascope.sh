@@ -630,16 +630,72 @@ function import_mst()
              --crs-order 1:0  > /dev/null || exit $RC_ERROR
 
   # initialize WMS
-  "$INITWMS" australia_wms mean_summer_airtemp EPSG:4326 -l '2:4:8:16' -h localhost -p $WCPS_PORT > /dev/null 2>&1
+  "$INITWMS" australia_wms $c EPSG:4326 -l '2:4:8:16' -h localhost -p $WCPS_PORT > /dev/null 2>&1
   if [ $? -ne 0 ]; then
-    log "Warning: WMS initialization for mean_summer_airtemp failed."
+    log "Warning: WMS initialization for $c failed."
   fi
-  "$FILLPYR" mean_summer_airtemp --tasplit > /dev/null 2>&1
+  "$FILLPYR" $c --tasplit > /dev/null 2>&1
   if [ $? -ne 0 ]; then
-    log "Warning: WMS pyramid creation for mean_summer_airtemp failed."
+    log "Warning: WMS pyramid creation for $c failed."
   fi
 }
 
+# ------------------------------------------------------------------------------
+#
+# import 4D floating-point data
+#
+function import_float_4d()
+{
+  c=$COLL
+
+  c_colltype='SystemtestFloatSet4'
+  c_basetype='float'
+  c_rangetype='float'
+  c_covtype='GridCoverage'
+
+  c_band='value'
+
+  #
+  # START
+  #
+
+  # import custom collection type
+  $RASDL -p | egrep "\b${c_colltype}\b" > /dev/null
+  if [ $? -ne 0 ]; then
+    cat > /tmp/types.dl << EOF
+typedef marray <float, 4> SystemtestFloatArray4;
+typedef set<SystemtestFloatArray4> SystemtestFloatSet4;
+EOF
+    $RASDL -r /tmp/types.dl -i > /dev/null 2>&1 || error "Failed inserting custom 4D float collection type."
+  fi
+
+  $RASQL -q "create collection $c $c_colltype" > /dev/null || exit $RC_ERROR
+  $RASQL -q "insert into $c values marray i in [0:0,0:0,0:39,-20:19] values (float)(i[2] * i[3])" > /dev/null || exit $RC_ERROR
+
+  # general coverage information (name, type, ...)
+  $PSQL -c "INSERT INTO ps_coverage (name, gml_type_id, native_format_id) \
+            VALUES ('$c', (SELECT id FROM ps_gml_subtype WHERE subtype='$c_covtype'), \
+            (SELECT id FROM ps_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
+
+  # get the coverage id
+  c_id=$($PSQL -c  "SELECT id FROM ps_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
+
+  # get the collection OID (note: take the first OID)
+  c_oid=$($RASQL -q "select oid(m) from $c as m" --out string | grep ' 1:' | awk -F ':' '{print $2}' | tr -d ' \n') > /dev/null || exit $RC_ERROR
+
+  # range set: link the coverage to the rasdaman collection
+  $PSQL -c "INSERT INTO ps_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
+  $PSQL -c "INSERT INTO ps_range_set (coverage_id, storage_id) VALUES (\
+              (SELECT id FROM ps_coverage WHERE name='$c'), \
+              (SELECT id FROM ps_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
+
+  # describe the datatype of the coverage cell values (range type)
+  # note: assign dimensionless quantity
+  $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
+              $c_id, '$c_band', 0, \
+              (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_rangetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
+}
 
 # ------------------------------------------------------------------------------
 #
@@ -658,7 +714,7 @@ function import_petascope_data()
   if [ $res -eq 0 ]; then
     multi_coll="Parksmall"
   fi
-  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 irr_cube_2 $multi_coll"
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp mean_summer_airtemp_repeat float_4d irr_cube_1 irr_cube_2 $multi_coll"
   for COLL in $COLLECTIONS; do
     check_cov $COLL
     if [ $? -ne 0 ]; then
@@ -675,8 +731,10 @@ function import_petascope_data()
           import_mr "$TESTDATA_PATH" && break
         elif [ "$COLL" == "eobstest" ]; then
           import_eobs "$TESTDATA_PATH" && break
-        elif [ "$COLL" == "mean_summer_airtemp" ]; then
+        elif [ "$COLL" == "mean_summer_airtemp" -o "$COLL" == "mean_summer_airtemp_repeat" ]; then
           import_mst "$TESTDATA_PATH" && break
+        elif [ "$COLL" == "float_4d" ]; then
+          import_float_4d "$TESTDATA_PATH" && break
         elif [ "$COLL" == "irr_cube_1" ]; then
           import_irr_cube_1 "$TESTDATA_PATH" && break
         elif [ "$COLL" == "irr_cube_2" ]; then
@@ -705,7 +763,7 @@ function drop_petascope_data()
   if [ $res -eq 0 ]; then
     multi_coll="Parksmall"
   fi
-  COLLECTIONS="rgb mr eobstest mean_summer_airtemp irr_cube_1 irr_cube_2 $multi_coll"
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp mean_summer_airtemp_repeat float_4d irr_cube_1 irr_cube_2 $multi_coll"
   drop_petascope $COLLECTIONS
   drop_colls $COLLECTIONS
   log "dropping wms..."

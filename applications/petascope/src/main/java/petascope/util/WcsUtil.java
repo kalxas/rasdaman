@@ -255,11 +255,12 @@ public class WcsUtil {
 
         // Coverage function: mapping the order of rangeSet values
         String coverageFunction = "";
-        if (WcsUtil.isGrid(m.getCoverageType())) {
+        if (WcsUtil.isGrid(m.getCoverageType()) && !m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
             // gridded coverage:
-            coverageFunction += Templates.getTemplate(Templates.GRID_FUNCTION,
+            coverageFunction += "  <" + XMLSymbols.LABEL_COVERAGE_FUNCTION + ">\n" +
+                    Templates.getTemplate(Templates.GRID_FUNCTION,
                     Pair.of("\\{" + Templates.KEY_SEQUENCE_RULE_ORDER + "\\}", getOuterInnerAxisRuleOrder(m))
-                    );
+                    ) + "\n  </" + XMLSymbols.LABEL_COVERAGE_FUNCTION + ">";
         } // else: coverageFunction yet to be investigated for non-gridded coverages. Might not be necessary for multi-*.
 
 
