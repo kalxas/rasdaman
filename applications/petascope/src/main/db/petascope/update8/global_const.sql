@@ -147,10 +147,10 @@ $$
     SELECT cset('LONG_MAX',         9223372036854775807);
     SELECT cset('ULONG_MIN',                          0);
     SELECT cset('ULONG_MAX',       18446744073709551615);
-    SELECT cset('FLOAT_MIN',              -3.4028234^38::numeric);
-    SELECT cset('FLOAT_MAX',               3.4028234^38::numeric);
-    SELECT cset('DOUBLE_MIN',   -1.7976931348623157^308::numeric);
-    SELECT cset('DOUBLE_MAX',    1.7976931348623157^308::numeric);
+    SELECT cset('FLOAT_MIN',              -3.4028234^38::numeric); -- Wrong values (ticket #748) :
+    SELECT cset('FLOAT_MAX',               3.4028234^38::numeric); -- 38/308 are 10th powers: eg 3.4028234 * (10^38)
+    SELECT cset('DOUBLE_MIN',   -1.7976931348623157^308::numeric); --
+    SELECT cset('DOUBLE_MAX',    1.7976931348623157^308::numeric); -- See update9.sql for the correct bounds.
     -- PS_ (COVERAGE)
     SELECT cset('PS_PREFIX','ps');
     SELECT cset('TABLE_PS_AXISTYPE',             cget('PS_PREFIX') || '_axistype');
