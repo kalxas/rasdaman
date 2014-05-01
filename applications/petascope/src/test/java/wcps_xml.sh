@@ -30,7 +30,7 @@ HEADER
 # Input: ProcessCoverages XML document (WCPS 1.0.0)
 # Output: RasQL query (on the last line of output)
 
-CLASSPATH=.:lib/wcps-all.jar:lib/jaxb-api.jar:lib/jaxb-impl.jar:lib/postgresql-8.3-604.jdbc4.jar:lib/jsr173_api.jar:lib/rasj.jar:lib/commons-math-1.1.jar:lib/antlrworks-1.3.1.jar
+CLASSPATH=.:lib/wcps-all.jar:lib/jaxb-api.jar:lib/jaxb-impl.jar:lib/postgresql-9.3-1101.jdbc4.jar:lib/jsr173_api.jar:lib/rasj.jar:lib/commons-math-1.1.jar:lib/antlrworks-1.3.1.jar
 
 echo "Will run with file '$1'"
 

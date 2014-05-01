@@ -28,10 +28,10 @@
 #
 ##################################################################
 
-AM_CXXFLAGS= -w @CLIENTCXXFLAGS@ -DLINUX -DEARLY_TEMPLATE -DONCRPC -DDEBUG 
+AM_CXXFLAGS= -w @CLIENTCXXFLAGS@ -DLINUX -DEARLY_TEMPLATE -DONCRPC -DDEBUG -I${JAVA_HOME}/include
 AM_LDFLAGS= @CLIENTLDFLAGS@
 
-bin_PROGRAMS = insertppm query
+bin_PROGRAMS = insertppm query getarray
 
 insertppm_SOURCES = insertppm.cc
 insertppm_LDADD = ../../../rasodmg/librasodmg.a ../../../clientcomm/libclientcomm.a \
@@ -44,3 +44,12 @@ query_LDADD = ../../../rasodmg/librasodmg.a ../../../clientcomm/libclientcomm.a 
         ../../../raslib/libraslib.a \
         ../../../conversion/libconversion.a ../../../network/libnetwork.a ../../../commline/libcommline.a \
          -lnetpbm -ljpeg -lpng -ltiff -lcrypto -lm -lz
+
+getarray_SOURCES = getarray.cc
+getarray_LDADD = ../../../rasodmg/librasodmg.a ../../../clientcomm/libclientcomm.a \
+        ../../../raslib/libraslib.a \
+        ../../../conversion/libconversion.a ../../../network/libnetwork.a ../../../commline/libcommline.a \
+         -lnetpbm -ljpeg -lpng -ltiff -lcrypto -lm -lz -L${JAVA_HOME}/jre/lib/amd64/jamvm/ -ljvm
+
+java:
+	javac Java1dim.java

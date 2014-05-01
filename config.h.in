@@ -134,6 +134,9 @@
 /* Define to 1 if you have the `dl' library (-ldl). */
 #undef HAVE_LIBDL
 
+/* Define to 1 if you have the `edit' library (-ledit). */
+#undef HAVE_LIBEDIT
+
 /* Define to 1 if you have the `fl' library (-lfl). */
 #undef HAVE_LIBFL
 
@@ -166,9 +169,6 @@
 
 /* Define to 1 if you have the `pq' library (-lpq). */
 #undef HAVE_LIBPQ
-
-/* Define to 1 if you have the `readline' library (-lreadline). */
-#undef HAVE_LIBREADLINE
 
 /* Define to 1 if you have the `sigsegv' library (-lsigsegv). */
 #undef HAVE_LIBSIGSEGV
@@ -377,6 +377,9 @@
 
 /* Description */
 #undef NOPRE
+
+/* Define to 1 if your C compiler doesn't accept -c and -o together. */
+#undef NO_MINUS_C_MINUS_O
 
 /* Do not use addr_t. */
 #undef NO_in_addr_t

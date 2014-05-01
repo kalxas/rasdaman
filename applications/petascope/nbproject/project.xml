@@ -63,7 +63,7 @@
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
-                    <file>${file.reference.postgresql-8.3-604.jdbc4.jar}</file>
+                    <file>${file.reference.postgresql-9.3-1101.jdbc4.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
