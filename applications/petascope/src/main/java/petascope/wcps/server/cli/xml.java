@@ -108,7 +108,7 @@ public class xml {
             }
         }
 
-        metadataSource.close();
+        metadataSource.closeConnection();
         System.exit(0);
 
     }

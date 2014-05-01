@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
@@ -337,11 +338,31 @@ public class DbMetadataSource implements IMetadataSource {
 
     /*------------------------------------------------*/
 
+    /**
+     * Main constructor with coverage metadata consistency check at startup.
+     * @param driver JDBC driver
+     * @param url database connection string
+     * @param user database connection username
+     * @param pass database connection password
+     * @throws PetascopeException
+     * @throws SecoreException
+     */
     public DbMetadataSource(String driver, String url, String user, String pass)
             throws PetascopeException, SecoreException {
         this(driver, url, user, pass, true);
     }
 
+    /**
+     * Main constructor.
+     * @param driver JDBC driver
+     * @param url database connection string
+     * @param user database connection username
+     * @param pass database connection password
+     * @param checkAtInit if true then check coverage metadata consistency at
+     * startup.
+     * @throws PetascopeException
+     * @throws SecoreException
+     */
     public DbMetadataSource(String driver, String url, String user, String pass, boolean checkAtInit)
             throws PetascopeException, SecoreException {
         try {
@@ -362,14 +383,19 @@ public class DbMetadataSource implements IMetadataSource {
         this.url = url;
         this.user = user;
         this.pass = pass;
+        this.checkAtInit = checkAtInit;
+
+        readStaticTables();
+    }
+
+    /**
+     * Read and cache static information from the database.
+     * @throws PetascopeException
+     * @throws SecoreException
+     */
+    private void readStaticTables() throws PetascopeException, SecoreException {
         Statement s = null;
-
         try {
-
-            /*
-             *  Read contents of static metadata tables
-             */
-
             ensureConnection();
             s = conn.createStatement();
             String sqlQuery; // buffer for SQL queries
@@ -626,9 +652,7 @@ public class DbMetadataSource implements IMetadataSource {
 
             // End of session
             s.close();
-
-            /* Check CoverageMetadata consistency at startup, if needed */
-            this.checkAtInit = checkAtInit;
+            s = null;
 
             if (checkAtInit) {
                 initializing = true;
@@ -644,32 +668,12 @@ public class DbMetadataSource implements IMetadataSource {
                 initializing = false;
             }
 
-        } catch (SecoreException sEx) {
-            throw sEx;
-        } catch (PetascopeException pEx) {
-            throw pEx;
         } catch (SQLException sqle) {
-            if (s != null) {
-                try {
-                    s.close();
-                } catch (SQLException e) {
-                }
-            }
-
-            close();
-
+            closeConnection(s);
             throw new PetascopeException(ExceptionCode.ResourceError,
-                    "Metadata database error", sqle);
-        }
-    }
-
-    public void close() {
-        if (conn != null) {
-            try {
-                conn.close();
-            } catch (SQLException sqle) {
-            }
-            conn = null;
+                    "Metadata database error while reading static database information.", sqle);
+        } finally {
+            closeStatement(s);
         }
     }
 
@@ -699,20 +703,15 @@ public class DbMetadataSource implements IMetadataSource {
                 coverages.add(r.getString(COVERAGE_NAME));
             }
             s.close();
+            s = null;
 
             return coverages;
         } catch (SQLException sqle) {
-            if (s != null) {
-                try {
-                    s.close();
-                } catch (SQLException f) {
-                }
-            }
-
-            close();
-
+            closeConnection(s);
             throw new PetascopeException(ExceptionCode.ResourceError,
-                    "Metadata database error", sqle);
+                    "Metadata database error while getting a list of the coverages.", sqle);
+        } finally {
+            closeStatement(s);
         }
     }
 
@@ -743,13 +742,7 @@ public class DbMetadataSource implements IMetadataSource {
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Error retrieving type for coverage " + coverageId, sqle);
         } finally {
-            if (s != null) {
-                try {
-                    s.close();
-                } catch (SQLException f) {
-                }
-            }
-            close();
+            closeStatement(s);
         }
     }
 
@@ -760,6 +753,7 @@ public class DbMetadataSource implements IMetadataSource {
      * @throws PetascopeException
      */
     public Integer coverageID(String coverageName) throws PetascopeException {
+        Integer ret = null;
         Statement s = null;
         try {
             ensureConnection();
@@ -771,23 +765,24 @@ public class DbMetadataSource implements IMetadataSource {
                     ;
             log.debug("SQL query: " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
+
             if (r.next()) {
-                return r.getInt(COVERAGE_ID);
+                ret = r.getInt(COVERAGE_ID);
             }
-            throw new PetascopeException(ExceptionCode.NoSuchCoverage.locator(coverageName),
-                    "Error getting coverageID.");
+            s.close();
+            s = null;
         } catch (SQLException sqle) {
+            closeConnection(s);
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Error retrieving ID for coverage " + coverageName, sqle);
         } finally {
-            if (s != null) {
-                try {
-                    s.close();
-                } catch (SQLException f) {
-                }
-            }
-            close();
+            closeStatement(s);
         }
+        if (ret == null) {
+            throw new PetascopeException(ExceptionCode.NoSuchCoverage.locator(coverageName),
+                    "Error getting coverageID.");
+        }
+        return ret;
     }
 
     /**
@@ -813,7 +808,7 @@ public class DbMetadataSource implements IMetadataSource {
 
         log.debug("Reading metadata for coverage '{}'", coverageName);
 
-        if ((coverageName == null) || coverageName.equals("")) {
+        if (coverageName == null || coverageName.equals("")) {
             throw new PetascopeException(ExceptionCode.InvalidRequest,
                     "Cannot retrieve coverage with null or empty name");
         }
@@ -1287,8 +1282,9 @@ public class DbMetadataSource implements IMetadataSource {
                         rangeElementsQuantities, lowerLeft, upperRight);
 
                 cache.put(coverageName, covMeta);
+                s.close();
+                s = null;
                 return covMeta;
-
             } else {
                 // TODO manage Multi*Coverage alternatives
                 throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
@@ -1297,27 +1293,26 @@ public class DbMetadataSource implements IMetadataSource {
 
         } catch (SecoreException sEx) {
             log.error("Error while parsing the CRS definitions to SECORE (" + ConfigManager.SECORE_URLS + ").");
+            closeConnection(s);
             throw sEx;
         } catch (PetascopeException ime) {
-            log.error("Failed reading metadata", ime);
+            log.error("Failed reading the coverage metadata", ime);
             ime.printStackTrace();
+            closeConnection(s);
             if (checkAtInit && !initializing) {
                 throw new PetascopeException(ExceptionCode.ResourceError,
-                        "Previously valid metadata is now invalid. The metadata for coverage '" + coverageName + "' has been modified incorrectly.", ime);
+                        "Previously valid metadata is now invalid. The metadata for coverage '" +
+                                coverageName + "' has been modified incorrectly.", ime);
             } else {
                 throw ime;
             }
         } catch (SQLException sqle) {
-            log.error("Failed reading metadata", sqle);
-            if (s != null) {
-                try {
-                    s.close();
-                } catch (SQLException f) {
-                }
-            }
-            close();
+            log.error("Failed reading the coverage metadata", sqle);
+            closeConnection(s);
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error", sqle);
+        } finally {
+            closeStatement(s);
         }
     }
 
@@ -1337,112 +1332,6 @@ public class DbMetadataSource implements IMetadataSource {
             insertNewCoverageMetadata(meta, commit);
         }
     }*/
-    public void delete(CoverageMetadata meta, boolean commit) throws PetascopeException {
-        String coverageName = meta.getCoverageName();
-        if (existsCoverageName(coverageName) == false) {
-            throw new PetascopeException(ExceptionCode.ResourceError,
-                    "Cannot delete inexistent coverage: " + coverageName);
-        }
-
-        /* Delete main coverage entry from "PS_Coverage". Auxiliary metadata are
-         * automatically deleted by the DB (via CASCADING) on
-         * deletion of the main entry in ps_coverage */
-        Statement s = null;
-        try {
-            s = conn.createStatement();
-            String sqlQuery =
-                    "DELETE FROM " + TABLE_COVERAGE +
-                    " WHERE "      + COVERAGE_NAME  + "='" + coverageName + "'"
-                    ;
-            log.debug("SQL query : " + sqlQuery);
-            setQuery(sqlQuery);
-            int count = s.executeUpdate(query);
-            log.trace("Affected rows: " + count);
-            s.close();
-
-            if (commit) {
-                commitAndClose();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                s.close();
-            } catch (Exception e) {
-            }
-        }
-    }
-
-    /**
-     * Check if there is metadata available for a given coverage name
-     * @param name coverage name
-     * @return true is coverage already exists
-     */
-    public boolean existsCoverageName(String name) {
-        boolean result = false;
-        Statement s = null;
-        try {
-            ensureConnection();
-            s = conn.createStatement();
-            String sqlQuery =
-                    "SELECT * FROM " + TABLE_COVERAGE +
-                    " WHERE " + COVERAGE_NAME + "='" + name + "'"
-                    ;
-            log.debug("SQL query : " + sqlQuery);
-            setQuery(sqlQuery);
-            ResultSet r = s.executeQuery(query);
-            if (r.next()) {
-                result = true;
-            } else {
-                result = false;
-            }
-            s.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                s.close();
-            } catch (Exception e) {
-            }
-        }
-        return result;
-    }
-
-    /**
-     * Check if there exists a coverage with a given ID in the metadata database.
-     * @param id coverage id
-     * @return true is coverage already exists
-     */
-    private boolean existsCoverageId(int id) {
-        boolean result = false;
-        Statement s = null;
-        try {
-            s = conn.createStatement();
-            String sqlQuery =
-                    "SELECT * FROM " + TABLE_COVERAGE +
-                           " WHERE " + COVERAGE_ID    + "='" + id + "'"
-                    ;
-            log.debug("SQL query : " + sqlQuery);
-            ResultSet r = s.executeQuery(sqlQuery);
-            if (r.next()) {
-                result = true;
-            } else {
-                result = false;
-            }
-            s.close();
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            e.printStackTrace();
-        } finally {
-            try {
-                s.close();
-            } catch (Exception e) {
-                log.error(e.getMessage());
-            }
-        }
-        log.trace("Coverage with ID " + id + (result == false ? " does not " : "") + " exists.");
-        return result;
-    }
 
     /** Update metadata for an existing coverage.
      * All information may change (including name), but the ID of the tuple in PS_Coverage will stay the same.
@@ -1465,44 +1354,76 @@ public class DbMetadataSource implements IMetadataSource {
     // ...
     //}
 
-    public void ensureConnection() throws SQLException {
-        synchronized (this) {
-            //          if( connection == null || !connection.isValid( CONNECTION_TIMEOUT ) ) { // Not implemented by PostgreSQL yet.
-            if ((conn == null) || conn.isClosed()) {
-                //                log.trace("*** Opening new DB connection...");
-                close();
-                openConnection();
-                //                log.trace("*** ok.");
+    /**
+     * Delete a coverage from the database.
+     * @param meta
+     * @param commit
+     * @throws PetascopeException
+     */
+    public void delete(CoverageMetadata meta, boolean commit) throws PetascopeException {
+        String coverageName = meta.getCoverageName();
+        if (existsCoverageName(coverageName) == false) {
+            throw new PetascopeException(ExceptionCode.ResourceError,
+                    "Cannot delete inexistent coverage: " + coverageName);
+        }
+
+        /* Delete main coverage entry from "PS_Coverage". Auxiliary metadata are
+         * automatically deleted by the DB (via CASCADING) on
+         * deletion of the main entry in ps_coverage */
+        Statement s = null;
+        try {
+            s = conn.createStatement();
+            String sqlQuery =
+                    "DELETE FROM " + TABLE_COVERAGE +
+                    " WHERE "      + COVERAGE_NAME  + "='" + coverageName + "'"
+                    ;
+            log.debug("SQL query : " + sqlQuery);
+            int count = s.executeUpdate(sqlQuery);
+            log.trace("Affected rows: " + count);
+            s.close();
+            s = null;
+
+            if (commit) {
+                commitAndClose();
             }
+        } catch (SQLException e) {
+            closeConnection(s);
+        } finally {
+            closeStatement(s);
         }
     }
 
-    public void openConnection() throws SQLException {
-        conn = DriverManager.getConnection(url, user, pass);
-        conn.setAutoCommit(false);
-        savepoint = conn.setSavepoint();
-    }
-
-    public void abortAndClose() throws SQLException {
-        if (conn != null) {
-            conn.rollback(savepoint);
-            conn.close();
-            conn = null;
+    /**
+     * Check if there is metadata available for a given coverage name
+     * @param name coverage name
+     * @return true is coverage already exists
+     */
+    public boolean existsCoverageName(String name) {
+        boolean result = false;
+        Statement s = null;
+        try {
+            ensureConnection();
+            s = conn.createStatement();
+            String sqlQuery =
+                    "SELECT * FROM " + TABLE_COVERAGE +
+                    " WHERE " + COVERAGE_NAME + "='" + name + "'"
+                    ;
+            log.debug("SQL query : " + sqlQuery);
+            ResultSet r = s.executeQuery(sqlQuery);
+            if (r.next()) {
+                result = true;
+            } else {
+                result = false;
+            }
+            s.close();
+            s = null;
+        } catch (SQLException e) {
+            log.error("Database error while checking if coverage " + name + " exists.", e);
+            closeConnection(s);
+        } finally {
+            closeStatement(s);
         }
-    }
-
-    public void commitAndClose() throws SQLException {
-        if (conn != null) {
-            conn.commit();
-            conn.close();
-            conn = null;
-        }
-    }
-
-    /* Logging function for SQL queries. */
-    private void setQuery(String q) {
-        this.query = q;
-        log.trace("SQL Query: {}", q);
+        return result;
     }
 
     /* Returns the available formatToMimetype formats, as stored in the metadata database */
@@ -1675,6 +1596,7 @@ public class DbMetadataSource implements IMetadataSource {
             }
 
             s.close();
+            s = null;
 
             members[0] = pointMembers.toString();
             members[1] = rangeMembers.toString();
@@ -1682,17 +1604,11 @@ public class DbMetadataSource implements IMetadataSource {
             return members;
 
         } catch (SQLException sqle) {
-            if (s != null) {
-                try {
-                    s.close();
-                } catch (SQLException f) {
-                }
-            }
-
-            close();
-
+            closeConnection(s);
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error", sqle);
+        } finally {
+            closeStatement(s);
         }
     }
 
@@ -1754,20 +1670,22 @@ public class DbMetadataSource implements IMetadataSource {
             }
 
             s.close();
+            s = null;
+
             return outCells;
 
         } catch (SQLException sqle) {
             /* Abort this transaction */
             try {
-                if (s != null) {
-                    s.close();
-                }
+                closeStatement(s);
                 abortAndClose();
             } catch (SQLException f) {
                 log.warn(f.getMessage());
             }
             throw new PetascopeException(ExceptionCode.InvalidRequest,
                     "Metadata database error", sqle);
+        } finally {
+            closeStatement(s);
         }
     }
 
@@ -1818,23 +1736,25 @@ public class DbMetadataSource implements IMetadataSource {
                     coefficients.add(rs.getBigDecimal(2));
                 }
 
-                s.close();
                 Arrays.sort(coefficients.toArray());
             }
+            s.close();
+            s = null;
+
             return coefficients;
 
         } catch (SQLException sqle) {
             /* Abort this transaction */
             try {
-                if (s != null) {
-                    s.close();
-                }
+                closeStatement(s);
                 abortAndClose();
             } catch (SQLException f) {
                 log.warn(f.getMessage());
             }
             throw new PetascopeException(ExceptionCode.InvalidRequest,
                     "Metadata database error", sqle);
+        } finally {
+            closeStatement(s);
         }
     }
 
@@ -1878,70 +1798,25 @@ public class DbMetadataSource implements IMetadataSource {
                     coefficients.add(rs.getBigDecimal(2));
                 }
 
-                s.close();
                 Arrays.sort(coefficients.toArray());
             }
-            return coefficients;
+            s.close();
+            s = null;
 
+            return coefficients;
         } catch (SQLException sqle) {
             /* Abort this transaction */
             try {
-                if (s != null) {
-                    s.close();
-                }
+                closeStatement(s);
                 abortAndClose();
             } catch (SQLException f) {
                 log.warn(f.getMessage());
             }
             throw new PetascopeException(ExceptionCode.InvalidRequest,
                     "Metadata database error", sqle);
+        } finally {
+            closeStatement(s);
         }
-    }
-
-    /**
-     * Get the lower and upper bound of the specified coverage's dimension in pixel coordinates.
-     * PURPOSE: remove redundant pixel-domain dimensions info in the petascopedb.
-     * @param collName     The collection name
-     * @param collOid      The OID of the collection
-     * @param rasdamanAxisOrder The order of the axis to be looked for
-     * @return             The minimum and maximum pixel values of the array.
-     * @throws PetascopeException
-     */
-    public Pair<String, String> getIndexDomain(String collName, BigInteger collOid, int rasdamanAxisOrder) throws PetascopeException {
-
-        // Run RasQL query
-        Object obj = null;
-        String rasQuery =
-                RASQL_SELECT + " " + RASQL_SDOM + "(c)["   + rasdamanAxisOrder + "]" +
-                RASQL_FROM   + " " + collName + " " + RASQL_AS + " c " +
-                RASQL_WHERE  + " " + RASQL_OID + "(c) = " + collOid
-                ;
-        log.debug("RasQL query : " + rasQuery);
-        try {
-            obj = RasUtil.executeRasqlQuery(rasQuery);
-        } catch (RasdamanException ex) {
-            throw new PetascopeException(ExceptionCode.InternalComponentError, "Error while executing RasQL query", ex);
-        }
-
-        // Parse the result
-        Pair<String, String> bounds = Pair.of("","");
-        if (obj != null) {
-            RasQueryResult res = new RasQueryResult(obj);
-            if (!res.getScalars().isEmpty()) {
-                // TODO: can be done better with Minterval instead of sdom2bounds
-                bounds = Pair.of(
-                        res.getScalars().get(0).split(":")[0],
-                        res.getScalars().get(0).split(":")[1]);
-            } else {
-                log.error("Marray " + collOid + " of collection " + collName + " was not found.");
-                throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                        "Marray " + collOid + " of collection " + collName + " was not found: wrong OID in " + TABLE_RASDAMAN_COLLECTION + "?");
-            }
-        } else {
-            log.error("Empty response from rasdaman.");
-            throw new PetascopeException(ExceptionCode.RasdamanError, "Empty response from rasdaman.");
-        }
-        return bounds;
     }
 
     /**
@@ -2000,19 +1875,18 @@ public class DbMetadataSource implements IMetadataSource {
             log.debug("PostGIS Query: " + postGisQuery);
             s = conn.createStatement();
             r = s.executeQuery(postGisQuery);
-
         } catch (SQLException sqle) {
             /* Abort this transaction */
             try {
-                if (s != null) {
-                    s.close();
-                }
+                closeStatement(s);
                 abortAndClose();
             } catch (SQLException f) {
             }
 
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error", sqle);
+        } finally {
+            closeStatement(s);
         }
         return r;
     }
@@ -2148,9 +2022,11 @@ public class DbMetadataSource implements IMetadataSource {
         if (r.next()) {
             count = r.getInt(1);
         } else {
+            closeStatement(s);
             throw new PetascopeException(ExceptionCode.InternalSqlError,
                     "No tuples returned while counting tables with pattern " + iPattern);
         }
+        closeStatement(s);
 
         return count;
     }
@@ -2265,6 +2141,7 @@ public class DbMetadataSource implements IMetadataSource {
             log.debug("SQL query: " + sqlQuery);
             rSwe = s.executeQuery(sqlQuery);
             if (!rSwe.next()) {
+                closeStatement(s);
                 throw new WCSException(ExceptionCode.InvalidServiceConfiguration,
                         "No SWE quantities stored in the database.");
             }
@@ -2294,17 +2171,101 @@ public class DbMetadataSource implements IMetadataSource {
                     allowedValues
                     );
 
+            s.close();
+            s = null;
+
         } catch (SQLException sqle) {
+            closeStatement(s);
             throw new WCSException(ExceptionCode.ResourceError,
                     "Error retrieving Quantity with id " + quantityId, sqle);
         } finally {
-            if (s != null) {
-                try {
-                    s.close();
-                } catch (SQLException f) {}
-            }
+            closeStatement(s);
         }
 
         return sweQuantity;
+    }
+
+    /**
+     * -----------------------------
+     * Connection management helpers
+     * -----------------------------
+     */
+
+    /**
+     * Open the connection if it isn't already.
+     */
+    public void ensureConnection() throws SQLException {
+        synchronized (this) {
+            if (conn == null || conn.isClosed()) {
+                openConnection();
+            }
+        }
+    }
+
+    /**
+     * Open connection; no checks are performed here.
+     */
+    public void openConnection() throws SQLException {
+        log.trace("Opening database connection to " + user + "@" + url);
+        conn = DriverManager.getConnection(url, user, pass);
+        conn.setAutoCommit(false);
+        savepoint = conn.setSavepoint();
+    }
+
+    /**
+     * Rollback to previous savepoint and close connection.
+     */
+    public void abortAndClose() throws SQLException {
+        if (conn != null) {
+            conn.rollback(savepoint);
+            conn.close();
+            conn = null;
+        }
+    }
+
+    /**
+     * Commit and close connection.
+     */
+    public void commitAndClose() throws SQLException {
+        if (conn != null) {
+            conn.commit();
+            conn.close();
+            conn = null;
+        }
+    }
+
+    /**
+     * Safe connection closing.
+     */
+    public void closeConnection() {
+        if (conn != null) {
+            try {
+                log.trace("Closing database connection.");
+                conn.close();
+            } catch (SQLException sqle) {
+                log.warn("Failed closing database connection.", sqle);
+            }
+            conn = null;
+        }
+    }
+
+    /**
+     * Safe connection and statement closing.
+     */
+    public void closeConnection(Statement s) {
+        closeStatement(s);
+        closeConnection();
+    }
+
+    /**
+     * Safe connection and statement closing.
+     */
+    public void closeStatement(Statement s) {
+        if (s != null) {
+            try {
+                s.close();
+            } catch (SQLException ex) {
+            }
+        }
     }
 }

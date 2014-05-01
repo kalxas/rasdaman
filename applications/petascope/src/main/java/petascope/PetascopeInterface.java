@@ -78,7 +78,6 @@ import petascope.wcs2.extensions.ProtocolExtension;
 import petascope.wcs2.extensions.RESTProtocolExtension;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.handlers.Response;
-import petascope.wcs2.parsers.BaseRequest;
 import petascope.wcs2.templates.Templates;
 import petascope.wcst.server.WcstServer;
 
@@ -183,9 +182,20 @@ public class PetascopeInterface extends HttpServlet {
             throw new ServletException("WCS-T initialization error", e);
         }
 
+        meta.closeConnection();
+
         log.info("-----------------------------------------------");
         log.info("      PetaScope {} successfully started      ", ConfigManager.PETASCOPE_VERSION);
         log.info("-----------------------------------------------");
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        if (meta != null) {
+            meta.closeConnection();
+            meta.clearCache();
+        }
     }
 
     /* Build a dictionary of parameter names and values, given a request string */
@@ -244,6 +254,8 @@ public class PetascopeInterface extends HttpServlet {
         /* Process the request */
         try {
             try {
+                meta.ensureConnection();
+
                 httpResponse.setHeader("Access-Control-Allow-Origin", CORS_ACCESS_CONTROL_ALLOW_ORIGIN);
 
                 requestBody = IOUtils.toString(httpRequest.getReader());
@@ -415,10 +427,18 @@ public class PetascopeInterface extends HttpServlet {
                 log.error("Runtime error : {}", e.getMessage());
                 throw new WCSException(ExceptionCode.RuntimeError,
                         "Runtime error while processing request: " + e.getMessage(), e);
+            } finally {
+                if (meta != null) {
+                    meta.closeConnection();
+                }
             }
         } // And catch all WCSExceptions, to display to the client
         catch (WCSException e) {
             printError(httpResponse, request, e);
+        } finally {
+            if (meta != null) {
+                meta.closeConnection();
+            }
         }
     }
 

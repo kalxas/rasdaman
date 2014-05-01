@@ -73,27 +73,26 @@ public class WcpsServlet extends HttpServlet {
             String confDir = this.getServletContext().getInitParameter(ConfigManager.CONF_DIR);
             ConfigManager.getInstance(confDir);
 
-            System.out.println("WCPS: initializing metadata database");
+            log.info("WCPS: initializing metadata database");
             meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
                     ConfigManager.METADATA_URL,
                     ConfigManager.METADATA_USER,
                     ConfigManager.METADATA_PASS, false);
-            System.out.println("WCPS: initializing WCPS core");
+            log.info("WCPS: initializing WCPS core");
 
             servletHtmlPath = getServletContext().getRealPath(servletHtmlPath);
             defaultHtmlResponse = FileUtils.readFileToString(new File(servletHtmlPath));
 
-            System.out.println("WCPS: initialization complete");
+            log.info("WCPS: initialization complete");
         } catch (Exception e) {
-            System.out.println("WCPS: initialization error");
-            System.out.println("WCPS: closing metadata database");
-
-            if (meta != null) {
-                meta.close();
-            }
-
-            System.out.println("WCPS: done with init error");
+            log.error("WCPS: initialization error", e);
+            log.error("WCPS: closing metadata database");
+            log.error("WCPS: done with init error");
             throw new ServletException("WCPS initialization error", e);
+        } finally {
+            if (meta != null) {
+                meta.closeConnection();
+            }
         }
     }
 
@@ -114,9 +113,9 @@ public class WcpsServlet extends HttpServlet {
         Wcps wcps;
 
         try{
+            meta.ensureConnection();
             wcps = new Wcps(new File(getServletContext().getRealPath(WCPS_PROCESS_COVERAGE_XSD)), meta);
-        }catch (Exception e) {
-
+        } catch (Exception e) {
             throw new ServletException("Error initializing WCPS",e);
         }
 
@@ -243,13 +242,19 @@ public class WcpsServlet extends HttpServlet {
                 } catch (IOException e) {
                 }
             }
+            if (meta != null) {
+                meta.closeConnection();
+            }
         }
     }
 
     @Override
     public void destroy() {
         super.destroy();
-
+        if (meta != null) {
+            meta.clearCache();
+            meta.closeConnection();
+        }
     }
 
     @Override
