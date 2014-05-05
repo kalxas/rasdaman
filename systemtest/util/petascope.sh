@@ -644,6 +644,53 @@ function import_mst()
 #
 # import 4D floating-point data
 #
+function import_double_1d()
+{
+  c=$COLL
+
+  c_colltype='DoubleSet1'
+  c_basetype='double'
+  c_rangetype='double'
+  c_covtype='GridCoverage'
+
+  c_band='value'
+
+  #
+  # START
+  #
+
+  $RASQL -q "create collection $c $c_colltype" > /dev/null || exit $RC_ERROR
+  $RASQL -q "insert into $c values marray i in [0:20] values (double)(i / 2)" > /dev/null || exit $RC_ERROR
+
+  # general coverage information (name, type, ...)
+  $PSQL -c "INSERT INTO ps_coverage (name, gml_type_id, native_format_id) \
+            VALUES ('$c', (SELECT id FROM ps_gml_subtype WHERE subtype='$c_covtype'), \
+            (SELECT id FROM ps_mime_type WHERE mime_type='application/x-octet-stream'));" > /dev/null || exit $RC_ERROR
+
+  # get the coverage id
+  c_id=$($PSQL -c  "SELECT id FROM ps_coverage WHERE name = '$c' " | head -3 | tail -1) > /dev/null || exit $RC_ERROR
+
+  # get the collection OID (note: take the first OID)
+  c_oid=$($RASQL -q "select oid(m) from $c as m" --out string | grep ' 1:' | awk -F ':' '{print $2}' | tr -d ' \n') > /dev/null || exit $RC_ERROR
+
+  # range set: link the coverage to the rasdaman collection
+  $PSQL -c "INSERT INTO ps_rasdaman_collection (name, oid) VALUES ('$c', $c_oid);" > /dev/null
+  $PSQL -c "INSERT INTO ps_range_set (coverage_id, storage_id) VALUES (\
+              (SELECT id FROM ps_coverage WHERE name='$c'), \
+              (SELECT id FROM ps_rasdaman_collection WHERE name='$c'));" > /dev/null || exit $RC_ERROR
+
+  # describe the datatype of the coverage cell values (range type)
+  # note: assign dimensionless quantity
+  $PSQL -c "INSERT INTO ps_range_type_component (coverage_id, name, component_order, data_type_id, field_id) VALUES (\
+              $c_id, '$c_band', 0, \
+              (SELECT id FROM ps_range_data_type WHERE name='$c_rangetype'), \
+              (SELECT id FROM ps_quantity WHERE label='$c_rangetype' AND description='primitive' LIMIT 1));" > /dev/null || exit $RC_ERROR
+}
+
+# ------------------------------------------------------------------------------
+#
+# import 4D floating-point data
+#
 function import_float_4d()
 {
   c=$COLL
@@ -714,7 +761,7 @@ function import_petascope_data()
   if [ $res -eq 0 ]; then
     multi_coll="Parksmall"
   fi
-  COLLECTIONS="rgb mr eobstest mean_summer_airtemp mean_summer_airtemp_repeat float_4d irr_cube_1 irr_cube_2 $multi_coll"
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp mean_summer_airtemp_repeat float_4d double_1d irr_cube_1 irr_cube_2 $multi_coll"
   for COLL in $COLLECTIONS; do
     check_cov $COLL
     if [ $? -ne 0 ]; then
@@ -735,6 +782,8 @@ function import_petascope_data()
           import_mst "$TESTDATA_PATH" && break
         elif [ "$COLL" == "float_4d" ]; then
           import_float_4d "$TESTDATA_PATH" && break
+        elif [ "$COLL" == "double_1d" ]; then
+          import_double_1d "$TESTDATA_PATH" && break
         elif [ "$COLL" == "irr_cube_1" ]; then
           import_irr_cube_1 "$TESTDATA_PATH" && break
         elif [ "$COLL" == "irr_cube_2" ]; then
@@ -763,7 +812,7 @@ function drop_petascope_data()
   if [ $res -eq 0 ]; then
     multi_coll="Parksmall"
   fi
-  COLLECTIONS="rgb mr eobstest mean_summer_airtemp mean_summer_airtemp_repeat float_4d irr_cube_1 irr_cube_2 $multi_coll"
+  COLLECTIONS="rgb mr eobstest mean_summer_airtemp mean_summer_airtemp_repeat float_4d double_1d irr_cube_1 irr_cube_2 $multi_coll"
   drop_petascope $COLLECTIONS
   drop_colls $COLLECTIONS
   log "dropping wms..."

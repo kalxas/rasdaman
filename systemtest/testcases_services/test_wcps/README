@@ -69,6 +69,7 @@ The following coverages are available for the tests:
 +--------------+-----+-------+-----------------+------------+-----------------+-----------------+-----------+
 | coverage     | dim | type  | pixel extent    |    axes    | geo-boundingbox |  time extension |   CRS     |
 +--------------+-----+-------+-----------------+------------+-----------------+-----------------+-----------+
+| double_1d    | 1D  | double| 0:20            | 0          |        -        |         -       | CRS:1     |
 | rgb          | 2D  | rgb   | 0:399,0:343     | i/j        |        -        |         -       | Index2D   |
 |              |     |       |                 |            |                 |         -       |           |
 | mr           | 2D  | char  | 0:255,0:210     | i/j        |        -        |         -       | Index2D   |
@@ -83,6 +84,8 @@ The following coverages are available for the tests:
 |              |     |       |                 |            | 5094865.557938- |  -> 2008-01-08  | + ANSI    |
 |              |     |       |                 |            |705042.72735943, |                 |           |
 |              |     |       |                 |            |5454865.5579385  |                 |           |
+| float_4d     | 4D  | float | 0:0,0:0,        | 0,1,2,3    |        -        |         -       | CRS:1     |
+|              |     |       | 0:39,-20:19     |            |                 |                 |           |
 +--------------+-----+-------+-----------------+------------+-----------------+-----------------+-----------+
 
 These coverages are automatically inserted if necessary.
