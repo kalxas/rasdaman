@@ -232,6 +232,9 @@ void RnpRasDaManComm::checkForTimeout()
 void RnpRasDaManComm::decodeFragment() throw( r_Error )
 {
     ENTER( "RnpRasDaManComm::decodeFragment" );
+#ifdef RMANBENCHMARK
+    RMTimer requestTime("RnpRasDaManComm","request");
+#endif
 
     try // somewhere during cmd execution there can be exceptions; we pass them thru
     {
@@ -367,6 +370,11 @@ void RnpRasDaManComm::decodeFragment() throw( r_Error )
         }
 
         clientTimer.markAction();
+#ifdef RMANBENCHMARK
+        RMInit::logOut << now() << " request " << hook->getCommandName(command) << " completed in "
+                    << requestTime.getTime() << " usecs." << endl;
+#endif
+
     }
     catch (r_Error &e)          // any rasdaman error is passed through
     {
