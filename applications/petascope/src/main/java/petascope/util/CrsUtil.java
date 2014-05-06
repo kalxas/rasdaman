@@ -48,12 +48,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import static petascope.util.StringUtil.ENCODING_UTF8;
 import petascope.wcps.server.core.CellDomainElement;
-import petascope.wcps.server.core.CoverageExpr;
-import petascope.wcps.server.core.CoverageInfo;
 import petascope.wcps.server.core.DomainElement;
-import petascope.wcps.server.core.ExtendCoverageExpr;
-import petascope.wcps.server.core.IRasNode;
-import petascope.wcps.server.core.TrimCoverageExpr;
 
 /**
  * Coordinates transformation utility in case a spatial reprojection
@@ -915,8 +910,8 @@ public class CrsUtil {
                 // TODO: enable negative directions in time axis too (dom.isPositiveForwards())
                 if (subsetWithTimestamps) {
                     // Need to convert timestamps to TemporalCRS numeric coordinates
-                    Double numLo = TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, dom.getScalarResolution().doubleValue());
-                    Double numHi = TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, dom.getScalarResolution().doubleValue());
+                    Double numLo = TimeUtil.countOffsets(datumOrigin, stringLo, axisUoM, 1D); // do not normalize by vector here:
+                    Double numHi = TimeUtil.countOffsets(datumOrigin, stringHi, axisUoM, 1D); // absolute time coords needed
 
                     // Consistency check
                     if (numHi < domMin.doubleValue() || numLo > domMax.doubleValue()) {
