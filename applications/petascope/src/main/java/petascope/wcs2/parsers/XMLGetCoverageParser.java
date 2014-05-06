@@ -40,6 +40,7 @@ import static petascope.util.XMLSymbols.*;
 import petascope.util.XMLUtil;
 import static petascope.util.XMLUtil.*;
 import petascope.wcs2.extensions.FormatExtension;
+import petascope.wcs2.extensions.InterpolationExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
 import petascope.wcs2.extensions.ScalingExtension;
 import petascope.wcs2.handlers.RequestHandler;
@@ -168,6 +169,8 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                 RangeSubsettingExtension.parseGetCoverageXMLRequest(gcRequest, currentElem);
             } else if (ScalingExtension.isXMLScalingExtension(currentElem.getLocalName())) {
                 ScalingExtension.parseGetCoverageXMLRequest(gcRequest, currentElem);
+            } else if (InterpolationExtension.isXMLInterpolationExtension(currentElem.getLocalName())) {
+                InterpolationExtension.parseGetCoverageXMLRequest(gcRequest, currentElem);
             }
         }
     }

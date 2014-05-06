@@ -28,25 +28,26 @@ package petascope.util;
  */
 public interface KVPSymbols {
 
-    String KEY_ACCEPTFORMATS       = "acceptformats";
-    String KEY_ACCEPTLANGUAGES     = "acceptlanguages";
-    String KEY_ACCEPTVERSIONS      = "acceptversions";
-    String KEY_COVERAGEID          = "coverageid";
-    String KEY_FORMAT              = "format";
-    String KEY_MEDIATYPE           = "mediatype";
-    String KEY_RANGESUBSET         = "rangesubset";
-    String KEY_REQUEST             = "request";
-    String KEY_SCALEAXES           = "scaleaxes";
-    String KEY_SCALEEXTENT         = "scaleextent";
-    String KEY_SCALEFACTOR         = "scalefactor";
-    String KEY_SCALESIZE           = "scalesize";
-    String KEY_SERVICE             = "service";
-    String KEY_SUBSET              = "subset";
-    String KEY_VERSION             = "version";
-    String VERSIONS_SEP            = ",";
+    public static final String KEY_ACCEPTFORMATS       = "acceptformats";
+    public static final String KEY_ACCEPTLANGUAGES     = "acceptlanguages";
+    public static final String KEY_ACCEPTVERSIONS      = "acceptversions";
+    public static final String KEY_COVERAGEID          = "coverageid";
+    public static final String KEY_FORMAT              = "format";
+    public static final String KEY_INTERPOLATION       = "interpolation";
+    public static final String KEY_MEDIATYPE           = "mediatype";
+    public static final String KEY_RANGESUBSET         = "rangesubset";
+    public static final String KEY_REQUEST             = "request";
+    public static final String KEY_SCALEAXES           = "scaleaxes";
+    public static final String KEY_SCALEEXTENT         = "scaleextent";
+    public static final String KEY_SCALEFACTOR         = "scalefactor";
+    public static final String KEY_SCALESIZE           = "scalesize";
+    public static final String KEY_SERVICE             = "service";
+    public static final String KEY_SUBSET              = "subset";
+    public static final String KEY_VERSION             = "version";
+    public static final String VERSIONS_SEP            = ",";
 
     // rasql KVP
-    String KEY_PASSWORD = "password";
-    String KEY_QUERY = "query";
-    String KEY_USERNAME = "username";
+    public static final String KEY_PASSWORD = "password";
+    public static final String KEY_QUERY    = "query";
+    public static final String KEY_USERNAME = "username";
 }

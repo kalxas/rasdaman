@@ -50,7 +50,9 @@ import petascope.wcps.server.core.Bbox;
 import petascope.wcs2.Wcs2Servlet;
 import petascope.wcs2.extensions.Extension;
 import petascope.wcs2.extensions.ExtensionsRegistry;
+import static petascope.wcs2.extensions.ExtensionsRegistry.INTERPOLATION_IDENTIFIER;
 import petascope.wcs2.extensions.FormatExtension;
+import petascope.wcs2.extensions.InterpolationExtension;
 import petascope.wcs2.parsers.GetCapabilitiesRequest;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
@@ -257,7 +259,20 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         //
         Element serviceMetadata = Templates.getXmlTemplate(Templates.SERVICE_METADATA);
         if (serviceMetadata != null) {
-            // add supported formats
+            // add supported INTERPOLATION types [OGC 12-049]
+            //: requirements #2, #3, #4.
+            Element interpolationMetadata = new Element(PREFIX_INT + ":" + LABEL_INTERPOLATION_METADATA, NAMESPACE_INTERPOLATION);
+            InterpolationExtension intExtension = (InterpolationExtension)ExtensionsRegistry.getExtension(INTERPOLATION_IDENTIFIER);
+            for (String supportedInt : intExtension.getSupportedInterpolation()) {
+                Element interpolationSupported = new Element(PREFIX_INT + ":" + LABEL_INTERPOLATION_SUPPORTED, NAMESPACE_INTERPOLATION);
+                interpolationSupported.appendChild(supportedInt);
+                interpolationMetadata.appendChild(interpolationSupported);
+            }
+            // Insert it on top, in case the template already contains some other fixed content
+            serviceMetadata.insertChild(interpolationMetadata, 0);
+            //:~
+
+            // add supported FORMATS
             //: [Req6 /req/core/serviceMetadata-structure]
             //: [Req9 /req/core/formats-supported]
             Set<String> mimeTypes = new HashSet<String>();
@@ -273,7 +288,6 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 serviceMetadata.insertChild(formatSupported, 0);
             }
             //:~
-
             root.appendChild(serviceMetadata.copy());
         }
 

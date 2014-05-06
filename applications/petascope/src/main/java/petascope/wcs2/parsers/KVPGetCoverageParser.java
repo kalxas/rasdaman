@@ -36,6 +36,7 @@ import static petascope.util.KVPSymbols.*;
 import petascope.util.ListUtil;
 import petascope.util.StringUtil;
 import petascope.wcs2.extensions.FormatExtension;
+import petascope.wcs2.extensions.InterpolationExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
 import petascope.wcs2.extensions.ScalingExtension;
 import petascope.wcs2.handlers.RequestHandler;
@@ -90,7 +91,7 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         checkEncodingSyntax(p,
                 KEY_COVERAGEID, KEY_VERSION, KEY_MEDIATYPE, KEY_FORMAT,
                 KEY_SCALEFACTOR, KEY_SCALEAXES, KEY_SCALESIZE, KEY_SCALEEXTENT,
-                KEY_RANGESUBSET);
+                KEY_RANGESUBSET, KEY_INTERPOLATION);
         List<String> coverageIds = p.get(KEY_COVERAGEID); // null if no key
         if (null == coverageIds || coverageIds.size() != 1) {
             throw new WCSException(ExceptionCode.InvalidRequest,
@@ -156,6 +157,10 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
 
         // Parse scaling parameters if any for the Scaling Extension
         ScalingExtension.parseGetCoverageKVPRequest(p, ret);
+
+        // Parse interpolation parameter for the interpolation extension
+        // (now mainly check that, if specified, it is Nearest-Neighbor)
+        InterpolationExtension.parseGetCoverageKVPRequest(p, ret);
 
         return ret;
     }

@@ -193,8 +193,6 @@ public class CoverageMetadata implements Cloneable {
                 if (isIrregular) {
                     // Set the offset vector: DomainElement can compute it only if the axis is regular (max-min/cells)
                     domEl.setScalarResolution(resolution);
-                    // TODO: compute the MIN/MAX values looking at the extreme coefficients
-                    // ...
                 }
             }
             domainElements.add(domEl);

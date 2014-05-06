@@ -49,8 +49,6 @@ import static petascope.util.XMLSymbols.LABEL_SCALING;
 import static petascope.util.XMLSymbols.LABEL_TARGETSIZE;
 import static petascope.util.XMLUtil.ch;
 import static petascope.util.XMLUtil.getText;
-import static petascope.wcs2.extensions.RangeSubsettingExtension.RANGESUBSET_KVP_PARAMNAME;
-import static petascope.wcs2.extensions.RangeSubsettingExtension.RANGESUBSET_KVP_RANGE_SEPARATOR;
 import petascope.wcs2.parsers.GetCoverageRequest;
 
 /**

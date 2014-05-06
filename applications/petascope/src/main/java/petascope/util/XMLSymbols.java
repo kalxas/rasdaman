@@ -54,19 +54,20 @@ public interface XMLSymbols {
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    String PREFIX_XML = "xml";
-    String PREFIX_XMLNS = "xmlns";
-    String PREFIX_GML = "gml";
-    String PREFIX_GMLCOV = "gmlcov";
-    String PREFIX_GMLRGRID = "gmlrgrid";
-    String PREFIX_SWE = "swe";
-    String PREFIX_OWS = "ows";
-    String PREFIX_WCS = "wcs";
-    String PREFIX_WSDL = "wsdl";
-    String PREFIX_XSI = "xsi";
-    String PREFIX_XLINK = "xlink";
-    String PREFIX_CRS = "crs";
-    String PREFIX_PROCESS_COVERAGE = "proc";
+    public static final String PREFIX_XML = "xml";
+    public static final String PREFIX_XMLNS = "xmlns";
+    public static final String PREFIX_GML = "gml";
+    public static final String PREFIX_GMLCOV = "gmlcov";
+    public static final String PREFIX_GMLRGRID = "gmlrgrid";
+    public static final String PREFIX_SWE = "swe";
+    public static final String PREFIX_OWS = "ows";
+    public static final String PREFIX_WCS = "wcs";
+    public static final String PREFIX_WSDL = "wsdl";
+    public static final String PREFIX_XSI = "xsi";
+    public static final String PREFIX_XLINK = "xlink";
+    public static final String PREFIX_CRS = "crs";
+    public static final String PREFIX_PROCESS_COVERAGE = "proc";
+    public static final String PREFIX_INT = "int"; // wcs interpolation
 
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -75,19 +76,20 @@ public interface XMLSymbols {
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    String NAMESPACE_XML = "http://www.w3.org/XML/1998/namespace";
-    String NAMESPACE_GML = "http://www.opengis.net/gml/3.2";
-    String NAMESPACE_GMLCOV = "http://www.opengis.net/gmlcov/1.0";
-    String NAMESPACE_GMLRGRID = "http://www.opengis.net/gml/3.3/rgrid";
-    String NAMESPACE_SWE = "http://www.opengis.net/swe/2.0";
-    String NAMESPACE_OWS = "http://www.opengis.net/ows/2.0";
-    String NAMESPACE_WCS_OLD = "http://www.opengis.net/wcs/1.1";
-    String NAMESPACE_WCS = "http://www.opengis.net/wcs/2.0";
-    String NAMESPACE_WSDL = "http://schemas.xmlsoap.org/wsdl/";
-    String NAMESPACE_XSI = "http://www.w3.org/2001/XMLSchema-instance";
-    String NAMESPACE_XLINK = "http://www.w3.org/1999/xlink";
-    String NAMESPACE_CRS = "http://www.opengis.net/wcs/service-extension/crs/1.0";
-    String NAMESPACE_PROCESS_COVERAGE = "http://www.opengis.net/wcs/processing/2.0";
+    public static final String NAMESPACE_XML = "http://www.w3.org/XML/1998/namespace";
+    public static final String NAMESPACE_GML = "http://www.opengis.net/gml/3.2";
+    public static final String NAMESPACE_GMLCOV = "http://www.opengis.net/gmlcov/1.0";
+    public static final String NAMESPACE_GMLRGRID = "http://www.opengis.net/gml/3.3/rgrid";
+    public static final String NAMESPACE_SWE = "http://www.opengis.net/swe/2.0";
+    public static final String NAMESPACE_OWS = "http://www.opengis.net/ows/2.0";
+    public static final String NAMESPACE_WCS_OLD = "http://www.opengis.net/wcs/1.1";
+    public static final String NAMESPACE_WCS = "http://www.opengis.net/wcs/2.0";
+    public static final String NAMESPACE_WSDL = "http://schemas.xmlsoap.org/wsdl/";
+    public static final String NAMESPACE_XSI = "http://www.w3.org/2001/XMLSchema-instance";
+    public static final String NAMESPACE_XLINK = "http://www.w3.org/1999/xlink";
+    public static final String NAMESPACE_CRS = "http://www.opengis.net/wcs/service-extension/crs/1.0";
+    public static final String NAMESPACE_PROCESS_COVERAGE = "http://www.opengis.net/wcs/processing/2.0";
+    public static final String NAMESPACE_INTERPOLATION = "http://www.opengis.net/wcs/interpolation/1.0";
 
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,158 +99,163 @@ public interface XMLSymbols {
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     // wcs/gml
-    String LABEL_BBOX = "BoundingBox";
-    String LABEL_BOUNDEDBY = "BoundedBy";
-    String LABEL_CAPABILITIES = "Capabilities";
-    String LABEL_CONTENTS = "Contents";
-    String LABEL_COVERAGE_SUMMARY = "CoverageSummary";
-    String LABEL_COVERAGE_ID = "CoverageId";
-    String LABEL_COVERAGE_SUBTYPE = "CoverageSubtype";
-    String LABEL_COVERAGE_SUBTYPE_PARENT = "CoverageSubtypeParent";
-    String LABEL_COVERAGE_DESCRIPTIONS = "CoverageDescriptions";
-    String LABEL_COVERAGE_DESCRIPTION = "CoverageDescription";
-    String LABEL_COVERAGE_FUNCTION = "coverageFunction";
-    String LABEL_DATABLOCK = "DataBlock";
-    String LABEL_DIMENSION = "Dimension";
-    String LABEL_DIMENSION_TRIM = "DimensionTrim";
-    String LABEL_DIMENSION_SLICE = "DimensionSlice";
-    String LABEL_ENVELOPE = "Envelope";
-    String LABEL_FORMAT = "format";
-    String LABEL_MEDIATYPE = "mediaType";
-    String LABEL_PROCESSCOVERAGE_REQUEST = "ProcessCoveragesRequest";
-    String LABEL_RANGEPARAMETERS = "rangeParameters";
-    String LABEL_SERVICE_METADATA = "ServiceMetadata";
-    String LABEL_SLICE_POINT = "SlicePoint";
-    String LABEL_TRANSACTION = "Transaction";
-    String LABEL_TRIM_LOW = "TrimLow";
-    String LABEL_TRIM_HIGH = "TrimHigh";
-    String LABEL_TUPLELIST = "tupleList";
-    String LABEL_WGS84_BBOX = "Wgs84BoundingBox";
-    String LABEL_EXTENSION = "Extension";
-    String LABEL_FORMAT_SUPPORTED = "formatSupported";
+    public static final String LABEL_BBOX = "BoundingBox";
+    public static final String LABEL_BOUNDEDBY = "BoundedBy";
+    public static final String LABEL_CAPABILITIES = "Capabilities";
+    public static final String LABEL_CONTENTS = "Contents";
+    public static final String LABEL_COVERAGE_SUMMARY = "CoverageSummary";
+    public static final String LABEL_COVERAGE_ID = "CoverageId";
+    public static final String LABEL_COVERAGE_SUBTYPE = "CoverageSubtype";
+    public static final String LABEL_COVERAGE_SUBTYPE_PARENT = "CoverageSubtypeParent";
+    public static final String LABEL_COVERAGE_DESCRIPTIONS = "CoverageDescriptions";
+    public static final String LABEL_COVERAGE_DESCRIPTION = "CoverageDescription";
+    public static final String LABEL_COVERAGE_FUNCTION = "coverageFunction";
+    public static final String LABEL_DATABLOCK = "DataBlock";
+    public static final String LABEL_DIMENSION = "Dimension";
+    public static final String LABEL_DIMENSION_TRIM = "DimensionTrim";
+    public static final String LABEL_DIMENSION_SLICE = "DimensionSlice";
+    public static final String LABEL_ENVELOPE = "Envelope";
+    public static final String LABEL_FORMAT = "format";
+    public static final String LABEL_MEDIATYPE = "mediaType";
+    public static final String LABEL_PROCESSCOVERAGE_REQUEST = "ProcessCoveragesRequest";
+    public static final String LABEL_RANGEPARAMETERS = "rangeParameters";
+    public static final String LABEL_SERVICE_METADATA = "ServiceMetadata";
+    public static final String LABEL_SLICE_POINT = "SlicePoint";
+    public static final String LABEL_TRANSACTION = "Transaction";
+    public static final String LABEL_TRIM_LOW = "TrimLow";
+    public static final String LABEL_TRIM_HIGH = "TrimHigh";
+    public static final String LABEL_TUPLELIST = "tupleList";
+    public static final String LABEL_WGS84_BBOX = "Wgs84BoundingBox";
+    public static final String LABEL_EXTENSION = "Extension";
+    public static final String LABEL_FORMAT_SUPPORTED = "formatSupported";
     // wcs scaling extension
-    String LABEL_SCALING = "Scaling";
-    String LABEL_SCALEBYFACTOR = "ScaleByFactor";
-    String LABEL_SCALEAXESBYFACTOR = "ScaleAxesByFactor";
-    String LABEL_SCALETOSIZE = "ScaleToSize";
-    String LABEL_SCALETOEXTENT = "ScaleToExtent";
-    String LABEL_SCALEFACTOR = "scaleFactor";
-    String LABEL_AXIS = "axis";
-    String LABEL_TARGETSIZE = "targetSize";
-    String LABEL_LOW = "low";
-    String LABEL_HIGH = "high";
-    //wcs range subsetting
-    String LABEL_RANGEITEM = "rangeItem";
-    String LABEL_RANGEINTERVAL = "rangeInterval";
-    String LABEL_STARTCOMPONENT = "startComponent";
-    String LABEL_ENDCOMPONENT = "endComponent";
-    String LABEL_RANGECOMPONENT = "rangeComponent";
-    String LABEL_RANGESUBSET = "rangeSubset";
-    //processing coverage extension
-    String LABEL_PROCESSING_QUERY = "query";
-    String LABEL_PROCESSING_EXTRA_PARAMETER = "extraParameter";
+    public static final String LABEL_SCALING = "Scaling";
+    public static final String LABEL_SCALEBYFACTOR = "ScaleByFactor";
+    public static final String LABEL_SCALEAXESBYFACTOR = "ScaleAxesByFactor";
+    public static final String LABEL_SCALETOSIZE = "ScaleToSize";
+    public static final String LABEL_SCALETOEXTENT = "ScaleToExtent";
+    public static final String LABEL_SCALEFACTOR = "scaleFactor";
+    public static final String LABEL_AXIS = "axis";
+    public static final String LABEL_TARGETSIZE = "targetSize";
+    public static final String LABEL_LOW = "low";
+    public static final String LABEL_HIGH = "high";
+    // wcs range subsetting
+    public static final String LABEL_RANGEITEM = "rangeItem";
+    public static final String LABEL_RANGEINTERVAL = "rangeInterval";
+    public static final String LABEL_STARTCOMPONENT = "startComponent";
+    public static final String LABEL_ENDCOMPONENT = "endComponent";
+    public static final String LABEL_RANGECOMPONENT = "rangeComponent";
+    public static final String LABEL_RANGESUBSET = "rangeSubset";
+    // processing coverage extension
+    public static final String LABEL_PROCESSING_QUERY = "query";
+    public static final String LABEL_PROCESSING_EXTRA_PARAMETER = "extraParameter";
+    // wcs interpolation extension
+    public static final String LABEL_GLOBAL_INTERPOLATION = "globalInterpolation";
+    public static final String LABEL_INTERPOLATION = "Interpolation";
+    public static final String LABEL_INTERPOLATION_METADATA = "InterpolationMetadata";
+    public static final String LABEL_INTERPOLATION_SUPPORTED = "InterpolationSupported";
 
     // ows
     // // Service Identification
-    String LABEL_SERVICE_IDENTIFICATION = "ServiceIdentification";
-    String LABEL_TITLE = "Title";
-    String LABEL_ABSTRACT = "Abstract";
-    String LABEL_KEYWORDS = "Keywords";
-    String LABEL_KEYWORD = "Keyword";
-    String LABEL_TYPE = "Type";
-    String LABEL_SERVICE_TYPE = "ServiceType";
-    String LABEL_SERVICE_TYPE_VERSION = "ServiceTypeVersion";
-    String LABEL_FEES = "Fees";
-    String LABEL_ACCESS_CONSTRAINTS = "AccessConstraints";
-    String LABEL_PROFILE = "Profile";
+    public static final String LABEL_SERVICE_IDENTIFICATION = "ServiceIdentification";
+    public static final String LABEL_TITLE = "Title";
+    public static final String LABEL_ABSTRACT = "Abstract";
+    public static final String LABEL_KEYWORDS = "Keywords";
+    public static final String LABEL_KEYWORD = "Keyword";
+    public static final String LABEL_TYPE = "Type";
+    public static final String LABEL_SERVICE_TYPE = "ServiceType";
+    public static final String LABEL_SERVICE_TYPE_VERSION = "ServiceTypeVersion";
+    public static final String LABEL_FEES = "Fees";
+    public static final String LABEL_ACCESS_CONSTRAINTS = "AccessConstraints";
+    public static final String LABEL_PROFILE = "Profile";
     // // Service Provider
-    String LABEL_SERVICE_PROVIDER = "ServiceProvider";
-    String LABEL_PROVIDER_NAME = "ProviderName";
-    String LABEL_PROVIDER_SITE = "ProviderSite";
+    public static final String LABEL_SERVICE_PROVIDER = "ServiceProvider";
+    public static final String LABEL_PROVIDER_NAME = "ProviderName";
+    public static final String LABEL_PROVIDER_SITE = "ProviderSite";
     // // // Service Contact
-    String LABEL_SERVICE_CONTACT = "ServiceContact";
-    String LABEL_INDIVIDUAL_NAME = "IndividualName";
-    String LABEL_POSITION_NAME = "PositionName";
-    String LABEL_ROLE = "Role";
+    public static final String LABEL_SERVICE_CONTACT = "ServiceContact";
+    public static final String LABEL_INDIVIDUAL_NAME = "IndividualName";
+    public static final String LABEL_POSITION_NAME = "PositionName";
+    public static final String LABEL_ROLE = "Role";
     // // // // Contact Info
-    String LABEL_CONTACT_INFO = "ContactInfo";
-    String LABEL_PHONE = "Phone";
-    String LABEL_HOURS_OF_SERVICE = "HoursOfService";
-    String LABEL_CONTACT_INSTRUCTIONS = "ContactInstructions";
+    public static final String LABEL_CONTACT_INFO = "ContactInfo";
+    public static final String LABEL_PHONE = "Phone";
+    public static final String LABEL_HOURS_OF_SERVICE = "HoursOfService";
+    public static final String LABEL_CONTACT_INSTRUCTIONS = "ContactInstructions";
     // // // // // Address
-    String LABEL_ADDRESS = "Address";
-    String LABEL_DELIVERY_POINT = "DeliveryPoint";
-    String LABEL_CITY = "City";
-    String LABEL_ADMINISTRATIVE_AREA = "AdministrativeArea";
-    String LABEL_POSTAL_CODE = "PostalCode";
-    String LABEL_COUNTRY = "Country";
-    String LABEL_EMAIL_ADDRESS = "ElectronicMailAddress";
+    public static final String LABEL_ADDRESS = "Address";
+    public static final String LABEL_DELIVERY_POINT = "DeliveryPoint";
+    public static final String LABEL_CITY = "City";
+    public static final String LABEL_ADMINISTRATIVE_AREA = "AdministrativeArea";
+    public static final String LABEL_POSTAL_CODE = "PostalCode";
+    public static final String LABEL_COUNTRY = "Country";
+    public static final String LABEL_EMAIL_ADDRESS = "ElectronicMailAddress";
     // // OperationsMetadata
-    String LABEL_OPERATIONS_METADATA = "OperationsMetadata";
-    String LABEL_OPERATION = "Operation";
-    String LABEL_DCP = "DCP";
-    String LABEL_HTTP = "HTTP";
-    String LABEL_GET = "Get";
-    String LABEL_VERSION = "Version";
-    String LABEL_ACCEPT_VERSIONS = "AcceptVersions";
-    String LABEL_ACCEPT_FORMATS = "AcceptFormats";
-    String LABEL_ACCEPT_LANGUAGES = "AcceptLanguages";
+    public static final String LABEL_OPERATIONS_METADATA = "OperationsMetadata";
+    public static final String LABEL_OPERATION = "Operation";
+    public static final String LABEL_DCP = "DCP";
+    public static final String LABEL_HTTP = "HTTP";
+    public static final String LABEL_GET = "Get";
+    public static final String LABEL_VERSION = "Version";
+    public static final String LABEL_ACCEPT_VERSIONS = "AcceptVersions";
+    public static final String LABEL_ACCEPT_FORMATS = "AcceptFormats";
+    public static final String LABEL_ACCEPT_LANGUAGES = "AcceptLanguages";
     // // Contents
-    String LABEL_OWSMETADATA = "Metadata";
+    public static final String LABEL_OWSMETADATA = "Metadata";
 
     // gmlcov
-    String LABEL_ABSTRACT_COVERAGE = "AbstractCoverage";
-    String LABEL_ABSTRACT_DISCRETE_COVERAGE = "AbstractDiscreteCoverage";
-    String LABEL_GRID_COVERAGE  = "GridCoverage";
-    String LABEL_GMLCOVMETADATA = "metadata";
-    String LABEL_MULTIPOINT_COVERAGE = "MultiPointCoverage";
-    String LABEL_MULTICURVE_COVERAGE = "GridCoverage";
-    String LABEL_MULTISURFACE_COVERAGE = "GridCoverage";
-    String LABEL_MULTISOLID_COVERAGE = "GridCoverage";
-    String LABEL_RECTIFIED_GRID_COVERAGE = "RectifiedGridCoverage";
-    String LABEL_REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
+    public static final String LABEL_ABSTRACT_COVERAGE = "AbstractCoverage";
+    public static final String LABEL_ABSTRACT_DISCRETE_COVERAGE = "AbstractDiscreteCoverage";
+    public static final String LABEL_GRID_COVERAGE  = "GridCoverage";
+    public static final String LABEL_GMLCOVMETADATA = "metadata";
+    public static final String LABEL_MULTIPOINT_COVERAGE = "MultiPointCoverage";
+    public static final String LABEL_MULTICURVE_COVERAGE = "GridCoverage";
+    public static final String LABEL_MULTISURFACE_COVERAGE = "GridCoverage";
+    public static final String LABEL_MULTISOLID_COVERAGE = "GridCoverage";
+    public static final String LABEL_RECTIFIED_GRID_COVERAGE = "RectifiedGridCoverage";
+    public static final String LABEL_REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
 
     // swe
-    String LABEL_ALLOWED_VALUES = "AllowedValues";
-    String LABEL_CONSTRAINT = "constraint";
-    String LABEL_DESCRIPTION = "description";
-    String LABEL_FIELD = "field";
-    String LABEL_INTERVAL = "interval";
-    String LABEL_LABEL = "label";
-    String LABEL_FIELD_NAME = "name";
-    String LABEL_NILVALUE = "nilValue";
-    String LABEL_NILVALUES_ASSOCIATION_ROLE = "nilValues";
-    String LABEL_NILVALUES = "NilValues";
-    String LABEL_QUANTITY = "Quantity";
-    String LABEL_UOM = "uom";
+    public static final String LABEL_ALLOWED_VALUES = "AllowedValues";
+    public static final String LABEL_CONSTRAINT = "constraint";
+    public static final String LABEL_DESCRIPTION = "description";
+    public static final String LABEL_FIELD = "field";
+    public static final String LABEL_INTERVAL = "interval";
+    public static final String LABEL_LABEL = "label";
+    public static final String LABEL_FIELD_NAME = "name";
+    public static final String LABEL_NILVALUE = "nilValue";
+    public static final String LABEL_NILVALUES_ASSOCIATION_ROLE = "nilValues";
+    public static final String LABEL_NILVALUES = "NilValues";
+    public static final String LABEL_QUANTITY = "Quantity";
+    public static final String LABEL_UOM = "uom";
 
     // gmlrgrid
-    String LABEL_COEFFICIENTS = "coefficients";
-    String LABEL_RGBA = "ReferenceableGridByArray";
-    String LABEL_RGBV = "ReferenceableGridByVectors";
-    String LABEL_RGBT = "ReferenceableGridByTransformation";
+    public static final String LABEL_COEFFICIENTS = "coefficients";
+    public static final String LABEL_RGBA = "ReferenceableGridByArray";
+    public static final String LABEL_RGBV = "ReferenceableGridByVectors";
+    public static final String LABEL_RGBT = "ReferenceableGridByTransformation";
 
     // soap
-    String LABEL_BODY = "Body";
+    public static final String LABEL_BODY = "Body";
 
     // CRS definitions
-    String LABEL_CRSAXIS       = "axis";
-    String LABEL_CSAXIS        = "CoordinateSystemAxis";
-    String LABEL_AXISABBREV    = "axisAbbrev";
-    String LABEL_AXISDIRECTION = "axisDirection";
-    String LABEL_CSA           = "CoordinateSystemAxis";
-    String LABEL_NAME          = "name";
-    String LABEL_ORIGIN        = "origin";
-    String LABEL_TEMPORALCRS   = "TemporalCRS";
+    public static final String LABEL_CRSAXIS       = "axis";
+    public static final String LABEL_CSAXIS        = "CoordinateSystemAxis";
+    public static final String LABEL_AXISABBREV    = "axisAbbrev";
+    public static final String LABEL_AXISDIRECTION = "axisDirection";
+    public static final String LABEL_CSA           = "CoordinateSystemAxis";
+    public static final String LABEL_NAME          = "name";
+    public static final String LABEL_ORIGIN        = "origin";
+    public static final String LABEL_TEMPORALCRS   = "TemporalCRS";
     // (suffixes: e.g. ProjectedCRS, TemporalCRS, etc.)
-    String CRS_GMLSUFFIX   = "CRS";
-    String CS_GMLSUFFIX    = "CS";
-    String DATUM_GMLSUFFIX = "Datum";
+    public static final String CRS_GMLSUFFIX   = "CRS";
+    public static final String CS_GMLSUFFIX    = "CS";
+    public static final String DATUM_GMLSUFFIX = "Datum";
 
     // SECORE equality test
-    String LABEL_COMPARISON_RESULT = "comparisonResult";
-    String LABEL_EQUAL             = "equal";
-    String LABEL_EXCEPTION_TEXT    = "ExceptionText";
+    public static final String LABEL_COMPARISON_RESULT = "comparisonResult";
+    public static final String LABEL_EQUAL             = "equal";
+    public static final String LABEL_EXCEPTION_TEXT    = "ExceptionText";
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -256,32 +263,32 @@ public interface XMLSymbols {
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    String ATT_SERVICE = "service";
-    String ATT_VERSION = "version";
-    String ATT_SCHEMA_LOCATION = "schemaLocation";
-    String ATT_CODESPACE = "codeSpace";
-    String ATT_LANG = "lang";
-    String ATT_HREF = "href";
+    public static final String ATT_SERVICE = "service";
+    public static final String ATT_VERSION = "version";
+    public static final String ATT_SCHEMA_LOCATION = "schemaLocation";
+    public static final String ATT_CODESPACE = "codeSpace";
+    public static final String ATT_LANG = "lang";
+    public static final String ATT_HREF = "href";
 
     // gml:SRSReferenceGroup
-    String ATT_SRS_NAME = "srsName";
-    String ATT_SRS_DIMENSION = "srsDimension";
-    String ATT_UOM_LABELS = "uomLabels";
-    String ATT_AXIS_LABELS = "axisLabels";
+    public static final String ATT_SRS_NAME = "srsName";
+    public static final String ATT_SRS_DIMENSION = "srsDimension";
+    public static final String ATT_UOM_LABELS = "uomLabels";
+    public static final String ATT_AXIS_LABELS = "axisLabels";
 
     // bbox
-    String ATT_LOWERCORNER = "LowerCorner";
-    String ATT_UPPERCORNER = "UpperCorner";
-    String ATT_CRS = "crs";
-    String ATT_DIMENSIONS = "dimensions";
+    public static final String ATT_LOWERCORNER = "LowerCorner";
+    public static final String ATT_UPPERCORNER = "UpperCorner";
+    public static final String ATT_CRS = "crs";
+    public static final String ATT_DIMENSIONS = "dimensions";
 
     // CRS definitions
-    String ATT_UOM = "uom";
+    public static final String ATT_UOM = "uom";
 
     // swe
-    String ATT_DEFINITION = "definition";
-    String ATT_REASON = "reason";
-    String ATT_UOMCODE = "code";
+    public static final String ATT_DEFINITION = "definition";
+    public static final String ATT_REASON = "reason";
+    public static final String ATT_UOMCODE = "code";
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -300,9 +307,9 @@ public interface XMLSymbols {
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    String SCHEMA_LOCATION_WCS = "http://schemas.opengis.net/wcs/2.0/wcsAll.xsd";
-    String SCHEMA_LOCATION_GML = "http://schemas.opengis.net/gml/3.2.1/gml.xsd";
-    String SCHEMA_LOCATION_GMLRGRID = "http://schemas.opengis.net/gml/3.3/referencableGrid.xsd";
+    public static final String SCHEMA_LOCATION_WCS = "http://schemas.opengis.net/wcs/2.0/wcsAll.xsd";
+    public static final String SCHEMA_LOCATION_GML = "http://schemas.opengis.net/gml/3.2.1/gml.xsd";
+    public static final String SCHEMA_LOCATION_GMLRGRID = "http://schemas.opengis.net/gml/3.3/referencableGrid.xsd";
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -310,9 +317,9 @@ public interface XMLSymbols {
     //
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    String PREDEFINED_ENTITY_AMPERSAND        = "amp";
-    String PREDEFINED_ENTITY_APOSTROPHE       = "apos";
-    String PREDEFINED_ENTITY_LESSTHAN_SIGN    = "lt";
-    String PREDEFINED_ENTITY_GREATERTHAN_SIGN = "gt";
-    String PREDEFINED_ENTITY_QUOTES           = "quot";
+    public static final String PREDEFINED_ENTITY_AMPERSAND        = "amp";
+    public static final String PREDEFINED_ENTITY_APOSTROPHE       = "apos";
+    public static final String PREDEFINED_ENTITY_LESSTHAN_SIGN    = "lt";
+    public static final String PREDEFINED_ENTITY_GREATERTHAN_SIGN = "gt";
+    public static final String PREDEFINED_ENTITY_QUOTES           = "quot";
 }
