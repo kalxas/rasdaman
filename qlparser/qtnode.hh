@@ -97,6 +97,7 @@ public:
         QT_OPERATION_ITERATOR,
         QT_SELECTION_ITERATOR,
         QT_JOIN_ITERATOR,
+        QT_EMPTY_STREAM,
         QT_UPDATE,
         QT_INSERT,
         QT_DELETE,

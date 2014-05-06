@@ -90,11 +90,12 @@ libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
                       qtmddcfgop.hh qtmddcfgop.cc \
                       qtencode.hh qtencode.cc \
                       qtdecode.hh qtdecode.cc \
-		    typeresolverutil.hh typeresolverutil.cc \
-		    gdaldataconverter.hh gdaldataconverter.cc \
+                      typeresolverutil.hh typeresolverutil.cc \
+                      gdaldataconverter.hh gdaldataconverter.cc \
                       qtconcat.hh qtconcat.cc qtconcat.icc \
-		      qtcaseop.cc qtcaseop.hh qtcaseop.icc \
-		      qtinfo.cc qtinfo.hh qtinfo.icc
+                      qtcaseop.cc qtcaseop.hh qtcaseop.icc \
+                      qtinfo.cc qtinfo.hh qtinfo.icc \
+                      qtemptystream.cc qtemptystream.hh qtemptystream.icc
 
 EXTRA_libqlparser_a_SOURCES = autogen_qtui.hh autogen_qtui.icc autogen_qtui.cc
 

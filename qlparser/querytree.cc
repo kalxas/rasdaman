@@ -104,6 +104,7 @@ QueryTree::checkSemantics()
     case QtNode::QT_OPERATION_ITERATOR:
     case QtNode::QT_JOIN_ITERATOR:
     case QtNode::QT_SELECTION_ITERATOR:
+    case QtNode::QT_EMPTY_STREAM:
     {
         const QtTypeTuple& resultType = ((QtONCStream*)rootNode)->checkType();
     }

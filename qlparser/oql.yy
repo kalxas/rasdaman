@@ -64,6 +64,7 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "qlparser/qtcaseop.hh"
 #include "rasodmg/dirdecompose.hh"
 #include "qlparser/qtinfo.hh"
+#include "qlparser/qtemptystream.hh"
 
 extern ServerComm::ClientTblElt* currentClientTblElt;
 extern ParseInfo *currInfo;
@@ -587,7 +588,37 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 	  FREESTACK($1)
 	  FREESTACK($3)
 	}
-    | SELECT RAS_VERSION LRPAR RRPAR
+	| SELECT resultList
+	{
+	  try {
+	    accessControl.wantToRead();
+	  }
+	  catch(...) {
+	    // save the parse error info and stop the parser
+	    if ( parseError ) delete parseError;
+	    parseError = new ParseInfo( 803, $1.info->getToken().c_str(),
+	                                $1.info->getLineNo(), $1.info->getColumnNo() );
+	    FREESTACK($1)
+	    QueryTree::symtab.wipe();
+	    YYABORT;
+	  }
+
+	  QtIterator::QtONCStreamList* inputList = new QtIterator::QtONCStreamList(1);
+	  (*inputList)[0] = new QtEmptyStream();
+
+	  // create a OperationIterator and set its inputs
+	  QtOperationIterator* oi = new QtOperationIterator();
+	  oi->setStreamInputs( inputList );
+	  oi->setParseInfo( *($1.info) );
+	  oi->setOperationTree( $2 );
+	  parseQueryTree->removeDynamicObject( $2 );
+
+	  // set the OperationIterator as root of the Query Tree
+	  parseQueryTree->setRoot( oi );
+
+	  FREESTACK($1)
+	}
+	| SELECT RAS_VERSION LRPAR RRPAR
 	{
 	  parseQueryTree->setRoot( NULL );
 	  parseQueryTree->setInfoType( QueryTree::QT_INFO_VERSION );
