@@ -279,6 +279,9 @@ private:
     /// internal function for freeing data allocated by getMarRpcRepresentation()
     void freeMarRpcRepresentation( const r_GMarray* mar, RPCMarray* rpcMarray );
 
+    /// internal function for sending query's mdd constants to a server
+    void sendMDDConstants( const r_OQL_Query& query ) throw(r_Error);
+
     /// endianness of client and server (0 means big endian)
     int endianServer;
     int endianClient;

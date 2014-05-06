@@ -541,6 +541,7 @@ void RnpClientComm::executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& 
     ENTER( "RnpClientComm::executeQuery(_,_)"  );
     RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "executeQuery(_,_)"  );
 
+    sendMDDConstants(query);
     int status = executeExecuteQuery( query.get_query(), result );
 
     switch(status)
@@ -970,26 +971,19 @@ void RnpClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) throw
     LEAVE( "RnpClientComm::getElementCollection()" );
 }
 
-// update query and insert (< v9.1)
-void RnpClientComm::executeQuery( const r_OQL_Query& query ) throw( r_Error )
+void RnpClientComm::sendMDDConstants( const r_OQL_Query& query ) throw( r_Error )
 {
-    ENTER( "RnpClientComm::executeQuery(_)" );
-
-    checkForRwTransaction();
-
     unsigned short status;
 
-    //
-    // Send MDD constants to the server.
-    //
     if( query.get_constants() )
     {
         r_Set< r_GMarray* >* mddConstants = (r_Set< r_GMarray* >*)query.get_constants();
 
-        if(executeInitUpdate() < 0) // error would be nicer
+        // in fact executeInitUpdate prepares server structures for MDD transfer
+        if(executeInitUpdate() != 0)
         {
-            LEAVE( "Error: RnpClientComm::executeQuery(): update query initialization failed." );
-            return;
+            LEAVE( "Error: RnpClientComm::sendMDDConstants(): MDD transaction initialization failed." );
+            throw r_Error( r_Error::r_Error_TransferFailed );
         }
 
         r_Iterator<r_GMarray*> iter = mddConstants->create_iterator();
@@ -1008,15 +1002,15 @@ void RnpClientComm::executeQuery( const r_OQL_Query& query ) throw( r_Error )
                 case 0:
                     break; // OK
                 case 2:
-                    LEAVE( "RnpClientComm::executeQuery(): exception, status = " << status );
+                    LEAVE( "RnpClientComm::sendMDDConstants(): exception, status = " << status );
                     throw r_Error( r_Error::r_Error_DatabaseClassUndefined );
                     break;
                 case 3:
-                    LEAVE( "RnpClientComm::executeQuery(): exception, status = " << status );
+                    LEAVE( "RnpClientComm::sendMDDConstants(): exception, status = " << status );
                     throw r_Error( r_Error::r_Error_TypeInvalid );
                     break;
                 default:
-                    LEAVE( "RnpClientComm::executeQuery(): exception, status = " << status );
+                    LEAVE( "RnpClientComm::sendMDDConstants(): exception, status = " << status );
                     throw r_Error( r_Error::r_Error_TransferFailed );
                     break;
                 }
@@ -1054,7 +1048,7 @@ void RnpClientComm::executeQuery( const r_OQL_Query& query ) throw( r_Error )
 
                     if( status > 0 )
                     {
-                        LEAVE( "RnpClientComm::executeQuery(): exception, status = " << status );
+                        LEAVE( "RnpClientComm::sendMDDConstants(): exception, status = " << status );
                         throw r_Error( r_Error::r_Error_TransferFailed );
                     }
                 }
@@ -1067,6 +1061,17 @@ void RnpClientComm::executeQuery( const r_OQL_Query& query ) throw( r_Error )
             }
         }
     }
+
+}
+
+// update query and insert (< v9.1)
+void RnpClientComm::executeQuery( const r_OQL_Query& query ) throw( r_Error )
+{
+    ENTER( "RnpClientComm::executeQuery(_)" );
+
+    checkForRwTransaction();
+
+    sendMDDConstants(query);
 
     executeExecuteUpdateQuery(query.get_query());
     LEAVE( "RnpClientComm::executeQuery(_)" );
@@ -1079,101 +1084,13 @@ void RnpClientComm::executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& 
 
     checkForRwTransaction();
 
-    unsigned short status;
+    sendMDDConstants(query);
 
-    //
-    // Send MDD constants to the server.
-    //
-    if( query.get_constants() )
-    {
-        r_Set< r_GMarray* >* mddConstants = (r_Set< r_GMarray* >*)query.get_constants();
-
-        if(executeInitUpdate() < 0) // error would be nicer
-        {
-            LEAVE( "Error: RnpClientComm::executeQuery(): update query initialization failed." );
-            return;
-        }
-
-        r_Iterator<r_GMarray*> iter = mddConstants->create_iterator();
-
-        for( iter.reset(); iter.not_done(); iter++ )
-        {
-            r_GMarray* mdd = *iter;
-
-            const r_Base_Type* baseType = mdd->get_base_type_schema();
-
-            if( mdd )
-            {
-                status = executeStartInsertTransMDD(mdd);
-                switch( status )
-                {
-                case 0:
-                    break; // OK
-                case 2:
-                    LEAVE( "RnpClientComm::executeQuery(): exception, status = " << status );
-                    throw r_Error( r_Error::r_Error_DatabaseClassUndefined );
-                    break;
-                case 3:
-                    LEAVE( "RnpClientComm::executeQuery(): exception, status = " << status );
-                    throw r_Error( r_Error::r_Error_TypeInvalid );
-                    break;
-                default:
-                    LEAVE( "RnpClientComm::executeQuery(): exception, status = " << status );
-                    throw r_Error( r_Error::r_Error_TransferFailed );
-                    break;
-                }
-
-                r_Set< r_GMarray* >* bagOfTiles = NULL;
-
-                if (mdd->get_array())
-                {
-                    bagOfTiles = mdd->get_storage_layout()->decomposeMDD( mdd );
-                }
-                else
-                {
-                    bagOfTiles = mdd->get_tiled_array();
-                }
-
-                r_Iterator< r_GMarray* > iter2 = bagOfTiles->create_iterator();
-
-                for(iter2.reset(); iter2.not_done(); iter2.advance())
-                {
-                    RPCMarray* rpcMarray;
-
-                    r_GMarray *origTile = *iter2;
-
-                    getMarRpcRepresentation( origTile, rpcMarray, mdd->get_storage_layout()->get_storage_format(), baseType );
-
-                    status = executeInsertTile(false, rpcMarray);
-
-                    // free rpcMarray structure (rpcMarray->data.confarray_val is freed somewhere else)
-                    freeMarRpcRepresentation( origTile, rpcMarray );
-
-                    // delete current tile (including data block)
-                    delete origTile;
-                    origTile = NULL;
-
-                    if( status > 0 )
-                    {
-                        LEAVE( "RnpClientComm::executeQuery(): exception, status = " << status );
-                        throw r_Error( r_Error::r_Error_TransferFailed );
-                    }
-                }
-
-                bagOfTiles->remove_all();
-                delete bagOfTiles;
-                bagOfTiles = NULL;
-
-                executeEndInsertMDD(false);
-            }
-        }
-    }
-
-    int mystatus = executeExecuteUpdateQuery(query.get_query(), result);
+    int status = executeExecuteUpdateQuery(query.get_query(), result);
 
     TALK("executeUpdateQuery (retrieval) returns " << status );
 
-    switch(mystatus)
+    switch(status)
     {
     case 0:
         getMDDCollection( result, 1 );

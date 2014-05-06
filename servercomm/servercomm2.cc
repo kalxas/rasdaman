@@ -1526,6 +1526,9 @@ ServerComm::executeQuery( unsigned long callingClientId,
         purify_printf( "%s\n", query );
 #endif
 
+        mddConstants     = context->transferColl; // assign the mdd constants collection to the global pointer (temporary)
+        context->transferColl = NULL;
+
         // delete old transfer collection/iterator
         context->releaseTransferStructures();
 
@@ -1616,6 +1619,11 @@ ServerComm::executeQuery( unsigned long callingClientId,
                 // release data
                 context->releaseTransferStructures();
                 context->release(); //!!!
+                if (mddConstants) {
+                    mddConstants->releaseAll();
+                    delete mddConstants;
+                    mddConstants = NULL;
+                }
 
                 //delete parser data
                 parseQueryTree      = 0;
@@ -1634,6 +1642,11 @@ ServerComm::executeQuery( unsigned long callingClientId,
                 // release data
                 context->releaseTransferStructures();
                 context->release(); //!!!
+                if (mddConstants) {
+                    mddConstants->releaseAll();
+                    delete mddConstants;
+                    mddConstants = NULL;
+                }
 
                 //delete parser data
                 parseQueryTree      = 0;
@@ -1651,6 +1664,11 @@ ServerComm::executeQuery( unsigned long callingClientId,
                 // release data
                 context->releaseTransferStructures();
                 context->release(); //!!!
+                if (mddConstants) {
+                    mddConstants->releaseAll();
+                    delete mddConstants;
+                    mddConstants = NULL;
+                }
 
                 //delete parser data
                 parseQueryTree      = 0;
@@ -1665,6 +1683,11 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
                 context->releaseTransferStructures();
                 context->release(); //!!!
+                if (mddConstants) {
+                    mddConstants->releaseAll();
+                    delete mddConstants;
+                    mddConstants = NULL;
+                }
 
                 //delete parser data
                 parseQueryTree      = 0;
@@ -1775,6 +1798,11 @@ ServerComm::executeQuery( unsigned long callingClientId,
         parseQueryTree      = 0;
         currentClientTblElt = 0;
         delete qtree;
+        if (mddConstants) {
+            mddConstants->releaseAll();
+            delete mddConstants;
+            mddConstants = NULL;
+        }
 
         //
         // done
