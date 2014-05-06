@@ -37,7 +37,9 @@
     Then new users can be added, e.g. add a user secore-admin:
 
       <user username="secore-admin" password="secret" roles="secore"/>
-  -->
+-->
+
+<!--
     <security-constraint>
       <web-resource-collection>
         <web-resource-name>SECORE</web-resource-name>
@@ -53,5 +55,5 @@
     <security-role>
       <role-name>secore</role-name>
     </security-role>
-
+-->
 </web-app>
