@@ -686,7 +686,11 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
                 if(tfile==NULL){
                     throw RasqlError(NOFILEWRITEPERMISSION);
                 }
-                fwrite((void*)r_Ref<r_GMarray>(*iter)->get_array(), 1, r_Ref<r_GMarray>(*iter)->get_array_size(), tfile );
+                size_t count = r_Ref<r_GMarray>(*iter)->get_array_size();
+                if(fwrite((void*)r_Ref<r_GMarray>(*iter)->get_array(), 1, count, tfile ) != count){
+                    fclose(tfile);
+                    throw RasqlError(UNABLETOWRITETOFILE);
+                };
                 fclose(tfile);
                 LOG( "ok." << endl );
             }

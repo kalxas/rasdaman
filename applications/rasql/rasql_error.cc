@@ -94,6 +94,9 @@ RasqlError::what()
     case NOFILEWRITEPERMISSION:
         errorMsg = "No file write permission.";
         break;
+    case UNABLETOWRITETOFILE:
+        errorMsg = "Cannot write to file.";
+        break;
     default :
         errorMsg = "Unknown error code.";
         break;

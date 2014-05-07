@@ -57,6 +57,7 @@
 #define MDDTYPEINVALID                  7
 #define FILESIZEMISMATCH                8
 #define NOFILEWRITEPERMISSION           9
+#define UNABLETOWRITETOFILE             10
 
 class RasqlError // : public std::exception
 {
