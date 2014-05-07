@@ -152,9 +152,13 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
 
         while (i.hasNext()) {
             axis = i.next();
-            // Matching axes of different coverages (might have different labels):
-            // (ALT: create the DimensionIntervalElements by passing the coverage info)
-            axisId = coverageInfo.getDomainIndexByType(axis.getAxisType());
+            try {
+                axisId = coverageInfo.getDomainIndexByName(axis.getAxisName());
+            } catch (WCPSException ex) {
+                // Matching axes of different coverages (might have different labels):
+                // (ALT: create the DimensionIntervalElements by passing the coverage info)
+                axisId = coverageInfo.getDomainIndexByType(axis.getAxisType());
+            }
             axisRasOrder.add(axisId); // for proper to RasQL (see ticket #377)
             log.trace("Axis ID: " + axisId);
             log.trace("Axis name: " + axis.getAxisName());

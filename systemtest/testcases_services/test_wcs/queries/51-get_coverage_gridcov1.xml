@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:GetCoverage
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:wcs="http://www.opengis.net/wcs/2.0"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
+    service="WCS" version="2.0.1">
+  <wcs:CoverageId>float_4d</wcs:CoverageId>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>i</wcs:Dimension>
+    <wcs:TrimLow>0</wcs:TrimLow>
+    <wcs:TrimHigh>0</wcs:TrimHigh>
+  </wcs:DimensionTrim>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>j</wcs:Dimension>
+    <wcs:TrimLow>0</wcs:TrimLow>
+    <wcs:TrimHigh>0</wcs:TrimHigh>
+  </wcs:DimensionTrim>
+  <wcs:DimensionSlice>
+    <wcs:Dimension>k</wcs:Dimension>
+    <wcs:SlicePoint>10</wcs:SlicePoint>
+  </wcs:DimensionSlice>
+  <wcs:DimensionSlice>
+    <wcs:Dimension>m</wcs:Dimension>
+    <wcs:SlicePoint>15</wcs:SlicePoint>
+  </wcs:DimensionSlice>
+</wcs:GetCoverage>

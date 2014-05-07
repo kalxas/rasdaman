@@ -920,7 +920,7 @@ public class DbMetadataSource implements IMetadataSource {
                     throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
                             "Coverage '" + coverageName + "' has no external (native) CRS.");
                 }
-            }
+            } // else: DomainSet for simple grid is handled afterwards.
 
             /* RANGE-TYPE : coverage feature-space description (SWE-based) */
             // TABLE_RANGETYPE_COMPONENT
@@ -1210,9 +1210,23 @@ public class DbMetadataSource implements IMetadataSource {
                                 cellDomainElements.size() + " range-set.");
                     }
                 } else {
+                    // Simple GridCoverage type: geometry is not defined:
+                    // we need to set on our own following WCS uniform coverage handling policy
                     gridOrigin = new ArrayList<BigDecimal>();
                     gridAxes = new LinkedHashMap<List<BigDecimal>, BigDecimal>();
                     int dimensionNo = pixelBboxes.size();
+                    // [#760] Assign IndexCrs and versor-vectors to a GridCoverage by default (needed for BBOX, which is WCS Req.1)
+                    String uri = ConfigManager.SECORE_URLS.get(0) + '/' +
+                            CrsUtil.KEY_RESOLVER_CRS + '/' +
+                            CrsUtil.OGC_AUTH + '/' +
+                            CrsUtil.CRS_DEFAULT_VERSION + '/' +
+                            CrsUtil.INDEX_CRS_PATTERN.replace("%d", "" + dimensionNo);
+                    log.debug("Assigning " + uri + " CRS to " + coverageName + "by default.");
+                    CrsDefinition crsDef = CrsUtil.getGmlDefinition(uri);
+                    for (CrsDefinition.Axis axis : crsDef.getAxes()) {
+                        crsAxes.add(Pair.of(axis, uri));
+                    }
+                    // CellDomain elements and Grid geometry
                     for (int i = 0; i < dimensionNo; i++) {
                         Pair<String, String> pixelBbox = pixelBboxesIt.next();
                         cde = new CellDomainElement(pixelBbox.fst, pixelBbox.snd, i);

@@ -1,0 +1,8 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=float_4d&
+subset=i(0,0)&
+subset=j(0,0)&
+subset=k(10)&
+subset=m(15)

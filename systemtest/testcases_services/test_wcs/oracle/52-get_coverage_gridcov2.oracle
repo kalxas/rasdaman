@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:GridCoverage
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="double_1d"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="/crs/OGC/0/Index1D" axisLabels="i" uomLabels="GridSpacing" srsDimension="1">
+      <lowerCorner>6</lowerCorner>
+      <upperCorner>9</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <Grid dimension="1" id="double_1d-grid">
+      <limits>
+        <GridEnvelope>
+          <low>6</low>
+          <high>9</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>i</axisLabels>
+    </Grid>
+  </domainSet>
+
+  <rangeSet>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList ts="," cs=" ">3,3.5,4,4.5</tupleList>
+    </DataBlock>
+  </rangeSet>
+
+  <coverageFunction>
+    <GridFunction>
+      <sequenceRule axisOrder="+1">Linear</sequenceRule>
+      <startPoint>6</startPoint>
+    </GridFunction>
+  </coverageFunction>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="value">
+      <swe:Quantity  definition="/dataType/OGC/0/float64"><swe:label>double</swe:label><swe:description>primitive</swe:description><swe:uom code="10^0" /><swe:constraint><swe:AllowedValues><swe:interval>-1.7976931348623157E+308 1.7976931348623157E+308</swe:interval></swe:AllowedValues></swe:constraint></swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+
+</gmlcov:GridCoverage>

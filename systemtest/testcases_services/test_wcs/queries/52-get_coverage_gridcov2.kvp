@@ -1,0 +1,5 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=double_1d&
+subset=i(6,9)

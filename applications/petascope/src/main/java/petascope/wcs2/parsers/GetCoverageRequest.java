@@ -90,7 +90,6 @@ public class GetCoverageRequest extends BaseRequest {
     private final List<DimensionSubset> subsets;
     private final RangeSubset rangeSubset;
     private final Scaling scale;
-    private final CrsExt crsExt;
 
     public GetCoverageRequest(String coverageId) {
         this(coverageId, FormatExtension.MIME_GML, false); // GML is default
@@ -103,7 +102,6 @@ public class GetCoverageRequest extends BaseRequest {
         this.subsets = new ArrayList<DimensionSubset>();
         this.rangeSubset = new RangeSubset();
         this.scale = new Scaling();
-        crsExt = new CrsExt();
     }
 
     public String getCoverageId() {
@@ -135,10 +133,6 @@ public class GetCoverageRequest extends BaseRequest {
 
     public boolean isMultipart() {
         return multipart;
-    }
-
-    public CrsExt getCrsExt() {
-        return crsExt;
     }
 
     public RangeSubset getRangeSubset() {
@@ -239,7 +233,7 @@ public class GetCoverageRequest extends BaseRequest {
         }
 
         /**
-         * @param value Set new lower bound to 1D domain (due to a CrsExt transformation).
+         * @param value Set new lower bound to 1D domain.
          */
         public void setTrimLow(String value) {
             trimLow = value;
@@ -257,7 +251,7 @@ public class GetCoverageRequest extends BaseRequest {
         }
 
         /**
-         * @param value Set new upper bound to 1D domain (due to a CrsExt transformation).
+         * @param value Set new upper bound to 1D domain.
          */
         public void setTrimHigh(String value) {
             trimHigh = value;
@@ -350,63 +344,6 @@ public class GetCoverageRequest extends BaseRequest {
         @Override
         public String toString() {
             return super.toString() + "(" + slicePoint + ")";
-        }
-    }
-
-    // CrsExt-extension additional (optional) parameters
-    public class CrsExt {
-        private String subsettingCrs;
-        private String outputCrs;
-        // Dictionary <axis;outpurCrs> to build up the WCPS query
-        // only containing the *reprojection* needed (see CRSExtension.java)
-        private HashMap<String, String> outputAxisCrsMap;
-
-        {
-            outputAxisCrsMap = new HashMap<String, String>();
-        }
-
-        // Interface
-        public String getSubsettingCrs() {
-            return subsettingCrs;
-        }
-
-        public String getOutputCrs() {
-            return outputCrs;
-        }
-
-        // Returns axis name(s) associated to a certain CrsExt among the subsets
-        // 1+ axes can be associated to the same CrsExt for output reprojection (e.g. xy!)
-        public List<String> getAxisNames(String crsUri) {
-            List<String> names = new ArrayList<String>();
-            Iterator it = outputAxisCrsMap.entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry<String, String> entry = (Map.Entry<String, String>)it.next();
-                if (entry.getValue().equals(crsUri)) {
-                    names.add(entry.getKey());
-                }
-            }
-            return names;
-        }
-
-        // Returns the subsettingCrs URI associated to a certain axis
-        public String getCrsUriReprojection(String axisName) {
-            return outputAxisCrsMap.get(axisName);
-        }
-
-        // NOTE(campalani): initial null values (when no CrsExt values as specified
-        //  need to be replaced with default values, relative to requested coverage.
-        public void setSubsettingCrs(String value) {
-            subsettingCrs = value;
-        }
-
-        public void setOutputCrs(String value) {
-            outputCrs = value;
-        }
-
-        // Methods
-        // Add en entry in the output reprojection dictionary
-        public void addAxisOutputReprojection(String axisName, String crsUri) {
-            outputAxisCrsMap.put(axisName, crsUri);
         }
     }
 

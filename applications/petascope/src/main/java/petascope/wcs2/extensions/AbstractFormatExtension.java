@@ -47,6 +47,7 @@ import petascope.util.Pair;
 import petascope.util.StringUtil;
 import petascope.util.TimeUtil;
 import petascope.util.WcsUtil;
+import petascope.util.XMLSymbols;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
@@ -170,10 +171,10 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             // Append updated pixel bounds
                             String decimalsExp = "\\.[0-9]+";
                             long[] cellDom = (CrsUtil.GRID_CRS.equals(subset.getCrs()) || // : subset=x,CRS:1(x1,x2) || subsettingCrs=CRS:1
-                                    (request.getCrsExt() != null && CrsUtil.GRID_CRS.equals(request.getCrsExt().getSubsettingCrs())))
+                                    m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE))
                                     ? new long[] { // NOTE: e.g. parseInt("10.0") throws exception: need to remove decimals.
                                         Integer.parseInt(trimLow.replaceAll( decimalsExp, "").trim()),
-                                        Integer.parseInt(trimHigh.replaceAll(decimalsExp, "").trim())} // subsets are alsready grid indexes
+                                        Integer.parseInt(trimHigh.replaceAll(decimalsExp, "").trim())} // subsets are already grid indexes
                                     : CrsUtil.convertToInternalGridIndices(m.getMetadata(), dbMeta, domainEl.getLabel(),
                                         trimLow,   !trimLow.matches(QUOTED_SUBSET),
                                         trimHigh, !trimHigh.matches(QUOTED_SUBSET));

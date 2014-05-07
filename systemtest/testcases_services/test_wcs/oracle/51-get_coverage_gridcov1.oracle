@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:GridCoverage
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="float_4d"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="/crs/OGC/0/Index4D@i,j" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">
+      <lowerCorner>0 0</lowerCorner>
+      <upperCorner>0 0</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <Grid dimension="2" id="float_4d-grid">
+      <limits>
+        <GridEnvelope>
+          <low>0 0</low>
+          <high>0 0</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>i j</axisLabels>
+    </Grid>
+  </domainSet>
+
+  <rangeSet>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList ts="," cs=" ">150</tupleList>
+    </DataBlock>
+  </rangeSet>
+
+  <coverageFunction>
+    <GridFunction>
+      <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+      <startPoint>0 0</startPoint>
+    </GridFunction>
+  </coverageFunction>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="value">
+      <swe:Quantity  definition="/dataType/OGC/0/float32"><swe:label>float</swe:label><swe:description>primitive</swe:description><swe:uom code="10^0" /><swe:constraint><swe:AllowedValues><swe:interval>-3.4028234E+38 3.4028234E+38</swe:interval></swe:AllowedValues></swe:constraint></swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+
+</gmlcov:GridCoverage>

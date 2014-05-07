@@ -41,7 +41,7 @@ import petascope.swe.datamodel.AbstractSimpleComponent;
 import petascope.swe.datamodel.Quantity;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
-import static petascope.util.CrsUtil.GRID_UOM;
+import static petascope.util.CrsUtil.INDEX_UOM;
 import petascope.util.Pair;
 import petascope.util.Vectors;
 import petascope.util.WcpsConstants;
@@ -125,75 +125,60 @@ public class CoverageMetadata implements Cloneable {
             // Get the correspondent CRS axis definition
             boolean isIrregular = !(null == axis.getValue());
             DomainElement domEl = null;
-            if (coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
-                CellDomainElement cde = cDom.next();
-                domEl = new DomainElement(
-                        new BigDecimal(cde.getLo()),
-                        new BigDecimal(cde.getHi()),
-                        String.valueOf(axisOrder),    // number 0, 1, 2, 3..
-                        AxisTypes.OTHER,
-                        CrsUtil.GRID_UOM,
-                        CrsUtil.GRID_CRS,
-                        axisOrder,
-                        BigInteger.valueOf(cde.getHiInt() - cde.getLoInt() + 1),
-                        true,
-                        false);
-            } else {
-                Integer crsAxisOrder = axisNonZeroIndices.get(0);
-                String crsUri = crsAxes.get(crsAxisOrder).snd;
-                CrsDefinition.Axis crsAxis = crsAxes.get(crsAxisOrder).fst;
+            Integer crsAxisOrder = axisNonZeroIndices.get(0);
+            String crsUri = crsAxes.get(crsAxisOrder).snd;
+            CrsDefinition.Axis crsAxis = crsAxes.get(crsAxisOrder).fst;
 
-                // Build the list of non-duplicated CRS URIs
-                if (!uris.contains(crsUri)) {
-                          uris.add(crsUri);
-                }
+            // Build the list of non-duplicated CRS URIs
+            if (!uris.contains(crsUri)) {
+                uris.add(crsUri);
+            }
 
-                // Get correspondent cellDomain element (grid axes in object gridAxes follow rasdaman storage order)
-                CellDomainElement cEl = cDom.next();
+            // Get correspondent cellDomain element (grid axes in object gridAxes follow rasdaman storage order)
+            CellDomainElement cEl = cDom.next();
 
-                // compute min-max bounds of this axis
-                // NOTE1: grid origin is centre of sample space (e.g. pixel)
-                // NOTE2: grid-axis and CRS-axis are aligned
-                // (!) domain.lo = min(origin, origin+N*offsetVector)  => grid-point is point (not pixel)
-                //     domain.hi = max(origin, origin+N*offsetVector)
-                BigDecimal resolution     = axis.getKey().get(axisNonZeroIndices.get(0));
-                BigDecimal sspaceShift    = WcsUtil.getSampleSpaceShift(resolution, isIrregular, crsAxis.getUoM());
-                BigDecimal axisLo         = gridOrigin.get(axisNonZeroIndices.get(0)).add(sspaceShift);
-                BigInteger gridAxisPoints = BigInteger.valueOf(1).add(BigInteger.valueOf(cEl.getHiInt()-cEl.getLoInt()));
-                BigDecimal axisHi;
-                if (!isIrregular) {
-                    // use the resolution: for Indexed CRSs, the formula is different than non-indexed CRSs (+1 term in the denominator)
-                    // linear CRS: axisHi = (axisLo + #GridPoints)
-                    // linear CRS: axisHi = (axisLo + #GridPoints - 1)
-                    if (crsAxis.getUoM().equals(GRID_UOM)) {
-                        // indexed CRS
-                        axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints).add(BigDecimal.valueOf(-1))));
-                    } else {
-                        // linear CRS
-                        axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints)));
-                    }
+            // compute min-max bounds of this axis
+            // NOTE1: grid origin is centre of sample space (e.g. pixel)
+            // NOTE2: grid-axis and CRS-axis are aligned
+            // (!) domain.lo = min(origin, origin+N*offsetVector)  => grid-point is point (not pixel)
+            //     domain.hi = max(origin, origin+N*offsetVector)
+            BigDecimal resolution     = axis.getKey().get(axisNonZeroIndices.get(0));
+            BigDecimal sspaceShift    = WcsUtil.getSampleSpaceShift(resolution, isIrregular, crsAxis.getUoM());
+            BigDecimal axisLo         = gridOrigin.get(axisNonZeroIndices.get(0)).add(sspaceShift);
+            BigInteger gridAxisPoints = BigInteger.valueOf(1).add(BigInteger.valueOf(cEl.getHiInt()-cEl.getLoInt()));
+            BigDecimal axisHi;
+            if (!isIrregular) {
+                // use the resolution: for Indexed CRSs, the formula is different than non-indexed CRSs (+1 term in the denominator)
+                // linear CRS: axisHi = (axisLo + #GridPoints)
+                // linear CRS: axisHi = (axisLo + #GridPoints - 1)
+                if (crsAxis.getUoM().equals(INDEX_UOM)) {
+                    // indexed CRS
+                    axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints).add(BigDecimal.valueOf(-1))));
                 } else {
-                    // get the greatest coefficient
-                    axisHi = axisLo.add(resolution.multiply(axis.getValue()));
+                    // linear CRS
+                    axisHi = axisLo.add(resolution.multiply(new BigDecimal(gridAxisPoints)));
                 }
+            } else {
+                // get the greatest coefficient
+                axisHi = axisLo.add(resolution.multiply(axis.getValue()));
+            }
 
-                domEl = new DomainElement(
-                        axisLo.compareTo(axisHi) <= 0 ? axisLo : axisHi,    // offset-vector can be negative,
-                        axisLo.compareTo(axisHi) <= 0 ? axisHi : axisLo,    // then (axisLo>axisHi)
-                        crsAxis.getAbbreviation(),
-                        crsAxis.getType(),
-                        crsAxis.getUoM(),
-                        crsUri,
-                        axisOrder,
-                        gridAxisPoints,
-                        resolution.compareTo(BigDecimal.ZERO) > 0,
-                        isIrregular
-                        );
-                domEl.setAxisDef(crsAxes.get(axisNonZeroIndices.get(0)).fst); // added utilities from domain elements
-                if (isIrregular) {
-                    // Set the offset vector: DomainElement can compute it only if the axis is regular (max-min/cells)
-                    domEl.setScalarResolution(resolution);
-                }
+            domEl = new DomainElement(
+                    axisLo.compareTo(axisHi) <= 0 ? axisLo : axisHi,    // offset-vector can be negative,
+                    axisLo.compareTo(axisHi) <= 0 ? axisHi : axisLo,    // then (axisLo>axisHi)
+                    crsAxis.getAbbreviation(),
+                    crsAxis.getType(),
+                    crsAxis.getUoM(),
+                    crsUri,
+                    axisOrder,
+                    gridAxisPoints,
+                    resolution.compareTo(BigDecimal.ZERO) > 0,
+                    isIrregular
+                    );
+            domEl.setAxisDef(crsAxes.get(axisNonZeroIndices.get(0)).fst); // added utilities from domain elements
+            if (isIrregular) {
+                // Set the offset vector: DomainElement can compute it only if the axis is regular (max-min/cells)
+                domEl.setScalarResolution(resolution);
             }
             domainElements.add(domEl);
             log.debug("Added WCPS `domain' element: " + domEl);

@@ -77,8 +77,10 @@ public class CrsUtil {
 
     // NOTE: "CRS:1" axes to have a GML definition that will be parsed.
     public static final String GRID_CRS  = "CRS:1";
-    public static final String GRID_UOM = "GridSpacing"; // See Uom in Index[1-9]D CRS defs
+    public static final String INDEX_CRS_PATTERN = "Index%dD";
+    public static final String INDEX_UOM = "GridSpacing"; // See Uom in Index[1-9]D CRS defs
     public static final String PURE_UOM  = "10^0";
+
 
     public static final String CRS_DEFAULT_VERSION = "0";
     //public static final String CRS_DEFAULT_FORMAT  = "application/gml+xml";
@@ -87,7 +89,7 @@ public class CrsUtil {
     public static final String EPSG_AUTH = "EPSG";
     //public static final String ISO_AUTH  = "ISO";
     //public static final String AUTO_AUTH = "AUTO";
-    //public static final String OGC_AUTH  = "OGC";
+    public static final String OGC_AUTH  = "OGC";
     //public static final String IAU_AUTH  = "IAU2000";
     //public static final String UMC_AUTH  = "UMC";
     //public static final List<String> SUPPORTED_AUTHS = Arrays.asList(EPSG_AUTH, ISO_AUTH, AUTO_AUTH, OGC_AUTH); // IAU_AUTH, UMC_AUTH);
@@ -929,7 +931,7 @@ public class CrsUtil {
                 // Indexed CRSs (integer "GridSpacing" UoM): no need for math proportion, coords are just int offsets.
                 // This is not the same as CRS:1 which access direct grid coordinates.
                 // Index CRSs have indexed coordinates, but still offset vectors can determine a different reference (eg origin is UL corner).
-                if (axisUoM.equals(CrsUtil.GRID_UOM)) {
+                if (axisUoM.equals(CrsUtil.INDEX_UOM)) {
                     int count = 0;
                     // S = subset value, px_s = subset grid index
                     // m = min(grid index), M = max(grid index)

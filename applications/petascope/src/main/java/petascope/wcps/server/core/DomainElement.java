@@ -33,7 +33,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
-import static petascope.util.CrsUtil.GRID_UOM;
+import static petascope.util.CrsUtil.INDEX_UOM;
 
 /**
  * This is an axis in geographic coordinates. See the WCPS standard.
@@ -112,7 +112,7 @@ public class DomainElement implements Cloneable {
                         "Invalid domain element: upper-bound is greater then lower-bound.");
             }
 
-            BigDecimal diffBD = maxValue.subtract(minValue).add(uom.equals(CrsUtil.GRID_UOM) ? BigDecimal.ONE : BigDecimal.ZERO);
+            BigDecimal diffBD = maxValue.subtract(minValue).add(uom.equals(CrsUtil.INDEX_UOM) ? BigDecimal.ONE : BigDecimal.ZERO);
             scalarResolution  = BigDecimalUtil.divide(diffBD, new BigDecimal(dimensionality));
         }
 
@@ -233,7 +233,7 @@ public class DomainElement implements Cloneable {
      * @return True is the domain element points do represent a sample space.
      */
     public boolean hasSampleSpace() {
-        return !isIrregular && !(getUom().equals(GRID_UOM));
+        return !isIrregular && !(getUom().equals(INDEX_UOM));
     }
 
     /**

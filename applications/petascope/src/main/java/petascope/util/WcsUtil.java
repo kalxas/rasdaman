@@ -39,7 +39,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
-import static petascope.util.CrsUtil.GRID_UOM;
+import static petascope.util.CrsUtil.INDEX_UOM;
 import static petascope.util.XMLSymbols.LABEL_COVERAGE_SUBTYPE;
 import static petascope.util.XMLSymbols.LABEL_COVERAGE_SUBTYPE_PARENT;
 import static petascope.util.XMLSymbols.NAMESPACE_WCS;
@@ -253,10 +253,9 @@ public class WcsUtil {
                     );
         }
 
-        // Coverage function: mapping the order of rangeSet values
+        // Coverage function and Envelope: required
         String coverageFunction = "";
-        if (WcsUtil.isGrid(m.getCoverageType()) && !m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
-            // gridded coverage:
+        if (WcsUtil.isGrid(m.getCoverageType())) { // coverage function is for grids
             coverageFunction += "  <" + XMLSymbols.LABEL_COVERAGE_FUNCTION + ">\n" +
                     Templates.getTemplate(Templates.GRID_FUNCTION,
                     Pair.of("\\{" + Templates.KEY_SEQUENCE_RULE_ORDER + "\\}", getOuterInnerAxisRuleOrder(m))
@@ -664,7 +663,7 @@ public class WcsUtil {
      */
     public static BigDecimal getSampleSpaceShift(BigDecimal offsetVector, boolean isIrregular, String axisUom) {
         BigDecimal shift;
-        if (isIrregular || axisUom.equals(GRID_UOM)) {
+        if (isIrregular || axisUom.equals(INDEX_UOM)) {
             shift = BigDecimal.ZERO;
         } else {
             shift = BigDecimalUtil.divide(offsetVector, BigDecimal.valueOf(-2));
@@ -700,7 +699,7 @@ public class WcsUtil {
                         coefficients.get(0) ;                     // isLowerBound : get the first point included in the response
                 // coordinate = Origin + (coefficient * offset_vector)
                 fittedCoordinateValue = domEl.getMinValue().add(domEl.getDirectionalResolution().multiply(fitCoefficient));
-            } else if (domEl.getUom().equals(GRID_UOM)) {
+            } else if (domEl.getUom().equals(INDEX_UOM)) {
                 // only integral coordinates are legal here
                 // round up on subset.lo bounds and if coordinate is not integral
                 boolean roundUp = !isUpperBound && (coordinateValue.subtract(BigDecimal.valueOf(coordinateValue.longValue())).compareTo(BigDecimal.ZERO) != 0);

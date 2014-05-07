@@ -188,7 +188,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
         // Axis type
         try {
             String axisSingleCrs = covInfo.getDomainElement(covInfo.getDomainIndexByName(axisName)).getNativeCrs();
-            this.axisType = CrsUtil.getAxisType(CrsUtil.getGmlDefinition(axisSingleCrs), axisName);
+            this.axisType = axisSingleCrs.equals(CrsUtil.GRID_CRS) ? "" : CrsUtil.getAxisType(CrsUtil.getGmlDefinition(axisSingleCrs), axisName);
         } catch (PetascopeException ex) {
             throw new WCPSException("Failed while getting the type of axis " + axisName + " for CRS " + crs.getName(), ex);
         } catch (SecoreException ex) {
