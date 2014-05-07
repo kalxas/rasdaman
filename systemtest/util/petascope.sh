@@ -47,7 +47,15 @@ function check_cov()
 
   $RASQL -q 'select r from RAS_COLLECTIONNAMES as r' --out string | egrep "\b$c\b" > /dev/null
   test2=$?
-  [ $test1 -eq 0 -a $test2 -eq 0 ]
+
+	# For multipoint coverages consider only test1
+	multi_coll="Parksmall"
+	if [[ $multi_coll == *$c* ]]
+	then
+		[ $test1 -eq 0 ]
+	else
+	[ $test1 -eq 0 -a $test2 -eq 0 ]
+	fi
 }
 
 #
@@ -849,14 +857,10 @@ function import_pointcloud_data()
   id=`$PSQL -c  "select id from ps_coverage where name='$PC_DATASET'" | head -3 | tail -1`
   test "$id" != "0"
   if [ $? -eq 0 ]; then
-    logn "dropping $PC_DATASET... "
-    $PSQL -c  "delete from ps_coverage where name='$PC_DATASET'"
-    echo ok.
+	$PSQL -c  "DELETE FROM ps_coverage where name='$PC_DATASET'" > /dev/null
   else
     log "$PC_DATASET not found in the database."
   fi
-
-  logn "importing $PC_DATASET... "
 
 	# Inserting the general coverage info to ps_coverage table
 	$PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_coverage(name, gml_type_id, native_format_id) VALUES( '$PC_COVERAGE', \
@@ -919,7 +923,7 @@ function import_pointcloud_data()
 
     if [ "$line_count" -gt 0 ]
     then
-	insert_stmt+=","
+	  insert_stmt+=","
     fi
     insert_stmt+="($COVERAGE_ID,'POINT($x $y $z)','{$r,$g,$b}')"
 
@@ -937,7 +941,7 @@ function import_pointcloud_data()
 
 	# Inserting remaining points
 	if [[ "$insert_stmt" == *POINT*  ]]; then
-	$PSQL -c "$insert_stmt"  > /dev/null || exit $RC_ERROR
+		$PSQL -c "$insert_stmt"  > /dev/null || exit $RC_ERROR
 	fi
 
 	# Inserting coverage extension into ps_bounding_box table_schema
@@ -949,9 +953,6 @@ function import_pointcloud_data()
 			AND ${DB_TABLE_PREFIX}_coverage.id = ${DB_TABLE_PREFIX}_multipoint.coverage_id;" | head -3 | tail -1`
   $PSQL -c "INSERT INTO ${DB_TABLE_PREFIX}_bounding_box(coverage_id, lower_left, upper_right) \
 			VALUES($COVERAGE_ID,'{${lower_left}}','{${upper_right}}');" > /dev/null || exit $RC_ERROR
-
-	log "Point cloud coverage $PC_COVERAGE is imported"
-  log ok.
 
 }
 
