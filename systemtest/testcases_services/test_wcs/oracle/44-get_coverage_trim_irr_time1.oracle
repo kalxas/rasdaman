@@ -10,8 +10,8 @@
 
   <boundedBy>
     <Envelope srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">
-      <lowerCorner>148655</lowerCorner>
-      <upperCorner>148657</upperCorner>
+      <lowerCorner>148656</lowerCorner>
+      <upperCorner>148658</upperCorner>
     </Envelope>
   </boundedBy>
 
@@ -28,7 +28,7 @@
       <axisLabels>ansi</axisLabels>
       <gmlrgrid:origin>
         <Point id="irr_cube_2-origin" srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">
-          <pos>148654</pos>
+          <pos>148655</pos>
         </Point>
       </gmlrgrid:origin>
       <gmlrgrid:generalGridAxis>

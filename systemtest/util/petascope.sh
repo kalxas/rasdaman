@@ -577,7 +577,7 @@ function import_irr_cube_2()
              --crs-order 0:1:2  \
              --3D top \
              --csz "$t_vector" \
-             --z-coords 148653:148655:148657:148660 > /dev/null || exit $RC_ERROR
+             --z-coords 148654:148656:148658:148661 > /dev/null || exit $RC_ERROR
              # ANSI date numbers for 2008 Jan {1-3-5-8} 00:00:00Z (ANSI dates are integers: no hour resolution)
 
   # rasimport is still poor on SWE metadata handling: update it with richer information (range type)

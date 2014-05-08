@@ -10,8 +10,8 @@
 
   <boundedBy>
     <Envelope srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">
-      <lowerCorner>148655</lowerCorner>
-      <upperCorner>148657</upperCorner>
+      <lowerCorner>148654</lowerCorner>
+      <upperCorner>148658</upperCorner>
     </Envelope>
   </boundedBy>
 
@@ -21,7 +21,7 @@
         >
       <limits>
         <GridEnvelope>
-          <low>1</low>
+          <low>0</low>
           <high>2</high>
         </GridEnvelope>
       </limits>
@@ -34,7 +34,7 @@
       <gmlrgrid:generalGridAxis>
         <gmlrgrid:GeneralGridAxis>
           <gmlrgrid:offsetVector srsName="/crs/OGC/0/AnsiDate" axisLabels="ansi" uomLabels="d" srsDimension="1">2</gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients>0.5 1.5</gmlrgrid:coefficients>
+          <gmlrgrid:coefficients>0 1 2</gmlrgrid:coefficients>
           <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
           <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
         </gmlrgrid:GeneralGridAxis>
@@ -46,14 +46,14 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">3.11651 0.451686,7.64325 0.618357</tupleList>
+      <tupleList ts="," cs=" ">8.64451 4.17255,3.11651 0.451686,7.64325 0.618357</tupleList>
     </DataBlock>
   </rangeSet>
 
   <coverageFunction>
     <GridFunction>
       <sequenceRule axisOrder="+1">Linear</sequenceRule>
-      <startPoint>1</startPoint>
+      <startPoint>0</startPoint>
     </GridFunction>
   </coverageFunction>
 
