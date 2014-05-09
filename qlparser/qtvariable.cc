@@ -210,7 +210,7 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
 
             for( QtDataList::iterator iter=inputList->begin(); iter!=inputList->end() && !dataObject; iter++ )
             {
-                if( iteratorName == (*iter)->getIteratorName() )
+                if( *iter && iteratorName == (*iter)->getIteratorName() )
                     dataObject = *iter;
                 else
                     pos++;
