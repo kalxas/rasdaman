@@ -207,6 +207,7 @@ public:
     };
 
     QtCast(QtOperation*, cast_types);
+    QtCast(QtOperation* input, const char* typeName);
     /// method for evaluating the node
     QtData* evaluate(QtDataList*);
     /// prints the tree
@@ -223,6 +224,7 @@ private:
 
     static const QtNodeType nodeType;
     cast_types castType;
+    std::string typeName;
 };
 
 

@@ -156,6 +156,7 @@ public:
         OP_CAST_ULONG,
         OP_CAST_FLOAT,
         OP_CAST_DOUBLE,
+        OP_CAST_GENERAL,
         OP_CAST_END,
         //*******************
 

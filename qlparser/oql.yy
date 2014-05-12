@@ -198,7 +198,7 @@ struct QtUpdateSpecElement
 
 }
 
-%token <identifierToken> Identifier
+%token <identifierToken> Identifier TypeName
 %token <booleanToken>    BooleanLit
 %token <characterToken>  CharacterLit
 %token <integerToken>    IntegerLit
@@ -2257,6 +2257,16 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	  FREESTACK($1)
 	  FREESTACK($2)
 	  FREESTACK($3)
+	}
+	| LRPAR TypeName RRPAR generalExp %prec UNARYOP
+	{
+	  $$ = new QtCast($4, $2.value);
+	  $$->setParseInfo( *($2.info) );
+	  parseQueryTree->removeDynamicObject($4);
+	  parseQueryTree->addDynamicObject($$);
+	  FREESTACK($1)
+	  FREESTACK($2)
+	  FREESTACK($3)
 	}                  	
 	| LRPAR generalExp RRPAR
 	{
@@ -2349,7 +2359,8 @@ collectionIterator: Identifier;
 
 attributeIdent: Identifier;
 
-typeName: Identifier;
+typeName: Identifier
+        | TypeName;
 
 marrayVariable: Identifier;
 

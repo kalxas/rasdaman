@@ -484,7 +484,7 @@ string
 QtDot::getSpelling()
 {
     char tempStr[20];
-    sprintf(tempStr, "%ud", (unsigned long)getNodeType());
+    sprintf(tempStr, "%lud", (unsigned long)getNodeType());
     string result  = string(tempStr);
 
     if( elementNo == -1 )
@@ -769,6 +769,9 @@ const QtNode::QtNodeType QtCast::nodeType = QtNode::QT_CAST;
 QtCast::QtCast(QtOperation* initInput, cast_types t):
     QtUnaryInduce(initInput), castType(t) {}
 
+QtCast::QtCast(QtOperation* input, const char *typeName):
+    QtUnaryInduce(input), typeName(typeName) {}
+
 QtData* QtCast::evaluate(QtDataList* inputList)
 {
     startTimer("QtCast");
@@ -778,8 +781,27 @@ QtData* QtCast::evaluate(QtDataList* inputList)
 
     if(getOperand(inputList, operand))
     {
-        returnValue = computeOp( operand, getOp(castType));
-        
+        if(typeName.empty())
+        {
+            // old style cast operator
+            returnValue = computeOp( operand, getOp(castType));
+        }
+        else
+        {
+            const BaseType *resultType = TypeFactory::mapType(typeName.c_str());
+            Ops::OP_CAST_GENERAL;
+            if(operand->getDataType() == QT_MDD)
+            {
+                QtMDD* mdd = (QtMDD*) operand;
+                returnValue = computeUnaryMDDOp(mdd, resultType, Ops::OP_CAST_GENERAL);
+                ((QtMDD*) returnValue)->setFromConversion(mdd->isFromConversion());
+            }
+            else if (operand->isScalarData())
+            {
+                QtScalarData* scalar = (QtScalarData*) operand;
+                returnValue = computeUnaryOp(scalar, resultType, Ops::OP_CAST_GENERAL);
+            }
+        }
     }
 
     // delete old operand
@@ -840,9 +862,16 @@ const QtTypeElement& QtCast::checkType(QtTypeTuple* typeTuple)
 
         if(inputType.getDataType() == QT_MDD)
         {
-            const BaseType* baseType = ((MDDBaseType*)(inputType.getType()))->getBaseType();
-            BaseType* resultBaseType = (BaseType*)(Ops::getResultType( getOp(castType), baseType ));
-
+            const BaseType* resultBaseType = NULL;
+            if(typeName.empty())
+            {
+                const BaseType* baseType = ((MDDBaseType*)(inputType.getType()))->getBaseType();
+                resultBaseType = (BaseType*)(Ops::getResultType( getOp(castType), baseType ));
+            }
+            else
+            {
+                resultBaseType = TypeFactory::mapType( typeName.c_str() );
+            }
 
             if(!resultBaseType)
             {
@@ -858,8 +887,16 @@ const QtTypeElement& QtCast::checkType(QtTypeTuple* typeTuple)
 
         else if(inputType.isBaseType())
         {
-            BaseType* baseType = (BaseType*)(inputType.getType());
-            BaseType* resultBaseType = (BaseType*)(Ops::getResultType( getOp(castType), baseType ));
+            const BaseType* resultBaseType = NULL;
+            if(typeName.empty())
+            {
+                BaseType* baseType = (BaseType*)(inputType.getType());
+                resultBaseType = (BaseType*)(Ops::getResultType( getOp(castType), baseType ));
+            }
+            else
+            {
+                resultBaseType = TypeFactory::mapType( typeName.c_str() );
+            }
 
             if(!resultBaseType)
             {

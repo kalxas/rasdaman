@@ -170,7 +170,8 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 		MDDObj* resultMDD = new MDDObj(mddDimensionType, resultTile->getDomain());
 		resultMDD->insertTile(resultTile);
 
-		QtData* returnValue = new QtMDD((MDDObj*) resultMDD);
+		QtMDD* returnValue = new QtMDD((MDDObj*) resultMDD);
+        returnValue->setFromConversion(true);
 
 		if (operand)
 		{

@@ -327,6 +327,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
 
     // create a new QtMDD object as carrier object for the transient MDD object
     returnValue = new QtMDD((MDDObj*) resultMDD);
+    ((QtMDD *) returnValue)->setFromConversion(true);
 
     return returnValue;
 }

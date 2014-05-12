@@ -329,7 +329,13 @@ int string_yyinput( char* buf, int max_size )
 $[0-9]+                                  { llerror("unresolved query parameter"); columnNo++; }
 
 "true"|"false"|"TRUE"|"FALSE"            { SETTOKEN( BooleanLit, booleanToken, yytext[0] == 't' || yytext[0] == 'T') }
-[a-zA-Z_][a-zA-Z0-9_]*			 { SETSTRTOKEN( Identifier, identifierToken, yytext ) }
+[a-zA-Z_][a-zA-Z0-9_]*                   {
+                                            if (TypeFactory::mapType( yytext )) {
+                                                SETSTRTOKEN( TypeName, identifierToken, yytext );
+                                            } else {
+                                                SETSTRTOKEN( Identifier, identifierToken, yytext );
+                                            }
+                                         }
 "'"[^']"'"                               { SETTOKEN( CharacterLit, characterToken, yytext[1] ) }
 \"([^"]|\\["\n])*\"                      {
                                            yytext[strlen(yytext)-1] = '\0';

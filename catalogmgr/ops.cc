@@ -76,12 +76,16 @@ UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType
     // cast operations
     if(op > Ops::OP_CAST_BEGIN && op < Ops::OP_CAST_END)
     {
-        if(opType->getType() < STRUCT)
+        if(opType->getType() <= NUMERICAL_TYPES_END)
             return new OpCAST(resType, opType, resOff, opOff );
 
-        else if(opType->getType() == STRUCT)
-            return new OpUnaryStruct(resType, opType, op, resOff, opOff);
-
+        else if(opType->getType() == STRUCT) {
+            if (resType->getType() == STRUCT &&
+                ((StructType *)resType)->getNumElems() != ((StructType *)opType)->getNumElems())
+                return 0;
+            else
+                return new OpUnaryStruct(resType, opType, op, resOff, opOff);
+        }
         else
             return 0;
     }
@@ -805,7 +809,8 @@ int Ops::isApplicable(Ops::OpType op, const BaseType* op1Type, const BaseType* o
     else if(op > OP_UFUNC_BEGIN && op < OP_UFUNC_END )
         resType = TypeFactory::mapType("Double");
 
-    else if(op > Ops::OP_CAST_BEGIN && op < Ops::OP_CAST_END && op1Type->getType() <= FLOAT)
+    else if(op > Ops::OP_CAST_BEGIN && op < Ops::OP_CAST_END && op1Type->getType() <= FLOAT
+            && op != Ops::OP_CAST_GENERAL)
     {
         const char *typeName[] =
         {
@@ -996,7 +1001,7 @@ const BaseType* Ops::getResultType(Ops::OpType op, const BaseType* op1, const Ba
     if( op > Ops::OP_UFUNC_BEGIN && op < Ops::OP_UFUNC_END )
         return TypeFactory::mapType("Double");
 
-    if(op > Ops::OP_CAST_BEGIN && op < Ops::OP_CAST_END)
+    if(op > Ops::OP_CAST_BEGIN && op < Ops::OP_CAST_END && op != OP_CAST_GENERAL)
     {
         if(op1->getType() < STRUCT)
         {
@@ -1256,6 +1261,14 @@ Ops::execUnaryConstOp( Ops::OpType op, const BaseType* resType,
                        unsigned int opOff, double param )
 {
     UnaryOp* myOp = Ops::getUnaryOp( op, resType, opType, resOff, opOff );
+
+    if (!myOp)
+    {
+        RMInit::logOut << "Ops::execUnaryConstOp: no operation for result type "
+                       << resType->getName() << ", argument type "
+                       << opType->getName() << ", operation " << op << endl;
+        throw r_Error(367);
+    }
     
     // set exponent for pow operations
     if (op == Ops::OP_POW)
