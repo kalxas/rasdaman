@@ -1,1 +1,1 @@
-for t in (rgb) return encode(extend( (t + (char)50),  {i :"CRS:1" ( 0:500 ),  j: "CRS:1" (0: 500)}  ), "png" )
+for t in (rgb) return encode(extend( (t + (char)50),  {i :"CRS:1" ( 0:500 ),  j: "CRS:1" (0: 500)}  ), "png", "nodata=0" )

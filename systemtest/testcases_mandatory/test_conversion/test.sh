@@ -142,11 +142,11 @@ insert_into test_tmp "$TESTDATA_PATH/rgb.png" "" "decode"
 $RASQL -q 'select encode(c, "GTiff") from test_tmp as c' --out file --outfile nodata > /dev/null
 res=`gdalinfo nodata.tif | grep "NoData Value=0" | wc -l`
 if [ $res -eq 3 ]; then
-  log "default nodata value test passed."
-  NUM_SUC=$(($NUM_SUC + 1))
-else
   log "default nodata value test failed."
   NUM_FAIL=$(($NUM_FAIL + 1))
+else
+  log "default nodata value test passed."
+  NUM_SUC=$(($NUM_SUC + 1))
 fi
 NUM_TOTAL=$(($NUM_TOTAL + 1))
 rm -f nodata*

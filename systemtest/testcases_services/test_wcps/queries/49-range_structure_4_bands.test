@@ -6,4 +6,4 @@ encode(
   green: c.green;
   blue:  c.blue;
   alpha: c.blue
-}, "png")
+}, "png", "nodata=0")

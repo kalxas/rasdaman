@@ -6,4 +6,4 @@ encode(
         green: (char) 2;
         blue: (char) 3
      },
-"png")
+"png", "nodata=0")

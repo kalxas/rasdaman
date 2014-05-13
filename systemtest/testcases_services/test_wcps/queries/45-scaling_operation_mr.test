@@ -2,4 +2,4 @@ for c in (mr) return encode(
     scale(
         trim(c, { i (120:130), j (50:60) }),
         { i (0:100), j (0:100) }, { }),
-"png")
+"png", "nodata=0")

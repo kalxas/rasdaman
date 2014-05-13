@@ -1,1 +1,1 @@
-for t in (eobstest) return encode(extend( t[t(1)],  { Long(-45:90),  Lat(5:80) }, "tiff" )
+for t in (eobstest) return encode(extend( t[t(1)],  { Long(-45:90),  Lat(5:80) }, "tiff", "nodata=0" )

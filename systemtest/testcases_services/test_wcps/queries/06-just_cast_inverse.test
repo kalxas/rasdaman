@@ -1,1 +1,1 @@
-for c in ( rgb ) return encode( ((char)255 - c.red)[i(50:150),j(50:150)], "png" )
+for c in ( rgb ) return encode( ((char)255 - c.red)[i(50:150),j(50:150)], "png", "nodata=0" )

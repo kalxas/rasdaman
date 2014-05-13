@@ -695,14 +695,7 @@ QtEncode::setGDALParameters(GDALDataset *gdalDataSet, int width, int height, int
 		gdalDataSet->SetMetadata(metadata);
 	}
 
-
-	// set nodata value
-	if (gParams.nodata.empty())
-	{
-		// if no nodata is specified, set default -- DM 2013-oct-01, ticket 477
-		gParams.nodata.push_back(NODATA_DEFAULT_VALUE);
-	}
-	if (gParams.nodata.size() > 0)
+    if (gParams.nodata.size() > 0)
 	{
 		for (int band = 0; band < nBands; band++)
 		{

@@ -1,1 +1,1 @@
-for c in (rgb) return encode(extend(c, {i(0:500), j(0:500)} ), "png")
+for c in (rgb) return encode(extend(c, {i(0:500), j(0:500)} ), "png", "nodata=0")

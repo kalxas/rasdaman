@@ -1,4 +1,4 @@
 for c in (mr)
 where avg(c)>30
 return
-encode (c, "png")
+encode (c, "png", "nodata=0")

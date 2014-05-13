@@ -1,1 +1,1 @@
-for m in ( rgb ) return encode( m.red, "png" )
+for m in ( rgb ) return encode( m.red, "png", "nodata=0" )

@@ -5,4 +5,4 @@ return encode(
 	over $first x(51:150), 
              $second y(0:99) 
 	values $first
-, "png" )
+, "png", "nodata=0" )

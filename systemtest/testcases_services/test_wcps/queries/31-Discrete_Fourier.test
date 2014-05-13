@@ -20,4 +20,4 @@ encode(
 					( (double) ($uy*$xy) / (70 - 65 + 1 ) )
 				)
 			)
-, "png")
+, "png", "nodata=0")
