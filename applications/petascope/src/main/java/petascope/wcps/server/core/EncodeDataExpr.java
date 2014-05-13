@@ -59,7 +59,7 @@ public class EncodeDataExpr extends AbstractRasNode {
             }
 
             if (nodeName.equals(WcpsConstants.MSG_FORMAT)) {
-                format = child.getFirstChild().getNodeValue();
+                format = child.getFirstChild().getNodeValue().toLowerCase();
                 mime = request.getMetadataSource().formatToMimetype(format);
                 log.trace("  " + WcpsConstants.MSG_FORMAT + ": " + format + ", " + WcpsConstants.MSG_MIME + ": " + mime);
                 continue;
