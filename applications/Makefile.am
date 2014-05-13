@@ -29,7 +29,7 @@
 ##################################################################
 
 if ENABLE_JAVA
-    JAVA_DIR = petascope raswct petascope/src/main/db secore
+    JAVA_DIR =
 endif
 
 SUBDIRS=rasql rview rasgeo $(JAVA_DIR) directql

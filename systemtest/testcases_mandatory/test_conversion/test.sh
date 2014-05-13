@@ -175,6 +175,38 @@ run_test tiff inv_tiff tif tif TestSet ", \"sampletype=octet\""
 run_test tiff decode tif tif GreySet
 run_test tiff decode tif tif GreySet ", \"gtiff\", \"ZLEVEL=1;\""
 
+################## (TestArray) inv_tiff() ####################
+log ----- user-defined type conversion ------
+
+create_coll test_tmp TestSet
+$RASQL -q 'insert into test_tmp values (TestPixel) inv_tiff($1)' -f "$TESTDATA_PATH/multiband.tif" > /dev/null
+if [ $? -eq 0 ]; then
+  log "user-defined base type cast inv_tiff test passed."
+  NUM_SUC=$(($NUM_SUC + 1))
+else
+  log "user-defined base type cast inv_tiff test failed."
+  NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+NUM_TOTAL=$(($NUM_TOTAL + 1))
+$RASQL -q 'insert into test_tmp values (TestPixel) decode($1)' -f "$TESTDATA_PATH/multiband.tif" > /dev/null
+if [ $? -eq 0 ]; then
+  log "user-defined base type cast decode test passed."
+  NUM_SUC=$(($NUM_SUC + 1))
+else
+  log "user-defined base type cast decode test failed."
+  NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+NUM_TOTAL=$(($NUM_TOTAL + 1))
+$RASQL -q 'select inv_tiff($1)' -f "$TESTDATA_PATH/multiband.tif" > /dev/null
+if [ $? -eq 0 ]; then
+  log "user-defined base type inv_tiff test passed."
+  NUM_SUC=$(($NUM_SUC + 1))
+else
+  log "user-defined base type inv_tiff test failed."
+  NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+NUM_TOTAL=$(($NUM_TOTAL + 1))
+drop_colls test_tmp
 
 ################## png() and inv_png() #######################
 run_test png inv_png png png GreySet
@@ -204,7 +236,9 @@ log '------ GML in JPEG2000 conversion --------'
     GDALINFO="$( which gdalinfo )"
 GDAL_VERSION="$( $GDALINFO --version | awk -F ' |,' '{ print $2 }' | grep -o -e '.[0-9.]\+' )" # M.m version
  FORMAT_CODE="JP2OpenJPEG"
-if [ ${GDAL_VERSION%.*} -eq 1 -a ${GDAL_VERSION#*.} -lt 10 ]
+GDAL_VERSION_MAJOR=$(echo $GDAL_VERSION | awk -F '.' '{ print $1; }')
+GDAL_VERSION_MINOR=$(echo $GDAL_VERSION | awk -F '.' '{ print $2; }')
+if [ $GDAL_VERSION_MAJOR -eq 1 -a $GDAL_VERSION_MINOR -lt 10 ]
 then
     log "skipping test for GMLJP2 encoding: GDAL 1.10 required (found GDAL $GDAL_VERSION)."
 elif [ -z "$( $GDALINFO --formats | grep $FORMAT_CODE )" ]

@@ -37,7 +37,7 @@ CHECKLIMITS=@CHECKLIMITS@
 ACLOCAL_AMFLAGS = -I m4
 
 if ENABLE_JAVA
-    JAVA_DIR = java
+    JAVA_DIR =
 endif
 
 nobase_include_HEADERS=raslib/*.h raslib/*.hh raslib/*.icc raslib/*.cc \
