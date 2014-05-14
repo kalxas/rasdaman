@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:RectifiedGridCoverage
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="mean_summer_airtemp"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">
+      <lowerCorner>-8.975 156.275</lowerCorner>
+      <upperCorner>-8.975 156.275</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <RectifiedGrid dimension="2" id="mean_summer_airtemp-grid">
+      <limits>
+        <GridEnvelope>
+          <low>400 350</low>
+          <high>401 351</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>Long Lat</axisLabels>
+      <origin>
+          <Point id="mean_summer_airtemp-origin" srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">
+              <pos>-9 156.3</pos>
+          </Point>
+      </origin>
+      <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">0 0.05</offsetVector>
+      <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">-0.05 0</offsetVector>
+    </RectifiedGrid>
+  </domainSet>
+
+  <rangeSet>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList ts="," cs=" ">135,135,135,135</tupleList>
+    </DataBlock>
+  </rangeSet>
+
+  <coverageFunction>
+    <GridFunction>
+      <sequenceRule axisOrder="+2 +1">Linear</sequenceRule>
+      <startPoint>400 350</startPoint>
+    </GridFunction>
+  </coverageFunction>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="b1">
+      <swe:Quantity ><swe:label>pixel_value</swe:label><swe:uom code="undefined" /></swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+
+</gmlcov:RectifiedGridCoverage>

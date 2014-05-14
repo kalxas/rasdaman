@@ -341,6 +341,12 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             // Parametrized CRSs can have quotes and other reserved entities which break abstract WCPS queries (and XML)
             String crs = StringUtil.escapeXmlPredefinedEntities(de.getNativeCrs());
 
+            // in-subset CRS specification (standard inconsistency CRS hanlding in KVP/XML: see OGC 12-167 change request #257)
+            // accept direct internal index subsets even if no CRS extension is provided (this is not a geo-reprojection)
+            if (null != subset.getCrs() && subset.getCrs().equals(CrsUtil.GRID_CRS)) {
+                crs = subset.getCrs(); // replace native with grid crs
+            }
+
             if (subset instanceof DimensionTrim) {
                 DimensionTrim trim = (DimensionTrim) subset;
                 proc = "trim(" + proc + ",{" + dim + ":\"" + crs + "\" ("

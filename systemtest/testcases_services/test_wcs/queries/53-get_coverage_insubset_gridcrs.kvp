@@ -1,0 +1,6 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=mean_summer_airtemp&
+subset=Long,CRS:1(400,401)&
+subset=Lat,CRS:1(350,351)
