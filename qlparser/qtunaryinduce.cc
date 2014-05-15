@@ -821,7 +821,7 @@ void QtCast::printTree(int tab, ostream& s, QtChildType mode)
     };
     s << SPACE_STR(tab).c_str() << "QtCastObject "
       << getNodeType()
-      << "<" << type_name[castType] << ">" << getEvaluationTime()
+      << "<" << (typeName.empty() ? type_name[castType] : typeName.c_str()) << ">" << getEvaluationTime()
       << endl;
     QtUnaryInduce::printTree( tab + 2, s, mode );
 }
@@ -833,7 +833,7 @@ void QtCast::printAlgebraicExpression(ostream& s)
         "bool", "octet", "char", "short", "ushort",
         "long", "ulong", "float", "double"
     };
-    s << "cast<" << type_name[castType] << ">(";
+    s << "cast<" << (typeName.empty() ? type_name[castType] : typeName.c_str()) << ">(";
     if(input)
         input->printAlgebraicExpression(s);
     else
