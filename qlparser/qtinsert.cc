@@ -257,7 +257,8 @@ QtInsert::evaluate()
 #endif
         // cast to external format
         myoid = (long long) oid;
-        RMInit::logOut << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter() << std::endl;
+        RMDBGIF(3, RMDebug::module_qlparser, "QtInsert",  \
+            RMInit::logOut << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter() << std::endl;)
             // get all tiles
             vector<Tile*>* sourceTiles = sourceObj->getTiles();
 
@@ -413,7 +414,8 @@ QtInsert::evaluate()
     stopTimer();
 
    // return the generated OID
-   RMInit::logOut << "QtInsert::evaluate() - returning oid:" << myoid << std::endl;
+   RMDBGIF(3, RMDebug::module_qlparser, "QtInsert",
+     RMInit::logOut << "QtInsert::evaluate() - returning oid:" << myoid << std::endl;)
    returnValue = new QtAtomicData( (r_Long) myoid, (unsigned short) sizeof(r_Long) );
    return returnValue;
 }
