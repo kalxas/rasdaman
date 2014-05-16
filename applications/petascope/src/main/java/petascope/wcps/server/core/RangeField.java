@@ -54,6 +54,9 @@ public class RangeField extends AbstractRasNode {
     }
 
     public String toRasQL() {
+        if(this.type.toLowerCase().equals(WcpsConstants.MSG_BOOLEAN)){
+            return WcpsConstants.MSG_BOOL;
+        }
         return this.type;
     }
 };

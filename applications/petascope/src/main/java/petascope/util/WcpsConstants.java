@@ -48,6 +48,7 @@ public interface WcpsConstants {
     public static final String MSG_BINARY                       = "binary";
     public static final String MSG_BIT                          = "bit";
     public static final String MSG_BITINDEX                     = "bitIndex";
+    public static final String MSG_BOOL                         = "bool";
     public static final String MSG_BOOLEAN                      = "boolean";
     public static final String MSG_BOOLEAN_AND                  = "booleanAnd";
     public static final String MSG_BOOLEAN_OR                   = "booleanOr";
