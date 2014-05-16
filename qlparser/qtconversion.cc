@@ -149,6 +149,44 @@ QtConversion::equalMeaning( QtNode* node )
     return ( result );
 }
 
+const BaseType*
+constructBaseType( const r_Type *type )
+{
+    if(type->isPrimitiveType())
+    {
+        const BaseType *result = TypeFactory::mapType(type->name());
+        if (!result)
+        {
+            RMInit::logOut << "Error: no primitive type for name '"
+                           << type->name() << "' were found" << endl;
+            throw r_Error(BASETYPENOTSUPPORTED);
+        }
+        return result;
+    }
+    else if(type->isStructType())
+    {
+        r_Structure_Type *stype = (r_Structure_Type *) type;
+        StructType *result = new StructType("tmp_struct_name", stype->count_elements());
+        for (int i = 0; i < stype->count_elements(); ++i)
+        {
+            try
+            {
+                r_Attribute attr = (*stype)[i];
+                const r_Base_Type &attr_type = attr.type_of();
+                result->addElement(attr.name(), constructBaseType(&attr_type));
+            }
+            catch (r_Error &e)
+            {
+                delete result;
+                throw;
+            }
+        }
+        TypeFactory::addTempType(result);
+        return result;
+    }
+    return NULL;
+}
+
 
 QtData*
 QtConversion::evaluate( QtDataList* inputList )
@@ -392,92 +430,20 @@ QtConversion::evaluate( QtDataList* inputList )
         // create a transient tile for the compressed data
         const BaseType* myType = NULL;
         const r_Type* currStruct = NULL;
-        if(convResult.destType->isPrimitiveType())
+        myType = constructBaseType( convResult.destType );
+
+        if(strcasecmp( dataStreamType.getType()->getTypeName(), myType->getTypeName()) )
         {
-            myType=TypeFactory::mapType(convResult.destType->name());
-            if(myType == NULL)
-            {
-                RMInit::logOut << "Error: QtConversion::evaluate() no primitive type compatible found" << std::endl;
-                delete convResult.destType;
-                convResult.destType=NULL;
-                delete convResult.dest;
-                convResult.dest=NULL;
-                throw r_Error(BASETYPENOTSUPPORTED);
-            }
+            //FIXME here we have to change the dataStreamType.getType(), is not char for
+            //conversion from_DEF all the time, we don't know the result type until we parse the data
+            MDDBaseType* mddBaseType = new MDDBaseType( "tmp", myType );
+            TypeFactory::addTempType( mddBaseType );
 
-            if(strcasecmp( dataStreamType.getType()->getTypeName(), myType->getTypeName()))
-            {
-                //FIXME here we have to change the dataStreamType.getType(), is not char for
-                //conversion from_DEF all the time, we don't know the result type until we parse the data
-                MDDBaseType* mddBaseType = new MDDBaseType( "tmp", TypeFactory::mapType(myType->getTypeName()) );
-                TypeFactory::addTempType( mddBaseType );
-
-                dataStreamType.setType( mddBaseType );
-                RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
-                    RMInit::logOut << " QtConversion::evaluate() for conversion " << conversionType << " real result is " << std::flush; \
-                    dataStreamType.printStatus(RMInit::logOut); \
-                    RMInit::logOut << std::endl;)
-            }
-        }
-        else   //we assume that we deal with structure types
-        {
-            TypeIterator<StructType> structIter = TypeFactory::createStructIter();
-            while(structIter.not_done())
-            {
-                // get type structure of current structtype
-                typeStructure = structIter.get_element()->getTypeStructure();
-                // convert structure to r_Type
-                currStruct = r_Type::get_any_type( typeStructure );
-
-                if(currStruct == NULL)
-                {
-                    RMInit::logOut << "Error: QtConversion::evaluate() no structure type compatible found" << std::endl;
-                    delete convResult.destType;
-                    convResult.destType=NULL;
-                    delete convResult.dest;
-                    convResult.dest=NULL;
-                    throw r_Error(STRUCTTYPE_ELEMENT_UNKNOWN);
-                }
-
-                free(typeStructure);
-                typeStructure = NULL;
-
-                if(((r_Structure_Type*)currStruct)->compatibleWith((r_Structure_Type*)convResult.destType))
-                {
-                    //we found a type
-                    delete currStruct;
-                    currStruct = NULL;
-                    myType=structIter.get_element().ptr();
-                    break;
-                }
-
-                delete currStruct;
-                currStruct = NULL;
-                structIter.advance();
-            }
-            if(myType == NULL)
-            {
-                RMInit::logOut << "Error: QtConversion::evaluate() no structure type compatible found" << std::endl;
-                delete convResult.destType;
-                convResult.destType=NULL;
-                delete convResult.dest;
-                convResult.dest=NULL;
-                throw r_Error(STRUCTTYPE_ELEMENT_UNKNOWN);
-            }
-
-            if(strcasecmp(dataStreamType.getType()->getTypeName(), myType->getTypeName()))
-            {
-                //FIXME here we have to change the dataStreamType.getType(), is not char for
-                //conversion from_DEF all the time, we don't know the result type until we parse the data
-                MDDBaseType* mddBaseType = new MDDBaseType( "tmp", TypeFactory::mapType(myType->getTypeName()) );
-                TypeFactory::addTempType( mddBaseType );
-
-                dataStreamType.setType( mddBaseType );
-                RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
-                    RMInit::logOut << " QtConversion::evaluate() for conversion " << conversionType << " real result is " << std::flush; \
-                    dataStreamType.printStatus(RMInit::logOut); \
-                    RMInit::logOut << std::endl;)
-            }
+            dataStreamType.setType( mddBaseType );
+            RMDBGIF(4, RMDebug::module_qlparser, "QtConversion",
+                RMInit::logOut << " QtConversion::evaluate() for conversion " << conversionType << " real result is " << std::flush; \
+                dataStreamType.printStatus(RMInit::logOut); \
+                RMInit::logOut << std::endl;)
         }
 
         long convResultSize = convResult.destInterv.cell_count() * myType->getSize();
