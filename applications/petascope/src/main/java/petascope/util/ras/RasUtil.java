@@ -362,9 +362,9 @@ public class RasUtil {
         String version = "";
         Object tmpResult = null;
         try {
-            RasUtil.executeRasqlQuery("select " + RASQL_VERSION + "()");
+            tmpResult = RasUtil.executeRasqlQuery("select " + RASQL_VERSION + "()");
         } catch (Exception ex) {
-            log.warn("Failed retreiving rasdaman version", ex);
+            log.warn("Failed retrieving rasdaman version", ex);
             version = "9.0";
         }
 
