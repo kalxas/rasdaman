@@ -259,6 +259,8 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         //
         Element serviceMetadata = Templates.getXmlTemplate(Templates.SERVICE_METADATA);
         if (serviceMetadata != null) {
+            // SERVICE METADATA EXTENSIONS
+            Element serviceMetadataExt = new Element(PREFIX_WCS + ":" + LABEL_EXTENSION, NAMESPACE_WCS);
             // add supported INTERPOLATION types [OGC 12-049]
             //: requirements #2, #3, #4.
             Element interpolationMetadata = new Element(PREFIX_INT + ":" + LABEL_INTERPOLATION_METADATA, NAMESPACE_INTERPOLATION);
@@ -269,7 +271,8 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 interpolationMetadata.appendChild(interpolationSupported);
             }
             // Insert it on top, in case the template already contains some other fixed content
-            serviceMetadata.insertChild(interpolationMetadata, 0);
+            serviceMetadataExt.appendChild(interpolationMetadata);
+            serviceMetadata.insertChild(serviceMetadataExt, 0);
             //:~
 
             // add supported FORMATS
