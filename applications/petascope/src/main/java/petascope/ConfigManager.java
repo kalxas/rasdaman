@@ -306,6 +306,10 @@ public class ConfigManager {
 
         // SECORE
         SECORE_URLS     = StringUtil.csv2list(get(KEY_SECORE_URLS));
+        if (SECORE_URLS.isEmpty()) {
+            log.error("Failed loading secore urls from petascope.properties");
+            throw new RuntimeException("Failed loading secore urls from petascope.properties");
+        }
         SECORE_VERSIONS = StringUtil.csv2list(get(KEY_SECORE_VERSIONS));
         // check that a version is assigned to every URI, set the last version to the orphan URIs otherwise
         // NOTE: throwing an exception for a missing version is too harsh.
