@@ -31,7 +31,7 @@
 AM_CXXFLAGS=@CLIENTCXXFLAGS@ @BASEDBCXXFLAGS@
 AM_LDFLAGS=
 
-noinst_PROGRAMS=directql
+bin_PROGRAMS=directql
 directql_SOURCES= directql.cc directql_error.cc directql_error.hh \
                directql_signal.cc directql_signal.hh
 directql_LDADD = ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
