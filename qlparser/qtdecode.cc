@@ -46,7 +46,8 @@ rasdaman GmbH.
 #include "vrtdataset.h"
 #include "relcatalogif/structtype.hh"
 
-
+#include "qlparser/qtoncstream.hh"
+#include "qlparser/qtexecute.hh"
 
 #include <iostream>
 #ifndef CPPSTDLIB
@@ -163,7 +164,6 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 				<< r_Sinterval((r_Range) 0, (r_Range) height - 1);
 
 		Tile* resultTile = new Tile(mddDomain, baseType, (char*) fileContents, nBands * width * height, r_Array);
-
 		MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp_dim_type_name", baseType, 2);
 		TypeFactory::addTempType(mddDimensionType);
 
@@ -176,7 +176,7 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 		if (operand)
 		{
 			operand->deleteRef();
-		}
+        }
 
 		return returnValue;
 	} else
@@ -222,13 +222,11 @@ const QtTypeElement& QtDecode::checkType(QtTypeTuple* typeTuple)
 {
 
 	RMDBCLASS("QtDecode", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__)
-
-	dataStreamType.setDataType(QT_TYPE_UNKNOWN);
+    dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
 	// check operand branches
 	if (input)
 	{
-
 		// get input types
 		const QtTypeElement& inputType = input->checkType(typeTuple);
 
@@ -245,8 +243,15 @@ const QtTypeElement& QtDecode::checkType(QtTypeTuple* typeTuple)
 			throw parseInfo;
 		}
 
-		dataStreamType.setDataType(QT_MDD);
-	} else
+        /*
+         * we set for every kind of conversion the result type char for conversion because we
+         * don't know the result type until we parse the data
+        */
+        MDDBaseType* mddBaseType = new MDDBaseType( "Char", TypeFactory::mapType("Char") );
+        TypeFactory::addTempType( mddBaseType );
+        dataStreamType.setType( mddBaseType );
+
+    } else
 		RMInit::logOut << "Error: QtDecode::checkType() - operand branch invalid." << endl;
 
 	return dataStreamType;
