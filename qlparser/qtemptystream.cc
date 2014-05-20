@@ -58,7 +58,8 @@ QtEmptyStream::next()
         return NULL;
     } else {
         emitted = true;
-        QtNode::QtDataList *result = new QtDataList(1, NULL);
+        QtNode::QtDataList *result = new QtDataList();
+        result->push_back(NULL);
         return result;
     }
 }
