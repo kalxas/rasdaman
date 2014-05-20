@@ -81,6 +81,7 @@ public class RangeSubsettingExtension implements Extension {
      * @param coverage the coverage identifier
      * @param rs the range subset parameter of the request
      * @return a new identifier that can be used instead of the old one
+     * @throws WCSException
      */
     public static String processWCPSRequest(String coverage, RangeSubset rs) throws WCSException {
         StringBuilder ret = new StringBuilder("{");

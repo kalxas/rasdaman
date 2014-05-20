@@ -135,6 +135,10 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
                         if (e.getMessage().equals("Method not implemented")) {
                             throw e;
                         }
+                        // range field subsetting exception
+                        if (e.getExceptionCode().equals(ExceptionCode.NoSuchField)) {
+                            throw e;
+                        }
                     }
                 }
             }

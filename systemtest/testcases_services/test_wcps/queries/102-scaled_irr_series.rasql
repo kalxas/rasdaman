@@ -1,1 +1,1 @@
-select csv(scale( ((c[*:*,*:*,0:0]).variance) [*:*,*:*,0], [0:2,0:1] )) from irr_cube_2 AS c
+select csv(scale( ((c[*:*,*:*,0:0]).1) [*:*,*:*,0], [0:2,0:1] )) from irr_cube_2 AS c

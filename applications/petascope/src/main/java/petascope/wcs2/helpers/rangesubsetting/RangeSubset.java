@@ -49,6 +49,7 @@ public class RangeSubset {
      * are returned
      *
      * @param item the item to be selected
+     * @throws WCSException
      */
     public void addRangeItem(RangeItem item) throws WCSException {
         if (!this.items.contains(item)) {
@@ -60,8 +61,8 @@ public class RangeSubset {
      * @todo What happens when the index of end smaller index of begin e.g.
      * green:red Returns the selected components from the range subset request
      * right now they are ignored
-     * @return an array of strings representing the names of the range e.g
-     * ([red, green, blue]
+     * @return an array of strings representing the names of the range e.g ([red, green, blue])
+     * @throws WCSException
      */
     public ArrayList<String> getSelectedComponents() throws WCSException {
         ArrayList<String> ret = new ArrayList<String>(coverageComponents.size());
@@ -74,6 +75,8 @@ public class RangeSubset {
             int end = this.coverageComponents.indexOf(interval.snd);
             if (begin == end) {
                 ret.add(this.coverageComponents.get(begin));
+            } else if (begin > end) {
+                throw new WCSException(ExceptionCode.IllegalFieldSequence);
             } else {
                 for (int i = begin; i <= end; i++) {
                     ret.add(this.coverageComponents.get(i));

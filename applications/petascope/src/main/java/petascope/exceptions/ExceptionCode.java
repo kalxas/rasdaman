@@ -155,6 +155,8 @@ public class ExceptionCode {
 
     public static final ExceptionCode BadResponseHandler = new ExceptionCode("BadResponseHandler");
     public static final ExceptionCode BadPostParameter = new ExceptionCode("BadPostParameter");
+    public static final ExceptionCode IllegalFieldSequence = new ExceptionCode("IllegalFieldSequence",
+            "Lower limit is above the upper limit in the range field interval.", 404);
     public static final ExceptionCode InternalComponentError = new ExceptionCode("InternalComponentError");
     public static final ExceptionCode InternalSqlError = new ExceptionCode("InternalSqlError");
     public static final ExceptionCode InterpolationMethodNotSupported = new ExceptionCode("InterpolationMethodNotSupported",
@@ -222,7 +224,7 @@ public class ExceptionCode {
     public static final ExceptionCode MultipleRangeSubsets = new ExceptionCode("Invalid RangeSubsets parameters",
             "Multiple RangeSubset parameters have been provided, only one can be accepted", 400);
     public static final ExceptionCode NoSuchField = new ExceptionCode("NoSuchField",
-            "One or more range field names indicated in the request are not defined in range type of the coverage addressed", 400);
+            "One or more range field names indicated in the request are not defined in range type of the coverage addressed", 404);
     public static final ExceptionCode InvalidCoverageType = new ExceptionCode("InvalidCoverageType",
             "Coverage addressed is not a grid coverage", 400);
     public static final ExceptionCode InvalidScaleFactor = new ExceptionCode("InvalidScaleFactor",

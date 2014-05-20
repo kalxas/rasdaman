@@ -133,7 +133,8 @@ public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICove
                 }
 
                 if (c.getNodeName().equals(WcpsConstants.MSG_FIELD)) {
-                    FieldName nameNode = new FieldName(c.getFirstChild(), xq);
+                    info = new CoverageInfo(child.getCoverageInfo());
+                    FieldName nameNode = new FieldName(c.getFirstChild(), xq, info);
                     params = nameNode.toRasQL();
                 } else {
                     child = new CoverageExpr(c, xq);

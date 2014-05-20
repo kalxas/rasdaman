@@ -323,6 +323,23 @@ public class GetCoverageMetadata {
     }
 
     /**
+     * Method for updating the range type of a coverage.
+     * This happens when using methods from the WCS RangeSubsetting extension.
+     * @param rangeFieldNames
+     * @see OGC 12-040
+     */
+    public void setRangeFields(List<String> rangeFieldNames) {
+        rangeFields = new ArrayList<RangeField>();
+        Iterator<RangeElement> rit = metadata.getRangeIterator();
+        Iterator<AbstractSimpleComponent> sweIt = metadata.getSweComponentsIterator();
+        while (rit.hasNext()) {
+            RangeElement range = rit.next();
+            if (rangeFieldNames.contains(range.getName())) {
+                rangeFields.add(new RangeField(metadata, range, sweIt.next()));
+            } // otherwise this range element has been sliced out
+        }
+    }
+    /**
      * Check if the *output* coverage is an irregular grid.
      * @return True if at least one of the non-sliced axes are irregular.
      */

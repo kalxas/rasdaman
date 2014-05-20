@@ -24,6 +24,7 @@ package petascope.wcps.server.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
+import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
@@ -56,6 +57,10 @@ public class InducedOperationCoverageExpr extends AbstractRasNode implements ICo
                 } catch (WCPSException e) {
                     child = null;
                     if (e.getMessage().equals("Method not implemented")) {
+                        throw e;
+                    }
+                    // range field subsetting exception
+                    if (e.getExceptionCode().equals(ExceptionCode.NoSuchField)) {
                         throw e;
                     }
                 }

@@ -46,7 +46,6 @@ import petascope.util.Pair;
 import petascope.util.Vectors;
 import petascope.util.WcpsConstants;
 import petascope.util.WcsUtil;
-import petascope.util.XMLSymbols;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcps.server.core.CellDomainElement;
 import petascope.wcps.server.core.DomainElement;
@@ -556,6 +555,44 @@ public class CoverageMetadata implements Cloneable {
 
     public Iterator<RangeElement> getRangeIterator() {
         return range.iterator();
+    }
+
+    /**
+     * Get the rasdaman index of a given range field.
+     * @param inputName
+     * @return The index (0,1,2,__) of the corresponding range/struct field in rasdaman.
+     * @throws PetascopeException
+     */
+    public Integer getRangeIndexByName(String inputName) throws PetascopeException {
+        Iterator<RangeElement> rIt = getRangeIterator();
+        String rangeElementName = "";
+        int index = 0;
+        while (rIt.hasNext() && !inputName.equals(rangeElementName)) {
+            rangeElementName = rIt.next().getName();
+            index++;
+        }
+        if (!inputName.equals(rangeElementName)) {
+            throw new PetascopeException(ExceptionCode.NoSuchField, "No range field \"" + inputName + "\" for coverage " + getCoverageName());
+        }
+        return --index;
+    }
+
+    /**
+     * Get the coverage range field name of the given order.
+     * @param index
+     * @return The label (name) of the corresponding range field.
+     * @throws PetascopeException
+     */
+    public String getRangeNameByIndex(int index) throws PetascopeException {
+        String fieldName;
+        RangeElement rangeEl;
+        try {
+            rangeEl = range.get(index);
+            fieldName = rangeEl.getName();
+        } catch (IndexOutOfBoundsException ex) {
+            throw new PetascopeException(ExceptionCode.NoSuchField, "No range field with index " + index + " for coverage " + getCoverageName());
+        }
+        return fieldName;
     }
 
     public Iterator<AbstractSimpleComponent> getSweComponentsIterator() {

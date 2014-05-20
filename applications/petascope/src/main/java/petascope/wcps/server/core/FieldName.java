@@ -25,15 +25,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
+import petascope.core.CoverageMetadata;
+import petascope.exceptions.PetascopeException;
+import petascope.util.MiscUtil;
 import petascope.util.WcpsConstants;
 
 public class FieldName extends AbstractRasNode {
-    
+
     private static Logger log = LoggerFactory.getLogger(FieldName.class);
 
+    /**
+     * Band label.
+     */
     private String name;
+    /**
+     * Band correspondent index in rasdaman.
+     */
+    private String nameIndex;
+    /**
+     * Coverage metadata needed for band label2index conversion.
+     */
+    private CoverageMetadata covMeta = null;
 
-    public FieldName(Node node, XmlQuery xq) throws WCPSException {
+    public FieldName(Node node, XmlQuery xq, CoverageInfo covInfo) throws WCPSException {
         while ((node != null) && node.getNodeName().equals("#" + WcpsConstants.MSG_TEXT)) {
             node = node.getNextSibling();
         }
@@ -47,12 +61,41 @@ public class FieldName extends AbstractRasNode {
 
         if (nodeName.equals(WcpsConstants.MSG_NAME)) {
             this.name = node.getTextContent();
-
             log.trace("Found field name: " + name);
+            String coverageName = covInfo.getCoverageName();
+            try {
+                covMeta = xq.getMetadataSource().read(coverageName);
+            } catch (Exception ex) {
+                log.error(ex.getMessage());
+                throw new WCPSException(ex.getMessage(), ex);
+            }
+            try {
+                nameIndex = covMeta.getRangeIndexByName(name).toString();
+            } catch (PetascopeException ex1) {
+                boolean wrongFieldSubset = true;
+                log.debug("Range field subset " + name + " does not seem by-label: trying by-index.");
+
+                if (MiscUtil.isInteger(name)) {
+                    try {
+                        // range subsetting might have been done via range field /index/ (instead of label): check this is a valid index
+                        nameIndex = name;
+                        name = covMeta.getRangeNameByIndex(Integer.parseInt(name));
+                        wrongFieldSubset = false; // indeed subset was by-index
+                    } catch (PetascopeException ex2) {
+                        log.debug("Range field subset " + nameIndex + " is neither a valid index.");
+                    }
+                }
+                if (wrongFieldSubset) {
+                    log.error("Illegal range field selection: " + name);
+                    throw new WCPSException(ex1.getExceptionCode(), ex1.getExceptionText());
+                }
+            }
         }
     }
 
     public String toRasQL() {
-        return this.name;
+        // band labelling is not (necessarily) the same in coverage model and rasdaman collection: use RasQL index-based range field access
+        // @see http://rasdaman.org/ticket/756
+        return this.nameIndex;
     }
 };

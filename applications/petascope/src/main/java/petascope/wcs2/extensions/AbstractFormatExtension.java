@@ -234,6 +234,11 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             crsName = CrsUtil.sliceAxesOut(meta.getCrsUris(), slicedAxes);
             m.setCrs(crsName);
         }
+
+        if (request.hasRangeSubsetting()) {
+            // RANGE TYPE update
+            m.setRangeFields(request.getRangeSubset().getSelectedComponents());
+        }
     }
 
     /**
