@@ -128,10 +128,13 @@ QtMDDAccess::next()
         ptr =  mddIter->getElement();
 
 #ifdef LOCKMANAGER_ON
-        LockManager *lockmanager = LockManager::Instance();
-        std::vector< Tile* >* tiles = ptr->getTiles();
-        lockmanager->lockTiles(tiles);
-        delete tiles;
+        if (ptr)
+        {
+            LockManager *lockmanager = LockManager::Instance();
+            std::vector< Tile* >* tiles = ptr->getTiles();
+            lockmanager->lockTiles(tiles);
+            delete tiles;
+        }
 #endif
 
         QtMDD*  elem = new QtMDD( ptr, iteratorName );

@@ -73,8 +73,14 @@ public:
     // function for setting a shared lock in the lock table according to the parameters
     void lockTileShared(const char *, const char *, long long);
 
+    // function for setting multiple shared locks in the lock table according to the parameters
+    void lockTilesShared(const char *, const char *, long long, long long);
+
     // function for setting an exclusive lock in the lock table according to the parameters
     void lockTileExclusive(const char *, const char *, long long);
+
+    // function for setting multiple exclusive locks in the lock table according to the parameters
+    void lockTilesExclusive(const char *, const char *, long long, long long);
 
     // function for removing a lock from lock table according to the parameters
     void unlockTile(const char *, const char *, long long);
@@ -90,6 +96,12 @@ public:
 
     // function for checking if a tile has an exclusive lock
     bool isTileLockedExclusive(const char *, const char *, long long);
+
+    // function for checking if at least one tile or more have a shared lock
+    bool areTilesLockedShared(const char *, const char *, long long, long long);
+
+    // function for checking if at least one tile or more have an exclusive lock
+    bool areTilesLockedExclusive(const char *, const char *, long long, long long);
 
     // function for deleting all entries of the lock table corresponding to a given server
     // but without port specification

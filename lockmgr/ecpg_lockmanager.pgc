@@ -32,6 +32,8 @@ rasdaman GmbH.
  ************************************************************/
 
 #include "ecpg_lockmanager.hh"
+#include <iostream>
+#include <cstdio>
 
 /**
  * This class contains the SQL-specific implementation of the lock manager.
@@ -129,14 +131,18 @@ bool ECPG_LockManager::connect(const char * pDatabaseTarget, const char * pConne
         EXEC SQL CONNECT TO :target AS :connectionName;
     }
     bool connection_result = SQLCODE == 0;
-    EXEC SQL AT :connectionName PREPARE insert_query1 FROM "INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, SharedLock) SELECT ?, ?, ? WHERE NOT EXISTS (SELECT TileID from RAS_LOCKEDTILES WHERE TileID = ? AND ExclusiveLock = ?);";
-    EXEC SQL AT :connectionName PREPARE insert_query2 FROM "INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, SharedLock, ExclusiveLock) SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT TileID from RAS_LOCKEDTILES WHERE TileID = ?);";
+    EXEC SQL AT :connectionName PREPARE insert_shared FROM "INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, SharedLock) SELECT ?, ?, ? WHERE NOT EXISTS (SELECT TileID from RAS_LOCKEDTILES WHERE TileID = ? AND ExclusiveLock = ?);";
+    EXEC SQL AT :connectionName PREPARE insert_exclusive FROM "INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, SharedLock, ExclusiveLock) SELECT ?, ?, ?, ? WHERE NOT EXISTS (SELECT TileID from RAS_LOCKEDTILES WHERE TileID = ?);";
     EXEC SQL AT :connectionName PREPARE select_query1 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ?);";
     EXEC SQL AT :connectionName PREPARE select_query4 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ?);";
     EXEC SQL AT :connectionName PREPARE select_query5 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND SharedLock = ?);";
     EXEC SQL AT :connectionName PREPARE select_query8 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND SharedLock = ?);";
     EXEC SQL AT :connectionName PREPARE select_query9 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND ExclusiveLock = ?);";
     EXEC SQL AT :connectionName PREPARE select_query12 FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID = ? AND RasServerID = ? AND ExclusiveLock = ?);";
+    EXEC SQL AT :connectionName PREPARE count_tiles_locked_shared FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID >= ? AND TileID <= ? AND SharedLock = ?);";
+    EXEC SQL AT :connectionName PREPARE count_tiles_locked_shared_server FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID >= ? AND TileID <= ? AND RasServerID = ? AND SharedLock = ?);";
+    EXEC SQL AT :connectionName PREPARE count_tiles_locked_exclusive FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID >= ? AND TileID <= ? AND ExclusiveLock = ?);";
+    EXEC SQL AT :connectionName PREPARE count_tiles_locked_exclusive_server FROM "SELECT COUNT(*) FROM RAS_LOCKEDTILES WHERE (TileID >= ? AND TileID <= ? AND RasServerID = ? AND ExclusiveLock = ?);";
     return connection_result;
 }
 
@@ -201,7 +207,38 @@ void ECPG_LockManager::lockTileShared(const char * pConnectionName, const char *
     long long tileId = pTileId;
     const char *rasServerId = pRasServerId;
     EXEC SQL END DECLARE SECTION;
-    EXEC SQL AT :connectionName EXECUTE insert_query1 USING :tileId, :rasServerId, 1, :tileId, 1;
+    EXEC SQL AT :connectionName EXECUTE insert_shared USING :tileId, :rasServerId, 1, :tileId, 1;
+}
+
+/**
+ * Function for shared locking an interval of tiles.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ * @param pBeginId
+ *     the id corresponding to the first tile to be locked (lower bound of interval)
+ * @param pEndId
+ *     the id corresponding to the last tile to be locked (upper bound of interval)
+*/
+void ECPG_LockManager::lockTilesShared(const char * pConnectionName, const char * pRasServerId, long long pBeginId, long long pEndId)
+{
+    if ((pBeginId <= pEndId) && (pRasServerId) && (!areTilesLockedShared(pConnectionName, pRasServerId, pBeginId, pEndId)))
+    {
+        char insert_shared_statement[512];
+        int return_code = snprintf(insert_shared_statement, 512, "WITH SEQ AS (SELECT generate_series AS TileID FROM generate_series(%lld, %lld)), STAT AS (SELECT 1 AS SharedLock, \'%s\' AS RasServerID), GENIDS AS (SELECT TileID, RasServerID, SharedLock FROM SEQ CROSS JOIN STAT) INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, SharedLock) SELECT * FROM GENIDS;", pBeginId, pEndId, pRasServerId);
+        if ((return_code >= 0) && (return_code<512))
+        {
+            EXEC SQL BEGIN DECLARE SECTION;
+            const char *connectionName = pConnectionName;
+            const char * in_shared_statement = insert_shared_statement;
+            EXEC SQL END DECLARE SECTION;
+            EXEC SQL AT :connectionName PREPARE insert_shared_interval FROM :in_shared_statement;
+            EXEC SQL AT :connectionName EXECUTE insert_shared_interval;
+            EXEC SQL DEALLOCATE PREPARE insert_shared_interval;
+        }
+    }
 }
 
 /**
@@ -221,7 +258,38 @@ void ECPG_LockManager::lockTileExclusive(const char * pConnectionName, const cha
     long long tileId = pTileId;
     const char *rasServerId = pRasServerId;
     EXEC SQL END DECLARE SECTION;
-    EXEC SQL AT :connectionName EXECUTE insert_query2 USING :tileId, :rasServerId, 0, 1, :tileId;
+    EXEC SQL AT :connectionName EXECUTE insert_exclusive USING :tileId, :rasServerId, 0, 1, :tileId;
+}
+
+/**
+ * Function for exclusive locking an interval of tiles.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ * @param pBeginId
+ *     the id corresponding to the first tile to be locked (lower bound of interval)
+ * @param pEndId
+ *     the id corresponding to the last tile to be locked (upper bound of interval)
+*/
+void ECPG_LockManager::lockTilesExclusive(const char * pConnectionName, const char * pRasServerId, long long pBeginId, long long pEndId)
+{
+    if ((pBeginId <= pEndId) && (pRasServerId) && (!areTilesLockedExclusive(pConnectionName, pRasServerId, pBeginId, pEndId)))
+    {
+        char insert_exclusive_statement[512];
+        int return_code = snprintf(insert_exclusive_statement, 512, "WITH SEQ AS (SELECT generate_series AS TileID FROM generate_series(%lld, %lld)), STAT AS (SELECT 0 AS SharedLock, 1 AS ExclusiveLock, \'%s\' AS RasServerID), GENIDS AS (SELECT TileID, RasServerID, SharedLock, ExclusiveLock FROM SEQ CROSS JOIN STAT) INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, SharedLock, ExclusiveLock) SELECT * FROM GENIDS;", pBeginId, pEndId, pRasServerId);
+        if ((return_code >= 0) && (return_code<512))
+        {
+            EXEC SQL BEGIN DECLARE SECTION;
+            const char *connectionName = pConnectionName;
+            const char * in_exclusive_statement = insert_exclusive_statement;
+            EXEC SQL END DECLARE SECTION;
+            EXEC SQL AT :connectionName PREPARE insert_exclusive_interval FROM :in_exclusive_statement;
+            EXEC SQL AT :connectionName EXECUTE insert_exclusive_interval;
+            EXEC SQL DEALLOCATE PREPARE insert_exclusive_interval;
+        }
+    }
 }
 
 /**
@@ -386,6 +454,104 @@ bool ECPG_LockManager::isTileLockedExclusive(const char * pConnectionName, const
         int rowCount = 0;
         EXEC SQL END DECLARE SECTION;
         EXEC SQL AT :connectionName EXECUTE select_query12 INTO :rowCount USING :tileId, :rasServerId, 1;
+        result=rowCount;
+    }
+    if (result > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/**
+ * Function for checking if more specific tiles have a shared lock.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ * @param pBeginId
+ *     the lower bound of the interval (inclusive) to be checked
+ * @param pEndId
+ *     the upper bound of the interval (inclusive) to be checked
+ * @return a bool value corresponding to the fact that at least one tile has a shared lock
+ */
+bool ECPG_LockManager::areTilesLockedShared(const char * pConnectionName, const char * pRasServerId, long long pBeginId, long long pEndId)
+{
+    int result;
+    if (!pRasServerId)
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        long long beginId = pBeginId;
+        long long endId = pEndId;
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName EXECUTE count_tiles_locked_shared INTO :rowCount USING :beginId, :endId, 1;
+        result=rowCount;
+    }
+    else
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        const char * rasServerId = pRasServerId;
+        long long beginId = pBeginId;
+        long long endId = pEndId;
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName EXECUTE count_tiles_locked_shared_server INTO :rowCount USING :beginId, :endId, :rasServerId, 1;
+        result=rowCount;
+    }
+    if (result > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+/**
+ * Function for checking if more specific tiles have an exclusive lock.
+ *
+ * @param pConnectionName
+ *     the string corresponding to the connection name of the lockmanager
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+  * @param pBeginId
+ *     the lower bound of the interval (inclusive) to be checked
+ * @param pEndId
+ *     the upper bound of the interval (inclusive) to be checked
+ * @return a bool value corresponding to the fact that at least one tile has an exclusive lock
+ */
+bool ECPG_LockManager::areTilesLockedExclusive(const char * pConnectionName, const char * pRasServerId, long long pBeginId, long long pEndId)
+{
+    int result;
+    if (!pRasServerId)
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        long long beginId = pBeginId;
+        long long endId = pEndId;
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName EXECUTE count_tiles_locked_exclusive INTO :rowCount USING :beginId, :endId, 1;
+        result=rowCount;
+    }
+    else
+    {
+        EXEC SQL BEGIN DECLARE SECTION;
+        const char *connectionName = pConnectionName;
+        const char * rasServerId = pRasServerId;
+        long long beginId = pBeginId;
+        long long endId = pEndId;
+        int rowCount = 0;
+        EXEC SQL END DECLARE SECTION;
+        EXEC SQL AT :connectionName EXECUTE count_tiles_locked_exclusive_server INTO :rowCount USING :beginId, :endId, :rasServerId, 1;
         result=rowCount;
     }
     if (result > 0)

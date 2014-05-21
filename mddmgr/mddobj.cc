@@ -290,6 +290,7 @@ MDDObj::intersect(const r_Minterval& searchInter) const
 std::vector< Tile* >*
 MDDObj::getTiles() const
 {
+    RMTIMER("MDDObj", "getTiles");
     return  myMDDIndex->getTiles();
 }
 

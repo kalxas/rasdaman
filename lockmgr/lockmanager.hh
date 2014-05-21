@@ -96,6 +96,12 @@ class LockManager
         // function for fetching the type of the operation / lock (i.e., shared or exclusive)
         enum Lock generateLockType();
 
+        // compare function need by qsort from stdlib.h which is used to sort the sequence of tile ids
+        static int compareIds(const void *, const void *);
+
+        // function for locking an array of tile ids at "once"
+        void lockTilesInternal(const char *, long long [], int, enum Lock);
+
     public:
         // function creating an instance of the lock manager. There should be no other
         // possibility for creating one.
@@ -110,6 +116,9 @@ class LockManager
         // function processes parameters and then call the corresponding private functions for
         // a vector of tiles
         void lockTiles(std::vector<Tile *> *);
+
+        // function for locking all tiles corresponding to the ids in the array
+        void lockTiles(long long [], int);
 
         // functions processes parameters and then call the corresponding private functions for locking a tile
         void lockTile(Tile *);

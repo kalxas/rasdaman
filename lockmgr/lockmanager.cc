@@ -39,9 +39,9 @@ rasdaman GmbH.
 #include "reladminif/databaseif.hh"
 #include "raslib/error.hh"
 #include "server/rasserver_config.hh"
-#include <string.h>
 #include <stdlib.h>
 #include "debug.hh"
+#include "raslib/rmdebug.hh"
 
 #define MSG_OK          "ok"
 #define MSG_FAILED      "failed"
@@ -114,6 +114,7 @@ LockManager::LockManager()
  */
 LockManager * LockManager::Instance()
 {
+    RMTIMER("LockManager", "Instance");
     // Allow only one instance of class to be generated
     if (!LM_instance)
     {
@@ -183,6 +184,7 @@ void LockManager::disconnect()
  */
 void LockManager::beginTransaction()
 {
+    RMTIMER("LockManager", "beginTransaction");
     ENTER( "Lock manager: begin transaction" );
     ecpg_LockManager->beginTransaction(connectionName);
     LEAVE( "Lock manager: begin transaction" );
@@ -195,6 +197,7 @@ void LockManager::beginTransaction()
  */
 void LockManager::endTransaction()
 {
+    RMTIMER("LockManager", "endTransaction");
     ENTER( "Lock manager: end transaction" );
     ecpg_LockManager->endTransaction(connectionName);
     LEAVE( "Lock manager: end transaction" );
@@ -216,15 +219,18 @@ void LockManager::endTransaction()
  */
 void LockManager::lockTileInternal(const char * pRasServerId, OId::OIdCounter pTileId, enum Lock pLockType)
 {
+    RMTIMER("LockManager", "lockTileInternal");
     ENTER( "Lock manager: lock tile" );
     bool result;
     if(pLockType == EXCLUSIVE_LOCK)
     {
+        RMTIMER("LockManager", "lockTileInternal, exclusive");
         ecpg_LockManager->lockTileExclusive(connectionName, pRasServerId, pTileId);
         result = ecpg_LockManager->isTileLockedExclusive(connectionName, pRasServerId, pTileId);
     }
     else if(pLockType == SHARED_LOCK)
     {
+        RMTIMER("LockManager", "lockTileInternal, shared");
         ecpg_LockManager->lockTileShared(connectionName, pRasServerId, pTileId);
         result = ecpg_LockManager->isTileLockedShared(connectionName, pRasServerId, pTileId);
     }
@@ -264,6 +270,7 @@ void LockManager::unlockTileInternal(const char * pRasServerId, OId::OIdCounter 
  */
 void LockManager::unlockAllTilesInternal(const char * pRasServerId)
 {
+    RMTIMER("LockManager", "unlockAllTilesInternal");
     ENTER( "Lock manager: unlock all tiles" );
     ecpg_LockManager->unlockAllTiles(connectionName, pRasServerId);
     LEAVE( "Lock manager: unlock all tiles" );
@@ -277,10 +284,12 @@ void LockManager::unlockAllTilesInternal(const char * pRasServerId)
  *
  * @param pTileId
  *     the id corresponding to the tile to be checked
+ *
  * @return a bool value corresponding to the fact that the tile is locked or not
  */
 bool LockManager::isTileLockedInternal(OId::OIdCounter pTileId, enum Lock pLockType)
 {
+    RMTIMER("LockManager", "isTockTiledInternal");
     ENTER( "Lock manager, is tile locked" );
     bool result;
     if(pLockType == EXCLUSIVE_LOCK)
@@ -388,15 +397,173 @@ enum Lock LockManager::generateLockType()
 }
 
 /**
+ * Compare function to be passed to qsort from stdlib.h which sorts
+ * the set of potentially different tile ids.
+ *
+ * @param a
+ *     pointer to the first object to be compared
+ * @param b
+ *     pointer to the second object to be compared
+ *
+ * @return int representing -1 if first smaller and second,
+ * 0 if equal and 1 if first greater than second
+ */
+int LockManager::compareIds(const void * a, const void * b)
+{
+    const long long *pa = (const long long *)a;
+    const long long *pb = (const long long *)b;
+    if (*pa < *pb)
+    {
+        return -1;
+    }
+    else if (*pa == *pb)
+    {
+        return 0;
+    }
+    return 1;
+}
+
+/*
+ * Private function for locking multiple tile ids at once.
+ * Instead of one query (one entry in the lock table) per lock,
+ * the function determines all possible intervals of tile ids
+ * (without holes) such that the whole interval will be locked
+ * with one single query.
+ *
+ * @param pRasServerId
+ *     the string corresponding to the id of the current rasserver
+ * @param pTileIdsToLock
+ *     pointer to a memory location storing a sequence of tile ids
+ *     which have to be locked
+ * @param dim
+ *     integer dimension of the array of tile ids to be locked
+ * @param pLockType
+ *     enum type variable corresponding to the lock type (shared or exclusive)
+ */
+void LockManager::lockTilesInternal(const char * pRasServerId, long long *pTileIdsToLock, int dim, enum Lock pLockType)
+{
+    ENTER ( "Lock manager, lock tiles internal" );
+    if (dim == 1)
+    {
+        TALK ( "Lock manager, lock tiles internal: Only one tile to lock" );
+        lockTileInternal(pRasServerId, pTileIdsToLock[0], pLockType);
+    }
+    else if (dim > 1)
+    {
+        TALK ( "Lock manager, lock tiles internal: Multiple tiles to lock" );
+        // sort the array of tile ids to lock
+        qsort(pTileIdsToLock, dim, sizeof(long long), LockManager::compareIds);
+        int beginIndex, endIndex;
+        beginIndex = 0;
+        endIndex = beginIndex;
+        // identify holes (i.e., identify intervals)
+        for(int i=0; i<dim-1; i++)
+        {
+            if (pTileIdsToLock[i+1] - pTileIdsToLock[i] > 1)
+            {
+                endIndex = i;
+                // an interval has to have at least 10 elements to use bulk locking
+                if (endIndex - beginIndex >= 10)
+                {
+                    TALK ( "Lock manager, lock tiles internal: performing interval locking" );
+                    long long begin = pTileIdsToLock[beginIndex];
+                    long long end = pTileIdsToLock[endIndex];
+                    if (pLockType == SHARED_LOCK)
+                    {
+                        ecpg_LockManager->lockTilesShared(connectionName, pRasServerId, begin, end);
+                    }
+                    else if (pLockType == EXCLUSIVE_LOCK)
+                    {
+                        ecpg_LockManager->lockTilesExclusive(connectionName, pRasServerId, begin, end);
+                    }
+                }
+                else
+                {
+                    TALK ( "Lock manager, lock tiles internal: performing locking one by one" );
+                    for(int j=beginIndex; j<=endIndex; j++)
+                    {
+                        lockTileInternal(pRasServerId, pTileIdsToLock[j], pLockType);
+                    }
+                }
+                beginIndex = i+1;
+                endIndex = beginIndex;
+            }
+        }
+        // for the case of an array with consecutive tile ids and for the last consecutive block of ids within the array
+        if (endIndex < dim -1)
+        {
+            endIndex = dim -1;
+            if (endIndex - beginIndex >= 10)
+            {
+                TALK ( "Lock manager, lock tiles internal: performing interval locking" );
+                long long begin = pTileIdsToLock[beginIndex];
+                long long end = pTileIdsToLock[endIndex];
+                if (pLockType == SHARED_LOCK)
+                {
+                    ecpg_LockManager->lockTilesShared(connectionName, pRasServerId, begin, end);
+                }
+                else if (pLockType == EXCLUSIVE_LOCK)
+                {
+                    ecpg_LockManager->lockTilesExclusive(connectionName, pRasServerId, begin, end);
+                }
+            }
+            else
+            {
+                TALK ( "Lock manager, lock tiles internal: performing locking one by one" );
+                for(int j=beginIndex; j<=endIndex; j++)
+                {
+                    lockTileInternal(pRasServerId, pTileIdsToLock[j], pLockType);
+                }
+            }
+        }
+    }
+    LEAVE ( "Lock manager, lock tiles internal" );
+}
+
+/*
+ * Function for locking multiple tile ids at once.
+ * This function calls the private function lockTilesInternal.
+ *
+ * @param pTileIdsToLock
+ *     array of tile ids which need to be locked (quickly, not one to one)
+ * @param dim
+ *     dimension of the array of tile ids
+ */
+void LockManager::lockTiles(long long pTileIdsToLock[], int dim)
+{
+    RMTIMER("LockManager", "lockTiles");
+    ENTER( "Lock manager, lock tiles" );
+    if (dim > 0)
+    {
+        TALK( "Lock manager, lock tiles: locking..." );
+        char rasServerId[255];
+        generateServerId(rasServerId);
+        TALK( "server id=" << rasServerId );
+        enum Lock lockType = generateLockType();
+        beginTransaction();
+        lockTilesInternal(rasServerId, pTileIdsToLock, dim, lockType);
+        endTransaction();
+    }
+    else
+    {
+        TALK( "Lock manager, lock tiles: no tiles to lock" );
+    }
+    LEAVE( "Lock manager, lock tiles" );
+}
+
+/**
  * Function for locking multiple tiles.
  *
- * The internal function for locking is called.
+ * The internal function for locking is called which
+ * minimizes the number of queries needed to add multiple
+ * locks into the lock table.
  *
  * @param tiles
  *     vector of tiles to be locked
  */
 void LockManager::lockTiles(std::vector <Tile *> * tiles)
 {
+    RMTIMER("LockManager", "lockTiles");
     ENTER( "Lock manager, lock tiles" );
     if (tiles)
     {
@@ -405,21 +572,20 @@ void LockManager::lockTiles(std::vector <Tile *> * tiles)
         generateServerId(rasServerId);
         TALK( "server id=" << rasServerId );
         enum Lock lockType = generateLockType();
-        beginTransaction();
         // this iterates over the tiles of an object
         // if objects consists of one tile like in mr, mr2, rgb then this for is executed once
+        int dim = tiles->size();
+        long long tileIdsToLock[dim];
+        int i=0;
         for (std::vector<Tile*>::iterator tileIterator=tiles->begin(); tileIterator!=tiles->end(); tileIterator++)
         {
-            TALK( "Lock manager, lock tiles: Tile found to lock in iterator." );
             DBTileId dbTileId = (*tileIterator)->getDBTile();
-            OId::OIdCounter oid = dbTileId.getObjId().getCounter();
-            if (oid > 0)
-            {
-                TALK( "Lock manager, lock tiles: Locking tile " << oid );
-                lockTileInternal(rasServerId, oid, lockType);
-            }
+            OId objId = dbTileId.getObjId();
+            OId::OIdCounter oid = objId.getCounter();
+            tileIdsToLock[i] = oid;
+            i++;
         }
-        endTransaction();
+        lockTiles(tileIdsToLock, dim);
     }
     else
     {
@@ -486,6 +652,7 @@ void LockManager::unlockTile(Tile * pTile)
  */
 void LockManager::unlockAllTiles()
 {
+    RMTIMER("LockManager", "unlockAllTiles");
     ENTER( "Lock manager, unlock all tiles" );
     char rasServerId[255];
     generateServerId(rasServerId);

@@ -525,7 +525,175 @@ void test_otherDatabaseConnection()
 }
 
 /**
- * Function implementing the call of all 13 test cases sequentially.
+ * Function implementing test case 14: creates 5 shared locks and
+ * then checks if at least one of the locks are set
+ */
+void test_areLockedShared()
+{
+    std::cout << "test_areLockedShared: begin" << endl;
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
+    ecpg_lockmanager->beginTransaction(connectionName);
+    char* testServerId = (char*)"test_rasServer";
+    int i;
+    for(i=1;i<=5;i++)
+    {
+        ecpg_lockmanager->lockTileShared(connectionName, testServerId, i);
+    }
+    ecpg_lockmanager->endTransaction(connectionName);
+    ecpg_lockmanager->beginTransaction(connectionName);
+    bool result = ecpg_lockmanager->areTilesLockedShared(connectionName, testServerId, 1, 5);
+    if (result)
+    {
+        std::cout << "Ok: Test tiles 1 to 5 are locked (shared)" << endl;
+    }
+    else
+    {
+        std::cout << "Error: Test tiles 1 to 5 are not locked (shared)" << endl;
+    }
+    ecpg_lockmanager->endTransaction(connectionName);
+    ecpg_lockmanager->beginTransaction(connectionName);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
+    ecpg_lockmanager->endTransaction(connectionName);
+    std::cout << "test_areLockedShared: end" << endl;
+}
+
+/**
+ * Function implementing test case 15: creates 5 exclusive locks and
+ * then checks if at least one of the locks are set
+ */
+void test_areLockedExclusive()
+{
+    std::cout << "test_areLockedExclusive: begin" << endl;
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
+    ecpg_lockmanager->beginTransaction(connectionName);
+    char* testServerId = (char*)"test_rasServer";
+    int i;
+    for(i=1;i<=5;i++)
+    {
+        ecpg_lockmanager->lockTileExclusive(connectionName, testServerId, i);
+    }
+    ecpg_lockmanager->endTransaction(connectionName);
+    ecpg_lockmanager->beginTransaction(connectionName);
+    bool result = ecpg_lockmanager->areTilesLockedExclusive(connectionName, testServerId, 1, 5);
+    if (result)
+    {
+        std::cout << "Ok: Test tiles 1 to 5 are locked (exclusive)" << endl;
+    }
+    else
+    {
+        std::cout << "Error: Test tiles 1 to 5 are not locked (exclusive)" << endl;
+    }
+    ecpg_lockmanager->endTransaction(connectionName);
+    ecpg_lockmanager->beginTransaction(connectionName);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
+    ecpg_lockmanager->endTransaction(connectionName);
+    std::cout << "test_areLockedExclusive: end" << endl;
+}
+
+/**
+ * Function implementing test case 16: shared locks the interval of [1, 100] of
+ * tile ids by calling one single locking function and then it checks if tile id 1
+ * or tile id 100 are locked
+ */
+void test_intervalShared()
+{
+    std::cout << "test_intervalShared: begin" << endl;
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
+    ecpg_lockmanager->beginTransaction(connectionName);
+    char* testServerId = (char*)"test_rasServer11";
+    long long beginId = 1;
+    long long endId = 10000;
+    ecpg_lockmanager->lockTilesShared(connectionName, testServerId, beginId, endId);
+    ecpg_lockmanager->endTransaction(connectionName);
+    ecpg_lockmanager->beginTransaction(connectionName);
+    bool result1 = ecpg_lockmanager->isTileLockedShared(connectionName, testServerId, 1);
+    bool result100 = ecpg_lockmanager->isTileLockedShared(connectionName, testServerId, 100);
+    if (result1 && result100)
+    {
+        std::cout << "Ok: Test tiles 1 and 100 are locked (shared)" << endl;
+    }
+    else
+    {
+        std::cout << "Error: Test tiles 1 and 100 are not locked (shared)" << endl;
+    }
+    ecpg_lockmanager->endTransaction(connectionName);
+    ecpg_lockmanager->beginTransaction(connectionName);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
+    ecpg_lockmanager->endTransaction(connectionName);
+    std::cout << "test_intervalShared: end" << endl;
+}
+
+/**
+ * Function implementing test case 17: exclusive locks the interval of [1, 100] of
+ * tile ids by calling one single locking function and then it checks if tile id 1
+ * or tile id 100 are locked
+ */
+void test_intervalExclusive()
+{
+    std::cout << "test_intervalExclusive: begin" << endl;
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
+    ecpg_lockmanager->beginTransaction(connectionName);
+    char* testServerId = (char*)"test_rasServer11";
+    long long beginId = 1;
+    long long endId = 10000;
+    ecpg_lockmanager->lockTilesExclusive(connectionName, testServerId, beginId, endId);
+    ecpg_lockmanager->endTransaction(connectionName);
+    ecpg_lockmanager->beginTransaction(connectionName);
+    bool result1 = ecpg_lockmanager->isTileLockedExclusive(connectionName, testServerId, 1);
+    bool result100 = ecpg_lockmanager->isTileLockedExclusive(connectionName, testServerId, 100);
+    if (result1 && result100)
+    {
+        std::cout << "Ok: Test tiles 1 and 100 are locked (exclusive)" << endl;
+    }
+    else
+    {
+        std::cout << "Error: Test tiles 1 and 100 are not locked (exclusive)" << endl;
+    }
+    ecpg_lockmanager->endTransaction(connectionName);
+    ecpg_lockmanager->beginTransaction(connectionName);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
+    ecpg_lockmanager->endTransaction(connectionName);
+    std::cout << "test_intervalExclusive: end" << endl;
+}
+
+/**
+ * Function implementing test case 18: locks 100 tiles sequentially by
+ * separate lock function calls (to compare performance with test case 16)
+ */
+void test_intervalSharedLoop()
+{
+    std::cout << "test_intervalSharedLoop: begin" << endl;
+    ECPG_LockManager *ecpg_lockmanager = ECPG_LockManager::Instance();
+    ecpg_lockmanager->beginTransaction(connectionName);
+    char* testServerId = (char*)"test_rasServer11";
+    long long beginId = 1;
+    long long endId = 100;
+    long long i;
+    for(i=beginId; i<=endId; i++)
+    {
+        ecpg_lockmanager->lockTileShared(connectionName, testServerId, i);
+    }
+    ecpg_lockmanager->endTransaction(connectionName);
+    ecpg_lockmanager->beginTransaction(connectionName);
+    bool result1 = ecpg_lockmanager->isTileLockedShared(connectionName, testServerId, 1);
+    bool result100 = ecpg_lockmanager->isTileLockedShared(connectionName, testServerId, 100);
+    if (result1 && result100)
+    {
+        std::cout << "Ok: Test tiles 1 and 100 are locked (shared)" << endl;
+    }
+    else
+    {
+        std::cout << "Error: Test tiles 1 and 100 are not locked (shared)" << endl;
+    }
+    ecpg_lockmanager->endTransaction(connectionName);
+    ecpg_lockmanager->beginTransaction(connectionName);
+    ecpg_lockmanager->unlockAllTiles(connectionName, testServerId);
+    ecpg_lockmanager->endTransaction(connectionName);
+    std::cout << "test_intervalSharedLoop: end" << endl;
+}
+
+/**
+ * Function implementing the call of all 17 test cases sequentially.
  */
 void test_allCases()
 {
@@ -542,6 +710,10 @@ void test_allCases()
     test_createDelete2ExclusiveLocksSameServer();
     test_createDelete2SharedLocksSameServer();
     test_otherDatabaseConnection();
+    test_areLockedShared();
+    test_areLockedExclusive();
+    test_intervalShared();
+    test_intervalExclusive();
 }
 
 int main( int ac, char** av )
@@ -595,8 +767,25 @@ int main( int ac, char** av )
     // Test 13: open and close the database via another connection "otherConn"
     //test_databaseConnection();
 
+    // Test 14:
+    //test_areLockedShared();
+
+    // Test 15:
+    //test_areLockedExclusive();
+
+    // Test 16:
+    //test_intervalShared();
+
+    // Test 17:
+    //test_intervalExclusive();
+
+    // Test 18:
+    //test_intervalSharedLoop();
+
     // Test all: execute all tests sequentially
     test_allCases();
+
+    // test_intervalSharedLoop();
 
     bool disconnect_ok = ecpg_lockmanager->disconnect(connectionName);
     if (!disconnect_ok)
