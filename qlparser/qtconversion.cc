@@ -152,39 +152,39 @@ QtConversion::equalMeaning( QtNode* node )
 const BaseType*
 constructBaseType( const r_Type *type )
 {
+    const BaseType *result = NULL;
     if(type->isPrimitiveType())
     {
-        const BaseType *result = TypeFactory::mapType(type->name());
+        result = TypeFactory::mapType(type->name());
         if (!result)
         {
             RMInit::logOut << "Error: no primitive type for name '"
                            << type->name() << "' were found" << endl;
             throw r_Error(BASETYPENOTSUPPORTED);
         }
-        return result;
     }
     else if(type->isStructType())
     {
         r_Structure_Type *stype = (r_Structure_Type *) type;
-        StructType *result = new StructType("tmp_struct_name", stype->count_elements());
+        StructType *restype = new StructType("tmp_struct_name", stype->count_elements());
         for (int i = 0; i < stype->count_elements(); ++i)
         {
             try
             {
                 r_Attribute attr = (*stype)[i];
                 const r_Base_Type &attr_type = attr.type_of();
-                result->addElement(attr.name(), constructBaseType(&attr_type));
+                restype->addElement(attr.name(), constructBaseType(&attr_type));
             }
             catch (r_Error &e)
             {
-                delete result;
+                delete restype;
                 throw;
             }
         }
-        TypeFactory::addTempType(result);
-        return result;
+        TypeFactory::addTempType(restype);
+        result = restype;
     }
-    return NULL;
+    return result;
 }
 
 
