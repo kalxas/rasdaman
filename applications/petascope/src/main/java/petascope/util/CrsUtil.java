@@ -100,7 +100,7 @@ public class CrsUtil {
     /* CACHES: avoid EPSG db and SECORE redundant access */
     private static Map<String, CrsDefinition>       parsedCRSs       = new HashMap<String, CrsDefinition>();        // CRS definitions
     private static Map<List<String>, Boolean>       crsComparisons   = new HashMap<List<String>, Boolean>();        // CRS equality tests
-    private static Map<List<String>, long[]>  gridIndexConversions   = new HashMap<List<String>, long[]>();         // subset2gridIndex conversions
+    private static Map<List<String>, Long[]>  gridIndexConversions   = new HashMap<List<String>, Long[]>();         // subset2gridIndex conversions
 
     private List<String> crssMap;
     private static final Logger log = LoggerFactory.getLogger(CrsUtil.class);
@@ -761,7 +761,11 @@ public class CrsUtil {
         // query the cache (for irregular axes: need to fetch the coefficients and set them in the DomainElement: no cache)
         if (gridIndexConversions.containsKey(cacheKey)
                 &&  !covMeta.getDomainByName(axisName).isIrregular()) {
-            return gridIndexConversions.get(cacheKey);
+            long[] cachedIndexes = new long[] {
+                gridIndexConversions.get(cacheKey)[0].longValue(),
+                gridIndexConversions.get(cacheKey)[1].longValue()
+            };
+            return cachedIndexes;
 
         } else {
             // Conversion is not cached: compute it
@@ -1031,8 +1035,8 @@ public class CrsUtil {
             }
         }
 
-        // Add to cache
-        gridIndexConversions.put(cacheKey, subsetGridIndexes);
+        // Add to cache (NOTE: Java collections need Objects -- no primitives)
+        gridIndexConversions.put(cacheKey, new Long[] {subsetGridIndexes[0], subsetGridIndexes[1]});
 
         return subsetGridIndexes;
     }

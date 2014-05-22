@@ -112,6 +112,24 @@ public class GetCoverageRequest extends BaseRequest {
         return subsets;
     }
 
+    /**
+     * Method to check whether a CRS dimension has been sliced in this GetCoverage request.
+     * @param inputDimension
+     * @return True if the inputDimension has been sliced.
+     */
+    public boolean isSliced(String inputDimension) {
+        boolean sliced = false;
+        for (DimensionSubset subset : subsets) {
+            if (subset.getDimension().equals(inputDimension)) {
+                if (subset instanceof DimensionSlice) {
+                    sliced = true;
+                }
+                break;
+            }
+        }
+        return sliced;
+    }
+
     public void addSubset(DimensionSubset sub) {
         subsets.add(sub);
     }
@@ -433,6 +451,18 @@ public class GetCoverageRequest extends BaseRequest {
                 case 4: return this.extent.size();
                 default: return 0;
             }
+        }
+
+        /**
+         * Method for asking whether a grid dimension is involved in a scaling operation.
+         * @param axis
+         * @return True if axis is somehow involved in a scaling operation.
+         */
+        public boolean isScaled(String axis) {
+            return getType() == 1             // global scale factor
+                    || isPresentSize(axis)    // scale-to-size
+                    || isPresentExtent(axis)  // scale-to-extent
+                    || isPresentFactor(axis); // axis scale factor
         }
     }
 }

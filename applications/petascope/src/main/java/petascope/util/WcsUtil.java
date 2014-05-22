@@ -429,8 +429,10 @@ public class WcsUtil {
                 if (CrsUtil.getAxesLabels(ccrsUri).contains(axisName)) { // guard for 0D coverages
                     // Example, axisName is third axis in the 3D CRS definition:
                     // offsetVector() := resolution * {0,0,1} = {0,0,resolution}
+                    BigDecimal originalVector = m.getMetadata().getDomainByName(axisName).getDirectionalResolution();
+                    BigDecimal scaledVector   = originalVector.multiply(m.getScalingFactor(axisName));
                     BigDecimal[] vectorComponents = (BigDecimal[])Vectors.scalarMultiplication(
-                            m.getMetadata().getDomainByName(axisName).getDirectionalResolution(), // axis resolution
+                            scaledVector, // axis resolution (possibly scaled via WCS extension)
                             Vectors.unitVector( // {0,0,__,1,__,0,0}
                             CrsUtil.getTotalDimensionality(ccrsUri),
                             CrsUtil.getCrsAxisOrder(ccrsUri, axisName)

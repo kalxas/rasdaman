@@ -20,7 +20,7 @@
       <limits>
         <GridEnvelope>
           <low>0 0</low>
-          <high>255 210</high>
+          <high>255 18</high>
         </GridEnvelope>
       </limits>
       <axisLabels>i j</axisLabels>
@@ -30,7 +30,7 @@
           </Point>
       </origin>
       <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">1 0</offsetVector>
-      <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0 -1</offsetVector>
+      <offsetVector srsName="/crs/OGC/0/Index2D" axisLabels="i j" uomLabels="GridSpacing GridSpacing" srsDimension="2">0 -11.10526315789473684211</offsetVector>
     </RectifiedGrid>
   </domainSet>
 

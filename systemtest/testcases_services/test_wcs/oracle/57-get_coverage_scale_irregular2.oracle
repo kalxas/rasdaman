@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:ReferenceableGridCoverage
+    xmlns='http://www.opengis.net/gml/3.2'
+    xmlns:gml='http://www.opengis.net/gml/3.2'
+    xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+    xmlns:swe='http://www.opengis.net/swe/2.0'
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xmlns:wcs='http://www.opengis.net/wcs/2.0' id="irr_cube_2"
+    xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
+
+  <boundedBy>
+    <Envelope srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">
+      <lowerCorner>75042.72735943 5094865.5579385 148654</lowerCorner>
+      <upperCorner>95042.72735943 5114865.5579385 148654</upperCorner>
+    </Envelope>
+  </boundedBy>
+
+  <domainSet>
+    <gmlrgrid:ReferenceableGridByVectors dimension="3" id="irr_cube_2-grid"
+
+        >
+      <limits>
+        <GridEnvelope>
+          <low>0 34 0</low>
+          <high>0 35 0</high>
+        </GridEnvelope>
+      </limits>
+      <axisLabels>E N ansi</axisLabels>
+      <gmlrgrid:origin>
+        <Point id="irr_cube_2-origin" srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">
+          <pos>80042.72735943 5109865.5579385 148654</pos>
+        </Point>
+      </gmlrgrid:origin>
+      <gmlrgrid:generalGridAxis>
+        <gmlrgrid:GeneralGridAxis>
+          <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">20000 0 0</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients></gmlrgrid:coefficients>
+          <gmlrgrid:gridAxesSpanned>E</gmlrgrid:gridAxesSpanned>
+          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+        </gmlrgrid:GeneralGridAxis>
+      </gmlrgrid:generalGridAxis>
+      <gmlrgrid:generalGridAxis>
+        <gmlrgrid:GeneralGridAxis>
+          <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">0 -10000 0</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients></gmlrgrid:coefficients>
+          <gmlrgrid:gridAxesSpanned>N</gmlrgrid:gridAxesSpanned>
+          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+        </gmlrgrid:GeneralGridAxis>
+      </gmlrgrid:generalGridAxis>
+      <gmlrgrid:generalGridAxis>
+        <gmlrgrid:GeneralGridAxis>
+          <gmlrgrid:offsetVector srsName="/crs-compound?1=/crs/EPSG/0/32633&amp;2=/crs/OGC/0/AnsiDate" axisLabels="E N ansi" uomLabels="metre metre d" srsDimension="3">0 0 2</gmlrgrid:offsetVector>
+          <gmlrgrid:coefficients>0</gmlrgrid:coefficients>
+          <gmlrgrid:gridAxesSpanned>ansi</gmlrgrid:gridAxesSpanned>
+          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
+        </gmlrgrid:GeneralGridAxis>
+      </gmlrgrid:generalGridAxis>
+    </gmlrgrid:ReferenceableGridByVectors>
+
+  </domainSet>
+
+  <rangeSet>
+    <DataBlock>
+      <rangeParameters/>
+      <tupleList ts="," cs=" ">9.06019 4.17397,9.03994 4.17602</tupleList>
+    </DataBlock>
+  </rangeSet>
+
+  <coverageFunction>
+    <GridFunction>
+      <sequenceRule axisOrder="+3 +2 +1">Linear</sequenceRule>
+      <startPoint>0 34 0</startPoint>
+    </GridFunction>
+  </coverageFunction>
+
+  <gmlcov:rangeType>
+    <swe:DataRecord>
+    <swe:field name="b1">
+      <swe:Quantity ><swe:label>prediction</swe:label><swe:description>kriged mean surface PM10 exposure</swe:description><swe:uom code="ug/m3" /></swe:Quantity>
+    </swe:field>    <swe:field name="b2">
+      <swe:Quantity ><swe:label>variance</swe:label><swe:description>kriging error on PM10 prediction</swe:description><swe:uom code="(ug/m3)2" /></swe:Quantity>
+    </swe:field>
+    </swe:DataRecord>
+  </gmlcov:rangeType>
+
+</gmlcov:ReferenceableGridCoverage>

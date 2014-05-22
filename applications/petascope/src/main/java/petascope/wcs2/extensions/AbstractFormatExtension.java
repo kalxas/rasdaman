@@ -178,6 +178,21 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                     : CrsUtil.convertToInternalGridIndices(m.getMetadata(), dbMeta, domainEl.getLabel(),
                                         trimLow,   !trimLow.matches(QUOTED_SUBSET),
                                         trimHigh, !trimHigh.matches(QUOTED_SUBSET));
+                            // If SCALING on this dimension, fix upperCellDom and offset vector by scale factor
+                            if (request.isScaled()) {
+                                // SCALING EXTENSION: geometry changes
+                                Scaling scaling = request.getScaling();
+                                String axisLabel = subset.getDimension();
+                                if (scaling.isScaled(axisLabel)) {
+                                    BigDecimal scalingFactor = ScalingExtension.computeScalingFactor(scaling, axisLabel, new BigDecimal(cellDom[0]), new BigDecimal(cellDom[1]));
+                                    // update grid envelope
+                                    cellDom[0] = (long)(cellDom[0]/scalingFactor.floatValue());
+                                    cellDom[1] = (long)(cellDom[1]/scalingFactor.floatValue());
+                                    // update offset vectors
+                                    // [!] NOTE: do *not* use domainEl.setScalarResolution since world2pixel conversions are cached.
+                                    m.setScalingFactor(axisLabel, scalingFactor);
+                                }
+                            }
                             // In any case, properly trim the bounds by the image extremes
                             int cellDomainElLo = cellDomainEl.getLoInt();
                             int cellDomainElHi = cellDomainEl.getHiInt();
@@ -205,8 +220,6 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             if (!domUpdated) {
                 // This dimension is not involved in any subset: use bbox bounds
                 axesLabels += domainEl.getLabel() + " ";
-                lowerCellDom += cellDomainEl.getLo() + " ";
-                upperCellDom += cellDomainEl.getHi() + " ";
                 lowerGisDom += BigDecimalUtil.stripDecimalZeros(domainEl.getMinValue()) + " ";
                 upperGisDom += BigDecimalUtil.stripDecimalZeros(domainEl.getMaxValue()) + " ";
                 // The map is automatically sorted by key value (axis order in the CRS definition)
@@ -216,6 +229,23 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 upperDom.put(
                         CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()),
                         BigDecimalUtil.stripDecimalZeros(domainEl.getMaxValue()).toPlainString());
+
+                // SCALING: geometry changes
+                long loCellDom = cellDomainEl.getLoInt();
+                long hiCellDom = cellDomainEl.getHiInt();
+                Scaling scaling = request.getScaling();
+                String axisLabel = domainEl.getLabel();
+                if (scaling.isScaled(axisLabel)) {
+                    BigDecimal scalingFactor = ScalingExtension.computeScalingFactor(scaling, axisLabel, BigDecimal.valueOf(loCellDom), BigDecimal.valueOf(hiCellDom));
+                    // update grid envelope
+                    loCellDom = (long)(loCellDom/scalingFactor.floatValue());
+                    hiCellDom = (long)(hiCellDom/scalingFactor.floatValue());
+                    // update offset vectors
+                    // [!] NOTE: do *not* use domainEl.setScalarResolution since world2pixel conversions are cached.
+                    m.setScalingFactor(axisLabel, scalingFactor);
+                }
+                lowerCellDom += loCellDom + " ";
+                upperCellDom += hiCellDom + " ";
             }
         } // END domains iterator
 
@@ -372,60 +402,73 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             if (!WcsUtil.isGrid(cov.getCoverageType())) {
                 throw new WCSException(ExceptionCode.InvalidCoverageType.locator(req.getCoverageId()));
             }
-            Scaling s = req.getScaling();
+            Scaling scaling = req.getScaling();
             int axesNumber = 0; // for checking if all axes in the query were used
+            String crs = CrsUtil.GRID_CRS; // scaling involves pixels
             proc = "scale(" + proc + ", {";
             Iterator<DomainElement> it = cov.getDomainIterator();
             Iterator<CellDomainElement> cit = cov.getCellDomainIterator();
+            // Need to loop through all dimensions to set scaling dims for un-trimmed axes too
             while (it.hasNext() && cit.hasNext()) {
                 DomainElement el = it.next();
                 CellDomainElement cel = cit.next();
-                long lo = cel.getLoInt();
-                long hi = cel.getHiInt();
                 String dim = el.getLabel();
-                String crs = el.getNativeCrs();
-                if (newdim.containsKey(dim)) {
-                    long[] lohi = CrsUtil.convertToInternalGridIndices(cov, dbMeta, dim,
-                            newdim.get(dim).fst, req.getSubset(dim).isNumeric(),
-                            newdim.get(dim).snd, req.getSubset(dim).isNumeric());
-                    lo = lohi[0];
-                    hi = lohi[1];
+                if (el.isIrregular() && !req.isSliced(dim) && scaling.isScaled(dim)) {
+                    log.error("Trying to scale an irregular axis but we cannot scale coefficients' values.");
+                    throw new PetascopeException(ExceptionCode.UnsupportedCombination,
+                            "Scaling on irregular axis is not supported.");
                 }
-                switch (s.getType()) {
-                    case 1:
-                            proc = proc + dim + ":\"" + crs + "\"(" + Math.round(Math.floor(lo/s.getFactor()))
-                                    + ":" + Math.round(Math.floor(hi/s.getFactor())) + "),";
-                    break;
-                    case 2:
-                        if (s.isPresentFactor(dim)) {
-                            proc = proc + dim + ":\"" + crs + "\"(" + Math.round(Math.floor(lo/s.getFactor(dim)))
-                                    + ":" + Math.round(Math.floor(hi/s.getFactor(dim))) + "),";
-                            axesNumber++;
-                        } else {
-                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
-                        }
-                    break;
-                    case 3:
-                        if (s.isPresentSize(dim)) {
-                            proc = proc + dim + ":\"" + crs + "\"(" + lo
-                                    + ":" + (lo + s.getSize(dim)-1) + "),";
-                            axesNumber++;
-                        } else {
-                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
-                        }
-                    break;
-                    case 4:
-                        if (s.isPresentExtent(dim)) {
-                            proc = proc + dim + ":\"" + crs + "\"(" + s.getExtent(dim).fst
-                                    + ":" + s.getExtent(dim).snd + "),";
-                            axesNumber++;
-                        } else {
-                            proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
-                        }
-                    break;
+                // Sliced dimensions shall not be referenced by the scaling parameters
+                if (!req.isSliced(dim)) {
+                    long lo = cel.getLoInt();
+                    long hi = cel.getHiInt();
+                    if (newdim.containsKey(dim)) {
+                        long[] lohi = CrsUtil.convertToInternalGridIndices(cov, dbMeta, dim,
+                                newdim.get(dim).fst, req.getSubset(dim).isNumeric(),
+                                newdim.get(dim).snd, req.getSubset(dim).isNumeric());
+                        lo = lohi[0];
+                        hi = lohi[1];
+                    }
+                    switch (scaling.getType()) {
+                        case 1:
+                            // SCALE-BY-FACTOR: divide extent by global scaling factor
+                            proc = proc + dim + ":\"" + crs + "\"(" + Math.round(Math.floor(lo/scaling.getFactor()))
+                                    + ":" + Math.round(Math.floor(hi/scaling.getFactor())) + "),";
+                            break;
+                        case 2:
+                            // SCALE-AXES: divide extent by axis scaling factor
+                            if (scaling.isPresentFactor(dim)) {
+                                proc = proc + dim + ":\"" + crs + "\"(" + Math.round(Math.floor(lo/scaling.getFactor(dim)))
+                                        + ":" + Math.round(Math.floor(hi/scaling.getFactor(dim))) + "),";
+                                axesNumber++;
+                            } else {
+                                proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
+                            }
+                            break;
+                        case 3:
+                            // SCALE-SIZE: set extent of dimension
+                            if (scaling.isPresentSize(dim)) {
+                                proc = proc + dim + ":\"" + crs + "\"(" + lo
+                                        + ":" + (lo + scaling.getSize(dim)-1) + "),";
+                                axesNumber++;
+                            } else {
+                                proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
+                            }
+                            break;
+                        case 4:
+                            // SCALE-EXTENT: set extent of dimension
+                            if (scaling.isPresentExtent(dim)) {
+                                proc = proc + dim + ":\"" + crs + "\"(" + scaling.getExtent(dim).fst
+                                        + ":" + scaling.getExtent(dim).snd + "),";
+                                axesNumber++;
+                            } else {
+                                proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
+                            }
+                            break;
+                    }
                 }
             }
-            if (axesNumber != s.getAxesNumber()) {
+            if (axesNumber != scaling.getAxesNumber()) {
                 throw new WCSException(ExceptionCode.ScaleAxisUndefined);
             }
             //TODO find out which axis was not found and add the locator to scaleFactor or scaleExtent or scaleDomain

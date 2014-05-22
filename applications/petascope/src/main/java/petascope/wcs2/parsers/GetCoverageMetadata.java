@@ -24,6 +24,7 @@ package petascope.wcs2.parsers;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -76,6 +77,11 @@ public class GetCoverageMetadata {
     // http://www.remotesensing.org/geotiff/faq.html?What%20is%20the%20purpose%20of%20GeoTIFF%20format%20for%20satellite%20data#AxisOrder
     private String gisDomLow;  // Domain request lower bound (always easting first)
     private String gisDomHigh; // Domain request upper bound (always easting first)
+    /**
+     * Map of axis labels and their scale factors.
+     * Only axes that are explicitly scaled in a WCS request appear here.
+     */
+    private Map<String, BigDecimal> axisScaleFactors;
 
     public GetCoverageMetadata(GetCoverageRequest request, DbMetadataSource meta) throws SecoreException, WCSException {
         coverageId = request.getCoverageId();
@@ -133,6 +139,7 @@ public class GetCoverageMetadata {
             rangeFields.add(new RangeField(metadata, range, sweIt.next()));
         }
         bbox = metadata.getBbox();
+        axisScaleFactors = new HashMap<String, BigDecimal>(gridDimension);
     }
 
     public String getGridAxisLabels() {
@@ -271,6 +278,17 @@ public class GetCoverageMetadata {
         return crs;
     }
 
+    /**
+     * Get the scaling factor applied to a grid axis.
+     * If the specified axis does not contain scaling info for this axis,
+     * a value of 1 (no scaling) is returned.
+     * @param axis
+     * @return The scaling factor requested by the user on "axis", 1 otherwise.
+     */
+    public BigDecimal getScalingFactor(String axis) {
+        return (null == axisScaleFactors.get(axis)) ? BigDecimal.ONE : axisScaleFactors.get(axis);
+    }
+
     public void setAxisLabels(String axisLabels) {
         this.gridAxisLabels = axisLabels;
         setGridDimension(axisLabels.isEmpty() ? 0 : axisLabels.split(" +").length);
@@ -302,6 +320,16 @@ public class GetCoverageMetadata {
 
     public void setGridDimension(Integer gridDimension) {
         this.gridDimension = gridDimension;
+    }
+
+    /**
+     * Trace the scaling applied along a grid axis.
+     * This is necessary for GML handlers to scale grid offset-vectors.
+     * @param axis
+     * @param scaleFactor
+     */
+    public void setScalingFactor(String axis, BigDecimal scaleFactor) {
+        axisScaleFactors.put(axis, scaleFactor);
     }
 
     /**

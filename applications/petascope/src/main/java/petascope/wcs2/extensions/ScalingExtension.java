@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.extensions;
 
+import java.math.BigDecimal;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
+import petascope.util.BigDecimalUtil;
 import static petascope.util.KVPSymbols.KEY_SCALEAXES;
 import static petascope.util.KVPSymbols.KEY_SCALEEXTENT;
 import static petascope.util.KVPSymbols.KEY_SCALEFACTOR;
@@ -50,6 +52,7 @@ import static petascope.util.XMLSymbols.LABEL_TARGETSIZE;
 import static petascope.util.XMLUtil.ch;
 import static petascope.util.XMLUtil.getText;
 import petascope.wcs2.parsers.GetCoverageRequest;
+import petascope.wcs2.parsers.GetCoverageRequest.Scaling;
 
 /**
  * Manage Scaling Extension (OGC 12-039).
@@ -197,13 +200,13 @@ public class ScalingExtension implements Extension {
                         if (gcRequest.getScaling().isPresentFactor(axis)) {
                             throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
                         }
-                        int lo;
+                        long lo;
                         try {
                             lo = Integer.parseInt(slo);
                         } catch (NumberFormatException ex) {
                             throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(slo));
                         }
-                        int hi;
+                        long hi;
                         try {
                             hi = Integer.parseInt(shi);
                         } catch (NumberFormatException ex) {
@@ -354,5 +357,37 @@ public class ScalingExtension implements Extension {
             }
             request.getScaling().setType(4);
         }
+    }
+
+    /**
+     * Compute the scaling factor on a specified grid axis given the requested scaling parameters.
+     * @param scaling    The scaling object containing all input scaling information
+     * @param dim        The label of the grid axis
+     * @param lowerBound The index lower bound of dim
+     * @param upperBound The index upper bounf of dim
+     * @return The scaling factor requested on the indices of this ("dim") grid axis.
+     */
+    public static BigDecimal computeScalingFactor(Scaling scaling, String dim, BigDecimal lowerBound,  BigDecimal upperBound) {
+        BigDecimal scalingFactor = null;
+        switch (scaling.getType()) {
+            case 1:
+                // SCALE-BY-FACTOR:
+                scalingFactor = BigDecimal.valueOf(scaling.getFactor());
+                break;
+            case 2:
+                // SCALE-AXES: divide extent by axis scaling factor
+                scalingFactor = BigDecimal.valueOf(scaling.getFactor(dim));
+                break;
+            case 3:
+                // SCALE-SIZE: set extent of dimension
+                scalingFactor = (upperBound.subtract(lowerBound).add(BigDecimal.ONE)).divide(BigDecimal.valueOf(scaling.getSize(dim)));
+                break;
+            case 4:
+                // SCALE-EXTENT: set extent of dimension
+                long size = scaling.getExtent(dim).snd.longValue() - scaling.getExtent(dim).fst.longValue() + 1;
+                scalingFactor = BigDecimalUtil.divide(upperBound.subtract(lowerBound).add(BigDecimal.ONE), BigDecimal.valueOf(size));
+                break;
+        }
+        return scalingFactor;
     }
 }
