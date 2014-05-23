@@ -380,7 +380,7 @@ public class ScalingExtension implements Extension {
                 break;
             case 3:
                 // SCALE-SIZE: set extent of dimension
-                scalingFactor = (upperBound.subtract(lowerBound).add(BigDecimal.ONE)).divide(BigDecimal.valueOf(scaling.getSize(dim)));
+                scalingFactor = BigDecimalUtil.divide(upperBound.subtract(lowerBound).add(BigDecimal.ONE), BigDecimal.valueOf(scaling.getSize(dim)));
                 break;
             case 4:
                 // SCALE-EXTENT: set extent of dimension
