@@ -20,7 +20,7 @@
       <limits>
         <GridEnvelope>
           <low>0 0</low>
-          <high>2 2</high>
+          <high>1 1</high>
         </GridEnvelope>
       </limits>
       <axisLabels>i j</axisLabels>
@@ -37,7 +37,7 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">0,53,76,0,0,0,3,188,0</tupleList>
+      <tupleList ts="," cs=" ">0,58,0,196</tupleList>
     </DataBlock>
   </rangeSet>
 

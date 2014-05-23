@@ -372,11 +372,11 @@ public class ScalingExtension implements Extension {
         switch (scaling.getType()) {
             case 1:
                 // SCALE-BY-FACTOR:
-                scalingFactor = BigDecimal.valueOf(scaling.getFactor());
+                scalingFactor = new BigDecimal(Float.toString(scaling.getFactor()));
                 break;
             case 2:
                 // SCALE-AXES: divide extent by axis scaling factor
-                scalingFactor = BigDecimal.valueOf(scaling.getFactor(dim));
+                scalingFactor = new BigDecimal(Float.toString(scaling.getFactor(dim)));
                 break;
             case 3:
                 // SCALE-SIZE: set extent of dimension

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wcs:GetCoverage
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:wcs="http://www.opengis.net/wcs/2.0"
+    xmlns:gml="http://www.opengis.net/gml/3.2"
+    xmlns:scal="http://www.opengis.net/wcs/scaling/1.0"
+    xsi:schemaLocation="http://schemas.opengis.net/wcs/2.0 ../wcsAll.xsd"
+    service="WCS" version="2.0.1">
+  <wcs:CoverageId>irr_cube_2</wcs:CoverageId>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>E</wcs:Dimension>
+    <wcs:TrimLow>80000</wcs:TrimLow>
+    <wcs:TrimHigh>100000</wcs:TrimHigh>
+  </wcs:DimensionTrim>
+  <wcs:DimensionTrim>
+    <wcs:Dimension>N</wcs:Dimension>
+    <wcs:TrimLow>5100000</wcs:TrimLow>
+    <wcs:TrimHigh>5124000</wcs:TrimHigh>
+  </wcs:DimensionTrim>
+  <wcs:DimensionSlice>
+    <wcs:Dimension>ansi</wcs:Dimension>
+    <wcs:SlicePoint>148654</wcs:SlicePoint>
+  </wcs:DimensionSlice>
+  <wcs:Extension>
+    <scal:Scaling>
+      <scal:ScaleToExtent>
+        <scal:TargetAxisExtent>
+          <scal:axis>E</scal:axis>
+          <scal:low>0</scal:low>
+          <scal:high>0</scal:high>
+        </scal:TargetAxisExtent>
+      </scal:ScaleToExtent>
+    </scal:Scaling>
+  </wcs:Extension>
+</wcs:GetCoverage>

@@ -1,0 +1,8 @@
+service=WCS&
+version=2.0.1&
+request=GetCoverage&
+coverageId=irr_cube_2&
+subset=E(80000,100000)&
+subset=N(5100000,5124000)&
+subset=ansi(148654)&
+scaleextent=E(0:0)

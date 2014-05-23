@@ -186,8 +186,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                 if (scaling.isScaled(axisLabel)) {
                                     BigDecimal scalingFactor = ScalingExtension.computeScalingFactor(scaling, axisLabel, new BigDecimal(cellDom[0]), new BigDecimal(cellDom[1]));
                                     // update grid envelope
-                                    cellDom[0] = (long)(cellDom[0]/scalingFactor.floatValue());
-                                    cellDom[1] = (long)(cellDom[1]/scalingFactor.floatValue());
+                                    long scaledExtent = Math.round(Math.floor((cellDom[1]-cellDom[0]+1)/scalingFactor.floatValue()));
+                                    cellDom[1] = (long)(cellDom[0] + scaledExtent - 1);
                                     // update offset vectors
                                     // [!] NOTE: do *not* use domainEl.setScalarResolution since world2pixel conversions are cached.
                                     m.setScalingFactor(axisLabel, scalingFactor);
@@ -238,8 +238,8 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 if (scaling.isScaled(axisLabel)) {
                     BigDecimal scalingFactor = ScalingExtension.computeScalingFactor(scaling, axisLabel, BigDecimal.valueOf(loCellDom), BigDecimal.valueOf(hiCellDom));
                     // update grid envelope
-                    loCellDom = (long)(loCellDom/scalingFactor.floatValue());
-                    hiCellDom = (long)(hiCellDom/scalingFactor.floatValue());
+                    long scaledExtent = Math.round(Math.floor((hiCellDom-loCellDom+1)/scalingFactor.floatValue()));
+                    hiCellDom = (long)(loCellDom + scaledExtent - 1);
                     // update offset vectors
                     // [!] NOTE: do *not* use domainEl.setScalarResolution since world2pixel conversions are cached.
                     m.setScalingFactor(axisLabel, scalingFactor);
@@ -422,6 +422,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 if (!req.isSliced(dim)) {
                     long lo = cel.getLoInt();
                     long hi = cel.getHiInt();
+                    long scaledExtent;
                     if (newdim.containsKey(dim)) {
                         long[] lohi = CrsUtil.convertToInternalGridIndices(cov, dbMeta, dim,
                                 newdim.get(dim).fst, req.getSubset(dim).isNumeric(),
@@ -432,14 +433,16 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                     switch (scaling.getType()) {
                         case 1:
                             // SCALE-BY-FACTOR: divide extent by global scaling factor
-                            proc = proc + dim + ":\"" + crs + "\"(" + Math.round(Math.floor(lo/scaling.getFactor()))
-                                    + ":" + Math.round(Math.floor(hi/scaling.getFactor())) + "),";
+                            scaledExtent = Math.round(Math.floor((hi-lo+1)/scaling.getFactor()));
+                            proc = proc + dim + ":\"" + crs + "\"(" + lo
+                                    + ":" + Math.round(Math.floor(lo+scaledExtent-1)) + "),";
                             break;
                         case 2:
                             // SCALE-AXES: divide extent by axis scaling factor
                             if (scaling.isPresentFactor(dim)) {
-                                proc = proc + dim + ":\"" + crs + "\"(" + Math.round(Math.floor(lo/scaling.getFactor(dim)))
-                                        + ":" + Math.round(Math.floor(hi/scaling.getFactor(dim))) + "),";
+                                scaledExtent = Math.round(Math.floor((hi-lo+1)/scaling.getFactor(dim)));
+                                proc = proc + dim + ":\"" + crs + "\"(" + lo
+                                        + ":" + Math.round(Math.floor(lo+scaledExtent-1)) + "),";
                                 axesNumber++;
                             } else {
                                 proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
