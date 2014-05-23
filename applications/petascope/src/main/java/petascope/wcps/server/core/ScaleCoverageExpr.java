@@ -89,7 +89,8 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
                 int n = covInfo.getNumDimensions();
                 for (int i = 0; i < n; i++) {
                     CellDomainElement cde = covInfo.getCellDomainElement(i);
-                    if (cde.getHi().equals(cde.getLo())) {
+                    String axisLabel = covInfo.getDomainElement(cde.getOrder()).getLabel();
+                    if (covExprType.isSlicedAxis(axisLabel)) {
                         log.trace("Ignoring slice in scale interval: " + covInfo.getDomainElement(cde.getOrder()).getLabel() + "(" + cde.getLo() + ")");
                         continue;
                     }
@@ -99,7 +100,7 @@ public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo 
                                 covInfo.getDomainElement(cde.getOrder()).getNativeCrs(),
                                 cde.getLoInt(),
                                 cde.getHiInt(),
-                                covInfo.getDomainElement(cde.getOrder()).getLabel()
+                                axisLabel
                         );
                         axisList.add(die);
 

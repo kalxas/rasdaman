@@ -127,7 +127,7 @@ public class GdalParameters {
                 String dimName = info.getDomainElement(i).getLabel();
 
                 // The dimension is surely in the output
-                if (!queryRoot.slicedAxis(dimName)) {
+                if (!queryRoot.isSlicedAxis(dimName)) {
                     orderToName.put(info.getDomainIndexByName(dimName), dimName);
 
                     // Set the bounds of this dimension: total bbox first, then update in case of trims in the request

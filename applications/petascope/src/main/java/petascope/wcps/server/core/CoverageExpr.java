@@ -227,7 +227,7 @@ public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
      * @param axisName axis name
      * @return true if axis is involved in a slice operation, false otherwise
      */
-    public boolean slicedAxis(String axisName) {
+    public boolean isSlicedAxis(String axisName) {
         boolean ret = false;
         
         for (SliceCoverageExpr slice : slices) {

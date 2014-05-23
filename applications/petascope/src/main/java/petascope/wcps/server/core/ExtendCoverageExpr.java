@@ -106,7 +106,7 @@ public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo
             axis = i.next();
 
             // check if axis is sliced from the coverage, it should not go into the extend
-            if (coverageExprType.slicedAxis(axis.getAxisName())) {
+            if (coverageExprType.isSlicedAxis(axis.getAxisName())) {
                 continue;
             }
 
