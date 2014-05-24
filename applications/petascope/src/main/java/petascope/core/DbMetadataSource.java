@@ -1722,8 +1722,11 @@ public class DbMetadataSource implements IMetadataSource {
             ensureConnection();
             s = conn.createStatement();
 
+            // Use subquery to get an ordered list of coefficient: array_agg does not order-by the array elements.
+            // NOTE: ARRAY_AGG(foo by order) is available but from Postgres 9.0 on.
             String sqlQuery =
-                    " SELECT ARRAY_AGG(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT + ") " +
+                    " SELECT ARRAY_AGG(" + VECTOR_COEFFICIENTS_COEFFICIENT + ") " +
+                    " FROM ( SELECT " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT +
                           " FROM " + TABLE_VECTOR_COEFFICIENTS + ", "
                                    + TABLE_GRID_AXIS           + ", "
                                    + TABLE_COVERAGE            +
@@ -1737,7 +1740,9 @@ public class DbMetadataSource implements IMetadataSource {
                                    + " >= " + lo +
                            " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
                                 // + " < "  + stringHi  // [a,b) subsets
-                                   + " <= " + hi        // [a,b] subsets
+                                   + " <= " + hi +      // [a,b] subsets
+                      " ORDER BY " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT +
+                    " ) AS ordered_coefficients"
                     ;
             log.debug("SQL query : " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
@@ -1789,8 +1794,11 @@ public class DbMetadataSource implements IMetadataSource {
             ensureConnection();
             s = conn.createStatement();
 
+            // Use subquery to get an ordered list of coefficient: array_agg does not order-by the array elements.
+            // NOTE: ARRAY_AGG(foo by order) is available but from Postgres 9.0 on.
             String sqlQuery =
-                    " SELECT ARRAY_AGG(" + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT + ") " +
+                    " SELECT ARRAY_AGG(" + VECTOR_COEFFICIENTS_COEFFICIENT + ") " +
+                    " FROM ( SELECT " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT +
                           " FROM " + TABLE_VECTOR_COEFFICIENTS + ", "
                                    + TABLE_GRID_AXIS           + ", "
                                    + TABLE_COVERAGE            +
@@ -1799,7 +1807,9 @@ public class DbMetadataSource implements IMetadataSource {
                            " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_COVERAGE_ID +
                              " = " + TABLE_COVERAGE  + "." + COVERAGE_ID +
                            " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_RASDAMAN_ORDER  + "="  + iOrder  +
-                           " AND " + TABLE_COVERAGE  + "." + COVERAGE_NAME             + "='" + covName + "'"
+                           " AND " + TABLE_COVERAGE  + "." + COVERAGE_NAME             + "='" + covName + "'" +
+                      " ORDER BY " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT +
+                    " ) AS ordered_coefficients"
                     ;
             log.debug("SQL query : " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
