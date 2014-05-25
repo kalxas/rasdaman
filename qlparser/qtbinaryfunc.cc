@@ -1081,14 +1081,20 @@ QtScale::optimizeLoad( QtTrimList* trimList )
 {
     RMDBCLASS( "QtScale", "optimizeLoad( QtTrimList* )", "qlparser", __FILE__, __LINE__ )
 
-    // by default, pass load domain to input1
-    if( input1 )
-        input1->optimizeLoad( trimList );
-    else
-    {
+    // Don't forward the load domain to the underlying node,
+    // as the domain of the input is not known at this step, and thus
+    // we can't calculate which part of it will be actually used.
+    if ( trimList ) {
+        for( QtNode::QtTrimList::iterator iter=trimList->begin(); iter!=trimList->end(); iter++ )
+        {
+            delete *iter;
+            *iter=NULL;
+        }
         delete trimList;
         trimList=NULL;
     }
+    if( input1 )
+        input1->optimizeLoad( new QtNode::QtTrimList );
 }
 
 
