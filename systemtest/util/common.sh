@@ -223,6 +223,19 @@ function check_gdal()
   fi
 }
 
+# Check if GDAL version is greater-equal than specified (M.m)
+# usage: $0 <major> <minor>
+# return
+#   0 - if GDAL version is >= <major>.<minor>
+#   1 - otherwise
+function check_gdal_version()
+{
+  GDAL_VERSION="$( $GDALINFO --version | awk -F ' |,' '{ print $2 }' | grep -o -e '[0-9]\+.[0-9]\+' )" # M.m version
+  GDAL_VERSION_MAJOR=$(echo $GDAL_VERSION | awk -F '.' '{ print $1; }')
+  GDAL_VERSION_MINOR=$(echo $GDAL_VERSION | awk -F '.' '{ print $2; }')
+  [[ $GDAL_VERSION_MAJOR -gt 1 || ( $GDAL_VERSION_MAJOR -eq $1 && $GDAL_VERSION_MINOR -ge $2 ) ]] && echo 0 || echo 1
+}
+
 
 # ------------------------------------------------------------------------------
 # print test summary

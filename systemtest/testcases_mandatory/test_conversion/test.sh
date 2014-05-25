@@ -233,14 +233,11 @@ fi
 
 log '------ GML in JPEG2000 conversion --------'
 # JP2OpenJPEG supports GML box from GDAL 1.10: check GDAL version
-    GDALINFO="$( which gdalinfo )"
-GDAL_VERSION="$( $GDALINFO --version | awk -F ' |,' '{ print $2 }' | grep -o -e '.[0-9.]\+' )" # M.m version
- FORMAT_CODE="JP2OpenJPEG"
-GDAL_VERSION_MAJOR=$(echo $GDAL_VERSION | awk -F '.' '{ print $1; }')
-GDAL_VERSION_MINOR=$(echo $GDAL_VERSION | awk -F '.' '{ print $2; }')
-if [ $GDAL_VERSION_MAJOR -eq 1 -a $GDAL_VERSION_MINOR -lt 10 ]
+FORMAT_CODE="JP2OpenJPEG"
+gmljp2_enabled=$( check_gdal_version 1 10 ) # GDAL >= 1.10
+if [ "$gmljp2_enabled" -ne 0 ]
 then
-    log "skipping test for GMLJP2 encoding: GDAL 1.10 required (found GDAL $GDAL_VERSION)."
+    log "skipping test for GMLJP2 encoding: GDAL 1.10 required."
 elif [ -z "$( $GDALINFO --formats | grep $FORMAT_CODE )" ]
 then
     log "skipping test for GMLJP2 encoding: $FORMAT_CODE is not enabled (see \`$GDALINFO --formats\`)."

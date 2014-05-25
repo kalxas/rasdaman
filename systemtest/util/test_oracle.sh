@@ -73,6 +73,12 @@ KNOWN_FAILS="$SCRIPT_DIR/known_fails"
 #
 DROP_DATA=0
 
+#
+# constants for GDAL version checks
+JP2_MIME='image/jp2'
+MULTIPART_MIME='multipart/related'
+gmljp2_enabled=$( check_gdal_version 1 10 ) # GDAL >= 1.10
+
 drop_data()
 {
   [ $DROP_DATA -eq 0 ] && return
@@ -148,13 +154,16 @@ pushd "$QUERIES_PATH" > /dev/null
 
 
 for f in *; do
-  
+
   # skip non-files
   [ -f "$f" ] || continue
-  
+
   # skip scripts, we only want queries
   [[ "$f" == *.pre.sh || "$f" == *.post.sh || "$f" == *.check.sh ]] && continue
-  
+
+  # uncomment for single test run
+  #[[ "$f" == 01-* ]] || continue
+
   if [ "$SVC_NAME" == "wcps" ]; then
     # skip rasql/xml tests in WCPS test suite for now
     [[ "$f" == *.rasql || "$f" == *.sql || "$f" == *.xml ]] && continue
@@ -164,10 +173,13 @@ for f in *; do
   if [ "$SVC_NAME" == "wcs" ]; then
     # Skip multipoint tests if multipoint is not enabled
     [[ "$multi_coll_enabled" -ne 0 ]] && [[ "$f" == *multipoint* ]] && continue
+    # Skip GMLJP2 tests if GDAL version is not >= 1.10 (format mime jp2 + multipart -- @see #745)
+    if grep -q "$JP2_MIME" "$f"; then
+      if grep -q "$MULTIPART_MIME" "$f"; then
+        [[ "$gmljp2_enabled" -ne 0 ]] && continue
+      fi
+    fi
   fi
-
-  # uncomment for single test run
-  #[[ "$f" == 01-* ]] || continue
 
   # print test header
   echo "running test: $f"
@@ -176,7 +188,7 @@ for f in *; do
   echo
 
   run_test
-  
+
 done
 
 popd > /dev/null
