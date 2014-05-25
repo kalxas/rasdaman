@@ -1222,9 +1222,11 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
         ret = new RasOID(new String(binData));
         break;
       case RAS_BOOLEAN:
-      case RAS_BYTE:
       case RAS_CHAR:
         ret = dis.readUnsignedByte();
+        break;
+      case RAS_BYTE:
+        ret = dis.readByte();
         break;
       case RAS_DOUBLE:
         double d = dis.readDouble();
