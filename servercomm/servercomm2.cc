@@ -1780,6 +1780,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
                     returnStructure.lineNo     = parseError->getLineNo();
                     returnStructure.columnNo   = parseError->getColumnNo();
                     returnStructure.token      = strdup( parseError->getToken().c_str() );
+                    parseError->printStatus( RMInit::logOut );
 
                     delete parseError;
                     parseError = 0;
@@ -2166,6 +2167,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
                     returnStructure.columnNo   = parseError->getColumnNo();
                     returnStructure.token      = strdup( parseError->getToken().c_str() );
 
+                    parseError->printStatus( RMInit::logOut );
                     delete parseError;
                     parseError = 0;
                 }
@@ -2415,6 +2417,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
                     returnStructure.lineNo     = parseError->getLineNo();
                     returnStructure.columnNo   = parseError->getColumnNo();
                     returnStructure.token      = strdup( parseError->getToken().c_str() );
+                    parseError->printStatus( RMInit::logOut );
 
                     delete parseError;
                     parseError = 0;
