@@ -79,8 +79,8 @@ public class RasImplementation implements Implementation
      */
     public RasImplementation(String server)
     {   
-        Debug.talkCritical( RasGlobalDefs.RASJ_VERSION );
-        Debug.talkCritical( " Using server " + server );
+        Debug.talkSparse(RasGlobalDefs.RASJ_VERSION );
+        Debug.talkSparse( " Using server " + server );
 
         String envVar = System.getProperty("RMANPROTOCOL");	// uses "-D" option  
        
@@ -130,8 +130,8 @@ public class RasImplementation implements Implementation
      */
     public RasImplementation(String server, String protocol)
     {
-        Debug.talkCritical( RasGlobalDefs.RASJ_VERSION );
-        Debug.talkCritical( " Using server " + server );
+        Debug.talkSparse( RasGlobalDefs.RASJ_VERSION );
+        Debug.talkSparse( " Using server " + server );
 
         if( protocol.equalsIgnoreCase( PROTOCOL_RNP ) )
           {
