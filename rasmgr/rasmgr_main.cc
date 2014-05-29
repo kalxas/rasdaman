@@ -87,18 +87,6 @@ int main(int argc, char** argv, char** envp)
 
     ENTER( "main." );
 
-    cout << "rasmgr: rasdaman server manager tool. rasdaman "
-         << RMANVERSION << " -- generated on " << COMPDATE << "." << std::endl
-         << "Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann, rasdaman GmbH.\n"
-         << "Rasdaman community is free software: you can redistribute it and/or modify "
-         "it under the terms of the GNU General Public License as published by "
-         "the Free Software Foundation, either version 3 of the License, or "
-         "(at your option) any later version. \n"
-         "Rasdaman community is distributed in the hope that it will be useful, "
-         "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-         "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
-         "GNU General Public License for more details. \n\n";
-
     if(testIsMessageDigestAvailable("MD5")==false)
     {
         RMInit::logOut<<"Error: Message Digest MD5 not available."<<std::endl;
@@ -110,6 +98,18 @@ int main(int argc, char** argv, char** envp)
     bool result  = config.interpretArguments(argc,argv,envp);
     if (result == false)
         return RASMGR_RESULT_ILL_ARGS;
+
+    RMInit::logOut << "rasmgr: rasdaman server manager tool. rasdaman "
+         << RMANVERSION << " -- generated on " << COMPDATE << "." << std::endl
+         << "Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann, rasdaman GmbH.\n"
+         << "Rasdaman community is free software: you can redistribute it and/or modify "
+         "it under the terms of the GNU General Public License as published by "
+         "the Free Software Foundation, either version 3 of the License, or "
+         "(at your option) any later version. \n"
+         "Rasdaman community is distributed in the hope that it will be useful, "
+         "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+         "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
+         "GNU General Public License for more details. \n\n";
 
     if(config.isTestModus())
     {

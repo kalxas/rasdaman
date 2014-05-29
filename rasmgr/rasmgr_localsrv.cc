@@ -177,7 +177,7 @@ bool LocalServerManager::startNewServer(const char* commandline)
         temp.init(serverName,pid);
         srvList.push_back(temp);
         TALK( "LocalServerManager::startNewServer: leave. parent process. result=true." );
-        VLOG << now() << " starting server "<<serverName<<", executable " << fileName << "; pid "<<pid<< "..." << flush;
+        VLOG << now() << " starting server "<<serverName<<", executable " << fileName << "; pid "<<pid<< "..." << endl;
 
     }
     else
