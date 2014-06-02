@@ -45,7 +45,7 @@ public class SecoreException extends Exception {
      * Construct a new SECORE exception
      *
      * @param exceptionCode exception code, if it's null then
-     * {@link ExceptionCode.UnknownError} is used.
+     * {@link ExceptionCode#UnknownError} is used.
      */
     public SecoreException(ExceptionCode exceptionCode) {
         this(exceptionCode, null, null);
@@ -55,7 +55,7 @@ public class SecoreException extends Exception {
      * Construct a new SECORE exception
      *
      * @param exceptionCode exception code, if it's null then
-     * {@link ExceptionCode.UnknownError} is used.
+     * {@link ExceptionCode#UnknownError} is used.
      * @param exceptionText exception message
      */
     public SecoreException(ExceptionCode exceptionCode, String exceptionText) {
@@ -66,7 +66,7 @@ public class SecoreException extends Exception {
      * Construct a new SECORE exception
      *
      * @param exceptionCode exception code, if it's null then
-     * {@link ExceptionCode.UnknownError} is used.
+     * {@link ExceptionCode#UnknownError} is used.
      * @param causeEx original exception
      */
     public SecoreException(ExceptionCode exceptionCode, Exception causeEx) {
@@ -88,7 +88,7 @@ public class SecoreException extends Exception {
      * Construct a new SECORE exception
      *
      * @param exceptionCode exception code, if it's null then
-     * {@link ExceptionCode.UnknownError} is used.
+     * {@link ExceptionCode#UnknownError} is used.
      * @param exceptionText exception message
      * @param causeEx original exception
      * @param version

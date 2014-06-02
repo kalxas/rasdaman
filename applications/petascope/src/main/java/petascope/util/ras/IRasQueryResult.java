@@ -57,7 +57,6 @@ public interface IRasQueryResult {
 
     /**
      * Simulate the "--out string" RasQL option
-     * @return
      */
     @Override
     String toString();

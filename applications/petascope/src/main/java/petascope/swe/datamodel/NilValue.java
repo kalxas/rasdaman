@@ -82,7 +82,6 @@ public class NilValue {
     // access
     /**
      * Getter method for the value of this SWE NIL value.
-     * @return
      */
     public String getValue() {
         return value;

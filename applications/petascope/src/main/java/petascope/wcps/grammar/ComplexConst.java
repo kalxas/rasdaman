@@ -25,7 +25,7 @@ import petascope.util.WcpsConstants;
 
 /**
  * ComplexConst
- * @author: Andrei Aiordachioaie
+ * @author Andrei Aiordachioaie
  */
 public class ComplexConst {
 

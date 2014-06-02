@@ -71,7 +71,6 @@ public class RasUtil {
     /**
      * Execute a RasQL query with configured credentials.
      * @param query
-     * @return
      * @throws RasdamanException
      */
     public static Object executeRasqlQuery(String query) throws RasdamanException {
@@ -83,7 +82,6 @@ public class RasUtil {
      * @param query
      * @param username
      * @param password
-     * @return
      * @throws RasdamanException
      */
     // FIXME - should return just String?

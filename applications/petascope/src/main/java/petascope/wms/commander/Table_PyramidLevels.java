@@ -75,7 +75,6 @@ public class Table_PyramidLevels
     
     /**
      * constructor
-     * @return CommanderConnection
      **/
     public Table_PyramidLevels()
     {
@@ -90,7 +89,7 @@ public class Table_PyramidLevels
      *	JDBC connection opened
      *	all strings non-null
      * @param conn		JDBC connection
-     * @param id		service tuple id
+     * @param layerId		service tuple id
      * @return tuple id of new entry
      * @throws SQLException
      **/
@@ -165,7 +164,7 @@ public class Table_PyramidLevels
      *	JDBC connection opened
      *	tuple with id exists
      * @param conn		JDBC connection
-     * @param id		service tuple id
+     * @param levelId		service tuple id
      * @throws SQLException
      **/
     public void updateTuple( CommanderConnection conn, int levelId, int layerId, String collectionName, double scaleFactor )
@@ -302,7 +301,7 @@ public class Table_PyramidLevels
      * precondition:
      *	JDBC connection opened
      * @param conn		JDBC connection
-     * @param id		service tuple id
+     * @param lId		service tuple id
      * @throws SQLException
      **/
     public void fetchTupleById( CommanderConnection conn, int lId ) throws SQLException
@@ -491,14 +490,7 @@ public class Table_PyramidLevels
     /*
      * --- here test driver starts --------------------------------
      */
-    
-    /**
-     * main() for standalone testing
-     * @param String url database URL
-     * @param String user database login name
-     * @param String password database login password
-     * @param String jdbc database JDBC connectivity
-     */
+
     // --- test constants ---------------------------------
     // - layer set:
     public static final String NAME1 = "name1";
@@ -537,7 +529,14 @@ public class Table_PyramidLevels
     public static final int    LEVELID3 = 96;
     public static final String COLLNAME3 = "collectionName3";
     public static final double SCALEFACTOR3 = 5.;
-    
+
+    /**
+     * main() for standalone testing
+     * param String url database URL
+     * param String user database login name
+     * param String password database login password
+     * param String jdbc database JDBC connectivity
+     */
     public static void main( String[] args )
     {
         // --- start action -----------------------------------

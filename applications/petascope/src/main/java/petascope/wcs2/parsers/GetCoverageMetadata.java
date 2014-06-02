@@ -354,7 +354,7 @@ public class GetCoverageMetadata {
      * Method for updating the range type of a coverage.
      * This happens when using methods from the WCS RangeSubsetting extension.
      * @param rangeFieldNames
-     * @see OGC 12-040
+     * @see "https://portal.opengeospatial.org/files/12-040" "OGC 12-040"
      */
     public void setRangeFields(List<String> rangeFieldNames) {
         rangeFields = new ArrayList<RangeField>();

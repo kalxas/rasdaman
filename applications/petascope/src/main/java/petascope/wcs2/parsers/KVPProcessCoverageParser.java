@@ -91,7 +91,6 @@ public class KVPProcessCoverageParser extends KVPParser<ProcessCoverageRequest> 
      * to its equivalent in the query string.
      *
      * @param queryParts the query parts of the url
-     * @return
      */
     private Map<Integer, String> parseExtraParameters(Map<String, String> queryParts) {
         Map<Integer, String> extraParams = new HashMap<Integer, String>();

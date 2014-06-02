@@ -98,7 +98,6 @@ public class Address {
     /**
      * Return an ordered dictionary of OWS GML types and associated values
      * of the contact information that has been filled.
-     * @return
      */
     public List<Pair<String, String>> getAddressMetadata() {
         List<Pair<String, String>> availableInfo = new ArrayList<Pair<String, String>>();

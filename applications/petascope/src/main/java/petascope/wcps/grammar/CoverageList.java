@@ -26,7 +26,7 @@ import petascope.util.WcpsConstants;
 /**
  * CoverageList class represents a CoverageList.
  * Creation date: (3/3/2003 2:52:55 AM)
- * @author: mattia parigiani, Sorin Stancu-Mara, Andrei Aiordachioaie
+ * @author mattia parigiani, Sorin Stancu-Mara, Andrei Aiordachioaie
  */
 public class CoverageList implements IParseTreeNode {
 

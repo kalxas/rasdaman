@@ -95,7 +95,6 @@ public class WcsUtil {
      * Utility method to read coverage's metadata.
      * @param meta
      * @param coverageId
-     * @return
      * @throws SecoreException
      * @throws WCSException
      */
@@ -312,7 +311,6 @@ public class WcsUtil {
     /**
      * Creates the String for gml:SRSReferenceGroup attributes group.
      * @param m
-     * @return
      */
     private static String getSrsGroup(GetCoverageMetadata m) throws WCSException, SecoreException {
         String srsGroup ;
@@ -337,7 +335,6 @@ public class WcsUtil {
      * Returns the full URI of the native CRS of a coverage.
      * Special XML entities are escaped (&entity;).
      * @param m
-     * @return
      */
     public static String getSrsName(GetCoverageMetadata m) {
         if (m.getCrs() != null) {
@@ -352,7 +349,6 @@ public class WcsUtil {
      * Replaces the bounds of the grid
      * @param gml  The GML response
      * @param m    The metadata specific to the WCS GetCoverage request
-     * @return
      */
     public static String getBounds(String gml, GetCoverageMetadata m) {
         gml = gml.replaceAll("\\{" + Templates.KEY_LOW         + "\\}", m.getLow())
@@ -367,7 +363,6 @@ public class WcsUtil {
      * This information is returned along with <gmlcov:metadata> root element.
      * The content is extracted from petascopedb::ps_extrametadata.
      * @param m
-     * @return
      */
     private static String getGmlcovMetadata (GetCoverageMetadata m) {
         // GMLCOV metadata
@@ -527,7 +522,6 @@ public class WcsUtil {
     /**
      * Returnes a gmlrgrid:generalGridZxis element, with replacements.
      * @param m
-     * @return
      */
     private static String getGeneralGridAxes(GetCoverageMetadata m) throws WCSException, SecoreException {
         Bbox bbox = m.getBbox();
@@ -648,20 +642,19 @@ public class WcsUtil {
      *       |        |       |
      *   o-------o    |       |
      *   |   |   |    |       |
-     *   |   @---|----x-------x
+     *   |   +---|----x-------x
      *   |       |
      *   o-------o
      *   <---
      *   shift
      *
-     *  @ = grid origin, at centre of sample space
+     *  + = grid origin, at centre of sample space
      *  x = grid points (at centre of their sample spaces/pixels, though not depicted)
      *  o = corners of the sample space
      *
      * @param offsetVector
      * @param isIrregular
      * @param axisUom
-     * @return
      */
     public static BigDecimal getSampleSpaceShift(BigDecimal offsetVector, boolean isIrregular, String axisUom) {
         BigDecimal shift;

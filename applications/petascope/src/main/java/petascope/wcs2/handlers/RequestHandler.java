@@ -24,6 +24,7 @@ package petascope.wcs2.handlers;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
+import petascope.wcs2.parsers.Request;
 
 /**
  * Handles a {@link Request}

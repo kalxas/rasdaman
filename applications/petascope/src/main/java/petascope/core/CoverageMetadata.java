@@ -719,7 +719,6 @@ public class CoverageMetadata implements Cloneable {
      * Get the set of (optional) extra metadata for this coverage of the specified type.
      * See TABLE_EXTRAMETADATA_TYPE for the dictionary of metadata types.
      * @param metadataType
-     * @return
      */
     public Set<String> getExtraMetadata(String metadataType) {
         Set<String> selectedExtraMetadata = new HashSet<String>();

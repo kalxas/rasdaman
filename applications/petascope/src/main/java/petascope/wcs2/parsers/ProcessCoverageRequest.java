@@ -60,7 +60,6 @@ public class ProcessCoverageRequest extends Request {
 
     /**
      * Returns the wcps query to be executed
-     * @return
      */
     public String getQuery() {
         return query;
@@ -68,7 +67,6 @@ public class ProcessCoverageRequest extends Request {
 
     /**
      * Returns the version of the WCPS standard to which the query adheres.
-     * @return
      */
     public String getWcpsVersion() {
         return wcpsVersion;

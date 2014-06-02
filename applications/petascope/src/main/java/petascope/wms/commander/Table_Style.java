@@ -78,7 +78,6 @@ public class Table_Style
     
     /**
      * constructor
-     * @return CommanderConnection
      **/
     public Table_Style()
     {
@@ -93,7 +92,7 @@ public class Table_Style
      *	JDBC connection opened
      *	all strings non-null
      * @param conn		JDBC connection
-     * @param id		service tuple id
+     * @param layerId		service tuple id
      * @return tuple id of new entry
      * @throws SQLException
      **/
@@ -182,7 +181,7 @@ public class Table_Style
      *	JDBC connection opened
      *	tuple with id exists
      * @param conn		JDBC connection
-     * @param id		service tuple id
+     * @param styleId		service tuple id
      * @throws SQLException
      **/
     public void updateTuple( CommanderConnection conn, int styleId, int layerId, String name, String title, String abstractText, int legendWidth, int legendHeight, String legendURL, String sheetURL, String rasqlOp )
@@ -523,13 +522,6 @@ public class Table_Style
      * --- here test driver starts --------------------------------
      */
     
-    /**
-     * main() for standalone testing
-     * @param String url database URL
-     * @param String user database login name
-     * @param String password database login password
-     * @param String jdbc database JDBC connectivity
-     */
     // --- test constants ---------------------------------
     // - layer value set 1:
     public static final String LNAME1 = "name1";
@@ -578,7 +570,13 @@ public class Table_Style
     public static final String SHEETURL2 = "sheetURL2";
     public static final String RASQLOP2 = "rasqlOp2";
     
-    
+    /**
+     * main() for standalone testing
+     * param String url database URL
+     * param String user database login name
+     * param String password database login password
+     * param String jdbc database JDBC connectivity
+     */
     public static void main( String[] args )
     {
         // --- start action -----------------------------------

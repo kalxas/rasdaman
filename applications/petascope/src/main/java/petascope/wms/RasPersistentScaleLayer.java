@@ -47,7 +47,6 @@ public class RasPersistentScaleLayer
     /**
      * Create a new object:
      * @param theRasCollectionName the name of the RasDaMan collection
-     * @param theGroundResolution the ground resolution (scale factor to GK)
      * @param bbox the bounding box of the image in the collection
      **/
     public RasPersistentScaleLayer(String theRasCollectionName, BoundingBox bbox)

@@ -106,7 +106,7 @@ public class MiscUtil {
      * Simple utility to tell whether a String represents an unsigned integer value.
      * @param inputString
      * @return True every char of the string is a numerical digit.
-     * @see http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html
+     * @see "http://docs.oracle.com/javase/7/docs/api/java/lang/Integer.html"
      */
     public static boolean isInteger(String inputString) {
         try {

@@ -76,7 +76,6 @@ public class GetCoverageOld2 extends AbstractRequestHandler<GetCoverageRequest> 
      * and the axis labels for the new coverage.
      *
      * @param coverage
-     * @return
      * @throws WCSException
      */
     private String computeRequestSubsettingLimits(GetCoverageRequest req, CoverageMetadata coverage)

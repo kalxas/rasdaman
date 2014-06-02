@@ -121,7 +121,6 @@ public class GmlFormatExtension extends AbstractFormatExtension {
      * @param request
      * @param meta
      * @param m
-     * @return
      * @throws WCSException
      * @throws PetascopeException
      */
@@ -140,7 +139,6 @@ public class GmlFormatExtension extends AbstractFormatExtension {
      * Handles a request for MultiPoint Coverages and returns a response XML
      * @param req
      * @param coverageName
-     * @return
      * @throws WCSException
      */
     private Response handleMultiPoint(GetCoverageRequest req, String coverageName, DbMetadataSource meta, GetCoverageMetadata m)

@@ -75,7 +75,6 @@ public class CommanderConnection
      * @param jdbcUser	user name for login to this service
      * @param jdbcPasswd	password for login
      * @param jdbcDriver	driver; needs to adhere to common JDBC driver syntax!
-     * @return CommanderConnection
      * @throws ConnectionFailedException
      * @throws ConfigurationException
      **/
@@ -223,7 +222,6 @@ public class CommanderConnection
     /**
      * Method createStatement
      * returns a Statement, which needs to be close()d by the caller later.
-     * @param query
      * @return Statement
      * @throws SQLException
      *
@@ -350,10 +348,10 @@ public class CommanderConnection
     
     /**
      * main() for standalone testing
-     * @param String url database URL
-     * @param String user database login name
-     * @param String password database login password
-     * @param String jdbc database JDBC connectivity
+     * param String url database URL
+     * param String user database login name
+     * param String password database login password
+     * param String jdbc database JDBC connectivity
      */
     public static void main( String[] args )
     {

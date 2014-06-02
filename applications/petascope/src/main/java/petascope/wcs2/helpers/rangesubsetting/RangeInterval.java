@@ -43,7 +43,6 @@ public class RangeInterval extends RangeItem {
 
     /**
      * Returns the low component of the range 
-     * @return 
      */
     public String getLowComponent() {
         return lowComponent;
@@ -51,7 +50,6 @@ public class RangeInterval extends RangeItem {
 
     /**
      * Returns the high component of the range
-     * @return 
      */
     public String getHighComponent() {
         return highComponent;
@@ -59,7 +57,6 @@ public class RangeInterval extends RangeItem {
 
     /**
      * String representation of the object
-     * @return 
      */
     @Override
     public String toString() {

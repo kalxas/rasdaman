@@ -29,7 +29,7 @@ import static petascope.util.XMLSymbols.*;
 import petascope.wcs2.parsers.Request;
 
 /**
- * An abstract implementation of {@link WcsOperation}, which provides some
+ * An abstract implementation of {@link RequestHandler}, which provides some
  * convenience methods to concrete implementations.
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>

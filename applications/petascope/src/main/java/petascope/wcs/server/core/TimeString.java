@@ -161,7 +161,7 @@ public class TimeString {
 
     /**
      *
-     * @param TString string containing date
+     * @param str string containing date
      * @return joda DateTime corresponding to the input string
      * @throws IllegalArgumentException
      */

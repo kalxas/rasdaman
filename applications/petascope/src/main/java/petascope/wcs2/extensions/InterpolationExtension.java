@@ -38,7 +38,7 @@ import petascope.wcs2.parsers.GetCoverageRequest;
  * Upon scaling, rasdaman performs nearest-neighbor interpolation:
  * this is the currently unique kind of interpolation offered.
  *
- * @see https://portal.opengeospatial.org/files/12-049
+ * @see "https://portal.opengeospatial.org/files/12-049"
  * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public class InterpolationExtension implements Extension {

@@ -75,7 +75,6 @@ public class Table_ServiceLayer
     
     /**
      * constructor
-     * @return CommanderConnection
      **/
     public Table_ServiceLayer()
     {
@@ -90,7 +89,7 @@ public class Table_ServiceLayer
      *	JDBC connection opened
      *	all strings non-null
      * @param conn		JDBC connection
-     * @param id		service tuple id
+     * @param serviceId		service tuple id
      * @throws SQLException
      **/
     public void insertTuple( CommanderConnection conn, int serviceId, int layerId, int layerSeq ) throws SQLException, ConnectionFailedException, InvalidInputException
@@ -130,7 +129,7 @@ public class Table_ServiceLayer
      *	JDBC connection opened
      *	tuple with id exists
      * @param conn		JDBC connection
-     * @param id		service tuple id
+     * @param serviceId		service tuple id
      * @throws SQLException
      **/
     public void updateTuple( CommanderConnection conn, int serviceId, int layerId, int layerSeq ) throws SQLException, ConnectionFailedException
@@ -162,7 +161,7 @@ public class Table_ServiceLayer
      * precondition:
      *	JDBC connection opened
      * @param conn		JDBC connection
-     * @param id		service tuple id
+     * @param serviceId		service tuple id
      * @throws SQLException
      **/
     public void deleteTuple( CommanderConnection conn, int serviceId, int layerId ) throws SQLException, ConnectionFailedException
@@ -253,7 +252,7 @@ public class Table_ServiceLayer
      * precondition:
      *	JDBC connection opened
      * @param conn		JDBC connection
-     * @param id		service tuple id
+     * @param serviceId		service tuple id
      * @throws SQLException, InvalidInputException
      **/
     public void fetchTupleById( CommanderConnection conn, int serviceId, int layerId ) throws SQLException

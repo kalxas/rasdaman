@@ -261,7 +261,6 @@ public class ListUtil {
      * Returns the relative orders of the element in a numeric list.
      * @param <T>
      * @param list
-     * @return
      */
     public static <T extends Number> List<Integer> relativeOrders(List<T> list) {
         List<Integer> relativeOrders = new ArrayList<Integer>(list.size());

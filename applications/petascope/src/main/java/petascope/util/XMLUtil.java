@@ -287,7 +287,6 @@ public class XMLUtil {
      *
      * @param xomDocument the XOM Document to be serialized
      * @param noPrettyPrint
-     * @return
      * @throws IOException
      */
     public static String serialize(Document xomDocument, boolean noPrettyPrint) throws IOException {
@@ -367,7 +366,6 @@ public class XMLUtil {
 
     /**
      * @param e
-     * @return
      */
     public static String getBaseURI(Element e) {
         if (e == null) {
@@ -388,7 +386,6 @@ public class XMLUtil {
 
     /**
      * @param doc
-     * @return
      */
     public static String getBaseURI(Document doc) {
         if (doc != null) {
@@ -462,7 +459,6 @@ public class XMLUtil {
      *
      * @param e
      * @param ignoreAttributes set of attributes to ignore when copying
-     * @return
      */
     public static Element copyTag(Element e, Set<String> ignoreAttributes) {
         Element ret = null;
@@ -484,7 +480,6 @@ public class XMLUtil {
     /**
      * cp(<label att_1="val_1"...att_n="val_n">ch</label>) --> <label att_1="val_1"...att_n="val_n">ch'</label>, where ch'!=Element
      * @param n
-     * @return
      */
     public static Node cp(Node n) {
         if (n instanceof Element) {
@@ -510,7 +505,6 @@ public class XMLUtil {
     /**
      * @param xml
      * @param tag
-     * @return
      */
     public static boolean isFirstTag(String xml, String tag) {
         return tag.equals(getRootElementName(xml));
@@ -518,7 +512,6 @@ public class XMLUtil {
 
     /**
      * @param xml
-     * @return
      */
     public static String getRootElementName(String xml) {
         int start = 0;
@@ -549,7 +542,6 @@ public class XMLUtil {
 
     /**
      * @param xml
-     * @return
      */
     public static String removeXmlDecl(String xml) {
         if (xml.startsWith("<?xml")) {
@@ -561,7 +553,6 @@ public class XMLUtil {
     /**
      * Return the text that some node contains.
      * @param node
-     * @return
      */
     public static String getText(Element node) {
         if (node == null) {
@@ -1021,7 +1012,7 @@ public class XMLUtil {
      * Get the first parent element <code>name</code> of <code>el</code>
      *
      * @param el this element
-     * @param name the name of the parent element
+     * @param names the name of the parent element
      * @return the parent element
      */
     public static Element getParent(Node el, String... names) {
@@ -1152,7 +1143,6 @@ public class XMLUtil {
 
     /**
      * Append an XML fragment to an XOM element.
-     * @param root
      * @param fragment
      * @return Element of the fragment, with no parents.
      * @throws IOException

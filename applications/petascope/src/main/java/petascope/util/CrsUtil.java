@@ -718,7 +718,6 @@ public class CrsUtil {
 
     /**
      * Method to return the default SECORE URI (first in the configuration list)
-     * @return
      */
     private static String getResolverUri() {
         return ConfigManager.SECORE_URLS.get(0);
@@ -741,7 +740,6 @@ public class CrsUtil {
      * @param loIsNumeric
      * @param stringHi
      * @param hiIsNumeric
-     * @return
      * @throws PetascopeException
      */
     public static long[] convertToInternalGridIndices(CoverageMetadata covMeta, DbMetadataSource dbMeta, String axisName,
@@ -1262,7 +1260,6 @@ public class CrsUtil {
          * @param resolverUri
          * @param uri1
          * @param uri2
-         * @return
          * @throws PetascopeException
          * @throws SecoreException
          */

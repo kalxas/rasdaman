@@ -136,9 +136,8 @@ public class TestSystemOverloaded extends BaseTestCase{
     
     /**
      * Test overloading a rasdaman server with queries. The queries should be properly queued until more rasdaman servers
-     * become available. This method should complete without throwing an exception.
-     *
-     * @return void No error occurred, queries to overloaded servers were properly handled.
+     * become available. This method should complete without throwing an exception. The successful execution of this function
+     * means that the queries to overload the servers were propely handled and that no error occured.
      * @throws Exception if one or more queries failed to execute, failure since queries couldn't be processed due to system overload
      */
     @Test

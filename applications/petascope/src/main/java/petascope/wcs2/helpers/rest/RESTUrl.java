@@ -59,7 +59,6 @@ public class RESTUrl {
      * Return the value of a url component by index
      *
      * @param index the index of the component to retrieve
-     * @return
      */
     public Pair<String, String> getByIndex(int index) {
         Pair<String, String> result = null;
@@ -73,7 +72,6 @@ public class RESTUrl {
      * Decides if a key exists in the url components
      *
      * @param key a string to search for
-     * @param urlComponents the url components
      * @return true if exists false otherwise
      */
     public Boolean existsKey(String key) {

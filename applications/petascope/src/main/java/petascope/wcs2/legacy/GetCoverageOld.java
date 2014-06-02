@@ -190,7 +190,6 @@ public class GetCoverageOld {
      * and the axis labels for the new coverage.
      *
      * @param coverage
-     * @return
      * @throws WCSException
      */
     private String computeRequestSubsettingLimits(CoverageMetadata coverage) throws WCSException {

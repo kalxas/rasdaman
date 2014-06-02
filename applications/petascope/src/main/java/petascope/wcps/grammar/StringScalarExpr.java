@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @author: Andrei Aiordachioaie
+ * @author Andrei Aiordachioaie
  */
 public class StringScalarExpr implements IParseTreeNode {
 

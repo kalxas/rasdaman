@@ -26,7 +26,7 @@ import petascope.util.WcpsConstants;
 /**
  * ExtendExpr
  * Creation date: (8/2/2008)
- * @author: Sorin Stancu-Mara, Andrei Aiordachioaie
+ * @author Sorin Stancu-Mara, Andrei Aiordachioaie
  */
 public class ExtendExpr implements IParseTreeNode {
 

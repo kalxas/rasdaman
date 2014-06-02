@@ -104,7 +104,7 @@ public class executeTransaction {
     /**
      * Default constructor. Initialize internal variables.
      * @param tr Transaction object, a WCS-T request
-     * @param metadataDbPath Path to the "dbparams.properties" file
+     * @param source Path to the "dbparams.properties" file
      */
     public executeTransaction(TransactionType tr, DbMetadataSource source) throws WCSTException, RasdamanException {
         input = tr;

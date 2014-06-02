@@ -87,7 +87,7 @@ public class convertGetCoverage {
     /**
      * Default constructor
      * @param cov GetCoverage object, the input WCS request for retrieving a coverage
-     * @param path Path to the "settings.properties" file
+     * @param source Path to the "settings.properties" file
      */
     public convertGetCoverage(GetCoverage cov, DbMetadataSource source)
             throws WCSException, WCPSException {

@@ -27,7 +27,7 @@ import petascope.util.WcpsConstants;
 /**
  * WCPSRequest class represents a WCPSRequest.
  * Creation date: (3/3/2003 2:52:55 AM)
- * @author: *, Sorin Stancu-Mara, Andrei Aiordachioaie
+ * @author *, Sorin Stancu-Mara, Andrei Aiordachioaie
  */
 public class WCPSRequest implements IParseTreeNode {
 

@@ -98,7 +98,6 @@ public class Table_Layer
     
     /**
      * constructor
-     * @return CommanderConnection
      **/
     public Table_Layer()
     {
@@ -113,7 +112,6 @@ public class Table_Layer
      *	JDBC connection opened
      *	all strings non-null
      * @param conn		JDBC connection
-     * @param id		service tuple id
      * @return tuple id of new entry
      * @throws SQLException
      **/
@@ -224,7 +222,7 @@ public class Table_Layer
      *	JDBC connection opened
      *	tuple with id exists
      * @param conn		JDBC connection
-     * @param id		service tuple id
+     * @param layerId		service tuple id
      * @throws SQLException
      **/
     public void updateTuple( CommanderConnection conn, int layerId, String name, String title, String srs, String authority, String latLonBoxXmin, String latLonBoxXmax, String latLonBoxYmin, String latLonBoxYmax, String bBoxXmin, String bBoxXmax, String bBoxYmin, String bBoxYmax, String attributionURL, String attributionTitle, int logoWidth, int logoHeight, String logoFormat, String logoURL, String featureURL, double resolution, MapType mapType )
@@ -673,13 +671,7 @@ public class Table_Layer
      * --- here test driver starts --------------------------------
      */
     
-    /**
-     * main() for standalone testing
-     * @param String url database URL
-     * @param String user database login name
-     * @param String password database login password
-     * @param String jdbc database JDBC connectivity
-     */
+
     // --- test constants ---------------------------------
     // - value set 1:
     public static final String NAME1 = "name1";
@@ -749,7 +741,14 @@ public class Table_Layer
     public static final String FEATUREURL3 = "featureURL3";
     public static final double RESOLUTION3 = 3.333;
     public static final MapType MAPTYPE3 = MapType.DEM;
-    
+
+    /**
+     * main() for standalone testing
+     * param String url database URL
+     * param String user database login name
+     * param String password database login password
+     * param String jdbc database JDBC connectivity
+     */
     public static void main( String[] args )
     {
         // --- start action -----------------------------------

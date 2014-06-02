@@ -191,7 +191,8 @@ public class Templates {
     /**
      * Load a template file from this package.
      *
-     * @param templateName name of template
+     * @param template name of template
+     * @param replacements
      * @return the template
      */
     public static Element getXmlTemplate(String template, Pair<String, String>... replacements) {

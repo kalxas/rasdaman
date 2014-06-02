@@ -69,7 +69,7 @@ public class executeDescribeCoverage {
     /**
      * Default constructor
      * @param cap DescribeCoverage object, a WCS (or WCPS) request
-     * @param metadataDbPath Path to the "dbparams.properties" file
+     * @param source Path to the "dbparams.properties" file
      */
     public executeDescribeCoverage(DescribeCoverage cap, DbMetadataSource source)
             throws WCSException {

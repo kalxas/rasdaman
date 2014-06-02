@@ -95,7 +95,6 @@ public class Table_Service
     
     /**
      * constructor
-     * @return CommanderConnection
      **/
     public Table_Service()
     {
@@ -110,7 +109,6 @@ public class Table_Service
      *	JDBC connection opened
      *	all strings non-null
      * @param conn		JDBC connection
-     * @param id		service tuple id
      * @return tuple id of new entry
      * @throws SQLException
      **/

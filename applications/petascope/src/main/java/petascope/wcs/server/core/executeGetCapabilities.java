@@ -68,7 +68,7 @@ public class executeGetCapabilities {
     /**
      * Default constructor
      * @param cap GetCapabilities object, a WCS (or WCPS) request
-     * @param metadataDbPath Path to the "dbparams.properties" file
+     * @param source Path to the "dbparams.properties" file
      */
     public executeGetCapabilities(GetCapabilities cap, DbMetadataSource source) throws WCSException {
         input = cap;

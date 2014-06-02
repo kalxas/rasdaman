@@ -51,7 +51,7 @@ import petascope.wcs2.templates.Templates;
  * currently we limit to 2D datasets.
  * GML metadata follows the ad-hoc schema for GMLJP2 standard, no GMLCOV.
  *
- * @see http://www.opengeospatial.org/standards/gmljp2
+ * @see "http://www.opengeospatial.org/standards/gmljp2"
  * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public class GMLJP2FormatExtension extends AbstractFormatExtension {

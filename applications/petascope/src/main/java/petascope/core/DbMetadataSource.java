@@ -1511,7 +1511,6 @@ public class DbMetadataSource implements IMetadataSource {
      * @param coverageID
      * @param coverageName
      * @param cellDomainList
-     * @return
      * @throws PetascopeException
      */
     public String[] multipointDomainRangeData(String schemaName, int coverageID, String coverageName,
@@ -1918,7 +1917,6 @@ public class DbMetadataSource implements IMetadataSource {
     /**
      * Turns a SQL array to Java list (integer values case)
      * @param sqlArray
-     * @return
      * @throws SQLException
      */
     private List<Integer> sqlArray2IntList(Array sqlArray) throws SQLException {
@@ -1935,7 +1933,6 @@ public class DbMetadataSource implements IMetadataSource {
     /**
      * Turns a SQL array to Java list (strings case)
      * @param sqlArray
-     * @return
      * @throws SQLException
      */
     private List<String> sqlArray2StringList(Array sqlArray) throws SQLException {
@@ -2059,7 +2056,6 @@ public class DbMetadataSource implements IMetadataSource {
      * Creates an SWE Quantity object from the associated SQL result set and associated allowed intervals.
      * @param rSwe Tuple containing ps_quantity and ps_nil_value.
      * @param intervals Allowed intervals defining the constraints of the quantity on this tuple.
-     * @return
      * @throws SQLException
      */
     private Quantity readSWEQuantity(int quantityId)

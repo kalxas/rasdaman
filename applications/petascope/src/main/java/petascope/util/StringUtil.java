@@ -308,8 +308,7 @@ public class StringUtil {
 
     /**
      * Replaces all <tt>'&'</tt> characters with <tt>'&amp;'</tt>
-     * @param aURL
-     * @return
+     * @param aString
      */
     private static String escapeAmpersands(String aString){
         return aString.replace("&", "&" + XMLSymbols.PREDEFINED_ENTITY_AMPERSAND + ";");
@@ -317,8 +316,7 @@ public class StringUtil {
 
     /**
      * Replaces all <tt>'\''</tt> characters with <tt>'&apos;'</tt>
-     * @param aURL
-     * @return
+     * @param aString
      */
     private static String escapeApostrophes(String aString){
         return aString.replace("'", "&" + XMLSymbols.PREDEFINED_ENTITY_APOSTROPHE + ";");
@@ -326,8 +324,7 @@ public class StringUtil {
 
     /**
      * Replaces all <tt>'<'</tt> characters with <tt>'&lt;'</tt>
-     * @param aURL
-     * @return
+     * @param aString
      */
     private static String escapeLessThanSigns(String aString){
         return aString.replace("<", "&" + XMLSymbols.PREDEFINED_ENTITY_LESSTHAN_SIGN + ";");
@@ -335,8 +332,7 @@ public class StringUtil {
 
     /**
      * Replaces all <tt>'>'</tt> characters with <tt>'&gt;'</tt>
-     * @param aURL
-     * @return
+     * @param aString
      */
     private static String escapeGreaterThanSigns(String aString){
         return aString.replace(">", "&" + XMLSymbols.PREDEFINED_ENTITY_GREATERTHAN_SIGN + ";");
@@ -344,8 +340,7 @@ public class StringUtil {
 
     /**
      * Replaces all <tt>'\"'</tt> characters with <tt>'&quot;'</tt>
-     * @param aURL
-     * @return
+     * @param aString
      */
     private static String escapeQuotes(String aString){
         return aString.replace("\"", "&" + XMLSymbols.PREDEFINED_ENTITY_QUOTES + ";");
@@ -354,8 +349,7 @@ public class StringUtil {
     /**
      * Fix a string for valid insertion in XML document (escape reserved entities).
      * http://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
-     * @param aURL
-     * @return
+     * @param aString
      */
     public static String escapeXmlPredefinedEntities(String aString){
         String escapedString;
@@ -396,7 +390,6 @@ public class StringUtil {
     /**
      * Returns a list of String literals from a comma-separated value String.
      * @param csvString
-     * @return
      */
     public static List<String> csv2list(String csvString) {
         List<String> outList = new ArrayList<String>();
@@ -413,7 +406,6 @@ public class StringUtil {
      * Repeats a String literal N times.
      * @param value     The single input literal to be repeated
      * @param times     How many repetitions
-     * @return
      */
     public static List<String> repeat(String value, int times) {
         List<String> outList = new ArrayList<String>(times);

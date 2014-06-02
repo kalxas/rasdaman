@@ -45,7 +45,7 @@ public class PetascopeException extends Exception {
      * Construct a new WCS exception
      *
      * @param exceptionCode exception code, if it's null then
-     * {@link ExceptionCode.UnknownError} is used.
+     * {@link ExceptionCode#UnknownError} is used.
      */
     public PetascopeException(ExceptionCode exceptionCode) {
         this(exceptionCode, null, null);
@@ -55,7 +55,7 @@ public class PetascopeException extends Exception {
      * Construct a new WCS exception
      *
      * @param exceptionCode exception code, if it's null then
-     * {@link ExceptionCode.UnknownError} is used.
+     * {@link ExceptionCode#UnknownError} is used.
      * @param exceptionText exception message
      */
     public PetascopeException(ExceptionCode exceptionCode, String exceptionText) {
@@ -66,7 +66,7 @@ public class PetascopeException extends Exception {
      * Construct a new WCS exception
      *
      * @param exceptionCode exception code, if it's null then
-     * {@link ExceptionCode.UnknownError} is used.
+     * {@link ExceptionCode#UnknownError} is used.
      * @param ex original exception
      */
     public PetascopeException(ExceptionCode exceptionCode, Exception ex) {
@@ -88,7 +88,7 @@ public class PetascopeException extends Exception {
      * Construct a new WCS exception
      *
      * @param exceptionCode exception code, if it's null then
-     * {@link ExceptionCode.UnknownError} is used.
+     * {@link ExceptionCode#UnknownError} is used.
      * @param exceptionText exception message
      * @param ex original exception
      * @param version

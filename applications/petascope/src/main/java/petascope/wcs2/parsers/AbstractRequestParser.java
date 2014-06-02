@@ -22,7 +22,7 @@
 package petascope.wcs2.parsers;
 
 /**
- * An abstract implementation of {@link WcsOperationBinding}, which provides some
+ * An abstract implementation of {@link RequestParser}, which provides some
  * convenience methods to concrete implementations.
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>

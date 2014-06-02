@@ -286,7 +286,7 @@ public class GdalParameters {
 
     /**
      * Print configuration options as understood by RasQL encode() function.
-     * @see http://rasdaman.org/wiki/RasqlEncodeFunction
+     * @see "http://rasdaman.org/wiki/RasqlEncodeFunction"
      * @return The list of configuration options: "config=key1 value1, key2 value2, __, keyN valueN".
      */
     private String printConfigOptions() {
