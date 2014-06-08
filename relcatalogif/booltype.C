@@ -142,7 +142,7 @@ BoolType::makeFromCULong(char* cell, const r_ULong* value) const
 {
   // !!!! HP specific, assumes 4 Byte long and MSB..LSB 
   // byte order
-  *(unsigned char*)(cell) = (unsigned char)(*value);
+  *(unsigned char*)(cell) = (unsigned char)(*value ? 1 : 0);
   return cell;
 }
 

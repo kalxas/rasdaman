@@ -5,5 +5,5 @@ encode( coverage histogram
         values   condense +
                         over     $px x(10:20),
                                  $py y(10:20)
-                        using    c[ i($px), j($py) ]>$n - 1 and c[ i($px), j($py) ]<=$n,
+                        using    (long) c[ i($px), j($py) ]>$n - 1 and c[ i($px), j($py) ]<=$n,
         "csv" )

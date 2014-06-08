@@ -164,7 +164,7 @@ const char *r_Conv_CSV::printPrimitiveValue(std::stringstream &f, const r_Base_T
         f << ptr->get_ushort(val);
         break;
     case r_Type::BOOL:
-        f << (int) ptr->get_boolean(val);
+        f << (ptr->get_boolean(val) ? "t" : "f");
         break;
     case r_Type::LONG:
         f << ptr->get_long(val);

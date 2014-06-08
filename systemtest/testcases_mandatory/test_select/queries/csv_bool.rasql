@@ -1,0 +1,1 @@
+select csv(c[90:100,50:70] > 0) from mr as c
