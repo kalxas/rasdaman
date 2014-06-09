@@ -51,9 +51,7 @@ using namespace std;
 
 #include "servercomm/servercomm.hh"
 
-#ifdef LOCKMANAGER_ON
 #include "lockmgr/lockmanager.hh"
-#endif
 
 extern ServerComm::ClientTblElt* currentClientTblElt;
 
@@ -126,16 +124,16 @@ QtMDDAccess::next()
 
         // encapsulate the next MDDObj in an QtMDD object
         ptr =  mddIter->getElement();
-
-#ifdef LOCKMANAGER_ON
-        if (ptr)
+        if (configuration.isLockMgrOn())
         {
-            LockManager *lockmanager = LockManager::Instance();
-            std::vector< Tile* >* tiles = ptr->getTiles();
-            lockmanager->lockTiles(tiles);
-            delete tiles;
+            if (ptr)
+            {
+                LockManager *lockmanager = LockManager::Instance();
+                std::vector< Tile* >* tiles = ptr->getTiles();
+                lockmanager->lockTiles(tiles);
+                delete tiles;
+            }
         }
-#endif
 
         QtMDD*  elem = new QtMDD( ptr, iteratorName );
 

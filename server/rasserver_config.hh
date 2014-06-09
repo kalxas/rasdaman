@@ -51,6 +51,8 @@ public:
     const char* getDbUser();
     const char* getDbPasswd();
 
+    bool        isLockMgrOn();
+
     int         getDefaultTileSize();
     int         getDefaultPCTMin();
     int         getDefaultPCTMax();
@@ -92,6 +94,8 @@ private:
     CommandLineParameter *cmlHttp;
     CommandLineParameter *cmlRnp;
 
+    CommandLineParameter *cmlLockMgrOn;
+
     CommandLineParameter *cmlOptLevel;
     CommandLineParameter *cmlConnectStr;
     CommandLineParameter *cmlUserStr;
@@ -130,6 +134,8 @@ private:
     const char* dbConnection;
     const char* dbUser;
     const char* dbPasswd;
+
+    bool        lockmgrOn;
 
     int         tileSize;
     int         pctMin;

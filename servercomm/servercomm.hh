@@ -49,6 +49,7 @@ rasdaman GmbH.
 #include "reladminif/transactionif.hh"
 #include "relcatalogif/basetype.hh"
 
+#include "server/rasserver_config.hh"
 #include "servercomm/callbackmgr.hh"
 
 #ifndef _RPCIF_

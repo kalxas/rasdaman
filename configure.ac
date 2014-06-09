@@ -185,7 +185,6 @@ AH_TEMPLATE([COMPDATE], [Date of the build (of the configure not the actual buil
 AH_TEMPLATE([BASEDBSTRING], [Name of the database that supports the compiled version of rasdaman.])    
 AH_TEMPLATE([RASSCHEMAVERSION], [The version of the schema the database uses.])
 AH_TEMPLATE([CONFDIR], [The directory where the installed programs will find their configuration])
-AH_TEMPLATE([LOCKMANAGER_ON], [Enables fine-grained tile locking.])
 # --------------- Parameter Definition -----------------------------
 ####################################################################
 AC_PRESERVE_HELP_ORDER
@@ -318,15 +317,6 @@ AC_ARG_ENABLE([java],
               [disable_java=no])
 AC_MSG_NOTICE(Disable java? $disable_java)
 AM_CONDITIONAL([ENABLE_JAVA], [test "$disable_java" = no])
-
-AC_ARG_ENABLE([tilelocking],
-              [AS_HELP_STRING([--enable-tilelocking],
-                              [enable fine-grained tile locking, rather than whole database locking on inserts.])],
-              [enable_lockmgr=yes],
-              [enable_lockmgr=no])
-AC_MSG_NOTICE(Enable fine-grained tile locking? $enable_lockmgr)
-AM_CONDITIONAL([ENABLE_LOCKMGR], [test "x$enable_lockmgr" = xyes])
-
 # --------------- Database Specific Configuration ------------------
 ####################################################################
 
@@ -370,8 +360,6 @@ AS_IF([test "$disable_java" = no],
     AC_PROG_JAVA_CC
     AC_CHECK_PROGS(JAR_TOOL, jar, [${am_missing_run} jar])
   ], [])
-
-AS_IF([test "x$enable_lockmgr" = xyes], [AC_DEFINE([LOCKMANAGER_ON])], [])
 
 abs_top_srcdir=`pwd`
 RMANBASE=$abs_top_srcdir   

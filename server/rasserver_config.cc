@@ -100,6 +100,8 @@ void Configuration::initParameters()
     cmlHttp        = &cmlInter.addFlagParameter(NSN, "http", "start HTTP version of rasserver");
     cmlRnp         = &cmlInter.addFlagParameter(NSN, "rnp", "start RNP version of rasserver");
 
+    cmlLockMgrOn   = &cmlInter.addFlagParameter(NSN, "enable-tilelocking", "enables fine grained locking of tiles");
+
     cmlOptLevel    = &cmlInter.addLongParameter(NSN, "opt", "<nn> optimization level (0-3)\n\t\t 0 = no / 3 = maximum optimization (see manual)", 3L);
     cmlConnectStr  = &cmlInter.addStringParameter(NSN, "connect", "<connect-str> connect string for underlying database(e.g. test/test@julep)", "/");
     cmlUserStr  = &cmlInter.addStringParameter('u', "user", "<username> database connection user (empty by default)", "");
@@ -161,6 +163,8 @@ void Configuration::checkParameters()
     deprecated(cmlMgmntInt);
     httpServ              = cmlHttp->isPresent();
     rnpServ               = cmlRnp->isPresent();
+
+    lockmgrOn             = cmlLockMgrOn->isPresent();
 
     deprecated(cmlOptLevel);
     dbConnection = cmlConnectStr->getValueAsString();
@@ -322,6 +326,11 @@ const char* Configuration::getDbUser()
 const char* Configuration::getDbPasswd()
 {
     return dbPasswd;
+}
+
+bool Configuration::isLockMgrOn()
+{
+    return lockmgrOn;
 }
 
 int         Configuration::getDefaultTileSize()

@@ -105,9 +105,7 @@ extern "C" int gethostname(char *name, int namelen);
 #include "qlparser/qtpointdata.hh"
 #include "qlparser/qtstringdata.hh"
 
-#ifdef LOCKMANAGER_ON
 #include "lockmgr/lockmanager.hh"
-#endif
 
 // console output describing successful/unsuccessful actions
 #define MSG_OK          "ok"
@@ -481,11 +479,11 @@ ServerComm::commitTA( unsigned long callingClientId )
 
         // release transfer collection/iterator within the transaction they are created
         context->releaseTransferStructures();
-
-#ifdef LOCKMANAGER_ON
-        LockManager *lockmanager = LockManager::Instance();
-        lockmanager->unlockAllTiles();
-#endif
+        if (configuration.isLockMgrOn())
+        {
+            LockManager *lockmanager = LockManager::Instance();
+            lockmanager->unlockAllTiles();
+        }
 
         // commit the transaction
         context->transaction.commit();
@@ -541,11 +539,11 @@ ServerComm::abortTA( unsigned long callingClientId )
 
         // abort the transaction
         context->transaction.abort();
-
-#ifdef LOCKMANAGER_ON
-        LockManager *lockmanager = LockManager::Instance();
-        lockmanager->unlockAllTiles();
-#endif
+        if (configuration.isLockMgrOn())
+        {
+            LockManager *lockmanager = LockManager::Instance();
+            lockmanager->unlockAllTiles();
+        }
 
         // unlock the semaphore
         transactionActive = 0;

@@ -368,9 +368,6 @@
 /* The host system uses little endian encoding. */
 #undef IS_LITTLE_ENDIAN
 
-/* Enables fine-grained tile locking. */
-#undef LOCKMANAGER_ON
-
 /* Define to 1 if `lstat' dereferences a symlink specified with a trailing
    slash. */
 #undef LSTAT_FOLLOWS_SLASHED_SYMLINK
