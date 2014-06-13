@@ -182,8 +182,6 @@ public class PetascopeInterface extends HttpServlet {
             throw new ServletException("WCS-T initialization error", e);
         }
 
-        meta.closeConnection();
-
         log.info("-----------------------------------------------");
         log.info("      PetaScope {} successfully started      ", ConfigManager.PETASCOPE_VERSION);
         log.info("-----------------------------------------------");
@@ -427,18 +425,10 @@ public class PetascopeInterface extends HttpServlet {
                 log.error("Runtime error : {}", e.getMessage());
                 throw new WCSException(ExceptionCode.RuntimeError,
                         "Runtime error while processing request: " + e.getMessage(), e);
-            } finally {
-                if (meta != null) {
-                    meta.closeConnection();
-                }
             }
         } // And catch all WCSExceptions, to display to the client
         catch (WCSException e) {
             printError(httpResponse, request, e);
-        } finally {
-            if (meta != null) {
-                meta.closeConnection();
-            }
         }
     }
 

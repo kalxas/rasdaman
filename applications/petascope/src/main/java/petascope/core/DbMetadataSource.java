@@ -669,7 +669,6 @@ public class DbMetadataSource implements IMetadataSource {
             }
 
         } catch (SQLException sqle) {
-            closeConnection(s);
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error while reading static database information.", sqle);
         } finally {
@@ -707,7 +706,6 @@ public class DbMetadataSource implements IMetadataSource {
 
             return coverages;
         } catch (SQLException sqle) {
-            closeConnection(s);
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error while getting a list of the coverages.", sqle);
         } finally {
@@ -772,7 +770,6 @@ public class DbMetadataSource implements IMetadataSource {
             s.close();
             s = null;
         } catch (SQLException sqle) {
-            closeConnection(s);
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Error retrieving ID for coverage " + coverageName, sqle);
         } finally {
@@ -1307,12 +1304,10 @@ public class DbMetadataSource implements IMetadataSource {
 
         } catch (SecoreException sEx) {
             log.error("Error while parsing the CRS definitions to SECORE (" + ConfigManager.SECORE_URLS + ").");
-            closeConnection(s);
             throw sEx;
         } catch (PetascopeException ime) {
             log.error("Failed reading the coverage metadata", ime);
             ime.printStackTrace();
-            closeConnection(s);
             if (checkAtInit && !initializing) {
                 throw new PetascopeException(ExceptionCode.ResourceError,
                         "Previously valid metadata is now invalid. The metadata for coverage '" +
@@ -1322,7 +1317,6 @@ public class DbMetadataSource implements IMetadataSource {
             }
         } catch (SQLException sqle) {
             log.error("Failed reading the coverage metadata", sqle);
-            closeConnection(s);
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error", sqle);
         } finally {
@@ -1401,7 +1395,8 @@ public class DbMetadataSource implements IMetadataSource {
                 commitAndClose();
             }
         } catch (SQLException e) {
-            closeConnection(s);
+            throw new PetascopeException(ExceptionCode.InternalSqlError,
+                    "Failed deleting coverage with id " + coverageName);
         } finally {
             closeStatement(s);
         }
@@ -1433,7 +1428,6 @@ public class DbMetadataSource implements IMetadataSource {
             s = null;
         } catch (SQLException e) {
             log.error("Database error while checking if coverage " + name + " exists.", e);
-            closeConnection(s);
         } finally {
             closeStatement(s);
         }
@@ -1617,7 +1611,6 @@ public class DbMetadataSource implements IMetadataSource {
             return members;
 
         } catch (SQLException sqle) {
-            closeConnection(s);
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error", sqle);
         } finally {
@@ -1688,13 +1681,6 @@ public class DbMetadataSource implements IMetadataSource {
             return outCells;
 
         } catch (SQLException sqle) {
-            /* Abort this transaction */
-            try {
-                closeStatement(s);
-                abortAndClose();
-            } catch (SQLException f) {
-                log.warn(f.getMessage());
-            }
             throw new PetascopeException(ExceptionCode.InvalidRequest,
                     "Metadata database error", sqle);
         } finally {
@@ -1762,13 +1748,6 @@ public class DbMetadataSource implements IMetadataSource {
             return coefficients;
 
         } catch (SQLException sqle) {
-            /* Abort this transaction */
-            try {
-                closeStatement(s);
-                abortAndClose();
-            } catch (SQLException f) {
-                log.warn(f.getMessage());
-            }
             throw new PetascopeException(ExceptionCode.InvalidRequest,
                     "Metadata database error", sqle);
         } finally {
@@ -1828,13 +1807,6 @@ public class DbMetadataSource implements IMetadataSource {
 
             return coefficients;
         } catch (SQLException sqle) {
-            /* Abort this transaction */
-            try {
-                closeStatement(s);
-                abortAndClose();
-            } catch (SQLException f) {
-                log.warn(f.getMessage());
-            }
             throw new PetascopeException(ExceptionCode.InvalidRequest,
                     "Metadata database error", sqle);
         } finally {
@@ -1899,13 +1871,6 @@ public class DbMetadataSource implements IMetadataSource {
             s = conn.createStatement();
             r = s.executeQuery(postGisQuery);
         } catch (SQLException sqle) {
-            /* Abort this transaction */
-            try {
-                closeStatement(s);
-                abortAndClose();
-            } catch (SQLException f) {
-            }
-
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error", sqle);
         } finally {
@@ -2195,7 +2160,6 @@ public class DbMetadataSource implements IMetadataSource {
             s = null;
 
         } catch (SQLException sqle) {
-            closeStatement(s);
             throw new WCSException(ExceptionCode.ResourceError,
                     "Error retrieving Quantity with id " + quantityId, sqle);
         } finally {

@@ -89,10 +89,6 @@ public class WcpsServlet extends HttpServlet {
             log.error("WCPS: closing metadata database");
             log.error("WCPS: done with init error");
             throw new ServletException("WCPS initialization error", e);
-        } finally {
-            if (meta != null) {
-                meta.closeConnection();
-            }
         }
     }
 
@@ -242,9 +238,6 @@ public class WcpsServlet extends HttpServlet {
                 } catch (IOException e) {
                 }
             }
-            if (meta != null) {
-                meta.closeConnection();
-            }
         }
     }
 
@@ -293,6 +286,5 @@ public class WcpsServlet extends HttpServlet {
 
         out.close();
         log.warn("WCPS: done nothing");
-
     }
 }
