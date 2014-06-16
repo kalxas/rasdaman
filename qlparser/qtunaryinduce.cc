@@ -46,6 +46,7 @@ static const char rcsid[] = "@(#)qlparser, QtUnaryInduce: $Id: qtunaryinduce.cc,
 
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/structtype.hh"
+#include "relcatalogif/mdddimensiontype.hh"
 
 #include <sstream>
 #ifndef CPPSTDLIB
@@ -128,6 +129,8 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
     //  get the area, where the operation has to be applied
     const r_Minterval &areaOp = ((QtMDD*)operand)->getLoadDomain();
 
+    const r_Dimension dim = areaOp.dimension();
+
     // contains all tiles of the operand
     vector<Tile*>* allTiles=NULL;
 
@@ -135,7 +138,12 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
 
     // create MDDObj for result
   // this should rather be MDDDomainType? -- DM 2011-aug-12
-    MDDBaseType* mddBaseType = new MDDBaseType( "tmp", resultBaseType );
+    //Old implementation was :MDDBaseType* mddBaseType = new MDDBaseType( "tmp", resultBaseType );
+    //Had type incompatibility issue because of missing dimension.
+    MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp", resultBaseType, dim);
+
+    MDDBaseType* mddBaseType = (MDDBaseType*) mddDimensionType;
+
     TypeFactory::addTempType( mddBaseType );
 
     MDDObj* mddres = new MDDObj( mddBaseType, areaOp );
