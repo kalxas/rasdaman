@@ -39,7 +39,21 @@ public class RESTProtocolExtension extends AbstractProtocolExtension {
     public String getExtensionIdentifier() {
         return ExtensionsRegistry.REST_IDENTIFIER;
     }
-    
+
+    /**
+     * @return False: this extension has is no parent extension with identifier.
+     */
+    public Boolean hasParent() {
+        return false;
+    }
+
+    /**
+     * @return The identifier of the abstract GMLCOV format extension.
+     */
+    public String getParentExtensionIdentifier() {
+        return "";
+    }
+
     public static String mapRestResourcesToCoverageOperation(String restResource){
         if(restResource.contains("capabilities")){
             return "GetCapabilities";

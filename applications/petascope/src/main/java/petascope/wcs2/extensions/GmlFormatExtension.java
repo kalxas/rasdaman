@@ -21,6 +21,7 @@
  */
 package petascope.wcs2.extensions;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import org.slf4j.Logger;
@@ -49,7 +50,7 @@ import petascope.wcs2.templates.Templates;
  *
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
-public class GmlFormatExtension extends AbstractFormatExtension {
+public class GmlFormatExtension extends AbstractGmlcovFormatExtension {
 
     private static final Logger log = LoggerFactory.getLogger(GmlFormatExtension.class);
     public static final String DATATYPE_URN_PREFIX = "urn:ogc:def:dataType:OGC:1.1:"; // FIXME: now URNs are deprecated
@@ -205,8 +206,26 @@ public class GmlFormatExtension extends AbstractFormatExtension {
     }
 
     @Override
+    /**
+     * Get concatenation of identifiers for this extension.
+     * In practice: abstract GMLCOV + concrete GML encoding identifiers (conformance classes).
+     */
     public String getExtensionIdentifier() {
-        return ExtensionsRegistry.ENCODING_IDENTIFIER;
+        return ExtensionsRegistry.GML_ENCODING_IDENTIFIER;
+    }
+
+    /**
+     * @return True: abstract GMLCOV format extension is parent with identifier (to be declared in capabilities).
+     */
+    public Boolean hasParent() {
+        return true;
+    }
+
+    /**
+     * @return The identifier of the abstract GMLCOV format extension.
+     */
+    public String getParentExtensionIdentifier() {
+        return super.getExtensionIdentifier();
     }
 
     public String getMimeType() {

@@ -171,6 +171,20 @@ public class GMLJP2FormatExtension extends AbstractFormatExtension {
         return ExtensionsRegistry.GMLJP2_IDENTIFIER;
     }
 
+    /**
+     * @return False: this extension has is no parent extension with identifier.
+     */
+    public Boolean hasParent() {
+        return false;
+    }
+
+    /**
+     * @return The identifier of the abstract GMLCOV format extension.
+     */
+    public String getParentExtensionIdentifier() {
+        return "";
+    }
+
     public String getMimeType() {
         return MIME_JP2;
     }

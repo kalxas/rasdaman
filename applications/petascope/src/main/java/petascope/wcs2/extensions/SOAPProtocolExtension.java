@@ -99,6 +99,20 @@ public class SOAPProtocolExtension extends AbstractProtocolExtension {
         return XMLUtil.serialize(new Document(wcsRequest));
     }
 
+    /**
+     * @return False: this extension has is no parent extension with identifier.
+     */
+    public Boolean hasParent() {
+        return false;
+    }
+
+    /**
+     * @return The identifier of the abstract GMLCOV format extension.
+     */
+    public String getParentExtensionIdentifier() {
+        return "";
+    }
+
     @Override
     public String getExtensionIdentifier() {
         return ExtensionsRegistry.SOAP_IDENTIFIER;

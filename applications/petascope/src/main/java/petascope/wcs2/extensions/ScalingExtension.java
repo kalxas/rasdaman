@@ -69,6 +69,20 @@ public class ScalingExtension implements Extension {
     }
 
     /**
+     * @return False: this extension has is no parent extension with identifier.
+     */
+    public Boolean hasParent() {
+        return false;
+    }
+
+    /**
+     * @return The identifier of the abstract GMLCOV format extension.
+     */
+    public String getParentExtensionIdentifier() {
+        return "";
+    }
+
+    /**
      * Recognizes an XML root element of a Scaling extension.
      * @param elementName
      * @return True if this is the root of an XML Scaling extension.

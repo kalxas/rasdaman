@@ -117,6 +117,20 @@ public class GeotiffFormatExtension extends AbstractFormatExtension {
         return ExtensionsRegistry.GEOTIFF_IDENTIFIER;
     }
 
+    /**
+     * @return False: this extension has is no parent extension with identifier.
+     */
+    public Boolean hasParent() {
+        return false;
+    }
+
+    /**
+     * @return The identifier of the abstract GMLCOV format extension.
+     */
+    public String getParentExtensionIdentifier() {
+        return "";
+    }
+
     public String getMimeType() {
         return MIME_TIFF;
     }

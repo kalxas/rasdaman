@@ -37,8 +37,9 @@ public class ExtensionsRegistry {
 
     private static final Logger log = LoggerFactory.getLogger(ExtensionsRegistry.class);
 
-    public static final String ENCODING_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage";
     public static final String GEOTIFF_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_geotiff/1.0/";
+    public static final String GMLCOV_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml-coverage";
+    public static final String GML_ENCODING_IDENTIFIER = "http://www.opengis.net/spec/GMLCOV/1.0/conf/gml";
     public static final String GMLJP2_IDENTIFIER = "http://www.opengis.net/spec/GMLJP2/2.0/";
     public static final String JPEG2000_IDENTIFIER = "http://www.opengis.net/spec/WCS_coverage-encoding_jpeg2000/1.0/";
     public static final String KVP_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_get-kvp/1.0/conf/get-kvp";
@@ -89,6 +90,9 @@ public class ExtensionsRegistry {
         log.info("Registered extension {}", extension);
         extensions.add(extension);
         extensionIds.add(extension.getExtensionIdentifier());
+        if (extension.hasParent()) {
+            extensionIds.add(extension.getParentExtensionIdentifier());
+        }
     }
 
     /**

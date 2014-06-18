@@ -66,6 +66,9 @@ public interface FormatExtension extends  Extension {
      * @param req GetCoverage request
      * @param meta database metadata
      * @return response encoded in the respective format
+     * @throws PetascopeException
+     * @throws WCSException
+     * @throws SecoreException
      */
     Response handle(GetCoverageRequest req, DbMetadataSource meta)
             throws PetascopeException, WCSException, SecoreException;

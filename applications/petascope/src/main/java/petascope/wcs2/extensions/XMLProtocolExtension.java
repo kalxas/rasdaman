@@ -66,4 +66,18 @@ public class XMLProtocolExtension extends AbstractProtocolExtension {
     public String getExtensionIdentifier() {
         return ExtensionsRegistry.XML_IDENTIFIER;
     }
+
+    /**
+     * @return False: this extension has is no parent extension with identifier.
+     */
+    public Boolean hasParent() {
+        return false;
+    }
+
+    /**
+     * @return The identifier of the abstract GMLCOV format extension.
+     */
+    public String getParentExtensionIdentifier() {
+        return "";
+    }
 }

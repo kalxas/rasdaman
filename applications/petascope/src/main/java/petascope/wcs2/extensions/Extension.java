@@ -32,4 +32,12 @@ public interface Extension {
      * @return Identifier that uniquely identifies this extension.
      */
     String getExtensionIdentifier();
+    /**
+     * @return True if this extension has a parent extension with its own identifier.
+     */
+    Boolean hasParent();
+    /**
+     * @return The identifier of the parent extension (eg GMLCOV for GML/GMLCOV encoding).
+     */
+    String getParentExtensionIdentifier();
 }

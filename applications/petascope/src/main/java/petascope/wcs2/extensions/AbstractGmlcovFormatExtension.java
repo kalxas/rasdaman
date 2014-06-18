@@ -22,33 +22,17 @@
 package petascope.wcs2.extensions;
 
 /**
- * Implementation of the Extension interface for the Process Coverage Extension defined in
- * the  OGC Web Coverage Service (WCS)– Processing Extension, version OGC.08-059r4
+ * Root format extension for all encodings of GMLCOV.
+ * It is necessary to reflect the tree of conformance classes of GMLCOV,
+ * composed of abstract + {gml,multipart,special-format} encodings.
  *
- * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
- * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
+ * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
+ * @see [OGC 09-146r2] "OGC GML Application Schema -- Coverages"
  */
-public class ProcessCoverageExtension implements Extension {
+
+public abstract class AbstractGmlcovFormatExtension extends AbstractFormatExtension {
     @Override
     public String getExtensionIdentifier() {
-        return ExtensionsRegistry.PROCESS_COVERAGE_IDENTIFIER;
+        return ExtensionsRegistry.GMLCOV_IDENTIFIER;
     }
-
-    /**
-     * @return False: this extension has is no parent extension with identifier.
-     */
-    public Boolean hasParent() {
-        return false;
-    }
-
-    /**
-     * @return The identifier of the abstract GMLCOV format extension.
-     */
-    public String getParentExtensionIdentifier() {
-        return "";
-    }
-
-    public static final String WCPS_20_VERSION_STRING = "2.0";
-    public static final String WCPS_10_VERSION_STRING = "1.0";
-    public static final String WCPS_EXTRA_PARAM_PREFIX = "$";
 }
