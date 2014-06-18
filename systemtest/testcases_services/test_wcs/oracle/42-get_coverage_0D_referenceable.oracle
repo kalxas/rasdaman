@@ -16,30 +16,6 @@
   </boundedBy>
 
   <domainSet>
-    <gmlrgrid:ReferenceableGridByVectors dimension="0" id="irr_cube_1-grid"
-
-        >
-      <limits>
-        <GridEnvelope>
-          <low></low>
-          <high></high>
-        </GridEnvelope>
-      </limits>
-      <axisLabels></axisLabels>
-      <gmlrgrid:origin>
-        <Point id="irr_cube_1-origin" srsName="" axisLabels="" uomLabels="" srsDimension="0">
-          <pos></pos>
-        </Point>
-      </gmlrgrid:origin>
-      <gmlrgrid:generalGridAxis>
-        <gmlrgrid:GeneralGridAxis>
-          <gmlrgrid:offsetVector srsName="" axisLabels="" uomLabels="" srsDimension="0"></gmlrgrid:offsetVector>
-          <gmlrgrid:coefficients></gmlrgrid:coefficients>
-          <gmlrgrid:gridAxesSpanned></gmlrgrid:gridAxesSpanned>
-          <gmlrgrid:sequenceRule axisOrder="+1">Linear</gmlrgrid:sequenceRule>
-        </gmlrgrid:GeneralGridAxis>
-      </gmlrgrid:generalGridAxis>
-    </gmlrgrid:ReferenceableGridByVectors>
 
   </domainSet>
 

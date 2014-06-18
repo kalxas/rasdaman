@@ -229,19 +229,21 @@ public class WcsUtil {
 
         // Domain set
         String domainSet = "";
-        if (m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
-            domainSet += Templates.getTemplate(Templates.GRID);
-        } else if (m.getCoverageType().equals(XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE)) {
-            domainSet += Templates.getTemplate(Templates.RECTIFIED_GRID);
-        } else if (m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
-            domainSet += Templates.getTemplate(Templates.REFERENCEABLE_GRID_BY_VECTORS);
-        } else if (m.getCoverageType().equals(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)) {
-            domainSet += Templates.getTemplate(Templates.SIMPLE_MULTIPOINT);
-        } else {
-            log.error("Unsupported coverage type: " + m.getCoverageType());
-            throw new WCSException(ExceptionCode.UnsupportedCoverageConfiguration,
-                    "Unsupported coverage type: " + m.getCoverageType());
-        }
+        if (m.getGridDimension() > 0) {
+            if (m.getCoverageType().equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
+                domainSet += Templates.getTemplate(Templates.GRID);
+            } else if (m.getCoverageType().equals(XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE)) {
+                domainSet += Templates.getTemplate(Templates.RECTIFIED_GRID);
+            } else if (m.getCoverageType().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
+                domainSet += Templates.getTemplate(Templates.REFERENCEABLE_GRID_BY_VECTORS);
+            } else if (m.getCoverageType().equals(XMLSymbols.LABEL_MULTIPOINT_COVERAGE)) {
+                domainSet += Templates.getTemplate(Templates.SIMPLE_MULTIPOINT);
+            } else {
+                log.error("Unsupported coverage type: " + m.getCoverageType());
+                throw new WCSException(ExceptionCode.UnsupportedCoverageConfiguration,
+                        "Unsupported coverage type: " + m.getCoverageType());
+            }
+        } // else: "blank" domain set
 
         // Range type
         String rangeFields = "";

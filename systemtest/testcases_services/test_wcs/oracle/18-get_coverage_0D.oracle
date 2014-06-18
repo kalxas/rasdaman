@@ -16,21 +16,7 @@
   </boundedBy>
 
   <domainSet>
-    <RectifiedGrid dimension="0" id="mr-grid">
-      <limits>
-        <GridEnvelope>
-          <low></low>
-          <high></high>
-        </GridEnvelope>
-      </limits>
-      <axisLabels></axisLabels>
-      <origin>
-          <Point id="mr-origin" srsName="" axisLabels="" uomLabels="" srsDimension="0">
-              <pos></pos>
-          </Point>
-      </origin>
-      <offsetVector srsName="" axisLabels="" uomLabels="" srsDimension="0"></offsetVector>
-    </RectifiedGrid>
+
   </domainSet>
 
   <rangeSet>
