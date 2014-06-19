@@ -51,6 +51,7 @@ public class ExtensionsRegistry {
     public static final String SCALING_IDENTIFIER = "http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling";
     public static final String SOAP_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_soap/1.0";
     public static final String XML_IDENTIFIER = "http://www.opengis.net/spec/WCS_protocol-binding_post-xml/1.0";
+    public static final String WCPS1_IDENTIFIER = "http://www.opengis.net/spec/WCPS/1.0/conf/wcps-core";
 
     private static final Set<Extension> extensions = new HashSet<Extension>();
     private static final Set<String> extensionIds = new HashSet<String>();

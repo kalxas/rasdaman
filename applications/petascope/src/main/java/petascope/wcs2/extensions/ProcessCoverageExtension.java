@@ -31,21 +31,21 @@ package petascope.wcs2.extensions;
 public class ProcessCoverageExtension implements Extension {
     @Override
     public String getExtensionIdentifier() {
-        return ExtensionsRegistry.PROCESS_COVERAGE_IDENTIFIER;
+        return ExtensionsRegistry.WCPS1_IDENTIFIER; // identifies the version of WCPS used.
     }
 
     /**
      * @return False: this extension has is no parent extension with identifier.
      */
     public Boolean hasParent() {
-        return false;
+        return true;
     }
 
     /**
-     * @return The identifier of the abstract GMLCOV format extension.
+     * @return The identifier of the parent extension.
      */
     public String getParentExtensionIdentifier() {
-        return "";
+        return ExtensionsRegistry.PROCESS_COVERAGE_IDENTIFIER;
     }
 
     public static final String WCPS_20_VERSION_STRING = "2.0";

@@ -124,7 +124,7 @@ public class JPEG2000FormatExtension extends AbstractFormatExtension {
     }
 
     /**
-     * @return The identifier of the abstract GMLCOV format extension.
+     * @return The identifier of the parent extension.
      */
     public String getParentExtensionIdentifier() {
         return "";

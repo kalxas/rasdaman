@@ -21,7 +21,6 @@
  */
 package petascope.wcs2.extensions;
 
-import javax.servlet.http.HttpServletRequest;
 import petascope.HTTPRequest;
 
 /**
@@ -36,6 +35,7 @@ public class RESTProtocolExtension extends AbstractProtocolExtension {
         return request.getUrlPath().contains(RESTProtocolExtension.REST_PROTOCOL_WCS_IDENTIFIER);
     }
 
+    @Override
     public String getExtensionIdentifier() {
         return ExtensionsRegistry.REST_IDENTIFIER;
     }
@@ -48,7 +48,7 @@ public class RESTProtocolExtension extends AbstractProtocolExtension {
     }
 
     /**
-     * @return The identifier of the abstract GMLCOV format extension.
+     * @return The identifier of the parent extension.
      */
     public String getParentExtensionIdentifier() {
         return "";

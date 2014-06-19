@@ -68,7 +68,7 @@ public class RangeSubsettingExtension implements Extension {
     }
 
     /**
-     * @return The identifier of the abstract GMLCOV format extension.
+     * @return The identifier of the parent extension.
      */
     public String getParentExtensionIdentifier() {
         return "";
