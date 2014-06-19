@@ -97,9 +97,7 @@ public class ConfigManager {
     public static String RASDAMAN_VERSION = "v9.0.0beta1";
 
     // XML validation schema control setting
-    public static final String XML_VALIDATION_F = "false";
-    public static final String XML_VALIDATION_T = "true";
-    public static String XML_VALIDATION = XML_VALIDATION_F;
+    public static boolean XML_VALIDATION = false;
 
     //Retry settings when opening a connection to rasdaman server. Ernesto Rodriguez <ernesto4160@gmail.com>
     //Time in seconds between each re-connect attempt
@@ -122,10 +120,10 @@ public class ConfigManager {
     public static String WMS_VERSIONS = "1.0.0,1.1.0";  // (!) Keep consistent with WmsRequest.java
     public static String RASDAMAN_LANGUAGE = "en";
 
-    // OWS Metadata enable/disable
-    public static final String ENABLE_OWS_METADATA_F = "false";
-    public static final String ENABLE_OWS_METADATA_T = "true";
-    public static String ENABLE_OWS_METADATA = ENABLE_OWS_METADATA_T;
+    // Coverage summary tuning patameters
+    public static Boolean BBOX_IN_COVSUMMARY = true;
+    public static Boolean DESCRIPTION_IN_COVSUMMARY = true;
+    public static Boolean METADATA_IN_COVSUMMARY = true;
 
     // depends on ccip_version in the petascope settings, ccip_version=true
     // will make this flag true.
@@ -160,7 +158,9 @@ public class ConfigManager {
     public static final String LOG_PROPERTIES_FILE = "log4j.properties";
 
     // keys
-    public static final String KEY_ENABLE_OWS_METADATA = "enable_ows_metadata";
+    public static final String KEY_BBOX_IN_COVSUMMARY = "bbox_in_covsummary";
+    public static final String KEY_DESCRIPTION_IN_COVSUMMARY = "description_in_covsummary";
+    public static final String KEY_METADATA_IN_COVSUMMARY = "metadata_in_covsummary";
     public static final String KEY_RASDAMAN_DATABASE = "rasdaman_database";
     public static final String KEY_RASDAMAN_URL = "rasdaman_url";
     public static final String KEY_RASDAMAN_USER = "rasdaman_user";
@@ -284,7 +284,7 @@ public class ConfigManager {
      */
     private void initSettings() throws RasdamanException {
 
-        ENABLE_OWS_METADATA     = get(KEY_ENABLE_OWS_METADATA);
+        // connections
         RASDAMAN_DATABASE       = get(KEY_RASDAMAN_DATABASE);
         RASDAMAN_URL            = get(KEY_RASDAMAN_URL);
         RASDAMAN_USER           = get(KEY_RASDAMAN_USER);
@@ -297,8 +297,16 @@ public class ConfigManager {
         METADATA_PASS           = get(KEY_METADATA_PASS);
         RASDAMAN_RETRY_TIMEOUT  = get(KEY_RASDAMAN_RETRY_TIMEOUT);
         RASDAMAN_RETRY_ATTEMPTS = get(KEY_RASDAMAN_RETRY_ATTEMPTS);
-        XML_VALIDATION          = get(KEY_XML_VALIDATION);
 
+        /* Toggle switches (parseBoolean -> true if equalsIgnoreCase("true")) */
+        // fat/thin coverage summaries in capability
+        BBOX_IN_COVSUMMARY        = Boolean.parseBoolean(get(KEY_BBOX_IN_COVSUMMARY));
+        DESCRIPTION_IN_COVSUMMARY = Boolean.parseBoolean(get(KEY_DESCRIPTION_IN_COVSUMMARY));
+        METADATA_IN_COVSUMMARY    = Boolean.parseBoolean(get(KEY_METADATA_IN_COVSUMMARY));
+        // XML-encoded request schema validation
+        XML_VALIDATION            = Boolean.parseBoolean(KEY_XML_VALIDATION);
+
+        // CCIP hack
         CCIP_HACK = Boolean.parseBoolean(get(KEY_CCIP_VERSION));
 
         // Get rasdaman version from RasQL (see #546)

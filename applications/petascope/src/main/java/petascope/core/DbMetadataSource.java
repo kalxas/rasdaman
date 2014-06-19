@@ -40,13 +40,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
-import static petascope.ConfigManager.ENABLE_OWS_METADATA;
-import static petascope.ConfigManager.ENABLE_OWS_METADATA_F;
-import static petascope.ConfigManager.KEY_ENABLE_OWS_METADATA;
+import static petascope.ConfigManager.DESCRIPTION_IN_COVSUMMARY;
+import static petascope.ConfigManager.METADATA_IN_COVSUMMARY;
+import static petascope.ConfigManager.KEY_METADATA_IN_COVSUMMARY;
 import static petascope.ConfigManager.METADATA_URL;
 import static petascope.ConfigManager.SECORE_URLS;
 import static petascope.ConfigManager.SECORE_URL_KEYWORD;
@@ -803,6 +802,9 @@ public class DbMetadataSource implements IMetadataSource {
     @Override
     public CoverageMetadata read(String coverageName) throws PetascopeException, SecoreException {
 
+        // output object
+        CoverageMetadata covMeta;
+
         log.debug("Reading metadata for coverage '{}'", coverageName);
 
         if (coverageName == null || coverageName.equals("")) {
@@ -829,7 +831,8 @@ public class DbMetadataSource implements IMetadataSource {
                     " SELECT " + COVERAGE_ID               + ", "
                                + COVERAGE_NAME             + ", "
                                + COVERAGE_GML_TYPE_ID      + ", "
-                               + COVERAGE_NATIVE_FORMAT_ID +
+                               + COVERAGE_NATIVE_FORMAT_ID + ", "
+                               + COVERAGE_DESCRIPTION_ID   +
                     " FROM "   + TABLE_COVERAGE +
                     " WHERE "  + COVERAGE_NAME  + "='" + coverageName + "'"
                     ;
@@ -844,6 +847,7 @@ public class DbMetadataSource implements IMetadataSource {
             int coverageId              = r.getInt(COVERAGE_ID);
             String coverageType         = gmlSubTypes.get(r.getInt(COVERAGE_GML_TYPE_ID));
             String coverageNativeFormat = mimeTypes.get(r.getInt(COVERAGE_NATIVE_FORMAT_ID));
+            int descriptionId          = r.getInt(COVERAGE_DESCRIPTION_ID);
 
             /* EXTRA METADATA */
             // Each coverage can have 1+ additional descriptive metadata (1+ OWS:Metadata, 1+ GMLCOV:Metadata, etc)
@@ -862,10 +866,9 @@ public class DbMetadataSource implements IMetadataSource {
                         extraMetadataTypes.get(r.getInt(EXTRAMETADATA_METADATA_TYPE_ID)),
                         r.getString(EXTRAMETADATA_VALUE)
                         );
-                if (typeValue.fst.equals(EXTRAMETADATA_TYPE_OWS)
-                        && ENABLE_OWS_METADATA.equalsIgnoreCase(ENABLE_OWS_METADATA_F)) {
-                        log.info("OWS Metadata elements have been disable and will not be shown in the capabilities document.");
-                    log.info("To enable it, change the " + KEY_ENABLE_OWS_METADATA + " parameter in " + SETTINGS_FILE + ".");
+                if (typeValue.fst.equals(EXTRAMETADATA_TYPE_OWS) && !METADATA_IN_COVSUMMARY) {
+                        log.info("OWS Metadata elements have been disabled and will not be shown in the capabilities document.");
+                    log.info("To enable it, change the " + KEY_METADATA_IN_COVSUMMARY + " parameter in " + SETTINGS_FILE + ".");
                 } else {
                     // Ok to add this extra metadata:
                     extraMetadata.add(typeValue);
@@ -1235,14 +1238,11 @@ public class DbMetadataSource implements IMetadataSource {
                     }
                 }
 
-                /* Done with SQL statements */
-                s.close();
-
                 /* Build the complete metadata object */
                 // NOTE: create a Bbox object with list of axis/extents or just let CoverageMetadata have a getBbox method?
                 // `domain' object has the required metadata to deduce the Bbox of the coverage.
                 // TODO : general constructor for *Coverages, then overloads in the CoverageMetadata.java
-                CoverageMetadata covMeta = new CoverageMetadata(
+                covMeta = new CoverageMetadata(
                         coverageName,
                         coverageType,
                         coverageNativeFormat,
@@ -1256,10 +1256,6 @@ public class DbMetadataSource implements IMetadataSource {
                         );
                 // non-dynamic coverage:
                 covMeta.setCoverageId(coverageId);
-
-                log.trace("Caching coverage metadata..");
-                cache.put(coverageName, covMeta);
-                return covMeta;
 
              } else if(WcsUtil.isMultiPoint(coverageType)) {
                 // Fetch the bbox for Multi* Coverages
@@ -1288,19 +1284,31 @@ public class DbMetadataSource implements IMetadataSource {
                     }
                 }
                 cellDomainElements = new ArrayList<CellDomainElement>(1);
-                CoverageMetadata covMeta = new CoverageMetadata(coverageName, coverageType,
+                covMeta = new CoverageMetadata(coverageName, coverageType,
                         coverageNativeFormat, extraMetadata, crsAxes, cellDomainElements,
                         rangeElementsQuantities, lowerLeft, upperRight);
-
-                cache.put(coverageName, covMeta);
-                s.close();
-                s = null;
-                return covMeta;
             } else {
                 // TODO manage Multi*Coverage alternatives
                 throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
                         "Coverages of type '" + coverageType + "' are not supported.");
             }
+
+
+            // Add possible OWS description
+            if (descriptionId != 0 && DESCRIPTION_IN_COVSUMMARY) {
+                    Description covDescription = readDescription(descriptionId);
+                    covMeta.setDescription(covDescription);
+            }
+
+            log.trace("Caching coverage metadata..");
+            cache.put(coverageName, covMeta);
+
+            /* Done with SQL statements */
+            s.close();
+            s = null;
+
+            return covMeta;
+
 
         } catch (SecoreException sEx) {
             log.error("Error while parsing the CRS definitions to SECORE (" + ConfigManager.SECORE_URLS + ").");

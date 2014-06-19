@@ -609,6 +609,13 @@ function import_irr_cube_2()
       $PSQL -c "UPDATE ps_range_type_component SET field_id=${c_swe_quantity_id[$index]} \
                 WHERE coverage_id=$c_id AND component_order=$index;" > /dev/null || exit $RC_ERROR
   done
+
+  # insert an ows description
+  _qry="INSERT INTO ps_description (titles, abstracts) VALUES (ARRAY['A title.'], ARRAY['An abstract.']) RETURNING id";
+  # get the id of the description
+  c_descr_id=$( $PSQL -X -P t -P format=unaligned -c "${_qry}" | head -n 1 )
+  # update the coverage
+  $PSQL -c "UPDATE ps_coverage SET description_id=$c_descr_id WHERE id=$c_id" > /dev/null || exit $RC_ERROR
 }
 
 # ------------------------------------------------------------------------------

@@ -37,6 +37,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 
 /**
@@ -345,7 +346,7 @@ public class Bbox implements Cloneable {
             //if (getType(i).equals(AxisTypes.T_AXIS)) {
             //    tmp = tmp.replaceFirst(" ", TimeUtil.ISO8601_T_KEY);
             //}
-            output += tmp.toPlainString();
+            output += BigDecimalUtil.stripDecimalZeros(tmp);
         }
         return output;
     }
@@ -363,7 +364,7 @@ public class Bbox implements Cloneable {
             //if (getType(i).equals(AxisTypes.T_AXIS)) {
             //    tmp = tmp.replaceFirst(" ", TimeUtil.ISO8601_T_KEY);
             //}
-            output += tmp.toPlainString();
+            output += BigDecimalUtil.stripDecimalZeros(tmp);
         }
         return output;
     }
@@ -381,7 +382,7 @@ public class Bbox implements Cloneable {
                 // Disable: breaks XML schema (requires xs:double)
                 //if (getType(i).equals(AxisTypes.T_AXIS))
                 //    tmp = tmp.replaceFirst(" ", TimeUtil.ISO8601_T_KEY);
-                output += tmp.toPlainString();
+                output += BigDecimalUtil.stripDecimalZeros(tmp);
             }
         }
         return output;
@@ -397,7 +398,7 @@ public class Bbox implements Cloneable {
             // Disable: breaks XML schema (requires xs:double)
             //if (getType(i).equals(AxisTypes.T_AXIS))
             //    tmp = tmp.replaceFirst(" ", TimeUtil.ISO8601_T_KEY);
-            output += tmp.toPlainString();
+            output += BigDecimalUtil.stripDecimalZeros(tmp);
         }
         return output;
     }

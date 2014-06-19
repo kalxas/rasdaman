@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import petascope.ConfigManager;
-import static petascope.ConfigManager.XML_VALIDATION_T;
 import petascope.HTTPRequest;
 import petascope.exceptions.WCSException;
 import static petascope.util.XMLSymbols.*;
@@ -53,7 +52,7 @@ public class XMLGetCapabilitiesParser extends XMLParser<GetCapabilitiesRequest> 
     private final String WCS2_GETCAP_SCHEMA = "http://schemas.opengis.net/wcs/2.0/wcsGetCapabilities.xsd";
 
     public XMLGetCapabilitiesParser(){
-        if(ConfigManager.XML_VALIDATION.equals(XML_VALIDATION_T)){
+        if(ConfigManager.XML_VALIDATION){
             try {
                 log.info("Loading XML schema definition from " + WCS2_GETCAP_SCHEMA + "...");
                 schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -71,7 +70,7 @@ public class XMLGetCapabilitiesParser extends XMLParser<GetCapabilitiesRequest> 
     public GetCapabilitiesRequest parse(HTTPRequest request) throws WCSException {
 
         // input XML validation
-        if(ConfigManager.XML_VALIDATION.equals(XML_VALIDATION_T)){
+        if(ConfigManager.XML_VALIDATION){
             validateInput(request.getRequestString(), schema);
         }
 

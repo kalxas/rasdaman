@@ -24,6 +24,7 @@ package petascope.core;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -37,11 +38,13 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
+import petascope.ows.Description;
 import petascope.swe.datamodel.AbstractSimpleComponent;
 import petascope.swe.datamodel.Quantity;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import static petascope.util.CrsUtil.INDEX_UOM;
+import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
 import petascope.util.WcpsConstants;
@@ -77,15 +80,13 @@ public class CoverageMetadata implements Cloneable {
     private List<AbstractSimpleComponent> sweComponents;
     Pair<BigInteger, String> rasdamanCollection;
     private Bbox bbox = null;
+    private Description owsDescription = null;
 
     // legacy petascope.wcs
     private InterpolationMethod      interpolationDefault;
     private Set<InterpolationMethod> interpolationSet;
     private String      nullDefault;
     private Set<String> nullSet = new HashSet<String>();
-    private String titleStr    = "";
-    private String abstractStr = "";
-    private String keywordsStr = "";
 
     // Overload for empty metadata object
     public CoverageMetadata() {}
@@ -507,16 +508,20 @@ public class CoverageMetadata implements Cloneable {
         return nullSet.iterator();
     }
 
+    public Description getDescription() {
+        return null == owsDescription ? new Description() : owsDescription;
+    }
+
     public String getAbstract() {
-        return abstractStr;
+        return ListUtil.printList(owsDescription.getAbstracts(), ". ");
     }
 
     public String getTitle() {
-        return titleStr;
+        return ListUtil.printList(owsDescription.getTitles(), ". ");
     }
 
     public String getKeywords() {
-        return keywordsStr;
+        return ListUtil.printList(owsDescription.getKeywordGroups(), ". ");
     }
 
     public Iterator<CellDomainElement> getCellDomainIterator() {
@@ -719,6 +724,7 @@ public class CoverageMetadata implements Cloneable {
      * Get the set of (optional) extra metadata for this coverage of the specified type.
      * See TABLE_EXTRAMETADATA_TYPE for the dictionary of metadata types.
      * @param metadataType
+     * @return The set of extra metadata of the specified type.
      */
     public Set<String> getExtraMetadata(String metadataType) {
         Set<String> selectedExtraMetadata = new HashSet<String>();
@@ -747,13 +753,16 @@ public class CoverageMetadata implements Cloneable {
         this.extraMetadata = metadata;
     }
 
-
     public void setCoverageName(String coverageName) throws PetascopeException {
         if (coverageName == null) {
             throw new PetascopeException(ExceptionCode.InvalidMetadata, "Metadata transformation: Coverage name cannot be null");
         }
 
         this.coverageName = coverageName;
+    }
+
+    public void setDescription(Description descr) {
+        owsDescription = descr;
     }
 
     public void setRangeType(String type) throws PetascopeException {
@@ -768,21 +777,21 @@ public class CoverageMetadata implements Cloneable {
      * @param titleStr the titleStr to set
      */
     public void setTitle(String titleStr) {
-        this.titleStr = titleStr;
+        owsDescription.addTitle(titleStr);
     }
 
     /**
      * @param abstractStr the abstractStr to set
      */
     public void setAbstract(String abstractStr) {
-        this.abstractStr = abstractStr;
+        owsDescription.addAbstract(abstractStr);
     }
 
     /**
      * @param keywordsStr the keywordsStr to set
      */
     public void setKeywords(String keywordsStr) {
-        this.keywordsStr = keywordsStr;
+        owsDescription.addKeywordGroup(Arrays.asList(Pair.of(keywordsStr, "")));
     }
 
     /**

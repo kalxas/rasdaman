@@ -32,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import petascope.ConfigManager;
-import static petascope.ConfigManager.XML_VALIDATION_T;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
@@ -68,7 +67,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
 
     // constructor
     public XMLGetCoverageParser(){
-        if(ConfigManager.XML_VALIDATION.equals(XML_VALIDATION_T)){
+        if(ConfigManager.XML_VALIDATION){
             try {
                 log.info("Loading XML schema definition from " + WCS2_GETCOV_SCHEMA + "...");
                 schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -86,7 +85,7 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
     public GetCoverageRequest parse(HTTPRequest request) throws WCSException {
 
         // input XML validation
-        if(ConfigManager.XML_VALIDATION.equals(XML_VALIDATION_T)){
+        if(ConfigManager.XML_VALIDATION){
             validateInput(request.getRequestString(), schema);
         }
 

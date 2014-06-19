@@ -37,7 +37,6 @@ import static petascope.util.XMLSymbols.*;
 import static petascope.util.XMLUtil.*;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.ConfigManager;
-import static petascope.ConfigManager.XML_VALIDATION_T;
 import petascope.exceptions.ExceptionCode;
 
 /**
@@ -54,7 +53,7 @@ public class XMLDescribeCoverageParser extends XMLParser<DescribeCoverageRequest
     private final String WCS2_DESCRCOV_SCHEMA = "http://schemas.opengis.net/wcs/2.0/wcsDescribeCoverage.xsd";
 
     public XMLDescribeCoverageParser(){
-        if(ConfigManager.XML_VALIDATION.equals(XML_VALIDATION_T)){
+        if(ConfigManager.XML_VALIDATION){
             try {
                 log.info("Loading XML schema definition from " + WCS2_DESCRCOV_SCHEMA + "...");
                 schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -72,7 +71,7 @@ public class XMLDescribeCoverageParser extends XMLParser<DescribeCoverageRequest
     public DescribeCoverageRequest parse(HTTPRequest request) throws WCSException {
 
         // input XML validation
-        if(ConfigManager.XML_VALIDATION.equals(XML_VALIDATION_T)){
+        if(ConfigManager.XML_VALIDATION){
             validateInput(request.getRequestString(), schema);
         }
 

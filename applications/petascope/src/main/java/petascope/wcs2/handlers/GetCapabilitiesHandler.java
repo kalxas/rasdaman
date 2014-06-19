@@ -32,6 +32,10 @@ import nu.xom.ParsingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
+import static petascope.ConfigManager.BBOX_IN_COVSUMMARY;
+import static petascope.ConfigManager.DESCRIPTION_IN_COVSUMMARY;
+import static petascope.ConfigManager.METADATA_IN_COVSUMMARY;
+import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.core.ServiceMetadata;
 import petascope.exceptions.ExceptionCode;
@@ -41,6 +45,7 @@ import petascope.exceptions.WCSException;
 import petascope.ows.Description;
 import petascope.ows.ServiceIdentification;
 import petascope.ows.ServiceProvider;
+import petascope.util.ListUtil;
 import petascope.util.Pair;
 import static petascope.util.XMLSymbols.*;
 import petascope.util.WcsUtil;
@@ -95,45 +100,12 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             ServiceIdentification sId = sMeta.getIdentification();
             Description sDescr        = sId.getDescription();
             Element c;
-            // title(s)
-            for (String title : sDescr.getTitles()) {
-                c = new Element(PREFIX_OWS + ":" + LABEL_TITLE, NAMESPACE_OWS);
-                c.appendChild(title);
-                // add it on top of template-coded ServiceType and ServiceTypeVersion
-                serviceIdentification.insertChild(c,1);
-            }
-            // abstract(s)
-            for (String servAbstract : sDescr.getAbstracts()) {
-                c = new Element(PREFIX_OWS + ":" + LABEL_ABSTRACT, NAMESPACE_OWS);
-                c.appendChild(servAbstract);
-                serviceIdentification.appendChild(c);
-            }
-            // Keywords
-            for (Description.KeywordsGroup kGroup : sDescr.getKeywordGroups()) {
-                Element keywords = new Element(PREFIX_OWS + ":" + LABEL_KEYWORDS, NAMESPACE_OWS);
-                for (Pair<String,String> key : kGroup.getValues()) {
-                    // Keyword
-                    c = new Element(PREFIX_OWS + ":" + LABEL_KEYWORD, NAMESPACE_OWS);
-                    // Value
-                    c.appendChild(key.fst);
-                    if (!key.snd.isEmpty()) {
-                        // Add language attribute
-                        c.addAttribute(new Attribute(PREFIX_XML + ":" + ATT_LANG, NAMESPACE_XML, key.snd));
-                    }
-                    keywords.appendChild(c);
-                }
-                // Type [+codeSpace]
-                if (!kGroup.getType().isEmpty()) {
-                    c = new Element(PREFIX_OWS + ":" + LABEL_TYPE, NAMESPACE_OWS);
-                    c.appendChild(kGroup.getType());
-                    if (!kGroup.getTypeCodeSpace().isEmpty()) {
-                        c.addAttribute(new Attribute(ATT_CODESPACE, kGroup.getTypeCodeSpace()));
-                    }
-                    keywords.appendChild(c);
-                }
-                // Add the ows:Keywords element to the service identification
-                serviceIdentification.appendChild(keywords);
-            }
+            // insert title(s) on top of template-coded ServiceType and ServiceTypeVersion
+            insertOwsTitles(sDescr, serviceIdentification, 1);
+            // insert abstract(s)
+            insertOwsAbstracts(sDescr, serviceIdentification, serviceIdentification.getChildCount());
+            // insert keywords
+            insertOwsKeywords(sDescr, serviceIdentification, serviceIdentification.getChildCount());
 
             // ows:ServiceType and ows:ServiceTypeVersion
             c = new Element(PREFIX_OWS + ":" + LABEL_SERVICE_TYPE, NAMESPACE_OWS);
@@ -302,54 +274,72 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         try {
             it = meta.coverages().iterator();
             while (it.hasNext()) {
-                Element cs = new Element(LABEL_COVERAGE_SUMMARY, NAMESPACE_WCS);
+                Element covSummaryEl = new Element(LABEL_COVERAGE_SUMMARY, NAMESPACE_WCS);
                 Element c;
                 Element cc;
+
+                // get coverage name
                 c = new Element(LABEL_COVERAGE_ID, NAMESPACE_WCS);
                 String coverageName = it.next();
-                GetCoverageRequest tmp = new GetCoverageRequest(coverageName);
-                GetCoverageMetadata m  = new GetCoverageMetadata(tmp, meta);
+
+                /** Insert coverage description (title/abstract/keywords) **/
+                if (DESCRIPTION_IN_COVSUMMARY) { // configuration switch
+                    Description covDescr = meta.read(coverageName).getDescription();
+                    // insert title(s) on top of template-coded ServiceType and ServiceTypeVersion
+                    insertOwsTitles(covDescr, covSummaryEl, covSummaryEl.getChildCount());
+                    // insert abstract(s)
+                    insertOwsAbstracts(covDescr, covSummaryEl, covSummaryEl.getChildCount());
+                    // insert keywords
+                    insertOwsKeywords(covDescr, covSummaryEl, covSummaryEl.getChildCount());
+
+                }
+
+                // coverage id and type
                 c.appendChild(coverageName);
-                cs.appendChild(c);
+                covSummaryEl.appendChild(c);
                 c = new Element(LABEL_COVERAGE_SUBTYPE, NAMESPACE_WCS);
                 String covType = meta.read(coverageName).getCoverageType();
                 c.appendChild(covType);
-                cs.appendChild(c);
+                covSummaryEl.appendChild(c);
                 // Add hierarchy of parent types
                 String parentCovType = meta.getParentCoverageType(covType);
                 if (!parentCovType.isEmpty()) {
-                    cs.appendChild(WcsUtil.addSubTypeParents(parentCovType, meta));
+                    covSummaryEl.appendChild(WcsUtil.addSubTypeParents(parentCovType, meta));
                 }
-                contents.appendChild(cs);
+                contents.appendChild(covSummaryEl);
 
                 /** Append Native Bbox **/
-                Bbox bbox = meta.read(coverageName).getBbox();
+                if (BBOX_IN_COVSUMMARY) { // configuration switch
+                    CoverageMetadata m = meta.read(coverageName);
+                    Bbox bbox = m.getBbox();
+                    if (null != bbox) {
+                        c = new Element(LABEL_BBOX, NAMESPACE_OWS);
+                        // lower-left + upper-right coords
+                        cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
+                        cc.appendChild(bbox.getLowerCorner());
+                        c.appendChild(cc);
+                        cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
+                        cc.appendChild(bbox.getUpperCorner());
+                        c.appendChild(cc);
 
-                if (null != bbox) {
-                    c = new Element(LABEL_BBOX, NAMESPACE_OWS);
-                    // lower-left + upper-right coords
-                    cc = new Element(ATT_LOWERCORNER, NAMESPACE_OWS);
-                    cc.appendChild(m.getDomLow());
-                    c.appendChild(cc);
-                    cc = new Element(ATT_UPPERCORNER, NAMESPACE_OWS);
-                    cc.appendChild(m.getDomHigh());
-                    c.appendChild(cc);
-
-                    // dimensions and crs attributes
-                    Attribute crs = new Attribute(ATT_CRS, bbox.getCrsName());
-                    Attribute dimensions = new Attribute(ATT_DIMENSIONS, "" + bbox.getDimensionality());
-                    c.addAttribute(crs);
-                    c.addAttribute(dimensions);
-                    cs.appendChild(c);
+                        // dimensions and crs attributes
+                        Attribute crs = new Attribute(ATT_CRS, bbox.getCrsName());
+                        Attribute dimensions = new Attribute(ATT_DIMENSIONS, "" + bbox.getDimensionality());
+                        c.addAttribute(crs);
+                        c.addAttribute(dimensions);
+                        covSummaryEl.appendChild(c);
+                    }
                 }
 
                 // OWS Metadata (if disabled from petascope.properties, no OWS metadata is seen here: see DbMetadataSource.read())
-                Set<String> owsMetadata = m.getMetadata().getExtraMetadata(XMLSymbols.PREFIX_OWS);
-                for (String metadataValue : owsMetadata) {
-                    c = new Element(LABEL_OWSMETADATA, NAMESPACE_OWS);
-                    cc = XMLUtil.parseXmlFragment(metadataValue); // contains farther XML child elements: do not escape predefined entities (up to the user)
-                    c.appendChild(cc);
-                    cs.appendChild(c);
+                if (METADATA_IN_COVSUMMARY) { // configuration switch
+                    Set<String> owsMetadata = meta.read(coverageName).getExtraMetadata(XMLSymbols.PREFIX_OWS);
+                    for (String metadataValue : owsMetadata) {
+                        c = new Element(LABEL_OWSMETADATA, NAMESPACE_OWS);
+                        cc = XMLUtil.parseXmlFragment(metadataValue); // contains farther XML child elements: do not escape predefined entities (up to the user)
+                        c.appendChild(cc);
+                        covSummaryEl.appendChild(c);
+                    }
                 }
             }
         } catch (SecoreException sEx) {
@@ -372,6 +362,75 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
         } catch (IOException ex) {
             throw new WCSException(ExceptionCode.IOConnectionError,
                     "Error serializing constructed document", ex);
+        }
+    }
+
+    /**
+     * Inserts an XML element containing the titles of an input Description object,
+     * at the specified position of the root element.
+     * @todo handle xml:lang attribute.
+     * @param descr
+     * @return The XML fragment of OWS titles.
+     */
+    private void insertOwsTitles(Description descr, Element root, int position) {
+        Element el;
+        for (String title : ListUtil.reverse(descr.getTitles())) {
+            el = new Element(PREFIX_OWS + ":" + LABEL_TITLE, NAMESPACE_OWS);
+            el.appendChild(title);
+            root.insertChild(el, position);
+        }
+    }
+
+    /**
+     * Inserts an XML element containing the abstracts of an input Description object,
+     * at the specified position of the root element.
+     * @todo handle xml:lang attribute.
+     * @param descr
+     * @return The XML fragment of OWS titles.
+     */
+    private void insertOwsAbstracts(Description descr, Element root, int position) {
+        Element el;
+        for (String title : ListUtil.reverse(descr.getAbstracts())) {
+            el = new Element(PREFIX_OWS + ":" + LABEL_ABSTRACT, NAMESPACE_OWS);
+            el.appendChild(title);
+            root.insertChild(el, position);
+        }
+    }
+
+    /**
+     * Inserts an XML element containing the keywords of an input Description object,
+     * at the specified position of the root element.
+     * @todo handle xml:lang attribute.
+     * @param descr
+     * @return The XML fragment of OWS titles.
+     */
+    private void insertOwsKeywords(Description descr, Element root, int position) {
+        Element el;
+        // Keywords
+        for (Description.KeywordsGroup kGroup : ListUtil.reverse(descr.getKeywordGroups())) {
+            Element keywords = new Element(PREFIX_OWS + ":" + LABEL_KEYWORDS, NAMESPACE_OWS);
+            for (Pair<String,String> key : kGroup.getValues()) {
+                // Keyword
+                el = new Element(PREFIX_OWS + ":" + LABEL_KEYWORD, NAMESPACE_OWS);
+                // Value
+                el.appendChild(key.fst);
+                if (!key.snd.isEmpty()) {
+                    // Add language attribute
+                    el.addAttribute(new Attribute(PREFIX_XML + ":" + ATT_LANG, NAMESPACE_XML, key.snd));
+                }
+                keywords.appendChild(el);
+            }
+            // Type [+codeSpace]
+            if (!kGroup.getType().isEmpty()) {
+                el = new Element(PREFIX_OWS + ":" + LABEL_TYPE, NAMESPACE_OWS);
+                el.appendChild(kGroup.getType());
+                if (!kGroup.getTypeCodeSpace().isEmpty()) {
+                    el.addAttribute(new Attribute(ATT_CODESPACE, kGroup.getTypeCodeSpace()));
+                }
+                keywords.appendChild(el);
+            }
+            // Add the ows:Keywords element to the service identification
+            root.insertChild(keywords, position);
         }
     }
 }
