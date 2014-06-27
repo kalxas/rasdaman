@@ -219,7 +219,8 @@ public class PetascopeInterface extends HttpServlet {
     }
 
     private void setServletURL(HttpServletRequest req) {
-        ConfigManager.PETASCOPE_SERVLET_URL = req.getRequestURL().toString();
+        if("".equals(ConfigManager.PETASCOPE_SERVLET_URL) )
+            ConfigManager.PETASCOPE_SERVLET_URL = req.getRequestURL().toString();
     }
 
     /**

@@ -71,9 +71,10 @@ public class ConfigManager {
 
     public final static String PETASCOPE_VERSION = MAJOR + "." + MINOR + "." + BUGFIX;
     public final static String PETASCOPE_LANGUAGE = "en";
-    /* This URL gets initialized automatically when the first request is received.
+    /* If the value no given in petascope.properties, this URL gets initialized
+     * automatically when the first request is received.
      * Its value is used in the Capabilities response */
-    public static String PETASCOPE_SERVLET_URL;
+    public static String PETASCOPE_SERVLET_URL="";
 
     /*
      * settings.properties
@@ -179,6 +180,7 @@ public class ConfigManager {
     public static final String KEY_SECORE_URLS = "secore_urls";
     public static final String KEY_SECORE_VERSIONS = "secore_versions";
     public static final String KEY_XML_VALIDATION = "xml_validation";
+    public static final String KEY_PETASCOPE_SERVLET_URL = "petascope_servlet_url";
 
     public static final String TEMPLATES_PATH = "../templates/";
     public static final String GETCAPABILITIES_XML = "GetCapabilities.xml";
@@ -297,6 +299,7 @@ public class ConfigManager {
         METADATA_PASS           = get(KEY_METADATA_PASS);
         RASDAMAN_RETRY_TIMEOUT  = get(KEY_RASDAMAN_RETRY_TIMEOUT);
         RASDAMAN_RETRY_ATTEMPTS = get(KEY_RASDAMAN_RETRY_ATTEMPTS);
+        PETASCOPE_SERVLET_URL   = get(KEY_PETASCOPE_SERVLET_URL);
 
         /* Toggle switches (parseBoolean -> true if equalsIgnoreCase("true")) */
         // fat/thin coverage summaries in capability
