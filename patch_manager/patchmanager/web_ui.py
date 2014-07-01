@@ -24,47 +24,58 @@ class PatchManagerPlugin(Component):
 
     # IRequestHandler methods
     def match_request(self, req):
-        match = re.match(r'/patchmanager(/page/(\d+))?(/all)?(/applied)?(/pending)?(/rejected)?$', req.path_info)
+        match = re.match(r'/patchmanager(/page/(\d+))?(/all)?(/applied)?(/pending)?(/rejected)?(/buildstatus)?$', req.path_info)
         return not (match is None)
 
     def process_request(self, req):
 
         self.env.log.debug("Processing request: " + str(req.args))
         patchMan = self.env[PatchMan];
-        match = re.match(r'/patchmanager(/page/(\d+))?(/all)?(/applied)?(/pending)?(/rejected)?$', req.path_info)
+        match = re.match(r'/patchmanager(/page/(\d+))?(/all)?(/applied)?(/pending)?(/rejected)?(/buildstatus)?$', req.path_info)
 
+        page = None
+        data = None
 
-        results_per_page = 10.0;
+        if not match is None and not match.group(7) is None:
+            page = 'buildstatus.html'
 
-        patchCount = patchMan.patchCount();
-        if (match.group(2) is None):
-            cpage = 1
+            data = {
+                'jobs': patchMan.automatic_test_results()
+            }
         else:
-            cpage = int(match.group(2))
+            results_per_page = 10.0;
 
-        if (not match.group(3) is None or not match.group(4) is None or not match.group(5) is None or not match.group(6) is None):
-            cpage = 1
-            results_per_page = patchCount
+            patchCount = patchMan.patchCount();
+            if (match.group(2) is None):
+                cpage = 1
+            else:
+                cpage = int(match.group(2))
 
-        totalPages = int(math.ceil(patchCount / results_per_page))
+            if (not match.group(3) is None or not match.group(4) is None or not match.group(5) is None or not match.group(6) is None):
+                cpage = 1
+                results_per_page = patchCount
 
-        data={'patches':patchMan.listPatches(req, match.group(4), match.group(5), match.group(6), (cpage - 1)*results_per_page,
-        results_per_page), 'totalPages':totalPages, 'currentPage':cpage, 'base_url':req.base_path, 'branches':patchMan.listBranches()};
+            totalPages = int(math.ceil(patchCount / results_per_page))
 
-        if ('patchop' in req.args):
-            result = patchMan.process_command(req.args['patchop'], req)
-        else:
-            result = None
+            listPatch = patchMan.listPatches(req, match.group(4), match.group(5), match.group(6), (cpage - 1)*results_per_page,
+            results_per_page)
+            data={'patches': listPatch[0], 'refresh' : listPatch[1], 'totalPages':totalPages, 'currentPage':cpage, 'base_url':req.base_path, 'branches':patchMan.listBranches()};
 
-        page = 'patchmanager.html';
+            if ('patchop' in req.args):
+                result = patchMan.process_command(req.args['patchop'], req)
+            else:
+                result = None
 
-        if (result):
-            if ('page' in result):
-                page = result['page']
-            if ('data' in result):
-                data.update(result['data']);
+            page = 'patchmanager.html';
 
-        data["TEXT"]=patchMan._getAgreementText();
-        if 'TRAC_ADMIN' in req.perm:
-            data["ADMIN"]=True
+            if (result):
+                if ('page' in result):
+                    page = result['page']
+                if ('data' in result):
+                    data.update(result['data']);
+
+            data["TEXT"]=patchMan._getAgreementText();
+            if 'TRAC_ADMIN' in req.perm:
+                data["ADMIN"]=True
+
         return page, data, None

@@ -25,6 +25,7 @@ from trac.web import IRequestHandler
 from trac.web.chrome import INavigationContributor
 from trac.web.chrome import ITemplateProvider
 from tracext.git import PyGIT
+from jenkinsapi import JenkinsApi
 
 class PatchMan(Component):
     implements(ITemplateProvider)
@@ -51,6 +52,18 @@ class PatchMan(Component):
         FileContent.file.seek(0);
         file.insert(filename, FileContent.file, size)
         db.commit()
+
+        jenkins_url = self.config.get('jenkins', 'url');
+        jenkins_user = self.config.get('jenkins', 'user');
+        jenkins_passwd = self.config.get('jenkins', 'passwd');
+        job_name = self.config.get('jenkins', 'patch_test_job_name');
+        jenkins = JenkinsApi(jenkins_url, jenkins_user, jenkins_passwd, self.env.log);
+
+        jenkins.test_patch(id, job_name)
+
+        #TODO REMOVE
+        return
+
         for r in self.RECIPIENTS:
             self.sendMail(r, "[PATCH] <%s> %s" % (self.cutString(FromAddr, 15), self.cutString(Subject, 40)),
                 "New patch submitted to rasdaman.org:\n\nSubject\t %s\nFrom\t %s\nDate\t %s" % (Subject, FromAddr, Date),
@@ -174,8 +187,20 @@ class PatchMan(Component):
 
         db = self.env.get_db_cnx()
         cursor = db.cursor()
-        cursor.execute("SELECT id, email, subject, branch, commit_time, submit_time, rejected FROM Patches ORDER BY submit_time DESC LIMIT %s OFFSET %s", (count, offset))
-        for id, email, subject, branch, commit_time, submit_time, rejected_att in cursor:
+        cursor.execute("SELECT id, email, subject, branch, commit_time, submit_time, rejected, test_status FROM Patches ORDER BY submit_time DESC LIMIT %s OFFSET %s", (count, offset))
+
+        jenkins_url = self.config.get('jenkins', 'url');
+        jenkins_user = self.config.get('jenkins', 'user');
+        jenkins_passwd = self.config.get('jenkins', 'passwd');
+        jenkins = JenkinsApi(jenkins_url, jenkins_user, jenkins_passwd, self.env.log);
+        job_name = self.config.get('jenkins', 'patch_test_job_name');
+        test_status = jenkins.get_test_patch_map(job_name)
+        self.env.log.debug(test_status)
+
+        update_cursor = db.cursor()
+        refreshPage = False
+
+        for id, email, subject, branch, commit_time, submit_time, rejected_att, test in cursor:
             if not branch:
                 branch = 'master'
             if rejected_att == 1:
@@ -208,11 +233,17 @@ class PatchMan(Component):
             else:
                 subj = subject
 
+            if (status == self.PENDING) and (id in test_status):
+                refreshPage |= bool(test_status[id]['building'])
+                if (not bool(test_status[id]['building'])) and (test is None):
+                    test = test_status[id]['buildStatus']
+                    update_cursor.execute("UPDATE Patches SET test=%s WHERE id=%s", (test, id))
+
             result.append({'id':id, 'email':self.encodeEmail(email, req),
                           'subject':subj, 'branch':branch, 'commit_time':commit_time,
-                          'submit_time':submit_time, 'status':status[0], 'status_color':status[1]});
-
-        return result
+                          'submit_time':submit_time, 'status':status[0], 'status_color':status[1], 'test' : test});
+        db.commit()
+        return result, refreshPage
 
     def encodeEmail(self, email, req):
         result = "";
@@ -370,6 +401,22 @@ class PatchMan(Component):
         self.env.log.debug("A new patch was submitted! Getting details...");
         self.addNewPatch(data['From'], data['Subject'], req.args["selectbranch"], data['Date'], req.args["patchfile"])
         return {'page':'addpatchdetails.html', 'data':data}
+
+    def automatic_test_results(self):
+        jenkins_url = self.config.get('jenkins', 'url');
+        jenkins_user = self.config.get('jenkins', 'user');
+        jenkins_passwd = self.config.get('jenkins', 'passwd');
+        job_name = self.config.get('jenkins', 'automatic_test_job_name');
+        jenkins = JenkinsApi(jenkins_url, jenkins_user, jenkins_passwd, self.env.log);
+
+        tests = jenkins.get_automatic_build_map(job_name)
+
+        keys = sorted(tests.keys(), reverse=True)
+        result = list()
+        for k in keys:
+            result.append(tests[k])
+
+        return result
 
     def processDeletePatch(self, req):
         if not 'TRAC_ADMIN' in req.perm:

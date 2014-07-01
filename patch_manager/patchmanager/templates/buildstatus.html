@@ -1,0 +1,47 @@
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:py="http://genshi.edgewall.org/"
+      xmlns:xi="http://www.w3.org/2001/XInclude">
+<xi:include href="layout.html"/>
+<xi:include href="macros.html"/>
+<head>
+    <style type="text/css">
+        .go {
+            border: none;
+            background-color: transparent;
+            cursor: pointer;
+            width: 15px;
+            position: relative;
+            left: -5px;
+        }
+    </style>
+    <title>Timeline</title>
+</head>
+<xi:include href="patchmanager.js"/>
+<body>
+<h1>Build status</h1>
+<TABLE border="1">
+    <TR>
+        <TH><b>Build Id</b></TH>
+        <TH><b>Status</b></TH>
+        <TH><b>Comments</b></TH>
+    </TR>
+    <py:for each="patch in enumerate(jobs)">
+        <TR>
+            <TD>${patch[1]['buildId']}</TD>
+            <TD>${patch[1]['status']}</TD>
+            <TD>
+                <ul>
+                    <py:for each="com in enumerate(patch[1]['changes'])">
+                        <li>${com[1]['comment']}</li>
+                    </py:for>
+                </ul>
+            </TD>
+        </TR>
+    </py:for>
+
+</TABLE>
+</body>
+</html>

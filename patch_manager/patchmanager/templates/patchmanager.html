@@ -53,6 +53,11 @@
                         <TH><b>Submit Time</b></TH>
                         <TH width="90"><b>Action</b></TH>
                         <TH><b>Status</b></TH>
+
+                        <py:if test="ADMIN==True">
+                            <TH><b>Test Status</b></TH>
+                        </py:if>
+
                     </TR>
                     <py:for each="patch in enumerate(patches)">
                         <TR>
@@ -82,8 +87,23 @@
                                 </py:if>
                             </TD>
                             <TD><span style="color:${patch[1]['status_color']}">&nbsp;${patch[1]['status']}&nbsp;</span></TD>
+
+                            <py:if test="ADMIN==True">
+                                <TD><span style="">&nbsp;${patch[1]['test']}&nbsp;</span></TD>
+                            </py:if>
+
                         </TR>
                     </py:for>
+
+                    <py:if test="ADMIN==True">
+                        <py:if test="refresh">
+                            <script>
+                                setTimeout(function(){
+                                  location.reload(true)
+                                },15000);
+                            </script>
+                        </py:if>
+                    </py:if>
                 </TABLE>
                 <div  style="position:relative; padding-top: 8px">
                     <input type="submit" value="Download Selected" name="patchop"/>
