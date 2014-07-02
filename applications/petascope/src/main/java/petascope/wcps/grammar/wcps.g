@@ -19,6 +19,7 @@ History:
 02 04 2012 campalani    Missing braces around DimensionIntervalList in scaleExpr.
 05 06 2012 misev        Allow mixing of slices and trims
 18 11 2013 campalani    Allow asterisk in trims like in RasQL, see numericScalarExpr.
+02 07 2014 utkrist      Added support to 'int' and 'unsigned int'; made parsing very strict
 */
 grammar wcps;
 options{
@@ -32,6 +33,16 @@ output=AST;
 {package petascope.wcps.grammar;}
 @lexer::header
 {package petascope.wcps.grammar;}
+@members {
+    protected Object recoverFromMismatchedToken(IntStream input,
+                                                int ttype,
+                                                BitSet follow)
+        throws RecognitionException
+    {
+        throw new MismatchedTokenException(ttype, input);
+    }
+}
+
 
 /* Parser Rules */
 
@@ -311,8 +322,8 @@ castExpr returns[CastExpr value]
     : LPAREN e1=rangeType RPAREN e2=coverageExpr { $value = new CastExpr($e2.value, $e1.value); }
     ;
 rangeType returns[String value]
-    : type=(BOOLEAN|CHAR|SHORT|LONG|FLOAT|DOUBLE|COMPLEX|COMPLEX2) { $value = new String($type.text); }
-    | UNSIGNED type=(CHAR|SHORT|LONG) { $value = new String("unsigned " + $type.text); }
+    : type=(BOOLEAN|INT|CHAR|SHORT|LONG|FLOAT|DOUBLE|COMPLEX|COMPLEX2) { $value = new String($type.text); }
+    | UNSIGNED type=(INT|CHAR|SHORT|LONG) { $value = new String("unsigned " + $type.text); }
     ;
 fieldExpr returns[SelectExpr value]
     : e1=coverageAtom DOT e2=fieldName { $value = new SelectExpr($e1.value, $e2.value); }
@@ -534,6 +545,7 @@ PHI: ('p'|'P')('h'|'H')('i'|'I');
 BIT: ('b'|'B')('i'|'I')('t'|'T');
 UNSIGNED: ('u'|'U')('n'|'N')('s'|'S')('i'|'I')('g'|'G')('n'|'N')('e'|'E')('d'|'D');
 BOOLEAN: ('b'|'B')('o'|'O')('o'|'O')('l'|'L')('e'|'E')('a'|'A')('n'|'N');
+INT: ('i'|'I')('n'|'N')('t'|'T');
 CHAR: ('c'|'C')('h'|'H')('a'|'A')('r'|'R');
 SHORT: ('s'|'S')('h'|'H')('o'|'O')('r'|'R')('t'|'T');
 /*LONG: ('l'|'L')('o'|'O')('n'|'N')('g'|'G');*/

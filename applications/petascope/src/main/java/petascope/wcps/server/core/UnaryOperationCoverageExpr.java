@@ -167,11 +167,6 @@ public class UnaryOperationCoverageExpr extends AbstractRasNode implements ICove
                 || operation.equals(WcpsConstants.MSG_NOT) || operation.equals("+") || operation.equals("-")) {
             return operation + "(" + child.toRasQL() + ")";
         } else if (operation.equals(WcpsConstants.MSG_CAST)) {
-            // Use rasql's direct "type-casting" facility for constant scalar expressions
-            // For example, (char)1 does not work, but 1c is a valid expression.
-            if (child.isScalarExpr() && params.equals(WcpsConstants.MSG_CHAR))
-                return child.toRasQL() + RASQL_C;
-            else
                 return "(" + params + ")(" + child.toRasQL() + ")";
         } else if (operation.equals(WcpsConstants.MSG_SELECT)) {
             return "(" + child.toRasQL() + ")." + params;

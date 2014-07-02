@@ -47,17 +47,34 @@ public class RangeField extends AbstractRasNode {
         String nodeName = node.getNodeName();
 
         if (nodeName.equals(WcpsConstants.MSG_TYPE)) {
-            this.type = node.getTextContent();
-
+            String rangeType = node.getTextContent();
+            if(rangeType.equals(WcpsConstants.MSG_NULL)){
+                throw new WCPSException("Invalid RangeField type");
+            }
+            this.type = rangeType;
             log.trace("Range field type: " + type);
         }
     }
 
     public String toRasQL() {
-        String result = this.type;
-        if(this.type.toLowerCase().equals(WcpsConstants.MSG_BOOLEAN)){
+        String result = this.type.toLowerCase();
+
+        if(result.equals(WcpsConstants.MSG_BOOLEAN)){
             result = WcpsConstants.MSG_BOOL;
+        }else if(result.equals(WcpsConstants.MSG_CHAR)){
+            result = WcpsConstants.MSG_OCTET;
+        }else if(result.equals(WcpsConstants.MSG_UNSIGNED_CHAR)){
+            result = WcpsConstants.MSG_CHAR;
+        }else if(result.equals(WcpsConstants.MSG_INT)){
+            result = WcpsConstants.MSG_LONG;
+        }else if(result.equals(WcpsConstants.MSG_UNSIGNED_INT)){
+            result = WcpsConstants.MSG_UNSIGNED_LONG;
+        }else if(result.equals(WcpsConstants.MSG_UNSIGNED_LONG)){
+            result = WcpsConstants.MSG_LONG;
+        }else if(result.equals(WcpsConstants.MSG_COMPLEX + "2")) {
+            result = WcpsConstants.MSG_COMPLEX + "d";
         }
+        //short, unsigned short and complex have identity mapping
         return result;
     }
 };

@@ -1,5 +1,5 @@
 for c in (eobstest) return encode(
-  c[
+  (c[
     t("1950-01-02"),
     Long(20:35),
     Lat(10:15)]),

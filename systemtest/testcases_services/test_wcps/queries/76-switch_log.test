@@ -1,1 +1,1 @@
-for c in mr return encode(switch case c>0 return log(c) default return (char)0,"csv")
+for c in (mr) return encode(switch case c>0 return log(c) default return (char)0,"csv")

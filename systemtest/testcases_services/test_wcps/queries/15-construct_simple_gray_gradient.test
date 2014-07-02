@@ -1,6 +1,6 @@
 for c in ( rgb ) 
 return encode( 
-	(char) 
+        (unsigned char)
 	coverage greyImage 
 	over $first x(51:150), 
              $second y(0:99) 

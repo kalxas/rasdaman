@@ -49,8 +49,8 @@ public class RangeElement implements Cloneable {
                     "Invalid range element: element name cannot be empty.");
         }
 
-        if (!(type.equals(WcpsConstants.MSG_BOOLEAN) || type.equals(WcpsConstants.MSG_CHAR) || type.equals("unsigned char")
-                || type.equals(WcpsConstants.MSG_SHORT) || type.equals(WcpsConstants.MSG_UNSIGNED_SHORT) || type.equals("int")
+        if (!(type.equals(WcpsConstants.MSG_BOOLEAN) || type.equals(WcpsConstants.MSG_CHAR) || type.equals(WcpsConstants.MSG_UNSIGNED_CHAR)
+                || type.equals(WcpsConstants.MSG_SHORT) || type.equals(WcpsConstants.MSG_UNSIGNED_SHORT) || type.equals(WcpsConstants.MSG_INT)
                 || type.equals(WcpsConstants.MSG_UNSIGNED_INT) || type.equals(WcpsConstants.MSG_LONG)
                 || type.equals(WcpsConstants.MSG_UNSIGNED_LONG) || type.equals(WcpsConstants.MSG_FLOAT)
                 || type.equals(WcpsConstants.MSG_DOUBLE) || type.equals(WcpsConstants.MSG_COMPLEX) || type.equals(WcpsConstants.MSG_COMPLEX + "2"))) {
@@ -157,8 +157,8 @@ public class RangeElement implements Cloneable {
     }
 
     public void setType(String type) throws WCPSException {
-        if (!(type.equals(WcpsConstants.MSG_BOOLEAN) || type.equals(WcpsConstants.MSG_CHAR) || type.equals("unsigned char")
-                || type.equals(WcpsConstants.MSG_SHORT) || type.equals(WcpsConstants.MSG_UNSIGNED_SHORT) || type.equals("int")
+        if (!(type.equals(WcpsConstants.MSG_BOOLEAN) || type.equals(WcpsConstants.MSG_CHAR) || type.equals(WcpsConstants.MSG_UNSIGNED_CHAR)
+                || type.equals(WcpsConstants.MSG_SHORT) || type.equals(WcpsConstants.MSG_UNSIGNED_SHORT) || type.equals(WcpsConstants.MSG_INT)
                 || type.equals(WcpsConstants.MSG_UNSIGNED_INT) || type.equals(WcpsConstants.MSG_LONG)
                 || type.equals(WcpsConstants.MSG_UNSIGNED_LONG) || type.equals(WcpsConstants.MSG_FLOAT)
                 || type.equals(WcpsConstants.MSG_DOUBLE) || type.equals(WcpsConstants.MSG_COMPLEX) || type.equals(WcpsConstants.MSG_COMPLEX + "2"))) {

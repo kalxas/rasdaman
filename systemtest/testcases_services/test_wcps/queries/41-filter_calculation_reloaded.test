@@ -1,5 +1,5 @@
 for c in (mr) return
-encode((char)
+encode((unsigned char)
   coverage filteredImage
     over $px x(1:100),
          $py y(1:100)

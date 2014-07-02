@@ -164,6 +164,7 @@ public interface WcpsConstants {
     public static final String MSG_NUMERIC_SQRT                 = "numericSqrt";
     public static final String MSG_NUMERIC_UNARY_MINUS          = "numericUnaryMinus";
     public static final String MSG_NOT                          = "not";
+    public static final String MSG_OCTET			= "octet";
     public static final String MSG_OGC                          = "ogc";
     public static final String MSG_OR                           = "or";
     public static final String MSG_OP1                          = "op1";
@@ -231,6 +232,7 @@ public interface WcpsConstants {
     public static final String MSG_UNARY_OP                     = "unaryOp";
     public static final String MSG_UNARY_PLUS                   = "unaryPlus";
     public static final String MSG_UNARY_MINUS                  = "unaryMinus";
+    public static final String MSG_UNSIGNED_CHAR                = "unsigned char";
     public static final String MSG_UNSIGNED_INT                 = "unsigned int";
     public static final String MSG_UNSIGNED_LONG                = "unsigned long";
     public static final String MSG_UNSIGNED_SHORT               = "unsigned short";

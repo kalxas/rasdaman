@@ -1,1 +1,1 @@
-for c in ( rgb ) return encode( ((char) abs( c.1 - c.0 ))[ i(0:250), j(0:200) ], "png", "nodata=0" )
+for c in ( rgb ) return encode( ((unsigned char) abs( c.1 - c.0 ))[ i(0:250), j(0:200) ], "png", "nodata=0" )

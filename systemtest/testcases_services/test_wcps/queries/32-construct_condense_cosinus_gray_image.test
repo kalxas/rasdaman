@@ -1,4 +1,4 @@
- for c in (mr) return encode((char)
+ for c in (mr) return encode((unsigned char)
        coverage DFT
        over $px x(0:10),
             $py y(0:10)
