@@ -70,6 +70,7 @@ public class ExtensionsRegistry {
         registerExtension(new RESTProtocolExtension());
         registerExtension(new GmlFormatExtension());
         registerExtension(new GeotiffFormatExtension());
+        registerExtension(new NetcdfFormatExtension());
         registerExtension(new InterpolationExtension());
         registerExtension(new JPEG2000FormatExtension());
         registerExtension(new GMLJP2FormatExtension()); // image/jp2 + mediaType=multipart/related (though GML is embedded in the JP2 file)

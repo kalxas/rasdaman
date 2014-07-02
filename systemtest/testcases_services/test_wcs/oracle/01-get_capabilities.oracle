@@ -79,6 +79,7 @@
     %formatSupported%
     %formatSupported%
     %formatSupported%
+    %formatSupported%
     <wcs:Extension>
       <int:InterpolationMetadata xmlns:int="http://www.opengis.net/wcs/interpolation/1.0">
         <int:InterpolationSupported>http://www.opengis.net/def/interpolation/OGC/0/nearest-neighbor</int:InterpolationSupported>
