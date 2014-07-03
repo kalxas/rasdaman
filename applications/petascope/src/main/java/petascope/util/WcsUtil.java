@@ -275,6 +275,7 @@ public class WcsUtil {
                 // multipoint
                 Pair.of("\\{" + Templates.KEY_MPID                  + "\\}", Templates.PREFIX_MP + m.getGridId()),
                 Pair.of("\\{" + Templates.KEY_SRSGROUP              + "\\}", getSrsGroup(m)),
+                Pair.of("\\{" + Templates.KEY_COVERAGEFUNCTION      + "\\}", coverageFunction),
                 Pair.of("\\{" + Templates.KEY_RANGEFIELDS           + "\\}", rangeFields));
         } else {
             // gridded coverage:
