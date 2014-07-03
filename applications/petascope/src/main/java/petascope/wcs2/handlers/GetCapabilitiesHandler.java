@@ -49,7 +49,6 @@ import petascope.util.ListUtil;
 import petascope.util.Pair;
 import static petascope.util.XMLSymbols.*;
 import petascope.util.WcsUtil;
-import petascope.util.XMLSymbols;
 import petascope.util.XMLUtil;
 import petascope.wcps.server.core.Bbox;
 import petascope.wcs2.Wcs2Servlet;
@@ -211,6 +210,12 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 ccc.appendChild(sPro.getContact().getContactInfo().getHoursOfService());
                 cc.appendChild(ccc);
             }
+            // contact instructions
+            if (!sPro.getContact().getContactInfo().getInstructions().isEmpty()) {
+                ccc = new Element(PREFIX_OWS + ":" + LABEL_CONTACT_INSTRUCTIONS, NAMESPACE_OWS);
+                ccc.appendChild(sPro.getContact().getContactInfo().getInstructions());
+                cc.appendChild(ccc);
+            }
             // Add ContactInfo to ServiceContact (mandatory)
             c.appendChild(cc);
             // role
@@ -345,7 +350,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
 
                 // OWS Metadata (if disabled from petascope.properties, no OWS metadata is seen here: see DbMetadataSource.read())
                 if (METADATA_IN_COVSUMMARY) { // configuration switch
-                    Set<String> owsMetadata = meta.read(coverageName).getExtraMetadata(XMLSymbols.PREFIX_OWS);
+                    Set<String> owsMetadata = meta.read(coverageName).getExtraMetadata(PREFIX_OWS);
                     for (String metadataValue : owsMetadata) {
                         c = new Element(LABEL_OWSMETADATA, NAMESPACE_OWS);
                         cc = XMLUtil.parseXmlFragment(metadataValue); // contains farther XML child elements: do not escape predefined entities (up to the user)
