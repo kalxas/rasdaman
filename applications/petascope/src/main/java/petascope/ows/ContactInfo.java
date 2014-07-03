@@ -21,13 +21,17 @@
  */
 package petascope.ows;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Java class for ows:ContactInfo elements.
  * @author <a href="mailto:p.campalani@jacobs-university.de">Piero Campalani</a>
  */
 public class ContactInfo {
 
-    private String phone;
+    private List<String> voicePhone;
+    private List<String> facsimilePhone;
     private Address contactAddress;
     private String hoursOfService;
     private String contactInstructions;
@@ -35,14 +39,23 @@ public class ContactInfo {
     // Constructor
     ContactInfo () {
         contactAddress = new Address();
+        voicePhone = new ArrayList<String>();
+        facsimilePhone = new ArrayList<String>();
     }
 
     // Getters/Setters
-    public String getPhone() {
-        return (null == phone) ? "" : phone;
+    public List<String> getVoicePhones() {
+        return new ArrayList<String>(voicePhone);
     }
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void addVoicePhone(String phone) {
+        voicePhone.add(phone);
+    }
+    //
+    public List<String> getFacsimilePhones() {
+        return new ArrayList<String>(facsimilePhone);
+    }
+    public void addFacsimilePhone(String facsimile) {
+        facsimilePhone.add(facsimile);
     }
     //
     public Address getAddress() {
@@ -65,7 +78,8 @@ public class ContactInfo {
 
     // Methods
     public boolean isEmpty() {
-        return getPhone().isEmpty() &&
+        return getVoicePhones().isEmpty() &&
+                getFacsimilePhones().isEmpty() &&
                 getAddress().getAddressMetadata().isEmpty() &&
                 getHoursOfService().isEmpty() &&
                 getInstructions().isEmpty();

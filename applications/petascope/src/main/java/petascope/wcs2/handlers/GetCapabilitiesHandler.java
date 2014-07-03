@@ -59,8 +59,6 @@ import static petascope.wcs2.extensions.ExtensionsRegistry.INTERPOLATION_IDENTIF
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.InterpolationExtension;
 import petascope.wcs2.parsers.GetCapabilitiesRequest;
-import petascope.wcs2.parsers.GetCoverageMetadata;
-import petascope.wcs2.parsers.GetCoverageRequest;
 import petascope.wcs2.templates.Templates;
 
 /**
@@ -180,9 +178,23 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             cc = new Element(PREFIX_OWS + ":" + LABEL_CONTACT_INFO, NAMESPACE_OWS);
             Element ccc;
             // phone
-            if (!sPro.getContact().getContactInfo().getPhone().isEmpty()) {
+            if (!sPro.getContact().getContactInfo().getVoicePhones().isEmpty() ||
+                !sPro.getContact().getContactInfo().getFacsimilePhones().isEmpty()) {
                 ccc = new Element(PREFIX_OWS + ":" + LABEL_PHONE, NAMESPACE_OWS);
-                ccc.appendChild(sPro.getContact().getContactInfo().getPhone());
+                Element cccc;
+                // voice [0..*]
+                for (String voiceNumber : sPro.getContact().getContactInfo().getVoicePhones()) {
+                    cccc = new Element(PREFIX_OWS + ":" + LABEL_VOICE, NAMESPACE_OWS);
+                    cccc.appendChild(voiceNumber);
+                    ccc.appendChild(cccc);
+                }
+                // facsimile [0..*]
+                for (String facsimileNumber : sPro.getContact().getContactInfo().getFacsimilePhones()) {
+                    cccc = new Element(PREFIX_OWS + ":" + LABEL_FACSIMILE, NAMESPACE_OWS);
+                    cccc.appendChild(facsimileNumber);
+                    ccc.appendChild(cccc);
+                }
+                //
                 cc.appendChild(ccc);
             }
             // address

@@ -106,7 +106,7 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String TABLE_EXTRAMETADATA_TYPE = TABLES_PREFIX + "extra_metadata_type";
     public static final String EXTRAMETADATA_TYPE_ID    = "id";
     public static final String EXTRAMETADATA_TYPE_TYPE  = "type";
-    public static final String EXTRAMETADATA_TYPE_OWS = "ows"; // need to know how OWS Metadata is recognized to enable/disable it
+    public static final String EXTRAMETADATA_TYPE_OWS   = "ows"; // need to know how OWS Metadata is recognized to enable/disable it
     // TABLE_CRS : list of /single/ Coordinate Reference Systems (no compound CRS)
     public static final String TABLE_CRS                = TABLES_PREFIX + "crs";
     public static final String CRS_ID                   = "id";
@@ -206,7 +206,7 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String SERVICE_PROVIDER_SITE                = "site";
     public static final String SERVICE_PROVIDER_CONTACT_NAME        = "contact_individual_name";
     public static final String SERVICE_PROVIDER_CONTACT_POSITION    = "contact_position_name";
-    public static final String SERVICE_PROVIDER_CONTACT_PHONE       = "contact_phone";
+    public static final String SERVICE_PROVIDER_CONTACT_PHONE_ID    = "contact_phone_id";
     public static final String SERVICE_PROVIDER_CONTACT_DELIVERY    = "contact_delivery_points";
     public static final String SERVICE_PROVIDER_CONTACT_CITY        = "contact_city";
     public static final String SERVICE_PROVIDER_CONTACT_AREA        = "contact_administrative_area";
@@ -216,6 +216,11 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String SERVICE_PROVIDER_CONTACT_HOURS       = "contact_hours_of_service";
     public static final String SERVICE_PROVIDER_CONTACT_INSTRUCTIONS = "contact_instructions";
     public static final String SERVICE_PROVIDER_CONTACT_ROLE        = "contact_role";
+    // TABLE_TELEPHONE : voice+facsimile tuples
+    public static final String TABLE_TELEPHONE     = TABLES_PREFIX + "telephone";
+    public static final String TELEPHONE_ID        = "id";
+    public static final String TELEPHONE_VOICE     = "voice";
+    public static final String TELEPHONE_FACSIMILE = "facsimile";
 
     /* Coverage-related tables */
     // TABLE_COVERAGE : root table of a gml:*Coverage
@@ -471,7 +476,8 @@ public class DbMetadataSource implements IMetadataSource {
                                + SERVICE_PROVIDER_SITE                 + ", "
                                + SERVICE_PROVIDER_CONTACT_NAME         + ", "
                                + SERVICE_PROVIDER_CONTACT_POSITION     + ", "
-                               + SERVICE_PROVIDER_CONTACT_PHONE        + ", "
+                               + TELEPHONE_VOICE                       + ", "
+                               + TELEPHONE_FACSIMILE                   + ", "
                                + SERVICE_PROVIDER_CONTACT_DELIVERY     + ", "
                                + SERVICE_PROVIDER_CONTACT_CITY         + ", "
                                + SERVICE_PROVIDER_CONTACT_AREA         + ", "
@@ -481,7 +487,10 @@ public class DbMetadataSource implements IMetadataSource {
                                + SERVICE_PROVIDER_CONTACT_HOURS        + ", "
                                + SERVICE_PROVIDER_CONTACT_INSTRUCTIONS + ", "
                                + SERVICE_PROVIDER_CONTACT_ROLE         +
-                    " FROM "   + TABLE_SERVICE_PROVIDER;
+                    " FROM "   + TABLE_SERVICE_PROVIDER   +
+                    " LEFT OUTER JOIN " + TABLE_TELEPHONE +
+                    " ON "     + TABLE_SERVICE_PROVIDER   + "." + SERVICE_PROVIDER_CONTACT_PHONE_ID + "="
+                               + TABLE_TELEPHONE          + "." + TELEPHONE_ID
                     ;
             log.debug("SQL query: " + sqlQuery);
             r = s.executeQuery(sqlQuery);
@@ -505,9 +514,19 @@ public class DbMetadataSource implements IMetadataSource {
                     sProvider.getContact().setPositionName(contactPosition);
                 }
                 //
-                String contactPhone = r.getString(SERVICE_PROVIDER_CONTACT_PHONE);
-                if (null != contactPhone) {
-                    sProvider.getContact().getContactInfo().setPhone(contactPhone);
+                Array contactVoicePhones = r.getArray(TELEPHONE_VOICE);
+                if (null != contactVoicePhones) {
+                    ResultSet voicePhonesRs = contactVoicePhones.getResultSet();
+                    while (voicePhonesRs.next()) {
+                        sProvider.getContact().getContactInfo().addVoicePhone(voicePhonesRs.getString(2));
+                    }
+                }
+                Array contactFacsimilePhones = r.getArray(TELEPHONE_FACSIMILE);
+                if (null != contactFacsimilePhones) {
+                    ResultSet facsimilePhonesRs = contactFacsimilePhones.getResultSet();
+                    while (facsimilePhonesRs.next()) {
+                        sProvider.getContact().getContactInfo().addFacsimilePhone(facsimilePhonesRs.getString(2));
+                    }
                 }
                 //
                 Array deliveries =  r.getArray(SERVICE_PROVIDER_CONTACT_DELIVERY);

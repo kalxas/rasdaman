@@ -180,6 +180,8 @@ public interface XMLSymbols {
     // // // // Contact Info
     String LABEL_CONTACT_INFO = "ContactInfo";
     String LABEL_PHONE = "Phone";
+    String LABEL_VOICE = "Voice";
+    String LABEL_FACSIMILE = "Facsimile";
     String LABEL_HOURS_OF_SERVICE = "HoursOfService";
     String LABEL_CONTACT_INSTRUCTIONS = "ContactInstructions";
     // // // // // Address
