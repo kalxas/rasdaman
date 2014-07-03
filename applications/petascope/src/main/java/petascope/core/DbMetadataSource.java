@@ -1901,7 +1901,6 @@ public class DbMetadataSource implements IMetadataSource {
             throw new PetascopeException(ExceptionCode.ResourceError,
                     "Metadata database error", sqle);
         } finally {
-            closeStatement(s);
         }
         return r;
     }
