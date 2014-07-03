@@ -21,17 +21,12 @@
  */
 package secore.util;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import net.n3.nanoxml.IXMLElement;
 import net.n3.nanoxml.IXMLParser;
 import net.n3.nanoxml.IXMLReader;
 import net.n3.nanoxml.StdXMLReader;
 import net.n3.nanoxml.XMLException;
 import net.n3.nanoxml.XMLParserFactory;
-import net.n3.nanoxml.XMLWriter;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -40,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * @author Dimitar Misev
  */
 public class XMLUtil {
-  
+
   private static org.slf4j.Logger log = LoggerFactory.getLogger(XMLUtil.class);
 
   public static IXMLElement parse(String xml) throws SecoreException {
@@ -60,4 +55,74 @@ public class XMLUtil {
       throw new SecoreException(ExceptionCode.XmlNotValid);
     }
   }
+
+  /**
+   * Replaces all <tt>'&'</tt> characters with <tt>'&amp;'</tt>
+   * @param aString
+   * @return
+   */
+  private static String escapeAmpersands(String aString){
+    return aString.replace("&", "&" + PREDEFINED_ENTITY_AMPERSAND + ";");
+  }
+
+  /**
+   * Replaces all <tt>'\''</tt> characters with <tt>'&apos;'</tt>
+   * @param aString
+   * @return
+   */
+  private static String escapeApostrophes(String aString){
+    return aString.replace("'", "&" + PREDEFINED_ENTITY_APOSTROPHE + ";");
+  }
+
+  /**
+   * Replaces all <tt>'<'</tt> characters with <tt>'&lt;'</tt>
+   * @param aString
+   * @return
+   */
+  private static String escapeLessThanSigns(String aString){
+    return aString.replace("<", "&" + PREDEFINED_ENTITY_LESSTHAN_SIGN + ";");
+  }
+
+  /**
+   * Replaces all <tt>'>'</tt> characters with <tt>'&gt;'</tt>
+   * @param aString
+   * @return
+   */
+  private static String escapeGreaterThanSigns(String aString){
+    return aString.replace(">", "&" + PREDEFINED_ENTITY_GREATERTHAN_SIGN + ";");
+  }
+
+  /**
+   * Replaces all <tt>'\"'</tt> characters with <tt>'&quot;'</tt>
+   * @param aString
+   * @return
+   */
+  private static String escapeQuotes(String aString){
+    return aString.replace("\"", "&" + PREDEFINED_ENTITY_QUOTES + ";");
+  }
+
+  /**
+   * Fix a string for valid insertion in XML document (escape reserved entities).
+   * @see http://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references
+   * @param aString
+   * @return XML-escaped input string.
+   */
+  public static String escapeXmlPredefinedEntities(String aString){
+    String escapedString;
+
+    escapedString = escapeAmpersands(aString);
+    escapedString = escapeApostrophes(escapedString);
+    escapedString = escapeLessThanSigns(escapedString);
+    escapedString = escapeGreaterThanSigns(escapedString);
+    escapedString = escapeQuotes(escapedString);
+
+    return escapedString;
+  }
+
+    // Predefined entities' names
+    private static final String PREDEFINED_ENTITY_AMPERSAND        = "amp";
+    private static final String PREDEFINED_ENTITY_APOSTROPHE       = "apos";
+    private static final String PREDEFINED_ENTITY_LESSTHAN_SIGN    = "lt";
+    private static final String PREDEFINED_ENTITY_GREATERTHAN_SIGN = "gt";
+    private static final String PREDEFINED_ENTITY_QUOTES           = "quot";
 }

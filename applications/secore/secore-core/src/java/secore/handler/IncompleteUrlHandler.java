@@ -37,6 +37,7 @@ import secore.util.Constants;
 import static secore.util.Constants.*;
 import secore.util.SecoreUtil;
 import secore.util.StringUtil;
+import secore.util.XMLUtil;
 
 /**
  * This handler deals with incomplete URLs such as 
@@ -129,7 +130,7 @@ public class IncompleteUrlHandler extends AbstractHandler {
         res += "  <" + IDENTIFIER_LABEL + ">" + fullUri + p.fst + "</" + IDENTIFIER_LABEL + ">\n";
       }
     }
-    res = "<" + IDENTIFIERS_LABEL + " at='" + request.getOriginalRequest() + "' xmlns='" + Constants.CRSNTS_NAMESPACE + "'>\n"
+    res = "<" + IDENTIFIERS_LABEL + " at='" + XMLUtil.escapeXmlPredefinedEntities(request.getOriginalRequest()) + "' xmlns='" + Constants.CRSNTS_NAMESPACE + "'>\n"
         + res
         + "</" + IDENTIFIERS_LABEL + ">";
     

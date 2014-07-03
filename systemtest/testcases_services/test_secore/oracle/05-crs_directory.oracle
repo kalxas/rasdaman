@@ -4,10 +4,14 @@
   <identifier>/crs/OGC/0/.Index1D-template</identifier>
   <identifier>/crs/OGC/0/.Index2D-template</identifier>
   <identifier>/crs/OGC/0/.Index3D-template</identifier>
+  <identifier>/crs/OGC/0/.Index4D-template</identifier>
+  <identifier>/crs/OGC/0/.Index5D-template</identifier>
   <identifier>/crs/OGC/0/.Temporal-template</identifier>
   <identifier>/crs/OGC/0/AnsiDate</identifier>
   <identifier>/crs/OGC/0/Index1D</identifier>
   <identifier>/crs/OGC/0/Index2D</identifier>
   <identifier>/crs/OGC/0/Index3D</identifier>
+  <identifier>/crs/OGC/0/Index4D</identifier>
+  <identifier>/crs/OGC/0/Index5D</identifier>
   <identifier>/crs/OGC/0/Temporal</identifier>
 </identifiers>
