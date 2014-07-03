@@ -83,6 +83,7 @@ public class ResolveRequest implements ParamValue {
    * The URL parameters are decoded only after they have been separated.
    * 
    * @param uri the original request to be parsed
+   * @throws SecoreException
    */
   public ResolveRequest(String uri) throws SecoreException {
     log.trace("Parsing URI: " + uri);
@@ -194,6 +195,8 @@ public class ResolveRequest implements ParamValue {
    * 
    * @param operation the operation to perform, e.g. crs-compound, crs, axis, ...
    * @param service the service's URL, e.g. http://www.opengis.net/def
+   * @param fullUri
+   * @throws SecoreException
    */
   public ResolveRequest(String operation, String service, String fullUri) throws SecoreException {
     params = new ArrayList<RequestParam>();
@@ -216,6 +219,7 @@ public class ResolveRequest implements ParamValue {
    * 
    * @param key parameter key, can be null
    * @param value the value, must not be null
+   * @throws SecoreException
    */
   public void addParam(String key, String value) throws SecoreException {
     if (value == null) {
