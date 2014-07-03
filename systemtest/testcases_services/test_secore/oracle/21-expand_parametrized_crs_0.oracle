@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<GeodeticCRS     id="epsg-crs-4326"  >
+  <metaDataProperty>
+    <epsg:CommonMetaData>
+      <epsg:type>geographic 2D</epsg:type>
+      <epsg:informationSource>EPSG. See 3D CRS for original information source.</epsg:informationSource>
+      <epsg:revisionDate>2007-08-27</epsg:revisionDate>
+      <epsg:changes>
+      </epsg:changes>
+      <epsg:show>true</epsg:show>
+      <epsg:isDeprecated>false</epsg:isDeprecated>
+    </epsg:CommonMetaData>
+  </metaDataProperty>
+  <metaDataProperty>
+    <epsg:CRSMetaData>
+    </epsg:CRSMetaData>
+  </metaDataProperty>
+  <name>WGS 84</name>
+  <scope>Horizontal component of 3D system. Used by the GPS satellite navigation system and for NATO military geodetic surveying.</scope>
+</GeodeticCRS>

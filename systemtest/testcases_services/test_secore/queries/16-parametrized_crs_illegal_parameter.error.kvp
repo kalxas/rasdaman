@@ -1,1 +1,1 @@
-/crs/AUTO/1.3/42001?foo=10
+/crs?authority=AUTO&version=1.3&code=42001&foo=10

@@ -124,7 +124,6 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
         </epsg:CommonMetaData>
       </metaDataProperty>
       <name>World</name>
-      <empty/>
     </epsg:AreaOfUse>
     <scope>Satellite navigation.</scope>
     <anchorDefinition>Defined through a consistent set of station coordinates. These have changed with time: by 0.7m on 29/06/1994 (G730), a further 0.2m on 29/01/1997 (G873) and a further 0.06m on 20/01/2002 (G1150) and on 8/02/2012 (G1674).</anchorDefinition>

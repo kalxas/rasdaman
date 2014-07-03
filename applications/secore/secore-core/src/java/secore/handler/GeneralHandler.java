@@ -50,7 +50,7 @@ public class GeneralHandler extends AbstractHandler {
   public static final String EXPAND_KEY = "expand";
   public static final String EXPAND_FULL = "full";
   public static final String EXPAND_NONE = "none";
-  public static final String EXPAND_DEFAULT = Integer.toString(Integer.MAX_VALUE);
+  public static final String EXPAND_DEFAULT = "2";
   // flag indicating whether to resolve the target CRS
   public static final String RESOLVE_TARGET_KEY = "resolve-target";
   public static final String RESOLVE_TARGET_YES = "yes";

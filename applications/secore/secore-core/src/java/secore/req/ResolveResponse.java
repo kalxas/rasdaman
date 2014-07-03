@@ -108,7 +108,6 @@ public class ResolveResponse {
   
   /**
    * Check if def is not an empty XML document.
-   * @param def XML definition to be checked.
    * @return true if not empty, false otherwise.
    */
   public boolean isValidDefinition() {

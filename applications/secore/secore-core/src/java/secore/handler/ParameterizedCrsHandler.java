@@ -217,7 +217,7 @@ public class ParameterizedCrsHandler extends GeneralHandler {
     // resolve the target CRS
     ResolveRequest targetCRSRequest = new ResolveRequest(targetCRS);
     String url = parseRequest(targetCRSRequest);
-    ResolveResponse ret = resolveId(url, EXPAND_DEFAULT, params);
+    ResolveResponse ret = resolveId(url, request.getExpandDepth(), params); // set expand depth from the original request URL
     
     // update identifier to include parameters
     String xml = StringUtil.replaceElementValue(

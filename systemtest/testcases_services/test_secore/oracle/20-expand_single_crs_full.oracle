@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<GeodeticCRS     id="epsg-crs-4327"  >
+<GeodeticCRS     id="epsg-crs-4326"  >
   <metaDataProperty>
     <epsg:CommonMetaData>
-      <epsg:type>geographic 3D</epsg:type>
-      <epsg:alias alias="DGN-95 (geographic 3D)" code="1991" codeSpace="/naming-system/EPSG/0/7311">
-        <epsg:remarks>Datum Geodesi Nasional 1995 (DGN-95) is a synonym for WGS 84 in Indonesia.</epsg:remarks>
-      </epsg:alias>
-      <epsg:informationSource>NIMA TR8350.2 January 2000 revision. http://164.214.2.59/GandG/tr8350_2.html</epsg:informationSource>
-      <epsg:revisionDate>2002-06-22</epsg:revisionDate>
+      <epsg:type>geographic 2D</epsg:type>
+      <epsg:informationSource>EPSG. See 3D CRS for original information source.</epsg:informationSource>
+      <epsg:revisionDate>2007-08-27</epsg:revisionDate>
       <epsg:changes>
       </epsg:changes>
       <epsg:show>true</epsg:show>
-      <epsg:isDeprecated>true</epsg:isDeprecated>
+      <epsg:isDeprecated>false</epsg:isDeprecated>
     </epsg:CommonMetaData>
   </metaDataProperty>
-  <name>WGS 84 (geographic 3D)</name>
+  <metaDataProperty>
+    <epsg:CRSMetaData>
+    </epsg:CRSMetaData>
+  </metaDataProperty>
+  <name>WGS 84</name>
   <epsg:AreaOfUse  >
     <gmd:description>
       <gco:CharacterString>World.</gco:CharacterString>
@@ -46,36 +47,30 @@
     <name>World</name>
     <empty/>
   </epsg:AreaOfUse>
-  <scope>Used by the GPS satellite navigation system.</scope>
-  <EllipsoidalCS id="epsg-cs-6401">
+  <scope>Horizontal component of 3D system. Used by the GPS satellite navigation system and for NATO military geodetic surveying.</scope>
+  <EllipsoidalCS id="epsg-cs-6422">
     <metaDataProperty>
       <epsg:CommonMetaData>
         <epsg:type>ellipsoidal</epsg:type>
         <epsg:informationSource>OGP</epsg:informationSource>
-        <epsg:revisionDate>2002-11-18</epsg:revisionDate>
+        <epsg:revisionDate>2008-06-23</epsg:revisionDate>
         <epsg:changes>
         </epsg:changes>
-        <epsg:isDeprecated>true</epsg:isDeprecated>
+        <epsg:isDeprecated>false</epsg:isDeprecated>
       </epsg:CommonMetaData>
     </metaDataProperty>
-    <name>Ellipsoidal 3D CS. Axes: latitude, longitude, ellipsoidal height. Orientations: north, east, up. UoM: DMSH, DMSH, m.</name>
-    <remarks>Used in geographic 3D coordinate reference systems. Preferred axis unit format for human interface.</remarks>
+    <name>Ellipsoidal 2D CS. Axes: latitude, longitude. Orientations: north, east. UoM: degree</name>
+    <remarks>Coordinates referenced to this CS are in degrees. Any degree representation (e.g. DMSH, decimal, etc.) may be used but that used must be declared for the user by the supplier of data. Used in geographic 2D coordinate reference systems.</remarks>
     <axis>
-      <CoordinateSystemAxis id="epsg-axis-53" uom="/uom/EPSG/0/9108">
+      <CoordinateSystemAxis id="epsg-axis-106" uom="/uom/EPSG/0/9122">
         <axisAbbrev>Lat</axisAbbrev>
         <axisDirection codeSpace="EPSG">north</axisDirection>
       </CoordinateSystemAxis>
     </axis>
     <axis>
-      <CoordinateSystemAxis id="epsg-axis-54" uom="/uom/EPSG/0/9108">
+      <CoordinateSystemAxis id="epsg-axis-107" uom="/uom/EPSG/0/9122">
         <axisAbbrev>Long</axisAbbrev>
         <axisDirection codeSpace="EPSG">east</axisDirection>
-      </CoordinateSystemAxis>
-    </axis>
-    <axis>
-      <CoordinateSystemAxis id="epsg-axis-55" uom="/uom/EPSG/0/9001">
-        <axisAbbrev>h</axisAbbrev>
-        <axisDirection codeSpace="EPSG">up</axisDirection>
       </CoordinateSystemAxis>
     </axis>
   </EllipsoidalCS>
@@ -124,6 +119,7 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
         </epsg:CommonMetaData>
       </metaDataProperty>
       <name>World</name>
+      <empty/>
     </epsg:AreaOfUse>
     <scope>Satellite navigation.</scope>
     <anchorDefinition>Defined through a consistent set of station coordinates. These have changed with time: by 0.7m on 29/06/1994 (G730), a further 0.2m on 29/01/1997 (G873) and a further 0.06m on 20/01/2002 (G1150) and on 8/02/2012 (G1674).</anchorDefinition>

@@ -53,8 +53,7 @@ public abstract class AbstractHandler implements Handler {
    * Returns the parent of element <code>el</code> which text content equals
    * <code>id</code>.
    * 
-   * @param el element name
-   * @param urnUrlPair URN/URL identifiers that should be resolved
+   * @param url URL identifiers that should be resolved
    * @param depth set the depth to which to dereference xlinks
    * @param parameters parameters to substitute for target elements
    * @return the definition (parent element of el)
@@ -146,7 +145,7 @@ public abstract class AbstractHandler implements Handler {
         "  copy $el := local:getid($d, $id)\n" +
         "  modify\n" +
         "  (\n" +
-        "  for $c in $el/*[@xlink:href]\n" +
+        "  for $c in $el//*[@xlink:href]\n" +
         "  return if ($depth < " + depth + ") then\n" +
         "  	replace node $c with local:flatten($d, $c/@xlink:href, $depth + 1)\n" +
         "	  else replace node $c with $c\n" +
@@ -157,7 +156,7 @@ public abstract class AbstractHandler implements Handler {
         work +
         "};\n" +
         "local:work('" + id + "')";
-    
+
     return DbManager.getInstance().getDb().query(query);
   }
   
