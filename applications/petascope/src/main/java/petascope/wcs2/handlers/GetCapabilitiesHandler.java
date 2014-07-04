@@ -362,7 +362,12 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                     for (String metadataValue : owsMetadata) {
                         c = new Element(LABEL_OWSMETADATA, NAMESPACE_OWS);
                         cc = XMLUtil.parseXmlFragment(metadataValue); // contains farther XML child elements: do not escape predefined entities (up to the user)
-                        c.appendChild(cc);
+                        // Check if cc is an ows:Metadata element or if it is an independent fragment to be appended:
+                        if (!(NAMESPACE_OWS.equals(cc.getNamespaceURI()) && (PREFIX_OWS + ":" + LABEL_OWSMETADATA).equals(cc.getQualifiedName()))) {
+                            c.appendChild(cc);
+                        } else {
+                            c = cc;
+                        }
                         covSummaryEl.appendChild(c);
                     }
                 }
