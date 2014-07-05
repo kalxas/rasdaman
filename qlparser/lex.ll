@@ -276,9 +276,9 @@ int string_yyinput( char* buf, int max_size )
 "directional"			{ SETTOKEN( DIRECTIONAL, commandToken, DIRECTIONAL ) }
 "with"					{ SETTOKEN( WITH, commandToken, WITH ) }
 "subtiling"				{ SETTOKEN( SUBTILING, commandToken, SUBTILING ) }
-"no_limit"				{ SETTOKEN( NO_LIMIT, commandToken, NO_LIMIT ) }
-"regroup"				{ SETTOKEN( REGROUP, commandToken, REGROUP ) }
-"regroup_and_subtiling"	{ SETTOKEN( REGROUP_AND_SUBTILING, commandToken, REGROUP_AND_SUBTILING ) }
+"no_limit"				{ SETTOKEN( P_NO_LIMIT, commandToken, P_NO_LIMIT ) }
+"regroup"				{ SETTOKEN( P_REGROUP, commandToken, P_REGROUP ) }
+"regroup_and_subtiling"	{ SETTOKEN( P_REGROUP_AND_SUBTILING, commandToken, P_REGROUP_AND_SUBTILING ) }
 "area"					{ SETTOKEN( AREA, commandToken, AREA ) }
 "of"					{ SETTOKEN( OF, commandToken, OF ) }
 "interest"				{ SETTOKEN( INTEREST, commandToken, INTEREST ) }
