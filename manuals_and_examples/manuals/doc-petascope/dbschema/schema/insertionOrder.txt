@@ -5,6 +5,7 @@ ps_extra_metadata_type
 ps_gdal_format
 ps_interval
 ps_range_data_type
+ps_role_code
 ps_services
 ps_telephone
 ps_uom
@@ -19,13 +20,13 @@ ps_bounding_box
 ps_pyramidlevels
 ps_range_set
 ps_service_identification
-ps_service_provider
 ps_styles
 ps_vector_coefficients
 ps_extra_metadata
 ps_format
 ps_quantity_interval
 ps_range_type_component
+ps_service_provider
 ps_servicelayer
 ps_crs
 ps_dbupdates

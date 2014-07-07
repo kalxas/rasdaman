@@ -300,6 +300,18 @@ digraph "largeRelationshipsDiagram" {
     URL="tables/ps_rectilinear_axis.html"
     tooltip="ps_rectilinear_axis"
   ];
+  "ps_role_code" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">ps_role_code</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="value" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">value</TD></TR>
+      <TR><TD PORT="description" COLSPAN="3" ALIGN="LEFT">description</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">11 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/ps_role_code.html"
+    tooltip="ps_role_code"
+  ];
   "ps_service_identification" [
     label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -334,8 +346,8 @@ digraph "largeRelationshipsDiagram" {
       <TR><TD PORT="contact_email_addresses" COLSPAN="3" ALIGN="LEFT">contact_email_addresses</TD></TR>
       <TR><TD PORT="contact_hours_of_service" COLSPAN="3" ALIGN="LEFT">contact_hours_of_service</TD></TR>
       <TR><TD PORT="contact_instructions" COLSPAN="3" ALIGN="LEFT">contact_instructions</TD></TR>
-      <TR><TD PORT="contact_role" COLSPAN="3" ALIGN="LEFT">contact_role</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 row</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+      <TR><TD PORT="contact_role_id" COLSPAN="3" ALIGN="LEFT">contact_role_id</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 row</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
     </TABLE>>
     URL="tables/ps_service_provider.html"
     tooltip="ps_service_provider"
@@ -463,6 +475,7 @@ digraph "largeRelationshipsDiagram" {
   "ps_rectilinear_axis":"grid_axis_id":w -> "ps_grid_axis":"id":e [arrowhead=none dir=back arrowtail=teeodot];
   "ps_service_identification":"description_id":w -> "ps_description":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "ps_service_provider":"contact_phone_id":w -> "ps_telephone":"id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "ps_service_provider":"contact_role_id":w -> "ps_role_code":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "ps_servicelayer":"layerid":w -> "ps_layers":"layerid":e [arrowhead=none dir=back arrowtail=crowodot];
   "ps_servicelayer":"serviceid":w -> "ps_services":"serviceid":e [arrowhead=none dir=back arrowtail=crowodot];
   "ps_styles":"layerid":w -> "ps_layers":"layerid":e [arrowhead=none dir=back arrowtail=crowodot];

@@ -101,7 +101,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </tr>
 </thead>
 <tbody valign='top'>
-<tr class='even'>
+<tr class='odd'>
  <td class='primaryKey' title='Primary Key'>id</td>
  <td class='detail'>serial</td>
  <td class='detail' align='right'>10</td>
@@ -110,31 +110,31 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail' align='right'>nextval('ps_coverage_id_seq'::regclass)</td>
  <td class='detail'>
   <table border='0' width='100%' cellspacing='0' cellpadding='0'>
-   <tr class='relative even' valign='top'>
+   <tr class='relative odd' valign='top'>
     <td class='relatedTable detail' title="ps_bounding_box.coverage_id refs ps_coverage.id via ps9_bounding_box_coverage_id_fkey"><a href='ps_bounding_box.html'>ps_bounding_box</a><span class='relatedKey'>.coverage_id</span>
     </td>
     <td class='constraint detail'>ps9_bounding_box_coverage_id_fkey<span title='Cascade on delete:
  Deletion of parent deletes child'>&nbsp;C</span></td>
    </tr>
-   <tr class='relative even' valign='top'>
+   <tr class='relative odd' valign='top'>
     <td class='relatedTable detail' title="ps_domain_set.coverage_id refs ps_coverage.id via ps9_domain_set_coverage_id_fkey"><a href='ps_domain_set.html'>ps_domain_set</a><span class='relatedKey'>.coverage_id</span>
     </td>
     <td class='constraint detail'>ps9_domain_set_coverage_id_fkey<span title='Cascade on delete:
  Deletion of parent deletes child'>&nbsp;C</span></td>
    </tr>
-   <tr class='relative even' valign='top'>
+   <tr class='relative odd' valign='top'>
     <td class='relatedTable detail' title="ps_extra_metadata.coverage_id refs ps_coverage.id via ps9_extra_metadata_coverage_id_fkey"><a href='ps_extra_metadata.html'>ps_extra_metadata</a><span class='relatedKey'>.coverage_id</span>
     </td>
     <td class='constraint detail'>ps9_extra_metadata_coverage_id_fkey<span title='Cascade on delete:
  Deletion of parent deletes child'>&nbsp;C</span></td>
    </tr>
-   <tr class='relative even' valign='top'>
+   <tr class='relative odd' valign='top'>
     <td class='relatedTable detail' title="ps_range_set.coverage_id refs ps_coverage.id via ps9_range_set_coverage_id_fkey"><a href='ps_range_set.html'>ps_range_set</a><span class='relatedKey'>.coverage_id</span>
     </td>
     <td class='constraint detail'>ps9_range_set_coverage_id_fkey<span title='Cascade on delete:
  Deletion of parent deletes child'>&nbsp;C</span></td>
    </tr>
-   <tr class='relative even' valign='top'>
+   <tr class='relative odd' valign='top'>
     <td class='relatedTable detail' title="ps_range_type_component.coverage_id refs ps_coverage.id via ps9_range_type_component_coverage_id_fkey"><a href='ps_range_type_component.html'>ps_range_type_component</a><span class='relatedKey'>.coverage_id</span>
     </td>
     <td class='constraint detail'>ps9_range_type_component_coverage_id_fkey<span title='Cascade on delete:
@@ -145,7 +145,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='indexedColumn' title='Indexed'>name</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -156,7 +156,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
+<tr class='odd'>
  <td class='detail'>gml_type_id</td>
  <td class='detail'>int4</td>
  <td class='detail' align='right'>10</td>
@@ -166,7 +166,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'></td>
  <td class='detail'>
   <table border='0' width='100%' cellspacing='0' cellpadding='0'>
-   <tr class='relative even' valign='top'>
+   <tr class='relative odd' valign='top'>
     <td class='relatedTable detail' title="ps_coverage.gml_type_id refs ps_gml_subtype.id via ps9_coverage_gml_type_id_fkey"><a href='ps_gml_subtype.html'>ps_gml_subtype</a><span class='relatedKey'>.id</span>
     </td>
     <td class='constraint detail'>ps9_coverage_gml_type_id_fkey<span title='Restrict delete:
@@ -176,7 +176,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='detail'>native_format_id</td>
  <td class='detail'>int4</td>
  <td class='detail' align='right'>10</td>
@@ -186,7 +186,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'></td>
  <td class='detail'>
   <table border='0' width='100%' cellspacing='0' cellpadding='0'>
-   <tr class='relative odd' valign='top'>
+   <tr class='relative even' valign='top'>
     <td class='relatedTable detail' title="ps_coverage.native_format_id refs ps_mime_type.id via ps9_coverage_native_format_id_fkey"><a href='ps_mime_type.html'>ps_mime_type</a><span class='relatedKey'>.id</span>
     </td>
     <td class='constraint detail'>ps9_coverage_native_format_id_fkey<span title='Restrict delete:
@@ -196,7 +196,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
+<tr class='odd'>
  <td class='detail'>description_id</td>
  <td class='detail'>int4</td>
  <td class='detail' align='right'>10</td>
@@ -206,7 +206,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'></td>
  <td class='detail'>
   <table border='0' width='100%' cellspacing='0' cellpadding='0'>
-   <tr class='relative even' valign='top'>
+   <tr class='relative odd' valign='top'>
     <td class='relatedTable detail' title="ps_coverage.description_id refs ps_description.id via ps_coverage_description_id_fkey"><a href='ps_description.html'>ps_description</a><span class='relatedKey'>.id</span>
     </td>
     <td class='constraint detail'>ps_coverage_description_id_fkey<span title='Restrict delete:
@@ -217,7 +217,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='comment detail'></td>
 </tr>
 </table>
-<p title='5 columns'>Table contained 13 rows at Mon Jul 07 12:19 CEST 2014<p/>
+<p title='5 columns'>Table contained 13 rows at Mon Jul 07 14:34 CEST 2014<p/>
 </td></tr></table>
 <div class='indent'>
 <b>Indexes:</b>

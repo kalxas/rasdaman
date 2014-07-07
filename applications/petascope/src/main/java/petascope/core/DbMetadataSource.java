@@ -215,12 +215,17 @@ public class DbMetadataSource implements IMetadataSource {
     public static final String SERVICE_PROVIDER_CONTACT_EMAIL       = "contact_email_addresses";
     public static final String SERVICE_PROVIDER_CONTACT_HOURS       = "contact_hours_of_service";
     public static final String SERVICE_PROVIDER_CONTACT_INSTRUCTIONS = "contact_instructions";
-    public static final String SERVICE_PROVIDER_CONTACT_ROLE        = "contact_role";
+    public static final String SERVICE_PROVIDER_CONTACT_ROLE_ID     = "contact_role_id";
     // TABLE_TELEPHONE : voice+facsimile tuples
     public static final String TABLE_TELEPHONE     = TABLES_PREFIX + "telephone";
     public static final String TELEPHONE_ID        = "id";
     public static final String TELEPHONE_VOICE     = "voice";
     public static final String TELEPHONE_FACSIMILE = "facsimile";
+    // TABLE_ROLE_CODE
+    public static final String TABLE_ROLE_CODE     = TABLES_PREFIX + "role_code";
+    public static final String ROLE_CODE_ID        = "id";
+    public static final String ROLE_CODE_VALUE     = "value";
+
 
     /* Coverage-related tables */
     // TABLE_COVERAGE : root table of a gml:*Coverage
@@ -486,11 +491,14 @@ public class DbMetadataSource implements IMetadataSource {
                                + SERVICE_PROVIDER_CONTACT_EMAIL        + ", "
                                + SERVICE_PROVIDER_CONTACT_HOURS        + ", "
                                + SERVICE_PROVIDER_CONTACT_INSTRUCTIONS + ", "
-                               + SERVICE_PROVIDER_CONTACT_ROLE         +
+                               + ROLE_CODE_VALUE                       +
                     " FROM "   + TABLE_SERVICE_PROVIDER   +
                     " LEFT OUTER JOIN " + TABLE_TELEPHONE +
                     " ON "     + TABLE_SERVICE_PROVIDER   + "." + SERVICE_PROVIDER_CONTACT_PHONE_ID + "="
-                               + TABLE_TELEPHONE          + "." + TELEPHONE_ID
+                               + TABLE_TELEPHONE          + "." + TELEPHONE_ID +
+                    " LEFT OUTER JOIN " + TABLE_ROLE_CODE +
+                    " ON "     + TABLE_SERVICE_PROVIDER   + "." + SERVICE_PROVIDER_CONTACT_ROLE_ID + "="
+                               + TABLE_ROLE_CODE          + "." + ROLE_CODE_ID
                     ;
             log.debug("SQL query: " + sqlQuery);
             r = s.executeQuery(sqlQuery);
@@ -575,7 +583,7 @@ public class DbMetadataSource implements IMetadataSource {
                     sProvider.getContact().getContactInfo().setInstructions(contactInstructions);
                 }
                 //
-                String contactRole = r.getString(SERVICE_PROVIDER_CONTACT_ROLE);
+                String contactRole = r.getString(ROLE_CODE_VALUE);
                 if (null != contactRole) {
                     sProvider.getContact().setRole(contactRole);
                 }

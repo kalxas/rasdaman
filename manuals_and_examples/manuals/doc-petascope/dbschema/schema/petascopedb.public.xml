@@ -426,6 +426,20 @@
             <column ascending="true" name="grid_axis_id"/>
          </index>
       </table>
+      <table name="ps_role_code" numRows="11" remarks="" schema="public" type="TABLE">
+         <column autoUpdated="true" defaultValue="nextval('ps_role_code_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial">
+            <child column="contact_role_id" foreignKey="ps_service_provider_contact_role_id_fkey" implied="false" onDeleteCascade="false" table="ps_service_provider"/>
+         </column>
+         <column autoUpdated="false" digits="0" id="1" name="value" nullable="false" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="2" name="description" nullable="true" remarks="" size="2147483647" type="text"/>
+         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <index name="ps_role_code_pkey" unique="true">
+            <column ascending="true" name="id"/>
+         </index>
+         <index name="ps_role_code_value_key" unique="true">
+            <column ascending="true" name="value"/>
+         </index>
+      </table>
       <table name="ps_service_identification" numRows="1" remarks="" schema="public" type="TABLE">
          <column autoUpdated="true" defaultValue="nextval('ps_service_identification_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial"/>
          <column autoUpdated="false" digits="0" id="1" name="description_id" nullable="true" remarks="" size="10" type="int4">
@@ -461,7 +475,9 @@
          <column autoUpdated="false" digits="0" id="11" name="contact_email_addresses" nullable="true" remarks="" size="2147483647" type="_text"/>
          <column autoUpdated="false" digits="0" id="12" name="contact_hours_of_service" nullable="true" remarks="" size="2147483647" type="text"/>
          <column autoUpdated="false" digits="0" id="13" name="contact_instructions" nullable="true" remarks="" size="2147483647" type="text"/>
-         <column autoUpdated="false" digits="0" id="14" name="contact_role" nullable="true" remarks="" size="2147483647" type="text"/>
+         <column autoUpdated="false" digits="0" id="14" name="contact_role_id" nullable="true" remarks="" size="10" type="int4">
+            <parent column="id" foreignKey="ps_service_provider_contact_role_id_fkey" implied="false" onDeleteCascade="false" table="ps_role_code"/>
+         </column>
          <primaryKey column="id" sequenceNumberInPK="1"/>
          <index name="ps_service_provider_pkey" unique="true">
             <column ascending="true" name="id"/>
