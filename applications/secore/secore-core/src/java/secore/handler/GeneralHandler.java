@@ -50,6 +50,14 @@ public class GeneralHandler extends AbstractHandler {
   public static final String EXPAND_KEY = "expand";
   public static final String EXPAND_FULL = "full";
   public static final String EXPAND_NONE = "none";
+  /**
+   * Default recursion depth of link (xlink:href) expansions in XML.
+   * A value of 0 means no link is expanded: increasing integer values identify
+   * the recursion level at which link expansion is applied.
+   * It is recommended to keep this parameter to a value greater or equal than 1 (to let Petascope
+   * fetch the required CRS metadata) and less or equal 2 to avoid performance degradation.
+   * @see http://rasdaman.org/ticket/365
+   */
   public static final String EXPAND_DEFAULT = "2";
   // flag indicating whether to resolve the target CRS
   public static final String RESOLVE_TARGET_KEY = "resolve-target";

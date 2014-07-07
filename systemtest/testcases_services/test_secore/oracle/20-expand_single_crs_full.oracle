@@ -6,6 +6,45 @@
       <epsg:informationSource>EPSG. See 3D CRS for original information source.</epsg:informationSource>
       <epsg:revisionDate>2007-08-27</epsg:revisionDate>
       <epsg:changes>
+        <epsg:ChangeRequest id="epsg-cr-2002.151">
+          <epsg:reportDate>2002-03-06</epsg:reportDate>
+          <epsg:closedDate>2002-06-22</epsg:closedDate>
+          <epsg:reporter>EPSG</epsg:reporter>
+          <epsg:request>Add Indonesian data</epsg:request>
+          <epsg:tablesAffected>Datum; Coordinate Reference System; Coordinate Operation</epsg:tablesAffected>
+          <epsg:codesAffected>6126 6294 6326; 4125 4294 4326-28 2309-10 32646-52 32747-54; 1126 1248 1282.</epsg:codesAffected>
+          <epsg:action>Deprecated datum 6125 6294, geog CRS 4125 4294 and tfm 1282 1286 and replaced them with 6613, 4613 and 1834 respectively. Added datum 6820, geogCRS 4820, tfm 1832-33 and 1835-37, naming system 7311. Added aliases to datum 6326, geogCRS 4326-28, projCRS 2309-10 2933-34 32646-52 32747-54, tfm 1248. Extended origin description for datum 6326. For tfm 1126 Changed version from DMA-Col to DMA-Idn BBI.</epsg:action>
+        </epsg:ChangeRequest>
+        <epsg:ChangeRequest id="epsg-cr-2003.370">
+          <remarks>The derived geogCRS mechanism is no longer supported.</remarks>
+          <epsg:reportDate>2003-12-31</epsg:reportDate>
+          <epsg:closedDate>2004-01-07</epsg:closedDate>
+          <epsg:reporter>EPSG</epsg:reporter>
+          <epsg:request>Amend geogCRS axis description</epsg:request>
+          <epsg:tablesAffected>Coordinate Reference System</epsg:tablesAffected>
+          <epsg:codesAffected>4001-16 4018-22 4024-34 4036 4041-45 4047 4120-24 4127-39 4141-71 4173-76 4178-84 4188-4216 4218-25 4227 4229-33 4236-59 4261-86 4288-89 4292-93 4295 4297-4304 4306-4318 4322 4324 4326 4600-4633 4635-46 4657-69 4801-06 4808-09 4813-15 4817-18 4820 4903-0</epsg:codesAffected>
+          <epsg:action>Added UoM 9122 and Coordinate System 6422-23. For geog2D CRSs changed CS from 6402 (DMSH) to 6422 (any representation) and amended scope and remarks. For geog3D CRSs changed CS from 6401 (DMSH) to 6423 (any representation) and amended scope and remarks. CS 6404 horizontal Axis UoM changed from 9102 (degree) to 9122 (degree (supplier-defined representation)).</epsg:action>
+        </epsg:ChangeRequest>
+        <epsg:ChangeRequest id="epsg-cr-2006.810">
+          <remarks>Reverses addition of aliases made in 2002.151.</remarks>
+          <epsg:reportDate>2006-08-21</epsg:reportDate>
+          <epsg:closedDate>2006-10-02</epsg:closedDate>
+          <epsg:reporter>OGP</epsg:reporter>
+          <epsg:request>Correct Indonesia 1995 datum/CRS</epsg:request>
+          <epsg:tablesAffected>Coordinate Reference System; Coordinate Operation</epsg:tablesAffected>
+          <epsg:codesAffected>2309-10 4326 4978-89 32646-52 32747-54; 1248 1832-33 15548-49</epsg:codesAffected>
+          <epsg:action>Added datum 6755, conversions 15584-85, CRSs 4755 4897-98  23866-72 23877-84, and tfms 15911-12. For datum 6326, CRSs 2309-10 4326 4978-79 32646-52 32747-54, conv 15548-49, tfm 1248 and 1832, deleted DGN-95 alias. For tfm 1833, deleted DGN-95 alias; added remarks. For CRSs 4238, 23846-52 and 23847-54, added supersession remarks.</epsg:action>
+        </epsg:ChangeRequest>
+        <epsg:ChangeRequest id="epsg-cr-2007.079">
+          <remarks>No changes made to derived geographic CRSs.</remarks>
+          <epsg:reportDate>2007-08-27</epsg:reportDate>
+          <epsg:closedDate>2007-08-27</epsg:closedDate>
+          <epsg:reporter>OGP</epsg:reporter>
+          <epsg:request>Use general geocentric/geographic conversions</epsg:request>
+          <epsg:tablesAffected>Coordinate Operation</epsg:tablesAffected>
+          <epsg:codesAffected>15500-91</epsg:codesAffected>
+          <epsg:action>Added conversions 15592-93. Deprecated conversions 15500-91 and replaced them with conversions 15592 in derived geog3D CRSs 4891 4893 4895 4898 4900 4907 4909 4921-67 (odd numbers only) 4971-99 (odd number only) and with 15593 in derived geog2D CRSs 4130 4148 4151-52 4163 4167 4170-71 4173 4176 4180 4190-91 4258 4283 4324 4326 4612 4617 4619 4624 4627 4640 4659 4661 4669-70 4674 4677-78 4683 4686-87 4702 4737 4740 4742 4747 4749 4754-55 4758-60.</epsg:action>
+        </epsg:ChangeRequest>
       </epsg:changes>
       <epsg:show>true</epsg:show>
       <epsg:isDeprecated>false</epsg:isDeprecated>
@@ -13,6 +52,967 @@
   </metaDataProperty>
   <metaDataProperty>
     <epsg:CRSMetaData>
+      <Conversion   id="epsg-op-15593">
+        <metaDataProperty>
+          <epsg:CommonMetaData>
+            <epsg:type>conversion</epsg:type>
+            <epsg:informationSource>EPSG Guidance Note #7-2.</epsg:informationSource>
+            <epsg:revisionDate>2007-08-27</epsg:revisionDate>
+            <epsg:show>true</epsg:show>
+            <epsg:isDeprecated>false</epsg:isDeprecated>
+          </epsg:CommonMetaData>
+        </metaDataProperty>
+        <name>geographic3D to geographic2D</name>
+        <remarks>See EPSG Guidance Note #7 or Coordinate Operation Method description for techniques for handling reverse conversion.</remarks>
+        <epsg:AreaOfUse>
+          <gmd:description>
+            <gco:CharacterString>World.</gco:CharacterString>
+          </gmd:description>
+          <gmd:geographicElement>
+            <gmd:EX_GeographicBoundingBox>
+              <gmd:westBoundLongitude>
+                <gco:Decimal>-180</gco:Decimal>
+              </gmd:westBoundLongitude>
+              <gmd:eastBoundLongitude>
+                <gco:Decimal>180</gco:Decimal>
+              </gmd:eastBoundLongitude>
+              <gmd:southBoundLatitude>
+                <gco:Decimal>-90</gco:Decimal>
+              </gmd:southBoundLatitude>
+              <gmd:northBoundLatitude>
+                <gco:Decimal>90</gco:Decimal>
+              </gmd:northBoundLatitude>
+            </gmd:EX_GeographicBoundingBox>
+          </gmd:geographicElement>
+          <metaDataProperty>
+            <epsg:CommonMetaData>
+              <epsg:informationSource>OGP</epsg:informationSource>
+              <epsg:revisionDate>2001-06-05</epsg:revisionDate>
+              <epsg:show>false</epsg:show>
+              <epsg:isDeprecated>false</epsg:isDeprecated>
+            </epsg:CommonMetaData>
+          </metaDataProperty>
+          <name>World</name>
+          <empty/>
+        </epsg:AreaOfUse>
+        <scope>For geographic 3D to geographic 2D conversions.</scope>
+        <coordinateOperationAccuracy>
+          <gmd:DQ_RelativeInternalPositionalAccuracy>
+            <gmd:result>
+              <gmd:DQ_QuantitativeResult>
+                <BaseUnit id="epsg-uom-9001">
+                  <metaDataProperty>
+                    <epsg:CommonMetaData>
+                      <epsg:alias alias="meter" code="7" codeSpace="/naming-system/EPSG/0/7300"/>
+                      <epsg:alias alias="International metre" code="74" codeSpace="/naming-system/EPSG/0/7301"/>
+                      <epsg:alias alias="m" code="344" codeSpace="/naming-system/EPSG/0/7302"/>
+                      <epsg:alias alias="m" code="1164" codeSpace="/naming-system/EPSG/0/7306"/>
+                      <epsg:informationSource>ISO 1000.</epsg:informationSource>
+                      <epsg:revisionDate>1995-06-02</epsg:revisionDate>
+                      <epsg:isDeprecated>false</epsg:isDeprecated>
+                    </epsg:CommonMetaData>
+                  </metaDataProperty>
+                  <name>metre</name>
+                  <remarks>Also known as International metre. SI standard unit.</remarks>
+                  <quantityType>length</quantityType>
+                  <empty/>
+                </BaseUnit>
+                <gmd:value>
+                  <gco:Record>
+                    <gco:Decimal>0</gco:Decimal>
+                  </gco:Record>
+                </gmd:value>
+              </gmd:DQ_QuantitativeResult>
+            </gmd:result>
+          </gmd:DQ_RelativeInternalPositionalAccuracy>
+        </coordinateOperationAccuracy>
+        <OperationMethod id="epsg-method-9659">
+          <metaDataProperty>
+            <epsg:CommonMetaData>
+              <epsg:informationSource>EPSG guidance note #7-2, http://www.epsg.org</epsg:informationSource>
+              <epsg:revisionDate>2004-04-27</epsg:revisionDate>
+              <epsg:isDeprecated>false</epsg:isDeprecated>
+            </epsg:CommonMetaData>
+          </metaDataProperty>
+          <metaDataProperty>
+            <epsg:CoordinateOperationMethodMetaData>
+              <epsg:isOperationReversible>true</epsg:isOperationReversible>
+              <epsg:example>(none)</epsg:example>
+            </epsg:CoordinateOperationMethodMetaData>
+          </metaDataProperty>
+          <name>Geographic3D to 2D conversion</name>
+          <remarks>This is a parameter-less conversion.</remarks>
+          <formula>Note: These formulas have been transcribed from EPSG Guidance Note #7-2. Users are encouraged to use that document rather than the text which follows as reference because limitations in the transcription will be avoided.
+
+The forward case is trivial. A 3-dimensional geographic coordinate reference system comprising of geodetic latitude, geodetic longitude and ellipsoidal height is converted to its 2-dimensional subset by the simple expedient of dropping the height.
+
+The reverse conversion, from 2D to 3D, is indeterminate. It is however a requirement when a geographic 2D coordinate reference system is to be transformed using a geocentric method which is 3-dimensional. In practice an artificial ellipsoidal height is created and appended to the geographic 2D coordinate reference system to create a geographic 3D coordinate reference system referenced to the same geodetic datum. The assumed ellipsoidal height is usually either set to the gravity-related height of a position in a compound coordinate reference system, or set to zero. As long as the height chosen is within a few kilometres of sea level, no error will be induced into the horizontal position resulting from the later geocentric transformation; the vertical coordinate will however be meaningless.</formula>
+          <sourceDimensions>3</sourceDimensions>
+          <targetDimensions>2</targetDimensions>
+        </OperationMethod>
+      </Conversion>
+      <GeodeticCRS id="epsg-crs-4979">
+        <metaDataProperty>
+          <epsg:CommonMetaData>
+            <epsg:type>geographic 3D</epsg:type>
+            <epsg:revisionDate>2007-08-27</epsg:revisionDate>
+            <epsg:changes>
+              <epsg:ChangeRequest id="epsg-cr-2006.810">
+                <remarks>Reverses addition of aliases made in 2002.151.</remarks>
+                <epsg:reportDate>2006-08-21</epsg:reportDate>
+                <epsg:closedDate>2006-10-02</epsg:closedDate>
+                <epsg:reporter>OGP</epsg:reporter>
+                <epsg:request>Correct Indonesia 1995 datum/CRS</epsg:request>
+                <epsg:tablesAffected>Coordinate Reference System; Coordinate Operation</epsg:tablesAffected>
+                <epsg:codesAffected>2309-10 4326 4978-89 32646-52 32747-54; 1248 1832-33 15548-49</epsg:codesAffected>
+                <epsg:action>Added datum 6755, conversions 15584-85, CRSs 4755 4897-98  23866-72 23877-84, and tfms 15911-12. For datum 6326, CRSs 2309-10 4326 4978-79 32646-52 32747-54, conv 15548-49, tfm 1248 and 1832, deleted DGN-95 alias. For tfm 1833, deleted DGN-95 alias; added remarks. For CRSs 4238, 23846-52 and 23847-54, added supersession remarks.</epsg:action>
+              </epsg:ChangeRequest>
+              <epsg:ChangeRequest id="epsg-cr-2007.079">
+                <remarks>No changes made to derived geographic CRSs.</remarks>
+                <epsg:reportDate>2007-08-27</epsg:reportDate>
+                <epsg:closedDate>2007-08-27</epsg:closedDate>
+                <epsg:reporter>OGP</epsg:reporter>
+                <epsg:request>Use general geocentric/geographic conversions</epsg:request>
+                <epsg:tablesAffected>Coordinate Operation</epsg:tablesAffected>
+                <epsg:codesAffected>15500-91</epsg:codesAffected>
+                <epsg:action>Added conversions 15592-93. Deprecated conversions 15500-91 and replaced them with conversions 15592 in derived geog3D CRSs 4891 4893 4895 4898 4900 4907 4909 4921-67 (odd numbers only) 4971-99 (odd number only) and with 15593 in derived geog2D CRSs 4130 4148 4151-52 4163 4167 4170-71 4173 4176 4180 4190-91 4258 4283 4324 4326 4612 4617 4619 4624 4627 4640 4659 4661 4669-70 4674 4677-78 4683 4686-87 4702 4737 4740 4742 4747 4749 4754-55 4758-60.</epsg:action>
+              </epsg:ChangeRequest>
+            </epsg:changes>
+            <epsg:show>true</epsg:show>
+            <epsg:isDeprecated>false</epsg:isDeprecated>
+          </epsg:CommonMetaData>
+        </metaDataProperty>
+        <metaDataProperty>
+          <epsg:CRSMetaData>
+            <Conversion   id="epsg-op-15592">
+              <metaDataProperty>
+                <epsg:CommonMetaData>
+                  <epsg:type>conversion</epsg:type>
+                  <epsg:informationSource>EPSG Guidance Note #7-2.</epsg:informationSource>
+                  <epsg:revisionDate>2007-08-27</epsg:revisionDate>
+                  <epsg:show>true</epsg:show>
+                  <epsg:isDeprecated>false</epsg:isDeprecated>
+                </epsg:CommonMetaData>
+              </metaDataProperty>
+              <name>geocentric to geographic3D</name>
+              <epsg:AreaOfUse>
+                <gmd:description>
+                  <gco:CharacterString>World.</gco:CharacterString>
+                </gmd:description>
+                <gmd:geographicElement>
+                  <gmd:EX_GeographicBoundingBox>
+                    <gmd:westBoundLongitude>
+                      <gco:Decimal>-180</gco:Decimal>
+                    </gmd:westBoundLongitude>
+                    <gmd:eastBoundLongitude>
+                      <gco:Decimal>180</gco:Decimal>
+                    </gmd:eastBoundLongitude>
+                    <gmd:southBoundLatitude>
+                      <gco:Decimal>-90</gco:Decimal>
+                    </gmd:southBoundLatitude>
+                    <gmd:northBoundLatitude>
+                      <gco:Decimal>90</gco:Decimal>
+                    </gmd:northBoundLatitude>
+                  </gmd:EX_GeographicBoundingBox>
+                </gmd:geographicElement>
+                <metaDataProperty>
+                  <epsg:CommonMetaData>
+                    <epsg:informationSource>OGP</epsg:informationSource>
+                    <epsg:revisionDate>2001-06-05</epsg:revisionDate>
+                    <epsg:show>false</epsg:show>
+                    <epsg:isDeprecated>false</epsg:isDeprecated>
+                  </epsg:CommonMetaData>
+                </metaDataProperty>
+                <name>World</name>
+                <empty/>
+              </epsg:AreaOfUse>
+              <scope>For geocentric to geographic 3D conversions and vice versa.</scope>
+              <coordinateOperationAccuracy>
+                <gmd:DQ_RelativeInternalPositionalAccuracy>
+                  <gmd:result>
+                    <gmd:DQ_QuantitativeResult>
+                      <BaseUnit id="epsg-uom-9001">
+                        <metaDataProperty>
+                          <epsg:CommonMetaData>
+                            <epsg:alias alias="meter" code="7" codeSpace="/naming-system/EPSG/0/7300"/>
+                            <epsg:alias alias="International metre" code="74" codeSpace="/naming-system/EPSG/0/7301"/>
+                            <epsg:alias alias="m" code="344" codeSpace="/naming-system/EPSG/0/7302"/>
+                            <epsg:alias alias="m" code="1164" codeSpace="/naming-system/EPSG/0/7306"/>
+                            <epsg:informationSource>ISO 1000.</epsg:informationSource>
+                            <epsg:revisionDate>1995-06-02</epsg:revisionDate>
+                            <epsg:isDeprecated>false</epsg:isDeprecated>
+                          </epsg:CommonMetaData>
+                        </metaDataProperty>
+                        <name>metre</name>
+                        <remarks>Also known as International metre. SI standard unit.</remarks>
+                        <quantityType>length</quantityType>
+                        <empty/>
+                      </BaseUnit>
+                      <gmd:value>
+                        <gco:Record>
+                          <gco:Decimal>0</gco:Decimal>
+                        </gco:Record>
+                      </gmd:value>
+                    </gmd:DQ_QuantitativeResult>
+                  </gmd:result>
+                </gmd:DQ_RelativeInternalPositionalAccuracy>
+              </coordinateOperationAccuracy>
+              <OperationMethod id="epsg-method-9602">
+                <metaDataProperty>
+                  <epsg:CommonMetaData>
+                    <epsg:informationSource>EPSG guidance note #7-2, http://www.epsg.org, from "Datums and Map Projections"; Iliffe and Lott (2007).</epsg:informationSource>
+                    <epsg:revisionDate>2007-11-01</epsg:revisionDate>
+                    <epsg:changes>
+                      <epsg:ChangeRequest id="epsg-cr-1997.290">
+                        <epsg:reportDate>1997-07-07</epsg:reportDate>
+                        <epsg:closedDate>1997-07-14</epsg:closedDate>
+                        <epsg:reporter>Andrew Ruffhead; UK Military Survey</epsg:reporter>
+                        <epsg:request>Correct formula for geocentric to geodetic transformation</epsg:request>
+                        <epsg:tablesAffected>Trf_method</epsg:tablesAffected>
+                        <epsg:codesAffected>9602</epsg:codesAffected>
+                        <epsg:action>Correct sign in numerator from - to + in formula for latitude from geocentric coordinates.</epsg:action>
+                      </epsg:ChangeRequest>
+                      <epsg:ChangeRequest id="epsg-cr-2002.510">
+                        <remarks>Also reviewed and if necessary amended remarks for all operations to bring into consistency with ISO19111 terminology (these changes having no practical consequences). Formulas in db brought into consistency with August 2002 revision of GN7.</remarks>
+                        <epsg:reportDate>2002-07-16</epsg:reportDate>
+                        <epsg:closedDate>2002-07-31</epsg:closedDate>
+                        <epsg:reporter>EPSG</epsg:reporter>
+                        <epsg:request>Review coordinate operation formulae</epsg:request>
+                        <epsg:tablesAffected>Coordinate Operation Parameter; Coordinate Operation Method</epsg:tablesAffected>
+                        <epsg:codesAffected>8806 8807; 9636 9808</epsg:codesAffected>
+                        <epsg:action>Added alias and made minor amendment to description of coord op param 8806-07. Corrected formulas for 9808. Added formulas for 9636.</epsg:action>
+                      </epsg:ChangeRequest>
+                      <epsg:ChangeRequest id="epsg-cr-2004.330">
+                        <epsg:reportDate>2004-04-27</epsg:reportDate>
+                        <epsg:closedDate>2004-05-22</epsg:closedDate>
+                        <epsg:reporter>EPSG</epsg:reporter>
+                        <epsg:request>Add geographic 3D conversions</epsg:request>
+                        <epsg:tablesAffected>Coordinate Operation Method</epsg:tablesAffected>
+                        <epsg:codesAffected>9602 9618-19</epsg:codesAffected>
+                        <epsg:action>Added methods 9659-60. Changed name of method 9618 from "Geographical and Height Offsets" to "Geographic 2D with Height Offsets" and method 9618 from "Geographical Offsets" to "Geographic 2D Offsets". Amended remarks for coord operation method 9602 to include cross-referencing to method 9636. Added coord operations (conversions) 15500-59.</epsg:action>
+                      </epsg:ChangeRequest>
+                      <epsg:ChangeRequest id="epsg-cr-2007.058">
+                        <epsg:reportDate>2007-05-29</epsg:reportDate>
+                        <epsg:closedDate>2008-03-13</epsg:closedDate>
+                        <epsg:reporter>Noel Zinn; ExxonMobil</epsg:reporter>
+                        <epsg:request>Add topocentric coordinate conversions, vertical perspective and Orthographic projection method</epsg:request>
+                        <epsg:tablesAffected>Coordinate Operation Method</epsg:tablesAffected>
+                        <epsg:codesAffected>9602</epsg:codesAffected>
+                        <epsg:action>Added coord op param 8834-40, methods 9836-40, axis name 9929-31, CS 4461 and 6512, conversions 15594-95 and 19850, CRSs 5819-21. Subform and subreport browse map proj param value controls amended for new parameters 8834 and 8835. For method 9602, amended reverse formula and information source.</epsg:action>
+                      </epsg:ChangeRequest>
+                    </epsg:changes>
+                    <epsg:isDeprecated>false</epsg:isDeprecated>
+                  </epsg:CommonMetaData>
+                </metaDataProperty>
+                <metaDataProperty>
+                  <epsg:CoordinateOperationMethodMetaData>
+                    <epsg:isOperationReversible>true</epsg:isOperationReversible>
+                    <epsg:example>Consider a North Sea point with coordinates derived by GPS satellite in the WGS 84 geographical coordinate system with coordinates of:
+
+           latitude    53 deg 48 min 33.82 sec N,
+           longitude 02 deg 07 min 46.38 sec E,
+    and ellipsoidal height 73.0m,
+
+whose coordinates are required in terms of the ED50 geographical coordinate system which takes the International 1924 ellipsoid. The three parameter datum shift from WGS 84 to ED50 for this North Sea area is given as dX = +84.87m, dY = +96.49m, dZ = +116.95m.
+
+The WGS 84 geographical coordinates convert to the following geocentric values using the above formulas for X, Y, Z:
+
+   XA = 3771 793.97m
+   YA =   140 253.34m
+   ZA = 5124 304.35m
+
+Applying the quoted datum shifts to these, we obtain new geocentric values now related to ED50:
+
+   XB = 3771 878.84m
+   YB =   140 349.83m
+   ZB = 5124 421.30m
+
+These convert to ED50 values on the International 1924 ellipsoid as:
+           latitude    53 deg 48 min 36.565 sec N,
+           longitude 02 deg 07 min 51.477 sec E,
+    and ellipsoidal height 28.02 m,
+
+Note that the derived height is referred to the International 1924 ellipsoidal surface and will need a further correction for the height of the geoid at this point in order to relate it to Mean Sea Level.</epsg:example>
+                  </epsg:CoordinateOperationMethodMetaData>
+                </metaDataProperty>
+                <name>Geographic/geocentric conversions</name>
+                <remarks>This is a parameter-less conversion. In applications it is often concatenated with the 3- 7- or 10-parameter transformations 9603, 9606, 9607 or 9636 to form a geographic to geographic transformation.</remarks>
+                <formula>Note: These formulas have been transcribed from EPSG Guidance Note #7-2. Users are encouraged to use that document rather than the text which follows as reference because limitations in the transcription will be avoided.
+
+Latitude, P, and Longitude, L, in terms of Geographic Coordinate Reference System A may
+be expressed in terms of a geocentric (earth centred) Cartesian coordinate reference system X, Y, Z
+with the Z axis corresponding with the Polar axis positive northwards, the X axis through
+the intersection of the Greenwich meridian and equator, and the Y axis through the
+intersection of the equator with longitude 90 degrees E. If the prime meridian for geogCRS A is not
+Greewich, longitudes must first be transformed to their Greenwich equivalent. If the earth's
+spheroidal semi major axis is a, semi minor axis  b, and inverse flattening 1/f,  then
+
+   X =   (nu + h) cos P cos L
+   Y =   (nu + h) cos P sin L
+   Z =  ((1 - e^2) nu + h) sin P
+
+where nu is the prime vertical radius of curvature at latitude P and is equal to
+   nu = a /(1 - e^2*sin^2(P))^0.5,
+   P and L are respectively the latitude and longitude (related to Greenwich) of the point
+   h is height above the ellipsoid, (topographic height plus geoidal height), and
+   e is the eccentricity of the ellipsoid where e^2 = (a^2 -b^2)/a^2 = 2f -f^2
+
+Cartesian coordinates in geocentric coordinate reference system B may be used to derive geographical coordinates in terms of geographic coordinate reference system B by:
+
+P = atan[(Z + eta b sin^3 q) / (p ? e^2 a cos^3 q)]
+L  = atan (Y/X)
+
+where
+eta = e^2 / (1 ? e^2)
+b = a(1 ? f)
+p = (X^2 + Y^2)^0.5
+q = atan[(Z a) / (p b)]
+
+and where L is relative to Greenwich. If the geographic system has a non Greenwich prime meridian, the Greenwich value of the local prime meridian should be applied to longitude.
+
+Then
+	h (p / cos P) ? nu
+
+(Note that h is the height above the ellipsoid. This is the height value which is delivered by Transit and GPS satellite observations but is not the topographic height value which is normally used for national mapping and levelling operations. The topographic height is usually the height above mean sea level or an alternative
+level reference for the country. If one starts with a topographic height,  it will be necessary to convert it to an ellipsoid height before using the above transformation formulas. h = N + H, where N is the geoid height above the ellipsoid at the point and is sometimes negative, and H is the height of the point above the geoid. The height above the geoid is often taken to be that above mean sea level, perhaps with a constant correction applied. Geoid heights of points above the nationally used ellipsoid may not be readily available. For the WGS84 ellipsoid the value of N,
+representing the height of the geoid relative to the ellipsoid, can vary between values of -100m in the Sri Lanka area to +80m in the North Atlantic.)</formula>
+                <sourceDimensions>3</sourceDimensions>
+                <targetDimensions>3</targetDimensions>
+              </OperationMethod>
+            </Conversion>
+            <GeodeticCRS id="epsg-crs-4978">
+              <metaDataProperty>
+                <epsg:CommonMetaData>
+                  <epsg:type>geocentric</epsg:type>
+                  <epsg:informationSource>NIMA TR8350.2 January 2000 revision. http://earth-info.nga.mil/GandG/</epsg:informationSource>
+                  <epsg:revisionDate>2006-08-25</epsg:revisionDate>
+                  <epsg:changes>
+                    <epsg:ChangeRequest id="epsg-cr-2005.460">
+                      <epsg:reportDate>2005-09-01</epsg:reportDate>
+                      <epsg:closedDate>2005-09-30</epsg:closedDate>
+                      <epsg:reporter>OGP</epsg:reporter>
+                      <epsg:request>Update obsolete url.</epsg:request>
+                      <epsg:tablesAffected>Various</epsg:tablesAffected>
+                      <epsg:codesAffected>See actions</epsg:codesAffected>
+                      <epsg:action>For Area 2833-50, Datum 6133 6135 6162 6165-66 6170-71 6190 6194 6221 6224 6236 6251 6255 6257 6263 6295 6309 6322 6326 6663-65 6674-75; CRSs 2096-98 3032-35 3038-51 3300 4133 4162 4166 4190 4960-61 4974-75 4978 4988-89 25884 31300 31370, Coord Operation 1278-79 1304-06 1331-35 1463-64 1558 1565-66 1568 1593 1596 1701 1751 1849 1885-88 1895 1897 1965 10035 15750-52 18203-04 19938-39 19961 19985-86 19992-94 and UoM 9005 9037-39 9112-14, updated information source field entry. For CRSs 4190, 4960-61 also changed alias remarks field entry from obsolete URL to "see information source".</epsg:action>
+                    </epsg:ChangeRequest>
+                    <epsg:ChangeRequest id="epsg-cr-2006.810">
+                      <remarks>Reverses addition of aliases made in 2002.151.</remarks>
+                      <epsg:reportDate>2006-08-21</epsg:reportDate>
+                      <epsg:closedDate>2006-10-02</epsg:closedDate>
+                      <epsg:reporter>OGP</epsg:reporter>
+                      <epsg:request>Correct Indonesia 1995 datum/CRS</epsg:request>
+                      <epsg:tablesAffected>Coordinate Reference System; Coordinate Operation</epsg:tablesAffected>
+                      <epsg:codesAffected>2309-10 4326 4978-89 32646-52 32747-54; 1248 1832-33 15548-49</epsg:codesAffected>
+                      <epsg:action>Added datum 6755, conversions 15584-85, CRSs 4755 4897-98  23866-72 23877-84, and tfms 15911-12. For datum 6326, CRSs 2309-10 4326 4978-79 32646-52 32747-54, conv 15548-49, tfm 1248 and 1832, deleted DGN-95 alias. For tfm 1833, deleted DGN-95 alias; added remarks. For CRSs 4238, 23846-52 and 23847-54, added supersession remarks.</epsg:action>
+                    </epsg:ChangeRequest>
+                  </epsg:changes>
+                  <epsg:show>true</epsg:show>
+                  <epsg:isDeprecated>false</epsg:isDeprecated>
+                </epsg:CommonMetaData>
+              </metaDataProperty>
+              <name>WGS 84</name>
+              <epsg:AreaOfUse>
+                <gmd:description >
+                  <gco:CharacterString >World.</gco:CharacterString>
+                </gmd:description>
+                <gmd:geographicElement >
+                  <gmd:EX_GeographicBoundingBox>
+                    <gmd:westBoundLongitude>
+                      <gco:Decimal >-180</gco:Decimal>
+                    </gmd:westBoundLongitude>
+                    <gmd:eastBoundLongitude>
+                      <gco:Decimal >180</gco:Decimal>
+                    </gmd:eastBoundLongitude>
+                    <gmd:southBoundLatitude>
+                      <gco:Decimal >-90</gco:Decimal>
+                    </gmd:southBoundLatitude>
+                    <gmd:northBoundLatitude>
+                      <gco:Decimal >90</gco:Decimal>
+                    </gmd:northBoundLatitude>
+                  </gmd:EX_GeographicBoundingBox>
+                </gmd:geographicElement>
+                <metaDataProperty>
+                  <epsg:CommonMetaData>
+                    <epsg:informationSource>OGP</epsg:informationSource>
+                    <epsg:revisionDate>2001-06-05</epsg:revisionDate>
+                    <epsg:show>false</epsg:show>
+                    <epsg:isDeprecated>false</epsg:isDeprecated>
+                  </epsg:CommonMetaData>
+                </metaDataProperty>
+                <name>World</name>
+                <empty/>
+              </epsg:AreaOfUse>
+              <scope>Used by the GPS satellite navigation system.</scope>
+              <CartesianCS id="epsg-cs-6500">
+                <metaDataProperty>
+                  <epsg:CommonMetaData>
+                    <epsg:type>Cartesian</epsg:type>
+                    <epsg:informationSource>OGP</epsg:informationSource>
+                    <epsg:revisionDate>2008-06-23</epsg:revisionDate>
+                    <epsg:changes>
+                      <epsg:ChangeRequest id="epsg-cr-2008.045">
+                        <epsg:reportDate>2008-06-09</epsg:reportDate>
+                        <epsg:closedDate>2008-06-24</epsg:closedDate>
+                        <epsg:reporter>Dave Waddell</epsg:reporter>
+                        <epsg:request>Correct dms abbreviations</epsg:request>
+                        <epsg:tablesAffected>Area; Coordinate Operation; Coordinate Reference System; Coordinate System; Datum; Prime Meridian</epsg:tablesAffected>
+                        <epsg:codesAffected>Numerous - see actions.</epsg:codesAffected>
+                        <epsg:action>Changed text character representation of degree minute second units to symbols ° ' " for Areas (in area name and/or area description fields), CRSs (in remarks), CSs (in name and axis orientation), Datums (in origin and remarks), Prime Meridians (in remarks) and Coordinate Operations (in scope or remarks). Removed inconsistencies in style for records in these fields. Approximately 2000 records are impacted, too numerous to list. Additionally, for datum 6726, in datum origin, corrected minute value of longitude value, for areas 3357, 3359 and 3360, in area of use corrected spelling of Galveston.</epsg:action>
+                      </epsg:ChangeRequest>
+                    </epsg:changes>
+                    <epsg:isDeprecated>false</epsg:isDeprecated>
+                  </epsg:CommonMetaData>
+                </metaDataProperty>
+                <name>Earth centred, earth fixed, righthanded 3D coordinate system, consisting of 3 orthogonal axes with X and Y axes in the equatorial plane, positive Z-axis parallel to mean earth rotation axis and pointing towards North Pole. UoM: m.</name>
+                <remarks>Cartesian 3D CS, used in geocentric coordinate reference systems.</remarks>
+                <axis>
+                  <CoordinateSystemAxis id="epsg-axis-115" uom="/uom/EPSG/0/9001">
+                    <epsg:AxisName id="epsg-axisname-9910">
+                      <metaDataProperty>
+                        <epsg:CommonMetaData>
+                          <epsg:informationSource>OGP</epsg:informationSource>
+                          <epsg:revisionDate>2000-03-07</epsg:revisionDate>
+                          <epsg:isDeprecated>false</epsg:isDeprecated>
+                        </epsg:CommonMetaData>
+                      </metaDataProperty>
+                      <description>First axis of a right-handed earth centered 3D cartesian coordinate system; lies in the zero-longitude plane, such that a vector pointing in the direction of the positive X will have a longitude of zero.</description>
+                      <name>Geocentric X</name>
+                    </epsg:AxisName>
+                    <axisAbbrev>X</axisAbbrev>
+                    <axisDirection codeSpace="EPSG">Geocentre &gt; equator/0°E</axisDirection>
+                  </CoordinateSystemAxis>
+                </axis>
+                <axis>
+                  <CoordinateSystemAxis id="epsg-axis-116" uom="/uom/EPSG/0/9001">
+                    <epsg:AxisName id="epsg-axisname-9911">
+                      <metaDataProperty>
+                        <epsg:CommonMetaData>
+                          <epsg:informationSource>OGP</epsg:informationSource>
+                          <epsg:revisionDate>2000-03-07</epsg:revisionDate>
+                          <epsg:isDeprecated>false</epsg:isDeprecated>
+                        </epsg:CommonMetaData>
+                      </metaDataProperty>
+                      <description>Second axis of a right-handed earth centered 3D cartesian coordinate system; perpendicular to the zero-longitude plane, pointing eastward.</description>
+                      <name>Geocentric Y</name>
+                    </epsg:AxisName>
+                    <axisAbbrev>Y</axisAbbrev>
+                    <axisDirection codeSpace="EPSG">Geocentre &gt; equator/90°E</axisDirection>
+                  </CoordinateSystemAxis>
+                </axis>
+                <axis>
+                  <CoordinateSystemAxis id="epsg-axis-117" uom="/uom/EPSG/0/9001">
+                    <epsg:AxisName id="epsg-axisname-9912">
+                      <metaDataProperty>
+                        <epsg:CommonMetaData>
+                          <epsg:informationSource>OGP</epsg:informationSource>
+                          <epsg:revisionDate>2000-03-07</epsg:revisionDate>
+                          <epsg:isDeprecated>false</epsg:isDeprecated>
+                        </epsg:CommonMetaData>
+                      </metaDataProperty>
+                      <description>Third axis of a right-handed earth centered 3D coordinate system; perpendicular to both X and Y, such that it completes a right-handed coordinate system, the Z-axis is approximately parallel to the earth's rotation axis, positive towards the north pole.</description>
+                      <name>Geocentric Z</name>
+                    </epsg:AxisName>
+                    <axisAbbrev>Z</axisAbbrev>
+                    <axisDirection codeSpace="EPSG">Geocentre &gt; north pole</axisDirection>
+                  </CoordinateSystemAxis>
+                </axis>
+              </CartesianCS>
+              <GeodeticDatum id="ogp-datum-6326">
+                <metaDataProperty>
+                  <epsg:CommonMetaData>
+                    <epsg:type>geodetic</epsg:type>
+                    <epsg:alias code="332" codeSpace="/naming-system/EPSG/0/7302" alias="WGS 84"/>
+                    <epsg:informationSource>NIMA TR8350.2 June 2004 revision. http://earth-info.nga.mil/GandG/publications/tr8350.2/tr8350_2.html and
+http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
+                    <epsg:revisionDate>2013-06-15</epsg:revisionDate>
+                    <epsg:changes>
+                      <epsg:ChangeRequest id="epsg-cr-2002.151">
+                        <epsg:reportDate>2002-03-06</epsg:reportDate>
+                        <epsg:closedDate>2002-06-22</epsg:closedDate>
+                        <epsg:reporter>EPSG</epsg:reporter>
+                        <epsg:request>Add Indonesian data</epsg:request>
+                        <epsg:tablesAffected>Datum; Coordinate Reference System; Coordinate Operation</epsg:tablesAffected>
+                        <epsg:codesAffected>6126 6294 6326; 4125 4294 4326-28 2309-10 32646-52 32747-54; 1126 1248 1282.</epsg:codesAffected>
+                        <epsg:action>Deprecated datum 6125 6294, geog CRS 4125 4294 and tfm 1282 1286 and replaced them with 6613, 4613 and 1834 respectively. Added datum 6820, geogCRS 4820, tfm 1832-33 and 1835-37, naming system 7311. Added aliases to datum 6326, geogCRS 4326-28, projCRS 2309-10 2933-34 32646-52 32747-54, tfm 1248. Extended origin description for datum 6326. For tfm 1126 Changed version from DMA-Col to DMA-Idn BBI.</epsg:action>
+                      </epsg:ChangeRequest>
+                      <epsg:ChangeRequest id="epsg-cr-2002.890">
+                        <epsg:reportDate>2002-11-27</epsg:reportDate>
+                        <epsg:closedDate>2003-01-21</epsg:closedDate>
+                        <epsg:reporter>EPSG</epsg:reporter>
+                        <epsg:request>Add ITRF</epsg:request>
+                        <epsg:tablesAffected>Datum</epsg:tablesAffected>
+                        <epsg:codesAffected>6326</epsg:codesAffected>
+                        <epsg:action>Added datums 6647-56; geocentric CRSs 4330-38 and 4385, tfm 1935-43. Added remarks to datum 6326 (WGS84).</epsg:action>
+                      </epsg:ChangeRequest>
+                      <epsg:ChangeRequest id="epsg-cr-2003.270">
+                        <epsg:reportDate>2003-08-27</epsg:reportDate>
+                        <epsg:closedDate>2003-09-30</epsg:closedDate>
+                        <epsg:reporter>Carol McCaig; NIMA</epsg:reporter>
+                        <epsg:request>Correct WGS 84 remarks</epsg:request>
+                        <epsg:tablesAffected>Datum</epsg:tablesAffected>
+                        <epsg:codesAffected>6326</epsg:codesAffected>
+                        <epsg:action>Amended origin description and added remarks and info source.</epsg:action>
+                      </epsg:ChangeRequest>
+                      <epsg:ChangeRequest id="epsg-cr-2005.460">
+                        <epsg:reportDate>2005-09-01</epsg:reportDate>
+                        <epsg:closedDate>2005-09-30</epsg:closedDate>
+                        <epsg:reporter>OGP</epsg:reporter>
+                        <epsg:request>Update obsolete url.</epsg:request>
+                        <epsg:tablesAffected>Various</epsg:tablesAffected>
+                        <epsg:codesAffected>See actions</epsg:codesAffected>
+                        <epsg:action>For Area 2833-50, Datum 6133 6135 6162 6165-66 6170-71 6190 6194 6221 6224 6236 6251 6255 6257 6263 6295 6309 6322 6326 6663-65 6674-75; CRSs 2096-98 3032-35 3038-51 3300 4133 4162 4166 4190 4960-61 4974-75 4978 4988-89 25884 31300 31370, Coord Operation 1278-79 1304-06 1331-35 1463-64 1558 1565-66 1568 1593 1596 1701 1751 1849 1885-88 1895 1897 1965 10035 15750-52 18203-04 19938-39 19961 19985-86 19992-94 and UoM 9005 9037-39 9112-14, updated information source field entry. For CRSs 4190, 4960-61 also changed alias remarks field entry from obsolete URL to "see information source".</epsg:action>
+                      </epsg:ChangeRequest>
+                      <epsg:ChangeRequest id="epsg-cr-2005.550">
+                        <epsg:reportDate>2005-09-29</epsg:reportDate>
+                        <epsg:closedDate>2005-09-30</epsg:closedDate>
+                        <epsg:reporter>OGP</epsg:reporter>
+                        <epsg:request>Update WGS 84 definition.</epsg:request>
+                        <epsg:tablesAffected>Datum</epsg:tablesAffected>
+                        <epsg:codesAffected>6326</epsg:codesAffected>
+                        <epsg:action>For datum 6326 added reference to G1150 realisation by (i) in Origin Description replacing "... and a further 0.2m on 29/1/1997 [WGS 84 (G873)] since when they have been retained within 10cm of the then current ITRF" with "... a further 0.2m on 29/1/1997 [WGS 84 (G873)] and a further 0.06m on 20/1/2002 [WGS 84 (G1150)]", (ii) in Remarks, replacing "... WGS 84 (G730) and WGS 84 (G873)" with "... WGS 84 (G730), WGS 84 (G873) and WGS 84 (G1150). Since 1997, WGS 84 has been maintained within 10cm of the then current ITRF", and (iii) in Info Source, updated url to include G1150 addendum at http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf.</epsg:action>
+                      </epsg:ChangeRequest>
+                      <epsg:ChangeRequest id="epsg-cr-2006.810">
+                        <remarks>Reverses addition of aliases made in 2002.151.</remarks>
+                        <epsg:reportDate>2006-08-21</epsg:reportDate>
+                        <epsg:closedDate>2006-10-02</epsg:closedDate>
+                        <epsg:reporter>OGP</epsg:reporter>
+                        <epsg:request>Correct Indonesia 1995 datum/CRS</epsg:request>
+                        <epsg:tablesAffected>Coordinate Reference System; Coordinate Operation</epsg:tablesAffected>
+                        <epsg:codesAffected>2309-10 4326 4978-89 32646-52 32747-54; 1248 1832-33 15548-49</epsg:codesAffected>
+                        <epsg:action>Added datum 6755, conversions 15584-85, CRSs 4755 4897-98  23866-72 23877-84, and tfms 15911-12. For datum 6326, CRSs 2309-10 4326 4978-79 32646-52 32747-54, conv 15548-49, tfm 1248 and 1832, deleted DGN-95 alias. For tfm 1833, deleted DGN-95 alias; added remarks. For CRSs 4238, 23846-52 and 23847-54, added supersession remarks.</epsg:action>
+                      </epsg:ChangeRequest>
+                      <epsg:ChangeRequest id="ogp-cr-2012.097">
+                        <epsg:reportDate>2012-12-05</epsg:reportDate>
+                        <epsg:closedDate>2013-06-15</epsg:closedDate>
+                        <epsg:reporter>OGP</epsg:reporter>
+                        <epsg:request>Update WGS 84 datum remarks</epsg:request>
+                        <epsg:tablesAffected>Datum</epsg:tablesAffected>
+                        <epsg:codesAffected>6326</epsg:codesAffected>
+                        <epsg:action>For datum 6326, amended origin definition and remarks.</epsg:action>
+                      </epsg:ChangeRequest>
+                    </epsg:changes>
+                    <epsg:show>true</epsg:show>
+                    <epsg:isDeprecated>false</epsg:isDeprecated>
+                  </epsg:CommonMetaData>
+                </metaDataProperty>
+                <name>World Geodetic System 1984</name>
+                <remarks>EPSG::6326 has been the then current realisation. No distinction is made between the original and subsequent (G730, G873, G1150 and G1674) WGS 84 frames. Since 1997, WGS 84 has been maintained within 10cm of the then current ITRF.</remarks>
+                <epsg:AreaOfUse>
+                  <gmd:description >
+                    <gco:CharacterString >World.</gco:CharacterString>
+                  </gmd:description>
+                  <gmd:geographicElement >
+                    <gmd:EX_GeographicBoundingBox>
+                      <gmd:westBoundLongitude>
+                        <gco:Decimal >-180</gco:Decimal>
+                      </gmd:westBoundLongitude>
+                      <gmd:eastBoundLongitude>
+                        <gco:Decimal >180</gco:Decimal>
+                      </gmd:eastBoundLongitude>
+                      <gmd:southBoundLatitude>
+                        <gco:Decimal >-90</gco:Decimal>
+                      </gmd:southBoundLatitude>
+                      <gmd:northBoundLatitude>
+                        <gco:Decimal >90</gco:Decimal>
+                      </gmd:northBoundLatitude>
+                    </gmd:EX_GeographicBoundingBox>
+                  </gmd:geographicElement>
+                  <metaDataProperty>
+                    <epsg:CommonMetaData>
+                      <epsg:informationSource>OGP</epsg:informationSource>
+                      <epsg:revisionDate>2001-06-05</epsg:revisionDate>
+                      <epsg:show>false</epsg:show>
+                      <epsg:isDeprecated>false</epsg:isDeprecated>
+                    </epsg:CommonMetaData>
+                  </metaDataProperty>
+                  <name>World</name>
+                  <empty/>
+                </epsg:AreaOfUse>
+                <scope>Satellite navigation.</scope>
+                <anchorDefinition>Defined through a consistent set of station coordinates. These have changed with time: by 0.7m on 29/06/1994 (G730), a further 0.2m on 29/01/1997 (G873) and a further 0.06m on 20/01/2002 (G1150) and on 8/02/2012 (G1674).</anchorDefinition>
+                <realizationEpoch>1984-01-01</realizationEpoch>
+                <PrimeMeridian id="epsg-meridian-8901">
+                  <metaDataProperty>
+                    <epsg:CommonMetaData>
+                      <epsg:revisionDate>1995-06-02</epsg:revisionDate>
+                      <epsg:changes>
+                        <epsg:ChangeRequest id="epsg-cr-1996.290">
+                          <epsg:reportDate>1996-12-12</epsg:reportDate>
+                          <epsg:closedDate>1996-12-12</epsg:closedDate>
+                          <epsg:reporter>EPSG</epsg:reporter>
+                          <epsg:request>Change angles in dms(h) text to sexagesimal degree to be more easily machine readable.</epsg:request>
+                          <epsg:tablesAffected>Proj  Pmerid</epsg:tablesAffected>
+                          <epsg:codesAffected>Multiple</epsg:codesAffected>
+                          <epsg:action>Entries with code 9107 changed to 9102 or 9110</epsg:action>
+                        </epsg:ChangeRequest>
+                      </epsg:changes>
+                      <epsg:isDeprecated>false</epsg:isDeprecated>
+                    </epsg:CommonMetaData>
+                  </metaDataProperty>
+                  <name>Greenwich</name>
+                  <greenwichLongitude uom="/uom/EPSG/0/9102">0</greenwichLongitude>
+                </PrimeMeridian>
+                <Ellipsoid id="epsg-ellipsoid-7030">
+                  <metaDataProperty>
+                    <epsg:CommonMetaData>
+                      <epsg:alias alias="WGS84" code="67" codeSpace="/naming-system/EPSG/0/7301"/>
+                      <epsg:informationSource>DMA Technical Manual 8350.2-B</epsg:informationSource>
+                      <epsg:revisionDate>1998-11-11</epsg:revisionDate>
+                      <epsg:changes>
+                        <epsg:ChangeRequest id="epsg-cr-1998.320">
+                          <remarks>5 decimal places in 1/f allows computation of semi-minor axis to better than 0.5mm.</remarks>
+                          <epsg:reportDate>1998-11-06</epsg:reportDate>
+                          <epsg:closedDate>1998-11-11</epsg:closedDate>
+                          <epsg:reporter>Peter Laskowski; Intergraph</epsg:reporter>
+                          <epsg:request>Increase ellipsoid parameter precision</epsg:request>
+                          <epsg:tablesAffected>Ellipsoid</epsg:tablesAffected>
+                          <epsg:codesAffected>7019  7030-7033  7036</epsg:codesAffected>
+                          <epsg:action>Precision of 1/f increased from 5 decimal places to original publication precision.</epsg:action>
+                        </epsg:ChangeRequest>
+                      </epsg:changes>
+                      <epsg:isDeprecated>false</epsg:isDeprecated>
+                    </epsg:CommonMetaData>
+                  </metaDataProperty>
+                  <name>WGS 84</name>
+                  <remarks>Inverse flattening derived from four defining parameters (semi-major axis; C20 = -484.16685*10e-6; earth's angular velocity w = 7292115e11 rad/sec; gravitational constant GM = 3986005e8 m*m*m/s/s).</remarks>
+                  <semiMajorAxis uom="/uom/EPSG/0/9001">6378137</semiMajorAxis>
+                  <secondDefiningParameter>
+                    <SecondDefiningParameter>
+                      <inverseFlattening uom="/uom/EPSG/0/9201">298.257223563</inverseFlattening>
+                    </SecondDefiningParameter>
+                  </secondDefiningParameter>
+                </Ellipsoid>
+              </GeodeticDatum>
+            </GeodeticCRS>
+          </epsg:CRSMetaData>
+        </metaDataProperty>
+        <name>WGS 84</name>
+        <epsg:AreaOfUse>
+          <gmd:description >
+            <gco:CharacterString >World: Afghanistan, Albania, Algeria, American Samoa, Andorra, Angola, Anguilla, Antarctica, Antigua and Barbuda, Argentina, Armenia, Aruba, Australia, Austria, Azerbaijan, Bahamas, Bahrain, Bangladesh, Barbados, Belgium, Belgium, Belize, Benin, Bermuda, Bhutan, Bolivia, Bonaire, Saint Eustasius and Saba, Bosnia and Herzegovina, Botswana, Bouvet Island, Brazil, British Indian Ocean Territory, British Virgin Islands, Brunei Darussalam, Bulgaria, Burkina Faso, Burundi, Cambodia, Cameroon, Canada, Cape Verde, Cayman Islands, Central African Republic, Chad, Chile, China, Christmas Island, Cocos (Keeling) Islands, Comoros, Congo, Cook Islands, Costa Rica, Côte d'Ivoire (Ivory Coast), Croatia, Cuba, Curacao, Cyprus, Czech Republic, Denmark, Djibouti, Dominica, Dominican Republic, East Timor, Ecuador, Egypt, El Salvador, Equatorial Guinea, Eritrea, Estonia, Ethiopia, Falkland Islands (Malvinas), Faroe Islands, Fiji, Finland, France, French Guiana, French Polynesia, French Southern Territories, Gabon, Gambia, Georgia, Germany, Ghana, Gibraltar, Greece, Greenland, Grenada, Guadeloupe, Guam, Guatemala, Guinea, Guinea-Bissau, Guyana, Haiti, Heard Island and McDonald Islands, Holy See (Vatican City State), Honduras, China - Hong Kong, Hungary, Iceland, India, Indonesia, Islamic Republic of Iran, Iraq, Ireland, Israel, Italy, Jamaica, Japan, Jordan, Kazakhstan, Kenya, Kiribati, Democratic People's Republic of Korea (North Korea), Republic of Korea (South Korea), Kuwait, Kyrgyzstan, Lao People's Democratic Republic (Laos), Latvia, Lebanon, Lesotho, Liberia, Libyan Arab Jamahiriya, Liechtenstein, Lithuania, Luxembourg, China - Macao, The Former Yugoslav Republic of Macedonia, Madagascar, Malawi, Malaysia, Maldives, Mali, Malta, Marshall Islands, Martinique, Mauritania, Mauritius, Mayotte, Mexico, Federated States of Micronesia, Monaco, Mongolia, Montenegro, Montserrat, Morocco, Mozambique, Myanmar (Burma), Namibia, Nauru, Nepal, Netherlands, New Caledonia, New Zealand, Nicaragua, Niger, Nigeria, Niue, Norfolk Island, Northern Mariana Islands, Norway, Oman, Pakistan, Palau, Panama, Papua New Guinea (PNG), Paraguay, Peru, Philippines, Pitcairn, Poland, Portugal, Puerto Rico, Qatar, Reunion, Romania, Russian Federation, Rwanda, Saint Kitts and Nevis, Saint Helena, Ascension and Tristan da Cunha, Saint Lucia, Saint Pierre and Miquelon, Saint Vincent and the Grenadines, Samoa, San Marino, Sao Tome and Principe, Saudi Arabia, Senegal, Serbia, Seychelles, Sierra Leone, Singapore, Slovakia (Slovak Republic), Slovenia, Sint Maarten, Solomon Islands, Somalia, South Africa, South Georgia and the South Sandwich Islands, South Sudan, Spain, Sri Lanka, Sudan, Suriname, Svalbard and Jan Mayen, Swaziland, Sweden, Switzerland, Syrian Arab Republic, Taiwan, Tajikistan, United Republic of Tanzania, Thailand, The Democratic Republic of the Congo (Zaire), Togo, Tokelau, Tonga, Trinidad and Tobago, Tunisia, Turkey, Turkmenistan, Turks and Caicos Islands, Tuvalu, Uganda, Ukraine, United Arab Emirates (UAE), United Kingdom (UK), United States (USA), United States Minor Outlying Islands, Uruguay, Uzbekistan, Vanuatu, Venezuela, Vietnam, US Virgin Islands, Wallis and Futuna, Western Sahara, Yemen, Zambia, Zimbabwe.</gco:CharacterString>
+          </gmd:description>
+          <gmd:geographicElement >
+            <gmd:EX_GeographicBoundingBox>
+              <gmd:westBoundLongitude>
+                <gco:Decimal >-180</gco:Decimal>
+              </gmd:westBoundLongitude>
+              <gmd:eastBoundLongitude>
+                <gco:Decimal >180</gco:Decimal>
+              </gmd:eastBoundLongitude>
+              <gmd:southBoundLatitude>
+                <gco:Decimal >-90</gco:Decimal>
+              </gmd:southBoundLatitude>
+              <gmd:northBoundLatitude>
+                <gco:Decimal >90</gco:Decimal>
+              </gmd:northBoundLatitude>
+            </gmd:EX_GeographicBoundingBox>
+          </gmd:geographicElement>
+          <metaDataProperty>
+            <epsg:CommonMetaData>
+              <epsg:informationSource>OGP</epsg:informationSource>
+              <epsg:revisionDate>2012-01-05</epsg:revisionDate>
+              <epsg:changes>
+                <epsg:ChangeRequest id="epsg-cr-2007.072">
+                  <epsg:reportDate>2007-08-13</epsg:reportDate>
+                  <epsg:closedDate>2007-08-28</epsg:closedDate>
+                  <epsg:reporter>OGP</epsg:reporter>
+                  <epsg:request>Update ISO 3166 area codes</epsg:request>
+                  <epsg:tablesAffected>Area</epsg:tablesAffected>
+                  <epsg:codesAffected>1321 2370 2547 2804 3210 3305</epsg:codesAffected>
+                  <epsg:action>For area 2830, amended references to Macao and Serbia and Montenegro. For areas 1147, 2096 and 3172, changed "Macau" to "Macao". Added area records 3532-33. For area 1244, deleted "Channel Islands, and the Isle of Man". For area 2803, added ISO country codes. For area 2988, added "Les Ecrehos and Les Minquiers" to area name. Deprecated areas 2547 3210 and 3305 and added replacements 3534-36. Deprecated area 2804; for tfm 1757 changed area code from 2804 to 1321. For area 1298, changed Serbia and Montenegro to Serbia; Montenegro. For area 1301, changed 'Yugoslavia (Serbia, Montenegro)' to 'Serbia; Montenegro'. For areas 1710 1711 and 2804, amended references to Serbia and Montenegro. For area 1712, deleted Montenegro. For area 2066, deleted Yugoslavia and added Montenegro and Serbia. For tfms 1794 and 1795 changed area code from 2547 to 3536. For area 2370, for area name changed "Europe - Boznia and Herzegovina; Croatia; Serbia; Slovenia" to "Europe - former Yugoslavia"; for area of use added Montenegro and FYR Macedonia.</epsg:action>
+                </epsg:ChangeRequest>
+                <epsg:ChangeRequest id="epsg-cr-2008.053">
+                  <epsg:reportDate>2008-06-23</epsg:reportDate>
+                  <epsg:closedDate>2008-06-24</epsg:closedDate>
+                  <epsg:reporter>OGP</epsg:reporter>
+                  <epsg:request>Correct ISO country names</epsg:request>
+                  <epsg:tablesAffected>Area</epsg:tablesAffected>
+                  <epsg:codesAffected>1050 1321 1709-10 2064 2066 2830 3535 3538-39</epsg:codesAffected>
+                  <epsg:action>For areas 3538-39, deleted entries from ISO code fields. For area 3535, in area name deleted "onshore and offshore". For areas 1050, 1321, 1709, 1710, 2064, 2066 and 2830, in area of use corrected spelling of Herzegovina.</epsg:action>
+                </epsg:ChangeRequest>
+                <epsg:ChangeRequest id="epsg-cr-2008.054">
+                  <remarks>2nd and 3rd actions of change request 2008.053 are misreported in that change record. They were made through this change record.</remarks>
+                  <epsg:reportDate>2008-06-23</epsg:reportDate>
+                  <epsg:closedDate>2008-07-05</epsg:closedDate>
+                  <epsg:reporter>OGP</epsg:reporter>
+                  <epsg:request>Correct spellings in area names and descriptions</epsg:request>
+                  <epsg:tablesAffected>Area</epsg:tablesAffected>
+                  <epsg:codesAffected>1050 1161 1284 1321 1421-28 1459-60 1574 1576 1579-81 1598 1601 1639 1668-69 1696 1709-10 1714 1741 1795 2064 2066 2169-70 2191 2300 2387-88 2648 2706 2790 2830 2837-38 2993-94 3062 3074 3374 3452 3454 3465 3484 3535 3539 3541-42</epsg:codesAffected>
+                  <epsg:action>For areas 1050, 1321, 1709-10, 2064, 2066 and 2830, in area name and area description changed spelling of Herzegovina. For area 1284, in area description corrected spelling of Belarus and Moldova; in area name changed "Former Soviet Union" to "FSU" for consistency with other FSU-related areas. For area 3535, in area name deleted "onshore and offshore". For areas 1161, 1639, 1696, 1795, 2387-88, 2648, 2706, 2994, 3062, 3074, 3374, 3452, 3454, 3465, 3484 and 3539, in area name corrected "typos" introduced in making change 2008.045. For areas 1598, 1601, 1668-69, 1714, 1741, 2169-70, 2191, 2300, 2837-38, 2993 and 3541-42 in area description corrected "typos" introduced in making change 2008.045. For areas 1421-28, 1459-60, 1574, 1576, 1579-81 and 2790 in area description corrected minor "typos".</epsg:action>
+                </epsg:ChangeRequest>
+                <epsg:ChangeRequest id="ogp-cr-2011.015">
+                  <epsg:reportDate>2011-02-20</epsg:reportDate>
+                  <epsg:closedDate>2011-02-25</epsg:closedDate>
+                  <epsg:reporter>OGP</epsg:reporter>
+                  <epsg:request>Amend Netherlands Antilles areas</epsg:request>
+                  <epsg:tablesAffected>Area</epsg:tablesAffected>
+                  <epsg:codesAffected>1173 1219 2830 3182-84</epsg:codesAffected>
+                  <epsg:action>Deprecated area 1173, added replacements 3805, 3807, 3809-10 and 3820-23. For area 2830, amended description for changes to Netherlands Antilles and St Helena. For area 1219 (St Helena), amended name and description. For areas 3182-84, amended description to use revised ISO 3166 name.</epsg:action>
+                </epsg:ChangeRequest>
+                <epsg:ChangeRequest id="ogp-cr-2012.001">
+                  <remarks>Includes revisions necessary for creation of South Sudan.</remarks>
+                  <epsg:reportDate>2012-01-02</epsg:reportDate>
+                  <epsg:closedDate>2012-01-05</epsg:closedDate>
+                  <epsg:reporter>OGP</epsg:reporter>
+                  <epsg:request>Amend Africa areas</epsg:request>
+                  <epsg:tablesAffected>Area; Datum; Coordinate Reference System; Coordinate Operation</epsg:tablesAffected>
+                  <epsg:codesAffected>1137 1221 1271 1554-55 2825-27 2830 2969-71 3150 3311; 6205 6700; 3343-45 4048 4205 4700; 1107 1128-29 1284-85 1504 17412</epsg:codesAffected>
+                  <epsg:action>Added areas 3928-29, 3931, 3935 and 3942, CRS 5629. For area 1221, amended to exclude South Sudan. For areas 1271, 2825-27, 2830 and 3311, amended to include South Sudan. For tfm 1137, changed area code from 1086 to 2595. For tfm 1284, changed area code from 1132 to 3264. For tfm 1285, changed area code from 1230 to 3316. For tfms 1128-29 and 1504, changed area code from 1215 to 3309. For datum 6205, CRS 4205 and tfm 1107, changed area code from 1214 to 3308. For datum 6700 and CRS 4700, changed area code from 1157 to 3277. For proj 17412 and CRS 4048, changed area code from 3150 to 3937. For CRSs 3036-37, changed area code from 1540-41 to 3929 and 3931 respectively. For CRSs 3343-45, changed area code from 2969-71 to 3938-40. For areas 1540-41, 1554-55, 2969-71 and 3150, added 'onshore' to name and description.</epsg:action>
+                </epsg:ChangeRequest>
+              </epsg:changes>
+              <epsg:show>false</epsg:show>
+              <epsg:isDeprecated>false</epsg:isDeprecated>
+            </epsg:CommonMetaData>
+          </metaDataProperty>
+          <name>World (by country)</name>
+          <empty/>
+        </epsg:AreaOfUse>
+        <scope>Used by the GPS satellite navigation system.</scope>
+        <EllipsoidalCS id="epsg-cs-6423">
+          <metaDataProperty>
+            <epsg:CommonMetaData>
+              <epsg:type>ellipsoidal</epsg:type>
+              <epsg:informationSource>OGP</epsg:informationSource>
+              <epsg:revisionDate>2008-06-23</epsg:revisionDate>
+              <epsg:changes>
+                <epsg:ChangeRequest id="epsg-cr-2008.045">
+                  <epsg:reportDate>2008-06-09</epsg:reportDate>
+                  <epsg:closedDate>2008-06-24</epsg:closedDate>
+                  <epsg:reporter>Dave Waddell</epsg:reporter>
+                  <epsg:request>Correct dms abbreviations</epsg:request>
+                  <epsg:tablesAffected>Area; Coordinate Operation; Coordinate Reference System; Coordinate System; Datum; Prime Meridian</epsg:tablesAffected>
+                  <epsg:codesAffected>Numerous - see actions.</epsg:codesAffected>
+                  <epsg:action>Changed text character representation of degree minute second units to symbols ° ' " for Areas (in area name and/or area description fields), CRSs (in remarks), CSs (in name and axis orientation), Datums (in origin and remarks), Prime Meridians (in remarks) and Coordinate Operations (in scope or remarks). Removed inconsistencies in style for records in these fields. Approximately 2000 records are impacted, too numerous to list. Additionally, for datum 6726, in datum origin, corrected minute value of longitude value, for areas 3357, 3359 and 3360, in area of use corrected spelling of Galveston.</epsg:action>
+                </epsg:ChangeRequest>
+              </epsg:changes>
+              <epsg:isDeprecated>false</epsg:isDeprecated>
+            </epsg:CommonMetaData>
+          </metaDataProperty>
+          <name>Ellipsoidal 3D CS. Axes: latitude, longitude, ellipsoidal height. Orientations: north, east, up. UoM: degree, degree, metre.</name>
+          <remarks>Horizontal coordinates referenced to this CS are in degrees. Any degree representation (e.g. DMSH, decimal, etc.) may be used but that used must be declared for the user. Used in geographic 3D coordinate reference systems.</remarks>
+          <axis>
+            <CoordinateSystemAxis id="epsg-axis-108" uom="/uom/EPSG/0/9122">
+              <epsg:AxisName id="epsg-axisname-9901">
+                <metaDataProperty>
+                  <epsg:CommonMetaData>
+                    <epsg:informationSource>OGP</epsg:informationSource>
+                    <epsg:revisionDate>2000-03-07</epsg:revisionDate>
+                    <epsg:isDeprecated>false</epsg:isDeprecated>
+                  </epsg:CommonMetaData>
+                </metaDataProperty>
+                <description>Angle from the equatorial plane to the perpendicular to the ellipsoid through a given point, northwards usually treated as positive.</description>
+                <name>Geodetic latitude</name>
+                <remarks>Used in geographic 2D and geographic 3D coordinate reference systems.</remarks>
+              </epsg:AxisName>
+              <axisAbbrev>Lat</axisAbbrev>
+              <axisDirection codeSpace="EPSG">north</axisDirection>
+            </CoordinateSystemAxis>
+          </axis>
+          <axis>
+            <CoordinateSystemAxis id="epsg-axis-109" uom="/uom/EPSG/0/9122">
+              <epsg:AxisName id="epsg-axisname-9902">
+                <metaDataProperty>
+                  <epsg:CommonMetaData>
+                    <epsg:informationSource>OGP</epsg:informationSource>
+                    <epsg:revisionDate>2000-03-07</epsg:revisionDate>
+                    <epsg:isDeprecated>false</epsg:isDeprecated>
+                  </epsg:CommonMetaData>
+                </metaDataProperty>
+                <description>Angle from the prime meridian plane to the meridian plane passing through the given point, eastwards usually treated as positive.</description>
+                <name>Geodetic longitude</name>
+                <remarks>Used in geographic 2D and geographic 3D coordinate reference systems.</remarks>
+              </epsg:AxisName>
+              <axisAbbrev>Long</axisAbbrev>
+              <axisDirection codeSpace="EPSG">east</axisDirection>
+            </CoordinateSystemAxis>
+          </axis>
+          <axis>
+            <CoordinateSystemAxis id="epsg-axis-110" uom="/uom/EPSG/0/9001">
+              <epsg:AxisName id="epsg-axisname-9903">
+                <metaDataProperty>
+                  <epsg:CommonMetaData>
+                    <epsg:informationSource>OGP based on ISO 19111</epsg:informationSource>
+                    <epsg:revisionDate>2000-03-07</epsg:revisionDate>
+                    <epsg:isDeprecated>false</epsg:isDeprecated>
+                  </epsg:CommonMetaData>
+                </metaDataProperty>
+                <description>Distance of a point from the ellipsoid measured along the perpendicular from the ellipsoid to this point.  Positive if upwards or outside of the ellipsoid.</description>
+                <name>Ellipsoidal height</name>
+                <remarks>Used only as part of an ellipsoidal 3D coordinate system in a geographic 3D coordinate reference system, never on its own.</remarks>
+              </epsg:AxisName>
+              <axisAbbrev>h</axisAbbrev>
+              <axisDirection codeSpace="EPSG">up</axisDirection>
+            </CoordinateSystemAxis>
+          </axis>
+        </EllipsoidalCS>
+        <GeodeticDatum id="ogp-datum-6326">
+          <metaDataProperty>
+            <epsg:CommonMetaData>
+              <epsg:type>geodetic</epsg:type>
+              <epsg:alias code="332" codeSpace="/naming-system/EPSG/0/7302" alias="WGS 84"/>
+              <epsg:informationSource>NIMA TR8350.2 June 2004 revision. http://earth-info.nga.mil/GandG/publications/tr8350.2/tr8350_2.html and
+http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
+              <epsg:revisionDate>2013-06-15</epsg:revisionDate>
+              <epsg:changes>
+                <epsg:ChangeRequest id="epsg-cr-2002.151">
+                  <epsg:reportDate>2002-03-06</epsg:reportDate>
+                  <epsg:closedDate>2002-06-22</epsg:closedDate>
+                  <epsg:reporter>EPSG</epsg:reporter>
+                  <epsg:request>Add Indonesian data</epsg:request>
+                  <epsg:tablesAffected>Datum; Coordinate Reference System; Coordinate Operation</epsg:tablesAffected>
+                  <epsg:codesAffected>6126 6294 6326; 4125 4294 4326-28 2309-10 32646-52 32747-54; 1126 1248 1282.</epsg:codesAffected>
+                  <epsg:action>Deprecated datum 6125 6294, geog CRS 4125 4294 and tfm 1282 1286 and replaced them with 6613, 4613 and 1834 respectively. Added datum 6820, geogCRS 4820, tfm 1832-33 and 1835-37, naming system 7311. Added aliases to datum 6326, geogCRS 4326-28, projCRS 2309-10 2933-34 32646-52 32747-54, tfm 1248. Extended origin description for datum 6326. For tfm 1126 Changed version from DMA-Col to DMA-Idn BBI.</epsg:action>
+                </epsg:ChangeRequest>
+                <epsg:ChangeRequest id="epsg-cr-2002.890">
+                  <epsg:reportDate>2002-11-27</epsg:reportDate>
+                  <epsg:closedDate>2003-01-21</epsg:closedDate>
+                  <epsg:reporter>EPSG</epsg:reporter>
+                  <epsg:request>Add ITRF</epsg:request>
+                  <epsg:tablesAffected>Datum</epsg:tablesAffected>
+                  <epsg:codesAffected>6326</epsg:codesAffected>
+                  <epsg:action>Added datums 6647-56; geocentric CRSs 4330-38 and 4385, tfm 1935-43. Added remarks to datum 6326 (WGS84).</epsg:action>
+                </epsg:ChangeRequest>
+                <epsg:ChangeRequest id="epsg-cr-2003.270">
+                  <epsg:reportDate>2003-08-27</epsg:reportDate>
+                  <epsg:closedDate>2003-09-30</epsg:closedDate>
+                  <epsg:reporter>Carol McCaig; NIMA</epsg:reporter>
+                  <epsg:request>Correct WGS 84 remarks</epsg:request>
+                  <epsg:tablesAffected>Datum</epsg:tablesAffected>
+                  <epsg:codesAffected>6326</epsg:codesAffected>
+                  <epsg:action>Amended origin description and added remarks and info source.</epsg:action>
+                </epsg:ChangeRequest>
+                <epsg:ChangeRequest id="epsg-cr-2005.460">
+                  <epsg:reportDate>2005-09-01</epsg:reportDate>
+                  <epsg:closedDate>2005-09-30</epsg:closedDate>
+                  <epsg:reporter>OGP</epsg:reporter>
+                  <epsg:request>Update obsolete url.</epsg:request>
+                  <epsg:tablesAffected>Various</epsg:tablesAffected>
+                  <epsg:codesAffected>See actions</epsg:codesAffected>
+                  <epsg:action>For Area 2833-50, Datum 6133 6135 6162 6165-66 6170-71 6190 6194 6221 6224 6236 6251 6255 6257 6263 6295 6309 6322 6326 6663-65 6674-75; CRSs 2096-98 3032-35 3038-51 3300 4133 4162 4166 4190 4960-61 4974-75 4978 4988-89 25884 31300 31370, Coord Operation 1278-79 1304-06 1331-35 1463-64 1558 1565-66 1568 1593 1596 1701 1751 1849 1885-88 1895 1897 1965 10035 15750-52 18203-04 19938-39 19961 19985-86 19992-94 and UoM 9005 9037-39 9112-14, updated information source field entry. For CRSs 4190, 4960-61 also changed alias remarks field entry from obsolete URL to "see information source".</epsg:action>
+                </epsg:ChangeRequest>
+                <epsg:ChangeRequest id="epsg-cr-2005.550">
+                  <epsg:reportDate>2005-09-29</epsg:reportDate>
+                  <epsg:closedDate>2005-09-30</epsg:closedDate>
+                  <epsg:reporter>OGP</epsg:reporter>
+                  <epsg:request>Update WGS 84 definition.</epsg:request>
+                  <epsg:tablesAffected>Datum</epsg:tablesAffected>
+                  <epsg:codesAffected>6326</epsg:codesAffected>
+                  <epsg:action>For datum 6326 added reference to G1150 realisation by (i) in Origin Description replacing "... and a further 0.2m on 29/1/1997 [WGS 84 (G873)] since when they have been retained within 10cm of the then current ITRF" with "... a further 0.2m on 29/1/1997 [WGS 84 (G873)] and a further 0.06m on 20/1/2002 [WGS 84 (G1150)]", (ii) in Remarks, replacing "... WGS 84 (G730) and WGS 84 (G873)" with "... WGS 84 (G730), WGS 84 (G873) and WGS 84 (G1150). Since 1997, WGS 84 has been maintained within 10cm of the then current ITRF", and (iii) in Info Source, updated url to include G1150 addendum at http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf.</epsg:action>
+                </epsg:ChangeRequest>
+                <epsg:ChangeRequest id="epsg-cr-2006.810">
+                  <remarks>Reverses addition of aliases made in 2002.151.</remarks>
+                  <epsg:reportDate>2006-08-21</epsg:reportDate>
+                  <epsg:closedDate>2006-10-02</epsg:closedDate>
+                  <epsg:reporter>OGP</epsg:reporter>
+                  <epsg:request>Correct Indonesia 1995 datum/CRS</epsg:request>
+                  <epsg:tablesAffected>Coordinate Reference System; Coordinate Operation</epsg:tablesAffected>
+                  <epsg:codesAffected>2309-10 4326 4978-89 32646-52 32747-54; 1248 1832-33 15548-49</epsg:codesAffected>
+                  <epsg:action>Added datum 6755, conversions 15584-85, CRSs 4755 4897-98  23866-72 23877-84, and tfms 15911-12. For datum 6326, CRSs 2309-10 4326 4978-79 32646-52 32747-54, conv 15548-49, tfm 1248 and 1832, deleted DGN-95 alias. For tfm 1833, deleted DGN-95 alias; added remarks. For CRSs 4238, 23846-52 and 23847-54, added supersession remarks.</epsg:action>
+                </epsg:ChangeRequest>
+                <epsg:ChangeRequest id="ogp-cr-2012.097">
+                  <epsg:reportDate>2012-12-05</epsg:reportDate>
+                  <epsg:closedDate>2013-06-15</epsg:closedDate>
+                  <epsg:reporter>OGP</epsg:reporter>
+                  <epsg:request>Update WGS 84 datum remarks</epsg:request>
+                  <epsg:tablesAffected>Datum</epsg:tablesAffected>
+                  <epsg:codesAffected>6326</epsg:codesAffected>
+                  <epsg:action>For datum 6326, amended origin definition and remarks.</epsg:action>
+                </epsg:ChangeRequest>
+              </epsg:changes>
+              <epsg:show>true</epsg:show>
+              <epsg:isDeprecated>false</epsg:isDeprecated>
+            </epsg:CommonMetaData>
+          </metaDataProperty>
+          <name>World Geodetic System 1984</name>
+          <remarks>EPSG::6326 has been the then current realisation. No distinction is made between the original and subsequent (G730, G873, G1150 and G1674) WGS 84 frames. Since 1997, WGS 84 has been maintained within 10cm of the then current ITRF.</remarks>
+          <epsg:AreaOfUse>
+            <gmd:description >
+              <gco:CharacterString >World.</gco:CharacterString>
+            </gmd:description>
+            <gmd:geographicElement >
+              <gmd:EX_GeographicBoundingBox>
+                <gmd:westBoundLongitude>
+                  <gco:Decimal >-180</gco:Decimal>
+                </gmd:westBoundLongitude>
+                <gmd:eastBoundLongitude>
+                  <gco:Decimal >180</gco:Decimal>
+                </gmd:eastBoundLongitude>
+                <gmd:southBoundLatitude>
+                  <gco:Decimal >-90</gco:Decimal>
+                </gmd:southBoundLatitude>
+                <gmd:northBoundLatitude>
+                  <gco:Decimal >90</gco:Decimal>
+                </gmd:northBoundLatitude>
+              </gmd:EX_GeographicBoundingBox>
+            </gmd:geographicElement>
+            <metaDataProperty>
+              <epsg:CommonMetaData>
+                <epsg:informationSource>OGP</epsg:informationSource>
+                <epsg:revisionDate>2001-06-05</epsg:revisionDate>
+                <epsg:show>false</epsg:show>
+                <epsg:isDeprecated>false</epsg:isDeprecated>
+              </epsg:CommonMetaData>
+            </metaDataProperty>
+            <name>World</name>
+            <empty/>
+          </epsg:AreaOfUse>
+          <scope>Satellite navigation.</scope>
+          <anchorDefinition>Defined through a consistent set of station coordinates. These have changed with time: by 0.7m on 29/06/1994 (G730), a further 0.2m on 29/01/1997 (G873) and a further 0.06m on 20/01/2002 (G1150) and on 8/02/2012 (G1674).</anchorDefinition>
+          <realizationEpoch>1984-01-01</realizationEpoch>
+          <PrimeMeridian id="epsg-meridian-8901">
+            <metaDataProperty>
+              <epsg:CommonMetaData>
+                <epsg:revisionDate>1995-06-02</epsg:revisionDate>
+                <epsg:changes>
+                  <epsg:ChangeRequest id="epsg-cr-1996.290">
+                    <epsg:reportDate>1996-12-12</epsg:reportDate>
+                    <epsg:closedDate>1996-12-12</epsg:closedDate>
+                    <epsg:reporter>EPSG</epsg:reporter>
+                    <epsg:request>Change angles in dms(h) text to sexagesimal degree to be more easily machine readable.</epsg:request>
+                    <epsg:tablesAffected>Proj  Pmerid</epsg:tablesAffected>
+                    <epsg:codesAffected>Multiple</epsg:codesAffected>
+                    <epsg:action>Entries with code 9107 changed to 9102 or 9110</epsg:action>
+                  </epsg:ChangeRequest>
+                </epsg:changes>
+                <epsg:isDeprecated>false</epsg:isDeprecated>
+              </epsg:CommonMetaData>
+            </metaDataProperty>
+            <name>Greenwich</name>
+            <greenwichLongitude uom="/uom/EPSG/0/9102">0</greenwichLongitude>
+          </PrimeMeridian>
+          <Ellipsoid id="epsg-ellipsoid-7030">
+            <metaDataProperty>
+              <epsg:CommonMetaData>
+                <epsg:alias alias="WGS84" code="67" codeSpace="/naming-system/EPSG/0/7301"/>
+                <epsg:informationSource>DMA Technical Manual 8350.2-B</epsg:informationSource>
+                <epsg:revisionDate>1998-11-11</epsg:revisionDate>
+                <epsg:changes>
+                  <epsg:ChangeRequest id="epsg-cr-1998.320">
+                    <remarks>5 decimal places in 1/f allows computation of semi-minor axis to better than 0.5mm.</remarks>
+                    <epsg:reportDate>1998-11-06</epsg:reportDate>
+                    <epsg:closedDate>1998-11-11</epsg:closedDate>
+                    <epsg:reporter>Peter Laskowski; Intergraph</epsg:reporter>
+                    <epsg:request>Increase ellipsoid parameter precision</epsg:request>
+                    <epsg:tablesAffected>Ellipsoid</epsg:tablesAffected>
+                    <epsg:codesAffected>7019  7030-7033  7036</epsg:codesAffected>
+                    <epsg:action>Precision of 1/f increased from 5 decimal places to original publication precision.</epsg:action>
+                  </epsg:ChangeRequest>
+                </epsg:changes>
+                <epsg:isDeprecated>false</epsg:isDeprecated>
+              </epsg:CommonMetaData>
+            </metaDataProperty>
+            <name>WGS 84</name>
+            <remarks>Inverse flattening derived from four defining parameters (semi-major axis; C20 = -484.16685*10e-6; earth's angular velocity w = 7292115e11 rad/sec; gravitational constant GM = 3986005e8 m*m*m/s/s).</remarks>
+            <semiMajorAxis uom="/uom/EPSG/0/9001">6378137</semiMajorAxis>
+            <secondDefiningParameter>
+              <SecondDefiningParameter>
+                <inverseFlattening uom="/uom/EPSG/0/9201">298.257223563</inverseFlattening>
+              </SecondDefiningParameter>
+            </secondDefiningParameter>
+          </Ellipsoid>
+        </GeodeticDatum>
+      </GeodeticCRS>
     </epsg:CRSMetaData>
   </metaDataProperty>
   <name>WGS 84</name>
@@ -55,6 +1055,15 @@
         <epsg:informationSource>OGP</epsg:informationSource>
         <epsg:revisionDate>2008-06-23</epsg:revisionDate>
         <epsg:changes>
+          <epsg:ChangeRequest id="epsg-cr-2008.045">
+            <epsg:reportDate>2008-06-09</epsg:reportDate>
+            <epsg:closedDate>2008-06-24</epsg:closedDate>
+            <epsg:reporter>Dave Waddell</epsg:reporter>
+            <epsg:request>Correct dms abbreviations</epsg:request>
+            <epsg:tablesAffected>Area; Coordinate Operation; Coordinate Reference System; Coordinate System; Datum; Prime Meridian</epsg:tablesAffected>
+            <epsg:codesAffected>Numerous - see actions.</epsg:codesAffected>
+            <epsg:action>Changed text character representation of degree minute second units to symbols ° ' " for Areas (in area name and/or area description fields), CRSs (in remarks), CSs (in name and axis orientation), Datums (in origin and remarks), Prime Meridians (in remarks) and Coordinate Operations (in scope or remarks). Removed inconsistencies in style for records in these fields. Approximately 2000 records are impacted, too numerous to list. Additionally, for datum 6726, in datum origin, corrected minute value of longitude value, for areas 3357, 3359 and 3360, in area of use corrected spelling of Galveston.</epsg:action>
+          </epsg:ChangeRequest>
         </epsg:changes>
         <epsg:isDeprecated>false</epsg:isDeprecated>
       </epsg:CommonMetaData>
@@ -63,12 +1072,36 @@
     <remarks>Coordinates referenced to this CS are in degrees. Any degree representation (e.g. DMSH, decimal, etc.) may be used but that used must be declared for the user by the supplier of data. Used in geographic 2D coordinate reference systems.</remarks>
     <axis>
       <CoordinateSystemAxis id="epsg-axis-106" uom="/uom/EPSG/0/9122">
+        <epsg:AxisName id="epsg-axisname-9901">
+          <metaDataProperty>
+            <epsg:CommonMetaData>
+              <epsg:informationSource>OGP</epsg:informationSource>
+              <epsg:revisionDate>2000-03-07</epsg:revisionDate>
+              <epsg:isDeprecated>false</epsg:isDeprecated>
+            </epsg:CommonMetaData>
+          </metaDataProperty>
+          <description>Angle from the equatorial plane to the perpendicular to the ellipsoid through a given point, northwards usually treated as positive.</description>
+          <name>Geodetic latitude</name>
+          <remarks>Used in geographic 2D and geographic 3D coordinate reference systems.</remarks>
+        </epsg:AxisName>
         <axisAbbrev>Lat</axisAbbrev>
         <axisDirection codeSpace="EPSG">north</axisDirection>
       </CoordinateSystemAxis>
     </axis>
     <axis>
       <CoordinateSystemAxis id="epsg-axis-107" uom="/uom/EPSG/0/9122">
+        <epsg:AxisName id="epsg-axisname-9902">
+          <metaDataProperty>
+            <epsg:CommonMetaData>
+              <epsg:informationSource>OGP</epsg:informationSource>
+              <epsg:revisionDate>2000-03-07</epsg:revisionDate>
+              <epsg:isDeprecated>false</epsg:isDeprecated>
+            </epsg:CommonMetaData>
+          </metaDataProperty>
+          <description>Angle from the prime meridian plane to the meridian plane passing through the given point, eastwards usually treated as positive.</description>
+          <name>Geodetic longitude</name>
+          <remarks>Used in geographic 2D and geographic 3D coordinate reference systems.</remarks>
+        </epsg:AxisName>
         <axisAbbrev>Long</axisAbbrev>
         <axisDirection codeSpace="EPSG">east</axisDirection>
       </CoordinateSystemAxis>
@@ -83,6 +1116,70 @@
 http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
         <epsg:revisionDate>2013-06-15</epsg:revisionDate>
         <epsg:changes>
+          <epsg:ChangeRequest id="epsg-cr-2002.151">
+            <epsg:reportDate>2002-03-06</epsg:reportDate>
+            <epsg:closedDate>2002-06-22</epsg:closedDate>
+            <epsg:reporter>EPSG</epsg:reporter>
+            <epsg:request>Add Indonesian data</epsg:request>
+            <epsg:tablesAffected>Datum; Coordinate Reference System; Coordinate Operation</epsg:tablesAffected>
+            <epsg:codesAffected>6126 6294 6326; 4125 4294 4326-28 2309-10 32646-52 32747-54; 1126 1248 1282.</epsg:codesAffected>
+            <epsg:action>Deprecated datum 6125 6294, geog CRS 4125 4294 and tfm 1282 1286 and replaced them with 6613, 4613 and 1834 respectively. Added datum 6820, geogCRS 4820, tfm 1832-33 and 1835-37, naming system 7311. Added aliases to datum 6326, geogCRS 4326-28, projCRS 2309-10 2933-34 32646-52 32747-54, tfm 1248. Extended origin description for datum 6326. For tfm 1126 Changed version from DMA-Col to DMA-Idn BBI.</epsg:action>
+          </epsg:ChangeRequest>
+          <epsg:ChangeRequest id="epsg-cr-2002.890">
+            <epsg:reportDate>2002-11-27</epsg:reportDate>
+            <epsg:closedDate>2003-01-21</epsg:closedDate>
+            <epsg:reporter>EPSG</epsg:reporter>
+            <epsg:request>Add ITRF</epsg:request>
+            <epsg:tablesAffected>Datum</epsg:tablesAffected>
+            <epsg:codesAffected>6326</epsg:codesAffected>
+            <epsg:action>Added datums 6647-56; geocentric CRSs 4330-38 and 4385, tfm 1935-43. Added remarks to datum 6326 (WGS84).</epsg:action>
+          </epsg:ChangeRequest>
+          <epsg:ChangeRequest id="epsg-cr-2003.270">
+            <epsg:reportDate>2003-08-27</epsg:reportDate>
+            <epsg:closedDate>2003-09-30</epsg:closedDate>
+            <epsg:reporter>Carol McCaig; NIMA</epsg:reporter>
+            <epsg:request>Correct WGS 84 remarks</epsg:request>
+            <epsg:tablesAffected>Datum</epsg:tablesAffected>
+            <epsg:codesAffected>6326</epsg:codesAffected>
+            <epsg:action>Amended origin description and added remarks and info source.</epsg:action>
+          </epsg:ChangeRequest>
+          <epsg:ChangeRequest id="epsg-cr-2005.460">
+            <epsg:reportDate>2005-09-01</epsg:reportDate>
+            <epsg:closedDate>2005-09-30</epsg:closedDate>
+            <epsg:reporter>OGP</epsg:reporter>
+            <epsg:request>Update obsolete url.</epsg:request>
+            <epsg:tablesAffected>Various</epsg:tablesAffected>
+            <epsg:codesAffected>See actions</epsg:codesAffected>
+            <epsg:action>For Area 2833-50, Datum 6133 6135 6162 6165-66 6170-71 6190 6194 6221 6224 6236 6251 6255 6257 6263 6295 6309 6322 6326 6663-65 6674-75; CRSs 2096-98 3032-35 3038-51 3300 4133 4162 4166 4190 4960-61 4974-75 4978 4988-89 25884 31300 31370, Coord Operation 1278-79 1304-06 1331-35 1463-64 1558 1565-66 1568 1593 1596 1701 1751 1849 1885-88 1895 1897 1965 10035 15750-52 18203-04 19938-39 19961 19985-86 19992-94 and UoM 9005 9037-39 9112-14, updated information source field entry. For CRSs 4190, 4960-61 also changed alias remarks field entry from obsolete URL to "see information source".</epsg:action>
+          </epsg:ChangeRequest>
+          <epsg:ChangeRequest id="epsg-cr-2005.550">
+            <epsg:reportDate>2005-09-29</epsg:reportDate>
+            <epsg:closedDate>2005-09-30</epsg:closedDate>
+            <epsg:reporter>OGP</epsg:reporter>
+            <epsg:request>Update WGS 84 definition.</epsg:request>
+            <epsg:tablesAffected>Datum</epsg:tablesAffected>
+            <epsg:codesAffected>6326</epsg:codesAffected>
+            <epsg:action>For datum 6326 added reference to G1150 realisation by (i) in Origin Description replacing "... and a further 0.2m on 29/1/1997 [WGS 84 (G873)] since when they have been retained within 10cm of the then current ITRF" with "... a further 0.2m on 29/1/1997 [WGS 84 (G873)] and a further 0.06m on 20/1/2002 [WGS 84 (G1150)]", (ii) in Remarks, replacing "... WGS 84 (G730) and WGS 84 (G873)" with "... WGS 84 (G730), WGS 84 (G873) and WGS 84 (G1150). Since 1997, WGS 84 has been maintained within 10cm of the then current ITRF", and (iii) in Info Source, updated url to include G1150 addendum at http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf.</epsg:action>
+          </epsg:ChangeRequest>
+          <epsg:ChangeRequest id="epsg-cr-2006.810">
+            <remarks>Reverses addition of aliases made in 2002.151.</remarks>
+            <epsg:reportDate>2006-08-21</epsg:reportDate>
+            <epsg:closedDate>2006-10-02</epsg:closedDate>
+            <epsg:reporter>OGP</epsg:reporter>
+            <epsg:request>Correct Indonesia 1995 datum/CRS</epsg:request>
+            <epsg:tablesAffected>Coordinate Reference System; Coordinate Operation</epsg:tablesAffected>
+            <epsg:codesAffected>2309-10 4326 4978-89 32646-52 32747-54; 1248 1832-33 15548-49</epsg:codesAffected>
+            <epsg:action>Added datum 6755, conversions 15584-85, CRSs 4755 4897-98  23866-72 23877-84, and tfms 15911-12. For datum 6326, CRSs 2309-10 4326 4978-79 32646-52 32747-54, conv 15548-49, tfm 1248 and 1832, deleted DGN-95 alias. For tfm 1833, deleted DGN-95 alias; added remarks. For CRSs 4238, 23846-52 and 23847-54, added supersession remarks.</epsg:action>
+          </epsg:ChangeRequest>
+          <epsg:ChangeRequest   id="ogp-cr-2012.097">
+            <epsg:reportDate>2012-12-05</epsg:reportDate>
+            <epsg:closedDate>2013-06-15</epsg:closedDate>
+            <epsg:reporter>OGP</epsg:reporter>
+            <epsg:request>Update WGS 84 datum remarks</epsg:request>
+            <epsg:tablesAffected>Datum</epsg:tablesAffected>
+            <epsg:codesAffected>6326</epsg:codesAffected>
+            <epsg:action>For datum 6326, amended origin definition and remarks.</epsg:action>
+          </epsg:ChangeRequest>
         </epsg:changes>
         <epsg:show>true</epsg:show>
         <epsg:isDeprecated>false</epsg:isDeprecated>
@@ -90,23 +1187,23 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
     </metaDataProperty>
     <name>World Geodetic System 1984</name>
     <remarks>EPSG::6326 has been the then current realisation. No distinction is made between the original and subsequent (G730, G873, G1150 and G1674) WGS 84 frames. Since 1997, WGS 84 has been maintained within 10cm of the then current ITRF.</remarks>
-    <epsg:AreaOfUse>
-      <gmd:description >
-        <gco:CharacterString >World.</gco:CharacterString>
+    <epsg:AreaOfUse  >
+      <gmd:description>
+        <gco:CharacterString>World.</gco:CharacterString>
       </gmd:description>
-      <gmd:geographicElement >
+      <gmd:geographicElement>
         <gmd:EX_GeographicBoundingBox>
           <gmd:westBoundLongitude>
-            <gco:Decimal >-180</gco:Decimal>
+            <gco:Decimal>-180</gco:Decimal>
           </gmd:westBoundLongitude>
           <gmd:eastBoundLongitude>
-            <gco:Decimal >180</gco:Decimal>
+            <gco:Decimal>180</gco:Decimal>
           </gmd:eastBoundLongitude>
           <gmd:southBoundLatitude>
-            <gco:Decimal >-90</gco:Decimal>
+            <gco:Decimal>-90</gco:Decimal>
           </gmd:southBoundLatitude>
           <gmd:northBoundLatitude>
-            <gco:Decimal >90</gco:Decimal>
+            <gco:Decimal>90</gco:Decimal>
           </gmd:northBoundLatitude>
         </gmd:EX_GeographicBoundingBox>
       </gmd:geographicElement>
@@ -129,6 +1226,15 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
         <epsg:CommonMetaData>
           <epsg:revisionDate>1995-06-02</epsg:revisionDate>
           <epsg:changes>
+            <epsg:ChangeRequest id="epsg-cr-1996.290">
+              <epsg:reportDate>1996-12-12</epsg:reportDate>
+              <epsg:closedDate>1996-12-12</epsg:closedDate>
+              <epsg:reporter>EPSG</epsg:reporter>
+              <epsg:request>Change angles in dms(h) text to sexagesimal degree to be more easily machine readable.</epsg:request>
+              <epsg:tablesAffected>Proj  Pmerid</epsg:tablesAffected>
+              <epsg:codesAffected>Multiple</epsg:codesAffected>
+              <epsg:action>Entries with code 9107 changed to 9102 or 9110</epsg:action>
+            </epsg:ChangeRequest>
           </epsg:changes>
           <epsg:isDeprecated>false</epsg:isDeprecated>
         </epsg:CommonMetaData>
@@ -143,6 +1249,16 @@ http://gis-lab.info/docs/nima-tr8350.2-addendum.pdf</epsg:informationSource>
           <epsg:informationSource>DMA Technical Manual 8350.2-B</epsg:informationSource>
           <epsg:revisionDate>1998-11-11</epsg:revisionDate>
           <epsg:changes>
+            <epsg:ChangeRequest id="epsg-cr-1998.320">
+              <remarks>5 decimal places in 1/f allows computation of semi-minor axis to better than 0.5mm.</remarks>
+              <epsg:reportDate>1998-11-06</epsg:reportDate>
+              <epsg:closedDate>1998-11-11</epsg:closedDate>
+              <epsg:reporter>Peter Laskowski; Intergraph</epsg:reporter>
+              <epsg:request>Increase ellipsoid parameter precision</epsg:request>
+              <epsg:tablesAffected>Ellipsoid</epsg:tablesAffected>
+              <epsg:codesAffected>7019  7030-7033  7036</epsg:codesAffected>
+              <epsg:action>Precision of 1/f increased from 5 decimal places to original publication precision.</epsg:action>
+            </epsg:ChangeRequest>
           </epsg:changes>
           <epsg:isDeprecated>false</epsg:isDeprecated>
         </epsg:CommonMetaData>
