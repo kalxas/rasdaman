@@ -101,40 +101,40 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </tr>
 </thead>
 <tbody valign='top'>
-<tr class='odd'>
+<tr class='even'>
  <td class='primaryKey' title='Primary Key'>id</td>
  <td class='detail'>serial</td>
  <td class='detail' align='right'>10</td>
  <td class='detail' align='center'></td>
  <td class='detail' align='center' title='Automatically updated by the database'>&nbsp;&radic;&nbsp;</td>
- <td class='detail' align='right'>nextval('ps9_coverage_id_seq'::regclass)</td>
+ <td class='detail' align='right'>nextval('ps_coverage_id_seq'::regclass)</td>
  <td class='detail'>
   <table border='0' width='100%' cellspacing='0' cellpadding='0'>
-   <tr class='relative odd' valign='top'>
+   <tr class='relative even' valign='top'>
     <td class='relatedTable detail' title="ps_bounding_box.coverage_id refs ps_coverage.id via ps9_bounding_box_coverage_id_fkey"><a href='ps_bounding_box.html'>ps_bounding_box</a><span class='relatedKey'>.coverage_id</span>
     </td>
     <td class='constraint detail'>ps9_bounding_box_coverage_id_fkey<span title='Cascade on delete:
  Deletion of parent deletes child'>&nbsp;C</span></td>
    </tr>
-   <tr class='relative odd' valign='top'>
+   <tr class='relative even' valign='top'>
     <td class='relatedTable detail' title="ps_domain_set.coverage_id refs ps_coverage.id via ps9_domain_set_coverage_id_fkey"><a href='ps_domain_set.html'>ps_domain_set</a><span class='relatedKey'>.coverage_id</span>
     </td>
     <td class='constraint detail'>ps9_domain_set_coverage_id_fkey<span title='Cascade on delete:
  Deletion of parent deletes child'>&nbsp;C</span></td>
    </tr>
-   <tr class='relative odd' valign='top'>
+   <tr class='relative even' valign='top'>
     <td class='relatedTable detail' title="ps_extra_metadata.coverage_id refs ps_coverage.id via ps9_extra_metadata_coverage_id_fkey"><a href='ps_extra_metadata.html'>ps_extra_metadata</a><span class='relatedKey'>.coverage_id</span>
     </td>
     <td class='constraint detail'>ps9_extra_metadata_coverage_id_fkey<span title='Cascade on delete:
  Deletion of parent deletes child'>&nbsp;C</span></td>
    </tr>
-   <tr class='relative odd' valign='top'>
+   <tr class='relative even' valign='top'>
     <td class='relatedTable detail' title="ps_range_set.coverage_id refs ps_coverage.id via ps9_range_set_coverage_id_fkey"><a href='ps_range_set.html'>ps_range_set</a><span class='relatedKey'>.coverage_id</span>
     </td>
     <td class='constraint detail'>ps9_range_set_coverage_id_fkey<span title='Cascade on delete:
  Deletion of parent deletes child'>&nbsp;C</span></td>
    </tr>
-   <tr class='relative odd' valign='top'>
+   <tr class='relative even' valign='top'>
     <td class='relatedTable detail' title="ps_range_type_component.coverage_id refs ps_coverage.id via ps9_range_type_component_coverage_id_fkey"><a href='ps_range_type_component.html'>ps_range_type_component</a><span class='relatedKey'>.coverage_id</span>
     </td>
     <td class='constraint detail'>ps9_range_type_component_coverage_id_fkey<span title='Cascade on delete:
@@ -145,7 +145,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
+<tr class='odd'>
  <td class='indexedColumn' title='Indexed'>name</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -156,7 +156,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='detail'>gml_type_id</td>
  <td class='detail'>int4</td>
  <td class='detail' align='right'>10</td>
@@ -166,7 +166,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'></td>
  <td class='detail'>
   <table border='0' width='100%' cellspacing='0' cellpadding='0'>
-   <tr class='relative odd' valign='top'>
+   <tr class='relative even' valign='top'>
     <td class='relatedTable detail' title="ps_coverage.gml_type_id refs ps_gml_subtype.id via ps9_coverage_gml_type_id_fkey"><a href='ps_gml_subtype.html'>ps_gml_subtype</a><span class='relatedKey'>.id</span>
     </td>
     <td class='constraint detail'>ps9_coverage_gml_type_id_fkey<span title='Restrict delete:
@@ -176,7 +176,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
+<tr class='odd'>
  <td class='detail'>native_format_id</td>
  <td class='detail'>int4</td>
  <td class='detail' align='right'>10</td>
@@ -186,7 +186,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'></td>
  <td class='detail'>
   <table border='0' width='100%' cellspacing='0' cellpadding='0'>
-   <tr class='relative even' valign='top'>
+   <tr class='relative odd' valign='top'>
     <td class='relatedTable detail' title="ps_coverage.native_format_id refs ps_mime_type.id via ps9_coverage_native_format_id_fkey"><a href='ps_mime_type.html'>ps_mime_type</a><span class='relatedKey'>.id</span>
     </td>
     <td class='constraint detail'>ps9_coverage_native_format_id_fkey<span title='Restrict delete:
@@ -196,8 +196,28 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  </td>
  <td class='comment detail'></td>
 </tr>
+<tr class='even'>
+ <td class='detail'>description_id</td>
+ <td class='detail'>int4</td>
+ <td class='detail' align='right'>10</td>
+ <td class='detail' align='center' title='nullable'>&nbsp;&radic;&nbsp;</td>
+ <td class='detail' align='center'></td>
+ <td class='detail' align='right'>null</td>
+ <td class='detail'></td>
+ <td class='detail'>
+  <table border='0' width='100%' cellspacing='0' cellpadding='0'>
+   <tr class='relative even' valign='top'>
+    <td class='relatedTable detail' title="ps_coverage.description_id refs ps_description.id via ps_coverage_description_id_fkey"><a href='ps_description.html'>ps_description</a><span class='relatedKey'>.id</span>
+    </td>
+    <td class='constraint detail'>ps_coverage_description_id_fkey<span title='Restrict delete:
+ Parent cannot be deleted if children exist'>&nbsp;R</span></td>
+   </tr>
+  </table>
+ </td>
+ <td class='comment detail'></td>
+</tr>
 </table>
-<p title='4 columns'>Table contained 0 rows at Fri Feb 21 16:17 CET 2014<p/>
+<p title='5 columns'>Table contained 13 rows at Mon Jul 07 12:19 CEST 2014<p/>
 </td></tr></table>
 <div class='indent'>
 <b>Indexes:</b>
@@ -229,29 +249,32 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <br><form action='get'><b>Close relationships</b><span class='degrees' id='degrees' title='Detail diminishes with increased separation from ps_coverage'>
 &nbsp;within <label for='oneDegree'><input type='radio' name='degrees' id='oneDegree' checked>one</label>  <label for='twoDegrees'><input type='radio' name='degrees' id='twoDegrees'>two degrees</label> of separation</span><b>:</b></form>
 <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="ps_bounding_box.html" title="ps_bounding_box" alt="" coords="543,5,700,153">
-<area shape="rect" id="node3" href="ps_coverage.html" title="ps_coverage" alt="" coords="211,307,472,461">
-<area shape="rect" id="node5" href="ps_gml_subtype.html" title="ps_gml_subtype" alt="" coords="9,297,161,423">
-<area shape="rect" id="node7" href="ps_mime_type.html" title="ps_mime_type" alt="" coords="5,439,165,542">
-<area shape="rect" id="node8" href="ps_domain_set.html" title="ps_domain_set" alt="" coords="548,169,695,271">
-<area shape="rect" id="node10" href="ps_extra_metadata.html" title="ps_extra_metadata" alt="" coords="540,287,703,435">
-<area shape="rect" id="node12" href="ps_range_set.html" title="ps_range_set" alt="" coords="552,451,691,599">
-<area shape="rect" id="node14" href="ps_range_type_component.html" title="ps_range_type_component" alt="" coords="519,616,724,832">
+<area shape="rect" id="node1" href="ps_bounding_box.html" title="ps_bounding_box" alt="" coords="551,5,708,153">
+<area shape="rect" id="node3" href="ps_coverage.html" title="ps_coverage" alt="" coords="216,308,480,484">
+<area shape="rect" id="node5" href="ps_description.html" title="ps_description" alt="" coords="5,498,171,646">
+<area shape="rect" id="node7" href="ps_gml_subtype.html" title="ps_gml_subtype" alt="" coords="12,237,164,363">
+<area shape="rect" id="node9" href="ps_mime_type.html" title="ps_mime_type" alt="" coords="8,379,168,482">
+<area shape="rect" id="node10" href="ps_domain_set.html" title="ps_domain_set" alt="" coords="552,169,707,271">
+<area shape="rect" id="node12" href="ps_extra_metadata.html" title="ps_extra_metadata" alt="" coords="548,287,711,435">
+<area shape="rect" id="node14" href="ps_range_set.html" title="ps_range_set" alt="" coords="556,451,703,599">
+<area shape="rect" id="node16" href="ps_range_type_component.html" title="ps_range_type_component" alt="" coords="527,616,732,832">
 </map>
   <a name='diagram'><img id='oneDegreeImg' src='../diagrams/ps_coverage.1degree.png' usemap='#oneDegreeRelationshipsDiagram' class='diagram' border='0' alt='' align='left'></a>
 <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="ps_bounding_box.html" title="ps_bounding_box" alt="" coords="543,5,700,153">
-<area shape="rect" id="node3" href="ps_coverage.html" title="ps_coverage" alt="" coords="211,269,472,422">
-<area shape="rect" id="node5" href="ps_gml_subtype.html" title="ps_gml_subtype" alt="" coords="9,297,161,423">
-<area shape="rect" id="node7" href="ps_mime_type.html" title="ps_mime_type" alt="" coords="5,439,165,542">
-<area shape="rect" id="node8" href="ps_domain_set.html" title="ps_domain_set" alt="" coords="548,169,695,271">
-<area shape="rect" id="node10" href="ps_extra_metadata.html" title="ps_extra_metadata" alt="" coords="540,451,703,599">
-<area shape="rect" id="node13" href="ps_extra_metadata_type.html" title="ps_extra_metadata_type" alt="" coords="247,536,436,616">
-<area shape="rect" id="node14" href="ps_format.html" title="ps_format" alt="" coords="269,439,413,519">
-<area shape="rect" id="node16" href="ps_gridded_domain_set.html" title="ps_gridded_domain_set" alt="" coords="769,168,956,248">
-<area shape="rect" id="node18" href="ps_range_set.html" title="ps_range_set" alt="" coords="552,287,691,435">
-<area shape="rect" id="node20" href="ps_range_type_component.html" title="ps_range_type_component" alt="" coords="519,616,724,832">
-<area shape="rect" id="node23" href="ps_range_data_type.html" title="ps_range_data_type" alt="" coords="253,684,429,764">
+<area shape="rect" id="node1" href="ps_bounding_box.html" title="ps_bounding_box" alt="" coords="551,5,708,153">
+<area shape="rect" id="node3" href="ps_coverage.html" title="ps_coverage" alt="" coords="216,183,480,359">
+<area shape="rect" id="node5" href="ps_description.html" title="ps_description" alt="" coords="5,474,171,622">
+<area shape="rect" id="node7" href="ps_gml_subtype.html" title="ps_gml_subtype" alt="" coords="12,213,164,339">
+<area shape="rect" id="node9" href="ps_mime_type.html" title="ps_mime_type" alt="" coords="8,355,168,458">
+<area shape="rect" id="node10" href="ps_domain_set.html" title="ps_domain_set" alt="" coords="552,169,707,271">
+<area shape="rect" id="node12" href="ps_extra_metadata.html" title="ps_extra_metadata" alt="" coords="548,451,711,599">
+<area shape="rect" id="node15" href="ps_extra_metadata_type.html" title="ps_extra_metadata_type" alt="" coords="253,571,443,651">
+<area shape="rect" id="node16" href="ps_format.html" title="ps_format" alt="" coords="276,376,420,456">
+<area shape="rect" id="node18" href="ps_gridded_domain_set.html" title="ps_gridded_domain_set" alt="" coords="777,168,969,248">
+<area shape="rect" id="node20" href="ps_range_set.html" title="ps_range_set" alt="" coords="556,287,703,435">
+<area shape="rect" id="node22" href="ps_range_type_component.html" title="ps_range_type_component" alt="" coords="527,616,732,832">
+<area shape="rect" id="node25" href="ps_range_data_type.html" title="ps_range_data_type" alt="" coords="260,684,436,764">
+<area shape="rect" id="node26" href="ps_service_identification.html" title="ps_service_identification" alt="" coords="255,473,441,553">
 </map>
 
   <a name='diagram'><img id='twoDegreesImg' src='../diagrams/ps_coverage.2degrees.png' usemap='#twoDegreesRelationshipsDiagram' class='diagram' border='0' alt='' align='left'></a>

@@ -1,4 +1,4 @@
-// dot 2.26.3 on Linux 3.2.0-58-generic
+// dot 2.26.3 on Linux 3.2.0-65-generic
 // SchemaSpy rev 590
 digraph "compactRelationshipsDiagram" {
   graph [
@@ -26,7 +26,7 @@ digraph "compactRelationshipsDiagram" {
       <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
       <TR><TD PORT="coverage_id" COLSPAN="3" ALIGN="LEFT">coverage_id</TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">7 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
     </TABLE>>
     URL="tables/ps_bounding_box.html"
     tooltip="ps_bounding_box"
@@ -39,7 +39,8 @@ digraph "compactRelationshipsDiagram" {
       <TR><TD PORT="name" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">name</TD></TR>
       <TR><TD PORT="gml_type_id" COLSPAN="3" ALIGN="LEFT">gml_type_id</TD></TR>
       <TR><TD PORT="native_format_id" COLSPAN="3" ALIGN="LEFT">native_format_id</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">5 &gt;</TD></TR>
+      <TR><TD PORT="description_id" COLSPAN="3" ALIGN="LEFT">description_id</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">13 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">5 &gt;</TD></TR>
     </TABLE>>
     URL="tables/ps_coverage.html"
     tooltip="ps_coverage"
@@ -50,7 +51,7 @@ digraph "compactRelationshipsDiagram" {
       <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">ps_description</TD></TR>
       <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 row</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">9 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">2 &gt;</TD></TR>
     </TABLE>>
     URL="tables/ps_description.html"
     tooltip="ps_description"
@@ -61,7 +62,7 @@ digraph "compactRelationshipsDiagram" {
       <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">ps_domain_set</TD></TR>
       <TR><TD PORT="coverage_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">coverage_id</TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">11 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
     </TABLE>>
     URL="tables/ps_domain_set.html"
     tooltip="ps_domain_set"
@@ -73,8 +74,8 @@ digraph "compactRelationshipsDiagram" {
       <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
       <TR><TD PORT="coverage_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">coverage_id</TD></TR>
       <TR><TD PORT="metadata_type_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">metadata_type_id</TD></TR>
-      <TR><TD PORT="value" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">value</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">2 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
     </TABLE>>
     URL="tables/ps_extra_metadata.html"
     tooltip="ps_extra_metadata"
@@ -134,7 +135,7 @@ digraph "compactRelationshipsDiagram" {
       <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
       <TR><TD PORT="gridded_coverage_id" COLSPAN="3" ALIGN="LEFT">gridded_coverage_id</TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">27 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
     </TABLE>>
     URL="tables/ps_grid_axis.html"
     tooltip="ps_grid_axis"
@@ -145,7 +146,7 @@ digraph "compactRelationshipsDiagram" {
       <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">ps_gridded_domain_set</TD></TR>
       <TR><TD PORT="coverage_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">coverage_id</TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">11 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
     </TABLE>>
     URL="tables/ps_gridded_domain_set.html"
     tooltip="ps_gridded_domain_set"
@@ -206,7 +207,7 @@ digraph "compactRelationshipsDiagram" {
       <TR><TD PORT="label" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">label</TD></TR>
       <TR><TD PORT="description" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">description</TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">10 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">14 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
     </TABLE>>
     URL="tables/ps_quantity.html"
     tooltip="ps_quantity"
@@ -242,7 +243,7 @@ digraph "compactRelationshipsDiagram" {
       <TR><TD PORT="coverage_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">coverage_id</TD></TR>
       <TR><TD PORT="storage_table" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">storage_table</TD></TR>
       <TR><TD PORT="storage_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">storage_id</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">13 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
     </TABLE>>
     URL="tables/ps_range_set.html"
     tooltip="ps_range_set"
@@ -257,7 +258,7 @@ digraph "compactRelationshipsDiagram" {
       <TR><TD PORT="data_type_id" COLSPAN="3" ALIGN="LEFT">data_type_id</TD></TR>
       <TR><TD PORT="component_order" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">component_order</TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">20 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
     </TABLE>>
     URL="tables/ps_range_type_component.html"
     tooltip="ps_range_type_component"
@@ -268,7 +269,7 @@ digraph "compactRelationshipsDiagram" {
       <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">ps_rectilinear_axis</TD></TR>
       <TR><TD PORT="grid_axis_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">grid_axis_id</TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">27 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
     </TABLE>>
     URL="tables/ps_rectilinear_axis.html"
     tooltip="ps_rectilinear_axis"
@@ -286,12 +287,24 @@ digraph "compactRelationshipsDiagram" {
     URL="tables/ps_service_identification.html"
     tooltip="ps_service_identification"
   ];
+  "ps_service_provider" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">ps_service_provider</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="contact_phone_id" COLSPAN="3" ALIGN="LEFT">contact_phone_id</TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 row</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+    </TABLE>>
+    URL="tables/ps_service_provider.html"
+    tooltip="ps_service_provider"
+  ];
   "ps_servicelayer" [
     label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">ps_servicelayer</TD></TR>
-      <TR><TD PORT="serviceid" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">serviceid</TD></TR>
-      <TR><TD PORT="layerid" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">layerid</TD></TR>
+      <TR><TD PORT="serviceid" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">serviceid</TD></TR>
+      <TR><TD PORT="layerid" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">layerid</TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
       <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
     </TABLE>>
@@ -326,13 +339,24 @@ digraph "compactRelationshipsDiagram" {
     URL="tables/ps_styles.html"
     tooltip="ps_styles"
   ];
+  "ps_telephone" [
+    label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">ps_telephone</TD></TR>
+      <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="tables/ps_telephone.html"
+    tooltip="ps_telephone"
+  ];
   "ps_uom" [
     label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">ps_uom</TD></TR>
       <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
       <TR><TD PORT="code" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">code</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 row</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">5 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">1 &gt;</TD></TR>
     </TABLE>>
     URL="tables/ps_uom.html"
     tooltip="ps_uom"
@@ -341,15 +365,16 @@ digraph "compactRelationshipsDiagram" {
     label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">ps_vector_coefficients</TD></TR>
-      <TR><TD PORT="grid_axis_id" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">grid_axis_id</TD></TR>
-      <TR><TD PORT="coefficient" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">coefficient</TD></TR>
+      <TR><TD PORT="grid_axis_id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">grid_axis_id</TD></TR>
+      <TR><TD PORT="coefficient" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">coefficient</TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">0 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">20 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
     </TABLE>>
     URL="tables/ps_vector_coefficients.html"
     tooltip="ps_vector_coefficients"
   ];
   "ps_bounding_box":"coverage_id":w -> "ps_coverage":"id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "ps_coverage":"description_id":w -> "ps_description":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "ps_coverage":"gml_type_id":w -> "ps_gml_subtype":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "ps_coverage":"native_format_id":w -> "ps_mime_type":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "ps_domain_set":"coverage_id":w -> "ps_coverage":"id":e [arrowhead=none dir=back arrowtail=teeodot];
@@ -369,6 +394,7 @@ digraph "compactRelationshipsDiagram" {
   "ps_range_type_component":"data_type_id":w -> "ps_range_data_type":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "ps_rectilinear_axis":"grid_axis_id":w -> "ps_grid_axis":"id":e [arrowhead=none dir=back arrowtail=teeodot];
   "ps_service_identification":"description_id":w -> "ps_description":"id":e [arrowhead=none dir=back arrowtail=crowodot];
+  "ps_service_provider":"contact_phone_id":w -> "ps_telephone":"id":e [arrowhead=none dir=back arrowtail=crowodot];
   "ps_servicelayer":"layerid":w -> "ps_layers":"layerid":e [arrowhead=none dir=back arrowtail=crowodot];
   "ps_servicelayer":"serviceid":w -> "ps_services":"serviceid":e [arrowhead=none dir=back arrowtail=crowodot];
   "ps_styles":"layerid":w -> "ps_layers":"layerid":e [arrowhead=none dir=back arrowtail=crowodot];

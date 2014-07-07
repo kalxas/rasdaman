@@ -1,5 +1,4 @@
 ps_string_constants
-ps_service_provider
 ps_rasdaman_collection
 ps_numeric_constants
 ps_nil_value
@@ -14,6 +13,7 @@ ps_format
 ps_extra_metadata
 ps_vector_coefficients
 ps_styles
+ps_service_provider
 ps_service_identification
 ps_range_set
 ps_pyramidlevels
@@ -26,11 +26,12 @@ ps_domain_set
 ps_coverage
 ps_gml_subtype
 ps_uom
+ps_telephone
 ps_services
 ps_range_data_type
 ps_interval
 ps_gdal_format
 ps_extra_metadata_type
-ps_description
 ps_mime_type
+ps_description
 ps_layers

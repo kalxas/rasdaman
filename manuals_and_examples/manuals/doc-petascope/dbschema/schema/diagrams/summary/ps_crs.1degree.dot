@@ -1,4 +1,4 @@
-// dot 2.26.3 on Linux 3.2.0-58-generic
+// dot 2.26.3 on Linux 3.2.0-65-generic
 // SchemaSpy rev 590
 digraph "ps_crs" {
   graph [
@@ -23,7 +23,7 @@ digraph "ps_crs" {
       <TR><TD COLSPAN="3" BGCOLOR="#9bab96" ALIGN="CENTER">ps_crs</TD></TR>
       <TR><TD PORT="id" COLSPAN="3" BGCOLOR="#bed1b8" ALIGN="LEFT">id</TD></TR>
       <TR><TD PORT="uri" COLSPAN="3" BGCOLOR="#f4f7da" ALIGN="LEFT">uri</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">7 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#f7f7f7">  </TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">17 rows</TD><TD ALIGN="RIGHT" BGCOLOR="#f7f7f7">  </TD></TR>
     </TABLE>>
     URL="tables/ps_crs.html"
     tooltip="ps_crs"

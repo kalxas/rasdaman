@@ -107,7 +107,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail' align='right'>10</td>
  <td class='detail' align='center'></td>
  <td class='detail' align='center' title='Automatically updated by the database'>&nbsp;&radic;&nbsp;</td>
- <td class='detail' align='right'>nextval('ps9_extra_metadata_id_seq'::regclass)</td>
+ <td class='detail' align='right'>nextval('ps_extra_metadata_id_seq'::regclass)</td>
  <td class='detail'></td>
  <td class='detail'> </td>
  <td class='comment detail'></td>
@@ -153,7 +153,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='comment detail'></td>
 </tr>
 <tr class='even'>
- <td class='indexedColumn' title='Indexed'>value</td>
+ <td class='detail'>value</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
  <td class='detail' align='center'></td>
@@ -164,7 +164,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='comment detail'></td>
 </tr>
 </table>
-<p title='4 columns'>Table contained 0 rows at Fri Feb 21 16:17 CET 2014<p/>
+<p title='4 columns'>Table contained 2 rows at Mon Jul 07 12:19 CEST 2014<p/>
 </td></tr></table>
 <div class='indent'>
 <b>Indexes:</b>
@@ -185,10 +185,10 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
   <td class='constraint' style='text-align:left;'>ps_extra_metadata_pkey</td>
  </tr>
  <tr>
-  <td class='indexedColumn'>coverage_id + metadata_type_id + value</td>
+  <td class='indexedColumn'>coverage_id + metadata_type_id</td>
   <td class='detail'>Must be unique</td>
-  <td class='detail' style='text-align:left;'><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
-  <td class='constraint' style='text-align:left;'>ps_extra_metadata_coverage_id_metadata_type_id_value_key</td>
+  <td class='detail' style='text-align:left;'><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
+  <td class='constraint' style='text-align:left;'>ps_extra_metadata_coverage_id_metadata_type_id_key</td>
  </tr>
 </table>
 </div>
@@ -196,21 +196,22 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <br><form action='get'><b>Close relationships</b><span class='degrees' id='degrees' title='Detail diminishes with increased separation from ps_extra_metadata'>
 &nbsp;within <label for='oneDegree'><input type='radio' name='degrees' id='oneDegree' checked>one</label>  <label for='twoDegrees'><input type='radio' name='degrees' id='twoDegrees'>two degrees</label> of separation</span><b>:</b></form>
 <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="ps_extra_metadata.html" title="ps_extra_metadata" alt="" coords="243,50,512,203">
-<area shape="rect" id="node3" href="ps_coverage.html" title="ps_coverage" alt="" coords="25,5,177,153">
-<area shape="rect" id="node5" href="ps_extra_metadata_type.html" title="ps_extra_metadata_type" alt="" coords="7,169,196,271">
+<area shape="rect" id="node1" href="ps_extra_metadata.html" title="ps_extra_metadata" alt="" coords="243,62,512,215">
+<area shape="rect" id="node3" href="ps_coverage.html" title="ps_coverage" alt="" coords="21,5,181,176">
+<area shape="rect" id="node5" href="ps_extra_metadata_type.html" title="ps_extra_metadata_type" alt="" coords="7,193,196,295">
 </map>
   <a name='diagram'><img id='oneDegreeImg' src='../diagrams/ps_extra_metadata.1degree.png' usemap='#oneDegreeRelationshipsDiagram' class='diagram' border='0' alt='' align='left'></a>
 <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
 <area shape="rect" id="node1" href="ps_bounding_box.html" title="ps_bounding_box" alt="" coords="503,5,660,85">
-<area shape="rect" id="node3" href="ps_coverage.html" title="ps_coverage" alt="" coords="229,201,381,349">
-<area shape="rect" id="node5" href="ps_gml_subtype.html" title="ps_gml_subtype" alt="" coords="9,209,161,289">
-<area shape="rect" id="node7" href="ps_mime_type.html" title="ps_mime_type" alt="" coords="5,307,165,387">
-<area shape="rect" id="node8" href="ps_domain_set.html" title="ps_domain_set" alt="" coords="508,103,655,183">
-<area shape="rect" id="node10" href="ps_extra_metadata.html" title="ps_extra_metadata" alt="" coords="447,394,716,547">
-<area shape="rect" id="node13" href="ps_extra_metadata_type.html" title="ps_extra_metadata_type" alt="" coords="211,443,400,546">
-<area shape="rect" id="node14" href="ps_range_set.html" title="ps_range_set" alt="" coords="512,200,651,280">
-<area shape="rect" id="node16" href="ps_range_type_component.html" title="ps_range_type_component" alt="" coords="479,297,684,377">
+<area shape="rect" id="node3" href="ps_coverage.html" title="ps_coverage" alt="" coords="225,201,385,372">
+<area shape="rect" id="node5" href="ps_description.html" title="ps_description" alt="" coords="13,367,157,447">
+<area shape="rect" id="node7" href="ps_gml_subtype.html" title="ps_gml_subtype" alt="" coords="9,172,161,252">
+<area shape="rect" id="node9" href="ps_mime_type.html" title="ps_mime_type" alt="" coords="5,269,165,349">
+<area shape="rect" id="node10" href="ps_domain_set.html" title="ps_domain_set" alt="" coords="504,103,659,183">
+<area shape="rect" id="node12" href="ps_extra_metadata.html" title="ps_extra_metadata" alt="" coords="447,394,716,547">
+<area shape="rect" id="node15" href="ps_extra_metadata_type.html" title="ps_extra_metadata_type" alt="" coords="211,443,400,546">
+<area shape="rect" id="node16" href="ps_range_set.html" title="ps_range_set" alt="" coords="508,200,655,280">
+<area shape="rect" id="node18" href="ps_range_type_component.html" title="ps_range_type_component" alt="" coords="479,297,684,377">
 </map>
 
   <a name='diagram'><img id='twoDegreesImg' src='../diagrams/ps_extra_metadata.2degrees.png' usemap='#twoDegreesRelationshipsDiagram' class='diagram' border='0' alt='' align='left'></a>

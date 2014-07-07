@@ -102,7 +102,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </thead>
 <tbody valign='top'>
 <tr class='even'>
- <td class='indexedColumn' title='Indexed'>serviceid</td>
+ <td class='primaryKey' title='Primary Key'>serviceid</td>
  <td class='detail'>int4</td>
  <td class='detail' align='right'>10</td>
  <td class='detail' align='center'></td>
@@ -122,7 +122,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='comment detail'></td>
 </tr>
 <tr class='odd'>
- <td class='indexedColumn' title='Indexed'>layerid</td>
+ <td class='primaryKey' title='Primary Key'>layerid</td>
  <td class='detail'>int4</td>
  <td class='detail' align='right'>10</td>
  <td class='detail' align='center'></td>
@@ -153,7 +153,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='comment detail'></td>
 </tr>
 </table>
-<p title='3 columns'>Table contained 0 rows at Fri Feb 21 16:17 CET 2014<p/>
+<p title='3 columns'>Table contained 0 rows at Mon Jul 07 12:19 CEST 2014<p/>
 </td></tr></table>
 <div class='indent'>
 <b>Indexes:</b>
@@ -168,10 +168,10 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </thead>
 <tbody>
  <tr>
-  <td class='indexedColumn'>serviceid + layerid</td>
-  <td class='detail'>Must be unique</td>
+  <td class='primaryKey'>serviceid + layerid</td>
+  <td class='detail'>Primary key</td>
   <td class='detail' style='text-align:left;'><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
-  <td class='constraint' style='text-align:left;'>ps_servicelayer_serviceid_layerid_key</td>
+  <td class='constraint' style='text-align:left;'>ps_servicelayer_pkey</td>
  </tr>
 </table>
 </div>

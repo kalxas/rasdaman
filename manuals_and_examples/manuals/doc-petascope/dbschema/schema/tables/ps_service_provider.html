@@ -101,18 +101,18 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </tr>
 </thead>
 <tbody valign='top'>
-<tr class='odd'>
+<tr class='even'>
  <td class='primaryKey' title='Primary Key'>id</td>
  <td class='detail'>serial</td>
  <td class='detail' align='right'>10</td>
  <td class='detail' align='center'></td>
  <td class='detail' align='center' title='Automatically updated by the database'>&nbsp;&radic;&nbsp;</td>
- <td class='detail' align='right'>nextval('ps9_service_provider_id_seq'::regclass)</td>
+ <td class='detail' align='right'>nextval('ps_service_provider_id_seq'::regclass)</td>
  <td class='detail'></td>
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
+<tr class='odd'>
  <td class='detail'>name</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -123,7 +123,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='detail'>site</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -134,7 +134,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
+<tr class='odd'>
  <td class='detail'>contact_individual_name</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -145,7 +145,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='detail'>contact_position_name</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -156,18 +156,27 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
- <td class='detail'>contact_phone</td>
- <td class='detail'>text</td>
- <td class='detail' align='right'>2147483647</td>
+<tr class='odd'>
+ <td class='detail'>contact_phone_id</td>
+ <td class='detail'>int4</td>
+ <td class='detail' align='right'>10</td>
  <td class='detail' align='center' title='nullable'>&nbsp;&radic;&nbsp;</td>
  <td class='detail' align='center'></td>
  <td class='detail' align='right'>null</td>
  <td class='detail'></td>
- <td class='detail'> </td>
+ <td class='detail'>
+  <table border='0' width='100%' cellspacing='0' cellpadding='0'>
+   <tr class='relative odd' valign='top'>
+    <td class='relatedTable detail' title="ps_service_provider.contact_phone_id refs ps_telephone.id via ps_service_provider_contact_phone_id_fkey"><a href='ps_telephone.html'>ps_telephone</a><span class='relatedKey'>.id</span>
+    </td>
+    <td class='constraint detail'>ps_service_provider_contact_phone_id_fkey<span title='Restrict delete:
+ Parent cannot be deleted if children exist'>&nbsp;R</span></td>
+   </tr>
+  </table>
+ </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='detail'>contact_delivery_points</td>
  <td class='detail'>_text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -178,7 +187,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
+<tr class='odd'>
  <td class='detail'>contact_city</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -189,7 +198,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='detail'>contact_administrative_area</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -200,7 +209,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
+<tr class='odd'>
  <td class='detail'>contact_postal_code</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -211,7 +220,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='detail'>contact_country</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -222,7 +231,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
+<tr class='odd'>
  <td class='detail'>contact_email_addresses</td>
  <td class='detail'>_text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -233,7 +242,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='detail'>contact_hours_of_service</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -244,7 +253,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
+<tr class='odd'>
  <td class='detail'>contact_instructions</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -255,7 +264,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='detail'>contact_role</td>
  <td class='detail'>text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -267,7 +276,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='comment detail'></td>
 </tr>
 </table>
-<p title='15 columns'>Table contained 1 rows at Fri Feb 21 16:17 CET 2014<p/>
+<p title='15 columns'>Table contained 1 rows at Mon Jul 07 12:19 CEST 2014<p/>
 </td></tr></table>
 <div class='indent'>
 <b>Indexes:</b>
@@ -289,6 +298,13 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  </tr>
 </table>
 </div>
+<table width='100%' border='0'><tr><td class='container'>
+<br><form action='get'><b>Close relationships:</b></form><map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="ps_service_provider.html" title="ps_service_provider" alt="" coords="189,5,533,408">
+<area shape="rect" id="node3" href="ps_telephone.html" title="ps_telephone" alt="" coords="5,121,144,247">
+</map>
+  <a name='diagram'><img id='oneDegreeImg' src='../diagrams/ps_service_provider.1degree.png' usemap='#oneDegreeRelationshipsDiagram' class='diagram' border='0' alt='' align='left'></a>
+</td></tr></table>
 </div>
 </body>
 </html>

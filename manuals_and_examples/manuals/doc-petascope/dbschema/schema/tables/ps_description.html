@@ -101,16 +101,22 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </tr>
 </thead>
 <tbody valign='top'>
-<tr class='even'>
+<tr class='odd'>
  <td class='primaryKey' title='Primary Key'>id</td>
  <td class='detail'>serial</td>
  <td class='detail' align='right'>10</td>
  <td class='detail' align='center'></td>
  <td class='detail' align='center' title='Automatically updated by the database'>&nbsp;&radic;&nbsp;</td>
- <td class='detail' align='right'>nextval('ps9_description_id_seq'::regclass)</td>
+ <td class='detail' align='right'>nextval('ps_description_id_seq'::regclass)</td>
  <td class='detail'>
   <table border='0' width='100%' cellspacing='0' cellpadding='0'>
-   <tr class='relative even' valign='top'>
+   <tr class='relative odd' valign='top'>
+    <td class='relatedTable detail' title="ps_coverage.description_id refs ps_description.id via ps_coverage_description_id_fkey"><a href='ps_coverage.html'>ps_coverage</a><span class='relatedKey'>.description_id</span>
+    </td>
+    <td class='constraint detail'>ps_coverage_description_id_fkey<span title='Restrict delete:
+ Parent cannot be deleted if children exist'>&nbsp;R</span></td>
+   </tr>
+   <tr class='relative odd' valign='top'>
     <td class='relatedTable detail' title="ps_service_identification.description_id refs ps_description.id via ps9_service_identification_description_id_fkey"><a href='ps_service_identification.html'>ps_service_identification</a><span class='relatedKey'>.description_id</span>
     </td>
     <td class='constraint detail'>ps9_service_identification_description_id_fkey<span title='Restrict delete:
@@ -121,7 +127,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='detail'>titles</td>
  <td class='detail'>_text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -132,7 +138,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='even'>
+<tr class='odd'>
  <td class='detail'>abstracts</td>
  <td class='detail'>_text</td>
  <td class='detail' align='right'>2147483647</td>
@@ -143,10 +149,10 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='detail'> </td>
  <td class='comment detail'></td>
 </tr>
-<tr class='odd'>
+<tr class='even'>
  <td class='detail'>keyword_group_ids</td>
  <td class='detail'>_int4</td>
- <td class='detail' align='right'>2147483647</td>
+ <td class='detail' align='right'>10</td>
  <td class='detail' align='center' title='nullable'>&nbsp;&radic;&nbsp;</td>
  <td class='detail' align='center'></td>
  <td class='detail' align='right'>null</td>
@@ -155,7 +161,7 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
  <td class='comment detail'></td>
 </tr>
 </table>
-<p title='4 columns'>Table contained 1 rows at Fri Feb 21 16:17 CET 2014<p/>
+<p title='4 columns'>Table contained 9 rows at Mon Jul 07 12:19 CEST 2014<p/>
 </td></tr></table>
 <div class='indent'>
 <b>Indexes:</b>
@@ -178,11 +184,28 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 </table>
 </div>
 <table width='100%' border='0'><tr><td class='container'>
-<br><form action='get'><b>Close relationships:</b></form><map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="ps_service_identification.html" title="ps_service_identification" alt="" coords="340,5,527,221">
-<area shape="rect" id="node3" href="ps_description.html" title="ps_description" alt="" coords="7,25,295,178">
+<br><form action='get'><b>Close relationships</b><span class='degrees' id='degrees' title='Detail diminishes with increased separation from ps_description'>
+&nbsp;within <label for='oneDegree'><input type='radio' name='degrees' id='oneDegree' checked>one</label>  <label for='twoDegrees'><input type='radio' name='degrees' id='twoDegrees'>two degrees</label> of separation</span><b>:</b></form>
+<map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
+<area shape="rect" id="node1" href="ps_coverage.html" title="ps_coverage" alt="" coords="353,5,513,176">
+<area shape="rect" id="node3" href="ps_description.html" title="ps_description" alt="" coords="7,154,295,307">
+<area shape="rect" id="node4" href="ps_service_identification.html" title="ps_service_identification" alt="" coords="340,193,527,409">
 </map>
   <a name='diagram'><img id='oneDegreeImg' src='../diagrams/ps_description.1degree.png' usemap='#oneDegreeRelationshipsDiagram' class='diagram' border='0' alt='' align='left'></a>
+<map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
+<area shape="rect" id="node1" href="ps_bounding_box.html" title="ps_bounding_box" alt="" coords="596,5,753,85">
+<area shape="rect" id="node3" href="ps_coverage.html" title="ps_coverage" alt="" coords="353,201,513,372">
+<area shape="rect" id="node5" href="ps_description.html" title="ps_description" alt="" coords="7,387,295,541">
+<area shape="rect" id="node7" href="ps_gml_subtype.html" title="ps_gml_subtype" alt="" coords="75,183,227,263">
+<area shape="rect" id="node9" href="ps_mime_type.html" title="ps_mime_type" alt="" coords="71,280,231,360">
+<area shape="rect" id="node10" href="ps_domain_set.html" title="ps_domain_set" alt="" coords="597,103,752,183">
+<area shape="rect" id="node12" href="ps_extra_metadata.html" title="ps_extra_metadata" alt="" coords="593,200,756,280">
+<area shape="rect" id="node14" href="ps_range_set.html" title="ps_range_set" alt="" coords="601,297,748,377">
+<area shape="rect" id="node16" href="ps_range_type_component.html" title="ps_range_type_component" alt="" coords="572,395,777,475">
+<area shape="rect" id="node18" href="ps_service_identification.html" title="ps_service_identification" alt="" coords="340,389,527,605">
+</map>
+
+  <a name='diagram'><img id='twoDegreesImg' src='../diagrams/ps_description.2degrees.png' usemap='#twoDegreesRelationshipsDiagram' class='diagram' border='0' alt='' align='left'></a>
 </td></tr></table>
 </div>
 </body>
