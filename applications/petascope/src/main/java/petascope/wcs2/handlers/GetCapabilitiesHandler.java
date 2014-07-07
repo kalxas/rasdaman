@@ -96,7 +96,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             // Data from petascopedb tables
             ServiceIdentification sId = sMeta.getIdentification();
             Description sDescr        = sId.getDescription();
-            Element c;
+            Element fatherEl;
             // insert title(s) on top of template-coded ServiceType and ServiceTypeVersion
             insertOwsTitles(sDescr, serviceIdentification, 1);
             // insert abstract(s)
@@ -105,32 +105,32 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             insertOwsKeywords(sDescr, serviceIdentification, serviceIdentification.getChildCount());
 
             // ows:ServiceType and ows:ServiceTypeVersion
-            c = new Element(PREFIX_OWS + ":" + LABEL_SERVICE_TYPE, NAMESPACE_OWS);
-            c.appendChild(sId.getType());
-            serviceIdentification.appendChild(c);
+            fatherEl = new Element(PREFIX_OWS + ":" + LABEL_SERVICE_TYPE, NAMESPACE_OWS);
+            fatherEl.appendChild(sId.getType());
+            serviceIdentification.appendChild(fatherEl);
             for (String version : sId.getTypeVersions()) {
-                c = new Element(PREFIX_OWS + ":" + LABEL_SERVICE_TYPE_VERSION, NAMESPACE_OWS);
-                c.appendChild(version);
-                serviceIdentification.appendChild(c);
+                fatherEl = new Element(PREFIX_OWS + ":" + LABEL_SERVICE_TYPE_VERSION, NAMESPACE_OWS);
+                fatherEl.appendChild(version);
+                serviceIdentification.appendChild(fatherEl);
             }
 
             // Profiles
             for (String id : ExtensionsRegistry.getExtensionIds()) {
-                c = new Element(PREFIX_OWS + ":" + LABEL_PROFILE, NAMESPACE_OWS);
-                c.appendChild(id);
-                serviceIdentification.appendChild(c);
+                fatherEl = new Element(PREFIX_OWS + ":" + LABEL_PROFILE, NAMESPACE_OWS);
+                fatherEl.appendChild(id);
+                serviceIdentification.appendChild(fatherEl);
             }
 
             // Fees and constraints
             if (!sId.getFees().isEmpty()) {
-                c = new Element(PREFIX_OWS + ":" + LABEL_FEES, NAMESPACE_OWS);
-                c.appendChild(sId.getFees());
-                serviceIdentification.appendChild(c);
+                fatherEl = new Element(PREFIX_OWS + ":" + LABEL_FEES, NAMESPACE_OWS);
+                fatherEl.appendChild(sId.getFees());
+                serviceIdentification.appendChild(fatherEl);
             }
             for (String constraint : sId.getAccessConstraints()) {
-                c = new Element(PREFIX_OWS + ":" + LABEL_ACCESS_CONSTRAINTS, NAMESPACE_OWS);
-                c.appendChild(constraint);
-                serviceIdentification.appendChild(c);
+                fatherEl = new Element(PREFIX_OWS + ":" + LABEL_ACCESS_CONSTRAINTS, NAMESPACE_OWS);
+                fatherEl.appendChild(constraint);
+                serviceIdentification.appendChild(fatherEl);
             }
 
             // Add to capabilities
@@ -160,69 +160,69 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
             }
             // mandatory service contact
             c = new Element(PREFIX_OWS + ":" + LABEL_SERVICE_CONTACT, NAMESPACE_OWS);
-            Element cc;
+            Element childEl;
             // name
             if (!sPro.getContact().getIndividualName().isEmpty()) {
-                cc = new Element(PREFIX_OWS + ":" + LABEL_INDIVIDUAL_NAME, NAMESPACE_OWS);
-                cc.appendChild(sPro.getContact().getIndividualName());
-                c.appendChild(cc);
+                childEl = new Element(PREFIX_OWS + ":" + LABEL_INDIVIDUAL_NAME, NAMESPACE_OWS);
+                childEl.appendChild(sPro.getContact().getIndividualName());
+                c.appendChild(childEl);
             }
             // position
             if (!sPro.getContact().getPositionName().isEmpty()) {
-                cc = new Element(PREFIX_OWS + ":" + LABEL_POSITION_NAME, NAMESPACE_OWS);
-                cc.appendChild(sPro.getContact().getPositionName());
-                c.appendChild(cc);
+                childEl = new Element(PREFIX_OWS + ":" + LABEL_POSITION_NAME, NAMESPACE_OWS);
+                childEl.appendChild(sPro.getContact().getPositionName());
+                c.appendChild(childEl);
             }
             //
-            cc = new Element(PREFIX_OWS + ":" + LABEL_CONTACT_INFO, NAMESPACE_OWS);
-            Element ccc;
+            childEl = new Element(PREFIX_OWS + ":" + LABEL_CONTACT_INFO, NAMESPACE_OWS);
+            Element grandChildEl;
             // phone
             if (!sPro.getContact().getContactInfo().getVoicePhones().isEmpty() ||
                 !sPro.getContact().getContactInfo().getFacsimilePhones().isEmpty()) {
-                ccc = new Element(PREFIX_OWS + ":" + LABEL_PHONE, NAMESPACE_OWS);
-                Element cccc;
+                grandChildEl = new Element(PREFIX_OWS + ":" + LABEL_PHONE, NAMESPACE_OWS);
+                Element greatGrandChildEl;
                 // voice [0..*]
                 for (String voiceNumber : sPro.getContact().getContactInfo().getVoicePhones()) {
-                    cccc = new Element(PREFIX_OWS + ":" + LABEL_VOICE, NAMESPACE_OWS);
-                    cccc.appendChild(voiceNumber);
-                    ccc.appendChild(cccc);
+                    greatGrandChildEl = new Element(PREFIX_OWS + ":" + LABEL_VOICE, NAMESPACE_OWS);
+                    greatGrandChildEl.appendChild(voiceNumber);
+                    grandChildEl.appendChild(greatGrandChildEl);
                 }
                 // facsimile [0..*]
                 for (String facsimileNumber : sPro.getContact().getContactInfo().getFacsimilePhones()) {
-                    cccc = new Element(PREFIX_OWS + ":" + LABEL_FACSIMILE, NAMESPACE_OWS);
-                    cccc.appendChild(facsimileNumber);
-                    ccc.appendChild(cccc);
+                    greatGrandChildEl = new Element(PREFIX_OWS + ":" + LABEL_FACSIMILE, NAMESPACE_OWS);
+                    greatGrandChildEl.appendChild(facsimileNumber);
+                    grandChildEl.appendChild(greatGrandChildEl);
                 }
                 //
-                cc.appendChild(ccc);
+                childEl.appendChild(grandChildEl);
             }
             // address
             Element address = new Element(PREFIX_OWS + ":" + LABEL_ADDRESS, NAMESPACE_OWS);
             for (Pair<String,String> xmlValue : sPro.getContact().getContactInfo().getAddress().getAddressMetadata()) {
-                ccc = new Element(PREFIX_OWS + ":" + xmlValue.fst, NAMESPACE_OWS);
-                ccc.appendChild(xmlValue.snd);
-                address.appendChild(ccc);
+                grandChildEl = new Element(PREFIX_OWS + ":" + xmlValue.fst, NAMESPACE_OWS);
+                grandChildEl.appendChild(xmlValue.snd);
+                address.appendChild(grandChildEl);
             }
-            cc.appendChild(address);
+            childEl.appendChild(address);
             // hours of service
             if (!sPro.getContact().getContactInfo().getHoursOfService().isEmpty()) {
-                ccc = new Element(PREFIX_OWS + ":" + LABEL_HOURS_OF_SERVICE, NAMESPACE_OWS);
-                ccc.appendChild(sPro.getContact().getContactInfo().getHoursOfService());
-                cc.appendChild(ccc);
+                grandChildEl = new Element(PREFIX_OWS + ":" + LABEL_HOURS_OF_SERVICE, NAMESPACE_OWS);
+                grandChildEl.appendChild(sPro.getContact().getContactInfo().getHoursOfService());
+                childEl.appendChild(grandChildEl);
             }
             // contact instructions
             if (!sPro.getContact().getContactInfo().getInstructions().isEmpty()) {
-                ccc = new Element(PREFIX_OWS + ":" + LABEL_CONTACT_INSTRUCTIONS, NAMESPACE_OWS);
-                ccc.appendChild(sPro.getContact().getContactInfo().getInstructions());
-                cc.appendChild(ccc);
+                grandChildEl = new Element(PREFIX_OWS + ":" + LABEL_CONTACT_INSTRUCTIONS, NAMESPACE_OWS);
+                grandChildEl.appendChild(sPro.getContact().getContactInfo().getInstructions());
+                childEl.appendChild(grandChildEl);
             }
             // Add ContactInfo to ServiceContact (mandatory)
-            c.appendChild(cc);
+            c.appendChild(childEl);
             // role
             if (!sPro.getContact().getRole().isEmpty()) {
-                cc = new Element(PREFIX_OWS + ":" + LABEL_ROLE, NAMESPACE_OWS);
-                cc.appendChild(sPro.getContact().getRole());
-                c.appendChild(cc);
+                childEl = new Element(PREFIX_OWS + ":" + LABEL_ROLE, NAMESPACE_OWS);
+                childEl.appendChild(sPro.getContact().getRole());
+                c.appendChild(childEl);
             }
 
             // Add ServiceContact
