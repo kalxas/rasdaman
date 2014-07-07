@@ -21,11 +21,13 @@
 # For more information please see <http://www.rasdaman.org>
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 
+. ../../../util/common.sh # load prepare_xml_file util
 out="$1"
 oracle="$2"
 
 # extract coverage summary of irr_cube_2
 grep irr_cube_2 "$out" -B3 -A12 > "$out".tmp
+prepare_xml_file "$out".tmp
 
 # diff
 diff -b "$out".tmp "$oracle" > /dev/null 2>&1
