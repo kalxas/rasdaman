@@ -40,7 +40,7 @@ import petascope.wcs2.parsers.GetCoverageRequest;
  */
 public class MultipartFormatExtension extends  GmlFormatExtension {
 
-    public static final String[] SET_VALUES = new String[] { MIME_TIFF, MIME_JP2 };
+    public static final String[] SET_VALUES = new String[] { MIME_TIFF, MIME_JP2, MIME_NETCDF };
     public static final Set<String> SUPPORTED_FORMATS = new HashSet<String>(Arrays.asList(SET_VALUES));
 
     @Override
