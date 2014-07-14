@@ -40,9 +40,8 @@
 #include "unistd.h"
 #include <limits>
 #include <algorithm>
-#ifdef HAVE_LIBSIGSEGV
-#include <sigsegv.h>
-#endif
+
+#include "raslib/commonutil.hh"
 
 
 #include "rasimport.hh"
@@ -1435,26 +1434,35 @@ void getMetaURIs(Header& header, RasdamanHelper2& helper, bool b3D)
     header.crs_uris.push_back(uris);
 }
 
-#if HAVE_SIGSEGV_RECOVERY
-int
-handler (void *fault_address, int serious)
+
+void
+crash_handler (int sig, siginfo_t* info, void * ucontext)
 {
+
+    ENTER( "crash_handler");
+
+
+    print_stacktrace(ucontext);
+
     // clean up connection in case of segfault
     if (rasconn)
     {
         delete rasconn;
     }
+
+    LEAVE("crash_handler");
+    exit(SEGFAULT_EXIT_CODE);
 }
-#endif
+
 
 // ----------------------------------------- MAIN ------------------------------------------------
 
 int
 main(int argc, char** argv)
 {
-#if HAVE_SIGSEGV_RECOVERY
-    sigsegv_install_handler(&handler);
-#endif
+
+    installSigSegvHandler(crash_handler);
+
     rasconn = NULL;
 
     SET_OUTPUT(1);

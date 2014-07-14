@@ -23,21 +23,30 @@
 #include "config.h"
 #include "raslib/rmdebug.hh"
 
-#ifdef HAVE_LIBSIGSEGV
+#include <signal.h>
 #include <execinfo.h>
 #include <cxxabi.h>
-#include <sigsegv.h>
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+
+#include "commonutil.hh"
+
+#include "debug/debug.hh"   //ENTER and LEAVE
 
 // max length of segfault backtrace output
 #define BACKTRACE_TRUNC 50
 #define MAX_MSG_LEN 500
 
-void print_stacktrace(void *fault_address) {
+void print_stacktrace(void *ucontext) {
   // code adapted from
   // http://stackoverflow.com/questions/77005/how-to-generate-a-stacktrace-when-my-gcc-c-app-crashes/2526298#2526298
+
+  void* fault_address;
+  sig_ucontext_t* uc;
+  uc = (sig_ucontext_t*) ucontext;
+  fault_address = getFaultAddress(uc);
+
   void * addresses[BACKTRACE_TRUNC];
   int size = backtrace(addresses, BACKTRACE_TRUNC);
   addresses[1] = fault_address;
@@ -46,8 +55,12 @@ void print_stacktrace(void *fault_address) {
 
   // skip first stack frame (points here)
   RMInit::logOut << endl << endl << "Segmentation fault caught, stacktrace:" << endl;
+
+  printf("\n\nSegmentation fault caught, stacktrace:\n");
+
   for (int i = 3, j = 1; i < size && messages != NULL; ++i, ++j) {
     char *mangled_name = 0, *offset_begin = 0, *offset_end = 0;
+
 
     // find parantheses and +address offset surrounding mangled name
     for (char *p = messages[i]; *p; ++p) {
@@ -63,15 +76,27 @@ void print_stacktrace(void *fault_address) {
 
     // if the line could be processed, attempt to demangle the symbol
     if (mangled_name && offset_begin && offset_end &&
-            mangled_name < offset_begin) {
+            mangled_name < offset_begin ) {
       *mangled_name++ = '\0';
       *offset_begin++ = '\0';
       *offset_end++ = '\0';
-
       // get source file name and line
       char cmd[MAX_MSG_LEN];
       char sourceFileLine[MAX_MSG_LEN];
-      sprintf(cmd, "addr2line -i -s -e %s 0x%x", messages[i], addresses[i]);
+
+      //get absolute path of the currently executing binary
+      char linkname[64];
+      pid_t pid = getpid();
+
+      if (snprintf(linkname, sizeof(linkname), "/proc/%i/exe", pid) < 0)
+      {
+          RMInit::logOut << endl << "Error getting binary path for print_stacktrace." << std::endl;
+          printf("Error getting binary path for print_stackTrace.\n");
+      }
+
+
+      sprintf(cmd, "addr2line -i -s -e %s 0x%x", linkname, addresses[i]);
+
       FILE *fp = popen(cmd, "r");
       if (fp != NULL)
       {
@@ -92,21 +117,76 @@ void print_stacktrace(void *fault_address) {
         RMInit::logOut << "[bt]: (" << j << ") " << messages[i] << " (" << sourceFileLine << ") - "
                 << real_name << "+" << offset_begin << offset_end
                 << std::endl;
+        fflush(stdout);
         printf("[bt]: (%d) %s (%s) - %s+%s%s\n", j, messages[i], sourceFileLine, real_name, offset_begin, offset_end);
+
 
       }        // otherwise, output the mangled function name
       else {
         RMInit::logOut << "[bt]: (" << j << ") " << messages[i] << " (" << sourceFileLine << ") - "
                 << mangled_name << "+" << offset_begin << offset_end
                 << std::endl;
+        fflush(stdout);
+        printf("[bt]: (%d) %s (%s) - %s+%s%s\n", j, messages[i], sourceFileLine, real_name, offset_begin, offset_end);
+
       }
       free(real_name);
     }      // otherwise, print the whole line
     else {
       RMInit::logOut << "[bt]: (" << j << ") " << messages[i] << std::endl;
+      printf("[bt]: (%d) %s\n", j, messages[i]);
     }
   }
 
   free(messages);
 }
+
+
+void
+installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ) ){
+
+    ENTER( "installSigSegvHandler" );
+
+    struct sigaction sigact;
+
+    //setup the handling function
+    sigact.sa_sigaction = cleanUpHandler;
+
+
+    sigact.sa_flags = SA_RESTART | SA_SIGINFO;
+
+
+    int retVal = sigaction(SIGSEGV , &sigact, (struct sigaction *)NULL);
+
+    if(retVal != 0)
+    {
+      RMInit::logOut << std::endl << "Installing SIGSEGV handler failed. " << std::endl;
+    }
+
+    LEAVE( "installSigSegvHandler");
+
+}
+
+
+
+
+void* getFaultAddress(sig_ucontext_t * uc)
+{
+    ENTER( "getFaultAddress");
+    void *              caller_address;
+
+     /* Get the address at the time the signal was raised */
+#if defined(__i386__) // gcc specific
+ caller_address = (void *) uc->uc_mcontext.eip; // EIP: x86 specific
+#elif defined(__x86_64__) // gcc specific
+ caller_address = (void *) uc->uc_mcontext.rip; // RIP: x86_64 specific
+#else
+#error Unsupported architecture. // TODO: Add support for other arch.
 #endif
+
+
+
+    LEAVE( "getFaultAddress");
+    return caller_address;
+
+}

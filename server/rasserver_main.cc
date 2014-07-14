@@ -67,9 +67,6 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include "relblobif/tilecache.hh"
 #include "raslib/commonutil.hh"
 #include <signal.h>
-#ifdef HAVE_LIBSIGSEGV
-#include <sigsegv.h>
-#endif
 
 RMINITGLOBALS('C');
 
@@ -118,9 +115,12 @@ const char* serverName  = 0;
 int         serverListenPort = 0;
 ServerComm* server = NULL;
 
-#ifdef HAVE_SIGSEGV_RECOVERY
-int handler(void *fault_address, int serious) {
-  print_stacktrace(fault_address);
+
+void
+crash_handler(int sig, siginfo_t* info, void * ucontext) {
+  ENTER( "crash_handler");
+
+  print_stacktrace(ucontext);
   if (TileCache::cacheLimit > 0)
   {
     TileCache::clear();
@@ -129,15 +129,16 @@ int handler(void *fault_address, int serious) {
     delete server;
   server = NULL;
   RMInit::logOut << endl << "rasserver terminated." << endl;
-  exit(RC_ERROR);
+
+  LEAVE("crash_handler");
+  exit(SEGFAULT_EXIT_CODE);
 }
-#endif
+
 
 int main ( int argc, char** argv )
 {
-#if HAVE_SIGSEGV_RECOVERY
-    sigsegv_install_handler(&handler);
-#endif
+
+    installSigSegvHandler(crash_handler);
 
     SET_OUTPUT( true );     // enable debug output, if compiled so
     ENTER( "rasserver.main()" );

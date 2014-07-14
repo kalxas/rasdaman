@@ -66,9 +66,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include <sstream>
 #include <fstream>
 #include <vector>
-#ifdef HAVE_LIBSIGSEGV
-#include <sigsegv.h>
-#endif
+
 #include "raslib/commonutil.hh"
 
 using namespace std;
@@ -96,6 +94,8 @@ using namespace std;
 #include "raslib/primitive.hh"
 #include "raslib/complex.hh"
 #include "raslib/structure.hh"
+#include "raslib/rmdebug.hh"
+#include "raslib/commonutil.hh"
 
 #include "raslib/structuretype.hh"
 #include "raslib/primitivetype.hh"
@@ -103,6 +103,7 @@ using namespace std;
 #include "../../commline/cmlparser.hh"
 
 #include "rasql_error.hh"
+#include "rasql_signal.hh"
 
 #ifdef __VISUALC__
 #undef __EXECUTABLE__
@@ -410,6 +411,7 @@ parseParams(int argc, char** argv) throw (RasqlError, r_Error)
 void
 openDatabase() throw (r_Error)
 {
+
     ENTER( "openDatabase" );
 
     if (! dbIsOpen)
@@ -993,15 +995,20 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
     LEAVE( "doStuff" );
 }
 
-#if HAVE_SIGSEGV_RECOVERY
-int
-handler (void *fault_address, int serious)
+
+void
+crash_handler (int sig, siginfo_t* info, void * ucontext)
 {
-    print_stacktrace(fault_address);
+    ENTER( "crash_handler");
+
+    print_stacktrace(ucontext);
     // clean up connection in case of segfault
     closeTransaction(false);
+
+    LEAVE( "crash_handler");
+    exit(SEGFAULT_EXIT_CODE);
 }
-#endif
+
 
 /*
  * returns 0 on success, -1 on error
@@ -1012,9 +1019,9 @@ int main(int argc, char** argv)
 
     int retval = EXIT_SUCCESS;  // overall result status
 
-#if HAVE_SIGSEGV_RECOVERY
-    sigsegv_install_handler(&handler);
-#endif
+
+    installSigSegvHandler(crash_handler);
+
 
     try
     {

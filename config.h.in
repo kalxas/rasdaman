@@ -170,9 +170,6 @@
 /* Define to 1 if you have the `pq' library (-lpq). */
 #undef HAVE_LIBPQ
 
-/* Define to 1 if you have the `sigsegv' library (-lsigsegv). */
-#undef HAVE_LIBSIGSEGV
-
 /* Define to 1 if you have the `socket' library (-lsocket). */
 #undef HAVE_LIBSOCKET
 

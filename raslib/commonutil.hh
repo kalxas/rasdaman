@@ -23,10 +23,44 @@
 #ifndef _COMMON_UTIL_H_
 #define _COMMON_UTIL_H_
 
+#define SEGFAULT_EXIT_CODE 11
+
+#include <signal.h>
+
 /**
  * Print stack trace.
  * @param fault_address address where the segfault happened.
  */
-void print_stacktrace(void *fault_address);
+void print_stacktrace(void *ucontext);
+
+
+
+/**
+ * installs POSIX standard signal handler for SIGSEGV.
+ * returns the value of sigaction() function call. 0 for success. More details: man sigaction
+ * @arg cleanUpHandler is the handler for SIGSEGV. Read man sigaction -> sa_sigaction
+ */
+
+void
+installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ));
+
+
+/* This structure mirrors the one found in /usr/include/asm/ucontext.h
+	defined here because /include/asm might not always be the path*/
+typedef struct _sig_ucontext {
+ unsigned long     uc_flags;
+ struct ucontext   *uc_link;
+ stack_t           uc_stack;
+ struct sigcontext uc_mcontext;
+ sigset_t          uc_sigmask;
+} sig_ucontext_t;
+
+
+/**
+ * takes the sig_ucontext_t as argument and returns address where segmentation fault occured.
+ * TODO: add support for other architectures
+ */
+
+void* getFaultAddress(sig_ucontext_t * uc);
 
 #endif

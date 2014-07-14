@@ -29,12 +29,11 @@
 #include <string>
 #include <algorithm>
 #include <unistd.h>
-#ifdef HAVE_LIBSIGSEGV
-#include <sigsegv.h>
-#endif
+
 
 #include "raserase.hh"
 #include "include/globals.hh"
+ #include "raslib/commonutil.hh"
 
 #define DEBUG_MAIN
 #include "debug-clt.hh"
@@ -61,24 +60,32 @@ void showEraseHelp()
     cout << endl;
 }
 
-#if HAVE_SIGSEGV_RECOVERY
-int
-handler (void *fault_address, int serious)
+
+void
+crash_handler (int sig, siginfo_t* info, void * ucontext)
 {
+    ENTER("crash_handler");
+
+    print_stacktrace(ucontext);
+
     // clean up connection in case of segfault
     if (rasconn)
     {
         delete rasconn;
     }
+
+    LEAVE("crash_handler");
+    exit(SEGFAULT_EXIT_CODE);
 }
-#endif
+
 
 
 int main(int argc, char** argv)
 {
-#if HAVE_SIGSEGV_RECOVERY
-    sigsegv_install_handler(&handler);
-#endif
+    //install SIGSEGV signal handler
+    installSigSegvHandler(crash_handler);
+
+
     SET_OUTPUT( true );
     const string ctx = "raserase::main()";
     rasconn = NULL;

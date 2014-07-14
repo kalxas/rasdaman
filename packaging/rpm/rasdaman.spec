@@ -20,7 +20,6 @@ BuildRequires: libtiff-devel
 BuildRequires: hdf-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libedit-devel
-BuildRequires: libsigsegv-devel
 BuildRequires: zlib-devel
 BuildRequires: libpng-devel
 BuildRequires: netpbm-devel
@@ -323,6 +322,9 @@ fi
 %{_datadir}/rasdaman/raswct
 
 %changelog
+* Thurs July 10 2014 Bidesh Thapaliya <b.thapaliya@jacobs-university.de> - 9.0.0
+
+ - Removed libsigsegv-devel dependency
 
 * Fri Feb 21  2014 Dimitar Misev <misev@rasdaman.com> - 9.0.0
 
