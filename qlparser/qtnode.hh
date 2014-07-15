@@ -176,6 +176,7 @@ public:
         QT_ENCODE,
         QT_DECODE,
         QT_CONCAT,
+        QT_RANGE_CONSTRUCTOR,
         QT_CASEOP,
         QT_INFO,
         QT_POW,

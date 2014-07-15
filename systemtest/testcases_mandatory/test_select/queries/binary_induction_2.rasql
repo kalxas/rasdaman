@@ -1,0 +1,1 @@
+select test_rgb2.0*{1c,0c,0c} from test_rgb2

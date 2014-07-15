@@ -72,6 +72,7 @@ QtBinaryInduce::computeOp( QtData* operand1, QtData* operand2 )
 
     QtData* returnValue = NULL;
 
+
     if     ( operand1->getDataType() == QT_MDD &&
              operand2->getDataType() == QT_MDD    )
     {
