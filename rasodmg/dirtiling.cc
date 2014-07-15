@@ -524,7 +524,12 @@ r_Dir_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const th
             if (dim_counter[i] != 0)
                 origin++;
 
-            r_Range limit = temp_dim_decomp[i].get_partition(dim_counter[i]+1);
+            r_Range limit;
+            if(temp_dim_decomp[i].get_num_intervals() <=  (dim_counter[i]+1)){
+                limit = origin;
+            }else{
+                limit = temp_dim_decomp[i].get_partition(dim_counter[i]+1);
+            }
 
             tile << r_Sinterval(origin, limit);
         }
@@ -618,7 +623,7 @@ r_Dir_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) const th
         for (i=0; i < dimension; i++)
         {
             dim_counter[i]++;
-            if (dim_counter[i] == (temp_dim_decomp[i].get_num_intervals()-1))
+            if (dim_counter[i] >= (temp_dim_decomp[i].get_num_intervals()-1))
                 dim_counter[i] = 0;
             else
                 break;
