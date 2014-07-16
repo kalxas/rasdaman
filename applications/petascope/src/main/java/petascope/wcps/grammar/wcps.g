@@ -20,6 +20,7 @@ History:
 05 06 2012 misev        Allow mixing of slices and trims
 18 11 2013 campalani    Allow asterisk in trims like in RasQL, see numericScalarExpr.
 02 07 2014 utkrist      Added support to 'int' and 'unsigned int'; made parsing very strict
+16 07 2014 utkrist      Allow domain metadata expression to accept coverages.
 */
 grammar wcps;
 options{
@@ -139,7 +140,7 @@ metaDataExpr returns[MetaDataExpr value]
     | op=INTERPOLATIONSET LPAREN e1=coverageExpr COMMA f1=fieldName RPAREN  { $value = new MetaDataExpr($op.text, $e1.value, $f1.value); }
     ;
 domainExpr returns[DomainExpr value]
-	: DOMAIN LPAREN var=coverageVariable COMMA axis=axisName COMMA crs=crsName RPAREN { $value = new DomainExpr($var.value, $axis.value, $crs.value); }
+        : DOMAIN LPAREN cov=coverageExpr COMMA axis=axisName COMMA crs=crsName RPAREN { $value = new DomainExpr($cov.value, $axis.value, $crs.value); }
 	;
 condenseExpr returns[CondenseExpr value]
 	: e1=reduceExpr { $value = new CondenseExpr($e1.value); }

@@ -30,18 +30,18 @@ import petascope.util.WcpsConstants;
  */
 public class DomainExpr implements IParseTreeNode {
 
-    String var, axis, crs;
+    CoverageExpr coverage;
+    String axis, crs;
 
-    public DomainExpr(String v, String a, String c) {
-        var = v;
-        axis = a;
-        crs = c;
+    public DomainExpr(CoverageExpr e, String a, String c) {
+        this.coverage  = e;
+        this.axis      = a;
+        this.crs       = c;
     }
 
     public String toXML() {
         String result = "";
-
-        result += "<" + WcpsConstants.MSG_COVERAGE + ">" + var + "</" + WcpsConstants.MSG_COVERAGE + ">";
+        result += coverage.toXML();
         result += "<" + WcpsConstants.MSG_AXIS + ">" + axis + "</" + WcpsConstants.MSG_AXIS + ">";
         result += "<" + WcpsConstants.MSG_CRS + ">" + crs + "</" + WcpsConstants.MSG_CRS + ">";
         return result;
