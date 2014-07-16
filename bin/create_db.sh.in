@@ -45,6 +45,10 @@ VERSION=9.0
 RC_OK=0
 RC_ERROR=1
 
+BASEDBMS=@basedbms@
+BASEDBMS_SQLITE=sqlite
+BASEDBMS_PGSQL=pgsql
+
 # Unix user name under which rasdaman server is expected to run
 RASDAMAN_USER=rasdaman
 
@@ -64,7 +68,7 @@ error() {
 }
 
 # --- checking preconditions
-echo "$PROG: Creating database, rasdaman v$VERSION on base DBMS PostgreSQL"
+echo "$PROG: Creating database, rasdaman v$VERSION on base DBMS $BASEDBMS"
 
 # - are we user 'rasdaman'?
 if [ $USER != $RASDAMAN_USER ]
@@ -73,8 +77,10 @@ then
 fi
 
 # - Can I find utilities?
-psql --help 2>&1 1>/dev/null || \
-	error "Error: cannot find psql - PostgreSQL not installed or PATH variable does not contain PostgreSQL path?"
+if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
+    psql --help 2>&1 1>/dev/null || \
+        error "Error: cannot find psql - PostgreSQL not installed or PATH variable does not contain PostgreSQL path?"
+fi
 
 @bindir@rasdl --help 2>&1 1>/dev/null
 if [[ $? != 2 ]]
@@ -89,19 +95,21 @@ fi
 
 # --- action: create database directory & cluster if needed
 
-echo -n "$PROG: PostgreSQL database generation...\c"
+if [ "$BASEDBMS" == "$BASEDBMS_PGSQL" ]; then
+    echo -n "$PROG: PostgreSQL database generation...\c"
 
-# - PostgreSQL part
-createdb $DATABASE_NAME
-if [[ $? != 0 ]]
-then
-	error "createdb failed."
+    # - PostgreSQL part
+    createdb $DATABASE_NAME
+    if [[ $? != 0 ]]
+    then
+        error "createdb failed."
+    fi
 fi
 
 # - rasdaman part
 
-echo -n "$PROG: rasdaman dictionary initialization...\c"
-@bindir@rasdl -c --connect $DATABASE_NAME && @bindir@rasdl -r $DEFINITION_FILE -i --connect $DATABASE_NAME
+echo -n "$PROG: rasdaman dictionnary initialization...\c"
+@bindir@rasdl -c --connect @dbconn@ && @bindir@rasdl -r $DEFINITION_FILE -i --connect @dbconn@
 if [[ $? != 0 ]]
 then
 	error "rasdl failed."

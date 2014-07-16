@@ -41,8 +41,24 @@ rasdaman GmbH.
 // max length of varchar attributes and other string buffers; incl padding zero
 // see $(INFORMIXDIR)/incl/esql/varchar.h
 // unfortunately there it is not made known to ESQL, so we must use a literal here
+#ifdef BASEDB_PGSQL
 EXEC SQL define VARCHAR_MAXLEN 255;
 EXEC SQL define STRING_MAXLEN 255;
+#else
+#define VARCHAR_MAXLEN 255
+#define STRING_MAXLEN 255
+#define QUERY_MAXLEN 2000
+
+#define UPDATE_QUERY(c) { \
+    sqlite3_exec(sqliteConn, c, 0, 0, 0); \
+    failOnError(c, sqliteConn); \
+}
+#define DROP_TABLE(table_name) \
+    UPDATE_QUERY("DROP TABLE IF EXISTS "table_name);
+#define DROP_VIEW(view_name) \
+    UPDATE_QUERY("DROP VIEW IF EXISTS "view_name);
+
+#endif
 
 // SQL query string buffer size
 #define SQL_QUERY_BUFFER_SIZE 400

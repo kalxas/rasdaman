@@ -303,6 +303,9 @@ public class DbMetadataSource implements IMetadataSource {
     private static String NIL_VALUES_ALIAS  = "nil_values";
     private static String NIL_REASONS_ALIAS = "nil_reasons";
 
+    // postgres-style
+    private static String CASE_INSENSITIVE_LIKE = "ILIKE";
+
     // parsing of sdom output
     public static final String DIMENSION_SEPARATOR = ",";
     public static final String DIMENSION_BOUND_SEPARATOR = ":";
@@ -388,6 +391,11 @@ public class DbMetadataSource implements IMetadataSource {
                     "Metadata database error: Access denied to JDBC driver: " + driver, e);
         }
 
+        if (ConfigManager.METADATA_SQLITE) {
+            // SQLite's LIKE is case insensitive by default
+            CASE_INSENSITIVE_LIKE = "LIKE";
+        }
+
         this.driver = driver;
         this.url = url;
         this.user = user;
@@ -404,7 +412,13 @@ public class DbMetadataSource implements IMetadataSource {
      */
     private void readStaticTables() throws PetascopeException, SecoreException {
         Statement s = null;
+
         try {
+
+            /*
+             *  Read contents of static metadata tables
+             */
+
             ensureConnection();
             s = conn.createStatement();
             String sqlQuery; // buffer for SQL queries
@@ -436,7 +450,7 @@ public class DbMetadataSource implements IMetadataSource {
                                + SERVICE_IDENTIFICATION_FEES           + ", "
                                + SERVICE_IDENTIFICATION_CONSTRAINTS    +
                     " FROM "   + TABLE_SERVICE_IDENTIFICATION          +
-                    " WHERE "  + SERVICE_IDENTIFICATION_TYPE + " ILIKE '%" + BaseRequest.SERVICE + "%';"
+                    " WHERE "  + SERVICE_IDENTIFICATION_TYPE + " " + CASE_INSENSITIVE_LIKE + " '%" + BaseRequest.SERVICE + "%';"
                     ;
             log.debug("SQL query: " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
@@ -450,13 +464,21 @@ public class DbMetadataSource implements IMetadataSource {
                 }
                 String serviceType        = r.getString(SERVICE_IDENTIFICATION_TYPE);
                 String typeCodespace      = r.getString(SERVICE_IDENTIFICATION_TYPE_CODESPACE);
-                List<String> typeVersions = sqlArray2StringList(r.getArray(SERVICE_IDENTIFICATION_TYPE_VERSIONS));
+                List<String> typeVersions = null;
+                if (ConfigManager.METADATA_SQLITE) {
+                    typeVersions = ListUtil.toList(r.getString(SERVICE_IDENTIFICATION_TYPE_VERSIONS));
+                } else {
+                    typeVersions = sqlArray2StringList(r.getArray(SERVICE_IDENTIFICATION_TYPE_VERSIONS));
+                }
                 sMeta.addServiceIdentification(serviceType, typeCodespace, typeVersions);
                 // Additional optional elements
                 Integer serviceIdentId = r.getInt(SERVICE_IDENTIFICATION_ID); // to be effectively used in case multiple services will be allowed.
                 Integer descriptionId  = r.getInt(SERVICE_IDENTIFICATION_DESCRIPTION_ID);
                 String fees            = r.getString(SERVICE_IDENTIFICATION_FEES);
-                Array constraints      = r.getArray(SERVICE_IDENTIFICATION_CONSTRAINTS);
+                Array constraints      = null;
+                if (!ConfigManager.METADATA_SQLITE) {
+                    constraints        = r.getArray(SERVICE_IDENTIFICATION_CONSTRAINTS);
+                }
                 // Add to ServiceMetadata
                 if (descriptionId != 0) {
                     // add method for reading a description
@@ -565,11 +587,13 @@ public class DbMetadataSource implements IMetadataSource {
                     sProvider.getContact().getContactInfo().getAddress().setCountry(contactCountry);
                 }
                 //
-                Array emails = r.getArray(SERVICE_PROVIDER_CONTACT_EMAIL);
-                if (null != emails) {
-                    ResultSet emailsRs = emails.getResultSet();
-                    while (emailsRs.next()) {
-                        sProvider.getContact().getContactInfo().getAddress().addEmailAddress(emailsRs.getString(2));
+                if (!ConfigManager.METADATA_SQLITE) {
+                    Array emails = r.getArray(SERVICE_PROVIDER_CONTACT_EMAIL);
+                    if (null != emails) {
+                        ResultSet emailsRs = emails.getResultSet();
+                        while (emailsRs.next()) {
+                            sProvider.getContact().getContactInfo().getAddress().addEmailAddress(emailsRs.getString(2));
+                        }
                     }
                 }
                 //
@@ -1964,59 +1988,71 @@ public class DbMetadataSource implements IMetadataSource {
         r = s.executeQuery(sqlQuery);
         if (r.next()) {
             // Get titles and abstracts
-            List<String> titles    = sqlArray2StringList(r.getArray(DESCRIPTION_TITLES));
+            List<String> titles = null;
+            if (ConfigManager.METADATA_SQLITE) {
+                titles = ListUtil.toList(r.getString(DESCRIPTION_TITLES));
+            } else {
+                titles = sqlArray2StringList(r.getArray(DESCRIPTION_TITLES));
+            }
             for (String title : titles) {
                 owsDescription.addTitle(title);
             }
-            List<String> abstracts = sqlArray2StringList(r.getArray(DESCRIPTION_ABSTRACTS));
+            List<String> abstracts = null;
+            if (ConfigManager.METADATA_SQLITE) {
+                abstracts = ListUtil.toList(r.getString(DESCRIPTION_ABSTRACTS));
+            } else {
+                abstracts = sqlArray2StringList(r.getArray(DESCRIPTION_ABSTRACTS));
+            }
             for (String descrAbstract : abstracts) {
                 owsDescription.addAbstract(descrAbstract);
             }
 
             // Get keywords
-            List<Integer> keywordGroupIds = sqlArray2IntList(r.getArray(DESCRIPTION_KEYWORD_GROUP_IDS));
-            for (Integer groupId : keywordGroupIds) {
+            if (!ConfigManager.METADATA_SQLITE) {
+                List<Integer> keywordGroupIds = sqlArray2IntList(r.getArray(DESCRIPTION_KEYWORD_GROUP_IDS));
+                for (Integer groupId : keywordGroupIds) {
 
-                /* PS_KEYWORD_GROUP */
-                sqlQuery =
-                        " SELECT " + KEYWORD_GROUP_KEYWORD_IDS    + ", "
-                                   + KEYWORD_GROUP_TYPE           + ", "
-                                   + KEYWORD_GROUP_TYPE_CODESPACE +
-                        " FROM "   + TABLE_KEYWORD_GROUP +
-                        " WHERE "  + KEYWORD_GROUP_ID    + "=" + groupId
-                        ;
-                log.debug("SQL query: " + sqlQuery);
-                ResultSet rr = s.executeQuery(sqlQuery);
-                List<Pair<String,String>> keysAndLangs = new ArrayList<Pair<String,String>>();
-                while (rr.next()) {
-                    // type and type-codespace
-                    String groupType     = rr.getString(KEYWORD_GROUP_TYPE);
-                    String typeCodespace = rr.getString(KEYWORD_GROUP_TYPE_CODESPACE);
-                    List<Integer> keywordIds = sqlArray2IntList(rr.getArray(KEYWORD_GROUP_KEYWORD_IDS));
+                    /* PS_KEYWORD_GROUP */
+                    sqlQuery =
+                            " SELECT " + KEYWORD_GROUP_KEYWORD_IDS    + ", "
+                                       + KEYWORD_GROUP_TYPE           + ", "
+                                       + KEYWORD_GROUP_TYPE_CODESPACE +
+                            " FROM "   + TABLE_KEYWORD_GROUP +
+                            " WHERE "  + KEYWORD_GROUP_ID    + "=" + groupId
+                            ;
+                    log.debug("SQL query: " + sqlQuery);
+                    ResultSet rr = s.executeQuery(sqlQuery);
+                    List<Pair<String,String>> keysAndLangs = new ArrayList<Pair<String,String>>();
+                    while (rr.next()) {
+                        // type and type-codespace
+                        String groupType     = rr.getString(KEYWORD_GROUP_TYPE);
+                        String typeCodespace = rr.getString(KEYWORD_GROUP_TYPE_CODESPACE);
+                        List<Integer> keywordIds = sqlArray2IntList(rr.getArray(KEYWORD_GROUP_KEYWORD_IDS));
 
-                    for (Integer keyId : keywordIds) {
-                        // keywords
-                        Statement ss = conn.createStatement();
+                        for (Integer keyId : keywordIds) {
+                            // keywords
+                            Statement ss = conn.createStatement();
 
-                        /* PS_KEYWORD */
-                        sqlQuery =
-                                " SELECT " + KEYWORD_VALUE    + ", "
-                                           + KEYWORD_LANGUAGE +
-                                " FROM "   + TABLE_KEYWORD    +
-                                " WHERE "  + KEYWORD_ID + "=" + keyId
-                                ;
-                        log.debug("SQL query: " + sqlQuery);
-                        ResultSet rrr = ss.executeQuery(sqlQuery);
-                        while (rrr.next()) {
-                            String kValue  = rrr.getString(KEYWORD_VALUE);
-                            String kLang   = rrr.getString(KEYWORD_LANGUAGE);
-                            // Add this keyword
-                            keysAndLangs.add(Pair.of(kValue, kLang));
+                            /* PS_KEYWORD */
+                            sqlQuery =
+                                    " SELECT " + KEYWORD_VALUE    + ", "
+                                               + KEYWORD_LANGUAGE +
+                                    " FROM "   + TABLE_KEYWORD    +
+                                    " WHERE "  + KEYWORD_ID + "=" + keyId
+                                    ;
+                            log.debug("SQL query: " + sqlQuery);
+                            ResultSet rrr = ss.executeQuery(sqlQuery);
+                            while (rrr.next()) {
+                                String kValue  = rrr.getString(KEYWORD_VALUE);
+                                String kLang   = rrr.getString(KEYWORD_LANGUAGE);
+                                // Add this keyword
+                                keysAndLangs.add(Pair.of(kValue, kLang));
+                            }
                         }
-                    }
 
-                    // Add the group of keywords
-                    owsDescription.addKeywordGroup(keysAndLangs, groupType, typeCodespace);
+                        // Add the group of keywords
+                        owsDescription.addKeywordGroup(keysAndLangs, groupType, typeCodespace);
+                    }
                 }
             }
         } // else: no harm, Descriptions are optional
@@ -2031,11 +2067,19 @@ public class DbMetadataSource implements IMetadataSource {
         String sqlQuery;
         int count = 0;
 
-        sqlQuery =
-                " SELECT COUNT(*) FROM " + TABLE_TABLES_CATALOG +
-                " WHERE " + TABLES_CATALOG_SCHEMANAME + "=" + CURRENT_SCHEMA +
-                  " AND " + TABLES_CATALOG_TABLENAME  + " ILIKE \'" + iPattern + "\'"
-                ;
+
+        if (ConfigManager.METADATA_SQLITE) {
+            sqlQuery =
+                    " SELECT COUNT(*) FROM sqlite_master" +
+                    " WHERE type = 'table' AND name " + CASE_INSENSITIVE_LIKE + " \'" + iPattern + "\'"
+                    ;
+        } else {
+            sqlQuery =
+                    " SELECT COUNT(*) FROM " + TABLE_TABLES_CATALOG +
+                    " WHERE " + TABLES_CATALOG_SCHEMANAME + "=" + CURRENT_SCHEMA +
+                      " AND " + TABLES_CATALOG_TABLENAME  + " " + CASE_INSENSITIVE_LIKE + " \'" + iPattern + "\'"
+                    ;
+        }
         log.debug("SQL query: " + sqlQuery);
         r = s.executeQuery(sqlQuery);
 

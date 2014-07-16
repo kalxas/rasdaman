@@ -34,7 +34,12 @@ AM_LDFLAGS=@BASEDBLDFLAGS@
 
 .SUFFIXES= .@EMBEDDEDSQLEXT@ .@EMBEDDEDSQLOUT@
 .@EMBEDDEDSQLEXT@.@EMBEDDEDSQLOUT@:
+if BASEDB_PGSQL
 	$(EMBEDDEDSQLPRECOMPILER) $@ $<
+endif
+if BASEDB_SQLITE
+	$(EMBEDDEDSQLPRECOMPILER) $< $@
+endif
 
 lib_LIBRARIES=librelmddif.a
 librelmddif_a_SOURCES=dbmddsetcommon.cc dbmddobj.hh dbmddset.hh dbiterid.hh mddid.hh

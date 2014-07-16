@@ -33,12 +33,17 @@ AM_LDFLAGS=@BASEDBLDFLAGS@
 
 .SUFFIXES= .@EMBEDDEDSQLEXT@
 .@EMBEDDEDSQLEXT@.@EMBEDDEDSQLOUT@:
+if BASEDB_PGSQL
 	$(EMBEDDEDSQLPRECOMPILER) $@ $<
+endif
+if BASEDB_SQLITE
+	$(EMBEDDEDSQLPRECOMPILER) $< $@
+endif
 
 
 lib_LIBRARIES=librelstorageif.a
 librelstorageif_a_SOURCES= dbstoragelayout.hh storageid.hh empty.cc
-EXTRA_librelstorageif_a_SOURCES= dbstoragelayout.pgc 
+EXTRA_librelstorageif_a_SOURCES= dbstoragelayout.pgc dbstoragelayout.sc
 librelstorageif_a_LIBADD= dbstoragelayout.$(OBJEXT) 
 librelstorageif_a_DEPENDENCIES= dbstoragelayout.$(OBJEXT) 
 

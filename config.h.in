@@ -9,6 +9,9 @@
 /* If defined we are compiling over PostgreSQL */
 #undef BASEDB_PGSQL
 
+/* If defined we are compiling over SQLite */
+#undef BASEDB_SQLITE
+
 /* Define to 1 if the `closedir' function returns void instead of `int'. */
 #undef CLOSEDIR_VOID
 
@@ -247,6 +250,9 @@
 
 /* Define to 1 if you have the `socket' function. */
 #undef HAVE_SOCKET
+
+/* Have the SQLITE3 library */
+#undef HAVE_SQLITE3
 
 /* Define to 1 if you have the `sqrt' function. */
 #undef HAVE_SQRT

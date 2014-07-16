@@ -22,8 +22,17 @@
 #
 ###################################################################
 
+if BASEDB_PGSQL
+  UPDATE_SCRIPT = update_petascopedb.sh.in
+endif
+if BASEDB_SQLITE
+#UPDATE_SCRIPT = update_petascopedb-sqlite.sh.in
+  UPDATE_SCRIPT = update_petascopedb.sh.in
+endif
+
+
 bin_SCRIPTS = update_petascopedb.sh petascope_insertdemo.sh
-EXTRA_DIST = update_petascopedb.sh.in petascope_insertdemo.sh.in
+EXTRA_DIST = update_petascopedb.sh.in petascope_insertdemo.sh.in update_petascopedb-sqlite.sh.in
 CLEANFILES = update_petascopedb.sh petascope_insertdemo.sh
 #nobase_dist_pkgdata_DATA=petascope/*
 
@@ -32,9 +41,15 @@ script_edit = $(SED) \
      -e 's|@pkgdatadir[@]|$(pkgdatadir)|g' \
      -e 's|@bindir[@]|$(bindir)|g'
 
-update_petascopedb.sh petascope_insertdemo.sh:
+petascope_insertdemo.sh:
 	rm -f $@
 	$(script_edit) '$@.in' >$@
+	chmod +x $@
+	chmod a-w $@
+
+update_petascopedb.sh:
+	rm -f $@
+	$(script_edit) $(UPDATE_SCRIPT) >$@
 	chmod +x $@
 	chmod a-w $@
 

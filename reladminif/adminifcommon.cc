@@ -48,6 +48,7 @@ rasdaman GmbH.
 #include "sqlerror.hh"
 #include "objectbroker.hh"
 #include <unistd.h>
+#include <errno.h>
 
 #include "externs.h"
 

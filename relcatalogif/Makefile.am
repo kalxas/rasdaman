@@ -38,7 +38,12 @@ AM_LDFLAGS=@BASEDBLDFLAGS@
 
 .SUFFIXES= .@EMBEDDEDSQLEXT@ .@EMBEDDEDSQLOUT@
 .@EMBEDDEDSQLEXT@.@EMBEDDEDSQLOUT@:
+if BASEDB_PGSQL
 	$(EMBEDDEDSQLPRECOMPILER) $@ $<
+endif
+if BASEDB_SQLITE
+	$(EMBEDDEDSQLPRECOMPILER) $< $@
+endif
 
 lib_LIBRARIES=librelcatalogif.a
 librelcatalogif_a_SOURCES= type.C type.hh basetype.C basetype.hh atomictype.C ulongtype.C ulongtype.hh ushorttype.C ushorttype.hh \

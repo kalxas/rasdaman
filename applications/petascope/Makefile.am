@@ -58,7 +58,14 @@ WAR_NAME  = $(NAME).war
 WAR       = $(DIST)/$(WAR_NAME)
 APIDOCS   = $(BUILD)/apidocs
 
-SETTINGS_FILE = $(SRC_RES)/petascope.properties
+if BASEDB_PGSQL
+  SETTINGS_FILE = src/main/resources/petascope.properties
+endif
+if BASEDB_SQLITE
+  SETTINGS_FILE = src/main/resources/petascope.properties
+#SETTINGS_FILE = src/main/resources/petascope_sqlite.properties
+#SQLITE=1
+endif
 
 # Unix tools
 FIND      = find
@@ -71,8 +78,8 @@ SHELL     = bash
 # Java tools
 JAVA      = java
 JAVAC     = javac
-JJARS_CP  = lib/antlrworks-1.3.1.jar:lib/commons-fileupload-1.2.jar:lib/commons-io-1.3.2.jar:lib/commons-math-1.1.jar:lib/gml-v_3_1_1-schema-1.0-SNAPSHOT.jar:lib/jaxb-api.jar:lib/jaxb-impl.jar:lib/jaxb-xjc.jar:lib/joda-time-2.3.jar:lib/log4j-1.2.15.jar:lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar:lib/postgresql-9.3-1101.jdbc4.jar:../../java/dist/rasj.jar:lib/servlet-2_5-api.jar:lib/slf4j-api-1.7.7.jar:lib/slf4j-log4j12-1.7.7.jar:lib/wcst-schema.jar:lib/wcs-v_1_1_0-schema-1.0-SNAPSHOT.jar:lib/xom-1.2.6.jar:lib/uuid-3.2.jar:lib/cos.jar:lib/junit-4.5.jar:lib/xercesImpl-2.7.1.jar
-JJARS_PATHS = lib/antlrworks-1.3.1.jar lib/commons-fileupload-1.2.jar lib/commons-io-1.3.2.jar lib/commons-math-1.1.jar lib/gml-v_3_1_1-schema-1.0-SNAPSHOT.jar lib/jaxb-api.jar lib/jaxb-impl.jar lib/jaxb-xjc.jar lib/joda-time-2.3.jar lib/log4j-1.2.15.jar lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar lib/postgresql-9.3-1101.jdbc4.jar ../../java/dist/rasj.jar lib/servlet-2_5-api.jar lib/slf4j-api-1.7.7.jar lib/slf4j-log4j12-1.7.7.jar lib/wcst-schema.jar lib/wcs-v_1_1_0-schema-1.0-SNAPSHOT.jar lib/xom-1.2.6.jar lib/uuid-3.2.jar lib/cos.jar lib/junit-4.5.jar lib/xercesImpl-2.7.1.jar
+JJARS_CP  = lib/antlrworks-1.3.1.jar:lib/commons-fileupload-1.2.jar:lib/commons-io-1.3.2.jar:lib/commons-math-1.1.jar:lib/gml-v_3_1_1-schema-1.0-SNAPSHOT.jar:lib/jaxb-api.jar:lib/jaxb-impl.jar:lib/jaxb-xjc.jar:lib/joda-time-2.3.jar:lib/log4j-1.2.15.jar:lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar:lib/postgresql-9.3-1101.jdbc4.jar:../../java/dist/rasj.jar:lib/servlet-2_5-api.jar:lib/slf4j-api-1.7.7.jar:lib/slf4j-log4j12-1.7.7.jar:lib/wcst-schema.jar:lib/wcs-v_1_1_0-schema-1.0-SNAPSHOT.jar:lib/xom-1.2.6.jar:lib/uuid-3.2.jar:lib/cos.jar:lib/junit-4.5.jar:lib/xercesImpl-2.7.1.jar:lib/sqlite-jdbc-3.7.15-M1.jar
+JJARS_PATHS = lib/antlrworks-1.3.1.jar lib/commons-fileupload-1.2.jar lib/commons-io-1.3.2.jar lib/commons-math-1.1.jar lib/gml-v_3_1_1-schema-1.0-SNAPSHOT.jar lib/jaxb-api.jar lib/jaxb-impl.jar lib/jaxb-xjc.jar lib/joda-time-2.3.jar lib/log4j-1.2.15.jar lib/ows-v_1_0_0-schema-1.0-SNAPSHOT.jar lib/postgresql-9.3-1101.jdbc4.jar ../../java/dist/rasj.jar lib/servlet-2_5-api.jar lib/slf4j-api-1.7.7.jar lib/slf4j-log4j12-1.7.7.jar lib/wcst-schema.jar lib/wcs-v_1_1_0-schema-1.0-SNAPSHOT.jar lib/xom-1.2.6.jar lib/uuid-3.2.jar lib/cos.jar lib/junit-4.5.jar lib/xercesImpl-2.7.1.jar lib/sqlite-jdbc-3.7.15-M1.jar
 JFLAGS    = -sourcepath $(SRC_MAIN) \
                -d $(CLASSES)        \
                -cp $(JJARS_CP)	    \
@@ -159,7 +166,7 @@ if GENERATE_DOCS
 	$(CP) $(APIDOCS)/* $(DESTDIR)$(pkgdatadir)/$(APIFOLDER)
 endif
 	NEWCONF=$(DESTDIR)$(sysconfdir)/petascope.properties; \
-	if test -f $(NEWCONF); then \
+	if test -f $$NEWCONF; then \
 		echo "$@ existing $$NEWCONF"; \
 		grep 'secore_urls' $$NEWCONF > /dev/null 2>&1; \
 		if test $$? -ne 0; then \
@@ -176,6 +183,9 @@ endif
 			    sed -i 's|'$$p'=.*|'$$pg'|g' $$NEWCONF; \
 			  fi; \
 			done; \
+			if test -n "$$SQLITE"; then \
+				sed -i 's|jdbc:sqlite:petascopedb|jdbc:sqlite:'$(filedatadir)'/petascopedb|g' $$NEWCONF; \
+			fi; \
 			echo "$@ 9.0 petascope configuration installed at $$NEWCONF, please edit and adapt."; \
 		else \
 			echo "$@ will not overwrite existing $$NEWCONF"; \
@@ -184,6 +194,9 @@ endif
 		$(MKDIR_P) $(DESTDIR)$(sysconfdir); \
 		echo " $(INSTALL_DATA) $(SETTINGS_FILE) $$NEWCONF"; \
 		$(INSTALL_DATA) $(SETTINGS_FILE) $$NEWCONF; \
+		if test -n $$SQLITE; then \
+			sed -i 's|jdbc:sqlite:petascopedb|jdbc:sqlite:'$(filedatadir)'/petascopedb|g' $$NEWCONF; \
+		fi; \
 	fi; \
 	if test -f $(DESTDIR)$(sysconfdir)/log4j.properties; then \
 		echo "$@ will not overwrite existing $(DESTDIR)$(sysconfdir)/log4j.properties"; \

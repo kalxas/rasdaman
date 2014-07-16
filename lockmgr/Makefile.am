@@ -31,11 +31,16 @@ AM_LDFLAGS=@BASEDBLDFLAGS@
 
 .SUFFIXES= .@EMBEDDEDSQLEXT@ .@EMBEDDEDSQLOUT@
 .@EMBEDDEDSQLEXT@.@EMBEDDEDSQLOUT@:
+if BASEDB_PGSQL
 	$(EMBEDDEDSQLPRECOMPILER) $@ $<
+endif
+if BASEDB_SQLITE
+	$(EMBEDDEDSQLPRECOMPILER) $< $@
+endif
 
 lib_LIBRARIES=liblockmanager.a
 liblockmanager_a_SOURCES=lockmanager.cc lockmanager.hh ecpg_lockmanager.cc ecpg_lockmanager.hh
-EXTRA_liblockmanager_a_SOURCES=ecpg_LockManager.pgc
+EXTRA_liblockmanager_a_SOURCES=ecpg_LockManager.pgc ecpg_LockManager.sc
 
 liblockmanager_a_LIBADD= lockmanager.$(OBJEXT)
 liblockmanager_a_DEPENDENCIES= lockmanager.$(OBJEXT)

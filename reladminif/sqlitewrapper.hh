@@ -1,0 +1,182 @@
+/*
+ * File:   sqlitewrapper.hh
+ * Author: Dimitar Misev
+ *
+ * Created on May 8, 2014, 6:05 PM
+ */
+
+#ifndef SQLITEWRAPPER_HH
+#define	SQLITEWRAPPER_HH
+
+#include "config.h"
+#ifdef BASEDB_SQLITE
+
+#include <sqlite3.h>
+#include "sqlglobals.h"
+
+/**
+ * Convenience class for executing SQLite queries.
+ */
+class SQLiteQuery
+{
+public:
+
+    /**
+     * Construct a query object from a constant string SQL query.
+     * @param query the SQL query to be turned into an SQLite statement.
+     */
+    SQLiteQuery(char query[]);
+
+    /**
+     * Construct a query object from an SQL query given as a printf format
+     * string and a list of parameters to be substituted with vsnprintf.
+     * @param query the SQL query to be turned into an SQLite statement.
+     */
+    SQLiteQuery(const char *format, ...);
+
+    /**
+     * Destructor
+     */
+    ~SQLiteQuery();
+
+    /**
+     * Copy constructor.
+     */
+    SQLiteQuery(const SQLiteQuery& o);
+
+    /**
+     * @return go to next row of the SQL result set, and return true if there
+     * is data or false otherwise. Initializes the column counter to 0.
+     */
+    int nextRow();
+
+    /**
+     * advance to next column. The first call of this method after a nextRow()
+     * will go to the second column.
+     */
+    void nextColumn();
+
+    /**
+     * Returns the current column value, and then advances the counter to the
+     * next column.
+     * @return the int value of the current column.
+     */
+    int nextColumnInt();
+
+    /**
+     * Returns the current column value, and then advances the counter to the
+     * next column.
+     * @return the long long value of the current column.
+     */
+    long long nextColumnLong();
+
+    /**
+     * Returns the current column value, and then advances the counter to the
+     * next column.
+     * @return the double value of the current column.
+     */
+    double nextColumnDouble();
+
+    /**
+     * Returns the current column value, and then advances the counter to the
+     * next column.
+     * @return the string value of the current column.
+     */
+    char* nextColumnString();
+
+    /**
+     * Returns the current column value, and then advances the counter to the
+     * next column.
+     * @return the blob value of the current column.
+     */
+    char* nextColumnBlob();
+
+    /**
+     * Returns the current column length in bytes, if the column is blob/text.
+     * @return the length of the value of the current column.
+     */
+    int currColumnBytes();
+
+    /**
+     * Returns the current column type, and then advances the counter to the
+     * next column.
+     * @return the type of the current column.
+     */
+    int currColumnType();
+
+    /**
+     * @return true if the value of the current column is null, or false otherwise.
+     */
+    int currColumnNull();
+
+    /**
+     * Bind null value to the SQL statement.
+     */
+    void bindNull();
+
+    /**
+     * @param param the int parameter to bind to the SQL statement.
+     */
+    void bindInt(int param);
+
+    /**
+     * @param param the long long parameter to bind to the SQL statement.
+     */
+    void bindLong(long long param);
+
+    /**
+     * @param param the double parameter to bind to the SQL statement.
+     */
+    void bindDouble(double param);
+
+    /**
+     * @param param the string parameter to bind to the SQL statement.
+     */
+    void bindString(char* param, int size);
+
+    /**
+     * @param param the blob parameter to bind to the SQL statement.
+     */
+    void bindBlob(char* param, int size);
+
+    /**
+     * Execute this SQL statement.
+     * @param fail generate exception if true (default), or just a warning
+     * otherwise.
+     */
+    void execute(int fail = 1);
+
+    /**
+     * Execute query in one step.
+     */
+    static void execute(const char* query);
+
+    /**
+     * Execute query in one step, where the query is provided as a printf
+     * formatted string.
+     */
+    static void executeWithParams(const char* format, ...);
+
+    /**
+     * @return 1 (true) if a transaction is active, 0 (false) otherwise.
+     */
+    static int isTransactionActive();
+
+    /**
+     * @return the sqlite connection.
+     */
+    static sqlite3* getConnection();
+
+    /**
+     * @return the sqlite statement.
+     */
+    sqlite3_stmt* getStatement();
+private:
+    sqlite3_stmt *stmt;
+    char *query;
+    int columnCounter;
+};
+
+#endif
+
+#endif	/* SQLITEWRAPPER_HH */

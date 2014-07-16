@@ -48,7 +48,7 @@
 #	-user u		database username (optional), mainly needed for connecting to
 #			PostgreSQL on a remote machine
 #	-passwd p	database password
-define dbh rasdaman_host -connect RASBASE
+define dbh rasdaman_host -connect @dbconn@
 
 # define database
 # parameters:

@@ -39,37 +39,6 @@ rasdaman GmbH.
 const int  SQLOK = 0;
 const short  INDNULL = -1;
 
-#ifdef BASEDB_INFORMIX
-	const int  SQLNULLFETCHED = -245;
-	const int  SQLTABLEUNKNOWN = -206;
-	const int  SQLNODATAFOUND = 100;
-
-	//SQLCODE and SQLSTATE are defined in the sqlca.h file
-#endif // informix
-
-#ifdef BASEDB_DB2
-	const int  SQLNULLFETCHED = -1405;
-	const int  SQLTABLEUNKNOWN = -942;
-	const int  SQLNODATAFOUND = 100;
-
-	//declared in sqlerror.sqC
-	extern long SQLCODE;
-	extern char SQLSTATE[6];
-
-#endif // db2
-
-#ifdef BASEDB_ORACLE
-	const int  SQLNULLFETCHED = -1405;
-	const int  SQLTABLEUNKNOWN = -942;
-	const int  SQLNODATAFOUND = 100;
-
-	#include <sqlca.h>
-	#define SQLCODE sqlca.sqlcode
-
-	//declared in sqlerror.pc
-	extern struct sqlca sqlca;
-#endif // oracle
-
 #ifdef BASEDB_PGSQL
 	#include "ecpgerrno.h"		// PgSQL error codes
 	// const int  SQLNULLFETCHED = -1405;	unused
@@ -77,5 +46,9 @@ const short  INDNULL = -1;
 	const int  SQLNODATAFOUND = ECPG_NOT_FOUND;
 	//SQLCODE and SQLSTATE are defined in the sqlca.h file
 #endif // pgsql
+
+#ifdef BASEDB_SQLITE
+	#include "sqlite3.h"
+#endif // sqlite
 
 #endif // _EXTERNS_H_

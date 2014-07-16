@@ -48,17 +48,6 @@ rasdaman GmbH.
 template <class T> bool
 DBRef<T>::pointerCaching = true;
 
-/*for testing
-bool
-DBRef<BLOBTile>::pointerCaching = false;
-
-bool
-DBRef<InlineTile>::pointerCaching = false;
-
-bool
-DBRef<DBTile>::pointerCaching = false;
-*/
-
 template <class T> void
 DBRef<T>::setPointerCaching(bool useIt)
 {

@@ -173,6 +173,7 @@ AH_TEMPLATE([RMANDEBUG], [Enables debug functionality])
 AH_TEMPLATE([HAVE_HDF], [Checks whether HDF4 is installed])
 AH_TEMPLATE([HAVE_NETCDF], [Checks whether NetCDF is installed])
 AH_TEMPLATE([BASEDB_PGSQL], [If defined we are compiling over PostgreSQL])
+AH_TEMPLATE([BASEDB_SQLITE], [If defined we are compiling over SQLite])
 AH_TEMPLATE([__NO_MATH_INLINES], [Used by some performance implementaion of math libraries.])   
 AH_TEMPLATE([EARLY_TEMPLATE], [When set allows templates to be instantiated earlier.])    
 AH_TEMPLATE([IS_BIG_ENDIAN], [The host system uses big endian encoding.])    
@@ -299,6 +300,13 @@ AC_ARG_WITH([logdir],
             [AS_IF([test "x$prefix" = "x/usr/local"],
                    [logdir="/var/log/rasdaman"],
                    [logdir="${prefix}/log"])])
+AC_ARG_WITH([filedatadir],
+            [AS_HELP_STRING([--with-filedatadir=PATH],
+                            [the path where the server stores blobs as files])],
+            [filedatadir="$withval"],
+            [AS_IF([test "x$prefix" = "x/usr"],
+                   [filedatadir="/var/lib/rasdaman/data"],
+                   [filedatadir="${prefix}/data"])])
 AC_ARG_WITH([wardir],
 		    [AS_HELP_STRING([--with-wardir=PATH],
 				            [the path where the war files should be installed])],
@@ -325,6 +333,16 @@ AS_IF([test "x$with_default_basedb" == x],
 
 AC_MSG_NOTICE([Using database $with_default_basedb.])
 
+if test "$with_default_basedb" == sqlite; then
+    SQLITE3_REQ_VERSION="3.0.0"
+    AX_LIB_SQLITE3($SQLITE3_REQ_VERSION)
+    if test "x$SQLITE3_VERSION" = "x"; then
+       AC_MSG_ERROR([not found SQLite.])
+    fi
+    VERSIONDB=7.4.6
+    AX_LIB_POSTGRESQL([7.4.6])
+fi
+
 AS_IF([test "$with_default_basedb" == postgresql],
       # PostgreSQL definitions
       [VERSIONDB=7.4.6
@@ -349,7 +367,35 @@ AS_IF([test "$with_default_basedb" == postgresql],
        EMBEDDEDSQLPRECOMPILER="$ECPG -o"
        BASEDBSTRING=pgsql
       ],
-      [AC_MSG_ERROR([unsupported base DBMS: $with_default_basedb])])
+
+AS_IF([test "$with_default_basedb" == sqlite],
+      [AC_DEFINE([BASEDB_SQLITE])
+
+       EMBEDDEDSQLEXT="sc"
+       EMBEDDEDSQLOUT="cc"
+
+       BASEDBCXXFLAGS=" $SQLITE3_CFLAGS "
+       BASEDBLDFLAGS=" $SQLITE3_LDFLAGS "
+       STATICBASEDBFLAGS="$BASEDBLDFLAGS"
+       LDFLAGS="$LDFLAGS $SQLITE3_LDFLAGS"
+
+       EMBEDDEDSQLPRECOMPILER="cp -a"
+       BASEDBSTRING=sqlite
+
+       # also configure postgres, needed by rasimport for connecting to petascopedb
+       # this is a copy of an earlier if block, remove once petascope is adapted to use sqlite
+       BASEDBCXXFLAGS=" $POSTGRESQL_CFLAGS"
+       BASEDBLDFLAGS="$POSTGRESQL_LDFLAGS -lz -lecpg"
+       STATICBASEDBFLAGS="$BASEDBLDFLAGS"
+       LDFLAGS="$LDFLAGS $POSTGRESQL_LDFLAGS"
+       AC_CHECK_LIB([pq], [main], , [AC_MSG_FAILURE([Library not found! Please install...])])
+       AC_CHECK_LIB([pgtypes], [main], , [AC_MSG_FAILURE([Library not found! Please install...])])
+      ],
+[AC_MSG_ERROR([unsupported base DBMS: $with_default_basedb])]))
+
+
+AM_CONDITIONAL([BASEDB_PGSQL], [test "$BASEDBSTRING" = pgsql])
+AM_CONDITIONAL([BASEDB_SQLITE], [test "$BASEDBSTRING" = sqlite])
 
 # --------------- General Configuration ----------------------------
 ####################################################################
@@ -396,6 +442,7 @@ AS_IF([test "x$RMANDEBUG" != x],
        ])
       ])
 # CXXFLAGS+= -fPIC  ???NEEDED???
+AC_SUBST(BASEDBSTRING)
 AC_DEFINE_UNQUOTED([BASEDBSTRING], ["$BASEDBSTRING"])
 AC_DEFINE([EARLY_TEMPLATE])    
 AC_C_BIGENDIAN([AC_DEFINE([IS_BIG_ENDIAN])], [AC_DEFINE([IS_LITTLE_ENDIAN])])
@@ -419,6 +466,8 @@ CFLAGS+=" $USER_CFLAGS"
 
 CLIENTCXXFLAGS=$CXXFLAGS
 CLIENTLDFLAGS=$CXXLDFLAGS
+
+CXXFLAGS+=" -fno-stack-protector "
 
 # --------------- System Test Settings -----------------------------
 ####################################################################
@@ -449,6 +498,7 @@ AC_SUBST(STATICBASEDBFLAGS)
 AC_SUBST(logdir)    
 AC_SUBST(wardir) 
 AC_SUBST(wpswar)
+AC_SUBST(filedatadir)
 
 #Directories used in the source-code
 CXXFLAGS="$CXXFLAGS -DSHARE_DATA_DIR=\\\"\$(pkgdatadir)/\\\""

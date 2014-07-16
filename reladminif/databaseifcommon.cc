@@ -150,6 +150,11 @@ DatabaseIf::baseDBMSOpen() throw (r_Error)
     }
 #endif // DBMS_PGSQL
 
+#ifdef BASEDB_SQLITE
+// done on rasserver startup for sqlite
+#define FASTCONNECT
+#endif
+
 #ifndef FASTCONNECT
     checkCompatibility();
     if (!isConsistent())

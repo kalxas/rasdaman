@@ -98,6 +98,7 @@ using namespace std;
 #include "raslib/rminit.hh"
 #include "raslib/rmdebug.hh"
 
+#define MAXMSG 1024
 
 // error codes, exceptions
 #include "rasdl_error.hh"
@@ -417,6 +418,92 @@ connectDB( const char* baseName, bool openDb, bool openTa ) throw (r_Error, Rasd
     LEAVE( "connectDB" );
 }
 
+// check whether command fits with given keyword (case insensitive), maybe after stripping leading whitespace
+bool isCommand( const char *command, const char *key)
+{
+    bool result;
+
+    if (command == NULL || key == NULL)
+        result = false;
+    else
+    {
+        while (*command == ' ' || *command == '\t')   // skip white space; newline cannot occur
+            command++;
+        result = !strcasecmp( command, key );
+    }
+
+    return result;
+}
+
+/**
+ * Determine connection string from etc/rasmgr.conf
+ */
+bool
+readRasmgrConf()
+{
+    char inBuffer[MAXMSG];
+
+    int  argc = 0;
+    char* token[30];
+
+    // get server configuration file path/name
+    char configFileName[PATH_MAX];
+    configFileName[0]=0;            // defensive programming...
+    sprintf( configFileName, "%s/%s", CONFDIR, RASMGR_CONF_FILE );
+    std::ifstream ifs(configFileName);      // open config file
+
+    if(!ifs)
+    {
+        return false;
+    }
+    while( ! ifs.eof() )        // was: while(1), I simplified this
+    {
+        ifs.getline(inBuffer,MAXMSG);
+
+        int argc=0;
+        char commandBuffer[PATH_MAX];
+        commandBuffer[0]=' ';
+        strncpy(commandBuffer+1,inBuffer,MAXMSG-1);
+        commandBuffer[MAXMSG]=0;
+
+        char *temp = commandBuffer;
+
+        for(argc=0; argc<30; argc++)
+        {
+            token[argc] = strtok(temp," \r\n\t\0");
+            temp=NULL;
+
+            if(token[argc] == NULL) break;
+            if(token[argc][0] == '#')
+            {
+                token[argc]=NULL; // from here, comment
+                break;
+            }
+        }
+        const char *command=argc ? token[0] : "#";
+        if(isCommand(command, "define"))
+        {
+            const char *what = argc==1 ? "xxx":token[1];
+            if(strcasecmp(what, "dbh")==0)
+            {
+                char* flag = "-connect";
+                for(int i=1; i<argc-1; i++)
+                {
+                    if(strcasecmp(flag,token[i])==0)
+                    {
+                        if(token[i+1][0]=='-' && token[i+1][1]!=0)
+                            return NULL; // values don't start with '-' (we don't have minus-signs)
+                        strcpy(globalConnectId, token[i+1]);
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
 //analyse params
 void
 parseParams(int argc, char* argv[]) throw (r_Error, RasdlError)
@@ -558,11 +645,16 @@ parseParams(int argc, char* argv[]) throw (r_Error, RasdlError)
         }
 
         // connectstr
-        if( cmlConnectStr.isPresent() )
-            strcpy( globalConnectId, cmlConnectStr.getValueAsString() );
-            else
-                strcpy( globalConnectId, DEFAULT_CONNECT );
+        if (cmlConnectStr.isPresent())
+            strcpy(globalConnectId, cmlConnectStr.getValueAsString());
+        else
+        {
+            if (!readRasmgrConf())
+            {
+                strcpy(globalConnectId, DEFAULT_CONNECT);
             }
+        }
+    }
     catch ( CmlException & err)
     {
         throw RasdlError( CMDLINE );
@@ -626,7 +718,11 @@ readMode() throw (r_Error, RasdlError)
 int
 main( int argc, char* argv[] )
 {
-    int result = EXIT_FAILURE;
+    SET_OUTPUT( false );        // ...unless we are otherwise instructed by --debug parameter
+
+    ENTER( "main()" );
+
+    int result = EXIT_FAILURE;  // program exit code
 
     cout << "rasdl: rasdaman schema and database manipulation tool, rasdaman " << RMANVERSION << " on base DBMS "  << BASEDBSTRING << " -- generated on " << COMPDATE << "." << endl;
 
@@ -639,11 +735,13 @@ main( int argc, char* argv[] )
         switch( progMode )
         {
         case M_READ:
+            TALK( "command is: M_READ" );
             connectDB( baseName, true, true );
             readMode();
             disconnectDB( true );
             break;
         case M_DELBASETYPE:
+            TALK( "command is: M_DELBASETYPE" );
             cout << "Deleting basetype " << deleteName << "..." << flush;
             connectDB( baseName, true, true );
             TypeFactory::deleteStructType( deleteName );
@@ -651,6 +749,7 @@ main( int argc, char* argv[] )
             cout << "ok" << endl;
             break;
         case M_DELMDDTYPE:
+            TALK( "command is: M_DELMDDTYPE" );
             cout << "Deleting MDD type " << deleteName << "..." << flush;
             connectDB( baseName, true, true );
             TypeFactory::deleteMDDType( deleteName );
@@ -658,6 +757,7 @@ main( int argc, char* argv[] )
             cout << "ok" << endl;
             break;
         case M_DELSETTYPE:
+            TALK( "command is: M_DELSETTYPE" );
             cout << "Deleting set type " << deleteName << "..." << flush;
             connectDB( baseName, true, true );
             TypeFactory::deleteSetType( deleteName );
@@ -665,6 +765,7 @@ main( int argc, char* argv[] )
             cout << "ok" << endl;
             break;
         case M_CREATEDATABASE:
+            TALK( "command is: M_CREATEDATABASE" );
             cout << "Creating base " << baseName;
 #ifdef BASEDB_O2
             cout << " with schema " << dbSchema;
@@ -682,6 +783,7 @@ main( int argc, char* argv[] )
             cout << "ok" << endl;
             break;
         case M_DELDATABASE:
+            TALK( "command is: M_DELDATABASE" );
             cout << "Deleting database " << baseName << "...";
             TALK( "connecting" );
             connectDB( baseName, false, false );
@@ -693,11 +795,13 @@ main( int argc, char* argv[] )
             cout << "ok" << endl;
             break;
         case M_PRINT:
+            TALK( "command is: M_PRINT" );
             connectDB( baseName, true, true );
             printNames();
             disconnectDB( false );  // abort TA - we did only reading
             break;
         case M_INVALID:
+            TALK( "command is: M_INVALID" );
             cerr << ERROR_NOACTION << endl;
             break;
         default:
@@ -726,5 +830,6 @@ main( int argc, char* argv[] )
 
     cout << argv[0] << " done." << endl;
 
+    LEAVE( "main() -> " << result );
     return( result );
 }

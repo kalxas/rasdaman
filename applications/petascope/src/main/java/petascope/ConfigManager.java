@@ -82,9 +82,11 @@ public class ConfigManager {
 
     // petascope metadata (stored in postgres)
     public static String METADATA_DRIVER = "org.postgresql.Driver";
+    public static final String METADATA_SQLITE_DRIVER = "org.sqlite.JDBC";
     public static String METADATA_URL = "jdbc:postgresql://localhost:5432/petascopedb";
     public static String METADATA_USER = "petauser";
     public static String METADATA_PASS = "petapasswd";
+    public static boolean METADATA_SQLITE = false;
 
     // rasdaman connection settings
     public static String RASDAMAN_SERVER = "'localhost";
@@ -294,6 +296,9 @@ public class ConfigManager {
         RASDAMAN_ADMIN_USER     = get(KEY_RASDAMAN_ADMIN_USER);
         RASDAMAN_ADMIN_PASS     = get(KEY_RASDAMAN_ADMIN_PASS);
         METADATA_DRIVER         = get(KEY_METADATA_DRIVER);
+        if (METADATA_SQLITE_DRIVER.equals(METADATA_DRIVER)) {
+            METADATA_SQLITE = true;
+        }
         METADATA_URL            = get(KEY_METADATA_URL);
         METADATA_USER           = get(KEY_METADATA_USER);
         METADATA_PASS           = get(KEY_METADATA_PASS);

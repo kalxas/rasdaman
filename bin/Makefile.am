@@ -22,6 +22,17 @@
 #
 ###################################################################
 
+if BASEDB_SQLITE
+  UPDATE_SCRIPT = update_db.sh.in
+  CREATE_SCRIPT = create_db.sh.in
+  DBCONN = $(filedatadir)/RASBASE
+endif
+if BASEDB_PGSQL
+  UPDATE_SCRIPT	= update_db.sh.in
+  CREATE_SCRIPT = create_db.sh.in
+  DBCONN = RASBASE
+endif
+
 bin_SCRIPTS = start_rasdaman.sh stop_rasdaman.sh create_db.sh update_db.sh
 EXTRA_DIST = stop_rasdaman.sh.in start_rasdaman.sh.in create_db.sh.in rasmgr.conf.in update_db.sh.in
 CLEANFILES = start_rasdaman.sh stop_rasdaman.sh create_db.sh rasmgr.conf update_db.sh
@@ -30,6 +41,8 @@ dist_pkgdata_DATA=errtxts_en errtxts_de errtxts_fr errtxts
 script_edit = $(SED) \
      -e 's|@logdir[@]|$(logdir)/|g' \
      -e 's|@bindir[@]|$(bindir)/|g' \
+     -e 's|@basedbms[@]|$(BASEDBSTRING)|g' \
+     -e 's|@dbconn[@]|$(DBCONN)|g' \
      -e 's|@pkgdatadir[@]|$(pkgdatadir)/|g'
 
 start_rasdaman.sh stop_rasdaman.sh create_db.sh update_db.sh: Makefile
@@ -44,7 +57,7 @@ create_db.sh: create_db.sh.in
 update_db.sh: update_db.sh.in
 rasmgr.conf: rasmgr.conf.in Makefile
 	rm -f $@
-	$(SED) -e "s|@hostname[@]|`hostname`|g" '$@.in' >$@
+	$(SED) -e "s|@hostname[@]|`hostname`|g" -e "s|@dbconn@|$(DBCONN)|g" '$@.in' >$@
 
 # don't overwrite rasmgr.conf if it's already there -- DM 2012-may-16
 install-data-hook: rasmgr.conf

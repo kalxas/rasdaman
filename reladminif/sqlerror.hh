@@ -41,6 +41,8 @@ rasdaman GmbH.
 
 */
 #include <iostream>
+#include <cstring>
+#include "config.h"
 using std::cout;
 using std::endl;
 
@@ -55,7 +57,7 @@ void generateExceptionn(struct sqlca&) throw (r_Error);
 generates a new r_Ebase_dbms exception and throws it.
 */
 
-#define check(msg) checkk(msg, sqlca)
+#define is_error(msg) checkk(msg, sqlca)
 int checkk(const char* msg, struct sqlca& mysql) throw( r_Error );
 /*@Doc:
 returns sqlcode, prints error messages when appropriate.
@@ -71,7 +73,7 @@ void generateException() throw (r_Error);
 generates a new r_Ebase_dbms exception and throws it.
 */
 
-int check(const char* msg) throw (r_Error);
+int is_error(const char* msg) throw (r_Error);
 /*@Doc:
 returns sqlcode, prints error messages when appropriate.
 the msg is inserted in the error message.
@@ -91,7 +93,7 @@ void generateException() throw (r_Error);
 This generates exceptions.
 */
 
-int check(const char* msg, bool displayWarning = false) throw (r_Error);
+int is_error(const char* msg, bool displayWarning = false) throw (r_Error);
 /*@Doc:
 This diplays esql errors.
 */
@@ -111,6 +113,28 @@ This generates exceptions.
 int check(const char* msg) throw (r_Error);
 /*@Doc:
 Display error message if SQL errors have occurred.
+*/
+#endif
+
+#ifdef BASEDB_SQLITE
+#define UNDEFINED_RETVAL -10000
+#include <sqlite3.h>
+
+bool is_error(sqlite3 *db) throw (r_Error);
+/*@Doc:
+Display error message if SQL errors have occurred.
+*/
+
+void failOnError(const char* msg, sqlite3 *db) throw (r_Error);
+/*@Doc:
+ * Throw an exception when an error happens.
+ * retval is an optional return value from an sqlite3_* function execution.
+*/
+
+void warnOnError(const char* msg, sqlite3 *db) throw (r_Error);
+/*@Doc:
+ * Print a warning when an error happens.
+ * retval is an optional return value from an sqlite3_* function execution.
 */
 #endif
 

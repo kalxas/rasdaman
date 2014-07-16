@@ -37,7 +37,12 @@ nobase_dist_pkgdata_DATA=db_updates/*.sql
 
 .SUFFIXES= .@EMBEDDEDSQLEXT@ .@EMBEDDEDSQLOUT@
 .@EMBEDDEDSQLEXT@.@EMBEDDEDSQLOUT@:
+if BASEDB_PGSQL
 	$(EMBEDDEDSQLPRECOMPILER) $@ $<
+endif
+if BASEDB_SQLITE
+	$(EMBEDDEDSQLPRECOMPILER) $< $@
+endif
 
 
 lib_LIBRARIES=libreladminif.a
@@ -48,7 +53,8 @@ libreladminif_a_SOURCES=adminifcommon.cc adminif.hh databaseifcommon.cc database
                         dbref.cc dbref.hh objectbrokercommon.cc objectbroker.hh \
                         dbobjectiterator.cc dbobjectiterator.hh \
                         externs.h lists.h binaryrepresentation.hh destroyable.hh \
-                        sqlglobals.h dbobjectiditerator.hh
+                        sqlglobals.h dbobjectiditerator.hh \
+                        sqlitewrapper.cc sqlitewrapper.hh
 EXTRA_libreladminif_a_SOURCES=adminif.pgc databaseif.pgc transactionif.pgc \
                         sqlerror.pgc oidif.pgc objectbroker.pgc \
                         dbobjectiditerator.cc

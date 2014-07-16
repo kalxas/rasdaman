@@ -109,7 +109,17 @@ bool CacheValue::isUpdate()
     return update;
 }
 
+bool CacheValue::isFileStorage()
+{
+    return fileStorage;
+}
+
 void CacheValue::setUpdate(bool newUpdate)
 {
     update = newUpdate;
+}
+
+void CacheValue::setFileStorage(bool newFileStorage)
+{
+    fileStorage = newFileStorage;
 }

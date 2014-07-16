@@ -39,10 +39,12 @@ rasdaman GmbH.
 class OId;
 class r_Error;
 
+#include "config.h"
 #include "dbtile.hh"
 #include "tilecache.hh"
 #include "tilecachevalue.hh"
 #include "raslib/mddtypes.hh"
+#include "simplefilestorage.hh"
 
 //@ManMemo: Module: {\bf relblobif}.
 
@@ -135,6 +137,12 @@ public:
     /*@Doc:
     info on the length of the BLOBBuffer
     */
+    static void useFileStorage(bool enable);
+    /*@Doc:
+     enable/disable file storage support
+    */
+
+    static bool fileStorageInitialized;
 
 protected:
 
@@ -168,6 +176,19 @@ private:
     /*@Doc:
     for writing into the DB.  currently not needed by oracle.
     */
+    static bool enableFileStorage;
+    /*@Doc:
+     enable storing BLOBs as files
+    */
+
+    static bool mixedStorageSupport;
+    /*@Doc:
+     support for mixed db/file blob storage?
+    */
+
+    static SimpleFileStorage initFileStorage();
+    static bool checkMixedStorageSupport();
+    static SimpleFileStorage fileStorage;
     
     friend class TileCache;
 };

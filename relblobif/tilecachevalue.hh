@@ -87,9 +87,15 @@ public:
     /// is cached data supposed to be updated in the database?
     bool isUpdate();
     
+    /// is cached data supposed to be written to file storage
+    bool isFileStorage();
+
     /// set if cached data is supposed to be updated in the database
     void setUpdate(bool update);
     
+    /// set if cached data is supposed to be updated in the database
+    void setFileStorage(bool fileStorage);
+
 private:
     
     OId myOId;
@@ -99,6 +105,7 @@ private:
     bool update;
     r_Data_Format dataFormat;
     std::set<void*> referencingTiles;
+    bool fileStorage;
 };
 
 #endif

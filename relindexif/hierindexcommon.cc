@@ -442,11 +442,16 @@ DBHierIndex::getOptimalSize(r_Dimension dim)
     blocksize = 8192;   // default only!!!;
     useablespace = 7000;    // no indication for any less space available, but to be sure we go a little lower -- PB 2005-jan-10
 #else
+#ifdef BASEDB_SQLITE
+    blocksize = 8192;   // default only!!!;
+    useablespace = 7000;    // no indication for any less space available, but to be sure we go a little lower -- PB 2005-jan-10
+#else
 #error "BASEDB not defined! please check for BASEDB_XXX define in Makefile.inc!"
 #endif // pgsql
 #endif // informix
 #endif // db2
 #endif // oracle
+#endif
 
     //remove mydomain size
     useablespace = useablespace - dim * (sizeof(r_Range) * 2 + sizeof(char) * 2);

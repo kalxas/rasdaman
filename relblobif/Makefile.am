@@ -34,14 +34,22 @@ AM_LDFLAGS=@BASEDBLDFLAGS@
 
 .SUFFIXES= .@EMBEDDEDSQLEXT@ .@EMBEDDEDSQLOUT@
 .@EMBEDDEDSQLEXT@.@EMBEDDEDSQLOUT@:
+if BASEDB_PGSQL
 	$(EMBEDDEDSQLPRECOMPILER) $@ $<
+endif
+if BASEDB_SQLITE
+	$(EMBEDDEDSQLPRECOMPILER) $< $@
+endif
 
 
 lib_LIBRARIES=librelblobif.a
 librelblobif_a_SOURCES= blobtile.hh \
                         dbtile.cc dbtile.hh inlinetile.cc inlinetile.hh \
                         blobtilecommon.cc tileid.hh tilecache.cc tilecache.hh \
-                        tilecachevalue.cc tilecachevalue.hh
+                        tilecachevalue.cc tilecachevalue.hh \
+                        simplefilestorage.cc simplefilestorage.hh filestorageexception.hh ifilestorage.hh
+
+
 EXTRA_librelblobif_a_SOURCES=blobtile.pgc 
 librelblobif_a_LIBADD=blobtile.$(OBJEXT)
 librelblobif_a_DEPENDENCIES=blobtile.$(OBJEXT)
