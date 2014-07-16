@@ -19,7 +19,7 @@
     <gmlce:SimpleMultiPoint id="multipoint_Parksmall-grid" srsName="/crs-compound?1=/crs/EPSG/0/27700&amp;2=/crs/EPSG/0/5701" axisLabels="E N H" uomLabels="metre metre metre" srsDimension="3"
         xmlns:gmlce='http://www.opengis.net/gml/3.3/ce'
         xsi:schemaLocation='http://www.opengis.net/gml/3.3/ce http://schemas.opengis.net/gml/3.3/geometryCompact.xsd'>
-      <posList>339868.06245005998 53.92999958 339867.49995003 53.92999958 339867.15615001001 53.958999579999997 339867.87495005003 53.924899580000002 339867.74995004002 53.919899579999999 </posList>
+      <posList>339868.062450059981 53.9299995800000005 339867.499950030004 53.9299995800000005 339867.156150010007 53.9589995799999969 339867.874950050027 53.9248995800000017 339867.749950040015 53.9198995799999992 </posList>
     </gmlce:SimpleMultiPoint>
   </domainSet>
 
@@ -29,6 +29,8 @@
       <tupleList ts="," cs=" ">231,207,173 255,255,255 255,255,255 208,180,156 224,197,170 </tupleList>
     </DataBlock>
   </rangeSet>
+
+
 
   <gmlcov:rangeType>
     <swe:DataRecord>
