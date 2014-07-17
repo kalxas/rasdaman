@@ -70,7 +70,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
 
 //      MetadataScalarExprType
         if (child == null) {
-            if (MetadataScalarExpr.NODE_NAMES.contains(nodeName)) {
+            if (MetadataScalarExpr.NODE_NAMES.contains(nodeName.toLowerCase())) {
                 try {
                     child = new MetadataScalarExpr(node, xq);
                     log.trace("Matched metadata scalar expression.");
@@ -84,7 +84,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
 
 //            BooleanScalarExprType
         if (child == null) {
-            if (BooleanScalarExpr.NODE_NAMES.contains(nodeName)) {
+            if (BooleanScalarExpr.NODE_NAMES.contains(nodeName.toLowerCase())) {
                 try {
                     child = new BooleanScalarExpr(node, xq);
                     log.trace("Matched boolean scalar expression.");
@@ -96,7 +96,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
 
 //            NumericScalarExprType
         if (child == null) {
-            if (NumericScalarExpr.NODE_NAMES.contains(n)) {
+            if (NumericScalarExpr.NODE_NAMES.contains(n.toLowerCase())) {
                 try {
                     child = new NumericScalarExpr(node, xq);
                     singleValue = ((NumericScalarExpr) child).isSingleValue();
@@ -131,7 +131,7 @@ public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
 
 //            StringScalarExprType
         if (child == null) {
-            if (StringScalarExpr.NODE_NAMES.contains(n)) {
+            if (StringScalarExpr.NODE_NAMES.contains(n.toLowerCase())) {
                 try {
                     child = new StringScalarExpr(node, xq);
                     log.trace("Matched string scalar expression.");

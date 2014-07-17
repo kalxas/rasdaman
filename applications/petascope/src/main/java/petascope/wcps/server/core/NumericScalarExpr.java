@@ -39,18 +39,18 @@ public class NumericScalarExpr extends AbstractRasNode {
 
     public static final Set<String> NODE_NAMES = new HashSet<String>();
     private static final String[] NODE_NAMES_ARRAY = {
-        WcpsConstants.MSG_NUMERIC_CONSTANT,
-        WcpsConstants.MSG_COMPLEX_CONSTANT,
-        WcpsConstants.MSG_CONDENSE,
-        WcpsConstants.MSG_REDUCE,
-        WcpsConstants.MSG_NUMERIC_UNARY_MINUS,
-        WcpsConstants.MSG_NUMERIC_SQRT,
-        WcpsConstants.MSG_NUMERIC_ABS,
-        WcpsConstants.MSG_NUMERIC_ADD,
-        WcpsConstants.MSG_NUMERIC_MINUS,
-        WcpsConstants.MSG_NUMERIC_MULT,
-        WcpsConstants.MSG_NUMERIC_DIV,
-        WcpsConstants.MSG_VARIABLE_REF,
+        WcpsConstants.MSG_NUMERIC_CONSTANT.toLowerCase(),
+        WcpsConstants.MSG_COMPLEX_CONSTANT.toLowerCase(),
+        WcpsConstants.MSG_CONDENSE.toLowerCase(),
+        WcpsConstants.MSG_REDUCE.toLowerCase(),
+        WcpsConstants.MSG_NUMERIC_UNARY_MINUS.toLowerCase(),
+        WcpsConstants.MSG_NUMERIC_SQRT.toLowerCase(),
+        WcpsConstants.MSG_NUMERIC_ABS.toLowerCase(),
+        WcpsConstants.MSG_NUMERIC_ADD.toLowerCase(),
+        WcpsConstants.MSG_NUMERIC_MINUS.toLowerCase(),
+        WcpsConstants.MSG_NUMERIC_MULT.toLowerCase(),
+        WcpsConstants.MSG_NUMERIC_DIV.toLowerCase(),
+        WcpsConstants.MSG_VARIABLE_REF.toLowerCase(),
     };
     static {
         NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
@@ -86,7 +86,7 @@ public class NumericScalarExpr extends AbstractRasNode {
 
         op = "";
 
-        if (nodeName.equals(WcpsConstants.MSG_NUMERIC_CONSTANT)) {
+        if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_CONSTANT)) {
             twoChildren = false;
             op = code(nodeName);
             value = node.getFirstChild().getNodeValue();
@@ -97,30 +97,30 @@ public class NumericScalarExpr extends AbstractRasNode {
                     throw new WCPSException("Could not understand constant: " + value);
                 }
             }
-        } else if (nodeName.equals(WcpsConstants.MSG_COMPLEX_CONSTANT)
-                || nodeName.equals(WcpsConstants.MSG_CONDENSE)
-                || nodeName.equals(WcpsConstants.MSG_REDUCE)) {
+        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_COMPLEX_CONSTANT)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_CONDENSE)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_REDUCE)) {
             op = code(nodeName);
             twoChildren = false;
-            if (nodeName.equals(WcpsConstants.MSG_COMPLEX_CONSTANT)) {
+            if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_COMPLEX_CONSTANT)) {
                 first = new ComplexConstant(node, xq);
             }
-            if (nodeName.equals(WcpsConstants.MSG_CONDENSE)) {
+            if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_CONDENSE)) {
                 first = new CondenseScalarExpr(node, xq);
             }
-            if (nodeName.equals(WcpsConstants.MSG_REDUCE)) {
+            if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_REDUCE)) {
                 first = new ReduceScalarExpr(node, xq);
             }
-        } else if (nodeName.equals(WcpsConstants.MSG_NUMERIC_UNARY_MINUS)
-                || nodeName.equals(WcpsConstants.MSG_NUMERIC_SQRT)
-                || nodeName.equals(WcpsConstants.MSG_NUMERIC_ABS)) {
+        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_UNARY_MINUS)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_SQRT)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_ABS)) {
             op = code(nodeName);
             twoChildren = false;
             first = new NumericScalarExpr(node.getFirstChild(), xq);
-        } else if (nodeName.equals(WcpsConstants.MSG_NUMERIC_ADD)
-                || nodeName.equals(WcpsConstants.MSG_NUMERIC_MINUS)
-                || nodeName.equals(WcpsConstants.MSG_NUMERIC_MULT)
-                || nodeName.equals(WcpsConstants.MSG_NUMERIC_DIV)) {
+        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_ADD)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_MINUS)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_MULT)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_DIV)) {
             try {
                 op = code(nodeName);
                 twoChildren = true;
@@ -130,7 +130,7 @@ public class NumericScalarExpr extends AbstractRasNode {
             } catch (WCPSException e) {
                 log.error("Failed to parse a numeric expression pair.");
             }
-        } else if (nodeName.equals(WcpsConstants.MSG_VARIABLE_REF)) {
+        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_VARIABLE_REF)) {
             try {
                 op = code(nodeName);
                 twoChildren = false;
@@ -156,17 +156,17 @@ public class NumericScalarExpr extends AbstractRasNode {
         String result = "";
         if (twoChildren == false)
         {
-            if (op.equals(WcpsConstants.MSG_VARIABLE)) {
+            if (op.equalsIgnoreCase(WcpsConstants.MSG_VARIABLE)) {
                 result = first.toRasQL();
-            } else if (op.equals(WcpsConstants.MSG_VALUE)) {
+            } else if (op.equalsIgnoreCase(WcpsConstants.MSG_VALUE)) {
                 result = value;
-            } else if (op.equals("-")) {
+            } else if (op.equalsIgnoreCase("-")) {
                     result = "-" + first.toRasQL();
-            } else if (op.equals(WcpsConstants.MSG_SQRT)) {
+            } else if (op.equalsIgnoreCase(WcpsConstants.MSG_SQRT)) {
                     result = RASQL_SQRT + "(" + first.toRasQL() + ")";
-            } else if (op.equals(WcpsConstants.MSG_CHILD)) {
+            } else if (op.equalsIgnoreCase(WcpsConstants.MSG_CHILD)) {
                 result = first.toRasQL();
-            } else if (op.equals(WcpsConstants.MSG_ABS)) {
+            } else if (op.equalsIgnoreCase(WcpsConstants.MSG_ABS)) {
                 result = RASQL_ABS + "(" + first.toRasQL() + ")";
             }
         }else if (twoChildren == true) {
@@ -181,32 +181,32 @@ public class NumericScalarExpr extends AbstractRasNode {
 
     private String code(String name) {
         String op = "";
-        if (name.equals(WcpsConstants.MSG_NUMERIC_CONSTANT)) {
+        if (name.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_CONSTANT)) {
             op = WcpsConstants.MSG_VALUE;
         }
-        if (name.equals(WcpsConstants.MSG_NUMERIC_UNARY_MINUS) || name.equals(WcpsConstants.MSG_NUMERIC_MINUS)) {
+        if (name.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_UNARY_MINUS) || name.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_MINUS)) {
             op = "-";
         }
-        if (name.equals(WcpsConstants.MSG_NUMERIC_ADD)) {
+        if (name.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_ADD)) {
             op = "+";
         }
-        if (name.equals(WcpsConstants.MSG_NUMERIC_MULT)) {
+        if (name.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_MULT)) {
             op = "*";
         }
-        if (name.equals(WcpsConstants.MSG_NUMERIC_DIV)) {
+        if (name.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_DIV)) {
             op = "/";
         }
-        if (name.equals(WcpsConstants.MSG_NUMERIC_SQRT)) {
+        if (name.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_SQRT)) {
             op = WcpsConstants.MSG_SQRT;
         }
-        if (name.equals(WcpsConstants.MSG_NUMERIC_ABS)) {
+        if (name.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_ABS)) {
             op  = WcpsConstants.MSG_ABS;
         }
-        if (name.equals(WcpsConstants.MSG_CONDENSE) || name.equals(WcpsConstants.MSG_REDUCE)
-                || name.equals(WcpsConstants.MSG_COMPLEX_CONSTANT)) {
+        if (name.equalsIgnoreCase(WcpsConstants.MSG_CONDENSE) || name.equalsIgnoreCase(WcpsConstants.MSG_REDUCE)
+                || name.equalsIgnoreCase(WcpsConstants.MSG_COMPLEX_CONSTANT)) {
             op = WcpsConstants.MSG_CHILD;
         }
-        if (name.equals(WcpsConstants.MSG_VARIABLE_REF)) {
+        if (name.equalsIgnoreCase(WcpsConstants.MSG_VARIABLE_REF)) {
             op = WcpsConstants.MSG_VARIABLE;
         }
 
@@ -214,7 +214,7 @@ public class NumericScalarExpr extends AbstractRasNode {
     }
 
     public boolean isSingleValue() {
-        return op.equals(WcpsConstants.MSG_VALUE);
+        return op.equalsIgnoreCase(WcpsConstants.MSG_VALUE);
     }
 
     public double getSingleValue() {

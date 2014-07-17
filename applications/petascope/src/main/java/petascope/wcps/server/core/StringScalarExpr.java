@@ -37,8 +37,8 @@ public class StringScalarExpr extends AbstractRasNode {
 
     public static final Set<String> NODE_NAMES = new HashSet<String>();
     private static final String[] NODE_NAMES_ARRAY = {
-        WcpsConstants.MSG_STRING_IDENTIFIER,
-        WcpsConstants.MSG_STRING_CONSTANT,
+        WcpsConstants.MSG_STRING_IDENTIFIER.toLowerCase(),
+        WcpsConstants.MSG_STRING_CONSTANT.toLowerCase(),
     };
     static {
         NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
@@ -53,12 +53,12 @@ public class StringScalarExpr extends AbstractRasNode {
         }
         log.trace(node.getNodeName());
 
-        if (node.getNodeName().equals(WcpsConstants.MSG_STRING_IDENTIFIER)) {
+        if (node.getNodeName().equalsIgnoreCase(WcpsConstants.MSG_STRING_IDENTIFIER)) {
             Node child = node.getFirstChild();
             cov = new CoverageExpr(child, xq);
             super.children.add(cov);
             op = WcpsConstants.MSG_ID_LOWERCASE;
-        } else if (node.getNodeName().equals(WcpsConstants.MSG_STRING_CONSTANT)) {
+        } else if (node.getNodeName().equalsIgnoreCase(WcpsConstants.MSG_STRING_CONSTANT)) {
             op = WcpsConstants.MSG_CONSTANT;
             string = node.getFirstChild().getNodeValue();
         } else {
@@ -70,10 +70,10 @@ public class StringScalarExpr extends AbstractRasNode {
 
     public String toRasQL() {
         String result = "";
-        if (op.equals(WcpsConstants.MSG_CONSTANT)) {
+        if (op.equalsIgnoreCase(WcpsConstants.MSG_CONSTANT)) {
             result = string;
         }
-        if (op.equals(WcpsConstants.MSG_ID_LOWERCASE)) {
+        if (op.equalsIgnoreCase(WcpsConstants.MSG_ID_LOWERCASE)) {
             result = cov.toRasQL();
         }
 
@@ -82,12 +82,12 @@ public class StringScalarExpr extends AbstractRasNode {
 
     // Equivalent of NumericScalarExpr::getSingleValue() for String subset expressions (e.g. timestamps)
     public String getValue() {
-        if (op.equals(WcpsConstants.MSG_CONSTANT)) {
+        if (op.equalsIgnoreCase(WcpsConstants.MSG_CONSTANT)) {
             return string;
         } else return "";
     }
 
     public boolean isSingleValue() {
-        return op.equals(WcpsConstants.MSG_CONSTANT);
+        return op.equalsIgnoreCase(WcpsConstants.MSG_CONSTANT);
     }
 }

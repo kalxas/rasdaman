@@ -38,20 +38,20 @@ public class BooleanScalarExpr extends AbstractRasNode {
     
     public static final Set<String> NODE_NAMES = new HashSet<String>();
     private static final String[] NODE_NAMES_ARRAY = {
-        WcpsConstants.MSG_BOOLEAN_CONSTANT,
-        WcpsConstants.MSG_BOOLEAN_AND,
-        WcpsConstants.MSG_BOOLEAN_OR,
-        WcpsConstants.MSG_BOOLEAN_XOR,
-        WcpsConstants.MSG_BOOLEAN_LESSTHAN,
-        WcpsConstants.MSG_BOOLEAN_LESSOREQUAL,
-        WcpsConstants.MSG_BOOLEAN_GREATERTHAN,
-        WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL,
-        WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC,
-        WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC,
-        WcpsConstants.MSG_BOOLEAN_EQUAL_STRING,
-        WcpsConstants.MSG_BOOLEAN_NOT_EQUAL_STRING,
-        WcpsConstants.MSG_BOOLEAN_NOT,
-        WcpsConstants.MSG_BIT,
+        WcpsConstants.MSG_BOOLEAN_CONSTANT.toLowerCase(),
+        WcpsConstants.MSG_BOOLEAN_AND.toLowerCase(),
+        WcpsConstants.MSG_BOOLEAN_OR.toLowerCase(),
+        WcpsConstants.MSG_BOOLEAN_XOR.toLowerCase(),
+        WcpsConstants.MSG_BOOLEAN_LESSTHAN.toLowerCase(),
+        WcpsConstants.MSG_BOOLEAN_LESSOREQUAL.toLowerCase(),
+        WcpsConstants.MSG_BOOLEAN_GREATERTHAN.toLowerCase(),
+        WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL.toLowerCase(),
+        WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC.toLowerCase(),
+        WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC.toLowerCase(),
+        WcpsConstants.MSG_BOOLEAN_EQUAL_STRING.toLowerCase(),
+        WcpsConstants.MSG_BOOLEAN_NOT_EQUAL_STRING.toLowerCase(),
+        WcpsConstants.MSG_BOOLEAN_NOT.toLowerCase(),
+        WcpsConstants.MSG_BIT.toLowerCase(),
     };
     static {
         NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
@@ -71,24 +71,24 @@ public class BooleanScalarExpr extends AbstractRasNode {
 
         simple = false;
 
-        if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_CONSTANT)) {
+        if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_CONSTANT)) {
             simple = true;
             value = node.getFirstChild().getNodeValue();
-        } else if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_AND)
-                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_OR)
-                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_XOR)
-                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_LESSTHAN)
-                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_LESSOREQUAL)
-                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_GREATERTHAN)
-                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL)
-                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC)
-                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)
-                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_EQUAL_STRING)
-                || nodeName.equals(WcpsConstants.MSG_BOOLEAN_NOT_EQUAL_STRING)) {
+        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_AND)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_OR)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_XOR)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_LESSTHAN)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_LESSOREQUAL)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_GREATERTHAN)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_EQUAL_STRING)
+                || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_NOT_EQUAL_STRING)) {
             // Logical operations
-            if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_AND)
-                    || nodeName.equals(WcpsConstants.MSG_BOOLEAN_OR)
-                    || nodeName.equals(WcpsConstants.MSG_BOOLEAN_XOR)) {
+            if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_AND)
+                    || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_OR)
+                    || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_XOR)) {
                 // Remove the "boolean" in front
                 op = nodeName.substring(7).toLowerCase();
 
@@ -99,25 +99,25 @@ public class BooleanScalarExpr extends AbstractRasNode {
                 second = new BooleanScalarExpr(child, xq);
             } else // Boolean Comparison operations between numbers or strings
             {
-                if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_LESSTHAN) || nodeName.equals(WcpsConstants.MSG_BOOLEAN_LESSOREQUAL)
-                        || nodeName.equals(WcpsConstants.MSG_BOOLEAN_GREATERTHAN) || nodeName.equals(WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL)
-                        || nodeName.equals(WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC) || nodeName.equals(WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)) {
-                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_LESSTHAN)) {
+                if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_LESSTHAN) || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_LESSOREQUAL)
+                        || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_GREATERTHAN) || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL)
+                        || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC) || nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)) {
+                    if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_LESSTHAN)) {
                         op = "<";
                     }
-                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_LESSOREQUAL)) {
+                    if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_LESSOREQUAL)) {
                         op = "<=";
                     }
-                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_GREATERTHAN)) {
+                    if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_GREATERTHAN)) {
                         op = ">";
                     }
-                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL)) {
+                    if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_GREATEROREQUAL)) {
                         op = ">=";
                     }
-                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC)) {
+                    if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_EQUALNUMERIC)) {
                         op = "=";
                     }
-                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)) {
+                    if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_NOTEQUALNUMERIC)) {
                         op = "!=";
                     }
 
@@ -127,10 +127,10 @@ public class BooleanScalarExpr extends AbstractRasNode {
                     child = child.getNextSibling();
                     second = new NumericScalarExpr(child, xq);
                 } else {
-                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_EQUAL_STRING)) {
+                    if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_EQUAL_STRING)) {
                         op = "=";
                     }
-                    if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_NOT_EQUAL_STRING)) {
+                    if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_NOT_EQUAL_STRING)) {
                         op = "!=";
                     }
 
@@ -142,10 +142,10 @@ public class BooleanScalarExpr extends AbstractRasNode {
                 }
             }
 
-        } else if (nodeName.equals(WcpsConstants.MSG_BOOLEAN_NOT)) {
+        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BOOLEAN_NOT)) {
             op = WcpsConstants.MSG_NOT;
             first = new BooleanScalarExpr(node.getFirstChild(), xq);
-        } else if (nodeName.equals(WcpsConstants.MSG_BIT)) {
+        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_BIT)) {
             op = WcpsConstants.MSG_BIT;
             first = new CoverageExpr(node.getFirstChild(), xq);
             second = new NumericScalarExpr(node.getFirstChild().getNextSibling(), xq);
@@ -164,9 +164,9 @@ public class BooleanScalarExpr extends AbstractRasNode {
             return value;
         }
 
-        if (op.equals(WcpsConstants.MSG_NOT)) {
+        if (op.equalsIgnoreCase(WcpsConstants.MSG_NOT)) {
             return RASQL_NOT + "(" + first.toRasQL() + ")";
-        } else if (op.equals(WcpsConstants.MSG_BIT)) {
+        } else if (op.equalsIgnoreCase(WcpsConstants.MSG_BIT)) {
             return RASQL_BIT + "(" + first.toRasQL() + "," + second.toRasQL() + ")";
         } else {
             return "(" + first.toRasQL() + ")" + op + "(" + second.toRasQL() + ")";

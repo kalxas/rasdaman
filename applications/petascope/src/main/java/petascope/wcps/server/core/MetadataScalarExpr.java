@@ -42,11 +42,11 @@ public class MetadataScalarExpr extends AbstractRasNode {
 
     public static final Set<String> NODE_NAMES = new HashSet<String>();
     private static final String[] NODE_NAMES_ARRAY = {
-        WcpsConstants.MSG_DOMAIN_METADATA_CAMEL,
-        WcpsConstants.MSG_IMAGE_CRSDOMAIN,
-        WcpsConstants.MSG_CRS_SET,
-        WcpsConstants.MSG_IDENTIFIER,
-        WcpsConstants.MSG_IMAGE_CRS2
+        WcpsConstants.MSG_DOMAIN_METADATA_CAMEL.toLowerCase(),
+        WcpsConstants.MSG_IMAGE_CRSDOMAIN.toLowerCase(),
+        WcpsConstants.MSG_CRS_SET.toLowerCase(),
+        WcpsConstants.MSG_IDENTIFIER.toLowerCase(),
+        WcpsConstants.MSG_IMAGE_CRS2.toLowerCase()
     };
     static {
         NODE_NAMES.addAll(Arrays.asList(NODE_NAMES_ARRAY));
@@ -76,7 +76,7 @@ public class MetadataScalarExpr extends AbstractRasNode {
         op = nodeName;
         AxisName axis = null;
         Crs crs = null;
-        if (nodeName.equals(WcpsConstants.MSG_DOMAIN_METADATA_CAMEL)) {
+        if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_DOMAIN_METADATA_CAMEL)) {
             axis = new AxisName(child, xq);
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
             DomainElement domainElement = coverageInfo.getDomainElement(axisIndex);
@@ -101,13 +101,13 @@ public class MetadataScalarExpr extends AbstractRasNode {
                 log.error("Error while comparing input CRS and native CRS: " + ex.getMessage());
                 throw new WCPSException(ex.getExceptionCode(), ex);
             }
-        } else if (nodeName.equals(WcpsConstants.MSG_IMAGE_CRSDOMAIN)) {
+        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRSDOMAIN)) {
             axis = new AxisName(child, xq);
             int axisIndex = coverageInfo.getDomainIndexByName(axis.toRasQL());
             CellDomainElement cellDomainElement = coverageInfo.getCellDomainElement(axisIndex);
             lo = cellDomainElement.getLo().toString();
             hi = cellDomainElement.getHi().toString();
-        } else if (nodeName.equals(WcpsConstants.MSG_CRS_SET)){
+        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_CRS_SET)){
             int n = coverageInfo.getNumDimensions();
             for(int i=0; i<n;i++){
                 DomainElement domainElement = coverageInfo.getDomainElement(i);
@@ -123,12 +123,12 @@ public class MetadataScalarExpr extends AbstractRasNode {
                     crss+=", ";
             }
         }
-        else if (nodeName.equals(WcpsConstants.MSG_IDENTIFIER )) {
+        else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_IDENTIFIER )) {
             op = WcpsConstants.MSG_IDENTIFIER;
         }
-        else if (!nodeName.equals(WcpsConstants.MSG_IMAGE_CRS2) &&
-                   !nodeName.equals(WcpsConstants.MSG_SET_IDENTIFIER) &&
-                   !nodeName.equals(WcpsConstants.MSG_IMAGE_CRS)) {
+        else if (!nodeName.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRS2) &&
+                   !nodeName.equalsIgnoreCase(WcpsConstants.MSG_SET_IDENTIFIER) &&
+                   !nodeName.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRS)) {
             throw new WCPSException("No metadata node: " + nodeName);
         }
 
@@ -146,13 +146,13 @@ public class MetadataScalarExpr extends AbstractRasNode {
 
     public String toRasQL() {
         String ret = "";
-        if (op.equals(WcpsConstants.MSG_IDENTIFIER)) {
+        if (op.equalsIgnoreCase(WcpsConstants.MSG_IDENTIFIER)) {
             ret = coverageInfo.getCoverageName();
-        } else if (op.equals(WcpsConstants.MSG_IMAGE_CRS2)) {
+        } else if (op.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRS2)) {
             ret = CrsUtil.GRID_CRS;
-        } else if (op.equals(WcpsConstants.MSG_DOMAIN_METADATA_CAMEL) || op.equals(WcpsConstants.MSG_IMAGE_CRSDOMAIN)) {
+        } else if (op.equalsIgnoreCase(WcpsConstants.MSG_DOMAIN_METADATA_CAMEL) || op.equalsIgnoreCase(WcpsConstants.MSG_IMAGE_CRSDOMAIN)) {
             ret = "(" + lo + "," + hi + ")";
-        } else if(op.equals(WcpsConstants.MSG_CRS_SET)){
+        } else if(op.equalsIgnoreCase(WcpsConstants.MSG_CRS_SET)){
             ret = crss;
         }
         return ret;
