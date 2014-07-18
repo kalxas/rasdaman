@@ -764,12 +764,12 @@ public class DbMetadataSource implements IMetadataSource {
     }
 
     /**
-     * Given a coverage id; returns the corresponding name
+     * Given a coverage id; returns the corresponding type
      * @param coverageId
-     * @return The name of the coverage
+     * @return The type of the coverage
      * @throws PetascopeException
      */
-    public String coverageType(String coverageId) throws PetascopeException {
+    public String coverageType(Integer coverageId) throws PetascopeException {
         Statement s = null;
         try {
             ensureConnection();
@@ -784,7 +784,7 @@ public class DbMetadataSource implements IMetadataSource {
             if (r.next()) {
                 return gmlSubTypes.get(r.getInt(COVERAGE_GML_TYPE_ID));
             }
-            throw new PetascopeException(ExceptionCode.NoSuchCoverage.locator(coverageId),
+            throw new PetascopeException(ExceptionCode.NoSuchCoverage.locator(Integer.toString(coverageId)),
                     "Error getting coverage type.");
         } catch (SQLException sqle) {
             throw new PetascopeException(ExceptionCode.ResourceError,

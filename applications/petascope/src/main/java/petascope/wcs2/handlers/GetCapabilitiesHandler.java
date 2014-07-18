@@ -323,7 +323,7 @@ public class GetCapabilitiesHandler extends AbstractRequestHandler<GetCapabiliti
                 c.appendChild(coverageName);
                 covSummaryEl.appendChild(c);
                 c = new Element(LABEL_COVERAGE_SUBTYPE, NAMESPACE_WCS);
-                String covType = meta.read(coverageName).getCoverageType();
+                String covType = meta.coverageType(meta.coverageID(coverageName));
                 c.appendChild(covType);
                 covSummaryEl.appendChild(c);
                 // Add hierarchy of parent types
