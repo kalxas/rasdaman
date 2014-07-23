@@ -30,7 +30,11 @@
 #include <cstdlib>
 #include <cstdio>
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "commonutil.hh"
+
 
 #include "debug/debug.hh"   //ENTER and LEAVE
 
