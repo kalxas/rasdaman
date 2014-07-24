@@ -32,6 +32,43 @@
 
 
 
+# ------------------------------------------------------------------------------
+# execute a rasql query by taking into account rasdaman availability. The rasql
+# query is not passed directly here, as we can never account for all the
+# possible cases. Instead, it's wrapped into a function, and the function name
+# is passed here.
+#
+# This function will execute the function retrying maximum 5 times until the
+# called function returns a 0.
+#
+# arg 1: function name to execute
+run_query()
+{
+  local func="$1"
+
+  local rc=1
+  local times=0
+  while [ $rc -ne 0 ]; do
+
+    # repeat a failing query maximum 5 times
+    if [ $times -gt 5 ]; then
+      echo "failed importing to rasdaman"
+      break
+    fi
+
+    # execute function
+    $func
+    rc=$?
+
+    if [ $rc -ne 0 ]; then
+      times=$(($times + 1))
+      echo ""
+      logn "failed, repeating $times... "
+    fi
+  done
+  return $rc
+}
+
 
 # ------------------------------------------------------------------------------
 # check if collection exists in rasdaman

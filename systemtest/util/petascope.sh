@@ -122,6 +122,14 @@ function drop_petascope()
 #
 # import 3D eobs data
 #
+function import_eobs_create_coll()
+{
+  $RASQL -q "create collection $c $c_colltype" > /dev/null
+}
+function import_eobs_insert()
+{
+  $RASQL -q "insert into $c values ($c_basetype) inv_netcdf(\$1, \"vars=tg\")" -f "$TESTDATA_PATH"/eobs.nc > /dev/null
+}
 function import_eobs()
 {
   local TESTDATA_PATH="$1"
@@ -164,8 +172,8 @@ function import_eobs()
   # START
   #
 
-  $RASQL -q "create collection $c $c_colltype" > /dev/null || exit $RC_ERROR
-  $RASQL -q "insert into $c values ($c_basetype) inv_netcdf(\$1, \"vars=tg\")" -f "$TESTDATA_PATH"/eobs.nc > /dev/null || exit $RC_ERROR
+  run_query import_eobs_create_coll || exit $RC_ERROR
+  run_query import_eobs_insert || exit $RC_ERROR
 
   # general coverage information (name, type, ...)
   $PSQL -c "INSERT INTO ps_coverage (name, gml_type_id, native_format_id) \
@@ -248,6 +256,14 @@ function import_eobs()
 #
 # import 2D rgb data
 #
+function import_rgb_create_coll()
+{
+  $RASQL -q "create collection $c $c_colltype" > /dev/null
+}
+function import_rgb_insert()
+{
+  $RASQL -q "insert into $c values decode(\$1)" -f "$TESTDATA_PATH"/rgb.png > /dev/null
+}
 function import_rgb()
 {
   local TESTDATA_PATH="$1"
@@ -275,8 +291,8 @@ function import_rgb()
   # START
   #
 
-  $RASQL -q "create collection $c $c_colltype" > /dev/null || exit $RC_ERROR
-  $RASQL -q "insert into $c values decode(\$1)" -f "$TESTDATA_PATH"/rgb.png > /dev/null || exit $RC_ERROR
+  run_query import_rgb_create_coll || exit $RC_ERROR
+  run_query import_rgb_insert || exit $RC_ERROR
 
   # general coverage information (name, type, ...)
   $PSQL -c "INSERT INTO ps_coverage (name, gml_type_id, native_format_id) \
@@ -336,6 +352,14 @@ function import_rgb()
 #
 # import 2D char data
 #
+function import_mr_create_coll()
+{
+  $RASQL -q "create collection $c $c_colltype" > /dev/null
+}
+function import_mr_insert()
+{
+  $RASQL -q "insert into $c values decode(\$1)" -f "$TESTDATA_PATH"/mr_1.png > /dev/null
+}
 function import_mr()
 {
   local TESTDATA_PATH="$1"
@@ -362,8 +386,8 @@ function import_mr()
   # START
   #
 
-  $RASQL -q "create collection $c $c_colltype" > /dev/null || exit $RC_ERROR
-  $RASQL -q "insert into $c values decode(\$1)" -f "$TESTDATA_PATH"/mr_1.png > /dev/null || exit $RC_ERROR
+  run_query import_mr_create_coll || exit $RC_ERROR
+  run_query import_mr_insert || exit $RC_ERROR
 
   # general coverage information (name, type, ...)
   $PSQL -c "INSERT INTO ps_coverage (name, gml_type_id, native_format_id) \
@@ -422,6 +446,25 @@ function import_mr()
 #
 # import 3D irregular time-series
 #
+function import_irr_cube_1_create_coll()
+{
+  $RASQL -q "create collection $c $c_colltype" > /dev/null
+}
+function import_irr_cube_1_insert()
+{
+  $RASQL -q "insert into $c values marray x in [0:$(( $Z-1 )),0:$(( $Y-1 )),0:$(( $Z-1 ))] values ($c_basetype)0" > /dev/null
+}
+function import_irr_cube_1_update()
+{
+  # update the line. Eg SLICE=2, ROW=3 -> LINE_BASE=230
+  # RasQL = "update $c as m set m[3,0:9,2] assign (ushort) < [0:9] 230, 231, 232, 233, 234, 235, 236, 237, 238, 239 >
+  $RASQL -q "update $c as m set m[$ROW,0:$(( $Y-1 )),$SLICE] \
+                assign ($c_basetype) < \
+                       [0:$(( $Y-1 ))] \
+                        $( echo ${sequence[@]} \
+                        | sed -r 's/[0-9]/echo $(( & + $LINE_BASE ))/ge' \
+                        | sed 's/ echo/,/g') >" > /dev/null
+}
 function import_irr_cube_1()
 {
   # No need to check for file: the payload is dynamically created here inside the function
@@ -452,8 +495,8 @@ function import_irr_cube_1()
   #
 
   # init the collection
-  $RASQL -q "create collection $c $c_colltype" > /dev/null || exit $RC_ERROR
-  $RASQL -q "insert into $c values marray x in [0:$(( $Z-1 )),0:$(( $Y-1 )),0:$(( $Z-1 ))] values ($c_basetype)0" > /dev/null || exit $RC_ERROR
+  run_query import_irr_cube_1_create_coll || exit $RC_ERROR
+  run_query import_irr_cube_1_insert || exit $RC_ERROR
 
   # Fill in the slices row-by-row with domainSet reflected in the rangeSet: Z_coeffs are hundreds, X are tens, Y are units.
   sequence=( 0 1 2 3 4 5 6 7 8 9 )
@@ -461,14 +504,7 @@ function import_irr_cube_1()
       for ROW in $( seq 0 $(( $X-1 )) ); do
           # make this available to subshell in sed
           export LINE_BASE=$(( ${Z_coeffs[$SLICE]} * 100 + $ROW * 10 ))
-          # update the line. Eg SLICE=2, ROW=3 -> LINE_BASE=230
-          # RasQL = "update $c as m set m[3,0:9,2] assign (ushort) < [0:9] 230, 231, 232, 233, 234, 235, 236, 237, 238, 239 >
-          $RASQL -q "update $c as m set m[$ROW,0:$(( $Y-1 )),$SLICE] \
-                        assign ($c_basetype) < \
-                               [0:$(( $Y-1 ))] \
-                                $( echo ${sequence[@]} \
-                                | sed -r 's/[0-9]/echo $(( & + $LINE_BASE ))/ge' \
-                                | sed 's/ echo/,/g') >" > /dev/null || exit $RC_ERROR
+          run_query import_irr_cube_1_update || exit $RC_ERROR
       done
   done
 
@@ -533,6 +569,20 @@ function import_irr_cube_1()
 #
 # import 3D geo-referenced irregular time series
 #
+function import_irr_cube_2_query()
+{
+  $RASIMPORT -d "$data_folder" \
+             -s 'tif' \
+             -t  ${c_marraytype}:${c_colltype} \
+             --coll $c \
+             --coverage-name $c \
+             --crs-uri  "$c_crs_s":"$c_crs_t" \
+             --crs-order 0:1:2  \
+             --3D top \
+             --csz "$t_vector" \
+             --z-coords 148654:148656:148658:148661 > /dev/null
+             # ANSI date numbers for 2008 Jan {1-3-5-8} 00:00:00Z (ANSI dates are integers: no hour resolution)
+}
 function import_irr_cube_2()
 {
   local TESTDATA_PATH="$1"
@@ -568,17 +618,7 @@ function import_irr_cube_2()
   $RASDL --insert --read "$datatype_file" > /dev/null || exit $RC_ERROR
 
   # Import
-  $RASIMPORT -d "$data_folder" \
-             -s 'tif' \
-             -t  ${c_marraytype}:${c_colltype} \
-             --coll $c \
-             --coverage-name $c \
-             --crs-uri  "$c_crs_s":"$c_crs_t" \
-             --crs-order 0:1:2  \
-             --3D top \
-             --csz "$t_vector" \
-             --z-coords 148654:148656:148658:148661 > /dev/null || exit $RC_ERROR
-             # ANSI date numbers for 2008 Jan {1-3-5-8} 00:00:00Z (ANSI dates are integers: no hour resolution)
+  run_query import_irr_cube_2_query || exit $RC_ERROR
 
   # rasimport is still poor on SWE metadata handling: update it with richer information (range type)
   _qry="SELECT id FROM ps_coverage WHERE name='${c}'"
@@ -622,9 +662,18 @@ function import_irr_cube_2()
 #
 # import 2D geo-referenced data
 #
+function import_mst_query()
+{
+  $RASIMPORT -f "${TESTDATA_PATH}/mean_summer_airtemp.tif" \
+             --coll $c \
+             --coverage-name $c \
+             -t  ${c_marraytype}:${c_colltype} \
+             --crs-uri  "$c_crs" \
+             --crs-order 1:0 > /dev/null
+}
 function import_mst()
 {
-  local TESTDATA_PATH="$1"
+  TESTDATA_PATH="$1"
   if [ ! -f "$TESTDATA_PATH/mean_summer_airtemp.tif" ]; then
     error "testdata file $TESTDATA_PATH/mean_summer_airtemp.tif not found"
   fi
@@ -637,12 +686,7 @@ function import_mst()
   #
   # START
   #
-  $RASIMPORT -f "${TESTDATA_PATH}/mean_summer_airtemp.tif" \
-             --coll $c \
-             --coverage-name $c \
-             -t  ${c_marraytype}:${c_colltype} \
-             --crs-uri  "$c_crs" \
-             --crs-order 1:0  > /dev/null || exit $RC_ERROR
+  run_query import_mst_query || exit $RC_ERROR
 
   # initialize WMS
   "$INITWMS" australia_wms $c EPSG:4326 -l '2:4:8:16' -h localhost -p $WCPS_PORT > /dev/null 2>&1
