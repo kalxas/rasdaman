@@ -237,7 +237,7 @@ class PatchMan(Component):
                 refreshPage |= bool(test_status[id]['building'])
                 if (not bool(test_status[id]['building'])) and (test is None):
                     test = test_status[id]['buildStatus']
-                    update_cursor.execute("UPDATE Patches SET test=%s WHERE id=%s", (test, id))
+                    update_cursor.execute("UPDATE Patches SET test_status=%s WHERE id=%s", (test, id))
 
             result.append({'id':id, 'email':self.encodeEmail(email, req),
                           'subject':subj, 'branch':branch, 'commit_time':commit_time,
