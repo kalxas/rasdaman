@@ -31,6 +31,9 @@
 
 EXTRA_DIST = src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java
 
+MAVEN_BASE_FOLDER = rasjbase
+MAVEN_COMPLETE_STRUCT = $(MAVEN_BASE_FOLDER)/src/main/java
+
 all : src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java
 	mkdir -p bin dist
 	javac -d bin src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java
@@ -45,9 +48,27 @@ tests: src/tests/*.java all
 	javac -d bin src/tests/*.java -cp dist/rasj.jar:../applications/petascope/lib/junit-4.5.jar
 	java -cp bin:dist/rasj.jar tests.UpdateTest
 	java -cp bin:dist/rasj.jar:../applications/petascope/lib/junit-4.5.jar org.junit.runner.JUnitCore tests.SimultaneousConnectionsTest
-	
+
+
+mavenSetup:
+	mkdir -p $(MAVEN_BASE_FOLDER)
+	mkdir -p $(MAVEN_COMPLETE_STRUCT)
+	cp pom.xml $(MAVEN_BASE_FOLDER)
+	cp -r $(realpath ./src/rasj) $(MAVEN_COMPLETE_STRUCT)
+	cp -r $(realpath ./src/org) $(MAVEN_COMPLETE_STRUCT)
+
+mavenJar : mavenSetup
+	cd $(MAVEN_BASE_FOLDER) && mvn package
+
+mavenDeploy : mavenSetup
+	cd $(MAVEN_BASE_FOLDER) && mvn deploy
+
+mavenClean :
+	cd $(MAVEN_BASE_FOLDER) && mvn clean
+	rm -rf $(MAVEN_BASE_FOLDER)
+
 clean:
 	rm -rf bin dist
-
+	rm -rf $(MAVEN_BASE_FOLDER)
 wps:
   
