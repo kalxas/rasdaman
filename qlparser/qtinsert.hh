@@ -93,7 +93,7 @@ public:
     r_Index_Type getIndexType(QtMDDConfig* config);
     r_Tiling_Scheme getTilingScheme(QtMDDConfig* cfg);
     vector<r_Minterval> getIntervals(QtMDDConfig* cfg);
-    r_Minterval getTileConfig(QtMDDConfig* cfg);
+    r_Minterval getTileConfig(QtMDDConfig* cfg, int baseTypeSize, r_Dimension sourceDimension);
 
     void setStorageLayout(StorageLayout* layout);
 
@@ -105,6 +105,7 @@ public:
 
     /// type checking
     virtual void checkType();
+
 
 private:
     /// insert expression

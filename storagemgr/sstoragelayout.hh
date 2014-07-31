@@ -253,6 +253,13 @@ public:
     //Added by uadhikari
     void setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input);
 
+    //Gets default configuration
+    static r_Minterval getDefaultTileCfg(int baseTypeSize, r_Dimension sourceDimension);
+    /*@Doc:
+    Gets default tile configuration adjusted to each type
+    */
+
+
 protected:
     std::vector< r_Minterval > calcRegLayout(const r_Minterval& layout) const;
     /*@Doc:
@@ -285,6 +292,7 @@ protected:
     calcStatisticLayout(const r_Minterval&);
 
     //@}
+
 
 };
 #endif

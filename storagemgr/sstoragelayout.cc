@@ -53,6 +53,10 @@ rasdaman GmbH.
 #include "rasodmg/alignedtiling.hh"
 #include "rasodmg/dirtiling.hh"
 #include "rasodmg/stattiling.hh"
+#include "mddmgr/mddobj.hh"
+#include <cstring>
+#include <cstdlib>
+#include <sstream>
 
 const r_Bytes   StorageLayout::DBSPageSize = 4096;
 
@@ -532,4 +536,71 @@ StorageLayout::calcStatisticLayout(const r_Minterval& tileDomain)
 
     RMDBGEXIT(4, RMDebug::module_storagemgr, "StorageLayout", "End of CalcStatistic Layout tile numbers = "<< ret.size());
     return ret;
+}
+
+
+r_Minterval
+StorageLayout::getDefaultTileCfg(int baseTypeSize, r_Dimension sourceDimension)
+{
+    /**
+     * Calculation of the end dimension(high)
+     * Algorithm:
+     *     get size of the basetype
+     *     if dimension == 1, give 0:(DefaultTileSize) inverval
+     *     else
+     *         tileCells = total cells in the tile
+     *         mbMultiplier = DefaultTileSize / tileCells
+     *         adjustingMultiplier = mbMultiplier / baseTypeSize
+     *         lastdimension.high() = lastdimension.high()*adjustingMultiplier
+     *
+     *         make string with added 0 if necessary
+     *     return  string
+     *
+     */
+    std::string newDomain = "";
+    std::ostringstream ss;
+    int lastDimValue;
+    if(sourceDimension == 1)
+    {
+        newDomain += "[0:";
+        lastDimValue = (int)((double)StorageLayout::DefaultTileSize / (double)baseTypeSize) - 1;
+        ss << lastDimValue;
+        newDomain += ss.str();
+        newDomain += "]";
+
+    }else{
+        r_Minterval defaultTileConfiguration = StorageLayout::DefaultTileConfiguration;
+        std::string defaultTileDef = std::string(defaultTileConfiguration.get_string_representation());
+
+        r_Point intervals = defaultTileConfiguration.get_extent();
+        r_Range tileCells = 1;
+        for(int i = 0; i < defaultTileConfiguration.dimension(); i++)
+            tileCells *= intervals[i];
+
+
+        double mbMultiplier = (double)StorageLayout::DefaultTileSize /(double)tileCells;
+        double adjustingMultiplier = mbMultiplier / (double)baseTypeSize;
+        lastDimValue =  (defaultTileConfiguration[defaultTileConfiguration.dimension() -1].high()+1) * adjustingMultiplier;
+
+        defaultTileConfiguration[defaultTileConfiguration.dimension() -1].set_high((r_Range)lastDimValue-1);
+
+        std::string adjustedDomain = defaultTileConfiguration.get_string_representation();
+
+        //remove the first '['
+        adjustedDomain.erase(0, 1);
+        //reconfigure adjusted domain for tiling
+        std::string toAddDom = std::string("0:0,");
+        for(int i = 0; i < sourceDimension-2; i++)
+        {
+            newDomain += toAddDom;
+        }
+        newDomain = std::string("[")+newDomain;
+
+        newDomain += adjustedDomain;
+
+
+    }
+    r_Minterval newTileCfg(newDomain.c_str());
+    return newTileCfg;
+
 }

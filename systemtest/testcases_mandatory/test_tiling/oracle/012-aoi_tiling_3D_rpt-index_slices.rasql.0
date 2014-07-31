@@ -4,7 +4,7 @@
  "tiling": {
 	"tilingScheme": "interest",
 	"tileSize": "20",
-	"tileConfiguration": "[0:1023,0:1023]"",
+	"tileConfiguration": "[0:0,0:1023,0:4095]"",
 	"tileDomains":
 	[
 		"[0:0,5:8,15:19]",

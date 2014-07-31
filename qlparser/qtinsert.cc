@@ -69,6 +69,8 @@ static const char rcsid[] = "@(#)qlparser, QtInsert: $Header: /home/rasdev/CVS-r
 #include "raslib/basetype.hh"
 #include "raslib/collectiontype.hh"
 
+
+
 extern ServerComm::ClientTblElt* currentClientTblElt;
 
 const QtNode::QtNodeType QtInsert::nodeType = QtNode::QT_INSERT;
@@ -120,6 +122,7 @@ QtInsert::evaluate()
     QtData* sourceData = NULL;
     QtNode::QtDataList* nextTupel = NULL;
 
+    r_Minterval* defaultCfg = NULL;
     QtData* returnValue = NULL;
 
     if (dataToInsert) {
@@ -346,14 +349,15 @@ QtInsert::evaluate()
                 }
                 tempStorageLayout.setTilingSizeStrategy_AOI(AOI_tileSizeControl);
             }
+            r_Dimension sourceDimension = sourceObj->getDefinitionDomain().dimension();
+            r_Minterval tileCfg = getTileConfig(mddConfig, cellSize, sourceDimension);
 
-            r_Minterval tileCfg = getTileConfig(mddConfig);
-
-            if (sourceObj->getDefinitionDomain().dimension() ==
+            if (sourceDimension ==
                     tileCfg.dimension())
             {
                 tempStorageLayout.setTileConfiguration(tileCfg);
             }
+
             MDDObj* persMDDObj = new MDDObj(persMDDType, sourceObj->getDefinitionDomain(), oid,
                                             tempStorageLayout);
 
@@ -405,12 +409,12 @@ QtInsert::evaluate()
         sourceData->deleteRef();
 
     // delete dummy tupel vector
-	if (nextTupel)
+    if (nextTupel)
     {
         delete nextTupel;
         nextTupel = NULL;
     }
-    
+
     stopTimer();
 
    // return the generated OID
@@ -729,12 +733,15 @@ QtInsert::getIntervals(QtMDDConfig* cfg)
 }
 
 r_Minterval
-QtInsert::getTileConfig(QtMDDConfig* cfg)
+QtInsert::getTileConfig(QtMDDConfig* cfg, int baseTypeSize, r_Dimension sourceDimension)
 {
     r_Minterval tileConfig;
-    if (!cfg || !(cfg->getTilingType() == QtMDDConfig::r_ALIGNED_TLG ||
-                  cfg->getTilingType() == QtMDDConfig::r_REGULAR_TLG))
-        return StorageLayout::DefaultTileConfiguration;
+
+    if(!cfg || !(cfg->getTilingType() == QtMDDConfig::r_ALIGNED_TLG ||
+                 cfg->getTilingType() == QtMDDConfig::r_REGULAR_TLG))
+    {
+        return (StorageLayout::getDefaultTileCfg(baseTypeSize, sourceDimension));
+    }
 
     QtOperation* op = cfg->getTileCfg();
     if (!op)
