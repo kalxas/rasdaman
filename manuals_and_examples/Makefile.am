@@ -35,6 +35,9 @@ install-data-hook:
 	(cd ..; doxygen manuals_and_examples/doxygen-all.cfg)
 	(cd ..; doxygen manuals_and_examples/doxygen-api.cfg)
 	(cd ..; doxygen manuals_and_examples/doxygen-basedbms.cfg)
+	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)/doc
+	cp -r manuals/* $(DESTDIR)$(pkgdatadir)/doc
+	find $(DESTDIR)$(pkgdatadir)/doc -name *.doc -or -name *.sh | xargs rm
 	$(MKDIR_P) $(DESTDIR)$(pkgdatadir)/examples/c++
 	cp examples/c++/Standalone_Makefile $(DESTDIR)$(pkgdatadir)/examples/c++/Makefile
 	sed -i -e '31iRASDAMAN_INSTALLATION=$(prefix)\' $(DESTDIR)$(pkgdatadir)/examples/c++/Makefile
