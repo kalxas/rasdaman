@@ -599,23 +599,26 @@ throw( r_Error )
 
         r_Database::actual_database->getComm()->executeQuery( query, genericSet );
 
-        const r_Type* typeSchema = genericSet.get_element_type_schema();
-
-        if( !typeSchema || typeSchema->type_id() != r_Type::MARRAYTYPE )
+        if( !genericSet.is_empty() )
         {
-            r_Error err( r_Error::r_Error_TypeInvalid );
-            throw err;
+            const r_Type* typeSchema = genericSet.get_element_type_schema();
+
+            if( !typeSchema || typeSchema->type_id() != r_Type::MARRAYTYPE )
+            {
+                r_Error err( r_Error::r_Error_TypeInvalid );
+                throw err;
+            }
+
+            //
+            // iterate through the generic set and build a specific one
+            //
+            result.set_type_by_name( genericSet.get_type_name() );
+            result.set_type_structure( genericSet.get_type_structure() );
+
+            r_Iterator< r_Ref_Any > iter;
+            for( iter=genericSet.create_iterator(); iter.not_done(); iter++ )
+                result.insert_element( r_Ref<r_GMarray>(*iter) );
         }
-
-        //
-        // iterate through the generic set and build a specific one
-        //
-        result.set_type_by_name( genericSet.get_type_name() );
-        result.set_type_structure( genericSet.get_type_structure() );
-
-        r_Iterator< r_Ref_Any > iter;
-        for( iter=genericSet.create_iterator(); iter.not_done(); iter++ )
-            result.insert_element( r_Ref<r_GMarray>(*iter) );
     }
     catch( ... )
     {
