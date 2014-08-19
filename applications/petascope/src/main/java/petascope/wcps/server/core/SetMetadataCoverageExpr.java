@@ -23,7 +23,7 @@ package petascope.wcps.server.core;
 
 import org.w3c.dom.*;
 import petascope.exceptions.WCPSException;
-import petascope.util.WcpsConstants;
+import petascope.wcps.metadata.CoverageInfo;
 
 // TODO: Implement class SetMetadataCoverageExprType
 public class SetMetadataCoverageExpr extends AbstractRasNode implements ICoverageInfo {

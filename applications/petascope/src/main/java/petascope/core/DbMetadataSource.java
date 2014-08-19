@@ -70,6 +70,7 @@ import petascope.util.XMLSymbols;
 import static petascope.util.ras.RasConstants.*;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
+import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.server.core.*;
 import petascope.wcs2.parsers.BaseRequest;
 

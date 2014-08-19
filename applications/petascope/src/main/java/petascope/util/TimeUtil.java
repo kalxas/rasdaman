@@ -23,6 +23,7 @@ package petascope.util;
 import java.util.HashMap;
 import java.util.Map;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -30,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.wcps.server.core.DomainElement;
 
 /**
  * Class for handling timestamps formatting and elaborations.
@@ -98,7 +98,7 @@ public class TimeUtil {
 
     static {
         //Create an ISO formatter with optional time and UTC default time zone
-        isoFmt = ISODateTimeFormat.dateOptionalTimeParser().withZoneUTC();
+        isoFmt = ISODateTimeFormat.dateOptionalTimeParser().withZone(DateTimeZone.UTC);
         // NOTE: if zone is not assigned, the default time zone of the JVM will be picked: no-no.
 
         // Fill the registry of time UoMs:

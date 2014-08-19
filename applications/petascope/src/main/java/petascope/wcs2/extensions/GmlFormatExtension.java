@@ -21,7 +21,6 @@
  */
 package petascope.wcs2.extensions;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import org.slf4j.Logger;
@@ -36,7 +35,7 @@ import petascope.exceptions.WCSException;
 import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
 import petascope.util.ras.RasQueryResult;
-import petascope.wcps.server.core.CellDomainElement;
+import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;

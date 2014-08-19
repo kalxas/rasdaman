@@ -21,7 +21,6 @@
  */
 package petascope.wcps.server.core;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -31,6 +30,9 @@ import org.w3c.dom.*;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
+import petascope.wcps.metadata.CellDomainElement;
+import petascope.wcps.metadata.CoverageInfo;
+
 import static petascope.util.ras.RasConstants.*;
 
 public class ExtendCoverageExpr extends AbstractRasNode implements ICoverageInfo {

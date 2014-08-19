@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.wcps.server.core.CoverageExpr;
-import petascope.wcps.server.core.CoverageInfo;
+import petascope.wcps.metadata.CoverageInfo;
 import petascope.wcps.server.core.ExtendCoverageExpr;
 import petascope.wcps.server.core.IRasNode;
 import petascope.wcps.server.core.TrimCoverageExpr;

@@ -50,6 +50,8 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
+import petascope.wcps.metadata.Bbox;
+import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.server.core.*;
 
 /**

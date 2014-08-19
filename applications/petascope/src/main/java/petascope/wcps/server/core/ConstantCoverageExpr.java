@@ -41,7 +41,9 @@ import petascope.util.CrsUtil;
 import petascope.util.Pair;
 import petascope.util.WcpsConstants;
 import petascope.util.XMLSymbols;
-import petascope.wcs2.templates.Templates;
+import petascope.wcps.metadata.CellDomainElement;
+import petascope.wcps.metadata.CoverageInfo;
+import petascope.wcps.metadata.DomainElement;
 
 public class ConstantCoverageExpr extends AbstractRasNode implements ICoverageInfo {
 

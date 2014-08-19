@@ -50,7 +50,7 @@ import petascope.util.Pair;
 import static petascope.util.XMLSymbols.*;
 import petascope.util.WcsUtil;
 import petascope.util.XMLUtil;
-import petascope.wcps.server.core.Bbox;
+import petascope.wcps.metadata.Bbox;
 import petascope.wcs2.Wcs2Servlet;
 import petascope.wcs2.extensions.Extension;
 import petascope.wcs2.extensions.ExtensionsRegistry;

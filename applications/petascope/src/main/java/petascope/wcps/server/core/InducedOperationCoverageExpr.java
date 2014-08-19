@@ -28,6 +28,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
+import petascope.wcps.metadata.CoverageInfo;
 
 public class InducedOperationCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     

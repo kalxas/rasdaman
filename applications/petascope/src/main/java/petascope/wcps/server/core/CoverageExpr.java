@@ -31,6 +31,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.MiscUtil;
 import petascope.util.WcpsConstants;
+import petascope.wcps.metadata.CoverageInfo;
 
 public class CoverageExpr extends AbstractRasNode implements ICoverageInfo {
     

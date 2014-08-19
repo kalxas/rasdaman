@@ -42,9 +42,9 @@ import petascope.util.CrsUtil;
 import petascope.util.ListUtil;
 import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
-import petascope.wcps.server.core.Bbox;
-import petascope.wcps.server.core.CellDomainElement;
-import petascope.wcps.server.core.DomainElement;
+import petascope.wcps.metadata.Bbox;
+import petascope.wcps.metadata.CellDomainElement;
+import petascope.wcps.metadata.DomainElement;
 import petascope.wcps.server.core.RangeElement;
 
 /**

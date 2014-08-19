@@ -31,6 +31,9 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WcpsConstants;
+import petascope.wcps.metadata.CoverageInfo;
+import petascope.wcps.metadata.DomainElement;
+
 import static petascope.util.WcpsConstants.MSG_STAR;
 
 

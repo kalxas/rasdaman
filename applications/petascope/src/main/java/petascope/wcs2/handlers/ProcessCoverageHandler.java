@@ -33,6 +33,7 @@ import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.server.core.ProcessCoveragesRequest;
 import petascope.wcps.server.core.Wcps;
+import petascope.wcps2.translator.WcpsTranslator;
 import petascope.wcs2.extensions.ProcessCoverageExtension;
 import petascope.wcs2.parsers.ProcessCoverageRequest;
 
@@ -140,7 +141,28 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
      * @todo Implement it as soon as WCPS2.0 fixes are done.
      */
     private Response handleWCPS2Request(ProcessCoverageRequest request) throws WCSException {
-        throw new WCSException(ExceptionCode.OperationNotSupported);
+        WcpsTranslator translator = new WcpsTranslator(request.getQuery());
+        String rasqlQuery = translator.translate();
+        RasQueryResult res = null;
+        String mime = "";
+        byte[] result = new byte[0];
+        try {
+            res = new RasQueryResult(RasUtil.executeRasqlQuery(rasqlQuery));
+
+            if (!res.getMdds().isEmpty() || !res.getScalars().isEmpty()) {
+                for (String s : res.getScalars()) {
+                    result = s.getBytes(Charset.forName("UTF-8"));
+                }
+                for (byte[] bs : res.getMdds()) {
+                    result = bs;
+                }
+            } else {
+
+            }
+        } catch (RasdamanException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
+        return new Response(result, null, mime);
     }
 
     /**

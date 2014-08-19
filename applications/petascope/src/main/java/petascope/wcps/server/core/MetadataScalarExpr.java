@@ -34,6 +34,9 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.CrsUtil;
 import petascope.util.WcpsConstants;
+import petascope.wcps.metadata.CellDomainElement;
+import petascope.wcps.metadata.CoverageInfo;
+import petascope.wcps.metadata.DomainElement;
 
 // TODO: implement class MetadataScalarExprType
 public class MetadataScalarExpr extends AbstractRasNode {

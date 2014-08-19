@@ -41,8 +41,8 @@ import petascope.util.WcsUtil;
 import petascope.wcs2.parsers.GetCoverageRequest;
 import static petascope.util.XMLSymbols.*;
 import static petascope.util.XMLUtil.*;
-import petascope.wcps.server.core.CellDomainElement;
-import petascope.wcps.server.core.DomainElement;
+import petascope.wcps.metadata.CellDomainElement;
+import petascope.wcps.metadata.DomainElement;
 import petascope.wcs2.extensions.FormatExtension;
 
 /**

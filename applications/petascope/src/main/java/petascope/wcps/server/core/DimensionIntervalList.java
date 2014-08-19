@@ -26,6 +26,7 @@ import java.util.List;
 import org.w3c.dom.*;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
+import petascope.wcps.metadata.CoverageInfo;
 
 public class DimensionIntervalList {
 

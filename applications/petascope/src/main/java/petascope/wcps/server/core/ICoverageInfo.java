@@ -21,6 +21,8 @@
  */
 package petascope.wcps.server.core;
 
+import petascope.wcps.metadata.CoverageInfo;
+
 interface ICoverageInfo {
 
     public CoverageInfo getCoverageInfo();

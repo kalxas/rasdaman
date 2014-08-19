@@ -24,7 +24,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package petascope.wcps.server.core;
+package petascope.wcps.metadata;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

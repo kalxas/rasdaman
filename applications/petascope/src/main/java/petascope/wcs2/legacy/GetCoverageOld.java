@@ -54,11 +54,10 @@ import org.odmg.QueryException;
 import org.odmg.Transaction;
 import rasj.RasGMArray;
 import rasj.RasImplementation;
-import petascope.wcps.server.core.CellDomainElement;
-import petascope.wcps.server.core.DomainElement;
+import petascope.wcps.metadata.CellDomainElement;
+import petascope.wcps.metadata.DomainElement;
 import petascope.wcps.server.core.RangeElement;
 import petascope.wcs2.extensions.GmlFormatExtension;
-import petascope.wcs2.parsers.GetCoverageMetadata.RangeField;
 import petascope.wcs2.templates.Templates;
 import petascope.wcs2.templates.WcsNamespaceContext;
 

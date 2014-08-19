@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import org.w3c.dom.*;
-import petascope.util.WcpsConstants;
+import petascope.wcps.metadata.CoverageInfo;
 
 //TODO(smsorin): how do we do combine this ?
 

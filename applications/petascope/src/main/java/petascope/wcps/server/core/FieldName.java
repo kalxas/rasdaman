@@ -29,6 +29,7 @@ import petascope.core.CoverageMetadata;
 import petascope.exceptions.PetascopeException;
 import petascope.util.MiscUtil;
 import petascope.util.WcpsConstants;
+import petascope.wcps.metadata.CoverageInfo;
 
 public class FieldName extends AbstractRasNode {
 

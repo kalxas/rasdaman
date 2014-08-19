@@ -27,7 +27,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
-
+import petascope.wcps.metadata.CoverageInfo;
 
 
 /**

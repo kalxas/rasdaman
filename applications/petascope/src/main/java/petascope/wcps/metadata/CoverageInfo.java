@@ -19,12 +19,14 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcps.server.core;
+package petascope.wcps.metadata;
 
 import petascope.core.CoverageMetadata;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.WCPSException;
@@ -75,7 +77,7 @@ public class CoverageInfo {
         }
 
         coverageName = m.getCoverageName();
-        coverageCrs= CrsUtil.CrsUri.createCompound(m.getCrsUris());
+        coverageCrs = CrsUtil.CrsUri.createCompound(m.getCrsUris());
         bbox = m.getBbox();
         // is the coverage gridded or e.g. multipoint?
         gridded = WcsUtil.isGrid(m.getCoverageType());
@@ -99,15 +101,15 @@ public class CoverageInfo {
 
                 if (!me.getHi().equals(you.getHi())) {
                     log.error("High values don't match: "
-                            + me.getHi().toString() + ", "
-                            + you.getHi().toString());
+                        + me.getHi().toString() + ", "
+                        + you.getHi().toString());
                     return false;
                 }
 
                 if (!me.getLo().equals(you.getLo())) {
                     log.error("Low values do not match: "
-                            + me.getLo().toString() + ", "
-                            + you.getLo().toString());
+                        + me.getLo().toString() + ", "
+                        + you.getLo().toString());
                     return false;
                 }
             }
@@ -124,8 +126,8 @@ public class CoverageInfo {
 
                 if (!me.getLabel().equals(you.getLabel())) {
                     log.error("Domain element names don't match: '"
-                            + me.getLabel() + "' " + WcpsConstants.MSG_AND + " '"
-                            + you.getLabel() + "'.");
+                        + me.getLabel() + "' " + WcpsConstants.MSG_AND + " '"
+                        + you.getLabel() + "'.");
                     return false;
                 }
 
@@ -203,6 +205,53 @@ public class CoverageInfo {
 
         log.error("Axis name not found: " + name);
         throw new WCPSException("Domain name not found: " + name);
+    }
+
+    /**
+     * Returns the cell domains for this coverage
+     *
+     * @return the cell domain elements
+     */
+    public List<CellDomainElement> getCellDomains() {
+        return cellDomains;
+    }
+
+    /**
+     * Returns the domain elements for this coverage
+     *
+     * @return the domain elements
+     */
+    public List<DomainElement> getDomains() {
+        return domains;
+    }
+
+    /**
+     * Returns the domain element based on its name
+     *
+     * @param name the name of the domain element
+     * @return the domain element or null if no domain is found
+     */
+    public DomainElement getDomainByName(String name) {
+        try {
+            return domains.get(getDomainIndexByName(name));
+        } catch (WCPSException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Return a cell domain based on the axis name
+     *
+     * @param name the name of the cell domain axis
+     * @return the cell domain or null if none is found
+     */
+    public CellDomainElement getCellDomainByName(String name) {
+        for (DomainElement axis : domains) {
+            if (axis.getLabel().equalsIgnoreCase(name)) {
+                return cellDomains.get(axis.getOrder());
+            }
+        }
+        return null;
     }
 
     /**

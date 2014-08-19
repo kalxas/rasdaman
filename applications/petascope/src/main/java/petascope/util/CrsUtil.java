@@ -47,8 +47,8 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import static petascope.util.StringUtil.ENCODING_UTF8;
-import petascope.wcps.server.core.CellDomainElement;
-import petascope.wcps.server.core.DomainElement;
+import petascope.wcps.metadata.CellDomainElement;
+import petascope.wcps.metadata.DomainElement;
 
 /**
  * Coordinates transformation utility in case a spatial reprojection

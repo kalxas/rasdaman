@@ -33,6 +33,8 @@ import petascope.exceptions.WCPSException;
 import petascope.util.Pair;
 import petascope.util.WcpsConstants;
 import petascope.util.WcsUtil;
+import petascope.wcps.metadata.CellDomainElement;
+import petascope.wcps.metadata.CoverageInfo;
 
 public class TrimCoverageExpr extends AbstractRasNode implements ICoverageInfo {
 

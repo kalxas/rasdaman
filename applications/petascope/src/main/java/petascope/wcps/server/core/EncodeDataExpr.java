@@ -25,15 +25,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.*;
 import petascope.core.IDynamicMetadataSource;
-import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
-import petascope.util.CrsUtil;
 import petascope.util.GdalParameters;
-import petascope.util.MiscUtil;
 import petascope.util.WcpsConstants;
 import static petascope.util.ras.RasConstants.*;
-import petascope.wcs2.extensions.FormatExtension;
+
+import petascope.wcps.metadata.CoverageInfo;
 
 // This is the equivalent of the "ProcessingExprType" complex XML type.
 public class EncodeDataExpr extends AbstractRasNode {

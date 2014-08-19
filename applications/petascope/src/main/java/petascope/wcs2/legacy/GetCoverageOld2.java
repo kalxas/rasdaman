@@ -30,8 +30,8 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.Pair;
 import petascope.util.StringUtil;
-import petascope.wcps.server.core.CellDomainElement;
-import petascope.wcps.server.core.DomainElement;
+import petascope.wcps.metadata.CellDomainElement;
+import petascope.wcps.metadata.DomainElement;
 import petascope.wcps.server.core.RangeElement;
 import petascope.wcs2.handlers.AbstractRequestHandler;
 import petascope.wcs2.parsers.GetCoverageRequest;
@@ -39,7 +39,6 @@ import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionSubset;
 import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
 import petascope.wcs2.handlers.Response;
-import petascope.wcs2.templates.Templates;
 
 /**
  * GetCapabilities operation for The Web Coverage Service 2.0

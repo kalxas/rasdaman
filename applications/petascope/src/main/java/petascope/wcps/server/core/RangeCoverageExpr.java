@@ -22,7 +22,6 @@
 package petascope.wcps.server.core;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,7 @@ import org.w3c.dom.*;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
+import petascope.wcps.metadata.CoverageInfo;
 
 public class RangeCoverageExpr extends AbstractRasNode implements ICoverageInfo {
     
