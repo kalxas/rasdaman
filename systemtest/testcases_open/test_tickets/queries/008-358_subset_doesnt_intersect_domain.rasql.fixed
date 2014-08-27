@@ -1,1 +1,0 @@
-select csv(c[7:7,-46:-46,150110:150113]) from eobstest AS c

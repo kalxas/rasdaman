@@ -1,1 +1,0 @@
-select max_cells(c) from test_aggregate as c
