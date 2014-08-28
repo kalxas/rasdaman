@@ -74,5 +74,5 @@
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-
+<gmlcov:metadata/>
 </gmlcov:ReferenceableGridCoverage>

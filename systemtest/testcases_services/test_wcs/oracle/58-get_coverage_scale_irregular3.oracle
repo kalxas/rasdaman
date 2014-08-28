@@ -54,7 +54,7 @@
   <rangeSet>
     <DataBlock>
       <rangeParameters/>
-      <tupleList ts="," cs=" ">9.11508 4.17128,9.06019 4.17397,8.85034 4.16855,8.71487 4.17076</tupleList>
+      <tupleList ts="," cs=" ">9.55874 4.17515,9.63844 4.17907,8.85034 4.16855,8.71487 4.17076</tupleList>
     </DataBlock>
   </rangeSet>
 
@@ -74,5 +74,5 @@
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-
+<gmlcov:metadata/>
 </gmlcov:ReferenceableGridCoverage>

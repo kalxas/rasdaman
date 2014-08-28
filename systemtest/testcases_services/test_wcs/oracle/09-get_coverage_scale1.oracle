@@ -55,5 +55,5 @@
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-  <gmlcov:metadata><test>gmlcov</test></gmlcov:metadata>
+<gmlcov:metadata/>
 </gmlcov:RectifiedGridCoverage>

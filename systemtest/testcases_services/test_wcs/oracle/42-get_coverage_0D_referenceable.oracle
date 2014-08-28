@@ -9,7 +9,7 @@
     xsi:schemaLocation= 'http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd'>
 
   <boundedBy>
-    <Envelope srsName="" axisLabels="" uomLabels="" srsDimension="0">
+    <Envelope srsName="" axisLabels="" uomLabels="" >
       <lowerCorner></lowerCorner>
       <upperCorner></upperCorner>
     </Envelope>
@@ -40,5 +40,5 @@
     </swe:field>
     </swe:DataRecord>
   </gmlcov:rangeType>
-
+<gmlcov:metadata/>
 </gmlcov:ReferenceableGridCoverage>

@@ -437,9 +437,9 @@ function import_mr()
   $PSQL -c "INSERT INTO ps_extra_metadata (coverage_id, metadata_type_id, value) VALUES (\
               $c_id, (SELECT id FROM ps_extra_metadata_type WHERE type='$OWS'),\
               '<AdditionalParameter xmlns=\"http://www.opengis.net/ows/2.0\"><Name/><Value/></AdditionalParameter>');" > /dev/null || exit $RC_ERROR
-  $PSQL -c "INSERT INTO ps_extra_metadata (coverage_id, metadata_type_id, value) VALUES (\
-              $c_id, (SELECT id FROM ps_extra_metadata_type WHERE type='$GMLCOV'),\
-              '<test>gmlcov</test>');" > /dev/null || exit $RC_ERROR
+  #$PSQL -c "INSERT INTO ps_extra_metadata (coverage_id, metadata_type_id, value) VALUES (\
+  #            $c_id, (SELECT id FROM ps_extra_metadata_type WHERE type='$GMLCOV'),\
+  #            '<test>gmlcov</test>');" > /dev/null || exit $RC_ERROR
 }
 
 # ------------------------------------------------------------------------------

@@ -244,8 +244,13 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                     // [!] NOTE: do *not* use domainEl.setScalarResolution since world2pixel conversions are cached.
                     m.setScalingFactor(axisLabel, scalingFactor);
                 }
-                lowerCellDom += loCellDom + " ";
-                upperCellDom += hiCellDom + " ";
+                if (hiCellDom < loCellDom) {
+                    lowerCellDom += hiCellDom + " ";
+                    upperCellDom += loCellDom + " ";
+                } else {
+                    lowerCellDom += loCellDom + " ";
+                    upperCellDom += hiCellDom + " ";
+                }
             }
         } // END domains iterator
 
@@ -413,11 +418,13 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                 DomainElement el = it.next();
                 CellDomainElement cel = cit.next();
                 String dim = el.getLabel();
-                if (el.isIrregular() && !req.isSliced(dim) && scaling.isScaled(dim)) {
+
+                //FIXME: hack for ticket #823 - number 5. to be fixed with ticket #824
+                /*if (el.isIrregular() && !req.isSliced(dim) && scaling.isScaled(dim)) {
                     log.error("Trying to scale an irregular axis but we cannot scale coefficients' values.");
                     throw new PetascopeException(ExceptionCode.UnsupportedCombination,
                             "Scaling on irregular axis is not supported.");
-                }
+                }*/
                 // Sliced dimensions shall not be referenced by the scaling parameters
                 if (!req.isSliced(dim)) {
                     long lo = cel.getLoInt();
@@ -430,31 +437,63 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                         lo = lohi[0];
                         hi = lohi[1];
                     }
+                    long hiAfterScale;
                     switch (scaling.getType()) {
                         case 1:
                             // SCALE-BY-FACTOR: divide extent by global scaling factor
                             scaledExtent = Math.round(Math.floor((hi-lo+1)/scaling.getFactor()));
+
+                            hiAfterScale = Math.round(Math.floor(lo + scaledExtent - 1));
+                            if (lo > hiAfterScale) {
+                                long temp = lo;
+                                lo = hiAfterScale;
+                                hiAfterScale = temp;
+                            }
+
                             proc = proc + dim + ":\"" + crs + "\"(" + lo
-                                    + ":" + Math.round(Math.floor(lo+scaledExtent-1)) + "),";
+                                    + ":" + hiAfterScale + "),";
                             break;
                         case 2:
                             // SCALE-AXES: divide extent by axis scaling factor
                             if (scaling.isPresentFactor(dim)) {
                                 scaledExtent = Math.round(Math.floor((hi-lo+1)/scaling.getFactor(dim)));
+
+                                hiAfterScale = Math.round(Math.floor(lo + scaledExtent - 1));
+                                if (lo > hiAfterScale) {
+                                    long temp = lo;
+                                    lo = hiAfterScale;
+                                    hiAfterScale = temp;
+                                }
                                 proc = proc + dim + ":\"" + crs + "\"(" + lo
-                                        + ":" + Math.round(Math.floor(lo+scaledExtent-1)) + "),";
+                                        + ":" + hiAfterScale + "),";
                                 axesNumber++;
                             } else {
+                                if (lo > hi) {
+                                    long temp = lo;
+                                    lo = hi;
+                                    hi = temp;
+                                }
                                 proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
                             }
                             break;
                         case 3:
                             // SCALE-SIZE: set extent of dimension
                             if (scaling.isPresentSize(dim)) {
+                                hiAfterScale = (lo + scaling.getSize(dim)-1);
+                                if (lo > hiAfterScale) {
+                                    long temp = lo;
+                                    lo = hiAfterScale;
+                                    hiAfterScale = temp;
+                                }
                                 proc = proc + dim + ":\"" + crs + "\"(" + lo
-                                        + ":" + (lo + scaling.getSize(dim)-1) + "),";
+                                        + ":" + hiAfterScale + "),";
                                 axesNumber++;
                             } else {
+                                if (lo > hi) {
+                                    long temp = lo;
+                                    lo = hi;
+                                    hi = temp;
+                                }
                                 proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
                             }
                             break;
@@ -465,6 +504,11 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                                         + ":" + scaling.getExtent(dim).snd + "),";
                                 axesNumber++;
                             } else {
+                                if (lo > hi) {
+                                    long temp = lo;
+                                    lo = hi;
+                                    hi = temp;
+                                }
                                 proc = proc + dim + ":\"" + crs + "\"(" + lo + ":" + hi + "),";
                             }
                             break;

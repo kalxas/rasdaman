@@ -320,8 +320,11 @@ public class WcsUtil {
             srsGroup =
                     XMLSymbols.ATT_SRS_NAME      + "=\"" + getSrsName(m) + "\" " +
                     XMLSymbols.ATT_AXIS_LABELS   + "=\"" + ListUtil.printList(CrsUtil.getAxesLabels(ccrsUri), " ") + "\" " +
-                    XMLSymbols.ATT_UOM_LABELS    + "=\"" + ListUtil.printList(CrsUtil.getAxesUoMs(ccrsUri),   " ") + "\" " +
-                    XMLSymbols.ATT_SRS_DIMENSION + "=\"" + CrsUtil.getTotalDimensionality(ccrsUri) + "\"";
+                    XMLSymbols.ATT_UOM_LABELS    + "=\"" + ListUtil.printList(CrsUtil.getAxesUoMs(ccrsUri),   " ") + "\" " ;
+            //omit srsDimension if dimensionality == 0
+            if (CrsUtil.getTotalDimensionality(ccrsUri) != 0) {
+                srsGroup += XMLSymbols.ATT_SRS_DIMENSION + "=\"" + CrsUtil.getTotalDimensionality(ccrsUri) + "\"";
+            }
         } catch (PetascopeException pEx) {
             log.error("Error while retrieving CRS metadata for GML: " + pEx.getMessage());
             throw new WCSException(pEx.getExceptionText(), pEx);
@@ -368,6 +371,9 @@ public class WcsUtil {
     private static String getGmlcovMetadata (GetCoverageMetadata m) {
         // GMLCOV metadata
         Set<String> gmlcovMetadata = m.getMetadata().getExtraMetadata(XMLSymbols.PREFIX_GMLCOV);
+        if (gmlcovMetadata.isEmpty()) {
+            return "<" + XMLSymbols.PREFIX_GMLCOV + ":" + XMLSymbols.LABEL_GMLCOVMETADATA + "/>";
+        }
         String gmlcovFormattedMetadata = "";
         for (String metadataValue : gmlcovMetadata) {
             gmlcovFormattedMetadata += "  " +

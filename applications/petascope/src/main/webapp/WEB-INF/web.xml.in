@@ -51,6 +51,11 @@
 		<param-value>/wms-messages/raswms_msgs_en</param-value>
         </init-param>
     </servlet>
+    <servlet>
+        <description>OWS WCS WSDL</description>
+        <servlet-name>WCSWSDL</servlet-name>
+        <servlet-class>petascope.wcswsdl.WcsWsdlServlet</servlet-class>
+    </servlet>
 
     <servlet-mapping>
         <servlet-name>PetaScope Interface</servlet-name>
@@ -91,6 +96,10 @@
     <servlet-mapping>
         <servlet-name>RasqlServlet</servlet-name>
         <url-pattern>/rasql</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WCSWSDL</servlet-name>
+        <url-pattern>/ows/wcswsdl/wcs-soap-binding.wsdl</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
