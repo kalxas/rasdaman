@@ -2,6 +2,7 @@ package petascope.wcps2.metadata;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import petascope.core.CoverageMetadata;
 import petascope.wcps.metadata.CoverageInfo;
 
 /**
@@ -16,11 +17,13 @@ public class Coverage {
      * Constructor for the class for coverages that sit in the database
      *
      * @param coverageName the name of the coverage
-     * @param metadata     the metadata of the  coverage
+     * @param coverageInfo the wcps info related to the  coverage
+     * @param metadata     the metadata of the coverage
      */
-    public Coverage(@NotNull String coverageName, @NotNull CoverageInfo metadata) {
+    public Coverage(@NotNull String coverageName, @NotNull CoverageInfo coverageInfo, @NotNull CoverageMetadata metadata) {
         this.coverageName = coverageName;
-        this.metadata = metadata;
+        this.coverageInfo = coverageInfo;
+        this.coverageMetadata = metadata;
     }
 
     public Coverage(@NotNull String coverageName) {
@@ -43,8 +46,12 @@ public class Coverage {
      * @return the coverage metadata
      */
     @Nullable
-    public CoverageInfo getMetadata() {
-        return metadata;
+    public CoverageInfo getCoverageInfo() {
+        return coverageInfo;
+    }
+
+    public CoverageMetadata getCoverageMetadata() {
+        return coverageMetadata;
     }
 
     /**
@@ -57,11 +64,12 @@ public class Coverage {
         if (this == DEFAULT_COVERAGE || coverage == DEFAULT_COVERAGE) {
             return true;
         }
-        return metadata.isCompatible(coverage.getMetadata());
+        return coverageInfo.isCompatible(coverage.getCoverageInfo());
     }
 
     private String coverageName;
     private String coverageCrs;
-    private CoverageInfo metadata;
+    private CoverageInfo coverageInfo;
+    private CoverageMetadata coverageMetadata;
     public static Coverage DEFAULT_COVERAGE = new Coverage("$$DEFAULT_COVERAGE$$");
 }

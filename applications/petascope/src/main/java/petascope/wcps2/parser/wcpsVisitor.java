@@ -180,18 +180,18 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitTrigonometricExpressionLabel(@NotNull wcpsParser.TrigonometricExpressionLabelContext ctx);
 
 	/**
-	 * Visit a parse tree produced by {@link wcpsParser#BooleanReduceExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBooleanReduceExpression(@NotNull wcpsParser.BooleanReduceExpressionContext ctx);
-
-	/**
 	 * Visit a parse tree produced by {@link wcpsParser#reduceExpression}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitReduceExpression(@NotNull wcpsParser.ReduceExpressionContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#BooleanReduceExpression}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBooleanReduceExpression(@NotNull wcpsParser.BooleanReduceExpressionContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#numericalOperator}.
@@ -661,6 +661,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitDimensionIntervalListLabel(@NotNull wcpsParser.DimensionIntervalListLabelContext ctx);
+
+	/**
+	 * Visit a parse tree produced by {@link wcpsParser#StarExpressionLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStarExpressionLabel(@NotNull wcpsParser.StarExpressionLabelContext ctx);
 
 	/**
 	 * Visit a parse tree produced by {@link wcpsParser#getComponentExpression}.

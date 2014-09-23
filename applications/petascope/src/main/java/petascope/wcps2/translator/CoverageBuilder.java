@@ -53,7 +53,7 @@ public abstract class CoverageBuilder extends CoverageExpression {
             Set<Pair<String, String>> emptyMetadata = new HashSet<Pair<String, String>>();
             CoverageMetadata metadata = new CoverageMetadata(coverageName, XMLSymbols.LABEL_GRID_COVERAGE, "", emptyMetadata, crs, cellDomainList, domainList, Pair.of(BigInteger.ZERO, ""), rangeList);
             CoverageInfo covMeta = new CoverageInfo(metadata);
-            Coverage coverage = new Coverage(coverageName, covMeta);
+            Coverage coverage = new Coverage(coverageName, covMeta, metadata);
             setCoverage(coverage);
         } catch (Exception e) {
             throw new CoverageMetadataException(e);

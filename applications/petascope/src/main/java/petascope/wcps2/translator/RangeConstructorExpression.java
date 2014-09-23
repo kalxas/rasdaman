@@ -47,5 +47,5 @@ public class RangeConstructorExpression extends CoverageExpression {
     }
 
     private final Map<String, CoverageExpression> fieldStructure;
-    private final String TEMPLATE = "{$fieldDefinitions}";
+    private final String TEMPLATE = "($fieldDefinitions)";
 }

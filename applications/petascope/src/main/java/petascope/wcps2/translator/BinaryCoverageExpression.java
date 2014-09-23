@@ -56,9 +56,9 @@ public class BinaryCoverageExpression extends CoverageExpression {
      * Creates the resulting coverage from the two operands
      */
     private void createResultingCoverage() {
-        CoverageInfo covMeta = new CoverageInfo(firstCoverageExpr.getCoverage().getMetadata());
+        CoverageInfo covMeta = new CoverageInfo(firstCoverageExpr.getCoverage().getCoverageInfo());
         String coverageName = firstCoverageExpr.getCoverage().getCoverageName() + operator + secondCoverageExpr.getCoverage().getCoverageName();
-        setCoverage(new Coverage(coverageName, covMeta));
+        setCoverage(new Coverage(coverageName, covMeta, firstCoverageExpr.getCoverage().getCoverageMetadata()));
     }
 
     private CoverageExpression firstCoverageExpr;

@@ -1,5 +1,6 @@
 package petascope.wcps2.util;
 
+import org.apache.commons.lang3.math.NumberUtils;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
 import petascope.util.CrsUtil;
@@ -47,18 +48,75 @@ public class CrsComputer {
      */
     public Interval<Long> getPixelIndices() {
         double lowerNumericLimit, upperNumericLimit;
-        DomainElement dom = coverage.getMetadata().getDomainByName(axisName);
-        CellDomainElement cdom = coverage.getMetadata().getCellDomainByName(axisName);
+        DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
+        CellDomainElement cdom = coverage.getCoverageInfo().getCellDomainByName(axisName);
         if (null == cdom || null == dom) {
             throw new CoverageAxisNotFoundExeption(axisName);
         }
+
         try {
+            subset = replaceStarsWithRealValues(dom);
             lowerNumericLimit = Double.parseDouble(subset.getLowerLimit());
             upperNumericLimit = Double.parseDouble(subset.getUpperLimit());
-            return getNumericPixelIndices(new Interval<Double>(lowerNumericLimit, upperNumericLimit));
+            if (crsName != null && crsName.equals(CrsUtil.GRID_CRS)) {
+                return returnGridPixelIndices(new Interval<Double>(lowerNumericLimit, upperNumericLimit));
+            } else {
+                return getNumericPixelIndices(new Interval<Double>(lowerNumericLimit, upperNumericLimit));
+            }
         } catch (NumberFormatException e) {
             return getTimePixelIndices();
         }
+    }
+
+
+    /**
+     * Replaces stars in the interval with the actual value
+     *
+     * @param dom the domain element corresponding to the axis
+     * @return a new interval without stars
+     */
+    private Interval<String> replaceStarsWithRealValues(DomainElement dom) {
+        if (subset.getLowerLimit().equals(MISSING_DIMENSION_SYMBOL)) {
+            String coordinate = dom.getMinValue().toString();
+            if (!NumberUtils.isNumber(subset.getUpperLimit())) {
+                coordinate = numericIndicesToTime(coordinate, dom);
+            }
+            subset = new Interval<String>(coordinate, subset.getUpperLimit());
+        }
+        if (subset.getUpperLimit().equals(MISSING_DIMENSION_SYMBOL)) {
+            String coordinate = dom.getMaxValue().toString();
+            if (!NumberUtils.isNumber(subset.getLowerLimit())) {
+                coordinate = numericIndicesToTime(coordinate, dom);
+            }
+            subset = new Interval<String>(subset.getLowerLimit(), coordinate);
+        }
+        return subset;
+    }
+
+    /**
+     * Converts numeric indices to time coordinates
+     *
+     * @param coordinate the numeric coordinate
+     * @param dom        the domain element of the axis
+     * @return a string representing the translated time
+     */
+    private String numericIndicesToTime(String coordinate, DomainElement dom) {
+        String datumOrigin = dom.getAxisDef().getCrsDefinition().getDatumOrigin();
+        try {
+            return TimeUtil.coordinate2timestamp(Double.parseDouble(coordinate), datumOrigin, dom.getAxisDef().getUoM());
+        } catch (PetascopeException e) {
+            throw new InvalidCalculatedBoundsException(axisName, subset);
+        }
+    }
+
+    /**
+     * Converts grid coordinates to pixel indices (nothing needs to be done except casting into the correct datatype)
+     *
+     * @param numericSubset the subset interval to be translated
+     * @return the translated interval
+     */
+    private Interval<Long> returnGridPixelIndices(Interval<Double> numericSubset) {
+        return new Interval<Long>((long) numericSubset.getLowerLimit().doubleValue(), (long) numericSubset.getUpperLimit().doubleValue());
     }
 
     /**
@@ -68,7 +126,7 @@ public class CrsComputer {
      * @return
      */
     private Interval<Long> getNumericPixelIndices(Interval<Double> numericSubset) {
-        DomainElement dom = coverage.getMetadata().getDomainByName(axisName);
+        DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
 
         this.checkNumericSubsetValidity(numericSubset);
 
@@ -88,7 +146,7 @@ public class CrsComputer {
      * @param numericSubset the subset to be translated
      */
     private void checkNumericSubsetValidity(Interval<Double> numericSubset) {
-        DomainElement dom = coverage.getMetadata().getDomainByName(axisName);
+        DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         BigDecimal domMin = dom.getMinValue();
         BigDecimal domMax = dom.getMaxValue();
         // Check order
@@ -109,8 +167,8 @@ public class CrsComputer {
      * @return
      */
     private Interval<Long> getNumericPixelIndicesForIrregularAxes(Interval<Double> numericSubset) {
-        DomainElement dom = coverage.getMetadata().getDomainByName(axisName);
-        CellDomainElement cdom = coverage.getMetadata().getCellDomainByName(axisName);
+        DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
+        CellDomainElement cdom = coverage.getCoverageInfo().getCellDomainByName(axisName);
         long pxMin = cdom.getLoInt();
         long pxMax = cdom.getHiInt();
         BigDecimal domMin = dom.getMinValue();
@@ -119,8 +177,8 @@ public class CrsComputer {
             // Retrieve correspondent cell indexes (unique method for numerical/timestamp values)
             // TODO: I need to extract all the values, not just the extremes
             long[] indexes = registry.getMetadataSource().getIndexesFromIrregularRectilinearAxis(
-                coverage.getMetadata().getCoverageName(),
-                coverage.getMetadata().getDomainIndexByName(axisName), // i-order of axis
+                coverage.getCoverageInfo().getCoverageName(),
+                coverage.getCoverageInfo().getDomainIndexByName(axisName), // i-order of axis
                 (new BigDecimal(numericSubset.getLowerLimit())).subtract(domMin),  // coefficients are relative to the origin, but subsets are not.
                 (new BigDecimal(numericSubset.getUpperLimit())).subtract(domMin),  //
                 pxMin, pxMax);
@@ -141,8 +199,8 @@ public class CrsComputer {
      */
     private Interval<Long> getNumericPixelIndicesForRegularAxis(Interval<Double> numericSubset) {
         boolean zeroIsMin = !CrsDefinition.Y_ALIASES.contains(axisName);
-        DomainElement dom = coverage.getMetadata().getDomainByName(axisName);
-        CellDomainElement cdom = coverage.getMetadata().getCellDomainByName(axisName);
+        DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
+        CellDomainElement cdom = coverage.getCoverageInfo().getCellDomainByName(axisName);
         String axisUoM = dom.getUom();
         // Get Domain extremes (real sdom)
         BigDecimal domMin = dom.getMinValue();
@@ -152,7 +210,7 @@ public class CrsComputer {
         long pxMax = cdom.getHiInt();
 
         // Indexed CRSs do not require conversion
-        if (axisUoM.equals(CrsUtil.INDEX_UOM)) {
+        if (axisUoM.equals(CrsUtil.INDEX_UOM) || crsName == CrsUtil.GRID_CRS) {
             return new Interval<Long>((long) numericSubset.getLowerLimit().doubleValue(), (long) numericSubset.getUpperLimit().doubleValue());
         }
         double cellWidth = (domMax.subtract(domMin))
@@ -211,7 +269,7 @@ public class CrsComputer {
      * @return
      */
     private Interval<Long> getTimePixelIndices() {
-        DomainElement dom = coverage.getMetadata().getDomainByName(axisName);
+        DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         checkTimeSubsetValidity();
         final Interval<Long> result;
         if (dom.isIrregular()) {
@@ -228,7 +286,7 @@ public class CrsComputer {
      * @return
      */
     private Interval<Long> getTimePixelIndicesForIrregularAxis() {
-        DomainElement dom = coverage.getMetadata().getDomainByName(axisName);
+        DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         String axisUoM = dom.getUom();
         String datumOrigin = dom.getAxisDef().getCrsDefinition().getDatumOrigin();
         double numLo = 0;
@@ -248,7 +306,7 @@ public class CrsComputer {
      * @return
      */
     private Interval<Long> getTimePixelIndicesForRegularAxis() {
-        DomainElement dom = coverage.getMetadata().getDomainByName(axisName);
+        DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         String axisUoM = dom.getUom();
         String datumOrigin = dom.getAxisDef().getCrsDefinition().getDatumOrigin();
         BigDecimal domMin = dom.getMinValue();
@@ -274,7 +332,8 @@ public class CrsComputer {
 
     private final String axisName;
     private final String crsName;
-    private final Interval<String> subset;
+    private Interval<String> subset;
     private final Coverage coverage;
     private final CoverageRegistry registry;
+    private static final String MISSING_DIMENSION_SYMBOL = "*";
 }

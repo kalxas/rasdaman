@@ -1,6 +1,8 @@
 package petascope.wcps2.parser;
 
 import org.antlr.v4.runtime.misc.NotNull;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import petascope.wcps2.error.managed.processing.InvalidAxisNameException;
 import petascope.wcps2.error.managed.processing.InvalidSubsettingException;
 import petascope.wcps2.metadata.CoverageRegistry;
@@ -39,7 +41,7 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
 
     @Override
     public IParseTreeNode visitForClauseLabel(@NotNull wcpsParser.ForClauseLabelContext ctx) {
-        return new ForClause(ctx.coverageVariableName().getText(), ctx.IDENTIFIER().getText(), coverageRegistry);
+        return new ForClause(ctx.coverageVariableName().getText(), ctx.IDENTIFIER().get(0).getText(), coverageRegistry);
     }
 
     @Override
@@ -144,7 +146,7 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
 
     @Override
     public IParseTreeNode visitCastExpressionLabel(@NotNull wcpsParser.CastExpressionLabelContext ctx) {
-        return new CastExpr(ctx.rangeType().getText(), visit(ctx.coverageExpression()));
+        return new CastExpression(StringUtils.join(ctx.rangeType().IDENTIFIER(), " "), visit(ctx.coverageExpression()));
     }
 
     @Override
@@ -237,7 +239,7 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
             String rawUpperBound = visit(ctx.scalarExpression(1)).toRasql();
             String crs = null;
             if (ctx.crsName() != null) {
-                crs = ctx.crsName().getText();
+                crs = ctx.crsName().getText().replace("\"", "");
             }
             if (ctx.axisName() == null) {
                 throw new InvalidAxisNameException("No axis given");
@@ -300,7 +302,7 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
 
     @Override
     public IParseTreeNode visitDimensionPointElementLabel(@NotNull wcpsParser.DimensionPointElementLabelContext ctx) {
-        return new TrimDimensionInterval(ctx.axisName().getText(), ctx.crsName().getText(), ctx.dimensionPointExpression().getText(), ctx.dimensionPointExpression().getText());
+        return new TrimDimensionInterval(ctx.axisName().getText(), ctx.crsName().getText().replace("\"", ""), ctx.dimensionPointExpression().getText(), ctx.dimensionPointExpression().getText());
     }
 
     @Override
@@ -315,7 +317,7 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
     @Override
     public IParseTreeNode visitSliceDimensionIntervalElementLabel(@NotNull wcpsParser.SliceDimensionIntervalElementLabelContext ctx) {
         String bound = ctx.scalarExpression().getText();
-        String crs = ctx.crsName() == null ? "" : ctx.crsName().getText();
+        String crs = ctx.crsName() == null ? "" : ctx.crsName().getText().replace("\"", "");
         return new TrimDimensionInterval(ctx.axisName().getText(), crs, bound, bound);
     }
 
@@ -330,8 +332,18 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
     }
 
     @Override
+    public IParseTreeNode visitStarExpressionLabel(@NotNull wcpsParser.StarExpressionLabelContext ctx) {
+        return new StringScalar("\"*\"");
+    }
+
+    @Override
     public IParseTreeNode visitCoverageExpressionScaleLabel(@NotNull wcpsParser.CoverageExpressionScaleLabelContext ctx) {
         return new ScaleExpression((CoverageExpression) visit(ctx.coverageExpression()), (DimensionIntervalList) visit(ctx.dimensionIntervalList()));
+    }
+
+    @Override
+    public IParseTreeNode visitCoverageExpressionSliceLabel(@NotNull wcpsParser.CoverageExpressionSliceLabelContext ctx) {
+        return new TrimExpression(visit(ctx.coverageExpression()), (DimensionIntervalList) visit(ctx.dimensionPointList()));
     }
 
     private CoverageRegistry coverageRegistry;

@@ -23,6 +23,15 @@ public class ScaleExpression extends CoverageExpression {
         addChild(dimensionIntervals);
     }
 
+    /**
+     * Returns the dimension intervals of the scale operation
+     *
+     * @return
+     */
+    public DimensionIntervalList getDimensionIntervals() {
+        return dimensionIntervals;
+    }
+
     @Override
     public String toRasql() {
         return TEMPLATE.replace("$coverageExpression", coverageExpression.toRasql()).replace("$dimensionIntervalList", dimensionIntervals.toRasql());
@@ -30,5 +39,5 @@ public class ScaleExpression extends CoverageExpression {
 
     private final DimensionIntervalList dimensionIntervals;
     private final CoverageExpression coverageExpression;
-    private final String TEMPLATE = "SCALE($coverageExpression, $dimensionIntervalList)";
+    private final String TEMPLATE = "SCALE($coverageExpression, [$dimensionIntervalList])";
 }

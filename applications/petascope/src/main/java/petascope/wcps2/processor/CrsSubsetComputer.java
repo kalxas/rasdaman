@@ -3,10 +3,7 @@ package petascope.wcps2.processor;
 import petascope.wcps2.metadata.Coverage;
 import petascope.wcps2.metadata.CoverageRegistry;
 import petascope.wcps2.metadata.Interval;
-import petascope.wcps2.translator.ExtendExpression;
-import petascope.wcps2.translator.IParseTreeNode;
-import petascope.wcps2.translator.TrimDimensionInterval;
-import petascope.wcps2.translator.TrimExpression;
+import petascope.wcps2.translator.*;
 import petascope.wcps2.util.CrsComputer;
 
 /**
@@ -23,13 +20,16 @@ public class CrsSubsetComputer implements IProcessor {
             processTrimExpression(currentNode, coverageRegistry);
         } else if (currentNode instanceof ExtendExpression) {
             processExtendExpression(currentNode);
+        } else if (currentNode instanceof ScaleExpression) {
+            processScaleExpression(currentNode, coverageRegistry);
         }
     }
 
     @Override
     public boolean canProcess(IParseTreeNode currentNode) {
         if (currentNode instanceof TrimExpression
-            || currentNode instanceof ExtendExpression) {
+            || currentNode instanceof ExtendExpression
+            || currentNode instanceof ScaleExpression) {
             return true;
         }
         return false;
@@ -45,9 +45,30 @@ public class CrsSubsetComputer implements IProcessor {
         TrimExpression trim = (TrimExpression) currentNode;
         Coverage coverage = trim.getCoverageExpression().getCoverage();
         for (TrimDimensionInterval trimInterval : trim.getDimensionIntervalList().getIntervals()) {
-            String crs = "";
-            if (coverage.getMetadata().getCoverageCrs() == null) {
-                crs = coverage.getMetadata().getCoverageCrs();
+            String crs = trimInterval.getCrs();
+            if (coverage.getCoverageInfo().getCoverageCrs() == null) {
+                crs = coverage.getCoverageInfo().getCoverageCrs();
+            }
+            CrsComputer crsComputer = new CrsComputer(trimInterval.getAxisName(), crs, trimInterval.getRawTrimInterval(), coverage, coverageRegistry);
+            Interval<Long> pixelIndices = crsComputer.getPixelIndices();
+            trimInterval.setTrimInterval(pixelIndices);
+        }
+    }
+
+
+    /**
+     * Processes a scale expression calculating the pixel bounds
+     *
+     * @param currentNode      the current node where the trim was detected
+     * @param coverageRegistry the coverage registry
+     */
+    private void processScaleExpression(IParseTreeNode currentNode, CoverageRegistry coverageRegistry) {
+        ScaleExpression scale = (ScaleExpression) currentNode;
+        Coverage coverage = scale.getCoverage();
+        for (TrimDimensionInterval trimInterval : scale.getDimensionIntervals().getIntervals()) {
+            String crs = trimInterval.getCrs();
+            if (coverage.getCoverageInfo().getCoverageCrs() == null) {
+                crs = coverage.getCoverageInfo().getCoverageCrs();
             }
             CrsComputer crsComputer = new CrsComputer(trimInterval.getAxisName(), crs, trimInterval.getRawTrimInterval(), coverage, coverageRegistry);
             Interval<Long> pixelIndices = crsComputer.getPixelIndices();

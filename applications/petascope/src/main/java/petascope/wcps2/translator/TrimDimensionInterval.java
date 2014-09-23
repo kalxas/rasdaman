@@ -80,6 +80,13 @@ public class TrimDimensionInterval extends IParseTreeNode implements Comparable 
         this.axisPosition = axisPosition;
     }
 
+    /**
+     * Returns the crs of the trim interval
+     * @return
+     */
+    public String getCrs() {
+        return crs;
+    }
 
     /**
      * Compares two trim dimension intervals based on their axis order

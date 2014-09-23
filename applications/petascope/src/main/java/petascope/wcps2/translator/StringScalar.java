@@ -19,7 +19,7 @@ public class StringScalar extends IParseTreeNode {
 
     @Override
     public String toRasql() {
-        return this.scalar;
+        return this.scalar.substring(1, this.scalar.length()-1);
     }
 
     private final String scalar;

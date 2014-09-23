@@ -1,16 +1,17 @@
 package petascope.wcps2.cli;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import petascope.exceptions.RasdamanException;
+import petascope.util.Pair;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 import petascope.wcps2.error.managed.processing.WCPSProcessingError;
 import petascope.wcps2.translator.WcpsTranslator;
 
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * This class provides a method to run wcps queries directly from the cli. Useful for testing and debugging
@@ -25,8 +26,8 @@ public class Wcps {
      * Main method of the program
      *
      * @param args input arguments:
-     *   - a file containing the query to be executed
-     *   - a path where the result will be written
+     *             - a file containing the query to be executed
+     *             - a path where the result will be written
      * @throws IOException
      * @throws RasdamanException
      */
@@ -48,6 +49,7 @@ public class Wcps {
 
     }
 
+
     /**
      * Runs the translation process and returns the rasql query.
      *
@@ -58,7 +60,6 @@ public class Wcps {
         WcpsTranslator translator = new WcpsTranslator(query);
         String rasqlQuery = translator.translate();
         long endTime = System.nanoTime();
-        System.out.println(query + " -> " + rasqlQuery + ": " + (endTime-startTime)/1000000L);
         return rasqlQuery;
     }
 

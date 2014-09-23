@@ -329,19 +329,6 @@ public class wcpsBaseListener implements wcpsListener {
 	 * <p/>
 	 * The default implementation does nothing.
 	 */
-	@Override public void enterBooleanReduceExpression(@NotNull wcpsParser.BooleanReduceExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
-	@Override public void exitBooleanReduceExpression(@NotNull wcpsParser.BooleanReduceExpressionContext ctx) { }
-
-	/**
-	 * {@inheritDoc}
-	 * <p/>
-	 * The default implementation does nothing.
-	 */
 	@Override public void enterReduceExpression(@NotNull wcpsParser.ReduceExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -349,6 +336,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitReduceExpression(@NotNull wcpsParser.ReduceExpressionContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterBooleanReduceExpression(@NotNull wcpsParser.BooleanReduceExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitBooleanReduceExpression(@NotNull wcpsParser.BooleanReduceExpressionContext ctx) { }
 
 	/**
 	 * {@inheritDoc}
@@ -1220,6 +1220,19 @@ public class wcpsBaseListener implements wcpsListener {
 	 * The default implementation does nothing.
 	 */
 	@Override public void exitDimensionIntervalListLabel(@NotNull wcpsParser.DimensionIntervalListLabelContext ctx) { }
+
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void enterStarExpressionLabel(@NotNull wcpsParser.StarExpressionLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 * <p/>
+	 * The default implementation does nothing.
+	 */
+	@Override public void exitStarExpressionLabel(@NotNull wcpsParser.StarExpressionLabelContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

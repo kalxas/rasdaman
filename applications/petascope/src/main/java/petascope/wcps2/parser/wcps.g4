@@ -29,14 +29,14 @@ wcpsQuery : (forClauseList) (whereClause)? (returnClause)                       
  * for $c2 in (cov2)
  * return encode($c1 + $c2, "image/png")
  */
-forClauseList: (forClause)+                                                                                             #ForClauseListLabel;
+forClauseList: FOR (forClause)+                                                                                             #ForClauseListLabel;
 
 /**
  * Example:
  * for $c in (cov1)
  */
-forClause: FOR coverageVariableName IN
-           (LEFT_PARANTHESIS)? IDENTIFIER (RIGHT_PARANTHESIS)?                                                       #ForClauseLabel;
+forClause:  coverageVariableName IN
+           (LEFT_PARANTHESIS)? IDENTIFIER (COMMA IDENTIFIER)* (RIGHT_PARANTHESIS)?                                                       #ForClauseLabel;
 
 /**
  * Example:
@@ -84,7 +84,8 @@ processingExpression: scalarExpression
 scalarExpression: booleanScalarExpression
                 | numericalScalarExpression
                 | stringScalarExpression
-                | getComponentExpression;
+                | getComponentExpression
+                | starExpression;
 
 /**
  *  Example:
@@ -109,6 +110,7 @@ booleanOperator: AND | XOR | OR;
 numericalComparissonOperator: GREATER_THAN | GREATER_OR_EQUAL_THAN | LOWER_THAN | LOWER_OR_EQUAL_THAN | EQUAL | NOT_EQUAL;
 stringOperator: EQUAL | NOT_EQUAL;
 stringScalarExpression: STRING_LITERAL                                                                                  #StringScalarExpressionLabel;
+starExpression: MULTIPLICATION                                                                                          #StarExpressionLabel;
 
 /**
  * Example:
@@ -198,7 +200,7 @@ coverageExpression: coverageExpression booleanOperator coverageExpression       
                   | TRIM LEFT_PARANTHESIS coverageExpression COMMA dimensionIntervalList RIGHT_PARANTHESIS              #CoverageExpressionTrimCoverageLabel
                   | coverageExpression LEFT_BRACKET dimensionPointList RIGHT_BRACKET                                    #CoverageExpressionShorthandSliceLabel
                   | SLICE LEFT_PARANTHESIS coverageExpression COMMA LEFT_BRACE dimensionPointList RIGHT_BRACE RIGHT_PARANTHESIS                #CoverageExpressionSliceLabel
-                  | EXTEND LEFT_PARANTHESIS coverageExpression COMMA dimensionIntervalList RIGHT_PARANTHESIS            #CoverageExpressionExtendLabel
+                  | EXTEND LEFT_PARANTHESIS coverageExpression COMMA LEFT_BRACE dimensionIntervalList RIGHT_BRACE RIGHT_PARANTHESIS            #CoverageExpressionExtendLabel
                   | unaryArithmeticExpression                                                                           #CoverageExpressionUnaryArithmeticLabel
                   | trigonometricExpression                                                                             #CoverageExpressionTrigonometricLabel
                   | exponentialExpression                                                                               #CoverageExpressionExponentialLabel
@@ -297,7 +299,7 @@ unaryBooleanExpression: NOT LEFT_PARANTHESIS coverageExpression RIGHT_PARANTHESI
  * We allow any value here so we do not pollute the parser with business logic.
  * The existence of the rangeType should be checked in the code, not here.
  */
-rangeType: IDENTIFIER;
+rangeType: IDENTIFIER (IDENTIFIER)*;
 
 /**
  * Example

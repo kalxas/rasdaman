@@ -1,6 +1,7 @@
 package petascope.wcps2.metadata;
 
 import petascope.ConfigManager;
+import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
@@ -30,10 +31,11 @@ public class CoverageRegistry {
 
     /**
      * Adds an alias for a coverage (e.g. from for clauses, for coverageAlias in coverageName)
-     * @param coverageName the name of the coverage
+     *
+     * @param coverageName  the name of the coverage
      * @param coverageAlias the alias that can be used for this coverage
      */
-    public void addCoverageMapping(String coverageName, String coverageAlias){
+    public void addCoverageMapping(String coverageName, String coverageAlias) {
         coverageMappings.put(coverageAlias, coverageName);
     }
 
@@ -47,7 +49,8 @@ public class CoverageRegistry {
     public Coverage lookupCoverage(String coverageName) throws WCPSProcessingError {
         try {
             initalizeMetadataSource();
-            return new Coverage(coverageName, new CoverageInfo(metadataSource.read(coverageName)));
+            CoverageMetadata metadata = metadataSource.read(coverageName);
+            return new Coverage(coverageName, new CoverageInfo(metadata), metadata);
         } catch (PetascopeException e) {
             throw new CoverageMetadataException(e);
         } catch (SecoreException e) {
@@ -55,7 +58,7 @@ public class CoverageRegistry {
         }
     }
 
-    public Coverage getCoverageByAlias(String coverageAlias){
+    public Coverage getCoverageByAlias(String coverageAlias) {
         return lookupCoverage(coverageMappings.get(coverageAlias));
     }
 

@@ -29,7 +29,7 @@ public class ReduceExpression extends IParseTreeNode {
 
     @Override
     public String toRasql() {
-        return TEMPLATE.replace("$reduceOperation", operationTranslator.get(reduceOperation))
+        return TEMPLATE.replace("$reduceOperation", operationTranslator.get(reduceOperation.toLowerCase()))
             .replace("$reduceParameter", reduceParameter.toRasql());
     }
 

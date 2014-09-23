@@ -273,17 +273,6 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitTrigonometricExpressionLabel(@NotNull wcpsParser.TrigonometricExpressionLabelContext ctx);
 
 	/**
-	 * Enter a parse tree produced by {@link wcpsParser#BooleanReduceExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBooleanReduceExpression(@NotNull wcpsParser.BooleanReduceExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#BooleanReduceExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBooleanReduceExpression(@NotNull wcpsParser.BooleanReduceExpressionContext ctx);
-
-	/**
 	 * Enter a parse tree produced by {@link wcpsParser#reduceExpression}.
 	 * @param ctx the parse tree
 	 */
@@ -293,6 +282,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitReduceExpression(@NotNull wcpsParser.ReduceExpressionContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#BooleanReduceExpression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBooleanReduceExpression(@NotNull wcpsParser.BooleanReduceExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#BooleanReduceExpression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBooleanReduceExpression(@NotNull wcpsParser.BooleanReduceExpressionContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#numericalOperator}.
@@ -1030,6 +1030,17 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDimensionIntervalListLabel(@NotNull wcpsParser.DimensionIntervalListLabelContext ctx);
+
+	/**
+	 * Enter a parse tree produced by {@link wcpsParser#StarExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterStarExpressionLabel(@NotNull wcpsParser.StarExpressionLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#StarExpressionLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitStarExpressionLabel(@NotNull wcpsParser.StarExpressionLabelContext ctx);
 
 	/**
 	 * Enter a parse tree produced by {@link wcpsParser#getComponentExpression}.
