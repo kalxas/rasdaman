@@ -1,0 +1,1 @@
+select csv(3.1415d)

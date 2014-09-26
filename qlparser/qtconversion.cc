@@ -217,7 +217,8 @@ QtConversion::evaluate( QtDataList* inputList )
             r_Minterval dom = r_Minterval(2);
             dom << r_Sinterval(0LL, 0LL);
             dom << r_Sinterval(0LL, 0LL);
-            sourceTile = new Tile( dom, qtScalar->getValueType(), qtScalar->getValueBuffer(), 1, r_CSV);
+            sourceTile = new Tile( dom, qtScalar->getValueType(), qtScalar->getValueBuffer(),
+                false /* use constructor which does not free the buffer pointer */ );
             typeStructure = qtScalar->getTypeStructure();
         }
         else

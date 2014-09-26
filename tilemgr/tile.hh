@@ -145,7 +145,8 @@ public:
       potentially compressed contents of the new Tile. The memory for
       the cells is managed by Tile and has to be allocated with
       malloc(). If newSize is 0, it is assumed to be uncompressed contents,
-      and the size is calculated from domain and base type.
+      and the size is calculated from domain and base type. This constructor
+      frees the passed data pointer {\tt newCells}.
     */
     Tile(const r_Minterval& newDom, const BaseType* newType, const char* newCells, bool, r_Bytes newSize = 0, r_Data_Format newFormat = r_Array);
     /*Doc
