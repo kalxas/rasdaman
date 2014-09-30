@@ -77,6 +77,9 @@ rasdaman GmbH.
 
 using namespace std;
 
+const char *r_Conv_CSV::FALSE = "f";
+const char *r_Conv_CSV::TRUE = "t";
+
 r_Conv_CSV::r_Conv_CSV(const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error)
     : r_Convertor(src, interv, tp, true)
 {
@@ -164,7 +167,7 @@ const char *r_Conv_CSV::printPrimitiveValue(std::stringstream &f, const r_Base_T
         f << ptr->get_ushort(val);
         break;
     case r_Type::BOOL:
-        f << (ptr->get_boolean(val) ? "t" : "f");
+        f << (ptr->get_boolean(val) ? TRUE : FALSE);
         break;
     case r_Type::LONG:
         f << ptr->get_long(val);

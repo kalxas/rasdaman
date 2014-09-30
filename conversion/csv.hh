@@ -84,6 +84,8 @@ public:
     virtual const char *get_name( void ) const;
     virtual r_Data_Format get_data_format( void ) const;
 
+    static const char *FALSE;
+    static const char *TRUE;
 
 private:
     enum Order {
