@@ -21,6 +21,8 @@
  */
 package petascope.exceptions;
 
+import static javax.servlet.http.HttpServletResponse.*;
+
 /**
  * Represents an exception code, as defined in [OGC 06-121r9] Clause 8
  *
@@ -31,7 +33,7 @@ public class ExceptionCode {
     /**
      * Default HTTP exit code for an exception
      */
-    public static final int DEFAULT_EXIT_CODE = 500;
+    public static final int DEFAULT_EXIT_CODE = SC_INTERNAL_SERVER_ERROR;
 
     /**
      * Code representing type of this exception
@@ -156,83 +158,83 @@ public class ExceptionCode {
     public static final ExceptionCode BadResponseHandler = new ExceptionCode("BadResponseHandler");
     public static final ExceptionCode BadPostParameter = new ExceptionCode("BadPostParameter");
     public static final ExceptionCode IllegalFieldSequence = new ExceptionCode("IllegalFieldSequence",
-            "Lower limit is above the upper limit in the range field interval.", 404);
+            "Lower limit is above the upper limit in the range field interval.", SC_BAD_REQUEST);
     public static final ExceptionCode InternalComponentError = new ExceptionCode("InternalComponentError");
     public static final ExceptionCode InternalSqlError = new ExceptionCode("InternalSqlError");
     public static final ExceptionCode InterpolationMethodNotSupported = new ExceptionCode("InterpolationMethodNotSupported",
-            "`interpolation' parameter indicated is not supported by this server (i.e., URL is not known to this server).", 404);
+            "`interpolation' parameter indicated is not supported by this server (i.e., URL is not known to this server).", SC_METHOD_NOT_ALLOWED);
     public static final ExceptionCode InvalidAxisLabel = new ExceptionCode("InvalidAxisLabel",
             "The dimension subsetting operation specified an axis label that does not exist in the Envelope " +
-            "or has been used more than once in the GetCoverage request.", 404);
+            "or has been used more than once in the GetCoverage request.", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidMediatype = new ExceptionCode("InvalidMediatype",
-            "Request contains an invalid mediatype: it must contain a MIME type identifier of fixed value multipart/related.", 400);
+            "Request contains an invalid mediatype: it must contain a MIME type identifier of fixed value multipart/related.", SC_UNSUPPORTED_MEDIA_TYPE);
     public static final ExceptionCode InvalidCoverageConfiguration = new ExceptionCode("InvalidCoverageConfiguration");
     public static final ExceptionCode InvalidEncodingSyntax = new ExceptionCode("InvalidEncodingSyntax",
-            "Document received does not conform with protocol syntax", 400);
+            "Document received does not conform with protocol syntax", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidMetadata = new ExceptionCode("InvalidMetadata");
     public static final ExceptionCode InvalidParameterValue = new ExceptionCode("InvalidParameterValue",
-            "Operation request contains an invalid parameter value", 400);
+            "Operation request contains an invalid parameter value", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidPropertyValue = new ExceptionCode("InvalidPropertyValue");
-    public static final ExceptionCode InvalidRequest = new ExceptionCode("InvalidRequest", 400);
+    public static final ExceptionCode InvalidRequest = new ExceptionCode("InvalidRequest", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidServiceConfiguration = new ExceptionCode("InvalidServiceConfiguration");
     public static final ExceptionCode InvalidSubsetting = new ExceptionCode("InvalidSubsetting",
             "Operation request contains an invalid subsetting value; either a trim or slice parameter value "
-            + "is outside the extent of the coverage or, in a trim operation, a lower bound is above the upper bound.", 404);
+            + "is outside the extent of the coverage or, in a trim operation, a lower bound is above the upper bound.", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidTemporalMetadata = new ExceptionCode("InvalidTemporalMetadata");
     public static final ExceptionCode InvalidUpdateSequence = new ExceptionCode("InvalidUpdateSequence",
             "Value of (optional) updateSequence parameter in GetCapabilities operation request "
-            + "is greater than current value of service metadata updateSequence number", 400);
+            + "is greater than current value of service metadata updateSequence number", SC_BAD_REQUEST);
     public static final ExceptionCode IOConnectionError = new ExceptionCode("IOConnectionError");
     public static final ExceptionCode MaliciousQuery = new ExceptionCode("MaliciousQuery");
-    public static final ExceptionCode MissingCRS = new ExceptionCode("MissingCRS", "CRS could be missing in the query. Please check", 400);
+    public static final ExceptionCode MissingCRS = new ExceptionCode("MissingCRS", "CRS could be missing in the query. Please check", SC_BAD_REQUEST);
     public static final ExceptionCode MissingParameterValue = new ExceptionCode("MissingParameterValue",
             "Operation request does not include a parameter value, and this server did "
-            + "not declare a default value for that parameter. Locator: Name of missing parameter", 400);
+            + "not declare a default value for that parameter. Locator: Name of missing parameter", SC_BAD_REQUEST);
     public static final ExceptionCode MultiBandImagesNotSupported = new ExceptionCode("MultiBandImagesNotSupported");
     public static final ExceptionCode NoApplicableCode = new ExceptionCode("NoApplicableCode",
             "No other exceptionCode specified by this service and server applies to this exception");
     public static final ExceptionCode NodeParsingNotImplemented = new ExceptionCode("NodeParsingNotImplemented");
     public static final ExceptionCode NoSuchCoverage = new ExceptionCode("NoSuchCoverage",
             "One of the identifiers passed does not match with any of the coverages offered by this server. "
-            + "Locator: List of violating coverage identifiers", 404);
+            + "Locator: List of violating coverage identifiers", SC_NOT_FOUND);
     public static final ExceptionCode NotEnoughStorage = new ExceptionCode("NotEnoughStorage");
     public static final ExceptionCode OperationNotSupported = new ExceptionCode("OperationNotSupported",
-            "Request is for an operation that is not supported by this server. Locator: Name of operation not supported", 501);
+            "Request is for an operation that is not supported by this server. Locator: Name of operation not supported", SC_NOT_IMPLEMENTED);
     public static final ExceptionCode OptionNotSupported = new ExceptionCode("OptionNotSupported",
-            "Request is for an option that is not supported by this server. Locator: Identifier of option not supported", 501);
-    public static final ExceptionCode RasdamanRequestFailed = new ExceptionCode("RasdamanRequestFailed", 404);
+            "Request is for an option that is not supported by this server. Locator: Identifier of option not supported", SC_NOT_IMPLEMENTED);
+    public static final ExceptionCode RasdamanRequestFailed = new ExceptionCode("RasdamanRequestFailed");
     public static final ExceptionCode RasdamanUnavailable = new ExceptionCode("RasdamanUnavailable");
-    public static final ExceptionCode RasdamanError = new ExceptionCode("RasdamanError", 404);
+    public static final ExceptionCode RasdamanError = new ExceptionCode("RasdamanError");
     public static final ExceptionCode ResolverError = new ExceptionCode("ResolverError");
     public static final ExceptionCode ResourceError = new ExceptionCode("ResourceError");
-    public static final ExceptionCode RuntimeError = new ExceptionCode("RuntimeError", 404);
+    public static final ExceptionCode RuntimeError = new ExceptionCode("RuntimeError");
     public static final ExceptionCode SecoreError = new ExceptionCode("SecoreError");
     public static final ExceptionCode ServletConnectionError = new ExceptionCode("ServletConnectionError");
-    public static final ExceptionCode UnknownError = new ExceptionCode("UnknownError", 404);
-    public static final ExceptionCode UnsupportedCombination = new ExceptionCode("UnsupportedCombination", 501);
+    public static final ExceptionCode UnknownError = new ExceptionCode("UnknownError");
+    public static final ExceptionCode UnsupportedCombination = new ExceptionCode("UnsupportedCombination", SC_NOT_IMPLEMENTED);
     public static final ExceptionCode UnsupportedCoverageConfiguration = new ExceptionCode("UnsupportedCoverageConfiguration",
-            "One or more of the available coverages is not queryable due to unimplemented service features.", 501);
+            "One or more of the available coverages is not queryable due to unimplemented service features.", SC_NOT_IMPLEMENTED);
     public static final ExceptionCode VersionNegotiationFailed = new ExceptionCode("VersionNegotiationFailed",
             "List of versions in AcceptVersions parameter value in GetCapabilities operation "
-            + "request did not include any version supported by this server", 400);
+            + "request did not include any version supported by this server", SC_BAD_REQUEST);
     public static final ExceptionCode XmlNotValid = new ExceptionCode("XmlNotValid");
     public static final ExceptionCode XmlStructuresError = new ExceptionCode("XmlStructuresError");
     public static final ExceptionCode WcpsError = new ExceptionCode("WcpsError");
-    public static final ExceptionCode WcsError = new ExceptionCode("WcsError", 404);
+    public static final ExceptionCode WcsError = new ExceptionCode("WcsError");
     public static final ExceptionCode WcstError = new ExceptionCode("WcstError");
     public static final ExceptionCode WpsError = new ExceptionCode("WpsError");
     public static final ExceptionCode MultipleRangeSubsets = new ExceptionCode("Invalid RangeSubsets parameters",
-            "Multiple RangeSubset parameters have been provided, only one can be accepted", 400);
+            "Multiple RangeSubset parameters have been provided, only one can be accepted", SC_BAD_REQUEST);
     public static final ExceptionCode NoSuchField = new ExceptionCode("NoSuchField",
-            "One or more range field names indicated in the request are not defined in range type of the coverage addressed", 404);
+            "One or more range field names indicated in the request are not defined in range type of the coverage addressed", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidCoverageType = new ExceptionCode("InvalidCoverageType",
-            "Coverage addressed is not a grid coverage", 400);
+            "Coverage addressed is not a grid coverage", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidScaleFactor = new ExceptionCode("InvalidScaleFactor",
-            "Scale factor passed is not valid (no number or less than or equal to zero)", 400);
+            "Scale factor passed is not valid (no number or less than or equal to zero)", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidExtent = new ExceptionCode("InvalidExtent",
-            "Extent interval passed has upper bound smaller than lower bound", 400);
+            "Extent interval passed has upper bound smaller than lower bound", SC_BAD_REQUEST);
     public static final ExceptionCode ScaleAxisUndefined = new ExceptionCode("ScaleAxisUndefined",
-            "CRS axis indicated is not an axis occurring in this coverage", 400);
+            "CRS axis indicated is not an axis occurring in this coverage", SC_BAD_REQUEST);
     public static final ExceptionCode WCSPMissingQueryParameter = new ExceptionCode("WCSPMissingQueryParameter",
-            "No query parameter was found in the request.");
+            "No query parameter was found in the request.", SC_BAD_REQUEST);
 }
