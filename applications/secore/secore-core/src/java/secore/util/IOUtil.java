@@ -43,6 +43,9 @@ public class IOUtil {
   // absolute path to the SECORE database dir
   private static String secoreDbDir = null;
 
+  // dafault encoding used for reading from file
+  private static final String UTF8 = "UTF-8";
+
   public static String getFilename(String path) {
     int ind = path.lastIndexOf(File.separator);
     if (ind != -1) {
@@ -164,7 +167,7 @@ public class IOUtil {
   public static String fileToString(String file) {
     String ret = "";
     try {
-      ret = new Scanner(new File(file)).useDelimiter("\\A").next();
+      ret = new Scanner(new File(file), UTF8).useDelimiter("\\A").next();
     } catch (FileNotFoundException ex) {
       log.error("File " + file + " not found.", ex);
     }
