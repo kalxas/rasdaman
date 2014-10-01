@@ -24,6 +24,7 @@ package petascope.util;
 import java.util.ArrayList;
 import java.util.List;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
@@ -210,7 +211,7 @@ public class TimeUtilTest {
     public void testPlus() throws Exception {
 
         String givenTimestamp;
-        DateTimeFormatter isoFmt = ISODateTimeFormat.dateOptionalTimeParser().withZoneUTC();
+        DateTimeFormatter isoFmt = ISODateTimeFormat.dateOptionalTimeParser().withZone(DateTimeZone.UTC);
         DateTime dtExcepted;
         DateTime dtGiven;
 
