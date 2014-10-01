@@ -19,7 +19,6 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-
 package petascope.util.ras;
 
 import java.util.regex.Matcher;
@@ -70,6 +69,7 @@ public class RasUtil {
 
     /**
      * Execute a RasQL query with configured credentials.
+     *
      * @param query
      * @throws RasdamanException
      */
@@ -79,6 +79,7 @@ public class RasUtil {
 
     /**
      * Execute a RasQL query with specified credentials.
+     *
      * @param query
      * @param username
      * @param password
@@ -89,25 +90,27 @@ public class RasUtil {
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
         impl.setUserIdentification(username, password);
         Database db = impl.newDatabase();
-	int maxAttempts, timeout, attempts = 0;
+        int maxAttempts, timeout, attempts = 0;
 
-	//The result of the query will be assigned to ret
-	//Should allways return a result (empty result possible)
-	//since a RasdamanException will be thrown in case of error
-	Object ret=null;
+        //The result of the query will be assigned to ret
+        //Should allways return a result (empty result possible)
+        //since a RasdamanException will be thrown in case of error
+        Object ret = null;
 
-	try {
-	    timeout = Integer.parseInt(ConfigManager.RASDAMAN_RETRY_TIMEOUT) * 1000;
-	} catch(NumberFormatException ex) {
-	    timeout = DEFAULT_TIMEOUT * 1000;
-	    log.info("The setting " + ConfigManager.RASDAMAN_RETRY_TIMEOUT + " is not defined. Assuming " + DEFAULT_TIMEOUT + " seconds between re-connect attemtps to a rasdaman server.");
+        try {
+            timeout = Integer.parseInt(ConfigManager.RASDAMAN_RETRY_TIMEOUT) * 1000;
+        } catch (NumberFormatException ex) {
+            timeout = DEFAULT_TIMEOUT * 1000;
+            log.warn("The setting " + ConfigManager.RASDAMAN_RETRY_TIMEOUT + " is ill-defined. Assuming " + DEFAULT_TIMEOUT + " seconds between re-connect attemtps to a rasdaman server.");
+            ConfigManager.RASDAMAN_RETRY_TIMEOUT = String.valueOf(DEFAULT_TIMEOUT);
         }
 
         try {
             maxAttempts = Integer.parseInt(ConfigManager.RASDAMAN_RETRY_ATTEMPTS);
-        } catch(NumberFormatException ex) {
+        } catch (NumberFormatException ex) {
             maxAttempts = DEFAULT_RECONNECT_ATTEMPTS;
-            log.info("The setting " + ConfigManager.RASDAMAN_RETRY_ATTEMPTS + " is not defined. Assuming " + DEFAULT_RECONNECT_ATTEMPTS + " attempts to connect to a rasdaman server.");
+            log.warn("The setting " + ConfigManager.RASDAMAN_RETRY_ATTEMPTS + " is ill-defined. Assuming " + DEFAULT_RECONNECT_ATTEMPTS + " attempts to connect to a rasdaman server.");
+            ConfigManager.RASDAMAN_RETRY_ATTEMPTS = String.valueOf(DEFAULT_RECONNECT_ATTEMPTS);
         }
 
         Transaction tr;
@@ -117,7 +120,7 @@ public class RasUtil {
         //complex which will refuse the connection until a server becomes
         //available.
         boolean queryCompleted = false, dbOpened = false;
-        while(!queryCompleted) {
+        while (!queryCompleted) {
 
             //Try to obtain a free rasdaman server
             try {
@@ -150,46 +153,46 @@ public class RasUtil {
                     try {
                         db.close();
                     } catch (ODMGException ex) {
-                        log.info("Error closing database connection: ", ex);
+                        log.warn("Error closing database connection: ", ex);
                     }
                 }
-            } catch(RasConnectionFailedException ex) {
+            } catch (RasConnectionFailedException ex) {
 
                 //A connection with a Rasdaman server could not be established
                 //retry shortly unless connection attpempts exceded the maximum
                 //possible connection attempts.
                 attempts++;
-                if(dbOpened)
+                if (dbOpened) {
                     try {
                         db.close();
-                    } catch(ODMGException e) {
-                        log.info("Error closing database connection: ", e);
+                    } catch (ODMGException e) {
+                        log.warn("Error closing database connection: ", e);
                     }
+                }
                 dbOpened = false;
-                if(!(attempts < maxAttempts))
-                    //Throw a RasConnectionFailedException if the connection
-                    //attempts exceeds the maximum connection attempts.
+                if (!(attempts < maxAttempts)) //Throw a RasConnectionFailedException if the connection
+                //attempts exceeds the maximum connection attempts.
+                {
                     throw ex;
+                }
 
                 //Sleep before trying to open another connection
                 try {
                     Thread.sleep(timeout);
-                } catch(InterruptedException e) {
-                    log.error("Thread " + Thread.currentThread().getName() +
-                            " was interrupted while searching a free server.");
+                } catch (InterruptedException e) {
+                    log.error("Thread " + Thread.currentThread().getName()
+                            + " was interrupted while searching a free server.");
                     throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
                             "Unable to get a free rasdaman server.");
                 }
-            } catch(ODMGException ex) {
-
+            } catch (ODMGException ex) {
                 //The maximum ammount of connection attempts was exceded
                 //and a connection could not be established. Return
                 //an exception indicating Rasdaman is unavailable.
-
-                log.info("A Rasdaman request could not be fullfilled since no "+
-                        "free Rasdaman server were available. Consider adjusting "+
-                        "the values of rasdaman_retry_attempts and rasdaman_retry_timeout "+
-                        "or adding more Rasdaman servers.",ex);
+                log.error("A Rasdaman request could not be fullfilled since no "
+                        + "free Rasdaman server were available. Consider adjusting "
+                        + "the values of rasdaman_retry_attempts and rasdaman_retry_timeout "
+                        + "or adding more Rasdaman servers.", ex);
 
                 throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
                         "Unable to get a free rasdaman server.");
@@ -325,7 +328,7 @@ public class RasUtil {
         log.trace("Executing abstract WCPS query");
         String rasquery = abstractWCPSToRasql(query, wcps);
         // Check if it is a rasql query
-        if ( rasquery != null && rasquery.startsWith(WcpsConstants.MSG_SELECT) ) {
+        if (rasquery != null && rasquery.startsWith(WcpsConstants.MSG_SELECT)) {
             return executeRasqlQuery(abstractWCPSToRasql(query, wcps));
         }
         return rasquery;

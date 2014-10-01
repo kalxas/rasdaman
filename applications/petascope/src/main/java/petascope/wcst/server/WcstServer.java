@@ -206,7 +206,6 @@ public class WcstServer {
                 throw new WCSException(ExceptionCode.XmlStructuresError, "Could not build request acknowledgement. ", e);
             }
         } catch (WCSException e) {
-            log.info("Caught WCST Exception");
             ExceptionReport report = e.getReport();
 
             try {

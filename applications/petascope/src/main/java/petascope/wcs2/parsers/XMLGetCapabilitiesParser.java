@@ -54,10 +54,10 @@ public class XMLGetCapabilitiesParser extends XMLParser<GetCapabilitiesRequest> 
     public XMLGetCapabilitiesParser(){
         if(ConfigManager.XML_VALIDATION){
             try {
-                log.info("Loading XML schema definition from " + WCS2_GETCAP_SCHEMA + "...");
+                log.debug("Loading XML schema definition from " + WCS2_GETCAP_SCHEMA + "...");
                 schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
                 schema = schemaFactory.newSchema(new URL(WCS2_GETCAP_SCHEMA));
-                log.info("Done.");
+                log.debug("Done.");
             } catch(SAXException e) {
                 log.error("Could not initialize the GetCapabilities XML Schema validator. Schema validation will be disabled.",e);
             } catch(MalformedURLException e) {

@@ -200,7 +200,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             upperCellDom += (cellDomainElHi < cellDom[1]) ? cellDomainElHi + " " : cellDom[1] + " ";
 
                         } else if (subset instanceof DimensionSlice) {
-                            log.info("Axis " + domainEl.getLabel() + " has been sliced: remove it from the boundedBy element and track the axis for CRS slicing.");
+                            log.debug("Axis " + domainEl.getLabel() + " has been sliced: remove it from the boundedBy element and track the axis for CRS slicing.");
                             slicedAxes.add(subset.getDimension());
                         } else {
                             throw new WCSException(ExceptionCode.InternalComponentError,

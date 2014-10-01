@@ -153,18 +153,18 @@ public class CrsUtil {
 
         // Check first if the definition is already in cache:
         if (CrsUri.isCached(givenCrsUri)) {
-            log.info(givenCrsUri + " definition is already in cache: do not need to fetch GML definition.");
+            log.trace(givenCrsUri + " definition is already in cache: do not need to fetch GML definition.");
             return CrsUri.getCachedDefinition(givenCrsUri);
         }
 
         // Check if the URI syntax is valid
         if (!CrsUri.isValid(givenCrsUri)) {
-            log.info(givenCrsUri + " definition seems not valid.");
+            log.warn(givenCrsUri + " definition seems not valid.");
             throw new PetascopeException(ExceptionCode.InvalidMetadata, givenCrsUri + " definition seems not valid.");
         }
 
         // Need to parse the XML
-        log.info(givenCrsUri + " definition needs to be parsed from resolver.");
+        log.trace(givenCrsUri + " definition needs to be parsed from resolver.");
         String uom = "";
         String datumOrigin = ""; // for TemporalCRSs
 
@@ -369,8 +369,8 @@ public class CrsUtil {
                     throw new SecoreException(ExceptionCode.InternalComponentError,
                             (null==uomUrl ? crsUri : uomUrl) + ": resolver exception: " + ex.getMessage(), ex);
                 } else {
-                    log.info("Connection problem with " + (null==uomUrl ? crsUri : uomUrl) + ": " + ex.getMessage());
-                    log.info("Attempting to fetch the CRS definition via fallback resolver.");
+                    log.warn("Connection problem with " + (null==uomUrl ? crsUri : uomUrl) + ": " + ex.getMessage());
+                    log.warn("Attempting to fetch the CRS definition via fallback resolver.");
                 }
             } catch (SecoreException ex) {
                 throw ex;
@@ -394,7 +394,7 @@ public class CrsUtil {
 
         // Cache the definition
         parsedCRSs.put(givenCrsUri, crs);
-        log.info(givenCrsUri + " into cache for future (inter-requests) use.");
+        log.trace(givenCrsUri + " into cache for future (inter-requests) use.");
 
         return crs;
     }
@@ -1221,13 +1221,13 @@ public class CrsUtil {
 
             if (crsComparisons.containsKey(URLs)) {
                 // Comparison is cached
-                log.info(getAuthority(uri1) + "(" + getVersion(uri1) + "):" + getCode(uri1) + "/" +
+                log.trace(getAuthority(uri1) + "(" + getVersion(uri1) + "):" + getCode(uri1) + "/" +
                          getAuthority(uri2) + "(" + getVersion(uri2) + "):" + getCode(uri2) + " " +
                         "comparison is cached: *no* need to ask SECORE.");
                 return crsComparisons.get(URLs);
             } else {
                 // New comparison: need to ask SECORE(s)
-                log.info(getAuthority(uri1) + "(" + getVersion(uri1) + "):" + getCode(uri1) + "/" +
+                log.trace(getAuthority(uri1) + "(" + getVersion(uri1) + "):" + getCode(uri1) + "/" +
                          getAuthority(uri2) + "(" + getVersion(uri2) + "):" + getCode(uri2) + " " +
                         "comparison is *not* cached: need to ask SECORE.");
                 Boolean equal = null;

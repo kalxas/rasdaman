@@ -173,7 +173,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
             DomainElement axisDomain = meta.getDomainByName(axisName);
             if (axisDomain != null) {
                 String crsName = axisDomain.getNativeCrs();
-                log.info("  Using native CRS: " + crsName);
+                log.trace("  Using native CRS: " + crsName);
                 crs = new Crs(crsName, xq);
 
                 if (crsName == null) {

@@ -53,19 +53,19 @@ public abstract class AbstractProtocolExtension implements  ProtocolExtension {
         if (parser == null) {
             throw new WCSException(ExceptionCode.NoApplicableCode, "No suitable parser found.");
         } else {
-            log.info("Found parser {}", parser.getClass().getSimpleName());
+            log.debug("Found parser {}", parser.getClass().getSimpleName());
         }
         Request req = parser.parse(request);
             if (req == null) {
             throw new WCSException(ExceptionCode.InternalComponentError, "Error parsing the request.");
         } else {
-            log.info("Request successfully parsed.");
+            log.debug("Request successfully parsed.");
         }
         RequestHandler handler = HandlersRegistry.getHandler(req, meta);
         if (handler == null) {
             throw new WCSException(ExceptionCode.NoApplicableCode, "No suitable handler found");
         } else {
-            log.info("Found handler {}", handler.getClass().getSimpleName());
+            log.debug("Found handler {}", handler.getClass().getSimpleName());
         }
         return handler.handle(req);
     }

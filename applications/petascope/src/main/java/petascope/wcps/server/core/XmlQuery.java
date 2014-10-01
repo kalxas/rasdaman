@@ -107,7 +107,7 @@ public class XmlQuery extends AbstractRasNode {
                 continue;
             }
 
-            log.info("The current node is: " + x.getNodeName());
+            log.debug("The current node is: " + x.getNodeName());
 
             if (x.getNodeName().equals(WcpsConstants.MSG_COVERAGE_ITERATOR)) {
                 iterators.add(new CoverageIterator(x, this));

@@ -919,7 +919,7 @@ public class DbMetadataSource implements IMetadataSource {
                         r.getString(EXTRAMETADATA_VALUE)
                         );
                 if (typeValue.fst.equals(EXTRAMETADATA_TYPE_OWS) && !METADATA_IN_COVSUMMARY) {
-                        log.info("OWS Metadata elements have been disabled and will not be shown in the capabilities document.");
+                    log.info("OWS Metadata elements have been disabled and will not be shown in the capabilities document.");
                     log.info("To enable it, change the " + KEY_METADATA_IN_COVSUMMARY + " parameter in " + SETTINGS_FILE + ".");
                 } else {
                     // Ok to add this extra metadata:
@@ -959,7 +959,7 @@ public class DbMetadataSource implements IMetadataSource {
                         throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
                             "No native CRS found for this coverage.");
                     }
-                    log.info("Decoding " + uri + " ...");
+                    log.debug("Decoding " + uri + " ...");
                     // If not cached, parse the SECORE-resolved definition ot this CRS
                     CrsDefinition crsDef = CrsUtil.getGmlDefinition(uri);
                     for (CrsDefinition.Axis axis : crsDef.getAxes()) {

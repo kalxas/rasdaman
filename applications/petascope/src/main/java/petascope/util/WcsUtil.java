@@ -183,8 +183,6 @@ public class WcsUtil {
     }
 
     public static String exceptionReportToXml(ExceptionReport report) {
-        log.info(report.getException().get(0).getLocator());
-        log.info(report.getException().get(0).getExceptionCode());
         String output = null;
         try {
             javax.xml.bind.JAXBContext jaxbCtx = javax.xml.bind.JAXBContext.
