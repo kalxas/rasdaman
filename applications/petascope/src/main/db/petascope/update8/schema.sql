@@ -327,7 +327,7 @@ CREATE TABLE ps9_domain_set (
     native_crs_ids  integer[]  NOT NULL,   -- compound CRSs to be stored as array of FKs
     -- Constraints and FKs
     CONSTRAINT native_crs_ids_is_1D        CHECK (array_lower(native_crs_ids, 2) IS NULL),
-    CONSTRAINT natice_crs_ids_is_not_empty CHECK (array_lower(native_crs_ids, 1) IS NOT NULL), -- Contains at least 1 element
+    CONSTRAINT native_crs_ids_is_not_empty CHECK (array_lower(native_crs_ids, 1) IS NOT NULL), -- Contains at least 1 element
     FOREIGN KEY (coverage_id)   REFERENCES ps9_coverage (id) ON DELETE CASCADE
 );
 CREATE TRIGGER crs_integrity BEFORE INSERT OR UPDATE ON ps9_domain_set
