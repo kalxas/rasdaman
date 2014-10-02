@@ -109,16 +109,6 @@ create_petascope_role()
   fi
 }
 
-# check if postgres is running
-check_postgres_running()
-{
-  service postgresql status > /dev/null 2>&1
-  if [ $? -eq 3 ]; then
-    echo $"please start PostgreSQL first with 'service postgresql start'."
-    exit $!
-  fi
-}
-
 # The semantics of these two functions differ from the way apachectl does
 # things -- attempting to start while running is a failure, and shutdown
 # when not running is also a failure.  So we just do it the way init scripts
@@ -134,15 +124,6 @@ start() {
     chown rasdaman:rasdaman "$raslog"
     chmod go-rwx "$raslog"
     [ -x /usr/bin/chcon ] && /usr/bin/chcon -u system_u -r object_r -t postgresql_log_t "$raslog" 2>/dev/null
-  fi
-
-  check_postgres_running
-
-  # check if RASBASE is initialized
-  $SU -l rasdaman -s "$rasshell" -c "psql --list | grep RASBASE" > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    echo $"RASBASE not found, please run 'service rasdaman initdb' first."
-    exit $!
   fi
 
   echo $"Starting $prog..."
@@ -225,8 +206,6 @@ stop() {
 # Initializes RASBASE
 #
 initdb(){
-  check_postgres_running
-
   bhostname=$(hostname)
   cp /etc/rasdaman/rasmgr.conf /etc/rasdaman/rasmgr.conf.init
   cat /etc/rasdaman/rasmgr.conf.init | sed -e "s/ -host [^ ]*/ -host $bhostname/g" > /etc/rasdaman/rasmgr.conf
@@ -268,7 +247,6 @@ updatedb()
 #
 initpetascopedb(){
   check_rasdaman_user
-  check_postgres_running
 
   # update petascope user in configuration, unless the user has changed it
   grep 'metadata_user=inituser' /etc/rasdaman/petascope.properties > /dev/null
