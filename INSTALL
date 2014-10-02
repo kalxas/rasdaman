@@ -10,4 +10,4 @@ to ./configure.  To see them, use:
   $ ./configure --help
 
 Once installed, see the "rasdaman Installation Guide" for next steps.
-It can be found in manuals_and_examples/manuals/pdf/inst-guide.pdf
+It can be found in manuals_and_examples/manuals/doc-guides/inst-guide.pdf
