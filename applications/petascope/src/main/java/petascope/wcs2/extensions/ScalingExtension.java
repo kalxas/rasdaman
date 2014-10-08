@@ -315,7 +315,7 @@ public class ScalingExtension implements Extension {
                     throw new WCSException(ExceptionCode.InvalidRequest, "Axis name repeated in the scaling request: must be unique.");
                 long scaleSize;
                 try {
-                    scaleSize = Long.parseLong(fact);
+                    scaleSize = (long) Double.parseDouble(fact);
                 } catch (NumberFormatException e) {
                     throw new WCSException(ExceptionCode.InvalidScaleFactor.locator(fact));
                 }
