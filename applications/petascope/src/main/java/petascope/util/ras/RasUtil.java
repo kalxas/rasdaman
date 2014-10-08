@@ -247,7 +247,7 @@ public class RasUtil {
             wcpsParser.wcpsRequest_return rrequest = parser.wcpsRequest();
             request = rrequest.value;
         } catch (RecognitionException ex) {
-            throw new WCPSException(ExceptionCode.InternalComponentError,
+            throw new WCPSException(ExceptionCode.SyntaxError,
                     "Error parsing abstract WCPS query.", ex);
         }
 
@@ -256,7 +256,7 @@ public class RasUtil {
             ret = request.toXML();
             log.debug("Done, xml query: " + ret);
         } catch (Exception ex) {
-            throw new WCPSException(ExceptionCode.InternalComponentError,
+            throw new WCPSException(ExceptionCode.SyntaxError,
                     "Error translating parsed abstract WCPS query to XML format.", ex);
         }
         return ret;

@@ -181,21 +181,15 @@ public class ProcessCoveragesRequest {
     }
 
     public Object execute() throws WCPSException, PetascopeException, SecoreException, SQLException {
+        if(isPostGISQuery()){
+            DbMetadataSource meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
+                ConfigManager.METADATA_URL,
+                ConfigManager.METADATA_USER,
+                ConfigManager.METADATA_PASS, false);
+            return meta.executePostGISQuery(postgisQuery);
 
-        try {
-            if(isPostGISQuery()){
-                DbMetadataSource meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
-                    ConfigManager.METADATA_URL,
-                    ConfigManager.METADATA_USER,
-                    ConfigManager.METADATA_PASS, false);
-                return meta.executePostGISQuery(postgisQuery);
-
-            } else if (isRasqlQuery()){
-                return RasUtil.executeRasqlQuery(rasqlQuery);
-            }
-        } catch (RasdamanException ex) {
-            throw new WCPSException(ExceptionCode.ResourceError, "Could not evaluate rasdaman query: '"
-                        + getRasqlQuery() + "'\n Cause: " + ex.getMessage(), ex);
+        } else if (isRasqlQuery()){
+            return RasUtil.executeRasqlQuery(rasqlQuery);
         }
         return null;
     }

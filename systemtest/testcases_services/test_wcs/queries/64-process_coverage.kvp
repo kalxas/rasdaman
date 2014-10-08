@@ -1,0 +1,4 @@
+SERVICE=WCS&
+VERSION=2.0.1&
+REQUEST=ProcessCoverages&
+query=for c in (mr) return avg(c)

@@ -635,6 +635,12 @@ public class PetascopeInterface extends HttpServlet {
                 IOUtils.write(res.getData(), os);
                 multi.endResponse();
                 multi.finish();
+            } else if (res.isProcessCoverage()) {
+                MultipartResponse multi = new MultipartResponse(response);
+                multi.startResponse(res.getMimeType());
+                IOUtils.write(res.getData(), os);
+                multi.endResponse();
+                multi.finish();
             } else {
                 try {
                     if (res.getMimeType() != null) {

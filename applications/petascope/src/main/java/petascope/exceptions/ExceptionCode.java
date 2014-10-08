@@ -171,6 +171,10 @@ public class ExceptionCode {
     public static final ExceptionCode InvalidCoverageConfiguration = new ExceptionCode("InvalidCoverageConfiguration");
     public static final ExceptionCode InvalidEncodingSyntax = new ExceptionCode("InvalidEncodingSyntax",
             "Document received does not conform with protocol syntax", SC_BAD_REQUEST);
+    public static final ExceptionCode SyntaxError = new ExceptionCode("SyntaxError",
+            "Operation request is syntactically malformed.", SC_BAD_REQUEST);
+    public static final ExceptionCode SemanticError = new ExceptionCode("SemanticError",
+            "Operation request is semantically wrong.", SC_BAD_REQUEST);
     public static final ExceptionCode InvalidMetadata = new ExceptionCode("InvalidMetadata");
     public static final ExceptionCode InvalidParameterValue = new ExceptionCode("InvalidParameterValue",
             "Operation request contains an invalid parameter value", SC_BAD_REQUEST);

@@ -101,7 +101,12 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
             String query = processCoverageRequest.getRasqlQuery();
             mime = processCoverageRequest.getMime();
             if (processCoverageRequest.isRasqlQuery()) {
-                RasQueryResult res = new RasQueryResult(processCoverageRequest.execute());
+                RasQueryResult res = null;
+                try {
+                    res = new RasQueryResult(processCoverageRequest.execute());
+                } catch (Exception ex) {
+                    throw new WCSException(ExceptionCode.SemanticError, ex);
+                }
                 if (!res.getMdds().isEmpty() || !res.getScalars().isEmpty()) {
                     for (String s : res.getScalars()) {
                         result = s.getBytes(Charset.forName("UTF-8"));
@@ -115,7 +120,6 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
             } else if (processCoverageRequest.isPostGISQuery()) {
                 PostgisQueryResult res = new PostgisQueryResult(processCoverageRequest.execute());
                 result = res.toCSV(res.getValues()).getBytes();
-
             } else {
                 result = query.getBytes();
             }
@@ -129,7 +133,9 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
             throw new WCSException(ExceptionCode.InternalSqlError, e.getMessage(), e);
         }
 
-        return new Response(result, null, mime);
+        Response ret = new Response(result, null, mime);
+        ret.setProcessCoverage(true);
+        return ret;
     }
 
     /**
@@ -159,8 +165,8 @@ public class ProcessCoverageHandler extends AbstractRequestHandler<ProcessCovera
             } else {
 
             }
-        } catch (RasdamanException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (Exception ex) {
+            throw new WCSException(ExceptionCode.SemanticError, ex);
         }
         return new Response(result, null, mime);
     }
