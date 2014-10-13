@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>WCPSClient</class>
+ <widget class="QDialog" name="WCPSClient">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>714</width>
+    <height>555</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>WCPS Client</string>
+  </property>
+  <widget class="QTabWidget" name="tabWidget_WCPSClient">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>701</width>
+     <height>531</height>
+    </rect>
+   </property>
+   <property name="currentIndex">
+    <number>2</number>
+   </property>
+   <widget class="QWidget" name="tab_Serv">
+    <attribute name="title">
+     <string>Server/ Storage</string>
+    </attribute>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>671</width>
+       <height>101</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Server Connections:</string>
+     </property>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>20</y>
+        <width>67</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Server</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="cmbConnections_Serv">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>40</y>
+        <width>651</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btnConnectServer_Serv">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>70</y>
+        <width>141</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Connect to Server</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btnNew_Serv">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>70</y>
+        <width>71</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>New</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btnEdit_Serv">
+      <property name="geometry">
+       <rect>
+        <x>250</x>
+        <y>70</y>
+        <width>71</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Edit</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btnDelete_Serv">
+      <property name="geometry">
+       <rect>
+        <x>330</x>
+        <y>70</y>
+        <width>81</width>
+        <height>27</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Delete</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>120</y>
+       <width>231</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>General Information / Errors etc.</string>
+     </property>
+    </widget>
+    <widget class="QTextBrowser" name="textBrowser_Serv">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>140</y>
+       <width>651</width>
+       <height>311</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnClose_Serv">
+     <property name="geometry">
+      <rect>
+       <x>580</x>
+       <y>460</y>
+       <width>99</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_PC">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <attribute name="title">
+     <string>Process Coverage</string>
+    </attribute>
+    <widget class="QGroupBox" name="groupBox_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>681</width>
+       <height>441</height>
+      </rect>
+     </property>
+     <property name="title">
+      <string>Queries : </string>
+     </property>
+     <widget class="QPlainTextEdit" name="plainTextEdit_PC">
+      <property name="geometry">
+       <rect>
+        <x>3</x>
+        <y>27</y>
+        <width>671</width>
+        <height>361</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>390</y>
+        <width>411</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Local Storage Path</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_path">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>410</y>
+        <width>631</width>
+        <height>27</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="toolButton_path">
+      <property name="geometry">
+       <rect>
+        <x>640</x>
+        <y>410</y>
+        <width>24</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>...</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QPushButton" name="pushButton_PC">
+     <property name="geometry">
+      <rect>
+       <x>550</x>
+       <y>450</y>
+       <width>131</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>ProcessCoverage</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnClose_PC">
+     <property name="geometry">
+      <rect>
+       <x>440</x>
+       <y>460</y>
+       <width>99</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_Help">
+    <attribute name="title">
+     <string>Help</string>
+    </attribute>
+    <widget class="QTextBrowser" name="textBrowser_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>11</y>
+       <width>681</width>
+       <height>441</height>
+      </rect>
+     </property>
+     <property name="html">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:22pt; font-weight:600;&quot;&gt;QgsWcpsClient1&lt;/span&gt;&lt;/p&gt;
+&lt;hr width=&quot;100%&quot;/&gt;
+&lt;p style=&quot; margin-top:16px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;Help - QgsWcpsClient1:   Instructions and Hints&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:14px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;Content:&lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;#Introduction&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Introduction:&lt;/span&gt;&lt;/a&gt;   What the QgsWcpsClient1 plugin is about	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;#Getting Started&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Getting Started:&lt;/span&gt;&lt;/a&gt;   Initiating the QgsWcpsClient1 plugin	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;#How To&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;How To:&lt;/span&gt;&lt;/a&gt;   A detailed description of the available functionalities and settings	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;#Hint&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Hint - Erroneous behaviour&lt;/span&gt;&lt;/a&gt;	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;#Quick How To&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Quick How To:&lt;/span&gt;&lt;/a&gt;   A very short, stepwise description	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;#Other Stuff&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Other Stuff&lt;/span&gt;&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;Introduction&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;I&lt;/span&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;ntroduction:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This client is created to be used for abstract WCPS queries. This plugin mainly helps download results within QGis for any ProcessCoverage query and visualize it direcly in QGis(&amp;gt;2.0). In case the results are not images, then the results are displayed in a dialog box. &lt;br /&gt;In the GUI, there are two tabs. One for server and another for the query. Only after connecting the server, giving queries is possible. To process queries, a directory must be specified. &lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;Getting Started&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;G&lt;/span&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;etting Started:&lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The first thing which needs to be done is to define at least one server in the &amp;quot;Server/Storage&amp;quot; tab. Press the &amp;quot;New&amp;quot; button, and enter a (personal) &amp;quot;Server Name&amp;quot; and the WCPS Access &amp;quot;Server URL&amp;quot;. Press &amp;quot;OK&amp;quot; when done. All server entries are stored in the QgsWcpsClient1 plugin installation directory.	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Make sure the provided WCPS Access &amp;quot;Server URL&amp;quot; is a valid page for posting WCPS queries	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The supplied server information can be changed anytime utilizing the &amp;quot;Edit&amp;quot; button.	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Any server entry can be deleted utilizing the &amp;quot;Delete&amp;quot; button&amp;quot;. 	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;When the server information has been provided, select the desired &amp;quot;Server&amp;quot; entry from the list and press the &amp;quot;Connect to Server&amp;quot; button.	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;You always need to be connected to a server before you can send requests!&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;How To&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;H&lt;/span&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;ow To:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;This section shortly describes a 'typical' usage scenario for QgsWcpsClient1.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;Server/Storage tab&lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The QgsWcpsClient1 plugin always starts with the &amp;quot;Server/Storage&amp;quot; tab.	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Select the desired &amp;quot;Server&amp;quot; entry from the list and press the &amp;quot;Connect to Server&amp;quot; button. You always need to be connected to a server before you can send requests!&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Now, after connecting to a server, the ProcessCoverage tab is enabled and sending queries is possible. See ProcessCovereage below for more.		&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;ProcessCoverage tab&lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The abstract query can be entered in the input text box.&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Before executing the query, the path to save the files needs to be specified. Please choose a valid path to save the intermediate files. &lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;After having a valid path, click on ProcessCoverage button. If the return object is an image, then it is added to the Canvas. Else, a dialogue will show the returned text values for the query. &lt;br /&gt;&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;Hint&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;H&lt;/span&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;int - Erroneous behaviour&lt;/span&gt;&lt;/p&gt;
+&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;In case you encounter an error (except server errors) or other strange behaviour, please close the QgsWcpsClient1 plugin, restart QGis, activate the 'Python Console' from within QGis (Menu: Plugins -&amp;gt; Python Console), reload the QgsWcpsClient1 plugin and repeat your previous actions. (Note: in case you have the 'Plugin Reloader' plugin installed you just need to close the  QgsWcpsClient1 plugin, open the 'Python Console' and reload the QgsWcpsClient1 plugin, before repeating your previous actions).    &lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;You should then get some additional information about the requests sent and error encountered. Please include this output in an error report to us.    &lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;This output also shows the requests sent to the servers. Please copy these requests and try them in a regular browser and check if they work there and also check the error messages returned from the server, before sending error reports.     &lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;In most cases problems will be due to server errors e.g. an optional parameter is not supported. Unfortunately some servers do not indicate this directly but just issue a general server error. So please try the request with differernt parameter settings before sending error reports.&lt;/li&gt;&lt;/ul&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;Quick How To&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;Q&lt;/span&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;uick How To:&lt;/span&gt;&lt;/p&gt;
+&lt;ol style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:12px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Select a WCPS server from the &amp;quot;Server&amp;quot; list and press the &amp;quot;Connect to Server&amp;quot; button.	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;In the ProcessCoverage tab, enter your query.&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Add a path to store intermediate files. 	&lt;/li&gt;
+&lt;li style=&quot; font-family:'arial,helvetica,sans-serif';&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Press &amp;quot;ProcessCoverage&amp;quot; button to execute the query. &lt;/li&gt;&lt;/ol&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-family:'arial,helvetica,sans-serif';&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;Other Stuff&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;O&lt;/span&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;ther Stuff:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:4px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;About&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;General Information about:   Author / Company / Contact / Copyright / Acknowledgements / License.&lt;br /&gt;Please see the separate &amp;quot;About&amp;quot; tab.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt; &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnClose_Help">
+     <property name="geometry">
+      <rect>
+       <x>590</x>
+       <y>460</y>
+       <width>99</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QWidget" name="tab_About">
+    <attribute name="title">
+     <string>About</string>
+    </attribute>
+    <widget class="QTextBrowser" name="textBrowser_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>10</y>
+       <width>681</width>
+       <height>441</height>
+      </rect>
+     </property>
+     <property name="html">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Ubuntu'; font-size:11pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-size:xx-large; font-weight:600;&quot;&gt;QgsWcpsClient1&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:16pt; font-weight:600;&quot;&gt;An OGC WCPS 1.0 Client&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:16pt; font-weight:600;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;Author:&lt;/span&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;   Bidesh Thapaliya, Dimitar Misev&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;Company:&lt;/span&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;   &lt;/span&gt;&lt;a href=&quot;http://www.eox.at&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600; text-decoration: underline; color:#0000ff;&quot;&gt;rasdaman GmbH&lt;/span&gt;&lt;/a&gt; / Jacobs University Bremen&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;Contact:&lt;/span&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;   misev at rasdaman dot com&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;Acknowledgements:&lt;/span&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;   The development of this QgsWcpsClient1 plugin (an OGC WCPS 1.0 Client) was partially financed by ESA (European Space Agency) under the ESA-GSTP DREAM/Delta-Dream project (991/C03-YC). The code was forked and accordingly adapted from the QgsWcsClient2.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;License: &lt;/span&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;    The MIT License (MIT)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;Copyright (c) 2014 rasdaman GmbH&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &amp;quot;Software&amp;quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;THE SOFTWARE IS PROVIDED &amp;quot;AS IS&amp;quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif'; font-weight:600;&quot;&gt;License: &lt;/span&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;    The MIT License (MIT)&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;Copyright (c) 2014 EOX IT Services GmbH&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the &amp;quot;Software&amp;quot;), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'arial,helvetica,sans-serif';&quot;&gt;THE SOFTWARE IS PROVIDED &amp;quot;AS IS&amp;quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="btnClose_About">
+     <property name="geometry">
+      <rect>
+       <x>590</x>
+       <y>460</y>
+       <width>99</width>
+       <height>27</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>btnClose_Serv</sender>
+   <signal>clicked()</signal>
+   <receiver>WCPSClient</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>592</x>
+     <y>501</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnClose_About</sender>
+   <signal>clicked()</signal>
+   <receiver>WCPSClient</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>657</x>
+     <y>510</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>657</x>
+     <y>510</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnClose_Help</sender>
+   <signal>clicked()</signal>
+   <receiver>WCPSClient</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>671</x>
+     <y>512</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>671</x>
+     <y>503</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnClose_PC</sender>
+   <signal>clicked()</signal>
+   <receiver>WCPSClient</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>511</x>
+     <y>513</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>510</x>
+     <y>508</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnConnectServer_Serv</sender>
+   <signal>clicked()</signal>
+   <receiver>WCPSClient</receiver>
+   <slot>connectServer()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>134</x>
+     <y>138</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>134</x>
+     <y>138</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnNew_Serv</sender>
+   <signal>clicked()</signal>
+   <receiver>WCPSClient</receiver>
+   <slot>newServer()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>242</x>
+     <y>136</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>242</x>
+     <y>138</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnEdit_Serv</sender>
+   <signal>clicked()</signal>
+   <receiver>WCPSClient</receiver>
+   <slot>editServer()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>299</x>
+     <y>139</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>299</x>
+     <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btnDelete_Serv</sender>
+   <signal>clicked()</signal>
+   <receiver>WCPSClient</receiver>
+   <slot>deleteServer()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>392</x>
+     <y>138</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>392</x>
+     <y>145</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_PC</sender>
+   <signal>clicked()</signal>
+   <receiver>WCPSClient</receiver>
+   <slot>exeProcessCoverage()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>613</x>
+     <y>521</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>613</x>
+     <y>509</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>toolButton_path</sender>
+   <signal>clicked()</signal>
+   <receiver>WCPSClient</receiver>
+   <slot>get_outputLoc()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>676</x>
+     <y>473</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>676</x>
+     <y>464</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
