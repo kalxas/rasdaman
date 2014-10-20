@@ -342,6 +342,7 @@ r_convDesc &r_Conv_NETCDF::convertTo(const char *options) throw (r_Error)
         ncVar->add_att("missing_value", "NaN");
         break;
     }
+    case ctype_rgb:
     case ctype_struct:
     {
         r_Structure_Type *st = (r_Structure_Type*) desc.srcType;
