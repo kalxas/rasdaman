@@ -27,18 +27,22 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.CORSHttpServlet;
 import petascope.ConfigManager;
+import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.RasdamanException;
 import petascope.util.KVPSymbols;
 import petascope.util.ListUtil;
+import petascope.util.RequestUtil;
 import petascope.util.StringUtil;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
@@ -52,7 +56,7 @@ import petascope.util.ras.RasUtil;
  *
  * @author Dimitar Misev
  */
-public class RasqlServlet extends HttpServlet {
+public class RasqlServlet extends CORSHttpServlet {
 
     private static Logger log = LoggerFactory.getLogger(RasqlServlet.class);
     
@@ -80,37 +84,49 @@ public class RasqlServlet extends HttpServlet {
     }
 
     @Override
-    public void doGet(HttpServletRequest req, HttpServletResponse res) {
+    public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        super.doGet(req, res);
         setServletURL(req);
-
-        Map<String, List<String>> kvp = StringUtil.parseQuery(req.getQueryString());
+        OutputStream outStream = null;
+        try {
+            outStream = res.getOutputStream();
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(RasqlServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        Map<String, String> kvp = RequestUtil.parseKVPRequestParams(req.getQueryString());
 
         // todo: check keys
-        String username = ListUtil.head(kvp.get(KVPSymbols.KEY_USERNAME));
-        String password = ListUtil.head(kvp.get(KVPSymbols.KEY_PASSWORD));
-        String query = ListUtil.head(kvp.get(KVPSymbols.KEY_QUERY));
+        String username = kvp.get(KVPSymbols.KEY_USERNAME);
+        String password = kvp.get(KVPSymbols.KEY_PASSWORD);
+        String query = kvp.get(KVPSymbols.KEY_QUERY);
         
         if (username == null) {
-            printError(res, "required KVP parameter " + 
+            printError(outStream, res, "required KVP parameter " +
                     KVPSymbols.KEY_USERNAME + " missing from request.", null, 400);
             return;
         }
         if (password == null) {
-            printError(res, "required KVP parameter " + 
+            printError(outStream, res, "required KVP parameter " +
                     KVPSymbols.KEY_PASSWORD + " missing from request.", null, 400);
             return;
         }
         if (query == null) {
-            printError(res, "required KVP parameter " + 
+            printError(outStream, res, "required KVP parameter " +
                     KVPSymbols.KEY_QUERY + " missing from request.", null, 400);
             return;
         }
 
         try {
-            executeQuery(res, username, password, query);
+            executeQuery(outStream, res, username, password, query);
         } catch (PetascopeException ex) {
-            printError(res, "Failed evaluating query: " + query, ex, USE_DEFAULT_STATUS);
+            printError(outStream, res, "Failed evaluating query: " + query, ex, USE_DEFAULT_STATUS);
             log.error("Failed evaluating query: " + query, ex);
+        } finally{
+            try {
+                outStream.close();
+            } catch (IOException ex) {
+                java.util.logging.Logger.getLogger(RasqlServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
     
@@ -122,11 +138,9 @@ public class RasqlServlet extends HttpServlet {
      * @param query rasql query to execute
      * @throws PetascopeException in case of error in query evaluation
      */
-    private void executeQuery(HttpServletResponse res, String username,
+    private void executeQuery(OutputStream os, HttpServletResponse res, String username,
             String password, String query) throws PetascopeException {
         try {
-            OutputStream os = res.getOutputStream();
-
             Object tmpResult = RasUtil.executeRasqlQuery(query, username, password);
             RasQueryResult queryResult = new RasQueryResult(tmpResult);
 
@@ -148,15 +162,8 @@ public class RasqlServlet extends HttpServlet {
         }
     }
 
-    private void printError(HttpServletResponse response, String message, Exception e, int status) {
-        PrintWriter out;
-        try {
-            out = response.getWriter();
-        } catch (IOException ex) {
-            log.error("could not print exception because of IO error.", ex);
-            return;
-        }
-
+    private void printError(OutputStream outStream, HttpServletResponse response, String message, Exception e, int status) {
+        PrintWriter out = new PrintWriter(outStream);
         response.setContentType("text/html; charset=utf-8");
         if (status != USE_DEFAULT_STATUS) {
             response.setStatus(status);
