@@ -205,7 +205,8 @@ public class Table_Service
                 + "'" + country + "', "
                 + "'" + contactVoiceTelephone + "', "
                 + "'" + contactFacsimileTelephone + "', "
-                + "'" + contactElectronicMailAddress + " )";
+                + "'" + contactElectronicMailAddress + "' )"
+                + ";";
         log.debug( "want to execute: " + query );
         stmt.executeUpdate( query );
         
@@ -310,7 +311,7 @@ public class Table_Service
                 + Globals.TABLE_SERVICE_COUNTRY + " = '" + country + "', "
                 + Globals.TABLE_SERVICE_TEL + " = '" + contactVoiceTelephone + "', "
                 + Globals.TABLE_SERVICE_FAX + " = '" + contactFacsimileTelephone + "', "
-                + Globals.TABLE_SERVICE_EMAIL + " = '" + contactElectronicMailAddress
+                + Globals.TABLE_SERVICE_EMAIL + " = '" + contactElectronicMailAddress + "' "
                 + " where " + Globals.TABLE_SERVICE_SERVICEID + " = " + id;
         Statement stmt = conn.createStatement();
         stmt.executeUpdate( query );
@@ -372,7 +373,7 @@ public class Table_Service
                 + Globals.TABLE_SERVICE_COUNTRY + " = '" + country + "', "
                 + Globals.TABLE_SERVICE_TEL + " = '" + contactVoiceTelephone + "', "
                 + Globals.TABLE_SERVICE_FAX + " = '" + contactFacsimileTelephone + "', "
-                + Globals.TABLE_SERVICE_EMAIL + " = '" + contactElectronicMailAddress
+                + Globals.TABLE_SERVICE_EMAIL + " = '" + contactElectronicMailAddress + "' "
                 + " where " + Globals.TABLE_SERVICE_SERVICEID + " = " + id;
         Statement stmt = conn.createStatement();
         stmt.executeUpdate( query );

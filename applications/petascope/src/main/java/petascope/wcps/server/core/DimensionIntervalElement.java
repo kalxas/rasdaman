@@ -332,7 +332,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
     private void stars2bounds(ScalarExpr lo, ScalarExpr hi, DomainElement domEl) throws WCPSException {
 
         try {
-            if (lo.toRasQL().equals(MSG_STAR)) {
+            if (lo != null && lo.toRasQL().equals(MSG_STAR)) {
                 if (hi.valueIsString() && TimeUtil.isValidTimestamp(hi.toRasQL())) {
                     // other end of interval is a timestamp: need to make a uniform subset
                     lo.setSingleValue(StringUtil.quote(
@@ -345,7 +345,7 @@ public class DimensionIntervalElement extends AbstractRasNode implements ICovera
                     lo.setSingleValue(domEl.getMinValue().toString());
                 }
             }
-            if (hi.toRasQL().equals(MSG_STAR)) {
+            if (hi != null && hi.toRasQL().equals(MSG_STAR)) {
                 if (lo.valueIsString() && TimeUtil.isValidTimestamp(lo.toRasQL())) {
                     // other end of interval is a timestamp: need to make a uniform subset
                     hi.setSingleValue(StringUtil.quote(
