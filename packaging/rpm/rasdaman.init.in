@@ -27,7 +27,11 @@ RASMAJORVERSION=`echo "$RASVERSION" | sed 's/^\([0-9]*\.[0-9]*\).*$/\1/'`
 prog=rasdaman
 
 # Source function library
-. /etc/rc.d/init.d/functions
+if [ -f /etc/rc.d/init.d/functions ]; then
+	. /etc/rc.d/init.d/functions
+elif [ -f /lib/lsb/init-functions ]; then
+	. /lib/lsb/init-functions
+fi
 # Source variables for rasdaman
 if [ -f /etc/sysconfig/rasdaman ]; then
         . /etc/sysconfig/rasdaman
@@ -64,6 +68,9 @@ fi
 raslog=$rasdir/startup.log
 rascontrol="RASLOGIN=$raslogin $rasctrl"
 deffile=$rasdir/basictypes.dl
+
+filedatadir=$rasdir/data
+$SU -l rasdaman -s "$rasshell" -c "mkdir -p $filedatadir"
 
 # check if the rasdaman system user exists
 check_rasdaman_user()

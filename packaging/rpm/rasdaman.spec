@@ -1,6 +1,6 @@
 %global rasdir %{_sharedstatedir}/rasdaman
 Name:           rasdaman
-Version:        9.0.0
+Version:        9.0.5
 Release:        0%{?dist}
 Summary:        rasdaman - Raster Data Manager
 
@@ -28,7 +28,8 @@ BuildRequires: flex
 BuildRequires: postgresql-devel
 BuildRequires: doxygen
 BuildRequires: netcdf-devel
-BuildRequires: java-1.6.0-openjdk-devel
+BuildRequires: gdal-devel
+BuildRequires: java-1.7.0-openjdk-devel
 
 Requires(pre): /usr/sbin/useradd
 Requires(pre): shadow-utils
@@ -99,7 +100,7 @@ Summary:        Petascope is an add-in to the rasdaman
 Group:          Applications/Databases
 Requires:       %{name} = %{version}-%{release}
 Requires:       tomcat6
-Requires:       java-1.6.0-openjdk
+Requires:       java-1.7.0-openjdk
 BuildArch:      noarch
 
 %description petascope
@@ -150,6 +151,7 @@ CC="gcc -L%{_libdir}/hdf -I/usr/include/netpbm -fpermissive -g -O2" CXX="g++ -L%
 		--with-pic \
 		--with-docs \
 		--with-debug-symbols \
+		--with-filedatadir=%{_sharedstatedir}/rasdaman/data \
 		--with-wardir=%{_sharedstatedir}/tomcat6/webapps
 sed -i 's/^metadata_user=.\+/metadata_user=inituser/' applications/petascope/src/main/resources/petascope.properties
 sed -i 's/^metadata_pass=.\+/metadata_pass=initpass/' applications/petascope/src/main/resources/petascope.properties
