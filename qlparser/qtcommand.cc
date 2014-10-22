@@ -409,7 +409,6 @@ QtCommand::printTree( int tab, std::ostream& s, QtChildType mode )
         break;
     case QT_CREATE_COLLECTION_FROM_QUERY_RESULT:
         s << SPACE_STR(tab).c_str() << "  select into(" << collectionName.c_str() << ", " << typeName.c_str() <<")";
-        childNode->printTree(tab + 2, s);
         break;
     default:
         s << "<command unknown>";

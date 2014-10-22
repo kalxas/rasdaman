@@ -466,8 +466,7 @@ QtInsert::printTree(int tab, std::ostream& s, QtChildType mode)
         }
         else if (dataToInsert)
         {
-            s << SPACE_STR(tab) << "data to insert : " << std::endl << SPACE_STR(tab+2);
-            dataToInsert->printStatus(s);
+            s << SPACE_STR(tab) << "data to insert" << std::endl;
         }
         else
             s << SPACE_STR(tab).c_str() << "no source" << std::endl;
