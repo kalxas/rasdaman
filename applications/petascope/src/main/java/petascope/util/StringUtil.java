@@ -195,6 +195,7 @@ public class StringUtil {
         if (contentType == null
             || (contentType.toLowerCase().startsWith(MIME_URLENCODED) && encodedText.indexOf(" ") == -1)) {
             try {
+                encodedText = encodedText.replaceAll("\\+", "%2B"); // ticket:456
                 decoded = URLDecoder.decode(encodedText, ENCODING_UTF8);
             } catch (UnsupportedEncodingException ex) {
             }

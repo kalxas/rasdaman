@@ -1,0 +1,4 @@
+SERVICE=WCS&
+VERSION=2.0.1&
+REQUEST=ProcessCoverages&
+query=for m1 in (mean_summer_airtemp) return encode( coverage gray_image over $px x(0:10), $py y(0:10) values condense + over $kx x(0:10), $ky y(0:10) using 1, "csv")
