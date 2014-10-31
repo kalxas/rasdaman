@@ -47,7 +47,12 @@ public class HandlersRegistry {
             return new GetCoverageHandler(meta);
         } else if (request instanceof ProcessCoverageRequest){
             return new ProcessCoverageHandler(meta);
+        } else if(request instanceof InsertCoverageRequest) {
+            return new InsertCoverageHandler(meta);
+        } else if(request instanceof DeleteCoverageRequest) {
+            return new DeleteCoverageHandler(meta);
         }
+
         return null;
     }
 }

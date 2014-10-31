@@ -18,11 +18,6 @@
         <servlet-class>petascope.wcps.server.servlet.WcpsServlet</servlet-class>
     </servlet>
     <servlet>
-        <description>WCS-T Service</description>
-        <servlet-name>wcstServlet</servlet-name>
-        <servlet-class>petascope.wcst.server.servlet.wcstServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>PetaScope Interface</servlet-name>
         <servlet-class>petascope.PetascopeInterface</servlet-class>
         <load-on-startup>1</load-on-startup>

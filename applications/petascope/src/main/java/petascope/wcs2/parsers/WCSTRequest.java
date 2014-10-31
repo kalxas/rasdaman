@@ -19,30 +19,15 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcs2.handlers;
 
-import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
-import petascope.exceptions.WCSException;
-import petascope.wcs2.parsers.Request;
+package petascope.wcs2.parsers;
 
 /**
- * Handles a {@link Request}
- * 
- * @author Dimitar Misev
+ * WCST Request super class grouping the possible request types:
+ *  - InsertCoverage
+ *  - DeleteCoverage
+ *  - UpdateCoverage (future)
  */
-public interface RequestHandler<T> {
-    
-    String GET_CAPABILITIES = "GetCapabilities";
-    String DESCRIBE_COVERAGE = "DescribeCoverage";
-    String GET_COVERAGE = "GetCoverage";
-    String PROCESS_COVERAGE = "ProcessCoverages";
-    String INSERT_COVERAGE = "InsertCoverage";
-    String DELETE_COVERAGE = "DeleteCoverage";
-    String UPDATE_COVERAGE = "UpdateCoverage";
+public abstract class WCSTRequest extends Request{
 
-    /**
-     * Execute the operation given the request, and return the result.
-     */
-    public Response handle(T request) throws PetascopeException, WCSException, SecoreException;
 }

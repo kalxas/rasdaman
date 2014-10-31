@@ -100,7 +100,7 @@ public interface XMLSymbols {
 
     // wcs/gml
     String LABEL_BBOX = "BoundingBox";
-    String LABEL_BOUNDEDBY = "BoundedBy";
+    String LABEL_BOUNDEDBY = "boundedBy";
     String LABEL_CAPABILITIES = "Capabilities";
     String LABEL_CONTENTS = "Contents";
     String LABEL_COVERAGE_SUMMARY = "CoverageSummary";
@@ -111,11 +111,16 @@ public interface XMLSymbols {
     String LABEL_COVERAGE_DESCRIPTION = "CoverageDescription";
     String LABEL_COVERAGE_FUNCTION = "coverageFunction";
     String LABEL_DATABLOCK = "DataBlock";
-    String LABEL_DIMENSION = "Dimension";
+    String LABEL_DIMENSION = "dimension";
     String LABEL_DIMENSION_TRIM = "DimensionTrim";
     String LABEL_DIMENSION_SLICE = "DimensionSlice";
+    String LABEL_DOMAIN_SET = "domainSet";
     String LABEL_ENVELOPE = "Envelope";
+    String LABEL_FILE = "File";
+    String LABEL_FILE_REFERENCE = "fileReference";
     String LABEL_FORMAT = "format";
+    String LABEL_GRID_ENVELOPE = "GridEnvelope";
+    String LABEL_LIMITS = "limits";
     String LABEL_MEDIATYPE = "mediaType";
     String LABEL_PROCESSCOVERAGE_REQUEST = "ProcessCoveragesRequest";
     String LABEL_RANGEPARAMETERS = "rangeParameters";
@@ -145,6 +150,7 @@ public interface XMLSymbols {
     String LABEL_STARTCOMPONENT = "startComponent";
     String LABEL_ENDCOMPONENT = "endComponent";
     String LABEL_RANGECOMPONENT = "rangeComponent";
+    String LABEL_RANGESET = "rangeSet";
     String LABEL_RANGESUBSET = "rangeSubset";
     // processing coverage extension
     String LABEL_PROCESSING_QUERY = "query";
@@ -214,12 +220,15 @@ public interface XMLSymbols {
     String LABEL_MULTICURVE_COVERAGE = "GridCoverage";
     String LABEL_MULTISURFACE_COVERAGE = "GridCoverage";
     String LABEL_MULTISOLID_COVERAGE = "GridCoverage";
+    String LABEL_RANGE_TYPE = "rangeType";
+    String LABEL_RECTIFIED_GRID = "RectifiedGrid";
     String LABEL_RECTIFIED_GRID_COVERAGE = "RectifiedGridCoverage";
     String LABEL_REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
 
     // swe
     String LABEL_ALLOWED_VALUES = "AllowedValues";
     String LABEL_CONSTRAINT = "constraint";
+    String LABEL_DATA_RECORD = "DataRecord";
     String LABEL_DESCRIPTION = "description";
     String LABEL_FIELD = "field";
     String LABEL_INTERVAL = "interval";
@@ -247,7 +256,10 @@ public interface XMLSymbols {
     String LABEL_AXISDIRECTION = "axisDirection";
     String LABEL_CSA           = "CoordinateSystemAxis";
     String LABEL_NAME          = "name";
+    String LABEL_OFFSET_VECTOR = "offsetVector";
     String LABEL_ORIGIN        = "origin";
+    String LABEL_POINT         = "Point";
+    String LABEL_POS           = "pos";
     String LABEL_TEMPORALCRS   = "TemporalCRS";
     // (suffixes: e.g. ProjectedCRS, TemporalCRS, etc.)
     String CRS_GMLSUFFIX   = "CRS";
@@ -272,6 +284,8 @@ public interface XMLSymbols {
     String ATT_LANG = "lang";
     String ATT_HREF = "href";
 
+    String ATT_ID = "id";
+
     // gml:SRSReferenceGroup
     String ATT_SRS_NAME = "srsName";
     String ATT_SRS_DIMENSION = "srsDimension";
@@ -286,11 +300,15 @@ public interface XMLSymbols {
 
     // CRS definitions
     String ATT_UOM = "uom";
+    String ATT_NAME = "name";
 
     // swe
     String ATT_DEFINITION = "definition";
     String ATT_REASON = "reason";
     String ATT_UOMCODE = "code";
+
+    String ATT_CS = "cs";
+    String ATT_TS = "ts";
 
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //

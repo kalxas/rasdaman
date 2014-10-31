@@ -22,6 +22,7 @@
 package petascope.exceptions;
 
 import static javax.servlet.http.HttpServletResponse.*;
+import petascope.util.XMLSymbols;
 
 /**
  * Represents an exception code, as defined in [OGC 06-121r9] Clause 8
@@ -241,4 +242,66 @@ public class ExceptionCode {
             "CRS axis indicated is not an axis occurring in this coverage", SC_BAD_REQUEST);
     public static final ExceptionCode WCSPMissingQueryParameter = new ExceptionCode("WCSPMissingQueryParameter",
             "No query parameter was found in the request.", SC_BAD_REQUEST);
+    public static final ExceptionCode WCSTMissingCoverageParameter = new ExceptionCode("WCSTMissingCoverageParameter",
+            "No \"coverage\" of \"coverageRef\" parameters were found in the request (at least one expected).");
+    public static final ExceptionCode WCSTUnknownUseId = new ExceptionCode("WCSTUnknownUseId",
+            "Unknown value of the useId parameter(expecting one of \"existing\" or \"new\").");
+    public static final ExceptionCode WCSTMalformedURL = new ExceptionCode("WCSTMalformedURL",
+            "The URL provided in the coverageRef parameter is malformed.");
+    public static final ExceptionCode WCSTMissingBoundedBy = new ExceptionCode("WCSTMissingBoundedBy",
+            "The coverage contains wrong number of \"" + XMLSymbols.LABEL_BOUNDEDBY + "\" elements (exactly 1 expected).");
+    public static final ExceptionCode WCSTMissingEnvelope = new ExceptionCode("WCSTMissingEnvelope",
+            "The coverage contains wrong number of \"" + XMLSymbols.LABEL_ENVELOPE + "\" elements (exactly 1 expected).");
+    public static final ExceptionCode WCSTMissingDomainSet = new ExceptionCode("WCSTMissingDomainSet",
+            "The coverage contains wrong number of \"" + XMLSymbols.LABEL_DOMAIN_SET + "\" elements (exactly 1 expected).");
+    public static final ExceptionCode WCSTMissingGridType = new ExceptionCode("WCSTMissingGridType",
+            "The \"" + XMLSymbols.LABEL_DOMAIN_SET + "\" element contains the wrong number of grid types (exactly 1 expected).");
+    public static final ExceptionCode WCSTMissingLimits = new ExceptionCode("WCSTMissingLimits",
+            "The \"" + XMLSymbols.LABEL_RECTIFIED_GRID + "\" element contains the wrong number of \"" +
+            XMLSymbols.LABEL_LIMITS + "\" (exactly 1 expected).");
+    public static final ExceptionCode WCSTMissingGridEnvelope = new ExceptionCode("WCSTMissingGridEnvelope",
+            "The \"" + XMLSymbols.LABEL_LIMITS + "\" element contains the wrong number of \"" +
+            XMLSymbols.LABEL_GRID_ENVELOPE + "\" (exactly 1 expected).");
+    public static final ExceptionCode WCSTMissingLow = new ExceptionCode("WCSTMissingLow",
+            "The \"" + XMLSymbols.LABEL_GRID_ENVELOPE + "\" element contains the wrong number of \"" +
+            XMLSymbols.LABEL_LOW + "\" (exactly 1 expected).");
+    public static final ExceptionCode WCSTMissingHigh = new ExceptionCode("WCSTMissingHigh",
+            "The \"" + XMLSymbols.LABEL_GRID_ENVELOPE + "\" element contains the wrong number of \"" +
+            XMLSymbols.LABEL_HIGH + "\" (exactly 1 expected).");
+    public static final ExceptionCode WCSTLowHighDifferentSizes = new ExceptionCode("WCSTHighLowDifferentSizes",
+            "The \"" + XMLSymbols.LABEL_LOW + "\" and \"" + XMLSymbols.LABEL_HIGH + "\" elements don't contain the same number of points.");
+    public static final ExceptionCode WCSTCoverageNotFound = new ExceptionCode("WCSTCoverageNotFound",
+            "No coverage found at the given URL.");
+    public static final ExceptionCode WCSTInvalidXML = new ExceptionCode("WCSTInvalidXML",
+            "The coverage is not valid XML.");
+    public static final ExceptionCode WCSTMissingGridOrigin = new ExceptionCode("WCSTMissingPoint",
+            "The \"" + XMLSymbols.LABEL_RECTIFIED_GRID + "\" element contains the wrong number of \"" +
+            XMLSymbols.LABEL_ORIGIN + "\" (exactly 1 expected).");
+    public static final ExceptionCode WCSTMissingPoint = new ExceptionCode("WCSTMissingPoint",
+            "The \"" + XMLSymbols.LABEL_ORIGIN + "\" element contains the wrong number of \"" +
+            XMLSymbols.LABEL_POINT + "\" (exactly 1 expected).");
+    public static final ExceptionCode WCSTMissingPos = new ExceptionCode("WCSTMissingPos",
+            "The \"" + XMLSymbols.LABEL_ORIGIN + "\" element contains the wrong number of \"" +
+            XMLSymbols.LABEL_POS + "\" (exactly 1 expected).");
+    public static final ExceptionCode WCSTWrongNumberOfOffsetVectors = new ExceptionCode("WCSTWrongNumberOfOffsetVectors",
+            "The number of \"" + XMLSymbols.LABEL_OFFSET_VECTOR + "\" elements is different from the number of axes");
+    public static final ExceptionCode WCSTWrongInervalFormat = new ExceptionCode("WCSTWrongIntervalFormat",
+            "The number of points in at least one of the \"" + XMLSymbols.LABEL_INTERVAL + "\" elements is wrong "
+                    + "(exactly 2 expected)");
+    public static final ExceptionCode WCSTWrongNumberOfTupleLists = new ExceptionCode("WCSTWrongNumberOfTupleLists",
+            "The number of \"" + XMLSymbols.LABEL_TUPLELIST + "\" elements is wrong (exactly 1 expected)");
+    public static final ExceptionCode WCSTWrongNumberOfPixels = new ExceptionCode("WCSTWrongNumberOfPixels",
+            "The number of pixels provided in the \"" + XMLSymbols.LABEL_TUPLELIST + "\" element doesn't correspond to the coverage size");
+    public static final ExceptionCode WCSTWrongNumberOfRangeSetElements = new ExceptionCode("WCSTWrongNumberOfRangeSetElements",
+            "The number of \"" + XMLSymbols.LABEL_RANGESET + "\" elements is wrong (exactly 1 expected).");
+    public static final ExceptionCode WCSTWrongNumberOfDataBlockElements = new ExceptionCode("WCSTWrongNumberOfDataBlockElements",
+            "The number of \"" + XMLSymbols.LABEL_DATABLOCK + "\" elements is wrong (exactly 1 expected).");
+    public static final ExceptionCode WCSTWrongNumberOfFileElements = new ExceptionCode("WCSTWrongNumberOfFileElements",
+            "The number of \"" + XMLSymbols.LABEL_FILE + "\" elements is wrong (exactly 1 expected).");
+    public static final ExceptionCode WCSTWrongNumberOfFileReferenceElements = new ExceptionCode("WCSTWrongNumberOfFileReferenceElements",
+            "The number of \"" + XMLSymbols.LABEL_FILE_REFERENCE + "\" elements is wrong (exactly 1 expected).");
+    public static final ExceptionCode WCSTDuplicatedCoverageName = new ExceptionCode("WCSTDuplicatedCoverageName",
+            "A coverage with this name already exists (pick a different name or use the request parameter useId=new).");
+    public static final ExceptionCode WCSTTypeRegistryNotFound = new ExceptionCode("WCSTTypeRegistryNotFound",
+            "Could not read the rasdaman type registry.");
 }

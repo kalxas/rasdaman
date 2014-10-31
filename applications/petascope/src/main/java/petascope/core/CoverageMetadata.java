@@ -32,23 +32,28 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
+import nu.xom.Document;
+import nu.xom.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
+import petascope.exceptions.WCSException;
 import petascope.ows.Description;
 import petascope.swe.datamodel.AbstractSimpleComponent;
 import petascope.swe.datamodel.Quantity;
 import petascope.util.AxisTypes;
 import petascope.util.CrsUtil;
 import static petascope.util.CrsUtil.INDEX_UOM;
+import petascope.util.GMLParserUtil;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
 import petascope.util.Vectors;
 import petascope.util.WcpsConstants;
 import petascope.util.WcsUtil;
+import petascope.util.XMLSymbols;
 import petascope.wcps.metadata.Bbox;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.DomainElement;
@@ -81,6 +86,8 @@ public class CoverageMetadata implements Cloneable {
     Pair<BigInteger, String> rasdamanCollection;
     private Bbox bbox = null;
     private Description owsDescription = null;
+    private List<BigDecimal> gridOrigin;
+    private LinkedHashMap<List<BigDecimal>, BigDecimal> gridAxes;
 
     // legacy petascope.wcs
     private InterpolationMethod      interpolationDefault;
@@ -104,7 +111,8 @@ public class CoverageMetadata implements Cloneable {
             Pair<BigInteger, String>      rasdamanCollection,
             List<Pair<RangeElement,Quantity>> rangeElementQuantities
             ) throws PetascopeException, SecoreException {
-
+        this.gridOrigin = gridOrigin;
+        this.gridAxes = gridAxes;
         // Build domain elements from origin and vectors
         // Note: i-th grid axis need not be aligned with i-th CRS axis
         List<DomainElement> domainElements = new ArrayList<DomainElement>();
@@ -468,6 +476,14 @@ public class CoverageMetadata implements Cloneable {
         }
     }
 
+    public LinkedHashMap<List<BigDecimal>, BigDecimal> getGridAxes(){
+        return gridAxes;
+    }
+
+    public List<BigDecimal> getGridOrigin(){
+        return gridOrigin;
+    }
+
     public int getCoverageId() {
         return coverageId;
     }
@@ -737,13 +753,28 @@ public class CoverageMetadata implements Cloneable {
     }
 
 
+    /**
+     * Gets the oid and collection name of the rasdaman collection
+     * corresponding to this coverage.
+     * @return pair containing the oid and the collection name.
+     */
     public Pair<BigInteger, String> getRasdamanCollection() {
         return this.rasdamanCollection;
     }
 
+    /**
+     * Gets the number of bands of this coverage.
+     * @return number of bands for this coverage.
+     */
+    public Integer getNumberOfBands(){
+        return this.sweComponents.size();
+    }
     /*
      * setters
      */
+    public void setRasdamanCollection(Pair<BigInteger, String> rasdamanCollection){
+        this.rasdamanCollection = rasdamanCollection;
+    }
 
     protected void setCoverageId(int id) {
         this.coverageId = id;
@@ -931,4 +962,57 @@ public class CoverageMetadata implements Cloneable {
 
         return true;
     }
+
+    /**
+     * Takes a GML coverage and translates it into a CovergaeMetadata object.
+     * The created coverage doesn't have acoverageId or a rasdamanCollection yet.
+     *
+     * @param gmlCoverage
+     * @return
+     * @throws WCSException
+     * @throws PetascopeException
+     * @throws SecoreException
+     */
+    public static CoverageMetadata fromGML(Document gmlCoverage) throws WCSException, PetascopeException, SecoreException {
+        Element root = gmlCoverage.getRootElement();
+        //cov type
+        String coverageType = root.getLocalName();
+        //cov id
+        String id = root.getAttributeValue(XMLSymbols.ATT_ID, XMLSymbols.NAMESPACE_GML);
+        //native format
+        String nativeFormat = NATIVE_FORMAT;
+        //crs list
+        List<Pair<CrsDefinition.Axis, String>> crsAxes = GMLParserUtil.parseCrsList(root);
+        //domain set
+        Element domainSet = GMLParserUtil.parseDomainSet(root);
+        //from the domain set extract the grid type
+        Element gridType = GMLParserUtil.parseGridType(domainSet);
+        List<CellDomainElement> cellDomainElements = null;
+        List<BigDecimal> originPoints = null;
+        LinkedHashMap<List<BigDecimal>, BigDecimal> gridAxes = null;
+        //rectified grids
+        if (gridType.getLocalName().equals(XMLSymbols.LABEL_RECTIFIED_GRID)) {
+            cellDomainElements = GMLParserUtil.parseRectifiedGridCellDomain(gridType);
+            originPoints = GMLParserUtil.parseGridOrigin(gridType);
+            gridAxes = GMLParserUtil.parseRegularGridAxes(gridType, originPoints.size());
+        }
+        //parse the range type information
+        List<Pair<RangeElement, Quantity>> rangeQuantities = GMLParserUtil.parseRangeElementQuantities(root);
+
+        CoverageMetadata result = new CoverageMetadata(
+            id,
+            coverageType,
+            nativeFormat,
+            null, //no extra metadata for now
+            crsAxes,
+            cellDomainElements,
+            originPoints,
+            gridAxes,
+            null, //no rasdaman collection for now
+            rangeQuantities);
+
+        return result;
+    }
+
+    private final static String NATIVE_FORMAT = "application/x-ogc-rasdaman";
 }

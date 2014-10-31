@@ -58,6 +58,7 @@ public class ParsersRegistry {
         registerParser(new RESTGetCapabilitiesParser());
         registerParser(new RESTDescribeCoverageParser());
         registerParser(new RESTGetCoverageParser());
+        registerParser(new KVPWCSTParser());
     }
 
     /**

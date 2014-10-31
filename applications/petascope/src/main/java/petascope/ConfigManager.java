@@ -98,6 +98,7 @@ public class ConfigManager {
     public static String RASDAMAN_ADMIN_USER = "rasadmin";
     public static String RASDAMAN_ADMIN_PASS = "rasadmin";
     public static String RASDAMAN_VERSION = "v9.0.0beta1";
+    public static String RASDAMAN_BIN_PATH = "";
 
     // XML validation schema control setting
     public static boolean XML_VALIDATION = false;
@@ -183,6 +184,7 @@ public class ConfigManager {
     public static final String KEY_SECORE_VERSIONS = "secore_versions";
     public static final String KEY_XML_VALIDATION = "xml_validation";
     public static final String KEY_PETASCOPE_SERVLET_URL = "petascope_servlet_url";
+    public static final String KEY_RASDAMAN_BIN_PATH = "rasdaman_bin_path";
 
     public static final String TEMPLATES_PATH = "../templates/";
     public static final String GETCAPABILITIES_XML = "GetCapabilities.xml";
@@ -295,6 +297,7 @@ public class ConfigManager {
         RASDAMAN_PASS           = get(KEY_RASDAMAN_PASS);
         RASDAMAN_ADMIN_USER     = get(KEY_RASDAMAN_ADMIN_USER);
         RASDAMAN_ADMIN_PASS     = get(KEY_RASDAMAN_ADMIN_PASS);
+        RASDAMAN_BIN_PATH       = get(KEY_RASDAMAN_BIN_PATH);
         METADATA_DRIVER         = get(KEY_METADATA_DRIVER);
         if (METADATA_SQLITE_DRIVER.equals(METADATA_DRIVER)) {
             METADATA_SQLITE = true;

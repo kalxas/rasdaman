@@ -70,6 +70,9 @@ public class Templates {
     public static final String SOAP_FAULT = "SOAPFault";
     public static final String SOAP_MESSAGE = "SOAPMessage";
 
+    //wcs-t
+    public static final String INSERT_COVERAGE_RESPONSE = "InsertCoverageResponse";
+
     /**
      * template name -> (template as string, template as XOM element)
      */
@@ -110,6 +113,9 @@ public class Templates {
     public static final String KEY_UPPERCORNER = "upperCorner";
     public static final String KEY_URL = "URL";
 
+    //keywords in wcs-t
+    public static final String KEY_COVERAGE_ID = "%coverageId%";
+
     /* Other constants */
     public static final String PREFIX_MP = "multipoint_";
     public static final String SUFFIX_ORIGIN = "-origin";
@@ -138,6 +144,8 @@ public class Templates {
         loadTemplate(SOAP_MESSAGE);
         loadTemplate(SOAP_FAULT);
         loadTemplate(EXCEPTION_REPORT);
+        //wcs-t
+        loadTemplate(INSERT_COVERAGE_RESPONSE);
     }
 
     public static void loadTemplate(String template) {

@@ -57,6 +57,7 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.ows.Description;
 import petascope.ows.ServiceProvider;
+import petascope.swe.datamodel.AbstractSimpleComponent;
 import petascope.swe.datamodel.AllowedValues;
 import petascope.swe.datamodel.NilValue;
 import petascope.swe.datamodel.Quantity;
@@ -1391,15 +1392,14 @@ public class DbMetadataSource implements IMetadataSource {
      * @param commit Boolean value, specifying if we want to commit immediately or not
      * @throws PetascopeException
      */
-    // TODO (WCS-T)
-    /*private void write(CoverageMetadata meta, boolean commit) throws PetascopeException {
+    private void write(CoverageMetadata meta, boolean commit) throws PetascopeException {
         String coverageName = meta.getCoverageName();
         if (existsCoverageName(coverageName)) {
             updateCoverageMetadata(meta, commit);
         } else {
             insertNewCoverageMetadata(meta, commit);
         }
-    }*/
+    }
 
     /** Update metadata for an existing coverage.
      * All information may change (including name), but the ID of the tuple in PS_Coverage will stay the same.
@@ -1407,20 +1407,424 @@ public class DbMetadataSource implements IMetadataSource {
      * @param meta CoverageMetadata object, container of the new information.
      * @param commit True if we want to commit immediately, false to delay commit indefinitely
      */
-    // TODO (WCS-T)
-    //public void updateCoverageMetadata(CoverageMetadata meta, boolean commit) throws PetascopeException {
-    // ...
-    //}
+    public void updateCoverageMetadata(CoverageMetadata meta, boolean commit) throws PetascopeException {
+        throw new UnsupportedOperationException("Update is not yet supported");
+    }
 
     /** Insert metadata for a new coverage.
      *
      * @param meta CoverageMetadata object, container of information
      * @param commit Boolean value, specifying if we want to commit immediately or not
+     * @throws petascope.exceptions.PetascopeException
      */
-    // TODO (WCS-T)
-    //public void insertNewCoverageMetadata(CoverageMetadata meta, boolean commit) throws PetascopeException {
-    // ...
-    //}
+    public void insertNewCoverageMetadata(CoverageMetadata meta, boolean commit) throws PetascopeException {
+        Statement s = null;
+        try{
+            //initialize connection
+            s = conn.createStatement();
+            //get the GML Type id
+            int gmlTypeId = getGMLTypeId(s, meta.getCoverageType());
+            //get the native format id
+            int nativeFormatId = getNativeFormatId(s, meta.getNativeFormat());
+            //get the description id
+            //@TODO implement parser for description first
+
+            //insert into ps_coverage table
+            int coverageId = insertIntoPsCoverage(s, meta.getCoverageName(), gmlTypeId, nativeFormatId);
+            //insert information about the rangeset
+            String imageType = "RGBImage";
+            if(meta.getDimension() == 1){
+                imageType = "GreyImage";
+            }
+            insertRangeSet(s, coverageId, meta.getRasdamanCollection(), imageType);
+            //insert the quantities together with all dependenceis
+            insertRangeTypes(s, coverageId, meta.getRangeIterator(), meta.getSweComponentsIterator());
+
+            //insert the domain set
+            insertDomainSet(s, coverageId, meta.getCrsUris());
+
+            //insert the gridded domain set
+            insertGriddedDomainSet(s, coverageId, meta.getGridOrigin());
+
+            //insert the axes
+            insertGridAxes(s, coverageId, meta.getGridAxes());
+
+            //close
+            s.close();
+            s = null;
+            if (commit) {
+                commitAndClose();
+            }
+        } catch (SQLException e) {
+            throw new PetascopeException(ExceptionCode.InternalSqlError,
+                    "Failed inserting coverage with id " + meta.getCoverageName());
+        } finally {
+            closeStatement(s);
+        }
+
+    }
+
+    private void insertGridAxes(Statement s, int coverageId, LinkedHashMap<List<BigDecimal>, BigDecimal> gridAxes) throws SQLException{
+        //for each axis insert the axis # and offset vector
+        int axisNumber = 0;
+        for(List<BigDecimal> offsetVector : gridAxes.keySet()){
+            String vector = "{";
+            for(BigDecimal component : offsetVector){
+                vector += component.toString() + ",";
+            }
+            if(vector.length() > 1){
+                vector = vector.substring(0, vector.length() - 1) + "}";
+            }
+            else{
+                vector = "NULL";
+            }
+            //insert the axis number
+            String sqlQuery = "INSERT INTO " + TABLE_GRID_AXIS +
+                              " (" + GRID_AXIS_COVERAGE_ID + "," +
+                              GRID_AXIS_RASDAMAN_ORDER + ") VALUES" +
+                              " (" + coverageId + "," + axisNumber + ")";
+            log.debug("SQL Query : " + sqlQuery);
+            s.executeUpdate(sqlQuery);
+            //get the newly inserted id
+            String idQuery = "SELECT " + GRID_AXIS_ID +
+                             " FROM " + TABLE_GRID_AXIS +
+                             " WHERE " + GRID_AXIS_COVERAGE_ID + "=" + coverageId +
+                             " AND " + GRID_AXIS_RASDAMAN_ORDER + "=" + axisNumber;
+            log.debug("SQL Query : " + idQuery);
+            int gridId = -1;
+            ResultSet r = s.executeQuery(idQuery);
+            while(r.next()){
+                gridId = r.getInt(GRID_AXIS_ID);
+            }
+            axisNumber++;
+            //insert the offset vector
+            String offsetVectorQuery = "INSERT INTO " + TABLE_RECTILINEAR_AXIS +
+                                       " (" + RECTILINEAR_AXIS_ID + "," + RECTILINEAR_AXIS_OFFSET_VECTOR +
+                                       ") VALUES (" + gridId + ",'" + vector + "')";
+            log.debug("SQL Query : " + offsetVectorQuery);
+            s.executeUpdate(offsetVectorQuery);
+        }
+    }
+
+    private void insertGriddedDomainSet(Statement s, int coverageId, List<BigDecimal> gridOrigin) throws SQLException{
+        String origin = "{";
+        for(BigDecimal point : gridOrigin){
+            origin += point.toString() + ",";
+        }
+        if(origin.length() > 1){
+            origin = origin.substring(0, origin.length() - 1) + "}";
+        }
+        else{
+            origin = "NULL";
+        }
+        String sqlQuery = "INSERT INTO " + TABLE_GRIDDED_DOMAINSET +
+                          " (" + GRIDDED_DOMAINSET_COVERAGE_ID + "," +
+                          GRIDDED_DOMAINSET_ORIGIN + ") VALUES" +
+                          " (" + coverageId + ",'" + origin + "')";
+        s.executeUpdate(sqlQuery);
+    }
+
+    private void insertDomainSet(Statement s, int coverageId, List<String> crses) throws SQLException{
+        //check if the crs exists already
+        String crsIds = "{";
+
+        for(String crs: crses){
+            String sqlQuery = "SELECT " + CRS_ID +
+                              " FROM " + TABLE_CRS +
+                              " WHERE " + CRS_URI + "='" + crs + "'";
+            log.debug("SQL Query : " + sqlQuery);
+            ResultSet r = s.executeQuery(sqlQuery);
+            if(r.next()){
+                crsIds += r.getInt(CRS_ID) + ",";
+            }
+            else{
+                //insert the new crs
+                String insertQuery = "INSERT INTO " + TABLE_CRS +
+                                     " (" + CRS_URI + ") VALUES" +
+                                     " ('" + crs + "')";
+                log.debug("SQL Query : " + insertQuery);
+                s.executeUpdate(insertQuery);
+                //get the id
+                r = s.executeQuery(sqlQuery);
+                while(r.next()){
+                    crsIds += r.getInt(CRS_ID) + ",";
+                }
+            }
+        }
+        //remove the last , and add }
+        if(crsIds.length() > 1){
+            crsIds = crsIds.substring(0, crsIds.length() - 1) + "}";
+        }
+        else{
+            crsIds = "NULL";
+        }
+        //add the entry to the table
+        String insertIntoDomain = "INSERT INTO " + TABLE_DOMAINSET +
+                                  " (" + DOMAINSET_COVERAGE_ID + "," +
+                                  DOMAINSET_NATIVE_CRS_IDS + ") VALUES " +
+                                  " (" + coverageId + ",'" + crsIds + "')";
+        log.debug("SQL Query : " + insertIntoDomain);
+        s.executeUpdate(insertIntoDomain);
+    }
+
+    private void insertRangeTypes(Statement s, int coverageId, Iterator<RangeElement> rangeInterator, Iterator<AbstractSimpleComponent> quantityIterator) throws SQLException{
+        int order = 0;
+        //insert the fields
+        List<Integer> fieldIds = insertQuantity(s, quantityIterator);
+        while(rangeInterator.hasNext()){
+            RangeElement range = rangeInterator.next();
+            //get the dataType id
+            int dataTypeId = getRangeDataType(s, range.getType());
+            String sqlQuery = "INSERT INTO " + TABLE_RANGETYPE_COMPONENT +
+                              " (" + RANGETYPE_COMPONENT_COVERAGE_ID + "," +
+                              RANGETYPE_COMPONENT_NAME + "," +
+                              RANGETYPE_COMPONENT_TYPE_ID + "," +
+                              RANGETYPE_COMPONENT_ORDER + "," +
+                              RANGETYPE_COMPONENT_FIELD_ID + ") VALUES" +
+                              " (" + coverageId + ",'" + range.getName() + "'," +
+                              dataTypeId + "," + order + "," + fieldIds.get(order) + ")";
+            log.debug("SQL Query : ", sqlQuery);
+            s.executeUpdate(sqlQuery);
+            order++;
+        }
+    }
+
+    private List<Integer> insertQuantity(Statement s, Iterator<AbstractSimpleComponent> quantityIterator) throws SQLException{
+        List<Integer> ret = new ArrayList<Integer>();
+        while(quantityIterator.hasNext()){
+            Quantity quantity = (Quantity) quantityIterator.next();
+            //get the uom id
+            int uomId = insertUom(s, quantity.getUom());
+            //get the nil value ids
+            String nils = insertNils(s, quantity.getNilValuesIterator());
+            String nilsVal = nils == "NULL" ? "NULL" : ("'" + nils + "'");
+            //check if the quantity already exists
+            String sqlIdQuery = "SELECT " + QUANTITY_ID +
+                                " FROM " + TABLE_QUANTITY +
+                                " WHERE " + QUANTITY_UOM_ID + "='" + uomId + "'" +
+                                " AND " + QUANTITY_LABEL + "='" + quantity.getLabel() + "'" +
+                                " AND " + QUANTITY_DESCRIPTION + "='" + quantity.getDescription() + "'";
+            ResultSet r = s.executeQuery(sqlIdQuery);
+            if(r.next()){
+                ret.add(r.getInt(QUANTITY_ID));
+            }
+            else{
+                String sqlQuery = "INSERT INTO " + TABLE_QUANTITY +
+                                  " (" + QUANTITY_UOM_ID + "," + QUANTITY_LABEL + "," +
+                                  QUANTITY_DESCRIPTION + "," + QUANTITY_DEFINITION + "," +
+                                  QUANTITY_NIL_IDS +
+                                  ") VALUES ( " + uomId + ",'" + quantity.getLabel() + "','" +
+                                  quantity.getDescription() + "','" + quantity.getDefinition() +
+                                  "'," + nilsVal + ")";
+                log.debug("SQL Query : " + sqlQuery);
+                s.executeUpdate(sqlQuery);
+                //get the id of the inserted value
+                r = s.executeQuery(sqlIdQuery);
+                while(r.next()){
+                    ret.add(r.getInt(QUANTITY_ID));
+                }
+            }
+        }
+        return ret;
+    }
+
+    private String insertNils(Statement s, Iterator<NilValue> nilIterator) throws SQLException{
+        String ret = "{";
+        while(nilIterator.hasNext()){
+            NilValue nil = nilIterator.next();
+            //check if the value exists already
+            String sqlIdQuery = "SELECT " + NIL_VALUE_ID +
+                                " FROM " + TABLE_NIL_VALUE +
+                                " WHERE " + NIL_VALUE_VALUE + "='" + nil.getValue() +
+                                "' AND " + NIL_VALUE_REASON + "='" + nil.getReason() + "'";
+            log.debug("SQL Query : " + sqlIdQuery);
+            ResultSet r = s.executeQuery(sqlIdQuery);
+            if(r.next()){
+                ret += r.getInt(NIL_VALUE_ID) + ",";
+            }
+            else{
+                //insert it in the table
+                String sqlQuery = "INSERT INTO " + TABLE_NIL_VALUE +
+                                  " (" + NIL_VALUE_REASON + "," +
+                                  NIL_VALUE_VALUE + ") VALUES"+
+                                  " ('" + nil.getReason() + "','" + nil.getValue() + "')";
+                log.debug("SQL Query : " + sqlQuery);
+                s.executeUpdate(sqlQuery);
+                //get the id of the newly inserted value
+                log.debug("SQL Query : " + sqlIdQuery);
+                r = s.executeQuery(sqlIdQuery);
+                while(r.next()){
+                    ret += r.getInt(NIL_VALUE_ID) + ",";
+                }
+            }
+        }
+        //remove the last , form the result and add a }
+        if(ret.length() > 1){
+            ret = ret.substring(0, ret.length() - 1) + "}";
+        }
+        else{
+            ret = "NULL";
+        }
+
+        return ret;
+    }
+
+    /**
+     * Inserts a new uom, if it doesn't exist already.
+     * @param s
+     * @param uomCode
+     * @return the uom id
+     * @throws SQLException
+     */
+    private int insertUom(Statement s, String uomCode) throws SQLException{
+        int ret = -1;
+        //if no uom is given, return the first id
+        if(uomCode.isEmpty()){
+            return 1;
+        }
+        //check if the uom exists already, if not insert it
+        String sqlQuery = "SELECT " + UOM_ID +
+                          " FROM " + TABLE_UOM +
+                          " WHERE " + UOM_CODE + "='" + uomCode + "'";
+        log.debug("SQL Query : " + sqlQuery);
+        ResultSet r = s.executeQuery(sqlQuery);
+        if(r.next()){
+            //code already exists
+            ret = r.getInt(UOM_ID);
+        }
+        else{
+            //insert it and re-do the query
+            String insertQuery = "INSERT INTO " + TABLE_UOM +
+                                " (" + UOM_CODE + ") VALUES" +
+                                " ('" + uomCode + "')";
+            log.debug("SQL Query : " + insertQuery);
+            s.executeUpdate(insertQuery);
+            r = s.executeQuery(sqlQuery);
+            while(r.next()){
+                ret = r.getInt(UOM_ID);
+            }
+        }
+        return ret;
+    }
+
+    private int getRangeDataType(Statement s, String typeName) throws SQLException{
+        //get the id
+        int ret = -1;
+        String sqlQuery = "SELECT " + RANGE_DATATYPE_ID +
+                          " FROM " + TABLE_RANGE_DATATYPE +
+                          " WHERE " + RANGE_DATATYPE_NAME + "='" + typeName + "'";
+        log.debug("SQL Query : " + sqlQuery);
+        ResultSet r = s.executeQuery(sqlQuery);
+        while(r.next()){
+            ret = r.getInt(RANGE_DATATYPE_ID);
+        }
+        return ret;
+    }
+
+    /**
+     * Inserts the range set information of the coverage
+     * @param s
+     * @param coverageId
+     * @param rasdamanCollection
+     * @param rasdamanCollectionType
+     * @throws SQLException
+     */
+    private void insertRangeSet(Statement s, int coverageId, Pair<BigInteger, String> rasdamanCollection, String rasdamanCollectionType) throws SQLException{
+        //create the rasdaman collection entry in petascopedb
+        String sqlQuery = "INSERT INTO " + TABLE_RASDAMAN_COLLECTION +
+                          "(" + RASDAMAN_COLLECTION_NAME + "," + RASDAMAN_COLLECTION_OID +
+                          "," + RASDAMAN_COLLECTION_BASE_TYPE + ") VALUES ("+
+                          "'" + rasdamanCollection.snd + "'," + rasdamanCollection.fst +
+                          ",'" + rasdamanCollectionType + "')";
+        log.debug("SQL Query : " + sqlQuery);
+        s.executeUpdate(sqlQuery);
+        //get the id
+        int id = -1;
+        String sqlIdQuery = "SELECT " + RASDAMAN_COLLECTION_ID +
+                            " FROM " + TABLE_RASDAMAN_COLLECTION +
+                            " WHERE " + RASDAMAN_COLLECTION_OID + "=" + rasdamanCollection.fst;
+        ResultSet result = s.executeQuery(sqlIdQuery);
+        while(result.next()){
+            id = result.getInt(RASDAMAN_COLLECTION_ID);
+        }
+        //create the entry in the range_set table
+        String sqlRangeSetQuery = "INSERT INTO " + TABLE_RANGESET +
+                                  "(" + RANGESET_COVERAGE_ID + "," +
+                                   RANGESET_STORAGE_ID + ") VALUES " +
+                                   "(" + coverageId + "," + id + ")";
+        s.executeUpdate(sqlRangeSetQuery);
+    }
+
+    /**
+     * Creates an entry in the coverages table.
+     * @param s
+     * @param coverageName
+     * @param gmlTypeId
+     * @param nativeFormatId
+     * @return the id of the newly inserted coverage
+     * @throws WCSException
+     */
+    private int insertIntoPsCoverage(Statement s, String coverageName, int gmlTypeId, int nativeFormatId) throws WCSException, SQLException, PetascopeException{
+        //check if another coverage with the given name doesn't already exist
+        if(this.existsCoverageName(coverageName)){
+            throw new WCSException(ExceptionCode.WCSTDuplicatedCoverageName);
+        }
+        String sqlQuery = "INSERT INTO " + TABLE_COVERAGE +
+                           " (" + COVERAGE_NAME + "," + COVERAGE_GML_TYPE_ID + "," + COVERAGE_NATIVE_FORMAT_ID + ") VALUES "+
+                           " ('" + coverageName + "'," + gmlTypeId + "," + nativeFormatId + ")";
+        log.debug("SQL query : " + sqlQuery);
+        s.executeUpdate(sqlQuery);
+        //return the coverage id
+        return this.coverageID(coverageName);
+    }
+
+    /**
+     * Returns the id of a given native format (mime type).
+     * @param s
+     * @param nativeFormat
+     * @return
+     * @throws WCSException
+     * @throws SQLException
+     */
+    private int getNativeFormatId(Statement s, String nativeFormat) throws WCSException, SQLException{
+        int ret = -1;
+        String sqlQuery = "SELECT " + MIME_TYPE_ID +
+                          " FROM " + TABLE_MIME_TYPE +
+                          " WHERE " + MIME_TYPE_MIME + "='" + nativeFormat + "'";
+        log.debug("SQL query : " + sqlQuery);
+        ResultSet r = s.executeQuery(sqlQuery);
+        while(r.next()){
+            ret = r.getInt(MIME_TYPE_ID);
+        }
+        if(ret == -1){
+            throw new WCSException(ExceptionCode.InvalidCoverageType);
+        }
+        return ret;
+    }
+
+    /**
+     * Returns the id of a given gmlType.
+     * @param s
+     * @param gmlType
+     * @return
+     * @throws SQLException
+     * @throws WCSException
+     */
+    private int getGMLTypeId(Statement s, String gmlType) throws SQLException, WCSException{
+        int ret = -1;
+        String sqlQuery = "SELECT " + GML_SUBTYPE_ID +
+                          " FROM " + TABLE_GML_SUBTYPE +
+                          " WHERE " + GML_SUBTYPE_SUBTYPE + "='" + gmlType + "'";
+        log.debug("SQL query : " + sqlQuery);
+        ResultSet r = s.executeQuery(sqlQuery);
+        while(r.next()){
+            ret = r.getInt(GML_SUBTYPE_ID);
+        }
+        if(ret == -1){
+            throw new WCSException(ExceptionCode.InvalidCoverageType);
+        }
+        return ret;
+    }
 
     /**
      * Delete a coverage from the database.

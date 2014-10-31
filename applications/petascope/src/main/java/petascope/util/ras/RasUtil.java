@@ -21,6 +21,12 @@
  */
 package petascope.util.ras;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.antlr.runtime.ANTLRStringStream;
@@ -46,8 +52,13 @@ import petascope.wcps.grammar.wcpsLexer;
 import petascope.wcps.grammar.wcpsParser;
 import petascope.wcps.server.core.ProcessCoveragesRequest;
 import petascope.wcps.server.core.Wcps;
-import rasj.RasImplementation;
+import rasj.RasClientInternalException;
 import rasj.RasConnectionFailedException;
+import rasj.RasGMArray;
+import rasj.RasImplementation;
+import rasj.RasMInterval;
+import rasj.RasResultIsNoIntervalException;
+import rasj.odmg.RasBag;
 
 /**
  * Rasdaman utility classes - execute queries, etc.
@@ -78,21 +89,22 @@ public class RasUtil {
     }
 
     /**
-     * Execute a RasQL query with specified credentials.
+     * Executes a RasQL query, allowing write transactions by setting the flag.
      *
      * @param query
      * @param username
      * @param password
+     * @param isWriteTransaction
+     * @return
      * @throws RasdamanException
      */
-    // FIXME - should return just String?
-    public static Object executeRasqlQuery(String query, String username, String password) throws RasdamanException {
+    public static Object executeRasqlQuery(String query, String username, String password, Boolean isWriteTransaction) throws RasdamanException {
         RasImplementation impl = new RasImplementation(ConfigManager.RASDAMAN_URL);
         impl.setUserIdentification(username, password);
         Database db = impl.newDatabase();
         int maxAttempts, timeout, attempts = 0;
 
-        //The result of the query will be assigned to ret
+	//The result of the query will be assigned to ret
         //Should allways return a result (empty result possible)
         //since a RasdamanException will be thrown in case of error
         Object ret = null;
@@ -101,16 +113,14 @@ public class RasUtil {
             timeout = Integer.parseInt(ConfigManager.RASDAMAN_RETRY_TIMEOUT) * 1000;
         } catch (NumberFormatException ex) {
             timeout = DEFAULT_TIMEOUT * 1000;
-            log.warn("The setting " + ConfigManager.RASDAMAN_RETRY_TIMEOUT + " is ill-defined. Assuming " + DEFAULT_TIMEOUT + " seconds between re-connect attemtps to a rasdaman server.");
-            ConfigManager.RASDAMAN_RETRY_TIMEOUT = String.valueOf(DEFAULT_TIMEOUT);
+            log.info("The setting " + ConfigManager.RASDAMAN_RETRY_TIMEOUT + " is not defined. Assuming " + DEFAULT_TIMEOUT + " seconds between re-connect attemtps to a rasdaman server.");
         }
 
         try {
             maxAttempts = Integer.parseInt(ConfigManager.RASDAMAN_RETRY_ATTEMPTS);
         } catch (NumberFormatException ex) {
             maxAttempts = DEFAULT_RECONNECT_ATTEMPTS;
-            log.warn("The setting " + ConfigManager.RASDAMAN_RETRY_ATTEMPTS + " is ill-defined. Assuming " + DEFAULT_RECONNECT_ATTEMPTS + " attempts to connect to a rasdaman server.");
-            ConfigManager.RASDAMAN_RETRY_ATTEMPTS = String.valueOf(DEFAULT_RECONNECT_ATTEMPTS);
+            log.info("The setting " + ConfigManager.RASDAMAN_RETRY_ATTEMPTS + " is not defined. Assuming " + DEFAULT_RECONNECT_ATTEMPTS + " attempts to connect to a rasdaman server.");
         }
 
         Transaction tr;
@@ -124,7 +134,8 @@ public class RasUtil {
 
             //Try to obtain a free rasdaman server
             try {
-                db.open(ConfigManager.RASDAMAN_DATABASE, Database.OPEN_READ_ONLY);
+                int openFlag = isWriteTransaction ? Database.OPEN_READ_WRITE : Database.OPEN_READ_ONLY;
+                db.open(ConfigManager.RASDAMAN_DATABASE, openFlag);
                 dbOpened = true;
                 tr = impl.newTransaction();
                 tr.begin();
@@ -153,7 +164,7 @@ public class RasUtil {
                     try {
                         db.close();
                     } catch (ODMGException ex) {
-                        log.warn("Error closing database connection: ", ex);
+                        log.info("Error closing database connection: ", ex);
                     }
                 }
             } catch (RasConnectionFailedException ex) {
@@ -166,7 +177,7 @@ public class RasUtil {
                     try {
                         db.close();
                     } catch (ODMGException e) {
-                        log.warn("Error closing database connection: ", e);
+                        log.info("Error closing database connection: ", e);
                     }
                 }
                 dbOpened = false;
@@ -186,19 +197,39 @@ public class RasUtil {
                             "Unable to get a free rasdaman server.");
                 }
             } catch (ODMGException ex) {
+
                 //The maximum ammount of connection attempts was exceded
                 //and a connection could not be established. Return
                 //an exception indicating Rasdaman is unavailable.
-                log.error("A Rasdaman request could not be fullfilled since no "
+                log.info("A Rasdaman request could not be fullfilled since no "
                         + "free Rasdaman server were available. Consider adjusting "
                         + "the values of rasdaman_retry_attempts and rasdaman_retry_timeout "
                         + "or adding more Rasdaman servers.", ex);
 
                 throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
                         "Unable to get a free rasdaman server.");
+            } catch (RasClientInternalException ex){
+                //when no rasdaman servers are started, rasj throws this type of exception
+                throw new RasdamanException(ExceptionCode.RasdamanUnavailable,
+                        "Unable to get a free rasdaman server.");
             }
+
         }
         return ret;
+    }
+
+    /**
+     * Execute a RasQL query with specified credentials, allowing only read
+     * transactions.
+     *
+     * @param query
+     * @param username
+     * @param password
+     * @throws RasdamanException
+     */
+    // FIXME - should return just String?
+    public static Object executeRasqlQuery(String query, String username, String password) throws RasdamanException {
+        return executeRasqlQuery(query, username, password, false);
     }
 
     /**
@@ -247,7 +278,7 @@ public class RasUtil {
             wcpsParser.wcpsRequest_return rrequest = parser.wcpsRequest();
             request = rrequest.value;
         } catch (RecognitionException ex) {
-            throw new WCPSException(ExceptionCode.SyntaxError,
+            throw new WCPSException(ExceptionCode.InternalComponentError,
                     "Error parsing abstract WCPS query.", ex);
         }
 
@@ -256,7 +287,7 @@ public class RasUtil {
             ret = request.toXML();
             log.debug("Done, xml query: " + ret);
         } catch (Exception ex) {
-            throw new WCPSException(ExceptionCode.SyntaxError,
+            throw new WCPSException(ExceptionCode.InternalComponentError,
                     "Error translating parsed abstract WCPS query to XML format.", ex);
         }
         return ret;
@@ -384,4 +415,94 @@ public class RasUtil {
         log.debug("Read rasdaman version: \"" + version + "\"");
         return version;
     }
+
+    /**
+     * Deletes an array from rasdaman.
+     *
+     * @param oid
+     * @param collectionName
+     * @throws RasdamanException
+     */
+    public static void deleteFromRasdaman(BigInteger oid, String collectionName) throws RasdamanException {
+        String query = TEMPLATE_DELETE.replaceAll(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_OID, oid.toString());
+        executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+    }
+
+    /**
+     * Creates a collection in rasdaman.
+     *
+     * @param collectionName
+     * @param collectionType
+     * @throws RasdamanException
+     */
+    public static void createRasdamanCollection(String collectionName, String collectionType) throws RasdamanException {
+        String query = TEMPLATE_CREATE_COLLECTION.replace(TOKEN_COLLECTION_NAME, collectionName)
+                .replace(TOKEN_COLLECTION_TYPE, collectionType);
+        executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+    }
+
+    /**
+     * Inserts a set of values given as an array constant in rasdaman.
+     *
+     * @param collectionName
+     * @param values
+     * @return the oid of the newly inserted object
+     * @throws RasdamanException
+     */
+    public static BigInteger executeInsertValuesStatement(String collectionName, String values) throws RasdamanException {
+        BigInteger oid = null;
+        String query = TEMPLATE_INSERT_VALUES.replace(TOKEN_COLLECTION_NAME, collectionName)
+                .replace(TOKEN_VALUES, values);
+        executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+        //get the collection oid
+        String oidQuery = TEMPLATE_SELECT_OID.replaceAll(TOKEN_COLLECTION_NAME, collectionName);
+        RasBag result = (RasBag) executeRasqlQuery(oidQuery);
+        Iterator resultIterator = result.iterator();
+        Object resultInstance = null;
+        //get the last available oid
+        while (resultIterator.hasNext()) {
+            resultInstance = resultIterator.next();
+        }
+        if (resultInstance != null) {
+            oid = BigDecimal.valueOf((Double) resultInstance).toBigInteger();
+        }
+        return oid;
+    }
+
+    public static BigInteger executeInsertFileStatement(String collectionName, String filePath, String username, String password) throws RasdamanException, RasResultIsNoIntervalException, IOException {
+        BigInteger oid = new BigInteger("0");
+        String query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q " +
+                "'" + TEMPLATE_INSERT_FILE.replace(TOKEN_COLLECTION_NAME, collectionName) + "' --file " + filePath;
+        Process p = Runtime.getRuntime().exec(new String[]{"bash","-c", query});
+        BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        String s;
+        String response = "";
+        while ((s = stdInput.readLine()) != null) {
+            response += s + "\n";
+        }
+        //get the collection oid
+        String oidQuery = TEMPLATE_SELECT_OID.replaceAll(TOKEN_COLLECTION_NAME, collectionName);
+        RasBag result = (RasBag) executeRasqlQuery(oidQuery);
+        Iterator resultIterator = result.iterator();
+        Object resultInstance = null;
+        //get the last available oid
+        while (resultIterator.hasNext()) {
+            resultInstance = resultIterator.next();
+        }
+        if (resultInstance != null) {
+            oid = BigDecimal.valueOf((Double) resultInstance).toBigInteger();
+        }
+        return oid;
+    }
+
+    private static final String TOKEN_COLLECTION_NAME = "%collectionName%";
+    private static final String TOKEN_COLLECTION_TYPE = "%collectionType%";
+    private static final String TEMPLATE_CREATE_COLLECTION = "CREATE COLLECTION " + TOKEN_COLLECTION_NAME + " " + TOKEN_COLLECTION_TYPE;
+    private static final String TOKEN_VALUES = "%values%";
+    private static final String TEMPLATE_INSERT_VALUES = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES " + TOKEN_VALUES;
+    private static final String TEMPLATE_SELECT_OID = "SELECT oid(" + TOKEN_COLLECTION_NAME + ") FROM " + TOKEN_COLLECTION_NAME;
+    private static final String TOKEN_OID = "%oid%";
+    private static final String TEMPLATE_DELETE = "DELETE FROM " + TOKEN_COLLECTION_NAME + " WHERE oid(" + TOKEN_COLLECTION_NAME + ")=" + TOKEN_OID;
+    private static final String TEMPLATE_INSERT_FILE = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES decode($1)";
+    private static final String RASQL = "rasql";
 }

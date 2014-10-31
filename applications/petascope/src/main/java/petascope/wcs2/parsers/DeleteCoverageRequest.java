@@ -19,35 +19,24 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcst.transaction;
 
+package petascope.wcs2.parsers;
 
-/** Firewall class for WCS-T. It's job is to detect malitious queries and reject them.
- * Currently, it only checks that queries do not occur too often. 
- * 
- * @author Andrei Aiordachioaie
+import petascope.util.StringUtil;
+
+/**
+ * Request modeling the deletion of a coverage.
+ * @autor <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class ServiceFirewall {
+public class DeleteCoverageRequest extends WCSTRequest{
 
-    private static long lastQueryTime = 0;
-    /* Queries should not occur more often than this period (in seconds) */
-    private static final double MIN_QUERY_PERIOD = 10;
+    public DeleteCoverageRequest(String coverageId) {
+       this.coverageId = StringUtil.trim(coverageId);
+    }
 
-    /** Do we reject a certain query through the firewall?
-     *
-     * @param query Query string
-     * @return boolean 
-     */
-    public static boolean reject(String query) {
-        boolean result = true;
+    private final String coverageId;
 
-        /* Check query period */
-        long currentTime = System.currentTimeMillis();
-        if (((currentTime - lastQueryTime) / 1000) >= MIN_QUERY_PERIOD) {
-            result = false;
-        }
-        lastQueryTime = currentTime;
-
-        return result;
+    public String getCoverageId() {
+        return coverageId;
     }
 }

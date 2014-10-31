@@ -19,30 +19,35 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcs2.handlers;
 
-import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
-import petascope.exceptions.WCSException;
-import petascope.wcs2.parsers.Request;
+package petascope.wcs2.extensions;
 
 /**
- * Handles a {@link Request}
- * 
- * @author Dimitar Misev
+ * Implementation of the Extension interface for the Transaction Extension of
+ * OGC Web Coverage Service (WCS)
+ *
+ * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public interface RequestHandler<T> {
-    
-    String GET_CAPABILITIES = "GetCapabilities";
-    String DESCRIBE_COVERAGE = "DescribeCoverage";
-    String GET_COVERAGE = "GetCoverage";
-    String PROCESS_COVERAGE = "ProcessCoverages";
-    String INSERT_COVERAGE = "InsertCoverage";
-    String DELETE_COVERAGE = "DeleteCoverage";
-    String UPDATE_COVERAGE = "UpdateCoverage";
+
+public class WCSTExtension implements Extension{
+
+    @Override
+    public String getExtensionIdentifier() {
+        return ExtensionsRegistry.WCST_IDENTIFIER;
+    }
 
     /**
-     * Execute the operation given the request, and return the result.
+     * @return False: this extension has no parent extension with identifier.
      */
-    public Response handle(T request) throws PetascopeException, WCSException, SecoreException;
+    public Boolean hasParent() {
+        return false;
+    }
+
+    /**
+     * @return "": this extension has is no parent extension with identifier.
+     */
+    public String getParentExtensionIdentifier() {
+        return "";
+    }
+
 }

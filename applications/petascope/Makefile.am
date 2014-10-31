@@ -206,6 +206,8 @@ endif
 		$(INSTALL_DATA) src/main/resources/log4j.properties $(DESTDIR)$(sysconfdir)/log4j.properties; \
 	fi;
 
+	sed -e "s|GENERATED_rasdaman_bin_path|$(bindir)|g" $(DESTDIR)$(sysconfdir)/petascope.properties;
+
 # run any JUnit tests
 .PHONY: test
 test:

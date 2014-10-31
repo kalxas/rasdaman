@@ -19,30 +19,25 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-package petascope.wcs2.handlers;
 
-import petascope.exceptions.PetascopeException;
-import petascope.exceptions.SecoreException;
-import petascope.exceptions.WCSException;
-import petascope.wcs2.parsers.Request;
+package petascope.util.ras;
 
 /**
- * Handles a {@link Request}
- * 
- * @author Dimitar Misev
+ * Exception to mark the absence of a type from the registry which prevents the metadata on the local node
+ * to be correctly represented
+ *
+ * @author <a href="alex@flanche.net">Alex Dumitru</a>
+ * @author <a href="vlad@flanche.net">Vlad Merticariu</a>
  */
-public interface RequestHandler<T> {
-    
-    String GET_CAPABILITIES = "GetCapabilities";
-    String DESCRIBE_COVERAGE = "DescribeCoverage";
-    String GET_COVERAGE = "GetCoverage";
-    String PROCESS_COVERAGE = "ProcessCoverages";
-    String INSERT_COVERAGE = "InsertCoverage";
-    String DELETE_COVERAGE = "DeleteCoverage";
-    String UPDATE_COVERAGE = "UpdateCoverage";
+public class TypeRegistryEntryMissingException extends Exception {
+  public TypeRegistryEntryMissingException() {
+  }
 
-    /**
-     * Execute the operation given the request, and return the result.
-     */
-    public Response handle(T request) throws PetascopeException, WCSException, SecoreException;
+  public TypeRegistryEntryMissingException(String message) {
+    super(message);
+  }
+
+  public TypeRegistryEntryMissingException(String message, Throwable cause) {
+    super(message, cause);
+  }
 }

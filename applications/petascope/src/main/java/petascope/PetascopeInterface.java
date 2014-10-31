@@ -79,7 +79,6 @@ import petascope.wcs2.extensions.RESTProtocolExtension;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.templates.Templates;
-import petascope.wcst.server.WcstServer;
 
 /**
  * This servlet is a unified entry-point for all the PetaScope services.
@@ -95,8 +94,6 @@ public class PetascopeInterface extends HttpServlet {
     private String usageFilePath = "/templates/interface-servlet.html";
     // String containing the HTML code for the default response
     private String usageMessage;
-    /* Instance of WcsServer-T service */
-    private WcstServer wcst;
     /* Instance of WCPS service */
     private Wcps wcps;
     /* Instance of WcsServer service */
@@ -170,16 +167,6 @@ public class PetascopeInterface extends HttpServlet {
         } catch (Exception e) {
             log.error("Stack trace: {}", e);
             throw new ServletException("WCS initialization error", e);
-        }
-
-        /* Initialize WCS-T Service */
-        try {
-            log.info("WCS-T: Initializing ...");
-            wcst = new WcstServer(meta);
-            log.info("WCS-T: Initialization complete.");
-        } catch (Exception e) {
-            log.error("Stack trace: {}", e);
-            throw new ServletException("WCS-T initialization error", e);
         }
 
         log.info("-----------------------------------------------");
@@ -321,7 +308,9 @@ public class PetascopeInterface extends HttpServlet {
                                     }
                                 }
                             }
-                        } else if (operation.equals(RequestHandler.DESCRIBE_COVERAGE) || operation.equals(RequestHandler.PROCESS_COVERAGE) || operation.equals(RequestHandler.GET_COVERAGE)) {
+                        } else if (operation.equals(RequestHandler.DESCRIBE_COVERAGE) || operation.equals(RequestHandler.PROCESS_COVERAGE)
+                                || operation.equals(RequestHandler.GET_COVERAGE) || operation.equals(RequestHandler.INSERT_COVERAGE)
+                                || operation.equals(RequestHandler.DELETE_COVERAGE) || operation.equals(RequestHandler.UPDATE_COVERAGE)) {
                             version = paramMap.get(KVPSymbols.KEY_VERSION);
                             if (version == null && splitURI.size() > 1) {
                                 version = splitURI.get(1);
@@ -388,9 +377,6 @@ public class PetascopeInterface extends HttpServlet {
                 } else if (root.endsWith(XMLSymbols.LABEL_PROCESSCOVERAGE_REQUEST)) {
                     /* ProcessCoverages is defined in the WCPS extension to WcsServer */
                     handleProcessCoverages(request, httpResponse);
-                } else if (root.endsWith(XMLSymbols.LABEL_TRANSACTION)) {
-                    /* Transaction is defined in the WcsServer-T extension to WcsServer */
-                    handleTransaction(request, httpResponse);
                 } else if (root.equals(RequestHandler.GET_CAPABILITIES)) {
                     // extract the version that the client prefers
                     Document doc = XMLUtil.buildDocument(null, request);
@@ -409,7 +395,8 @@ public class PetascopeInterface extends HttpServlet {
                         version = ConfigManager.WCS_DEFAULT_VERSION;  // by default the latest supported by petascope
                     }
                     handleWcsRequest(version, root, request, httpResponse, httpRequest);
-                } else if (root.equals(RequestHandler.DESCRIBE_COVERAGE) || root.equals(RequestHandler.GET_COVERAGE) || root.equals(RequestHandler.PROCESS_COVERAGE)) {
+                } else if (root.equals(RequestHandler.DESCRIBE_COVERAGE) || root.equals(RequestHandler.GET_COVERAGE) || root.equals(RequestHandler.PROCESS_COVERAGE)
+                           || root.equals(RequestHandler.INSERT_COVERAGE) || root.equals(RequestHandler.DELETE_COVERAGE) || root.equals(RequestHandler.UPDATE_COVERAGE)) {
                     Document doc = XMLUtil.buildDocument(null, request);
                     String version = doc.getRootElement().getAttributeValue(KVPSymbols.KEY_VERSION);
                     handleWcsRequest(version, root, request, httpResponse, httpRequest);
@@ -751,19 +738,6 @@ public class PetascopeInterface extends HttpServlet {
                 } catch (IOException e) {
                 }
             }
-        }
-    }
-
-    private void handleTransaction(String request, HttpServletResponse httpResponse)
-            throws WCSTException, RasdamanException, WCPSException, PetascopeException, SecoreException {
-        try {
-            String outputXml = wcst.Transaction(request);
-            PrintWriter out = new PrintWriter(httpResponse.getOutputStream());
-            httpResponse.setContentType("text/xml; charset=utf-8");
-            out.write(outputXml);
-            out.flush();
-        } catch (IOException e) {
-            throw new PetascopeException(ExceptionCode.IOConnectionError, e.getMessage(), e);
         }
     }
 
