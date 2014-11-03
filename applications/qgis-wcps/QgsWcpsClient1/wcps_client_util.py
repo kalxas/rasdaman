@@ -97,13 +97,13 @@ class WCPSUtil(object):
 		except urllib2.URLError as url_ERROR:
 			if hasattr(url_ERROR, 'reason'):
 				print '\n', time.strftime("%Y-%m-%dT%H:%M:%S%Z"), "- ERROR:  Server not accessible -", url_ERROR.reason
-				servError = url_ERROR.read()
+				servError = str(url_ERROR)
 				return_arr = {"status":-1,
 								"message":servError}
 				return return_arr
 			elif hasattr(url_ERROR, 'code'):
 				print time.strftime("%Y-%m-%dT%H:%M:%S%Z"), "- ERROR:  The server couldn\'t fulfill the request - Code returned:  ", url_ERROR.code, url_ERROR.read()
-				err_msg = str(url_ERROR.code)+'--'+url_ERROR.read()
+				err_msg = str(url_ERROR.code)+'--'+str(url_ERROR)
 				return_arr = {"status":-1,
 								"message":err_msg}
 				return return_arr

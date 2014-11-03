@@ -10,7 +10,7 @@
 name=QgsWcpsClient1
 qgisMinimumVersion=2.0
 description=Makes WCPS requests to the server
-version=1.0
+version=1.1
 author=Bidesh Thapaliya,Dimitar Misev
 email=misev@rasdaman.com
 
@@ -19,17 +19,19 @@ email=misev@rasdaman.com
 # Optional items:
 
 # Uncomment the following line and add your changelog:
-# changelog=
+changelog=Following are the changes made:
+	1.1 - Minor release to fix the exception handling
+	1.0 - Initial Release
 
 # Tags are comma separated with spaces allowed
-tags=wcps
+tags=wcps,ogc
 
-homepage=
-tracker=
-repository=
+homepage=http://www.rasdaman.org
+tracker=http://http://www.rasdaman.org
+repository=http://www.rasdaman.org/browser/applications/qgis-wcps
 icon=icon.png
 # experimental flag
 experimental=False
 
-# deprecated flag (applies to the whole plugin, not just a single version)
+# False flag (applies to the whole plugin, not just a single version)
 deprecated=False
