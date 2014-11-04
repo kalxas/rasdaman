@@ -185,7 +185,7 @@ QtConcat::evaluate( QtDataList* inputList )
         TypeFactory::addTempType( resultMDDType );
         
         // compute the result domain
-        r_Point tVector[operandList->size()]; // save the translating vectors for all arrays except the first
+        vector<r_Point> tVector(operandList->size()); // save the translating vectors for all arrays except the first
         r_Minterval destinationDomain;
         int i = 0;
         for( iter=operandList->begin(); iter!=operandList->end(); iter++, i++ ) {

@@ -128,5 +128,4 @@ template class vector<char >;
 template class vector<r_Data_Format >;
 template class vector<unsigned int >;
 
-template class Tile ** fill_n<Tile **, unsigned int, Tile *>(Tile **, unsigned int, Tile * const &);
-
+template class Tile ** std::fill_n<Tile **, unsigned int, Tile *>(Tile **, unsigned int, Tile * const &);
