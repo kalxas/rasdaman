@@ -140,15 +140,6 @@ public:
     leaks may occur in this event.
     */
 
-    static void clearCache() throw (r_Error);
-    /*@Doc:
-    deletes _all_ persistent objects from memory.
-    any (r_Error)s thrown during the deletion/update/insert process are
-    handed up.  the objects are removed before errors can occur.  multiple
-    calls to clearBroker until the method completes are possible.  memory
-    leaks may occur in this event.
-    */
-
     static void init();
     /*@Doc:
     initialize the atomic types and maps
@@ -245,13 +236,6 @@ protected:
     static OId getOIdByName(OId::OIdType type, const char* name) throw (r_Error);
     /*@Doc:
     finds the oid of an object with the given type and name
-    */
-
-    static void clearMap(DBObjectPMap& theMap) throw (r_Error);
-    /*@Doc:
-    deletes entries in this map as long as they are not cached
-    (r_Error) is thrown when there is a problem in ~DBObject.
-    the object is removed from the map though.
     */
 
     static void completelyClearMap(DBObjectPMap& theMap) throw (r_Error);
@@ -505,4 +489,3 @@ private:
 };
 
 #endif
-

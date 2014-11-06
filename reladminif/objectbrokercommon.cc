@@ -318,6 +318,8 @@ ObjectBroker::getObjectByOId(const OId& id) throw (r_Error)
         retval = ObjectBroker::isInMemory(id);
         if (retval == 0)
         {
+            // TODO: check if we have enough memory available, if not, remove
+            // some not used objects from memory before loading from the DB
             switch (id.getType())
             {
             case OId::MDDOID:
@@ -598,57 +600,6 @@ ObjectBroker::getObjectByName(OId::OIdType type, const char* name) throw (r_Erro
 }
 
 void
-ObjectBroker::clearMap(DBObjectPMap& theMap) throw (r_Error)
-{
-    RMDBGENTER(11, RMDebug::module_adminif, "ObjectBroker", "clearMap()");
-    DBObjectPVector test;
-    test.reserve(theMap.size());
-    if (AdminIf::isAborted() || AdminIf::isReadOnlyTA())
-    {
-        //only delete objects that are modifed/not cached
-        for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++ )
-        {
-            if ((*i).second->isModified() || !(*i).second->isCached())
-            {
-                RMDBGMIDDLE(117, RMDebug::module_adminif, "ObjectBroker", "preparing to delete " << (*i).second->getOId() << " " << (*i).second->getOId().getType());
-                test.push_back((*i).second);
-                //(*i).second = 0; not good because of circular dependencies in the destructors
-            }
-            else
-            {
-                RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "leaving alone " << (*i).second->getOId() << " " << (*i).second->getOId().getType());
-            }
-        }
-    }
-    else
-    {
-        //only delete objects that are not cached.  validate the cached objects.
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "theMap are validated");
-        for (DBObjectPMap::iterator i = theMap.begin(); i != theMap.end(); i++ )
-        {
-            if ((*i).second->isCached())
-            {
-                RMDBGMIDDLE(117, RMDebug::module_adminif, "ObjectBroker", "leaving alone because of cache " << (*i).second->getOId() << " " << (*i).second->getOId().getType());
-                (*i).second->validate();
-            }
-            else
-            {
-                RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "preparing to delete " << (*i).second->getOId() << " " << (*i).second->getOId().getType());
-                test.push_back((*i).second);
-                //(*i).second = 0; not good because of circular dependencies in the destructors
-            }
-        }
-    }
-    for (DBObjectPVector::iterator i2 = test.begin(); i2 != test.end(); i2++)
-    {
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", "deleting " << (*i2)->getOId() << " " << (*i2)->getOId().getType() << " size " << (*i2)->getMemorySize());
-        delete (*i2);
-    }
-    test.clear();
-    RMDBGEXIT(11, RMDebug::module_adminif, "ObjectBroker", "clearMap() ");
-}
-
-void
 ObjectBroker::completelyClearMap(DBObjectPMap& theMap) throw (r_Error)
 {
     RMDBGENTER(11, RMDebug::module_adminif, "ObjectBroker", "completelyClearMap()");
@@ -672,30 +623,6 @@ ObjectBroker::completelyClearMap(DBObjectPMap& theMap) throw (r_Error)
 
 void
 ObjectBroker::clearBroker() throw (r_Error)
-{
-    //do not ever clear the ATOMICTYPEOID map! those are on the stack, not heap!
-//  ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::UDFOID));
-//  ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::UDFPACKAGEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDCOLLOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDHIERIXOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDRCIXOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::DBTCINDEXOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::INLINETILEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::STORAGEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::SETTYPEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDDOMTYPEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDDIMTYPEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDBASETYPEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDTYPEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::STRUCTTYPEOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::DBMINTERVALOID));
-    ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::BLOBOID));
-    theTileIndexMappings.clear();
-}
-
-void
-ObjectBroker::clearCache() throw (r_Error)
 {
     //do not ever clear the ATOMICTYPEOID map! those are on the stack, not heap!
 //  ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::UDFOID));
@@ -789,8 +716,7 @@ ObjectBroker::loadDBStorage(const OId& id) throw (r_Error)
     {
         retval = new DBStorageLayout(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair(retval->getOId(), retval);
-        theDBStorages.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -813,8 +739,7 @@ ObjectBroker::loadSetType(const OId& id) throw (r_Error)
     {
         retval = new SetType(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair(retval->getOId(), retval);
-        theSetTypes.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -837,8 +762,7 @@ ObjectBroker::loadMDDType(const OId& id) throw (r_Error)
     {
         retval = new MDDType(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair(retval->getOId(),retval);
-        theMDDTypes.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -862,8 +786,7 @@ ObjectBroker::loadMDDBaseType(const OId& id) throw (r_Error)
     {
         retval = new MDDBaseType(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair(retval->getOId(), retval);
-        theMDDBaseTypes.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -887,8 +810,7 @@ ObjectBroker::loadMDDDimensionType(const OId& id) throw (r_Error)
     {
         retval = new MDDDimensionType(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair(retval->getOId(), retval);
-        theMDDDimensionTypes.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -912,8 +834,7 @@ ObjectBroker::loadMDDDomainType(const OId& id) throw (r_Error)
     {
         retval = new MDDDomainType(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair(retval->getOId(), retval);
-        theMDDDomainTypes.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -937,8 +858,7 @@ ObjectBroker::loadStructType(const OId& id) throw (r_Error)
     {
         retval = new StructType(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair(retval->getOId(), retval);
-        theStructTypes.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -962,8 +882,7 @@ ObjectBroker::loadDBMinterval(const OId& id) throw (r_Error)
     {
         retval = new DBMinterval(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair( retval->getOId(), retval);
-        theDBMintervals.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -989,9 +908,8 @@ ObjectBroker::loadDBMDDObj(const OId& id) throw (r_Error)
     {
         retval = new DBMDDObj(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair(retval->getOId(), retval);
         TALK( "found object, inserting " << retval->getOId() << " into result list" );
-        theDBMDDObjs.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -1018,8 +936,7 @@ ObjectBroker::loadMDDSet(const OId& id) throw (r_Error)
     {
         retval = new DBMDDSet(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair(retval->getOId(),retval);
-        theMDDSets.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -1042,9 +959,8 @@ ObjectBroker::loadDBTCIndex(const OId& id) throw (r_Error)
     {
         retval = new DBTCIndex(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair(retval->getOId(), retval);
         retval->setCached(true);
-        theDBTCIndexs.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -1067,9 +983,8 @@ ObjectBroker::loadDBHierIndex(const OId& id) throw (r_Error)
     {
         retval = new DBHierIndex(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair(retval->getOId(),retval);
         retval->setCached(true);
-        theDBHierIndexs.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -1093,8 +1008,7 @@ ObjectBroker::loadBLOBTile(const OId& id) throw (r_Error)
     {
         retval = new BLOBTile(id);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair( retval->getOId(),retval);
-        theBLOBTiles.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -1118,8 +1032,7 @@ ObjectBroker::loadDBRCIndexDS(const OId& id) throw (r_Error)
         retval = new DBRCIndexDS(id);
         retval->setCached(true);
         RMDBGONCE(11, RMDebug::module_adminif, "ObjectBroker", "found in db");
-        DBObjectPPair myPair( retval->getOId(),retval);
-        theRCIndexes.insert(myPair);
+        registerDBObject(retval);
     }
     catch (r_Error& error)
     {
@@ -1162,4 +1075,3 @@ ObjectBroker::getAllAtomicTypes() throw (r_Error)
     RMDBGEXIT(11, RMDebug::module_adminif, "ObjectBroker", "getAllAtomicTypes() ");
     return retval;
 }
-
