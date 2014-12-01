@@ -54,8 +54,8 @@ mavenSetup:
 	mkdir -p $(MAVEN_BASE_FOLDER)
 	mkdir -p $(MAVEN_COMPLETE_STRUCT)
 	cp pom.xml $(MAVEN_BASE_FOLDER)
-	cp -r $(realpath ./src/rasj) $(MAVEN_COMPLETE_STRUCT)
-	cp -r $(realpath ./src/org) $(MAVEN_COMPLETE_STRUCT)
+	cp -r src/rasj $(MAVEN_COMPLETE_STRUCT)
+	cp -r src/org $(MAVEN_COMPLETE_STRUCT)
 
 mavenJar : mavenSetup
 	cd $(MAVEN_BASE_FOLDER) && mvn package
