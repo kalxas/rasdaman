@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<domainSet  xmlns:gml="http://www.opengis.net/gml/3.2">
+    <RectifiedGrid dimension="3" gml:id="OIL_SPILL_MONTEREY_BAY-grid">
+        <limits>
+            <GridEnvelope>
+                <low>0 0 0</low>
+                <high>95 3083 1265</high>
+            </GridEnvelope>
+        </limits>
+        <axisLabels>t x y</axisLabels>
+        <gml:origin>
+            <gml:Point gml:id="OIL_SPILL_MONTEREY_BAY-origin" srsName="http://www.opengis.net/def/crs-compound?1=CRS:1&amp;2=EPSG:31463" uomLabels="">
+                <gml:pos>0.0 27.25514 27.25514</gml:pos>
+            </gml:Point>
+        </gml:origin>
+        <gml:offsetVector srsName="http://www.opengis.net/def/crs-compound?1=CRS:1&amp;2=EPSG:31463">1.0 0 0</gml:offsetVector>
+        <gml:offsetVector srsName="http://www.opengis.net/def/crs-compound?1=CRS:1&amp;2=EPSG:31463">0 0.00103 0</gml:offsetVector>
+        <gml:offsetVector srsName="http://www.opengis.net/def/crs-compound?1=CRS:1&amp;2=EPSG:31463">0 0 0.0025</gml:offsetVector>
+    </RectifiedGrid>
+</domainSet>

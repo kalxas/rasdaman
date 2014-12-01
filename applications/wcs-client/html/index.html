@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Web Coverage Service Client</title>
+    <link href="../css/jquery-ui/jquery-ui.min.css" type="text/css" rel="stylesheet"/>
+    <link href="../css/bootstrap/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <link href="../css/bootstrap/bootstrap-theme.min.css" type="text/css" rel="stylesheet"/>
+    <link href="../css/pretify/prettify.css" type="text/css" rel="stylesheet"/>
+    <link href="../css/jquery.collapse/collapse.css" rel="stylesheet"/>
+    <script src="../js/lib/jquery/jquery-1.11.1.min.js"></script>
+    <script src="../js/lib/bootstrap/bootstrap.min.js"></script>
+    <script src="../js/lib/prettify/prettify.js"></script>
+    <style>
+        .ui-autocomplete {
+            max-height: 200px;
+            overflow-y: auto;
+            /* prevent horizontal scrollbar */
+            overflow-x: hidden;
+        }
+
+        html .ui-autocomplete {
+            max-height: 200px;
+        }
+
+        fieldset.service-provider {
+            border: 1px groove #ddd !important;
+            padding: 0 1.4em 1.4em 1.4em !important;
+            margin: 0 0 1.5em 0 !important;
+            box-shadow: 0px 0px 0px 0px #000;
+        }
+
+        legend.service-provider {
+            font-size: 1.2em !important;
+            font-weight: bold !important;
+            text-align: left !important;
+            width: auto;
+            padding: 0 10px;
+            border-bottom: none;
+        }
+
+        .top-buffer {
+            margin-top: 15px;
+        }
+
+        .col-centered {
+            float: none;
+            margin: 0 auto;
+        }
+
+        .important-text {
+            border: 0;
+            color: #f6931f;
+            font-weight: bold;
+        }
+
+        label {
+            display: block;
+        }
+
+        .validationMessage {
+            color: Red;
+        }
+
+        .customMessage {
+            color: Orange;
+        }
+    </style>
+    <script id="customMessageTemplate" type="text/html">
+        <em class="customMessage" data-bind='validationMessage: field'></em>
+    </script>
+</head>
+<body>
+<div data-bind="bootstrapAlert:errorMessage()">
+</div>
+<div id="tabs" data-bind="tabsBinding">
+    <div align="right" style="padding: 10px">
+        <a href="http://www.rasdaman.com/" target="_blank">
+            <img src="../img/rasdaman-edited.png" style="width: 200px;height: auto">
+        </a>
+    </div>
+    <ul>
+        <li><a id="get-capabilities-tab-header" href="#get-capabilities-tab">Get Capabilities</a></li>
+        <li><a id="describe-coverage-tab-header" href="#describe-coverage-tab">Describe Coverage</a></li>
+        <li><a id="get-coverage-tab-header" href="#get-coverage-tab">Get Coverage</a></li>
+        <li><a id="process-coverages-tab-header" href="#process-coverages-tab">Process Coverages</a></li>
+    </ul>
+    <div id="get-capabilities-tab" data-bind="enabledTab:true, with:getCapabilitiesTab()">
+        <!--Begin select endpoint row-->
+        <div class="row top-buffer" id="get-capabilities-row">
+            <div class="col-lg-8 col-centered">
+                <div class="input-group input-group-lg">
+                            <span class="input-group-addon">
+                            WCS service endpoint:
+                            </span>
+                    <input id="wcs-server-address" type="text" class="form-control" placeholder="WCS server endpoint"
+                           data-bind="value:wcsEndpoint"
+                           value=""/>
+                            <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="get-capabilities-button"
+                                    data-bind="click:getCapabilities">Get Capabilities
+                            </button>
+                            </span>
+                </div>
+            </div>
+        </div>
+        <div class="row top-buffer"
+             data-bind="if:serverCapabilities() && serverCapabilities().contents!=null">
+            <div class="col-lg-12">
+                <div data-bind="jQueryCollapse:true" class="top-buffer">
+                    <h3 class="collapsible open">Available coverages</h3>
+
+                    <div class="collapsible">
+                        <div data-bind="foreach:serverCapabilities().contents.coverageSummary" style="overflow-y: scroll; max-height: 200px;">
+                                    <span>
+                                    <a data-bind="text:coverageId,click:$root.getCapabilitiesTab().openDescription">
+                                    </a>
+                                    <span data-bind="if:$index()!=($root.getCapabilitiesTab().serverCapabilities().contents.coverageSummary.length-1)">
+                                    <span data-bind="text:','">
+                                    </span>
+                                    </span>
+                                    </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row top-buffer"
+             data-bind="if:serverCapabilities() && serverCapabilities().serviceIdentification!=null">
+            <div class="col-lg-12">
+                <div data-bind="jQueryCollapse:true" class="top-buffer">
+                    <h3 class="collapsible open">Service identification</h3>
+
+                    <div class="collapsible">
+                        <fieldset class="service-provider">
+                            <!--<legend class="service-provider">Service identification</legend>-->
+                            <div class="control-group">
+                                <table>
+                                    <tbody>
+                                    <!--Service title-->
+                                    <tr data-bind="if:serverCapabilities().serviceIdentification.title.length!=0">
+                                        <td>
+                                            <label class="control-label input-label" for="serviceTitle">Title:</label>
+                                        </td>
+                                        <td>
+                                                        <span id="serviceTitle"
+                                                              data-bind="text:serverCapabilities().serviceIdentification.title[0].value">
+                                                        </span>
+                                        </td>
+                                    </tr>
+                                    <!--Service abstract-->
+                                    <tr data-bind="if:serverCapabilities().serviceIdentification.abstract.length!=0">
+                                        <td>
+                                            <label class="control-label input-label" for="serviceAbstract">Abstract:</label>
+                                        </td>
+                                        <td>
+                                                        <span id="serviceAbstract"
+                                                              data-bind="text:serverCapabilities().serviceIdentification.abstract[0].value">
+                                                        </span>
+                                        </td>
+                                    </tr>
+                                    <!--Service fees-->
+                                    <tr data-bind="if: serverCapabilities().serviceIdentification.fees!=null">
+                                        <td>
+                                            <label class="control-label input-label" for="serviceFees">Fees:</label>
+                                        </td>
+                                        <td>
+                                                        <span id="serviceFees"
+                                                              data-bind="text:serverCapabilities().serviceIdentification.fees">
+                                                        </span>
+                                        </td>
+                                    </tr>
+                                    <!--Service access constraints-->
+                                    <tr data-bind="if:  serverCapabilities().serviceIdentification.accessConstraints!=null">
+                                        <td>
+                                            <label class="control-label input-label"
+                                                   for="serviceAccessConstraints">Fees:</label>
+                                        </td>
+                                        <td>
+                                                        <span id="serviceAccessConstraints"
+                                                              data-bind="text:serverCapabilities().serviceIdentification.accessConstraints">
+                                                        </span>
+                                        </td>
+                                    </tr>
+                                    <!--Service type-->
+                                    <tr data-bind="if:  serverCapabilities().serviceIdentification.serviceType!=null">
+                                        <td>
+                                            <label class="control-label input-label" for="serviceAccessConstraints">Service
+                                                type:</label>
+                                        </td>
+                                        <td>
+                                                        <span id="serviceType"
+                                                              data-bind="text:serverCapabilities().serviceIdentification.serviceType">
+                                                        </span>
+                                        </td>
+                                    </tr>
+                                    <!--Service type version-->
+                                    <tr data-bind="if: serverCapabilities().serviceIdentification.serviceTypeVersion!=null">
+                                        <td>
+                                            <label class="control-label input-label" for="serviceTypeVersion">Service type
+                                                version:</label>
+                                        </td>
+                                        <td>
+                                                        <span id="serviceTypeVersion"
+                                                              data-bind="text:serverCapabilities().serviceIdentification.serviceTypeVersion[0]">
+                                                        </span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row top-buffer"
+             data-bind="if:serverCapabilities() && serverCapabilities().serviceProvider!=null">
+            <div class="col-lg-12">
+                <div data-bind="jQueryCollapse:true" class="top-buffer">
+                    <h3 class="collapsible">Service provider</h3>
+
+                    <div class="collapsible">
+                        <fieldset class="service-provider">
+                            <!--<legend class="service-provider"></legend>-->
+                            <div class="control-group">
+                                <table>
+                                    <tbody>
+                                    <!--Provider name-->
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.providerName!=null">
+                                        <td><label class="control-label input-label" for="serviceProviderName">Provider
+                                            name:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="serviceProviderName"
+                                                          data-bind="text:serverCapabilities().serviceProvider.providerName">
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <!--Provider site-->
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.providerSite!=null">
+                                        <td>
+                                            <label class="control-label input-label" for="serviceProviderSite">Provider
+                                                site:</label>
+                                        </td>
+                                        <td>
+                                            <a id="serviceProviderSite"
+                                               data-bind="attr:{href : serverCapabilities().serviceProvider.providerSite.value}">
+                                                <span data-bind="text:serverCapabilities().serviceProvider.providerSite.value"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <!--Individual name-->
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.individualName!=null">
+                                        <td>
+                                            <label class="control-label input-label" for="serviceContactIndividual">Contact
+                                                person:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="serviceContactIndividual"
+                                                          data-bind="text:serverCapabilities().serviceProvider.serviceContact.individualName">
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <!--Position name-->
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.positionName!=null">
+                                        <!--Position name-->
+                                        <td>
+                                            <label class="control-label input-label" for="serviceContactPositionName">Position
+                                                name:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="serviceContactPositionName"
+                                                          data-bind="text:serverCapabilities().serviceProvider.serviceContact.positionName">
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <!--Role-->
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.role!=null">
+                                        <!--Position name-->
+                                        <td>
+                                            <label class="control-label input-label" for="serviceContactRole">Role:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="serviceContactRole"
+                                                          data-bind="text:serverCapabilities().serviceProvider.serviceContact.role">
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo.hoursOfService">
+                                        <!--Hours of service -->
+                                        <td>
+                                            <label class="control-label input-label" for="contactHoursOfService">
+                                                Hours of service:
+                                            </label>
+                                        </td>
+                                        <td>
+                                                    <span id="contactHoursOfService" data-bind="text:serverCapabilities().serviceProvider.serviceContact.contactInfo.hoursOfService">
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo.contactInstructions">
+                                        <!--Contact instructions -->
+                                        <td>
+                                            <label class="control-label input-label" for="contactInstructions">Contact
+                                                instructions:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="contactInstructions"
+                                                          data-bind="text:serverCapabilities().serviceProvider.serviceContact.contactInfo.contactInstructions">
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <!--Delivery point-->
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo.address && serverCapabilities().serviceProvider.serviceContact.contactInfo.address.deliveryPoint.lenght>0">
+                                        <td>
+                                            <label class="control-label input-label" for="contactDeliveryPoint">Delivery
+                                                point:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="contactDeliveryPoint"
+                                                          data-bind="serverCapabilities().serviceProvider.serviceContact.contactInfo.address.deliveryPoint[0]">
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <!--City-->
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo.address && serverCapabilities().serviceProvider.serviceContact.contactInfo.address.city ">
+                                        <td>
+                                            <label class="control-label input-label" for="contactCity">City:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="contactCity"
+                                                          data-bind="text:serverCapabilities().serviceProvider.serviceContact.contactInfo.address.city">
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <!--Postal code-->
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo.address && serverCapabilities().serviceProvider.serviceContact.contactInfo.address.postalCode.length>0">
+                                        <td>
+                                            <label class="control-label input-label" for="contactPostalCode">Postal
+                                                code:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="contactPostalCode"
+                                                          data-bind="foreach:serverCapabilities().serviceProvider.serviceContact.contactInfo.address.postalCode">
+                                                    <span data-bind="text:$data"></span>
+                                                    <span> </span>
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <!--Administrative area-->
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo.address && serverCapabilities().serviceProvider.serviceContact.contactInfo.address.administrativeArea">
+                                        <td>
+                                            <label class="control-label input-label"
+                                                   for="contactAdministrativeArea">Administrative
+                                                area:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="contactAdministrativeArea"
+                                                          data-bind="text:serverCapabilities().serviceProvider.serviceContact.contactInfo.address.administrativeArea">
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <!--Country-->
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo.address && serverCapabilities().serviceProvider.serviceContact.contactInfo.address.country.length>0">
+                                        <td>
+                                            <label class="control-label input-label"
+                                                   for="contactCountry">Country:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="contactCountry"
+                                                          data-bind="foreach:serverCapabilities().serviceProvider.serviceContact.contactInfo.address.country">
+                                                    <span data-bind="text:$data"></span>
+                                                    <span> </span>
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <!--Email-->
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo.address && serverCapabilities().serviceProvider.serviceContact.contactInfo.address.electronicMailAddress.length>0">
+                                        <td>
+                                            <label class="control-label input-label" for="contactEmail">Electronic
+                                                mail
+                                                address:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="contactEmail"
+                                                          data-bind="foreach:serverCapabilities().serviceProvider.serviceContact.contactInfo.address.electronicMailAddress">
+                                                    <a target="_top"
+                                                       data-bind="attr:{href: 'mailto:'+$data}">
+                                                        <span data-bind="text: $data"> </span>
+                                                    </a>
+                                                    <span> </span>
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <!--Phone-->
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo && serverCapabilities().serviceProvider.serviceContact.contactInfo.phone!=null">
+                                        <td>
+                                            <label class="control-label input-label"
+                                                   for="telephones">Telephone:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="telephones"
+                                                          data-bind="foreach:serverCapabilities().serviceProvider.serviceContact.contactInfo.phone.voice">
+                                                    <span data-bind="text:$data"></span>
+                                                    <span> </span>
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    <tr data-bind="if:serverCapabilities().serviceProvider.serviceContact!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo!=null && serverCapabilities().serviceProvider.serviceContact.contactInfo && serverCapabilities().serviceProvider.serviceContact.contactInfo.phone!=null">
+                                        <td>
+                                            <label class="control-label input-label"
+                                                   for="facsimile">Facsimile:</label>
+                                        </td>
+                                        <td>
+                                                    <span id="facsimile"
+                                                          data-bind="foreach:serverCapabilities().serviceProvider.serviceContact.contactInfo.phone.facsimile">
+                                                    <span data-bind="text:$data"></span>
+                                                    <span> </span>
+                                                    </span>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row top-buffer"
+             data-bind="if:serverCapabilities() && serverCapabilities().serviceProvider!=null">
+            <div class="col-lg-12">
+                <div data-bind="jQueryCollapse:true" class="top-buffer">
+                    <h3 class="collapsible">GML server capabilities document</h3>
+
+                    <div class="collapsible">
+                        <?prettify lang=xml?>
+        <pre class="prettyprint linenums" data-bind="prettifyXML:serverCapabilitiesDocument()"
+             style="overflow-y: scroll; height: 400px;">
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--End select endpoint row-->
+    </div>
+    <div id="describe-coverage-tab" data-bind="if:isDescribeCoverageEnabled(),enabledTab:isDescribeCoverageEnabled()">
+        <div class="row top-buffer">
+            <div class="col-lg-8 col-centered">
+                <div class="input-group input-group-lg">
+                        <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-globe">
+                        </span>
+                        </span>
+                    <input data-bind="autocompleteBox: getCapabilitiesTab().serverCapabilities().contents.coverageSummary"
+                           id="coverage-id-list" type="text" class="form-control"
+                           placeholder="Input coverage ID or part of it"/>
+                        <span class="input-group-btn">
+                        <button data-bind="click:describeCoverageTab().describeCoverage" class="btn btn-default"
+                                type="button"
+                                id="describe-coverage-button">
+                            Describe Coverage
+                        </button>
+                        </span>
+                </div>
+            </div>
+        </div>
+        <div class="row top-buffer"
+             data-bind="if:describeCoverageTab().coverageDescriptions()!=null && describeCoverageTab().coverageDescriptions().coverageDescription.length>0">
+            <div data-bind="with:describeCoverageTab()">
+                <p>Coverage <span class="important-text"
+                                  data-bind="text:coverageDescriptions().coverageDescription[0].coverageId"> </span> is of type
+                    <span class="important-text" data-bind="text:coverageDescriptions().coverageDescription[0].serviceParameters.coverageSubtype"> </span>
+                    <span data-bind="if:coverageDescriptions().coverageDescription[0].boundedBy.envelope.srsName"> with Coordinate Reference System <span class="important-text"
+                                                                                                                                                          data-bind="text:coverageDescriptions().coverageDescription[0].boundedBy.envelope.srsName"></span></span>
+                    with <span class="important-text" data-bind="text:coverageDescriptions().coverageDescription[0].boundedBy.envelope.srsDimension"> </span> axes:
+                </p>
+                <ul data-bind="foreach:coverageDescriptions().coverageDescription[0].boundedBy.envelope.axisLabels">
+                    <li>
+                        <span class="important-text" data-bind="text:$data"> </span>
+                            <span data-bind="if:$parent.coverageDescriptions().coverageDescription[0].boundedBy.envelope.uomLabels.length ==  $parent.coverageDescriptions().coverageDescription[0].boundedBy.envelope.axisLabels.length">
+                            (measured in <span class="important-text" data-bind="text:$parent.coverageDescriptions().coverageDescription[0].boundedBy.envelope.uomLabels[$index()]"></span> )
+                            </span>
+                        with domain extent from <span class="important-text" data-bind="text:$parent.coverageDescriptions().coverageDescription[0].boundedBy.envelope.lowerCorner[$index()]"></span>
+                        to <span class="important-text" data-bind="text:$parent.coverageDescriptions().coverageDescription[0].boundedBy.envelope.upperCorner[$index()]"></span>
+                    </li>
+                </ul>
+                <p>with range type:</p>
+                <ul data-bind="foreach:coverageDescriptions().coverageDescription[0].rangeType.dataRecord.field">
+                    <li>
+                        <span class="important-text" data-bind="text:$data"></span>
+                        <span data-bind="if:$parent.coverageDescriptions().coverageDescription[0].rangeType.dataRecord.quantity.length>0">
+                        of type
+                            <span class="important-text" data-bind="text:$parent.coverageDescriptions().coverageDescription[0].rangeType.dataRecord.quantity[$index()]">
+                            </span>
+                        </span>
+
+                        <span data-bind="if:$parent.coverageDescriptions().coverageDescription[0].rangeType.dataRecord.quantity.length==0">
+                        of type <span class="important-text">unknown</span>
+                        </span>
+
+                        <span data-bind="if:$parent.coverageDescriptions().coverageDescription[0].rangeType.dataRecord.code.length>0">
+                        , measured in
+                            <span class="important-text" data-bind="text:$parent.coverageDescriptions().coverageDescription[0].rangeType.dataRecord.code[$index()]">
+                            </span>
+                        </span>
+                    </li>
+                </ul>
+                <p> with native format <span class="important-text" data-bind="text:coverageDescriptions().coverageDescription[0].serviceParameters.nativeFormat"> </span></p>
+            </div>
+        </div>
+        <div class="row top-buffer"
+             data-bind="if:describeCoverageTab()&& describeCoverageTab().describeCoverageDocument()!=null">
+            <div class="col-lg-12">
+                <div data-bind="jQueryCollapse:true" class="top-buffer">
+                    <h3 class="collapsible">GML coverage description</h3>
+
+                    <div class="collapsible">
+                        <?prettify lang=xml?>
+        <pre class="prettyprint linenums" data-bind="prettifyXML:describeCoverageTab().describeCoverageDocument()"
+             style="overflow-y: scroll; height: 400px;">
+</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="get-coverage-tab" data-bind="if:isGetCoverageEnabled(),enabledTab:isGetCoverageEnabled()">
+        <div class="row">
+            <div class="col-centered">
+                <p>You have selected the coverage with ID: <span class="important-text"
+                                                                 data-bind="text:describeCoverageTab().coverageDescriptions().coverageDescription[0].coverageId"> </span>
+                </p>
+            </div>
+        </div>
+        <!--BEGIN:Core-->
+        <div class="row top-buffer">
+            <div class="col-lg-12">
+                <div data-bind="if:getCoverageTab()!=null">
+                    <div data-bind="jQueryCollapse:true" class="top-buffer">
+                        <h3 class="collapsible">Core</h3>
+
+                        <div class="collapsible row">
+                            <div class="col-lg-12 col-lg-offset-0">
+                                <div class="row" data-bind="foreach:getCoverageTab().core.subsets">
+                                    <div>
+                                            <span>
+                                            Subsetting by
+                                            <span><input type="radio" value="trim"
+                                                         data-bind="checked: isTrim, attr:{name:label}"/> triming</span>
+                                            <span><input type="radio" value="slice"
+                                                         data-bind="checked: isTrim, attr:{name:label}"/> slicing</span>
+                                            along axis <span class="important-text" data-bind="text:label"></span> with extent
+                                            <span> <span class="important-text" data-bind="text:lowerCorner"></span> - <span class="important-text" data-bind="text:upperCorner"></span></span>:
+                                            <span data-bind="if:isTrim()=='trim'">
+                                            <span>
+                                            <span>from <input type="text" data-bind="value:sliderMin"/>
+                                            <span data-bind="if:$root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.uomLabels.length ==  $root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.axisLabels.length">
+                                            <span class="important-text"
+                                                  data-bind="text:$root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.uomLabels[$index()]"></span>
+                                            </span>
+                                            <span data-bind="if:$root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.uomLabels.length !=  $root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.axisLabels.length">
+                                            deg
+                                            </span>
+                                            </span>
+                                            <span>to <input type="text" data-bind="value:sliderMax"/>
+                                            <span data-bind="if:$root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.uomLabels.length ==  $root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.axisLabels.length">
+                                            <span class="important-text"
+                                                  data-bind="text:$root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.uomLabels[$index()]"></span>
+                                            </span>
+                                            <span data-bind="if:$root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.uomLabels.length !=  $root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.axisLabels.length">
+                                            deg
+                                            </span>
+                                            </span>
+                                            </span>
+                                            <!--<div data-bind="jQueryDoubleSlider:$data">-->
+                                            <!--</div>-->
+                                            </span>
+                                            <span data-bind="if:isTrim()!='trim'">
+                                            <span> at
+                                            <span> <input type="text" data-bind="value:sliderMin"/></span>
+                                            <span data-bind="if:$root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.uomLabels.length ==  $root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.axisLabels.length">
+                                            <span class="important-text"
+                                                  data-bind="text:$root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.uomLabels[$index()]"></span>
+                                            </span>
+                                            <span data-bind="if:$root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.uomLabels.length !=  $root.describeCoverageTab().coverageDescriptions().coverageDescription[0].boundedBy.envelope.axisLabels.length">
+                                            deg
+                                            </span>
+                                            </span>
+                                            <!--<div data-bind="jQuerySlider:$data">-->
+                                            <!--</div>-->
+                                            </span>
+                                            </span>
+
+                                    </div>
+                                    <br/>
+                                </div>
+                                <div class="row">
+                                    <table cellspacing="10" cellpadding="10">
+                                        <tbody>
+                                        <tr>
+                                            <td style="padding: 5px">
+                                                <label for="select-coverage-format">Select coverage format:</label>
+                                            </td>
+                                            <td style="padding: 5px">
+                                                <select id="select-coverage-format"
+                                                        data-bind="options: getCapabilitiesTab().serverCapabilities().serviceMetadata.formatSupported,optionsCaption: 'Choose coverage encoding', value:getCoverageTab().selectedFormat"></select>
+                                            </td>
+                                            <td style="padding: 5px">
+                                                <label for="multipart-format">Multipart:</label>
+                                            </td>
+                                            <td style="padding: 5px">
+                                                <input id="multipart-format" type="checkbox" data-bind="checked: getCoverageTab().multipart"/>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--END:Core-->
+        <!--BEGIN:Range subsetting extension-->
+        <div data-bind="if:getCoverageTab()!=null && getCoverageTab().rangeSubsettingExtension != null">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div data-bind="if:getCoverageTab()!=null && getCoverageTab().rangeSubsettingExtension != null">
+                        <div data-bind="jQueryCollapse:false" class="top-buffer">
+                            <h3 class="collapsible">Range Subsetting Extension</h3>
+
+                            <div class="collapsible">
+                                <table cellpadding="5">
+                                    <tbody data-bind="foreach:getCoverageTab().rangeSubsettingExtension.selectedRangeComponents()">
+                                    <tr data-bind="if:!end()">
+                                        <td>
+                                            <select data-bind="options: $root.getCoverageTab().rangeSubsettingExtension.availableRangeComponents, value:start"></select>
+                                        </td>
+                                        <td style="padding: 0px 0px 0px 5px">
+                                            <a href="#" data-bind="click: $root.getCoverageTab().rangeSubsettingExtension.removeRange">
+                                                <span class="glyphicon glyphicon-trash"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    <tr data-bind="if:end()">
+                                        <td>
+                                            <select data-bind="options: $root.getCoverageTab().rangeSubsettingExtension.availableRangeComponents, value:start"></select>
+                                            <select data-bind="options: $root.getCoverageTab().rangeSubsettingExtension.availableRangeComponents, value:end"></select>
+                                        </td>
+                                        <td style="padding: 0px 0px 0px 5px">
+                                            <a href="#"
+                                               data-bind="click: $root.getCoverageTab().rangeSubsettingExtension.removeRange">
+                                                <span class="glyphicon glyphicon-trash"></span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                <div class="input-group input-group-lg" style="padding-top: 5px">
+                                    <button data-bind="click: getCoverageTab().rangeSubsettingExtension.addRangeComponent">
+                                        <span>Add range component</span>
+                                    </button>
+                                    <span> &nbsp;&nbsp;&nbsp;</span>
+                                    <button data-bind="click: getCoverageTab().rangeSubsettingExtension.addRangeInterval">
+                                        <span>Add range component interval</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--END:Range subsetting extension-->
+        <!--BEGIN:Scaling extension -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div data-bind="if:getCoverageTab()!=null && getCoverageTab().scalingExtension()!=null">
+                    <div data-bind="jQueryCollapse:false" class="top-buffer">
+                        <h3 class="collapsible">Scaling Extension</h3>
+
+                        <div class="collapsible">
+                            <div>
+                        <span><input name="scaling-extension-options" type="radio" value="scaleByFactor"
+                                     data-bind="checked: getCoverageTab().scalingExtension().scalingMode"/> Scale by factor</span>
+                        <span><input name="scaling-extension-options" type="radio" value="scaleAxesByFactor"
+                                     data-bind="checked: getCoverageTab().scalingExtension().scalingMode"/> Scale axes by factor</span>
+                        <span><input name="scaling-extension-options" type="radio" value="scaleToSize"
+                                     data-bind="checked: getCoverageTab().scalingExtension().scalingMode"/> Scale to size</span>
+                        <span><input name="scaling-extension-options" type="radio" value="scaleToExtent"
+                                     data-bind="checked: getCoverageTab().scalingExtension().scalingMode"/> Scale to extent</span>
+                            </div>
+                            <div data-bind="if:getCoverageTab().scalingExtension().isScaleByFactor()">
+                        <span>
+                        <input id="scaleByFactorInput"
+                               data-bind="value: getCoverageTab().scalingExtension().scaleByFactorValue"/>
+                        </span>
+                            </div>
+                            <div data-bind="if:getCoverageTab().scalingExtension().isScaleAxesByFactor()">
+                                <table>
+                                    <tbody data-bind="foreach:getCoverageTab().scalingExtension().scaleAxesByFactorValues">
+                                    <tr>
+                                        <td><span> Scale axis <span data-bind="text:label" class="important-text"></span> by:</span></td>
+                                        <td><input data-bind="value:value"/></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div data-bind="if:getCoverageTab().scalingExtension().isScaleToSize()">
+                                <table>
+                                    <tbody data-bind="foreach:getCoverageTab().scalingExtension().scaleToSizeValues">
+                                    <tr>
+                                        <td><span> Scale axis <span data-bind="text:label" class="important-text"></span> to:</span></td>
+                                        <td><input data-bind="value:value"/></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div data-bind="if:getCoverageTab().scalingExtension().isScaleToExtent()">
+                                <table>
+                                    <tbody data-bind="foreach:getCoverageTab().scalingExtension().scaleToExtentValues">
+                                    <tr>
+                                        <td><span> Scale axis <span data-bind="text:label" class="important-text"></span> to extent:</span></td>
+                                        <td><input
+                                                data-bind="value:min"/> - <input
+                                                data-bind="value:max"/></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--END:Scaling extension-->
+        <div data-bind="if:getCoverageTab()!=null && getCoverageTab().interpolationExtension != null">
+            <!--Interpolation extension begin-->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div data-bind="if:getCoverageTab()!=null && getCoverageTab().interpolationExtension!= null"
+                         class="top-buffer">
+                        <div data-bind="jQueryCollapse:false">
+                            <h3 class="collapsible">Interpolation Extension</h3>
+
+                            <div class="collapsible" style="display: inline-block;">
+                                <label style="float: left;" for="interpolation-extension-core">Select interpolation method to be applied on all axes:</label>
+                                <select style="float: left" id="interpolation-extension-core"
+                                        data-bind="options: getCoverageTab().interpolationExtension.supportedInterpolations,
+                            optionsCaption: 'Choose the global interpolation method',
+                            optionsText:'text',
+                            value: getCoverageTab().interpolationExtension.selectedInterpolationMethod">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div data-bind="if:getCoverageTab()!=null && getCoverageTab().crsExtension!= null">
+                    <div data-bind="jQueryCollapse:false" class="top-buffer">
+                        <h3 class="collapsible">CRS Extension</h3>
+
+                        <div class="collapsible">
+                            <label for="crs-subsetting-option">Subsetting CRS:</label>
+                            <select id="crs-subsetting-option"
+                                    data-bind="options: getCoverageTab().crsExtension.supportedCrs,
+                        value: getCoverageTab().crsExtension.subsettingCrs,
+                        optionsCaption:'Choose subsetting CRS',
+                        optionsText:'url'">
+                            </select>
+                            <label for="crs-output-option">Output CRS:</label>
+                            <select id="crs-output-option"
+                                    data-bind="options: getCoverageTab().crsExtension.supportedCrs,
+                        value: getCoverageTab().crsExtension.outputCrs,
+                        optionsCaption:'Choose output CRS',
+                        optionsText:'url'">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row top-buffer">
+            <div class="col-lg-12" data-bind="if:getCoverageTab()!=null">
+                <div data-bind="if:getCoverageTab()!=null && getCoverageTab().request()!=null">
+                    <span style="font-weight: bold">The constructed request is:</span> <span data-bind="text:getCoverageTab().request()"></span>
+                </div>
+        <span class="top-buffer">
+            Result will have approximately <span class="important-text" data-bind="text:getCoverageTab().coverageSize()"></span> cells.
+        </span>
+
+                <div class="input-group input-group-lg top-buffer">
+            <span class="input-group-btn">
+            <button class="btn btn-default" type="button" id="get-coverage-button"
+                    data-bind="click:getCoverageTab().getCoverage">
+                Download Coverage
+            </button>
+            </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="process-coverages-tab" data-bind="if:isProcessCoveragesEnabled(),enabledTab:isProcessCoveragesEnabled()">
+        <div class="row top-buffer">
+            <div class="col-lg-12 col-centered">
+                <iframe style="height:650px;border:0; margin:0 auto; overflow: visible;" width="100%" height="100%"
+                        data-bind="attr:{src:processCoverageFrameUrl}">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</div>
+<script data-main="../js/src/main" src="../js/lib/requirejs/require.js"></script>
+</body>
+</html>

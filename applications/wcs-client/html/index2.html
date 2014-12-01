@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <link href="../css/jquery-ui/jquery-ui.min.css" type="text/css" rel="stylesheet"/>
+    <link href="../css/bootstrap/bootstrap.min.css" type="text/css" rel="stylesheet"/>
+    <link href="../css/bootstrap/bootstrap-theme.min.css" type="text/css" rel="stylesheet"/>
+    <style>
+        .ui-autocomplete {
+
+            max-height: 200px;
+            overflow-y: auto;
+            /* prevent horizontal scrollbar */
+            overflow-x: hidden;
+        }
+
+        html .ui-autocomplete {
+            max-height: 200px;
+        }
+
+        fieldset.service-provider {
+            border: 1px groove #ddd !important;
+            padding: 0 1.4em 1.4em 1.4em !important;
+            margin: 0 0 1.5em 0 !important;
+            box-shadow: 0px 0px 0px 0px #000;
+        }
+
+        legend.service-provider {
+            font-size: 1.2em !important;
+            font-weight: bold !important;
+            text-align: left !important;
+            width: auto;
+            padding: 0 10px;
+            border-bottom: none;
+        }
+
+        .top-buffer {
+            margin-top: 20px;
+        }
+
+        .col-centered {
+            float: none;
+            margin: 0 auto;
+        }
+    </style>
+
+<body>
+
+<!--
+<h2>Your seat reservations</h2>
+
+<table>
+    <thead>
+    <tr>
+        <th>Passenger name</th>
+        <th>Meal</th>
+        <th>Surcharge</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody data-bind="foreach: seats">
+    <tr>
+        <td><input data-bind="value: name"/></td>
+        <td><select data-bind="options: $root.availableMeals, value: meal, optionsText: 'mealName'"></select></td>
+        <td data-bind="text: formattedPrice"></td>
+        <td><a href="#" data-bind="click: $root.removeSeat">Remove</a></td>
+    </tr>
+    </tbody>
+</table>
+<button data-bind="click: addSeat, enable: seats().length < 5">Reserve another seat</button>
+<h3 data-bind="visible: totalSurcharge() > 0">
+    Total surcharge: $<span data-bind="text: totalSurcharge().toFixed(2)"></span>
+</h3>
+
+<h2>Your seat reservations (<span data-bind="text: seats().length"></span>)</h2>-->
+<div data-bind="if:selectedComponents().length>0">
+    <div data-bind="foreach:selectedComponents()">
+        <div data-bind="if:end()">
+            <select data-bind="options: $root.availableRanges, value:start"></select>
+            <select data-bind="options: $root.availableRanges, value:end"></select>
+        </div>
+
+        <div data-bind="if:!end()">
+            <select data-bind="options: $root.availableRanges, value:start"></select>
+        </div>
+
+    </div>
+</div>
+
+<button data-bind="click: addRangeComponent">Add range component</button>
+<button data-bind="click: addRangeInterval">Add range interval</button>
+
+<script src="../js/lib/jquery/jquery-1.11.1.min.js"></script>
+<script src="../js/lib/jquery/jquery-ui.min.js"></script>
+<script src="../js/lib/bootstrap/bootstrap.min.js"></script>
+<script src="../js/lib/knockout/knockout-3.2.0.js"></script>
+<script>
+
+    function RangeComponent(start, end) {
+        this.start = ko.observable(start);
+        this.end = ko.observable(end);
+    }
+
+    function ViewModel() {
+        var self = this;
+
+        this.availableRanges = ["red", "blue", "green"];
+
+        this.selectedComponents = ko.observableArray([]);
+
+        this.addRangeComponent = function () {
+            self.selectedComponents.push(new RangeComponent(self.availableRanges[0], null));
+        };
+
+        this.addRangeInterval = function () {
+            if (self.selectedComponents()[0]) {
+                console.log(self.selectedComponents()[0].start());
+                console.log(self.selectedComponents()[0].end());
+            }
+            self.selectedComponents.push(new RangeComponent(self.availableRanges[0], self.availableRanges[0]));
+        };
+
+    }
+    // Class to represent a row in the seat reservations grid
+    function SeatReservation(name, initialMeal) {
+        var self = this;
+        self.name = name;
+        self.meal = ko.observable(initialMeal);
+
+        self.formattedPrice = ko.computed(function () {
+            var price = self.meal().price;
+            return price ? "$" + price.toFixed(2) : "None";
+        });
+    }
+
+    // Overall viewmodel for this screen, along with initial state
+    function ReservationsViewModel() {
+        var self = this;
+
+        // Non-editable catalog data - would come from the server
+        self.availableMeals = [
+            {mealName: "Standard (sandwich)", price: 0},
+            {mealName: "Premium (lobster)", price: 34.95},
+            {mealName: "Ultimate (whole zebra)", price: 290}
+        ];
+
+        // Editable data
+        self.seats = ko.observableArray([
+            new SeatReservation("Steve", self.availableMeals[0]),
+            new SeatReservation("Bert", self.availableMeals[0])
+        ]);
+        self.addSeat = function () {
+            self.seats.push(new SeatReservation("", self.availableMeals[0]));
+        }
+        self.removeSeat = function (seat) {
+            console.log(seat);
+            self.seats.remove(seat)
+        };
+
+        self.totalSurcharge = ko.computed(function () {
+            var total = 0;
+            for (var i = 0; i < self.seats().length; i++)
+                total += self.seats()[i].meal().price;
+            return total;
+        });
+    }
+
+    ko.applyBindings(new ViewModel());
+</script>
+</body>
+</html>
