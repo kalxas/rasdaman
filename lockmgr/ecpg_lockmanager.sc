@@ -217,37 +217,6 @@ void ECPG_LockManager::lockTileShared(const char * pConnectionName, const char *
 */
 void ECPG_LockManager::lockTilesShared(const char * pConnectionName, const char * pRasServerId, long long pBeginId, long long pEndId)
 {
-//    if ((pBeginId <= pEndId) && (pRasServerId) && (!areTilesLockedShared(pConnectionName, pRasServerId, pBeginId, pEndId)))
-//    {
-//        char insert_shared_statement[512];
-//        int return_code = snprintf(insert_shared_statement, 512, "WITH SEQ AS (SELECT generate_series AS TileID FROM generate_series(%lld, %lld)), STAT AS (SELECT 1 AS SharedLock, \'%s\' AS RasServerID), GENIDS AS (SELECT TileID, RasServerID, SharedLock FROM SEQ CROSS JOIN STAT) INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, SharedLock) SELECT * FROM GENIDS;", pBeginId, pEndId, pRasServerId);
-//        if ((return_code >= 0) && (return_code<512))
-//        {
-//            EXEC SQL BEGIN DECLARE SECTION;
-//            const char *connectionName = pConnectionName;
-//            const char * in_shared_statement = insert_shared_statement;
-//            EXEC SQL END DECLARE SECTION;
-//            EXEC SQL AT :connectionName PREPARE insert_shared_interval FROM :in_shared_statement;
-//            EXEC SQL AT :connectionName EXECUTE insert_shared_interval;
-//            EXEC SQL DEALLOCATE PREPARE insert_shared_interval;
-//        }
-//    }
-}
-
-/**
- * Function for shared locking an interval of tiles.
- *
- * @param pConnectionName
- *     the string corresponding to the connection name of the lockmanager
- * @param pRasServerId
- *     the string corresponding to the id of the current rasserver
- * @param pBeginId
- *     the id corresponding to the first tile to be locked (lower bound of interval)
- * @param pEndId
- *     the id corresponding to the last tile to be locked (upper bound of interval)
-*/
-void ECPG_LockManager::lockTilesShared(const char * pConnectionName, const char * pRasServerId, long long pBeginId, long long pEndId)
-{
 /*    if ((pBeginId <= pEndId) && (pRasServerId) && (!areTilesLockedShared(pConnectionName, pRasServerId, pBeginId, pEndId)))*/
 /*    {*/
 /*        char insert_shared_statement[512];*/
@@ -314,37 +283,6 @@ void ECPG_LockManager::lockTilesExclusive(const char * pConnectionName, const ch
 //            EXEC SQL DEALLOCATE PREPARE insert_exclusive_interval;
 //        }
 //    }
-}
-
-/**
- * Function for exclusive locking an interval of tiles.
- *
- * @param pConnectionName
- *     the string corresponding to the connection name of the lockmanager
- * @param pRasServerId
- *     the string corresponding to the id of the current rasserver
- * @param pBeginId
- *     the id corresponding to the first tile to be locked (lower bound of interval)
- * @param pEndId
- *     the id corresponding to the last tile to be locked (upper bound of interval)
-*/
-void ECPG_LockManager::lockTilesExclusive(const char * pConnectionName, const char * pRasServerId, long long pBeginId, long long pEndId)
-{
-/*    if ((pBeginId <= pEndId) && (pRasServerId) && (!areTilesLockedExclusive(pConnectionName, pRasServerId, pBeginId, pEndId)))*/
-/*    {*/
-/*        char insert_exclusive_statement[512];*/
-/*        int return_code = snprintf(insert_exclusive_statement, 512, "WITH SEQ AS (SELECT generate_series AS TileID FROM generate_series(%lld, %lld)), STAT AS (SELECT 0 AS SharedLock, 1 AS ExclusiveLock, \'%s\' AS RasServerID), GENIDS AS (SELECT TileID, RasServerID, SharedLock, ExclusiveLock FROM SEQ CROSS JOIN STAT) INSERT INTO RAS_LOCKEDTILES (TileID, RasServerID, SharedLock, ExclusiveLock) SELECT * FROM GENIDS;", pBeginId, pEndId, pRasServerId);*/
-/*        if ((return_code >= 0) && (return_code<512))*/
-/*        {*/
-/*            EXEC SQL BEGIN DECLARE SECTION;*/
-/*            const char *connectionName = pConnectionName;*/
-/*            const char * in_exclusive_statement = insert_exclusive_statement;*/
-/*            EXEC SQL END DECLARE SECTION;*/
-/*            EXEC SQL AT :connectionName PREPARE insert_exclusive_interval FROM :in_exclusive_statement;*/
-/*            EXEC SQL AT :connectionName EXECUTE insert_exclusive_interval;*/
-/*            EXEC SQL DEALLOCATE PREPARE insert_exclusive_interval;*/
-/*        }*/
-/*    }*/
 }
 
 /**
