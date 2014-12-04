@@ -268,6 +268,13 @@ AC_ARG_ENABLE([benchmark],
               [CXXFLAGS+=" -DRMANBENCHMARK "],
               [])
 
+# list from http://stackoverflow.com/a/9862800
+AC_ARG_ENABLE([strict],
+              [AS_HELP_STRING([--enable-strict],
+                              [enable compiling in strict mode: warnings terminate compilation.])],
+              [CXXFLAGS+=" -pedantic -Werror -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Wold-style-cast -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Werror -Wno-unused"],
+              [])
+
 AC_ARG_WITH([test-server],
             [AS_HELP_STRING([--with-test-server=ADDRESS],
                             [server used for testing])],
