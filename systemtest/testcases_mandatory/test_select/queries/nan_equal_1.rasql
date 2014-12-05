@@ -1,0 +1,1 @@
+select nan = 0.0 from test_grey

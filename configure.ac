@@ -62,7 +62,6 @@ AC_CHECK_LIB([tiff], [TIFFGetField], , [AC_MSG_FAILURE([libtiff.a not found! Ple
 # FIXME: Replace `main' with a function in `-lz':
 AC_CHECK_LIB([z], [main], , [AC_MSG_FAILURE([libz.a not found! Please install.])])
 
-
 ### Due to a strange bug with fnmatch.h, we cannot search for libgdal with AC_CHECK_LIB. 
 ### We add the linking flags manually
 AC_PATH_PROG(GDAL_CONFIG, gdal-config, no)
@@ -253,7 +252,7 @@ AC_ARG_ENABLE([debug],
                               [this feature enables generation of binaries that contain extra code for debug output. The output is usually very verbose. It is not recommended for production use.])],
               [RMANDEBUG=on],
               [RMANDEBUG=])
-
+AM_CONDITIONAL([ENABLE_DEBUG], [test "$RMANDEBUG" = on])
 
 AC_ARG_WITH([debug-symbols],
             [AS_HELP_STRING([--without-debug-symbols],

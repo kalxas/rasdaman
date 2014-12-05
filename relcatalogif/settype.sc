@@ -62,6 +62,13 @@ SetType::insertInDb() throw (r_Error)
 
     SQLiteQuery::executeWithParams("INSERT INTO RAS_SETTYPES ( SetTypeId, SetTypeName, MDDTypeOId) VALUES (%lld, '%s', %lld)",
                                    settypeid, settypename, mddtypeid);
+    if (nullValues != NULL)
+    {
+        nullValues->setPersistent(true);
+        nullvalueoid = nullValues->getOId().getCounter();
+        SQLiteQuery::executeWithParams("INSERT INTO RAS_NULLVALUES ( SetTypeOId, NullValueOId) VALUES (%lld, %lld)",
+                                       settypeid, nullvalueoid);
+    }
     DBObject::insertInDb();
 
     LEAVE("SetType::insertInDb()");
@@ -76,6 +83,13 @@ SetType::deleteFromDb() throw (r_Error)
 
     SQLiteQuery::executeWithParams("DELETE FROM RAS_SETTYPES WHERE SetTypeId = %lld",
                                    settypeid);
+    SQLiteQuery::executeWithParams("DELETE FROM RAS_NULLVALUES WHERE SetTypeOId = %lld",
+                                   settypeid);
+    if (nullValues != NULL)
+    {
+        nullValues->setPersistent(false);
+        nullValues->setCached(false);
+    }
 
     DBObject::deleteFromDb();
     RMDBGEXIT(5, RMDebug::module_catalogif, "SetType", "deleteFromDb() " << myOId);
@@ -114,6 +128,19 @@ SetType::readFromDb() throw (r_Error)
     myType = SETTYPE;
     myMDDType = (MDDType*) ObjectBroker::getObjectByOId(OId(mddtypeid));
 
+    SQLiteQuery queryNull("SELECT NullValueOId FROM RAS_NULLVALUES WHERE SetTypeOId = %lld",
+                          settypeid);
+    if (queryNull.nextRow())
+    {
+        nullvalueoid = queryNull.nextColumnLong();
+        nullValues = (DBMinterval*) ObjectBroker::getObjectByOId(OId(nullvalueoid, OId::DBMINTERVALOID));
+        nullValues->setCached(true);
+        TALK("Got null values: " << nullValues->get_string_representation());
+    }
+    else
+    {
+        TALK("No null values found.");
+    }
     DBObject::readFromDb();
 
 #ifdef RMANBENCHMARK

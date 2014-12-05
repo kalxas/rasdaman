@@ -123,7 +123,7 @@ QtShift::evaluate( QtDataList* inputList )
         r_Minterval destinationDomain( qtMDDObj->getLoadDomain().create_translation( transPoint ) );
 
         // create a transient MDD object for the query result
-        MDDObj* resultMDD = new MDDObj( currentMDDObj->getMDDBaseType(), destinationDomain );
+        MDDObj* resultMDD = new MDDObj( currentMDDObj->getMDDBaseType(), destinationDomain, currentMDDObj->getNullValues() );
 
         // get all tiles
         vector<Tile* >* tiles = currentMDDObj->intersect( qtMDDObj->getLoadDomain() );
@@ -422,7 +422,7 @@ QtExtend::evaluate( QtDataList* inputList )
         // RMInit::logOut << "QtExtend::evaluate( QtDataList* ) - extending MDD with basetype " << currentMDDObj->getMDDBaseType() << " and load domain " << qtMDDObj->getLoadDomain() << " to domain " << targetDomain << endl;
 
         // create a transient MDD object for the query result
-        MDDObj* resultMDD = new MDDObj( currentMDDObj->getMDDBaseType(), targetDomain );
+        MDDObj* resultMDD = new MDDObj( currentMDDObj->getMDDBaseType(), targetDomain, currentMDDObj->getNullValues() );
 
         // --- 1: put all existing tiles into their place ------------------------
 
@@ -989,7 +989,7 @@ QtScale::evaluate( QtDataList* inputList )
     }
 
     // create a transient MDD object for the query result
-    MDDObj* resultMDD = new MDDObj( currentMDDObj->getMDDBaseType(), targetDomain );
+    MDDObj* resultMDD = new MDDObj( currentMDDObj->getMDDBaseType(), targetDomain, currentMDDObj->getNullValues() );
 
     //**********************
     origin1 = r_Point(scaleVector.size()); // all zero!!

@@ -38,6 +38,7 @@ static const char rcsid[] = "@(#)qlparser, QtIntervalLoOp, QtIntervalHiOp, QtSDo
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtmintervaldata.hh"
 #include "qlparser/qtmdd.hh"
+#include "mddmgr/mddobj.hh"
 
 const QtNode::QtNodeType QtIntervalLoOp::nodeType = QtNode::QT_LO;
 
@@ -326,8 +327,11 @@ QtSDom::evaluate( QtDataList* inputList )
 #endif
 
         QtMDD*  qtMDD  = (QtMDD*) operand;
+        MDDObj* currentMDDObj = qtMDD->getMDDObject();
+        r_Minterval* nullValues = currentMDDObj->getNullValues();
 
         returnValue = new QtMintervalData( qtMDD->getLoadDomain() );
+        returnValue->setNullValues(nullValues);
 
         // delete old operand
         if( operand ) operand->deleteRef();

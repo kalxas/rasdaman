@@ -1,0 +1,1 @@
+select abs(c) from nulltest as c

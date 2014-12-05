@@ -565,4 +565,3 @@ STRING: '"' ( options {greedy=false;} : . )* '"' {setText(getText().substring(1,
 NAME: ('a'..'z'|'A'..'Z'|'_')(('a'..'z'|'A'..'Z'|'0'..'9'|'_')*);
 VARIABLE_DOLLAR: '$'(('a'..'z'|'A'..'Z'|'0'..'9'|'_')*) {setText(getText().substring(1, getText().length())); } ;
 WHITESPACE: (' ' | '\t' | '\r' | '\n' | '\u000C')+ { skip(); } ;
-

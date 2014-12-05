@@ -55,7 +55,7 @@ const QtNode::QtNodeType QtUpdate::nodeType = QtNode::QT_UPDATE;
 
 
 QtUpdate::QtUpdate( QtOperation* initUpdateTarget, QtOperation* initUpdateDomain, QtOperation* initUpdateSource )
-    : QtExecute(), input(NULL),
+    : QtExecute(), input(NULL), nullValues(NULL),
       updateTarget( initUpdateTarget ),
       updateDomain( initUpdateDomain ),
       updateSource( initUpdateSource )
@@ -92,6 +92,12 @@ QtUpdate::~QtUpdate()
         delete input;
         input=NULL;
     }
+
+    if ( nullValues )
+    {
+        delete nullValues;
+        nullValues=NULL;
+    }
 }
 
 
@@ -103,7 +109,7 @@ QtUpdate::evaluate()
     startTimer("QtUpdate");
 
     // Test, if all necessary operands are available.
-    if( updateTarget && updateSource && input )
+    if( updateTarget && input )
     {
         QtNode::QtDataList* nextTupel;
 
@@ -122,7 +128,12 @@ QtUpdate::evaluate()
         {
             while( (nextTupel = input->next()) )
             {
-                evaluateTupel(nextTupel);
+                if (updateSource)
+                    evaluateTupel(nextTupel);
+                else if (nullValues)
+                {
+                    evaluateNullValues(nextTupel);
+                }
 
                 // delete tupel vector received by next()
                 for (vector<QtData*>::iterator dataIter = nextTupel->begin();
@@ -146,6 +157,49 @@ QtUpdate::evaluate()
     stopTimer();
 
     return 0;
+}
+
+void
+QtUpdate::evaluateNullValues(QtNode::QtDataList* nextTupel)
+{
+    // mdd object to be updated
+    QtData* target = updateTarget->evaluate(nextTupel);
+
+    // check update target
+    if (target)
+    {
+        if (target->getDataType() != QT_MDD)
+        {
+            RMInit::logOut << "Error: QtUpdate::evaluate() - update target must be an iterator variable." << endl;
+            throwError(nextTupel, target, NULL, 950);
+        }
+    }
+    else
+    {
+        RMInit::logOut << "Error: QtUpdate::evaluate() - target is not provided." << endl;
+        throwError(nextTupel, target, NULL, 950);
+    }
+
+    QtMDD* targetMDD = (QtMDD*) target;
+    MDDObj* targetObj = targetMDD->getMDDObject();
+
+    // test, if target is a persistent object
+    if (!targetObj->isPersistent())
+    {
+        RMInit::logOut << "Error: QtUpdate::evaluate() - result of target expression must be an assignable value (l-value)." << endl;
+        throwError(nextTupel, target, NULL, 954);
+    }
+
+    QtData* operand = nullValues->evaluate(NULL);
+
+    if( operand->getDataType() != QT_MINTERVAL )
+    {
+        RMInit::logOut << "Error: QtUpdate::evaluate() - Can not evaluate domain expression to an minterval." << endl;
+        throwError(nextTupel, target, NULL, 401);
+    }
+
+    r_Minterval domain = ((QtMintervalData*)operand)->getMintervalData();
+    targetObj->setUpdateNullValues(&domain);
 }
 
 void
@@ -754,7 +808,7 @@ QtUpdate::checkType()
     RMDBCLASS( "QtUpdate", "checkType()", "qlparser", __FILE__, __LINE__ )
 
     // check operand branches
-    if( updateTarget && updateSource && input )
+    if( updateTarget && input )
     {
 
         // get input type
@@ -782,42 +836,45 @@ QtUpdate::checkType()
         }
 
         // check source
-        const QtTypeElement& sourceType = updateSource->checkType( &inputType );
-        if( sourceType.getDataType() != QT_MDD )
+        if (!nullValues)
         {
-            RMInit::logOut << "Error: QtUpdate::checkType() - update source must be an expression resulting in an MDD." << endl;
-            parseInfo.setErrorNo(951);
-            throw parseInfo;
-        }
+            const QtTypeElement& sourceType = updateSource->checkType( &inputType );
+            if( sourceType.getDataType() != QT_MDD )
+            {
+                RMInit::logOut << "Error: QtUpdate::checkType() - update source must be an expression resulting in an MDD." << endl;
+                parseInfo.setErrorNo(951);
+                throw parseInfo;
+            }
 
-        // test for compatible base types
-        bool compatible = false;
-        const BaseType* type1 = ((MDDBaseType*)(targetType.getType()))->getBaseType();
-        const BaseType* type2 = ((MDDBaseType*)(sourceType.getType()))->getBaseType();
+            // test for compatible base types
+            bool compatible = false;
+            const BaseType* type1 = ((MDDBaseType*)(targetType.getType()))->getBaseType();
+            const BaseType* type2 = ((MDDBaseType*)(sourceType.getType()))->getBaseType();
 
-        // substituted the string comparison as it fails for composite types:
-        // the update base type is usually "struct { char 0, char 1,...}"
-        // while the target type is "struct { char red, char green, ...}"
-        // Now we rather use the compatibleWith method which handles such cases -- DM 2012-mar-07
+            // substituted the string comparison as it fails for composite types:
+            // the update base type is usually "struct { char 0, char 1,...}"
+            // while the target type is "struct { char red, char green, ...}"
+            // Now we rather use the compatibleWith method which handles such cases -- DM 2012-mar-07
 
-        // If the source MDD comes from an inv_* function we consider it's compatible
-        // at this point, as we can't determine the type until the data is decoded -- DM 2012-mar-12
+            // If the source MDD comes from an inv_* function we consider it's compatible
+            // at this point, as we can't determine the type until the data is decoded -- DM 2012-mar-12
 
-        QtNodeList* convChildren = updateSource->getChild(QT_CONVERSION, QT_ALL_NODES);
-        compatible = updateSource->getNodeType() == QT_CONVERSION ||
-                     (convChildren != NULL && !convChildren->empty()) ||
-                     type1->compatibleWith(type2); //(strcmp(type1, type2) == 0);
-        if (convChildren)
-        {
-            delete convChildren;
-            convChildren = NULL;
-        }
+            QtNodeList* convChildren = updateSource->getChild(QT_CONVERSION, QT_ALL_NODES);
+            compatible = updateSource->getNodeType() == QT_CONVERSION ||
+                         (convChildren != NULL && !convChildren->empty()) ||
+                         type1->compatibleWith(type2); //(strcmp(type1, type2) == 0);
+            if (convChildren)
+            {
+                delete convChildren;
+                convChildren = NULL;
+            }
 
-        if( !compatible )
-        {
-            RMInit::logOut << "Error: QtUpdate::checkType() - update base type does not match mdd base type." << endl;
-            parseInfo.setErrorNo(952);
-            throw parseInfo;
+            if( !compatible )
+            {
+                RMInit::logOut << "Error: QtUpdate::checkType() - update base type does not match mdd base type." << endl;
+                parseInfo.setErrorNo(952);
+                throw parseInfo;
+            }
         }
     }
     else
@@ -825,6 +882,10 @@ QtUpdate::checkType()
 }
 
 
+void
+QtUpdate::setNullValues(QtOperation* newNullValues) {
+    nullValues = newNullValues;
+}
 
 
 

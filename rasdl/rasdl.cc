@@ -36,13 +36,12 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-static const char rasdl_rcsid[] = "@(#)rasdl,rasdl.cc: $Id: rasdl.cc,v 1.48 2007/02/21 19:47:28 rasdev Exp $";
-
 #include "config.h"
 #include "version.h"
 #define DEBUG
 #define DEBUG_MAIN
 #include "debug/debug.hh"
+#include "globals.hh"
 
 #include "config.h"
 
@@ -289,7 +288,16 @@ printNames()
 
         // print the MDD type name instead of the whole type structure -- DM 2012-may-24
         // ticket: http://rasdaman.eecs.jacobs-university.de/trac/rasdaman/ticket/140
-        cout << "typedef set <" << typePtr->getMDDType()->getTypeName() << "> " << typePtr->getTypeName() << ";" << endl;
+        cout << "typedef set <" << typePtr->getMDDType()->getTypeName() << ">";
+
+        // print null values if any are associated with the type -- DM 2013-jun-26
+        DBMinterval* nullValues = typePtr->getNullValues();
+        if (nullValues)
+        {
+            cout << " null values " << nullValues->get_string_representation();
+        }
+
+        cout << " " << typePtr->getTypeName() << ";" << endl;
 
         setIter.advance();
     }

@@ -291,16 +291,19 @@ QtNaryOperation::getSpelling()
     QtOperationList::iterator iter;
 
     char tempStr[20];
-    sprintf(tempStr, "%ud", (unsigned long)getNodeType());
+    sprintf(tempStr, "%lu", (unsigned long)getNodeType());
     string result  = string(tempStr);
 
     result.append( "(" );
 
-    for( iter=operationList->begin(); iter!=operationList->end(); iter++ )
+    if (operationList)
     {
-        if( iter!=operationList->begin() ) result.append( "," );
+        for( iter=operationList->begin(); iter!=operationList->end(); iter++ )
+        {
+            if( iter!=operationList->begin() ) result.append( "," );
 
-        result.append( (*iter)->getSpelling() );
+            result.append( (*iter)->getSpelling() );
+        }
     }
 
     result.append( ")" );
@@ -336,14 +339,6 @@ QtNaryOperation::getAreaType()
 {
     return QT_AREA_SCALAR;
 }
-
-/*
-void
-QtNaryOperation::checkIdempotency()
-{
-  // default method: do nothing
-}
-*/
 
 void
 QtNaryOperation::optimizeLoad( QtTrimList* trimList )

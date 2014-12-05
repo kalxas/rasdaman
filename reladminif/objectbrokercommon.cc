@@ -625,8 +625,6 @@ void
 ObjectBroker::clearBroker() throw (r_Error)
 {
     //do not ever clear the ATOMICTYPEOID map! those are on the stack, not heap!
-//  ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::UDFOID));
-//  ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::UDFPACKAGEOID));
     ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDCOLLOID));
     ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDOID));
     ObjectBroker::completelyClearMap(ObjectBroker::getMap(OId::MDDHIERIXOID));

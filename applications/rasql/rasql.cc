@@ -66,7 +66,6 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include <sstream>
 #include <fstream>
 #include <vector>
-
 #include "raslib/commonutil.hh"
 
 using namespace std;
@@ -94,9 +93,9 @@ using namespace std;
 #include "raslib/primitive.hh"
 #include "raslib/complex.hh"
 #include "raslib/structure.hh"
+
 #include "raslib/rmdebug.hh"
 #include "raslib/commonutil.hh"
-
 #include "raslib/structuretype.hh"
 #include "raslib/primitivetype.hh"
 
@@ -411,7 +410,6 @@ parseParams(int argc, char** argv) throw (RasqlError, r_Error)
 void
 openDatabase() throw (r_Error)
 {
-
     ENTER( "openDatabase" );
 
     if (! dbIsOpen)
@@ -995,7 +993,6 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
     LEAVE( "doStuff" );
 }
 
-
 void
 crash_handler (int sig, siginfo_t* info, void * ucontext)
 {
@@ -1004,11 +1001,9 @@ crash_handler (int sig, siginfo_t* info, void * ucontext)
     print_stacktrace(ucontext);
     // clean up connection in case of segfault
     closeTransaction(false);
-
     LEAVE( "crash_handler");
     exit(SEGFAULT_EXIT_CODE);
 }
-
 
 /*
  * returns 0 on success, -1 on error
@@ -1019,9 +1014,7 @@ int main(int argc, char** argv)
 
     int retval = EXIT_SUCCESS;  // overall result status
 
-
     installSigSegvHandler(crash_handler);
-
 
     try
     {

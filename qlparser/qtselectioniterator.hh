@@ -69,13 +69,6 @@ public:
     /// method for query rewrite
     inline virtual void setInput( QtOperation* child, QtOperation* input);
 
-    /// optimizing load access
-//    virtual void preOptimize();
-    /**
-      Trigger load optimization in the condition tree and pass the optimization step to
-      the input streams.
-    */
-
     /// prints the tree
     virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
 

@@ -1,0 +1,1 @@
+select add_cells(c) from nulltest as c

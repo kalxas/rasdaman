@@ -229,16 +229,6 @@ QtDelete::getStreamInput()
 }
 
 
-/*
-void
-QtDelete::preOptimize()
-{
-  if( input )
-    input->preOptimize();
-}
-*/
-
-
 void
 QtDelete::checkType()
 {

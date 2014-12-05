@@ -214,7 +214,7 @@ struct QtUpdateSpecElement
                          MDDPARAM OID SHIFT SCALE SQRT ABS EXP LOG LN SIN COS TAN SINH COSH TANH ARCSIN
                          ARCCOS ARCTAN POW OVERLAY BIT UNKNOWN FASTSCALE PYRAMID MEMBERS ADD ALTER LIST 
 			  INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
-			 TILING ALIGNED REGULAR DIRECTIONAL
+			 TILING ALIGNED REGULAR DIRECTIONAL NULLKEY
 			 WITH SUBTILING AREA OF INTEREST STATISTIC TILE SIZE BORDER THRESHOLD
 			 STRCT COMPLEX RE IM TIFF BMP HDF NETCDF CSV JPEG PNG VFF TOR DEM INV_TIFF INV_BMP INV_HDF INV_NETCDF
 			 INV_JPEG INV_PNG INV_VFF INV_CSV INV_TOR INV_DEM ENCODE DECODE CONCAT ALONG DBINFO
@@ -537,7 +537,6 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 	  QtOperationIterator* oi = new QtOperationIterator();
 	  oi->setStreamInputs( inputListO );
 	  oi->setParseInfo( *($1.info) );
-
 	  oi->setOperationTree( $2 );
 	  parseQueryTree->removeDynamicObject( $2 );
 	  
@@ -580,7 +579,6 @@ selectExp: SELECT resultList FROM collectionList WHERE generalExp
 	  QtOperationIterator* oi = new QtOperationIterator();
 	  oi->setStreamInputs( inputList );
 	  oi->setParseInfo( *($1.info) );
-
 	  oi->setOperationTree( $2 );
 	  parseQueryTree->removeDynamicObject( $2 );
 

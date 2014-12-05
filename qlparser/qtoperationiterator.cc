@@ -103,11 +103,11 @@ QtOperationIterator::getChilds( QtChildType flag )
                 RMDBGIF(3, RMDebug::module_qlparser, "QtOperationIterator", \
                         RMInit::dbgOut << "2. childs from operation subtree (without direct childs) " << endl; \
                         list<QtNode*>::iterator debugIter; \
-                        for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ ) \
+                        if (subList) for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ ) \
                         (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); )
 
                     // remove all elements in subList and insert them at the beginning of resultList
-                    resultList->splice( resultList->begin(), *subList );
+                    if (subList) resultList->splice( resultList->begin(), *subList );
 
                 RMDBGIF(3, RMDebug::module_qlparser, "QtOperationIterator", \
                         RMInit::dbgOut << "3. merge of the lists " << endl; \
@@ -118,7 +118,7 @@ QtOperationIterator::getChilds( QtChildType flag )
                     RMDBGIF(3, RMDebug::module_qlparser, "QtOperationIterator", \
                             RMInit::dbgOut << "4. old list (must be empty)" << endl; \
                             list<QtNode*>::iterator debugIter; \
-                            for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ ) \
+                            if (subList) for( debugIter=subList->begin(); debugIter!=subList->end(); debugIter++ ) \
                             (*debugIter)->printTree( 2, RMInit::dbgOut, QtNode::QT_DIRECT_CHILDS ); )
 
                         // delete temporary subList
@@ -270,19 +270,6 @@ QtOperationIterator::next()
     return returnValue;
 }
 
-/*
-void
-QtOperationIterator::preOptimize()
-{
-  QtOperationList::iterator iter;
-
-  for( iter=operationTreeList->begin(); iter!=operationTreeList->end(); iter++ )
-   (*iter)->optimizeLoad( new QtNode::QtTrimList );
-
-  // pass it to the input streams
-  QtIterator::preOptimize();
-};
-*/
 
 
 const QtTypeTuple&

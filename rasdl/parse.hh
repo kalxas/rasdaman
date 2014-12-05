@@ -850,6 +850,9 @@ public:
     virtual void output(FILE*)const;
     ///
     virtual const CType* getType( const char* typeName = NULL ) const;
+
+    /// null values
+    r_Minterval* nullValues;
 };
 
 

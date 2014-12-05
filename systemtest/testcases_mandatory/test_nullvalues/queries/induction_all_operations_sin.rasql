@@ -1,0 +1,1 @@
+select sin(c[0, 2]) from nulltest as c

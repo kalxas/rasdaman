@@ -206,7 +206,7 @@ QtInsert::evaluate()
         bool compatible = false;
         if (dataToInsert)
         {
-          compatible = targetMDDType->compatibleWith(sourceBaseType);
+            compatible = targetMDDType->compatibleWith(sourceBaseType);
         }
         else
         {
@@ -360,6 +360,7 @@ QtInsert::evaluate()
 
             MDDObj* persMDDObj = new MDDObj(persMDDType, sourceObj->getDefinitionDomain(), oid,
                                             tempStorageLayout);
+            persMDDObj->cloneNullValues(sourceObj);
 
             // iterate over source tiles
             for (vector<Tile*>::iterator sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
@@ -493,15 +494,6 @@ QtInsert::getSource()
 {
     return source;
 }
-
-/*
-void
-QtInsert::preOptimize()
-{
-  if( source )
-    source->optimizeLoad( new QtNode::QtTrimList );
-}
- */
 
 
 void
@@ -736,8 +728,8 @@ QtInsert::getTileConfig(QtMDDConfig* cfg, int baseTypeSize, r_Dimension sourceDi
 {
     r_Minterval tileConfig;
 
-    if(!cfg || !(cfg->getTilingType() == QtMDDConfig::r_ALIGNED_TLG ||
-                 cfg->getTilingType() == QtMDDConfig::r_REGULAR_TLG))
+    if (!cfg || !(cfg->getTilingType() == QtMDDConfig::r_ALIGNED_TLG ||
+                  cfg->getTilingType() == QtMDDConfig::r_REGULAR_TLG))
     {
         return (StorageLayout::getDefaultTileCfg(baseTypeSize, sourceDimension));
     }

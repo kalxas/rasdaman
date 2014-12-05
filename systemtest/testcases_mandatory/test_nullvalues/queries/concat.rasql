@@ -1,0 +1,1 @@
+select min_cells(concat c with c along 0) from nulltest as c

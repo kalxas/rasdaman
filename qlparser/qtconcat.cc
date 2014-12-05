@@ -154,12 +154,17 @@ QtConcat::evaluate( QtDataList* inputList )
 
         // check if type coercion is possible and compute the result type       
         const BaseType* baseType;
+        r_Dimension nullValuesDim = 0;
 
         for( iter=operandList->begin(); iter!=operandList->end(); iter++ ) {
             if (iter == operandList->begin()) {
                 QtMDD* qtMDDObj = (QtMDD*)(*iter);
                 MDDObj* currentMDDObj = qtMDDObj->getMDDObject();
                 baseType = (currentMDDObj->getMDDBaseType())->getBaseType();
+                r_Minterval* tempValues = currentMDDObj->getNullValues();
+                if (tempValues != NULL)
+                    nullValuesDim += tempValues->dimension();
+
             } else {
                 QtMDD* qtMDDObj2 = (QtMDD*)(*iter);
                 MDDObj* currentMDDObj2 = qtMDDObj2->getMDDObject(); 
@@ -178,6 +183,9 @@ QtConcat::evaluate( QtDataList* inputList )
 
                     return 0;
                 }
+                r_Minterval* tempValues = currentMDDObj2->getNullValues();
+                if (tempValues != NULL)
+                    nullValuesDim += tempValues->dimension();
             }
         }
         
@@ -235,13 +243,19 @@ QtConcat::evaluate( QtDataList* inputList )
         
         // create a transient MDD object for the query result 
         MDDObj* resultMDD = new MDDObj( resultMDDType, destinationDomain );
- 
+        r_Minterval* nullValues = new r_Minterval( nullValuesDim );;
+
         i = 0;
         for( iter=operandList->begin(); iter!=operandList->end(); iter++, i++ ) {
             
             if (iter == operandList->begin()) { // only for the first array, which shouldn't be shifted
                 QtMDD* qtMDDObj = (QtMDD*)(*iter);
                 MDDObj* currentMDDObj = qtMDDObj->getMDDObject();
+                // add the null values of the current array to the set of the null values of the result
+                r_Minterval* tempValues = currentMDDObj->getNullValues();
+                if (tempValues != NULL)
+                    for (int j = 0; j < tempValues->dimension(); j++)
+                        *nullValues << (*tempValues)[j];
                 // get all tiles
                 vector<Tile* >* tilesA = currentMDDObj->intersect( qtMDDObj->getLoadDomain() );
 
@@ -267,6 +281,11 @@ QtConcat::evaluate( QtDataList* inputList )
             } else { // all other arrays, which are shifted
                 QtMDD* qtMDDObj2 = (QtMDD*)(*iter);
                 MDDObj* currentMDDObj2 = qtMDDObj2->getMDDObject();
+                // add the null values of the current array to the set of the null values of the result
+                r_Minterval* tempValues = currentMDDObj2->getNullValues();
+                if (tempValues != NULL)
+                    for (int j = 0; j < tempValues->dimension(); j++)
+                        *nullValues << (*tempValues)[j];
                 // get all tiles
                 vector<Tile* >* tilesB = currentMDDObj2->intersect( qtMDDObj2->getLoadDomain() );
 
@@ -286,10 +305,10 @@ QtConcat::evaluate( QtDataList* inputList )
                   newTransTile->execUnaryOp(myOp, destinationTileDomain, *tileIter, sourceTileDomain);
                   resultMDD->insertTile( newTransTile );
                 }
-
+                resultMDD->setNullValues(nullValues);
                 // create a new QtMDD object as carrier object for the transient MDD object
                 returnValue = new QtMDD( (MDDObj*)resultMDD );
-
+                returnValue->setNullValues(nullValues);
                 // delete the tile vectors, the tiles themselves are deleted when the destructor
                 // of the MDD object is called
                 delete tilesB;
@@ -348,43 +367,59 @@ QtConcat::printAlgebraicExpression( ostream& s )
     s << ")";
 }
 
-
-
 const QtTypeElement&
-QtConcat::checkType( QtTypeTuple* typeTuple )
+QtConcat::checkType(QtTypeTuple* typeTuple)
 {
-    RMDBCLASS( "QtConcat", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
+    RMDBCLASS("QtConcat", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__)
 
-    dataStreamType.setDataType( QT_TYPE_UNKNOWN );
+    dataStreamType.setDataType(QT_TYPE_UNKNOWN);
 
     QtTypeElement inputType;
     // check operand branches
-    if( operationList )
+    if (operationList)
     {
         QtOperationList::iterator iter;
+        const BaseType* baseType;
 
-        for( iter=operationList->begin(); iter!=operationList->end(); iter++ )
+        for (iter = operationList->begin(); iter != operationList->end(); iter++)
         {
 
-            if( *iter )
-                inputType = (*iter)->checkType( typeTuple );
+            if (*iter)
+                inputType = (*iter)->checkType(typeTuple);
             else
                 RMInit::logOut << "Error: QtConcat::checkType() - operand branch invalid." << endl;
-            
-            if( inputType.getDataType() != QT_MDD )
+
+            if (inputType.getDataType() != QT_MDD)
             {
                 RMInit::logOut << "Error: QtConcat::checkType() - every operand must be of type MDD." << endl;
                 parseInfo.setErrorNo(423);
                 throw parseInfo;
-            }     
-                
+            }
+
+            if (iter == operationList->begin())
+            {
+                baseType = (BaseType*) ((const MDDBaseType*) (inputType.getType()))->getBaseType();
+            }
+            else
+            {
+                baseType = getResultType(baseType, (BaseType*) ((const MDDBaseType*) (inputType.getType()))->getBaseType());
+                if (!baseType)
+                {
+                    RMInit::logOut << "Error: QtConcat::evaluate( QtDataList* ) - operand types are incompatible" << endl;
+                    parseInfo.setErrorNo(352);
+                    throw parseInfo;
+                }
+            }
+
         }
+        MDDBaseType* resultMDDType = new MDDBaseType("tmp", baseType);
+        TypeFactory::addTempType(resultMDDType);
         
-        dataStreamType.setDataType( QT_MDD );
+        dataStreamType.setType(resultMDDType);
     }
     else
-        RMInit::logOut << "Error: QtConcat::checkType() - operand branch invalid." << endl;    
-    
+        RMInit::logOut << "Error: QtConcat::checkType() - operand branch invalid." << endl;
+
     return dataStreamType;
 }
 

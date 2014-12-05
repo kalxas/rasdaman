@@ -138,3 +138,19 @@ r_Minterval::covers( const r_Minterval& inter2  ) const
     return retval;
 }
 
+
+// -- enterprise start
+template <class castType>
+inline const bool
+r_Minterval::within_bounds( const castType point )
+{
+    for (r_Dimension i = 0; i < dimensionality ; i++)
+    {
+        if (point >= intervals[i].low() && point <= intervals[i].high())
+        {
+            return true;
+        }
+    }
+    return false;
+}
+// -- enterprise end

@@ -149,6 +149,7 @@ ObjectBroker::getOIdOfSetType(const char* name) throw (r_Error)
     }
     (void) strncpy( setname, (char*) name, (size_t) sizeof(setname) );
 
+    TALK("EXEC SQL SELECT SetTypeId INTO :setoid FROM RAS_SETTYPES WHERE SetTypeName = " << setname);
     EXEC SQL SELECT
         SetTypeId
        INTO

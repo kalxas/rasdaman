@@ -22,6 +22,7 @@ rasdaman GmbH.
 */
 #include "collectiontype.hh"
 #include "mddtype.hh"
+#include "debug/debug-srv.hh"
 
 r_Bytes
 CollectionType::getMemorySize() const
@@ -36,26 +37,26 @@ CollectionType::CollectionType(const MDDType* newMDDType)
 	}
 
 CollectionType::CollectionType()
-	:	Type("unnamed collectiontype")
+	:	Type("unnamed collectiontype"), nullValues(NULL)
 	{
 	myMDDType = 0;
 	}
 
 CollectionType::CollectionType(const char* name)
-	:	Type(name)
+	:	Type(name), nullValues(NULL)
 	{
 	myMDDType = 0;
 	}
 
 
 CollectionType::CollectionType(const char* name, const MDDType* newMDDType)
-	:	Type(name)
+	:	Type(name), nullValues(NULL)
 	{
 	myMDDType = newMDDType;
 	}
 
 CollectionType::CollectionType(const OId& id) throw (r_Error)
-	:	Type(id)
+	:	Type(id), nullValues(NULL)
 	{
 	}
 
@@ -63,6 +64,7 @@ CollectionType::CollectionType(const CollectionType& old)
 	:	Type(old)
 	{
 	myMDDType = old.myMDDType;
+	nullValues = old.nullValues;
 	}
 
 CollectionType&
@@ -70,6 +72,7 @@ CollectionType::operator=(const CollectionType& old)
 	{
 	Type::operator=(old);
 	myMDDType = old.myMDDType;
+	nullValues = old.nullValues;
 	return *this; 
 	}
 
@@ -95,4 +98,22 @@ int
 CollectionType::compatibleWith(const Type* aType) const
 {
   return myMDDType->compatibleWith(aType);
+}
+
+
+DBMinterval* CollectionType::getNullValues() const
+{
+  ENTER("CollectionType::getNullValues()");
+  if (nullValues != NULL) {
+    TALK("returning null values: " << nullValues->get_string_representation());
+  }
+  LEAVE("CollectionType::getNullValues()");
+  return nullValues;
+}
+
+void CollectionType::setNullValues(const r_Minterval &newNullValues)
+{
+  ENTER("CollectionType::setNullValues( " << newNullValues.get_string_representation() << " )");
+  nullValues = new DBMinterval(newNullValues);
+  LEAVE("CollectionType::setNullValues");
 }

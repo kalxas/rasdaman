@@ -40,6 +40,7 @@ rasdaman GmbH.
 #include "raslib/minterval.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "relmddif/mddid.hh"
+#include "catalogmgr/nullvalues.hh"
 
 class MDDObjIx;
 
@@ -63,7 +64,7 @@ Even though tiles are the units of execution in RasDaMan, once a tile is inserte
 The memory management is delegated to the index.  Only when the MDDObjIx is deleted the tiles that were accessed during the transaction will be removed from memory.
 
 */
-class MDDObj
+class MDDObj : public NullValuesHandler
 {
 public:
     //@Man: Constructors
@@ -74,6 +75,11 @@ public:
         Creates a new transient MDD object with definition domain {\tt domain } and type (\tt mddType).
         The newly created object has no tiles.
     */
+    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Minterval* newNullValues);
+    /**
+        Creates a new transient MDD object with definition domain {\tt domain }, type (\tt mddType) and null values newNullValues.
+        The newly created object has no tiles.
+    */
 
     /// Creates a new persistent MDD object using preallocated OId {\ttnewOId}.
     MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId, const StorageLayout& ms) throw (r_Error);
@@ -82,6 +88,15 @@ public:
         The newly created object has no tiles.
         {\ttnewOId } must have been previously allocated with {\tt OIdIf::allocateOId() }
         Throws an exception if the object already exists or if the OId is not valid.
+    */
+
+    MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId) throw (r_Error);
+    /**
+        Creates a new persistent MDD object with definition domaini {\tt domain} and type (\tt mddType).
+        The newly created object has no tiles.
+        {\ttnewOId } must have been previously allocated with {\tt OIdIf::allocateOId() }
+        Throws an exception if the object already exists or if the OId is not valid.
+        This should only be used  by mdds that contain file tiles
     */
 
     /// Opens an existent transient/persistent MDD object
@@ -232,6 +247,10 @@ public:
     
     /// Return the storage layout of this object
     StorageLayout* getStorageLayout() const;
+
+    /// Override method in NullValuesHandler, in order to set null values to the
+    /// underlying database object
+    void setUpdateNullValues(r_Minterval* newNullValues);
 
 protected:
 

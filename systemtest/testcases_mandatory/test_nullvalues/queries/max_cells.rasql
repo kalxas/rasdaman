@@ -1,0 +1,1 @@
+select max_cells(c) from nulltest as c

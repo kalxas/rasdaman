@@ -29,6 +29,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
+#include <string>
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -42,15 +43,16 @@
 #define BACKTRACE_TRUNC 50
 #define MAX_MSG_LEN 500
 
+#define MAX_CMD_LENGTH FILENAME_MAX
+#define MAX_ERROR_MSG_LENGTH 20000
+
 void print_stacktrace(void *ucontext) {
   // code adapted from
   // http://stackoverflow.com/questions/77005/how-to-generate-a-stacktrace-when-my-gcc-c-app-crashes/2526298#2526298
-
   void* fault_address;
   sig_ucontext_t* uc;
   uc = (sig_ucontext_t*) ucontext;
   fault_address = getFaultAddress(uc);
-
   void * addresses[BACKTRACE_TRUNC];
   int size = backtrace(addresses, BACKTRACE_TRUNC);
   addresses[1] = fault_address;
@@ -64,7 +66,6 @@ void print_stacktrace(void *ucontext) {
 
   for (int i = 3, j = 1; i < size && messages != NULL; ++i, ++j) {
     char *mangled_name = 0, *offset_begin = 0, *offset_end = 0;
-
 
     // find parantheses and +address offset surrounding mangled name
     for (char *p = messages[i]; *p; ++p) {
@@ -84,10 +85,10 @@ void print_stacktrace(void *ucontext) {
       *mangled_name++ = '\0';
       *offset_begin++ = '\0';
       *offset_end++ = '\0';
+
       // get source file name and line
       char cmd[MAX_MSG_LEN];
       char sourceFileLine[MAX_MSG_LEN];
-
       //get absolute path of the currently executing binary
       char linkname[64];
       pid_t pid = getpid();
@@ -100,7 +101,6 @@ void print_stacktrace(void *ucontext) {
 
 
       sprintf(cmd, "addr2line -i -s -e %s 0x%x", linkname, addresses[i]);
-
       FILE *fp = popen(cmd, "r");
       if (fp != NULL)
       {
@@ -124,7 +124,6 @@ void print_stacktrace(void *ucontext) {
         fflush(stdout);
         printf("[bt]: (%d) %s (%s) - %s+%s%s\n", j, messages[i], sourceFileLine, real_name, offset_begin, offset_end);
 
-
       }        // otherwise, output the mangled function name
       else {
         RMInit::logOut << "[bt]: (" << j << ") " << messages[i] << " (" << sourceFileLine << ") - "
@@ -132,7 +131,6 @@ void print_stacktrace(void *ucontext) {
                 << std::endl;
         fflush(stdout);
         printf("[bt]: (%d) %s (%s) - %s+%s%s\n", j, messages[i], sourceFileLine, real_name, offset_begin, offset_end);
-
       }
       free(real_name);
     }      // otherwise, print the whole line
@@ -193,4 +191,62 @@ void* getFaultAddress(sig_ucontext_t * uc)
     LEAVE( "getFaultAddress");
     return caller_address;
 
+}
+
+char* read_file(FILE* fp)
+{
+    char buffer[MAX_ERROR_MSG_LENGTH];
+    std::string tmp("");
+    char* ret = NULL;
+    while (!feof(fp))
+    {
+         if (fgets(buffer, MAX_ERROR_MSG_LENGTH, fp) != NULL)
+         {
+             tmp += buffer;
+         }
+    }
+    if (tmp.length() > 0)
+    {
+        ret = strdup(tmp.c_str());
+    }
+    return ret;
+}
+
+char* execute_system_command(char* cmd)
+{
+    char* ret = NULL;
+    char popenCmd[MAX_CMD_LENGTH];
+    snprintf(popenCmd, MAX_CMD_LENGTH, "%s 2>&1", cmd);
+    FILE *fp = popen(popenCmd, "r");
+    if (!fp)
+    {
+        char buffer[MAX_CMD_LENGTH];
+        snprintf(buffer, MAX_CMD_LENGTH, "Failed to execute command:\n%s\n", cmd);
+        ret = strdup(buffer);
+    }
+    else
+    {
+        char* res = read_file(fp);
+        char buffer[MAX_ERROR_MSG_LENGTH];
+        memset(buffer, 0, MAX_ERROR_MSG_LENGTH);
+        int rc = pclose(fp);
+        if (rc != 0)
+        {
+            if (res)
+            {
+                snprintf(buffer, MAX_ERROR_MSG_LENGTH, "Failed to execute command:\n%s\nError: %s\n", cmd, res);
+            }
+            else
+            {
+                snprintf(buffer, MAX_ERROR_MSG_LENGTH, "Failed to execute command:\n%s\n", cmd);
+            }
+            ret = strdup(buffer);
+        }
+        if (res)
+        {
+            free(res);
+            res = NULL;
+        }
+    }
+    return ret;
 }

@@ -88,7 +88,8 @@ MDDObj::checkStorage(const r_Minterval& domain2) throw (r_Error)
 MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain)
     :   myMDDIndex(NULL),
         myDBMDDObj(),
-        myStorageLayout(NULL)
+        myStorageLayout(NULL),
+        NullValuesHandler()
 {
     if (!mddType)
     {
@@ -103,10 +104,31 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain)
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout());
 }
 
+MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Minterval* newNullValues)
+    :   myMDDIndex(NULL),
+        myDBMDDObj(),
+        myStorageLayout(NULL),
+        NullValuesHandler()
+{
+    if (!mddType)
+    {
+        RMInit::logOut << "MDD type is NULL.  Please report query or raslib program to Customer Support." << endl;
+        throw r_Error(MDDTYPE_NULL);
+    }
+
+    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << mddType->getName() << ", " << domain << ") " << (r_Ptr)this);
+    setNullValues(newNullValues);
+    myStorageLayout = new StorageLayout(r_Directory_Index);
+    myStorageLayout->setCellSize(mddType->getBaseType()->getSize());
+    myMDDIndex = new MDDObjIx(*myStorageLayout, domain);
+    myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout());
+}
+
 MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId, const StorageLayout& ms) throw (r_Error)
     :   myMDDIndex(NULL),
         myDBMDDObj(),
-        myStorageLayout(NULL)
+        myStorageLayout(NULL),
+        NullValuesHandler()
 {
     if (!mddType)
     {
@@ -121,20 +143,39 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId&
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), ms.getDBStorageLayout(), newOId);
 }
 
+MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const OId& newOId) throw (r_Error)
+        : myMDDIndex(NULL),
+        myDBMDDObj(),
+        myStorageLayout(NULL) {
+    if (!mddType) {
+        RMInit::logOut << "MDD type is NULL.  Please report query or raslib program to Customer Support." << endl;
+        throw r_Error(MDDTYPE_NULL);
+    }
+    myStorageLayout = new StorageLayout();
+    myMDDIndex = new MDDObjIx(*myStorageLayout, checkStorage(domain), mddType->getBaseType());
+    RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << mddType->getName() << ", " << domain << ", " << newOId);
+    myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout(), newOId);
+}
+
+
+
 MDDObj::MDDObj(const DBMDDObjId& dbmddobj) throw(r_Error)
     :   myMDDIndex(NULL),
         myDBMDDObj(dbmddobj),
-        myStorageLayout(NULL)
+        myStorageLayout(NULL),
+        NullValuesHandler()
 {
     RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(DBRef " << dbmddobj.getOId() << ") " << (r_Ptr)this);
     myStorageLayout = new StorageLayout(myDBMDDObj->getDBStorageLayout());
+    myStorageLayout->setCellSize(myDBMDDObj->getCellType()->getSize());
     myMDDIndex = new MDDObjIx(myDBMDDObj->getDBIndexDS(), *myStorageLayout, myDBMDDObj->getMDDBaseType()->getBaseType());
 }
 
 MDDObj::MDDObj(const OId& givenOId) throw(r_Error)
     :   myMDDIndex(NULL),
         myDBMDDObj(OId()),
-        myStorageLayout(NULL)
+        myStorageLayout(NULL),
+        NullValuesHandler()
 {
     RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << givenOId << ") " << (r_Ptr)this);
     myDBMDDObj = DBMDDObjId(givenOId);
@@ -146,7 +187,8 @@ MDDObj::MDDObj(const OId& givenOId) throw(r_Error)
 MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const StorageLayout& ms)
     :   myMDDIndex(NULL),
         myDBMDDObj(OId()),
-        myStorageLayout(NULL)
+        myStorageLayout(NULL),
+        NullValuesHandler()
 {
     RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << mddType->getName() << ", " << domain << ", " << ms.getDBStorageLayout().getOId() << ") " <<(r_Ptr)this);
     if (!mddType)
@@ -239,6 +281,7 @@ MDDObj::insertTile(Tile* newTile)
                 // initialise to 0
                 memset(newContents, 0, sizeOfData);
                 tile = new Tile(*it, getMDDBaseType()->getBaseType(), newContents, 0, newTile->getDataFormat());
+
                 tempDom = (*it).create_intersection(tileDom);
                 // only update the actual data - the rest was set to 0
                 tile->copyTile(tempDom, newTile, tempDom);
@@ -416,4 +459,12 @@ StorageLayout*
 MDDObj::getStorageLayout() const
 {
     return myStorageLayout;
+}
+
+void
+MDDObj::setUpdateNullValues(r_Minterval* newNullValues)
+{
+    nullValues = newNullValues;
+    if (newNullValues)
+        myDBMDDObj->setNullValues(*nullValues);
 }

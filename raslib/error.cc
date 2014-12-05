@@ -32,8 +32,6 @@ rasdaman GmbH.
  * - freeTextTable() does not free strings -> mem leak
 */
 
-static const char rcsid[] = "@(#)raslib, r_Error: $Id: error.cc,v 1.60 2005/09/03 20:35:12 rasdev Exp $";
-
 using namespace std;
 
 using namespace std;

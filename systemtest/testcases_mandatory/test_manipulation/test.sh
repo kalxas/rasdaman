@@ -143,6 +143,38 @@ fi
 
 # ------------------------------------------------------------------------------
 
+mdd_type=NullValueArrayTest2
+set_type=NullValueSetTest2
+
+# check data types and insert if not available
+TESTDATA_PATH="$SCRIPT_DIR/testdata"
+check_user_type $set_type
+
+TEST_NULL=test_null
+TEST_NULL_INTO=test_null_into
+drop_colls $TEST_NULL
+drop_colls $TEST_NULL_INTO
+create_coll $TEST_NULL $set_type
+
+logn "testing SELECT INTO a new collection with null value transfer... "
+$RASQL --quiet -q "insert into $TEST_NULL values marray x in [0:3,0:3] values (char)(x[0] + x[1] + 1)"
+$RASQL --quiet -q "select c - 2c into $TEST_NULL_INTO from $TEST_NULL as c"
+result=$($RASQL -q "select add_cells(c) from $TEST_NULL_INTO as c" --out string | grep 'Result ' | awk '{ print $4 }')
+exp_result="34"
+if [ "$result" == "$exp_result" ]; then
+  echo ok.
+  NUM_SUC=$(($NUM_SUC + 1))
+else
+  echo failed.
+  NUM_FAIL=$(($NUM_FAIL + 1))
+fi
+
+drop_colls $TEST_NULL
+drop_colls $TEST_NULL_INTO
+drop_types $set_type $mdd_type
+
+# ------------------------------------------------------------------------------
+
 logn "dropping collection $TMP_COLLECTION... "
 $RASQL --quiet -q "drop collection $TMP_COLLECTION"
 if [ $? -eq 0 ]; then

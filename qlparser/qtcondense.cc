@@ -152,6 +152,7 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
 
         // get the MDD object
         MDDObj* op = ((QtMDD*)operand)->getMDDObject();
+        r_Minterval* nullValues = op->getNullValues();
 
         //  get the area, where the operation has to be applied
         areaOp = mdd->getLoadDomain();
@@ -163,6 +164,7 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
         TALK( "computeFullCondense-8\n" );
         // get new operation object
         CondenseOp* condOp = Ops::getCondenseOp( opType, resultType, mdd->getCellType() );
+        condOp->setNullValues(nullValues);
 
         TALK( "computeFullCondense-9\n" );
         // and iterate over them
@@ -188,6 +190,8 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
             returnValue = new QtComplexData();
         else
             returnValue = new QtAtomicData();
+        TALK("Clone null values.");
+        returnValue->cloneNullValues((NullValuesHandler*) condOp);
 
         TALK( "computeFullCondense-b\n" );
         // allocate buffer for the result
@@ -206,13 +210,14 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
         TALK( "computeFullCondense-e\n" );
         // delete old operand
         if( operand ) operand->deleteRef();
-    }
 
     RMDBGIF(3, RMDebug::module_qlparser, "QtCondense", \
             RMInit::dbgOut << endl << "opType of QtCondense::computeFullCondense(): " << opType << endl; \
             RMInit::dbgOut <<         "Result.....................................: " << flush; \
             returnValue->printStatus( RMInit::dbgOut ); \
             RMInit::dbgOut << endl; )
+    }
+
     return returnValue;
 }
 
@@ -374,6 +379,7 @@ QtSome::evaluate( QtDataList* inputList )
 
     // get the MDD object
     MDDObj* op = mdd->getMDDObject();
+    r_Minterval* nullValues = op->getNullValues();
 
     //  get the area, where the operation has to be applied
     r_Minterval areaOp = mdd->getLoadDomain();
@@ -410,6 +416,7 @@ QtSome::evaluate( QtDataList* inputList )
 
     // create QtAtomicData object for the result
     returnValue = new QtAtomicData( (bool)(dummy) );
+    returnValue->setNullValues(nullValues);
 
     // delete result buffer
     delete[] resultBuffer;
@@ -491,6 +498,7 @@ QtAll::evaluate( QtDataList* inputList )
 
     // get the MDD object
     MDDObj* op = ((QtMDD*)operand)->getMDDObject();
+    r_Minterval* nullValues = op->getNullValues();
 
     //  get the area, where the operation has to be applied
     r_Minterval areaOp = mdd->getLoadDomain();
@@ -526,6 +534,7 @@ QtAll::evaluate( QtDataList* inputList )
 
     // create QtBoolData object for the result
     returnValue = new QtAtomicData( (bool)(dummy) );
+    returnValue->setNullValues(nullValues);
 
     // delete result buffer done in delete CondOp
     delete[] resultBuffer;
@@ -640,7 +649,9 @@ QtAvgCells::evaluate( QtDataList* inputList )
     char* resultBuffer = new char[ resultType->getSize() ];
 
     // allocate ulong constant with number of cells
-    r_ULong constValue  = areaOp.cell_count();
+    r_ULong constValue  = areaOp.cell_count() - dataCond->getNullValuesCount();
+    if (constValue == 0)
+        constValue = 1;
     const BaseType*     constType   = TypeFactory::mapType("ULong");
     char*         constBuffer = new char[ constType->getSize() ];
 

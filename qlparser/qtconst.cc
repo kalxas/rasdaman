@@ -97,7 +97,7 @@ string
 QtConst::getSpelling()
 {
     char tempStr[20];
-    sprintf(tempStr, "%ud", (unsigned long)getNodeType());
+    sprintf(tempStr, "%lu", (unsigned long)getNodeType());
     string result  = string(tempStr);
     result.append( dataObj->getSpelling() );
 

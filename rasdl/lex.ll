@@ -125,6 +125,7 @@ int    TAB_SIZE      =   3;   /* TAB size is always set to 3 */
 "]"                                    COMMAND(REPAR,1)
 "set"                                  COMMAND(SET,3)
 "marray"                               COMMAND(MARRAY,6)/* FORWISS */
+"null values"                          COMMAND(NULLVALUES,10)
 
 %{
 /*

@@ -247,17 +247,6 @@ QtSelectionIterator::next()
     return returnValue;
 }
 
-/*
-inline void
-QtSelectionIterator::preOptimize()
-{
-  if( conditionTree )
-    conditionTree->optimizeLoad( new QtNode::QtTrimList );
-
-  // pass it to the input streams
-  QtIterator::preOptimize();
-};
-*/
 
 const QtTypeTuple&
 QtSelectionIterator::checkType()

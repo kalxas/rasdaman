@@ -1,0 +1,1 @@
+select avg_cells(c) from nulltest as c

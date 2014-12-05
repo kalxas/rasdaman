@@ -162,7 +162,7 @@ string
 QtDomainOperation::getSpelling()
 {
     char tempStr[20];
-    sprintf(tempStr, "%ud", (unsigned long)getNodeType());
+    sprintf(tempStr, "%lu", (unsigned long)getNodeType());
     string result  = string(tempStr);
     result.append( mintervalOp->getSpelling() );
     result.append( "(" );
@@ -383,6 +383,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 
             QtMDD*  qtMDD         = (QtMDD*) operand;
             MDDObj* currentMDDObj = qtMDD->getMDDObject();
+            r_Minterval* nullValues = currentMDDObj->getNullValues();
 
             if( currentMDDObj )
             {
@@ -424,6 +425,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 
                 // set return data object
                 returnValue = scalarDataObj;
+                returnValue->setNullValues(nullValues);
             }
 
             // delete indexData
@@ -511,6 +513,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 
             QtMDD*  qtMDD         = (QtMDD*) operand;
             MDDObj* currentMDDObj = qtMDD->getMDDObject();
+            r_Minterval* nullValues = currentMDDObj->getNullValues();
 
             if( currentMDDObj )
             {
@@ -563,7 +566,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                         vector<Tile*>::iterator tileIt;
 
                         // create a transient MDD object for the query result
-                        MDDObj* resultMDD = new MDDObj( currentMDDObj->getMDDBaseType(), projectedDom );
+                        MDDObj* resultMDD = new MDDObj( currentMDDObj->getMDDBaseType(), projectedDom, currentMDDObj->getNullValues() );
 
                         // and iterate over them
                         for( tileIt = relevantTiles->begin(); tileIt !=  relevantTiles->end(); tileIt++ )
@@ -585,6 +588,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 
                         // create a new QtMDD object as carrier object for the transient MDD object
                         returnValue = new QtMDD( (MDDObj*)resultMDD );
+                        returnValue->setNullValues(nullValues);
 
                         // delete the tile vector
                         delete relevantTiles;
@@ -646,6 +650,10 @@ QtDomainOperation::evaluate( QtDataList* inputList )
         QtData* indexData   = NULL;
 
         operandData = input->evaluate( inputList );
+        r_Minterval* nullValues = NULL;
+        if (operandData != NULL) {
+          nullValues = operandData->getNullValues();
+        }
 
         if( operandData )
         {
@@ -724,6 +732,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             }
 
             returnValue = new QtIntervalData( minterval[indexValue] );
+            returnValue->setNullValues(nullValues);
         }
 
         // delete ressources
@@ -763,6 +772,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             }
 #endif
             r_Dimension indexValue = 0;
+            r_Minterval* nullValues = NULL;
 
             switch( indexData->getDataType() )
             {
@@ -770,6 +780,9 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             {
                 // get first element as index
                 const r_Point& indexPoint = ((QtPointData*)indexData)->getPointData();
+                if (indexData != NULL) {
+                  nullValues = ((QtAtomicData*)indexData)->getNullValues();
+                }
 
                 if( indexPoint.dimension() != 1 )
                 {
@@ -791,12 +804,18 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             case QT_USHORT:
             case QT_ULONG:
                 indexValue = ((QtAtomicData*)indexData)->getUnsignedValue();
+                if (indexData != NULL) {
+                  nullValues = ((QtAtomicData*)indexData)->getNullValues();
+                }
                 break;
 
             case QT_OCTET:
             case QT_SHORT:
             case QT_LONG:
                 indexValue = ((QtAtomicData*)indexData)->getSignedValue();
+                if (indexData != NULL) {
+                  nullValues = ((QtAtomicData*)indexData)->getNullValues();
+                }
                 break;
             default:
                 RMDBGONCE(0, RMDebug::module_qlparser, "r_QtDomainOperation", "evaluate() 2 - bad type " << indexData->getDataType());
@@ -817,6 +836,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             }
 
             returnValue = new QtAtomicData( (r_Long)pt[indexValue], 4 );
+            returnValue->setNullValues(nullValues);
         }
 
         // delete ressources

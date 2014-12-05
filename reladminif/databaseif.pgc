@@ -1224,6 +1224,19 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
                 RAS_MDDDOMTYPES;
         if(check("DatabaseIf::create() CREATE VIEW"))
             generateException();
+
+        // nullvalues
+        EXEC SQL CREATE TABLE RAS_NULLVALUES (
+          SetTypeOId BIGINT NOT NULL,
+          NullValueOId BIGINT NOT NULL
+        );
+        if(check("DatabaseIf::create() CREATE TABLE RAS_NULLVALUES\0"))
+            generateException();
+
+        EXEC SQL CREATE UNIQUE INDEX RAS_NULLVALUES_IX
+        ON RAS_NULLVALUES (SetTypeOId);
+        if(check("DatabaseIf::create() CREATE UNIQUE INDEX RAS_NULLVALUES_IX\0"))
+            generateException();
         
         // database updates
 		EXEC SQL CREATE TABLE RAS_DBUPDATES (
@@ -1234,7 +1247,7 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
 		if(check("DatabaseIf::create() CREATE TABLE RAS_DBUPDATES\0"))
 			generateException();
 
-        EXEC SQL INSERT INTO RAS_DBUPDATES values ('rc', 5);
+        EXEC SQL INSERT INTO RAS_DBUPDATES values ('rc', 6);
 		if(check("DatabaseIf::create() INSERT INTO RAS_DBUPDATES\0"))
 			generateException();
 

@@ -149,6 +149,7 @@ public interface WcpsConstants {
     public static final String MSG_MULT                         = "mult";
     public static final String MSG_MULTIPOINT_COVERAGE          = "MultiPointCoverage";
     public static final String MSG_NAME                         = "name";
+    public static final String MSG_NAN                          = "nan";
     public static final String MSG_NEAREST                      = "nearest";
     public static final String MSG_NONE                         = "none";
     public static final String MSG_NOT_EQUALS                   = "notEqual";

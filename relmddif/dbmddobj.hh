@@ -196,6 +196,16 @@ public:
         Calculates the size of this object in main memory.
     */
 
+    DBMinterval* getNullValues() const;
+    /*@Doc:
+    return null values associated with this object
+    */
+
+    void setNullValues(const r_Minterval &newNullValues);
+    /*@Doc:
+    associate null values with this object
+    */
+
 protected:
     friend class ObjectBroker;
 
@@ -256,6 +266,9 @@ private:
     /*@Doc:
         Index OId
     */
+
+    /// null values
+    DBMinterval* nullValues;
 };
 
 #endif

@@ -72,7 +72,6 @@ QtBinaryInduce::computeOp( QtData* operand1, QtData* operand2 )
 
     QtData* returnValue = NULL;
 
-
     if     ( operand1->getDataType() == QT_MDD &&
              operand2->getDataType() == QT_MDD    )
     {
@@ -138,6 +137,7 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
 
     // get the MDD object
     MDDObj* op = operand1->getMDDObject();
+    r_Minterval* nullValues = op->getNullValues();
 
     // create ULong type with QtIntData value
     const BaseType* constBaseType = operand2->getValueType();
@@ -156,7 +156,7 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
     MDDDomainType* mddBaseType = new MDDDomainType( "tmp", resultBaseType, areaOp );
     TypeFactory::addTempType( mddBaseType );
 
-    MDDObj* mddres = new MDDObj( mddBaseType, areaOp );
+    MDDObj* mddres = new MDDObj( mddBaseType, areaOp, op->getNullValues() );
 
     // get all tiles in relevant area
     allTiles = op->intersect(areaOp);
@@ -166,11 +166,17 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
     if (tileIt != allTiles->end())
     {
         if (scalarPos == 1)
+        {
             //myOp.reset(Ops::getBinaryOp(opType, resultBaseType, constBaseType, (*tileIt)->getType()));
             myOp = (Ops::getBinaryOp(opType, resultBaseType, constBaseType, (*tileIt)->getType()));
+            myOp->setNullValues(nullValues);
+        }
         else
+        {
             //myOp.reset(Ops::getBinaryOp(opType, resultBaseType, (*tileIt)->getType(), constBaseType));
             myOp = (Ops::getBinaryOp(opType, resultBaseType, (*tileIt)->getType(), constBaseType));
+            myOp->setNullValues(nullValues);
+        }
     }
     // and iterate over them
     for( ; tileIt != allTiles->end(); tileIt++ )
@@ -221,6 +227,10 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
         // insert Tile in result tile
         mddres->insertTile( resTile );
     }
+    // create a new QtMDD object as carrier object for the transient MDD object
+    returnValue = new QtMDD( (MDDObj*)mddres );
+    returnValue->cloneNullValues((NullValuesHandler*) myOp);
+
     delete myOp;
     myOp = NULL;
 
@@ -250,6 +260,8 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
     // get the MDD objects
     MDDObj* op1 = operand1->getMDDObject();
     MDDObj* op2 = operand2->getMDDObject();
+    r_Minterval* nullValues1 = op1->getNullValues();
+    r_Minterval* nullValues2 = op2->getNullValues();
 
     //  get the areas, where the operation has to be applied
     const r_Minterval &areaOp1 = operand1->getLoadDomain();
@@ -298,7 +310,7 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
         MDDDomainType* mddBaseType = new MDDDomainType( "tmp", resultBaseType, areaOp1 );
         TypeFactory::addTempType( mddBaseType );
 
-        mddres = new MDDObj( mddBaseType, areaOp1 );
+        mddres = new MDDObj( mddBaseType, areaOp1, op1->getNullValues() ); // FIXME consider op2 too
 
         // get all tiles in relevant area of MDD op1
         allTilesOp1 = op1->intersect(areaOp1);
@@ -308,7 +320,10 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
         //      cout << (*tileOp1It)->getDomain() << endl;
 
         // and iterate over them
-        auto_ptr<BinaryOp> myOp(Ops::getBinaryOp(opType, mddBaseType->getBaseType(), op1->getCellType(), op2->getCellType()));
+        BinaryOp* myOp;
+        //auto_ptr<BinaryOp> myOp(Ops::getBinaryOp(opType, mddBaseType->getBaseType(), op1->getCellType(), op2->getCellType()));
+        myOp = Ops::getBinaryOp(opType, mddBaseType->getBaseType(), op1->getCellType(), op2->getCellType());
+        myOp->setNullValues(nullValues1);
         for( tileOp1It = allTilesOp1->begin(); tileOp1It !=  allTilesOp1->end(); tileOp1It++ )
         {
             // domain of the op1 tile
@@ -368,6 +383,7 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
 
         // create a new QtMDD object as carrier object for the transient MDD object
         returnValue = new QtMDD( (MDDObj*)mddres );
+        returnValue->cloneNullValues((NullValuesHandler*) myOp);
     }
     else
     {
@@ -395,14 +411,15 @@ QtBinaryInduce::computeBinaryOp( QtScalarData* operand1, QtScalarData* operand2,
     RMDBCLASS( "QtBinaryInduce", "computeBinaryOp( QtScalarData*, QtScalarData*, BaseType*, Ops::OpType )", "qlparser", __FILE__, __LINE__ )
 
     QtScalarData* scalarDataObj = NULL;
+    r_Minterval* nullValues = operand1->getNullValues();  // FIXME use also operand2
 
     // allocate memory for the result
     char* resultBuffer = new char[ resultBaseType->getSize() ];
 
-    Ops::execBinaryConstOp( opType, resultBaseType,
-                            operand1->getValueType(),   operand2->getValueType(),
-                            resultBuffer,
-                            operand1->getValueBuffer(), operand2->getValueBuffer() );
+    BinaryOp* myOp = Ops::getBinaryOp( opType, resultBaseType,
+                                       operand1->getValueType(),   operand2->getValueType() );
+    myOp->setNullValues(nullValues);
+    (*myOp)(resultBuffer, operand1->getValueBuffer(), operand2->getValueBuffer() );
 
     if( resultBaseType->getType() == STRUCT )
         scalarDataObj = new QtComplexData();
@@ -411,6 +428,9 @@ QtBinaryInduce::computeBinaryOp( QtScalarData* operand1, QtScalarData* operand2,
 
     scalarDataObj->setValueType  ( resultBaseType );
     scalarDataObj->setValueBuffer( resultBuffer );
+    scalarDataObj->cloneNullValues((NullValuesHandler*) myOp);
+
+    delete myOp;
 
     return scalarDataObj;
 }

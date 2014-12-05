@@ -35,7 +35,6 @@ import petascope.util.ListUtil;
 import petascope.util.WcpsConstants;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.CoverageInfo;
-
 import static petascope.util.ras.RasConstants.*;
 
 public class ScaleCoverageExpr extends AbstractRasNode implements ICoverageInfo {

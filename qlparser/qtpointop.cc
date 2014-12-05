@@ -110,16 +110,23 @@ QtPointOp::evaluate( QtDataList* inputList )
             // create a QtPointData object and fill it
             //
             r_Point pt( operandList->size() );
+            r_Minterval* nullValues = NULL;
 
             for( dataIter=operandList->begin(); dataIter!=operandList->end(); dataIter++ )
                 if( (*dataIter)->getDataType() == QT_SHORT ||
                         (*dataIter)->getDataType() == QT_LONG  ||
                         (*dataIter)->getDataType() == QT_OCTET )
+                {
                     pt << ((QtAtomicData*)(*dataIter))->getSignedValue();
+                    nullValues = ((QtAtomicData*)(*dataIter))->getNullValues();
+                }
                 else
+                {
                     pt << ((QtAtomicData*)(*dataIter))->getUnsignedValue();
-
+                    nullValues = ((QtAtomicData*)(*dataIter))->getNullValues();
+                }
             returnValue = new QtPointData( pt );
+            returnValue->setNullValues(nullValues);
 
             // delete the old operands
             if( operandList )

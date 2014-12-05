@@ -1304,7 +1304,8 @@ Ops::execBinaryConstOp( Ops::OpType op, const BaseType* resType,
 
 UnaryOp::UnaryOp( const BaseType* newResType, const BaseType* newOpType,
                   unsigned int newResOff, unsigned int newOpOff )
-    : resType(newResType), opType(newOpType), resOff(newResOff), opOff(newOpOff)
+    : resType(newResType), opType(newOpType), resOff(newResOff), opOff(newOpOff),
+      NullValuesHandler()
 {
 }
 
@@ -1333,7 +1334,17 @@ OpNOTCULong::operator()( char* res, const char* op )
     r_ULong longOp;
     r_ULong longRes;
 
-    longRes = *(opType->convertToCULong(op + opOff, &longOp)) ^ 0xFFFFFFFF;
+    longOp = *(opType->convertToCULong(op + opOff, &longOp));
+
+    if (isNull(longOp))
+    {
+        longRes = longOp;
+    }
+    else
+    {
+        longRes = longOp ^ ULONG_MAX;
+    }
+
     resType->makeFromCULong( res + resOff, &longRes);
 }
 
@@ -1367,7 +1378,17 @@ OpNOTCLong::operator()( char* res, const char* op )
     r_Long longOp;
     r_Long longRes;
 
-    longRes = *(opType->convertToCLong(op + opOff, &longOp)) ^ 0xFFFFFFFF;
+    longOp = *(opType->convertToCLong(op + opOff, &longOp));
+
+    if (isNull(longOp))
+    {
+        longRes = longOp;
+    }
+    else
+    {
+        longRes = longOp ^ LONG_MAX;
+    }
+
     resType->makeFromCLong( res + resOff, &longRes);
 }
 
@@ -1416,14 +1437,21 @@ OpNOTBool::operator()( char* res, const char* op )
 {
     // special case for bools, because bitwise not is not
     // equivalent to logical not
-    *(res + resOff) = !(*(op + opOff));
+    if (isNull(*(op + opOff)))
+    {
+        *(res + resOff) = *(op + opOff);
+    }
+    else
+    {
+        *(res + resOff) = !(*(op + opOff));
+    }
 }
 
 BinaryOp::BinaryOp( const BaseType* newResType, const BaseType* newOp1Type,
                     const BaseType* newOp2Type, unsigned int newResOff,
                     unsigned int newOp1Off, unsigned int newOp2Off )
     : resType(newResType), op1Type(newOp1Type), op2Type(newOp2Type),
-      resOff(newResOff), op1Off(newOp1Off), op2Off(newOp2Off)
+      resOff(newResOff), op1Off(newOp1Off), op2Off(newOp2Off), NullValuesHandler()
 {
 }
 
@@ -1450,8 +1478,22 @@ OpPLUSCULong::operator()( char* res, const char* op1, const char* op2 )
     r_ULong longOp2 = 0;
     r_ULong longRes = 0;
 
-    longRes = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) +
-              *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+    longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
+    else
+    {
+        longRes = longOp1 + longOp2;
+    }
+
     resType->makeFromCULong( res + resOff, &longRes);
 }
 
@@ -1474,9 +1516,19 @@ OpPLUSULong::OpPLUSULong( const BaseType* newResType, const BaseType* newOp1Type
 void
 OpPLUSULong::operator()( char* res, const char* op1, const char* op2 )
 {
-    cout << "Hier krachts?" << endl;
-    *(r_ULong*)(res + resOff) =
-        *(r_ULong*)(op1 + op1Off) + *(r_ULong*)(op2 + op2Off);
+    if (isNull(*(r_ULong*)(op1 + op1Off)))
+    {
+        *(r_ULong*)(res + resOff) = *(r_ULong*)(op1 + op1Off);
+    }
+    else if (isNull(*(r_ULong*)(op2 + op2Off)))
+    {
+        *(r_ULong*)(res + resOff) = *(r_ULong*)(op2 + op2Off);
+    }
+    else
+    {
+        *(r_ULong*)(res + resOff) = *(r_ULong*)(op1 + op1Off)
+                                    + *(r_ULong*)(op2 + op2Off);
+    }
 }
 
 void
@@ -1619,8 +1671,22 @@ OpMINUSCULong::operator()( char* res, const char* op1, const char* op2 )
     r_ULong longOp2 = 0;
     r_ULong longRes = 0;
 
-    longRes = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) -
-              *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+    longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
+    else
+    {
+        longRes = longOp1 - longOp2;
+    }
+
     resType->makeFromCULong( res + resOff, &longRes);
 }
 
@@ -1639,14 +1705,28 @@ OpDIVCULong::operator()( char* res, const char* op1, const char* op2 )
     r_ULong longOp2 = 0;
     r_ULong longRes = 0;
 
-    op2Type->convertToCULong(op2 + op2Off, &longOp2);
+    longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
 
-    if(longOp2 == 0)
-        // catch division by zero, perhaps should throw exception
-        longRes = 0;
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
     else
     {
-        longRes = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) / longOp2;
+        if (longOp2 == 0)
+        {
+            // catch division by zero, perhaps should throw exception
+            longRes = 0;
+        }
+        else
+        {
+            longRes = longOp1 / longOp2;
+        }
     }
 
     resType->makeFromCULong( res + resOff, &longRes);
@@ -1695,8 +1775,22 @@ OpMULTCULong::operator()( char* res, const char* op1, const char* op2 )
     r_ULong longOp2 = 0;
     r_ULong longRes = 0;
 
-    longRes = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) *
-              *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+    longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
+    else
+    {
+        longRes = longOp1 * longOp2;
+    }
+
     resType->makeFromCULong( res + resOff, &longRes);
 }
 
@@ -1723,8 +1817,22 @@ OpANDCULong::operator()( char* res, const char* op1, const char* op2 )
     r_ULong longOp2 = 0;
     r_ULong longRes = 0;
 
-    longRes = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) &
-              *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+    longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
+    else
+    {
+        longRes = longOp1 & longOp2;
+    }
+
     resType->makeFromCULong( res + resOff, &longRes);
 }
 
@@ -1747,7 +1855,20 @@ OpANDBool::OpANDBool( const BaseType* newResType, const BaseType* newOp1Type,
 void
 OpANDBool::operator()( char* res, const char* op1, const char* op2 )
 {
-    *(res + resOff) = (*(op1 + op1Off) && *(op2 + op2Off));
+
+    if (isNull(*(op1 + op1Off)))
+    {
+        *(res + resOff) = *(op1 + op1Off);
+    }
+    else if (isNull(*(op2 + op2Off)))
+    {
+        *(res + resOff) = *(op2 + op2Off);
+    }
+    else
+    {
+        *(res + resOff) = *(op1 + op1Off) && *(op2 + op2Off);
+    }
+
 }
 
 void
@@ -1771,8 +1892,22 @@ OpORCULong::operator()( char* res, const char* op1, const char* op2 )
     r_ULong longOp2 = 0;
     r_ULong longRes = 0;
 
-    longRes = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) |
-              *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+    longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
+    else
+    {
+        longRes = longOp1 | longOp2;
+    }
+
     resType->makeFromCULong( res + resOff, &longRes);
 }
 
@@ -1795,7 +1930,20 @@ OpORBool::OpORBool( const BaseType* newResType, const BaseType* newOp1Type,
 void
 OpORBool::operator()( char* res, const char* op1, const char* op2 )
 {
-    *(res + resOff) = (*(op1 + op1Off) || *(op2 + op2Off));
+
+    if (isNull(*(op1 + op1Off)))
+    {
+        *(res + resOff) = *(op1 + op1Off);
+    }
+    else if (isNull(*(op2 + op2Off)))
+    {
+        *(res + resOff) = *(op2 + op2Off);
+    }
+    else
+    {
+        *(res + resOff) = *(op1 + op1Off) || *(op2 + op2Off);
+    }
+
 }
 
 void
@@ -1819,8 +1967,22 @@ OpXORCULong::operator()( char* res, const char* op1, const char* op2 )
     r_ULong longOp2 = 0;
     r_ULong longRes = 0;
 
-    longRes = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) ^
-              *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+    longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
+    else
+    {
+        longRes = longOp1 ^ longOp2;
+    }
+
     resType->makeFromCULong( res + resOff, &longRes);
 }
 
@@ -1835,7 +1997,20 @@ OpXORBool::OpXORBool( const BaseType* newResType, const BaseType* newOp1Type,
 void
 OpXORBool::operator()( char* res, const char* op1, const char* op2 )
 {
-    *(res + resOff) = !(*(op1 + op1Off) == *(op2 + op2Off));
+
+    if (isNull(*(op1 + op1Off)))
+    {
+        *(res + resOff) = *(op1 + op1Off);
+    }
+    else if (isNull(*(op2 + op2Off)))
+    {
+        *(res + resOff) = *(op2 + op2Off);
+    }
+    else
+    {
+        *(res + resOff) = !(*(op1 + op1Off) == *(op2 + op2Off));
+    }
+
 }
 
 OpPLUSCLong::OpPLUSCLong( const BaseType* newResType, const BaseType* newOp1Type,
@@ -1853,8 +2028,22 @@ OpPLUSCLong::operator()( char* res, const char* op1, const char* op2 )
     r_Long longOp2 = 0;
     r_Long longRes = 0;
 
-    longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) +
-              *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+    longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
+    else
+    {
+        longRes = longOp1 + longOp2;
+    }
+
     resType->makeFromCLong( res + resOff, &longRes);
 }
 
@@ -1944,8 +2133,22 @@ OpMINUSCLong::operator()( char* res, const char* op1, const char* op2 )
     r_Long longOp2 = 0;
     r_Long longRes = 0;
 
-    longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) -
-              *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+    longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
+    else
+    {
+        longRes = longOp1 - longOp2;
+    }
+
     resType->makeFromCLong( res + resOff, &longRes);
 }
 
@@ -1964,14 +2167,28 @@ OpDIVCLong::operator()( char* res, const char* op1, const char* op2 )
     r_Long longOp2 = 0;
     r_Long longRes = 0;
 
-    op2Type->convertToCLong(op2, &longOp2);
+    longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
 
-    if(longOp2 == 0)
-        // catch division by zero, perhaps should throw exception
-        longRes = 0;
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
     else
     {
-        longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) / longOp2;
+        if (longOp2 == 0)
+        {
+            // catch division by zero, perhaps should throw exception
+            longRes = 0;
+        }
+        else
+        {
+            longRes = longOp1 / longOp2;
+        }
     }
 
     resType->makeFromCLong( res + resOff, &longRes);
@@ -2020,8 +2237,22 @@ OpMULTCLong::operator()( char* res, const char* op1, const char* op2 )
     r_Long longOp2 = 0;
     r_Long longRes = 0;
 
-    longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) *
-              *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+    longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
+    else
+    {
+        longRes = longOp1 * longOp2;
+    }
+
     resType->makeFromCLong( res + resOff, &longRes);
 }
 
@@ -2048,8 +2279,22 @@ OpANDCLong::operator()( char* res, const char* op1, const char* op2 )
     r_Long longOp2 = 0;
     r_Long longRes = 0;
 
-    longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) &
-              *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+    longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
+    else
+    {
+        longRes = longOp1 & longOp2;
+    }
+
     resType->makeFromCLong( res + resOff, &longRes);
 }
 
@@ -2076,8 +2321,22 @@ OpORCLong::operator()( char* res, const char* op1, const char* op2 )
     r_Long longOp2 = 0;
     r_Long longRes = 0;
 
-    longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) |
-              *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+    longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
+    else
+    {
+        longRes = longOp1 | longOp2;
+    }
+
     resType->makeFromCLong( res + resOff, &longRes);
 }
 
@@ -2104,8 +2363,22 @@ OpXORCLong::operator()( char* res, const char* op1, const char* op2 )
     r_Long longOp2 = 0;
     r_Long longRes = 0;
 
-    longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) ^
-              *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+    longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+
+    if (isNull(longOp1))
+    {
+        longRes = longOp1;
+    }
+    else if (isNull(longOp2))
+    {
+        longRes = longOp2;
+    }
+    else
+    {
+        longRes = longOp1 ^ longOp2;
+    }
+
     resType->makeFromCLong( res + resOff, &longRes);
 }
 
@@ -2124,8 +2397,22 @@ OpPLUSCDouble::operator()( char* res, const char* op1, const char* op2 )
     double doubleOp2 = 0;
     double doubleRes = 0;
 
-    doubleRes = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1)) +
-                *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+    doubleOp1 = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
+    doubleOp2 = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+
+    if (isNull(doubleOp1))
+    {
+        doubleRes = doubleOp1;
+    }
+    else if (isNull(doubleOp2))
+    {
+        doubleRes = doubleOp2;
+    }
+    else
+    {
+        doubleRes = doubleOp1 + doubleOp2;
+    }
+
     resType->makeFromCDouble( res + resOff, &doubleRes);
 }
 
@@ -2215,8 +2502,22 @@ OpMINUSCDouble::operator()( char* res, const char* op1, const char* op2 )
     double doubleOp2 = 0;
     double doubleRes = 0;
 
-    doubleRes = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1)) -
-                *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+    doubleOp1 = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
+    doubleOp2 = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+
+    if (isNull(doubleOp1))
+    {
+        doubleRes = doubleOp1;
+    }
+    else if (isNull(doubleOp2))
+    {
+        doubleRes = doubleOp2;
+    }
+    else
+    {
+        doubleRes = doubleOp1 - doubleOp2;
+    }
+
     resType->makeFromCDouble( res + resOff, &doubleRes);
 }
 
@@ -2235,14 +2536,28 @@ OpDIVCDouble::operator()( char* res, const char* op1, const char* op2 )
     double doubleOp2 = 0;
     double doubleRes = 0;
 
-    op2Type->convertToCDouble(op2, &doubleOp2);
+    doubleOp1 = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
+    doubleOp2 = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
 
-    if(doubleOp2 == 0)
-        // catch division by zero, perhaps should throw exception
-        doubleRes = 0;
+    if (isNull(doubleOp1))
+    {
+        doubleRes = doubleOp1;
+    }
+    else if (isNull(doubleOp2))
+    {
+        doubleRes = doubleOp2;
+    }
     else
     {
-        doubleRes = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1)) / doubleOp2;
+        if(doubleOp2 == 0)
+        {
+            // catch division by zero, perhaps should throw exception
+            doubleRes = 0;
+        }
+        else
+        {
+            doubleRes = doubleOp1 / doubleOp2;
+        }
     }
 
     resType->makeFromCDouble( res + resOff, &doubleRes);
@@ -2263,8 +2578,22 @@ OpMULTCDouble::operator()( char* res, const char* op1, const char* op2 )
     double doubleOp2 = 0;
     double doubleRes = 0;
 
-    doubleRes = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1)) *
-                *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+    doubleOp1 = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
+    doubleOp2 = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+
+    if (isNull(doubleOp1))
+    {
+        doubleRes = doubleOp1;
+    }
+    else if (isNull(doubleOp2))
+    {
+        doubleRes = doubleOp2;
+    }
+    else
+    {
+        doubleRes = doubleOp1 * doubleOp2;
+    }
+
     resType->makeFromCDouble( res + resOff, &doubleRes);
 }
 
@@ -2291,11 +2620,17 @@ void
 OpEQUALCCharCULong::operator()( char* res, const char* op1,
                                 const char* op2 )
 {
-    r_ULong longOp1;
-    r_ULong longOp2;
+    r_ULong longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    r_ULong longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
 
-    *(res + resOff) = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) ==
-                      *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+    if (isNull(longOp1) || isNull(longOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = longOp1 == longOp2;
+    }
 }
 
 OpLESSCCharCULong::OpLESSCCharCULong( const BaseType* newResType,
@@ -2313,11 +2648,17 @@ void
 OpLESSCCharCULong::operator()( char* res, const char* op1,
                                const char* op2 )
 {
-    r_ULong longOp1;
-    r_ULong longOp2;
+    r_ULong longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    r_ULong longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
 
-    *(res + resOff) = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) <
-                      *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+    if (isNull(longOp1) || isNull(longOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = longOp1 < longOp2;
+    }
 }
 
 OpLESSEQUALCCharCULong::OpLESSEQUALCCharCULong( const BaseType* newResType,
@@ -2335,11 +2676,17 @@ void
 OpLESSEQUALCCharCULong::operator()( char* res, const char* op1,
                                     const char* op2 )
 {
-    r_ULong longOp1;
-    r_ULong longOp2;
+    r_ULong longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    r_ULong longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
 
-    *(res + resOff) = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) <=
-                      *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+    if (isNull(longOp1) || isNull(longOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = longOp1 <= longOp2;
+    }
 }
 
 OpNOTEQUALCCharCULong::OpNOTEQUALCCharCULong( const BaseType* newResType,
@@ -2357,11 +2704,17 @@ void
 OpNOTEQUALCCharCULong::operator()( char* res, const char* op1,
                                    const char* op2 )
 {
-    r_ULong longOp1;
-    r_ULong longOp2;
+    r_ULong longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    r_ULong longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
 
-    *(res + resOff) = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) !=
-                      *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+    if (isNull(longOp1) || isNull(longOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = longOp1 != longOp2;
+    }
 }
 
 OpGREATERCCharCULong::OpGREATERCCharCULong( const BaseType* newResType,
@@ -2379,11 +2732,17 @@ void
 OpGREATERCCharCULong::operator()( char* res, const char* op1,
                                   const char* op2 )
 {
-    r_ULong longOp1;
-    r_ULong longOp2;
+    r_ULong longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    r_ULong longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
 
-    *(res + resOff) = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) >
-                      *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+    if (isNull(longOp1) || isNull(longOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = longOp1 > longOp2;
+    }
 }
 
 OpGREATEREQUALCCharCULong::OpGREATEREQUALCCharCULong( const BaseType* newResType,
@@ -2401,11 +2760,17 @@ void
 OpGREATEREQUALCCharCULong::operator()( char* res, const char* op1,
                                        const char* op2 )
 {
-    r_ULong longOp1;
-    r_ULong longOp2;
+    r_ULong longOp1 = *(op1Type->convertToCULong(op1 + op1Off, &longOp1));
+    r_ULong longOp2 = *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
 
-    *(res + resOff) = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) >=
-                      *(op2Type->convertToCULong(op2 + op2Off, &longOp2));
+    if (isNull(longOp1) || isNull(longOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = longOp1 >= longOp2;
+    }
 }
 
 OpEQUALCCharCLong::OpEQUALCCharCLong( const BaseType* newResType,
@@ -2423,11 +2788,17 @@ void
 OpEQUALCCharCLong::operator()( char* res, const char* op1,
                                const char* op2 )
 {
-    r_Long longOp1;
-    r_Long longOp2;
+    r_Long longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    r_Long longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
 
-    *(res + resOff) = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) ==
-                      *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+    if (isNull(longOp1) || isNull(longOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = longOp1 == longOp2;
+    }
 }
 
 OpLESSCCharCLong::OpLESSCCharCLong( const BaseType* newResType,
@@ -2445,11 +2816,17 @@ void
 OpLESSCCharCLong::operator()( char* res, const char* op1,
                               const char* op2 )
 {
-    r_Long longOp1;
-    r_Long longOp2;
+    r_Long longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    r_Long longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
 
-    *(res + resOff) = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) <
-                      *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+    if (isNull(longOp1) || isNull(longOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = longOp1 < longOp2;
+    }
 }
 
 OpLESSEQUALCCharCLong::OpLESSEQUALCCharCLong( const BaseType* newResType,
@@ -2467,11 +2844,17 @@ void
 OpLESSEQUALCCharCLong::operator()( char* res, const char* op1,
                                    const char* op2 )
 {
-    r_Long longOp1;
-    r_Long longOp2;
+    r_Long longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    r_Long longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
 
-    *(res + resOff) = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) <=
-                      *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+    if (isNull(longOp1) || isNull(longOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = longOp1 <= longOp2;
+    }
 }
 
 OpNOTEQUALCCharCLong::OpNOTEQUALCCharCLong( const BaseType* newResType,
@@ -2489,11 +2872,17 @@ void
 OpNOTEQUALCCharCLong::operator()( char* res, const char* op1,
                                   const char* op2 )
 {
-    r_Long longOp1;
-    r_Long longOp2;
+    r_Long longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    r_Long longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
 
-    *(res + resOff) = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) !=
-                      *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+    if (isNull(longOp1) || isNull(longOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = longOp1 != longOp2;
+    }
 }
 
 OpGREATERCCharCLong::OpGREATERCCharCLong( const BaseType* newResType,
@@ -2533,11 +2922,17 @@ void
 OpGREATEREQUALCCharCLong::operator()( char* res, const char* op1,
                                       const char* op2 )
 {
-    r_Long longOp1;
-    r_Long longOp2;
+    r_Long longOp1 = *(op1Type->convertToCLong(op1 + op1Off, &longOp1));
+    r_Long longOp2 = *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
 
-    *(res + resOff) = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) >=
-                      *(op2Type->convertToCLong(op2 + op2Off, &longOp2));
+    if (isNull(longOp1) || isNull(longOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = longOp1 >= longOp2;
+    }
 }
 
 OpEQUALCCharCDouble::OpEQUALCCharCDouble( const BaseType* newResType,
@@ -2558,8 +2953,9 @@ OpEQUALCCharCDouble::operator()( char* res, const char* op1,
     double doubleOp1;
     double doubleOp2;
 
-    *(res + resOff) = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1)) ==
-                      *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+    op1Type->convertToCDouble(op1 + op1Off, &doubleOp1);
+    op2Type->convertToCDouble(op2 + op2Off, &doubleOp2);
+    *(res + resOff) = (isnan(doubleOp1) && isnan(doubleOp2)) || doubleOp1 == doubleOp2;
 }
 
 OpLESSCCharCDouble::OpLESSCCharCDouble( const BaseType* newResType,
@@ -2577,11 +2973,17 @@ void
 OpLESSCCharCDouble::operator()( char* res, const char* op1,
                                 const char* op2 )
 {
-    double doubleOp1;
-    double doubleOp2;
+    double doubleOp1 = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
+    double doubleOp2 = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
 
-    *(res + resOff) = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1)) <
-                      *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+    if (isNull(doubleOp1) || isNull(doubleOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = doubleOp1 < doubleOp2;
+    }
 }
 
 OpLESSEQUALCCharCDouble::OpLESSEQUALCCharCDouble( const BaseType* newResType,
@@ -2599,11 +3001,17 @@ void
 OpLESSEQUALCCharCDouble::operator()( char* res, const char* op1,
                                      const char* op2 )
 {
-    double doubleOp1;
-    double doubleOp2;
+    double doubleOp1 = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
+    double doubleOp2 = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
 
-    *(res + resOff) = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1)) <=
-                      *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+    if (isNull(doubleOp1) || isNull(doubleOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = doubleOp1 <= doubleOp2;
+    }
 }
 
 OpNOTEQUALCCharCDouble::OpNOTEQUALCCharCDouble( const BaseType* newResType,
@@ -2624,8 +3032,19 @@ OpNOTEQUALCCharCDouble::operator()( char* res, const char* op1,
     double doubleOp1;
     double doubleOp2;
 
-    *(res + resOff) = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1)) !=
-                      *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+    op1Type->convertToCDouble(op1 + op1Off, &doubleOp1);
+    op2Type->convertToCDouble(op2 + op2Off, &doubleOp2);
+
+    if (isNull(doubleOp1) || isNull(doubleOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        bool isNan1 = isnan(doubleOp1);
+        bool isNan2 = isnan(doubleOp2);
+        *(res + resOff) = (isNan1 != isNan2) || (!(isNan1 || isNan2) && doubleOp1 != doubleOp2);
+    }
 }
 
 OpGREATERCCharCDouble::OpGREATERCCharCDouble( const BaseType* newResType,
@@ -2643,11 +3062,17 @@ void
 OpGREATERCCharCDouble::operator()( char* res, const char* op1,
                                    const char* op2 )
 {
-    double doubleOp1;
-    double doubleOp2;
+    double doubleOp1 = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
+    double doubleOp2 = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
 
-    *(res + resOff) = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1)) >
-                      *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+    if (isNull(doubleOp1) || isNull(doubleOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = doubleOp1 > doubleOp2;
+    }
 }
 
 OpGREATEREQUALCCharCDouble::OpGREATEREQUALCCharCDouble( const BaseType* newResType,
@@ -2665,25 +3090,34 @@ void
 OpGREATEREQUALCCharCDouble::operator()( char* res, const char* op1,
                                         const char* op2 )
 {
-    double doubleOp1;
-    double doubleOp2;
+    double doubleOp1 = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1));
+    double doubleOp2 = *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
 
-    *(res + resOff) = *(op1Type->convertToCDouble(op1 + op1Off, &doubleOp1)) >=
-                      *(op2Type->convertToCDouble(op2 + op2Off, &doubleOp2));
+    if (isNull(doubleOp1) || isNull(doubleOp2))
+    {
+        *(res + resOff) = false;
+    }
+    else
+    {
+        *(res + resOff) = doubleOp1 >= doubleOp2;
+    }
 }
 
 CondenseOp::CondenseOp( const BaseType* newResType, const BaseType* newOpType,
                         unsigned int newResOff, unsigned int newOpOff )
     : resType(newResType), opType(newOpType), resOff(newResOff), opOff(newOpOff),
-      accu(0)
+      accu(0), NullValuesHandler(), initialized(false), nullAccu(false)
 {
+    nullValues = NULL;
 }
 
 CondenseOp::CondenseOp( const BaseType* newResType, char* newAccu,
                         const BaseType* newOpType, unsigned int newResOff,
                         unsigned int newOpOff )
-    : resType(newResType), opType(newOpType), resOff(newResOff), opOff(newOpOff)
+    : resType(newResType), opType(newOpType), resOff(newResOff), opOff(newOpOff),
+      NullValuesHandler(), initialized(false), nullAccu(false)
 {
+    nullValues = NULL;
     accu = new char[resType->getSize()];
     memcpy(accu, newAccu, resType->getSize());
 }
@@ -2824,9 +3258,20 @@ OpMAXCULong::operator()( const char* op, char* init )
     longOp = *(opType->convertToCULong(op + opOff, &longOp));
     longRes = *(resType->convertToCULong(init + resOff, &longRes));
 
-    if(longOp > longRes)
+    if (!initialized)
+    {
+        if (isNullOnly(longOp))
+        {
+            resType->makeFromCULong(accu, &longOp);
+            nullAccu = true;
+        }
+        initialized = true;
+    }
+
+    if (!isNull(longOp) && (nullAccu || longOp > longRes))
     {
         resType->makeFromCULong(init + resOff, &longOp);
+        nullAccu = false;
     }
 
     return init;
@@ -2864,9 +3309,20 @@ OpMAXCLong::operator()( const char* op, char* init )
     longOp = *(opType->convertToCLong(op + opOff, &longOp));
     longRes = *(resType->convertToCLong(init + resOff, &longRes));
 
-    if(longOp > longRes)
+    if (!initialized)
+    {
+        if (isNullOnly(longOp))
+        {
+            resType->makeFromCLong(accu, &longOp);
+            nullAccu = true;
+        }
+        initialized = true;
+    }
+
+    if (!isNull(longOp) && (nullAccu || longOp > longRes))
     {
         resType->makeFromCLong(init + resOff, &longOp);
+        nullAccu = false;
     }
 
     return init;
@@ -2906,9 +3362,20 @@ OpMAXCDouble::operator()( const char* op, char* init )
     longOp = *(opType->convertToCDouble(op + opOff, &longOp));
     longRes = *(resType->convertToCDouble(init + resOff, &longRes));
 
-    if(longOp > longRes)
+    if (!initialized)
+    {
+        if (isNullOnly(longOp))
+        {
+            resType->makeFromCDouble(accu, &longOp);
+            nullAccu = true;
+        }
+        initialized = true;
+    }
+
+    if (!isNull(longOp) && (nullAccu || longOp > longRes))
     {
         resType->makeFromCDouble(init + resOff, &longOp);
+        nullAccu = false;
     }
 
     return init;
@@ -2946,9 +3413,20 @@ OpMINCULong::operator()( const char* op, char* init )
     longOp = *(opType->convertToCULong(op + opOff, &longOp));
     longRes = *(resType->convertToCULong(init + resOff, &longRes));
 
-    if(longOp < longRes)
+    if (!initialized)
+    {
+        if (isNullOnly(longOp))
+        {
+            resType->makeFromCULong(accu, &longOp);
+            nullAccu = true;
+        }
+        initialized = true;
+    }
+
+    if (!isNull(longOp) && (nullAccu || longOp < longRes))
     {
         resType->makeFromCULong(init + resOff, &longOp);
+        nullAccu = false;
     }
 
     return init;
@@ -2986,9 +3464,20 @@ OpMINCLong::operator()( const char* op, char* init )
     longOp = *(opType->convertToCLong(op + opOff, &longOp));
     longRes = *(resType->convertToCLong(init + resOff, &longRes));
 
-    if(longOp < longRes)
+    if (!initialized)
+    {
+        if (isNullOnly(longOp))
+        {
+            resType->makeFromCLong(accu, &longOp);
+            nullAccu = true;
+        }
+        initialized = true;
+    }
+
+    if (!isNull(longOp) && (nullAccu || longOp < longRes))
     {
         resType->makeFromCLong(init + resOff, &longOp);
+        nullAccu = false;
     }
 
     return init;
@@ -3029,9 +3518,20 @@ OpMINCDouble::operator()( const char* op, char* init )
     longOp = *(opType->convertToCDouble(op + opOff, &longOp));
     longRes = *(resType->convertToCDouble(init + resOff, &longRes));
 
-    if(longOp < longRes)
+    if (!initialized)
+    {
+        if (isNullOnly(longOp))
+        {
+            resType->makeFromCDouble(accu, &longOp);
+            nullAccu = true;
+        }
+        initialized = true;
+    }
+
+    if (!isNull(longOp) && (nullAccu || longOp < longRes))
     {
         resType->makeFromCDouble(init + resOff, &longOp);
+        nullAccu = false;
     }
 
     return init;
@@ -3069,8 +3569,29 @@ OpSUMCULong::operator()( const char* op, char* init )
     opType->convertToCULong(op + opOff, &longOp);
     resType->convertToCULong(init + resOff, &longRes);
 
-    longRes += longOp;
-    resType->makeFromCULong( init + resOff, &longRes);
+    if (!initialized)
+    {
+        if (isNullOnly(longOp))
+        {
+            RMInit::logOut << "longOp is null: " << longOp << endl;
+            resType->makeFromCULong(accu, &longOp);
+            nullAccu = true;
+        }
+        initialized = true;
+    }
+
+    if (!isNull(longOp))
+    {
+        if (nullAccu)
+        {
+            longRes = longOp;
+            nullAccu = false;
+        }
+        else
+            longRes += longOp;
+
+        resType->makeFromCULong( init + resOff, &longRes);
+    }
 
     return init;
 }
@@ -3107,8 +3628,28 @@ OpSUMCLong::operator()( const char* op, char* init )
     longOp = *(opType->convertToCLong(op + opOff, &longOp));
     longRes = *(resType->convertToCLong(init + resOff, &longRes));
 
-    longRes = longOp + longRes;
-    resType->makeFromCLong( init + resOff, &longRes);
+    if (!initialized)
+    {
+        if (isNullOnly(longOp))
+        {
+            resType->makeFromCLong(accu, &longOp);
+            nullAccu = true;
+        }
+        initialized = true;
+    }
+
+    if (!isNull(longOp))
+    {
+        if (nullAccu)
+        {
+            longRes = longOp;
+            nullAccu = false;
+        }
+        else
+            longRes += longOp;
+
+        resType->makeFromCLong( init + resOff, &longRes);
+    }
 
     return init;
 }
@@ -3145,8 +3686,28 @@ OpSUMCDouble::operator()( const char* op, char* init )
     longOp = *(opType->convertToCDouble(op + opOff, &longOp));
     longRes = *(resType->convertToCDouble(init + resOff, &longRes));
 
-    longRes = longOp + longRes;
-    resType->makeFromCDouble( init + resOff, &longRes);
+    if (!initialized)
+    {
+        if (isNullOnly(longOp))
+        {
+            resType->makeFromCDouble(accu, &longOp);
+            nullAccu = true;
+        }
+        initialized = true;
+    }
+
+    if (!isNull(longOp))
+    {
+        if (nullAccu)
+        {
+            longRes = longOp;
+            nullAccu = false;
+        }
+        else
+            longRes += longOp;
+
+        resType->makeFromCDouble( init + resOff, &longRes);
+    }
 
     return init;
 }
@@ -3313,7 +3874,7 @@ OpBinaryStruct::operator()( char* res, const char* op1,
     {
         RMInit::logOut << "OpBinaryStruct operation" << endl;
         for(i = 0; i < numElems; ++i)
-            if(*(op2 + op2Off))
+            if(*(op2 + op2Off) && !isNull(*(op2 + op2Off)))
             {
                 for(int j = 0; j < numElems; ++j)
                     *(res + resOff) = *(op2 + op2Off);
@@ -3631,8 +4192,19 @@ OpPLUSChar::OpPLUSChar( const BaseType* newResType, const BaseType* newOp1Type,
 void
 OpPLUSChar::operator()( char* res, const char* op1, const char* op2 )
 {
-    *(unsigned char*)(res + resOff) =
-        *(unsigned char*)(op1 + op1Off) + *(unsigned char*)(op2 + op2Off);
+    if (isNull(*(unsigned char*)(op1 + op1Off)))
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off);
+    }
+    else if (isNull(*(unsigned char*)(op2 + op2Off)))
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op2 + op2Off);
+    }
+    else
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off)
+                                          + *(unsigned char*)(op2 + op2Off);
+    }
 }
 
 void
@@ -3710,8 +4282,19 @@ OpMINUSChar::OpMINUSChar( const BaseType* newResType, const BaseType* newOp1Type
 void
 OpMINUSChar::operator()( char* res, const char* op1, const char* op2 )
 {
-    *(unsigned char*)(res + resOff) =
-        *(unsigned char*)(op1 + op1Off) - *(unsigned char*)(op2 + op2Off);
+    if (isNull(*(unsigned char*)(op1 + op1Off)))
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off);
+    }
+    else if (isNull(*(unsigned char*)(op2 + op2Off)))
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op2 + op2Off);
+    }
+    else
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off)
+                                          - *(unsigned char*)(op2 + op2Off);
+    }
 }
 
 //--------------------------------------------
@@ -3729,13 +4312,25 @@ OpDIVChar::OpDIVChar( const BaseType* newResType, const BaseType* newOp1Type,
 void
 OpDIVChar::operator()( char* res, const char* op1, const char* op2 )
 {
-    if(*(unsigned char*)(op2 + op2Off) == 0)
-        // catch division by zero, perhaps should throw exception
-        *(unsigned char*)(res + resOff) = 0;
+    if (isNull(*(unsigned char*)(op1 + op1Off)))
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off);
+    }
+    else if (isNull(*(unsigned char*)(op2 + op2Off)))
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op2 + op2Off);
+    }
     else
     {
-        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) /
-                                          *(unsigned char*)(op2 + op2Off);
+        if(*(unsigned char*)(op2 + op2Off) == 0)
+            // catch division by zero, perhaps should throw exception
+            // what if 0 is one of the Null values?
+            *(unsigned char*)(res + resOff) = 0;
+        else
+        {
+            *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off)
+                                              / *(unsigned char*)(op2 + op2Off);
+        }
     }
 }
 
@@ -3779,8 +4374,19 @@ OpMULTChar::OpMULTChar( const BaseType* newResType, const BaseType* newOp1Type,
 void
 OpMULTChar::operator()( char* res, const char* op1, const char* op2 )
 {
-    *(unsigned char*)(res + resOff) =
-        *(unsigned char*)(op1 + op1Off) * *(unsigned char*)(op2 + op2Off);
+    if (isNull(*(unsigned char*)(op1 + op1Off)))
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off);
+    }
+    else if (isNull(*(unsigned char*)(op2 + op2Off)))
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op2 + op2Off);
+    }
+    else
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off)
+                                          * *(unsigned char*)(op2 + op2Off);
+    }
 }
 
 void
@@ -3808,8 +4414,15 @@ void
 OpEQUALChar::operator()( char* res, const char* op1,
                          const char* op2 )
 {
-    *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) ==
-                                      *(unsigned char*)(op2 + op2Off);
+    if (isNull(*(unsigned char*)(op1 + op1Off) || isNull(*(unsigned char*)(op2 + op2Off))))
+    {
+        *(unsigned char*)(res + resOff) = false;
+    }
+    else
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) ==
+                                          *(unsigned char*)(op2 + op2Off);
+    }
 }
 
 //--------------------------------------------
@@ -3831,8 +4444,15 @@ void
 OpLESSChar::operator()( char* res, const char* op1,
                         const char* op2 )
 {
-    *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) <
-                                      *(unsigned char*)(op2 + op2Off);
+    if (isNull(*(unsigned char*)(op1 + op1Off) || isNull(*(unsigned char*)(op2 + op2Off))))
+    {
+        *(unsigned char*)(res + resOff) = false;
+    }
+    else
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) <
+                                          *(unsigned char*)(op2 + op2Off);
+    }
 }
 
 //--------------------------------------------
@@ -3854,8 +4474,15 @@ void
 OpLESSEQUALChar::operator()( char* res, const char* op1,
                              const char* op2 )
 {
-    *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) <=
-                                      *(unsigned char*)(op2 + op2Off);
+    if (isNull(*(unsigned char*)(op1 + op1Off) || isNull(*(unsigned char*)(op2 + op2Off))))
+    {
+        *(unsigned char*)(res + resOff) = false;
+    }
+    else
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) <=
+                                          *(unsigned char*)(op2 + op2Off);
+    }
 }
 
 //--------------------------------------------
@@ -3877,8 +4504,15 @@ void
 OpNOTEQUALChar::operator()( char* res, const char* op1,
                             const char* op2 )
 {
-    *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) !=
-                                      *(unsigned char*)(op2 + op2Off);
+    if (isNull(*(unsigned char*)(op1 + op1Off) || isNull(*(unsigned char*)(op2 + op2Off))))
+    {
+        *(unsigned char*)(res + resOff) = false;
+    }
+    else
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) !=
+                                          *(unsigned char*)(op2 + op2Off);
+    }
 }
 
 
@@ -3901,8 +4535,15 @@ void
 OpGREATERChar::operator()( char* res, const char* op1,
                            const char* op2 )
 {
-    *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) >
-                                      *(unsigned char*)(op2 + op2Off);
+    if (isNull(*(unsigned char*)(op1 + op1Off) || isNull(*(unsigned char*)(op2 + op2Off))))
+    {
+        *(unsigned char*)(res + resOff) = false;
+    }
+    else
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) >
+                                          *(unsigned char*)(op2 + op2Off);
+    }
 }
 
 
@@ -3926,8 +4567,15 @@ void
 OpGREATEREQUALChar::operator()( char* res, const char* op1,
                                 const char* op2 )
 {
-    *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) >=
-                                      *(unsigned char*)(op2 + op2Off);
+    if (isNull(*(unsigned char*)(op1 + op1Off) || isNull(*(unsigned char*)(op2 + op2Off))))
+    {
+        *(unsigned char*)(res + resOff) = false;
+    }
+    else
+    {
+        *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) >=
+                                          *(unsigned char*)(op2 + op2Off);
+    }
 }
 
 //--------------------------------------------
@@ -4098,27 +4746,46 @@ void OpPLUSComplex::operator()(char* res, const char* op1, const char* op2)
     double op2Im = 0;
     double resRe, resIm;
 
+    op1Re = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
+    op2Re = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
+
+    if (isNull(op1Re))
+    {
+        resRe = op1Re;
+    }
+    else if (isNull(op2Re))
+    {
+        resRe = op2Re;
+    }
+    else
+    {
+        resRe = op1Re + op2Re;
+    }
+
     if(scalarFlag == FIRST)
     {
-        resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) +
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-
         resIm = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
     }
     else if(scalarFlag == SECOND)
     {
-        resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) +
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-
         resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
     }
     else
     {
-        resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) +
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-
-        resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im)) +
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
+        op1Im = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
+        op2Im = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
+        if (isNull(op1Im))
+        {
+            resIm = op1Im;
+        }
+        else if (isNull(op2Im))
+        {
+            resIm = op2Im;
+        }
+        else
+        {
+            resIm = op1Im + op2Im;
+        }
     }
 
     resType->makeFromCDouble(res + resOff + resReOff, &resRe);
@@ -4310,27 +4977,46 @@ void OpMINUSComplex::operator()(char* res, const char* op1, const char* op2)
     double op2Im = 0;
     double resRe, resIm;
 
+    op1Re = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
+    op2Re = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
+
+    if (isNull(op1Re))
+    {
+        resRe = op1Re;
+    }
+    else if (isNull(op2Re))
+    {
+        resRe = op2Re;
+    }
+    else
+    {
+        resRe = op1Re - op2Re;
+    }
+
     if(scalarFlag == FIRST)
     {
-        resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) -
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-
         resIm = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
     }
     else if(scalarFlag == SECOND)
     {
-        resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) -
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-
         resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
     }
     else
     {
-        resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) -
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-
-        resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im)) -
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
+        op1Im = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
+        op2Im = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
+        if (isNull(op1Im))
+        {
+            resIm = op1Im;
+        }
+        else if (isNull(op2Im))
+        {
+            resIm = op2Im;
+        }
+        else
+        {
+            resIm = op1Im - op2Im;
+        }
     }
 
     resType->makeFromCDouble(res + resOff + resReOff, &resRe);
@@ -4368,21 +5054,49 @@ void OpDIVComplex::operator()(char* res, const char* op1, const char* op2)
 
     if(scalarFlag == FIRST)
     {
-        double a = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
-        double x = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
-        double y = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
+        double x1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
+        double x2 = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
+        double y2 = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
 
-        resRe = a * x / (x * x + y * y);
-        resIm = - a * y / (x * x + y * y);
+        if (isNull(x1))
+        {
+            resRe = x1;
+            resIm = 0;
+        }
+        else if (isNull(x2) || isNull(y2))
+        {
+            resRe = x2;
+            resIm = y2;
+        }
+        else
+        {
+            resRe = x1 * x2 / (x2 * x2 + y2 * y2);
+            resIm = - x1 * y2 / (x2 * x2 + y2 * y2);
+        }
+
     }
     else if(scalarFlag == SECOND)
     {
+        double x1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
+        double y1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
+        double x2 = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
 
-        resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) /
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
+        if (isNull(x1) || isNull(y1))
+        {
+            resRe = x1;
+            resIm = y1;
+        }
+        else if (isNull(x2))
+        {
+            resRe = x2;
+            resIm = 0;
+        }
+        else
+        {
+            resRe = x1 / x2;
+            resIm = y1 / x2;
+        }
 
-        resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im)) /
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
     }
     else   // NONE
     {
@@ -4391,8 +5105,22 @@ void OpDIVComplex::operator()(char* res, const char* op1, const char* op2)
         double x2 = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
         double y2 = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
 
-        resRe = (x1 * x2 + y1 * y2) /  (x2 * x2 + y2 * y2);
-        resIm = (y1 * x2 - x1 * y2) / (x2 * x2 + y2 * y2);
+        if (isNull(x1) || isNull(y1))
+        {
+            resRe = x1;
+            resIm = y1;
+        }
+        else if (isNull(x2) || isNull(y2))
+        {
+            resRe = x2;
+            resIm = y2;
+        }
+        else
+        {
+            resRe = (x1 * x2 + y1 * y2) /  (x2 * x2 + y2 * y2);
+            resIm = (y1 * x2 - x1 * y2) / (x2 * x2 + y2 * y2);
+        }
+
     }
 
     resType->makeFromCDouble(res + resOff + resReOff, &resRe);
@@ -4431,35 +5159,73 @@ void OpMULTComplex::operator()(char* res, const char* op1, const char* op2)
 
     if(scalarFlag == FIRST)
     {
-        resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) *
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
+        double x1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
+        double x2 = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
+        double y2 = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
 
-        resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) *
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
+        if (isNull(x1))
+        {
+            resRe = x1;
+            resIm = 0;
+        }
+        else if (isNull(x2) || isNull(y2))
+        {
+            resRe = x2;
+            resIm = y2;
+        }
+        else
+        {
+            resRe = x1 * x2;
+            resIm = x1 * y2;
+        }
+
     }
     else if(scalarFlag == SECOND)
     {
-        resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) *
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
+        double x1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
+        double y1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
+        double x2 = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
 
-        resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im)) *
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
+        if (isNull(x1) || isNull(y1))
+        {
+            resRe = x1;
+            resIm = y1;
+        }
+        else if (isNull(x2))
+        {
+            resRe = x2;
+            resIm = 0;
+        }
+        else
+        {
+            resRe = x1 * x2;
+            resIm = y1 * x2;
+        }
+
     }
-    else
+    else   // NONE
     {
-        // Re = x1 * x2 - y1 * y2
+        double x1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re));
+        double y1 = *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));
+        double x2 = *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re));
+        double y2 = *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));
 
-        resRe = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) *     // x1
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re)) -     // x2
-                *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im)) *     // y1
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im));      // y2
+        if (isNull(x1) || isNull(y1))
+        {
+            resRe = x1;
+            resIm = y1;
+        }
+        else if (isNull(x2) || isNull(y2))
+        {
+            resRe = x2;
+            resIm = y2;
+        }
+        else
+        {
+            resRe = x1 * x2 - y1 * y2;
+            resIm = x1 * y2 + x2 * y1;
+        }
 
-        // Im = x1 * y2 + x2 * y1
-
-        resIm = *(op1Type->convertToCDouble(op1 + op1Off + op1ReOff, &op1Re)) *     // x1
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ImOff, &op2Im)) +     // y2
-                *(op2Type->convertToCDouble(op2 + op2Off + op2ReOff, &op2Re)) *     // x2
-                *(op1Type->convertToCDouble(op1 + op1Off + op1ImOff, &op1Im));      // y1
     }
 
     resType->makeFromCDouble(res + resOff + resReOff, &resRe);
@@ -4686,16 +5452,18 @@ void OpCAST::operator()(char* res, const char* op)
     if(resType->getType() == FLOAT || resType->getType() == DOUBLE)
     {
         // floating point types
-        double dblOp;
-        double dblRes = *(opType->convertToCDouble(op + opOff, &dblOp));
-        resType->makeFromCDouble(res + resOff, &dblRes);
+        double dblOp = *(opType->convertToCDouble(op + opOff, &dblOp));
+        if (isNull(dblOp))
+            dblOp = NAN;
+        resType->makeFromCDouble(res + resOff, &dblOp);
     }
     else
     {
         // all integral types
-        r_Long lngOp;
-        r_Long lngRes = *(opType->convertToCLong(op + opOff, &lngOp));
-        resType->makeFromCLong(res + resOff, &lngRes);
+        r_Long lngOp = *(opType->convertToCLong(op + opOff, &lngOp));
+        if (isNull(lngOp))
+            lngOp = 0;
+        resType->makeFromCLong(res + resOff, &lngOp);
     }
 }
 
@@ -4716,7 +5484,7 @@ OpOVERLAY::OpOVERLAY( const BaseType* newResType, const BaseType* newOp1Type, co
 
 void OpOVERLAY::operator()( char *res, const char *op1, const char *op2 )
 {
-    if (memcmp(pattern, op1 + op1Off, length) == 0)
+    if ((memcmp(pattern, op1 + op1Off, length) == 0) || isNull(*(op1 + op1Off)))
     {
         //match
         memcpy(res + resOff, op2 + op2Off, length);
@@ -4755,7 +5523,14 @@ void OpBIT::operator() (char *res, const char *op1, const char *op2)
 
     op1Type->convertToCULong(op1 + op1Off, &lngOp1);
     op2Type->convertToCULong(op2 + op2Off, &lngOp2);
-    lngRes = lngOp1 >> lngOp2 & 0x1L;
+    if (isNull(lngOp1))
+    {
+        lngRes = lngOp1;
+    }
+    else
+    {
+        lngRes = lngOp1 >> lngOp2 & 0x1L;
+    }
     resType->makeFromCULong(res + resOff, &lngRes);
 }
 

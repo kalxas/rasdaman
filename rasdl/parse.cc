@@ -947,13 +947,20 @@ Parse_MDD::getType( const char* typeName ) const
 Parse_set::Parse_set()
 {
     kind   =Set;
+    nullValues =NULL;
 };
 
 void Parse_set::output(FILE*stream)const
 {
     fprintf(stream,"r_Set<r_Ref<");
     base_type->output(stream);
-    fprintf(stream,"> >");
+    fprintf(stream,">");
+    if (nullValues)
+    {
+        fprintf(stream,", ");
+        fprintf(stream,nullValues->get_string_representation());
+    }
+    fprintf(stream," >");
 };
 
 
@@ -999,7 +1006,12 @@ Parse_set::getType( const char* typeName ) const
 
     RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_set", "type name " << typeName << ", base type name " << baseTypeName )
 
-    const SetType* setType = new SetType( (char*)typeName, catBaseType );
+    SetType* setType = new SetType( (char*)typeName, (MDDType*) catBaseType );
+    if (nullValues != NULL)
+    {
+        TALK("Set null values to " << nullValues->get_string_representation());
+        setType->setNullValues(*nullValues);
+    }
 
     RMDBGEXIT(4, RMDebug::module_rasdl, "Parse_set", "getType()")
 

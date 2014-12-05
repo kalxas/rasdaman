@@ -43,6 +43,7 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 #include "dbmddset.hh"
 #include "raslib/rmdebug.hh"
 #include "reladminif/sqlerror.hh"
+#include "reladminif/externs.h"
 #include "reladminif/objectbroker.hh"
 #include "relcatalogif/collectiontype.hh"
 

@@ -43,6 +43,7 @@ EXEC SQL include "../reladminif/sqlglobals.h";
 #include "settype.hh"
 #include "mddtype.hh"
 #include "reladminif/sqlerror.hh"
+#include "reladminif/externs.h"
 #include "raslib/rmdebug.hh"
 #include "reladminif/objectbroker.hh"
 
@@ -50,18 +51,20 @@ void
 SetType::insertInDb() throw (r_Error)
 {
     RMDBGENTER(5, RMDebug::module_catalogif, "SetType", "insertInDb() " << myOId << " " << getTypeName());
+    ENTER("SetType::insertInDb()")
 
     EXEC SQL BEGIN DECLARE SECTION;
-        long long mddtypeid;
-        char      settypename[VARCHAR_MAXLEN];
-        long      settypeid;
+        long long  mddtypeid;
+        char    settypename[VARCHAR_MAXLEN];
+        long long    settypeid;
+        long long    nullvalueoid;
     EXEC SQL END DECLARE SECTION;
 
     (void) strncpy( settypename, (char*) getTypeName(), (size_t) sizeof(settypename) );
     settypeid = myOId.getCounter();
     mddtypeid = getMDDType()->getOId();
 
-    // TALK( "EXEC SQL INSERT INTO RAS_SETTYPES ( SetTypeId, SetTypeName, MDDTypeOId) VALUES( " << settypeid << ", " << settypename << ", " << mddtypeid << " )" );
+    TALK( "EXEC SQL INSERT INTO RAS_SETTYPES ( SetTypeId, SetTypeName, MDDTypeOId) VALUES( " << settypeid << ", " << settypename << ", " << mddtypeid << " )" );
     EXEC SQL INSERT INTO RAS_SETTYPES ( SetTypeId, SetTypeName, MDDTypeOId)
        VALUES   ( :settypeid, :settypename, :mddtypeid);
     if (SQLCODE != SQLOK)
@@ -71,8 +74,25 @@ SetType::insertInDb() throw (r_Error)
         generateException();
     }
 
+    if (nullValues != NULL)
+    {
+        nullValues->setPersistent(true);
+        nullvalueoid = nullValues->getOId().getCounter();
+
+        TALK("EXEC SQL INSERT INTO RAS_NULLVALUES ( SetTypeOId, NullValueOId) VALUES	( " << settypeid << ", " << nullvalueoid << " )");
+        EXEC SQL INSERT INTO RAS_NULLVALUES ( SetTypeOId, NullValueOId)
+          VALUES    ( :settypeid, :nullvalueoid );
+        if (SQLCODE != SQLOK)
+        {
+            check("SetType::insertInDb()");
+            LEAVE("SetType::insertInDb() error: " << SQLCODE );
+            generateException();
+        }
+    }
+
     DBObject::insertInDb();
 
+    LEAVE("SetType::insertInDb()");
     RMDBGEXIT(5, RMDebug::module_catalogif, "SetType", "insertInDb() " << myOId);
 }
 
@@ -94,6 +114,23 @@ SetType::deleteFromDb() throw (r_Error)
         LEAVE("SetType::deleteFromDb() error: " << SQLCODE );
         generateException();
     }
+
+    TALK("EXEC SQL DELETE FROM RAS_NULLVALUES WHERE SetTypeOId = " << settypeid3);
+    EXEC SQL DELETE FROM RAS_NULLVALUES
+    WHERE SetTypeOId = :settypeid3;
+    if (SQLCODE != SQLOK && SQLCODE != SQLNODATAFOUND)
+    {
+        check("SetType::deleteFromDb()");
+        LEAVE("SetType::deleteFromDb() error: " << SQLCODE );
+        generateException();
+    }
+
+    if (nullValues != NULL)
+    {
+        nullValues->setPersistent(false);
+        nullValues->setCached(false);
+    }
+
     DBObject::deleteFromDb();
     RMDBGEXIT(5, RMDebug::module_catalogif, "SetType", "deleteFromDb() " << myOId);
 }
@@ -102,13 +139,16 @@ void
 SetType::readFromDb() throw (r_Error)
 {
     RMDBGENTER(5, RMDebug::module_catalogif, "SetType", "readFromDb() " << myOId);
+    ENTER("SetType::readFromDb()");
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
     EXEC SQL BEGIN DECLARE SECTION;
-        long long mddtypeid1;
-        char      settypename1[VARCHAR_MAXLEN];
-        long      settypeid1;
+        long long  mddtypeid1;
+        char    settypename1[VARCHAR_MAXLEN];
+        long long    settypeid1;
+        long long    nullvalueoid2;
+        int   nullValuesTableCheck;
     EXEC SQL END DECLARE SECTION;
 
     settypeid1 = myOId.getCounter();
@@ -119,6 +159,7 @@ SetType::readFromDb() throw (r_Error)
        INTO :settypename1, :mddtypeid1
        FROM RAS_SETTYPES
        WHERE SetTypeId = :settypeid1;
+    TALK("Sql code: " << SQLCODE);
     if (check("SetType::readFromDb()") != 0)
     {
         if (SQLCODE == SQLNODATAFOUND)  // was: 100 -- PB 2005-feb-13
@@ -130,12 +171,50 @@ SetType::readFromDb() throw (r_Error)
     setName(settypename1);
     myType = SETTYPE;
     myMDDType = (MDDType*)ObjectBroker::getObjectByOId(OId(mddtypeid1));
+
+    // test if null values table exists -- DM 2012-jun-12
+    EXEC SQL SELECT COUNT(*)
+      INTO :nullValuesTableCheck
+      FROM pg_tables WHERE tablename = 'ras_nullvalues';
+
+    if (nullValuesTableCheck == 1)
+    {
+        TALK("EXEC SQL SELECT NullValueOId INTO :nullvalueoid2 FROM RAS_NULLVALUES WHERE SetTypeOId = " << settypeid1);
+        EXEC SQL SELECT NullValueOId INTO :nullvalueoid2
+          FROM RAS_NULLVALUES
+          WHERE SetTypeOId = :settypeid1;
+        if (SQLCODE != SQLOK)
+        {
+            if (SQLCODE != SQLNODATAFOUND)
+            {
+                LEAVE("SetType::readFromDb()");
+                generateException();
+            }
+            else
+            {
+                SQLCODE = SQLOK;
+                TALK("No null values found.");
+            }
+        }
+        else
+        {
+            nullValues = (DBMinterval*)ObjectBroker::getObjectByOId(OId(nullvalueoid2, OId::DBMINTERVALOID));
+            nullValues->setCached(true);
+            TALK("Got null values: " << nullValues->get_string_representation());
+        }
+    }
+    else
+    {
+        TALK("No support for null values in the database, please upgrade.");
+    }
+
     DBObject::readFromDb();
 
 #ifdef RMANBENCHMARK
     DBObject::readTimer.pause();
 #endif
 
+    LEAVE("SetType::readFromDb()");
     RMDBGEXIT(5, RMDebug::module_catalogif, "SetType", "readFromDb() " << myOId);
 }
 

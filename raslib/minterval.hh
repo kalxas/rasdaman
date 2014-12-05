@@ -312,6 +312,11 @@ public:
     throws r_Edim_mismatch when dimensions do not match
     */
 
+    /// checks whether point (scalar) is between any of the single intervals in this minterval
+    /// used to check whether a null value is in an interval
+    template <class castType>
+    inline const bool within_bounds( const castType point );
+
     /// get dimensionality
     inline r_Dimension dimension() const;
 

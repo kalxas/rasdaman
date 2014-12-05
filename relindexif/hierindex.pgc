@@ -770,7 +770,7 @@ DBHierIndex::deleteFromDb() throw (r_Error)
         {
             BLOBTile::kill(oi);
         }
-        else
+        else if (oi.getType() != OId::INVALID)
         {
             dbo = DBObjectId(oi);
             if (!dbo.is_null())

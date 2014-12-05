@@ -160,6 +160,7 @@ extern   const char   *error_token;
                      REPAR
                      SET
                      MARRAY
+                     NULLVALUES
 
 /* types of nonterminals */
 %type<dummyValue>    model specification definition
@@ -284,6 +285,13 @@ collection_type       : SET LEFT simple_type_spec RIGHT
                           $$=new Parse_set;
                           $$->setParseInfo( Parse_info( $1.where, "Set" ) );
                           ((Parse_set*)$$)->base_type=$3;
+                        }
+                      | SET LEFT simple_type_spec RIGHT NULLVALUES spatial_domain
+                        {
+                          $$=new Parse_set;
+                          $$->setParseInfo( Parse_info( $1.where, "Set" ) );
+                          ((Parse_set*)$$)->base_type=$3;
+                          ((Parse_set*)$$)->nullValues=$6;
                         };
 
 /*(33)*/
@@ -561,6 +569,7 @@ dimension_spec        : primary_expr COLON primary_expr { $$=new r_Sinterval( (r
                       | TIMES        COLON primary_expr { $$=new r_Sinterval( '*'       , (r_Range)$3.Integer ); }
                       | primary_expr COLON TIMES        { $$=new r_Sinterval( (r_Range)$1.Integer, '*'        ); }
                       | TIMES        COLON TIMES        { $$=new r_Sinterval( '*'       , '*'        ); }
+                      | primary_expr                    { $$=new r_Sinterval( (r_Range)$1.Integer, (r_Range)$1.Integer ); }
 
 
 %%

@@ -1,6 +1,7 @@
 #ifndef _QTONCSTREAM_
 #define _QTONCSTREAM_
 
+#include "config.h"
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
 #else
@@ -83,7 +84,7 @@ public:
     //@{
     ///
     ///
-    inline void               setDataStreamType( const QtTypeTuple& type );
+    void               setDataStreamType( const QtTypeTuple& type );
     ///
     inline const QtTypeTuple& getDataStreamType() const;
     ///

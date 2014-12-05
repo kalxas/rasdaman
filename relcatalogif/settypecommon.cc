@@ -58,7 +58,7 @@ SetType::getTypeStructure() const
     return result;
 }
 
-SetType::SetType(const char* newTypeName, const MDDType* newMDDType)
+SetType::SetType(const char* newTypeName, MDDType* newMDDType)
     :   CollectionType(newTypeName, newMDDType)
 {
     myType = SETTYPE;

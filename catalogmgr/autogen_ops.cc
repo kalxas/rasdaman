@@ -45,10 +45,17 @@ OpABSCDouble::OpABSCDouble(
 
 void OpABSCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = fabs(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = fabs(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -67,10 +74,17 @@ OpSQRTCDouble::OpSQRTCDouble(
 
 void OpSQRTCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = sqrt(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = sqrt(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -89,10 +103,17 @@ OpPOWCDouble::OpPOWCDouble(
 
 void OpPOWCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = pow(*(opType->convertToCDouble(op + opOff, &convOp)), exponent);
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = pow(convOp, exponent);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -116,10 +137,17 @@ OpEXPCDouble::OpEXPCDouble(
 
 void OpEXPCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = exp(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = exp(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -138,10 +166,17 @@ OpLOGCDouble::OpLOGCDouble(
 
 void OpLOGCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = log10(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = log10(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -160,10 +195,17 @@ OpLNCDouble::OpLNCDouble(
 
 void OpLNCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = log(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = log(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -182,10 +224,17 @@ OpSINCDouble::OpSINCDouble(
 
 void OpSINCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = sin(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = sin(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -204,10 +253,17 @@ OpCOSCDouble::OpCOSCDouble(
 
 void OpCOSCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = cos(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = cos(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -226,10 +282,17 @@ OpTANCDouble::OpTANCDouble(
 
 void OpTANCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = tan(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = tan(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -248,10 +311,17 @@ OpSINHCDouble::OpSINHCDouble(
 
 void OpSINHCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = sin(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = sin(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -270,10 +340,17 @@ OpCOSHCDouble::OpCOSHCDouble(
 
 void OpCOSHCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = cos(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = cos(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -292,10 +369,17 @@ OpTANHCDouble::OpTANHCDouble(
 
 void OpTANHCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = tan(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = tan(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -314,10 +398,17 @@ OpARCSINCDouble::OpARCSINCDouble(
 
 void OpARCSINCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = asin(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = asin(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -336,10 +427,17 @@ OpARCCOSCDouble::OpARCCOSCDouble(
 
 void OpARCCOSCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = acos(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = acos(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;
@@ -358,10 +456,17 @@ OpARCTANCDouble::OpARCTANCDouble(
 
 void OpARCTANCDouble::operator()(char* res, const char* op)
 {
-    double convOp;
+    double convOp = *(opType->convertToCDouble(op + opOff, &convOp));
     double convRes;
     errno = 0;
-    convRes = atan(*(opType->convertToCDouble(op + opOff, &convOp)));
+    if (isNull(convOp))
+    {
+        convRes = convOp;
+    }
+    else
+    {
+        convRes = atan(convOp);
+    }
     if(errno)
     {
         if(errno == EDOM) throw 510;

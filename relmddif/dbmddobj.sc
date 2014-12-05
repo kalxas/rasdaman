@@ -59,6 +59,7 @@ myDomain(NULL),
 objIxId(),
 mddType(NULL),
 persistentRefCount(0),
+nullValues(NULL),
 storageLayoutId(new DBStorageLayout())
 {
     RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj()");
@@ -79,6 +80,7 @@ myDomain(NULL),
 objIxId(),
 persistentRefCount(0),
 mddType(NULL),
+nullValues(NULL),
 storageLayoutId(0LL)
 {
     RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(" << myOId << ")");
@@ -101,6 +103,7 @@ objIxId(newObjIx.getOId()),
 mddType(newMDDType),
 persistentRefCount(0),
 storageLayoutId(newSL),
+nullValues(NULL),
 myDomain(NULL)
 {
     RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(" << newMDDType->getName() << ", " << domain << ", Ix " << newObjIx.getOId() << ", Sl " << newSL.getOId() << ", " << newOId << ")");
@@ -142,6 +145,7 @@ objIxId(),
 mddType(NULL),
 persistentRefCount(0),
 storageLayoutId(),
+nullValues(NULL),
 myDomain(NULL)
 {
     RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(const DBMDDObj&" << old.getOId() << ")");
@@ -179,6 +183,7 @@ objIxId(newObjIx),
 mddType(NULL),
 persistentRefCount(0),
 storageLayoutId(newSL),
+nullValues(NULL),
 myDomain(NULL)
 {
     RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(" << newMDDType->getName() << ", " << domain << ", Ix " << newObjIx.getOId() << ", Sl " << newSL.getOId() << ")");
@@ -201,6 +206,10 @@ DBMDDObj::~DBMDDObj()
     if (myDomain)
         delete myDomain;
     myDomain = NULL;
+
+    if (nullValues)
+        delete nullValues;
+    nullValues = NULL;
 
     LEAVE("DBMDDObj::~DBMDDObj");
     RMDBGEXIT(7, RMDebug::module_mddif, "DBMDDObj", "~DBMDDObj() " << myOId);
@@ -367,6 +376,70 @@ DBMDDObj::updateInDb() throw (r_Error)
     SQLiteQuery::executeWithParams("UPDATE RAS_MDDOBJECTS SET PersRefCount = %ld, NodeOId = %lld WHERE MDDId = %lld",
                                    persRefCount3, objindex3, mddoid3);
 
+    if (nullValues != NULL)
+    {
+        TALK("Updating null values");
+        nullValues->setPersistent(true);
+        nullvalueoid = nullValues->getOId().getCounter();
+
+        // TODO: SQLITE migration
+
+        //        TALK("EXEC SQL SELECT c.settypeid INTO :settypeoi FROM ras_mddcollnames as c, ras_mddcollections as m WHERE m.mddcollid = c.mddcollid and m.mddid = " << mddoid3);
+        //        EXEC SQL SELECT c.settypeid
+        //                 INTO :settypeoid
+        //                 FROM ras_mddcollnames as c, ras_mddcollections as m
+        //                 WHERE m.mddcollid = c.mddcollid and m.mddid = :mddoid3;
+        //        if (SQLCODE != SQLOK)
+        //        {
+        //            check("DBMDDObj::updateInDb()\0");
+        //            generateException();
+        //        }
+        //
+        //        TALK("EXEC SQL SELECT COUNT(settypeoid) INTO :count FROM RAS_NULLVALUES WHERE settypeoid = " << settypeoid);
+        //        EXEC SQL SELECT COUNT(settypeoid)
+        //                 INTO :count
+        //                 FROM RAS_NULLVALUES
+        //                 WHERE settypeoid = :settypeoid;
+        //        if (SQLCODE != SQLOK)
+        //        {
+        //            check("DBMDDObj::updateInDb()\0");
+        //            generateException();
+        //        }
+        //
+        //        if (count > 0) {
+        //            TALK("EXEC SQL SELECT nullvalueoid INTO :oldnullvalueoid FROM RAS_NULLVALUES WHERE settypeoid = " << settypeoid)
+        //            EXEC SQL SELECT nullvalueoid
+        //                     INTO :oldnullvalueoid
+        //                     FROM RAS_NULLVALUES
+        //                     WHERE settypeoid = :settypeoid;
+        //            if (SQLCODE != SQLOK)
+        //            {
+        //                check("DBMDDObj::updateInDb()\0");
+        //                generateException();
+        //            }
+        //
+        //            DBMinterval* oldNullValues = (DBMinterval*)ObjectBroker::getObjectByOId(OId(oldnullvalueoid, OId::DBMINTERVALOID));
+        //            if (oldNullValues)
+        //            {
+        //                oldNullValues->setPersistent(false);
+        //                oldNullValues->validate();
+        //                delete oldNullValues;
+        //            }
+        //
+        //            TALK("EXEC SQL DELETE FROM RAS_NULLVALUES WHERE nullvalueoid = " << oldnullvalueoid);
+        //            EXEC SQL DELETE FROM RAS_NULLVALUES
+        //                     WHERE nullvalueoid = :oldnullvalueoid;
+        //            if (SQLCODE != SQLOK)
+        //            {
+        //                check("DBMDDObj::updateInDb()\0");
+        //                generateException();
+        //            }
+        //        }
+        //        TALK("EXEC SQL INSERT INTO RAS_NULLVALUES (settypeoid, NullValueOId) VALUES (" << settypeoid << ", " << nullvalueoid << ");");
+        //        EXEC SQL INSERT INTO RAS_NULLVALUES (settypeoid, NullValueOId)
+        //                 VALUES (:settypeoid, :nullvalueoid);
+    }
+
     DBObject::updateInDb();
 
     LEAVE("DBMDDObj::updateInDb");
@@ -491,4 +564,25 @@ DBMDDObj::decrementPersRefCount()
     if (persistentRefCount == 0)
         setPersistent(false);
     setModified();
+}
+
+DBMinterval*
+DBMDDObj::getNullValues() const
+{
+    ENTER("DBMDDObj::getNullValues()");
+    if (nullValues != NULL)
+    {
+        TALK("returning null values: " << nullValues->get_string_representation());
+    }
+    LEAVE("DBMDDObj::getNullValues()");
+    return nullValues;
+}
+
+void
+DBMDDObj::setNullValues(const r_Minterval &newNullValues)
+{
+    ENTER("DBMDDObj::setNullValues( " << newNullValues.get_string_representation() << " )");
+    nullValues = new DBMinterval(newNullValues);
+    setModified();
+    LEAVE("DBMDDObj::setNullValues");
 }

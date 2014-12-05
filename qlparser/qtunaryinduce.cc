@@ -125,6 +125,7 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
 
     // get the MDD object
     MDDObj* op = ((QtMDD*)operand)->getMDDObject();
+    r_Minterval* nullValues = op->getNullValues();
 
     //  get the area, where the operation has to be applied
     const r_Minterval &areaOp = ((QtMDD*)operand)->getLoadDomain();
@@ -146,28 +147,28 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
 
     TypeFactory::addTempType( mddBaseType );
 
-    MDDObj* mddres = new MDDObj( mddBaseType, areaOp );
+    MDDObj* mddres = new MDDObj( mddBaseType, areaOp, op->getNullValues() );
 
     // get all tiles in relevant area
     allTiles = op->intersect(areaOp);
     std::vector<Tile*>::iterator tileIt = allTiles->begin();
+    UnaryOp* myOp = NULL;
     if (tileIt != allTiles->end())
     {
         Tile* resTile = NULL;
-        UnaryOp* myOp = NULL;
         if (operation == Ops::OP_IDENTITY)
         {
             myOp = Ops::getUnaryOp(operation, resultBaseType, resultBaseType, 0, operandOffset);
+            myOp->setNullValues(nullValues);
         }
         else
         {
             myOp = Ops::getUnaryOp(operation, resultBaseType, (*tileIt)->getType(), 0, 0);
+            myOp->setNullValues(nullValues);
         }
         if (myOp == NULL)
         {
             RMInit::logOut << "QtUnaryInduce::computeUnaryMDDOp(...) could not get operation for result type " << resultBaseType->getName() << " argument type " << (*tileIt)->getType() << " operation " << operation << endl;
-            delete myOp;
-            myOp = NULL;
             delete allTiles;
             allTiles = NULL;
             //contents of allTiles are deleted when index is deleted
@@ -210,8 +211,6 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
         catch(r_Error& err)
         {
             RMInit::logOut << "QtUnaryInduce::computeUnaryMDDOp caught " << err.get_errorno() << " " << err.what() << endl;
-            delete myOp;
-            myOp = NULL;
             delete allTiles;
             allTiles = NULL;
             //contents of allTiles are deleted when index is deleted
@@ -227,8 +226,6 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
         catch (int err)
         {
             RMInit::logOut << "QtUnaryInduce::computeUnaryMDDOp caught errno error (" << err << ") in unaryinduce" << endl;
-            delete myOp;
-            myOp = NULL;
             delete allTiles;
             allTiles = NULL;
             //contents of allTiles are deleted when index is deleted
@@ -242,8 +239,6 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
             throw parseInfo;
         }
 
-        delete myOp;
-        myOp = NULL;
     }
     // delete tile vector
     delete allTiles;
@@ -251,7 +246,13 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
 
     // create a new QtMDD object as carrier object for the transient MDD object
     returnValue = new QtMDD( (MDDObj*)mddres );
+    if (myOp != NULL)
+    {
+        returnValue->cloneNullValues((NullValuesHandler*) myOp);
+    }
 
+    delete myOp;
+    myOp = NULL;
     // The following is now done when deleting the last reference to the operand
     // delete the obsolete MDD object
     //  delete op;
@@ -267,6 +268,7 @@ QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBase
     RMDBCLASS( "QtUnaryInduce", "computeUnaryOp( QtScalarData*, BaseType*, Ops::OpType, unsigned int ) ", "qlparser", __FILE__, __LINE__ )
 
     QtScalarData* scalarDataObj = NULL;
+    r_Minterval* nullValues = operand->getNullValues();
 
     // allocate memory for the result
     char* resultBuffer = new char[ resultBaseType->getSize() ];
@@ -277,29 +279,50 @@ QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBase
              RMInit::dbgOut << endl; \
            )
 
-    if(( operation == Ops::OP_IDENTITY )) // || ( operation == Ops::OP_SQRT ))
-        // operand type is the same as result type
-        Ops::execUnaryConstOp( operation, resultBaseType,
-                               resultBaseType,
-                               resultBuffer,
-                               operand->getValueBuffer(),
-                               0, operandOffset, param );
-    else
-        try
+    UnaryOp* myOp = NULL;
+
+    try
+    {
+        if(( operation == Ops::OP_IDENTITY ))  // || ( operation == Ops::OP_SQRT ))
         {
-            Ops::execUnaryConstOp( operation, resultBaseType,
-                                   operand->getValueType(),
-                                   resultBuffer,
-                                   operand->getValueBuffer(),
-                                   0, operandOffset, param );
+            // operand type is the same as result type
+            myOp = Ops::getUnaryOp( operation, resultBaseType, resultBaseType, 0, operandOffset );
+            myOp->setNullValues(nullValues);
+			// set exponent for pow operations
+			if (operation == Ops::OP_POW)
+			{
+				((OpPOWCDouble*)myOp)->setExponent(param);
+			}
+
+            (*myOp)(resultBuffer,operand->getValueBuffer());
         }
-        catch(int err)
-        {
-            delete[] resultBuffer;
-            resultBuffer = NULL;
-            parseInfo.setErrorNo(err);
-            throw parseInfo;
-        }
+        else
+            try
+            {
+                myOp = Ops::getUnaryOp( operation, resultBaseType, operand->getValueType(), 0, operandOffset );
+                myOp->setNullValues(nullValues);
+				// set exponent for pow operations
+				if (operation == Ops::OP_POW)
+				{
+					((OpPOWCDouble*)myOp)->setExponent(param);
+				}
+                (*myOp)(resultBuffer,operand->getValueBuffer());
+            }
+            catch(int err)
+            {
+                delete[] resultBuffer;
+                resultBuffer = NULL;
+                parseInfo.setErrorNo(err);
+                throw parseInfo;
+            }
+    }
+    catch(...)
+    {
+        delete myOp;  // cleanup
+        throw;
+    }
+
+
 
     RMDBGIF( 4, RMDebug::module_qlparser, "QtUnaryInduce", \
              RMInit::dbgOut << "Result value "; \
@@ -314,6 +337,12 @@ QtUnaryInduce::computeUnaryOp( QtScalarData* operand, const BaseType* resultBase
 
     scalarDataObj->setValueType  ( resultBaseType );
     scalarDataObj->setValueBuffer( resultBuffer );
+    if (myOp != NULL)
+    {
+        scalarDataObj->cloneNullValues((NullValuesHandler*) myOp);
+    }
+
+    delete myOp;
 
     return scalarDataObj;
 }

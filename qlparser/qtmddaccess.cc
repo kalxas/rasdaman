@@ -135,6 +135,16 @@ QtMDDAccess::next()
             }
         }
 
+        CollectionType* collType = (CollectionType*) mddColl->getCollectionType();
+        if (collType)
+        {
+            r_Minterval* dbmi = collType->getNullValues();
+            if (dbmi != NULL)
+            {
+                ptr->setNullValues(dbmi);
+            }
+        }
+
         QtMDD*  elem = new QtMDD( ptr, iteratorName );
 
 
@@ -179,15 +189,6 @@ QtMDDAccess::close()
     }
     
     stopTimer();
-
-    // This is now done in ServerComm::ClientTblElt::releaseTransferStructures().
-    //
-    // delete the mdd objects and the mdd collection
-    // if( mddColl )
-    //  {
-    //    mddColl->releaseAll();
-    //    delete mddColl;
-    //  }
 }
 
 

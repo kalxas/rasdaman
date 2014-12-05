@@ -62,7 +62,7 @@ public:
     virtual char* getTypeStructure() const;
 
     /// constructor receiving pointer to an MDDType (or subclass).
-    SetType(const char* newTypeName, const MDDType* newMDDType);
+    SetType(const char* newTypeName, MDDType* newMDDType);
     /// default constructor, cannot be used.
     SetType();
     /// copy constructor.

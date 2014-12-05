@@ -226,20 +226,6 @@ QtIterator::getStreamInputs()
     return inputs;
 }
 
-/*
-void
-QtIterator::preOptimize()
-{
-  if( inputs )
-  {
-    QtONCStreamList::iterator i;
-
-    for( i=inputs->begin(); i!=inputs->end(); i++ )
-      (*i)->preOptimize();
-  }
-}
-*/
-
 
 void
 QtIterator::getInputTypeTuple( QtTypeTuple& typeTuple )

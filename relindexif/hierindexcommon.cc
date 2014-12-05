@@ -545,7 +545,7 @@ bool
 DBHierIndex::isLeaf() const
 {
     RMDBGONCE(7, RMDebug::module_indexif, "DBHierIndex", "isLeaf() const " << myOId << " " << (int)(!_isNode));
-    TALK( "DBHierIndex::isLeaf() -> " <<  !_isNode );
+    //TALK( "DBHierIndex::isLeaf() -> " <<  !_isNode );
     return !_isNode;
 }
 
@@ -590,7 +590,7 @@ const KeyObject&
 DBHierIndex::getObject(unsigned int pos) const
 {
     RMDBGONCE(4, RMDebug::module_indexif, "DBHierIndex", "getObject(" << pos << ") " << myOId << " " << myKeyObjects[pos]);
-    TALK( "DBHierIndex::getObject() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos] );
+    //TALK( "DBHierIndex::getObject() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos] );
 
     return myKeyObjects[pos];
 }
@@ -614,7 +614,7 @@ r_Minterval
 DBHierIndex::getObjectDomain(unsigned int pos) const
 {
     RMDBGONCE(4, RMDebug::module_indexif, "DBHierIndex", "getObjectDomain(" <<  pos << ") " << myOId << " " << myKeyObjects[pos]);
-    TALK( "DBHierIndex::getObjectDomain() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos] );
+    //TALK( "DBHierIndex::getObjectDomain() - pos=" << pos << ", myOId=" << myOId << " -> " << myKeyObjects[pos] );
     return myKeyObjects[pos].getDomain();
 }
 

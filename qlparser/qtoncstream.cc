@@ -48,3 +48,8 @@ QtONCStream::QtONCStream( QtNode* node )
 {
 }
 
+void
+QtONCStream::setDataStreamType( const QtTypeTuple &type )
+{
+  dataStreamType = type;
+}

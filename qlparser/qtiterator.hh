@@ -94,12 +94,6 @@ public:
     //inline virtual void setParents();
     //@}
 
-    /// pre optimization
-    //virtual void preOptimize();
-    /**
-       Pre-Optimization step is passed to the input streams.
-    */
-
     /// get input type tuple
     void getInputTypeTuple( QtTypeTuple& typeTuple );
 

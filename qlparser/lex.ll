@@ -31,6 +31,7 @@ rasdaman GmbH.
 static const char rcsid[] = "@(#)qlparser, lexer: $Id: oql.l,v 1.64 2005/07/06 22:48:34 rasdev Exp $";
 
 #include "config.h"
+#include <math.h>
 #include "qlparser/qtoperation.hh"
 #include "qlparser/querytree.hh"
 #include "qlparser/qtmddaccess.hh"
@@ -207,6 +208,7 @@ int string_yyinput( char* buf, int max_size )
 "in"                                     { SETTOKEN( IN, commandToken, IN ) }
 "marray"                                 { SETTOKEN( MARRAY, commandToken, MARRAY ) }
 "condense"                               { SETTOKEN( CONDENSE, commandToken, CONDENSE ) }
+"null"                                   { SETTOKEN( NULLKEY, commandToken, NULLKEY ) }
 "commit"                                 { SETTOKEN( COMMIT, commandToken, COMMIT ) }
 
 "oid"                                    { SETTOKEN( OID, commandToken, OID ) }
@@ -297,6 +299,8 @@ int string_yyinput( char* buf, int max_size )
 "ulong"					 { SETTOKEN( TULONG, typeToken, TULONG)	}
 "float"					 { SETTOKEN( TFLOAT, typeToken, TFLOAT) 	}
 "double"				 { SETTOKEN( TDOUBLE, typeToken, TDOUBLE) }
+
+"nan"					{ SETFLTTOKEN( NAN, 4 ) }
 
 "max"                                    { SETTOKEN( MAX_BINARY, commandToken, MAX_BINARY ) }
 "min"                                    { SETTOKEN( MIN_BINARY, commandToken, MIN_BINARY ) }

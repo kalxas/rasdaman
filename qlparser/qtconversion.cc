@@ -196,6 +196,7 @@ QtConversion::evaluate( QtDataList* inputList )
 
     QtData* returnValue = NULL;
     QtData* operand = NULL;
+    r_Minterval* nullValues = NULL;
 
     if( conversionType == QT_UNKNOWN )
     {
@@ -237,6 +238,7 @@ QtConversion::evaluate( QtDataList* inputList )
 
             QtMDD*  qtMDD         = (QtMDD*) operand;
             MDDObj* currentMDDObj = qtMDD->getMDDObject();
+            nullValues = currentMDDObj->getNullValues();
             vector< Tile* >* tiles = NULL;
             if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())
             {
@@ -464,7 +466,7 @@ QtConversion::evaluate( QtDataList* inputList )
 
         // create a transient MDD object for the query result
         MDDBaseType* mddBaseType = (MDDBaseType*)dataStreamType.getType();
-        MDDObj* resultMDD = new MDDObj( mddBaseType, convResult.destInterv );
+        MDDObj* resultMDD = new MDDObj( mddBaseType, convResult.destInterv, nullValues );
         resultMDD->insertTile( resultTile );
 
         // create a new QtMDD object as carrier object for the transient MDD object

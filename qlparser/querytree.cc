@@ -380,39 +380,49 @@ void QueryTree::removeDynamicObject( vector<QtONCStream*> *node )
 
 void QueryTree::releaseDynamicObjects()
 {
-    list<QtNode*>::iterator iter1;
-    for( iter1 = qtNodeList.begin(); iter1 != qtNodeList.end(); iter1++ )
+    for( list<QtNode*>::iterator iter = qtNodeList.begin(); iter != qtNodeList.end(); iter++ )
     {
-        delete *iter1;
-        *iter1=NULL;
+        if (*iter != NULL)
+        {
+            delete *iter;
+            *iter=NULL;
+        }
     }
 
-    list<QtData*>::iterator iter2;
-    for( iter2 = qtDataList.begin(); iter2 != qtDataList.end(); iter2++ )
+    for( list<QtData*>::iterator iter = qtDataList.begin(); iter != qtDataList.end(); iter++ )
     {
-        delete *iter2;
-        *iter2=NULL;
+        if (*iter != NULL)
+        {
+            delete *iter;
+            *iter=NULL;
+        }
     }
 
-    list<ParseInfo*>::iterator iter3;
-    for( iter3 = parseInfoList.begin(); iter3 != parseInfoList.end(); iter3++ )
+    for( list<ParseInfo*>::iterator iter = parseInfoList.begin(); iter != parseInfoList.end(); iter++ )
     {
-        delete *iter3;
-        *iter3=NULL;
+        if (*iter != NULL)
+        {
+            delete *iter;
+            *iter=NULL;
+        }
     }
 
-    list<vector<QtONCStream*>*>::iterator iter4;
-    for( iter4 = vectorList.begin(); iter4 != vectorList.end(); iter4++ )
+    for( list<vector<QtONCStream*>*>::iterator iter = vectorList.begin(); iter != vectorList.end(); iter++ )
     {
-        delete *iter4;
-        *iter4=NULL;
+        if (*iter != NULL)
+        {
+            delete *iter;
+            *iter=NULL;
+        }
     }
 
-    list<char *>::iterator iter5;
-    for( iter5 = lexedCStringList.begin(); iter5 != lexedCStringList.end(); iter5++ )
+    for( list<char *>::iterator iter = lexedCStringList.begin(); iter != lexedCStringList.end(); iter++ )
     {
-        free(*iter5);
-        *iter5=NULL;
+        if (*iter != NULL)
+        {
+            free(*iter);
+            *iter=NULL;
+        }
     }
 }
 

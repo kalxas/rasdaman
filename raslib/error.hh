@@ -546,7 +546,7 @@ public:
 #define OVERLAYPATTERNTOOSMALL          239
 #define INSERTINTORCINDEX           240
 #define NOTILINGDEFINED             241
-#define UNSATIFIEDMDDCONSTANT           373
+#define UNSATISFIEDMDDCONSTANT           373
 #define DATABASE_EXISTS             708
 #define FILEDATADIR_NOTFOUND        709
 #define FAILEDWRITINGTODISK         710

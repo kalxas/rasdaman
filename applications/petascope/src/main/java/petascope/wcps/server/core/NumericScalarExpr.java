@@ -40,6 +40,7 @@ public class NumericScalarExpr extends AbstractRasNode {
     public static final Set<String> NODE_NAMES = new HashSet<String>();
     private static final String[] NODE_NAMES_ARRAY = {
         WcpsConstants.MSG_NUMERIC_CONSTANT.toLowerCase(),
+        WcpsConstants.MSG_NAN.toLowerCase(),
         WcpsConstants.MSG_COMPLEX_CONSTANT.toLowerCase(),
         WcpsConstants.MSG_CONDENSE.toLowerCase(),
         WcpsConstants.MSG_REDUCE.toLowerCase(),
@@ -97,6 +98,10 @@ public class NumericScalarExpr extends AbstractRasNode {
                     throw new WCPSException("Could not understand constant: " + value);
                 }
             }
+        } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_NAN)) {
+            twoChildren = false;
+            op = code(nodeName);
+            value = node.getFirstChild().getNodeValue();
         } else if (nodeName.equalsIgnoreCase(WcpsConstants.MSG_COMPLEX_CONSTANT)
                 || nodeName.equalsIgnoreCase(WcpsConstants.MSG_CONDENSE)
                 || nodeName.equalsIgnoreCase(WcpsConstants.MSG_REDUCE)) {
@@ -182,6 +187,9 @@ public class NumericScalarExpr extends AbstractRasNode {
     private String code(String name) {
         String op = "";
         if (name.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_CONSTANT)) {
+            op = WcpsConstants.MSG_VALUE;
+        }
+        if (name.equalsIgnoreCase(WcpsConstants.MSG_NAN)) {
             op = WcpsConstants.MSG_VALUE;
         }
         if (name.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_UNARY_MINUS) || name.equalsIgnoreCase(WcpsConstants.MSG_NUMERIC_MINUS)) {

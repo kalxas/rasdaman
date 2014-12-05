@@ -239,3 +239,39 @@ function import_rasql_data()
   create_coll $TEST_RGB2 RGBSet
   insert_into $TEST_RGB2 "$TESTDATA_PATH/rgb.png" "" "decode"
 }
+
+
+#
+# import data used in rasql tests. Expects arguments
+# $1 - testdata dir holding files to be imported
+#
+function import_nullvalues_data()
+{
+  local TESTDATA_PATH="$1"
+  if [ ! -d "$TESTDATA_PATH" ]; then
+    error "testdata path $TESTDATA_PATH not found."
+  fi
+  if [ ! -f "$TESTDATA_PATH/types.dl" ]; then
+    error "testdata file $TESTDATA_PATH/types.dl not found"
+  fi
+
+  local mdd_type=NullValueArrayTest
+  local set_type=NullValueSetTest
+
+  # check data types and insert if not available
+  check_user_type $set_type
+
+  drop_colls $TEST_NULL
+
+  create_coll $TEST_NULL $set_type
+  $RASQL -q "insert into $TEST_NULL values marray x in [0:3,0:3] values (char)(x[0] + x[1] + 1)" | tee -a $LOG
+}
+
+#
+# drop null values test data, including imported null types
+#
+drop_nullvalues_data()
+{
+  drop_colls $TEST_NULL
+  drop_types NullValueSetTest NullValueArrayTest
+}

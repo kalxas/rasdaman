@@ -209,8 +209,10 @@ TransactionIf::abort()
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
     {
         LEAVE( "TransactionIf::abort() Error: cannot abort libpq TA: " << PQerrorMessage(pgConn) );
+        PQclear(pgResult);
         generateException();
     }
+    PQclear(pgResult);
 
     AdminIf::setAborted(true);
     TypeFactory::freeTempTypes();

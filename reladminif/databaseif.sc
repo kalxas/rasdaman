@@ -142,15 +142,6 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
         UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_ITILES_IX "
                      "ON RAS_ITILES (ITileId)");
 
-        // -- enterprise start
-        // relfiletiles
-        UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_FILETILES ("
-                     "TileId INTEGER PRIMARY KEY AUTOINCREMENT,"
-                     "FilePath VARCHAR NOT NULL)");
-        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_FILETILES_IX "
-                     "ON RAS_FILETILES (TileId)");
-        // -- enterprise end
-
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_ITMAP ("
                      "TileId INTEGER PRIMARY KEY AUTOINCREMENT,"
                      "IndexId INTEGER NOT NULL)");
@@ -322,7 +313,6 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
                      "    FROM"
                      "        RAS_MDDDOMTYPES");
 
-        // -- enterprise start
         // nullvalues
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_NULLVALUES ("
                      "SetTypeOId INTEGER NOT NULL,"
@@ -330,63 +320,11 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
         UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_NULLVALUES_IX "
                      "ON RAS_NULLVALUES (SetTypeOId)");
 
-        // udfs
-        UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_UDFS ("
-                     "UDFName VARCHAR NOT NULL,"
-                     "UDFNamespace VARCHAR NOT NULL,"
-                     "UDFLang VARCHAR NOT NULL,"
-                     "UDFResult VARCHAR NOT NULL,"
-                     "UDFBlocking BOOL NOT NULL,"
-                     "UDFDeterm BOOL NOT NULL,"
-                     "UDFFile VARCHAR,"
-                     "UDFBody TEXT)");
-        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_UDFS_IX "
-                     "ON RAS_UDFS (UDFName, UDFNamespace)");
-
-        UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_UDF_PARAMETERS ("
-                     "UDFParameterId INTEGER PRIMARY KEY AUTOINCREMENT,"
-                     "UDFName VARCHAR NOT NULL,"
-                     "UDFNamespace VARCHAR NOT NULL,"
-                     "UDFParameterName VARCHAR NOT NULL,"
-                     "UDFParameterType VARCHAR NOT NULL)");
-        UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_UDFBODY ("
-                     "UOId        INTEGER PRIMARY KEY AUTOINCREMENT,"
-                     "Name        VARCHAR(254) NOT NULL,"
-                     "Body        CHAR(3700) NOT NULL)");
-        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_UDFBODY_IX "
-                     "ON RAS_UDFBODY (UOId)");
-
-        UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_UDFARGS ("
-                     "UOId        INTEGER PRIMARY KEY AUTOINCREMENT,"
-                     "ArgNum      SMALLINT NOT NULL,"
-                     "ArgName     VARCHAR(254) NOT NULL)");
-        UPDATE_QUERY("CREATE INDEX IF NOT EXISTS RAS_UDFARGSC_IX "
-                     "ON RAS_UDFARGS(UOId)");
-        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_UDFARGS_IX "
-                     "ON RAS_UDFARGS(UOId, ArgNum)");
-
-        UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_UDFPACKAGE ("
-                     "UOId        INTEGER PRIMARY KEY AUTOINCREMENT,"
-                     "Name        VARCHAR(254) NOT NULL)");
-        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_UDFPACKAGEN_IX "
-                     "ON RAS_UDFPACKAGE (Name)");
-        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_UDFPACKAGEO_IX "
-                     "ON RAS_UDFPACKAGE (UOId)");
-
-        UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_UDFNSCONTENT ("
-                     "UOId        INTEGER PRIMARY KEY AUTOINCREMENT,"
-                     "UDFOId      INTEGER NOT NULL)");
-        UPDATE_QUERY("CREATE INDEX IF NOT EXISTS RAS_UDFNSCONTENTC_IX "
-                     "ON RAS_UDFNSCONTENT(UOId)");
-        UPDATE_QUERY("CREATE UNIQUE INDEX IF NOT EXISTS RAS_UDFNSCONTENT_IX "
-                     "ON RAS_UDFNSCONTENT(UOId, UDFOId)");
-        // -- enterprise end
-
         // database updates
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_DBUPDATES ("
                      "UpdateType VARCHAR(5) PRIMARY KEY,"
                      "UpdateNumber INTEGER)");
-        UPDATE_QUERY("INSERT INTO RAS_DBUPDATES values ('re', 6)");
+        UPDATE_QUERY("INSERT INTO RAS_DBUPDATES values ('rc', 6)");
 
         disconnect();
     }
@@ -439,18 +377,11 @@ DatabaseIf::destroyDB(const char* dbName) throw (r_Error)
     DROP_TABLE("RAS_STORAGE");
     DROP_TABLE("RAS_COUNTERS");
     DROP_TABLE("RAS_PYRAMIDS");
-    DROP_TABLE("RAS_UDFBODY");
-    DROP_TABLE("RAS_UDFARGS");
-    DROP_TABLE("RAS_UDFPACKAGE");
-    DROP_TABLE("RAS_UDFNSCONTENT");
     DROP_TABLE("RAS_LOCKEDTILES");
     DROP_TABLE("RAS_RCINDEXDYN");
     DROP_TABLE("RAS_ADMIN");
     DROP_TABLE("RAS_DBUPDATES");
     DROP_TABLE("RAS_NULLVALUES");
-    DROP_TABLE("RAS_UDF_PARAMETERS");
-    DROP_TABLE("RAS_FILETILES");
-    DROP_TABLE("RAS_UDFS");
 
     disconnect();
 

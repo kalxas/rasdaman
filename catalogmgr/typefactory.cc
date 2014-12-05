@@ -196,7 +196,14 @@ TypeFactory::addSetType(const SetType* type)
     }
     else
     {
-        persistentType = new SetType((char*)type->getTypeName(), addMDDType(type->getMDDType()));
+        persistentType = new SetType((char*)type->getTypeName(), (MDDType*) addMDDType(type->getMDDType()));
+
+        DBMinterval* interval = type->getNullValues();
+        if (interval != NULL)
+        {
+            persistentType->setNullValues(*interval);
+        }
+
         persistentType->setPersistent(true);
         RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "type is now persistent " << type->getName() << " " << persistentType->getOId());
         ObjectBroker::registerDBObject(persistentType);

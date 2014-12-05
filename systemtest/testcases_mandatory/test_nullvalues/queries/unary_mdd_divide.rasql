@@ -1,0 +1,1 @@
+select c/10 from nulltest as c

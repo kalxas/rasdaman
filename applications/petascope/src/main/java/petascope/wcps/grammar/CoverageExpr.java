@@ -43,7 +43,11 @@ public class CoverageExpr implements IParseTreeNode {
 
     public CoverageExpr(String n) {
         coverageName = n;
-        function = WcpsConstants.MSG_COVERAGE;
+        if (WcpsConstants.MSG_NAN.equals(n)) {
+            function = WcpsConstants.MSG_NAN;
+        } else {
+            function = WcpsConstants.MSG_COVERAGE;
+        }
     }
 
     /* Unary Induced Expressions */
@@ -64,9 +68,10 @@ public class CoverageExpr implements IParseTreeNode {
     public String toXML() {
         String result = "";
 
-        if (function.equals(WcpsConstants.MSG_COVERAGE)) {
-            result = "<" + WcpsConstants.MSG_COVERAGE + ">" + coverageName + "</" +
-                    WcpsConstants.MSG_COVERAGE + ">";
+        if (function.equals(WcpsConstants.MSG_COVERAGE) ||
+            function.equals(WcpsConstants.MSG_NAN)) {
+            result = "<" + function + ">" + coverageName + "</" +
+                    function + ">";
         } else if (function.equals(WcpsConstants.MSG_BINARY_OP)) {
             formatOperation();
             result = "<" + op + ">" + e1.toXML() + e2.toXML() + "</" + op + ">";

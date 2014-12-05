@@ -35,7 +35,6 @@ import petascope.util.TimeUtil;
 import petascope.util.WcpsConstants;
 import petascope.wcps.metadata.CoverageInfo;
 import petascope.wcps.metadata.DomainElement;
-
 import static petascope.util.WcpsConstants.MSG_STAR;
 
 /**

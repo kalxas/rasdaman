@@ -78,6 +78,8 @@ public:
     QtOperation* getUpdateSource();
     ///returns input
     QtONCStream* getInput();
+    ///set null values
+    void setNullValues(QtOperation* nullValues);
     //@}
 
     /// method for identification of nodes
@@ -86,11 +88,6 @@ public:
     /// method for query rewrite
     inline virtual void setInput( QtOperation* child, QtOperation* input);
 
-    /// pre optimization
-    //virtual void preOptimize();
-    /**
-       Pre-Optimization step is passed to the input streams.
-    */
 
     /// type checking
     virtual void checkType();
@@ -99,6 +96,9 @@ private:
     /// evaluate one tupel of the input stream
     void evaluateTupel(QtNode::QtDataList* nextTupel);
     
+    /// evaluate null values update
+    void evaluateNullValues(QtNode::QtDataList* nextTupel);
+
     /// check validity of operands
     bool checkOperands(QtNode::QtDataList* nextTupel, QtData* target, QtData* source);
     
@@ -122,6 +122,9 @@ private:
 
     /// target expression
     QtOperation* updateSource;
+
+    /// null values
+    QtOperation* nullValues;
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;

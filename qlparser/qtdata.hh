@@ -5,6 +5,7 @@
 
 #include "qlparser/parseinfo.hh"
 #include "raslib/rminit.hh"
+#include "catalogmgr/nullvalues.hh"
 
 #ifndef CPPSTDLIB
 #include <ospace/string.h> // STL<ToolKit>
@@ -80,7 +81,7 @@ specific data type handled by the query tree.
 
 */
 
-class QtData
+class QtData : public NullValuesHandler
 {
 public:
     // construktor

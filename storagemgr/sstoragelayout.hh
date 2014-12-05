@@ -293,6 +293,5 @@ protected:
 
     //@}
 
-
 };
 #endif

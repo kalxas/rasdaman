@@ -41,6 +41,7 @@ public class DomainExpr implements IParseTreeNode {
 
     public String toXML() {
         String result = "";
+
         result += coverage.toXML();
         result += "<" + WcpsConstants.MSG_AXIS + ">" + axis + "</" + WcpsConstants.MSG_AXIS + ">";
         result += "<" + WcpsConstants.MSG_CRS + ">" + crs + "</" + WcpsConstants.MSG_CRS + ">";

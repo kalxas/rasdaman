@@ -75,12 +75,6 @@ public:
     /// method for identification of nodes
     inline virtual const QtNodeType getNodeType() const;
 
-    /// pre optimization
-//    virtual void preOptimize();
-    /**
-       Pre-Optimization step is passed to the input streams.
-    */
-
     /// type checking
     virtual void checkType();
 

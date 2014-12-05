@@ -63,4 +63,18 @@ typedef struct _sig_ucontext {
 
 void* getFaultAddress(sig_ucontext_t * uc);
 
+/**
+ * Read the contents of fp, and return it as a string. The returned result
+ * must be freed.
+ */
+char* read_file(FILE* fp);
+
+/**
+ * Execute a system command, e.g. 'ls -l'.
+ * @param cmd the command to execute
+ * @return NULL if successful (the command returned 0), otherwise its output
+ * (including stderr), in which case the returned string must be freed.
+ */
+char* execute_system_command(char* cmd);
+
 #endif

@@ -62,6 +62,7 @@ TEST_GREY=test_grey
 TEST_GREY2=test_grey2
 TEST_RGB2=test_rgb2
 TEST_COMPLEX=test_complex
+TEST_NULL=nulltest
 
 
 # ------------------------------------------------------------------------------
@@ -505,8 +506,11 @@ function run_test()
               $WGET -q "$SECORE_URL$QUERY" -O "$out"
               WGET_EXIT_CODE=$?
               ;;
-      select|rasql)
+      select|rasql|nullvalues|jit)
               QUERY=`cat $f`
+              if [ "$SVC_NAME" = "jit" ]; then
+                QUERY="$QUERY [opt 4]"
+              fi
               $RASQL -q "$QUERY" --out file --outfile "$out" --quiet > /dev/null
 
               # move to proper output file

@@ -42,7 +42,7 @@ class CollectionType;
 #include <iostream>
 #include "catalogmgr/ops.hh"
 #include "type.hh"
-#include "reladminif/externs.h"
+#include "relcatalogif/dbminterval.hh"
 
 class MDDType;
 
@@ -113,11 +113,23 @@ public:
         myMDDType->getMemorySize() + sizeof(MDDType*);
     */
 
+    DBMinterval* getNullValues() const;
+    /*@Doc:
+    return null values associated with this type
+    */
+
+    void setNullValues(const r_Minterval &newNullValues);
+    /*@Doc:
+    associate null values with this type
+    */
+
 protected:
     const MDDType* myMDDType;
     /*@Doc:
     persistent pointer to MDDType of collection.
     */
+    /// null values
+    DBMinterval* nullValues;
 
     CollectionType(const char* name);
     /*@Doc:

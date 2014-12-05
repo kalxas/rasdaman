@@ -97,12 +97,6 @@ public:
 
     void setStorageLayout(StorageLayout* layout);
 
-    /// pre optimization
-//    virtual void preOptimize();
-    /**
-       Pre-Optimization step is passed to the input streams.
-    */
-
     /// type checking
     virtual void checkType();
 

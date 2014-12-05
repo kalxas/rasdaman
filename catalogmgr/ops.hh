@@ -39,6 +39,7 @@ rasdaman GmbH.
 #include "qlparser/qtatomicdata.hh"
 
 #include <limits.h>
+#include "nullvalues.hh"
 
 class CondenseOp;
 class UnaryOp;
@@ -123,7 +124,7 @@ This is the ops code and the persistence code: from the typenum the oids are gen
 /**
   * \ingroup Catalogmgrs
   */
-class Ops
+class Ops : public NullValuesHandler
 {
 public:
     enum OpType
@@ -276,7 +277,7 @@ private:
 /**
   * \ingroup Catalogmgrs
   */
-class CondenseOp
+class CondenseOp : public NullValuesHandler
 {
 public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
@@ -303,6 +304,8 @@ protected:
     const BaseType* resType;
     unsigned int resOff;
     unsigned int opOff;
+    bool initialized;
+    bool nullAccu;
 };
 
 //@ManMemo: Module: {\bf catalogif}.
@@ -620,7 +623,7 @@ protected:
 /**
   * \ingroup Catalogmgrs
   */
-class UnaryOp
+class UnaryOp : public NullValuesHandler
 {
 public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operand
@@ -786,7 +789,7 @@ public:
 /**
   * \ingroup Catalogmgrs
   */
-class BinaryOp
+class BinaryOp : public NullValuesHandler
 {
 public:
     /*@ManMemo: constructor gets RasDaMan base type of result and operands
