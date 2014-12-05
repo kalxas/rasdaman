@@ -175,13 +175,13 @@ DBTile::DBTile(r_Bytes newSize, char c, r_Data_Format dataformat)
     :   DBObject(),
         size(newSize),
         cells(NULL),
-        currentFormat(r_Array),
-        dataFormat(dataformat)
+        dataFormat(dataformat),
+        currentFormat(r_Array)
 {
     RMDBGENTER(3, RMDebug::module_blobif, "DBTile", "DBTile(" << newSize << ", '(int)" << (int) c << "', " << dataFormat << ")");
 
     TALK( "DBTile::DBTile() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells );
-    cells = (char*)mymalloc(newSize * sizeof(char));
+    cells = static_cast<char*>(mymalloc(newSize * sizeof(char)));
     objecttype = OId::INVALID;
     memset(cells, c, size);
 
@@ -192,14 +192,14 @@ DBTile::DBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format 
     :   DBObject(),
         size(newSize),
         cells(NULL),
-        currentFormat(r_Array),
-        dataFormat(dataformat)
+        dataFormat(dataformat),
+        currentFormat(r_Array)
 {
     RMDBGENTER(3, RMDebug::module_blobif, "DBTile", "DBTile(" << newSize << ", " << patSize << ", pattern, " << dataFormat << ")");
     objecttype = OId::INVALID;
 
     TALK( "DBTile::DBTile() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells );
-    cells = (char*)mymalloc(newSize * sizeof(char));
+    cells = static_cast<char*>(mymalloc(newSize * sizeof(char)));
 
     r_Bytes i = 0;
     r_Bytes j = 0;
@@ -214,25 +214,22 @@ DBTile::DBTile(r_Bytes newSize, r_Bytes patSize, const char* pat, r_Data_Format 
     }
     else
     {
-        if (patSize >= 0)
+        // fill cells with repeated pattern
+        for (i = 0; i < size; i += patSize)
         {
-            // fill cells with repeated pattern
-            for (i = 0; i < size; i += patSize)
+            for (j = 0; j < patSize; j++)
             {
-                for (j = 0; j < patSize; j++)
-                {
-                    cells[(i+j)]= pat[j];
-                }
+                cells[(i+j)]= pat[j];
             }
-            // pad end with 0
-            if (i != size)
+        }
+        // pad end with 0
+        if (i != size)
+        {
+            // no padding necessary
+            i -= patSize;
+            for (; i < size; i++)
             {
-                // no padding necessary
-                i -= patSize;
-                for (; i < size; i++)
-                {
-                    cells[i]=0;
-                }
+                cells[i]=0;
             }
         }
         else
@@ -259,7 +256,7 @@ DBTile::DBTile(r_Bytes newSize, const char* newCells, r_Data_Format dataformat)
 
     TALK( "DBTile::DBTile() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells );
 
-    cells = (char*)mymalloc(size * sizeof(char));
+    cells = static_cast<char*>(mymalloc(size * sizeof(char)));
     objecttype = OId::INVALID;
     memcpy(cells, newCells, newSize);
 
@@ -318,7 +315,7 @@ DBTile::resize(r_Bytes newSize)
             // cells = NULL;    // added PB 2005-jan-10
         }
         TALK( "DBTile::resize() allocating " << newSize << " bytes for blob cells, previous ptr was " << (long) cells );
-        cells = (char*)mymalloc(newSize * sizeof(char));
+        cells = static_cast<char*>(mymalloc(newSize * sizeof(char)));
         size = newSize;
     }
 }
@@ -339,7 +336,7 @@ operator << (std::ostream& stream, DBTile& b)
     stream << "\t\tOId\t\t:" << b.myOId << endl;
     stream << "\t\tId\t\t:" << b.myOId.getCounter() << endl;
     stream << "\t\tSize\t\t:" << b.size << endl;
-    stream << "\t\tModified\t:" << (int)b._isModified << endl;
+    stream << "\t\tModified\t:" << static_cast<int>(b._isModified) << endl;
     stream << "\t\tCells\t\t:";
     RMDBGIF(20, RMDebug::module_blobif, "DBTile", for (int a = 0; a < b.size; a++)\
             stream << " " << (int)(b.cells[a]); stream << endl;)
