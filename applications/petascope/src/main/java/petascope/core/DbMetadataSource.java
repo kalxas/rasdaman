@@ -40,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
@@ -844,6 +845,57 @@ public class DbMetadataSource implements IMetadataSource {
         return supportedFormats.get(format);
     }
 
+
+    /**
+     * select index and uri from r where ps_domain_set contains ps_crs.id
+     * @param r
+     * @param coverageName
+     * @return TreeMap with index as key and list of uris as values
+     * @throws PetascopeException
+     */
+    private TreeMap idx(ResultSet r, String coverageName) throws PetascopeException {
+        TreeMap<Integer, List<String>> ret = new TreeMap<Integer, List<String>>();
+        try {
+
+            ResultSet rLocal = r;
+            if (!rLocal.next()) {
+                throw new PetascopeException(ExceptionCode.InvalidRequest,
+                        "Coverage '" + coverageName + "' is missing the domain-set information.");
+            } else {
+                do {
+                    Array crsIds = rLocal.getArray(DOMAINSET_NATIVE_CRS_IDS);
+                    Integer[] ids = (Integer[]) crsIds.getArray();
+
+                    List<Integer> idSeries = new ArrayList<Integer>();
+                    for (int i = 0; i < ids.length; i++) {
+                        idSeries.add(ids[i]);
+                    }
+                    //check if id is in the series
+                    Integer index = idSeries.indexOf(rLocal.getInt(CRS_ID));
+                    if (index != -1) {
+                        //index+1 because we need one based index
+
+                        if (ret.containsKey(index + 1)) {
+                            ret.get(index + 1).add(rLocal.getString(CRS_URI));
+                        } else {
+                            List<String> uriList = new ArrayList<String>();
+                            uriList.add(rLocal.getString(CRS_URI));
+                            ret.put(index + 1, uriList);
+                        }
+                    }
+
+                } while (rLocal.next());
+            }
+
+        } catch (SQLException sqle) {
+            log.error("Failed retrieving CRS uris", sqle);
+            throw new PetascopeException(ExceptionCode.ResourceError,
+                    "Metadata database error", sqle);
+        }
+
+        return ret;
+    }
+
     /**
      * Given a coverage name; scans its metadata information thoroughly
      * (range, domain, extra) and stores it in a dedicated class instance.
@@ -935,38 +987,43 @@ public class DbMetadataSource implements IMetadataSource {
             List<Pair<CrsDefinition.Axis,String>> crsAxes = new ArrayList<Pair<CrsDefinition.Axis,String>>();
 
             if (!coverageType.equals(XMLSymbols.LABEL_GRID_COVERAGE)) {
-                sqlQuery =
-                        " SELECT (SELECT " + PROCEDURE_IDX + "("
-                                   + TABLE_DOMAINSET + "." + DOMAINSET_NATIVE_CRS_IDS + ","
-                                   + TABLE_CRS       + "." + CRS_ID  + ")) AS idx, "
-                                   + TABLE_CRS       + "." + CRS_URI +
-                          " FROM " + TABLE_DOMAINSET + "," + TABLE_CRS +
-                         " WHERE " + TABLE_DOMAINSET + "." + DOMAINSET_NATIVE_CRS_IDS + " @> " +
-                         " ARRAY[" + TABLE_CRS       + "." + CRS_ID + "] AND "
-                                   + TABLE_DOMAINSET + "." + DOMAINSET_COVERAGE_ID + "=" + coverageId
-                                   + " ORDER BY idx " // crucial
-                        ;
+
+                sqlQuery
+                        = " SELECT " + TABLE_DOMAINSET + "." + DOMAINSET_NATIVE_CRS_IDS + " , "
+                        + TABLE_CRS + "." + CRS_ID + " ," + TABLE_CRS + "." + CRS_URI
+                        + " FROM " + TABLE_DOMAINSET + "," + TABLE_CRS
+                        + " WHERE " + TABLE_DOMAINSET + "." + DOMAINSET_COVERAGE_ID + "=" + coverageId;
+
                 log.debug("SQL query: " + sqlQuery);
                 r = s.executeQuery(sqlQuery);
-                if (!r.next()) {
+
+                TreeMap<Integer, List<String>> idUriMap = idx(r, coverageName);
+
+                if (0 == idUriMap.size()) {
                     throw new PetascopeException(ExceptionCode.InvalidRequest,
                             "Coverage '" + coverageName + "' is missing the domain-set information.");
-                } else do {
-                    // Store fetched data
-                    // Replace possible %SECORE_URL% prefixes with resolvable configured SECORE URLs:
-                    String uri = r.getString(CRS_URI).replace(SECORE_URL_KEYWORD, SECORE_URLS.get(0));
-                    if (null == uri) {
-                        log.error("No native CRS found for this coverage.");
-                        throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
-                            "No native CRS found for this coverage.");
+                } else {
+                    for (Map.Entry<Integer, List<String>> entry : idUriMap.entrySet()) {
+                        List<String> uriList = entry.getValue();
+                        for (String each : uriList) {
+                            // Store fetched data
+                            // Replace possible %SECORE_URL% prefixes with resolvable configured SECORE URLs:
+                            String uri = each.replace(SECORE_URL_KEYWORD, SECORE_URLS.get(0));
+                            if (null == uri) {
+                                log.error("No native CRS found for this coverage.");
+                                throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
+                                        "No native CRS found for this coverage.");
+                            }
+                            log.debug("Decoding " + uri + " ...");
+                            // If not cached, parse the SECORE-resolved definition ot this CRS
+                            CrsDefinition crsDef = CrsUtil.getGmlDefinition(uri);
+                            for (CrsDefinition.Axis axis : crsDef.getAxes()) {
+                                crsAxes.add(Pair.of(axis, uri));
+                            }
+                        }
                     }
-                    log.debug("Decoding " + uri + " ...");
-                    // If not cached, parse the SECORE-resolved definition ot this CRS
-                    CrsDefinition crsDef = CrsUtil.getGmlDefinition(uri);
-                    for (CrsDefinition.Axis axis : crsDef.getAxes()) {
-                        crsAxes.add(Pair.of(axis, uri));
-                    }
-                } while (r.next());
+
+                }
                 log.trace("Coverage " + coverageName + " CRS decoded: it has " + crsAxes.size() + (crsAxes.size()>1?" axes":" axis") + ".");
                 // Check CRS
                 if (crsAxes.isEmpty()) {
