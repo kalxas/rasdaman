@@ -75,5 +75,28 @@ define(function () {
         return this.endpoint.substr(0, this.endpoint.lastIndexOf('?')) + "/" + "SERVICE=" + this.service + "&VERSION=" + this.version + "&REQUEST=ProcessCoverages";
     };
 
+    WCS.prototype.insertCoverage = function (/*string*/coverageRef, /*bool*/useNewId) {
+        this.request = "InsertCoverage";
+        var url = this.endpoint + "SERVICE=" + this.service + "&VERSION=" + this.version + "&request=" + this.request;
+        if (!coverageRef || typeof(coverageRef) != "string") {
+            throw new Error("You must indicate a coverage source.");
+        }
+        url += "&coverageRef=" + encodeURI(coverageRef);
+        if(useNewId){
+            url += "&useId=new";
+        }
+        return url;
+    }
+
+    WCS.prototype.deleteCoverage = function(/*string*/coverageId) {
+        this.request = "DeleteCoverage";
+        var url = this.endpoint + "SERVICE=" + this.service + "&VERSION=" + this.version + "&request=" + this.request;
+        if (!coverageId || typeof(coverageId) != "string") {
+            throw new Error("You must indicate at least one coverage id.");
+        }
+        url += "&coverageId=" + coverageId;
+        return url;
+    }
+
     return WCS;
 });

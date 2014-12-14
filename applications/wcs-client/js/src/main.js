@@ -35,8 +35,6 @@ requirejs.config({
 // your application logic in there.
 //ALWAYS ADD jQuery at the end
 requirejs(["src/viewmodels/MainViewModel", "knockout", "knockout.validation", "src/Bindings", "jQueryCollapse", "jQuery", "jQueryUI"], function (MainViewModel, ko, validation, bindings, collapse) {
-    console.log(bindings);
-    console.log(collapse);
     ko.validation.rules.pattern.message = 'Invalid.';
 
 

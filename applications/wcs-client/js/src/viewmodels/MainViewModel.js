@@ -2,7 +2,9 @@
  * Created by Alexandru on 25.10.2014.
  */
 
-define(["knockout", "src/viewmodels/GetCapabilitiesTab", "src/viewmodels/DescribeCoverageTab", "src/models/CoverageDescriptions", "src/viewmodels/GetCoverageTab"], function (ko, GetCapabilitiesTab, DescribeCoverageTab, WCS, xmlToJSON, Capabilities, CoverageDescriptions, GetCoverageTab) {
+define(["knockout", "src/viewmodels/GetCapabilitiesTab", "src/viewmodels/DescribeCoverageTab", "src/viewmodels/InsertCoverageTab",
+        "src/viewmodels/DeleteCoverageTab", "src/models/CoverageDescriptions", "src/viewmodels/GetCoverageTab"],
+    function (ko, GetCapabilitiesTab, DescribeCoverageTab, InsertCoverageTab, DeleteCoverageTab, WCS, xmlToJSON, Capabilities, CoverageDescriptions, GetCoverageTab) {
     function MainViewModel() {
         var self = this;
         self.errorMessage = ko.observable(null);
@@ -12,11 +14,13 @@ define(["knockout", "src/viewmodels/GetCapabilitiesTab", "src/viewmodels/Describ
         self.describeCoverageTab = ko.observable(new DescribeCoverageTab(self));
         self.processCoveragesTab = ko.observable(null);
         self.getCoverageTab = ko.observable(null);
-
+        self.insertCoverageTab = ko.observable(new InsertCoverageTab(self));
+        self.deleteCoverageTab = ko.observable(new DeleteCoverageTab(self));
 
         self.isDescribeCoverageEnabled = ko.observable(false);
         self.isGetCoverageEnabled = ko.observable(false);
         self.isProcessCoveragesEnabled = ko.observable(false);
+        self.isTransactionExtensionEnabled = ko.observable(false);
 
         self.processCoverageFrameUrl = ko.computed(function () {
             if (this.wcsInstance()) {

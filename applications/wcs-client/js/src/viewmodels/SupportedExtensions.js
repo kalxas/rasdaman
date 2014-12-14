@@ -8,6 +8,7 @@ define(function () {
         recordSubsetting: "http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/record-subsetting",
         recordSubsettingBackup: "http://www.opengis.net/spec/WCS_service-extension_range-subsetting/1.0/conf/",
         scalingExtension: "http://www.opengis.net/spec/WCS_service-extension_scaling/1.0/conf/scaling",
-        crs: "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs"
+        crs: "http://www.opengis.net/spec/WCS_service-extension_crs/1.0/conf/crs",
+        transactionExtension: "http://www.opengis.net/spec/WCS_service-extension_transaction/2.0/conf/insert+delete"
     };
 });

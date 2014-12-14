@@ -84,6 +84,8 @@
         <li><a id="describe-coverage-tab-header" href="#describe-coverage-tab">Describe Coverage</a></li>
         <li><a id="get-coverage-tab-header" href="#get-coverage-tab">Get Coverage</a></li>
         <li><a id="process-coverages-tab-header" href="#process-coverages-tab">Process Coverages</a></li>
+        <li><a id="insert-coverage-tab-header" href="#insert-coverage-tab">Insert Coverage</a></li>
+        <li><a id="delete-coverage-tab-header" href="#delete-coverage-tab">Delete Coverage</a></li>
     </ul>
     <div id="get-capabilities-tab" data-bind="enabledTab:true, with:getCapabilitiesTab()">
         <!--Begin select endpoint row-->
@@ -812,6 +814,67 @@
                 <iframe style="height:650px;border:0; margin:0 auto; overflow: visible;" width="100%" height="100%"
                         data-bind="attr:{src:processCoverageFrameUrl}">
                 </iframe>
+            </div>
+        </div>
+    </div>
+    <div id="insert-coverage-tab" data-bind="if:isTransactionExtensionEnabled(),enabledTab:isTransactionExtensionEnabled()">
+        <div class="row top-buffer">
+            <div class="col-lg-8 col-centered">
+                <div class="input-group input-group-lg">
+                        <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-globe">
+                        </span>
+                        </span>
+                    <input id="coverage-ref" type="text" class="form-control"
+                           placeholder="Input an URL pointing to the coverage to be inserted"/>
+
+                        <span class="input-group-btn">
+                        <button data-bind="visible: !insertCoverageTab().requestInProgress(),click:insertCoverageTab().insertCoverage" class="btn btn-default"
+                                type="button"
+                                id="insert-coverage-button">
+                            Insert Coverage
+                        </button>
+                            <img data-bind="visible: insertCoverageTab().requestInProgress()" src="../img/loading.gif" style="padding-left: 30px; height: 40px"/>
+                        </span>
+                </div>
+                <div class="row">
+                    <table cellspacing="10" cellpadding="10">
+                        <tbody>
+                        <tr>
+                            <td style="padding: 5px">
+                                <label for="use-new-id">Use a generated, unique coverage id: </label>
+                            </td>
+                            <td style="padding: 5px">
+                                <input id="use-new-id" type="checkbox"/>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="delete-coverage-tab" data-bind="if:isTransactionExtensionEnabled(),enabledTab:isTransactionExtensionEnabled()">
+        <div class="row top-buffer">
+            <div class="col-lg-8 col-centered">
+                <div class="input-group input-group-lg">
+                        <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-globe">
+                        </span>
+                        </span>
+                    <input data-bind="autocompleteBox: getCapabilitiesTab().serverCapabilities().contents.coverageSummary"
+                           id="delete-coverage-id" type="text" class="form-control"
+                           placeholder="Input coverage ID or part of it"/>
+
+                        <span class="input-group-btn">
+                        <button data-bind="visible: !deleteCoverageTab().requestInProgress(),click:deleteCoverageTab().deleteCoverage" class="btn btn-default"
+                                type="button"
+                                id="delete-coverage-button">
+                            Delete Coverage
+                        </button>
+                            <img data-bind="visible: deleteCoverageTab().requestInProgress()" src="../img/loading.gif" style="padding-left: 30px; height: 40px"/>
+                        </span>
+                </div>
             </div>
         </div>
     </div>
