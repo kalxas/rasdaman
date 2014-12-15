@@ -53,7 +53,7 @@ OId::initialize()
     SQLiteQuery query("SELECT NextValue FROM RAS_COUNTERS ORDER BY CounterId");
     long long nextoid;
     int i = 1;
-    while (query.nextRow())
+    while (query.nextRow() && i < OId::maxCounter)
     {
         nextoid = query.nextColumnLong();
         TALK( "-> nextoid=" << nextoid );
