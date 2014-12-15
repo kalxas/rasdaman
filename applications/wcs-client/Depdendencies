@@ -1,0 +1,37 @@
+ This file documents the libraries included in this project and their licenses:
+
+ 1. Bootstrap v3.3.1 (MIT License):
+    - Homepage: http://getbootstrap.com/getting-started/ .Accessed at 14.12.2014
+    - License: https://github.com/twbs/bootstrap/blob/master/LICENSE . Accessed at 14.12.2014
+
+ 2. jQuery(MIT License):
+    -Homepage:https://jquery.org/ .Accessed at 14.12.2014
+    -License: https://jquery.org/license/ . Accessed at 14.12.2014
+
+ 3. jQuery Collapse v1.1.0 (MIT License):
+    -Homepage: http://webcloud.se/jQuery-Collapse/. Accessed at 14.12.2014
+    -License: https://github.com/danielstocks/jQuery-Collapse/blob/master/LICENSE. Accessed at 14.12.2014
+
+ 4. jQuery UI v1.11.2 (MIT License):
+    -Homepage: http://jqueryui.com/. Accessed at 14.12.2014
+    -License: https://jquery.org/license/. Accessed at 14.12.2014
+
+ 5. Jasmine(MIT License):
+    -Homepage: http://jasmine.github.io/ . Accessed at 14.12.2014
+    -License: https://github.com/jasmine/jasmine/blob/master/MIT.LICENSE .Accessed at 14.12.2014
+
+ 6. KnockoutJS(MIT License):
+    -Homepage: http://knockoutjs.com/ . Accessed at 14.12.2014
+    -License: https://github.com/knockout/knockout/blob/master/LICENSE . Accessed at 14.12.2014
+
+ 7. Google Code Prettify (Apache License, Version 2.0)
+    -Homepage: https://code.google.com/p/google-code-prettify/. Accessed at 14.12.2014
+    -License: http://www.apache.org/licenses/LICENSE-2.0, Accessed at 14.12.2014
+
+ 8. RequireJS (MIT License):
+    -Homepage: http://requirejs.org/ . Accessed at 14.12.2014
+    -License: https://github.com/jrburke/requirejs/blob/master/LICENSE . Accessed at 14.12.2014
+
+ 9. xmlToJSON:
+    - Homepage: https://github.com/metatribal/xmlToJSON . Accessed at 14.12.2014
+    - License: https://github.com/metatribal/xmlToJSON/blob/master/LICENSE . Accessed at 14.12.2014
