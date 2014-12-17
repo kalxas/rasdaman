@@ -837,6 +837,10 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
         long size = ftell( fileD );
         TALK( "file size is " << size << " bytes" );
 
+        if(size==0){
+            throw RasqlError( FILEEMPTY );
+        }
+
         // if no domain specified (this is the case with encoded files), then set to byte stream
         if ( ! mddDomainDef )
         {

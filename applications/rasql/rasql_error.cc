@@ -76,6 +76,9 @@ RasqlError::what()
     case  ILLEGALOUTPUTTYPE:
         errorMsg = "Illegal output type specifier, must be one of none, file, formatted, string, hex.";
         break;
+    case  FILEEMPTY:
+        errorMsg = "The input file is empty.";
+        break;
     case  FILEINACCESSIBLE:
         errorMsg = "Cannot read input file.";
         break;
