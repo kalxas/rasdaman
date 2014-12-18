@@ -1085,7 +1085,7 @@ public class DbMetadataSource implements IMetadataSource {
                 LinkedHashMap<List<BigDecimal>,BigDecimal> gridAxes;    // Offset-vector -> greatest-coefficient (null if no coeffs)
                 List<BigDecimal>         gridOrigin;  // each BD is a coordinate's component
                 Pair<BigInteger, String> rasdamanColl;// collName -> OID
-
+                String rasdamanCollectionType; // mddType:colType
                 // This is a gridded coverage //
 
                 /* RANGE-SET : coverage values (aka features, attributes, etc.) */
@@ -1115,7 +1115,8 @@ public class DbMetadataSource implements IMetadataSource {
                     int storageId = r.getInt(RANGESET_STORAGE_ID);
                     sqlQuery =
                             " SELECT " + RASDAMAN_COLLECTION_NAME  + ", "
-                                       + RASDAMAN_COLLECTION_OID   +
+                                       + RASDAMAN_COLLECTION_OID   + ","
+                                       + RASDAMAN_COLLECTION_BASE_TYPE +
                             " FROM "   + TABLE_RASDAMAN_COLLECTION +
                             " WHERE "  + RASDAMAN_COLLECTION_ID    + "=" + storageId
                             ;
@@ -1130,7 +1131,7 @@ public class DbMetadataSource implements IMetadataSource {
                             r.getBigDecimal(RASDAMAN_COLLECTION_OID).toBigInteger(),
                             r.getString(RASDAMAN_COLLECTION_NAME)
                             );
-
+                    rasdamanCollectionType = r.getString(RASDAMAN_COLLECTION_BASE_TYPE);
                     log.trace("Coverage '" + coverageName + "' has range-set data in " +
                             r.getString(RASDAMAN_COLLECTION_NAME) + ":" + r.getBigDecimal(RASDAMAN_COLLECTION_OID) + ".");
                 }
@@ -1366,7 +1367,7 @@ public class DbMetadataSource implements IMetadataSource {
                         );
                 // non-dynamic coverage:
                 covMeta.setCoverageId(coverageId);
-
+                covMeta.setRasdamanCollectionType(rasdamanCollectionType);
              } else if(WcsUtil.isMultiPoint(coverageType)) {
                 // Fetch the bbox for Multi* Coverages
                 ArrayList<BigDecimal> lowerLeft;
@@ -1489,11 +1490,8 @@ public class DbMetadataSource implements IMetadataSource {
             //insert into ps_coverage table
             int coverageId = insertIntoPsCoverage(s, meta.getCoverageName(), gmlTypeId, nativeFormatId);
             //insert information about the rangeset
-            String imageType = "RGBImage";
-            if(meta.getDimension() == 1){
-                imageType = "GreyImage";
-            }
-            insertRangeSet(s, coverageId, meta.getRasdamanCollection(), imageType);
+            String rasdamanCollectionType = meta.getRasdamanCollectionType();
+            insertRangeSet(s, coverageId, meta.getRasdamanCollection(), rasdamanCollectionType);
             //insert the quantities together with all dependenceis
             insertRangeTypes(s, coverageId, meta.getRangeIterator(), meta.getSweComponentsIterator());
 

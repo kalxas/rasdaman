@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding="UTF-8"?>
+<WMS_Capabilities xmlns="http://www.opengis.net/wms" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  version="$version$" updateSequence="$updateSequence$" xsi:schemaLocation="$schemaLocation$">
+    $service$
+    <Capability>
+        <Request>
+            <GetCapabilities>
+                $getCapabilitiesFormats$
+                <DCPType>
+                    <HTTP>
+                        <Get>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="$serviceUrl$"/>
+                        </Get>
+                    </HTTP>
+                </DCPType>
+            </GetCapabilities>
+            <GetMap>
+                $getMapFormats$
+                <DCPType>
+                    <HTTP>
+                        <Get>
+                            <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="$serviceUrl$"/>
+                        </Get>
+                    </HTTP>
+                </DCPType>
+            </GetMap>
+        </Request>
+        <Exception>
+            $exceptionFormats$
+        </Exception>
+        $layers$
+    </Capability>
+</WMS_Capabilities>

@@ -22,6 +22,7 @@
 package petascope;
 
 import com.oreilly.servlet.MultipartResponse;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -38,11 +39,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.JAXBException;
+
 import net.opengis.ows.v_1_0_0.ExceptionReport;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -79,6 +83,8 @@ import petascope.wcs2.extensions.RESTProtocolExtension;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.templates.Templates;
+import petascope.wms2.servlet.PetascopeInterfaceAdapter;
+import petascope.wms2.servlet.WMSServlet;
 
 /**
  * This servlet is a unified entry-point for all the PetaScope services.
@@ -140,9 +146,9 @@ public class PetascopeInterface extends HttpServlet {
         try {
             log.info("Initializing metadata database");
             meta = new DbMetadataSource(ConfigManager.METADATA_DRIVER,
-                    ConfigManager.METADATA_URL,
-                    ConfigManager.METADATA_USER,
-                    ConfigManager.METADATA_PASS, false);
+                ConfigManager.METADATA_URL,
+                ConfigManager.METADATA_USER,
+                ConfigManager.METADATA_PASS, false);
             log.info("Metadata initialization complete.");
         } catch (Exception e) {
             log.error("Stack trace: {}", e);
@@ -157,6 +163,30 @@ public class PetascopeInterface extends HttpServlet {
         } catch (Exception e) {
             log.error("Stack trace: {}", e);
             throw new ServletException("WCPS initialization error", e);
+        }
+
+        /**
+         * Initialize the WMS 1.3.0 service
+         */
+        try {
+            log.info("WMS13: Initializing the WMS 1.3.0 service...");
+            wms13Adapter.initWMS13Servlet(this.getServletConfig());
+            log.info("WMS13: Initialization complete.");
+        }
+        catch (Exception e){
+            log.error("WMS 1.3.0 could not be initialized due to {}", e);
+        }
+
+        /**
+         * Initialize the WMS 1.3.0 service
+         */
+        try {
+            log.info("WMS11: Initializing the WMS 1.1.0 service...");
+            wms13Adapter.initWMS11Servlet(this.getServletConfig());
+            log.info("WMS11: Initialization complete.");
+        }
+        catch (Exception e){
+            log.error("WMS 1.1.0 could not be initialized due to {}", e);
         }
 
         /* Initialize WCS Service */
@@ -183,6 +213,7 @@ public class PetascopeInterface extends HttpServlet {
         }
     }
 
+
     /* Build a dictionary of parameter names and values, given a request string */
     private Map<String, String> buildParameterDictionary(String request) {
         HashMap<String, String> map = new HashMap<String, String>(3);
@@ -206,7 +237,7 @@ public class PetascopeInterface extends HttpServlet {
     }
 
     private void setServletURL(HttpServletRequest req) {
-        if("".equals(ConfigManager.PETASCOPE_SERVLET_URL) )
+        if ("".equals(ConfigManager.PETASCOPE_SERVLET_URL))
             ConfigManager.PETASCOPE_SERVLET_URL = req.getRequestURL().toString();
     }
 
@@ -240,6 +271,13 @@ public class PetascopeInterface extends HttpServlet {
         /* Process the request */
         try {
             try {
+                //Check if this is a wms request and handled it accordingly
+                if(wms13Adapter.handleGetRequests(httpRequest, httpResponse)){
+                    //this is a wms13 request, and it was handled in the handleGetRequests
+                    //stop further execution
+                    return;
+                }
+
                 meta.ensureConnection();
 
                 httpResponse.setHeader("Access-Control-Allow-Origin", CORS_ACCESS_CONTROL_ALLOW_ORIGIN);
@@ -265,11 +303,11 @@ public class PetascopeInterface extends HttpServlet {
                 // Java API: "This method returns null if there was no extra path information."
                 String[] prsUrl = (null == pathInfo) ? new String[0] : pathInfo.substring(1).split("/");
                 ArrayList<String> splitURI = new ArrayList<String>(Arrays.asList(
-                        prsUrl
-                        ));
+                    prsUrl
+                ));
                 if (service == null && splitURI.size() > 1
-                        && (splitURI.get(0).equalsIgnoreCase(RESTProtocolExtension.REST_PROTOCOL_WCS_IDENTIFIER)
-                        || splitURI.get(0).equals(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER))) {
+                    && (splitURI.get(0).equalsIgnoreCase(RESTProtocolExtension.REST_PROTOCOL_WCS_IDENTIFIER)
+                    || splitURI.get(0).equals(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER))) {
                     service = splitURI.get(0).toUpperCase();
                 }
 
@@ -302,15 +340,15 @@ public class PetascopeInterface extends HttpServlet {
                                 version = "";
                                 for (String v : versions) {
                                     if (ConfigManager.WCS_VERSIONS.contains(v)
-                                            && !v.startsWith("1")) { // the WCS 1.1 server doesn't support GET-KVP
+                                        && !v.startsWith("1")) { // the WCS 1.1 server doesn't support GET-KVP
                                         version = v;
                                         break;
                                     }
                                 }
                             }
                         } else if (operation.equals(RequestHandler.DESCRIBE_COVERAGE) || operation.equals(RequestHandler.PROCESS_COVERAGE)
-                                || operation.equals(RequestHandler.GET_COVERAGE) || operation.equals(RequestHandler.INSERT_COVERAGE)
-                                || operation.equals(RequestHandler.DELETE_COVERAGE) || operation.equals(RequestHandler.UPDATE_COVERAGE)) {
+                            || operation.equals(RequestHandler.GET_COVERAGE) || operation.equals(RequestHandler.INSERT_COVERAGE)
+                            || operation.equals(RequestHandler.DELETE_COVERAGE) || operation.equals(RequestHandler.UPDATE_COVERAGE)) {
                             version = paramMap.get(KVPSymbols.KEY_VERSION);
                             if (version == null && splitURI.size() > 1) {
                                 version = splitURI.get(1);
@@ -334,7 +372,7 @@ public class PetascopeInterface extends HttpServlet {
 
                 // splitURI list can be of size 0 if there is not path info in the HTTP request.
                 if (request2 == null && splitURI.size() > 0 &&
-                        splitURI.get(0).equalsIgnoreCase(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER)) {
+                    splitURI.get(0).equalsIgnoreCase(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER)) {
                     if (splitURI.size() > 2 && splitURI.get(1).equals(RESTProtocolExtension.REST_PROTOCOL_WCPS_IDENTIFIER)) {
                         String queryDecoded = StringUtil.urldecode(splitURI.get(2), httpRequest.getContentType());
                         request2 = RasUtil.abstractWCPSToRasql(queryDecoded, wcps);
@@ -352,7 +390,7 @@ public class PetascopeInterface extends HttpServlet {
                 if (request == null && (requestBody == null || requestBody.length() == 0)) {
                     if (paramMap.size() > 0) {
                         throw new WCSException(ExceptionCode.NoApplicableCode,
-                                "Couldn't understand the recieved request, is the service attribute missing?");
+                            "Couldn't understand the recieved request, is the service attribute missing?");
                     } else {
                         printUsage(httpResponse, request);
                         return;
@@ -365,7 +403,7 @@ public class PetascopeInterface extends HttpServlet {
                 }
 
                 log.debug("Petascope Request: \n------START REQUEST--------\n{}"
-                        + "\n------END REQUEST------\n", request);
+                    + "\n------END REQUEST------\n", request);
 
                 String root = XMLUtil.getRootElementName(request);
                 log.debug("Root Element name: {}", root);
@@ -396,7 +434,7 @@ public class PetascopeInterface extends HttpServlet {
                     }
                     handleWcsRequest(version, root, request, httpResponse, httpRequest);
                 } else if (root.equals(RequestHandler.DESCRIBE_COVERAGE) || root.equals(RequestHandler.GET_COVERAGE) || root.equals(RequestHandler.PROCESS_COVERAGE)
-                           || root.equals(RequestHandler.INSERT_COVERAGE) || root.equals(RequestHandler.DELETE_COVERAGE) || root.equals(RequestHandler.UPDATE_COVERAGE)) {
+                    || root.equals(RequestHandler.INSERT_COVERAGE) || root.equals(RequestHandler.DELETE_COVERAGE) || root.equals(RequestHandler.UPDATE_COVERAGE)) {
                     Document doc = XMLUtil.buildDocument(null, request);
                     String version = doc.getRootElement().getAttributeValue(KVPSymbols.KEY_VERSION);
                     handleWcsRequest(version, root, request, httpResponse, httpRequest);
@@ -412,7 +450,7 @@ public class PetascopeInterface extends HttpServlet {
                 // Finally, cast all other exceptions into a WCSException
                 log.error("Runtime error : {}", e.getMessage());
                 throw new WCSException(ExceptionCode.RuntimeError,
-                        "Runtime error while processing request: " + e.getMessage(), e);
+                    "Runtime error while processing request: " + e.getMessage(), e);
             }
         } // And catch all WCSExceptions, to display to the client
         catch (WCSException e) {
@@ -425,7 +463,7 @@ public class PetascopeInterface extends HttpServlet {
      * resources from different origin domains. i.e. http://example.org can make
      * requests to http://example.com
      *
-     * @param req the http request
+     * @param req  the http request
      * @param resp the http response
      * @throws ServletException
      * @throws IOException
@@ -471,7 +509,7 @@ public class PetascopeInterface extends HttpServlet {
             log.trace("end of error message");
 
             out.println(
-                    "<html><head><title>PetaScope</title></head><body>");
+                "<html><head><title>PetaScope</title></head><body>");
             out.println("<h1>An error has occured</h1>");
             out.println("<p>" + message + "</p>");
             out.println("<p>Stack trace:<br/><small>");
@@ -486,7 +524,7 @@ public class PetascopeInterface extends HttpServlet {
     private void handleUnknownRequest(String request, HttpServletResponse httpResponse) {
         request = "'" + request + "'";
         printError(httpResponse, request, new WCSException(
-                ExceptionCode.NoApplicableCode, "Could not understand request " + request));
+            ExceptionCode.NoApplicableCode, "Could not understand request " + request));
     }
 
     private String exceptionReportToXml(ExceptionReport report) {
@@ -497,7 +535,7 @@ public class PetascopeInterface extends HttpServlet {
             marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_ENCODING, "UTF-8"); //NOI18N
             marshaller.setProperty("jaxb.formatted.output", true);
             marshaller.setProperty("jaxb.schemaLocation",
-                    "http://www.opengis.net/ows http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd");
+                "http://www.opengis.net/ows http://schemas.opengis.net/ows/2.0/owsExceptionReport.xsd");
             marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", new PetascopeXmlNamespaceMapper());
             StringWriter strWriter = new StringWriter();
             marshaller.marshal(report, strWriter);
@@ -523,17 +561,17 @@ public class PetascopeInterface extends HttpServlet {
     /**
      * Handle a WCS request.
      *
-     * @param version WCS version
-     * @param operation WCS operation
-     * @param request the actual request
-     * @param response stream to which the result will be written
+     * @param version    WCS version
+     * @param operation  WCS operation
+     * @param request    the actual request
+     * @param response   stream to which the result will be written
      * @param srvRequest the servlet request
      * @throws WCSException
      * @throws PetascopeException
      */
     private void handleWcsRequest(String version, String operation, String request,
-            HttpServletResponse response, HttpServletRequest srvRequest)
-            throws WCSException, PetascopeException, SecoreException, SQLException {
+                                  HttpServletResponse response, HttpServletRequest srvRequest)
+        throws WCSException, PetascopeException, SecoreException, SQLException {
 
         if (version == null) {
             throw new WCSException(ExceptionCode.InvalidRequest, "No WCS version specified.");
@@ -551,13 +589,13 @@ public class PetascopeInterface extends HttpServlet {
      * Handle WCS 1.1 request.
      *
      * @param operation WCS operation
-     * @param request request string
+     * @param request   request string
      * @param response
      * @throws WCSException in case of I/O error, or if the server is unable to
-     * handle the request
+     *                      handle the request
      */
     private void handleWcs1Request(String operation, String request, HttpServletResponse response)
-            throws WCSException, PetascopeException, SecoreException, SQLException {
+        throws WCSException, PetascopeException, SecoreException, SQLException {
 
         log.info("Handling WCS 1.1 request");
 
@@ -593,20 +631,20 @@ public class PetascopeInterface extends HttpServlet {
     /**
      * Handle WCS 2.0 request.
      *
-     * @param request request string
+     * @param request  request string
      * @param response
      * @throws WCSException in case of I/O error, or if the server is unable to
-     * handle the request
+     *                      handle the request
      */
     private void handleWcs2Request(String request, HttpServletResponse response, HttpServletRequest srvRequest)
-            throws WCSException, PetascopeException, SecoreException {
+        throws WCSException, PetascopeException, SecoreException {
         try {
             log.info("Handling WCS 2.0 request");
             HTTPRequest petascopeRequest = this.parseUrl(srvRequest, request);
             ProtocolExtension pext = ExtensionsRegistry.getProtocolExtension(petascopeRequest);
             if (pext == null) {
                 throw new WCSException(ExceptionCode.NoApplicableCode,
-                        "No protocol binding extension that can handle this request was found ");
+                    "No protocol binding extension that can handle this request was found ");
             }
             log.info("Protocol binding extension found: {}", pext.getExtensionIdentifier());
             Response res = pext.handle(petascopeRequest, meta);
@@ -657,12 +695,12 @@ public class PetascopeInterface extends HttpServlet {
         } catch (Exception e) {
             log.error("Runtime error : {}", e.getMessage());
             throw new WCSException(ExceptionCode.RuntimeError,
-                    "Runtime error while processing request", e);
+                "Runtime error while processing request", e);
         }
     }
 
     private void handleProcessCoverages(String xmlRequest, HttpServletResponse response)
-            throws WCSException, PetascopeException, SecoreException, SQLException {
+        throws WCSException, PetascopeException, SecoreException, SQLException {
 
         OutputStream webOut = null;
         try {
@@ -671,9 +709,9 @@ public class PetascopeInterface extends HttpServlet {
             log.debug("-------------------------------------------------------");
             log.debug("Converting to rasql");
             wcps = new Wcps(new File(getServletContext().getRealPath(
-                    WcpsConstants.MSG_WCPS_PROCESS_COVERAGE_XSD)), meta);
+                WcpsConstants.MSG_WCPS_PROCESS_COVERAGE_XSD)), meta);
             ProcessCoveragesRequest processCoverageRequest =
-                    wcps.pcPrepare(ConfigManager.RASDAMAN_URL, ConfigManager.RASDAMAN_DATABASE,
+                wcps.pcPrepare(ConfigManager.RASDAMAN_URL, ConfigManager.RASDAMAN_DATABASE,
                     IOUtils.toInputStream(xmlRequest));
             log.debug("-------------------------------------------------------");
 
@@ -714,8 +752,8 @@ public class PetascopeInterface extends HttpServlet {
                 } else {
                     log.warn("WCPS: Warning! No result returned from rasql query.");
                 }
-            // Execute the query ... (?)
-            } else if(processCoverageRequest.isPostGISQuery()){
+                // Execute the query ... (?)
+            } else if (processCoverageRequest.isPostGISQuery()) {
                 PostgisQueryResult res = new PostgisQueryResult(processCoverageRequest.execute());
                 webOut.write(res.toCSV(res.getValues()).getBytes());
 
@@ -743,8 +781,9 @@ public class PetascopeInterface extends HttpServlet {
 
     /**
      * Parses the HTTP servlet request into a Petascope Servlet Request
+     *
      * @param srvRequest the http servlet request
-     * @param request the request string needed by parsers
+     * @param request    the request string needed by parsers
      * @return complete ServletRequest
      */
     // TODO: duplicate code in Wcs2Servlet class: to be addressed in ticket #307.
@@ -759,7 +798,9 @@ public class PetascopeInterface extends HttpServlet {
             pathInfo = srvRequest.getPathInfo().substring(1);
         }
         HTTPRequest srvReq = new HTTPRequest(contextPath,
-                pathInfo, srvRequest.getQueryString(), request);
+            pathInfo, srvRequest.getQueryString(), request);
         return srvReq;
     }
+
+    private final PetascopeInterfaceAdapter wms13Adapter = new PetascopeInterfaceAdapter();
 }

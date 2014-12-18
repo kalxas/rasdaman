@@ -1,0 +1,10 @@
+<Layer queryable="$queryable$" cascaded="$cascaded$" opaque="$opaque$" noSubsets="$noSubsets$" fixedWidth="$fixedWidth$" fixedHeight="$fixedHeight$">
+    <Title>$title$</Title>
+    <Name>$name$</Name>
+    <Abstract>$abstract$</Abstract>
+    $crs$
+    $EX_GeographicBoundingBox$
+    $BoundingBoxes$
+    $Styles$
+    $Layers$
+</Layer>

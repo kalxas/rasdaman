@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.apache.commons.lang3.tuple.Pair;
 import petascope.exceptions.PetascopeException;
 import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
@@ -38,11 +39,12 @@ public class TypeResolverUtil {
 
     /**
      * Guesses the rasdaman collection type from a file.
+     *
      * @param filePath path to the file
      * @return the rasdaman collection type
      * @throws IOException
      */
-    public static String guessCollectionTypeFromFile(String filePath) throws IOException{
+    public static String guessCollectionTypeFromFile(String filePath) throws IOException, PetascopeException {
         Pair<Integer, ArrayList<String>> dimTypes = Gdalinfo.getDimensionAndTypes(filePath);
         return guessCollectionType(dimTypes.getKey(), dimTypes.getValue());
     }
@@ -50,89 +52,96 @@ public class TypeResolverUtil {
     /**
      * Guesses the collection type when band type is not available. It assumes
      * band type char.
-     * @param numberOfBands how many band the dataset has
+     *
+     * @param numberOfBands      how many band the dataset has
      * @param numberOfDimensions how many dimensions the dataset has
      * @return pair containing the collection type and cell type (e.g. <"GreySet", "c">)
      */
-    public static Pair<String, Character> guessCollectionType(Integer numberOfBands, Integer numberOfDimensions) {
+    public static Pair<String, Character> guessCollectionType(Integer numberOfBands, Integer numberOfDimensions) throws PetascopeException {
         String assumedType = GDT_Byte;
         //assume band type char on every band
         ArrayList<String> bandTypes = new ArrayList<String>();
-        for(Integer i = 0; i < numberOfBands; i++){
+        for (Integer i = 0; i < numberOfBands; i++) {
             bandTypes.add(assumedType);
         }
         return Pair.of(guessCollectionType(numberOfDimensions, bandTypes), GDAL_TYPES_TO_RAS_TYPES.get(assumedType).charAt(0));
     }
 
     /**
+     * Returns the mdd type for a give collection type.
+     *
+     * @param collectionType the collection type.
+     * @return the mdd type, empty if nothing is found.
+     */
+    public static String getMddTypeForCollectionType(String collectionType) throws PetascopeException {
+        String ret = "";
+        TypeRegistry typeRegistry = TypeRegistry.getInstance();
+        ret = typeRegistry.getMddTypeForCollectionType(collectionType);
+        return ret;
+    }
+
+
+    /**
      * Guesses the collection type. If no type is found, a new one is created.
+     *
      * @param numberOfDimensions
      * @param gdalBandTypes
      * @return
      */
-    private static String guessCollectionType(Integer numberOfDimensions, ArrayList<String> gdalBandTypes) {
+    private static String guessCollectionType(Integer numberOfDimensions, ArrayList<String> gdalBandTypes) throws PetascopeException {
         String result = "";
-        TypeRegistry typeRegistry;
-        try {
-            //get the type registry
-            typeRegistry = TypeRegistry.getInstance();
-            for(Map.Entry<String, TypeRegistryEntry> i: typeRegistry.getTypeRegistry().entrySet()){
-                //filter by dimensionality
-                String domainType = i.getValue().getDomainType();
-                if(domainType.contains(numberOfDimensions.toString())){
-                    //get the structured base type
-                    String baseType;
-                    if(domainType.contains("struct")){
-                        //more bands, check for each of them
-                        String baseTypeArr = domainType.split("}")[0];
-                        baseType = baseTypeArr.split("\\{")[1];
-                        //we are left with something like char red, char green, char blue
-                        String[] baseTypeByBand = baseType.split(",");
-                        //filter by number of bands
-                        if(baseTypeByBand.length == gdalBandTypes.size()){
-                            Boolean allBandsMatch = true;
-                            //compare band by band
-                            for(Integer j = 0; j < baseTypeByBand.length; j++){
-                                if(!baseTypeByBand[j].contains(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(j)))){
-                                    allBandsMatch = false;
-                                }
-                            }
-                            //if all good return result
-                            if(allBandsMatch){
-                                return i.getKey();
+
+        //get the type registry
+        TypeRegistry typeRegistry = TypeRegistry.getInstance();
+        for (Map.Entry<String, TypeRegistryEntry> i : typeRegistry.getTypeRegistry().entrySet()) {
+            //filter by dimensionality
+            String domainType = i.getValue().getDomainType();
+            if (domainType.contains(numberOfDimensions.toString())) {
+                //get the structured base type
+                String baseType;
+                if (domainType.contains("struct")) {
+                    //more bands, check for each of them
+                    String baseTypeArr = domainType.split("}")[0];
+                    baseType = baseTypeArr.split("\\{")[1];
+                    //we are left with something like char red, char green, char blue
+                    String[] baseTypeByBand = baseType.split(",");
+                    //filter by number of bands
+                    if (baseTypeByBand.length == gdalBandTypes.size()) {
+                        Boolean allBandsMatch = true;
+                        //compare band by band
+                        for (Integer j = 0; j < baseTypeByBand.length; j++) {
+                            if (!baseTypeByBand[j].contains(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(j)))) {
+                                allBandsMatch = false;
                             }
                         }
-                    }
-                    else{
-                        //1 band
-                        baseType = i.getValue().getBaseType();
-                        if(baseType.equals(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(0)))){
+                        //if all good return result
+                        if (allBandsMatch) {
                             return i.getKey();
                         }
                     }
+                } else {
+                    //1 band
+                    baseType = i.getValue().getBaseType();
+                    if (baseType.equals(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(0)))) {
+                        return i.getKey();
+                    }
                 }
             }
-        } catch (PetascopeException ex) {
-            Logger.getLogger(TypeResolverUtil.class.getName()).log(Level.SEVERE, null, ex);
         }
-        try {
-            //nothing has been found, so the type must be created
-            typeRegistry = TypeRegistry.getInstance();
-            result = typeRegistry.createNewType(numberOfDimensions, translateTypes(gdalBandTypes));
-        } catch (PetascopeException ex) {
-            Logger.getLogger(TypeResolverUtil.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        //nothing has been found, so the type must be created
+        result = typeRegistry.createNewType(numberOfDimensions, translateTypes(gdalBandTypes));
         return result;
     }
 
     /**
      * Translates an array of gdal types into rasdaman types.
+     *
      * @param gdalTypes
      * @return
      */
-    private static ArrayList<String> translateTypes(ArrayList<String> gdalTypes){
+    private static ArrayList<String> translateTypes(ArrayList<String> gdalTypes) {
         ArrayList<String> rasTypes = new ArrayList<String>();
-        for(String i: gdalTypes){
+        for (String i : gdalTypes) {
             rasTypes.add(GDAL_TYPES_TO_RAS_TYPES.get(i));
         }
         return rasTypes;

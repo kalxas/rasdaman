@@ -1,0 +1,12 @@
+<Service>
+    <Name>$name$</Name>
+    <Title>$title$</Title>
+    <Abstract>$serviceAbstract$</Abstract>
+    <KeywordList>
+        $keywords$
+    </KeywordList>
+    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="$onlineResource$"/>
+    $contactInformation$
+    <Fees>$fees$</Fees>
+    <AccessConstraints>$accessConstraints$</AccessConstraints>
+</Service>

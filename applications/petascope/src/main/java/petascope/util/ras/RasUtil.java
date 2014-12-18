@@ -469,10 +469,19 @@ public class RasUtil {
         return oid;
     }
 
-    public static BigInteger executeInsertFileStatement(String collectionName, String filePath, String username, String password) throws RasdamanException, RasResultIsNoIntervalException, IOException {
+    public static BigInteger executeInsertFileStatement(String collectionName, String filePath, String mimetype, String username, String password) throws RasdamanException, RasResultIsNoIntervalException, IOException {
         BigInteger oid = new BigInteger("0");
-        String query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q " +
-                "'" + TEMPLATE_INSERT_FILE.replace(TOKEN_COLLECTION_NAME, collectionName) + "' --file " + filePath;
+        String query;
+        //As decode does not work correctly with geotiffs at the moment, use the old inv_tiff function to insert it
+        //TODO remove this once decode($1) works nicely
+        if(mimetype != null && mimetype.toLowerCase().contains(TIFF_MIMETYPE)) {
+            query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q " +
+                    "'" + TEMPLATE_INSERT_TIFF.replace(TOKEN_COLLECTION_NAME, collectionName) + "' --file " + filePath;
+        }
+        else{
+            query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q " +
+                    "'" + TEMPLATE_INSERT_FILE.replace(TOKEN_COLLECTION_NAME, collectionName) + "' --file " + filePath;
+        }
         Process p = Runtime.getRuntime().exec(new String[]{"bash","-c", query});
         BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
         String s;
@@ -504,5 +513,7 @@ public class RasUtil {
     private static final String TOKEN_OID = "%oid%";
     private static final String TEMPLATE_DELETE = "DELETE FROM " + TOKEN_COLLECTION_NAME + " WHERE oid(" + TOKEN_COLLECTION_NAME + ")=" + TOKEN_OID;
     private static final String TEMPLATE_INSERT_FILE = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES decode($1)";
+    private static final String TEMPLATE_INSERT_TIFF = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES inv_tiff($1)";
     private static final String RASQL = "rasql";
+    private static final String TIFF_MIMETYPE = "tif";
 }

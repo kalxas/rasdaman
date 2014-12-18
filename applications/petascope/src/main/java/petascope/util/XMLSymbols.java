@@ -118,6 +118,7 @@ public interface XMLSymbols {
     String LABEL_ENVELOPE = "Envelope";
     String LABEL_FILE = "File";
     String LABEL_FILE_REFERENCE = "fileReference";
+    String LABEL_FILE_STRUCTURE = "fileStructure";
     String LABEL_FORMAT = "format";
     String LABEL_GRID_ENVELOPE = "GridEnvelope";
     String LABEL_LIMITS = "limits";

@@ -300,6 +300,8 @@ public class ExceptionCode {
             "The number of \"" + XMLSymbols.LABEL_FILE + "\" elements is wrong (exactly 1 expected).");
     public static final ExceptionCode WCSTWrongNumberOfFileReferenceElements = new ExceptionCode("WCSTWrongNumberOfFileReferenceElements",
             "The number of \"" + XMLSymbols.LABEL_FILE_REFERENCE + "\" elements is wrong (exactly 1 expected).");
+    public static final ExceptionCode WCSTWrongNumberOfFileStructureElements = new ExceptionCode("WCSTWrongNumberOfFileStructureElements",
+            "The number of \"" + XMLSymbols.LABEL_FILE_STRUCTURE + "\" elements is wrong (exactly 1 expected).");
     public static final ExceptionCode WCSTDuplicatedCoverageName = new ExceptionCode("WCSTDuplicatedCoverageName",
             "A coverage with this name already exists (pick a different name or use the request parameter useId=new).");
     public static final ExceptionCode WCSTTypeRegistryNotFound = new ExceptionCode("WCSTTypeRegistryNotFound",

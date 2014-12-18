@@ -1,0 +1,3 @@
+<AuthorityURL name="$name$">
+    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="$onlineResource$"/>
+</AuthorityURL>

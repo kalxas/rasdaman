@@ -28,6 +28,11 @@
         <servlet-class>petascope.rasdaman.RasqlServlet</servlet-class>
     </servlet>
     <servlet>
+        <description>WMS 1.3 Servlet</description>
+        <servlet-name>WMS13Servlet</servlet-name>
+        <servlet-class>petascope.wms2.servlet.WMSServlet</servlet-class>
+    </servlet>
+    <servlet>
         <description>WMS Service</description>
         <servlet-name>WmsServlet</servlet-name>
         <servlet-class>petascope.wms.WmsServlet</servlet-class>
@@ -59,6 +64,10 @@
     <servlet-mapping>
         <servlet-name>PetaScope Interface</servlet-name>
         <url-pattern>/ows/wps</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WMS13Servlet</servlet-name>
+        <url-pattern>/ows/wms13</url-pattern>
     </servlet-mapping>
         <servlet-mapping>
         <servlet-name>WmsServlet</servlet-name>

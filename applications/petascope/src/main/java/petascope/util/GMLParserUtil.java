@@ -416,6 +416,26 @@ public class GMLParserUtil {
     }
 
     /**
+     * Returns the mime type of the inserted file
+     * @param rangeSet the range set xml block
+     * @return the mime type of the file to be inserted
+     * @throws WCSException
+     */
+    public static String parseMimeType(Element rangeSet) throws WCSException {
+        //get the File element
+        Elements file = rangeSet.getChildElements(XMLSymbols.LABEL_FILE, XMLSymbols.NAMESPACE_GML);
+        if(file.size() != 1){
+            throw new WCSException(ExceptionCode.WCSTWrongNumberOfFileElements);
+        }
+        //get the fileReference
+        Elements mimetype = file.get(0).getChildElements(XMLSymbols.LABEL_FILE_STRUCTURE, XMLSymbols.NAMESPACE_GML);
+        if(mimetype.size() != 1){
+            throw new WCSException(ExceptionCode.WCSTWrongNumberOfFileStructureElements);
+        }
+        return mimetype.get(0).getValue();
+    }
+
+    /**
      * Parses the file reference form a GML coverage.
      * @param rangeSet
      * @return
@@ -432,6 +452,7 @@ public class GMLParserUtil {
         if(fileName.size() != 1){
             throw new WCSException(ExceptionCode.WCSTWrongNumberOfFileReferenceElements);
         }
+
         return fileName.get(0).getValue();
     }
 

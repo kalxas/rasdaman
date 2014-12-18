@@ -1,0 +1,4 @@
+<LegendURL width="$width$" height="$height$">
+    <Format>$format$</Format>
+    <OnlineResource xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="$onlineResource$" xlink:type="simple"/>
+</LegendURL>

@@ -84,6 +84,8 @@ public class CoverageMetadata implements Cloneable {
     private List<RangeElement> range;
     private List<AbstractSimpleComponent> sweComponents;
     Pair<BigInteger, String> rasdamanCollection;
+    //rasdaman collection type information mddType:collectionType
+    private String rasdamanCollectionType;
     private Bbox bbox = null;
     private Description owsDescription = null;
     private List<BigDecimal> gridOrigin;
@@ -529,7 +531,7 @@ public class CoverageMetadata implements Cloneable {
     }
 
     public String getAbstract() {
-        return ListUtil.printList(owsDescription.getAbstracts(), ". ");
+        return ListUtil.printList(getDescription().getAbstracts(), ". ");
     }
 
     public String getTitle() {
@@ -761,6 +763,18 @@ public class CoverageMetadata implements Cloneable {
     public Pair<BigInteger, String> getRasdamanCollection() {
         return this.rasdamanCollection;
     }
+
+    /**
+     * The rasdaman collection type information in the form mddType:collectionType.
+     * @return rasdaman type information.
+     */
+    public String getRasdamanCollectionType() { return this.rasdamanCollectionType; }
+
+    /**
+     * Setter for the collectionType attribute.
+     * @param collectiontype the rasdaman collection type in the form mddType:collectiontype.
+     */
+    public void setRasdamanCollectionType(String collectiontype) { this.rasdamanCollectionType = collectiontype; }
 
     /**
      * Gets the number of bands of this coverage.
