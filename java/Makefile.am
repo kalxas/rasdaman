@@ -72,3 +72,4 @@ clean:
 	rm -rf $(MAVEN_BASE_FOLDER)
 wps:
   
+jar: all
