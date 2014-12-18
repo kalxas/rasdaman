@@ -69,6 +69,10 @@ define(["src/viewmodels/SupportedExtensions", "src/models/WCS", "src/models/Capa
                         } else {
                             self.mainViewModel.isProcessCoveragesEnabled(false);
                         }
+
+                        if(capabilitiesResult.serviceIdentification.profile.indexOf(SupportedExtensions.transactionExtension) != -1) {
+                            self.mainViewModel.isTransactionExtensionEnabled(true);
+                        }
                     }
                     catch
                         (err) {
@@ -78,6 +82,7 @@ define(["src/viewmodels/SupportedExtensions", "src/models/WCS", "src/models/Capa
                         self.mainViewModel.isDescribeCoverageEnabled(false);
                         self.mainViewModel.isGetCoverageEnabled(false);
                         self.mainViewModel.isProcessCoveragesEnabled(false);
+                        self.mainViewModel.isTransactionExtensionEnabled(false);
 
                         self.mainViewModel.errorMessage({
                             message: "The server's capabilities document contains an error.",
@@ -95,6 +100,7 @@ define(["src/viewmodels/SupportedExtensions", "src/models/WCS", "src/models/Capa
                     self.mainViewModel.isDescribeCoverageEnabled(false);
                     self.mainViewModel.isGetCoverageEnabled(false);
                     self.mainViewModel.isProcessCoveragesEnabled(false);
+                    self.mainViewModel.isTransactionExtensionEnabled(false);
 
                     self.mainViewModel.errorMessage({
                         message: "The server's capabilities could not be retrieved",
