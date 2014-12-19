@@ -29,14 +29,14 @@ wcpsQuery : (forClauseList) (whereClause)? (returnClause)                       
  * for $c2 in (cov2)
  * return encode($c1 + $c2, "image/png")
  */
-forClauseList: FOR (forClause)+                                                                                             #ForClauseListLabel;
+forClauseList: FOR (forClause) (COMMA forClause)*                                                                       #ForClauseListLabel;
 
 /**
  * Example:
  * for $c in (cov1)
  */
 forClause:  coverageVariableName IN
-           (LEFT_PARANTHESIS)? IDENTIFIER (COMMA IDENTIFIER)* (RIGHT_PARANTHESIS)?                                                       #ForClauseLabel;
+           (LEFT_PARANTHESIS)? IDENTIFIER (COMMA IDENTIFIER)* (RIGHT_PARANTHESIS)?                                      #ForClauseLabel;
 
 /**
  * Example:
@@ -169,17 +169,17 @@ describeCoverageExpression: DESCRIBE_COVERAGE LEFT_PARANTHESIS coverageVariableN
  * | encode($c, "image/png", "NODATA=0")
  */
 encodedCoverageExpression: ENCODE LEFT_PARANTHESIS
-                           coverageExpression COMMA FORMAT_NAME (COMMA)? (STRING_LITERAL)?
+                           coverageExpression COMMA /* FORMAT_NAME */ STRING_LITERAL (COMMA STRING_LITERAL)*
                            RIGHT_PARANTHESIS                                                                            #EncodedCoverageExpressionLabel;
 
 /**
  * Example:
- *   decode("1,2,3,4", "csv)
+ *   decode("1,2,3,4", "csv")
  * Query:
  *   ?!
  */
 decodeCoverageExpression: DECODE LEFT_PARANTHESIS
-                          STRING_LITERAL COMMA FORMAT_NAME (COMMA)? (STRING_LITERAL)?
+                          STRING_LITERAL COMMA /* FORMAT_NAME */ STRING_LITERAL (COMMA STRING_LITERAL)*
                           RIGHT_PARANTHESIS                                                                             #DecodedCoverageExpressionLabel;
 
 
@@ -190,6 +190,7 @@ decodeCoverageExpression: DECODE LEFT_PARANTHESIS
  */
 coverageExpression: coverageExpression booleanOperator coverageExpression                                               #CoverageExpressionLogicLabel
                   | coverageExpression coverageArithmeticOperator coverageExpression                                    #CoverageExpressionArithmeticLabel
+                  | coverageExpression OVERLAY coverageExpression                                                       #CoverageExpressionOverlayLabel
                   | coverageExpression numericalComparissonOperator coverageExpression                                  #CoverageExpressionComparissonLabel
                   | coverageVariableName                                                                                #CoverageExpressionVariableNameLabel
                   | scalarExpression                                                                                    #CoverageExpressionScalarLabel
@@ -242,7 +243,7 @@ coverageExpression: coverageExpression booleanOperator coverageExpression       
  */
 
 
-coverageArithmeticOperator: PLUS | MULTIPLICATION | DIVISION | MINUS | OVERLAY;
+coverageArithmeticOperator: PLUS | MULTIPLICATION | DIVISION | MINUS;
 
 /**
  * Example:
@@ -329,16 +330,14 @@ crsTransformExpression: CRS_TRANSFORM LEFT_PARANTHESIS
 
 dimensionPointList: dimensionPointElement (COMMA dimensionPointElement)*                                                #DimensionPointListLabel;
 
-dimensionPointElement: axisName (COLON crsName)? LEFT_PARANTHESIS dimensionPointExpression RIGHT_PARANTHESIS            #DimensionPointElementLabel;
-
-dimensionPointExpression: STRING_LITERAL | TRUE | FALSE | REAL_NUMBER_CONSTANT                                          #DimensionPointExpressionLabel;
+dimensionPointElement: axisName (COLON crsName)? LEFT_PARANTHESIS coverageExpression RIGHT_PARANTHESIS                  #DimensionPointElementLabel;
 
 dimensionIntervalList: dimensionIntervalElement (COMMA dimensionIntervalElement)*                                       #DimensionIntervalListLabel;
 
 dimensionIntervalElement: axisName (COLON crsName)? LEFT_PARANTHESIS
-                            scalarExpression COLON scalarExpression
+                            coverageExpression COLON coverageExpression
                           RIGHT_PARANTHESIS                                                                             #TrimDimensionIntervalElementLabel
-                        | axisName (COLON crsName)? LEFT_PARANTHESIS scalarExpression
+                        | axisName (COLON crsName)? LEFT_PARANTHESIS coverageExpression
                           RIGHT_PARANTHESIS                                                                             #SliceDimensionIntervalElementLabel;
 
 dimensionCrsList: LEFT_BRACE dimensionCrsElement (COMMA dimensionCrsElement)* RIGHT_BRACE                               #DimensionCrsListLabel;
@@ -357,9 +356,9 @@ interpolationType: STRING_LITERAL                                               
 
 coverageConstructorExpression: COVERAGE IDENTIFIER
                                OVER axisIterator (COMMA axisIterator)*
-                               VALUES scalarExpression                                                                  #CoverageConstructorExpressionLabel;
+                               VALUES coverageExpression                                                                #CoverageConstructorExpressionLabel;
 
-axisIterator: IDENTIFIER axisName LEFT_PARANTHESIS intervalExpression RIGHT_PARANTHESIS                                 #AxisIteratorLabel;
+axisIterator: coverageVariableName dimensionIntervalElement                                                             #AxisIteratorLabel;
 
 intervalExpression: scalarExpression COLON scalarExpression                                                             #IntervalExpressionLabel
                   | IMGCRSDOMAIN LEFT_PARANTHESIS coverageVariableName COMMA axisName RIGHT_PARANTHESIS                 #CRSIntervalExpressionLabel;
@@ -368,7 +367,7 @@ coverageConstantExpression: COVERAGE IDENTIFIER
                             OVER axisIterator (COMMA axisIterator)*
                             VALUE LIST LOWER_THAN constant (SEMICOLON constant)* GREATER_THAN                               #CoverageConstantExpressionLabel;
 
-axisSpec: axisName LEFT_PARANTHESIS intervalExpression RIGHT_PARANTHESIS                                                #AxisSpecLabel;
+axisSpec: dimensionIntervalElement                                                                                         #AxisSpecLabel;
 
 condenseExpression: reduceExpression
                   | generalCondenseExpression;
@@ -386,10 +385,11 @@ reduceExpression: reduceBooleanExpression
 
 condenseExpressionOperator: PLUS | MULTIPLICATION | MIN | MAX | AND | OR;
 
+
 generalCondenseExpression: CONDENSE condenseExpressionOperator
                            OVER axisIterator (COMMA axisIterator)*
                            (WHERE booleanScalarExpression)?
-                           USING scalarExpression                                                                       #GeneralCondenseExpressionLabel;
+                           USING coverageExpression                                                                       #GeneralCondenseExpressionLabel;
 
 /**
  * Validate in code, no point to validate URIs here

@@ -24,15 +24,17 @@ public class AxisIterator extends AxisSpec {
      * @param axisName     the name of the axis on which to iterate
      * @param interval     the interval on which to iterate
      */
-    public AxisIterator(String variableName, String axisName, IntervalExpression interval) {
-        super(axisName, interval);
+    public AxisIterator(CoverageExpressionVariableName variableName, TrimDimensionInterval trimInterval) {
+        super(trimInterval);
+        this.interval = new IntervalExpression(trimInterval.getRawTrimInterval().getLowerLimit(),
+                trimInterval.getRawTrimInterval().getUpperLimit());
         this.variableName = variableName;
         addChild(interval);
     }
 
     @Override
     public String toRasql() throws WCPSProcessingError {
-        String template = TEMPLATE.replace("$variableName", this.variableName.replace("$", "")).replace("$interval", this.interval.toRasql());
+        String template = TEMPLATE.replace("$variableName", this.variableName.toRasql()).replace("$interval", this.trimInterval.toRasql());
         return template;
     }
 
@@ -42,10 +44,10 @@ public class AxisIterator extends AxisSpec {
      *
      * @return
      */
-    public String getVariableName() {
+    public CoverageExpressionVariableName getVariableName() {
         return variableName;
     }
 
-    private String variableName;
-    private final String TEMPLATE = "$variableName in $interval";
+    private CoverageExpressionVariableName variableName;
+    private final String TEMPLATE = "$variableName in [$interval]";
 }

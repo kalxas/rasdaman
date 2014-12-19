@@ -210,7 +210,7 @@ public class CrsComputer {
         long pxMax = cdom.getHiInt();
 
         // Indexed CRSs do not require conversion
-        if (axisUoM.equals(CrsUtil.INDEX_UOM) || crsName == CrsUtil.GRID_CRS) {
+        if (crsName == CrsUtil.GRID_CRS) {
             return new Interval<Long>((long) numericSubset.getLowerLimit().doubleValue(), (long) numericSubset.getUpperLimit().doubleValue());
         }
         double cellWidth = (domMax.subtract(domMin))

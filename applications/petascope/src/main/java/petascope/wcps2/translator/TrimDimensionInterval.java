@@ -1,9 +1,6 @@
 package petascope.wcps2.translator;
 
-import petascope.wcps2.error.managed.processing.InvalidCalculatedBoundsException;
 import petascope.wcps2.metadata.Interval;
-
-import java.util.Comparator;
 
 /**
  * Class to translate trimming operations to rasql
@@ -28,11 +25,15 @@ public class TrimDimensionInterval extends IParseTreeNode implements Comparable 
      * @param rawLowerBound the lower bound of the trim interval
      * @param rawUpperBound the upper bound of the interval
      */
-    public TrimDimensionInterval(String axisName, String crs, String rawLowerBound, String rawUpperBound) {
+    public TrimDimensionInterval(String axisName, String crs, CoverageExpression rawLowerBound, CoverageExpression rawUpperBound) {
+        this.rawLowerBound = rawLowerBound;
+        this.rawUpperBound = rawUpperBound;
         this.axisName = axisName;
         this.crs = crs;
-        this.rawTrimInterval = new Interval<String>(rawLowerBound, rawUpperBound);
+        this.rawTrimInterval = new Interval<String>(rawLowerBound.toRasql(), rawUpperBound.toRasql());
         this.trimInterval = new Interval<Long>(Long.MAX_VALUE, Long.MAX_VALUE);
+        addChild(rawLowerBound);
+        addChild(rawUpperBound);
     }
 
     /**
@@ -62,6 +63,7 @@ public class TrimDimensionInterval extends IParseTreeNode implements Comparable 
         return axisName;
     }
 
+    public void setAxisName(String axisName) {this.axisName = axisName;}
     /**
      * Sets the corresponding array subset position for this coverage axis
      *
@@ -105,13 +107,23 @@ public class TrimDimensionInterval extends IParseTreeNode implements Comparable 
 
     @Override
     public String toRasql() {
-        if (trimInterval.getLowerLimit() == Long.MAX_VALUE || trimInterval.getUpperLimit() == Long.MAX_VALUE) {
+        /*if (trimInterval.getLowerLimit() == Long.MAX_VALUE || trimInterval.getUpperLimit() == Long.MAX_VALUE) {
             throw new InvalidCalculatedBoundsException(axisName, new Interval<String>(rawTrimInterval.getLowerLimit(), rawTrimInterval.getUpperLimit()));
+        }*/
+        String lowerLimit;
+        String upperLimit;
+        if(rawTrimInterval.isCrsComputable()) {
+            //numeric interval
+            lowerLimit = rawTrimInterval.getLowerLimit().equals(WHOLE_DIMENSION_SYMBOL) ? WHOLE_DIMENSION_SYMBOL : String.valueOf(trimInterval.getLowerLimit());
+            upperLimit = rawTrimInterval.getUpperLimit().equals(WHOLE_DIMENSION_SYMBOL) ? WHOLE_DIMENSION_SYMBOL : String.valueOf(trimInterval.getUpperLimit());
         }
-        String lowerLimit = rawTrimInterval.getLowerLimit() == WHOLE_DIMENSION_SYMBOL ? WHOLE_DIMENSION_SYMBOL : String.valueOf(trimInterval.getLowerLimit());
-        String upperLimit = rawTrimInterval.getUpperLimit() == WHOLE_DIMENSION_SYMBOL ? WHOLE_DIMENSION_SYMBOL : String.valueOf(trimInterval.getUpperLimit());
-        return TEMPLATE.replace("$lowerBound", lowerLimit)
-            .replace("$upperBound", upperLimit);
+        else{
+            //non-numeric interval, just pass the limits as the evaluation result of the coverage expressions they represent
+            lowerLimit = rawLowerBound.toRasql();
+            upperLimit = rawUpperBound.toRasql();
+        }
+
+        return fillTemplate(lowerLimit, upperLimit);
     }
 
     @Override
@@ -119,13 +131,32 @@ public class TrimDimensionInterval extends IParseTreeNode implements Comparable 
         return new StringBuilder("(").append(rawTrimInterval.getLowerLimit()).append(":").append(rawTrimInterval.getUpperLimit()).append(")").toString();
     }
 
+    /**
+     * Fills the right template and returns the result. Differentiates between points and intervals.
+     * @param lowerBound
+     * @param upperBound
+     * @return
+     */
+    private static String fillTemplate(String lowerBound, String upperBound){
+        if(!lowerBound.equals(upperBound) || lowerBound.equals(WHOLE_DIMENSION_SYMBOL)){
+            return TEMPLATE.replace("$lowerBound", lowerBound)
+                    .replace("$upperBound", upperBound);
+        }
+        else{
+            return TEMPLATE_POINT.replace("$lowerBound", lowerBound);
+        }
+    }
+
 
     public static final String WHOLE_DIMENSION_SYMBOL = "*";
 
+    private CoverageExpression rawLowerBound;
+    private CoverageExpression rawUpperBound;
     private int axisPosition = Integer.MAX_VALUE;
-    private final String axisName;
+    private String axisName;
     private final String crs;
     private final Interval<String> rawTrimInterval;
     private Interval<Long> trimInterval;
     private final static String TEMPLATE = "$lowerBound:$upperBound";
+    private final static String TEMPLATE_POINT = "$lowerBound";
 }

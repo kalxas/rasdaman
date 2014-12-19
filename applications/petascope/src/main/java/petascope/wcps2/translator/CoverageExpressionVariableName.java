@@ -1,5 +1,7 @@
 package petascope.wcps2.translator;
 
+import petascope.core.CoverageMetadata;
+import petascope.wcps.metadata.CoverageInfo;
 import petascope.wcps2.metadata.Coverage;
 import petascope.wcps2.metadata.CoverageRegistry;
 
@@ -25,7 +27,9 @@ public class CoverageExpressionVariableName extends CoverageExpression {
      */
     public CoverageExpressionVariableName(String coverageVariableName, CoverageRegistry coverageRegistry) {
         this.coverageVariableName = coverageVariableName;
-        loadCoverage(coverageRegistry);
+        if(coverageRegistry != null) {
+            loadCoverage(coverageRegistry);
+        }
     }
 
     @Override
@@ -39,8 +43,22 @@ public class CoverageExpressionVariableName extends CoverageExpression {
     }
 
     private void loadCoverage(CoverageRegistry registry) {
-        setCoverage(registry.getCoverageByAlias(coverageVariableName));
+        if(registry.coverageAliasExists(coverageVariableName)) {
+            setCoverage(registry.getCoverageByAlias(coverageVariableName));
+        }
+        else{
+            //transient coverages
+            setCoverage(Coverage.DEFAULT_COVERAGE);
+        }
     }
 
-    private final String coverageVariableName;
+    public String getCoverageVariableName() {
+        return coverageVariableName;
+    }
+
+    public void setCoverageVariableName(String coverageVariableName) {
+        this.coverageVariableName = coverageVariableName;
+    }
+
+    private String coverageVariableName;
 }

@@ -14,12 +14,13 @@ package petascope.wcps2.translator;
  * @author <a href="mailto:alex@flanche.net">Alex Dumitru</a>
  * @author <a href="mailto:vlad@flanche.net">Vlad Merticariu</a>
  */
-public class UnaryArithmeticExpression extends IParseTreeNode {
+public class UnaryArithmeticExpression extends CoverageExpression {
 
     public UnaryArithmeticExpression(String operator, IParseTreeNode coverageExpr) {
         this.operator = operator;
         this.coverageExpr = coverageExpr;
         addChild(coverageExpr);
+        setCoverage(((CoverageExpression) coverageExpr).getCoverage());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package petascope.wcps2.processor;
 
+import petascope.wcps.grammar.CoverageExpr;
 import petascope.wcps.metadata.DomainElement;
 import petascope.wcps2.metadata.Coverage;
 import petascope.wcps2.metadata.CoverageRegistry;
@@ -73,7 +74,8 @@ public class PetascopeAxesToRasdamanAxesTranslator implements IProcessor {
                 }
             }
             if (!found && addDefaultIfNotFound) {
-                TrimDimensionInterval fullInterval = new TrimDimensionInterval(domain.getLabel(), "", "*", "*");
+                CoverageExpressionVariableName defaultVariable = new CoverageExpressionVariableName(TrimDimensionInterval.WHOLE_DIMENSION_SYMBOL, null);
+                TrimDimensionInterval fullInterval = new TrimDimensionInterval(domain.getLabel(), "", defaultVariable, defaultVariable);
                 fullInterval.setTrimInterval(new Interval<Long>(Long.MIN_VALUE, Long.MIN_VALUE));
                 fullInterval.setAxisPosition(domain.getOrder());
                 dimensionIntervals.getIntervals().add(fullInterval);

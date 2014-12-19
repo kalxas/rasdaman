@@ -28,6 +28,9 @@ public class DimensionIntervalList extends IParseTreeNode {
      */
     public DimensionIntervalList(List<TrimDimensionInterval> intervals) {
         this.intervals = intervals;
+        for(TrimDimensionInterval interval: intervals){
+            addChild(interval);
+        }
     }
 
     @Override

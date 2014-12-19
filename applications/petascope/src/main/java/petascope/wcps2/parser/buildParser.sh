@@ -18,6 +18,7 @@ rm *.class *.tokens *.java
 
 #Build the parser
 export antlr4="java -jar $PATH_TO_ANTLR_TOOL"
+export CLASSPATH=".:$PATH_TO_ANTLR_TOOL:$CLASSPATH"
 $antlr4 -package petascope.wcps2.parser wcps.g4
 $antlr4 -package petascope.wcps2.parser -no-listener -visitor wcps.g4
 

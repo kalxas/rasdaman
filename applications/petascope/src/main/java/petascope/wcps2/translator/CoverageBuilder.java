@@ -38,7 +38,7 @@ public abstract class CoverageBuilder extends CoverageExpression {
             int order = 0;
             for (AxisIterator ai : axisIterators) {
                 // Build domain metadata
-                String axisName = ai.getVariableName();
+                String axisName = ai.getVariableName().toRasql();
                 String axisType = ai.getAxisName();
                 CellDomainElement cellDomain = new CellDomainElement(ai.getInterval().getLowerBound(), ai.getInterval().getUpperBound(), order);
                 DomainElement domain = new DomainElement(new BigDecimal(ai.getInterval().getLowerBound()), new BigDecimal(ai.getInterval().getUpperBound()), axisName,
@@ -58,6 +58,10 @@ public abstract class CoverageBuilder extends CoverageExpression {
         } catch (Exception e) {
             throw new CoverageMetadataException(e);
         }
+    }
+
+    public ArrayList<AxisIterator> getAxisIterators() {
+        return axisIterators;
     }
 
     protected ArrayList<AxisIterator> axisIterators;

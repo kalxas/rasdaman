@@ -1,5 +1,6 @@
 package petascope.wcps2.translator;
 
+import petascope.core.CoverageMetadata;
 import petascope.wcps.metadata.CoverageInfo;
 import petascope.wcps2.error.managed.processing.IncompatibleCoverageExpressionException;
 import petascope.wcps2.error.managed.processing.WCPSProcessingError;
@@ -56,9 +57,26 @@ public class BinaryCoverageExpression extends CoverageExpression {
      * Creates the resulting coverage from the two operands
      */
     private void createResultingCoverage() {
-        CoverageInfo covMeta = new CoverageInfo(firstCoverageExpr.getCoverage().getCoverageInfo());
+        CoverageInfo covInfo = null;
+        CoverageMetadata covMeta = null;
+        //some times one or both of the coverages are actually scalars, i.e. 5 + mr is a coverage, but 5 is not
+        if(firstCoverageExpr.getCoverage().getCoverageInfo() != null) {
+            //first is a coverage
+            covInfo = new CoverageInfo(firstCoverageExpr.getCoverage().getCoverageInfo());
+            covMeta = firstCoverageExpr.getCoverage().getCoverageMetadata();
+        }
+        else if(secondCoverageExpr.getCoverage().getCoverageInfo() != null){
+            //first is not a coverage, second is
+            covInfo = new CoverageInfo(secondCoverageExpr.getCoverage().getCoverageInfo());
+            covMeta = secondCoverageExpr.getCoverage().getCoverageMetadata();
+        }
+        else{
+            //none is a coverage, empty objects
+            covMeta = new CoverageMetadata();
+            covInfo = new CoverageInfo();
+        }
         String coverageName = firstCoverageExpr.getCoverage().getCoverageName() + operator + secondCoverageExpr.getCoverage().getCoverageName();
-        setCoverage(new Coverage(coverageName, covMeta, firstCoverageExpr.getCoverage().getCoverageMetadata()));
+        setCoverage(new Coverage(coverageName, covInfo, covMeta));
     }
 
     private CoverageExpression firstCoverageExpr;

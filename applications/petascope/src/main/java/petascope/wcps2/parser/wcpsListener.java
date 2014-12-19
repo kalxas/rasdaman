@@ -20,6 +20,17 @@ public interface wcpsListener extends ParseTreeListener {
 	void exitFieldInterpolationListLabel(@NotNull wcpsParser.FieldInterpolationListLabelContext ctx);
 
 	/**
+	 * Enter a parse tree produced by {@link wcpsParser#CoverageExpressionOverlayLabel}.
+	 * @param ctx the parse tree
+	 */
+	void enterCoverageExpressionOverlayLabel(@NotNull wcpsParser.CoverageExpressionOverlayLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link wcpsParser#CoverageExpressionOverlayLabel}.
+	 * @param ctx the parse tree
+	 */
+	void exitCoverageExpressionOverlayLabel(@NotNull wcpsParser.CoverageExpressionOverlayLabelContext ctx);
+
+	/**
 	 * Enter a parse tree produced by {@link wcpsParser#AxisSpecLabel}.
 	 * @param ctx the parse tree
 	 */
@@ -1118,15 +1129,4 @@ public interface wcpsListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCoverageExpressionRangeConstructorLabel(@NotNull wcpsParser.CoverageExpressionRangeConstructorLabelContext ctx);
-
-	/**
-	 * Enter a parse tree produced by {@link wcpsParser#dimensionPointExpression}.
-	 * @param ctx the parse tree
-	 */
-	void enterDimensionPointExpression(@NotNull wcpsParser.DimensionPointExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link wcpsParser#dimensionPointExpression}.
-	 * @param ctx the parse tree
-	 */
-	void exitDimensionPointExpression(@NotNull wcpsParser.DimensionPointExpressionContext ctx);
 }

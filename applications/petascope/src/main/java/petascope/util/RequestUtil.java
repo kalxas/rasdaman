@@ -22,8 +22,11 @@
 
 package petascope.util;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 import petascope.HTTPRequest;
 
 /**
@@ -44,7 +47,11 @@ public class RequestUtil {
         for (String queryComponent : queryParts) {
             String[] componentParts = queryComponent.split(KVPKeyValueSeparator);
             if (componentParts.length > 1) {
-                params.put(componentParts[0], StringUtil.urldecode(componentParts[1], null));
+                //some times the query is split in more than 2 parts, i.e. when the separator appears in the body
+                //example: query=encode("nodata=0"). "=" is the separator. For this reason the parts need to be joined.
+                String[] remainingParts = Arrays.copyOfRange(componentParts, 1, componentParts.length);
+                String concatenatedParts = StringUtils.join(remainingParts, KVPKeyValueSeparator);
+                params.put(componentParts[0], StringUtil.urldecode(concatenatedParts, null));
             }
         }
         return params;

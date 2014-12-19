@@ -19,6 +19,13 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	T visitFieldInterpolationListLabel(@NotNull wcpsParser.FieldInterpolationListLabelContext ctx);
 
 	/**
+	 * Visit a parse tree produced by {@link wcpsParser#CoverageExpressionOverlayLabel}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCoverageExpressionOverlayLabel(@NotNull wcpsParser.CoverageExpressionOverlayLabelContext ctx);
+
+	/**
 	 * Visit a parse tree produced by {@link wcpsParser#AxisSpecLabel}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -717,11 +724,4 @@ public interface wcpsVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCoverageExpressionRangeConstructorLabel(@NotNull wcpsParser.CoverageExpressionRangeConstructorLabelContext ctx);
-
-	/**
-	 * Visit a parse tree produced by {@link wcpsParser#dimensionPointExpression}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitDimensionPointExpression(@NotNull wcpsParser.DimensionPointExpressionContext ctx);
 }

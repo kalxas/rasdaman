@@ -22,9 +22,11 @@ public class AxisSpec extends IParseTreeNode {
      * @param axisName the name of the variable used to iterate
      * @param interval the interval in which the iteration is done
      */
-    public AxisSpec(String axisName, IntervalExpression interval) {
-        this.axisName = axisName;
-        this.interval = interval;
+    public AxisSpec(TrimDimensionInterval interval) {
+        this.axisName = interval.getAxisName();
+        this.trimInterval = interval;
+        this.interval = new IntervalExpression(interval.getRawTrimInterval().getLowerLimit(),
+                interval.getRawTrimInterval().getUpperLimit());
         addChild(interval);
     }
 
@@ -53,8 +55,20 @@ public class AxisSpec extends IParseTreeNode {
         return template;
     }
 
+
+    public TrimDimensionInterval getTrimInterval() {
+        return trimInterval;
+    }
+
+    public void setAxisName(String axisName) {
+        this.axisName = axisName;
+        this.trimInterval.setAxisName(axisName);
+    }
+
     protected String axisName;
     protected IntervalExpression interval;
+    protected TrimDimensionInterval trimInterval;
+
     private final String TEMPLATE = "$variable in $interval";
 
 }

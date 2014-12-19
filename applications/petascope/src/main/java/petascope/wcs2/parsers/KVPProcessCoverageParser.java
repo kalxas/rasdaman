@@ -27,6 +27,7 @@ import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.util.ListUtil;
+import petascope.util.RequestUtil;
 import petascope.util.StringUtil;
 import petascope.wcs2.handlers.RequestHandler;
 
@@ -47,14 +48,7 @@ public class KVPProcessCoverageParser extends KVPParser<ProcessCoverageRequest> 
      */
     @Override
     public ProcessCoverageRequest parse(HTTPRequest request) throws WCSException {
-        Map<String, String> params = new HashMap<String, String>(3);
-        String[] queryParts = request.getQueryString().split("&");
-        for (String queryComponent : queryParts) {
-            String[] componentParts = queryComponent.split("=");
-            if (componentParts.length > 1) {
-                params.put(componentParts[0], StringUtil.urldecode(componentParts[1], null));
-            }
-        }
+        Map<String, String> params = RequestUtil.parseKVPRequestParams(request.getQueryString());
         validateRequest(params);
         ProcessCoverageRequest ret = new ProcessCoverageRequest(
             params.get(QUERY_KEY),
@@ -81,7 +75,7 @@ public class KVPProcessCoverageParser extends KVPParser<ProcessCoverageRequest> 
      * @throws WCSException
      */
     private void validateRequest(Map<String, String> params) throws WCSException {
-        if (!params.containsKey("query")) {
+        if (!params.containsKey(QUERY_KEY)) {
             throw new WCSException(ExceptionCode.WCSPMissingQueryParameter);
         }
     }

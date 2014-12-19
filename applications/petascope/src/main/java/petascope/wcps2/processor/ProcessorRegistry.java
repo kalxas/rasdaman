@@ -30,7 +30,6 @@ public class ProcessorRegistry {
      * Runs all registered processors on the translation tree
      */
     public void runProcessors() {
-        //System.out.println(translationTree.toString());
         List<IParseTreeNode> nodes = translationTree.getDescendants();
         for (IParseTreeNode node : nodes) {
             for (IProcessor processor : processors) {
@@ -47,6 +46,7 @@ public class ProcessorRegistry {
     private void registerProcessors() {
         processors.add(new CrsSubsetComputer());
         processors.add(new PetascopeAxesToRasdamanAxesTranslator());
+        processors.add(new IntervalVariablesTranslator());
     }
 
     private final List<IProcessor> processors = new ArrayList<IProcessor>();

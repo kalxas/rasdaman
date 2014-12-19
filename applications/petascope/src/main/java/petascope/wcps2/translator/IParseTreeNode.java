@@ -54,6 +54,18 @@ public abstract class IParseTreeNode {
         return descendants;
     }
 
+    /**
+     * Returns the subtree corresponding to the current node, including itself.
+     *
+     * @return
+     */
+    public List<IParseTreeNode> getSubTree(){
+        List<IParseTreeNode> ret = new ArrayList<IParseTreeNode>();
+        ret.add(this);
+        ret.addAll(this.getDescendants());
+        return ret;
+    }
+
     @Override
     public String toString() {
         return toIndentedString(1);

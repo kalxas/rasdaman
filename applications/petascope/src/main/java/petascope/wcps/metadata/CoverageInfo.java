@@ -44,6 +44,15 @@ public class CoverageInfo {
     private final String coverageCrs;
     private final Bbox bbox;
     private final boolean gridded;
+    //empty constructor
+    public CoverageInfo(){
+        cellDomains = null;
+        domains = null;
+        coverageName = null;
+        coverageCrs = null;
+        bbox = null;
+        gridded = false;
+    }
 
     public CoverageInfo(CoverageInfo other) {
         cellDomains = new ArrayList<CellDomainElement>();

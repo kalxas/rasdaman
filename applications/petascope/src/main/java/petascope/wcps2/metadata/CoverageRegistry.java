@@ -58,8 +58,20 @@ public class CoverageRegistry {
         }
     }
 
+    /**
+     * Returns the first coverage in the registry.
+     * @return
+     */
+    public Coverage getFirstCoverage(){
+        return getCoverageByAlias(coverageMappings.keySet().iterator().next());
+    }
+
     public Coverage getCoverageByAlias(String coverageAlias) {
         return lookupCoverage(coverageMappings.get(coverageAlias));
+    }
+
+    public boolean coverageAliasExists(String coverageAlias) {
+        return coverageMappings.containsKey(coverageAlias);
     }
 
     /**

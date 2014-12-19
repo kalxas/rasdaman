@@ -1,18 +1,17 @@
 package petascope.wcps2.parser;
 
 import org.antlr.v4.runtime.misc.NotNull;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import petascope.wcps.grammar.CoverageExpr;
 import petascope.wcps2.error.managed.processing.InvalidAxisNameException;
 import petascope.wcps2.error.managed.processing.InvalidSubsettingException;
 import petascope.wcps2.metadata.CoverageRegistry;
 import petascope.wcps2.metadata.Interval;
 import petascope.wcps2.translator.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Class that implements the parsing rules described in wcps.g4
@@ -61,17 +60,35 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
     @Override
     public IParseTreeNode visitEncodedCoverageExpressionLabel(@NotNull wcpsParser.EncodedCoverageExpressionLabelContext ctx) {
         IParseTreeNode coverageExpression = visit(ctx.coverageExpression());
-        String format = ctx.FORMAT_NAME().getText();
-        String otherParams = null;
-        if (ctx.STRING_LITERAL() != null) {
-            otherParams = ctx.STRING_LITERAL().getText();
+        List<TerminalNode> params = ctx.STRING_LITERAL();
+        /**
+         * Changed for backwards compatibility with WCPS1.
+         * The change consisted in accepting a string literal as format name.
+         * In order to revert the change, uncomment the code below.
+         */
+
+        //code removed for backwards compatibility
+        //String format = ctx.FORMAT_NAME().getText();
+        //end code removed for backwards compatibility
+
+        //code added for backwards compatibility with WCPS1, where format name can be a STRING_LITERAL
+        String format = params.get(0).getText();
+        //end code added for backwards compatibility
+
+        List<String> otherParams = null;
+        if(params.size() > 1){
+            otherParams = new ArrayList<String>(params.size() - 1);
+            for(Integer i = 1; i < params.size(); i++){
+                otherParams.add(params.get(i).getText());
+            }
         }
+
         return new EncodedCoverage(coverageExpression, format, otherParams);
     }
 
     @Override
-    public IParseTreeNode visitCoverageExpressionVariableNameLabel(@NotNull wcpsParser.CoverageExpressionVariableNameLabelContext ctx) {
-        String coverageVariable = ctx.coverageVariableName().getText();
+    public IParseTreeNode visitCoverageVariableNameLabel(@NotNull wcpsParser.CoverageVariableNameLabelContext ctx) {
+        String coverageVariable = ctx.IDENTIFIER().getText();
         return new CoverageExpressionVariableName(coverageVariable, coverageRegistry);
     }
 
@@ -83,6 +100,12 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
     @Override
     public IParseTreeNode visitCoverageExpressionArithmeticLabel(@NotNull wcpsParser.CoverageExpressionArithmeticLabelContext ctx) {
         return new BinaryCoverageExpression(visit(ctx.coverageExpression(0)), ctx.coverageArithmeticOperator().getText(), visit(ctx.coverageExpression(1)));
+    }
+
+    @Override
+    public IParseTreeNode visitCoverageExpressionOverlayLabel(@NotNull wcpsParser.CoverageExpressionOverlayLabelContext ctx) {
+        //invert the order of the operators since WCPS overlay order is the opposite of the one in rasql
+        return new BinaryCoverageExpression(visit(ctx.coverageExpression(1)), ctx.OVERLAY().getText(), visit(ctx.coverageExpression(0)));
     }
 
     @Override
@@ -102,12 +125,14 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
 
     @Override
     public IParseTreeNode visitAxisSpecLabel(@NotNull wcpsParser.AxisSpecLabelContext ctx) {
-        return new AxisSpec(ctx.axisName().getText(), (IntervalExpression) visit(ctx.intervalExpression()));
+        TrimDimensionInterval trimInterval = (TrimDimensionInterval) visit(ctx.dimensionIntervalElement());
+        return new AxisSpec(trimInterval);
     }
 
     @Override
     public IParseTreeNode visitAxisIteratorLabel(@NotNull wcpsParser.AxisIteratorLabelContext ctx) {
-        return new AxisIterator(ctx.IDENTIFIER().getText(), ctx.axisName().getText(), (IntervalExpression) visit(ctx.intervalExpression()));
+        TrimDimensionInterval trimInterval = (TrimDimensionInterval) visit(ctx.dimensionIntervalElement());
+        return new AxisIterator((CoverageExpressionVariableName) visit(ctx.coverageVariableName()), trimInterval);
     }
 
     @Override
@@ -116,7 +141,7 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
         for (wcpsParser.AxisIteratorContext i : ctx.axisIterator()) {
             intervalList.add((AxisIterator) visit(i));
         }
-        return new CoverageConstructor(ctx.IDENTIFIER().getText(), intervalList, visit(ctx.scalarExpression()));
+        return new CoverageConstructor(ctx.IDENTIFIER().getText(), intervalList, visit(ctx.coverageExpression()));
     }
 
     @Override
@@ -221,22 +246,22 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
 
     @Override
     public IParseTreeNode visitGeneralCondenseExpressionLabel(@NotNull wcpsParser.GeneralCondenseExpressionLabelContext ctx) {
-        ArrayList<IParseTreeNode> intervalList = new ArrayList<IParseTreeNode>();
+        ArrayList<AxisIterator> intervalList = new ArrayList<AxisIterator>();
         for (wcpsParser.AxisIteratorContext i : ctx.axisIterator()) {
-            intervalList.add(visit(i));
+            intervalList.add((AxisIterator) visit(i));
         }
         IParseTreeNode whereClause = null;
         if (ctx.booleanScalarExpression() != null) {
             whereClause = visit(ctx.booleanScalarExpression());
         }
-        return new GeneralCondenser(ctx.condenseExpressionOperator().getText(), intervalList, whereClause, visit(ctx.scalarExpression()));
+        return new GeneralCondenser(ctx.condenseExpressionOperator().getText(), intervalList, whereClause, visit(ctx.coverageExpression()));
     }
 
     @Override
     public IParseTreeNode visitTrimDimensionIntervalElementLabel(@NotNull wcpsParser.TrimDimensionIntervalElementLabelContext ctx) {
         try {
-            String rawLowerBound = visit(ctx.scalarExpression(0)).toRasql();
-            String rawUpperBound = visit(ctx.scalarExpression(1)).toRasql();
+            CoverageExpression rawLowerBound = (CoverageExpression) visit(ctx.coverageExpression(0));
+            CoverageExpression rawUpperBound = (CoverageExpression) visit(ctx.coverageExpression(1));
             String crs = null;
             if (ctx.crsName() != null) {
                 crs = ctx.crsName().getText().replace("\"", "");
@@ -246,7 +271,7 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
             }
             return new TrimDimensionInterval(ctx.axisName().getText(), crs, rawLowerBound, rawUpperBound);
         } catch (NumberFormatException e) {
-            throw new InvalidSubsettingException(ctx.axisName().getText(), new Interval<String>(ctx.scalarExpression(0).getText(), ctx.scalarExpression(1).getText()));
+            throw new InvalidSubsettingException(ctx.axisName().getText(), new Interval<String>(ctx.coverageExpression(0).getText(), ctx.coverageExpression(1).getText()));
         }
     }
 
@@ -288,7 +313,7 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
 
     @Override
     public IParseTreeNode visitRangeConstructorExpressionLabel(@NotNull wcpsParser.RangeConstructorExpressionLabelContext ctx) {
-        Map<String, CoverageExpression> constructor = new HashMap<String, CoverageExpression>();
+        Map<String, CoverageExpression> constructor = new LinkedHashMap<String, CoverageExpression>();
         for (int i = 0; i < ctx.fieldName().size(); i++) {
             constructor.put(ctx.fieldName().get(i).getText(), (CoverageExpression) visit(ctx.coverageExpression().get(i)));
         }
@@ -302,7 +327,12 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
 
     @Override
     public IParseTreeNode visitDimensionPointElementLabel(@NotNull wcpsParser.DimensionPointElementLabelContext ctx) {
-        return new TrimDimensionInterval(ctx.axisName().getText(), ctx.crsName().getText().replace("\"", ""), ctx.dimensionPointExpression().getText(), ctx.dimensionPointExpression().getText());
+        String crs = null;
+        if(ctx.crsName() != null){
+            crs = ctx.crsName().getText().replace("\"", "");
+        }
+        CoverageExpression bound = (CoverageExpression) visit(ctx.coverageExpression());
+        return new TrimDimensionInterval(ctx.axisName().getText(), crs, bound, bound);
     }
 
     @Override
@@ -316,7 +346,7 @@ public class wcpsEvaluator extends wcpsBaseVisitor<IParseTreeNode> {
 
     @Override
     public IParseTreeNode visitSliceDimensionIntervalElementLabel(@NotNull wcpsParser.SliceDimensionIntervalElementLabelContext ctx) {
-        String bound = ctx.scalarExpression().getText();
+        CoverageExpression bound = (CoverageExpression) visit(ctx.coverageExpression());
         String crs = ctx.crsName() == null ? "" : ctx.crsName().getText().replace("\"", "");
         return new TrimDimensionInterval(ctx.axisName().getText(), crs, bound, bound);
     }

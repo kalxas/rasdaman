@@ -3,6 +3,7 @@ package petascope.wcps2.translator;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Translation node from wcps coverage list to rasql for the general condenser
@@ -34,10 +35,14 @@ public class GeneralCondenser extends IParseTreeNode {
      * @param whereClause   a where clause that selects the pixels
      * @param values        the values that have to be condensed
      */
-    public GeneralCondenser(String operation, ArrayList<IParseTreeNode> axisIterators, IParseTreeNode whereClause, IParseTreeNode values) {
+    public GeneralCondenser(String operation, ArrayList<AxisIterator> axisIterators, IParseTreeNode whereClause, IParseTreeNode values) {
         this.operation = operation;
-        for (IParseTreeNode i : axisIterators) {
-            this.axisIterators.add(i.toRasql());
+        this.axisIterators = axisIterators;
+        for (AxisIterator i : axisIterators) {
+            //add as child
+            addChild(i);
+            //keep track of the variable names
+            this.axisIteratorVariableNames.add(i.getVariableName().getCoverageVariableName());
         }
         this.values = values;
         this.whereClause = whereClause;
@@ -47,8 +52,17 @@ public class GeneralCondenser extends IParseTreeNode {
 
     @Override
     public String toRasql() {
-        String intervals = StringUtils.join(this.axisIterators, INTERVAL_SEPARATOR);
-        String template = TEMPLATE.replace("$intervals", intervals).replace("$values", values.toRasql()).replace("$operation", this.operation);
+        List<TrimDimensionInterval> trimIntervals = new ArrayList<TrimDimensionInterval>(axisIterators.size());
+        String usedVariable = "";
+        for (AxisIterator i : axisIterators) {
+            if(usedVariable.isEmpty()){
+                usedVariable = i.getVariableName().toRasql();
+            }
+            trimIntervals.add(i.getTrimInterval());
+        }
+        dimensionIntervalList = new DimensionIntervalList(trimIntervals);
+        String template = TEMPLATE.replace("$iter", usedVariable).replace("$intervals", dimensionIntervalList.toRasql()).
+                replace("$values", values.toRasql()).replace("$operation", this.operation);
         if (this.whereClause != null) {
             template = template.replace("$whereClause", this.whereClause.toRasql());
         } else {
@@ -57,10 +71,24 @@ public class GeneralCondenser extends IParseTreeNode {
         return template;
     }
 
+    public ArrayList<String> getAxisIteratorVariableNames() {
+        return axisIteratorVariableNames;
+    }
+
+    public IParseTreeNode getValues() {
+        return values;
+    }
+
+    public ArrayList<AxisIterator> getAxisIterators() {
+        return axisIterators;
+    }
+
+    private ArrayList<AxisIterator> axisIterators;
     private String operation;
-    private ArrayList<String> axisIterators = new ArrayList<String>();
+    private DimensionIntervalList dimensionIntervalList;
+    private ArrayList<String> axisIteratorVariableNames = new ArrayList<String>();
     private IParseTreeNode values;
     private IParseTreeNode whereClause;
-    private final String TEMPLATE = "CONDENSE $operation OVER $intervals WHERE $whereClause USING $values";
-    private final String INTERVAL_SEPARATOR = ",";
+    private final static String TEMPLATE = "CONDENSE $operation OVER $iter in [$intervals] WHERE $whereClause USING $values";
+    private final static String INTERVAL_SEPARATOR = ",";
 }

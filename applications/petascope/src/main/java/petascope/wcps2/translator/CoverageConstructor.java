@@ -49,6 +49,9 @@ public class CoverageConstructor extends CoverageBuilder {
     public CoverageConstructor(String coverageName, ArrayList<AxisIterator> axisIterators, IParseTreeNode values) {
         this.coverageName = coverageName;
         this.axisIterators = axisIterators;
+        for (AxisIterator i : axisIterators) {
+            axisIteratorVariableNames.add(i.getVariableName().getCoverageVariableName());
+        }
         this.values = values;
         addChild(values);
         constructCoverageMetadata();
@@ -56,12 +59,17 @@ public class CoverageConstructor extends CoverageBuilder {
 
     @Override
     public String toRasql() {
-        List<String> axes = new ArrayList<String>();
-        for (IParseTreeNode i : axisIterators) {
-            axes.add(i.toRasql());
+        String usedVariable = "";
+        List<TrimDimensionInterval> trimIntervals = new ArrayList<TrimDimensionInterval>(axisIterators.size());
+        for (AxisIterator i : axisIterators) {
+            if(usedVariable.isEmpty()){
+                usedVariable = i.getVariableName().toRasql();
+            }
+            trimIntervals.add(i.getTrimInterval());
         }
-        String intervals = StringUtils.join(axes, INTERVAL_SEPARATOR);
-        String template = TEMPLATE.replace("$intervals", intervals).replace("$values", values.toRasql());
+        DimensionIntervalList dimensionIntervalList = new DimensionIntervalList(trimIntervals);
+        String template = TEMPLATE.replace("$iter", usedVariable).
+                replace("$intervals", dimensionIntervalList.toRasql()).replace("$values", values.toRasql());
         return template;
     }
 
@@ -70,8 +78,16 @@ public class CoverageConstructor extends CoverageBuilder {
         return "(" + coverageName + ")";
     }
 
-
     private IParseTreeNode values;
-    private final String TEMPLATE = "MARRAY $intervals VALUES $values";
+    private final String TEMPLATE = "MARRAY $iter in [$intervals] VALUES $values";
     private final String INTERVAL_SEPARATOR = ",";
+    private ArrayList<String> axisIteratorVariableNames = new ArrayList<String>();
+
+    public ArrayList<String> getAxisIteratorVariableNames() {
+        return axisIteratorVariableNames;
+    }
+
+    public IParseTreeNode getValues() {
+        return values;
+    }
 }
