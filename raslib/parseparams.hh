@@ -62,8 +62,6 @@ public:
        \end{tabular}
     */
 
-    struct parse_params_s;
-
     /// default constructor, should not be used
     r_Parse_Params( void );
     /// constructor, gets descriptor of the values to scan for
