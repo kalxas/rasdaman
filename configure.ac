@@ -62,6 +62,18 @@ AC_CHECK_LIB([tiff], [TIFFGetField], , [AC_MSG_FAILURE([libtiff.a not found! Ple
 # FIXME: Replace `main' with a function in `-lz':
 AC_CHECK_LIB([z], [main], , [AC_MSG_FAILURE([libz.a not found! Please install.])])
 
+### Start - Check for protobuf ###
+if test "$enable_rasnet" = "yes"; then
+    AC_CHECK_LIB([libprotobuf], [main], [AC_MSG_FAILURE([libprotobuf.a not found! Please install libprotobuf-dev.])])
+    AC_CHECK_LIB([libboost], [main], [AC_MSG_FAILURE([libboost.a not found! Please install.])])
+    AC_CHECK_PROG([PROTOC], [protoc], [protoc])
+    AS_IF([test "x${PROTOC}" == "x"],
+         [AC_MSG_ERROR([ProtoBuf compiler "protoc" not found.])])
+    #TODO-GM: check for zmq > 4.0, boost > 1.48
+fi
+### End - Check for protobuf ###
+
+
 ### Due to a strange bug with fnmatch.h, we cannot search for libgdal with AC_CHECK_LIB. 
 ### We add the linking flags manually
 AC_PATH_PROG(GDAL_CONFIG, gdal-config, no)
@@ -163,6 +175,21 @@ AC_CONFIG_FILES([Makefile
                  include/Makefile
                  java/Makefile
                  systemtest/Makefile
+                 common/Makefile
+                 common/src/Makefile
+                 common/test/Makefile
+                 rasnet/Makefile
+                 rasnet/src/Makefile
+                 rasnet/test/Makefile
+                 rasserver_x/Makefile
+                 rasserver_x/src/Makefile
+                 rasmgr_x/Makefile
+                 rasmgr_x/src/Makefile
+                 rasmgr_x/test/Makefile
+                 rascontrol_x/Makefile
+                 rascontrol_x/src/Makefile
+                 rascontrol_x/test/Makefile
+                 rasnetprotocol/Makefile
           ])
 
 # --------------- Header Template Definitions ----------------------
@@ -331,6 +358,14 @@ AC_ARG_ENABLE([java],
               [disable_java=no])
 AC_MSG_NOTICE(Disable java? $disable_java)
 AM_CONDITIONAL([ENABLE_JAVA], [test "$disable_java" = no])
+
+
+AC_ARG_ENABLE([rasnet],
+              [AS_HELP_STRING([--enable-rasnet],
+                              [this feature enables the rasnet protocol.])],
+              [enable_rasnet=yes],
+              [enable_rasnet=no])
+AM_CONDITIONAL([RMANRASNET], [test "$enable_rasnet" = yes])
 # --------------- Database Specific Configuration ------------------
 ####################################################################
 
@@ -399,6 +434,11 @@ AS_IF([test "$with_default_basedb" == sqlite],
       ],
 [AC_MSG_ERROR([unsupported base DBMS: $with_default_basedb])]))
 
+AS_IF([test "$enable_rasnet" == yes],
+    [
+    AC_DEFINE([RMANRASNET], [], [Description])
+    ],
+    [])
 
 AM_CONDITIONAL([BASEDB_PGSQL], [test "$BASEDBSTRING" = pgsql])
 AM_CONDITIONAL([BASEDB_SQLITE], [test "$BASEDBSTRING" = sqlite])
@@ -414,7 +454,7 @@ AS_IF([test "$disable_java" = no],
   ], [])
 
 abs_top_srcdir=`pwd`
-RMANBASE=$abs_top_srcdir   
+RMANBASE=$abs_top_srcdir
 
 # ----------------
 # check for netpbm headers

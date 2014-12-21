@@ -57,6 +57,8 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include <math.h>
 #include <string>
 
+#include "common/src/logging/easylogging++.hh"
+
 
 // this must use the rasdaman internal module
 // as there is no official type retrieval interface yet,
@@ -505,11 +507,24 @@ parseParams(int argc, char** argv) throw (ImportError, r_Error)
 }
 
 
+#ifdef RMANRASNET
+    _INITIALIZE_EASYLOGGINGPP
+#endif
 /*
  * returns 0 on success, -1 on error
  */
 int main(int argc, char** argv)
 {
+    //TODO-GM: find another way to do this
+    #ifdef RMANRASNET
+        easyloggingpp::Configurations defaultConf;
+        defaultConf.setToDefault();
+        defaultConf.set(easyloggingpp::Level::Error,
+                        easyloggingpp::ConfigurationType::Format,
+                        "%datetime %level %loc %log %func ");
+        easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    #endif
+
     SET_OUTPUT( false );        // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_SUCCESS;

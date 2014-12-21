@@ -68,6 +68,8 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include <vector>
 #include "raslib/commonutil.hh"
 
+#include "common/src/logging/easylogging++.hh"
+
 using namespace std;
 
 #ifdef __VISUALC__
@@ -1009,11 +1011,25 @@ crash_handler (int sig, siginfo_t* info, void * ucontext)
     exit(SEGFAULT_EXIT_CODE);
 }
 
+#ifdef RMANRASNET
+    _INITIALIZE_EASYLOGGINGPP
+#endif
+
 /*
  * returns 0 on success, -1 on error
  */
 int main(int argc, char** argv)
 {
+    //TODO-GM: find a better way to do thiss
+    #ifdef RMANRASNET
+        easyloggingpp::Configurations defaultConf;
+        defaultConf.setToDefault();
+        defaultConf.set(easyloggingpp::Level::Error,
+                        easyloggingpp::ConfigurationType::Format,
+                        "%datetime %level %loc %log %func ");
+        easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    #endif
+
     SET_OUTPUT( false );        // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_SUCCESS;  // overall result status

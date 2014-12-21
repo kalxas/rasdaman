@@ -78,6 +78,8 @@ using namespace std;
 #include "raslib/odmgtypes.hh"
 #include "raslib/error.hh"
 
+#include "common/src/logging/easylogging++.hh"
+
 // this is for inhouse debug macros; not needed for standalone compilation
 #if defined(RMANDEBUG) || defined(DEBUG)
 #define DEBUG_MAIN
@@ -455,9 +457,23 @@ printUsage(const char* name)
          << "      In this case all files must have same pixel type and x/y extent." << endl;
 }
 
+#ifdef RMANRASNET
+    _INITIALIZE_EASYLOGGINGPP
+#endif
+
 int
 main( int argc, char** argv )
 {
+    //TODO-GM: find a better way to do this
+    #ifdef RMANRASNET
+        easyloggingpp::Configurations defaultConf;
+        defaultConf.setToDefault();
+        defaultConf.set(easyloggingpp::Level::Error,
+                        easyloggingpp::ConfigurationType::Format,
+                        "%datetime %level %loc %log %func ");
+        easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    #endif
+
     const char   *prog = argv[0];               // our name
     int           retval = EXIT_OK;             // program exit code
 

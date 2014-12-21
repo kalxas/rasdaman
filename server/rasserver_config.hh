@@ -40,6 +40,7 @@ public:
     int         getListenPort();
     bool        isHttpServer();
     bool        isRnpServer();
+    bool        isRasnetServer();
 
     const char* getRasmgrHost();
     int         getRasmgrPort();
@@ -70,6 +71,8 @@ public:
 
     long        getCacheLimit();
 
+    const char* getNewServerId();
+
 private:
     void printHelp();
 
@@ -93,6 +96,7 @@ private:
     CommandLineParameter *cmlMgmntInt;
     CommandLineParameter *cmlHttp;
     CommandLineParameter *cmlRnp;
+    CommandLineParameter *cmlRasnet;
 
     CommandLineParameter *cmlLockMgrOn;
 
@@ -112,6 +116,9 @@ private:
     CommandLineParameter *cmlIndexSize;
     
     CommandLineParameter *cmlCacheLimit;
+
+    // Server id parameter required by rasnet
+    CommandLineParameter *cmlNewServerId;
 #ifdef RMANDEBUG
     CommandLineParameter *cmlDbg;
     CommandLineParameter *cmlDbgLevel;
@@ -131,6 +138,7 @@ private:
     int         timeout;
     bool        httpServ;
     bool        rnpServ;
+    bool        rasnetServ;
     const char* dbConnection;
     const char* dbUser;
     const char* dbPasswd;
@@ -147,6 +155,9 @@ private:
     int         indexSize;
     
     long        cacheLimit;
+
+    // server id, required by rasnet
+    const char* newServerId;
 #ifdef RMANDEBUG
     int         dbgLevel;
 #endif

@@ -35,6 +35,8 @@
 #include "include/globals.hh"
  #include "raslib/commonutil.hh"
 
+#include "common/src/logging/easylogging++.hh"
+
 #define DEBUG_MAIN
 #include "debug-clt.hh"
 
@@ -78,10 +80,22 @@ crash_handler (int sig, siginfo_t* info, void * ucontext)
     exit(SEGFAULT_EXIT_CODE);
 }
 
-
+#ifdef RMANRASNET
+    _INITIALIZE_EASYLOGGINGPP
+#endif
 
 int main(int argc, char** argv)
 {
+    //TODO-GM: find another way to do this
+    #ifdef RMANRASNET
+        easyloggingpp::Configurations defaultConf;
+        defaultConf.setToDefault();
+        defaultConf.set(easyloggingpp::Level::Error,
+                        easyloggingpp::ConfigurationType::Format,
+                            "%datetime %level %loc %log %func ");
+        easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    #endif
+
     //install SIGSEGV signal handler
     installSigSegvHandler(crash_handler);
 

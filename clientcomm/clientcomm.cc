@@ -39,6 +39,10 @@ using namespace std;
 #include "clientcomm/rpcclientcomm.hh"
 #include "rnprotocol/rnpclientcomm.hh"
 
+#ifdef RMANRASNET
+#include "rasnetprotocol/rasnetclientcomm.hh"
+#endif
+
 
 #include "raslib/endian.hh"
 int
@@ -91,19 +95,31 @@ ClientComm* ClientComm::createObject(const char* rasmgrName, int rasmgrPort)
 {
     char *env = getenv("RMANPROTOCOL");
 
-    bool createRNP = currentProtocolIsRNP;
+    CommunicationProtocol protocol = DEFAULT_PROTOCOL;
 
     if(env != 0)
     {
-        if(strcmp(env,"RNP") == 0 || strcmp(env,"HTTP") == 0)   createRNP = true;
-        if(strcmp(env,"RPC") == 0 || strcmp(env,"COMPAT") == 0) createRNP = false;
+        if(strcmp(env,"RNP") == 0 || strcmp(env,"HTTP") == 0)   protocol = RNP;
+        if(strcmp(env,"RPC") == 0 || strcmp(env,"COMPAT") == 0) protocol = RPC;
+        if(strcmp(env, "RASNET") == 0) protocol = RASNET;
         // rest is ignored
     }
 
-    if(createRNP)
-        return new RnpClientComm( rasmgrName, rasmgrPort);
-
-    return new RpcClientComm(rasmgrName, rasmgrPort);
+    switch (protocol){
+        case RNP:
+            return new RnpClientComm( rasmgrName, rasmgrPort);
+            break;
+        case RPC:
+            return new RpcClientComm(rasmgrName, rasmgrPort);
+            break;
+        case RASNET:
+#ifdef RMANRASNET
+            return new RasnetClientComm(rasmgrName, rasmgrPort);
+            break;
+#endif
+        default:
+            return new RnpClientComm( rasmgrName, rasmgrPort);
+    }
 }
 
 ClientComm::~ClientComm() throw()
@@ -113,21 +129,30 @@ ClientComm::~ClientComm() throw()
 // default comm protocol to be used:
 //  true    use RNP
 //  false   use RPC
-bool ClientComm::currentProtocolIsRNP=true; // up to (excl) 6.0 'false' for MOSS to maintain compat with old apps
+#ifdef RMANRASNET
+ClientComm::CommunicationProtocol ClientComm::DEFAULT_PROTOCOL = ClientComm::RASNET;
+#else
+ClientComm::CommunicationProtocol ClientComm::DEFAULT_PROTOCOL = ClientComm::RNP;
+#endif
 
 void ClientComm::useRNP() throw()
 {
-    currentProtocolIsRNP = true;
+    DEFAULT_PROTOCOL = RNP;
 }
 
 void ClientComm::useRPC() throw()
 {
-    currentProtocolIsRNP = false;
+    DEFAULT_PROTOCOL = RPC;
+}
+
+void ClientComm::useRASNET() throw()
+{
+    DEFAULT_PROTOCOL = RASNET;
 }
 
 bool ClientComm::internalSettingIsRNP()  throw()
 {
-    return currentProtocolIsRNP;
+    return DEFAULT_PROTOCOL == RNP;
 }
 
 

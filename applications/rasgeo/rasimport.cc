@@ -50,6 +50,8 @@
 #define DEBUG_MAIN
 #include "debug-clt.hh"
 
+#include "common/src/logging/easylogging++.hh"
+
 using namespace std;
 
 // global string constants
@@ -1457,9 +1459,21 @@ crash_handler (int sig, siginfo_t* info, void * ucontext)
 
 // ----------------------------------------- MAIN ------------------------------------------------
 
+#ifdef RMANRASNET
+    _INITIALIZE_EASYLOGGINGPP
+#endif
+
 int
 main(int argc, char** argv)
 {
+    #ifdef RMANRASNET
+        easyloggingpp::Configurations defaultConf;
+        defaultConf.setToDefault();
+        defaultConf.set(easyloggingpp::Level::Error,
+                        easyloggingpp::ConfigurationType::Format,
+                        "%datetime %level %loc %log %func ");
+        easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    #endif
 
     installSigSegvHandler(crash_handler);
 

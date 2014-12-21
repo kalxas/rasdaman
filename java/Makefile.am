@@ -34,9 +34,27 @@ EXTRA_DIST = src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj
 MAVEN_BASE_FOLDER = rasjbase
 MAVEN_COMPLETE_STRUCT = $(MAVEN_BASE_FOLDER)/src/main/java
 
-all : src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java
+SRCS = src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java
+
+if RMANRASNET
+SRCS += src/org/rasdaman/rasnet/channel/*.java src/org/rasdaman/rasnet/communication/*.java src/org/rasdaman/rasnet/exception/*.java \
+       src/org/rasdaman/rasnet/message/*.java src/org/rasdaman/rasnet/service/*.java src/org/rasdaman/rasnet/util/*.java
+CLASSPATH = -cp lib/protobuf-java-2.4.1.jar:lib/zmq.jar
+endif
+
+select_rasimplementation:
+if RMANRASNET
+	cp src/rasj/RasImplementation.java.rasnet src/rasj/RasImplementation.java
+else
+	cp src/rasj/RasImplementation.java.rnp src/rasj/RasImplementation.java
+endif
+
+all : select_rasimplementation src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java
 	mkdir -p bin dist
-	javac -d bin src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java
+	javac $(CLASSPATH) -d bin $(SRCS)
+if RMANRASNET
+	cd bin && jar xf ../lib/protobuf-java-2.4.1.jar && jar xf ../lib/zmq.jar && rm -rf META-INF
+endif
 	jar -cf dist/rasj.jar -C bin .
 
 examples: src/examples/*.java all

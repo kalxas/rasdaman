@@ -28,7 +28,12 @@
 AM_CXXFLAGS=@BASEDBCXXFLAGS@
 AM_LDFLAGS=@BASEDBLDFLAGS@ 
 
+if RMANRASNET
+noinst_PROGRAMS=rasmgr
+else
 bin_PROGRAMS=rasmgr
+endif
+
 rasmgr_SOURCES=ras_crypto.cc rasmgr_config.cc rasmgr_host.cc rasmgr_main.cc rasmgr_rascontrol.cc rasmgr_srv.cc \
          	   rasmgr_dbm.cc rasmgr_master_nb.cc rasmgr_rascontrol_help.cc \
                rasmgr_users.cc rasmgr_comm_nb.cc rasmgr_error.cc rasmgr_localsrv.cc rasmgr_random.cc  \

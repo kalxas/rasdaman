@@ -49,6 +49,10 @@ directql_LDADD = ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
                ../../catalogmgr/libcatalogmgr.a ../../lockmgr/liblockmanager.a \
                ../../raslib/libraslib.a ../../tilemgr/libtilemgr.a ../../server/rasserver_config.o @GDAL_LDFLAGS@ @CLIENTLDFLAGS@ @BASEDBLDFLAGS@
 
+if RMANRASNET
+  directql_LDADD += ../../rasnet/src/librasnet.a ../../common/src/libcommon.a -L/usr/local/lib -lprotobuf -lzmq -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+endif
+
 
 SUBDIRS= ../../rasodmg ../../clientcomm \
          ../../raslib ../../conversion ../../commline ../../network

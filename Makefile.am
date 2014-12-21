@@ -45,8 +45,9 @@ nobase_include_HEADERS=raslib/*.h raslib/*.hh raslib/*.icc raslib/*.cc \
 		clientcomm/*.h clientcomm/*.hh commline/*.hh commline/*.cc debug/*.hh config.h
 
 SUBDIRS = relblobif relindexif relmddif relcatalogif reladminif relstorageif \
-          indexmgr catalogmgr tilemgr storagemgr commline network \
-          raslib clientcomm servercomm rasodmg qlparser conversion \
+          commline indexmgr catalogmgr tilemgr storagemgr network \
+          common rasnet rasmgr_x rascontrol_x clientcomm rasserver_x rasnetprotocol \
+          raslib servercomm rasodmg qlparser conversion \
           mddmgr httpserver mymalloc server rasmgr rascontrol rasdl lockmgr \
           bin insertutils manuals_and_examples include \
           systemtest $(JAVA_DIR) applications

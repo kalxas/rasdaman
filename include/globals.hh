@@ -30,7 +30,7 @@ rasdaman GmbH.
  * This class provides basic constants used across rasdaman.
  * Any value that is of external importance (default names, timeouts, ...)
  * but are NOT TO BE DELIVERED should be defined here.
- *    
+ *
  * COMMENTS:
  * - make this a real class
  * - successively collect all important values here
@@ -38,45 +38,51 @@ rasdaman GmbH.
 */
 
 /**
-*	@file globals.hh
+*   @file globals.hh
 *
-*	@ingroup Include
+*   @ingroup Include
 */
 
 #ifndef GLOBALS_HH
 #define GLOBALS_HH
 
 /// default rasmgr listen port
-#define DEFAULT_PORT		7001
+#define DEFAULT_PORT        7001
 
 /// default name of server machine, if gethostname() fails
-#define DEFAULT_HOSTNAME	"localhost"
+#define DEFAULT_HOSTNAME    "localhost"
 
 /// default database name
-#define DEFAULT_DBNAME		"RASBASE"
+#define DEFAULT_DBNAME      "RASBASE"
 
 /// name of rasmgr configuration file
-#define RASMGR_CONF_FILE	"rasmgr.conf"
+#define RASMGR_CONF_FILE    "rasmgr.conf"
 
 /// name of rasmgr authentication file
-#define RASMGR_AUTH_FILE	"rasmgr.auth"
+#define RASMGR_AUTH_FILE    "rasmgr.auth"
 
 /// default resource directory (e.g. for configuration files)
 #define RAS_USER_RESOURCEDIR ".rasdaman"
 
 /// default r/o login name for client tools
-#define DEFAULT_USER		"rasguest"
+#define DEFAULT_USER        "rasguest"
 /// default password for this user
-#define DEFAULT_PASSWD		"rasguest"
+#define DEFAULT_PASSWD      "rasguest"
+
+#define DEFAULT_ADMIN        "rasadmin"
+#define DEFAULT_ADMIN_PASSWD    "rasadmin"
 
 /// log file suffix
-#define LOG_SUFFIX     		"log"
+#define LOG_SUFFIX          "log"
+
+// default digest used for encoding passwords
+#define DEFAULT_DIGEST    "MD5"
 
 /// max transfer buffer size (import clients)
-#define MAX_BUFFER_SIZE 	4194304L
+#define MAX_BUFFER_SIZE     4194304L
 
 /// client timeout [secs]
-#define CLIENT_TIMEOUT		300
+#define CLIENT_TIMEOUT      300
 
 #endif // GLOBALS_HH
 

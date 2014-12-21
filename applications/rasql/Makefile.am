@@ -39,6 +39,10 @@ rasql_LDADD = ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
               ../../conversion/libconversion.a ../../commline/libcommline.a \
               ../../network/libnetwork.a
 
+if RMANRASNET
+    rasql_LDADD += ../../rasnet/src/librasnet.a ../../common/src/libcommon.a -L/usr/local/lib -lprotobuf -lzmq -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+endif
+
 SUBDIRS= ../../rasodmg ../../clientcomm \
          ../../raslib ../../conversion ../../commline ../../network
 

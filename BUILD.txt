@@ -1,0 +1,9 @@
+enable rasnet: ./configure --enable-rasnet
+
+build C++ proto:
+    cd rasnet/src
+    protoc --proto_path=protomessages --cpp_out=messages protomessages/<your_message>.proto
+
+build Java proto:
+    cd rasnet/src
+    protoc --proto_path=protomessages --java_out=../../java/src/ protomessages/<your_message>.proto

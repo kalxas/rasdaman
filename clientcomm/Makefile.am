@@ -49,6 +49,12 @@ libclientcomm_a_SOURCES = rpcif_clnt.cc rpcif_xdr.c rpcif.h \
                           ../rnprotocol/rnpclientcomm.hh
 libclientcomm_a_CPPFLAGS=-I../rnprotocol
 
+if RMANRASNET
+    libclientcomm_a_SOURCES += ../rasnetprotocol/rasnetclientcomm.cc \
+                          ../rasnetprotocol/rasnetclientcomm.hh
+    libclientcomm_a_LIBADD = ../rasnet/src/librasnet.a ../common/src/libcommon.a
+endif
+
 EXTRA_libclientcomm_a_SOURCES = rpcif.x                          
 BUILT_SOURCES= rpcif_clnt.cc rpcif_xdr.c rpcif.h rpcif_svc.cc
 CLEANFILES=rpcif_clnt.cc rpcif_xdr.c rpcif.h rpcif.h.tmp rpcif_clnt.c.tmp \

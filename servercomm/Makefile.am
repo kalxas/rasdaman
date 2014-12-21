@@ -51,6 +51,12 @@ libservercomm_a_SOURCES=../clientcomm/rpcif_xdr.c ../clientcomm/rpcif_svc.cc ser
                         ../rnprotocol/rnprasserver.hh \
                         ../rnprotocol/rnpservercomm.cc \
                         ../rnprotocol/rnpservercomm.hh
+
+if RMANRASNET
+    libservercomm_a_SOURCES += ../rasnetprotocol/rasnetservercomm.cc \
+                        ../rasnetprotocol/rasnetservercomm.hh
+endif
+
 libservercomm_a_CPPFLAGS=-I../rnprotocol                        
 
 BUILT_SOURCES=../clientcomm/rpcif_xdr.c ../clientcomm/rpcif.h ../clientcomm/rpcif_svc.cc

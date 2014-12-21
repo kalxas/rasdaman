@@ -99,6 +99,7 @@ void Configuration::initParameters()
     cmlMgmntInt    = &cmlInter.addStringParameter(NSN, "mgmntint", ""); // deprecated
     cmlHttp        = &cmlInter.addFlagParameter(NSN, "http", "start HTTP version of rasserver");
     cmlRnp         = &cmlInter.addFlagParameter(NSN, "rnp", "start RNP version of rasserver");
+    cmlRasnet      = &cmlInter.addFlagParameter(NSN, "rasnet", "start RASNET version of rasserver");
 
     cmlLockMgrOn   = &cmlInter.addFlagParameter(NSN, "enable-tilelocking", "enables fine grained locking of tiles");
 
@@ -114,6 +115,7 @@ void Configuration::initParameters()
     cmlUseTC    = &cmlInter.addFlagParameter(NSN, "usetc", "use TileContainerIndex");
     cmlTileConf = &cmlInter.addStringParameter(NSN, "tileconf", "<dom> default tile configuration (e.g. [0:1,0:2])", "[0:1023,0:1023]");
 
+    cmlNewServerId = &cmlInter.addStringParameter(NSN, "serverId", "serverID", NULL);
     string tilingDesc = string("<tiling-name> retiling strategy, specified as:") + CommandLineParameter::descLineSep +
                         "  " + tiling_name_notiling          + "," + CommandLineParameter::descLineSep +
                         "  " + tiling_name_regulartiling;
@@ -163,6 +165,7 @@ void Configuration::checkParameters()
     deprecated(cmlMgmntInt);
     httpServ              = cmlHttp->isPresent();
     rnpServ               = cmlRnp->isPresent();
+    rasnetServ            = cmlRasnet->isPresent();
 
     lockmgrOn             = cmlLockMgrOn->isPresent();
 
@@ -184,6 +187,7 @@ void Configuration::checkParameters()
     
     cacheLimit = cmlCacheLimit->getValueAsLong();
 
+    newServerId = cmlNewServerId->getValueAsString();
 #ifdef RMANDEBUG
     //  deprecated(cmlDbg);     // will certainly not remove this... -- PB 2007-may-07
     // SET_OUTPUT( cmlDbg->isPresent() );   // enable trace macros depending on --debug parameter
@@ -293,6 +297,11 @@ bool        Configuration::isRnpServer()
     return rnpServ;
 }
 
+bool Configuration::isRasnetServer()
+{
+    return rasnetServ;
+}
+
 const char* Configuration::getRasmgrHost()
 {
     return rasmgrHost;
@@ -379,4 +388,8 @@ long        Configuration::getCacheLimit()
     return cacheLimit;
 }
 
+const char* Configuration::getNewServerId()
+{
+    return newServerId;
+}
 

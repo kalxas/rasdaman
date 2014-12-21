@@ -32,7 +32,11 @@ CRYPTO=../rasmgr/ras_crypto.o
 SRCCXX=rascontrol.cc rasmgr_utils_comm.cc rasmgrtest.cc raspasswd.cc \
 	rascontrol_class.cc rasmgr_tester.cc rasmgr_utils_conf.cc rasmgrtester_conf.cc
 
+if RMANRASNET
+noinst_PROGRAMS=rascontrol raspasswd
+else
 bin_PROGRAMS=rascontrol raspasswd 
+endif
 
 rascontrol_SOURCES=rascontrol.cc rascontrol_class.cc rascontrol.hh \
                    ../rasmgr/ras_crypto.cc ../rasmgr/ras_crypto.hh \

@@ -1,0 +1,5 @@
+# Create a library called "Hello" which includes the source file "hello.cxx".
+# The extension is already found. Any number of sources could be listed here.
+file(GLOB_RECURSE SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cc)
+
+add_library (common ${SRC_FILES})

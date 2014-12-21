@@ -29,7 +29,7 @@ rasdaman GmbH.
  *
  * </pre>
  *********************************************************** */
- 
+
 package rasj.rnp;
 
 import rasj.odmg.*;
@@ -45,7 +45,7 @@ import java.lang.*;
 import java.util.*;
 
 public class RasRNPImplementation extends RnpBaseClientComm implements RasImplementationInterface, RasCommDefs,RasGlobalDefs
-  { 
+  {
      public static final int pmt_none         = 0;
      public static final int pmt_clientid     = 1;
      public static final int pmt_rErrorString = 2;
@@ -74,7 +74,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
      public static final int cmd_queryhttp    = 9;
      public static final int cmd_getnewoid    =10;
      public static final int cmd_gettypestruct=21;
-     
+
      public static final int rasServerId = 3072002;
 
      private String rasServer            = "";
@@ -88,19 +88,19 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
      private RasTransaction transaction  = null;
      private RasDatabase    database     = null;
      private RasOQLQuery    query        = null;
-     
+
      private int accessMode              = 0;
-     private boolean readWrite           = false; 
+     private boolean readWrite           = false;
      private int dbIsOpen                = 0;
      private int taIsOpen                = 0;
      private int clientID                = 0;
-     
+
      private String errorStatus          = "";
-     
-     public static boolean useTurbo      = true;	// whenever possible pack multiple requests into one call 
-     
-     
-     
+
+     public static boolean useTurbo      = true;	// whenever possible pack multiple requests into one call
+
+
+
      public RasRNPImplementation(String server)
        {
          super(rasServerId);
@@ -134,88 +134,88 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
          Debug.talkSparse( "RasRNPImplementation.getRasServer: " + rasServer );
          return rasServer;
        }
-     
+
      public int dbIsOpen()
        {
          Debug.talkSparse( "RasRNPImplementation.dbIsOpen: " + dbIsOpen );
-         return dbIsOpen;	
+         return dbIsOpen;
        }
-     
+
      public int getClientID()
        {
          Debug.talkSparse( "RasRNPImplementation.getClientID: " + clientID );
 	 return clientID;
        }
-         
+
      public int getAccessMode()
        {
          Debug.talkSparse( "RasRNPImplementation.getAccessMode: " + accessMode );
 	 return accessMode;
-       } 
-     
+       }
+
      public Transaction newTransaction()
        {
 	 transaction = new RasTransaction(this);
          Debug.talkSparse( "RasRNPImplementation.newTransaction." );
 	 return transaction;
        }
-    
+
      public Transaction currentTransaction()
        {
          Debug.talkSparse( "RasRNPImplementation.currentTransaction." );
 	 return transaction;
        }
-     
+
      public Database newDatabase()
        {
 	 database=new RasDatabase(this);
          Debug.talkSparse( "RasRNPImplementation.newDatabase." );
 	 return database;
        }
-    
+
      public OQLQuery newOQLQuery()
        {
 	 query=new RasOQLQuery(this);
          Debug.talkSparse( "RasRNPImplementation.newOQLQuery." );
 	 return query;
        }
-     
+
      public DList newDList()
        {
          Debug.talkSparse( "RasRNPImplementation.newDList." );
 	 return new RasList();
        }
-     
+
      public DBag newDBag()
        {
          Debug.talkSparse( "RasRNPImplementation.newDBag." );
 	 return new RasBag();
        }
-     
+
      public DSet newDSet()
        {
          Debug.talkSparse( "RasRNPImplementation.newDSet." );
 	 return new RasSet();
        }
-     
+
      public DArray newDArray()
        {
          Debug.talkCritical( "RasRNPImplementation.newDArray: not yet implemented." );
 	 throw new NotImplementedException();
        }
-     
+
      public DMap newDMap()
        {
          Debug.talkCritical( "RasRNPImplementation.newDMap: not yet implemented." );
 	 throw new NotImplementedException();
        }
-	    
+
      public Database getDatabase(Object obj)
        {
          Debug.talkCritical( "RasRNPImplementation.getDatabase: not yet implemented." );
 	 throw new NotImplementedException();
-       } 
-      
+       }
+
      public String getObjectId(Object obj)
        {
          Debug.enterVerbose( "RasRNPImplementation.getObjectId start." );
@@ -233,29 +233,29 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	     else
 	       {
                  Debug.leaveCritical( "RasRNPImplementation.getObjectId done. not yet implemented." );
-	         throw new NotImplementedException();	  
+	         throw new NotImplementedException();
 	       }
            }
          Debug.leaveVerbose( "RasRNPImplementation.getObjectId done. oid=" + oid );
 	 return oid;
-       }	      
- 
+       }
+
      public void setMaxRetry(int newRetry)
-       {       
+       {
          Debug.talkVerbose( "RasRNPImplementation.setMaxRetry: setting to " + newRetry );
 	 maxRetry = newRetry;
        }
-     
+
      public int getMaxRetry()
        {
          Debug.talkVerbose( "RasRNPImplementation.getMaxRetry: is " + maxRetry );
 	 return maxRetry;
        }
-	           	    
+
      public void openDB(String name, int accessMode) throws ODMGException
        {
          Debug.enterVerbose( "RasRNPImplementation.openDB start. db=" + name + ", accessMode=" + accessMode );
-	 databaseName = name;	 
+	 databaseName = name;
 	 this.accessMode = accessMode;
 	 readWrite = (accessMode != Database.OPEN_READ_ONLY) ? true:false;
 	 //getFreeServer(false); // fake server
@@ -264,62 +264,62 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	// "turbo" doesn't work because connect delivers the client id needed for later calls
 	 // if(useTurbo==false)
 	 //   {
-	   executeConnect();	 
-	   executeOpenDB(databaseName);	 
-	   executeCloseDB();	 
-	   executeDisconnect();	 
+	   executeConnect();
+	   executeOpenDB(databaseName);
+	   executeCloseDB();
+	   executeDisconnect();
 	 //   }
-	 // else executeTurboOpen(name);  
+	 // else executeTurboOpen(name);
 
 	 dbIsOpen = 1;
          Debug.leaveVerbose( "RasRNPImplementation.openDB done." );
        }
-	 
+
     public void closeDB() throws ODMGException
-       {	
+       {
          Debug.talkVerbose( "RasRNPImplementation.closeDB." );
 	 dbIsOpen = 0;
        }
-	    
-    public void beginTA() 
+
+    public void beginTA()
        {
          Debug.enterVerbose( "RasRNPImplementation.beginTA start." );
 	 if(useTurbo==false)
-	   {	    
+	   {
 	     try
-	       {	 
+	       {
 	         getFreeServer(true);
-                 executeConnect();	     
-	         executeOpenDB(databaseName); 	     
-	         executeBeginTA();	     
+                 executeConnect();
+	         executeOpenDB(databaseName);
+	         executeBeginTA();
 	       }
 	     catch(ODMGException e)
 	       {
 	         errorStatus = e.getMessage();
                  Debug.talkCritical( "RasRNPImplementation.beginTA: " + errorStatus );
-	       }   
+	       }
 	   }
 	 else
-	   { 
+	   {
 	     try
-	       {	 
+	       {
 	         getFreeServer(true);
-	         executeTurboBegin(databaseName);    
+	         executeTurboBegin(databaseName);
 	       }
-	     catch(ODMGException e)  
+	     catch(ODMGException e)
 	       {
 	         errorStatus = e.getMessage();
                  Debug.talkCritical( "RasRNPImplementation.beginTA: " + errorStatus );
 	       }
-	   }      
+	   }
         Debug.leaveVerbose( "RasRNPImplementation.beginTA done." );
       }
-	        
-    public boolean isOpenTA() 
+
+    public boolean isOpenTA()
       {
         Debug.enterVerbose( "RasRNPImplementation.isOpenTA start." );
         boolean result = false;
-	try 
+	try
 	  {
 	    if(executeIsOpenTA()!=0)
                 result = true;
@@ -328,11 +328,11 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	  {
 	    errorStatus = e.getMessage();
             Debug.talkCritical( "RasRNPImplementation.isOpenTA: " + errorStatus );
-	  }  
+	  }
         Debug.leaveVerbose( "RasRNPImplementation.isOpenTA done. result=" + result );
 	return result;
       }
-     
+
     public void commitTA()
       {
         Debug.enterVerbose( "RasRNPImplementation.commitTA start." );
@@ -341,10 +341,10 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
             try
 	      {
 	        executeCommitTA();
-	        executeCloseDB();	
-	        executeDisconnect();	 
+	        executeCloseDB();
+	        executeDisconnect();
 	      }
-	    catch(ODMGException e)  
+	    catch(ODMGException e)
 	      {
 	        errorStatus = e.getMessage();
                 Debug.talkCritical( "RasRNPImplementation.commitTA: " + errorStatus );
@@ -352,11 +352,11 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
           }
 	else
 	  {
-	    try 
+	    try
 	      {
 	        executeTurboCommit();
 	      }
-	    catch(ODMGException e)  
+	    catch(ODMGException e)
 	      {
 	        errorStatus = e.getMessage();
                 Debug.talkCritical( "RasRNPImplementation.commitTA: " + errorStatus );
@@ -364,24 +364,24 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	   }
         Debug.leaveVerbose( "RasRNPImplementation.commitTA done." );
       }
-	
+
     public void abortTA()
       {
         Debug.enterVerbose( "RasRNPImplementation.abortTA done." );
         if (useTurbo==false)
 	  {
 	    try
-	      { 
+	      {
 	       executeAbortTA();
-	       executeCloseDB();	
+	       executeCloseDB();
 	       executeDisconnect();
 	      }
-	    catch(ODMGException e)  
+	    catch(ODMGException e)
 	      {
 	        errorStatus = e.getMessage();
                 Debug.talkCritical( "RasRNPImplementation.abortTA: " + errorStatus );
 	      }
-	  }  
+	  }
 	else
 	  {
 	    try
@@ -392,11 +392,11 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	      {
 	        errorStatus = e.getMessage();
                 Debug.talkCritical( "RasRNPImplementation.abortTA: " + errorStatus );
-	      } 
-	  }     
+	      }
+	  }
         Debug.leaveVerbose( "RasRNPImplementation.abortTA done." );
       }
-	 
+
     public Object queryRequest(String parameters) throws RasQueryExecutionFailedException
       {
          Debug.talkVerbose( "RasRNPImplementation.queryRequest." );
@@ -408,23 +408,23 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
          Debug.talkVerbose( "RasRNPImplementation.getTypeStructure." );
          return executeGetTypeStructure(typename, typetype);
       }
-		   
+
     private void executeTurboOpen(String name) throws ODMGException
-      {	 
+      {
         Debug.enterVerbose( "RasRNPImplementation.executeTurboOpen start. name=" + name );
 	clientID = 0;
 	startMessage();
 
 	//connect
 	startFragment(cmd_connect);
-        encoder.addParameterInt32(pmt_clientid,clientID); 
-        encoder.addParameterString(pmt_capability,capability); 
+        encoder.addParameterInt32(pmt_clientid,clientID);
+        encoder.addParameterString(pmt_capability,capability);
         endFragment();
 
 	//opendb
 	startFragment(cmd_opendb);
         encoder.addParameterInt32(pmt_clientid,clientID);
-	encoder.addParameterString(pmt_dbname,name);	
+	encoder.addParameterString(pmt_dbname,name);
 	endFragment();
 
 	//close db
@@ -433,20 +433,20 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	endFragment();
 
 	//disconnect
-	startFragment(cmd_disconnect);	 
-	encoder.addParameterInt32(pmt_clientid,clientID);	
+	startFragment(cmd_disconnect);
+	encoder.addParameterInt32(pmt_clientid,clientID);
       	endFragment();
 
         endMessage();
 
 	//send message and receive answer
-	turboSendRequestGetAnswer();         	 
+	turboSendRequestGetAnswer();
 
 	// connect answer
 	RnpFragment fragment=decoder.getFirstFragment();
 	checkForError();
 	decoder.getFirstParameter();
-        clientID=decoder.getDataAsInteger();	 
+        clientID=decoder.getDataAsInteger();
 
 	//opendb answer
 	fragment=decoder.getNextFragment(fragment);
@@ -462,7 +462,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	clientID = 0;
         Debug.leaveVerbose( "RasRNPImplementation.executeTurboOpen done." );
       }
-     
+
     private void executeTurboBegin(String name) throws ODMGException
        {
         Debug.enterVerbose( "RasRNPImplementation.executeTurboBegin start. name=" + name );
@@ -471,30 +471,30 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 
 	//connect
 	startFragment(cmd_connect);
-        encoder.addParameterInt32(pmt_clientid,clientID); 
-        encoder.addParameterString(pmt_capability,capability); 
+        encoder.addParameterInt32(pmt_clientid,clientID);
+        encoder.addParameterString(pmt_capability,capability);
         endFragment();
 
 	//opendb
 	startFragment(cmd_opendb);
         encoder.addParameterInt32(pmt_clientid,clientID);
-	encoder.addParameterString(pmt_dbname,name);	
+	encoder.addParameterString(pmt_dbname,name);
 	endFragment();
 
 	// begin ta
 	startFragment(cmd_beginta);
 	encoder.addParameterInt32(pmt_clientid,clientID);
-	encoder.addParameterInt32(pmt_accesmode, readWrite ? 1:0);	
+	encoder.addParameterInt32(pmt_accesmode, readWrite ? 1:0);
 	endFragment();
 
-	endMessage();	 
+	endMessage();
 
 	//send message and receive answer
-	turboSendRequestGetAnswer();         	 	 
+	turboSendRequestGetAnswer();
 
 	// connect answer
 	RnpFragment fragment=decoder.getFirstFragment();
-	checkForError();	 
+	checkForError();
 	decoder.getFirstParameter();
         clientID=decoder.getDataAsInteger();
 
@@ -507,8 +507,8 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	checkForError();
         Debug.leaveVerbose( "RasRNPImplementation.executeTurboBegin done." );
       }
-	 
-     private void executeTurboCommit() throws ODMGException   
+
+     private void executeTurboCommit() throws ODMGException
        {
         Debug.enterVerbose( "RasRNPImplementation.executeTurboCommit start." );
 	startMessage();
@@ -525,13 +525,13 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 
 	//disconnect
 	startFragment(cmd_disconnect);
-	encoder.addParameterInt32(pmt_clientid,clientID);	 
+	encoder.addParameterInt32(pmt_clientid,clientID);
         endFragment();
 
-	endMessage();	 
+	endMessage();
 
 	//send message and receive answer
-	turboSendRequestGetAnswer();     	     	 
+	turboSendRequestGetAnswer();
 
         //commit answer
 	RnpFragment fragment=decoder.getFirstFragment();
@@ -547,7 +547,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	clientID = 0;
         Debug.leaveVerbose( "RasRNPImplementation.executeTurboCommit done." );
        }
-     	 
+
     private void executeTurboAbort() throws ODMGException
       {
         Debug.enterVerbose( "RasRNPImplementation.executeTurboAbort start." );
@@ -556,7 +556,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	//abort
 	startFragment(cmd_abortta);
 	encoder.addParameterInt32(pmt_clientid,clientID);
-        endFragment();  
+        endFragment();
 
 	//close
 	startFragment(cmd_closedb);
@@ -565,13 +565,13 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 
 	//disconnect
 	startFragment(cmd_disconnect);
-	encoder.addParameterInt32(pmt_clientid,clientID);	 
+	encoder.addParameterInt32(pmt_clientid,clientID);
         endFragment();
 
-	endMessage();	 
+	endMessage();
 
 	//send message and receive answer
-	turboSendRequestGetAnswer();         	 
+	turboSendRequestGetAnswer();
 
 	//abort answer
 	RnpFragment fragment=decoder.getFirstFragment();
@@ -592,20 +592,20 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
       {
         Debug.enterVerbose( "RasRNPImplementation.executeGetNewObjectId start." );
 	startRequest(cmd_getnewoid);
-        encoder.addParameterInt32(pmt_clientid,clientID);         
+        encoder.addParameterInt32(pmt_clientid,clientID);
 	encoder.addParameterInt32(pmt_objecttype,1);
 	sendRequestGetAnswer();
-	decoder.getFirstParameter();         
+	decoder.getFirstParameter();
 	RasOID result = new RasOID(decoder.getDataAsString());
         Debug.leaveVerbose( "RasRNPImplementation.executeGetNewObjectId done." );
         return result;
-      } 
-     
+      }
+
     private int executeIsOpenTA()throws ODMGException
       {
-	startRequest(cmd_istaopen);         
+	startRequest(cmd_istaopen);
 	encoder.addParameterInt32(pmt_clientid,clientID);
-	sendRequestGetAnswer();	 
+	sendRequestGetAnswer();
 	decoder.getFirstParameter();
         int result = decoder.getDataAsInteger();
         Debug.leaveVerbose( "RasRNPImplementation.executeIsOpenTA done. result=" + result );
@@ -628,35 +628,35 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
         return res;
       }
 
-//######## These functions are kept only for testing purpose, we will emove them soon ####	 	 	 
+//######## These functions are kept only for testing purpose, we will emove them soon ####
      private void executeConnect() throws ODMGException
        {
 	 startRequest(cmd_connect);
-         encoder.addParameterInt32(pmt_clientid,clientID); 
-         encoder.addParameterString(pmt_capability,capability); 
+         encoder.addParameterInt32(pmt_clientid,clientID);
+         encoder.addParameterString(pmt_capability,capability);
 	 sendRequestGetAnswer();
          checkForError();
 	 decoder.getFirstParameter();
          clientID=decoder.getDataAsInteger();
        }
-	 
+
      private void executeDisconnect() throws ODMGException
        {
-	 startRequest(cmd_disconnect);	 
-	 encoder.addParameterInt32(pmt_clientid,clientID);	 
+	 startRequest(cmd_disconnect);
+	 encoder.addParameterInt32(pmt_clientid,clientID);
 	 sendRequestGetAnswer();
          checkForError();
         }
-	 	
+
      private void executeOpenDB(String name) throws ODMGException
        {
 	 startRequest(cmd_opendb);
          encoder.addParameterInt32(pmt_clientid,clientID);
-	 encoder.addParameterString(pmt_dbname,name);	 
+	 encoder.addParameterString(pmt_dbname,name);
 	 sendRequestGetAnswer();
          checkForError();
        }
-	 
+
      private void executeCloseDB() throws ODMGException
        {
 	 startRequest(cmd_closedb);
@@ -664,39 +664,39 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	 sendRequestGetAnswer();
          checkForError();
        }
-	 
+
      private void executeBeginTA() throws ODMGException
        {
-	 startRequest(cmd_beginta);         
+	 startRequest(cmd_beginta);
 	 encoder.addParameterInt32(pmt_clientid,clientID);
-	 encoder.addParameterInt32(pmt_accesmode, readWrite ? 1:0);	 	 	 
-	 sendRequestGetAnswer();	
+	 encoder.addParameterInt32(pmt_accesmode, readWrite ? 1:0);
+	 sendRequestGetAnswer();
          checkForError();
        }
-     
+
      private void executeCommitTA()throws ODMGException
        {
-	 startRequest(cmd_committa);         
+	 startRequest(cmd_committa);
 	 encoder.addParameterInt32(pmt_clientid,clientID);
 	 sendRequestGetAnswer();
          checkForError();
        }
-	 
+
      private void executeAbortTA()throws ODMGException
        {
-	 startRequest(cmd_abortta);         
+	 startRequest(cmd_abortta);
 	 encoder.addParameterInt32(pmt_clientid,clientID);
 	 sendRequestGetAnswer();
          checkForError();
        }
 
 //################################################################################     
-     
+
     public void getFreeServer(boolean realServer)throws  RasQueryExecutionFailedException, RasConnectionFailedException
       {
         Debug.enterVerbose( "RasRNPImplementation.getFreeServer start. realServer=" + realServer );
 	String uniqueID = uniqueRequestID();
-       
+
 	for (int retryCount = 0; ;retryCount++)
           {
 	    try
@@ -710,9 +710,9 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	// FIXME: adapt algorithm to that of http, see RasODMGImplementation.java
 	        if ( (  errno==RasGlobalDefs.MANAGER_BUSY
                 //   || errno==RasGlobalDefs.NO_ACTIVE_SERVERS		// if server doesn't run waiting won't help -- PB 2003-nov-20
-                     || errno==RasGlobalDefs.WRITE_TRANS_IN_PROGRESS) 
+                     || errno==RasGlobalDefs.WRITE_TRANS_IN_PROGRESS)
 		   && retryCount < maxRetry)
-	          { 
+	          {
 		    int millisec = 50 * retryCount + 50;
 		    if(millisec > 1000)
                         millisec = 1000;
@@ -730,7 +730,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	           {
                      Debug.talkCritical( "RasRNPImplementation.getFreeServer: " + e.getMessage() );
                      Debug.leaveVerbose( "RasRNPImplementation.getFreeServer done: " + e.getMessage() );
-                     throw(e);	
+                     throw(e);
 	           }
 	      } // catch
            } // for
@@ -758,7 +758,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	        ps.print("POST getfreeserver2 RNP/1.1\r\nAccept: text/plain\r\nContent-type: text/plain\r\n"
                             + "User-Agent: RasDaMan Java Client1.0\r\nAuthorization: ras " + userIdentification
                             + "\r\nContent length: " + body.length()+"\r\n\r\n" + body);
-	    ps.flush();	     
+	    ps.flush();
 
 	    BufferedReader ds = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 	    int resultCode = getResultCode(ds);
@@ -766,7 +766,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
             Debug.talkVerbose( "RasRNPImplementation.executeGetFreeServer: bodyLine: " + bodyLine );
 
 	    ps.close();
-	    ds.close();	     
+	    ds.close();
             socket.close();
             Debug.talkVerbose( "RasRNPImplementation.executeGetFreeServer: socket closed: " + socket );
 
@@ -776,8 +776,8 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
                 String host=t.nextToken();
 		String port=t.nextToken(" ");
 		capability=t.nextToken(" \t\r\n\0");
-		rasServer="http://" + host + ":" + port;		
-		setConnectionParameters(host,Integer.parseInt(port));		
+		rasServer="http://" + host + ":" + port;
+		setConnectionParameters(host,Integer.parseInt(port));
               }
 	    else
               {
@@ -797,7 +797,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
                     throw new RasConnectionFailedException(RasGlobalDefs.REQUEST_FORMAT_ERROR," code=" + errorCode);
                   }
               }
-	  }	      
+	  }
 	catch(MalformedURLException e)
 	  {
             Debug.talkCritical( "RasRNPImplementation.executeGetFreeServer: " + e.getMessage() );
@@ -820,7 +820,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
       }
 
     public int getResultCode(BufferedReader ds) throws IOException
-      { 
+      {
         Debug.enterVerbose( "RasRNPImplementation.getResultCode: start." );
 
         String s = ds.readLine();
@@ -843,7 +843,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
      }
 
     public String getBodyLine(BufferedReader ds)throws IOException
-      { 
+      {
         Debug.enterVerbose( "RasRNPImplementation.getBodyLine: start." );
 
         // obviously we are searching for what follows an empty line:
@@ -863,7 +863,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 
         Debug.leaveVerbose( "RasRNPImplementation.getBodyLine: done. result=" + result );
         return result;
-      }      
+      }
 
     private Object executeQueryRequest(String parameters) throws RasQueryExecutionFailedException
       {
@@ -871,8 +871,8 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 
 	startRequest(cmd_queryhttp);
 	encoder.addParameterInt32(pmt_clientid,clientID);
-	try 
-	  { 
+	try
+	  {
 	    encoder.addParameterOpaque(pmt_queryString,parameters.getBytes("8859_1"));
 	  }
 	catch(UnsupportedEncodingException e)
@@ -880,7 +880,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
             Debug.talkCritical( "RasRNPImplementation.executeQueryRequest: " + e.getMessage() );
             Debug.leaveVerbose( "RasRNPImplementation.executeQueryRequest: done, " + e.getMessage() );
 	    throw new RasClientInternalException("RasRNPImplementation","executeQueryRequest()",e.getMessage());
-	  }	    
+	  }
 	sendRequestGetAnswer();
         checkForError();
         decoder.getFirstParameter();
@@ -890,12 +890,12 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	return result;
       }
 
-    private Object getResponse(byte[] opaqueAnswer) 
-        throws RasQueryExecutionFailedException	 
+    private Object getResponse(byte[] opaqueAnswer)
+        throws RasQueryExecutionFailedException
       {
         Debug.enterVerbose( "RasRNPImplementation.getResponse: start." );
 
-	Object result=null;	   
+	Object result=null;
 	DataInputStream in =new DataInputStream(new ByteArrayInputStream(opaqueAnswer));
         byte[] b1 = new byte[1];
         byte[] b4 = new byte[4];
@@ -958,7 +958,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
                         in.read(b4);
 
                         dataSize = RasUtils.ubytesToInt(b4,endianess);
-			
+
                         // read binData
                         binData = new byte[dataSize];
                         readBytes = 0;
@@ -983,7 +983,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
                             Debug.talkCritical( "RasRNPImplementation.getResponse: collection element is no MArray." );
                             Debug.leaveVerbose( "RasRNPImplementation.getResponse: done, with exception." );
 			    throw new RasClientInternalException("RasHttpRequest","execute()","element of MDD Collection is no MArray");
-                          }  
+                          }
 		        if(rb.isBaseType())
 			  {
 			    if(rb.isStructType())
@@ -996,7 +996,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 				res.setTypeStructure(mddBaseType);
 				//insert into result set
 				resultBag.add(res);
-                              } 
+                              }
                             else
                               {
                                 // It is a primitiveType
@@ -1062,7 +1062,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
                                 resultBag.add(res);
                               }
 			  }
-		        else 
+		        else
 			  {
                             Debug.talkCritical( "RasRNPImplementation.getResponse: type is not base type." );
                             Debug.leaveVerbose( "RasRNPImplementation.getResponse: done, type is not base type." );
@@ -1188,13 +1188,13 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
   	        default:
                     break;
 	      }
-	  } 
+	  }
         catch( IOException e )
 	  {
             Debug.talkCritical( "RasRNPImplementation.getResponse: " + e.getMessage() );
             Debug.leaveVerbose( "RasRNPImplementation.getResponse: done, communication exception." );
             throw new RasClientInternalException("RasRNPImplementation","getResponse()",e.getMessage());
-	  }          
+	  }
         catch( RasResultIsNoIntervalException e )
 	  {
             Debug.talkCritical( "RasRNPImplementation.getResponse: " + e.getMessage() );
@@ -1203,9 +1203,9 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
 	  }
 
         Debug.leaveVerbose( "RasRNPImplementation.getResponse: done. result=" + result );
-        return result; 	  
+        return result;
       }
-  
+
   public static Object getElement(DataInputStream dis, RasType et, byte[] binData) throws IOException, RasResultIsNoIntervalException {
     Object ret = null;
     switch (et.getTypeID()) {
@@ -1277,16 +1277,16 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
   }
 
     public void setUserIdentification(String userName, String plainPass)
-      { 
+      {
         Debug.enterVerbose( "RasRNPImplementation.setUserIdentification: start." );
 	MD5 md5 = new MD5();
         String hex;
         md5.Init();
         md5.Update(plainPass);
         hex = md5.asHex();
-        userIdentification= userName + ":" + hex;	   
+        userIdentification= userName + ":" + hex;
         Debug.leaveVerbose( "RasRNPImplementation.setUserIdentification: done." );
-      }     
+      }
 
     private String strHostID = null;
     static  private int    idcounter = 0;
@@ -1301,14 +1301,14 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
         if(strHostID == null)
          {
            long hostid = 0;
-           try 
+           try
              {
                InetAddress addr = InetAddress.getLocalHost();
                // Get IP Address
                byte[] ipAddr = addr.getAddress();
-	   
-	       for(int i=0;i<ipAddr.length; i++) 
-	         { 
+
+	       for(int i=0;i<ipAddr.length; i++)
+	         {
 	           int ss = (int)ipAddr[i];
                    if(ss<0) ss = 256 + ss;
 	           hostid = hostid * 256 + ss;
@@ -1323,7 +1323,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
                                       // it's unique enough, we don't need such a huge number
            strHostID = "" + hostid + ':' + (System.currentTimeMillis() & 0xFFFFFFF0) + idcounter;
          }
-   
+
         Debug.leaveVerbose( "RasRNPImplementation.uniqueRequestID: done. result=" + strHostID );
         return strHostID;
       }
@@ -1331,7 +1331,7 @@ public class RasRNPImplementation extends RnpBaseClientComm implements RasImplem
   } // RasRNPImplementation
 
 //########################################################################################## 
-class MD5State 
+class MD5State
   {
     /**
     * 128-byte state
@@ -1348,7 +1348,7 @@ class MD5State
     */
     byte	buffer[];
 
-    public MD5State() 
+    public MD5State()
       {
         buffer = new byte[64];
         count = new int[2];
@@ -1363,7 +1363,7 @@ class MD5State
       }
 
     /** Create this State as a copy of another state */
-    public MD5State (MD5State from) 
+    public MD5State (MD5State from)
       {
         this();
 
@@ -1387,7 +1387,7 @@ class MD5State
  * @author	Santeri Paavolainen <sjpaavol@cc.helsinki.fi>
  */
 
-class MD5 
+class MD5
   {
   /**
    * MD5 state
@@ -1403,7 +1403,7 @@ class MD5
   /**
    * Padding for Final()
    */
-  static byte	padding[] = 
+  static byte	padding[] =
     {
     (byte) 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -1414,7 +1414,7 @@ class MD5
    * Initialize MD5 internal state (object can be reused just by
    * calling Init() after every Final()
    */
-  public synchronized void Init () 
+  public synchronized void Init ()
     {
     state = new MD5State();
     finals = null;
@@ -1423,7 +1423,7 @@ class MD5
   /**
    * Class constructor
    */
-  public MD5 () 
+  public MD5 ()
     {
     this.Init();
      }
@@ -1434,13 +1434,13 @@ class MD5
    * @param	ob	Object, ob.toString() is used to update hash
    *			after initialization
    */
-  public MD5 (Object ob) 
+  public MD5 (Object ob)
     {
     this();
     Update(ob.toString());
     }
 
-  private int rotate_left (int x, int n) 
+  private int rotate_left (int x, int n)
     {
     return (x << n) | (x >>> (32 - n));
     }
@@ -1448,7 +1448,7 @@ class MD5
   /* I wonder how many loops and hoops you'll have to go through to
      get unsigned add for longs in java */
 
-  private int uadd (int a, int b) 
+  private int uadd (int a, int b)
     {
     long aa, bb;
     aa = ((long) a) & 0xffffffffL;
@@ -1459,48 +1459,48 @@ class MD5
     return (int) (aa & 0xffffffffL);
     }
 
-  private int uadd (int a, int b, int c) 
+  private int uadd (int a, int b, int c)
     {
     return uadd(uadd(a, b), c);
     }
 
-  private int uadd (int a, int b, int c, int d) 
+  private int uadd (int a, int b, int c, int d)
     {
     return uadd(uadd(a, b, c), d);
     }
 
-  private int FF (int a, int b, int c, int d, int x, int s, int ac) 
+  private int FF (int a, int b, int c, int d, int x, int s, int ac)
     {
     a = uadd(a, ((b & c) | (~b & d)), x, ac);
     return uadd(rotate_left(a, s), b);
     }
 
-  private int GG (int a, int b, int c, int d, int x, int s, int ac) 
+  private int GG (int a, int b, int c, int d, int x, int s, int ac)
     {
     a = uadd(a, ((b & d) | (c & ~d)), x, ac);
     return uadd(rotate_left(a, s), b);
     }
 
-  private int HH (int a, int b, int c, int d, int x, int s, int ac) 
+  private int HH (int a, int b, int c, int d, int x, int s, int ac)
     {
     a = uadd(a, (b ^ c ^ d), x, ac);
     return uadd(rotate_left(a, s) , b);
     }
 
-  private int II (int a, int b, int c, int d, int x, int s, int ac) 
+  private int II (int a, int b, int c, int d, int x, int s, int ac)
     {
     a = uadd(a, (c ^ (b | ~d)), x, ac);
     return uadd(rotate_left(a, s), b);
     }
 
-  private int[] Decode (byte buffer[], int len, int shift)  
+  private int[] Decode (byte buffer[], int len, int shift)
     {
     int		out[];
     int 	i, j;
 
     out = new int[16];
 
-    for (i = j = 0; j < len; i++, j += 4) 
+    for (i = j = 0; j < len; i++, j += 4)
       {
       out[i] = ((int) (buffer[j + shift] & 0xff)) |
 	(((int) (buffer[j + 1 + shift] & 0xff)) << 8) |
@@ -1510,7 +1510,7 @@ class MD5
      return out;
    }
 
-  private void Transform (MD5State state, byte buffer[], int shift) 
+  private void Transform (MD5State state, byte buffer[], int shift)
     {
     int
       a = state.state[0],
@@ -1609,7 +1609,7 @@ class MD5
    * @param length	Use at maximum `length' bytes (absolute
    *			maximum is buffer.length)
    */
-  public void Update (MD5State stat, byte buffer[], int offset, int length) 
+  public void Update (MD5State stat, byte buffer[], int offset, int length)
     {
     int	index, partlen, i, start;
     finals = null;
@@ -1623,7 +1623,7 @@ class MD5
       stat.count[1]++;
     stat.count[1] += length >>> 29;
     partlen = 64 - index;
-    if (length >= partlen) 
+    if (length >= partlen)
       {
       for (i = 0; i < partlen; i++)
 	stat.buffer[i + index] = buffer[i + offset];
@@ -1634,11 +1634,11 @@ class MD5
 	Transform(stat, buffer, i);
 
       index = 0;
-      } 
+      }
        else
          i = 0;
     /* buffer remaining input */
-    if (i < length) 
+    if (i < length)
        {
        start = i;
        for (; i < length; i++)
@@ -1647,12 +1647,12 @@ class MD5
    }
 
 
-  public void Update (byte buffer[], int offset, int length) 
+  public void Update (byte buffer[], int offset, int length)
       {
       Update(this.state, buffer, offset, length);
       }
 
-  public void Update (byte buffer[], int length) 
+  public void Update (byte buffer[], int length)
      {
       Update(this.state, buffer, 0, length);
       }
@@ -1662,7 +1662,7 @@ class MD5
    *
    * @param buffer	Array of bytes to use for updating the hash
    */
-  public void Update (byte buffer[]) 
+  public void Update (byte buffer[])
       {
       Update(buffer, 0, buffer.length);
       }
@@ -1672,7 +1672,7 @@ class MD5
    *
    * @param b		Single byte to update the hash
    */
-  public void Update (byte b) 
+  public void Update (byte b)
     {
     byte buffer[] = new byte[1];
     buffer[0] = b;
@@ -1686,7 +1686,7 @@ class MD5
    * @param s		String to be update to hash (is used as
    *		       	s.getBytes())
    */
-  public void Update (String s) 
+  public void Update (String s)
     {
     byte	chars[];
 
@@ -1706,19 +1706,19 @@ class MD5
    *			byte as i & 0xff
    */
 
-  public void Update (int i) 
+  public void Update (int i)
       {
       Update((byte) (i & 0xff));
       }
 
-  private byte[] Encode (int input[], int len) 
+  private byte[] Encode (int input[], int len)
     {
     int		i, j;
     byte	out[];
 
     out = new byte[len];
 
-    for (i = j = 0; j  < len; i++, j += 4) 
+    for (i = j = 0; j  < len; i++, j += 4)
       {
       out[j] = (byte) (input[i] & 0xff);
       out[j + 1] = (byte) ((input[i] >>> 8) & 0xff);
@@ -1737,13 +1737,13 @@ class MD5
    *
    * @return	Array of 16 bytes, the hash of all updated bytes
    */
-  public synchronized byte[] Final () 
+  public synchronized byte[] Final ()
     {
     byte	bits[];
     int		index, padlen;
     MD5State	fin;
 
-    if (finals == null) 
+    if (finals == null)
       {
       fin = new MD5State(state);
 
@@ -1770,12 +1770,12 @@ class MD5
    * @param hash	Array of bytes to convert to hex-string
    * @return	Generated hex string
    */
-  public static String asHex (byte hash[]) 
+  public static String asHex (byte hash[])
     {
     StringBuffer buf = new StringBuffer(hash.length * 2);
     int i;
 
-    for (i = 0; i < hash.length; i++) 
+    for (i = 0; i < hash.length; i++)
       {
       if (((int) hash[i] & 0xff) < 0x10)
 	buf.append("0");
@@ -1791,7 +1791,7 @@ class MD5
    *
    * @return String of this object's hash
    */
-  public String asHex () 
+  public String asHex ()
     {
     return asHex(this.Final());
     }

@@ -76,6 +76,7 @@ using std::ostringstream;
 // for access to the unpublished interface functions introduced by W.Schatz :[
 #include <akgnetwork.hh>
 #include "rnprotocol/rnpclientcomm.hh"
+#include "common/src/logging/easylogging++.hh"
 
 #include "cmlparser.hh"
 
@@ -749,8 +750,22 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
     return;
 }
 
+#ifdef RMANRASNET
+    _INITIALIZE_EASYLOGGINGPP
+#endif
+
 int main(int argc, char** argv)
 {
+    //TODO-GM: find a better way to do this
+    #ifdef RMANRASNET
+        easyloggingpp::Configurations defaultConf;
+        defaultConf.setToDefault();
+        defaultConf.set(easyloggingpp::Level::Error,
+                        easyloggingpp::ConfigurationType::Format,
+                        "%datetime %level %loc %log %func ");
+        easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    #endif
+
     SET_OUTPUT( false );            // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_SUCCESS;

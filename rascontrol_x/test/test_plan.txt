@@ -1,0 +1,3 @@
+    //FIXME workarround for batch mode commands given to rascontrol
+    //in current version it is generated an error if a parameter has many values:
+    //e.g. -a c d f where c,d,f are values(not parameters)

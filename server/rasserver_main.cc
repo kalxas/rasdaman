@@ -61,12 +61,15 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include <unistd.h>
 #include <string>
 
+#include "config.h"
 #include "globals.hh"   // DEFAULT_PORT
 #include "servercomm/httpserver.hh"
 #include "storagemgr/sstoragelayout.hh"
 #include "relblobif/tilecache.hh"
 #include "raslib/commonutil.hh"
 #include <signal.h>
+
+#include<iostream>
 
 RMINITGLOBALS('C');
 
@@ -81,6 +84,11 @@ RMINITGLOBALS('C');
 #include "server/rasserver_config.hh"
 #include "rnprotocol/rnpserver.hh"
 #include "rasserver_entry.hh"
+
+#ifdef RMANRASNET
+#include "rasnetserver.hh"
+#include "common/src/logging/easylogging++.hh"
+#endif
 
 // return codes
 #define RC_OK       0
@@ -134,9 +142,21 @@ crash_handler(int sig, siginfo_t* info, void * ucontext) {
   exit(SEGFAULT_EXIT_CODE);
 }
 
+#ifdef RMANRASNET
+    _INITIALIZE_EASYLOGGINGPP
+#endif
 
 int main ( int argc, char** argv )
 {
+
+#ifdef RMANRASNET
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::Error,
+                    easyloggingpp::ConfigurationType::Format,
+                    "%datetime %level %loc %log %func ");
+    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+#endif
 
     installSigSegvHandler(crash_handler);
 
@@ -197,6 +217,14 @@ int main ( int argc, char** argv )
             TALK( "initializing HttpServer()..." );
             server = new HttpServer( clientTimeOut, managementInterval, serverListenPort, (char*)rasmgrHost, rasmgrPort,(char*)serverName);
         }
+#ifdef RMANRASNET
+        else if(configuration.isRasnetServer())
+        {
+            //start rasnet server
+            RasnetServer rasnetServer(configuration.getListenPort(), configuration.getNewServerId());
+            rasnetServer.startRasnetServer();
+        }
+#endif
         else
         {
             TALK( "initializing ServerComm() (ie: RPC)..." );

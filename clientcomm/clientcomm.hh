@@ -90,6 +90,7 @@ public:
 
     static  void useRNP() throw();
     static  void useRPC() throw();
+    static  void useRASNET() throw();
     static  bool internalSettingIsRNP() throw();
 
     virtual bool effectivTypeIsRNP() throw() = 0;
@@ -274,7 +275,13 @@ protected:
 
 private:
 
-    static bool currentProtocolIsRNP;
+    enum CommunicationProtocol {
+        RNP,
+        RASNET,
+        RPC
+    };
+
+    static CommunicationProtocol DEFAULT_PROTOCOL;
 };
 
 #endif

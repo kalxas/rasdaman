@@ -56,6 +56,8 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include "template_inst.hh"
 #include "raslib/template_inst.hh"
 
+#include "common/src/logging/easylogging++.hh"
+
 extern char* myExecArgv0 = "";
 extern int   tiling = 1;
 extern unsigned long maxTransferBufferSize = 4000000;
@@ -76,6 +78,7 @@ bool udfEnabled = true;
 #include <string.h>
 #include <sstream>
 #include <fstream>
+
 
 using namespace std;
 
@@ -118,6 +121,8 @@ using namespace std;
 // tell debug that here is the place for the variables (to be done in the main() src file)
 #define DEBUG_MAIN
 #include "debug-clt.hh"
+
+#include "config.h"
 
 const int MAX_STR_LEN = 255;
 const int MAX_QUERY_LEN = 10240;
@@ -1086,11 +1091,24 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
     LEAVE( "doStuff" );
 }
 
+#ifdef RMANRASNET
+    _INITIALIZE_EASYLOGGINGPP
+#endif
 /*
  * returns 0 on success, -1 on error
  */
 int main(int argc, char** argv)
 {
+    //TODO-GM: find another way to do this
+    #ifdef RMANRASNET
+        easyloggingpp::Configurations defaultConf;
+        defaultConf.setToDefault();
+        defaultConf.set(easyloggingpp::Level::Error,
+                    easyloggingpp::ConfigurationType::Format,
+                    "%datetime %level %loc %log %func ");
+        easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+    #endif
+
     SET_OUTPUT( true );     // inhibit unconditional debug output, await cmd line evaluation
 
     int retval = EXIT_SUCCESS;  // overall result status

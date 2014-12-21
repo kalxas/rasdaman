@@ -47,12 +47,20 @@ rasserver_LDADD=../servercomm/libservercomm.a ../qlparser/libqlparser.a ../conve
                 ../relcatalogif/librelcatalogif.a ../indexmgr/libindexmgr.a ../relblobif/librelblobif.a \
                 ../relindexif/librelindexif.a ../httpserver/libhttpserver.a \
                 ../network/libnetwork.a ../commline/libcommline.a ../lockmgr/liblockmanager.a \
-                ../relcatalogif/librelcatalogif.a ../raslib/libraslib.a @BASEDBLDFLAGS@ @GDAL_LDFLAGS@
+                ../servercomm/libservercomm.a ../relcatalogif/librelcatalogif.a ../raslib/libraslib.a @BASEDBLDFLAGS@ @GDAL_LDFLAGS@
+
+if RMANRASNET
+    rasserver_LDADD += ../rasserver_x/src/librasnetserver.a ../rasnetprotocol/librasnetprotocol.a ../rasnet/src/librasnet.a ../common/src/libcommon.a -L/usr/local/lib -lprotobuf -lzmq -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+endif
 
 SUBDIRS = ../relblobif ../relindexif ../relmddif ../relcatalogif ../reladminif ../relstorageif \
           ../indexmgr ../catalogmgr ../tilemgr ../storagemgr ../commline ../network \
           ../raslib ../servercomm ../rasodmg ../qlparser ../conversion \
           ../mddmgr ../httpserver ../mymalloc ../lockmgr
+
+if RMANRASNET
+    SUBDIRS += ../rasserver_x/src
+endif
 
 $(RECURSIVE_CLEAN_TARGETS):
 	@$(MAKE) $(AM_MAKEFLAGS) `echo $@ | sed s/-recursive/-am/`
