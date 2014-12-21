@@ -75,6 +75,7 @@ const QtNode::QtNodeType QtCaseOp::nodeType = QT_CASEOP;
  */
 QtCaseOp::QtCaseOp(QtOperationList* opList)
 : inducedCase(false), baseType(NULL), QtNaryOperation(opList) {
+    conditionList = new QtOperationList();
 }
 
 /**
@@ -126,6 +127,7 @@ QtCaseOp::getCaseOperands(QtDataList* inputList, std::vector< std::pair <QtOpera
                 }
             } else {
                 //we got conditions here
+                this->conditionList->push_back(*iter);
                 QtData* cond = (*iter)->evaluate(inputList);
                 conditionList->push_back(cond);
                 if (cond->getDataType() == QT_MDD) {

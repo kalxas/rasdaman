@@ -93,7 +93,9 @@ libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
                       typeresolverutil.hh typeresolverutil.cc \
                       gdaldataconverter.hh gdaldataconverter.cc \
                       qtconcat.hh qtconcat.cc qtconcat.icc \
-                      qtcaseop.cc qtcaseop.hh qtcaseop.icc \
+                      qtsimplecaseop.cc qtsimplecaseop.hh \
+		      qtcaseop.cc qtcaseop.hh qtcaseop.icc \
+		      qtcaseequality.hh qtcaseequality.cc \
                       qtinfo.cc qtinfo.hh qtinfo.icc \
                       qtemptystream.cc qtemptystream.hh qtemptystream.icc \
                       qtrangeconstructor.cc qtrangeconstructor.hh qtrangeconstructor.icc

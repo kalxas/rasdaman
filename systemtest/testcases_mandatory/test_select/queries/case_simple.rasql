@@ -1,0 +1,1 @@
+select case test_grey2 when 0c then 0c when 1c then 255c else 128c end from test_grey2

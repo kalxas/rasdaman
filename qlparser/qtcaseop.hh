@@ -43,6 +43,7 @@ rasdaman GmbH.
 #ifndef QTCASEOP_HH
 #define	QTCASEOP_HH
 
+#include "config.h"
 #include "qlparser/qtnaryoperation.hh"
 #include "relcatalogif/basetype.hh"
 #include "qtvariable.hh"
@@ -50,7 +51,7 @@ rasdaman GmbH.
 
 class QtCaseOp : public QtNaryOperation {
 public:
-    /// constructor getting the operand list and a boolean 
+    /// constructor getting the operand list
     QtCaseOp(QtOperationList* opList);
 
     /// method for evaluating the node
@@ -117,6 +118,10 @@ private:
     
     /// attribute for storing the nodes removed from the tree
     std::vector< std::pair< QtNode*, std::pair<QtNode*, QtNode*> > > removedNodes;
+
+protected:
+    /// attribute storing the condition list
+    QtOperationList* conditionList;
 };
 
 #endif	/* QTCASEOP_HH */

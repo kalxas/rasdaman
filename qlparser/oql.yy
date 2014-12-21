@@ -62,6 +62,8 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "qlparser/qtdecode.hh"
 #include "qlparser/qtconcat.hh"
 #include "qlparser/qtcaseop.hh"
+#include "qlparser/qtcaseequality.hh"
+#include "qlparser/qtsimplecaseop.hh"
 #include "rasodmg/dirdecompose.hh"
 #include "qlparser/qtinfo.hh"
 #include "qlparser/qtemptystream.hh"
@@ -991,14 +993,14 @@ caseExp: CASE caseCondList caseEnd
           int pos = 0;
           for(iter = $3->begin(); iter != $3->end(); iter++){
               if( !(pos%2) ){
-                  result->push_back(new QtEqual(*iter, $2));
+                  result->push_back(new QtCaseEquality($2, *iter));
               } else{
                   result->push_back(*iter);
               }
               pos++;
           }
           result->insert(result->end(), $4->begin(), $4->end()); 
-          $$ = new QtCaseOp(result);
+          $$ = new QtSimpleCaseOp(result);
           
           parseQueryTree->removeDynamicObject($2);
           
