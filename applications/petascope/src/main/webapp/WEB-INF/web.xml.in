@@ -56,10 +56,9 @@
         <servlet-name>WCSWSDL</servlet-name>
         <servlet-class>petascope.wcswsdl.WcsWsdlServlet</servlet-class>
     </servlet>
-
     <servlet-mapping>
         <servlet-name>PetaScope Interface</servlet-name>
-        <url-pattern>/*</url-pattern>
+        <url-pattern>/ows</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>PetaScope Interface</servlet-name>

@@ -28,8 +28,10 @@ define(["src/viewmodels/SupportedExtensions", "src/models/WCS", "src/models/Capa
     function GetCapabilitiesTab(mainViewModel) {
         var self = this;
         this.mainViewModel = mainViewModel;
-//http://kahlua.eecs.jacobs-university.de:8080/petascope_earthlook?
-        self.wcsEndpoint = ko.observable("http://wcs.rasdaman.flanche.net:8080/rasdaman/ows?");//http://localhost:8080/rasdaman/ows?");
+        var pathToClient = "static/wcs-client/html/index.html";
+        var pathToRasdaman = "ows";
+        var fullPathToRasdaman = window.location.href.replace(pathToClient, pathToRasdaman)
+        self.wcsEndpoint = ko.observable(fullPathToRasdaman);
 
         self.serverCapabilities = ko.observable(null);
         self.serverCapabilitiesDocument = ko.observable(null);
