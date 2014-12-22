@@ -83,6 +83,9 @@ fi
 GDAL_LDFLAGS=`$GDAL_CONFIG --libs`
 GDAL_CXXFLAGS=`$GDAL_CONFIG --cflags`
 
+# default, changed by --enable-debug, --with-optimization
+GCC_OPTIMIZATION_FLAG="-O3"
+
 # Checks for header files.
 AC_PATH_X
 AC_HEADER_DIRENT
@@ -277,7 +280,7 @@ AC_ARG_WITH([default-basedb],
 AC_ARG_ENABLE([debug],
               [AS_HELP_STRING([--enable-debug],
                               [this feature enables generation of binaries that contain extra code for debug output. The output is usually very verbose. It is not recommended for production use.])],
-              [RMANDEBUG=on],
+              [RMANDEBUG=on GCC_OPTIMIZATION_FLAG="-O0"],
               [RMANDEBUG=])
 AM_CONDITIONAL([ENABLE_DEBUG], [test "$RMANDEBUG" = on])
 
@@ -287,6 +290,14 @@ AC_ARG_WITH([debug-symbols],
             [with_debug_symbols=no],
             [with_debug_symbols=yes])
 AC_MSG_NOTICE(compiling with debug symbols... $with_debug_symbols)
+
+AC_ARG_WITH([optimization],
+            [AS_HELP_STRING([--with-optimization],
+                            [set GCC optimization level, allowed values 0-3.])],
+            [opt_flag=$withval],
+            [])
+AS_IF([test "x$opt_flag" == "x0" -o "x$opt_flag" == "x1" -o "x$opt_flag" == "x2" -o "x$opt_flag" == "x3"],
+      [GCC_OPTIMIZATION_FLAG="-O$opt_flag"])
 
 AC_ARG_ENABLE([benchmark],
               [AS_HELP_STRING([--enable-benchmark],
@@ -477,17 +488,17 @@ done
 AS_IF([test "x$RMANDEBUG" != x],
       [AC_DEFINE([RMANDEBUG])
        AC_DEFINE([DEBUG])
-       CXXFLAGS+=" -g3 -gdwarf-2 -O0 -rdynamic "
+       CXXFLAGS+=" -g3 -gdwarf-2 -rdynamic "
       ], 
       [
        AS_IF([test "x$with_debug_symbols" == xyes],
-       [CXXFLAGS+=" -g3 -gdwarf-2 -O0 -rdynamic "],
+       [CXXFLAGS+=" -g3 -gdwarf-2 -rdynamic "],
        [
         AC_DEFINE([__NO_MATH_INLINES])
-        CXXFLAGS+=" -O2 "
        ])
       ])
-# CXXFLAGS+= -fPIC  ???NEEDED???
+
+
 AC_SUBST(BASEDBSTRING)
 AC_DEFINE_UNQUOTED([BASEDBSTRING], ["$BASEDBSTRING"])
 AC_DEFINE([EARLY_TEMPLATE])    
@@ -507,13 +518,13 @@ BASEDBCXXFLAGS+=" $DBIF_INC "
 COMPDATE=`date +"%d.%m.%Y %H:%M:%S"`
 AC_DEFINE_UNQUOTED([COMPDATE], ["$COMPDATE"])
 
+CXXFLAGS+=" -fno-stack-protector $GCC_OPTIMIZATION_FLAG "
 CXXFLAGS+=" -I$abs_top_srcdir -I$abs_top_srcdir/debug -I$abs_top_srcdir/include $USER_CXXFLAGS"
+CFLAGS+=" $GCC_OPTIMIZATION_FLAG "
 CFLAGS+=" $USER_CFLAGS"
 
 CLIENTCXXFLAGS=$CXXFLAGS
 CLIENTLDFLAGS=$CXXLDFLAGS
-
-CXXFLAGS+=" -fno-stack-protector "
 
 # --------------- System Test Settings -----------------------------
 ####################################################################
