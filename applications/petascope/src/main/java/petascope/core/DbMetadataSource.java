@@ -2228,39 +2228,36 @@ public class DbMetadataSource implements IMetadataSource {
 
             // Use subquery to get an ordered list of coefficient: array_agg does not order-by the array elements.
             // NOTE: ARRAY_AGG(foo by order) is available but from Postgres 9.0 on.
-            String sqlQuery =
-                    " SELECT ARRAY_AGG(" + VECTOR_COEFFICIENTS_COEFFICIENT + ") " +
-                    " FROM ( SELECT " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT +
-                          " FROM " + TABLE_VECTOR_COEFFICIENTS + ", "
-                                   + TABLE_GRID_AXIS           + ", "
-                                   + TABLE_COVERAGE            +
-                         " WHERE " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_AXIS_ID +
-                             " = " + TABLE_GRID_AXIS           + "." + GRID_AXIS_ID +
-                           " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_COVERAGE_ID +
-                             " = " + TABLE_COVERAGE  + "." + COVERAGE_ID +
-                           " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_RASDAMAN_ORDER  + "="  + iOrder  +
-                           " AND " + TABLE_COVERAGE  + "." + COVERAGE_NAME             + "='" + covName + "'" +
-                           " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
-                                   + " >= " + lo +
-                           " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
-                                // + " < "  + stringHi  // [a,b) subsets
-                                   + " <= " + hi +      // [a,b] subsets
-                      " ORDER BY " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT +
-                    " ) AS ordered_coefficients"
-                    ;
+            String sqlQuery
+                    = "SELECT " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
+                    + " FROM " + TABLE_VECTOR_COEFFICIENTS + ", "
+                    + TABLE_GRID_AXIS + ", "
+                    + TABLE_COVERAGE
+                    + " WHERE " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_AXIS_ID
+                    + " = " + TABLE_GRID_AXIS + "." + GRID_AXIS_ID
+                    + " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_COVERAGE_ID
+                    + " = " + TABLE_COVERAGE + "." + COVERAGE_ID
+                    + " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_RASDAMAN_ORDER + "=" + iOrder
+                    + " AND " + TABLE_COVERAGE + "." + COVERAGE_NAME + "='" + covName + "'"
+                    + " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
+                    + " >= " + lo
+                    + " AND " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
+                    // + " < "  + stringHi  // [a,b) subsets
+                    + " <= " + hi + // [a,b] subsets
+                    " ORDER BY " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT;
             log.debug("SQL query : " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
 
-            if (r.next()) {
-                // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute},
-                // of indexes 1 and 2 respectively:
-                ResultSet rs = r.getArray(1).getResultSet();
-                while (rs.next()) {
-                    coefficients.add(rs.getBigDecimal(2));
-                }
+            while(r.next())
+            {
+                coefficients.add(r.getBigDecimal(1));
+            }
 
+            if(!coefficients.isEmpty())
+            {
                 Arrays.sort(coefficients.toArray());
             }
+
             s.close();
             s = null;
 
@@ -2294,8 +2291,7 @@ public class DbMetadataSource implements IMetadataSource {
             // Use subquery to get an ordered list of coefficient: array_agg does not order-by the array elements.
             // NOTE: ARRAY_AGG(foo by order) is available but from Postgres 9.0 on.
             String sqlQuery =
-                    " SELECT ARRAY_AGG(" + VECTOR_COEFFICIENTS_COEFFICIENT + ") " +
-                    " FROM ( SELECT " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT +
+                   "SELECT " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT +
                           " FROM " + TABLE_VECTOR_COEFFICIENTS + ", "
                                    + TABLE_GRID_AXIS           + ", "
                                    + TABLE_COVERAGE            +
@@ -2305,22 +2301,20 @@ public class DbMetadataSource implements IMetadataSource {
                              " = " + TABLE_COVERAGE  + "." + COVERAGE_ID +
                            " AND " + TABLE_GRID_AXIS + "." + GRID_AXIS_RASDAMAN_ORDER  + "="  + iOrder  +
                            " AND " + TABLE_COVERAGE  + "." + COVERAGE_NAME             + "='" + covName + "'" +
-                      " ORDER BY " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT +
-                    " ) AS ordered_coefficients"
+                      " ORDER BY " + TABLE_VECTOR_COEFFICIENTS + "." + VECTOR_COEFFICIENTS_COEFFICIENT
                     ;
             log.debug("SQL query : " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
 
-            if (r.next() && null != r.getArray(1)) {
-                // The result-set of a SQL Array is a set of results, each of which is an array of 2 columns {id,attribute},
-                // of indexes 1 and 2 respectively:
-                ResultSet rs = r.getArray(1).getResultSet();
-                while (rs.next()) {
-                    coefficients.add(rs.getBigDecimal(2));
-                }
-
+            while(r.next())
+            {
+                coefficients.add(r.getBigDecimal(1));
+            }
+            if(!coefficients.isEmpty())
+            {
                 Arrays.sort(coefficients.toArray());
             }
+
             s.close();
             s = null;
 
@@ -2428,6 +2422,7 @@ public class DbMetadataSource implements IMetadataSource {
         }
         return outList;
     }
+
 
     private Description readDescription(Integer descriptionId) throws SQLException {
 
@@ -2631,36 +2626,37 @@ public class DbMetadataSource implements IMetadataSource {
                            TABLE_UOM + "." + UOM_CODE + ","
                     + TABLE_QUANTITY + "." + QUANTITY_LABEL + ","
                     + TABLE_QUANTITY + "." + QUANTITY_DESCRIPTION + ","
-                    + TABLE_QUANTITY + "." + QUANTITY_DEFINITION
+                    + TABLE_QUANTITY + "." + QUANTITY_DEFINITION + ","
+                    + TABLE_QUANTITY + "." + QUANTITY_NIL_IDS + ","
+                    + TABLE_NIL_VALUE + "." + NIL_VALUE_ID
                     ;
             sqlQuery =
                     " SELECT " +  unaggregatedFields + ","
-                               + " array_agg(" + TABLE_NIL_VALUE + "." + NIL_VALUE_VALUE  + ") AS " + NIL_VALUES_ALIAS + ","
-                               + " array_agg(" + TABLE_NIL_VALUE + "." + NIL_VALUE_REASON + ") AS " + NIL_REASONS_ALIAS
-                    + " FROM " + TABLE_QUANTITY
+                    + TABLE_NIL_VALUE + "." + NIL_VALUE_VALUE + " AS " + NIL_VALUES_ALIAS + " , "
+                    + TABLE_NIL_VALUE + "." + NIL_VALUE_REASON + " AS " + NIL_REASONS_ALIAS
+                    + " FROM " + TABLE_NIL_VALUE + " , " + TABLE_QUANTITY
                     + " INNER JOIN " + TABLE_UOM + " ON (" + TABLE_UOM + "." + UOM_ID + "=" + TABLE_QUANTITY + "." + QUANTITY_UOM_ID
-                    + ") LEFT OUTER JOIN " + TABLE_NIL_VALUE + " ON ("
-                          + TABLE_QUANTITY + "." + QUANTITY_NIL_IDS + " @> ARRAY[" + TABLE_NIL_VALUE + "." + NIL_VALUE_ID + "]) "
+                    + ") "
                     + " WHERE " + TABLE_QUANTITY + "." + QUANTITY_ID + "=" + quantityId
-                    + " GROUP BY " + unaggregatedFields
+                    + " GROUP BY " + unaggregatedFields + " , " + NIL_VALUES_ALIAS + " , " + NIL_REASONS_ALIAS
                     ;
-            // Example query+response:
-            //
-            // SELECT ps_uom.code
-            //        ps_quantity.label, ps_quantity.description, ps_quantity.definition_uri,
-            //        array_agg(ps_nil_value.value)  AS nil_values,
-            //        array_agg(ps_nil_value.reason) AS nil_reaons
-            // FROM ps_quantity
-            // INNER JOIN ps_uom ON (ps_quantity.uom_id=ps_uom.id)
-            // LEFT OUTER JOIN ps_nil_value ON (ps_quantity.nil_ids @> ARRAY[ps_nil_value.id])
-            // WHERE ps_quantity.id = <quantityId>
-            // GROUP BY ps_uom.code, ps_quantity.label, ps_quantity.description, ps_quantity.definition_uri;
-            //  code |     label      |   description    |definition_uri| nil_values | nil_reasons
-            // ------+----------------+------------------+--------------+------------+--------------
-            // 10^0 | char           | primitive        |              | {NULL}     | {NULL}
-            // OR:
-            // 10^0 | test_label     | test_description | http://___   | {255,0}    | {http://___,http://___}
-            // ...
+
+            //Example query + Response
+            //SELECT ps_uom.code, ps_quantity.label, ps_quantity.description, ps_quantity.definition_uri,
+            //      ps_quantity.nil_ids, ps_nil_value.id, ps_nil_value.value as nil_values,
+            //      ps_nil_value.reason as nil_reasons
+            //FROM ps_nil_value, ps_quantity INNER JOIN ps_uom ON (ps_quantity.uom_id=ps_uom.id)
+            //WHERE ps_quantity.id = <quantityId>
+            //GROUP BY ps_uom.code, ps_quantity.label, ps_quantity.description,
+            //ps_quantity.definition_uri, nil_values, nil_reasons, ps_quantity.nil_ids, ps_nil_value.id
+            // code   | label |   description    |                   definition_uri                    | nil_ids | id | nil_values |                 nil_reasons
+            //---------+-------+------------------+-----------------------------------------------------+---------+----+------------+----------------------------------------------
+            //Celsius | tg    | mean temperature | http://eca.knmi.nl/download/ensembles/ensembles.php | {1,7}   |  1 | -9999      | http://www.opengis.net/def/nil/OGC/0/missing
+            //Celsius | tg    | mean temperature | http://eca.knmi.nl/download/ensembles/ensembles.php | {1,7}   |  5 | -8000      | http://___________
+            //Celsius | tg    | mean temperature | http://eca.knmi.nl/download/ensembles/ensembles.php | {1,7}   |  7 | -9999      | http://___________
+            //Celsius | tg    | mean temperature | http://eca.knmi.nl/download/ensembles/ensembles.php | {1,7}   |  6 | -8000      | http://___________
+
+
             log.debug("SQL query: " + sqlQuery);
             rSwe = s.executeQuery(sqlQuery);
             if (!rSwe.next()) {
@@ -2669,20 +2665,28 @@ public class DbMetadataSource implements IMetadataSource {
                         "No SWE quantities stored in the database.");
             }
 
+
             // Parse the result set
             label = rSwe.getString(QUANTITY_LABEL);
             description = rSwe.getString(QUANTITY_DESCRIPTION);
             definitionUri = rSwe.getString(QUANTITY_DEFINITION);
             uomCode = rSwe.getString(UOM_CODE);
 
-            // Parse the NIL values
-            List<String> nilValues  = sqlArray2StringList(rSwe.getArray(NIL_VALUES_ALIAS));
-            List<String> nilReasons = sqlArray2StringList(rSwe.getArray(NIL_REASONS_ALIAS));
-            for (int i=0; i<nilValues.size(); i++) {
-                if (null != nilValues.get(i) && null != nilReasons.get(i)) {
-                    nils.add(new NilValue(nilValues.get(i), nilReasons.get(i)));
+            List<Integer> nilIds = sqlArray2IntList(rSwe.getArray(QUANTITY_NIL_IDS));
+
+            //for all rows
+            do{
+                //check if id is in the nilIds
+                Integer index = nilIds.indexOf(rSwe.getInt(NIL_VALUE_ID));
+                if(index != -1) {
+                    String nilValue = rSwe.getString(NIL_VALUES_ALIAS);
+                    String nilReason = rSwe.getString(NIL_REASONS_ALIAS);
+                    if(null != nilValue && null != nilReason) {
+                        nils.add(new NilValue(nilValue, nilReason));
+                    }
                 }
-            }
+            }while(rSwe.next());
+
 
             // Finally, create the Quantity component
             sweQuantity = new Quantity(
