@@ -184,10 +184,6 @@ function check_postgres()
   if [ $? -ne 0 ]; then
     pgrep postmaster > /dev/null || error "The PostgreSQL service is not started."
   fi
-  $PGSQL --list > /dev/null 2>&1
-  if [ $? -eq 2 ]; then
-    error "Wrong PostgreSQL credentials for current user"
-  fi
 }
 
 function check_wget()
