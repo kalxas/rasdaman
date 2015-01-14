@@ -253,9 +253,8 @@ BLOBTile::kill(const OId& target, unsigned int range)
         }
         else
         {
-            LEAVE( "BLOBTile::kill() no tile with id " << indbmyOId5 << " found." );
-            RMInit::logOut << "BLOBTile::kill() no tile with id " << indbmyOId5 << " found." << endl;
-            throw r_Ebase_dbms( SQLITE_NOTFOUND, "tile not found in database" );
+            // This is not an error case and is ignored, as kill is often repeatedly called with the same blob id.
+            return;
         }
 
         // delete blob identified by blobOid
