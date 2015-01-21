@@ -285,50 +285,48 @@ public class RasType
 
     private static RasStructureType getStructureType(String structStr) throws RasTypeUnknownException
     {
-	// FIXME: doesn't work with structures inside of other structures
-	int structureEnd = structStr.indexOf("}");
-	if (structureEnd < 0)
-	    throw new RasTypeUnknownException("Incorrect structure schema");
-	StringTokenizer structTok = new StringTokenizer(structStr.substring(0,structureEnd), "[]<>,: ");
-	RasStructureType returnValue = null;
-	String structName = "";
-	// get struct name
-	if(structTok.hasMoreTokens())
-	    {
-		structName = structTok.nextToken();
-		if(structName.equals("{"))
-		    structName="";
-		else
-		    structTok.nextToken();
-	    }
-	else
-	    {
-		// no struct name
-		throw new RasTypeUnknownException("");
-	    }
+        // Correct structure type string:
+        // [structName] { typeName0 [attrName0] (, typeNameN [attrNameN])* }
+        // FIXME: doesn't work with structures inside of other structures
+        int structureBegin = structStr.indexOf("{");
+        int structureEnd = structStr.indexOf("}");
+        if (structureEnd < 0 || structureBegin < 0)
+        {
+            throw new RasTypeUnknownException("Incorrect structure schema");
+        }
+        String structName = structStr.substring(0, structureBegin).trim();
+        RasStructureType returnValue = null;
 
-	int size = structTok.countTokens() / 2;
-	RasBaseType[] baseType = new RasBaseType[size];
-	String[] attributeName = new String[size];
+        // split structure type definition by commas between attributes
+        StringTokenizer structTok = new StringTokenizer(
+            structStr.substring(structureBegin + 1,structureEnd), ",");
 
-	//Fehler falls kein { so lange bis } dazwischen ,!!!
-	for(int i=0; i < attributeName.length; i++)
-	    {
-		// get type
-		String more = structTok.nextToken();
-		if(more.equals("}"))
-		    break;
-		baseType[i] = getBaseType(more);
-		// get attribute name
-		if(structTok.hasMoreTokens())
-		    attributeName[i] = structTok.nextToken();
-		else
-		    // no attribute name
-		    throw new RasTypeUnknownException("");
-	    }
+        int size = structTok.countTokens();
+        RasBaseType[] baseType = new RasBaseType[size];
+        String[] attributeName = new String[size];
 
-	returnValue = new RasStructureType(structName, baseType, attributeName);
-	return returnValue;
+        for(int i=0; i < size; i++)
+        {
+            String attribute = structTok.nextToken();
+            StringTokenizer attributeTokens = new StringTokenizer(attribute, " ");
+            if (attributeTokens.countTokens() == 1) // only type is specified
+            {
+                baseType[i] = getBaseType(attributeTokens.nextToken());
+                attributeName[i] = "";
+            }
+            else if (attributeTokens.countTokens() == 2) // type and attribute name
+            {
+                baseType[i] = getBaseType(attributeTokens.nextToken());
+                attributeName[i] = attributeTokens.nextToken();
+            }
+            else
+            {
+                throw new RasTypeUnknownException("cannot parse type " + structStr);
+            }
+        }
+
+        returnValue = new RasStructureType(structName, baseType, attributeName);
+        return returnValue;
     }
 
     private static RasSIntervalType getSIntervalType(String sintStr)
