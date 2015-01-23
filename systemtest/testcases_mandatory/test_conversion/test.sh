@@ -101,12 +101,27 @@ elif [ "$colltype" == TestSet ]; then
   f=multiband
 elif [ "$colltype" == Gauss2Set ]; then
   f=gauss
+elif [ "$colltype" == BoolSet ]; then
+  f=bool_image
+elif [ "$colltype" == ULongSet ]; then
+  f=ulong_image
+elif [ "$colltype" == ShortSet ]; then
+  f=short_image
+elif [ "$colltype" == UShortSet ]; then
+  f=ushort_image
+elif [ "$colltype" == LongSet ]; then
+  f=long_image
+elif [ "$colltype" == FloatSet ]; then
+  f=float_image
+elif [ "$colltype" == DoubleSet ]; then
+  f=double_image
 fi
+
 local decodeopts="$6"   # used on data insertion
 local encodeopts="$7"   # used on data selection
 local rasqlopts="$8"
 
-log ----- $fun and $inv_fun conversion ------
+log ----- $fun and $inv_fun $colltype conversion ------
 
 create_coll test_tmp $colltype
 insert_into test_tmp "$TESTDATA_PATH/$f.$inv_ext" "$decodeopts" "$inv_fun" "$rasqlopts"
@@ -174,6 +189,14 @@ run_test tiff inv_tiff tif tif GreySet
 run_test tiff inv_tiff tif tif TestSet ", \"sampletype=octet\""
 run_test tiff decode tif tif GreySet
 run_test tiff decode tif tif GreySet ", \"gtiff\", \"ZLEVEL=1;\""
+
+run_test tiff decode tif tif BoolSet
+run_test tiff decode tif tif ULongSet
+run_test tiff decode tif tif ShortSet
+run_test tiff decode tif tif UShortSet
+run_test tiff decode tif tif LongSet
+run_test tiff decode tif tif FloatSet
+run_test tiff decode tif tif DoubleSet
 
 ################## (TestArray) inv_tiff() ####################
 log ----- user-defined type conversion ------

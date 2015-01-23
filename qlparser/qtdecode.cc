@@ -151,19 +151,20 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 
 		int width = poDataset->GetRasterXSize();
 		int height = poDataset->GetRasterYSize();
-		int nBands = poDataset->GetRasterCount();
-
 
 		BaseType* baseType = TypeResolverUtil::getBaseType(poDataset);
 		/*WARNING: GDALDataConverter::getTileCells() closes the GDAL dataset*/
-		char* fileContents = GDALDataConverter::getTileCells(poDataset);
+        char* fileContents;
+        r_Bytes dataSize;
+
+        GDALDataConverter::getTileCells(poDataset, /* out */ dataSize, /* out */ fileContents);
 		unlink(tmpFileName);
 
 		//TODO-GM: Add support for 1D and 3D files
 		r_Minterval mddDomain = r_Minterval(2) << r_Sinterval((r_Range) 0, (r_Range) width - 1)
 				<< r_Sinterval((r_Range) 0, (r_Range) height - 1);
 
-		Tile* resultTile = new Tile(mddDomain, baseType, (char*) fileContents, nBands * width * height, r_Array);
+        Tile* resultTile = new Tile(mddDomain, baseType, fileContents, dataSize, r_Array);
 		MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp_dim_type_name", baseType, 2);
 		TypeFactory::addTempType(mddDimensionType);
 

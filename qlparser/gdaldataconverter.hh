@@ -47,18 +47,23 @@ public:
 	 * WARNING: GDALDataConverter::getTileCells() closes the GDAL dataset.
 	 *
 	 * @param poDataSet The dataset read from the temporary file with GDAL.
-	 * @return A rasdaman tile.
+     * @param size Out parameter representing the size of the read data.
+     * @param contents Out parameter representing the read file contets casted to char*.
 	 */
-	static char* getTileCells(GDALDataset *poDataSet);
+    static void getTileCells(GDALDataset* poDataSet, /* out */ r_Bytes& size, /* out */ char*& contests);
 
 	virtual ~GDALDataConverter();
 private:
 
 	/**
 	 * Converts the GDAL dataset to rasdaman dataset, using type T for the rasdaman tile.
+     *
+     * @param poDataSet The dataset read from the temporary file with GDAL.
+     * @param size Out parameter representing the size of the read data.
+     * @param contents Out parameter representing the read file contets casted to char*.
      */
 	template<typename T>
-	static char* resolveTileCellsByType(GDALDataset *poDataset);
+    static void resolveTileCellsByType(GDALDataset* poDataset, /* out */ r_Bytes& size, /* out */ char*& contents);
 };
 
 #endif	/* GDALDATACONVERTER_HH */
