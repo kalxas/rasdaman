@@ -21,19 +21,47 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 # MAKEFILE FOR:
-#   rasdaman applications
-#   does nothing but distribute any make call into all subdirs
-#
-# COMMENTS:
+#   internal java library of rasdaman R package
 #
 ##################################################################
 
-if ENABLE_JAVA
-    JAVA_DIR = petascope raswct petascope/src/main/db secore
-endif
+JAVAC = javac
+JAR_TOOL = jar
+SPACE = $(eval) $(eval)
 
-if ENABLE_R
-	R_DIR = RRasdaman
-endif
+CD = cd
+MKDIR = mkdir -p
+RM = rm -rf
 
-SUBDIRS=rasql rview rasgeo $(JAVA_DIR) directql $(R_DIR)
+SRC=src
+OUT=out
+LIBDIR=../inst/java
+JARFILE=$(LIBDIR)/RRasdaman.jar
+
+# list of JAR libraries separated by whitespaces
+libs_list=rasj.jar
+# list of directories containing .java files separated by whitespaces
+source_dirs_list=. rrasdaman
+
+SRCDIRS=$(addprefix $(SRC)/, $(source_dirs_list))
+BARE_CLASSES=$(patsubst $(SRC)/%.java,%.class,$(wildcard $(addsuffix /*.java, $(SRCDIRS))))
+CLASSES=$(addprefix $(OUT)/, $(BARE_CLASSES))
+JLIBS=$(subst $(SPACE),:,$(addprefix $(LIBDIR)/, $(libs_list)))
+
+.PHONY: all clean compile
+
+VPATH = $(SRCDIRS)
+
+all: $(JARFILE)
+
+$(OUT)/%.class: $(SRC)/%.java
+	$(MKDIR) $(dir $@)
+	$(JAVAC) -d $(OUT) -cp $(JLIBS) -sourcepath $(SRC) $^
+
+compile: $(CLASSES)
+
+$(JARFILE): compile
+	$(JAR_TOOL) cf $(JARFILE) $(addprefix -C $(OUT)$(SPACE), $(BARE_CLASSES))
+
+clean:
+	$(RM) $(OUT) $(JARFILE)

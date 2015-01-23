@@ -1,0 +1,10 @@
+build/
+inst/java/RRasdaman.jar
+src/.idea
+src/symbols.rds
+src/RRasdaman.iml
+src/out/
+^.*\.Rproj$
+^\.Rproj\.user$
+RRasdaman.Rcheck
+Makefile

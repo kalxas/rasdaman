@@ -106,6 +106,8 @@ failed_cases
 sun-web.xml
 /applications/secore/secore-web/dist/
 ProcessCoverages.java
+applications/RRasdaman/build
+applications/RRasdaman/inst/java
 
 #rasnet protocol
 rasnet/src/messages/

@@ -73,6 +73,11 @@ if test "$enable_rasnet" = "yes"; then
 fi
 ### End - Check for protobuf ###
 
+if test "$enable_r" = "yes"; then
+    AC_CHECK_PROG([RBIN], [R], [R])
+    AS_IF([test "x${RBIN}" = "x"], [AC_MSG_FAILURE([Could not find R. Please install.])])
+    # TODO(vliaukevich): check for needed R packages
+fi
 
 ### Due to a strange bug with fnmatch.h, we cannot search for libgdal with AC_CHECK_LIB. 
 ### We add the linking flags manually
@@ -171,6 +176,7 @@ AC_CONFIG_FILES([Makefile
                  applications/petascope/Makefile
                  applications/petascope/src/main/db/Makefile
                  applications/secore/Makefile
+                 applications/RRasdaman/Makefile
                  bin/Makefile
                  manuals_and_examples/Makefile
                  manuals_and_examples/examples/c++/Makefile
@@ -377,6 +383,13 @@ AC_ARG_ENABLE([rasnet],
               [enable_rasnet=yes],
               [enable_rasnet=no])
 AM_CONDITIONAL([RMANRASNET], [test "$enable_rasnet" = yes])
+
+AC_ARG_ENABLE([r],
+              [AS_HELP_STRING([--enable-r],
+                              [compile and install R package.])],
+              [enable_r=yes],
+              [enable_r=no])
+AM_CONDITIONAL([ENABLE_R], [test "$enable_r" = yes])
 # --------------- Database Specific Configuration ------------------
 ####################################################################
 
@@ -466,6 +479,13 @@ AS_IF([test "$disable_java" = no],
 
 abs_top_srcdir=`pwd`
 RMANBASE=$abs_top_srcdir
+
+AM_COND_IF([ENABLE_R], [
+  AM_COND_IF([ENABLE_JAVA], ,
+    [AC_MSG_FAILURE([Cannot enable R package build while Java compilation is disabled.
+                     Do not use --enable-r and --disable-java flags simultaneously.])
+    ])
+  ],)
 
 # ----------------
 # check for netpbm headers

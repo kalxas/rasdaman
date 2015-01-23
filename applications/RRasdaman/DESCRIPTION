@@ -1,0 +1,14 @@
+Package: RRasdaman
+Type: Package
+Title: R interface to the Rasdaman database
+Version: 0.9
+Date: 2015-01-22
+Author: Veranika Liaukevich
+Maintainer: Veranika Liaukevich <v.liaukevich@jacobs-university.de>
+Description: Rasdaman driver for R, uses the database interface
+	definition from the package DBI.
+Depends: R (>= 3.0.0), DBI (>= 0.2-2), rJava, methods
+Suggests: testthat
+SystemRequirements: JDK
+License: LGPL-3
+Collate: onLoad.R Rasdaman.R util.R array.R driver.R connection.R result.R
