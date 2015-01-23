@@ -132,7 +132,7 @@ BoolType::convertToCULong(const char* cell, r_ULong* value) const
   // byte order
   //*value = *(unsigned char*)cell;
 
-  *value = *(unsigned char*)cell ? 1: 0;
+  *value = *(unsigned char*)(const_cast<char*>(cell)) ? 1: 0;
   return value;
 }
 

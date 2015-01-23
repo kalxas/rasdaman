@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * INCLUDE: odmgtypes.hh
  *
@@ -161,49 +161,49 @@ typedef unsigned char r_Boolean;
 //@Args: as function
 //@Memo: Module: {\bf rasodmg}
 
-inline void get_limits( const r_Octet *tptr, double &min, double &max )
+inline void get_limits_octet( double &min, double &max )
 {
     min = (double)SCHAR_MIN;
     max = (double)SCHAR_MAX;
 }
 
-inline void get_limits( const r_Char *tptr, double &min, double &max )
+inline void get_limits_char( double &min, double &max )
 {
-    min = (double)0.0;
+    min = static_cast<double>(0.0);
     max = (double)UCHAR_MAX;
 }
 
-inline void get_limits( const r_Short *tptr, double &min, double &max )
+inline void get_limits_short( double &min, double &max )
 {
     min = (double)SHRT_MIN;
     max = (double)SHRT_MAX;
 }
 
-inline void get_limits( const r_UShort *tptr, double &min, double &max )
+inline void get_limits_Ushort( double &min, double &max )
 {
-    min = (double)0.0;
+    min = static_cast<double>(0.0);
     max = (double)USHRT_MAX;
 }
 
-inline void get_limits( const r_Long *tptr, double &min, double &max )
+inline void get_limits_long( double &min, double &max )
 {
     min = (double)INT_MIN;
     max = (double)INT_MAX;
 }
 
-inline void get_limits( const r_ULong *tptr, double &min, double &max )
+inline void get_limits_Ulong( double &min, double &max )
 {
-    min = (double)0.0;
+    min = static_cast<double>(0.0);
     max = (double)UINT_MAX;
 }
 
-inline void get_limits( const r_Float *tptr, double &min, double &max )
+inline void get_limits_float( double &min, double &max )
 {
     min = -((double)FLT_MAX);
     max = (double)FLT_MAX;
 }
 
-inline void get_limits( const r_Double *tptr, double &min, double &max )
+inline void get_limits_double( double &min, double &max )
 {
     min = -((double)DBL_MAX);
     max = (double)DBL_MAX;

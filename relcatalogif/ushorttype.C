@@ -121,14 +121,14 @@ UShortType::printCell( ostream& stream, const char* cell ) const
 {
   // !!!! HP specific, assumes 4 Byte long and MSB..LSB 
   // byte order
-  stream << std::setw(5) << *(unsigned short*)cell;
+  stream << std::setw(5) << *(unsigned short*)(const_cast<char*>(cell));
 }
 
 r_ULong*
 UShortType::convertToCULong(const char* cell, r_ULong* value) const
 {
   // !!!! HP specific, assumes 2 Byte short
-  *value = *(unsigned short*)cell;
+  *value = *(unsigned short*)(const_cast<char*>(cell));
   return value;
 }
 
@@ -139,7 +139,6 @@ UShortType::makeFromCULong(char* cell, const r_ULong* value) const
   r_ULong myLong = *value;
   // restricting long to value range of short
   myLong = myLong > USHRT_MAX ? USHRT_MAX : myLong;
-  myLong = myLong < 0 ? 0 : myLong;
   // !!!! HP specific, assumes 2 Byte short
   *(unsigned short*)(cell) = (unsigned short)myLong;
   return cell;

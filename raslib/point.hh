@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * INCLUDE: point.hh
  *
@@ -99,7 +99,7 @@ public:
     const r_Point& operator= ( const r_Point& );
 
     /// compares this point with the given point.
-    inline const int compare_with( const  r_Point& p ) const;
+    inline int compare_with( const  r_Point& p ) const;
     /**
       Returns 0 if this == p, -1 if this < p, 1 if this > p (considering
       the coordinates in decreasing order of magnitude).

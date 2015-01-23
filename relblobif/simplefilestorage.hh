@@ -47,7 +47,7 @@ private:
     // Similar to the one above but returns the agregated path
     void getPath(int BlobId, std::string* path);
     // Helper for generating an error
-    void generateError(char* message, std::string path, int errorCode) throw (r_Error);
+    void generateError(const char* message, std::string path, int errorCode) throw (r_Error);
 
     std::string root_path;
 

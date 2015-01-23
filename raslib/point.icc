@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * INLINE SOURCE: point.icc
  *
@@ -36,7 +36,7 @@ r_Point::dimension() const
   return dimensionality;
 }
 
-const int
+int
 r_Point::compare_with( const r_Point& p ) const
 {
   if( dimensionality != p.dimensionality )

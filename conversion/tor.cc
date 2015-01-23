@@ -98,8 +98,8 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
             RMInit::logOut << "r_Conv_TOR::convertFrom the supplied data is " << desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 << " bytes, but " << t.cell_count() << " bytes were expected" << std::endl;
             throw r_Error();
         }
-        get_limits(&tc, min, max);
-        get_limits(&tu, minu, maxu);
+        get_limits_char(min, max);
+        get_limits_Ushort(minu, maxu);
         for(int i=0; i < x; i++)
         {
             for(int j=0; j < y; j++)
@@ -170,8 +170,8 @@ r_Conv_TOR::convertTo(const char* options) throw (r_Error)
     case ctype_bool:
     case ctype_char:
     case ctype_uint8:
-        get_limits(&tc, min, max);
-        get_limits(&tu, minu, maxu);
+        get_limits_char(min, max);
+        get_limits_Ushort(minu, maxu);
         for(int i=0; i < x; i++)
         {
             for(int j=0; j < y; j++)

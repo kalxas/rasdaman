@@ -41,7 +41,7 @@ UIntegralType::convertToCDouble(const char* cell, double* value) const {
 
 inline char* 
 UIntegralType::makeFromCLong(char* cell, const r_Long* value) const {
-	return this->makeFromCULong(cell, (r_ULong *)value);
+	return this->makeFromCULong(cell, (r_ULong*)const_cast<r_Long*>(value));
 }
         
 inline char* 

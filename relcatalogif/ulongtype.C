@@ -120,13 +120,13 @@ ULongType::~ULongType()
 void 
 ULongType::printCell( ostream& stream, const char* cell ) const
 {
-  stream << std::setw(8) << *(r_ULong*)cell;
+  stream << std::setw(8) << *(r_ULong*)(const_cast<char*>(cell));
 }
 
 r_ULong*
 ULongType::convertToCULong(const char* cell, r_ULong* value) const
 {
-  *value = *(r_ULong*)cell;
+  *value = *(r_ULong*)(const_cast<char*>(cell));
   return value;
 }
 

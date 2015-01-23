@@ -106,7 +106,7 @@ InlineTile::InlineTile(const OId& id, char*& thecells)
     thecells = thecells + sizeof(OId);
 
     //restore the cells
-    cells = (char*)mymalloc(size * sizeof(char));
+    cells = static_cast<char*>(mymalloc(size * sizeof(char)));
     memcpy(cells, thecells, size);
     thecells = thecells + size;
     RMDBGMIDDLE(5, RMDebug::module_blobif, "InlineTile", "OId " << myOId << " size " << size << " DataFormat " << dataFormat);
@@ -149,6 +149,7 @@ InlineTile::isCached() const
     char retval = true;
     //not previously cached
     if (!_isCached)
+    {
         if (!isInlined())
         {
             //outlined
@@ -160,6 +161,7 @@ InlineTile::isCached() const
             if (getSize() < StorageLayout::DefaultPCTMax)//size is ok
                 retval = false;
         }
+    }
     return retval;
 }
 

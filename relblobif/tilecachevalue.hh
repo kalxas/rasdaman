@@ -98,13 +98,13 @@ public:
 
 private:
     
+    char* data;
+    bool update;
+    r_Bytes size;
     OId myOId;
     long blobOid;
-    char* data;
-    r_Bytes size;
-    bool update;
-    r_Data_Format dataFormat;
     std::set<void*> referencingTiles;
+    r_Data_Format dataFormat;
     bool fileStorage;
 };
 

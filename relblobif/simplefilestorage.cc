@@ -200,7 +200,7 @@ void SimpleFileStorage::getPath(int BlobId, string *path)
         *path += '/' + segments[i];
 }
 
-void SimpleFileStorage::generateError(char* message, string path, int errorCode) throw (r_Error)
+void SimpleFileStorage::generateError(const char* message, string path, int errorCode) throw (r_Error)
 {
     RMInit::logOut << endl << "Error: " << message << " - " << path << endl;
     RMInit::logOut << "Reason: " << strerror(errno) << endl << endl;

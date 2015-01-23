@@ -382,23 +382,23 @@ r_Primitive_Type::get_limits( r_Double& min, r_Double& max ) throw(r_Error)
     r_Double *type=NULL;
     switch( typeId )
     {
-    case r_Type::ULONG:  ::get_limits( (r_ULong*)type, min, max );
+    case r_Type::ULONG:  ::get_limits_Ulong( min, max );
         break;
-    case r_Type::USHORT: ::get_limits( (r_UShort*)type, min, max );
+    case r_Type::USHORT: ::get_limits_Ushort( min, max );
         break;
-    case r_Type::BOOL:   ::get_limits( (r_Boolean*)type, min, max );
+    case r_Type::BOOL:   ::get_limits_char( min, max );
         break;
-    case r_Type::LONG:   ::get_limits( (r_Long*)type, min, max );
+    case r_Type::LONG:   ::get_limits_long( min, max );
         break;
-    case r_Type::SHORT:  ::get_limits( (r_Short*)type, min, max );
+    case r_Type::SHORT:  ::get_limits_short( min, max );
         break;
-    case r_Type::OCTET:  ::get_limits( (r_Octet*)type, min, max );
+    case r_Type::OCTET:  ::get_limits_octet( min, max );
         break;
-    case r_Type::DOUBLE: ::get_limits( (r_Double*)type, min, max);
+    case r_Type::DOUBLE: ::get_limits_double( min, max);
         break;
-    case r_Type::FLOAT:  ::get_limits( (r_Float*)type, min, max );
+    case r_Type::FLOAT:  ::get_limits_float( min, max );
         break;
-    case r_Type::CHAR:   ::get_limits( (r_Char*)type, min, max );
+    case r_Type::CHAR:   ::get_limits_char( min, max );
         break;
     default:
     {

@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * INCLUDE: minterval.hh
  *
@@ -301,13 +301,13 @@ public:
     bool operator!=( const r_Minterval& ) const;
 
     /// does this interval cover the given point
-    inline const bool covers( const r_Point& pnt ) const;
+    inline bool covers( const r_Point& pnt ) const;
     /**
     throws r_Edim_mismatch when dimensions do not match
     */
 
     /// does this interval cover the given interval
-    inline const bool covers( const r_Minterval& inter ) const;
+    inline bool covers( const r_Minterval& inter ) const;
     /**
     throws r_Edim_mismatch when dimensions do not match
     */
@@ -315,13 +315,13 @@ public:
     /// checks whether point (scalar) is between any of the single intervals in this minterval
     /// used to check whether a null value is in an interval
     template <class castType>
-    inline const bool within_bounds( const castType point );
+    inline bool within_bounds( const castType point );
 
     /// get dimensionality
     inline r_Dimension dimension() const;
 
     /// checks if all lower bounds are fixed
-    inline const bool is_origin_fixed() const;
+    inline bool is_origin_fixed() const;
     /*@Doc:
       Returns true if all lower bounds are fixed, otherwise false.
     */
@@ -334,7 +334,7 @@ public:
     */
 
     /// checks if all upper bounds are fixed
-    inline const bool is_high_fixed() const;
+    inline bool is_high_fixed() const;
     /*@Doc:
       Returns true if all upper bounds are fixed, otherwise false.
     */

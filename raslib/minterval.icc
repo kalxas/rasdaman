@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * INLINE SOURCE: minterval.icc
  *
@@ -40,7 +40,7 @@ r_Minterval::dimension() const
     return dimensionality;
 }
 
-inline const bool
+inline bool
 r_Minterval::is_origin_fixed() const
 {
     bool retval=true;
@@ -58,7 +58,7 @@ r_Minterval::is_origin_fixed() const
     return retval;
 }
 
-inline const bool
+inline bool
 r_Minterval::is_high_fixed() const
 {
     bool retval=true;
@@ -79,7 +79,7 @@ r_Minterval::is_high_fixed() const
 
 
 
-inline const bool
+inline bool
 r_Minterval::covers( const r_Point& pnt ) const
 {
     bool retval = true;
@@ -104,7 +104,7 @@ r_Minterval::covers( const r_Point& pnt ) const
 }
 
 
-inline const bool
+inline bool
 r_Minterval::covers( const r_Minterval& inter2  ) const
 {
     bool retval = true;
@@ -141,7 +141,7 @@ r_Minterval::covers( const r_Minterval& inter2  ) const
 
 // -- enterprise start
 template <class castType>
-inline const bool
+inline bool
 r_Minterval::within_bounds( const castType point )
 {
     for (r_Dimension i = 0; i < dimensionality ; i++)

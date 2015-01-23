@@ -105,15 +105,15 @@ char*
 Type::getTypeStructure() const
 {
   // default implementation for all non-structured base types.
-  char* dummy = (char*)getTypeName();
+  char* dummy = const_cast<char*>(getTypeName());
   char* result = (char*)mymalloc(strlen(dummy) + 1);
   strcpy(result, dummy);
-  for(int i = 0; i < strlen(dummy); i++)
+  for(int i = 0; i < static_cast<int>(strlen(dummy)); i++)
     result[i] = tolower(result[i]);
   return result;
 }
 
-const TypeEnum
+TypeEnum
 Type::getType() const
 {
   return myType;

@@ -92,7 +92,7 @@ public:
       #set<setName>#. The char* has to be freed by the caller!
     */
 
-    const TypeEnum getType() const;
+    TypeEnum getType() const;
     /*@Doc:
     returns the type as a TypeEnum.
     */

@@ -51,9 +51,9 @@ DBTCIndex::setInlineTileHasChanged()
 
 DBTCIndex::DBTCIndex(const OId& id)
     :   DBHierIndex(id),
-        _isLoaded(false),
-        inlineTileHasChanged(false),
         mappingHasChanged(false),
+        inlineTileHasChanged(false),
+        _isLoaded(false),
         hasBlob(false)
 {
     RMDBGENTER(7, RMDebug::module_indexif, "DBTCIndex", "DBTCIndex(" << myOId << ")");
@@ -66,14 +66,14 @@ DBTCIndex::DBTCIndex(const OId& id)
 IndexDS*
 DBTCIndex::getNewInstance() const
 {
-    return (HierIndexDS*)new DBTCIndex(getDimension(), !isLeaf());
+    return static_cast<HierIndexDS*>(new DBTCIndex(getDimension(), !isLeaf()));
 }
 
 DBTCIndex::DBTCIndex(r_Dimension dim, bool isNode)
     :   DBHierIndex(dim, isNode, false),
-        _isLoaded(true),
-        inlineTileHasChanged(false),
         mappingHasChanged(false),
+        inlineTileHasChanged(false),
+        _isLoaded(true),
         hasBlob(false)
 {
     RMDBGENTER(7, RMDebug::module_indexif, "DBTCIndex", "DBTCIndex(" << dim << ", " << (int)_isLoaded << ") " << myOId);
@@ -262,7 +262,7 @@ DBTCIndex::getInlineTile(const OId& itid)
     itit = inlineTiles.find(itid);
     if (itit != inlineTiles.end())
     {
-        retval = (InlineTile*)(*itit).second;
+        retval = static_cast<InlineTile*>((*itit).second);
     }
     return retval;
 }
@@ -282,12 +282,12 @@ DBTCIndex::readyForRemoval(const OId& id)
                 readInlineTiles();
                 itit = inlineTiles.find(id);
                 ((*itit).second)->setCached(false);
-                ((InlineTile*)(*itit).second)->outlineTile();
+                (static_cast<InlineTile*>((*itit).second))->outlineTile();
             }
             else
             {
                 ((*itit).second)->setCached(false);
-                ((InlineTile*)(*itit).second)->outlineTile();
+                (static_cast<InlineTile*>((*itit).second))->outlineTile();
             }
         }
     }
@@ -311,7 +311,7 @@ DBTCIndex::removeObject(unsigned int pos)
     if (isLeaf())
         if (pos <= myKeyObjects.size())
             readyForRemoval(myKeyObjects[pos].getObject().getOId());
-    bool found = DBHierIndex::removeObject((unsigned int)pos);
+    bool found = DBHierIndex::removeObject(static_cast<unsigned int>(pos));
     RMDBGEXIT(4, RMDebug::module_indexif, "DBTCIndex", "removeEntry(" << pos << ") " << myOId << " " << found);
     return found;
 }
@@ -328,7 +328,8 @@ DBTCIndex::decideForInlining()
         {
             RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", " we do oid " << (*it));
             if ((*it).getObject().getOId().getType() == OId::INLINETILEOID)
-                if ((itile = (InlineTile*)ObjectBroker::isInMemory((*it).getObject().getOId())) != 0)
+            {
+                if ((itile = static_cast<InlineTile*>(ObjectBroker::isInMemory((*it).getObject().getOId()))) != 0)
                 {
                     RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "in memory");
                     //decide for inlineing
@@ -355,6 +356,7 @@ DBTCIndex::decideForInlining()
                 {
                     RMDBGMIDDLE(5, RMDebug::module_indexif, "DBTCIndex", "not in memory");
                 }
+            }
         }
     }
     RMDBGEXIT(5, RMDebug::module_indexif, "DBTCIndex", "decideForInlining() " << myOId);
