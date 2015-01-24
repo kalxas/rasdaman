@@ -50,7 +50,7 @@ public:
      * @param size Out parameter representing the size of the read data.
      * @param contents Out parameter representing the read file contets casted to char*.
 	 */
-    static void getTileCells(GDALDataset* poDataSet, /* out */ r_Bytes& size, /* out */ char*& contests);
+    static void getTileCells(GDALDataset* poDataSet, /* out */ r_Bytes& size, /* out */ char*& contents);
 
 	virtual ~GDALDataConverter();
 private:

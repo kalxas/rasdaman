@@ -34,38 +34,38 @@ GDALDataConverter::GDALDataConverter()
 {
 }
 
-void GDALDataConverter::getTileCells(GDALDataset* poDataset, /* out */ r_Bytes& size, /* out */ char*& contests)
+void GDALDataConverter::getTileCells(GDALDataset* poDataset, /* out */ r_Bytes& size, /* out */ char*& contents)
 {
 	GDALDataType dataType = poDataset->GetRasterBand(1)->GetRasterDataType();
 	switch (dataType)
 	{
 		case GDT_Byte:
 		{//   Eight bit unsigned integer
-            return resolveTileCellsByType<r_Char>(poDataset, size, contests);
+            return resolveTileCellsByType<r_Char>(poDataset, size, contents);
 		}
 		case GDT_UInt16:
 		{//     Sixteen bit unsigned integer
-            return resolveTileCellsByType<r_UShort>(poDataset, size, contests);
+            return resolveTileCellsByType<r_UShort>(poDataset, size, contents);
 		}
 		case GDT_Int16:
 		{ //  Sixteen bit signed integer
-            return resolveTileCellsByType<r_Short>(poDataset, size, contests);
+            return resolveTileCellsByType<r_Short>(poDataset, size, contents);
 		}
 		case GDT_UInt32:
 		{//     Thirty two bit unsigned integer
-            return resolveTileCellsByType<r_ULong>(poDataset, size, contests);
+            return resolveTileCellsByType<r_ULong>(poDataset, size, contents);
 		}
 		case GDT_Int32:
 		{ //  Thirty two bit signed integer
-            return resolveTileCellsByType<r_Long>(poDataset, size, contests);
+            return resolveTileCellsByType<r_Long>(poDataset, size, contents);
 		}
 		case GDT_Float32:
 		{//    Thirty two bit floating point
-            return resolveTileCellsByType<r_Float>(poDataset, size, contests);
+            return resolveTileCellsByType<r_Float>(poDataset, size, contents);
 		}
 		case GDT_Float64:
 		{//    Sixty four bit floating point
-            return resolveTileCellsByType<r_Double>(poDataset, size, contests);
+            return resolveTileCellsByType<r_Double>(poDataset, size, contents);
 		}
 		default:
 			throw r_Error(r_Error::r_Error_FeatureNotSupported);
