@@ -1,1 +1,1 @@
-select mod(test_grey, test_grey2) from test_grey, test_grey2
+select (case when test_grey2 = 0 then 0c else mod(test_grey, test_grey2) end) from test_grey, test_grey2

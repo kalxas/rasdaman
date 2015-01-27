@@ -1,4 +1,4 @@
-214
+215
 # Increment the number above every time you add a new exception
 # (no of error codes - 1)
 #
@@ -167,6 +167,7 @@
 430^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Parameter of info function must be a persistent MDD object.
 431^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid persistent object given to the info function.
 432^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Failed retreiving information for the specified object.
+433^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Division by zero.
 #
 499^E^Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.
 #

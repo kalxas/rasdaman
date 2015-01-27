@@ -547,6 +547,7 @@ public:
 #define INSERTINTORCINDEX           240
 #define NOTILINGDEFINED             241
 #define UNSATISFIEDMDDCONSTANT           373
+#define DIVISION_BY_ZERO            433
 #define DATABASE_EXISTS             708
 #define FILEDATADIR_NOTFOUND        709
 #define FAILEDWRITINGTODISK         710

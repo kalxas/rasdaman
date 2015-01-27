@@ -437,6 +437,7 @@ function run_test()
   # NOTE: remove input protocol extension: all queries with the same basename shall refer to the same oracle.
   oracle="$ORACLE_PATH/${f%\.*}.oracle"
   out="$OUTPUT_PATH/$f.out"
+  err="$OUTPUT_PATH/$f.err"
   rm -f "$out"
   pre_script="$QUERIES_PATH/${f%\.*}.pre.sh"
   post_script="$QUERIES_PATH/${f%\.*}.post.sh"
@@ -507,19 +508,25 @@ function run_test()
               if [ "$SVC_NAME" = "jit" ]; then
                 QUERY="$QUERY [opt 4]"
               fi
-              $RASQL -q "$QUERY" --out file --outfile "$out" --quiet > /dev/null
+              $RASQL -q "$QUERY" --out file --outfile "$out" --quiet > /dev/null 2> "$err"
 
-              # move to proper output file
-              for tmpf in `ls "$out".*  2> /dev/null`; do
-                [ -f "$tmpf" ] || continue
-                mv "$tmpf" "$out"
-                break
-              done
+              # if an exception was thrown, then the err file has non-zero size
+              if [ -s "$err" ]; then
+                mv "$err" "$out"
 
-              # if the result is a scalar, there will be no tmp file by rasql,
-              # here we output the Result element scalar into tmp.unknown
-              if [ ! -f "$out" ]; then
-                $RASQL -q "$QUERY" --out string | grep Result > $out
+              else
+                # move to proper output file
+                for tmpf in `ls "$out".*  2> /dev/null`; do
+                    [ -f "$tmpf" ] || continue
+                    mv "$tmpf" "$out"
+                    break
+                done
+
+                # if the result is a scalar, there will be no tmp file by rasql,
+                # here we output the Result element scalar into tmp.unknown
+                if [ ! -f "$out" ]; then
+                    $RASQL -q "$QUERY" --out string | grep Result > $out
+                fi
               fi
               ;;
       *)      error "unknown service: $SVC_NAME"

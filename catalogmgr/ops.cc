@@ -1720,8 +1720,7 @@ OpDIVCULong::operator()( char* res, const char* op1, const char* op2 )
     {
         if (longOp2 == 0)
         {
-            // catch division by zero, perhaps should throw exception
-            longRes = 0;
+            throw DIVISION_BY_ZERO;
         }
         else
         {
@@ -1750,8 +1749,9 @@ OpMODCULong::operator()( char* res, const char* op1, const char* op2 )
     op2Type->convertToCULong(op2 + op2Off, &longOp2);
 
     if(longOp2 == 0)
-        // catch division by zero, perhaps should throw exception
-        longRes = 0;
+    {
+        throw DIVISION_BY_ZERO;
+    }
     else
     {
         longRes = *(op1Type->convertToCULong(op1 + op1Off, &longOp1)) % longOp2;
@@ -2182,8 +2182,7 @@ OpDIVCLong::operator()( char* res, const char* op1, const char* op2 )
     {
         if (longOp2 == 0)
         {
-            // catch division by zero, perhaps should throw exception
-            longRes = 0;
+            throw DIVISION_BY_ZERO;
         }
         else
         {
@@ -2212,8 +2211,9 @@ OpMODCLong::operator()( char* res, const char* op1, const char* op2 )
     op2Type->convertToCLong(op2, &longOp2);
 
     if(longOp2 == 0)
-        // catch division by zero, perhaps should throw exception
-        longRes = 0;
+    {
+        throw DIVISION_BY_ZERO;
+    }
     else
     {
         longRes = *(op1Type->convertToCLong(op1 + op1Off, &longOp1)) % longOp2;
@@ -2549,15 +2549,8 @@ OpDIVCDouble::operator()( char* res, const char* op1, const char* op2 )
     }
     else
     {
-        if(doubleOp2 == 0)
-        {
-            // catch division by zero, perhaps should throw exception
-            doubleRes = 0;
-        }
-        else
-        {
-            doubleRes = doubleOp1 / doubleOp2;
-        }
+        // Do not handle division by zero, return +-inf or nan as specified in IEEE 754
+        doubleRes = doubleOp1 / doubleOp2;
     }
 
     resType->makeFromCDouble( res + resOff, &doubleRes);
@@ -4323,9 +4316,9 @@ OpDIVChar::operator()( char* res, const char* op1, const char* op2 )
     else
     {
         if(*(unsigned char*)(op2 + op2Off) == 0)
-            // catch division by zero, perhaps should throw exception
-            // what if 0 is one of the Null values?
-            *(unsigned char*)(res + resOff) = 0;
+        {
+            throw DIVISION_BY_ZERO;
+        }
         else
         {
             *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off)
@@ -4350,8 +4343,9 @@ void
 OpMODChar::operator()( char* res, const char* op1, const char* op2 )
 {
     if(*(unsigned char*)(op2 + op2Off) == 0)
-        // catch division by zero, perhaps should throw exception
-        *(unsigned char*)(res + resOff) = 0;
+    {
+        throw DIVISION_BY_ZERO;
+    }
     else
     {
         *(unsigned char*)(res + resOff) = *(unsigned char*)(op1 + op1Off) %
@@ -5070,6 +5064,7 @@ void OpDIVComplex::operator()(char* res, const char* op1, const char* op2)
         }
         else
         {
+            // Do not handle division by zero, return +-nan or inf as specified in IEEE 754
             resRe = x1 * x2 / (x2 * x2 + y2 * y2);
             resIm = - x1 * y2 / (x2 * x2 + y2 * y2);
         }
@@ -5093,6 +5088,7 @@ void OpDIVComplex::operator()(char* res, const char* op1, const char* op2)
         }
         else
         {
+            // Do not handle division by zero, return +-nan or inf as specified in IEEE 754
             resRe = x1 / x2;
             resIm = y1 / x2;
         }
@@ -5117,6 +5113,7 @@ void OpDIVComplex::operator()(char* res, const char* op1, const char* op2)
         }
         else
         {
+            // Do not handle division by zero, return +-nan or inf as specified in IEEE 754
             resRe = (x1 * x2 + y1 * y2) /  (x2 * x2 + y2 * y2);
             resIm = (y1 * x2 - x1 * y2) / (x2 * x2 + y2 * y2);
         }

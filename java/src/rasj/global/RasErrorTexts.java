@@ -168,6 +168,7 @@ public abstract class RasErrorTexts
 "420:Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Extend operation with open bounds is not supported.",
 "421:Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Target interval of extend operation does not cover MDD to be extended.",
 "422:Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Second operand of extend function must be an minterval.",
+"433:Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Division by zero.",
 "499:Execution error $errorNo in line $lineNo, column $columnNo, near token $token: Language feature is not supported.",
 "510:Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The argument is outside the function domain.",
 "511:Execution error $errorNo in line $lineNo, column $columnNo, near token $token: The function result exceeds the allowed range.",

@@ -218,11 +218,23 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
                  RMInit::dbgOut << dec << endl; \
                )
 
+        try
+        {
             RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  before execConstOp" << endl )
 
             resTile->execConstOp( myOp, intersectDom, (*tileIt), intersectDom, constValue, scalarPos );
-        //resTile->execConstOp( opType, intersectDom, (*tileIt), intersectDom, constValue, constBaseType, scalarPos );
-        RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  after execConstOp" << endl )
+            RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  after execConstOp" << endl )
+        }
+        catch (int errcode)
+        {
+            RMInit::logOut << "Error: QtBinaryInduce::computeUnaryMDDOp() caught errno " << errcode << std::endl;
+            delete resTile;
+            delete myOp;
+            delete mddres;
+            delete allTiles;
+            parseInfo.setErrorNo(errcode);
+            throw parseInfo;
+        }
 
         // insert Tile in result tile
         mddres->insertTile( resTile );
@@ -360,15 +372,28 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
                 //
                 // carry out operation on the relevant area of the tiles
                 //
-
-                RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  before execBinaryOp" << endl )
-                RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  result tile, area " << intersectDom <<
-                             ", type " << resTile->getType()->getTypeName() << endl )
-                RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  operand1 tile, area " << intersectDom <<
-                             ", type " << (*tileOp1It)->getType()->getTypeName() << endl )
-                RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  operand2 tile, type " << (*tileOp1It)->getType()->getTypeName() << endl )
-                resTile->execBinaryOp(&(*myOp), intersectDom, (*tileOp1It), intersectDom, (*intersectTileOp2It), intersectDom.create_translation(offset12));
-                RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  after execBinaryOp" << endl )
+                try
+                {
+                    RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  before execBinaryOp" << endl )
+                    RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  result tile, area " << intersectDom <<
+                                 ", type " << resTile->getType()->getTypeName() << endl )
+                    RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  operand1 tile, area " << intersectDom <<
+                                 ", type " << (*tileOp1It)->getType()->getTypeName() << endl )
+                    RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  operand2 tile, type " << (*tileOp1It)->getType()->getTypeName() << endl )
+                    resTile->execBinaryOp(&(*myOp), intersectDom, (*tileOp1It), intersectDom, (*intersectTileOp2It), intersectDom.create_translation(offset12));
+                    RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  after execBinaryOp" << endl )
+                }
+                catch (int errcode)
+                {
+                    RMInit::logOut << "Error: QtBinaryInduce::computeBinaryMDDOp() caught errno " << errcode << std::endl;
+                    delete myOp;
+                    delete resTile;
+                    delete mddres;
+                    delete intersectTilesOp2;
+                    delete allTilesOp1;
+                    parseInfo.setErrorNo(errcode);
+                    throw parseInfo;
+                }
 
                 // insert Tile in result mddobj
                 mddres->insertTile( resTile );
@@ -378,6 +403,7 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
             intersectTilesOp2=NULL;
         }
 
+        delete myOp;
         delete allTilesOp1;
         allTilesOp1=NULL;
 
@@ -419,7 +445,18 @@ QtBinaryInduce::computeBinaryOp( QtScalarData* operand1, QtScalarData* operand2,
     BinaryOp* myOp = Ops::getBinaryOp( opType, resultBaseType,
                                        operand1->getValueType(),   operand2->getValueType() );
     myOp->setNullValues(nullValues);
-    (*myOp)(resultBuffer, operand1->getValueBuffer(), operand2->getValueBuffer() );
+    try
+    {
+        (*myOp)(resultBuffer, operand1->getValueBuffer(), operand2->getValueBuffer() );
+    }
+    catch (int errcode)
+    {
+        RMInit::logOut << "Error: QtBinaryInduce::computeBinaryOp() caught errno " << errcode << std::endl;
+        delete myOp;
+        delete[] resultBuffer;
+        parseInfo.setErrorNo(errcode);
+        throw parseInfo;
+    }
 
     if( resultBaseType->getType() == STRUCT )
         scalarDataObj = new QtComplexData();
