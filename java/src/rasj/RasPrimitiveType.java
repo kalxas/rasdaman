@@ -166,4 +166,16 @@ public class RasPrimitiveType extends RasBaseType implements RasGlobalDefs
 	return (Double)cell;
     }
 
+    public boolean equals(Object obj)
+    {
+        boolean result = false;
+        if (obj instanceof RasPrimitiveType)
+        {
+            RasPrimitiveType type = (RasPrimitiveType) obj;
+            result = type.getTypeID() == getTypeID() &&
+              type.getSize() == getSize() &&
+              type.getName() == getName();
+        }
+        return result;
+    }
 }

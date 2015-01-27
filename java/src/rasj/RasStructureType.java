@@ -104,4 +104,27 @@ public class RasStructureType extends RasBaseType
 	    }
 	    return s;
     }
+
+    public boolean equals(Object obj)
+    {
+        boolean result = false;
+        if (obj instanceof RasStructureType)
+        {
+            RasStructureType struct = (RasStructureType) obj;
+            boolean stillEqual = getAttributes().length == struct.getAttributes().length &&
+                getBaseTypes().length == struct.getBaseTypes().length &&
+                (getName() == null ? struct.getName() == null : getName().equals(struct.getName()));
+            for (int i = 0; i < getAttributes().length && stillEqual; ++i)
+            {
+                String thisAttr = getAttributes()[i];
+                String structAttr = struct.getAttributes()[i];
+                RasBaseType thisType = getBaseTypes()[i];
+                RasBaseType structType = struct.getBaseTypes()[i];
+                stillEqual = (thisAttr == null ? structAttr == null : thisAttr.equals(structAttr)) &&
+                    (thisType == null ? structType == null : thisType.equals(structType));
+            }
+            result = stillEqual;
+        }
+        return result;
+    }
 }
