@@ -3,6 +3,7 @@ SRC = messages/rasmgrmess.pb.cc \
       client.cc \
 	  clientcredentials.cc \
 	  clientmanagementservice.cc \
+	  clientmanagerconfig.cc \
 	  clientmanager.cc \
 	  rasmgrconfig.cc \
 	  rasserver.cc \

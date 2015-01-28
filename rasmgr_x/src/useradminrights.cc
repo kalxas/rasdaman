@@ -77,7 +77,7 @@ void UserAdminRights::setSystemConfigRights(bool hasSystemConfigRights)
 }
 
 UserAdminRights UserAdminRights::parseFromProto(
-    const AdminRightsProto& rights)
+    const UserAdminRightsProto& rights)
 {
 
     UserAdminRights adminRights;
@@ -93,10 +93,10 @@ UserAdminRights UserAdminRights::parseFromProto(
     return adminRights;
 }
 
-AdminRightsProto UserAdminRights::serializeToProto(
+UserAdminRightsProto UserAdminRights::serializeToProto(
     const UserAdminRights& rights)
 {
-    AdminRightsProto protoRights;
+    UserAdminRightsProto protoRights;
 
     protoRights.set_access_control_rights(rights.accessControlRights);
     protoRights.set_info_rights(rights.infoRights);

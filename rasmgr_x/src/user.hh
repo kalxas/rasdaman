@@ -50,11 +50,6 @@ public:
      * this rasdaman instance.
      */
     UserAdminRights getAdminRights() const;
-
-    /**
-     * Replace the user's current admininistration rights.
-     * @param adminRights UserAdminRights object containing the new rights on the system.
-     */
     void setAdminRights ( const UserAdminRights& adminRights );
 
     const std::string& getName() const;

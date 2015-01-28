@@ -37,6 +37,10 @@ public:
      */
     UserDatabaseRights(bool readAccess, bool writeAccess = false);
 
+    /**
+     * @brief UserDatabaseRights Initialize a new instance of the UserDatabaseRights
+     * class with read and write access set to false.
+     */
     UserDatabaseRights();
 
     virtual ~UserDatabaseRights();
@@ -47,13 +51,12 @@ public:
     bool hasWriteAccess() const;
     void setWriteAccess(bool writeAccess);
 
-    static UserDatabaseRights parseFromProto(const DatabaseRightsProto& rights);
+    static UserDatabaseRights parseFromProto(const UserDatabaseRightsProto& rights);
 
-    static DatabaseRightsProto serializeToProto(const UserDatabaseRights& userDatabaseRights);
+    static UserDatabaseRightsProto serializeToProto(const UserDatabaseRights& userDatabaseRights);
 private:
     bool readAccess;
     bool writeAccess;
-
 };
 
 } /* namespace rasmgr */

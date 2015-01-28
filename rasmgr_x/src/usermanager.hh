@@ -50,14 +50,14 @@ public:
      * @param adminRights The administration rights the new user will have
      * @return If a user with the same name already exits, return FALSE, TRUE otherwise.
      */
-    void defineUser ( const std::string& userName, const std::string& password, const UserDatabaseRights& defaultRights, const UserAdminRights& adminRights );
+    virtual void defineUser ( const std::string& userName, const std::string& password, const UserDatabaseRights& defaultRights, const UserAdminRights& adminRights );
 
     /**
      * Remove the user with the given name from the list of users.
      * @param userName
      * @return FALSE if there was no user with this name, TRUE otherwise
      */
-    void removeUser ( const std::string& userName );
+    virtual void removeUser ( const std::string& userName );
 
     /**
      * Change the name of the user.
@@ -65,7 +65,7 @@ public:
      * @param newUserName
      * @return FALSE if there was no user with this name, TRUE otherwise
      */
-    void changeUserName ( const std::string& oldUserName, const std::string& newUserName );
+    virtual void changeUserName ( const std::string& oldUserName, const std::string& newUserName );
 
     /**
      * Change the password of a user
@@ -73,7 +73,7 @@ public:
      * @param newPassword
      * @return FALSE if there was no user with this name, TRUE otherwise
      */
-    void changeUserPassword ( const std::string& userName, const std::string& newPassword );
+    virtual void changeUserPassword ( const std::string& userName, const std::string& newPassword );
 
     /**
      * Change the user's administration rights
@@ -81,7 +81,7 @@ public:
      * @param newRights
      * @return FALSE if there was no user with this name, TRUE otherwise
      */
-    void changeUserAdminRights ( const std::string& userName, const UserAdminRights& newRights );
+   virtual void changeUserAdminRights ( const std::string& userName, const UserAdminRights& newRights );
 
     /**
      * Change the users rights on a particular database.
@@ -90,27 +90,27 @@ public:
      * @param newRights
      * @return FALSE if there was no user with this name, TRUE otherwise.
      */
-    void changeUserDatabaseRights ( const std::string& userName, const UserDatabaseRights& newRights );
+    virtual void changeUserDatabaseRights ( const std::string& userName, const UserDatabaseRights& newRights );
 
     /**
      * Get a copy of the user with the given name
      * @param userName
      * @return TRUE if there was a user with this name, FALSE otherwise
      */
-    bool tryGetUser ( const std::string& userName, boost::shared_ptr<User>& out_user );
+    virtual bool tryGetUser ( const std::string& userName, boost::shared_ptr<User>& out_user );
 
     /**
      * @return a copy of the user list.
      */
-    std::list<boost::shared_ptr<User> > getUserList() const;
+    virtual std::list<boost::shared_ptr<User> > getUserList() const;
 
 
     /**
      * @brief Save the information stored by the user manager to the RASMGR_AUTH_FILE
      * @return void
-	 * @throws std::runtime_error If the authentication information could not be saved.
+     * @throws std::runtime_error If the authentication information could not be saved.
      */
-    void saveToAuthenticationFile();
+    virtual void saveToAuthenticationFile();
 
 private:
     std::list<boost::shared_ptr<User> > userList;

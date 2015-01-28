@@ -35,6 +35,7 @@
 #include "../src/usermanager.hh"
 #include "../src/clientmanager.hh"
 #include "../src/clientcredentials.hh"
+#include "../src/clientmanagerconfig.hh"
 
 #include "mocks/mockrasserver.hh"
 
@@ -43,6 +44,7 @@ using rasmgr::RasMgrConfig;
 using rasmgr::RasServer;
 using rasmgr::UserManager;
 using rasmgr::ClientManager;
+using rasmgr::ClientManagerConfig;
 using ::testing::AtLeast;                     // #1
 using ::testing::_;
 using ::testing::Return;
@@ -51,17 +53,15 @@ class ClientManagerTest:public ::testing::Test
 {
 protected:
     ClientManagerTest():clientId("clientId"),userName("userName"),userPassword("userPassword"),dbRights(true, true),
-            dbName("dbName"), sessionId("sessionId"), serverHost("tcp://localhost"),serverPort(7010)
+            dbName("dbName"), sessionId("sessionId"), serverHost("tcp://localhost"),serverPort(7010), config(3000,3000)
     {
         adminRights.setAccessControlRights(true);
         adminRights.setInfoRights(true);
         adminRights.setServerAdminRights(true);
         adminRights.setSystemConfigRights(true);
 
-        rasmgr::RasMgrConfig::getInstance()->setClientLifeTime(10);
-        rasmgr::RasMgrConfig::getInstance()->setClientManagementGarbageCollectionInterval(10);
         userManager.reset(new UserManager());
-        clientManager.reset(new ClientManager(userManager));
+        clientManager.reset(new ClientManager(userManager, config));
 
     }
 
@@ -72,6 +72,7 @@ protected:
     std::string clientId;
     std::string dbName;
     std::string sessionId;
+    ClientManagerConfig config;
 
     std::string serverHost;
     boost::int32_t serverPort;

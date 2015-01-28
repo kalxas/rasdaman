@@ -60,13 +60,14 @@ using rasnet::ProtoZmq;
 using rasnet::InternalDisconnectReply;
 using rasnet::InternalDisconnectRequest;
 
-
-ClientManager::ClientManager(boost::shared_ptr<UserManager> userManager)
+ClientManager::ClientManager(boost::shared_ptr<rasmgr::UserManager> userManager, const ClientManagerConfig& config):config(config)
 {
-    this->userManager=userManager;
+    this->userManager = userManager;
     this->controlEndpoint = "inproc://"+UUID::generateUUID();
+
     this->managementThread.reset(
         new thread(&ClientManager::evaluateClientsStatus, this));
+
     this->controlSocket.reset(new socket_t(this->context, ZMQ_PAIR));
     this->controlSocket->connect(this->controlEndpoint.c_str());
 }
@@ -95,7 +96,7 @@ ClientManager::~ClientManager()
     }
     catch (...)
     {
-        LERROR<<"ClientManager destructor failed";
+        LERROR<<"ClientManager destructor has failed";
     }
 }
 
@@ -115,7 +116,6 @@ void ClientManager::connectClient(const ClientCredentials& clientCredentials, st
         {
             //Lock access to this area.
             unique_lock<shared_mutex> lock(this->clientsMutex);
-
             //        Generate a UID for the client
             do
             {
@@ -123,7 +123,7 @@ void ClientManager::connectClient(const ClientCredentials& clientCredentials, st
             }
             while (this->clients.find(out_clientUUID) != this->clients.end());
 
-            shared_ptr<Client> client(new Client(out_clientUUID, out_user));
+            shared_ptr<Client> client(new Client(out_clientUUID, out_user, this->config.getClientLifeTime()));
 
             this->clients.insert(std::make_pair(out_clientUUID, client));
         }
@@ -158,11 +158,12 @@ void ClientManager::disconnectClient(const std::string& clientId)
 
         boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
         this->clients.erase(it);
-        LINFO<<"The client with ID:"<<clientId<<" has been removed from the list";
+
+        LINFO<<"The client with ID:\""<<clientId<<"\" has been removed from the list";
     }
     else
     {
-        LINFO<<"The client with ID:"<<clientId<<" was not present in the active clients list";
+        LINFO<<"The client with ID:\""<<clientId<<"\" was not present in the active clients list";
     }
 }
 
@@ -185,7 +186,7 @@ void ClientManager::openClientDbSession(std::string clientId, const std::string&
     }
     else
     {
-        throw runtime_error("Client:"+clientId+" is not part of the list of active clients.");
+        throw runtime_error("Client with id:\""+clientId+"\" is not part of the list of active clients.");
     }
 }
 
@@ -199,6 +200,10 @@ void ClientManager::closeClientDbSession(const std::string& clientId, const std:
     if(it!=this->clients.end())
     {
         it->second->removeDbSession(sessionId);
+    }
+    else
+    {
+        throw runtime_error("Client with id:\""+clientId+"\" is not part of the list of active clients.");
     }
 }
 
@@ -222,7 +227,6 @@ void ClientManager::keepClientAlive(const std::string& clientId)
 }
 
 
-
 void ClientManager::evaluateClientsStatus()
 {
     map<string, shared_ptr<Client> >::iterator it;
@@ -238,7 +242,7 @@ void ClientManager::evaluateClientsStatus()
 
         while (keepRunning)
         {
-            zmq::poll(items, 1, RasMgrConfig::getInstance()->getClientManagementGarbageCollectionInterval());
+            zmq::poll(items, 1, this->config.getCleanupInterval());
             if (items[0].revents & ZMQ_POLLIN)
             {
                 ProtoZmq::zmqReceive(control, controlMessage);
@@ -279,6 +283,5 @@ void ClientManager::evaluateClientsStatus()
         LERROR<<"Client management thread failed for unknown reason.";
     }
 }
-
 
 } /* namespace rasmgr */

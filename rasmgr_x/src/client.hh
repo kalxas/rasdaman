@@ -41,10 +41,11 @@ class Client
 public:
     /**
      * Initialize a new instance of the Client class.
-     * @param clientId UUID assigned to the client.
+     * @param clientId UUID assigned to the client by the client manager.
      * @param accessRights access rights this client has on the database
+     * @param lifeTime The number of milliseconds for how long the client is alive between pings.
      */
-    Client(std::string clientId, boost::shared_ptr<User> user);
+    Client(const std::string& clientId, boost::shared_ptr<User> user, boost::int32_t lifeTime);
 
     /**
      *
@@ -91,6 +92,11 @@ private:
 
     std::map<std::string, boost::weak_ptr<RasServer> > assignedServers; /*! Map between sessionIds and the server assigned for the session*/
     boost::shared_mutex assignedServersMutex; /*! Mutex used to synchronize access to the list of servers*/
+
+    bool isClientAliveOnServers();
+
+    bool removeDeadServers();
+
 };
 
 } /* namespace rnp */

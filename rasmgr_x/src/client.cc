@@ -39,12 +39,14 @@ using boost::shared_lock;
 using boost::shared_mutex;
 using boost::shared_ptr;
 using boost::unique_lock;
+using boost::upgrade_lock;
+using boost::upgrade_to_unique_lock;
 
-Client::Client(string clientId, boost::shared_ptr<User> user)
-    : timer(RasMgrConfig::getInstance()->getClientLifeTime())
+Client::Client(const string& clientId, boost::shared_ptr<User> user, boost::int32_t lifeTime)
+    : timer(lifeTime)
 {
     this->clientId = clientId;
-    this->user=user;
+    this->user = user;
 }
 
 const string& Client::getClientId() const
@@ -52,8 +54,7 @@ const string& Client::getClientId() const
     return this->clientId;
 }
 
-bool
-Client::isAlive()
+bool Client::isAlive()
 {
     bool isAlive = false;
 
@@ -61,41 +62,19 @@ Client::isAlive()
     //If the timer has expired we ask the servers if they know anything about the client
     if(this->timer.hasExpired())
     {
-        map<string, weak_ptr<RasServer> >::iterator it;
-        map<string, weak_ptr<RasServer> >::iterator toErase;
+        isAlive = this->isClientAliveOnServers();
 
-        boost::upgrade_lock<shared_mutex> serversLock(this->assignedServersMutex);
-
-        it = this->assignedServers.begin();
-        while(it != this->assignedServers.end())
+        //If we received information from a server that the client is alive,
+        //reset the time
+        if(isAlive)
         {
-            if(shared_ptr<RasServer> r = it->
-                                         second.lock())
-            {
-                //The client must be alive on at least one server
-                isAlive = isAlive || r->isClientAlive(this->clientId);
-                ++it;
-            }
-            else
-            {
-                //The server is dead,remove it
-                toErase = it;
-                ++it;
-
-                boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueServerLock(serversLock);
-                this->assignedServers.erase(toErase);
-            }
+            boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueTimerLock(timerLock);
+            this->timer.reset();
         }
     }
     else
     {
         isAlive=true;
-    }
-
-    if(isAlive)
-    {
-        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueTimerLock(timerLock);
-        this->timer.reset();
     }
 
     return isAlive;
@@ -123,63 +102,109 @@ void Client::addDbSession(const std::string& dbName,
 
     unique_lock<shared_mutex> lock(this->assignedServersMutex);
 
+    //Generate a unique session id.
     do
     {
         out_sessionId = UUID::generateUUID();
     }
     while(this->assignedServers.find(out_sessionId)!= this->assignedServers.end());
 
+    //Check if the client is allowed to access the db
     out_dbRights = this->user->getDefaultDbRights();
 
-    if(!out_dbRights.hasReadAccess() && !out_dbRights.hasWriteAccess())
-    {
-        throw runtime_error("User:"+this->user->getName()+" does not have access rights on database:"+dbName);
-    }
-    else
+    if(out_dbRights.hasReadAccess()  || out_dbRights.hasWriteAccess())
     {
         this->assignedServers[out_sessionId] = assignedServer;
         assignedServer->allocateClientSession(this->clientId, out_sessionId, dbName, out_dbRights);
+    }
+    else
+    {
+        throw runtime_error("User:\""+this->user->getName()
+                            +"\" does not have access rights on database:\""+dbName+"\"");
     }
 }
 
 void Client::removeDbSession(const string& sessionId)
 {
-    map<string, weak_ptr<RasServer> >::iterator it;
+    map<string, weak_ptr<RasServer> >::iterator assignedServerIt;
 
     unique_lock<shared_mutex> lock(this->assignedServersMutex);
 
-    it=this->assignedServers.find(sessionId);
-    if(it!=this->assignedServers.end())
+    assignedServerIt=this->assignedServers.find(sessionId);
+    if(assignedServerIt!=this->assignedServers.end())
     {
-        if(shared_ptr<RasServer> r = it->
-                                     second.lock())
+        if(shared_ptr<RasServer> server = assignedServerIt->second.lock())
         {
-            r->deallocateClientSession(this->clientId, sessionId);
+            server->deallocateClientSession(this->clientId, sessionId);
         }
-    }
 
-    this->assignedServers.erase(sessionId);
+        this->assignedServers.erase(sessionId);
+    }
 }
 
 void Client::removeClientFromServers()
 {
-    map<string, weak_ptr<RasServer> >::iterator it;
-    map<string, weak_ptr<RasServer> >::iterator toErase;
+    map<string, weak_ptr<RasServer> >::iterator serverIt;
+    upgrade_lock<shared_mutex> lock(this->assignedServersMutex);
 
-    unique_lock<shared_mutex> lock(this->assignedServersMutex);
-
-    it=this->assignedServers.begin();
-    while(it!=this->assignedServers.end())
+    for(serverIt=this->assignedServers.begin(); serverIt!=this->assignedServers.end(); ++serverIt)
     {
-        if(shared_ptr<RasServer>r=it->
-                                  second.lock())
+        if(shared_ptr<RasServer> server = serverIt->second.lock())
         {
-            r->deallocateClientSession(this->clientId, it->first);
+            server->deallocateClientSession(this->clientId, serverIt->first);
         }
-        toErase=it;
-        it++;
+    }
 
-        this->assignedServers.erase(toErase);
+    upgrade_to_unique_lock<shared_mutex> uniqueServerLock(lock);
+    this->assignedServers.clear();
+}
+
+bool Client::isClientAliveOnServers()
+{
+    bool isAlive=false;
+
+    map<string, weak_ptr<RasServer> >::iterator serverIt;
+    map<string, weak_ptr<RasServer> >::iterator assignedServerToEraseIt;
+
+    boost::upgrade_lock<shared_mutex> serversLock(this->assignedServersMutex);
+
+    for(serverIt=this->assignedServers.begin(); !isAlive && serverIt!=this->assignedServers.end(); ++serverIt)
+    {
+        if(shared_ptr<RasServer> server = serverIt->second.lock())
+        {
+            //The client must be alive on at least one server
+            isAlive = isAlive || server->isClientAlive(this->clientId);
+        }
+    }
+
+    //Remove the lock that we have on the list of servers
+    serversLock.unlock();
+
+    this->removeDeadServers();
+
+    return isAlive;
+}
+
+bool Client::removeDeadServers()
+{
+    map<string, weak_ptr<RasServer> >::iterator assignedServerIt;
+    map<string, weak_ptr<RasServer> >::iterator assignedServerToEraseIt;
+
+    unique_lock<shared_mutex> serversLock(this->assignedServersMutex);
+    assignedServerIt = this->assignedServers.begin();
+    while(assignedServerIt != this->assignedServers.end())
+    {
+        //Try to aquire a valid pointer to the assigned server
+        shared_ptr<RasServer> server = assignedServerIt->second.lock();
+
+        //The server is dead,remove it
+        assignedServerToEraseIt = assignedServerIt;
+        ++assignedServerIt;
+
+        if(!server)
+        {
+            this->assignedServers.erase(assignedServerToEraseIt);
+        }
     }
 }
 

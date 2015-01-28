@@ -41,6 +41,7 @@
 #include "rasmanager.hh"
 #include "controlcommandexecutor.hh"
 #include "rasmgrconfig.hh"
+#include "clientmanagerconfig.hh"
 
 namespace rasmgr
 {
@@ -69,7 +70,10 @@ void RasManager::start()
     shared_ptr<DatabaseHostManager> dbhManager ( new DatabaseHostManager() );
     shared_ptr<DatabaseManager> dbManager ( new DatabaseManager ( dbhManager ) );
     shared_ptr<ServerManager> serverManager ( new ServerManager ( dbhManager ) );
-    shared_ptr<ClientManager> clientManager ( new ClientManager ( userManager ) );
+
+    ClientManagerConfig clientManagerConfig(3000,3000);
+    shared_ptr<ClientManager> clientManager ( new ClientManager ( userManager,clientManagerConfig) );
+
     shared_ptr<RasControl> rascontrol ( new RasControl ( userManager, dbhManager, dbManager,serverManager , this) );
 
     shared_ptr<ControlCommandExecutor> commandExecutor ( new ControlCommandExecutor ( rascontrol ) );

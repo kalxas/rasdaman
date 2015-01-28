@@ -47,8 +47,9 @@ class ClientTest:public ::testing::Test
 {
 protected:
     ClientTest():clientId("clientId"),userName("userName"),userPassword("userPassword"),dbRights(true, true),
-            dbName("dbName"), sessionId("sessionId"), serverHost("tcp://localhost"),serverPort(7010)
+        dbName("dbName"), sessionId("sessionId"), serverHost("tcp://localhost"),serverPort(7010)
     {
+        clientLifeTime = 10;
         adminRights.setAccessControlRights(true);
         adminRights.setInfoRights(true);
         adminRights.setServerAdminRights(true);
@@ -56,9 +57,7 @@ protected:
 
         user.reset(new rasmgr::User(userName, userPassword, dbRights, adminRights));
 
-        rasmgr::RasMgrConfig::getInstance()->setClientLifeTime(100);
-
-        client.reset(new Client(clientId,user));
+        client.reset(new Client(clientId,user, clientLifeTime));
     }
 
     rasmgr::UserAdminRights adminRights;
@@ -71,6 +70,7 @@ protected:
     boost::shared_ptr<rasmgr::User> user;
     boost::shared_ptr<rasmgr::Client> client;
 
+    boost::int32_t clientLifeTime;
     std::string serverHost;
     boost::int32_t serverPort;
     boost::shared_ptr<rasmgr::DatabaseHost> dbHost;
@@ -81,11 +81,12 @@ TEST_F(ClientTest, isAliveNoSessions)
 
     ASSERT_TRUE(client->isAlive());
 
-    usleep(RasMgrConfig::getInstance()->getClientLifeTime()*1000);
+    usleep(this->clientLifeTime*1000);
 
     ASSERT_FALSE(client->isAlive());
 }
 
+//Test when the client has active servers
 TEST_F(ClientTest, isAliveWSessions)
 {
     boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
@@ -97,17 +98,35 @@ TEST_F(ClientTest, isAliveWSessions)
 
     client->addDbSession(dbName,server, out_sessionId);
 
-    usleep(RasMgrConfig::getInstance()->getClientLifeTime()*1000);
+    usleep(this->clientLifeTime*1000);
 
     //This will now return true because the server will confirm that the client is alive
     ASSERT_TRUE(client->isAlive());
+}
+
+TEST_F(ClientTest, isAliveClientDeadOnServers)
+{
+
+    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+    std::string out_sessionId;
+
+    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer*)server.get()), isClientAlive(clientId)).WillOnce(Return(false));
+    ASSERT_TRUE(client->isAlive());
+
+    client->addDbSession(dbName,server, out_sessionId);
+
+    usleep(this->clientLifeTime*1000);
+
+    //This will now return true because the server will confirm that the client is alive
+    ASSERT_FALSE(client->isAlive());
 }
 
 TEST_F(ClientTest, resetLiveliness)
 {
     ASSERT_TRUE(client->isAlive());
 
-    usleep(RasMgrConfig::getInstance()->getClientLifeTime()*1000);
+    usleep(this->clientLifeTime*1000);
 
     ASSERT_FALSE(client->isAlive());
 
@@ -147,7 +166,6 @@ TEST_F(ClientTest, removeDbSession)
     std::string out_sessionId;
     boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
 
-
     EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);
     EXPECT_CALL(*((MockRasServer*)server.get()), deallocateClientSession(clientId,_)).Times(1);
 
@@ -159,13 +177,13 @@ TEST_F(ClientTest, removeDbSession)
 
 TEST_F(ClientTest, removeClientFromServers)
 {
-  std::string out_sessionId;
-  boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+    std::string out_sessionId;
+    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
 
 
-  EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);
-  EXPECT_CALL(*((MockRasServer*)server.get()), deallocateClientSession(clientId,_)).Times(1);
+    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);
+    EXPECT_CALL(*((MockRasServer*)server.get()), deallocateClientSession(clientId,_)).Times(1);
 
-  EXPECT_NO_THROW(client->addDbSession(dbName,server, out_sessionId));
-  EXPECT_NO_THROW(client->removeClientFromServers());
+    EXPECT_NO_THROW(client->addDbSession(dbName,server, out_sessionId));
+    EXPECT_NO_THROW(client->removeClientFromServers());
 }

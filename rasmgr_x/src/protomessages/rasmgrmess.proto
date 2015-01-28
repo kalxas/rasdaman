@@ -160,14 +160,14 @@ message DefineOutpeer{
 
 //END: Peer messages
 
-message AdminRightsProto {
+message UserAdminRightsProto {
 	required bool access_control_rights = 1;
 	required bool info_rights = 2;
 	required bool server_admin_rights = 3;
 	required bool system_config_rights = 4;
 }
 
-message DatabaseRightsProto {
+message UserDatabaseRightsProto {
 	optional bool read = 1;
 	optional bool write = 2;
 }
@@ -175,8 +175,8 @@ message DatabaseRightsProto {
 message UserProto {
 	required string name = 1;
 	required string password = 2;
-	required AdminRightsProto admin_rights = 3;
-	required DatabaseRightsProto default_db_rights = 4;
+    required UserAdminRightsProto admin_rights = 3;
+    required UserDatabaseRightsProto default_db_rights = 4;
 }
 
 message UserListProto {

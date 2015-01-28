@@ -4,22 +4,27 @@ The aim of this document is to document the classes that have been tested and wh
 remains to be tested.
 
 Client: 100% test coverage
-ClientCredentials:Nothing to be tested. (1)
+ClientCredentials: Nothing to be tested. (1)
 ClientManagementService:
 ClientManager: 100% test coverage
+ClientManagerConfig: Nothing to be tested. (1)
+
 Database: 100% test coverage
 DatabaseHost: 100% test coverage
 DatabaseHostManager: 100% test coverage
 DatabaseManager: 100% test coverage
+
 RasMgrConfig: Nothing to be tested. (1)
 RasServer: TODO: Test the start and stop method once it is finished.
+
 ServerGroup:
 ServerGroupConfig: Nothing to be tested. (1)
 ServerManagementService:
 ServerManager:
+
 User: Nothing to be tested. (1)
-UserAdminRights:Nothing to be tested.(1)
-UserDatabaseRights: Nothing to be tested.(1)
+UserAdminRights:100% test coverage.
+UserDatabaseRights: 100% test coverage.
 UserManager: 100% test coverage
 
 1:The class is a plain object used for storing data.

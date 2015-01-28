@@ -39,17 +39,27 @@
 #include "client.hh"
 #include "clientcredentials.hh"
 #include "servermanager.hh"
+#include "clientmanagerconfig.hh"
 
 namespace rasmgr
 {
 
+/**
+ * @brief The ClientManager class maintains the list of active clients,
+ * it registers and deregisters clients. It allows clients to open and close db sessions.
+ * In the current version, the ClientManager runs a cleanup thread at a fixed interval
+ * that removes dead clients from the registry.
+ */
 class ClientManager
 {
 public:
     /**
-     * Initialize a new instance of the ClientManager class.
+     * @brief ClientManager
+     * @param userManager Instance of the user manager that holds information
+     * about registered users. It is needed to evaluate the access credentials
+     * of each client
      */
-    ClientManager(boost::shared_ptr<UserManager> userManager);
+    ClientManager(boost::shared_ptr<UserManager> userManager, const ClientManagerConfig& config);
 
     /**
      * Destruct the ClientManager class object.
@@ -66,13 +76,13 @@ public:
      * @return the UUID assigned to the client.
      * @throws std::runtime_error
      */
-    void connectClient(const ClientCredentials& clientCredentials, std::string& out_clientUUID);
+    virtual void connectClient(const ClientCredentials& clientCredentials, std::string& out_clientUUID);
 
     /**
      * Disconnect the client from RasMgr and remove its information from RasMgr database.
      * @param clientId UUID of the client that will be removed.
      */
-    void disconnectClient(const std::string& clientId);
+    virtual void disconnectClient(const std::string& clientId);
 
     /**
      * @brief openClientDbSession Open a database session for the client with the given id and provide a unique session id.
@@ -81,21 +91,27 @@ public:
      * @param assignedServer  RasServer that will be assigned to the client if this operation succeeds.
      * @param out_sessionId  Session ID that will uniquely identify this session together with the clientID.
      */
-    void openClientDbSession(std::string clientId, const std::string& dbName,boost::shared_ptr<RasServer> assignedServer, std::string& out_sessionId);
-
-    void closeClientDbSession(const std::string& clientId, const std::string& sessionId);
+    virtual void openClientDbSession(std::string clientId, const std::string& dbName,boost::shared_ptr<RasServer> assignedServer, std::string& out_sessionId);
 
     /**
-     * Extend the liveliness of the client and prevent it
-     * from being removed from RasMgr database from the list of active clients.
+     * @brief closeClientDbSession Remove a client session from the client manager and the servers
+     * @param clientId ID that uniquely identifies a client
+     * @param sessionId ID that uniquely identifies a session with respect to a client
+     */
+    virtual void closeClientDbSession(const std::string& clientId, const std::string& sessionId);
+
+    /**
+     * Extend the liveliness of the client and prevent it from being removed
+     * from RasMgr database from the list of active clients.
      * @param clientId UUID of the client
      */
-    void keepClientAlive(const std::string& clientId);
+    virtual void keepClientAlive(const std::string& clientId);
 
 private:
-    zmq::context_t context;
-    boost::scoped_ptr<zmq::socket_t> controlSocket;
-    std::string controlEndpoint;
+    ClientManagerConfig config;
+    zmq::context_t context;/*!< ZMQ context used for inter thread communication */
+    boost::scoped_ptr<zmq::socket_t> controlSocket; /*!<Socket for inter-thread communication */
+    std::string controlEndpoint; /*!<Endpoint used for inter-thread communication */
 
     boost::scoped_ptr<boost::thread> managementThread; /*! Thread used to manage the list of clients and remove dead ones */
 
@@ -107,7 +123,6 @@ private:
      * Evaluate the list of clients and remove the ones that have died.
      */
     void evaluateClientsStatus();
-
 };
 
 } /* namespace rasmgr */
