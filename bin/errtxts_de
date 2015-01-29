@@ -1,4 +1,4 @@
-204
+205
 # Increment the number above every time you add a new exception
 #
 # Increment the number above every time you add a new exception
@@ -161,6 +161,7 @@
 429^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Wenigstens ein Ergebnis-Typ ist nicht Basistyp oder MDD.
 430^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Die Ergebnisse haben inkompatible Typen.
 431^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Mindestens eine Bedingung ist kein boolean.
+433^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Division durch null.
 #
 499^E^Ausführungsfehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Sprachmerkmal wird nicht unterstützt.
 #

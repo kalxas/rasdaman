@@ -1,4 +1,4 @@
-214
+215
 # Increment the number above every time you add a new exception
 # (no of error codes - 1)
 #
@@ -156,6 +156,7 @@
 429^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Au moins un type de résultat n'est pas type de base ou MDD.
 430^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Les résultats ont des types incompatible.
 431^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Au moins une des conditions n'est pas booléene.
+433^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Division par zéro.
 #
 499^E^Erreur d'execution $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Le concept Language n'est pas supporte.
 #
