@@ -43,7 +43,7 @@ IntegralType::convertToCDouble(const char* cell, double* value) const {
 
 inline char* 
 IntegralType::makeFromCULong(char* cell, const r_ULong* value) const {
-	return this->makeFromCLong(cell, (r_Long *)value);
+	return this->makeFromCLong(cell, (r_Long *)const_cast<r_ULong*>(value));
 }
         
 inline char* 

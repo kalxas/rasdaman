@@ -120,13 +120,13 @@ ShortType::~ShortType()
 void 
 ShortType::printCell( ostream& stream, const char* cell ) const
 {
-  stream << std::setw(5) << *(short*)cell;
+  stream << std::setw(5) << *(short*)const_cast<char*>(cell);
 }
 
 r_Long*
 ShortType::convertToCLong(const char* cell, r_Long* value) const
 {
-  *value = *(short*)cell;
+  *value = *(short*)const_cast<char*>(cell);
   return value;
 }
 

@@ -150,7 +150,7 @@ public:
     ///
     inline void setIteratorName( const std::string & iteratorNameNew );
     ///
-    inline QtLifetime const getLifetime() const;
+    inline QtLifetime getLifetime() const;
     ///
     inline void setLifetime( QtLifetime flag );
     /// return number of references to the self object

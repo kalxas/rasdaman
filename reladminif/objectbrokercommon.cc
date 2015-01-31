@@ -1054,9 +1054,13 @@ ObjectBroker::deregisterTileIndexMapping(const OId& tileoid, const OId& indexoid
     OIdPair p(tileoid, indexoid);
     OIdMap::iterator i = theTileIndexMappings.find(tileoid);
     if (i != theTileIndexMappings.end())
+    {
         theTileIndexMappings.erase(i);
+    }
     else
+    {
         RMDBGONCE(0, RMDebug::module_adminif, "ObjectBroker", "deregisterIndexTileMapping(" << indexoid << ", " << tileoid << ") NOT FOUND");
+    }
 }
 
 OIdSet*

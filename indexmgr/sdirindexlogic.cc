@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: dirix.cc
  *
@@ -40,13 +40,13 @@ static const char rcsiddirix[] = "@(#)dirix, SDirIndexLogic: $Id: sdirindexlogic
 
 
 bool
-SDirIndexLogic::insertObject(IndexDS* ixDS, const KeyObject& newKeyObject, const StorageLayout& sl)
+SDirIndexLogic::insertObject(IndexDS* ixDS, const KeyObject& newKeyObject, __attribute__ ((unused)) const StorageLayout& sl)
 {
     RMDBGENTER(4, RMDebug::module_indexmgr, "SDirIndexLogic", "insertObject(" << newKeyObject << ")");
     r_Minterval newKeyObjectDomain = newKeyObject.getDomain();
 
     int pos = binarySearch(ixDS, newKeyObjectDomain, Lowest, 0, (int)ixDS->getSize()-1);
-    ixDS->insertObject(newKeyObject, pos + 1);
+    ixDS->insertObject(newKeyObject, static_cast<unsigned int>(pos + 1));
     RMDBGEXIT(4, RMDebug::module_indexmgr, "SDirIndexLogic", "insertObject(" << newKeyObject << ")");
     //should check if insertion was succesfull
     return true;
@@ -69,7 +69,7 @@ SDirIndexLogic::binarySearch(   const IndexDS* ixDS,
     else
     {
         middle = (last + first) /2;
-        compResult = compare(newDomain, ixDS->getObjectDomain(middle), o , o);
+        compResult = compare(newDomain, ixDS->getObjectDomain(static_cast<unsigned int>(middle)), o , o);
         if (compResult < 0)
             retval = binarySearch(ixDS, newDomain, o, first, middle - 1);
         else if (compResult > 0)
@@ -101,7 +101,7 @@ SDirIndexLogic::binaryPointSearch(  const IndexDS* ixDS,
     else
     {
         middle = (last + first) /2;
-        KeyObjectDomain = ixDS->getObjectDomain(middle);
+        KeyObjectDomain = ixDS->getObjectDomain(static_cast<unsigned int>(middle));
         if (KeyObjectDomain.covers(pnt) == 1)
             retval = middle;
         else
@@ -117,6 +117,7 @@ SDirIndexLogic::binaryPointSearch(  const IndexDS* ixDS,
             case None:
                 RMDBGENTER(4, RMDebug::module_indexmgr, "SDirIndexLogic", "binaryPointSearch(...) o is None");
                 break;
+            default: break;
             }
 
             compResult = pnt.compare_with(pnt2);
@@ -165,7 +166,7 @@ SDirIndexLogic::binaryRegionSearch( const IndexDS* ixDS,
     else
     {
         middle = (last + first) / 2;
-        t = ixDS->getObjectDomain(middle);
+        t = ixDS->getObjectDomain(static_cast<unsigned int>(middle));
         if (mint.get_high().compare_with(t.get_origin()) < 0)
         {
             // R.hi < tile.lo  no tiles after this one
@@ -186,7 +187,7 @@ SDirIndexLogic::binaryRegionSearch( const IndexDS* ixDS,
                 //starting to search forward, starting in the middle
                 while (true)
                 {
-                    objDomain = ixDS->getObjectDomain(ix);
+                    objDomain = ixDS->getObjectDomain(static_cast<unsigned int>(ix));
                     compResult = mint.get_high().compare_with(objDomain.get_origin());
                     RMDBGMIDDLE(4, RMDebug::module_indexmgr, "SDirIndexLogic", "position " << ix << " last " << last << " incrementor " << inc << " object domain " << objDomain << " compare " << compResult);
                     // object intersects region
@@ -195,7 +196,7 @@ SDirIndexLogic::binaryRegionSearch( const IndexDS* ixDS,
                         intersectedRegion = objDomain;
                         intersectedRegion.intersection_with(mint);
                         area = area - intersectedRegion.cell_count();
-                        newObj = ixDS->getObject(ix);
+                        newObj = ixDS->getObject(static_cast<unsigned int>(ix));
                         intersectedObjects.push_back(newObj);
                         RMDBGMIDDLE(4, RMDebug::module_indexmgr, "SDirIndexLogic", "added one entry, intersected region " << intersectedRegion << " area left " << area);
                     }
@@ -247,6 +248,7 @@ SDirIndexLogic::compare(const r_Minterval& mint1,
     case None:
         RMDBGENTER(4, RMDebug::module_indexmgr, "SDirIndexLogic", "compare(...) o1 is None");
         break;
+    default: break;
     }
     switch(o2)
     {
@@ -259,13 +261,14 @@ SDirIndexLogic::compare(const r_Minterval& mint1,
     case None:
         RMDBGENTER(4, RMDebug::module_indexmgr, "SDirIndexLogic", "compare(...) o2 is None");
         break;
+    default: break;
     }
     RMDBGEXIT(4, RMDebug::module_indexmgr, "SDirIndexLogic", "compare(" << mint1 << ", " << mint2 << ", " << (int)o1 << ", " << (int)o2 << ") " << point1.compare_with(point2));
     return point1.compare_with(point2);
 }
 
 void
-SDirIndexLogic::intersect(const IndexDS* ixDS, const r_Minterval& searchInter, KeyObjectVector& intersectedObjs, const StorageLayout& sl)
+SDirIndexLogic::intersect(const IndexDS* ixDS, const r_Minterval& searchInter, KeyObjectVector& intersectedObjs, __attribute__ ((unused)) const StorageLayout& sl)
 {
     RMDBGENTER(4, RMDebug::module_indexmgr, "SDirIndexLogic", "intersect(" << searchInter << ")");
     r_Area area = 0;
@@ -293,7 +296,7 @@ void
 SDirIndexLogic::intersectUnOpt(const IndexDS* ixDS, const r_Minterval& searchInter, KeyObjectVector& intersectedObjs)
 {
     RMDBGENTER(4, RMDebug::module_indexmgr, "SDirIndexLogic", "intersectUnOpt(" << searchInter << ")");
-    for(int i=0; i< ixDS->getSize(); i++)
+    for(unsigned int i=0; i< ixDS->getSize(); i++)
     {
         r_Minterval objInterval = ixDS->getObjectDomain(i);
         if (searchInter.intersects_with(objInterval))
@@ -306,7 +309,7 @@ SDirIndexLogic::intersectUnOpt(const IndexDS* ixDS, const r_Minterval& searchInt
 }
 
 void
-SDirIndexLogic::containPointQuery(const IndexDS* ixDS, const r_Point& searchPoint, KeyObject& result, const StorageLayout& sl)
+SDirIndexLogic::containPointQuery(const IndexDS* ixDS, const r_Point& searchPoint, KeyObject& result, __attribute__ ((unused)) const StorageLayout& sl)
 {
     RMDBGENTER(4, RMDebug::module_indexmgr, "SDirIndexLogic", "containPointQuery(" << searchPoint << ")");
     int ix = binaryPointSearch(ixDS, searchPoint, Lowest, 0, (int) ixDS->getSize() - 1);
@@ -314,7 +317,7 @@ SDirIndexLogic::containPointQuery(const IndexDS* ixDS, const r_Point& searchPoin
 
     if (ix >= 0)
     {
-        result = ixDS->getObject(ix);
+        result = ixDS->getObject(static_cast<unsigned int>(ix));
         RMDBGEXIT(4, RMDebug::module_indexmgr, "SDirIndexLogic", "containPointQuery(" << searchPoint << ") " << result);
     }
     else
@@ -324,14 +327,14 @@ SDirIndexLogic::containPointQuery(const IndexDS* ixDS, const r_Point& searchPoin
 }
 
 void
-SDirIndexLogic::getObjects(const IndexDS* ixDS, KeyObjectVector& objs, const StorageLayout& sl)
+SDirIndexLogic::getObjects(const IndexDS* ixDS, KeyObjectVector& objs, __attribute__ ((unused)) const StorageLayout& sl)
 {
     RMDBGONCE(4, RMDebug::module_indexmgr, "SDirIndexLogic", "getObjects()");
     ixDS->getObjects(objs);
 }
 
 bool
-SDirIndexLogic::removeObject(IndexDS* ixDS, const KeyObject& objToRemove, const StorageLayout& sl)
+SDirIndexLogic::removeObject(IndexDS* ixDS, const KeyObject& objToRemove, __attribute__ ((unused)) const StorageLayout& sl)
 {
     RMDBGONCE(4, RMDebug::module_indexmgr, "SDirIndexLogic", "removeObject(" << objToRemove << ")");
     return ixDS->removeObject(objToRemove);

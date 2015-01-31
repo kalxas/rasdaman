@@ -62,8 +62,8 @@ operator<<(std::ostream& s, EOId& d )
 
 EOId::EOId(const char* systemname, const char* dbname, OId::OIdCounter id, OId::OIdType type)
     :   OId(id, type),
-        systemName(systemname),
-        databaseName(dbname)
+        databaseName(dbname),
+        systemName(systemname)
 {
     RMDBGONCE(10, RMDebug::module_adminif, "EOId", "EOId(" << systemname << "," << dbname << "," << id << "," << type << ")");
 }

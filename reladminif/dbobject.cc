@@ -64,7 +64,7 @@ void
 DBObject::printStatus(unsigned int level, std::ostream& stream) const
 {
     char* indent = new char[level*2 +1];
-    for (int j = 0; j < level*2 ; j++)
+    for (unsigned int j = 0; j < level*2 ; j++)
         indent[j] = ' ';
     indent[level*2] = '\0';
 
@@ -165,25 +165,25 @@ DBObject::getReferenceCount(void) const
 
 //public:
 DBObject::DBObject()
-    :   _isInDatabase(false),
-        _isPersistent(false),
+    :   _isPersistent(false),
+        _isInDatabase(false),
         _isModified(true),
         _isCached(false),
-        referenceCount(0),
+        myOId(0),
         objecttype(OId::INVALID),
-        myOId(0)
+        referenceCount(0)
 {
     RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "DBObject() " << myOId);
 }
 
 DBObject::DBObject(const DBObject& old)
-    :   _isInDatabase(old._isInDatabase),
-        _isPersistent(old._isPersistent),
+    :   _isPersistent(old._isPersistent),
+        _isInDatabase(old._isInDatabase),
         _isModified(old._isModified),
         _isCached(old._isCached),
-        referenceCount(old.referenceCount),
+        myOId(old.myOId),
         objecttype(old.objecttype),
-        myOId(old.myOId)
+        referenceCount(old.referenceCount)
 {
     RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "DBObject(const DBObject& old)" << myOId);
 }
@@ -191,10 +191,10 @@ DBObject::DBObject(const DBObject& old)
 //constructs an object and reads it from the database.  the oid must match the type of the object.
 //a r_Error::r_Error_ObjectUnknown is thrown when the oid is not in the database.
 DBObject::DBObject(const OId& id) throw (r_Error)
-    :   referenceCount(0),
-        _isCached(false),
+    :   _isCached(false),
         myOId(id),
-        objecttype(id.getType())
+        objecttype(id.getType()),
+        referenceCount(0)
 {
     //flags must be set by readFromDb()
     RMDBGONCE(10, RMDebug::module_adminif, "DBObject", "DBObject(" << myOId << ")");
@@ -458,7 +458,7 @@ DBObject::getBinaryRepresentation() const throw (r_Error)
 }
 
 void
-DBObject::setBinaryRepresentation(const BinaryRepresentation& br) throw (r_Error)
+DBObject::setBinaryRepresentation(__attribute__ ((unused)) const BinaryRepresentation& br) throw (r_Error)
 {
     RMInit::logOut << "setBinaryRepresentation() for " << objecttype << " not implemented" << endl;
     throw r_Error(BINARYIMPORTNOTSUPPORTEDFOROBJECT);

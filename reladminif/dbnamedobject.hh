@@ -75,7 +75,7 @@ public:
     returns a pointer to myName.
     */
 
-    static short MAXNAMELENGTH;
+    static unsigned int MAXNAMELENGTH;
     /*@Doc:
     the maximum length of a name.
     */

@@ -68,7 +68,7 @@ CharType::CharType(const CharType& old)
 	{
 	}
 
-CharType::CharType(const OId& id) throw (r_Error)
+CharType::CharType(__attribute__ ((unused)) const OId& id) throw (r_Error)
 	:	UIntegralType(OId(CHAR, OId::ATOMICTYPEOID))
 	{
 	readFromDb();
@@ -131,7 +131,7 @@ void
 CharType::printCell( ostream& stream, const char* cell ) const
 {
   // !!!! HP specific, assumes 1 Byte char
-  stream << std::setw(4) << (r_Long)(*(unsigned char*)cell);
+  stream << std::setw(4) << (r_Long)(*(unsigned char*)const_cast<char*>(cell));
 }
 
 r_ULong*
@@ -139,7 +139,7 @@ CharType::convertToCULong(const char* cell, r_ULong* value) const
 {
   // !!!! HP specific, assumes 4 Byte long and MSB..LSB 
   // byte order
-  *value = *(unsigned char*)cell;
+  *value = *(unsigned char*)const_cast<char*>(cell);
   return value;
 }
 
@@ -150,7 +150,6 @@ CharType::makeFromCULong(char* cell, const r_ULong* value) const
 	r_ULong myLong = *value;
 	//restricting long to value range of short
 	myLong = myLong > UCHAR_MAX ? UCHAR_MAX : myLong;
-	myLong = myLong < 0 ? 0 : myLong;
 	// !!!! HP specific, assumes 4 Byte long and MSB..LSB
 	// byte order  
 	*(unsigned char*)(cell)=(unsigned char)myLong;

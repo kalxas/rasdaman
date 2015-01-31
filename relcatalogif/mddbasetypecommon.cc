@@ -143,7 +143,7 @@ MDDBaseType::compatibleWith(const Type* aType) const
 {
     RMDBGENTER(11, RMDebug::module_catalogif, "MDDBaseType", "compatibleWith(" << aType->getName() << ") " << getName());
     int retval;
-    if( ((MDDType*)aType)->getSubtype() != MDDBASETYPE && ((MDDType*)aType)->getSubtype() != MDDDOMAINTYPE && ((MDDType*)aType)->getSubtype() != MDDDIMENSIONTYPE )
+    if( ((MDDType*)const_cast<Type*>(aType))->getSubtype() != MDDBASETYPE && ((MDDType*)const_cast<Type*>(aType))->getSubtype() != MDDDOMAINTYPE && ((MDDType*)const_cast<Type*>(aType))->getSubtype() != MDDDIMENSIONTYPE )
     {
         RMDBGMIDDLE(11, RMDebug::module_catalogif, "MDDBaseType", "not mddbasetype or subclass");
         retval = 0;
@@ -151,7 +151,7 @@ MDDBaseType::compatibleWith(const Type* aType) const
     else
     {
         // myBaseType has to be specified
-        if( myBaseType->compatibleWith(((MDDBaseType*)aType)->getBaseType()) )
+        if( myBaseType->compatibleWith(((MDDBaseType*)const_cast<Type*>(aType))->getBaseType()) )
         {
             retval = 1;
         }

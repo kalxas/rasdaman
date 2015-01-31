@@ -57,11 +57,11 @@ KeyObject::KeyObject(const Tile* tile)
 {
     if (tile->isPersistent())
     {
-        persobject = (const DBObjectId&)((Tile*)tile)->getDBTile();
+        persobject = (const DBObjectId&)(const_cast<Tile*>(tile))->getDBTile();
     }
     else
     {
-        transobject = (Tile*)tile;
+        transobject = const_cast<Tile*>(tile);
     }
 }
 
@@ -87,7 +87,7 @@ void
 KeyObject::setTransObject(const Tile* tile)
 {
     domain = tile->getDomain();
-    transobject = (Tile*)tile;
+    transobject = const_cast<Tile*>(tile);
 }
 
 void

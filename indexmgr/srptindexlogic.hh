@@ -36,6 +36,8 @@ class StorageLayout;
  *  @ingroup indexmgr
  */
 
+void clear(KeyObjectVector& keyvec, HierIndexDS* node);
+
 /*@Doc:
 This class contains the logic for access, insertion and removal of objects
 into an index data structure.  The logic is based on the R-Plus Tree.  Objects

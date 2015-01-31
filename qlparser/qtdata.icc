@@ -41,7 +41,7 @@ QtData::getIteratorName() const
 }
 
 
-inline const QtData::QtLifetime
+inline QtData::QtLifetime
 QtData::getLifetime() const
 {
   return persistent;

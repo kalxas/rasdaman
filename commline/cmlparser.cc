@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: cmlparser.cc
  *
@@ -611,7 +611,7 @@ bool CommandLineParser::isPresent(char shortName) throw(CmlException)
 {
     StringParameter *sp;
     FlagParameter *fp;
-    bool result;
+    bool result = false;
 
     CommandLineParameter &cml = getParameter(shortName);
     if ((sp = dynamic_cast<StringParameter*>(&cml)))
@@ -625,7 +625,7 @@ bool CommandLineParser::isPresent(const char* longName) throw(CmlException)
 {
     StringParameter *sp;
     FlagParameter *fp;
-    bool result;
+    bool result = false;
 
     CommandLineParameter &cml = getParameter(longName);
     if ((sp = dynamic_cast<StringParameter*>(&cml)))
@@ -879,7 +879,7 @@ bool CommandLineParser::testProcessCommandLine(const char *testCml)
             (*iter)->reset();
         }
         //process commandline
-        processCommandLine(argc, argv);
+        processCommandLine(static_cast<int>(argc), argv);
     }
     catch(CmlException &e)
     {

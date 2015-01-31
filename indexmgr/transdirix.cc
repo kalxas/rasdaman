@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: transdirix.cc
  *
@@ -78,7 +78,7 @@ TransDirIx::TransDirIx(r_Dimension dim)
 }
 
 void
-TransDirIx::printStatus(unsigned int level, std::ostream& stream) const
+TransDirIx::printStatus(__attribute__ ((unused)) unsigned int level, std::ostream& stream) const
 {
     stream << "TransDirIx " << currDomain << endl;
     KeyObjectVector::const_iterator entryIt = tiles.begin();
@@ -95,7 +95,7 @@ TransDirIx::printStatus(unsigned int level, std::ostream& stream) const
 void
 TransDirIx::insertObject(const KeyObject& newKeyObject, unsigned int pos)
 {
-    if (pos < 0 || pos > getSize())
+    if (pos > getSize())
     {
         RMInit::logOut << "TransDirIx::insertObject(" << newKeyObject << ", " << pos << ") pos out of range" << endl;
         throw r_Error(TRANSIENT_INDEX_OUT_OF_BOUNDS);
@@ -201,8 +201,8 @@ TransDirIx::getObjectDomains(void) const
 {
     std::vector< r_Minterval* >* te = new std::vector< r_Minterval* >();
     te->reserve(tiles.size());
-    int end = tiles.size();
-    for (int i = 0; i < end; i++)
+    unsigned int end = tiles.size();
+    for (unsigned int i = 0; i < end; i++)
     {
         (*te)[i] = new r_Minterval(tiles[i].getDomain());
     }

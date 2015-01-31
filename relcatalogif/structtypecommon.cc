@@ -57,17 +57,17 @@ r_Bytes
 StructType::getMemorySize() const
 {
     r_Bytes retval = DBNamedObject::getMemorySize() + sizeof(int) + sizeof(int) + sizeof(std::vector< BaseType* >) + sizeof(std::vector< unsigned int >) + sizeof(std::vector< char* >) + sizeof(int) * numElems + sizeof(BaseType*) * numElems;
-    for (int i = 0; i < numElems; i++)
+    for (unsigned int i = 0; i < numElems; i++)
         retval = retval + 1 + strlen(elementNames[i]);
     return retval;
 }
 
 StructType::StructType()
     :   CompositeType("unnamed structtype", 0),
-        numElems(0),
         elements(0),
         elementNames(0),
         elementOffsets(0),
+        numElems(0),
         align(1)
 {
     myType = STRUCT;
@@ -147,7 +147,7 @@ StructType::~StructType()
 {
     ObjectBroker::deregisterDBObject(myOId);
     validate();
-    for (int i = 0; i < getNumElems(); i++)
+    for (unsigned int i = 0; i < getNumElems(); i++)
         free((void*)elementNames[i]);//is ok because noone is using it
 }
 
@@ -168,10 +168,10 @@ StructType::~StructType()
 void
 StructType::printCell( ostream& stream, const char* cell ) const
 {
-    int i;
+    unsigned int i;
 
     stream << "\t|";
-    for(i=0; i<numElems; i++)
+    for(i=0; i< numElems; i++)
     {
         stream << elementNames[i] << "\t: ";
         elements[i]->printCell(stream, cell + elementOffsets[i]);
@@ -187,7 +187,7 @@ StructType::getTypeStructure() const
     // an intelligent string class
     char* result = (char*)mymalloc(10);
     char* newResult;
-    int i;
+    unsigned int i;
 
     strcpy(result, "struct { ");
     if(numElems == 0)
@@ -248,7 +248,7 @@ StructType::addElement(const char* elemName, const BaseType* newType)
 unsigned int
 StructType::addElementPriv(const char* elemName, const BaseType* newType)
 {
-    int currPos = 0;
+    unsigned int currPos = 0;
     int i, j;
     char* myElemName = 0;
 
@@ -276,7 +276,7 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
         // The array has to be ordered by offsets.
         if(newType->getType() == STRUCT)
         {
-            unsigned int myAlign = ((StructType*)(newType))->getAlignment();
+            unsigned int myAlign = (static_cast<StructType*>(const_cast<BaseType*>(newType)))->getAlignment();
             if( align < myAlign )
                 align = myAlign;
             // append at the end, align offset to 4 bytes.
@@ -338,10 +338,10 @@ unsigned int
 StructType::getOffset(const char* elemName) const
 {
     RMDBGENTER(6, RMDebug::module_catalogif, "StructType", "getOffset(" << elemName << ") " << getName() << " " << myOId);
-    int i;
+    unsigned int i;
     unsigned int retval = 0;
     bool found = false;
-    for(i=0; i<numElems; i++)
+    for(i=0; i< numElems; i++)
     {
         if(strcmp(elementNames[i], elemName) == 0)
         {
@@ -379,9 +379,9 @@ StructType::getElemType(const char* elemName) const
 {
     RMDBGENTER(6, RMDebug::module_catalogif, "StructType", "getElemType(" << elemName << ") " << getName() << " " << myOId);
     const BaseType* retval = 0;
-    int i;
+    unsigned int i;
 
-    for(i=0; i<numElems; i++)
+    for(i=0; i< numElems; i++)
     {
         if(strcmp(elementNames[i], elemName) == 0)
         {
@@ -412,7 +412,7 @@ StructType::getElemType(unsigned int num) const
     return elements[num];
 }
 
-const char* const
+const char*
 StructType::getElemName(unsigned int num) const
 {
     if(!(num < numElems))
@@ -439,14 +439,14 @@ StructType::getAlignment() const
 int
 StructType::contains(const StructType* aStruct) const
 {
-    int i;
+    unsigned int i;
 
-    for(i=0; i<numElems; i++)
+    for(i=0; i< numElems; i++)
     {
         if(elements[i] == aStruct)
             return 1;
         else if(elements[i]->getType() == STRUCT)
-            if(((StructType*)elements[i])->contains(aStruct))
+            if((static_cast<StructType*>(const_cast<BaseType*>(elements[i])))->contains(aStruct))
                 return 1;
     }
     return 0;
@@ -464,7 +464,7 @@ StructType::compatibleWith(const Type* aType) const
     }
     else
     {
-        if(elements.size() != ((StructType*)aType)->elements.size())
+        if(elements.size() != (static_cast<StructType*>(const_cast<Type*>(aType)))->elements.size())
         {
             RMDBGMIDDLE(8, RMDebug::module_catalogif, "StructType", "not the same size");
             retval = 0;
@@ -474,13 +474,13 @@ StructType::compatibleWith(const Type* aType) const
             const BaseType* myBaseType;
             const BaseType* otherBaseType;
 
-            int i;
+            unsigned int i;
 
             retval = 1;
             for( i = 0; i < elements.size(); i++ )
             {
                 myBaseType = elements[i];
-                otherBaseType = ((StructType*)aType)->elements[i];
+                otherBaseType = (static_cast<StructType*>(const_cast<Type*>(aType)))->elements[i];
                 if(!myBaseType->compatibleWith(otherBaseType))
                 {
                     RMDBGMIDDLE(8, RMDebug::module_catalogif, "StructType", i << ". element " << otherBaseType->getName() << " does not match " << myBaseType);
@@ -497,10 +497,10 @@ StructType::compatibleWith(const Type* aType) const
 void
 StructType::calcSize()
 {
-    int alignSize = 1;
+    unsigned int alignSize = 1;
 
     // check for alignment of size
-    for(int i=0; i<numElems; i++)
+    for(unsigned int i=0; i< numElems; i++)
     {
         if( elements[i]->getSize() == 4 || elements[i]->getType() == STRUCT )
         {

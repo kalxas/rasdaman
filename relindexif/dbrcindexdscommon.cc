@@ -47,11 +47,11 @@ rasdaman GmbH.
 
 DBRCIndexDS::DBRCIndexDS(const OId& id)
     :   IndexDS(id),
-        currentDbRows(0),
-        myDomain(0),
         myBaseCounter(0),
         myBaseOIdType(OId::INVALID),
-        mySize(0)
+        mySize(0),
+        myDomain(0),
+        currentDbRows(0)
 {
     RMDBGENTER(7, RMDebug::module_indexif, "DBRCIndexDS", "DBRCIndexDS(" << myOId << ")");
     objecttype = OId::MDDRCIXOID;
@@ -61,11 +61,11 @@ DBRCIndexDS::DBRCIndexDS(const OId& id)
 
 DBRCIndexDS::DBRCIndexDS(const r_Minterval& definedDomain, unsigned int size, OId::OIdType theEntryType)
     :   IndexDS(),
-        myDomain(definedDomain),
-        currentDbRows(-1),
         myBaseCounter(0),
         myBaseOIdType(theEntryType),
-        mySize(size)
+        mySize(size),
+        myDomain(definedDomain),
+        currentDbRows(-1)
 {
     RMDBGENTER(7, RMDebug::module_indexif, "DBRCIndexDS", "DBRCIndexDS(" << definedDomain << ", " << size << ", " << theEntryType << ") " << myOId);
     objecttype = OId::MDDRCIXOID;
@@ -248,7 +248,7 @@ DBRCIndexDS::getObject(unsigned int pos) const
 }
 
 void
-DBRCIndexDS::getObjects(KeyObjectVector& objs) const
+DBRCIndexDS::getObjects(__attribute__ ((unused)) KeyObjectVector& objs) const
 {
     RMInit::logOut << "DBRCIndexDS::getObjects(vec) not suported" << std::endl;
     throw r_Error(r_Error::r_Error_FeatureNotSupported);

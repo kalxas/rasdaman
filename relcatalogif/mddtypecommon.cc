@@ -119,7 +119,7 @@ MDDType::compatibleWith(const Type* aType) const
 }
 
 int
-MDDType::compatibleWithDomain(const r_Minterval* aDomain ) const
+MDDType::compatibleWithDomain(__attribute__ ((unused)) const r_Minterval* aDomain ) const
 {
     RMDBGONCE(11, RMDebug::module_catalogif, "MDDType", "compatibleWithDomain(" << *aDomain << ") " << 1);
     return 1;

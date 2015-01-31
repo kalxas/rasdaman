@@ -236,15 +236,15 @@ protected:
 
 private:
 
-    int persistentRefCount;
-    /*@Doc:
-        number of persistent references (by mddsets) to this object
-    */
-
     DBMDDObj();
     /*@Doc:
         creates an empty object and does NOT register it
         with ObjectBroker.
+    */
+
+    int persistentRefCount;
+    /*@Doc:
+        number of persistent references (by mddsets) to this object
     */
 
     const MDDBaseType* mddType;

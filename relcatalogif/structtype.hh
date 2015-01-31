@@ -90,7 +90,7 @@ public:
     const BaseType* getElemType(const char* elemName) const;
 
     /// get name of an element by number of element (0 based).
-    const char* const getElemName(unsigned int num) const;
+    const char* getElemName(unsigned int num) const;
 
     /// get type of an element by number of element (0 based).
     const BaseType* getElemType(unsigned int num) const;

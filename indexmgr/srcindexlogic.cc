@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * MODULE: indexmgr
  * CLASS:   SRCIndexLogic
@@ -126,7 +126,7 @@ OId
 SRCIndexLogic::computeOId(const r_Minterval& mddDomain, const r_Point& tileConfigExtent, OId::OIdCounter baseCounter, OId::OIdType type, const r_Point& tileOrigin)
 {
     OId::OIdCounter counter;
-    counter = computeNormalizedDomain(mddDomain.get_extent(), tileConfigExtent).cell_offset(computeNormalizedPoint(tileOrigin, tileConfigExtent, mddDomain.get_origin())) + baseCounter;
+    counter = static_cast<OId::OIdCounter>(computeNormalizedDomain(mddDomain.get_extent(), tileConfigExtent).cell_offset(computeNormalizedPoint(tileOrigin, tileConfigExtent, mddDomain.get_origin()))) + baseCounter;
     RMDBGONCE(4, RMDebug::module_indexmgr, "SRCIndexLogic", "computeOId(" << mddDomain << ", " << tileConfigExtent << ", " << baseCounter << ", " << tileOrigin << ") " << OId(counter, type));
     return OId(counter, type);
 }
@@ -222,8 +222,8 @@ SRCIndexLogic::intersect(const IndexDS* ixDS, const r_Minterval& searchInter, Ke
     {
         r_Minterval tileConfig = sl.getTileConfiguration();
         r_Point tileConfigExtent = tileConfig.get_extent();
-        OId::OIdCounter baseCounter = ((DBRCIndexDS*)ixDS)->getBaseCounter();
-        OId::OIdType type = ((DBRCIndexDS*)ixDS)->getBaseOIdType();
+        OId::OIdCounter baseCounter = (static_cast<DBRCIndexDS*>(const_cast<IndexDS*>(ixDS)))->getBaseCounter();
+        OId::OIdType type = (static_cast<DBRCIndexDS*>(const_cast<IndexDS*>(ixDS)))->getBaseOIdType();
         r_Dimension dim = mddDomain.dimension();
         r_Point searchPoint(dim);
         r_Minterval searchDomain = computeTiledDomain(mddDomain, tileConfigExtent, searchInter);
@@ -261,7 +261,7 @@ SRCIndexLogic::containPointQuery(const IndexDS* ixDS, const r_Point& searchPoint
     {
         r_Minterval tileConfig = sl.getTileConfiguration();
         r_Point tileConfigExtent = tileConfig.get_extent();
-        OId t = computeOId(mddDomain, tileConfigExtent, ((DBRCIndexDS*)ixDS)->getBaseCounter(), ((DBRCIndexDS*)ixDS)->getBaseOIdType(), searchPoint);
+        OId t = computeOId(mddDomain, tileConfigExtent, (static_cast<DBRCIndexDS*>(const_cast<IndexDS*>(ixDS)))->getBaseCounter(), (static_cast<DBRCIndexDS*>(const_cast<IndexDS*>(ixDS)))->getBaseOIdType(), searchPoint);
         DBObjectId theObject(t);
         if (!theObject.is_null())
         {
@@ -285,7 +285,7 @@ SRCIndexLogic::getObjects(const IndexDS* ixDS, KeyObjectVector& objs, const Stor
 }
 
 bool
-SRCIndexLogic::removeObject(IndexDS* ixDS, const KeyObject& objToRemove, const StorageLayout& sl)
+SRCIndexLogic::removeObject(__attribute__ ((unused)) IndexDS* ixDS, __attribute__ ((unused)) const KeyObject& objToRemove,__attribute__ ((unused)) const StorageLayout& sl)
 {
     RMDBGONCE(4, RMDebug::module_indexmgr, "SRCIndexLogic", "removeObject(" << objToRemove << ")");
     return true;

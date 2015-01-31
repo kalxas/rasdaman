@@ -47,6 +47,6 @@ RealType::makeFromCULong(char* cell, const r_ULong* value) const {
 
 inline char* 
 RealType::makeFromCLong(char* cell, const r_Long* value) const {
-	return this->makeFromCULong(cell, (r_ULong *)value);
+	return this->makeFromCULong(cell, (r_ULong *)const_cast<r_Long*>(value));
 }
 

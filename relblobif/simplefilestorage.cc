@@ -53,7 +53,7 @@ void SimpleFileStorage::insert(const char* data, r_Bytes size, int BlobId) throw
     getPath(BlobId, &path);
     string file_path = path[0]; // Root path
     // Iterate trough the levels and create all directories needed.
-    for (int i = 1; i < path.size() - 1; ++i)
+    for (unsigned int i = 1; i < path.size() - 1; ++i)
     {
         file_path += '/' + path[i];
         struct stat status;
@@ -71,9 +71,9 @@ void SimpleFileStorage::insert(const char* data, r_Bytes size, int BlobId) throw
     }
     int offset = 0;
     // Send the data to the disk
-    while (offset < size)
+    while (offset < static_cast<int>(size))
     {
-        int count = write(fd, data + offset, size - offset);
+        int count = write(fd, data + offset, size - static_cast<unsigned int>(offset));
         if (count == -1)
         {
             generateError("failed writing data to file", file_path, FAILEDWRITINGTODISK);
@@ -94,7 +94,7 @@ void SimpleFileStorage::update(const char* data, r_Bytes size, int BlobId) throw
     getPath(BlobId, &path);
     string file_path = path[0]; // Root path
     // Iterate trough the levels and create all directories needed.
-    for (int i = 1; i < path.size() - 1; ++i)
+    for (unsigned int i = 1; i < path.size() - 1; ++i)
     {
         file_path += '/' + path[i];
         struct stat status;
@@ -113,9 +113,9 @@ void SimpleFileStorage::update(const char* data, r_Bytes size, int BlobId) throw
     }
     int offset = 0;
     // Send the data to the disk
-    while (offset < size)
+    while (offset < static_cast<int>(size))
     {
-        int count = write(fd, data + offset, size - offset);
+        int count = write(fd, data + offset, size - static_cast<unsigned int>(offset));
         if (count == -1)
         {
             generateError("failed writing data to blob file", file_path, FAILEDWRITINGTODISK);
@@ -141,7 +141,7 @@ void SimpleFileStorage::retrieve(int BlobId, char** data, r_Bytes* size) throw (
     }
 
     *size = status.st_size;
-    *data = (char*)malloc(status.st_size);
+    *data = static_cast<char*>(malloc(static_cast<unsigned int>(status.st_size)));
 
     int fd = open(path.c_str(), O_RDONLY);
     if (fd < 0)
@@ -150,9 +150,9 @@ void SimpleFileStorage::retrieve(int BlobId, char** data, r_Bytes* size) throw (
     }
     int offset = 0;
     // Send the data to the disk
-    while (offset < *size)
+    while (offset < static_cast<int>(*size))
     {
-        int count = read(fd, *data + offset, *size - offset);
+        int count = read(fd, *data + offset, *size - static_cast<unsigned int>(offset));
         if (count == -1)
         {
             generateError("failed reading data from blob file", path, FAILEDREADINGFROMDISK);
@@ -196,7 +196,7 @@ void SimpleFileStorage::getPath(int BlobId, string *path)
     vector<string> segments;
     getPath(BlobId, &segments);
     *path = segments[0];
-    for (int i = 1; i < segments.size(); ++i)
+    for (unsigned int i = 1; i < segments.size(); ++i)
         *path += '/' + segments[i];
 }
 
@@ -204,5 +204,5 @@ void SimpleFileStorage::generateError(const char* message, string path, int erro
 {
     RMInit::logOut << endl << "Error: " << message << " - " << path << endl;
     RMInit::logOut << "Reason: " << strerror(errno) << endl << endl;
-    throw r_Error(errorCode);
+    throw r_Error(static_cast<unsigned int>(errorCode));
 }

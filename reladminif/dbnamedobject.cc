@@ -43,7 +43,7 @@ rasdaman GmbH.
 
 // Beware: keep this value less or equal to STRING_MAXLEN in externs.h!
 #define MAXNAMELENGTH_CONST 200
-short DBNamedObject::MAXNAMELENGTH = MAXNAMELENGTH_CONST;
+unsigned int DBNamedObject::MAXNAMELENGTH = MAXNAMELENGTH_CONST;
 
 const char* DBNamedObject::defaultName="unamed object\0";
 
@@ -64,8 +64,8 @@ DBNamedObject::DBNamedObject(const OId& id) throw (r_Error)
 
 DBNamedObject::DBNamedObject()
     :   DBObject(),
-        myNameSize(0),
-        myName(NULL)
+        myName(NULL),
+        myNameSize(0)
 {
     RMDBGONCE(9, RMDebug::module_adminif, "DBNamedObject", "DBNamedObject()");
     setName(defaultName);
@@ -73,8 +73,8 @@ DBNamedObject::DBNamedObject()
 
 DBNamedObject::DBNamedObject(const DBNamedObject& old)
     :   DBObject(old),
-        myNameSize(0),
-        myName(NULL)
+        myName(NULL),
+        myNameSize(0)
 {
     RMDBGONCE(9, RMDebug::module_adminif, "DBNamedObject", "DBNamedObject(const DBNamedObject& old)");
     setName(old.getName());
@@ -82,8 +82,8 @@ DBNamedObject::DBNamedObject(const DBNamedObject& old)
 
 DBNamedObject::DBNamedObject(const char* name)
     :   DBObject(),
-        myNameSize(0),
-        myName(NULL)
+        myName(NULL),
+        myNameSize(0)
 {
     RMDBGONCE(9, RMDebug::module_adminif, "DBNamedObject", "DBNamedObject(" << name << ")");
     setName(name);
@@ -91,8 +91,8 @@ DBNamedObject::DBNamedObject(const char* name)
 
 DBNamedObject::DBNamedObject(const OId& id, const char* name)
     :   DBObject(id),
-        myNameSize(0),
-        myName(NULL)
+        myName(NULL),
+        myNameSize(0)
 {
     RMDBGONCE(9, RMDebug::module_adminif, "DBNamedObject", "DBNamedObject(" << myOId << ", " << name << ")");
     setName(name);
@@ -139,10 +139,10 @@ DBNamedObject::setName(const char* newname)
         free(myName);
         myName=NULL;
     }
-    int len = strlen(newname);
+    unsigned int len = strlen(newname);
     if (len > MAXNAMELENGTH)
         len = MAXNAMELENGTH;
-    myName = (char*)mymalloc((len + 1) * sizeof(char));
+    myName = static_cast<char*>(mymalloc((len + 1) * sizeof(char)));
     myNameSize = (len + 1) * sizeof(char);
     strncpy(myName, newname, len);
     *(myName + len) = 0;
@@ -159,12 +159,12 @@ DBNamedObject::setName(const short length, const char* data)
         free(myName);
         myName=NULL;
     }
-    int len = 0;
-    if (length > MAXNAMELENGTH)
+    unsigned int len = 0;
+    if (static_cast<unsigned int>(length) > MAXNAMELENGTH)
         len = MAXNAMELENGTH;
     else
-        len = length;
-    myName = (char*)mymalloc((len + 1) * sizeof(char));
+        len = static_cast<unsigned int>(length);
+    myName = static_cast<char*>(mymalloc((len + 1) * sizeof(char)));
     myNameSize = (len + 1) * sizeof(char);
     strncpy(myName, data, len);
     *(myName + len) = 0;

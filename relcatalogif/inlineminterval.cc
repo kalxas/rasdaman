@@ -118,7 +118,7 @@ InlineMinterval::insertInDb(r_Range* lowerbound, r_Range* upperbound, char* lowe
 {
     RMDBGENTER(10, RMDebug::module_catalogif, "InlineMinterval", "insertInDb(lb, ub, lf, uf)");
     char undefined = '*';
-    for (int count = 0; count < dimensionality; count++)
+    for (unsigned int count = 0; count < dimensionality; count++)
     {
         if (intervals[count].is_low_fixed())
         {

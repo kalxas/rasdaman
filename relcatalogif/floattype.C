@@ -136,7 +136,7 @@ FloatType::printCell( ostream& stream, const char* cell ) const
 {
   // !!!! HP specific, assumes 4 Byte float and MSB..LSB 
   // byte order
-  stream << std::setw(8) << *(float*)cell;
+  stream << std::setw(8) << *(float*)const_cast<char*>(cell);
 }
 
 double*
@@ -144,7 +144,7 @@ FloatType::convertToCDouble(const char* cell, double* value) const
 {
   // !!!! HP specific, assumes 4 Byte float and MSB..LSB 
   // byte order
-  *value = *(float*)cell;
+  *value = *(float*)const_cast<char*>(cell);
   return value;
 }
 

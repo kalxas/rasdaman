@@ -35,6 +35,7 @@ rasdaman GmbH.
 
 const float    ff = 0.5;
 
+
 //removes all entries from a index and inserts them into a vector
 void
 clear(KeyObjectVector& keyvec, HierIndexDS* node)
@@ -93,7 +94,7 @@ SRPTIndexLogic::insertObject2(IndexDS* ixDS, const KeyObject& newKeyObject, cons
 	bool* facesToExtendHi = NULL;
 	r_Dimension i = 0;
 	r_Dimension dim = 0;
-	unsigned int overflowed = 0;
+	int overflowed = 0;
 	
 	if (ixDS->getSize() == 0)
 		{
@@ -163,7 +164,7 @@ SRPTIndexLogic::insertObject2(IndexDS* ixDS, const KeyObject& newKeyObject, cons
 	}
 
 void
-SRPTIndexLogic::intersect2(const IndexDS* ixDS, const r_Minterval& searchInter, KeyObjectVector& intersectedObjs, const StorageLayout& sl)
+SRPTIndexLogic::intersect2(const IndexDS* ixDS, const r_Minterval& searchInter, KeyObjectVector& intersectedObjs, __attribute__ ((unused)) const StorageLayout& sl)
 	{
 	RMDBGENTER(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "intersect2(" << OId(ixDS->getIdentifier()) << ", " << searchInter << ")")
 	r_Minterval dom = ixDS->getCoveredDomain();
@@ -667,7 +668,7 @@ SRPTIndexLogic::redistributeEntries(IndexDS* node, KeyObjectVector& listMinKO, c
 	RMDBGENTER(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "redistributeEntries(" << OId(node->getIdentifier()) << ", redistList.size " << listMinKO.size() << ")")
 	// not implemented. It could redistribute objects in case of too low fill factor
 	unsigned int size = listMinKO.size();
-	for(int i = 0; i < size; i++)
+	for(unsigned int i = 0; i <size; i++)
 		{
 		SDirIndexLogic::insertObject(node, listMinKO[i], sl);
 		}
@@ -729,7 +730,7 @@ SRPTIndexLogic::calculatePartition(r_Dimension& axis, r_Range& value, const Hier
 	
 	while (true)
 		{
-		for (int i = 0; i < elemCount; i++)
+		for (unsigned int i = 0; i < elemCount; i++)
 			{
 			v = node->getObjectDomain(i)[a].low();
 			calculateDistribution(a, v, dist1, dist2, node);
@@ -822,7 +823,7 @@ SRPTIndexLogic::intersect(	const r_Minterval&	searchInter,
 			if (intersectArea.intersects_with(parentEntryDomain))
 				{
 				RMDBGMIDDLE(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "searchDom " << searchInter << " indexDom " << dom << " intersection " << intersectArea << " area " << area);
-				binaryRegionSearch(ix, searchInter, area, intersectedObjs, 0, nodeSize - 1, dom);//parentEntryDomain);
+				binaryRegionSearch(ix, searchInter, area, intersectedObjs, 0, static_cast<int>(nodeSize) - 1, dom);//parentEntryDomain);
 				}
 			}
 		}
@@ -830,7 +831,7 @@ SRPTIndexLogic::intersect(	const r_Minterval&	searchInter,
 		if (searchInter.intersects_with(dom))
 			{
 			nodeArea = area;
-			binaryRegionSearch(ix, searchInter, nodeArea, intersectedNodes, 0, nodeSize - 1, dom);
+			binaryRegionSearch(ix, searchInter, nodeArea, intersectedNodes, 0, static_cast<int>(nodeSize) - 1, dom);
 			for (i = 0; i < intersectedNodes.size(); i++)
 				{
 				if (area == 0)
@@ -919,7 +920,7 @@ SRPTIndexLogic::regionSearch(	const HierIndexDS*	ixNode,
 
 	r_Minterval intersectedRegion;
 	unsigned int endAt = ixNode->getSize();
-	int retval = endAt;
+	int retval = static_cast<int>(endAt);
 	KeyObject newObj;
 	r_Minterval objDomain;
 	unsigned int i = 0;
@@ -979,14 +980,14 @@ SRPTIndexLogic::regionSearch(	const HierIndexDS*	ixNode,
 			intersectedObjects.push_back(newObj);	
 			if (oldArea < area)
 				{
-				retval = i;
+				retval = static_cast<int>(i);
 				RMInit::logOut << "SRPTIndexLogic::regionSearch() the area was completely exhausted" << endl;
 				throw r_Error(INDEXEXHAUSTEDAREA);
 				break;
 				}
 			if (area == 0)
 				{
-				retval = i;
+				retval = static_cast<int>(i);
 				break;
 				}
 			}
@@ -1032,7 +1033,7 @@ SRPTIndexLogic::binaryRegionSearch(	const HierIndexDS*	ixNode,
 		else	{
 			middle = (last + first)/2;
 
-			t = ixNode->getObjectDomain(middle);
+			t = ixNode->getObjectDomain(static_cast<unsigned int>(middle));
 			if(mint.get_high().compare_with(t.get_origin())  < 0)
 				{      // R.hi < tile.lo  no tiles after this one
 				retval = binaryRegionSearch(ixNode, mint, area, intersectedObjects, first, middle - 1, parentEntryDomain);
@@ -1050,7 +1051,7 @@ SRPTIndexLogic::binaryRegionSearch(	const HierIndexDS*	ixNode,
 					inc = 1;
 					for (ix = middle; ; ix += inc)
 						{
-						objDomain = ixNode->getObjectDomain(ix);
+						objDomain = ixNode->getObjectDomain(static_cast<unsigned int>(ix));
 						RMDBGMIDDLE(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "cycle " << ix << " " << objDomain);
 						compResult = mint.get_high().compare_with(objDomain.get_origin());
 						// object intersects region
@@ -1068,7 +1069,7 @@ SRPTIndexLogic::binaryRegionSearch(	const HierIndexDS*	ixNode,
 								throw r_Error(INDEXEXHAUSTEDAREA);
 								}
 							RMDBGMIDDLE(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "intersectedRegion " << intersectedRegion << " area " << area)
-							newObj = ixNode->getObject(ix);
+							newObj = ixNode->getObject(static_cast<unsigned int>(ix));
 							intersectedObjects.push_back(newObj);
 							if (area == 0)
 								{

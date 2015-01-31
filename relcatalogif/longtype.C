@@ -128,13 +128,13 @@ LongType::~LongType()
 void 
 LongType::printCell( ostream& stream, const char* cell ) const
 {
-  stream << std::setw(8) << *(r_Long*)cell;
+  stream << std::setw(8) << *(r_Long*)(const_cast<char*>(cell));
 }
 
 r_Long*
 LongType::convertToCLong(const char* cell, r_Long* value) const
 {
-  *value = *(r_Long*)cell;
+  *value = *(r_Long*)(const_cast<char*>(cell));
   return value;
 }
 

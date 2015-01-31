@@ -208,8 +208,9 @@ DatabaseIf::baseDBMSClose()
 
 DatabaseIf::DatabaseIf()
     :   opened(false),
-        connected(false),
-        myName(NULL)
+        myName(NULL),
+        connected(false)
+
 {
     RMDBGONCE(4, RMDebug::module_adminif, "DatabaseIf", "DatabaseIf()");
 }

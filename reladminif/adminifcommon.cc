@@ -112,7 +112,7 @@ AdminIf::instance()
     AdminIf* retval=NULL;
 
     int hostResult = gethostname(systemName, sizeof(systemName) );
-    if (hostResult =! 0)
+    if (hostResult != 0)
     {
         RMDBGONCE(4, RMDebug::module_adminif, "Adminif", "Error: cannot obtain hostname, using 'localhost'; errno=" << errno );
         (void) strcpy( systemName, DEFAULT_SYSTEM_NAME );

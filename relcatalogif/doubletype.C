@@ -131,7 +131,7 @@ DoubleType::printCell( ostream& stream, const char* cell ) const
 {
   // !!!! HP specific, assumes 4 Byte double and MSB..LSB 
   // byte order
-  stream << *(double*)cell << " ";
+  stream << *(double*)const_cast<char*>(cell) << " ";
 }
 
 double*
@@ -139,7 +139,7 @@ DoubleType::convertToCDouble(const char* cell, double* value) const
 {
   // !!!! HP specific, assumes 8 Byte double
   // byte order
-  *value = *(double*)cell;
+  *value = *(double*)const_cast<char*>(cell);
   return value;
 }
 

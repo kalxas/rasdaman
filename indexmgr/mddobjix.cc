@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: mddobjix.cc
  *
@@ -70,7 +70,7 @@ MDDObjIx::setNewLastAccess(const Tile* newLastTile, bool clear)
     {
         r_Minterval region = newLastTile->getDomain();
         lastAccess = region;
-        lastAccessTiles.push_back((Tile*)newLastTile);
+        lastAccessTiles.push_back(const_cast<Tile*>(newLastTile));
     }
 }
 
@@ -105,7 +105,7 @@ MDDObjIx::lastAccessIntersect(const r_Minterval& searchInter) const
         RMDBGONCE(6, RMDebug::module_indexmgr, "MDDObjIx", "lastAccessIntersect Search in the cache ")
         interResult = new std::vector< Tile* >();
         interResult->reserve(10);
-        for (int i = 0; i < lastAccessTiles.size(); i++)
+        for (unsigned int i = 0; i < lastAccessTiles.size(); i++)
         {
             if (lastAccessTiles[i]->getDomain().intersects_with(searchInter))
                 interResult->push_back(lastAccessTiles[i]);
@@ -126,7 +126,7 @@ MDDObjIx::lastAccessPointQuery(const r_Point& searchPoint) const
 
     if ((lastAccess.dimension() != 0) && (lastAccess.covers(searchPoint)))
     {
-        for (int i = 0; !result && i < lastAccessTiles.size(); i++)
+        for (unsigned int i = 0; !result && i < lastAccessTiles.size(); i++)
         {
             if (lastAccessTiles[i]->getDomain().covers(searchPoint))
             {
@@ -144,7 +144,7 @@ MDDObjIx::releasePersTiles()
     if (isPersistent())
     {
         Tile* t = NULL;
-        for(int i = 0; i < lastAccessTiles.size(); i++)
+        for(unsigned int i = 0; i < lastAccessTiles.size(); i++)
         {
             t = lastAccessTiles[i];
             delete t;
@@ -192,9 +192,9 @@ MDDObjIx::initializeTimerPointers()
 
 MDDObjIx::MDDObjIx(const StorageLayout& sl, const r_Minterval& dim, const BaseType* bt)
     :   cellBaseType(bt),
-        myStorageLayout(sl),
         actualIx(0),
-        _isPersistent(true)
+        _isPersistent(true),
+        myStorageLayout(sl)
 {
     RMDBGENTER(10, RMDebug::module_indexmgr, "MDDObjIx", "MDDObjIx(storage, " << dim << ", type)")
     lastAccessTiles.reserve(10);
@@ -242,9 +242,9 @@ MDDObjIx::MDDObjIx(const StorageLayout& sl, const r_Minterval& dim, const BaseTy
 
 MDDObjIx::MDDObjIx(DBObjectId newDBIx, const StorageLayout& sl, const BaseType* bt)
     :   cellBaseType(bt),
-        myStorageLayout(sl),
         actualIx(newDBIx),
-        _isPersistent(true)
+        _isPersistent(true),
+        myStorageLayout(sl)
 {
     initializeLogicStructure();
     lastAccessTiles.reserve(10);
@@ -296,7 +296,7 @@ MDDObjIx::insertTile(const Tile* newTile)
 {
     if (isPersistent())
     {
-        ((Tile*)newTile)->setPersistent();
+        (const_cast<Tile*>(newTile))->setPersistent();
     }
     KeyObject t(newTile);
     do_insertObj(actualIx, t, myStorageLayout);
@@ -356,7 +356,7 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
                         "intersect(" << searchInter << \
                         ") received double tile: " << \
                         resultKeys[i]) \
-                        for (int i = 0; i < resultKeys.size(); i++) \
+                        for (unsigned int i = 0; i < resultKeys.size(); i++) \
                         {
                             \
                             RMInit::dbgOut << resultKeys[i] << endl; \
@@ -379,7 +379,7 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
                     result->push_back(resultKeys[i].getTransObject());
                 }
             }
-            ((MDDObjIx*) this)->setNewLastAccess(searchInter, result);
+            (const_cast<MDDObjIx*>(this))->setNewLastAccess(searchInter, result);
         }
     }
 #ifdef RMANBENCHMARK
@@ -437,13 +437,13 @@ MDDObjIx::containPointQuery(const r_Point& searchPoint) const
             {
                 resultTile = new Tile(resultKey.getDomain(), cellBaseType, DBTileId(resultKey.getObject()));
                 // for rcindex
-                ((DBObject*)resultKey.getObject().ptr())->setCached(false);
+                (const_cast<DBObject*>(resultKey.getObject().ptr()))->setCached(false);
             }
             else
             {
                 resultTile = resultKey.getTransObject();
             }
-            ((MDDObjIx*) this)->setNewLastAccess(resultTile);
+            (const_cast<MDDObjIx*>(this))->setNewLastAccess(resultTile);
         }
     }
 
@@ -495,20 +495,20 @@ MDDObjIx::getTiles() const
                 tmap.insert(p); \
             } \
                    );
-            for (int i = 0; i < resSize; i++)
+            for (unsigned int i = 0; i < resSize; i++)
             {
                 result->push_back(new Tile(resultKeys[i].getDomain(), cellBaseType, DBTileId(resultKeys[i].getObject())));
             }
         }
         else
         {
-            for (int i = 0; i < resultKeys.size(); i++)
+            for (unsigned int i = 0; i < resultKeys.size(); i++)
             {
                 result->push_back(resultKeys[i].getTransObject());
             }
         }
         r_Minterval emptyInterval;
-        ((MDDObjIx*) this)->setNewLastAccess(emptyInterval, result);
+        (const_cast<MDDObjIx*>(this))->setNewLastAccess(emptyInterval, result);
     }
 #ifdef RMANBENCHMARK
     if(RManBenchmark >= 3)  getTilesTimer->stop();

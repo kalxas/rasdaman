@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * INCLUDE: cmlparser.hh
  *
@@ -57,6 +57,8 @@ using std::cout;
 
 // Command Line Parser version
 extern const char* CommandLineParserVersion;
+
+char* dupString(const char* cc);
 
 // specific errors thrown by the parser
 class CmlException : public std::exception
