@@ -33,17 +33,17 @@ RAS_MARRAY <- 1
 ##
 
 setClass("RasdamanObject",
-    contains = c("DBIObject", "VIRTUAL"),
+    contains = c("VIRTUAL"),
     slots = list(jObj = "jobjRef")
 )
 
 setClass("RasdamanHandle", contains = c("RasdamanObject"))
 
-setClass("RasdamanDriver", contains = c("DBIDriver", "RasdamanObject"))
+setClass("RasdamanDriver", contains = c("RasdamanObject"))
 
-setClass("RasdamanConnection", contains = c("DBIConnection", "RasdamanObject"))
+setClass("RasdamanConnection", contains = c("RasdamanObject"))
 
-setClass("RasdamanResult", contains = c("DBIResult", "RasdamanObject"))
+setClass("RasdamanResult", contains = c("RasdamanObject"))
 
 setClass("RasdamanArray", slots = list(array = "list", origin = "integer"))
 
@@ -56,13 +56,20 @@ setClass("RasdamanArrayHandle",
          slots = list(typeid = "integer"))
 
 ##
-## Class implementation: DBIObject
+## Class implementation: RasdamanObject
 ##
 
+setGeneric("dbGetInfo", function(dbObj, ...) standardGeneric("dbGetInfo"))
 setMethod("dbGetInfo", "RasdamanObject",
     def = function(dbObj, ...) {
         rasobj <- dbObj@jObj
         message <- rasobj$toString()
         print(.jsimplify(message))
+    }
+)
+
+setMethod("summary", "RasdamanObject",
+    def = function(object, ...){
+      dbGetInfo(dbObj = object, ...)
     }
 )

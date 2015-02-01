@@ -24,9 +24,10 @@
 ##################################################################
 
 ##
-## Class implementation: DBIConnection
+## Class implementation: RasdamanConnection
 ##
 
+setGeneric("dbDisconnect", function(conn, ...) standardGeneric("dbDisconnect"))
 setMethod("dbDisconnect", "RasdamanConnection",
     def = function(conn, ...) { tryCatch({
         conn@jObj$disconnect()
@@ -36,6 +37,7 @@ setMethod("dbDisconnect", "RasdamanConnection",
 
 ##### Transaction management #####
 
+setGeneric("dbCommit", function(conn, ...) standardGeneric("dbCommit"))
 setMethod("dbCommit", "RasdamanConnection",
     def = function(conn, ...) { tryCatch({
         conn@jObj$commit()
@@ -43,6 +45,7 @@ setMethod("dbCommit", "RasdamanConnection",
     }, Exception = .handler) }
 )
 
+setGeneric("dbRollback", function(conn, ...) standardGeneric("dbRollback"))
 setMethod("dbRollback", "RasdamanConnection",
     def = function(conn, ...) { tryCatch({
         conn@jObj$rollback()
@@ -52,33 +55,27 @@ setMethod("dbRollback", "RasdamanConnection",
 
 ##### Listing collections #####
 
-setMethod("dbExistsTable", "RasdamanConnection",
-    def = function(conn, name, ...) { tryCatch({
-        conn@jObj$existsCollection(name)
-    }, Exception = .handler) }
-)
-
 setGeneric("dbExistsCollection", function(conn, name, ...)
     standardGeneric("dbExistsCollection"))
 setMethod("dbExistsCollection", "RasdamanConnection",
-    def = function(conn, name, ...) dbExistsTable(conn, name)
-)
-
-setMethod("dbListTables", "RasdamanConnection",
-    def = function(conn,...) { tryCatch({
-        jarray <- .jevalArray(conn@jObj$listCollections()$toArray())
-        sapply(jarray, .jsimplify)
+    def = function(conn, name, ...) { tryCatch({
+        conn@jObj$existsCollection(name)
     }, Exception = .handler) }
 )
 
 setGeneric("dbListCollections", function(conn, ...)
     standardGeneric("dbListCollections"))
 setMethod("dbListCollections", "RasdamanConnection",
-    def = function(conn, ...) dbListTables(conn)
+    def = function(conn,...) { tryCatch({
+        jarray <- .jevalArray(conn@jObj$listCollections()$toArray())
+        sapply(jarray, .jsimplify)
+    }, Exception = .handler) }
 )
 
 ##### Sending queries #####
 
+setGeneric("dbSendQuery", function(conn, statement, ...)
+    standardGeneric("dbSendQuery"))
 setMethod("dbSendQuery", "RasdamanConnection",
     def = function(conn, statement, ...) { tryCatch({
         jresult <- conn@jObj$executeQuery(statement)
@@ -87,6 +84,8 @@ setMethod("dbSendQuery", "RasdamanConnection",
     }, Exception = .handler) }
 )
 
+setGeneric("dbGetQuery", function(conn, statement, ...)
+    standardGeneric("dbGetQuery"))
 setMethod("dbGetQuery", "RasdamanConnection",
     def = function(conn, statement, ...) { tryCatch({
         result <- dbSendQuery(conn, statement)
@@ -96,6 +95,7 @@ setMethod("dbGetQuery", "RasdamanConnection",
     }, Exception = .handler) }
 )
 
+setGeneric("dbListResults", function(conn, ...) standardGeneric("dbListResults"))
 setMethod("dbListResults", "RasdamanConnection",
     def = function(conn, ...) { tryCatch({
         results <- as.list(conn@jObj$listResults())
@@ -153,40 +153,11 @@ setMethod("dbUpdateCollection", "RasdamanConnection",
     }, Exception = .handler) }
 )
 
-setMethod("dbRemoveTable", "RasdamanConnection",
-    def = function(conn, name, ...) { tryCatch({
-        conn@jObj$removeCollection(name)
-    }, Exception = .handler) }
-)
 
 setGeneric("dbRemoveCollection", function(conn, name, ...)
     standardGeneric("dbRemoveCollection"))
 setMethod("dbRemoveCollection", "RasdamanConnection",
-    def = function(conn, name, ...) dbRemoveTable(conn, name)
-)
-
-##### Not implemented methods of DBI #####
-
-setMethod("dbReadTable", "RasdamanConnection",
-    def = function(conn, name, ...)
-        stop(paste("This function is not to be used with RasdamanConnection",
-                   "object; use dbReadCollection instead"))
-)
-setMethod("dbWriteTable", "RasdamanConnection",
-    def = function(conn, name, value, ...)
-        stop(paste("This function is not to be used with RasdamanConnection",
-                   "object; use dbInsertCollection and dbUpdateCollection instead"))
-)
-
-setMethod("dbGetException", "RasdamanConnection",
-          def = function(conn, ...) .NotYetImplemented()
-)
-
-setMethod("dbListFields", "RasdamanConnection",
-    def = function(conn, name, ...) .NotYetImplemented()
-)
-
-setMethod("dbCallProc", "RasdamanConnection",
-    # this one stays unimplemented, there are no procedures in rasdaman
-    def = function(conn, ...) .NotYetImplemented()
+    def = function(conn, name, ...) { tryCatch({
+        conn@jObj$removeCollection(name)
+    }, Exception = .handler) }
 )

@@ -26,7 +26,7 @@
 \alias{RasdamanResult}
 
 \title{Class RasdamanResult}
-\description{RasdamanResult class implementing DBI API. Represents a
+\description{RasdamanResult class which represents a
     set of retrieved values. Retrieved values could be accessed by method
     \code{\link[RRasdaman]{dbFetch}} and returned as objects of type
     \code{\link[RRasdaman]{RasdamanHandle}}.
@@ -40,9 +40,7 @@
     \code{\link[RRasdaman]{dbSendQuery}}.
 }
 \section{Extends}{
-    Directly: \code{DBIResult}, \code{RasdamanObject}.
-
-    Indirectly: \code{DBIObject} by class \code{RasdamanObject}.
+    Directly: \code{RasdamanObject}.
 }
 \section{Methods}{
     \describe{
@@ -56,13 +54,6 @@
     }
 }
 \seealso{
-    DBI classes:
-
-    \code{\link[DBI]{DBIObject-class}}
-    \code{\link[DBI]{DBIDriver-class}}
-    \code{\link[DBI]{DBIConnection-class}}
-    \code{\link[DBI]{DBIResult-class}}
-
     Rasdaman classes:
 
     \code{\link{RasdamanObject}}

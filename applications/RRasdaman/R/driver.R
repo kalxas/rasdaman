@@ -24,7 +24,7 @@
 ##################################################################
 
 ##
-## Class implementation: DBIDriver
+## Class implementation: RasdamanDriver
 ##
 
 "Rasdaman" <- function() { tryCatch({
@@ -37,14 +37,7 @@ setAs("RasdamanObject", "RasdamanDriver",
     def = function(from) new("RasdamanDriver", jObj = from@jObj)
 )
 
-setMethod("dbUnloadDriver", "RasdamanDriver",
-    def = function(drv, ...) { tryCatch({
-        rasobj <- drv@jObj
-        rasobj$unload()
-        TRUE
-    }, Exception = .handler) }
-)
-
+setGeneric("dbListConnections", function(drv, ...) standardGeneric("dbListConnections"))
 setMethod("dbListConnections", "RasdamanDriver",
     def = function(drv, ...) { tryCatch({
         jlist <- drv@jObj$listConnections()
@@ -53,6 +46,7 @@ setMethod("dbListConnections", "RasdamanDriver",
     }, Exception = .handler) }
 )
 
+setGeneric("dbConnect", function(drv, ...) standardGeneric("dbConnect"))
 setMethod("dbConnect", "RasdamanDriver",
     def = function(drv, host = "localhost", port = 7001, dbName = "RASBASE",
                  user = "rasguest", password = "rasguest", mode = CONN_READ_ONLY) {

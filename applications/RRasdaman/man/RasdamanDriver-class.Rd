@@ -26,35 +26,24 @@
 \alias{RasdamanDriver}
 \title{Class RasdamanDriver}
 \description{
-    Rasdaman driver class implementing DBI API. It allows connections opening,
+    Rasdaman driver class allows connections opening,
     listing of already opened connections.
 }
 \section{Generators}{
-    To create an instance use \code{\link[DBI]{dbDriver}("Rasdaman")}
-    or \code{\link{Rasdaman}()}.
+    To create an instance use \code{\link{Rasdaman}()}.
 }
 \section{Extends}{
-    Directly: \code{DBIDriver}, \code{RasdamanObject}.
-
-    Indirectly: \code{DBIObject} by class \code{RasdamanObject}.
+    Directly: \code{RasdamanObject}.
 }
 \section{Methods}{
     \describe{
     \item{\link[RRasdaman]{dbConnect}}{}
-    \item{\link{dbListConnections}}{}
-    \item{\link{dbUnloadDriver}}{}
-    \item{\link{dbGetInfo}}{}
+    \item{\link[RRasdaman]{dbListConnections}}{}
+    \item{\link[RRasdaman]{dbGetInfo}}{}
     \item{\link{summary}}{}
     }
 }
 \seealso{
-     DBI classes:
-
-    \code{\link[DBI]{DBIObject-class}}
-    \code{\link[DBI]{DBIDriver-class}}
-    \code{\link[DBI]{DBIConnection-class}}
-    \code{\link[DBI]{DBIResult-class}}
-
     Rasdaman classes:
 
     \code{\link{RasdamanObject}}

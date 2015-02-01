@@ -25,7 +25,7 @@
  \alias{RasdamanConnection-class}
  \alias{RasdamanConnection}
  \title{Class RasdamanConnection}
- \description{RasdamanConnection class implementing DBI API. Represents a
+ \description{RasdamanConnection class represents a
  connection to Rasdaman database, allows transaction management (commit and
  rollback operations), reading and writing data.
  }
@@ -33,9 +33,7 @@
     To create this class object use \code{\link{dbConnect}}.
  }
  \section{Extends}{
-    Directly: \code{DBIConnection}, \code{RasdamanObject}.
-
-    Indirectly: \code{DBIObject} by class \code{RasdamanObject}.
+    Directly: \code{RasdamanObject}.
  }
  \section{Methods}{
     \describe{
@@ -56,13 +54,6 @@
     }
  }
 \seealso{
-    DBI classes:
-
-    \code{\link[DBI]{DBIObject-class}}
-    \code{\link[DBI]{DBIDriver-class}}
-    \code{\link[DBI]{DBIConnection-class}}
-    \code{\link[DBI]{DBIResult-class}}
-
     Rasdaman classes:
 
     \code{\link{RasdamanObject}}

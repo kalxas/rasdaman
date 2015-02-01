@@ -26,26 +26,16 @@
 \alias{RasdamanObject}
 \title{Class RasdmanObject}
 \description{
-    Base type for all Rasdaman DBI classes. It is a virtual
+    Base type for all Rasdaman database interface classes. It is a virtual
     class, no object may be created from it.
-}
-\section{Extends}{
-    Directly: \code{DBIObject}.
 }
 \section{Methods}{
     \describe{
-    \item{\link[DBI]{dbGetInfo}}{}
+    \item{\link[RRasdaman]{dbGetInfo}}{}
     \item{\link{summary}}{}
     }
 }
 \seealso{
-    DBI classes:
-
-    \code{\link[DBI]{DBIObject-class}}
-    \code{\link[DBI]{DBIDriver-class}}
-    \code{\link[DBI]{DBIConnection-class}}
-    \code{\link[DBI]{DBIResult-class}}
-
     Rasdaman classes:
 
     \code{\link{RasdamanObject}}

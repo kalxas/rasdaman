@@ -26,10 +26,10 @@
 \alias{dbDriver,character-methods}
 
 \title{
-    Instantiate a Rasdaman client
+    Instantiate a Rasdaman driver object.
 }
 \description{
-    The function creates and initializes a Rasdaman connection.
+    The function creates and initializes a Rasdaman driver.
     Returns RasdamanDriver object, which later could be used for
     connection creation.
 }
@@ -37,18 +37,14 @@
 Rasdaman()
 }
 \value{
-    An object \code{RasdamanDriver} that extends \code{DBIDriver}.
-    This object is required to create connections to Rasdaman
-    database.
+    An object \code{RasdamanDriver}, which is required to create connections to
+    Rasdaman database.
 }
 \details{
     To connect to a database use a call to
-    \code{\link[DBI]{dbConnect}} with the returned object and
+    \code{\link[RRasdaman]{dbConnect}} with the returned object and
     connection-specific parameters (host, user, password, database
     name, etc).
-}
-\note{
-    The same result as calling to \code{dbDriver("Rasdaman")}.
 }
 \seealso{
     Rasdaman classes:
@@ -60,7 +56,6 @@ Rasdaman()
     Methods:
     \code{\link[RRasdaman]{dbConnect}}
     \code{\link[RRasdaman]{dbDisconnect}}
-    \code{\link[DBI]{dbDriver}}
 }
 \examples{\dontrun{
 driver <- Rasdaman()

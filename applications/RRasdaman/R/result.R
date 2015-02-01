@@ -24,14 +24,8 @@
 ##################################################################
 
 ##
-## Class implementation: DBIResult
+## Class implementation: ResdamanResult
 ##
-
-setMethod("fetch", "RasdamanResult",
-    def = function(res, n = -1)
-        stop(paste("This function is not to be used with RasdamanResult object;",
-                   "use rasfetch instead."))
-)
 
 setGeneric("dbFetch", function(res, n = -1, ...) standardGeneric("dbFetch"))
 setMethod("dbFetch", "RasdamanResult",
@@ -49,6 +43,7 @@ setMethod("dbFetch", "RasdamanResult",
     }, Exception = .handler) }
 )
 
+setGeneric("dbClearResult", function(res, ...) standardGeneric("dbClearResult"))
 setMethod("dbClearResult", "RasdamanResult",
     def = function(res, ...) { tryCatch({
         res@jObj$clearResult()
@@ -56,28 +51,21 @@ setMethod("dbClearResult", "RasdamanResult",
     }, Exception = .handler) }
 )
 
-setMethod("dbColumnInfo", "RasdamanResult",
-    def = function(res, ...) .NotYetImplemented()
-)
-
+setGeneric("dbGetStatement", function(res, ...) standardGeneric("dbGetStatement"))
 setMethod("dbGetStatement", "RasdamanResult",
     def = function(res, ...) { tryCatch({
         res@jObj$getStatement()
     }, Exception = .handler) }
 )
 
+setGeneric("dbHasCompleted", function(res, ...) standardGeneric("dbHasCompleted"))
 setMethod("dbHasCompleted", "RasdamanResult",
     def = function(res, ...) { tryCatch({
         res@jObj$hasCompleted()
     }, Exception = .handler) }
 )
 
-setMethod("dbGetRowsAffected", "RasdamanResult",
-    # this one is not imlemented as it is impossible to check how
-    # many arrays was affected from rasdaman java client library.
-    def = function(res, ...) .NotYetImplemented
-)
-
+setGeneric("dbGetRowCount", function(res, ...) standardGeneric("dbGetRowCount"))
 setMethod("dbGetRowCount", "RasdamanResult",
     def = function(res, ...) { tryCatch({
         res@jObj$getRowCount()

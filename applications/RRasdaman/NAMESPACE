@@ -1,5 +1,4 @@
 import(rJava)
-import(DBI)
 import(methods)
 
 exportClasses(
@@ -13,40 +12,24 @@ exportClasses(
 )
 
 exportMethods(
+    summary,
     dbGetInfo,
 
-    dbUnloadDriver,
     dbListConnections,
     dbConnect,
 
     dbDisconnect,
     dbCommit,
     dbRollback,
-    dbExistsTable,
     dbExistsCollection,
-    dbListTables,
     dbListCollections,
     dbSendQuery,
     dbGetQuery,
-    dbGetException,
     dbListResults,
-    dbReadTable,
     dbReadCollection,
-    dbWriteTable,
     dbInsertCollection,
     dbUpdateCollection,
-    dbRemoveTable,
     dbRemoveCollection,
-    dbListFields,
-    dbCallProc,
-
-    fetch,
-    dbClearResult,
-    dbColumnInfo,
-    dbGetStatement,
-    dbHasCompleted,
-    dbGetRowsAffected,
-    dbGetRowCount,
 
     getCell,
     dbReadCollection,

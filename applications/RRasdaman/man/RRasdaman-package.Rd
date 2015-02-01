@@ -28,8 +28,7 @@
 R interface to the Rasdaman database
 }
 \description{
-Rasdaman driver for R, uses the database interface definition
-from the package DBI. Allows interaction with Rasdaman databases
+Rasdaman database inferface for R. Allows interaction with Rasdaman databases
 from R.
 }
 \section{Overview}{
@@ -104,13 +103,6 @@ from R.
 
     However, in Rasdaman users deal with collections of arrays, not tables
     of rows, and each collection has a fixed schema for its arrays.
-
-    \code{RRasdaman} is an implementation of database interface described in
-    the package \code{DBI}. \code{DBI} was designed for relational databases and some
-    of its methods operate on tables, rows and columns. To reduce mess in
-    terminology, RRasdaman introduces analogous methods operating on collections
-    and arrays. For example, instead of using \code{dbListTables} to list all
-    collections in a system \code{dbListCollections} should be used.
 }
 \author{
  Veranika Liaukevich <v.liaukevich@jacobs-university.de>
@@ -120,13 +112,6 @@ from R.
 See \href{http://www.rasdaman.org/browser/manuals_and_examples/manuals/doc-guides/ql-guide.pdf}{Rasdaman Query Language Quide}
 }
 \seealso{
-    DBI classes:
-
-    \code{\link[DBI]{DBIObject-class}}
-    \code{\link[DBI]{DBIDriver-class}}
-    \code{\link[DBI]{DBIConnection-class}}
-    \code{\link[DBI]{DBIResult-class}}
-
     Rasdaman classes:
 
     \code{\link{RasdamanObject}}
@@ -136,21 +121,17 @@ See \href{http://www.rasdaman.org/browser/manuals_and_examples/manuals/doc-guide
     \code{\link{RasdamanArray}}
     \code{\link{RasdamanHandle}}
 
-    Database management:
-
-    \code{\link[DBI]{dbDriver}}
-
     Database connections:
 
-    \code{\link[DBI]{dbConnect}}
-    \code{\link[DBI]{dbDisconnect}}
-    \code{\link[DBI]{dbCommit}}
-    \code{\link[DBI]{dbRollback}}
+    \code{\link[RRasdaman]{dbConnect}}
+    \code{\link[RRasdaman]{dbDisconnect}}
+    \code{\link[RRasdaman]{dbCommit}}
+    \code{\link[RRasdaman]{dbRollback}}
 
     Meta-data:
 
-    \code{\link[DBI]{dbListConnections}}
+    \code{\link[RRasdaman]{dbListConnections}}
     \code{\link[RRasdaman]{dbListCollections}}
     \code{\link[RRasdaman]{dbExistsCollection}}
-    \code{\link[DBI]{dbGetInfo}}
+    \code{\link[RRasdaman]{dbGetInfo}}
 }

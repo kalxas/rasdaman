@@ -44,8 +44,7 @@ These methods allow to connect and disconnect to and from Rasdaman DBMS.
 \S4method{dbDisconnect}{RasdamanConnection}(conn, \dots)
 }
 \arguments{
-    \item{drv}{\link{RasdamanDriver} object as returned from
-        \code{\link[DBI]{dbDriver}} or \code{\link{Rasdaman}}}
+    \item{drv}{\link{RasdamanDriver} object as returned from \code{\link{Rasdaman}}}
     \item{host}{rasdaman server hostname}
     \item{port}{rasmgr port number}
     \item{dbName}{name of database}
@@ -62,13 +61,6 @@ conn <- dbConnect(Rasdaman(), user="rasadmin", password="rasadmin", mode=CONN_RE
 dbDisconnect(conn)
 }}
 \seealso{
-    DBI classes and methods:
-    \code{\link[DBI]{DBIDriver-class}}
-    \code{\link[DBI]{DBIConnection-class}}
-    \code{\link[DBI]{dbDriver}}
-    \code{\link[DBI]{dbConnect}}
-    \code{\link[DBI]{dbDisconnect}}
-
     Rasdaman classes:
     \code{\link{RasdamanDriver}}
     \code{\link{RasdamanConnection}}

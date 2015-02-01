@@ -31,12 +31,12 @@
 \alias{dbListResults}
 \alias{dbListResults-methods}
 \alias{dbListResults,RasdamanConnection-method}
+\alias{summary,RasdamanObject-method}
 
 \title{Database objects meta-data}
 
 \description{Getting meta data from an object, implementing some functionality
-in the interface to Rasdaman database. These methods are implementations of the
-corresponding generic function from DBI package.}
+in the interface to Rasdaman database.}
 
 \usage{
 dbGetInfo(dbObj, \dots)
@@ -58,8 +58,7 @@ dbListResults(conn, \dots)
     cleared.
 }
 \seealso{
-    \code{\link[DBI]{dbGetInfo}} \code{\link{summary}}
-    \code{\link[DBI]{dbListResults}} \code{\link[DBI]{dbListConnections}}
+    \code{\link[RRasdaman]{dbListResults}} \code{\link[RRasdaman]{dbListConnections}}
 
     \code{\link{RasdamanDriver}} \code{\link{RasdamanConnection}}
     \code{\link{RasdamanResult}}
