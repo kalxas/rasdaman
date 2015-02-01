@@ -37,6 +37,15 @@ clear.connections <- function(clear.tables=FALSE) {
     }
 }
 
+create.collection <- function(conn, type) {
+    query <- paste("create collection", temp.coll, type)
+    dbGetQuery(conn, query)
+}
+
+remove.collection <- function(conn) {
+    dbRemoveCollection(conn, temp.coll)
+}
+
 .setUp <- function() {
     set.seed(42, "Mersenne-Twister")
 }
@@ -52,8 +61,7 @@ test_that("Insert, update and read an array of integers", {
         mode = CONN_READ_WRITE)
 
     # create an array
-    query <- paste("create collection", temp.coll, "LongSet")
-    dbGetQuery(conn, query)
+    create.collection(conn, "LongSet")
     data <- gen.array(c(3, 4), 0, 100)
     origin <- as.integer(c(1, 2))
     arr <- RasdamanArray(array = list(data), origin = origin)
@@ -75,7 +83,7 @@ test_that("Insert, update and read an array of integers", {
     expect_equal(1, length(handles))
     expect_equal(arr, simplify(handles[[1]]))
     # clean up
-    dbRemoveCollection(conn, temp.coll)
+    remove.collection(conn)
 
     dbDisconnect(conn)
 })
@@ -86,8 +94,7 @@ test_that("Insert, update and read an RGB array", {
         mode = CONN_READ_WRITE)
 
     # create an rgb array
-    query <- paste("create collection", temp.coll, "RGBSet")
-    dbGetQuery(conn, query)
+    create.collection(conn, "RGBSet")
     green <- gen.array(c(3, 4), 0, 100)
     red <- gen.array(c(3, 4), 0, 100)
     blue <- gen.array(c(3, 4), 0, 100)
@@ -127,6 +134,38 @@ test_that("Insert, update and read an RGB array", {
     expect_equal(arr, arr_from_db)
 
     # clean up
-    dbRemoveCollection(conn, temp.coll)
+    remove.collection(conn)
     dbDisconnect(conn)
+})
+
+test_that("Insertion of different array types", {
+    test.insertion <- function(value, valuetype) {
+        clear.connections(TRUE)
+        conn <- dbConnect(Rasdaman(), user = "rasadmin", password = "rasadmin",
+                          mode = CONN_READ_WRITE)
+        if (temp.coll %in% dbListCollections(conn)) {
+            remove.collection(conn)
+            dbCommit(conn)
+        }
+        create.collection(conn, type=paste(valuetype, "Set1", sep=''))
+
+        arr.write <- RasdamanArray(list(as.array(value)), as.integer(0))
+        dbInsertCollection(conn, name=temp.coll, value=arr.write,
+                           typename=paste(valuetype, "String", sep=''))
+        arr.read <- simplify(dbReadCollection(conn, temp.coll)[[1]])
+        expect_equal(arr.read, arr.write)
+
+        dbRollback(conn)
+        dbDisconnect(conn)
+    }
+
+    test.insertion(c(-128, 127), "Octet")
+    test.insertion(c(0, 255), "Grey")
+    # does not work because of rJava bug #40
+    # test.insertion(c(-32768,32767), "Short")
+    test.insertion(c(0,65535), "UShort")
+    test.insertion(c(-2147483647,2147483647), "Long")
+    test.insertion(c(0,4294967295), "ULong")
+    test.insertion(c(3.14159265,2.71828182846), "Double")
+    test.insertion(c(3.1415,2.7182), "Float")
 })

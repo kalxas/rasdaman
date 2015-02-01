@@ -79,12 +79,51 @@ test_that("Reading primitive values", {
 
     expect_equal(255, simplify(dbGetQuery(conn, "select 255c")[[1]]))
     expect_equal(-128, simplify(dbGetQuery(conn, "select -128o")[[1]]))
-    expect_equal(-1, simplify(dbGetQuery(conn, "select -1s")[[1]]))
+    expect_equal(-32768, simplify(dbGetQuery(conn, "select -32768s")[[1]]))
     expect_equal(65535, simplify(dbGetQuery(conn, "select 65535us")[[1]]))
-    expect_equal(-42, simplify(dbGetQuery(conn, "select -42l")[[1]]))
-    expect_equal(42, simplify(dbGetQuery(conn, "select 42ul")[[1]]))
+    # rJava bug #39: .jsimplify does not work with -2147483648
+    # expect_equal(-2147483648, simplify(dbGetQuery(conn, "select -2147483648l")[[1]]))
+    expect_equal(-2147483647, simplify(dbGetQuery(conn, "select -2147483647l")[[1]]))
+    expect_equal(4294967295, simplify(dbGetQuery(conn, "select 4294967295ul")[[1]]))
+
     expect_equal(3.1415, simplify(dbGetQuery(conn, "select 3.1415f")[[1]]))
-    expect_equal(2.7182, simplify(dbGetQuery(conn, "select 2.7182d")[[1]]))
+    expect_equal(2.71828182846, simplify(dbGetQuery(conn, "select 2.71828182846d")[[1]]))
+
+    dbDisconnect(conn)
+})
+
+test_that("Reading arrays of primitive values", {
+    clear.connections()
+    conn <- dbConnect(Rasdaman())
+
+    expect_equal(
+        list(array(c(TRUE,FALSE))),
+        simplify(dbGetQuery(conn, "select <[0:1] true, false>")[[1]])@array)
+    expect_equal(
+        list(array(c(-128,127))),
+        simplify(dbGetQuery(conn, "select <[0:1] -128o, 127o>")[[1]])@array)
+    expect_equal(
+        list(array(c(0,255))),
+        simplify(dbGetQuery(conn, "select <[0:1] 0c, 255c>")[[1]])@array)
+    expect_equal(
+        list(array(c(-32768,32767))),
+        simplify(dbGetQuery(conn, "select <[0:1] -32768s, 32767s>")[[1]])@array)
+    expect_equal(
+        list(array(c(0,65535))),
+        simplify(dbGetQuery(conn, "select <[0:1] 0us, 65535us>")[[1]])@array)
+    # rJava bug #39: wrong conversion of -2147483648
+    expect_equal(
+        list(array(c(-2147483647,2147483647))),
+        simplify(dbGetQuery(conn, "select <[0:1] -2147483647l, 2147483647l>")[[1]])@array)
+    expect_equal(
+        list(array(c(0,4294967295))),
+        simplify(dbGetQuery(conn, "select <[0:1] 0ul, 4294967295ul>")[[1]])@array)
+    expect_equal(
+        list(array(c(3.14159265,2.71828182846))),
+        simplify(dbGetQuery(conn, "select <[0:1] 3.14159265d, 2.71828182846d>")[[1]])@array)
+    expect_equal(
+        list(array(c(3.1415,2.7182))),
+        simplify(dbGetQuery(conn, "select <[0:1] 3.1415f, 2.7182f>")[[1]])@array)
 
     dbDisconnect(conn)
 })
@@ -122,6 +161,72 @@ test_that("Reading a complex type cell", {
     expected_cell = list(red=1, green=2, blue=3)
     cell <- getCell(handle, c(-1))
     expect_equal(cell, expected_cell)
+
+    dbDisconnect(conn)
+})
+
+test_that("Reading structures with different attribute types", {
+    clear.connections()
+    conn <- dbConnect(Rasdaman())
+
+    expect_equal(
+        list(`0`=-128, `1`=127),
+        simplify(dbGetQuery(conn, "select {-128o, 127o}")[[1]]))
+    expect_equal(
+        list(`0`=0, `1`=255),
+        simplify(dbGetQuery(conn, "select {0c, 255c}")[[1]]))
+    expect_equal(
+        list(`0`=-32768, `1`=32767),
+        simplify(dbGetQuery(conn, "select {-32768s, 32767s}")[[1]]))
+    expect_equal(
+        list(`0`=0, `1`=65535),
+        simplify(dbGetQuery(conn, "select {0us, 65535us}")[[1]]))
+    # rJava bug #39: wrong conversion of -2147483648
+    expect_equal(
+        list(`0`=-2147483647, `1`=2147483647),
+        simplify(dbGetQuery(conn, "select {-2147483647l, 2147483647l}")[[1]]))
+    expect_equal(
+        list(`0`=0, `1`=4294967295),
+        simplify(dbGetQuery(conn, "select {0ul, 4294967295ul}")[[1]]))
+    expect_equal(
+        list(`0`=3.14159265, `1`=2.71828182846),
+        simplify(dbGetQuery(conn, "select {3.14159265d, 2.71828182846d}")[[1]]))
+    expect_equal(
+        list(`0`=3.1415, `1`=2.7182),
+        simplify(dbGetQuery(conn, "select {3.1415f, 2.7182f}")[[1]]))
+
+    dbDisconnect(conn)
+})
+
+test_that("Arrays of structures with different attribute types", {
+    clear.connections()
+    conn <- dbConnect(Rasdaman())
+
+    expect_equal(
+        RasdamanArray(list(`0`=as.array(-128), `1`=as.array(127)), as.integer(0)),
+        simplify(dbGetQuery(conn, "select <[0:0] {-128o, 127o}>")[[1]]))
+    expect_equal(
+        RasdamanArray(list(`0`=as.array(0), `1`=as.array(255)), as.integer(0)),
+        simplify(dbGetQuery(conn, "select <[0:0] {0c, 255c}>")[[1]]))
+    expect_equal(
+        RasdamanArray(list(`0`=as.array(-32768), `1`=as.array(32767)), as.integer(0)),
+        simplify(dbGetQuery(conn, "select <[0:0] {-32768s, 32767s}>")[[1]]))
+    expect_equal(
+        RasdamanArray(list(`0`=as.array(0), `1`=as.array(65535)), as.integer(0)),
+        simplify(dbGetQuery(conn, "select <[0:0] {0us, 65535us}>")[[1]]))
+    # rJava bug #39: wrong conversion of -2147483648
+    expect_equal(
+        RasdamanArray(list(`0`=as.array(-2147483647), `1`=as.array(2147483647)), as.integer(0)),
+        simplify(dbGetQuery(conn, "select <[0:0] {-2147483647l, 2147483647l}>")[[1]]))
+    expect_equal(
+        RasdamanArray(list(`0`=as.array(0), `1`=as.array(4294967295)), as.integer(0)),
+        simplify(dbGetQuery(conn, "select <[0:0] {0ul, 4294967295ul}>")[[1]]))
+    expect_equal(
+        RasdamanArray(list(`0`=as.array(3.14159265), `1`=as.array(2.71828182846)), as.integer(0)),
+        simplify(dbGetQuery(conn, "select <[0:0] {3.14159265d, 2.71828182846d}>")[[1]]))
+    expect_equal(
+        RasdamanArray(list(`0`=as.array(3.1415), `1`=as.array(2.7182)), as.integer(0)),
+        simplify(dbGetQuery(conn, "select <[0:0] {3.1415f, 2.7182f}>")[[1]]))
 
     dbDisconnect(conn)
 })

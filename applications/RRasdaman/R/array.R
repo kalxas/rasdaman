@@ -38,11 +38,13 @@ setGeneric(".getCell", function(handle, jpoint, ...)
     standardGeneric(".getCell"))
 setMethod(".getCell", "RasdamanArrayHandle",
     def = function(handle, jpoint) { tryCatch({
-        if (handle@typeid %in% long_types)
+        if (handle@typeid %in% c(globals$RAS_SHORT, globals$RAS_LONG, globals$RAS_INT))
             result <- handle@jObj$getInt(jpoint)
-        else if (handle@typeid %in% short_types)
+        else if (handle@typeid == globals$RAS_ULONG)
+            result <- handle@jObj$getLong(jpoint)
+        else if (handle@typeid == globals$RAS_SHORT)
             result <- handle@jObj$getShort(jpoint)
-        else if (handle@typeid %in% byte_types)
+        else if (handle@typeid %in% c(globals$RAS_CHAR, globals$RAS_BYTE, globals$RAS_BOOLEAN))
             result <- handle@jObj$getByte(jpoint)
         else if (handle@typeid == globals$RAS_DOUBLE)
             result <- handle@jObj$getDouble(jpoint)
@@ -54,8 +56,8 @@ setMethod(".getCell", "RasdamanArrayHandle",
             result <- .rasElementFromBytes(buffer, handle@jObj$getBaseTypeSchema())
         }
 
-        if (handle@typeid %in% unsigned_types || handle@typeid %in% byte_types)
-            result <- .toUnsigned(result, handle@jObj$getTypeLength())
+        if (handle@typeid == c(globals$RAS_CHAR))
+            result <- .toUnsigned(result, 1)
         result
     }, Exception = .handler) }
 )

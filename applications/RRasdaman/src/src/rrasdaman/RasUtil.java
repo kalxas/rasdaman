@@ -41,39 +41,6 @@ public class RasUtil {
         return parseArray(buffer, size, type);
     }
 
-    public static void main(String[] args) {
-        /*
-        try {
-            RasImplementation impl = new RasImplementation("http://" + "localhost" + ":" + 7001);
-            impl.setUserIdentification("rasadmin", "rasadmin");
-            Database connection = impl.newDatabase();
-            connection.open("RASBASE", Database.OPEN_READ_ONLY);
-            Transaction transaction = impl.newTransaction();
-            transaction.begin();
-
-            OQLQuery q = impl.newOQLQuery();
-            q.create("select x[0,0] from rgb as x");
-
-            DBag db = (DBag) q.execute();
-            for (Object o1: db) {
-                RasStructure rs = (RasStructure) o1;
-                RasStructureType rst = rs.getType();
-                System.out.println("Structure size: " + rst.getSize());
-                System.out.println("Number of attributes: " + rst.getAttributes().length);
-                for (int i = 0; i < rst.getAttributes().length; ++i) {
-                    System.out.println("Attribute " + i + ": " + rst.getAttributes()[i] + " "
-                            + rst.getBaseTypes()[i]);
-                }
-            }
-
-            transaction.abort();
-            connection.close();
-        } catch (Exception e) {
-
-        }
-        */
-    }
-
     public static Object[] parseArray(ByteBuffer buffer, int size, RasBaseType type)
             throws  RasException {
         RasBaseType[] types;
@@ -122,6 +89,8 @@ public class RasUtil {
             for (int i = 0; i < typeSize; ++i) {
                 switch (types[i].getTypeID()) {
                     case RasGlobalDefs.RAS_BYTE:
+                        ((short[]) result[i])[j] = (short) buffer.get();
+                        break;
                     case RasGlobalDefs.RAS_CHAR:
                         ((short[]) result[i])[j] = (short) signedToUnsigned(buffer.get(), 8);
                         break;
@@ -168,11 +137,12 @@ public class RasUtil {
             for (int j = 0; j < types.length; ++j) {
                 Object array = data[j];
                 switch (types[j].getTypeID()) {
-                    case RasGlobalDefs.RAS_BYTE:
                     case RasGlobalDefs.RAS_CHAR:
                     case RasGlobalDefs.RAS_BOOLEAN:
                         buffer.put(((byte[]) array)[i]);
                         break;
+                    case RasGlobalDefs.RAS_BYTE:
+                        buffer.put((byte) ((int[]) array)[i]);
                     case RasGlobalDefs.RAS_INT:
                     case RasGlobalDefs.RAS_LONG:
                         buffer.putInt((int) ((long[]) array)[i]);

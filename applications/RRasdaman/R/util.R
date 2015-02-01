@@ -28,18 +28,10 @@
 ##
 
 globals <- NULL
-unsigned_types <- NULL
-long_types <- NULL
-short_types <- NULL
-byte_types <- NULL
 
 # This function is to be called on the package load
 .rasInitGlobals <- function() {
     globals <<- J("rasj.global.RasGlobalDefs")
-    unsigned_types <<- c(globals$RAS_ULONG, globals$RAS_USHORT)
-    long_types <<- c(globals$RAS_ULONG, globals$RAS_LONG, globals$RAS_INT)
-    short_types <<- c(globals$RAS_SHORT, globals$RAS_USHORT)
-    byte_types <<- c(globals$RAS_CHAR, globals$RAS_BYTE)
 }
 
 #########################
@@ -91,10 +83,22 @@ setMethod("simplify", "RasdamanHandle",
         origin[i] <- domain[[i]]$low
     }
 
-    if (jRasArray %instanceof% "rasj.RasMArrayInteger") {
+    if (jRasArray %instanceof% "rasj.RasMArrayLong") {
+        flatArray <- jRasArray$getLongArray()
+    } else if (jRasArray %instanceof% "rasj.RasMArrayInteger") {
         flatArray <- jRasArray$getIntArray()
     } else if (jRasArray %instanceof% "rasj.RasMArrayByte") {
-        flatArray <- as.integer(jRasArray$getArray())
+        if (jRasArray$getBaseTypeSchema()$getTypeID() == globals$RAS_BOOLEAN) {
+            flatArray <- as.logical(jRasArray$getArray())
+        } else {
+            flatArray <- as.integer(jRasArray$getArray())
+            if (jRasArray$getBaseTypeSchema()$getTypeID() == globals$RAS_BYTE) {
+                # both octet(byte) and char types are sent as arrays of bytes.
+                # as.integer(<raw string>) interprents them as arrays of
+                # unsigned integers, so signed octet values should be corrected
+                flatArray <- sapply(flatArray, function(x) .toSigned(x, 1))
+            }
+        }
     } else if (jRasArray %instanceof% "rasj.RasMArrayDouble") {
         flatArray <- jRasArray$getDoubleArray()
     } else if (jRasArray %instanceof% "rasj.RasMArrayFloat") {
@@ -106,17 +110,15 @@ setMethod("simplify", "RasdamanHandle",
         flatArrays <- lapply(flatArrays, function(x) array(x, dims))
         return(RasdamanArray(array=flatArrays, origin=as.integer(origin)))
     }
-    if (jRasArray$getBaseTypeSchema()$getTypeID() %in% unsigned_types) {
-        typesize = jRasArray$getTypeLength()
-        flatArray <- sapply(flatArray, function(x) .toUnsigned(x, typesize))
-    }
-
     data = array(flatArray, dims)
     RasdamanArray(array=list(data), origin=as.integer(origin))
 }
 
 .rasStructureArrayToR <- function(jRasArray) {
     type <- jRasArray$getBaseTypeSchema()
+    if (!type$isStructType()) {
+        stop(".rasStructureArrayToR works only with arrays of structures")
+    }
     data <- .jevalArray(J("rrasdaman.RasUtil")$parseArray(jRasArray))
     data <- lapply(data, .jevalArray)
     attrs <- type$getAttributes()
@@ -185,15 +187,17 @@ setMethod("simplify", "RasdamanHandle",
 # Get typename of the appropriate rasj.RasGMArray subclass
 .rasGetArrayTypeName <- function(type) {
     typeid <- type$getTypeID()
-    if (typeid %in% c(globals$RAS_LONG, globals$RAS_ULONG, globals$RAS_INT))
+    if (typeid %in% c(globals$RAS_LONG, globals$RAS_INT, globals$RAS_USHORT))
         return("rasj.RasMArrayInteger")
+    if (typeid == globals$RAS_ULONG)
+        return("rasj.RasMArrayLong")
     if (typeid == globals$RAS_FLOAT)
         return("rasj.RasMArrayFloat")
     if (typeid == globals$RAS_DOUBLE )
         return("rasj.RasMArrayDouble")
-    if (typeid %in% c(globals$RAS_SHORT, globals$RAS_USHORT))
+    if (typeid == globals$RAS_SHORT)
         return("rasj.RasMArrayShort")
-    if (typeid %in% byte_types)
+    if (typeid %in% c(globals$RAS_CHAR, globals$RAS_BYTE, globals$RAS_BOOLEAN))
         return("rasj.RasMArrayByte")
     return("rasj.RasGMArray")
 }
@@ -201,20 +205,21 @@ setMethod("simplify", "RasdamanHandle",
 # Convert the data into a raw java array (of primitives or bytes)
 .rasToRawJavaArray <- function(data, type) {
     typeid <- type$getTypeID()
-    if (typeid %in% byte_types) {
-        result <- .jarray(as.raw(data))
-
-    } else if (type$isBaseType()) {
-        if (typeid %in% unsigned_types) {
+    if (type$isBaseType()) {
+        if (typeid == globals$RAS_BYTE) {
             typesize <- type$getSize()
-            data <- lapply(data, function(x) .toSigned(x, typesize))
+            data <- lapply(data, function(x) .toUnsigned(x, typesize))
         }
-        if (typeid %in% long_types)
+        if (typeid == globals$RAS_ULONG)
+            result <- .jarray(.jlong(data))
+        else if (typeid %in% c(globals$RAS_LONG, globals$RAS_INT, globals$RAS_USHORT))
             result <- .jarray(as.integer(data))
-        else if (typeid %in% short_types)
-            result <- .jarray(.jshort(data))
+        else if (typeid == globals$RAS_SHORT)
+            result <- .jarray(.jshort(data)) # DOES NOT WORK: rJava bug#40, no workaround found yet
         else if (typeid == globals$RAS_BOOLEAN)
             result <- .jarray(.jbyte(data))
+        else if (typeid %in% c(globals$RAS_CHAR, globals$RAS_BYTE))
+            result <- .jarray(as.raw(data))
         else if (typeid == globals$RAS_DOUBLE)
             result <- .jarray(as.numeric(data))
         else if (typeid == globals$RAS_FLOAT)
@@ -237,14 +242,12 @@ setMethod("simplify", "RasdamanHandle",
     for (i in 1:ncol(df)) {
         j <- perm[i]
         typeid <- types[[i]]$getTypeID()
-        if (typeid %in% byte_types)
+        if (typeid %in% c(globals$RAS_CHAR, globals$RAS_BOOLEAN))
             l[[i]] <- .jarray(as.raw(df[,j]))
-        else if (typeid %in% long_types)
+        else if (typeid %in% c(globals$RAS_ULONG, globals$RAS_LONG, globals$RAS_INT))
             l[[i]] <- .jarray(.jlong(df[,j]))
-        else if (typeid %in% short_types)
+        else if (typeid %in% c(globals$RAS_SHORT, globals$RAS_USHORT, globals$RAS_BYTE))
             l[[i]] <- .jarray(as.integer(df[,j]))
-        else if (typeid == globals$RAS_BOOLEAN)
-            l[[i]] <- .jarray(as.raw(df[,j]))
         else if (typeid == globals$RAS_FLOAT)
             l[[i]] <- .jarray(.jfloat(df[,j]))
         else if (typeid == globals$RAS_DOUBLE)
@@ -282,15 +285,15 @@ setMethod("simplify", "RasdamanHandle",
 
 .toUnsigned <- function(value, intSize) {
     if (value < 0) {
-        value <- value + bitwShiftL(1, intSize * 8)
+        value <- value + 2 ** (intSize * 8)
     }
     value
 }
 
 .toSigned <- function(value, intSize) {
     bitCount <- 8 * intSize
-    if (bitwAnd(bitwShiftL(1, bitCount - 1), value) != 0)
-        value <- value - bitwShiftL(1, bitCount)
+    if (value >= 2 ** (bitCount - 1))
+        value <- value - 2 ** bitCount
     value
 }
 
