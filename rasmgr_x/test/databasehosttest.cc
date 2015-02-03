@@ -50,9 +50,8 @@ protected:
     Database db;
 };
 
-TEST_F(DatabaseHostTest, constructor)
+TEST_F(DatabaseHostTest, preconditions)
 {
-
     ASSERT_EQ(hostName, dbh.getHostName());
     ASSERT_EQ(connectString, dbh.getConnectString());
     ASSERT_EQ(userName, dbh.getUserName());
@@ -61,40 +60,39 @@ TEST_F(DatabaseHostTest, constructor)
     ASSERT_FALSE(dbh.isBusy());
 }
 
-TEST_F(DatabaseHostTest, increaseSessionCount)
+TEST_F(DatabaseHostTest, addClientSessionOnDB)
 {
     std::string clientId = "clientId";
     std::string sessionId = "sessionId";
 
     ASSERT_FALSE(dbh.isBusy());
 
-    ASSERT_ANY_THROW(dbh.increaseSessionCount(db.getDbName(), clientId, sessionId));
+    //Will fail because there is no db on this host
+    ASSERT_ANY_THROW(dbh.addClientSessionOnDB(db.getDbName(), clientId, sessionId));
 
+    //Add the db
     ASSERT_NO_THROW(dbh.addDbToHost(db));
 
-    ASSERT_NO_THROW(dbh.increaseSessionCount(db.getDbName(), clientId, sessionId));
+    ASSERT_NO_THROW(dbh.addClientSessionOnDB(db.getDbName(), clientId, sessionId));
 
-    ASSERT_ANY_THROW(dbh.increaseSessionCount(db.getDbName(), clientId, sessionId));
+    //Will fail because there is already a session with this id
+    ASSERT_ANY_THROW(dbh.addClientSessionOnDB(db.getDbName(), clientId, sessionId));
 
     ASSERT_TRUE(dbh.isBusy());
 }
 
-TEST_F(DatabaseHostTest, decreaseSessionCount)
+TEST_F(DatabaseHostTest, removeClientSessionFromDB)
 {
     std::string clientId = "clientId";
     std::string sessionId = "sessionId";
 
     ASSERT_FALSE(dbh.isBusy());
 
-    ASSERT_ANY_THROW(dbh.increaseSessionCount(db.getDbName(), clientId, sessionId));
-
     ASSERT_NO_THROW(dbh.addDbToHost(db));
 
-    ASSERT_NO_THROW(dbh.increaseSessionCount(db.getDbName(), clientId, sessionId));
+    ASSERT_NO_THROW(dbh.addClientSessionOnDB(db.getDbName(), clientId, sessionId));
 
-    ASSERT_ANY_THROW(dbh.increaseSessionCount(db.getDbName(), clientId, sessionId));
-
-    ASSERT_NO_THROW(dbh.decreaseSessionCount(clientId, sessionId));
+    ASSERT_NO_THROW(dbh.removeClientSessionFromDB(clientId, sessionId));
 
     ASSERT_FALSE(dbh.isBusy());
 }
@@ -115,6 +113,12 @@ TEST_F(DatabaseHostTest, decreaseServerCount)
     ASSERT_NO_THROW(dbh.increaseServerCount());
 
     ASSERT_TRUE(dbh.isBusy());
+
+    ASSERT_NO_THROW(dbh.decreaseServerCount());
+
+    ASSERT_FALSE(dbh.isBusy());
+
+    ASSERT_ANY_THROW(dbh.decreaseServerCount());
 }
 
 TEST_F(DatabaseHostTest, ownsDatabase)
@@ -148,27 +152,45 @@ TEST_F(DatabaseHostTest, removeDbFromHost)
 
     //Removing a database that is not present on the host will not
     //throw an exception
-    ASSERT_NO_THROW(dbh.removeDbFromHost(db.getDbName()));
+    ASSERT_ANY_THROW(dbh.removeDbFromHost(db.getDbName()));
 
     ASSERT_NO_THROW(dbh.addDbToHost(db));
 
     ASSERT_TRUE(dbh.ownsDatabase(db.getDbName()));
 
-    ASSERT_NO_THROW(dbh.removeDbFromHost(db.getDbName()));
+    std::string clientId = "clientId";
+    std::string sessionId = "sessionId";
 
+    ASSERT_NO_THROW(dbh.addClientSessionOnDB(db.getDbName(), clientId, sessionId));
+
+    //fail because the database is busy
+    ASSERT_ANY_THROW(dbh.removeDbFromHost(db.getDbName()));
+
+    ASSERT_NO_THROW(dbh.removeClientSessionFromDB(clientId, sessionId));
+
+    ASSERT_NO_THROW(dbh.removeDbFromHost(db.getDbName()));
     //The database will now be removed
     ASSERT_FALSE(dbh.ownsDatabase(db.getDbName()));
 }
 
 
-TEST_F(DatabaseHostTest, getDatabase)
+TEST_F(DatabaseHostTest, changeDbProperties)
 {
-    Database db1("test");
-    ASSERT_ANY_THROW(dbh.getDatabase(dbName));
+    rasmgr::DatabasePropertiesProto properties;
+    properties.set_n_name("test");
 
-    ASSERT_NO_THROW(dbh.addDbToHost(db));
+    ASSERT_ANY_THROW(dbh.changeDbProperties(db.getDbName(), properties));
 
-    ASSERT_NO_THROW(db1=dbh.getDatabase(dbName));
+    dbh.addDbToHost(db);
 
-    ASSERT_EQ(dbName, db1.getDbName());
+    std::string clientId = "clientId";
+    std::string sessionId = "sessionId";
+
+    ASSERT_NO_THROW(dbh.addClientSessionOnDB(db.getDbName(), clientId, sessionId));
+
+    ASSERT_ANY_THROW(dbh.changeDbProperties(db.getDbName(), properties));
+
+    ASSERT_NO_THROW(dbh.removeClientSessionFromDB(clientId, sessionId));
+
+    ASSERT_NO_THROW(dbh.changeDbProperties(db.getDbName(), properties));
 }

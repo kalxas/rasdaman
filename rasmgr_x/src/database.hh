@@ -28,6 +28,8 @@
 #include <set>
 #include <utility>
 
+#include "messages/rasmgrmess.pb.h"
+
 namespace rasmgr
 {
 
@@ -43,34 +45,21 @@ public:
 
     virtual ~Database();
 
-    const std::string& getDbName() const;
-
-    void setDbName(const std::string& dbName);
-
     /**
      * When a server requests this database, the transaction count
      * MUST be increased.
      * This allows for preventing the removal of the database while it still has running
      * transactions.
      */
-    void increaseSessionCount(const std::string& clientId, const std::string& sessionId);
+    void addClientSession(const std::string& clientId, const std::string& sessionId);
 
     /**
-     * When a server finishes a transaction with this database,
-     * the transaction count MUST be decreased.
+     * @brief removeClientSession
+     * @param clientId
+     * @param sessionId
+     * @return The number of sessions removed.
      */
-    int decreaseSessionCount(const std::string& clientId, const std::string& sessionId);
-
-    /**
-     * Reset the session counter.
-     */
-    void clearSessionCount();
-
-    /**
-     * Get the number of open sessions on this database.
-     * @return
-     */
-    int getSessionCount();
+    int removeClientSession(const std::string& clientId, const std::string& sessionId);
 
     /**
      * Check if there are running transactions on this database
@@ -78,6 +67,12 @@ public:
      * FALSE otherwise
      */
     bool isBusy() const;
+
+    static DatabaseProto serializeToProto(const Database& db);
+
+    const std::string& getDbName() const;
+
+    void setDbName(const std::string &value);
 
 private:
     std::string dbName; /*!< Name of this database */

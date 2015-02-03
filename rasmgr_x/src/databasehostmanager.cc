@@ -39,8 +39,13 @@ DatabaseHostManager::DatabaseHostManager()
 DatabaseHostManager::~DatabaseHostManager()
 {}
 
-void DatabaseHostManager::addNewDatabaseHost(const std::string& dbHostName, const std::string& connectString, const std::string& userName, const std::string& password)
+void DatabaseHostManager::defineDatabaseHost(const DatabaseHostPropertiesProto &newDbHost)
 {
+    if(!newDbHost.has_host_name())
+    {
+        throw runtime_error("The database configuration object is invalid.");
+    }
+
     list<shared_ptr<DatabaseHost> >::iterator it;
     bool duplicate=false;
 
@@ -48,7 +53,7 @@ void DatabaseHostManager::addNewDatabaseHost(const std::string& dbHostName, cons
 
     for(it=this->hostList.begin(); it!=this->hostList.end(); ++it)
     {
-        if((*it)->getHostName() == dbHostName)
+        if((*it)->getHostName() == newDbHost.host_name())
         {
             duplicate=true;
             break;
@@ -57,16 +62,20 @@ void DatabaseHostManager::addNewDatabaseHost(const std::string& dbHostName, cons
 
     if(duplicate)
     {
-        throw runtime_error("There already is a database host named:"+dbHostName);
+        throw runtime_error("There already is a database host named:\""+newDbHost.host_name()+"\"");
     }
     else
     {
-        shared_ptr<DatabaseHost> dbHost(new DatabaseHost(dbHostName, connectString, userName, password));
+        std::string empty = "";
+        std::string connectStr = newDbHost.has_connect_string() ? newDbHost.connect_string() : empty;
+        std::string userName = newDbHost.has_user_name()?newDbHost.user_name():empty;
+        std::string password = newDbHost.has_password()?newDbHost.password():empty;
+        shared_ptr<DatabaseHost> dbHost(new DatabaseHost(newDbHost.host_name(), connectStr, userName, password));
         this->hostList.push_back(dbHost);
     }
 }
 
-void DatabaseHostManager::changeDatabaseHost(const std::string &oldName, const std::string &newName, const std::string &newConnect, const std::string newUserName, const std::string newPassword)
+void DatabaseHostManager::changeDatabaseHost(const std::string &oldName, const DatabaseHostPropertiesProto &newProperties)
 {
     list<shared_ptr<DatabaseHost> >::iterator it;
     bool changed=false;
@@ -77,18 +86,42 @@ void DatabaseHostManager::changeDatabaseHost(const std::string &oldName, const s
     {
         if((*it)->getHostName() == oldName)
         {
-            (*it)->setConnectString(newConnect);
-            (*it)->setUserName(newUserName);
-            (*it)->setPasswdString(newPassword);
-            (*it)->setHostName(newName);
-            changed=true;
+            if((*it)->isBusy())
+            {
+                throw runtime_error("The database host:\""+oldName+"\" is busy.");
+            }
+            else
+            {
+                if(newProperties.has_connect_string())
+                {
+                    (*it)->setConnectString(newProperties.connect_string());
+                }
+
+                if(newProperties.has_host_name())
+                {
+                    (*it)->setHostName(newProperties.host_name());
+                }
+
+                if(newProperties.has_password())
+                {
+                    (*it)->setPasswdString(newProperties.password());
+                }
+
+                if(newProperties.has_user_name())
+                {
+                    (*it)->setUserName(newProperties.user_name());
+                }
+
+                changed=true;
+            }
+
             break;
         }
     }
 
     if(!changed)
     {
-        throw runtime_error("There exist no database host named:"+oldName);
+        throw runtime_error("There exist no database host named:\""+oldName+"\"");
     }
 }
 
@@ -103,41 +136,23 @@ void DatabaseHostManager::removeDatabaseHost(const std::string& dbHostName)
     {
         if( (*it)->getHostName() == dbHostName)
         {
-            if(!(*it)->isBusy())
+            if((*it)->isBusy())
+            {
+                throw runtime_error("The database host:\""+dbHostName+"\" is busy.");
+            }
+            else
             {
                 this->hostList.erase(it);
                 erased=true;
                 break;
-
-            }
-            else
-            {
-                throw runtime_error("The database host:"+dbHostName+" is busy.");
             }
         }
     }
 
     if(!erased)
     {
-        throw runtime_error("There exist no database host named:"+dbHostName);
+        throw runtime_error("There exist no database host named:\""+dbHostName+"\"");
     }
-}
-
-boost::shared_ptr<DatabaseHost> DatabaseHostManager::getDatabaseHost(const std::string& dbHostName)
-{
-    list<shared_ptr<DatabaseHost> >::iterator it;
-
-    unique_lock<mutex> lock(this->mut);
-
-    for(it=this->hostList.begin(); it!=this->hostList.end(); ++it)
-    {
-        if((*it)->getHostName() == dbHostName)
-        {
-            return (*it);
-        }
-    }
-
-    throw runtime_error("There is no database host with the name:"+dbHostName);
 }
 
 boost::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDH(const std::string &dbHostName)
@@ -161,6 +176,22 @@ boost::shared_ptr<DatabaseHost> DatabaseHostManager::getAndLockDH(const std::str
 std::list<boost::shared_ptr<DatabaseHost> > DatabaseHostManager::getDatabaseHostList() const
 {
     return this->hostList;
+}
+
+DatabaseHostMgrProto DatabaseHostManager::serializeToProto(const DatabaseHostManager &dbh)
+{
+    DatabaseHostMgrProto result;
+
+    list<shared_ptr<DatabaseHost> > dbhList = dbh.getDatabaseHostList();
+
+    list<shared_ptr<DatabaseHost> >::iterator it;
+
+    for(it=dbhList.begin(); it!=dbhList.end(); ++it)
+    {
+        result.add_database_hosts()->CopyFrom(DatabaseHost::serializeToProto(*(*it)));
+    }
+
+    return result;
 }
 
 

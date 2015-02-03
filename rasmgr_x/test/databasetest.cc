@@ -29,61 +29,85 @@
 
 #include "../../rasmgr_x/src/database.hh"
 
-using rasmgr::Database;
-
-TEST(DatabaseTest, increaseSessionCount)
+TEST(DatabaseTest, addClientSession)
 {
-	Database db("dbName");
-	std::string clientId = "client";
-	std::string sessionId = "session";
+    using rasmgr::Database;
 
-	ASSERT_FALSE(db.isBusy());
+    Database db("dbName");
+    std::string clientId = "client";
+    std::string sessionId = "session";
+    std::string sessionId2 = "session2";
 
-	ASSERT_NO_THROW(db.increaseSessionCount(clientId, sessionId));
+    ASSERT_FALSE(db.isBusy());
 
-	ASSERT_TRUE(db.isBusy());
+    ASSERT_NO_THROW(db.addClientSession(clientId, sessionId));
 
-	ASSERT_ANY_THROW(db.increaseSessionCount(clientId, sessionId));
+    ASSERT_TRUE(db.isBusy());
+
+    ASSERT_NO_THROW(db.addClientSession(clientId, sessionId2));
+
+    //Will throw because there already is a session with these IDs
+    ASSERT_ANY_THROW(db.addClientSession(clientId, sessionId));
+}
+
+TEST(DatabaseTest, isBusy)
+{
+    using rasmgr::Database;
+
+    Database db("dbName");
+    std::string clientId = "client";
+    std::string sessionId = "session";
+    std::string sessionId2 = "session2";
+
+    ASSERT_FALSE(db.isBusy());
+
+    ASSERT_NO_THROW(db.addClientSession(clientId, sessionId));
+
+    ASSERT_TRUE(db.isBusy());
 }
 
 
-TEST(DatabaseTest, decreaseSessionCount)
+TEST(DatabaseTest, removeClientSession)
 {
-	Database db("dbName");
-	std::string clientId = "client";
-	std::string sessionId = "session";
+    using rasmgr::Database;
 
-	//Initial state
-	ASSERT_FALSE(db.isBusy());
+    Database db("dbName");
+    std::string clientId = "client";
+    std::string sessionId = "session";
 
-	//Increase the session count and then decrease it
-	ASSERT_NO_THROW(db.increaseSessionCount(clientId, sessionId));
+    //Initial state
+    ASSERT_FALSE(db.isBusy());
 
-	ASSERT_TRUE(db.isBusy());
+    //Increase the session count and then decrease it
+    ASSERT_NO_THROW(db.addClientSession(clientId, sessionId));
 
-	int deletedSessions;
-	ASSERT_NO_THROW(deletedSessions=db.decreaseSessionCount(clientId, sessionId));
+    ASSERT_TRUE(db.isBusy());
 
-	ASSERT_EQ(1, deletedSessions);
+    int deletedSessionsCount;
+    ASSERT_NO_THROW(deletedSessionsCount=db.removeClientSession(clientId, sessionId));
 
-	ASSERT_FALSE(db.isBusy());
+    ASSERT_EQ(1, deletedSessionsCount);
+
+    ASSERT_FALSE(db.isBusy());
 }
 
-TEST(DatabaseTest, clearSessionCount)
+TEST(DatabaseTest, serializeToProto)
 {
-	Database db("dbName");
-	std::string clientId = "client";
-	std::string sessionId = "session";
+    using rasmgr::StringPair;
+    using rasmgr::DatabaseProto;
+    using rasmgr::Database;
 
-	//Initial state
-	ASSERT_FALSE(db.isBusy());
+    std::string dbName = "dbName";
+    std::string clientId = "client";
+    std::string sessionId = "session";
 
-	//Increase the session count and then clear it
-	ASSERT_NO_THROW(db.increaseSessionCount(clientId, sessionId));
+    Database db(dbName);
+    db.addClientSession(clientId, sessionId);
 
-	ASSERT_TRUE(db.isBusy());
+    DatabaseProto proto = Database::serializeToProto(db);
 
-	ASSERT_NO_THROW(db.clearSessionCount());
-
-	ASSERT_FALSE(db.isBusy());
+    ASSERT_EQ(dbName, proto.name());
+    ASSERT_EQ(1, proto.sessions_size());
+    ASSERT_EQ(clientId, proto.sessions(0).first());
+    ASSERT_EQ(sessionId, proto.sessions(0).second());
 }

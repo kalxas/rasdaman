@@ -38,7 +38,7 @@ using boost::unique_lock;
 
 DatabaseManager::DatabaseManager(
     boost::shared_ptr<DatabaseHostManager> dbHostManager) :
-        dbHostManager(dbHostManager)
+    dbHostManager(dbHostManager)
 {}
 
 DatabaseManager::~DatabaseManager()
@@ -47,94 +47,94 @@ DatabaseManager::~DatabaseManager()
 void DatabaseManager::defineDatabase(const std::string& databaseName,
                                      const std::string& dbHostName)
 {
-
     unique_lock<mutex> lock(this->mut);
 
-    list<shared_ptr<DatabaseHost> > dbhList=this->dbHostManager->getDatabaseHostList();
+    shared_ptr<DatabaseHost> dbHost;
+    bool foundHost = false;
 
-    for(list<shared_ptr<DatabaseHost> >::iterator it=dbhList.begin(); it!=dbhList.end(); ++it)
+    list<shared_ptr<DatabaseHost> > dbhList = this->dbHostManager->getDatabaseHostList();
+    list<shared_ptr<DatabaseHost> >::iterator it=dbhList.begin();
+
+    while(it!=dbhList.end())
     {
         if((*it)->ownsDatabase(databaseName))
         {
-            throw runtime_error(
-                "There already exists a database with the name: "
-                + databaseName);
+            throw runtime_error("There already exists a database named: \""
+                                + databaseName+"\"");
         }
+
+        if((*it)->getHostName() == dbHostName)
+        {
+            foundHost = true;
+            dbHost = (*it);
+        }
+
+        it++;
     }
 
-    //Get the host for this new database
-    shared_ptr<DatabaseHost> dbHost = this->dbHostManager->getDatabaseHost(
-                                          dbHostName);
-
-    //Insert the new entry in the database
-    dbHost->addDbToHost(Database(databaseName));
+    if(foundHost)
+    {
+        //Insert the new entry in the database
+        dbHost->addDbToHost(Database(databaseName));
+    }
+    else
+    {
+        throw runtime_error("There is no database host named \""
+                            + databaseName+"\" defined.");
+    }
 }
 
-void DatabaseManager::changeDatabaseName(const std::string& oldDbName,
-        const std::string& newDbName)
+void DatabaseManager::changeDatabase(const std::string &oldDbName, const DatabasePropertiesProto &newDbProp)
 {
-    bool changed=false;
     unique_lock<mutex> lock(this->mut);
 
     list<shared_ptr<DatabaseHost> > dbhList=this->dbHostManager->getDatabaseHostList();
+    bool changed=false;
 
     for(list<shared_ptr<DatabaseHost> >::iterator it=dbhList.begin(); it!=dbhList.end(); ++it)
     {
         if((*it)->ownsDatabase(oldDbName))
         {
-            if((*it)->getDatabase(oldDbName).isBusy())
-            {
-                throw runtime_error("The database \""+oldDbName+"\" cannot be modified while it has open transactions.");
-            }
-            else
-            {
-                (*it)->getDatabase(oldDbName).setDbName(newDbName);
-                changed=true;
-            }
+            (*it)->changeDbProperties(oldDbName, newDbProp);
+            changed=true;
+
+            break;
         }
     }
 
     if(!changed)
     {
-        throw runtime_error("There is no database:\""+oldDbName+"\"");
+        throw runtime_error("There is no database named:\""+oldDbName+"\"");
     }
 }
 
 void DatabaseManager::removeDatabase(const std::string& databaseName)
 {
-    list<shared_ptr<Database> >::iterator it;
-    bool removed=false;
-
     unique_lock<mutex> lock(this->mut);
 
     list<shared_ptr<DatabaseHost> > dbhList=this->dbHostManager->getDatabaseHostList();
+    bool removed=false;
 
     for(list<shared_ptr<DatabaseHost> >::iterator it=dbhList.begin(); it!=dbhList.end(); ++it)
     {
         if((*it)->ownsDatabase(databaseName))
         {
-            if((*it)->getDatabase(databaseName).isBusy())
-            {
-                throw runtime_error("The database \""+databaseName+"\" could not be removed because it has open transactions.");
-            }
-            else
-            {
-                (*it)->removeDbFromHost(databaseName);
-                removed=true;
-                break;
-            }
+            (*it)->removeDbFromHost(databaseName);
+            removed=true;
+
+            break;
         }
     }
 
     if(!removed)
     {
-        throw runtime_error("There is no database with the name:"+databaseName);
+        throw runtime_error("There is no database named: \""+databaseName+"\" on this manager.");
     }
 }
 
-std::list<Database> DatabaseManager::getDatabaseList()
+DatabaseMgrProto DatabaseManager::serializeToProto()
 {
-    std::list<Database> result;
+    DatabaseMgrProto result;
 
     unique_lock<mutex> lock(this->mut);
 
@@ -142,27 +142,21 @@ std::list<Database> DatabaseManager::getDatabaseList()
 
     for(list<shared_ptr<DatabaseHost> >::iterator it=dbhList.begin(); it!=dbhList.end(); ++it)
     {
-        std::list<Database> aux=(*it)->getDatabaseList();
-        result.insert(result.begin(), aux.begin(), aux.end());
+        DatabaseHostProto dbhProto = DatabaseHost::serializeToProto( *(*it));
+
+        for(int i=0; i<dbhProto.databases_size(); i++)
+        {
+            DatabaseMgrProto::DbAndDbHostPair* p =  result.add_databases();
+
+            DatabaseProto* dbProto = new DatabaseProto();
+            dbProto->CopyFrom(dbhProto.databases(i));
+
+            p->set_database_host(dbhProto.host_name());
+            p->set_allocated_database(dbProto);
+        }
     }
 
     return result;
 }
 
-Database DatabaseManager::getDatabase(const std::string& dbName)
-{
-    unique_lock<mutex> lock(this->mut);
-
-    list<shared_ptr<DatabaseHost> > dbhList=this->dbHostManager->getDatabaseHostList();
-
-    for(list<shared_ptr<DatabaseHost> >::iterator it=dbhList.begin(); it!=dbhList.end(); ++it)
-    {
-        if((*it)->ownsDatabase(dbName))
-        {
-            return (*it)->getDatabase(dbName);
-        }
-    }
-
-    throw runtime_error("There is no database with the name:"+dbName);
-}
 } /* namespace rasmgr */

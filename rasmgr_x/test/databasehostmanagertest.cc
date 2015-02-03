@@ -26,21 +26,25 @@
 #include "../../common/src/unittest/gtest.h"
 #include "../../common/src/mock/gmock.h"
 #include "../../common/src/logging/easylogging++.hh"
+#include "util/testutil.hh"
 
 #include "../../rasmgr_x/src/database.hh"
 #include "../../rasmgr_x/src/databasehost.hh"
 #include "../../rasmgr_x/src/databasehostmanager.hh"
+#include "../src/messages/rasmgrmess.pb.h"
 
 using rasmgr::Database;
 using rasmgr::DatabaseHost;
 using rasmgr::DatabaseHostManager;
+using rasmgr::DatabaseHostPropertiesProto;
+using rasmgr::DatabaseHostMgrProto;
 
 class DatabaseHostManagerTest:public ::testing::Test
 {
 protected:
     DatabaseHostManagerTest():hostName("hostName"),connectString("connectString"),
-            userName("userName"), passwdString("passwdString"),dbName("dbName"),
-            dbh(hostName,connectString, userName, passwdString),db(dbName)
+        userName("userName"), passwdString("passwdString"),dbName("dbName"),
+        dbh(hostName,connectString, userName, passwdString),db(dbName)
     {}
 
     std::string hostName;
@@ -53,26 +57,37 @@ protected:
     DatabaseHostManager dbhManager;
 };
 
-TEST_F(DatabaseHostManagerTest, constructor)
+TEST_F(DatabaseHostManagerTest, preconditions)
 {
     ASSERT_EQ(0, dbhManager.getDatabaseHostList().size());
 }
 
-TEST_F(DatabaseHostManagerTest, addNewDatabaseHost)
+TEST_F(DatabaseHostManagerTest, defineDatabaseHost)
 {
-    boost::shared_ptr<DatabaseHost> dbhResult;
-    ASSERT_NO_THROW(dbhManager.addNewDatabaseHost(hostName, connectString, userName, passwdString));
+    DatabaseHostPropertiesProto properties;
+
+    //The operation will fail because the host_name of properties is not set.
+    ASSERT_ANY_THROW(dbhManager.defineDatabaseHost(properties));
+
+    properties.set_host_name(hostName);
+    properties.set_user_name(userName);
+    properties.set_password(passwdString);
+    properties.set_connect_string(connectString);
+
+    ASSERT_NO_THROW(dbhManager.defineDatabaseHost(properties));
 
     ASSERT_EQ(1, dbhManager.getDatabaseHostList().size());
 
-    ASSERT_NO_THROW(dbhResult=dbhManager.getDatabaseHost(hostName));
+    //Get the first database and see if the result was valid.
+    boost::shared_ptr<DatabaseHost> dbhResult = dbhManager.getDatabaseHostList().front();
 
     ASSERT_EQ(hostName, dbhResult->getHostName());
     ASSERT_EQ(connectString, dbhResult->getConnectString());
     ASSERT_EQ(passwdString, dbhResult->getPasswdString());
     ASSERT_EQ(userName, dbhResult->getUserName());
 
-    ASSERT_ANY_THROW(dbhManager.addNewDatabaseHost(hostName, connectString, userName, passwdString));
+    //Will fail because there already is a database host with the given host name
+    ASSERT_ANY_THROW(dbhManager.defineDatabaseHost(properties));
 }
 
 TEST_F(DatabaseHostManagerTest, removeDatabaseHost)
@@ -80,8 +95,13 @@ TEST_F(DatabaseHostManagerTest, removeDatabaseHost)
     //no database with the given name
     ASSERT_ANY_THROW(dbhManager.removeDatabaseHost(hostName));
 
+    DatabaseHostPropertiesProto properties;
+    properties.set_host_name(hostName);
+    properties.set_user_name(userName);
+    properties.set_password(passwdString);
+    properties.set_connect_string(connectString);
     //Add a dbh
-    ASSERT_NO_THROW(dbhManager.addNewDatabaseHost(hostName, connectString, userName, passwdString));
+    ASSERT_NO_THROW(dbhManager.defineDatabaseHost(properties));
 
     //remove it
     ASSERT_NO_THROW(dbhManager.removeDatabaseHost(hostName));
@@ -93,66 +113,81 @@ TEST_F(DatabaseHostManagerTest, removeDatabaseHost)
     ASSERT_ANY_THROW(dbhManager.removeDatabaseHost(hostName));
 }
 
-TEST_F(DatabaseHostManagerTest, changeDHConnectString)
+TEST_F(DatabaseHostManagerTest, changeDbHostProperties)
 {
-    std::string newConnectString = "newConnectString";
+    DatabaseHostPropertiesProto properties;
+
+    if(rasmgr::test::TestUtil::randomBool())
+    {
+        properties.set_connect_string("newConnectString");
+    }
+
+    if(rasmgr::test::TestUtil::randomBool())
+    {
+        properties.set_host_name("newHostName");
+    }
+
+    if(rasmgr::test::TestUtil::randomBool())
+    {
+        properties.set_password("newPass");
+    }
+
+    if(rasmgr::test::TestUtil::randomBool())
+    {
+        properties.set_user_name("newUserName");
+    }
+
     //no database with the given name
-    ASSERT_ANY_THROW(dbhManager.changeDHConnectString(hostName, newConnectString));
+    ASSERT_ANY_THROW(dbhManager.changeDatabaseHost(hostName, properties));
+
+    DatabaseHostPropertiesProto originalDBH;
+    originalDBH.set_host_name(hostName);
+    originalDBH.set_user_name(userName);
+    originalDBH.set_password(passwdString);
+    originalDBH.set_connect_string(connectString);
 
     //Add a dbh
-    ASSERT_NO_THROW(dbhManager.addNewDatabaseHost(hostName, connectString, userName, passwdString));
+    ASSERT_NO_THROW(dbhManager.defineDatabaseHost(originalDBH));
 
-    //remove it
-    ASSERT_NO_THROW(dbhManager.changeDHConnectString(hostName, newConnectString));
+    ASSERT_NO_THROW(dbhManager.changeDatabaseHost(hostName, properties));
 
-    //Test that the change was successful
-    ASSERT_EQ(newConnectString, dbhManager.getDatabaseHost(hostName)->getConnectString());
-}
+    boost::shared_ptr<DatabaseHost> dbhResult = dbhManager.getDatabaseHostList().front();
 
-TEST_F(DatabaseHostManagerTest, changeDHPassword)
-{
-    std::string newsPassword = "newPassword";
-    //no database with the given name
-    ASSERT_ANY_THROW(dbhManager.changeDHPassword(hostName, newsPassword));
+    if(properties.has_connect_string())
+    {
+        ASSERT_EQ(properties.connect_string(),dbhResult->getConnectString());
+    }
+    else
+    {
+        ASSERT_EQ(originalDBH.connect_string(),dbhResult->getConnectString());
+    }
 
-    //Add a dbh
-    ASSERT_NO_THROW(dbhManager.addNewDatabaseHost(hostName, connectString, userName, passwdString));
+    if(properties.has_host_name())
+    {
+        ASSERT_EQ(properties.host_name(), dbhResult->getHostName());
+    }
+    else
+    {
+        ASSERT_EQ(originalDBH.host_name(), dbhResult->getHostName());
+    }
 
-    //remove it
-    ASSERT_NO_THROW(dbhManager.changeDHPassword(hostName, newsPassword));
+    if(properties.has_password())
+    {
+        ASSERT_EQ(properties.password(), dbhResult->getPasswdString());
+    }
+    else
+    {
+        ASSERT_EQ(originalDBH.password(), dbhResult->getPasswdString());
+    }
 
-    //Test that the change was successful
-    ASSERT_EQ(newsPassword, dbhManager.getDatabaseHost(hostName)->getPasswdString());
-}
-
-TEST_F(DatabaseHostManagerTest, changeDHUser)
-{
-    std::string newUser = "newUser";
-    //no database with the given name
-    ASSERT_ANY_THROW(dbhManager.changeDHUser(hostName, newUser));
-
-    //Add a dbh
-    ASSERT_NO_THROW(dbhManager.addNewDatabaseHost(hostName, connectString, userName, passwdString));
-
-    //remove it
-    ASSERT_NO_THROW(dbhManager.changeDHUser(hostName, newUser));
-
-    //Test that the change was successful
-    ASSERT_EQ(newUser, dbhManager.getDatabaseHost(hostName)->getUserName());
-}
-
-TEST_F(DatabaseHostManagerTest, getDatabaseHost)
-{
-    boost::shared_ptr<DatabaseHost> dbhResult;
-
-    ASSERT_ANY_THROW(dbhManager.getDatabaseHost(hostName));
-
-    //Add a dbh
-    ASSERT_NO_THROW(dbhManager.addNewDatabaseHost(hostName, connectString, userName, passwdString));
-
-    ASSERT_NO_THROW(dbhResult=dbhManager.getDatabaseHost(hostName));
-
-    ASSERT_FALSE(dbhResult->isBusy());
+    if(properties.has_user_name())
+    {
+        ASSERT_EQ(properties.user_name(), dbhResult->getUserName());
+    }
+    else
+    {
+        ASSERT_EQ(originalDBH.user_name(), dbhResult->getUserName());
+    }
 }
 
 TEST_F(DatabaseHostManagerTest, getAndLockDH)
@@ -160,8 +195,16 @@ TEST_F(DatabaseHostManagerTest, getAndLockDH)
     boost::shared_ptr<DatabaseHost> dbhResult;
     ASSERT_ANY_THROW(dbhManager.getAndLockDH(hostName));
 
+    DatabaseHostPropertiesProto originalDBH;
+    originalDBH.set_host_name(hostName);
+    originalDBH.set_user_name(userName);
+    originalDBH.set_password(passwdString);
+    originalDBH.set_connect_string(connectString);
+
     //Add a dbh
-    ASSERT_NO_THROW(dbhManager.addNewDatabaseHost(hostName, connectString, userName, passwdString));
+    ASSERT_NO_THROW(dbhManager.defineDatabaseHost(originalDBH));
+
+    ASSERT_FALSE(dbhManager.getDatabaseHostList().front()->isBusy());
 
     ASSERT_NO_THROW(dbhResult=dbhManager.getAndLockDH(hostName));
 
@@ -172,7 +215,36 @@ TEST_F(DatabaseHostManagerTest, getDatabaseHostList)
 {
     ASSERT_EQ(0, dbhManager.getDatabaseHostList().size());
 
-    ASSERT_NO_THROW(dbhManager.addNewDatabaseHost(hostName, connectString, userName, passwdString));
+    DatabaseHostPropertiesProto originalDBH;
+    originalDBH.set_host_name(hostName);
+    originalDBH.set_user_name(userName);
+    originalDBH.set_password(passwdString);
+    originalDBH.set_connect_string(connectString);
+
+    //Add a dbh
+    ASSERT_NO_THROW(dbhManager.defineDatabaseHost(originalDBH));
 
     ASSERT_EQ(1, dbhManager.getDatabaseHostList().size());
+}
+
+TEST_F(DatabaseHostManagerTest, serializeToProto)
+{
+    DatabaseHostMgrProto result =  DatabaseHostManager::serializeToProto(dbhManager);
+    ASSERT_EQ(0, result.database_hosts_size());
+
+    DatabaseHostPropertiesProto originalDBH;
+    originalDBH.set_host_name(hostName);
+    originalDBH.set_user_name(userName);
+    originalDBH.set_password(passwdString);
+    originalDBH.set_connect_string(connectString);
+
+    dbhManager.defineDatabaseHost(originalDBH);
+
+    result =  DatabaseHostManager::serializeToProto(dbhManager);
+    ASSERT_EQ(1, result.database_hosts_size());
+
+    ASSERT_EQ(hostName, result.database_hosts(0).host_name());
+    ASSERT_EQ(userName, result.database_hosts(0).user_name());
+    ASSERT_EQ(passwdString, result.database_hosts(0).password());
+    ASSERT_EQ(connectString, result.database_hosts(0).connect_string());
 }

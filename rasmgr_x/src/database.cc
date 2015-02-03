@@ -39,17 +39,7 @@ Database::Database(const std::string& dbName):dbName(dbName)
 Database::~Database()
 {}
 
-const std::string& Database::getDbName() const
-{
-    return this->dbName;
-}
-
-void Database::setDbName(const std::string& dbName)
-{
-    this->dbName = dbName;
-}
-
-void Database::increaseSessionCount(const std::string& clientId, const std::string& sessionId)
+void Database::addClientSession(const std::string& clientId, const std::string& sessionId)
 {
     pair<set<pair<string,string> >::iterator,bool> insertResult = this->sessionList.insert(std::make_pair(clientId,sessionId));
     if(!insertResult.second)
@@ -58,25 +48,41 @@ void Database::increaseSessionCount(const std::string& clientId, const std::stri
     }
 }
 
-int Database::decreaseSessionCount(const std::string& clientId, const std::string& sessionId)
+int Database::removeClientSession(const std::string& clientId, const std::string& sessionId)
 {
     pair<string,string> toRemove(clientId, sessionId);
     return this->sessionList.erase(toRemove);
-}
-
-void Database::clearSessionCount()
-{
-    this->sessionList.clear();
-}
-
-int Database::getSessionCount()
-{
-    return this->sessionList.size();
 }
 
 bool Database::isBusy() const
 {
     return !this->sessionList.empty();
 }
+
+DatabaseProto Database::serializeToProto(const Database &db)
+{
+    DatabaseProto result;
+    result.set_name(db.getDbName());
+
+    for(set<pair<string, string> >::iterator it = db.sessionList.begin(); it!=db.sessionList.end(); ++it)
+    {
+        StringPair* session = result.add_sessions();
+        session->set_first(it->first);
+        session->set_second(it->second);
+    }
+
+    return result;
+}
+
+const std::string& Database::getDbName() const
+{
+    return dbName;
+}
+
+void Database::setDbName(const std::string &value)
+{
+    dbName = value;
+}
+
 
 } /* namespace rasmgr */

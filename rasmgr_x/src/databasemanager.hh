@@ -29,6 +29,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
 
+#include "messages/rasmgrmess.pb.h"
 #include "databasehostmanager.hh"
 #include "database.hh"
 
@@ -40,7 +41,7 @@ class DatabaseManager
 public:
     /**
      * Initialize a new instance of the DatabaseManager class.
-     * @param dbHostManager Reference to the database host manager with which this manager cooperates.
+     * @param dbHostManager Reference to the database host manager with which this object is associated.
      */
     DatabaseManager(boost::shared_ptr<DatabaseHostManager> dbHostManager);
 
@@ -59,7 +60,7 @@ public:
      * @param oldDbName The old name of the database
      * @param newDbName The new name of the database
      */
-    void changeDatabaseName(const std::string& oldDbName, const std::string& newDbName);
+    void changeDatabase(const std::string& oldDbName, const DatabasePropertiesProto& newDbProp);
 
     /**
      * Remove the database with the given name from the list.
@@ -69,18 +70,10 @@ public:
     void removeDatabase(const std::string& databaseName);
 
     /**
-     * Get a list with the registered databases.
+     * @brief serializeToProto Serialize the information this object holds in a snapshot.
      * @return
      */
-    std::list<Database> getDatabaseList();
-
-    /**
-     * Check if there is a database with the given name
-     * @param dbName
-     * @return TRUE if the database is defined, FALSE otherwise
-     */
-    Database getDatabase(const std::string& dbName);
-
+    DatabaseMgrProto serializeToProto();
 private:
     boost::shared_ptr<DatabaseHostManager> dbHostManager; /*!< Reference to the database host manager*/
 

@@ -27,6 +27,7 @@
 
 #include <boost/thread.hpp>
 
+#include "messages/rasmgrmess.pb.h"
 #include "database.hh"
 
 namespace rasmgr
@@ -46,16 +47,16 @@ public:
                  std::string userName, std::string passwdString);
 
     /**
-     * @brief increaseServerCount Increase the number of servers using
-     * this database host.
+     * @brief addClientSessionOnDB Increase the number of sessions running
+     * on the given database
      */
-    void increaseSessionCount(const std::string& databaseName, const std::string& clientId, const std::string& sessionId);
+    void addClientSessionOnDB(const std::string& databaseName, const std::string& clientId, const std::string& sessionId);
 
     /**
-     * @brief decreaseServerCount Decrease the number of servers using this
-     * database host
+     * @brief removeClientSessionFromDB Decrease the number of sessions running
+     * on the given database
      */
-    void decreaseSessionCount(const std::string& clientId, const std::string& sessionId);
+    void removeClientSessionFromDB(const std::string& clientId, const std::string& sessionId);
 
     /**
      * @brief increaseServerCount Increase the number of servers using this host.
@@ -69,20 +70,23 @@ public:
 
     /**
      * @brief isBusy Check if the database host is busy with any servers
-     * @return TRUE if there are servers assigned to this host, FALSE otherwise
+     * @return TRUE if there are servers assigned to this host
+     * or if there are client sessions assigned to this DH, FALSE otherwise
      */
     bool isBusy() const;
 
     /**
      * Check if the database identified by databaseName is present on this host.
-     * This does not provide any sort of guarantee,
+     * The database might be removed by between this call and the moment an
+     * operation is performed on the database if locking is not performed at
+     * a higher level.
      * @param databaseName
      * @return TRUE if the database with the given name is on this host, FALSE otherwise
      */
     bool ownsDatabase(const std::string& databaseName);
 
     /**
-     * Add the database to this host. This database MUST be removed
+     * Add the database to this host.
      * @param db
      */
     void addDbToHost(const Database& db);
@@ -92,6 +96,14 @@ public:
      * @param dbName
      */
     void removeDbFromHost(const std::string& dbName);
+
+    /**
+     * @brief changeDbProperties Change the properties of the database with the given name
+     * if the database exists on this host.
+     * @param dbName
+     * @param newDbProp
+     */
+    void changeDbProperties(const std::string& dbName, const DatabasePropertiesProto& newDbProp);
 
     const std::string& getHostName() const;
     void setHostName(const std::string& hostName);
@@ -105,9 +117,7 @@ public:
     const std::string& getPasswdString() const;
     void setPasswdString(const std::string& passwdString);
 
-    Database getDatabase(const std::string& dbName);
-
-    std::list<Database> getDatabaseList();
+    static DatabaseHostProto serializeToProto(const DatabaseHost& dbHost);
 
 private:
     std::string hostName; /*!< Name of this database host */

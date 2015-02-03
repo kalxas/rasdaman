@@ -160,6 +160,7 @@ message DefineOutpeer{
 
 //END: Peer messages
 
+//BEGIN: Internal plain storage objects
 message UserAdminRightsProto {
 	required bool access_control_rights = 1;
 	required bool info_rights = 2;
@@ -181,4 +182,51 @@ message UserProto {
 
 message UserListProto {
 	repeated UserProto users = 1;
+}
+
+message StringPair {
+  required string first = 1;
+  required string second = 2;
+}
+
+message DatabaseProto {
+    required string name = 1;
+    repeated StringPair sessions = 2;
+}
+
+message DatabaseMgrProto {
+
+  message DbAndDbHostPair {
+    required DatabaseProto database = 1;
+    required string database_host = 2;
+  }
+
+  repeated DbAndDbHostPair databases = 1;
+}
+
+message DatabasePropertiesProto {
+    optional string n_name = 1;
+}
+
+message DatabaseHostProto {
+    required string host_name = 1;
+    required string connect_string = 2;
+    required string user_name = 3;
+    required string password = 4;
+
+    required int32 session_count = 5;
+    required int32 server_count = 6;
+
+    repeated DatabaseProto databases = 7;
+}
+
+message DatabaseHostPropertiesProto{
+  optional string host_name = 1;
+  optional string connect_string = 2;
+  optional string user_name = 3;
+  optional string password = 4;
+}
+
+message DatabaseHostMgrProto {
+  repeated DatabaseHostProto database_hosts = 1;
 }

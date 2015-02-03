@@ -37,6 +37,9 @@ using rasmgr::Database;
 using rasmgr::DatabaseHost;
 using rasmgr::DatabaseHostManager;
 using rasmgr::DatabaseManager;
+using rasmgr::DatabaseHostPropertiesProto;
+using rasmgr::DatabasePropertiesProto;
+using rasmgr::DatabaseMgrProto;
 
 class DatabaseManagerTest:public ::testing::Test
 {
@@ -64,7 +67,12 @@ TEST_F(DatabaseManagerTest, defineDatabase)
     //Throw because there is no host
     ASSERT_ANY_THROW(dbManager->defineDatabase(dbName, hostName));
 
-    dbhManager->addNewDatabaseHost(hostName, connectString,userName, passwdString);
+    DatabaseHostPropertiesProto proto;
+    proto.set_host_name(hostName);
+    proto.set_connect_string(connectString);
+    proto.set_user_name(userName);
+    proto.set_password(passwdString);
+    dbhManager->defineDatabaseHost(proto);
 
     //Succeed
     ASSERT_NO_THROW(dbManager->defineDatabase(dbName, hostName));
@@ -76,26 +84,32 @@ TEST_F(DatabaseManagerTest, defineDatabase)
 TEST_F(DatabaseManagerTest, changeDatabaseName)
 {
     std::string newName =  "newName";
-    //Throw because there is no db
-    ASSERT_ANY_THROW(dbManager->changeDatabaseName(dbName, newName));
+    DatabasePropertiesProto dbProperties;
+    dbProperties.set_n_name(newName);
 
-    dbhManager->addNewDatabaseHost(hostName, connectString,userName, passwdString);
+    //Throw because there is no db
+    ASSERT_ANY_THROW(dbManager->changeDatabase(dbName, dbProperties));
+
+    DatabaseHostPropertiesProto proto;
+    proto.set_host_name(hostName);
+    proto.set_connect_string(connectString);
+    proto.set_user_name(userName);
+    proto.set_password(passwdString);
+
+    //Define the database host
+    dbhManager->defineDatabaseHost(proto);
 
     //Succeed
     ASSERT_NO_THROW(dbManager->defineDatabase(dbName, hostName));
 
     //Succeed
-    ASSERT_NO_THROW(dbManager->changeDatabaseName(dbName, newName));
+    ASSERT_NO_THROW(dbManager->changeDatabase(dbName, dbProperties));
 
-    dbhManager->getDatabaseHost(hostName)->increaseSessionCount(dbName, "test", "test");
+    DatabaseMgrProto dbMgrData =  dbManager->serializeToProto();
 
-    //Fail because the database is busy
-    ASSERT_ANY_THROW(dbManager->changeDatabaseName(dbName, newName));
-
-    dbhManager->getDatabaseHost(hostName)->decreaseSessionCount("test", "test");
-
-    //Fail because the database is busy
-    ASSERT_NO_THROW(dbManager->changeDatabaseName(dbName, newName));
+    ASSERT_EQ(1, dbMgrData.databases_size());
+    ASSERT_EQ(newName, dbMgrData.databases(0).database().name());
+    ASSERT_EQ(hostName, dbMgrData.databases(0).database_host());
 }
 
 TEST_F(DatabaseManagerTest, removeDatabase)
@@ -103,23 +117,41 @@ TEST_F(DatabaseManagerTest, removeDatabase)
     //Throw because there is no db
     ASSERT_ANY_THROW(dbManager->removeDatabase(dbName));
 
-    dbhManager->addNewDatabaseHost(hostName, connectString,userName, passwdString);
+    DatabaseHostPropertiesProto proto;
+    proto.set_host_name(hostName);
+    proto.set_connect_string(connectString);
+    proto.set_user_name(userName);
+    proto.set_password(passwdString);
+
+    //Define the database host
+    dbhManager->defineDatabaseHost(proto);
 
     //Succeed
     ASSERT_NO_THROW(dbManager->defineDatabase(dbName, hostName));
-
-    dbhManager->getDatabaseHost(hostName)->increaseSessionCount(dbName, "test", "test");
-
-    //Fail because the database is busy
-
-    ASSERT_ANY_THROW(dbManager->removeDatabase(dbName));
-
-    dbhManager->getDatabaseHost(hostName)->decreaseSessionCount("test", "test");
 
     //Succeed
     ASSERT_NO_THROW(dbManager->removeDatabase(dbName));
 
     //Fail because the database ihas been removed.
     ASSERT_ANY_THROW(dbManager->removeDatabase(dbName));
+}
 
+TEST_F(DatabaseManagerTest, serializeToProto){
+    DatabaseHostPropertiesProto proto;
+    proto.set_host_name(hostName);
+    proto.set_connect_string(connectString);
+    proto.set_user_name(userName);
+    proto.set_password(passwdString);
+
+    //Define the database host
+    dbhManager->defineDatabaseHost(proto);
+
+    //Succeed
+    ASSERT_NO_THROW(dbManager->defineDatabase(dbName, hostName));
+
+    DatabaseMgrProto dbMgrData =  dbManager->serializeToProto();
+
+    ASSERT_EQ(1, dbMgrData.databases_size());
+    ASSERT_EQ(dbName, dbMgrData.databases(0).database().name());
+    ASSERT_EQ(hostName, dbMgrData.databases(0).database_host());
 }

@@ -40,9 +40,9 @@ librasmgr_a_SOURCES = ${SRC}
 
 librasmgr_a_LIBADD = ../../rasnet/src/librasnet.a ../../common/src/libcommon.a
 
-messages/rasmgrmess.pb.cc: generate_protobuffers
-.PHONY: generate_protobuffers
-generate_protobuffers:
-	echo "Generating buffers"
-	$(MKDIR_P) messages
-	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/*
+# messages/rasmgrmess.pb.cc: generate_protobuffers
+# .PHONY: generate_protobuffers
+# generate_protobuffers:
+# 	echo "Generating buffers"
+# 	$(MKDIR_P) messages
+# 	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/*

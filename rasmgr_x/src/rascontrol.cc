@@ -84,7 +84,7 @@ std::string RasControl::defineDbHost ( const DefineDbHost& dbHostData )
             passwd=dbHostData.passwd();
         }
 
-        this->dbHostManager->addNewDatabaseHost ( dbHostData.host_name(), connect, user, passwd );
+        //this->dbHostManager->addNewDatabaseHost ( dbHostData.host_name(), connect, user, passwd );
     }
     catch ( std::exception& ex )
     {
@@ -105,45 +105,45 @@ std::string RasControl::changeDbHost ( const ChangeDbHost& dbHostData )
 
     LDEBUG<<"Changing database host:"<<dbHostData.DebugString();
 
-    try
-    {
-        boost::shared_ptr<DatabaseHost> dbHost=this->dbHostManager->getDatabaseHost ( dbHostData.host_name() );
+//    try
+//    {
+//        boost::shared_ptr<DatabaseHost> dbHost=this->dbHostManager->getDatabaseHost ( dbHostData.host_name() );
 
-        std::string connect = dbHost->getConnectString();
-        std::string user = dbHost->getUserName();
-        std::string passwd = dbHost->getPasswdString();
-        std::string newName = dbHost->getHostName();
+//        std::string connect = dbHost->getConnectString();
+//        std::string user = dbHost->getUserName();
+//        std::string passwd = dbHost->getPasswdString();
+//        std::string newName = dbHost->getHostName();
 
-        if ( dbHostData.has_n_connect() )
-        {
-            connect = dbHostData.n_connect();
-        }
+//        if ( dbHostData.has_n_connect() )
+//        {
+//            connect = dbHostData.n_connect();
+//        }
 
-        if ( dbHostData.has_n_user() )
-        {
-            user = dbHostData.n_user();
-        }
+//        if ( dbHostData.has_n_user() )
+//        {
+//            user = dbHostData.n_user();
+//        }
 
-        if ( dbHostData.has_n_passwd() )
-        {
-            passwd = dbHostData.n_passwd();
-        }
+//        if ( dbHostData.has_n_passwd() )
+//        {
+//            passwd = dbHostData.n_passwd();
+//        }
 
-        if ( dbHostData.has_n_name() )
-        {
-            newName = dbHostData.n_name();
-        }
+//        if ( dbHostData.has_n_name() )
+//        {
+//            newName = dbHostData.n_name();
+//        }
 
-        this->dbHostManager->changeDatabaseHost ( dbHostData.host_name(),newName, connect,user, passwd );
-    }
-    catch ( std::exception& ex )
-    {
-        message = "ERROR"+std::string ( ex.what() );
-    }
-    catch ( ... )
-    {
-        message = "ERROR:Operation define db could not be completed.";
-    }
+//        this->dbHostManager->changeDatabaseHost ( dbHostData.host_name(),newName, connect,user, passwd );
+//    }
+//    catch ( std::exception& ex )
+//    {
+//        message = "ERROR"+std::string ( ex.what() );
+//    }
+//    catch ( ... )
+//    {
+//        message = "ERROR:Operation define db could not be completed.";
+//    }
 
     return message;
 
@@ -175,22 +175,23 @@ std::string RasControl::listDbHost()
 {
     std::stringstream ss;
     int counter = 1;
-    list<shared_ptr<DatabaseHost> > dbhList = this->dbHostManager->getDatabaseHostList();
+//    list<shared_ptr<DatabaseHost> > dbhList = this->dbHostManager->getDatabaseHostList();
 
     ss<<"List of database hosts:\r\n";
     ss<<"    Database Host     Connection String            Databases";
-    for ( list<shared_ptr<DatabaseHost> > ::iterator it = dbhList.begin(); it!=dbhList.end(); ++it )
-    {
-        ss<< ( format ( "\r\n%2d. %-15s %-30s" ) %counter% ( *it )->getHostName() % ( *it )->getConnectString() );
-        list<Database> dbList = ( *it )->getDatabaseList();
+    //TODO-AT: REDO
+    //    for ( list<shared_ptr<DatabaseHost> > ::iterator it = dbhList.begin(); it!=dbhList.end(); ++it )
+//    {
+//        ss<< ( format ( "\r\n%2d. %-15s %-30s" ) %counter% ( *it )->getHostName() % ( *it )->getConnectString() );
+//        list<Database> dbList = ( *it )->getDatabaseList();
 
-        for ( list<Database>::iterator db = dbList.begin(); db!=dbList.end(); ++db )
-        {
-            ss<< ( format ( " %s" ) % db->getDbName() );
-        }
+//        for ( list<Database>::iterator db = dbList.begin(); db!=dbList.end(); ++db )
+//        {
+//            ss<< ( format ( " %s" ) % db->getDbName() );
+//        }
 
-        counter++;
-    }
+//        counter++;
+//    }
 
     return ss.str();
 }
@@ -230,7 +231,8 @@ std::string RasControl::changeDb ( const ChangeDb& dbData )
 
     try
     {
-        this->dbManager->changeDatabaseName ( dbData.db_name(), dbData.n_db_name() );
+        //TODO-AT:
+       // this->dbManager->changeDatabaseName ( dbData.db_name(), dbData.n_db_name() );
     }
     catch ( std::exception& ex )
     {
@@ -273,45 +275,46 @@ std::string RasControl::listDb ( const ListDb& listDbData )
     LDEBUG<<listDbData.DebugString();
 
     //If the Database name was given, list information about this database
-    if ( listDbData.has_db_name() )
-    {
-        Database db=this->dbManager->getDatabase ( listDbData.db_name() );
+    //TODO-AT:Redo
+//    if ( listDbData.has_db_name() )
+//    {
+//        Database db=this->dbManager->getDatabase ( listDbData.db_name() );
 
-        ss<<"List database: "<<listDbData.db_name() <<"\r\n";
-        ss<<"    Database Name         Open Trans.";
+//        ss<<"List database: "<<listDbData.db_name() <<"\r\n";
+//        ss<<"    Database Name         Open Trans.";
 
 
-        ss<< ( format ( "\r\n%2d. %-20s  %d" ) % 1 %  db.getDbName() % db.getSessionCount() );
-    }
-    //If the database host was given, give information about the database host
-    else if ( listDbData.has_dbh_name() )
-    {
-        shared_ptr<DatabaseHost> dbh = this->dbHostManager->getDatabaseHost ( listDbData.dbh_name() );
-        list<Database> dbList =  dbh->getDatabaseList();
+//        ss<< ( format ( "\r\n%2d. %-20s  %d" ) % 1 %  db.getDbName() % db.getSessionCount() );
+//    }
+//    //If the database host was given, give information about the database host
+//    else if ( listDbData.has_dbh_name() )
+//    {
+//        shared_ptr<DatabaseHost> dbh = this->dbHostManager->getDatabaseHost ( listDbData.dbh_name() );
+//        list<Database> dbList =  dbh->getDatabaseList();
 
-        ss<< ( format ( "List of databases on host: %s\r\n" ) % dbh->getHostName() );
-        ss<<"    Database Name         Open Trans.";
-        int counter = 1;
-        for ( list<Database>::iterator it = dbList.begin(); it!=dbList.end(); ++it )
-        {
-            ss<< ( format ( "\r\n%2d. %-20s  %d" ) % counter % it->getDbName() % it->getSessionCount() );
-            counter++;
-        }
-    }//otherwise assume -all was passed in
-    else
-    {
-        list<Database> dbList = this->dbManager->getDatabaseList();
+//        ss<< ( format ( "List of databases on host: %s\r\n" ) % dbh->getHostName() );
+//        ss<<"    Database Name         Open Trans.";
+//        int counter = 1;
+//        for ( list<Database>::iterator it = dbList.begin(); it!=dbList.end(); ++it )
+//        {
+//            ss<< ( format ( "\r\n%2d. %-20s  %d" ) % counter % it->getDbName() % it->getSessionCount() );
+//            counter++;
+//        }
+//    }//otherwise assume -all was passed in
+//    else
+//    {
+//        list<Database> dbList = this->dbManager->getDatabaseList();
 
-        ss<< ( format ( "List of databases:\r\n" ) );
-        ss<<"    Database Name         Open Trans.";
+//        ss<< ( format ( "List of databases:\r\n" ) );
+//        ss<<"    Database Name         Open Trans.";
 
-        int counter = 1;
-        for ( list<Database>::iterator it = dbList.begin(); it!=dbList.end(); ++it )
-        {
-            ss<< ( format ( "\r\n%2d. %-20s  %d" ) % counter % it->getDbName() % it->getSessionCount() );
-            counter++;
-        }
-    }
+//        int counter = 1;
+//        for ( list<Database>::iterator it = dbList.begin(); it!=dbList.end(); ++it )
+//        {
+//            ss<< ( format ( "\r\n%2d. %-20s  %d" ) % counter % it->getDbName() % it->getSessionCount() );
+//            counter++;
+//        }
+//    }
 
     return ss.str();
 }

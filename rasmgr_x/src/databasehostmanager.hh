@@ -27,6 +27,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
+#include "messages/rasmgrmess.pb.h"
+
 #include "databasehost.hh"
 
 namespace rasmgr
@@ -40,60 +42,51 @@ public:
     virtual ~DatabaseHostManager();
 
     /**
-     * Insert a new database host into the list.
-     * @param hostName Name of the database host
-     * @param connectString String used to connect to the host
-     * @param userName User name
-     * @param password Password associated with the user
+     * @brief addNewDatabaseHost
+     * @param newDbHost Configuration information required to define a new database host
+     * If the host name is not specified, it throws an exception.
      */
-    void addNewDatabaseHost(const std::string& dbHostName,
-                            const std::string& connectString, const std::string& userName,
-                            const std::string& password);
+    void defineDatabaseHost(const DatabaseHostPropertiesProto& newDbHost);
 
     /**
      * @brief changeDatabaseHost Change the properties of the database host identified by
-     * oldName with the new values. If you do not want to change a value, assign it the old value i.e.
-     * retrieve a reference to the DatabaseHost object, get its configuration parameters,
-     * change the ones you desire and apply the changes.
+     * oldName with the new values.
      * @param oldName
-     * @param newName
-     * @param newConnect
-     * @param newUserName
-     * @param newPassword
+     * @param newProperties
      */
-    void changeDatabaseHost(const std::string& oldName, const std::string& newName,
-                            const std::string& newConnect, const std::string newUserName,
-                            const std::string newPassword);
-
-
-    void removeDatabaseHost(const std::string& dbHostName);
+    void changeDatabaseHost(const std::string& oldName, const DatabaseHostPropertiesProto& newProperties);
 
     /**
-     * @brief getDatabaseHost Get a shared reference to the database host identified
-     * by dbHostName
+     * @brief removeDatabaseHost Remove the database host identified by the dbHostName from
+     * the registry.
      * @param dbHostName
-     * @return
-     * @throws std::exception An exception is thrown if there is no database host with this name
      */
-    boost::shared_ptr<DatabaseHost> getDatabaseHost(const std::string& dbHostName);
+    void removeDatabaseHost(const std::string& dbHostName);
 
     /**
      * @brief getAndLockDH Get a reference to the database host with the given name
      * if it exists and increase the server count once.
      * This means that the server count MUST be decreased before releasing the reference.
      * This method is used to retrieve a dbhost and make certain that it will not be removed
-     * by another thread.
+     * by another thread(e.g. rascontrol)
      * @param dbHostName
      * @return
      */
     boost::shared_ptr<DatabaseHost> getAndLockDH(const std::string& dbHostName);
 
+    /**
+     * @brief getDatabaseHostList Retrieve a list containing the list of database hosts
+     * currently registered with this rasmgr.
+     * @return
+     */
     std::list<boost::shared_ptr<DatabaseHost> > getDatabaseHostList() const;
+
+
+    static DatabaseHostMgrProto serializeToProto(const DatabaseHostManager& dbh);
 
 private:
     std::list< boost::shared_ptr<DatabaseHost> > hostList;
     boost::mutex mut;
-
 };
 
 } /* namespace rasmgr */

@@ -39,32 +39,39 @@ DatabaseHost::DatabaseHost(std::string hostName, std::string connectString,
     this->serverCount = 0;
 }
 
-void DatabaseHost::increaseSessionCount(const std::string& databaseName, const std::string& clientId, const std::string& sessionId)
+void DatabaseHost::addClientSessionOnDB(const std::string& databaseName, const std::string& clientId, const std::string& sessionId)
 {
     unique_lock<mutex> lock(this->mut);
 
+    bool foundDb = false;
     std::list<Database>::iterator it;
-    for(it=this->databaseList.begin(); it!=this->databaseList.end(); it++)
+    for(it=this->databaseList.begin(); !foundDb &&  it!=this->databaseList.end(); it++)
     {
         if(it->getDbName() == databaseName)
         {
-            it->increaseSessionCount(clientId,sessionId);
+            foundDb=true;
+            //If there already is a session with the given clientId and sessionId
+            //on this db, the next line will throw an exception
+            //and the counter will not be incremented
+            it->addClientSession(clientId,sessionId);
             this->sessionCount++;
-            return;
         }
     }
 
-    throw runtime_error("The host does not contain database:\""+databaseName+"\"");
+    if(!foundDb)
+    {
+        throw runtime_error("The host does not contain database:\""+databaseName+"\"");
+    }
 }
 
-void DatabaseHost::decreaseSessionCount(const std::string& clientId, const std::string& sessionId)
+void DatabaseHost::removeClientSessionFromDB(const std::string& clientId, const std::string& sessionId)
 {
     unique_lock<mutex> lock(this->mut);
 
     std::list<Database>::iterator it;
     for(it=this->databaseList.begin(); it!=this->databaseList.end(); it++)
     {
-        this->sessionCount-=it->decreaseSessionCount(clientId, sessionId);
+        this->sessionCount-=it->removeClientSession(clientId, sessionId);
     }
 }
 
@@ -77,6 +84,11 @@ void DatabaseHost::increaseServerCount()
 void DatabaseHost::decreaseServerCount()
 {
     unique_lock<mutex> lock(this->mut);
+    if(this->serverCount==0)
+    {
+        throw std::runtime_error("The server count cannot be further decreased.");
+    }
+
     this->serverCount--;
 }
 
@@ -113,17 +125,66 @@ void DatabaseHost::addDbToHost(const Database& db)
 void DatabaseHost::removeDbFromHost(const std::string& dbName)
 {
     std::list<Database>::iterator it;
+    bool removedDb = false;
 
     unique_lock<mutex> lock(this->mut);
 
-    for(it=this->databaseList.begin(); it!=this->databaseList.end(); it++)
+    for(it=this->databaseList.begin(); !removedDb && it!=this->databaseList.end(); it++)
     {
         if(it->getDbName() == dbName)
         {
-            this->databaseList.erase(it);
+            if(it->isBusy())
+            {
+                throw runtime_error("The database \""+dbName+"\" is busy and cannot be removed");
+            }
+            else
+            {
+                this->databaseList.erase(it);
+                removedDb = true;
+            }
+
             break;
         }
     }
+
+    if(!removedDb)
+    {
+        throw runtime_error("There is no database named \""+dbName+"\"");
+    }
+}
+
+void DatabaseHost::changeDbProperties(const std::string &dbName, const DatabasePropertiesProto &newDbProp)
+{
+    std::list<Database>::iterator it;
+    bool changedDb = false;
+
+    unique_lock<mutex> lock(this->mut);
+    for(it=this->databaseList.begin(); !changedDb && it!=this->databaseList.end(); it++)
+    {
+        if(it->getDbName() == dbName)
+        {
+            if(it->isBusy())
+            {
+                throw runtime_error("The database named \""+
+                                    dbName+"\" is busy and the properties cannot be changed");
+            }
+            else
+            {
+                changedDb = true;
+
+                if(newDbProp.has_n_name())
+                {
+                    it->setDbName(newDbProp.n_name());
+                }
+            }
+        }
+    }
+
+    if(!changedDb)
+    {
+        throw runtime_error("There is no database named:\""+dbName+"\" on this host.");
+    }
+
 }
 
 const std::string& DatabaseHost::getHostName() const
@@ -166,20 +227,26 @@ void DatabaseHost::setPasswdString(const std::string& passwdString)
     this->passwdString=passwdString;
 }
 
-Database DatabaseHost::getDatabase(const std::string& dbName)
+DatabaseHostProto DatabaseHost::serializeToProto(const DatabaseHost &dbHost)
 {
-    std::list<Database>::iterator it;
+    DatabaseHostProto result;
 
-    unique_lock<mutex> lock(this->mut);
-    for(it=this->databaseList.begin(); it!=this->databaseList.end(); it++)
+    result.set_host_name(dbHost.hostName);
+    result.set_connect_string(dbHost.connectString);
+    result.set_user_name(dbHost.userName);
+    result.set_password(dbHost.passwdString);
+
+    result.set_session_count(dbHost.sessionCount);
+    result.set_server_count(dbHost.serverCount);
+
+    std::list<Database>::const_iterator it;
+
+    for(it=dbHost.databaseList.begin(); it!=dbHost.databaseList.end(); it++)
     {
-        if(it->getDbName() == dbName)
-        {
-            return (*it);
-        }
+        result.add_databases()->CopyFrom(Database::serializeToProto(*it));
     }
 
-    throw runtime_error("There is no database named:"+dbName+" on this host.");
+    return result;
 }
 
 bool DatabaseHost::containsDatabase(const std::string& dbName)
@@ -195,11 +262,6 @@ bool DatabaseHost::containsDatabase(const std::string& dbName)
     }
 
     return false;
-}
-
-std::list<Database> DatabaseHost::getDatabaseList()
-{
-    return this->databaseList;
 }
 
 }

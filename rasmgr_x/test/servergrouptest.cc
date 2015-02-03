@@ -130,10 +130,10 @@ protected:
         ports.insert(port);
 
         dbHostManager.reset(new rasmgr::DatabaseHostManager());
-        dbHostManager->addNewDatabaseHost(dbHostName, "connectString", "user","passwd");
+        dbHostManager->defineDatabaseHost(dbHostName, "connectString", "user","passwd");
 
-        boost::shared_ptr<rasmgr::DatabaseHost> dbHost=dbHostManager->getDatabaseHost(dbHostName);
-        dbHost->addDbToHost(db);
+//        boost::shared_ptr<rasmgr::DatabaseHost> dbHost=dbHostManager->getDatabaseHost(dbHostName);
+//        dbHost->addDbToHost(db);
 
         ServerGroupConfig config("serverGroup", 1, "tcp://localhost", ports,dbHostName);
         serverGroup.reset(new ServerGroup(config, this->dbHostManager, this->processManager));

@@ -22,7 +22,7 @@ ServerGroupConfig: Nothing to be tested. (1)
 ServerManagementService:
 ServerManager:
 
-User: Nothing to be tested. (1)
+User: 100% test coverage.
 UserAdminRights:100% test coverage.
 UserDatabaseRights: 100% test coverage.
 UserManager: 100% test coverage

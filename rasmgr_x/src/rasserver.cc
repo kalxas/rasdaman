@@ -99,7 +99,7 @@ RasServer::~RasServer()
             it!=this->sessionList.end();
             ++it)
     {
-        this->dbHost->decreaseSessionCount(it->first, it->second);
+        this->dbHost->removeClientSessionFromDB(it->first, it->second);
     }
 
     this->sessionList.clear();
@@ -253,7 +253,7 @@ void RasServer::allocateClientSession(const std::string& clientId,
     }
 
     //If everything went well so far, increase the session count for this database
-    this->dbHost->increaseSessionCount(dbName, clientId, sessionId);
+    this->dbHost->addClientSessionOnDB(dbName, clientId, sessionId);
 
     {
         unique_lock<shared_mutex> listLock(this->sessionMtx);
@@ -276,7 +276,7 @@ void RasServer::deallocateClientSession(const std::string& clientId, const std::
     request.set_sessionid(sessionId);
 
     //Decrease the session count
-    this->dbHost->decreaseSessionCount(clientId, sessionId);
+    this->dbHost->removeClientSessionFromDB(clientId, sessionId);
 
     {
         unique_lock<shared_mutex> listLock(this->sessionMtx);
