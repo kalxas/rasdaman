@@ -438,6 +438,10 @@ r_Error::setErrorTextOnKind()
         strcpy(buffer, "Illegal value for optimization level");
         break;
 
+    case r_Error_Conversion:
+        strcpy(buffer, "Format conversion failed");
+        break;
+
     default:
         strcpy(buffer, "not specified");
         break;

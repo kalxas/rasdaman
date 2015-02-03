@@ -148,7 +148,9 @@ public:
 
                 r_Error_InvalidOptimizationLevel,
 
-                r_Error_TileCannotBeLocked
+                r_Error_TileCannotBeLocked,
+
+                r_Error_Conversion
               };
 
     /// default constructor
