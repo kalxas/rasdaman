@@ -42,6 +42,7 @@ all: build
 
 build:
 	$(MKDIR) $(BUILD)
+	$(MKDIR) $(RJAVADIR)
 	test -f ../../java/dist/rasj.jar || make -C ../../java
 	$(CP) $(DEP_JARS)  $(RJAVADIR)
 	$(CD) $(BUILD) && $(RBIN) CMD build ..
@@ -62,4 +63,4 @@ install: build
 	$(CD) $(BUILD) && $(RBIN) CMD INSTALL $(PACKAGE)_$(VERSION).tar.gz
 
 clean:
-	$(RM) -rf $(BUILD)
+	$(RM) -rf $(BUILD) $(RJAVADIR)
