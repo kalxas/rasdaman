@@ -31,7 +31,7 @@
 #include "../../comm/src/messages/rasmgr_rassrvr_service.pb.h"
 #include "../src/servermanagementservice.hh"
 #include "../../comm/src/service/server/ServiceManager.hh"
-#include "../src/rasserver.hh"
+#include "../src/serverrasnet.hh"
 
 
 using boost::shared_ptr;
@@ -64,7 +64,7 @@ protected:
 
 TEST_F(ServerManagerTest, spawnOneServerTest)
 {
-    shared_ptr<rasmgr::RasServer> rasServer = serverManager->getFreeServer();
+    shared_ptr<rasmgr::ServerRasNet> rasServer = serverManager->getFreeServer();
     ASSERT_TRUE(rasServer->isFree());
     rasServer->stop();
     ASSERT_TRUE(rasServer->isStopped());

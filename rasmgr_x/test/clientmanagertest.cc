@@ -37,36 +37,50 @@
 #include "../src/clientcredentials.hh"
 #include "../src/clientmanagerconfig.hh"
 
+#include "../src/messages/rasmgrmess.pb.h"
+
 #include "mocks/mockrasserver.hh"
+#include "mocks/usermanagermock.hh"
 
 using rasmgr::Client;
 using rasmgr::RasMgrConfig;
-using rasmgr::RasServer;
+using rasmgr::Server;
+using rasmgr::UserProto;
 using rasmgr::UserManager;
 using rasmgr::ClientManager;
 using rasmgr::ClientManagerConfig;
 using ::testing::AtLeast;                     // #1
 using ::testing::_;
 using ::testing::Return;
+using rasmgr::UserAdminRightsProto;
+using rasmgr::UserDatabaseRightsProto;
+using boost::shared_ptr;
 
 class ClientManagerTest:public ::testing::Test
 {
 protected:
-    ClientManagerTest():clientId("clientId"),userName("userName"),userPassword("userPassword"),dbRights(true, true),
-            dbName("dbName"), sessionId("sessionId"), serverHost("tcp://localhost"),serverPort(7010), config(3000,3000)
+    ClientManagerTest():
+        clientId("clientId"),userName("userName"),userPassword("userPassword"),
+        dbName("dbName"), sessionId("sessionId"),
+        serverHost("tcp://localhost"),serverPort(7010), config(10,10)
     {
+        rasmgr::UserAdminRights adminRights;
         adminRights.setAccessControlRights(true);
         adminRights.setInfoRights(true);
         adminRights.setServerAdminRights(true);
         adminRights.setSystemConfigRights(true);
 
-        userManager.reset(new UserManager());
+        rasmgr::UserDatabaseRights dbRights(true, true);
+
+        user.reset(new rasmgr::User(userName,userPassword,dbRights, adminRights));
+
+        userManager.reset(new UserManagerMock());
         clientManager.reset(new ClientManager(userManager, config));
 
     }
 
-    rasmgr::UserAdminRights adminRights;
-    rasmgr::UserDatabaseRights dbRights;
+    boost::shared_ptr<rasmgr::User> user;
+
     std::string userName;
     std::string userPassword;
     std::string clientId;
@@ -76,7 +90,6 @@ protected:
 
     std::string serverHost;
     boost::int32_t serverPort;
-    boost::shared_ptr<rasmgr::DatabaseHost> dbHost;
     boost::shared_ptr<UserManager> userManager;
     boost::shared_ptr<ClientManager> clientManager;
 };
@@ -87,28 +100,32 @@ protected:
 TEST_F(ClientManagerTest, connectClientFail)
 {
     std::string badUser="badUser";
-    std::string badPassword = "badUser";
+    std::string badPassword = "badPassword";
     std::string out_clientId;
-    rasmgr::ClientCredentials credentials(badUser, badPassword);
+    rasmgr::ClientCredentials badCredentials(badUser, badPassword);
+    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
 
-    ASSERT_ANY_THROW(clientManager->connectClient(credentials, out_clientId));
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
+    .WillOnce(Return(false)).WillRepeatedly(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+
+    //Will fail because the user manager will say that there is no client with those credentials
+    ASSERT_ANY_THROW(clientManager->connectClient(badCredentials, out_clientId));
 
     //Good user name, bad password
-    userManager->defineUser(userName, badPassword, dbRights, adminRights);
+    badCredentials.setUserName(user->getName());
+    ASSERT_ANY_THROW(clientManager->connectClient(badCredentials, out_clientId));
 
-    ASSERT_ANY_THROW(clientManager->connectClient(credentials, out_clientId));
 
-    rasmgr::UserDatabaseRights badRights(false,false);
-    userManager->changeUserPassword(userName, userPassword);
-    userManager->changeUserDatabaseRights(userName, badRights);
-    ASSERT_ANY_THROW(clientManager->connectClient(credentials, out_clientId));
 }
 
 TEST_F(ClientManagerTest, connectClientSuccess)
 {
     std::string out_clientId;
-    rasmgr::ClientCredentials credentials(userName, userPassword);
-    userManager->defineUser(userName, userPassword, dbRights, adminRights);
+    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
+
+    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
+    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
 }
@@ -116,13 +133,20 @@ TEST_F(ClientManagerTest, connectClientSuccess)
 TEST_F(ClientManagerTest, disconnectClient)
 {
     std::string out_clientId;
-    rasmgr::ClientCredentials credentials(userName, userPassword);
-    userManager->defineUser(userName, userPassword, dbRights, adminRights);
+    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
 
-    ASSERT_NO_THROW(clientManager->disconnectClient(out_clientId));
+    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
 
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
+    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+
+    //Nothing will happen because there is no client with that ID
+    ASSERT_NO_THROW(clientManager->disconnectClient("out_clientId"));
+
+    //Will succeed
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
 
+    //Will succeed and it will remove the client
     ASSERT_NO_THROW(clientManager->disconnectClient(out_clientId));
 }
 
@@ -131,21 +155,24 @@ TEST_F(ClientManagerTest, openClientDbSessionFail)
     std::string out_clientId;
     std::string out_sessionId;
 
-    rasmgr::RasMgrConfig::getInstance()->setClientLifeTime(1);
-    rasmgr::RasMgrConfig::getInstance()->setClientManagementGarbageCollectionInterval(1);
+    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
+    boost::shared_ptr<Server> server(new MockRasServer());
 
+    MockRasServer& serverMock = *boost::dynamic_pointer_cast<MockRasServer>(server);
+    //  EXPECT_CALL(serverMock, allocateClientSession(_, _ ,dbName, _)).Times(1);
+    EXPECT_CALL(serverMock, isClientAlive(_)).WillRepeatedly(Return(false));
 
-    rasmgr::ClientCredentials credentials(userName, userPassword);
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
-    userManager->defineUser(userName, userPassword, dbRights, adminRights);
+    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
+    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
-    //  EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(_, _ ,dbName, _)).Times(1);
-    EXPECT_CALL(*((MockRasServer*)server.get()), isClientAlive(_)).WillRepeatedly(Return(false));
+    //Will fail because there is no client with this id
+    ASSERT_ANY_THROW(clientManager->openClientDbSession(out_clientId, dbName, server, out_sessionId));
 
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
 
     //Wait for the client to die
-    usleep(rasmgr::RasMgrConfig::getInstance()->getClientLifeTime()*1000*10);
+    usleep(config.getCleanupInterval()*1000*2);
 
     ASSERT_ANY_THROW(clientManager->openClientDbSession(out_clientId, dbName, server, out_sessionId));
 }
@@ -155,12 +182,16 @@ TEST_F(ClientManagerTest, openClientDbSession)
     std::string out_clientId;
     std::string out_sessionId;
 
-    rasmgr::ClientCredentials credentials(userName, userPassword);
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
-    userManager->defineUser(userName, userPassword, dbRights, adminRights);
+    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
+    boost::shared_ptr<Server> server(new MockRasServer());
 
-    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(_, _ ,dbName, _)).Times(1);
-    EXPECT_CALL(*((MockRasServer*)server.get()), isClientAlive(_)).WillRepeatedly(Return(true));
+    MockRasServer& serverMock = *boost::dynamic_pointer_cast<MockRasServer>(server);
+    EXPECT_CALL(serverMock, allocateClientSession(_, _ ,dbName, _)).Times(1);
+    EXPECT_CALL(serverMock, isClientAlive(_)).WillRepeatedly(Return(false));
+
+    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
+    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
 
@@ -173,13 +204,20 @@ TEST_F(ClientManagerTest, closeClientDbSession)
     std::string out_clientId;
     std::string out_sessionId;
 
-    rasmgr::ClientCredentials credentials(userName, userPassword);
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
-    userManager->defineUser(userName, userPassword, dbRights, adminRights);
+    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
+    boost::shared_ptr<Server> server(new MockRasServer());
 
-    EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(_, _ ,dbName, _)).Times(1);
-    EXPECT_CALL(*((MockRasServer*)server.get()), deallocateClientSession(_,_)).Times(1);
-    EXPECT_CALL(*((MockRasServer*)server.get()), isClientAlive(_)).WillRepeatedly(Return(true));
+    MockRasServer& serverMock = *boost::dynamic_pointer_cast<MockRasServer>(server);
+    EXPECT_CALL(serverMock, allocateClientSession(_, _ ,dbName, _)).Times(1);
+    EXPECT_CALL(serverMock, deallocateClientSession(_,_)).Times(1);
+    EXPECT_CALL(serverMock, isClientAlive(_)).WillRepeatedly(Return(true));
+
+    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
+    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
+
+    //There is no client connected.
+    ASSERT_ANY_THROW(clientManager->closeClientDbSession(out_clientId, out_sessionId));
 
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
 
@@ -194,24 +232,22 @@ TEST_F(ClientManagerTest, keepClientAliveFail)
 {
     std::string out_clientId;
 
-    rasmgr::ClientCredentials credentials(userName, userPassword);
+    rasmgr::ClientCredentials credentials(user->getName(), user->getPassword());
+    boost::shared_ptr<Server> server(new MockRasServer());
+
+    MockRasServer& serverMock = *boost::dynamic_pointer_cast<MockRasServer>(server);
+    EXPECT_CALL(serverMock, isClientAlive(_)).WillRepeatedly(Return(false));
+
+    UserManagerMock& userMgrMock = *boost::dynamic_pointer_cast<UserManagerMock>(userManager);
+    EXPECT_CALL(userMgrMock, tryGetUser(_,_))
+    .WillOnce(DoAll(testing::SetArgReferee<1>(user), Return(true)));
 
     ASSERT_ANY_THROW(clientManager->keepClientAlive(out_clientId));
-
-    rasmgr::RasMgrConfig::getInstance()->setClientLifeTime(1);
-    rasmgr::RasMgrConfig::getInstance()->setClientManagementGarbageCollectionInterval(1);
-
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
-    userManager->defineUser(userName, userPassword, dbRights, adminRights);
-
-    //  EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(_, _ ,dbName, _)).Times(1);
-    EXPECT_CALL(*((MockRasServer*)server.get()), isClientAlive(_)).WillRepeatedly(Return(false));
 
     ASSERT_NO_THROW(clientManager->connectClient(credentials, out_clientId));
 
     //Wait for the client to die
-    usleep(rasmgr::RasMgrConfig::getInstance()->getClientLifeTime()*1000*10);
+    usleep(config.getCleanupInterval()*1000*2);
 
     ASSERT_ANY_THROW(clientManager->keepClientAlive(out_clientId));
-
 }

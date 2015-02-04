@@ -71,9 +71,7 @@ public:
      * If the authentication is successful, the UUID assigned to the client will be returned.
      * If the authentication fails, an exception is thrown.
      * @param clientCredentials Credentials used to authenticate the client.
-     * @param clientUUID Out parameter for clientUUID
-     * @param clientId Out parameter for int client id.
-     * @return the UUID assigned to the client.
+     * @param out_clientUUID If the method is successful, it will contain the UUID assigned to the client.
      * @throws std::runtime_error
      */
     virtual void connectClient(const ClientCredentials& clientCredentials, std::string& out_clientUUID);
@@ -88,10 +86,10 @@ public:
      * @brief openClientDbSession Open a database session for the client with the given id and provide a unique session id.
      * @param clientId Unique ID identifying the client
      * @param dbName  Database that the client wants to open
-     * @param assignedServer  RasServer that will be assigned to the client if this operation succeeds.
+     * @param assignedServer  Server that will be assigned to the client if this operation succeeds.
      * @param out_sessionId  Session ID that will uniquely identify this session together with the clientID.
      */
-    virtual void openClientDbSession(std::string clientId, const std::string& dbName,boost::shared_ptr<RasServer> assignedServer, std::string& out_sessionId);
+    virtual void openClientDbSession(std::string clientId, const std::string& dbName,boost::shared_ptr<Server> assignedServer, std::string& out_sessionId);
 
     /**
      * @brief closeClientDbSession Remove a client session from the client manager and the servers

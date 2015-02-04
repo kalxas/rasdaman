@@ -32,14 +32,13 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/smart_ptr.hpp>
 
-#include "common/src/zeromq/zmq.hh"
+#include "../../common/src/zeromq/zmq.hh"
 
-#include "rasserver.hh"
+#include "server.hh"
 #include "servergroupconfig.hh"
 #include "servergroup.hh"
-#include "iservercreator.hh"
-
 #include "messages/rasmgrmess.pb.h"
+#include "serverfactory.hh"
 
 namespace rasmgr
 {
@@ -65,7 +64,7 @@ public:
      * @throws std::exception if after trying a number of times to obtain a server,
      * no free server can be found.
      */
-    boost::shared_ptr<RasServer> getFreeServer ( const std::string& databaseName );
+    boost::shared_ptr<Server> getFreeServer ( const std::string& databaseName );
 
     /**
      * Registers a rasserver when the server starts and becomes available.
@@ -156,7 +155,7 @@ private:
 
     boost::scoped_ptr<boost::thread> workerCleanup; /*!< Thread object running the @see workerCleanupRunner() function. */
 
-    boost::shared_ptr<IServerCreator> serverCreator;
+    boost::shared_ptr<ServerFactory> serverFactory;
     /**
      * Function which cleans the servers which failed to start or were stopped.
      */

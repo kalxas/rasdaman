@@ -49,23 +49,25 @@ using google::protobuf::io::OstreamOutputStream;
 
 UserManager::UserManager()
 {
-    this->loadAuthenticationFile();
 }
 
 UserManager::~UserManager()
 {}
 
-void UserManager::defineUser ( const std::string& userName, const std::string& password,
-                               const UserDatabaseRights& defaultRights,
-                               const UserAdminRights& adminRights )
+void UserManager::defineUser (const UserProto &userInfo)
 {
     bool duplicate=false;
     list<boost::shared_ptr<User> >::iterator it;
 
+    if(!userInfo.has_name())
+    {
+        throw runtime_error("The user information must contain a name value.");
+    }
+
     unique_lock<mutex> lock ( this->mut );
     for ( it = this->userList.begin(); it != this->userList.end(); ++it )
     {
-        if ( ( *it )->getName() == userName )
+        if ( ( *it )->getName() == userInfo.name())
         {
             duplicate= true;
             break;
@@ -74,11 +76,59 @@ void UserManager::defineUser ( const std::string& userName, const std::string& p
 
     if ( duplicate )
     {
-        throw runtime_error ( "ERROR:There already exists a user named:"+userName );
+        throw runtime_error ( "There already exists a user named:\""+userInfo.name() +"\"");
     }
     else
     {
-        this->userList.push_back ( boost::shared_ptr<User> ( new User ( userName, password, defaultRights, adminRights ) ) );
+        std::string empty;
+        boost::shared_ptr<User> user( new User ( userInfo.name(),
+                                      userInfo.password(),
+                                      UserDatabaseRights::parseFromProto(userInfo.default_db_rights()),
+                                      UserAdminRights::parseFromProto(userInfo.admin_rights())));
+
+        this->userList.push_back (user);
+    }
+}
+
+void UserManager::changeUser(const std::string &userName, const UserProto &newUserInfo)
+{
+    list<boost::shared_ptr<User> >::iterator it;
+    bool changed=false;
+
+    unique_lock<mutex> lock ( this->mut );
+    for ( it = this->userList.begin(); it != this->userList.end(); ++it )
+    {
+        if ( ( *it )->getName() == userName )
+        {
+            changed=true;
+
+            if(newUserInfo.has_name())
+            {
+                ( *it )->setName(newUserInfo.name());
+            }
+
+            if(newUserInfo.has_password())
+            {
+                ( *it )->setPassword(newUserInfo.password());
+            }
+
+            if(newUserInfo.has_admin_rights())
+            {
+                ( *it )->setAdminRights(UserAdminRights::parseFromProto(newUserInfo.admin_rights()));
+            }
+
+            if(newUserInfo.has_default_db_rights())
+            {
+                ( *it )->setDefaultDbRights(UserDatabaseRights::parseFromProto(newUserInfo.default_db_rights()));
+            }
+
+            break;
+        }
+    }
+
+    if ( !changed )
+    {
+        throw runtime_error ( "There doesn't exist a user named:\""+userName +"\"");
     }
 }
 
@@ -104,92 +154,6 @@ void UserManager::removeUser ( const std::string& userName )
     }
 }
 
-void UserManager::changeUserName ( const std::string& oldUserName,const std::string& newUserName )
-{
-    list<boost::shared_ptr<User> >::iterator it;
-    bool changed=false;
-
-    unique_lock<mutex> lock ( this->mut );
-    for ( it = this->userList.begin(); it != this->userList.end(); ++it )
-    {
-        if ( ( *it )->getName() == oldUserName )
-        {
-            ( *it )->setName ( newUserName );
-            changed=true;
-            break;
-        }
-    }
-
-    if ( !changed )
-    {
-        throw runtime_error ( "There doesn't exist a user named:"+oldUserName );
-    }
-}
-
-void UserManager::changeUserPassword ( const std::string& userName,const std::string& newPassword )
-{
-    list<boost::shared_ptr<User> >::iterator it;
-    bool changed=false;
-
-    unique_lock<mutex> lock ( this->mut );
-    for ( it = this->userList.begin(); it != this->userList.end(); ++it )
-    {
-        if ( ( *it )->getName() == userName )
-        {
-            ( *it )->setPassword ( newPassword );
-            changed=true;
-            break;
-        }
-    }
-
-    if ( !changed )
-    {
-        throw runtime_error ( "There doesn't exist a user named:"+userName );
-    }
-}
-
-void UserManager::changeUserAdminRights ( const std::string& userName, const UserAdminRights& newRights )
-{
-    list<boost::shared_ptr<User> >::iterator it;
-    bool changed=false;
-
-    unique_lock<mutex> lock ( this->mut );
-    for ( it = this->userList.begin(); it != this->userList.end(); ++it )
-    {
-        if ( ( *it )->getName() == userName )
-        {
-            ( *it )->setAdminRights ( newRights );
-            changed=true;
-        }
-    }
-
-    if ( !changed )
-    {
-        throw runtime_error ( "There doesn't exist a user named:"+userName );
-    }
-}
-
-void UserManager::changeUserDatabaseRights ( const std::string& userName, const UserDatabaseRights& newRights )
-{
-    list<boost::shared_ptr<User> >::iterator it;
-    bool changed=false;
-
-    unique_lock<mutex> lock ( this->mut );
-    for ( it = this->userList.begin(); it != this->userList.end(); ++it )
-    {
-        if ( ( *it )->getName() == userName )
-        {
-            ( *it )->setDefaultDbRights ( newRights );
-            changed=true;
-        }
-    }
-
-    if ( !changed )
-    {
-        throw runtime_error ( "There doesn't exist a user named:"+userName );
-    }
-}
-
 bool UserManager::tryGetUser ( const std::string& userName, boost::shared_ptr<User>& out_user )
 {
     list<boost::shared_ptr<User> >::iterator it;
@@ -207,49 +171,37 @@ bool UserManager::tryGetUser ( const std::string& userName, boost::shared_ptr<Us
     return false;
 }
 
-list<boost::shared_ptr<User> > UserManager::getUserList() const
-{
-    return this->userList;
-}
 
-void UserManager::saveToAuthenticationFile()
+void UserManager::saveUserInformation()
 {
-    char authFileName[PATH_MAX];
-    UserListProto list;
+    UserMgrProto userData = this->serializeToProto();
 
     unique_lock<mutex> lock ( this->mut );
+    char authFileName[PATH_MAX];
 
     //This checks if the path to the RASMGR_AUTH_FILE is longer thant the maximum file path.
     int pathLen = snprintf ( authFileName, PATH_MAX, "%s/%s", getenv ( "HOME" ), RASMGR_AUTH_FILE );
     if ( pathLen >= PATH_MAX )
     {
         authFileName[PATH_MAX-1] = '\0';    // force-terminate string before printing
-        LWARNING << "Warning: authentication file path longer than allowed by OS, file likely cannot be accessed: " << authFileName;
+        throw runtime_error("Authentication file path longer than maximum allowed by OS:"+std::string(authFileName));
     }
 
     LDEBUG<<"Writing to authentication file:"<<authFileName;
-
-    for ( std::list<shared_ptr<User> >::iterator it = this->userList.begin(); it!=this->userList.end(); ++it )
-    {
-        list.add_users()->CopyFrom ( User::serializeToProto ( * ( *it ).get() ) );
-    }
 
     //Create the authentication file.
     std::ofstream ofs ( authFileName );
 
     if ( !ofs )
     {
-        LERROR<<"Could not open authentication file for writing";
-        throw runtime_error ( "Could not open authentication file for writing.File path:" + std::string ( authFileName ) );
+        throw runtime_error ( "Could not open authentication file for writing. File path:" + std::string ( authFileName ) );
     }
     else
     {
-        LDEBUG<<"Created users"<<list.DebugString();
-
         OstreamOutputStream outstream ( &ofs );
         CodedOutputStream codedOutStream ( &outstream );
 
-        bool r =list.SerializeToCodedStream ( &codedOutStream );
+        bool r =userData.SerializeToCodedStream ( &codedOutStream );
         if ( r==false )
         {
             LERROR<<"Could not write to authentication file";
@@ -260,9 +212,8 @@ void UserManager::saveToAuthenticationFile()
     ofs.close();
 }
 
-void UserManager::loadAuthenticationFile()
+void UserManager::loadUserInformation()
 {
-    //TODO-AT: Add a level of security here.
     char authFileName[PATH_MAX];
     //True if reading the elements from file was successful.
     bool success=true;
@@ -272,7 +223,7 @@ void UserManager::loadAuthenticationFile()
     if ( pathLen >= PATH_MAX )
     {
         authFileName[PATH_MAX-1] = '\0';    // force-terminate string before printing
-        LWARNING << "Warning: authentication file path longer than allowed by OS, file likely cannot be accessed: " << authFileName;
+        throw runtime_error("Authentication file path longer than maximum allowed by OS:"+std::string(authFileName));
     }
 
     LDEBUG<<"Opening authentication file:"<<authFileName;
@@ -289,7 +240,7 @@ void UserManager::loadAuthenticationFile()
         IstreamInputStream inputStream ( &ifs );
         CodedInputStream codedInStream ( &inputStream );
 
-        UserListProto list;
+        UserMgrProto list;
         if ( !list.ParseFromCodedStream ( &codedInStream ) )
         {
             //Parsing the file failed.
@@ -300,8 +251,7 @@ void UserManager::loadAuthenticationFile()
         {
             for ( int i=0; i<list.users_size(); i++ )
             {
-                User user =  User::parseFromProto ( list.users ( i ) );
-                this->defineUser ( user.getName(), user.getPassword(), user.getDefaultDbRights(), user.getAdminRights() );
+                this->defineUser(list.users(i));
             }
         }
     }
@@ -309,23 +259,53 @@ void UserManager::loadAuthenticationFile()
     if ( !success )
     {
         LWARNING<<"Could not open authentication file. Creating default users.";
-        UserDatabaseRights fullDbRights ( true,true );
-        UserDatabaseRights guestDbRights ( true,false );
+        UserDatabaseRightsProto* fullDbRights = new UserDatabaseRightsProto();
+        fullDbRights->set_read(true);
+        fullDbRights->set_write(true);
 
-        UserAdminRights adminRights;
-        UserAdminRights guestAdminRights;
+        UserDatabaseRightsProto* guestDbRights  = new UserDatabaseRightsProto();
+        guestDbRights->set_read(true);
+        guestDbRights->set_write(false);
 
-        adminRights.setAccessControlRights ( true );
-        adminRights.setInfoRights ( true );
-        adminRights.setServerAdminRights ( true );
-        adminRights.setSystemConfigRights ( true );
+        UserAdminRightsProto *adminRights = new UserAdminRightsProto();
+        UserAdminRightsProto *guestAdminRights = new UserAdminRightsProto();
 
-        this->defineUser ( DEFAULT_ADMIN,common::Crypto::messageDigest ( DEFAULT_ADMIN_PASSWD, DEFAULT_DIGEST ),fullDbRights, adminRights );
-        this->defineUser ( DEFAULT_USER,common::Crypto::messageDigest ( DEFAULT_USER, DEFAULT_DIGEST ),guestDbRights, guestAdminRights );
+        adminRights->set_access_control_rights(true);
+        adminRights->set_info_rights(true);
+        adminRights->set_server_admin_rights(true);
+        adminRights->set_system_config_rights(true);
+
+        UserProto admin;
+        admin.set_name(DEFAULT_ADMIN);
+        admin.set_password(common::Crypto::messageDigest ( DEFAULT_ADMIN_PASSWD, DEFAULT_DIGEST ));
+        admin.set_allocated_admin_rights(adminRights);
+        admin.set_allocated_default_db_rights(fullDbRights);
+
+        UserProto guest;
+        guest.set_name(DEFAULT_USER);
+        guest.set_password(common::Crypto::messageDigest ( DEFAULT_USER, DEFAULT_DIGEST ));
+        guest.set_allocated_admin_rights(guestAdminRights);
+        guest.set_allocated_default_db_rights(guestDbRights);
+
+        this->defineUser(admin);
+        this->defineUser(guest);
     }
 
     ifs.close();
 }
 
+UserMgrProto UserManager::serializeToProto()
+{
+    UserMgrProto result;
+
+    unique_lock<mutex> lock ( this->mut );
+
+    for ( std::list<shared_ptr<User> >::iterator it = this->userList.begin(); it!=this->userList.end(); ++it )
+    {
+        result.add_users()->CopyFrom ( User::serializeToProto ( * ( *it ).get() ) );
+    }
+
+    return result;
+}
 
 } /* namespace rasmgr */

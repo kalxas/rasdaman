@@ -56,7 +56,7 @@ using common::Timer;
 
 //TODO-AT:Validate the server group config and add documentation in the server
 //group config that any modification made there should be propagated
-ServerGroup::ServerGroup(const ServerGroupConfig& config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<IServerCreator> serverCreator):config(config), serverCreator(serverCreator)
+ServerGroup::ServerGroup(const ServerGroupConfig& config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverCreator):config(config), serverFactory(serverCreator)
 {
     this->databaseHost = dbhManager->getAndLockDH(config.getDbHost());
     this->stopped = true;
@@ -88,7 +88,7 @@ ServerGroup::~ServerGroup()
 {
     this->databaseHost->decreaseServerCount();
 
-    list<shared_ptr<RasServer> >::iterator runningServer;
+    list<shared_ptr<Server> >::iterator runningServer;
     for(runningServer=this->runningServers.begin(); runningServer!=this->runningServers.end(); ++runningServer)
     {
         try
@@ -105,7 +105,7 @@ ServerGroup::~ServerGroup()
         }
     }
 
-    map<string, pair<shared_ptr<RasServer>,Timer> >::iterator startingServerEntry;
+    map<string, pair<shared_ptr<Server>,Timer> >::iterator startingServerEntry;
     for(startingServerEntry=this->startingServers.begin(); startingServerEntry!=this->startingServers.end(); ++startingServerEntry)
     {
         try
@@ -154,14 +154,14 @@ bool ServerGroup::isStopped()
 
 void ServerGroup::stop(bool force)
 {
-    list<shared_ptr<RasServer> >::iterator it;
-    list<shared_ptr<RasServer> >::iterator toErase;
+    list<shared_ptr<Server> >::iterator it;
+    list<shared_ptr<Server> >::iterator toErase;
 
     unique_lock<shared_mutex> groupLock(this->groupMutex);
 
     this->stopped=true;
 
-    list<shared_ptr<RasServer> >::iterator runningServer;
+    list<shared_ptr<Server> >::iterator runningServer;
     for(runningServer=this->runningServers.begin(); runningServer!=this->runningServers.end(); ++runningServer)
     {
         try
@@ -178,7 +178,7 @@ void ServerGroup::stop(bool force)
         }
     }
 
-    map<string, pair<shared_ptr<RasServer>,Timer> >::iterator startingServerEntry;
+    map<string, pair<shared_ptr<Server>,Timer> >::iterator startingServerEntry;
     for(startingServerEntry=this->startingServers.begin(); startingServerEntry!=this->startingServers.end(); ++startingServerEntry)
     {
         try
@@ -205,7 +205,7 @@ bool ServerGroup::registerServer(const std::string &serverId)
       * servers and remove it from the list of starting servers.
       */
     unique_lock<shared_mutex> groupLock(this->groupMutex);
-    map<string, pair<shared_ptr<RasServer>,Timer> >::iterator it;
+    map<string, pair<shared_ptr<Server>,Timer> >::iterator it;
     bool registered=false;
     it=this->startingServers.find(serverId);
 
@@ -233,14 +233,14 @@ void ServerGroup::evaluateServerGroup()
     this->evaluateGroup();
 }
 
-bool ServerGroup::getAvailableServer(const std::string &dbName, boost::shared_ptr<RasServer>& out_server)
+bool ServerGroup::getAvailableServer(const std::string &dbName, boost::shared_ptr<Server>& out_server)
 {
     unique_lock<shared_mutex> groupLock(this->groupMutex);
 
-    boost::shared_ptr<RasServer> result;
+    boost::shared_ptr<Server> result;
     if(this->databaseHost->ownsDatabase(dbName))
     {
-        list<shared_ptr<RasServer> >::iterator it;
+        list<shared_ptr<Server> >::iterator it;
 
         for(it=this->runningServers.begin(); it!=this->runningServers.end(); ++it)
         {
@@ -276,11 +276,11 @@ std::string ServerGroup::getGroupName() const
 
 void ServerGroup::removeDeadServers()
 {
-    map<string, pair<shared_ptr<RasServer>,Timer> >::iterator startingIt;
-    map<string, pair<shared_ptr<RasServer>,Timer> >::iterator startingToEraseIt;
+    map<string, pair<shared_ptr<Server>,Timer> >::iterator startingIt;
+    map<string, pair<shared_ptr<Server>,Timer> >::iterator startingToEraseIt;
 
-    list<shared_ptr<RasServer> >::iterator runningIt;
-    list<shared_ptr<RasServer> >::iterator runningToErase;
+    list<shared_ptr<Server> >::iterator runningIt;
+    list<shared_ptr<Server> >::iterator runningToErase;
 
     /**
       1.Remove servers that have failed to register in the allocated time.
@@ -346,11 +346,12 @@ void ServerGroup::startServer()
         int32_t port = *it;
         this->availablePorts.erase(port);
 
-        shared_ptr<RasServer> server = this->serverCreator->createServer(this->config.getHost(),port, this->databaseHost);
+        shared_ptr<Server> server = this->serverFactory->createServer(this->config.getHost(),port, this->databaseHost);
+        //TODO:
+        //pair<shared_ptr<Server>, Timer> startingServerEntry(server, Timer(RasMgrConfig::getInstance()->getServerTimeout()));
+        pair<shared_ptr<Server>, Timer> startingServerEntry(server, Timer(1000));
 
-        pair<shared_ptr<RasServer>, Timer> startingServerEntry(server, Timer(RasMgrConfig::getInstance()->getRasServerTimeout()));
-
-        this->startingServers.insert(pair<string, pair<shared_ptr<RasServer>, Timer> >(server->getServerId(), startingServerEntry));
+        this->startingServers.insert(pair<string, pair<shared_ptr<Server>, Timer> >(server->getServerId(), startingServerEntry));
 
         server->startProcess();
     }
@@ -366,7 +367,7 @@ void ServerGroup::evaluateGroup()
     */
     uint32_t availableServerNo=0;
     uint32_t freeServerNo=0;
-    list<shared_ptr<RasServer> >::iterator it;
+    list<shared_ptr<Server> >::iterator it;
 
     LDEBUG<<"Removing dead servers in group("<<this->getGroupName()<<");";
     this->removeDeadServers();
@@ -420,7 +421,7 @@ void ServerGroup::evaluateGroup()
 
             LDEBUG<<"Server group("<<this->getGroupName()<<") will stop"<<serversToStop <<" free servers";
 
-            list<shared_ptr<RasServer> >::iterator it;
+            list<shared_ptr<Server> >::iterator it;
             for(it=this->runningServers.begin(); serversToStop>0 && it!=this->runningServers.end(); ++it)
             {
 

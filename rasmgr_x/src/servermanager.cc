@@ -44,9 +44,10 @@
 
 
 #include "rasmgrconfig.hh"
-#include "rasserver.hh"
+#include "serverrasnet.hh"
 #include "servermanager.hh"
-#include "rasservercreator.hh"
+
+#include "serverfactoryrasnet.hh"
 
 namespace rasmgr
 {
@@ -85,7 +86,7 @@ ServerManager::ServerManager ( boost::shared_ptr<DatabaseHostManager> dbhManager
     this->workerCleanup.reset ( new thread ( &ServerManager::workerCleanupRunner, this ) );
     this->controlSocket.reset ( new zmq::socket_t ( this->context, ZMQ_PAIR ) );
     this->controlSocket->connect ( this->controlEndpoint.c_str() );
-    this->serverCreator.reset ( new RasServerCreator() );
+    this->serverFactory.reset ( new ServerFactoryRasNet() );
 }
 
 ServerManager::~ServerManager()
@@ -114,13 +115,13 @@ ServerManager::~ServerManager()
     }
 }
 
-shared_ptr<RasServer> ServerManager::getFreeServer ( const std::string& dbName )
+shared_ptr<Server> ServerManager::getFreeServer ( const std::string& dbName )
 {
     /* TODO:
      * 1. Ask peers about available servers
      */
     list<shared_ptr<ServerGroup> >::iterator it;
-    shared_ptr<RasServer> result;
+    shared_ptr<Server> result;
     shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
 
     shared_ptr<RasMgrConfig> config= RasMgrConfig::getInstance();
@@ -184,7 +185,7 @@ void ServerManager::defineServerGroup ( const ServerGroupConfig &serverGroupConf
         }
     }
 
-    this->serverGroupList.push_back ( shared_ptr<ServerGroup> ( new ServerGroup ( serverGroupConfig, this->dbhManager, serverCreator ) ) );
+    this->serverGroupList.push_back ( shared_ptr<ServerGroup> ( new ServerGroup ( serverGroupConfig, this->dbhManager, serverFactory ) ) );
 }
 
 

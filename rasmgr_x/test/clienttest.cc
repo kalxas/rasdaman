@@ -32,12 +32,13 @@
 #include "../src/userdatabaserights.hh"
 #include "../src/useradminrights.hh"
 #include "../src/rasmgrconfig.hh"
+#include "../src/server.hh"
 
 #include "mocks/mockrasserver.hh"
 
 using rasmgr::Client;
 using rasmgr::RasMgrConfig;
-using rasmgr::RasServer;
+using rasmgr::Server;
 
 using ::testing::AtLeast;                     // #1
 using ::testing::_;
@@ -89,7 +90,7 @@ TEST_F(ClientTest, isAliveNoSessions)
 //Test when the client has active servers
 TEST_F(ClientTest, isAliveWSessions)
 {
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+    boost::shared_ptr<Server> server(new MockRasServer());
     std::string out_sessionId;
 
     EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);
@@ -107,7 +108,7 @@ TEST_F(ClientTest, isAliveWSessions)
 TEST_F(ClientTest, isAliveClientDeadOnServers)
 {
 
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+    boost::shared_ptr<Server> server(new MockRasServer());
     std::string out_sessionId;
 
     EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);
@@ -142,7 +143,7 @@ TEST_F(ClientTest, addDbSessionFail)
     // on the database.
     std::string out_sessionId;
     rasmgr::UserDatabaseRights noDbRights(false,false);
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+    boost::shared_ptr<Server> server(new MockRasServer());
 
     user->setDefaultDbRights(noDbRights);
     EXPECT_ANY_THROW(client->addDbSession(dbName, server, out_sessionId));
@@ -152,7 +153,7 @@ TEST_F(ClientTest, addDbSessionFail)
 TEST_F(ClientTest, addDbSessionSuccess)
 {
     std::string out_sessionId;
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+    boost::shared_ptr<Server> server(new MockRasServer());
 
     EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);
 
@@ -164,7 +165,7 @@ TEST_F(ClientTest, addDbSessionSuccess)
 TEST_F(ClientTest, removeDbSession)
 {
     std::string out_sessionId;
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+    boost::shared_ptr<Server> server(new MockRasServer());
 
     EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);
     EXPECT_CALL(*((MockRasServer*)server.get()), deallocateClientSession(clientId,_)).Times(1);
@@ -178,7 +179,7 @@ TEST_F(ClientTest, removeDbSession)
 TEST_F(ClientTest, removeClientFromServers)
 {
     std::string out_sessionId;
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+    boost::shared_ptr<Server> server(new MockRasServer());
 
 
     EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);

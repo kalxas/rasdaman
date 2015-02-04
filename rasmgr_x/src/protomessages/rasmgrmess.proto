@@ -162,10 +162,10 @@ message DefineOutpeer{
 
 //BEGIN: Internal plain storage objects
 message UserAdminRightsProto {
-	required bool access_control_rights = 1;
-	required bool info_rights = 2;
-	required bool server_admin_rights = 3;
-	required bool system_config_rights = 4;
+    optional bool access_control_rights = 1;
+    optional bool info_rights = 2;
+    optional bool server_admin_rights = 3;
+    optional bool system_config_rights = 4;
 }
 
 message UserDatabaseRightsProto {
@@ -174,10 +174,10 @@ message UserDatabaseRightsProto {
 }
 
 message UserProto {
-	required string name = 1;
-	required string password = 2;
-    required UserAdminRightsProto admin_rights = 3;
-    required UserDatabaseRightsProto default_db_rights = 4;
+    optional string name = 1;
+    optional string password = 2;
+    optional UserAdminRightsProto admin_rights = 3;
+    optional UserDatabaseRightsProto default_db_rights = 4;
 }
 
 message UserListProto {
@@ -229,4 +229,21 @@ message DatabaseHostPropertiesProto{
 
 message DatabaseHostMgrProto {
   repeated DatabaseHostProto database_hosts = 1;
+}
+
+message UserMgrProto {
+  repeated UserProto users = 1;
+}
+
+message ServerGroupConfigProto {
+  optional string name = 1;
+  optional string host = 2;
+  optional string db_host = 3;
+  repeated int32 ports = 4;
+  optional uint32 min_alive_server_no = 5;
+  optional uint32 min_available_server_no  = 6;
+  optional uint32 max_idle_server_no = 7;
+  optional bool autorestart = 8;
+  optional uint32 countdown = 9;
+  optional string server_options = 10;
 }

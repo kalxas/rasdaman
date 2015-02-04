@@ -35,7 +35,7 @@
 
 #include "clientmanager.hh"
 #include "rasmgrconfig.hh"
-#include "rasserver.hh"
+#include "serverrasnet.hh"
 
 
 namespace rasmgr
@@ -167,7 +167,7 @@ void ClientManager::disconnectClient(const std::string& clientId)
     }
 }
 
-void ClientManager::openClientDbSession(std::string clientId, const std::string& dbName,boost::shared_ptr<RasServer> assignedServer, std::string& out_sessionId)
+void ClientManager::openClientDbSession(std::string clientId, const std::string& dbName,boost::shared_ptr<Server> assignedServer, std::string& out_sessionId)
 {
 
     /**

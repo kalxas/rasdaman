@@ -27,13 +27,12 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "iservercreator.hh"
+#include "../../common/src/time/timer.hh"
 
-#include "common/src/time/timer.hh"
 #include "servergroupconfig.hh"
-#include "rasserver.hh"
 #include "databasehostmanager.hh"
 #include "databasehost.hh"
+#include "serverfactory.hh"
 
 namespace rasmgr
 {
@@ -46,7 +45,7 @@ public:
       * @param dbhManager Database Host Manager used to retrieve the database host
       * used by servers of this server group.
       */
-    ServerGroup(const ServerGroupConfig& config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<rasmgr::IServerCreator> serverCreator);
+    ServerGroup(const ServerGroupConfig& config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory);
 
     virtual ~ServerGroup();
 
@@ -103,7 +102,7 @@ public:
      * @param out_server shared_ptr to the RasServer instance
      * @return TRUE if there is a free server, false otherwise.
      */
-    bool getAvailableServer(const std::string& dbName, boost::shared_ptr<RasServer>& out_server);
+    bool getAvailableServer(const std::string& dbName, boost::shared_ptr<Server>& out_server);
 
     /**
      * @brief getConfig Get a copy of the ServerGroupConfig
@@ -128,13 +127,13 @@ public:
 private:
     ServerGroupConfig config;
 
-    std::list<boost::shared_ptr<RasServer> > runningServers;
+    std::list<boost::shared_ptr<Server> > runningServers;
 
-    boost::shared_ptr<rasmgr::IServerCreator> serverCreator;
+    boost::shared_ptr<ServerFactory> serverFactory;
 
     boost::shared_ptr<DatabaseHost> databaseHost;
 
-    std::map<std::string, std::pair< boost::shared_ptr<RasServer>, common::Timer > > startingServers;
+    std::map<std::string, std::pair< boost::shared_ptr<Server>, common::Timer > > startingServers;
 
     boost::shared_mutex groupMutex;
 

@@ -30,9 +30,9 @@
 #include "../../rasnet/src/service/server/servicemanager.hh"
 #include "../../rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
 
-#include "../src/rasserver.hh"
+#include "../src/serverrasnet.hh"
 
-using rasmgr::RasServer;
+using rasmgr::ServerRasNet;
 using rasnet::ServiceManager;
 using rasnet::service::RasServerService;
 
@@ -145,8 +145,8 @@ protected:
 
         dbHost.reset(new rasmgr::DatabaseHost("hostName", "connectString", "user","passwd"));
 
-        server.reset(new rasmgr::RasServer(hostName, port, dbHost));
-        failingServer.reset(new rasmgr::RasServer(hostName, failPort, dbHost));
+        server.reset(new rasmgr::ServerRasNet(hostName, port, dbHost));
+        failingServer.reset(new rasmgr::ServerRasNet(hostName, failPort, dbHost));
     }
 
 
@@ -157,8 +157,8 @@ protected:
     boost::scoped_ptr<ServiceManager> manager;
     boost::scoped_ptr<ServiceManager> managerFail;
     boost::shared_ptr<rasmgr::DatabaseHost> dbHost;
-    boost::shared_ptr<rasmgr::RasServer> server;
-    boost::shared_ptr<rasmgr::RasServer> failingServer;
+    boost::shared_ptr<rasmgr::ServerRasNet> server;
+    boost::shared_ptr<rasmgr::ServerRasNet> failingServer;
 };
 
 TEST_F(RasServerTest, DISABLED_isAlive)
@@ -210,7 +210,7 @@ TEST_F(RasServerTest, DISABLED_cleanupPerformed)
 
     dbh->addDbToHost(db);
 
-    rasmgr::RasServer* srv = new RasServer(hostName, port, dbh);
+    rasmgr::ServerRasNet* srv = new ServerRasNet(hostName, port, dbh);
 
     ASSERT_FALSE(dbh->isBusy());
 

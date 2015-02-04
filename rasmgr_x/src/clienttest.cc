@@ -37,7 +37,7 @@
 
 using rasmgr::Client;
 using rasmgr::RasMgrConfig;
-using rasmgr::RasServer;
+using rasmgr::ServerRasNet;
 
 using ::testing::AtLeast;                     // #1
 using ::testing::_;
@@ -88,7 +88,7 @@ TEST_F(ClientTest, isAliveNoSessions)
 
 TEST_F(ClientTest, isAliveWSessions)
 {
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+    boost::shared_ptr<ServerRasNet> server(new MockRasServer(serverHost, serverPort, dbHost));
     std::string out_sessionId;
 
     EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);
@@ -123,7 +123,7 @@ TEST_F(ClientTest, addDbSessionFail)
     // on the database.
     std::string out_sessionId;
     rasmgr::UserDatabaseRights noDbRights(false,false);
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+    boost::shared_ptr<ServerRasNet> server(new MockRasServer(serverHost, serverPort, dbHost));
 
     user->setDefaultDbRights(noDbRights);
     EXPECT_ANY_THROW(client->addDbSession(dbName, server, out_sessionId));
@@ -133,7 +133,7 @@ TEST_F(ClientTest, addDbSessionFail)
 TEST_F(ClientTest, addDbSessionSuccess)
 {
     std::string out_sessionId;
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+    boost::shared_ptr<ServerRasNet> server(new MockRasServer(serverHost, serverPort, dbHost));
 
     EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);
 
@@ -145,7 +145,7 @@ TEST_F(ClientTest, addDbSessionSuccess)
 TEST_F(ClientTest, removeDbSession)
 {
     std::string out_sessionId;
-    boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+    boost::shared_ptr<ServerRasNet> server(new MockRasServer(serverHost, serverPort, dbHost));
 
 
     EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);
@@ -160,7 +160,7 @@ TEST_F(ClientTest, removeDbSession)
 TEST_F(ClientTest, removeClientFromServers)
 {
   std::string out_sessionId;
-  boost::shared_ptr<RasServer> server(new MockRasServer(serverHost, serverPort, dbHost));
+  boost::shared_ptr<ServerRasNet> server(new MockRasServer(serverHost, serverPort, dbHost));
 
 
   EXPECT_CALL(*((MockRasServer*)server.get()), allocateClientSession(clientId, _ ,dbName, _)).Times(1);

@@ -232,7 +232,7 @@ std::string RasControl::changeDb ( const ChangeDb& dbData )
     try
     {
         //TODO-AT:
-       // this->dbManager->changeDatabaseName ( dbData.db_name(), dbData.n_db_name() );
+        // this->dbManager->changeDatabaseName ( dbData.db_name(), dbData.n_db_name() );
     }
     catch ( std::exception& ex )
     {
@@ -381,7 +381,8 @@ std::string RasControl::defineUser ( const DefineUser& userData )
 
     try
     {
-        this->userManager->defineUser ( userName,passwd, dbRights, adminRights );
+        //TODO
+        // this->userManager->defineUser ( userName,passwd, dbRights, adminRights );
     }
     catch ( std::exception& ex )
     {
@@ -424,53 +425,53 @@ std::string RasControl::changeUser ( const ChangeUser& userData )
     {
         if ( this->userManager->tryGetUser ( userData.user_name(),user ) )
         {
-            if ( userData.has_n_passwd() )
-            {
-                this->userManager->changeUserPassword ( userData.user_name(),userData.n_passwd() );
-            }
+//            if ( userData.has_n_passwd() )
+//            {
+//                this->userManager->changeUserPassword ( userData.user_name(),userData.n_passwd() );
+//            }
 
-            UserDatabaseRights dbRights = user->getDefaultDbRights();
+//            UserDatabaseRights dbRights = user->getDefaultDbRights();
 
-            if ( userData.has_n_dbread_rights() )
-            {
-                dbRights.setReadAccess ( userData.n_dbread_rights() );
-            }
+//            if ( userData.has_n_dbread_rights() )
+//            {
+//                dbRights.setReadAccess ( userData.n_dbread_rights() );
+//            }
 
-            if ( userData.has_n_dbwrite_rights() )
-            {
-                dbRights.setWriteAccess ( userData.n_dbwrite_rights() );
-            }
+//            if ( userData.has_n_dbwrite_rights() )
+//            {
+//                dbRights.setWriteAccess ( userData.n_dbwrite_rights() );
+//            }
 
-            this->userManager->changeUserDatabaseRights ( userData.user_name(),dbRights );
+//            this->userManager->changeUserDatabaseRights ( userData.user_name(),dbRights );
 
-            UserAdminRights adminRights = user->getAdminRights();
+//            UserAdminRights adminRights = user->getAdminRights();
 
-            if ( userData.has_n_config_rights() )
-            {
-                adminRights.setSystemConfigRights ( userData.n_config_rights() );
-            }
+//            if ( userData.has_n_config_rights() )
+//            {
+//                adminRights.setSystemConfigRights ( userData.n_config_rights() );
+//            }
 
-            if ( userData.has_n_access_rights() )
-            {
-                adminRights.setAccessControlRights ( userData.n_access_rights() );
-            }
+//            if ( userData.has_n_access_rights() )
+//            {
+//                adminRights.setAccessControlRights ( userData.n_access_rights() );
+//            }
 
-            if ( userData.has_n_info_rights() )
-            {
-                adminRights.setInfoRights ( userData.n_info_rights() );
-            }
+//            if ( userData.has_n_info_rights() )
+//            {
+//                adminRights.setInfoRights ( userData.n_info_rights() );
+//            }
 
-            if ( userData.has_n_server_admin_rights() )
-            {
-                adminRights.setServerAdminRights ( userData.n_server_admin_rights() );
-            }
+//            if ( userData.has_n_server_admin_rights() )
+//            {
+//                adminRights.setServerAdminRights ( userData.n_server_admin_rights() );
+//            }
 
-            this->userManager->changeUserAdminRights ( userData.user_name(),adminRights );
+//            this->userManager->changeUserAdminRights ( userData.user_name(),adminRights );
 
-            if ( userData.has_n_name() )
-            {
-                this->userManager->changeUserName ( userData.user_name(), userData.n_name() );
-            }
+//            if ( userData.has_n_name() )
+//            {
+//                this->userManager->changeUserName ( userData.user_name(), userData.n_name() );
+//            }
         }
         else
         {
@@ -493,22 +494,22 @@ std::string RasControl::listUser ( const ListUser& userData )
 {
     std::stringstream ss;
     int counter=1;
-    bool displayRights = userData.has_diplay_rights();
-    list<shared_ptr<User> > userList =this->userManager->getUserList();
+//    bool displayRights = userData.has_diplay_rights();
+//    list<shared_ptr<User> > userList =this->userManager->getUserList();
 
-    ss<<"List of defined users:"<<std::endl;
-    for ( list<shared_ptr<User> >::iterator it = userList.begin(); it!=userList.end(); ++it )
-    {
+//    ss<<"List of defined users:"<<std::endl;
+//    for ( list<shared_ptr<User> >::iterator it = userList.begin(); it!=userList.end(); ++it )
+//    {
 
-        ss<<"\r\n"<<std::setw ( 2 ) <<counter<<". "<< ( *it )->getName();
-        if ( displayRights )
-        {
-            ss<<" ["<<this->convertAdminRights ( ( *it )->getAdminRights() ) <<"]";
-            ss<<" -["<<this->convertDbRights ( ( *it )->getDefaultDbRights() ) <<"]";
-        }
+//        ss<<"\r\n"<<std::setw ( 2 ) <<counter<<". "<< ( *it )->getName();
+//        if ( displayRights )
+//        {
+//            ss<<" ["<<this->convertAdminRights ( ( *it )->getAdminRights() ) <<"]";
+//            ss<<" -["<<this->convertDbRights ( ( *it )->getDefaultDbRights() ) <<"]";
+//        }
 
-        counter++;
-    }
+//        counter++;
+//    }
 
     return ss.str();
 }
@@ -566,51 +567,52 @@ std::string RasControl::defineServerGroup ( const DefineServerGroup &groupData )
     LDEBUG<<"Defining server group with the following configuration:"<<groupData.DebugString();
     try
     {
-        boost::uint32_t groupSize = 1;
-        if ( groupData.has_group_size() )
-        {
-            groupSize = groupData.group_size();
-        }
-        std::set<boost::int32_t> ports;
+        //TODO-AT
+//        boost::uint32_t groupSize = 1;
+//        if ( groupData.has_group_size() )
+//        {
+//            groupSize = groupData.group_size();
+//        }
+//        std::set<boost::int32_t> ports;
 
-        for ( int i=0; i<groupData.ports_size(); i++ )
-        {
-            ports.insert ( groupData.ports ( i ) );
-        }
+//        for ( int i=0; i<groupData.ports_size(); i++ )
+//        {
+//            ports.insert ( groupData.ports ( i ) );
+//        }
 
-        ServerGroupConfig config ( groupData.group_name(),groupSize,groupData.host(),ports,groupData.db_host() );
+//        ServerGroupConfig config ( groupData.group_name(),groupSize,groupData.host(),ports,groupData.db_host() );
 
-        if ( groupData.has_autorestart() )
-        {
-            config.setAutorestart ( groupData.autorestart() );
-        }
+//        if ( groupData.has_autorestart() )
+//        {
+//            config.setAutorestart ( groupData.autorestart() );
+//        }
 
-        if ( groupData.has_countdown() )
-        {
-            config.setCountdown ( groupData.countdown() );
-        }
+//        if ( groupData.has_countdown() )
+//        {
+//            config.setCountdown ( groupData.countdown() );
+//        }
 
-        if ( groupData.has_max_idle_servers() )
-        {
-            config.setMaxIdleServersNo ( groupData.max_idle_servers() );
-        }
+//        if ( groupData.has_max_idle_servers() )
+//        {
+//            config.setMaxIdleServersNo ( groupData.max_idle_servers() );
+//        }
 
-        if ( groupData.has_min_alive_servers() )
-        {
-            config.setMinAliveServers ( groupData.min_alive_servers() );
-        }
+//        if ( groupData.has_min_alive_servers() )
+//        {
+//            config.setMinAliveServers ( groupData.min_alive_servers() );
+//        }
 
-        if ( groupData.has_min_available_servers() )
-        {
-            config.setMinAvailableServers ( groupData.min_available_servers() );
-        }
+//        if ( groupData.has_min_available_servers() )
+//        {
+//            config.setMinAvailableServers ( groupData.min_available_servers() );
+//        }
 
-        if ( groupData.has_options() )
-        {
-            config.setServerOptions ( groupData.options() );
-        }
+//        if ( groupData.has_options() )
+//        {
+//            config.setServerOptions ( groupData.options() );
+//        }
 
-        this->serverManager->defineServerGroup ( config );
+//        this->serverManager->defineServerGroup ( config );
     }
     catch ( std::exception& ex )
     {
@@ -631,69 +633,69 @@ std::string RasControl::changeServerGroup ( const ChangeServerGroup &groupData )
 
     try
     {
-        ServerGroupConfig oldConfig = this->serverManager->getServerGroupConfig ( groupData.group_name() );
+//        ServerGroupConfig oldConfig = this->serverManager->getServerGroupConfig ( groupData.group_name() );
 
-        if ( groupData.has_n_group_name() )
-        {
-            oldConfig.setGroupName ( groupData.n_group_name() );
-        }
+//        if ( groupData.has_n_group_name() )
+//        {
+//            oldConfig.setGroupName ( groupData.n_group_name() );
+//        }
 
-        if ( groupData.has_n_host() )
-        {
-            oldConfig.setHost ( groupData.n_host() );
-        }
+//        if ( groupData.has_n_host() )
+//        {
+//            oldConfig.setHost ( groupData.n_host() );
+//        }
 
-        if ( groupData.n_ports_size() >0 )
-        {
-            std::set<boost::int32_t> ports;
+//        if ( groupData.n_ports_size() >0 )
+//        {
+//            std::set<boost::int32_t> ports;
 
-            for ( int i=0; i<groupData.n_ports_size(); i++ )
-            {
-                ports.insert ( groupData.n_ports ( i ) );
-            }
+//            for ( int i=0; i<groupData.n_ports_size(); i++ )
+//            {
+//                ports.insert ( groupData.n_ports ( i ) );
+//            }
 
-            oldConfig.setPorts ( ports );
-        }
+//            oldConfig.setPorts ( ports );
+//        }
 
-        if ( groupData.has_n_db_host() )
-        {
-            oldConfig.setDbHost ( groupData.n_db_host() );
-        }
+//        if ( groupData.has_n_db_host() )
+//        {
+//            oldConfig.setDbHost ( groupData.n_db_host() );
+//        }
 
-        if ( groupData.has_n_group_size() )
-        {
-            oldConfig.setGroupSize ( groupData.n_group_size() );
-        }
+//        if ( groupData.has_n_group_size() )
+//        {
+//            oldConfig.setGroupSize ( groupData.n_group_size() );
+//        }
 
-        if ( groupData.has_n_min_alive_servers() )
-        {
-            oldConfig.setMinAliveServers ( groupData.n_min_alive_servers() );
-        }
+//        if ( groupData.has_n_min_alive_servers() )
+//        {
+//            oldConfig.setMinAliveServers ( groupData.n_min_alive_servers() );
+//        }
 
-        if ( groupData.has_n_min_available_servers() )
-        {
-            oldConfig.setMinAvailableServers ( groupData.n_min_available_servers() );
-        }
+//        if ( groupData.has_n_min_available_servers() )
+//        {
+//            oldConfig.setMinAvailableServers ( groupData.n_min_available_servers() );
+//        }
 
-        if ( groupData.has_n_max_idle_servers() )
-        {
-            oldConfig.setMaxIdleServersNo ( groupData.n_max_idle_servers() );
-        }
+//        if ( groupData.has_n_max_idle_servers() )
+//        {
+//            oldConfig.setMaxIdleServersNo ( groupData.n_max_idle_servers() );
+//        }
 
-        if ( groupData.has_n_autorestart() )
-        {
-            oldConfig.setAutorestart ( groupData.n_autorestart() );
-        }
+//        if ( groupData.has_n_autorestart() )
+//        {
+//            oldConfig.setAutorestart ( groupData.n_autorestart() );
+//        }
 
-        if ( groupData.has_n_countdown() )
-        {
-            oldConfig.setCountdown ( groupData.n_countdown() );
-        }
+//        if ( groupData.has_n_countdown() )
+//        {
+//            oldConfig.setCountdown ( groupData.n_countdown() );
+//        }
 
-        if ( groupData.has_n_options() )
-        {
-            oldConfig.setServerOptions ( groupData.n_options() );
-        }
+//        if ( groupData.has_n_options() )
+//        {
+//            oldConfig.setServerOptions ( groupData.n_options() );
+//        }
 
         this->serverManager->changeServerGroup ( groupData.group_name(), oldConfig );
     }
@@ -849,7 +851,8 @@ std::string RasControl::save()
 
     try
     {
-        this->userManager->saveToAuthenticationFile();
+        //TODO:
+        //   this->userManager->saveUserInformation();
     }
     catch ( std::exception& ex )
     {

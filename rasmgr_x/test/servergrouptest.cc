@@ -33,7 +33,7 @@
 
 #include "../../rasnet/src/service/server/servicemanager.hh"
 #include "../../rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
-#include "../src/rasserver.hh"
+#include "../src/serverrasnet.hh"
 #include "../src/servergroupconfig.hh"
 #include "../src/servergroup.hh"
 #include "../src/databasehostmanager.hh"
@@ -45,7 +45,7 @@ using ::testing::AtLeast;                     // #1
 using ::testing::_;
 using ::testing::Return;
 
-using rasmgr::RasServer;
+using rasmgr::ServerRasNet;
 using rasnet::ServiceManager;
 using rasnet::service::RasServerService;
 using rasmgr::ServerGroup;

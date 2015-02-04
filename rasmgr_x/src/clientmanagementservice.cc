@@ -139,7 +139,7 @@ ClientManagementService::OpenDb(
         string dbName = request->databasename();
         unique_lock<mutex> lock(this->assignServerMutex);
         //Get a free server that contains the requested database
-        shared_ptr<RasServer> server = this->serverManager->getFreeServer(dbName);
+        shared_ptr<Server> server = this->serverManager->getFreeServer(dbName);
 
         //Open a session for the client. This will call allocateClientSession on the
         //server side if everything is successful.

@@ -28,7 +28,9 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "rasserver.hh"
+#include "../../common/src/time/timer.hh"
+
+#include "server.hh"
 #include "user.hh"
 #include "userdatabaserights.hh"
 
@@ -70,7 +72,7 @@ public:
      * @param assignedServer Server assigned to the client for this session
      * @param out_sessionId Unique ID that is created for this session.
      */
-    void addDbSession(const std::string& dbName, boost::shared_ptr<RasServer> assignedServer, std::string& out_sessionId);
+    void addDbSession(const std::string& dbName, boost::shared_ptr<Server> assignedServer, std::string& out_sessionId);
 
     /**
      * Remove the session with the given ID from the client's memory.
@@ -90,7 +92,7 @@ private:
     boost::shared_mutex timerMutex; /*! Mutex used to synchronize access to the timer */
     common::Timer timer;/*! Timer for keeping track of the life of the client */
 
-    std::map<std::string, boost::weak_ptr<RasServer> > assignedServers; /*! Map between sessionIds and the server assigned for the session*/
+    std::map<std::string, boost::weak_ptr<Server> > assignedServers; /*! Map between sessionIds and the server assigned for the session*/
     boost::shared_mutex assignedServersMutex; /*! Mutex used to synchronize access to the list of servers*/
 
     bool isClientAliveOnServers();

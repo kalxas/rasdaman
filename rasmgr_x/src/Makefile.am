@@ -6,9 +6,10 @@ SRC = messages/rasmgrmess.pb.cc \
 	  clientmanagerconfig.cc \
 	  clientmanager.cc \
 	  rasmgrconfig.cc \
-	  rasserver.cc \
 	  servermanagementservice.cc \
 	  servermanager.cc \
+	  server.cc \
+	  serverrasnet.cc \
 	  useradminrights.cc \
 	  userdatabaserights.cc \
 	  user.cc \
@@ -19,13 +20,13 @@ SRC = messages/rasmgrmess.pb.cc \
 	  databasemanager.cc\
 	  servergroupconfig.cc\
 	  servergroup.cc\
-	  iservercreator.cc\
-	  rasservercreator.cc\
+	  serverfactory.cc\
+	  serverfactoryrasnet.cc\
 	  controlservice.cc\
-	  rasctrlgrammarconstants.cc\
-	  configuration.cc\
-	  rasmanager.cc\
-	  rascontrol.cc\
+	  rasctrlgrammarconstants.cc \
+	  configuration.cc \
+	  rasmanager.cc \
+	  rascontrol.cc \
 	  controlcommandexecutor.cc
 
 rasmgr_SOURCES = main.cc \
@@ -40,9 +41,9 @@ librasmgr_a_SOURCES = ${SRC}
 
 librasmgr_a_LIBADD = ../../rasnet/src/librasnet.a ../../common/src/libcommon.a
 
-# messages/rasmgrmess.pb.cc: generate_protobuffers
-# .PHONY: generate_protobuffers
-# generate_protobuffers:
-# 	echo "Generating buffers"
-# 	$(MKDIR_P) messages
-# 	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/*
+messages/rasmgrmess.pb.cc: generate_protobuffers
+.PHONY: generate_protobuffers
+generate_protobuffers:
+	echo "Generating buffers"
+	$(MKDIR_P) messages
+	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/*

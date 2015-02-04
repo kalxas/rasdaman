@@ -5,15 +5,14 @@
 
 #include "../../common/src/mock/gmock.h"
 
-#include "../../src/rasserver.hh"
+#include "../../src/server.hh"
 #include "../../src/databasehost.hh"
 #include "../../src/userdatabaserights.hh"
 
-class MockRasServer:public rasmgr::RasServer{
+class MockRasServer:public rasmgr::Server{
 public:
-  MockRasServer(const std::string& hostName, const boost::int32_t& port, boost::shared_ptr<rasmgr::DatabaseHost> dbHost):rasmgr::RasServer(hostName,port, dbHost){};
   MOCK_METHOD0(isClientAlive, bool(void));
-  MOCK_METHOD1(isClientAlive, bool(const std::string&));
+  MOCK_METHOD1(isClientAlive, bool(const std::string&) );
   MOCK_METHOD4(allocateClientSession, void(const std::string&,const std::string&,const std::string&,const rasmgr::UserDatabaseRights& dbRights));
   MOCK_METHOD2(deallocateClientSession, void(const std::string&, const std::string&));
   MOCK_METHOD1(registerServer, void(const std::string&));
@@ -22,7 +21,11 @@ public:
   MOCK_METHOD0(isFree, bool(void));
   MOCK_METHOD0(isAvailable, bool(void));
   MOCK_METHOD0(isOccupied, bool(void));
-
+  MOCK_METHOD0(startProcess, void(void));
+  MOCK_METHOD0(isAlive, bool(void));
+  MOCK_CONST_METHOD0(getPort, boost::int32_t(void));
+  MOCK_CONST_METHOD0(getHostName, std::string(void));
+  MOCK_CONST_METHOD0(getServerId, std::string(void));
 };
 
 #endif

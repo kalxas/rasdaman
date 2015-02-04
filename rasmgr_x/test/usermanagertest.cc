@@ -28,41 +28,79 @@
 #include "../../common/src/mock/gmock.h"
 #include "../../common/src/logging/easylogging++.hh"
 
-#include "../../rasmgr_x/src/user.hh"
-#include "../../rasmgr_x/src/useradminrights.hh"
-#include "../../rasmgr_x/src/userdatabaserights.hh"
-#include "../../rasmgr_x/src/usermanager.hh"
+#include "../src/user.hh"
+#include "../src/useradminrights.hh"
+#include "../src/userdatabaserights.hh"
+#include "../src/usermanager.hh"
+
+#include "../src/messages/rasmgrmess.pb.h"
+
+#include "util/testutil.hh"
 
 using rasmgr::User;
+using rasmgr::UserProto;
+using rasmgr::UserAdminRightsProto;
+using rasmgr::UserDatabaseRightsProto;
+using rasmgr::UserMgrProto;
+using rasmgr::test::TestUtil;
 
 class UserManagerTest:public ::testing::Test
 {
 protected:
-    UserManagerTest():userName("userName"),password("password"),dbRights(false,false)
+    UserManagerTest():userName("userName"),password("password")
     {}
+
+    UserProto createUser()
+    {
+        UserProto user;
+        user.set_name(userName);
+        user.set_password(password);
+
+        UserAdminRightsProto* adminRights = new UserAdminRightsProto();
+        UserDatabaseRightsProto* dbRights = new UserDatabaseRightsProto();
+        dbRights->set_read(true);
+        dbRights->set_write(false);
+
+        user.set_allocated_admin_rights(adminRights);
+        user.set_allocated_default_db_rights(dbRights);
+
+        return user;
+    }
 
     std::string userName;
     std::string password;
-    rasmgr::UserDatabaseRights dbRights;
-    rasmgr::UserAdminRights adminRights;
     rasmgr::UserManager userManager;
 };
 
 
 TEST_F(UserManagerTest, defineUser)
 {
-    ASSERT_NO_THROW(userManager.defineUser(userName, password, dbRights,adminRights));
+    UserMgrProto proto;
+    UserProto user;
+    //Fail because the user does not have a name
+    ASSERT_ANY_THROW(userManager.defineUser(user));
+    user.set_name(userName);
+
+    proto = userManager.serializeToProto();
+    ASSERT_EQ(0,proto.users_size());
+
+    //Succeed
+    ASSERT_NO_THROW(userManager.defineUser(user));
+
+    proto = userManager.serializeToProto();
+    ASSERT_EQ(1,proto.users_size());
+    ASSERT_EQ(userName, proto.users(0).name());
 
     //Fail due to duplication
-    ASSERT_ANY_THROW(userManager.defineUser(userName, password, dbRights,adminRights));
+    ASSERT_ANY_THROW(userManager.defineUser(createUser()));
 }
 
 TEST_F(UserManagerTest, removeUser)
 {
-	//Fail because the user does not exist
-	ASSERT_ANY_THROW(userManager.removeUser(userName));
+    //Fail because the user does not exist
+    ASSERT_ANY_THROW(userManager.removeUser(userName));
 
-    ASSERT_NO_THROW(userManager.defineUser(userName, password, dbRights,adminRights));
+    ASSERT_NO_THROW(userManager.defineUser(createUser()));
 
     //Valid call
     ASSERT_NO_THROW(userManager.removeUser(userName));
@@ -71,116 +109,77 @@ TEST_F(UserManagerTest, removeUser)
     ASSERT_ANY_THROW(userManager.removeUser(userName));
 }
 
-TEST_F(UserManagerTest, changeUserName)
+TEST_F(UserManagerTest, changeUser)
 {
-	std::string newValue = "newValue";
-	boost::shared_ptr<User> out_user;
-	//Fail because the user does not exist
-	ASSERT_ANY_THROW(userManager.changeUserName(userName, newValue));
+    UserProto newUserProp;
+    std::string newUserName = "newUser";
+    std::string newPassword = "newPass";
 
-    ASSERT_NO_THROW(userManager.defineUser(userName, password, dbRights,adminRights));
+    newUserProp.set_name(newUserName);
+    newUserProp.set_password(newPassword);
+
+    UserAdminRightsProto* adminRights = new UserAdminRightsProto();
+    adminRights->set_access_control_rights(TestUtil::randomBool());
+    adminRights->set_info_rights(TestUtil::randomBool());
+    adminRights->set_server_admin_rights(TestUtil::randomBool());
+    adminRights->set_system_config_rights(TestUtil::randomBool());
+
+    UserDatabaseRightsProto* dbRights = new UserDatabaseRightsProto();
+    dbRights->set_read(TestUtil::randomBool());
+    dbRights->set_write(TestUtil::randomBool());
+
+    newUserProp.set_allocated_admin_rights(adminRights);
+    newUserProp.set_allocated_default_db_rights(dbRights);
+
+    //Fail because there is no user
+    ASSERT_ANY_THROW(userManager.changeUser(userName, newUserProp));
+
+    ASSERT_NO_THROW(userManager.defineUser(createUser()));
 
     //Valid call
-    ASSERT_NO_THROW(userManager.changeUserName(userName, newValue));
+    ASSERT_NO_THROW(userManager.changeUser(userName, newUserProp));
+
+    boost::shared_ptr<User> out_user;
+    ASSERT_TRUE(userManager.tryGetUser(newUserName,out_user));
+    ASSERT_EQ(newUserName, out_user->getName());
+    ASSERT_EQ(newPassword, out_user->getPassword());
+
+    ASSERT_EQ(adminRights->access_control_rights(), out_user->getAdminRights().hasAccessControlRights());
+    ASSERT_EQ(adminRights->info_rights(), out_user->getAdminRights().hasInfoRights());
+    ASSERT_EQ(adminRights->server_admin_rights(), out_user->getAdminRights().hasServerAdminRights());
+    ASSERT_EQ(adminRights->system_config_rights(), out_user->getAdminRights().hasSystemConfigRights());
+
+    ASSERT_EQ(dbRights->read(), out_user->getDefaultDbRights().hasReadAccess());
+    ASSERT_EQ(dbRights->write(), out_user->getDefaultDbRights().hasWriteAccess());
+}
+
+
+TEST_F(UserManagerTest, tryGetUser)
+{
+    boost::shared_ptr<User> out_user;
 
     ASSERT_FALSE(userManager.tryGetUser(userName, out_user));
-    ASSERT_TRUE(userManager.tryGetUser(newValue, out_user));
+
+    ASSERT_NO_THROW(userManager.defineUser(createUser()));
+
+    ASSERT_TRUE(userManager.tryGetUser(userName, out_user));
+
+    ASSERT_EQ(userName, out_user->getName());
+    ASSERT_EQ(password, out_user->getPassword());
 }
 
-TEST_F(UserManagerTest, changeUserPassword)
+TEST_F(UserManagerTest, serializeToProto)
 {
-	std::string newValue = "newValue";
-	boost::shared_ptr<User> out_user;
-	//Fail because the user does not exist
-	ASSERT_ANY_THROW(userManager.changeUserPassword(userName, newValue));
+    UserMgrProto proto;
 
-    ASSERT_NO_THROW(userManager.defineUser(userName, password, dbRights,adminRights));
+    proto = userManager.serializeToProto();
+    ASSERT_EQ(0, proto.users_size());
 
-    //Valid call
-    ASSERT_NO_THROW(userManager.changeUserPassword(userName, newValue));
+    ASSERT_NO_THROW(userManager.defineUser(createUser()));
 
+    proto = userManager.serializeToProto();
+    boost::shared_ptr<User> out_user;
+    userManager.tryGetUser(userName, out_user);
 
-    ASSERT_TRUE(userManager.tryGetUser(userName, out_user));
-    ASSERT_EQ(newValue, out_user->getPassword());
-}
-
-TEST_F(UserManagerTest, changeUserAdminRights)
-{
-	std::string newValue = "newValue";
-	boost::shared_ptr<User> out_user;
-
-	rasmgr::UserAdminRights newAdminRights;
-	newAdminRights.setAccessControlRights(true);
-	newAdminRights.setInfoRights(true);
-	newAdminRights.setServerAdminRights(true);
-	newAdminRights.setSystemConfigRights(true);
-
-	//Fail because the user does not exist
-	ASSERT_ANY_THROW(userManager.changeUserAdminRights(userName, newAdminRights));
-
-    ASSERT_NO_THROW(userManager.defineUser(userName, password, dbRights,adminRights));
-
-    //Check old user rights
-    ASSERT_TRUE(userManager.tryGetUser(userName, out_user));
-    ASSERT_FALSE(out_user->getAdminRights().hasAccessControlRights());
-    ASSERT_FALSE(out_user->getAdminRights().hasInfoRights());
-    ASSERT_FALSE(out_user->getAdminRights().hasServerAdminRights());
-    ASSERT_FALSE(out_user->getAdminRights().hasSystemConfigRights());
-
-    //Valid call
-    ASSERT_NO_THROW(userManager.changeUserAdminRights(userName, newAdminRights));
-
-    ASSERT_TRUE(userManager.tryGetUser(userName, out_user));
-    ASSERT_TRUE(out_user->getAdminRights().hasAccessControlRights());
-    ASSERT_TRUE(out_user->getAdminRights().hasInfoRights());
-    ASSERT_TRUE(out_user->getAdminRights().hasServerAdminRights());
-    ASSERT_TRUE(out_user->getAdminRights().hasSystemConfigRights());
-}
-
-TEST_F(UserManagerTest, changeUserDatabaseRights)
-{
-	rasmgr::UserDatabaseRights newRights(true, true);
-	boost::shared_ptr<User> out_user;
-	//Fail because the user does not exist
-	ASSERT_ANY_THROW(userManager.changeUserDatabaseRights(userName, newRights));
-
-    ASSERT_NO_THROW(userManager.defineUser(userName, password, dbRights,adminRights));
-
-    ASSERT_TRUE(userManager.tryGetUser(userName, out_user));
-    ASSERT_FALSE(out_user->getDefaultDbRights().hasReadAccess());
-    ASSERT_FALSE(out_user->getDefaultDbRights().hasWriteAccess());
-
-    //Valid call
-    ASSERT_NO_THROW(userManager.changeUserDatabaseRights(userName, newRights));
-
-    ASSERT_TRUE(userManager.tryGetUser(userName, out_user));
-    ASSERT_TRUE(out_user->getDefaultDbRights().hasReadAccess());
-    ASSERT_TRUE(out_user->getDefaultDbRights().hasWriteAccess());
-}
-
-TEST_F(UserManagerTest, tryGetUser){
-	boost::shared_ptr<User> out_user;
-
-	ASSERT_FALSE(userManager.tryGetUser(userName, out_user));
-
-	ASSERT_NO_THROW(userManager.defineUser(userName, password, dbRights,adminRights));
-
-	ASSERT_TRUE(userManager.tryGetUser(userName, out_user));
-
-	ASSERT_EQ(userName, out_user->getName());
-	ASSERT_EQ(password, out_user->getPassword());
-}
-
-TEST_F(UserManagerTest, getUserList){
-
-	ASSERT_EQ(0, userManager.getUserList().size());
-
-	ASSERT_NO_THROW(userManager.defineUser(userName, password, dbRights,adminRights));
-
-	ASSERT_EQ(1, userManager.getUserList().size());
-
-	boost::shared_ptr<User> user = userManager.getUserList().front();
-
-	ASSERT_EQ(userName, user->getName());
-	ASSERT_EQ(password, user->getPassword());
+    ASSERT_EQ(proto.users(0).DebugString(), User::serializeToProto(*out_user).DebugString());
 }

@@ -6,21 +6,31 @@ remains to be tested.
 Client: 100% test coverage
 ClientCredentials: Nothing to be tested. (1)
 ClientManagementService:
-ClientManager: 100% test coverage
+ClientManager:100% test coverage
 ClientManagerConfig: Nothing to be tested. (1)
+Configuration:
+ControlCommandExecutor:
+ControlService:
 
 Database: 100% test coverage
 DatabaseHost: 100% test coverage
 DatabaseHostManager: 100% test coverage
 DatabaseManager: 100% test coverage
 
+RasControl:
+RasControlGrammar:
+RasCtrlGrammarConstants:
+RasManager:
 RasMgrConfig: Nothing to be tested. (1)
-RasServer: TODO: Test the start and stop method once it is finished.
 
+Server: (2)
+ServerFactory: (2)
+ServerFactoryRasNet: Nothing to be tested.
 ServerGroup:
 ServerGroupConfig: Nothing to be tested. (1)
 ServerManagementService:
 ServerManager:
+ServerRasNet:
 
 User: 100% test coverage.
 UserAdminRights:100% test coverage.
@@ -28,3 +38,4 @@ UserDatabaseRights: 100% test coverage.
 UserManager: 100% test coverage
 
 1:The class is a plain object used for storing data.
+2:Abstract class with no functionality

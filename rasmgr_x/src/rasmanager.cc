@@ -65,7 +65,8 @@ void RasManager::start()
     boost::shared_ptr<rasmgr::UserManager> userManager ( new rasmgr::UserManager() );
 
 	//This makes sure that we have an authentication file.
-	userManager->saveToAuthenticationFile();
+    //TODO:
+    //userManager->saveUserInformation();
 
     shared_ptr<DatabaseHostManager> dbhManager ( new DatabaseHostManager() );
     shared_ptr<DatabaseManager> dbManager ( new DatabaseManager ( dbhManager ) );
