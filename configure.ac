@@ -64,12 +64,23 @@ AC_CHECK_LIB([z], [main], , [AC_MSG_FAILURE([libz.a not found! Please install.])
 
 ### Start - Check for protobuf ###
 if test "$enable_rasnet" = "yes"; then
-    AC_CHECK_LIB([libprotobuf], [main], [AC_MSG_FAILURE([libprotobuf.a not found! Please install libprotobuf-dev.])])
-    AC_CHECK_LIB([libboost], [main], [AC_MSG_FAILURE([libboost.a not found! Please install.])])
+    # check for protobuf
+    PKG_CHECK_MODULES(PROTOBUF, protobuf >= 2.4.0)
+    AC_SUBST(PROTOBUF_LIBS)
+    AC_SUBST(PROTOBUF_CFLAGS)
+    AC_SUBST(PROTOBUF_VERSION)
+
+    # check for protobuf compiler
     AC_CHECK_PROG([PROTOC], [protoc], [protoc])
     AS_IF([test "x${PROTOC}" == "x"],
-         [AC_MSG_ERROR([ProtoBuf compiler "protoc" not found.])])
-    #TODO-GM: check for zmq > 4.0, boost > 1.48
+        [AC_MSG_ERROR([ProtoBuf compiler "protoc" not found.])])
+
+    # check for zmq
+    # TODO-GM: check for zmq version > 4.0
+    AC_CHECK_LIB([zmq], [main], , [AC_MSG_FAILURE([libzmq.so not found! Please install libzmq-dev.])])
+
+    # check for boost
+    AX_BOOST_BASE([1.48],[],[AC_MSG_FAILURE([boost library required with version >= 1.48. Please install it.])])
 fi
 ### End - Check for protobuf ###
 
