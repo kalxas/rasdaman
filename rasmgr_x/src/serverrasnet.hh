@@ -104,6 +104,16 @@ public:
     virtual void registerServer(const std::string& serverId);
 
     /**
+     * @brief getTransactionNo Get the number of client sessions processed
+     * by this server throughout its lifetime.
+     * This method is used by the ServerGroup to restart a server once
+     * it has reached a number of sessions
+     * (to prevent memory leaks from getting out of control)
+     * @return
+     */
+    virtual boost::uint32_t getTotalSessionNo();
+
+    /**
      * Stop the RasServer process.
      * @param force TRUE if the server should abort any running transaction and terminate,
      * FALSE if the server should terminate after it finishes all running transactions.
@@ -156,6 +166,8 @@ private:
     bool registered;/*! Flag to indicate if the server is starting but has not yet registered */
     boost::uint32_t allocatedClientsNo; /*! The number of allocated clients */
     bool started; /*True after the process is started*/
+
+    boost::uint32_t sessionNo;
 
     boost::scoped_ptr<google::protobuf::Closure> doNothing; /*! Closure used for service calls*/
 

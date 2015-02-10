@@ -22,6 +22,8 @@
 
 #include <iostream>
 
+#include <google/protobuf/stubs/common.h>
+
 #include "../../common/src/unittest/gtest.h"
 #include "../../common/src/mock/gmock.h"
 #include "../../common/src/logging/easylogging++.hh"
@@ -34,11 +36,15 @@ int main(int argc, char **argv)
     easyloggingpp::Configurations defaultConf;
     defaultConf.setToDefault();
     defaultConf.set(easyloggingpp::Level::Error,
-            easyloggingpp::ConfigurationType::Format,
-            "%datetime %level %loc %log %func ");
+                    easyloggingpp::ConfigurationType::Format,
+                    "%datetime %level %loc %log %func ");
     easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
 
     ::testing::InitGoogleMock(&argc, argv);
 
-    return RUN_ALL_TESTS();
+    int result = RUN_ALL_TESTS();
+
+    google::protobuf::ShutdownProtobufLibrary();
+
+    return result;
 }

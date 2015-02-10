@@ -71,34 +71,33 @@ using std::set;
 using std::string;
 using std::list;
 
+using base::BaseMessage;
 using common::UUID;
-using zmq::socket_t;
 using rasnet::ProtoZmq;
 using rasnet::InternalDisconnectReply;
 using rasnet::InternalDisconnectRequest;
+using zmq::socket_t;
 
-
-ServerManager::ServerManager ( boost::shared_ptr<DatabaseHostManager> dbhManager )
+ServerManager::ServerManager(const ServerManagerConfig& config, boost::shared_ptr<ServerGroupFactory> serverGroupFactory)
+    :config(config), serverGroupFactory(serverGroupFactory)
 {
-    this->dbhManager = dbhManager;
     this->controlEndpoint = "inproc://"+UUID::generateUUID();
-
     this->workerCleanup.reset ( new thread ( &ServerManager::workerCleanupRunner, this ) );
+
     this->controlSocket.reset ( new zmq::socket_t ( this->context, ZMQ_PAIR ) );
     this->controlSocket->connect ( this->controlEndpoint.c_str() );
-    this->serverFactory.reset ( new ServerFactoryRasNet() );
 }
 
 ServerManager::~ServerManager()
 {
     try
     {
-        rasnet::InternalDisconnectRequest request = rasnet::InternalDisconnectRequest::default_instance();
-        base::BaseMessage reply;
+        InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
+        BaseMessage reply;
         ProtoZmq::zmqSend ( * ( this->controlSocket.get() ), request );
         ProtoZmq::zmqReceive ( * ( this->controlSocket.get() ), reply );
 
-        if ( reply.type() !=rasnet::InternalDisconnectReply::default_instance().GetTypeName() )
+        if ( reply.type() != InternalDisconnectReply::default_instance().GetTypeName() )
         {
             LERROR<<"Unexpected message received from control socket."<<reply.DebugString();
         }
@@ -115,50 +114,36 @@ ServerManager::~ServerManager()
     }
 }
 
-shared_ptr<Server> ServerManager::getFreeServer ( const std::string& dbName )
+bool ServerManager::tryGetFreeServer(const std::string &databaseName, boost::shared_ptr<Server> &out_server)
 {
-    /* TODO:
-     * 1. Ask peers about available servers
-     */
+    bool success = false;
     list<shared_ptr<ServerGroup> >::iterator it;
-    shared_ptr<Server> result;
+
     shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
 
-    shared_ptr<RasMgrConfig> config= RasMgrConfig::getInstance();
-    boost::int32_t retryTimeout = config->getClientGetServerRetryTimeout();
-    boost::uint32_t retryNo =  config->getClientGetServerRetryNo();
-
-    while ( retryNo>0 )
+    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
     {
-        for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+        if ( ( *it )->tryGetAvailableServer( databaseName, out_server ) )
         {
-            if ( ( *it )->getAvailableServer ( dbName, result ) )
-            {
-                return result;
-            }
+            success = true;
+            break;
         }
-        //There is no free server available so we must force the reevaluation of the server
-        //groups.
-
-        this->evaluateServerGroups();
-
-        boost::this_thread::sleep ( boost::posix_time::milliseconds ( retryTimeout ) );
-
-        retryNo--;
     }
 
-    throw runtime_error ( "No available servers." );
+    return success;
 }
+
 
 void ServerManager::registerServer ( const string& serverId )
 {
-    bool registered=false;
+    bool registered = false;
     list<shared_ptr<ServerGroup> >::iterator it;
 
     shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
+
     for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
     {
-        if ( ( ( *it )->registerServer ( serverId ) ) )
+        if ( ( ( *it )->tryRegisterServer( serverId ) ) )
         {
             registered=true;
             break;
@@ -171,7 +156,7 @@ void ServerManager::registerServer ( const string& serverId )
     }
 }
 
-void ServerManager::defineServerGroup ( const ServerGroupConfig &serverGroupConfig )
+void ServerManager::defineServerGroup(const ServerGroupConfigProto &serverGroupConfig)
 {
     list<shared_ptr<ServerGroup> >::iterator it;
 
@@ -179,17 +164,16 @@ void ServerManager::defineServerGroup ( const ServerGroupConfig &serverGroupConf
 
     for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
     {
-        if ( ( *it )->getGroupName() ==serverGroupConfig.getGroupName() )
+        if ( ( *it )->getGroupName() ==serverGroupConfig.name() )
         {
-            throw runtime_error ( "There already exists a server group with the name:"+serverGroupConfig.getGroupName() );
+            throw runtime_error ( "There already exists a server group named:\""+serverGroupConfig.name()+"\".");
         }
     }
 
-    this->serverGroupList.push_back ( shared_ptr<ServerGroup> ( new ServerGroup ( serverGroupConfig, this->dbhManager, serverFactory ) ) );
+    this->serverGroupList.push_back(this->serverGroupFactory->createServerGroup(serverGroupConfig));
 }
 
-
-void ServerManager::changeServerGroup ( const std::string &oldServerGroupName, const ServerGroupConfig &newServerGroupConfig )
+void ServerManager::changeServerGroup(const std::string &oldServerGroupName, const ServerGroupConfigProto &newServerGroupConfig)
 {
     list<shared_ptr<ServerGroup> >::iterator it;
     bool changed=false;
@@ -197,17 +181,18 @@ void ServerManager::changeServerGroup ( const std::string &oldServerGroupName, c
     unique_lock<shared_mutex> lock ( this->serverGroupMutex );
     for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
     {
-        if ( ( *it )->getGroupName() ==oldServerGroupName )
+        if ( ( *it )->getGroupName() == oldServerGroupName )
         {
-            if ( ( *it )->isBusy() )
+            if(( *it )->isStopped() )
             {
-                throw runtime_error ( "Cannot change server group while its servers are running." );
+                changed=true;
+                ( *it )->changeGroupConfig ( newServerGroupConfig );
+                break;
             }
             else
             {
-                changed=true;
-                ( *it )->setConfig ( newServerGroupConfig );
-                break;
+                throw runtime_error ( string("Cannot change server group properties while it is running.")
+                                      + string(" Stop the server group.") );
             }
         }
     }
@@ -226,17 +211,18 @@ void ServerManager::removeServerGroup ( const std::string &serverGroupName )
     unique_lock<shared_mutex> lock ( this->serverGroupMutex );
     for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
     {
-        if ( ( *it )->getGroupName() ==serverGroupName )
+        if ( ( *it )->getGroupName() == serverGroupName )
         {
-            if ( ( *it )->isBusy() )
-            {
-                throw runtime_error ( "Cannot remove server group while its servers are running." );
-            }
-            else
+            if(( *it )->isStopped() )
             {
                 removed=true;
                 this->serverGroupList.erase ( it );
                 break;
+            }
+            else
+            {
+                throw runtime_error ( string("Cannot remove server group while it is running.")
+                                      + string(" Stop the server group.") );
             }
         }
     }
@@ -245,22 +231,6 @@ void ServerManager::removeServerGroup ( const std::string &serverGroupName )
     {
         throw runtime_error ( "There is no server group named \""+serverGroupName+"\"" );
     }
-}
-
-ServerGroupConfig ServerManager::getServerGroupConfig ( const std::string &groupName )
-{
-    list<shared_ptr<ServerGroup> >::iterator it;
-    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
-
-    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
-    {
-        if ( ( *it )->getGroupName() ==groupName )
-        {
-            return ( *it )->getConfig();
-        }
-    }
-
-    throw runtime_error ( "There is no server group named \""+groupName+"\"" );
 }
 
 void ServerManager::startServerGroup ( const StartServerGroup &startGroup )
@@ -274,7 +244,7 @@ void ServerManager::startServerGroup ( const StartServerGroup &startGroup )
         for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
         {
             shared_ptr<ServerGroup>  srv = ( *it );
-            if ( srv->getGroupName() ==startGroup.group_name() )
+            if ( srv->getGroupName() == startGroup.group_name() )
             {
                 found=true;
                 if ( srv->isStopped() )
@@ -302,7 +272,7 @@ void ServerManager::startServerGroup ( const StartServerGroup &startGroup )
 
         for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
         {
-            if ( ( *it )->getConfig().getHost() ==onHost )
+            if ( ( *it )->getConfig().host() == onHost )
             {
                 hostExists=true;
                 if ( ( *it )->isStopped() )
@@ -327,12 +297,18 @@ void ServerManager::startServerGroup ( const StartServerGroup &startGroup )
             }
         }
     }
+    else
+    {
+        throw runtime_error("Invalid start server command.");
+    }
 }
 
 void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
 {
     list<shared_ptr<ServerGroup> >::iterator it;
     shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
+
+    bool force = stopGroup.has_force() && stopGroup.force();
 
     if ( stopGroup.has_group_name() )
     {
@@ -341,17 +317,17 @@ void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
         for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
         {
             shared_ptr<ServerGroup>  srv = ( *it );
-            if ( srv->getGroupName() ==stopGroup.group_name() )
+            if ( srv->getGroupName() == stopGroup.group_name() )
             {
                 found=true;
 
-                if ( !srv->isStopped() )
+                if(srv->isStopped())
                 {
-                    srv->stop();
+                    throw runtime_error ( "The server group \""+stopGroup.group_name() +"\" is already stopped." );
                 }
                 else
                 {
-                    throw runtime_error ( "The server group \""+stopGroup.group_name() +"\" is already stopped." );
+                    srv->stop(force);
                 }
 
                 break;
@@ -370,12 +346,12 @@ void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
 
         for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
         {
-            if ( ( *it )->getConfig().getHost() ==onHost )
+            if ( ( *it )->getConfig().host() ==onHost )
             {
                 hostExists=true;
                 if ( ! ( *it )->isStopped() )
                 {
-                    ( *it )->stop();
+                    ( *it )->stop(force);
                 }
             }
         }
@@ -391,89 +367,92 @@ void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
         {
             if ( ! ( *it )->isStopped() )
             {
-                ( *it )->stop();
+                ( *it )->stop(force);
             }
         }
     }
-}
-
-bool ServerManager::hasRunningServerGroup()
-{
-    list<shared_ptr<ServerGroup> >::iterator it;
-    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
-
-    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
-    {
-        if ( ! ( *it )->isStopped() )
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-std::string ServerManager::getServerGroupInfo ( const std::string &serverGroupName, bool portDetails )
-{
-    list<shared_ptr<ServerGroup> >::iterator it;
-    bool found=false;
-    std::stringstream ss;
-
-    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
-    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
-    {
-        if ( ( *it )->getConfig().getGroupName() ==serverGroupName )
-        {
-            std::string serverGroupName = ( *it )->getGroupName();
-            std::string hostName = ( *it )->getConfig().getHost();
-            std::string dbHostName = ( *it )->getConfig().getDbHost();
-            std::string up = ( *it )->isStopped() ?"DOWN":"UP";
-
-            ss<< ( format ( "Status of server %s\r\n" ) % serverGroupName );
-            ss<< ( format ( "    %-20s   %-20s %-20s %-4s\r\n" ) % "Server Name"  % "Host" % "Db Host" % "Stat" );
-            ss<< ( format ( "    %-20s %-20s %-20s %s\r\n" ) % serverGroupName % hostName % dbHostName % up );
-            found=true;
-            break;
-        }
-    }
-
-    if ( !found )
-    {
-        throw runtime_error ( "There is not server group named \""+serverGroupName+"\"" );
-    }
-
-    return ss.str();
-}
-
-std::string ServerManager::getAllServerGroupsInfo ( bool details,const std::string& host )
-{
-    list<shared_ptr<ServerGroup> >::iterator it;
-    std::stringstream ss;
-    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
-
-    if ( host.empty() )
-    {
-        ss<< "List of servers \r\n";
-        ss<< ( format ( "    %-20s %s   %-20s %-20s %-4s %-2s     %s   %s" ) %"Server Name"%"Type"%"Host"%"Db Host"%"Stat"%"Av"%"Acc"%"Crc" );
-
-        int counter =1;
-        for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
-        {
-            std::string serverGroupName = ( *it )->getGroupName();
-            std::string hostName = ( *it )->getConfig().getHost();
-            std::string dbHostName = ( *it )->getConfig().getDbHost();
-            std::string up = ( *it )->isStopped() ?"DOWN":"UP";
-
-            ss<< ( format ( "\r\n%2d. %-20s %s %-20s %-20s %s %s %6ld    %2d" ) % counter % serverGroupName % "(RASNET)"% hostName % dbHostName % up % "-" %0 % 0 );
-
-            counter ++;
-        }
-    }
     else
-    {}
-
-    return ss.str();
+    {
+        throw runtime_error("Invalid stop server command.");
+    }
 }
+
+ServerMgrProto ServerManager::serializeToProto()
+{
+    ServerMgrProto result;
+
+    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
+    list<shared_ptr<ServerGroup> >::iterator it;
+
+    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+    {
+        result.add_server_groups()->CopyFrom(( *it )->serializeToProto());
+    }
+
+    return result;
+}
+
+//std::string ServerManager::getServerGroupInfo ( const std::string &serverGroupName, bool portDetails )
+//{
+//    list<shared_ptr<ServerGroup> >::iterator it;
+//    bool found=false;
+//    std::stringstream ss;
+
+//    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
+//    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+//    {
+////        if ( ( *it )->getConfig().getGroupName() ==serverGroupName )
+////        {
+////            std::string serverGroupName = ( *it )->getGroupName();
+////            std::string hostName = ( *it )->getConfig().getHost();
+////            std::string dbHostName = ( *it )->getConfig().getDbHost();
+////            std::string up = ( *it )->isStopped() ?"DOWN":"UP";
+
+////            ss<< ( format ( "Status of server %s\r\n" ) % serverGroupName );
+////            ss<< ( format ( "    %-20s   %-20s %-20s %-4s\r\n" ) % "Server Name"  % "Host" % "Db Host" % "Stat" );
+////            ss<< ( format ( "    %-20s %-20s %-20s %s\r\n" ) % serverGroupName % hostName % dbHostName % up );
+////            found=true;
+////            break;
+////        }
+//    }
+
+//    if ( !found )
+//    {
+//        throw runtime_error ( "There is not server group named \""+serverGroupName+"\"" );
+//    }
+
+//    return ss.str();
+//}
+
+//std::string ServerManager::getAllServerGroupsInfo ( bool details,const std::string& host )
+//{
+//    list<shared_ptr<ServerGroup> >::iterator it;
+//    std::stringstream ss;
+//    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
+
+//    if ( host.empty() )
+//    {
+//        ss<< "List of servers \r\n";
+//        ss<< ( format ( "    %-20s %s   %-20s %-20s %-4s %-2s     %s   %s" ) %"Server Name"%"Type"%"Host"%"Db Host"%"Stat"%"Av"%"Acc"%"Crc" );
+
+//        int counter =1;
+//        for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+//        {
+////            std::string serverGroupName = ( *it )->getGroupName();
+////            std::string hostName = ( *it )->getConfig().getHost();
+////            std::string dbHostName = ( *it )->getConfig().getDbHost();
+////            std::string up = ( *it )->isStopped() ?"DOWN":"UP";
+
+////            ss<< ( format ( "\r\n%2d. %-20s %s %-20s %-20s %s %s %6ld    %2d" ) % counter % serverGroupName % "(RASNET)"% hostName % dbHostName % up % "-" %0 % 0 );
+
+//            counter ++;
+//        }
+//    }
+//    else
+//    {}
+
+//    return ss.str();
+//}
 
 void ServerManager::workerCleanupRunner()
 {

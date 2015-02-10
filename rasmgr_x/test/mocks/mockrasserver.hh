@@ -23,6 +23,7 @@ public:
   MOCK_METHOD0(isOccupied, bool(void));
   MOCK_METHOD0(startProcess, void(void));
   MOCK_METHOD0(isAlive, bool(void));
+  MOCK_METHOD0(getTotalSessionNo, boost::uint32_t(void));
   MOCK_CONST_METHOD0(getPort, boost::int32_t(void));
   MOCK_CONST_METHOD0(getHostName, std::string(void));
   MOCK_CONST_METHOD0(getServerId, std::string(void));

@@ -1,12 +1,13 @@
 #include "clientmanagerconfig.hh"
+#include "constants.hh"
 
 namespace rasmgr
 {
 
-ClientManagerConfig::ClientManagerConfig(int32_t clientLifeTime, int32_t cleanupInterval)
+ClientManagerConfig::ClientManagerConfig()
 {
-    this->clientLifeTime=clientLifeTime;
-    this->cleanupInterval=cleanupInterval;
+    this->clientLifeTime=CLIENT_LIFETIME;
+    this->cleanupInterval=CLIENT_MANAGER_CLEANUP_INTERVAL;
 }
 
 ClientManagerConfig::~ClientManagerConfig()

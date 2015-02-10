@@ -209,7 +209,7 @@ std::string RasControl::defineDb ( const DefineDb& dbData )
 
     try
     {
-        this->dbManager->defineDatabase ( dbData.db_name(), dbData.dbhost_name() );
+        //this->dbManager->defineDatabase ( dbData.db_name(), dbData.dbhost_name() );
     }
     catch ( std::exception& ex )
     {
@@ -254,7 +254,7 @@ std::string RasControl::removeDb ( const RemoveDb& dbData )
 
     try
     {
-        this->dbManager->removeDatabase ( dbData.db_name() );
+        //this->dbManager->removeDatabase ( dbData.db_name() );
     }
     catch ( std::exception& ex )
     {
@@ -697,7 +697,7 @@ std::string RasControl::changeServerGroup ( const ChangeServerGroup &groupData )
 //            oldConfig.setServerOptions ( groupData.n_options() );
 //        }
 
-        this->serverManager->changeServerGroup ( groupData.group_name(), oldConfig );
+        //this->serverManager->changeServerGroup ( groupData.group_name(), oldConfig );
     }
     catch ( std::exception& ex )
     {
@@ -740,18 +740,18 @@ std::string RasControl::listServerGroup ( const ListServerGroup &listData )
     //  bool extraInfo = listData.has_extra_info();
 
     //List information about a particular group
-    if ( listData.has_group_name() )
-    {
-        result = this->serverManager->getServerGroupInfo ( listData.group_name() );
-    }
-    else if ( listData.has_host() ) //list information about servers running on a host
-    {
-        result = this->serverManager->getAllServerGroupsInfo ( false, listData.host() );
-    }
-    else   //list information about all the servers
-    {
-        result = this->serverManager->getAllServerGroupsInfo();
-    }
+//    if ( listData.has_group_name() )
+//    {
+//        result = this->serverManager->getServerGroupInfo ( listData.group_name() );
+//    }
+//    else if ( listData.has_host() ) //list information about servers running on a host
+//    {
+//        result = this->serverManager->getAllServerGroupsInfo ( false, listData.host() );
+//    }
+//    else   //list information about all the servers
+//    {
+//        result = this->serverManager->getAllServerGroupsInfo();
+//    }
 
     return result;
 }
@@ -813,15 +813,15 @@ std::string RasControl::stopRasMgr()
 
     try
     {
-        if ( this->serverManager->hasRunningServerGroup() )
-        {
-            message="This rasmgr instance has running server groups. Down all the server groups before stoping rasmgr.";
-        }
-        else
-        {
-            this->rasmanager->stop();
-            message = "rasmanager is shutting down. Good Bye!";
-        }
+//        if ( this->serverManager->hasRunningServerGroup() )
+//        {
+//            message="This rasmgr instance has running server groups. Down all the server groups before stoping rasmgr.";
+//        }
+//        else
+//        {
+//            this->rasmanager->stop();
+//            message = "rasmanager is shutting down. Good Bye!";
+//        }
     }
     catch ( std::exception& ex )
     {

@@ -236,14 +236,22 @@ message UserMgrProto {
 }
 
 message ServerGroupConfigProto {
-  optional string name = 1;
-  optional string host = 2;
-  optional string db_host = 3;
-  repeated int32 ports = 4;
-  optional uint32 min_alive_server_no = 5;
-  optional uint32 min_available_server_no  = 6;
-  optional uint32 max_idle_server_no = 7;
-  optional bool autorestart = 8;
-  optional uint32 countdown = 9;
-  optional string server_options = 10;
+  optional string name = 1;/*!< Name of the server group */
+  optional string host = 2;/*!< The host on which servers of this group will run */
+  optional string db_host = 3;/*!< The database host that will be used by servers of this group */
+  repeated int32 ports = 4;/*!< The set of ports on which servers from this group will run*/
+  optional uint32 min_alive_server_no = 5;/*!< The minimum number of servers that this group should have alive*/
+  optional uint32 min_available_server_no  = 6;/*!< The minimum number of servers with leftover capacity*/
+  optional uint32 max_idle_server_no = 7;/*!< The maximum number of idle servers that this server group can have*/
+  optional bool autorestart = 8;/*!< TRUE if the server should be restarted if it dies. */
+  optional uint32 countdown = 9;/*!< Restart the server after this number of transactions*/
+  optional string server_options = 10;/*!< Options to be passed to the server process on startup */
+  optional int32 starting_server_lifetime = 11; /*!< Number of milliseconds for which a starting server is considered alive */
+}
+
+message ServerGroupProto{
+}
+
+message ServerMgrProto {
+  repeated ServerGroupProto server_groups = 1;
 }

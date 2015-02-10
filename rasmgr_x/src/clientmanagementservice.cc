@@ -139,15 +139,15 @@ ClientManagementService::OpenDb(
         string dbName = request->databasename();
         unique_lock<mutex> lock(this->assignServerMutex);
         //Get a free server that contains the requested database
-        shared_ptr<Server> server = this->serverManager->getFreeServer(dbName);
+    //    shared_ptr<Server> server = this->serverManager->getFreeServer(dbName);
 
         //Open a session for the client. This will call allocateClientSession on the
         //server side if everything is successful.
-        this->clientManager->openClientDbSession(clientId, dbName, server, out_sessionId);
+//        this->clientManager->openClientDbSession(clientId, dbName, server, out_sessionId);
 
-        response->set_dbsessionid(out_sessionId);
-        response->set_serverhostname(server->getHostName());
-        response->set_port(server->getPort());
+//        response->set_dbsessionid(out_sessionId);
+//        response->set_serverhostname(server->getHostName());
+//        response->set_port(server->getPort());
     }
     catch(std::exception& ex)
     {

@@ -90,6 +90,7 @@ ServerRasNet::ServerRasNet(const std::string &hostName, const boost::int32_t &po
     this->initializedService=false;
     this->allocatedClientsNo=0;
     this->processId = -1;
+    this->sessionNo = 0;
 }
 
 ServerRasNet::~ServerRasNet()
@@ -264,6 +265,8 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
         unique_lock<shared_mutex> stateLock(this->stateMtx);
         this->allocatedClientsNo++;
     }
+
+    this->sessionNo++;
 }
 
 void ServerRasNet::deallocateClientSession(const std::string& clientId, const std::string& sessionId)
@@ -307,6 +310,11 @@ void ServerRasNet::registerServer(const std::string& serverId)
     {
         throw runtime_error("Server registration failed. "+this->serverId+"!="+serverId);
     }
+}
+
+boost::uint32_t ServerRasNet::getTotalSessionNo()
+{
+    return this->sessionNo;
 }
 
 void ServerRasNet::stop(bool force)

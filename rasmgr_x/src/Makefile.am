@@ -3,31 +3,35 @@ SRC = messages/rasmgrmess.pb.cc \
       client.cc \
 	  clientcredentials.cc \
 	  clientmanagementservice.cc \
-	  clientmanagerconfig.cc \
 	  clientmanager.cc \
+	  clientmanagerconfig.cc \
+	  configuration.cc \
+	  controlcommandexecutor.cc \
+	  controlservice.cc \
+	  database.cc \
+	  databasemanager.cc \
+	  databasehost.cc \
+	  databasehostmanager.cc \
+	  rascontrol.cc \
+	  rasctrlgrammarconstants.cc \
+	  rasmanager.cc \
 	  rasmgrconfig.cc \
+	  server.cc \
+	  serverfactory.cc \
+	  serverfactoryrasnet.cc \
+	  servergroup.cc \
+	  servergroupimpl.cc \
+	  servergroupconfig.cc \
+	  servergroupfactory.cc \
+	  servergroupfactoryimpl.cc \
 	  servermanagementservice.cc \
 	  servermanager.cc \
-	  server.cc \
+	  servermanagerconfig.cc \
 	  serverrasnet.cc \
+	  user.cc \
 	  useradminrights.cc \
 	  userdatabaserights.cc \
-	  user.cc \
-	  usermanager.cc \
-	  databasehost.cc \
-	  database.cc \
-	  databasehostmanager.cc\
-	  databasemanager.cc\
-	  servergroupconfig.cc\
-	  servergroup.cc\
-	  serverfactory.cc\
-	  serverfactoryrasnet.cc\
-	  controlservice.cc\
-	  rasctrlgrammarconstants.cc \
-	  configuration.cc \
-	  rasmanager.cc \
-	  rascontrol.cc \
-	  controlcommandexecutor.cc
+	  usermanager.cc
 
 rasmgr_SOURCES = main.cc \
 				${SRC}

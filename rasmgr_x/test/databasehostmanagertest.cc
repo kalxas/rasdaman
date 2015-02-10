@@ -229,7 +229,7 @@ TEST_F(DatabaseHostManagerTest, getDatabaseHostList)
 
 TEST_F(DatabaseHostManagerTest, serializeToProto)
 {
-    DatabaseHostMgrProto result =  DatabaseHostManager::serializeToProto(dbhManager);
+    DatabaseHostMgrProto result = dbhManager.serializeToProto();
     ASSERT_EQ(0, result.database_hosts_size());
 
     DatabaseHostPropertiesProto originalDBH;
@@ -240,7 +240,7 @@ TEST_F(DatabaseHostManagerTest, serializeToProto)
 
     dbhManager.defineDatabaseHost(originalDBH);
 
-    result =  DatabaseHostManager::serializeToProto(dbhManager);
+    result =  dbhManager.serializeToProto();
     ASSERT_EQ(1, result.database_hosts_size());
 
     ASSERT_EQ(hostName, result.database_hosts(0).host_name());

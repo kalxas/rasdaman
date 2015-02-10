@@ -70,18 +70,18 @@ public:
     void setServerOptions(const std::string &value);
 
 private:
-    std::string groupName; /*!< Name of the server group */
-    boost::uint32_t groupSize; /*!< The number of servers in this group*/
-    boost::uint32_t maxIdleServersNo;/*!< The maximum number of idle servers that this server group can have*/
-    boost::uint32_t minAliveServers; /*!< The minimum number of servers that this group should have alive*/
-    boost::uint32_t minAvailableServers; /*!< The minimum number of servers with leftover capacity*/
-    std::string host; /*!< The host on which servers of this group will run */
-    std::set<boost::int32_t> ports; /*!< The set of ports on which servers from this group will run*/
-    std::string dbHost; /*!< The database host that will be used by servers of this group */
+    std::string groupName;
+    boost::uint32_t groupSize;
+    boost::uint32_t maxIdleServersNo;
+    boost::uint32_t minAliveServers;
+    boost::uint32_t minAvailableServers;
+    std::string host;
+    std::set<boost::int32_t> ports;
+    std::string dbHost;
 
-    bool autorestart; /*!< TRUE if the server should be restarted if it dies. */
-    boost::uint32_t countdown; /*!< Restart the server after this number of transactions*/
-    std::string serverOptions; /*!< Options to be passed to the server process on startup */
+    bool autorestart;
+    boost::uint32_t countdown;
+    std::string serverOptions;
 };
 }
 

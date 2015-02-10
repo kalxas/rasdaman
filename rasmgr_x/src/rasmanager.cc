@@ -42,6 +42,7 @@
 #include "controlcommandexecutor.hh"
 #include "rasmgrconfig.hh"
 #include "clientmanagerconfig.hh"
+#include "servergroupfactoryimpl.hh"
 
 namespace rasmgr
 {
@@ -61,19 +62,18 @@ void RasManager::start()
 {
     LINFO<<"Starting rasmanager.";
 
-
-    boost::shared_ptr<rasmgr::UserManager> userManager ( new rasmgr::UserManager() );
-
-	//This makes sure that we have an authentication file.
-    //TODO:
-    //userManager->saveUserInformation();
-
     shared_ptr<DatabaseHostManager> dbhManager ( new DatabaseHostManager() );
     shared_ptr<DatabaseManager> dbManager ( new DatabaseManager ( dbhManager ) );
-    shared_ptr<ServerManager> serverManager ( new ServerManager ( dbhManager ) );
+    boost::shared_ptr<rasmgr::UserManager> userManager ( new rasmgr::UserManager() );
+    userManager->loadUserInformation();
+    userManager->saveUserInformation();
 
-    ClientManagerConfig clientManagerConfig(3000,3000);
-    shared_ptr<ClientManager> clientManager ( new ClientManager ( userManager,clientManagerConfig) );
+    ServerManagerConfig serverMgrConfig;
+    boost::shared_ptr<ServerGroupFactory> serverGroupFactory(new ServerGroupFactoryImpl());
+    shared_ptr<ServerManager> serverManager ( new ServerManager ( serverMgrConfig,  serverGroupFactory) );
+
+    ClientManagerConfig clientManagerConfig;
+    shared_ptr<ClientManager> clientManager ( new ClientManager ( clientManagerConfig, userManager));
 
     shared_ptr<RasControl> rascontrol ( new RasControl ( userManager, dbhManager, dbManager,serverManager , this) );
 
@@ -89,10 +89,10 @@ void RasManager::start()
     this->serviceManager->addService ( serverManagementService );
     this->serviceManager->addService ( rasctrlService );
 
-    //Load the configuration from rasmgr.conf and initialize this rasmgr instance
-    this->loadRasmgrConf ( commandExecutor );
+//    //Load the configuration from rasmgr.conf and initialize this rasmgr instance
+//    this->loadRasmgrConf ( commandExecutor );
 
-    //TODO-AT: Factor out this tcp
+//    //TODO-AT: Factor out this tcp
     this->running=true;
     this->serviceManager->serve ( "tcp://*", this->port );
 

@@ -62,7 +62,7 @@ protected:
     ClientManagerTest():
         clientId("clientId"),userName("userName"),userPassword("userPassword"),
         dbName("dbName"), sessionId("sessionId"),
-        serverHost("tcp://localhost"),serverPort(7010), config(10,10)
+        serverHost("tcp://localhost"),serverPort(7010)
     {
         rasmgr::UserAdminRights adminRights;
         adminRights.setAccessControlRights(true);
@@ -70,12 +70,15 @@ protected:
         adminRights.setServerAdminRights(true);
         adminRights.setSystemConfigRights(true);
 
+        config.setCleanupInterval(10);
+        config.setClientLifeTime(10);
+
         rasmgr::UserDatabaseRights dbRights(true, true);
 
         user.reset(new rasmgr::User(userName,userPassword,dbRights, adminRights));
 
         userManager.reset(new UserManagerMock());
-        clientManager.reset(new ClientManager(userManager, config));
+        clientManager.reset(new ClientManager(config,userManager));
 
     }
 

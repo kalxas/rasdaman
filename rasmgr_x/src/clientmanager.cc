@@ -60,7 +60,7 @@ using rasnet::ProtoZmq;
 using rasnet::InternalDisconnectReply;
 using rasnet::InternalDisconnectRequest;
 
-ClientManager::ClientManager(boost::shared_ptr<rasmgr::UserManager> userManager, const ClientManagerConfig& config):config(config)
+ClientManager::ClientManager(const ClientManagerConfig& config, boost::shared_ptr<rasmgr::UserManager> userManager):config(config)
 {
     this->userManager = userManager;
     this->controlEndpoint = "inproc://"+UUID::generateUUID();

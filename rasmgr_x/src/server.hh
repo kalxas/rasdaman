@@ -57,6 +57,16 @@ public:
     virtual void registerServer(const std::string& serverId) = 0;
 
     /**
+     * @brief getTransactionNo Get the number of client sessions processed
+     * by this server throughout its lifetime.
+     * This method is used by the ServerGroup to restart a server once
+     * it has reached a number of sessions
+     * (to prevent memory leaks from getting out of control)
+     * @return
+     */
+    virtual boost::uint32_t getTotalSessionNo() = 0;
+
+    /**
      * Stop the RasServer process.
      * @param force TRUE if the server should abort any running transaction and terminate,
      * FALSE if the server should terminate after it finishes all running transactions.

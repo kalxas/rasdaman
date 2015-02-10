@@ -9,7 +9,7 @@ namespace rasmgr
 class ClientManagerConfig
 {
 public:
-    ClientManagerConfig(boost::int32_t clientLifeTime,boost::int32_t cleanupInterval);
+    ClientManagerConfig();
     virtual ~ClientManagerConfig();
 
     boost::int32_t getCleanupInterval() const;

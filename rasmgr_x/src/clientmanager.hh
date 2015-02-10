@@ -59,7 +59,7 @@ public:
      * about registered users. It is needed to evaluate the access credentials
      * of each client
      */
-    ClientManager(boost::shared_ptr<UserManager> userManager, const ClientManagerConfig& config);
+    ClientManager(const ClientManagerConfig& config, boost::shared_ptr<UserManager> userManager);
 
     /**
      * Destruct the ClientManager class object.

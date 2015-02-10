@@ -23,49 +23,32 @@
 #ifndef RASMGR_X_SRC_SERVERGROUP_HH
 #define RASMGR_X_SRC_SERVERGROUP_HH
 
-#include <boost/cstdint.hpp>
+#include <string>
+
 #include <boost/shared_ptr.hpp>
-#include <boost/thread.hpp>
 
-#include "../../common/src/time/timer.hh"
+#include "messages/rasmgrmess.pb.h"
 
-#include "servergroupconfig.hh"
-#include "databasehostmanager.hh"
-#include "databasehost.hh"
-#include "serverfactory.hh"
+#include "server.hh"
 
 namespace rasmgr
 {
 class ServerGroup
 {
 public:
-    /**
-      * @brief ServerGroup Initialize a new instance of the ServerGroup class.
-      * @param config ServerGroupConfig used to initialize this group.
-      * @param dbhManager Database Host Manager used to retrieve the database host
-      * used by servers of this server group.
-      */
-    ServerGroup(const ServerGroupConfig& config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory);
-
     virtual ~ServerGroup();
 
     /**
-     * @brief isBusy Check if this server group has running servers.
-     * @return TRUE if there are servers running, FALSE otherwise
-     */
-    bool isBusy();
-
-    /**
-     * @brief start Mark this server group as active and start the minimum number of alive
+     * @brief start Mark this server group as active and start the minimum number of
      * servers as specified in the server group config
      */
-    void start();
+    virtual void start() = 0;
 
     /**
      * @brief isStopped Check if the server group has been stopped.
      * @return TRUE if the server group was stopped, FALSE otherwise
      */
-    bool isStopped();
+    virtual bool isStopped() = 0;
 
     /**
      * @brief stop Stop the running servers of this group and
@@ -73,24 +56,24 @@ public:
      * @param force TRUE if the running servers should be shutdown without waiting for running
      * transactions to finish
      */
-    void stop(bool force=false);
+    virtual void stop(bool force=false) = 0;
 
     /**
-     * @brief registerServer Register the server with the given ID as running.
+     * @brief tryRegisterServer Register the server with the given ID as running.
      * @param serverId UUID that uniquely identifies the RasServer instance
      * @return TRUE if there was a server with the given serverId that was
      * starting and was successfully started, FALSE otherwise
      */
-    bool registerServer(const std::string& serverId);
+    virtual bool tryRegisterServer(const std::string& serverId) = 0;
 
     /**
      * @brief evaluateServerGroup Evaluate each server in this server group.
-     * 1.Remove servers that are not responding to ping requests.
+     * 1. Remove servers that are not responding to ping requests.
      * 2. Keep the configured minimum number of available servers
      * 3. Keep the configured minimum number of running servers
      * 4. Remove servers if there is extra, unused capacity
      */
-    void evaluateServerGroup();
+    virtual void evaluateServerGroup() = 0;
 
     /**
      * @brief getAvailableServer If this server group has a server containing the
@@ -102,60 +85,29 @@ public:
      * @param out_server shared_ptr to the RasServer instance
      * @return TRUE if there is a free server, false otherwise.
      */
-    bool getAvailableServer(const std::string& dbName, boost::shared_ptr<Server>& out_server);
+    virtual bool tryGetAvailableServer(const std::string& dbName, boost::shared_ptr<Server>& out_server) = 0;
 
     /**
      * @brief getConfig Get a copy of the ServerGroupConfig
      * object used to create this ServerGroup.
      * @return
      */
-    ServerGroupConfig getConfig() const;
+    virtual ServerGroupConfigProto getConfig() const = 0;
 
     /**
      * @brief setConfig Set a new configuration for
      * this ServerGroup object.
      * @param value
      */
-    void setConfig(const ServerGroupConfig &value);
+    virtual void changeGroupConfig(const ServerGroupConfigProto &value) = 0;
 
     /**
      * @brief getGroupName Get the name of this group.
      * @return
      */
-    std::string getGroupName() const;
+    virtual std::string getGroupName() const = 0;
 
-private:
-    ServerGroupConfig config;
-
-    std::list<boost::shared_ptr<Server> > runningServers;
-
-    boost::shared_ptr<ServerFactory> serverFactory;
-
-    boost::shared_ptr<DatabaseHost> databaseHost;
-
-    std::map<std::string, std::pair< boost::shared_ptr<Server>, common::Timer > > startingServers;
-
-    boost::shared_mutex groupMutex;
-
-    bool stopped;
-
-    std::set<boost::int32_t> availablePorts;
-
-    void evaluateGroup();
-
-    /**
-     * @brief cleanupServerList Remove dead servers and return the configuration
-     * data to the pool.
-     */
-    void removeDeadServers();
-
-    /**
-     * @brief startServer Start a new server if there are any servers
-     * that has not already been started.
-     * @return Reference to the RasServer object that represents the
-     * RasServer process.
-     */
-    void startServer();
+    virtual ServerGroupProto serializeToProto() = 0;
 };
 }
 #endif // SERVERGROUP_HH

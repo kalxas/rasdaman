@@ -33,9 +33,6 @@ using boost::unique_lock;
 using boost::mutex;
 using std::runtime_error;
 
-DatabaseHostManager::DatabaseHostManager()
-{}
-
 DatabaseHostManager::~DatabaseHostManager()
 {}
 
@@ -178,11 +175,11 @@ std::list<boost::shared_ptr<DatabaseHost> > DatabaseHostManager::getDatabaseHost
     return this->hostList;
 }
 
-DatabaseHostMgrProto DatabaseHostManager::serializeToProto(const DatabaseHostManager &dbh)
+DatabaseHostMgrProto DatabaseHostManager::serializeToProto()
 {
     DatabaseHostMgrProto result;
 
-    list<shared_ptr<DatabaseHost> > dbhList = dbh.getDatabaseHostList();
+    list<shared_ptr<DatabaseHost> > dbhList = this->getDatabaseHostList();
 
     list<shared_ptr<DatabaseHost> >::iterator it;
 

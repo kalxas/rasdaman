@@ -37,8 +37,6 @@ namespace rasmgr
 class DatabaseHostManager
 {
 public:
-    DatabaseHostManager();
-
     virtual ~DatabaseHostManager();
 
     /**
@@ -46,7 +44,7 @@ public:
      * @param newDbHost Configuration information required to define a new database host
      * If the host name is not specified, it throws an exception.
      */
-    void defineDatabaseHost(const DatabaseHostPropertiesProto& newDbHost);
+    virtual void defineDatabaseHost(const DatabaseHostPropertiesProto& newDbHost);
 
     /**
      * @brief changeDatabaseHost Change the properties of the database host identified by
@@ -54,14 +52,14 @@ public:
      * @param oldName
      * @param newProperties
      */
-    void changeDatabaseHost(const std::string& oldName, const DatabaseHostPropertiesProto& newProperties);
+    virtual void changeDatabaseHost(const std::string& oldName, const DatabaseHostPropertiesProto& newProperties);
 
     /**
      * @brief removeDatabaseHost Remove the database host identified by the dbHostName from
      * the registry.
      * @param dbHostName
      */
-    void removeDatabaseHost(const std::string& dbHostName);
+    virtual void removeDatabaseHost(const std::string& dbHostName);
 
     /**
      * @brief getAndLockDH Get a reference to the database host with the given name
@@ -72,17 +70,17 @@ public:
      * @param dbHostName
      * @return
      */
-    boost::shared_ptr<DatabaseHost> getAndLockDH(const std::string& dbHostName);
+    virtual boost::shared_ptr<DatabaseHost> getAndLockDH(const std::string& dbHostName);
 
     /**
      * @brief getDatabaseHostList Retrieve a list containing the list of database hosts
      * currently registered with this rasmgr.
      * @return
      */
-    std::list<boost::shared_ptr<DatabaseHost> > getDatabaseHostList() const;
+    virtual std::list<boost::shared_ptr<DatabaseHost> > getDatabaseHostList() const;
 
 
-    static DatabaseHostMgrProto serializeToProto(const DatabaseHostManager& dbh);
+    virtual DatabaseHostMgrProto serializeToProto();
 
 private:
     std::list< boost::shared_ptr<DatabaseHost> > hostList;
