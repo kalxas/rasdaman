@@ -80,7 +80,7 @@ public class PersistenceMetadataInstaller {
             logger.info("Installing WMS Tables: ");
             for (Class metadataClass : config.getMetadataClasses()) {
                 if (!persistenceProvider.getMetadataClassByName(metadataClass).isTableExists()) {
-                    TableUtils.createTableIfNotExists(config.getPersistenceConnection(), metadataClass);
+                    TableUtils.createTable(config.getPersistenceConnection(), metadataClass);
                 }
             }
             logger.info("WMS Installation successful");
@@ -97,13 +97,13 @@ public class PersistenceMetadataInstaller {
      */
     public void clearDatabaseTables() throws SQLException {
         try {
-            logger.info("Installing WMS Tables: ");
+            logger.info("Clearing WMS Tables: ");
             for (Class metadataClass : config.getMetadataClasses()) {
-                TableUtils.createTableIfNotExists(config.getPersistenceConnection(), metadataClass);
+                TableUtils.clearTable(config.getPersistenceConnection(), metadataClass);
             }
-            logger.info("WMS Installation successful");
+            logger.info("WMS Tables cleared successfully");
         } catch (SQLException e) {
-            logger.error("WMS Installation failed. The SQL error is appended: ", e);
+            logger.error("WMS table clearing failed. The SQL error is appended: ", e);
             throw e;
         }
     }
@@ -116,13 +116,13 @@ public class PersistenceMetadataInstaller {
      */
     public void dropDatabaseTables() throws SQLException {
         try {
-            logger.info("Installing WMS Tables: ");
+            logger.info("Dropping WMS Tables: ");
             for (Class metadataClass : config.getMetadataClasses()) {
                 TableUtils.dropTable(config.getPersistenceConnection(), metadataClass, true);
             }
-            logger.info("WMS Installation successful");
+            logger.info("WMS table drop successful");
         } catch (SQLException e) {
-            logger.error("WMS Installation failed. The SQL error is appended: ", e);
+            logger.error("WMS table drop failed. The SQL error is appended: ", e);
             throw e;
         }
     }
