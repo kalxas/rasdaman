@@ -66,41 +66,6 @@ RasMgrConfig::~RasMgrConfig()
 {}
 
 
-boost::int32_t RasMgrConfig::getClientLifeTime()
-{
-    return this->clientLifeTime;
-}
-
-void RasMgrConfig::setClientLifeTime(boost::int32_t value)
-{
-    this->clientLifeTime = value;
-}
-
-boost::int32_t RasMgrConfig::getClientManagementGarbageCollectionInterval()
-{
-    return this->clientManagementGarbageCollectionInterval;
-}
-
-void RasMgrConfig::setClientManagementGarbageCollectionInterval(boost::int32_t value)
-{
-    this->clientManagementGarbageCollectionInterval = value;
-}
-
-boost::int32_t RasMgrConfig::getServerManagementGarbageCollectionInterval()
-{
-    return this->serverManagementGarbageCollectionInterval;
-}
-
-boost::int32_t RasMgrConfig::getRasServerTimeout()
-{
-    return this->rasServerTimeout;
-}
-
-void RasMgrConfig::setRasServerTimeout(boost::int32_t value)
-{
-    this->rasServerTimeout = value;
-}
-
 boost::int32_t RasMgrConfig::getRasMgrPort()
 {
     return this->rasMgrPort;

@@ -41,39 +41,6 @@ public:
     static boost::shared_ptr<RasMgrConfig> getInstance();
 
     /**
-     * @return the maximum number of milliseconds between two required
-     * pings from the client before it is removed from RasMgr.
-     */
-    boost::int32_t getClientLifeTime();
-
-    void setClientLifeTime(boost::int32_t value);
-
-    /**
-     * @return the number of milliseconds between each successive pass
-     * of the garbage collection thread that removes dead clients
-     * from RasMgr's memory.
-     */
-    boost::int32_t getClientManagementGarbageCollectionInterval();
-
-    void setClientManagementGarbageCollectionInterval(boost::int32_t value);
-
-    /**
-     * Get the number of milliseconds between two successive runs of the
-     * garbage collection thread.
-     * @return
-     */
-    boost::int32_t getServerManagementGarbageCollectionInterval();
-
-    /**
-     * Get the number of milliseconds that RasMgr will wait for a RasServer
-     * to start before removing its entry from the starting servers
-     * @return
-     */
-    boost::int32_t getRasServerTimeout();
-
-    void setRasServerTimeout(boost::int32_t value);
-
-    /**
      * Get the port on which this RasMgr instance is running
      * @return
      */

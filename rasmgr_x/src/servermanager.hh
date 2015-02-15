@@ -101,6 +101,12 @@ public:
     virtual void stopServerGroup ( const StopServerGroup& stopGroup );
 
     /**
+     * @brief hasRunningServers Check if there are running server groups
+     * @return
+     */
+    virtual bool hasRunningServers();
+
+    /**
      * @brief serializeToProto Serialize the data contained by this object
      * into a format which can be later used for presenting information to the user
      * @return

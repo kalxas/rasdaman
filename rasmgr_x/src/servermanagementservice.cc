@@ -44,11 +44,11 @@ void ServerManagementService::RegisterServer(::google::protobuf::RpcController* 
 {
     try
     {
-        LINFO<<"Registering server"<<request->serverid();
+        LINFO<<"Registering server with ID:"<<request->serverid();
 
         this->serverManager->registerServer(request->serverid());
 
-        LINFO<<"Finished registering server"<<request->serverid();
+        LINFO<<"Finished registering server with ID:"<<request->serverid();
     }
     catch(std::exception& ex)
     {
@@ -57,7 +57,7 @@ void ServerManagementService::RegisterServer(::google::protobuf::RpcController* 
     }
     catch(...)
     {
-        string failureReason="RegisterServer failed for unknown reason.";
+        string failureReason="Failed to register server for unknown reason.";
         LERROR<<failureReason;
         controller->SetFailed(failureReason);
     }

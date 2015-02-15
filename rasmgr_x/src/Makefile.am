@@ -6,6 +6,7 @@ SRC = messages/rasmgrmess.pb.cc \
 	  clientmanager.cc \
 	  clientmanagerconfig.cc \
 	  configuration.cc \
+	  configurationmanager.cc \
 	  controlcommandexecutor.cc \
 	  controlservice.cc \
 	  database.cc \

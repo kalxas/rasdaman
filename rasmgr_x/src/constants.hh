@@ -14,6 +14,8 @@ const boost::int32_t STARTING_SERVER_LIFETIME = 1000;//Number of milliseconds fo
 const boost::int32_t SERVER_MANAGER_CLEANUP_INTERVAL = 3000;
 const boost::int32_t CLIENT_LIFETIME = 3000;
 const boost::int32_t CLIENT_MANAGER_CLEANUP_INTERVAL = 3000;
+
+const boost::uint32_t MAX_CONTROL_COMMAND_LENGHT = 1024;
 }
 
 #endif // RASMGR_X_SRC_CONSTANTS_HH

@@ -2,17 +2,21 @@
 #define RASMGR_X_SRC_SERVERGROUPFACTORYIMPL_HH
 
 #include "servergroupfactory.hh"
+#include "databasehostmanager.hh"
+#include "serverfactory.hh"
 
 namespace rasmgr
 {
 class ServerGroupFactoryImpl:public ServerGroupFactory
 {
 public:
-    //TODO:Implement
-    ServerGroupFactoryImpl();
+    ServerGroupFactoryImpl(boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory);
     virtual ~ServerGroupFactoryImpl();
 
     virtual boost::shared_ptr<ServerGroup> createServerGroup(const ServerGroupConfigProto& config);
+private:
+    boost::shared_ptr<DatabaseHostManager> dbhManager;
+    boost::shared_ptr<ServerFactory> serverFactory;
 };
 
 }

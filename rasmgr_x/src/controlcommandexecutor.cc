@@ -43,7 +43,8 @@ rasdaman GmbH.
 
 namespace rasmgr
 {
-ControlCommandExecutor::ControlCommandExecutor ( boost::shared_ptr<RasControl> control ) :rascontrol ( control ),grammar ( control )
+ControlCommandExecutor::ControlCommandExecutor ( boost::shared_ptr<RasControl> control )
+    :rascontrol ( control ),grammar ( control )
 {}
 
 ControlCommandExecutor::~ControlCommandExecutor()
@@ -95,15 +96,18 @@ bool ControlCommandExecutor::canRunCommand ( const std::string& userName, const 
 {
     bool result=false;
 
+    //The grammar must be protected by a mutex.
+    boost::unique_lock<boost::mutex> lock ( this->mut );
+
     if ( this->grammar.isInfoCommand ( command.begin(), command.end() ) )
     {
         LDEBUG<<command << " is a command requesting information.";
-        result= this->rascontrol->hasInfoRights ( userName, password );
+        result = this->rascontrol->hasInfoRights ( userName, password );
     }
     else if ( this->grammar.isServerAdminCommand ( command.begin(), command.end() ) )
     {
         LDEBUG<<command << " is a command requesting a change in server status.";
-        result=this->rascontrol->hasServerAdminRights ( userName, password );
+        result = this->rascontrol->hasServerAdminRights ( userName, password );
     }
     else if ( this->grammar.isUserAdminCommand ( command.begin(), command.end() ) )
     {
@@ -123,8 +127,8 @@ bool ControlCommandExecutor::canRunCommand ( const std::string& userName, const 
     else
     {
         //It is safe to run any command that is not one of the commands already checked
+        result = true;
         LDEBUG<<"UNKNOWN command:"<<command;
-        result=true;
     }
 
     return result;

@@ -20,8 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include <limits.h>
-
 #include "../../include/globals.hh"
 #include "../../common/src/crypto/crypto.hh"
 
@@ -43,6 +41,7 @@
 #include "rasmgrconfig.hh"
 #include "clientmanagerconfig.hh"
 #include "servergroupfactoryimpl.hh"
+#include "serverfactoryrasnet.hh"
 
 namespace rasmgr
 {
@@ -65,11 +64,10 @@ void RasManager::start()
     shared_ptr<DatabaseHostManager> dbhManager ( new DatabaseHostManager() );
     shared_ptr<DatabaseManager> dbManager ( new DatabaseManager ( dbhManager ) );
     boost::shared_ptr<rasmgr::UserManager> userManager ( new rasmgr::UserManager() );
-    userManager->loadUserInformation();
-    userManager->saveUserInformation();
 
     ServerManagerConfig serverMgrConfig;
-    boost::shared_ptr<ServerGroupFactory> serverGroupFactory(new ServerGroupFactoryImpl());
+    boost::shared_ptr<ServerFactory> serverFactory(new ServerFactoryRasNet());
+    boost::shared_ptr<ServerGroupFactory> serverGroupFactory(new ServerGroupFactoryImpl(dbhManager, serverFactory));
     shared_ptr<ServerManager> serverManager ( new ServerManager ( serverMgrConfig,  serverGroupFactory) );
 
     ClientManagerConfig clientManagerConfig;
@@ -78,6 +76,11 @@ void RasManager::start()
     shared_ptr<RasControl> rascontrol ( new RasControl ( userManager, dbhManager, dbManager,serverManager , this) );
 
     shared_ptr<ControlCommandExecutor> commandExecutor ( new ControlCommandExecutor ( rascontrol ) );
+
+    this->configManager.reset(new ConfigurationManager(commandExecutor, userManager));
+    LINFO<<"Loading rasmgr configuration.";
+    this->configManager->loadConfiguration();
+    LINFO<<"Finished loading rasmgr configuration.";
 
     boost::shared_ptr<rasnet::service::RasMgrRasServerService> serverManagementService ( new rasmgr::ServerManagementService ( serverManager ) );
     boost::shared_ptr<rasnet::service::RasMgrRasCtrlService> rasctrlService ( new rasmgr::ControlService ( commandExecutor ) );
@@ -89,13 +92,8 @@ void RasManager::start()
     this->serviceManager->addService ( serverManagementService );
     this->serviceManager->addService ( rasctrlService );
 
-//    //Load the configuration from rasmgr.conf and initialize this rasmgr instance
-//    this->loadRasmgrConf ( commandExecutor );
-
-//    //TODO-AT: Factor out this tcp
     this->running=true;
     this->serviceManager->serve ( "tcp://*", this->port );
-
 
     while ( this->running )
     {
@@ -105,48 +103,16 @@ void RasManager::start()
 
 void RasManager::stop()
 {
-    this->running = false;
-    LINFO<<"Stopping rasmanager.";
+    if(this->running)
+    {
+        this->configManager->saveConfiguration();
+        this->running = false;
+        LINFO<<"Stopping rasmanager.";
+    }
 }
 
-
-void RasManager::loadRasmgrConf ( shared_ptr<ControlCommandExecutor> commandExecutor )
+void RasManager::saveConfiguration()
 {
-    char configFileName[PATH_MAX];
-    char inBuffer[MAXMSG];
-    configFileName[0]=0;
-
-    if ( strlen ( CONFDIR ) +strlen ( RASMGR_CONF_FILE ) +2 > PATH_MAX )
-    {
-        LWARNING << "The path to the configuration file is longer than the maximum file system path. Initialization might fail";
-    }
-
-    //TODO: If the total path is longer than PATH_MAX, a segfault might be possible.
-    //This is legacy code so I leave it unchanged for now.
-    sprintf ( configFileName, "%s/%s", CONFDIR, RASMGR_CONF_FILE );
-
-    LDEBUG<<"Opening rasmanager configuration file"<<std::string ( configFileName );
-
-    std::ifstream ifs ( configFileName );   // open config file
-
-    if ( !ifs )
-    {
-        LERROR<<"Could not open rasmanager initialization file:"<<std::string ( configFileName );
-    }
-    else
-    {
-        while ( !ifs.eof() )
-        {
-            ifs.getline ( inBuffer,MAXMSG );
-
-            std::string result = commandExecutor->sudoExecuteCommand ( std::string ( inBuffer ) );
-
-            //Only error messages are non-empty
-            if ( !result.empty() )
-            {
-                LERROR<<result;
-            }
-        }
-    }
+    this->configManager->saveConfiguration();
 }
 }

@@ -64,6 +64,7 @@ ClientManagementService::Connect(
      */
     try
     {
+        LDEBUG<<"Started connecting client";
         std::string out_clientUUID;
 
         //Create the ClientCredentials object used for authentication.
@@ -71,15 +72,17 @@ ClientManagementService::Connect(
                                       request->passwordhash());
 
         //Try to authenticate the client and assign the client an ID.
+        //If the authentication fails, an exception is thrown
         this->clientManager->connectClient(credentials, out_clientUUID);
 
         response->set_clientuuid(out_clientUUID);
 
-        //These are added for compatibility with the old code.
-        //TODO: Remove this after refactoring the code on the client side
         int clientId = common::UUID::generateIntId();
         response->set_clientid(clientId);
-        response->set_keepalivetimeout(RasMgrConfig::getInstance()->getClientLifeTime());
+        response->set_keepalivetimeout(this->clientManager->getConfig().getClientLifeTime());
+
+        LDEBUG<<"Finished connecting client with ID:"
+              <<response->clientuuid();
     }
     catch(std::exception& ex)
     {
@@ -88,7 +91,7 @@ ClientManagementService::Connect(
     }
     catch(...)
     {
-        string failureReason="Could not connect the client to RasMgr.";
+        string failureReason="Connect request failed for unknown reason.";
         LERROR<<failureReason;
         controller->SetFailed(failureReason);
     }
@@ -102,7 +105,13 @@ ClientManagementService::Disconnect(
 {
     try
     {
+        LDEBUG<<"Started disconnecting client with ID:"
+              <<request->clientuuid();
+
         this->clientManager->disconnectClient(request->clientuuid());
+
+        LDEBUG<<"Finished disconnecting client with ID:"
+              <<request->clientuuid();
     }
     catch(std::exception& ex)
     {
@@ -111,7 +120,7 @@ ClientManagementService::Disconnect(
     }
     catch(...)
     {
-        string failureReason="Disconnect failed for unknown reason";
+        string failureReason="Disconnect request failed for unknown reason";
         LERROR<<failureReason;
         controller->SetFailed(failureReason);
     }
@@ -133,21 +142,29 @@ ClientManagementService::OpenDb(
          * 4. Assign the client to the server.
          * 5. Fill the response to the client with the server's identity
          */
+        shared_ptr<Server> server;
         string out_sessionId;
-
         string clientId = request->clientuuid();
         string dbName = request->databasename();
+
         unique_lock<mutex> lock(this->assignServerMutex);
-        //Get a free server that contains the requested database
-    //    shared_ptr<Server> server = this->serverManager->getFreeServer(dbName);
 
-        //Open a session for the client. This will call allocateClientSession on the
-        //server side if everything is successful.
-//        this->clientManager->openClientDbSession(clientId, dbName, server, out_sessionId);
+        //Try to get a free server that contains the requested database
+        if(this->serverManager->tryGetFreeServer(dbName, server))
+        {
+            //Open a session for the client.
+            this->clientManager->openClientDbSession(clientId, dbName, server, out_sessionId);
 
-//        response->set_dbsessionid(out_sessionId);
-//        response->set_serverhostname(server->getHostName());
-//        response->set_port(server->getPort());
+            response->set_dbsessionid(out_sessionId);
+            response->set_serverhostname(server->getHostName());
+            response->set_port(server->getPort());
+        }
+        else
+        {
+            //Fail if there is no available server.
+            controller->SetFailed("There is no available server for the client.");
+        }
+
     }
     catch(std::exception& ex)
     {
@@ -156,7 +173,7 @@ ClientManagementService::OpenDb(
     }
     catch(...)
     {
-        string failureReason="OpenDB call failed for unknown reason.";
+        string failureReason="Open Database request failed for unknown reason.";
         LERROR<<failureReason;
         controller->SetFailed(failureReason);
     }
@@ -170,11 +187,17 @@ ClientManagementService::CloseDb(
 {
     try
     {
-        LDEBUG<<"Client: "<<request->clientid() <<" closing database session"<<request->dbsessionid();
+        LDEBUG<<"Started closing database session: "
+              <<request->dbsessionid()
+              <<"by client with ID"
+              <<request->clientid();
 
         this->clientManager->closeClientDbSession(request->clientuuid(), request->dbsessionid());
 
-        LDEBUG<<"Client: "<<request->clientid() <<" closed database session"<<request->dbsessionid();
+        LDEBUG<<"Finished closing database session: "
+              <<request->dbsessionid()
+              <<"by client with ID"
+              <<request->clientid();
     }
     catch(std::exception& ex)
     {
@@ -183,7 +206,7 @@ ClientManagementService::CloseDb(
     }
     catch(...)
     {
-        string failureReason="CloseDb failed with unknown exception";
+        string failureReason="Close Database request failed with unknown exception";
         LERROR<<failureReason;
         controller->SetFailed(failureReason);
     }
@@ -197,7 +220,11 @@ ClientManagementService::KeepAlive(
 {
     try
     {
+        LDEBUG<<"Start processing Keep Alive message from client with ID:"<<request->clientuuid();
+
         this->clientManager->keepClientAlive(request->clientuuid());
+
+        LDEBUG<<"Finished processing Keep Alive message from client with ID:"<<request->clientuuid();
     }
     catch(std::exception& ex)
     {
@@ -206,7 +233,7 @@ ClientManagementService::KeepAlive(
     }
     catch(...)
     {
-        string failureReason="KeepAlive failed with unknown exception";
+        string failureReason="KeepAlive request failed with unknown exception";
         LERROR<<failureReason;
         controller->SetFailed(failureReason);
     }

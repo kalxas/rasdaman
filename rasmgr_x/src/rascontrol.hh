@@ -108,9 +108,11 @@ private:
     boost::shared_ptr<ServerManager> serverManager;
 	RasManager* rasmanager;
 
-    std::string convertAdminRights ( const UserAdminRights& adminRights );
-    std::string convertDbRights ( const UserDatabaseRights& dbRights );
-
+    std::string convertAdminRights ( const UserAdminRightsProto& adminRights );
+    std::string convertDbRights ( const UserDatabaseRightsProto& dbRights );
+    std::string formatErrorMessage(const std::string& message);
+    std::string getNotImplementedMes();
+    std::string showHelp();
 };
 }
 

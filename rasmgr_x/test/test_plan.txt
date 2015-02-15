@@ -9,6 +9,7 @@ ClientManagementService:
 ClientManager:100% test coverage
 ClientManagerConfig: Nothing to be tested. (1)
 Configuration:
+Constants: Nothing to be tested
 ControlCommandExecutor:
 ControlService:
 
@@ -29,7 +30,8 @@ ServerFactoryRasNet: Nothing to be tested.
 ServerGroup:
 ServerGroupConfig: Nothing to be tested. (1)
 ServerManagementService:
-ServerManager:
+ServerManager:100% test coverage.
+ServerManagerConfig: (1)
 ServerRasNet:
 
 User: 100% test coverage.

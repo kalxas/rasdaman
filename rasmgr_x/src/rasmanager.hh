@@ -20,10 +20,8 @@
 
 #include "../../rasnet/src/service/server/servicemanager.hh"
 
+#include "configurationmanager.hh"
 #include "configuration.hh"
-#include "controlcommandexecutor.hh"
-#include "usermanager.hh"
-
 namespace rasmgr
 {
 
@@ -35,24 +33,17 @@ public:
 
     void start();
     void stop();
+
+    /**
+     * @brief saveConfiguration Save this rasmanager's configuration to rasmgr.conf and rasmgr.auth
+     */
+    void saveConfiguration();
 private:
     boost::shared_ptr<rasnet::ServiceManager> serviceManager;
+    boost::shared_ptr<ConfigurationManager> configManager;
 
     sig_atomic_t running; /*!<True if the rasmgr is running, false otherwise */
     boost::uint32_t port; /*!< Port on which this rasmgr instance will be running */
-
-    //TODO-AT: Refactor these methods. I am not sure they should be placed in RasManager
-    //because Rascontrol will need to save the files
-
-    /**
-     * Load the configuration specified in RASMGR_CONF_FILE.
-     */
-    void loadRasmgrConf( boost::shared_ptr<ControlCommandExecutor> commandExecutor);
-
-    /**
-	 * Load the list of users from RASMGR_AUTH_FILE and insert them into the user manager.
-     */
-    void loadRasmgrAuth( boost::shared_ptr<UserManager> userManager);
 };
 
 }

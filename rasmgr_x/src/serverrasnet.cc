@@ -85,29 +85,33 @@ ServerRasNet::ServerRasNet(const std::string &hostName, const boost::int32_t &po
     this->serverId = UUID::generateUUID();
     this->doNothing.reset(NewPermanentCallback(&DoNothing));
 
-    this->registered=false;
-    this->started=false;
-    this->initializedService=false;
-    this->allocatedClientsNo=0;
+    this->registered = false;
+    this->started = false;
+    this->initializedService = false;
+    this->allocatedClientsNo = 0;
     this->processId = -1;
     this->sessionNo = 0;
 }
 
 ServerRasNet::~ServerRasNet()
 {
-    for(set<pair<string,string> > ::iterator it = this->
-            sessionList.begin();
-            it!=this->sessionList.end();
-            ++it)
+    set<pair<string,string> > ::iterator it;
+    for( it= this->sessionList.begin(); it!=this->sessionList.end(); ++it)
     {
         this->dbHost->removeClientSessionFromDB(it->first, it->second);
     }
 
     this->sessionList.clear();
-    int status;
-    int options=0;
 
-    waitpid(this->processId,&status, options);
+    //Wait for the process to finish
+    if(!this->started)
+    {
+        LWARNING<<"The server process is running."
+                <<"Waiting for the process will cause this thread to block.";
+    }
+    int status;
+    int options = 0;
+    waitpid(this->processId, &status, options);
     LDEBUG<<"RasServer destructed.";
 }
 
@@ -125,71 +129,74 @@ void ServerRasNet::startProcess()
     switch(this->processId)
     {
     case -1:
-        {
-            //Failure
-            LERROR<<"Server spawning failed to fork process:"<<strerror(errno);
-            return;
-        }
-        break;
-    case 0:
-        {
-            //TODO-AT:Double check this and test it.
-            //Child process
-            shared_ptr<RasMgrConfig> config = RasMgrConfig::getInstance();
+    {
+        //Failure
+        LERROR<<"Server spawning failed to fork process. Reason:"<<strerror(errno);
+        return;
+    }
+    break;
 
-            if (execl(RASEXECUTABLE,
-			config->getRasServerExecPath().c_str(),
-                      "--lport", lexical_cast<string>(port).c_str(),
-                      "--serverId", this->getServerId().c_str(),
-                      "--mgr", config->
-                      getConnectHostName().c_str(),
-                      "--rsn", this->getServerId().c_str(),
-                      "--mgrport", lexical_cast<string>(config->getRasMgrPort()).c_str(),
-                      "--connect", this->dbHost->getConnectString().c_str(),
-                      "--rasnet" ,(char*)0)
-                    == -1)
-            {
-                LERROR<<"Starting RasServer  process failed."<<strerror(errno);
-                exit(EXIT_FAILURE);
-            }
-        }
-        break;
-    default:
+    case 0:
+    {
+        //Child process
+        shared_ptr<RasMgrConfig> config = RasMgrConfig::getInstance();
+        LDEBUG<<"Starting server process:"
+              <<RASEXECUTABLE
+              <<" in "
+              <<config->getRasServerExecPath();
+
+        if (execl(RASEXECUTABLE,
+                  config->getRasServerExecPath().c_str(),
+                  "--lport", lexical_cast<string>(port).c_str(),
+                  "--serverId", this->getServerId().c_str(),
+                  "--mgr", config->getConnectHostName().c_str(),
+                  "--rsn", this->getServerId().c_str(),
+                  "--mgrport", lexical_cast<string>(config->getRasMgrPort()).c_str(),
+                  "--connect", this->dbHost->getConnectString().c_str(),
+                  "--rasnet" ,(char*)0)
+                == -1)
         {
-            //Parent process
-            this->started = true;
+            LERROR<<"Starting RasServer  process failed."<<strerror(errno);
+            exit(EXIT_FAILURE);
         }
-        break;
+    }
+    break;
+
+    default:
+    {
+        //Parent process
+        this->started = true;
+    }
     }
 }
 
 bool ServerRasNet::isAlive()
 {
-    ClientController controller;
-    ServerStatusReq request = ServerStatusReq::default_instance();
-    ServerStatusRepl reply;
+    //Assume the process is dead
     bool result=false;
 
     unique_lock<shared_mutex> lock(this->stateMtx);
     if(this->started)
     {
-        //TODO-AT: This is not well defined.
+        //In case the process has died, remove it from the process table
         int status;
-        int options;
         waitpid(this->processId,&status, WNOHANG);
-        bool isProcessAlive = kill(this->processId, 0)==0;
+
+        //Check if the process is alive.
+        bool isProcessAlive = (kill(this->processId, 0)==0);
+
         if(isProcessAlive)
         {
+            ClientController controller;
+            ServerStatusReq request = ServerStatusReq::default_instance();
+            ServerStatusRepl reply;
+
             LDEBUG<<"Check if server:"<<this->serverId<<" is alive";
             this->getService()->GetServerStatus(&controller, &request, &reply, this->doNothing.get());
 
             //If the communication has not failed, the server is alive
             result= !controller.Failed();
-            LDEBUG<<"Server is alive:"<<result;
-        }
-        else
-        {
-            result=false;
+            LDEBUG<<"Server with ID"<<this->serverId<<" alive status:"<<result;
         }
     }
 
@@ -224,9 +231,9 @@ bool ServerRasNet::isClientAlive(const std::string& clientId)
 }
 
 void ServerRasNet::allocateClientSession(const std::string& clientId,
-                                      const std::string& sessionId,
-                                      const std::string& dbName,
-                                      const UserDatabaseRights& dbRights)
+        const std::string& sessionId,
+        const std::string& dbName,
+        const UserDatabaseRights& dbRights)
 {
     ClientController controller;
     AllocateClientReq request;
@@ -241,10 +248,10 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
     rights->set_read(dbRights.hasReadAccess());
     rights->set_write(dbRights.hasWriteAccess());
 
+    const char* capabilities =  this->getCapability(this->serverId.c_str(), dbName.c_str(), dbRights);
+    request.set_capabilities(capabilities);
     request.set_clientid(clientId);
     request.set_sessionid(sessionId);
-    const char* capabilities =  this->getCapability(this->serverId.c_str(), dbName.c_str(),dbRights);
-    request.set_capabilities(capabilities);
 
     this->getService()->AllocateClient(&controller, &request, &response, this->doNothing.get());
 
@@ -266,6 +273,7 @@ void ServerRasNet::allocateClientSession(const std::string& clientId,
         this->allocatedClientsNo++;
     }
 
+    //Increase the session counter
     this->sessionNo++;
 }
 
@@ -319,16 +327,12 @@ boost::uint32_t ServerRasNet::getTotalSessionNo()
 
 void ServerRasNet::stop(bool force)
 {
-    //TODO-AT: Implement force kill. Check the logic of this class
-    // unique_lock<shared_mutex> lock(this->mtx);
-
     ClientController controller;
     CloseServerReq request;
     Void response;
 
     if(force)
     {
-        //TODO-AT: SIGKILL or SIGTERM? Define a policy for this and document it
         kill(this->processId, SIGKILL);
     }
     else
@@ -338,6 +342,9 @@ void ServerRasNet::stop(bool force)
         this->getService()->Close(&controller, &request, &response, this->doNothing.get());
         //If the controller fails, we assume that the server was stopped
     }
+
+    unique_lock<shared_mutex> lock(this->stateMtx);
+    this->started=false;
 }
 
 bool ServerRasNet::isStarting()
@@ -349,17 +356,18 @@ bool ServerRasNet::isStarting()
 bool ServerRasNet::isFree()
 {
     unique_lock<shared_mutex> stateLock(this->stateMtx);
-    if(!this->registered)
+    if(!this->registered || !this->started)
     {
         throw runtime_error("The server is not registered with RasMgr.");
     }
+
     if(this->allocatedClientsNo == 0)
     {
         return true;
     }
     else
     {
-        this->allocatedClientsNo = this->getClientQueueSize() ;
+        this->allocatedClientsNo = this->getClientQueueSize();
         return (this->allocatedClientsNo ==0 );
     }
 }
@@ -377,7 +385,7 @@ bool ServerRasNet::isAvailable()
     }
     else
     {
-        this->allocatedClientsNo = this->getClientQueueSize() ;
+        this->allocatedClientsNo = this->getClientQueueSize();
         return (this->allocatedClientsNo < RasMgrConfig::getInstance()->getMaximumNumberOfClientsPerServer());
     }
 }

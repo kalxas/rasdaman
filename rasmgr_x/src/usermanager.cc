@@ -223,37 +223,44 @@ void UserManager::loadUserInformation()
     if ( pathLen >= PATH_MAX )
     {
         authFileName[PATH_MAX-1] = '\0';    // force-terminate string before printing
-        throw runtime_error("Authentication file path longer than maximum allowed by OS:"+std::string(authFileName));
-    }
+        LERROR<<"Authentication file path longer than maximum allowed by OS:"<<std::string(authFileName);
 
-    LDEBUG<<"Opening authentication file:"<<authFileName;
-
-    std::ifstream ifs ( authFileName );
-
-    if ( !ifs )
-    {
-        //Could not open the file
         success = false;
     }
-    else
-    {
-        IstreamInputStream inputStream ( &ifs );
-        CodedInputStream codedInStream ( &inputStream );
 
-        UserMgrProto list;
-        if ( !list.ParseFromCodedStream ( &codedInStream ) )
+    if(success)
+    {
+        LDEBUG<<"Opening authentication file:"<<authFileName;
+
+        std::ifstream ifs ( authFileName );
+
+        if ( !ifs )
         {
-            //Parsing the file failed.
-            LERROR<<"Invalid authentication file";
-            success =false;
+            //Could not open the file
+            success = false;
         }
         else
         {
-            for ( int i=0; i<list.users_size(); i++ )
+            IstreamInputStream inputStream ( &ifs );
+            CodedInputStream codedInStream ( &inputStream );
+
+            UserMgrProto list;
+            if ( !list.ParseFromCodedStream ( &codedInStream ) )
             {
-                this->defineUser(list.users(i));
+                //Parsing the file failed.
+                LERROR<<"Invalid authentication file";
+                success =false;
+            }
+            else
+            {
+                for ( int i=0; i<list.users_size(); i++ )
+                {
+                    this->defineUser(list.users(i));
+                }
             }
         }
+
+        ifs.close();
     }
 
     if ( !success )
@@ -290,8 +297,6 @@ void UserManager::loadUserInformation()
         this->defineUser(admin);
         this->defineUser(guest);
     }
-
-    ifs.close();
 }
 
 UserMgrProto UserManager::serializeToProto()

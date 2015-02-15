@@ -121,6 +121,8 @@ private:
 
     std::set<boost::int32_t> availablePorts;
 
+    bool hasAvailableServers();
+
     void evaluateGroup();
 
     /**

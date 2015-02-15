@@ -48,10 +48,9 @@ namespace rasmgr
 {
 class ServerRasNet:public Server
 {
-
 public:
     /**
-     * Initialize a new instance of RasServer that will run on a given host and port
+     * Initialize a new instance of RasServer which will run on the given host and port
      * @param hostName The name of the host on which the server will run
      * @param port The port on which the server will run. The port is int32_t to allow for compatibility with protobuf and java..
      * @param dbHost Reference to the database host to which this server will connect.

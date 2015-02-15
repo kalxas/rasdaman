@@ -226,6 +226,11 @@ void ClientManager::keepClientAlive(const std::string& clientId)
     }
 }
 
+ClientManagerConfig ClientManager::getConfig()
+{
+    return this->config;
+}
+
 
 void ClientManager::evaluateClientsStatus()
 {

@@ -54,7 +54,9 @@ RasControl::RasControl ( boost::shared_ptr<UserManager> userManager, boost::shar
 
 std::string RasControl::deprecatedCommand()
 {
-    return "DEPRECATED";
+    std::string message = "This command is deprecated and will be removed in the future.";
+
+    return message;
 }
 
 std::string RasControl::defineDbHost ( const DefineDbHost& dbHostData )
@@ -65,38 +67,36 @@ std::string RasControl::defineDbHost ( const DefineDbHost& dbHostData )
 
     try
     {
-        std::string connect="";
-        std::string user="";
-        std::string passwd="";
+        DatabaseHostPropertiesProto dbhProp;
+        dbhProp.set_host_name(dbHostData.host_name());
 
         if ( dbHostData.has_connect() )
         {
-            connect=dbHostData.connect();
+            dbhProp.set_connect_string(dbHostData.connect());
         }
 
         if ( dbHostData.has_user() )
         {
-            user=dbHostData.user();
+            dbhProp.set_user_name(dbHostData.user());
         }
 
         if ( dbHostData.has_passwd() )
         {
-            passwd=dbHostData.passwd();
+            dbhProp.set_password(dbHostData.passwd());
         }
 
-        //this->dbHostManager->addNewDatabaseHost ( dbHostData.host_name(), connect, user, passwd );
+        this->dbHostManager->defineDatabaseHost(dbhProp);
     }
     catch ( std::exception& ex )
     {
-        message = "ERROR"+std::string ( ex.what() );
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "ERROR:Operation define db could not be completed.";
+        message = this->formatErrorMessage("Defining database host failed for unknown reason.");
     }
 
     return message;
-
 }
 
 std::string RasControl::changeDbHost ( const ChangeDbHost& dbHostData )
@@ -105,45 +105,40 @@ std::string RasControl::changeDbHost ( const ChangeDbHost& dbHostData )
 
     LDEBUG<<"Changing database host:"<<dbHostData.DebugString();
 
-//    try
-//    {
-//        boost::shared_ptr<DatabaseHost> dbHost=this->dbHostManager->getDatabaseHost ( dbHostData.host_name() );
+    try
+    {
+        DatabaseHostPropertiesProto dbhProto;
 
-//        std::string connect = dbHost->getConnectString();
-//        std::string user = dbHost->getUserName();
-//        std::string passwd = dbHost->getPasswdString();
-//        std::string newName = dbHost->getHostName();
+        if ( dbHostData.has_n_connect() )
+        {
+            dbhProto.set_connect_string(dbHostData.n_connect());
+        }
 
-//        if ( dbHostData.has_n_connect() )
-//        {
-//            connect = dbHostData.n_connect();
-//        }
+        if ( dbHostData.has_n_user() )
+        {
+            dbhProto.set_user_name(dbHostData.n_user());
+        }
 
-//        if ( dbHostData.has_n_user() )
-//        {
-//            user = dbHostData.n_user();
-//        }
+        if ( dbHostData.has_n_passwd() )
+        {
+            dbhProto.set_password(dbHostData.n_passwd());
+        }
 
-//        if ( dbHostData.has_n_passwd() )
-//        {
-//            passwd = dbHostData.n_passwd();
-//        }
+        if ( dbHostData.has_n_name() )
+        {
+            dbhProto.set_host_name(dbHostData.n_name());
+        }
 
-//        if ( dbHostData.has_n_name() )
-//        {
-//            newName = dbHostData.n_name();
-//        }
-
-//        this->dbHostManager->changeDatabaseHost ( dbHostData.host_name(),newName, connect,user, passwd );
-//    }
-//    catch ( std::exception& ex )
-//    {
-//        message = "ERROR"+std::string ( ex.what() );
-//    }
-//    catch ( ... )
-//    {
-//        message = "ERROR:Operation define db could not be completed.";
-//    }
+        this->dbHostManager->changeDatabaseHost ( dbHostData.host_name(), dbhProto);
+    }
+    catch ( std::exception& ex )
+    {
+        message = this->formatErrorMessage(ex.what());
+    }
+    catch ( ... )
+    {
+        message = this->formatErrorMessage("Changing database host properties failed for unknown reason");
+    }
 
     return message;
 
@@ -161,11 +156,11 @@ std::string RasControl::removeDbHost ( const RemoveDbHost& dbHostData )
     }
     catch ( std::exception& ex )
     {
-        message = "ERROR"+std::string ( ex.what() );
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "ERROR:Operation define db could not be completed.";
+        message = this->formatErrorMessage("Removing database host failed for unknown reason.");
     }
 
     return message;
@@ -175,30 +170,27 @@ std::string RasControl::listDbHost()
 {
     std::stringstream ss;
     int counter = 1;
-//    list<shared_ptr<DatabaseHost> > dbhList = this->dbHostManager->getDatabaseHostList();
+    DatabaseHostMgrProto dbhMgrData = this->dbHostManager->serializeToProto();
 
     ss<<"List of database hosts:\r\n";
-    ss<<"    Database Host     Connection String            Databases";
-    //TODO-AT: REDO
-    //    for ( list<shared_ptr<DatabaseHost> > ::iterator it = dbhList.begin(); it!=dbhList.end(); ++it )
-//    {
-//        ss<< ( format ( "\r\n%2d. %-15s %-30s" ) %counter% ( *it )->getHostName() % ( *it )->getConnectString() );
-//        list<Database> dbList = ( *it )->getDatabaseList();
+    ss<<"    Database Host    Connection String             Databases";
 
-//        for ( list<Database>::iterator db = dbList.begin(); db!=dbList.end(); ++db )
-//        {
-//            ss<< ( format ( " %s" ) % db->getDbName() );
-//        }
-
-//        counter++;
-//    }
+    for(int i=0; i<dbhMgrData.database_hosts_size(); ++i)
+    {
+        ss<< ( format ("\r\n%2d. %-15s  %-30s" ) % counter % dbhMgrData.database_hosts(i).host_name() % dbhMgrData.database_hosts(i).connect_string());
+        for(int j=0; j<dbhMgrData.database_hosts(i).databases_size(); ++j)
+        {
+            ss<< ( format ( "%s" ) % dbhMgrData.database_hosts(i).databases(j).name());
+        }
+        counter++;
+    }
 
     return ss.str();
 }
 
 std::string RasControl::helpDbHost()
 {
-    return "TEST";
+    return this->showHelp();
 }
 
 std::string RasControl::defineDb ( const DefineDb& dbData )
@@ -209,15 +201,15 @@ std::string RasControl::defineDb ( const DefineDb& dbData )
 
     try
     {
-        //this->dbManager->defineDatabase ( dbData.db_name(), dbData.dbhost_name() );
+        this->dbManager->defineDatabase ( dbData.db_name(), dbData.dbhost_name());
     }
     catch ( std::exception& ex )
     {
-        message = "ERROR"+std::string ( ex.what() );
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "ERROR:Operation remove user could not be completed.";
+        message = this->formatErrorMessage("Removing user failed for an unknown reason.");
     }
 
     return message;
@@ -231,16 +223,18 @@ std::string RasControl::changeDb ( const ChangeDb& dbData )
 
     try
     {
-        //TODO-AT:
-        // this->dbManager->changeDatabaseName ( dbData.db_name(), dbData.n_db_name() );
+        DatabasePropertiesProto dbProp;
+        dbProp.set_n_name(dbData.n_db_name());
+
+        this->dbManager->changeDatabase ( dbData.db_name(), dbProp);
     }
     catch ( std::exception& ex )
     {
-        message = "ERROR"+std::string ( ex.what() );
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "ERROR:Operation change db could not be completed.";
+        message = this->formatErrorMessage("Changing database failed for unknown reason");
     }
 
     return message;
@@ -250,19 +244,19 @@ std::string RasControl::removeDb ( const RemoveDb& dbData )
 {
     std::string message="";
 
-    LDEBUG<<"Changing database:"<<dbData.DebugString();
+    LDEBUG<<"Removing database:"<<dbData.DebugString();
 
     try
     {
-        //this->dbManager->removeDatabase ( dbData.db_name() );
+        this->dbManager->removeDatabase(dbData.db_name());
     }
     catch ( std::exception& ex )
     {
-        message = "ERROR"+std::string ( ex.what() );
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "ERROR:Operation change db could not be completed.";
+        message = this->formatErrorMessage("Removing database failed for unknown reason.");
     }
 
     return message;
@@ -275,122 +269,158 @@ std::string RasControl::listDb ( const ListDb& listDbData )
     LDEBUG<<listDbData.DebugString();
 
     //If the Database name was given, list information about this database
-    //TODO-AT:Redo
-//    if ( listDbData.has_db_name() )
-//    {
-//        Database db=this->dbManager->getDatabase ( listDbData.db_name() );
+    if(listDbData.has_db_name())
+    {
+        DatabaseMgrProto dbMgrData = this->dbManager->serializeToProto();
 
-//        ss<<"List database: "<<listDbData.db_name() <<"\r\n";
-//        ss<<"    Database Name         Open Trans.";
+        ss<<"List database: "<<listDbData.db_name() <<"\r\n";
+        ss<<"    Database Name         Open Trans.";
 
+        for(int i=0; i<dbMgrData.databases_size(); ++i)
+        {
+            if(dbMgrData.databases(i).database().name() == listDbData.db_name())
+            {
+                DatabaseProto dbProto = dbMgrData.databases(i).database();
 
-//        ss<< ( format ( "\r\n%2d. %-20s  %d" ) % 1 %  db.getDbName() % db.getSessionCount() );
-//    }
-//    //If the database host was given, give information about the database host
-//    else if ( listDbData.has_dbh_name() )
-//    {
-//        shared_ptr<DatabaseHost> dbh = this->dbHostManager->getDatabaseHost ( listDbData.dbh_name() );
-//        list<Database> dbList =  dbh->getDatabaseList();
+                ss<< ( format ( "\r\n%2d. %-20s  %d" ) % 1 %  dbProto.name() % dbProto.sessions_size());
+            }
+        }
+    }
+    else if(listDbData.has_dbh_name())
+    {
+        DatabaseMgrProto dbMgrData = this->dbManager->serializeToProto();
+        bool found = false;
 
-//        ss<< ( format ( "List of databases on host: %s\r\n" ) % dbh->getHostName() );
-//        ss<<"    Database Name         Open Trans.";
-//        int counter = 1;
-//        for ( list<Database>::iterator it = dbList.begin(); it!=dbList.end(); ++it )
-//        {
-//            ss<< ( format ( "\r\n%2d. %-20s  %d" ) % counter % it->getDbName() % it->getSessionCount() );
-//            counter++;
-//        }
-//    }//otherwise assume -all was passed in
-//    else
-//    {
-//        list<Database> dbList = this->dbManager->getDatabaseList();
+        for(int i=0; i<dbMgrData.databases_size(); ++i)
+        {
+            if(dbMgrData.databases(i).database_host() == listDbData.dbh_name())
+            {
+                found=true;
+                break;
+            }
+        }
 
-//        ss<< ( format ( "List of databases:\r\n" ) );
-//        ss<<"    Database Name         Open Trans.";
+        if(found)
+        {
+            ss<< ( format ( "List of databases on host: %s\r\n" ) % listDbData.dbh_name() );
+            ss<<"    Database Name         Open Trans.";
 
-//        int counter = 1;
-//        for ( list<Database>::iterator it = dbList.begin(); it!=dbList.end(); ++it )
-//        {
-//            ss<< ( format ( "\r\n%2d. %-20s  %d" ) % counter % it->getDbName() % it->getSessionCount() );
-//            counter++;
-//        }
-//    }
+            int counter = 1;
+            for(int i=0; i<dbMgrData.databases_size(); ++i)
+            {
+                if(dbMgrData.databases(i).database_host() == listDbData.dbh_name())
+                {
+                    DatabaseProto dbProto = dbMgrData.databases(i).database();
+                    ss<< ( format ( "\r\n%2d. %-20s  %d" ) % counter % dbProto.name() % dbProto.sessions_size());
+                    counter++;
+                }
+            }
+        }
+        else
+        {
+            ss<<this->formatErrorMessage("Invalid database host name.");
+        }
+    }//assume -all was passed in
+    else
+    {
+        DatabaseMgrProto dbMgrData = this->dbManager->serializeToProto();
+
+        ss<<"List database: \r\n";
+        ss<<"    Database Name         Open Trans.";
+
+        for(int i=0; i<dbMgrData.databases_size(); ++i)
+        {
+            DatabaseProto dbProto = dbMgrData.databases(i).database();
+
+            ss<< ( format ( "\r\n%2d. %-20s  %d" ) % (i+1) %  dbProto.name() % dbProto.sessions_size());
+        }
+    }
 
     return ss.str();
 }
 
 std::string RasControl::helpDb()
 {
-    return "TEST";
+    return this->showHelp();
 }
 
 std::string RasControl::defineUser ( const DefineUser& userData )
 {
-    std::string passwd;
     std::string result;
-    UserAdminRights adminRights;
-    UserDatabaseRights dbRights ( false,false );
 
-    std::string userName = userData.user_name();
-
-    if ( userData.has_passwd() )
-    {
-        passwd = userData.passwd();
-    }
-    else
-    {
-        if ( Crypto::isMessageDigestAvailable ( DEFAULT_DIGEST ) )
-        {
-            passwd = Crypto::messageDigest ( userData.user_name(),DEFAULT_DIGEST );
-        }
-        else
-        {
-            //TODO-AT: Add debug statements. Shoudl we store the user name unencrypted
-            passwd = userData.user_name();
-        }
-    }
+    UserAdminRightsProto* adminRights = new UserAdminRightsProto();
+    UserDatabaseRightsProto* dbRights = new UserDatabaseRightsProto();
+    UserProto userProp;
 
     if ( userData.has_access_rights() )
     {
-        adminRights.setAccessControlRights ( userData.access_rights() );
+        adminRights->set_access_control_rights(userData.access_rights() );
     }
+
     if ( userData.has_config_rights() )
     {
-        adminRights.setSystemConfigRights ( userData.config_rights() );
+        adminRights->set_system_config_rights(userData.config_rights());
     }
 
     if ( userData.has_info_rights() )
     {
-        adminRights.setInfoRights ( userData.info_rights() );
+        adminRights->set_info_rights(userData.info_rights());
     }
 
     if ( userData.has_server_admin_rights() )
     {
-        adminRights.setServerAdminRights ( userData.server_admin_rights() );
+        adminRights->set_server_admin_rights(userData.server_admin_rights() );
     }
 
     if ( userData.has_dbread_rights() )
     {
-        dbRights.setReadAccess ( userData.dbread_rights() );
+        dbRights->set_read( userData.dbread_rights() );
     }
 
     if ( userData.has_dbwrite_rights() )
     {
-        dbRights.setWriteAccess ( userData.dbwrite_rights() );
+        dbRights->set_write( userData.dbwrite_rights() );
     }
+
+    userProp.set_name(userData.user_name());
+
+    //Set the password
+    std::string password;
+    if ( userData.has_passwd() )
+    {
+        password = userData.passwd();
+
+    }
+    else
+    {
+        password= userData.user_name();
+    }
+
+    //If there is no password passed in, set the user name as the password
+    if ( Crypto::isMessageDigestAvailable ( DEFAULT_DIGEST ) )
+    {
+        userProp.set_password(Crypto::messageDigest ( password,DEFAULT_DIGEST ));
+    }
+    else
+    {
+        LWARNING<<DEFAULT_DIGEST<<" digest not available. Storing password in plain text.";
+        userProp.set_password(password);
+    }
+
+    userProp.set_allocated_admin_rights(adminRights);
+    userProp.set_allocated_default_db_rights(dbRights);
 
     try
     {
-        //TODO
-        // this->userManager->defineUser ( userName,passwd, dbRights, adminRights );
+        this->userManager->defineUser(userProp);
     }
     catch ( std::exception& ex )
     {
-        result=ex.what();
+        result= this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        result = "ERROR:Operation add user could not be completed.";
+        result = this->formatErrorMessage("Defining user failed for unknown reason");
     }
 
     return result;
@@ -406,11 +436,11 @@ std::string RasControl::removeUser ( const RemoveUser& userData )
     }
     catch ( std::exception& ex )
     {
-        message = "ERROR"+std::string ( ex.what() );
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "ERROR:Operation remove user could not be completed.";
+        message = this->formatErrorMessage("Removing user failed for unknown reason.");
     }
 
     return message;
@@ -418,73 +448,89 @@ std::string RasControl::removeUser ( const RemoveUser& userData )
 
 std::string RasControl::changeUser ( const ChangeUser& userData )
 {
-    boost::shared_ptr<User> user;
+    UserAdminRightsProto* adminRights = new UserAdminRightsProto();
+    bool hasAdminRights=false;
+    UserDatabaseRightsProto* dbRights = new UserDatabaseRightsProto();
+    bool hasDbRights =  false;
+    UserProto userProp;
+
     std::string message = "";
 
     try
     {
-        if ( this->userManager->tryGetUser ( userData.user_name(),user ) )
+        if(userData.has_n_name())
         {
-//            if ( userData.has_n_passwd() )
-//            {
-//                this->userManager->changeUserPassword ( userData.user_name(),userData.n_passwd() );
-//            }
-
-//            UserDatabaseRights dbRights = user->getDefaultDbRights();
-
-//            if ( userData.has_n_dbread_rights() )
-//            {
-//                dbRights.setReadAccess ( userData.n_dbread_rights() );
-//            }
-
-//            if ( userData.has_n_dbwrite_rights() )
-//            {
-//                dbRights.setWriteAccess ( userData.n_dbwrite_rights() );
-//            }
-
-//            this->userManager->changeUserDatabaseRights ( userData.user_name(),dbRights );
-
-//            UserAdminRights adminRights = user->getAdminRights();
-
-//            if ( userData.has_n_config_rights() )
-//            {
-//                adminRights.setSystemConfigRights ( userData.n_config_rights() );
-//            }
-
-//            if ( userData.has_n_access_rights() )
-//            {
-//                adminRights.setAccessControlRights ( userData.n_access_rights() );
-//            }
-
-//            if ( userData.has_n_info_rights() )
-//            {
-//                adminRights.setInfoRights ( userData.n_info_rights() );
-//            }
-
-//            if ( userData.has_n_server_admin_rights() )
-//            {
-//                adminRights.setServerAdminRights ( userData.n_server_admin_rights() );
-//            }
-
-//            this->userManager->changeUserAdminRights ( userData.user_name(),adminRights );
-
-//            if ( userData.has_n_name() )
-//            {
-//                this->userManager->changeUserName ( userData.user_name(), userData.n_name() );
-//            }
+            userProp.set_name(userData.n_name());
         }
-        else
+
+        if(userData.has_n_passwd())
         {
-            message = "There is no user named: \""+userData.user_name() +"\" on this server";
+            if (Crypto::isMessageDigestAvailable ( DEFAULT_DIGEST ) )
+            {
+                userProp.set_password(Crypto::messageDigest ( userData.n_passwd(), DEFAULT_DIGEST));
+            }
+            else
+            {
+                LWARNING<<DEFAULT_DIGEST<<" digest not available. Storing password in plain text.";
+                userProp.set_password(userData.n_passwd());
+            }
         }
+
+        if(userData.has_n_access_rights())
+        {
+            adminRights->set_access_control_rights(userData.n_access_rights());
+            hasAdminRights = true;
+        }
+
+        if(userData.has_n_config_rights())
+        {
+            adminRights->set_system_config_rights(userData.n_config_rights());
+            hasAdminRights = true;
+        }
+
+        if(userData.has_n_info_rights())
+        {
+            adminRights->set_info_rights(userData.n_info_rights());
+            hasAdminRights = true;
+        }
+
+        if(userData.has_n_server_admin_rights())
+        {
+            adminRights->set_server_admin_rights(userData.n_server_admin_rights());
+            hasAdminRights = true;
+        }
+
+        if(userData.has_n_dbread_rights())
+        {
+            dbRights->set_read(userData.n_dbread_rights());
+            hasDbRights = true;
+        }
+
+        if(userData.has_n_dbwrite_rights())
+        {
+            dbRights->set_write(userData.n_dbwrite_rights());
+            hasDbRights = true;
+        }
+
+        if(hasAdminRights)
+        {
+            userProp.set_allocated_admin_rights(adminRights);
+        }
+
+        if(hasDbRights)
+        {
+            userProp.set_allocated_default_db_rights(dbRights);
+        }
+
+        this->userManager->changeUser(userData.user_name(), userProp);
     }
     catch ( std::exception& ex )
     {
-        message = "ERROR"+std::string ( ex.what() );
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "ERROR:Operation change user could not be completed.";
+        message = this->formatErrorMessage("Changing user properties failed for an unknown reason.");
     }
 
     return message;
@@ -493,134 +539,141 @@ std::string RasControl::changeUser ( const ChangeUser& userData )
 std::string RasControl::listUser ( const ListUser& userData )
 {
     std::stringstream ss;
+    UserMgrProto userMgrData = this->userManager->serializeToProto();
+
+    bool displayRights = userData.has_diplay_rights();
     int counter=1;
-//    bool displayRights = userData.has_diplay_rights();
-//    list<shared_ptr<User> > userList =this->userManager->getUserList();
 
-//    ss<<"List of defined users:"<<std::endl;
-//    for ( list<shared_ptr<User> >::iterator it = userList.begin(); it!=userList.end(); ++it )
-//    {
+    ss<<"List of defined users:";
+    for(int i=0; i<userMgrData.users_size(); ++i)
+    {
+        ss<<"\r\n"<<std::setw ( 2 ) <<counter<<". "<< userMgrData.users(i).name();
+        if ( displayRights )
+        {
+            ss<<" ["<<this->convertAdminRights ( userMgrData.users(i).admin_rights() ) <<"]";
+            ss<<" -["<<this->convertDbRights ( userMgrData.users(i).default_db_rights() ) <<"]";
+        }
 
-//        ss<<"\r\n"<<std::setw ( 2 ) <<counter<<". "<< ( *it )->getName();
-//        if ( displayRights )
-//        {
-//            ss<<" ["<<this->convertAdminRights ( ( *it )->getAdminRights() ) <<"]";
-//            ss<<" -["<<this->convertDbRights ( ( *it )->getDefaultDbRights() ) <<"]";
-//        }
-
-//        counter++;
-//    }
+        counter++;
+    }
 
     return ss.str();
 }
 
 std::string RasControl::helpUser()
 {
-    return "TEST";
+    return this->showHelp();
 }
 
 std::string RasControl::defineInpeer ( std::string hostName )
 {
-    return hostName;
+    return this->getNotImplementedMes();
 }
 
 std::string RasControl::removeInpeer ( std::string hostName )
 {
-    return hostName;
+    return this->getNotImplementedMes();
 }
 
 std::string RasControl::listInpeer()
 {
-    return "LIST";
+    return this->getNotImplementedMes();
 }
 
 std::string RasControl::helpInpeer()
 {
-    return "HELP INPEER";
+    return this->showHelp();
 }
 
 std::string RasControl::defineOutpeer ( const DefineOutpeer& outpeerData )
 {
-    LDEBUG<<outpeerData.host_name();
-    LDEBUG<<outpeerData.port();
-    return "outpeerData.host_name()";
+    return this->getNotImplementedMes();
 }
 
 std::string RasControl::removeOutpeer ( std::string hostName )
 {
-    return hostName;
+    return this->getNotImplementedMes();
 }
 
 std::string RasControl::listOutpeer()
 {
-    return "LIST";
+    return this->getNotImplementedMes();
 }
 
 std::string RasControl::helpOutpeer()
 {
-    return "HELP";
+    return this->showHelp();
 }
 
 std::string RasControl::defineServerGroup ( const DefineServerGroup &groupData )
 {
     std::string message;
-    LDEBUG<<"Defining server group with the following configuration:"<<groupData.DebugString();
+
+    LDEBUG<<"Defining server group with the following configuration:"
+          <<groupData.DebugString();
     try
     {
-        //TODO-AT
-//        boost::uint32_t groupSize = 1;
-//        if ( groupData.has_group_size() )
-//        {
-//            groupSize = groupData.group_size();
-//        }
-//        std::set<boost::int32_t> ports;
+        ServerGroupConfigProto serverConfig;
 
-//        for ( int i=0; i<groupData.ports_size(); i++ )
-//        {
-//            ports.insert ( groupData.ports ( i ) );
-//        }
+        if(groupData.has_group_name())
+        {
+            serverConfig.set_name(groupData.group_name());
+        }
 
-//        ServerGroupConfig config ( groupData.group_name(),groupSize,groupData.host(),ports,groupData.db_host() );
+        if(groupData.has_host())
+        {
+            serverConfig.set_host(groupData.host());
+        }
 
-//        if ( groupData.has_autorestart() )
-//        {
-//            config.setAutorestart ( groupData.autorestart() );
-//        }
+        if(groupData.has_db_host())
+        {
+            serverConfig.set_db_host(groupData.db_host());
+        }
 
-//        if ( groupData.has_countdown() )
-//        {
-//            config.setCountdown ( groupData.countdown() );
-//        }
+        for(int i=0; i<groupData.ports_size(); ++i)
+        {
+            serverConfig.add_ports(groupData.ports(i));
+        }
 
-//        if ( groupData.has_max_idle_servers() )
-//        {
-//            config.setMaxIdleServersNo ( groupData.max_idle_servers() );
-//        }
+        if(groupData.has_min_alive_servers())
+        {
+            serverConfig.set_min_alive_server_no(groupData.min_alive_servers());
+        }
 
-//        if ( groupData.has_min_alive_servers() )
-//        {
-//            config.setMinAliveServers ( groupData.min_alive_servers() );
-//        }
+        if(groupData.has_min_available_servers())
+        {
+            serverConfig.set_min_available_server_no(groupData.min_available_servers());
+        }
 
-//        if ( groupData.has_min_available_servers() )
-//        {
-//            config.setMinAvailableServers ( groupData.min_available_servers() );
-//        }
+        if(groupData.has_max_idle_servers())
+        {
+            serverConfig.set_max_idle_server_no(groupData.max_idle_servers());
+        }
 
-//        if ( groupData.has_options() )
-//        {
-//            config.setServerOptions ( groupData.options() );
-//        }
+        if(groupData.has_autorestart())
+        {
+            serverConfig.set_autorestart(groupData.autorestart());
+        }
 
-//        this->serverManager->defineServerGroup ( config );
+        if(groupData.has_countdown())
+        {
+            serverConfig.set_countdown(groupData.countdown());
+        }
+
+        if(groupData.has_options())
+        {
+            serverConfig.set_server_options(groupData.options());
+        }
+
+        this->serverManager->defineServerGroup(serverConfig);
     }
     catch ( std::exception& ex )
     {
-        message = "ERROR"+std::string ( ex.what() );
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "ERROR:";
+        message = this->formatErrorMessage("Defining server group failed for unknown reason.");
     }
 
     return message;
@@ -629,83 +682,75 @@ std::string RasControl::defineServerGroup ( const DefineServerGroup &groupData )
 std::string RasControl::changeServerGroup ( const ChangeServerGroup &groupData )
 {
     std::string message;
+
     LDEBUG<<"Changing server group with the following configuration:"<<groupData.DebugString();
 
     try
     {
-//        ServerGroupConfig oldConfig = this->serverManager->getServerGroupConfig ( groupData.group_name() );
+        ServerGroupConfigProto newConfig;
 
-//        if ( groupData.has_n_group_name() )
-//        {
-//            oldConfig.setGroupName ( groupData.n_group_name() );
-//        }
+        if(groupData.has_n_group_name())
+        {
+            newConfig.set_name(groupData.n_group_name());
+        }
 
-//        if ( groupData.has_n_host() )
-//        {
-//            oldConfig.setHost ( groupData.n_host() );
-//        }
+        if(groupData.has_n_host())
+        {
+            newConfig.set_host(groupData.n_host());
+        }
 
-//        if ( groupData.n_ports_size() >0 )
-//        {
-//            std::set<boost::int32_t> ports;
+        if(groupData.has_n_db_host())
+        {
+            newConfig.set_db_host(groupData.n_db_host());
+        }
 
-//            for ( int i=0; i<groupData.n_ports_size(); i++ )
-//            {
-//                ports.insert ( groupData.n_ports ( i ) );
-//            }
+        if(groupData.n_ports_size()!=0)
+        {
+            for(int i=0; i<groupData.n_ports_size(); ++i)
+            {
+                newConfig.add_ports(groupData.n_ports(i));
+            }
+        }
 
-//            oldConfig.setPorts ( ports );
-//        }
+        if(groupData.has_n_min_alive_servers())
+        {
+            newConfig.set_min_alive_server_no(groupData.n_min_alive_servers());
+        }
 
-//        if ( groupData.has_n_db_host() )
-//        {
-//            oldConfig.setDbHost ( groupData.n_db_host() );
-//        }
+        if(groupData.has_n_min_available_servers())
+        {
+            newConfig.set_min_available_server_no(groupData.n_min_available_servers());
+        }
 
-//        if ( groupData.has_n_group_size() )
-//        {
-//            oldConfig.setGroupSize ( groupData.n_group_size() );
-//        }
+        if(groupData.has_n_max_idle_servers())
+        {
+            newConfig.set_max_idle_server_no(groupData.n_max_idle_servers());
+        }
 
-//        if ( groupData.has_n_min_alive_servers() )
-//        {
-//            oldConfig.setMinAliveServers ( groupData.n_min_alive_servers() );
-//        }
+        if(groupData.has_n_autorestart())
+        {
+            newConfig.set_autorestart(groupData.n_autorestart());
+        }
 
-//        if ( groupData.has_n_min_available_servers() )
-//        {
-//            oldConfig.setMinAvailableServers ( groupData.n_min_available_servers() );
-//        }
+        if(groupData.has_n_countdown())
+        {
+            newConfig.set_countdown(groupData.n_countdown());
+        }
 
-//        if ( groupData.has_n_max_idle_servers() )
-//        {
-//            oldConfig.setMaxIdleServersNo ( groupData.n_max_idle_servers() );
-//        }
+        if(groupData.has_n_options())
+        {
+            newConfig.set_server_options(groupData.n_options());
+        }
 
-//        if ( groupData.has_n_autorestart() )
-//        {
-//            oldConfig.setAutorestart ( groupData.n_autorestart() );
-//        }
-
-//        if ( groupData.has_n_countdown() )
-//        {
-//            oldConfig.setCountdown ( groupData.n_countdown() );
-//        }
-
-//        if ( groupData.has_n_options() )
-//        {
-//            oldConfig.setServerOptions ( groupData.n_options() );
-//        }
-
-        //this->serverManager->changeServerGroup ( groupData.group_name(), oldConfig );
+        this->serverManager->changeServerGroup(groupData.group_name(), newConfig);
     }
     catch ( std::exception& ex )
     {
-        message = "ERROR"+std::string ( ex.what() );
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "ERROR:Operation change server group could not be completed.";
+        message = this->formatErrorMessage("Changing the server properties failed for unknown reason.");
     }
 
     return message;
@@ -723,11 +768,11 @@ std::string RasControl::removeServerGroup ( std::string groupName )
     }
     catch ( std::exception& ex )
     {
-        message = "ERROR"+std::string ( ex.what() );
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "ERROR:Operation remove server group could not be completed.";
+        message = this->formatErrorMessage("Removing server failed for unknown reason.");
     }
 
     return message;
@@ -735,30 +780,132 @@ std::string RasControl::removeServerGroup ( std::string groupName )
 
 std::string RasControl::listServerGroup ( const ListServerGroup &listData )
 {
-    std::string result="ERROR interpreting command.";
+    std::stringstream ss;
 
-    //  bool extraInfo = listData.has_extra_info();
+    bool extraInfo = listData.has_extra_info();
+    ServerMgrProto serverMgrData = this->serverManager->serializeToProto();
+
+    if(listData.has_group_name())
+    {
+        ss<<(format("Status of server %s:\r\n") % listData.group_name());
+
+    }
+    else if(listData.has_host())
+    {
+        ss<<(format("List of servers on host %s:\r\n") % listData.host());
+
+    }
+    else
+    {
+        ss<<"List of servers:\r\n";
+    }
+
+    if(extraInfo)
+    {
+        ss<< (format("    %-20s %-8s    %-20s  %-10s") % "Server Name" % "Type" % "Host" % "  Ports");
+    }
+    else
+    {
+        ss<<(format("    %-20s %-8s    %-20s   %-20s  %-4s   %-3s") % "Server Name" % "Type" % "Host" % "Db Host" % "Stat" % "Av");
+    }
+
+    ss<<"\r\n";
+
 
     //List information about a particular group
-//    if ( listData.has_group_name() )
-//    {
-//        result = this->serverManager->getServerGroupInfo ( listData.group_name() );
-//    }
-//    else if ( listData.has_host() ) //list information about servers running on a host
-//    {
-//        result = this->serverManager->getAllServerGroupsInfo ( false, listData.host() );
-//    }
-//    else   //list information about all the servers
-//    {
-//        result = this->serverManager->getAllServerGroupsInfo();
-//    }
+    if (listData.has_group_name())
+    {
+        for(int i=0; i<serverMgrData.server_groups_size(); ++i)
+        {
+            if(serverMgrData.server_groups(i).name() == listData.group_name())
+            {
+                ServerGroupProto groupData =  serverMgrData.server_groups(i);
+                std::string isRunning = groupData.running()?"UP":"DOWN";
+                std::string isAvailable = groupData.available()?"YES":"NO";
 
-    return result;
+                if(extraInfo)
+                {
+                    std::stringstream portsData;
+                    for(int j=0; j<groupData.ports_size(); ++j)
+                    {
+                        portsData<<groupData.ports(j)<<" ";
+                    }
+
+                    ss<<(format("%2d. %-20s %-8s    %-20s    %-10s\r\n") % 1 % groupData.name() % "(RASNET)" % groupData.host() % portsData.str());
+                }
+                else
+                {
+                    ss<<(format("%2d. %-20s %-8s    %-20s   %-20s  %-4s   %-3s\r\n") % 1 % groupData.name() % "(RASNET)" % groupData.host() % groupData.db_host() %  isRunning % isAvailable );
+                }
+
+                break;
+            }
+        }
+    }
+    else if (listData.has_host()) //list information about servers running on a host
+    {
+        int counter = 1;
+        for(int i=0; i<serverMgrData.server_groups_size(); ++i)
+        {
+            if(serverMgrData.server_groups(i).name() == listData.host())
+            {
+                ServerGroupProto groupData =  serverMgrData.server_groups(i);
+                std::string isRunning = groupData.running()?"UP":"DOWN";
+                std::string isAvailable = groupData.available()?"YES":"NO";
+
+                if(extraInfo)
+                {
+                    std::stringstream portsData;
+                    for(int j=0; j<groupData.ports_size(); ++j)
+                    {
+                        portsData<<groupData.ports(j)<<" ";
+                    }
+
+                    ss<<(format("%2d. %-20s %-8s    %-20s    %-10s\r\n") % counter % groupData.name() % "(RASNET)" % groupData.host() % portsData.str());
+                }
+                else
+                {
+                    ss<<(format("%2d. %-20s %-8s    %-20s   %-20s  %-4s   %-3s\r\n") % counter % groupData.name() % "(RASNET)" % groupData.host() % groupData.db_host() %  isRunning % isAvailable );
+                }
+
+                counter++;
+            }
+        }
+    }
+    else   //list information about all the servers
+    {
+        int counter = 1;
+        for(int i=0; i<serverMgrData.server_groups_size(); ++i)
+        {
+            ServerGroupProto groupData =  serverMgrData.server_groups(i);
+            std::string isRunning = groupData.running()?"UP":"DOWN";
+            std::string isAvailable = groupData.available()?"YES":"NO";
+
+            if(extraInfo)
+            {
+                std::stringstream portsData;
+                for(int j=0; j<groupData.ports_size(); ++j)
+                {
+                    portsData<<groupData.ports(j)<<" ";
+                }
+
+                ss<<(format("%2d. %-20s %-8s    %-20s    %-10s\r\n") % counter % groupData.name() % "(RASNET)" % groupData.host() % portsData.str());
+            }
+            else
+            {
+                ss<<(format("%2d. %-20s %-8s    %-20s   %-20s  %-4s   %-3s\r\n") % counter % groupData.name() % "(RASNET)" % groupData.host() % groupData.db_host() %  isRunning % isAvailable );
+            }
+
+            counter++;
+        }
+    }
+
+    return ss.str();
 }
 
 std::string RasControl::helpServerGroup()
 {
-    return "HELP SERVER GROUP";
+    return this->showHelp();
 }
 
 std::string RasControl::startServerGroup ( const StartServerGroup &upSrv )
@@ -773,11 +920,11 @@ std::string RasControl::startServerGroup ( const StartServerGroup &upSrv )
     }
     catch ( std::exception& ex )
     {
-        message = ex.what();
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "Starting servers failed for unknown reason.";
+        message = this->formatErrorMessage("Starting servers failed for unknown reason.");
     }
 
     return message;
@@ -795,11 +942,11 @@ std::string RasControl::stopServerGroup ( const StopServerGroup &downSrv )
     }
     catch ( std::exception& ex )
     {
-        message = ex.what();
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "Stoping servers failed for unknown reason.";
+        message = this->formatErrorMessage("Stoping servers failed for unknown reason.");
     }
 
     return message;
@@ -813,15 +960,15 @@ std::string RasControl::stopRasMgr()
 
     try
     {
-//        if ( this->serverManager->hasRunningServerGroup() )
-//        {
-//            message="This rasmgr instance has running server groups. Down all the server groups before stoping rasmgr.";
-//        }
-//        else
-//        {
-//            this->rasmanager->stop();
-//            message = "rasmanager is shutting down. Good Bye!";
-//        }
+        if(this->serverManager->hasRunningServers())
+        {
+            message="This rasmgr instance has running server groups. Down all the server groups before stoping rasmgr.";
+        }
+        else
+        {
+            message = "rasmanager is shutting down. Good Bye!";
+            this->rasmanager->stop();
+        }
     }
     catch ( std::exception& ex )
     {
@@ -851,26 +998,25 @@ std::string RasControl::save()
 
     try
     {
-        //TODO:
-        //   this->userManager->saveUserInformation();
+        this->rasmanager->saveConfiguration();
     }
     catch ( std::exception& ex )
     {
-        message = ex.what();
+        message = this->formatErrorMessage(ex.what());
     }
     catch ( ... )
     {
-        message = "Saving rasmgr data failed for an unknown reason.";
+        message = this->formatErrorMessage("Saving data failed for an unknown reason.");
     }
 }
 
 std::string RasControl::exit()
 {}
 
-std::string RasControl::convertAdminRights ( const UserAdminRights& adminRights )
+std::string RasControl::convertAdminRights (const UserAdminRightsProto &adminRights )
 {
     std::stringstream ss;
-    if ( adminRights.hasAccessControlRights() )
+    if ( adminRights.has_access_control_rights() && adminRights.access_control_rights())
     {
         ss<<"A";
     }
@@ -879,7 +1025,7 @@ std::string RasControl::convertAdminRights ( const UserAdminRights& adminRights 
         ss<<".";
     }
 
-    if ( adminRights.hasInfoRights() )
+    if ( adminRights.has_info_rights() && adminRights.info_rights() )
     {
         ss<<'I';
     }
@@ -888,7 +1034,7 @@ std::string RasControl::convertAdminRights ( const UserAdminRights& adminRights 
         ss<<'.';
     }
 
-    if ( adminRights.hasServerAdminRights() )
+    if ( adminRights.has_server_admin_rights() && adminRights.server_admin_rights())
     {
         ss<<'S';
     }
@@ -897,7 +1043,7 @@ std::string RasControl::convertAdminRights ( const UserAdminRights& adminRights 
         ss<<'.';
     }
 
-    if ( adminRights.hasSystemConfigRights() )
+    if ( adminRights.has_system_config_rights() && adminRights.system_config_rights())
     {
         ss<<'C';
     }
@@ -909,11 +1055,11 @@ std::string RasControl::convertAdminRights ( const UserAdminRights& adminRights 
     return ss.str();
 
 }
-std::string RasControl::convertDbRights ( const UserDatabaseRights& dbRights )
+std::string RasControl::convertDbRights (const UserDatabaseRightsProto &dbRights )
 {
     std::stringstream ss;
 
-    if ( dbRights.hasReadAccess() )
+    if (dbRights.has_read() && dbRights.read() )
     {
         ss<<'R';
     }
@@ -922,7 +1068,7 @@ std::string RasControl::convertDbRights ( const UserDatabaseRights& dbRights )
         ss<<'.';
     }
 
-    if ( dbRights.hasWriteAccess() )
+    if (dbRights.has_write() && dbRights.write() )
     {
         ss<<'W';
     }
@@ -930,6 +1076,46 @@ std::string RasControl::convertDbRights ( const UserDatabaseRights& dbRights )
     {
         ss<<'.';
     }
+
+    return ss.str();
+}
+
+std::string RasControl::formatErrorMessage(const std::string &message)
+{
+    return std::string("Error:")+message;
+}
+
+std::string RasControl::getNotImplementedMes()
+{
+    return "This functionality is not implemented.";
+}
+
+std::string RasControl::showHelp()
+{
+    std::stringstream ss;
+
+    ss<<"Help for rascontrol command language\r\n";
+    ss<<"rasdaman uses the following terms:\r\n";
+    ss<<"  host (server host)    - a computer running a RasManager (rasmgr), with or without currently active servers\r\n";
+    ss<<"  srv  (server)         - the rasdaman server (rasserver)\r\n";
+    ss<<"  dbh  (data base host) - a computer running the database software\r\n";
+    ss<<"  db   (database)       - the rasdaman database, hosted by the underlying database instance\r\n";
+    ss<<"  user                  - a person registered by rasdaman through user name and password\r\n";
+    ss<<"  inpeer                - a peer which can forward client requests to the current RasManager\r\n";
+    ss<<"  outpeer               - a peer to which the current RasManager can forward client requests\r\n";
+    ss<<"\r\nThe rascontrol utility allows to configure and do run-time administration work for the rasdaman system\r\n";
+    ss<<"Commands:\r\n";
+    ss<<"   >help       ...this help\r\n";
+    ss<<"   >exit       ...exit rascontrol\r\n";
+    ss<<"   >list       ...list information about the current status of the system\r\n";
+    ss<<"   >up         ...start servers\r\n";
+    ss<<"   >down       ...stop servers and rasmanagers\r\n";
+    ss<<"   >define     ...define a new object\r\n";
+    ss<<"   >remove     ...remove an object\r\n";
+    ss<<"   >change     ...change parameters of objects\r\n";
+    ss<<"   >save       ...make changes permanent\r\n";
+    ss<<"   >check      ...checks the current status of a slave rasmgr\r\n";
+    ss<<"Type 'help command' to get specific information about command\r\n";
 
     return ss.str();
 }

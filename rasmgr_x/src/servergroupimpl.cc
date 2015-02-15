@@ -187,7 +187,9 @@ ServerGroupConfigProto ServerGroupImpl::getConfig() const
 
 void ServerGroupImpl::changeGroupConfig(const ServerGroupConfigProto &value)
 {
-    if(!this->isStopped())
+    unique_lock<shared_mutex> groupLock(this->groupMutex);
+
+    if(!this->stopped)
     {
         throw runtime_error("Cannot change server group configuration while the group is busy.");
     }
@@ -259,6 +261,56 @@ std::string ServerGroupImpl::getGroupName() const
 ServerGroupProto ServerGroupImpl::serializeToProto()
 {
     ServerGroupProto result;
+
+    unique_lock<shared_mutex> groupLock(this->groupMutex);
+
+    result.set_name(this->config.name());
+    result.set_host(this->config.host());
+    result.set_db_host(this->config.db_host());
+
+    for(int i=0; i<this->config.ports_size(); ++i)
+    {
+        result.add_ports(this->config.ports(i));
+    }
+
+    result.set_min_alive_server_no(this->config.min_alive_server_no());
+    result.set_min_available_server_no(this->config.min_available_server_no());
+    result.set_max_idle_server_no(this->config.max_idle_server_no());
+    result.set_autorestart(this->config.autorestart());
+    result.set_countdown(this->config.countdown());
+    result.set_server_options(this->config.server_options());
+
+    result.set_running(!this->stopped);
+    result.set_available(this->hasAvailableServers());
+
+    return result;
+}
+
+bool ServerGroupImpl::hasAvailableServers()
+{
+    bool result = false;
+
+    list<shared_ptr<Server> >::iterator runningServer;
+    for(runningServer=this->runningServers.begin(); runningServer!=this->runningServers.end(); ++runningServer)
+    {
+        try
+        {
+
+            if((*runningServer)->isAvailable())
+            {
+                result =true;
+                break;
+            }
+        }
+        catch(std::exception& ex)
+        {
+            LERROR<<"Failed to check if running server is available:"<<ex.what();
+        }
+        catch(...)
+        {
+            LERROR<<"Failed to check if running server is available for an unkown reason";
+        }
+    }
 
     return result;
 }

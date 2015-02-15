@@ -250,6 +250,18 @@ message ServerGroupConfigProto {
 }
 
 message ServerGroupProto{
+  optional string name = 1;
+  optional string host = 2;
+  optional string db_host = 3;
+  repeated int32 ports = 4;
+  optional uint32 min_alive_server_no = 5;
+  optional uint32 min_available_server_no  = 6;
+  optional uint32 max_idle_server_no = 7;
+  optional bool autorestart = 8;
+  optional uint32 countdown = 9;
+  optional string server_options = 10;
+  optional bool running = 11;
+  optional bool available = 12;
 }
 
 message ServerMgrProto {

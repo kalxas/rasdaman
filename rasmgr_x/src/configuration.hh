@@ -11,7 +11,6 @@
 /// host/domain name size (See man gethostname)
 #define HOSTNAME_SIZE   255
 #define RASMGR_LOG_PREFIX "rasmgr"
-#define MAXMSG 1024
 #define MAXMSGOUTBUFF 20000
 // status flags that rasmgr understands
 

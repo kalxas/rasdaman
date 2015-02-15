@@ -105,6 +105,12 @@ public:
      */
     virtual void keepClientAlive(const std::string& clientId);
 
+    /**
+     * @brief getConfig Get a copy of the configuration object used by the client manager.
+     * @return
+     */
+    ClientManagerConfig getConfig();
+
 private:
     ClientManagerConfig config;
     zmq::context_t context;/*!< ZMQ context used for inter thread communication */

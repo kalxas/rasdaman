@@ -377,6 +377,25 @@ void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
     }
 }
 
+bool ServerManager::hasRunningServers()
+{
+    bool found=false;
+
+    unique_lock<shared_mutex> lock ( this->serverGroupMutex );
+
+    list<shared_ptr<ServerGroup> >::iterator it;
+    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
+    {
+        if( !( *it )->isStopped() )
+        {
+            found = true;
+            break;
+        }
+    }
+
+    return found;
+}
+
 ServerMgrProto ServerManager::serializeToProto()
 {
     ServerMgrProto result;
@@ -392,68 +411,6 @@ ServerMgrProto ServerManager::serializeToProto()
     return result;
 }
 
-//std::string ServerManager::getServerGroupInfo ( const std::string &serverGroupName, bool portDetails )
-//{
-//    list<shared_ptr<ServerGroup> >::iterator it;
-//    bool found=false;
-//    std::stringstream ss;
-
-//    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
-//    for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
-//    {
-////        if ( ( *it )->getConfig().getGroupName() ==serverGroupName )
-////        {
-////            std::string serverGroupName = ( *it )->getGroupName();
-////            std::string hostName = ( *it )->getConfig().getHost();
-////            std::string dbHostName = ( *it )->getConfig().getDbHost();
-////            std::string up = ( *it )->isStopped() ?"DOWN":"UP";
-
-////            ss<< ( format ( "Status of server %s\r\n" ) % serverGroupName );
-////            ss<< ( format ( "    %-20s   %-20s %-20s %-4s\r\n" ) % "Server Name"  % "Host" % "Db Host" % "Stat" );
-////            ss<< ( format ( "    %-20s %-20s %-20s %s\r\n" ) % serverGroupName % hostName % dbHostName % up );
-////            found=true;
-////            break;
-////        }
-//    }
-
-//    if ( !found )
-//    {
-//        throw runtime_error ( "There is not server group named \""+serverGroupName+"\"" );
-//    }
-
-//    return ss.str();
-//}
-
-//std::string ServerManager::getAllServerGroupsInfo ( bool details,const std::string& host )
-//{
-//    list<shared_ptr<ServerGroup> >::iterator it;
-//    std::stringstream ss;
-//    shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
-
-//    if ( host.empty() )
-//    {
-//        ss<< "List of servers \r\n";
-//        ss<< ( format ( "    %-20s %s   %-20s %-20s %-4s %-2s     %s   %s" ) %"Server Name"%"Type"%"Host"%"Db Host"%"Stat"%"Av"%"Acc"%"Crc" );
-
-//        int counter =1;
-//        for ( it=this->serverGroupList.begin(); it!=this->serverGroupList.end(); ++it )
-//        {
-////            std::string serverGroupName = ( *it )->getGroupName();
-////            std::string hostName = ( *it )->getConfig().getHost();
-////            std::string dbHostName = ( *it )->getConfig().getDbHost();
-////            std::string up = ( *it )->isStopped() ?"DOWN":"UP";
-
-////            ss<< ( format ( "\r\n%2d. %-20s %s %-20s %-20s %s %s %6ld    %2d" ) % counter % serverGroupName % "(RASNET)"% hostName % dbHostName % up % "-" %0 % 0 );
-
-//            counter ++;
-//        }
-//    }
-//    else
-//    {}
-
-//    return ss.str();
-//}
-
 void ServerManager::workerCleanupRunner()
 {
     base::BaseMessage controlMessage;
@@ -467,7 +424,7 @@ void ServerManager::workerCleanupRunner()
 
         while ( keepRunning )
         {
-            zmq::poll ( items, 1, RasMgrConfig::getInstance()->getServerManagementGarbageCollectionInterval() );
+            zmq::poll ( items, 1, this->config.getCleanupInterval() );
 
             if ( items[0].revents & ZMQ_POLLIN )
             {
