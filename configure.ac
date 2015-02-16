@@ -450,19 +450,19 @@ AS_IF([test "$with_default_basedb" == sqlite],
        EMBEDDEDSQLEXT="sc"
        EMBEDDEDSQLOUT="cc"
 
-       BASEDBCXXFLAGS=" $SQLITE3_CFLAGS "
-       BASEDBLDFLAGS=" $SQLITE3_LDFLAGS "
+       BASEDBCXXFLAGS="$SQLITE3_CFLAGS"
+       BASEDBLDFLAGS="$SQLITE3_LDFLAGS"
        STATICBASEDBFLAGS="$BASEDBLDFLAGS"
-       LDFLAGS="$LDFLAGS $SQLITE3_LDFLAGS"
+       LDFLAGS="$LDFLAGS"
 
        EMBEDDEDSQLPRECOMPILER="cp -a"
        BASEDBSTRING=sqlite
 
        # also configure postgres, needed by rasimport for connecting to petascopedb
        # this is a copy of an earlier if block, remove once petascope is adapted to use sqlite
-       BASEDBCXXFLAGS=" $POSTGRESQL_CFLAGS"
-       BASEDBLDFLAGS="$POSTGRESQL_LDFLAGS -lz -lecpg"
-       STATICBASEDBFLAGS="$BASEDBLDFLAGS"
+       BASEDBCXXFLAGS="$BASEDBCXXFLAGS $POSTGRESQL_CFLAGS"
+       BASEDBLDFLAGS="$BASEDBLDFLAGS $POSTGRESQL_LDFLAGS -lz -lecpg"
+       STATICBASEDBFLAGS="$STATICBASEDBFLAGS $BASEDBLDFLAGS"
        LDFLAGS="$LDFLAGS $POSTGRESQL_LDFLAGS"
        AC_CHECK_LIB([pq], [main], , [AC_MSG_FAILURE([Library not found! Please install...])])
        AC_CHECK_LIB([pgtypes], [main], , [AC_MSG_FAILURE([Library not found! Please install...])])
