@@ -593,6 +593,8 @@ CXXFLAGS="$CXXFLAGS -DSHARE_DATA_DIR=\\\"\$(pkgdatadir)/\\\""
 CXXFLAGS="$CXXFLAGS -DCONFDIR=\\\"\$(sysconfdir)/\\\""
 CXXFLAGS="$CXXFLAGS -DBINDIR=\\\"\$(bindir)/\\\""
 CXXFLAGS="$CXXFLAGS -DLOGDIR=\\\"\$(logdir)/\\\""
+CXXFLAGS="$CXXFLAGS -DINCLUDE_DIR=\\\"\$(includedir)/\\\""
+CXXFLAGS="$CXXFLAGS -DFILEDATADIR=\\\"\$(filedatadir)/\\\""
 
 AC_OUTPUT
 
