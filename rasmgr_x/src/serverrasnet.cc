@@ -36,6 +36,7 @@
 #include "../../rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
 #include "../../rasnet/src/service/client/channel.hh"
 #include "../../rasnet/src/service/client/clientcontroller.hh"
+#include "rasnet/src/util/proto/zmqutil.hh"
 
 #include "serverrasnet.hh"
 #include "rasmgrconfig.hh"
@@ -74,12 +75,13 @@ using rasnet::service::DatabaseRights;
 using rasnet::Channel;
 using rasnet::ChannelConfig;
 using rasnet::ClientController;
+using rasnet::ZmqUtil;
 
 #define RASEXECUTABLE BINDIR"rasserver"
 
 ServerRasNet::ServerRasNet(const std::string &hostName, const boost::int32_t &port, boost::shared_ptr<DatabaseHost> dbHost)
 {
-    this->hostName = "tcp://" + hostName;
+    this->hostName = ZmqUtil::toTcpAddress(hostName);
     this->port = port;
     this->dbHost = dbHost;
     this->serverId = UUID::generateUUID();

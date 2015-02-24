@@ -37,7 +37,6 @@ message OpenServerDatabaseReq {
 }
 
 message OpenServerDatabaseRepl {
-    optional string error = 1;
 }
 
 message CloseServerDatabaseReq {
@@ -71,7 +70,6 @@ message BeginTransactionReq {
 }
 
 message BeginTransactionRepl {
-    optional string error = 1;
 }
 
 message CommitTransactionReq {
@@ -79,7 +77,6 @@ message CommitTransactionReq {
 }
 
 message CommitTransactionRepl {
-    optional string error = 1;
 }
 
 message AbortTransactionReq {
@@ -87,7 +84,6 @@ message AbortTransactionReq {
 }
 
 message AbortTransactionRepl {
-    optional string error = 1;
 }
 
 message IsTransactionOpenReq {
@@ -295,7 +291,6 @@ message GetNextElementReq {
 }
 
 message GetNextElementRepl {
-    optional string error = 1;
     required int32 status = 2;
     required int32 data_length = 3;
     required bytes data = 4;
@@ -312,9 +307,6 @@ message ExecuteUpdateQueryRepl {
     required int32 lineNo = 3;
     required int32 colNo = 4;
     required string token = 5;
-    optional string type_name = 6;
-    optional string type_structure = 7;
-    optional string error = 8;
 }
 
 message ExecuteInsertQueryReq {
@@ -328,9 +320,8 @@ message ExecuteInsertQueryRepl {
     required int32 lineNo = 3;
     required int32 colNo = 4;
     required string token = 5;
-    optional string type_name = 6;
-    optional string type_structure = 7;
-    optional string error = 8;
+    required string type_name = 6;
+    required string type_structure = 7;
 }
 
 
@@ -344,7 +335,6 @@ message GetNewOidReq {
 
 message GetNewOidRepl {
     required string oid = 1;
-    optional string error = 2;
 }
 
 message GetObjectTypeReq {

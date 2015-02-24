@@ -34,6 +34,7 @@
 #include "../../../src/messages/communication.pb.h"
 #include "../../../src/sockets/server/serversocket.hh"
 #include "../../../src/util/proto/protozmq.hh"
+#include "../../../src/util/proto/zmqutil.hh"
 #include "../../../src/util/string/stringutils.hh"
 
 
@@ -53,6 +54,7 @@ using common::ThreadPool;
 using common::FixedThreadPool;
 using boost::thread;
 using boost::scoped_ptr;
+using rasnet::ZmqUtil;
 
 ServiceManager::ServiceManager(boost::int32_t ioThreads, boost::uint32_t cpuThreads) :
         context(ioThreads)
@@ -66,8 +68,8 @@ ServiceManager::ServiceManager(boost::int32_t ioThreads, boost::uint32_t cpuThre
     this->runnning = false;
     this->cpuThreads = cpuThreads;
     this->serverPort = 7001; //Default value
-    this->serverHost = "tcp://*";
-    this->bridgeAddr = "inproc://" + UUID::generateUUID();
+    this->serverHost = ZmqUtil::ALL_LOCAL_INTERFACES;
+    this->bridgeAddr = ZmqUtil::toInprocAddress(UUID::generateUUID());
     this->requestHandler.reset(new ServiceRequestHandler(context, bridgeAddr));
 
 }

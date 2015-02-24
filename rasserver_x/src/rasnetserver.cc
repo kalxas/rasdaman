@@ -26,6 +26,7 @@ rasdaman GmbH.
 #include "rasserverserviceimpl.hh"
 #include "../rasnetprotocol/rasnetservercomm.hh"
 #include "server/rasserver_entry.hh"
+#include "rasnet/src/util/proto/zmqutil.hh"
 
 #include <iostream>
 #include "clientmanager.hh"
@@ -40,10 +41,11 @@ using google::protobuf::NewPermanentCallback;
 using rasnet::service::Void;
 using rasnet::ClientController;
 using rasserver::ClientManager;
+using rasnet::ZmqUtil;
 
-RasnetServer::RasnetServer(int port, const char* serverId)
+RasnetServer::RasnetServer(Configuration configuration)
 {
-    this->port = port;
+    this->port = configuration.getListenPort();
 
     //TODO-GM:Maybe move the parameters to the service manager somewhere else
     serviceManager.reset(new ServiceManager(2,4));
@@ -58,7 +60,7 @@ RasnetServer::RasnetServer(int port, const char* serverId)
 
     this->runMutex.lock();
 
-    Channel channel("tcp://localhost" , 7001);
+    Channel channel(ZmqUtil::toTcpAddress(configuration.getRasmgrHost()) , configuration.getRasmgrPort());
 
     scoped_ptr<rasnet::service::RasMgrRasServerService> rasmgrRasserverService(new ::rasnet::service::RasMgrRasServerService_Stub(&channel));
 
@@ -69,7 +71,7 @@ RasnetServer::RasnetServer(int port, const char* serverId)
     ::rasnet::service::RegisterServerReq request;
     Void response;
 
-    request.set_serverid(serverId);
+    request.set_serverid(configuration.getNewServerId());
     rasmgrRasserverService->RegisterServer(&controller, &request, &response, doNothing.get());
 }
 
@@ -77,7 +79,7 @@ RasnetServer::RasnetServer(int port, const char* serverId)
 void RasnetServer::startRasnetServer()
 {
     std::cout<<"Serving on " << this->port;
-    this->serviceManager->serve("tcp://*", this->port);
+    this->serviceManager->serve(rasnet::ZmqUtil::ALL_LOCAL_INTERFACES, this->port);
     RasServerEntry &rasserver = RasServerEntry::getInstance();
     rasserver.compat_connectToDBMS();
     while (true)

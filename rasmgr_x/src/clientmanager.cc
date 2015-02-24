@@ -32,6 +32,7 @@
 #include "../../rasnet/src/util/proto/protozmq.hh"
 #include "../../rasnet/src/messages/communication.pb.h"
 #include "../../rasnet/src/messages/base.pb.h"
+#include "../../rasnet/src/util/proto/zmqutil.hh"
 
 #include "clientmanager.hh"
 #include "rasmgrconfig.hh"
@@ -59,11 +60,12 @@ using zmq::socket_t;
 using rasnet::ProtoZmq;
 using rasnet::InternalDisconnectReply;
 using rasnet::InternalDisconnectRequest;
+using rasnet::ZmqUtil;
 
 ClientManager::ClientManager(const ClientManagerConfig& config, boost::shared_ptr<rasmgr::UserManager> userManager):config(config)
 {
     this->userManager = userManager;
-    this->controlEndpoint = "inproc://"+UUID::generateUUID();
+    this->controlEndpoint = ZmqUtil::toInprocAddress(UUID::generateUUID());
 
     this->managementThread.reset(
         new thread(&ClientManager::evaluateClientsStatus, this));

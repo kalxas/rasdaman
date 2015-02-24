@@ -40,6 +40,7 @@
 #include "../../../../common/src/logging/easylogging++.hh"
 #include "../../../../common/src/uuid/uuid.hh"
 #include "../../util/proto/protozmq.hh"
+#include "../../util/proto/zmqutil.hh"
 #include "../../messages/communication.pb.h"
 #include "../../messages/test_mess.pb.h"
 
@@ -74,8 +75,8 @@ ClientSocket::ClientSocket(const std::string& serverAddress, ClientSocketConfig 
     this->connectionHandlers.push_back(pongHandler);
 
     //Create an internal address to be used between by the client and the proxy thread.
-    this->messagePipeAddr = "inproc://message" + this->identity;
-    this->controlPipeAddr = "inproc://control" + this->identity;
+    this->messagePipeAddr = ZmqUtil::toInprocAddress("message" + this->identity);
+    this->controlPipeAddr = ZmqUtil::toInprocAddress("control" + this->identity);
 
     this->proxyThread.reset(new thread(boost::bind( &ClientSocket::runProxy, this)));
 

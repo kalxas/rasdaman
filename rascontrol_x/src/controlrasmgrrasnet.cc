@@ -23,8 +23,10 @@
 #include <stdexcept>
 
 #include "../../common/src/logging/easylogging++.hh"
+#include "rasnet/src/util/proto/zmqutil.hh"
 
 #include "controlrasmgrrasnet.hh"
+
 
 namespace rascontrol
 {
@@ -34,10 +36,12 @@ using rasnet::Channel;
 using rasnet::service::RasMgrRasCtrlService_Stub;
 using rasnet::service::RasCtrlRequest;
 using rasnet::service::RasCtrlResponse;
+using rasnet::ZmqUtil;
 
 using ::google::protobuf::NewPermanentCallback;
 using ::google::protobuf::DoNothing;
 using ::google::protobuf::Service;
+
 
 ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials& userCredentials, RasControlConfig& config):userCredentials(userCredentials), config(config)
 {
@@ -45,12 +49,7 @@ ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials& userCredentials,
 
     try
     {
-        std::string host = config.getRasMgrHost();
-        //TODO-AT:Should I be doing this? Should this be factored into a protocol related file?
-        if(host.find("tcp://")!=0)
-        {
-            host="tcp://"+host;
-        }
+        std::string host = ZmqUtil::toTcpAddress(config.getRasMgrHost());
 
         Channel* channel =  new Channel(host,config.getRasMgrPort());
         this->rasmgrService.reset(new RasMgrRasCtrlService_Stub(channel));

@@ -24,17 +24,46 @@
 #define RASNET_SRC_UTIL_ZMQUTIL_HH_
 
 #include <google/protobuf/message.h>
+#include <boost/algorithm/string.hpp>
+
+namespace rasnet
+{
 
 class ZmqUtil
 {
 public:
+    static const std::string ALL_LOCAL_INTERFACES;
+
     static void freeByteArray(void *data, void *hint)
     {
         delete[] ((::google::protobuf::uint8 *) data);
     }
+
+    static std::string toTcpAddress(std::string address)
+    {
+        return addPrefixIfMissing(address, ZmqUtil::TCP_PREFIX);
+    }
+
+    static std::string toInprocAddress(std::string address)
+    {
+        return addPrefixIfMissing(address, ZmqUtil::INPROC_PREFIX);
+    }
+
+private:
+    static const std::string TCP_PREFIX;
+    static const std::string INPROC_PREFIX;
+
+    static std::string addPrefixIfMissing(std::string str, std::string prefix)
+    {
+        if (!boost::algorithm::starts_with(str, prefix))
+        {
+            str = prefix + str;
+        }
+
+        return str;
+    }
 };
 
-
-
+} /* namespace rasnet */
 
 #endif /* COMMON_SRC_ZEROMQ_ZMQUTIL_HH_ */

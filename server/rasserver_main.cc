@@ -86,7 +86,7 @@ RMINITGLOBALS('C');
 #include "rasserver_entry.hh"
 
 #ifdef RMANRASNET
-#include "rasnetserver.hh"
+#include "rasserver_x/src/rasnetserver.hh"
 #include "common/src/logging/easylogging++.hh"
 #endif
 
@@ -221,7 +221,7 @@ int main ( int argc, char** argv )
         else if(configuration.isRasnetServer())
         {
             //start rasnet server
-            RasnetServer rasnetServer(configuration.getListenPort(), configuration.getNewServerId());
+            RasnetServer rasnetServer(configuration);
             rasnetServer.startRasnetServer();
         }
 #endif

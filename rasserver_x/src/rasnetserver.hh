@@ -40,12 +40,12 @@ rasdaman GmbH.
 #include "rasnet/src/service/client/channel.hh"
 #include "rasnet/src/service/client/clientcontroller.hh"
 #include "rasnet/src/service/server/servicemanager.hh"
-
+#include "server/rasserver_config.hh"
 
 class RasnetServer
 {
 public:
-    RasnetServer(int port, const char* serverId);
+    RasnetServer(Configuration configuration);
     void startRasnetServer();
     void stopRasnetServer();
 

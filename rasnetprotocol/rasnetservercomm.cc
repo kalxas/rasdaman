@@ -486,5 +486,5 @@ void RasnetServerComm::SetFormat(google::protobuf::RpcController *controller, co
 
 void RasnetServerComm::KeepAlive(google::protobuf::RpcController *controller, const rasnet::service::KeepAliveRequest *request, rasnet::service::Void *response, google::protobuf::Closure *done)
 {
-    this->clientManager->resetLiveliness(request->client_uuid(), request->session_id());
+    this->clientManager->resetLiveliness(request->client_uuid());
 }

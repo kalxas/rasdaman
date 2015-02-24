@@ -34,6 +34,7 @@
 #include "../../util/proto/zmqutil.hh"
 #include "../../messages/communication.pb.h"
 #include "../../../src/messages/service.pb.h"
+#include "../../../../raslib/error.hh"
 
 #include "channel.hh"
 
@@ -402,8 +403,8 @@ void Channel::init(std::string host, boost::uint32_t port)
     this->counter = 1 ;
     this->serverAddr =  host + ":" + boost::lexical_cast<std::string>(port);
     this->socketIdentity = UUID::generateUUID();
-    this->controlPipeAddr = "inproc://control-" + this->socketIdentity;
-    this->messagePipeAddr = "inproc://message-" + this->socketIdentity;
+    this->controlPipeAddr = ZmqUtil::toInprocAddress("control-" + this->socketIdentity);
+    this->messagePipeAddr = ZmqUtil::toInprocAddress("message-" + this->socketIdentity);
 
     this->proxyThread.reset(new thread(boost::bind( &Channel::listenerMethod, this)));
 

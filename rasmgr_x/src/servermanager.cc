@@ -39,6 +39,7 @@
 #include "../../common/src/logging/easylogging++.hh"
 #include "../../common/src/uuid/uuid.hh"
 #include "../../rasnet/src/util/proto/protozmq.hh"
+#include "../../rasnet/src/util/proto/zmqutil.hh"
 #include "../../rasnet/src/messages/communication.pb.h"
 #include "../../rasnet/src/messages/base.pb.h"
 
@@ -77,11 +78,12 @@ using rasnet::ProtoZmq;
 using rasnet::InternalDisconnectReply;
 using rasnet::InternalDisconnectRequest;
 using zmq::socket_t;
+using rasnet::ZmqUtil;
 
 ServerManager::ServerManager(const ServerManagerConfig& config, boost::shared_ptr<ServerGroupFactory> serverGroupFactory)
     :config(config), serverGroupFactory(serverGroupFactory)
 {
-    this->controlEndpoint = "inproc://"+UUID::generateUUID();
+    this->controlEndpoint = ZmqUtil::toInprocAddress(UUID::generateUUID());
     this->workerCleanup.reset ( new thread ( &ServerManager::workerCleanupRunner, this ) );
 
     this->controlSocket.reset ( new zmq::socket_t ( this->context, ZMQ_PAIR ) );

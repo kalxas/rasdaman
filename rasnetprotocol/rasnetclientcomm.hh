@@ -108,17 +108,33 @@ private:
     ::boost::shared_mutex rasMgrServiceMtx;
     ::boost::shared_ptr<rasnet::Channel> rasmgrChannel;
 
-    u_int64_t clientRasMgrKeepAliveTimeout;
-    u_int64_t clientRasServerKeepAliveTimeout;
+    /* START: KEEP ALIVE */
+    u_int64_t keepAliveTimeout;
 
-    ::boost::scoped_ptr< ::boost::thread> clientRasMgrKeepAliveThread;
-    ::boost::scoped_ptr< ::boost::thread>clientRasServerKeepAliveThread;
+    /* RASMGR */
+    ::zmq::context_t rasmgrKeepAliveContext;
+    ::boost::scoped_ptr< ::zmq::socket_t> rasmgrKeepAliveControlSocket;
+    ::std::string rasmgrKeepAliveControlEndpoint;
+
+    ::boost::scoped_ptr< ::boost::thread> rasMgrKeepAliveManagementThread;
+
+    void startRasMgrKeepAlive();
+    void stopRasMgrKeepAlive();
 
     void clientRasMgrKeepAliveRunner();
-    void clientRasServerKeepAliveRunner();
 
-    bool clientRasMgrKeepAliveStopped;
-    bool clientRasServerKeepAliveStopped;
+    /* RASSERVER */
+    ::zmq::context_t rasserverKeepAliveContext;
+    ::boost::scoped_ptr< ::zmq::socket_t> rasserverKeepAliveSocket;
+    ::std::string rasserverKeepAliveControlEndpoint;
+
+    ::boost::scoped_ptr< ::boost::thread> rasServerKeepAliveManagementThread;
+
+    void startRasServerKeepAlive();
+    void stopRasServerKeepAlive();
+
+    void clientRasServerKeepAliveRunner();
+     /* END: KEEP ALIVE */
 
     ::boost::shared_ptr<rasnet::service::ClientRassrvrService> getRasServerService();
     ::boost::shared_ptr<rasnet::service::RasMgrClientService> getRasMgrService();

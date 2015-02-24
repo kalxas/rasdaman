@@ -23,6 +23,13 @@ rasdaman GmbH.
 
 #include "clientmanager.hh"
 
+#include "rasnet/src/messages/base.pb.h"
+#include "rasnet/src/messages/communication.pb.h"
+#include "rasnet/src/util/proto/protozmq.hh"
+#include "rasnet/src/util/proto/zmqutil.hh"
+#include "common/src/uuid/uuid.hh"
+#include "server/rasserver_entry.hh"
+
 namespace rasserver
 {
 
@@ -31,28 +38,74 @@ using std::pair;
 using std::make_pair;
 using std::map;
 using common::Timer;
+using zmq::socket_t;
+using rasnet::ProtoZmq;
+using rasnet::InternalDisconnectReply;
+using rasnet::InternalDisconnectRequest;
+using boost::scoped_ptr;
+using boost::unique_lock;
+using boost::shared_mutex;
+using boost::shared_ptr;
+using boost::shared_lock;
+using boost::thread;
+using boost::unique_lock;
+using common::UUID;
+using rasnet::ZmqUtil;
 
 ClientManager::ClientManager()
 {
+    this->controlEndpoint = ZmqUtil::toInprocAddress(UUID::generateUUID());
+    this->managementThread.reset(
+                new thread(&ClientManager::evaluateClientStatus, this));
+
+    this->controlSocket.reset(new socket_t(this->context, ZMQ_PAIR));
+    this->controlSocket->connect(this->controlEndpoint.c_str());
 }
 
-bool ClientManager::allocateClient(std::string clientUUID, std::string sessionId, int32_t period)
+ClientManager::~ClientManager()
 {
-    pair<string, string> key = make_pair(clientUUID, sessionId);
-    Timer timer(period);
+    try
+    {
+        // Kill the thread in a clean way
+        rasnet::InternalDisconnectRequest request = rasnet::InternalDisconnectRequest::default_instance();
+        base::BaseMessage reply;
 
-    pair<map<pair<string, string>, Timer>::iterator, bool> result = this->clientList.insert(make_pair(key, period));
+        ProtoZmq::zmqSend(*(this->controlSocket.get()), request);
+        ProtoZmq::zmqReceive(*(this->controlSocket.get()), reply);
+
+        if(reply.type()!=rasnet::InternalDisconnectReply::default_instance().GetTypeName())
+        {
+            LERROR<<"Unexpected message received from control socket."<<reply.DebugString();
+        }
+
+        this->managementThread->join();
+    }
+    catch (std::exception& ex)
+    {
+        LERROR<<ex.what();
+    }
+    catch (...)
+    {
+        LERROR<<"ClientManager destructor has failed";
+    }
+}
+
+bool ClientManager::allocateClient(std::string clientUUID, std::string sessionId)
+{
+    Timer timer(ALIVE_PERIOD);
+
+    pair<map<string, Timer>::iterator, bool> result = this->clientList.insert(make_pair(clientUUID, timer));
     return result.second;
 }
 
 void ClientManager::deallocateClient(std::string clientUUID, std::string sessionId)
 {
-    this->clientList.erase(make_pair(clientUUID, sessionId));
+    this->clientList.erase(clientUUID);
 }
 
-bool ClientManager::isAlive(std::string clientUUID, std::string sessionId)
+bool ClientManager::isAlive(std::string clientUUID)
 {
-   map<pair<string, string>, Timer>::iterator clientIt = this->clientList.find(make_pair(clientUUID, sessionId));
+   map<string, Timer>::iterator clientIt = this->clientList.find(clientUUID);
    if (clientIt == this->clientList.end())
    {
        return false;
@@ -60,9 +113,9 @@ bool ClientManager::isAlive(std::string clientUUID, std::string sessionId)
    return !clientIt->second.hasExpired();
 }
 
-void ClientManager::resetLiveliness(std::string clientUUID, std::string sessionId)
+void ClientManager::resetLiveliness(std::string clientUUID)
 {
-    map<pair<string, string>, Timer>::iterator clientIt = this->clientList.find(make_pair(clientUUID, sessionId));
+    map<string, Timer>::iterator clientIt = this->clientList.find(clientUUID);
     if (clientIt != this->clientList.end())
     {
         clientIt->second.reset();
@@ -72,6 +125,67 @@ void ClientManager::resetLiveliness(std::string clientUUID, std::string sessionI
 size_t ClientManager::getClientQueueSize()
 {
     return this->clientList.size();
+}
+
+void ClientManager::evaluateClientStatus()
+{
+    map<string, Timer>::iterator it;
+    map<string, Timer>::iterator toErase;
+    base::BaseMessage controlMessage;
+    bool keepRunning=true;
+
+    try
+    {
+        zmq::socket_t control(this->context, ZMQ_PAIR);
+        control.bind(this->controlEndpoint.c_str());
+        zmq::pollitem_t items[] = {{control,0,ZMQ_POLLIN,0}};
+
+        while (keepRunning)
+        {
+            zmq::poll(items, 1, ALIVE_PERIOD);
+            if (items[0].revents & ZMQ_POLLIN)
+            {
+                ProtoZmq::zmqReceive(control, controlMessage);
+                if(controlMessage.type()==InternalDisconnectRequest::default_instance().GetTypeName())
+                {
+                    keepRunning=false;
+                    InternalDisconnectReply disconnectReply;
+                    ProtoZmq::zmqSend(control, disconnectReply);
+                }
+            }
+            else
+            {
+                boost::upgrade_lock<boost::shared_mutex> lock(this->clientMutex);
+                it = this->clientList.begin();
+
+                while (it != this->clientList.end())
+                {
+                    toErase=it;
+                    ++it;
+                    if(toErase->second.hasExpired())
+                    {
+                        boost::upgrade_to_unique_lock<boost::shared_mutex> uniqueLock(lock);
+                        this->clientList.erase(toErase);
+
+                        // If the client dies, clean up
+                        RasServerEntry& rasServerEntry = RasServerEntry::getInstance();
+                        rasServerEntry.compat_abortTA();
+                        rasServerEntry.compat_closeDB();
+                        rasServerEntry.compat_disconnectClient();
+                    }
+                }
+            }
+        }
+    }
+    catch (std::exception& ex)
+    {
+        LERROR<<"Client management thread has failed";
+        LERROR<<ex.what();
+    }
+    catch (...)
+    {
+        LERROR<<"Client management thread failed for unknown reason.";
+    }
 }
 
 }

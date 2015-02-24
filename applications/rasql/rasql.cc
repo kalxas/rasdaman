@@ -66,6 +66,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include <sstream>
 #include <fstream>
 #include <vector>
+#include <stdexcept>
 #include "raslib/commonutil.hh"
 
 #include "common/src/logging/easylogging++.hh"
@@ -1035,7 +1036,6 @@ int main(int argc, char** argv)
     int retval = EXIT_SUCCESS;  // overall result status
 
     installSigSegvHandler(crash_handler);
-
     try
     {
         parseParams( argc, argv );
@@ -1047,6 +1047,11 @@ int main(int argc, char** argv)
         doStuff( argc, argv );
         closeDatabase();
         retval = EXIT_SUCCESS;
+    }
+    catch (std::runtime_error& ex)
+    {
+        cerr << ex.what() << endl;
+        retval = EXIT_FAILURE;
     }
     catch (RasqlError& e)
     {

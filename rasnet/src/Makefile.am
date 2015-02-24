@@ -9,7 +9,7 @@ librasnet_a_SOURCES = $(PROTO_SRC) service/client/channel.cc service/client/chan
                       sockets/client/clientpinghandler.cc sockets/client/clientponghandler.cc sockets/client/clientsocket.cc \
                       sockets/client/clientsocketconfig.cc sockets/common/peerstatus.cc sockets/server/clientpool.cc sockets/server/connectrequesthandler.cc \
                       sockets/server/servercommunicationhandler.cc sockets/server/serverpinghandler.cc sockets/server/serverponghandler.cc \
-                      sockets/server/serversocket.cc sockets/server/serversocketconfig.cc util/proto/protozmq.cc util/string/stringutils.cc
+                      sockets/server/serversocket.cc sockets/server/serversocketconfig.cc util/proto/protozmq.cc util/string/stringutils.cc util/proto/zmqutil.cc
 librasnet_a_LIBADD = ../../common/src/libcommon.a
 
 

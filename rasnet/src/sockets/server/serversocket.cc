@@ -38,6 +38,7 @@
 #include "../../../../common/src/uuid/uuid.hh"
 #include "../../../../common/src/logging/easylogging++.hh"
 #include "../../../src/util/proto/protozmq.hh"
+#include "../../../src/util/proto/zmqutil.hh"
 
 #include "../../../src/messages/test_mess.pb.h"
 
@@ -77,8 +78,8 @@ ServerSocket::ServerSocket(std::string endpoint, ServerSocketConfig config) :
     this->handlers.push_back(connectRequestHandler);
 
     //Address used internally to communicate between the two threads of the ServerSocket
-    this->messagePipeAddr = "inproc://message" + this->identity;
-    this->controlPipeAddr = "inproc://control" + this->identity;
+    this->messagePipeAddr = ZmqUtil::toInprocAddress("message" + this->identity);
+    this->controlPipeAddr = ZmqUtil::toInprocAddress("control" + this->identity);
 
     this->serverSocket.reset(new zmq::socket_t(this->context, ZMQ_PAIR));
     this->controlSocket.reset(new zmq::socket_t(this->context, ZMQ_PAIR));

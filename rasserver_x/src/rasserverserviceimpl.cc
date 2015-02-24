@@ -34,7 +34,7 @@ void RasServerServiceImpl::AllocateClient(::google::protobuf::RpcController* con
                                           ::rasnet::service::Void* response,
                                           ::google::protobuf::Closure* done)
 {
-    if(!clientManager->allocateClient(request->clientid(), request->sessionid(), 3000))
+    if(!clientManager->allocateClient(request->clientid(), request->sessionid()))
     {
         controller->SetFailed("Client already in list");
     }else{
@@ -66,7 +66,8 @@ void RasServerServiceImpl::GetClientStatus(::google::protobuf::RpcController* co
                                            ::rasnet::service::ClientStatusRepl* response,
                                            ::google::protobuf::Closure* done)
 {
-    if (this->clientManager->isAlive(request->clientid(), request->sessionid())){
+    if (this->clientManager->isAlive(request->clientid()))
+    {
          response->set_status(rasnet::service::ClientStatusRepl_Status_ALIVE);
     }
     else

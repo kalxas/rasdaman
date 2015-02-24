@@ -26,7 +26,14 @@ rasdaman GmbH.
 
 #include <map>
 #include <string>
+
+#include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/thread.hpp>
+
 #include "common/src/time/timer.hh"
+#include "common/src/zeromq/zmq.hh"
+#include "common/src/logging/easylogging++.hh"
 
 namespace rasserver {
 
@@ -34,14 +41,27 @@ class ClientManager
 {
 public:
     ClientManager();
-    bool allocateClient(std::string clientUUID, std::string sessionId, int32_t period);
+    virtual ~ClientManager();
+
+    bool allocateClient(std::string clientUUID, std::string sessionId);
     void deallocateClient(std::string clientUUID, std::string sessionId);
-    bool isAlive(std::string clientUUID, std::string sessionId);
-    void resetLiveliness(std::string clientUUID, std::string sessionId);
+    bool isAlive(std::string clientUUID);
+    void resetLiveliness(std::string clientUUID);
     size_t getClientQueueSize();
 
 private:
-    std::map<std::pair<std::string, std::string>, common::Timer> clientList;
+    static const int ALIVE_PERIOD = 3000; /* milliseconds */
+
+    zmq::context_t context;
+    boost::scoped_ptr<zmq::socket_t> controlSocket;
+    std::string controlEndpoint;
+
+    boost::scoped_ptr<boost::thread> managementThread;
+
+    boost::shared_mutex clientMutex;
+    std::map<std::string, common::Timer> clientList;
+
+    void evaluateClientStatus();
 };
 
 }
