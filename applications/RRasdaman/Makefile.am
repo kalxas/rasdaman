@@ -25,27 +25,75 @@
 #
 ##################################################################
 
-BUILD=build
-RJAVADIR=inst/java/
-PACKAGE=RRasdaman
-VERSION=0.9
-DEP_JARS =../../java/dist/rasj.jar
-
 CD = cd
 CP = cp
 MKDIR = mkdir -p
 RM = rm -rf
+JAVAC = javac
+JAR_TOOL = jar
+SPACE = $(eval) $(eval)
+
+BUILD=build
+PACKAGE_NAME=RRasdaman
+VERSION=0.9
+PACKAGE=$(PACKAGE_NAME)_$(VERSION).tar.gz
 
 .PHONY: build help check install all clean
 
 all: build
 
-build:
+
+######## R package ########
+
+R_SRCS=$(wildcard R/*.R)
+RD_SRCS=$(wildcard man/*.Rd)
+TEST_SRCS=$(wildcard tests/*.R) $(wildcard tests/testthat/*.R)
+MISC_SRCS=DESCRIPTION NAMESPACE java/README
+
+build: $(BUILD)/$(PACKAGE)
+
+$(BUILD)/$(PACKAGE): $(RRASDAMAN_JAR) $(R_SRCS) $(RD_SRCS) $(TEST_SRCS) $(MISC_SRCS)
 	$(MKDIR) $(BUILD)
+	$(CD) $(BUILD) && $(RBIN) CMD build ..
+
+check: build
+	$(CD) $(BUILD) && $(RBIN) CMD check $(PACKAGE)
+
+install: build
+	$(CD) $(BUILD) && $(RBIN) CMD INSTALL $(PACKAGE)
+
+
+######## Java compilation ########
+
+RJAVADIR=inst/java/
+JAVA_SRC=java
+JAVA_OUT=$(BUILD)/out
+RRASDAMAN_JAR=$(RJAVADIR)/RRasdaman.jar
+source_dirs_list=. rrasdaman
+
+DEP_JARS =../../java/dist/rasj.jar
+LIBS=$(RJAVADIR)/rasj.jar
+
+SRCDIRS=$(addprefix $(JAVA_SRC)/, $(source_dirs_list))
+BARE_CLASSES=$(patsubst $(JAVA_SRC)/%.java,%.class,$(wildcard $(addsuffix /*.java, $(SRCDIRS))))
+CLASSES=$(addprefix $(JAVA_OUT)/, $(BARE_CLASSES))
+JLIBS=$(subst $(SPACE),:,$(LIBS))
+VPATH = $(SRCDIRS)
+
+$(JAVA_OUT)/%.class: $(JAVA_SRC)/%.java
+	@echo compiling $@ $^
+	$(MKDIR) $(dir $@)
+	$(JAVAC) -d $(JAVA_OUT) -cp $(JLIBS) -sourcepath $(JAVA_SRC) $^
+
+$(RRASDAMAN_JAR): $(LIBS) $(CLASSES)
+	$(JAR_TOOL) cf $(RRASDAMAN_JAR) $(addprefix -C $(JAVA_OUT)$(SPACE), $(BARE_CLASSES))
+
+$(LIBS):
 	$(MKDIR) $(RJAVADIR)
 	test -f ../../java/dist/rasj.jar || make -C ../../java
 	$(CP) $(DEP_JARS)  $(RJAVADIR)
-	$(CD) $(BUILD) && $(RBIN) CMD build ..
+
+######## Misc ########
 
 help:
 	@echo "  Available rules:"
@@ -56,11 +104,5 @@ help:
 	@echo "    help     display this help message"
 	@echo
 
-check: build
-	$(CD) $(BUILD) && $(RBIN) CMD check $(PACKAGE)_$(VERSION).tar.gz
-
-install: build
-	$(CD) $(BUILD) && $(RBIN) CMD INSTALL $(PACKAGE)_$(VERSION).tar.gz
-
 clean:
-	$(RM) -rf $(BUILD) $(RJAVADIR)
+	$(RM) $(BUILD) $(RJAVADIR)

@@ -1,0 +1,4 @@
+The RRasdaman package contains two .jar files. The source files of RRasdaman.jar
+are available in the java/ directory of the package. The sources files of
+rasj.jar could be found in the repository of the rasdaman project at
+http://rasdaman.org/browser/java.

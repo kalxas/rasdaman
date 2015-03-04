@@ -1,5 +1,5 @@
 import(rJava)
-import(methods)
+importFrom(methods, setClass, setGeneric, setMethod, setValidity, setAs)
 
 exportClasses(
     RasdamanObject,

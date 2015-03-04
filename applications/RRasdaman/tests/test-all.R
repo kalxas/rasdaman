@@ -20,7 +20,22 @@
 # or contact Peter Baumann via <baumann@rasdaman.com>.
 #
 ##################################################################
+isRasdamanRunning <- function() {
+    library("RRasdaman")
+    tryCatch({
+        conn <- dbConnect(Rasdaman())
+        dbDisconnect(conn)
+        TRUE
+    }, error = function(e) {
+        !grepl("Connection refused.", e$message)
+    })
+}
+
 if (requireNamespace("testthat", quietly = TRUE)) {
-    library("testthat")
-    test_check("RRasdaman")
+    if (isRasdamanRunning()) {
+        library("testthat")
+        test_check("RRasdaman")
+    } else {
+        print("No rasdaman instance running at localhost. Testing stopped.")
+    }
 }
