@@ -59,8 +59,8 @@ public class RasImplementation implements Implementation
      * available.
      **/
     private RasImplementationInterface imp = null;
-    
-    private static boolean isRNP           = true; // use RNP by default
+
+    private static boolean isRNP           = false; // use RASNET by default
 
     /**
      * C/s protocol indicators.
@@ -80,15 +80,15 @@ public class RasImplementation implements Implementation
      * @param server - Complete URL of the RasDaMan httpserver (including port number)
      */
     public RasImplementation(String server)
-    {   
+    {
         Debug.talkSparse(RasGlobalDefs.RASJ_VERSION );
         Debug.talkSparse( " Using server " + server );
 
-        String envVar = System.getProperty("RMANPROTOCOL");	// uses "-D" option  
-       
+        String envVar = System.getProperty("RMANPROTOCOL");	// uses "-D" option
+
         boolean useRNP = isRNP;
         boolean useRasnet = !isRNP;
-       
+
         if(envVar != null)
           {
             Debug.talkWarning( "environment variable RMANPROTOCOL enforces protocol " + envVar );
@@ -96,14 +96,14 @@ public class RasImplementation implements Implementation
                 useRNP = true;
 	    else if ( envVar.equalsIgnoreCase( PROTOCOL_RPC ) )
             {
-	        Debug.talkCritical( "Error: protocol " + PROTOCOL_RPC + " not supported by rasj: using " + PROTOCOL_RNP + " instead." ); 
+	        Debug.talkCritical( "Error: protocol " + PROTOCOL_RPC + " not supported by rasj: using " + PROTOCOL_RNP + " instead." );
                 useRNP = true;
             }
             else if ( envVar.equalsIgnoreCase( PROTOCOL_HTTP ) )
                 useRNP = false;
             else if ( envVar.equalsIgnoreCase( PROTOCOL_COMP ) )
             {
-	        Debug.talkCritical( "Compatibility mode specified, using " + PROTOCOL_RNP + "." ); 
+	        Debug.talkCritical( "Compatibility mode specified, using " + PROTOCOL_RNP + "." );
                 useRNP = true;
             }
             else if (envVar.equalsIgnoreCase(PROTOCOL_RASNET))
@@ -116,20 +116,20 @@ public class RasImplementation implements Implementation
                 Debug.talkCritical( "Error: unknown protocol: " + envVar + "; using protocol " + PROTOCOL_RNP + "." );
                 useRNP = true;
             }
-	  }  
+	  }
 
-        if(useRNP) 
-          {	  
-	    Debug.talkVerbose( "RasImplementation.constructor: using protocol " + PROTOCOL_RNP + "." ); 
+        if(useRNP)
+          {
+	    Debug.talkVerbose( "RasImplementation.constructor: using protocol " + PROTOCOL_RNP + "." );
 	    imp = new RasRNPImplementation(server);
 	  } else if(useRasnet){
             imp = new RasRasnetImplementation(server);
         }
         else
           {
-	    Debug.talkVerbose( "RasImplementation.constructor: using protocol " + PROTOCOL_HTTP + "." ); 
-            imp = new RasODMGImplementation(server);	
-	  }	    
+	    Debug.talkVerbose( "RasImplementation.constructor: using protocol " + PROTOCOL_HTTP + "." );
+            imp = new RasODMGImplementation(server);
+	  }
        } // RasImplementation()
 
     /**
@@ -173,7 +173,7 @@ public class RasImplementation implements Implementation
 
      public boolean isDefaultRNP()
        {
-	 Debug.talkVerbose( "RasImplementation.isDefaultRNP: RNP=" + isRNP + "." ); 
+	 Debug.talkVerbose( "RasImplementation.isDefaultRNP: RNP=" + isRNP + "." );
          return isRNP;
        }
 
@@ -363,5 +363,3 @@ public class RasImplementation implements Implementation
         return imp.getTypeStructure(typename, typetype);
       }
 }
-
-

@@ -13,25 +13,25 @@ librasnet_a_SOURCES = $(PROTO_SRC) service/client/channel.cc service/client/chan
 librasnet_a_LIBADD = ../../common/src/libcommon.a
 
 
-$(PROTO_SRC): generate_protobuffers
-generate_protobuffers:
-	echo "Generating buffers"
-	$(MKDIR_P) messages
-	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/base.proto
-	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/client_rassrvr_service.proto
-	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/common_service.proto
-	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/communication.proto
-	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/rasmgr_client_service.proto
-	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/rasmgr_rasctrl_service.proto
-	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/rasmgr_rassrvr_service.proto
-	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/rassrvr_rasmgr_service.proto
-	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/service.proto
-	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/test_mess.proto
-if ENABLE_JAVA
-	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/base.proto
-	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/client_rassrvr_service.proto
-	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/common_service.proto
-	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/communication.proto
-	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/rasmgr_client_service.proto
-	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/service.proto
-endif
+#$(PROTO_SRC): generate_protobuffers
+#generate_protobuffers:
+#	echo "Generating buffers"
+#	$(MKDIR_P) messages
+#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/base.proto
+#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/client_rassrvr_service.proto
+#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/common_service.proto
+#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/communication.proto
+#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/rasmgr_client_service.proto
+#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/rasmgr_rasctrl_service.proto
+#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/rasmgr_rassrvr_service.proto
+#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/rassrvr_rasmgr_service.proto
+#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/service.proto
+#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/test_mess.proto
+#if ENABLE_JAVA
+#	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/base.proto
+#	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/client_rassrvr_service.proto
+#	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/common_service.proto
+#	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/communication.proto
+#	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/rasmgr_client_service.proto
+#	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/service.proto
+#endif

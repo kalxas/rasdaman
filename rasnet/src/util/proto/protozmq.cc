@@ -182,8 +182,7 @@ bool ProtoZmq::zmqRawSendToPeer(zmq::socket_t &sock, base::BaseMessage &mess,
 std::string ProtoZmq::getServiceMethodName(
     const ::google::protobuf::MethodDescriptor *method)
 {
-    //TODO-GM: don't build the name this way, but use method->full_name() instead
-    return (method->service()->name()) + "." + (method->name());
+    return method->full_name();
 }
 
 void ProtoZmq::freeArray(void *data, void *hint)

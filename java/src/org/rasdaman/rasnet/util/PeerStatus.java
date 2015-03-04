@@ -1,17 +1,18 @@
-package org.rasdaman.rasnet.channel;
-
-import org.rasdaman.rasnet.util.Timer;
+package org.rasdaman.rasnet.util;
 
 public class PeerStatus {
-
+    private final int retriesBackup;
     private int retries;
-    private int retriesBackup;
     private Timer timer;
 
-    public PeerStatus(int retries, long period) {
+    public PeerStatus(int retries, int lifetime) {
+        if (retries < 0 || lifetime < 0) {
+            throw new IllegalArgumentException("The number of retries and the lifetime must be positive.");
+        }
+
+        this.timer = new Timer(lifetime);
         this.retries = retries;
         this.retriesBackup = retries;
-        this.timer = new Timer(period);
     }
 
     public boolean isAlive() {
@@ -24,14 +25,14 @@ public class PeerStatus {
                 this.retries--;
                 this.timer.reset();
             }
-
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     public void reset() {
-        this.timer.reset();
         this.retries = this.retriesBackup;
+        this.timer.reset();
     }
 }

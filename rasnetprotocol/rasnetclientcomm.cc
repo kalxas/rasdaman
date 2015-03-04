@@ -146,6 +146,9 @@ RasnetClientComm::RasnetClientComm(string rasmgrHost, int rasmgrPort)
     this->rasmgrPort = rasmgrPort;
 
     doNothing.reset(NewPermanentCallback(&DoNothing));
+
+    this->initializedRasMgrService = false;
+    this->initializedRasServerService = false;
 }
 
 RasnetClientComm::~RasnetClientComm() throw()

@@ -1,19 +1,26 @@
 package org.rasdaman.rasnet.util;
 
+import java.util.concurrent.TimeUnit;
+
 public class Timer {
-    private long start;
+    private long deadline;
     private long period;
 
+    /**
+     *
+     * @param period - measured in milliseconds.
+     */
     public Timer(long period) {
-        this.start = System.currentTimeMillis();
-        this.period = period;
+
+        this.period = TimeUnit.NANOSECONDS.convert(period, TimeUnit.MILLISECONDS);
+        this.deadline = System.nanoTime() + this.period;
     }
 
     public boolean hasExpired() {
-        return (System.currentTimeMillis() > start + period);
+        return (System.nanoTime() > this.deadline);
     }
 
     public void reset() {
-        this.start = System.currentTimeMillis();
+        this.deadline = System.nanoTime() + this.period;
     }
 }

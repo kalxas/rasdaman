@@ -1,15 +1,26 @@
 package org.rasdaman.rasnet.communication;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
+import com.google.protobuf.Message;
 import com.google.protobuf.RpcCallback;
 import org.odmg.*;
-import org.rasdaman.rasnet.channel.Channel;
-import org.rasdaman.rasnet.channel.ClientController;
+import org.rasdaman.rasnet.client.Channel;
+import org.rasdaman.rasnet.client.ChannelConfig;
+import org.rasdaman.rasnet.client.ClientController;
+import org.rasdaman.rasnet.exception.NetworkingException;
 import org.rasdaman.rasnet.exception.RasnetException;
+import org.rasdaman.rasnet.message.Base;
 import org.rasdaman.rasnet.message.CommonService;
+import org.rasdaman.rasnet.message.Communication;
 import org.rasdaman.rasnet.service.ClientRasServerService.*;
 import org.rasdaman.rasnet.service.DoNothing;
 import org.rasdaman.rasnet.service.RasmgrClientService.*;
+import org.rasdaman.rasnet.util.ContainerMessage;
+import org.rasdaman.rasnet.util.DigestUtils;
+import org.rasdaman.rasnet.util.ProtoZmq;
+import org.rasdaman.rasnet.util.ZmqUtil;
+import org.zeromq.ZMQ;
 import rasj.*;
 import rasj.clientcommhttp.RasCommDefs;
 import rasj.clientcommhttp.RasUtils;
@@ -17,12 +28,10 @@ import rasj.global.Debug;
 import rasj.global.RasGlobalDefs;
 import rasj.odmg.*;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+import java.util.UUID;
 
 public class RasRasnetImplementation implements RasImplementationInterface, RasCommDefs, RasGlobalDefs {
 
@@ -58,24 +67,37 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
 
     private ClientController controller;
 
+    /* START - KEEP ALIVE */
+
+    private long keepAliveTimeout;
+
+    private ZMQ.Context rasmgrKeepAliveContext;
+    private ZMQ.Socket rasmgrKeepAliveSocket;
+    private String rasmgrKeepAliveEndpoint;
+    private RasmgrKeepAliveRunner rasmgrKeepAliveRunner;
+
+    private ZMQ.Context rasserverKeepAliveContext;
+    private ZMQ.Socket rasserverKeepAliveSocket;
+    private String rasserverKeepAliveEndpoint;
+    private RasserverKeepAliveRunner rasserverKeepAliveRunner;
+
+    /* END - KEEP ALIVE */
+
     public RasRasnetImplementation(String server) {
-        Debug.enterVerbose( "RasRNPImplementation.RasRNPImplementation start. server=" + server );
-        try
-        {
-            StringTokenizer t=new StringTokenizer (server,"/");
-            String xxx=t.nextToken();
-            this.rasMgrHost ="tcp://" + t.nextToken("/:");
+        Debug.enterVerbose("RasRNPImplementation.RasRNPImplementation start. server=" + server);
+        try {
+            StringTokenizer t = new StringTokenizer(server, "/");
+            String xxx = t.nextToken();
+            this.rasMgrHost = ZmqUtil.toTcpAddress(t.nextToken("/:"));
             String portStr = t.nextToken(":");
             this.rasMgrPort = Integer.parseInt(portStr);
             this.controller = new ClientController();
+        } catch (NoSuchElementException e) {
+            Debug.talkCritical("RasRNPImplementation.RasRNPImplementation: " + e.getMessage());
+            Debug.leaveVerbose("RasRNPImplementation.RasRNPImplementation done: " + e.getMessage());
+            throw new RasConnectionFailedException(RasGlobalDefs.URL_FORMAT_ERROR, server);
         }
-        catch(NoSuchElementException e)
-        {
-            Debug.talkCritical( "RasRNPImplementation.RasRNPImplementation: " + e.getMessage()  );
-            Debug.leaveVerbose( "RasRNPImplementation.RasRNPImplementation done: " + e.getMessage()  );
-            throw new  RasConnectionFailedException(RasGlobalDefs.URL_FORMAT_ERROR, server);
-        }
-        Debug.leaveVerbose( "RasRNPImplementation.RasRNPImplementation done." );
+        Debug.leaveVerbose("RasRNPImplementation.RasRNPImplementation done.");
     }
 
 
@@ -204,9 +226,13 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
                             .build();
                     getRasServerService().openServerDatabase(controller, openServerDatabaseReq, DoNothing.<OpenServerDatabaseRepl>get());
 
+                    stopRasmgrKeepAlive();
+
                     if (controller.failed()) {
                         throw new RasnetException(controller.errorText());
                     }
+
+                    startRasserverKeepAlive();
                 }
             }
         });
@@ -233,6 +259,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
                 .build();
 
         this.getRasServerService().closeServerDatabase(controller, closeServerDatabaseReq, DoNothing.<CommonService.Void>get());
+        this.stopRasserverKeepAlive();
         if (controller.failed()) {
             throw new RasnetException(controller.errorText());
         }
@@ -316,19 +343,22 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
 
     @Override
     public void setUserIdentification(String userName, String plainPass) {
-        connectClient(userName, plainPass);
+        connectClient(userName, DigestUtils.MD5(plainPass));
     }
 
-    private void connectClient(String userName, String plainPass) {
+    private void connectClient(String userName, String passwordHash) {
         ConnectReq connectReq = ConnectReq.newBuilder()
                 .setUserName(userName)
-                .setPasswordHash(plainPass)
+                .setPasswordHash(passwordHash)
                 .build();
+
         this.getRasmgService().connect(controller, connectReq, new RpcCallback<ConnectRepl>() {
             @Override
             public void run(ConnectRepl connectRepl) {
                 clientID = connectRepl.getClientId();
                 clientUUID = connectRepl.getClientUUID();
+                keepAliveTimeout = connectRepl.getKeepAliveTimeout();
+                startRasmgrKeepAlive();
             }
         });
         if (controller.failed()) {
@@ -400,7 +430,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
     private RasMgrClientService.Stub getRasmgService() {
         synchronized (this) {
             if (rasmgService == null) {
-                rasmgrServiceChannel = new Channel(this.rasMgrHost, this.rasMgrPort);
+                rasmgrServiceChannel = new Channel(ZmqUtil.toAddressPort(this.rasMgrHost, this.rasMgrPort), new ChannelConfig());
                 rasmgService = RasMgrClientService.newStub(rasmgrServiceChannel);
             }
         }
@@ -411,7 +441,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
 
         synchronized (this) {
             if (rasServerService == null) {
-                rasServiceServiceChannel = new Channel(this.rasServerHost, this.rasServerPort);
+                rasServiceServiceChannel = new Channel(ZmqUtil.toAddressPort(this.rasServerHost, this.rasServerPort), new ChannelConfig());
                 rasServerService = ClientRassrvrService.newStub(rasServiceServiceChannel);
             }
         }
@@ -436,7 +466,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             rasmgService = null;
             try {
                 rasmgrServiceChannel.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 //TODO-GM: change this
                 e.printStackTrace();
             }
@@ -450,7 +480,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             rasServerPort = -1;
             try {
                 rasServiceServiceChannel.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 //TODO-GM: change this
                 e.printStackTrace();
             }
@@ -835,6 +865,165 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
                 throw new RasTypeNotSupportedException(et + " as ElementType ");
         }
         return ret;
+    }
+
+    private void startRasmgrKeepAlive() {
+
+        this.rasmgrKeepAliveContext = ZMQ.context(1);
+        this.rasmgrKeepAliveEndpoint = ZmqUtil.toInprocAddress(UUID.randomUUID().toString());
+
+        this.rasmgrKeepAliveRunner = new RasmgrKeepAliveRunner();
+        this.rasmgrKeepAliveRunner.start();
+
+        this.rasmgrKeepAliveSocket = this.rasmgrKeepAliveContext.socket(ZMQ.PAIR);
+        this.rasmgrKeepAliveSocket.connect(this.rasmgrKeepAliveEndpoint);
+    }
+
+    private void stopRasmgrKeepAlive() {
+        Communication.InternalDisconnectRequest request = Communication.InternalDisconnectRequest.getDefaultInstance();
+        ContainerMessage reply = new ContainerMessage();
+
+        try {
+            ProtoZmq.send(this.rasmgrKeepAliveSocket, request);
+            ProtoZmq.receive(this.rasmgrKeepAliveSocket, reply);
+
+            if (ProtoZmq.getType(Communication.InternalDisconnectReply.getDefaultInstance()).equals(reply.getType())) {
+
+            }
+
+            this.rasmgrKeepAliveRunner.join();
+            this.rasmgrKeepAliveSocket.disconnect(this.rasmgrKeepAliveEndpoint);
+            this.rasmgrKeepAliveSocket.close();
+            this.rasmgrKeepAliveContext.close();
+
+        } catch (NetworkingException e) {
+            e.printStackTrace();
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class RasmgrKeepAliveRunner extends Thread {
+
+        @Override
+        public void run() {
+            try {
+                Base.BaseMessage controlMessage = Base.BaseMessage.getDefaultInstance();
+                boolean keepRunning = true;
+                ZMQ.Socket control = rasmgrKeepAliveContext.socket(ZMQ.PAIR);
+                control.bind(rasmgrKeepAliveEndpoint);
+
+                ZMQ.PollItem[] pollItems = new ZMQ.PollItem[]{
+                        new ZMQ.PollItem(control, ZMQ.Poller.POLLIN)
+                };
+
+                while (keepRunning) {
+                    ZMQ.poll(pollItems, keepAliveTimeout);
+                    if (pollItems[0].isReadable()) {
+                        ContainerMessage containerMessage = new ContainerMessage();
+
+                        ProtoZmq.receive(control, containerMessage);
+                        if (ProtoZmq.getType(Communication.InternalDisconnectRequest.getDefaultInstance()).equals(containerMessage.getType())) {
+                            keepRunning = false;
+                            Communication.InternalDisconnectReply reply = Communication.InternalDisconnectReply.getDefaultInstance();
+                            ProtoZmq.send(control, reply);
+                            control.close();
+                        }
+                    } else {
+                        KeepAliveReq keepAliveReq = KeepAliveReq.newBuilder()
+                                .setClientUUID(clientUUID)
+                                .build();
+                        getRasmgService().keepAlive(controller, keepAliveReq, DoNothing.<CommonService.Void>get());
+
+                    }
+                }
+            } catch (InvalidProtocolBufferException e) {
+                e.printStackTrace();
+            } catch (NetworkingException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void startRasserverKeepAlive() {
+
+        this.rasserverKeepAliveContext = ZMQ.context(1);
+        this.rasserverKeepAliveEndpoint = ZmqUtil.toInprocAddress(UUID.randomUUID().toString());
+
+        this.rasserverKeepAliveRunner = new RasserverKeepAliveRunner();
+        this.rasserverKeepAliveRunner.start();
+
+        this.rasserverKeepAliveSocket = this.rasserverKeepAliveContext.socket(ZMQ.PAIR);
+        this.rasserverKeepAliveSocket.connect(this.rasserverKeepAliveEndpoint);
+    }
+
+    private void stopRasserverKeepAlive() {
+        Communication.InternalDisconnectRequest request = Communication.InternalDisconnectRequest.getDefaultInstance();
+        ContainerMessage reply = new ContainerMessage();
+
+        try {
+            ProtoZmq.send(this.rasserverKeepAliveSocket, request);
+            ProtoZmq.receive(this.rasserverKeepAliveSocket, reply);
+
+            if (ProtoZmq.getType(Communication.InternalDisconnectReply.getDefaultInstance()).equals(reply.getType())) {
+
+            }
+
+            this.rasserverKeepAliveRunner.join();
+            this.rasserverKeepAliveSocket.close();
+            this.rasserverKeepAliveContext.close();
+        } catch (NetworkingException e) {
+            e.printStackTrace();
+        } catch (InvalidProtocolBufferException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private class RasserverKeepAliveRunner extends Thread {
+
+        @Override
+        public void run() {
+            try {
+                Base.BaseMessage controlMessage = Base.BaseMessage.getDefaultInstance();
+                boolean keepRunning = true;
+                ZMQ.Socket control = rasserverKeepAliveContext.socket(ZMQ.PAIR);
+                control.bind(rasserverKeepAliveEndpoint);
+
+                ZMQ.PollItem[] pollItems = new ZMQ.PollItem[]{
+                        new ZMQ.PollItem(control, ZMQ.Poller.POLLIN)
+                };
+
+                while (keepRunning) {
+                    ZMQ.poll(pollItems, keepAliveTimeout);
+                    if (pollItems[0].isReadable()) {
+                        ContainerMessage containerMessage = new ContainerMessage();
+
+                        ProtoZmq.receive(control, containerMessage);
+                        if (ProtoZmq.getType(Communication.InternalDisconnectRequest.getDefaultInstance()).equals(containerMessage.getType())) {
+                            keepRunning = false;
+                            Communication.InternalDisconnectReply reply = Communication.InternalDisconnectReply.getDefaultInstance();
+                            ProtoZmq.send(control, reply);
+                            control.close();
+                        }
+                    } else {
+                        KeepAliveRequest keepAliveReq = KeepAliveRequest.newBuilder()
+                                .setClientUuid(clientUUID)
+                                .setSessionId(sessionId)
+                                .build();
+                        getRasServerService().keepAlive(controller, keepAliveReq, DoNothing.<CommonService.Void>get());
+
+                    }
+                }
+            } catch (InvalidProtocolBufferException e) {
+                e.printStackTrace();
+            } catch (NetworkingException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

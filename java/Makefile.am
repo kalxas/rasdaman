@@ -37,9 +37,11 @@ MAVEN_COMPLETE_STRUCT = $(MAVEN_BASE_FOLDER)/src/main/java
 SRCS = src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java
 
 if RMANRASNET
-SRCS += src/org/rasdaman/rasnet/channel/*.java src/org/rasdaman/rasnet/communication/*.java src/org/rasdaman/rasnet/exception/*.java \
-       src/org/rasdaman/rasnet/message/*.java src/org/rasdaman/rasnet/service/*.java src/org/rasdaman/rasnet/util/*.java
-CLASSPATH = -cp lib/protobuf-java-2.4.1.jar:lib/zmq.jar
+SRCS += src/org/rasdaman/rasnet/common/*.java src/org/rasdaman/rasnet/exception/*.java \
+		src/org/rasdaman/rasnet/server/*.java src/org/rasdaman/rasnet/util/*.java \
+		src/org/rasdaman/rasnet/client/*.java src/org/rasdaman/rasnet/communication/*.java \
+		src/org/rasdaman/rasnet/message/*.java src/org/rasdaman/rasnet/service/*.java
+CLASSPATH = -cp lib/jzmq-3.1.1-SNAPSHOT.jar:lib/log4j-1.2.17.jar:lib/junit-4.12.jar:lib/slf4j-api-1.7.10.jar:lib/slf4j-log4j12-1.7.10.jar:/usr/share/java/protobuf.jar
 endif
 
 select_rasimplementation:
@@ -49,13 +51,19 @@ else
 	cp src/rasj/RasImplementation.java.rnp src/rasj/RasImplementation.java
 endif
 
+build_proto:
+if RMANRASNET
+$(PROTOC) --protopath=protomessages --java_out=src/ protomessages/internal.proto
+endif
+
 all : select_rasimplementation src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java
 	mkdir -p bin dist
 	javac $(CLASSPATH) -d bin $(SRCS)
 if RMANRASNET
-	cd bin && jar xf ../lib/protobuf-java-2.4.1.jar && jar xf ../lib/zmq.jar && rm -rf META-INF
+	cd bin && jar xf ../lib/jzmq-3.1.1-SNAPSHOT.jar && jar xf ../lib/log4j-1.2.17.jar && jar xf ../lib/slf4j-api-1.7.10.jar && jar xf ../lib/slf4j-log4j12-1.7.10.jar && jar xf /usr/share/java/protobuf.jar  && rm -rf META-INF
 endif
 	jar -cf dist/rasj.jar -C bin .
+	cp dist/rasj.jar ../applications/petascope/lib/rasj.jar
 
 examples: src/examples/*.java all
 	mkdir -p bin
