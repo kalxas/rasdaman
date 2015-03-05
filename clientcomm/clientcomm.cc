@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: clientcomm.cc
  *
@@ -72,7 +72,7 @@ ClientComm::changeEndianness( const r_GMarray* mdd, void *newMdd, const r_Base_T
     const r_Minterval &interv = mdd->spatial_domain();
 
     // Get the base type...
-    baseType = (bt == NULL) ? ((r_GMarray*)mdd)->get_base_type_schema() : bt;
+    baseType = (bt == NULL) ? (const_cast<r_GMarray*>(mdd))->get_base_type_schema() : bt;
 
     if ( baseType == NULL )
     {

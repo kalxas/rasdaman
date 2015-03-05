@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: miterf.icc
  *
@@ -129,7 +129,7 @@ r_MiterFloat::r_MiterFloat(Tile *sourceTile, r_Minterval& sourceDomain, r_Minter
 {
     dim = sourceDomain.dimension();
     iterDesc = new iter_desc[dim];
-
+    currentCell = NULL;
     r_Bytes cellSize = sourceTile->getType()->getSize();
     firstCell        = sourceTile->getContents();
 
@@ -166,7 +166,7 @@ void r_MiterFloat::reset()
     for(r_Dimension i=0; i<dim; i++)
     {
         iterDesc[i].pos  = iterDesc[i].min;
-        iterDesc[i].cell = (char*)firstCell;
+        iterDesc[i].cell = const_cast<char*>(firstCell);
         iterDesc[i].countSteps = iterDesc[i].maxSteps;
     }
 

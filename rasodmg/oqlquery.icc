@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * INLINE SOURCE: oqlquery.icc
  *
@@ -35,18 +35,18 @@ inline const char*
 r_OQL_Query::get_query() const
 {
   return (const char*)queryString;
-};
+}
 
 
 inline const r_Set< r_GMarray* >*
 r_OQL_Query::get_constants() const
 {
   return mddConstants;
-};
+}
 
 
 inline const char*
 r_OQL_Query::get_parameterized_query() const
 {
   return (const char*)parameterizedQueryString;
-};
+}

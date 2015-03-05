@@ -198,7 +198,7 @@ DBRCIndexDS::insertInDb() throw (r_Error)
         LEAVE( "DBRCIndexDS::insertInDb() cannot write blob, error " << PQerrorMessage(pgConn) );
         generateException();
     }
-    else if (loResult != completesize)      // did not get all
+    else if (loResult != static_cast<int>(completesize))      // did not get all
     {
         free(completebuffer);
         completebuffer = NULL;
@@ -308,7 +308,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
         PQclear( pgResult );
         generateException();
     }
-    blobOid = atoi( PQgetvalue( pgResult, 0, 0 ) );     // extract value from result
+    blobOid = static_cast<Oid>(atoi( PQgetvalue( pgResult, 0, 0 ) ));     // extract value from result
     PQclear( pgResult );
 
     // (3) --- open, read, close blob
@@ -318,7 +318,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     int blobSize = lo_lseek( pgConn, fd, 0, SEEK_END ); // determine blob size; FIXME: more efficient method??
     TALK( "lo_lseek() start" );
     (void) lo_lseek( pgConn, fd, 0, SEEK_SET );     // rewind for reading
-    char* completebuffer = (char*)mymalloc(blobSize);   // receives blob contents
+    char* completebuffer = static_cast<char*>(mymalloc(static_cast<size_t>(blobSize)));   // receives blob contents
     if (completebuffer == NULL)
     {
         RMInit::logOut << "DBRCIndexDS::readFromDb() cannot allocate blob buffer" << endl;
@@ -326,7 +326,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
         throw r_Error( r_Error::r_Error_MemoryAllocation );
     }
     TALK( "lo_read() for " << blobSize << " bytes" );   // read blob
-    int loResult = lo_read( pgConn, fd, completebuffer, blobSize );
+    int loResult = lo_read( pgConn, fd, completebuffer, static_cast<size_t>(blobSize) );
     if (loResult < 0)
     {
         RMInit::logOut << "DBRCIndexDS::readFromDb() cannot read blob, error: " << loResult << endl;
@@ -366,7 +366,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     r_Dimension dimension = 0;
 
 	r_Bytes boundssize;
-	r_Bytes newboundssize;
+	r_Bytes newboundssize = 0;
 
     (void) memcpy(&header, &completebuffer[0], sizeof(int));
     // if header >=1009 then this is considered to be a real header, 
@@ -381,8 +381,8 @@ DBRCIndexDS::readFromDb() throw (r_Error)
         blobformat = 8;
         // no header, first 4 bytes are actually the dimension;
         headersize = 0;
-        dimension = header;
-        bytesdone = headersize + sizeof(r_Dimension);
+        dimension = static_cast<r_Dimension>(header);
+        bytesdone = static_cast<r_Dimension>(headersize) + sizeof(r_Dimension);
 
         // this is needed for correct assignment
         short tmpBaseOIdType;
@@ -404,7 +404,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
         // first 4 bytes are the header;
         headersize = 4;
         memcpy(&dimension, &completebuffer[headersize], sizeof(r_Dimension));
-        bytesdone = headersize + sizeof(r_Dimension);
+        bytesdone = static_cast<unsigned int>(headersize) + sizeof(r_Dimension);
     }
 
     if (blobformat == 8 || blobformat == 9) {
@@ -438,7 +438,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     char *dynamicBuffer = &completebuffer[bytesdone];   // ptr to start of dynamic part of buffer
 
     // additional plausi check
-    if (blobSize != bytesdone + completesize)
+    if (blobSize != static_cast<int>(bytesdone + completesize))
     {
         RMInit::logOut << "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobSize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")";
         TALK( "DBRCIndexDS::readFromDb() blob size inconsistency: blobSize (" << blobSize << " != bytesdone (" << bytesdone << ") + completesize (" << completesize << ")" );
@@ -447,8 +447,8 @@ DBRCIndexDS::readFromDb() throw (r_Error)
 
     RMDBGMIDDLE(7, RMDebug::module_indexif, "DBRCIndexDS", "dimension " << dimension << ", base oid type " << myBaseOIdType << ", base counter " << myBaseCounter << ", size " << mySize << ", complete data size " << completesize );
 
-    int* oldupperboundsbuf;
-    int* oldlowerboundsbuf;
+    int* oldupperboundsbuf = NULL;
+    int* oldlowerboundsbuf = NULL;
 
     r_Range* upperboundsbuf;
     r_Range* lowerboundsbuf;
@@ -557,7 +557,7 @@ DBRCIndexDS::deleteFromDb() throw (r_Error)
         PQclear( pgResult );
         generateException();
     }
-    blobOid = atoi( PQgetvalue( pgResult, 0, 0 ) );     // extract value from result
+    blobOid = static_cast<Oid>(atoi( PQgetvalue( pgResult, 0, 0 ) ));     // extract value from result
     PQclear( pgResult );
 
     // (3) --- delete blob

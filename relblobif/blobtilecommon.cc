@@ -74,7 +74,7 @@ BLOBTile::initFileStorage()
 #endif
         if (path == NULL || strcmp(path, "") == 0)
         {
-            path=(char*)"/tmp";
+            path=const_cast<char*>("/tmp");
         }
     }
     mkdir(path, S_IRWXU + S_IRGRP + S_IXGRP + S_IROTH + S_IXOTH); // create if not exist, rwxr-xr-x
@@ -196,7 +196,7 @@ BLOBTile::BLOBTile(const OId& id, r_Bytes newSize, r_Data_Format newFmt)
     dataFormat = newFmt;
     currentFormat = r_Array;
     size = newSize;
-    cells = (char*)mymalloc(size * sizeof(char));
+    cells = static_cast<char*>(mymalloc(size * sizeof(char)));
     memset(cells, 0, size);
     ObjectBroker::registerDBObject(this);
     if (!fileStorageInitialized)

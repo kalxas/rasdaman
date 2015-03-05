@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: akgnet_inetaddr.cc
  *
@@ -103,7 +103,7 @@ bool akg::HostAddress::init(hostent *host)
     strcpy(fullHostName,host->h_name);
 
     char *dotPos = strchr(fullHostName,'.');
-    int copyLen = dotPos ? dotPos-fullHostName : strlen(fullHostName);
+    unsigned int copyLen = dotPos ? static_cast<unsigned int>(dotPos-fullHostName) : strlen(fullHostName);
 
     shortHostName = new char[copyLen+1];
     strncpy(shortHostName,fullHostName,copyLen);

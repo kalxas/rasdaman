@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: akgnet_fdescr.cc
  *
@@ -68,7 +68,7 @@ int akg::FileDescriptor::write(const void *buffer, int count) throw()
 {
     savedErrno = 0;
     DBTALK("FileDescriptor write: "<<buffer<<" count="<<count);
-    int nbytes = ::write(fileDescriptor,buffer,count);
+    int nbytes = ::write(fileDescriptor,buffer,static_cast<size_t>(count));
     if(nbytes < 0) saveErrno();
     return nbytes;
 }
@@ -77,7 +77,7 @@ int akg::FileDescriptor::read (void *buffer, int count) throw()
 {
     savedErrno = 0;
     DBTALK("FileDescriptor read: "<<buffer<<" count="<<count);
-    int nbytes = ::read(fileDescriptor,buffer,count);
+    int nbytes = ::read(fileDescriptor,buffer,static_cast<size_t>(count));
     if(nbytes < 0) saveErrno();
     return nbytes;
 }

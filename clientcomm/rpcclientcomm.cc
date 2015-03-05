@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rpcclientcomm.cc
  *
@@ -174,14 +174,14 @@ RpcClientComm::RpcClientComm( const char* _rasmgrHost, int _rasmgrPort ) throw( 
 
     endianClient = (int)r_Endian::get_endianness();
 
-    this->rasmgrHost=(char*)_rasmgrHost;
+    this->rasmgrHost=const_cast<char*>(_rasmgrHost);
     this->rasmgrPort=_rasmgrPort;
     serverHost[0]=0;
     capability[0]=0;
     strcpy(identificationString,"rasguest:8e70a429be359b6dace8b5b2500dedb0"); // this is MD5("rasguest");
 }
 
-static int rpcRetryCounter = 0;
+static unsigned int rpcRetryCounter = 0;
 
 RpcClientComm::~RpcClientComm() throw()
 {
@@ -209,7 +209,7 @@ throw( r_Error )
     char* queryString;
 
     // Get the query string by using a backdoor function of r_OQL_Query
-    queryString = (char*)query.get_query();
+    queryString = const_cast<char*>(query.get_query());
 
     // Finally, this is the remote procedure which sends the query and receives a
     // client Id under which the client can access the r_Marrays he is to receive
@@ -315,7 +315,7 @@ throw( r_Error )
     //
     if( query.get_constants() )
     {
-        r_Set< r_GMarray* >* mddConstants = (r_Set< r_GMarray* >*)query.get_constants();
+        r_Set< r_GMarray* >* mddConstants = const_cast<r_Set<r_GMarray*>*>(query.get_constants());
 
         setRPCActive();
         rpcRetryCounter = 0;
@@ -354,7 +354,7 @@ throw( r_Error )
                 params->collName   = strdup(""); // not used
                 params->domain     = mdd->spatial_domain().get_string_representation();
                 params->typeLength = mdd->get_type_length();
-                params->typeName   = (char*)mdd->get_type_name();
+                params->typeName   = const_cast<char*>(mdd->get_type_name());
 
                 if(binding_h == NULL)
                 {
@@ -533,7 +533,7 @@ throw( r_Error )
     ExecuteQueryParams* params = new ExecuteQueryParams;
     ExecuteUpdateRes*   res;
     params->clientID = clientID;
-    params->query    = (char*)query.get_query();
+    params->query    = const_cast<char*>(query.get_query());
 
     if(binding_h == NULL)
     {
@@ -595,7 +595,7 @@ throw( r_Error )
 
 // insert query (>= v9.1)
 void
-RpcClientComm::executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result, int dummy )
+RpcClientComm::executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result, __attribute__ ((unused)) int dummy )
 throw( r_Error )
 {
     RMDBGENTER(2, RMDebug::module_clientcomm, "RpcClientComm", "executeQuery(query, result, dummy)")
@@ -622,7 +622,7 @@ throw( r_Error )
     //
     if( query.get_constants() )
     {
-        r_Set< r_GMarray* >* mddConstants = (r_Set< r_GMarray* >*)query.get_constants();
+        r_Set< r_GMarray* >* mddConstants = const_cast<r_Set<r_GMarray*>*>(query.get_constants());
 
         setRPCActive();
         rpcRetryCounter = 0;
@@ -660,7 +660,7 @@ throw( r_Error )
                 params->collName   = strdup(""); // not used
                 params->domain     = mdd->spatial_domain().get_string_representation();
                 params->typeLength = mdd->get_type_length();
-                params->typeName   = (char*)mdd->get_type_name();
+                params->typeName   = const_cast<char*>(mdd->get_type_name());
 
                 if(binding_h == NULL)
                 {
@@ -839,7 +839,7 @@ throw( r_Error )
     ExecuteQueryParams* params = new ExecuteQueryParams;
     ExecuteQueryRes*   res;
     params->clientID = clientID;
-    params->query    = (char*)query.get_query();
+    params->query    = const_cast<char*>(query.get_query());
 
     if(binding_h == NULL)
     {
@@ -937,9 +937,9 @@ throw( r_Error )
 
     InsertCollParams* params = new InsertCollParams;
     params->clientID = clientID;
-    params->collName = (char*)collName;
-    params->typeName = (char*)typeName;
-    params->oid      = (char*)oid.get_string_representation();
+    params->collName = const_cast<char*>(collName);
+    params->typeName = const_cast<char*>(typeName);
+    params->oid      = const_cast<char*>(oid.get_string_representation());
 
     setRPCActive();
     rpcRetryCounter = 0;
@@ -1013,7 +1013,7 @@ throw( r_Error )
 
     NameSpecParams* params = new NameSpecParams;
     params->clientID = clientID;
-    params->name     = (char*)collName;
+    params->name     = const_cast<char*>(collName);
 
     setRPCActive();
     rpcRetryCounter = 0;
@@ -1084,7 +1084,7 @@ throw( r_Error )
 
     OIdSpecParams* params = new OIdSpecParams;
     params->clientID = clientID;
-    params->oid      = (char*) oid.get_string_representation();
+    params->oid      = const_cast<char*>(oid.get_string_representation());
 
     setRPCActive();
     rpcRetryCounter = 0;
@@ -1154,8 +1154,8 @@ throw( r_Error )
 
     RemoveObjFromCollParams* params = new RemoveObjFromCollParams;
     params->clientID = clientID;
-    params->collName = (char*) collName;
-    params->oid      = (char*) oid.get_string_representation();
+    params->collName = const_cast<char*>(collName);
+    params->oid      = const_cast<char*>(oid.get_string_representation());
 
     setRPCActive();
     rpcRetryCounter = 0;
@@ -1257,11 +1257,11 @@ throw( r_Error )
         // initiate composition of MDD at server side
         InsertPersMDDParams* params = new InsertPersMDDParams;
         params->clientID   = clientID;
-        params->collName   = (char*)collName;
+        params->collName   = const_cast<char*>(collName);
         params->domain     = spatdom.get_string_representation();
         params->typeLength = mar->get_type_length();
-        params->typeName   = (char*)mar->get_type_name();
-        params->oid        = (char*)mar->get_oid().get_string_representation();
+        params->typeName   = const_cast<char*>(mar->get_type_name());
+        params->oid        = const_cast<char*>(mar->get_oid().get_string_representation());
 
         setRPCActive();
         rpcRetryCounter = 0;
@@ -1429,10 +1429,10 @@ throw( r_Error )
 
         InsertMDDParams* params = new InsertMDDParams;
         params->clientID = clientID;
-        params->collName = (char*)collName;
+        params->collName = const_cast<char*>(collName);
         params->marray   = rpcMarray;
-        params->typeName = (char*)mar->get_type_name();
-        params->oid      = (char*)mar->get_oid().get_string_representation();
+        params->typeName = const_cast<char*>(mar->get_type_name());
+        params->oid      = const_cast<char*>(mar->get_oid().get_string_representation());
 
         if(binding_h == NULL)
         {
@@ -1515,7 +1515,7 @@ throw( r_Error )
     OIdSpecParams params;
     GetMDDRes*     thisResult = 0;
     params.clientID = clientID;
-    params.oid      = (char*)oid.get_string_representation();
+    params.oid      = const_cast<char*>(oid.get_string_representation());
 
     setRPCActive();
     rpcRetryCounter = 0;
@@ -1628,7 +1628,7 @@ throw( r_Error )
     NameSpecParams* params     = new NameSpecParams;
     GetCollRes*     thisResult = 0;
     params->clientID = clientID;
-    params->name     = (char*)collName;
+    params->name     = const_cast<char*>(collName);
 
     setRPCActive();
     rpcRetryCounter = 0;
@@ -1719,7 +1719,7 @@ throw( r_Error )
     OIdSpecParams* params     = new OIdSpecParams;
     GetCollRes*    thisResult = 0;
     params->clientID = clientID;
-    params->oid      = (char*)oid.get_string_representation();
+    params->oid      = const_cast<char*>(oid.get_string_representation());
 
     setRPCActive();
     rpcRetryCounter = 0;
@@ -1809,7 +1809,7 @@ throw( r_Error )
     NameSpecParams* params     = new NameSpecParams;
     GetCollOIdsRes* thisResult = 0;
     params->clientID = clientID;
-    params->name     = (char*)collName;
+    params->name     = const_cast<char*>(collName);
 
     setRPCActive();
     rpcRetryCounter = 0;
@@ -1904,7 +1904,7 @@ throw( r_Error )
     OIdSpecParams*  params     = new OIdSpecParams;
     GetCollOIdsRes* thisResult = 0;
     params->clientID = clientID;
-    params->oid      = (char*)oid.get_string_representation();
+    params->oid      = const_cast<char*>(oid.get_string_representation());
 
     setRPCActive();
     rpcRetryCounter = 0;
@@ -1997,7 +1997,7 @@ throw(r_Error)
     rpcRetryCounter = 0;
     do
     {
-        rpcStatusPtr = rpccreatedb_1( (char**)&name, binding_h );
+        rpcStatusPtr = rpccreatedb_1( const_cast<char**>(&name), binding_h );
 
         if( !rpcStatusPtr )
         {
@@ -2036,7 +2036,7 @@ throw(r_Error)
     rpcRetryCounter = 0;
     do
     {
-        rpcStatusPtr = rpcdestroydb_1( (char**)&name, binding_h );
+        rpcStatusPtr = rpcdestroydb_1( const_cast<char**>(&name), binding_h );
 
         if( !rpcStatusPtr )
         {
@@ -2093,7 +2093,7 @@ RpcClientComm::executeOpenDB( const char* database )
 #endif
     OpenDBParams* params     = new OpenDBParams;
     OpenDBRes*    thisResult = 0;
-    params->dbName   = (char*)database;
+    params->dbName   = const_cast<char*>(database);
     params->userName = (char*)RMInit::userName;
     params->capability = capability;
     int*          dummyParam = new int(0);// dummy
@@ -2522,7 +2522,7 @@ throw(r_Error)
     OIdSpecParams* params     = new OIdSpecParams;
     ObjectTypeRes* thisResult = 0;
     params->clientID = clientID;
-    params->oid      = (char*)oid.get_string_representation();
+    params->oid      = const_cast<char*>(oid.get_string_representation());
 
     setRPCActive();
     rpcRetryCounter = 0;
@@ -2588,7 +2588,7 @@ throw(r_Error)
     GetTypeStructureParams* params     = new GetTypeStructureParams;
     GetTypeStructureRes*    thisResult = 0;
     params->clientID = clientID;
-    params->typeName = (char*)typeName;
+    params->typeName = const_cast<char*>(typeName);
     params->typeType = typeType;
 
     setRPCActive();
@@ -2691,7 +2691,7 @@ RpcClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
         }
         else
         {
-            rpcMarray->data.confarray_val = (char*)(mar->get_array());
+            rpcMarray->data.confarray_val = const_cast<char*>((mar->get_array()));
         }
     }
     else
@@ -2713,7 +2713,7 @@ RpcClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
 void
 RpcClientComm::freeMarRpcRepresentation( const r_GMarray* mar, RPCMarray* rpcMarray )
 {
-    if (rpcMarray->data.confarray_val != ((r_GMarray*)mar)->get_array())
+    if (rpcMarray->data.confarray_val != (const_cast<r_GMarray*>(mar))->get_array())
     {
         delete [] rpcMarray->data.confarray_val;
     }
@@ -2902,20 +2902,20 @@ throw(r_Error)
         case r_Type::FLOAT:
         case r_Type::DOUBLE:
         {
-            element = new r_Primitive( thisResult->data.confarray_val, (r_Primitive_Type*) elementType );
+            element = new r_Primitive( thisResult->data.confarray_val, (r_Primitive_Type*)const_cast<r_Type*>(elementType));
             r_Transaction::actual_transaction->add_object_list( r_Transaction::SCALAR, (void*) element );
         }
         break;
 
         case r_Type::COMPLEXTYPE1:
         case r_Type::COMPLEXTYPE2:
-            element = new r_Complex(thisResult->data.confarray_val, (r_Complex_Type *)elementType);
+            element = new r_Complex(thisResult->data.confarray_val, (r_Complex_Type *)const_cast<r_Type*>(elementType));
             r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, (void *)element);
             break;
 
         case r_Type::STRUCTURETYPE:
         {
-            element = new r_Structure( thisResult->data.confarray_val, (r_Structure_Type*) elementType );
+            element = new r_Structure( thisResult->data.confarray_val, (r_Structure_Type*) const_cast<r_Type*>(elementType) );
             r_Transaction::actual_transaction->add_object_list( r_Transaction::SCALAR, (void*) element );
         }
         break;
@@ -3227,7 +3227,7 @@ throw( r_Error )
             // copy tile data into MDD data space (optimized, relying on the internal representation of an MDD )
             char*         mddBlockPtr;
             char*         tileBlockPtr = tile->get_array();
-            unsigned long blockCells   = tileDomain[tileDomain.dimension()-1].high()-tileDomain[tileDomain.dimension()-1].low()+1;
+            unsigned long blockCells   = static_cast<unsigned long>(tileDomain[tileDomain.dimension()-1].high()-tileDomain[tileDomain.dimension()-1].low()+1);
             unsigned long blockSize    = blockCells * marray->get_type_length();
             unsigned long blockNo      = tileDomain.cell_count() / blockCells;
 
@@ -3543,7 +3543,7 @@ int RpcClientComm::readWholeMessage(int socket,char *destBuffer,int buffSize)
     int redNow;
     while(1)
     {
-        redNow = read(socket,destBuffer+totalLength,buffSize-totalLength);
+        redNow = read(socket,destBuffer+totalLength,static_cast<unsigned int>(buffSize-totalLength));
         if(redNow == -1)
         {
             if(errno == EINTR) continue; // read was interrupted by signal
@@ -3565,7 +3565,7 @@ int RpcClientComm::writeWholeMessage(int socket,char *destBuffer,int buffSize)
     int writeNow;
     while(1)
     {
-        writeNow = write(socket,destBuffer+totalLength,buffSize-totalLength);
+        writeNow = write(socket,destBuffer+totalLength,static_cast<unsigned int>(buffSize-totalLength));
         if(writeNow == -1)
         {
             if(errno == EINTR) continue; // read was interrupted by signal
@@ -3594,7 +3594,7 @@ RpcClientComm::getMaxRetry()
 
 static void pause(int retryCount)
 {
-    unsigned int milisec = 50 + retryCount * 50;
+    unsigned int milisec = 50 + static_cast<unsigned int>(retryCount) * 50;
     if(milisec > 1000) milisec = 1000;
 
     timeval tv;
@@ -3619,9 +3619,9 @@ RpcClientComm::getFreeServer(unsigned short readOnly)
         }
         catch(r_Error &e)
         {
-            int errorno = e.get_errorno();
+            unsigned int errorno = e.get_errorno();
             //cerr<<"errorno="<<errorno;
-            if(( errorno==801 || errorno==805 || errorno==806) && retryCount < RMInit::clientcommMaxRetry)
+            if(( errorno==801 || errorno==805 || errorno==806) && retryCount < static_cast<int>(RMInit::clientcommMaxRetry))
             {
                 //cerr<<"  retry="<<retryCount<<endl;
                 RMInit::logOut << "Connection to RasDaMan failed with " << errorno << ": retry " << retryCount << endl;
@@ -3640,7 +3640,7 @@ RpcClientComm::executeGetFreeServer(unsigned short readOnly)
     if(myRasmgrID[0]==0)
     {
         unsigned int hostid = gethostid();
-        unsigned int pid    = getpid();
+        int pid    = getpid();
         sprintf(myRasmgrID,"%u:%u",hostid,pid);
     }
 
@@ -3649,7 +3649,7 @@ RpcClientComm::executeGetFreeServer(unsigned short readOnly)
     char body[MAXMSG];
     sprintf(header,"POST getfreeserver HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasClient/1.0\r\nAuthorization: ras %s\r\nContent-length:",identificationString);
     sprintf(body,"%s RPC %s %s",dataBase,(readOnly ? "ro":"rw"), myRasmgrID);
-    sprintf(message,"%s %d\r\n\r\n%s",header,strlen(body)+1,body);
+    sprintf(message,"%s %d\r\n\r\n%s",header,static_cast<int>(strlen(body))+1,body);
 
     struct protoent* getprotoptr = getprotobyname("tcp");
 
@@ -3669,7 +3669,7 @@ RpcClientComm::executeGetFreeServer(unsigned short readOnly)
 
     int sock;
     bool ok = false;
-    int retry;
+    unsigned int retry;
     for(retry=0; retry<RMInit::clientcommMaxRetry * 40 ; retry++) // this has to be 5000 or so, now that counter is 120 default (later we'll make this better)
     {
         sock=socket(PF_INET,SOCK_STREAM,getprotoptr->p_proto);
@@ -3765,7 +3765,7 @@ RpcClientComm::executeGetFreeServer(unsigned short readOnly)
         //cerr<<"cucu Error "<<errText<<endl;
         //RMInit::logOut << "Error "<<errText<< endl;
 
-        int errorCode = strtoul(errText, (char**)NULL, 0);
+        unsigned int errorCode = strtoul(errText, (char**)NULL, 0);
         //cerr <<" throw "<< errorCode <<endl;
 
         switch(errorCode)
@@ -3843,7 +3843,7 @@ RpcClientComm::connectToServer(unsigned short readOnly)
 #endif
     RMInit::logOut << "Timeout: " << timeout.tv_sec << " sec " << timeout.tv_usec << " microsec" << endl;
 
-    timeout.tv_sec  = RMInit::timeOut;
+    timeout.tv_sec  = static_cast<__time_t>(RMInit::timeOut);
     timeout.tv_usec = 0;
 #if (defined(__VISUALC__) || defined(CYGWIN))
     client_control( binding_h, CLSET_TIMEOUT, (char *)&timeout );
@@ -3955,10 +3955,10 @@ RpcClientComm::getBindingHandle() const
 }
 
 
-void RpcClientComm::setTimeoutInterval(int seconds) { };
+void RpcClientComm::setTimeoutInterval(__attribute__ ((unused)) int seconds) { }
 
 int  RpcClientComm::getTimeoutInterval()
 {
     return 0;
-};
+}
 

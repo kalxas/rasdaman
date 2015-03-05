@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * INLINE SOURCE: gmarray.icc
  *
@@ -36,7 +36,7 @@ inline const r_Minterval&
 r_GMarray::spatial_domain() const
 {
     return domain;
-};
+}
 
 
 
@@ -44,7 +44,7 @@ inline char*
 r_GMarray::get_array()
 {
     return data;
-};
+}
 
 
 inline const char*
@@ -57,7 +57,7 @@ inline r_Set< r_GMarray* >*
 r_GMarray::get_tiled_array()
 {
     return tiled_data;
-};
+}
 
 
 inline const r_Set< r_GMarray* >*
@@ -73,13 +73,13 @@ r_GMarray::set_array( char* newData )
     // In case the array already has an array allocated, free it first.
 //  if (data != NULL) delete [] data;
     data = newData;
-};
+}
 
 inline void
 r_GMarray::set_tiled_array( r_Set< r_GMarray* >* newData )
 {
     tiled_data = newData;
-};
+}
 
 
 
@@ -87,7 +87,7 @@ inline void
 r_GMarray::set_current_format( r_Data_Format newFormat )
 {
     current_format = newFormat;
-};
+}
 
 
 
@@ -95,7 +95,7 @@ inline r_Bytes
 r_GMarray::get_type_length() const
 {
     return type_length;
-};
+}
 
 
 
@@ -103,7 +103,7 @@ inline r_Bytes
 r_GMarray::get_array_size() const
 {
     return data_size;
-};
+}
 
 
 
@@ -111,7 +111,7 @@ inline r_Data_Format
 r_GMarray::get_current_format() const
 {
     return current_format;
-};
+}
 
 
 
@@ -119,7 +119,7 @@ inline void
 r_GMarray::set_spatial_domain( const r_Minterval& dom )
 {
     domain = dom;
-};
+}
 
 
 

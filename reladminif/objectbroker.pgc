@@ -142,12 +142,12 @@ ObjectBroker::getOIdOfSetType(const char* name) throw (r_Error)
     EXEC SQL END DECLARE SECTION;
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         throw r_Error(TYPENAMEISTOOLONG);
     }
-    (void) strncpy( setname, (char*) name, (size_t) sizeof(setname) );
+    (void) strncpy( setname, const_cast<char*>(name), (size_t) sizeof(setname) );
 
     TALK("EXEC SQL SELECT SetTypeId INTO :setoid FROM RAS_SETTYPES WHERE SetTypeName = " << setname);
     EXEC SQL SELECT
@@ -219,13 +219,13 @@ ObjectBroker::getMDDTypeByName(const char* name) throw (r_Error)
 
     if (retval == 0)
     {
-        int len = strlen(name);
+        unsigned int len = strlen(name);
         if (len > DBNamedObject::MAXNAMELENGTH)
         {
             LEAVE( "ObjectBroker::getMDDTypeByName(): type name exceeding max length: " << name );
             throw r_Error(TYPENAMEISTOOLONG);
         }
-        (void) strncpy( mddtnamev, (char*) name, (size_t) sizeof(mddtnamev) );
+        (void) strncpy( mddtnamev, const_cast<char*>(name), (size_t) sizeof(mddtnamev) );
 
         TALK( "EXEC SQL SELECT MDDTypeOId INTO :mddtoidv FROM RAS_MDDTYPES_VIEW WHERE MDDTypeName = " << mddtnamev );
         EXEC SQL SELECT MDDTypeOId
@@ -269,13 +269,13 @@ ObjectBroker::getOIdOfMDDType(const char* name) throw (r_Error)
     EXEC SQL END DECLARE SECTION;
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         LEAVE( "ObjectBroker::getOIdOfMDDType(): name exceeds max length:" << name );
         throw r_Error(TYPENAMEISTOOLONG);
     }
-    (void) strncpy( mddtname, (char*) name, (size_t) sizeof(mddtname) );
+    (void) strncpy( mddtname, const_cast<char*>(name), (size_t) sizeof(mddtname) );
 
     TALK( "EXEC SQL SELECT MDDTypeOId INTO :mddtoid FROM RAS_MDDTYPES WHERE MDDTypeName = " << mddtname );
     EXEC SQL SELECT MDDTypeOId
@@ -318,13 +318,13 @@ ObjectBroker::getOIdOfMDDBaseType(const char* name) throw (r_Error)
     EXEC SQL END DECLARE SECTION;
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         LEAVE( "ObjectBroker::getOIdOfMDDBaseType(): name exceeds max length:" << name );
         throw r_Error(TYPENAMEISTOOLONG);
     }
-    (void) strncpy( mddbname, (char*) name, (size_t) sizeof(mddbname) );
+    (void) strncpy( mddbname, const_cast<char*>(name), (size_t) sizeof(mddbname) );
 
     TALK( "EXEC SQL SELECT MDDBaseTypeOId INTO :mddboid FROM RAS_MDDBASETYPES WHERE MDDTypeName = " << mddbname );
     EXEC SQL SELECT MDDBaseTypeOId
@@ -367,13 +367,13 @@ ObjectBroker::getOIdOfMDDDimensionType(const char* name) throw (r_Error)
     EXEC SQL END DECLARE SECTION;
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         LEAVE( "ObjectBroker::getOIdOfMDDDimensionType(): name exceeds max length:" << name );
         throw r_Error(TYPENAMEISTOOLONG);
     }
-    (void) strncpy( mdddiname, (char*) name, (size_t) sizeof(mdddiname) );
+    (void) strncpy( mdddiname, const_cast<char*>(name), (size_t) sizeof(mdddiname) );
 
     TALK( "EXEC SQL SELECT MDDDimTypeOId INTO :mdddioid FROM RAS_MDDDIMTYPES WHERE MDDTypeName = " << mdddiname );
     EXEC SQL SELECT MDDDimTypeOId
@@ -416,13 +416,13 @@ ObjectBroker::getOIdOfMDDDomainType(const char* name) throw (r_Error)
     EXEC SQL END DECLARE SECTION;
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         LEAVE( "ObjectBroker::getOIdOfMDDDomainType(): name exceeds max length:" << name );
         throw r_Error(TYPENAMEISTOOLONG);
     }
-    (void) strncpy( mdddoname, (char*) name, (size_t) sizeof(mdddoname) );
+    (void) strncpy( mdddoname, const_cast<char*>(name), (size_t) sizeof(mdddoname) );
 
     TALK( "EXEC SQL SELECT MDDDomTypeOId INTO :mdddooid FROM RAS_MDDDOMTYPES WHERE MDDTypeName =  " << mdddoname );
     EXEC SQL SELECT MDDDomTypeOId
@@ -465,13 +465,13 @@ ObjectBroker::getOIdOfStructType(const char* name) throw (r_Error)
     EXEC SQL END DECLARE SECTION;
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         LEAVE( "ObjectBroker::getOIdOfStructType(): name exceeds max length:" << name );
         throw r_Error(TYPENAMEISTOOLONG);
     }
-    (void) strncpy( structname, (char*) name, (size_t) sizeof(structname) );
+    (void) strncpy( structname, const_cast<char*>(name), (size_t) sizeof(structname) );
 
     TALK( "EXEC SQL SELECT BaseTypeId INTO :structoid FROM RAS_BASETYPENAMES WHERE BaseTypeName = " << structname );
     EXEC SQL SELECT BaseTypeId
@@ -516,13 +516,13 @@ ObjectBroker::getOIdOfMDDSet(const char* name) throw (r_Error)
     EXEC SQL END DECLARE SECTION;
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         LEAVE( "ObjectBroker::getOIdOfMDDSet(): name exceeds max length:" << name );
         throw r_Error(TYPENAMEISTOOLONG);
     }
-    (void) strncpy( collname, (char*) name, (size_t) sizeof(collname) );
+    (void) strncpy( collname, const_cast<char*>(name), (size_t) sizeof(collname) );
 
     TALK( "EXEC SQL SELECT MDDCollId INTO :colloid FROM RAS_MDDCOLLNAMES WHERE MDDCollName = " << collname );
     EXEC SQL SELECT MDDCollId

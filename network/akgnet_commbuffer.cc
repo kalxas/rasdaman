@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: akgnet_commbuffer.cc
  *
@@ -133,7 +133,7 @@ bool akg::CommBuffer::resize(int newSize) throw()
     if(newSize < fillSize) return false;
 
     char *newData = new char[newSize];
-    memcpy(newData, data, fillSize);
+    memcpy(newData, data, static_cast<size_t>(fillSize));
     if(allocated == true )
     {
         delete[] data;
@@ -192,7 +192,7 @@ int akg::CommBuffer::read(const void *externalBuffer,int size) throw()
 
     int cpSize = size<(buffSize-fillSize) ? size:(buffSize-fillSize);
 
-    memcpy(data+fillSize,externalBuffer,cpSize);
+    memcpy(data+fillSize,externalBuffer,static_cast<size_t>(cpSize));
     fillSize += cpSize;
 
     return cpSize;
@@ -226,7 +226,7 @@ int akg::CommBuffer::write(void *externalBuffer,int size) throw()
 
     int cpSize = size<(fillSize-sendSize) ? size:(fillSize-sendSize);
 
-    memcpy(externalBuffer,data+sendSize,cpSize);
+    memcpy(externalBuffer,data+sendSize,static_cast<size_t>(cpSize));
     sendSize+=cpSize;
 
     return cpSize;

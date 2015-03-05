@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 // This is -*- C++ -*-
 /*************************************************************************
  *
@@ -125,9 +125,9 @@ TypeFactory::addStructType(const StructType* type)
     }
     else
     {
-        persistentType = new StructType((char*)type->getTypeName(), type->getNumElems());
+        persistentType = new StructType(const_cast<char*>(type->getTypeName()), type->getNumElems());
         BaseType* t = 0;
-        for (int i = 0; i < type->getNumElems(); i++)
+        for (unsigned int i = 0; i < type->getNumElems(); i++)
         {
             switch (type->getElemType(i)->getType())
             {
@@ -196,7 +196,7 @@ TypeFactory::addSetType(const SetType* type)
     }
     else
     {
-        persistentType = new SetType((char*)type->getTypeName(), (MDDType*) addMDDType(type->getMDDType()));
+        persistentType = new SetType(const_cast<char*>(type->getTypeName()), const_cast<MDDType*>(addMDDType(type->getMDDType())));
 
         DBMinterval* interval = type->getNullValues();
         if (interval != NULL)
@@ -255,15 +255,15 @@ TypeFactory::addMDDType(const MDDType* type)
             break;
         case MDDType::MDDBASETYPE:
             RMDBGMIDDLE(7, RMDebug::module_catalogmgr, "TypeFactory", "is MDDBASETYPE");
-            persistentType = new MDDBaseType(type->getTypeName(), addStructType((StructType*)((MDDBaseType*)type)->getBaseType()));
+            persistentType = new MDDBaseType(type->getTypeName(), addStructType((StructType*)const_cast<BaseType*>(((MDDBaseType*)const_cast<MDDType*>(type))->getBaseType())));
             break;
         case MDDType::MDDDOMAINTYPE:
             RMDBGMIDDLE(7, RMDebug::module_catalogmgr, "TypeFactory", "is MDDDOMAINTYPE");
-            persistentType = new MDDDomainType(type->getTypeName(), addStructType((StructType*)((MDDBaseType*)type)->getBaseType()), *((MDDDomainType*)type)->getDomain());
+            persistentType = new MDDDomainType(type->getTypeName(), addStructType((StructType*)const_cast<BaseType*>(((MDDBaseType*)const_cast<MDDType*>(type))->getBaseType())), *((MDDDomainType*)const_cast<MDDType*>(type))->getDomain());
             break;
         case MDDType::MDDDIMENSIONTYPE:
             RMDBGMIDDLE(7, RMDebug::module_catalogmgr, "TypeFactory", "is MDDDIMENSIONTYPE");
-            persistentType = new MDDDimensionType(type->getTypeName(), addStructType((StructType*)((MDDBaseType*)type)->getBaseType()), ((MDDDimensionType*)type)->getDimension());
+            persistentType = new MDDDimensionType(type->getTypeName(), addStructType((StructType*)const_cast<BaseType*>(((MDDBaseType*)const_cast<MDDType*>(type))->getBaseType())), ((MDDDimensionType*)const_cast<MDDType*>(type))->getDimension());
             break;
         default:
             RMDBGMIDDLE(0, RMDebug::module_catalogmgr, "TypeFactory", "addMDDType(" << type->getName() << ") mddsubtype unknown");
@@ -431,7 +431,7 @@ void
 TypeFactory::deleteSetType(const char* typeName)
 {
     RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteSetType(" << typeName << ")");
-    const DBObject* resultType = (SetType*)mapSetType(typeName);//is ok because only short for find
+    const DBObject* resultType = const_cast<SetType*>(mapSetType(typeName));//is ok because only short for find
     if (resultType)
     {
         bool canDelete = true;
@@ -489,7 +489,7 @@ void
 TypeFactory::deleteTmpSetType(const char* typeName)
 {
     RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "deleteTmpSetType(" << typeName << ")");
-    const DBObject* resultType = (SetType*)mapSetType(typeName);//is ok because only short for find
+    const DBObject* resultType = const_cast<SetType*>(mapSetType(typeName));//is ok because only short for find
     if (resultType)
     {
         DBObjectId toKill(resultType->getOId());

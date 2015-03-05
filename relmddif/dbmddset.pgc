@@ -138,7 +138,7 @@ DBMDDSet::insertInDb() throw (r_Error)
     mddcolloid = myOId.getCounter();
     colltypeoid = collType->getOId().getCounter();
 
-    (void) strncpy( collname, (char*) getName(), (size_t) sizeof(collname) );
+    (void) strncpy( collname, const_cast<char*>(getName()), (size_t) sizeof(collname) );
 
     TALK( "EXEC SQL INSERT INTO RAS_MDDCOLLNAMES ( MDDCollName, MDDCollId, SetTypeId) VALUES( " << collname << "," << mddcolloid << "," << colltypeoid << ")" );
 

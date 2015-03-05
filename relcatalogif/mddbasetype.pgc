@@ -55,8 +55,8 @@ MDDBaseType::insertInDb() throw (r_Error)
         char      mddtypename[STRING_MAXLEN];
     EXEC SQL END DECLARE SECTION;
 
-    (void) strncpy( mddtypename, (char*) getName(), (size_t) sizeof(mddtypename) );
-    DBObject* obj = (DBObject*)getBaseType();
+    (void) strncpy( mddtypename, const_cast<char*>(getName()), (size_t) sizeof(mddtypename) );
+    DBObject* obj = (DBObject*)const_cast<BaseType*>(getBaseType());
     mddbasetypeid = obj->getOId();
     mddtypeid = myOId.getCounter();
     TALK( "EXEC SQL INSERT INTO RAS_MDDBASETYPES ( MDDBaseTypeOId, MDDTypeName, BaseTypeId)"
@@ -92,10 +92,12 @@ MDDBaseType::readFromDb() throw (r_Error)
        FROM RAS_MDDBASETYPES
        WHERE MDDBaseTypeOId = :mddtypeid1;
     if (check("MDDBaseType::readFromDb() SELECT FROM RAS_MDDBASETYPES\0") != 0)
+    {
         if (SQLCODE == 100)
             throw r_Error(r_Error::r_Error_ObjectUnknown);
         else
             generateException();
+    }
 
     setName(mddtypename1);
     myBaseType = (BaseType*)ObjectBroker::getObjectByOId(OId(mddbasetypeid1));

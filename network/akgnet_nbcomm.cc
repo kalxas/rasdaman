@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: akgnet_nbcomm.cc
  *
@@ -255,8 +255,14 @@ akg::NbJob::acceptStatus akg::NbServerJob::acceptConnection(ListenSocket& listen
     if(serverSocket.acceptFrom(listenSocket) == false)
     {
         int saveerrno = serverSocket.getErrno();
-        if(saveerrno==EAGAIN) DBTALK("No pending connections");
-        else                  DBTALK("Accept error "<<saveerrno);
+        if(saveerrno==EAGAIN)
+        {
+            DBTALK("No pending connections");
+        }
+        else
+        {
+            DBTALK("Accept error "<<saveerrno);
+        }
         return acs_nopending;
     }
 

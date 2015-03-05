@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /*************************************************************
  *
  *
@@ -81,7 +81,7 @@ QLMarrayOp::operator() ( char *result, const r_Point &p )
             {
                 QtScalarData* scalarResultData = (QtScalarData*)resultData;
                 memcpy( (void*)result,
-                        (void*)scalarResultData->getValueBuffer(),
+                        (void*)const_cast<char*>(scalarResultData->getValueBuffer()),
                         scalarResultData->getValueType()->getSize() );
             }
             else

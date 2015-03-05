@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: miter.cc
  *
@@ -58,7 +58,7 @@ r_Miter::r_Miter( const r_Minterval* newAreaIter,
     for( i=0; i<dim; i++ )
     {
         // in RasDaMan the order of dimensions is the other way round!
-        int r = dim - i - 1;
+        unsigned int r = dim - 1 - i;
         // used for counting in iteration, initialize with 0
         incArrIter[i].curr = 0;
         // how often is the increment added?
@@ -66,7 +66,7 @@ r_Miter::r_Miter( const r_Minterval* newAreaIter,
         RMDBGMIDDLE(4, RMDebug::module_raslib, "r_Miter", "repeat dim " << i << ": " << incArrIter[i].repeat );
         // the increment for the result tile (higher dimensions calculated
         // further down)
-        incArrIter[i].inc = incIter;
+        incArrIter[i].inc = static_cast<int>(incIter);
         RMDBGMIDDLE(4, RMDebug::module_raslib, "r_Miter", "incIter dim " << i << ": " << incIter );
 
         // calculate starting offset and increments for higher dimensions
@@ -76,7 +76,7 @@ r_Miter::r_Miter( const r_Minterval* newAreaIter,
         tIncIter = ((*areaTile)[r].high()-(*areaTile)[r].low()+1) * prevTIncIter;
         // inc is the real increment, after some cells in the dimensions
         // have been iterated through.
-        incIter = (tIncIter - incArrIter[i].repeat*prevTIncIter) * cellSize;
+        incIter = static_cast<unsigned int>((tIncIter - incArrIter[i].repeat*prevTIncIter)) * cellSize;
         // remember total increment of last dimension
         prevTIncIter = tIncIter;
     }
@@ -94,7 +94,7 @@ r_Miter::~r_Miter()
 inline void
 r_Miter::reset()
 {
-    currCell = (char*)firstCell;
+    currCell = const_cast<char*>(firstCell);
     done = false;
     lowCount = 0;
     for( r_Dimension i=0; i<areaIter->dimension(); i++ )

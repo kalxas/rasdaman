@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: akgnet_socket.cc
  *
@@ -93,7 +93,7 @@ bool akg::ListenSocket::open(int port) throw()
 
 #ifdef SO_REUSEADDR
     int val = 1;
-    int len = sizeof( val );
+    unsigned int len = sizeof( val );
     if(setsockopt( fileDescriptor, SOL_SOCKET, SO_REUSEADDR, (char*)&val, len ))
     {
         DBTALK("Can't set address reusable: "<<strerror(errno));

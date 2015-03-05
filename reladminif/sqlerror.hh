@@ -140,3 +140,10 @@ void warnOnError(const char* msg, sqlite3 *db) throw (r_Error);
 
 #endif
 
+int sqlstate_err();
+
+void disp_sqlstate_err(char* msgbuf, size_t length);
+
+void disp_error(const char* stmt, char* msgbuf, size_t length);
+
+char* disp_exception(const char* stmt, int sqlerr_code);

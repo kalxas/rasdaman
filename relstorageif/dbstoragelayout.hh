@@ -178,12 +178,9 @@ private:
     /// How the object should be tiled
     r_Tiling_Scheme tilingScheme;
 
-    r_Bytes pctMin;
-
-    r_Bytes pctMax;
-
     /// Tile size in bytes.
     r_Bytes tileSize;
+
 
     /// Default configuration of the tiles.
     DBMintervalId tileConfiguration;
@@ -194,11 +191,16 @@ private:
     */
     //@}
 
+
     //@Man: DataFormat
     //@{
     /// How the tiles of the object should be compressed
     r_Data_Format dataFormat;
     //@}
+
+    r_Bytes pctMin;
+
+    r_Bytes pctMax;
 
     //@}
     bool _supportsTileSize;
@@ -213,9 +215,9 @@ private:
 
     bool _supportsTiling;
 
-    bool _supportsDataFormat;
-
     bool _supportsTileConfiguration;
+
+    bool _supportsDataFormat;
 };
 
 #endif

@@ -142,7 +142,7 @@ BLOBTile::updateInDb() throw (r_Error)
         PQclear( pgResult );
         generateException();
     }
-    tile = atoi( PQgetvalue( pgResult, 0, 0 ) );    // extract value from result
+    tile = static_cast<Oid>(atoi( PQgetvalue( pgResult, 0, 0 ) ));    // extract value from result
     PQclear( pgResult );
 
 
@@ -164,7 +164,7 @@ BLOBTile::updateInDb() throw (r_Error)
             LEAVE( "BLOBTile::updateInDb: cannot write blob, error " << loResult );
             generateException();
         }
-        else if (loResult != size)          // did not get all
+        else if (loResult != static_cast<int>(size))          // did not get all
         {
             RMInit::dbgOut << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << size << " bytes" << endl;
             LEAVE( "BLOBTile::updateInDb: wrote " << loResult << " instead of " << size << " bytes" );
@@ -263,7 +263,7 @@ BLOBTile::insertInDb() throw (r_Error)
         LEAVE( "BLOBTile::insertInDb(): cannot write blob, error " << PQerrorMessage(pgConn) );
         generateException();
     }
-    else if (loResult != size)          // did not get all
+    else if (loResult != static_cast<int>(size))          // did not get all
     {
         RMInit::dbgOut << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << size << " bytes" << endl;
         LEAVE( "BLOBTile::insertInDb(): wrote " << loResult << " instead of " << size << " bytes" );
@@ -367,7 +367,7 @@ BLOBTile::deleteFromDb() throw (r_Error)
         PQclear( pgResult );
         generateException();
     }
-    blobOid = atoi( PQgetvalue( pgResult, 0, 0 ) ); // extract value from result
+    blobOid = static_cast<Oid>(atoi( PQgetvalue( pgResult, 0, 0 ) )); // extract value from result
     PQclear( pgResult );
 
     // FIXME: other sources have here an updateInDb();
@@ -490,7 +490,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
             PQclear( pgResult );
             return;
         }
-        blobOid = atoi( PQgetvalue( pgResult, 0, 0 ) ); // extract value from result
+        blobOid = static_cast<Oid>(atoi( PQgetvalue( pgResult, 0, 0 ) )); // extract value from result
         PQclear( pgResult );
 
         // delete blob identified by blobOid
@@ -622,7 +622,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
                 PQclear( pgResult );
                 generateException();
             }
-            blobOid = atoi( PQgetvalue( pgResult, 0, 0 ) ); // extract value from result
+            blobOid = static_cast<Oid>(atoi( PQgetvalue( pgResult, 0, 0 ) )); // extract value from result
 
             OId tmpOid(blobOid);
 
@@ -748,7 +748,7 @@ BLOBTile::readFromDb() throw (r_Error)
         PQclear( pgResult );
         throw r_Error(r_Error::r_Error_ObjectUnknown);
     }
-    blobOid     = atoi( PQgetvalue( pgResult, 0, 0 ) ); // extract 1st value from result
+    blobOid     = static_cast<Oid>(atoi( PQgetvalue( pgResult, 0, 0 ) )); // extract 1st value from result
     dataformat3 = atoi( PQgetvalue( pgResult, 0, 1 ) ); // extract 2nd value from result
     PQclear( pgResult );
 
@@ -781,7 +781,7 @@ BLOBTile::readFromDb() throw (r_Error)
             generateException();
         }
         TALK( "lo_lseek() end" );
-        size = lo_lseek( pgConn, fd, 0, SEEK_END );     // determine blob size; FIXME: more efficient method??
+        size = static_cast<r_Bytes>(lo_lseek( pgConn, fd, 0, SEEK_END ));     // determine blob size; FIXME: more efficient method??
         if (size <= 0)
         {
             RMInit::logOut << "BLOBTile::readFromDb() error: invalid BLOB size " << size << " for BLOB oid " << blobOid << endl;
@@ -806,7 +806,7 @@ BLOBTile::readFromDb() throw (r_Error)
             LEAVE( "BLOBTile::readFromDb: cannot read blob with oid " << blobOid << ", error " << PQerrorMessage(pgConn) );
             generateException();
         }
-        else if (loResult != size)              // did not get all
+        else if (loResult != static_cast<int>(size))              // did not get all
         {
             RMInit::dbgOut << "BLOB (" << myOId << ") read: want to read (" << size << " bytes, but got " << loResult << " bytes" << endl;
             LEAVE( "BLOBTile::readFromDb: want to read " << size << " bytes, but got " << loResult << " bytes" );
@@ -846,7 +846,7 @@ void BLOBTile::writeCachedToDb(CacheValue* value)
     
     if (value && value->isUpdate())
     {
-        Oid blobOid = -1;
+        Oid blobOid;
         r_Bytes size = value->getSize();
         char* cells = value->getData();
         OId myOId = value->getOId();
@@ -863,7 +863,7 @@ void BLOBTile::writeCachedToDb(CacheValue* value)
             LEAVE( "BLOBTile::insertInDb(): cannot write blob, error " << PQerrorMessage(pgConn) );
             generateException();
         }
-        else if (loResult != size)          // did not get all
+        else if (loResult != static_cast<int>(size))          // did not get all
         {
             RMInit::dbgOut << "BLOB (" << myOId << ") insert: wrote " << loResult << " instead of " << size << " bytes" << endl;
             LEAVE( "BLOBTile::insertInDb(): wrote " << loResult << " instead of " << size << " bytes" );

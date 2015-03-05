@@ -29,26 +29,26 @@ rasdaman GmbH.
 
 // those would better throw an exception
 
-inline r_ULong* StructType::convertToCULong(const char* cell, r_ULong* value) const {
+inline r_ULong* StructType::convertToCULong(__attribute__ ((unused)) const char* cell, __attribute__ ((unused)) r_ULong* value) const {
 	return 0;
 }
 
-inline char* StructType::makeFromCULong(char* cell, const r_ULong* value) const {
+inline char* StructType::makeFromCULong(__attribute__ ((unused)) char* cell, __attribute__ ((unused)) const r_ULong* value) const {
 	return 0;
 }
 
-inline r_Long* StructType::convertToCLong(const char* cell, r_Long* value) const {
+inline r_Long* StructType::convertToCLong(__attribute__ ((unused)) const char* cell, __attribute__ ((unused)) r_Long* value) const {
 	return 0;
 }
 
-inline char* StructType::makeFromCLong(char* cell, const r_Long* value) const {
+inline char* StructType::makeFromCLong(__attribute__ ((unused)) char* cell, __attribute__ ((unused)) const r_Long* value) const {
 	return 0;
 }
 
-inline double* StructType::convertToCDouble(const char* cell, double* value) const {
+inline double* StructType::convertToCDouble(__attribute__ ((unused)) const char* cell, __attribute__ ((unused)) double* value) const {
 	return 0;
 }
 
-inline char* StructType::makeFromCDouble(char* cell, const double* value) const {
+inline char* StructType::makeFromCDouble(__attribute__ ((unused)) char* cell, __attribute__ ((unused)) const double* value) const {
 	return 0;
 }

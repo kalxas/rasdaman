@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: akgnet_server.cc
  *
@@ -147,7 +147,7 @@ bool akg::BlockingServer::runServer() throw()
             }
             else if(selector.isRead(listenSocket()))
             {
-                TALK( "socket not open, but readable (???). connecting new client." );
+                TALK( "socket not open, but readable (??\?). connecting new client." );
                 connectNewClient(serverSocket);
                 TALK( "after client connect." );
                 // we don't care why it could fail

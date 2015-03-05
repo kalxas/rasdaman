@@ -58,8 +58,8 @@ MDDDimensionType::insertInDb() throw (r_Error)
 
     dimension = myDimension;
     mddtypeid = myOId.getCounter();
-    (void) strncpy( mddtypename, (char*) getName(), (size_t) sizeof(mddtypename) );
-    DBObject* obj = (DBObject*)getBaseType();
+    (void) strncpy( mddtypename, const_cast<char*>(getName()), (size_t) sizeof(mddtypename) );
+    DBObject* obj = (DBObject*)const_cast<BaseType*>(getBaseType());
     mddbasetypeid = obj->getOId();
     RMDBGMIDDLE(5, RMDebug::module_catalogif, "MDDDimensionType", " typeid " << mddtypeid << " name " << mddtypename << " basetypeoid " << mddbasetypeid << "dimension " << dimension)
 
@@ -112,11 +112,12 @@ MDDDimensionType::readFromDb() throw (r_Error)
        WHERE
         MDDDimTypeOId = :mddtypeid1;
     if (check("MDDDimensionType::MDDDimensionType() SELECT FROM RAS_MDDDIMTYPES\0") != 0)
+    {
         if (SQLCODE == 100)
             throw r_Error(r_Error::r_Error_ObjectUnknown);
         else
             generateException();
-
+    }
     myDimension = dimension1;
     setName(mddtypename1);
     myBaseType = (BaseType*)ObjectBroker::getObjectByOId(OId(mddbasetypeid1));

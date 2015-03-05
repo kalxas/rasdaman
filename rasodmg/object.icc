@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * INLINE SOURCE: object.icc
  *
@@ -39,7 +39,7 @@ r_Object::mark_modified()
     if( object_status == no_status ||
             object_status == read         )
         object_status = modified;
-};
+}
 
 
 
@@ -78,7 +78,7 @@ r_Object::set_object_name( const char* name ) throw(r_Error)
         free( object_name );
 
     object_name = strdup( name );
-};
+}
 
 
 inline void
@@ -95,7 +95,7 @@ r_Object::set_type_by_name( const char* name ) throw(r_Error)
         free( type_name );
 
     type_name = strdup( name );
-};
+}
 
 
 inline void
@@ -113,14 +113,14 @@ r_Object::set_type_structure( const char* name ) throw(r_Error)
 
     type_structure = new char[strlen(name) + 1];
     strcpy(type_structure, name);
-};
+}
 
 
 inline const char*
 r_Object::get_type_name() const
 {
     return type_name;
-};
+}
 
 
 inline const char*
@@ -137,14 +137,14 @@ r_Object::get_type_structure() const
         return type_structure;
     else
         return "";
-};
+}
 
 
 inline r_Object::ObjectStatus
 r_Object::get_status() const
 {
     return object_status;
-};
+}
 
 
 inline const r_OId&

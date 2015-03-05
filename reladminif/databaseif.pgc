@@ -341,7 +341,7 @@ DatabaseIf::isConsistent() throw (r_Error)
     checkoid = 0;
     oidind = 0;
 
-    (void) strncpy( name2, (char*) OId::counterNames[OId::DBMINTERVALOID], (size_t) sizeof(name2) );
+    (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::DBMINTERVALOID]), (size_t) sizeof(name2) );
     TALK( "EXEC SQL SELECT NextValue INTO :nextoid FROM RAS_COUNTERS WHERE CounterName = " << name2 );
     EXEC SQL SELECT NextValue INTO :nextoid
        FROM
@@ -379,7 +379,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 
     if(retval)
     {
-        (void) strncpy( name2, (char*) OId::counterNames[OId::MDDOID], (size_t) sizeof(name2) );
+        (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::MDDOID]), (size_t) sizeof(name2) );
         TALK( "SELECT NextValue FROM RAS_COUNTERS..." );
         EXEC SQL SELECT NextValue INTO :nextoid
         FROM RAS_COUNTERS
@@ -414,7 +414,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 
     if(retval)
     {
-        (void) strncpy( name2, (char*) OId::counterNames[OId::MDDCOLLOID], (size_t) sizeof(name2) );
+        (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::MDDCOLLOID]), (size_t) sizeof(name2) );
         EXEC SQL SELECT NextValue INTO :nextoid
         FROM RAS_COUNTERS
         WHERE CounterName = :name2;
@@ -448,7 +448,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 
     if(retval)
     {
-        (void) strncpy( name2, (char*) OId::counterNames[OId::MDDTYPEOID], (size_t) sizeof(name2) );
+        (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::MDDTYPEOID]), (size_t) sizeof(name2) );
         EXEC SQL SELECT NextValue INTO :nextoid
         FROM RAS_COUNTERS
         WHERE CounterName = :name2;
@@ -483,7 +483,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 
     if(retval)
     {
-        (void) strncpy( name2, (char*) OId::counterNames[OId::MDDBASETYPEOID], (size_t) sizeof(name2) );
+        (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::MDDBASETYPEOID]), (size_t) sizeof(name2) );
         EXEC SQL SELECT NextValue INTO :nextoid
         FROM RAS_COUNTERS
         WHERE CounterName = :name2;
@@ -517,7 +517,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 
     if(retval)
     {
-        (void) strncpy( name2, (char*) OId::counterNames[OId::MDDDIMTYPEOID], (size_t) sizeof(name2) );
+        (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::MDDDIMTYPEOID]), (size_t) sizeof(name2) );
         EXEC SQL SELECT NextValue INTO :nextoid
         FROM RAS_COUNTERS
         WHERE CounterName = :name2;
@@ -551,7 +551,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 
     if(retval)
     {
-        (void) strncpy( name2, (char*) OId::counterNames[OId::MDDDOMTYPEOID], (size_t) sizeof(name2) );
+        (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::MDDDOMTYPEOID]), (size_t) sizeof(name2) );
         EXEC SQL SELECT NextValue INTO :nextoid
         FROM RAS_COUNTERS
         WHERE CounterName = :name2;
@@ -585,7 +585,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 
     if(retval)
     {
-        (void) strncpy( name2, (char*) OId::counterNames[OId::STRUCTTYPEOID], (size_t) sizeof(name2) );
+        (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::STRUCTTYPEOID]), (size_t) sizeof(name2) );
         EXEC SQL SELECT NextValue INTO :nextoid
         FROM RAS_COUNTERS
         WHERE CounterName = :name2;
@@ -619,7 +619,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 
     if(retval)
     {
-        (void) strncpy( name2, (char*) OId::counterNames[OId::SETTYPEOID], (size_t) sizeof(name2) );
+        (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::SETTYPEOID]), (size_t) sizeof(name2) );
         EXEC SQL SELECT NextValue INTO :nextoid
         FROM RAS_COUNTERS
         WHERE CounterName = :name2;
@@ -653,7 +653,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 
     if(retval)
     {
-        (void) strncpy( name2, (char*) OId::counterNames[OId::BLOBOID], (size_t) sizeof(name2) );
+        (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::BLOBOID]), (size_t) sizeof(name2) );
         EXEC SQL SELECT NextValue INTO :nextoid
         FROM RAS_COUNTERS
         WHERE CounterName = :name2;
@@ -687,7 +687,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 
     if(retval)
     {
-        (void) strncpy( name2, (char*) OId::counterNames[OId::MDDHIERIXOID], (size_t) sizeof(name2) );
+        (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::MDDHIERIXOID]), (size_t) sizeof(name2) );
         EXEC SQL SELECT NextValue INTO :nextoid
         FROM RAS_COUNTERS
         WHERE CounterName = :name2;
@@ -721,7 +721,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 
     if(retval)
     {
-        (void) strncpy( name2, (char*) OId::counterNames[OId::STORAGEOID], (size_t) sizeof(name2) );
+        (void) strncpy( name2, const_cast<char*>(OId::counterNames[OId::STORAGEOID]), (size_t) sizeof(name2) );
         EXEC SQL SELECT NextValue INTO :nextoid
         FROM RAS_COUNTERS
         WHERE CounterName = :name2;
@@ -759,12 +759,12 @@ DatabaseIf::isConsistent() throw (r_Error)
 }
 
 void
-DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* volumeName) throw(r_Error)
+DatabaseIf::createDB( const char* dbName, const char* schemaName,  const char* volumeName) throw(r_Error)
 {
     RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "create(" << dbName << ", " << schemaName << ", " << volumeName << ")");
     ENTER( "DatabaseIf::createDB, dbName=" << dbName << ", schemaName=" << schemaName << ", volumeName=" << volumeName );
 
-    int i=0;
+    unsigned int i=0;
     EXEC SQL BEGIN DECLARE SECTION;
         long id;
         long idd;
@@ -831,7 +831,7 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
         // initialising RAS_COUNTERS
         for(i = 1; i < OId::maxCounter; i++)
         {
-            (void) strncpy( name, (char*) OId::counterNames[i], (size_t) sizeof(name) );
+            (void) strncpy( name, const_cast<char*>(OId::counterNames[i]), (size_t) sizeof(name) );
             id = 1;
             TALK( "EXEC SQL INSERT INTO RAS_COUNTERS (CounterName, NextValue) VALUES (" << name << "," << id << ")" );
             EXEC SQL INSERT INTO RAS_COUNTERS (CounterName, NextValue) VALUES (:name, :id);
