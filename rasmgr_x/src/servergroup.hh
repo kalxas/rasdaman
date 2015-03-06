@@ -56,7 +56,7 @@ public:
      * @param force TRUE if the running servers should be shutdown without waiting for running
      * transactions to finish
      */
-    virtual void stop(bool force=false) = 0;
+    virtual void stop(KillLevel level) = 0;
 
     /**
      * @brief tryRegisterServer Register the server with the given ID as running.

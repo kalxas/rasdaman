@@ -214,7 +214,7 @@ struct RasControlGrammar : qi::grammar<Iterator, std::string ( void ), ascii::sp
     //TODO-AT: Add option for -x
     //list <<srv [ s | -host h | -all ] [-p]>>
     this->listServerSubRule = ( this->srvLit[boost::bind ( &ListServerGroup::Clear, &listServerGroup )]
-                                >> ( this->_allLit
+                                >> -( this->_allLit
                                      | ( this->_hostLit >> this->strRule[boost::bind ( static_cast< void ( ListServerGroup::* ) ( const ::std::string & ) > ( &ListServerGroup::set_host ), &listServerGroup, _1 )] )
                                      | this->strRule[boost::bind ( static_cast< void ( ListServerGroup::* ) ( const ::std::string & ) > ( &ListServerGroup::set_group_name ), &listServerGroup, _1 )] )
                                 >> - ( this->_pLit[boost::bind ( &ListServerGroup::set_extra_info, &listServerGroup, true )] ) )
@@ -388,7 +388,7 @@ struct RasControlGrammar : qi::grammar<Iterator, std::string ( void ), ascii::sp
                                 >> ( ( _hostLit >> strRule[boost::bind ( static_cast< void ( StopServerGroup::* ) ( const ::std::string & ) > ( &StopServerGroup::set_host_name ), &downSrv, _1 )] )
                                      | _allLit[boost::bind ( ( &StopServerGroup::set_all ), &downSrv, true )]
                                      | strRule[boost::bind ( static_cast< void ( StopServerGroup::* ) ( const ::std::string & ) > ( &StopServerGroup::set_group_name ), &downSrv, _1 )] )
-                                >> - ( qi::lit ( "-force" ) [boost::bind ( ( &StopServerGroup::set_force ), &downSrv, true )] | qi::lit ( "-kill" ) [boost::bind ( ( &StopServerGroup::set_kill ), &downSrv, true )] ) )
+                                >> - ( qi::lit ( "-force" ) [boost::bind ( ( &StopServerGroup::set_kill_level ), &downSrv, FORCE )] | qi::lit ( "-kill" ) [boost::bind ( ( &StopServerGroup::set_kill_level ), &downSrv, KILL )] ) )
                               [qi::_val = boost::phoenix::bind ( &RasControl::stopServerGroup, this->rascontrol.get(), boost::phoenix::ref ( downSrv ) )];
 
     //This rule is here only for backwards compatibility. It will be removed.

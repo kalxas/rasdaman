@@ -310,8 +310,6 @@ void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
     list<shared_ptr<ServerGroup> >::iterator it;
     shared_lock<shared_mutex> lockMutexGroups ( this->serverGroupMutex );
 
-    bool force = stopGroup.has_force() && stopGroup.force();
-
     if ( stopGroup.has_group_name() )
     {
         bool found=false;
@@ -329,7 +327,7 @@ void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
                 }
                 else
                 {
-                    srv->stop(force);
+                    srv->stop(stopGroup.kill_level());
                 }
 
                 break;
@@ -353,7 +351,7 @@ void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
                 hostExists=true;
                 if ( ! ( *it )->isStopped() )
                 {
-                    ( *it )->stop(force);
+                    ( *it )->stop(stopGroup.kill_level());
                 }
             }
         }
@@ -369,7 +367,7 @@ void ServerManager::stopServerGroup ( const StopServerGroup &stopGroup )
         {
             if ( ! ( *it )->isStopped() )
             {
-                ( *it )->stop(force);
+                ( *it )->stop(stopGroup.kill_level());
             }
         }
     }

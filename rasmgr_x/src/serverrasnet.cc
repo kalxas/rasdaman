@@ -327,22 +327,36 @@ boost::uint32_t ServerRasNet::getTotalSessionNo()
     return this->sessionNo;
 }
 
-void ServerRasNet::stop(bool force)
+void ServerRasNet::stop(KillLevel level)
 {
-    ClientController controller;
-    CloseServerReq request;
-    Void response;
-
-    if(force)
+    int signal = 0;
+    if(level == KILL)
     {
-        kill(this->processId, SIGKILL);
+        signal = SIGKILL;
     }
     else
     {
-        request.set_serverid(this->serverId.c_str());
+        signal = SIGTERM;
+    }
 
-        this->getService()->Close(&controller, &request, &response, this->doNothing.get());
-        //If the controller fails, we assume that the server was stopped
+    if(signal==0)
+    {
+        bool isAlive = (kill(this->processId, signal)==0);
+        if(isAlive)
+        {
+            ClientController controller;
+            CloseServerReq request;
+            Void response;
+
+            request.set_serverid(this->serverId.c_str());
+
+            this->getService()->Close(&controller, &request, &response, this->doNothing.get());
+            //If the controller fails, we assume that the server was stopped
+        }
+    }
+    else
+    {
+        kill(this->processId, signal);
     }
 
     unique_lock<shared_mutex> lock(this->stateMtx);

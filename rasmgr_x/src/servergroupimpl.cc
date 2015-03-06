@@ -73,7 +73,7 @@ ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto &config, boost::sh
 ServerGroupImpl::~ServerGroupImpl()
 {
     this->databaseHost->decreaseServerCount();
-    this->stopActiveServers();
+    this->stopActiveServers(NONE);
 }
 
 void ServerGroupImpl::start()
@@ -99,7 +99,7 @@ bool ServerGroupImpl::isStopped()
     return this->stopped;
 }
 
-void ServerGroupImpl::stop(bool force)
+void ServerGroupImpl::stop(KillLevel level)
 {
     list<shared_ptr<Server> >::iterator it;
     list<shared_ptr<Server> >::iterator toErase;
@@ -114,7 +114,7 @@ void ServerGroupImpl::stop(bool force)
     {
         this->stopped=true;
 
-        this->stopActiveServers(force);
+        this->stopActiveServers(level);
         this->evaluateGroup();
     }
 }
@@ -384,7 +384,7 @@ void ServerGroupImpl::evaluateGroup()
 
                 if((*it)->isFree())
                 {
-                    (*it)->stop(false);
+                    (*it)->stop(NONE);
                     serversToStop--;
                 }
             }
@@ -475,7 +475,7 @@ void ServerGroupImpl::startServer()
 
 }
 
-void ServerGroupImpl::stopActiveServers(bool force)
+void ServerGroupImpl::stopActiveServers(KillLevel level)
 {
     list<shared_ptr<Server> >::iterator runningServer;
     //Stop the running servers
@@ -483,7 +483,12 @@ void ServerGroupImpl::stopActiveServers(bool force)
     {
         try
         {
-            (*runningServer)->stop(force);
+            (*runningServer)->stop(level);
+
+            if(level==KILL)
+            {
+                 this->availablePorts.insert((*runningServer)->getPort());
+            }
         }
         catch(std::exception& ex)
         {
@@ -495,6 +500,12 @@ void ServerGroupImpl::stopActiveServers(bool force)
         }
     }
 
+    //If the servers were killed
+    if(level==KILL)
+    {
+         this->runningServers.clear();
+    }
+
     //The servers that are starting but have not yet registered
     //will be stoped forcibly and the ports they used will be returned
     //to the pool of available ports
@@ -504,7 +515,7 @@ void ServerGroupImpl::stopActiveServers(bool force)
     {
         try
         {
-            startingServerEntry->second.first->stop(true);
+            startingServerEntry->second.first->stop(KILL);
             this->availablePorts.insert(startingServerEntry->second.first->getPort());
         }
         catch(std::exception& ex)

@@ -72,7 +72,7 @@ public:
      * FALSE if the server should terminate after it finishes all running transactions.
      * The server will not accept any more clients from this point.
      */
-    virtual void stop(bool force=false) = 0;
+    virtual void stop(KillLevel level) = 0;
 
     /**
      * @return True if the server process was started but the server has not registered with RasMgr

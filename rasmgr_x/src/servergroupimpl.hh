@@ -49,7 +49,7 @@ public:
      * @param force TRUE if the running servers should be shutdown without waiting for running
      * transactions to finish
      */
-    virtual void stop(bool force=false);
+    virtual void stop(KillLevel level);
 
     /**
      * @brief tryRegisterServer Register the server with the given ID as running.
@@ -139,7 +139,7 @@ private:
      */
     void startServer();
 
-    void stopActiveServers(bool force = false);
+    void stopActiveServers(KillLevel level);
 
     void validateAndInitConfig(ServerGroupConfigProto& config);
 };
