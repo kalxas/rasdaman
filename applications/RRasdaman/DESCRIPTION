@@ -1,13 +1,13 @@
 Package: RRasdaman
 Type: Package
-Title: R interface to the Rasdaman database
+Title: R Interface to the Rasdaman Array DBMS
 Version: 0.9
 Date: 2015-03-05
 Author: Veranika Liaukevich
 Maintainer: Veranika Liaukevich <v.liaukevich@jacobs-university.de>
-Description: Rasdaman is a database, which allows storing and querying large
- multi-dimensional arrays.The RRasdaman package provides access to rasdaman
- databases from R.
+Description: Rasdaman is a database management system (http://rasdaman.org/),
+ which allows storing and querying large multi-dimensional arrays. The RRasdaman
+ package provides access to rasdaman from R.
 Depends: R (>= 3.0.0)
 Imports: rJava, methods
 Suggests: testthat
