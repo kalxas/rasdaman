@@ -111,6 +111,13 @@ public:
     virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );
 
 private:
+
+    ///method for evaluating scalar returning condesnsers
+    QtData* evaluateScalarOp(QtDataList* inputList, const BaseType* cellType, BinaryOp* cellBinOp, r_Minterval domain);
+
+    ///method for evaluating array returning condensers (induced)
+    QtData* evaluateInducedOp(QtDataList* inputList, BinaryOp* cellBinOp, r_Minterval domain);
+
     /// attribute for identification of nodes
     static const QtNodeType nodeType;
 

@@ -77,10 +77,18 @@ QtBinaryInduce::computeOp( QtData* operand1, QtData* operand2 )
     {
         QtMDD* mdd1 = (QtMDD*) operand1;
         QtMDD* mdd2 = (QtMDD*) operand2;
-
+        MDDObj* op1 = mdd1->getMDDObject();
+        MDDObj* op2 = mdd2->getMDDObject();
         const BaseType* resultBaseType = ((MDDBaseType*)(dataStreamType.getType()))->getBaseType();
-
-        returnValue = computeBinaryMDDOp( mdd1, mdd2, resultBaseType );
+        BinaryOp* myOp = Ops::getBinaryOp(opType, resultBaseType, op1->getCellType(), op2->getCellType());
+        try {
+            returnValue = computeBinaryMDDOp( mdd1, mdd2, resultBaseType, myOp );
+        }
+        catch (int errcode) {
+            parseInfo.setErrorNo(errcode);
+            throw parseInfo;
+        }
+        delete myOp;
     }
     else if( operand1->getDataType() == QT_MDD &&
              operand2->isScalarData()             )
@@ -260,21 +268,17 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
     return returnValue;
 }
 
-
-
 QtData*
-QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const BaseType* resultBaseType )
+QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const BaseType* resultBaseType, BinaryOp* myOp )
 {
     RMDBCLASS( "QtBinaryInduce", "computeBinaryMDDOp( QtMDD*, QtMDD*, BaseType* )", "qlparser", __FILE__, __LINE__ )
 
     QtData* returnValue = NULL;
-
     // get the MDD objects
     MDDObj* op1 = operand1->getMDDObject();
     MDDObj* op2 = operand2->getMDDObject();
     r_Minterval* nullValues1 = op1->getNullValues();
     r_Minterval* nullValues2 = op2->getNullValues();
-
     //  get the areas, where the operation has to be applied
     const r_Minterval &areaOp1 = operand1->getLoadDomain();
     const r_Minterval &areaOp2 = operand2->getLoadDomain();
@@ -301,7 +305,6 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
 
         // MDDObj for result
         MDDObj* mddres=NULL;
-
         // translations between the two areas
         r_Point offset12(areaOp1.dimension());
         r_Point offset21(areaOp1.dimension());
@@ -323,7 +326,6 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
         TypeFactory::addTempType( mddBaseType );
 
         mddres = new MDDObj( mddBaseType, areaOp1, op1->getNullValues() ); // FIXME consider op2 too
-
         // get all tiles in relevant area of MDD op1
         allTilesOp1 = op1->intersect(areaOp1);
 
@@ -332,9 +334,8 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
         //      cout << (*tileOp1It)->getDomain() << endl;
 
         // and iterate over them
-        BinaryOp* myOp;
+
         //auto_ptr<BinaryOp> myOp(Ops::getBinaryOp(opType, mddBaseType->getBaseType(), op1->getCellType(), op2->getCellType()));
-        myOp = Ops::getBinaryOp(opType, mddBaseType->getBaseType(), op1->getCellType(), op2->getCellType());
         myOp->setNullValues(nullValues1);
         for( tileOp1It = allTilesOp1->begin(); tileOp1It !=  allTilesOp1->end(); tileOp1It++ )
         {
@@ -391,19 +392,15 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
                     delete mddres;
                     delete intersectTilesOp2;
                     delete allTilesOp1;
-                    parseInfo.setErrorNo(errcode);
-                    throw parseInfo;
+                    throw errcode;
                 }
 
                 // insert Tile in result mddobj
                 mddres->insertTile( resTile );
             }
-
             delete intersectTilesOp2;
             intersectTilesOp2=NULL;
         }
-
-        delete myOp;
         delete allTilesOp1;
         allTilesOp1=NULL;
 
@@ -417,8 +414,7 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
         RMInit::logOut << "areaOp1 " << areaOp1 << " with extent " << areaOp1.get_extent() << endl;
         RMInit::logOut << "areaOp2 " << areaOp2 << " with extent " << areaOp2.get_extent() << endl;
 
-        parseInfo.setErrorNo(351);
-        throw parseInfo;
+        throw 351;
     }
 
     // The following is now done, when the last reference is deleted.

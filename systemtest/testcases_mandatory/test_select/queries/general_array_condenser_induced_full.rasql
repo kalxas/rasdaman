@@ -1,0 +1,1 @@
+select condense + over x in [10:20] using a from test_grey a

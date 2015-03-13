@@ -35,6 +35,7 @@ rasdaman GmbH.
 #define _ALGEBRAOPS_HH__
 
 #include "ops.hh"
+#include "qlparser/qtmdd.hh"
 
 #include <vector>
 #include <string>
@@ -105,7 +106,7 @@ public:
                   QtOperation*     newCondExpression,
                   std::vector<QtData*>* newDataList,
                   std::string           &newIteratorName,
-                  BaseType*        newResType,
+                  const BaseType*        newResType,
                   unsigned int     newResOff,
                   BinaryOp*        newAccuOp,
                   char*            newInitVal = 0 );
@@ -132,6 +133,50 @@ private:
 
     /// name of the iterator
     std::string iteratorName;
+};
+
+//@ManMemo: Module: {\bf catalogif}
+
+/*@Doc:
+
+  Operation object for induced condenser operation of the query language.
+
+*/
+class QLInducedCondenseOp
+{
+public:
+    ///constructor
+    QLInducedCondenseOp(QtOperation* cellExpression,
+                        QtOperation* condExpression,
+                        std::vector<QtData*>* dataList,
+                        BinaryOp* myOp,
+                        std::string iteratorName);
+
+    /// operator that carries out the cell expression on point {\tt p}.
+    virtual void operator() ( const r_Point& p );
+
+    /// executes general condense operation {\tt myOp} in area {\tt areaOp} (const)
+    static QtMDD* execGenCondenseInducedOp(QLInducedCondenseOp* myOp, const r_Minterval& areaOp);
+
+    /// getter for the accumulated value
+    QtMDD* getAccumulatedValue();
+
+    /// virtual destructor
+    virtual ~QLInducedCondenseOp();
+private:
+
+    /// pointer to the cell expression
+    QtOperation* cellExpression;
+
+    /// pointer to the condition expression
+    QtOperation* condExpression;
+
+    /// pointer to data vector
+    std::vector<QtData*>* dataList;
+
+    BinaryOp* myOp;
+
+    QtMDD* accumulatedValue;
 };
 
 #endif

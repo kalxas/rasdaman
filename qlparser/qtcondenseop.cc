@@ -42,12 +42,10 @@ static const char rcsid[] = "@(#)qlparser, QtCondenseOp: $Header: /home/rasdev/C
 #include "qlparser/qtmintervaldata.hh"
 #include "qlparser/qtatomicdata.hh"
 #include "qlparser/qtcomplexdata.hh"
-
+#include "catalogmgr/algebraops.hh"
 #include "mddmgr/mddobj.hh"
 
 #include "catalogmgr/typefactory.hh"
-
-#include "catalogmgr/algebraops.hh"
 
 #include <iostream>
 #ifndef CPPSTDLIB
@@ -258,11 +256,49 @@ QtCondenseOp::evaluate( QtDataList* inputList )
     RMDBGMIDDLE(1, RMDebug::module_qlparser, "QtCondenseOp", "Marray domain " << domain)
 
     // determine aggregation type
-    BaseType* cellType = (BaseType*) input2->getDataStreamType().getType();
+    const BaseType* cellBaseType;
+    QtDataType cellType = input2->getDataStreamType().getDataType();
+    if(cellType == QT_MDD){
+        cellBaseType = ((MDDBaseType*) input2->getDataStreamType().getType())->getBaseType();
+    }
+    else{
+        cellBaseType = (BaseType*) input2->getDataStreamType().getType();
+    }
 
     // get operation object
-    BinaryOp* cellBinOp = Ops::getBinaryOp( operation, cellType, cellType, cellType );
+    BinaryOp* cellBinOp = Ops::getBinaryOp( operation, cellBaseType, cellBaseType, cellBaseType );
 
+    try {
+        if(cellType == QT_MDD){
+            returnValue = evaluateInducedOp(inputList, cellBinOp, domain);
+        }
+        else{
+            returnValue = evaluateScalarOp(inputList, cellBaseType, cellBinOp, domain);
+        }
+    }
+
+    catch(...)
+    {
+        // free ressources
+        delete cellBinOp;
+        cellBinOp=NULL;
+        if( operand1 ) operand1->deleteRef();
+
+        throw;
+    }
+
+    // delete old operands
+    delete cellBinOp;
+    cellBinOp=NULL;
+    if( operand1 ) operand1->deleteRef();
+    }
+
+    stopTimer();
+    return returnValue;
+}
+
+QtData*
+QtCondenseOp::evaluateScalarOp(QtDataList* inputList, const BaseType* cellType, BinaryOp* cellBinOp, r_Minterval domain){
     // create execution object QLCondenseOp
     QLCondenseOp* qlCondenseOp = new QLCondenseOp( input2, condOp, inputList, iteratorName,
             cellType, 0, cellBinOp );
@@ -270,21 +306,14 @@ QtCondenseOp::evaluate( QtDataList* inputList )
     // result buffer
     char* result=NULL;
 
-    try
-    {
-        // execute query engine marray operation
+    // execute query engine marray operation
+    try {
         result = Tile::execGenCondenseOp( qlCondenseOp, domain );
     }
-    catch(...)
-    {
-        // free ressources
+    catch (...) {
+        //free resources
         delete qlCondenseOp;
-        qlCondenseOp=NULL;
-        delete cellBinOp;
-        cellBinOp=NULL;
-        if( operand1 ) operand1->deleteRef();
-
-        throw;
+        qlCondenseOp = NULL;
     }
 
     // allocate cell buffer
@@ -295,8 +324,6 @@ QtCondenseOp::evaluate( QtDataList* inputList )
 
     delete qlCondenseOp;
     qlCondenseOp=NULL;
-    delete cellBinOp;
-    cellBinOp=NULL;
 
     // create data object for the cell
     QtScalarData* scalarDataObj = NULL;
@@ -309,17 +336,23 @@ QtCondenseOp::evaluate( QtDataList* inputList )
     scalarDataObj->setValueBuffer( resultBuffer );
 
     // set return data object
-    returnValue = scalarDataObj;
-
-    // delete old operands
-    if( operand1 ) operand1->deleteRef();
+    return scalarDataObj;
 }
 
-stopTimer();
-return returnValue;
+QtData*
+QtCondenseOp::evaluateInducedOp(QtDataList* inputList, BinaryOp* cellBinOp, r_Minterval domain){
+    QtMDD* result;
+    QLInducedCondenseOp* qlInducedCondenseOp = new QLInducedCondenseOp(input2, condOp, inputList, cellBinOp, iteratorName);
+    try {
+        result = QLInducedCondenseOp::execGenCondenseInducedOp(qlInducedCondenseOp, domain);
+    }
+    catch (...){
+        //free resources
+        delete qlInducedCondenseOp;
+        qlInducedCondenseOp = NULL;
+    }
+    return result;
 }
-
-
 
 void
 QtCondenseOp::printTree( int tab, ostream& s, QtChildType mode )
@@ -400,9 +433,10 @@ QtCondenseOp::checkType( QtTypeTuple* typeTuple )
                 valueExp.getDataType() != QT_USHORT && valueExp.getDataType() != QT_SHORT   &&
                 valueExp.getDataType() != QT_ULONG  && valueExp.getDataType() != QT_LONG    &&
                 valueExp.getDataType() != QT_FLOAT  && valueExp.getDataType() != QT_DOUBLE  &&
-                valueExp.getDataType() != QT_COMPLEXTYPE1 && valueExp.getDataType() != QT_COMPLEXTYPE2 )
+                valueExp.getDataType() != QT_COMPLEXTYPE1 && valueExp.getDataType() != QT_COMPLEXTYPE2 &&
+                valueExp.getDataType() != QT_MDD)
         {
-            RMInit::logOut << "Error: QtCondenseOp::checkType() - Value expression must be either of type atomic or complex" << endl;
+            RMInit::logOut << "Error: QtCondenseOp::checkType() - Value expression must be either of type atomic, complex or MDD." << endl;
             parseInfo.setErrorNo(412);
             throw parseInfo;
         }

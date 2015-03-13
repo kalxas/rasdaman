@@ -64,6 +64,14 @@ public:
     /// type checking of the subtree
     virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );
 
+    /// computes a binary induce operation on two MDD objects
+    static QtData* computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const BaseType* resultBaseType, BinaryOp* myOp );
+    /**
+      The method carries out the binary induce operation specified by {\tt operation} on the two operands. For
+      the result, a new transient MDD object is created and returned. In the end, the MDD objects of the operands
+      are freed.
+    */
+
 protected:
     /// computes the binary operation
     QtData* computeOp( QtData* operand1, QtData* operand2 );
@@ -75,14 +83,6 @@ protected:
       determines if the scalar value is the first (=1, default) or the second (=2) operand in the operation. For
       the result, a new transient MDD object is created and returned. In the end, the MDD object of the first operand
       is freed.
-    */
-
-    /// computes a binary induce operation on two MDD objects
-    QtData* computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const BaseType* resultBaseType );
-    /**
-      The method carries out the binary induce operation specified by {\tt operation} on the two operands. For
-      the result, a new transient MDD object is created and returned. In the end, the MDD objects of the operands
-      are freed.
     */
 
     /// computes a binary operation on two scalar objects
