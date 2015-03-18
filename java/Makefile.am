@@ -53,10 +53,10 @@ endif
 
 build_proto:
 if RMANRASNET
-$(PROTOC) --protopath=protomessages --java_out=src/ protomessages/internal.proto
+	$(PROTOC) --proto_path=protomessages --java_out=src/ protomessages/internal.proto
 endif
 
-all : select_rasimplementation src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java
+all : select_rasimplementation build_proto src/org/odmg/*.java src/rasj/*.java src/rasj/global/*.java src/rasj/clientcommhttp/*.java src/rasj/odmg/*.java src/rasj/rnp/*.java
 	mkdir -p bin dist
 	javac $(CLASSPATH) -d bin $(SRCS)
 if RMANRASNET
