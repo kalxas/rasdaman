@@ -28,7 +28,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import petascope.exceptions.PetascopeException;
@@ -48,7 +48,7 @@ public class TimeUtilTest {
 
     public TimeUtilTest() {}
 
-    @Before
+    @BeforeClass
     public void setUpData() {
 
         assertsInOut = new ArrayList<Triple<String,countOffsetInput,Double>>();
