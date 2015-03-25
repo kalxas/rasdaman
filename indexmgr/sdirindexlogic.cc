@@ -115,8 +115,10 @@ SDirIndexLogic::binaryPointSearch(  const IndexDS* ixDS,
                 pnt2 = KeyObjectDomain.get_origin();
                 break;
             case None:
+            {
                 RMDBGENTER(4, RMDebug::module_indexmgr, "SDirIndexLogic", "binaryPointSearch(...) o is None");
                 break;
+            }
             default: break;
             }
 
@@ -246,8 +248,10 @@ SDirIndexLogic::compare(const r_Minterval& mint1,
         point1 = mint1.get_origin();
         break;
     case None:
+    {
         RMDBGENTER(4, RMDebug::module_indexmgr, "SDirIndexLogic", "compare(...) o1 is None");
         break;
+    }
     default: break;
     }
     switch(o2)
@@ -259,8 +263,10 @@ SDirIndexLogic::compare(const r_Minterval& mint1,
         point2 = mint2.get_origin();
         break;
     case None:
+    {
         RMDBGENTER(4, RMDebug::module_indexmgr, "SDirIndexLogic", "compare(...) o2 is None");
         break;
+    }
     default: break;
     }
     RMDBGEXIT(4, RMDebug::module_indexmgr, "SDirIndexLogic", "compare(" << mint1 << ", " << mint2 << ", " << (int)o1 << ", " << (int)o2 << ") " << point1.compare_with(point2));

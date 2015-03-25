@@ -57,9 +57,6 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include <math.h>
 #include <string>
 
-#include "common/src/logging/easylogging++.hh"
-
-
 // this must use the rasdaman internal module
 // as there is no official type retrieval interface yet,
 // access to private function Database::getDComm() is required
@@ -105,6 +102,9 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #define DEBUG_MAIN
 #include "debug/debug.hh"
 
+#ifdef RMANRASNET
+#include "common/src/logging/easylogging++.hh"
+#endif
 
 /*
  * parse cmd line, fill all program variables

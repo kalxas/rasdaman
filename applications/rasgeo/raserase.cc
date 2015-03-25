@@ -35,10 +35,12 @@
 #include "include/globals.hh"
  #include "raslib/commonutil.hh"
 
-#include "common/src/logging/easylogging++.hh"
-
 #define DEBUG_MAIN
 #include "debug-clt.hh"
+
+#ifdef RMANRASNET
+#include "common/src/logging/easylogging++.hh"
+#endif
 
 using namespace std;
 

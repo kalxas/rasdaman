@@ -69,8 +69,6 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include <stdexcept>
 #include "raslib/commonutil.hh"
 
-#include "common/src/logging/easylogging++.hh"
-
 using namespace std;
 
 #ifdef __VISUALC__
@@ -215,6 +213,9 @@ typedef enum
 #define PARAM_DEBUG "debug"
 #define HELP_DEBUG  "generate diagnostic output"
 
+#ifdef RMANRASNET
+#include "common/src/logging/easylogging++.hh"
+#endif
 
 // global variables and default settings
 // -------------------------------------

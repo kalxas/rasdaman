@@ -76,7 +76,6 @@ using std::ostringstream;
 // for access to the unpublished interface functions introduced by W.Schatz :[
 #include <akgnetwork.hh>
 #include "rnprotocol/rnpclientcomm.hh"
-#include "common/src/logging/easylogging++.hh"
 
 #include "cmlparser.hh"
 
@@ -87,6 +86,10 @@ using std::ostringstream;
 #define DEBUG_MAIN
 #undef DEBUG_HH
 #include "debug/debug.hh"
+
+#ifdef RMANRASNET
+#include "common/src/logging/easylogging++.hh"
+#endif
 
 /*
  * --- these values determine the pyramid, it must be consistent wih all other rasgeo modules -------

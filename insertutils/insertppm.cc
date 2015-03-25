@@ -78,12 +78,14 @@ using namespace std;
 #include "raslib/odmgtypes.hh"
 #include "raslib/error.hh"
 
-#include "common/src/logging/easylogging++.hh"
-
 // this is for inhouse debug macros; not needed for standalone compilation
 #if defined(RMANDEBUG) || defined(DEBUG)
 #define DEBUG_MAIN
 #include "debug.hh"
+#endif
+
+#ifdef RMANRASNET
+#include "common/src/logging/easylogging++.hh"
 #endif
 
 extern "C" {

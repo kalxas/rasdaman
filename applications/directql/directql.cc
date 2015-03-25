@@ -56,7 +56,9 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include "template_inst.hh"
 #include "raslib/template_inst.hh"
 
+#ifdef RMANRASNET
 #include "common/src/logging/easylogging++.hh"
+#endif
 
 extern char* myExecArgv0 = "";
 extern int   tiling = 1;
