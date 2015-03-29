@@ -1,5 +1,13 @@
 bin_PROGRAMS = rasmgr
-SRC = messages/rasmgrmess.pb.cc \
+
+PROTO_INPUT_DIR=protomessages
+PROTO_OUTPUT_DIR=messages
+
+PROTOBUF_FILES=$(PROTO_INPUT_DIR)/rasmgrmess.proto
+
+PROTO_SRC=$(PROTO_OUTPUT_DIR)/rasmgrmess.pb.cc
+
+SRC = $(PROTO_SRC) \
       client.cc \
 	  clientcredentials.cc \
 	  clientmanagementservice.cc \
@@ -34,8 +42,9 @@ SRC = messages/rasmgrmess.pb.cc \
 	  userdatabaserights.cc \
 	  usermanager.cc
 
-rasmgr_SOURCES = main.cc \
-				${SRC}
+
+
+rasmgr_SOURCES = main.cc ${SRC}
 
 rasmgr_LDFLAGS =
 rasmgr_LDADD = ../../rasnet/src/librasnet.a ../../common/src/libcommon.a ../../commline/libcommline.a -L/usr/local/lib -lprotobuf -lzmq -lboost_thread -lboost_regex -lpthread -lboost_system
@@ -46,9 +55,7 @@ librasmgr_a_SOURCES = ${SRC}
 
 librasmgr_a_LIBADD = ../../rasnet/src/librasnet.a ../../common/src/libcommon.a
 
-#messages/rasmgrmess.pb.cc: generate_protobuffers
-#.PHONY: generate_protobuffers
-#generate_protobuffers:
-#	echo "Generating buffers"
-#	$(MKDIR_P) messages
-#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/*
+$(PROTO_SRC): $(PROTOBUF_FILES)
+	echo "Generating buffers"
+	$(MKDIR_P) $(PROTO_OUTPUT_DIR)
+	$(PROTOC) --proto_path=$(PROTO_INPUT_DIR) --cpp_out=$(PROTO_OUTPUT_DIR) $?

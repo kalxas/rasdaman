@@ -1,6 +1,20 @@
-PROTO_SRC=messages/base.pb.cc messages/client_rassrvr_service.pb.cc messages/common_service.pb.cc messages/communication.pb.cc \
-          messages/rasmgr_client_service.pb.cc messages/rasmgr_rassrvr_service.pb.cc messages/rassrvr_rasmgr_service.pb.cc \
-          messages/rasmgr_rasctrl_service.pb.cc messages/service.pb.cc messages/test_mess.pb.cc
+PROTO_INPUT_DIR=protomessages
+PROTO_OUTPUT_DIR=messages
+
+PROTOBUF_FILES=$(PROTO_INPUT_DIR)/base.proto\
+				$(PROTO_INPUT_DIR)/client_rassrvr_service.proto\
+				$(PROTO_INPUT_DIR)/common_service.proto\
+				$(PROTO_INPUT_DIR)/communication.proto\
+				$(PROTO_INPUT_DIR)/rasmgr_client_service.proto\
+				$(PROTO_INPUT_DIR)/rasmgr_rasctrl_service.proto\
+				$(PROTO_INPUT_DIR)/rasmgr_rassrvr_service.proto\
+				$(PROTO_INPUT_DIR)/rassrvr_rasmgr_service.proto\
+				$(PROTO_INPUT_DIR)/service.proto\
+				$(PROTO_INPUT_DIR)/test_mess.proto
+
+PROTO_SRC=$(PROTO_OUTPUT_DIR)/base.pb.cc $(PROTO_OUTPUT_DIR)/client_rassrvr_service.pb.cc $(PROTO_OUTPUT_DIR)/common_service.pb.cc $(PROTO_OUTPUT_DIR)/communication.pb.cc \
+		  $(PROTO_OUTPUT_DIR)/rasmgr_client_service.pb.cc $(PROTO_OUTPUT_DIR)/rasmgr_rassrvr_service.pb.cc $(PROTO_OUTPUT_DIR)/rassrvr_rasmgr_service.pb.cc \
+          $(PROTO_OUTPUT_DIR)/rasmgr_rasctrl_service.pb.cc $(PROTO_OUTPUT_DIR)/service.pb.cc $(PROTO_OUTPUT_DIR)/test_mess.pb.cc
 
 noinst_LIBRARIES = librasnet.a
 librasnet_a_SOURCES = $(PROTO_SRC) service/client/channel.cc service/client/channelconfig.cc \
@@ -13,25 +27,10 @@ librasnet_a_SOURCES = $(PROTO_SRC) service/client/channel.cc service/client/chan
 librasnet_a_LIBADD = ../../common/src/libcommon.a
 
 
-#$(PROTO_SRC): generate_protobuffers
-#generate_protobuffers:
-#	echo "Generating buffers"
-#	$(MKDIR_P) messages
-#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/base.proto
-#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/client_rassrvr_service.proto
-#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/common_service.proto
-#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/communication.proto
-#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/rasmgr_client_service.proto
-#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/rasmgr_rasctrl_service.proto
-#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/rasmgr_rassrvr_service.proto
-#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/rassrvr_rasmgr_service.proto
-#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/service.proto
-#	$(PROTOC) --proto_path=protomessages --cpp_out=messages protomessages/test_mess.proto
-#if ENABLE_JAVA
-#	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/base.proto
-#	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/client_rassrvr_service.proto
-#	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/common_service.proto
-#	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/communication.proto
-#	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/rasmgr_client_service.proto
-#	$(PROTOC) --proto_path=protomessages --java_out=../../java/src/ protomessages/service.proto
-#endif
+$(PROTO_SRC): $(PROTOBUF_FILES)
+	echo "Generating buffers"
+	$(MKDIR_P) messages
+	$(PROTOC) --proto_path=$(PROTO_INPUT_DIR) --cpp_out=$(PROTO_OUTPUT_DIR) $?
+if ENABLE_JAVA
+	$(PROTOC) --proto_path=$(PROTO_INPUT_DIR) --java_out=../../java/src/ $?
+endif
