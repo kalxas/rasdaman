@@ -62,28 +62,6 @@ AC_CHECK_LIB([tiff], [TIFFGetField], , [AC_MSG_FAILURE([libtiff.a not found! Ple
 # FIXME: Replace `main' with a function in `-lz':
 AC_CHECK_LIB([z], [main], , [AC_MSG_FAILURE([libz.a not found! Please install.])])
 
-### Start - Check for protobuf ###
-if test "$enable_rasnet" = "yes"; then
-    # check for protobuf
-    PKG_CHECK_MODULES(PROTOBUF, protobuf >= 2.4.0)
-    AC_SUBST(PROTOBUF_LIBS)
-    AC_SUBST(PROTOBUF_CFLAGS)
-    AC_SUBST(PROTOBUF_VERSION)
-
-    # check for protobuf compiler
-    AC_CHECK_PROG([PROTOC], [protoc], [protoc])
-    AS_IF([test "x${PROTOC}" == "x"],
-        [AC_MSG_ERROR([ProtoBuf compiler "protoc" not found.])])
-
-    # check for zmq
-    # TODO-GM: check for zmq version > 4.0
-    AC_CHECK_LIB([zmq], [main], , [AC_MSG_FAILURE([libzmq.so not found! Please install libzmq-dev.])])
-
-    # check for boost
-    AX_BOOST_BASE([1.48],[],[AC_MSG_FAILURE([boost library required with version >= 1.48. Please install it.])])
-fi
-### End - Check for protobuf ###
-
 if test "$enable_r" = "yes"; then
     AC_CHECK_PROG([RBIN], [R], [R])
     AS_IF([test "x${RBIN}" = "x"], [AC_MSG_FAILURE([Could not find R. Please install.])])
@@ -401,6 +379,51 @@ AC_ARG_ENABLE([r],
               [enable_r=yes],
               [enable_r=no])
 AM_CONDITIONAL([ENABLE_R], [test "$enable_r" = yes])
+
+### Start - Check for rasnet ###
+if test "$enable_rasnet" = "yes"; then
+    # check for protobuf
+    PKG_CHECK_MODULES(PROTOBUF, protobuf >= 2.4.0, [], [AC_MSG_FAILURE(libprotobuf not found. Plase install libprotobuf-dev or specify the path to the protobuf package in PKG_CONFIG_PATH variable if it was not installed on the default path.)])
+    AC_SUBST(PROTOBUF_LIBS)
+    AC_SUBST(PROTOBUF_CFLAGS)
+    CXXFLAGS="$CXXFLAGS ${PROTOBUF_CFLAGS}"
+
+    # protobuf compiler.
+    AC_ARG_WITH([protoc],
+        [AS_HELP_STRING([--with-protoc=/path/of/protoc],
+                        [Location of the protocol buffers compiler protoc. Defaults to looking on path.])],
+                        [PROTOC="$withval"],
+        [AS_IF([test "x${PROTOC}" == "x"], [AC_PATH_PROG([PROTOC], [protoc], [no])])]
+    )
+    AS_IF([test "${PROTOC}" == "no"], [AC_MSG_ERROR([ProtoBuf compiler "protoc" not found. Please install protobuf-compiler or specify the binary path using --with-protoc if it was not installed on the default path.])])
+
+    if test "$disable_java" = "no"; then
+
+        PROTOJAR_PATH="/usr/share/java/protobuf.jar"
+
+        AC_ARG_WITH([protojar],
+             [AS_HELP_STRING([--with-protojar=/path/of/protojar],
+                        [Location of the protocol buffers jar. Defaults to looking on path "$PROTOJAR_PATH".])],
+             [PROTOJAR_PATH="$withval"]
+        )
+
+        AC_CHECK_FILE("${PROTOJAR_PATH}", [], [AC_MSG_ERROR(Protobuf jar not found! Please install libprotobuf-java or specify the jar path using --with-protojar.)])
+        AC_SUBST(PROTOJAR_PATH)
+    fi
+
+    # check for libzmq
+    PKG_CHECK_MODULES(ZMQ, libzmq >= 4.0.5, [], [AC_MSG_FAILURE(libzmq not found. Plase install it or specify the path to the zmq package in PKG_CONFIG_PATH variable if it was not installed on the default path.)])
+    AC_SUBST(ZMQ_LIBS)
+    AC_SUBST(ZMQ_CFLAGS)
+    CXXFLAGS="$CXXFLAGS ${ZMQ_CFLAGS}"
+
+    # check for boost
+    AX_BOOST_BASE([1.48],[],[AC_MSG_FAILURE([boost library required with version >= 1.48. Please install it.])])
+    CXXFLAGS="$CXXFLAGS ${BOOST_CPPFLAGS}"
+fi
+### End - Check for rasnet ###
+
+
 # --------------- Database Specific Configuration ------------------
 ####################################################################
 

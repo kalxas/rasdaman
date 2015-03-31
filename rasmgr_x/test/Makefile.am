@@ -6,4 +6,4 @@ main_test_SOURCES = main_test.cc clienttest.cc useradminrightstest.cc \
                     usermanagertest.cc clientmanagertest.cc \
                     servergrouptest.cc servermanagertest.cc
 
-main_test_LDADD = ../src/librasmgr.a ../../rasnet/src/librasnet.a ../../common/src/libcommon.a -L/usr/local/lib -lprotobuf -lzmq -lboost_thread -lpthread -lboost_system
+main_test_LDADD = ../src/librasmgr.a ../../rasnet/src/librasnet.a ../../common/src/libcommon.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lpthread -lboost_system

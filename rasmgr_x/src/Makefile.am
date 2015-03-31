@@ -1,11 +1,8 @@
 bin_PROGRAMS = rasmgr
 
-PROTO_INPUT_DIR=protomessages
-PROTO_OUTPUT_DIR=messages
+PROTOBUF_FILES=protomessages/rasmgrmess.proto
 
-PROTOBUF_FILES=$(PROTO_INPUT_DIR)/rasmgrmess.proto
-
-PROTO_SRC=$(PROTO_OUTPUT_DIR)/rasmgrmess.pb.cc
+PROTO_SRC=messages/rasmgrmess.pb.cc
 
 SRC = $(PROTO_SRC) \
       client.cc \
@@ -57,5 +54,9 @@ librasmgr_a_LIBADD = ../../rasnet/src/librasnet.a ../../common/src/libcommon.a
 
 $(PROTO_SRC): $(PROTOBUF_FILES)
 	echo "Generating buffers"
-	$(MKDIR_P) $(PROTO_OUTPUT_DIR)
-	$(PROTOC) --proto_path=$(PROTO_INPUT_DIR) --cpp_out=$(PROTO_OUTPUT_DIR) $?
+	$(MKDIR_P) messages
+	$(PROTOC) --proto_path=protomessages --cpp_out=messages $?
+
+clean: clean-am
+	rm -f messages/*.h
+	rm -f messages/*.cc

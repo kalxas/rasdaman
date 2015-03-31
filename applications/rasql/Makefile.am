@@ -40,7 +40,7 @@ rasql_LDADD = ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
               ../../network/libnetwork.a
 
 if RMANRASNET
-    rasql_LDADD += ../../rasnet/src/librasnet.a ../../common/src/libcommon.a -L/usr/local/lib -lprotobuf -lzmq -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+    rasql_LDADD += ../../rasnet/src/librasnet.a ../../common/src/libcommon.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
 endif
 
 SUBDIRS= ../../rasodmg ../../clientcomm \

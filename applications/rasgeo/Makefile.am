@@ -40,7 +40,7 @@ rasimport_LDADD = ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
               @GDAL_LDFLAGS@
 
 if RMANRASNET
-    rasimport_LDADD +=  ../../rasnet/src/librasnet.a ../../common/src/libcommon.a -L/usr/local/lib -lprotobuf -lzmq -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+    rasimport_LDADD +=  ../../rasnet/src/librasnet.a ../../common/src/libcommon.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
 endif
 
 raserase_SOURCES= raserase.cc raserase.hh RasdamanConnector.cc RasdamanHelper2.cc rasgeo_template_inst.hh RasdamanConnector.hh RasdamanHelper2.hh ../../debug/debug-clt.hh
@@ -51,7 +51,7 @@ raserase_LDADD = ../../rasodmg/librasodmg.a ../../clientcomm/libclientcomm.a \
               @GDAL_LDFLAGS@
 
 if RMANRASNET
-    raserase_LDADD += ../../rasnet/src/librasnet.a ../../common/src/libcommon.a -L/usr/local/lib -lprotobuf -lzmq -lboost_thread -lboost_regex -lboost_program_options -lboost_system
+    raserase_LDADD += ../../rasnet/src/librasnet.a ../../common/src/libcommon.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_program_options -lboost_system
 endif
 
 SUBDIRS= ../../rasodmg ../../clientcomm \

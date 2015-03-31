@@ -5,4 +5,5 @@ main_test_SOURCES = main_test.cc service/client/channeltest.cc service/server/se
                     sockets/server/serverpinghandlertest.cc sockets/server/serversockettest.cc util/proto/protozmqtest.cc \
                     service/serviceperftest.cc
 
-main_test_LDADD = ../src/librasnet.a ../../common/src/libcommon.a -L/usr/local/lib -lprotobuf -lzmq -lboost_thread -lboost_regex -lboost_system -lboost_timer -lpthread
+main_test_CFLAGS= @ZMQ_CFLAGS@ @PROTOBUF_CFLAGS@ @BOOST_CPPFLAGS@
+main_test_LDADD = ../src/librasnet.a ../../common/src/libcommon.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lboost_system -lboost_timer

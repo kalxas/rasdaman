@@ -41,7 +41,7 @@ SRCS += src/org/rasdaman/rasnet/common/*.java src/org/rasdaman/rasnet/exception/
 		src/org/rasdaman/rasnet/server/*.java src/org/rasdaman/rasnet/util/*.java \
 		src/org/rasdaman/rasnet/client/*.java src/org/rasdaman/rasnet/communication/*.java \
 		src/org/rasdaman/rasnet/message/*.java src/org/rasdaman/rasnet/service/*.java
-CLASSPATH = -cp lib/jzmq-3.1.1-SNAPSHOT.jar:lib/log4j-1.2.17.jar:lib/junit-4.12.jar:lib/slf4j-api-1.7.10.jar:lib/slf4j-log4j12-1.7.10.jar:/usr/share/java/protobuf.jar
+CLASSPATH = -cp lib/jzmq-3.1.1-SNAPSHOT.jar:lib/log4j-1.2.17.jar:lib/junit-4.12.jar:lib/slf4j-api-1.7.10.jar:lib/slf4j-log4j12-1.7.10.jar:@PROTOJAR_PATH@
 endif
 
 select_rasimplementation:

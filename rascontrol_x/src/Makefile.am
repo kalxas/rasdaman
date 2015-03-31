@@ -9,7 +9,7 @@ rascontrol_SOURCES = rascontrol_main.cc \
 					  rascontrolconfig.cc \
 					  usercredentials.cc
 
-rascontrol_LDADD = ../../commline/libcommline.a ../../rasnet/src/librasnet.a ../../common/src/libcommon.a ../../rasmgr_x/src/librasmgr.a -L/usr/local/lib -lprotobuf  -lboost_thread -lzmq -lboost_system
+rascontrol_LDADD = ../../commline/libcommline.a ../../rasnet/src/librasnet.a ../../common/src/libcommon.a ../../rasmgr_x/src/librasmgr.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_system
 
 noinst_LIBRARIES = librascontrol.a
 
