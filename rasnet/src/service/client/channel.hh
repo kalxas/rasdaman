@@ -25,6 +25,7 @@
 
 #include <boost/cstdint.hpp>
 #include <boost/thread.hpp>
+#include <boost/smart_ptr.hpp>
 
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>

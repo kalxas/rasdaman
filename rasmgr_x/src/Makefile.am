@@ -44,7 +44,7 @@ SRC = $(PROTO_SRC) \
 rasmgr_SOURCES = main.cc ${SRC}
 
 rasmgr_LDFLAGS =
-rasmgr_LDADD = ../../rasnet/src/librasnet.a ../../common/src/libcommon.a ../../commline/libcommline.a -L/usr/local/lib -lprotobuf -lzmq -lboost_thread -lboost_regex -lpthread -lboost_system
+rasmgr_LDADD = ../../rasnet/src/librasnet.a ../../common/src/libcommon.a ../../commline/libcommline.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lpthread -lboost_system
 
 noinst_LIBRARIES = librasmgr.a
 

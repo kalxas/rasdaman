@@ -37,7 +37,7 @@
 #include <vector>
 
 #include <boost/cstdint.hpp>
-#include <boost/shared_ptr.hpp>
+#include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 
 #include <google/protobuf/message.h>
