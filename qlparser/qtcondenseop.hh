@@ -105,7 +105,7 @@ public:
     //@}
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
     virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );

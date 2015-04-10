@@ -41,7 +41,7 @@ QtDomainOperation::getMintervalOp()
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtDomainOperation::getNodeType() const
 {
   return nodeType;

@@ -87,7 +87,7 @@ public:
     virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
 
     /// method for identification of nodes
-    virtual const QtNodeType getNodeType() const;
+    virtual QtNodeType getNodeType() const;
 
 private:
 

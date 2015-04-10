@@ -28,7 +28,7 @@ rasdaman GmbH.
  ************************************************************/
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtOId::getNodeType() const
 {
   return nodeType;

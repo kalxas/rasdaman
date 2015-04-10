@@ -27,20 +27,20 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtShift::getNodeType() const
 {
   return nodeType;
 }
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtExtend::getNodeType() const
 {
   return nodeType;
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtScale::getNodeType() const
 {
   return nodeType;

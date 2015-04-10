@@ -38,7 +38,7 @@ void
 DBMDDSet::printStatus(unsigned int level, std::ostream& stream) const
 {
     char* indent = new char[level*2 +1];
-    for (int j = 0; j < level*2 ; j++)
+    for (unsigned int j = 0; j < level*2 ; j++)
         indent[j] = ' ';
     indent[level*2] = '\0';
     DBObject::printStatus(level, stream);
@@ -90,7 +90,7 @@ DBMDDSet::removeAll()
     DBMDDObjId t;
     while (!mySet.empty())
     {
-        ((DBMDDObj*)(*(mySet.begin())).ptr())->decrementPersRefCount();
+        (const_cast<DBMDDObj*>((*(mySet.begin())).ptr()))->decrementPersRefCount();
         mySet.erase(mySet.begin());
     }
     setModified();

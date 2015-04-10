@@ -34,17 +34,17 @@ inline QtNode*
 QtNode::getParent() const
 {
     return parent;
-};
+}
 
 
 inline void
 QtNode::setParent( QtNode* node )
 {
     parent = node;
-};
+}
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtNode::getNodeType() const
 {
     return nodeType;
@@ -84,7 +84,7 @@ QtTypeElement::setName( const char* newName )
 
 
 
-inline const QtDataType
+inline QtDataType
 QtTypeElement::getDataType() const
 {
     return dataType;

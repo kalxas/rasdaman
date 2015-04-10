@@ -94,7 +94,7 @@ public:
     /// write method for loadDomain
     inline void setLoadDomain( r_Minterval& newLoadDomain );
     /// is the MDD data result from a conversion function
-    inline const bool isFromConversion() const;
+    inline bool isFromConversion() const;
     /// set whether the MDD data is result from a conversion function
     inline void setFromConversion( bool newFromConversion );
 

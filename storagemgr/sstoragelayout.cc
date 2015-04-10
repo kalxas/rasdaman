@@ -99,8 +99,8 @@ StorageLayout::StorageLayout(const DBStorageLayoutId& id)
 }
 
 StorageLayout::StorageLayout(const StorageLayout& other)
-    :   myLayout(other.myLayout),
-        extraFeatures(NULL)
+    :   extraFeatures(NULL),
+        myLayout(other.myLayout)
 {
     StgMddConfig* o = other.extraFeatures;
     if (o)
@@ -197,7 +197,7 @@ StorageLayout::setTileConfiguration(const r_Minterval& tc)
 }
 
 r_Data_Format
-StorageLayout::getDataFormat(const r_Point& where) const
+StorageLayout::getDataFormat(__attribute__ ((unused)) const r_Point& where) const
 {
     return myLayout->getDataFormat();
 }
@@ -243,7 +243,7 @@ void
 StorageLayout::setDirDecomp(vector<r_Dir_Decompose>* dir)
 {
     vector<r_Dir_Decompose> dec;
-    for(int i = 0 ; i < dir->size() ; ++i)
+    for(unsigned int i = 0 ; i < dir->size() ; ++i)
     {
         dec.push_back(dir->at(i));
     }
@@ -390,7 +390,7 @@ StorageLayout::calcRegLayout(const r_Minterval& tileDomain) const
     while (1)
     {
         // current dimension, start from the last one
-        currdim = bdim - 1;
+        currdim = static_cast<int>(bdim) - 1;
         
         // setup translation vector
         for (j = 0; j < bdim; j++)
@@ -399,9 +399,9 @@ StorageLayout::calcRegLayout(const r_Minterval& tileDomain) const
         }
         
         // advance current dimension
-        for (j = trans[currdim]; j <= transexmax[currdim]; j++)
+        for (j = trans[static_cast<r_Dimension>(currdim)]; j <= transexmax[static_cast<r_Dimension>(currdim)]; j++)
         {
-            transcotemp[currdim] = bextent[currdim] * j;
+            transcotemp[static_cast<r_Dimension>(currdim)] = bextent[static_cast<r_Dimension>(currdim)] * j;
             nextDomain = base.create_translation(transcotemp);
             retval.push_back(nextDomain);
         }
@@ -411,18 +411,18 @@ StorageLayout::calcRegLayout(const r_Minterval& tileDomain) const
         // advance the next available dimension
         //
         // 1. find the next available dimension
-        while (currdim >= 0 && trans[currdim] == transexmax[currdim])
+        while (currdim >= 0 && trans[static_cast<r_Dimension>(currdim)] == transexmax[static_cast<r_Dimension>(currdim)])
             --currdim;
         // if none found we're done
         if (currdim < 0)
             break;
         // 2. advance dimension
-        ++trans[currdim];
+        ++trans[static_cast<r_Dimension>(currdim)];
         // 3. reset later dimensions
         ++currdim;
-        while (currdim < bdim)
+        while (currdim < static_cast<int>(bdim))
         {
-            trans[currdim] = transex[currdim];
+            trans[static_cast<r_Dimension>(currdim)] = transex[static_cast<r_Dimension>(currdim)];
             ++currdim;
         }
     }
@@ -445,9 +445,9 @@ StorageLayout::calcInterestLayout(const r_Minterval& tileDomain)
     (tileDomain.dimension(), extraFeatures->getBBoxes(), myLayout->getTileSize(), extraFeatures->getTilingSizeStrategy_AOI());
     std::vector<r_Minterval> ret;
     std::vector<r_Minterval>* ret1 = tiling->compute_tiles
-                                     (tileDomain, extraFeatures->getCellSize());
+                                     (tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
     RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout", "CalcInterest Layout: tile number: " << ret1->size());
-    for (int i = 0; i < ret1->size(); i++)
+    for (unsigned int i = 0; i < ret1->size(); i++)
     {
         ret.push_back(ret1->at(i));
     }
@@ -463,9 +463,9 @@ StorageLayout::calcAlignedLayout(const r_Minterval& tileDomain)
     (myLayout->getTileConfiguration(),myLayout->getTileSize());
     std::vector<r_Minterval> ret;
     std::vector<r_Minterval>* ret1 = tiling->compute_tiles
-                                     (tileDomain, extraFeatures->getCellSize());
+                                     (tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
     RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout", "CalcAligned Layout: tile number: " << ret1->size());
-    for (int i = 0; i < ret1->size(); i++)
+    for (unsigned int i = 0; i < ret1->size(); i++)
     {
         ret.push_back(ret1->at(i));
     }
@@ -489,9 +489,9 @@ StorageLayout::calcDirectionalLayout(const r_Minterval& tileDomain)
 
     std::vector<r_Minterval> ret;
     std::vector<r_Minterval>* ret1 = dirTile->compute_tiles
-                                     (tileDomain, extraFeatures->getCellSize());
+                                     (tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
     RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout", "calcDirectionalLayout: tile number: " << ret1->size());
-    for (int i = 0; i < ret1->size(); i++)
+    for (unsigned int i = 0; i < ret1->size(); i++)
     {
         ret.push_back(ret1->at(i));
     }
@@ -506,7 +506,7 @@ StorageLayout::calcStatisticLayout(const r_Minterval& tileDomain)
     std::vector<r_Minterval> ret;
     vector<r_Minterval> temp = extraFeatures->getBBoxes();
     std::vector<r_Access> accesses;
-    for(int i = 0 ; i < temp.size() ; ++i)
+    for(unsigned int i = 0 ; i < temp.size() ; ++i)
     {
         r_Minterval area = temp.at(i);
         r_Access ac(area);
@@ -514,10 +514,7 @@ StorageLayout::calcStatisticLayout(const r_Minterval& tileDomain)
     }
     unsigned int borderT;
     double interestT;
-    if(extraFeatures->getBorderThreshold() < 0)
-        borderT = r_Stat_Tiling::DEF_BORDER_THR;
-    else
-        borderT = extraFeatures->getBorderThreshold();
+    borderT = extraFeatures->getBorderThreshold();
     if(extraFeatures->getInterestThreshold() < 0)
         interestT = r_Stat_Tiling::DEF_INTERESTING_THR;
     else
@@ -528,8 +525,8 @@ StorageLayout::calcStatisticLayout(const r_Minterval& tileDomain)
     r_Stat_Tiling* stat = new r_Stat_Tiling(tileDomain.dimension(),accesses,
                                             myLayout->getTileSize(), borderT,
                                             interestT);
-    std::vector<r_Minterval>* ret1 = stat->compute_tiles(tileDomain,extraFeatures->getCellSize());
-    for (int i = 0; i < ret1->size(); i++)
+    std::vector<r_Minterval>* ret1 = stat->compute_tiles(tileDomain,static_cast<r_Bytes>(extraFeatures->getCellSize()));
+    for (unsigned int i = 0; i < ret1->size(); i++)
     {
         ret.push_back(ret1->at(i));
     }
@@ -574,7 +571,7 @@ StorageLayout::getDefaultTileCfg(int baseTypeSize, r_Dimension sourceDimension)
 
         r_Point intervals = defaultTileConfiguration.get_extent();
         r_Range tileCells = 1;
-        for(int i = 0; i < defaultTileConfiguration.dimension(); i++)
+        for(unsigned int i = 0; i < defaultTileConfiguration.dimension(); i++)
             tileCells *= intervals[i];
 
 
@@ -590,7 +587,7 @@ StorageLayout::getDefaultTileCfg(int baseTypeSize, r_Dimension sourceDimension)
         adjustedDomain.erase(0, 1);
         //reconfigure adjusted domain for tiling
         std::string toAddDom = std::string("0:0,");
-        for(int i = 0; i < sourceDimension-2; i++)
+        for(unsigned int i = 0; i < sourceDimension-2; i++)
         {
             newDomain += toAddDom;
         }

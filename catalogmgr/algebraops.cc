@@ -181,15 +181,15 @@ QLCondenseOp::operator() ( const r_Point& p )
     }
 }
 
-QLInducedCondenseOp::QLInducedCondenseOp(QtOperation* cellExpression,
-                        QtOperation* condExpression,
-                        std::vector<QtData*>* dataList,
-                        BinaryOp* myOp,
+QLInducedCondenseOp::QLInducedCondenseOp(QtOperation* newCellExpression,
+                        QtOperation* newCondExpression,
+                        std::vector<QtData*>* newDataList,
+                        BinaryOp* newMyOp,
                         std::string iteratorName)
-    : cellExpression(cellExpression),
-      condExpression(condExpression),
-      dataList(dataList),
-      myOp(myOp)
+    : cellExpression(newCellExpression),
+      condExpression(newCondExpression),
+      dataList(newDataList),
+      myOp(newMyOp)
 
 {
     //
@@ -259,12 +259,13 @@ QLInducedCondenseOp::execGenCondenseInducedOp(QLInducedCondenseOp *myOp, const r
     r_Point pOp(areaOp.dimension());
     int done = 0;
     int i = 0;
-    int dim = areaOp.dimension();
+    unsigned int j = 0;
+    unsigned int dim = areaOp.dimension();
 
     // initialize points
-    for(i = 0; i < areaOp.dimension(); i++)
+    for(j = 0; j < dim; j++)
     {
-        pOp << areaOp[i].low();
+        pOp << areaOp[j].low();
     }
 
 #ifdef RMANBENCHMARK
@@ -275,18 +276,18 @@ QLInducedCondenseOp::execGenCondenseInducedOp(QLInducedCondenseOp *myOp, const r
     {
         (*myOp)(pOp);
         // increment coordinates
-        i = dim - 1;
-        ++pOp[i];
-        while(pOp[i] > areaOp[i].high())
+        i = static_cast<int>(dim) - 1;
+        ++pOp[static_cast<r_Dimension>(i)];
+        while(pOp[static_cast<r_Dimension>(i)] > areaOp[static_cast<r_Dimension>(i)].high())
         {
-            pOp[i] = areaOp[i].low();
+            pOp[static_cast<r_Dimension>(i)] = areaOp[static_cast<r_Dimension>(i)].low();
             i--;
             if(i < 0)
             {
                 done = 1;
                 break;
             }
-            ++pOp[i];
+            ++pOp[static_cast<r_Dimension>(i)];
         }
     }
 #ifdef RMANBENCHMARK

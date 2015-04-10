@@ -49,7 +49,7 @@ public:
     virtual void close();
     virtual void reset();
 
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
     virtual const QtTypeTuple& checkType();
 
 private:

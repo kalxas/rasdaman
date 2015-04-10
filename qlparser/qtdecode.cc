@@ -265,7 +265,7 @@ void QtDecode::printTree(int tab, std::ostream& s, QtChildType mode)
 	QtUnaryOperation::printTree(tab, s, mode);
 }
 
-const QtNode::QtNodeType QtDecode::getNodeType() const
+QtNode::QtNodeType QtDecode::getNodeType() const
 {
 	return nodeType;
 }

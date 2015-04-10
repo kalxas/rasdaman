@@ -27,51 +27,51 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtPlus::getNodeType() const
 {
   return nodeType;
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtMinus::getNodeType() const
 {
   return nodeType;
 }
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtMax_binary::getNodeType() const
 {
   return nodeType;
 }
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtMin_binary::getNodeType() const
 {
   return nodeType;
 }
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtMult::getNodeType() const
 {
   return nodeType;
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtDiv::getNodeType() const
 {
   return nodeType;
 }
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtIntDiv::getNodeType() const
 {
   return nodeType;
 }
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtMod::getNodeType() const
 {
   return nodeType;

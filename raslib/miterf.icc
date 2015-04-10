@@ -141,15 +141,15 @@ r_MiterFloat::r_MiterFloat(Tile *sourceTile, r_Minterval& sourceDomain, r_Minter
 
     id = iterDesc + dim-1;
 
-    for(i=dim-1; i>=0; i--, id-- )
+    for(i=static_cast<int>(dim)-1; i>=0; i--, id-- )
     {
-        id->min  = (double)sourceDomain[i].low();
-        id->step = (double)(sourceDomain[i].high()-sourceDomain[i].low() +1) / ( destDomain[i].high() - destDomain[i].low()+1);
-        id->maxSteps = destDomain[i].high() - destDomain[i].low()+1;
+        id->min  = (double)sourceDomain[static_cast<r_Dimension>(i)].low();
+        id->step = (double)(sourceDomain[static_cast<r_Dimension>(i)].high()-sourceDomain[static_cast<r_Dimension>(i)].low() +1) / ( destDomain[static_cast<r_Dimension>(i)].high() - destDomain[static_cast<r_Dimension>(i)].low()+1);
+        id->maxSteps = destDomain[static_cast<r_Dimension>(i)].high() - destDomain[static_cast<r_Dimension>(i)].low()+1;
         id->dimStep   = step;
         id->scaleStep = step * id->step.getIntPart();
-        firstCell += step* (sourceDomain[i].low() - tileDomain[i].low());
-        step      *= (tileDomain[i].high() - tileDomain[i].low() + 1);
+        firstCell += step* (sourceDomain[static_cast<r_Dimension>(i)].low() - tileDomain[static_cast<r_Dimension>(i)].low());
+        step      *= (tileDomain[static_cast<r_Dimension>(i)].high() - tileDomain[static_cast<r_Dimension>(i)].low() + 1);
     }
     reset();
 }

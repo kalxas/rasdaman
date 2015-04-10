@@ -43,7 +43,7 @@ QtCondense::getAlgebraicName() const
 
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtSome::getNodeType() const
 {
   return nodeType;
@@ -65,7 +65,7 @@ QtSome::getAlgebraicName() const
 
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtAll::getNodeType() const
 {
   return nodeType;
@@ -86,7 +86,7 @@ QtAll::getAlgebraicName() const
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtCountCells::getNodeType() const
 {
   return nodeType;
@@ -107,7 +107,7 @@ QtCountCells::getAlgebraicName() const
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtAddCells::getNodeType() const
 {
   return nodeType;
@@ -128,7 +128,7 @@ QtAddCells::getAlgebraicName() const
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtAvgCells::getNodeType() const
 {
   return nodeType;
@@ -150,7 +150,7 @@ QtAvgCells::getAlgebraicName() const
 
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtMinCells::getNodeType() const
 {
   return nodeType;
@@ -172,7 +172,7 @@ QtMinCells::getAlgebraicName() const
 
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtMaxCells::getNodeType() const
 {
   return nodeType;

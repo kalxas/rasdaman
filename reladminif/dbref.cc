@@ -121,18 +121,18 @@ DBRef<T>::DBRef(const DBRef<T> &src)
 
 
 template <class T>
-DBRef<T>::DBRef(T *ptr)
-    :   object(ptr),
+DBRef<T>::DBRef(T *newPtr)
+    :   object(newPtr),
         pointerValid(true),
         objId(DBOBJID_NONE)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "DBRef(const T* " << ptr << ")");
+    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "DBRef(const T* " << newPtr << ")");
 
     if (object != 0)
     {
         objId = object->getOId();
         object->incrementReferenceCount();
-        RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "DBRef(T* " << ptr->getOId() << ")");
+        RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "DBRef(T* " << newPtr->getOId() << ")");
     }
     else
     {
@@ -320,13 +320,13 @@ DBRef<T> &DBRef<T>::operator=(const DBRef<T> &src)
 
 
 template<class T>
-DBRef<T> &DBRef<T>::operator=(T *ptr)
+DBRef<T> &DBRef<T>::operator=(T *newPtr)
 {
-    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator=( at " << ptr << " ) " << objId);
+    RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "operator=( at " << newPtr << " ) " << objId);
     if ((object != 0) && pointerCaching)
         object->decrementReferenceCount();
 
-    object = ptr;
+    object = newPtr;
     if (object == 0)
     {
         objId = DBOBJID_NONE;
@@ -338,7 +338,7 @@ DBRef<T> &DBRef<T>::operator=(T *ptr)
         object->incrementReferenceCount();
         pointerValid = true;
     }
-    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator=( at " << ptr << " ) " << objId);
+    RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator=( at " << newPtr << " ) " << objId);
     return *this;
 }
 

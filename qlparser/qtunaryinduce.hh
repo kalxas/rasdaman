@@ -119,7 +119,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
     virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );
@@ -166,7 +166,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
     virtual const QtTypeElement& checkType( QtTypeTuple* typeTuple = NULL );
@@ -215,7 +215,7 @@ public:
     /// prints the algebraic expression
     virtual void printAlgebraicExpression(std::ostream& = std::cout);
     /// retrives node type
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
     /// semantics check
     virtual const QtTypeElement& checkType(QtTypeTuple* = NULL );
 
@@ -239,7 +239,7 @@ public:
     QtData* evaluate(QtDataList*);
     virtual void printTree(int, std::ostream& = std::cout, QtChildType = QT_ALL_NODES);
     virtual void printAlgebraicExpression(std::ostream& = std::cout);
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
     virtual const QtTypeElement& checkType(QtTypeTuple* = NULL);
 
 private:
@@ -257,7 +257,7 @@ public:
     QtData* evaluate(QtDataList*);
     virtual void printTree(int, std::ostream& = std::cout, QtChildType = QT_ALL_NODES);
     virtual void printAlgebraicExpression(std::ostream& = std::cout);
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
     virtual const QtTypeElement& checkType(QtTypeTuple* = NULL);
 
 private:

@@ -28,21 +28,21 @@ rasdaman GmbH.
  ************************************************************/
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtIntervalLoOp::getNodeType() const
 {
   return nodeType;
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtIntervalHiOp::getNodeType() const
 {
   return nodeType;
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtSDom::getNodeType() const
 {
   return nodeType;

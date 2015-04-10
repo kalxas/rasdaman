@@ -61,7 +61,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
 private:
     /// attribute for identification of nodes
@@ -91,7 +91,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
 private:
     /// attribute for identification of nodes
@@ -121,7 +121,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
 private:
     /// attribute for identification of nodes
@@ -148,7 +148,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
 private:
     /// attribute for identification of nodes
@@ -175,7 +175,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
 private:
     /// attribute for identification of nodes
@@ -202,7 +202,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// returns false saying that the operation IS NOT commutative
     virtual bool isCommutative() const;
@@ -232,7 +232,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// returns false saying that the operation IS NOT commutative
     virtual bool isCommutative() const;
@@ -262,7 +262,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
 private:
     /// attribute for identification of nodes
@@ -291,7 +291,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
 private:
     /// attribute for identification of nodes
@@ -315,7 +315,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// checkType
     const QtTypeElement& checkType( QtTypeTuple* typeTuple );
@@ -332,7 +332,7 @@ public:
     bool isCommutative() const;
     virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 private:
     static const QtNodeType nodeType;
 };

@@ -34,7 +34,7 @@ QtBinaryOperation::setInput1( QtOperation* input )
 
   if( input )
     input->setParent( this );
-};
+}
 
 
 
@@ -45,7 +45,7 @@ QtBinaryOperation::setInput2( QtOperation* input )
 
   if( input )
     input->setParent( this );
-};
+}
 
 
 
@@ -53,7 +53,7 @@ inline QtOperation*
 QtBinaryOperation::getInput1()
 {
   return input1;
-};
+}
 
 
 
@@ -61,7 +61,7 @@ inline QtOperation*
 QtBinaryOperation::getInput2()
 {
   return input2;
-};
+}
 
 
 
@@ -83,7 +83,7 @@ QtBinaryOperation::setInput( QtOperation* inputOld, QtOperation* inputNew )
     if( inputNew )
       inputNew->setParent( this );
   }
-};
+}
 
 
 

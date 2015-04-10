@@ -52,11 +52,11 @@ rasdaman GmbH.
 
 DBHierIndex::DBHierIndex(const OId& id)
     :   HierIndexDS(id),
-        currentDbRows(0),
-        myDomain((r_Dimension)0),
-        maxSize(0),
         parent(0),
-        _isNode(false)
+        _isNode(false),
+        maxSize(0),
+        myDomain(static_cast<r_Dimension>(0)),
+        currentDbRows(0)
 {
     RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "DBHierIndex(" << myOId << ")");
     ENTER( "DBHierIndex::DBHierIndex(" << myOId << ")" );
@@ -72,11 +72,11 @@ DBHierIndex::DBHierIndex(const OId& id)
 
 DBHierIndex::DBHierIndex(r_Dimension dim, bool isNODE, bool makePersistent)
     :   HierIndexDS(),
+        parent(0),
+        _isNode(isNODE),
         maxSize(0),
         myDomain(dim),
-        currentDbRows(-1),
-        parent(0),
-        _isNode(isNODE)
+        currentDbRows(-1)
 {
     RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "DBHierIndex(" << dim << ", " << (int)isNODE << ", " << makePersistent << ") " << myOId);
     ENTER( "DBHierIndex::DBHierIndex( dim=" << dim << ", isNODE=" << (int) isNODE << ", makePersistent=" << makePersistent << " ) - myOId=" << myOId );
@@ -274,14 +274,14 @@ DBHierIndex::isValid() const
             if (myDomain.covers((*i).getDomain()))
             {
                 //ok
-                area = area - (*i).getDomain().cell_count();
+                area = area - static_cast<int>((*i).getDomain().cell_count());
             }
             else
             {
                 if (myDomain == (*i).getDomain())
                 {
                     //ok
-                    area = area - (*i).getDomain().cell_count();
+                    area = area - static_cast<int>((*i).getDomain().cell_count());
                     tempIx = DBHierIndexId((*i).getObject());
                     if (!tempIx->isValid())
                     {
@@ -315,7 +315,7 @@ DBHierIndex::isValid() const
             if (myDomain.intersects_with((*i).getDomain()))
             {
                 //ok
-                area = area - (*i).getDomain().create_intersection(myDomain).cell_count();
+                area = area - static_cast<int>((*i).getDomain().create_intersection(myDomain).cell_count());
             }
             else
             {
@@ -787,7 +787,6 @@ DBHierIndex::~DBHierIndex()
     currentDbRows = 0;
     parent = OId(0);
     myKeyObjects.clear();
-    myDomain = (InlineMinterval) NULL;
     maxSize = 0;
     _isNode = true;
 
@@ -827,7 +826,7 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
     brp.binaryName = getBinaryName();
     brp.binaryData = NULL;
     brp.binaryLength = 0;
-    short dimension2 = myDomain.dimension();
+    unsigned int dimension2 = myDomain.dimension();
     size_t size2 = myKeyObjects.size();
     short subtype = _isNode;
     long long parentid2 = 0;
@@ -960,10 +959,10 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
         throw r_Error();
     }
     size_t size1;
-    short dimension1;
+    unsigned int dimension1;
     OId::OIdCounter parentid1;
-    int tempi;
-    short temps;
+    unsigned int tempi;
+    unsigned int temps;
     char tempc;
     OId::OIdCounter tempd;
 
@@ -1025,7 +1024,7 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
     //all dynamic data is in its buffer
     delete [] completebuffer;
     completebuffer = NULL;
-    int i = 0;
+    unsigned int i = 0;
     //rebuild the attributes from the buffers
     myDomain = InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[i*dimension1]));
     RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "domain " << myDomain << " constructed from " << InlineMinterval(dimension1, &(lowerboundsbuf[0]), &(upperboundsbuf[0]), &(lowerfixedbuf[0]), &(upperfixedbuf[0])));

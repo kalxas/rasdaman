@@ -21,7 +21,7 @@ rasdaman GmbH.
 * or contact Peter Baumann via <baumann@rasdaman.com>.
 */
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtEmptyStream::getNodeType() const
 {
   return nodeType;

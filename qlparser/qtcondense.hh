@@ -114,7 +114,7 @@ public:
     QtData* evaluate( QtDataList* inputList );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// method returning class name
     inline virtual const char* getClassName() const;
@@ -150,7 +150,7 @@ public:
     QtData* evaluate( QtDataList* inputList );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// method returning class name
     inline virtual const char* getClassName() const;
@@ -186,7 +186,7 @@ public:
     QtData* evaluate( QtDataList* inputList );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// method returning class name
     inline virtual const char* getClassName() const;
@@ -221,7 +221,7 @@ public:
     QtData* evaluate( QtDataList* inputList );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// method returning class name
     inline virtual const char* getClassName() const;
@@ -256,7 +256,7 @@ public:
     QtData* evaluate( QtDataList* inputList );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// method returning class name
     inline virtual const char* getClassName() const;
@@ -291,7 +291,7 @@ public:
     QtData* evaluate( QtDataList* inputList );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// method returning class name
     inline virtual const char* getClassName() const;
@@ -326,7 +326,7 @@ public:
     QtData* evaluate( QtDataList* inputList );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     /// method returning class name
     inline virtual const char* getClassName() const;

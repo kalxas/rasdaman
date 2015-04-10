@@ -57,7 +57,7 @@ QtMDD::setLoadDomain( r_Minterval& newLoadDomain )
 }
 
 
-inline const bool
+inline bool
 QtMDD::isFromConversion() const
 {
     return fromConversion;

@@ -28,7 +28,7 @@ rasdaman GmbH.
  ************************************************************/
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtNot::getNodeType() const
 {
   return nodeType;
@@ -36,7 +36,7 @@ QtNot::getNodeType() const
 
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtDot::getNodeType() const
 {
   return nodeType;
@@ -45,7 +45,7 @@ QtDot::getNodeType() const
 
 //---- QtCast ----
 
-inline const QtNode::QtNodeType QtCast::getNodeType() const {
+inline QtNode::QtNodeType QtCast::getNodeType() const {
    	return nodeType;
 }
  
@@ -69,13 +69,13 @@ inline Ops::OpType QtCast::getOp(QtCast::cast_types t) {
                                                                                  
 //---- QtRealPartOp ----
 
-inline const QtNode::QtNodeType QtRealPartOp::getNodeType() const { 
+inline QtNode::QtNodeType QtRealPartOp::getNodeType() const {
 	return nodeType; 
 }
 
 //---- QtImaginarPartOp ----
 
-inline const QtNode::QtNodeType QtImaginarPartOp::getNodeType() const { 
+inline QtNode::QtNodeType QtImaginarPartOp::getNodeType() const {
 	return nodeType; 
 }
 

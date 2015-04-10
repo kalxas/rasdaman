@@ -60,7 +60,7 @@ QtSelectionIterator::setInput( QtOperation* inputOld, QtOperation* inputNew )
 
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtSelectionIterator::getNodeType() const
 {
   return nodeType;

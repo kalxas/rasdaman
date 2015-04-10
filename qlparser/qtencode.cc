@@ -557,7 +557,7 @@ QtEncode::checkType(QtTypeTuple* typeTuple)
     return dataStreamType;
 }
 
-const QtNode::QtNodeType
+QtNode::QtNodeType
 QtEncode::getNodeType() const
 {
   return nodeType;

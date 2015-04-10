@@ -84,7 +84,7 @@ public:
     virtual void printAlgebraicExpression( std::ostream& s = std::cout );
 
     /// method for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
 
     //@Man: Operations of the ONC protocol:
     //@{

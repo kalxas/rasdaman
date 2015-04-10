@@ -57,7 +57,7 @@ class GenericComplexType : public AtomicType
 {
 
 public:
-    GenericComplexType(const char *name, unsigned int size): AtomicType(name, size) {}
+    GenericComplexType(const char *name, unsigned int newSize): AtomicType(name, newSize) {}
     GenericComplexType(const OId& id) throw (r_Error): AtomicType(id) {}
     virtual ~GenericComplexType() {}
     virtual unsigned int getReOffset() const = 0;

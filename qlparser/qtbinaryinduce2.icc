@@ -27,74 +27,74 @@ rasdaman GmbH.
  *
  ************************************************************/
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtIs::getNodeType() const
 {
   return nodeType;
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtAnd::getNodeType() const
 {
   return nodeType;
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtOr::getNodeType() const
 {
   return nodeType;
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtXor::getNodeType() const
 {
   return nodeType;
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtEqual::getNodeType() const
 {
   return nodeType;
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtLess::getNodeType() const
 {
   return nodeType;
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtLessEqual::getNodeType() const
 {
   return nodeType;
 }
 
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtNotEqual::getNodeType() const
 {
   return nodeType;
 }
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtOverlay::getNodeType() const
 {
   return nodeType;
 }
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtBit::getNodeType() const
 {
 	return nodeType; 
 }
 
-inline const QtNode::QtNodeType
+inline QtNode::QtNodeType
 QtConstructComplex::getNodeType() const
 {
     return nodeType;

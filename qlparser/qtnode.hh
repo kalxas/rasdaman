@@ -288,7 +288,7 @@ public:
     //@}
 
     /// methods for identification of nodes
-    inline virtual const QtNodeType getNodeType() const;
+    inline virtual QtNodeType getNodeType() const;
     /**
       The method allows you to differ between the different node types.
     */
@@ -431,7 +431,7 @@ public:
     ///
     inline void  setName( const char* newName );
     ///
-    inline const QtDataType getDataType() const;
+    inline  QtDataType getDataType() const;
     ///
     inline const Type*      getType() const;
     ///

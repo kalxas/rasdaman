@@ -53,8 +53,8 @@ inline ComplexType1& ComplexType1::operator =(const ComplexType1& old) {
 inline ComplexType1::~ComplexType1() {}
 
 inline void ComplexType1::printCell( ostream& stream, const char* cell ) const {
-	stream << "( Re: " << *(float *)(cell + reOffset) << "\t";
-	stream << "Im: " << *(float *)(cell + imOffset) << " )\n";
+	stream << "( Re: " << *(float *)(const_cast<char*>(cell) + reOffset) << "\t";
+	stream << "Im: " << *(float *)(const_cast<char*>(cell) + imOffset) << " )\n";
 }
 
 inline void ComplexType1::readFromDb() throw (r_Error) 	{
@@ -74,7 +74,7 @@ inline r_Long* ComplexType1::convertToCLong(const char*, r_Long*) const { return
 inline char* ComplexType1::makeFromCLong(char*, const r_Long*) const { return 0; }
 
 inline double* ComplexType1::convertToCDouble(const char* cell, double* value) const {
-  	*value = *(float*)cell;
+	*value = *(float*)const_cast<char*>(cell);
     return value;
 }
 
@@ -124,8 +124,8 @@ inline ComplexType2& ComplexType2::operator =(const ComplexType2& old) {
 inline ComplexType2::~ComplexType2() {}
 
 inline void ComplexType2::printCell( ostream& stream, const char* cell ) const {
-	stream << "( Re: " << *(double *)(cell + reOffset) << "\t";
-	stream << "Im: " << *(double *)(cell + imOffset) << " )\n";
+	stream << "( Re: " << *(double *)(const_cast<char*>(cell) + reOffset) << "\t";
+	stream << "Im: " << *(double *)(const_cast<char*>(cell) + imOffset) << " )\n";
 }
 
 inline void ComplexType2::readFromDb() throw (r_Error) 	{
@@ -145,7 +145,7 @@ inline r_Long* ComplexType2::convertToCLong(const char*, r_Long*) const { return
 inline char* ComplexType2::makeFromCLong(char*, const r_Long*) const { return 0; }
 
 inline double* ComplexType2::convertToCDouble(const char* cell, double* value) const {
-  	*value = *(double*)cell;
+	*value = *(double*)const_cast<char*>(cell);
     return value;
 }
 
