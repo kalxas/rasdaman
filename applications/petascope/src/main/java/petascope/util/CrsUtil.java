@@ -920,7 +920,7 @@ public class CrsUtil {
                     // Consistency check
                     if (numHi < domMin.doubleValue() || numLo > domMax.doubleValue()) {
                         throw new PetascopeException(ExceptionCode.InternalComponentError,
-                                "Translated pixel indixes of regular temporal axis (" +
+                                "Translated coordinates of regular temporal axis (" +
                                 numLo + ":" + numHi +") exceed the allowed values.");
                     }
 
