@@ -1,50 +1,116 @@
+/*
+ * This file is part of rasdaman community.
+ *
+ * Rasdaman community is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Rasdaman community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ *
+ * For more information please see <http://www.rasdaman.org>
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ */
+
 package org.rasdaman.rasnet.client;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import org.rasdaman.rasnet.exception.NetworkingException;
+import com.google.protobuf.Message;
 import org.rasdaman.rasnet.exception.UnsupportedMessageType;
-import org.rasdaman.rasnet.message.Internal;
-import org.rasdaman.rasnet.message.Service;
-import org.rasdaman.rasnet.util.ContainerMessage;
-import org.rasdaman.rasnet.util.ProtoZmq;
+import org.rasdaman.rasnet.message.Communication;
+import org.rasdaman.rasnet.message.internal.Internal;
+import org.rasdaman.rasnet.util.PeerStatus;
+import org.rasdaman.rasnet.util.ZmqUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import java.util.HashMap;
+import java.util.AbstractMap.SimpleEntry;
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ServiceResponseHandler {
-    private final ConcurrentHashMap<Long, Service.ServiceResponse> serviceResponses;
+    private static Logger LOG = LoggerFactory.getLogger(ServiceResponseHandler.class);
+
+    //<CallID, <Method Name, Input Data> >
+    private final ConcurrentHashMap<String, Map.Entry<String, Message>> serviceRequests;
+
+    //<CallID, <Success, Response Message> >
+    private final ConcurrentHashMap<String, Map.Entry<Boolean, byte[]>> serviceResponses;
+
+    private final PeerStatus peerStatus;
+
     private ZMQ.Socket bridgeSocket;
-    private HashMap<Long, String> outstandingRequests;
-    private String acceptedMessageType;
 
-    public ServiceResponseHandler(HashMap<Long, String> outstandingRequests, ConcurrentHashMap<Long, Service.ServiceResponse> serviceResponses, ZMQ.Socket bridgeSocket) {
-        this.bridgeSocket = bridgeSocket;
-        this.outstandingRequests = outstandingRequests;
+    public ServiceResponseHandler(ZMQ.Socket bridge,
+                                  PeerStatus peerStatus,
+                                  ConcurrentHashMap<String, Map.Entry<String, Message>> serviceRequests,
+                                  ConcurrentHashMap<String, Map.Entry<Boolean, byte[]>> serviceResponses) {
+        this.bridgeSocket = bridge;
+        this.peerStatus = peerStatus;
+        this.serviceRequests = serviceRequests;
         this.serviceResponses = serviceResponses;
-        this.acceptedMessageType = ProtoZmq.getType(Service.ServiceResponse.getDefaultInstance());
     }
 
-    public boolean canHandle(ContainerMessage message) {
-        return this.acceptedMessageType.equals(message.getType());
-    }
+    public boolean canHandle(ArrayList<byte[]> message) {
+        boolean success = false;
 
-    public void handle(ContainerMessage message, ZMQ.Socket serverSocket) throws UnsupportedMessageType, InvalidProtocolBufferException, NetworkingException {
-        if (this.canHandle(message)) {
-            //Parse the service response and add it to the collection of responses
-            Service.ServiceResponse response = Service.ServiceResponse.parseFrom(message.getData());
-            String peerId = this.outstandingRequests.get(response.getId());
-
-            if (peerId != null) {
-                this.serviceResponses.put(response.getId(), response);
-                //Notify the CallMethod thread that the response is available
-                Internal.ResponseAvailable responseAvailable = Internal.ResponseAvailable.getDefaultInstance();
-                ProtoZmq.sendToPeer(this.bridgeSocket, peerId, responseAvailable);
+        if (message.size() == 4) {
+            Communication.MessageType type;
+            try {
+                type = Communication.MessageType.parseFrom(message.get(0));
+                success = (type.getType() == Communication.MessageType.Types.SERVICE_RESPONSE);
+            } catch (InvalidProtocolBufferException e) {
+                e.printStackTrace();
+                success = false;
             }
+        }
 
-            this.outstandingRequests.remove(response.getId());
+        return success;
+    }
+
+    public void handle(ArrayList<byte[]> message) throws UnsupportedMessageType {
+        if (this.canHandle(message)) {
+            try {
+                peerStatus.reset();
+
+                //1. Extract the data
+                String requestId = new String(message.get(1));
+
+                //If an exception is thrown, the error is printed, but the exception is catched
+                Communication.ServiceCallStatus status = Communication.ServiceCallStatus.parseFrom(message.get(2));
+
+                //2.Check if the request is valid.
+                Map.Entry<String, Message> pendingRequest = serviceRequests.get(requestId);
+                if (pendingRequest != null) {
+                    //3. Add the response to the list of pending responses
+                    SimpleEntry<Boolean, byte[]> responseEntry = new SimpleEntry<>(status.getSuccess(), message.get(3));
+                    serviceResponses.put(requestId, responseEntry);
+
+                    //4. Notify the other thread that the response is ready
+                    Internal.ServiceResponseAvailable responseAvailable = Internal.ServiceResponseAvailable.getDefaultInstance();
+                    ZmqUtil.sendToPeer(bridgeSocket, requestId, responseAvailable);
+
+                    //5. Remove the request from the list of pending requests
+                    serviceRequests.remove(requestId);
+                } else {
+                    LOG.error("Received service response with invalid ID.");
+                }
+            } catch (InvalidProtocolBufferException e) {
+                LOG.error(e.getLocalizedMessage());
+                e.printStackTrace();
+            }
         } else {
-            throw new UnsupportedMessageType(message.getType());
+            throw new UnsupportedMessageType();
         }
     }
 }

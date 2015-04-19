@@ -36,8 +36,9 @@
 #include "mocks/mockrasserver.hh"
 #include "util/testutil.hh"
 
-#include "../../rasnet/src/service/server/servicemanager.hh"
-#include "../../rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
+#include "rasnet/src/server/servicemanager.hh"
+#include "rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
+
 #include "../src/serverrasnet.hh"
 #include "../src/servergroupconfig.hh"
 #include "../src/servergroupimpl.hh"

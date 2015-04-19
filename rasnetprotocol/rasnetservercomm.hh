@@ -24,7 +24,7 @@ rasdaman GmbH.
 #ifndef RASNETSERVERCOMM_HH
 #define RASNETSERVERCOMM_HH
 
-#include "../rasnet/src/messages/client_rassrvr_service.pb.h"
+#include "rasnet/src/messages/client_rassrvr_service.pb.h"
 #include "../raslib/error.hh"
 #include <boost/smart_ptr.hpp>
 #include "rasserver_x/src/clientmanager.hh"

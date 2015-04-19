@@ -36,13 +36,11 @@
 #include <boost/thread/thread.hpp>
 #include <boost/format.hpp>
 
-#include "../../common/src/logging/easylogging++.hh"
-#include "../../common/src/uuid/uuid.hh"
-#include "../../rasnet/src/util/proto/protozmq.hh"
-#include "../../rasnet/src/util/proto/zmqutil.hh"
-#include "../../rasnet/src/messages/communication.pb.h"
-#include "../../rasnet/src/messages/base.pb.h"
-
+#include "common/src/logging/easylogging++.hh"
+#include "common/src/uuid/uuid.hh"
+#include "rasnet/src/common/zmqutil.hh"
+#include "rasnet/src/messages/communication.pb.h"
+#include "rasnet/src/messages/internal.pb.h"
 
 #include "rasmgrconfig.hh"
 #include "serverrasnet.hh"
@@ -72,11 +70,10 @@ using std::set;
 using std::string;
 using std::list;
 
-using base::BaseMessage;
+using rasnet::BaseMessage;
 using common::UUID;
-using rasnet::ProtoZmq;
-using rasnet::InternalDisconnectReply;
-using rasnet::InternalDisconnectRequest;
+using rasnet::internal::InternalDisconnectReply;
+using rasnet::internal::InternalDisconnectRequest;
 using zmq::socket_t;
 using rasnet::ZmqUtil;
 
@@ -95,13 +92,13 @@ ServerManager::~ServerManager()
     try
     {
         InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
-        BaseMessage reply;
-        ProtoZmq::zmqSend ( * ( this->controlSocket.get() ), request );
-        ProtoZmq::zmqReceive ( * ( this->controlSocket.get() ), reply );
+        shared_ptr<BaseMessage> reply;
+        ZmqUtil::send(*(this->controlSocket.get()), request);
+        ZmqUtil::receive(*(this->controlSocket.get()), reply);
 
-        if ( reply.type() != InternalDisconnectReply::default_instance().GetTypeName() )
+        if ( reply->type() != InternalDisconnectReply::default_instance().GetTypeName() )
         {
-            LERROR<<"Unexpected message received from control socket."<<reply.DebugString();
+            LERROR<<"Unexpected message received from control socket."<<reply->DebugString();
         }
 
         this->workerCleanup->join();
@@ -413,7 +410,7 @@ ServerMgrProto ServerManager::serializeToProto()
 
 void ServerManager::workerCleanupRunner()
 {
-    base::BaseMessage controlMessage;
+    shared_ptr<BaseMessage> controlMessage;
     bool keepRunning=true;
 
     try
@@ -428,12 +425,12 @@ void ServerManager::workerCleanupRunner()
 
             if ( items[0].revents & ZMQ_POLLIN )
             {
-                ProtoZmq::zmqReceive ( control, controlMessage );
-                if ( controlMessage.type() ==InternalDisconnectRequest::default_instance().GetTypeName() )
+                ZmqUtil::receive(control, controlMessage);
+                if ( controlMessage->type() ==InternalDisconnectRequest::default_instance().GetTypeName() )
                 {
                     keepRunning=false;
                     InternalDisconnectReply disconnectReply;
-                    ProtoZmq::zmqSend ( control, disconnectReply );
+                    ZmqUtil::send(control, disconnectReply);
                 }
             }
             else

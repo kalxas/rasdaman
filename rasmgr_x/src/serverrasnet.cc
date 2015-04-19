@@ -31,12 +31,12 @@
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>
 
-#include "../../common/src/uuid/uuid.hh"
-#include "../../common/src/logging/easylogging++.hh"
-#include "../../rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
-#include "../../rasnet/src/service/client/channel.hh"
-#include "../../rasnet/src/service/client/clientcontroller.hh"
-#include "rasnet/src/util/proto/zmqutil.hh"
+#include "common/src/uuid/uuid.hh"
+#include "common/src/logging/easylogging++.hh"
+#include "rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
+#include "rasnet/src/client/channel.hh"
+#include "rasnet/src/client/clientcontroller.hh"
+#include "rasnet/src/common/zmqutil.hh"
 
 #include "serverrasnet.hh"
 #include "rasmgrconfig.hh"
@@ -449,7 +449,7 @@ boost::shared_ptr<rasnet::service::RasServerService> ServerRasNet::getService()
         //Rasserver is running on the same machine as rasmgr and should be able to reply
         //to a message in under 100 milliseconds
         config.setConnectionTimeout(100);
-        channel.reset(new Channel(this->hostName, this->port, config));
+        channel.reset(new Channel(ZmqUtil::toEndpoint(this->hostName, this->port), config));
         this->service.reset(new RasServerService_Stub(this->channel.get()));
     }
 

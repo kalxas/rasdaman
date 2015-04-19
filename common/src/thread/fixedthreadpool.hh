@@ -31,6 +31,8 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 
+#include <boost/asio/io_service.hpp>
+
 #include "threadpool.hh"
 
 namespace common
@@ -53,18 +55,9 @@ public:
     virtual void awaitTermination();
 
 private:
-    boost::uint32_t poolSize;/*! Maximum number of thread that can run concurrently */
-    std::map<boost::thread::id, boost::shared_ptr<boost::thread> > runningThreads; /*!Set of threads that are currently running */
-    std::deque<boost::function< void(void) > > waitingTasks;/*! Tasks that have been queued and are awaiting execution */
-
-    boost::mutex threadsMutex;/*! Mutex used to sync access to the runningThreads object */
-    boost::mutex tasksMutex; /*! Mutex used to sync access to the waitingTasks object */
-
-    /**
-     *
-     * @param task
-     */
-    void runThread(boost::function< void(void) > task);
+    boost::asio::io_service ioService;
+    boost::thread_group threadGroup;
+    boost::scoped_ptr<boost::asio::io_service::work> work;
 };
 
 } /* namespace common */

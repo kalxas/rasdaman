@@ -26,7 +26,7 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/thread.hpp>
 
-#include "../../rasnet/src/messages/rasmgr_client_service.pb.h"
+#include "rasnet/src/messages/rasmgr_client_service.pb.h"
 
 #include "clientmanager.hh"
 #include "servermanager.hh"

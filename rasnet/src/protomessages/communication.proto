@@ -22,43 +22,46 @@
 
 package rasnet;
 option java_package="org.rasdaman.rasnet.message";
+
+message MessageType {
+    enum Types{
+    CONNECT_REQUEST = 1;
+    CONNECT_REPLY = 2;
+    ALIVE_PING = 3;
+    ALIVE_PONG = 4;
+    SERVICE_REQUEST = 5;
+    SERVICE_RESPONSE = 6;
+}
+    required Types type = 1;
+}
+
+message ServiceCallStatus {
+    required bool success = 1;
+}
 /**
  * A ConnectRequest message is sent by the client
  * when initiating a connection with the server.
  */
-message ExternalConnectRequest {
-	//The number of times the server should try to contact the client
-	//before giving up and declaring the client dead
-	required int32 retries = 1;
+message ConnectRequest {
+        //The number of times the server should try to contact the client
+        //before giving up and declaring the client dead
+        required int32 retries = 1;
 
-	//The number of milliseconds between each consecutive
-	//retry
-	required int32 period = 2;
+        //The number of milliseconds between each consecutive
+        //retry
+        required int32 lifetime = 2;
 }
 
 /**
  * A ConnectReply message is sent by the server after receiving a ConnectRequest from a client.
  */
-message ExternalConnectReply {
-	//The number of times the client should try to contact the server
-	//before giving up and declaring the client dead
-	required int32 retries = 2;
+message ConnectReply {
+        //The number of times the client should try to contact the server
+        //before giving up and declaring the client dead
+        required int32 retries = 1;
 
-	//The number of milliseconds between each consecutive retry
-	required int32 period = 3;
-}
-
-message InternalConnectRequest{
-}
-
-message InternalConnectReply{
-	required bool success = 1;
-}
-
-message InternalDisconnectRequest{
-}
-
-message InternalDisconnectReply{
+        //The number of milliseconds between each consecutive retry
+        required int32 lifetime = 2;
 }
 
 /**
@@ -71,4 +74,17 @@ message AlivePing {
  * An AlivePong message is sent by a peer as a response to an AlivePing message.
  */
 message AlivePong {
+}
+
+/**
+ * A BaseMessage is used to encapsulate information about a protobuf message and its type.
+ * The type information is used to deserialize it and handle it properly at the receiving end.
+ */
+message BaseMessage {
+        //String representing the full name of the contained protomessage.
+        //It is obtained by calling the GetTypeName method on the message
+        required string type = 1;
+        //String representing the serialized protomessage
+        //It is obtained by calling SerializeAsString on the message.
+        required bytes data = 2;
 }

@@ -22,8 +22,8 @@
 
 #include <stdexcept>
 
-#include "../../common/src/logging/easylogging++.hh"
-#include "rasnet/src/util/proto/zmqutil.hh"
+#include "common/src/logging/easylogging++.hh"
+#include "rasnet/src/common/zmqutil.hh"
 
 #include "controlrasmgrrasnet.hh"
 
@@ -33,6 +33,7 @@ namespace rascontrol
 using std::runtime_error;
 
 using rasnet::Channel;
+using rasnet::ChannelConfig;
 using rasnet::service::RasMgrRasCtrlService_Stub;
 using rasnet::service::RasCtrlRequest;
 using rasnet::service::RasCtrlResponse;
@@ -50,8 +51,8 @@ ControlRasMgrRasnet::ControlRasMgrRasnet(const UserCredentials& userCredentials,
     try
     {
         std::string host = ZmqUtil::toTcpAddress(config.getRasMgrHost());
-
-        Channel* channel =  new Channel(host,config.getRasMgrPort());
+        ChannelConfig channelConfig;
+        Channel* channel =  new Channel(ZmqUtil::toEndpoint(host,config.getRasMgrPort()), channelConfig);
         this->rasmgrService.reset(new RasMgrRasCtrlService_Stub(channel));
     }
     catch(std::exception& ex)

@@ -1,34 +1,21 @@
 package org.rasdaman.rasnet.client;
 
-/**
- * Created by rasdaman on 2/24/15.
- */
+import org.rasdaman.rasnet.common.Constants;
+
 public class ChannelConfig {
-    private String serverEndpoint;
     private int channelTimeout;
-    private int ioThreadsNo;
     private int aliveTimeout;
     private int aliveRetryNo;
-    private int connectionTimeout;
     private int maxOpenSockets;
+    private int ioThreadsNo;
 
     public ChannelConfig() {
-        //TODO:Refactor
         //TODO-GM: Maybe read from .properties file?
-        //TODO-GM: which fields are immutable? => make them final
-        this.channelTimeout = 1;
-        this.ioThreadsNo = 1;
-        this.aliveTimeout = 1000;
-        this.aliveRetryNo = 1;
-        this.connectionTimeout = 1000;
-    }
-
-    public int getConnectionTimeout() {
-        return connectionTimeout;
-    }
-
-    public void setConnectionTimeout(int connectionTimeout) {
-        this.connectionTimeout = connectionTimeout;
+        this.channelTimeout = Constants.DEFAULT_CHANNEL_TIMEOUT;
+        this.aliveTimeout = Constants.DEFAULT_CLIENT_ALIVE_TIMEOUT;
+        this.aliveRetryNo = Constants.DEFAULT_CLIENT_ALIVE_RETRIES;
+        this.ioThreadsNo = Constants.DEFAULT_CHANNEL_IO_THREAD_NO;
+        this.maxOpenSockets = Constants.DEFAULT_CHANNEL_MAX_OPEN_SOCKETS;
     }
 
     public int getAliveRetryNo() {
@@ -67,11 +54,4 @@ public class ChannelConfig {
         this.maxOpenSockets = maxOpenSockets;
     }
 
-    public String getServerEndpoint() {
-        return serverEndpoint;
-    }
-
-    public void setServerEndpoint(String serverEndpoint) {
-        this.serverEndpoint = serverEndpoint;
-    }
 }

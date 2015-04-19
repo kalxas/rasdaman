@@ -3,51 +3,56 @@ package org.rasdaman.rasnet.client;
 import com.google.protobuf.*;
 import org.rasdaman.rasnet.common.Constants;
 import org.rasdaman.rasnet.exception.ConnectionTimeoutException;
-import org.rasdaman.rasnet.exception.NetworkingException;
 import org.rasdaman.rasnet.exception.UnsupportedMessageType;
-import org.rasdaman.rasnet.message.Communication;
-import org.rasdaman.rasnet.message.Internal;
-import org.rasdaman.rasnet.message.Service;
-import org.rasdaman.rasnet.util.ContainerMessage;
+import org.rasdaman.rasnet.util.MessageContainer;
+import org.rasdaman.rasnet.util.PeerMessage;
 import org.rasdaman.rasnet.util.PeerStatus;
-import org.rasdaman.rasnet.util.ProtoZmq;
 import org.rasdaman.rasnet.util.ZmqUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class Channel implements RpcChannel, AutoCloseable {
+import org.rasdaman.rasnet.message.Communication.*;
+import org.rasdaman.rasnet.message.Communication.MessageType.*;
+import org.rasdaman.rasnet.message.internal.Internal.*;
+
+public class Channel implements BlockingRpcChannel, AutoCloseable {
     private static Logger LOG = LoggerFactory.getLogger(Channel.class);
 
     volatile boolean closed;
     volatile boolean running;
-    private ConcurrentLinkedQueue<Service.ServiceRequest> serviceRequests;
-    private ConcurrentHashMap<Long, Service.ServiceResponse> serviceResponses;
+
     private int linger;
-    private long counter;
-    private String serverEndpoint;
+    private String serverAddress;
     private ChannelConfig config;
+    private String identity;
+    private final String controlAddress;
+    private final String bridgeAddress;
+
+    private ConcurrentHashMap<String, Map.Entry<String, Message>> serviceRequests;
+    private ConcurrentHashMap<String, Map.Entry<Boolean, byte[]>> serviceResponses;
+
     private ZMQ.Context context;
     private ZMQ.Socket controlSocket;
 
-    private String identity;
-    private String controlSocketAddress;
-    private String bridgeAddress;
     private Thread handlerThread;
 
-    public Channel(String serverEndpoint, ChannelConfig config) throws ConnectionTimeoutException {
-        this.serverEndpoint = serverEndpoint;
-        this.config = config;
+    public Channel(String serverAddress, ChannelConfig config) throws ConnectionTimeoutException {
+        this.closed = false;
+        this.running = false;
         this.linger = 0;
-        this.counter = 0;
+        this.serverAddress = serverAddress;
+        this.config = config;
+
+
+        this.serviceRequests = new ConcurrentHashMap<String, Map.Entry<String, Message>>();
+        this.serviceResponses = new ConcurrentHashMap<String, Map.Entry<Boolean, byte[]>>();
+
         this.identity = UUID.randomUUID().toString();
-        this.controlSocketAddress = ZmqUtil.toInprocAddress(String.format("control-%s}", this.identity));
+        this.controlAddress = ZmqUtil.toInprocAddress(String.format("control-%s}", this.identity));
         this.bridgeAddress = ZmqUtil.toInprocAddress(String.format("bridge-%s}", this.identity));
 
         this.context = ZMQ.context(this.config.getIoThreadsNo());
@@ -55,11 +60,7 @@ public class Channel implements RpcChannel, AutoCloseable {
 
         this.controlSocket = this.context.socket(ZMQ.PAIR);
         this.controlSocket.setLinger(this.linger);
-        this.controlSocket.bind(this.controlSocketAddress);
-
-        this.closed = false;
-        this.serviceRequests = new ConcurrentLinkedQueue<Service.ServiceRequest>();
-        this.serviceResponses = new ConcurrentHashMap<Long, Service.ServiceResponse>();
+        this.controlSocket.bind(this.controlAddress);
 
         this.handlerThread = new Thread(new Runnable() {
             @Override
@@ -72,106 +73,38 @@ public class Channel implements RpcChannel, AutoCloseable {
         this.connectToServer();
     }
 
-
-    @Override
-    public void callMethod(Descriptors.MethodDescriptor method, RpcController controller, Message request, Message responsePrototype, RpcCallback<Message> done) {
-        if (this.closed || !this.running) {
-            controller.setFailed("Channel is closed. No further calls are possible.");
-            return;
-        }
-
-        try {
-            long counterValue;
-
-            synchronized (this) {
-                counterValue = this.counter;
-                this.counter++;
-            }
-
-            //Service request
-            Service.ServiceRequest serviceRequest = Service.ServiceRequest
-                    .newBuilder()
-                    .setId(counterValue)
-                    .setMethodName(method.getFullName())
-                    .setInputValue(request.toByteString())
-                    .build();
-
-            //Add the request to the list of pending request calls.
-            this.serviceRequests.add(serviceRequest);
-
-            String socketID = UUID.randomUUID().toString();
-
-            ZMQ.Socket bridgeSocket = this.context.socket(ZMQ.DEALER);
-            bridgeSocket.setLinger(this.linger);
-            bridgeSocket.setIdentity(socketID.getBytes(Constants.DEFAULT_ENCODING));
-            bridgeSocket.connect(this.bridgeAddress);
-
-
-            ContainerMessage message = new ContainerMessage();
-            Internal.RequestAvailable requestAvailable = Internal.RequestAvailable.getDefaultInstance();
-
-            //Notify the worker thread that a new request is pending
-            ProtoZmq.send(bridgeSocket, requestAvailable);
-
-            //Wait for a response for the service call.
-            ProtoZmq.receive(bridgeSocket, message);
-
-            Service.ServiceResponse response = null;
-            if (ProtoZmq.getType(Internal.ResponseAvailable.getDefaultInstance()).equals(message.getType())) {
-                response = this.serviceResponses.get(counterValue);
-                if (response != null && done != null) {
-                    //Run the callback
-                    Message responseMessage = responsePrototype.getParserForType().parseFrom(response.getOutputValue());
-                    done.run(responseMessage);
-                } else {
-                    String errorMessage = "Implementation error. Invalid service response.";
-                    controller.setFailed(errorMessage);
-                    LOG.error(errorMessage);
-                }
-            } else {
-                String errorMessage = "Invalid inter-thread message. Expected ResponseAvailable message.";
-                controller.setFailed(errorMessage);
-                LOG.error(errorMessage);
-            }
-
-            bridgeSocket.disconnect(this.bridgeAddress);
-            bridgeSocket.close();
-
-        } catch (NetworkingException e) {
-            controller.setFailed(e.getMessage());
-        } catch (InvalidProtocolBufferException e) {
-            controller.setFailed(e.getMessage());
-        } catch (Exception e) {
-            controller.setFailed(e.getMessage());
-        }
-    }
-
     @Override
     public void close() throws Exception {
         if (this.running) {
-            this.running = false;
-            ContainerMessage connectReply = new ContainerMessage();
-            Communication.InternalDisconnectRequest disconnectRequest = Communication.InternalDisconnectRequest.getDefaultInstance();
-            String expectedReplyType = ProtoZmq.getType(Communication.InternalDisconnectReply.getDefaultInstance());
+            InternalDisconnectRequest disconnectRequest = InternalDisconnectRequest.getDefaultInstance();
+            MessageContainer replyEnvelope = new MessageContainer();
+            String expectedReplyType = ZmqUtil.getType(InternalDisconnectReply.getDefaultInstance());
 
-            try {
-                ProtoZmq.send(controlSocket, disconnectRequest);
-                ProtoZmq.receive(controlSocket, connectReply);
-                if (connectReply.getType() != expectedReplyType) {
-                    LOG.error("Invalid internal disconnect reply.");
+            if (!ZmqUtil.isSocketWritable(controlSocket, 0)) {
+                LOG.error("Unable to write internal disconnect request to control socket");
+            } else if (!ZmqUtil.send(controlSocket, disconnectRequest)) {
+                LOG.error("Unable to send internal disconnect request to control socket");
+            } else {
+                if (!ZmqUtil.isSocketReadable(controlSocket, this.config.getChannelTimeout())
+                        || !ZmqUtil.receive(controlSocket, replyEnvelope)) {
+                    LOG.error("Failed to receive internal disconnect reply.");
+                } else if (!replyEnvelope.getType().equals(expectedReplyType)) {
+                    LOG.error("Received invalid internal disconnect reply.");
                 }
-            } catch (NetworkingException e) {
-                LOG.error(e.getMessage());
-            } catch (InvalidProtocolBufferException e) {
-                LOG.error(e.getMessage());
             }
+
+            //Set running to false independent of the result of the above call.
+            //This means that the worker thread will eventually shutdown.
+            this.running = false;
         }
 
         if (!this.closed) {
             this.closed = true;
-
             handlerThread.join();
 
+            /** TODO-GM There is a bug in libzmq whe unbind is used on inporc address. To be uncommented
+             * when libzmq is updated to 4.1+. libzmq bug: https://github.com/zeromq/libzmq/issues/949
+             */
 //            this.controlSocket.unbind(this.controlSocketAddress);
             this.controlSocket.close();
 
@@ -179,94 +112,153 @@ public class Channel implements RpcChannel, AutoCloseable {
         }
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+
+        if (!this.closed) {
+            LOG.error("Programming error. The Channel must be closed before being garbage collected.");
+            this.close();
+        }
+    }
+
+    @Override
+    public Message callBlockingMethod(Descriptors.MethodDescriptor method, RpcController controller, Message request, Message responsePrototype) throws ServiceException {
+        Message result = null;
+        if (this.closed || !this.running) {
+            controller.setFailed("Channel is closed. No further calls are possible.");
+            return null;
+        }
+
+        if (method == null || controller == null || request == null
+                || responsePrototype == null) {
+            throw new IllegalArgumentException("The input parameters must be non-null.");
+        }
+
+        //1. Create DEALER socket for inter-thread communication
+        String callId = UUID.randomUUID().toString();
+        ZMQ.Socket bridge = this.context.socket(ZMQ.DEALER);
+        bridge.setIdentity(callId.getBytes(Constants.DEFAULT_ENCODING));
+        bridge.setLinger(linger);
+        bridge.connect(bridgeAddress);
+
+        //2. Add the request to the list of pending requests
+        this.serviceRequests.put(callId, new AbstractMap.SimpleEntry<String, Message>(ZmqUtil.getMethodName(method), request));
+
+        ServiceRequestAvailable requestAvailable = ServiceRequestAvailable.getDefaultInstance();
+        ServiceResponseAvailable responseAvailable = ServiceResponseAvailable.getDefaultInstance();
+        MessageContainer internalResponseEnvelope = new MessageContainer();
+
+        //3. Send request and wait for response
+        if (!ZmqUtil.send(bridge, requestAvailable) || !ZmqUtil.receive(bridge, internalResponseEnvelope)) {
+            controller.setFailed("Internal communication failure.");
+        } else if (!internalResponseEnvelope.getType().equals(ZmqUtil.getType(responseAvailable))) {
+            throw new RuntimeException("Received invalid message from bridge socket.");
+        } else {
+            Map.Entry<Boolean, byte[]> response = this.serviceResponses.get(callId);
+            if (response != null) {
+                boolean success = response.getKey();
+                if (success) {
+                    try {
+                        //If the call was successful, parse the response
+                        result = responsePrototype.getParserForType().parseFrom(response.getValue());
+
+                    } catch (InvalidProtocolBufferException e) {
+                        controller.setFailed("Failed to parse response message.");
+                    }
+
+                } else {
+                    //If the call was not successful, the bytes represent an error message
+                    controller.setFailed(new String(response.getValue()));
+                }
+
+                this.serviceResponses.remove(callId);
+            } else {
+                throw new RuntimeException("The list of service responses is empty");
+            }
+        }
+
+        //4. Cleanup
+        bridge.disconnect(bridgeAddress);
+        bridge.close();
+
+        return result;
+    }
+
     private void communicationHandler() {
+        //The status of the server
+        PeerStatus serverStatus = null;
+        //Poll timeout
+        int pollTimeout = -1;
         try {
-            //Ping message to send to the server
-            Communication.AlivePing ping = Communication.AlivePing.getDefaultInstance();
-            //Map between the call ids and the
-            HashMap<Long, String> outstandingRequests = new HashMap<Long, String>();
-            //The status of the server
-            PeerStatus serverStatus = null;
-            //Poll timeout
-            int pollTimeout = -1;
-
-            //Used for inter-thread communication
-            ZMQ.Socket threadControl = this.context.socket(ZMQ.PAIR);
-            threadControl.setLinger(this.linger);
-            threadControl.connect(this.controlSocketAddress);
-
-            //Socket that communicates with the server
             ZMQ.Socket server = this.context.socket(ZMQ.DEALER);
-            server.setIdentity(this.identity.getBytes(Constants.DEFAULT_ENCODING));
-            server.setLinger(this.linger);
-            server.connect(this.serverEndpoint);
+            server.setIdentity(identity.getBytes(Constants.DEFAULT_ENCODING));
+            server.setLinger(linger);
+            server.connect(serverAddress);
 
-            //Socket for sending messages about requests
-            ZMQ.Socket threadBridge = this.context.socket(ZMQ.ROUTER);
-            threadBridge.setLinger(this.linger);
-            threadBridge.bind(this.bridgeAddress);
+            ZMQ.Socket control = this.context.socket(ZMQ.PAIR);
+            control.setLinger(linger);
+            control.connect(controlAddress);
 
-            Communication.ExternalConnectReply connectReply = tryConnectToServer(threadControl, server);
+            ZMQ.Socket bridge = this.context.socket(ZMQ.ROUTER);
+            bridge.setLinger(linger);
+            bridge.bind(bridgeAddress);
 
+            ConnectReply connectReply = this.tryConnectToServer(control, server);
             if (connectReply != null) {
-                serverStatus = new PeerStatus(connectReply.getRetries(), connectReply.getPeriod());
-                pollTimeout = connectReply.getPeriod();
+                serverStatus = new PeerStatus(connectReply.getRetries(), connectReply.getLifetime());
+                pollTimeout = connectReply.getLifetime();
                 this.running = true;
             } else {
                 this.running = false;
             }
 
-            Communication.InternalConnectReply internalConnectReply = Communication.InternalConnectReply.
-                    newBuilder().
-                    setSuccess(this.running)
-                    .build();
-            //Send internal connect reply
-            ProtoZmq.send(threadControl, internalConnectReply);
+            InternalConnectReply internalConnectReply = InternalConnectReply.newBuilder().setSuccess(this.running).build();
+            ZmqUtil.send(control, internalConnectReply);
 
             ZMQ.PollItem[] items = new ZMQ.PollItem[]{
-                    new ZMQ.PollItem(threadControl, ZMQ.Poller.POLLIN),
+                    new ZMQ.PollItem(control, ZMQ.Poller.POLLIN),
                     new ZMQ.PollItem(server, ZMQ.Poller.POLLIN),
-                    new ZMQ.PollItem(threadBridge, ZMQ.Poller.POLLIN)
+                    new ZMQ.PollItem(bridge, ZMQ.Poller.POLLIN)
             };
 
-            ClientPingHandler clientPingHandler = new ClientPingHandler(serverStatus);
+            ClientPingHandler clientPingHandler = new ClientPingHandler(server, serverStatus);
             ClientPongHandler clientPongHandler = new ClientPongHandler(serverStatus);
-            ServiceResponseHandler serviceResponseHandler = new ServiceResponseHandler(outstandingRequests, this.serviceResponses, threadBridge);
+            ServiceResponseHandler serviceResponseHandler = new ServiceResponseHandler(bridge, serverStatus, serviceRequests, serviceResponses);
 
             while (this.running) {
                 ZMQ.poll(items, items.length, pollTimeout);
 
                 if (items[0].isReadable()) {
-                    try {
-                        //The only message that is sent through the control socket at this stage
-                        //is a request to shutdown the thread.
-                        ContainerMessage message = new ContainerMessage();
-                        Communication.InternalDisconnectReply reply = Communication.InternalDisconnectReply.getDefaultInstance();
+                    //The only message that is sent through the control socket at this stage
+                    //is a request to shutdown the thread.
+                    MessageContainer message = new MessageContainer();
+                    InternalDisconnectReply reply = InternalDisconnectReply.getDefaultInstance();
 
-                        ProtoZmq.receive(threadControl, message);
-                        if (ProtoZmq.getType(Communication.InternalDisconnectRequest.getDefaultInstance()).equals(message.getType())) {
-                            ProtoZmq.send(threadControl, reply);
-                        } else {
-                            LOG.error("Invalid message received from control socket.");
-                        }
-
-                        this.running = false;
-                    } catch (Exception ex) {
-                        LOG.error(ex.getMessage());
+                    if (!ZmqUtil.receive(control, message)) {
+                        LOG.error("Failed to receive message from control socket.");
+                    } else if (!ZmqUtil.getType(InternalDisconnectRequest.getDefaultInstance()).equals(message.getType())) {
+                        LOG.error("Invalid message received from control socket.");
+                    } else {
+                        ZmqUtil.send(control, reply);
                     }
+
+                    this.running = false;
                 }
 
                 if (items[1].isReadable()) {
-                    try {
-                        final ContainerMessage message = new ContainerMessage();
-                        ProtoZmq.receive(server, message);
+                    ArrayList<byte[]> message = new ArrayList<byte[]>();
+                    ZmqUtil.receiveCompositeMessage(server, message);
 
-                        if (clientPingHandler.canHandle(message)) {
-                            clientPingHandler.handle(message, server);
+                    try {
+                        if (serviceResponseHandler.canHandle(message)) {
+                            serviceResponseHandler.handle(message);
+                        } else if (clientPingHandler.canHandle(message)) {
+                            clientPingHandler.handle(message);
                         } else if (clientPongHandler.canHandle(message)) {
-                            clientPongHandler.handle(message, server);
-                        } else if (serviceResponseHandler.canHandle(message)) {
-                            serviceResponseHandler.handle(message, server);
+                            clientPongHandler.handle(message);
+                        } else {
+                            LOG.error("Received unknown message type from server.");
                         }
 
                     } catch (UnsupportedMessageType unsupportedMessageType) {
@@ -274,100 +266,106 @@ public class Channel implements RpcChannel, AutoCloseable {
                     }
                 } else {
                     if (serverStatus.decreaseLiveliness()) {
-                        ProtoZmq.send(server, ping);
+                        if (!ZmqUtil.sendCompositeMessage(server, Types.ALIVE_PING)) {
+                            LOG.error("Failed to send ping message to server.");
+                        }
                     }
                 }
 
                 if (items[2].isReadable()) {
-                    ContainerMessage message = new ContainerMessage();
-                    Internal.RequestAvailable requestAvailable = Internal.RequestAvailable.getDefaultInstance();
-                    String peerId = ProtoZmq.receiveFromPeer(threadBridge, message);
+                    PeerMessage message = new PeerMessage();
+                    ServiceRequestAvailable requestAvailable = ServiceRequestAvailable.getDefaultInstance();
 
-                    if (ProtoZmq.getType(requestAvailable).equals(message.getType())) {
-
-                        Service.ServiceRequest request = this.serviceRequests.poll();
-                        outstandingRequests.put(request.getId(), peerId);
-
+                    if (!ZmqUtil.receiveFromPeer(bridge, message)) {
+                        LOG.error("Failed to receive message from bridge.");
+                    } else if (!ZmqUtil.getType(requestAvailable).equals(message.getMessage().getType())) {
+                        LOG.error("Type of message received from bridge has invalid type.");
+                    } else {
+                        Map.Entry<String, Message> request = this.serviceRequests.get(message.getPeerId());
                         if (request != null) {
-                            ProtoZmq.send(server, request);
+                            ZmqUtil.sendServiceRequest(server, message.getPeerId(), request.getKey(), request.getValue());
                         } else {
-                            LOG.error("Invalid internal service request.");
+                            LOG.error("There is no service request in the map from the peer:" + message.getPeerId());
                         }
                     }
                 }
 
                 if (!serverStatus.isAlive()) {
-                    for (Map.Entry<Long, String> request : outstandingRequests.entrySet()) {
-                        Service.ServiceResponse failureResponse = Service.ServiceResponse.newBuilder()
-                                .setError("The service call failed because the server is not responding.")
-                                .setId(request.getKey())
-                                .build();
-                        this.serviceResponses.put(request.getKey(), failureResponse);
+                    byte[] errorMessage = (new String("Connection to server timeout.")).getBytes(Constants.DEFAULT_ENCODING);
+                    AbstractMap.SimpleEntry<Boolean, byte[]> responseEntry = new AbstractMap.SimpleEntry<>(false, errorMessage);
+                    ServiceResponseAvailable responseAvailable = ServiceResponseAvailable.getDefaultInstance();
 
-                        Internal.ResponseAvailable responseAvailable = Internal.ResponseAvailable.getDefaultInstance();
-                        ProtoZmq.sendToPeer(threadBridge, request.getValue(), responseAvailable);
+                    for (Map.Entry<String, Map.Entry<String, Message>> request : serviceRequests.entrySet()) {
+                        String callId = request.getKey();
+                        this.serviceResponses.put(callId, responseEntry);
+                        ZmqUtil.sendToPeer(bridge, callId, responseAvailable);
                     }
 
-                    outstandingRequests.clear();
+                    this.serviceRequests.clear();
                 }
             }
 
-            threadControl.disconnect(this.controlSocketAddress);
-            threadControl.close();
+            //bridge.unbind(bridgeAddress)
+            bridge.close();
 
-            server.disconnect(this.serverEndpoint);
+            control.disconnect(controlAddress);
+            control.close();
+
+            server.disconnect(serverAddress);
             server.close();
-
-//            threadBridge.unbind(this.bridgeAddress);
-            threadBridge.close();
-
-        } catch (InvalidProtocolBufferException e) {
-            e.printStackTrace();
-        } catch (NetworkingException e) {
-            e.printStackTrace();
+        } catch (org.zeromq.ZMQException ex) {
+            this.running = false;
+            LOG.error(ex.getLocalizedMessage());
         }
     }
 
-    private Communication.ExternalConnectReply tryConnectToServer(ZMQ.Socket threadControl, ZMQ.Socket toServer) {
-        Communication.ExternalConnectReply connectReply = null;
+    private ConnectReply tryConnectToServer(ZMQ.Socket controlSocket, ZMQ.Socket server) {
+        ConnectReply connectReply = null;
 
         try {
-            ContainerMessage controlMessage = new ContainerMessage();
-            String internalConnectRequestType = ProtoZmq.getType(Communication.InternalConnectRequest.getDefaultInstance());
+            String expectedInternalRequestType = ZmqUtil.getType(InternalConnectRequest.getDefaultInstance());
+            MessageContainer controlMessage = new MessageContainer();
 
-            ProtoZmq.receive(threadControl, controlMessage);
-            if (internalConnectRequestType.equals(controlMessage.getType())) {
-                Communication.ExternalConnectRequest connectionReq = Communication.ExternalConnectRequest
-                        .newBuilder()
-                        .setPeriod(this.config.getAliveTimeout())
+            //Wait for the request from the main thread.
+            if (ZmqUtil.receive(controlSocket, controlMessage)
+                    && controlMessage.getType().equals(expectedInternalRequestType)) {
+
+                //Build the connect request for the server
+                ConnectRequest connectRequest = ConnectRequest
+                        .newBuilder().setLifetime(this.config.getAliveTimeout())
                         .setRetries(this.config.getAliveRetryNo())
                         .build();
 
-                ProtoZmq.send(toServer, connectionReq);
+                //Send message connect request to server
+                ZmqUtil.sendCompositeMessage(server, Types.CONNECT_REQUEST, connectRequest);
 
-                ZMQ.PollItem[] items = new ZMQ.PollItem[]{
-                        new ZMQ.PollItem(toServer, ZMQ.Poller.POLLIN),
-                };
+                //Wait for the response for a predefined period
+                if (ZmqUtil.isSocketReadable(server, this.config.getChannelTimeout())) {
 
-                ZMQ.poll(items, items.length, this.config.getConnectionTimeout());
+                    ArrayList<byte[]> messageFromServer = new ArrayList<byte[]>();
+                    ZmqUtil.receiveCompositeMessage(server, messageFromServer);
 
-                if (items[0].isReadable()) {
-                    Communication.ExternalConnectReply reply = Communication.ExternalConnectReply.getDefaultInstance();
-                    ContainerMessage message = new ContainerMessage();
+                    if (messageFromServer.size() == 2) {
 
-                    ProtoZmq.receive(toServer, message);
-                    if (ProtoZmq.getType(reply).equals(message.getType())) {
-                        connectReply = Communication.ExternalConnectReply.parseFrom(message.getData());
+                        MessageType responseFromServerType = MessageType.parseFrom(messageFromServer.get(0));
+                        if (responseFromServerType.getType() == Types.CONNECT_REPLY) {
+                            connectReply = ConnectReply.parseFrom(messageFromServer.get(1));
+                        } else {
+                            LOG.error("The message received from the server has an incorrect type.");
+                        }
+                    } else {
+                        LOG.error("The message received from the server has the wrong number of parts.");
                     }
+                } else {
+                    LOG.error("Server did not reply within the maximum time window.");
                 }
-
             } else {
-                LOG.error("Invalid internal connect request:" + controlMessage.getData());
+                LOG.error("Failed to receive valid message from control socket.");
             }
+
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
-        } catch (NetworkingException e) {
-            e.printStackTrace();
+            LOG.error("Failed to parse message received from the server. Reason:" + e.getLocalizedMessage());
         }
 
         return connectReply;
@@ -375,25 +373,35 @@ public class Channel implements RpcChannel, AutoCloseable {
 
 
     private void connectToServer() throws ConnectionTimeoutException {
-        Communication.InternalConnectRequest connectRequest = Communication.InternalConnectRequest.getDefaultInstance();
-        Communication.InternalConnectReply expectedConnectReply = Communication.InternalConnectReply.getDefaultInstance();
-        ContainerMessage connectReply = new ContainerMessage();
+        InternalConnectRequest connectRequest = InternalConnectRequest.getDefaultInstance();
+        MessageContainer responseEnvelope = new MessageContainer();
+        String expectedReplyType = ZmqUtil.getType(InternalConnectReply.getDefaultInstance());
 
-        try {
-            ProtoZmq.send(this.controlSocket, connectRequest);
-            ProtoZmq.receive(this.controlSocket, connectReply);
+        if (!ZmqUtil.isSocketWritable(controlSocket, this.config.getChannelTimeout())
+                || !ZmqUtil.send(controlSocket, connectRequest)) {
+            LOG.error("Could not write InternalConnectRequest to control socket.");
+            throw new ConnectionTimeoutException("Failed to send inter-thread connection request.");
 
-            if (ProtoZmq.getType(expectedConnectReply).equals(connectReply.getType())) {
-                expectedConnectReply = Communication.InternalConnectReply.parseFrom(connectReply.getData());
-                if (!expectedConnectReply.getSuccess()) {
-                    throw new ConnectionTimeoutException("Connection to server time out.");
+        } else if (!ZmqUtil.isSocketReadable(controlSocket, 2 * this.config.getChannelTimeout())
+                || !ZmqUtil.receive(controlSocket, responseEnvelope)) {
+
+            LOG.error("Could not receive InternalConnectReply from control socket.");
+            throw new ConnectionTimeoutException("Failed to receive inter-thread connection reply.");
+
+        } else if (!responseEnvelope.getType().equals(expectedReplyType)) {
+
+            throw new RuntimeException("Received invalid message from internal connection reply");
+
+        } else {
+            try {
+                InternalConnectReply reply = InternalConnectReply.parseFrom(responseEnvelope.getData());
+                if (!reply.getSuccess()) {
+                    throw new ConnectionTimeoutException("Unable to establish connection to server.");
                 }
+            } catch (InvalidProtocolBufferException e) {
+                LOG.error(e.getLocalizedMessage());
+                throw new RuntimeException("Failed to parse internal connect reply. Reason:" + e.getLocalizedMessage());
             }
-        } catch (NetworkingException e) {
-            throw new ConnectionTimeoutException(e.getMessage());
-        } catch (InvalidProtocolBufferException e) {
-            throw new ConnectionTimeoutException(e.getMessage());
         }
     }
-
 }

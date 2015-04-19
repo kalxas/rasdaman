@@ -37,8 +37,8 @@
 
 #include <google/protobuf/service.h>
 
-#include "../../rasnet/src/service/client/channel.hh"
-#include "../../rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
+#include "rasnet/src/client/channel.hh"
+#include "rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
 
 #include "userdatabaserights.hh"
 #include "databasehost.hh"

@@ -37,9 +37,9 @@ rasdaman GmbH.
 #include "common/src/logging/easylogging++.hh"
 #include "rasnet/src/messages/rasmgr_rassrvr_service.pb.h"
 #include "rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
-#include "rasnet/src/service/client/channel.hh"
-#include "rasnet/src/service/client/clientcontroller.hh"
-#include "rasnet/src/service/server/servicemanager.hh"
+#include "rasnet/src/client/channel.hh"
+#include "rasnet/src/client/clientcontroller.hh"
+#include "rasnet/src/server/servicemanager.hh"
 #include "server/rasserver_config.hh"
 
 class RasnetServer

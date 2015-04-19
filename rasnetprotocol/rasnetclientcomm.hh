@@ -33,10 +33,11 @@ rasdaman GmbH.
 
 #include "../clientcomm/clientcomm.hh"
 #include "../clientcomm/rpcif.h"
-#include "../rasnet/src/messages/client_rassrvr_service.pb.h"
-#include "../rasnet/src/service/client/clientcontroller.hh"
-#include "../rasnet/src/messages/rasmgr_client_service.pb.h"
-#include "../rasnet/src/service/client/channel.hh"
+#include "rasnet/src/messages/client_rassrvr_service.pb.h"
+#include "rasnet/src/client/channel.hh"
+#include "rasnet/src/client/clientcontroller.hh"
+#include "rasnet/src/messages/rasmgr_client_service.pb.h"
+#include "rasnet/src/messages/internal.pb.h"
 #include "../rasodmg/ref.hh"
 
 class RasnetClientComm : public ClientComm

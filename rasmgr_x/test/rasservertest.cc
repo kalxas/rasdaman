@@ -27,8 +27,8 @@
 #include "../../common/src/mock/gmock.h"
 #include "../../common/src/logging/easylogging++.hh"
 
-#include "../../rasnet/src/service/server/servicemanager.hh"
-#include "../../rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
+#include "rasnet/src/server/servicemanager.hh"
+#include "rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
 
 #include "../src/serverrasnet.hh"
 

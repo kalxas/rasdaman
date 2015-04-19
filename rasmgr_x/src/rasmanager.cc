@@ -42,7 +42,8 @@
 #include "clientmanagerconfig.hh"
 #include "servergroupfactoryimpl.hh"
 #include "serverfactoryrasnet.hh"
-#include "rasnet/src/util/proto/zmqutil.hh"
+#include "rasnet/src/common/zmqutil.hh"
+#include "rasnet/src/server/servicemanagerconfig.hh"
 
 namespace rasmgr
 {
@@ -87,14 +88,15 @@ void RasManager::start()
     boost::shared_ptr<rasnet::service::RasMgrRasCtrlService> rasctrlService ( new rasmgr::ControlService ( commandExecutor ) );
     boost::shared_ptr<rasnet::service::RasMgrClientService> clientService ( new rasmgr::ClientManagementService ( clientManager, serverManager ) );
 
-    this->serviceManager.reset ( new rasnet::ServiceManager(1, 2) );
+    rasnet::ServiceManagerConfig config;
+    this->serviceManager.reset ( new rasnet::ServiceManager(config) );
 
     this->serviceManager->addService ( clientService );
     this->serviceManager->addService ( serverManagementService );
     this->serviceManager->addService ( rasctrlService );
 
     this->running=true;
-    this->serviceManager->serve (rasnet::ZmqUtil::ALL_LOCAL_INTERFACES, this->port );
+    this->serviceManager->serve (rasnet::ZmqUtil::toEndpoint(rasnet::ZmqUtil::ALL_LOCAL_INTERFACES, this->port ));
 
     while ( this->running )
     {

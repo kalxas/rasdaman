@@ -18,7 +18,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "../../rasnet/src/service/server/servicemanager.hh"
+#include "rasnet/src/server/servicemanager.hh"
 
 #include "configurationmanager.hh"
 #include "configuration.hh"

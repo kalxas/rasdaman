@@ -579,6 +579,10 @@ r_Eno_interval::r_Eno_interval()
     resetErrorText();
 }
 
+r_EGeneral::r_EGeneral(const std::string& errorText)
+{
+    this->errorText = strdup(errorText.c_str());
+}
 
 
 r_Eindex_violation::r_Eindex_violation(r_Range dlow, r_Range dhigh, r_Range dindex)

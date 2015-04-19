@@ -26,7 +26,7 @@
 #include <boost/shared_ptr.hpp>
 #include <string>
 
-#include "../../rasnet/src/messages/rasmgr_rasctrl_service.pb.h"
+#include "rasnet/src/messages/rasmgr_rasctrl_service.pb.h"
 #include "controlcommandexecutor.hh"
 
 namespace rasmgr

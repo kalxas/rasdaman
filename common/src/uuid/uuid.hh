@@ -37,6 +37,7 @@ public:
     static int generateIntId();
 
 private:
+    static bool initialized;
     static boost::uuids::random_generator uuidGenerator;
 };
 }

@@ -25,9 +25,9 @@
 #include <boost/cstdint.hpp>
 #include <boost/thread/locks.hpp>
 
-#include "../../rasnet/src/messages/rasmgr_client_service.pb.h"
-#include "../../common/src/logging/easylogging++.hh"
-#include "../../common/src/uuid/uuid.hh"
+#include "rasnet/src/messages/rasmgr_client_service.pb.h"
+#include "common/src/logging/easylogging++.hh"
+#include "common/src/uuid/uuid.hh"
 
 #include "clientcredentials.hh"
 #include "clientmanagementservice.hh"

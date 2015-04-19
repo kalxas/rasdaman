@@ -23,10 +23,9 @@ rasdaman GmbH.
 
 #include "clientmanager.hh"
 
-#include "rasnet/src/messages/base.pb.h"
 #include "rasnet/src/messages/communication.pb.h"
-#include "rasnet/src/util/proto/protozmq.hh"
-#include "rasnet/src/util/proto/zmqutil.hh"
+#include "rasnet/src/messages/internal.pb.h"
+#include "rasnet/src/common/zmqutil.hh"
 #include "common/src/uuid/uuid.hh"
 #include "server/rasserver_entry.hh"
 
@@ -39,9 +38,8 @@ using std::make_pair;
 using std::map;
 using common::Timer;
 using zmq::socket_t;
-using rasnet::ProtoZmq;
-using rasnet::InternalDisconnectReply;
-using rasnet::InternalDisconnectRequest;
+using rasnet::internal::InternalDisconnectReply;
+using rasnet::internal::InternalDisconnectRequest;
 using boost::scoped_ptr;
 using boost::unique_lock;
 using boost::shared_mutex;
@@ -51,6 +49,7 @@ using boost::thread;
 using boost::unique_lock;
 using common::UUID;
 using rasnet::ZmqUtil;
+using rasnet::BaseMessage;
 
 ClientManager::ClientManager()
 {
@@ -67,15 +66,15 @@ ClientManager::~ClientManager()
     try
     {
         // Kill the thread in a clean way
-        rasnet::InternalDisconnectRequest request = rasnet::InternalDisconnectRequest::default_instance();
-        base::BaseMessage reply;
+        InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
+        shared_ptr<BaseMessage> reply;
 
-        ProtoZmq::zmqSend(*(this->controlSocket.get()), request);
-        ProtoZmq::zmqReceive(*(this->controlSocket.get()), reply);
+        ZmqUtil::send(*(this->controlSocket.get()), request);
+        ZmqUtil::receive(*(this->controlSocket.get()), reply);
 
-        if(reply.type()!=rasnet::InternalDisconnectReply::default_instance().GetTypeName())
+        if(reply->type()!= InternalDisconnectReply::default_instance().GetTypeName())
         {
-            LERROR<<"Unexpected message received from control socket."<<reply.DebugString();
+            LERROR<<"Unexpected message received from control socket."<<reply->DebugString();
         }
 
         this->managementThread->join();
@@ -131,7 +130,7 @@ void ClientManager::evaluateClientStatus()
 {
     map<string, Timer>::iterator it;
     map<string, Timer>::iterator toErase;
-    base::BaseMessage controlMessage;
+    shared_ptr<BaseMessage> controlMessage;
     bool keepRunning=true;
 
     try
@@ -145,12 +144,12 @@ void ClientManager::evaluateClientStatus()
             zmq::poll(items, 1, ALIVE_PERIOD);
             if (items[0].revents & ZMQ_POLLIN)
             {
-                ProtoZmq::zmqReceive(control, controlMessage);
-                if(controlMessage.type()==InternalDisconnectRequest::default_instance().GetTypeName())
+                ZmqUtil::receive(control, controlMessage);
+                if(controlMessage->type() == InternalDisconnectRequest::default_instance().GetTypeName())
                 {
                     keepRunning=false;
                     InternalDisconnectReply disconnectReply;
-                    ProtoZmq::zmqSend(control, disconnectReply);
+                    ZmqUtil::send(control, disconnectReply);
                 }
             }
             else

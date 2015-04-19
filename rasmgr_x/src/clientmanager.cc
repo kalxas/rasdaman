@@ -27,12 +27,11 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 
-#include "../../common/src/logging/easylogging++.hh"
-#include "../../common/src/uuid/uuid.hh"
-#include "../../rasnet/src/util/proto/protozmq.hh"
-#include "../../rasnet/src/messages/communication.pb.h"
-#include "../../rasnet/src/messages/base.pb.h"
-#include "../../rasnet/src/util/proto/zmqutil.hh"
+#include "common/src/logging/easylogging++.hh"
+#include "common/src/uuid/uuid.hh"
+#include "rasnet/src/common/zmqutil.hh"
+#include "rasnet/src/messages/communication.pb.h"
+#include "rasnet/src/messages/internal.pb.h"
 
 #include "clientmanager.hh"
 #include "rasmgrconfig.hh"
@@ -57,10 +56,10 @@ using std::pair;
 using std::runtime_error;
 using std::string;
 using zmq::socket_t;
-using rasnet::ProtoZmq;
-using rasnet::InternalDisconnectReply;
-using rasnet::InternalDisconnectRequest;
+using rasnet::internal::InternalDisconnectReply;
+using rasnet::internal::InternalDisconnectRequest;
 using rasnet::ZmqUtil;
+using rasnet::BaseMessage;
 
 ClientManager::ClientManager(const ClientManagerConfig& config, boost::shared_ptr<rasmgr::UserManager> userManager):config(config)
 {
@@ -79,15 +78,15 @@ ClientManager::~ClientManager()
     try
     {
         // Kill the thread in a clean way
-        rasnet::InternalDisconnectRequest request = rasnet::InternalDisconnectRequest::default_instance();
-        base::BaseMessage reply;
+        InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
+        shared_ptr<BaseMessage> reply;
 
-        ProtoZmq::zmqSend(*(this->controlSocket.get()), request);
-        ProtoZmq::zmqReceive(*(this->controlSocket.get()), reply);
+        ZmqUtil::send(*(this->controlSocket.get()), request);
+        ZmqUtil::receive(*(this->controlSocket.get()), reply);
 
-        if(reply.type()!=rasnet::InternalDisconnectReply::default_instance().GetTypeName())
+        if(reply->type() != InternalDisconnectReply::default_instance().GetTypeName())
         {
-            LERROR<<"Unexpected message received from control socket."<<reply.DebugString();
+            LERROR<<"Unexpected message received from control socket."<<reply->DebugString();
         }
 
         this->managementThread->join();
@@ -238,7 +237,7 @@ void ClientManager::evaluateClientsStatus()
 {
     map<string, shared_ptr<Client> >::iterator it;
     map<string, shared_ptr<Client> >::iterator toErase;
-    base::BaseMessage controlMessage;
+    shared_ptr<BaseMessage> controlMessage;
     bool keepRunning=true;
 
     try
@@ -252,12 +251,12 @@ void ClientManager::evaluateClientsStatus()
             zmq::poll(items, 1, this->config.getCleanupInterval());
             if (items[0].revents & ZMQ_POLLIN)
             {
-                ProtoZmq::zmqReceive(control, controlMessage);
-                if(controlMessage.type()==InternalDisconnectRequest::default_instance().GetTypeName())
+                ZmqUtil::receive(control, controlMessage);
+                if(controlMessage->type()==InternalDisconnectRequest::default_instance().GetTypeName())
                 {
                     keepRunning=false;
                     InternalDisconnectReply disconnectReply;
-                    ProtoZmq::zmqSend(control, disconnectReply);
+                    ZmqUtil::send(control, disconnectReply);
                 }
             }
             else

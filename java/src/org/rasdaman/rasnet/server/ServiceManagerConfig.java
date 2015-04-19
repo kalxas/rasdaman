@@ -1,32 +1,42 @@
+/*
+ * This file is part of rasdaman community.
+ *
+ * Rasdaman community is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Rasdaman community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ *
+ * For more information please see <http://www.rasdaman.org>
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ */
+
 package org.rasdaman.rasnet.server;
 
 import org.rasdaman.rasnet.common.Constants;
 
-/**
- * Created by rasdaman on 2/19/15.
- */
 public class ServiceManagerConfig {
     private int ioThreadNo;
     private int cpuThreadNo;
+    private int maxOpenSockets;
     private int aliveTimeout;
     private int aliveRetryNo;
-    private int maxOpenSockets;
 
-    private ServiceManagerConfig(int ioThreadNo, int cpuThreadNo, int aliveTimeout, int aliveRetryNo, int maxOpenSockets) {
-        this.ioThreadNo = ioThreadNo;
-        this.cpuThreadNo = cpuThreadNo;
-        this.aliveTimeout = aliveTimeout;
-        this.aliveRetryNo = aliveRetryNo;
-        this.maxOpenSockets = maxOpenSockets;
-    }
-
-    public static ServiceManagerConfig defaultInstance() {
-        return new ServiceManagerConfig(
-                Constants.SERVER_IO_THREAD_NO,
-                Constants.CPU_THREAD_NO,
-                Constants.SERVER_ALIVE_TIMEOUT,
-                Constants.SERVER_ALIVE_RETRIES,
-                Constants.MAX_OPEN_SOCKETS);
+    public ServiceManagerConfig() {
+        this.ioThreadNo = Constants.DEFAULT_SERVER_IO_THREADS_NO;
+        this.cpuThreadNo = Constants.DEFAULT_SERVER_CPU_THREADS_NO;
+        this.aliveTimeout = Constants.DEFAULT_SERVER_ALIVE_TIMEOUT;
+        this.aliveRetryNo = Constants.DEFAULT_SERVER_LIVES;
+        this.maxOpenSockets = Constants.DEFAULT_SERVER_MAX_OPEN_SOCKETS;
     }
 
     public int getIoThreadNo() {

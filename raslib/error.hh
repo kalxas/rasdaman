@@ -269,6 +269,12 @@ public:
     r_Eno_interval();
 };
 
+class r_EGeneral : public r_Error
+{
+public:
+    r_EGeneral(const std::string& errorText);
+};
+
 
 
 

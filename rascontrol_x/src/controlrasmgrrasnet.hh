@@ -28,9 +28,10 @@
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>
 
-#include "../../rasnet/src/service/client/channel.hh"
-#include "../../rasnet/src/service/client/clientcontroller.hh"
-#include "../../rasnet/src/messages/rasmgr_rasctrl_service.pb.h"
+#include "rasnet/src/client/channel.hh"
+#include "rasnet/src/client/channelconfig.hh"
+#include "rasnet/src/client/clientcontroller.hh"
+#include "rasnet/src/messages/rasmgr_rasctrl_service.pb.h"
 
 #include "controlrasmgrcomm.hh"
 #include "usercredentials.hh"

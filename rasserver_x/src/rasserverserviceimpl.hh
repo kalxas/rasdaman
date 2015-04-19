@@ -30,7 +30,7 @@ rasdaman GmbH.
 #include <boost/smart_ptr.hpp>
 
 #include "clientmanager.hh"
-#include "../../rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
+#include "rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
 
 class RasServerServiceImpl : public rasnet::service::RasServerService
 {

@@ -19,15 +19,24 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
+package rasnet.internal;
+option java_package="org.rasdaman.rasnet.message.internal";
 
-package rasnet;
-
-option java_package = "org.rasdaman.rasnet.message";
-
-message ResponseAvailable {
-
+message InternalConnectRequest {
 }
 
-message RequestAvailable{
+message InternalConnectReply {
+    required bool success = 1;
+}
 
+message InternalDisconnectRequest {
+}
+
+message InternalDisconnectReply {
+}
+
+message ServiceRequestAvailable {
+}
+
+message ServiceResponseAvailable {
 }

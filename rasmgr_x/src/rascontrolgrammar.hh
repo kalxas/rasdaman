@@ -112,7 +112,7 @@ struct RasControlGrammar : qi::grammar<Iterator, std::string ( void ), ascii::sp
     this->commentRule = qi::lit ( "#" ) >> *qi::char_;
     //Rule describing a space delimited string
     //TODO-AT: This rule should parse any valid c++ identifier
-    this->strRule = qi::lexeme[ ( qi::alpha | qi::char_ ( '_' ) ) >> * ( qi::alnum | qi::char_ ( '_' ) )]; //qi::as_string[qi::lexeme[+qi::alnum]];
+    this->strRule = qi::lexeme[ ( qi::alpha | qi::char_ ( '_' ) | qi::char_ ( '/') ) >> * ( qi::alnum | qi::char_ ( '_' ) | qi::char_ ( '/') | qi::char_ ( '-') )]; //qi::as_string[qi::lexeme[+qi::alnum]];
 
     //TODO-AT: Make this accept any host name
     this->hostNameRule  = qi::lexeme[ ( qi::alpha | qi::char_ ( '_' ) ) >> * ( qi::alnum | qi::char_ ( '_' ) | qi::char_ ( '-' ) )];

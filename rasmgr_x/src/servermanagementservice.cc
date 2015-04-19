@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#include "../../common/src/logging/easylogging++.hh"
+#include "common/src/logging/easylogging++.hh"
 
 #include "servermanagementservice.hh"
 

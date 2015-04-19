@@ -26,7 +26,7 @@
 #include <google/protobuf/service.h>
 #include <google/protobuf/stubs/common.h>
 
-#include "../../rasnet/src/messages/rasmgr_rassrvr_service.pb.h"
+#include "rasnet/src/messages/rasmgr_rassrvr_service.pb.h"
 
 #include "servermanager.hh"
 

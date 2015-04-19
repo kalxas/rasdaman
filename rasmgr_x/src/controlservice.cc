@@ -24,7 +24,7 @@
 #include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/phoenix.hpp>
 
-#include "../../common/src/logging/easylogging++.hh"
+#include "common/src/logging/easylogging++.hh"
 
 #include "controlservice.hh"
 

@@ -1,39 +1,58 @@
+/*
+ * This file is part of rasdaman community.
+ *
+ * Rasdaman community is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Rasdaman community is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ *
+ * For more information please see <http://www.rasdaman.org>
+ * or contact Peter Baumann via <baumann@rasdaman.com>.
+ */
+
 package org.rasdaman.rasnet.server;
 
-import com.google.protobuf.Descriptors;
-import com.google.protobuf.Message;
-import com.google.protobuf.RpcCallback;
-import com.google.protobuf.Service;
+import com.google.protobuf.*;
+import org.rasdaman.rasnet.common.Constants;
 import org.rasdaman.rasnet.exception.DuplicateService;
-import org.rasdaman.rasnet.message.Internal;
-import org.rasdaman.rasnet.util.ContainerMessage;
-import org.rasdaman.rasnet.util.ProtoZmq;
+import org.rasdaman.rasnet.exception.UnsupportedMessageType;
+import org.rasdaman.rasnet.message.Communication;
+import org.rasdaman.rasnet.message.internal.Internal.ServiceResponseAvailable;
+import org.rasdaman.rasnet.util.ZmqUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import static org.rasdaman.rasnet.message.Service.ServiceRequest;
-import static org.rasdaman.rasnet.message.Service.ServiceResponse;
 
 public class ServiceRequestHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceRequestHandler.class);
 
-    private String acceptedMessageType;
-    private String bridgeAddress;
     private ZMQ.Context context;
-    private Map<String, Service> serviceMap;
-    private Map<String, Descriptors.MethodDescriptor> serviceMethodMap;
+    private String bridgeAddress;
+    private ConcurrentHashMap<String, Service> serviceMap;
+    private ConcurrentHashMap<String, Descriptors.MethodDescriptor> serviceMethodMap;
     private ConcurrentLinkedQueue<ServiceResponse> completedTasksResults;
 
     public ServiceRequestHandler(ZMQ.Context context, String bridgeAddress) {
         this.context = context;
         this.bridgeAddress = bridgeAddress;
-        this.acceptedMessageType = ProtoZmq.getType(ServiceRequest.getDefaultInstance());
-        this.serviceMap = Collections.synchronizedMap(new HashMap<String, Service>());
-        this.serviceMethodMap = Collections.synchronizedMap(new HashMap<String, Descriptors.MethodDescriptor>());
+        this.serviceMap = new ConcurrentHashMap<String, Service>();
+        this.serviceMethodMap = new ConcurrentHashMap<String, Descriptors.MethodDescriptor>();
         this.completedTasksResults = new ConcurrentLinkedQueue<ServiceResponse>();
     }
 
@@ -59,104 +78,115 @@ public class ServiceRequestHandler {
         }
     }
 
-    /**
-     * Get the next service response in the queue.
-     *
-     * @return The next ServiceResponse object or null if there is none
-     */
     ServiceResponse getTaskResult() {
         return this.completedTasksResults.poll();
     }
 
-    public boolean canHandle(ContainerMessage message) {
-        return (this.acceptedMessageType.equals(message.getType()));
+    public boolean canHandle(ArrayList<byte[]> message) {
+        boolean success = false;
+
+        if (message.size() == 4) {
+            Communication.MessageType type;
+            try {
+                type = Communication.MessageType.parseFrom(message.get(0));
+                success = (type.getType() == Communication.MessageType.Types.SERVICE_REQUEST);
+            } catch (InvalidProtocolBufferException e) {
+                e.printStackTrace();
+                success = false;
+            }
+        }
+
+        return success;
     }
 
-    public void handle(ContainerMessage message, String peerId) {
-        //The response that must be sent to the client.
-        final ServiceResponse.Builder serviceResponse = ServiceResponse.newBuilder();
-
+    public void handle(ArrayList<byte[]> message, String peerId) throws UnsupportedMessageType {
         //boolean which indicates if the callback was called.
         //If the callback was not called, an error is reported to the user.
         final boolean[] callbackCalled = {false};
+        if (this.canHandle(message)) {
+            //| MessageType = SERVICE_REQUEST | Call ID | Method Name | Serialized Input Data|
+            String callId = new String(message.get(1));
+            String methodName = new String(message.get(2));
+            final ServiceResponse serviceResponse = new ServiceResponse(callId);
 
-        try {
-            if (this.canHandle(message)) {
-                //Will fail if the request is invalid
-                ServiceRequest request = ServiceRequest.parseFrom(message.getData());
+            final ServerController controller = new ServerController();
+            Descriptors.MethodDescriptor methodDescriptor = this.serviceMethodMap.get(methodName);
+            if (methodDescriptor != null) {
+                //Retrieve the service associated with the method descriptor
+                Service service = this.serviceMap.get(methodDescriptor.getService().getFullName());
+                if (service != null) {
+                    try {
+                        final String replyDataType = ZmqUtil.getType(service.getResponsePrototype(methodDescriptor).newBuilderForType().buildPartial());
 
-                //The id for the response must be the same as the one in the request.
-                serviceResponse.setId(request.getId());
+                        Message requestData = service.getRequestPrototype(methodDescriptor).getParserForType().parseFrom(message.get(3));
 
-                Descriptors.MethodDescriptor methodDescriptor = this.serviceMethodMap.get(request.getMethodName());
-                if (methodDescriptor != null) {
-                    //Retrieve the service associated with the method descriptor
-                    Service service = this.serviceMap.get(methodDescriptor.getService().getFullName());
-
-                    if (service != null) {
-                        ServerController controller = new ServerController();
-                        final String replyDataType = ProtoZmq.getType(service.getResponsePrototype(methodDescriptor).newBuilderForType().buildPartial());
-
-                        Message.Builder requestDataBuilder = service.getRequestPrototype(methodDescriptor).newBuilderForType();
-                        Message requestData = requestDataBuilder.mergeFrom(request.getInputValue()).build();
-
+                        //Call the method and set the output
                         service.callMethod(methodDescriptor, controller, requestData, new RpcCallback<Message>() {
                             @Override
                             public void run(Message parameter) {
                                 callbackCalled[0] = true;
 
                                 //Sanity check
-                                if (replyDataType.equals(ProtoZmq.getType(parameter))) {
+                                if (replyDataType.equals(ZmqUtil.getType(parameter))) {
                                     serviceResponse.setOutputValue(parameter.toByteString());
                                 } else {
                                     //Invalid message received.
-                                    serviceResponse.setError("The response set in the callback is invalid. Contact the service implementer.");
+                                    controller.setFailed("The response set in the callback is invalid. Contact the service implementer.");
                                 }
                             }
                         });
 
-                        if (!callbackCalled[0]) {
-                            serviceResponse.setError("Invalid method implementation. Contact the service implementer.");
+                        if (!callbackCalled[0] && !controller.failed()) {
+                            controller.setFailed("Invalid method implementation. Contact the service implementer.");
                         }
 
-                    } else {
-                        serviceResponse.setError(
-                                "This service is not offered by the server.");
-                        LOG.error("Call to inexisting service:" + methodDescriptor.getService().getFullName());
+                    } catch (InvalidProtocolBufferException e) {
+                        LOG.error(e.getLocalizedMessage());
+                        controller.setFailed("The input data is unparsable.");
+                    } catch (Exception ex) {
+                        LOG.error(ex.getLocalizedMessage());
+                        controller.setFailed(ex.getLocalizedMessage());
                     }
                 } else {
-                    serviceResponse.setError("This method " + request.getMethodName() + " is not offered by the server.");
-                    LOG.error("Call to inexisting method:" + request.getMethodName());
+                    String errorMessage = "There is no service with the given name offered by this server.";
+                    LOG.error(errorMessage);
+                    controller.setFailed(errorMessage);
                 }
             } else {
-                LOG.error("Invalid call to ServiceRequestHandler.");
+                String errorMessage = "There is no method with the given name on this server.";
+                LOG.error(errorMessage);
+                controller.setFailed(errorMessage);
             }
-        } catch (Exception ex) {
-            serviceResponse.setError(ex.getMessage());
-        } finally {
-            //If all the fields have been set, return the error.
-            if (serviceResponse.isInitialized()) {
-                this.completedTasksResults.add(serviceResponse.build());
-                this.notifyPeer(peerId);
+
+            if (controller.failed()) {
+                serviceResponse.setError(controller.errorText());
             }
+
+            this.completedTasksResults.add(serviceResponse);
+
+            this.sendMessageToBridge(peerId);
+
+        } else {
+            throw new UnsupportedMessageType();
         }
     }
 
-    private void notifyPeer(String peerId) {
-        ZMQ.Socket socket = this.context.socket(ZMQ.DEALER);
-        socket.setLinger(0);
-        socket.connect(this.bridgeAddress);
-
+    private void sendMessageToBridge(String peerId) {
         try {
-            Internal.ResponseAvailable response = Internal.ResponseAvailable.getDefaultInstance();
-            //The socket will get the random identity of the socket
-            //the peer id, and finally, the serialized response
-            ProtoZmq.sendToPeer(socket, peerId, response);
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage());
-        } finally {
+            ZMQ.Socket socket = this.context.socket(ZMQ.DEALER);
+            socket.setLinger(0);
+            socket.setIdentity(peerId.getBytes(Constants.DEFAULT_ENCODING));
+            socket.connect(this.bridgeAddress);
+
+            ServiceResponseAvailable responseAvailable = ServiceResponseAvailable.getDefaultInstance();
+            ZmqUtil.send(socket, responseAvailable);
+
             socket.disconnect(this.bridgeAddress);
             socket.close();
+        } catch (org.zeromq.ZMQException ex) {
+            LOG.error(ex.getMessage());
+        } catch (Exception ex) {
+            LOG.error(ex.getMessage());
         }
     }
 }

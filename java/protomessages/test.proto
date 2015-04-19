@@ -29,11 +29,11 @@ option cc_generic_services = true;
 option java_generic_services = true;
 
 message TestRequest {
-    required string testStr = 1;
+    required string data = 1;
 }
 
 message TestReply {
-    required string testStr = 1;
+    required string data = 1;
 }
 
 //A simple service that takes a RequestType message as an input parameter
