@@ -179,7 +179,8 @@ public class WmsConfig
             log.debug(dumpSettings());
         }
         catch (WMSException e) {
-            throw new ServletException(e.toString());
+            log.warn("Please add at least one WMS 1.1 service with add_wms_service.sh");
+            throw new ServletException(e.getMessage());
         }
         log.info("Config.initFromDatabase");
     }

@@ -186,7 +186,7 @@ public class PetascopeInterface extends HttpServlet {
             log.info("WMS11: Initialization complete.");
         }
         catch (Exception e){
-            log.error("WMS 1.1.0 could not be initialized due to {}", e);
+            log.error("WMS 1.1.0 could not be initialized");
         }
 
         /* Initialize WCS Service */
