@@ -333,7 +333,7 @@ QtMDD::printStatus( ostream& stream ) const
     RMDBGIF(3, RMDebug::module_qlparser, "QtMDD", mddObject->printStatus(0, stream); )
 
     RMDBGIF(30, RMDebug::module_qlparser, "QtMDD", \
-            vector<Tile*>* vec = mddObject->getTiles(); \
+            vector< boost::shared_ptr<Tile> >* vec = mddObject->getTiles(); \
             for( int i = 0; i<vec->size(); i++ ) \
             ((*vec)[i])->printStatus(); \
             delete vec; vec=NULL; )

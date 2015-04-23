@@ -38,6 +38,7 @@ rasdaman GmbH.
 #include "tilemgr/tile.hh"
 #include "ecpg_lockmanager.hh"
 #include <vector>
+#include <boost/shared_ptr.hpp>
 
 enum Lock {EXCLUSIVE_LOCK, SHARED_LOCK};
 
@@ -115,7 +116,7 @@ class LockManager
 
         // function processes parameters and then call the corresponding private functions for
         // a vector of tiles
-        void lockTiles(std::vector<Tile *> *);
+        void lockTiles(std::vector< boost::shared_ptr<Tile> > *);
 
         // function for locking all tiles corresponding to the ids in the array
         void lockTiles(long long [], int);

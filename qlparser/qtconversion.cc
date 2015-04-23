@@ -239,7 +239,7 @@ QtConversion::evaluate( QtDataList* inputList )
             QtMDD*  qtMDD         = (QtMDD*) operand;
             MDDObj* currentMDDObj = qtMDD->getMDDObject();
             nullValues = currentMDDObj->getNullValues();
-            vector< Tile* >* tiles = NULL;
+            vector< boost::shared_ptr<Tile> >* tiles = NULL;
             if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())
             {
                 // get relevant tiles

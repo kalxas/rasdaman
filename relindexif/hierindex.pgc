@@ -760,19 +760,16 @@ DBHierIndex::deleteFromDb() throw (r_Error)
     */
 #endif // NOTYET
 
-    OId oi;
-    DBObjectId dbo;
     while (!myKeyObjects.empty())
     {
-        oi = myKeyObjects.begin()->getObject().getOId();
-        DBObjectId dbo;
+        OId oi = myKeyObjects.back().getObject().getOId();
         if ((oi.getType() == OId::BLOBOID) || (oi.getType() == OId::INLINETILEOID))
         {
             BLOBTile::kill(oi);
         }
         else if (oi.getType() != OId::INVALID)
         {
-            dbo = DBObjectId(oi);
+            DBObjectId dbo = DBObjectId(oi);
             if (!dbo.is_null())
             {
                 dbo->setCached(false);
@@ -780,7 +777,7 @@ DBHierIndex::deleteFromDb() throw (r_Error)
                 dbo = (unsigned int)0;
             }
         }
-        myKeyObjects.erase(myKeyObjects.begin());
+        myKeyObjects.pop_back();
     }
 
     id3 = myOId;

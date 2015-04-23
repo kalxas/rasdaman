@@ -159,7 +159,7 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
 
         TALK( "computeFullCondense-last-good\n" );
         // get all tiles in relevant area
-        vector<Tile*>* allTiles = op->intersect(areaOp);
+        vector< boost::shared_ptr<Tile> >* allTiles = op->intersect(areaOp);
 
         TALK( "computeFullCondense-8\n" );
         // get new operation object
@@ -168,7 +168,7 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
 
         TALK( "computeFullCondense-9\n" );
         // and iterate over them
-        for( vector<Tile*>::iterator tileIt = allTiles->begin();
+        for( vector< boost::shared_ptr<Tile> >::iterator tileIt = allTiles->begin();
                 tileIt!=allTiles->end(); tileIt++ )
         {
             // domain of the actual tile
@@ -385,7 +385,7 @@ QtSome::evaluate( QtDataList* inputList )
     r_Minterval areaOp = mdd->getLoadDomain();
 
     // get all tiles in relevant area
-    vector<Tile*>* allTiles = op->intersect(areaOp);
+    vector< boost::shared_ptr<Tile> >* allTiles = op->intersect(areaOp);
 
     // allocate buffer for the result
     unsigned int typeSize = resultType->getSize();
@@ -397,7 +397,7 @@ QtSome::evaluate( QtDataList* inputList )
     CondenseOp* condOp = Ops::getCondenseOp(Ops::OP_SOME, resultType, resultBuffer, resultType, 0, 0);
 
     // and iterate over them
-    for( vector<Tile*>::iterator tileIt = allTiles->begin(); tileIt !=  allTiles->end() && !dummy ; tileIt++ )
+    for( vector< boost::shared_ptr<Tile> >::iterator tileIt = allTiles->begin(); tileIt !=  allTiles->end() && !dummy ; tileIt++ )
     {
         // domain of the actual tile
         r_Minterval tileDom = (*tileIt)->getDomain();
@@ -504,7 +504,7 @@ QtAll::evaluate( QtDataList* inputList )
     r_Minterval areaOp = mdd->getLoadDomain();
 
     // get all tiles in relevant area
-    vector<Tile*>* allTiles = op->intersect(areaOp);
+    vector< boost::shared_ptr<Tile> >* allTiles = op->intersect(areaOp);
 
     // allocate buffer for the result
     unsigned int tempTypeSize = resultType->getSize();
@@ -515,7 +515,7 @@ QtAll::evaluate( QtDataList* inputList )
     resultType->makeFromCULong( resultBuffer, &dummy );
     CondenseOp* condOp = Ops::getCondenseOp(Ops::OP_ALL, resultType, resultBuffer, resultType, 0, 0);
 
-    for( std::vector<Tile*>::iterator tileIt = allTiles->begin(); tileIt!=allTiles->end() && dummy; tileIt++ )
+    for( std::vector< boost::shared_ptr<Tile> >::iterator tileIt = allTiles->begin(); tileIt!=allTiles->end() && dummy; tileIt++ )
     {
         // domain of the actual tile
         r_Minterval tileDom = (*tileIt)->getDomain();

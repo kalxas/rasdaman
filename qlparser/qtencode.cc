@@ -160,7 +160,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     MDDObj* currentMDDObj  = qtMDD->getMDDObject();
 
     Tile*       sourceTile = NULL;
-    vector< Tile* >* tiles = NULL;
+    vector< boost::shared_ptr<Tile> >* tiles = NULL;
 
     // get MDD tiles
     if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())

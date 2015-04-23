@@ -129,7 +129,7 @@ QtMDDAccess::next()
             if (ptr)
             {
                 LockManager *lockmanager = LockManager::Instance();
-                std::vector< Tile* >* tiles = ptr->getTiles();
+                std::vector< boost::shared_ptr<Tile> >* tiles = ptr->getTiles();
                 lockmanager->lockTiles(tiles);
                 delete tiles;
             }

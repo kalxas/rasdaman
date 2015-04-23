@@ -39,7 +39,6 @@ ostream& operator<<(ostream& in,  const KeyObject& d)
 }
 
 KeyObject::KeyObject()
-    :   transobject(NULL)
 {
 }
 
@@ -50,31 +49,29 @@ KeyObject::KeyObject(const KeyObject& old)
 {
 }
 
-KeyObject::KeyObject(const Tile* tile)
+KeyObject::KeyObject(shared_ptr<Tile> tile)
     :   persobject(),
-        domain(tile->getDomain()),
-        transobject(NULL)
+        domain(tile->getDomain())
 {
     if (tile->isPersistent())
     {
-        persobject = (const DBObjectId&)(const_cast<Tile*>(tile))->getDBTile();
+        persobject = (const DBObjectId&)(tile->getDBTile());
     }
     else
     {
-        transobject = const_cast<Tile*>(tile);
+        transobject = tile;
     }
 }
 
 KeyObject::KeyObject(const DBObjectId& obj, const r_Minterval& dom)
     :   persobject(obj),
-        domain(dom),
-        transobject(NULL)
+        domain(dom)
 {
 }
 
 KeyObject::~KeyObject()
 {
-    transobject = NULL;
+    transobject.reset();
 }
 
 void
@@ -84,10 +81,10 @@ KeyObject::setDomain(const r_Minterval& dom)
 }
 
 void
-KeyObject::setTransObject(const Tile* tile)
+KeyObject::setTransObject(shared_ptr<Tile> tile)
 {
     domain = tile->getDomain();
-    transobject = const_cast<Tile*>(tile);
+    transobject = tile;
 }
 
 void
@@ -112,7 +109,7 @@ KeyObject::isPersCarrier() const
     return (transobject == NULL);
 }
 
-Tile*
+shared_ptr<Tile>
 KeyObject::getTransObject() const
 {
     return transobject;

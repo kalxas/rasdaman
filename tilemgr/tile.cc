@@ -121,38 +121,6 @@ Tile::Tile(std::vector<Tile*>* tilesVec)
     }
 }
 
-Tile::Tile(std::vector<Tile*>* tilesVec, const r_Minterval& resDom)
-    :   domain(resDom)
-{
-    // iterators for tiles
-    std::vector<Tile*>::iterator tileIt;
-    // domain of the current tile
-    r_Minterval currDom;
-
-    // get first Tile
-    tileIt = tilesVec->begin();
-    // initialize type with type of first tile
-    type = (*tileIt)->getType();
-
-    // init contents
-    if (RMInit::useTileContainer)
-        blobTile = new InlineTile(getSize(), (char)0, (*tileIt)->getDataFormat());
-    else
-        blobTile = new BLOBTile(getSize(), (char)0, (*tileIt)->getDataFormat());
-
-    // insert all tiles in the result tile
-    tileIt = tilesVec->begin();
-    while (tileIt != tilesVec->end())
-    {
-        currDom = (*tileIt)->getDomain();
-        currDom.intersection_with(resDom);
-
-        copyTile(currDom, (*tileIt), currDom);
-
-        tileIt++;
-    }
-}
-
 Tile::Tile(const Tile* projTile, const r_Minterval& projDom, const std::set<r_Dimension, std::less<r_Dimension> >* projDimSet)
     :   domain(projDom.dimension() - projDimSet->size()),
         type(projTile->type),

@@ -381,6 +381,10 @@ AC_ARG_ENABLE([r],
               [enable_r=no])
 AM_CONDITIONAL([ENABLE_R], [test "$enable_r" = yes])
 
+# check for boost
+AX_BOOST_BASE([1.48],[],[AC_MSG_FAILURE([boost library required with version >= 1.48. Please install it.])])
+CXXFLAGS="$CXXFLAGS ${BOOST_CPPFLAGS}"
+
 ### Start - Check for rasnet ###
 if test "$enable_rasnet" = "yes"; then
     # check for protobuf
@@ -417,10 +421,6 @@ if test "$enable_rasnet" = "yes"; then
     AC_SUBST(ZMQ_LIBS)
     AC_SUBST(ZMQ_CFLAGS)
     CXXFLAGS="$CXXFLAGS ${ZMQ_CFLAGS}"
-
-    # check for boost
-    AX_BOOST_BASE([1.48],[],[AC_MSG_FAILURE([boost library required with version >= 1.48. Please install it.])])
-    CXXFLAGS="$CXXFLAGS ${BOOST_CPPFLAGS}"
 fi
 ### End - Check for rasnet ###
 

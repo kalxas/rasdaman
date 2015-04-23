@@ -296,7 +296,10 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
     //
     // get all source tiles
     //
-    vector<Tile*>* sourceTiles = sourceObj->getTiles();
+    boost::shared_ptr< vector< boost::shared_ptr<Tile> > > srcTilePtrs(sourceObj->getTiles());
+    vector<Tile*>* sourceTiles = new vector<Tile*>;
+    for (vector< boost::shared_ptr<Tile> >::iterator it = srcTilePtrs->begin(); it != srcTilePtrs->end(); ++it)
+        sourceTiles->push_back(it->get());
     
     RMDBGIF(1, RMDebug::module_qlparser, "QtUpdate", \
                         if (sourceTiles) \
@@ -328,8 +331,12 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
     vector<Tile*>::iterator targetIt;
     sourceIt = sourceTiles->begin();
     sourceDomains.push_back(sourceMDDDomain);
-    vector<Tile*>* targetTiles = NULL;
-    targetTiles = targetObj->intersect(sourceMDDDomain);
+
+    srcTilePtrs.reset(targetObj->intersect(sourceMDDDomain));
+    vector<Tile*>* targetTiles = new vector<Tile*>;
+    for (vector< boost::shared_ptr<Tile> >::iterator it = srcTilePtrs->begin(); it != srcTilePtrs->end(); ++it)
+        targetTiles->push_back(it->get());
+
     if (!targetTiles)
     {
         targetTiles = new vector<Tile*>;

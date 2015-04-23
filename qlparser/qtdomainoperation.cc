@@ -558,12 +558,12 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                 if( trimming || projection )
                 {
                     // get relevant tiles
-                    vector<Tile* >* relevantTiles = currentMDDObj->intersect( domain );
+                    vector< boost::shared_ptr<Tile> >* relevantTiles = currentMDDObj->intersect( domain );
 
                     if( relevantTiles->size() > 0 )
                     {
                         // iterator for tiles
-                        vector<Tile*>::iterator tileIt;
+                        vector< boost::shared_ptr<Tile> >::iterator tileIt;
 
                         // create a transient MDD object for the query result
                         MDDObj* resultMDD = new MDDObj( currentMDDObj->getMDDBaseType(), projectedDom, currentMDDObj->getNullValues() );
@@ -580,7 +580,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                             RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtDomainOperation", "  trimming/projecting tile with domain " << tileDom << " to domain " << intersectDom )
 
                             // create projected tile
-                            Tile* resTile = new Tile( (*tileIt), intersectDom, &projSet );
+                            Tile* resTile = new Tile( tileIt->get(), intersectDom, &projSet );
 
                             // insert Tile in result mddObj
                             resultMDD->insertTile( resTile );

@@ -35,6 +35,7 @@ class r_Point;
 #include "reladminif/lists.h"
 #include "relindexif/indexid.hh"
 #include <vector>
+#include <boost/shared_ptr.hpp>
 
 
 /****************************************************************************
@@ -99,9 +100,14 @@ class MDDObjIx
 {
 public:
 
-    MDDObjIx(const StorageLayout& sl, const r_Minterval& dom, const BaseType* bt = 0);
+    MDDObjIx(const StorageLayout& sl, const r_Minterval& dom);
     /*@Doc:
-        When bt is NULL this index will behave as if it were a transient index.
+        Initialize a transient index.
+    */
+
+    MDDObjIx(const StorageLayout& sl, const r_Minterval& dom, const BaseType* bt, bool persistent = true);
+    /*@Doc:
+        When persistent is false this index will behave as if it were a transient index.
     */
 
     MDDObjIx(DBObjectId newDBIx, const StorageLayout& sl, const BaseType* bt);
@@ -119,19 +125,19 @@ public:
 
     r_Dimension getDimension() const;
 
-    void insertTile(const Tile* newTile);
+    void insertTile(boost::shared_ptr<Tile> newTile);
 
-    bool removeTile(const Tile *);
+    bool removeTile(boost::shared_ptr<Tile> tile);
 
-    std::vector<Tile *> * intersect(const r_Minterval &) const;
+    std::vector< boost::shared_ptr<Tile> > * intersect(const r_Minterval &) const;
 
     char* pointQuery(const r_Point& searchPoint);
 
     const char* pointQuery(const r_Point& searchPoint) const;
 
-    Tile* containPointQuery(const r_Point& searchPoint) const;
+    boost::shared_ptr<Tile> containPointQuery(const r_Point& searchPoint) const;
 
-    std::vector< Tile* >* getTiles() const;
+    std::vector< boost::shared_ptr<Tile> >* getTiles() const;
 
     bool isPersistent() const;
 
@@ -144,9 +150,9 @@ public:
 
 protected:
 
-    void setNewLastAccess(const r_Minterval& newLastAccess, const std::vector<Tile*>* newLastTiles);
+    void setNewLastAccess(const r_Minterval& newLastAccess, const std::vector< boost::shared_ptr<Tile> >* newLastTiles);
 
-    void setNewLastAccess(const Tile* newLastTile, bool te = true);
+    void setNewLastAccess(const boost::shared_ptr<Tile> newLastTile, bool te = true);
     /*@Doc:
         Add a new tile to the cache and reset the access domain
         If clear:
@@ -154,11 +160,11 @@ protected:
             release all tiles
     */
 
-    std::vector< Tile* >* lastAccessIntersect(const r_Minterval& searchInter) const;
+    std::vector< boost::shared_ptr<Tile> >* lastAccessIntersect(const r_Minterval& searchInter) const;
 
-    Tile* lastAccessPointQuery(const r_Point& searchPoint) const;
+    boost::shared_ptr<Tile> lastAccessPointQuery(const r_Point& searchPoint) const;
 
-    bool removeTileFromLastAccesses(const Tile* tileToRemove);
+    bool removeTileFromLastAccesses(boost::shared_ptr<Tile> tileToRemove);
     /*@Doc:
         Does NOT free tileToRemove allocated memory. Only removes this pointer from lastAccesses list if it finds it there.
         Returns true if found.
@@ -175,7 +181,7 @@ protected:
         Last searched region.
     */
 
-    std::vector< Tile* > lastAccessTiles;
+    std::vector< boost::shared_ptr<Tile> > lastAccessTiles;
     /*@Doc:
         Internal cache of {\tt Tile}s accessed the last time.
         Contents change everytime there is an insert, an intersect, a getTiles

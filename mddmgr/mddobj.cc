@@ -51,6 +51,8 @@ static const char rcsid[] = "@(#)persmddobj, PersMDDObj: $Id: mddobj.cc,v 1.26 2
 #include "raslib/rmdebug.hh"
 #include "indexmgr/mddobjix.hh"
 
+using boost::shared_ptr;
+
 const r_Minterval&
 MDDObj::checkStorage(const r_Minterval& domain2) throw (r_Error)
 {
@@ -100,7 +102,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain)
     RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "MDDObj(" << mddType->getName() << ", " << domain << ") " << (r_Ptr)this);
     myStorageLayout = new StorageLayout(r_Directory_Index);
     myStorageLayout->setCellSize(static_cast<int>(mddType->getBaseType()->getSize()));
-    myMDDIndex = new MDDObjIx(*myStorageLayout, domain);
+    myMDDIndex = new MDDObjIx(*myStorageLayout, domain, mddType->getBaseType(), false);
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout());
 }
 
@@ -120,7 +122,7 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, r_Minterva
     setNullValues(newNullValues);
     myStorageLayout = new StorageLayout(r_Directory_Index);
     myStorageLayout->setCellSize(static_cast<int>(mddType->getBaseType()->getSize()));
-    myMDDIndex = new MDDObjIx(*myStorageLayout, domain);
+    myMDDIndex = new MDDObjIx(*myStorageLayout, domain, mddType->getBaseType(), false);
     myDBMDDObj = new DBMDDObj(mddType, domain, myMDDIndex->getDBMDDObjIxId(), myStorageLayout->getDBStorageLayout());
 }
 
@@ -204,6 +206,11 @@ MDDObj::MDDObj(const MDDBaseType* mddType, const r_Minterval& domain, const Stor
     myDBMDDObj->setPersistent();
 }
 
+void
+MDDObj::insertTile(Tile * newTile)
+{
+    insertTile(shared_ptr<Tile>(newTile));
+}
 
 /*
 insert tile:
@@ -212,7 +219,7 @@ insert tile:
  if there is not enough data to fill a complete layout domain, then 0 will be set.
 */
 void
-MDDObj::insertTile(Tile* newTile)
+MDDObj::insertTile(shared_ptr<Tile> newTile)
 {
     RMDBGENTER(2, RMDebug::module_mddmgr, "MDDObj", "insertTile(Tile " << newTile->getDomain() << ")")
     std::vector <r_Minterval> layoutDoms = myStorageLayout->getLayout(newTile->getDomain());
@@ -222,13 +229,13 @@ MDDObj::insertTile(Tile* newTile)
             RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", *domit) \
             RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "end of storage layout domains"))
 
-        Tile* tile = NULL;
-    Tile* tile2 = NULL;
+    shared_ptr<Tile> tile;
+    shared_ptr<Tile> tile2;
     r_Area tempArea = 0;
     r_Area completeArea = 0;
     r_Minterval tempDom;
     r_Minterval tileDom = newTile->getDomain();
-    std::vector<Tile*>* indexTiles = NULL;
+    std::vector< shared_ptr<Tile> >* indexTiles = NULL;
     char* newContents = NULL;
     size_t sizeOfData = 0;
     bool checkEquality = true;
@@ -239,9 +246,9 @@ MDDObj::insertTile(Tile* newTile)
             // normal case.  just insert the tile.
             // this case also means that there was no insertion in the previous loops
             RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "tile domain is same as layout domain, just inserting data")
-            myMDDIndex->insertTile((Tile*)newTile);
+            myMDDIndex->insertTile(newTile);
             // set to NULL so it will not get deleted at the end of the method
-            newTile = NULL;
+            newTile.reset();
             if (layoutDoms.size() != 1)
             {
                 RMInit::logOut << "MDDObj::insertTile(Tile " << tileDom << ") the layout has more than one element but the tile domain completely covers the layout domain" << endl;
@@ -266,7 +273,7 @@ MDDObj::insertTile(Tile* newTile)
                 }
                 // update the existing tile with the new data
                 tempDom = (*it).create_intersection(tileDom);
-                (*(indexTiles->begin()))->copyTile(tempDom, newTile, tempDom);
+                (*(indexTiles->begin()))->copyTile(tempDom, newTile.get(), tempDom);
                 //RMInit::dbgOut << "updated tile to" << endl;
                 // (*(indexTiles->begin()))->printStatus(99,RMInit::dbgOut);
             }
@@ -281,16 +288,16 @@ MDDObj::insertTile(Tile* newTile)
                 newContents = (char*)mymalloc(sizeOfData);
                 // initialise to 0
                 memset(newContents, 0, sizeOfData);
-                tile = new Tile(*it, getMDDBaseType()->getBaseType(), newContents, 0, newTile->getDataFormat());
+                tile.reset(new Tile(*it, getMDDBaseType()->getBaseType(), newContents, 0, newTile->getDataFormat()));
 
                 tempDom = (*it).create_intersection(tileDom);
                 // only update the actual data - the rest was set to 0
-                tile->copyTile(tempDom, newTile, tempDom);
+                tile->copyTile(tempDom, newTile.get(), tempDom);
                 RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "created tile with domain " << tile->getDomain())
                 //RMInit::dbgOut << "insert tile" << endl;
                 //  tile->printStatus(99,RMInit::dbgOut);
                 //FIXME: should not be neccessary
-                myMDDIndex->insertTile((Tile*)tile);
+                myMDDIndex->insertTile(tile);
             }
             if (indexTiles)
             {
@@ -304,23 +311,23 @@ MDDObj::insertTile(Tile* newTile)
     {
         RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDObj", "have to delete newTile")
         if (newTile->isPersistent())
-            ((Tile*)newTile)->getDBTile()->setPersistent(false);
-        delete newTile;
+            newTile->getDBTile()->setPersistent(false);
+        newTile.reset();
     }
     RMDBGEXIT(2, RMDebug::module_mddmgr, "MDDObj", "insertTile(Tile)")
 }
 
-std::vector< Tile* >*
+std::vector< shared_ptr<Tile> >*
 MDDObj::intersect(const r_Minterval& searchInter) const
 {
-    std::vector<Tile*>* retval = myMDDIndex->intersect(searchInter);
+    std::vector<shared_ptr<Tile> >* retval = myMDDIndex->intersect(searchInter);
     RMDBGIF(10, RMDebug::module_mddmgr, "printtiles", \
             if (retval) \
 {
     \
     int t = RManDebug; \
     RManDebug = 0; \
-    for (std::vector<Tile*>::iterator it = retval->begin(); it != retval->end(); it++) \
+    for (std::vector< shared_ptr<Tile> >::iterator it = retval->begin(); it != retval->end(); it++) \
         {
             \
             RMInit::dbgOut << "FOUND " << (*it)->getDomain() << " " << endl; \
@@ -331,7 +338,7 @@ MDDObj::intersect(const r_Minterval& searchInter) const
     return retval;
 }
 
-std::vector< Tile* >*
+std::vector< shared_ptr<Tile> >*
 MDDObj::getTiles() const
 {
     RMTIMER("MDDObj", "getTiles");
@@ -421,16 +428,15 @@ MDDObj::printStatus(unsigned int level, std::ostream& stream) const
 }
 
 void
-MDDObj::removeTile(Tile*& tileToRemove)
+MDDObj::removeTile(shared_ptr<Tile>& tileToRemove)
 {
     int found = myMDDIndex->removeTile(tileToRemove);
     if (found)
     {
         // frees its memory. Persistent freeing??
         RMDBGONCE(2, RMDebug::module_mddmgr, "MDDObj", "removeTile() about to delete tile")
-        ((Tile*) tileToRemove)->getDBTile().delete_object();
-        delete tileToRemove;
-        tileToRemove = 0;
+        tileToRemove->getDBTile().delete_object();
+        tileToRemove.reset();
     }
 }
 

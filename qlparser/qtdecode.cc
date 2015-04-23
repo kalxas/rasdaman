@@ -96,7 +96,7 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 		// Perform the actual evaluation
 		QtMDD* qtMDD = (QtMDD*) operand;
 		MDDObj* currentMDDObj = qtMDD->getMDDObject();
-		vector< Tile* >* tiles = NULL;
+		vector< boost::shared_ptr<Tile> >* tiles = NULL;
 		if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())
 		{
 			// get relevant tiles

@@ -30,6 +30,9 @@ class KeyObject;
 #include "reladminif/dbobject.hh"
 #include "raslib/minterval.hh"
 #include "reladminif/dbref.hh"
+#include <boost/shared_ptr.hpp>
+
+using boost::shared_ptr;
 
 /**
  *  @file keyobject.hh
@@ -50,7 +53,7 @@ public:
         Copy constructor.  Copies the tile pointer.
     */
 
-    KeyObject(const Tile* p);
+    KeyObject(shared_ptr<Tile> p);
     /*@Doc:
         Construccts a new KeyObject.  The type (persistent/transinet)
         is deremined based on the Tile.  The domain also.
@@ -70,7 +73,7 @@ public:
         pointer is invalid.
     */
 
-    Tile* getTransObject() const;
+    shared_ptr<Tile> getTransObject() const;
     /*@Doc:
         Returns the transient object.  If this KeyObject carries
         a persistent object a NULL is returned.
@@ -102,7 +105,7 @@ public:
         Alters the domain the KeyObject carries.
     */
 
-    void setTransObject(const Tile* tile);
+    void setTransObject(shared_ptr<Tile> tile);
     /*@Doc:
         makes the KeyObject a transient carrier and copies the pointer.
     */
@@ -123,7 +126,7 @@ protected:
         The domain which the carried object belongs to.
     */
 
-    Tile* transobject;
+    shared_ptr<Tile> transobject;
     /*@Doc:
         Attribute for storing a transtile.  is NULL if a persistent
         object is carried.

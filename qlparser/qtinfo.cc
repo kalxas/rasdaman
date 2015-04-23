@@ -135,14 +135,13 @@ QtInfo::evaluate( QtDataList* inputList )
                     ostringstream info("");
                     info << "{\n \"oid\": \"" << (double) localOId;
                     info << "\",\n \"baseType\": \"" << dbObj->getMDDBaseType()->getTypeStructure();
-                    vector<Tile*>* tiles = persMDD->getTiles();
+                    vector< boost::shared_ptr<Tile> >* tiles = persMDD->getTiles();
                     info << "\",\n \"tileNo\": \"" << tiles->size();
                     
                     long totalSize = 0;
                     for (int i = 0; i < tiles->size(); i++)
                     {
-                        Tile* tile = tiles->at(i);
-                        totalSize += tile->getSize();
+                        totalSize += tiles->at(i)->getSize();
                     }
                     info << "\",\n \"totalSize\": \"" << totalSize;
                     
@@ -167,8 +166,7 @@ QtInfo::evaluate( QtDataList* inputList )
                         info << "\",\n\t\"tileDomains\":\n\t[";
                         for (int i = 0; i < tiles->size(); i++)
                         {
-                            Tile* tile = tiles->at(i);
-                            info << "\n\t\t\"" << tile->getDomain() << "\"";
+                            info << "\n\t\t\"" << tiles->at(i)->getDomain() << "\"";
                             if (i < tiles->size() - 1)
                             {
                                 info << ",";

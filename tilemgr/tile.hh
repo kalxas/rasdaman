@@ -45,8 +45,11 @@ rasdaman GmbH.
 #include "catalogmgr/ops.hh"                // for Ops::OpType
 #include "relcatalogif/basetype.hh"           // for BaseType
 #include "relblobif/tileid.hh"
+#include "relblobif/blobtile.hh"
+#include "relblobif/inlinetile.hh"
 #include "relblobif/dbtile.hh"
 #include "reladminif/dbref.hh"
+#include "compression/tilecompression.hh"
 
 #ifdef RMANBENCHMARK
 #include "raslib/rmdebug.hh"        // for RMTimer
@@ -107,7 +110,8 @@ public:
       constructs a Tile with the domain {\tt resDom}
       and the contents joined out of the Tiles in {\tt tilesVec}.
     */
-    Tile(std::vector<Tile*>* tilesVec, const r_Minterval& resDom);
+    template <typename TilePtr>
+    Tile(std::vector<TilePtr>* tilesVec, const r_Minterval& resDom);
     /*@Doc:
       Constructs a new Tile out of the vector {\tt tilesVec}
       containing pointers to tiles. The contents which fall in the area
@@ -366,4 +370,36 @@ protected:
     DBTileId blobTile;
 };
 
+template <typename TilePtr>
+Tile::Tile(std::vector<TilePtr>* tilesVec, const r_Minterval& resDom)
+    :   domain(resDom)
+{
+    // iterators for tiles
+    typename std::vector<TilePtr>::iterator tileIt;
+    // domain of the current tile
+    r_Minterval currDom;
+
+    // get first Tile
+    tileIt = tilesVec->begin();
+    // initialize type with type of first tile
+    type = (*tileIt)->getType();
+
+    // init contents
+    if (RMInit::useTileContainer)
+        blobTile = new InlineTile(getSize(), (char)0, (*tileIt)->getDataFormat());
+    else
+        blobTile = new BLOBTile(getSize(), (char)0, (*tileIt)->getDataFormat());
+
+    // insert all tiles in the result tile
+    tileIt = tilesVec->begin();
+    while (tileIt != tilesVec->end())
+    {
+        currDom = (*tileIt)->getDomain();
+        currDom.intersection_with(resDom);
+
+        copyTile(currDom, (&**tileIt), currDom);
+
+        tileIt++;
+    }
+}
 #endif

@@ -43,6 +43,8 @@ rasdaman GmbH.
 #ifndef QTCASEOP_HH
 #define	QTCASEOP_HH
 
+#include <boost/shared_ptr.hpp>
+
 #include "config.h"
 #include "qlparser/qtnaryoperation.hh"
 #include "relcatalogif/basetype.hh"
@@ -102,7 +104,8 @@ public:
     void restoreTree();
     
     /// method for retrieving a tile from an unsorted vector
-    Tile* getCorrespondingTile(std::vector<Tile*>* tiles, const r_Minterval& domain);
+    /// deletes the passed tiles pointer
+    boost::shared_ptr<Tile> getCorrespondingTile(std::vector< boost::shared_ptr<Tile> >* tiles, const r_Minterval& domain);
     
     /// method for adding the list of corresponding mdd objects of an operation to cache
     void addMddsToCache(QtDataList* inputList, QtOperation* &op, 

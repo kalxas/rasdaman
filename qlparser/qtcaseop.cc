@@ -178,11 +178,11 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
     MDDObj* focusCondMdd = ((QtMDD*)*(conditionList->begin()))->getMDDObject();
     MDDObj* focusMdd = new MDDObj(((MDDBaseType*) (dataStreamType.getType())), focusCondMdd->getDefinitionDomain());
     //add tiles
-    std::vector<Tile*>* tiles = new std::vector<Tile*>();
-    std::vector<Tile*>* focusCondTiles = focusCondMdd->getTiles();
-    std::vector< Tile*>::iterator tileIter;
+    std::vector< boost::shared_ptr<Tile> >* tiles = new std::vector< boost::shared_ptr<Tile> >;
+    std::vector< boost::shared_ptr<Tile> >* focusCondTiles = focusCondMdd->getTiles();
+    std::vector< boost::shared_ptr<Tile> >::iterator tileIter;
     for (tileIter = focusCondTiles->begin(); tileIter != focusCondTiles->end(); tileIter++) {
-        tiles->push_back(new Tile((*tileIter)->getDomain(), this->baseType));
+        tiles->push_back(boost::shared_ptr<Tile>(new Tile((*tileIter)->getDomain(), this->baseType)));
     }
     //iterate through all the tiles of the focus mdd object
     vector<QtData*>::iterator condIter;
@@ -197,13 +197,14 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
                 condIter != conditionList->end() && resultIter != resultList->end();
                 condIter++, resultIter++) {
             MDDObj* condMdd = ((QtMDD*) (*condIter))->getMDDObject();
-            Tile* condTile = condMdd->getTiles()->at(tilePos);
+            boost::shared_ptr< std::vector< boost::shared_ptr<Tile> > > condTiles(condMdd->getTiles());
+            boost::shared_ptr<Tile> condTile = condTiles->at(tilePos);
             std::vector<Tile*>* cachedTiles = new std::vector<Tile*>();
             //if the result is an mdd then fetch the cached tiles as well
             if ((*resultIter)->getDataStreamType().getDataType() == QT_MDD) {
                 QtDataList* cachedData = getCachedData((*resultIter), cacheList);
                 for (QtDataList::iterator i = cachedData->begin(); i != cachedData->end(); i++) {
-                    Tile * aTile = getCorrespondingTile(((QtMDD*) (*i))->getMDDObject()->getTiles(), condTile->getDomain());
+                    boost::shared_ptr<Tile> aTile = getCorrespondingTile(((QtMDD*) (*i))->getMDDObject()->getTiles(), condTile->getDomain());
                     if (aTile == NULL) {
                         RMInit::logOut << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling." << endl;
                         parseInfo.setErrorNo(427);
@@ -221,7 +222,7 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
                 if (defaultResult->getDataStreamType().getDataType() == QT_MDD) {
                     QtDataList* cachedData = getCachedData(defaultResult, cacheList);
                     for (QtDataList::iterator i = cachedData->begin(); i != cachedData->end(); i++) {
-                        Tile* theTile = (getCorrespondingTile(((QtMDD*) (*i))->getMDDObject()->getTiles(), condTile->getDomain()));
+                        boost::shared_ptr<Tile> theTile = getCorrespondingTile(((QtMDD*) (*i))->getMDDObject()->getTiles(), condTile->getDomain());
                         Tile* aTile = new Tile(*theTile);
                         if (aTile == NULL) {
                             RMInit::logOut << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same tiling." << endl;
@@ -797,14 +798,15 @@ void QtCaseOp::restoreTree() {
  * @param domain - the domain of the wanted tile
  * @return The tile corresponding to the given domain
  */
-Tile* QtCaseOp::getCorrespondingTile(std::vector<Tile*>* tiles, const r_Minterval& domain) {
-    Tile* returnValue = NULL;
-    for (std::vector<Tile*>::iterator i = tiles->begin(); i != tiles->end(); i++) {
+ boost::shared_ptr<Tile> QtCaseOp::getCorrespondingTile(std::vector< boost::shared_ptr<Tile> >* tiles, const r_Minterval& domain) {
+    boost::shared_ptr<Tile> returnValue;
+    for (std::vector< boost::shared_ptr<Tile> >::iterator i = tiles->begin(); i != tiles->end(); i++) {
         if ((*i)->getDomain() == domain) {
             returnValue = (*i);
             break;
         }
     }
+    delete tiles;
     return returnValue;
 }
 

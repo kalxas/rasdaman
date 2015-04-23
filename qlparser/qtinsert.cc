@@ -263,7 +263,7 @@ QtInsert::evaluate()
         RMDBGIF(3, RMDebug::module_qlparser, "QtInsert",  \
             RMInit::logOut << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter() << std::endl;)
             // get all tiles
-            vector<Tile*>* sourceTiles = sourceObj->getTiles();
+            vector<boost::shared_ptr<Tile> >* sourceTiles = sourceObj->getTiles();
 
             // get a persistent type pointer
             MDDBaseType* persMDDType = (MDDBaseType*) TypeFactory::ensurePersistence((Type*) sourceObj->getMDDBaseType());
@@ -363,11 +363,11 @@ QtInsert::evaluate()
             persMDDObj->cloneNullValues(sourceObj);
 
             // iterate over source tiles
-            for (vector<Tile*>::iterator sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
+            for (vector< boost::shared_ptr<Tile> >::iterator sourceIt = sourceTiles->begin(); sourceIt != sourceTiles->end(); sourceIt++)
             {
                 // create a new persistent tile, copy the transient data, and insert it into the target mdd object
                 Tile* newPersTile = new Tile((*sourceIt)->getDomain(), persMDDType->getBaseType(), (*sourceIt)->getDataFormat());
-                newPersTile->copyTile((*sourceIt)->getDomain(), *sourceIt, (*sourceIt)->getDomain());
+                newPersTile->copyTile((*sourceIt)->getDomain(), sourceIt->get(), (*sourceIt)->getDomain());
                 persMDDObj->insertTile(newPersTile);
             }
 

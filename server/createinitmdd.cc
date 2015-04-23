@@ -311,7 +311,7 @@ vector<r_Minterval> FastMDDCreator::getTileDomains(r_OId mddOId, const char *str
 
     r_Minterval stripeInterval(stripeDomain);
 
-    vector< Tile* >* tiles = mymdd->intersect(stripeInterval);
+    vector< boost::shared_ptr<Tile> >* tiles = mymdd->intersect(stripeInterval);
 
     vector<r_Minterval> result;
 
@@ -319,6 +319,7 @@ vector<r_Minterval> FastMDDCreator::getTileDomains(r_OId mddOId, const char *str
     {
         result.push_back( (*tiles)[i]->getDomain());
     }
+    delete tiles;
     delete mymdd;
 
     LEAVE( "FastMDDCreator::getTileDomains()" );

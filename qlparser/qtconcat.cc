@@ -257,10 +257,10 @@ QtConcat::evaluate( QtDataList* inputList )
                     for (int j = 0; j < tempValues->dimension(); j++)
                         *nullValues << (*tempValues)[j];
                 // get all tiles
-                vector<Tile* >* tilesA = currentMDDObj->intersect( qtMDDObj->getLoadDomain() );
+                vector< boost::shared_ptr<Tile> >* tilesA = currentMDDObj->intersect( qtMDDObj->getLoadDomain() );
 
                 // iterate over source tiles
-                for( vector<Tile*>::iterator tileIter = tilesA->begin(); tileIter != tilesA->end(); tileIter++ )
+                for( vector< boost::shared_ptr<Tile> >::iterator tileIter = tilesA->begin(); tileIter != tilesA->end(); tileIter++ )
                 {
                   // get relevant area of source tile
                   r_Minterval tileDomain = qtMDDObj->getLoadDomain().create_intersection( (*tileIter)->getDomain() );
@@ -269,7 +269,7 @@ QtConcat::evaluate( QtDataList* inputList )
                   Tile* newTransTile = new Tile( tileDomain, baseType );
                   UnaryOp* myOp = NULL;
                   myOp = Ops::getUnaryOp(Ops::OP_CAST_DOUBLE, baseType, currentMDDObj->getCellType(), 0, 0); // OP_CAST_DOUBLE is used just for identifying the operation as cast 
-                  newTransTile->execUnaryOp(myOp, tileDomain, *tileIter, tileDomain);
+                  newTransTile->execUnaryOp(myOp, tileDomain, tileIter->get(), tileDomain);
                   resultMDD->insertTile( newTransTile );
                 }
                 
@@ -287,10 +287,10 @@ QtConcat::evaluate( QtDataList* inputList )
                     for (int j = 0; j < tempValues->dimension(); j++)
                         *nullValues << (*tempValues)[j];
                 // get all tiles
-                vector<Tile* >* tilesB = currentMDDObj2->intersect( qtMDDObj2->getLoadDomain() );
+                vector< boost::shared_ptr<Tile> >* tilesB = currentMDDObj2->intersect( qtMDDObj2->getLoadDomain() );
 
                 // iterate over source tiles
-                for( vector<Tile*>::iterator tileIter = tilesB->begin(); tileIter != tilesB->end(); tileIter++ )
+                for( vector< boost::shared_ptr<Tile> >::iterator tileIter = tilesB->begin(); tileIter != tilesB->end(); tileIter++ )
                 {
                   // get relevant area of source tile
                   r_Minterval sourceTileDomain = qtMDDObj2->getLoadDomain().create_intersection( (*tileIter)->getDomain() );
@@ -302,7 +302,7 @@ QtConcat::evaluate( QtDataList* inputList )
                   Tile* newTransTile = new Tile( destinationTileDomain, baseType );
                   UnaryOp* myOp = NULL;
                   myOp = Ops::getUnaryOp(Ops::OP_CAST_DOUBLE, baseType, currentMDDObj2->getCellType(), 0, 0); // OP_CAST_DOUBLE is used just for identifying the operation as cast 
-                  newTransTile->execUnaryOp(myOp, destinationTileDomain, *tileIter, sourceTileDomain);
+                  newTransTile->execUnaryOp(myOp, destinationTileDomain, tileIter->get(), sourceTileDomain);
                   resultMDD->insertTile( newTransTile );
                 }
                 resultMDD->setNullValues(nullValues);

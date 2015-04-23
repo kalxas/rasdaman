@@ -202,12 +202,12 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
 
                     QtMDD *qtMDDObj = (QtMDD *) (*iter);
                     MDDObj *currentMDDObj = qtMDDObj->getMDDObject();
-                    vector<Tile * > *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
+                    vector< boost::shared_ptr<Tile> > *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
                     unsigned int bandCellSize = currentMDDObj->getCellType()->getSize();
 
                     // iterate over the source tiles of the curent band
                     vector<char *>::iterator targetIt = targetTiles.begin();
-                    for (vector<Tile *>::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
+                    for (vector< boost::shared_ptr<Tile> >::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
                     {
                         const char *sourceTile = (*tileIter)->getContents();
                         r_Minterval tileDomain = (*tileIter)->getDomain();
@@ -242,6 +242,7 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                     }
                     // increase element shift within the struct
                     structElemShift += bandCellSize;
+                    delete tiles;
                 }
 
             }

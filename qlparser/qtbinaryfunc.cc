@@ -126,10 +126,10 @@ QtShift::evaluate( QtDataList* inputList )
         MDDObj* resultMDD = new MDDObj( currentMDDObj->getMDDBaseType(), destinationDomain, currentMDDObj->getNullValues() );
 
         // get all tiles
-        vector<Tile* >* tiles = currentMDDObj->intersect( qtMDDObj->getLoadDomain() );
+        vector< boost::shared_ptr<Tile> >* tiles = currentMDDObj->intersect( qtMDDObj->getLoadDomain() );
 
         // iterate over source tiles
-        for( vector<Tile*>::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++ )
+        for( vector< boost::shared_ptr<Tile> >::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++ )
         {
             // get relevant area of source tile
             r_Minterval sourceTileDomain = qtMDDObj->getLoadDomain().create_intersection( (*tileIter)->getDomain() );
@@ -140,7 +140,7 @@ QtShift::evaluate( QtDataList* inputList )
             // create a new transient tile, copy the transient data, and insert it into the mdd object
             // FIXME: how can this work without tile area allocation??? -- PB 2005-jun-19
             Tile* newTransTile = new Tile( destinationTileDomain, currentMDDObj->getCellType() );
-            newTransTile->copyTile( destinationTileDomain, *tileIter, sourceTileDomain );
+            newTransTile->copyTile( destinationTileDomain, tileIter->get(), sourceTileDomain );
             resultMDD->insertTile( newTransTile );
         }
 
@@ -427,11 +427,11 @@ QtExtend::evaluate( QtDataList* inputList )
         // --- 1: put all existing tiles into their place ------------------------
 
         // get all tiles
-        vector<Tile* >* tiles = currentMDDObj->intersect( qtMDDObj->getLoadDomain() );
+        vector< boost::shared_ptr<Tile> >* tiles = currentMDDObj->intersect( qtMDDObj->getLoadDomain() );
 
         // iterate over source tiles
         // Note that source and target MDD have the same coordinate basis
-        for( vector<Tile*>::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++ )
+        for( vector< boost::shared_ptr<Tile> >::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++ )
         {
             // RMInit::logOut << "QtExtend::evaluate( QtDataList* ) - load domain is " << qtMDDObj->getLoadDomain() << endl;
             // get relevant area of source tile
@@ -439,7 +439,7 @@ QtExtend::evaluate( QtDataList* inputList )
 
             Tile* newTransTile = new Tile( sourceTileDomain, currentMDDObj->getCellType() );
             // RMInit::logOut << "QtExtend::evaluate( QtDataList* ) - adding source part " << sourceTileDomain << " of tile " << (*tileIter)->getDomain() << endl;
-            newTransTile->copyTile( sourceTileDomain, *tileIter, sourceTileDomain );
+            newTransTile->copyTile( sourceTileDomain, tileIter->get(), sourceTileDomain );
 
             resultMDD->insertTile( newTransTile ); // needed for 2-code below
             // completeAreaList.push_back( newTransTile ); // needed for 1-code below
@@ -996,7 +996,7 @@ QtScale::evaluate( QtDataList* inputList )
     //**********************
 
     // get all tiles
-    vector<Tile* >* tiles = currentMDDObj->intersect( qtMDDObj->getLoadDomain() );
+    vector< boost::shared_ptr<Tile> >* tiles = currentMDDObj->intersect( qtMDDObj->getLoadDomain() );
 
     //tile domain before & after
     r_Minterval sourceTileDomain, destinationTileDomain;
@@ -1006,7 +1006,7 @@ QtScale::evaluate( QtDataList* inputList )
     //
 
     // iterate over source tiles
-    for( vector<Tile*>::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++ )
+    for( vector< boost::shared_ptr<Tile> >::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++ )
     {
         // get relevant area of source tile
         sourceTileDomain = qtMDDObj->getLoadDomain().create_intersection( (*tileIter)->getDomain() );
@@ -1017,7 +1017,7 @@ QtScale::evaluate( QtDataList* inputList )
             RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtBinaryFunc", "Destination tile domain: " << destinationTileDomain << endl )
             // create a new transient tile
             Tile* newTransTile = new Tile( destinationTileDomain, currentMDDObj->getCellType() );
-            newTransTile->execScaleOp( *tileIter, sourceTileDomain, origin1,  scaleVector );
+            newTransTile->execScaleOp( tileIter->get(), sourceTileDomain, origin1,  scaleVector );
 
             if(isWishedTargetSet)
                 ((r_Minterval&)newTransTile->getDomain()).translate(translation);

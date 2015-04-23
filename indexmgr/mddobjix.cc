@@ -51,7 +51,7 @@ static const char rcsid[] = "@(#)mddobjix, MDDObjIx: $Id: mddobjix.cc,v 1.30 200
 #include "relblobif/tileid.hh"
 
 void
-MDDObjIx::setNewLastAccess(const r_Minterval& newLastAccess, const std::vector<Tile*>* newLastTiles)
+MDDObjIx::setNewLastAccess(const r_Minterval& newLastAccess, const std::vector< shared_ptr<Tile> >* newLastTiles)
 {
     lastAccess = newLastAccess;
     releasePersTiles();
@@ -59,7 +59,7 @@ MDDObjIx::setNewLastAccess(const r_Minterval& newLastAccess, const std::vector<T
 }
 
 void
-MDDObjIx::setNewLastAccess(const Tile* newLastTile, bool clear)
+MDDObjIx::setNewLastAccess(shared_ptr<Tile> newLastTile, bool clear)
 {
     if (clear)
     {
@@ -70,15 +70,15 @@ MDDObjIx::setNewLastAccess(const Tile* newLastTile, bool clear)
     {
         r_Minterval region = newLastTile->getDomain();
         lastAccess = region;
-        lastAccessTiles.push_back(const_cast<Tile*>(newLastTile));
+        lastAccessTiles.push_back(newLastTile);
     }
 }
 
 bool
-MDDObjIx::removeTileFromLastAccesses(const Tile* tileToRemove)
+MDDObjIx::removeTileFromLastAccesses(shared_ptr<Tile> tileToRemove)
 {
     bool found = false;
-    std::vector<Tile*>::iterator iter;
+    std::vector< shared_ptr<Tile> >::iterator iter;
     for (iter = lastAccessTiles.begin(); iter != lastAccessTiles.end() ; iter++)
     {
         if (*iter == tileToRemove)
@@ -96,14 +96,14 @@ MDDObjIx::removeTileFromLastAccesses(const Tile* tileToRemove)
     return found;
 }
 
-std::vector< Tile* >*
+std::vector< shared_ptr<Tile> >*
 MDDObjIx::lastAccessIntersect(const r_Minterval& searchInter) const
 {
-    std::vector< Tile* >* interResult = 0;
+    std::vector< shared_ptr<Tile> >* interResult = 0;
     if ((lastAccess.dimension() != 0) && (lastAccess.covers(searchInter)))
     {
         RMDBGONCE(6, RMDebug::module_indexmgr, "MDDObjIx", "lastAccessIntersect Search in the cache ")
-        interResult = new std::vector< Tile* >();
+        interResult = new std::vector< shared_ptr<Tile> >();
         interResult->reserve(10);
         for (unsigned int i = 0; i < lastAccessTiles.size(); i++)
         {
@@ -119,10 +119,10 @@ MDDObjIx::lastAccessIntersect(const r_Minterval& searchInter) const
     return interResult;
 }
 
-Tile*
+shared_ptr<Tile>
 MDDObjIx::lastAccessPointQuery(const r_Point& searchPoint) const
 {
-    Tile* result = 0;
+    shared_ptr<Tile> result;
 
     if ((lastAccess.dimension() != 0) && (lastAccess.covers(searchPoint)))
     {
@@ -143,13 +143,6 @@ MDDObjIx::releasePersTiles()
     RMDBGENTER(6, RMDebug::module_indexmgr, "MDDObjIx", "releasePersTiles()")
     if (isPersistent())
     {
-        Tile* t = NULL;
-        for(unsigned int i = 0; i < lastAccessTiles.size(); i++)
-        {
-            t = lastAccessTiles[i];
-            delete t;
-            lastAccessTiles[i] = NULL;
-        }
         lastAccessTiles.clear();
     }
     RMDBGEXIT(6, RMDebug::module_indexmgr, "MDDObjIx", "releasePersTiles()")
@@ -190,19 +183,24 @@ MDDObjIx::initializeTimerPointers()
 }
 #endif
 
-MDDObjIx::MDDObjIx(const StorageLayout& sl, const r_Minterval& dim, const BaseType* bt)
+MDDObjIx::MDDObjIx(const StorageLayout& sl, const r_Minterval& dim)
+    :   cellBaseType(NULL),
+        myStorageLayout(sl),
+        actualIx(new TransDirIx(dim.dimension())),
+        _isPersistent(false)
+{
+    lastAccessTiles.reserve(10);
+    initializeLogicStructure();
+}
+
+MDDObjIx::MDDObjIx(const StorageLayout& sl, const r_Minterval& dim, const BaseType* bt, bool persistent)
     :   cellBaseType(bt),
         actualIx(0),
-        _isPersistent(true),
+        _isPersistent(persistent),
         myStorageLayout(sl)
 {
     RMDBGENTER(10, RMDebug::module_indexmgr, "MDDObjIx", "MDDObjIx(storage, " << dim << ", type)")
     lastAccessTiles.reserve(10);
-    if (bt == NULL)
-    {
-        RMDBGMIDDLE(10, RMDebug::module_indexmgr, "MDDObjIx", "TransIndex")
-        _isPersistent = false;
-    }
     initializeLogicStructure();
     if (isPersistent())
     {
@@ -292,11 +290,11 @@ MDDObjIx::initializeLogicStructure()
 
 
 void
-MDDObjIx::insertTile(const Tile* newTile)
+MDDObjIx::insertTile(shared_ptr<Tile> newTile)
 {
     if (isPersistent())
     {
-        (const_cast<Tile*>(newTile))->setPersistent();
+        newTile->setPersistent();
     }
     KeyObject t(newTile);
     do_insertObj(actualIx, t, myStorageLayout);
@@ -304,7 +302,7 @@ MDDObjIx::insertTile(const Tile* newTile)
 }
 
 bool
-MDDObjIx::removeTile(const Tile* tileToRemove)
+MDDObjIx::removeTile(shared_ptr<Tile> tileToRemove)
 {
     RMDBGENTER(4, RMDebug::module_indexmgr, "MDDObjIx", "removeTile(Tile)")
     bool found = false;
@@ -318,7 +316,7 @@ MDDObjIx::removeTile(const Tile* tileToRemove)
     return found;
 }
 
-vector< Tile* >*
+vector< shared_ptr<Tile> >*
 MDDObjIx::intersect(const r_Minterval& searchInter) const
 {
     RMDBGENTER(4, RMDebug::module_indexmgr, "MDDObjIx", "intersect(" << searchInter << ")")
@@ -326,17 +324,16 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
     if(RManBenchmark >= 3)  intersectTimer->start();
 #endif
 
-    vector< Tile* >* result = lastAccessIntersect(searchInter);
+    vector< shared_ptr<Tile> >* result = lastAccessIntersect(searchInter);
     if (!result)
     {
         KeyObjectVector resultKeys;
         do_intersect(actualIx, searchInter, resultKeys, myStorageLayout);
-        result = new vector< Tile* >();
+        result = new vector< shared_ptr<Tile> >();
         if (!resultKeys.empty())
         {
             unsigned int resSize = resultKeys.size();
             result->reserve(resSize);
-            Tile* t = NULL;
             unsigned int i = 0;
             if (isPersistent())
             {
@@ -369,14 +366,21 @@ MDDObjIx::intersect(const r_Minterval& searchInter) const
                 for (i = 0; i < resSize; i++)
                 {
                     RMDBGMIDDLE(4, RMDebug::module_indexmgr, "MDDObjIx", "received entry " << resultKeys[i])
-                    result->push_back(new Tile(resultKeys[i].getDomain(), cellBaseType, DBTileId(resultKeys[i].getObject())));
+                    result->push_back(shared_ptr<Tile>(
+                        new Tile(resultKeys[i].getDomain(), cellBaseType,
+                                 DBTileId(resultKeys[i].getObject()))));
                 }
             }
             else
             {
                 for (i = 0; i < resSize; i++)
                 {
-                    result->push_back(resultKeys[i].getTransObject());
+                    if (resultKeys[i].getTransObject() == NULL)
+                        result->push_back(shared_ptr<Tile>(
+                            new Tile(resultKeys[i].getDomain(), cellBaseType,
+                                     DBTileId(resultKeys[i].getObject()))));
+                    else
+                        result->push_back(resultKeys[i].getTransObject());
                 }
             }
             (const_cast<MDDObjIx*>(this))->setNewLastAccess(searchInter, result);
@@ -394,7 +398,7 @@ MDDObjIx::pointQuery(const r_Point& searchPoint)
 {
     char* result = 0;
 
-    Tile* resultTile = containPointQuery(searchPoint);
+    shared_ptr<Tile> resultTile = containPointQuery(searchPoint);
 
     if(resultTile)
     {
@@ -408,7 +412,7 @@ MDDObjIx::pointQuery(const r_Point& searchPoint) const
 {
     const char* result = 0;
 
-    Tile* resultTile = containPointQuery(searchPoint);
+    shared_ptr<Tile> resultTile = containPointQuery(searchPoint);
 
     if(resultTile)
     {
@@ -417,11 +421,11 @@ MDDObjIx::pointQuery(const r_Point& searchPoint) const
     return result;
 }
 
-Tile*
+shared_ptr<Tile>
 MDDObjIx::containPointQuery(const r_Point& searchPoint) const
 {
 
-    Tile* resultTile = 0;
+    shared_ptr<Tile> resultTile;
 
 #ifdef RMANBENCHMARK
     if(RManBenchmark >= 4) pointQueryTimer->start();
@@ -433,9 +437,9 @@ MDDObjIx::containPointQuery(const r_Point& searchPoint) const
         do_pointQuery(actualIx, searchPoint, resultKey, myStorageLayout);
         if (resultKey.isInitialised())
         {
-            if (isPersistent())
+            if (isPersistent() || resultKey.getTransObject() == NULL)
             {
-                resultTile = new Tile(resultKey.getDomain(), cellBaseType, DBTileId(resultKey.getObject()));
+                resultTile.reset(new Tile(resultKey.getDomain(), cellBaseType, DBTileId(resultKey.getObject())));
                 // for rcindex
                 (const_cast<DBObject*>(resultKey.getObject().ptr()))->setCached(false);
             }
@@ -453,21 +457,20 @@ MDDObjIx::containPointQuery(const r_Point& searchPoint) const
     return resultTile;
 }
 
-vector< Tile* >*
+vector< shared_ptr<Tile> >*
 MDDObjIx::getTiles() const
 {
 #ifdef RMANBENCHMARK
     if(RManBenchmark >= 3)  getTilesTimer->start();
 #endif
-    vector< Tile* >* result = NULL;
+    vector< shared_ptr<Tile> >* result = NULL;
     KeyObjectVector resultKeys;
     do_getObjs(actualIx, resultKeys, myStorageLayout);
     if (!resultKeys.empty())
     {
-        result = new vector< Tile* >();
+        result = new vector< shared_ptr<Tile> >();
         unsigned int resSize = resultKeys.size();
         result->reserve(resSize);
-        Tile* t = 0;
         if (isPersistent())
         {
 //this checks if there are double tiles in the result
@@ -497,14 +500,21 @@ MDDObjIx::getTiles() const
                    );
             for (unsigned int i = 0; i < resSize; i++)
             {
-                result->push_back(new Tile(resultKeys[i].getDomain(), cellBaseType, DBTileId(resultKeys[i].getObject())));
+                result->push_back(shared_ptr<Tile>(
+                    new Tile(resultKeys[i].getDomain(), cellBaseType,
+                             DBTileId(resultKeys[i].getObject()))));
             }
         }
         else
         {
             for (unsigned int i = 0; i < resultKeys.size(); i++)
             {
-                result->push_back(resultKeys[i].getTransObject());
+                if (resultKeys[i].getTransObject() == NULL)
+                    result->push_back(shared_ptr<Tile>(
+                        new Tile(resultKeys[i].getDomain(), cellBaseType,
+                                 DBTileId(resultKeys[i].getObject()))));
+                else
+                    result->push_back(resultKeys[i].getTransObject());
             }
         }
         r_Minterval emptyInterval;

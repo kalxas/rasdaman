@@ -155,10 +155,10 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
     const r_Minterval &areaOp = operand1->getLoadDomain();
 
     // contains all tiles of the operand
-    vector<Tile*>* allTiles=NULL;
+    vector< boost::shared_ptr<Tile> >* allTiles;
 
     // iterator for tiles
-    vector<Tile*>::iterator tileIt;
+    vector< boost::shared_ptr<Tile> >::iterator tileIt;
 
     // create MDDObj for result
     MDDDomainType* mddBaseType = new MDDDomainType( "tmp", resultBaseType, areaOp );
@@ -230,7 +230,7 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
         {
             RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  before execConstOp" << endl )
 
-            resTile->execConstOp( myOp, intersectDom, (*tileIt), intersectDom, constValue, scalarPos );
+            resTile->execConstOp( myOp, intersectDom, tileIt->get(), intersectDom, constValue, scalarPos );
             RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  after execConstOp" << endl )
         }
         catch (int errcode)
@@ -281,14 +281,14 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
     if( areaOp1.get_extent() == areaOp2.get_extent() )
     {
         // contains all tiles of op1
-        vector<Tile*>* allTilesOp1=NULL;
+        vector< boost::shared_ptr<Tile> >* allTilesOp1;
 
         // contains all tiles of op2 which intersect a given op1 Tile in the relevant area.
-        vector<Tile*>* intersectTilesOp2=NULL;
+        vector< boost::shared_ptr<Tile> >* intersectTilesOp2=NULL;
 
         // iterators for tiles of the MDDs
-        vector<Tile*>::iterator tileOp1It;
-        vector<Tile*>::iterator intersectTileOp2It;
+        vector< boost::shared_ptr<Tile> >::iterator tileOp1It;
+        vector< boost::shared_ptr<Tile> >::iterator intersectTileOp2It;
 
         // intersection of domains in relevant area.
         r_Minterval intersectDom;
@@ -321,10 +321,6 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
         mddres = new MDDObj( mddBaseType, areaOp1, op1->getNullValues() ); // FIXME consider op2 too
         // get all tiles in relevant area of MDD op1
         allTilesOp1 = op1->intersect(areaOp1);
-
-        //    cout << "INTERSECT" << areaOp1 << endl;
-        //    for( tileOp1It = allTilesOp1->begin(); tileOp1It !=  allTilesOp1->end(); tileOp1It++ )
-        //      cout << (*tileOp1It)->getDomain() << endl;
 
         // and iterate over them
 
@@ -374,7 +370,7 @@ QtBinaryInduce::computeBinaryMDDOp( QtMDD* operand1, QtMDD* operand2, const Base
                     RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  operand1 tile, area " << intersectDom <<
                                  ", type " << (*tileOp1It)->getType()->getTypeName() << endl )
                     RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  operand2 tile, type " << (*tileOp1It)->getType()->getTypeName() << endl )
-                    resTile->execBinaryOp(&(*myOp), intersectDom, (*tileOp1It), intersectDom, (*intersectTileOp2It), intersectDom.create_translation(offset12));
+                    resTile->execBinaryOp(&(*myOp), intersectDom, tileOp1It->get(), intersectDom, intersectTileOp2It->get(), intersectDom.create_translation(offset12));
                     RMDBGMIDDLE( 4, RMDebug::module_qlparser, "QtBinaryInduce", "  after execBinaryOp" << endl )
                 }
                 catch (int errcode)

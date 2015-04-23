@@ -132,9 +132,6 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
 
     const r_Dimension dim = areaOp.dimension();
 
-    // contains all tiles of the operand
-    vector<Tile*>* allTiles=NULL;
-
     // iterator for tiles
 
     // create MDDObj for result
@@ -150,8 +147,8 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
     MDDObj* mddres = new MDDObj( mddBaseType, areaOp, op->getNullValues() );
 
     // get all tiles in relevant area
-    allTiles = op->intersect(areaOp);
-    std::vector<Tile*>::iterator tileIt = allTiles->begin();
+    vector< boost::shared_ptr<Tile> >* allTiles = op->intersect(areaOp);
+    std::vector< boost::shared_ptr<Tile> >::iterator tileIt = allTiles->begin();
     UnaryOp* myOp = NULL;
     if (tileIt != allTiles->end())
     {
@@ -203,7 +200,7 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
                 resTile = new Tile( intersectDom, resultBaseType );
 
                 // carry out operation on the relevant area of the tiles
-                resTile->execUnaryOp(myOp, intersectDom, (*tileIt), intersectDom);
+                resTile->execUnaryOp(myOp, intersectDom, tileIt->get(), intersectDom);
                 // insert Tile in result mdd
                 mddres->insertTile( resTile );
             }

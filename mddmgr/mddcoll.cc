@@ -359,7 +359,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
         retval = new MDDColl(ct, AllCollectionnamesName);
         OIdSet* list = ObjectBroker::getAllObjects(OId::MDDCOLLOID);
         MDDObj* transObj = 0;
-        Tile* transTile = 0;
+        boost::shared_ptr<Tile> transTile;
         char* transName = 0;
         const char* nameBuffer = 0;
         size_t namelen = 0;
@@ -377,7 +377,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
             RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDColl", "Domain       : " << namelen)
             nameDomain[0].set_high((r_Range)namelen);
             transObj = new MDDObj(mt, nameDomain);
-            transTile = new Tile(nameDomain, bt, transName, 0, r_Array);
+            transTile.reset(new Tile(nameDomain, bt, transName, 0, r_Array));
             transObj->insertTile(transTile);
             retval->insert(transObj);
             list->erase(list->begin());

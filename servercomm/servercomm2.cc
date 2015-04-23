@@ -54,6 +54,7 @@ static const char rcsid[] = "@(#)servercomm2, ServerComm: $Id: servercomm2.cc,v 
 #include <math.h>      // for log(), exp(), floor()
 #include <ctime>         // time
 #include <iomanip>
+#include <boost/scoped_ptr.hpp>
 
 #ifdef PURIFY
 #include <purify.h>
@@ -3063,7 +3064,15 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
 #endif
 
                 if( mddObj->getCurrentDomain() == mddData->getLoadDomain() )
-                    context->transTiles = mddObj->getTiles();
+                {
+                    // This is a hack. The mddObj is a part of context->transferDataIter and it will
+                    // not be deleted until the end of transaction, so storing raw pointers is safe.
+                    // FIXME: change context->transTiles type to vector< shared_ptr<Tile> >
+                    boost::scoped_ptr< vector< boost::shared_ptr<Tile> > > tiles( mddObj->getTiles() );
+                    context->transTiles = new vector<Tile*>();
+                    for ( size_t i = 0; i < tiles->size(); ++i )
+                        context->transTiles->push_back( (*tiles)[i].get() );
+                }
                 else
                 {
                     // If the load domain is different from the current domain, we have
@@ -3072,7 +3081,13 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                     // These temporary border tiles are added to the deletableTiles list
                     // which is deleted at the end.
 
-                    context->transTiles = mddObj->intersect( mddData->getLoadDomain() );
+                    // This is a hack. The mddObj is a part of context->transferDataIter and it will
+                    // not be deleted until the end of transaction, so storing raw pointers is safe.
+                    // FIXME: change context->transTiles type to vector< shared_ptr<Tile> >
+                    boost::scoped_ptr< vector< boost::shared_ptr<Tile> > > tiles( mddObj->intersect( mddData->getLoadDomain() ) );
+                    context->transTiles = new vector<Tile*>();
+                    for ( size_t i = 0; i < tiles->size(); ++i )
+                        context->transTiles->push_back( (*tiles)[i].get() );
 
                     // iterate over the tiles
                     for( vector<Tile*>::iterator iter = context->transTiles->begin(); iter != context->transTiles->end(); iter++ )
@@ -3601,7 +3616,13 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
                 TALK( "domain " << mddDomain );
 
                 // initialize context fields
-                context->transTiles  = context->transferMDD->getTiles();
+                // This is a hack. The mddObj is a part of context->transferDataIter and it will
+                // not be deleted until the end of transaction, so storing raw pointers is safe.
+                // FIXME: change context->transTiles type to vector< shared_ptr<Tile> >
+                boost::scoped_ptr< vector< boost::shared_ptr<Tile> > > tiles( context->transferMDD->getTiles() );
+                context->transTiles  = new vector<Tile*>;
+                for (size_t i = 0; i < tiles->size(); ++i)
+                    context->transTiles->push_back((*tiles)[i].get());
                 context->tileIter    = new vector<Tile*>::iterator;
                 *(context->tileIter) = context->transTiles->begin();
 

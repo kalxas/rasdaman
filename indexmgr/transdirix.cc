@@ -189,10 +189,7 @@ TransDirIx::getTotalStorageSize() const
 TransDirIx::~TransDirIx()
 {
     RMDBGENTER(2, RMDebug::module_indexif, "TransDirIx", "~TransDirIx() " << (r_Ptr)this);
-    for (unsigned int i = 0; i < tiles.size(); i++)
-    {
-        delete tiles[i].getTransObject();
-    }
+    tiles.clear();
     RMDBGEXIT(2, RMDebug::module_indexif, "TransDirIx", "~TransDirIx() " << (r_Ptr)this);
 }
 
