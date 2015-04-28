@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gmlcov:ReferenceableGridCoverage
+        xmlns='http://www.opengis.net/gml/3.2'
+        xmlns:gml='http://www.opengis.net/gml/3.2'
+        xmlns:gmlcov='http://www.opengis.net/gmlcov/1.0'
+        xmlns:swe='http://www.opengis.net/swe/2.0'
+        xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+        gml:id="$VarGmlId"
+        >
+
+    <boundedBy>
+        <Envelope srsName="$VarSrsName" axisLabels="None None None" uomLabels="None None None" srsDimension="3">
+            <lowerCorner>0 0 0</lowerCorner>
+            <upperCorner>0 0 0</upperCorner>
+        </Envelope>
+    </boundedBy>
+
+    <domainSet>
+        <gmlrgrid:ReferenceableGridByVectors dimension="3" gml:id="grid"
+                                             xmlns:gmlrgrid="http://www.opengis.net/gml/3.3/rgrid"
+                                             xsi:schemaLocation="http://www.opengis.net/gml/3.3/rgrid http://schemas.opengis.net/gml/3.3/referenceableGrid.xsd">
+            <limits>
+                <GridEnvelope>
+                    <low>$VarGridEnvelopeLow</low>
+                    <high>$VarGridEnvelopeHigh</high>
+                </GridEnvelope>
+            </limits>
+            <axisLabels>Lat Long</axisLabels>
+            <gmlrgrid:origin>
+                <Point gml:id="origin" srsName="$VarSrsName"
+                       axisLabels="None None None" uomLabels="None None None" srsDimension="3">
+                    <pos>$VarOriginGmlPos</pos>
+                </Point>
+            </gmlrgrid:origin>
+            $VarGmlOffsetVectors
+        </gmlrgrid:ReferenceableGridByVectors>
+    </domainSet>
+
+  <rangeSet>
+       <gml:DataBlock>
+		<gml:rangeParameters/>
+		<gml:tupleList>0
+		</gml:tupleList>
+	</gml:DataBlock>
+  </rangeSet>
+
+    <gmlcov:rangeType>
+        <swe:DataRecord>
+            $VarFields
+        </swe:DataRecord>
+    </gmlcov:rangeType>
+    <gmlcov:metadata/>
+</gmlcov:ReferenceableGridCoverage>

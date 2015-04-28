@@ -1,0 +1,84 @@
+{
+  "__comment__": [
+    "Each possible parameter for every recipe is commented in this file. As JSON does not support comments above",
+    "each filed, a __comment__ field is placed that explains the semantics of the field below it.",
+    "In some cases, a parameter might have different possible values (e.g. recipe). In this case, the field for the",
+    "parameter will be doubled.",
+    "This file is considered a developer documentation that gives an overview over all possible ingredients.",
+    "Refer to the user documentation at http://rasdaman.org or to the individual files for more documentation."
+  ],
+  "config": {
+    "__comment__": "The base url to the WCST service, i.e. not including ?service=WCS&acceptversion=2.0.0",
+    "service_url": "http://localhost:8080/rasdaman/ows",
+    "__comment__": "Temporary directory in which to create gml and data files, should be readable and writable by both rasdaman, petascope and current user",
+    "tmp_directory": "/tmp/",
+    "__comment__": "The crs resolver to use for generating the gml",
+    "crs_resolver": "http://opengis.net/def/",
+    "__comment__": "The default crs to be used for gdal files that do not have it",
+    "default_crs": "http://opengis.net/def/def/crs/OGC/0/Index2D",
+    "__comment__": "If mock parameter is true then the wcst requests are printed to stdout and not executed",
+    "mock": false,
+    "__comment__": "Set to true if no human input should be requested and everything should be completely automated",
+    "automated": false
+  },
+  "input": {
+    "__comment__": "The id of the coverage. If it already exists, we will consider this operation an update",
+    "coverage_id": "MyCoverage",
+    "__comment__": "The input paths to take into consideration. A path can be a single file or a unix file regex.",
+    "paths": [
+      "/var/data/test_1.tif",
+      "/var/data/dir/*"
+    ]
+  },
+  "recipe": {
+    "__comment__": "The recipe name",
+    "name": "map_mosaic",
+    "__comment__": "A list of options required by the recipe",
+    "options": {
+      "__comment__": "[OPTIONAL]The tiling of the coverage in rasql format",
+      "tiling": "ALIGNED [0:500, 0:500]"
+    }
+  },
+  "recipe": {
+    "__comment__": "The recipe name",
+    "name": "time_series_regular",
+    "__comment__": "A list of options required by the recipe",
+    "options": {
+      "__comment__": "The origin of the timeseries",
+      "time_start": "2012-12-02T20:12:02",
+      "__comment__": "The datetime format of the parameter above. Auto will try to guess it, any other datetime format is accepted",
+      "time_format": "auto",
+      "__comment__": "The time crs to be used with the 2d crs to create a compound crs for the whole coverage",
+      "time_crs": "http://192.168.0.103:8080/def/crs/OGC/0/AnsiDate",
+      "__comment__": "The time step between two slices, expressed in days, hours, minutes and seconds",
+      "time_step": "2 days 10 minutes 3 seconds",
+      "__comment__": "[OPTIONAL]The tiling of the coverage in rasql format",
+      "tiling": "ALIGNED [0:1000, 0:1000, 0:2]"
+    }
+  },
+  "recipe": {
+    "__comment__": "The recipe name",
+    "name": "time_series_irregular",
+    "__comment__": "A list of options required by the recipe",
+    "options": {
+      "__comment__": "The time parameter describes to the recipe how to extract the datetime. Two options possible: metadata_tag OR filename",
+      "time_parameter": {
+        "metadata_tag": {
+          "__comment__": "The name of the tag in the gdal file, the default is the one below",
+          "tag_name": "TIFFTAG_DATETIME"
+        },
+        "filename": {
+          "__comment__": "The regex has to contain groups of tokens, separated by parentheses. The group parameter specifies which regex group to use for retrieving the time value",
+          "regex": "(.*)_(.*)_(.+?)_(.*)",
+          "group": "2"
+        },
+        "__comment__": "The format of the value of the time parameter: 'auto' will try to guess it",
+        "datetime_format": "YYYY:MM:DD HH:mm:ss"
+      },
+      "__comment__": "The time crs to be used with the 2d crs to create a compound crs for the whole coverage",
+      "time_crs": "http://kahlua.eecs.jacobs-university.de:8080/def/crs/OGC/0/AnsiDate",
+      "__comment__": "[OPTIONAL]The tiling of the coverage in rasql format",
+      "tiling": "ALIGNED [0:10, 0:1000, 0:500]"
+    }
+  }
+}

@@ -36,4 +36,4 @@ if ENABLE_R
 	R_DIR = RRasdaman
 endif
 
-SUBDIRS=rasql rview rasgeo $(JAVA_DIR) directql $(R_DIR)
+SUBDIRS=rasql rview rasgeo $(JAVA_DIR) directql $(R_DIR) wcst_import

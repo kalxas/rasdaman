@@ -1,0 +1,10 @@
+<gmlrgrid:generalGridAxis>
+    <gmlrgrid:GeneralGridAxis>
+        <gmlrgrid:offsetVector srsName="" axisLabels="None None None" uomLabels="None None None" srsDimension="3">
+            $VarGmlOffset
+        </gmlrgrid:offsetVector>
+        <gmlrgrid:coefficients>$Coefficient</gmlrgrid:coefficients>
+        <gmlrgrid:gridAxesSpanned>None</gmlrgrid:gridAxesSpanned>
+        <gmlrgrid:sequenceRule axisOrder="+1">None</gmlrgrid:sequenceRule>
+    </gmlrgrid:GeneralGridAxis>
+</gmlrgrid:generalGridAxis>

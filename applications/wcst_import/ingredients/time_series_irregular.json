@@ -1,0 +1,30 @@
+{
+  "config": {
+    "service_url": "http://localhost:8080/rasdaman/ows",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "http://opengis.net/def/",
+    "default_crs": "http://opengis.net/def/def/crs/OGC/0/Index2D",
+    "mock": true,
+    "automated": false
+  },
+  "input": {
+    "coverage_id": "MyCoverage",
+    "paths": [
+      "/var/data"
+    ]
+  },
+  "recipe": {
+    "name": "time_series_irregular",
+    "options": {
+      "time_parameter": {
+        "metadata_tag": {
+          "__comment__": "The name of the tag in the gdal file, the default is the one below",
+          "tag_name": "TIFFTAG_DATETIME"
+        },
+        "datetime_format": "YYYY:MM:DD HH:mm:ss"
+      },
+      "time_crs": "http://opengis.net/def/crs/OGC/0/AnsiDate",
+      "tiling": "ALIGNED [0:10, 0:1000, 0:500]"
+    }
+  }
+}

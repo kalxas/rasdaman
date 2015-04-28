@@ -1,0 +1,22 @@
+{
+  "config": {
+    "service_url": "http://localhost:8080/rasdaman/ows",
+    "tmp_directory": "/tmp/",
+    "crs_resolver": "http://opengis.net/def/",
+    "default_crs": "OGC/0/Index2D",
+    "mock": true,
+    "automated": false
+  },
+  "input": {
+    "coverage_id": "MyCoverage",
+    "paths": [
+      "/var/data/*"
+    ]
+  },
+  "recipe": {
+    "name": "map_mosaic",
+    "options": {
+      "tiling": "ALIGNED [0:500, 0:500]"
+    }
+  }
+}

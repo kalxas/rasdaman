@@ -166,6 +166,7 @@ AC_CONFIG_FILES([Makefile
                  applications/petascope/src/main/db/Makefile
                  applications/secore/Makefile
                  applications/RRasdaman/Makefile
+                 applications/wcst_import/Makefile
                  bin/Makefile
                  manuals_and_examples/Makefile
                  manuals_and_examples/examples/c++/Makefile
