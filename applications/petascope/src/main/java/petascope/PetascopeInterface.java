@@ -39,8 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -62,7 +60,6 @@ import petascope.exceptions.RasdamanException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
-import petascope.exceptions.WCSTException;
 import petascope.util.KVPSymbols;
 import petascope.util.ListUtil;
 import petascope.util.Pair;
@@ -84,7 +81,6 @@ import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.handlers.Response;
 import petascope.wcs2.templates.Templates;
 import petascope.wms2.servlet.PetascopeInterfaceAdapter;
-import petascope.wms2.servlet.WMSServlet;
 
 /**
  * This servlet is a unified entry-point for all the PetaScope services.

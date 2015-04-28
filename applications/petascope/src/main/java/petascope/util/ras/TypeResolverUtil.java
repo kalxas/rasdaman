@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.lang3.tuple.Pair;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.wcst.WCSTUnknownPixelTypeException;
 import petascope.util.ras.TypeRegistry.TypeRegistryEntry;
 
 /**
@@ -44,9 +45,9 @@ public class TypeResolverUtil {
      * @return the rasdaman collection type
      * @throws IOException
      */
-    public static String guessCollectionTypeFromFile(String filePath) throws IOException, PetascopeException {
+    public static String guessCollectionTypeFromFile(String filePath, int dimension) throws IOException, PetascopeException {
         Pair<Integer, ArrayList<String>> dimTypes = Gdalinfo.getDimensionAndTypes(filePath);
-        return guessCollectionType(dimTypes.getKey(), dimTypes.getValue());
+        return guessCollectionType(dimension, dimTypes.getValue());
     }
 
     /**
@@ -55,16 +56,22 @@ public class TypeResolverUtil {
      *
      * @param numberOfBands      how many band the dataset has
      * @param numberOfDimensions how many dimensions the dataset has
+     * @param pixelDataType      the pixel data type, if not given assumed byte
      * @return pair containing the collection type and cell type (e.g. <"GreySet", "c">)
      */
-    public static Pair<String, Character> guessCollectionType(Integer numberOfBands, Integer numberOfDimensions) throws PetascopeException {
-        String assumedType = GDT_Byte;
+    public static Pair<String, Character> guessCollectionType(Integer numberOfBands, Integer numberOfDimensions, String pixelDataType) throws PetascopeException {
+        if(pixelDataType == null){
+            pixelDataType = GDT_Byte;
+        }
+        if(!GDAL_TYPES_TO_RAS_TYPES.containsKey(pixelDataType)){
+            throw new WCSTUnknownPixelTypeException(pixelDataType);
+        }
         //assume band type char on every band
         ArrayList<String> bandTypes = new ArrayList<String>();
         for (Integer i = 0; i < numberOfBands; i++) {
-            bandTypes.add(assumedType);
+            bandTypes.add(pixelDataType);
         }
-        return Pair.of(guessCollectionType(numberOfDimensions, bandTypes), GDAL_TYPES_TO_RAS_TYPES.get(assumedType).charAt(0));
+        return Pair.of(guessCollectionType(numberOfDimensions, bandTypes), GDAL_TYPES_TO_RAS_TYPES.get(pixelDataType).charAt(0));
     }
 
     /**
@@ -122,7 +129,7 @@ public class TypeResolverUtil {
                 } else {
                     //1 band
                     baseType = i.getValue().getBaseType();
-                    if (baseType.equals(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(0)))) {
+                    if (gdalBandTypes.size() == 1 && baseType.equals(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(0)))) {
                         return i.getKey();
                     }
                 }
@@ -169,7 +176,7 @@ public class TypeResolverUtil {
 
     static {
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Byte, R_Char);
-        GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt16, R_UShort);
+        GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt16, R_Char);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Int16, R_Short);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt32, R_ULong);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Int32, R_Long);

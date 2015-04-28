@@ -22,6 +22,6 @@
   </wcs:DimensionSlice>
   <wcs:DimensionSlice>
     <wcs:Dimension>m</wcs:Dimension>
-    <wcs:SlicePoint>15</wcs:SlicePoint>
+    <wcs:SlicePoint>-15</wcs:SlicePoint>
   </wcs:DimensionSlice>
 </wcs:GetCoverage>

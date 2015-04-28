@@ -20,21 +20,27 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wcs2.parsers;
+package petascope.wcs2.parsers.wcst;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
+import petascope.exceptions.wcst.WCSTInvalidRequestException;
 import petascope.util.RequestUtil;
-import petascope.util.StringUtil;
 import petascope.wcs2.handlers.RequestHandler;
+import petascope.wcs2.parsers.*;
+import petascope.wcs2.parsers.subsets.DimensionSubset;
+import petascope.wcs2.parsers.subsets.SubsetParser;
 
 /**
  * Parser for the requests handled by the Transaction Extension of OGC
@@ -42,7 +48,7 @@ import petascope.wcs2.handlers.RequestHandler;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class KVPWCSTParser extends KVPParser<WCSTRequest>{
+public class KVPWCSTParser extends KVPParser<WCSTRequest> {
 
     private static final Logger log = LoggerFactory.getLogger(KVPParser.class);
 
@@ -55,8 +61,8 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest>{
     public WCSTRequest parse(HTTPRequest request) throws WCSException {
         //split query string into parameters
         Map<String, String> params = RequestUtil.parseKVPRequestParams(request.getQueryString());
-        //distiguish between the 3 possible requet types: InsertCoverage, DeleteCoverage and UpdateCoverage
-        if(params.get(REQUEST).equals(INSERT_COVERAGE)){
+        //distinguish between the 3 possible request types: InsertCoverage, DeleteCoverage and UpdateCoverage
+        if(params.get(REQUEST).equals(RequestHandler.INSERT_COVERAGE)){
             //validate the request against WCS-T spec requirements
             validateInsertCoverageRequest(params);
             String useId = "";
@@ -66,18 +72,30 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest>{
             return new InsertCoverageRequest(
                     params.get(COVERAGE),
                     parseCoverageRefUrl(params.get(COVERAGE_REF)),
-                    useId.equals(USE_NEW_ID));
+                    useId.equals(USE_NEW_ID),
+                    params.get(PIXEL_DATA_TYPE),
+                    params.get(TILING));
         }
-        else if(params.get(REQUEST).equals(DELETE_COVERAGE)){
+        else if(params.get(REQUEST).equals(RequestHandler.DELETE_COVERAGE)){
             return new DeleteCoverageRequest(params.get(COVERAGE_ID));
         }
-        else{
+        else if(params.get(REQUEST).equals(RequestHandler.UPDATE_COVERAGE)){
             //update coverage request received
-            //not supported yet
+            String coverageId = params.get(COVERAGE_ID);
+            String inputCoverage = params.get(INPUT_COVERAGE);
+            URL inputCoverageRef = parseCoverageRefUrl(params.get(INPUT_COVERAGE_REF));
+            String maskGrid = params.get(MASK_GRID);
+            URL maskGridRef = parseCoverageRefUrl(params.get(MASK_GRID_REF));
+            List<DimensionSubset> subsets = SubsetParser.parseSubsets(request.getRequestString());
+            List<Pair<String, String>> rangeComponents = new ArrayList<Pair<String, String>>();
+            String tiling = params.get(TILING);
+            return new UpdateCoverageRequest(coverageId, inputCoverage, inputCoverageRef,
+                     maskGrid, maskGridRef, subsets, rangeComponents, null, tiling);
         }
-
-
-        return new InsertCoverageRequest(null, null, null);
+        //not a request that this parser can parse, but canParse returned true
+        //should never happen
+        log.error("Invalid request type: " + params.get(REQUEST) + ". This parser can not parse requests of this type.");
+        throw new WCSTInvalidRequestException(params.get(REQUEST));
     }
 
     /**
@@ -132,25 +150,39 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest>{
      */
     @Override
     public boolean canParse(HTTPRequest request) {
+        Map<String, String> params = RequestUtil.parseKVPRequestParams(request.getQueryString());
         boolean canParse = request.getRequestString() != null
                 && !request.getRequestString().startsWith("<")
-                && (request.getRequestString().contains(RequestHandler.INSERT_COVERAGE)
-                   || request.getRequestString().contains(RequestHandler.DELETE_COVERAGE)
-                   || request.getRequestString().contains(RequestHandler.UPDATE_COVERAGE)
+                && !params.isEmpty()
+                && (params.get(REQUEST).equals(RequestHandler.INSERT_COVERAGE)
+                   || params.get(REQUEST).equals(RequestHandler.DELETE_COVERAGE)
+                   || params.get(REQUEST).equals(RequestHandler.UPDATE_COVERAGE)
                 );
         log.trace("KVPParser<{}> {} parse the request", getOperationName(), canParse ? "can" : "cannot");
         return canParse;
     }
 
     private final static String WCTS_OPERATION_NAME = "WCSTOperation";
-    private final static String USE_ID = "useId";
-    private final static String COVERAGE_REF = "coverageRef";
-    private final static String COVERAGE = "coverage";
-    private final static String COVERAGE_ID = "coverageId";
-    private final static String INSERT_COVERAGE = "InsertCoverage";
-    private final static String DELETE_COVERAGE = "DeleteCoverage";
-    private final static String UPDATE_COVERAGE = "UpdateCoverage";
+
+    /**
+     * Values: case sensitive!
+     */
     private final static String USE_EXISTING_ID = "existing";
     private final static String USE_NEW_ID = "new";
+
+    /**
+     * Keys: case INsensitive!
+     */
+
+    private final static String USE_ID = "useid";
+    private final static String COVERAGE_REF = "coverageref";
+    private final static String COVERAGE = "coverage";
+    private final static String COVERAGE_ID = "coverageid";
     private final static String REQUEST = "request";
+    private final static String INPUT_COVERAGE = "inputcoverage";
+    private final static String INPUT_COVERAGE_REF = "inputcoverageref";
+    private final static String MASK_GRID = "maskgrid";
+    private final static String MASK_GRID_REF = "maskgridref";
+    private final static String PIXEL_DATA_TYPE = "pixeldatatype";
+    private final static String TILING = "tiling";
 }

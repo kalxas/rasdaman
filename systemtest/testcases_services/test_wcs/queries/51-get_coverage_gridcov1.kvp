@@ -5,4 +5,4 @@ coverageId=float_4d&
 subset=i(0,0)&
 subset=j(0,0)&
 subset=k(10)&
-subset=m(15)
+subset=m(-15)

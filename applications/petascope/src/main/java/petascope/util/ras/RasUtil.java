@@ -449,10 +449,11 @@ public class RasUtil {
      * @return the oid of the newly inserted object
      * @throws RasdamanException
      */
-    public static BigInteger executeInsertValuesStatement(String collectionName, String values) throws RasdamanException {
+    public static BigInteger executeInsertValuesStatement(String collectionName, String values, String tiling) throws RasdamanException {
         BigInteger oid = null;
+        String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
         String query = TEMPLATE_INSERT_VALUES.replace(TOKEN_COLLECTION_NAME, collectionName)
-                .replace(TOKEN_VALUES, values);
+                .replace(TOKEN_VALUES, values).replace(TOKEN_TILING, tilingClause);
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         //get the collection oid
         String oidQuery = TEMPLATE_SELECT_OID.replaceAll(TOKEN_COLLECTION_NAME, collectionName);
@@ -469,25 +470,32 @@ public class RasUtil {
         return oid;
     }
 
-    public static BigInteger executeInsertFileStatement(String collectionName, String filePath, String mimetype, String username, String password) throws RasdamanException, RasResultIsNoIntervalException, IOException {
+    public static BigInteger executeInsertFileStatement(String collectionName, String filePath, String mimetype,
+                                                        String username, String password, String tiling) throws RasdamanException, IOException {
         BigInteger oid = new BigInteger("0");
         String query;
+        String tilingClause = (tiling == null || tiling.isEmpty()) ? "" : TILING_KEYWORD + " " + tiling;
         //As decode does not work correctly with geotiffs at the moment, use the old inv_tiff function to insert it
         //TODO remove this once decode($1) works nicely
         if(mimetype != null && mimetype.toLowerCase().contains(TIFF_MIMETYPE)) {
             query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q " +
-                    "'" + TEMPLATE_INSERT_TIFF.replace(TOKEN_COLLECTION_NAME, collectionName) + "' --file " + filePath;
+                    "'" + TEMPLATE_INSERT_TIFF.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
         }
         else{
             query = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q " +
-                    "'" + TEMPLATE_INSERT_FILE.replace(TOKEN_COLLECTION_NAME, collectionName) + "' --file " + filePath;
+                    "'" + TEMPLATE_INSERT_FILE.replace(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_TILING, tilingClause) + "' --file " + filePath;
         }
+        log.info("Executing " + query);
         Process p = Runtime.getRuntime().exec(new String[]{"bash","-c", query});
-        BufferedReader stdInput = new BufferedReader(new InputStreamReader(p.getInputStream()));
+        BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
         String s;
         String response = "";
-        while ((s = stdInput.readLine()) != null) {
+        while ((s = stdError.readLine()) != null) {
             response += s + "\n";
+        }
+        if(!response.isEmpty()){
+            //error occured
+            throw new RasdamanException(response);
         }
         //get the collection oid
         String oidQuery = TEMPLATE_SELECT_OID.replaceAll(TOKEN_COLLECTION_NAME, collectionName);
@@ -504,16 +512,41 @@ public class RasUtil {
         return oid;
     }
 
+    public static void executeUpdateFileStatement(String query, String filePath, String mimetype, String username, String password) throws IOException, RasdamanException {
+        String rasql = ConfigManager.RASDAMAN_BIN_PATH + RASQL + " --user " + username + " --passwd " + password + " -q " +
+                "'" + query + "' --file " + filePath;
+        //As decode does not work correctly with geotiffs at the moment, use the old inv_tiff function to insert it
+        //TODO remove this once decode($1) works nicely
+        if(mimetype != null && mimetype.toLowerCase().contains(TIFF_MIMETYPE)) {
+            rasql = rasql.replace("decode", "inv_tiff");
+        }
+        log.info("Executing " + rasql);
+        Process p = Runtime.getRuntime().exec(new String[]{"bash","-c", rasql});
+        BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+        String s;
+        String response = "";
+        while ((s = stdError.readLine()) != null) {
+            response += s + "\n";
+        }
+        //check if an error exist in the response
+        if(!response.isEmpty()){
+            throw new RasdamanException(response);
+        }
+    }
+
     private static final String TOKEN_COLLECTION_NAME = "%collectionName%";
     private static final String TOKEN_COLLECTION_TYPE = "%collectionType%";
     private static final String TEMPLATE_CREATE_COLLECTION = "CREATE COLLECTION " + TOKEN_COLLECTION_NAME + " " + TOKEN_COLLECTION_TYPE;
     private static final String TOKEN_VALUES = "%values%";
-    private static final String TEMPLATE_INSERT_VALUES = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES " + TOKEN_VALUES;
+    private static final String TOKEN_TILING = "%tiling%";
+    private static final String TILING_KEYWORD = "TILING";
+    private static final String TEMPLATE_INSERT_VALUES = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES " + TOKEN_VALUES + " " + TOKEN_TILING;
     private static final String TEMPLATE_SELECT_OID = "SELECT oid(" + TOKEN_COLLECTION_NAME + ") FROM " + TOKEN_COLLECTION_NAME;
     private static final String TOKEN_OID = "%oid%";
     private static final String TEMPLATE_DELETE = "DELETE FROM " + TOKEN_COLLECTION_NAME + " WHERE oid(" + TOKEN_COLLECTION_NAME + ")=" + TOKEN_OID;
-    private static final String TEMPLATE_INSERT_FILE = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES decode($1)";
-    private static final String TEMPLATE_INSERT_TIFF = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES inv_tiff($1)";
+    private static final String TEMPLATE_INSERT_FILE = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES decode($1)" + " " + TOKEN_TILING;
+    private static final String TEMPLATE_INSERT_TIFF = "INSERT INTO " + TOKEN_COLLECTION_NAME + " VALUES inv_tiff($1)" + " " + TOKEN_TILING;
     private static final String RASQL = "rasql";
     private static final String TIFF_MIMETYPE = "tif";
+    private static final String RASDAMAN_ERROR = "rasdaman error";
 }

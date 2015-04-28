@@ -44,16 +44,10 @@ import petascope.exceptions.WCSException;
 import petascope.ows.Description;
 import petascope.swe.datamodel.AbstractSimpleComponent;
 import petascope.swe.datamodel.Quantity;
-import petascope.util.AxisTypes;
-import petascope.util.CrsUtil;
+import petascope.util.*;
+
 import static petascope.util.CrsUtil.INDEX_UOM;
-import petascope.util.GMLParserUtil;
-import petascope.util.ListUtil;
-import petascope.util.Pair;
-import petascope.util.Vectors;
-import petascope.util.WcpsConstants;
-import petascope.util.WcsUtil;
-import petascope.util.XMLSymbols;
+
 import petascope.wcps.metadata.Bbox;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.DomainElement;
@@ -155,6 +149,13 @@ public class CoverageMetadata implements Cloneable {
             BigDecimal resolution     = axis.getKey().get(axisNonZeroIndices.get(0));
             BigDecimal sspaceShift    = WcsUtil.getSampleSpaceShift(resolution, isIrregular, crsAxis.getUoM());
             BigDecimal axisLo         = gridOrigin.get(axisNonZeroIndices.get(0)).add(sspaceShift);
+            //the grid can also have negative values, case in which axisLo is not in the origin, but it needs to shift to the lowest point on this axis
+            if (cEl.getLoInt() < 0){
+                //jump back resolution * number of negative pixels
+                //number of negative pixels is -1 * lower bound of domain
+                int negativePixels = -1 * cEl.getLoInt();
+                axisLo = axisLo.subtract(BigDecimal.valueOf(negativePixels).multiply(resolution));
+            }
             BigInteger gridAxisPoints = BigInteger.valueOf(1).add(BigInteger.valueOf(cEl.getHiInt()-cEl.getLoInt()));
             BigDecimal axisHi;
             if (!isIrregular) {
@@ -626,6 +627,25 @@ public class CoverageMetadata implements Cloneable {
         return cellDomain.size();
     }
 
+    /**
+     * Returns the cell domain with the given order. In case no domain with the give order is found, it throws an exception.
+     * @param order the iOrder of the searched cellDomain.
+     * @return the cellDomain with the given order.
+     */
+    public CellDomainElement getCellDomainByOrder(int order) throws PetascopeException {
+        CellDomainElement ret = null;
+        for(CellDomainElement i : cellDomain){
+            if(i.getOrder() == order){
+                ret = i;
+                break;
+            }
+        }
+        if(ret == null){
+            throw new PetascopeException(ExceptionCode.NoSuchField, "No cell domain with order " + order + " for coverage " + getCoverageName());
+        }
+        return ret;
+    }
+
     public int getDomainIndexByType(String type) {
         Iterator<DomainElement> i = domain.iterator();
         for (int index = 0; i.hasNext(); index++) {
@@ -978,8 +998,8 @@ public class CoverageMetadata implements Cloneable {
     }
 
     /**
-     * Takes a GML coverage and translates it into a CovergaeMetadata object.
-     * The created coverage doesn't have acoverageId or a rasdamanCollection yet.
+     * Takes a GML coverage and translates it into a CoverageMetadata object.
+     * The created coverage doesn't have a coverageId or a rasdamanCollection yet.
      *
      * @param gmlCoverage
      * @return
@@ -990,7 +1010,8 @@ public class CoverageMetadata implements Cloneable {
     public static CoverageMetadata fromGML(Document gmlCoverage) throws WCSException, PetascopeException, SecoreException {
         Element root = gmlCoverage.getRootElement();
         //cov type
-        String coverageType = root.getLocalName();
+        String coverageType = GMLParserUtil.parseCoverageType(root);
+
         //cov id
         String id = root.getAttributeValue(XMLSymbols.ATT_ID, XMLSymbols.NAMESPACE_GML);
         //native format
@@ -1002,13 +1023,32 @@ public class CoverageMetadata implements Cloneable {
         //from the domain set extract the grid type
         Element gridType = GMLParserUtil.parseGridType(domainSet);
         List<CellDomainElement> cellDomainElements = null;
-        List<BigDecimal> originPoints = null;
+        List<BigDecimal> originPoints = new ArrayList<BigDecimal>();
         LinkedHashMap<List<BigDecimal>, BigDecimal> gridAxes = null;
         //rectified grids
-        if (gridType.getLocalName().equals(XMLSymbols.LABEL_RECTIFIED_GRID)) {
+        if (!gridType.getLocalName().equals(XMLSymbols.LABEL_GRID)) {
             cellDomainElements = GMLParserUtil.parseRectifiedGridCellDomain(gridType);
-            originPoints = GMLParserUtil.parseGridOrigin(gridType);
-            gridAxes = GMLParserUtil.parseRegularGridAxes(gridType, originPoints.size());
+            String[] stringOriginPoints = GMLParserUtil.parseGridOrigin(gridType);
+            gridAxes = GMLParserUtil.parseGridAxes(gridType, stringOriginPoints.length);
+            //transform origin points into actual coordinates
+            for(int i = 0; i < stringOriginPoints.length; i++){
+                //check if time
+                if(stringOriginPoints[i].contains("\"")){
+                    if(crsAxes.size() > i) {
+                        String datumOrigin = crsAxes.get(i).fst.getCrsDefinition().getDatumOrigin();
+                        String uom = crsAxes.get(i).fst.getUoM();
+                        Double numericCoordinate = TimeUtil.countOffsets(datumOrigin, stringOriginPoints[i], uom, 1D); //don't normalize here, absolute time value needed
+                        originPoints.add(new BigDecimal(numericCoordinate));
+                    }
+                }
+                else{
+                    //numeric
+                    originPoints.add(new BigDecimal(stringOriginPoints[i]));
+                }
+            }
+        }
+        else{
+            throw new WCSException(ExceptionCode.WCSTOnlyRectifiedGridsSupported);
         }
         //parse the range type information
         List<Pair<RangeElement, Quantity>> rangeQuantities = GMLParserUtil.parseRangeElementQuantities(root);

@@ -306,4 +306,8 @@ public class ExceptionCode {
             "A coverage with this name already exists (pick a different name or use the request parameter useId=new).");
     public static final ExceptionCode WCSTTypeRegistryNotFound = new ExceptionCode("WCSTTypeRegistryNotFound",
             "Could not read the rasdaman type registry.");
+    public static final ExceptionCode WCSTOnlyRectifiedGridsSupported = new ExceptionCode("WCSTOnlyRectifiedGridsSupported",
+            "Only rectified grids are supported in the domainSet element.");
+
+    public static final ExceptionCode InconsistentChange = new ExceptionCode("InconsistentChange", SC_NOT_FOUND);
 }

@@ -169,6 +169,7 @@ public class DomainElement implements Cloneable {
         return minValue;
     }
 
+    public void setMaxValue(BigDecimal newValue) { this.maxValue = newValue; }
     /**
      * Cell width for this domain element.
      * @return Positive scalar value: (M-m)/W

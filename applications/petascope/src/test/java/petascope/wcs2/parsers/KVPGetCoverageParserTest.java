@@ -31,6 +31,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import petascope.wcs2.parsers.subsets.SubsetParser;
+
 import static org.junit.Assert.*;
 
 /**
@@ -87,9 +89,8 @@ public class KVPGetCoverageParserTest {
      */
     @Test
     public void testParseSubsetParams() throws Exception {
-        KVPGetCoverageParser inst = new KVPGetCoverageParser();
         for (int i = 0; i < inputs.size(); i++) {
-            HashMap<String, String> res = inst.parseSubsetParams(inputs.get(i));            
+            HashMap<String, String> res = SubsetParser.parseSubsetParams(inputs.get(i));
             for (Map.Entry<String, String> kv : res.entrySet()) {
                 assertTrue(correctResults.get(i).containsValue(kv.getValue()));
             }

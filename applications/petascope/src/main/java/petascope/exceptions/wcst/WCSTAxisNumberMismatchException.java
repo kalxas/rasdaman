@@ -19,15 +19,19 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
+package petascope.exceptions.wcst;
 
-package petascope.wcs2.parsers;
+import petascope.exceptions.ExceptionCode;
 
 /**
- * WCST Request super class grouping the possible request types:
- *  - InsertCoverage
- *  - DeleteCoverage
- *  - UpdateCoverage (future)
+ * @author <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public abstract class WCSTRequest extends Request{
+public class WCSTAxisNumberMismatchException extends WCSTException {
+    public WCSTAxisNumberMismatchException(int currentCoverageAxesSize, int inputCoverageAxesSize) {
+        super(ExceptionCode.InconsistentChange, EXCEPTION_TEXT.replace("$currentCoverageAxesSize", String.valueOf(currentCoverageAxesSize))
+                .replace("$inputCoverageAxesSize", String.valueOf(inputCoverageAxesSize)));
+    }
 
+    private final static String EXCEPTION_TEXT = "In case of complete replacement, the number of axes of the target coverage (found $currentCoverageAxesSize) must match the " +
+            "number of axes of the input coverage (found $inputCoverageAxesSize). Use a subset parameter if partial replacement is intended.";
 }

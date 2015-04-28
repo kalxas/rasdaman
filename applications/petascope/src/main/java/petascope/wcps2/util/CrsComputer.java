@@ -3,6 +3,7 @@ package petascope.wcps2.util;
 import org.apache.commons.lang3.math.NumberUtils;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.PetascopeException;
+import petascope.util.BigDecimalUtil;
 import petascope.util.CrsUtil;
 import petascope.util.TimeUtil;
 import petascope.wcps.metadata.CellDomainElement;
@@ -41,12 +42,16 @@ public class CrsComputer {
         this.registry = registry;
     }
 
+    public Interval<Long> getPixelIndices(){
+        return getPixelIndices(false);
+    }
+
     /**
      * Returns the translated interval from the original subset
      *
      * @return
      */
-    public Interval<Long> getPixelIndices() {
+    public Interval<Long> getPixelIndices(boolean ignoreOutOfBoundsCheck) {
         double lowerNumericLimit, upperNumericLimit;
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         CellDomainElement cdom = coverage.getCoverageInfo().getCellDomainByName(axisName);
@@ -61,10 +66,10 @@ public class CrsComputer {
             if (crsName != null && crsName.equals(CrsUtil.GRID_CRS)) {
                 return returnGridPixelIndices(new Interval<Double>(lowerNumericLimit, upperNumericLimit));
             } else {
-                return getNumericPixelIndices(new Interval<Double>(lowerNumericLimit, upperNumericLimit));
+                return getNumericPixelIndices(new Interval<Double>(lowerNumericLimit, upperNumericLimit), ignoreOutOfBoundsCheck);
             }
         } catch (NumberFormatException e) {
-            return getTimePixelIndices();
+            return getTimePixelIndices(ignoreOutOfBoundsCheck);
         }
     }
 
@@ -125,7 +130,7 @@ public class CrsComputer {
      * @param numericSubset the numeric subset to be translated
      * @return
      */
-    private Interval<Long> getNumericPixelIndices(Interval<Double> numericSubset) {
+    private Interval<Long> getNumericPixelIndices(Interval<Double> numericSubset, boolean ignoreOutOfBoundsValidityCheck) {
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
 
         this.checkNumericSubsetValidity(numericSubset);
@@ -140,12 +145,16 @@ public class CrsComputer {
         return result;
     }
 
+    private void checkNumericSubsetValidity(Interval<Double> numericSubset){
+        checkNumericSubsetValidity(numericSubset, false);
+    }
+
     /**
      * Checks if the subset is valid and can be translated
      *
      * @param numericSubset the subset to be translated
      */
-    private void checkNumericSubsetValidity(Interval<Double> numericSubset) {
+    private void checkNumericSubsetValidity(Interval<Double> numericSubset, boolean ignoreOutOfBoundsValidityCheck) {
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         BigDecimal domMin = dom.getMinValue();
         BigDecimal domMax = dom.getMaxValue();
@@ -154,9 +163,11 @@ public class CrsComputer {
             throw new UnorderedSubsetException(axisName, subset);
         }
 
-        // Check intersection with extents
-        if (numericSubset.getLowerLimit() > domMax.doubleValue() || numericSubset.getUpperLimit() < domMin.doubleValue()) {
-            throw new OutOfBoundsSubsettingException(axisName, subset);
+        if(!ignoreOutOfBoundsValidityCheck) {
+            // Check intersection with extents
+            if (numericSubset.getLowerLimit() > domMax.doubleValue() || numericSubset.getUpperLimit() < domMin.doubleValue()) {
+                throw new OutOfBoundsSubsettingException(axisName, subset);
+            }
         }
     }
 
@@ -198,7 +209,7 @@ public class CrsComputer {
      * @return
      */
     private Interval<Long> getNumericPixelIndicesForRegularAxis(Interval<Double> numericSubset) {
-        boolean zeroIsMin = !CrsDefinition.Y_ALIASES.contains(axisName);
+        boolean zeroIsMin = coverage.getCoverageMetadata().getDomainDirectionalResolution(axisName).doubleValue() > 0;
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         CellDomainElement cdom = coverage.getCoverageInfo().getCellDomainByName(axisName);
         String axisUoM = dom.getUom();
@@ -213,17 +224,21 @@ public class CrsComputer {
         if (crsName == CrsUtil.GRID_CRS) {
             return new Interval<Long>((long) numericSubset.getLowerLimit().doubleValue(), (long) numericSubset.getUpperLimit().doubleValue());
         }
-        double cellWidth = (domMax.subtract(domMin))
-            .divide((BigDecimal.valueOf(pxMax + 1)).subtract(BigDecimal.valueOf(pxMin)), RoundingMode.UP)
-            .doubleValue();
+        BigDecimal cellWidth = (domMax.subtract(domMin))
+            .divide((BigDecimal.valueOf(pxMax + 1)).subtract(BigDecimal.valueOf(pxMin)), RoundingMode.UP);
 
         // Open interval on the right: take away epsilon from upper bound:
 
         long returnLowerLimit, returnUpperLimit;
         if (zeroIsMin) {
             // Normal linear numerical axis
-            returnLowerLimit = (long) Math.floor((numericSubset.getLowerLimit() - domMin.doubleValue()) / cellWidth) + pxMin;
-            returnUpperLimit = (long) Math.floor((numericSubset.getUpperLimit() - domMin.doubleValue()) / cellWidth) + pxMin;
+            returnLowerLimit = (long) Math.floor(BigDecimalUtil.divide(BigDecimal.valueOf(numericSubset.getLowerLimit()).subtract(domMin), cellWidth).doubleValue()) + pxMin;
+            if(numericSubset.getUpperLimit().equals(numericSubset.getLowerLimit())){
+                returnUpperLimit = returnLowerLimit;
+            }
+            else {
+                returnUpperLimit = (long) Math.ceil(BigDecimalUtil.divide(BigDecimal.valueOf(numericSubset.getUpperLimit()).subtract(domMin),cellWidth).doubleValue()) - 1 + pxMin;
+            }
             // NOTE: the if a slice equals the upper bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
             if (numericSubset.getLowerLimit() == numericSubset.getUpperLimit() && numericSubset.getUpperLimit() == domMax.doubleValue()) {
                 returnLowerLimit = returnLowerLimit - 1;
@@ -231,8 +246,13 @@ public class CrsComputer {
         } else {
             // Linear negative axis (eg northing of georeferenced images)
             // First coordHi, so that left-hand index is the lower one
-            returnLowerLimit = (long) Math.ceil((domMax.doubleValue() - numericSubset.getUpperLimit()) / cellWidth) + pxMin;
-            returnUpperLimit = (long) Math.ceil((domMax.doubleValue() - numericSubset.getLowerLimit()) / cellWidth) + pxMin;
+            returnLowerLimit = (long) Math.ceil(BigDecimalUtil.divide(domMax.subtract(BigDecimal.valueOf(numericSubset.getUpperLimit())), cellWidth).doubleValue()) + pxMin;
+            if(numericSubset.getUpperLimit() == numericSubset.getLowerLimit()){
+                returnUpperLimit = returnLowerLimit;
+            }
+            else {
+                returnUpperLimit = (long) Math.floor(BigDecimalUtil.divide(domMax.subtract(BigDecimal.valueOf(numericSubset.getLowerLimit())), cellWidth).doubleValue()) - 1 + pxMin;
+            }
             // NOTE: the if a slice equals the lower bound of a coverage, out[0]=pxHi+1 but still it is a valid subset.
             if (numericSubset.getLowerLimit() == numericSubset.getUpperLimit() && numericSubset.getUpperLimit() == domMin.doubleValue()) {
                 returnLowerLimit -= 1;
@@ -268,14 +288,14 @@ public class CrsComputer {
      *
      * @return
      */
-    private Interval<Long> getTimePixelIndices() {
+    private Interval<Long> getTimePixelIndices(boolean ignoreOutOfBoundsCheck) {
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         checkTimeSubsetValidity();
         final Interval<Long> result;
         if (dom.isIrregular()) {
             result = getTimePixelIndicesForIrregularAxis();
         } else {
-            result = getTimePixelIndicesForRegularAxis();
+            result = getTimePixelIndicesForRegularAxis(ignoreOutOfBoundsCheck);
         }
         return result;
     }
@@ -305,7 +325,7 @@ public class CrsComputer {
      *
      * @return
      */
-    private Interval<Long> getTimePixelIndicesForRegularAxis() {
+    private Interval<Long> getTimePixelIndicesForRegularAxis(boolean ignoreOutOfBoundsValidityCheck) {
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
         String axisUoM = dom.getUom();
         String datumOrigin = dom.getAxisDef().getCrsDefinition().getDatumOrigin();
@@ -317,13 +337,14 @@ public class CrsComputer {
 
         try {
             // Need to convert timestamps to TemporalCRS numeric coordinates
-            numLo = TimeUtil.countOffsets(datumOrigin, subset.getLowerLimit(), axisUoM, dom.getScalarResolution().doubleValue());
-            numHi = TimeUtil.countOffsets(datumOrigin, subset.getUpperLimit(), axisUoM, dom.getScalarResolution().doubleValue());
+            numLo = TimeUtil.countOffsets(datumOrigin, subset.getLowerLimit(), axisUoM, 1D); // do not normalize by vector here:
+            numHi = TimeUtil.countOffsets(datumOrigin, subset.getUpperLimit(), axisUoM, 1D); // absolute time coordinates needed.
+
         } catch (PetascopeException e) {
             throw new InvalidCalculatedBoundsException(axisName, subset);
         }
         // Consistency check
-        if (numHi < domMin.doubleValue() || numLo > domMax.doubleValue()) {
+        if (!ignoreOutOfBoundsValidityCheck && (numHi < domMin.doubleValue() || numLo > domMax.doubleValue())) {
             throw new OutOfBoundsSubsettingException(axisName, subset);
         }
 

@@ -26,14 +26,14 @@ import org.slf4j.LoggerFactory;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCPSException;
 import petascope.util.WcpsConstants;
-import petascope.wcs2.parsers.GetCoverageRequest;
+import petascope.wcs2.parsers.subsets.DimensionSubset;
 
 //A coverage axis in pixel coordinates. See the WCPS standard.
 public class CellDomainElement implements Cloneable {
 
     private static Logger log = LoggerFactory.getLogger(CellDomainElement.class);
 
-    GetCoverageRequest.DimensionSubset subsetElement;
+    DimensionSubset subsetElement;
 
     private String hi;                      //FIXME: should be double
     private String lo;                      //FIXME: should be double
@@ -108,11 +108,11 @@ public class CellDomainElement implements Cloneable {
         return WcpsConstants.MSG_CELL_DOMAIN_ELEMENT + "#" + iOrder + " [" + lo + ", " + hi + "]";
     }
 
-    public GetCoverageRequest.DimensionSubset getSubsetElement() {
+    public DimensionSubset getSubsetElement() {
         return subsetElement;
     }
 
-    public void setSubsetElement(GetCoverageRequest.DimensionSubset subsetEl) {
+    public void setSubsetElement(DimensionSubset subsetEl) {
         subsetElement = subsetEl;
     }
 }

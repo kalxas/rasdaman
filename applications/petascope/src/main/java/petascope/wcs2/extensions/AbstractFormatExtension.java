@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.CoverageMetadata;
@@ -54,11 +56,11 @@ import petascope.wcps.metadata.DomainElement;
 import petascope.wcps.server.core.Wcps;
 import petascope.wcs2.parsers.GetCoverageMetadata;
 import petascope.wcs2.parsers.GetCoverageRequest;
-import static petascope.wcs2.parsers.GetCoverageRequest.ASTERISK;
-import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
-import petascope.wcs2.parsers.GetCoverageRequest.DimensionSubset;
-import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
-import static petascope.wcs2.parsers.GetCoverageRequest.QUOTED_SUBSET;
+import static petascope.wcs2.parsers.subsets.DimensionSubset.ASTERISK;
+import petascope.wcs2.parsers.subsets.DimensionSlice;
+import petascope.wcs2.parsers.subsets.DimensionSubset;
+import petascope.wcs2.parsers.subsets.DimensionTrim;
+import static petascope.wcs2.parsers.subsets.DimensionSubset.QUOTED_SUBSET;
 import petascope.wcs2.parsers.GetCoverageRequest.Scaling;
 
 /**
@@ -87,7 +89,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         // Init variables, to be then filled scanning the request subsets.
 
         // Grid axis labels, and grid bounds : grid (rasdaman) order
-        String axesLabels = "";
+        Map<Integer, String> axesLabels = new TreeMap<Integer, String>();
         String lowerCellDom = "";
         String upperCellDom = "";
         // Tuples of external CRS bounds : CRS order
@@ -136,7 +138,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
                             String trimHigh = ((DimensionTrim)subset).getTrimHigh();
 
                             // Append axis/uom label
-                            axesLabels += subset.getDimension() + " ";
+                            axesLabels.put(CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()), subset.getDimension());
                             // Append updated bounds
                             // TODO: if request is specified via grid coords, need a backwards transform here
                             //       {cellDomain->domain} to show domain values in the WCS response:
@@ -219,7 +221,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
             } // END subsets iterator
             if (!domUpdated) {
                 // This dimension is not involved in any subset: use bbox bounds
-                axesLabels += domainEl.getLabel() + " ";
+                axesLabels.put(CrsUtil.getCrsAxisOrder(meta.getCrsUris(), domainEl.getLabel()), domainEl.getLabel());
                 lowerGisDom += BigDecimalUtil.stripDecimalZeros(domainEl.getMinValue()) + " ";
                 upperGisDom += BigDecimalUtil.stripDecimalZeros(domainEl.getMaxValue()) + " ";
                 // The map is automatically sorted by key value (axis order in the CRS definition)
@@ -255,7 +257,7 @@ public abstract class AbstractFormatExtension implements FormatExtension {
         } // END domains iterator
 
         // Update axes labels
-        m.setAxisLabels(axesLabels);
+        m.setAxisLabels(StringUtils.join(axesLabels.values(), " "));
         // Update **pixel-domain** bounds
         m.setLow(lowerCellDom);
         m.setHigh(upperCellDom);

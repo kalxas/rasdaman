@@ -45,7 +45,7 @@ import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.CoverageInfo;
 import petascope.wcps.metadata.DomainElement;
 
-import static petascope.wcs2.parsers.GetCoverageRequest.QUOTED_SUBSET;
+import static petascope.wcs2.parsers.subsets.DimensionSubset.QUOTED_SUBSET;
 
 public class ScalarExpr extends AbstractRasNode implements ICoverageInfo {
 

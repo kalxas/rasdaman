@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wcs2.handlers;
+package petascope.wcs2.handlers.wcst;
 
 import java.math.BigInteger;
 import java.util.logging.Level;
@@ -34,13 +34,15 @@ import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.Pair;
 import petascope.util.ras.RasUtil;
-import petascope.wcs2.parsers.DeleteCoverageRequest;
+import petascope.wcs2.handlers.AbstractRequestHandler;
+import petascope.wcs2.handlers.Response;
+import petascope.wcs2.parsers.wcst.DeleteCoverageRequest;
 
 /**
  * Handles the deletion of a coverage.
  * @autor <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverageRequest>{
+public class DeleteCoverageHandler extends AbstractRequestHandler<DeleteCoverageRequest> {
 
     public DeleteCoverageHandler(DbMetadataSource meta) {
         super(meta);

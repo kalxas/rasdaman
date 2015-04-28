@@ -98,5 +98,5 @@ public class KVPProcessCoverageParser extends KVPParser<ProcessCoverageRequest> 
     }
 
     public static final String QUERY_KEY = "query";
-    public static final String VERSION_KEY = "wcpsVersion";
+    public static final String VERSION_KEY = "wcpsversion";
 }

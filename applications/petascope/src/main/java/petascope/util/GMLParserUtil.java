@@ -22,17 +22,22 @@
 package petascope.util;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.TreeMap;
+
 import nu.xom.Element;
 import nu.xom.Elements;
+import org.slf4j.LoggerFactory;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
+import petascope.exceptions.wcst.WCSTUnsupportedCoverageTypeException;
 import petascope.swe.datamodel.AllowedValues;
 import petascope.swe.datamodel.NilValue;
 import petascope.swe.datamodel.Quantity;
@@ -46,6 +51,22 @@ import petascope.wcps.server.core.RangeElement;
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
 public class GMLParserUtil {
+
+    private static final org.slf4j.Logger log = LoggerFactory.getLogger(GMLParserUtil.class);
+
+    public static String parseCoverageType(Element root) throws WCSTUnsupportedCoverageTypeException {
+        if(root.getLocalName().equals(XMLSymbols.LABEL_GRID_COVERAGE) ||
+                root.getLocalName().equals(XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE)){
+            return XMLSymbols.LABEL_RECTIFIED_GRID_COVERAGE;
+        }
+        else if(root.getLocalName().equals(XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE)) {
+            return XMLSymbols.LABEL_REFERENCEABLE_GRID_COVERAGE;
+        }
+        else {
+            log.error("Unsupported coverage type: " + root.getLocalName());
+            throw new WCSTUnsupportedCoverageTypeException(root.getLocalName());
+        }
+    }
 
     /**
      * Parses the domainSet from a coverage in GML format. The element is needed
@@ -107,8 +128,8 @@ public class GMLParserUtil {
         if (highPoints.size() != 1) {
             throw new WCSException(ExceptionCode.WCSTMissingHigh);
         }
-        String[] lowPointsList = lowPoints.get(0).getValue().split(" ");
-        String[] highPointsList = highPoints.get(0).getValue().split(" ");
+        String[] lowPointsList = lowPoints.get(0).getValue().trim().split(" ");
+        String[] highPointsList = highPoints.get(0).getValue().trim().split(" ");
         if (lowPointsList.length != highPointsList.length) {
             throw new WCSException(ExceptionCode.WCSTLowHighDifferentSizes);
         }
@@ -152,7 +173,7 @@ public class GMLParserUtil {
         for (String srsUri : srsUris) {
             CrsDefinition crsDef = CrsUtil.getGmlDefinition(srsUri);
             for (CrsDefinition.Axis axis : crsDef.getAxes()) {
-                crsAxes.add(Pair.of(axis, srsNames));
+                crsAxes.add(Pair.of(axis, srsUri));
             }
         }
 
@@ -166,11 +187,16 @@ public class GMLParserUtil {
      * @return
      * @throws petascope.exceptions.WCSException
      */
-    public static List<BigDecimal> parseGridOrigin(Element gridType) throws WCSException {
+    public static String[] parseGridOrigin(Element gridType) throws PetascopeException {
         //get the origin element
         Elements origin = gridType.getChildElements(XMLSymbols.LABEL_ORIGIN, XMLSymbols.NAMESPACE_GML);
         if (origin.size() != 1) {
-            throw new WCSException(ExceptionCode.WCSTMissingGridOrigin);
+            //may be in namespace gmlrgrid
+            origin = gridType.getChildElements(XMLSymbols.LABEL_ORIGIN, XMLSymbols.NAMESPACE_GMLRGRID);
+            //if still not exactly one
+            if(origin.size() != 1) {
+                throw new WCSException(ExceptionCode.WCSTMissingGridOrigin);
+            }
         }
         //get the point element
         Elements point = origin.get(0).getChildElements(XMLSymbols.LABEL_POINT, XMLSymbols.NAMESPACE_GML);
@@ -184,13 +210,9 @@ public class GMLParserUtil {
         }
 
         //transform the points into a list of BigDecimals
-        String[] originPoints = pos.get(0).getValue().split(" ");
-        List<BigDecimal> ret = new ArrayList<BigDecimal>(originPoints.length);
-        for (String originPoint : originPoints) {
-            ret.add(new BigDecimal(originPoint));
-        }
+        String[] originPoints = pos.get(0).getValue().trim().split(" ");
 
-        return ret;
+        return originPoints;
     }
 
     /**
@@ -205,8 +227,14 @@ public class GMLParserUtil {
      * @throws WCSException
      * @throws PetascopeException
      */
-    public static LinkedHashMap<List<BigDecimal>, BigDecimal> parseRegularGridAxes(Element gridType, Integer gridOriginSize) throws WCSException, PetascopeException {
-        Elements offsetVectors = gridType.getChildElements(XMLSymbols.LABEL_OFFSET_VECTOR, XMLSymbols.NAMESPACE_GML);
+    public static LinkedHashMap<List<BigDecimal>, BigDecimal> parseGridAxes(Element gridType, Integer gridOriginSize) throws WCSException, PetascopeException {
+        List<Pair<Element, BigDecimal>> offsetVectors;
+        if(!gridType.getLocalName().equals(XMLSymbols.LABEL_RGBV)){
+            offsetVectors = parseElements(gridType.getChildElements(XMLSymbols.LABEL_OFFSET_VECTOR, XMLSymbols.NAMESPACE_GML));
+        }
+        else{
+            offsetVectors = parseOffsetVectorsFromRGBV(gridType);
+        }
         //check that there is an offset vector for each axis
         String dimensionalityString = gridType.getAttributeValue(XMLSymbols.LABEL_DIMENSION);
         Integer dimensionality = new Integer(dimensionalityString);
@@ -214,10 +242,11 @@ public class GMLParserUtil {
             throw new WCSException(ExceptionCode.WCSTWrongNumberOfOffsetVectors);
         }
         //for each axis, add its vector
+        TreeMap<Integer, Pair<List<BigDecimal>, BigDecimal>> preliminaryResult = new TreeMap<Integer, Pair<List<BigDecimal>, BigDecimal>>();
         LinkedHashMap<List<BigDecimal>, BigDecimal> result = new LinkedHashMap<List<BigDecimal>, BigDecimal>(dimensionality);
         for (int i = 0; i < dimensionality; i++) {
             //decompose the vector into elements
-            String[] offsetVector = offsetVectors.get(i).getValue().split(" ");
+            String[] offsetVector = offsetVectors.get(i).fst.getValue().trim().split(" ");
             //check if the list is not empty
             if (offsetVector.length == 0) {
                 throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
@@ -228,6 +257,7 @@ public class GMLParserUtil {
                 vector.add(new BigDecimal(el));
             }
             // Check if offset vector is aligned with a CRS axis
+            List<Integer> orderList = Vectors.nonZeroComponentsIndices(vector.toArray(new BigDecimal[vector.size()]));
             if (Vectors.nonZeroComponentsIndices(vector.toArray(new BigDecimal[vector.size()])).size() > 1) {
                 throw new PetascopeException(ExceptionCode.UnsupportedCoverageConfiguration,
                         "Offset vector " + vector + " is forbidden. "
@@ -239,8 +269,52 @@ public class GMLParserUtil {
                         "Incompatible dimensionality of grid origin (" + gridOriginSize
                         + ") and offset vector (" + vector.size() + ")");
             }
-            //add them to the result
-            result.put(vector, null);
+            //add them to the preliminary result, which will automatically sort by order
+            preliminaryResult.put(orderList.get(0), Pair.<List<BigDecimal>, BigDecimal>of(vector, offsetVectors.get(i).snd));
+        }
+        //copy preliminary result into result
+        for(Pair<List<BigDecimal>, BigDecimal> vector : preliminaryResult.values()){
+            result.put(vector.fst, vector.snd);
+        }
+        return result;
+    }
+
+    private static List<Pair<Element, BigDecimal>> parseElements(Elements elements){
+        List<Pair<Element, BigDecimal>> result = new ArrayList<Pair<Element, BigDecimal>>();
+        for(int i = 0; i < elements.size(); i++){
+            result.add(Pair.<Element, BigDecimal>of(elements.get(i), null));
+        }
+        return result;
+    }
+
+    private static List<Pair<Element, BigDecimal>> parseOffsetVectorsFromRGBV(Element rgbvGrid){
+        List<Pair<Element, BigDecimal>> result = new ArrayList<Pair<Element, BigDecimal>>();
+
+        //general grid axes
+        Elements generalGridAxes = rgbvGrid.getChildElements(XMLSymbols.LABEL_GENERAL_GRID_AXIS, XMLSymbols.NAMESPACE_GMLRGRID);
+        //axis el in each
+        for(int i = 0; i < generalGridAxes.size(); i++){
+            BigDecimal greatesCoefficient = null;
+            Elements axis = generalGridAxes.get(i).getChildElements(XMLSymbols.LABEL_GENERAL_GRID, XMLSymbols.NAMESPACE_GMLRGRID);
+            //offset vector
+            if(axis.size() > 0){
+                //take the first one
+                Elements offsetVectors = axis.get(0).getChildElements(XMLSymbols.LABEL_OFFSET_VECTOR, XMLSymbols.NAMESPACE_GMLRGRID);
+                //coefficients
+                Elements coefficients = axis.get(0).getChildElements(XMLSymbols.LABEL_COEFFICIENTS, XMLSymbols.NAMESPACE_GMLRGRID);
+                if(coefficients.size() > 0){
+                    String coefficientValues = coefficients.get(0).getValue().trim();
+                    if(!coefficientValues.isEmpty()) {
+                        //split after space in case there are more than 1
+                        String[] split = coefficientValues.split(" ");
+                        //take the last one
+                        greatesCoefficient = new BigDecimal(split[split.length - 1]);
+                    }
+                }
+                if(offsetVectors.size() > 0){
+                    result.add(Pair.of(offsetVectors.get(0), greatesCoefficient));
+                }
+            }
         }
         return result;
     }
@@ -263,13 +337,13 @@ public class GMLParserUtil {
         //get the label
         Elements labelElements = quantity.getChildElements(XMLSymbols.LABEL_LABEL, XMLSymbols.NAMESPACE_SWE);
         if (labelElements.size() != 0) {
-            label = labelElements.get(0).getValue();
+            label = labelElements.get(0).getValue().trim();
         }
 
         //get the description
         Elements descriptionElements = quantity.getChildElements(XMLSymbols.LABEL_DESCRIPTION, XMLSymbols.NAMESPACE_SWE);
         if (descriptionElements.size() != 0) {
-            description = descriptionElements.get(0).getValue();
+            description = descriptionElements.get(0).getValue().trim();
         }
 
         //get the uom code
@@ -287,7 +361,7 @@ public class GMLParserUtil {
                 Elements actualNilValues = innerNilValues.get(0).getChildElements(XMLSymbols.LABEL_NILVALUE, XMLSymbols.NAMESPACE_SWE);
                 if (actualNilValues.size() != 0) {
                     for (int i = 0; i < actualNilValues.size(); i++) {
-                        String value = actualNilValues.get(i).getValue();
+                        String value = actualNilValues.get(i).getValue().trim();
                         String reason = actualNilValues.get(i).getAttributeValue(XMLSymbols.ATT_REASON);
                         nils.add(new NilValue(value, reason));
                     }
@@ -306,7 +380,7 @@ public class GMLParserUtil {
                 Elements intervals = allowedValuesEl.get(j).getChildElements(XMLSymbols.LABEL_INTERVAL, XMLSymbols.NAMESPACE_SWE);
                 //add each interval to the list
                 for (int k = 0; k < intervals.size(); k++) {
-                    String[] intervalValues = intervals.get(k).getValue().split(" ");
+                    String[] intervalValues = intervals.get(k).getValue().trim().split(" ");
                     //check if the interval has exactly 2 points: low and high
                     if (intervalValues.length != 2) {
                         throw new WCSException(ExceptionCode.WCSTWrongInervalFormat);
@@ -432,7 +506,7 @@ public class GMLParserUtil {
         if(mimetype.size() != 1){
             throw new WCSException(ExceptionCode.WCSTWrongNumberOfFileStructureElements);
         }
-        return mimetype.get(0).getValue();
+        return mimetype.get(0).getValue().trim();
     }
 
     /**
@@ -453,7 +527,7 @@ public class GMLParserUtil {
             throw new WCSException(ExceptionCode.WCSTWrongNumberOfFileReferenceElements);
         }
 
-        return fileName.get(0).getValue();
+        return fileName.get(0).getValue().trim();
     }
 
     /**
@@ -482,7 +556,7 @@ public class GMLParserUtil {
             cs = tupleLists.get(0).getAttributeValue(XMLSymbols.ATT_CS);
         }
         //get the values
-        String values = StringUtil.trim(tupleLists.get(0).getValue());
+        String values = StringUtil.trim(tupleLists.get(0).getValue().trim());
         //get the points
         String[] points = values.split(ts);
         String interval = "";
@@ -495,7 +569,7 @@ public class GMLParserUtil {
             totalNumberOfPoints *= (dimension.getHiInt() - dimension.getLoInt() + 1);
             interval += dimension.getLo() + RASDAMAN_INTERVAL_HILO_SEP + dimension.getHi();
             //if not last, add sep
-            if (!dimension.equals(cellDomains.get(cellDomains.size() - 1))) {
+            if (dimension.getOrder() != cellDomains.size() - 1) {
                 interval += RASDAMAN_INTERVAL_DIM_SEP;
             } else {
                 //compute size of last dim
@@ -548,6 +622,20 @@ public class GMLParserUtil {
         return point + suffix;
     }
 
+    /**
+     * Parses gml:metadata elements.
+     * @param root
+     * @return
+     */
+    public static String parseExtraMetadata(Element root){
+        String ret = null;
+        Elements metadata = root.getChildElements(XMLSymbols.LABEL_METADATA, XMLSymbols.NAMESPACE_GML);
+        if(metadata.size() > 0){
+            ret = metadata.get(0).getValue().trim();
+        }
+        return ret;
+    }
+
     private static final String DEFAULT_TS = " ";
     private static final String DEFAULT_CS = ",";
     private static final String TOKEN_INTERVAL = "%tokenInterval%";
@@ -559,4 +647,5 @@ public class GMLParserUtil {
     private static final String RASDAMAN_VALUES_DIM_SEP = ";";
     private static final String TOKEN_STRUCTURE_CELL_VAL = "%structureCellValue%";
     private static final String TEMPLATE_RASDAMAN_STRUCTURE = "{" + TOKEN_STRUCTURE_CELL_VAL + "}";
+    private static final String DEFAULT_DATATYPE = "Byte";
 }

@@ -29,6 +29,8 @@ public class CoverageRegistry {
         metadataSource = null;
     }
 
+    public CoverageRegistry(DbMetadataSource metadataSource) {this.metadataSource = metadataSource;}
+
     /**
      * Adds an alias for a coverage (e.g. from for clauses, for coverageAlias in coverageName)
      *

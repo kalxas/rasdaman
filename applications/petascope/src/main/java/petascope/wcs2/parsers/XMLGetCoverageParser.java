@@ -43,9 +43,9 @@ import petascope.wcs2.extensions.InterpolationExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
 import petascope.wcs2.extensions.ScalingExtension;
 import petascope.wcs2.handlers.RequestHandler;
-import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
-import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
-import static petascope.wcs2.parsers.GetCoverageRequest.QUOTED_SUBSET;
+import petascope.wcs2.parsers.subsets.DimensionSlice;
+import petascope.wcs2.parsers.subsets.DimensionTrim;
+import static petascope.wcs2.parsers.subsets.DimensionSubset.QUOTED_SUBSET;
 
 /**
  * Parse a GetCapabilities XML request.
@@ -129,13 +129,13 @@ public class XMLGetCoverageParser extends XMLParser<GetCoverageRequest> {
                     this.parseExtensions(ret, c);
                 }
                 if (name.equals(LABEL_DIMENSION_TRIM)) {
-                    ret.addSubset(ret.new DimensionTrim(getText(c.get(0)), getText(c.get(1)), getText(c.get(2))));
+                    ret.addSubset(new DimensionTrim(getText(c.get(0)), getText(c.get(1)), getText(c.get(2))));
                     // Check timestamps validity
                     if (null != getText(c.get(1)) && getText(c.get(1)).matches(QUOTED_SUBSET)) {
                         ((DimensionTrim)ret.getSubset(getText(c.get(0)))).timestampSubsetCheck();
                     }
                 } else if (name.equals(LABEL_DIMENSION_SLICE)) {
-                    ret.addSubset(ret.new DimensionSlice(getText(c.get(0)), getText(c.get(1))));
+                    ret.addSubset(new DimensionSlice(getText(c.get(0)), getText(c.get(1))));
                     // Check timestamps validity
                     if (null != getText(c.get(1)) && getText(c.get(1)).matches(QUOTED_SUBSET)) {
                         ((DimensionSlice)ret.getSubset(getText(c.get(0)))).timestampSubsetCheck();

@@ -20,7 +20,7 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-package petascope.wcs2.parsers;
+package petascope.wcs2.parsers.wcst;
 
 import java.net.URL;
 
@@ -32,7 +32,7 @@ import java.net.URL;
  *
  * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class InsertCoverageRequest extends WCSTRequest{
+public class InsertCoverageRequest extends WCSTRequest {
 
     /**
      * Class constructor
@@ -40,10 +40,12 @@ public class InsertCoverageRequest extends WCSTRequest{
      * @param CoverageURL: a valid url to a coverage
      * @param useId: flag to indicate if the coverageId should be existing or new
      */
-    public InsertCoverageRequest(String GMLCoverage, URL CoverageURL, Boolean useId) {
+    public InsertCoverageRequest(String GMLCoverage, URL CoverageURL, Boolean useId, String pixelDataType, String tiling) {
         this.GMLCoverage = GMLCoverage;
         this.CoverageURL = CoverageURL;
         this.useNewId = useId;
+        this.pixelDataType = pixelDataType;
+        this.tiling = tiling;
     }
 
     public String getGMLCoverage() {
@@ -58,6 +60,16 @@ public class InsertCoverageRequest extends WCSTRequest{
         return useNewId;
     }
 
+    public String getPixelDataType() {
+        return pixelDataType;
+    }
+
+    public String getTiling() {
+        return tiling;
+    }
+
+    private final String pixelDataType;
+    private final String tiling;
     private final String GMLCoverage;
     private final URL CoverageURL;
     private final Boolean useNewId;

@@ -23,14 +23,14 @@
           <high>401 351</high>
         </GridEnvelope>
       </limits>
-      <axisLabels>Long Lat</axisLabels>
+      <axisLabels>Lat Long</axisLabels>
       <origin>
           <Point id="mean_summer_airtemp-origin" srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">
               <pos>-9 156.3</pos>
           </Point>
       </origin>
-      <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">0 0.05</offsetVector>
       <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">-0.05 0</offsetVector>
+      <offsetVector srsName="/crs/EPSG/0/4326" axisLabels="Lat Long" uomLabels="degree degree" srsDimension="2">0 0.05</offsetVector>
     </RectifiedGrid>
   </domainSet>
 

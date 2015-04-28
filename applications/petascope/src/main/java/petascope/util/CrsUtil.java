@@ -32,6 +32,8 @@ import java.net.URLEncoder;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.sun.tools.jxc.gen.config.Config;
 import nu.xom.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -920,7 +922,7 @@ public class CrsUtil {
                     // Consistency check
                     if (numHi < domMin.doubleValue() || numLo > domMax.doubleValue()) {
                         throw new PetascopeException(ExceptionCode.InternalComponentError,
-                                "Translated coordinates of regular temporal axis (" +
+                                "Translated pixel indixes of regular temporal axis (" +
                                 numLo + ":" + numHi +") exceed the allowed values.");
                     }
 
@@ -1548,5 +1550,40 @@ public class CrsUtil {
         public static Boolean isSliced(String singleCrsUri, String axisLabel) {
             return isSliced(new ArrayList<String>(Arrays.asList(new String[]{singleCrsUri})), axisLabel);
         }
+
+        public static String toDbRepresentation(String crsUri){
+            //simple
+            if(!CrsUri.isCompound(crsUri)){
+                return CrsUri.simpleUriToDbRepresentation(crsUri);
+            }
+            //compound
+            else {
+                List<String> uris = CrsUri.decomposeUri(crsUri);
+                String result = ConfigManager.SECORE_URL_KEYWORD + "/" + CrsUtil.KEY_RESOLVER_CCRS + "?";
+                int counter = 1;
+                for(String uri : uris){
+                    result += String.valueOf(counter) + "=" + simpleUriToDbRepresentation(uri);
+                    if(counter < uris.size()){
+                        result += "&";
+                        counter++;
+                    }
+                }
+                return result;
+            }
+        }
+        /**
+         * Converts a simple (not composed) crs uri to the form that is stored into the database.
+         * @param crsUri the uri of the crs.
+         * @return the db form of the uri. E.g. "http://www.opengis.net/def/crs/EPSG/0/4326" -> "%SECORE_URL%/crs/EPSG/0/4326"
+         */
+        private static String simpleUriToDbRepresentation(String crsUri){
+            String authority = CrsUri.getAuthority(crsUri);
+            String code = CrsUri.getCode(crsUri);
+            String version = CrsUri.getVersion(crsUri);
+            String result = ConfigManager.SECORE_URL_KEYWORD + "/" + CrsUtil.KEY_RESOLVER_CRS + "/" + authority + "/" + version + "/" + code;
+            return result;
+        }
     }
+
+
 }

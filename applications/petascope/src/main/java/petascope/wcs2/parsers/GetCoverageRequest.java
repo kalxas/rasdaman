@@ -23,18 +23,15 @@ package petascope.wcs2.parsers;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Map;
-import petascope.exceptions.ExceptionCode;
-import petascope.exceptions.PetascopeException;
-import petascope.exceptions.WCSException;
+
 import petascope.util.ListUtil;
 import petascope.util.Pair;
-import petascope.util.TimeUtil;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
+import petascope.wcs2.parsers.subsets.DimensionSlice;
+import petascope.wcs2.parsers.subsets.DimensionSubset;
 
 /**
  * A GetCoverage request object, populated by a parser.
@@ -81,13 +78,10 @@ import petascope.wcs2.helpers.rangesubsetting.RangeSubset;
  */
 public class GetCoverageRequest extends BaseRequest {
 
-    public static final String ASTERISK = "*";
-    public static final String QUOTED_SUBSET = "^\".*\"$"; // switch from numeric to ISO8601 coordinates for time
-
     private final String coverageId;
     private final String format;
     private final boolean multipart;
-    private final List<DimensionSubset> subsets;
+    private List<DimensionSubset> subsets;
     private final RangeSubset rangeSubset;
     private final Scaling scale;
 
@@ -111,6 +105,7 @@ public class GetCoverageRequest extends BaseRequest {
     public List<DimensionSubset> getSubsets() {
         return subsets;
     }
+    public void setSubsets(List<DimensionSubset> subsets) {this.subsets = subsets;}
 
     /**
      * Method to check whether a CRS dimension has been sliced in this GetCoverage request.
@@ -177,192 +172,6 @@ public class GetCoverageRequest extends BaseRequest {
             ret.append(this.rangeSubset.toString());
         }
         return ret.toString();
-    }
-
-    public class DimensionSubset {
-
-        protected final String dimension;
-        //protected final String crs;
-        protected String crs;
-        protected boolean isNumeric = true;
-
-        public DimensionSubset(String dimension) {
-            this(dimension, null);
-        }
-
-        public DimensionSubset(String dimension, String crs) {
-            this.dimension = dimension;
-            this.crs = crs;
-        }
-
-        public DimensionSubset(String dimension, String crs, boolean isNumeric) {
-            this.dimension = dimension;
-            this.crs = crs;
-            this.isNumeric = isNumeric;
-        }
-
-        public String getDimension() {
-            return dimension;
-        }
-
-        public String getCrs() {
-            return crs;
-        }
-
-        // When transforming a subset, change crs accordingly
-        public void setCrs(String value) {
-            crs = value;
-        }
-
-        public boolean isNumeric() {
-            return isNumeric;
-        }
-
-        @Override
-        public String toString() {
-            return dimension + ((crs != null) ? "," + crs : "");
-        }
-    }
-
-    public class DimensionTrim extends DimensionSubset {
-
-        //private final String trimLow;
-        //private final String trimHigh;
-        private String trimLow;
-        private String trimHigh;
-
-        public DimensionTrim(String dimension, String trimLow, String trimHigh) {
-            this(dimension, null, trimLow, trimHigh);
-        }
-
-        public DimensionTrim(String dimension, String crs, String trimLow, String trimHigh) {
-            super(dimension, crs);
-            this.trimLow = trimLow;
-            this.trimHigh = trimHigh;
-            isNumeric = !trimLow.matches(QUOTED_SUBSET) && !trimHigh.matches(QUOTED_SUBSET);
-        }
-
-        public String getTrimHigh() {
-            return trimHigh;
-        }
-
-        public String getTrimLow() {
-            return trimLow;
-        }
-
-        /**
-         * @param value Set new lower bound to 1D domain.
-         */
-        public void setTrimLow(String value) {
-            trimLow = value;
-            isNumeric = !trimLow.matches(QUOTED_SUBSET);
-        }
-
-        public void setTrimLow(Double value) {
-            setTrimLow(value.toString());
-            isNumeric = true;
-        }
-
-        public void setTrimLow(Integer value) {
-            setTrimLow(value.toString());
-            isNumeric = true;
-        }
-
-        /**
-         * @param value Set new upper bound to 1D domain.
-         */
-        public void setTrimHigh(String value) {
-            trimHigh = value;
-            isNumeric = !trimHigh.matches(QUOTED_SUBSET);
-        }
-
-        public void setTrimHigh(Double value) {
-            setTrimHigh(value.toString());
-            isNumeric = true;
-        }
-
-        public void setTrimHigh(Integer value) {
-            setTrimHigh(value.toString());
-            isNumeric = true;
-        }
-
-        /**
-         * Integrity of time subsets (quoted subsets): valid and ordered bounds.
-         * @throws WCSException
-         */
-        public void timestampSubsetCheck() throws WCSException {
-            if (null != getTrimLow() && getTrimLow().matches(QUOTED_SUBSET)) {
-                if (!TimeUtil.isValidTimestamp(getTrimLow())) {
-                    throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + getTrimLow() + "\" is not valid or supported.");
-                }
-            }
-            if (null != getTrimHigh() && getTrimHigh().matches(QUOTED_SUBSET)) {
-                if (!TimeUtil.isValidTimestamp(getTrimHigh())) {
-                    throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + getTrimHigh() + "\" is not valid or supported.");
-                }
-            }
-            if (null != getTrimLow() && null != getTrimHigh() && getTrimLow().matches(QUOTED_SUBSET) && getTrimHigh().matches(QUOTED_SUBSET)) {
-                // Check low<high
-                try {
-                    if (!TimeUtil.isOrderedTimeSubset(getTrimLow(), getTrimHigh())) {
-                        throw new WCSException(ExceptionCode.InvalidParameterValue, "Temporal subset \"" + getTrimLow() + ":" + getTrimHigh() + "\" is invalid: check order.");
-                    }
-                } catch (PetascopeException ex) {
-                    throw new WCSException(ex.getExceptionCode(), ex);
-                }
-            }
-        }
-
-        @Override
-        public String toString() {
-            return super.toString() + "(" + trimLow + "," + trimHigh + ")";
-        }
-    }
-
-    public class DimensionSlice extends DimensionSubset {
-
-        private String slicePoint;
-
-        public DimensionSlice(String dimension, String slicePoint) {
-            this(dimension, null, slicePoint);
-        }
-
-        public DimensionSlice(String dimension, String crs, String slicePoint) {
-            super(dimension, crs);
-            this.slicePoint = slicePoint;
-            isNumeric = !slicePoint.matches(QUOTED_SUBSET);
-        }
-
-        public String getSlicePoint() {
-            return slicePoint;
-        }
-
-        public void setSlicePoint(String value) {
-            slicePoint = value;
-            isNumeric = !slicePoint.matches(QUOTED_SUBSET);
-        }
-
-        public void setSlicePoint(Double value) {
-            setSlicePoint(value.toString());
-            isNumeric = true;
-        }
-
-        /**
-         * Integrity of time subsets (quoted subsets): valid and ordered bounds.
-         * @throws WCSException
-         */
-        public void timestampSubsetCheck() throws WCSException {
-            if (null != getSlicePoint() && getSlicePoint().matches(QUOTED_SUBSET)) {
-                if (!TimeUtil.isValidTimestamp(getSlicePoint())) {
-                    throw new WCSException(ExceptionCode.InvalidParameterValue, "Timestamp \"" + getSlicePoint() + "\" is not valid or supported.");
-                }
-            }
-        }
-
-        @Override
-        public String toString() {
-            return super.toString() + "(" + slicePoint + ")";
-        }
     }
 
     public static class Scaling {

@@ -23,6 +23,8 @@ package petascope.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,7 @@ public class BigDecimalUtil {
      *   If negative, the unscaled value of the number is multiplied by ten to the power of the negation of the scale.
      *   The value of the number represented by the BigDecimal is therefore (unscaledValue × 10-scale).
      */
-    private static final int DIVISION_SCALE = 20;
+    private static final int DIVISION_SCALE = 50;
 
     /**
      * Converts BigDecimal value minimum scale equivalent representation.
@@ -82,4 +84,14 @@ public class BigDecimalUtil {
         return BigDecimalUtil.stripDecimalZeros(quotient);
     }
 
+    public static int listContains(List<BigDecimal> list, BigDecimal value){
+        int counter = 0;
+        for(BigDecimal element : list){
+            if(element.compareTo(value) == 0){
+                return counter;
+            }
+            counter++;
+        }
+        return -1;
+    }
 }

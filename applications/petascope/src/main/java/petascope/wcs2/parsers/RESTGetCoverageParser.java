@@ -40,7 +40,9 @@ import petascope.util.TimeUtil;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
 import petascope.wcs2.helpers.rest.RESTUrl;
-import static petascope.wcs2.parsers.GetCoverageRequest.QUOTED_SUBSET;
+import petascope.wcs2.parsers.subsets.DimensionSlice;
+import petascope.wcs2.parsers.subsets.DimensionTrim;
+import static petascope.wcs2.parsers.subsets.DimensionSubset.QUOTED_SUBSET;
 
 /**
  * Implementation of the RESTParser for the GetCapabilities operation in REST
@@ -99,14 +101,14 @@ public class RESTGetCoverageParser extends RESTParser<GetCoverageRequest> {
                     throw new WCSException(ExceptionCode.InvalidAxisLabel, "Dimension " + dim + " is duplicated in the request subsets.");
                 }
                 if (high == null) {
-                    ret.addSubset(ret.new DimensionSlice(dim, crs, low));
+                    ret.addSubset(new DimensionSlice(dim, crs, low));
                     if (null != low && low.matches(QUOTED_SUBSET)) {
-                        ((GetCoverageRequest.DimensionSlice)ret.getSubset(dim)).timestampSubsetCheck();
+                        ((DimensionSlice)ret.getSubset(dim)).timestampSubsetCheck();
                     }
                 } else if (dim != null) {
-                    ret.addSubset(ret.new DimensionTrim(dim, crs, low, high));
+                    ret.addSubset(new DimensionTrim(dim, crs, low, high));
                     if (null != low && (low.matches(QUOTED_SUBSET) || high.matches(QUOTED_SUBSET))) {
-                        ((GetCoverageRequest.DimensionTrim)ret.getSubset(dim)).timestampSubsetCheck();
+                        ((DimensionTrim)ret.getSubset(dim)).timestampSubsetCheck();
                     }
                 } else {
                     throw new WCSException(ExceptionCode.InvalidEncodingSyntax);

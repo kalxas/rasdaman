@@ -19,24 +19,20 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
+package petascope.exceptions.wcst;
 
-package petascope.wcs2.parsers;
-
-import petascope.util.StringUtil;
+import petascope.exceptions.ExceptionCode;
 
 /**
- * Request modeling the deletion of a coverage.
- * @autor <a href="merticariu@rasdaman.com">Vlad Merticariu</a>
+ *
+ * @author <a href="mailto:merticariu@rasdaman.com">Vlad Merticariu</a>
  */
-public class DeleteCoverageRequest extends WCSTRequest{
+public class WCSTAxisLabelMismatchException extends WCSTException {
 
-    public DeleteCoverageRequest(String coverageId) {
-       this.coverageId = StringUtil.trim(coverageId);
+    public WCSTAxisLabelMismatchException(String axisName) {
+        super(ExceptionCode.InconsistentChange, EXCEPTION_TEXT.replace("$axisName", axisName));
     }
 
-    private final String coverageId;
+    private final static String EXCEPTION_TEXT = "Axis label $axisName from the input coverage was not found in the target coverage.";
 
-    public String getCoverageId() {
-        return coverageId;
-    }
 }

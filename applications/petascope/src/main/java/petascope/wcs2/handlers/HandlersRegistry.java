@@ -21,10 +21,16 @@
  */
 package petascope.wcs2.handlers;
 
+import petascope.wcs2.handlers.wcst.DeleteCoverageHandler;
+import petascope.wcs2.handlers.wcst.InsertCoverageHandler;
+import petascope.wcs2.handlers.wcst.UpdateCoverageHandler;
 import petascope.wcs2.parsers.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.core.DbMetadataSource;
+import petascope.wcs2.parsers.wcst.DeleteCoverageRequest;
+import petascope.wcs2.parsers.wcst.InsertCoverageRequest;
+import petascope.wcs2.parsers.wcst.UpdateCoverageRequest;
 
 /**
  * Parsers are managed in this class.
@@ -51,6 +57,8 @@ public class HandlersRegistry {
             return new InsertCoverageHandler(meta);
         } else if(request instanceof DeleteCoverageRequest) {
             return new DeleteCoverageHandler(meta);
+        } else if(request instanceof UpdateCoverageRequest) {
+            return new UpdateCoverageHandler(meta);
         }
 
         return null;

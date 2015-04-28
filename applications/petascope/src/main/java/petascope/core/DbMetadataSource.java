@@ -23,13 +23,7 @@ package petascope.core;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Array;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -41,6 +35,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
+import com.sun.tools.xjc.generator.bean.ImplStructureStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
@@ -1519,6 +1515,42 @@ public class DbMetadataSource implements IMetadataSource {
 
     }
 
+    public void updateAxisCoefficient(int gridAxisId, BigDecimal coefficient, int coefficientOrder) throws SQLException {
+        PreparedStatement s = null;
+        Savepoint savePoint = conn.setSavepoint();
+        try {
+            s = conn.prepareStatement("SELECT COUNT(*) FROM " + TABLE_VECTOR_COEFFICIENTS + " WHERE " + RECTILINEAR_AXIS_ID + "= ? AND " +
+                    VECTOR_COEFFICIENTS_ORDER + "=?");
+            //check if a coefficient already exist
+            s.setInt(1, gridAxisId);
+            s.setInt(2, coefficientOrder);
+            log.info("Executing prepared statement: " + s.toString());
+            ResultSet result = s.executeQuery();
+            boolean coefficientAlreadyExists = false;
+            while(result.next()){
+                coefficientAlreadyExists = result.getInt(1) > 0;
+            }
+            if (!coefficientAlreadyExists) {
+                //add it
+                PreparedStatement insertCoeff = conn.prepareStatement("INSERT INTO " + TABLE_VECTOR_COEFFICIENTS + " VALUES (?, ?, ?)");
+                insertCoeff.setInt(1, gridAxisId);
+                insertCoeff.setBigDecimal(2, coefficient);
+                insertCoeff.setInt(3, coefficientOrder);
+                log.info("Executing prepared statement: " + insertCoeff.toString());
+                insertCoeff.executeUpdate();
+                //commit the insertion
+                conn.commit();
+            }
+        }
+        catch(SQLException e){
+            conn.rollback(savePoint);
+            throw e;
+        }
+        finally {
+            closeStatement(s);
+        }
+    }
+
     private void insertGridAxes(Statement s, int coverageId, LinkedHashMap<List<BigDecimal>, BigDecimal> gridAxes) throws SQLException{
         //for each axis insert the axis # and offset vector
         int axisNumber = 0;
@@ -1558,6 +1590,11 @@ public class DbMetadataSource implements IMetadataSource {
                                        ") VALUES (" + gridId + ",'" + vector + "')";
             log.debug("SQL Query : " + offsetVectorQuery);
             s.executeUpdate(offsetVectorQuery);
+            //insert the coefficients
+            //@TODO now  we are just adding one coefficient, add all
+            if(gridAxes.get(offsetVector) != null) {
+                updateAxisCoefficient(gridId, gridAxes.get(offsetVector), 0);
+            }
         }
     }
 
@@ -1583,7 +1620,8 @@ public class DbMetadataSource implements IMetadataSource {
         //check if the crs exists already
         String crsIds = "{";
 
-        for(String crs: crses){
+        for(String rawCrs: crses){
+            String crs = CrsUtil.CrsUri.toDbRepresentation(rawCrs);
             String sqlQuery = "SELECT " + CRS_ID +
                               " FROM " + TABLE_CRS +
                               " WHERE " + CRS_URI + "='" + crs + "'";
@@ -2183,7 +2221,7 @@ public class DbMetadataSource implements IMetadataSource {
             if (r.next()) {
                 outCells[0] = r.getInt(1);
                 outCells[1] = r.getInt(2);
-                if (lo.compareTo(hi) == 0 && outCells[0] == min && outCells[1] == max) {
+                if (min != max && lo.compareTo(hi) == 0 && outCells[0] == min && outCells[1] == max) {
                     // Aggregators have been coalesced to boundary values but because there is no intersection on this slice
                     throw new PetascopeException(ExceptionCode.InvalidRequest,
                             covName + " does not intersect with slicing point '" + lo + "'."
@@ -2323,6 +2361,39 @@ public class DbMetadataSource implements IMetadataSource {
             throw new PetascopeException(ExceptionCode.InvalidRequest,
                     "Metadata database error", sqle);
         } finally {
+            closeStatement(s);
+        }
+    }
+
+    /**
+     * Gets the id of the axis with the given order, 0 if nothing found.
+     * @param coverageId
+     * @param axisOrder
+     * @return
+     * @throws SQLException
+     */
+    public int getGridAxisId(int coverageId, int axisOrder) throws SQLException {
+        Savepoint savePoint = conn.setSavepoint();
+        PreparedStatement s = null;
+        try {
+            s = conn.prepareStatement("SELECT " + GRID_AXIS_ID +
+                    " FROM " + TABLE_GRID_AXIS +
+                    " WHERE " + GRID_AXIS_COVERAGE_ID + "= ?" +
+                    "AND " + GRID_AXIS_RASDAMAN_ORDER + "= ?");
+            s.setInt(1, coverageId);
+            s.setInt(2, axisOrder);
+            ResultSet r = s.executeQuery();
+            int result = 0;
+            while (r.next()) {
+                result = r.getInt(GRID_AXIS_ID);
+            }
+            return result;
+        }
+        catch (SQLException e){
+            conn.rollback(savePoint);
+            throw e;
+        }
+        finally {
             closeStatement(s);
         }
     }

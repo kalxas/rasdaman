@@ -35,9 +35,9 @@ import petascope.wcps.metadata.DomainElement;
 import petascope.wcps.server.core.RangeElement;
 import petascope.wcs2.handlers.AbstractRequestHandler;
 import petascope.wcs2.parsers.GetCoverageRequest;
-import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
-import petascope.wcs2.parsers.GetCoverageRequest.DimensionSubset;
-import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
+import petascope.wcs2.parsers.subsets.DimensionSlice;
+import petascope.wcs2.parsers.subsets.DimensionSubset;
+import petascope.wcs2.parsers.subsets.DimensionTrim;
 import petascope.wcs2.handlers.Response;
 
 /**

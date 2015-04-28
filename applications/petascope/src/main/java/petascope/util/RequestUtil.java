@@ -36,13 +36,17 @@ import petascope.HTTPRequest;
 public class RequestUtil {
 
     /**
-     * Parses the query string of a KVP request into a map of form param => value.
+     * Parses the query string of a KVP request into a map of form key => value.
+     * Keys are case insensitive, so they are converted to lowercase.
      * @param queryString The KVP query string (i.e. what is after "?" in the request url).
      * @return A map of the form param => value.
      */
     public static Map<String, String> parseKVPRequestParams(String queryString){
         //split query string into parameters
         Map<String, String> params = new HashMap<String, String>();
+        if(queryString == null){
+          return params;
+        }
         String[] queryParts = queryString.split(KVPParamSeparator);
         for (String queryComponent : queryParts) {
             String[] componentParts = queryComponent.split(KVPKeyValueSeparator);
@@ -51,7 +55,7 @@ public class RequestUtil {
                 //example: query=encode("nodata=0"). "=" is the separator. For this reason the parts need to be joined.
                 String[] remainingParts = Arrays.copyOfRange(componentParts, 1, componentParts.length);
                 String concatenatedParts = StringUtils.join(remainingParts, KVPKeyValueSeparator);
-                params.put(componentParts[0], StringUtil.urldecode(concatenatedParts, null));
+                params.put(componentParts[0].toLowerCase(), StringUtil.urldecode(concatenatedParts, null));
             }
         }
         return params;

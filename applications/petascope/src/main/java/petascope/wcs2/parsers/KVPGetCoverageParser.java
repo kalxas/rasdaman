@@ -21,14 +21,8 @@
  */
 package petascope.wcs2.parsers;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.*;
+
 import petascope.HTTPRequest;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
@@ -40,9 +34,8 @@ import petascope.wcs2.extensions.InterpolationExtension;
 import petascope.wcs2.extensions.RangeSubsettingExtension;
 import petascope.wcs2.extensions.ScalingExtension;
 import petascope.wcs2.handlers.RequestHandler;
-import petascope.wcs2.parsers.GetCoverageRequest.DimensionSlice;
-import petascope.wcs2.parsers.GetCoverageRequest.DimensionTrim;
-import static petascope.wcs2.parsers.GetCoverageRequest.QUOTED_SUBSET;
+import petascope.wcs2.parsers.subsets.DimensionSubset;
+import petascope.wcs2.parsers.subsets.SubsetParser;
 
 /**
  * Parse a GetCapabilities KVP request.
@@ -50,39 +43,6 @@ import static petascope.wcs2.parsers.GetCoverageRequest.QUOTED_SUBSET;
  * @author <a href="mailto:d.misev@jacobs-university.de">Dimitar Misev</a>
  */
 public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
-
-    private static final Pattern PATTERN = Pattern.compile("([^,\\(]+)(,([^\\(]+))?\\(([^,\\)]+)(,([^\\)]+))?\\)");
-
-    /**
-     * Parses any subset parameters defined as in OGC 09-147r1 standard(e.g.
-     * ...&subset=x(200,300)&subset=y(300,200)) and for backwards compatibility
-     * subsets defined as subsetD(where D is any distinct string)(e.g.
-     * &subsetA=x(200,300))
-     *
-     * @param request - the request parameters as a string
-     * @return ret - a hashmap containing the subsets
-     */
-    public HashMap<String, String> parseSubsetParams(String request) {
-        HashMap<String, String> ret = new HashMap<String, String>();
-        StringTokenizer st = new StringTokenizer(request, "&");
-        while (st.hasMoreTokens()) {
-            String kvPair = (String) st.nextToken();
-            int splitPos = kvPair.indexOf("=");
-            if (splitPos != -1) {
-                String key = kvPair.substring(0, splitPos);
-                String value = kvPair.substring(splitPos + 1);
-                if (key.equalsIgnoreCase(KEY_SUBSET)) {
-                    ret.put(key + value, value);
-                }
-                //Backward compatibility
-                else if (key.toLowerCase().startsWith(KEY_SUBSET)) {
-                    ret.put(key + value, value);
-                }
-            }
-        }
-
-        return ret;
-    }
 
     @Override
     public GetCoverageRequest parse(HTTPRequest request) throws WCSException {
@@ -122,38 +82,9 @@ public class KVPGetCoverageParser extends KVPParser<GetCoverageRequest> {
         //Parse rangeSubset parameters if any for the RangeSubset Extension
         RangeSubsettingExtension.parseGetCoverageKVPRequest(p, ret);
 
-        HashMap<String, String> subsets = parseSubsetParams(input);
-        Set<String> subsetsDims = new HashSet<String>();
-        for (Map.Entry<String, String> subset : subsets.entrySet()) {
-            String subsetKey = (String) subset.getKey();
-            String subsetValue = (String) subset.getValue();
-            Matcher matcher = PATTERN.matcher(subsetValue);
-            if (matcher.find()) {
-                String dim = matcher.group(1);
-                String crs = matcher.group(3);
-                String low = matcher.group(4);
-                String high = matcher.group(6);
-                if (!subsetsDims.add(dim)) {
-                    // /conf/core/getCoverage-request-no-duplicate-dimension
-                    throw new WCSException(ExceptionCode.InvalidAxisLabel, "Dimension " + dim + " is duplicated in the request subsets.");
-                }
-                if (high == null) {
-                    ret.addSubset(ret.new DimensionSlice(dim, crs, low));
-                    if (null != low && low.matches(QUOTED_SUBSET)) {
-                        ((DimensionSlice)ret.getSubset(dim)).timestampSubsetCheck();
-                    }
-                } else if (dim != null) {
-                    ret.addSubset(ret.new DimensionTrim(dim, crs, low, high));
-                    if (null != low && (low.matches(QUOTED_SUBSET) || high.matches(QUOTED_SUBSET))) {
-                        ((DimensionTrim)ret.getSubset(dim)).timestampSubsetCheck();
-                    }
-                } else {
-                    throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator(subsetKey));
-                }
-            } else {
-                throw new WCSException(ExceptionCode.InvalidEncodingSyntax.locator(subsetKey));
-            }
-        }
+        //Parse subsets
+        List<DimensionSubset> subsets = SubsetParser.parseSubsets(input);
+        ret.setSubsets(subsets);
 
         // Parse scaling parameters if any for the Scaling Extension
         ScalingExtension.parseGetCoverageKVPRequest(p, ret);

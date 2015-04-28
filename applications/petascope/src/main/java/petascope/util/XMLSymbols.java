@@ -134,6 +134,9 @@ public interface XMLSymbols {
     String LABEL_WGS84_BBOX = "Wgs84BoundingBox";
     String LABEL_EXTENSION = "Extension";
     String LABEL_FORMAT_SUPPORTED = "formatSupported";
+    String LABEL_GENERAL_GRID_AXIS = "generalGridAxis";
+    String LABEL_GENERAL_GRID = "GeneralGridAxis";
+    String LABEL_METADATA = "metadata";
     // wcs scaling extension
     String LABEL_SCALING = "Scaling";
     String LABEL_SCALEBYFACTOR = "ScaleByFactor";
@@ -223,6 +226,7 @@ public interface XMLSymbols {
     String LABEL_MULTISOLID_COVERAGE = "GridCoverage";
     String LABEL_RANGE_TYPE = "rangeType";
     String LABEL_RECTIFIED_GRID = "RectifiedGrid";
+    String LABEL_GRID = "Grid";
     String LABEL_RECTIFIED_GRID_COVERAGE = "RectifiedGridCoverage";
     String LABEL_REFERENCEABLE_GRID_COVERAGE = "ReferenceableGridCoverage";
 
