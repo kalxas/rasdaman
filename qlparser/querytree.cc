@@ -308,13 +308,22 @@ QueryTree::evaluateUpdate() throw (r_Error,ParseInfo)
             RMInit::logOut << "QueryTree::evaluateUpdate() - update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement." << endl;
             ParseInfo errorInfo = rootNode->getParseInfo();
             errorInfo.setErrorNo(372);
+            delete resultData;
             throw errorInfo;
         }
 
         QtExecute* executeNode = (QtExecute*) rootNode;
 
-        // evaluate the update query
-        resultElement = executeNode->evaluate();
+        try
+        {
+            // evaluate the update query
+            resultElement = executeNode->evaluate();
+        }
+        catch (...)
+        {
+            delete resultData;
+            throw;
+        }
 
 #ifdef RMANBENCHMARK
         RMInit::logOut << "Evaluated query tree:" << endl;

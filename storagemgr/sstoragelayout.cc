@@ -477,7 +477,7 @@ std::vector< r_Minterval >
 StorageLayout::calcDirectionalLayout(const r_Minterval& tileDomain)
 {
     RMDBGENTER(4, RMDebug::module_storagemgr, "StorageLayout", "Entering calcDirectionallLayout");
-    r_Dir_Tiling* dirTile ;
+    r_Dir_Tiling* dirTile = NULL;
     if(!extraFeatures->getSubTiling())
         dirTile = new r_Dir_Tiling(tileDomain.dimension(),
                                    extraFeatures->getDirDecompose(),myLayout->getTileSize(),
@@ -495,6 +495,7 @@ StorageLayout::calcDirectionalLayout(const r_Minterval& tileDomain)
     {
         ret.push_back(ret1->at(i));
     }
+    delete dirTile;
     RMDBGEXIT(4, RMDebug::module_storagemgr, "StorageLayout", "calcDirectionalLayout: tile number2: " << ret.size());
     return ret;
 }
@@ -567,7 +568,9 @@ StorageLayout::getDefaultTileCfg(int baseTypeSize, r_Dimension sourceDimension)
 
     }else{
         r_Minterval defaultTileConfiguration = StorageLayout::DefaultTileConfiguration;
-        std::string defaultTileDef = std::string(defaultTileConfiguration.get_string_representation());
+        char *defaultTileDefPtr = defaultTileConfiguration.get_string_representation();
+        std::string defaultTileDef = std::string(defaultTileDefPtr);
+        free(defaultTileDefPtr);
 
         r_Point intervals = defaultTileConfiguration.get_extent();
         r_Range tileCells = 1;
@@ -581,7 +584,9 @@ StorageLayout::getDefaultTileCfg(int baseTypeSize, r_Dimension sourceDimension)
 
         defaultTileConfiguration[defaultTileConfiguration.dimension() -1].set_high((r_Range)lastDimValue-1);
 
-        std::string adjustedDomain = defaultTileConfiguration.get_string_representation();
+        char *adjustedDomainPtr = defaultTileConfiguration.get_string_representation();
+        std::string adjustedDomain = adjustedDomainPtr;
+        free(adjustedDomainPtr);
 
         //remove the first '['
         adjustedDomain.erase(0, 1);

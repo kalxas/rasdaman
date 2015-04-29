@@ -258,13 +258,6 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
     delete allTiles;
     allTiles=NULL;
 
-    // create a new QtMDD object as carrier object for the transient MDD object
-    returnValue = new QtMDD( (MDDObj*)mddres );
-
-    // The following is now done, when the last reference is deleted.
-    // delete the obsolete MDD object
-    // delete op;
-
     return returnValue;
 }
 

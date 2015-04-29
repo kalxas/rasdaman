@@ -144,20 +144,24 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
                 // do not write beyond array boundary
                 if( cellCount <= domain.cell_count() )
                 {
-                    if( strcmp(scalarElem->getTypeStructure(),baseStructure) != 0)
+                    char *scalarElemTypeStructure = scalarElem->getTypeStructure();
+                    if( strcmp( scalarElemTypeStructure, baseStructure ) != 0 )
                     {
                         RMInit::logOut << "Error: QtMDD() - All cell values of an MDD must be of the same type." << std::endl;
                         free( cellBuffer );
+                        free( scalarElemTypeStructure );
                         cellBuffer=NULL;
                         ParseInfo errorInfo = getParseInfo();
                         errorInfo.setErrorNo(301);
                         throw errorInfo;
                     }
+                    free( scalarElemTypeStructure );
                     memcpy( (void*)bufferOffset, (void*)(scalarElem->getValueBuffer()), (unsigned int)cellSize );
                     bufferOffset += cellSize;
                 }
             }
 
+            free(baseStructure);
             // delete literal list - done by caller
             //  delete literalList;
 

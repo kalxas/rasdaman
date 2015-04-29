@@ -78,6 +78,11 @@ QtCaseOp::QtCaseOp(QtOperationList* opList)
     conditionList = new QtOperationList();
 }
 
+QtCaseOp::~QtCaseOp()
+{
+    delete conditionList;
+}
+
 /**
  * Divides the operand list into several sublists for easier manipulation:
  * - conditions -> evaluated;

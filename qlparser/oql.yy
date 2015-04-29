@@ -948,6 +948,7 @@ caseCondList:
         {
           $1->push_back( (*$2)[0] );
           $1->push_back( (*$2)[1] );
+          delete $2;
           $$ = $1;
         }
         |
@@ -976,10 +977,12 @@ caseExp: CASE caseCondList caseEnd
           for(iter = $2->begin(); iter != $2->end(); iter++){
               parseQueryTree->removeDynamicObject( *iter );
           }
+          delete $2;
           
           for(iter = $3->begin(); iter != $3->end(); iter++){
               parseQueryTree->removeDynamicObject( *iter );
           }
+          delete $3;
           
           $$->setParseInfo( *($1.info) );
           parseQueryTree->addDynamicObject( $$ );

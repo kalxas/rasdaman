@@ -509,6 +509,7 @@ QtEncode::getDataFormat(char* format)
 			ret = r_BMP;
 		else if (STR_EQUAL(f, "csv"))
 			ret = r_CSV;
+		free(f);
 	}
 	return ret;
 }

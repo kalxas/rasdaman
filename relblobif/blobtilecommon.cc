@@ -66,15 +66,15 @@ SimpleFileStorage BLOBTile::fileStorage = BLOBTile::initFileStorage();
 SimpleFileStorage
 BLOBTile::initFileStorage()
 {
-    char *path = getenv("RASDATA");
+    const char *path = getenv("RASDATA");
     if (path == NULL || strcmp(path, "") == 0)
     {
 #ifdef FILEDATADIR
-        path = strdup(FILEDATADIR);
+        path = FILEDATADIR;
 #endif
         if (path == NULL || strcmp(path, "") == 0)
         {
-            path=const_cast<char*>("/tmp");
+            path = "/tmp";
         }
     }
     mkdir(path, S_IRWXU + S_IRGRP + S_IXGRP + S_IROTH + S_IXOTH); // create if not exist, rwxr-xr-x

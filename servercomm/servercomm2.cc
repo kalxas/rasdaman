@@ -2118,9 +2118,10 @@ ServerComm::executeUpdate( unsigned long callingClientId,
 
                 RMInit::logOut << "evaluating..." << std::flush;
 
-                qtree->evaluateUpdate();
+                vector<QtData*>* updateResult = qtree->evaluateUpdate();
 
                 // release data
+                delete updateResult;
                 context->releaseTransferStructures();
 
                 RMInit::logOut << MSG_OK << std::endl;
@@ -3433,10 +3434,10 @@ ServerComm::getNextElement( unsigned long   callingClientId,
 
                             case QT_FLOAT:
                             {
-				uint32_t value = bswap_32(*(uint32_t*)buffer);
-				// use memcpy because older (<4.5?) gcc versions
-				// choke if we assign to buffer directly
-				memcpy(buffer, &value, sizeof(uint32_t));
+                                uint32_t value = bswap_32(*(uint32_t*)buffer);
+                                // use memcpy because older (<4.5?) gcc versions
+                                // choke if we assign to buffer directly
+                                memcpy(buffer, &value, sizeof(uint32_t));
                             }
                             break;
 
@@ -3445,7 +3446,7 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                                 uint64_t value = bswap_64(*(uint64_t*)buffer);
                                 // use memcpy because older (<4.5?) gcc versions
                                 // choke if we assign to buffer directly
-				memcpy(buffer, &value, sizeof(uint64_t));
+                                memcpy(buffer, &value, sizeof(uint64_t));
                             }
                             break;
 

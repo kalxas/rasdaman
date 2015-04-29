@@ -54,6 +54,8 @@ public:
     /// constructor getting the operand list
     QtCaseOp(QtOperationList* opList);
 
+    virtual ~QtCaseOp();
+
     /// method for evaluating the node
     QtData* evaluate(QtDataList* inputList);
 

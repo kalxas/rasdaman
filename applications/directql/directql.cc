@@ -988,6 +988,7 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
 
         if( mddConst )
             delete mddConst;
+        free( result.token );
 
         closeTransaction( true );
     }
@@ -1005,6 +1006,7 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
 
         if( mddConst )
             delete mddConst;
+        free( result.token );
 
         closeTransaction( true );
     }
@@ -1083,6 +1085,8 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
         }
         //result_set = result;
         LOG( "ok" << endl );
+
+        free( result.token );
 
         closeTransaction( true );
     }
