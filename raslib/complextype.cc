@@ -99,10 +99,10 @@ r_Complex_Type::get_re(const char* cell) const throw(r_Error)
     switch (typeId)
     {
     case COMPLEXTYPE1:
-        res = *(r_Float*)cell;
+        res = *(r_Float*)const_cast<char*>(cell);
         break;
     case COMPLEXTYPE2:
-        res = *(r_Double *)cell;
+        res = *(r_Double *)const_cast<char*>(cell);
         break;
     default:
         RMDBGONCE(3, RMDebug::module_raslib, "r_Complex_Type", "get_re(...) bad typeId " << typeId);
@@ -127,10 +127,10 @@ r_Complex_Type::get_im(const char* cell) const throw(r_Error)
     switch (typeId)
     {
     case COMPLEXTYPE1:
-        res = *(r_Float*)(cell + imOff);
+        res = *(r_Float*)(const_cast<char*>(cell) + imOff);
         break;
     case COMPLEXTYPE2:
-        res = *(r_Double*)(cell + imOff);
+        res = *(r_Double*)(const_cast<char*>(cell) + imOff);
         break;
     default:
         RMDBGONCE(3, RMDebug::module_raslib, "r_Complex_Type", "get_im(...) bad typeId " << typeId);

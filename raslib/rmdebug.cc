@@ -169,7 +169,7 @@ RMDebug::loadTextFile(const char* name)
         char* result;
         f.seekg(0, std::ios::end);
         std::streampos end = f.tellg();
-        r_Long resLen=(r_Long)end + 1;
+        size_t resLen=(size_t)end + 1;
         result = new char[resLen];
         memset(result, 0, resLen);
         f.seekg(0, std::ios::beg);

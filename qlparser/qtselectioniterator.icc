@@ -34,7 +34,7 @@ QtSelectionIterator::setConditionTree( QtOperation* operation )
 
   if( operation )
     operation->setParent( this );
-};
+}
 
 
 
@@ -42,7 +42,7 @@ inline QtOperation*
 QtSelectionIterator::getConditionTree()
 {
   return( conditionTree );
-};
+}
 
 
 
@@ -56,7 +56,7 @@ QtSelectionIterator::setInput( QtOperation* inputOld, QtOperation* inputNew )
     if( inputNew )
       inputNew->setParent( this );
   }
-};
+}
 
 
 

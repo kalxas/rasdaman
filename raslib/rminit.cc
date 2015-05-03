@@ -277,7 +277,7 @@ RMInit::checkOptionString( const char* optString, const char* option, char* &val
     {
         unsigned short found = 0;
 
-        optPos = (char*)optString;
+        optPos = const_cast<char*>(optString);
 
         do
         {
@@ -315,7 +315,7 @@ RMInit::checkOptionString( const char* optString, const char* option, char* &val
             if( valueLength )
             {
                 value = new char[valueLength+1];
-                strncpy( value, optValueStart, valueLength );
+                strncpy( value, optValueStart, static_cast<size_t>(valueLength) );
                 value[valueLength] = '\0';
             }
         }

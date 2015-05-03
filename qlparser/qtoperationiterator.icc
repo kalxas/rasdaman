@@ -35,7 +35,7 @@ QtOperationIterator::setOperationTree( QtOperation* operation )
     operationTreeList->push_back( operation );
     operation->setParent( this );
   };
-};
+}
 
 
 
@@ -43,7 +43,7 @@ inline QtNode::QtOperationList*
 QtOperationIterator::getOperationTreeList()
 {
   return( operationTreeList );
-};
+}
 
 
 
@@ -62,7 +62,7 @@ QtOperationIterator::setInput( QtOperation* inputOld, QtOperation* inputNew )
         inputNew->setParent( this );
     };
   };
-};
+}
 
 
 

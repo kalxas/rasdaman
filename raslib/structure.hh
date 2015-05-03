@@ -67,7 +67,7 @@ public:
     virtual r_Scalar* clone() const;
 
     /// operator for assigning a structure
-    virtual const r_Structure& operator= ( const r_Structure& );
+    const r_Structure& operator= ( const r_Structure& );
 
     /// debug output
     virtual void print_status(std::ostream& s) const;

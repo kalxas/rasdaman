@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: persmddcolliter.cc
  *
@@ -52,7 +52,7 @@ MDDCollIter::MDDCollIter(MDDColl* targetColl)
 }
 
 void
-MDDCollIter::printStatus(unsigned int level, ostream& stream) const
+MDDCollIter::printStatus(__attribute__ ((unused)) unsigned int level, ostream& stream) const
 {
     stream << "   MDDCollIter printStatus:  " ;
 }

@@ -78,7 +78,7 @@ r_Sinterval::r_Sinterval( char* stringRep ) throw(r_Eno_interval)
     r_Range valueToken = 0;
 
     // for parsing the string
-    std::istrstream str(stringRep, strlen(stringRep) + 1);
+    std::istrstream str(stringRep, static_cast<std::streamsize>(strlen(stringRep)) + 1);
 
     str >> charToken;
     if(charToken == '*')
@@ -115,31 +115,31 @@ r_Sinterval::r_Sinterval( char* stringRep ) throw(r_Eno_interval)
 }
 
 
-r_Sinterval::r_Sinterval( r_Range low, r_Range high ) throw( r_Eno_interval )
-    : lower_bound(low),
-      upper_bound(high),
+r_Sinterval::r_Sinterval( r_Range newLow, r_Range newHigh ) throw( r_Eno_interval )
+    : lower_bound(newLow),
+      upper_bound(newHigh),
       low_fixed(true),
       high_fixed(true)
 {
-    if( low > high )
+    if( newLow > newHigh )
     {
-        RMInit::dbgOut << "r_Sinterval::r_Sinterval(" << low << ", " << high << ") not a interval" << endl;
+        RMInit::dbgOut << "r_Sinterval::r_Sinterval(" << newLow << ", " << newHigh << ") not a interval" << endl;
         throw r_Eno_interval();
     }
 }
 
 
-r_Sinterval::r_Sinterval( char, r_Range high )
+r_Sinterval::r_Sinterval( char, r_Range newHigh )
     : lower_bound(0),
-      upper_bound(high),
+      upper_bound(newHigh),
       low_fixed(false),
       high_fixed(true)
 {
 }
 
 
-r_Sinterval::r_Sinterval( r_Range low, char )
-    : lower_bound(low),
+r_Sinterval::r_Sinterval( r_Range newLow, char )
+    : lower_bound(newLow),
       upper_bound(0),
       low_fixed(true),
       high_fixed(false)
@@ -201,63 +201,63 @@ r_Sinterval::get_extent() const throw(r_Error)
 }
 
 void
-r_Sinterval::set_low ( r_Range low  ) throw( r_Eno_interval )
+r_Sinterval::set_low ( r_Range newLow  ) throw( r_Eno_interval )
 {
-    if( high_fixed && low > upper_bound )
+    if( high_fixed && newLow > upper_bound )
     {
-        RMInit::dbgOut << "r_Sinterval::set_low(" << low << ") not an interval (" << *this << ")" << endl;
+        RMInit::dbgOut << "r_Sinterval::set_low(" << newLow << ") not an interval (" << *this << ")" << endl;
         throw r_Eno_interval();
     }
 
-    lower_bound = low;
+    lower_bound = newLow;
     low_fixed = true;
 }
 
 
 void
-r_Sinterval::set_high( r_Range high ) throw( r_Eno_interval )
+r_Sinterval::set_high( r_Range newHigh ) throw( r_Eno_interval )
 {
-    if( low_fixed && high < lower_bound )
+    if( low_fixed && newHigh < lower_bound )
     {
-        RMInit::dbgOut << "r_Sinterval::set_high(" << high << ") not an interval (" << *this << ")" << endl;
+        RMInit::dbgOut << "r_Sinterval::set_high(" << newHigh << ") not an interval (" << *this << ")" << endl;
         throw r_Eno_interval();
     }
 
-    upper_bound = high;
+    upper_bound = newHigh;
     high_fixed = true;
 }
 
 
 void
-r_Sinterval::set_interval( r_Range low, r_Range high ) throw( r_Eno_interval )
+r_Sinterval::set_interval( r_Range newLow, r_Range newHigh ) throw( r_Eno_interval )
 {
-    if( low > high )
+    if( newLow > newHigh )
     {
-        RMInit::dbgOut << "r_Sinterval::set_interval(" << low << ", " << high << ") not an interval (" << *this << ")" << endl;
+        RMInit::dbgOut << "r_Sinterval::set_interval(" << newLow << ", " << newHigh << ") not an interval (" << *this << ")" << endl;
         throw r_Eno_interval();
     }
 
-    lower_bound = low;
-    upper_bound = high;
+    lower_bound = newLow;
+    upper_bound = newHigh;
     low_fixed  = true;
     high_fixed = true;
 }
 
 
 void
-r_Sinterval::set_interval( char, r_Range high )
+r_Sinterval::set_interval( char, r_Range newHigh )
 {
     lower_bound = 0;
-    upper_bound = high;
+    upper_bound = newHigh;
     low_fixed  = false;
     high_fixed = true;
 }
 
 
 void
-r_Sinterval::set_interval( r_Range low, char )
+r_Sinterval::set_interval( r_Range newLow, char )
 {
-    lower_bound = low;
+    lower_bound = newLow;
     upper_bound = 0;
     low_fixed  = true;
     high_fixed = false;
@@ -992,7 +992,7 @@ r_Sinterval::classify( const r_Sinterval& a, const r_Sinterval& b ) const
 char*
 r_Sinterval::get_string_representation() const
 {
-    unsigned int bufferSize = 128;  // should be enough
+    int bufferSize = 128;  // should be enough
 
     // allocate buffer and initialize string stream
     char* buffer = new char[bufferSize];

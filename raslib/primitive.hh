@@ -70,7 +70,7 @@ public:
     virtual r_Scalar* clone() const;
 
     /// operator for assigning a primitive
-    virtual const r_Primitive& operator= ( const r_Primitive& );
+    const r_Primitive& operator= ( const r_Primitive& );
 
     /// gets the pointer to the buffer
     const char* get_buffer() const;

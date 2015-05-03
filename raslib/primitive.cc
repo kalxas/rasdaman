@@ -54,7 +54,7 @@ r_Primitive::r_Primitive( const char* newBuffer, const r_Primitive_Type* newType
     {
         valueBuffer = (char*)mymalloc( valueType->size() );
         if( newBuffer)
-            memcpy( (void*)valueBuffer, (void*)newBuffer, valueType->size() );
+            memcpy( (void*)valueBuffer, (void*)const_cast<char*>(newBuffer), valueType->size() );
         else
             memset( (void*)valueBuffer, 0, valueType->size() );
     }

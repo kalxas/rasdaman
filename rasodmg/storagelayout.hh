@@ -113,13 +113,13 @@ protected:
     friend class ClientComm;
     friend class r_GMArray;
 
-    char* storage_params;
+    /// Tiling scheme
+    r_Tiling*  til;
 
     /// the dataformat is not used.  please use the database methods for this purpose.
     r_Data_Format storage_format;
 
-    /// Tiling scheme
-    r_Tiling*  til;
+    char* storage_params;
 
 };
 

@@ -158,7 +158,7 @@ int r_Conv_TIFF::get_resunit_from_name(const char* strResUnit)
 }
 
 /// Capture errors
-void TIFFError(const char* module, const char* fmt, va_list argptr)
+void TIFFError(__attribute__ ((unused)) const char* module, const char* fmt, va_list argptr)
 {
     char msg[10240];
     vsprintf (msg, fmt, argptr);
@@ -167,7 +167,7 @@ void TIFFError(const char* module, const char* fmt, va_list argptr)
 }
 
 /// Capture warnings
-void TIFFWarning(const char* module, const char* fmt, va_list argptr)
+void TIFFWarning(__attribute__ ((unused)) const char* module, const char* fmt, va_list argptr)
 {
     char msg[10240];
     vsprintf (msg, fmt, argptr);
@@ -258,7 +258,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
     int tiffcomp = COMPRESSION_NONE;
 
     int sampleFormat = SAMPLEFORMAT_INT;
-    int spp; // samples per pixel
+    unsigned int spp = 1; // samples per pixel
 
     params->process(options);
 
@@ -319,10 +319,10 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
         break;
     case ctype_struct:
     {
-        r_Structure_Type *st = (r_Structure_Type*) desc.srcType;
+        r_Structure_Type *st = (r_Structure_Type*) const_cast<r_Type*>(desc.srcType);
         spp = st->count_elements();
 
-        int structSize = 0;
+        unsigned int structSize = 0;
         r_Type::r_Type_Id bandType = r_Type::UNKNOWNTYPE;
 
         // iterate over the attributes of the struct
@@ -332,7 +332,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
 
             if ((*iter).type_of().isPrimitiveType())
             {
-                r_Primitive_Type *pt = (r_Primitive_Type*) &(*iter).type_of();
+                r_Primitive_Type *pt = (r_Primitive_Type*) const_cast<r_Base_Type*>(&(*iter).type_of());
                 structSize += pt->size();
 
                 if (bandType == r_Type::UNKNOWNTYPE)
@@ -350,6 +350,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
                     case r_Type::FLOAT:
                     case r_Type::DOUBLE:
                         sampleFormat = SAMPLEFORMAT_IEEEFP;
+                    default: break;
                     }
                 }
                 // check if all bands are of the same type
@@ -448,6 +449,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
         case ctype_struct:
             TIFFSetField( tif, TIFFTAG_SAMPLEFORMAT, sampleFormat );
             break;
+        default: break;
         }
     }
     TIFFSetField(tif, TIFFTAG_PLANARCONFIG, (uint16)PLANARCONFIG_CONTIG);
@@ -554,7 +556,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
     r_Long tifSize = memfs_size(handle);
 
     // Allocate an array of just the right size and "load" object there
-    if ((desc.dest = (char*)mystore.storage_alloc(sizeof(char) * tifSize)) == NULL)
+    if ((desc.dest = (char*)mystore.storage_alloc(sizeof(char) * static_cast<unsigned long>(tifSize))) == NULL)
     {
         TALK( "r_Conv_TIFF::convertTo(): out of memory." );
         RMInit::logOut << "Error: out of memory." << endl;
@@ -583,7 +585,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
     params->process(options); //==> CHECK THIS "IMP"
     TIFF *tif=NULL;
     char dummyFile[256];
-    int typeSize=0;
+    unsigned int typeSize=0;
     int bandType=ctype_void;
     uint16 sampleFormat=0;
     uint16 bps=0, bpp=0, spp=0, planar=0, photometric=0, Bpp=0, Bps=0;
@@ -591,7 +593,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
     uint16 *reds=NULL, *greens=NULL, *blues=NULL;
 
     // Init simple (chunky) memFS
-    memfs_chunk_initfs(handle, (char*)desc.src, (r_Long)(desc.srcInterv.cell_count())); //==> CHECK THIS
+    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), (r_Long)(desc.srcInterv.cell_count())); //==> CHECK THIS
     desc.dest = NULL;
 
     // Create dummy file for use in the TIFF open function
@@ -726,6 +728,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
             case 64:
                 bandType = ctype_float64;
                 break;
+            default: break;
             }
         }
         }
@@ -773,6 +776,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
             case 64:
                 desc.baseType = ctype_float64;
                 break;
+            default: break;
             }
         }
         else if (spp == 3 && bpp == 24)
@@ -843,7 +847,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
                         {
                             for (i=0; i < width; i++, l += pixelAdd)
                             {
-                                *l = *normal++;
+                                *l = (char)*normal++;
                             }
                         }
                     }
@@ -865,9 +869,9 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
                         {
                             for (i=0; i < width; i++, l += pixelAdd)
                             {
-                                l[0] = *normal++;
-                                l[1] = *normal++;
-                                l[2] = *normal++;
+                                l[0] = (char)*normal++;
+                                l[1] = (char)*normal++;
+                                l[2] = (char)*normal++;
                             }
                         }
                     }
@@ -881,7 +885,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
                             int offset = j*Bps; // an offset to the j-th band
                             l = line + offset;
                             normal = (uint8 *)tbuff + offset;
-                            for (int i = 0; i < width; i++, l += pixelAdd, normal += lineAdd)
+                            for (i = 0; i < width; i++, l += pixelAdd, normal += lineAdd)
                             {
                                 memcpy(l, normal, Bps);
                             }
@@ -944,7 +948,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
 
         stringstream destType(stringstream::out);
         destType << "struct { ";
-        for (int i = 0; i < spp; i++)
+        for (i = 0; i < spp; i++)
         {
             if (i > 0)
                 destType << ", ";

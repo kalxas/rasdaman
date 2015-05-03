@@ -106,7 +106,7 @@ r_Collection<T>::r_Collection( const void* node1 )
     card = 0;
     coll = new CNode;
     nptr = coll;
-    optr = (CNode*)node1;
+    optr = (CNode*)const_cast<void*>(node1);
 
     while ( optr->next != NULL )
     {
@@ -303,7 +303,7 @@ r_Collection<T>::set_internal_representation( const void* node1 )
 
     card = 0;
     nptr = coll;
-    optr = (CNode*)node1;
+    optr = (CNode*)const_cast<void*>(node1);
 
     while ( optr->next != NULL )
     {

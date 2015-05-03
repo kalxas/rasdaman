@@ -61,58 +61,58 @@ extern struct ServerBase    Server;
 *
 */
 
-rc_t Initialize( int argc, char *argv[], struct ServerBase *Server )
+rc_t Initialize( int argc, char *argv[], struct ServerBase *newServer )
 {
 
     /*  Make sure that the Server structure is empty.  -------------------- */
-    bzero( (char *)Server, sizeof( *Server ) );
+    bzero( (char *)newServer, sizeof( *newServer ) );
 
     /*  Create Head of ChildList  */
-    Server->ChildList = (struct ChildBase*)mymalloc( sizeof( struct ChildBase ) );
-    if( Server->ChildList == NULL )
+    newServer->ChildList = (struct ChildBase*)mymalloc( sizeof( struct ChildBase ) );
+    if( newServer->ChildList == NULL )
         ErrorMsg( E_SYS, FAIL, "FAIL:  Initialize(): malloc() failed!" );
     else
     {
         //LogMsg( LG_SERVER, DEBUG, "DEBUG:  Creating Head of ChildList" );
-        Server->ChildList->next = Server->ChildList;
-        Server->ChildList->prev = Server->ChildList;
-        Server->ChildList->PId  = 0;
+        newServer->ChildList->next = newServer->ChildList;
+        newServer->ChildList->prev = newServer->ChildList;
+        newServer->ChildList->PId  = 0;
     }
 
     /* Read the environment variables */
-    char* dummy = (char*)CONFDIR;
+    char* dummy = const_cast<char*>(CONFDIR);
     if( dummy == NULL)
         ErrorMsg( E_SYS, FAIL, "FAIL:  configure error: CONFDIR not provided." );
-    Server->Directory = (char*)mymalloc(strlen(dummy) + 2);
-    strcpy(Server->Directory, dummy);
-    if( Server->Directory[strlen(Server->Directory)] != '/' )
-        strcat( Server->Directory, "/" );
+    newServer->Directory = (char*)mymalloc(strlen(dummy) + 2);
+    strcpy(newServer->Directory, dummy);
+    if( newServer->Directory[strlen(newServer->Directory)] != '/' )
+        strcat( newServer->Directory, "/" );
 
     /*  Read Arguments and Server configuration file - and setup  --------- */
     /*      the corresponding data structures.  --------------------------- */
 
-    ReadArgs( Server, argc, argv );
-    //ReadConfig( Server );
+    ReadArgs( newServer, argc, argv );
+    //ReadConfig( newServer );
 
-    ConfigureServer( Server );
-    // CheckConfig( Server );  // Check for reasonable configuration
+    ConfigureServer( newServer );
+    // CheckConfig( newServer );  // Check for reasonable configuration
 
     /*  Set timeout for communication with subservers and client  --------- */
-    Server->Client.TimeOut.tv_sec  = DIALOG_TIMEOUT;
-    Server->Client.TimeOut.tv_usec = 0;
+    newServer->Client.TimeOut.tv_sec  = DIALOG_TIMEOUT;
+    newServer->Client.TimeOut.tv_usec = 0;
 
     /*  Get the process into "daemon"-mode.  ------------------------------ */
-    InitDaemon( Server->Log.Mode );
-    Server->PId = getpid();
+    InitDaemon( newServer->Log.Mode );
+    newServer->PId = getpid();
 
-    //SavePId( Server->PidFile );
+    //SavePId( newServer->PidFile );
     /*  Initialize the Server Socket.  ------------------------------------ */
-    InitSocket( &Server->SockFD, &Server->Socket, Server->Port );
+    InitSocket( &newServer->SockFD, &newServer->Socket, newServer->Port );
 
     /*  Setup and Open the logfiles.  ------------------------------------- */
-    OpenLog( &Server->Log, Server->Log.Access.Filename,
-             Server->Log.Server.Filename,
-             Server->Log.Comm.Filename );
+    OpenLog( &newServer->Log, newServer->Log.Access.Filename,
+             newServer->Log.Server.Filename,
+             newServer->Log.Comm.Filename );
 
 
     LogMsg( LG_SERVER, INFO, "INFO:  ========= %s started. ===============", DAEMONNAME );
@@ -149,14 +149,14 @@ rc_t Initialize( int argc, char *argv[], struct ServerBase *Server )
 *
 */
 
-rc_t InitDaemon( int Mode )
+rc_t InitDaemon( __attribute__ ((unused)) int Mode )
 {
     int i;
     pid_t pid;
     int openmax;
 
     // RasDaMan does not go into background!
-    chdir( Server.Directory );            /* Arbeitsverzeichnis wechseln */
+    i = chdir( Server.Directory );            /* Arbeitsverzeichnis wechseln */
     umask( 0 );                           /* Dateischutzbitmaske loeschen */
     return( OK );
 }
@@ -263,7 +263,7 @@ rc_t InitClientSocket( int *SockFD,
     {
         return( ERROR );
     }
-    memcpy( (char *)&Socket->sin_addr, (char *)Host->h_addr, Host->h_length );
+    memcpy( (char *)&Socket->sin_addr, (char *)Host->h_addr, static_cast<size_t>(Host->h_length) );
 
     Socket->sin_port         = htons( Port );
     if( ( *SockFD = socket( AF_INET, SOCK_STREAM, 0 ) ) < 0 )

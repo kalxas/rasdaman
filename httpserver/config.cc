@@ -151,7 +151,7 @@ rc_t ReadArgs( struct ServerBase *Server, int argc, char *argv[] )
 *
 */
 
-rc_t CheckAndSet( struct ServerBase *Server, char *Filename, int LogMode )
+rc_t CheckAndSet( struct ServerBase *Server, __attribute__ ((unused)) char *Filename, int LogMode )
 {
     rc_t  RC = 0;
 
@@ -249,7 +249,7 @@ rc_t SetFilename( struct ServerBase *Server, int Type, char *Filename )
 {
     char   *Buffer = NULL;
     size_t  BuffSize = 0;
-    size_t  PathLength, FileLength;
+    size_t  PathLength = 0, FileLength;
 
     if( Filename != NULL )
     {
@@ -358,14 +358,14 @@ rc_t SetString( struct ServerBase *Server, int Type, char *String )
 rc_t ConfigureServer( struct ServerBase *Server )
 {
     char* myName;
-    char* rmanhome = (char*)CONFDIR;
-    int MaxURLLength = 120;
+    char* rmanhome = const_cast<char*>(CONFDIR);
+    unsigned int MaxURLLength = 120;
     int BuffSize;
     char* Buffer;
 
     BuffSize = strlen( rmanhome );
 
-    if ( ( Buffer = (char*)mymalloc( BuffSize+200 ) ) == NULL )
+    if ( ( Buffer = (char*)mymalloc( static_cast<size_t>(BuffSize+200) ) ) == NULL )
         ErrorMsg( E_SYS, FAIL, "FAIL:  Buffer allocation for Server Configuration" );
     if( gethostname( Buffer, 200 ) )
         ErrorMsg( E_SYS, FAIL, "FAIL:  Could not determine my Hostname" );
@@ -377,7 +377,7 @@ rc_t ConfigureServer( struct ServerBase *Server )
 
     Server->Port = globalHTTPPort;
 
-    SetString( Server, ST_MAILADDRESS, (char*)"admin@localhost" );
+    SetString( Server, ST_MAILADDRESS, const_cast<char*>("admin@localhost") );
 
     SetString( Server, ST_HOSTNAME, myName );
 
@@ -435,16 +435,16 @@ int GetConfigKey( char *Keyword )
 {
     struct KeywordKey KeyTable[] =
     {
-        { (char*)"AccessLog",    KEY_ACCESSLOG },
-        { (char*)"CommLog",      KEY_COMMLOG },
-        { (char*)"IndexFile",    KEY_INDEXFILE },
-        { (char*)"MaxURLLength", KEY_MAXURLLENGTH },
-        { (char*)"PidFile",      KEY_PIDFILE },
-        { (char*)"Port",         KEY_PORT },
-        { (char*)"ServerAdmin",  KEY_SERVERADMIN },
-        { (char*)"ServerLog",    KEY_SERVERLOG },
-        { (char*)"ServerName",   KEY_SERVERNAME },
-        { (char*)"ServerRoot",   KEY_SERVERROOT },
+        { const_cast<char*>("AccessLog"),    KEY_ACCESSLOG },
+        { const_cast<char*>("CommLog"),      KEY_COMMLOG },
+        { const_cast<char*>("IndexFile"),    KEY_INDEXFILE },
+        { const_cast<char*>("MaxURLLength"), KEY_MAXURLLENGTH },
+        { const_cast<char*>("PidFile"),      KEY_PIDFILE },
+        { const_cast<char*>("Port"),         KEY_PORT },
+        { const_cast<char*>("ServerAdmin"),  KEY_SERVERADMIN },
+        { const_cast<char*>("ServerLog"),    KEY_SERVERLOG },
+        { const_cast<char*>("ServerName"),   KEY_SERVERNAME },
+        { const_cast<char*>("ServerRoot"),   KEY_SERVERROOT },
     };
 
     int cond;

@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rascontrol_class.hh
  *
@@ -140,7 +140,7 @@ char * EditLine::rl_gets(const char *prompt)
     }
 
     /* Get a line from the user. */
-    line_read = readline ((char*)prompt);
+    line_read = readline (const_cast<char*>(prompt));
 
     /* If the line has any text in it, save it on the history. */
     if (line_read && *line_read)
@@ -156,18 +156,18 @@ char * EditLine::rl_gets(const char *prompt)
 //################ Config ##################################
 RascontrolConfig::RascontrolConfig() :
     cmlInter        (CommandLineParser::getInstance()),
+    cmlHelp         (cmlInter.addFlagParameter('h',"help", "this help")),
     cmlHost         (cmlInter.addStringParameter(CommandLineParser::noShortName,"host", "<name> name of host where master rasmgr runs", DEFAULT_HOSTNAME)),
     cmlPort         (cmlInter.addLongParameter(CommandLineParser::noShortName,"port", "<nnnn> rasmgr port",DEFAULT_PORT)),
     cmlLogin        (cmlInter.addFlagParameter('l',"login", "just login prompt, used to set the environment variable RASLOGIN")),
-    cmlTestLogin    (cmlInter.addFlagParameter('t',"testlogin", "test if environment variable RASLOGIN is OK to login")),
-    cmlInteractive  (cmlInter.addFlagParameter('e',"interactive", "interactive mode, login from environment variable RASLOGIN")),
-    cmlQuiet        (cmlInter.addFlagParameter('q',"quiet", "quiet, don't print header (default on for -login and -testlogin)")),
 //#ifdef NO_OFFICIAL_RELEASE
     cmlHist         (cmlInter.addStringParameter(CommandLineParser::noShortName, "hist", "<file-name> used to store your commands in file, as help for batch file.")),
 //#endif
     cmlPrompt       (cmlInter.addStringParameter(CommandLineParser::noShortName, "prompt", "<nnn> change rascontrol prompt as following:\n\t\t 0 - prompt '>'\n\t\t 1 - prompt 'rasc>'\n\t\t 2 - prompt 'user:host>'","2")),
-    cmlExecute      (cmlInter.addFlagParameter('x',"execute", "batch mode, login from environment variable RASLOGIN\n   <rasmgr-cmd>\ta rasmgr command (only in batch mode)\n\t\tif no command if provided, command is read from stdin\n\t\t(used for batch mode with '<inputfile')")),
-    cmlHelp         (cmlInter.addFlagParameter('h',"help", "this help"))
+    cmlTestLogin    (cmlInter.addFlagParameter('t',"testlogin", "test if environment variable RASLOGIN is OK to login")),
+    cmlInteractive  (cmlInter.addFlagParameter('e',"interactive", "interactive mode, login from environment variable RASLOGIN")),
+    cmlQuiet        (cmlInter.addFlagParameter('q',"quiet", "quiet, don't print header (default on for -login and -testlogin)")),
+    cmlExecute      (cmlInter.addFlagParameter('x',"execute", "batch mode, login from environment variable RASLOGIN\n   <rasmgr-cmd>\ta rasmgr command (only in batch mode)\n\t\tif no command if provided, command is read from stdin\n\t\t(used for batch mode with '<inputfile')"))
 {
     workModus = WKMINTERACTIV;
     loginModus= LGIINTERACTIV;
@@ -383,6 +383,7 @@ const char* RascontrolConfig::getPrompt()
     case PROMPTFULL :
         sprintf(prompt,"%s:%s> ",userLogin.getUserName(),rasmgrHost);
         break;
+    default: break;
     }
     return prompt;
 }
@@ -408,6 +409,7 @@ void RascontrolConfig::printDebugInfo()
     case WKMLOGIN       :
         std::cout<<"login";
         break;
+    default: break;
     }
 
     std::cout<<std::endl<<"Login modus:...";
@@ -422,6 +424,7 @@ void RascontrolConfig::printDebugInfo()
     case LGIENVIRONM    :
         std::cout<<"environm";
         break;
+    default: break;
     }
 
     std::cout<<std::endl<<"Rasmgr:........"<<rasmgrHost<<":"<<rasmgrPort;

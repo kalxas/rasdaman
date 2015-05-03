@@ -55,19 +55,19 @@ r_Database* r_Database::actual_database = 0;
 
 
 r_Database::r_Database()
-    : db_status( not_open ),
+    : communication(0),
+      db_status( not_open ),
       rasmgrName(0),
       userName(0),
-      plainPass(0),
-      communication(0)
+      plainPass(0)
 {
 }
 
 r_Database::r_Database( const char* name ) throw(r_Error)
-    : db_status( not_open ),
+    : communication(0),
+      db_status( not_open ),
       userName(0),
-      plainPass(0),
-      communication(0)
+      plainPass(0)
 {
     if(!name)
     {
@@ -158,7 +158,7 @@ throw( r_Error )
     unsigned int status=0;
     try
     {
-        status = communication->openDB( (char*)database_name );
+        status = static_cast<unsigned int>(communication->openDB( const_cast<char*>(database_name) ));
     }
     catch( ... )
     {
@@ -237,14 +237,14 @@ r_Database::close()
 }
 
 void
-r_Database::create( const char* name ) throw( r_Error )
+r_Database::create( __attribute__ ((unused)) const char* name ) throw( r_Error )
 {
     // this operation is not supported through this interface; use rasdl
     throw( r_Error(803)); // Access denied, no permission
 }
 
 void
-r_Database::destroy( const char* name ) throw( r_Error )
+r_Database::destroy( __attribute__ ((unused)) const char* name ) throw( r_Error )
 {
     // this operation is not supported through this interface; use rasdl
     throw( r_Error(803)); // Access denied, no permission

@@ -55,12 +55,12 @@ r_Oid_Type::type_id() const
 }
 
 void
-r_Oid_Type::convertToLittleEndian(char* cells, r_Area noCells) const
+r_Oid_Type::convertToLittleEndian(__attribute__ ((unused)) char* cells, __attribute__ ((unused)) r_Area noCells) const
 {
 }
 
 void
-r_Oid_Type::convertToBigEndian(char* cells, r_Area noCells) const
+r_Oid_Type::convertToBigEndian(__attribute__ ((unused)) char* cells, __attribute__ ((unused)) r_Area noCells) const
 {
 }
 

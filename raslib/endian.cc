@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * INCLUDE: endian.cc
  *
@@ -56,7 +56,7 @@ static inline r_Octet eswap( r_Octet val )
 static inline void eswap( r_Octet val, void *dest )
 {
     r_Char *d = (r_Char *)dest;
-    *d = val;
+    *d = static_cast<r_Char>(val);
 }
 
 static inline r_Short eswap( r_Short val )
@@ -220,7 +220,7 @@ void swap_array_templ(r_Miter &iter, T *destBase, const T *srcBase)
 
 // template for generic iteration (src is just a dummy here)
 template<class T>
-void swap_array_templ(r_Miter &siter, r_Miter &diter, const T *srcBase)
+void swap_array_templ(r_Miter &siter, r_Miter &diter, __attribute__ ((unused)) const T *srcBase)
 {
     while (!siter.isDone())
     {
@@ -363,11 +363,11 @@ void r_Endian::swap_array( const r_Primitive_Type *type, r_Bytes size, const voi
  */
 
 // Dummies, but useful when templates are used
-void r_Endian::swap_array( r_Bytes size, const r_Octet *src, r_Octet *dest )
+void r_Endian::swap_array(__attribute__ ((unused)) r_Bytes size, __attribute__ ((unused)) const r_Octet *src, __attribute__ ((unused)) r_Octet *dest )
 {
 }
 
-void r_Endian::swap_array( r_Bytes size, const r_Char *src, r_Char *dest )
+void r_Endian::swap_array(__attribute__ ((unused)) r_Bytes size, __attribute__ ((unused)) const r_Char *src, __attribute__ ((unused)) r_Char *dest )
 {
 }
 
@@ -540,8 +540,8 @@ void r_Endian::swap_array( const r_Primitive_Type *type, const r_Minterval &srcD
     /// no, generic code...
     else
     {
-        r_Miter siter(&srcIterDom, &srcDom, (r_Long)step, (const char*)src);
-        r_Miter diter(&destIterDom, &destDom, (r_Long)step, (const char*)dest);
+        r_Miter siter(&srcIterDom, &srcDom, step, (const char*)src);
+        r_Miter diter(&destIterDom, &destDom, step, (const char*)dest);
 
         switch (type->type_id())
         {

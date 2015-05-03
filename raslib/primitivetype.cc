@@ -420,7 +420,7 @@ r_Primitive_Type::get_boolean( const char* cell ) const throw( r_Error )
         throw( err );
     }
 
-    return *((r_Boolean*)cell);
+    return *((r_Boolean*)const_cast<char*>(cell));
 }
 
 
@@ -435,7 +435,7 @@ r_Primitive_Type::get_char( const char* cell )    const throw( r_Error )
         throw( err );
     }
 
-    return *((r_Char*)cell);
+    return *((r_Char*)const_cast<char*>(cell));
 }
 
 
@@ -450,7 +450,7 @@ r_Primitive_Type::get_octet( const char* cell )   const throw( r_Error )
         throw( err );
     }
 
-    return *((r_Octet*)cell);
+    return *((r_Octet*)const_cast<char*>(cell));
 }
 
 
@@ -465,7 +465,7 @@ r_Primitive_Type::get_short( const char* cell )   const throw( r_Error )
         throw( err );
     }
 
-    return *((r_Short*)cell);
+    return *((r_Short*)const_cast<char*>(cell));
 }
 
 
@@ -480,7 +480,7 @@ r_Primitive_Type::get_ushort( const char* cell )  const throw( r_Error )
         throw( err );
     }
 
-    return *((r_UShort*)cell);
+    return *((r_UShort*)const_cast<char*>(cell));
 }
 
 
@@ -495,7 +495,7 @@ r_Primitive_Type::get_long( const char* cell )    const throw( r_Error )
         throw( err );
     }
 
-    return *((r_Long*)cell);
+    return *((r_Long*)const_cast<char*>(cell));
 }
 
 
@@ -510,7 +510,7 @@ r_Primitive_Type::get_ulong( const char* cell )   const throw( r_Error )
         throw( err );
     }
 
-    return *((r_ULong*)cell);
+    return *((r_ULong*)const_cast<char*>(cell));
 }
 
 
@@ -525,7 +525,7 @@ r_Primitive_Type::get_float( const char* cell )   const throw( r_Error )
         throw( err );
     }
 
-    return *((r_Float*)cell);
+    return *((r_Float*)const_cast<char*>(cell));
 }
 
 
@@ -540,7 +540,7 @@ r_Primitive_Type::get_double( const char* cell )  const throw( r_Error )
         throw( err );
     }
 
-    return *((r_Double*)cell);
+    return *((r_Double*)const_cast<char*>(cell));
 }
 
 void

@@ -34,7 +34,7 @@ QtUnaryOperation::setInput( QtOperation* inputNew )
 
   if( inputNew )
     inputNew->setParent( this );
-};
+}
 
 
 inline void
@@ -47,13 +47,13 @@ QtUnaryOperation::setInput( QtOperation* inputOld, QtOperation* inputNew )
     if( inputNew )
       inputNew->setParent( this );
   }
-};
+}
 
 
 inline QtOperation*
 QtUnaryOperation::getInput()
 {
   return input;
-};
+}
 
 

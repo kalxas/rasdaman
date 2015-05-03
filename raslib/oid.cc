@@ -76,7 +76,7 @@ r_OId::r_OId( const char* initOIdString )
         if( endPtr - startPtr >= 1 )
         {
             systemName = new char[ endPtr - startPtr + 1 ];
-            strncpy( systemName, startPtr, endPtr - startPtr );
+            strncpy( systemName, startPtr, static_cast<size_t>(endPtr - startPtr) );
             systemName[endPtr - startPtr] = '\0';
         }
 
@@ -89,7 +89,7 @@ r_OId::r_OId( const char* initOIdString )
             if( endPtr - startPtr >= 1 )
             {
                 baseName = new char[ endPtr - startPtr + 1 ];
-                strncpy( baseName, startPtr, endPtr - startPtr );
+                strncpy( baseName, startPtr, static_cast<size_t>(endPtr - startPtr) );
                 baseName[endPtr - startPtr] = '\0';
             }
 
@@ -284,7 +284,7 @@ r_OId::operator!=( const r_OId& oid ) const
 bool
 r_OId::operator> ( const r_OId& oid ) const
 {
-    int comparison;
+    int comparison = 0;
 
     if( systemName && oid.systemName )
     {
@@ -295,12 +295,14 @@ r_OId::operator> ( const r_OId& oid ) const
             comparison = strcmp( baseName, oid.baseName );
 
             if( !comparison )
+            {
                 if( localOId < oid.localOId )
                     comparison = -1;
                 else if( localOId == oid.localOId )
                     comparison = 0;
                 else
                     comparison = 1;
+            }
         }
     }
 
@@ -310,7 +312,7 @@ r_OId::operator> ( const r_OId& oid ) const
 bool
 r_OId::operator< ( const r_OId& oid ) const
 {
-    int comparison;
+    int comparison = 0;
 
     if( systemName && oid.systemName )
     {
@@ -321,12 +323,14 @@ r_OId::operator< ( const r_OId& oid ) const
             comparison = strcmp( baseName, oid.baseName );
 
             if( !comparison )
+            {
                 if( localOId < oid.localOId )
                     comparison = -1;
                 else if( localOId == oid.localOId )
                     comparison = 0;
                 else
                     comparison = 1;
+            }
         }
     }
 

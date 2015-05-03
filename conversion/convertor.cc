@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: convertor.cc
  *
@@ -103,6 +103,7 @@ r_Convertor::r_Convertor( const char *src, const r_Minterval &interv, const r_Ty
         case r_Type::SHORT:
             applyColorScheme<short>();
             break;
+        default: break;
         }
     }
 }
@@ -194,7 +195,7 @@ r_Type *r_Convertor::get_external_type( int ctype ) throw(r_Error)
 template <class baseType>
 void r_Convertor::applyColorScheme()
 {
-    baseType *data = (baseType*)desc.src;
+    baseType *data = (baseType*)const_cast<char*>(desc.src);
     baseType min=data[0], max=data[0];
     int i, size = desc.srcInterv.cell_count();
     unsigned char *t, *img = new unsigned char[size*3];
@@ -245,7 +246,7 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
         // make life easy and always interpret as RGB
         // add case for structs -- DM 2011-nov-10
 //        retval = ctype_rgb;
-        r_Structure_Type *st = (r_Structure_Type*) tp;
+        r_Structure_Type *st = (r_Structure_Type*) const_cast<r_Type*>(tp);
         r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
         int bands = 0;
         while (iter != st->defines_attribute_end())

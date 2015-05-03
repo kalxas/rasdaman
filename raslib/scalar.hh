@@ -66,7 +66,7 @@ public:
     virtual r_Scalar* clone() const=0;
 
     /// operator for assigning a scalar
-    virtual const r_Scalar& operator= ( const r_Scalar& );
+    const r_Scalar& operator= ( const r_Scalar& );
 
     /// debug output
     virtual void print_status(std::ostream& s) const = 0;

@@ -95,7 +95,7 @@ int Get_OpenMax( void )
     if( openmax == 0 )
     {
         errno = 0;
-        if( ( openmax = sysconf( _SC_OPEN_MAX ) ) < 0 )
+        if( ( openmax = static_cast<size_t>(sysconf( _SC_OPEN_MAX )) ) < 0 )
         {
             if( errno == 0 )
             {
@@ -103,10 +103,10 @@ int Get_OpenMax( void )
             }
             else
             {
-                /* sysconf() returned an error... strange, but...        */
-                /* Does it justify to break the program?                 */
-                /* Naah, I don't think so...  So we just print a note    */
-                /* and give back our "reasonable default"...             */
+                // sysconf() returned an error... strange, but...
+                // Does it justify to break the program?
+                // Naah, I don't think so...  So we just print a note
+                // and give back our "reasonable default"...
                 ErrorMsg( E_SYS, WARN, "WARN:  sysconf error for _SC_OPEN_MAX." );
                 openmax = OPEN_MAX_GUESS;
             }
@@ -180,7 +180,7 @@ char *PathAlloc( size_t *size )
     if( pathmax == 0 )
     {
         errno = 0;
-        if( ( pathmax = pathconf( "/", _PC_PATH_MAX ) ) < 0 )
+        if( ( pathmax = static_cast<size_t>(pathconf( "/", _PC_PATH_MAX )) ) < 0 )
         {
             if( errno == 0 )
             {
@@ -188,9 +188,9 @@ char *PathAlloc( size_t *size )
             }
             else
             {
-                /* pathconf() returned an error... strange, but...     */
-                /* See also Get_OpenMax().                             */
-                /* We give back our "reasonable default"...            */
+                // pathconf() returned an error... strange, but...
+                // See also Get_OpenMax().
+                // We give back our "reasonable default"...
                 ErrorMsg( E_SYS, WARN, "WARN:  pathconf error for _PC_PATH_MAX." );
                 pathmax = PATH_MAX_GUESS;
             }
@@ -261,7 +261,7 @@ int ReadN( register int fd, register char *ptr, register int nbytes )
     nleft = nbytes;
     while( nleft > 0 )
     {
-        nread = read( fd, ptr, nleft );
+        nread = read( fd, ptr, static_cast<size_t>(nleft) );
         if( nread < 0 )
             if( errno != EAGAIN )
                 return( nread );              /* error, return < 0 */
@@ -319,7 +319,7 @@ int WriteN( register int fd, register char *ptr, register int nbytes )
     nleft = nbytes;
     while( nleft > 0 )
     {
-        nwritten = write( fd, ptr, nleft );
+        nwritten = write( fd, ptr, static_cast<size_t>(nleft) );
         if( nwritten < 0 )
         {
             if( errno != EAGAIN )
@@ -426,7 +426,7 @@ rc_t ParseString( char *String, char *Token, ... )
     char    *Value;
     char    *NextToken;
     char    *NNextToken;
-    char    *Delim = (char*)" \t\n\r";                    /* Begrenzungszeichen          */
+    char    *Delim = const_cast<char*>(" \t\n\r");         /* Begrenzungszeichen          */
 
     if( ( String[0] == '#' ) ||                           /* Kommentar,                  */
             ( String[0] == '\n' ) ||                          /* oder Leerzeile?             */
@@ -506,7 +506,7 @@ int SNPrintf( char *String, size_t *Size, const char *Format, ... )
         va_end( ArgPtr );
 
         if( n >= 0 )
-            *Size = *Size - n;
+            *Size = *Size - static_cast<size_t>(n);
         else
             *Size = 0;
     }

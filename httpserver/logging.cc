@@ -33,7 +33,7 @@ rasdaman GmbH.
 extern struct Logging *LogBase;
 
 
-rc_t OpenLog( struct Logging *Log, char *AccessLog, char *ServerLog, char *CommLog )
+rc_t OpenLog( struct Logging *Log, __attribute__ ((unused)) char *AccessLog, __attribute__ ((unused)) char *ServerLog,__attribute__ ((unused)) char *CommLog )
 {
     /* removed this, we don't need this logs
     if( (Log->Mode & LF_STDERR) == LF_STDERR )  // Log to STDOUT/STDERR ?
@@ -143,7 +143,7 @@ void ErrorMsg( int errnoFlag, int ErrLevel, const char *ErrMsg, ... )
 }
 
 
-void LogMsg( int SubSys, int Level, const char *Msg, ... )
+void LogMsg( __attribute__ ((unused)) int SubSys,__attribute__ ((unused))  int Level, __attribute__ ((unused)) const char *Msg, ... )
 {
     return;
     /*
@@ -236,12 +236,12 @@ rc_t LogDate( char *Buffer, int BuffSize )
     if( TZoffset < 0 )
         TZoffset = -TZoffset;
 
-    strsize = strftime( Buffer, BuffSize, "[%d/%b/%Y:%H:%M:%S ", ltime );
-    if( strsize >= BuffSize-6 || strsize == 0 )
+    strsize = strftime( Buffer, static_cast<size_t>(BuffSize), "[%d/%b/%Y:%H:%M:%S ", ltime );
+    if( strsize >= static_cast<size_t>(BuffSize)-6 || strsize == 0 )
         return( ERROR );
     else
     {
-        RestSize = BuffSize-strsize;
+        RestSize = static_cast<size_t>(BuffSize)-strsize;
         SNPrintf( Buffer+strsize, &RestSize, "%c%.2d%.2d]",
                   sign, TZoffset/60, TZoffset%60 );
         return( OK );

@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: jpeg.cc
  *
@@ -108,7 +108,7 @@ extern "C" {
         }
         mptr->bufferSize = JPEG_IO_BUFFER_SIZE;
         cptr->dest->next_output_byte = mptr->buffer;
-        cptr->dest->free_in_buffer = mptr->bufferSize;
+        cptr->dest->free_in_buffer = static_cast<size_t>(mptr->bufferSize);
     }
 
 
@@ -120,7 +120,7 @@ extern "C" {
         if (memfs_write(mptr->handle, mptr->buffer, mptr->bufferSize) == mptr->bufferSize)
         {
             cptr->dest->next_output_byte = mptr->buffer;
-            cptr->dest->free_in_buffer = mptr->bufferSize;
+            cptr->dest->free_in_buffer = static_cast<size_t>(mptr->bufferSize);
             retval=TRUE;
         }
         return retval;
@@ -165,7 +165,7 @@ extern "C" {
 
         if ((read_bytes = memfs_chunk_read(mptr->handle, mptr->buffer, mptr->bufferSize)) != 0)
         {
-            dptr->src->bytes_in_buffer = read_bytes;
+            dptr->src->bytes_in_buffer = static_cast<size_t>(read_bytes);
         }
         else
         {
@@ -184,20 +184,20 @@ extern "C" {
     {
         my_decompress_struct *mptr = (my_decompress_struct*)dptr;
 
-        if (num_bytes < dptr->src->bytes_in_buffer)
+        if (num_bytes < static_cast<long>(dptr->src->bytes_in_buffer))
         {
             dptr->src->next_input_byte += num_bytes;
-            dptr->src->bytes_in_buffer -= num_bytes;
+            dptr->src->bytes_in_buffer -= static_cast<unsigned long>(num_bytes);
         }
         else
         {
             int read_bytes=0;
 
-            num_bytes -= dptr->src->bytes_in_buffer;
+            num_bytes -= static_cast<long>(dptr->src->bytes_in_buffer);
             dptr->src->next_input_byte = mptr->buffer;
             while (num_bytes >= mptr->bufferSize)
             {
-                memfs_chunk_seek(mptr->handle, mptr->bufferSize, SEEK_CUR);
+                memfs_chunk_seek(mptr->handle, static_cast<toff_t>(mptr->bufferSize), SEEK_CUR);
                 num_bytes -= mptr->bufferSize;
             }
             read_bytes = memfs_chunk_read(mptr->handle, mptr->buffer, mptr->bufferSize);
@@ -210,7 +210,7 @@ extern "C" {
             else
             {
                 dptr->src->next_input_byte = mptr->buffer + num_bytes;
-                dptr->src->bytes_in_buffer = read_bytes - num_bytes;
+                dptr->src->bytes_in_buffer = static_cast<size_t>(read_bytes - num_bytes);
             }
         }
     }
@@ -399,6 +399,7 @@ r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
                 *rowPtr++ = srcPtr[2];
             }
             break;
+        default: break;
         }
         jpeg_write_scanlines(cptr, row_pointers, 1);
     }
@@ -412,7 +413,7 @@ r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
 
     jpegSize = memfs_size(handle);
 
-    if ((desc.dest = (char*)mystore.storage_alloc(jpegSize)) == NULL)
+    if ((desc.dest = (char*)mystore.storage_alloc(static_cast<size_t>(jpegSize))) == NULL)
     {
         RMInit::logOut << "r_Conv_JPEG::convertTo(" << options << "): out of memory" << endl;
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -479,7 +480,7 @@ r_convDesc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
 
     jpeg_create_decompress(dptr);
 
-    memfs_chunk_initfs(handle, (char*)desc.src, (r_Long)(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
+    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), (r_Long)(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
 
     srcMgr.init_source = sm_init_source;
     srcMgr.fill_input_buffer = sm_fill_input_buffer;
@@ -512,7 +513,7 @@ r_convDesc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
     spp = (int)(dptr->output_components);
 
     row = new JSAMPLE[width * spp];
-    desc.dest = (char*)mystore.storage_alloc(width * height * spp);
+    desc.dest = (char*)mystore.storage_alloc(static_cast<size_t>(width * height * spp));
 
     if ((row == NULL) || (desc.dest == NULL))
     {
@@ -537,17 +538,18 @@ r_convDesc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
         case 1:
             for (i=0; i<width; i++, destPtr += pixelAdd)
             {
-                *destPtr = *rowPtr++;
+                *destPtr = (char)*rowPtr++;
             }
             break;
         case 3:
             for (i=0; i<width; i++, destPtr += pixelAdd)
             {
-                destPtr[0] = *rowPtr++;
-                destPtr[1] = *rowPtr++;
-                destPtr[2] = *rowPtr++;
+                destPtr[0] = (char)*rowPtr++;
+                destPtr[1] = (char)*rowPtr++;
+                destPtr[2] = (char)*rowPtr++;
             }
             break;
+            default: break;
         }
     }
 

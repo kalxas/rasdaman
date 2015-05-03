@@ -51,4 +51,4 @@ inline void
 QtMarrayOp2::setOldMarray( bool value )
 {
   oldMarray = value;
-};
+}

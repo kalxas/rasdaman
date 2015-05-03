@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: callbackmgr.hh
  *
@@ -137,7 +137,7 @@ int CallBackManager::removeCallback(callback_f function, void *context)
     if (i != -1)
     {
         if (i < (int)numPending-1)
-            memmove(callbacks+i, callbacks+(i+1), (numPending-i-1)*sizeof(callback_desc_t));
+            memmove(callbacks+i, callbacks+(i+1), (numPending-static_cast<unsigned int>(i)-1)*sizeof(callback_desc_t));
         numPending--;
         return 0;
     }
@@ -173,5 +173,5 @@ int CallBackManager::executePending(void)
     i = numPending;
     numPending = 0;
 
-    return i;
+    return static_cast<int>(i);
 }

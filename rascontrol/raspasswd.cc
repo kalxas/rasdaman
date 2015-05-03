@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: raspasswd.cc
  *
@@ -117,13 +117,13 @@ int main(int argc, char **argv)
     return 0;
 }
 
-bool execute(const char *message)
+bool execute(const char *msg)
 {
     bool result = true;             // function result
     int comm = 0;               // COMM_* values
     const char *answer = NULL;          // rasmgr response
 
-    comm = rasmgrComm.sendMessageGetAnswer(message, &answer);
+    comm = rasmgrComm.sendMessageGetAnswer(msg, &answer);
 
     switch(comm)
     {
@@ -147,7 +147,7 @@ const char* getPasswdKeyboard(const char*text, char*dest)
 {
     char *plainPass=getpass(text);
     messageDigest(plainPass,dest,"MD5");
-    for(int i=0; i<strlen(plainPass); i++) plainPass[i]=0;
+    for(unsigned int i=0; i<strlen(plainPass); i++) plainPass[i]=0;
     //cout<<endl;
     return dest;
 }

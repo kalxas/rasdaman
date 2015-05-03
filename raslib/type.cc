@@ -134,7 +134,7 @@ r_Type::isOidType() const
 r_Type*
 r_Type::get_any_type(const char* type_string)
 {
-    char*   pos         = (char*)type_string;
+    char*   pos         = const_cast<char*>(type_string);
     char*   identifier  = NULL;
     r_Type* returnValue = NULL;
     DLTOKEN token = DLUNKNOWN;
@@ -303,7 +303,7 @@ r_Type::getNextToken(char* &pos, char* &identifier)
         while(isalnum(*pos) || *pos == '-' || *pos == '_') pos++;
 
         identifier = new char[pos-beginPos+1];
-        strncpy(identifier, beginPos, pos-beginPos);
+        strncpy(identifier, beginPos, static_cast<size_t>(pos-beginPos));
         identifier[pos-beginPos] = '\0';
     }
 
@@ -502,7 +502,7 @@ r_Type::getStructureType(char* &pos, int offset)
         r_Base_Type* type = getBaseType(pos, localOffset);
 
         // adjust local offset
-        localOffset += type->size();
+        localOffset += static_cast<int>(type->size());
 
         // get optional name
         token = getNextToken(pos, identifier);
@@ -542,7 +542,7 @@ r_Type::getStructureType(char* &pos, int offset)
         }
     }
 
-    returnValue = new r_Structure_Type("Structure", noAttributes, attributes, offset);
+    returnValue = new r_Structure_Type("Structure", static_cast<unsigned int>(noAttributes), attributes, offset);
 
     if(attributes)
         delete[] attributes;

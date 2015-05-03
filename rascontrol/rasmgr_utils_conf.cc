@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_utils_conf.hh
  *
@@ -42,7 +42,7 @@ ConfigurationBase::ConfigurationBase()
 {
 }
 
-bool ConfigurationBase::interpretArguments(int argc, char **argv)
+bool ConfigurationBase::interpretArguments(__attribute__ ((unused)) int argc, __attribute__ ((unused)) char **argv)
 {
     return false;
 }

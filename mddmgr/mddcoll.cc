@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: mddcoll.cc
  *
@@ -156,19 +156,19 @@ void
 MDDColl::insertIntoCache(const MDDObj* objToInsert) const
 {
     RMDBGONCE(2, RMDebug::module_mddmgr, "MDDColl", "insertIntoCache(" << (r_Ptr)objToInsert << ")")
-    mddCache[objToInsert->getDBMDDObjId().ptr()] = (MDDObj*)objToInsert;
+    mddCache[objToInsert->getDBMDDObjId().ptr()] = const_cast<MDDObj*>(objToInsert);
 }
 
 MDDObj*
 MDDColl::getMDDObj(const DBMDDObj* objToGet) const
 {
     MDDObj* persMDDObjToGet = NULL;
-    MDDObjMap::const_iterator i = mddCache.find((DBMDDObj*)objToGet);
+    MDDObjMap::const_iterator i = mddCache.find(const_cast<DBMDDObj*>(objToGet));
     if (i != mddCache.end())
         persMDDObjToGet = (MDDObj*)(*i).second;
     else
     {
-        persMDDObjToGet = new MDDObj((DBMDDObj*)objToGet);
+        persMDDObjToGet = new MDDObj(const_cast<DBMDDObj*>(objToGet));
         insertIntoCache(persMDDObjToGet);
     }
     return persMDDObjToGet;
@@ -185,7 +185,7 @@ MDDColl::printStatus(unsigned int level, std::ostream& stream) const
 {
     dbColl->printStatus(level, stream);
     char* indent = new char[level*2 +1];
-    for (int j = 0; j < level*2 ; j++)
+    for (unsigned int j = 0; j < level*2 ; j++)
         indent[j] = ' ';
     indent[level*2] = '\0';
     stream << indent;
@@ -200,7 +200,7 @@ MDDColl::printStatus(unsigned int level, std::ostream& stream) const
 MDDCollIter*
 MDDColl::createIterator() const
 {
-    MDDCollIter* iter = new MDDCollIter((MDDColl*)this);
+    MDDCollIter* iter = new MDDCollIter(const_cast<MDDColl*>(this));
     return iter;
 }
 
@@ -362,7 +362,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
         Tile* transTile = 0;
         char* transName = 0;
         const char* nameBuffer = 0;
-        r_Range namelen = 0;
+        size_t namelen = 0;
         while (!list->empty())
         {
             dbset = *(list->begin());

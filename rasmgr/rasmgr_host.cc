@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_host.cc
  *
@@ -107,15 +107,15 @@ bool  ServerHost::isInternal()
     return isinternal;
 }
 
-void  ServerHost::init(const char* hostName,const char* netwName,int listenPort,bool isinternal)
+void  ServerHost::init(const char* newHostName,const char* newNetwName,int newListenPort,bool newIsinternal)
 {
-    strcpy(this->hostName,hostName);
-    strcpy(this->netwName,netwName);
+    strcpy(this->hostName,newHostName);
+    strcpy(this->netwName,newNetwName);
 
-    this->listenPort=listenPort;
-    this->isinternal=isinternal;
+    this->listenPort=newListenPort;
+    this->isinternal=newIsinternal;
 
-    isup = isinternal;
+    isup = newIsinternal;
 
     valid=true;
     TALK( "ServerHost::init(): hostName=" << this->hostName << ", netwName=" << this->netwName << ", listenPort=" << this->listenPort << ", isinternal=" << this->isinternal << ", valid=" << valid );
@@ -414,7 +414,7 @@ bool HostManager::removeHost(const char *hostName)
     ENTER( "HostManager::removeHost( hostName=" << hostName << " )" );
 
     list<ServerHost>::iterator iter=hostList.begin();
-    for(int i=0; i<hostList.size(); i++)
+    for(unsigned int i=0; i<hostList.size(); i++)
     {
         if(hostCmp(iter->getName(),hostName))
         {
@@ -453,7 +453,7 @@ ServerHost& HostManager::operator[](const char* hostName)
     ENTER( "HostManager::operator[] ( hostName=" << hostName << " )" );
 
     list<ServerHost>::iterator iter=hostList.begin();
-    for(int i=0; i<hostList.size(); i++)
+    for(unsigned int i=0; i<hostList.size(); i++)
     {
         if(hostCmp(iter->getName(),hostName))
         {
@@ -476,7 +476,7 @@ int HostManager::countUpHosts()
 {
     int count=0;
     list<ServerHost>::iterator iter=hostList.begin();
-    for(int i=0; i<hostList.size(); i++)
+    for(unsigned int i=0; i<hostList.size(); i++)
     {
         if(iter->isUp())
             count++;
@@ -488,7 +488,7 @@ int HostManager::countUpHosts()
 bool HostManager::testUniqueness(const char* hostName)
 {
     list<ServerHost>::iterator iter=hostList.begin();
-    for(int i=0; i<hostList.size(); i++)
+    for(unsigned int i=0; i<hostList.size(); i++)
     {
         if(hostCmp(iter->getName(),hostName))
             return false;
@@ -531,7 +531,7 @@ int HostManager::postSlaveMGR(char *body,char *outBuffer)
     }
     while(0);
 
-    sprintf(outBuffer,"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n%s",strlen(answBuffer)+1,answBuffer);
+    sprintf(outBuffer,"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%s",strlen(answBuffer)+1,answBuffer);
 
     return strlen(outBuffer)+1;
 }
@@ -547,7 +547,7 @@ bool HostManager::reset()
     }
 
     list<ServerHost>::iterator iter=hostList.begin();
-    for(int i=0; i<hostList.size(); i++,iter++)
+    for(unsigned int i=0; i<hostList.size(); i++,iter++)
     {
         if(iter->countDefinedServers()>0)
         {
@@ -576,7 +576,7 @@ bool HostManager::acceptChangeName(const char *oldName,const char *newName)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-void rpcif_1(struct svc_req *rqstp, register SVCXPRT *transp)
+void rpcif_1(__attribute__ ((unused)) struct svc_req *rqstp, __attribute__ ((unused)) register SVCXPRT *transp)
 {
     // this function is registered by rpc-system. No one can use it, because it's never called
     //(we do not have a svc_run() - call, thus it's not doing anything

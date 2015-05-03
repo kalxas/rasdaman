@@ -49,13 +49,13 @@ r_Point_Type::type_id() const
 }
 
 void
-r_Point_Type::convertToLittleEndian(char* cells, r_Area noCells)
+r_Point_Type::convertToLittleEndian(__attribute__ ((unused)) char* cells, __attribute__ ((unused)) r_Area noCells)
 const
 {
 }
 
 void
-r_Point_Type::convertToBigEndian(char* cells, r_Area noCells) const
+r_Point_Type::convertToBigEndian(__attribute__ ((unused)) char* cells, __attribute__ ((unused)) r_Area noCells) const
 {
 }
 

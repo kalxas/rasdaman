@@ -101,7 +101,7 @@ int ReadHeader( int SockFD, char **Buffer, size_t *BuffSize )
         }
 
         Ptr = *Buffer + sumread;
-        nread = read( SockFD, Ptr, 1 );
+        nread = static_cast<size_t>(read( SockFD, Ptr, 1 ));
         if( nread == 1 )
         {
             elapsed = 0;          /*  Clear timeout counter  */
@@ -137,7 +137,7 @@ int ReadHeader( int SockFD, char **Buffer, size_t *BuffSize )
             }
             else
             {
-                sleep( elapsed );
+                sleep( static_cast<unsigned int>(elapsed) );
                 if( elapsed >= 30 )
                 {
                     ErrorMsg( E_PRIV, ERROR, "ERROR: ReadHeader() timed out." );
@@ -209,7 +209,7 @@ char *ReadBody( int SockFD, size_t BuffSize )
         Buffer = NULL;
         return( Buffer );
     }
-    else if( nread < BuffSize )
+    else if( nread < static_cast<int>(BuffSize) )
     {
         ErrorMsg( E_PRIV, WARN, "WARN:  MessageBody not of expected size." );
     }
@@ -886,7 +886,7 @@ size_t GetContentLength( struct MsgHeader *Ptr )
     while( Ptr != NULL )
     {
         if( Ptr->Field == HKEY_Content_Length )
-            return( strtol( Ptr->Content, NULL, 10 ) );
+            return( static_cast<size_t>(strtol( Ptr->Content, NULL, 10 )) );
         Ptr = Ptr->Next;
     }
     return( 0 );
@@ -970,12 +970,12 @@ int GetRealm( char *String )
 {
     struct KeywordKey RealmKeyTable[] =
     {
-        { "httpserver-IPClass-A", REALM_IPCLASS_A },
-        { "httpserver-IPClass-B", REALM_IPCLASS_B },
-        { "httpserver-IPClass-C", REALM_IPCLASS_C },
-        { "httpserver-IPAddress", REALM_IPADDRESS },
-        { "httpserver-Hostname",  REALM_HOSTNAME },
-        { "httpserver-Domain",    REALM_DOMAIN },
+        { const_cast<char*>("httpserver-IPClass-A"), REALM_IPCLASS_A },
+        { const_cast<char*>("httpserver-IPClass-B"), REALM_IPCLASS_B },
+        { const_cast<char*>("httpserver-IPClass-C"), REALM_IPCLASS_C },
+        { const_cast<char*>("httpserver-IPAddress"), REALM_IPADDRESS },
+        { const_cast<char*>("httpserver-Hostname"),  REALM_HOSTNAME },
+        { const_cast<char*>("httpserver-Domain"),    REALM_DOMAIN },
     };
 #define NUM_REALMS 6
 

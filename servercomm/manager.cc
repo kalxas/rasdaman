@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: manager.cc
  *
@@ -88,13 +88,13 @@ extern "C" {
 // Section for global variables pointing to RPC return data.
 //
 static GetExtendedErrorInfo rpcExtendedErrorInfo  = { 0, 0};
-static ServerVersionRes    rpcServerVersionRes    = { 0, 0};
+static ServerVersionRes    rpcServerVersionRes    = { 0, 0, 0};
 static u_short             rpcDummy               = 0;
 static OpenDBRes           rpcOpenDBRes           = { 0, 0};
 
 static ServerStatRes       rpcServerStatRes       = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, { 0, 0 } };
 static ExecuteQueryRes     rpcExecuteQueryRes     = { 0, 0, 0, 0, 0, 0, 0 };
-static GetMDDRes           rpcGetMDDRes           = { 0, 0, 0, 0, 0 };
+static GetMDDRes           rpcGetMDDRes           = { 0, 0, 0, 0, 0, 0 };
 static GetElementRes       rpcGetElementRes       = { 0, { 0, 0 } };
 static GetTileRes          rpcGetTileRes          = { 0, 0 };
 static ExecuteUpdateRes    rpcExecuteUpdateRes    = { 0, 0, 0, 0, 0 };
@@ -111,7 +111,7 @@ void freeDynamicRPCData()
     // rpcserverstat
     if( rpcServerStatRes.clientTable.clientTable_len )
     {
-        for( int i=0; i<rpcServerStatRes.clientTable.clientTable_len; i++ )
+        for( unsigned int i=0; i<rpcServerStatRes.clientTable.clientTable_len; i++ )
         {
             free( rpcServerStatRes.clientTable.clientTable_val[i].clientIdText );
             free( rpcServerStatRes.clientTable.clientTable_val[i].userName );
@@ -189,7 +189,7 @@ void freeDynamicRPCData()
 
     if( rpcGetCollOidsRes.oidTable.oidTable_len )
     {
-        for( int i=0; i<rpcGetCollOidsRes.oidTable.oidTable_len; i++ )
+        for( unsigned int i=0; i<rpcGetCollOidsRes.oidTable.oidTable_len; i++ )
             free( rpcGetCollOidsRes.oidTable.oidTable_val[i].oid );
 
         free( rpcGetCollOidsRes.oidTable.oidTable_val );
@@ -1757,7 +1757,7 @@ static void callback_garbage_collection(void *context)
         {
             list<ServerComm::ClientTblElt*>::iterator iter;
             iter = sc->clientTbl.begin();
-            unsigned long now = time( NULL );
+            unsigned long now = static_cast<long unsigned int>(time( NULL ));
 
             RMDBGONCE(2, RMDebug::module_servercomm, "Manager", "checking " << sc->clientTbl.size() << " clients..." );
             while ( iter != sc->clientTbl.end() )
@@ -1903,13 +1903,13 @@ RPCFUNCTIONDEF( rpcsetservertransfer_1, SetServerTransferParams* params )
 extern "C"
 #endif
 GetExtendedErrorInfo *
-RPCFUNCTIONDEF( rpcgeterrorinfo_1, void * params )
+RPCFUNCTIONDEF( rpcgeterrorinfo_1, __attribute__ ((unused)) void * params )
 {
     freeDynamicRPCData();
 
     ServerComm* sc = ServerComm::actual_servercomm;
 
-    rpcExtendedErrorInfo.errorText = (char*) sc->getExtendedErrorInfo();
+    rpcExtendedErrorInfo.errorText = const_cast<char*>(sc->getExtendedErrorInfo());
 
     return &rpcExtendedErrorInfo;
 }

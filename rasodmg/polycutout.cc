@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: polycutout.cc
  *
@@ -204,6 +204,7 @@ r_Point r_SegmentIterator::createCurrentPoint()
     case 7:
         rcy=-rcy;
         break;
+    default: break;
     }
     //std::cout<<"cCP: cx="<<cx<<" cy="<<cy<<" rx="<<rcx<<" ry="<<rcy<<" cadran="<<cadran<<std::endl;
     return r_Point(start[0] + rcx, start[1] + rcy);
@@ -304,14 +305,14 @@ bool r_PolygonCutOut::compute()
 
     list<r_Polygon>::iterator polyIter = polygons.begin();
 
-    for(int i = 0; i < polygons.size(); i++, polyIter++)
+    for(unsigned int i = 0; i < polygons.size(); i++, polyIter++)
     {
         r_Polygon &currPolygon = *polyIter;
 
         const std::vector<r_Edge>& edges    = currPolygon.getEdges();
         std::vector<r_Edge>::const_iterator edgeIterator = edges.begin();
 
-        for(int j = 0; j < edges.size(); j++,edgeIterator++)
+        for(unsigned int j = 0; j < edges.size(); j++,edgeIterator++)
         {
             r_Point start = edgeIterator->getStart();
             r_Point end   = edgeIterator->getEnd();
@@ -377,7 +378,7 @@ int r_PolygonCutOut::computeTableWidth()
     int nodes      = 0;
     int horizEdges = 0;
 
-    for(int i=0; i<polygons.size(); i++, iter++)
+    for(unsigned int i=0; i<polygons.size(); i++, iter++)
     {
         r_Polygon &polygon = *iter;
 
@@ -444,7 +445,8 @@ void r_PolygonCutOut::minimizeLine(int line)
         if(tLine[i].inside==inside) level++;
         else                        level--;
 
-        if(level!=0) tLine[i].inside=0; // means disabled
+        if(level != 0)
+            tLine[i].inside=0; // means disabled
     }
 
     int s,d;

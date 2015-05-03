@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: png.cc
  *
@@ -96,13 +96,13 @@ extern "C" {
     /* Customized error handling */
     static void *png_user_error_ptr = NULL;
 
-    static void png_user_warning_fn(png_struct *png_ptr, const char *warning_msg)
+    static void png_user_warning_fn(__attribute__ ((unused)) png_struct *png_ptr, const char *warning_msg)
     {
         fprintf(stdout, "r_Conv_PNG warning: %s\n", warning_msg);
         fflush(stdout);
     }
 
-    static void png_user_error_fn(png_struct *png_ptr, const char *error_msg)
+    static void png_user_error_fn(__attribute__ ((unused)) png_struct *png_ptr, const char *error_msg)
     {
         fprintf(stderr, "r_Conv_PNG error: %s\n", error_msg);
         // return from this routine, exception will be thrown in setjmp code
@@ -145,7 +145,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
 
     png_struct *write_ptr=NULL;
     png_info *info_ptr = NULL;
-    int i=0, j=0;
+    unsigned int i=0, j=0;
     png_uint_32 width=0, height=0;
     int colourType=0, compType=0;
     int spp=0, bps=0, lineAdd=0, pixelAdd=0;
@@ -204,8 +204,8 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
     compType = PNG_COMPRESSION_TYPE_BASE;
 
     // Size
-    width  = desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1;
-    height = desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1;
+    width  = static_cast<png_uint_32>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
+    height = static_cast<png_uint_32>(desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1);
 
 // fix compiling with newer versions of libpng (1.4 and newer) -- DM 18-oct-2011
 // http://www.libpng.org/pub/png/src/libpng-1.2.x-to-1.4.x-summary.txt
@@ -228,7 +228,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
         sig_bit.gray = 1;
         if (transpFound)
         {
-            itemsScanned = sscanf( trans_string, " %hi ", &(info_ptr->trans_vals.gray) );
+            itemsScanned = sscanf( trans_string, " %hu ", &(info_ptr->trans_vals.gray) );
             if (itemsScanned == 1)          // all required items found?
             {
                 info_ptr->valid |= PNG_INFO_tRNS; // activate tRNS chunk
@@ -250,7 +250,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
         sig_bit.gray = 8;
         if (transpFound)
         {
-            itemsScanned = sscanf( trans_string, " %hi ", &(info_ptr->trans_vals.gray) );
+            itemsScanned = sscanf( trans_string, " %hu ", &(info_ptr->trans_vals.gray) );
             if (itemsScanned == 1)          // all required items found?
             {
                 info_ptr->valid |= PNG_INFO_tRNS; // activate tRNS chunk
@@ -275,7 +275,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
         sig_bit.blue = 8;
         if (transpFound)
         {
-            itemsScanned = sscanf( trans_string, " ( %hi ; %hi ; %hi ) ", &(info_ptr->trans_vals.red), &(info_ptr->trans_vals.green), &(info_ptr->trans_vals.blue) );
+            itemsScanned = sscanf( trans_string, " ( %hu ; %hu ; %hu ) ", &(info_ptr->trans_vals.red), &(info_ptr->trans_vals.green), &(info_ptr->trans_vals.blue) );
             if (itemsScanned == 3)          // all required items found?
             {
                 info_ptr->valid |= PNG_INFO_tRNS; // activate tRNS chunk
@@ -292,7 +292,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
         RMInit::logOut << "ctype_struct" << endl;
         // check first if it's 4 char bands
         {
-            r_Structure_Type *st = (r_Structure_Type*) desc.srcType;
+            r_Structure_Type *st = (r_Structure_Type*) const_cast<r_Type*>(desc.srcType);
             r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
             int bands = 0;
             while (iter != st->defines_attribute_end())
@@ -362,7 +362,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
     png_byte *row=NULL, *rowPtr=NULL;
     const unsigned char *src=NULL, *srcPtr=NULL;
 
-    row = new png_byte[((bps * spp * width + 7) >> 3)];
+    row = new png_byte[((bps * spp * (int)width + 7) >> 3)];
     src = (const unsigned char*)(desc.src);
 
     for (j=0; j<height; j++)
@@ -422,6 +422,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
             }
         }
         break;
+        default: break;
         }
 
         png_write_row(write_ptr, row);
@@ -473,7 +474,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
 
     r_Long pngSize = memfs_size(handle);
 
-    if ((desc.dest = (char*)mystore.storage_alloc(pngSize)) == NULL)
+    if ((desc.dest = (char*)mystore.storage_alloc(static_cast<size_t>(pngSize))) == NULL)
     {
         RMInit::logOut << "Error: " << method_convertTo << ": out of memory." << endl;
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -496,12 +497,12 @@ r_convDesc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
 {
     png_struct *read_ptr=NULL;
     png_info *info_ptr = NULL;
-    int i=0, j=0, pass=0, numPasses=0;
+    int pass=0, numPasses=0;
     png_uint_32 width=0, height=0, pitch=0;
     int colourType=0, interlaceType=0, compType=0, filterType=0;
     int spp=0, bps=0, lineAdd=0, pixelAdd=0;
 
-    i = 0;
+    unsigned int i = 0, j=0;
     read_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, png_user_error_ptr, png_user_error_fn, png_user_warning_fn);
     if (read_ptr == NULL) i=1;
     else
@@ -521,7 +522,7 @@ r_convDesc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
         throw r_Error(r_Error::r_Error_General);
     }
 
-    memfs_chunk_initfs(handle, (char*)desc.src, (r_Long)(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
+    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), (r_Long)(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
 
     desc.dest = NULL;
 
@@ -654,6 +655,7 @@ r_convDesc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
                 }
             }
             break;
+            default: break;
             }
         }
     }

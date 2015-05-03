@@ -72,7 +72,7 @@ public:
     virtual r_Scalar* clone() const;
 
     /// operator for assigning a primitive
-    virtual const r_Complex& operator =(const r_Complex&);
+    const r_Complex& operator =(const r_Complex&);
 
     r_Double get_re() const throw(r_Error);
     r_Double get_im() const throw(r_Error);

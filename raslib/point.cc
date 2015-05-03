@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: point.cc
  *
@@ -46,17 +46,17 @@ static const char rcsid[] = "@(#)raslib, r_Point: $Id: point.cc,v 1.22 2002/08/2
 #include "raslib/error.hh"
 
 r_Point::r_Point( char* stringRep ) throw (r_Error)
-    : dimensionality(1), streamInitCnt(0), points(NULL)
+    : points(NULL), dimensionality(1), streamInitCnt(0)
 {
     char    charToken = 0;
     r_Range valueToken = 0;
 
     // for parsing the string
-    std::istrstream str( stringRep, strlen(stringRep) + 1 );
+    std::istrstream str( stringRep, static_cast<std::streamsize>(strlen(stringRep)) + 1 );
 
     // calculate dimensionality
     char* p = stringRep;
-    while(p = strchr(++p, ','))
+    while((p = strchr(++p, ',')))
         dimensionality++;
 
     // allocate space for intervals
@@ -164,17 +164,17 @@ r_Point::r_Point( r_Range p1, r_Range p2, r_Range p3, r_Range p4, r_Range p5 )
 
 
 r_Point::r_Point()
-    : dimensionality(0),
-      streamInitCnt(0),
-      points(NULL)
+    : points(NULL),
+      dimensionality(0),
+      streamInitCnt(0)
 {
 }
 
 
 r_Point::r_Point( const r_Point& pt )
-    :   dimensionality(pt.dimensionality),
-        streamInitCnt(pt.streamInitCnt),
-        points(new r_Range[pt.dimensionality])
+    :   points(new r_Range[pt.dimensionality]),
+        dimensionality(pt.dimensionality),
+        streamInitCnt(pt.streamInitCnt)
 {
     for( r_Dimension i=0; i<dimensionality; i++ )
         points[i] = pt[i];
@@ -194,7 +194,7 @@ r_Point::~r_Point()
 r_Range
 r_Point::operator[]( r_Dimension i ) const throw( r_Eindex_violation )
 {
-    if( i < 0 || i >= dimensionality )
+    if( i >= dimensionality )
     {
         RMInit::logOut << "r_Point::operator[](" << i << ") const dimension out of bounds (" << dimensionality << ")" << endl;
         throw r_Eindex_violation( 0, dimensionality-1, i );
@@ -207,7 +207,7 @@ r_Point::operator[]( r_Dimension i ) const throw( r_Eindex_violation )
 r_Range&
 r_Point::operator[]( r_Dimension i ) throw( r_Eindex_violation )
 {
-    if( i < 0 || i >= dimensionality )
+    if( i >= dimensionality )
     {
         RMInit::logOut << "r_Point::operator[](" << i << ") dimension out of bounds (" << dimensionality << ")" << endl;
         throw r_Eindex_violation( 0, dimensionality-1, i );
@@ -351,7 +351,7 @@ r_Point::get_string_representation() const
 
     // allocate buffer and initialize string stream
     char* buffer = new char[bufferSize];
-    std::ostrstream domainStream( buffer, bufferSize );
+    std::ostrstream domainStream( buffer, static_cast<int>(bufferSize) );
 
     // write into string stream
     domainStream << (*this) << std::ends;

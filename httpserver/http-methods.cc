@@ -36,13 +36,13 @@ rasdaman GmbH.
 
 struct KeywordKey MethodKeyTable[] =
 {
-    { (char*)"GET",      MKEY_GET },
-    { (char*)"HEAD",     MKEY_HEAD },
-    { (char*)"PUT",      MKEY_PUT },
-    { (char*)"POST",     MKEY_POST },
-    { (char*)"DELETE",   MKEY_DELETE },
-    { (char*)"OPTIONS",  MKEY_OPTIONS },
-    { (char*)"TRACE",    MKEY_TRACE },
+    { const_cast<char*>("GET"),      MKEY_GET },
+    { const_cast<char*>("HEAD"),     MKEY_HEAD },
+    { const_cast<char*>("PUT"),      MKEY_PUT },
+    { const_cast<char*>("POST"),     MKEY_POST },
+    { const_cast<char*>("DELETE"),   MKEY_DELETE },
+    { const_cast<char*>("OPTIONS"),  MKEY_OPTIONS },
+    { const_cast<char*>("TRACE"),    MKEY_TRACE },
 };
 
 

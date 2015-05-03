@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_dbm.cc
  *
@@ -73,25 +73,25 @@ const char* DatabaseHost::getPasswd()
     return passwdString;
 }
 
-void  DatabaseHost::changeConnectionString(const char *connectString)
+void  DatabaseHost::changeConnectionString(const char *newConnectString)
 {
-    strcpy(this->connectString,connectString);
+    strcpy(this->connectString,newConnectString);
 }
 void DatabaseHost::changeName(const char *newName)
 {
     strcpy(hostName,newName);
 }
 
-void  DatabaseHost::init(const char* hostName,const char* connectString,const char* userString,const char* passwdString)
+void  DatabaseHost::init(const char* newHostName,const char* newConnectString,const char* newUserString,const char* newPasswdString)
 {
-    strcpy(this->hostName,hostName);
-    strcpy(this->connectString,connectString);
-    if (userString != NULL && strlen(userString) > 0)
-        strcpy(this->userString,userString);
+    strcpy(this->hostName,newHostName);
+    strcpy(this->connectString,newConnectString);
+    if (newUserString != NULL && strlen(newUserString) > 0)
+        strcpy(this->userString,newUserString);
     else
         this->userString[0] = '\0';
-    if (passwdString != NULL && strlen(passwdString) > 0)
-        strcpy(this->passwdString,passwdString);
+    if (newPasswdString != NULL && strlen(newPasswdString) > 0)
+        strcpy(this->passwdString,newPasswdString);
     else
         this->passwdString[0] = '\0';
     valid=true;
@@ -169,7 +169,7 @@ bool DatabaseHostManager::insertNewHost(const char* hostName,const char* connect
 bool DatabaseHostManager::removeHost(const char* hostName)
 {
     list<DatabaseHost>::iterator iter=hostList.begin();
-    for(int i=0; i<hostList.size(); i++)
+    for(unsigned int i=0; i<hostList.size(); i++)
     {
         if(hostCmp(iter->getName(),hostName))
         {
@@ -188,7 +188,7 @@ bool DatabaseHostManager::removeHost(const char* hostName)
 bool DatabaseHostManager::testUniqueness(const char* hostName)
 {
     list<DatabaseHost>::iterator iter=hostList.begin();
-    for(int i=0; i<hostList.size(); i++)
+    for(unsigned int i=0; i<hostList.size(); i++)
     {
         if(hostCmp(iter->getName(),hostName))
             return false;
@@ -208,7 +208,7 @@ DatabaseHost& DatabaseHostManager::operator[](const char* hostName)
 {
 
     list<DatabaseHost>::iterator iter=hostList.begin();
-    for(int i=0; i<hostList.size(); i++)
+    for(unsigned int i=0; i<hostList.size(); i++)
     {
         if(hostCmp(iter->getName(),hostName))
             return *iter;
@@ -228,7 +228,7 @@ bool DatabaseHostManager::reset()
     if(config.isTestModus()==false) return false;
 
     list<DatabaseHost>::iterator iter=hostList.begin();
-    for(int i=0; i<hostList.size(); i++,iter++)
+    for(unsigned int i=0; i<hostList.size(); i++,iter++)
     {
         iter->prepareToBeRemoved();
     }
@@ -267,14 +267,14 @@ const char* Database::getName()
 {
     return databaseName;
 }
-void Database::changeName(const char* databaseName)
+void Database::changeName(const char* newDatabaseName)
 {
-    strcpy(this->databaseName,databaseName);
+    strcpy(this->databaseName,newDatabaseName);
 }
 
-void  Database::init(const char* databaseName)
+void  Database::init(const char* newDatabaseName)
 {
-    strcpy(this->databaseName,databaseName);
+    strcpy(this->databaseName,newDatabaseName);
     valid=true;
 }
 bool Database::isValid()
@@ -320,7 +320,7 @@ bool Database::connectToDBHost(const char* hostName)
 bool Database::disconnectFromDBHost(const char* hostName)
 {
     list<DatabaseHost*>::iterator iter=hostPtrList.begin();
-    for(int i=0; i<hostPtrList.size(); i++)
+    for(unsigned int i=0; i<hostPtrList.size(); i++)
     {
         DatabaseHost *ptrDBH=*iter;
 
@@ -372,7 +372,7 @@ bool Database::isConnectedToDBHost(const char* hostName)
 bool Database::checkConnection(DatabaseHost &databaseHost)
 {
     list<DatabaseHost*>::iterator iter=hostPtrList.begin();
-    for(int i=0; i<hostPtrList.size(); i++)
+    for(unsigned int i=0; i<hostPtrList.size(); i++)
     {
         if(*iter== &databaseHost) return true;
 
@@ -387,7 +387,7 @@ int Database::countConnectionsToDBHosts()
 }
 const char* Database::getDBHostName(int x)
 {
-    if( x < hostPtrList.size() )
+    if( x < static_cast<int>(hostPtrList.size()) )
     {
         list<DatabaseHost*>::iterator iter=hostPtrList.begin();
         for(int i=0; i<x; i++,iter++);
@@ -412,7 +412,7 @@ bool Database::connectToRasServer(const char *serverName)
 bool Database::disconnectFromRasServer(const char *serverName)
 {
     list<RasServer*>::iterator iter=rasPtrList.begin();
-    for(int i=0; i<rasPtrList.size(); i++)
+    for(unsigned int i=0; i<rasPtrList.size(); i++)
     {
         RasServer *ptrRas=*iter;
 
@@ -442,7 +442,7 @@ int  Database::countConnectionsToRasServers()
 
 const char* Database::getRasServerName(int x)
 {
-    if( x < rasPtrList.size() )
+    if( x < static_cast<int>(rasPtrList.size()) )
     {
         list<RasServer*>::iterator iter=rasPtrList.begin();
         for(int i=0; i<x; i++,iter++);
@@ -454,7 +454,7 @@ const char* Database::getRasServerName(int x)
 bool Database::checkConnection(RasServer &rasServer)
 {
     list<RasServer*>::iterator iter=rasPtrList.begin();
-    for(int i=0; i<rasPtrList.size(); i++)
+    for(unsigned int i=0; i<rasPtrList.size(); i++)
     {
         if(*iter== &rasServer) return true;
 
@@ -525,7 +525,7 @@ bool DatabaseManager::insertNewDatabase(const char* databaseName)
 bool DatabaseManager::removeDatabase(const char* databaseName)
 {
     list<Database>::iterator iter=dtbList.begin();
-    for(int i=0; i<dtbList.size(); i++)
+    for(unsigned int i=0; i<dtbList.size(); i++)
     {
         if(hostCmp(iter->getName(),databaseName))
         {
@@ -542,7 +542,7 @@ bool DatabaseManager::removeDatabase(const char* databaseName)
 bool DatabaseManager::testUniqueness(const char* databaseName)
 {
     list<Database>::iterator iter=dtbList.begin();
-    for(int i=0; i<dtbList.size(); i++)
+    for(unsigned int i=0; i<dtbList.size(); i++)
     {
         if(hostCmp(iter->getName(),databaseName))
             return false;
@@ -560,7 +560,7 @@ Database& DatabaseManager::operator[](int x)
 Database& DatabaseManager::operator[](const char* dbName)
 {
     list<Database>::iterator iter=dtbList.begin();
-    for(int i=0; i<dtbList.size(); i++)
+    for(unsigned int i=0; i<dtbList.size(); i++)
     {
         if(hostCmp(iter->getName(),dbName))
             return *iter;
@@ -573,7 +573,7 @@ Database& DatabaseManager::operator[](const char* dbName)
 void DatabaseManager::disconnectAllDatabasesFromDBH(const char* dbhName)
 {
     list<Database>::iterator iter=dtbList.begin();
-    for(int i=0; i<dtbList.size(); i++,iter++)
+    for(unsigned int i=0; i<dtbList.size(); i++,iter++)
     {
         iter->disconnectFromDBHost(dbhName);
     }
@@ -588,7 +588,7 @@ bool DatabaseManager::reset()
     if(config.isTestModus()==false) return false;
 
     list<Database>::iterator iter=dtbList.begin();
-    for(int i=0; i<dtbList.size(); i++,iter++)
+    for(unsigned int i=0; i<dtbList.size(); i++,iter++)
     {
         iter->disconnectForRemove();
     }

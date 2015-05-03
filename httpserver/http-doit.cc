@@ -273,8 +273,8 @@ rc_t GetHTTPRequest( char *Source, int SourceLen, struct HTTPRequest *RequestInf
     char *Buffer = NULL;
     char *Input;
 
-    Input = (char*)mymalloc( SourceLen + 1 );
-    memcpy( Input, Source, SourceLen );
+    Input = (char*)mymalloc( static_cast<size_t>(SourceLen) + 1 );
+    memcpy( Input, Source, static_cast<size_t>(SourceLen) );
     Input[SourceLen] = '\0';
     // Read the message body and check for the post parameters
     Buffer = strtok( Input, "=" );
@@ -331,8 +331,8 @@ rc_t GetHTTPRequest( char *Source, int SourceLen, struct HTTPRequest *RequestInf
         else if( strcmp(Buffer,"BinData") == 0 )
         {
             // This parameter has to be the last one!
-            RequestInfo->BinData = (char*)mymalloc( RequestInfo->BinDataSize );
-            memcpy(RequestInfo->BinData, Source + (SourceLen-RequestInfo->BinDataSize), RequestInfo->BinDataSize );
+            RequestInfo->BinData = static_cast<char*>(mymalloc( static_cast<size_t>(RequestInfo->BinDataSize) ));
+            memcpy(RequestInfo->BinData, Source + (SourceLen-RequestInfo->BinDataSize), static_cast<size_t>(RequestInfo->BinDataSize) );
             //set Buffer to NULL => exit this while block
             Buffer = NULL;
         }

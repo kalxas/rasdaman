@@ -68,7 +68,7 @@ extern struct ServerBase Server;
 *
 */
 
-sighandler Signal( int signo, sighandler x)
+sighandler Signal( int signo, __attribute__ ((unused)) sighandler x)
 {
     struct sigaction SigAction;
     struct sigaction OldAction;

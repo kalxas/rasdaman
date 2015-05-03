@@ -31,6 +31,6 @@ inline void
 QtIterator::setStreamInputs( QtONCStreamList* inputsNew )
 {
   inputs = inputsNew;
-  for( int i=0; i<inputs->size(); i++ )
+  for( unsigned int i=0; i<inputs->size(); i++ )
     (*inputs)[i]->setParent( this );
-};
+}

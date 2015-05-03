@@ -41,11 +41,11 @@ inline QtNode*
 QueryTree::getRoot() const
 {
   return rootNode;
-};
+}
 
 
 inline void
 QueryTree::setRoot( QtNode* root )
 {
   rootNode = root;
-};
+}

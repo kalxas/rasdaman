@@ -40,11 +40,11 @@ QtNaryOperation::setInputs( QtOperationList* opList )
       if( *iter )
         (*iter)->setParent( this );
   }
-};
+}
 
 
 inline QtNode::QtOperationList*
 QtNaryOperation::getInputs()
 {
   return operationList;
-};
+}

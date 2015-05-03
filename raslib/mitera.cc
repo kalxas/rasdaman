@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: mitera.cc
  *
@@ -92,7 +92,7 @@ void
 r_MiterArea::reset()
 {
     done = false;
-    for( int i=0; i<iterDom->dimension(); i++ )
+    for( unsigned int i=0; i<iterDom->dimension(); i++ )
     {
         incArrIter[i].curr = 0;
     }

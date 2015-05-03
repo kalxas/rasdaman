@@ -130,7 +130,7 @@ r_Attribute::get_boolean(const char* cell) const throw(r_Error)
         throw(err) ;
     }
 
-    return *((r_Boolean*) (cell+globalOffset) ) ;
+    return *((r_Boolean*) (const_cast<char*>(cell)+globalOffset) ) ;
 }
 
 
@@ -145,7 +145,7 @@ r_Attribute::get_char(const char* cell) const throw(r_Error)
         throw(err) ;
     }
 
-    return *((r_Char*) (cell+globalOffset) ) ;
+    return *((r_Char*) (const_cast<char*>(cell)+globalOffset) ) ;
 }
 
 
@@ -160,7 +160,7 @@ r_Attribute::get_octet(const char* cell) const throw(r_Error)
         throw(err) ;
     }
 
-    return *((r_Octet*) (cell+globalOffset) ) ;
+    return *((r_Octet*) (const_cast<char*>(cell)+globalOffset) ) ;
 }
 
 
@@ -175,7 +175,7 @@ r_Attribute::get_short(const char* cell) const throw(r_Error)
         throw(err) ;
     }
 
-    return *((r_Short*) (cell+globalOffset) ) ;
+    return *((r_Short*) (const_cast<char*>(cell)+globalOffset) ) ;
 }
 
 
@@ -190,7 +190,7 @@ r_Attribute::get_ushort(const char* cell) const throw(r_Error)
         throw(err) ;
     }
 
-    return *((r_UShort*) (cell+globalOffset) ) ;
+    return *((r_UShort*) (const_cast<char*>(cell)+globalOffset) ) ;
 }
 
 
@@ -205,7 +205,7 @@ r_Attribute::get_long(const char* cell) const throw(r_Error)
         throw(err) ;
     }
 
-    return *((r_Long*) (cell+globalOffset) ) ;
+    return *((r_Long*) (const_cast<char*>(cell)+globalOffset) ) ;
 }
 
 
@@ -220,7 +220,7 @@ r_Attribute::get_ulong(const char* cell) const throw(r_Error)
         throw(err) ;
     }
 
-    return *((r_ULong*) (cell+globalOffset) ) ;
+    return *((r_ULong*) (const_cast<char*>(cell)+globalOffset) ) ;
 }
 
 
@@ -235,7 +235,7 @@ r_Attribute::get_float(const char* cell) const throw(r_Error)
         throw(err) ;
     }
 
-    return *((r_Float*) (cell+globalOffset) ) ;
+    return *((r_Float*) (const_cast<char*>(cell)+globalOffset) ) ;
 }
 
 
@@ -250,7 +250,7 @@ r_Attribute::get_double(const char* cell) const throw(r_Error)
         throw(err) ;
     }
 
-    return *((r_Double*) (cell+globalOffset) ) ;
+    return *((r_Double*) (const_cast<char*>(cell)+globalOffset) ) ;
 }
 
 std::ostream &operator<<( std::ostream &str, const r_Attribute &type )

@@ -44,6 +44,6 @@ QtInsert::setInput( QtOperation* inputOld, QtOperation* inputNew )
     if( inputNew )
       inputNew->setParent( this );
   }
-};
+}
 
 

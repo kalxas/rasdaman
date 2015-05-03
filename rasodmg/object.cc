@@ -69,11 +69,11 @@ r_Object::ObjectType   r_Object::last_object_type      = r_Object::no_object;
 
 
 r_Object::r_Object()
-    : object_status( next_object_status ),
-      object_name(0),
+    : object_name(0),
       type_name(0),
       type_structure(0),
       type_schema(0),
+      object_status( next_object_status ),
       oid()
 {
     RMDBCLASS( "r_Object", "r_Object()", "rasodmg", __FILE__, __LINE__ )
@@ -97,11 +97,11 @@ r_Object::r_Object()
 
 
 r_Object::r_Object( unsigned short objType ) throw(r_Error)
-    : object_status( next_object_status ),
-      object_name(0),
+    : object_name(0),
       type_name(0),
       type_structure(0),
       type_schema(0),
+      object_status( next_object_status ),
       oid()
 {
     RMDBCLASS( "r_Object", "r_Object( unsigned short )", "rasodmg", __FILE__, __LINE__ )
@@ -197,11 +197,11 @@ r_Object::r_Object( unsigned short objType, const char* name ) throw(r_Error)
 
 
 r_Object::r_Object( const r_Object& obj, unsigned short objType ) throw(r_Error)
-    : object_status( next_object_status ),
-      object_name(0),
+    : object_name(0),
       type_name(0),
       type_structure(0),
       type_schema(0),
+      object_status( next_object_status ),
       oid()
 {
     RMDBCLASS( "r_Object", "r_Object( const r_Object& )", "rasodmg", __FILE__, __LINE__ )
@@ -390,7 +390,7 @@ r_Object::operator new( size_t size, r_Database* /*database*/, const char* type_
 
     r_Object::next_object_type      = persistent_object;
     r_Object::next_object_status    = created;
-    r_Object::next_object_type_name = (char*)type_name;
+    r_Object::next_object_type_name = const_cast<char*>(type_name);
     r_Object::next_object_oid       = r_OId();
 
     void* a = mymalloc( size );
@@ -406,7 +406,7 @@ r_Object::operator new( size_t size, const char* type_name )
 
     r_Object::next_object_type      = transient_object;
     r_Object::next_object_status    = created;
-    r_Object::next_object_type_name = (char*)type_name;
+    r_Object::next_object_type_name = const_cast<char*>(type_name);
     r_Object::next_object_oid       = r_OId();
 
     void* a = mymalloc( size );

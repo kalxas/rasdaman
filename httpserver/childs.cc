@@ -79,7 +79,7 @@ extern struct ServerBase Server;
 
 rc_t InitChild( struct ClientBase *Client )
 {
-    char *UnknownIP = "0.0.0.0";
+    char *UnknownIP = const_cast<char*>("0.0.0.0");
 
     /* Init ClientBase  */
     strcpy( Client->Host.IPAddrString, inet_ntoa( Client->Socket.sin_addr ) );
@@ -180,7 +180,7 @@ pid_t NewChild( struct ChildBase *List, struct FDsets *PDSets, struct ClientBase
 void CleanupChild( struct ChildBase *List, struct FDsets *PDSets, pid_t PId )
 {
     struct ChildBase *Ptr;
-    struct ChildBase *Tmp;
+    struct ChildBase *Tmp = NULL;
 
     LogMsg( LG_SERVER, DEBUG, "DEBUG: Begin CleanupChild ..." );
 

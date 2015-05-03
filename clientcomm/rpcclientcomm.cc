@@ -3667,7 +3667,7 @@ RpcClientComm::executeGetFreeServer(unsigned short readOnly)
     internetSocketAddress.sin_addr=*(struct in_addr*)hostinfo->h_addr;
 
 
-    int sock;
+    int sock = 0;
     bool ok = false;
     unsigned int retry;
     for(retry=0; retry<RMInit::clientcommMaxRetry * 40 ; retry++) // this has to be 5000 or so, now that counter is 120 default (later we'll make this better)

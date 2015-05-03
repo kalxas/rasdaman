@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_config.cc
  *
@@ -67,12 +67,12 @@ extern bool hostCmp( const char *h1, const char *h2);
 
 Configuration::Configuration():
     cmlInter      (CommandLineParser::getInstance()),
-    cmlName       (cmlInter.addStringParameter(CommandLineParser::noShortName, "name", "<name> symbolic name of this rasmgr (slave only, default: the host name)")),
+    cmlHelp       (cmlInter.addFlagParameter('h', RASMGRCMD_HELP, "print this help")),
     cmlHostName   (cmlInter.addStringParameter(CommandLineParser::noShortName, "hostname", "<name> the advertized host name (master only, default: same as UNIX command 'hostname')")),
     cmlPort       (cmlInter.addLongParameter(CommandLineParser::noShortName, "port", "<port> listen port number", DEFAULT_PORT)),
     cmlPollFrequ  (cmlInter.addLongParameter(CommandLineParser::noShortName, "poll", "<poll> polling timeout (in seconds) for rasmgr listen port", DEFAULT_POLLING_FREQUENCY )),
+    cmlName       (cmlInter.addStringParameter(CommandLineParser::noShortName, "name", "<name> symbolic name of this rasmgr (slave only, default: the host name)")),
     cmlQuiet      (cmlInter.addFlagParameter( 'q', CommandLineParser::noLongName, "quiet: don't log requests (default: log requests to stdout)")),
-    cmlLog        (cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "log/rasmgr.<pid>.log")),
 #ifdef RMANDEBUG    // was: NO_OFFICIAL_RELEASE
     cmlTest       (cmlInter.addFlagParameter(CommandLineParser::noShortName, "test", "test mode")),
     cmlDSup       (cmlInter.addFlagParameter(CommandLineParser::noShortName, "dsup", "debug mode")),
@@ -80,7 +80,7 @@ Configuration::Configuration():
     cmlRth        (cmlInter.addFlagParameter(CommandLineParser::noShortName, "rth", "disable rthl test")),
     cmlMultiWT    (cmlInter.addFlagParameter(CommandLineParser::noShortName, "amw", "allow multiple write transactions")),
 #endif          // RMANDEBUG
-    cmlHelp       (cmlInter.addFlagParameter('h', RASMGRCMD_HELP, "print this help"))
+    cmlLog        (cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "log/rasmgr.<pid>.log"))
 {
     ENTER( "Configuration::Configuration: enter." );
 
@@ -256,13 +256,13 @@ bool Configuration::saveConfigFile()
             ofs<<"define db "<<xx.getName()<<" -dbh "<<xx.getDBHostName(j)<<std::endl;
         }
     }
-    
-    for(i=0; i<outpeers.size(); i++) { 
-        ofs<<"define outpeer "<<outpeers[i]<<" -port "<<outports[i]<<std::endl;
+    unsigned int j;
+    for(j=0; j<outpeers.size(); j++) {
+        ofs<<"define outpeer "<<outpeers[j]<<" -port "<<outports[j]<<std::endl;
     }
     
-    for(i=0; i<inpeers.size(); i++) {
-        ofs<<"define inpeer "<<inpeers[i]<<std::endl;
+    for(j=0; j<inpeers.size(); j++) {
+        ofs<<"define inpeer "<<inpeers[j]<<std::endl;
     }
 
     ofs.close();        // this was missing, therefore sometimes the config file was cleared -- PB 2003-jun-06
@@ -325,7 +325,7 @@ bool Configuration::saveAltConfigFile()
     return result;
 }
 
-bool Configuration::interpretArguments(int argc, char **argv, char **envp)
+bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((unused)) char **envp)
 {
     ENTER( "Configuration::interpretArguments: enter." );
 
