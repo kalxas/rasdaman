@@ -103,27 +103,39 @@ public:
     virtual ServerGroupProto serializeToProto();
 
 private:
-    ServerGroupConfigProto config;
+    ServerGroupConfigProto config;/*!< Configuration for this group */
 
-    std::list<boost::shared_ptr<Server> > runningServers;
-
-    std::list<boost::shared_ptr<Server> > restartingServers;
+    boost::shared_ptr<DatabaseHostManager> dbhManager; /*!< Reference to the DBH manager for retrieving dbh*/
 
     boost::shared_ptr<ServerFactory> serverFactory;
 
+    std::list<boost::shared_ptr<Server> > runningServers;
+
+    std::list<boost::shared_ptr<Server> > restartingServers;/*!< List of servers that were restarted*/
+
     boost::shared_ptr<DatabaseHost> databaseHost;
 
+    /**
+     * @brief startingServers List of servers that are starting but have not yet registered
+     */
     std::map<std::string, std::pair< boost::shared_ptr<Server>, common::Timer > > startingServers;
 
     boost::shared_mutex groupMutex;
 
-    bool stopped;
+    bool stopped;/*!< TRUE if the group is stopped, FALSE otherwise*/
 
-    std::set<boost::int32_t> availablePorts;
+    std::set<boost::int32_t> availablePorts;/*!< */
 
+    /**
+     * @brief hasAvailableServers
+     * @return TRUE if there is at least one server with capacity for one more client,
+     * FALSE otherwise
+     */
     bool hasAvailableServers();
 
     void evaluateGroup();
+
+    void evaluateRestartingServers();
 
     /**
      * @brief cleanupServerList Remove dead servers and return the configuration
@@ -141,7 +153,7 @@ private:
 
     void stopActiveServers(KillLevel level);
 
-    void validateAndInitConfig(ServerGroupConfigProto& config);
+    void validateAndInitConfig(ServerGroupConfigProto &config);
 };
 }
 

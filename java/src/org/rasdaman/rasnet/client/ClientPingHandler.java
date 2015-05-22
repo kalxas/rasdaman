@@ -34,6 +34,9 @@ import java.util.ArrayList;
 
 import static org.rasdaman.rasnet.message.Communication.MessageType;
 
+/**
+ * @brief The ClientPingHandler class Responds to a Ping message from the server with a Pong message.
+ */
 public class ClientPingHandler {
     private static Logger LOG = LoggerFactory.getLogger(ClientPingHandler.class);
     private ZMQ.Socket server;
@@ -44,6 +47,14 @@ public class ClientPingHandler {
         this.serverStatus = serverStatus;
     }
 
+    /**
+     * @brief canHandle Check if the message can be handled by this message handler
+     * This handler accepts messages of the format:
+     * | rasnet.MessageType |
+     * with MessageType.type() == MessageType::ALIVE_PING
+     * @param message
+     * @return TRUE if the messages can be handled, FALSE otherwise
+     */
     public boolean canHandle(ArrayList<byte[]> message) {
         boolean success = false;
 
@@ -60,6 +71,13 @@ public class ClientPingHandler {
         return success;
     }
 
+    /**
+     * @brief handle Handle the given message and send an ALIVE_PONG
+     * message through the socket
+     * @param message
+     * @throws UnsupportedMessageType if an invalid message is passed in.
+     * i.e. one for which canHandle returns false
+     */
     public void handle(ArrayList<byte[]> message) throws UnsupportedMessageType {
         //Parse the message to make sure the correct message was passed in.
         if (this.canHandle(message)) {

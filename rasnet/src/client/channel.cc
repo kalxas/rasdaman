@@ -32,6 +32,7 @@
 
 #include "../common/zmqutil.hh"
 #include "../common/util.hh"
+#include "../common/constants.hh"
 
 #include "../messages/internal.pb.h"
 
@@ -62,7 +63,8 @@ using std::make_pair;
 
 Channel::Channel(const std::string &serverAddress, const ChannelConfig &config):
     serverAddress(serverAddress),
-    config(config), context(config.getNumberOfIoThreads(), config.getMaxOpenSockets())
+    config(config),
+    context(config.getNumberOfIoThreads(), config.getMaxOpenSockets())
 {
     //The linger determines the amount of time a socket will hang before destruction
     //trying to send queued messages to peers
@@ -83,33 +85,24 @@ Channel::Channel(const std::string &serverAddress, const ChannelConfig &config):
 
     this->workerThread.reset(new thread(boost::bind( &Channel::workerMethod, this)));
 
-    this->connectToServer();
+    try
+    {
+        //Try to connect to the server by first sending a message to the
+        //worker thread which initiates the connection procedure.
+        //If the connection procedure fails, a Networking exception will be thrown.
+        this->connectToServer();
+    }
+    catch(NetworkingException& ex)
+    {
+        //Cleanup and rethrow;
+        this->cleanup();
+        throw ex;
+    }
 }
 
 Channel::~Channel()
 {
-    try
-    {
-//        LDEBUG<<"Disconnecting channel from server.";
-        this->disconnectFromServer();
-//        LDEBUG<<"Disconnected channel from server.";
-
-//        LDEBUG<<"Joining channel worker thread.";
-        this->workerThread->join();
-//        LDEBUG<<"Joined channel worker thread.";
-
-        // https://github.com/zeromq/libzmq/issues/949
-        // this->controlSocket->unbind(this->controlAddress.c_str());
-        this->controlSocket->close();
-    }
-    catch(std::exception& ex)
-    {
-        LERROR<<ex.what();
-    }
-    catch(...)
-    {
-        LERROR<<"Unexpected exception in Channel destructor.";
-    }
+    this->cleanup();
 }
 
 void Channel::CallMethod(const google::protobuf::MethodDescriptor *method, google::protobuf::RpcController *controller, const google::protobuf::Message *request, google::protobuf::Message *response, google::protobuf::Closure *done)
@@ -128,9 +121,10 @@ void Channel::CallMethod(const google::protobuf::MethodDescriptor *method, googl
         boost::uint64_t currentCallCounter = this->callCounter;
         callCounterMutex.unlock();
 
-        //1. Create DEALER socket for inter-thread communication
-        std::string callId = UUID::generateUUID() + boost::lexical_cast<string>(currentCallCounter);
+        //0. Create unique ID for this call.
+        std::string callId = channelIdentity + ("-" + boost::lexical_cast<string>(currentCallCounter));
 
+        //1. Create DEALER socket for inter-thread communication
         zmq::socket_t bridge(this->context, ZMQ_DEALER);
         bridge.setsockopt(ZMQ_IDENTITY, callId.c_str(),
                           strlen(callId.c_str()));
@@ -138,7 +132,6 @@ void Channel::CallMethod(const google::protobuf::MethodDescriptor *method, googl
         bridge.connect(this->bridgeAddress.c_str());
 
         //2. Add the request to the list of pending requests
-        //TODO-AT:@Optimization We could serialize the request here
         this->serviceMutex->lock();
         this->serviceRequests->insert(std::make_pair(callId, std::make_pair(request, Util::getMethodName(method))));
         this->serviceMutex->unlock();
@@ -148,16 +141,17 @@ void Channel::CallMethod(const google::protobuf::MethodDescriptor *method, googl
         boost::shared_ptr<BaseMessage> internalResponseEnvelope;
 
         //3. Send request and wait for response
-        //TODO:Refactor. Should I keep this check here?
-        //If the control socket is not writeable,
-        if(!ZmqUtil::send(bridge, requestAvailable) || !ZmqUtil::receive(bridge, internalResponseEnvelope))
+        if(!ZmqUtil::send(bridge, requestAvailable)
+                || !ZmqUtil::receive(bridge, internalResponseEnvelope))
         {
             controller->SetFailed("Network failure: Inter-thread communication failed.");
         }
         else if(internalResponseEnvelope->type() != Util::getMessageType(responseAvailable)
                 ||!responseAvailable.ParseFromString(internalResponseEnvelope->data()))
         {
-            controller->SetFailed("Internal logic error.");
+            //This is a sign that something is wrong in the code
+            //It should never be thrown
+            throw std::logic_error("Received invalid response to inter-thread request.");
         }
         else
         {
@@ -189,21 +183,18 @@ void Channel::CallMethod(const google::protobuf::MethodDescriptor *method, googl
             }
             else
             {
-                controller->SetFailed("Internal logic error.");
+                //This is a sign that something is wrong in the code
+                //It should never be thrown
+                throw std::logic_error("Received service response with invalid ID");
             }
         }
 
         bridge.disconnect(this->bridgeAddress.c_str());
         bridge.close();
     }
-    catch(std::exception& ex)
+    catch(zmq::error_t& ex)
     {
         controller->SetFailed(ex.what());
-        LERROR<<controller->ErrorText();
-    }
-    catch(...)
-    {
-        controller->SetFailed("Method call failed for unknown reason.");
         LERROR<<controller->ErrorText();
     }
 
@@ -216,8 +207,8 @@ void Channel::connectToServer()
     InternalConnectRequest request = InternalConnectRequest::default_instance();
 
     //Send the inter-thread connection request
-    //TODO:Refactor
-    if(!ZmqUtil::isSocketWritable(*controlSocket, 100) || !ZmqUtil::send(*this->controlSocket, request))
+    if(!ZmqUtil::isSocketWritable(*controlSocket, INTER_THREAD_COMMUNICATION_TIMEOUT)
+            || !ZmqUtil::send(*this->controlSocket, request))
     {
         throw NetworkingException("Failed to send inter-thread connection request.");
     }
@@ -232,14 +223,13 @@ void Channel::connectToServer()
     }
     else
     {
-        //   LDEBUG<<"Received internal connection request";
-
         InternalConnectReply reply;
         if(message->type() != Util::getMessageType(reply)
                 || !reply.ParseFromString(message->data()))
         {
             throw std::logic_error("Invalid connection reply.");
         }
+
         if(!reply.success())
         {
             throw NetworkingException("Unable to establish connection to server.");
@@ -249,8 +239,6 @@ void Channel::connectToServer()
 
 void Channel::disconnectFromServer()
 {
-//    LDEBUG<<"Sending internal disconnect message";
-
     InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
     boost::shared_ptr<BaseMessage> reply;
 
@@ -260,12 +248,13 @@ void Channel::disconnectFromServer()
     }
     else if(!ZmqUtil::send(*this->controlSocket, request))
     {
-        LERROR<<"Inter-thread messaging error.";
+        LERROR<<"Failed to send internal disconnect request to worker thread.";
     }
     else
     {
         //Will fail if no message has arrived in the predefined time frame
-        if(!ZmqUtil::isSocketReadable(*controlSocket, 2 * this->config.getConnectionTimeout()) || !ZmqUtil::receive(*(this->controlSocket), reply))
+        if(!ZmqUtil::isSocketReadable(*controlSocket, 2 * this->config.getConnectionTimeout())
+                || !ZmqUtil::receive(*(this->controlSocket), reply))
         {
             LERROR<<"Failed to receive internal disconnect reply.";
         }
@@ -273,6 +262,27 @@ void Channel::disconnectFromServer()
         {
             LERROR<<"Received invalid internal disconnect reply.";
         }
+    }
+}
+
+void Channel::cleanup()
+{
+    try
+    {
+        this->disconnectFromServer();
+        this->workerThread->join();
+
+        // https://github.com/zeromq/libzmq/issues/949
+        // this->controlSocket->unbind(this->controlAddress.c_str());
+        this->controlSocket->close();
+    }
+    catch(std::exception& ex)
+    {
+        LERROR<<ex.what();
+    }
+    catch(...)
+    {
+        LERROR<<"Unexpected exception in Channel cleanup.";
     }
 }
 
@@ -333,7 +343,10 @@ bool Channel::tryConnectToServer(zmq::socket_t &controlSocket, zmq::socket_t &se
     //Notify the main thread about the connection status
     InternalConnectReply internalConnectReply;
     internalConnectReply.set_success(success);
-    ZmqUtil::send(controlSocket, internalConnectReply);
+    if(!ZmqUtil::send(controlSocket, internalConnectReply))
+    {
+        LERROR<<"Failed to send connection status message to main thread.";
+    }
 
     return success;
 }
@@ -401,7 +414,10 @@ void Channel::workerMethod()
                     running = false;
 
                     InternalDisconnectReply disconnectReply;
-                    ZmqUtil::send(control, disconnectReply);
+                    if(!ZmqUtil::send(control, disconnectReply))
+                    {
+                        LERROR<<"Failed to send inter-thread disconnect reply to main thread.";
+                    }
                 }
             }
 
@@ -472,6 +488,7 @@ void Channel::workerMethod()
                 }
             }
 
+            //If the server is dead, notify the callers.
             if(!serverStatus->isAlive())
             {
                 std::map<std::string, std::pair<const google::protobuf::Message*, std::string> >::iterator it;
@@ -497,6 +514,7 @@ void Channel::workerMethod()
         // https://github.com/zeromq/libzmq/issues/949
         //bridgeSocket.unbind(this->bridgeAddress.c_str());
         bridgeSocket.close();
+
         control.disconnect(this->controlAddress.c_str());
         control.close();
     }
@@ -508,9 +526,6 @@ void Channel::workerMethod()
     {
         LERROR<<"Unexpected error in channel worker thread.";
     }
-
-//    LDEBUG<<"Exiting worker thread.";
-
 }
 
 }

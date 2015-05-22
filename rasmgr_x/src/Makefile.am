@@ -23,11 +23,11 @@ SRC = $(PROTO_SRC) \
 	  rasmanager.cc \
 	  rasmgrconfig.cc \
 	  server.cc \
+	  serverconfig.cc \
 	  serverfactory.cc \
 	  serverfactoryrasnet.cc \
 	  servergroup.cc \
 	  servergroupimpl.cc \
-	  servergroupconfig.cc \
 	  servergroupfactory.cc \
 	  servergroupfactoryimpl.cc \
 	  servermanagementservice.cc \
@@ -44,7 +44,7 @@ SRC = $(PROTO_SRC) \
 rasmgr_SOURCES = main.cc ${SRC}
 
 rasmgr_LDFLAGS =
-rasmgr_LDADD = ../../rasnet/src/librasnet.a ../../common/src/libcommon.a ../../commline/libcommline.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lpthread -lboost_system
+rasmgr_LDADD = ../../rasnet/src/librasnet.a ../../common/src/libcommon.a ../../commline/libcommline.a @ZMQ_LIBS@ @PROTOBUF_LIBS@ @BOOST_LDFLAGS@ -lboost_thread -lboost_regex -lpthread -lboost_system -lboost_exception
 
 noinst_LIBRARIES = librasmgr.a
 

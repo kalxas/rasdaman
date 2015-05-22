@@ -47,6 +47,10 @@ rasdaman GmbH.
 
 namespace rasmgr
 {
+
+/**
+ * @brief The ControlCommandExecutor class Executes rascontrol string commands
+ */
 class ControlCommandExecutor
 {
 public:
@@ -84,9 +88,6 @@ private:
      * @return
      */
     bool canRunCommand(const std::string& userName, const std::string& password, const std::string& command);
-
-
-
 };
 
 }

@@ -33,6 +33,12 @@
 
 namespace rasmgr
 {
+/**
+ * @brief The ServerGroup class represents a group of servers with the same properties,
+ * running on a set of predetermined ports. The same properties apply to all the servers.
+ * The Group is responsible for managing its servers and maintaining the number of alive
+ * and available servers.
+ */
 class ServerGroup
 {
 public:

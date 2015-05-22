@@ -687,11 +687,13 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
 
                 LOG( "  Result object " << i << ": going into file " << defFileName << "..." << flush );
                 FILE *tfile = fopen( defFileName, "wb" );
-                if(tfile==NULL){
+                if(tfile==NULL)
+                {
                     throw RasqlError(NOFILEWRITEPERMISSION);
                 }
                 size_t count = r_Ref<r_GMarray>(*iter)->get_array_size();
-                if(fwrite((void*)r_Ref<r_GMarray>(*iter)->get_array(), 1, count, tfile ) != count){
+                if(fwrite((void*)r_Ref<r_GMarray>(*iter)->get_array(), 1, count, tfile ) != count)
+                {
                     fclose(tfile);
                     throw RasqlError(UNABLETOWRITETOFILE);
                 };
@@ -841,7 +843,8 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
         long size = ftell( fileD );
         TALK( "file size is " << size << " bytes" );
 
-        if(size==0){
+        if(size==0)
+        {
             throw RasqlError( FILEEMPTY );
         }
 
@@ -875,13 +878,13 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
             // cleanup
             if (tiles)
             {
-              delete tiles;
-              tiles = NULL;
+                delete tiles;
+                tiles = NULL;
             }
             if (storage_layout)
             {
-              delete storage_layout;
-              storage_layout = NULL;
+                delete storage_layout;
+                storage_layout = NULL;
             }
         }
         else if (size != mddDomain.cell_count() * mddType->base_type().size())
@@ -913,11 +916,11 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
         fileMDD->set_array_size( mddDomain.cell_count() * mddType->base_type().size() );
         if (fileContents != NULL)
         {
-          fileMDD->set_array( fileContents );
+            fileMDD->set_array( fileContents );
         }
         else
         {
-          fileMDD->set_tiled_array( fileContentsChunked );
+            fileMDD->set_tiled_array( fileContentsChunked );
         }
 
         query << *fileMDD;
@@ -1014,7 +1017,7 @@ crash_handler (int sig, siginfo_t* info, void * ucontext)
 }
 
 #ifdef RMANRASNET
-    _INITIALIZE_EASYLOGGINGPP
+_INITIALIZE_EASYLOGGINGPP
 #endif
 
 /*
@@ -1023,14 +1026,13 @@ crash_handler (int sig, siginfo_t* info, void * ucontext)
 int main(int argc, char** argv)
 {
     //TODO-GM: find a better way to do thiss
-    #ifdef RMANRASNET
-        easyloggingpp::Configurations defaultConf;
-        defaultConf.setToDefault();
-        defaultConf.set(easyloggingpp::Level::Error,
-                        easyloggingpp::ConfigurationType::Format,
-                        "%datetime %level %loc %log %func ");
-        easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-    #endif
+#ifdef RMANRASNET
+//    easyloggingpp::Configurations defaultConf;
+//    defaultConf.setToDefault();
+//    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+
+    easyloggingpp::Loggers::disableAll();
+#endif
 
     SET_OUTPUT( false );        // inhibit unconditional debug output, await cmd line evaluation
 

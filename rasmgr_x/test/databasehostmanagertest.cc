@@ -32,7 +32,10 @@
 #include "../../rasmgr_x/src/databasehost.hh"
 #include "../../rasmgr_x/src/databasehostmanager.hh"
 #include "../src/messages/rasmgrmess.pb.h"
-
+namespace rasmgr
+{
+namespace test
+{
 using rasmgr::Database;
 using rasmgr::DatabaseHost;
 using rasmgr::DatabaseHostManager;
@@ -247,4 +250,7 @@ TEST_F(DatabaseHostManagerTest, serializeToProto)
     ASSERT_EQ(userName, result.database_hosts(0).user_name());
     ASSERT_EQ(passwdString, result.database_hosts(0).password());
     ASSERT_EQ(connectString, result.database_hosts(0).connect_string());
+}
+
+}
 }

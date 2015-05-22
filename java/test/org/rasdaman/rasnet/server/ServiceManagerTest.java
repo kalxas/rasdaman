@@ -27,7 +27,10 @@ import com.google.protobuf.RpcController;
 import com.google.protobuf.Service;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 import org.rasdaman.rasnet.common.Constants;
+import org.rasdaman.rasnet.exception.NetworkingException;
 import org.rasdaman.rasnet.message.Communication;
 import org.rasdaman.rasnet.message.Communication.MessageType;
 import org.rasdaman.rasnet.message.Test;
@@ -42,7 +45,7 @@ import static org.rasdaman.rasnet.TestUtilities.randInt;
 import static org.rasdaman.rasnet.message.Communication.*;
 import static org.rasdaman.rasnet.message.Communication.MessageType.Types.*;
 
-public class ServiceManagerTest{
+public class ServiceManagerTest {
     private class SearchServiceImpl extends org.rasdaman.rasnet.message.Test.SearchService {
 
         @Override
@@ -62,6 +65,9 @@ public class ServiceManagerTest{
         }
     }
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     private ZMQ.Context context;
     private ZMQ.Socket client;
     private String serviceEndpoint;
@@ -72,13 +78,13 @@ public class ServiceManagerTest{
     @Before
     public void setUp() {
         int port = randInt(8000, 40000);
-        this.serviceEndpoint = "tcp://*:"+ port;
-        this.externalServiceEndpoint = "tcp://localhost:"+port;
+        this.serviceEndpoint = "tcp://*:" + port;
+        this.externalServiceEndpoint = "tcp://localhost:" + port;
 
-        this.config=new ServiceManagerConfig();
+        this.config = new ServiceManagerConfig();
         this.manager = new ServiceManager(this.config);
 
-        this.context= ZMQ.context(1);
+        this.context = ZMQ.context(1);
         this.client = this.context.socket(ZMQ.DEALER);
         this.client.setLinger(0);
         client.setIdentity((new String("client")).getBytes(Constants.DEFAULT_ENCODING));
@@ -100,7 +106,7 @@ public class ServiceManagerTest{
     }
 
     @org.junit.Test
-    public void constructorTestNoThrow()throws Exception {
+    public void constructorTestNoThrow() throws Exception {
         ServiceManagerConfig config = new ServiceManagerConfig();
         ServiceManager manager = new ServiceManager(config);
 
@@ -111,18 +117,18 @@ public class ServiceManagerTest{
     }
 
     @org.junit.Test
-    public void serveTestInvalidAddress()throws Exception {
-        //TODO:In the future, make this fail
+    public void serveTestInvalidAddress() throws Exception {
+        thrown.expect(NetworkingException.class);
         manager.serve("address");
     }
 
     @org.junit.Test
-    public void serveTestValidAddress()throws Exception {
+    public void serveTestValidAddress() throws Exception {
         manager.serve(this.serviceEndpoint);
     }
 
     @org.junit.Test
-    public void connectRequestTest() throws Exception{
+    public void connectRequestTest() throws Exception {
         ConnectRequest request = ConnectRequest.newBuilder()
                 .setLifetime(100)
                 .setRetries(2)
@@ -144,22 +150,41 @@ public class ServiceManagerTest{
     }
 
     @org.junit.Test
-    public void pingTest() throws Exception{
+    public void pingTest() throws Exception {
         manager.serve(this.serviceEndpoint);
 
-        ZmqUtil.sendCompositeMessage(client, ALIVE_PING);
+        //First connect and then ping
+        ConnectRequest request = ConnectRequest.newBuilder()
+                .setLifetime(100)
+                .setRetries(2)
+                .build();
+
+        ZmqUtil.sendCompositeMessage(client, CONNECT_REQUEST, request);
 
         ArrayList<byte[]> message = new ArrayList<>();
         ZmqUtil.receiveCompositeMessage(client, message);
 
-        assertEquals(1, message.size());
+        assertEquals(2, message.size());
         MessageType type = MessageType.parseFrom(message.get(0));
+        assertEquals(CONNECT_REPLY, type.getType());
+
+        ConnectReply reply = ConnectReply.parseFrom(message.get(1));
+        assertEquals(config.getAliveTimeout(), reply.getLifetime());
+        assertEquals(config.getAliveRetryNo(), reply.getRetries());
+
+        ZmqUtil.sendCompositeMessage(client, ALIVE_PING);
+
+        message = new ArrayList<>();
+        ZmqUtil.receiveCompositeMessage(client, message);
+
+        assertEquals(1, message.size());
+        type = MessageType.parseFrom(message.get(0));
         assertEquals(ALIVE_PONG, type.getType());
     }
 
     @org.junit.Test
-    public void requestHandlerTest() throws Exception{
-        Service service =  new SearchServiceImpl();
+    public void requestHandlerTest() throws Exception {
+        Service service = new SearchServiceImpl();
         String methodName = ZmqUtil.getMethodName(service.getDescriptorForType().getMethods().get(0));
         String callId = "callId";
 

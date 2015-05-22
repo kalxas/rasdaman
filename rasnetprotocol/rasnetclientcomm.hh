@@ -95,8 +95,7 @@ public:
 
 
 private:
-    ::rasnet::ClientController clientController;
-    ::boost::scoped_ptr<google::protobuf::Closure> doNothing;
+    google::protobuf::Closure* doNothing;
 
 
     ::boost::shared_ptr<rasnet::service::ClientRassrvrService> rasserverService; /*! Service stub used to communicate with the RasServer process */

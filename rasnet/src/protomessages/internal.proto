@@ -14,29 +14,50 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+ *2014 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 package rasnet.internal;
-option java_package="org.rasdaman.rasnet.message.internal";
+option java_package = "org.rasdaman.rasnet.message.internal";
 
-message InternalConnectRequest {
-}
+/**
+  * Message sent from the Channel main thread to the worker thread
+  * to initiate connection procedure to the server
+  */
+message InternalConnectRequest {}
 
-message InternalConnectReply {
-        required bool success = 1;
-}
+/**
+  * Message sent from the worker thread to the main thread of
+  * the Channel to report the status of the connection procedure
+  * to the server
+  */
+message InternalConnectReply { required bool success = 1; }
 
-message InternalDisconnectRequest {
-}
+/**
+  * Message sent from thread A to thread B to tell
+  * thread B to terminate. Message passing allows
+  * for a clean exit from worker threads.
+  */
+message InternalDisconnectRequest {}
 
-message InternalDisconnectReply {
-}
+/**
+  * Message sent from thread B to thread A as a response
+  * to a InternalDisconnectRequest
+  */
+message InternalDisconnectReply {}
 
-message ServiceRequestAvailable {
-}
+/**
+  * Message used for inter-thread communication
+  * to notify the worker thread that a service request is
+  * available for processing
+  */
+message ServiceRequestAvailable {}
 
-message ServiceResponseAvailable {
-}
+/**
+  * Message used to notify the caller thread
+  * that a service response is available.
+  */
+message ServiceResponseAvailable {}

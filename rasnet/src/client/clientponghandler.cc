@@ -31,19 +31,18 @@ namespace rasnet
 
 ClientPongHandler::ClientPongHandler(boost::shared_ptr<PeerStatus> serverStatus):
     serverStatus(serverStatus)
-{
-}
+{}
 
 ClientPongHandler::~ClientPongHandler()
 {
 }
 
-bool ClientPongHandler::canHandle(const std::vector<boost::shared_ptr<zmq::message_t> > &messages)
+bool ClientPongHandler::canHandle(const std::vector<boost::shared_ptr<zmq::message_t> > &message)
 {
     MessageType messageType;
 
-    if(messages.size() == 1
-            && messageType.ParseFromArray(messages[0]->data(), messages[0]->size())
+    if(message.size() == 1
+            && messageType.ParseFromArray(message[0]->data(), message[0]->size())
             && messageType.type() == MessageType::ALIVE_PONG)
     {
         return true;
@@ -54,9 +53,9 @@ bool ClientPongHandler::canHandle(const std::vector<boost::shared_ptr<zmq::messa
     }
 }
 
-void ClientPongHandler::handle(const std::vector<boost::shared_ptr<zmq::message_t> > &messages)
+void ClientPongHandler::handle(const std::vector<boost::shared_ptr<zmq::message_t> > &message)
 {
-    if (this->canHandle(messages))
+    if (this->canHandle(message))
     {
         this->serverStatus->reset();
     }

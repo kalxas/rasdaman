@@ -35,12 +35,27 @@ import org.zeromq.ZMQ;
 
 import java.util.ArrayList;
 
+/**
+ * @brief The ConnectRequestHandler class Handles an incoming connect request from a client
+ * by responding with a connect reply containing connection parameters.
+ */
 public class ConnectRequestHandler {
     private static Logger LOG = LoggerFactory.getLogger(ConnectRequestHandler.class);
     private ClientPool clientPool;
     private ConnectReply reply;
+
+    /**
+     * ZMQ_ROUTER socket representing the server
+     */
     private ZMQ.Socket client;
 
+    /**
+     * Create a ClientRequestHandler
+     * @param client Socket through which replies to clients are sent.
+     * @param clientPool  ClientPool that keeps track of all the clients connected to this server.
+     * @param serverRetries The number of times a client should try to contact the server before giving up
+     * @param serverLifetime The number of milliseconds between each consecutive retry.
+     */
     public ConnectRequestHandler(ZMQ.Socket client, ClientPool clientPool, int serverRetries, int serverLifetime) {
         this.client = client;
         this.clientPool = clientPool;
@@ -50,6 +65,14 @@ public class ConnectRequestHandler {
                 .build();
     }
 
+    /**
+     * Decide if the given message can be processed by this handler.
+     * @param message Composite message of the type:
+     * | MessageType | ConnectRequest |
+     * where MessageType.type() == MessageType::CONNECT_REQUEST
+     * @return true if the message contains a ConnectRequest message(@see developer documentation for details),
+     * false otherwise.
+     */
     public boolean canHandle(ArrayList<byte[]> message) {
         boolean success = false;
 
@@ -66,6 +89,13 @@ public class ConnectRequestHandler {
         return success;
     }
 
+    /**
+     * Handle the ConnectRequest message by adding the client to the pool
+     * and sending back a ConnectReply message.
+     * @param message
+     * @param peerId
+     * @throws UnsupportedMessageType If a message for which the handle method returns false
+     */
     public void handle(ArrayList<byte[]> message, String peerId) throws UnsupportedMessageType {
         if (this.canHandle(message)) {
             try {

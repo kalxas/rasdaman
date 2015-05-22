@@ -38,6 +38,10 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * @brief The ServiceResponseHandler class Handles ServiceResponse messages sent by the
+ * server as a response to a service request
+ */
 public class ServiceResponseHandler {
     private static Logger LOG = LoggerFactory.getLogger(ServiceResponseHandler.class);
 
@@ -61,6 +65,15 @@ public class ServiceResponseHandler {
         this.serviceResponses = serviceResponses;
     }
 
+    /**
+     * @param message
+     * @return TRUE if the messages can be handled, FALSE otherwise
+     * @brief canHandle Check if the message can be handled by this message handler
+     * This handler accepts messages of the format:
+     * | rasnet.MessageType | Call ID | ServiceCallStatus | Response data|
+     * with MessageType.type() == MessageType::SERVICE_RESPONSE
+     * Call ID is the ID of the call
+     */
     public boolean canHandle(ArrayList<byte[]> message) {
         boolean success = false;
 
@@ -78,7 +91,15 @@ public class ServiceResponseHandler {
         return success;
     }
 
+    /**
+     * @param message
+     * @throws UnsupportedMessageType if an invalid message is passed in.
+     *                                i.e. one for which canHandle returns false
+     * @brief handle See inline documentation for a thorough explanation
+     */
     public void handle(ArrayList<byte[]> message) throws UnsupportedMessageType {
+        //Accepted message format:
+        //| rasnet.MessageType | Call ID | ServiceCallStatus | Response data|
         if (this.canHandle(message)) {
             try {
                 peerStatus.reset();

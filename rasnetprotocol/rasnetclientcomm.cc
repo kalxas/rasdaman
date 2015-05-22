@@ -51,6 +51,7 @@ rasdaman GmbH.
 #include "common/src/uuid/uuid.hh"
 #include "common/src/logging/easylogging++.hh"
 #include "rasnet/src/common/zmqutil.hh"
+#include "rasnet/src/exception/networkingexception.hh"
 
 #include <cstring>
 #include <fstream>
@@ -136,6 +137,7 @@ using rasnet::internal::InternalDisconnectRequest;
 using common::UUID;
 using rasnet::ZmqUtil;
 using rasnet::BaseMessage;
+using rasnet::ClientController;
 
 RasnetClientComm::RasnetClientComm(string rasmgrHost, int rasmgrPort)
 {
@@ -146,7 +148,7 @@ RasnetClientComm::RasnetClientComm(string rasmgrHost, int rasmgrPort)
     this->rasmgrHost = ZmqUtil::toTcpAddress(rasmgrHost);
     this->rasmgrPort = rasmgrPort;
 
-    doNothing.reset(NewPermanentCallback(&DoNothing));
+    doNothing = NewPermanentCallback(&DoNothing);
 
     this->initializedRasMgrService = false;
     this->initializedRasServerService = false;
@@ -156,8 +158,11 @@ RasnetClientComm::~RasnetClientComm() throw()
 {
     this->stopRasMgrKeepAlive();
     this->stopRasServerKeepAlive();
+
     closeRasmgrService();
     closeRasserverService();
+
+    delete doNothing;
 }
 
 int RasnetClientComm::connectClient(string userName, string passwordHash)
@@ -168,7 +173,8 @@ int RasnetClientComm::connectClient(string userName, string passwordHash)
     connectReq.set_username(userName);
     connectReq.set_passwordhash(passwordHash);
 
-    this->getRasMgrService()->Connect(&clientController, &connectReq, &connectRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasMgrService()->Connect(&clientController, &connectReq, &connectRepl, doNothing);
 
     if (clientController.Failed())
     {
@@ -192,12 +198,12 @@ int RasnetClientComm::disconnectClient()
 
     disconnectReq.set_clientuuid(this->clientUUID);
 
-    this->getRasMgrService()->Disconnect(&clientController, &disconnectReq, &disconnectRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasMgrService()->Disconnect(&clientController, &disconnectReq, &disconnectRepl, doNothing);
     this->closeRasmgrService();
 
     if (clientController.Failed())
     {
-        clientController.Reset();
         handleError(clientController.ErrorText());
     }
 
@@ -215,7 +221,8 @@ int RasnetClientComm::openDB(const char *database)
     openDatabaseReq.set_clientuuid(this->clientUUID.c_str());
     openDatabaseReq.set_databasename(database);
 
-    this->getRasMgrService()->OpenDb(&clientController, &openDatabaseReq, &openDatabaseRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasMgrService()->OpenDb(&clientController, &openDatabaseReq, &openDatabaseRepl, doNothing);
 
     //stop sending keep alive messages to rasmgr
     this->stopRasMgrKeepAlive();
@@ -239,14 +246,13 @@ int RasnetClientComm::openDB(const char *database)
     openServerDatabaseReq.set_client_id(this->clientId);
     openServerDatabaseReq.set_database_name(database);
 
-    this->getRasServerService()->OpenServerDatabase(&clientController, &openServerDatabaseReq, &openServerDatabaseRepl, doNothing.get());
+    this->getRasServerService()->OpenServerDatabase(&clientController, &openServerDatabaseReq, &openServerDatabaseRepl, doNothing);
 
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
+
     // Send keep alive messages to rasserver until openDB is called
     this->startRasServerKeepAlive();
 
@@ -266,8 +272,19 @@ int RasnetClientComm::closeDB()
     closeDbReq.set_clientuuid(this->clientUUID);
     closeDbReq.set_dbsessionid(this->sessionId);
 
-    this->getRasServerService()->CloseServerDatabase(&clientController, &closeServerDatabaseReq, &closeDatabaseRepl, doNothing.get());
-    this->getRasMgrService()->CloseDb(&clientController, &closeDbReq, &closeDatabaseRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->CloseServerDatabase(&clientController, &closeServerDatabaseReq, &closeDatabaseRepl, doNothing);
+    if(clientController.Failed())
+    {
+        handleError(clientController.ErrorText());
+    }
+
+    clientController.Reset();
+    this->getRasMgrService()->CloseDb(&clientController, &closeDbReq, &closeDatabaseRepl, doNothing);
+    if(clientController.Failed())
+    {
+        handleError(clientController.ErrorText());
+    }
 
     this->stopRasServerKeepAlive();
 
@@ -278,7 +295,6 @@ int RasnetClientComm::closeDB()
     if (clientController.Failed())
     {
         const char* errorText = clientController.ErrorText().c_str();
-        clientController.Reset();
         throw r_Ebase_dbms(r_Error::r_Error_DatabaseClosed, errorText);
     }
 
@@ -305,7 +321,8 @@ int RasnetClientComm::openTA(unsigned short readOnly) throw (r_Error)
     beginTransactionReq.set_rw(readOnly == 0);
     beginTransactionReq.set_client_id(this->clientId);
 
-    this->getRasServerService()->BeginTransaction(&clientController, &beginTransactionReq, &beginTransactionRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->BeginTransaction(&clientController, &beginTransactionReq, &beginTransactionRepl, doNothing);
     if (clientController.Failed())
     {
         const char* errorText = clientController.ErrorText().c_str();
@@ -326,12 +343,11 @@ int RasnetClientComm::commitTA() throw (r_Error)
 
     commitTransactionReq.set_client_id(this->clientId);
 
-    this->getRasServerService()->CommitTransaction(&clientController, &commitTransactionReq, &commitTransactionRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->CommitTransaction(&clientController, &commitTransactionReq, &commitTransactionRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     return retval;
@@ -344,12 +360,11 @@ int RasnetClientComm::abortTA()
 
     abortTransactionReq.set_client_id(this->clientId);
 
-    this->getRasServerService()->AbortTransaction(&clientController, &abortTransactionReq, &AbortTransactionRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->AbortTransaction(&clientController, &abortTransactionReq, &AbortTransactionRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 }
 
@@ -415,7 +430,7 @@ void RasnetClientComm::insertMDD(const char *collName, r_GMarray *mar) throw (r_
 
     RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RasnetClientComm", "decomposing into " << bagOfTiles->cardinality() << " tiles")
 
-            r_Iterator< r_GMarray* > iter = bagOfTiles->create_iterator();
+    r_Iterator< r_GMarray* > iter = bagOfTiles->create_iterator();
     r_GMarray *origTile;
 
     for(iter.reset(); iter.not_done(); iter.advance() )
@@ -424,7 +439,7 @@ void RasnetClientComm::insertMDD(const char *collName, r_GMarray *mar) throw (r_
 
         RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RasnetClientComm", "inserting Tile with domain " << origTile->spatial_domain() << ", " << origTile->spatial_domain().cell_count() * origTile->get_type_length() << " bytes")
 
-                getMarRpcRepresentation( origTile, rpcMarray, mar->get_storage_layout()->get_storage_format(), baseType );
+        getMarRpcRepresentation( origTile, rpcMarray, mar->get_storage_layout()->get_storage_format(), baseType );
 
         status = executeInsertTile(true, rpcMarray);
 
@@ -480,12 +495,11 @@ void RasnetClientComm::insertColl(const char *collName, const char *typeName, co
     insertCollectionReq.set_type_name(typeName);
     insertCollectionReq.set_oid(oid.get_string_representation());
 
-    this->getRasServerService()->InsertCollection(&clientController, &insertCollectionReq, &insertCollectionRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->InsertCollection(&clientController, &insertCollectionReq, &insertCollectionRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     int status = insertCollectionRepl.status();
@@ -509,12 +523,11 @@ void RasnetClientComm::deleteCollByName(const char *collName) throw (r_Error)
     deleteCollectionByNameReq.set_client_id(this->clientId);
     deleteCollectionByNameReq.set_collection_name(collName);
 
-    this->getRasServerService()->DeleteCollectionByName(&clientController, &deleteCollectionByNameReq, &deleteCollectionByNameRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->DeleteCollectionByName(&clientController, &deleteCollectionByNameReq, &deleteCollectionByNameRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     handleStatusCode(deleteCollectionByNameRepl.status(), "deleteCollByName");
@@ -535,12 +548,11 @@ void RasnetClientComm::deleteObjByOId(const r_OId &oid) throw (r_Error)
     deleteCollectionByOidReq.set_client_id(this->clientId);
     deleteCollectionByOidReq.set_oid(oid.get_string_representation());
 
-    this->getRasServerService()->DeleteCollectionByOid(&clientController, &deleteCollectionByOidReq, &deleteCollectionByOidRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->DeleteCollectionByOid(&clientController, &deleteCollectionByOidReq, &deleteCollectionByOidRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     handleStatusCode(deleteCollectionByOidRepl.status(), "deleteCollByName");
@@ -562,12 +574,11 @@ void RasnetClientComm::removeObjFromColl(const char *name, const r_OId &oid) thr
     removeObjectFromCollectionReq.set_collection_name(name);
     removeObjectFromCollectionReq.set_oid(oid.get_string_representation());
 
-    this->getRasServerService()->RemoveObjectFromCollection(&clientController, &removeObjectFromCollectionReq, &removeObjectFromCollectionRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->RemoveObjectFromCollection(&clientController, &removeObjectFromCollectionReq, &removeObjectFromCollectionRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     int status = removeObjectFromCollectionRepl.status();
@@ -699,12 +710,11 @@ r_OId RasnetClientComm::getNewOId(unsigned short objType) throw (r_Error)
     getNewOidReq.set_client_id(this->clientId);
     getNewOidReq.set_object_type(objType);
 
-    this->getRasServerService()->GetNewOid(&clientController, &getNewOidReq, &getNewOidRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->GetNewOid(&clientController, &getNewOidReq, &getNewOidRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     r_OId oid(getNewOidRepl.oid().c_str());
@@ -719,12 +729,11 @@ unsigned short RasnetClientComm::getObjectType(const r_OId &oid) throw (r_Error)
     getObjectTypeReq.set_client_id(this->clientId);
     getObjectTypeReq.set_oid(oid.get_string_representation());
 
-    this->getRasServerService()->GetObjectType(&clientController, &getObjectTypeReq, &getObjectTypeRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->GetObjectType(&clientController, &getObjectTypeReq, &getObjectTypeRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     int status = getObjectTypeRepl.status();
@@ -743,12 +752,11 @@ char* RasnetClientComm::getTypeStructure(const char *typeName, r_Type_Type typeT
     getTypeStructureReq.set_type_name(typeName);
     getTypeStructureReq.set_type_type(typeType);
 
-    this->getRasServerService()->GetTypeStructure(&clientController, &getTypeStructureReq, &getTypeStructureRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->GetTypeStructure(&clientController, &getTypeStructureReq, &getTypeStructureRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     int status = getTypeStructureRepl.status();
@@ -812,10 +820,18 @@ boost::shared_ptr<rasnet::service::ClientRassrvrService> RasnetClientComm::getRa
     unique_lock<shared_mutex> lock(this->rasServerServiceMtx);
     if (!this->initializedRasServerService)
     {
-        rasnet::ChannelConfig config;
-        this->rasserverChannel.reset(new Channel(ZmqUtil::toEndpoint(rasServerHost, rasServerPort), config));
-        this->rasserverService.reset(new ClientRassrvrService_Stub(rasserverChannel.get()));
-        this->initializedRasServerService = true;
+        try
+        {
+            rasnet::ChannelConfig config;
+            this->rasserverChannel.reset(new Channel(ZmqUtil::toEndpoint(rasServerHost, rasServerPort), config));
+            this->rasserverService.reset(new ClientRassrvrService_Stub(rasserverChannel.get()));
+            this->initializedRasServerService = true;
+        }
+        catch(rasnet::NetworkingException& ex)
+        {
+            LERROR<<ex.what();
+            handleError(ex.what());
+        }
     }
 
     return this->rasserverService;
@@ -826,9 +842,9 @@ void RasnetClientComm::closeRasserverService()
     unique_lock<shared_mutex> lock(this->rasServerServiceMtx);
     if (this->initializedRasServerService)
     {
+        this->initializedRasServerService = false;
         this->rasserverService.reset();
         this->rasserverChannel.reset();
-        this->initializedRasServerService = false;
     }
 }
 
@@ -837,10 +853,18 @@ boost::shared_ptr<rasnet::service::RasMgrClientService> RasnetClientComm::getRas
     unique_lock<shared_mutex> lock(this->rasMgrServiceMtx);
     if (!this->initializedRasMgrService)
     {
-        rasnet::ChannelConfig config;
-        this->rasmgrChannel.reset(new Channel(ZmqUtil::toEndpoint(rasmgrHost, rasmgrPort), config));
-        this->rasmgrService.reset(new RasMgrClientService_Stub(rasmgrChannel.get()));
-        this->initializedRasMgrService = true;
+        try
+        {
+            rasnet::ChannelConfig config;
+            this->rasmgrChannel.reset(new Channel(ZmqUtil::toEndpoint(rasmgrHost, rasmgrPort), config));
+            this->rasmgrService.reset(new RasMgrClientService_Stub(rasmgrChannel.get()));
+            this->initializedRasMgrService = true;
+        }
+        catch(rasnet::NetworkingException& ex)
+        {
+            LERROR<<ex.what();
+            handleError(ex.what());
+        }
     }
 
     return this->rasmgrService;
@@ -851,9 +875,9 @@ void RasnetClientComm::closeRasmgrService()
     unique_lock<shared_mutex> lock(this->rasMgrServiceMtx);
     if (this->initializedRasMgrService)
     {
+        this->initializedRasMgrService = false;
         this->rasmgrService.reset();
         this->rasmgrChannel.reset();
-        this->initializedRasMgrService = false;
     }
 }
 
@@ -870,12 +894,11 @@ int RasnetClientComm::executeStartInsertPersMDD(const char *collName, r_GMarray 
     startInsertMDDReq.set_type_name(mar->get_type_name());
     startInsertMDDReq.set_oid(mar->get_oid().get_string_representation());
 
-    this->getRasServerService()->StartInsertMDD(&clientController, &startInsertMDDReq, &startInsertMDDRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->StartInsertMDD(&clientController, &startInsertMDDReq, &startInsertMDDRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     return startInsertMDDRepl.status();
@@ -895,12 +918,11 @@ int RasnetClientComm::executeInsertTile(bool persistent, RPCMarray *tile)
     insertTileReq.set_data(tile->data.confarray_val, tile->data.confarray_len);
     insertTileReq.set_data_length(tile->data.confarray_len);
 
-    this->getRasServerService()->InsertTile(&clientController, &insertTileReq, &insertTileRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->InsertTile(&clientController, &insertTileReq, &insertTileRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     return insertTileRepl.status();
@@ -914,12 +936,11 @@ void RasnetClientComm::executeEndInsertMDD(bool persistent)
     endInsertMDDReq.set_client_id(this->clientId);
     endInsertMDDReq.set_persistent(persistent);
 
-    this->getRasServerService()->EndInsertMDD(&clientController, &endInsertMDDReq, &endInsertMDDRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->EndInsertMDD(&clientController, &endInsertMDDReq, &endInsertMDDRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     handleStatusCode(endInsertMDDRepl.status(), "executeEndInsertMDD");
@@ -979,12 +1000,11 @@ int RasnetClientComm::executeEndTransfer()
 
     endTransferReq.set_client_id(this->clientId);
 
-    this->getRasServerService()->EndTransfer(&clientController, &endTransferReq, &endTransferRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->EndTransfer(&clientController, &endTransferReq, &endTransferRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     return endTransferRepl.status();
@@ -997,7 +1017,8 @@ GetMDDRes* RasnetClientComm::executeGetNextMDD()
 
     getNextMDDReq.set_client_id(this->clientId);
 
-    this->getRasServerService()->GetNextMDD(&clientController, &getNextMDDReq, &getNextMDDRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->GetNextMDD(&clientController, &getNextMDDReq, &getNextMDDRepl, doNothing);
     if (clientController.Failed())
     {
         handleError(clientController.ErrorText());
@@ -1194,12 +1215,11 @@ GetTileRes* RasnetClientComm::executeGetNextTile()
 
     getNextTileReq.set_client_id(this->clientId);
 
-    this->getRasServerService()->GetNextTile(&clientController, &getNextTileReq, &getNextTileRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->GetNextTile(&clientController, &getNextTileReq, &getNextTileRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     GetTileRes* result = new GetTileRes();
@@ -1324,12 +1344,11 @@ r_Ref_Any RasnetClientComm::executeGetCollByNameOrOId(const char *collName, cons
         getCollectionByNameOrOidReq.set_is_name(false);
     }
 
-    this->getRasServerService()->GetCollectionByNameOrOid(&clientController, &getCollectionByNameOrOidReq, &getCollectionByNameOrOidRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->GetCollectionByNameOrOid(&clientController, &getCollectionByNameOrOidReq, &getCollectionByNameOrOidRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     int status = getCollectionByNameOrOidRepl.status();
@@ -1369,12 +1388,11 @@ r_Ref_Any RasnetClientComm::executeGetCollOIdsByNameOrOId(const char *collName, 
         getCollOidsByNameOrOidReq.set_is_name(false);
     }
 
-    this->getRasServerService()->GetCollOidsByNameOrOid(&clientController, &getCollOidsByNameOrOidReq, &getCollOidsByNameOrOidRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->GetCollOidsByNameOrOid(&clientController, &getCollOidsByNameOrOidReq, &getCollOidsByNameOrOidRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     int status = getCollOidsByNameOrOidRepl.status();
@@ -1508,12 +1526,11 @@ int RasnetClientComm::executeStartInsertTransMDD(r_GMarray *mdd)
     startInsertTransMDDReq.set_type_length(mdd->get_type_length());
     startInsertTransMDDReq.set_type_name(mdd->get_type_name());
 
-    this->getRasServerService()->StartInsertTransMDD(&clientController, &startInsertTransMDDReq, &startInsertTransMDDRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->StartInsertTransMDD(&clientController, &startInsertTransMDDReq, &startInsertTransMDDRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     return startInsertTransMDDRepl.status();
@@ -1525,12 +1542,11 @@ int RasnetClientComm::executeInitUpdate()
     InitUpdateRepl initUpdateRepl;
 
     initUpdateReq.set_client_id(this->clientId);
-    this->getRasServerService()->InitUpdate(&clientController, &initUpdateReq, &initUpdateRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->InitUpdate(&clientController, &initUpdateReq, &initUpdateRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     return initUpdateRepl.status();
@@ -1545,12 +1561,11 @@ int RasnetClientComm::executeExecuteQuery(const char *query, r_Set<r_Ref_Any> &r
     executeQueryReq.set_client_id(this->clientId);
     executeQueryReq.set_query(query);
 
-    this->getRasServerService()->ExecuteQuery(&clientController, &executeQueryReq, &executeQueryRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->ExecuteQuery(&clientController, &executeQueryReq, &executeQueryRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     int status = executeQueryRepl.status();
@@ -1584,12 +1599,11 @@ GetElementRes* RasnetClientComm::executeGetNextElement()
 
     getNextElementReq.set_client_id(this->clientId);
 
-    this->getRasServerService()->GetNextElement(&clientController, &getNextElementReq, &getNextElementRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->GetNextElement(&clientController, &getNextElementReq, &getNextElementRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     GetElementRes* result = new GetElementRes();
@@ -1664,7 +1678,7 @@ void RasnetClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) th
             r_Transaction::actual_transaction->add_object_list( r_Transaction::POINT, (void*) typedElement );
             delete [] stringRep;
         }
-            break;
+        break;
 
         case r_Type::SINTERVALTYPE:
         {
@@ -1677,7 +1691,7 @@ void RasnetClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) th
             r_Transaction::actual_transaction->add_object_list( r_Transaction::SINTERVAL, (void*) typedElement );
             delete [] stringRep;
         }
-            break;
+        break;
 
         case r_Type::MINTERVALTYPE:
         {
@@ -1690,7 +1704,7 @@ void RasnetClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) th
             r_Transaction::actual_transaction->add_object_list( r_Transaction::MINTERVAL, (void*) typedElement );
             delete [] stringRep;
         }
-            break;
+        break;
 
         case r_Type::OIDTYPE:
         {
@@ -1703,10 +1717,10 @@ void RasnetClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) th
             r_Transaction::actual_transaction->add_object_list( r_Transaction::OID, (void*) typedElement );
             delete [] stringRep;
         }
-            break;
+        break;
         default:
             RMDBGENTER(2, RMDebug::module_clientcomm, "RasnetClientComm", "getElementCollection(...) bad element typeId" << elementType->type_id())
-                    break;
+            break;
         }
 
         TALK( "got an element" );
@@ -1732,12 +1746,11 @@ int RasnetClientComm::executeExecuteUpdateQuery(const char *query) throw( r_Erro
     executeUpdateQueryReq.set_client_id(this->clientId);
     executeUpdateQueryReq.set_query(query);
 
-    this->getRasServerService()->ExecuteUpdateQuery(&clientController, &executeUpdateQueryReq, &executeUpdateQueryRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->ExecuteUpdateQuery(&clientController, &executeUpdateQueryReq, &executeUpdateQueryRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     int status = executeUpdateQueryRepl.status();
@@ -1776,13 +1789,11 @@ int  RasnetClientComm::executeExecuteUpdateQuery(const char *query, r_Set< r_Ref
 
     executeInsertQueryReq.set_client_id(this->clientId);
     executeInsertQueryReq.set_query(query);
-
-    this->getRasServerService()->ExecuteInsertQuery(&clientController, &executeInsertQueryReq, &executeInsertQueryRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->ExecuteInsertQuery(&clientController, &executeInsertQueryReq, &executeInsertQueryRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     int status = executeInsertQueryRepl.status();
@@ -1821,12 +1832,11 @@ int RasnetClientComm::executeSetFormat(bool lTransferFormat, r_Data_Format forma
     setFormatReq.set_format(format);
     setFormatReq.set_format_params(formatParams);
 
-    this->getRasServerService()->SetFormat(&clientController, &setFormatReq, &setFormatRepl, doNothing.get());
+    ClientController clientController;
+    this->getRasServerService()->SetFormat(&clientController, &setFormatReq, &setFormatRepl, doNothing);
     if (clientController.Failed())
     {
-        string errorText = clientController.ErrorText();
-        clientController.Reset();
-        handleError(errorText);
+        handleError(clientController.ErrorText());
     }
 
     return setFormatRepl.status();
@@ -1925,8 +1935,7 @@ int RasnetClientComm::getTimeoutInterval()
 void RasnetClientComm::startRasMgrKeepAlive()
 {
     this->rasmgrKeepAliveControlEndpoint = ZmqUtil::toInprocAddress(UUID::generateUUID());
-    this->rasMgrKeepAliveManagementThread.reset(
-                new thread(&RasnetClientComm::clientRasMgrKeepAliveRunner, this));
+    this->rasMgrKeepAliveManagementThread.reset(new thread(&RasnetClientComm::clientRasMgrKeepAliveRunner, this));
 
     this->rasmgrKeepAliveControlSocket.reset(new zmq::socket_t(this->rasmgrKeepAliveContext, ZMQ_PAIR));
     this->rasmgrKeepAliveControlSocket->connect(this->rasmgrKeepAliveControlEndpoint.c_str());
@@ -1936,54 +1945,74 @@ void RasnetClientComm::stopRasMgrKeepAlive()
 {
     bool success = false;
 
-    try
+    if(!rasMgrKeepAliveManagementThread)
     {
-        // Kill the thread in a clean way
-        InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
-        shared_ptr<BaseMessage> reply;
-
-        success = ZmqUtil::isSocketWritable(*(this->rasmgrKeepAliveControlSocket.get()), 0);
-
-        if (success)
-        {
-            success = ZmqUtil::send(*(this->rasmgrKeepAliveControlSocket.get()), request);
-        }
-
-        if (success)
-        {
-            success = ZmqUtil::isSocketReadable(*(this->rasmgrKeepAliveControlSocket.get()), 0);
-        }
-
-        if (success)
-        {
-            success = ZmqUtil::receive(*(this->rasmgrKeepAliveControlSocket.get()), reply);
-        }
-
-        if (success)
-        {
-            success = (reply->type() == InternalDisconnectReply::default_instance().GetTypeName());
-        }
-    }
-    catch (std::exception& ex)
-    {
-        LERROR<<ex.what();
-    }
-    catch (...)
-    {
-        LERROR<<"RasServer Keep Alive stop has failed";
-    }
-
-    if (success && this->rasMgrKeepAliveManagementThread->joinable())
-    {
-        this->rasMgrKeepAliveManagementThread->join();
+        LDEBUG<<"Thread that sends messages from client to rasmgr is not running.";
     }
     else
     {
-        this->rasMgrKeepAliveManagementThread->interrupt();
+        try
+        {
+            // Kill the thread in a clean way
+            InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
+            shared_ptr<BaseMessage> reply;
+
+            if(!this->rasmgrKeepAliveControlSocket)
+            {
+                LDEBUG<<"Internal socket to client-rasmgr keep alive worker is null."
+                      <<"This is probably due to the fact that the thread was never started.";
+            }
+            else if(!ZmqUtil::isSocketWritable(*this->rasmgrKeepAliveControlSocket, 1))
+            {
+                LERROR<<"Control socket is not writable";
+            }
+            else if(!ZmqUtil::send(*this->rasmgrKeepAliveControlSocket, request))
+            {
+                LERROR<<"Failed to send request to stop rasmgr keep alive.";
+            }
+            else if(!ZmqUtil::isSocketReadable(*this->rasmgrKeepAliveControlSocket, 1))
+            {
+                LERROR<<"The internal communication socket is not readable.";
+            }
+            else if(!ZmqUtil::receive(*this->rasmgrKeepAliveControlSocket, reply))
+            {
+                LERROR<<"Failed to receive reply to request to stop rasmgr keep alive.";
+            }
+            else if(reply->type() != InternalDisconnectReply::default_instance().GetTypeName())
+            {
+                LERROR<<"Received invalid reply to internal disconnect reply.";
+            }
+            else
+            {
+                success = true;
+            }
+        }
+        catch (std::exception& ex)
+        {
+            LERROR<<ex.what();
+        }
+        catch (...)
+        {
+            LERROR<<"RasServer Keep Alive stop has failed";
+        }
+
+        if (success && this->rasMgrKeepAliveManagementThread->joinable())
+        {
+            LDEBUG<<"Joining rasmgr keep alive management thread.";
+            this->rasMgrKeepAliveManagementThread->join();
+            LDEBUG<<"Joined rasmgr keep alive management thread.";
+        }
+        else
+        {
+            LDEBUG<<"Interrupting rasmgr keep alive management thread.";
+            this->rasMgrKeepAliveManagementThread->interrupt();
+            LDEBUG<<"Interrupted rasmgr keep alive management thread.";
+        }
     }
 }
 
-void RasnetClientComm::clientRasMgrKeepAliveRunner(){
+void RasnetClientComm::clientRasMgrKeepAliveRunner()
+{
 
     shared_ptr<BaseMessage> controlMessage;
     bool keepRunning = true;
@@ -1992,7 +2021,8 @@ void RasnetClientComm::clientRasMgrKeepAliveRunner(){
     {
         zmq::socket_t control(this->rasmgrKeepAliveContext, ZMQ_PAIR);
         control.bind(this->rasmgrKeepAliveControlEndpoint.c_str());
-        zmq::pollitem_t items[] = {
+        zmq::pollitem_t items[] =
+        {
             {control, 0, ZMQ_POLLIN}
         };
 
@@ -2014,9 +2044,13 @@ void RasnetClientComm::clientRasMgrKeepAliveRunner(){
                 KeepAliveReq keepAliveReq;
                 Void keepAliveRepl;
                 keepAliveReq.set_clientuuid(this->clientUUID);
-                this->getRasMgrService()->KeepAlive(&clientController, &keepAliveReq, &keepAliveRepl, doNothing.get());
+
+                ClientController clientController;
+                this->getRasMgrService()->KeepAlive(&clientController, &keepAliveReq, &keepAliveRepl, doNothing);
                 if (clientController.Failed())
                 {
+                    LERROR<<"Failed to send keep alive message to rasmgr:"<<clientController.ErrorText();
+                    LDEBUG<<"Stopping client-rasmgr keep alive thread.";
                     keepRunning = false;
                 }
             }
@@ -2038,7 +2072,7 @@ void RasnetClientComm::startRasServerKeepAlive()
 {
     this->rasserverKeepAliveControlEndpoint = ZmqUtil::toInprocAddress(UUID::generateUUID());
     this->rasServerKeepAliveManagementThread.reset(
-                new thread(&RasnetClientComm::clientRasServerKeepAliveRunner, this));
+        new thread(&RasnetClientComm::clientRasServerKeepAliveRunner, this));
 
     this->rasserverKeepAliveSocket.reset(new zmq::socket_t(this->rasserverKeepAliveContext, ZMQ_PAIR));
     this->rasserverKeepAliveSocket->connect(this->rasserverKeepAliveControlEndpoint.c_str());
@@ -2046,57 +2080,69 @@ void RasnetClientComm::startRasServerKeepAlive()
 
 void RasnetClientComm::stopRasServerKeepAlive()
 {
-    bool success;
-    try
+    if(!rasServerKeepAliveManagementThread)
     {
-        //TODO-GM: add log messages in case of failure
-        // Kill the thread in a clean way
-        InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
-        shared_ptr<BaseMessage> reply;
-
-        success = ZmqUtil::isSocketWritable(*(this->rasserverKeepAliveSocket.get()), 0);
-
-        if (success)
-        {
-            success = ZmqUtil::send(*(this->rasserverKeepAliveSocket.get()), request);
-        }
-
-        if (success)
-        {
-            success = ZmqUtil::isSocketReadable(*(this->rasserverKeepAliveSocket.get()), 0);
-        }
-
-        if (success)
-        {
-            success = ZmqUtil::receive(*(this->rasserverKeepAliveSocket.get()), reply);
-        }
-
-        if (success)
-        {
-            success = (reply->type() == InternalDisconnectReply::default_instance().GetTypeName());
-        }
-    }
-    catch (std::exception& ex)
-    {
-        LERROR<<ex.what();
-    }
-    catch (...)
-    {
-        LERROR<<"RasServer Keep Alive stop has failed";
-    }
-
-    if (success && this->rasServerKeepAliveManagementThread->joinable())
-    {
-        this->rasServerKeepAliveManagementThread->join();
+        LDEBUG<<"Thread that sends messages from client to rasserver is not running.";
     }
     else
     {
-        this->rasServerKeepAliveManagementThread->interrupt();
+        bool success = false;
+        try
+        {
+            // Kill the thread in a clean way
+            InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
+            shared_ptr<BaseMessage> reply;
+            if(!ZmqUtil::isSocketWritable(*this->rasserverKeepAliveSocket, 1))
+            {
+                LERROR<<"Cannot write to internal control socket.";
+            }
+            else if(!ZmqUtil::send(*this->rasserverKeepAliveSocket, request))
+            {
+                LERROR<<"Cannot send internal disconnect request.";
+            }
+            else if(!ZmqUtil::isSocketReadable(*this->rasserverKeepAliveSocket, 1))
+            {
+                LERROR<<"No reply to internal disconnect request available.";
+            }
+            else if(!ZmqUtil::receive(*this->rasserverKeepAliveSocket, reply))
+            {
+                LERROR<<"Failed to receive internal disconnect reply.";
+            }
+            else if(reply->type() != InternalDisconnectReply::default_instance().GetTypeName())
+            {
+                LERROR<<"Received invalid reply message.";
+            }
+            else
+            {
+                success = true;
+            }
+        }
+        catch (std::exception& ex)
+        {
+            LERROR<<ex.what();
+        }
+        catch (...)
+        {
+            LERROR<<"RasServer Keep Alive stop has failed";
+        }
+
+        if (success && this->rasServerKeepAliveManagementThread->joinable())
+        {
+            LDEBUG<<"Joining rasserver keep alive management thread.";
+            this->rasServerKeepAliveManagementThread->join();
+            LDEBUG<<"Joined rasserver keep alive management thread.";
+        }
+        else
+        {
+            LDEBUG<<"Interrupting rasserver keep alive management thread.";
+            this->rasServerKeepAliveManagementThread->interrupt();
+            LDEBUG<<"Interrupted rasserver keep alive management thread.";
+        }
     }
 }
 
-void RasnetClientComm::clientRasServerKeepAliveRunner(){
-
+void RasnetClientComm::clientRasServerKeepAliveRunner()
+{
     shared_ptr<BaseMessage> controlMessage;
     bool keepRunning = true;
 
@@ -2104,7 +2150,8 @@ void RasnetClientComm::clientRasServerKeepAliveRunner(){
     {
         zmq::socket_t control(this->rasserverKeepAliveContext, ZMQ_PAIR);
         control.bind(this->rasserverKeepAliveControlEndpoint.c_str());
-        zmq::pollitem_t items[] = {
+        zmq::pollitem_t items[] =
+        {
             {control, 0, ZMQ_POLLIN}
         };
 
@@ -2128,10 +2175,13 @@ void RasnetClientComm::clientRasServerKeepAliveRunner(){
 
                 keepAliveReq.set_client_uuid(this->clientUUID);
                 keepAliveReq.set_session_id(this->sessionId);
-                this->getRasServerService()->KeepAlive(&clientController, &keepAliveReq, &keepAliveRepl, doNothing.get());
+
+                ClientController clientController;
+                this->getRasServerService()->KeepAlive(&clientController, &keepAliveReq, &keepAliveRepl, doNothing);
                 if (clientController.Failed())
                 {
-                    clientController.Reset();
+                    LERROR<<"Failed to send keep alive message to rasserver:"<<clientController.ErrorText();
+                    LDEBUG<<"Stopping client-rasserver keep alive thread.";
                     keepRunning =  false;
                 }
             }

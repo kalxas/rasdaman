@@ -24,7 +24,9 @@
 #include <signal.h>
 #include <sys/wait.h>
 
+#include <cstring>
 #include <stdexcept>
+#include <iostream>
 
 #include <boost/lexical_cast.hpp>
 
@@ -79,11 +81,12 @@ using rasnet::ZmqUtil;
 
 #define RASEXECUTABLE BINDIR"rasserver"
 
-ServerRasNet::ServerRasNet(const std::string &hostName, const boost::int32_t &port, boost::shared_ptr<DatabaseHost> dbHost)
+ServerRasNet::ServerRasNet(const ServerConfig &config)
 {
-    this->hostName = ZmqUtil::toTcpAddress(hostName);
-    this->port = port;
-    this->dbHost = dbHost;
+    this->hostName = ZmqUtil::toTcpAddress(config.getHostName());
+    this->port = config.getPort();
+    this->dbHost = config.getDbHost();
+    this->options = config.getOptions();
     this->serverId = UUID::generateUUID();
     this->doNothing.reset(NewPermanentCallback(&DoNothing));
 
@@ -126,6 +129,8 @@ void ServerRasNet::startProcess()
         throw runtime_error("The process has already been started.");
     }
 
+    lock.unlock();
+
     this->processId = fork();
 
     switch(this->processId)
@@ -141,24 +146,39 @@ void ServerRasNet::startProcess()
     case 0:
     {
         //Child process
-        shared_ptr<RasMgrConfig> config = RasMgrConfig::getInstance();
-        LDEBUG<<"Starting server process:"
-              <<RASEXECUTABLE
-              <<" in "
-              <<config->getRasServerExecPath();
 
-        if (execl(RASEXECUTABLE,
-                  config->getRasServerExecPath().c_str(),
-                  "--lport", lexical_cast<string>(port).c_str(),
-                  "--serverId", this->getServerId().c_str(),
-                  "--mgr", config->getConnectHostName().c_str(),
-                  "--rsn", this->getServerId().c_str(),
-                  "--mgrport", lexical_cast<string>(config->getRasMgrPort()).c_str(),
-                  "--connect", this->dbHost->getConnectString().c_str(),
-                  "--rasnet" ,(char*)0)
-                == -1)
+        std::string command = this->getStartProcessCommand();
+        LDEBUG<<"Starting server process with command:"<<command;
+
+        boost::char_separator<char> sep(" \t\r\n");
+        boost::tokenizer<boost::char_separator<char> > tokens(command, sep);
+
+        std::vector<std::string> commandVec;
+
+        for ( boost::tokenizer<boost::char_separator<char> >::iterator it = tokens.begin();
+                it != tokens.end();
+                ++it)
+        {
+            commandVec.push_back((*it));
+        }
+
+        char** commandArr = new char*[commandVec.size()+1];
+
+        for(std::size_t i=0; i<commandVec.size(); ++i)
+        {
+            commandArr[i] = new char[commandVec[i].size()+1];
+
+            strcpy(commandArr[i], commandVec[i].c_str());
+
+            commandArr[i][commandVec[i].size()]='\0';
+        }
+
+        commandArr[commandVec.size()] = (char*)NULL;
+
+        if (execv(RASEXECUTABLE, commandArr)== -1)
         {
             LERROR<<"Starting RasServer  process failed."<<strerror(errno);
+
             exit(EXIT_FAILURE);
         }
     }
@@ -182,7 +202,7 @@ bool ServerRasNet::isAlive()
     {
         //In case the process has died, remove it from the process table
         int status;
-        waitpid(this->processId,&status, WNOHANG);
+        waitpid(this->processId, &status, WNOHANG);
 
         //Check if the process is alive.
         bool isProcessAlive = (kill(this->processId, 0)==0);
@@ -454,6 +474,22 @@ boost::shared_ptr<rasnet::service::RasServerService> ServerRasNet::getService()
     }
 
     return this->service;
+}
+
+std::string ServerRasNet::getStartProcessCommand()
+{
+    //TODO:Factor this out
+    shared_ptr<RasMgrConfig> globalConfig = RasMgrConfig::getInstance();
+    std::stringstream ss;
+    ss<<globalConfig->getRasServerExecPath()<<" ";
+    ss<<"--lport"<<" "<<lexical_cast<string>(port)<<" ";
+    ss<<"--serverId"<<" "<<this->getServerId()<<" ";
+    ss<<"--mgr"<<" "<< globalConfig->getConnectHostName()<<" ";
+    ss<<"--rsn"<<" "<<this->getServerId()<<" ";
+    ss<<"--mgrport"<<" "<<lexical_cast<string>(globalConfig->getRasMgrPort())<<" ";
+    ss<<"--connect"<<" "<<this->dbHost->getConnectString()<<" ";
+    ss<<"--rasnet";
+    return ss.str();
 }
 
 const char *ServerRasNet::getCapability(const char *serverName, const char *databaseName, const UserDatabaseRights& rights)

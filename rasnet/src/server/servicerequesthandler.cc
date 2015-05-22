@@ -101,6 +101,8 @@ void ServiceRequestHandler::addService(boost::shared_ptr<google::protobuf::Servi
 
 bool ServiceRequestHandler::canHandle(const std::vector<boost::shared_ptr<zmq::message_t> > &message)
 {
+    //Message format :
+    // | MessageType = SERVICE_REQUEST | Call ID | Method Name | Serialized Input Data|
     MessageType type;
     if(message.size()==4
             && type.ParseFromArray(message[0]->data(), message[0]->size())

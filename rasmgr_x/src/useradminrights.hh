@@ -27,7 +27,10 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The UserAdminRights class represents the administration rights of the
+ * user. @see Installation and Administration Guide
+ */
 class UserAdminRights
 {
 public:

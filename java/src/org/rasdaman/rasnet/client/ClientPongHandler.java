@@ -29,6 +29,10 @@ import org.rasdaman.rasnet.util.PeerStatus;
 
 import java.util.ArrayList;
 
+/**
+ * @brief The ClientPongHandler class Handles a pong message received as a response to an earlier ping
+ * by resetting the server's status.
+ */
 public class ClientPongHandler {
     private PeerStatus serverStatus;
 
@@ -36,6 +40,14 @@ public class ClientPongHandler {
         this.serverStatus = serverStatus;
     }
 
+    /**
+     * @brief canHandle Check if the message can be handled by this handler
+     * This handler accepts messages of the format:
+     * | rasnet.MessageType |
+     * with MessageType.type() == MessageType::ALIVE_PONG
+     * @param message
+     * @return TRUE if the message can be handled, FALSE otherwise
+     */
     public boolean canHandle(ArrayList<byte[]> message) {
         boolean success = false;
 
@@ -53,6 +65,12 @@ public class ClientPongHandler {
         return success;
     }
 
+    /**
+     * @brief handle Resets the status of the server if a PONG message is received
+     * @param message
+     * @throws UnsupportedMessageType if an invalid message is passed in.
+     * i.e. one for which canHandle returns false
+     */
     public void handle(ArrayList<byte[]> message) throws UnsupportedMessageType {
         if (this.canHandle(message)) {
             this.serverStatus.reset();

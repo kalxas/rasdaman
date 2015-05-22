@@ -25,34 +25,34 @@ package org.rasdaman.rasnet.server;
 import org.rasdaman.rasnet.common.Constants;
 
 public class ServiceManagerConfig {
-    private int ioThreadNo;
-    private int cpuThreadNo;
+    private int numberOfIoThreads;
+    private int numberOfCPUThreads;
     private int maxOpenSockets;
     private int aliveTimeout;
     private int aliveRetryNo;
 
     public ServiceManagerConfig() {
-        this.ioThreadNo = Constants.DEFAULT_SERVER_IO_THREADS_NO;
-        this.cpuThreadNo = Constants.DEFAULT_SERVER_CPU_THREADS_NO;
+        this.numberOfIoThreads = Constants.DEFAULT_SERVER_IO_THREADS_NO;
+        this.numberOfCPUThreads = Constants.DEFAULT_SERVER_CPU_THREADS_NO;
         this.aliveTimeout = Constants.DEFAULT_SERVER_ALIVE_TIMEOUT;
         this.aliveRetryNo = Constants.DEFAULT_SERVER_LIVES;
         this.maxOpenSockets = Constants.DEFAULT_SERVER_MAX_OPEN_SOCKETS;
     }
 
-    public int getIoThreadNo() {
-        return ioThreadNo;
+    public int getNumberOfIoThreads() {
+        return numberOfIoThreads;
     }
 
-    public void setIoThreadNo(int ioThreadNo) {
-        this.ioThreadNo = ioThreadNo;
+    public void setNumberOfIoThreads(int numberOfIoThreads) {
+        this.numberOfIoThreads = numberOfIoThreads;
     }
 
-    public int getCpuThreadNo() {
-        return cpuThreadNo;
+    public int getNumberOfCPUThreads() {
+        return numberOfCPUThreads;
     }
 
-    public void setCpuThreadNo(int cpuThreadNo) {
-        this.cpuThreadNo = cpuThreadNo;
+    public void setNumberOfCPUThreads(int numberOfCPUThreads) {
+        this.numberOfCPUThreads = numberOfCPUThreads;
     }
 
     public int getAliveTimeout() {

@@ -81,6 +81,11 @@ const std::string& Database::getDbName() const
 
 void Database::setDbName(const std::string &value)
 {
+    if(isBusy())
+    {
+        throw std::runtime_error("Cannot change properties of running database.");
+    }
+
     dbName = value;
 }
 

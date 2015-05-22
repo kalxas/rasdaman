@@ -26,6 +26,7 @@
 #include "../testutilities.hh"
 #include "../messages/testing.pb.h"
 #include "../../src/messages/communication.pb.h"
+#include "../mock/clientpoolmock.hh"
 
 namespace rasnet
 {
@@ -41,15 +42,16 @@ protected:
         this->server.bind(address.c_str());
         this->client.connect(address.c_str());
 
-        handler.reset(new ServerPingHandler(server));
+        clientPool.reset(new ClientPoolMock());
+        handler.reset(new ServerPingHandler(clientPool, server));
     }
 
     virtual ~ServerPingHandlerTest()
     {
-       // this->client.disconnect(address.c_str());
+        // this->client.disconnect(address.c_str());
         this->client.close();
 
-      //  this->server.unbind(address.c_str());
+        //  this->server.unbind(address.c_str());
         this->server.close();
     }
 
@@ -57,6 +59,7 @@ protected:
     std::string address;
     zmq::socket_t server;
     zmq::socket_t client;
+    boost::shared_ptr<ClientPool> clientPool;
     boost::shared_ptr<ServerPingHandler> handler;
 };
 
@@ -93,11 +96,17 @@ TEST_F(ServerPingHandlerTest, handleFail)
 
 TEST_F(ServerPingHandlerTest, handle)
 {
+    using ::testing::AtLeast;                     // #1
+    using ::testing::_;
+    using ::testing::Return;
+
     ZmqUtil::sendCompositeMessage(client, MessageType::ALIVE_PING);
 
     std::string peerId;
     std::vector<boost::shared_ptr<zmq::message_t> > goodMessage;
     ZmqUtil::receiveCompositeMessageFromPeer(server, peerId, goodMessage);
+    ClientPoolMock& clientPoolMock = *(boost::dynamic_pointer_cast<ClientPoolMock>( this->clientPool));
+    EXPECT_CALL(clientPoolMock, isClientAlive(_)).WillOnce(Return(true));
 
     //The message must be handled without any exception being thrown
     ASSERT_NO_THROW(handler->handle(goodMessage, peerId));

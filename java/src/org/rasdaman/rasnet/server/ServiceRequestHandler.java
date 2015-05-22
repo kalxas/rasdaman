@@ -39,15 +39,42 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+/**
+ * @brief The ServiceRequestHandler class Handles service requests from
+ * client Channels by calling the appropriate server implementation.
+ */
 public class ServiceRequestHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ServiceRequestHandler.class);
 
     private ZMQ.Context context;
+    /**
+     * Address of the ROUTER socket in the ServiceManager worker thread that is responsible for
+     * receiving messages from threads processing the service requests
+     */
     private String bridgeAddress;
+
+    /**
+     * Map between the service's fully qualified name and the service
+     */
     private ConcurrentHashMap<String, Service> serviceMap;
+
+    /**
+     *  Map between the fully qualified name of the method and the method descriptor
+     */
     private ConcurrentHashMap<String, Descriptors.MethodDescriptor> serviceMethodMap;
+
+    /**
+     * Queue containing the results of completed service calls
+     */
     private ConcurrentLinkedQueue<ServiceResponse> completedTasksResults;
 
+    /**
+     * @brief ServiceRequestHandler
+     * @param context ZMQ context used by the ServerManager that owns this object
+     * for internal communication
+     * @param bridgeAddress Address of the bridge used to forward service responses
+     * from this thread, to the worker thread in the ServerManager to the client
+     */
     public ServiceRequestHandler(ZMQ.Context context, String bridgeAddress) {
         this.context = context;
         this.bridgeAddress = bridgeAddress;
@@ -56,6 +83,11 @@ public class ServiceRequestHandler {
         this.completedTasksResults = new ConcurrentLinkedQueue<ServiceResponse>();
     }
 
+    /**
+     * Add the service to the list of available services.
+     * @param service
+     * @throws DuplicateService If the service is already in the list, an exception will be thrown.
+     */
     public void addService(Service service) throws DuplicateService {
         if (service == null) {
             throw new IllegalArgumentException("service");
@@ -78,10 +110,18 @@ public class ServiceRequestHandler {
         }
     }
 
+    /**
+     * @brief getResponse Get the next available service response
+     */
     ServiceResponse getTaskResult() {
         return this.completedTasksResults.poll();
     }
 
+    /**
+     * Check if the given message represents a service request
+     * @param message   Message format :| MessageType = SERVICE_REQUEST | Call ID | Method Name | Serialized Input Data|
+     * @return true if the message can be processed, false otherwise
+     */
     public boolean canHandle(ArrayList<byte[]> message) {
         boolean success = false;
 
@@ -99,6 +139,15 @@ public class ServiceRequestHandler {
         return success;
     }
 
+    /**
+     * Process the message if it contains a service request, throw an exception otherwise.
+     * The exception is thrown only in case of programmer error i.e. Calling the method
+     * on a message which has not been verified with canHandle
+     * Call the appropriate method and return a result to the requesting client.
+     * @param message BaseMessage containing a ServiceRequest
+     * @param peerId ID of the peer that requested the service
+     * and which can be used to reply to the service call.
+     */
     public void handle(ArrayList<byte[]> message, String peerId) throws UnsupportedMessageType {
         //boolean which indicates if the callback was called.
         //If the callback was not called, an error is reported to the user.
@@ -171,11 +220,17 @@ public class ServiceRequestHandler {
         }
     }
 
+    /**
+     * Create a ZeroMQ DEALER socket and connect it to the bridge_addr
+     * and then send the message to that address
+     * @param peerId ID of the peer that sent the message that is being handled.
+     */
     private void sendMessageToBridge(String peerId) {
         try {
             ZMQ.Socket socket = this.context.socket(ZMQ.DEALER);
             socket.setLinger(0);
             socket.setIdentity(peerId.getBytes(Constants.DEFAULT_ENCODING));
+
             socket.connect(this.bridgeAddress);
 
             ServiceResponseAvailable responseAvailable = ServiceResponseAvailable.getDefaultInstance();

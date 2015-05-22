@@ -25,17 +25,25 @@
 
 #include <sys/time.h>
 #include <boost/cstdint.hpp>
+
 namespace common
 {
+/**
+ * @brief The Timer class allows to test when a given time span has passed.
+ */
 class Timer
 {
 public:
     /**
     * Create a Timer object with a given lifetime. The timer automatically starts ticking.
     * @param period The number of milliseconds until the timer will expire.
-    * @throws std::runtime_error is thrown if the period is nevative.
+    * @throws std::runtime_error is thrown if the period is negative.
     */
     Timer(boost::int32_t period);
+
+    virtual ~Timer();
+
+    boost::int32_t getPeriod() const;
 
     /**
     * Check if the timer has expired.
@@ -48,9 +56,6 @@ public:
     * Reset the timer. The timer will start counting down from the initial period passed to the constructor.
     */
     void reset();
-
-    virtual ~Timer();
-
 private:
     struct timeval start;
     /*!< Timeval representing the time the Timer started */
@@ -59,6 +64,8 @@ private:
     struct timeval current;
     /*!< Timeval used to get the current time when checking for expiration*/
     struct timeval timeout;/*!< Timeval representing the period the Timer measures*/
+
+    boost::int32_t period;
 };
 }
 #endif /* COMMON_TIME_TIMER_HH_ */

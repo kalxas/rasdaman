@@ -27,7 +27,11 @@
 
 namespace rasnet
 {
-
+/**
+ * @brief The NetworkingException class To be thrown an unexpected
+ * event takes place in the network communication between
+ * two peers
+ */
 class NetworkingException:public std::runtime_error
 {
 public:

@@ -36,6 +36,10 @@
 #include "configuration.hh"
 #include "rasmanager.hh"
 
+#define RASMGR_RESULT_OK        0
+#define RASMGR_RESULT_NO_MD5        1
+#define RASMGR_RESULT_ILL_ARGS      2
+
 
 _INITIALIZE_EASYLOGGINGPP
 

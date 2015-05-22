@@ -27,6 +27,9 @@
 
 namespace common
 {
+/**
+ * @brief The Crypto class offers MD5 cryptography used inside rasdaman.
+ */
 class Crypto
 {
 public:

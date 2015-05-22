@@ -40,12 +40,15 @@
 #include "rasnet/src/messages/rassrvr_rasmgr_service.pb.h"
 
 #include "../src/serverrasnet.hh"
-#include "../src/servergroupconfig.hh"
 #include "../src/servergroupimpl.hh"
 #include "../src/databasehostmanager.hh"
 #include "../src/rasmgrconfig.hh"
 #include "../src/constants.hh"
 
+namespace rasmgr
+{
+namespace test
+{
 using ::testing::AtLeast;                     // #1
 using ::testing::_;
 using ::testing::Return;
@@ -54,13 +57,10 @@ using rasmgr::ServerRasNet;
 using rasnet::ServiceManager;
 using rasnet::service::RasServerService;
 using rasmgr::ServerGroupImpl;
-using rasmgr::ServerGroupConfig;
 using rasmgr::RasMgrConfig;
 using rasmgr::test::TestUtil;
 using rasmgr::ServerGroupConfigProto;
 using rasmgr::ServerFactory;
-
-
 
 class ServerGroupTest:public ::testing::Test
 {
@@ -230,7 +230,7 @@ TEST_F(ServerGroupTest, start)
     EXPECT_CALL(serverRef, getPort()).WillOnce(Return(runningPort));
 
     ServerFactoryMock& factoryRef = *boost::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
-    EXPECT_CALL(factoryRef, createServer(_,_,_)).WillOnce(Return(this->server));
+    EXPECT_CALL(factoryRef, createServer(_)).WillOnce(Return(this->server));
 
     ServerGroupConfigProto groupConfig;
     groupConfig.set_name("name");
@@ -264,7 +264,7 @@ TEST_F(ServerGroupTest, tryRegisterServer)
 
 
     ServerFactoryMock& factoryRef = *boost::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
-    EXPECT_CALL(factoryRef, createServer(_,_,_)).WillOnce(Return(this->server));
+    EXPECT_CALL(factoryRef, createServer(_)).WillOnce(Return(this->server));
 
     ServerGroupConfigProto groupConfig;
     groupConfig.set_name("name");
@@ -289,8 +289,6 @@ TEST_F(ServerGroupTest, tryRegisterServer)
 //Try to stop a server group that is already stopped
 TEST_F(ServerGroupTest, stopFailure)
 {
-    bool force = TestUtil::randomBool();
-
     this->dbHost->increaseServerCount();
     DatabaseHostManagerMock& dbhManager = *boost::dynamic_pointer_cast<DatabaseHostManagerMock>(this->dbHostManager);
     EXPECT_CALL(dbhManager, getAndLockDH(_)).WillOnce(Return(this->dbHost));
@@ -305,12 +303,13 @@ TEST_F(ServerGroupTest, stopFailure)
     ServerGroupImpl group(groupConfig, this->dbHostManager, this->serverFactory);
 
     //If the server group is not started, nothing bad should happen.
+    KillLevel force= FORCE;
     ASSERT_ANY_THROW(group.stop(force));
 }
 
 TEST_F(ServerGroupTest, stop)
 {
-    bool force = TestUtil::randomBool();
+    KillLevel force= FORCE;
     boost::int32_t startingPort = 2034;
     boost::int32_t runningPort = 2035;
 
@@ -337,11 +336,11 @@ TEST_F(ServerGroupTest, stop)
     EXPECT_CALL(startingServerRef, startProcess());
     EXPECT_CALL(startingServerRef, getServerId()).WillOnce(Return(startingServerId));
     //A starting server will be forcibly closed
-    EXPECT_CALL(startingServerRef, stop(true));
+    EXPECT_CALL(startingServerRef, stop(KILL));
     EXPECT_CALL(startingServerRef, getPort()).WillOnce(Return(startingPort));
 
     ServerFactoryMock& factoryRef = *boost::dynamic_pointer_cast<ServerFactoryMock>(this->serverFactory);
-    EXPECT_CALL(factoryRef, createServer(_,_,_)).WillOnce(Return(this->server)).WillOnce(Return(startingServer));
+    EXPECT_CALL(factoryRef, createServer(_)).WillOnce(Return(this->server)).WillOnce(Return(startingServer));
 
     ServerGroupConfigProto groupConfig;
     groupConfig.set_name("name");
@@ -448,4 +447,7 @@ TEST_F(ServerGroupTest, evaluateServerGroup)
 //    group.tryRegisterServer(runningServerId);
 
 //    ASSERT_NO_THROW(group.evaluateServerGroup());
+}
+
+}
 }

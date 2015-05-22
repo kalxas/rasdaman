@@ -14,77 +14,81 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+ *2014 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
 package rasnet;
-option java_package="org.rasdaman.rasnet.message";
+option java_package = "org.rasdaman.rasnet.message";
 
+/**
+  * Because Google Protobuf does not allow inheritance,
+  * the type of the received message must be explicitly stated
+  * for the receiver. A serialization schema, presented in the
+  * developer documentation describes the schema
+  */
 message MessageType {
-    enum Types{
+  enum Types {
     CONNECT_REQUEST = 1;
     CONNECT_REPLY = 2;
     ALIVE_PING = 3;
     ALIVE_PONG = 4;
     SERVICE_REQUEST = 5;
     SERVICE_RESPONSE = 6;
-}
-    required Types type = 1;
+  }
+
+  required Types type = 1;
 }
 
-message ServiceCallStatus {
-    required bool success = 1;
-}
+/**
+  * This message contains the status of a service call.
+  * TRUE signifies that the call was successfully completed
+  * while FALSE shows that an error was encountered.
+  * In the current implementation, if an error was encountered it is sent to the user.
+  */
+message ServiceCallStatus { required bool success = 1; }
+
 /**
  * A ConnectRequest message is sent by the client
  * when initiating a connection with the server.
  */
 message ConnectRequest {
-        //The number of times the server should try to contact the client
-        //before giving up and declaring the client dead
-        required int32 retries = 1;
+  // The number of times the server should try to contact the client
+  // before giving up and declaring the client dead
+  required int32 retries = 1;
 
-        //The number of milliseconds between each consecutive
-        //retry
-        required int32 lifetime = 2;
+  // The number of milliseconds between each consecutive
+  // retry
+  required int32 lifetime = 2;
 }
 
 /**
- * A ConnectReply message is sent by the server after receiving a ConnectRequest from a client.
+ * A ConnectReply message is sent by the server after receiving a ConnectRequest
+ * from a client.
  */
 message ConnectReply {
-        //The number of times the client should try to contact the server
-        //before giving up and declaring the client dead
-        required int32 retries = 1;
+  // The number of times the client should try to contact the server
+  // before giving up and declaring the client dead
+  required int32 retries = 1;
 
-        //The number of milliseconds between each consecutive retry
-        required int32 lifetime = 2;
+  // The number of milliseconds between each consecutive retry
+  required int32 lifetime = 2;
 }
 
 /**
- * An AlivePing message is sent by a peer when it wants to see if another peer is alive
- */
-message AlivePing {
-}
-
-/**
- * An AlivePong message is sent by a peer as a response to an AlivePing message.
- */
-message AlivePong {
-}
-
-/**
- * A BaseMessage is used to encapsulate information about a protobuf message and its type.
- * The type information is used to deserialize it and handle it properly at the receiving end.
+ * A BaseMessage is used to encapsulate information about a protobuf message and
+ * its type.
+ * The type information is used to deserialize it and handle it properly at the
+ * receiving end.
  */
 message BaseMessage {
-        //String representing the full name of the contained protomessage.
-        //It is obtained by calling the GetTypeName method on the message
-        required string type = 1;
-        //String representing the serialized protomessage
-        //It is obtained by calling SerializeAsString on the message.
-        required bytes data = 2;
+  // String representing the full name of the contained protomessage.
+  // It is obtained by calling the GetTypeName method on the message
+  required string type = 1;
+  // String representing the serialized protomessage
+  // It is obtained by calling SerializeAsString on the message.
+  required bytes data = 2;
 }

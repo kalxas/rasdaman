@@ -44,6 +44,12 @@
 
 namespace rasmgr
 {
+/**
+ * @brief The ServerManager class Responsible for the management of server groups (creation, destruction, change),
+ * and registering new server processes with the parent group.
+ * The ServerManager has a thread that performs management tasks on the owned servergroups
+ * at a certain interval.
+ */
 class ServerManager
 {
 public:

@@ -27,6 +27,10 @@
 
 namespace rasnet
 {
+/**
+ * @brief The NotImplementedException class To be thrown when a method
+ * is not implemented.
+ */
 class NotImplementedException : public std::runtime_error
 {
 public:

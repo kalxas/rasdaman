@@ -20,22 +20,15 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-/* INCLUDE: PeerStatus.hh
- *
- * MODULE:
- * CLASS:  PeerStatus
- *
- *
- * COMMENTS:
- *        This class is used to maintain information about the state of a network peer.
- *
- *
- */
 #ifndef RASNET_SRC_COMMON_PEERSTATUS_HH
 #define RASNET_SRC_COMMON_PEERSTATUS_HH
 
 #include "../../../common/src/time/timer.hh"
 namespace rasnet {
+/**
+ * @brief The PeerStatus class
+ *  This class is used to maintain information about the state of a network peer.
+ */
 class PeerStatus {
 public:
     /**
@@ -45,6 +38,11 @@ public:
      * @param period The period in milliseconds after which, if a signal is not received, we decrease the number of retries
      */
     PeerStatus(boost::int32_t retries, boost::int32_t period);
+    virtual ~PeerStatus();
+
+    boost::int32_t getRetries() const;
+    boost::int32_t getPeriod() const;
+
     /**
      * Check if the peer is alive.
      * @return true if the peer is alive i.e. the number of retries has not reached 0, false otherwise
@@ -52,8 +50,8 @@ public:
     virtual bool isAlive();
 
     /**
-     * Decrease the number of retries by 1 if a time bigger than the period has passed from the last signal from the peer.
-     *
+     * Decrease the number of retries by 1 if a time larger than the period
+     * has passed from the last signal from the peer.
      * @return true if the number of retries has been decremented, false otherwise
      */
     virtual bool decreaseLiveliness();
@@ -62,8 +60,6 @@ public:
      * Reset the status of the peer .
      */
     virtual void reset();
-
-    virtual ~PeerStatus();
 private:
     boost::int32_t retries;/*!< The number of retries left before the peer is declared dead*/
     boost::int32_t retriesBackup;/*!< The original number of retries the peer has until it is declared dead*/

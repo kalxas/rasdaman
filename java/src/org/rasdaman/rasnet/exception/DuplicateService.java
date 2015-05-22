@@ -21,6 +21,9 @@
  */
 package org.rasdaman.rasnet.exception;
 
+/**
+ * To be thrown when a service with the same fully-qualified name is added twice to a given ServiceManager
+ */
 public class DuplicateService extends Exception {
     public DuplicateService() {
     }

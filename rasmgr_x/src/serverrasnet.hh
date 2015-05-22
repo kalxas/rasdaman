@@ -42,6 +42,7 @@
 
 #include "userdatabaserights.hh"
 #include "databasehost.hh"
+#include "serverconfig.hh"
 #include "server.hh"
 
 namespace rasmgr
@@ -55,7 +56,7 @@ public:
      * @param port The port on which the server will run. The port is int32_t to allow for compatibility with protobuf and java..
      * @param dbHost Reference to the database host to which this server will connect.
      */
-    ServerRasNet(const std::string& hostName, const boost::int32_t& port, boost::shared_ptr<DatabaseHost> dbHost);
+    ServerRasNet(const ServerConfig& config);
 
     virtual ~ServerRasNet();
 
@@ -157,6 +158,7 @@ private:
     std::string hostName;/*! Hostname of the RasServer process */
     boost::int32_t port;/*! Port of the RasServer process */
     boost::shared_ptr<DatabaseHost> dbHost;/*! Database host to which this server has access */
+    std::string options;
 
     pid_t processId; /*Id of the server process*/
     std::string serverId; /*! UUID that uniquely identifies the server */
@@ -188,6 +190,7 @@ private:
      * @return Initialized shared_ptr to the RasServerService.
      */
     boost::shared_ptr<rasnet::service::RasServerService> getService();
+    std::string getStartProcessCommand();
 
     //TODO-AT: remove this
     const char* getCapability(const char *serverName,const char *databaseName, const UserDatabaseRights& rights);

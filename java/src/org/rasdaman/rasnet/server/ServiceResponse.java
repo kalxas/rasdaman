@@ -24,10 +24,32 @@ package org.rasdaman.rasnet.server;
 
 import com.google.protobuf.ByteString;
 
+/**
+ * Used for holding the result of a service call before it is forwarded to the peer.
+ */
 public class ServiceResponse {
+    /**
+     * Serialized Google Protobuf message that must be sent to the peer
+     * that made the service call
+     * This member is null, if success == false
+     */
     private ByteString outputValue;
+
+    /**
+     * String representing an error message that must be sent to the peer
+     * that made the service call.
+     */
     private String error;
+
+    /**
+     * Unique ID of the call
+     */
     private String callId;
+
+    /**
+     * True if the service call was successful which means that outputValue contains the result message
+     * False if the service call failed which means that error contains the error message that must be forwarded to the peer
+     */
     private boolean success;
 
     public ServiceResponse(String callId) {

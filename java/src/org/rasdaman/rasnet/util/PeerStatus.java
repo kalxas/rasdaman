@@ -22,11 +22,32 @@
 
 package org.rasdaman.rasnet.util;
 
+/**
+ * @brief The PeerStatus class
+ *  This class is used to maintain information about the state of a network peer.
+ */
 public class PeerStatus {
+    /**
+     *  The original number of retries the peer has until it is declared dead
+     */
     private final int retriesBackup;
+
+    /**
+     * The number of retries left before the peer is declared dead*
+     */
     private int retries;
+
+    /**
+     *  Timer used to keep track of the period between two signals from the peer
+     */
     private Timer timer;
 
+    /**
+     * Initialize the PeerStatus object with a number of attempts to detect if the peer is alive
+     * and a period after which, if a signal is not received from the peer, the number of retries is decreased.
+     * @param retries The number of times we try to determine if the peer is alive
+     * @param lifetime The period in milliseconds after which, if a signal is not received, we decrease the number of retries
+     */
     public PeerStatus(int retries, int lifetime) {
         if (retries < 0 || lifetime < 0) {
             throw new IllegalArgumentException("The number of retries and the lifetime must be positive.");
@@ -37,10 +58,19 @@ public class PeerStatus {
         this.retriesBackup = retries;
     }
 
+    /**
+     * Check if the peer is alive.
+     * @return true if the peer is alive i.e. the number of retries has not reached 0, false otherwise
+     */
     public boolean isAlive() {
         return this.retries > 0;
     }
 
+    /**
+     * Decrease the number of retries by 1 if a time larger than the lifetime
+     * has passed from the last signal from the peer.
+     * @return true if the number of retries has been decremented, false otherwise
+     */
     public boolean decreaseLiveliness() {
         if (this.timer.hasExpired()) {
             if (this.retries > 0) {
@@ -53,6 +83,9 @@ public class PeerStatus {
         }
     }
 
+    /**
+     * Reset the status of the peer .
+     */
     public void reset() {
         this.retries = this.retriesBackup;
         this.timer.reset();

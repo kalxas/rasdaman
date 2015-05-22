@@ -20,15 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-/* SOURCE: ClientPingHandler.cc
- * MODULE:  communication
- * CLASS:   ClientPingHandler
- *
- * COMMENTS:
- *      The ClientPingHandler responds to a Ping message from the server with a Pong message.
- *
- */
-
 #include "../../../common/src/logging/easylogging++.hh"
 
 #include "../common/zmqutil.hh"

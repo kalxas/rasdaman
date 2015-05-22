@@ -32,16 +32,29 @@ import org.zeromq.ZMQ;
 
 import java.util.ArrayList;
 
+/**
+ * @brief The ServerPingHandler class Handle ping messages from already connected clients
+ * by replying with a pong message
+ */
 public class ServerPingHandler {
     private static Logger LOG = LoggerFactory.getLogger(ClientPool.class);
     private ClientPool clientPool;
-    ZMQ.Socket client;
+    private ZMQ.Socket client;
 
+    /**
+     * @param client     Socket through which the server communicates with the client.
+     * @param clientPool Pool managing the collection of clients connected to this server
+     */
     public ServerPingHandler(ZMQ.Socket client, ClientPool clientPool) {
         this.client = client;
         this.clientPool = clientPool;
     }
 
+    /**
+     * @param message Format: |MessageType| with type ALIVE_PING
+     * @return TRUE if the messages can be handled, FALSE otherwise
+     * @brief canHandle Check if the message can be handled by this handler
+     */
     public boolean canHandle(ArrayList<byte[]> message) {
         boolean success = false;
 
@@ -59,16 +72,27 @@ public class ServerPingHandler {
         return success;
     }
 
+    /**
+     * @param message
+     * @param peerId
+     * @throws UnsupportedMessageType if an invalid message is passed in.
+     *                                i.e. one for which canHandle returns false
+     * @brief handle Handle the given message and send the an ALIVE_PONG
+     * message through the socket
+     */
     public void handle(ArrayList<byte[]> message, String peerId) throws InvalidProtocolBufferException, UnsupportedMessageType {
         //Parse the message to make sure the correct message was passed in.
-        if (this.canHandle(message)) {
+        if (!this.canHandle(message)) {
+            throw new UnsupportedMessageType();
+
+        } else if (!clientPool.isClientAlive(peerId)) {
+            LOG.debug("Clieht with ID:" + peerId + " sent PING, but the client is not part of the pool of active clients.");
+        } else {
             clientPool.resetClientStatus(peerId);
 
             if (!ZmqUtil.sendCompositeMessageToPeer(client, peerId, Communication.MessageType.Types.ALIVE_PONG)) {
                 LOG.error("Failed to send pong message to client");
             }
-        } else {
-            throw new UnsupportedMessageType();
         }
     }
 }

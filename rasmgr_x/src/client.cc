@@ -185,7 +185,7 @@ bool Client::isClientAliveOnServers()
     return isAlive;
 }
 
-bool Client::removeDeadServers()
+void Client::removeDeadServers()
 {
     map<string, weak_ptr<Server> >::iterator assignedServerIt;
     map<string, weak_ptr<Server> >::iterator assignedServerToEraseIt;

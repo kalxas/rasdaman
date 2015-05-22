@@ -32,7 +32,10 @@
 #include "../../rasmgr_x/src/databasehost.hh"
 #include "../../rasmgr_x/src/databasehostmanager.hh"
 #include "../../rasmgr_x/src/databasemanager.hh"
-
+namespace rasmgr
+{
+namespace test
+{
 using rasmgr::Database;
 using rasmgr::DatabaseHost;
 using rasmgr::DatabaseHostManager;
@@ -45,8 +48,8 @@ class DatabaseManagerTest:public ::testing::Test
 {
 protected:
     DatabaseManagerTest():hostName("hostName"),connectString("connectString"),
-            userName("userName"), passwdString("passwdString"),dbName("dbName"),
-            db(dbName)
+        userName("userName"), passwdString("passwdString"),dbName("dbName"),
+        db(new Database(dbName))
     {
         this->dbhManager.reset(new DatabaseHostManager());
         this->dbManager.reset(new DatabaseManager(this->dbhManager));
@@ -57,7 +60,7 @@ protected:
     std::string userName;
     std::string passwdString;
     std::string dbName;
-    Database db;
+    boost::shared_ptr<Database> db;
     boost::shared_ptr<DatabaseHostManager> dbhManager;
     boost::shared_ptr<DatabaseManager> dbManager;
 };
@@ -75,10 +78,17 @@ TEST_F(DatabaseManagerTest, defineDatabase)
     dbhManager->defineDatabaseHost(proto);
 
     //Succeed
-    ASSERT_NO_THROW(dbManager->defineDatabase(dbName, hostName));
+    ASSERT_NO_THROW(dbManager->defineDatabase(hostName, dbName));
 
     //Fail because of duplication
-    ASSERT_ANY_THROW(dbManager->defineDatabase(dbName, hostName));
+    ASSERT_ANY_THROW(dbManager->defineDatabase(hostName, dbName));
+
+    std::string secondHost = "secondHost";
+    proto.set_host_name(secondHost);
+    dbhManager->defineDatabaseHost(proto);
+
+    //succeed because defining the same database on multiple hosts works
+    ASSERT_NO_THROW(dbManager->defineDatabase(secondHost, dbName));
 }
 
 TEST_F(DatabaseManagerTest, changeDatabaseName)
@@ -100,7 +110,7 @@ TEST_F(DatabaseManagerTest, changeDatabaseName)
     dbhManager->defineDatabaseHost(proto);
 
     //Succeed
-    ASSERT_NO_THROW(dbManager->defineDatabase(dbName, hostName));
+    ASSERT_NO_THROW(dbManager->defineDatabase(hostName, dbName));
 
     //Succeed
     ASSERT_NO_THROW(dbManager->changeDatabase(dbName, dbProperties));
@@ -115,7 +125,7 @@ TEST_F(DatabaseManagerTest, changeDatabaseName)
 TEST_F(DatabaseManagerTest, removeDatabase)
 {
     //Throw because there is no db
-    ASSERT_ANY_THROW(dbManager->removeDatabase(dbName));
+    ASSERT_ANY_THROW(dbManager->removeDatabase(hostName, dbName));
 
     DatabaseHostPropertiesProto proto;
     proto.set_host_name(hostName);
@@ -127,16 +137,17 @@ TEST_F(DatabaseManagerTest, removeDatabase)
     dbhManager->defineDatabaseHost(proto);
 
     //Succeed
-    ASSERT_NO_THROW(dbManager->defineDatabase(dbName, hostName));
+    ASSERT_NO_THROW(dbManager->defineDatabase(hostName, dbName));
 
     //Succeed
-    ASSERT_NO_THROW(dbManager->removeDatabase(dbName));
+    ASSERT_NO_THROW(dbManager->removeDatabase(hostName, dbName));
 
     //Fail because the database ihas been removed.
-    ASSERT_ANY_THROW(dbManager->removeDatabase(dbName));
+    ASSERT_ANY_THROW(dbManager->removeDatabase(hostName, dbName));
 }
 
-TEST_F(DatabaseManagerTest, serializeToProto){
+TEST_F(DatabaseManagerTest, serializeToProto)
+{
     DatabaseHostPropertiesProto proto;
     proto.set_host_name(hostName);
     proto.set_connect_string(connectString);
@@ -147,11 +158,14 @@ TEST_F(DatabaseManagerTest, serializeToProto){
     dbhManager->defineDatabaseHost(proto);
 
     //Succeed
-    ASSERT_NO_THROW(dbManager->defineDatabase(dbName, hostName));
+    ASSERT_NO_THROW(dbManager->defineDatabase(hostName, dbName));
 
     DatabaseMgrProto dbMgrData =  dbManager->serializeToProto();
 
     ASSERT_EQ(1, dbMgrData.databases_size());
     ASSERT_EQ(dbName, dbMgrData.databases(0).database().name());
     ASSERT_EQ(hostName, dbMgrData.databases(0).database_host());
+}
+
+}
 }

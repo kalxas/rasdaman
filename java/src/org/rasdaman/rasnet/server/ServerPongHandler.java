@@ -27,6 +27,10 @@ import org.rasdaman.rasnet.message.Communication;
 
 import java.util.ArrayList;
 
+/**
+ * @brief The ServerPongHandler class Handle PONG messages from
+ * a peer by resetting its status
+ */
 public class ServerPongHandler {
     private ClientPool clientPool;
 
@@ -34,6 +38,11 @@ public class ServerPongHandler {
         this.clientPool = clientPool;
     }
 
+    /**
+     * @param message
+     * @return TRUE if the messages can be handled, FALSE otherwise
+     * @brief canHandle Check if the message can be handled by this handler
+     */
     public boolean canHandle(ArrayList<byte[]> message) {
         boolean success = false;
 
@@ -51,6 +60,13 @@ public class ServerPongHandler {
         return success;
     }
 
+    /**
+     * @param message
+     * @param peerId
+     * @throws UnsupportedMessageType if an invalid message is passed in.
+     *                                i.e. one for which canHandle returns false
+     * @brief handle Handle the given message by resetting its status
+     */
     public void handle(ArrayList<byte[]> message, String peerId) throws UnsupportedMessageType {
         //Sanity check.
         //Parse the message data to make sure that no invalid message arrives here

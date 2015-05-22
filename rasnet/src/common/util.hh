@@ -9,7 +9,18 @@ namespace rasnet
 class Util
 {
 public:
+    /**
+     * @brief getMessageType
+     * @param message
+     * @return Fully qualified message name
+     */
     static std::string getMessageType(const ::google::protobuf::Message& message);
+
+    /**
+     * @brief getMethodName
+     * @param method
+     * @return Fully qualified method name
+     */
     static std::string getMethodName(const ::google::protobuf::MethodDescriptor *method);
 };
 }

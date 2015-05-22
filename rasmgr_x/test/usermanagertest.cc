@@ -37,6 +37,10 @@
 
 #include "util/testutil.hh"
 
+namespace rasmgr
+{
+namespace test
+{
 using rasmgr::User;
 using rasmgr::UserProto;
 using rasmgr::UserAdminRightsProto;
@@ -182,4 +186,7 @@ TEST_F(UserManagerTest, serializeToProto)
     userManager.tryGetUser(userName, out_user);
 
     ASSERT_EQ(proto.users(0).DebugString(), User::serializeToProto(*out_user).DebugString());
+}
+
+}
 }

@@ -44,16 +44,16 @@ void DatabaseHost::addClientSessionOnDB(const std::string& databaseName, const s
     unique_lock<mutex> lock(this->mut);
 
     bool foundDb = false;
-    std::list<Database>::iterator it;
+    std::list<boost::shared_ptr<Database> >::iterator it;
     for(it=this->databaseList.begin(); !foundDb &&  it!=this->databaseList.end(); it++)
     {
-        if(it->getDbName() == databaseName)
+        if((*it)->getDbName() == databaseName)
         {
             foundDb=true;
             //If there already is a session with the given clientId and sessionId
             //on this db, the next line will throw an exception
             //and the counter will not be incremented
-            it->addClientSession(clientId,sessionId);
+            (*it)->addClientSession(clientId,sessionId);
             this->sessionCount++;
         }
     }
@@ -68,10 +68,10 @@ void DatabaseHost::removeClientSessionFromDB(const std::string& clientId, const 
 {
     unique_lock<mutex> lock(this->mut);
 
-    std::list<Database>::iterator it;
+    std::list<boost::shared_ptr<Database> >::iterator it;
     for(it=this->databaseList.begin(); it!=this->databaseList.end(); it++)
     {
-        this->sessionCount-=it->removeClientSession(clientId, sessionId);
+        this->sessionCount-=(*it)->removeClientSession(clientId, sessionId);
     }
 }
 
@@ -106,13 +106,11 @@ bool DatabaseHost::ownsDatabase(const std::string& databaseName)
     return this->containsDatabase(databaseName);
 }
 
-void DatabaseHost::addDbToHost(const Database& db)
+void DatabaseHost::addDbToHost(boost::shared_ptr<Database> db)
 {
-    std::list<Database>::iterator it;
-
     unique_lock<mutex> lock(this->mut);
 
-    if(this->containsDatabase(db.getDbName()))
+    if(this->containsDatabase(db->getDbName()))
     {
         throw runtime_error("The database is already on this host.");
     }
@@ -124,16 +122,16 @@ void DatabaseHost::addDbToHost(const Database& db)
 
 void DatabaseHost::removeDbFromHost(const std::string& dbName)
 {
-    std::list<Database>::iterator it;
+    std::list<boost::shared_ptr<Database> >::iterator it;
     bool removedDb = false;
 
     unique_lock<mutex> lock(this->mut);
 
     for(it=this->databaseList.begin(); !removedDb && it!=this->databaseList.end(); it++)
     {
-        if(it->getDbName() == dbName)
+        if((*it)->getDbName() == dbName)
         {
-            if(it->isBusy())
+            if((*it)->isBusy())
             {
                 throw runtime_error("The database \""+dbName+"\" is busy and cannot be removed");
             }
@@ -151,40 +149,6 @@ void DatabaseHost::removeDbFromHost(const std::string& dbName)
     {
         throw runtime_error("There is no database named \""+dbName+"\"");
     }
-}
-
-void DatabaseHost::changeDbProperties(const std::string &dbName, const DatabasePropertiesProto &newDbProp)
-{
-    std::list<Database>::iterator it;
-    bool changedDb = false;
-
-    unique_lock<mutex> lock(this->mut);
-    for(it=this->databaseList.begin(); !changedDb && it!=this->databaseList.end(); it++)
-    {
-        if(it->getDbName() == dbName)
-        {
-            if(it->isBusy())
-            {
-                throw runtime_error("The database named \""+
-                                    dbName+"\" is busy and the properties cannot be changed");
-            }
-            else
-            {
-                changedDb = true;
-
-                if(newDbProp.has_n_name())
-                {
-                    it->setDbName(newDbProp.n_name());
-                }
-            }
-        }
-    }
-
-    if(!changedDb)
-    {
-        throw runtime_error("There is no database named:\""+dbName+"\" on this host.");
-    }
-
 }
 
 const std::string& DatabaseHost::getHostName() const
@@ -239,11 +203,11 @@ DatabaseHostProto DatabaseHost::serializeToProto(const DatabaseHost &dbHost)
     result.set_session_count(dbHost.sessionCount);
     result.set_server_count(dbHost.serverCount);
 
-    std::list<Database>::const_iterator it;
+    std::list<boost::shared_ptr<Database> >::const_iterator it;
 
     for(it=dbHost.databaseList.begin(); it!=dbHost.databaseList.end(); it++)
     {
-        result.add_databases()->CopyFrom(Database::serializeToProto(*it));
+        result.add_databases()->CopyFrom(Database::serializeToProto(**it));
     }
 
     return result;
@@ -251,11 +215,11 @@ DatabaseHostProto DatabaseHost::serializeToProto(const DatabaseHost &dbHost)
 
 bool DatabaseHost::containsDatabase(const std::string& dbName)
 {
-    std::list<Database>::iterator it;
+    std::list<boost::shared_ptr<Database> >::iterator it;
 
     for(it=this->databaseList.begin(); it!=this->databaseList.end(); it++)
     {
-        if(it->getDbName() == dbName)
+        if((*it)->getDbName() == dbName)
         {
             return true;
         }

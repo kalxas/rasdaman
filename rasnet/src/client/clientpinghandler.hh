@@ -20,15 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-/* INCLUDE: ClientPingHandler.hh
- *
- * MODULE:  communication/socket/client
- * CLASS:   ClientPingHandler
- *
- * COMMENTS:
- *      The ClientPingHandler responds to a Ping message from the server with a Pong message.
- *
- */
 
 #ifndef RASNET_SRC_CLIENT_CLIENTPINGHANDLER_HH_
 #define RASNET_SRC_CLIENT_CLIENTPINGHANDLER_HH_
@@ -41,6 +32,9 @@
 
 namespace rasnet
 {
+/**
+ * @brief The ClientPingHandler class Responds to a Ping message from the server with a Pong message.
+ */
 class ClientPingHandler
 {
 public:
@@ -49,21 +43,24 @@ public:
     ~ClientPingHandler();
 
     /**
-     * @brief canHandle Check if the message can be handled by this handler
+     * @brief canHandle Check if the message can be handled by this message handler
+     * This handler accepts messages of the format:
+     * | rasnet.MessageType |
+     * with MessageType.type() == MessageType::ALIVE_PING
      * @param message
      * @return TRUE if the messages can be handled, FALSE otherwise
      */
     bool canHandle(const std::vector<boost::shared_ptr<zmq::message_t> >&  message);
 
     /**
-     * @brief handle Handle the given message and send the an ALIVE_PONG
+     * @brief handle Handle the given message and send an ALIVE_PONG
      * message through the socket
      * @param message
-     * @param socket The socket connected to the server
      * @throws UnsupportedMessageException if an invalid message is passed in.
      * i.e. one for which canHandle returns false
      */
     void handle(const std::vector<boost::shared_ptr<zmq::message_t> >&  message);
+
 private:
     zmq::socket_t& socket;
 };

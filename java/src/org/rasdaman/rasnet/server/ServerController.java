@@ -23,6 +23,9 @@ package org.rasdaman.rasnet.server;
 
 import com.google.protobuf.RpcCallback;
 
+/**
+ * See https://developers.google.com/protocol-buffers/docs/reference/cpp/google.protobuf.service
+ */
 public class ServerController implements com.google.protobuf.RpcController {
     private String errorText;
     private boolean failed;

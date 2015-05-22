@@ -21,7 +21,10 @@
  */
 package org.rasdaman.rasnet.exception;
 
-public class ConnectionTimeoutException extends RuntimeException {
+/**
+ * To be thrown when a Channel is unable to connect to the desired ServiceManager
+ */
+public class ConnectionTimeoutException extends Exception {
     public ConnectionTimeoutException() {
     }
 

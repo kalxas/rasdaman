@@ -26,6 +26,7 @@
 #include "../../../common/src/logging/easylogging++.hh"
 
 #include "../../src/server/clientpool.hh"
+#include "../mock/clientpoolmock.hh"
 
 namespace rasnet
 {
@@ -89,18 +90,6 @@ TEST(ClientPool, resetClientStatus)
 
     usleep(1000);
     pool.removeDeadClients();
-    ASSERT_FALSE(pool.isClientAlive(clientId));
-}
-
-TEST(ClientPool, removeClient)
-{
-    ClientPool pool;
-    std::string clientId="test";
-
-    ASSERT_NO_THROW(pool.addClient(clientId, 1,2));
-
-    pool.removeClient(clientId);
-
     ASSERT_FALSE(pool.isClientAlive(clientId));
 }
 

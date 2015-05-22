@@ -27,19 +27,24 @@
 #include <boost/shared_ptr.hpp>
 
 #include "../../../common/src/zeromq/zmq.hh"
+#include "clientpool.hh"
 
 namespace rasnet
 {
+/**
+ * @brief The ServerPingHandler class Handle ping messages from already connected clients
+ * by replying with a pong message
+ */
 class ServerPingHandler
 {
 public:
-    ServerPingHandler(zmq::socket_t& socket);
+    ServerPingHandler(boost::shared_ptr<ClientPool> clientPool, zmq::socket_t& socket);
 
     virtual ~ServerPingHandler();
 
     /**
      * @brief canHandle Check if the message can be handled by this handler
-     * @param message
+     * @param message Format: |MessageType| with type ALIVE_PING
      * @return TRUE if the messages can be handled, FALSE otherwise
      */
     bool canHandle(const std::vector<boost::shared_ptr<zmq::message_t> >&  message);
@@ -48,13 +53,14 @@ public:
      * @brief handle Handle the given message and send the an ALIVE_PONG
      * message through the socket
      * @param message
-     * @param socket The socket connected to the server
+     * @param peerId
      * @throws UnsupportedMessageException if an invalid message is passed in.
      * i.e. one for which canHandle returns false
      */
     void handle(const std::vector<boost::shared_ptr<zmq::message_t> >&  message, const std::string& peerId);
 private:
-    zmq::socket_t& socket;
+    zmq::socket_t& socket;/*!<ZMQ_ROUTER socket representing the server*/
+    boost::shared_ptr<ClientPool> clientPool;
 };
 }
 #endif // RASNET_SRC_SERVER_SERVERPINGHANDLER_HH

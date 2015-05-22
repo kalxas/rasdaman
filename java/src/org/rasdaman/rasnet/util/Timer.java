@@ -24,24 +24,40 @@ package org.rasdaman.rasnet.util;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @brief The Timer class allows to test when a given time span has passed.
+ */
 public class Timer {
     private long deadline;
     private long period;
 
     /**
+     * Create a Timer object with a given lifetime. The timer automatically starts ticking.
      *
-     * @param period - measured in milliseconds.
+     * @param period The number of milliseconds until the timer will expire.
+     * @throws IllegalArgumentException is thrown if the period is negative.
      */
     public Timer(long period) {
+        if (period < 0) {
+            throw new IllegalArgumentException("The period must be positive.");
+        }
 
         this.period = TimeUnit.NANOSECONDS.convert(period, TimeUnit.MILLISECONDS);
         this.deadline = System.nanoTime() + this.period;
     }
 
+    /**
+     * Check if the timer has expired.
+     * @return true if the period of time passed to the constructor has passed since the creation
+     * of the object or since the last reset.
+     */
     public boolean hasExpired() {
         return (System.nanoTime() > this.deadline);
     }
 
+    /**
+     * Reset the timer. The timer will start counting down from the initial period passed to the constructor.
+     */
     public void reset() {
         this.deadline = System.nanoTime() + this.period;
     }

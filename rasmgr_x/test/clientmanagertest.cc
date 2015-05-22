@@ -42,6 +42,10 @@
 #include "mocks/mockrasserver.hh"
 #include "mocks/usermanagermock.hh"
 
+namespace rasmgr
+{
+namespace test
+{
 using rasmgr::Client;
 using rasmgr::RasMgrConfig;
 using rasmgr::Server;
@@ -253,4 +257,7 @@ TEST_F(ClientManagerTest, keepClientAliveFail)
     usleep(config.getCleanupInterval()*1000*2);
 
     ASSERT_ANY_THROW(clientManager->keepClientAlive(out_clientId));
+}
+
+}
 }

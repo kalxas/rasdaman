@@ -35,7 +35,10 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The DatabaseManager class Keeps track of the databases available on
+ * this rasmgr instance. There can be exactly one database with a given name at any moment.
+ */
 class DatabaseManager
 {
 public:
@@ -53,7 +56,7 @@ public:
      * @param databaseName Name of the database that will be created
      * @param dbHostName Name of the database host on which this database will reside
      */
-    void defineDatabase(const std::string& databaseName, const std::string& dbHostName);
+    void defineDatabase(const std::string& dbHostName, const std::string& databaseName);
 
     /**
      * Change the name of a database if there is no database with the same name.
@@ -65,9 +68,10 @@ public:
     /**
      * Remove the database with the given name from the list.
      * If no database with the given name exists, nothing will happen.
+     * @param databaseHostName name of the database host from which to remove this database
      * @param databaseName
      */
-    void removeDatabase(const std::string& databaseName);
+    void removeDatabase(const std::string& databaseHostName, const std::string& databaseName);
 
     /**
      * @brief serializeToProto Serialize the information this object holds in a snapshot.
@@ -76,8 +80,9 @@ public:
     DatabaseMgrProto serializeToProto();
 private:
     boost::shared_ptr<DatabaseHostManager> dbHostManager; /*!< Reference to the database host manager*/
+    std::list<boost::shared_ptr<Database> > databases;
 
-    boost::mutex mut;  /*!< Mutex used to syncrhonize access to this object.*/
+    boost::mutex mut;  /*!< Mutex used to synchronize access to this object.*/
 };
 
 } /* namespace rasmgr */

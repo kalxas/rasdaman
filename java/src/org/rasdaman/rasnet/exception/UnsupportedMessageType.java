@@ -21,6 +21,9 @@
  */
 package org.rasdaman.rasnet.exception;
 
+/*
+ * To be thrown when an invalid message is passed to the handle method of a message handler.
+ */
 public class UnsupportedMessageType extends Exception {
     public UnsupportedMessageType() {
     }

@@ -26,7 +26,10 @@
 
 namespace rasnet
 {
-
+/**
+ * @brief The DuplicateServiceException class To be thrown when a service
+ * with the same fully-qualified name is added twice to a given ServiceManager
+ */
 class DuplicateServiceException:public std::runtime_error
 {
 public:

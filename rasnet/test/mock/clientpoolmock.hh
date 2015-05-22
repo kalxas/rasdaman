@@ -17,7 +17,6 @@ public:
     MOCK_CONST_METHOD0(getMinimumPollPeriod, boost::int32_t(void));
     MOCK_METHOD1(resetClientStatus, void(std::string));
     MOCK_METHOD1(pingAllClients, void(zmq::socket_t&));
-    MOCK_METHOD1(removeClient, void(std::string));
     MOCK_METHOD0(removeDeadClients, void(void));
     MOCK_METHOD1(isClientAlive, bool(std::string));
     MOCK_METHOD0(removeAllClients, void(void));

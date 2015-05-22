@@ -44,9 +44,11 @@ using std::string;
 using boost::lexical_cast;
 
 boost::uuids::random_generator UUID::uuidGenerator;
+boost::mutex UUID::generatorMutex;
 
 string UUID::generateUUID()
 {
+    boost::unique_lock<boost::mutex> lock(UUID::generatorMutex);
     return lexical_cast<string>(UUID::uuidGenerator());
 }
 

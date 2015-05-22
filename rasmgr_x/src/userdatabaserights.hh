@@ -27,7 +27,10 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The UserDatabaseRights class represents the rights the user has on all
+ * the databases in the rasdaman system.
+ */
 class UserDatabaseRights
 {
 public:

@@ -45,9 +45,9 @@ using zmq::socket_t;
 
 
 ServiceResponseHandler::ServiceResponseHandler(zmq::socket_t &bridge,
-                                               boost::shared_ptr<std::map<std::string, std::pair<const google::protobuf::Message *, std::string> > > serviceRequests,
-                                               boost::shared_ptr<std::map<std::string, std::pair<bool, boost::shared_ptr<zmq::message_t> > > > serviceResponses,
-                                               boost::shared_ptr<boost::mutex> serviceMutex):
+        boost::shared_ptr<std::map<std::string, std::pair<const google::protobuf::Message *, std::string> > > serviceRequests,
+        boost::shared_ptr<std::map<std::string, std::pair<bool, boost::shared_ptr<zmq::message_t> > > > serviceResponses,
+        boost::shared_ptr<boost::mutex> serviceMutex):
     bridge(bridge)
 {
     this->serviceRequests = serviceRequests;
@@ -81,11 +81,13 @@ bool ServiceResponseHandler::canHandle(const std::vector<boost::shared_ptr<zmq::
 void ServiceResponseHandler::handle(const std::vector<boost::shared_ptr<zmq::message_t> > &message)
 {
     //Accepted message format:
-    //Type | ID | error | data
+    //| rasnet.MessageType | Call ID | ServiceCallStatus | Response data|
     if(this->canHandle(message))
     {
         //1. Extract the data and check if the data is valid
         std::string peerId = ZmqUtil::messageToString(*message[1]);
+
+        //Check if the service call status is valid
         ServiceCallStatus status;
         if(!status.ParseFromArray(message[2]->data(), message[2]->size()))
         {
@@ -93,7 +95,7 @@ void ServiceResponseHandler::handle(const std::vector<boost::shared_ptr<zmq::mes
             return;
         }
 
-        //2. Check if the requests exists
+        //2. Check if the requests exists in the list of pending requests
         boost::unique_lock<boost::mutex> serviceLock(*serviceMutex);
 
         std::map<std::string, std::pair<const google::protobuf::Message*, std::string> > ::iterator it;

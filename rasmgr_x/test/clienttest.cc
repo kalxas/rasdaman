@@ -36,6 +36,10 @@
 
 #include "mocks/mockrasserver.hh"
 
+namespace rasmgr
+{
+namespace test
+{
 using rasmgr::Client;
 using rasmgr::RasMgrConfig;
 using rasmgr::Server;
@@ -43,6 +47,7 @@ using rasmgr::Server;
 using ::testing::AtLeast;                     // #1
 using ::testing::_;
 using ::testing::Return;
+
 
 class ClientTest:public ::testing::Test
 {
@@ -77,17 +82,21 @@ protected:
     boost::shared_ptr<rasmgr::DatabaseHost> dbHost;
 };
 
+//Test what happens to the client when it has no
+//open server sessions
 TEST_F(ClientTest, isAliveNoSessions)
 {
-
+    //Initially the client is alive
     ASSERT_TRUE(client->isAlive());
 
+    //sleep so that the client's time expires
     usleep(this->clientLifeTime*1000);
 
+    //The client will now be dead
     ASSERT_FALSE(client->isAlive());
 }
 
-//Test when the client has active servers
+//Test when the client has active sessions with a server
 TEST_F(ClientTest, isAliveWSessions)
 {
     boost::shared_ptr<Server> server(new MockRasServer());
@@ -187,4 +196,7 @@ TEST_F(ClientTest, removeClientFromServers)
 
     EXPECT_NO_THROW(client->addDbSession(dbName,server, out_sessionId));
     EXPECT_NO_THROW(client->removeClientFromServers());
+}
+
+}
 }

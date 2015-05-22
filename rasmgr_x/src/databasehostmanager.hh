@@ -33,7 +33,11 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The DatabaseHostManager class Keeps track of a list of database hosts,
+ * allows for their properties to be changed and provides thread-safe access to
+ * database host instances
+ */
 class DatabaseHostManager
 {
 public:

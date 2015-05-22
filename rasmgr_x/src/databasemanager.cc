@@ -44,91 +44,105 @@ DatabaseManager::DatabaseManager(
 DatabaseManager::~DatabaseManager()
 {}
 
-void DatabaseManager::defineDatabase(const std::string& databaseName,
-                                     const std::string& dbHostName)
+void DatabaseManager::defineDatabase(const std::string& dbHostName,
+                                     const std::string& databaseName)
 {
     unique_lock<mutex> lock(this->mut);
 
-    shared_ptr<DatabaseHost> dbHost;
-    bool foundHost = false;
+    //Get and lock access to the database host
+    boost::shared_ptr<DatabaseHost> dbHost = this->dbHostManager->getAndLockDH(dbHostName);
+    //Release the lock as we do not care if the database host is removed in between
+    dbHost->decreaseServerCount();
 
-    list<shared_ptr<DatabaseHost> > dbhList = this->dbHostManager->getDatabaseHostList();
-    list<shared_ptr<DatabaseHost> >::iterator it=dbhList.begin();
+    boost::shared_ptr<Database> db;
+    bool dbExists = false;
 
-    while(it!=dbhList.end())
+    //Check if there already is a database with this name in the list
+    for(std::list<boost::shared_ptr<Database> >::iterator it = this->databases.begin();
+            it!=this->databases.end(); ++it)
     {
-        if((*it)->ownsDatabase(databaseName))
+        if((*it)->getDbName()==databaseName)
         {
-            throw runtime_error("There already exists a database named: \""
-                                + databaseName+"\"");
+            db = (*it);
+            dbExists  = true;
+            break;
         }
-
-        if((*it)->getHostName() == dbHostName)
-        {
-            foundHost = true;
-            dbHost = (*it);
-        }
-
-        it++;
     }
 
-    if(foundHost)
+    //Create new database if it does not exist
+    if(!dbExists)
     {
-        //Insert the new entry in the database
-        dbHost->addDbToHost(Database(databaseName));
+        db.reset(new Database(databaseName));
     }
-    else
-    {
-        throw runtime_error("There is no database host named \""
-                            + databaseName+"\" defined.");
-    }
+
+    //Try to add it to the host
+    dbHost->addDbToHost(db);
+
+    //If adding to the host was successful, add it to the list of active dbs
+    databases.push_back(db);
 }
 
 void DatabaseManager::changeDatabase(const std::string &oldDbName, const DatabasePropertiesProto &newDbProp)
 {
     unique_lock<mutex> lock(this->mut);
+    bool changedDb=false;
 
-    list<shared_ptr<DatabaseHost> > dbhList=this->dbHostManager->getDatabaseHostList();
-    bool changed=false;
-
-    for(list<shared_ptr<DatabaseHost> >::iterator it=dbhList.begin(); it!=dbhList.end(); ++it)
+    //Check if there already is a database with this name in the list
+    for(std::list<boost::shared_ptr<Database> >::iterator it = this->databases.begin();
+            it!=this->databases.end(); ++it)
     {
-        if((*it)->ownsDatabase(oldDbName))
+        if((*it)->getDbName()==oldDbName)
         {
-            (*it)->changeDbProperties(oldDbName, newDbProp);
-            changed=true;
+            if((*it)->isBusy())
+            {
+                throw std::runtime_error("The database named \""+
+                                         oldDbName+"\" is busy and its properties cannot be changed");
+            }
+            else
+            {
+                if(newDbProp.has_n_name())
+                {
+                    (*it)->setDbName(newDbProp.n_name());
+                }
 
-            break;
+                changedDb = true;
+                break;
+            }
         }
     }
 
-    if(!changed)
+    if(!changedDb)
     {
         throw runtime_error("There is no database named:\""+oldDbName+"\"");
     }
 }
 
-void DatabaseManager::removeDatabase(const std::string& databaseName)
+void DatabaseManager::removeDatabase(const std::string &databaseHostName, const std::string& databaseName)
 {
     unique_lock<mutex> lock(this->mut);
 
-    list<shared_ptr<DatabaseHost> > dbhList=this->dbHostManager->getDatabaseHostList();
-    bool removed=false;
+    //Get and lock access to the database host
+    boost::shared_ptr<DatabaseHost> dbHost = this->dbHostManager->getAndLockDH(databaseHostName);
+    //Release the lock as we do not care if the database host is removed in between
+    dbHost->decreaseServerCount();
 
-    for(list<shared_ptr<DatabaseHost> >::iterator it=dbhList.begin(); it!=dbhList.end(); ++it)
+    dbHost->removeDbFromHost(databaseName);
+
+    LDEBUG<<"Removed database \""+databaseName+"\" from database host name \""+databaseHostName+"\"";
+
+    for(std::list<boost::shared_ptr<Database> >::iterator it = this->databases.begin();
+            it!=this->databases.end(); ++it)
     {
-        if((*it)->ownsDatabase(databaseName))
+        if((*it)->getDbName()==databaseName)
         {
-            (*it)->removeDbFromHost(databaseName);
-            removed=true;
+            if((*it).use_count()==1)
+            {
+                LDEBUG<<"Removed database from list of active databases.";
+                this->databases.remove(*it);
 
-            break;
+                break;
+            }
         }
-    }
-
-    if(!removed)
-    {
-        throw runtime_error("There is no database named: \""+databaseName+"\" on this manager.");
     }
 }
 

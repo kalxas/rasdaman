@@ -22,9 +22,7 @@ ConfigurationManager::ConfigurationManager(boost::shared_ptr<ControlCommandExecu
 }
 
 ConfigurationManager::~ConfigurationManager()
-{
-
-}
+{}
 
 void ConfigurationManager::saveConfiguration()
 {
@@ -53,7 +51,7 @@ void ConfigurationManager::loadConfiguration()
 void ConfigurationManager::loadRasMgrConf()
 {
     char configFileName[PATH_MAX];
-    char inBuffer[MAX_CONTROL_COMMAND_LENGHT];
+    char inBuffer[MAX_CONTROL_COMMAND_LENGTH];
     configFileName[0]=0;
 
     if ( strlen ( CONFDIR ) +strlen ( RASMGR_CONF_FILE ) + 2 > PATH_MAX )
@@ -76,7 +74,7 @@ void ConfigurationManager::loadRasMgrConf()
     {
         while ( !ifs.eof() )
         {
-            ifs.getline ( inBuffer , MAX_CONTROL_COMMAND_LENGHT );
+            ifs.getline ( inBuffer , MAX_CONTROL_COMMAND_LENGTH );
 
             std::string result = commandExecutor->sudoExecuteCommand ( std::string ( inBuffer ) );
 

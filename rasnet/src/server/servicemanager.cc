@@ -30,6 +30,7 @@
 
 #include "../common/zmqutil.hh"
 #include "../common/util.hh"
+#include "../common/constants.hh"
 
 #include "../messages/internal.pb.h"
 
@@ -39,6 +40,7 @@
 #include "clientpool.hh"
 #include "servicerequesthandler.hh"
 #include "servicemanager.hh"
+
 
 namespace rasnet
 {
@@ -56,12 +58,12 @@ using internal::InternalDisconnectRequest;
 using std::runtime_error;
 
 ServiceManager::ServiceManager(const ServiceManagerConfig & config):
-    destructorDelay(200),
-    config(config), context(config.getIoThreadsNo(), config.getMaxOpenSockets())
+    config(config),
+    context(config.getIoThreadsNo(), config.getMaxOpenSockets())
 {
     if(config.getIoThreadsNo()<1 || config.getCpuThreadsNo()<1)
     {
-        throw runtime_error("The service manager needs at least one CPU thread for the clients");
+        throw runtime_error("The service manager needs at least one CPU thread and one IO thread.");
     }
 
     this->linger = 0;
@@ -83,7 +85,7 @@ ServiceManager::~ServiceManager()
     if (this->runnning && this->serviceThread)
     {
         this->stopWorkerThread();
-        this->runnning = false;
+
         this->serviceThread->join();
 
         // https://github.com/zeromq/libzmq/issues/949
@@ -107,7 +109,16 @@ void ServiceManager::serve(const std::string& endpoint)
     {
         this->runnning = true;
         this->endpointAddr = endpoint;
-        this->serviceThread.reset(new thread(boost::bind(&ServiceManager::run, this)));
+        this->serviceThread.reset(new thread(boost::bind(&ServiceManager::run, this, boost::ref(this->workerThreadExceptionPtr))));
+
+        //If the thread was joined and an exception was throw, rethrow
+        if(this->serviceThread->timed_join(boost::posix_time::milliseconds(INTER_THREAD_COMMUNICATION_TIMEOUT))
+                && this->workerThreadExceptionPtr)
+        {
+            //The method will return early only if the ZMQ sockets throw an exception
+            //and in that case we rethrow the exception
+            boost::rethrow_exception(this->workerThreadExceptionPtr);
+        }
     }
 }
 
@@ -118,8 +129,7 @@ void ServiceManager::stopWorkerThread()
     InternalDisconnectRequest request = InternalDisconnectRequest::default_instance();
     boost::shared_ptr<BaseMessage> reply;
 
-    //TODO: Factor this 1000 out
-    if(!ZmqUtil::isSocketWritable(*controlSocket, this->destructorDelay))
+    if(!ZmqUtil::isSocketWritable(*controlSocket, INTER_THREAD_COMMUNICATION_TIMEOUT))
     {
         LERROR<<"Unable to write to control socket.";
     }
@@ -140,9 +150,11 @@ void ServiceManager::stopWorkerThread()
             LERROR<<"Received invalid internal disconnect reply.";
         }
     }
+
+    this->runnning = false;
 }
 
-void ServiceManager::run()
+void ServiceManager::run(boost::exception_ptr &exceptionPtr)
 {
     try
     {
@@ -166,7 +178,7 @@ void ServiceManager::run()
         };
 
         boost::shared_ptr<ClientPool> clientPool(new ClientPool());
-        ServerPingHandler pingHandler(client);
+        ServerPingHandler pingHandler(clientPool, client);
         ServerPongHandler pongHandler(clientPool);
         ConnectRequestHandler connectRequestHandler(client, clientPool, config.getAliveRetryNo(), config.getAliveTimeout());
         scoped_ptr<ThreadPool> threadPool(new FixedThreadPool(config.getCpuThreadsNo()));
@@ -286,13 +298,10 @@ void ServiceManager::run()
         //client.unbind(this->endpointAddr.c_str());
         client.close();
     }
-    catch(std::exception& ex)
-    {
-        LERROR<<ex.what();
-    }
     catch(...)
     {
         LERROR<<"Service manager worker method failed.";
+        exceptionPtr = boost::current_exception();
     }
 }
 

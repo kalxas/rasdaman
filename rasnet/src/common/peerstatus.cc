@@ -48,6 +48,19 @@ PeerStatus::PeerStatus(boost::int32_t retries, boost::int32_t period) :
     this->retriesBackup = retries;
 }
 
+PeerStatus::~PeerStatus()
+{}
+
+boost::int32_t PeerStatus::getRetries() const
+{
+    return retries;
+}
+
+boost::int32_t PeerStatus::getPeriod() const
+{
+    return this->timer.getPeriod();
+}
+
 bool PeerStatus::isAlive()
 {
     return this->retries > 0;
@@ -55,7 +68,6 @@ bool PeerStatus::isAlive()
 
 bool PeerStatus::decreaseLiveliness()
 {
-    //TODO:Reduce liveliness by the number of milliseconds passed divided by the period
     if (this->timer.hasExpired())
     {
         if (this->retries > 0)
@@ -63,6 +75,7 @@ bool PeerStatus::decreaseLiveliness()
             this->retries--;
             this->timer.reset();
         }
+
         return true;
     }
     else
@@ -77,7 +90,4 @@ void PeerStatus::reset()
     this->timer.reset();
 
 }
-
-PeerStatus::~PeerStatus()
-{}
 }

@@ -4,7 +4,10 @@
 #include "../../common/src/mock/gmock.h"
 
 #include "../src/databasehostmanager.hh"
-
+namespace rasmgr
+{
+namespace test
+{
 class DatabaseHostManagerMock:public rasmgr::DatabaseHostManager
 {
 public:
@@ -15,5 +18,6 @@ public:
     MOCK_CONST_METHOD0(getDatabaseHostList, std::list<boost::shared_ptr<rasmgr::DatabaseHost> >(void));
     MOCK_CONST_METHOD0(serializeToProto,rasmgr::DatabaseHostMgrProto(void));
 };
-
+}
+}
 #endif // RASMGR_X_TEST_MOCKS_DATABASEHOSTMGRMOCK

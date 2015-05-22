@@ -8,15 +8,12 @@
 
 #include "../../commline/cmlparser.hh"
 
-/// host/domain name size (See man gethostname)
-#define HOSTNAME_SIZE   255
-#define RASMGR_LOG_PREFIX "rasmgr"
-#define MAXMSGOUTBUFF 20000
-// status flags that rasmgr understands
-
 namespace rasmgr
 {
-
+/**
+ * @brief The Configuration class Configuration object used to initialize rasmgr
+ * from the command line.
+ */
 class Configuration
 {
 public:
@@ -39,6 +36,10 @@ public:
     std::string getLogConfigFile() const;
 
 private:
+    static const boost::uint32_t HOSTNAME_SIZE;
+    static const std::string RASMGR_LOG_PREFIX;
+    static const boost::uint32_t MAXMSGOUTBUFF;
+
     //interface program
     CommandLineParser    &cmlInter;
     CommandLineParameter &cmlHelp, &cmlHostName, &cmlPort, &cmlPollFrequ;

@@ -7,6 +7,10 @@
 
 #include "util/testutil.hh"
 
+namespace rasmgr
+{
+namespace test
+{
 TEST(UserTest, serializeToProto)
 {
     using rasmgr::UserDatabaseRights;
@@ -97,4 +101,7 @@ TEST(UserTest, parseFromProto)
 
     ASSERT_EQ(readRights, user.getDefaultDbRights().hasReadAccess());
     ASSERT_EQ(writeRights, user.getDefaultDbRights().hasWriteAccess());
+}
+
+}
 }

@@ -14,7 +14,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+ *2014 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -22,14 +23,7 @@
 
 package rasnet.service;
 
-option java_package="org.rasdaman.rasnet.message";
+option java_package = "org.rasdaman.rasnet.message";
 
 // Message representing a void request or reply from a service
-message Void {
-}
-
-message ReplyStatus {
-	optional int32 errror_no = 1;
-	optional string error_message = 2;
-	optional int32 status = 3;
-}
+message Void {}

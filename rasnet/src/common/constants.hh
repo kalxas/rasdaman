@@ -24,34 +24,78 @@
 
 #include <boost/cstdint.hpp>
 
-//The default number of IO threads that a client channel
-//should use 1 thread/(1GB/s)
+/**
+ * @brief DEFAULT_CHANNEL_IO_THREAD_NO The default number of I/O threads
+ * that a client channel should use.The rule is to have 1 thread for each
+ * 1GB/s of data
+ */
 const boost::int32_t DEFAULT_CHANNEL_IO_THREAD_NO = 1;
 
-//Number of miliseconds after which, a non-responding
-//client's lifetime can be reduced
+/**
+ * @brief DEFAULT_CLIENT_ALIVE_TIMEOUT Number of milliseconds after which
+ * the life of a non-responding server (one that does not reply to ALIVE_PONG)
+ * should be decremented
+ */
 const boost::int32_t DEFAULT_CLIENT_ALIVE_TIMEOUT = 1000;
 
-//Default number of times a client's liveliness can be reduced
+/**
+ * @brief DEFAULT_CLIENT_ALIVE_RETRIES Number of lives a non-responding Channel
+ *  has before being declared dead and being removed from the server
+ */
 const boost::int32_t DEFAULT_CLIENT_ALIVE_RETRIES = 3;
 
-//Default number of miliseconds after which a channel
-//should give up trying to connect to a server
+/**
+ * @brief DEFAULT_CHANNEL_TIMEOUT Number of milliseconds after
+ * which a Channel trying to connect to a non-responding server gives up
+ */
 const boost::int32_t DEFAULT_CHANNEL_TIMEOUT = 1000;
 
+/**
+ * @brief DEFAULT_CHANNEL_MAX_OPEN_SOCKETS
+ * Maximum number of open sockets per Channel context. see ZMQ documentation
+ */
 const boost::int32_t DEFAULT_CHANNEL_MAX_OPEN_SOCKETS = 2048;
 
-const boost::int32_t DEFAULT_SERVER_MAX_OPEN_SOCKETS = 2048;
+/**
+ * @brief DEFAULT_SERVER_MAX_OPEN_SOCKETS
+ * Maximum number of open sockets per ServiceManager context. see ZMQ documentation
+ */
+const boost::int32_t DEFAULT_SERVER_MAX_OPEN_SOCKETS = 4096;
 
-//Default number of miliseconds after which, a non-responding
-//server's lifetime can be reduced
+/**
+ * @brief DEFAULT_SERVER_ALIVE_TIMEOUT Default number of miliseconds after which, a non-responding
+ * server's lifetime can be reduced
+ */
 const boost::int32_t DEFAULT_SERVER_ALIVE_TIMEOUT = 1000;
 
-//Default number of times a server's liveliness can be reduced
+/**
+ * @brief DEFAULT_SERVER_LIVES Number of lives a non-responding Channel
+ * has before being declared dead and being removed from the server
+ */
 const boost::int32_t DEFAULT_SERVER_LIVES = 3;
 
+/**
+ * @brief DEFAULT_SERVER_IO_THREADS_NO The default number of I/O threads
+ * that a server should use.The rule is to have 1 thread for each
+ * 1GB/s of data
+ */
 const boost::int32_t DEFAULT_SERVER_IO_THREADS_NO = 1;
 
+/**
+ * @brief DEFAULT_SERVER_CPU_THREADS_NO The default number of CPU threads
+ * that a server should use. Each CPU thread can be used to server one client request
+ * When the number of requests exceeds the number of CPU threads, the requests are queued
+ */
 const boost::int32_t DEFAULT_SERVER_CPU_THREADS_NO = 4;
+
+/**
+ * @brief INTER_THREAD_COMMUNICATION_TIMEOUT Number of milliseconds
+ * after which inter-thread communication through a ZMQ socket should be aborted.
+ * When thread A wants to send a message to thread B through a ZMQ_PAIR socket,
+ * this timeout is used to allow thread B to create and listen on the receiving socket.
+ * This method assumes that the method in thread B immediately creates the listening
+ * socket upon starting execution
+ */
+const boost::int32_t INTER_THREAD_COMMUNICATION_TIMEOUT = 1000;
 
 #endif // RASNET_SRC_CONSTANTS_HH_

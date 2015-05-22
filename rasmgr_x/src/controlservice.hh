@@ -31,7 +31,10 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The ControlService class Service for executing rascontrol commands from
+ * a rascontrol client that connects to rasmgr.
+ */
 class ControlService:public ::rasnet::service::RasMgrRasCtrlService
 {
 public:
@@ -45,7 +48,6 @@ public:
                                 ::google::protobuf::Closure* done);
 private:
     boost::shared_ptr<ControlCommandExecutor> commandExecutor;
-
 };
 
 } /* namespace rasmgr */

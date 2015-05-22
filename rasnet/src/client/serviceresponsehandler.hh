@@ -35,9 +35,21 @@
 
 namespace rasnet
 {
+/**
+ * @brief The ServiceResponseHandler class Handles ServiceResponse messages sent by the
+ * server as a response to a service request
+ */
 class ServiceResponseHandler
 {
 public:
+    /**
+     * @brief ServiceResponseHandler
+     * @param bridge Socket through which the thread that called CallMethod in the channel
+     * can be notified that the result to the call is available
+     * @param serviceRequests List of pending service requests
+     * @param serviceResponses List that will contain the processed service response
+     * @param serviceMutex Mutex used to synchronize access to the serviceRequests and serviceresponses lists
+     */
     ServiceResponseHandler(zmq::socket_t& bridge,
                            boost::shared_ptr<std::map<std::string, std::pair<const google::protobuf::Message*, std::string> > > serviceRequests,
                            boost::shared_ptr<std::map<std::string, std::pair<bool, boost::shared_ptr<zmq::message_t> > > > serviceResponses,
@@ -45,8 +57,23 @@ public:
 
     virtual ~ServiceResponseHandler();
 
+    /**
+     * @brief canHandle Check if the message can be handled by this message handler
+     * This handler accepts messages of the format:
+     * | rasnet.MessageType | Call ID | ServiceCallStatus | Response data|
+     * with MessageType.type() == MessageType::SERVICE_RESPONSE
+     * Call ID is the ID of the call
+     * @param message
+     * @return TRUE if the messages can be handled, FALSE otherwise
+     */
     bool canHandle(const std::vector<boost::shared_ptr<zmq::message_t> >& message);
 
+    /**
+     * @brief handle See inline documentation for a thorough explanation
+     * @param message
+     * @throws UnsupportedMessageException if an invalid message is passed in.
+     * i.e. one for which canHandle returns false
+     */
     void handle(const std::vector<boost::shared_ptr<zmq::message_t> >&  message);
 
 private:

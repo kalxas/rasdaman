@@ -36,10 +36,13 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The Client class Represents a client that connects to rasmgr and requests
+ * a server onto which to execute a query.
+ * Stores information about the DB sessions allocated to the client
+ */
 class Client
 {
-
 public:
     /**
      * Initialize a new instance of the Client class.
@@ -95,9 +98,19 @@ private:
     std::map<std::string, boost::weak_ptr<Server> > assignedServers; /*! Map between sessionIds and the server assigned for the session*/
     boost::shared_mutex assignedServersMutex; /*! Mutex used to synchronize access to the list of servers*/
 
+    /**
+     * @brief isClientAliveOnServers Go through the list of servers and check if the client
+     * is alive.
+     * @return TRUE if at least one server reports client activity
+     */
     bool isClientAliveOnServers();
 
-    bool removeDeadServers();
+    /**
+     * @brief removeDeadServers Remove weak_ptr<Server> that are null from the least of
+     * servers assigned to this client.
+     * @return
+     */
+    void removeDeadServers();
 
 };
 

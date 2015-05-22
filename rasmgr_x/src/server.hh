@@ -9,6 +9,9 @@
 
 namespace rasmgr
 {
+/**
+ * @brief The Server class Abstract class representing the interface to a server.
+ */
 class Server
 {
 public:

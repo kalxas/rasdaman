@@ -161,7 +161,7 @@ public class ChannelTest {
         thrown.expect(ConnectionTimeoutException.class);
 
         ChannelConfig config = new ChannelConfig();
-        config.setChannelTimeout(1);
+        config.setConnectionTimeout(1);
 
         Channel channel = new Channel(serverAddress, config);
 
@@ -173,7 +173,7 @@ public class ChannelTest {
         thrown.expect(ConnectionTimeoutException.class);
 
         ChannelConfig config = new ChannelConfig();
-        config.setChannelTimeout(1);
+        config.setConnectionTimeout(1);
 
         Channel channel = new Channel("serverAddress", config);
 

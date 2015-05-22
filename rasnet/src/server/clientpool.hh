@@ -34,9 +34,14 @@
 
 namespace rasnet
 {
+/**
+ * @brief The ClientPool class Keeps track of the status of a list of clients.
+ */
 class ClientPool
 {
 public:
+    static const boost::int32_t DEFAULT_MINIMUM_POLL_PERIOD;
+
     ClientPool();
 
     virtual ~ClientPool();
@@ -47,10 +52,19 @@ public:
      * server socket through which it sent the message.
      * @param period The number of milliseconds after which the client's liveliness decreases
      * @param retries The number of times the client's liveliness can decrease before declaring it dead
+     * and removing it from the pool.
      */
     virtual void addClient(std::string clientId, boost::int32_t period, boost::int32_t retries);
 
+    /**
+     * @brief getMinimumPollPeriod Get the minimum number of milliseconds
+     * between each check of the liveliness of the clients that would allow
+     * for the status of each client to be up to date.
+     * @return The minimum value of the lifetimes of all the clients in the pool.
+     * If no client is present in the pool, -1 is returned
+     */
     virtual boost::int32_t getMinimumPollPeriod() const;
+
     /**
      * Reset the status of the client with the given id. This method should be used
      * when the client has sent a message to the server
@@ -60,16 +74,10 @@ public:
     virtual void resetClientStatus(std::string clientId);
 
     /**
-     * Send a ping to all the registered clients that have not shown activity.
+     * Send a ping to all the registered clients that have not had any activity.
      * @param socket Socket through which to send the message
      */
     virtual void pingAllClients(zmq::socket_t& socket);
-
-    /**
-     * Remove the client with the given id
-     * @param clientId
-     */
-    virtual void removeClient(std::string clientId);
 
     /**
      * Remove all the clients who are declared dead from the pool
@@ -88,9 +96,9 @@ public:
      */
     virtual void removeAllClients();
 private:
-    boost::int32_t pollPeriod;
     std::map<std::string, PeerStatus> clients; /*!< Map between the client's ids and their peer status */
-    boost::shared_mutex clientsMutex; /*!< Mutex to guard access to the list of clients*/
+
+    std::map<boost::int32_t, boost::int32_t> periods; /*< Map between period values and the number of clients with that period */
 };
 
 } /* namespace rasnet */

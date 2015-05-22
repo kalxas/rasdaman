@@ -34,7 +34,9 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The UserManager class manages the users allowed to use this system.
+ */
 class UserManager
 {
 public:

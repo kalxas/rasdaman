@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -111,12 +111,6 @@ TEST_F(ServiceManagerTest, constructor)
     ASSERT_NO_THROW(manager=new ServiceManager(config));
     ASSERT_NO_THROW(delete manager);
 
-    //serve
-    ASSERT_NO_THROW(manager=new ServiceManager(config));
-    //Server on invalid address
-    manager->serve("address");
-    ASSERT_NO_THROW(delete manager);
-
     ASSERT_NO_THROW(manager=new ServiceManager(config));
     //Server on invalid address
     manager->serve("tcp://*:10000");
@@ -125,8 +119,16 @@ TEST_F(ServiceManagerTest, constructor)
 
 TEST_F(ServiceManagerTest, serve)
 {
+    //Will work
     ASSERT_NO_THROW(manager.serve(this->serviceEndpoint));
+    //Will fail because the manager is already serving
     ASSERT_ANY_THROW(manager.serve(this->serviceEndpoint));
+}
+
+TEST_F(ServiceManagerTest, serveInvalidEndpoint)
+{
+    //Will fail because the endpoint is invalid
+    ASSERT_ANY_THROW(manager.serve("ipa--d"));
 }
 
 TEST_F(ServiceManagerTest, connectRequest)
@@ -156,9 +158,20 @@ TEST_F(ServiceManagerTest, connectRequest)
 TEST_F(ServiceManagerTest, ping)
 {
     manager.serve(this->serviceEndpoint);
-    ZmqUtil::sendCompositeMessage(client, MessageType::ALIVE_PING);
+
+    ConnectRequest request;
+    request.set_lifetime(100);
+    request.set_retries(2);
+
+    ZmqUtil::sendCompositeMessage(client, MessageType::CONNECT_REQUEST, request);
 
     std::vector<boost::shared_ptr<zmq::message_t> >  message;
+    //Receive connect reply
+    ZmqUtil::receiveCompositeMessage(client, message);
+
+    //Now that the client is connected, we can send a ping.
+    ZmqUtil::sendCompositeMessage(client, MessageType::ALIVE_PING);
+
     ZmqUtil::receiveCompositeMessage(client, message);
 
     ASSERT_EQ(1, message.size());

@@ -45,6 +45,14 @@ Timer::Timer(boost::int32_t period)
     timeradd(&this->start, &this->timeout, &this->end);
 }
 
+Timer::~Timer()
+{}
+
+boost::int32_t Timer::getPeriod() const
+{
+    return this->period;
+}
+
 bool Timer::hasExpired()
 {
     gettimeofday(&this->current, NULL);
@@ -58,6 +66,4 @@ void Timer::reset()
     timeradd(&this->start, &this->timeout, &this->end);
 }
 
-Timer::~Timer()
-{}
 }

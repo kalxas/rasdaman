@@ -21,6 +21,10 @@
  */
 package org.rasdaman.rasnet.exception;
 
+/**
+ * To be thrown an unexpected event takes place in the network communication between
+ * two peers
+ */
 public class NetworkingException extends Exception {
     public NetworkingException() {
     }

@@ -22,6 +22,9 @@
 
 package org.rasdaman.rasnet.util;
 
+/**
+ * Used to store a MessageContainer object together with the ID of the peer who sent the message
+ */
 public class PeerMessage {
     private MessageContainer message = null;
     private String peerId = null;

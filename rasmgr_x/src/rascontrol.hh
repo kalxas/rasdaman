@@ -36,6 +36,9 @@ namespace rasmgr
 {
 class RasManager;
 
+/**
+ * @brief The RasControl class Delegates management commands to the appropriate component of rasmgr.
+ */
 class RasControl
 {
 public:

@@ -29,7 +29,8 @@
 namespace rasnet
 {
 
-ServerPingHandler::ServerPingHandler(zmq::socket_t &socket):
+ServerPingHandler::ServerPingHandler(boost::shared_ptr<ClientPool> clientPool, zmq::socket_t &socket):
+    clientPool(clientPool),
     socket(socket)
 {}
 
@@ -54,16 +55,21 @@ bool ServerPingHandler::canHandle(const std::vector<boost::shared_ptr<zmq::messa
 
 void ServerPingHandler::handle(const std::vector<boost::shared_ptr<zmq::message_t> > &message, const std::string &peerId)
 {
-    if (this->canHandle(message))
-    {
-        if(!ZmqUtil::sendCompositeMessageToPeer(socket, peerId, MessageType::ALIVE_PONG))
-        {
-            LERROR<<"Failed to send pong message to client.";
-        }
-    }
-    else
+    //If the message type is invalid, throw an exception
+    //this should only happen if the programmer does something stupid
+    if (!this->canHandle(message))
     {
         throw UnsupportedMessageException();
+    }
+    else if(!clientPool->isClientAlive(peerId))
+    {
+        //if the client is not alive(or registered), ignore the message, but log it
+        LDEBUG<<"Client with ID:"<<peerId<<" sent PING, but the client is not part of the pool of active clients.";
+    }
+    //Send the PONG and log the error
+    else if(!ZmqUtil::sendCompositeMessageToPeer(socket, peerId, MessageType::ALIVE_PONG))
+    {
+        LERROR<<"Failed to send pong message to client.";
     }
 }
 

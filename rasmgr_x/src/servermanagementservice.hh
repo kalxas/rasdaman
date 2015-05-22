@@ -32,7 +32,10 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The ServerManagementService class Service offered to rasservers, used to
+ * register a server process after a successful initialization
+ */
 class ServerManagementService: public ::rasnet::service::RasMgrRasServerService
 {
 public:

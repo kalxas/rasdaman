@@ -14,7 +14,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
- * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Baumann / rasdaman GmbH.
+ * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013,
+ *2014 Peter Baumann / rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
@@ -22,172 +23,164 @@
 
 package rasmgr;
 
-//BEGIN:Server messages
-message DefineServerGroup{
-    required string group_name = 1;
-    required string host = 2;
-    repeated uint32 ports = 3;
-    required string db_host = 4;
-    optional uint32 group_size = 5;
-    optional uint32 min_alive_servers = 6;
-    optional uint32 min_available_servers = 7;
-    optional uint32 max_idle_servers = 8;
-    optional bool autorestart = 9;
-    optional uint32 countdown = 10;
-    optional string options = 11;
+// BEGIN:Server messages
+message DefineServerGroup {
+  required string group_name = 1;
+  required string host = 2;
+  repeated uint32 ports = 3;
+  required string db_host = 4;
+  optional uint32 group_size = 5;
+  optional uint32 min_alive_servers = 6;
+  optional uint32 min_available_servers = 7;
+  optional uint32 max_idle_servers = 8;
+  optional bool autorestart = 9;
+  optional uint32 countdown = 10;
+  optional string options = 11;
 }
 
-message ChangeServerGroup{
-    required string group_name = 1;
-    optional string n_group_name = 2;
-    optional string n_host = 3;
-    repeated uint32 n_ports = 4;
-    optional string n_db_host = 5;
-    optional uint32 n_group_size = 6;
-    optional uint32 n_min_alive_servers = 7;
-    optional uint32 n_min_available_servers = 8;
-    optional uint32 n_max_idle_servers = 9;
-    optional bool n_autorestart = 10;
-    optional uint32 n_countdown = 11;
-    optional string n_options = 12;
+message ChangeServerGroup {
+  required string group_name = 1;
+  optional string n_group_name = 2;
+  optional string n_host = 3;
+  repeated uint32 n_ports = 4;
+  optional string n_db_host = 5;
+  optional uint32 n_group_size = 6;
+  optional uint32 n_min_alive_servers = 7;
+  optional uint32 n_min_available_servers = 8;
+  optional uint32 n_max_idle_servers = 9;
+  optional bool n_autorestart = 10;
+  optional uint32 n_countdown = 11;
+  optional string n_options = 12;
 }
 
-message ListServerGroup{
-	optional string host = 1;
-	optional string group_name = 2;
-	optional bool extra_info = 3;
+message ListServerGroup {
+  optional string host = 1;
+  optional string group_name = 2;
+  optional bool extra_info = 3;
 }
 
-//END:Server messages
+// END:Server messages
 
-message StartServerGroup{
-    optional string group_name = 1;
-    optional string host_name = 2;
-    optional bool all = 3;
+message StartServerGroup {
+  optional string group_name = 1;
+  optional string host_name = 2;
+  optional bool all = 3;
 }
 
-enum KillLevel{
-    NONE = 1;
-    FORCE = 2;
-    KILL = 3;
+enum KillLevel {
+  NONE = 1;
+  FORCE = 2;
+  KILL = 3;
 }
 
-message StopServerGroup{
-    optional string group_name = 1;
-    optional string host_name = 2;
-    optional bool all = 3;
-    optional KillLevel kill_level = 4 [default = NONE];
+message StopServerGroup {
+  optional string group_name = 1;
+  optional string host_name = 2;
+  optional bool all = 3;
+  optional KillLevel kill_level = 4 [default = NONE];
 }
 
-//BEGIN:Database host messages
-message DefineDbHost{
-	required string host_name = 1;
-	optional string connect = 2;
-	optional string user = 3;
-	optional string passwd = 4;
+// BEGIN:Database host messages
+message DefineDbHost {
+  required string host_name = 1;
+  optional string connect = 2;
+  optional string user = 3;
+  optional string passwd = 4;
 }
 
-message ChangeDbHost{
-	required string host_name = 1;
-	optional string n_name = 2;
-	optional string n_connect = 3;
-	optional string n_user = 4;
-	optional string n_passwd = 5;
+message ChangeDbHost {
+  required string host_name = 1;
+  optional string n_name = 2;
+  optional string n_connect = 3;
+  optional string n_user = 4;
+  optional string n_passwd = 5;
 }
 
-message RemoveDbHost{
-        required string host_name = 1;
-}
-//END:Database host messages
+message RemoveDbHost { required string host_name = 1; }
+// END:Database host messages
 
-//BEGIN:Database messages
-message DefineDb{
-    required string db_name = 1;
-    required string dbhost_name = 2;
+// BEGIN:Database messages
+message DefineDb {
+  required string db_name = 1;
+  required string dbhost_name = 2;
 }
 
-message ChangeDb{
-    required string db_name = 1;
-    required string n_db_name = 2;
+message ChangeDb {
+  required string db_name = 1;
+  required string n_db_name = 2;
 }
 
-message RemoveDb{
-    required string db_name = 1;
-    required string dbhost_name = 2;
+message RemoveDb {
+  required string db_name = 1;
+  required string dbhost_name = 2;
 }
 
-message ListDb{
-	optional string db_name = 1;
-	optional string dbh_name = 2;
+message ListDb {
+  optional string db_name = 1;
+  optional string dbh_name = 2;
 }
 
-//END:Database messages
+// END:Database messages
 
-//BEGIN: User messages
+// BEGIN: User messages
 message DefineUser {
-	required string user_name = 1;
-	optional string passwd = 2;
-	optional bool config_rights = 3;
-	optional bool access_rights = 4;
-	optional bool server_admin_rights = 5;
-	optional bool info_rights = 6;
-	optional bool dbread_rights = 7;
-	optional bool dbwrite_rights = 8;
+  required string user_name = 1;
+  optional string passwd = 2;
+  optional bool config_rights = 3;
+  optional bool access_rights = 4;
+  optional bool server_admin_rights = 5;
+  optional bool info_rights = 6;
+  optional bool dbread_rights = 7;
+  optional bool dbwrite_rights = 8;
 }
 
-message RemoveUser{
-	required string user_name = 1;
+message RemoveUser { required string user_name = 1; }
+
+message ChangeUser {
+  required string user_name = 1;
+  optional string n_name = 2;
+  optional string n_passwd = 3;
+  optional bool n_config_rights = 4;
+  optional bool n_access_rights = 5;
+  optional bool n_server_admin_rights = 6;
+  optional bool n_info_rights = 7;
+  optional bool n_dbread_rights = 8;
+  optional bool n_dbwrite_rights = 9;
 }
 
-message ChangeUser{
-	required string user_name = 1;
-	optional string n_name = 2;
-	optional string n_passwd = 3;
-	optional bool n_config_rights = 4;
-	optional bool n_access_rights = 5;
-	optional bool n_server_admin_rights = 6;
-	optional bool n_info_rights = 7;
-	optional bool n_dbread_rights = 8;
-	optional bool n_dbwrite_rights = 9;
+message ListUser { required bool diplay_rights = 1; }
+// END: User messages
+
+// BEGIN: Peer messages
+
+message DefineOutpeer {
+  required string host_name = 1;
+  optional uint32 port = 2;
 }
 
-message ListUser{
-	required bool diplay_rights = 1;
-}
-//END: User messages
+// END: Peer messages
 
-//BEGIN: Peer messages
-
-message DefineOutpeer{
-    required string host_name = 1;
-    optional uint32 port =2;
-}
-
-//END: Peer messages
-
-//BEGIN: Internal plain storage objects
+// BEGIN: Internal plain storage objects
 message UserAdminRightsProto {
-    optional bool access_control_rights = 1;
-    optional bool info_rights = 2;
-    optional bool server_admin_rights = 3;
-    optional bool system_config_rights = 4;
+  optional bool access_control_rights = 1;
+  optional bool info_rights = 2;
+  optional bool server_admin_rights = 3;
+  optional bool system_config_rights = 4;
 }
 
 message UserDatabaseRightsProto {
-	optional bool read = 1;
-	optional bool write = 2;
+  optional bool read = 1;
+  optional bool write = 2;
 }
 
 message UserProto {
-    optional string name = 1;
-    optional string password = 2;
-    optional UserAdminRightsProto admin_rights = 3;
-    optional UserDatabaseRightsProto default_db_rights = 4;
+  optional string name = 1;
+  optional string password = 2;
+  optional UserAdminRightsProto admin_rights = 3;
+  optional UserDatabaseRightsProto default_db_rights = 4;
 }
 
-message UserListProto {
-	repeated UserProto users = 1;
-}
+message UserListProto { repeated UserProto users = 1; }
 
 message StringPair {
   required string first = 1;
@@ -195,8 +188,8 @@ message StringPair {
 }
 
 message DatabaseProto {
-    required string name = 1;
-    repeated StringPair sessions = 2;
+  required string name = 1;
+  repeated StringPair sessions = 2;
 }
 
 message DatabaseMgrProto {
@@ -209,58 +202,64 @@ message DatabaseMgrProto {
   repeated DbAndDbHostPair databases = 1;
 }
 
-message DatabasePropertiesProto {
-    optional string n_name = 1;
-}
+message DatabasePropertiesProto { optional string n_name = 1; }
 
 message DatabaseHostProto {
-    required string host_name = 1;
-    required string connect_string = 2;
-    required string user_name = 3;
-    required string password = 4;
+  required string host_name = 1;
+  required string connect_string = 2;
+  required string user_name = 3;
+  required string password = 4;
 
-    required int32 session_count = 5;
-    required int32 server_count = 6;
+  required int32 session_count = 5;
+  required int32 server_count = 6;
 
-    repeated DatabaseProto databases = 7;
+  repeated DatabaseProto databases = 7;
 }
 
-message DatabaseHostPropertiesProto{
+message DatabaseHostPropertiesProto {
   optional string host_name = 1;
   optional string connect_string = 2;
   optional string user_name = 3;
   optional string password = 4;
 }
 
-message DatabaseHostMgrProto {
-  repeated DatabaseHostProto database_hosts = 1;
-}
+message DatabaseHostMgrProto { repeated DatabaseHostProto database_hosts = 1; }
 
-message UserMgrProto {
-  repeated UserProto users = 1;
-}
+message UserMgrProto { repeated UserProto users = 1; }
 
 message ServerGroupConfigProto {
-  optional string name = 1;/*!< Name of the server group */
-  optional string host = 2;/*!< The host on which servers of this group will run */
-  optional string db_host = 3;/*!< The database host that will be used by servers of this group */
-  repeated int32 ports = 4;/*!< The set of ports on which servers from this group will run*/
-  optional uint32 min_alive_server_no = 5;/*!< The minimum number of servers that this group should have alive*/
-  optional uint32 min_available_server_no  = 6;/*!< The minimum number of servers with leftover capacity*/
-  optional uint32 max_idle_server_no = 7;/*!< The maximum number of idle servers that this server group can have*/
-  optional bool autorestart = 8;/*!< TRUE if the server should be restarted if it dies. */
-  optional uint32 countdown = 9;/*!< Restart the server after this number of transactions*/
-  optional string server_options = 10;/*!< Options to be passed to the server process on startup */
-  optional int32 starting_server_lifetime = 11; /*!< Number of milliseconds for which a starting server is considered alive */
+  optional string name = 1; /*!< Name of the server group */
+  optional string host =
+      2; /*!< The host on which servers of this group will run */
+  optional string db_host =
+      3; /*!< The database host that will be used by servers of this group */
+  repeated int32 ports =
+      4; /*!< The set of ports on which servers from this group will run*/
+  optional uint32 min_alive_server_no =
+      5; /*!< The minimum number of servers that this group should have alive*/
+  optional uint32 min_available_server_no =
+      6; /*!< The minimum number of servers with leftover capacity*/
+  optional uint32 max_idle_server_no =
+      7; /*!< The maximum number of idle servers that this server group can
+            have*/
+  optional bool autorestart =
+      8; /*!< TRUE if the server should be restarted if it dies. */
+  optional uint32 countdown =
+      9; /*!< Restart the server after this number of transactions*/
+  optional string server_options =
+      10; /*!< Options to be passed to the server process on startup */
+  optional int32
+      starting_server_lifetime = 11; /*!< Number of milliseconds for which a
+                                        starting server is considered alive */
 }
 
-message ServerGroupProto{
+message ServerGroupProto {
   optional string name = 1;
   optional string host = 2;
   optional string db_host = 3;
   repeated int32 ports = 4;
   optional uint32 min_alive_server_no = 5;
-  optional uint32 min_available_server_no  = 6;
+  optional uint32 min_available_server_no = 6;
   optional uint32 max_idle_server_no = 7;
   optional bool autorestart = 8;
   optional uint32 countdown = 9;
@@ -269,6 +268,4 @@ message ServerGroupProto{
   optional bool available = 12;
 }
 
-message ServerMgrProto {
-  repeated ServerGroupProto server_groups = 1;
-}
+message ServerMgrProto { repeated ServerGroupProto server_groups = 1; }

@@ -201,7 +201,7 @@ std::string RasControl::defineDb ( const DefineDb& dbData )
 
     try
     {
-        this->dbManager->defineDatabase ( dbData.db_name(), dbData.dbhost_name());
+        this->dbManager->defineDatabase (dbData.dbhost_name(), dbData.db_name());
     }
     catch ( std::exception& ex )
     {
@@ -248,7 +248,7 @@ std::string RasControl::removeDb ( const RemoveDb& dbData )
 
     try
     {
-        this->dbManager->removeDatabase(dbData.db_name());
+        this->dbManager->removeDatabase(dbData.dbhost_name() ,dbData.db_name());
     }
     catch ( std::exception& ex )
     {

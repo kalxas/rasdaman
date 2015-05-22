@@ -25,7 +25,10 @@
 #include "../src/messages/rasmgrmess.pb.h"
 #include "util/testutil.hh"
 
-
+namespace rasmgr
+{
+namespace test
+{
 TEST(UserDatabaseRightsTest, serializeToProto)
 {
     using rasmgr::UserDatabaseRights;
@@ -59,4 +62,7 @@ TEST(UserDatabaseRightsTest, parseFromProto)
 
     ASSERT_EQ(readRights, dbRights.hasReadAccess());
     ASSERT_EQ(writeRights, dbRights.hasWriteAccess());
+}
+
+}
 }

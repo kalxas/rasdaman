@@ -21,15 +21,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-/* SOURCE: ClientPongHandler.hh
- *
- * MODULE:
- * CLASS:   ClientPongHandler
- *
- * COMMENTS: The ClientPongHandler handles a pong message received as a response to an earlier ping.
- *
- *
- */
 #ifndef RASNET_SRC_CLIENT_CLIENTPONGHANDLER_HH
 #define RASNET_SRC_CLIENT_CLIENTPONGHANDLER_HH
 
@@ -43,6 +34,10 @@
 
 namespace rasnet
 {
+/**
+ * @brief The ClientPongHandler class Handles a pong message received as a response to an earlier ping
+ * by resetting the server's status.
+ */
 class ClientPongHandler
 {
 public:
@@ -52,18 +47,21 @@ public:
 
     /**
      * @brief canHandle Check if the message can be handled by this handler
-     * @param messages
+     * This handler accepts messages of the format:
+     * | rasnet.MessageType |
+     * with MessageType.type() == MessageType::ALIVE_PONG
+     * @param message
      * @return TRUE if the message can be handled, FALSE otherwise
      */
-    bool canHandle(const std::vector<boost::shared_ptr<zmq::message_t> >&  messages);
+    bool canHandle(const std::vector<boost::shared_ptr<zmq::message_t> >&  message);
 
     /**
-     * @brief handle Handle the given message
-     * @param messages
+     * @brief handle Resets the status of the server
+     * @param message
      * @throws UnsupportedMessageException if an invalid message is passed in.
      * i.e. one for which canHandle returns false
      */
-    void handle(const std::vector<boost::shared_ptr<zmq::message_t> >&   messages);
+    void handle(const std::vector<boost::shared_ptr<zmq::message_t> >&   message);
 private:
     boost::shared_ptr<PeerStatus>  serverStatus;
 };

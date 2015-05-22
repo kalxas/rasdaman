@@ -20,9 +20,6 @@
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
-#ifndef RASMGR_X_TEST_SERVERMANAGERTEST_CC
-#define RASMGR_X_TEST_SERVERMANAGERTEST_CC
-
 #include "../../common/src/unittest/gtest.h"
 
 #include "mocks/servergroupfactorymock.hh"
@@ -32,6 +29,10 @@
 #include "../src/servermanagerconfig.hh"
 #include "../src/servermanager.hh"
 
+namespace rasmgr
+{
+namespace test
+{
 using rasmgr::ServerGroupFactory;
 using rasmgr::ServerManagerConfig;
 using rasmgr::ServerManager;
@@ -348,15 +349,14 @@ TEST_F(ServerManagerTest, stopServerGroupAll)
     bool force = rasmgr::test::TestUtil::randomBool();
     StopServerGroup stopGroup;
     stopGroup.set_all(true);
-    stopGroup.set_force(force);
-
+    stopGroup.set_kill_level(FORCE);
 
     ServerGroupConfigProto groupConfig;
 
     boost::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
     ServerGroupMock& serverGroupMockRef = *boost::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, isStopped()).WillOnce(Return(false)).WillOnce(Return(true));
-    EXPECT_CALL(serverGroupMockRef, stop(force));
+    EXPECT_CALL(serverGroupMockRef, stop(FORCE));
 
     ServerGroupFactoryMock& serverGroupFactoryRef  = *boost::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
     EXPECT_CALL(serverGroupFactoryRef, createServerGroup(_)).WillOnce(Return(serverGroup));
@@ -374,11 +374,10 @@ TEST_F(ServerManagerTest, stopServerGroupHost)
     groupConfig.set_host(hostName);
 
     ServerManager serverManager(this->config, this->serverGroupFactory);
-    bool force = rasmgr::test::TestUtil::randomBool();
 
     StopServerGroup stopGroup;
     stopGroup.set_host_name(hostName);
-    stopGroup.set_force(force);
+    stopGroup.set_kill_level(FORCE);
 
     //Will fail because the start group is not configured
     ASSERT_ANY_THROW(serverManager.stopServerGroup(stopGroup));
@@ -386,7 +385,7 @@ TEST_F(ServerManagerTest, stopServerGroupHost)
     boost::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
     ServerGroupMock& serverGroupMockRef = *boost::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, isStopped()).WillOnce(Return(false)).WillOnce(Return(true));
-    EXPECT_CALL(serverGroupMockRef, stop(force));
+    EXPECT_CALL(serverGroupMockRef, stop(FORCE));
     EXPECT_CALL(serverGroupMockRef, getConfig()).WillRepeatedly(Return(groupConfig));
 
     ServerGroupFactoryMock& serverGroupFactoryRef  = *boost::dynamic_pointer_cast<ServerGroupFactoryMock>(serverGroupFactory);
@@ -406,10 +405,9 @@ TEST_F(ServerManagerTest, stopServerGroupByName)
 
     ServerManager serverManager(this->config, this->serverGroupFactory);
 
-    bool force = rasmgr::test::TestUtil::randomBool();
     StopServerGroup stopGroup;
     stopGroup.set_group_name(groupName);
-    stopGroup.set_force(force);
+    stopGroup.set_kill_level(FORCE);
 
     //Will fail because the start group is not configured
     ASSERT_ANY_THROW(serverManager.stopServerGroup(stopGroup));
@@ -417,7 +415,7 @@ TEST_F(ServerManagerTest, stopServerGroupByName)
     boost::shared_ptr<ServerGroup> serverGroup(new ServerGroupMock());
     ServerGroupMock& serverGroupMockRef = *boost::dynamic_pointer_cast<ServerGroupMock>(serverGroup);
     EXPECT_CALL(serverGroupMockRef, isStopped()).WillOnce(Return(false)).WillOnce(Return(true));
-    EXPECT_CALL(serverGroupMockRef, stop(force));
+    EXPECT_CALL(serverGroupMockRef, stop(FORCE));
     EXPECT_CALL(serverGroupMockRef, getGroupName())
     .WillOnce(Return(""))
     .WillOnce(Return(groupName))
@@ -468,4 +466,5 @@ TEST_F(ServerManagerTest, serializeToProto)
 
 }
 
-#endif // RASMGR_X_TEST_SERVERMANAGERTEST_HH
+}
+}

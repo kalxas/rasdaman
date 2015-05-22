@@ -6,6 +6,10 @@
 
 namespace rasmgr
 {
+/**
+ * @brief The ConfigurationManager class Used to save/load the list of users and their
+ * associated information and the rasmgr.conf file.
+ */
 class ConfigurationManager
 {
 public:

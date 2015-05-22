@@ -40,9 +40,10 @@ using boost::unique_lock;
 using boost::shared_lock;
 using boost::shared_mutex;
 
+const boost::int32_t ClientPool::DEFAULT_MINIMUM_POLL_PERIOD = -1;
+
 ClientPool::ClientPool()
 {
-    this->pollPeriod = -1;
 }
 
 ClientPool::~ClientPool()
@@ -50,33 +51,41 @@ ClientPool::~ClientPool()
 
 void ClientPool::addClient(std::string clientId, boost::int32_t period, boost::int32_t retries)
 {
-    unique_lock<shared_mutex> lock(this->clientsMutex);
     PeerStatus status(retries, period);
     pair<map<string, PeerStatus>::iterator, bool> insertRes = this->clients.insert(
                 pair<string, PeerStatus>(clientId, status));
-    if(this->pollPeriod == -1)
-    {
-        this->pollPeriod = period;
-    }
-    else
-    {
-        this->pollPeriod = std::min(this->pollPeriod,period);
-    }
+
     //There is already a client with that id so just reset its status
     if (insertRes.second == false)
     {
         insertRes.first->second.reset();
     }
+
+    map<boost::int32_t, boost::int32_t>::iterator periodsIterator = this->periods.find(period);
+    if(periodsIterator!=this->periods.end())
+    {
+        periodsIterator->second++;
+    }
+    else
+    {
+        this->periods.insert(std::pair<boost::int32_t,boost::int32_t>(period, 1));
+    }
 }
 
 boost::int32_t ClientPool::getMinimumPollPeriod() const
 {
-    return this->pollPeriod;
+    if(this->periods.empty())
+    {
+        return ClientPool::DEFAULT_MINIMUM_POLL_PERIOD;
+    }
+    else
+    {
+        return this->periods.begin()->first;
+    }
 }
 
 void ClientPool::resetClientStatus(std::string clientId)
 {
-    shared_lock<shared_mutex> lock(this->clientsMutex);
     map<string, PeerStatus>::iterator it = this->clients.find(clientId);
     if (it != this->clients.end())
     {
@@ -88,8 +97,6 @@ void ClientPool::pingAllClients(zmq::socket_t& socket)
 {
     map<string, PeerStatus>::iterator it;
 
-    shared_lock<shared_mutex> lock(this->clientsMutex);
-
     for (it = this->clients.begin(); it != this->clients.end(); it++)
     {
         //Ping only clients that have not sent a message in some time
@@ -100,19 +107,10 @@ void ClientPool::pingAllClients(zmq::socket_t& socket)
     }
 }
 
-void ClientPool::removeClient(std::string clientId)
-{
-    unique_lock<shared_mutex> lock(this->clientsMutex);
-    this->clients.erase(clientId);
-}
-
 void ClientPool::removeDeadClients()
 {
-    AlivePing ping;
     map<string, PeerStatus>::iterator it;
     map<string, PeerStatus>::iterator toErase;
-
-    unique_lock<shared_mutex> lock(this->clientsMutex);
 
     it = this->clients.begin();
     while (it != this->clients.end())
@@ -122,6 +120,8 @@ void ClientPool::removeDeadClients()
         {
             toErase=it;
             ++it;
+            //Reduce the number of clients with this period.
+            this->periods[toErase->second.getPeriod()]--;
             this->clients.erase(toErase);
         }
         else
@@ -136,7 +136,6 @@ bool ClientPool::isClientAlive(std::string clientId)
     map<string, PeerStatus>::iterator it;
     bool result = false;
 
-    shared_lock<shared_mutex> lock(this->clientsMutex);
     it= this->clients.find(clientId);
 
     if (it != this->clients.end())
@@ -149,7 +148,6 @@ bool ClientPool::isClientAlive(std::string clientId)
 
 void ClientPool::removeAllClients()
 {
-    unique_lock<shared_mutex> lock(this->clientsMutex);
     this->clients.clear();
 }
 }

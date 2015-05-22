@@ -31,7 +31,9 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The User class holds information about a user of the rasdaman system.
+ */
 class User
 {
 public:

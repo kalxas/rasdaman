@@ -25,8 +25,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "databasehost.hh"
 #include "server.hh"
+#include "serverconfig.hh"
 
 namespace rasmgr
 {
@@ -38,12 +38,10 @@ public:
     /**
      * @brief createServer Create and return a server object that runs on the given host and port and is connected
      * to the given database host.
-     * @param hostName
-     * @param port
-     * @param dbHost
+     * @param configuration
      * @return
      */
-    virtual boost::shared_ptr<Server> createServer(const std::string& hostName, const boost::int32_t& port, boost::shared_ptr<DatabaseHost> dbHost) = 0;
+    virtual boost::shared_ptr<Server> createServer(const ServerConfig& configuration) = 0;
 };
 
 } /* namespace rasmgr */

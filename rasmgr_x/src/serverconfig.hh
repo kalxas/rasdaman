@@ -19,22 +19,45 @@
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
+#ifndef RASMGR_X_SRC_SERVERCONFIG_HH
+#define RASMGR_X_SRC_SERVERCONFIG_HH
 
-#ifndef RASMGR_X_SRC_SERVERFACTORYRASNET_HH_
-#define RASMGR_X_SRC_SERVERFACTORYRASNET_HH_
+#include <string>
 
-#include "serverfactory.hh"
+#include <boost/shared_ptr.hpp>
+#include <boost/cstdint.hpp>
+
+#include "databasehost.hh"
 
 namespace rasmgr
 {
-class ServerFactoryRasNet:public ServerFactory
+/**
+ * @brief The ServerConfig class Configuration object that needs to be passed
+ * to a Server for initialization.
+ */
+class ServerConfig
 {
 public:
-    virtual ~ServerFactoryRasNet();
+    ServerConfig(const std::string& hostName, const boost::int32_t& port, boost::shared_ptr<DatabaseHost> dbHost);
+    virtual ~ServerConfig();
 
-    boost::shared_ptr<Server> createServer(const ServerConfig &configuration);
+    std::string getHostName() const;
+    void setHostName(const std::string &value);
+
+    boost::int32_t getPort() const;
+    void setPort(const boost::int32_t &value);
+
+    boost::shared_ptr<DatabaseHost> getDbHost() const;
+    void setDbHost(const boost::shared_ptr<DatabaseHost> &value);
+
+    std::string getOptions() const;
+    void setOptions(const std::string &value);
+
+private:
+    std::string hostName;
+    boost::int32_t port;
+    boost::shared_ptr<DatabaseHost> dbHost;
+    std::string options;
 };
-
-} /* namespace rasmgr */
-
-#endif /* RASMGR_X_SRC_SERVERFACTORYRASNET_HH_ */
+}
+#endif // RASMGR_X_SRC_SERVERCONFIG_HH

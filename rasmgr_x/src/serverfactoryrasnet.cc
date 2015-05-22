@@ -26,15 +26,14 @@
 namespace rasmgr
 {
 
-boost::shared_ptr<Server> ServerFactoryRasNet::createServer(const std::string& hostName, const boost::int32_t& port, boost::shared_ptr<DatabaseHost> dbHost)
-{
-    boost::shared_ptr<Server> result(new ServerRasNet(hostName,port,dbHost));
-    return result;
-}
-
 ServerFactoryRasNet::~ServerFactoryRasNet()
 {
 }
 
+boost::shared_ptr<Server> ServerFactoryRasNet::createServer(const ServerConfig &configuration)
+{
+    boost::shared_ptr<Server> result(new ServerRasNet(configuration));
+    return result;
+}
 
 } /* namespace rasmgr */

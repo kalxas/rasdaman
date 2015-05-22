@@ -27,23 +27,28 @@
 #include <google/protobuf/service.h>
 #include <boost/smart_ptr.hpp>
 #include <boost/cstdint.hpp>
+#include <boost/exception/all.hpp>
+#include <boost/bind.hpp>
 
 #include "servicemanagerconfig.hh"
 #include "servicerequesthandler.hh"
 
 namespace rasnet
 {
-
+/**
+ * @brief The ServiceManager class allows Service implementations to be
+ * published and served on a public endpoint.
+ * Once started, the ServiceManager will serve requests on the given endpoint
+ * until it is destructed.
+ * This class is not thread safe.
+ */
 class ServiceManager
 {
 public:
     /**
-     * Create a ServiceManager by specifying the number of I/O threads
-     * listening to incoming connections
-     * @param ioThreads Number of I/O threads listening to incoming connections
-     * and sending messages back to peers.
-     * One thread should be used for each GB of data sent/received per second
-     * @param cpuThreads Number of CPU threads used to process requests from clients.
+     * @brief ServiceManager
+     * @param config Configuration object used for intializing the internals
+     * of the ServiceManager @see ServiceManagerConfig
      */
     ServiceManager(const ServiceManagerConfig& config);
 
@@ -61,33 +66,37 @@ public:
 
     /**
      * Serve all the services added so far on the given host and port.
-     * @param host The host parameters specifies the interface and the protocol on
+     * @param endpoint The host parameters specifies the interface and the protocol on
      * which to listen for incoming connections
+     * This method will block for INTER_THREAD_COMMUNICATION_TIMEOUT milliseconds
+     * to perform a timed_wait on the worker thread and catch any exeption
+     * throw during the binding of the communication sockets
      */
     void serve(const std::string& endpoint);
 private:
-    const int destructorDelay; /*!< Number of milliseconds to wait for the worker thread to start.
-        If the object is destructed before the worker thread has time to setup, the destruction will hang*/
     const ServiceManagerConfig config; /*!< The configuration of this service manager*/
-    zmq::context_t context;
+    zmq::context_t context;/*!< ZMQ context used internally by the ServiceManager for inter-thread communication
+                             and communication with the clients */
 
-    int linger;
-    bool runnning;/*! Flag indicating whether the service manager is running*/
+    int linger; /*!< The number of milliseconds a socket should wait to send messages
+                  before terminating */
+    bool runnning;/*!< Flag indicating whether the service manager is running*/
 
-    std::string bridgeAddr;
-    std::string controlAddr;
-    std::string endpointAddr;
+    std::string bridgeAddr;/*!< Address of the bridge used for inter-thread communication*/
+    std::string controlAddr;/*!< Address of the socket used for communicating with the worker thread*/
+    std::string endpointAddr;/*!<Enpoint on which this class serves requests*/
 
-    boost::scoped_ptr<ServiceRequestHandler> requestHandler;/*! ServiceRequestHandler that will handle incoming service calls. */
+    boost::scoped_ptr<ServiceRequestHandler> requestHandler;/*!< ServiceRequestHandler that will handle incoming service calls. */
     boost::scoped_ptr<boost::thread> serviceThread;
-    boost::scoped_ptr<zmq::socket_t> controlSocket;/*!< */
+    boost::scoped_ptr<zmq::socket_t> controlSocket;/*!< Socket through which the worker thread is controlled*/
+    boost::exception_ptr workerThreadExceptionPtr;/*!< Pointer to an exception that might be thrown from the worker thread.*/
 
     void stopWorkerThread();
     /**
      * This function will run in a separate thread and will wait for incoming request and process them.
      * @param parent Pointer to the ServiceManager object owning the thread in which this function is executed.
      */
-    void run();
+    void run(boost::exception_ptr& exceptionPtr);
 };
 
 } /* namespace rasnet */

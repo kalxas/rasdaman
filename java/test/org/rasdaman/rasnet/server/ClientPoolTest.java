@@ -61,7 +61,7 @@ public class ClientPoolTest {
     public void testGetMinimumPollPeriod() throws Exception {
         String clientId = "test";
 
-        assertEquals(Integer.MAX_VALUE, pool.getMinimumPollPeriod());
+        assertEquals(pool.DEFAULT_MINIMUM_POLL_PERIOD, pool.getMinimumPollPeriod());
         pool.addClient(clientId, this.lifetime, this.retries);
         assertEquals(this.lifetime, pool.getMinimumPollPeriod());
     }
@@ -91,16 +91,6 @@ public class ClientPoolTest {
         when(socket.send(anyString())).thenReturn(true);
 
         pool.pingAllClients(socket);
-    }
-
-    @Test
-    public void testRemoveClient() throws Exception {
-        String clientId = "test";
-        pool.addClient(clientId, this.lifetime, this.retries);
-
-        pool.removeClient(clientId);
-
-        assertFalse(pool.isClientAlive(clientId));
     }
 
     @Test

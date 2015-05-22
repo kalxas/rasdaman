@@ -29,6 +29,10 @@
 
 #include "../../rasmgr_x/src/database.hh"
 
+namespace rasmgr
+{
+namespace test
+{
 TEST(DatabaseTest, addClientSession)
 {
     using rasmgr::Database;
@@ -110,4 +114,7 @@ TEST(DatabaseTest, serializeToProto)
     ASSERT_EQ(1, proto.sessions_size());
     ASSERT_EQ(clientId, proto.sessions(0).first());
     ASSERT_EQ(sessionId, proto.sessions(0).second());
+}
+
+}
 }

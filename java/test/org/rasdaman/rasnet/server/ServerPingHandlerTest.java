@@ -37,8 +37,8 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 import static org.rasdaman.rasnet.message.Communication.MessageType.Types.ALIVE_PING;
 import static org.rasdaman.rasnet.message.Communication.MessageType.Types.ALIVE_PONG;
 
@@ -114,6 +114,8 @@ public class ServerPingHandlerTest {
         ZmqUtil.sendCompositeMessage(client, ALIVE_PING);
         ArrayList<byte[]> goodMessage = new ArrayList<>();
         String peerId = ZmqUtil.receiveCompositeMessageFromPeer(server, goodMessage);
+
+        when(clientPool.isClientAlive(anyString())).thenReturn(true);
 
         pingHandler.handle(goodMessage, peerId);
 

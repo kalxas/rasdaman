@@ -5,7 +5,10 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The ClientManagerConfig class Configuration object used to initialize
+ * the ClientManager
+ */
 class ClientManagerConfig
 {
 public:

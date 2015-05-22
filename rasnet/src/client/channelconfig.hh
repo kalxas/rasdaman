@@ -29,7 +29,10 @@
 
 namespace rasnet
 {
-
+/**
+ * @brief The ChannelConfig class Configuration object used for initializing
+ * a Channel @see Channel
+ */
 class ChannelConfig
 {
 public:
@@ -51,10 +54,34 @@ public:
     void setMaxOpenSockets(const boost::int32_t& maxOpenSockets);
 
 private:
+    /**
+     * @brief numberOfIoThreads The number of IO threads that should be used by the channel
+     * to process messages. This parameter is used by the ZMQ.Context used inside the channel.
+     */
     boost::int32_t numberOfIoThreads;
+
+    /**
+     * @brief aliveTimeout Number of milliseconds after which the life of a non-responding
+     * Channel (one that does not reply to ALIVE_PONG) should be decremented
+     */
     boost::int32_t aliveTimeout;
+
+    /**
+     * @brief aliveRetryNo Number of lives a non-responding Channel has before being declared
+     * dead and being removed from the server
+     */
     boost::int32_t aliveRetryNo;
+
+    /**
+     * @brief connectionTimeout Number of milliseconds after which a Channel trying to connect
+     * to a non-responding server gives up
+     */
     boost::int32_t connectionTimeout;
+
+    /**
+     * @brief maxOpenSockets Maximum number of open sockets per Channel context.
+     * see ZMQ documentation
+     */
     boost::int32_t maxOpenSockets;
 };
 

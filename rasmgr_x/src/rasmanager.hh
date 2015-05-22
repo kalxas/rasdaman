@@ -1,19 +1,6 @@
 #ifndef RASMGR_X_SRC_RASMANAGER_HH
 #define RASMGR_X_SRC_RASMANAGER_HH
 
-// rasmgr return codes
-#define RASMGR_RESULT_OK        0
-#define RASMGR_RESULT_NO_MD5        1
-#define RASMGR_RESULT_ILL_ARGS      2
-#define RASMGR_RESULT_LICENSE_FAIL  3
-#define RASMGR_RESULT_NOT_ALONE     4
-#define RASMGR_RESULT_AUTH_CORRUPT  5
-#define RASMGR_RESULT_AUTH_OTHERHOST    6
-#define RASMGR_RESULT_AUTH_INCOMPAT 7
-#define RASMGR_RESULT_NO_SLAVE_IN_TEST  8
-#define RASMGR_EXIT_FAILURE     9
-#define RASMGR_RESULT_INTERNAL      10
-
 #include <signal.h>
 
 #include <boost/shared_ptr.hpp>
@@ -22,16 +9,34 @@
 
 #include "configurationmanager.hh"
 #include "configuration.hh"
+
 namespace rasmgr
 {
-
+/**
+ * @brief The RasManager class Central class of rasmgr that performs
+ * initialization of the other submodules.
+ */
 class RasManager
 {
 public:
+    /**
+     * @brief RasManager Initialize the class using configuration obtained from command
+     * line parameters
+     * @param config
+     */
     RasManager ( Configuration& config );
+
     virtual ~RasManager();
 
+    /**
+     * @brief start Initialize rasmgr components and publish the services to
+     * the network.
+     */
     void start();
+
+    /**
+     * @brief stop Save the current configuration and stop the instance.
+     */
     void stop();
 
     /**

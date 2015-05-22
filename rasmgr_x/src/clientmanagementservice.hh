@@ -33,7 +33,11 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The ClientManagementService class Handles requests from clients,
+ * keeps track of active clients sessions and removes clients that have
+ * not reported activity in a predefined amount of time.
+ */
 class ClientManagementService : public rasnet::service::RasMgrClientService
 {
 public:

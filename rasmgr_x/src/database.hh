@@ -32,7 +32,10 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The Database class Represents a database hosted by this rasmgr.
+ * A database can have multiple client sessions opened.
+ */
 class Database
 {
 public:
@@ -68,6 +71,13 @@ public:
      */
     bool isBusy() const;
 
+    /**
+     * @brief serializeToProto Serialize the information related to the
+     * given database so that the information can be saved to a file
+     * or transfered to the user.
+     * @param db
+     * @return
+     */
     static DatabaseProto serializeToProto(const Database& db);
 
     const std::string& getDbName() const;

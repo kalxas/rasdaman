@@ -29,6 +29,11 @@
 
 namespace rasmgr
 {
+/// host/domain name size (See man gethostname)
+const boost::uint32_t Configuration::HOSTNAME_SIZE= 255;
+const std::string Configuration::RASMGR_LOG_PREFIX = "rasmgr";
+const boost::uint32_t Configuration::MAXMSGOUTBUFF = 20000;
+
 Configuration::Configuration():
     cmlInter      (CommandLineParser::getInstance()),
     cmlName       (cmlInter.addStringParameter(CommandLineParser::noShortName, "name", "<name> symbolic name of this rasmgr (slave only, default: the host name)")),

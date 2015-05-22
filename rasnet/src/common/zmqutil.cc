@@ -37,11 +37,6 @@ const std::string ZmqUtil::ENDPOINT_SEPARATOR = ":";
 
 const std::string ZmqUtil::ALL_LOCAL_INTERFACES = ZmqUtil::TCP_PREFIX + "*";
 
-void ZmqUtil::freeByteArray(void *data, void *hint)
-{
-    delete[] ((::google::protobuf::uint8 *) data);
-}
-
 bool ZmqUtil::isSocketReadable(zmq::socket_t &socket, long timeout)
 {
     bool readable = false;
@@ -88,7 +83,6 @@ boost::shared_ptr<zmq::message_t> ZmqUtil::stringToZmq(const std::string &str)
 
     return result;
 }
-
 
 std::string  ZmqUtil::toInprocAddress(const std::string &address)
 {
@@ -436,6 +430,11 @@ bool ZmqUtil::rawSend(zmq::socket_t &socket, const google::protobuf::Message &me
     }
 
     return success;
+}
+
+void ZmqUtil::freeByteArray(void *data, void *hint)
+{
+    delete[] ((::google::protobuf::uint8 *) data);
 }
 
 std::string ZmqUtil::addPrefixIfMissing(std::string str, std::string prefix)

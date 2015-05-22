@@ -40,7 +40,7 @@ public final class ClientRasServerService {
    * Protobuf type {@code rasnet.service.OpenServerDatabaseReq}
    *
    * <pre>
-   *REGION: DATABASE METHODS
+   * REGION: DATABASE METHODS
    * </pre>
    */
   public static final class OpenServerDatabaseReq extends
@@ -329,7 +329,7 @@ public final class ClientRasServerService {
      * Protobuf type {@code rasnet.service.OpenServerDatabaseReq}
      *
      * <pre>
-     *REGION: DATABASE METHODS
+     * REGION: DATABASE METHODS
      * </pre>
      */
     public static final class Builder extends
@@ -3078,7 +3078,7 @@ public final class ClientRasServerService {
    * Protobuf type {@code rasnet.service.BeginTransactionReq}
    *
    * <pre>
-   *REGION: TRANSACTION METHODS
+   * REGION: TRANSACTION METHODS
    * </pre>
    */
   public static final class BeginTransactionReq extends
@@ -3340,7 +3340,7 @@ public final class ClientRasServerService {
      * Protobuf type {@code rasnet.service.BeginTransactionReq}
      *
      * <pre>
-     *REGION: TRANSACTION METHODS
+     * REGION: TRANSACTION METHODS
      * </pre>
      */
     public static final class Builder extends
@@ -6177,7 +6177,7 @@ public final class ClientRasServerService {
    * Protobuf type {@code rasnet.service.StartInsertMDDReq}
    *
    * <pre>
-   *REGION: MDD METHODS
+   * REGION: MDD METHODS
    * </pre>
    */
   public static final class StartInsertMDDReq extends
@@ -6652,7 +6652,7 @@ public final class ClientRasServerService {
      * Protobuf type {@code rasnet.service.StartInsertMDDReq}
      *
      * <pre>
-     *REGION: MDD METHODS
+     * REGION: MDD METHODS
      * </pre>
      */
     public static final class Builder extends
@@ -11277,7 +11277,7 @@ public final class ClientRasServerService {
    * Protobuf type {@code rasnet.service.InsertCollectionReq}
    *
    * <pre>
-   *REGION: COLLECTION METHODS
+   * REGION: COLLECTION METHODS
    * </pre>
    */
   public static final class InsertCollectionReq extends
@@ -11686,7 +11686,7 @@ public final class ClientRasServerService {
      * Protobuf type {@code rasnet.service.InsertCollectionReq}
      *
      * <pre>
-     *REGION: COLLECTION METHODS
+     * REGION: COLLECTION METHODS
      * </pre>
      */
     public static final class Builder extends
@@ -22956,7 +22956,7 @@ public final class ClientRasServerService {
    * Protobuf type {@code rasnet.service.InitUpdateReq}
    *
    * <pre>
-   *REGION: QUERY METHODS
+   * REGION: QUERY METHODS
    * </pre>
    */
   public static final class InitUpdateReq extends
@@ -23185,7 +23185,7 @@ public final class ClientRasServerService {
      * Protobuf type {@code rasnet.service.InitUpdateReq}
      *
      * <pre>
-     *REGION: QUERY METHODS
+     * REGION: QUERY METHODS
      * </pre>
      */
     public static final class Builder extends
@@ -30628,7 +30628,7 @@ public final class ClientRasServerService {
    * Protobuf type {@code rasnet.service.GetNewOidReq}
    *
    * <pre>
-   *REGION: SYSTEM METHODS
+   * REGION: SYSTEM METHODS
    * </pre>
    */
   public static final class GetNewOidReq extends
@@ -30890,7 +30890,7 @@ public final class ClientRasServerService {
      * Protobuf type {@code rasnet.service.GetNewOidReq}
      *
      * <pre>
-     *REGION: SYSTEM METHODS
+     * REGION: SYSTEM METHODS
      * </pre>
      */
     public static final class Builder extends

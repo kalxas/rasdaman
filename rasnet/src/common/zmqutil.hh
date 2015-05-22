@@ -36,21 +36,41 @@
 
 namespace rasnet
 {
+/**
+ * @brief The ZmqUtil class Contains utility functions for working with ZMQ sockets
+ * and Google Protobuf messages within the rasnet protocol.
+ */
 class ZmqUtil
 {
 public:
     static const std::string ALL_LOCAL_INTERFACES;
 
-    static void freeByteArray(void *data, void *hint);
-
+    /**
+     * @brief isSocketReadable
+     * Poll the socket for the given number of milliseconds and check
+     * if reading is possible
+     * @param socket
+     * @param timeout
+     * @return TRUE if the socket is readable withing the given timeout,
+     * FALSE otherwise
+     */
     static bool isSocketReadable(zmq::socket_t& socket, long timeout);
 
+    /**
+     * @brief isSocketWritable
+     * Poll the socket for the given number of milliseconds and check
+     * if writing is possible
+     * @param socket
+     * @param timeout
+     * @return TRUE if the socket is writable withing the given timeout,
+     * FALSE otherwise
+     */
     static bool isSocketWritable(zmq::socket_t& socket, long timeout);
 
     /**
      * @brief messageToString Convert the data of the ZMQ message to a string.
      * @param message
-     * @return
+     * @return String representation of the byte contents of the message
      */
     static std::string messageToString(zmq::message_t& message);
 
@@ -76,10 +96,11 @@ public:
     static std::string toTcpAddress(const std::string& address);
 
     /**
-     * @brief toEndpoint Converts address and port to endopoint which is of form "address:port"
+     * @brief toEndpoint Converts address and port to an endopoint which is of
+     * the form "address:port"
      * @param address
      * @param port
-     * @return
+     * @return address+ ENDPOINT_SEPARATOR +  port
      */
     static std::string toEndpoint(const std::string& address, u_int16_t port);
 
@@ -95,7 +116,8 @@ public:
     /**
      * @brief sendToPeer Send the protobuf message to the peer identified by the given ID.
      * @param sock ZMQ_ROUTER socket that acts as the server
-     * @param peerId Identity of the ZMQ_DEALER socket that represents the client
+     * @param peerId Identity of the ZMQ_DEALER socket that uniquely identifies the client
+     * relative to the ZMQ_ROUTER socket
      * @param message The Google protobuf message
      * @return TRUE if the sending was successful, FALSE otherwise
      */
@@ -167,22 +189,63 @@ public:
     static bool sendServiceRequest(zmq::socket_t& socket, const std::string& callId,
                                    const std::string& methodName, const google::protobuf::Message *inputValue );
 
-    //Type | ID | error | data
+    /**
+     * @brief sendServiceResponseSuccess Send a message of the format
+     * |MessageType| Call ID | ServiceCallStatus | outputValue|
+     * ServiceCallStatus.success = true
+     * to the peer uniquely identified by peerId relative to the socket
+     * @param socket ZMQ_ROUTER socket (no checks are made)
+     * @param peerId
+     * @param callId ID of the call, unique to the Channel that sent the request
+     * @param outputValue Pointer to the serialized output value.
+     * The data is owned by this method
+     * @param outputValueSize The number of bytes in the outputValue
+     * @return TRUE for success, FALSE in case of failure
+     */
     static bool sendServiceResponseSuccess(zmq::socket_t& socket, const std::string& peerId, const std::string& callId,
                                            ::google::protobuf::uint8 *outputValue,
                                            int outputValueSize);
 
+    /**
+     * @brief sendServiceResponseFailure Send a message of the format
+     * |MessageType| Call ID | ServiceCallStatus | failureMessage|
+     * ServiceCallStatus.success = false
+     * @param socket ZMQ_ROUTER socket (no checks are made)
+     * @param peerId
+     * @param callId ID of the call, unique to the Channel that sent the request
+     * @param failureMessage Message representing failure to be sent to the peer
+     * @return
+     */
     static bool sendServiceResponseFailure(zmq::socket_t& socket, const std::string& peerId, const std::string& callId,
                                            const std::string& failureMessage );
 
+    /**
+     * @brief receiveCompositeMessage Read a multipart message from the socket.
+     * @param socket
+     * @param out_messages Vector of zmq::message_t, one for each message part
+     */
     static void receiveCompositeMessage(zmq::socket_t &socket, std::vector<boost::shared_ptr<zmq::message_t> >& out_messages);
 
+    /**
+     * @brief receiveCompositeMessageFromPeer Read a multipart message from the socket.
+     * The first part of the message is considered to be the ID of the peer.
+     * @param socket ZMQ_ROUTER socket
+     * @param out_peerId The peer ID
+     * @param out_messages Vector of zmq::message_t, one for each message part
+     */
     static void receiveCompositeMessageFromPeer(zmq::socket_t &socket, std::string& out_peerId, std::vector<boost::shared_ptr<zmq::message_t> >& out_messages);
-
 private:
     static const std::string TCP_PREFIX;
     static const std::string INPROC_PREFIX;
     static const std::string ENDPOINT_SEPARATOR;
+
+    /**
+     * @brief freeByteArray Callback function used by ZMQ to send a message
+     * using zero-copy
+     * @param data
+     * @param hint
+     */
+    static void freeByteArray(void *data, void *hint);
 
     static std::string addPrefixIfMissing(std::string str, std::string prefix);
 

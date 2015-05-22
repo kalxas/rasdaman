@@ -5,9 +5,7 @@ PROTOBUF_FILES= protomessages/client_rassrvr_service.proto \
                 protomessages/rasmgr_client_service.proto \
                 protomessages/rasmgr_rasctrl_service.proto \
                 protomessages/rasmgr_rassrvr_service.proto \
-                protomessages/rassrvr_rasmgr_service.proto \
-                protomessages/service.proto \
-                protomessages/test_mess.proto
+                protomessages/rassrvr_rasmgr_service.proto
 
 PROTO_SRC= messages/client_rassrvr_service.pb.cc \
            messages/common_service.pb.cc \
@@ -16,9 +14,7 @@ PROTO_SRC= messages/client_rassrvr_service.pb.cc \
            messages/rasmgr_client_service.pb.cc \
            messages/rasmgr_rasctrl_service.pb.cc \
            messages/rasmgr_rassrvr_service.pb.cc \
-           messages/rassrvr_rasmgr_service.pb.cc \
-           messages/service.pb.cc \
-           messages/test_mess.pb.cc
+           messages/rassrvr_rasmgr_service.pb.cc
 
 noinst_LIBRARIES = librasnet.a
 librasnet_a_SOURCES = $(PROTO_SRC) \

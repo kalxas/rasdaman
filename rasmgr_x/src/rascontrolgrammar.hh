@@ -104,7 +104,7 @@ struct RasControlGrammar : qi::grammar<Iterator, std::string ( void ), ascii::sp
     this->quitLit = qi::lit ( "quit" );
     this->upLit = qi::lit ( "up" );
     this->downLit = qi::lit ( "down" );
-
+    this->anyLit = qi::no_skip[qi::as_string[+qi::char_]];
 
     //this->rightsOptions = ;
 
@@ -166,7 +166,7 @@ struct RasControlGrammar : qi::grammar<Iterator, std::string ( void ), ascii::sp
                                    >> this->defineServerPorts
                                    >> ( this->_dbhLit >> this->strRule[boost::bind ( static_cast< void ( DefineServerGroup::* ) ( const ::std::string & ) > ( &DefineServerGroup::set_db_host ), &defServerGroup, _1 )] )
                                    >> -this->defineServerOptionsSubRule
-                                   >> - ( this->_xpLit >> this->strRule[boost::bind ( static_cast< void ( DefineServerGroup::* ) ( const ::std::string & ) > ( &DefineServerGroup::set_options ), &defServerGroup, _1 )] );
+                                   >> - ( this->_xpLit >> this->anyLit[boost::bind ( static_cast< void ( DefineServerGroup::* ) ( const ::std::string & ) > ( &DefineServerGroup::set_options ), &defServerGroup, _1 )] );
 
     this->defineServerOptionsSubRule = ( this->_autorestartLit[boost::bind ( &ChangeServerGroup::set_n_autorestart, &changeServerGroup, true )] >> - ( this->onLit[boost::bind ( &ChangeServerGroup::set_n_autorestart, &changeServerGroup, true )] | this->offLit[boost::bind ( &ChangeServerGroup::set_n_autorestart, &changeServerGroup, false )] ) )
                                        ^ ( ( this->_countdownLit >> qi::uint_[boost::bind ( &DefineServerGroup::set_countdown, &defServerGroup, _1 )] ) )
@@ -204,7 +204,7 @@ struct RasControlGrammar : qi::grammar<Iterator, std::string ( void ), ascii::sp
 
                                        ^ ( this->_countdownLit >> qi::uint_[boost::bind ( &ChangeServerGroup::set_n_countdown, &changeServerGroup, _1 )] ) )
 
-                                  >> - ( this->_xpLit >> this->strRule[boost::bind ( static_cast< void ( ChangeServerGroup::* ) ( const ::std::string & ) > ( &ChangeServerGroup::set_n_options ), &changeServerGroup, _1 )] ) )
+                                  >> - ( this->_xpLit >> this->anyLit[boost::bind ( static_cast< void ( ChangeServerGroup::* ) ( const ::std::string & ) > ( &ChangeServerGroup::set_n_options ), &changeServerGroup, _1 )] ) )
                                 [qi::_val = boost::phoenix::bind ( &RasControl::changeServerGroup, this->rascontrol.get(), boost::phoenix::ref ( this->changeServerGroup ) )];
 
     //remove <<srv s>>
@@ -558,6 +558,7 @@ qi::rule<Iterator, std::string(), ascii::space_type> _aliveLit;
 qi::rule<Iterator, std::string(), ascii::space_type> _availableLit;
 qi::rule<Iterator, std::string(), ascii::space_type> upLit;
 qi::rule<Iterator, std::string(), ascii::space_type> downLit;
+qi::rule<Iterator, std::string(), ascii::space_type> anyLit;
 qi::rule<Iterator, std::string(), ascii::space_type> _idleLit;
 qi::rule<Iterator, std::string(), ascii::space_type> _sizeLit;
 qi::rule<Iterator, std::string(), ascii::space_type> exitRule;

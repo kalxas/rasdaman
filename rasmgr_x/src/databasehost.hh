@@ -32,7 +32,10 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The DatabaseHost class A database host manages multiple databases,
+ * keeps track of servers using this database host
+ */
 class DatabaseHost
 {
 public:
@@ -77,7 +80,7 @@ public:
 
     /**
      * Check if the database identified by databaseName is present on this host.
-     * The database might be removed by between this call and the moment an
+     * The database might be removed between this call and the moment an
      * operation is performed on the database if locking is not performed at
      * a higher level.
      * @param databaseName
@@ -89,21 +92,13 @@ public:
      * Add the database to this host.
      * @param db
      */
-    void addDbToHost(const Database& db);
+    void addDbToHost(boost::shared_ptr<Database> db);
 
     /**
      * Remove the database with the given name from this host.
      * @param dbName
      */
     void removeDbFromHost(const std::string& dbName);
-
-    /**
-     * @brief changeDbProperties Change the properties of the database with the given name
-     * if the database exists on this host.
-     * @param dbName
-     * @param newDbProp
-     */
-    void changeDbProperties(const std::string& dbName, const DatabasePropertiesProto& newDbProp);
 
     const std::string& getHostName() const;
     void setHostName(const std::string& hostName);
@@ -127,7 +122,7 @@ private:
 
     int sessionCount; /*!< Counter used to track the number of active sessions*/
     int serverCount;/*!< Counter used to track the number of server groups using this host*/
-    std::list<Database> databaseList;/*!< List of databases located on this host */
+    std::list<boost::shared_ptr<Database> > databaseList;/*!< List of databases located on this host */
     mutable boost::mutex mut;/*!< Mutex used for syncrhonizing access to this object*/
 
     /**

@@ -5,6 +5,7 @@ import org.odmg.*;
 import org.rasdaman.rasnet.client.Channel;
 import org.rasdaman.rasnet.client.ChannelConfig;
 import org.rasdaman.rasnet.client.ClientController;
+import org.rasdaman.rasnet.exception.ConnectionTimeoutException;
 import org.rasdaman.rasnet.exception.RasnetException;
 import org.rasdaman.rasnet.message.Communication;
 import org.rasdaman.rasnet.message.internal.Internal;
@@ -220,6 +221,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
                     .setClientId(clientID)
                     .setDatabaseName(databaseName)
                     .build();
+
             getRasServerService().openServerDatabase(controller, openServerDatabaseReq);
 
             stopRasmgrKeepAlive();
@@ -232,6 +234,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
 
         } catch (ServiceException ex) {
             throw new RasnetException(ex);
+        } catch (ConnectionTimeoutException e) {
+            e.printStackTrace();
         }
 
 
@@ -272,6 +276,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             disconnectClient();
         } catch (ServiceException ex) {
             throw new ODMGException(ex.getMessage());
+        } catch (ConnectionTimeoutException e) {
+            e.printStackTrace();
         }
     }
 
@@ -286,6 +292,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             this.getRasServerService().beginTransaction(controller, transactionReq);
         } catch (ServiceException e) {
             throw new RasnetException(controller.errorText());
+        } catch (ConnectionTimeoutException e) {
+            e.printStackTrace();
         }
         if (controller.failed()) {
             throw new RasnetException(controller.errorText());
@@ -301,6 +309,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
         try {
             reply = this.getRasServerService().isTransactionOpen(controller, isTransactionOpenReq);
         } catch (ServiceException e) {
+            throw new RasnetException(e);
+        } catch (ConnectionTimeoutException e) {
             throw new RasnetException(e);
         }
 
@@ -321,6 +331,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             this.getRasServerService().commitTransaction(controller, commitTransactionReq);
         } catch (ServiceException e) {
             throw new RasnetException(e);
+        } catch (ConnectionTimeoutException e) {
+            e.printStackTrace();
         }
 
         if (controller.failed()) {
@@ -337,6 +349,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             this.getRasServerService().abortTransaction(controller, abortTransactionReq);
         } catch (ServiceException e) {
             throw new RasnetException(e);
+        } catch (ConnectionTimeoutException e) {
+            e.printStackTrace();
         }
 
         if (controller.failed()) {
@@ -378,6 +392,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
 
         } catch (ServiceException e) {
             throw new RasnetException(e);
+        } catch (ConnectionTimeoutException e) {
+            e.printStackTrace();
         }
     }
 
@@ -403,6 +419,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             Debug.talkCritical("RasRNPImplementation.executeQueryRequest: " + e.getMessage());
             Debug.leaveVerbose("RasRNPImplementation.executeQueryRequest: done, " + e.getMessage());
             throw new RasClientInternalException("RasRNPImplementation", "executeQueryRequest()", e.getMessage());
+        } catch (ConnectionTimeoutException e) {
+            throw new RasnetException(e);
         }
     }
 
@@ -424,11 +442,12 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
 
         } catch (ServiceException e) {
             throw new RasnetException(e);
+        } catch (ConnectionTimeoutException e) {
+            throw new RasnetException(e);
         }
-
     }
 
-    private RasMgrClientService.BlockingInterface getRasmgService() {
+    private RasMgrClientService.BlockingInterface getRasmgService() throws ConnectionTimeoutException {
         synchronized (this) {
             if (rasmgService == null) {
                 rasmgrServiceChannel = new Channel(ZmqUtil.toAddressPort(this.rasMgrHost, this.rasMgrPort), new ChannelConfig());
@@ -438,7 +457,7 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
         return rasmgService;
     }
 
-    private ClientRassrvrService.BlockingInterface getRasServerService() {
+    private ClientRassrvrService.BlockingInterface getRasServerService() throws ConnectionTimeoutException {
 
         synchronized (this) {
             if (rasServerService == null) {
@@ -457,6 +476,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
             this.getRasmgService().disconnect(controller, disconnectReq);
         } catch (ServiceException e) {
             throw new RasnetException(e);
+        } catch (ConnectionTimeoutException e) {
+            e.printStackTrace();
         }
         if (controller.failed()) {
             throw new RasnetException(controller.errorText());
@@ -506,6 +527,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
 
             return new RasOID(getNewOidRepl.getOid());
         } catch (ServiceException e) {
+            throw new RasnetException(e);
+        } catch (ConnectionTimeoutException e) {
             throw new RasnetException(e);
         }
     }
@@ -955,6 +978,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
                     } catch (ServiceException e) {
                         //TODO-GM
                         e.printStackTrace();
+                    } catch (ConnectionTimeoutException e) {
+                        e.printStackTrace();
                     }
 
                 }
@@ -1046,6 +1071,8 @@ public class RasRasnetImplementation implements RasImplementationInterface, RasC
                         getRasServerService().keepAlive(controller, keepAliveReq);
                     } catch (ServiceException e) {
                         //TODO-GM
+                        e.printStackTrace();
+                    } catch (ConnectionTimeoutException e) {
                         e.printStackTrace();
                     }
 

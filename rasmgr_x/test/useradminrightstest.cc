@@ -24,9 +24,12 @@
 #include "../src/useradminrights.hh"
 #include "../src/messages/rasmgrmess.pb.h"
 #include "util/testutil.hh"
-
-
-TEST(UserAdminRightsTest, serializeToProto){
+namespace rasmgr
+{
+namespace test
+{
+TEST(UserAdminRightsTest, serializeToProto)
+{
     using rasmgr::UserAdminRights;
     using rasmgr::UserAdminRightsProto;
     using rasmgr::test::TestUtil;
@@ -50,7 +53,8 @@ TEST(UserAdminRightsTest, serializeToProto){
     ASSERT_EQ(configRights, proto.system_config_rights());
 }
 
-TEST(UserAdminRightsTest, parseFromProto){
+TEST(UserAdminRightsTest, parseFromProto)
+{
     using rasmgr::UserAdminRights;
     using rasmgr::UserAdminRightsProto;
     using rasmgr::test::TestUtil;
@@ -72,4 +76,7 @@ TEST(UserAdminRightsTest, parseFromProto){
     ASSERT_EQ(infoRights, rights.hasInfoRights());
     ASSERT_EQ(adminRights, rights.hasServerAdminRights());
     ASSERT_EQ(configRights, rights.hasSystemConfigRights());
+}
+
+}
 }

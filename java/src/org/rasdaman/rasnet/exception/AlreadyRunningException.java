@@ -21,6 +21,9 @@
  */
 package org.rasdaman.rasnet.exception;
 
+/**
+ * Thrown when the server method on the ServiceManager has been called twice
+ */
 public class AlreadyRunningException extends Exception {
     public AlreadyRunningException() {
     }

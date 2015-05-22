@@ -27,6 +27,10 @@
 
 namespace rasnet
 {
+/**
+ * @brief The UnsupportedMessageException class To be thrown when an invalid
+ * message is passed to the handle method of a message handler.
+ */
 class UnsupportedMessageException : public std::runtime_error
 {
 public:

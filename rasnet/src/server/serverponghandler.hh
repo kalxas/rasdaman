@@ -7,7 +7,10 @@
 
 namespace rasnet
 {
-
+/**
+ * @brief The ServerPongHandler class Handle PONG messages from
+ * a peer by resetting its status
+ */
 class ServerPongHandler
 {
 public:
@@ -23,10 +26,9 @@ public:
     bool canHandle(const std::vector<boost::shared_ptr<zmq::message_t> >&  message);
 
     /**
-     * @brief handle Handle the given message and send the an ALIVE_PONG
-     * message through the socket
+     * @brief handle Handle the given message by resetting its status
      * @param message
-     * @param socket The socket connected to the server
+     * @param peerId
      * @throws UnsupportedMessageException if an invalid message is passed in.
      * i.e. one for which canHandle returns false
      */

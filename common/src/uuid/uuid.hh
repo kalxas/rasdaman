@@ -23,7 +23,9 @@
 #ifndef COMMON_SRC_UUID_UUID_HH_
 #define COMMON_SRC_UUID_UUID_HH_
 
+#include <boost/thread.hpp>
 #include <boost/uuid/random_generator.hpp>
+
 namespace common
 {
 class UUID
@@ -39,6 +41,7 @@ public:
 private:
     static bool initialized;
     static boost::uuids::random_generator uuidGenerator;
+    static boost::mutex generatorMutex;
 };
 }
 

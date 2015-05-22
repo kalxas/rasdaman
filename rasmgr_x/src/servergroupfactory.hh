@@ -8,7 +8,10 @@
 
 namespace rasmgr
 {
-
+/**
+ * @brief The ServerGroupFactory class Abstract Factory for creating a server
+ * group given a server group configuration.
+ */
 class ServerGroupFactory
 {
 public:

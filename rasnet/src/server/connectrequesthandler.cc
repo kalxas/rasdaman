@@ -37,7 +37,6 @@ ConnectRequestHandler::ConnectRequestHandler(zmq::socket_t &socket, boost::share
 
 ConnectRequestHandler::~ConnectRequestHandler()
 {
-
 }
 
 bool ConnectRequestHandler::canHandle(const std::vector<boost::shared_ptr<zmq::message_t> > &message)

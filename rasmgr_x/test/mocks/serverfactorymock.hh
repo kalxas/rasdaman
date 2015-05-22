@@ -6,12 +6,17 @@
 #include "../../../common/src/mock/gmock.h"
 
 #include "../src/serverfactory.hh"
-
+namespace rasmgr
+{
+namespace test
+{
 class ServerFactoryMock:public rasmgr::ServerFactory
 {
 public:
 
-    MOCK_METHOD3(createServer, boost::shared_ptr<rasmgr::Server>(const std::string&, const boost::int32_t&, boost::shared_ptr<rasmgr::DatabaseHost>));
+    MOCK_METHOD1(createServer, boost::shared_ptr<rasmgr::Server>(const ServerConfig&));
 };
+}
+}
 
 #endif // RASMGR_X_TEST_MOCKS_SERVERFACTORYMOCK_HH

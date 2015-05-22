@@ -31,6 +31,7 @@
 #include "../../common/src/logging/easylogging++.hh"
 
 #include "rasmgrconfig.hh"
+#include "serverconfig.hh"
 #include "constants.hh"
 
 #include "servergroupimpl.hh"
@@ -55,12 +56,13 @@ using boost::lexical_cast;
 using common::Timer;
 
 ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto &config, boost::shared_ptr<DatabaseHostManager> dbhManager, boost::shared_ptr<ServerFactory> serverFactory):
-    config(config), serverFactory(serverFactory)
+    config(config), dbhManager(dbhManager), serverFactory(serverFactory)
 {
     //Validate the configuration and initialize defaults
     this->validateAndInitConfig(this->config);
 
     //Make sure to decrease the server count in the destructor
+    //or when the database host is changed.
     this->databaseHost = dbhManager->getAndLockDH(this->config.db_host());
     this->stopped = true;
 
@@ -73,7 +75,7 @@ ServerGroupImpl::ServerGroupImpl(const ServerGroupConfigProto &config, boost::sh
 ServerGroupImpl::~ServerGroupImpl()
 {
     this->databaseHost->decreaseServerCount();
-    this->stopActiveServers(NONE);
+    this->stopActiveServers(KILL);
 }
 
 void ServerGroupImpl::start()
@@ -211,12 +213,10 @@ void ServerGroupImpl::changeGroupConfig(const ServerGroupConfigProto &value)
 
     if(value.ports_size()>0)
     {
-        this->availablePorts.clear();
         this->config.clear_ports();
 
         for(int i=0; i<value.ports_size(); ++i)
         {
-            this->availablePorts.insert(value.ports(i));
             this->config.add_ports(value.ports(i));
         }
     }
@@ -249,6 +249,26 @@ void ServerGroupImpl::changeGroupConfig(const ServerGroupConfigProto &value)
     if(value.has_server_options())
     {
         this->config.set_server_options(value.server_options());
+    }
+
+    this->validateAndInitConfig(config);
+
+    if(value.has_db_host())
+    {
+        //Release the current database host
+        this->databaseHost->decreaseServerCount();
+
+        //Retrieve and lock the new database host.
+        this->databaseHost = dbhManager->getAndLockDH(this->config.db_host());
+    }
+
+    if(value.ports_size()>0)
+    {
+        this->availablePorts.clear();
+        for(int i=0; i<this->config.ports_size(); ++i)
+        {
+            this->availablePorts.insert(this->config.ports(i));
+        }
     }
 }
 
@@ -323,35 +343,38 @@ void ServerGroupImpl::evaluateGroup()
     3. Try to keep the minimum number of alive servers
     */
     uint32_t availableServerNo=0;
-    uint32_t freeServerNo=0;
+    uint32_t idleServerNo=0;
     list<shared_ptr<Server> >::iterator it;
 
-    LDEBUG<<"Removing dead servers in group("<<this->getGroupName()<<");";
     this->removeDeadServers();
-    LDEBUG<<"Removed dead servers in group("<<this->getGroupName()<<");";
+    this->evaluateRestartingServers();
 
     if(!this->stopped)
     {
         for(it=this->runningServers.begin(); it!=this->runningServers.end(); ++it)
         {
-            if((*it)->isAvailable())
-            {
-                availableServerNo++;
-            }
-
+            //If the server is free, it is also available
+            //If it is not free, there is still a chance that it is available
+            //depeding on the capacity
             if((*it)->isFree())
             {
-                freeServerNo++;
+                idleServerNo++;
+                availableServerNo++;
+            }
+            else if((*it)->isAvailable())
+            {
+                availableServerNo++;
             }
         }
 
         LDEBUG<<"There are "<< availableServerNo<<" available servers.";
-        LDEBUG<<"There are "<< freeServerNo<< " free servers.";
+        LDEBUG<<"There are "<< idleServerNo<< " free servers.";
 
         if(availableServerNo < this->config.min_available_server_no())
         {
             uint32_t maxNoServersToStart = this->config.min_available_server_no() - availableServerNo;
-            uint32_t notStartedServerNo = uint32_t(this->config.ports_size()) - this->startingServers.size() - this->runningServers.size();
+            uint32_t notStartedServerNo = uint32_t(this->config.ports_size())
+                                          - (this->startingServers.size() + this->runningServers.size() + this->restartingServers.size());
 
             LDEBUG<<"Server group("<<this->getGroupName()<<") has "<<notStartedServerNo<<"servers that have not been started";
             LDEBUG<<"Server group("<<this->getGroupName()<<") wants to start at most"<<maxNoServersToStart;
@@ -366,9 +389,11 @@ void ServerGroupImpl::evaluateGroup()
                 this->startServer();
             }
         }
-        else if(availableServerNo> this->config.min_available_server_no() && freeServerNo > this->config.max_idle_server_no())
+        else if(availableServerNo> this->config.min_available_server_no() && idleServerNo > this->config.max_idle_server_no())
         {
-            uint32_t maxServersToStop = freeServerNo-this->config.max_idle_server_no();
+            //Stopping this many servers will bring us to the maximum number of idle servers
+            uint32_t maxServersToStop = idleServerNo-this->config.max_idle_server_no();
+            //Stopping this many servers will keep the minimum number of available servers
             uint32_t availableServersToStop=  availableServerNo - this->config.min_available_server_no();
 
             LDEBUG<<"Server group("<<this->getGroupName()<<") has "<<maxServersToStop<<" servers more than the maximum number of allowed idle servers";
@@ -381,7 +406,6 @@ void ServerGroupImpl::evaluateGroup()
             list<shared_ptr<Server> >::iterator it;
             for(it=this->runningServers.begin(); serversToStop>0 && it!=this->runningServers.end(); ++it)
             {
-
                 if((*it)->isFree())
                 {
                     (*it)->stop(NONE);
@@ -392,8 +416,83 @@ void ServerGroupImpl::evaluateGroup()
     }
 }
 
+void ServerGroupImpl::evaluateRestartingServers()
+{
+    LDEBUG<<"Started evaluating which servers have to be restarted in group :"<<this->getGroupName();
+
+    if(this->config.countdown()>0)
+    {
+        list<shared_ptr<Server> >::iterator runningServerIt;
+        list<shared_ptr<Server> >::iterator runningServerToEraseIt;
+
+        //Go through all the running servers, find the ones that have to
+        //be restarted, and add them to the list
+        runningServerIt=this->runningServers.begin();
+        while(runningServerIt!=this->runningServers.end())
+        {
+            runningServerToEraseIt = runningServerIt;
+            ++runningServerIt;
+
+            if((*runningServerToEraseIt)->getTotalSessionNo()>=this->config.countdown())
+            {
+                this->restartingServers.push_back((*runningServerToEraseIt));
+                this->runningServers.erase(runningServerToEraseIt);
+            }
+        }
+
+        //Go through the list of restarting servers
+        //Close the ones that have to be restarted and add the port
+        //back to the pool of available servers
+        list<shared_ptr<Server> >::iterator restartingServerIt;
+        list<shared_ptr<Server> >::iterator restartingServerToEraseIt;
+
+        restartingServerIt = this->restartingServers.begin();
+        while(restartingServerIt!=this->restartingServers.end())
+        {
+            restartingServerToEraseIt = restartingServerIt;
+            ++restartingServerIt;
+
+            if((*restartingServerToEraseIt)->isFree())
+            {
+                try
+                {
+                    (*restartingServerToEraseIt)->stop(KILL);
+                    LDEBUG<<"Stopping server with ID:"<<(*restartingServerToEraseIt)->getServerId()
+                          <<" because it has to be restarted.";
+
+                    //add the port back to the pool
+                    this->availablePorts.insert((*restartingServerToEraseIt)->getPort());
+                    //restart the server
+                    this->restartingServers.erase(restartingServerToEraseIt);
+                }
+                catch(std::exception& ex)
+                {
+                    LERROR<<"Failed to kill server with ID"
+                          <<(*restartingServerToEraseIt)->getServerId()
+                          <<" reason:"<<ex.what();
+
+                }
+                catch(...)
+                {
+                    LERROR<<"Failed to kill server with ID"
+                          <<(*restartingServerToEraseIt)->getServerId()
+                          << " for unknown reason.";
+                }
+            }
+        }
+    }
+    else
+    {
+        LDEBUG<<"The countdown is set to 0. Servers will never be restarted.";
+    }
+
+    LDEBUG<<"Finished evaluating which servers have to be restarted in group :"<<this->getGroupName();
+}
+
 void ServerGroupImpl::removeDeadServers()
 {
+    LDEBUG<<"Started removing dead servers in group("<<this->getGroupName()<<");";
+
     map<string, pair<shared_ptr<Server>,Timer> >::iterator startingIt;
     map<string, pair<shared_ptr<Server>,Timer> >::iterator startingToEraseIt;
 
@@ -450,6 +549,8 @@ void ServerGroupImpl::removeDeadServers()
     {
         LERROR<<"Removing dead servers has failed for an unknown reason";
     }
+
+    LDEBUG<<"Finished removing dead servers in group("<<this->getGroupName()<<");";
 }
 
 void ServerGroupImpl::startServer()
@@ -465,7 +566,12 @@ void ServerGroupImpl::startServer()
         int32_t port = *it;
         this->availablePorts.erase(port);
 
-        shared_ptr<Server> server = this->serverFactory->createServer(this->config.host(),port, this->databaseHost);
+        std::string host = this->config.host();
+        ServerConfig serverConfig(host, port, this->databaseHost);
+
+        serverConfig.setOptions(this->config.server_options());
+
+        shared_ptr<Server> server = this->serverFactory->createServer(serverConfig);
         pair<shared_ptr<Server>, Timer> startingServerEntry(server, Timer(this->config.starting_server_lifetime()));
 
         this->startingServers.insert(pair<string, pair<shared_ptr<Server>, Timer> >(server->getServerId(), startingServerEntry));
@@ -487,7 +593,7 @@ void ServerGroupImpl::stopActiveServers(KillLevel level)
 
             if(level==KILL)
             {
-                 this->availablePorts.insert((*runningServer)->getPort());
+                this->availablePorts.insert((*runningServer)->getPort());
             }
         }
         catch(std::exception& ex)
@@ -503,7 +609,7 @@ void ServerGroupImpl::stopActiveServers(KillLevel level)
     //If the servers were killed
     if(level==KILL)
     {
-         this->runningServers.clear();
+        this->runningServers.clear();
     }
 
     //The servers that are starting but have not yet registered
