@@ -138,4 +138,6 @@ rasdaman2.includes
 .autotools
 *.pyc
 .cproject
->>>>>>> feature_RnpRedesign
+java/src/rasj/RasImplementation.java
+applications/petascope/lib/rasj.jar
+applications/wcst_import/wcst_import.sh
