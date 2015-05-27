@@ -119,6 +119,19 @@ MDDBaseType::getTypeStructure() const
     return result;
 }
 
+char*
+MDDBaseType::getNewTypeStructure() const
+{
+    const char* baseType = TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName())).c_str();
+    char* result = (char*)mymalloc(10 + strlen(baseType));
+
+    strcpy(result, "marray {");
+    strcat(result, baseType);
+    strcat(result, "}");
+
+    return result;
+}
+
 void
 MDDBaseType::print_status( ostream& s ) const
 {

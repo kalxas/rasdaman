@@ -62,6 +62,8 @@ public:
     returns a string: marray < myBaseType->getTypeStructure >
     */
 
+    virtual char* getNewTypeStructure() const;
+
     MDDBaseType(const OId& id) throw (r_Error);
     /*@Doc:
     constructs a MDDBaseType out of the database.

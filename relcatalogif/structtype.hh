@@ -73,6 +73,7 @@ public:
     virtual void printCell(ostream& stream, const char* cell) const;
 
     virtual char* getTypeStructure() const;
+    virtual char* getNewTypeStructure() const;
 
     /// add new element to struct
     unsigned int addElement(const char* elemName, const char* elemType);

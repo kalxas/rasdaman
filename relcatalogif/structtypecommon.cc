@@ -43,6 +43,7 @@ rasdaman GmbH.
 #include "raslib/error.hh"
 
 #include <cstring>
+#include <string>
 
 /*************************************************************
  * Method name...: StructType();
@@ -205,9 +206,11 @@ StructType::getTypeStructure() const
                                     strlen(elementNames[i]) +
                                     strlen(dummy) + 1 + 3 );
         strcpy(newResult, result);
+
         strcat(newResult, dummy);
         strcat(newResult, " ");
         strcat(newResult, elementNames[i]);
+
         strcat(newResult, ", ");
         free(result);
         free(dummy);
@@ -220,6 +223,37 @@ StructType::getTypeStructure() const
     free(result);
     result = newResult;
     return result;
+}
+
+char*
+StructType::getNewTypeStructure() const
+{
+    std::ostringstream ss;
+    ss << "STRUCT { ";
+
+    bool isFirst = true;
+
+    for(int i = 0; i < numElems; i++)
+    {
+        if (!isFirst)
+        {
+            ss << ", ";
+        }
+
+        char* dummy = elements[i]->getTypeStructure();
+
+        ss << elementNames[i]
+           << " "
+           << dummy;
+
+        isFirst = false;
+    }
+
+    ss << " }";
+
+    std::string result = ss.str();
+
+    return strdup(result.c_str());
 }
 
 unsigned int

@@ -38,8 +38,6 @@ rasdaman GmbH.
 #include "mddcoll.hh"
 #include "mddcolliter.hh"
 #include "relmddif/dbmddset.hh"
-#include "relcatalogif/mdddomaintype.hh"
-#include "relcatalogif/settype.hh"
 #include "mddobj.hh"
 #include "relmddif/dbmddobj.hh"
 #include "reladminif/objectbroker.hh"
@@ -49,8 +47,14 @@ rasdaman GmbH.
 #include "reladminif/databaseif.hh"
 #include "relmddif/dbmddset.hh"
 #include "reladminif/eoid.hh"
-#include "catalogmgr/typefactory.hh"
 #include "tilemgr/tile.hh"
+
+#include "relcatalogif/settype.hh"
+#include "relcatalogif/mdddomaintype.hh"
+#include "relcatalogif/mdddimensiontype.hh"
+#include "relcatalogif/alltypes.hh"
+#include "catalogmgr/typefactory.hh"
+
 
 #include <cstring>
 
@@ -267,6 +271,15 @@ MDDColl::removeAll()
 const char*
 MDDColl::AllCollectionnamesName = "RAS_COLLECTIONNAMES";
 
+const char*
+MDDColl::AllStructTypesName = "RAS_STRUCT_TYPES";
+
+const char*
+MDDColl::AllMarrayTypesName = "RAS_MARRAY_TYPES";
+
+const char*
+MDDColl::AllSetTypesName = "RAS_SET_TYPES";
+
 MDDColl*
 MDDColl::createMDDCollection(const char* name, const CollectionType* ct) throw (r_Error)
 {
@@ -383,6 +396,128 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
             list->erase(list->begin());
         }
         delete list;
+    }
+    else if (strcmp(collName, AllStructTypesName) == 0)
+    {
+        r_Minterval transDomain("[0:*]");
+        r_Minterval nameDomain("[0:0]");
+        const BaseType* bt = TypeFactory::mapType("Char");
+        MDDDomainType* mt = new MDDDomainType("RAS_NAMETYPE", bt, transDomain);
+        TypeFactory::addTempType(mt);
+        CollectionType* ct = new SetType("RAS_NAMESETTYPE", mt);
+        TypeFactory::addTempType(ct);
+        retval = new MDDColl(ct, AllStructTypesName);
+
+        TypeIterator<StructType> structIter = TypeFactory::createStructIter();
+        MDDObj* transObj = 0;
+        Tile* transTile = 0;
+
+        while (structIter.not_done())
+        {
+            StructType* typePtr       = structIter.get_element();
+            char*       typeStructure = typePtr->getNewTypeStructure();
+
+            std::string result = "";
+            result.append("CREATE TYPE ");
+            result.append(typePtr->getTypeName());
+            result.append(" UNDER ");
+            result.append(typeStructure);
+
+            nameDomain[0].set_high((r_Range)result.length());
+            transObj = new MDDObj(mt, nameDomain);
+            transTile = new Tile(nameDomain, bt, result.c_str(), 0, r_Array);
+            transObj->insertTile(transTile);
+            retval->insert(transObj);
+
+            free( typeStructure );
+            typeStructure = NULL;
+
+            structIter.advance();
+        }
+    }
+    else if (strcmp(collName, AllMarrayTypesName) == 0)
+    {
+        r_Minterval transDomain("[0:*]");
+        r_Minterval nameDomain("[0:0]");
+        const BaseType* bt = TypeFactory::mapType("Char");
+        MDDDomainType* mt = new MDDDomainType("RAS_NAMETYPE", bt, transDomain);
+        TypeFactory::addTempType(mt);
+        CollectionType* ct = new SetType("RAS_NAMESETTYPE", mt);
+        TypeFactory::addTempType(ct);
+        retval = new MDDColl(ct, AllMarrayTypesName);
+
+        TypeIterator<StructType> structIter = TypeFactory::createStructIter();
+        MDDObj* transObj = 0;
+        Tile* transTile = 0;
+
+        TypeIterator<MDDType> mddIter = TypeFactory::createMDDIter();
+
+        while (mddIter.not_done())
+        {
+            MDDType* typePtr = mddIter.get_element();
+            char* typeStructure = typePtr->getNewTypeStructure();
+
+            std::string result = "";
+            result.append("CREATE TYPE ");
+            result.append(typePtr->getTypeName());
+            result.append(" UNDER ");
+            result.append(typeStructure);
+
+            nameDomain[0].set_high((r_Range)result.length());
+            transObj = new MDDObj(mt, nameDomain);
+            transTile = new Tile(nameDomain, bt, result.c_str(), 0, r_Array);
+            transObj->insertTile(transTile);
+            retval->insert(transObj);
+
+            free( typeStructure );
+            typeStructure = NULL;
+
+            mddIter.advance();
+        }
+    }
+    else if (strcmp(collName, AllSetTypesName) == 0)
+    {
+        r_Minterval transDomain("[0:*]");
+        r_Minterval nameDomain("[0:0]");
+        const BaseType* bt = TypeFactory::mapType("Char");
+        MDDDomainType* mt = new MDDDomainType("RAS_NAMETYPE", bt, transDomain);
+        TypeFactory::addTempType(mt);
+        CollectionType* ct = new SetType("RAS_NAMESETTYPE", mt);
+        TypeFactory::addTempType(ct);
+        retval = new MDDColl(ct, AllSetTypesName);
+
+        TypeIterator<StructType> structIter = TypeFactory::createStructIter();
+        MDDObj* transObj = 0;
+        Tile* transTile = 0;
+
+        TypeIterator<SetType> setIter = TypeFactory::createSetIter();
+        while (setIter.not_done())
+        {
+            SetType* typePtr       = setIter.get_element();
+
+            std::string result = "";
+            result.append("CREATE TYPE ");
+            result.append(typePtr->getTypeName());
+            result.append(" UNDER SET { ");
+            result.append(typePtr->getMDDType()->getTypeName());
+            result.append(" }");
+
+            DBMinterval* nullValues = typePtr->getNullValues();
+            if (nullValues)
+            {
+                result.append(" NULL VALUES ");
+                result.append(nullValues->get_string_representation());
+            }
+
+            nameDomain[0].set_high((r_Range)result.length());
+            transObj = new MDDObj(mt, nameDomain);
+            transTile = new Tile(nameDomain, bt, result.c_str(), 0, r_Array);
+            transObj->insertTile(transTile);
+            retval->insert(transObj);
+
+            setIter.advance();
+        }
+
     }
     else
     {

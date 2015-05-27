@@ -115,6 +115,10 @@ QueryTree::checkSemantics()
     case QtNode::QT_DELETE:
     case QtNode::QT_COMMAND:
     case QtNode::QT_PYRAMID:
+    case QtNode::QT_CREATE_CELL_TYPE:
+    case QtNode::QT_CREATE_MDD_TYPE:
+    case QtNode::QT_CREATE_SET_TYPE:
+    case QtNode::QT_DROP_TYPE:
         ((QtExecute*)rootNode)->checkType();
         break;
 
@@ -302,7 +306,11 @@ QueryTree::evaluateUpdate() throw (r_Error,ParseInfo)
                 rootNode->getNodeType() != QtNode::QT_INSERT  &&
                 rootNode->getNodeType() != QtNode::QT_DELETE  &&
                 rootNode->getNodeType() != QtNode::QT_COMMAND &&
-                rootNode->getNodeType() != QtNode::QT_PYRAMID
+                rootNode->getNodeType() != QtNode::QT_PYRAMID &&
+                rootNode->getNodeType() != QtNode::QT_CREATE_CELL_TYPE &&
+                rootNode->getNodeType() != QtNode::QT_CREATE_MDD_TYPE &&
+                rootNode->getNodeType() != QtNode::QT_CREATE_SET_TYPE &&
+                rootNode->getNodeType() != QtNode::QT_DROP_TYPE
           )
         {
             RMInit::logOut << "QueryTree::evaluateUpdate() - update query must start with an INSERT, UPDATE, DELETE, DROP or CREATE statement." << endl;

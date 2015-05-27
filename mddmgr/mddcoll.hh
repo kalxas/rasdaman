@@ -103,6 +103,9 @@ public:
     MDDColl(const CollectionType* newType, const char* name = 0);
 
     static const char* AllCollectionnamesName;
+    static const char* AllStructTypesName;
+    static const char* AllMarrayTypesName;
+    static const char* AllSetTypesName;
 
     static MDDColl* getMDDCollection(const char* collName) throw (r_Error);
     /**

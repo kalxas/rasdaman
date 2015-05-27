@@ -113,6 +113,18 @@ MDDDimensionType::getTypeStructure() const
     return result;
 }
 
+char* MDDDimensionType::getNewTypeStructure() const
+{
+    std::ostringstream ss;
+    ss << "MARRAY { "
+       << TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName()))
+       << " } , "
+       << myDimension;
+
+    std::string result = ss.str();
+    return strdup(result.c_str());
+}
+
 void
 MDDDimensionType::print_status( ostream& s ) const
 {

@@ -55,6 +55,7 @@ static const char rcsid[] = "@(#)catalogif,TypeFactory: $Header: /home/rasdev/CV
 #include "relmddif/mddid.hh"
 #include "relmddif/dbmddobj.hh"
 #include "relmddif/dbmddset.hh"
+#include "relcatalogif/syntaxtypes.hh"
 
 TypeFactory* TypeFactory::myInstance = 0;
 
@@ -76,6 +77,64 @@ const char* ComplexType1::Name = "Complex1";
 const char* ComplexType2::Name = "Complex2";
 
 using namespace std;
+
+const map<string, string> TypeFactory::syntaxTypeInternalTypeMap = TypeFactory::createSyntaxTypeInternalTypeMap();
+const map<string, string> TypeFactory::internalTypeSyntaxTypeMap = TypeFactory::createInternalTypeSyntaxTypeMap();
+
+map<string, string> TypeFactory::createSyntaxTypeInternalTypeMap()
+{
+    map<string, string> syntaxTypeInternalTypeMap;
+
+    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::OCTET_NAME, OctetType::Name));
+    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::USHORT_NAME, UShortType::Name));
+    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::UNSIGNED_SHORT_NAME, UShortType::Name));
+    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::SHORT_NAME, ShortType::Name));
+    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::ULONG_NAME, ULongType::Name));
+    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::UNSIGNED_LONG_NAME, ULongType::Name));
+    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::LONG_NAME, LongType::Name));
+    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::BOOL_NAME, BoolType::Name));
+    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::CHAR_NAME, CharType::Name));
+    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::FLOAT_NAME, FloatType::Name));
+    syntaxTypeInternalTypeMap.insert(std::make_pair(SyntaxType::DOUBLE_NAME, DoubleType::Name));
+
+    return syntaxTypeInternalTypeMap;
+}
+
+map<string, string> TypeFactory::createInternalTypeSyntaxTypeMap()
+{
+    map<string, string> internalTypeSyntaxTypeMap;
+    map<string, string> syntaxTypeInternalTypeMap = createSyntaxTypeInternalTypeMap();
+
+    for (map<string, string>::iterator mapIt = syntaxTypeInternalTypeMap.begin();
+         mapIt != syntaxTypeInternalTypeMap.end(); ++mapIt)
+    {
+        internalTypeSyntaxTypeMap.insert(std::make_pair(mapIt->second, mapIt->first));
+    }
+
+    return internalTypeSyntaxTypeMap;
+}
+
+string TypeFactory::getInternalTypeFromSyntaxType(const std::string &syntaxTypeName)
+{
+    map<string, string>::const_iterator it = syntaxTypeInternalTypeMap.find(syntaxTypeName);
+    if (it != syntaxTypeInternalTypeMap.end())
+    {
+        return it->second;
+    }
+
+    return syntaxTypeName;
+}
+
+string TypeFactory::getSyntaxTypeFromInternalType(const std::string &internalTypeName)
+{
+    map<string, string>::const_iterator it = internalTypeSyntaxTypeMap.find(internalTypeName);
+    if (it != internalTypeSyntaxTypeMap.end())
+    {
+        return it->second;
+    }
+
+    return internalTypeName;
+}
 
 // all atomic types given back by mapType()
 // for managing the memory of temporary types

@@ -68,6 +68,12 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "qlparser/qtinfo.hh"
 #include "qlparser/qtemptystream.hh"
 #include "qlparser/qtrangeconstructor.hh"
+#include "qlparser/qtcreatecelltype.hh"
+#include "qlparser/qtcreatemarraytype.hh"
+#include "qlparser/qtcreatesettype.hh"
+#include "qlparser/qtdroptype.hh"
+#include "qlparser/qtcelltypeattributes.hh"
+#include "relcatalogif/syntaxtypes.hh"
 
 extern ServerComm::ClientTblElt* currentClientTblElt;
 extern ParseInfo *currInfo;
@@ -139,8 +145,8 @@ struct QtUpdateSpecElement
     int		     value;
     ParseInfo*   info;
   } typeToken;
-  
-  
+
+
   struct {
     int          value;
     ParseInfo*   info;
@@ -179,8 +185,8 @@ struct QtUpdateSpecElement
   int                               dummyValue;
   
   struct {
-  	QtCast::cast_types qtCastType;
-  	ParseInfo *info;
+        const char*      value;
+        ParseInfo* info;
   }	castTypes;
 
   struct {
@@ -212,7 +218,7 @@ struct QtUpdateSpecElement
                          COUNTCELLS ADDCELLS AVGCELLS MINCELLS MAXCELLS SDOM OVER USING LO HI UPDATE
                          SET ASSIGN MARRAY CONDENSE IN DOT COMMA IS NOT AND OR XOR PLUS MINUS MAX_BINARY MIN_BINARY MULT
                          DIV INTDIV MOD EQUAL LESS GREATER LESSEQUAL GREATEREQUAL NOTEQUAL COLON SEMICOLON LEPAR
-                         REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION
+                         REPAR LRPAR RRPAR LCPAR RCPAR INSERT INTO VALUES DELETE DROP CREATE COLLECTION TYPE UNDER
                          MDDPARAM OID SHIFT SCALE SQRT ABS EXP LOG LN SIN COS TAN SINH COSH TANH ARCSIN
                          ARCCOS ARCTAN POW OVERLAY BIT UNKNOWN FASTSCALE PYRAMID MEMBERS ADD ALTER LIST 
 			  INDEX RC_INDEX TC_INDEX A_INDEX D_INDEX RD_INDEX RPT_INDEX RRPT_INDEX IT_INDEX AUTO
@@ -245,18 +251,18 @@ struct QtUpdateSpecElement
 %type <qtUnaryOperationValue> reduceIdent structSelection trimExp
 %type <qtOperationValue>      mddExp inductionExp generalExp resultList reduceExp functionExp spatialOp
                               integerExp mintervalExp intervalExp condenseExp variable mddConfiguration mintervalList concatExp rangeConstructorExp
-                              caseExp
+                              caseExp typeAttribute
 %type <tilingType>            tilingAttributes  tileTypes tileCfg statisticParameters tilingSize
                               borderCfg interestThreshold dirdecompArray dirdecomp dirdecompvals intArray
 %type <indexType> 	      indexingAttributes indexTypes
 // %type <stgType>           storageAttributes storageTypes comp compType zLibCfg rLECfg waveTypes
-%type <qtOperationListValue>  spatialOpList spatialOpList2 bboxList mddList caseCond caseCondList caseEnd generalExpList
+%type <qtOperationListValue>  spatialOpList spatialOpList2 bboxList mddList caseCond caseCondList caseEnd generalExpList typeAttributeList
 %type <integerToken>          intLitExp
 %type <operationValue>        condenseOpLit 
 %type <castTypes>	      castType
-%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp tileSizeControl
+%type <dummyValue>            qlfile query selectExp createExp insertExp deleteExp updateExp dropExp selectIntoExp commitExp tileSizeControl createType dropType
 //%type <identifierToken>       namedCollection collectionIterator typeName attributeIdent pyrName 
-%type <identifierToken>       namedCollection collectionIterator typeName attributeIdent
+%type <identifierToken>       namedCollection collectionIterator typeName attributeIdent createTypeName
 			      marrayVariable condenseVariable
 
 // literal data
@@ -293,7 +299,9 @@ query: createExp
 	| updateExp
 	| insertExp
 	| deleteExp
-    | commitExp
+        | commitExp
+        | createType
+        | dropType
 //        | pyramidExp;
 	;
 
@@ -888,6 +896,246 @@ deleteExp: DELETE FROM iteratedCollection WHERE generalExp
 	  FREESTACK($2)
 	}
 	;
+
+createType: CREATE TYPE createTypeName UNDER STRCT LCPAR typeAttributeList RCPAR
+            {
+                try
+                {
+                  accessControl.wantToWrite();
+                }
+                catch(...)
+                {
+                  // save the parse error info and stop the parser
+                  if ( parseError )
+                  {
+                    delete parseError;
+                  }
+                  parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+                                              $2.info->getLineNo(), $2.info->getColumnNo() );
+                  FREESTACK($1)
+                  FREESTACK($2)
+                  FREESTACK($3)
+                  FREESTACK($4)
+                  FREESTACK($5)
+                  FREESTACK($6)
+                  FREESTACK($8)
+
+                  QueryTree::symtab.wipe();
+                  YYABORT;
+                }
+
+                QtCreateCellType* cellTypeNode = new QtCreateCellType($3.value, $7);
+                cellTypeNode->setParseInfo( *($1.info) );
+
+                parseQueryTree->setRoot( cellTypeNode );
+
+                FREESTACK($1);
+                FREESTACK($2);
+                FREESTACK($4);
+                FREESTACK($5);
+                FREESTACK($6);
+                FREESTACK($8);
+            }
+          | CREATE TYPE createTypeName UNDER MARRAY LCPAR createTypeName RCPAR COMMA intLitExp
+            {
+                try
+                {
+                  accessControl.wantToWrite();
+                }
+                catch(...)
+                {
+                  // save the parse error info and stop the parser
+                  if ( parseError )
+                  {
+                    delete parseError;
+                  }
+                  parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+                                              $2.info->getLineNo(), $2.info->getColumnNo() );
+                  FREESTACK($1)
+                  FREESTACK($2)
+                  FREESTACK($3)
+                  FREESTACK($4)
+                  FREESTACK($5)
+                  FREESTACK($6)
+                  FREESTACK($7)
+                  FREESTACK($8)
+                  FREESTACK($9)
+                  FREESTACK($10)
+                  QueryTree::symtab.wipe();
+                  YYABORT;
+                }
+
+                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $7.value, (r_Dimension)$10.svalue);
+                mddTypeNode->setParseInfo( *($1.info));
+
+                parseQueryTree->setRoot( mddTypeNode );
+
+                FREESTACK($1);
+                FREESTACK($2);
+                FREESTACK($4);
+                FREESTACK($5);
+                FREESTACK($6);
+                FREESTACK($8);
+                FREESTACK($9);
+            }
+          | CREATE TYPE createTypeName UNDER MARRAY LCPAR createTypeName RCPAR COMMA mintervalExp
+            {
+                try
+                {
+                  accessControl.wantToWrite();
+                }
+                  catch(...) {
+                  // save the parse error info and stop the parser
+                  if ( parseError )
+                  {
+                    delete parseError;
+                  }
+
+                  parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+                                              $2.info->getLineNo(), $2.info->getColumnNo() );
+                  FREESTACK($1)
+                  FREESTACK($2)
+                  FREESTACK($3)
+                  FREESTACK($4)
+                  FREESTACK($5)
+                  FREESTACK($6)
+                  FREESTACK($7)
+                  FREESTACK($8)
+                  FREESTACK($9)
+                  QueryTree::symtab.wipe();
+                  YYABORT;
+                }
+
+                QtCreateMarrayType* mddTypeNode = new QtCreateMarrayType($3.value, $7.value, $10);
+                mddTypeNode->setParseInfo( *($1.info));
+
+                parseQueryTree->setRoot( mddTypeNode );
+
+                FREESTACK($1);
+                FREESTACK($2);
+                FREESTACK($4);
+                FREESTACK($5);
+                FREESTACK($6);
+                FREESTACK($8);
+                FREESTACK($9);
+            }
+          | CREATE TYPE createTypeName UNDER SET LCPAR createTypeName RCPAR
+            {
+                try
+                {
+                  accessControl.wantToWrite();
+                }
+                catch(...) {
+                  // save the parse error info and stop the parser
+                  if ( parseError )
+                  {
+                    delete parseError;
+                  }
+                  parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+                                              $2.info->getLineNo(), $2.info->getColumnNo() );
+                  FREESTACK($1)
+                  FREESTACK($2)
+                  FREESTACK($3)
+                  FREESTACK($4)
+                  FREESTACK($5)
+                  FREESTACK($6)
+                  FREESTACK($7)
+                  FREESTACK($8)
+                  QueryTree::symtab.wipe();
+                  YYABORT;
+                }
+
+                QtCreateSetType* setTypeNode = new QtCreateSetType($3.value, $7.value);
+                setTypeNode->setParseInfo( *($1.info) );
+
+                parseQueryTree->setRoot( setTypeNode);
+                FREESTACK($1)
+                FREESTACK($2)
+                FREESTACK($4)
+                FREESTACK($5)
+                FREESTACK($6)
+                FREESTACK($8)
+
+            }
+          | CREATE TYPE createTypeName UNDER SET LCPAR createTypeName RCPAR NULLKEY VALUES mintervalExp
+            {
+                try
+                {
+                    accessControl.wantToWrite();
+                }
+                catch(...)
+                {
+                  // save the parse error info and stop the parser
+                  if ( parseError )
+                  {
+                    delete parseError;
+                  }
+                  parseError = new ParseInfo( 803, $2.info->getToken().c_str(),
+                                              $2.info->getLineNo(), $2.info->getColumnNo() );
+                  FREESTACK($1)
+                  FREESTACK($2)
+                  FREESTACK($3)
+                  FREESTACK($4)
+                  FREESTACK($5)
+                  FREESTACK($6)
+                  FREESTACK($7)
+                  FREESTACK($8)
+                  FREESTACK($9)
+                  FREESTACK($10)
+                  QueryTree::symtab.wipe();
+                  YYABORT;
+                }
+
+                QtCreateSetType* setTypeNode = new QtCreateSetType($3.value, $7.value, $11);
+                setTypeNode->setParseInfo( *($1.info) );
+
+                parseQueryTree->setRoot( setTypeNode);
+                FREESTACK($1)
+                FREESTACK($2)
+                FREESTACK($4)
+                FREESTACK($5)
+                FREESTACK($6)
+                FREESTACK($8)
+                FREESTACK($9)
+                FREESTACK($10)
+            }
+            ;
+
+typeAttributeList: typeAttributeList COMMA typeAttribute
+            {
+                $1->push_back( $3 );
+                FREESTACK($2);
+            }
+            | typeAttribute
+            {
+                $$ = new QtNode::QtOperationList(1);
+                (*$$)[0] = $1;
+            }
+            ;
+
+typeAttribute: Identifier createTypeName
+            {
+                $$ = new QtCellTypeAttributes($1.value, $2.value);
+                parseQueryTree->addDynamicObject( $$ );
+            }
+            ;
+
+dropType: DROP TYPE createTypeName
+            {
+                QtDropType* qtDropType = new QtDropType($3.value);
+                qtDropType->setParseInfo( *($1.info));
+
+                parseQueryTree->setRoot( qtDropType );
+
+                FREESTACK($1);
+                FREESTACK($2);
+            }
+            ;
+
+createTypeName: Identifier
+              | TypeName
+              | castType
+              ;
 
 updateSpec: variable                 
 	{
@@ -2284,7 +2532,7 @@ inductionExp: SQRT LRPAR generalExp RRPAR
 	}
 	| LRPAR castType RRPAR generalExp %prec UNARYOP
 	{
-	  $$ = new QtCast($4, $2.qtCastType);
+          $$ = new QtCast($4, $2.value);
 	  $$->setParseInfo( *($2.info) );
 	  parseQueryTree->removeDynamicObject($4);
 	  parseQueryTree->addDynamicObject($$);
@@ -2327,17 +2575,17 @@ inductionExp: SQRT LRPAR generalExp RRPAR
         FREESTACK($6)
     };
 	
-castType: TBOOL			{ $$.info = $1.info; $$.qtCastType = QtCast::t_bool; }
-	| TCHAR			{ $$.info = $1.info; $$.qtCastType = QtCast::t_char; }
-	| TOCTET		{ $$.info = $1.info; $$.qtCastType = QtCast::t_octet; }
-	| TSHORT		{ $$.info = $1.info; $$.qtCastType = QtCast::t_short; }
-	| TUSHORT		{ $$.info = $1.info; $$.qtCastType = QtCast::t_ushort; }
-	| TLONG			{ $$.info = $1.info; $$.qtCastType = QtCast::t_long; }	
-	| TULONG		{ $$.info = $1.info; $$.qtCastType = QtCast::t_ulong; }
-	| TFLOAT		{ $$.info = $1.info; $$.qtCastType = QtCast::t_float; }
-	| TDOUBLE		{ $$.info = $1.info; $$.qtCastType = QtCast::t_double; }
-	| TUNSIG TSHORT	        { $$.info = $1.info; $$.qtCastType = QtCast::t_ushort; }
-	| TUNSIG TLONG	        { $$.info = $1.info; $$.qtCastType = QtCast::t_ulong; };
+castType: TBOOL			{ $$.info = $1.info; $$.value = SyntaxType::BOOL_NAME.c_str(); }
+        | TCHAR			{ $$.info = $1.info; $$.value = SyntaxType::CHAR_NAME.c_str(); }
+        | TOCTET		{ $$.info = $1.info; $$.value = SyntaxType::OCTET_NAME.c_str(); }
+        | TSHORT		{ $$.info = $1.info; $$.value = SyntaxType::SHORT_NAME.c_str(); }
+        | TUSHORT		{ $$.info = $1.info; $$.value = SyntaxType::USHORT_NAME.c_str(); }
+        | TLONG			{ $$.info = $1.info; $$.value = SyntaxType::LONG_NAME.c_str(); }
+        | TULONG		{ $$.info = $1.info; $$.value = SyntaxType::ULONG_NAME.c_str(); }
+        | TFLOAT		{ $$.info = $1.info; $$.value = SyntaxType::FLOAT_NAME.c_str(); }
+        | TDOUBLE		{ $$.info = $1.info; $$.value = SyntaxType::DOUBLE_NAME.c_str(); }
+        | TUNSIG TSHORT	        { $$.info = $1.info; $$.value = SyntaxType::UNSIGNED_SHORT_NAME.c_str(); }
+        | TUNSIG TLONG	        { $$.info = $1.info; $$.value = SyntaxType::UNSIGNED_LONG_NAME.c_str(); };
 
 collectionList: collectionList COMMA iteratedCollection 
 	{

@@ -201,6 +201,8 @@ int string_yyinput( char* buf, int max_size )
 "drop"                                   { SETTOKEN( DROP, commandToken, DROP ) }
 "create"                                 { SETTOKEN( CREATE, commandToken, CREATE ) }
 "collection"                             { SETTOKEN( COLLECTION, commandToken, COLLECTION ) }
+"type"                                   { SETTOKEN( TYPE, commandToken, TYPE ) }
+"under"                                  { SETTOKEN( UNDER, commandToken, UNDER ) }
 
 "update"                                 { SETTOKEN( UPDATE, commandToken, UPDATE ) }
 "set"                                    { SETTOKEN( SET, commandToken, SET ) }

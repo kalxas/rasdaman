@@ -70,6 +70,12 @@ public:
         marray <>
     */
 
+    /**
+     * @brief getNewTypeStructure - returns the type structe in the format required by SQL type manipulation format
+     */
+    virtual char* getNewTypeStructure() const;
+
+
     MDDType(const OId& id) throw (r_Error);
 
     MDDType();

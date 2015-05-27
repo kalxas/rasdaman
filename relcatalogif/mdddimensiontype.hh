@@ -61,6 +61,8 @@ public:
     /*@Doc:
     */
 
+    virtual char* getNewTypeStructure() const;
+
     virtual r_Bytes getMemorySize() const;
     /*@Doc:
     the memory size is computed by:

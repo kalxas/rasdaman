@@ -98,7 +98,12 @@ libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
 		      qtcaseequality.hh qtcaseequality.cc \
                       qtinfo.cc qtinfo.hh qtinfo.icc \
                       qtemptystream.cc qtemptystream.hh qtemptystream.icc \
-                      qtrangeconstructor.cc qtrangeconstructor.hh qtrangeconstructor.icc
+                      qtrangeconstructor.cc qtrangeconstructor.hh qtrangeconstructor.icc \
+					  qtcreatecelltype.hh qtcreatecelltype.cc \
+					  qtcreatemarraytype.hh qtcreatemarraytype.cc \
+					  qtdroptype.hh qtdroptype.cc \
+					  qtcelltypeattributes.hh qtcelltypeattributes.cc \
+					  qtcreatesettype.hh qtcreatesettype.cc
 
 EXTRA_libqlparser_a_SOURCES = autogen_qtui.hh autogen_qtui.icc autogen_qtui.cc
 

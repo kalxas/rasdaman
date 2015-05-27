@@ -47,6 +47,7 @@ static const char rcsid[] = "@(#)qlparser, QtUnaryInduce: $Id: qtunaryinduce.cc,
 #include "catalogmgr/typefactory.hh"
 #include "relcatalogif/structtype.hh"
 #include "relcatalogif/mdddimensiontype.hh"
+#include "relcatalogif/syntaxtypes.hh"
 
 #include <sstream>
 #ifndef CPPSTDLIB
@@ -804,7 +805,32 @@ QtCast::QtCast(QtOperation* initInput, cast_types t):
     QtUnaryInduce(initInput), castType(t) {}
 
 QtCast::QtCast(QtOperation* input, const char *typeName):
-    QtUnaryInduce(input), typeName(typeName) {}
+    QtUnaryInduce(input)
+{
+    std::map<string, cast_types > baseCastTypes;
+    baseCastTypes.insert(std::make_pair(SyntaxType::BOOL_NAME, t_bool));
+    baseCastTypes.insert(std::make_pair(SyntaxType::CHAR_NAME, t_char));
+    baseCastTypes.insert(std::make_pair(SyntaxType::OCTET_NAME, t_octet));
+    baseCastTypes.insert(std::make_pair(SyntaxType::SHORT_NAME, t_short));
+    baseCastTypes.insert(std::make_pair(SyntaxType::USHORT_NAME, t_ushort));
+    baseCastTypes.insert(std::make_pair(SyntaxType::UNSIGNED_SHORT_NAME, t_ushort));
+    baseCastTypes.insert(std::make_pair(SyntaxType::LONG_NAME, t_long));
+    baseCastTypes.insert(std::make_pair(SyntaxType::ULONG_NAME, t_ulong));
+    baseCastTypes.insert(std::make_pair(SyntaxType::UNSIGNED_LONG_NAME, t_ulong));
+    baseCastTypes.insert(std::make_pair(SyntaxType::FLOAT_NAME, t_float));
+    baseCastTypes.insert(std::make_pair(SyntaxType::DOUBLE_NAME, t_double));
+
+
+    map<string, cast_types>::iterator findIt = baseCastTypes.find(string(typeName));
+    if (findIt != baseCastTypes.end())
+    {
+        this->castType = findIt->second;
+    }
+    else
+    {
+        this->typeName = string(typeName);
+    }
+}
 
 QtData* QtCast::evaluate(QtDataList* inputList)
 {

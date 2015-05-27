@@ -253,6 +253,11 @@ public:
 
     static const short MaxBuiltInId;
 
+    // Maps syntax types to internal type names (e.g. char -> Char)
+    static std::string getInternalTypeFromSyntaxType(const std::string &syntaxTypeName);
+    // Maps internal types to syntax types (e.g. Char -> char)
+    static std::string getSyntaxTypeFromInternalType(const std::string &internalTypeName);
+
 protected:
     TypeFactory();
     /*@Doc:
@@ -261,6 +266,11 @@ protected:
 
 private:
     static TypeFactory* myInstance;
+
+    static const std::map<std::string, std::string> syntaxTypeInternalTypeMap;
+    static const std::map<std::string, std::string> internalTypeSyntaxTypeMap;
+    static std::map<std::string, std::string> createSyntaxTypeInternalTypeMap();
+    static std::map<std::string, std::string> createInternalTypeSyntaxTypeMap();
     /*@Doc:
     pointer to instance for Singleton pattern.
     */

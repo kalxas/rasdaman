@@ -67,6 +67,8 @@ public:
         marray <myBaseType->getTypeStructure(), myDomain->get_string_representation()>
     */
 
+    virtual char* getNewTypeStructure() const;
+
     MDDDomainType(const OId& id) throw (r_Error);
 
     MDDDomainType(const char* newTypeName, const BaseType* newBaseType, const r_Minterval& newDomain);

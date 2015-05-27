@@ -28,6 +28,7 @@
 class QtOperation; // forward declarations of subclasses of QtNode
 class Type;
 class QtTypeElement;
+class QtBinaryOperation;
 
 /*
 * This file is part of rasdaman community.
@@ -181,7 +182,12 @@ public:
         QT_INFO,
         QT_POW,
         QT_CONSTRUCT_COMPLEX,
-        QT_LAST_NODE_TYPE
+        QT_LAST_NODE_TYPE,
+        QT_CREATE_CELL_TYPE,
+        QT_CREATE_MDD_TYPE,
+        QT_CREATE_SET_TYPE,
+        QT_DROP_TYPE,
+        QT_CELL_TYPE_ATTRIBUTES
     };
 
 

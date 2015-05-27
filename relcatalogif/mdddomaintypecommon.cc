@@ -37,6 +37,7 @@ rasdaman GmbH.
 #include "reladminif/objectbroker.hh"
 #include "dbminterval.hh"
 #include <cstring>
+#include <string>
 
 r_Bytes
 MDDDomainType::getMemorySize() const
@@ -114,6 +115,19 @@ MDDDomainType::getTypeStructure() const
     free(mdom);
     free(baseType);
     return result;
+}
+
+char* MDDDomainType::getNewTypeStructure() const
+{
+    std::ostringstream ss;
+
+    ss << "MARRAY { "
+       << TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName()))
+       << " } , "
+       << myDomain->get_string_representation();
+
+    std::string result = ss.str();
+    return strdup(result.c_str());
 }
 
 const r_Minterval*

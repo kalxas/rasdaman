@@ -96,9 +96,16 @@ MDDType::~MDDType()
 char*
 MDDType::getTypeStructure() const
 {
+    std::string result = "marray {}";
+    return strdup(result.c_str());
+}
+
+char*
+MDDType::getNewTypeStructure() const
+{
     char* result = (char*)mymalloc(10);
 
-    strcpy(result, "marray <>");
+    strcpy(result, "marray {}");
     return result;
 }
 
