@@ -85,8 +85,7 @@ QtComplexData::QtComplexData( QtComplexData::QtScalarDataList* &scalarDataList )
     // release( scalarDataList->begin(), scalarDataList->end() );
     for( iter=scalarDataList->begin(); iter!=scalarDataList->end(); iter++ )
     {
-        delete *iter;
-        *iter=NULL;
+        (*iter)->deleteRef();
     }
     delete scalarDataList;
     scalarDataList = NULL;
