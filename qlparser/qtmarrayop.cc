@@ -135,97 +135,96 @@ QtMarrayOp::evaluate( QtDataList* inputList )
         if( operand1 ) operand1->deleteRef();
 
         return 0;
-    }
 #endif
 
-    r_Minterval domain = ((QtMintervalData*)operand1)->getMintervalData();
+        r_Minterval domain = ((QtMintervalData*) operand1)->getMintervalData();
 
-    RMDBGONCE( 4, RMDebug::module_qlparser, "QtMarrayOp", "Marray domain " << domain )
+        RMDBGONCE(4, RMDebug::module_qlparser, "QtMarrayOp", "Marray domain " << domain)
 
-    //
-    // add point data with its iterator name to the input list
-    //
+        //
+        // add point data with its iterator name to the input list
+        //
 
-    // create a QtPointData object with corner point
-    QtPointData* point = new QtPointData( domain.get_origin() );
-    // set its iterator name
-    point->setIteratorName( iteratorName );
-    // if the list of binding variables is empty, create a new one and delete it afterwards
-    bool newInputList = false;
-    if( !inputList )
-    {
-        inputList = new QtDataList();
-        newInputList = true;
-    }
-    // add it to the list
-    inputList->push_back( point );
+        // create a QtPointData object with corner point
+        QtPointData* point = new QtPointData(domain.get_origin());
+        // set its iterator name
+        point->setIteratorName(iteratorName);
+        // if the list of binding variables is empty, create a new one and delete it afterwards
+        bool newInputList = false;
+        if (!inputList)
+        {
+            inputList = new QtDataList();
+            newInputList = true;
+        }
+        // add it to the list
+        inputList->push_back(point);
 
-    // determine types
-    BaseType*    cellType    = (BaseType*)   input2->getDataStreamType().getType();
-    MDDDimensionType* mddBaseType = new MDDDimensionType( "tmp", cellType, domain.dimension() );
-    TypeFactory::addTempType( mddBaseType );
+        // determine types
+        BaseType* cellType = (BaseType*) input2->getDataStreamType().getType();
+        MDDDimensionType* mddBaseType = new MDDDimensionType("tmp", cellType, domain.dimension());
+        TypeFactory::addTempType(mddBaseType);
 
-    // create tile for result
-    Tile* resTile = new Tile( domain, cellType );
+        // create tile for result
+        Tile* resTile = new Tile(domain, cellType);
 
-    // create execution object QLArrayOp
-    QLMarrayOp* qlMarrayOp = new QLMarrayOp( input2, inputList, iteratorName, cellType );
+        // create execution object QLArrayOp
+        QLMarrayOp* qlMarrayOp = new QLMarrayOp(input2, inputList, iteratorName, cellType);
 
-    try
-    {
-        // execute query engine marray operation
-        resTile->execMarrayOp( qlMarrayOp, domain, domain );
-    }
-    catch(...)
-    {
-        // free ressources
+        try
+        {
+            // execute query engine marray operation
+            resTile->execMarrayOp(qlMarrayOp, domain, domain);
+        }
+        catch (...)
+        {
+            // free ressources
+            delete qlMarrayOp;
+            qlMarrayOp = NULL;
+            delete resTile;
+            resTile = NULL;
+
+            // remove point data object from inputList again
+            inputList->back()->deleteRef();
+            inputList->pop_back();
+            if (newInputList)
+            {
+                delete inputList;
+                inputList = NULL;
+            }
+
+            if (operand1) operand1->deleteRef();
+
+            throw;
+        }
+
+        // delete execution object again
         delete qlMarrayOp;
-        qlMarrayOp=NULL;
-        delete resTile;
-        resTile=NULL;
+        qlMarrayOp = NULL;
 
         // remove point data object from inputList again
         inputList->back()->deleteRef();
         inputList->pop_back();
-        if( newInputList )
+        if (newInputList)
         {
             delete inputList;
-            inputList=NULL;
+            inputList = NULL;
         }
+        // create MDDObj for result
+        MDDObj* mddres = new MDDObj(mddBaseType, domain);
 
-        if( operand1 ) operand1->deleteRef();
+        // insert Tile in result mdd
+        mddres->insertTile(resTile);
 
-        throw;
+        // create a new QtMDD object as carrier object for the transient MDD object
+        returnValue = new QtMDD((MDDObj*) mddres);
+
+        // delete old operands
+        if (operand1) operand1->deleteRef();
     }
 
-    // delete execution object again
-    delete qlMarrayOp;
-    qlMarrayOp=NULL;
+    stopTimer();
 
-    // remove point data object from inputList again
-    inputList->back()->deleteRef();
-    inputList->pop_back();
-    if( newInputList )
-    {
-        delete inputList;
-        inputList=NULL;
-    }
-    // create MDDObj for result
-    MDDObj* mddres = new MDDObj( mddBaseType, domain );
-
-    // insert Tile in result mdd
-    mddres->insertTile( resTile );
-
-    // create a new QtMDD object as carrier object for the transient MDD object
-    returnValue = new QtMDD( (MDDObj*)mddres );
-
-    // delete old operands
-    if( operand1 ) operand1->deleteRef();
-}
-
-stopTimer();
-
-return returnValue;
+    return returnValue;
 }
 
 

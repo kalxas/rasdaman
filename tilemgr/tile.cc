@@ -414,69 +414,52 @@ Tile::execConstOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile
 void
 Tile::execMarrayOp(MarrayOp* myOp, const r_Minterval& areaRes, const r_Minterval& areaOp)
 {
-    r_Point pRes(areaRes.dimension());
-    r_Point pOp(areaOp.dimension());
-    int done = 0;
-    int recalc = 0;
-    int i = 0;
-    unsigned int j = 0;
-    int innerExtent = 0;
-    unsigned int resSize = 0;
-    int opSize = 0;
-    int dim = 0;
-    char* cellRes = NULL;
-    const char* cellOp = NULL;
+    r_Dimension dimRes = static_cast<int>(areaRes.dimension());
+    r_Point pointRes = areaRes.get_origin();
+    r_Point pointOp = areaOp.get_origin();
+    char* cellRes = getCell(calcOffset(pointRes));
+    unsigned int resSize = type->getSize();
 
-    // !!!! check, if areaRes is inside Tile
-
-    resSize = type->getSize();
-
-    dim = static_cast<int>(areaRes.dimension());
-    innerExtent = (areaOp.get_extent())[static_cast<r_Dimension>(dim)-1];
-
-    // initialize points
-    for(j = 0; j < areaRes.dimension(); j++)
-    {
-        pRes << areaRes[j].low();
-        pOp << areaOp[j].low();
-    }
-
-    cellRes = getCell(calcOffset(pRes));
-    // iterate over all cells
 #ifdef RMANBENCHMARK
     opTimer.resume();
 #endif
+
+    bool done = false;
+    bool recalc = false;
+
+    // iterate over all cells
     while(!done)
     {
         if(recalc)
         {
-            cellRes = getCell(calcOffset(pRes));
-            recalc = 0;
+            cellRes = getCell(calcOffset(pointRes));
+            recalc = false;
         }
 
-        (*myOp)(cellRes, pOp);
+        (*myOp)(cellRes, pointOp);
 
         cellRes += resSize;
 
         // increment coordinates
-        i = dim - 1;
-        ++pRes[static_cast<r_Dimension>(i)];
-        ++pOp[static_cast<r_Dimension>(i)];
-        while(pRes[static_cast<r_Dimension>(i)] > areaRes[static_cast<r_Dimension>(i)].high())
+        r_Dimension dim = dimRes - 1;
+        ++pointRes[dim];
+        ++pointOp[dim];
+        while(pointRes[dim] > areaRes[dim].high())
         {
-            recalc = 1;
-            pRes[static_cast<r_Dimension>(i)] = areaRes[static_cast<r_Dimension>(i)].low();
-            pOp[static_cast<r_Dimension>(i)] = areaOp[static_cast<r_Dimension>(i)].low();
-            i--;
-            if(i < 0)
+            recalc = true;
+            pointRes[dim] = areaRes[dim].low();
+            pointOp[dim] = areaOp[dim].low();
+            if(dim == 0)
             {
-                done = 1;
+                done = true;
                 break;
             }
-            ++pRes[static_cast<r_Dimension>(i)];
-            ++pOp[static_cast<r_Dimension>(i)];
+            --dim;
+            ++pointRes[dim];
+            ++pointOp[dim];
         }
     }
+
 #ifdef RMANBENCHMARK
     opTimer.pause();
 #endif
@@ -485,44 +468,38 @@ Tile::execMarrayOp(MarrayOp* myOp, const r_Minterval& areaRes, const r_Minterval
 char*
 Tile::execGenCondenseOp(GenCondenseOp* myOp, const r_Minterval& areaOp)
 {
-    r_Point pOp(areaOp.dimension());
-    int done = 0;
-    int i = 0;
-    unsigned int j = 0;
+    r_Point pointOp = areaOp.get_origin();
     unsigned int dim = areaOp.dimension();
-
-    // initialize points
-    for(j = 0; j < dim; j++)
-    {
-        pOp << areaOp[j].low();
-    }
 
 #ifdef RMANBENCHMARK
     opTimer.resume();
 #endif
+
+    bool done = false;
     // iterate over all cells
     while(!done)
     {
-        (*myOp)(pOp);
+        (*myOp)(pointOp);
 
         // increment coordinates
-        i = static_cast<int>(dim) - 1;
-        ++pOp[static_cast<r_Dimension>(i)];
-        while(pOp[static_cast<r_Dimension>(i)] > areaOp[static_cast<r_Dimension>(i)].high())
+        r_Dimension i = dim - 1;
+        ++pointOp[i];
+        while(pointOp[i] > areaOp[i].high())
         {
-            pOp[static_cast<r_Dimension>(i)] = areaOp[static_cast<r_Dimension>(i)].low();
-            i--;
-            if(i < 0)
+            pointOp[i] = areaOp[i].low();
+            if(i == 0)
             {
-                done = 1;
+                done = true;
                 break;
             }
-            ++pOp[static_cast<r_Dimension>(i)];
+            --i;
+            ++pointOp[i];
         }
     }
 #ifdef RMANBENCHMARK
     opTimer.pause();
 #endif
+
     return myOp->getAccuVal();
 }
 

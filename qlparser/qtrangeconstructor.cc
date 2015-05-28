@@ -59,7 +59,7 @@ using namespace std;
 const QtNode::QtNodeType QtRangeConstructor::nodeType = QT_RANGE_CONSTRUCTOR;
 
 QtRangeConstructor::QtRangeConstructor(QtOperationList *opList)
-    : QtNaryOperation(opList), complexLit(false)
+: QtNaryOperation(opList), complexLit(false)
 {
     //setOperationObject();
 }
@@ -121,7 +121,6 @@ QtRangeConstructor::simplify()
     resultList = NULL;
 }
 
-
 QtData *
 QtRangeConstructor::evaluate(QtDataList *inputList)
 {
@@ -135,7 +134,7 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
         // check if we have a complex literal, e.g. {1c,0c,...} and handle separately
         if (complexLit)
         {
-            QtComplexData::QtScalarDataList *scalarOperandList =  new QtComplexData::QtScalarDataList();
+            QtComplexData::QtScalarDataList *scalarOperandList = new QtComplexData::QtScalarDataList();
             for (QtDataList::iterator iter = operandList->begin(); iter != operandList->end(); iter++)
             {
                 QtData *operand = *iter;
@@ -169,7 +168,7 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
             {
 
                 vector<char *>::iterator targetIt = targetTiles.begin();
-                if ((QtScalarData *)(*iter)->isScalarData())
+                if ((QtScalarData *) (*iter)->isScalarData())
                 {
 
                     char *ScalarTargetTile = NULL;
@@ -190,10 +189,10 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                     int cell = 0;
                     while (cell < scalarCellCount)
                     {
-                        memcpy(ScalarTargetTile, ((QtScalarData *)(*iter))->getValueBuffer(), ((QtScalarData *)(*iter))->getValueType()->getSize());
+                        memcpy(ScalarTargetTile, ((QtScalarData *) (*iter))->getValueBuffer(), ((QtScalarData *) (*iter))->getValueType()->getSize());
                         ++cell;
                     }
-                    structElemShift += ((QtScalarData *)(*iter))->getValueType()->getSize();
+                    structElemShift += ((QtScalarData *) (*iter))->getValueType()->getSize();
 
 
                 }
@@ -247,20 +246,19 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
 
             }
 
-            // delete old operands
-            if (operandList)
-            {
-                delete operandList;
-                operandList = NULL;
-            }
-
             returnValue = new QtMDD(resultMDD);
+        }
+
+        // delete old operands
+        if (operandList)
+        {
+            delete operandList;
+            operandList = NULL;
         }
     }
 
     return returnValue;
 }
-
 
 MDDObj *
 QtRangeConstructor::getResultMDD(QtDataList *operandList)
@@ -273,7 +271,7 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
     BaseType *cellType;
     for (QtDataList::iterator iter = operandList->begin(); iter != operandList->end(); iter++)
     {
-        if ( !(*iter)->isScalarData())
+        if (!(*iter)->isScalarData())
         {
             destinationDomain = ((QtMDD *) (*iter))->getLoadDomain();
             cellType = ((QtMDD *) (*iter))->getCellType();
@@ -314,14 +312,14 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
         if ((*iter)->isScalarData())
         {
 
-            if ( strcmp((((QtScalarData *)(*iter))->getValueType())->getTypeStructure(), cellType->getTypeStructure()) != 0)
+            if (strcmp((((QtScalarData *) (*iter))->getValueType())->getTypeStructure(), cellType->getTypeStructure()) != 0)
             {
                 RMInit::logOut << "Error: QtRangeConstructor::evaluate( QtDataList* ) - the operands should have the same type." << endl;
                 parseInfo.setErrorNo(301);
                 throw parseInfo;
             }
 
-            destinationStructBaseType->addElement(bandName, ((QtScalarData *)(*iter))->getValueType() );
+            destinationStructBaseType->addElement(bandName, ((QtScalarData *) (*iter))->getValueType());
 
         }
         else
@@ -387,7 +385,7 @@ QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
 
     QtTypeElement inputType;
 
-    StructType *structType ;
+    StructType *structType;
     // check operand branches
     if (operationList)
     {
@@ -411,22 +409,22 @@ QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
             char elementName[50];
             int i = 0;
 
-            std::vector<QtScalarData *>  scalarOperandList;
+            std::vector<QtScalarData *> scalarOperandList;
             for (QtOperationList::iterator iter = operationList->begin(); iter != operationList->end(); iter++)
             {
                 QtData *operand = (*iter)->evaluate(NULL);
-                scalarOperandList.push_back((QtScalarData *)operand);
+                scalarOperandList.push_back((QtScalarData *) operand);
             }
 
-            structType = new StructType( "", scalarOperandList.size() );
+            structType = new StructType("", scalarOperandList.size());
 
             // add type elements, the first element inserted has no 0, the second no 1, and so on
-            for ( std::vector<QtScalarData *>::iterator iterScalar = scalarOperandList.begin(); iterScalar != scalarOperandList.end(); iterScalar++, i++ )
+            for (std::vector<QtScalarData *>::iterator iterScalar = scalarOperandList.begin(); iterScalar != scalarOperandList.end(); iterScalar++, i++)
             {
-                sprintf( elementName, "%d", i );
-                structType->addElement( elementName, (*iterScalar)->getValueType() );
+                sprintf(elementName, "%d", i);
+                structType->addElement(elementName, (*iterScalar)->getValueType());
             }
-            TypeFactory::addTempType( structType );
+            TypeFactory::addTempType(structType);
             dataStreamType.setDataType(QT_COMPLEX);
             dataStreamType.setType(structType);
         }
