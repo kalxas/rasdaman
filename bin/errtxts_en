@@ -239,6 +239,13 @@
 965^E^Update error $errorNo: MDD type $token unknown.
 966^E^Update error $errorNo: MDD type is missing.
 967^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Source MDD domain is not within target update MDD domain.
+968^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Unknown type name.
+969^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Type already exists.
+970^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid attribute type.
+971^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid cell type.
+972^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid dimensionality.
+973^E^Update error $errorNo in line $lineNo, column $columnNo, near token $token: Invalid marray type.
+
 #
 # 1xxx errors: General errors
 #

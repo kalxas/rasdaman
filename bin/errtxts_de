@@ -223,6 +223,13 @@
 965^E^Update-Fehler $errorNo: MDD-Typ $token unbekannt.
 966^E^Update-Fehler $errorNo: MDD-Typ fehlt.
 967^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Source Update-Domäne liegt nicht innerhalb der Target MDD-Domäne.
+968^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Unbekannt Typ Name.
+969^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Typ schön gibt.
+970^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Ungültige Attributty.
+971^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Ungültige Zelltyp.
+972^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Ungültige Dimensionalität.
+973^E^Update-Fehler $errorNo in Zeile $lineNo, Spalte $columnNo, nahe Token $token: Ungültige Marray Typ.
+
 #
 # 1xxx errors: Allgemeiner Fehlers
 #

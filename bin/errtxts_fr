@@ -226,6 +226,13 @@
 965^E^Erreur de mise a jour: MDD type $token unknown.
 966^E^Erreur de mise a jour: MDD type is missing.
 967^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Le domaine de mise a jour n'est pas dans le domaine de definition du MDD.
+968^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Inconnu nom du type.
+969^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Type existe déjà.
+970^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Invalid type d'attribut.
+971^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Invalid type de cellule.
+972^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Dimensionnalité non valide.
+973^E^Erreur de mise a jour $errorNo a la ligne $lineNo, colonne $columnNo, proche du mot $token: Invalid type de Marray.
+
 #
 # 1xxx errors: General errors
 #

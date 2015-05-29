@@ -55,6 +55,11 @@ rasdaman GmbH.
 #include "relcatalogif/alltypes.hh"
 #include "catalogmgr/typefactory.hh"
 
+// MDD and SET names required for returning the list of types
+// they can be any string and are required just by the internal structure
+#define MOCK_MDD_COLLECTION_NAME "RAS_NAMETYPE"
+#define MOCK_SET_COLLECTION_NAME "RAS_NAMESETTYPE"
+
 
 #include <cstring>
 
@@ -362,12 +367,14 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
     DBMDDSetId dbset;
     if (strcmp(collName, AllCollectionnamesName) == 0)
     {
+        // the domains are required because rasql returns only arrays
+        // since our result is a string it can be returned as a 1D char array
         r_Minterval transDomain("[0:*]");
         r_Minterval nameDomain("[0:0]");
         const BaseType* bt = TypeFactory::mapType("Char");
-        MDDDomainType* mt = new MDDDomainType("RAS_NAMETYPE", bt, transDomain);
+        MDDDomainType* mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
         TypeFactory::addTempType(mt);
-        CollectionType* ct = new SetType("RAS_NAMESETTYPE", mt);
+        CollectionType* ct = new SetType(MOCK_SET_COLLECTION_NAME, mt);
         TypeFactory::addTempType(ct);
         retval = new MDDColl(ct, AllCollectionnamesName);
         OIdSet* list = ObjectBroker::getAllObjects(OId::MDDCOLLOID);
@@ -399,12 +406,14 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
     }
     else if (strcmp(collName, AllStructTypesName) == 0)
     {
+        // the domains are required because rasql returns only arrays
+        // since our result is a string it can be returned as a 1D char array
         r_Minterval transDomain("[0:*]");
         r_Minterval nameDomain("[0:0]");
-        const BaseType* bt = TypeFactory::mapType("Char");
-        MDDDomainType* mt = new MDDDomainType("RAS_NAMETYPE", bt, transDomain);
+        const BaseType* bt = TypeFactory::mapType(CharType::Name);
+        MDDDomainType* mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
         TypeFactory::addTempType(mt);
-        CollectionType* ct = new SetType("RAS_NAMESETTYPE", mt);
+        CollectionType* ct = new SetType(MOCK_SET_COLLECTION_NAME, mt);
         TypeFactory::addTempType(ct);
         retval = new MDDColl(ct, AllStructTypesName);
 
@@ -437,12 +446,14 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
     }
     else if (strcmp(collName, AllMarrayTypesName) == 0)
     {
+        // the domains are required because rasql returns only arrays
+        // since our result is a string it can be returned as a 1D char array
         r_Minterval transDomain("[0:*]");
         r_Minterval nameDomain("[0:0]");
-        const BaseType* bt = TypeFactory::mapType("Char");
-        MDDDomainType* mt = new MDDDomainType("RAS_NAMETYPE", bt, transDomain);
+        const BaseType* bt = TypeFactory::mapType(CharType::Name);
+        MDDDomainType* mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
         TypeFactory::addTempType(mt);
-        CollectionType* ct = new SetType("RAS_NAMESETTYPE", mt);
+        CollectionType* ct = new SetType(MOCK_SET_COLLECTION_NAME, mt);
         TypeFactory::addTempType(ct);
         retval = new MDDColl(ct, AllMarrayTypesName);
 
@@ -477,12 +488,14 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
     }
     else if (strcmp(collName, AllSetTypesName) == 0)
     {
+        // the domains are required because rasql returns only arrays
+        // since our result is a string it can be returned as a 1D char array
         r_Minterval transDomain("[0:*]");
         r_Minterval nameDomain("[0:0]");
-        const BaseType* bt = TypeFactory::mapType("Char");
-        MDDDomainType* mt = new MDDDomainType("RAS_NAMETYPE", bt, transDomain);
+        const BaseType* bt = TypeFactory::mapType(CharType::Name);
+        MDDDomainType* mt = new MDDDomainType(MOCK_MDD_COLLECTION_NAME, bt, transDomain);
         TypeFactory::addTempType(mt);
-        CollectionType* ct = new SetType("RAS_NAMESETTYPE", mt);
+        CollectionType* ct = new SetType(MOCK_SET_COLLECTION_NAME, mt);
         TypeFactory::addTempType(ct);
         retval = new MDDColl(ct, AllSetTypesName);
 

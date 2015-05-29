@@ -116,24 +116,26 @@ map<string, string> TypeFactory::createInternalTypeSyntaxTypeMap()
 
 string TypeFactory::getInternalTypeFromSyntaxType(const std::string &syntaxTypeName)
 {
+    string result = syntaxTypeName;
     map<string, string>::const_iterator it = syntaxTypeInternalTypeMap.find(syntaxTypeName);
     if (it != syntaxTypeInternalTypeMap.end())
     {
-        return it->second;
+        result =  it->second;
     }
 
-    return syntaxTypeName;
+    return result;
 }
 
 string TypeFactory::getSyntaxTypeFromInternalType(const std::string &internalTypeName)
 {
+    string result = internalTypeName;
     map<string, string>::const_iterator it = internalTypeSyntaxTypeMap.find(internalTypeName);
     if (it != internalTypeSyntaxTypeMap.end())
     {
-        return it->second;
+        result = it->second;
     }
 
-    return internalTypeName;
+    return result;
 }
 
 // all atomic types given back by mapType()
