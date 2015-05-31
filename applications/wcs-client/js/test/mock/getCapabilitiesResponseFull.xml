@@ -1,4 +1,69 @@
+<!--This file is part of rasdaman community.-->
+<!---->
+<!--Rasdaman community is free software: you can redistribute it and/or modify-->
+<!--it under the terms of the GNU Lesser General Public License as published by-->
+<!--the Free Software Foundation, either version 3 of the License, or-->
+<!--(at your option) any later version.-->
+<!---->
+<!--Rasdaman community is distributed in the hope that it will be useful,-->
+<!--but WITHOUT ANY WARRANTY; without even the implied warranty of-->
+<!--MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the-->
+<!--GNU Lesser General Public License for more details.-->
+<!---->
+<!--You should have received a copy of the GNU Lesser General Public License-->
+<!--along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.-->
+<!---->
+<!--Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009,2010,2011,2012,2013,2014 Peter Baumann / rasdaman GmbH.-->
+<!---->
+<!--For more information please see <http://www.rasdaman.org>-->
+<!--or contact Peter Baumann via <baumann@rasdaman.com>.-->
+
 <?xml version="1.0" encoding="UTF-8"?>
+<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:crs="http://www.opengis.net/wcs/service-extension/crs/1.0">
+    <wcs:CoverageDescription gml:id="Test_5D" xmlns="http://www.opengis.net/gml/3.2" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:swe="http://www.opengis.net/swe/2.0">
+        <ows:Keywords/>
+        <boundedBy>
+            <Envelope srsName="http://www.opengis.net/def/crs-compound?1=CRS:1&amp;2=EPSG:31463" axisLabels="modelTime t pressure x y" uomLabels="" srsDimension="5">
+                <lowerCorner>0.0 0.0 0.0 0.0 0.0</lowerCorner>
+                <upperCorner>1.0 1.0 1.0 1.0 1.0</upperCorner>
+            </Envelope>
+        </boundedBy>
+        <wcs:CoverageId>Test_5D</wcs:CoverageId>
+        <domainSet>
+            <Grid dimension="5" gml:id="Test_5D-grid">
+                <limits>
+                    <GridEnvelope>
+                        <low>0 0 0 0 0</low>
+                        <high>2 4 19 151 113</high>
+                    </GridEnvelope>
+                </limits>
+                <axisLabels>modelTime t pressure x y</axisLabels>
+            </Grid>
+        </domainSet>
+        <gmlcov:rangeType>
+            <swe:DataRecord>
+                <swe:field name="grey">
+                    <swe:Quantity definition="urn:ogc:def:dataType:OGC:1.1:float">
+                        <swe:description/>
+                        <swe:uom code="unknown"/>
+                        <swe:constraint>
+                            <swe:AllowedValues>
+                                <swe:interval>-3.4028235E38 3.4028235E38</swe:interval>
+                            </swe:AllowedValues>
+                        </swe:constraint>
+                    </swe:Quantity>
+                </swe:field>
+            </swe:DataRecord>
+        </gmlcov:rangeType>
+        <wcs:ServiceParameters>
+            <wcs:CoverageSubtype>GridCoverage</wcs:CoverageSubtype>
+            <wcs:nativeFormat>application/octet-stream</wcs:nativeFormat>
+        </wcs:ServiceParameters>
+        <gmlcov:metadata/>
+    </wcs:CoverageDescription>
+</wcs:CoverageDescriptions>
+
+        <?xml version="1.0" encoding="UTF-8"?>
 <wcs:Capabilities xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd" version="2.0.1" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:crs="http://www.opengis.net/wcs/service-extension/crs/1.0">
   <ows:ServiceIdentification xmlns="http://www.opengis.net/ows/2.0">
     <ows:Title>rasdaman</ows:Title>

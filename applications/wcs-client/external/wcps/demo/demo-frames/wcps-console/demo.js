@@ -115,11 +115,11 @@ FlancheJs.defineClass("Demo.wcps.Console", {
         //else
         if (val == 1) {
           Rj.util.ConfigManager.getWCPSService().url= Alex.realEndpoint;
-          self._editor.setValue('image>>for t1 in ( NASA_NIGHT_EARTH_SCALED_SHALLOW_TOPO ) return encode( t1[Lat(-50:0),Long(170:200)], "png" )');
+          self._editor.setValue('image>>for t1 in ( lena ) return encode( t1, "png" )');
         }
         else if (val == 2) {
           Rj.util.ConfigManager.getWCPSService().url= Alex.realEndpoint;
-          self._editor.setValue('for t1 in ( NASA_NIGHT_EARTH_SCALED_SHALLOW_TOPO ) return encode( t1[Lat(-0.2:0),Long(194.8:195)], "csv" )');
+	  self._editor.setValue('for t1 in ( NN3_1 ) return encode( t1[t(0:49)], "csv" )');
         }else if(val == 3){
           Rj.util.ConfigManager.getWCPSService().url= Alex.backupEndpoint;
           self._editor.setValue('diagram>>for t1 in ( NN3_1 ) return encode( t1[t(0:49)], "csv" )');

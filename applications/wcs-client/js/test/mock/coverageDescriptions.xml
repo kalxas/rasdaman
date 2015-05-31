@@ -1,9 +1,17 @@
+c
 <?xml version="1.0" encoding="UTF-8"?>
-<wcs:CoverageDescriptions xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd" xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ows="http://www.opengis.net/ows/2.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:crs="http://www.opengis.net/wcs/service-extension/crs/1.0">
-    <wcs:CoverageDescription gml:id="Test_5D" xmlns="http://www.opengis.net/gml/3.2" xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0" xmlns:swe="http://www.opengis.net/swe/2.0">
+<wcs:CoverageDescriptions
+        xsi:schemaLocation="http://www.opengis.net/wcs/2.0 http://schemas.opengis.net/wcs/2.0/wcsAll.xsd"
+        xmlns:wcs="http://www.opengis.net/wcs/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ows="http://www.opengis.net/ows/2.0"
+        xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:crs="http://www.opengis.net/wcs/service-extension/crs/1.0">
+    <wcs:CoverageDescription gml:id="Test_5D" xmlns="http://www.opengis.net/gml/3.2"
+                             xmlns:gmlcov="http://www.opengis.net/gmlcov/1.0"
+                             xmlns:swe="http://www.opengis.net/swe/2.0">
         <ows:Keywords/>
         <boundedBy>
-            <Envelope srsName="http://www.opengis.net/def/crs-compound?1=CRS:1&amp;2=EPSG:31463" axisLabels="modelTime t pressure x y" uomLabels="" srsDimension="5">
+            <Envelope srsName="http://www.opengis.net/def/crs-compound?1=CRS:1&amp;2=EPSG:31463"
+                      axisLabels="modelTime t pressure x y" uomLabels="" srsDimension="5">
                 <lowerCorner>0.0 0.0 0.0 0.0 0.0</lowerCorner>
                 <upperCorner>1.0 1.0 1.0 1.0 1.0</upperCorner>
             </Envelope>
