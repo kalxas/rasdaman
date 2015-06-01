@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: dirdecomp.cc
  *
@@ -96,7 +96,7 @@ r_Dir_Decompose& r_Dir_Decompose::operator<<(r_Range limit)
     {
         r_Range *aux = new r_Range[num_intervals*2];
 
-        for (int i=0; i<num_intervals; i++)
+        for (unsigned int i=0; i<num_intervals; i++)
             aux[i] = intervals[i];
 
         delete [] intervals;
@@ -116,7 +116,7 @@ r_Dir_Decompose& r_Dir_Decompose::prepend(r_Range limit)
     {
         r_Range *aux = new r_Range[num_intervals*2];
 
-        for (int i=0; i<num_intervals; i++)
+        for (unsigned int i=0; i<num_intervals; i++)
             aux[i+1] = intervals[i];
 
         delete [] intervals;
@@ -126,7 +126,7 @@ r_Dir_Decompose& r_Dir_Decompose::prepend(r_Range limit)
     }
     else
     {
-        for (int i=current_interval-1; i>=0; i--)
+        for (int i=static_cast<int>(current_interval)-1; i>=0; i--)
         {
             intervals[i+1] = intervals[i];
         }
@@ -138,13 +138,13 @@ r_Dir_Decompose& r_Dir_Decompose::prepend(r_Range limit)
 
 int r_Dir_Decompose::get_num_intervals() const
 {
-    return current_interval;
+    return static_cast<int>(current_interval);
 }
 
 r_Range r_Dir_Decompose::get_partition(int number) const
 throw (r_Eindex_violation)
 {
-    if (number >= current_interval)
+    if (number >= static_cast<int>(current_interval))
     {
         r_Eindex_violation err(0, current_interval, number);
         throw err;
@@ -157,7 +157,7 @@ void r_Dir_Decompose::print_status(std::ostream& os) const
 {
     os << "r_Dir_Decompose[ num intervals = " << num_intervals << " current interval = " << current_interval << " intervals = {";
 
-    for (int i=0; i<current_interval; i++)
+    for (unsigned int i=0; i<current_interval; i++)
         os << intervals[i] << " ";
 
     os << "} ]";
@@ -174,11 +174,13 @@ std::ostream& operator<<(std::ostream& os, const std::vector<r_Dir_Decompose>& v
 {
     os << " Vector { ";
 
-    int size = vec.size();
-    for (int i = 0; i < size; i++)
+    unsigned int size = vec.size();
+    for (unsigned int i = 0; i < size; i++)
         os << vec[i] << std::endl;
 
     os << " } ";
+
+    return os;
 }
 
 r_Sinterval

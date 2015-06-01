@@ -185,9 +185,9 @@ MDDObjIx::initializeTimerPointers()
 
 MDDObjIx::MDDObjIx(const StorageLayout& sl, const r_Minterval& dim)
     :   cellBaseType(NULL),
-        myStorageLayout(sl),
         actualIx(new TransDirIx(dim.dimension())),
-        _isPersistent(false)
+        _isPersistent(false),
+        myStorageLayout(sl)
 {
     lastAccessTiles.reserve(10);
     initializeLogicStructure();

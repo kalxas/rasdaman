@@ -133,7 +133,7 @@ UnaryOp* Ops::getUnaryOp(Ops::OpType op, const BaseType* resType, const BaseType
         }
     }
 
-    // result is COMPELEXTYPE1 or COMPLEXTYPE2
+    // result is COMPLEXTYPE1 or COMPLEXTYPE2
     if((resType->getType() == COMPLEXTYPE1 && opType->getType() == COMPLEXTYPE1) || // remember && has precedence over ||
             (resType->getType() == COMPLEXTYPE2 && opType->getType() == COMPLEXTYPE2) )
         return new OpIDENTITYComplex(resType, opType, resOff, opOff );

@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: insertppm.cc
  *
@@ -259,7 +259,7 @@ r_Minterval readHeader( const char *fName, bool mdd3d, unsigned int numSlices )
  * preconditions:
  * - fname!=NULL, \0 terminated
  */
-void readImage(char* contents, const char *fName, bool mdd3d, PixelType pixType, bool rescale, r_Range slicenum = 0, r_Range slicepos = 0 ) throw (r_Error)
+void readImage(char* contents, const char *fName,__attribute__ ((unused))  bool mdd3d, PixelType pixType, bool rescale, __attribute__ ((unused)) r_Range slicenum = 0, r_Range slicepos = 0 ) throw (r_Error)
 {
     FILE* fp=NULL;      // input image file
     int colsP=0;        // number of columns
@@ -280,6 +280,7 @@ void readImage(char* contents, const char *fName, bool mdd3d, PixelType pixType,
     // read it (also initializes information about picture)
     pixelsP = ppm_readppm( fp, &colsP, &rowsP, &maxvalP );
 
+    unsigned long long pos;
     // iterate through all pixels
     int i=0, j=0;
     for(i = 0; i < rowsP; i++)
@@ -295,22 +296,24 @@ void readImage(char* contents, const char *fName, bool mdd3d, PixelType pixType,
             else
                 scaledPixel = aPixel;
 
+            pos = static_cast<unsigned long long>(slicepos*colsP*rowsP + j*rowsP + i);
+
             switch (pixType)
             {
             case PIXEL_BOOL:
-                contents[(slicepos*colsP*rowsP + j*rowsP + i)*PIXSIZE_BW] = PPM_GETB( scaledPixel ) == 0 ? 0 : 1;
+                contents[pos*PIXSIZE_BW] = PPM_GETB( scaledPixel ) == 0 ? 0 : 1;
                 break;
             case PIXEL_GREY: // create Char out of pixel (just take blue)
-                contents[(slicepos*colsP*rowsP + j*rowsP + i)*PIXSIZE_GREY] = PPM_GETB( scaledPixel );
+                contents[pos*PIXSIZE_GREY] = PPM_GETB( scaledPixel );
                 break;
             case PIXEL_COLOR: // create ULong out of pixel colors
-                contents[(slicepos*colsP*rowsP + j*rowsP + i)*PIXSIZE_COL + 0] = PPM_GETR( scaledPixel );
-                contents[(slicepos*colsP*rowsP + j*rowsP + i)*PIXSIZE_COL + 1] = PPM_GETG( scaledPixel );
-                contents[(slicepos*colsP*rowsP + j*rowsP + i)*PIXSIZE_COL + 2] = PPM_GETB( scaledPixel );
+                contents[pos*PIXSIZE_COL + 0] = PPM_GETR( scaledPixel );
+                contents[pos*PIXSIZE_COL + 1] = PPM_GETG( scaledPixel );
+                contents[pos*PIXSIZE_COL + 2] = PPM_GETB( scaledPixel );
                 break;
             case PIXEL_UNSIGNED:
-                contents[(slicepos*colsP*rowsP + j*rowsP + i)*PIXSIZE_UNSIGNED + 0] = (char) (0xFF & PPM_GETB( scaledPixel ) );
-                contents[(slicepos*colsP*rowsP + j*rowsP + i)*PIXSIZE_UNSIGNED + 1] = (char) (PPM_GETB( scaledPixel ) >> 8 );
+                contents[pos*PIXSIZE_UNSIGNED + 0] = (char) (0xFF & PPM_GETB( scaledPixel ) );
+                contents[pos*PIXSIZE_UNSIGNED + 1] = (char) (PPM_GETB( scaledPixel ) >> 8 );
                 break;
             default:
                 cerr << "Error: unknown pixel type code: " << pixType << endl;
@@ -329,7 +332,7 @@ void readImage(char* contents, const char *fName, bool mdd3d, PixelType pixType,
  * preconditions:
  * - fname!=NULL, \0 terminated
  */
-void openImage( const char *fName, bool mdd3d )
+void openImage( const char *fName, __attribute__ ((unused)) bool mdd3d )
 {
     // open PPM file
     readppm_fp = pm_openr( fName );
@@ -345,13 +348,13 @@ void openImage( const char *fName, bool mdd3d )
 /*
  * read numRows rows in an image file
  */
-void readRows(char* contents, r_Range startRow, r_Range numRows, PixelType pixType, bool rescale)
+void readRows(char* contents, __attribute__ ((unused)) r_Range startRow, r_Range numRows, PixelType pixType, bool rescale)
 {
     pixel aPixel;       // one pixel
     pixel scaledPixel;  // pixel scaled to range 0..255
     pixel* row=NULL;    // all pixels in one row
     unsigned int currRow=0; // current row #
-
+    unsigned long long pos;
     row = new pixel[readppm_colsP];
 
     for(currRow = 0; currRow < numRows; currRow++)
@@ -371,25 +374,27 @@ void readRows(char* contents, r_Range startRow, r_Range numRows, PixelType pixTy
             else
                 scaledPixel = aPixel;
 
+            pos = static_cast<unsigned long long>(i*numRows + currRow);
+
             switch (pixType)
             {
             case PIXEL_BOOL:
-                contents[(i*numRows + currRow)*PIXSIZE_BW] = (PPM_GETB(scaledPixel)==0) ? 0 : 1;
+                contents[pos*PIXSIZE_BW] = (PPM_GETB(scaledPixel)==0) ? 0 : 1;
                 break;
             case PIXEL_GREY: // create Bool out of pixel (just take blue)
-                contents[(i*numRows + currRow)*PIXSIZE_GREY] = PPM_GETB( scaledPixel );
+                contents[pos*PIXSIZE_GREY] = PPM_GETB( scaledPixel );
                 break;
             case PIXEL_COLOR: // create ULong out of pixel colors
-                contents[(i*numRows + currRow)*PIXSIZE_COL + 0] = PPM_GETR( scaledPixel );
-                contents[(i*numRows + currRow)*PIXSIZE_COL + 1] = PPM_GETG( scaledPixel );
-                contents[(i*numRows + currRow)*PIXSIZE_COL + 2] = PPM_GETB( scaledPixel );
+                contents[pos*PIXSIZE_COL + 0] = PPM_GETR( scaledPixel );
+                contents[pos*PIXSIZE_COL + 1] = PPM_GETG( scaledPixel );
+                contents[pos*PIXSIZE_COL + 2] = PPM_GETB( scaledPixel );
                 break;
             case PIXEL_UNSIGNED:
-                contents[(i*numRows + currRow)*PIXSIZE_UNSIGNED + 0] = (char) (0xFF & PPM_GETB( scaledPixel ) );
-                contents[(i*numRows + currRow)*PIXSIZE_UNSIGNED + 1] = (char) (PPM_GETB( scaledPixel ) >> 8 );
+                contents[pos*PIXSIZE_UNSIGNED + 0] = (char) (0xFF & PPM_GETB( scaledPixel ) );
+                contents[pos*PIXSIZE_UNSIGNED + 1] = (char) (PPM_GETB( scaledPixel ) >> 8 );
                 break;
             default:
-                cerr << "Error: unknown pixel type code: " << pixType << endl;
+                cerr << "Error: unknown pixel type code: " << (int)pixType << endl;
                 break;
             }
         }
@@ -488,7 +493,7 @@ main( int argc, char** argv )
     const char   *transferFormatParams = "";        // transfer format parameters
     const char   *storageFormatString = DEFAULT_ST_FMT; // storage format string
     r_Data_Format storageFormat=r_Array;            // storage format used
-    char         *storageFormatParams = (char*)"";          // storage format parameters
+    char         *storageFormatParams = const_cast<char*>("");          // storage format parameters
 
     const char   *collName=NULL;                // name of collection
 
@@ -746,7 +751,7 @@ main( int argc, char** argv )
     try
     {
         LOG << "connecting to " << serverName << ":" << serverPort << "..." << flush;
-        database.set_servername(serverName, serverPort);
+        database.set_servername(serverName, static_cast<int>(serverPort));
         database.set_useridentification(userName, passwd);
         database.open( dbName );
         // note: partial insert implicitly opens/closes TA
@@ -836,7 +841,7 @@ main( int argc, char** argv )
                     // create domain of next tile
                     cacheDom = r_Minterval(3)
                                << r_Sinterval( (r_Range) (k + 1),
-                                               (r_Range) (k+tileX > fileNameList.size()-1 ? fileNameList.size()-1 : k+tileX) )
+                                               (r_Range) (k+tileX > static_cast<int>(fileNameList.size()-1) ? fileNameList.size()-1 : static_cast<unsigned long long>(k+tileX)) )
                                << r_Sinterval((r_Range)0, imgCols - 1)
                                << r_Sinterval((r_Range)0, imgRows - 1);
 

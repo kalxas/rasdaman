@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_srv.cc
  *
@@ -147,7 +147,7 @@ int RasServer::getCountDown()
     return initialCountDown;
 }
 
-void  RasServer::init(const char *srvName,const char* hostName,char serverType,long listenPort)
+void  RasServer::init(const char *srvName,const char* hostName,char newServerType,long newListenPort)
 {
     strcpy(this->serverName,srvName);
 
@@ -155,12 +155,12 @@ void  RasServer::init(const char *srvName,const char* hostName,char serverType,l
 
     isinternal=ptrServerHost->isInternal();
     available=isup=false;
-    this->serverType=serverType;
-    this->listenPort=listenPort;
+    this->serverType=newServerType;
+    this->listenPort=newListenPort;
 
     // RNP servers start with first action connectToDBMS() as opposed to the others,
     // therefore set counter appropriately. -- PB 2002-nov-23
-    switch (serverType)
+    switch (newServerType)
     {
     case SERVERTYPE_FLAG_RPC:
     case SERVERTYPE_FLAG_HTTP:
@@ -172,7 +172,7 @@ void  RasServer::init(const char *srvName,const char* hostName,char serverType,l
         activityCounter = 0;
         break;
     default:
-        TALK( "Error: illegal server type specifier " << serverType << ", assuming '" << SERVERTYPE_FLAG_RNP << "'." );
+        TALK( "Error: illegal server type specifier " << newServerType << ", assuming '" << SERVERTYPE_FLAG_RNP << "'." );
         break;
     }
 
@@ -230,13 +230,13 @@ char* RasServer::getDescriptionHeader(char *destBuffer)
 
 char* RasServer::getDescription(char *destBuffer)
 {
-    char *sType=(char*)"(none)";
+    char *sType=const_cast<char*>("(none)");
     if(serverType==SERVERTYPE_FLAG_RPC)
-        sType=(char*)"(RPC) ";
+        sType=const_cast<char*>("(RPC) ");
     if(serverType==SERVERTYPE_FLAG_HTTP)
-        sType=(char*)"(HTTP)";
+        sType=const_cast<char*>("(HTTP)");
     if(serverType==SERVERTYPE_FLAG_RNP)
-        sType=(char*)"(RNP) ";
+        sType=const_cast<char*>("(RNP) ");
 
     const char* sUp= isup ? "UP  ":"DOWN";
 
@@ -263,10 +263,10 @@ char* RasServer::getDescriptionPortHeader(char *destBuffer)
 
 char* RasServer::getDescriptionPort(char *destBuffer)
 {
-    char *sType=(char*)"(none)";
-    if(serverType==SERVERTYPE_FLAG_RPC) sType=(char*)"(RPC) ";
-    if(serverType==SERVERTYPE_FLAG_HTTP) sType=(char*)"(HTTP)";
-    if(serverType==SERVERTYPE_FLAG_RNP) sType=(char*)"(RNP) ";
+    char *sType=const_cast<char*>("(none)");
+    if(serverType==SERVERTYPE_FLAG_RPC) sType=const_cast<char*>("(RPC) ");
+    if(serverType==SERVERTYPE_FLAG_HTTP) sType=const_cast<char*>("(HTTP)");
+    if(serverType==SERVERTYPE_FLAG_RNP) sType=const_cast<char*>("(RNP) ");
 
 //    const char* sUp= isup ? "UP  ":"DOWN";
 
@@ -415,7 +415,7 @@ int RasServer::startServer()
     char command[ARG_MAX+1];
 
     const char *SPRINTF_FORMAT;
-    int userOptLen = strlen(ptrDatabaseHost->getUser()), passOptLen = strlen(ptrDatabaseHost->getPasswd());
+    unsigned int userOptLen = strlen(ptrDatabaseHost->getUser()), passOptLen = strlen(ptrDatabaseHost->getPasswd());
     if (userOptLen > 0)
         if (passOptLen > 0)
             SPRINTF_FORMAT = "%s %s %s --rsn %s %s --lport %ld --mgr %s --mgrport %ld --connect %s -u %s -p %s %s";
@@ -467,7 +467,7 @@ int RasServer::startServer()
 
         char message[MAXMSG]="POST exec HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nContent-length: ";
 
-        sprintf(message+strlen(message),"%d\r\n\r\n%s",strlen(command)+1,command);
+        sprintf(message+strlen(message),"%lu\r\n\r\n%s",strlen(command)+1,command);
 
         int nbytes=write(socket,message,strlen(message)+1);
 
@@ -507,7 +507,7 @@ int RasServer::downNow()
 
         char message[MAXMSG]="POST downserver HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nContent-length: ";
 
-        sprintf(message+strlen(message),"%d\r\n\r\n%s",strlen(serverName)+1,serverName);
+        sprintf(message+strlen(message),"%lu\r\n\r\n%s",strlen(serverName)+1,serverName);
 
         int nbytes=write(socket,message,strlen(message)+1);
 
@@ -542,7 +542,7 @@ int RasServer::killServer()
 
         char message[MAXMSG]="POST killserver HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nContent-length: ";
 
-        sprintf(message+strlen(message),"%d\r\n\r\n%s",strlen(serverName)+1,serverName);
+        sprintf(message+strlen(message),"%lu\r\n\r\n%s",strlen(serverName)+1,serverName);
 
         int nbytes=write(socket,message,strlen(message)+1);
 
@@ -734,7 +734,7 @@ bool RasServerManager::insertNewServer(const char *srvName,const char* hostName,
 bool RasServerManager::removeServer(const char *srvName)
 {
     list<RasServer>::iterator iter=srvList.begin();
-    for(int i=0; i<srvList.size(); i++)
+    for(unsigned int i=0; i<srvList.size(); i++)
     {
         if(strcmp(iter->getName(),srvName)==0)
         {
@@ -754,7 +754,7 @@ bool RasServerManager::removeServer(const char *srvName)
 bool RasServerManager::testUniqueness(const char* srvName)
 {
     list<RasServer>::iterator iter=srvList.begin();
-    for(int i=0; i<srvList.size(); i++)
+    for(unsigned int i=0; i<srvList.size(); i++)
     {
         if(strcmp(iter->getName(),srvName)==0)
             return false;
@@ -774,7 +774,7 @@ RasServer& RasServerManager::operator[](int x)  // FIXME: check against upper li
 RasServer& RasServerManager::operator[](const char* srvName)    // FIXME: check against upper limit
 {
     list<RasServer>::iterator iter=srvList.begin();
-    for(int i=0; i<srvList.size(); i++)
+    for(unsigned int i=0; i<srvList.size(); i++)
     {
         if(strcmp(iter->getName(),srvName)==0)
             return *iter;
@@ -821,7 +821,7 @@ int RasServerManager::changeServerStatus(char *reqMessage)
 void RasServerManager::disconnectAllServersFromDBH(const char *dbhName)
 {
     list<RasServer>::iterator iter=srvList.begin();
-    for(int i=0; i<srvList.size(); i++,iter++)
+    for(unsigned int i=0; i<srvList.size(); i++,iter++)
     {
         const char *cDbhName=iter->getDBHostName();
 
@@ -837,7 +837,7 @@ int RasServerManager::countUpServers()
 {
     int count=0;
     list<RasServer>::iterator iter=srvList.begin();
-    for(int i=0; i<srvList.size(); i++)
+    for(unsigned int i=0; i<srvList.size(); i++)
     {
         if(iter->isUp())
             count++;
@@ -855,7 +855,7 @@ void RasServerManager::printStatus()
     list<RasServer>::iterator iter=srvList.begin();
 
     TALK( "RasServerManager::printStatus. current status is:" );
-    for(int i=0; i<srvList.size(); i++)
+    for(unsigned int i=0; i<srvList.size(); i++)
     {
         iter->getDescription(buff);
         TALK( "\t" << i << ": " << buff );
@@ -871,14 +871,14 @@ bool RasServerManager::reset()
         return false;
 
     list<RasServer>::iterator iter=srvList.begin();
-    for(int i=0; i<srvList.size(); i++, iter++)
+    for(unsigned int i=0; i<srvList.size(); i++, iter++)
     {
         if(iter->isUp())
             return false;
     }
 
     iter=srvList.begin();
-    for(int i=0; i<srvList.size(); i++, iter++)
+    for(unsigned int i=0; i<srvList.size(); i++, iter++)
     {
         iter->disconnectFromDBHost(); //it's not up, so it fails only if it is not connected at all
     }

@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: raspasswd.hh
  *
@@ -55,9 +55,6 @@ rasdaman GmbH.
 
 using namespace std;
 
-void printCommandLineHelp();
-
-bool exitbyerror(char*);
 
 const char* getPasswdKeyboard(const char*text,char*dest);
 bool  execute(const char *message);

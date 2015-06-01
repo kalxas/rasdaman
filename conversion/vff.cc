@@ -184,7 +184,7 @@ const char *r_Conv_VFF::read_vector( r_Dimension dim, const char *str, double *&
     for (i=0; i<dim; i++)
     {
         const char *rest;
-        vec[i] = strtod(str, (char**)&rest);
+        vec[i] = strtod(str, const_cast<char**>(&rest));
         if (str == rest)
             break;
         str = rest;
@@ -306,7 +306,8 @@ const char *r_Conv_VFF::get_default_endianness( void ) const
 r_convDesc &r_Conv_VFF::convertTo( const char *options ) throw(r_Error)
 {
     r_Dimension dim;
-    int bits, typeSize;
+    int bits;
+    unsigned int typeSize;
     char header[1024]; // and ``640k should be enough for everyone''...
     char dataOrder[8];
 
@@ -400,7 +401,7 @@ r_convDesc &r_Conv_VFF::convertTo( const char *options ) throw(r_Error)
     // treat all dimensions alike thanks to generic iterators
 
     // source iterator, iterate in user order
-    r_MiterDirect iter((void*)desc.src, desc.srcInterv, desc.srcInterv, typeSize, 1);
+    r_MiterDirect iter((void*)const_cast<char*>(desc.src), desc.srcInterv, desc.srcInterv, typeSize, 1);
     unsigned int *order, *steps;
 
     order = new unsigned int[dim];
@@ -475,7 +476,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
     unsigned char *keysRead;
     unsigned int i;
     r_Dimension dim=0;
-    int bits, bands;
+    int bits = 0, bands;
     double *vecSize, *vecOrigin, *vecValue;
     char endian[32];
     char dataOrder[8];
@@ -506,10 +507,10 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
 
     do
     {
-        if (*header != endOfHeader);
+        if (*header != endOfHeader)
         {
             const char *rest;
-            double *vecTemp;
+            double *vecTemp = NULL;
 
             for (i=0; i<(unsigned int)vffkey_NUMBER; i++)
             {
@@ -544,7 +545,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
                 switch ((vff_keyword_e)i)
                 {
                 case vffkey_rank:
-                    dim = strtol(header, (char**)&rest, 10);
+                    dim = strtol(header, const_cast<char**>(&rest), 10);
                     if ((rest == header) || (dim < 2) || (dim > 3))
                     {
                         RMInit::logOut << method_convFrom << ": bad rank " << dim << endl;
@@ -586,7 +587,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
                     delete [] vecTemp;
                     break;
                 case vffkey_bands:
-                    bands = strtol(header, (char**)&rest, 10);
+                    bands = strtol(header, const_cast<char**>(&rest), 10);
                     if ((rest == header) || (bands != 1))
                     {
                         RMInit::logOut << method_convFrom << ": bad number of bands " << bands << endl;
@@ -594,7 +595,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
                     }
                     break;
                 case vffkey_bits:
-                    bits = strtol(header, (char**)&rest, 10);
+                    bits = strtol(header, const_cast<char**>(&rest), 10);
                     if ((rest == header) || ((bits != 8) && (bits != 16) && (bits != 32)))
                     {
                         RMInit::logOut << method_convFrom << ": bad number of bits " << bits << endl;
@@ -691,7 +692,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
     delete [] vecOrigin;
     delete [] vecSize;
 
-    int typeSize = (bits>>3);
+    unsigned int typeSize = static_cast<unsigned int>((bits>>3));
     unsigned long dataSize = desc.destInterv.cell_count() * typeSize;
     //cout << "Type size " << typeSize << ", dim " << dim << endl;
 

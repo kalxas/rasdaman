@@ -414,7 +414,7 @@ Tile::execConstOp(BinaryOp* myOp, const r_Minterval& areaRes, const Tile* opTile
 void
 Tile::execMarrayOp(MarrayOp* myOp, const r_Minterval& areaRes, const r_Minterval& areaOp)
 {
-    r_Dimension dimRes = static_cast<int>(areaRes.dimension());
+    r_Dimension dimRes = areaRes.dimension();
     r_Point pointRes = areaRes.get_origin();
     r_Point pointOp = areaOp.get_origin();
     char* cellRes = getCell(calcOffset(pointRes));

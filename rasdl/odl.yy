@@ -39,7 +39,6 @@ rasdaman GmbH.
 
 #include "raslib/minterval.hh"
 
-int yyparse();
 
 extern int    yylex();
 extern long   lineNumber;
@@ -556,7 +555,7 @@ dimension_spec_list   : dimension_spec
                           (*$$)[0] = (*$1);
                           delete $1; $1=NULL;
 
-                          for( int i=0; i<$3->dimension(); i++ )
+                          for( unsigned int i=0; i<$3->dimension(); i++ )
                             (*$$)[i+1] = (*$3)[i];
 
                           delete $3; $3=NULL;
@@ -593,7 +592,7 @@ YSymbol  *unique_symbol(const char*name,const YWhere&where)
    };
 
    return(symbol);
-};
+}
 
 const YWhere   *error_source  =NULL;
 const YWhere   *error_where   =NULL;
@@ -636,5 +635,5 @@ void yyerror(const char* s)
    error_source=NULL;
 
    exit(-2);
-};
+}
 

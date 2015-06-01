@@ -206,7 +206,7 @@ bool RnpReceiver::isHttpCarrier() throw()
         return false;
     }
 
-    if(carrierHeaderLength + sizeof(RnpHeader) > headerBuffer.getDataSize())
+    if(carrierHeaderLength + static_cast<int>(sizeof(RnpHeader)) > headerBuffer.getDataSize())
     {
         // is HTTP carrier, but we need more data to say if it's an embedded RnpMessage
         LEAVE( "RnpReceiver::isHttpCarrier() -> true" );
@@ -236,7 +236,7 @@ bool RnpReceiver::isRnpCarrier() throw()
     rnpHeader = NULL;
     carrierHeaderLength = -1;
 
-    if(sizeof(RnpHeader) > headerBuffer.getDataSize())
+    if(static_cast<int>(sizeof(RnpHeader)) > headerBuffer.getDataSize())
     {
         // we need more data to say if it's an RnpMessage
         LEAVE( "RnpReceiver::isRnpCarrier() -> true" );

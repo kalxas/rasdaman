@@ -18,7 +18,7 @@
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 
 /**
 * rasql_signal
@@ -56,14 +56,6 @@ using namespace std;
 #include "debug-clt.hh"
 
 using namespace std;
-
-//signalCleanup function is called when a signal is received by the program.
-//You should write your function in order to have signal management
-void signalCleanup();
-
-//signalHandler function is called when a signal occurs
-void
-signalHandler(int sig);
 
 //installSignalHandlers function should be called first in main function
 //in order to receive a signal in your program

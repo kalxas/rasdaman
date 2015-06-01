@@ -226,6 +226,16 @@ int         optionValueIndex;
 int         insertIntoDb = 0;
 bool        printToFile = false;
 
+//function prototypes:
+void printNames();
+void printHeader( const char* headerFileName2 );
+void disconnectDB( bool commitTa );
+void connectDB( const char* baseName2, bool openDb, bool openTa ) throw (r_Error, RasdlError);
+bool isCommand( const char *command, const char *key);
+bool readRasmgrConf();
+void parseParams(int argc, char* argv[]) throw (r_Error, RasdlError);
+void readMode() throw (r_Error, RasdlError);
+
 
 void
 printNames()
@@ -307,23 +317,23 @@ printNames()
 
 
 void
-printHeader( const char* headerFileName )
+printHeader( const char* headerFileName2 )
 {
-    cout << "Generating header file " << headerFileName << "..." << flush;
+    cout << "Generating header file " << headerFileName2 << "..." << flush;
 
-    FILE   *file=fopen( headerFileName, "wt" );
+    FILE   *file=fopen( headerFileName2, "wt" );
     if(!file)
         throw RasdlError( CANNOTWRITEHDR );
 
-    char* defName = new char[strlen(headerFileName)+1];
+    char* defName = new char[strlen(headerFileName2)+1];
     if (defName == NULL)
         throw RasdlError( CANNOTALLOC );
 
     // generate upper case version for include guard
     int i = 0;
-    while( headerFileName[i] != '.' && headerFileName[i] != '\0' )
+    while( headerFileName2[i] != '.' && headerFileName2[i] != '\0' )
     {
-        defName[i] = toupper( headerFileName[i] );
+        defName[i] = toupper( headerFileName2[i] );
         i++;
     }
     defName[i] = '\0';
@@ -394,9 +404,9 @@ disconnectDB( bool commitTa )
 }
 
 void
-connectDB( const char* baseName, bool openDb, bool openTa ) throw (r_Error, RasdlError)
+connectDB( const char* baseName2, bool openDb, bool openTa ) throw (r_Error, RasdlError)
 {
-    ENTER( "connectDB, basename=" << baseName );
+    ENTER( "connectDB, basename=" << baseName2 );
 
     admin = AdminIf::instance();
     if( !admin )
@@ -412,7 +422,7 @@ connectDB( const char* baseName, bool openDb, bool openTa ) throw (r_Error, Rasd
         // TALK( "adding dbf to adminif" );
         // admin->setCurrentDatabaseIf( db );
         TALK( "opening db" );
-        db->open( baseName );
+        db->open( baseName2 );
     }
 
     if ( openTa )
@@ -468,7 +478,7 @@ readRasmgrConf()
     {
         ifs.getline(inBuffer,MAXMSG);
 
-        int argc=0;
+        argc=0;
         char commandBuffer[PATH_MAX];
         commandBuffer[0]=' ';
         strncpy(commandBuffer+1,inBuffer,MAXMSG-1);
@@ -494,7 +504,7 @@ readRasmgrConf()
             const char *what = argc==1 ? "xxx":token[1];
             if(strcasecmp(what, "dbh")==0)
             {
-                char* flag = "-connect";
+                char* flag = const_cast<char*>("-connect");
                 for(int i=1; i<argc-1; i++)
                 {
                     if(strcasecmp(flag,token[i])==0)

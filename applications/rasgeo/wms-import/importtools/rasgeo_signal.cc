@@ -45,13 +45,6 @@ static const char rcsid[] = "@(#)rasodmg/test,ImportOrthoUtil: $Id: rasgeo_signa
 #include "rasgeo_globals.hh"
 #include "rasgeo_signal.hh"
 
-//signalCleanup function is called when a signal is received by the program.
-//You should write your function in order to have signal management
-void signalCleanup();
-
-//signalHandler function is called when a signal occurs
-void
-signalHandler(int sig);
 
 //installSignalHandlers function should be called first in main function
 //in order to receive a signal in your program

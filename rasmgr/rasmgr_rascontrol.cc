@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_rascontrol.cc
  *
@@ -140,7 +140,7 @@ void RasControl::setAuthDirty( bool isDirty )
 
 int RasControl::prepareAnswer(char *answMessage)
 {
-    sprintf(answMessage,"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n%s",strlen(answBuffer)+1,answBuffer);
+    sprintf(answMessage,"HTTP/1.1 200 OK\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%s",strlen(answBuffer)+1,answBuffer);
     return strlen(answMessage)+1;
 }
 
@@ -271,7 +271,7 @@ void RasControl::listInPeers()
     checkUnexpectedTokens();
 
     sprintf(answBuffer,"List of inpeers:\r\n");
-    for(int i=0; i<config.inpeers.size(); i++)
+    for(unsigned int i=0; i<config.inpeers.size(); i++)
     {
         sprintf(answBuffer+strlen(answBuffer),"\r\n%2d. %s",i+1,config.inpeers[i]);
     }
@@ -284,7 +284,7 @@ void RasControl::listOutPeers()
     checkUnexpectedTokens();
 
     sprintf(answBuffer,"List of outpeers:\r\n");
-    for(int i=0; i<config.outpeers.size(); i++)
+    for(unsigned int i=0; i<config.outpeers.size(); i++)
     {
         sprintf(answBuffer+strlen(answBuffer),"\r\n%2d. %s %d",i+1,config.outpeers[i],config.outports[i]);
     }
@@ -633,7 +633,7 @@ void RasControl::defineRasHosts()
 
     checkNotNull(netName,"-net parameter");
 
-    long listenPort;
+    unsigned long listenPort;
     if(portStr) listenPort=convertToULong(portStr,"port");
     else        listenPort=DEFAULT_PORT;
 
@@ -645,7 +645,7 @@ void RasControl::defineRasHosts()
     }
     else
     {
-        sprintf(answBuffer,"Defining server host %s port=%d",hostName,listenPort);
+        sprintf(answBuffer,"Defining server host %s port=%lu",hostName,listenPort);
     }
 
     LEAVE( "RasControl::defineRasHosts()" );
@@ -732,7 +732,7 @@ void RasControl::defineRasServers()
 
     }
 
-    long listenPort=convertToULong(portStr,"port");
+    unsigned long listenPort=convertToULong(portStr,"port");
 
     if(autoRestart)
     {
@@ -749,7 +749,7 @@ void RasControl::defineRasServers()
     }
 
     getServerHost(hostName);// just check
-    if(rasManager.insertNewServer(serverName,hostName,serverType,listenPort)==false)
+    if(rasManager.insertNewServer(serverName,hostName,serverType,static_cast<long>(listenPort))==false)
     {
         sprintf(answBuffer,"Error: server name already existing.");
         LEAVE( "RasControl::defineRasServers()" );
@@ -777,13 +777,13 @@ void RasControl::defineRasServers()
     if(execString)  srv.changeExecutableName(execString);
 
     if(serverType==SERVERTYPE_FLAG_RPC)
-        sprintf(answBuffer,"Defining deprecated server %s of type RPC on host %s port=%#x",serverName,hostName,listenPort);
+        sprintf(answBuffer,"Defining deprecated server %s of type RPC on host %s port=%#x",serverName,hostName,static_cast<unsigned int>(listenPort));
 
     if(serverType==SERVERTYPE_FLAG_HTTP)
-        sprintf(answBuffer,"Defining deprecated server %s of type HTTP on host %s port=%d",serverName,hostName,listenPort);
+        sprintf(answBuffer,"Defining deprecated server %s of type HTTP on host %s port=%lu",serverName,hostName,listenPort);
 
     if(serverType==SERVERTYPE_FLAG_RNP)
-        sprintf(answBuffer,"Defining server %s of type RNP on host %s port=%d",serverName,hostName,listenPort);
+        sprintf(answBuffer,"Defining server %s of type RNP on host %s port=%lu",serverName,hostName,listenPort);
 
     LEAVE( "RasControl::defineRasServers()" );
 }
@@ -798,7 +798,7 @@ void RasControl::defineInPeers()
 
     checkNotNull(hostName,"host name");
     
-    for (int i = 0; i < config.inpeers.size(); i++) {
+    for (unsigned int i = 0; i < config.inpeers.size(); i++) {
         if (hostCmp(config.inpeers[i],hostName)) { 
             sprintf(answBuffer,"Error: Inpeer rasmanager %s already defined.",hostName);
             LEAVE( "RasControl::defineInPeers()" );
@@ -823,11 +823,11 @@ void RasControl::defineOutPeers()
 
     checkNotNull(hostName,"host name");
 
-    long listenPort;
+    unsigned long listenPort;
     if(portStr) listenPort=convertToULong(portStr,"port");
     else        listenPort=DEFAULT_PORT;
 
-    for (int i = 0; i < config.outpeers.size(); i++) {
+    for (unsigned int i = 0; i < config.outpeers.size(); i++) {
         if (!strcmp(config.outpeers[i],hostName)) { 
             sprintf(answBuffer,"Error: Outpeer rasmanager %s already defined.",hostName);
             LEAVE( "RasControl::defineOutPeers()" );
@@ -837,12 +837,12 @@ void RasControl::defineOutPeers()
     config.outpeers.push_back(strdup(hostName));
     config.outports.push_back(listenPort);
 
-    sprintf(answBuffer,"Defining outpeer rasmgr %s port=%d",hostName,listenPort);
+    sprintf(answBuffer,"Defining outpeer rasmgr %s port=%lu",hostName,listenPort);
     
     // a small "ping" checking if the outpeer can be reached
     struct addrinfo hints, *ai;
     char port[10];
-    int sockfd; 
+    int sockfd = 0;
     bool success = false;
     sprintf(port, "%d", config.outports[config.outports.size() - 1]);
     memset (&hints, 0, sizeof(hints));
@@ -988,7 +988,7 @@ void RasControl::removeInPeers()
 
     checkNotNull(peerName,"host name");
     
-    int i = 0;
+    unsigned int i = 0;
     while ((i<config.inpeers.size()) && (strcmp(config.inpeers[i],peerName)))
         i++;
     if ((i<config.inpeers.size()) && !strcmp(config.inpeers[i],peerName)) 
@@ -1013,7 +1013,7 @@ void RasControl::removeOutPeers()
 
     checkNotNull(peerName,"host name");
     
-    int i = 0;
+    unsigned int i = 0;
     while ((i<config.outpeers.size()) && (strcmp(config.outpeers[i],peerName)))
         i++;
     if ((i<config.outpeers.size()) && !strcmp(config.outpeers[i],peerName)) 
@@ -1502,7 +1502,7 @@ void RasControl::changeRasServer()
         }
 
         if(newType)       r.changeType(serverType);
-        if(portString)    r.changePort(convertToULong(portString,"port"));
+        if(portString)    r.changePort(static_cast<long>(convertToULong(portString,"port")));
 
         changeRasServer(serverName,dbhName,countString,(isExtra ? extraString : NULL), autoRestart, execString);
 
@@ -1750,6 +1750,7 @@ void RasControl::upRasServers()
         case -5:
             errorInCommand("Server host is down.");
             break;
+        default: break;
         }
         LEAVE( "RasControl::upRasServers()" );
         return;
@@ -1978,6 +1979,7 @@ void RasControl::downRasHosts()
         case -3:
             errorInCommand("Sorry, you should down all slave hosts first, the master should be the last one.");
             break;
+        default: break;
         }
         return;
     }

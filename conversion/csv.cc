@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: csv.cc
  *
@@ -133,7 +133,7 @@ const char *r_Conv_CSV::printValue(std::stringstream &f, const r_Base_Type &type
 
 const char *r_Conv_CSV::printStructValue(std::stringstream &f, const char *val)
 {
-    r_Structure_Type *st = (r_Structure_Type*) desc.srcType;
+    r_Structure_Type *st = (r_Structure_Type*) const_cast<r_Type*>(desc.srcType);
     r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
     f << STRUCT_DELIMITER_OPEN;
     while (iter != st->defines_attribute_end())
@@ -245,18 +245,18 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
     processOptions(options);
     std::stringstream csvtemp;
 
-    int rank, i;
+    unsigned long rank, i;
     rank = desc.srcInterv.dimension();
 
     vector<int> dimsizes(rank);
     vector<size_t> offsets(rank); // offsets describe how many data cells are between
                                   // values of the same dimension slice
 
-    for (i=0; i<rank; i++)
+    for (i = 0; i < rank; i++)
         dimsizes[i] = desc.srcInterv[i].high() - desc.srcInterv[i].low() + 1;
     offsets[rank - 1] = 1;
-    for (int i = rank - 1; i > 0; --i)
-        offsets[i - 1] = offsets[i] * dimsizes[i];
+    for (i = rank - 1; i > 0; --i)
+        offsets[i - 1] = offsets[i] * static_cast<unsigned long>(dimsizes[i]);
     if (order == r_Conv_CSV::INNER_OUTER) {
         std::reverse(dimsizes.begin(), dimsizes.end());
         std::reverse(offsets.begin(), offsets.end());
@@ -267,10 +267,10 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
     {
         if (rank == 1) {
             csvtemp << "{";
-            printArray(csvtemp, &dimsizes[0], &offsets[0], rank, (char*) desc.src, *base_type);
+            printArray(csvtemp, &dimsizes[0], &offsets[0], rank, const_cast<char*>(desc.src), *base_type);
             csvtemp << "}";
         } else {
-            printArray(csvtemp, &dimsizes[0], &offsets[0], rank, (char*) desc.src, *base_type);
+            printArray(csvtemp, &dimsizes[0], &offsets[0], rank, const_cast<char*>(desc.src), *base_type);
         }
     }
     catch (r_Error &err)
@@ -285,13 +285,13 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
     desc.destInterv = r_Minterval(1);
     desc.destInterv << r_Sinterval((r_Range)0, (r_Range)stringsize - 1);
 
-    if ((desc.dest = (char*)mystore.storage_alloc(stringsize)) == NULL)
+    if ((desc.dest = (char*)mystore.storage_alloc(static_cast<size_t>(stringsize))) == NULL)
     {
         RMInit::logOut << "r_Conv_CSV::convertTo(): out of memory error" << endl;
         LEAVE("r_Conv_CSV::convertTo()");
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
-    memcpy(desc.dest, str.c_str(), stringsize);
+    memcpy(desc.dest, str.c_str(), static_cast<size_t>(stringsize));
 
     // Result is just a bytestream
     desc.destType = r_Type::get_any_type("char");
@@ -302,7 +302,7 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
 
 
 
-r_convDesc &r_Conv_CSV::convertFrom(const char *options) throw(r_Error)
+r_convDesc &r_Conv_CSV::convertFrom(__attribute__ ((unused)) const char *options) throw(r_Error)
 {
     RMInit::logOut << "importing CSV data not yet implemented" << endl;
     throw new r_Error(CONVERSIONFORMATNOTSUPPORTED);

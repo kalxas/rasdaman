@@ -61,7 +61,7 @@ public:
     /// default constructor.
     r_Structure_Type();
     /// constructor getting name of type and type id.
-    r_Structure_Type( char* newTypeName, unsigned int newNumAttrs, r_Attribute* newAttrs, int offset = 0 );
+    r_Structure_Type( const char* newTypeName, unsigned int newNumAttrs, r_Attribute* newAttrs, int offset = 0 );
     /// copy constructor
     r_Structure_Type( const r_Structure_Type& oldObj );
     /// assignment operator.

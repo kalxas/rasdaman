@@ -196,7 +196,7 @@ r_OQL_Query::operator<<( r_Char c ) throw( r_Error )
 {
     char valueString[2];
 
-    valueString[0] = c;
+    valueString[0] = static_cast<char>(c);
     valueString[1] = '\0';
 
     try
@@ -494,14 +494,14 @@ throw( r_Error )
 
     argumentLength = argumentEnd - argumentBegin;
     argumentVal    = new char[ argumentLength + 1];
-    strncpy(argumentVal, argumentBegin, argumentLength);
+    strncpy(argumentVal, argumentBegin, static_cast<size_t>(argumentLength));
     argumentVal[argumentLength] = '\0';
 
     while(true)
     {
         // allocate a new query string and fill it
         tmpString   = queryString;
-        length      = strlen(queryString) - argumentLength + strlen(valueString);
+        length      = static_cast<int>(strlen(queryString)) - argumentLength + static_cast<int>(strlen(valueString));
         queryString = new char[ length + 1 ];
 
         *argumentBegin = '\0';

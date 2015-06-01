@@ -49,7 +49,7 @@ YSymbol::YSymbol()
 
     scope            =NULL;
     defines         =NULL;
-};
+}
 
 YSymbol::YSymbol(const char*_name)
 {
@@ -61,7 +61,7 @@ YSymbol::YSymbol(const char*_name)
 
     scope            =NULL;
     defines         =NULL;
-};
+}
 
 YSymbolTable::YSymbolTable()
 {
@@ -69,7 +69,7 @@ YSymbolTable::YSymbolTable()
 
     scope            =NULL;
     global_scope   =NULL;
-};
+}
 
 void YSymbolTable::push_scope(YSymbol*owner)
 {
@@ -97,7 +97,7 @@ void YSymbolTable::push_scope(YSymbol*owner)
         global_scope=new_scope;
 
     scope=new_scope;
-};
+}
 
 const YSymbol *YSymbolTable::pop_scope()
 {
@@ -105,7 +105,7 @@ const YSymbol *YSymbolTable::pop_scope()
     scope                        =scope->up;
 
     return(old_symbol);
-};
+}
 
 void   YSymbolTable::insert_symbol(YSymbol*symbol)const
 {
@@ -126,7 +126,7 @@ void   YSymbolTable::insert_symbol(YSymbol*symbol)const
     }
 
     LEAVE( "YSymbolTable::insert_symbol" );
-};
+}
 
 bool  YSymbolTable::search_this_scope(const char*name,const Scope*this_scope,YSymbol*&result)const
 {
@@ -150,12 +150,12 @@ bool  YSymbolTable::search_this_scope(const char*name,const Scope*this_scope,YSy
 
     LEAVE( "YSymbolTable::search_this_scope -> " << found );
     return( found );
-};
+}
 
 bool  YSymbolTable::search_scope(const char*name,YSymbol*&result)const
 {
     return(search_this_scope(name,scope,result));
-};
+}
 
 bool  YSymbolTable::search_scopes(const char*name,YSymbol*&result)const
 {
@@ -165,7 +165,7 @@ bool  YSymbolTable::search_scopes(const char*name,YSymbol*&result)const
             return(true);
     };
     return(false);
-};
+}
 
 bool  YSymbolTable::search_scopes_above(const YSymbol*symbol,YSymbol*&result)const
 {
@@ -179,12 +179,12 @@ bool  YSymbolTable::search_scopes_above(const YSymbol*symbol,YSymbol*&result)con
             return(true);
     };
     return(false);
-};
+}
 
 bool  YSymbolTable::search_my_scope(const char*name,const YSymbol*symbol,YSymbol*&result)const
 {
     return(search_this_scope(name,symbol->defines,result));
-};
+}
 
 bool  YSymbolTable::search_global_scope(const char*name,YSymbol*&result)const
 {
@@ -196,7 +196,7 @@ bool  YSymbolTable::search_global_scope(const char*name,YSymbol*&result)const
         ;   /* get up to the global scope */
 
     return(search_this_scope(name,global,result));
-};
+}
 
 //****************************************************************************
 //
@@ -212,7 +212,7 @@ const YSymbol  *YSymbolTable::get_symbol(const char*name)const
         return(result);
     else
         return(NULL);
-};
+}
 
 //****************************************************************************
 //
@@ -232,7 +232,7 @@ bool YSymbolTable::scoped_symbol(YSymbol**result,const char*name,const YWhere&wh
 
     insert_symbol(*result);
     return(true);
-};
+}
 
 const YSymbol   *YSymbolTable::get_defining_symbol()const
 {
@@ -240,7 +240,7 @@ const YSymbol   *YSymbolTable::get_defining_symbol()const
         return(NULL);
     else
         return(scope->owner);
-};
+}
 
 
 
@@ -273,7 +273,7 @@ void YSymbolTable::Scope::output(FILE*out)const
     }
 
     LEAVE( "YSymbolTable::Scope::output" );
-};
+}
 
 
 void YSymbolTable::Scope::insertData() const
@@ -303,4 +303,4 @@ void YSymbolTable::Scope::insertData() const
     }
 
     LEAVE( "YSymbolTable::Scope::insertData" );
-};
+}

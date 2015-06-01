@@ -233,7 +233,7 @@ StructType::getNewTypeStructure() const
 
     bool isFirst = true;
 
-    for(int i = 0; i < numElems; i++)
+    for(unsigned int i = 0; i < numElems; i++)
     {
         if (!isFirst)
         {

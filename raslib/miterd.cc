@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: miterd.cc
  *
@@ -38,10 +38,10 @@ rasdaman GmbH.
 
 r_MiterDirect::r_MiterDirect(void *data, const r_Minterval &total, const r_Minterval &iter, unsigned int tlen, unsigned int step)
     :   done(false),
-        dim(total.dimension()),
-        length(step),
         id(NULL),
-        baseAddress(data)
+        baseAddress(data),
+        dim(total.dimension()),
+        length(step)
 {
     int i = 0;
     r_Range s = tlen;

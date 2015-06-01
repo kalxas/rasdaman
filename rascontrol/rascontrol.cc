@@ -77,6 +77,7 @@ int  interactiveWork();
 int  loginOnly();
 int  batchMode();
 int testLogin();
+bool isCommand( const char *command, const char *key);
 
 int main(int argc, char **argv)
 {
@@ -142,6 +143,7 @@ int main(int argc, char **argv)
     case WKMTESTLOGIN :
         answer=testLogin();
         break;
+    default: break;
     }
 
     if(config.beQuiet()==false)
@@ -213,7 +215,7 @@ int interactiveWork()
         TALK( "RasControl::interactiveWork: cmd=" << command );
 
         // send message to rasmgr & receive answer
-        const char *answer = NULL;
+        answer = NULL;
         if ( (isCommand(command,"exit") == 0)
                 || (isCommand(command,"quit") == 0)
                 || (isCommand(command,"bye" ) == 0) )
@@ -284,10 +286,12 @@ int batchMode()
         if(command == NULL ) return CANTCONNECT;
 
         if(strlen(command)==0 )
+        {
             if( fromCommandLine)
                 return CANTCONNECT;
             else
                 continue;
+        }
 
         bool printCommand=false;
 

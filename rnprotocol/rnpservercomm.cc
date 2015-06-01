@@ -635,7 +635,7 @@ void RnpRasDaManComm::executeGetNextElement()
     encoder.addInt32Parameter(RnpRasserver::pmt_returnstatus,status);
     TALK( "adding return status " << status );
     if(buffer != NULL)
-        encoder.addOpaqueParameter(RnpRasserver::pmt_skalarobject, buffer, bufferSize);
+        encoder.addOpaqueParameter(RnpRasserver::pmt_skalarobject, buffer, static_cast<int>(bufferSize));
 
     encoder.endFragment();
 
@@ -711,8 +711,8 @@ void RnpRasDaManComm::executeGetNextTile()
         encoder.addInt32Parameter( RnpRasserver::pmt_currentformat, tempRpcMarray->currentFormat);
         encoder.addInt32Parameter( RnpRasserver::pmt_storageformat, tempRpcMarray->storageFormat);
 
-        encoder.adjustBufferSize(tempRpcMarray->data.confarray_len);
-        encoder.addOpaqueParameter(RnpRasserver::pmt_tiledata,      tempRpcMarray->data.confarray_val, tempRpcMarray->data.confarray_len);
+        encoder.adjustBufferSize(static_cast<int>(tempRpcMarray->data.confarray_len));
+        encoder.addOpaqueParameter(RnpRasserver::pmt_tiledata,      tempRpcMarray->data.confarray_val, static_cast<int>(tempRpcMarray->data.confarray_len));
 
         // Do not free this! "tempRpcMarray->data.confarray_val";
         free(tempRpcMarray->domain);
@@ -846,9 +846,9 @@ void RnpRasDaManComm::executeInsertTile()
     decoder.getNextParameter();
     int persistent   = decoder.getDataAsInteger();
     decoder.getNextParameter();
-    rpcMarray->domain = (char*)decoder.getDataAsString();
+    rpcMarray->domain = const_cast<char*>(decoder.getDataAsString());
     decoder.getNextParameter();
-    rpcMarray->cellTypeLength = decoder.getDataAsInteger();
+    rpcMarray->cellTypeLength = static_cast<u_long>(decoder.getDataAsInteger());
     decoder.getNextParameter();
     rpcMarray->currentFormat  = decoder.getDataAsInteger();
     decoder.getNextParameter();
@@ -858,9 +858,9 @@ void RnpRasDaManComm::executeInsertTile()
     const void* buffer = decoder.getData();
     int         length = decoder.getDataLength();
 
-    rpcMarray->data.confarray_val = (char*)mymalloc(length);
-    memcpy(rpcMarray->data.confarray_val, buffer, length);
-    rpcMarray->data.confarray_len = length;
+    rpcMarray->data.confarray_val = (char*)mymalloc(static_cast<size_t>(length));
+    memcpy(rpcMarray->data.confarray_val, buffer, static_cast<size_t>(length));
+    rpcMarray->data.confarray_len = static_cast<u_int>(length);
 
     int status = rasserver.compat_InsertTile(persistent, rpcMarray);
 
@@ -963,9 +963,9 @@ void RnpRasDaManComm::executeInsertMDD()
     RPCMarray *rpcMarray = new RPCMarray;
 
     decoder.getNextParameter();
-    rpcMarray->domain = (char*)decoder.getDataAsString();
+    rpcMarray->domain = const_cast<char*>(decoder.getDataAsString());
     decoder.getNextParameter();
-    rpcMarray->cellTypeLength = decoder.getDataAsInteger();
+    rpcMarray->cellTypeLength = static_cast<u_long>(decoder.getDataAsInteger());
     decoder.getNextParameter();
     rpcMarray->currentFormat  = decoder.getDataAsInteger();
     decoder.getNextParameter();
@@ -975,9 +975,9 @@ void RnpRasDaManComm::executeInsertMDD()
     const void* buffer = decoder.getData();
     int         length = decoder.getDataLength();
 
-    rpcMarray->data.confarray_val = (char*)mymalloc(length);
-    memcpy(rpcMarray->data.confarray_val, buffer, length);
-    rpcMarray->data.confarray_len = length;
+    rpcMarray->data.confarray_val = (char*)mymalloc(static_cast<size_t>(length));
+    memcpy(rpcMarray->data.confarray_val, buffer,static_cast<size_t>(length));
+    rpcMarray->data.confarray_len = static_cast<u_int>(length);
 
     int status = rasserver.compat_InsertMDD(collName, rpcMarray, typeName, oid);
 
@@ -1140,7 +1140,7 @@ void RnpRasDaManComm::executeGetCollectionOIds()
     encoder.addStringParameter(RnpRasserver::pmt_collname, collName);
 
     if(oidTable)
-        for(int i=0; i<oidTableSize; i++)
+        for(unsigned int i=0; i<oidTableSize; i++)
         {
             encoder.adjustBufferSize(strlen(oidTable[i].oid));
             encoder.addStringParameter(RnpRasserver::pmt_oidstring, oidTable[i].oid);
@@ -1288,12 +1288,12 @@ void RnpRasDaManComm::executeGetTileDomains()
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
 
-    for(int i=0; i < result.size(); i++)
+    for(unsigned int i=0; i < result.size(); i++)
     {
         const char *domain = result[i].get_string_representation();
         encoder.addStringParameter(RnpRasserver::pmt_domain, domain);
 
-        free((void*)domain);
+        free((void*)const_cast<char*>(domain));
     }
 
     encoder.endFragment();

@@ -64,7 +64,7 @@ void startRnpServer()
     signal (SIGTERM, rnpSignalHandler);
 
     RMInit::logOut << "Initializing control connections..." << flush;
-    rasmgrComm.init(configuration.getTimeout(), configuration.getServerName(), configuration.getRasmgrHost(), configuration.getRasmgrPort());
+    rasmgrComm.init(static_cast<unsigned int>(configuration.getTimeout()), configuration.getServerName(), configuration.getRasmgrHost(), configuration.getRasmgrPort());
 
     accessControl.setServerName(configuration.getServerName());
 
@@ -122,7 +122,7 @@ void stopRnpServer()
 }
 
 
-void rnpSignalHandler(int sig)
+void rnpSignalHandler(__attribute__ ((unused)) int sig)
 {
     static int in_progress=0;   // sema for signal-in-signal
 

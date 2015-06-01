@@ -50,7 +50,7 @@ static const char rcsid[] = "@(#)raslib, RasdlError: $Id: rasdl_error.cc,v 1.1 2
 RasdlError::RasdlError( unsigned int e )
 {
     TALK( "Exception: " << e );
-    error_code = e;
+    error_code = static_cast<int>(e);
 }
 
 /// default destructor

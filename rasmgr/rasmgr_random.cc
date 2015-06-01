@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_master.hh
  *
@@ -71,6 +71,7 @@ RandomGenerator::init(unsigned int newSeed)
     case 2:
         seed = (newSeed-1)%1000;
         break;
+    default: break;
     }
 }
 
@@ -88,6 +89,7 @@ RandomGenerator::operator()()
         rasp= randomTable[seed];
         seed=(seed+1)%1000;
         break;
+    default: break;
     }
     return rasp;
 }

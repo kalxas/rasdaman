@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: bmp.cc
  *
@@ -189,7 +189,8 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
     bitmap_info_header_t ihead;
     rgb_quad_t *palette = NULL;
     int i=0, j=0;
-    int paletteSize=0, pixelSize=0;
+    r_ULong paletteSize=0;
+    int pixelSize=0;
     int destPitch=0, pixelAdd=0, lineAdd=0;
     int width=0, height=0;
     r_ULong offset=0;
@@ -298,7 +299,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
     memfs_write(handle, bmpHeaders, BMPHEADERSIZE);
     if (paletteSize != 0)
     {
-        memfs_write(handle, palette, paletteSize * sizeof(rgb_quad_t));
+        memfs_write(handle, palette, paletteSize * static_cast<tsize_t>(sizeof(rgb_quad_t)));
         delete [] palette;
         palette = NULL;
     }
@@ -353,6 +354,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
                     *destPtr++ = srcPtr[0];
                 }
                 break;
+            default: break;
             }
             // Align to 32bit-boundary
             for (i = (4 - (r_Ptr)destPtr) & 3; i>0; i--) *destPtr++ = 0;
@@ -443,7 +445,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
 
     fileSize = memfs_size(handle);
     RMDBGONCE( 3, RMDebug::module_conversion, "r_Conv_BMP", "convertTo(): size: " << fileSize );
-    offset = BMPHEADERSIZE + paletteSize * sizeof(rgb_quad_t);
+    offset = BMPHEADERSIZE + paletteSize * static_cast<tsize_t>(sizeof(rgb_quad_t));
     dest = bmpHeaders;
     ihead.sizeImage = fileSize - offset;
 
@@ -493,7 +495,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
 #define BMP_RLE_LINEFEED \
   destLine -= lineAdd; destPtr = destLine; j++; i = 0;
 
-r_convDesc &r_Conv_BMP::convertFrom(const char *options) throw(r_Error)
+r_convDesc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options) throw(r_Error)
 {
     bitmap_file_header_t fhead;
     bitmap_info_header_t ihead;
@@ -548,7 +550,7 @@ r_convDesc &r_Conv_BMP::convertFrom(const char *options) throw(r_Error)
 
     palette = (const rgb_quad_t*)(desc.src + BMPFILEHEADERSIZE + ihead.size);
     paletteIsGrey = 0;
-    paletteSize = ihead.clrUsed;
+    paletteSize = static_cast<int>(ihead.clrUsed);
     if ((paletteSize == 0) && (ihead.bitCount != 24)) paletteSize = (1 << ihead.bitCount);
 
     switch (ihead.bitCount)
@@ -642,7 +644,7 @@ r_convDesc &r_Conv_BMP::convertFrom(const char *options) throw(r_Error)
 
     imgLine = (const unsigned char *)(palette + paletteSize);
 
-    if ((dest = (unsigned char*)mystore.storage_alloc(width * height * pixelSize)) == NULL)
+    if ((dest = (unsigned char*)mystore.storage_alloc(static_cast<size_t>(width * height * pixelSize))) == NULL)
     {
         RMInit::logOut << "r_Conv_BMP::convertFrom(): out of memory" << endl;
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -736,6 +738,7 @@ r_convDesc &r_Conv_BMP::convertFrom(const char *options) throw(r_Error)
                         mask >>= 1;
                     }
                     break;
+                default: break;
                 }
             }
             break;
@@ -784,6 +787,7 @@ r_convDesc &r_Conv_BMP::convertFrom(const char *options) throw(r_Error)
                         destPtr[2] = palette[idx].blue;
                     }
                     break;
+                    default: break;
                 }
             }
             break;
@@ -805,6 +809,7 @@ r_convDesc &r_Conv_BMP::convertFrom(const char *options) throw(r_Error)
                         imgPtr++;
                     }
                     break;
+                default: break;
                 }
                 break;
             case 24:
@@ -816,6 +821,7 @@ r_convDesc &r_Conv_BMP::convertFrom(const char *options) throw(r_Error)
                     imgPtr += 3;
                 }
                 break;
+            default: break;
             }
         }
         break;

@@ -246,14 +246,14 @@ struct HTTPMsg *CreateHTTPMsg( char *Header, char *Body, size_t BodySize )
 
 rc_t SendHTTPMsg( int SockFD, struct HTTPMsg *Msg )
 {
-    size_t Check;
+    int Check;
 
     if( ( Msg != NULL ) && ( Msg->Head != NULL ) )
     {
         Check = WriteN( SockFD, Msg->Head, strlen(Msg->Head) );
         if( Check < 0 )
             ErrorMsg( E_SYS, ERROR, "ERROR: WriteN(): write() failed." );
-        else if( Check != strlen(Msg->Head) )
+        else if( Check != static_cast<int>(strlen(Msg->Head)) )
             LogMsg( LG_SERVER, WARN,
                     "WARN:  SendHTTPMsg(): %d of %d Bytes of Header written!",
                     Check, strlen(Msg->Head) );

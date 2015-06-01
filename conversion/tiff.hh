@@ -97,6 +97,10 @@ rasdaman GmbH.
   For more information refer to the TIFFlib manual pages.
  */
 
+void TIFFError(const char*, const char*, va_list);
+
+void TIFFWarning(const char*, const char*, va_list);
+
 class r_Conv_TIFF : public r_Convert_Memory
 {
 public:

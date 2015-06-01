@@ -173,7 +173,7 @@ throw( r_Eindex_violation )
     r_Minterval newDomain( domain.dimension()-1 );
 
     // and initialize it
-    for( int i=0; i<newDomain.dimension(); i++ )
+    for( unsigned int i=0; i<newDomain.dimension(); i++ )
         newDomain[i] = domain[i+1];
 
     // build a new Marray

@@ -74,9 +74,9 @@ r_Structure::r_Structure( const char* newBuffer, const r_Structure_Type* newType
         for( int i=0; iter != newType->defines_attribute_end(); iter++, i++ )
         {
             if( (*iter).type_of().type_id() == r_Type::STRUCTURETYPE )
-                elements[i] = new r_Structure( valueBuffer + (*iter).offset(), (r_Structure_Type*)&((*iter).type_of()) );
+                elements[i] = new r_Structure( valueBuffer + (*iter).offset(), (r_Structure_Type*)const_cast<r_Base_Type*>(&((*iter).type_of())) );
             else
-                elements[i] = new r_Primitive( valueBuffer + (*iter).offset(), (r_Primitive_Type*)&((*iter).type_of()) );
+                elements[i] = new r_Primitive( valueBuffer + (*iter).offset(), (r_Primitive_Type*)const_cast<r_Base_Type*>(&((*iter).type_of())) );
         }
     }
 }

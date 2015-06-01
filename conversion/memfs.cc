@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: memfs.c
  *
@@ -86,10 +86,10 @@ int memfs_ensure(thandle_t handle, toff_t off)
             fflush(stdout);
         }
 #endif
-        if ((mam2 = (char **)mymalloc(mamSize2 * sizeof(char*))) == NULL)
+        if ((mam2 = (char **)mymalloc(static_cast<size_t>(mamSize2) * sizeof(char*))) == NULL)
             return -1;
         /* Copy existing mam entries */
-        memcpy ((void*)mam2, (void*) memFS->mam, memFS->mamSize * sizeof(char*));
+        memcpy ((void*)mam2, (void*) memFS->mam, static_cast<size_t>(memFS->mamSize) * sizeof(char*));
         /* Init new mam entries */
         for (i=memFS->mamSize; i < mamSize2; i++)
         {
@@ -210,7 +210,7 @@ tsize_t memfs_read(thandle_t handle, tdata_t mem, tsize_t size)
         /* Space left in this buffer */
         x = (1 << MEMFS_LD_BLOCKSIZE) - offset;
         if (x > todo) x = todo;
-        memcpy((void*)mem, (void*)(((memFS->mam)[block]) + offset), x);
+        memcpy((void*)mem, (void*)(((memFS->mam)[block]) + offset), static_cast<size_t>(x));
         /* tdata_t is some kind of void *, so we have to do this cast */
         mem = (tdata_t)(((char*)mem) + x);
         memFS->pos += x;
@@ -228,7 +228,7 @@ tsize_t memfs_write(thandle_t handle, tdata_t mem, tsize_t size)
     int block=0, offset=0, x=0;
 
     /* Make sure there's enough room for this write */
-    if (memfs_ensure(handle, memFS->pos + size) < 0) return 0;
+    if (memfs_ensure(handle, static_cast<toff_t>(memFS->pos) + static_cast<toff_t>(size)) < 0) return 0;
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
     {
@@ -243,7 +243,7 @@ tsize_t memfs_write(thandle_t handle, tdata_t mem, tsize_t size)
         offset = memFS->pos - (block << MEMFS_LD_BLOCKSIZE);
         x = (1 << MEMFS_LD_BLOCKSIZE) - offset;
         if (x > size) x = size;
-        memcpy((void*)(((memFS->mam)[block]) + offset), (void*)mem, x);
+        memcpy((void*)(((memFS->mam)[block]) + offset), (void*)mem, static_cast<size_t>(x));
         mem = (tdata_t)(((char *)mem) + x);
         memFS->pos += x;
         transfered += x;
@@ -277,7 +277,7 @@ toff_t memfs_seek(thandle_t handle, toff_t offset, int mode)
     }
     if (memFS->pos < 0) memFS->pos = 0;
     /* Don't limit to end of file (this actually caused problems!) */
-    memfs_ensure(handle, memFS->pos);
+    memfs_ensure(handle, static_cast<toff_t>(memFS->pos));
     if (memFS->pos > memFS->high) memFS->high = memFS->pos;
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
@@ -286,11 +286,11 @@ toff_t memfs_seek(thandle_t handle, toff_t offset, int mode)
         fflush(stdout);
     }
 #endif
-    return memFS->pos;
+    return static_cast<toff_t>(memFS->pos);
 }
 
 
-int memfs_close(thandle_t handle)
+int memfs_close(__attribute__ ((unused)) thandle_t handle)
 {
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
@@ -312,11 +312,11 @@ toff_t memfs_size(thandle_t handle)
         fflush(stdout);
     }
 #endif
-    return (((memFSContext *)handle)->high);
+    return static_cast<toff_t>((((memFSContext *)handle)->high));
 }
 
 
-int memfs_map(thandle_t handle, tdata_t *memp, toff_t *top)
+int memfs_map(__attribute__ ((unused)) thandle_t handle, tdata_t *memp, toff_t *top)
 {
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
@@ -329,7 +329,7 @@ int memfs_map(thandle_t handle, tdata_t *memp, toff_t *top)
 }
 
 
-void memfs_unmap(thandle_t handle, tdata_t mem, toff_t to)
+void memfs_unmap(__attribute__ ((unused)) thandle_t handle, tdata_t mem, toff_t to)
 {
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
@@ -379,7 +379,7 @@ tsize_t memfs_chunk_read(thandle_t handle, tdata_t mem, tsize_t size)
     if (todo > size) todo = size;
     if (todo > 0)
     {
-        memcpy((void*)mem, (void*)(memFS->chunk + memFS->pos), todo);
+        memcpy((void*)mem, (void*)(memFS->chunk + memFS->pos), static_cast<size_t>(todo));
         memFS->pos += todo;
     }
     return todo;
@@ -414,11 +414,11 @@ toff_t memfs_chunk_seek(thandle_t handle, toff_t offset, int mode)
         fflush(stdout);
     }
 #endif
-    return memFS->pos;
+    return static_cast<toff_t>(memFS->pos);
 }
 
 
-int memfs_chunk_close(thandle_t handle)
+int memfs_chunk_close(__attribute__ ((unused)) thandle_t handle)
 {
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
@@ -440,7 +440,7 @@ toff_t memfs_chunk_size(thandle_t handle)
         fflush(stdout);
     }
 #endif
-    return (((memFSContext *)handle)->high);
+    return static_cast<toff_t>((((memFSContext *)handle)->high));
 }
 
 
@@ -462,7 +462,7 @@ int memfs_chunk_map(thandle_t handle, tdata_t *memp, toff_t *top)
     return 1; /* Success? */
 }
 
-void memfs_chunk_unmap(thandle_t handle, tdata_t mem, toff_t to)
+void memfs_chunk_unmap(__attribute__ ((unused)) thandle_t handle, tdata_t mem, toff_t to)
 {
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)

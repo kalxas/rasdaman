@@ -297,7 +297,7 @@ public:
     Element   *elements;
 };
 
-
+void print_access_mode(FILE*stream,Parse_composite::Access_mode access);
 
 //@ManMemo: Module: {\bf rasdl}
 
@@ -336,6 +336,7 @@ public:
   */
 class Parse_union : public Parse_composite
 {
+    protected:
     ///
     Parse_union();
     ///

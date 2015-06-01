@@ -80,10 +80,10 @@ r_GMarray::r_GMarray() throw(r_Error)
 
 r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storage_Layout* stl, bool initialize) throw (r_Error)
     : r_Object(1),
+      domain(initDomain),
       data(0),
       tiled_data(0),
       data_size(0),
-      domain(initDomain),
       type_length(initLength),
       current_format(r_Array),
       storage_layout(stl)
@@ -135,10 +135,10 @@ r_GMarray::r_GMarray(const r_Minterval& initDomain, r_Bytes initLength, r_Storag
 
 r_GMarray::r_GMarray(const r_GMarray &obj) throw(r_Error)
     : r_Object(obj, 1),
+      domain(obj.spatial_domain()),
       data(0),
       tiled_data(0),
       data_size(0),
-      domain(obj.spatial_domain()),
       type_length(obj.type_length),
       current_format(obj.current_format),
       storage_layout(0)
@@ -164,10 +164,10 @@ r_GMarray::r_GMarray(const r_GMarray &obj) throw(r_Error)
 
 r_GMarray::r_GMarray(r_GMarray &obj) throw(r_Error)
     : r_Object(obj, 1),
+      domain(obj.spatial_domain()),
       data(obj.data),
       tiled_data(obj.tiled_data),
       data_size(obj.data_size),
-      domain(obj.spatial_domain()),
       type_length(obj.type_length),
       current_format(obj.current_format),
       storage_layout(0)
@@ -262,7 +262,7 @@ r_GMarray::set_storage_layout(r_Storage_Layout *stl) throw(r_Error)
 
 
 
-const r_GMarray&
+r_GMarray&
 r_GMarray::operator=(const r_GMarray& marray)
 {
     if (this != &marray)
@@ -335,8 +335,8 @@ r_GMarray::insert_obj_into_db(const char* collName)
 void
 r_GMarray::print_status(std::ostream& s) const
 {
-    const r_Type*       typeSchema     = (r_Base_Type*)((r_GMarray*)this)->get_type_schema();
-    const r_Base_Type*  baseTypeSchema = (r_Base_Type*)((r_GMarray*)this)->get_base_type_schema();
+    const r_Type*       typeSchema     = (r_Base_Type*)const_cast<r_Type*>((const_cast<r_GMarray*>(this))->get_type_schema());
+    const r_Base_Type*  baseTypeSchema = const_cast<r_Base_Type*>((const_cast<r_GMarray*>(this))->get_base_type_schema());
 
     s << "GMarray" << endl;
     s << "  Oid...................: " << get_oid() << endl;
@@ -366,8 +366,8 @@ r_GMarray::print_status(std::ostream& s, int hexoutput) const
 {
     print_status(s);
 
-    const r_Type*       typeSchema     = (r_Base_Type*)((r_GMarray*)this)->get_type_schema();
-    const r_Base_Type*  baseTypeSchema = (r_Base_Type*)((r_GMarray*)this)->get_base_type_schema();
+    const r_Type*       typeSchema     = (r_Base_Type*)const_cast<r_Type*>((const_cast<r_GMarray*>(this))->get_type_schema());
+    const r_Base_Type*  baseTypeSchema = const_cast<r_Base_Type*>((const_cast<r_GMarray*>(this))->get_base_type_schema());
 
     if (domain.dimension())
     {
@@ -468,7 +468,7 @@ r_GMarray* r_GMarray::intersect(r_Minterval where) const
         const char* source_off = get_array();
 
         memcpy((void*) (dest_off + where.cell_offset(p)*tlength),
-               (void*) (source_off + obj_domain.cell_offset(p)*tlength),
+               (void*) (const_cast<char*>(source_off) + obj_domain.cell_offset(p)*tlength),
                (size_t) (block_length * tlength));
     }
 

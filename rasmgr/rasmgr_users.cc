@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_users.cc
  *
@@ -60,10 +60,10 @@ User::User()
     databRight=authorization.getGlobalInitDatabRights();;
 }
 
-void User::init(long userID, const char *name)
+void User::init(long newUserID, const char *name)
 {
     strcpy(userName,name);
-    this->userID=userID;
+    this->userID=newUserID;
     changePTPassword(name);
     valid=true;
 }
@@ -126,7 +126,7 @@ int  User::getDefaultDBRights()
 int  User::getEffectiveDatabaseRights(const char *databName)
 {
     list<UserDBRight>::iterator iter=dbRList.begin();
-    for(int i=0; i<dbRList.size(); i++)
+    for(unsigned int i=0; i<dbRList.size(); i++)
     {
         if(strcmp(iter->ptrDatabase->getName(),databName)==0)
         {
@@ -140,7 +140,7 @@ int  User::getEffectiveDatabaseRights(const char *databName)
 bool User::isTrusteeOn(const char *databName)
 {
     list<UserDBRight>::iterator iter=dbRList.begin();
-    for(int i=0; i<dbRList.size(); i++)
+    for(unsigned int i=0; i<dbRList.size(); i++)
     {
         if(strcmp(iter->ptrDatabase->getName(),databName)==0)
         {
@@ -167,7 +167,7 @@ bool User::setDatabaseRights(const char *databName,int rights)
 bool User::removeDatabaseRights(const char *databName)
 {
     list<UserDBRight>::iterator iter=dbRList.begin();
-    for(int i=0; i<dbRList.size(); i++)
+    for(unsigned int i=0; i<dbRList.size(); i++)
     {
         //if(iter->ptrDatabase==NULL) { RMInit::logOut<<"Huo!!"<<std::endl;break;}
 
@@ -190,7 +190,7 @@ void User::loadToRec(AuthUserRec &rec)
 
     rec.adminRight=adminRight;
     rec.databRight=databRight;
-    rec.countRights=dbRList.size();
+    rec.countRights=static_cast<long>(dbRList.size());
 }
 void User::loadFromRec(AuthUserRec &rec)
 {
@@ -205,12 +205,12 @@ void User::loadFromRec(AuthUserRec &rec)
 
 long User::countRights()
 {
-    return dbRList.size();
+    return static_cast<long>(dbRList.size());
 }
 
 bool User::loadRightToRec(int x,AuthDbRRec &rec)
 {
-    if(x>=dbRList.size()) return false;
+    if(x>=static_cast<int>(dbRList.size())) return false;
 
     list<UserDBRight>::iterator iter=dbRList.begin();
     for(int i=0; i<x; i++) iter++;
@@ -273,7 +273,7 @@ bool UserManager::insertNewUser(const char *userName)
 bool UserManager::removeUser(const char *userName)
 {
     list<User>::iterator iter=userList.begin();
-    for(int i=0; i<userList.size(); i++)
+    for(unsigned int i=0; i<userList.size(); i++)
     {
         if(strcmp(iter->getName(),userName)==0)
         {
@@ -302,7 +302,7 @@ User& UserManager::operator[](const char* userName)
 {
     list<User>::iterator iter=userList.begin();
     //RMInit::logOut<<"Size="<<userList.size()<<std::endl;
-    for(int i=0; i<userList.size(); i++)
+    for(unsigned int i=0; i<userList.size(); i++)
     {
         //RMInit::logOut<<i<<" "<<iter->getName()<<" "<<iter->isValid()<<std::endl;
         if(strcmp(iter->getName(),userName)==0) return *iter;
@@ -314,7 +314,7 @@ User& UserManager::operator[](const char* userName)
 void UserManager::removeDatabaseRights(const char *databName)
 {
     list<User>::iterator iter=userList.begin();
-    for(int i=0; i<userList.size(); i++)
+    for(unsigned int i=0; i<userList.size(); i++)
     {
         iter->removeDatabaseRights(databName);
         iter++;
@@ -324,7 +324,7 @@ void UserManager::removeDatabaseRights(const char *databName)
 bool UserManager::testUniqueness(const char* userName)
 {
     list<User>::iterator iter=userList.begin();
-    for(int i=0; i<userList.size(); i++)
+    for(unsigned int i=0; i<userList.size(); i++)
     {
         if(strcmp(iter->getName(),userName)==0) return false;
         iter++;
@@ -348,15 +348,15 @@ long  UserManager::getLastUserID()
 {
     return lastUserID;
 }
-void  UserManager::setLastUserID(long lastUserID)
+void  UserManager::setLastUserID(long newLastUserID)
 {
-    this->lastUserID=lastUserID;
+    this->lastUserID=newLastUserID;
 }
 
 User* UserManager::acceptEntry(const char *name,const char *encrPass)
 {
     list<User>::iterator iter=userList.begin();
-    for(int i=0; i<userList.size(); i++)
+    for(unsigned int i=0; i<userList.size(); i++)
     {
         if(iter->isThisMe(name,encrPass)) return &(*iter);
         iter++;
@@ -443,7 +443,7 @@ const char* Authorization::getCapability(const char *serverName,const char *data
     long userID=curUser->getUserID();
 
     char capaS[300];
-    sprintf(capaS,"$I%d$E%s$B%s$T%s$N%s",userID,rString,databaseName,getFormatedTime(180),serverName);
+    sprintf(capaS,"$I%ld$E%s$B%s$T%s$N%s",userID,rString,databaseName,getFormatedTime(180),serverName);
 
     static char capaQ[300];
     sprintf(capaQ,"$Canci%s",capaS);
@@ -493,7 +493,7 @@ bool Authorization::saveAuthFile()
     header.lastUserID  =userManager.getLastUserID();
     strcpy(header.hostName,config.getHostName());
     header.countUsers=userManager.countUsers();
-    for(int i=0; i< 50; i++) header.messageDigest[i]=0;
+    for(int i=0; i< 35; i++) header.messageDigest[i]=0;
     header.globalInitAdmR=authorization.getGlobalInitAdminRights();
     header.globalInitDbsR=authorization.getGlobalInitDatabRights();
 
@@ -690,7 +690,7 @@ int Authorization::verifyAuthFile(std::ifstream &ifs)
 
         decrypt(buff,r);
 
-        EVP_DigestUpdate(&mdctx,buff,r);
+        EVP_DigestUpdate(&mdctx,buff,static_cast<size_t>(r));
         //RMInit::logOut<<"verify "<<r<<std::endl;
     }
 
@@ -698,7 +698,7 @@ int Authorization::verifyAuthFile(std::ifstream &ifs)
 
     ifs.seekg(0,std::ios::beg);
 
-    for(int i=0; i<md_len; i++)
+    for(unsigned int i=0; i<md_len; i++)
     {
         if(md_value[i]!=header.messageDigest[i])
             return ERRAUTHFCORR;
@@ -709,7 +709,7 @@ int Authorization::verifyAuthFile(std::ifstream &ifs)
 void Authorization::initcrypt(int seed)
 {
     //srand(seed);
-    randomGenerator.init(seed);
+    randomGenerator.init(static_cast<unsigned int>(seed));
 }
 void Authorization::crypt(void *vbuffer,int length)
 {

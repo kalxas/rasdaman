@@ -222,11 +222,11 @@ protected:
       Usually it is invoked in the constructor of the subclass.
     */
 
-    /// attribute storing the error description text
-    char* errorText;
-
     /// attribute storing the error kind
     kind  theKind;
+
+    /// attribute storing the error description text
+    char* errorText;
 
     /// attribute storing the number of the error
     unsigned int errorNo;

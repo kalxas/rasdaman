@@ -94,7 +94,7 @@ public:
     virtual void r_deactivate();
 
     /// assignment: cleanup + copy
-    const r_GMarray& operator= (const r_GMarray&);
+    r_GMarray& operator= (const r_GMarray&);
 
     /// subscript operator for read access of a cell
     const char* operator[](const r_Point&) const

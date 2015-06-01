@@ -53,6 +53,7 @@ typedef struct memFSContext
     char *chunk;
 } memFSContext;
 
+int memfs_ensure(thandle_t handle, toff_t off);
 
 #ifdef __cplusplus
 extern "C" {

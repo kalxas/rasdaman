@@ -42,7 +42,7 @@ DBObjectIdIterator<T>::DBObjectIdIterator(const std::set<DBRef<T>, std::less<DBR
         counter(0)
 {
     RMDBGONCE(7, RMDebug::module_adminif, "DBObjectIdIterator", "DBObjectIdIterator(OIdSet)");
-    mySet = (std::set<DBRef<T>, std::less<DBRef<T> > >*)&oidlist;
+    mySet = const_cast<std::set<DBRef<T>, std::less<DBRef<T> > >*>(&oidlist);
     myIter = mySet->begin();
 }
 

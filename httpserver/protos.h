@@ -95,19 +95,23 @@ struct tm *Get_GMToffset( int * );
 
 /*  http.c   */
 void   HandleRequest( struct ClientBase *Client );
+void releaseClientBase(struct ClientBase *cb);
 
 /*  http-doit.c   */
 rc_t   Accept( int, struct ClientBase * );
 void   GetRequest( struct ClientBase *Client );
 void   InterpreteRequest( struct ClientBase *Client, struct ToDoArgs *ToDo );
+char *ComposeErrorResponse( int Errno, int ClientType );
 int    SendRequest( int SockFD, struct HTTPMsg *Request, struct FDsets *RW_Sets );
 int    ReadResponseHead( int SockFD, struct RespInfo *Response, struct FDsets *RW_Sets );
 int    ReadResponseBody( int SockFD, struct RespInfo *Response, struct FDsets *RW_Sets );
 void   SendResponse( struct ClientBase *Client );
 void   CreateRasResponse( struct HTTPMode *Mode, struct ClientBase *Client );
 void   DoMessageBody( struct ClientBase *Client );
+rc_t GetHTTPRequest( char *Source, int SourceLen, struct HTTPRequest *RequestInfo);
 void   InterpretePOSTRequest ( struct ClientBase *Client );
 void   WriteAccessLog( struct ClientBase *Client );
+
 
 
 /*  http-readmsg.c    */

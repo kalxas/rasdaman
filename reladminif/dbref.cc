@@ -75,8 +75,8 @@ DBRef<T>::DBRef(void)
 template <class T>
 DBRef<T>::DBRef(const OId &id)
     :   object(0),
-        pointerValid(false),
-        objId(id)
+        objId(id),
+        pointerValid(false)
 {
     RMDBGONCE(11, RMDebug::module_adminif, "DBRef", "DBRef(" << id << ")");
 }
@@ -85,8 +85,8 @@ DBRef<T>::DBRef(const OId &id)
 template <class T>
 DBRef<T>::DBRef(long long id)
     :   object(0),
-        pointerValid(false),
-        objId(id)
+        objId(id),
+        pointerValid(false)
 {
     RMDBGONCE(11, RMDebug::module_adminif, "DBRef", "DBRef(long long " << id << ")");
 }
@@ -95,8 +95,8 @@ DBRef<T>::DBRef(long long id)
 template <class T>
 DBRef<T>::DBRef(const DBRef<T> &src)
     :   object(0),
-        pointerValid(src.pointerValid),
-        objId(src.objId)
+        objId(src.objId),
+        pointerValid(src.pointerValid)
 {
     RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "DBRef(const DBRef) src.OId=" << src.objId);
     if (pointerCaching)
@@ -123,8 +123,8 @@ DBRef<T>::DBRef(const DBRef<T> &src)
 template <class T>
 DBRef<T>::DBRef(T *newPtr)
     :   object(newPtr),
-        pointerValid(true),
-        objId(DBOBJID_NONE)
+        objId(DBOBJID_NONE),
+        pointerValid(true)
 {
     RMDBGENTER(11, RMDebug::module_adminif, "DBRef", "DBRef(const T* " << newPtr << ")");
 
@@ -864,7 +864,7 @@ bool DBRef<T>::is_null(void) const
                 t = (T*)ObjectBroker::getObjectByOId(objId);
                 RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "found object");
                 t->incrementReferenceCount();
-                ((DBRef<T>*)this)->object = t;
+                (const_cast<DBRef<T>*>(this))->object = t;
                 RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "object is at: " << object << " found object was at: " << t);
             }
             catch (r_Error& err)
@@ -887,7 +887,7 @@ bool DBRef<T>::is_null(void) const
                     t = (T*)ObjectBroker::getObjectByOId(objId);
                     RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "found object");
                     t->incrementReferenceCount();
-                    ((DBRef<T>*)this)->object = t;
+                    (const_cast<DBRef<T>*>(this))->object = t;
                     RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "object is at: " << object << " found object was at: " << t);
                 }
                 catch (r_Error& err)

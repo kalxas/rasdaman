@@ -38,12 +38,12 @@ static const char rcsid[] = "@(#)raslib, r_Structure_Type: $Header: /home/rasdev
 
 r_Structure_Type::r_Structure_Type()
     : r_Base_Type(),
-      myAttributes(NULL),
-      numAttrs(0)
+      numAttrs(0),
+      myAttributes(NULL)
 {
 }
 
-r_Structure_Type::r_Structure_Type( char* newTypeName,
+r_Structure_Type::r_Structure_Type( const char* newTypeName,
                                     unsigned int newNumAttrs,
                                     r_Attribute* newAttrs, int offset )
     : r_Base_Type(newTypeName, 0),
@@ -54,13 +54,13 @@ r_Structure_Type::r_Structure_Type( char* newTypeName,
     {
         myAttributes[i] = newAttrs[i];
         myAttributes[i].set_offset( typeSize );
-        myAttributes[i].set_global_offset( typeSize + offset );
+        myAttributes[i].set_global_offset( typeSize + static_cast<r_Bytes>(offset) );
         typeSize += myAttributes[i].type_of().size();
     }
 }
 
 r_Structure_Type::r_Structure_Type( const r_Structure_Type& oldObj )
-    : r_Base_Type(oldObj), myAttributes(NULL), numAttrs(oldObj.numAttrs)
+    : r_Base_Type(oldObj), numAttrs(oldObj.numAttrs), myAttributes(NULL)
 {
 
     if( oldObj.myAttributes )
@@ -158,16 +158,16 @@ r_Structure_Type::defines_attribute_end() const
 }
 
 r_Attribute
-r_Structure_Type::resolve_attribute(const char* name) const throw( r_Error )
+r_Structure_Type::resolve_attribute(const char* newName) const throw( r_Error )
 {
     r_Structure_Type::attribute_iterator iter(defines_attribute_begin());
 
-    while( iter != defines_attribute_end() && strcmp((*iter).name(), name) != 0 )
+    while( iter != defines_attribute_end() && strcmp((*iter).name(), newName) != 0 )
         iter++;
 
     if( iter == defines_attribute_end() )
     {
-        RMInit::logOut << "r_Structure_Type::resolve_attribute(" << name << ") not a valid atribute name" << endl;
+        RMInit::logOut << "r_Structure_Type::resolve_attribute(" << newName << ") not a valid atribute name" << endl;
         r_Error err(r_Error::r_Error_NameInvalid);
         throw err;
     }

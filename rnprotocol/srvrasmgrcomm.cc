@@ -175,7 +175,7 @@ void SrvRasmgrComm::informRasMGR(int what)
 
     // creating the HTTP message
     char message[200];
-    sprintf(message,"%s%d\r\n\r\n%s %d %ld ","POST rasservernewstatus HTTP/1.1\r\nUserAgent: RasServer/1.0\r\nContent-length: ",strlen(serverName)+3,serverName,what,0);
+    sprintf(message,"%s%lu\r\n\r\n%s %d %d ","POST rasservernewstatus HTTP/1.1\r\nUserAgent: RasServer/1.0\r\nContent-length: ",strlen(serverName)+3,serverName,what,0);
 
     // writing message;
     if(writeWholeMessage(sock,message,strlen(message)+1)<0)
@@ -197,7 +197,7 @@ int SrvRasmgrComm::writeWholeMessage(int socket,char *destBuffer,int buffSize)
     int writeNow;
     while(1)
     {
-        writeNow = write(socket,destBuffer+totalLength,buffSize-totalLength);
+        writeNow = write(socket,destBuffer+totalLength,static_cast<size_t>(buffSize-totalLength));
         if(writeNow == -1)
         {
             if(errno == EINTR)

@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: tiling.cc
  *
@@ -64,7 +64,7 @@ r_Tiling::~r_Tiling()
 const char*
 r_No_Tiling::description = "no parameters";
 
-r_No_Tiling::r_No_Tiling(const char* encoded) throw(r_Error)
+r_No_Tiling::r_No_Tiling(__attribute__ ((unused)) const char* encoded) throw(r_Error)
 {
     //we don't use encoded string, it is present in order to have
     //uniform interface "char* constructor" for every tiling strategy
@@ -85,7 +85,7 @@ r_No_Tiling::print_status(std::ostream& os) const
 }
 
 bool
-r_No_Tiling::is_compatible(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const
+r_No_Tiling::is_compatible(__attribute__ ((unused)) const r_Minterval& obj_domain, __attribute__ ((unused)) r_Bytes cellTypeSize) const
 {
     return true;
 }

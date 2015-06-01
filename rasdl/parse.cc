@@ -146,7 +146,7 @@ Parse_type::Parse_type()
 {
     kind      =Type;
     forward   =false;
-};
+}
 
 Parse_type::~Parse_type()
 {
@@ -172,16 +172,16 @@ Parse_typereference::~Parse_typereference()
 void Parse_typereference::output(FILE*stream)const
 {
     fprintf(stream,"%s",type->name);
-};
+}
 
 const Type*
 Parse_typereference::getType( const char* /*typeName*/ ) const
 {
-    const BaseType* catBaseType = TypeFactory::mapType( (char*)type->name );
+    const BaseType* catBaseType = TypeFactory::mapType( const_cast<char*>(type->name) );
 
     if( !catBaseType )
         // Error: Type reference not found..
-        throw( r_Equery_execution_failed( 902, symbol->where.line, symbol->where.column, symbol->get_name() ) );
+        throw( r_Equery_execution_failed( 902, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
 
     return catBaseType;
 }
@@ -192,7 +192,7 @@ Parse_composite::Parse_composite()
 {
     kind      =Composite;
     elements  =NULL;
-};
+}
 
 Parse_composite::Element::Element()
 {
@@ -202,7 +202,7 @@ Parse_composite::Element::Element()
     access    =Private;
 
     next      =NULL;
-};
+}
 
 Parse_composite::Element::~Element()
 {
@@ -218,13 +218,13 @@ void Parse_composite::Element::output(FILE*stream)const
         fprintf(stream,"// ___readonly___\n");
     else
         fprintf(stream,"\n");
-};
+}
 
 /* struct */
 Parse_struct::Parse_struct()
 {
     kind   =Struct;
-};
+}
 
 Parse_struct::~Parse_struct()
 {
@@ -239,7 +239,7 @@ void Parse_struct::output(FILE*stream)const
         scan->output(stream);
 
     fprintf(stream,"};\n");
-};
+}
 
 
 
@@ -249,21 +249,21 @@ void Parse_struct::insertData() const throw( r_Equery_execution_failed )
     RMDBGENTER(4, RMDebug::module_rasdl, "Parse_struct", "insertData()")
 
     // get catalog type structure
-    StructType* catType = (StructType*)getType();
+    StructType* catType = (StructType*)const_cast<CType*>(getType());
     TALK( "got type " << (char*)catType->getTypeName() );
 
     RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_struct", "inserting type " << catType->getTypeName())
 
-    if( TypeFactory::mapType( (char*)catType->getTypeName() ) )
+    if( TypeFactory::mapType( const_cast<char*>(catType->getTypeName() )) )
         // Error: Struct type name exists already.
-        throw( r_Equery_execution_failed( 905, symbol->where.line, symbol->where.column, symbol->get_name() ) );
+        throw( r_Equery_execution_failed( 905, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
 
     TALK( "adding to the database as cell struct type" );
     TypeFactory::addStructType( catType );
 
     RMDBGEXIT(4, RMDebug::module_rasdl, "Parse_struct", "insertData()")
     LEAVE( "Parse_struct::insertData" );
-};
+}
 
 
 
@@ -280,7 +280,7 @@ Parse_struct::getType( const char* /*typeName*/ ) const
 
     RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_struct", "Struct " << name << " has " << noElements << " elements.")
 
-    structType = new StructType( (char*)name, noElements );
+    structType = new StructType( const_cast<char*>(name), noElements );
 
     for( scan=elements; scan!=NULL; scan=scan->next)
         if( !scan->type )
@@ -288,7 +288,7 @@ Parse_struct::getType( const char* /*typeName*/ ) const
         else
         {
             RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_struct", "Scan->name " << scan->name)
-            structType->addElement( (char*)(scan->name), (BaseType*)(scan->type->getType()) );
+            structType->addElement( const_cast<char*>((scan->name)), (BaseType*)const_cast<CType*>(scan->type->getType()) );
         }
 
     RMDBGEXIT(4, RMDebug::module_rasdl, "Parse_struct", "getType()" )
@@ -302,7 +302,7 @@ Parse_struct::getType( const char* /*typeName*/ ) const
 Parse_union::Parse_union()
 {
     kind   =Union;
-};
+}
 
 Parse_union::~Parse_union()
 {
@@ -317,7 +317,7 @@ void Parse_union::output(FILE*stream)const
         scan->output(stream);
 
     fprintf(stream,"};\n");
-};
+}
 
 /* interface */
 Parse_interface::Parse_interface()
@@ -329,7 +329,7 @@ Parse_interface::Parse_interface()
 
     methods         =NULL;
     relationships   =NULL;
-};
+}
 
 void print_access_mode(FILE*stream,Parse_composite::Access_mode access)
 {
@@ -350,8 +350,9 @@ void print_access_mode(FILE*stream,Parse_composite::Access_mode access)
         fprintf(stream,"protected:\n");
         break;
     };
+    default: break;
     };
-};
+}
 
 void Parse_interface::output(FILE*stream)const
 {
@@ -410,7 +411,7 @@ void Parse_interface::output(FILE*stream)const
     }
 
     fprintf(stream,"};\n");
-};
+}
 
 Parse_interface::Base_class::Base_class()
 {
@@ -418,7 +419,7 @@ Parse_interface::Base_class::Base_class()
     access      =Private;
 
     next         =NULL;
-};
+}
 
 void Parse_interface::Base_class::output(FILE*stream)const
 {
@@ -436,8 +437,9 @@ void Parse_interface::Base_class::output(FILE*stream)const
         case Protected:
             fprintf(stream,"protected %s",base_class->name);
             break;
+        default: break;
         };
-};
+}
 
 Parse_interface::Method::Method()
 {
@@ -445,13 +447,13 @@ Parse_interface::Method::Method()
     access   =Private;
 
     next      =NULL;
-};
+}
 
 void Parse_interface::Method::output(FILE*stream)const
 {
     function->output(stream);
     fprintf(stream,";\n");
-};
+}
 
 /* function */
 Parse_function::Parse_function()
@@ -460,7 +462,7 @@ Parse_function::Parse_function()
 
     parameters   =NULL;
     return_type   =NULL;
-};
+}
 
 void Parse_function::output(FILE*stream)const
 {
@@ -472,7 +474,7 @@ void Parse_function::output(FILE*stream)const
         parameters->output(stream);
     };
     fprintf(stream,")");
-};
+}
 
 Parse_function::Parameter::Parameter()
 {
@@ -481,7 +483,7 @@ Parse_function::Parameter::Parameter()
     name   =NULL;
 
     next   =NULL;
-};
+}
 
 void Parse_function::Parameter::output(FILE*stream)const
 {
@@ -496,40 +498,40 @@ void Parse_function::Parameter::output(FILE*stream)const
         fprintf(stream," ");
 
     fprintf(stream,"%s",name);
-};
+}
 
 /* operation */
 Parse_operation::Parse_operation()
 {
     kind         =Operation;
     scope_class   =NULL;
-};
+}
 
 /* pointer */
 Parse_pointer::Parse_pointer()
 {
     kind      =Pointer;
     type      =NULL;
-};
+}
 
 void Parse_pointer::output(FILE*stream)const
 {
     type->output(stream);
     fprintf(stream,"*");
-};
+}
 
 /* array */
 Parse_array::Parse_array()
 {
     kind   =Array;
     size   =0;
-};
+}
 
 void Parse_array::output(FILE*stream)const
 {
     type->output(stream);
     fprintf(stream,"[%i]",size);
-};
+}
 
 /* alias */
 Parse_alias::Parse_alias()
@@ -538,7 +540,7 @@ Parse_alias::Parse_alias()
 
     type   =NULL;
     name   =NULL;
-};
+}
 
 void Parse_alias::output(FILE*stream)const
 {
@@ -547,7 +549,7 @@ void Parse_alias::output(FILE*stream)const
     type->output(stream);
     fprintf(stream," %s",name);
     fprintf(stream,";\n\n");
-};
+}
 
 void Parse_alias::insertData() const throw( r_Equery_execution_failed )
 {
@@ -575,45 +577,45 @@ void Parse_alias::insertData() const throw( r_Equery_execution_failed )
     switch( catType->getType() )
     {
     case MDDTYPE:
-        if( TypeFactory::mapMDDType( (char*)catType->getTypeName() ) )
+        if( TypeFactory::mapMDDType( const_cast<char*>(catType->getTypeName()) ) )
         {
             delete catType;
             // Error: MDD type name exists already.
-            throw( r_Equery_execution_failed( 906, symbol->where.line, symbol->where.column, symbol->get_name() ) );
+            throw( r_Equery_execution_failed( 906, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
         }
         TALK( "adding to the database as MDD type" );
-        TypeFactory::addMDDType( (MDDType*)catType );
+        TypeFactory::addMDDType( (MDDType*)const_cast<CType*>(catType) );
         break;
 
     case SETTYPE:
-        if( TypeFactory::mapType( (char*)catType->getTypeName() ) )
+        if( TypeFactory::mapType( const_cast<char*>(catType->getTypeName()) ) )
         {
             delete catType;
             // Error: Set type name exists already.
-            throw( r_Equery_execution_failed( 907, symbol->where.line, symbol->where.column, symbol->get_name() ) );
+            throw( r_Equery_execution_failed( 907, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
         }
         TALK( "adding to the database as set type" );
-        TypeFactory::addSetType( (SetType*)catType );
+        TypeFactory::addSetType( (SetType*)const_cast<CType*>(catType) );
         break;
 
     default:
         delete catType;
         // Error: Type in typedef definition not supported
-        throw( r_Equery_execution_failed( 900, symbol->where.line, symbol->where.column, symbol->get_name() ) );
+        throw( r_Equery_execution_failed( 900, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
     }
 
     delete catType;
 
     RMDBGEXIT( 4, RMDebug::module_rasdl, "Parse_alias", "insertData()")
     LEAVE( "Parse_alias::insertData" );
-};
+}
 
 /* enumerator */
 Parse_enum::Parse_enum()
 {
     kind         =Enum;
     enumerators   =NULL;
-};
+}
 
 void Parse_enum::output(FILE*stream)const
 {
@@ -631,31 +633,31 @@ void Parse_enum::output(FILE*stream)const
     };
 
     fprintf(stream,"};\n");
-};
+}
 
 void Parse_enum::Enumerator::output(FILE*stream)const
 {
     fprintf(stream,"// %s = %6i\n",name,value);
-};
+}
 
 /* atomic types&classes */
 void Parse_atomic::output(FILE*stream)const
 {
     fprintf(stream,"%s",name);
-};
+}
 /* any */
 Parse_any::Parse_any()
 {
     kind   =Any;
     name   ="r_Any";
-};
+}
 
 /* void */
 Parse_void::Parse_void()
 {
     kind   =Void;
     name   ="void";
-};
+}
 
 /* string */
 Parse_string::Parse_string()
@@ -664,14 +666,14 @@ Parse_string::Parse_string()
     name      ="r_String";
 
     length   =0;
-};
+}
 
 /* boolean */
 Parse_boolean::Parse_boolean()
 {
     kind   =Boolean;
     name   ="r_Boolean";
-};
+}
 
 const Type*
 Parse_boolean::getType( const char* /*typeName*/ ) const
@@ -685,7 +687,7 @@ Parse_float::Parse_float()
     kind         =Float;
     name         ="float";
     accurance   =Single;
-};
+}
 
 void Parse_float::output(FILE*stream)const
 {
@@ -697,8 +699,9 @@ void Parse_float::output(FILE*stream)const
     case Double:
         fprintf(stream,"r_Double");
         break;
+    default: break;
     }
-};
+}
 
 
 
@@ -725,7 +728,7 @@ Parse_int::Parse_int()
 
     width   =Short;
     sign   =Signed;
-};
+}
 
 void Parse_int::output(FILE*stream)const
 {
@@ -740,6 +743,7 @@ void Parse_int::output(FILE*stream)const
         case Short:
             fprintf(stream,"r_Short ");
             break;
+        default: break;
         }
         break;
     case Unsigned:
@@ -751,10 +755,12 @@ void Parse_int::output(FILE*stream)const
         case Short:
             fprintf(stream,"r_UShort ");
             break;
+        default: break;
         }
         break;
+    default: break;
     }
-};
+}
 
 
 
@@ -773,6 +779,7 @@ Parse_int::getType( const char* /*typeName*/ ) const
         case Short:
             type = TypeFactory::mapType("Short");
             break;
+        default: type = NULL;
         }
     }
     else
@@ -785,6 +792,7 @@ Parse_int::getType( const char* /*typeName*/ ) const
         case Short:
             type = TypeFactory::mapType("UShort");
             break;
+        default: type = NULL;
         }
     }
 
@@ -798,7 +806,7 @@ Parse_octet::Parse_octet()
 {
     kind   =Octet;
     name   ="r_Octet";
-};
+}
 
 
 
@@ -814,7 +822,7 @@ Parse_complex1::Parse_complex1()
 {
     kind   = Complex1;
     name   = "r_Complex1";
-};
+}
 
 
 
@@ -829,7 +837,7 @@ Parse_complex2::Parse_complex2()
 {
     kind   = Complex2;
     name   = "r_Complex2";
-};
+}
 
 
 
@@ -847,7 +855,7 @@ Parse_char::Parse_char()
 {
     kind   =Char;
     name   ="r_Char";
-};
+}
 
 const Type*
 Parse_char::getType( const char* /*typeName*/ ) const
@@ -862,13 +870,13 @@ Parse_atomic_templates::Parse_atomic_templates()
 {
     kind         =Atomic_template;
     base_type   =NULL;
-};
+}
 
 Parse_MDD::Parse_MDD()
 {
     kind      =MDD;
     domain    =NULL;
-};
+}
 
 void Parse_MDD::output(FILE*stream)const
 {
@@ -887,7 +895,7 @@ void Parse_MDD::output(FILE*stream)const
         fprintf(stream,"*/");
     };
     fprintf(stream,"> ");
-};
+}
 
 
 
@@ -904,7 +912,7 @@ Parse_MDD::getType( const char* typeName ) const
             )
       )
         // Error: MDD base type has to be a type reference or an atomic type.
-        throw( r_Equery_execution_failed( 903, parseInfo.line, parseInfo.column, parseInfo.token ) );
+        throw( r_Equery_execution_failed( 903, static_cast<unsigned int>(parseInfo.line), static_cast<unsigned int>(parseInfo.column), parseInfo.token ) );
 
     //  if( !domain )
     //    // Error: MDD type must have a domain specification.
@@ -916,7 +924,7 @@ Parse_MDD::getType( const char* typeName ) const
         return 0;
     }
 
-    const BaseType* catBaseType = (BaseType*)base_type->getType();
+    const BaseType* catBaseType = (BaseType*)const_cast<CType*>(base_type->getType());
 
     RMDBGIF(4, RMDebug::module_rasdl, "Parse_MDD", \
     {
@@ -931,11 +939,11 @@ Parse_MDD::getType( const char* typeName ) const
     const MDDType* mddType;
 
     if( domain )
-        mddType = new MDDDomainType( (char*)typeName, catBaseType, *domain );
+        mddType = new MDDDomainType( const_cast<char*>(typeName), catBaseType, *domain );
     else if( dimensionality )
-        mddType = new MDDDimensionType( (char*)typeName, catBaseType, (r_Dimension)dimensionality );
+        mddType = new MDDDimensionType( const_cast<char*>(typeName), catBaseType, (r_Dimension)dimensionality );
     else
-        mddType = new MDDBaseType( (char*)typeName, catBaseType );
+        mddType = new MDDBaseType( const_cast<char*>(typeName), catBaseType );
 
     RMDBGEXIT(4, RMDebug::module_rasdl, "Parse_MDD", "getType()")
 
@@ -948,7 +956,7 @@ Parse_set::Parse_set()
 {
     kind   =Set;
     nullValues =NULL;
-};
+}
 
 void Parse_set::output(FILE*stream)const
 {
@@ -958,10 +966,10 @@ void Parse_set::output(FILE*stream)const
     if (nullValues)
     {
         fprintf(stream,", ");
-        fprintf(stream,nullValues->get_string_representation());
+        fprintf(stream,"%s", nullValues->get_string_representation());
     }
     fprintf(stream," >");
-};
+}
 
 
 
@@ -972,7 +980,7 @@ Parse_set::getType( const char* typeName ) const
 
     if( !base_type || base_type->kind != Typereference )
         // Error: Set template type has to be a type reference.
-        throw( r_Equery_execution_failed( 901, parseInfo.line, parseInfo.column, parseInfo.token ) );
+        throw( r_Equery_execution_failed( 901, static_cast<unsigned int>(parseInfo.line), static_cast<unsigned int>(parseInfo.column), parseInfo.token ) );
 
     if( !typeName )
     {
@@ -980,7 +988,7 @@ Parse_set::getType( const char* typeName ) const
         return NULL;
     }
 
-    const char* baseTypeName = ((Parse_typereference*)base_type)->type->name;
+    const char* baseTypeName = ((Parse_typereference*)const_cast<Parse_type*>(base_type))->type->name;
 
     if( !baseTypeName )
     {
@@ -990,11 +998,11 @@ Parse_set::getType( const char* typeName ) const
 
     RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_set", "Base type name " << baseTypeName)
 
-    const MDDType* catBaseType = TypeFactory::mapMDDType( (char*)baseTypeName );
+    const MDDType* catBaseType = TypeFactory::mapMDDType( const_cast<char*>(baseTypeName) );
 
     if( !catBaseType )
         // Error: Type reference not found..
-        throw( r_Equery_execution_failed( 902, base_type->symbol->where.line, base_type->symbol->where.column, base_type->name ) );
+        throw( r_Equery_execution_failed( 902, static_cast<unsigned int>(base_type->symbol->where.line), static_cast<unsigned int>(base_type->symbol->where.column), base_type->name ) );
 
     RMDBGIF(5, RMDebug::module_rasdl, "Parse_set", \
     {
@@ -1006,7 +1014,7 @@ Parse_set::getType( const char* typeName ) const
 
     RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_set", "type name " << typeName << ", base type name " << baseTypeName )
 
-    SetType* setType = new SetType( (char*)typeName, (MDDType*) catBaseType );
+    SetType* setType = new SetType( const_cast<char*>(typeName), const_cast<MDDType*>(catBaseType) );
     if (nullValues != NULL)
     {
         TALK("Set null values to " << nullValues->get_string_representation());

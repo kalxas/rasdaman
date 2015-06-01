@@ -131,7 +131,7 @@ r_Conv_DEM::decodeOptions(const char* options,
 
     //process options
     r_Long processRet=parseParams.process(options);
-    if(processRet < paramMin)
+    if(processRet < static_cast<int>(paramMin))
     {
         RMInit::logOut << "r_Conv_DEM::decodeOptions(...) Error: Some required options are missing!" << endl;
         return false;
@@ -424,7 +424,7 @@ r_Conv_DEM::readToSrcStream() throw(r_Error)
 
     //prepare container
     demRows.clear();
-    typeSize=((r_Primitive_Type*)desc.srcType)->size();
+    typeSize=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->size();
     buffer=new char[typeSize];
     if(!buffer)
     {
@@ -450,31 +450,31 @@ r_Conv_DEM::readToSrcStream() throw(r_Error)
             switch(desc.srcType->type_id())
             {
             case r_Type::BOOL:
-                currRow.h=((r_Primitive_Type*)desc.srcType)->get_boolean(buffer);
+                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_boolean(buffer);
                 break;
             case r_Type::CHAR:
-                currRow.h=((r_Primitive_Type*)desc.srcType)->get_char(buffer);
+                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_char(buffer);
                 break;
             case r_Type::OCTET:
-                currRow.h=((r_Primitive_Type*)desc.srcType)->get_octet(buffer);
+                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_octet(buffer);
                 break;
             case r_Type::SHORT:
-                currRow.h=((r_Primitive_Type*)desc.srcType)->get_short(buffer);
+                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_short(buffer);
                 break;
             case r_Type::USHORT:
-                currRow.h=((r_Primitive_Type*)desc.srcType)->get_ushort(buffer);
+                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_ushort(buffer);
                 break;
             case r_Type::LONG:
-                currRow.h=((r_Primitive_Type*)desc.srcType)->get_long(buffer);
+                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_long(buffer);
                 break;
             case r_Type::ULONG:
-                currRow.h=((r_Primitive_Type*)desc.srcType)->get_ulong(buffer);
+                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_ulong(buffer);
                 break;
             case r_Type::FLOAT:
-                currRow.h=((r_Primitive_Type*)desc.srcType)->get_float(buffer);
+                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_float(buffer);
                 break;
             case r_Type::DOUBLE:
-                currRow.h=((r_Primitive_Type*)desc.srcType)->get_double(buffer);
+                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_double(buffer);
                 break;
             default:
                 //write message to log
@@ -796,7 +796,7 @@ r_Conv_DEM::convertTo(const char* options) throw (r_Error)
             throw r_Error(r_Error::r_Error_General);
         }
         fseek(pFile, 0, SEEK_END);
-        lenFile = ftell(pFile);
+        lenFile = static_cast<size_t>(ftell(pFile));
         RMInit::logOut  << "r_Conv_DEM::convertTo(...) dest len=" << lenFile << endl;
 
         if (!lenFile)
@@ -827,7 +827,7 @@ r_Conv_DEM::convertTo(const char* options) throw (r_Error)
 
         //--store data in desc.dest
         fseek(pFile, 0, SEEK_SET);
-        fread(desc.dest, 1, lenFile, pFile);
+        size_t i = fread(desc.dest, 1, lenFile, pFile);
 
         //clean up
         fclose(pFile);

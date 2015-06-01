@@ -81,7 +81,7 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
     }
     r_Range x = t[0].high() - t[0].low() + 1;
     r_Range y = t[1].high() - t[1].low() + 1;
-    r_UShort* array = (r_UShort*)mystore.storage_alloc(x * y * sizeof(r_UShort));
+    r_UShort* array = (r_UShort*)mystore.storage_alloc(static_cast<size_t>(x * y) * sizeof(r_UShort));
     double max = 0;
     double min = 0;
     r_Char tc;
@@ -93,7 +93,7 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
     case ctype_bool:
     case ctype_char:
     case ctype_uint8:
-        if (desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 != t.cell_count() * sizeof(r_Char))
+        if (desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 != static_cast<int>(t.cell_count() * sizeof(r_Char)))
         {
             RMInit::logOut << "r_Conv_TOR::convertFrom the supplied data is " << desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 << " bytes, but " << t.cell_count() << " bytes were expected" << std::endl;
             throw r_Error();
@@ -105,14 +105,14 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
             for(int j=0; j < y; j++)
             {
                 if (rescale)
-                    array[i * x + j] = ((r_Octet*)desc.src)[j * x + i] / max * maxu;
+                    array[i * x + j] = ((r_Octet*)const_cast<char*>(desc.src))[j * x + i] / max * maxu;
                 else
-                    array[i * x + j] = ((r_Octet*)desc.src)[j * x + i];
+                    array[i * x + j] = static_cast<r_UShort>(((r_Octet*)const_cast<char*>(desc.src))[j * x + i]);
             }
         }
         break;
     case ctype_uint16:
-        if (desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 != t.cell_count() * sizeof(r_UShort))
+        if (desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 != static_cast<int>(t.cell_count() * sizeof(r_UShort)))
         {
             RMInit::logOut << "r_Conv_TOR::convertFrom the supplied data is " << desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1 << " bytes, but " << t.cell_count() << " bytes were expected" << std::endl;
             throw r_Error();
@@ -121,7 +121,7 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
         {
             for(int j=0; j < y; j++)
             {
-                array[i * x + j] = ((r_UShort*)desc.src)[j * x + i];
+                array[i * x + j] = ((r_UShort*)const_cast<char*>(desc.src))[j * x + i];
             }
         }
         break;
@@ -131,8 +131,8 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
     }
     if (swap)
     {
-        r_UShort* temp = (r_UShort*)mystore.storage_alloc(x * y * sizeof(r_UShort));
-        r_Endian::swap_array(x * y * sizeof(r_UShort), array, temp);
+        r_UShort* temp = (r_UShort*)mystore.storage_alloc(static_cast<size_t>(x * y) * sizeof(r_UShort));
+        r_Endian::swap_array(static_cast<size_t>(x * y) * sizeof(r_UShort), array, temp);
         mystore.storage_free(array);
         array = temp;
     }
@@ -158,7 +158,7 @@ r_Conv_TOR::convertTo(const char* options) throw (r_Error)
     }
     r_Range x = desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1;
     r_Range y = desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1;
-    r_UShort* array = (r_UShort*)mystore.storage_alloc(x * y * sizeof(r_UShort));
+    r_UShort* array = (r_UShort*)mystore.storage_alloc(static_cast<size_t>(x * y) * sizeof(r_UShort));
     double max = 0;
     double min = 0;
     r_Char tc;
@@ -177,9 +177,9 @@ r_Conv_TOR::convertTo(const char* options) throw (r_Error)
             for(int j=0; j < y; j++)
             {
                 if (rescale)
-                    array[i * x + j] = ((r_Octet*)desc.src)[j * x + i] / max * maxu;
+                    array[i * x + j] = ((r_Octet*)const_cast<char*>(desc.src))[j * x + i] / max * maxu;
                 else
-                    array[i * x + j] = ((r_Octet*)desc.src)[j * x + i];
+                    array[i * x + j] = static_cast<r_UShort>(((r_Octet*)const_cast<char*>(desc.src))[j * x + i]);
             }
         }
         break;
@@ -188,7 +188,7 @@ r_Conv_TOR::convertTo(const char* options) throw (r_Error)
         {
             for(int j=0; j < y; j++)
             {
-                array[i * x + j] = ((r_UShort*)desc.src)[j * x + i];
+                array[i * x + j] = ((r_UShort*)const_cast<char*>(desc.src))[j * x + i];
             }
         }
         break;
@@ -198,8 +198,8 @@ r_Conv_TOR::convertTo(const char* options) throw (r_Error)
     }
     if (swap)
     {
-        r_UShort* temp =(r_UShort*)mystore.storage_alloc(x * y * sizeof(r_UShort));
-        r_Endian::swap_array(x * y * sizeof(r_UShort), array, temp);
+        r_UShort* temp =(r_UShort*)mystore.storage_alloc(static_cast<size_t>(x * y) * sizeof(r_UShort));
+        r_Endian::swap_array(static_cast<size_t>(x * y) * sizeof(r_UShort), array, temp);
         mystore.storage_free(array);
         array = temp;
     }

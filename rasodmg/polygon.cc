@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: polygon.cc
  *
@@ -173,7 +173,7 @@ r_Polygon::r_Polygon(const char* init) throw (r_Error)
             RMInit::logOut << "r_Polygon::r_Polygon(" << init << ") the init string has to contain valid r_Point definitions" << std::endl;
             throw r_Error(POLYGONWRONGINITSTRING);
         }
-        pointLen = endPos - startPos;
+        pointLen = static_cast<size_t>(endPos - startPos);
         if (pointLen >= POINTBUFFERLEN)
         {
             TALK( "r_Polygon::r_Polygon(" << init << ") the definition of one r_Point is too long, only 2 dimensions are allowed" );
@@ -423,8 +423,8 @@ r_Polygon::fillMArray( r_GMarray& myArray, bool fillInside, const std::string& b
         // update the currXVals by iterating through all edges.
         for(std::multiset<r_Edge, EdgeSortCriterion>::const_iterator itera = sortedEdges.begin(); itera != sortedEdges.end(); itera++)
         {
-            if( (*itera).getStart()[1] <= y && y <= (*itera).getEnd()[1] ||
-                    (*itera).getEnd()[1] <= y && y <= (*itera).getStart()[1] )
+            if( ((*itera).getStart()[1] <= y && y <= (*itera).getEnd()[1]) ||
+                    ((*itera).getEnd()[1] <= y && y <= (*itera).getStart()[1]) )
             {
                 currXVals.push_back((*itera).getCurrX(y));
             }
@@ -561,7 +561,7 @@ r_Polygon::scale(const r_Point& origin, const r_Minterval& mddDom,
     while( iter != iterEnd )
     {
         // currently only 2-D, but who knows
-        for (int i=0; i<dim; i++)
+        for (unsigned int i=0; i<dim; i++)
         {
             coord = (*iter)[i];
             // This is yet another copy of the code in tile.cc (another one is
@@ -600,7 +600,7 @@ r_Polygon::scale(const r_Point& origin, const double& scaleFactor) throw(r_Error
     while( iter != iterEnd )
     {
         // currently only 2-D, but who knows
-        for (int i=0; i<dim; i++)
+        for (unsigned int i=0; i<dim; i++)
         {
             coord = (*iter)[i];
             // scaling is done in this way:
@@ -830,7 +830,7 @@ r_Polygon::shrinkPoly(int pixelCount) throw(r_Error)
     while( iter != iterEnd )
     {
         // currently only 2-D, but who knows
-        for (int i=0; i<dim; i++)
+        for (unsigned int i=0; i<dim; i++)
         {
             coord = (*iter)[i];
             if(coord > middle[i])
@@ -866,7 +866,7 @@ r_Polygon::countHorizontalEdges() const
 
     std::vector<r_Edge>::const_iterator iter = edges.begin();
 
-    for(int i=0; i<edges.size(); i++,iter++)
+    for(unsigned int i=0; i<edges.size(); i++,iter++)
     {
         counter += iter->isHorizontal() ? 1:0;
     }

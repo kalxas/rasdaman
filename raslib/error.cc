@@ -78,9 +78,10 @@ r_Error::r_Error()
 }
 
 r_Error::r_Error(const r_Error& err)
-    :   errorText(0),
-        errorNo(err.errorNo),
-        theKind(err.theKind)
+    :   theKind(err.theKind),
+        errorText(0),
+        errorNo(err.errorNo)
+
 {
     if (err.errorText)
     {
@@ -90,8 +91,8 @@ r_Error::r_Error(const r_Error& err)
 }
 
 r_Error::r_Error(kind the_kind, unsigned int newErrorNo)
-    :   errorText(0),
-        theKind(the_kind),
+    :   theKind(the_kind),
+        errorText(0),
         errorNo(newErrorNo)
 {
     resetErrorText();
@@ -175,6 +176,7 @@ r_Error::getAnyError(char* serErr)
         case 206:
             retVal = new r_Ebase_dbms(newTheKind, newErrNum, currChar+1);
             break;
+        default: break;
         }
     }
     return retVal;
@@ -191,7 +193,6 @@ void r_Error::initTextTable()
     string line;                // current input line read from file
     char errKind;
     int errNo;
-    char errText[1000];
     unsigned int numOfEntries = 0;
     int result;             // sscanf() result
 
@@ -282,8 +283,8 @@ void r_Error::freeTextTable()
 
 
 r_Error::r_Error(unsigned int errorno)
-    :   errorText(NULL),
-        theKind(r_Error_General),
+    :   theKind(r_Error_General),
+        errorText(NULL),
         errorNo(errorno)
 {
     resetErrorText();
@@ -481,7 +482,7 @@ r_Error::setErrorTextOnNumber()
         bool found = false;
         while ( iter != end  && ! found )
         {
-            if (iter->first.first == errorNo)
+            if (iter->first.first == static_cast<int>(errorNo))
                 found = true;
             else
                 iter++;
@@ -545,7 +546,7 @@ r_Error::setTextParameter(const char* parameterName, const char* value)
             tmpText      = errorText;
             paramLength = strlen(parameterName);
             paramEnd        = paramStart + paramLength;
-            newLength    = strlen(tmpText) - paramLength + strlen(value) + 1;
+            newLength    = static_cast<int>(strlen(tmpText)) - paramLength + static_cast<int>(strlen(value)) + 1;
             errorText    = new char[newLength];
 
             *paramStart = '\0';
@@ -579,9 +580,9 @@ r_Eno_interval::r_Eno_interval()
     resetErrorText();
 }
 
-r_EGeneral::r_EGeneral(const std::string& errorText)
+r_EGeneral::r_EGeneral(const std::string& errorText2)
 {
-    this->errorText = strdup(errorText.c_str());
+    this->errorText = strdup(errorText2.c_str());
 }
 
 
@@ -620,8 +621,8 @@ r_Edim_mismatch::resetErrorText()
 {
     setErrorTextOnNumber();
 
-    setTextParameter("$dim1", dim1);
-    setTextParameter("$dim2", dim2);
+    setTextParameter("$dim1", static_cast<int>(dim1));
+    setTextParameter("$dim2", static_cast<int>(dim2));
 }
 
 
@@ -688,9 +689,9 @@ r_Equery_execution_failed::resetErrorText()
 {
     setErrorTextOnNumber();
 
-    setTextParameter("$errorNo",  errorNo);
-    setTextParameter("$lineNo",   lineNo);
-    setTextParameter("$columnNo", columnNo);
+    setTextParameter("$errorNo",  static_cast<int>(errorNo));
+    setTextParameter("$lineNo",   static_cast<int>(lineNo));
+    setTextParameter("$columnNo", static_cast<int>(columnNo));
     setTextParameter("$token",    token);
 }
 
@@ -849,7 +850,7 @@ r_Ebase_dbms::buildWhat()
     // assumes 10 digits for errNum
     whatTxt = (char*)mymalloc(strlen(baseDBMS) + strlen(dbmsErrTxt) + 12);
     strcpy(whatTxt, baseDBMS);
-    sprintf(whatTxt + strlen(whatTxt), "%d\n", dbmsErrNum);
+    sprintf(whatTxt + strlen(whatTxt), "%ld\n", dbmsErrNum);
     strcat(whatTxt, dbmsErrTxt);
 }
 
@@ -866,7 +867,7 @@ r_Ebase_dbms::serialiseError()
     char buf[40];
     char* retVal;
 
-    sprintf(buf, "\t%d\t", dbmsErrNum);
+    sprintf(buf, "\t%ld\t", dbmsErrNum);
     retVal = (char*)mymalloc(strlen(tmpRes) + strlen(buf) + strlen(baseDBMS) + strlen(dbmsErrTxt) + 2);
     strcpy(retVal, tmpRes);
     strcat(retVal, buf);

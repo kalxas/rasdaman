@@ -79,9 +79,9 @@ rasdaman GmbH.
 */
 
 #ifdef     OPEN_MAX
-static size_t openmax = OPEN_MAX;   /* Wenn vorhanden, dann ist das alles  */
+static int openmax = OPEN_MAX;   /* Wenn vorhanden, dann ist das alles  */
 #else                               /* was gebraucht wird.                 */
-static size_t openmax = 0;
+static int openmax = 0;
 #endif
 
 #ifdef     NOFILE
@@ -95,7 +95,7 @@ int Get_OpenMax( void )
     if( openmax == 0 )
     {
         errno = 0;
-        if( ( openmax = static_cast<size_t>(sysconf( _SC_OPEN_MAX )) ) < 0 )
+        if( ( openmax = sysconf( _SC_OPEN_MAX ) ) < 0 )
         {
             if( errno == 0 )
             {
@@ -162,9 +162,9 @@ int Get_OpenMax( void )
 */
 
 #ifdef     PATH_MAX
-static size_t pathmax = PATH_MAX;   /* Wenn vorhanden, dann ist das alles  */
+static int pathmax = PATH_MAX;   /* Wenn vorhanden, dann ist das alles  */
 #else                               /* was gebraucht wird.                 */
-static size_t pathmax = 0;
+static int pathmax = 0;
 #endif
 
 #ifdef     MAXPATHLEN
@@ -180,7 +180,7 @@ char *PathAlloc( size_t *size )
     if( pathmax == 0 )
     {
         errno = 0;
-        if( ( pathmax = static_cast<size_t>(pathconf( "/", _PC_PATH_MAX )) ) < 0 )
+        if( ( pathmax = pathconf( "/", _PC_PATH_MAX ) ) < 0 )
         {
             if( errno == 0 )
             {
@@ -203,7 +203,7 @@ char *PathAlloc( size_t *size )
         pathmax++;        /* Don't forget the "/" character...  */
     }
 
-    if( ( Ptr = (char*)mymalloc( pathmax + 1 ) ) == NULL )
+    if( ( Ptr = (char*)mymalloc( static_cast<size_t>(pathmax) + 1 ) ) == NULL )
     {
         if( size != NULL )
             *size = 0;
@@ -212,7 +212,7 @@ char *PathAlloc( size_t *size )
     else
     {
         if( size != NULL )
-            *size = pathmax + 1;
+            *size = static_cast<size_t>(pathmax) + 1;
     }
     return( Ptr );
 }
