@@ -2692,6 +2692,33 @@ public class DbMetadataSource implements IMetadataSource {
             }
             allowedValues = new AllowedValues(pairs);
 
+            String tableNilValueJoin = " LEFT OUTER JOIN " + TABLE_NIL_VALUE + " ON (";;
+            sqlQuery =
+                    "SELECT " + QUANTITY_NIL_IDS +
+                    " FROM "  + TABLE_QUANTITY +
+                    " WHERE " + QUANTITY_ID + "=" + quantityId
+                    ;
+            log.debug("SQL query: " + sqlQuery);
+            ResultSet quantityNilIdsRS = s.executeQuery(sqlQuery);
+            if (quantityNilIdsRS.next()) {
+                List<Integer> quantityNilIds = sqlArray2IntList(
+                        quantityNilIdsRS.getArray(QUANTITY_NIL_IDS));
+                if (!quantityNilIds.isEmpty()) {
+                    String tmpIds = "";
+                    for (Integer quantityNilId : quantityNilIds) {
+                        if (!tmpIds.isEmpty()) {
+                            tmpIds += " OR ";
+                        }
+                        tmpIds += TABLE_NIL_VALUE + "." + NIL_VALUE_ID + "=" + quantityNilId;
+                    }
+                    tableNilValueJoin += tmpIds + ")";
+                } else {
+                    // left outer join must have some condition, so this adds a random test
+                    tableNilValueJoin += "1=2)";
+                }
+            }
+
+
             // Quantity attributes
             String unaggregatedFields =
                            TABLE_UOM + "." + UOM_CODE + ","
@@ -2705,9 +2732,9 @@ public class DbMetadataSource implements IMetadataSource {
                     " SELECT " +  unaggregatedFields + ","
                     + TABLE_NIL_VALUE + "." + NIL_VALUE_VALUE + " AS " + NIL_VALUES_ALIAS + " , "
                     + TABLE_NIL_VALUE + "." + NIL_VALUE_REASON + " AS " + NIL_REASONS_ALIAS
-                    + " FROM " + TABLE_NIL_VALUE + " , " + TABLE_QUANTITY
+                    + " FROM " + TABLE_QUANTITY
                     + " INNER JOIN " + TABLE_UOM + " ON (" + TABLE_UOM + "." + UOM_ID + "=" + TABLE_QUANTITY + "." + QUANTITY_UOM_ID
-                    + ") "
+                    + ") " + tableNilValueJoin
                     + " WHERE " + TABLE_QUANTITY + "." + QUANTITY_ID + "=" + quantityId
                     + " GROUP BY " + unaggregatedFields + " , " + NIL_VALUES_ALIAS + " , " + NIL_REASONS_ALIAS
                     ;
