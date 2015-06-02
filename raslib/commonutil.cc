@@ -100,11 +100,11 @@ void print_stacktrace(void *ucontext) {
       }
 
 
-      sprintf(cmd, "addr2line -i -s -e %s 0x%x", linkname, addresses[i]);
+      sprintf(cmd, "addr2line -i -s -e %s 0x%x", linkname, ((unsigned int*)(addresses))[i]);
       FILE *fp = popen(cmd, "r");
       if (fp != NULL)
       {
-        fgets(sourceFileLine, MAX_MSG_LEN, fp);
+        char *s = fgets(sourceFileLine, MAX_MSG_LEN, fp);
         char *pos = strchr(sourceFileLine, '\n');
         if (pos != NULL)
             *pos = '\0';

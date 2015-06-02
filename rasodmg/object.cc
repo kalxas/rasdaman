@@ -516,7 +516,7 @@ r_Object::get_type_schema()
         // If type structure not known then try to get it from the server
         if ( (type_structure == NULL) || (strlen(type_structure) == 0) )
         {
-            ClientComm::r_Type_Type typeType = (ClientComm::r_Type_Type)0;
+            ClientComm::r_Type_Type typeType = static_cast<ClientComm::r_Type_Type>(0);
 
             // we need an open database and an active transaction
             if ( r_Database::actual_database == NULL ) return NULL;

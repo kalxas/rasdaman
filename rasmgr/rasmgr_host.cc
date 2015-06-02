@@ -574,11 +574,3 @@ bool HostManager::acceptChangeName(const char *oldName,const char *newName)
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-
-void rpcif_1(__attribute__ ((unused)) struct svc_req *rqstp, __attribute__ ((unused)) register SVCXPRT *transp)
-{
-    // this function is registered by rpc-system. No one can use it, because it's never called
-    //(we do not have a svc_run() - call, thus it's not doing anything
-}
-

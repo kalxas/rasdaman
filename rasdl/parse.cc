@@ -298,27 +298,6 @@ Parse_struct::getType( const char* /*typeName*/ ) const
 
 
 
-/* union */
-Parse_union::Parse_union()
-{
-    kind   =Union;
-}
-
-Parse_union::~Parse_union()
-{
-}
-
-void Parse_union::output(FILE*stream)const
-{
-    fprintf(stream,"/* UNION --------------------------- %s */\n",name);
-    fprintf(stream,"struct %s {\n",name);
-
-    for(Element*scan=elements; scan!=NULL; scan=scan->next)
-        scan->output(stream);
-
-    fprintf(stream,"};\n");
-}
-
 /* interface */
 Parse_interface::Parse_interface()
 {

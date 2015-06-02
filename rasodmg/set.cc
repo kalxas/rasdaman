@@ -83,11 +83,11 @@ template<class T>
 void
 r_Set<T>::insert_element( const T& element, int no_modification )
 {
-    typename r_Collection<T>::CNode* ptr = (typename r_Collection<T>::CNode*)this->coll;
+    typename r_Collection<T>::CNode* ptr = static_cast<typename r_Collection<T>::CNode*>(this->coll);
 
-    while ( ptr->next != NULL && *((T*)(ptr->elem)) != element )
+    while ( ptr->next != NULL && *(static_cast<T*>(ptr->elem)) != element )
         ptr = ptr->next;
 
-    if ( ptr->elem == NULL || *((T*)(ptr->elem)) != element )
+    if ( ptr->elem == NULL || *(static_cast<T*>(ptr->elem)) != element )
         r_Collection<T>::insert_element( element, no_modification );
 }

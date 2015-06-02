@@ -87,13 +87,13 @@ r_Edge::getEnd() const
 double
 r_Edge::getInvSlope() const
 {
-    return (((double)end[0] - start[0]) / (end[1] - start[1]));
+    return ((static_cast<double>(end[0]) - start[0]) / (end[1] - start[1]));
 }
 
 double
 r_Edge::getSlope() const
 {
-    return (((double)end[1] - start[1]) / (end[0] - start[0]));
+    return ((static_cast<double>(end[1]) - start[1]) / (end[0] - start[0]));
 }
 
 double
@@ -524,7 +524,7 @@ r_Polygon::clip(const r_Minterval& clipDom) throw(r_Error)
         // We just clip all 4 edges
         for(int s = r_Polygon::top; s <= r_Polygon::right; ++s)
         {
-            pointList=clip1Side(clipDom, (r_Polygon::Side)s);
+            pointList=clip1Side(clipDom, static_cast<r_Polygon::Side>(s));
             if(pointList.empty()) // do we have intersection points?
             {
                 // return a polygon with one line only. This should delete everything.
@@ -567,7 +567,7 @@ r_Polygon::scale(const r_Point& origin, const r_Minterval& mddDom,
             // This is yet another copy of the code in tile.cc (another one is
             // in fastscale.cc). Hope it is exact enough if I do not do the
             // correction for seamless tiling as done in Tile::getScaleDomain().
-            coord = (r_Range)(origin[i] + floor((coord - origin[i]) * scaleFactor));
+            coord = static_cast<r_Range>(origin[i] + floor((coord - origin[i]) * scaleFactor));
             // This domain thing is driving me crazy. Ok, now we still have to
             // shift the domain so that it coincides with the origin of the
             // MInterval used for clipping later (i.e. the domain of the MDD
@@ -605,7 +605,7 @@ r_Polygon::scale(const r_Point& origin, const double& scaleFactor) throw(r_Error
             coord = (*iter)[i];
             // scaling is done in this way:
             // translate to 0, scale and translate back
-            coord = origin[i]+(r_Range)floor((coord-origin[i]) * scaleFactor);
+            coord = origin[i]+static_cast<r_Range>(floor((coord-origin[i]) * scaleFactor));
             tmpPoint[i] = coord;
         }
         newPoints.push_back(tmpPoint);

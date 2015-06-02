@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_localsrv.cc
  *
@@ -128,9 +128,10 @@ LocalServerManager::~LocalServerManager()
 bool LocalServerManager::startNewServer(const char* commandline)
 {
     ENTER( "LocalServerManager::startNewServer: enter. cmdLine=" << commandline );
-    char localcomm[ARG_MAX];
+    char *localcomm;
+    localcomm = new char[ARG_MAX];
 
-    if (strlen(commandline) >= ARG_MAX)
+    if (static_cast<int>(strlen(commandline)) >= ARG_MAX)
     {
         VLOG <<"Error: rasserver launch command line too long: " << commandline <<std::endl;
         LEAVE( "LocalServerManager::startNewServer: leave. cmd line too long, result=false." );
@@ -194,7 +195,7 @@ bool LocalServerManager::startNewServer(const char* commandline)
         TALK( "LocalServerManager::startNewServer: cannot fork server "<<fileName<< ": " << strerror (execErrno) );
         exit(1); // if return from exec...
     }
-
+    delete[] localcomm;
     LEAVE( "LocalServerManager::startNewServer: leave. result=true." );
     return true;
 }
@@ -216,7 +217,7 @@ bool LocalServerManager::sendTerminateSignal(const char *serverName)
     bool result = false;    // function result
 
     list<LocalServer>::iterator iter=srvList.begin();
-    for ( int i=0; i<srvList.size() && ! found; i++)
+    for ( unsigned int i=0; i<srvList.size() && ! found; i++)
     {
         if(strcmp(iter->getName(),serverName)==0)
         {
@@ -263,7 +264,7 @@ bool LocalServerManager::killServer(const char *serverName)
     bool result = false;    // function result
 
     list<LocalServer>::iterator iter=srvList.begin();
-    for(int i=0; i<srvList.size(); i++)
+    for(unsigned int i=0; i<srvList.size(); i++)
     {
         if(strcmp(iter->getName(),serverName)==0)
         {
@@ -310,7 +311,7 @@ LocalServer& LocalServerManager::operator[](const char* srvName)
 {
     ENTER( "LocalServerManager::operator[]: enter. srvName=" << srvName );
     list<LocalServer>::iterator iter=srvList.begin();
-    for(int i=0; i<srvList.size(); i++)
+    for(unsigned int i=0; i<srvList.size(); i++)
     {
         if(strcmp(iter->getName(),srvName)==0)
         {
@@ -359,7 +360,7 @@ void LocalServerManager::cleanChild()
         VLOG << "rasdaman server process with pid " << exitpid << " has terminated." << std::endl;
 
         list<LocalServer>::iterator iter=srvList.begin();
-        for(int i=0; i<srvList.size(); i++)
+        for(unsigned int i=0; i<srvList.size(); i++)
         {
             TALK( "LocalServerManager::cleanChild: inspecting rasdaman server " << iter->getName() << "." );
             if(iter->getPID()==exitpid)

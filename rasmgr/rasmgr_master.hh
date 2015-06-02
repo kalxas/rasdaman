@@ -143,6 +143,10 @@ private:
     int currentPosition;
 };
 
+const char *getClientAddr( int mySocket );
+bool isIp(char *str);
+bool hostCmpPeer(char *h1, char *h2);
+
 extern MasterComm masterCommunicator;
 
 #endif

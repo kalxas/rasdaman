@@ -75,9 +75,9 @@ r_Iterator<T>::r_Iterator( r_Collection<T>& source, int removed_objects )
     // sorry for this awful cast but there is
     // no standard conversion of r_Collection<T>::CNode* to r_Collection::CNode*
     if( removed_objects )
-        ptr = (typename r_Collection<T>::CNode*)source.removed_objects;
+        ptr = static_cast<typename r_Collection<T>::CNode*>(source.removed_objects);
     else
-        ptr = (typename r_Collection<T>::CNode*)source.coll;
+        ptr = static_cast<typename r_Collection<T>::CNode*>(source.coll);
 
     ndone = (ptr->elem != 0);
 }
@@ -168,7 +168,7 @@ throw( r_Error )
 
     // The following line was return *(ptr->elem) but the HP compiler had problems
     // while instantiating the code. CNode::elem was of a different type than T.
-    return *((T*)ptr->elem);
+    return *(static_cast<T*>(ptr->elem));
 }
 
 template<class T>
@@ -197,9 +197,9 @@ void
 r_Iterator<T>::reset( int removed_objects )
 {
     if( removed_objects )
-        ptr = (typename r_Collection<T>::CNode*)collection->removed_objects;
+        ptr = static_cast<typename r_Collection<T>::CNode*>(collection->removed_objects);
     else
-        ptr = (typename r_Collection<T>::CNode*)collection->coll;
+        ptr = static_cast<typename r_Collection<T>::CNode*>(collection->coll);
 
     ndone = (ptr->elem != 0);
 }

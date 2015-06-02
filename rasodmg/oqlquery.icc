@@ -34,7 +34,7 @@ rasdaman GmbH.
 inline const char*
 r_OQL_Query::get_query() const
 {
-  return (const char*)queryString;
+  return static_cast<const char*>(queryString);
 }
 
 
@@ -48,5 +48,5 @@ r_OQL_Query::get_constants() const
 inline const char*
 r_OQL_Query::get_parameterized_query() const
 {
-  return (const char*)parameterizedQueryString;
+  return static_cast<const char*>(parameterizedQueryString);
 }

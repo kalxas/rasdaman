@@ -57,7 +57,7 @@ static void *alloc_cpp_style( size_t size )
 
 static void free_cpp_style( void *data )
 {
-    delete [] data;
+    delete [] static_cast<char*>(data);
 }
 
 

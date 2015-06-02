@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_comm_nb.cc
  *
@@ -213,6 +213,11 @@ int IOSelector::someWaitingSocket()
     }
 
     LEAVE( "IOSelector::someWaitingSocket: leave. waitingSocket=" << waitingSocket );
+
+    if ( found)
+        return waitingSocket;
+    else
+        return 0;
 }
 
 bool IOSelector::isReadSocket(int socket)
@@ -283,10 +288,10 @@ NbJob::NbJob()
     LEAVE( "NbJob::NbJob: leave." );
 }
 
-void NbJob::init(IOSelector *pselector,int maxInputBuffer)
+void NbJob::init(IOSelector *newPselector,int maxInputBuffer)
 {
     ENTER( "NbJob::init: enter. maxInputBuffer=" << maxInputBuffer );
-    this->pselector = pselector;
+    this->pselector = newPselector;
     this->maxInputLength = maxInputBuffer;
     messageTerminator = '\0';
     LEAVE( "NbJob::init: leave." );
@@ -665,14 +670,14 @@ NbServerComm::NbServerComm()
     mypid = getpid();
 }
 
-void NbServerComm::initJobs(int maxJobs)
+void NbServerComm::initJobs(int newMaxJobs)
 {
-    ENTER( "NbServerComm::initJobs: enter. maxJobs=" << maxJobs );
+    ENTER( "NbServerComm::initJobs: enter. maxJobs=" << newMaxJobs );
 
-    this->maxJobs = maxJobs;
-    job = new NbJob[maxJobs];
+    this->maxJobs = newMaxJobs;
+    job = new NbJob[newMaxJobs];
 
-    for(int i=0; i<maxJobs; i++)
+    for(int i=0; i<newMaxJobs; i++)
     {
         job[i].init(&selector,MAXMSG);
     }
@@ -717,7 +722,7 @@ bool NbServerComm::initListenSocket(int listenPort)
 
 #ifdef SO_REUSEADDR
     val = 1;
-    int len = sizeof( val );
+    unsigned int len = sizeof( val );
     if(setsockopt( listenSocket, SOL_SOCKET, SO_REUSEADDR, (char*)&val, len ))
     {
         TALK( "NbServerComm::initListenSocket: cannot set address reusable using setsockopt: " << strerror(errno) );

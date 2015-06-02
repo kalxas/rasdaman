@@ -152,7 +152,7 @@ int r_Partial_Insert::update( r_GMarray *mddPtr,
             mydb.set_storage_format(storageFormat, storageFormatParams);
             r_Ref<r_GMarray> mddp = new (&mydb, mddType) r_GMarray(*mddPtr);
             r_Ref<r_Set<r_Ref<r_GMarray> > > mddCollPtr;
-            mddCollPtr = (r_Ref<r_Set<r_Ref<r_GMarray> > >)(mydb.lookup_object(collName));
+            mddCollPtr = static_cast<r_Ref<r_Set<r_Ref<r_GMarray> > > >(mydb.lookup_object(collName));
             mddCollPtr->insert_element(mddp);
             myOId = mddp->get_oid();
             myta.commit();

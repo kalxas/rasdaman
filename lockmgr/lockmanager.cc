@@ -62,7 +62,7 @@ LockManager * LockManager::LM_instance = NULL;
  * @param mgr
  *     object of the class as parameter of the copy constructor
  */
-LockManager::LockManager(LockManager const& mgr)
+LockManager::LockManager(__attribute__ ((unused)) LockManager const& mgr)
 {
     LockManager();
 }
@@ -75,19 +75,6 @@ LockManager::LockManager(LockManager const& mgr)
 LockManager::~LockManager()
 {
     LM_instance->disconnect();
-}
-
-/**
- * Private = operator such that it cannot be called from the outside.
- *
- * The overloading of this operator calls the default constructor which does not do anything.
- *
- * @param mgr
- *     object of the class as parameter of the = operator
- */
-LockManager& LockManager::operator=(LockManager const& mgr)
-{
-    LockManager();
 }
 
 /**
@@ -221,7 +208,7 @@ void LockManager::lockTileInternal(const char * pRasServerId, OId::OIdCounter pT
 {
     RMTIMER("LockManager", "lockTileInternal");
     ENTER( "Lock manager: lock tile" );
-    bool result;
+    bool result = true;
     if(pLockType == EXCLUSIVE_LOCK)
     {
         RMTIMER("LockManager", "lockTileInternal, exclusive");
@@ -291,7 +278,7 @@ bool LockManager::isTileLockedInternal(OId::OIdCounter pTileId, enum Lock pLockT
 {
     RMTIMER("LockManager", "isTockTiledInternal");
     ENTER( "Lock manager, is tile locked" );
-    bool result;
+    bool result = true;
     if(pLockType == EXCLUSIVE_LOCK)
     {
         ecpg_LockManager->isTileLockedExclusive(connectionName, (char *)NULL, pTileId);
@@ -338,22 +325,22 @@ void LockManager::generateServerId(char * pResultRasServerId)
     int rasmgrPort;
     if (configuration.getServerName() != NULL)
     {
-        serverName = (char *)configuration.getServerName();
+        serverName = const_cast<char *>(configuration.getServerName());
         port = configuration.getListenPort();
     }
     else
     {
-        serverName = (char *)"defaultServer";
+        serverName = const_cast<char *>("defaultServer");
         port = 0;
     }
     if (configuration.getRasmgrHost() != NULL)
     {
-        rasmgrHost = (char *)configuration.getRasmgrHost();
+        rasmgrHost = const_cast<char *>(configuration.getRasmgrHost());
         rasmgrPort = configuration.getRasmgrPort();
     }
     else
     {
-        rasmgrHost = (char *)"defaultRasmgrHost";
+        rasmgrHost = const_cast<char *>("defaultRasmgrHost");
         rasmgrPort = 0;
     }
     int return_code = snprintf(pResultRasServerId, 255, "%s-%d-%s-%d", rasmgrHost, rasmgrPort, serverName, port);
@@ -452,7 +439,7 @@ void LockManager::lockTilesInternal(const char * pRasServerId, long long *pTileI
     {
         TALK ( "Lock manager, lock tiles internal: Multiple tiles to lock" );
         // sort the array of tile ids to lock
-        qsort(pTileIdsToLock, dim, sizeof(long long), LockManager::compareIds);
+        qsort(pTileIdsToLock, static_cast<size_t>(dim), sizeof(long long), LockManager::compareIds);
         int beginIndex, endIndex;
         beginIndex = 0;
         endIndex = beginIndex;
@@ -575,7 +562,7 @@ void LockManager::lockTiles(std::vector< boost::shared_ptr<Tile> >* tiles)
         // this iterates over the tiles of an object
         // if objects consists of one tile like in mr, mr2, rgb then this for is executed once
         int dim = tiles->size();
-        long long tileIdsToLock[dim];
+        long long* tileIdsToLock = new long long[dim];
         int i=0;
         for (std::vector< boost::shared_ptr<Tile> >::iterator tileIterator=tiles->begin(); tileIterator!=tiles->end(); tileIterator++)
         {
@@ -586,6 +573,7 @@ void LockManager::lockTiles(std::vector< boost::shared_ptr<Tile> >* tiles)
             i++;
         }
         lockTiles(tileIdsToLock, dim);
+        delete[] tileIdsToLock;
     }
     else
     {
@@ -684,7 +672,7 @@ bool LockManager::isTileLocked(Tile * pTile, enum Lock lockType)
     {
         TALK( "Lock manager, is tile locked: Checking lock for " << oid );
         beginTransaction();
-        bool locked = isTileLockedInternal(oid, lockType);
+        locked = isTileLockedInternal(oid, lockType);
         endTransaction();
     }
     LEAVE( "Lock manager, is tile locked" );

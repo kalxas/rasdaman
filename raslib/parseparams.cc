@@ -129,7 +129,7 @@ int r_Parse_Params::process( const char *str ) const
         {
             const char *key = b;
             unsigned int klen;
-            int knum;
+            unsigned int knum;
             int inquotes;
 
             while (isalnum((unsigned int)(*b))) b++;
@@ -164,7 +164,7 @@ int r_Parse_Params::process( const char *str ) const
                             int val=0;
 
                             errno=0;
-                            val = strtol(b, (char**)&aux, 10);
+                            val = strtol(b, const_cast<char**>(&aux), 10);
                             if ((b == aux) || errno)
                                 statval = -1;
                             else
@@ -181,7 +181,7 @@ int r_Parse_Params::process( const char *str ) const
                             double val=0.;
 
                             errno=0;
-                            val = strtod(b, (char**)&aux);
+                            val = strtod(b, const_cast<char**>(&aux));
                             if ((b == aux) || errno)
                                 statval = -1;
                             else
@@ -228,6 +228,7 @@ int r_Parse_Params::process( const char *str ) const
                             }
                         }
                         break;
+                        default: break;
                         }
                     }
                 }

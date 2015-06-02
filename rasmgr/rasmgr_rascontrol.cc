@@ -770,7 +770,7 @@ void RasControl::defineRasServers()
     // we put this options in the config file with the change srv command, so it's ok that it could return before
     if(countString) srv.changeCountDown(convertToULong(countString,"countdown"));
 
-    if(extraString) srv.changeExtraParam(extraString);
+    srv.changeExtraParam(extraString);
 
     if(autoRestart) srv.changeAutoRestart( strcasecmp(autoRestart,"on")==0 ? true:false);
 

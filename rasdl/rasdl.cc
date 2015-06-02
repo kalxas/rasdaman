@@ -823,7 +823,7 @@ main( int argc, char* argv[] )
             cerr << ERROR_NOACTION << endl;
             break;
         default:
-            cerr << ERROR_UNKNOWNACTION << progMode << endl;
+            cerr << ERROR_UNKNOWNACTION << static_cast<int>(progMode) << endl;
         }
         result = EXIT_SUCCESS;
     }

@@ -150,7 +150,7 @@ r_GMarray::r_GMarray(const r_GMarray &obj) throw(r_Error)
         data_size = obj.data_size;
         data = new char[ data_size ];
 
-        memcpy(data, obj.data, (unsigned int)data_size);
+        memcpy(data, obj.data, static_cast<unsigned int>(data_size));
     }
 
     // clone the storage layout object
@@ -278,7 +278,7 @@ r_GMarray::operator=(const r_GMarray& marray)
             data_size = marray.data_size;
             data = new char[ data_size ];
 
-            memcpy(data, marray.data, (unsigned int)data_size);
+            memcpy(data, marray.data, static_cast<unsigned int>(data_size));
         }
 
         if (storage_layout)
@@ -335,7 +335,7 @@ r_GMarray::insert_obj_into_db(const char* collName)
 void
 r_GMarray::print_status(std::ostream& s) const
 {
-    const r_Type*       typeSchema     = (r_Base_Type*)const_cast<r_Type*>((const_cast<r_GMarray*>(this))->get_type_schema());
+    const r_Type*       typeSchema     = static_cast<r_Base_Type*>(const_cast<r_Type*>((const_cast<r_GMarray*>(this))->get_type_schema()));
     const r_Base_Type*  baseTypeSchema = const_cast<r_Base_Type*>((const_cast<r_GMarray*>(this))->get_base_type_schema());
 
     s << "GMarray" << endl;
@@ -366,7 +366,7 @@ r_GMarray::print_status(std::ostream& s, int hexoutput) const
 {
     print_status(s);
 
-    const r_Type*       typeSchema     = (r_Base_Type*)const_cast<r_Type*>((const_cast<r_GMarray*>(this))->get_type_schema());
+    const r_Type*       typeSchema     = static_cast<r_Base_Type*>(const_cast<r_Type*>((const_cast<r_GMarray*>(this))->get_type_schema()));
     const r_Base_Type*  baseTypeSchema = const_cast<r_Base_Type*>((const_cast<r_GMarray*>(this))->get_base_type_schema());
 
     if (domain.dimension())
@@ -392,7 +392,7 @@ r_GMarray::print_status(std::ostream& s, int hexoutput) const
             if (hexoutput)
             {
                 for (r_Bytes j = 0; j < type_length; j++)
-                    s << std::hex << (unsigned int)(unsigned char)(cell[j]);
+                    s << std::hex << static_cast<unsigned int>(static_cast<unsigned char>((cell[j])));
             }
             else
             {
@@ -426,7 +426,7 @@ r_GMarray::print_status(std::ostream& s, int hexoutput) const
         if ((hexoutput) || (!baseTypeSchema))
         {
             for (unsigned int j=0; j<type_length; j++)
-                s << std::hex << (unsigned int)(unsigned char)(data[j]);
+                s << std::hex << static_cast<unsigned int>(static_cast<unsigned char>((data[j])));
         }
         else
         {
@@ -467,9 +467,9 @@ r_GMarray* r_GMarray::intersect(r_Minterval where) const
         char* dest_off = obj_data;
         const char* source_off = get_array();
 
-        memcpy((void*) (dest_off + where.cell_offset(p)*tlength),
-               (void*) (const_cast<char*>(source_off) + obj_domain.cell_offset(p)*tlength),
-               (size_t) (block_length * tlength));
+        memcpy(static_cast<void*>(dest_off + where.cell_offset(p)*tlength),
+               static_cast<void*>(const_cast<char*>(source_off) + obj_domain.cell_offset(p)*tlength),
+               static_cast<size_t>(block_length * tlength));
     }
 
     return tile;
@@ -487,7 +487,7 @@ r_GMarray::get_base_type_schema()
     {
         if (typePtr->type_id() == r_Type::MARRAYTYPE)
         {
-            const r_Marray_Type* marrayTypePtr = (const r_Marray_Type*)typePtr;
+            const r_Marray_Type* marrayTypePtr = static_cast<const r_Marray_Type*>(typePtr);
             baseTypePtr = &(marrayTypePtr->base_type());
         }
         else

@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_utils_comm.cc
  *
@@ -57,10 +57,10 @@ RasMgrClientComm::RasMgrClientComm()
 RasMgrClientComm::~RasMgrClientComm()
 {
 }
-void RasMgrClientComm::setRasMgrHost(const char *rasmgrHost, int rasmgrPort)
+void RasMgrClientComm::setRasMgrHost(const char *newRasmgrHost, int newRasmgrPort)
 {
-    strcpy(this->rasmgrHost,rasmgrHost);
-    this->rasmgrPort=rasmgrPort;
+    strcpy(this->rasmgrHost,newRasmgrHost);
+    this->rasmgrPort=newRasmgrPort;
 }
 
 const char* RasMgrClientComm::getRasMgrHost()
@@ -68,10 +68,10 @@ const char* RasMgrClientComm::getRasMgrHost()
     return rasmgrHost;
 }
 
-void RasMgrClientComm::setUserIdentification(const char *userName, const char *encrPass)
+void RasMgrClientComm::setUserIdentification(const char *newUserName, const char *newEncrPass)
 {
-    strcpy(this->userName,userName);
-    strcpy(this->encrPass,encrPass);
+    strcpy(this->userName,newUserName);
+    strcpy(this->encrPass,newEncrPass);
 }
 
 int RasMgrClientComm::openSocket()
@@ -85,7 +85,7 @@ int RasMgrClientComm::openSocket()
         closeSocket();
     }
 
-    struct protoent *getprotoptr = getprotoptr=getprotobyname("tcp");   // FIXME: what is this???
+    struct protoent *getprotoptr = getprotobyname("tcp");
     struct hostent *hostinfo = gethostbyname(rasmgrHost);
 
     if(hostinfo==NULL)
@@ -140,7 +140,7 @@ int RasMgrClientComm::sendMessage(const char *message)
 
     sprintf(request,                "POST rascontrol HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: rascontrol/2.0");
     sprintf(request+strlen(request),"\r\nAuthorization: ras %s:%s",userName,encrPass);//"rasadmin","d293a15562d3e70b6fdc5ee452eaed40");
-    sprintf(request+strlen(request),"\r\nContent length: %d\r\n\r\n%s ",strlen(message)+1,message);
+    sprintf(request+strlen(request),"\r\nContent length: %lu\r\n\r\n%s ",strlen(message)+1,message);
 
     int reqLen=strlen(request)+1;       // including final '\0'!!
     if(writeWholeMessage(rasmgrSocket,request,reqLen)<reqLen)
@@ -252,7 +252,7 @@ int RasMgrClientComm::writeWholeMessage(int socket,char *destBuffer,int buffSize
     int writeNow;
     while(1)
     {
-        writeNow = write(socket,destBuffer+totalLength,buffSize-totalLength);
+        writeNow = write(socket,destBuffer+totalLength,static_cast<size_t>(buffSize-totalLength));
         if(writeNow == -1)
         {
             if(errno == EINTR) continue; // read was interrupted by signal
@@ -279,7 +279,7 @@ int RasMgrClientComm::readWholeMessage(int socket,char *destBuffer,int buffSize)
     int redNow;
     while(1)
     {
-        redNow = read(socket,destBuffer+totalLength,buffSize-totalLength);
+        redNow = read(socket,destBuffer+totalLength,static_cast<size_t>(buffSize-totalLength));
         if(redNow == -1)
         {
             if(errno == EINTR) continue; // read was interrupted by signal
@@ -325,7 +325,7 @@ int UserLogin::interactiveLogin()
 
     char *plainPass=getpass("  Password: ");
     messageDigest(plainPass,encrPass,"MD5");
-    for(int i=0; i<strlen(plainPass); i++) plainPass[i]=0;
+    for(unsigned int i=0; i<strlen(plainPass); i++) plainPass[i]=0;
     std::cerr<<std::endl;
 
 // cout<<"name="<<username<<" pass="<<encrPass<<endl;

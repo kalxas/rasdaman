@@ -99,10 +99,6 @@ static const char rcsid[] = "@(#)rasgeo/rasgeo_util,RasgeoUtil: $Id: rasgeo_util
 #include "debug/debug.hh"
 
 
-/// parameter evaluation procedure, to be provided by each tool individually
-extern void parseParams(int argc, char** argv) throw (ImportError, r_Error);
-
-
 
 /*
  * member variables --------------------------------------------------
@@ -574,7 +570,7 @@ RasgeoUtil::getFile( const char *inputFile, size_t& dtaSize ) throw (ImportError
     }
 
     fseek(fileD, 0, SEEK_SET);
-    fread(dta, 1, size, fileD);
+    size_t rsize = fread(dta, 1, size, fileD);
     fclose(fileD);
 
     dtaSize = size;
@@ -772,8 +768,8 @@ RasgeoUtil::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>&
     const r_Minterval& targetDomain = targetMDD->spatial_domain();
 
     // aux var: ptr to pixel array
-    char* foregroundMDDCells = (char*)foregroundMDD->get_array();
-    char* backgroundMDDCells = (char*)backgroundMDD->get_array();
+    char* foregroundMDDCells = const_cast<char*>(foregroundMDD->get_array());
+    char* backgroundMDDCells = const_cast<char*>(backgroundMDD->get_array());
     char* targetMDDCells     = (char*)targetMDD->get_array();
 
     TALK( "background MDD domain: " << backgroundMDD->spatial_domain() << " type length: " << backgroundMDD->get_type_length() );
@@ -1208,8 +1204,8 @@ void RasgeoUtil::fast_scale_resample_array(T *dest, const T *src, const r_Minter
            << ", type_len=" << (int) type_len << ", length=" << (int) length << ", round=" << (int) round );
 
     r_MiterDirect destIter((void*)dest, destIv, destIv, type_len, 1);
-    r_MiterDirect subIter((void*)src, srcIv, iterDom, type_len, 1);
-    r_MiterDirect srcIter((void*)src, srcIv, iterDom, type_len, length);
+    r_MiterDirect subIter((void*)const_cast<T*>(src), srcIv, iterDom, type_len, 1);
+    r_MiterDirect srcIter((void*)const_cast<T*>(src), srcIv, iterDom, type_len, length);
     unsigned int dim = (unsigned int)srcIv.dimension();
     unsigned int i;
 
@@ -1270,8 +1266,8 @@ void RasgeoUtil::fast_scale_aggregate_array(T *dest, const T *src, const r_Minte
     ENTER( string( "fast_scale_aggregate_array, destIv=" ) << destIv << ", srcIv=" << srcIv << ", iterDom=" << iterDom << ", type_len=" << type_len << ", length=" << length );
 
     r_MiterDirect destIter((void*)dest, destIv, destIv, type_len, 1);
-    r_MiterDirect subIter((void*)src, srcIv, iterDom, type_len, 1);
-    r_MiterDirect srcIter((void*)src, srcIv, iterDom, type_len, length);
+    r_MiterDirect subIter((void*)const_cast<T*>(src), srcIv, iterDom, type_len);
+    r_MiterDirect srcIter((void*)const_cast<T*>(src), srcIv, iterDom, type_len, length);
     unsigned int dim = (unsigned int)srcIv.dimension();
     unsigned int i;
 
@@ -1609,7 +1605,7 @@ void RasgeoUtil::doImport(const char* queryString, const char* queryStringS, r_M
  * consider tiling, alignment, pyramid
  */
 void
-RasgeoUtil::doStuff(int argc, char** argv, ImportType iType ) throw(ImportError, r_Error)
+RasgeoUtil::doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char** argv, ImportType iType ) throw(ImportError, r_Error)
 {
     ENTER( "doStuff" );
 

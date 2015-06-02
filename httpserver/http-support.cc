@@ -74,7 +74,7 @@ rasdaman GmbH.
 *
 */
 
-rc_t InitClientBase( struct ClientBase *Client )
+rc_t InitClientBase( __attribute__ ((unused)) struct ClientBase *Client )
 {
     return( ERROR );
 }
@@ -385,7 +385,7 @@ void PrintReqInfo( struct ReqInfo *Request )
 {
     struct MsgHeader *Ptr;
 
-    printf( ">> %s %s HTTP/%d.%d\n",
+    printf( ">> %s %s%s%s%s HTTP/%d.%d\n",
             HTTP_GetMethodName( Request->Line.Method ),
             Request->Line.URL.Protocol ? Request->Line.URL.Protocol : "",
             Request->Line.URL.Servername ? Request->Line.URL.Servername : "",

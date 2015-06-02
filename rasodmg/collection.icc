@@ -69,5 +69,5 @@ template<class T>
 inline void*
 r_Collection<T>::get_internal_representation() const
 {
-    return (void*)coll;
+    return static_cast<void*>(coll);
 }

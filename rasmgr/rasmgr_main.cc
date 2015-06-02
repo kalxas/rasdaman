@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_main.cc
  *
@@ -80,6 +80,8 @@ LocalServerManager  localServerManager;
 RandomGenerator     randomGenerator;
 
 void installSignalHandlers();
+void SigIntHandler(int sig);
+
 
 int main(int argc, char** argv, char** envp)
 {
@@ -174,7 +176,7 @@ int main(int argc, char** argv, char** envp)
         }
         catch(RCError& e)
         {
-            char *errorMsg;
+            char *errorMsg = NULL;
             e.getString(errorMsg);
             RMInit::logOut<<"Error: "<<errorMsg<<std::endl;
         }
@@ -210,7 +212,7 @@ int main(int argc, char** argv, char** envp)
 
 // danger: RMInit::logOut in interrupt???
 // handler for SIGINT and SIGTERM = call for exit
-void SigIntHandler(int sig)
+void SigIntHandler(__attribute__ ((unused)) int sig)
 {
     RMInit::logOut<<"rasmgr received terminate signal...";
     masterCommunicator.shouldExit();
@@ -232,13 +234,13 @@ void exitbyerror(const char* text)
     exit( RASMGR_EXIT_FAILURE );
 }
 
-char *strtolwr(char *string)// should be somewhere in the C-library, but can't find it
+char *strtolwr(char *string2)// should be somewhere in the C-library, but can't find it
 {
-    char *t=string;
+    char *t=string2;
     for(; *t; t++)
     {
         if(*t>='A' && *t<='Z') *t|='a'-'A';
     }
-    return string;
+    return string2;
 }
 

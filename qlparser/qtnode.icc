@@ -55,7 +55,7 @@ QtNode::getNodeType() const
 inline void
 QtNode::setInput( QtOperation* , QtOperation* )
 {
-    RMInit::logOut << "Error: Method setInput(...) is undefined for node type " << getNodeType() << " in the query tree." << endl;
+    RMInit::logOut << "Error: Method setInput(...) is undefined for node type " << static_cast<int>(getNodeType()) << " in the query tree." << endl;
 }
 
 

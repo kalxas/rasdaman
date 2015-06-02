@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * INCLUDE: memblockvec.cc
  *
@@ -82,7 +82,7 @@ void r_Memory_Block_Vector::free_data( void )
 
     for (i=0; i<numBlocks; i++)
     {
-        delete [] blocks[i];
+        delete [] static_cast<char*>(blocks[i]);
         blocks[i] = NULL;
     }
     numBlocks = 0;

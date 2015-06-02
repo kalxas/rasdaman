@@ -325,27 +325,6 @@ public:
 
 
 
-//@ManMemo: Module: {\bf rasdl}
-
-/**
-  Class that represents the UNION type.
-*/
-
-/**
-  * \ingroup Rasdls
-  */
-class Parse_union : public Parse_composite
-{
-    protected:
-    ///
-    Parse_union();
-    ///
-    virtual ~Parse_union();
-    ///
-    virtual void output(FILE*)const;
-};
-
-
 class Parse_operation;
 
 

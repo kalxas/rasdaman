@@ -228,7 +228,7 @@ r_Line::r_Line(r_Point &s,r_Point &e)
 {
     a = e[1] - s[1];
     b = s[0] - e[0];
-    c = (double)e[0]*(double)s[1] - (double)s[0]*(double)e[1];
+    c = static_cast<double>(e[0]) * static_cast<double>(s[1]) - static_cast<double>(s[0]) * static_cast<double>(e[1]);
 }
 
 double r_Line::getA()

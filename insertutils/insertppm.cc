@@ -199,6 +199,19 @@ static int readppm_formatP=0;
 
 // --- functions --------------------------------------------
 
+r_Minterval readHeader( const char *fName, bool mdd3d, unsigned int numSlices );
+
+void readImage( char* contents, const char *fName, bool mdd3d, PixelType pixType, bool rescale, r_Range slicenum, r_Range slicepos ) throw (r_Error);
+
+void openImage( const char *fName, bool mdd3d );
+
+void readRows(char* contents, r_Range startRow, r_Range numRows, PixelType pixType, bool rescale);
+
+void createMarray(const r_Minterval &dom, r_Ref<r_GMarray> &mddPtr, PixelType pixType);
+
+void printUsage(const char* name);
+
+
 /*
  * calculate size of image
  * for a 3D image, numSlices is used to determine the z axis extent
@@ -316,7 +329,7 @@ void readImage(char* contents, const char *fName,__attribute__ ((unused))  bool 
                 contents[pos*PIXSIZE_UNSIGNED + 1] = (char) (PPM_GETB( scaledPixel ) >> 8 );
                 break;
             default:
-                cerr << "Error: unknown pixel type code: " << pixType << endl;
+                cerr << "Error: unknown pixel type code: " << static_cast<int>(pixType) << endl;
                 break;
             }
         }
@@ -428,7 +441,7 @@ void createMarray(const r_Minterval &dom, r_Ref<r_GMarray> &mddPtr, PixelType pi
         mddPtr = (r_GMarray*)(new r_Marray<r_UShort>(dom));
         break;
     default:
-        cerr << "Error: unknown pixel type code: " << pixType << endl;
+        cerr << "Error: unknown pixel type code: " << static_cast<int>(pixType) << endl;
         break;
     }
 }
@@ -783,7 +796,7 @@ main( int argc, char** argv )
             break;
 
         default:
-            cerr << "Error: unknown pixel type code: " << pixType << endl;
+            cerr << "Error: unknown pixel type code: " << static_cast<int>(pixType) << endl;
             throw r_Error( r_Error::r_Error_General );
         }
         LOG << "mdd type = " << mddTypeName << ", set type = " << collTypeName << endl;

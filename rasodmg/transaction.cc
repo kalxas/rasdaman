@@ -195,27 +195,27 @@ r_Transaction::commit() throw( r_Error )
             {
             case POINT:
                 RMInit::logOut << "transient Point DELETED" << std::endl;
-                delete ((r_Point*)(*iter2)->ref);
+                delete (static_cast<r_Point*>((*iter2)->ref));
                 break;
 
             case SINTERVAL:
                 RMInit::logOut << "transient Sinterval DELETED" << std::endl;
-                delete ((r_Sinterval*)(*iter2)->ref);
+                delete (static_cast<r_Sinterval*>((*iter2)->ref));
                 break;
 
             case MINTERVAL:
                 RMInit::logOut << "transient Minterval DELETED" << std::endl;
-                delete ((r_Minterval*)(*iter2)->ref);
+                delete (static_cast<r_Minterval*>((*iter2)->ref));
                 break;
 
             case OID:
                 RMInit::logOut << "transient OId DELETED" << std::endl;
-                delete ((r_OId*)(*iter2)->ref);
+                delete (static_cast<r_OId*>((*iter2)->ref));
                 break;
 
             default:
                 RMInit::logOut << "transient Scalar DELETED" << std::endl;
-                delete ((r_Scalar*)(*iter2)->ref);
+                delete (static_cast<r_Scalar*>((*iter2)->ref));
                 break;
             }
 
@@ -282,27 +282,27 @@ r_Transaction::abort()
             {
             case POINT:
                 RMInit::logOut << "  Transient Point DELETED" << std::endl;
-                delete ((r_Point*)(*iter2)->ref);
+                delete (static_cast<r_Point*>((*iter2)->ref));
                 break;
 
             case SINTERVAL:
                 RMInit::logOut << "  Transient Sinterval DELETED" << std::endl;
-                delete ((r_Sinterval*)(*iter2)->ref);
+                delete (static_cast<r_Sinterval*>((*iter2)->ref));
                 break;
 
             case MINTERVAL:
                 RMInit::logOut << "  Transient Minterval DELETED" << std::endl;
-                delete ((r_Minterval*)(*iter2)->ref);
+                delete (static_cast<r_Minterval*>((*iter2)->ref));
                 break;
 
             case OID:
                 RMInit::logOut << "  Transient OId DELETED" << std::endl;
-                delete ((r_OId*)(*iter2)->ref);
+                delete (static_cast<r_OId*>((*iter2)->ref));
                 break;
 
             default:
                 RMInit::logOut << "  Transient Scalar DELETED" << std::endl;
-                delete ((r_Scalar*)(*iter2)->ref);
+                delete (static_cast<r_Scalar*>((*iter2)->ref));
                 break;
             }
 

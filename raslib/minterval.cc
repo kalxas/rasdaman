@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: Minterval.cc
  *
@@ -53,9 +53,9 @@ using namespace std;
 #endif
 
 r_Minterval::r_Minterval(r_Dimension dim)
-    : dimensionality(dim),
-      streamInitCnt(0),
-      intervals(NULL)
+    : intervals(NULL),
+      dimensionality(dim),
+      streamInitCnt(0)
 {
     RMDBGONCE(20,   RMDebug::module_raslib, "r_Minterval", "r_Minterval(r_Dimension), this=" << (long)this)
     intervals = new r_Sinterval[ dimensionality ];
@@ -73,7 +73,7 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
 
     char* p = NULL; // for counting ','
     // for parsing the string
-    std::istrstream str(mIntStr, strlen(mIntStr) + 1);
+    std::istrstream str(mIntStr, static_cast<std::streamsize>(strlen(mIntStr)) + 1);
     char c = 0;
     r_Sinterval sint;
     r_Range b = 0; // bound for Sinterval
@@ -86,7 +86,7 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
 
     // calculate dimensionality
     p = mIntStr;
-    while(p = strchr(++p, ','))
+    while((p = strchr(++p, ',')))
         dimensionality++;
 
     // allocate space for intervals
@@ -153,7 +153,7 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
         str >> c;
 
         // --- next dimension needs either ',' separator or ']' end tag
-        if (i != dimensionality-1 && c != ',' || i == dimensionality-1 && c != ']')
+        if ((i != dimensionality-1 && c != ',') || (i == dimensionality-1 && c != ']'))
         {
             dimensionality = 0;
             delete[] intervals;
@@ -169,18 +169,18 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
 }
 
 r_Minterval::r_Minterval(char* mIntStr) throw(r_Eno_interval)
-    :   dimensionality(1),
-        streamInitCnt(0),
-        intervals(NULL)
+    :   intervals(NULL),
+        dimensionality(1),
+        streamInitCnt(0)
 {
     RMDBGONCE(20,   RMDebug::module_raslib, "r_Minterval", "r_Minterval(char*), this=" << (long)this)
     constructorinit(mIntStr);
 }
 
 r_Minterval::r_Minterval(const char* mIntStr) throw(r_Eno_interval)
-    :   dimensionality(1),
-        streamInitCnt(0),
-        intervals(NULL)
+    :   intervals(NULL),
+        dimensionality(1),
+        streamInitCnt(0)
 {
     RMDBGONCE(20,   RMDebug::module_raslib, "r_Minterval", "r_Minterval(char*), this=" << (long)this)
     char* temp = (char*)mymalloc((1 + strlen(mIntStr)) * sizeof(char));
@@ -227,18 +227,18 @@ r_Minterval::operator<<(r_Range p) throw(r_Einit_overflow)
 }
 
 r_Minterval::r_Minterval()
-    :   dimensionality(0),
-        streamInitCnt(0),
-        intervals(NULL)
+    :   intervals(NULL),
+        dimensionality(0),
+        streamInitCnt(0)
 {
     RMDBGONCE(20,   RMDebug::module_raslib, "r_Minterval", "r_Minterval(), this=" << this)
 }
 
 //cannot use the initialise function because it will crash
 r_Minterval::r_Minterval(const r_Minterval& minterval)
-    :   dimensionality(0),
-        streamInitCnt(0),
-        intervals(NULL)
+    :   intervals(NULL),
+        dimensionality(0),
+        streamInitCnt(0)
 {
     RMDBGONCE(20,   RMDebug::module_raslib, "r_Minterval", "r_Minterval(const r_Minterval&), this=" << this)
     dimensionality = minterval.dimensionality;
@@ -295,7 +295,7 @@ r_Minterval::intersects_with(const r_Minterval& minterval) const
 r_Sinterval
 r_Minterval::operator[](r_Dimension i) const
 {
-    if (i < 0 || i >= dimensionality)
+    if (i >= dimensionality)
     {
         RMInit::logOut << "r_Minterval:::operator[](" << i << ") const index out of bounds (" << dimensionality << ")" << endl;
         throw r_Eindex_violation(0, dimensionality-1, i);
@@ -307,7 +307,7 @@ r_Minterval::operator[](r_Dimension i) const
 r_Sinterval&
 r_Minterval::operator[](r_Dimension i)
 {
-    if (i < 0 || i >= dimensionality)
+    if (i >= dimensionality)
     {
         RMInit::logOut << "r_Minterval:::operator[](" << i << ") index out of bounds (" << dimensionality << ")" << endl;
         throw r_Eindex_violation(0, dimensionality-1, i);
@@ -853,7 +853,7 @@ r_Minterval::get_string_representation() const
 
     // allocate buffer and initialize string stream
     char* buffer = new char[bufferSize];
-    std::ostrstream domainStream(buffer, bufferSize);
+    std::ostrstream domainStream(buffer, static_cast<int>(bufferSize));
 
     // write into string stream
     domainStream << (*this) << std::ends;
@@ -874,7 +874,7 @@ r_Minterval::cell_count() const throw(r_Error)
     r_Point ptExt=get_extent();
 
     for (r_Dimension i=0; i<dimensionality; i++)
-        cellCount *= ptExt[i];
+        cellCount *= static_cast<r_Area>(ptExt[i]);
 
     return cellCount;
 }
@@ -953,7 +953,7 @@ r_Minterval::cell_point(r_Area offset) const throw(r_Eno_cell, r_Error)
 void
 r_Minterval::delete_dimension(r_Dimension dim) throw(r_Eindex_violation)
 {
-    if (dim < 0 || dim >= dimensionality)
+    if (dim >= dimensionality)
     {
         RMInit::logOut << "r_Minterval::delete_dimension(" << dim << ") dimension is out of range (" << dimensionality << ")" << endl;
         throw r_Eindex_violation(0, dimensionality-1, dim);
@@ -1053,11 +1053,12 @@ std::ostream& operator<<(std::ostream& os, const std::vector<r_Minterval>& vec)
 {
     os << " Vector { ";
 
-    int size = vec.size();
-    for (int i = 0; i < size; i++)
+    unsigned int size = vec.size();
+    for (unsigned int i = 0; i < size; i++)
         os << vec[i] << std::endl;
 
     os << " } ";
+    return os;
 }
 
 std::ostream& operator<<(std::ostream& s, const vector<double>& doubleVec)

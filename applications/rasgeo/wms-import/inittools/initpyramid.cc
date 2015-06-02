@@ -579,35 +579,35 @@ closeTransaction( bool doCommit ) throw (r_Error)
 
 // determine database mdd and set type from input parameter
 void
-getType( const char* mapType, const char** mddTypeP, const char** setTypeP, size_t* cellSizeP ) throw (InitError)
+getType( const char* mapType2, const char** mddTypeP, const char** setTypeP, size_t* cellSizeP ) throw (InitError)
 {
-    ENTER( "getTypeName, mapType=" << mapType );
+    ENTER( "getTypeName, mapType=" << mapType2 );
 
-    if (strcasecmp( mapType, TYPE_DOP_GREY_1 ) == 0 || strcasecmp( mapType, TYPE_DOP_GREY_2 ) == 0)
+    if (strcasecmp( mapType2, TYPE_DOP_GREY_1 ) == 0 || strcasecmp( mapType2, TYPE_DOP_GREY_2 ) == 0)
     {
         *mddTypeP = MDD_DOP_GREY;
         *setTypeP = SET_DOP_GREY;
         *cellSizeP = SIZE_DOP_GREY;
     }
-    else if (strcasecmp( mapType, TYPE_DOP_RGB_1 ) == 0 || strcasecmp( mapType, TYPE_DOP_RGB_2 ) == 0)
+    else if (strcasecmp( mapType2, TYPE_DOP_RGB_1 ) == 0 || strcasecmp( mapType2, TYPE_DOP_RGB_2 ) == 0)
     {
         *mddTypeP = MDD_DOP_RGB;
         *setTypeP = SET_DOP_RGB;
         *cellSizeP = SIZE_DOP_RGB;
     }
-    else if (strcasecmp( mapType, TYPE_TK32_1 ) == 0 || strcasecmp( mapType, TYPE_TK32_2 ) == 0)
+    else if (strcasecmp( mapType2, TYPE_TK32_1 ) == 0 || strcasecmp( mapType2, TYPE_TK32_2 ) == 0)
     {
         *mddTypeP = MDD_TK32;
         *setTypeP = SET_TK32;
         *cellSizeP = SIZE_TK32;
     }
-    else if (strcasecmp( mapType, TYPE_TK8 ) == 0)
+    else if (strcasecmp( mapType2, TYPE_TK8 ) == 0)
     {
         *mddTypeP = MDD_TK8;
         *setTypeP = SET_TK8;
         *cellSizeP = SIZE_TK8;
     }
-    else if (strcasecmp( mapType, TYPE_DEM_1 ) == 0 || strcasecmp( mapType, TYPE_DEM_2 ) == 0)
+    else if (strcasecmp( mapType2, TYPE_DEM_1 ) == 0 || strcasecmp( mapType2, TYPE_DEM_2 ) == 0)
     {
         *mddTypeP = MDD_DEM;
         *setTypeP = SET_DEM;
@@ -628,7 +628,7 @@ void extendToFit(long &dim)
 }
 
 // bring everything to origin
-void normalize (long& pixXminP, long& pixXmaxP, long& pixYminP, long& pixYmaxP )
+void normalize ( __attribute__ ((unused)) long& pixXminP,  __attribute__ ((unused))long& pixXmaxP,  __attribute__ ((unused))long& pixYminP,  __attribute__ ((unused))long& pixYmaxP )
 {
     pixXmax -= pixXmin;
     pixYmax -= pixYmin;
@@ -638,17 +638,17 @@ void normalize (long& pixXminP, long& pixXmaxP, long& pixYminP, long& pixYmaxP )
 }
 
 
-void createPyramids( const char* mddTypeName, const char* setTypeName, size_t cellSize, long pixXmin, long pixXmax, long pixYmin, long pixYmax ) throw (r_Error, InitError)
+void createPyramids( const char* mddTypeName, const char* setTypeName, size_t cellSize, long pixXmin2, long pixXmax2, long pixYmin2, long pixYmax2 ) throw (r_Error, InitError)
 {
     ENTER( "createPyramids, mddTypeName=" << mddTypeName << ", setTypeName=" << setTypeName );
     long currentXmin;
     long currentYmin;
     long currentXmax;
     long currentYmax;
-    currentXmin = pixXmin;
-    currentXmax = pixXmax;
-    currentYmin = pixYmin;
-    currentYmax = pixYmax;
+    currentXmin = pixXmin2;
+    currentXmax = pixXmax2;
+    currentYmin = pixYmin2;
+    currentYmax = pixYmax2;
 
     // tile domain, equals lower left domain
     r_Minterval tileDomain = r_Minterval( 2 )
@@ -675,8 +675,8 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
 
         if (levels != AUTO_LEVEL)
         {
-            currentXmax = (long)ceil(pixXmax / levelValues[currentLevel]);
-            currentYmax = (long)ceil(pixYmax / levelValues[currentLevel]);
+            currentXmax = (long)ceil(pixXmax2 / levelValues[currentLevel]);
+            currentYmax = (long)ceil(pixYmax2 / levelValues[currentLevel]);
             extendToFit(currentXmax);
             extendToFit(currentYmax);
         }
@@ -688,7 +688,7 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
         else
         {
             char numberString[NUMSTRINGSIZE];
-            memset( numberString, NUMSTRINGSIZE, '\0' );
+            memset( numberString, '\0', NUMSTRINGSIZE );
             sprintf( numberString, "%d", currentLevel );
             currentMapName = string(mapName) + PYRAMID_SEPARATOR + numberString;
         }

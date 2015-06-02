@@ -18,7 +18,7 @@
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 
 /**
 * rasql
@@ -506,49 +506,49 @@ void printScalar( const r_Scalar& scalar )
     switch( scalar.get_type()->type_id() )
     {
     case r_Type::BOOL:
-        LOG( ( ((r_Primitive*)&scalar)->get_boolean() ? "t" : "f" ) << flush );
+        LOG( ( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_boolean() ? "t" : "f" ) << flush );
         break;
 
     case r_Type::CHAR:
-        LOG( (int)((r_Primitive*)&scalar)->get_char() << flush );
+        LOG( (int)((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_char() << flush );
         break;
 
     case r_Type::OCTET:
-        LOG( (int)((r_Primitive*)&scalar)->get_octet() << flush );
+        LOG( (int)((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_octet() << flush );
         break;
 
     case r_Type::SHORT:
-        LOG( ((r_Primitive*)&scalar)->get_short() << flush );
+        LOG( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_short() << flush );
         break;
 
     case r_Type::USHORT:
-        LOG( ((r_Primitive*)&scalar)->get_ushort() << flush );
+        LOG( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_ushort() << flush );
         break;
 
     case r_Type::LONG:
-        LOG( ((r_Primitive*)&scalar)->get_long() << flush );
+        LOG( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_long() << flush );
         break;
 
     case r_Type::ULONG:
-        LOG( ((r_Primitive*)&scalar)->get_ulong() << flush );
+        LOG( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_ulong() << flush );
         break;
 
     case r_Type::FLOAT:
-        LOG( ((r_Primitive*)&scalar)->get_float() << flush );
+        LOG( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_float() << flush );
         break;
 
     case r_Type::DOUBLE:
-        LOG( ((r_Primitive*)&scalar)->get_double() << flush );
+        LOG( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_double() << flush );
         break;
 
     case r_Type::COMPLEXTYPE1:
     case r_Type::COMPLEXTYPE2:
-        LOG( "(" << ((r_Complex*)&scalar)->get_re() << "," << ((r_Complex*)&scalar)->get_im() << ")" << flush );
+        LOG( "(" << ((r_Complex*)&const_cast<r_Scalar&>(scalar))->get_re() << "," << ((r_Complex*)&const_cast<r_Scalar&>(scalar))->get_im() << ")" << flush );
         break;
 
     case r_Type::STRUCTURETYPE:
     {
-        r_Structure* structValue = (r_Structure*)&scalar;
+        r_Structure* structValue = (r_Structure*)&const_cast<r_Scalar&>(scalar);
         LOG( "{ " << flush );
         for( int i=0; i<structValue->count_elements(); i++ )
         {
@@ -746,16 +746,16 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
  * throws r_Error upon general database comm error
  * needs an open transaction
  */
-r_Marray_Type * getTypeFromDatabase( const char *mddTypeName ) throw(RasqlError, r_Error)
+r_Marray_Type * getTypeFromDatabase( const char *mddTypeName2 ) throw(RasqlError, r_Error)
 {
-    ENTER( "getTypeFromDatabase, mddTypeName=" << mddTypeName );
+    ENTER( "getTypeFromDatabase, mddTypeName=" << mddTypeName2 );
     r_Marray_Type *retval = NULL;
     char* typeStructure = NULL;
 
     // first, try to get type structure from database using a separate r/o transaction
     try
     {
-        typeStructure = db.getComm()->getTypeStructure(mddTypeName, ClientComm::r_MDDType_Type);
+        typeStructure = db.getComm()->getTypeStructure(mddTypeName2, ClientComm::r_MDDType_Type);
         TALK( "type structure is " << typeStructure );
     }
     catch (r_Error& err)
@@ -763,9 +763,9 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName ) throw(RasqlError,
         if (err.get_kind() == r_Error::r_Error_DatabaseClassUndefined)
         {
             TALK( "Type is not a well known type: " << typeStructure );
-            typeStructure = new char[strlen(mddTypeName) + 1];
+            typeStructure = new char[strlen(mddTypeName2) + 1];
             // earlier code tried this one below, but I feel we better are strict -- PB 2003-jul-06
-            // strcpy(typeStructure, mddTypeName);
+            // strcpy(typeStructure, mddTypeName2);
             // TALK( "using instead: " << typeStructure );
             throw RasqlError( MDDTYPEINVALID );
         }
@@ -809,7 +809,7 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName ) throw(RasqlError,
     return retval;
 } // getTypeFromDatabase()
 
-void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
+void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char** argv ) throw (RasqlError, r_Error)
 {
     char *fileContents = NULL;                       // contents of file satisfying "$1" parameter in query
     r_Set< r_GMarray* >* fileContentsChunked = NULL; // file contents partitioned into smaller chunks
@@ -868,7 +868,7 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
                 long chunkSize = chunkDom.cell_count();
                 char* chunkData = new char[chunkSize];
                 fseek( fileD, offset, SEEK_SET );
-                fread( chunkData, 1, chunkSize, fileD );
+                size_t rsize = fread( chunkData, 1, chunkSize, fileD );
                 r_GMarray* chunkMDD = new r_GMarray(chunkDom, 1, NULL, false);
                 chunkMDD->set_array(chunkData);
                 fileContentsChunked->insert_element(chunkMDD);
@@ -897,7 +897,7 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
             {
                 fileContents = new char[size];
                 fseek( fileD, 0, SEEK_SET );
-                fread( fileContents, 1, size, fileD );
+                size_t rsize = fread( fileContents, 1, size, fileD );
             }
             catch(std::bad_alloc)
             {
@@ -926,7 +926,7 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
         query << *fileMDD;
 
         TALK( "constants are:" );
-        r_Set<r_GMarray *> * myConstSet = (r_Set<r_GMarray *> *) query.get_constants();
+        r_Set<r_GMarray *> * myConstSet = const_cast<r_Set<r_GMarray *> *>(query.get_constants());
         r_Iterator< r_GMarray *> iter = myConstSet->create_iterator();
         int i;
         for ( i=1, iter.reset(); iter.not_done(); iter++, i++ )
@@ -1005,7 +1005,7 @@ void doStuff( int argc, char** argv ) throw (RasqlError, r_Error)
 }
 
 void
-crash_handler (int sig, siginfo_t* info, void * ucontext)
+crash_handler (__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext)
 {
     ENTER( "crash_handler");
 

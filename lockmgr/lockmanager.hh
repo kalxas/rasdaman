@@ -58,9 +58,6 @@ class LockManager
         // destructor is private such that it cannot be called from the outside
         ~LockManager();
 
-        // assignment operator is private such that it cannot be called from the outside
-        LockManager& operator=(LockManager const&);
-
         // a static lock manager object used to call the function of the lock manager
         static LockManager *LM_instance;
 

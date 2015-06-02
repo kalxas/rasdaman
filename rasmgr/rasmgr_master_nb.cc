@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_master_nb.cc
  *
@@ -308,7 +308,7 @@ bool hostCmpPeer(char *h1, char *h2)
 
                 struct addrinfo hints, *ai;
                 char addrstr[256];
-                void *ptr;
+                void *ptr = NULL;
 
                 memset (&hints, 0, sizeof(hints));
                 hints.ai_family = AF_UNSPEC;
@@ -406,7 +406,7 @@ int MasterComm::processRequest( NbJob &currentJob )
         body = strstr(body, " ");
         *body=0; // terminate hostname (!) string "hostname body"
         body += strlen( " " );
-        for (int i = 0; i < config.inpeers.size(); i++) {
+        for (unsigned int i = 0; i < config.inpeers.size(); i++) {
             if (hostCmpPeer(config.inpeers[i],hostName)) {
                 known = true;        
             }       
@@ -583,14 +583,14 @@ void MasterComm::commitAuthFile()
 int MasterComm::answerAccessDenied()
 {
     // send to rascontrol when wrong login
-    sprintf(outBuffer,"HTTP/1.1 400 Error\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\nAccess denied",strlen("Access denied")+1);
+    sprintf(outBuffer,"HTTP/1.1 400 Error\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\nAccess denied",strlen("Access denied")+1);
     return strlen(outBuffer)+1;
 }
 
 int MasterComm::answerAccessDeniedCode()
 {
     // send to clients requesting free server when wrong login
-    sprintf(outBuffer,"HTTP/1.1 400 Error\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n802 Access denied",strlen("802 Access denied")+1);
+    sprintf(outBuffer,"HTTP/1.1 400 Error\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n802 Access denied",strlen("802 Access denied")+1);
     return strlen(outBuffer)+1;
 }
 
@@ -740,7 +740,7 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
                     // try to obtain host's IP (must be known, no good reason why this should fail)
                     // reason: to circumvent some problems with ill-set domain names
                     struct hostent *hostInfo = gethostbyname( r.getHostNetwName() );
-                    char *ipString;
+                    char *ipString = NULL;
                     if (hostInfo!=NULL)             // IP address found?
                     {
                         // solving the problem of getting the local IP
@@ -790,7 +790,7 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
                 char *auth = strstr(myheader,"Authorization:"); // should be present, otherwise the client wouldn't have been accepted
                 char *value = strtok(auth+strlen("Authorization:"),"\r\n");
                 
-                sprintf(outmsg,"POST peerrequest HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nAuthorization: ras %s\r\nContent-length: %d\r\n\r\n%s",value,strlen(newbody)+1,newbody); // Forward authorization to peer
+                sprintf(outmsg,"POST peerrequest HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasMGR/1.0\r\nAuthorization: ras %s\r\nContent-length: %lu\r\n\r\n%s",value,strlen(newbody)+1,newbody); // Forward authorization to peer
                 free(myheader);
                 myheader = NULL;
                 int peer = currentPosition + 1; // going round-robin over outpeers, starting with the one after the last successful one   
@@ -853,10 +853,10 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
     answText = convertAnswerCode(answCode);
 
     if(answCode == MSG_OK)
-        sprintf(outBuffer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n%s",answCode,answText,strlen(answerString)+1,answerString);
+        sprintf(outBuffer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%s",answCode,answText,strlen(answerString)+1,answerString);
     else
     {
-        sprintf(outBuffer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n%d %s",400,"Error",strlen(answText)+1,answCode,answText);
+        sprintf(outBuffer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%d %s",400,"Error",strlen(answText)+1,answCode,answText);
         clientQueue.put(clientID, (const char*)databaseName, sType, answCode);
     }
 
@@ -878,16 +878,16 @@ const char* MasterComm::askOutpeer(int peer, char* outmsg) {
 
     ENTER( "MasterComm::askOutpeer: enter." );
     struct protoent* getprotoptr = getprotobyname("tcp");
-    struct hostent *hostinfo = gethostbyname(config.outpeers[peer]);
+    struct hostent *hostinfo = gethostbyname(config.outpeers[static_cast<unsigned long>(peer)]);
     if(hostinfo==NULL)
     {
-        RMInit::logOut << "Error locating RasMGR" << config.outpeers[peer] <<" ("<<strerror(errno)<<')'<<endl;
+        RMInit::logOut << "Error locating RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] <<" ("<<strerror(errno)<<')'<<endl;
     }
 
     sockaddr_in internetSocketAddress;
 
     internetSocketAddress.sin_family=AF_INET;
-    internetSocketAddress.sin_port=htons(config.outports[peer]); 
+    internetSocketAddress.sin_port=htons(config.outports[static_cast<unsigned long>(peer)]);
     internetSocketAddress.sin_addr=*(struct in_addr*)hostinfo->h_addr;
 
     static char answer[MAXMSG];
@@ -927,7 +927,7 @@ const char* MasterComm::askOutpeer(int peer, char* outmsg) {
 
     if(nbytes<0)
     {
-        RMInit::logOut << "Error writing message to RasMGR" << config.outpeers[peer] << " ("<<strerror(errno)<<')' << endl;
+        RMInit::logOut << "Error writing message to RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] << " ("<<strerror(errno)<<')' << endl;
         close(sock);
         return answer;
     }
@@ -951,7 +951,7 @@ const char* MasterComm::askOutpeer(int peer, char* outmsg) {
 
     if(nbytes<0)
     {
-        RMInit::logOut << "Error reading answer from RasMGR" << config.outpeers[peer] <<" ("<<strerror(errno)<<')'<<endl;
+        RMInit::logOut << "Error reading answer from RasMGR" << config.outpeers[static_cast<unsigned long>(peer)] <<" ("<<strerror(errno)<<')'<<endl;
         sprintf(answer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %d\r\n\r\n%d %s",400,"Error",6,MSG_NOSUITABLESERVER,"Error"); // again, as it might get changed above
         return answer;
     }
@@ -1105,9 +1105,9 @@ void ClientQueue::put(ClientID &clientID, const char *dbName, char serverType, i
 
     // iterate thru list of client requests
     TALK( "iterating through list, client table size=" << clients.size() );
-    for(int i=0; i<clients.size(); i++)
+    for(int i=0; i<static_cast<int>(clients.size()); i++)
     {
-        ClientEntry& curClient = clients[i];    // list entry to be inspected
+        ClientEntry& curClient = clients[static_cast<unsigned int>(i)];    // list entry to be inspected
 
         // on the fly, remove first list entry if outdated or inactive
         // FIXME: what an ugly code -- PB 2003-nov-20
@@ -1125,7 +1125,7 @@ void ClientQueue::put(ClientID &clientID, const char *dbName, char serverType, i
         // have an entry with matching client ID?
         if(curClient.clientID == clientID)
         {
-            client = &clients[i];       // remember this entry
+            client = &clients[static_cast<unsigned int>(i)];       // remember this entry
             break;
         }
     } // for
@@ -1175,9 +1175,9 @@ int ClientQueue::canBeServed(ClientID &clientID, const char *dbName, char server
     if(clients.size() == 0)
         return 0;
 
-    for(int i=0; i<clients.size(); i++)
+    for(int i=0; i<static_cast<int>(clients.size()); i++)
     {
-        ClientEntry& client = clients[i];
+        ClientEntry& client = clients[static_cast<unsigned int>(i)];
 
         // on the fly, clean first element if necessary
         // FIXME: this is not just as ugly as above, it also duplicates code! -- PB 2003-nov-20

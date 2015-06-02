@@ -106,7 +106,7 @@ r_Collection<T>::r_Collection( const void* node1 )
     card = 0;
     coll = new CNode;
     nptr = coll;
-    optr = (CNode*)const_cast<void*>(node1);
+    optr = static_cast<CNode*>(const_cast<void*>(node1));
 
     while ( optr->next != NULL )
     {
@@ -303,7 +303,7 @@ r_Collection<T>::set_internal_representation( const void* node1 )
 
     card = 0;
     nptr = coll;
-    optr = (CNode*)const_cast<void*>(node1);
+    optr = static_cast<CNode*>(const_cast<void*>(node1));
 
     while ( optr->next != NULL )
     {
@@ -370,7 +370,7 @@ r_Collection<T>::insert_obj_into_db()
         r_Iterator<T> iter = create_iterator();
         for ( iter.reset(); iter.not_done(); iter++ )
             // Search for *1 for an explanation of the following cast.
-            ((r_Object*)((r_Ref<r_Object>)(*iter)).ptr())->insert_obj_into_db( object_name );
+            (static_cast<r_Object*>((static_cast<r_Ref<r_Object> >((*iter))).ptr()))->insert_obj_into_db( object_name );
     }
 }
 
@@ -400,7 +400,7 @@ r_Collection<T>::update_obj_in_db()
             // to r_Ref objects. Anyway, if the elements are not of type r_Ref, it is not possible to make
             // them persistent. A workaround would be to call a global function instead having a template
             // specification for our case.
-            r_Ref<r_Object> ref = (r_Ref<r_Object>)(*iter);
+            r_Ref<r_Object> ref = static_cast<r_Ref<r_Object> >((*iter));
 
             RMInit::logOut << "    Collection object " << ref.get_oid() << "  " << std::flush;
 
@@ -408,7 +408,7 @@ r_Collection<T>::update_obj_in_db()
             if( ref.get_memory_ptr() != 0 )
             {
                 // Search for *1 for an explanation of the following cast.
-                switch( ((r_Ref<r_Object>)(*iter))->get_status() )
+                switch( (static_cast<r_Ref<r_Object> >((*iter)))->get_status() )
                 {
                 case r_Object::deleted:
                     RMInit::logOut << "state DELETED,  not implemented" << endl;
@@ -418,7 +418,7 @@ r_Collection<T>::update_obj_in_db()
                 case r_Object::created:
                     RMInit::logOut << "state CREATED,  writing  ... " << std::flush;
                     // Search for *1 for an explanation of the following cast.
-                    ((r_Object*)((r_Ref<r_Object>)(*iter)).ptr())->insert_obj_into_db( object_name );
+                    (static_cast<r_Object*>((static_cast<r_Ref<r_Object> >((*iter))).ptr()))->insert_obj_into_db( object_name );
                     RMInit::logOut << "OK" << endl;
                     break;
 
@@ -458,7 +458,7 @@ r_Collection<T>::update_obj_in_db()
             // specification for our case.
             // The oid could also be got by (*iter)->get_oid() from r_Object but in this case, dereferencing
             // r_Ref would load the object from the server.
-            r_OId currentOId = ((r_Ref<r_Object>)(*iter)).get_oid();
+            r_OId currentOId = (static_cast<r_Ref<r_Object> >((*iter))).get_oid();
 
             RMInit::logOut << "    Collection object " << currentOId << "  " << std::flush;
 
@@ -608,7 +608,7 @@ r_Collection<T>::get_element_type_schema()
     {
         if( typePtr->type_id() == r_Type::COLLECTIONTYPE )
         {
-            const r_Collection_Type* collectionTypePtr = (const r_Collection_Type*)typePtr;
+            const r_Collection_Type* collectionTypePtr = static_cast<const r_Collection_Type*>(typePtr);
             elementTypePtr = &(collectionTypePtr->element_type());
         }
     }

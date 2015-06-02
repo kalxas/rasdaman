@@ -567,6 +567,7 @@ protected:
 */
 extern std::ostream& operator<<( std::ostream& s, const r_Minterval& d );
 extern std::ostream& operator<<( std::ostream& s, const std::vector<r_Minterval>& d );
+extern std::ostream& operator<<( std::ostream& s, const vector<double>& doubleVec);
 
 #include "raslib/minterval.icc"
 
