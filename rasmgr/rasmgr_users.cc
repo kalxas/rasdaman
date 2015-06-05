@@ -387,7 +387,8 @@ Authorization::Authorization()
 {
     inConfigFile=false;
 
-    int pathLen = snprintf( authFileName, FILENAME_MAX, "%s/%s", getenv("HOME"), RASMGR_AUTH_FILE );
+    // get server authentication file path/name
+    int pathLen = snprintf( authFileName, FILENAME_MAX, "%s/%s", CONFDIR, RASMGR_AUTH_FILE );
     if (pathLen >= FILENAME_MAX)
     {
         authFileName[FILENAME_MAX-1] = '\0';    // force-terminate string before printing
