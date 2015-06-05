@@ -127,7 +127,7 @@ OId
 EOId::getOId() const
 {
     RMDBGONCE(10, RMDebug::module_adminif, "EOId", "getOId() " << (OId)*this);
-    return(OId)*this;
+    return static_cast<OId>(*this);
 }
 
 

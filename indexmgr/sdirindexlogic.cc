@@ -45,7 +45,7 @@ SDirIndexLogic::insertObject(IndexDS* ixDS, const KeyObject& newKeyObject, __att
     RMDBGENTER(4, RMDebug::module_indexmgr, "SDirIndexLogic", "insertObject(" << newKeyObject << ")");
     r_Minterval newKeyObjectDomain = newKeyObject.getDomain();
 
-    int pos = binarySearch(ixDS, newKeyObjectDomain, Lowest, 0, (int)ixDS->getSize()-1);
+    int pos = binarySearch(ixDS, newKeyObjectDomain, Lowest, 0, static_cast<int>(ixDS->getSize())-1);
     ixDS->insertObject(newKeyObject, static_cast<unsigned int>(pos + 1));
     RMDBGEXIT(4, RMDebug::module_indexmgr, "SDirIndexLogic", "insertObject(" << newKeyObject << ")");
     //should check if insertion was succesfull
@@ -293,7 +293,7 @@ SDirIndexLogic::intersect(const IndexDS* ixDS, const r_Minterval& searchInter, K
         intersectArea.intersection_of(searchInter, currDom);
         area = intersectArea.cell_count();
         RMDBGMIDDLE(4, RMDebug::module_indexmgr, "SDirIndexLogic", "Area = " << area);
-        result = binaryRegionSearch(ixDS, intersectArea, area, intersectedObjs, 0, (int) ixDS->getSize() - 1);
+        result = binaryRegionSearch(ixDS, intersectArea, area, intersectedObjs, 0, static_cast<int>(ixDS->getSize()) - 1);
         RMDBGEXIT(4, RMDebug::module_indexmgr, "SDirIndexLogic", "intersect(" << searchInter << ") vectorsize: " << intersectedObjs.size());
     }
 }
@@ -318,7 +318,7 @@ void
 SDirIndexLogic::containPointQuery(const IndexDS* ixDS, const r_Point& searchPoint, KeyObject& result, __attribute__ ((unused)) const StorageLayout& sl)
 {
     RMDBGENTER(4, RMDebug::module_indexmgr, "SDirIndexLogic", "containPointQuery(" << searchPoint << ")");
-    int ix = binaryPointSearch(ixDS, searchPoint, Lowest, 0, (int) ixDS->getSize() - 1);
+    int ix = binaryPointSearch(ixDS, searchPoint, Lowest, 0, static_cast<int>(ixDS->getSize()) - 1);
     RMDBGMIDDLE(4, RMDebug::module_indexmgr, "SDirIndexLogic", "result from binaryPointSearch ix " << ix);
 
     if (ix >= 0)

@@ -109,7 +109,7 @@ char*
 MDDBaseType::getTypeStructure() const
 {
     char* baseType = myBaseType->getTypeStructure();
-    char* result = (char*)mymalloc(10 + strlen(baseType));
+    char* result = static_cast<char*>(mymalloc(10 + strlen(baseType)));
 
     strcpy(result, "marray <");
     strcat(result, baseType);
@@ -123,7 +123,7 @@ char*
 MDDBaseType::getNewTypeStructure() const
 {
     const char* baseType = TypeFactory::getSyntaxTypeFromInternalType(std::string(myBaseType->getTypeName())).c_str();
-    char* result = (char*)mymalloc(10 + strlen(baseType));
+    char* result = static_cast<char*>(mymalloc(10 + strlen(baseType)));
 
     strcpy(result, "marray {");
     strcat(result, baseType);
@@ -156,7 +156,9 @@ MDDBaseType::compatibleWith(const Type* aType) const
 {
     RMDBGENTER(11, RMDebug::module_catalogif, "MDDBaseType", "compatibleWith(" << aType->getName() << ") " << getName());
     int retval;
-    if( ((MDDType*)const_cast<Type*>(aType))->getSubtype() != MDDBASETYPE && ((MDDType*)const_cast<Type*>(aType))->getSubtype() != MDDDOMAINTYPE && ((MDDType*)const_cast<Type*>(aType))->getSubtype() != MDDDIMENSIONTYPE )
+    if( (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDBASETYPE
+     && (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDOMAINTYPE
+     && (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDIMENSIONTYPE )
     {
         RMDBGMIDDLE(11, RMDebug::module_catalogif, "MDDBaseType", "not mddbasetype or subclass");
         retval = 0;
@@ -164,7 +166,7 @@ MDDBaseType::compatibleWith(const Type* aType) const
     else
     {
         // myBaseType has to be specified
-        if( myBaseType->compatibleWith(((MDDBaseType*)const_cast<Type*>(aType))->getBaseType()) )
+        if( myBaseType->compatibleWith((static_cast<MDDBaseType*>(const_cast<Type*>(aType)))->getBaseType()) )
         {
             retval = 1;
         }

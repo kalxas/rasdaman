@@ -149,7 +149,7 @@ StructType::~StructType()
     ObjectBroker::deregisterDBObject(myOId);
     validate();
     for (unsigned int i = 0; i < getNumElems(); i++)
-        free((void*)elementNames[i]);//is ok because noone is using it
+        free(static_cast<void*>(elementNames[i]));//is ok because noone is using it
 }
 
 /*************************************************************
@@ -186,14 +186,14 @@ StructType::getTypeStructure() const
 {
     // this implementation is not very clever, perhaps should use
     // an intelligent string class
-    char* result = (char*)mymalloc(10);
+    char* result = static_cast<char*>(mymalloc(10));
     char* newResult;
     unsigned int i;
 
     strcpy(result, "struct { ");
     if(numElems == 0)
     {
-        newResult = (char*)mymalloc(strlen(result) + 1 + 2);
+        newResult = static_cast<char*>(mymalloc(strlen(result) + 1 + 2));
         strcpy(newResult, result);
         strcat(newResult, " }");
         free(result);
@@ -202,9 +202,9 @@ StructType::getTypeStructure() const
     for(i = 0; i < numElems; i++)
     {
         char* dummy = elements[i]->getTypeStructure();
-        newResult = (char*)mymalloc(strlen(result) +
+        newResult = static_cast<char*>(mymalloc(strlen(result) +
                                     strlen(elementNames[i]) +
-                                    strlen(dummy) + 1 + 3 );
+                                    strlen(dummy) + 1 + 3 ));
         strcpy(newResult, result);
 
         strcat(newResult, dummy);
@@ -216,7 +216,7 @@ StructType::getTypeStructure() const
         free(dummy);
         result = newResult;
     }
-    newResult = (char*)mymalloc(strlen(result) + 1 );
+    newResult = static_cast<char*>(mymalloc(strlen(result) + 1 ));
     strcpy(newResult, result);
     newResult[strlen(newResult) - 2] = ' ';
     newResult[strlen(newResult) - 1] = '}';
@@ -260,9 +260,9 @@ unsigned int
 StructType::addElement(const char* elemName, const char* elemType)
 {
     BaseType* stuff = 0;
-    stuff = (BaseType*)ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, elemType);
+    stuff = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, elemType));
     if (stuff == 0)
-        stuff = (BaseType*)ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, elemType);
+        stuff = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, elemType));
     return addElement(elemName, stuff);
 }
 
@@ -286,7 +286,7 @@ StructType::addElementPriv(const char* elemName, const BaseType* newType)
     int i, j;
     char* myElemName = 0;
 
-    myElemName = (char*)mymalloc(strlen(elemName) + 1);
+    myElemName = static_cast<char*>(mymalloc(strlen(elemName) + 1));
     strcpy(myElemName, elemName);
 
     if(numElems+1 > elements.size())

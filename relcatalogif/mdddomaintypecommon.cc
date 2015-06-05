@@ -105,7 +105,7 @@ MDDDomainType::getTypeStructure() const
 {
     char* baseType = myBaseType->getTypeStructure();
     char* mdom = myDomain->get_string_representation();
-    char* result = (char*)mymalloc(12 + strlen(baseType) + strlen(mdom));
+    char* result = static_cast<char*>(mymalloc(12 + strlen(baseType) + strlen(mdom)));
 
     strcpy(result, "marray <");
     strcat(result, baseType);
@@ -162,14 +162,14 @@ MDDDomainType::compatibleWith(const Type* aType) const
     bool retval = false;
     if (aType->getType() == MDDTYPE)
     {
-        MDDTypeEnum ttype = ((const MDDType*)aType)->getSubtype();
+        MDDTypeEnum ttype = (static_cast<const MDDType*>(aType))->getSubtype();
         if (ttype == MDDDOMAINTYPE)
         {
-            if (myBaseType->compatibleWith(((const MDDBaseType*)aType)->getBaseType()))
+            if (myBaseType->compatibleWith((static_cast<const MDDBaseType*>(aType))->getBaseType()))
             {
-                if (((const MDDDomainType*)aType)->getDomain()->dimension() == myDomain->dimension())
+                if ((static_cast<const MDDDomainType*>(aType))->getDomain()->dimension() == myDomain->dimension())
                 {
-                    if (myDomain->covers(*((const MDDDomainType*)aType)->getDomain()))
+                    if (myDomain->covers(*(static_cast<const MDDDomainType*>(aType))->getDomain()))
                     {
                         retval = true;
                     }
@@ -192,9 +192,9 @@ MDDDomainType::compatibleWith(const Type* aType) const
         {
             if (ttype == MDDDIMENSIONTYPE)
             {
-                if (myBaseType->compatibleWith(((const MDDBaseType*)aType)->getBaseType()))
+                if (myBaseType->compatibleWith((static_cast<const MDDBaseType*>(aType))->getBaseType()))
                 {
-                    if (myDomain->dimension() == ((const MDDDimensionType*)aType)->getDimension())
+                    if (myDomain->dimension() == (static_cast<const MDDDimensionType*>(aType))->getDimension())
                     {
                         retval = true;
                     }

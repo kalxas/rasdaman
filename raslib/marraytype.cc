@@ -37,7 +37,7 @@ r_Marray_Type::r_Marray_Type()
 
 r_Marray_Type::r_Marray_Type(const r_Base_Type& newBaseType)
     :   r_Type(),
-        baseType((r_Base_Type*)newBaseType.clone())
+        baseType(static_cast<r_Base_Type*>(newBaseType.clone()))
 {
 }
 
@@ -45,7 +45,7 @@ r_Marray_Type::r_Marray_Type(const r_Marray_Type& oldObj) throw (r_Error)
     :   r_Type(oldObj)
 {
     if (oldObj.baseType)
-        baseType =  (r_Base_Type*)oldObj.baseType->clone();
+        baseType =  static_cast<r_Base_Type*>(oldObj.baseType->clone());
     else
     {
         RMInit::logOut << "r_Marray_Type::r_Marray_Type( oldObj ) the element type is NULL." << endl;
@@ -68,7 +68,7 @@ r_Marray_Type::operator=(const r_Marray_Type& oldObj) throw (r_Error)
     }
 
     if (oldObj.baseType)
-        baseType = (r_Base_Type*)oldObj.baseType->clone();
+        baseType = static_cast<r_Base_Type*>(oldObj.baseType->clone());
     else
     {
         RMInit::logOut << "r_Marray_Type::operator=( oldObj ) the element type is NULL." << endl;

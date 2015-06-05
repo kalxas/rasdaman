@@ -67,7 +67,7 @@ SRCIndexLogic::computeNormalizedDomain(const r_Point& mddDomainExtent, const r_P
 
     for (r_Dimension dim = 0; dim < theDim; dim++)
     {
-        normalized = (r_Range)(mddDomainExtent[dim]/tileConfigExtent[dim]) - 1;
+        normalized = static_cast<r_Range>((mddDomainExtent[dim]/tileConfigExtent[dim])) - 1;
         //cout << "mdd domain extent [" << dim << "]  " << mddDomainExtent[dim] << endl;
         //cout << "tile config extent [" << dim << "] " << tileConfigExtent[dim] << endl;
         //cout << "division                           " << mddDomainExtent[dim]/tileConfigExtent[dim] << endl;
@@ -93,7 +93,7 @@ SRCIndexLogic::computeNormalizedPoint(const r_Point& toNormalize, const r_Point&
 
     for (r_Dimension dim = 0; dim < theDim; dim++)
     {
-        normalizedPoint[dim] = (r_Range)((toNormalize[dim] - mddDomainOrigin[dim])/tileConfigExtent[dim]);
+        normalizedPoint[dim] = static_cast<r_Range>((toNormalize[dim] - mddDomainOrigin[dim])/tileConfigExtent[dim]);
     }
     RMDBGONCE(4, RMDebug::module_indexmgr, "SRCIndexLogic", "computeNormalizedPoint(" << toNormalize << ", " << tileConfigExtent << ", " << mddDomainOrigin << ") " << normalizedPoint);
     return normalizedPoint;
@@ -112,7 +112,7 @@ SRCIndexLogic::computeDomain(const r_Point& toConvert, const r_Point& tileConfig
     for (r_Dimension dim = 0; dim < theDim; dim++)
     {
         toConvTemp = toConvert[dim];
-        offset = fmod((r_Double)(toConvTemp - mddDomainOrigin[dim]), tileConfigExtent[dim]);
+        offset = fmod(static_cast<r_Double>(toConvTemp - mddDomainOrigin[dim]), tileConfigExtent[dim]);
         low = toConvTemp - offset;
         //there has to be a check if we support border tiles.
         high = toConvTemp - offset + tileConfigExtent[dim];
@@ -143,7 +143,7 @@ SRCIndexLogic::insertObject(IndexDS* ixDS, const KeyObject& newKeyObject, const 
     r_Minterval newKeyObjectDomain = newKeyObject.getDomain();
     r_Minterval tileConfig = sl.getTileConfiguration();
     r_Minterval mddDomain = ixDS->getCoveredDomain();
-    OId newBlobOId(computeOId(mddDomain, tileConfig.get_extent(), ((DBRCIndexDS*)ixDS)->getBaseCounter(), ((DBRCIndexDS*)ixDS)->getBaseOIdType(), newKeyObjectDomain.get_origin()));
+    OId newBlobOId(computeOId(mddDomain, tileConfig.get_extent(), (static_cast<DBRCIndexDS*>(ixDS))->getBaseCounter(), (static_cast<DBRCIndexDS*>(ixDS))->getBaseOIdType(), newKeyObjectDomain.get_origin()));
     DBTileId tile = newKeyObject.getObject();
     BLOBTile* t = new BLOBTile(tile->getSize(), tile->getCells(), tile->getDataFormat(), newBlobOId);
     // is done in the constructor

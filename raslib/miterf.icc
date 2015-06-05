@@ -38,7 +38,7 @@ rasdaman GmbH.
 const int     r_FixedPointNumber::FIXPREC  = 30;
 const r_Range r_FixedPointNumber::carryPos = 1<<FIXPREC;
 const r_Range r_FixedPointNumber::fracMask = carryPos-1;
-const double  r_FixedPointNumber::fixOne   = pow(2,(double)FIXPREC);
+const double  r_FixedPointNumber::fixOne   = pow(2,static_cast<double>(FIXPREC));
 
 inline
 r_FixedPointNumber::r_FixedPointNumber()
@@ -71,9 +71,9 @@ r_FixedPointNumber& r_FixedPointNumber::operator=(const double &d)
 inline
 void r_FixedPointNumber::init(const double &d)
 {
-    intPart = (r_Range)d;
+    intPart = static_cast<r_Range>(d);
 
-    fracPart= (r_Range)fmod(fixOne*d,fixOne);
+    fracPart= static_cast<r_Range>(fmod(fixOne*d,fixOne));
 
 }
 
@@ -143,8 +143,8 @@ r_MiterFloat::r_MiterFloat(Tile *sourceTile, r_Minterval& sourceDomain, r_Minter
 
     for(i=static_cast<int>(dim)-1; i>=0; i--, id-- )
     {
-        id->min  = (double)sourceDomain[static_cast<r_Dimension>(i)].low();
-        id->step = (double)(sourceDomain[static_cast<r_Dimension>(i)].high()-sourceDomain[static_cast<r_Dimension>(i)].low() +1) / ( destDomain[static_cast<r_Dimension>(i)].high() - destDomain[static_cast<r_Dimension>(i)].low()+1);
+        id->min  = static_cast<double>(sourceDomain[static_cast<r_Dimension>(i)].low());
+        id->step = static_cast<double>(sourceDomain[static_cast<r_Dimension>(i)].high()-sourceDomain[static_cast<r_Dimension>(i)].low() +1) / ( destDomain[static_cast<r_Dimension>(i)].high() - destDomain[static_cast<r_Dimension>(i)].low()+1);
         id->maxSteps = destDomain[static_cast<r_Dimension>(i)].high() - destDomain[static_cast<r_Dimension>(i)].low()+1;
         id->dimStep   = step;
         id->scaleStep = step * id->step.getIntPart();

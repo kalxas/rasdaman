@@ -56,12 +56,12 @@ inline r_Range r_MiterDirect::getExtent( r_Dimension d ) const
 inline r_MiterDirect&
 r_MiterDirect::operator++(void)
 {
-  int d = (int)dim-1;
+  int d = static_cast<int>(dim)-1;
 
   while (d >= 0)
   {
     id[d].pos += length;
-    id[d].data = (void*)(((char*)(id[d].data)) + id[d].step);
+    id[d].data = static_cast<void*>((static_cast<char*>(id[d].data)) + id[d].step);
     if (id[d].pos <= id[d].high) break;
     id[d].pos = id[d].low;
     d--;
@@ -70,7 +70,7 @@ r_MiterDirect::operator++(void)
   {
     int i;
 
-    for (i=d+1; i < (int)dim; i++)
+    for (i=d+1; i < static_cast<int>(dim); i++)
     {
       id[i].data = id[d].data;
     }
@@ -91,7 +91,7 @@ r_MiterDirect::iterateUserOrder(const unsigned int *order, const int *step)
     r_miter_direct_data *idp = id + order[d];
 
     idp->pos += step[d];
-    idp->data = (void*)(((char*)(idp->data)) + step[d] * idp->baseStep);
+    idp->data = static_cast<void*>((static_cast<char*>(idp->data)) + step[d] * idp->baseStep);
     if (idp->pos <= idp->high) break;
     idp->pos = idp->low;
     d++;
@@ -122,7 +122,7 @@ r_MiterDirect::iterateUserOrder(const r_Dimension *order, const unsigned int *st
     r_miter_direct_data *idp = id + order[d];
 
     idp->pos += step[d];
-    idp->data = (void*)(((char*)(idp->data)) + step[d] * idp->baseStep);
+    idp->data = static_cast<void*>((static_cast<char*>(idp->data)) + step[d] * idp->baseStep);
     if (step[d] > 0)
     {
       if (idp->pos <= idp->high) break;
@@ -162,5 +162,5 @@ r_MiterDirect::posChanged( void )
     offset += id[i].step * (id[i].pos - id[i].origin);
 
   for (i=0; i<dim; i++)
-    id[i].data = (void*)(((char*)baseAddress) + offset);
+    id[i].data = static_cast<void*>((static_cast<char*>(baseAddress)) + offset);
 }

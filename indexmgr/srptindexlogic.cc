@@ -52,7 +52,7 @@ clear(KeyObjectVector& keyvec, HierIndexDS* node)
 	for(i = 0; i < nodeSize; i++)
 		{
 		keyvec.push_back(node->getObject(0));
-		node->removeObject((unsigned int)0);
+		node->removeObject(static_cast<unsigned int>(0));
 		}
 	RMDBGEXIT(7, RMDebug::module_indexmgr, "SRPTIndexLogic", "clear(keyvec, " << OId(node->getIdentifier()) << ")");
 	}
@@ -141,7 +141,7 @@ SRPTIndexLogic::insertObject2(IndexDS* ixDS, const KeyObject& newKeyObject, cons
 
 		if (extend)
 			{
-			SRPTIndexLogic::extendFaces((HierIndexDS*)ixDS, newKeyObjectDom, cd, facesToExtendLo, facesToExtendHi);
+			SRPTIndexLogic::extendFaces(static_cast<HierIndexDS*>(ixDS), newKeyObjectDom, cd, facesToExtendLo, facesToExtendHi);
 			}
 		else	{
 			RMDBGMIDDLE(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "no need to extend faces");
@@ -153,11 +153,11 @@ SRPTIndexLogic::insertObject2(IndexDS* ixDS, const KeyObject& newKeyObject, cons
 		}
 
 	// call recursive insertObject()
-	overflowed = SRPTIndexLogic::insertObject(newKeyObject, (HierIndexDS*)ixDS, leafNodes2Split, sl);
+	overflowed = SRPTIndexLogic::insertObject(newKeyObject, static_cast<HierIndexDS*>(ixDS), leafNodes2Split, sl);
 	RMDBGMIDDLE(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "number of leaf overflows " << leafNodes2Split.size())
 	
 	if (!leafNodes2Split.empty())
-		SRPTIndexLogic::splitNodes((HierIndexDS*)ixDS, leafNodes2Split, sl);
+		SRPTIndexLogic::splitNodes(static_cast<HierIndexDS*>(ixDS), leafNodes2Split, sl);
 	RMDBGEXIT(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "insertObject2(" << OId(ixDS->getIdentifier()) << ", " << newKeyObject << ")")
 	//there should be a check here : )
 	return true;
@@ -177,7 +177,7 @@ SRPTIndexLogic::intersect2(const IndexDS* ixDS, const r_Minterval& searchInter, 
 		r_Minterval searchDom = searchInter.create_intersection(dom);
 		//needed this parent domain, or else indexes with one level only don't work
 		area = searchDom.cell_count();
-		SRPTIndexLogic::intersect(searchDom, dom, intersectedObjs, (const HierIndexDS*)ixDS, area);
+		SRPTIndexLogic::intersect(searchDom, dom, intersectedObjs, static_cast<const HierIndexDS*>(ixDS), area);
 		RMDBGEXIT(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "intersect2(" << OId(ixDS->getIdentifier()) << "*, " << searchInter << ") found #" << intersectedObjs.size() << " matches");
 		}
 	else	{
@@ -188,14 +188,14 @@ SRPTIndexLogic::intersect2(const IndexDS* ixDS, const r_Minterval& searchInter, 
 void
 SRPTIndexLogic::containPointQuery2(const IndexDS* ixDS, const r_Point& searchPoint, KeyObject& result, const StorageLayout& sl)
 	{
-	SRPTIndexLogic::containPointQuery(searchPoint, (const HierIndexDS*)ixDS, result, sl);
+	SRPTIndexLogic::containPointQuery(searchPoint, static_cast<const HierIndexDS*>(ixDS), result, sl);
 	}
 
 void
 SRPTIndexLogic::getObjects(const IndexDS* ixDS, KeyObjectVector& objs, const StorageLayout& sl)
 	{
 	// can be optimized !!!
-	intersect2((const HierIndexDS*)ixDS, ixDS->getCoveredDomain(), objs, sl);
+	intersect2(static_cast<const HierIndexDS*>(ixDS), ixDS->getCoveredDomain(), objs, sl);
 	}
 
 int
@@ -359,7 +359,7 @@ SRPTIndexLogic::splitNodes(HierIndexDS* ixDS, IndexPVector& leafNodes2Split, con
 
 	while (!leafNodes2Split.empty())
 		{
-		leafNodeIxDS = (HierIndexDS*)leafNodes2Split[0];
+		leafNodeIxDS = static_cast<HierIndexDS*>(leafNodes2Split[0]);
 		leafNodes2Split.erase(leafNodes2Split.begin());
 
 		wasroot = leafNodeIxDS->isRoot();
@@ -372,7 +372,7 @@ SRPTIndexLogic::splitNodes(HierIndexDS* ixDS, IndexPVector& leafNodes2Split, con
 			for (cur = 0; cur < numElem; cur++)
 				{
 				tkey = tempPar->getObject(cur);
-				if (((OId::OIdPrimitive)tkey.getObject().getOId()) == leafNodeIxDS->getIdentifier())
+				if ((static_cast<OId::OIdPrimitive>(tkey.getObject().getOId())) == leafNodeIxDS->getIdentifier())
 					{
 					domain = tkey.getDomain();
 					found = true;
@@ -390,11 +390,11 @@ SRPTIndexLogic::splitNodes(HierIndexDS* ixDS, IndexPVector& leafNodes2Split, con
 
 		calculatePartition(axis, value, leafNodeIxDS);
 		clear(keyvec, leafNodeIxDS);
-		n1 = (HierIndexDS*)leafNodeIxDS->getNewInstance();
+		n1 = static_cast<HierIndexDS*>(leafNodeIxDS->getNewInstance());
 		if (wasroot)
 			{
 			parentIxDS = leafNodeIxDS;
-			n2 = (HierIndexDS*)leafNodeIxDS->getNewInstance();
+			n2 = static_cast<HierIndexDS*>(leafNodeIxDS->getNewInstance());
 			leafNodeIxDS->setIsNode(true);
 			leafNodeIxDS = NULL;
 			}
@@ -423,11 +423,11 @@ SRPTIndexLogic::splitNodes(HierIndexDS* ixDS, IndexPVector& leafNodes2Split, con
 			domain = parentIxDS->getAssignedDomain();
 			calculatePartition(axis, value, parentIxDS);
 			clear(keyvec, parentIxDS);
-			nln1 = (HierIndexDS*)parentIxDS->getNewInstance();
+			nln1 = static_cast<HierIndexDS*>(parentIxDS->getNewInstance());
 
 			if (wasroot)
 				{
-				nln2 = (HierIndexDS*)parentIxDS->getNewInstance();
+				nln2 = static_cast<HierIndexDS*>(parentIxDS->getNewInstance());
 				}
 			else	{
 				nln2 = parentIxDS;
@@ -574,7 +574,7 @@ SRPTIndexLogic::splitNonLeaf(	HierIndexDS*		pd1,
 				if (entry->isLeaf())
 					{
 					RMDBGMIDDLE(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "entry is leaf ")
-					n11 = (HierIndexDS*)entry->getNewInstance();
+					n11 = static_cast<HierIndexDS*>(entry->getNewInstance());
 					n11->setIsNode(false);
 					leafDomain = cd;
 					clear(keyvec2, entry);
@@ -598,7 +598,7 @@ SRPTIndexLogic::splitNonLeaf(	HierIndexDS*		pd1,
 					}
 				else	{// nonleaf node to be split
 					RMDBGMIDDLE(4, RMDebug::module_indexmgr, "SRPTIndexLogic", "entry is nonleaf ")
-					n11 = (HierIndexDS*)entry->getNewInstance();
+					n11 = static_cast<HierIndexDS*>(entry->getNewInstance());
 					n11->setIsNode(true);
 					nodeDomain = cd;
 					parentIxDS = entry->getParent();
@@ -684,7 +684,7 @@ SRPTIndexLogic::removeObject(IndexDS* ixDS, const KeyObject& objToRemove, const 
 	bool found = false;
 	if (ixDS->getAssignedDomain().intersects_with(objToRemove.getDomain()))
 		{
-		if (((HierIndexDS*)ixDS)->isLeaf())
+		if ((static_cast<HierIndexDS*>(ixDS))->isLeaf())
 			if (ixDS->removeObject(objToRemove))
 				{
 				found = true;
@@ -697,7 +697,7 @@ SRPTIndexLogic::removeObject(IndexDS* ixDS, const KeyObject& objToRemove, const 
 			SDirIndexLogic::intersectUnOpt(ixDS, objToRemove.getDomain(), candidates);
 			for (KeyObjectVector::iterator it = candidates.begin(); it != candidates.end(); it++)
 				{
-				if (SRPTIndexLogic::removeObject((HierIndexDS*)DBHierIndexId((*it).getObject()), objToRemove, sl))
+				if (SRPTIndexLogic::removeObject(static_cast<HierIndexDS*>(DBHierIndexId((*it).getObject())), objToRemove, sl))
 					found = true;
 				else	{
 					RMDBGMIDDLE(0, RMDebug::module_indexmgr, "SRPTIndexLogic", "removeObject(" << ixDS->getAssignedDomain() << ", " << objToRemove.getDomain() << ") did not remove an entry in a node")
@@ -1134,7 +1134,7 @@ SRPTIndexLogic::convert(const KeyObject& toConvert)
 	{
 	HierIndexDS* retval = NULL;
 	if (toConvert.isInitialised())
-		retval = (HierIndexDS*)DBHierIndexId(toConvert.getObject());
+		retval = static_cast<HierIndexDS*>(DBHierIndexId(toConvert.getObject()));
 	return retval;
 	}
 

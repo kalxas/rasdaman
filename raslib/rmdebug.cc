@@ -169,7 +169,7 @@ RMDebug::loadTextFile(const char* name)
         char* result;
         f.seekg(0, std::ios::end);
         std::streampos end = f.tellg();
-        size_t resLen=(size_t)end + 1;
+        size_t resLen=static_cast<size_t>(end) + 1;
         result = new char[resLen];
         memset(result, 0, resLen);
         f.seekg(0, std::ios::beg);
@@ -220,11 +220,11 @@ RMDebug::initRMDebug(void)
         myPtr = debugModulesText;
         while (*myPtr != '\0')
         {
-            while (isspace((unsigned int)(*myPtr))) myPtr++;
+            while (isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
             if (*myPtr != '\0')
             {
                 numDebugModules++;
-                while ((*myPtr != '\0') && !isspace((unsigned int)(*myPtr))) myPtr++;
+                while ((*myPtr != '\0') && !isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
             }
         }
         debugModules = new char*[numDebugModules];
@@ -236,11 +236,11 @@ RMDebug::initRMDebug(void)
         {
             int modLevel = RManDebug; // default debug level
             transDebugModules[j] = -1;
-            while (isspace((unsigned int)(*myPtr))) myPtr++;
+            while (isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
             if (*myPtr != '\0')
             {
                 debugModules[j] = myPtr;
-                while ((*myPtr != '\0') && !isspace((unsigned int)(*myPtr)))
+                while ((*myPtr != '\0') && !isspace(static_cast<unsigned int>(*myPtr)))
                 {
                     if (*myPtr == ',')
                     {
@@ -297,11 +297,11 @@ RMDebug::initRMDebug(void)
         myPtr = debugClassesText;
         while (*myPtr != '\0')
         {
-            while (isspace((unsigned int)(*myPtr))) myPtr++;
+            while (isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
             if (*myPtr != '\0')
             {
                 numDebugClasses++;
-                while ((*myPtr != '\0') && !isspace((unsigned int)(*myPtr))) myPtr++;
+                while ((*myPtr != '\0') && !isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
             }
         }
         debugClasses = new char*[numDebugClasses];
@@ -310,11 +310,11 @@ RMDebug::initRMDebug(void)
         myPtr = debugClassesText;
         while (*myPtr != '\0')
         {
-            while (isspace((unsigned int)(*myPtr))) myPtr++;
+            while (isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
             if (*myPtr != '\0')
             {
                 debugClasses[j++] = myPtr;
-                while ((*myPtr != '\0') && !isspace((unsigned int)(*myPtr))) myPtr++;
+                while ((*myPtr != '\0') && !isspace(static_cast<unsigned int>(*myPtr))) myPtr++;
                 if (*myPtr != '\0') *myPtr++ = '\0';
             }
         }

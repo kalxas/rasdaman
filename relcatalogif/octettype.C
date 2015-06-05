@@ -121,7 +121,7 @@ void
 OctetType::printCell( ostream& stream, const char* cell ) const
 {
   // !!!! HP specific, assumes 1 Byte char
-  stream << std::setw(4) << (r_Long)(*const_cast<char*>(cell));
+  stream << std::setw(4) << static_cast<r_Long>(*const_cast<char*>(cell));
 }
 
 r_Long*
@@ -143,7 +143,7 @@ OctetType::makeFromCLong(char* cell, const r_Long* value) const
   myLong = myLong < SCHAR_MIN ? SCHAR_MIN : myLong;
   // !!!! HP specific, assumes 4 Byte long and MSB..LSB 
   // byte order
-  *(char*)(cell) = (char)myLong;
+  *static_cast<char*>(cell) = static_cast<char>(myLong);
   return cell;
 }
 

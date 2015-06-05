@@ -469,7 +469,7 @@ DBObject::getBinaryName() const
 {
     //if we use 64bit oids we have at most 20 digits + "_" + type
     ostringstream o;
-    o << (int)objecttype << '_' << myOId.getCounter() << ".raw";
+    o << static_cast<int>(objecttype) << '_' << myOId.getCounter() << ".raw";
     const char* temp = o.str().c_str();
     char* retval = new char[strlen(temp) + 1];
     memcpy(retval, temp, strlen(temp) + 1);

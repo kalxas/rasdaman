@@ -103,7 +103,7 @@ MDDType::getTypeStructure() const
 char*
 MDDType::getNewTypeStructure() const
 {
-    char* result = (char*)mymalloc(10);
+    char* result = static_cast<char*>(mymalloc(10));
 
     strcpy(result, "marray {}");
     return result;

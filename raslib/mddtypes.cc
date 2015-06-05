@@ -147,9 +147,9 @@ const char *all_data_format_names[r_Data_Format_NUMBER] =
 
 const char *get_name_from_data_format( r_Data_Format fmt )
 {
-    unsigned int idx = (unsigned int)fmt;
+    unsigned int idx = static_cast<unsigned int>(fmt);
 
-    if (idx >= (unsigned int)r_Data_Format_NUMBER)
+    if (idx >= static_cast<unsigned int>(r_Data_Format_NUMBER))
         return "???";
 
     return all_data_format_names[idx];
@@ -166,19 +166,19 @@ r_Data_Format get_data_format_from_name( const char *name )
 
     unsigned int i=r_Data_Format_NUMBER;
 
-    for (i=0; i<(unsigned int)r_Data_Format_NUMBER; i++)
+    for (i = 0; i < static_cast<unsigned int>(r_Data_Format_NUMBER); i++)
     {
         if (strcasecmp(name, all_data_format_names[i]) == 0)
             break;
     }
-    return (r_Data_Format)i;
+    return static_cast<r_Data_Format>(i);
 }
 
 
 
 std::ostream& operator<<( std::ostream& s, r_Data_Format& d )
 {
-    s << (const r_Data_Format)d;
+    s << static_cast<const r_Data_Format>(d);
     return s;
 }
 
@@ -200,9 +200,9 @@ const char* all_scale_function_names[r_Scale_Function_NUMBER] =
 
 const char *get_name_from_scale_function(r_Scale_Function fmt)
 {
-    unsigned int idx = (unsigned int)fmt;
+    unsigned int idx = static_cast<unsigned int>(fmt);
 
-    if (idx >= (unsigned int)r_Scale_Function_NUMBER)
+    if (idx >= static_cast<unsigned int>(r_Scale_Function_NUMBER))
         return "???";
 
     return all_scale_function_names[idx];
@@ -219,12 +219,12 @@ r_Scale_Function get_scale_function_from_name(const char *name)
 
     unsigned int i=r_Scale_Function_NUMBER;
 
-    for (i=0; i<(unsigned int)r_Scale_Function_NUMBER; i++)
+    for (i = 0; i < static_cast<unsigned int>(r_Scale_Function_NUMBER); i++)
     {
         if (strcasecmp(name, all_scale_function_names[i]) == 0)
             break;
     }
-    return (r_Scale_Function)i;
+    return static_cast<r_Scale_Function>(i);
 }
 
 std::ostream& operator<<( std::ostream& s, const r_Scale_Function& d )
@@ -259,12 +259,12 @@ const char *all_index_type_names[r_Index_Type_NUMBER] =
 
 const char *get_name_from_index_type( r_Index_Type it )
 {
-    unsigned int idx = (unsigned int)it;
+    unsigned int idx = static_cast<unsigned int>(it);
 
-    if (idx >= (unsigned int)r_Index_Type_NUMBER)
+    if (idx >= static_cast<unsigned int>(r_Index_Type_NUMBER))
         return "UNKNOWN r_Index_Type";
 
-    if (idx == (unsigned int)r_Invalid_Index)
+    if (idx == static_cast<unsigned int>(r_Invalid_Index))
         return "r_Invalid_Index";
 
     return all_index_type_names[idx];
@@ -280,12 +280,12 @@ r_Index_Type get_index_type_from_name( const char *name )
 
     unsigned int i=r_Index_Type_NUMBER;
 
-    for (i=0; i<(unsigned int)r_Index_Type_NUMBER; i++)
+    for (i = 0; i < static_cast<unsigned int>(r_Index_Type_NUMBER); i++)
     {
         if (strcasecmp(name, all_index_type_names[i]) == 0)
             break;
     }
-    return (r_Index_Type)i;
+    return static_cast<r_Index_Type>(i);
 }
 
 
@@ -350,9 +350,9 @@ const char *all_tiling_scheme_names[r_Tiling_Scheme_NUMBER] =
 
 const char *get_name_from_tiling_scheme( r_Tiling_Scheme ts )
 {
-    unsigned int idx = (unsigned int)ts;
+    unsigned int idx = static_cast<unsigned int>(ts);
 
-    if (idx >= (unsigned int)r_Tiling_Scheme_NUMBER)
+    if (idx >= static_cast<unsigned int>(r_Tiling_Scheme_NUMBER))
         return "UNKNOWN r_Tiling_Scheme";
 
     return all_tiling_scheme_names[idx];
@@ -368,12 +368,12 @@ r_Tiling_Scheme get_tiling_scheme_from_name( const char *name )
 
     unsigned int i=r_Tiling_Scheme_NUMBER;
 
-    for (i=0; i<(unsigned int)r_Tiling_Scheme_NUMBER; i++)
+    for (i = 0; i < static_cast<unsigned int>(r_Tiling_Scheme_NUMBER); i++)
     {
         if (strcasecmp(name, all_tiling_scheme_names[i]) == 0)
             break;
     }
-    return (r_Tiling_Scheme)i;
+    return static_cast<r_Tiling_Scheme>(i);
 }
 
 std::ostream& operator<<(std::ostream& s, r_Tiling_Scheme d)

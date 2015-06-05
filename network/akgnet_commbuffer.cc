@@ -119,7 +119,7 @@ void akg::CommBuffer::takeOver(void *externalBuffer,int totalSize, int dataSize)
         delete[] data;
         data = NULL;
     }
-    data     = (char*)externalBuffer;
+    data     = static_cast<char*>(externalBuffer);
     buffSize = totalSize;
     maxBuffSize = buffSize;
     fillSize = dataSize;

@@ -44,7 +44,7 @@ r_Property::r_Property()
 
 r_Property::r_Property(const char* newTypeName, const r_Base_Type& newType)
     :   r_Meta_Object(newTypeName),
-        myType((r_Base_Type*)newType.clone())
+        myType(static_cast<r_Base_Type*>(newType.clone()))
 {
 }
 
@@ -52,7 +52,7 @@ r_Property::r_Property(const r_Property& oldObj)
     :   r_Meta_Object(oldObj)
 {
     if (oldObj.myType)
-        myType = (r_Base_Type*)oldObj.myType->clone();
+        myType = static_cast<r_Base_Type*>(oldObj.myType->clone());
     else
     {
         RMInit::logOut << "r_Property::r_Property(oldObj) property does not have a base type" << endl;
@@ -74,7 +74,7 @@ r_Property::operator=(const r_Property& oldObj)
         }
 
         if (oldObj.myType)
-            myType = (r_Base_Type*)oldObj.myType->clone();
+            myType = static_cast<r_Base_Type*>(oldObj.myType->clone());
         else
         {
             RMInit::logOut << "r_Property::operator=(oldObj) property does not have a base type" << endl;

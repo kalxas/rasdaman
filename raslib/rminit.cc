@@ -120,7 +120,7 @@ RMInit::RMInit( char initApplicationType )
         {
             if( value )
             {
-                RManDebug = (int)strtoul( value, (char **)NULL, 10 );
+                RManDebug = static_cast<int>(strtoul( value, (char **)NULL, 10 ));
                 // It is not clarrified why the delete statement crashes with VISUALC.
 #ifndef __VISUALC__
                 delete[] value;
@@ -159,7 +159,7 @@ RMInit::RMInit( char initApplicationType )
         {
             if( value )
             {
-                RManBenchmark = (int)strtoul( value, (char **)NULL, 10 );
+                RManBenchmark = static_cast<int>(strtoul( value, (char **)NULL, 10 ));
                 // It is not clarrified why the delete statement crashes with VISUALC.
 #ifndef __VISUALC__
                 delete[] value;

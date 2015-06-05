@@ -52,11 +52,11 @@ r_Primitive::r_Primitive( const char* newBuffer, const r_Primitive_Type* newType
 {
     if( valueType )
     {
-        valueBuffer = (char*)mymalloc( valueType->size() );
+        valueBuffer = static_cast<char*>(mymalloc( valueType->size() ));
         if( newBuffer)
-            memcpy( (void*)valueBuffer, (void*)const_cast<char*>(newBuffer), valueType->size() );
+            memcpy( static_cast<void*>(valueBuffer), static_cast<void*>(const_cast<char*>(newBuffer)), valueType->size() );
         else
-            memset( (void*)valueBuffer, 0, valueType->size() );
+            memset( static_cast<void*>(valueBuffer), 0, valueType->size() );
     }
 }
 
@@ -64,11 +64,11 @@ r_Primitive::r_Primitive( const r_Primitive& obj )
     : r_Scalar( obj ),
       valueBuffer(NULL)
 {
-    valueBuffer = (char*)mymalloc( valueType->size() );
+    valueBuffer = static_cast<char*>(mymalloc( valueType->size() ));
     if( obj.valueBuffer )
-        memcpy( (void*)valueBuffer, (void*)obj.valueBuffer, valueType->size() );
+        memcpy( static_cast<void*>(valueBuffer), static_cast<void*>(obj.valueBuffer), valueType->size() );
     else
-        memset( (void*)valueBuffer, 0, valueType->size());
+        memset( static_cast<void*>(valueBuffer), 0, valueType->size());
 }
 
 r_Primitive::~r_Primitive()
@@ -106,11 +106,11 @@ r_Primitive::operator=( const r_Primitive& obj )
 
         if( valueType )
         {
-            valueBuffer = (char*)mymalloc( valueType->size() );
+            valueBuffer = static_cast<char*>(mymalloc( valueType->size() ));
             if( obj.valueBuffer )
-                memcpy( (void*)valueBuffer, (void*)obj.valueBuffer, valueType->size() );
+                memcpy( static_cast<void*>(valueBuffer), static_cast<void*>(obj.valueBuffer), valueType->size() );
             else
-                memset((void*)valueBuffer, 0, valueType->size());
+                memset(static_cast<void*>(valueBuffer), 0, valueType->size());
         }
     }
 
@@ -148,7 +148,7 @@ r_Primitive::get_boolean() const throw( r_Error )
         throw err;
     }
 
-    return ((r_Primitive_Type*)valueType)->get_boolean(valueBuffer);
+    return (static_cast<r_Primitive_Type*>(valueType))->get_boolean(valueBuffer);
 }
 
 
@@ -163,7 +163,7 @@ r_Primitive::get_char() const throw( r_Error )
         throw err;
     }
 
-    return ((r_Primitive_Type*)valueType)->get_char(valueBuffer);
+    return (static_cast<r_Primitive_Type*>(valueType))->get_char(valueBuffer);
 }
 
 
@@ -178,7 +178,7 @@ r_Primitive::get_octet() const throw( r_Error )
         throw err;
     }
 
-    return ((r_Primitive_Type*)valueType)->get_octet(valueBuffer);
+    return (static_cast<r_Primitive_Type*>(valueType))->get_octet(valueBuffer);
 }
 
 
@@ -193,7 +193,7 @@ r_Primitive::get_short() const throw( r_Error )
         throw err;
     }
 
-    return ((r_Primitive_Type*)valueType)->get_short(valueBuffer);
+    return (static_cast<r_Primitive_Type*>(valueType))->get_short(valueBuffer);
 }
 
 
@@ -208,7 +208,7 @@ r_Primitive::get_ushort() const throw( r_Error )
         throw err;
     }
 
-    return ((r_Primitive_Type*)valueType)->get_ushort(valueBuffer);
+    return (static_cast<r_Primitive_Type*>(valueType))->get_ushort(valueBuffer);
 }
 
 
@@ -223,7 +223,7 @@ r_Primitive::get_long() const throw( r_Error )
         throw err;
     }
 
-    return ((r_Primitive_Type*)valueType)->get_long(valueBuffer);
+    return (static_cast<r_Primitive_Type*>(valueType))->get_long(valueBuffer);
 }
 
 
@@ -238,7 +238,7 @@ r_Primitive::get_ulong() const throw( r_Error )
         throw err;
     }
 
-    return ((r_Primitive_Type*)valueType)->get_ulong(valueBuffer);
+    return (static_cast<r_Primitive_Type*>(valueType))->get_ulong(valueBuffer);
 }
 
 
@@ -253,7 +253,7 @@ r_Primitive::get_float() const throw( r_Error )
         throw err;
     }
 
-    return ((r_Primitive_Type*)valueType)->get_float(valueBuffer);
+    return (static_cast<r_Primitive_Type*>(valueType))->get_float(valueBuffer);
 }
 
 
@@ -268,7 +268,7 @@ r_Primitive::get_double() const throw( r_Error )
         throw err;
     }
 
-    return ((r_Primitive_Type*)valueType)->get_double(valueBuffer);
+    return (static_cast<r_Primitive_Type*>(valueType))->get_double(valueBuffer);
 }
 
 
@@ -283,7 +283,7 @@ r_Primitive::set_boolean(r_Boolean val) throw( r_Error )
     }
 
     if( !valueBuffer )
-        valueBuffer = (char*)mymalloc( valueType->size());
+        valueBuffer = static_cast<char*>(mymalloc( valueType->size()));
 
     memmove(valueBuffer, &val, valueType->size());
 }
@@ -301,7 +301,7 @@ r_Primitive::set_char(r_Char val) throw( r_Error )
     }
 
     if( !valueBuffer )
-        valueBuffer = (char*)mymalloc( valueType->size());
+        valueBuffer = static_cast<char*>(mymalloc( valueType->size()));
 
     memmove(valueBuffer, &val, valueType->size());
 }
@@ -319,7 +319,7 @@ r_Primitive::set_octet(r_Octet val) throw( r_Error )
     }
 
     if( !valueBuffer )
-        valueBuffer = (char*)mymalloc( valueType->size());
+        valueBuffer = static_cast<char*>(mymalloc( valueType->size()));
 
     memmove(valueBuffer, &val, valueType->size());
 }
@@ -337,7 +337,7 @@ r_Primitive::set_short(r_Short val) throw( r_Error )
     }
 
     if( !valueBuffer )
-        valueBuffer = (char*)mymalloc( valueType->size());
+        valueBuffer = static_cast<char*>(mymalloc( valueType->size()));
 
     memmove(valueBuffer, &val, valueType->size());
 }
@@ -355,7 +355,7 @@ r_Primitive::set_ushort(r_UShort val) throw( r_Error )
     }
 
     if( !valueBuffer )
-        valueBuffer = (char*)mymalloc( valueType->size());
+        valueBuffer = static_cast<char*>(mymalloc( valueType->size()));
 
     memmove(valueBuffer, &val, valueType->size());
 }
@@ -373,7 +373,7 @@ r_Primitive::set_long(r_Long val) throw( r_Error )
     }
 
     if( !valueBuffer )
-        valueBuffer = (char*)mymalloc( valueType->size());
+        valueBuffer = static_cast<char*>(mymalloc( valueType->size()));
 
     memmove(valueBuffer, &val, valueType->size());
 }
@@ -391,7 +391,7 @@ r_Primitive::set_ulong(r_ULong val) throw( r_Error )
     }
 
     if( !valueBuffer )
-        valueBuffer = (char*)mymalloc( valueType->size());
+        valueBuffer = static_cast<char*>(mymalloc( valueType->size()));
 
     memmove(valueBuffer, &val, valueType->size());
 }
@@ -409,7 +409,7 @@ r_Primitive::set_float(r_Float val) throw( r_Error )
     }
 
     if( !valueBuffer )
-        valueBuffer = (char*)mymalloc( valueType->size());
+        valueBuffer = static_cast<char*>(mymalloc( valueType->size()));
 
     memmove(valueBuffer, &val, valueType->size());
 }
@@ -427,7 +427,7 @@ r_Primitive::set_double(r_Double val) throw( r_Error )
     }
 
     if( !valueBuffer )
-        valueBuffer = (char*)mymalloc( valueType->size());
+        valueBuffer = static_cast<char*>(mymalloc( valueType->size()));
     memmove(valueBuffer, &val, valueType->size());
 }
 

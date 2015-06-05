@@ -174,7 +174,7 @@ MDDColl::getMDDObj(const DBMDDObj* objToGet) const
     MDDObj* persMDDObjToGet = NULL;
     MDDObjMap::const_iterator i = mddCache.find(const_cast<DBMDDObj*>(objToGet));
     if (i != mddCache.end())
-        persMDDObjToGet = (MDDObj*)(*i).second;
+        persMDDObjToGet = static_cast<MDDObj*>((*i).second);
     else
     {
         persMDDObjToGet = new MDDObj(const_cast<DBMDDObj*>(objToGet));
@@ -391,11 +391,11 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
             RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDColl", "Coll Name    : " << nameBuffer)
             namelen = strlen(nameBuffer);
             RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDColl", "Coll Name Len: " << namelen)
-            transName = (char*)mymalloc(sizeof(char) * (namelen + 1));
+            transName = static_cast<char*>(mymalloc(sizeof(char) * (namelen + 1)));
             memset(transName, 0, namelen + 1);
             strcpy(transName, nameBuffer);
             RMDBGMIDDLE(2, RMDebug::module_mddmgr, "MDDColl", "Domain       : " << namelen)
-            nameDomain[0].set_high((r_Range)namelen);
+            nameDomain[0].set_high(static_cast<r_Range>(namelen));
             transObj = new MDDObj(mt, nameDomain);
             transTile.reset(new Tile(nameDomain, bt, transName, 0, r_Array));
             transObj->insertTile(transTile);
@@ -432,7 +432,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
             result.append(" UNDER ");
             result.append(typeStructure);
 
-            nameDomain[0].set_high((r_Range)result.length());
+            nameDomain[0].set_high(static_cast<r_Range>(result.length()));
             transObj = new MDDObj(mt, nameDomain);
             transTile = new Tile(nameDomain, bt, result.c_str(), 0, r_Array);
             transObj->insertTile(transTile);
@@ -474,7 +474,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
             result.append(" UNDER ");
             result.append(typeStructure);
 
-            nameDomain[0].set_high((r_Range)result.length());
+            nameDomain[0].set_high(static_cast<r_Range>(result.length()));
             transObj = new MDDObj(mt, nameDomain);
             transTile = new Tile(nameDomain, bt, result.c_str(), 0, r_Array);
             transObj->insertTile(transTile);
@@ -522,7 +522,7 @@ MDDColl::getMDDCollection(const char* collName) throw (r_Error)
                 result.append(nullValues->get_string_representation());
             }
 
-            nameDomain[0].set_high((r_Range)result.length());
+            nameDomain[0].set_high(static_cast<r_Range>(result.length()));
             transObj = new MDDObj(mt, nameDomain);
             transTile = new Tile(nameDomain, bt, result.c_str(), 0, r_Array);
             transObj->insertTile(transTile);

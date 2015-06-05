@@ -208,16 +208,16 @@ MDDObjIx::MDDObjIx(const StorageLayout& sl, const r_Minterval& dim, const BaseTy
         switch(myStorageLayout.getIndexType())
         {
         case r_RPlus_Tree_Index:
-            actualIx = (HierIndexDS*)new DBHierIndex(dim.dimension(), false, true);
+            actualIx = static_cast<HierIndexDS*>(new DBHierIndex(dim.dimension(), false, true));
             break;
         case r_Reg_Computed_Index:
             actualIx = new DBRCIndexDS(dim, SRCIndexLogic::computeNumberOfTiles(myStorageLayout, dim));
             break;
         case r_Tile_Container_Index:
-            actualIx = (HierIndexDS*)new DBTCIndex(dim.dimension(), false);
+            actualIx = static_cast<HierIndexDS*>(new DBTCIndex(dim.dimension(), false));
             break;
         case r_Directory_Index:
-            actualIx = (HierIndexDS*)new DBHierIndex(dim.dimension(), false, true);
+            actualIx = static_cast<HierIndexDS*>(new DBHierIndex(dim.dimension(), false, true));
             break;
         case r_Auto_Index:
         default:

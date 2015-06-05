@@ -42,7 +42,7 @@ r_Meta_Object::r_Meta_Object()
 
 r_Meta_Object::r_Meta_Object( const char* newTypeName )
 {
-    typeName = (char*)mymalloc(strlen(newTypeName) + 1);
+    typeName = static_cast<char*>(mymalloc(strlen(newTypeName) + 1));
     strcpy(typeName, newTypeName);
 }
 
@@ -51,7 +51,7 @@ r_Meta_Object::r_Meta_Object( const r_Meta_Object& oldObj )
 {
     if( oldObj.typeName )
     {
-        typeName = (char*)mymalloc(strlen(oldObj.typeName) + 1);
+        typeName = static_cast<char*>(mymalloc(strlen(oldObj.typeName) + 1));
         strcpy(typeName, oldObj.typeName);
     }
 }
@@ -66,7 +66,7 @@ r_Meta_Object::operator=( const r_Meta_Object& oldObj )
     typeName = NULL;
     if( oldObj.typeName )
     {
-        typeName = (char*)mymalloc(strlen(oldObj.typeName) + 1);
+        typeName = static_cast<char*>(mymalloc(strlen(oldObj.typeName) + 1));
         strcpy(typeName, oldObj.typeName);
     }
 

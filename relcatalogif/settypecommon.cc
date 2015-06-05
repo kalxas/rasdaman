@@ -48,7 +48,7 @@ char*
 SetType::getTypeStructure() const
 {
     char* dummy = myMDDType->getTypeStructure();
-    char* result = (char*)mymalloc(5 + strlen(dummy) + 2);
+    char* result = static_cast<char*>(mymalloc(5 + strlen(dummy) + 2));
 
     strcpy(result, "set <");
     strcat(result, dummy);

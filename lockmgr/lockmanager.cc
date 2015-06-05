@@ -133,7 +133,7 @@ void LockManager::connect()
     }
     else
     {
-        dbConnectionId = (const char *)"RASBASE:5432";
+        dbConnectionId = static_cast<const char *>("RASBASE:5432");
         dbUser = NULL;
         dbPassword = NULL;
     }
@@ -397,8 +397,8 @@ enum Lock LockManager::generateLockType()
  */
 int LockManager::compareIds(const void * a, const void * b)
 {
-    const long long *pa = (const long long *)a;
-    const long long *pb = (const long long *)b;
+    const long long *pa = static_cast<const long long *>(a);
+    const long long *pb = static_cast<const long long *>(b);
     if (*pa < *pb)
     {
         return -1;

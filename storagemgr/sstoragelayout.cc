@@ -561,7 +561,7 @@ StorageLayout::getDefaultTileCfg(int baseTypeSize, r_Dimension sourceDimension)
     if(sourceDimension == 1)
     {
         newDomain += "[0:";
-        lastDimValue = (int)((double)StorageLayout::DefaultTileSize / (double)baseTypeSize) - 1;
+        lastDimValue = static_cast<int>(static_cast<double>(StorageLayout::DefaultTileSize) / static_cast<double>(baseTypeSize)) - 1;
         ss << lastDimValue;
         newDomain += ss.str();
         newDomain += "]";
@@ -578,11 +578,11 @@ StorageLayout::getDefaultTileCfg(int baseTypeSize, r_Dimension sourceDimension)
             tileCells *= intervals[i];
 
 
-        double mbMultiplier = (double)StorageLayout::DefaultTileSize /(double)tileCells;
-        double adjustingMultiplier = mbMultiplier / (double)baseTypeSize;
+        double mbMultiplier = static_cast<double>(StorageLayout::DefaultTileSize) /static_cast<double>(tileCells);
+        double adjustingMultiplier = mbMultiplier / static_cast<double>(baseTypeSize);
         lastDimValue =  (defaultTileConfiguration[defaultTileConfiguration.dimension() -1].high()+1) * adjustingMultiplier;
 
-        defaultTileConfiguration[defaultTileConfiguration.dimension() -1].set_high((r_Range)lastDimValue-1);
+        defaultTileConfiguration[defaultTileConfiguration.dimension() -1].set_high(static_cast<r_Range>(lastDimValue)-1);
 
         char *adjustedDomainPtr = defaultTileConfiguration.get_string_representation();
         std::string adjustedDomain = adjustedDomainPtr;

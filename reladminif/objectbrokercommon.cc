@@ -578,7 +578,7 @@ ObjectBroker::getObjectByName(OId::OIdType type, const char* name) throw (r_Erro
     //check if there is an object with that name already in memory
     for (DBObjectPMap::iterator iter = theMap->begin(); iter != theMap->end(); iter++)
     {
-        if (strcmp(((DBNamedObject*)(*iter).second)->getName(), name) == 0)
+        if (strcmp((static_cast<DBNamedObject*>((*iter).second))->getName(), name) == 0)
         {
             RMDBGMIDDLE(11, RMDebug::module_adminif, "ObjectBroker", name << " equals " << ((DBNamedObject*)(*iter).second)->getName());
             retval = (*iter).second;

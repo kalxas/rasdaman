@@ -33,7 +33,7 @@ rasdaman GmbH.
 #include "raslib/rmdebug.hh"
 
 InlineMinterval::InlineMinterval()
-    :   r_Minterval((r_Dimension)0)
+    :   r_Minterval(static_cast<r_Dimension>(0))
 {
     RMDBGONCE(10, RMDebug::module_catalogif, "InlineMinterval", "InlineMinterval()");
 }

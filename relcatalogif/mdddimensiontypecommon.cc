@@ -100,7 +100,7 @@ MDDDimensionType::getTypeStructure() const
     RMDBGMIDDLE(10, RMDebug::module_catalogif, "MDDDimensionType", "myBaseType at " << myBaseType);
     char* baseType = myBaseType->getTypeStructure();
     RMDBGMIDDLE(10, RMDebug::module_catalogif, "MDDDimensionType", "basetype at " << baseType);
-    char* result = (char*)mymalloc(12 + strlen(baseType) + strlen(dimBuf));
+    char* result = static_cast<char*>(mymalloc(12 + strlen(baseType) + strlen(dimBuf)));
 
     strcpy(result, "marray <");
     strcat(result, baseType);
@@ -149,7 +149,7 @@ MDDDimensionType::compatibleWith(const Type* aType) const
 {
     RMDBGENTER(5, RMDebug::module_catalogif, "MDDDimensionType", "compatibleWith(" << aType->getName() << ") " << getName());
     int retval = 0;
-    if( ((MDDType*)const_cast<Type*>(aType))->getSubtype() != MDDDOMAINTYPE && ((MDDType*)const_cast<Type*>(aType))->getSubtype() != MDDDIMENSIONTYPE )
+    if( (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDOMAINTYPE && (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() != MDDDIMENSIONTYPE )
     {
         RMDBGMIDDLE(6, RMDebug::module_catalogif, "MDDDimensionType", "not a domain- or dimensiontype");
         retval = 0;
@@ -157,7 +157,7 @@ MDDDimensionType::compatibleWith(const Type* aType) const
     else
     {
         // check BaseType first
-        if( ! (myBaseType->compatibleWith(((MDDBaseType*)const_cast<Type*>(aType))->getBaseType())) )
+        if( ! (myBaseType->compatibleWith((static_cast<MDDBaseType*>(const_cast<Type*>(aType)))->getBaseType())) )
         {
             RMDBGMIDDLE(6, RMDebug::module_catalogif, "MDDDimensionType", "basetypes are not compatible");
             retval = 0;
@@ -165,17 +165,17 @@ MDDDimensionType::compatibleWith(const Type* aType) const
         else
         {
             // check dimensionality
-            if( ((MDDType*)const_cast<Type*>(aType))->getSubtype() == MDDDIMENSIONTYPE )
+            if( (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() == MDDDIMENSIONTYPE )
             {
                 RMDBGMIDDLE(6, RMDebug::module_catalogif, "MDDDimensionType", "check for dimension equality");
-                retval = (myDimension == ((MDDDimensionType*)const_cast<Type*>(aType))->getDimension());
+                retval = (myDimension == (static_cast<MDDDimensionType*>(const_cast<Type*>(aType)))->getDimension());
             }
             else
             {
-                if( ((MDDType*)const_cast<Type*>(aType))->getSubtype() == MDDDOMAINTYPE )
+                if( (static_cast<MDDType*>(const_cast<Type*>(aType)))->getSubtype() == MDDDOMAINTYPE )
                 {
                     RMDBGMIDDLE(6, RMDebug::module_catalogif, "MDDDimensionType", "check for dimension equality");
-                    retval = ( (const_cast<MDDDimensionType*>(this))->myDimension == ((MDDDomainType*)const_cast<Type*>(aType))->getDomain()->dimension() );
+                    retval = ( (const_cast<MDDDimensionType*>(this))->myDimension == (static_cast<MDDDomainType*>(const_cast<Type*>(aType)))->getDomain()->dimension() );
                 }
             }
         }

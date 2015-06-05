@@ -109,7 +109,7 @@ r_Error::~r_Error() throw()
 const char*
 r_Error::what() const throw ()
 {
-    return (const char*)errorText;
+    return static_cast<const char*>(errorText);
 }
 
 
@@ -146,7 +146,7 @@ r_Error::serialiseError()
     char buf[80]; // should be enough for two numbers
 
     sprintf(buf, "%d\t%d", theKind, errorNo);
-    retVal = (char*)mymalloc(strlen(buf) + 1);
+    retVal = static_cast<char*>(mymalloc(strlen(buf) + 1));
     strcpy(retVal, buf);
     return retVal;
 }
@@ -161,7 +161,7 @@ r_Error::getAnyError(char* serErr)
     unsigned int newErrNum = 0;
     // first read the attributes of r_Error to find out which subclass it is
     // (stored in errNum).
-    newTheKind = (r_Error::kind)strtol(serErr, &currChar, 10);
+    newTheKind = static_cast<r_Error::kind>(strtol(serErr, &currChar, 10));
     newErrNum = strtol(currChar+1, &currChar, 10);
 
     if (newTheKind != r_Error_SerialisableException)
@@ -231,7 +231,7 @@ void r_Error::initTextTable()
         while ( ! errortexts.eof() )
         {
             getline( errortexts, line );
-            char *errText = (char*) mymalloc( line.length() + 1 );
+            char *errText = static_cast<char*>(mymalloc( line.length() + 1 ));
             if (errText == NULL)
             {
                 RMInit::logOut << "Fatal error: cannot allocate error text table line #" << numOfEntries << endl;
@@ -740,7 +740,7 @@ r_Ebase_dbms::r_Ebase_dbms(const r_Ebase_dbms& obj)
     dbmsErrNum = obj.dbmsErrNum;
     if (obj.baseDBMS)
     {
-        baseDBMS = (char*)mymalloc(strlen(obj.baseDBMS) + 1);
+        baseDBMS = static_cast<char*>(mymalloc(strlen(obj.baseDBMS) + 1));
         strcpy(baseDBMS, obj.baseDBMS);
     }
     else
@@ -749,7 +749,7 @@ r_Ebase_dbms::r_Ebase_dbms(const r_Ebase_dbms& obj)
     }
     if (obj.dbmsErrTxt)
     {
-        dbmsErrTxt = (char*)mymalloc(strlen(obj.dbmsErrTxt) + 1);
+        dbmsErrTxt = static_cast<char*>(mymalloc(strlen(obj.dbmsErrTxt) + 1));
         strcpy(dbmsErrTxt, obj.dbmsErrTxt);
     }
     else
@@ -779,7 +779,7 @@ r_Ebase_dbms::r_Ebase_dbms(kind newTheKind, unsigned long newErrNum, const char*
     // r_Error::getAnyError(char* serErr)
     dbmsErrNum = strtol(currChar, &currChar, 10);
     // of course \t is part of the string, so we trick a little
-    char* tmpPtr = strchr(((char*)currChar)+1, '\t');
+    char* tmpPtr = strchr((static_cast<char*>(currChar))+1, '\t');
     if (tmpPtr==NULL)               // no trailing information found?
     {
         baseDBMS = strdup( "unknown" );
@@ -818,7 +818,7 @@ r_Ebase_dbms::operator=(const r_Ebase_dbms& obj)
         if (obj.baseDBMS)
         {
             if (baseDBMS) free(baseDBMS);
-            baseDBMS = (char*)mymalloc(strlen(obj.baseDBMS) + 1);
+            baseDBMS = static_cast<char*>(mymalloc(strlen(obj.baseDBMS) + 1));
             strcpy(baseDBMS, obj.baseDBMS);
         }
         else
@@ -828,7 +828,7 @@ r_Ebase_dbms::operator=(const r_Ebase_dbms& obj)
         if (obj.dbmsErrTxt)
         {
             if (dbmsErrTxt) free(dbmsErrTxt);
-            dbmsErrTxt = (char*)mymalloc(strlen(obj.dbmsErrTxt) + 1);
+            dbmsErrTxt = static_cast<char*>(mymalloc(strlen(obj.dbmsErrTxt) + 1));
             strcpy(dbmsErrTxt, obj.dbmsErrTxt);
         }
         else
@@ -848,7 +848,7 @@ r_Ebase_dbms::buildWhat()
     if(whatTxt)
         free(whatTxt);
     // assumes 10 digits for errNum
-    whatTxt = (char*)mymalloc(strlen(baseDBMS) + strlen(dbmsErrTxt) + 12);
+    whatTxt = static_cast<char*>(mymalloc(strlen(baseDBMS) + strlen(dbmsErrTxt) + 12));
     strcpy(whatTxt, baseDBMS);
     sprintf(whatTxt + strlen(whatTxt), "%ld\n", dbmsErrNum);
     strcat(whatTxt, dbmsErrTxt);
@@ -868,7 +868,7 @@ r_Ebase_dbms::serialiseError()
     char* retVal;
 
     sprintf(buf, "\t%ld\t", dbmsErrNum);
-    retVal = (char*)mymalloc(strlen(tmpRes) + strlen(buf) + strlen(baseDBMS) + strlen(dbmsErrTxt) + 2);
+    retVal = static_cast<char*>(mymalloc(strlen(tmpRes) + strlen(buf) + strlen(baseDBMS) + strlen(dbmsErrTxt) + 2));
     strcpy(retVal, tmpRes);
     strcat(retVal, buf);
     strcat(retVal, baseDBMS);

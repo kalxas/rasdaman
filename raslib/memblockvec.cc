@@ -72,7 +72,7 @@ void* r_Memory_Block_Vector::add( void )
         blocks = newBlocks;
         maxBlocks += granularity;
     }
-    blocks[numBlocks++] = (void*)(new char[blockSize]);
+    blocks[numBlocks++] = static_cast<void*>(new char[blockSize]);
     return blocks[numBlocks-1];
 }
 
@@ -103,7 +103,7 @@ void r_Memory_Block_Vector::copy_data( void* dest, r_Bytes lastFill ) const
     for (i=0; i<numBlocks-1; i++)
     {
         memcpy(destPtr, blocks[i], blockSize);
-        destPtr = (void*)(((char*)destPtr) + blockSize);
+        destPtr = static_cast<void*>((static_cast<char*>(destPtr)) + blockSize);
     }
     memcpy(destPtr, blocks[numBlocks-1], lastFill);
 }

@@ -386,9 +386,9 @@ Tile::Tile(std::vector<TilePtr>* tilesVec, const r_Minterval& resDom)
 
     // init contents
     if (RMInit::useTileContainer)
-        blobTile = new InlineTile(getSize(), (char)0, (*tileIt)->getDataFormat());
+        blobTile = new InlineTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
     else
-        blobTile = new BLOBTile(getSize(), (char)0, (*tileIt)->getDataFormat());
+        blobTile = new BLOBTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
 
     // insert all tiles in the result tile
     tileIt = tilesVec->begin();

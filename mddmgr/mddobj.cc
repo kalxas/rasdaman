@@ -285,7 +285,7 @@ MDDObj::insertTile(shared_ptr<Tile> newTile)
                 // generate a tile of the domain : layout domain
                 completeArea = (*it).cell_count();
                 sizeOfData = sizeof(char) * completeArea * getMDDBaseType()->getBaseType()->getSize();
-                newContents = (char*)mymalloc(sizeOfData);
+                newContents = static_cast<char*>(mymalloc(sizeOfData));
                 // initialise to 0
                 memset(newContents, 0, sizeOfData);
                 tile.reset(new Tile(*it, getMDDBaseType()->getBaseType(), newContents, 0, newTile->getDataFormat()));

@@ -101,21 +101,21 @@ BaseType::operator=(const BaseType& old)
 UnaryOp*
 BaseType::getUnaryOp( Ops::OpType op, const BaseType* optype ) const
 {
-  return Ops::getUnaryOp(op, (const BaseType*)this, optype);
+  return Ops::getUnaryOp(op, static_cast<const BaseType*>(this), optype);
 }
 
 BinaryOp*
 BaseType::getBinaryOp( Ops::OpType op, const BaseType* op1type, 
 		       const BaseType* op2type ) const
 {
-  return Ops::getBinaryOp(op, (const BaseType*)this, op1type, op2type);
+  return Ops::getBinaryOp(op, static_cast<const BaseType*>(this), op1type, op2type);
 }
 
 
 CondenseOp*
 BaseType::getCondenseOp( Ops::OpType op ) const
 { 
-  return Ops::getCondenseOp(op, (const BaseType*)this);
+  return Ops::getCondenseOp(op, static_cast<const BaseType*>(this));
 }
 
 

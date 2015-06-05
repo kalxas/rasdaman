@@ -55,7 +55,7 @@ KeyObject::KeyObject(shared_ptr<Tile> tile)
 {
     if (tile->isPersistent())
     {
-        persobject = (const DBObjectId&)(tile->getDBTile());
+        persobject = static_cast<const DBObjectId&>(tile->getDBTile());
     }
     else
     {

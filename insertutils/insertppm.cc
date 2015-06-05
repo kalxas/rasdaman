@@ -251,16 +251,16 @@ r_Minterval readHeader( const char *fName, bool mdd3d, unsigned int numSlices )
     {
         // domain of MDD
         result = r_Minterval(3)
-                 << r_Sinterval((r_Range)0, (r_Range)(numSlices - 1))
-                 << r_Sinterval((r_Range)0, (r_Range)(colsP - 1))
-                 << r_Sinterval((r_Range)0, (r_Range)(rowsP - 1));
+                 << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(numSlices - 1))
+                 << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(colsP - 1))
+                 << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(rowsP - 1));
     }
     else
     {
         // domain of MDD
         result = r_Minterval(2)
-                 << r_Sinterval((r_Range)0, (r_Range)colsP - 1)
-                 << r_Sinterval((r_Range)0, (r_Range)rowsP - 1);
+                 << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(colsP) - 1)
+                 << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(rowsP) - 1);
     }
 
     LOG << "header says: " << result << endl;
@@ -325,8 +325,8 @@ void readImage(char* contents, const char *fName,__attribute__ ((unused))  bool 
                 contents[pos*PIXSIZE_COL + 2] = PPM_GETB( scaledPixel );
                 break;
             case PIXEL_UNSIGNED:
-                contents[pos*PIXSIZE_UNSIGNED + 0] = (char) (0xFF & PPM_GETB( scaledPixel ) );
-                contents[pos*PIXSIZE_UNSIGNED + 1] = (char) (PPM_GETB( scaledPixel ) >> 8 );
+                contents[pos*PIXSIZE_UNSIGNED + 0] = static_cast<char>(0xFF & PPM_GETB( scaledPixel ) );
+                contents[pos*PIXSIZE_UNSIGNED + 1] = static_cast<char>(PPM_GETB( scaledPixel ) >> 8 );
                 break;
             default:
                 cerr << "Error: unknown pixel type code: " << static_cast<int>(pixType) << endl;
@@ -403,11 +403,11 @@ void readRows(char* contents, __attribute__ ((unused)) r_Range startRow, r_Range
                 contents[pos*PIXSIZE_COL + 2] = PPM_GETB( scaledPixel );
                 break;
             case PIXEL_UNSIGNED:
-                contents[pos*PIXSIZE_UNSIGNED + 0] = (char) (0xFF & PPM_GETB( scaledPixel ) );
-                contents[pos*PIXSIZE_UNSIGNED + 1] = (char) (PPM_GETB( scaledPixel ) >> 8 );
+                contents[pos*PIXSIZE_UNSIGNED + 0] = static_cast<char>(0xFF & PPM_GETB( scaledPixel ) );
+                contents[pos*PIXSIZE_UNSIGNED + 1] = static_cast<char>(PPM_GETB( scaledPixel ) >> 8 );
                 break;
             default:
-                cerr << "Error: unknown pixel type code: " << (int)pixType << endl;
+                cerr << "Error: unknown pixel type code: " << static_cast<int>(pixType) << endl;
                 break;
             }
         }
@@ -426,19 +426,19 @@ void createMarray(const r_Minterval &dom, r_Ref<r_GMarray> &mddPtr, PixelType pi
     {
     case PIXEL_BOOL:
         LOG << "creating MDD of type bool and extent " << dom << endl;
-        mddPtr = (r_GMarray*)(new r_Marray<r_Boolean>(dom));
+        mddPtr = static_cast<r_GMarray*>(new r_Marray<r_Boolean>(dom));
         break;
     case PIXEL_GREY: // create Bool out of pixel (just take blue)
         LOG << "creating MDD of type grey and extent " << dom << endl;
-        mddPtr = (r_GMarray*)(new r_Marray<r_Char>(dom));
+        mddPtr = static_cast<r_GMarray*>(new r_Marray<r_Char>(dom));
         break;
     case PIXEL_COLOR: // create ULong out of pixel colors
         LOG << "creating MDD of type color and extent " << dom << endl;
-        mddPtr = (r_GMarray*)(new r_Marray<RGBPixel>(dom));
+        mddPtr = static_cast<r_GMarray*>(new r_Marray<RGBPixel>(dom));
         break;
     case PIXEL_UNSIGNED: // create Ushort
         LOG << "creating MDD of type unsigned and extent " << dom << endl;
-        mddPtr = (r_GMarray*)(new r_Marray<r_UShort>(dom));
+        mddPtr = static_cast<r_GMarray*>(new r_Marray<r_UShort>(dom));
         break;
     default:
         cerr << "Error: unknown pixel type code: " << static_cast<int>(pixType) << endl;
@@ -700,13 +700,13 @@ main( int argc, char** argv )
         // use default tile sizes
         if(mdd3d)
             tileSize = r_Minterval(3)
-                       << r_Sinterval((r_Range)DEFAULT_TILE_LO, (r_Range)DEFAULT_TILE_HI)
-                       << r_Sinterval((r_Range)DEFAULT_TILE_LO, (r_Range)DEFAULT_TILE_HI)
-                       << r_Sinterval((r_Range)DEFAULT_TILE_LO, (r_Range)DEFAULT_TILE_HI);
+                       << r_Sinterval(static_cast<r_Range>(DEFAULT_TILE_LO), static_cast<r_Range>(DEFAULT_TILE_HI))
+                       << r_Sinterval(static_cast<r_Range>(DEFAULT_TILE_LO), static_cast<r_Range>(DEFAULT_TILE_HI))
+                       << r_Sinterval(static_cast<r_Range>(DEFAULT_TILE_LO), static_cast<r_Range>(DEFAULT_TILE_HI));
         else
             tileSize = r_Minterval(2)
-                       << r_Sinterval((r_Range)DEFAULT_TILE_LO, (r_Range)DEFAULT_TILE_HI)
-                       << r_Sinterval((r_Range)DEFAULT_TILE_LO, (r_Range)DEFAULT_TILE_HI);
+                       << r_Sinterval(static_cast<r_Range>(DEFAULT_TILE_LO), static_cast<r_Range>(DEFAULT_TILE_HI))
+                       << r_Sinterval(static_cast<r_Range>(DEFAULT_TILE_LO), static_cast<r_Range>(DEFAULT_TILE_HI));
         LOG << "tileSize = " << tileSize << endl;
     }
     transferFormat = get_data_format_from_name( transferFormatString );
@@ -823,9 +823,9 @@ main( int argc, char** argv )
             r_Range tileX = tileSize[0].high()+1;
 
             // create domain of first cache
-            cacheDom = r_Minterval(3) << r_Sinterval((r_Range)0, tileX - 1)
-                       << r_Sinterval((r_Range)0, imgCols - 1)
-                       << r_Sinterval((r_Range)0, imgRows - 1);
+            cacheDom = r_Minterval(3) << r_Sinterval(static_cast<r_Range>(0), tileX - 1)
+                       << r_Sinterval(static_cast<r_Range>(0), imgCols - 1)
+                       << r_Sinterval(static_cast<r_Range>(0), imgRows - 1);
 
             createMarray(cacheDom, mddPtr, pixType);
             char *contents = new char[cacheDom.cell_count() * typeSize];
@@ -853,10 +853,10 @@ main( int argc, char** argv )
 
                     // create domain of next tile
                     cacheDom = r_Minterval(3)
-                               << r_Sinterval( (r_Range) (k + 1),
-                                               (r_Range) (k+tileX > static_cast<int>(fileNameList.size()-1) ? fileNameList.size()-1 : static_cast<unsigned long long>(k+tileX)) )
-                               << r_Sinterval((r_Range)0, imgCols - 1)
-                               << r_Sinterval((r_Range)0, imgRows - 1);
+                               << r_Sinterval( static_cast<r_Range>(k + 1),
+                                               static_cast<r_Range>(k+tileX > static_cast<int>(fileNameList.size()-1) ? fileNameList.size()-1 : static_cast<unsigned long long>(k+tileX)) )
+                               << r_Sinterval(static_cast<r_Range>(0), imgCols - 1)
+                               << r_Sinterval(static_cast<r_Range>(0), imgRows - 1);
 
                     createMarray(cacheDom, mddPtr, pixType);
                     contents = mddPtr->get_array();
@@ -880,7 +880,7 @@ main( int argc, char** argv )
             {
                 // create domain of next tile
                 cacheDom =  r_Minterval(2)
-                            << r_Sinterval((r_Range)0, imgCols - 1)
+                            << r_Sinterval(static_cast<r_Range>(0), imgCols - 1)
                             << r_Sinterval(k, k + min(tileRows-1, imgRows-k-1));
 
                 LOG << "#" << k << " " << cacheDom << "..." << flush;

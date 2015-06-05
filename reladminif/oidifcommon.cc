@@ -181,7 +181,7 @@ OId::OId(OIdPrimitive newId)
 {
     RMDBGENTER(4, RMDebug::module_adminif, "OId", "OId(OIdPrimitive " << newId << ")");
     oid = newId / OId::ID_MULTIPLIER;
-    oidtype = (OId::OIdType)(newId - (OIdPrimitive)((OIdPrimitive)oid * OId::ID_MULTIPLIER));
+    oidtype = static_cast<OId::OIdType>(newId - static_cast<OIdPrimitive>(static_cast<OIdPrimitive>(oid) * OId::ID_MULTIPLIER));
     RMDBGEXIT(4, RMDebug::module_adminif, "OId", "OId(OIdPrimitive " << newId << ") ID " << oid << " TYPE " << oidtype);
 }
 
@@ -324,7 +324,7 @@ operator== (const long long one, const OId& two)
     RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator==(" << one << "," << two << ")");
     bool retval = false;
     // see conversion operator above
-    if (((long long)two) == one)
+    if ((static_cast<long long>(two)) == one)
         retval = true;
     return retval;
 }
@@ -335,7 +335,7 @@ operator== (const OId& two, const long long one)
     RMDBGONCE(4, RMDebug::module_adminif, "OId", "operator==(" << two << "," << one << ")");
     bool retval=false;
     // see conversion operator above
-    if (((long long)two) == one)
+    if ((static_cast<long long>(two)) == one)
         retval=true;
     return retval;
 }
@@ -413,7 +413,7 @@ operator<<(std::ostream& s, OId::OIdType d)
         s << "MDDRCIXOID";
         break;
     default:
-        s << "UNKNOWN: " << (int)d;
+        s << "UNKNOWN: " << static_cast<int>(d);
         break;
     }
     return s;

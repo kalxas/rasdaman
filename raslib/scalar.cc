@@ -52,7 +52,7 @@ r_Scalar::r_Scalar( const r_Base_Type* newType )
     : valueType(NULL)
 {
     if( newType )
-        valueType = (r_Base_Type*)newType->clone();
+        valueType = static_cast<r_Base_Type*>(newType->clone());
     else
     {
         RMInit::logOut << "r_Scalar::r_Scalar(NULL) base type must be not NULL" << endl;
@@ -82,7 +82,7 @@ r_Scalar::operator=( const r_Scalar& obj )
     if( this != &obj )
     {
         delete valueType;
-        valueType = (r_Base_Type*)obj.valueType->clone();
+        valueType = static_cast<r_Base_Type*>(obj.valueType->clone());
     }
 
     return *this;
