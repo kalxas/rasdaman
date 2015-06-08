@@ -72,7 +72,7 @@ public:
 
 private:
     /// error information
-    unsigned int errno;
+    unsigned int error_code;
 };
 
 #endif // _RASQL_ERROR_HH_

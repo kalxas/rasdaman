@@ -51,7 +51,7 @@ static const char rcsid[] = "@(#)raslib, RasqlError: $Id: rasql_error.cc,v 1.1 2
 RasqlError::RasqlError( unsigned int e )
 {
     TALK( "Exception: " << e );
-    errno = e;
+    error_code = e;
 }
 
 /// default destructor
@@ -65,7 +65,7 @@ const char*
 RasqlError::what()
 {
     char *errorMsg;
-    switch (errno)
+    switch (error_code)
     {
     case  NOQUERY:
         errorMsg = "Mandatory parameter '--query' missing.";
@@ -116,9 +116,9 @@ RasqlError::what()
 
     // check for buffer overflow
     if (strlen(MODULE_TAG) + 3 + strlen(ERROR_TEXT) + strlen(errorMsg) + 1 > ERRTEXT_BUFSIZ)
-        sprintf( errorText, "%s%03d%s", MODULE_TAG, errno, "(error message too long, cannot display)" );
+        sprintf( errorText, "%s%03d%s", MODULE_TAG, error_code, "(error message too long, cannot display)" );
     else
-        sprintf( errorText, "%s%03d%s%s", MODULE_TAG, errno, ERROR_TEXT, errorMsg );
+        sprintf( errorText, "%s%03d%s%s", MODULE_TAG, error_code, ERROR_TEXT, errorMsg );
 
     return errorText;
 } // what()
