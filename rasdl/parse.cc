@@ -177,7 +177,7 @@ void Parse_typereference::output(FILE*stream)const
 const Type*
 Parse_typereference::getType( const char* /*typeName*/ ) const
 {
-    const BaseType* catBaseType = TypeFactory::mapType( const_cast<char*>(type->name) );
+    const BaseType* catBaseType = TypeFactory::mapType( type->name );
 
     if( !catBaseType )
         // Error: Type reference not found..
@@ -254,7 +254,7 @@ void Parse_struct::insertData() const throw( r_Equery_execution_failed )
 
     RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_struct", "inserting type " << catType->getTypeName())
 
-    if( TypeFactory::mapType( const_cast<char*>(catType->getTypeName() )) )
+    if( TypeFactory::mapType( catType->getTypeName() ) )
         // Error: Struct type name exists already.
         throw( r_Equery_execution_failed( 905, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
 
@@ -556,25 +556,25 @@ void Parse_alias::insertData() const throw( r_Equery_execution_failed )
     switch( catType->getType() )
     {
     case MDDTYPE:
-        if( TypeFactory::mapMDDType( const_cast<char*>(catType->getTypeName()) ) )
+        if( TypeFactory::mapMDDType( catType->getTypeName() ) )
         {
             delete catType;
             // Error: MDD type name exists already.
             throw( r_Equery_execution_failed( 906, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
         }
         TALK( "adding to the database as MDD type" );
-        TypeFactory::addMDDType( (MDDType*)const_cast<CType*>(catType) );
+        TypeFactory::addMDDType( (const MDDType*)const_cast<CType*>(catType) );
         break;
 
     case SETTYPE:
-        if( TypeFactory::mapType( const_cast<char*>(catType->getTypeName()) ) )
+        if( TypeFactory::mapType( catType->getTypeName()) )
         {
             delete catType;
             // Error: Set type name exists already.
             throw( r_Equery_execution_failed( 907, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
         }
         TALK( "adding to the database as set type" );
-        TypeFactory::addSetType( (SetType*)const_cast<CType*>(catType) );
+        TypeFactory::addSetType( (const SetType*)const_cast<CType*>(catType) );
         break;
 
     default:
@@ -977,7 +977,7 @@ Parse_set::getType( const char* typeName ) const
 
     RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_set", "Base type name " << baseTypeName)
 
-    const MDDType* catBaseType = TypeFactory::mapMDDType( const_cast<char*>(baseTypeName) );
+    const MDDType* catBaseType = TypeFactory::mapMDDType( baseTypeName );
 
     if( !catBaseType )
         // Error: Type reference not found..
