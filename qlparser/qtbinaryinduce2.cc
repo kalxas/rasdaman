@@ -59,7 +59,7 @@ QtIs::QtIs( QtOperation* initInput1, QtOperation* initInput2 )
 void
 QtIs::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtIs Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIs Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -117,7 +117,7 @@ QtAnd::evaluate( QtDataList* inputList )
 
         if( getOperand( inputList, operand1, 1 ) )
         {
-            bool op1 = ((QtAtomicData*)operand1)->getUnsignedValue();
+            bool op1 = (static_cast<QtAtomicData*>(operand1))->getUnsignedValue();
 
             if( op1 )
             {
@@ -150,7 +150,7 @@ QtAnd::evaluate( QtDataList* inputList )
 void
 QtAnd::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtAnd Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtAnd Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -209,7 +209,7 @@ QtOr::evaluate( QtDataList* inputList )
 
         if( getOperand( inputList, operand1, 1 ) )
         {
-            bool op1 = ((QtAtomicData*)operand1)->getUnsignedValue();
+            bool op1 = (static_cast<QtAtomicData*>(operand1))->getUnsignedValue();
 
             if( !op1 )
             {
@@ -242,7 +242,7 @@ QtOr::evaluate( QtDataList* inputList )
 void
 QtOr::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtOr Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtOr Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -282,7 +282,7 @@ QtXor::QtXor( QtOperation* initInput1, QtOperation* initInput2 )
 void
 QtXor::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtXor Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtXor Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -322,7 +322,7 @@ QtEqual::QtEqual( QtOperation* initInput1, QtOperation* initInput2 )
 void
 QtEqual::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtEqual Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtEqual Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -371,7 +371,7 @@ QtLess::isCommutative() const
 void
 QtLess::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtLess Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtLess Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -420,7 +420,7 @@ QtLessEqual::isCommutative() const
 void
 QtLessEqual::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtLessEqual Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtLessEqual Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -460,7 +460,7 @@ QtNotEqual::QtNotEqual( QtOperation* initInput1, QtOperation* initInput2 )
 void
 QtNotEqual::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtNotEqual Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtNotEqual Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -510,7 +510,7 @@ bool QtOverlay::isCommutative() const
 void
 QtOverlay::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtOverlay Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtOverlay Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryInduce::printTree( tab, s, mode );
 }
@@ -556,7 +556,7 @@ bool QtBit::isCommutative() const
 
 void QtBit::printTree(int tab, ostream& s, QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtBit Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtBit Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
     QtBinaryInduce::printTree(tab, s, mode);
 }
 
@@ -615,8 +615,8 @@ const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
 
         if(inputType1.getDataType() == QT_MDD)
         {
-            const BaseType* baseType1 = ((MDDBaseType*)(inputType1.getType()))->getBaseType();
-            BaseType* baseType2 = (BaseType*)(inputType2.getType());
+            const BaseType* baseType1 = (static_cast<MDDBaseType*>(const_cast<Type*>(inputType1.getType())))->getBaseType();
+            BaseType* baseType2 = static_cast<BaseType*>(const_cast<Type*>(inputType2.getType()));
 
             const BaseType* resultBaseType = Ops::getResultType(opType, baseType1, baseType2);
 
@@ -635,8 +635,8 @@ const QtTypeElement& QtBit::checkType(QtTypeTuple* typeTuple)
 
         else if(inputType1.isBaseType())
         {
-            BaseType* baseType1 = (BaseType*)(inputType1.getType());
-            BaseType* baseType2 = (BaseType*)(inputType2.getType());
+            BaseType* baseType1 = static_cast<BaseType*>(const_cast<Type*>(inputType1.getType()));
+            BaseType* baseType2 = static_cast<BaseType*>(const_cast<Type*>(inputType2.getType()));
 
             const BaseType* resultBaseType = Ops::getResultType(opType, baseType1, baseType2);
 
@@ -681,7 +681,7 @@ bool QtConstructComplex::isCommutative() const
 
 void QtConstructComplex::printTree(int tab, ostream& s, QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtConstructComplex Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtConstructComplex Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
     QtBinaryInduce::printTree(tab, s, mode);
 }
 

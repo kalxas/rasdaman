@@ -44,7 +44,7 @@ using namespace std;
 
 
 QtIntervalData::QtIntervalData( const r_Sinterval& interval )
-    : intervalData(interval), QtData()
+    : QtData(), intervalData(interval)
 {
 }
 
@@ -64,7 +64,7 @@ QtIntervalData::equal( const QtData* obj ) const
     int returnValue = false;  // not equal by initialization
 
     if( obj->getDataType() == QT_INTERVAL )
-        returnValue = (intervalData == ((QtIntervalData*)obj)->getIntervalData());
+        returnValue = (intervalData == (static_cast<QtIntervalData*>(const_cast<QtData*>(obj)))->getIntervalData());
 
     return returnValue;
 }

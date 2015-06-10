@@ -63,10 +63,10 @@ QtCondenseOp::QtCondenseOp( Ops::OpType  newOperation,
                             QtOperation* mintervalExp,
                             QtOperation* cellExp,
                             QtOperation* condExp             )
-    :  operation( newOperation ),
+    :  QtBinaryOperation( mintervalExp, cellExp ),
        iteratorName( initIteratorName ),
-       QtBinaryOperation( mintervalExp, cellExp ),
-       condOp( condExp )
+       condOp( condExp ),
+       operation( newOperation )
 {
 }
 
@@ -122,7 +122,7 @@ QtCondenseOp::equalMeaning( QtNode* node )
     if( nodeType == node->getNodeType() )
     {
         QtCondenseOp* condNode;
-        condNode = (QtCondenseOp*) node; // by force
+        condNode = static_cast<QtCondenseOp*>(node); // by force
 
         // check domain and cell expression
         result  = QtBinaryOperation::equalMeaning( condNode );
@@ -141,7 +141,7 @@ string
 QtCondenseOp::getSpelling()
 {
     char tempStr[20];
-    sprintf(tempStr, "%lu", (unsigned long)getNodeType());
+    sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
     result.append( "(" );
     result.append( QtBinaryOperation::getSpelling() );
@@ -170,7 +170,7 @@ QtCondenseOp::setInput( QtOperation* inputOld, QtOperation* inputNew )
         if( inputNew )
             inputNew->setParent( this );
     }
-};
+}
 
 
 
@@ -251,7 +251,7 @@ QtCondenseOp::evaluate( QtDataList* inputList )
     }
 #endif
 
-    r_Minterval domain = ((QtMintervalData*)operand1)->getMintervalData();
+    r_Minterval domain = (static_cast<QtMintervalData*>(operand1))->getMintervalData();
 
     RMDBGMIDDLE(1, RMDebug::module_qlparser, "QtCondenseOp", "Marray domain " << domain)
 
@@ -259,10 +259,10 @@ QtCondenseOp::evaluate( QtDataList* inputList )
     const BaseType* cellBaseType;
     QtDataType cellType = input2->getDataStreamType().getDataType();
     if(cellType == QT_MDD){
-        cellBaseType = ((MDDBaseType*) input2->getDataStreamType().getType())->getBaseType();
+        cellBaseType = (static_cast<MDDBaseType*>(const_cast<Type*>(input2->getDataStreamType().getType())))->getBaseType();
     }
     else{
-        cellBaseType = (BaseType*) input2->getDataStreamType().getType();
+        cellBaseType = static_cast<BaseType*>(const_cast<Type*>(input2->getDataStreamType().getType()));
     }
 
     // get operation object
@@ -320,7 +320,7 @@ QtCondenseOp::evaluateScalarOp(QtDataList* inputList, const BaseType* cellType, 
     char* resultBuffer = new char[ cellType->getSize() ];
 
     // copy cell content
-    memcpy( (void*)resultBuffer, (void*)result, cellType->getSize() );
+    memcpy( resultBuffer, result, cellType->getSize() );
 
     delete qlCondenseOp;
     qlCondenseOp=NULL;
@@ -341,7 +341,7 @@ QtCondenseOp::evaluateScalarOp(QtDataList* inputList, const BaseType* cellType, 
 
 QtData*
 QtCondenseOp::evaluateInducedOp(QtDataList* inputList, BinaryOp* cellBinOp, r_Minterval domain){
-    QtMDD* result;
+    QtMDD* result = NULL;
     QLInducedCondenseOp* qlInducedCondenseOp = new QLInducedCondenseOp(input2, condOp, inputList, cellBinOp, iteratorName);
     try {
         result = QLInducedCondenseOp::execGenCondenseInducedOp(qlInducedCondenseOp, domain);
@@ -357,9 +357,9 @@ QtCondenseOp::evaluateInducedOp(QtDataList* inputList, BinaryOp* cellBinOp, r_Mi
 void
 QtCondenseOp::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtCondenseOp Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCondenseOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
-    s << SPACE_STR(tab).c_str() << "Iterator Name: " << iteratorName.c_str() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "Iterator Name: " << iteratorName.c_str() << endl;
 
     QtBinaryOperation::printTree( tab, s, mode );
 }

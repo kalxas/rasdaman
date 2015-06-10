@@ -75,13 +75,13 @@ QtIntervalLoOp::evaluate( QtDataList* inputList )
         }
 #endif
 
-        QtIntervalData* intervalData = (QtIntervalData*)operand;
+        QtIntervalData* intervalData = static_cast<QtIntervalData*>(operand);
 
         r_Sinterval sinterval = intervalData->getIntervalData();
 
         if( sinterval.is_low_fixed() )
         {
-            returnValue = new QtAtomicData( (r_Long)(sinterval.low()), 4 );
+            returnValue = new QtAtomicData( static_cast<r_Long>(sinterval.low()), 4 );
         }
         else
         {
@@ -113,7 +113,7 @@ QtIntervalLoOp::evaluate( QtDataList* inputList )
 void
 QtIntervalLoOp::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtIntervalLoOp Object: " << getEvaluationTime() << std::endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIntervalLoOp Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree( tab, s, mode );
 }
@@ -201,13 +201,13 @@ QtIntervalHiOp::evaluate( QtDataList* inputList )
         }
 #endif
 
-        QtIntervalData* intervalData = (QtIntervalData*)operand;
+        QtIntervalData* intervalData = static_cast<QtIntervalData*>(operand);
 
         r_Sinterval sinterval = intervalData->getIntervalData();
 
         if( sinterval.is_high_fixed() )
         {
-            returnValue = new QtAtomicData( (r_Long)(sinterval.high()), 4 );
+            returnValue = new QtAtomicData( static_cast<r_Long>(sinterval.high()), 4 );
         }
         else
         {
@@ -238,7 +238,7 @@ QtIntervalHiOp::evaluate( QtDataList* inputList )
 void
 QtIntervalHiOp::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtIntervalHiOp Object: " << getEvaluationTime() << std::endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIntervalHiOp Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree( tab, s, mode );
 }
@@ -326,7 +326,7 @@ QtSDom::evaluate( QtDataList* inputList )
         }
 #endif
 
-        QtMDD*  qtMDD  = (QtMDD*) operand;
+        QtMDD*  qtMDD  = static_cast<QtMDD*>(operand);
         MDDObj* currentMDDObj = qtMDD->getMDDObject();
         r_Minterval* nullValues = currentMDDObj->getNullValues();
 
@@ -374,7 +374,7 @@ QtSDom::optimizeLoad( QtTrimList* trimList )
 void
 QtSDom::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtSDom Object: " << getEvaluationTime() << std::endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtSDom Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree( tab, s, mode );
 }

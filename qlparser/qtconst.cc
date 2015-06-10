@@ -84,7 +84,7 @@ QtConst::equalMeaning( QtNode* node )
 
     if( nodeType == node->getNodeType() )
     {
-        QtConst* constObj = (QtConst*) node;
+        QtConst* constObj = static_cast<QtConst*>(node);
 
         result = dataObj->equal( constObj->getDataObj() );
     }
@@ -97,7 +97,7 @@ string
 QtConst::getSpelling()
 {
     char tempStr[20];
-    sprintf(tempStr, "%lu", (unsigned long)getNodeType());
+    sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
     result.append( dataObj->getSpelling() );
 
@@ -141,7 +141,7 @@ QtConst::optimizeLoad( QtTrimList* trimList )
                 for( i=trimList->begin(); i!=trimList->end(); i++ )
                     loadDomain[(*i)->dimension]    = (*i)->interval;
 
-                ((QtMDD*)dataObj)->setLoadDomain( loadDomain );
+                (static_cast<QtMDD*>(dataObj))->setLoadDomain( loadDomain );
             }
 
             // release( trimList->begin(), trimList->end() );
@@ -183,11 +183,11 @@ QtConst::evaluate( QtDataList* /*inputList*/ )
 void
 QtConst::printTree( int tab, ostream& s, QtChildType /*mode*/ )
 {
-    s << SPACE_STR(tab).c_str() << "QtConst Object: type " << flush;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtConst Object: type " << flush;
     dataStreamType.printStatus( s );
     s << endl;
 
-    s << SPACE_STR(tab).c_str() << "  ";
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  ";
 
     if( dataObj )
         dataObj->printStatus( s );
@@ -205,7 +205,7 @@ QtConst::printAlgebraicExpression( ostream& s )
 {
     if( dataObj->isScalarData() )
     {
-        QtScalarData* scalarDataObj = (QtScalarData*)dataObj;
+        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(dataObj);
 
         if( scalarDataObj->getValueType() )
         {
@@ -229,7 +229,7 @@ QtConst::printAlgebraicExpression( ostream& s )
     }
     else if( dataObj->getDataType() == QT_STRING )
     {
-        s << ((QtStringData*)dataObj)->getStringData().c_str();
+        s << (static_cast<QtStringData*>(dataObj))->getStringData().c_str();
     }
     else
         s << "<nn>";
@@ -238,7 +238,7 @@ QtConst::printAlgebraicExpression( ostream& s )
 
 
 const QtTypeElement&
-QtConst::checkType( QtTypeTuple* typeTuple )
+QtConst::checkType( __attribute__ ((unused)) QtTypeTuple* typeTuple )
 {
     RMDBCLASS( "QtConst", "checkType( QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
 
@@ -255,11 +255,11 @@ QtConst::checkType( QtTypeTuple* typeTuple )
             dataStreamType.setDataType( dataObj->getDataType() );
             break;
         case QT_MDD:
-            if( ((QtMDD*)dataObj)->getMDDObject() )
-                dataStreamType.setType((Type*)((QtMDD*)dataObj)->getMDDObject()->getMDDBaseType() );
+            if( (static_cast<QtMDD*>(dataObj))->getMDDObject() )
+                dataStreamType.setType(static_cast<Type*>(const_cast<MDDBaseType*>((static_cast<QtMDD*>(dataObj))->getMDDObject()->getMDDBaseType())) );
             break;
         default:
-            dataStreamType.setType( ((QtScalarData*)dataObj)->getValueType() );
+            dataStreamType.setType( (static_cast<QtScalarData*>(dataObj))->getValueType() );
         }
     }
 

@@ -191,7 +191,7 @@ struct HTTPMsg *CreateHTTPMsg( char *Header, char *Body, size_t BodySize )
     struct HTTPMsg *Msg;
 
     /*  printf( "###  CreateHTTPMsg(+)\n" );  */
-    Msg = (struct HTTPMsg*)mymalloc( sizeof( struct HTTPMsg ) );
+    Msg = static_cast<struct HTTPMsg*>(mymalloc( sizeof( struct HTTPMsg ) ));
     if( Msg != NULL )
     {
         /*      printf( "###      Header[%d]:\n%s", strlen( Header ), Header );  */
@@ -200,7 +200,7 @@ struct HTTPMsg *CreateHTTPMsg( char *Header, char *Body, size_t BodySize )
         Msg->Body        = Body;
         Msg->BodySize    = BodySize;
 
-        if( ( Msg->Head  = (char*)mymalloc( strlen( Header ) + 1 ) ) != NULL )
+        if( ( Msg->Head  = static_cast<char*>(mymalloc( strlen( Header ) + 1 ) )) != NULL )
             strcpy( Msg->Head, Header );
         else
         {

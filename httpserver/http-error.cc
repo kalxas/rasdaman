@@ -413,7 +413,7 @@ rc_t CreateHTTPError( int Code, struct HTTPMode *Mode, struct HTTPMsg *Msg )
   char            Date[DATE_BUFFSIZE];
 
   bzero( Date, DATE_BUFFSIZE );
-  if( ( Head = (char*)mymalloc( BuffSize ) ) == NULL )
+  if( ( Head = static_cast<char*>(mymalloc( BuffSize ) )) == NULL )
     {
       ErrorMsg( E_SYS, ERROR, 
 		"ERROR: CreateHTTPError() - malloc() error for head buffer." );

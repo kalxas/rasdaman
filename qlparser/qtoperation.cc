@@ -90,7 +90,7 @@ QtOperation::optimizeLoad( QtTrimList* trimList )
 
 
 const QtTypeElement&
-QtOperation::checkType( QtTypeTuple* typeTuple )
+QtOperation::checkType( __attribute__ ((unused)) QtTypeTuple* typeTuple )
 {
     RMDBCLASS( "QtOperation", "checkType( QtTypeElement, QtTypeTuple* )", "qlparser", __FILE__, __LINE__ )
 
@@ -103,13 +103,13 @@ QtOperation::checkType( QtTypeTuple* typeTuple )
 void
 QtOperation::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtOperation Object: type " << std::flush;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtOperation Object: type " << std::flush;
     dataStreamType.printStatus( s );
     s << std::endl;
 
     if( mode != QtNode::QT_DIRECT_CHILDS )
     {
-        s << SPACE_STR(tab).c_str() << "no operation" << std::endl;
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no operation" << std::endl;
     }
 
 }

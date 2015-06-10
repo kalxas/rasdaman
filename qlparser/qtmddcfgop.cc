@@ -48,16 +48,16 @@ using namespace std;
 
 QtMddCfgOp::QtMddCfgOp()
     :  QtOperation(),
-       input(NULL),
-       mddCfgObj(NULL)
+       mddCfgObj(NULL),
+       input(NULL)
 {
 }
 
 
 QtMddCfgOp::QtMddCfgOp( QtOperation* inputInit )
     :  QtOperation(),
-       input( inputInit ),
-       mddCfgObj(NULL)
+       mddCfgObj(NULL),
+       input( inputInit )
 {
     if( input )
         input->setParent( this );
@@ -124,9 +124,9 @@ QtMDDConfig*
 QtMddCfgOp::evaluate(QtDataList* inputList)
 {
     QtMDDConfig* retvalue = NULL;
-    for (int i = 0 ; i < inputList->size() ; i++)
+    for ( unsigned int i = 0 ; i < inputList->size() ; i++)
     {
-        retvalue = (QtMDDConfig*)inputList->at(i);
+        retvalue = static_cast<QtMDDConfig*>(inputList->at(i));
     }
     return retvalue;
 }

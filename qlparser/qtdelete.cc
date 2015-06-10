@@ -104,7 +104,7 @@ QtDelete::evaluate()
                 throw parseInfo;
             }
 
-            QtMDD*  targetMDD = (QtMDD*) target;
+            QtMDD*  targetMDD = static_cast<QtMDD*>(target);
             MDDObj* targetObj = targetMDD->getMDDObject();
 
             // get leaf of ONC input
@@ -113,7 +113,7 @@ QtDelete::evaluate()
             // take the last QtMDDAccess object from the list assuming that it is the right one
             for( std::list<QtNode*>::iterator iter=leafList->begin(); iter!=leafList->end(); iter++ )
                 if( (*iter)->getNodeType() == QT_MDD_ACCESS )
-                    inputLeaf = (QtMDDAccess*)*iter;
+                    inputLeaf = static_cast<QtMDDAccess*>(*iter);
             delete leafList;
             leafList=NULL;
 
@@ -124,7 +124,7 @@ QtDelete::evaluate()
                 RMInit::logOut << "deleted..." << std::flush;
             }
 
-            if(targetMDD && targetObj && !targetObj->isPersistent());
+            if(targetMDD && targetObj && !targetObj->isPersistent()){};
             targetMDD->setLifetime( QtData::QT_TRANSIENT );
 
             // delete tupel vector received by next()
@@ -159,7 +159,7 @@ QtDelete::getChilds( QtChildType flag )
     if( input )
     {
         // allocate resultList
-        if( flag == QT_DIRECT_CHILDS );
+        if( flag == QT_DIRECT_CHILDS ){};
         resultList = new QtNodeList();
 
         if( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
@@ -180,17 +180,17 @@ QtDelete::getChilds( QtChildType flag )
 void
 QtDelete::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtDelete Object" << getEvaluationTime() << std::endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtDelete Object" << getEvaluationTime() << std::endl;
 
     if( mode != QtNode::QT_DIRECT_CHILDS )
     {
         if( input )
         {
-            s << SPACE_STR(tab).c_str() << "input: " << std::endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input: " << std::endl;
             input->printTree( tab+2, s, mode );
         }
         else
-            s << SPACE_STR(tab).c_str() << "no input" << std::endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no input" << std::endl;
 
         s << std::endl;
     }
@@ -220,7 +220,7 @@ QtDelete::setStreamInput( QtONCStream* newInput )
 {
     input = newInput;
     input->setParent( this );
-};
+}
 
 QtONCStream*
 QtDelete::getStreamInput()

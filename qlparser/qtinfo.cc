@@ -105,12 +105,12 @@ QtInfo::evaluate( QtDataList* inputList )
         }
 #endif
 
-        QtMDD*  qtMDD  = (QtMDD*) operand;
+        QtMDD*  qtMDD  = static_cast<QtMDD*>(operand);
         MDDObj* mddObj = qtMDD->getMDDObject();
 
         if( mddObj->isPersistent() )
         {
-            MDDObj* persMDD = (MDDObj*) mddObj;
+            MDDObj* persMDD = static_cast<MDDObj*>(mddObj);
             
             // get local oid and pass it as double
             OId localOId;
@@ -133,13 +133,13 @@ QtInfo::evaluate( QtDataList* inputList )
                 if (storageLayout)
                 {
                     ostringstream info("");
-                    info << "{\n \"oid\": \"" << (double) localOId;
+                    info << "{\n \"oid\": \"" << static_cast<double>(localOId);
                     info << "\",\n \"baseType\": \"" << dbObj->getMDDBaseType()->getTypeStructure();
                     vector< boost::shared_ptr<Tile> >* tiles = persMDD->getTiles();
                     info << "\",\n \"tileNo\": \"" << tiles->size();
                     
                     long totalSize = 0;
-                    for (int i = 0; i < tiles->size(); i++)
+                    for (unsigned int i = 0; i < tiles->size(); i++)
                     {
                         totalSize += tiles->at(i)->getSize();
                     }
@@ -164,7 +164,7 @@ QtInfo::evaluate( QtDataList* inputList )
                     if (printTiles)
                     {
                         info << "\",\n\t\"tileDomains\":\n\t[";
-                        for (int i = 0; i < tiles->size(); i++)
+                        for (unsigned int i = 0; i < tiles->size(); i++)
                         {
                             info << "\n\t\t\"" << tiles->at(i)->getDomain() << "\"";
                             if (i < tiles->size() - 1)
@@ -201,8 +201,8 @@ QtInfo::evaluate( QtDataList* inputList )
                     int contentLength = infoString.length();
                     char* contents = strdup(infoString.c_str());
 
-                    r_Minterval mddDomain = r_Minterval(1) << r_Sinterval((r_Range) 0, (r_Range) contentLength - 1);
-                    Tile *resultTile = new Tile(mddDomain, baseType, contents, contentLength, r_Array);
+                    r_Minterval mddDomain = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(contentLength) - 1);
+                    Tile *resultTile = new Tile(mddDomain, baseType, contents, static_cast<r_Bytes>(contentLength), r_Array);
                     
                     // create a transient MDD object for the query result
                     MDDBaseType* mddBaseType = new MDDBaseType("tmp", baseType);
@@ -211,7 +211,7 @@ QtInfo::evaluate( QtDataList* inputList )
                     resultMDD->insertTile(resultTile);
 
                     // create a new QtMDD object as carrier object for the transient MDD object
-                    returnValue = new QtMDD((MDDObj*) resultMDD);
+                    returnValue = new QtMDD(static_cast<MDDObj*>(resultMDD));
                 }
                 else
                 {
@@ -261,7 +261,7 @@ QtInfo::evaluate( QtDataList* inputList )
 void
 QtInfo::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtInfo Object: " << getEvaluationTime() << std::endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtInfo Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree( tab, s, mode );
 }

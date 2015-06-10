@@ -135,7 +135,7 @@ QtMDDAccess::next()
             }
         }
 
-        CollectionType* collType = (CollectionType*) mddColl->getCollectionType();
+        CollectionType* collType = const_cast<CollectionType*>(mddColl->getCollectionType());
         if (collType)
         {
             r_Minterval* dbmi = collType->getNullValues();
@@ -202,12 +202,12 @@ QtMDDAccess::reset()
 void
 QtMDDAccess::printTree( int tab, ostream& s, QtChildType /*mode*/ )
 {
-    s << SPACE_STR(tab).c_str() << "QtMDDAccess Object: type " << flush;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMDDAccess Object: type " << flush;
     dataStreamType.printStatus( s );
     s << getEvaluationTime();
     s << endl;
 
-    s << SPACE_STR(tab).c_str() << collectionName.c_str()
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << collectionName.c_str()
       << " <- " << iteratorName.c_str() << endl;
 }
 
@@ -243,7 +243,7 @@ QtMDDAccess::checkType()
                 if( !(currentClientTblElt->persMDDCollections) )
                     currentClientTblElt->persMDDCollections = new vector<MDDColl*>();
 
-                currentClientTblElt->persMDDCollections->push_back( (MDDColl*)mddColl );
+                currentClientTblElt->persMDDCollections->push_back( static_cast<MDDColl*>(mddColl) );
             }
             else
             {
@@ -262,7 +262,7 @@ QtMDDAccess::checkType()
         throw parseInfo;
     }
 
-    CollectionType* collType = (CollectionType*) mddColl->getCollectionType();
+    CollectionType* collType = const_cast<CollectionType*>(mddColl->getCollectionType());
 
     if( !collType )
         RMInit::logOut << "Internal error in QtMDDAccess::checkType() - no collection type available" << endl;

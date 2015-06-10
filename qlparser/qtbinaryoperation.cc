@@ -142,7 +142,7 @@ QtBinaryOperation::equalMeaning( QtNode* node )
     // are the nodes of the same type?
     if ( getNodeType() == node->getNodeType() )
     {
-        QtBinaryOperation* binNode = (QtBinaryOperation *) node; // by force
+        QtBinaryOperation* binNode = static_cast<QtBinaryOperation *>(node); // by force
 
         if ( input1 && input2 )
         {
@@ -310,7 +310,7 @@ string
 QtBinaryOperation::getSpelling()
 {
     char tempStr[20];
-    sprintf(tempStr, "%lu", (unsigned long)getNodeType());
+    sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
     result.append( "(" );
 
@@ -407,19 +407,19 @@ QtBinaryOperation::printTree( int tab, ostream& s, QtChildType mode )
     {
         if( input1 )
         {
-            s << SPACE_STR(tab).c_str() << "input1: " << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input1: " << endl;
             input1->printTree( tab+2, s, mode );
         }
         else
-            s << SPACE_STR(tab).c_str() << "no input1" << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no input1" << endl;
 
         if( input2 )
         {
-            s << SPACE_STR(tab).c_str() << "input2: " << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input2: " << endl;
             input2->printTree( tab+2, s, mode );
         }
         else
-            s << SPACE_STR(tab).c_str() << "no input2" << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no input2" << endl;
     }
 }
 

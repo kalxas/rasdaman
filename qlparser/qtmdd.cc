@@ -112,7 +112,7 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
             throw errorInfo;
         }
 
-        r_Minterval domain = ((QtMintervalData*)operand)->getMintervalData();
+        r_Minterval domain = (static_cast<QtMintervalData*>(operand))->getMintervalData();
 
         // delete old operand
         if( operand ) operand->deleteRef();
@@ -133,7 +133,7 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
             //
             unsigned long cellCount = 0;
             unsigned long cellSize  = baseType->getSize();
-            char* cellBuffer   = (char*)mymalloc( domain.cell_count()*cellSize );
+            char* cellBuffer   = static_cast<char*>(mymalloc( domain.cell_count()*cellSize ));
             char* bufferOffset = cellBuffer;
 
             for( elemIter = literalList->begin(); elemIter != literalList->end(); elemIter++ )
@@ -156,7 +156,7 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
                         throw errorInfo;
                     }
                     free( scalarElemTypeStructure );
-                    memcpy( (void*)bufferOffset, (void*)(scalarElem->getValueBuffer()), (unsigned int)cellSize );
+                    memcpy( bufferOffset, (scalarElem->getValueBuffer()), cellSize );
                     bufferOffset += cellSize;
                 }
             }
@@ -265,7 +265,7 @@ QtMDD::~QtMDD()
 BaseType*
 QtMDD::getCellType() const
 {
-    return (BaseType*)mddObject->getCellType();
+    return const_cast<BaseType*>(mddObject->getCellType());
 }
 
 

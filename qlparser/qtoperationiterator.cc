@@ -147,7 +147,7 @@ QtOperationIterator::printTree( int tab, ostream& s, QtChildType mode )
 {
     QtOperationList::iterator iter;
 
-    s << SPACE_STR(tab).c_str() << "QtOperationIterator Object: type " << flush;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtOperationIterator Object: type " << flush;
     dataStreamType.printStatus( s );
     s << getEvaluationTime();
     s << endl;
@@ -155,11 +155,11 @@ QtOperationIterator::printTree( int tab, ostream& s, QtChildType mode )
     if( mode != QtNode::QT_DIRECT_CHILDS )
     {
         if( operationTreeList->empty() )
-            s << SPACE_STR(tab).c_str() << "no operation" << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no operation" << endl;
         else
             for( iter=operationTreeList->begin(); iter!=operationTreeList->end(); iter++ )
             {
-                s << SPACE_STR(tab).c_str() << "operation: " << endl;
+                s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "operation: " << endl;
                 (*iter)->printTree( tab + 2, s, mode );
             }
     }
@@ -176,7 +176,7 @@ QtOperationIterator::printAlgebraicExpression( ostream& s )
 
     if( operationTreeList )
     {
-        for( int i=0; i<operationTreeList->size(); i++ )
+        for( unsigned int i=0; i<operationTreeList->size(); i++ )
         {
             (*operationTreeList)[i]->printAlgebraicExpression( s );
 
@@ -218,7 +218,7 @@ QtOperationIterator::next()
 
             resultList = new QtDataList( operationTreeList->size() );
 
-            int pos=0;
+            unsigned int pos=0;
 
             for( iter=operationTreeList->begin(); iter!=operationTreeList->end(); iter++)
             {

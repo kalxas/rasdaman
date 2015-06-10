@@ -86,7 +86,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
         case QT_OCTET:
             try
             {
-                sinterval.set_low( (r_Range)(((QtAtomicData*)operand1)->getSignedValue()) );
+                sinterval.set_low( static_cast<r_Range>((static_cast<QtAtomicData*>(operand1))->getSignedValue()) );
             }
             catch(...)
             {
@@ -106,7 +106,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
         case QT_CHAR:
             try
             {
-                sinterval.set_low( (r_Range)((QtAtomicData*)operand1)->getUnsignedValue() );
+                sinterval.set_low( static_cast<r_Range>(static_cast<QtAtomicData*>(operand1)->getUnsignedValue()) );
             }
             catch(...)
             {
@@ -159,7 +159,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
         case QT_OCTET:
             try
             {
-                sinterval.set_high( (r_Range)(((QtAtomicData*)operand2)->getSignedValue()) );
+                sinterval.set_high( static_cast<r_Range>((static_cast<QtAtomicData*>(operand2))->getSignedValue()) );
             }
             catch(...)
             {
@@ -179,7 +179,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
         case QT_CHAR:
             try
             {
-                sinterval.set_high( (r_Range)((QtAtomicData*)operand2)->getUnsignedValue() );
+                sinterval.set_high( static_cast<r_Range>((static_cast<QtAtomicData*>(operand2))->getUnsignedValue()) );
             }
             catch(...)
             {
@@ -240,7 +240,7 @@ QtIntervalOp::evaluate( QtDataList* inputList )
 void
 QtIntervalOp::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtIntervalOp Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtIntervalOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree( tab, s, mode );
 }

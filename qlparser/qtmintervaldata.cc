@@ -43,13 +43,13 @@ using namespace std;
 #include <cstring>
 
 QtMintervalData::QtMintervalData( const r_Minterval& minterval, vector<bool>* initTrimFlags )
-    : mintervalData(minterval), QtData(), trimFlags( initTrimFlags )
+    : QtData(), mintervalData(minterval), trimFlags( initTrimFlags )
 {
     if( !trimFlags )
     {
         trimFlags = new vector<bool>( minterval.dimension() );
 
-        for( int i=0; i<trimFlags->size(); i++ )
+        for( unsigned int i=0; i<trimFlags->size(); i++ )
             (*trimFlags)[i] = true;
     }
 }
@@ -82,14 +82,14 @@ QtMintervalData::equal( const QtData* obj ) const
 
     if( obj->getDataType() == QT_MINTERVAL )
     {
-        QtMintervalData* mint = (QtMintervalData*)obj;
+        QtMintervalData* mint = static_cast<QtMintervalData*>(const_cast<QtData*>(obj));
 
         // 1. check domains
         returnValue = (mintervalData == mint->getMintervalData());
 
         // 2. check projection flags !!!
         if( returnValue && trimFlags && mint->getTrimFlags() )
-            for( int i=0; i<mintervalData.dimension(); i++ )
+            for( unsigned int i=0; i<mintervalData.dimension(); i++ )
                 if (!((*trimFlags)[i] == (*(mint->getTrimFlags()))[i]))
                 {
                     returnValue = false;
@@ -108,8 +108,8 @@ QtMintervalData::getSpelling() const
     std::string result;
 
     // buffer
-    int        bufferLen = mintervalData.dimension() * 50; // on the save side for two integers per dimension plus colon and brackets
-    char*      buffer    = new char[ bufferLen ];
+    r_Dimension bufferLen = mintervalData.dimension() * 50; // on the save side for two integers per dimension plus colon and brackets
+    char*       buffer    = new char[ bufferLen ];
     // replaced deprecated ostrstream -- PB 2005-jan-14
     // ostrstream bufferStream( buffer, bufferLen );
     ostringstream bufferStream( buffer );
@@ -117,7 +117,7 @@ QtMintervalData::getSpelling() const
     if( trimFlags )
     {
         bufferStream << "[" << std::flush;
-        for( int i=0; i<mintervalData.dimension(); i++ )
+        for( unsigned int i=0; i<mintervalData.dimension(); i++ )
         {
             if( i > 0 ) bufferStream << "'" << std::flush;
 
@@ -156,7 +156,7 @@ QtMintervalData::printStatus( std::ostream& stream ) const
     if( trimFlags )
     {
         stream << "[" << std::flush;
-        for( int i=0; i<mintervalData.dimension(); i++ )
+        for( unsigned int i=0; i<mintervalData.dimension(); i++ )
         {
             if( i > 0 ) stream << "," << std::flush;
 

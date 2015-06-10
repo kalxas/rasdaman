@@ -106,7 +106,7 @@ QueryTree::checkSemantics()
     case QtNode::QT_SELECTION_ITERATOR:
     case QtNode::QT_EMPTY_STREAM:
     {
-        const QtTypeTuple& resultType = ((QtONCStream*)rootNode)->checkType();
+        const QtTypeTuple& resultType = (static_cast<QtONCStream*>(rootNode))->checkType();
     }
     break;
 
@@ -119,12 +119,12 @@ QueryTree::checkSemantics()
     case QtNode::QT_CREATE_MDD_TYPE:
     case QtNode::QT_CREATE_SET_TYPE:
     case QtNode::QT_DROP_TYPE:
-        ((QtExecute*)rootNode)->checkType();
+        (static_cast<QtExecute*>(rootNode))->checkType();
         break;
 
     default:
     {
-        const QtTypeElement& resultType = ((QtOperation*)rootNode)->checkType();
+        const QtTypeElement& resultType = (static_cast<QtOperation*>(rootNode))->checkType();
     }
     break;
     }
@@ -150,7 +150,7 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
 
         QtNode::QtDataList*          dataList=NULL;
         QtNode::QtDataList::iterator dataIter;
-        QtONCStream*                 oncRootNode = (QtONCStream*)rootNode;
+        QtONCStream*                 oncRootNode = static_cast<QtONCStream*>(rootNode);
 
         try
         {
@@ -274,8 +274,8 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
         int contentLength = infoString.length();
         char* contents = strdup(infoString.c_str());
 
-        r_Minterval mddDomain = r_Minterval(1) << r_Sinterval((r_Range) 0, (r_Range) contentLength - 1);
-        Tile *resultTile = new Tile(mddDomain, baseType, contents, contentLength, r_Array);
+        r_Minterval mddDomain = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(contentLength) - 1);
+        Tile *resultTile = new Tile(mddDomain, baseType, contents, static_cast<r_Bytes>(contentLength), r_Array);
 
         // create a transient MDD object for the query result
         MDDBaseType* mddBaseType = new MDDBaseType("tmp", baseType);
@@ -285,7 +285,7 @@ QueryTree::evaluateRetrieval() throw (r_Error, ParseInfo)
 
         // create a new QtMDD object as carrier object for the transient MDD object
         returnValue = new vector<QtData*>();
-        returnValue->push_back(new QtMDD((MDDObj*) resultMDD));
+        returnValue->push_back(new QtMDD(static_cast<MDDObj*>(resultMDD)));
     }
     
     return returnValue;
@@ -320,7 +320,7 @@ QueryTree::evaluateUpdate() throw (r_Error,ParseInfo)
             throw errorInfo;
         }
 
-        QtExecute* executeNode = (QtExecute*) rootNode;
+        QtExecute* executeNode = static_cast<QtExecute*>(rootNode);
 
         try
         {
@@ -348,11 +348,11 @@ void QueryTree::printTree( int tab, ostream& s )
 {
     if ( rootNode )
     {
-        s <<  SPACE_STR(tab).c_str() << "QueryTree:" << endl;
+        s <<  SPACE_STR(static_cast<size_t>(tab)).c_str() << "QueryTree:" << endl;
         rootNode->printTree( tab + 2, s );
     }
     else
-        s << SPACE_STR(tab).c_str() << "QueryTree: Qt has no root node." << endl;
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QueryTree: Qt has no root node." << endl;
 }
 
 void QueryTree::addDynamicObject( QtNode *node )
@@ -483,7 +483,7 @@ void QueryTree::rewriteDomainObjects(r_Minterval *greatDomain, string *greatIter
     {
 
         // 1. get var name from iter
-        QtVariable *qtVar = ((QtVariable *)((*iter)->getInput()));
+        QtVariable *qtVar = (static_cast<QtVariable *>((*iter)->getInput()));
         string stVar = qtVar->getIteratorName();
         const char *varname = stVar.c_str();
 
@@ -501,8 +501,8 @@ void QueryTree::rewriteDomainObjects(r_Minterval *greatDomain, string *greatIter
                 break;
             };
             QtData *data = varIter->tree->evaluate(0);
-            r_Dimension dimension = ((QtMintervalData*)data)->getMintervalData().dimension();
-            varpos = varpos+dimension;
+            r_Dimension dimension = (static_cast<QtMintervalData*>(data))->getMintervalData().dimension();
+            varpos = varpos + static_cast<r_Long>(dimension);
         };
         // postcond: bcond == false: varname not found in list. else varpos gives the position.
 

@@ -47,5 +47,4 @@ signalHandler(int sig);
 void
 installSignalHandlers();
 
-#endif _RASQL_SIGNAL_HH_
-
+#endif //_RASQL_SIGNAL_HH_

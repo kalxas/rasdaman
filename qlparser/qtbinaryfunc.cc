@@ -104,8 +104,8 @@ QtShift::evaluate( QtDataList* inputList )
         // domain while copying the data. Optimization of this is left for future work.
         //
 
-        QtMDD*         qtMDDObj          = (QtMDD*)operand1;
-        const r_Point& transPoint        = ((QtPointData*)operand2)->getPointData();
+        QtMDD*         qtMDDObj          = static_cast<QtMDD*>(operand1);
+        const r_Point& transPoint        = (static_cast<QtPointData*>(operand2))->getPointData();
         MDDObj*        currentMDDObj     = qtMDDObj->getMDDObject();
 
         if( transPoint.dimension() != qtMDDObj->getLoadDomain().dimension() )
@@ -145,7 +145,7 @@ QtShift::evaluate( QtDataList* inputList )
         }
 
         // create a new QtMDD object as carrier object for the transient MDD object
-        returnValue = new QtMDD( (MDDObj*)resultMDD );
+        returnValue = new QtMDD( static_cast<MDDObj*>(resultMDD) );
 
         // delete the tile vector, the tiles itself are deleted when the destructor
         // of the MDD object is called
@@ -167,7 +167,7 @@ QtShift::evaluate( QtDataList* inputList )
 void
 QtShift::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtShift Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtShift Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree( tab, s, mode );
 }
@@ -219,10 +219,10 @@ QtShift::optimizeLoad( QtTrimList* trimList )
         if( openBounds )
         {
             // release( trimList->begin(), trimList->end() );
-            for( QtNode::QtTrimList::iterator iter=trimList->begin(); iter!=trimList->end(); iter++ )
+            for( QtNode::QtTrimList::iterator iter2=trimList->begin(); iter2!=trimList->end(); iter2++ )
             {
-                delete *iter;
-                *iter=NULL;
+                delete *iter2;
+                *iter2=NULL;
             }
             delete trimList;
             trimList=NULL;
@@ -237,10 +237,10 @@ QtShift::optimizeLoad( QtTrimList* trimList )
         if( !operand )
         {
             // release( trimList->begin(), trimList->end() );
-            for( QtNode::QtTrimList::iterator iter=trimList->begin(); iter!=trimList->end(); iter++ )
+            for( QtNode::QtTrimList::iterator iter2=trimList->begin(); iter2!=trimList->end(); iter2++ )
             {
-                delete *iter;
-                *iter=NULL;
+                delete *iter2;
+                *iter2=NULL;
             }
             delete trimList;
             trimList=NULL;
@@ -253,10 +253,10 @@ QtShift::optimizeLoad( QtTrimList* trimList )
         if( operand->getDataType() != QT_POINT )
         {
             // release( trimList->begin(), trimList->end() );
-            for( QtNode::QtTrimList::iterator iter=trimList->begin(); iter!=trimList->end(); iter++ )
+            for( QtNode::QtTrimList::iterator iter2=trimList->begin(); iter2!=trimList->end(); iter2++ )
             {
-                delete *iter;
-                *iter=NULL;
+                delete *iter2;
+                *iter2=NULL;
             }
             delete trimList;
             trimList=NULL;
@@ -269,7 +269,7 @@ QtShift::optimizeLoad( QtTrimList* trimList )
         }
 
         // get transPoint
-        const r_Point& transPoint = ((QtPointData*)operand)->getPointData();
+        const r_Point& transPoint = (static_cast<QtPointData*>(operand))->getPointData();
 
         // shift trim elements by -transPoint
         for( iter=trimList->begin(); iter!=trimList->end(); iter++ )
@@ -377,8 +377,8 @@ QtExtend::evaluate( QtDataList* inputList )
         // FIXME: create a tiled object
         //
 
-        QtMDD*      qtMDDObj      = (QtMDD*)operand1;                   // object to be extended
-        r_Minterval targetDomain  = ((QtMintervalData*)operand2)->getMintervalData();   // new domain of extended object
+        QtMDD*      qtMDDObj      = static_cast<QtMDD*>(operand1);                   // object to be extended
+        r_Minterval targetDomain  = (static_cast<QtMintervalData*>(operand2))->getMintervalData();   // new domain of extended object
         MDDObj*     currentMDDObj = qtMDDObj->getMDDObject();
 
         // precondition checks (we call the MDD C and the Minterval M):
@@ -520,7 +520,7 @@ QtExtend::evaluate( QtDataList* inputList )
         // --- 3: package into MDD object & finalize -----------------------------
 
         // create a new QtMDD object as carrier object for the transient MDD object
-        returnValue = new QtMDD( (MDDObj*)resultMDD );
+        returnValue = new QtMDD( static_cast<MDDObj*>(resultMDD) );
 
         // delete the tile vector, the tiles itself are deleted when the destructor
         // of the MDD object is called
@@ -599,7 +599,7 @@ QtExtend::extendGetCornerTiles( r_Minterval outerDomain, r_Minterval innerDomain
 void
 QtExtend::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtExtend Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtExtend Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree( tab, s, mode );
 }
@@ -818,7 +818,7 @@ QtScale::evaluate( QtDataList* inputList )
     if(!getOperands( inputList, operand1, operand2 ) )
         return returnValue;
 
-    QtMDD*         qtMDDObj          = (QtMDD*)operand1;
+    QtMDD*         qtMDDObj          = static_cast<QtMDD*>(operand1);
     MDDObj*        currentMDDObj     = qtMDDObj->getMDDObject();
     vector<r_Double>  scaleVector(0);
 
@@ -840,7 +840,7 @@ QtScale::evaluate( QtDataList* inputList )
     {
     case QT_POINT:
     {
-        const r_Point& transPoint = ((QtPointData*)operand2)->getPointData();
+        const r_Point& transPoint = (static_cast<QtPointData*>(operand2))->getPointData();
 
         if( transPoint.dimension() != qtMDDObj->getLoadDomain().dimension() )
         {
@@ -853,7 +853,7 @@ QtScale::evaluate( QtDataList* inputList )
             throw parseInfo;
         }
 
-        for( int i=0; i<scaleVector.size(); i++ )
+        for( unsigned int i=0; i<scaleVector.size(); i++ )
             scaleVector[i] = transPoint[i];
     }
     break;
@@ -862,8 +862,8 @@ QtScale::evaluate( QtDataList* inputList )
     case QT_USHORT:
     case QT_ULONG:
     {
-        for( int i=0; i<scaleVector.size(); i++ )
-            scaleVector[i] = ((QtAtomicData*)operand2)->getUnsignedValue();;
+        for( unsigned int i=0; i<scaleVector.size(); i++ )
+            scaleVector[i] = (static_cast<QtAtomicData*>(operand2))->getUnsignedValue();;
     }
     break;
 
@@ -871,8 +871,8 @@ QtScale::evaluate( QtDataList* inputList )
     case QT_SHORT:
     case QT_LONG:
     {
-        for( int i=0; i<scaleVector.size(); i++ )
-            scaleVector[i] = ((QtAtomicData*)operand2)->getSignedValue();;
+        for( unsigned int i=0; i<scaleVector.size(); i++ )
+            scaleVector[i] = (static_cast<QtAtomicData*>(operand2))->getSignedValue();;
     }
     break;
 
@@ -880,14 +880,14 @@ QtScale::evaluate( QtDataList* inputList )
     case QT_FLOAT:
     {
         RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtScale", "Scaling: " << ((QtAtomicData*)operand2)->getDoubleValue() )
-        for( int i=0; i<scaleVector.size(); i++ )
-            scaleVector[i] = ((QtAtomicData*)operand2)->getDoubleValue();
+        for( unsigned int i=0; i<scaleVector.size(); i++ )
+            scaleVector[i] = (static_cast<QtAtomicData*>(operand2))->getDoubleValue();
     }
     break;
 
     case QT_MINTERVAL:
     {
-        wishedTargetDomain = ((QtMintervalData*)operand2)->getMintervalData();
+        wishedTargetDomain = (static_cast<QtMintervalData*>(operand2))->getMintervalData();
         isWishedTargetSet=true;
 
         if( wishedTargetDomain.dimension() != sourceDomain.dimension())
@@ -901,10 +901,10 @@ QtScale::evaluate( QtDataList* inputList )
             throw parseInfo;
         }
 
-        for( int i=0; i<scaleVector.size(); i++ )
+        for( unsigned int i=0; i<scaleVector.size(); i++ )
         {
-            sourceRange = (r_Double)sourceDomain[i].get_extent();
-            targetRange = (r_Double)wishedTargetDomain[i].get_extent();
+            sourceRange = static_cast<r_Double>(sourceDomain[i].get_extent());
+            targetRange = static_cast<r_Double>(wishedTargetDomain[i].get_extent());
 
             if(sourceRange != 0.)
             {
@@ -1020,14 +1020,14 @@ QtScale::evaluate( QtDataList* inputList )
             newTransTile->execScaleOp( tileIter->get(), sourceTileDomain, origin1,  scaleVector );
 
             if(isWishedTargetSet)
-                ((r_Minterval&)newTransTile->getDomain()).translate(translation);
+                (const_cast<r_Minterval&>(newTransTile->getDomain())).translate(translation);
 
             resultMDD->insertTile( newTransTile );
         }
     }
 
     // create a new QtMDD object as carrier object for the transient MDD object
-    returnValue = new QtMDD( (MDDObj*)resultMDD );
+    returnValue = new QtMDD( static_cast<MDDObj*>(resultMDD) );
 
     // delete the tile vector, the tiles itself are deleted when the destructor
     // of the MDD object is called
@@ -1047,7 +1047,7 @@ QtScale::evaluate( QtDataList* inputList )
 void
 QtScale::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtScale Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtScale Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtBinaryOperation::printTree( tab, s, mode );
 }

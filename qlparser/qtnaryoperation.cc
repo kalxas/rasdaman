@@ -162,7 +162,7 @@ QtNaryOperation::equalMeaning( QtNode* node )
     if( getNodeType() == node->getNodeType() )
     {
         QtNaryOperation* naryNode;
-        naryNode = (QtNaryOperation* ) node; // by force
+        naryNode = static_cast<QtNaryOperation*>(node); // by force
 
         // get 2nd operation list
         QtOperationList* operationList2 = naryNode->getInputs();
@@ -245,7 +245,7 @@ QtNaryOperation::getOperands( QtDataList* inputList, QtDataList* &operandList )
         // get the operands
         operandList = new QtDataList( operationList->size() );
 
-        int pos=0;
+        unsigned int pos=0;
 
         for( iter=operationList->begin(); iter!=operationList->end(); iter++)
         {
@@ -291,7 +291,7 @@ QtNaryOperation::getSpelling()
     QtOperationList::iterator iter;
 
     char tempStr[20];
-    sprintf(tempStr, "%lu", (unsigned long)getNodeType());
+    sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
 
     result.append( "(" );
@@ -328,9 +328,9 @@ QtNaryOperation::setInput( QtOperation* inputOld, QtOperation* inputNew )
 
             if( inputNew )
                 inputNew->setParent( this );
-        };
-    };
-};
+        }
+    }
+}
 
 
 
@@ -379,7 +379,7 @@ QtNaryOperation::printTree( int tab, ostream& s, QtChildType mode )
             for( no=1, iter=operationList->begin(); iter!=operationList->end(); iter++, no++ )
                 if( *iter )
                 {
-                    s << SPACE_STR(tab).c_str() << "input" << no << ": " << endl;
+                    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input" << no << ": " << endl;
                     (*iter)->printTree( tab+2, s, mode );
                 }
         }

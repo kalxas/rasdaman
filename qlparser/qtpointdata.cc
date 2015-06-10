@@ -44,7 +44,7 @@ using namespace std;
 
 
 QtPointData::QtPointData( const r_Point& point )
-    : pointData(point), QtData()
+    : QtData(), pointData(point)
 {
 }
 
@@ -68,7 +68,7 @@ QtPointData::equal( const QtData* obj ) const
 
     if( obj->getDataType() == QT_POINT )
     {
-        QtPointData* pt = (QtPointData*)obj;
+        QtPointData* pt = static_cast<QtPointData*>(const_cast<QtData*>(obj));
 
         // check domains
         returnValue = (pointData == pt->getPointData());
@@ -84,8 +84,8 @@ QtPointData::getSpelling() const
     std::string result;
 
     // buffer
-    int        bufferLen = pointData.dimension() * 50; // on the save side for one integers per dimension plus colon and brackets
-    char*      buffer    = new char[ bufferLen ];
+    r_Dimension bufferLen = pointData.dimension() * 50; // on the save side for one integers per dimension plus colon and brackets
+    char*       buffer    = new char[ bufferLen ];
     // replaced deprecated ostrstream -- PB 2005-jan-14
     // ostrstream bufferStream( buffer, bufferLen );
     ostringstream bufferStream( buffer );

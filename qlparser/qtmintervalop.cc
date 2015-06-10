@@ -121,13 +121,13 @@ QtMintervalOp::evaluate( QtDataList* inputList )
             //
             r_Minterval   domainData( operandList->size() );
             vector<bool>* trimFlags = new vector<bool>( operandList->size() );
-            int           pos;
+            unsigned int pos;
 
             for( dataIter=operandList->begin(), pos=0; dataIter!=operandList->end(); dataIter++,pos++ )
             {
                 if( (*dataIter)->getDataType() == QT_INTERVAL )
                 {
-                    domainData << ((QtIntervalData*)(*dataIter))->getIntervalData();
+                    domainData << (static_cast<QtIntervalData*>(*dataIter))->getIntervalData();
                     (*trimFlags)[pos] = true;
                 }
                 else
@@ -135,9 +135,9 @@ QtMintervalOp::evaluate( QtDataList* inputList )
                     if( (*dataIter)->getDataType() == QT_SHORT ||
                             (*dataIter)->getDataType() == QT_LONG  ||
                             (*dataIter)->getDataType() == QT_OCTET )
-                        domainData << ((QtAtomicData*)(*dataIter))->getSignedValue();
+                        domainData << (static_cast<QtAtomicData*>(*dataIter))->getSignedValue();
                     else
-                        domainData << ((QtAtomicData*)(*dataIter))->getUnsignedValue();
+                        domainData << (static_cast<QtAtomicData*>(*dataIter))->getUnsignedValue();
 
                     (*trimFlags)[pos] = false;
                 }
@@ -167,7 +167,7 @@ QtMintervalOp::evaluate( QtDataList* inputList )
 void
 QtMintervalOp::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtMintervalOp Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMintervalOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
     QtNaryOperation::printTree( tab, s, mode );
 }

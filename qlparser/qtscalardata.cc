@@ -55,8 +55,8 @@ using namespace std;
 // #include <strstream.h>
 
 QtScalarData::QtScalarData()
-    : valueBuffer(NULL),
-      valueType(NULL)
+    : valueType(NULL),
+      valueBuffer(NULL)
 {
 }
 
@@ -73,7 +73,7 @@ QtScalarData::QtScalarData( const QtScalarData& obj )
     if( valueType && obj.valueBuffer )
     {
         valueBuffer = new char[ valueType->getSize() ];
-        memcpy( (void*)valueBuffer, (void*)obj.valueBuffer, valueType->getSize() );
+        memcpy( valueBuffer, obj.valueBuffer, valueType->getSize() );
     }
     else
         valueBuffer = NULL;
@@ -156,11 +156,11 @@ QtScalarData::equal( const QtData* obj ) const
 
     if( obj->isScalarData() )
     {
-        QtScalarData* scalarObj = (QtScalarData*)obj;
+        QtScalarData* scalarObj = static_cast<QtScalarData*>(const_cast<QtData*>(obj));
 
         if( getDataType() == scalarObj->getDataType() )  // Attention: this is not correct for structs
             // compare value buffers
-            returnValue = (memcmp( (void*)valueBuffer, (void*)scalarObj->valueBuffer, valueType->getSize() ) == 0);
+            returnValue = (memcmp( valueBuffer, scalarObj->valueBuffer, valueType->getSize() ) == 0);
 
     }
 
@@ -192,7 +192,7 @@ QtScalarData::getSpelling() const
     if ( valueType ) {
         valueType->printCell( stream, valueBuffer );
     } else {
-        for( int i = 0; i < valueType->getSize(); i++ )
+        for( unsigned int i = 0; i < valueType->getSize(); i++ )
           stream << hex << valueBuffer[i];
         stream << ends;
     }

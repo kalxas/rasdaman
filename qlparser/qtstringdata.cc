@@ -38,7 +38,8 @@ static const char rcsid[] = "@(#)qlparser, QtStringData: $Header: /home/rasdev/C
 
 
 QtStringData::QtStringData( const std::string& str )
-    : stringData(str), QtData()
+    : QtData(),
+      stringData(str)
 {
 }
 
@@ -58,7 +59,7 @@ QtStringData::equal( const QtData* obj ) const
     bool returnValue = false;  // not equal by initialization
 
     if( obj->getDataType() == QT_STRING )
-        returnValue = (stringData == ((QtStringData*)obj)->getStringData());
+        returnValue = (stringData == (static_cast<QtStringData*>(const_cast<QtData*>(obj)))->getStringData());
 
     return returnValue;
 }

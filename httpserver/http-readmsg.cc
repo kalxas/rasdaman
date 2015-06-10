@@ -90,7 +90,7 @@ int ReadHeader( int SockFD, char **Buffer, size_t *BuffSize )
         if( *BuffSize - sumread < minbuff )
         {
             *BuffSize += BuffBlock;
-            *Buffer = (char*)realloc( *Buffer, *BuffSize );
+            *Buffer = static_cast<char*>(realloc( *Buffer, *BuffSize ));
             if( *Buffer == NULL )
             {
                 ErrorMsg( E_SYS, ERROR, "ERROR: ReadHeader(): malloc() failed." );
@@ -195,7 +195,7 @@ char *ReadBody( int SockFD, size_t BuffSize )
     int     nread     = 0;
     char   *Buffer    = NULL;
 
-    if( ( Buffer = (char*)mymalloc( BuffSize + 1 ) ) == NULL )
+    if( ( Buffer = static_cast<char*>(mymalloc( BuffSize + 1 ) )) == NULL )
     {
         ErrorMsg( E_SYS, ERROR, "ERROR: malloc error for HTTP-Body buffer." );
         return( Buffer );
@@ -489,7 +489,7 @@ char *ParseReqLine( char *Buffer, struct ReqInfo *Request )
 
     if( URL != NULL )
     {
-        Request->Line.Vanilla       = (char*)mymalloc( strlen( Tmp ) + 1 );
+        Request->Line.Vanilla       = static_cast<char*>(mymalloc( strlen( Tmp ) + 1 ));
         Request->Line.Method        = HTTP_GetMKey( Keyword );
         //      SplitURL( URL, &Request->Line.URL );
         Request->Line.URL.Path      = URL;
@@ -574,7 +574,7 @@ char *ParseRespLine( char *Buffer, struct RespInfo *Response )
     }
     Tmp[i+1] = '\0';
 
-    Response->Line.Vanilla = (char*)mymalloc( strlen( Tmp ) + 1 );
+    Response->Line.Vanilla = static_cast<char*>(mymalloc( strlen( Tmp ) + 1 ));
     strcpy( Response->Line.Vanilla, Tmp );
 
     if( strcmp( "HTTP/", Buffer ) )
@@ -759,7 +759,7 @@ void SplitURL( char *Buffer, struct URLComps *URL )
     int     HaveExtra  = FALSE;
 
     BuffSize = strlen( Buffer ) + 4;
-    NewBuffer = (char*)mymalloc( BuffSize );
+    NewBuffer = static_cast<char*>(mymalloc( BuffSize ));
     if( NewBuffer != NULL )
     {
         bzero( NewBuffer, BuffSize );
@@ -988,7 +988,7 @@ int GetRealm( char *String )
     if( ( strncasecmp( "realm=", Ptr, 6 ) == 0 ) )
     {
         Ptr = Ptr + 6;
-        if( ( Buff = (char*)mymalloc( strlen( Ptr ) + 1 ) ) == NULL )
+        if( ( Buff = static_cast<char*>(mymalloc( strlen( Ptr ) + 1 ) )) == NULL )
             return( REALM_ERROR );
         strcpy( Buff, Ptr );
 

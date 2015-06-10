@@ -63,7 +63,7 @@ QtIterator::~QtIterator()
     if( inputs )
     {
         // delete the inputs
-        for( int i=0; i<inputs->size(); i++ )
+        for( unsigned int i=0; i<inputs->size(); i++ )
         {
             delete (*inputs)[i];
             (*inputs)[i] = NULL;
@@ -90,7 +90,7 @@ QtIterator::getChilds( QtChildType flag )
 
     if( flag == QT_LEAF_NODES || flag == QT_ALL_NODES )
     {
-        for(int i=0; i<inputs->size(); i++ )
+        for( unsigned int i=0; i<inputs->size(); i++ )
         {
             QtNodeList* subList=NULL;
             subList = (*inputs)[i]->getChilds( flag );
@@ -104,7 +104,7 @@ QtIterator::getChilds( QtChildType flag )
 
     // add the nodes of the current level
     if( flag == QT_DIRECT_CHILDS || flag == QT_ALL_NODES )
-        for(int i=0; i<inputs->size(); i++ )
+        for(unsigned int i=0; i<inputs->size(); i++ )
             resultList->push_back( (*inputs)[i] );
 
     return resultList;
@@ -163,13 +163,13 @@ QtIterator::printTree( int tab, ostream& s, QtChildType mode )
     if( mode != QtNode::QT_DIRECT_CHILDS )
     {
         if( inputs )
-            for( int i=0; i<inputs->size(); i++ )
+            for( unsigned int i=0; i<inputs->size(); i++ )
             {
-                s << SPACE_STR(tab).c_str() << "input " << i+1 << ": " << endl;
+                s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input " << i+1 << ": " << endl;
                 (*inputs)[i]->printTree( tab+2, s, mode );
             }
         else
-            s << SPACE_STR(tab).c_str() << "no inputs" << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no inputs" << endl;
 
         s << endl;
     }
@@ -184,7 +184,7 @@ QtIterator::printAlgebraicExpression( ostream& s )
     {
         s << "( ";
 
-        for( int i=0; i<inputs->size(); i++ )
+        for( unsigned int i=0; i<inputs->size(); i++ )
         {
             (*inputs)[i]->printAlgebraicExpression( s );
 

@@ -157,12 +157,12 @@ TypeFactory::mapType(const char* typeName)
 {
     RMDBGENTER(4, RMDebug::module_catalogmgr, "TypeFactory", "mapType(" << typeName << ")");
     BaseType* resultType = 0;
-    resultType = (BaseType*)ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, typeName);
+    resultType = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::ATOMICTYPEOID, typeName));
     if (resultType == 0)
     {
         try
         {
-            resultType = (BaseType*)ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, typeName);
+            resultType = static_cast<BaseType*>(ObjectBroker::getObjectByName(OId::STRUCTTYPEOID, typeName));
         }
         catch   (r_Error)
         {
@@ -194,7 +194,7 @@ TypeFactory::addStructType(const StructType* type)
             {
             case STRUCT:
                 RMDBGMIDDLE(6, RMDebug::module_catalogmgr, "TypeFactory", "element is struct type " << (char*)type->getElemName(i) << " of type " << type->getElemType(i)->getName());
-                persistentType->addElement(type->getElemName(i), addStructType((const StructType*)type->getElemType(i)));
+                persistentType->addElement(type->getElemName(i), addStructType(static_cast<const StructType*>(type->getElemType(i))));
                 break;
             case ULONG:
             case USHORT:
@@ -208,7 +208,7 @@ TypeFactory::addStructType(const StructType* type)
             case COMPLEXTYPE1:
             case COMPLEXTYPE2:
                 RMDBGMIDDLE(6, RMDebug::module_catalogmgr, "TypeFactory", "element is atomic type " << (char*)type->getElemName(i) << " of type " << type->getElemType(i)->getName());
-                persistentType->addElement(type->getElemName(i), (BaseType*)ObjectBroker::getObjectByOId(type->getElemType(i)->getOId()));
+                persistentType->addElement(type->getElemName(i), static_cast<BaseType*>(ObjectBroker::getObjectByOId(type->getElemType(i)->getOId())));
                 break;
             default:
                 persistentType = 0;
@@ -234,7 +234,7 @@ TypeFactory::mapSetType(const char* typeName)
     SetType* resultType = 0;
     try
     {
-        resultType = (SetType*)ObjectBroker::getObjectByName(OId::SETTYPEOID, typeName);
+        resultType = static_cast<SetType*>(ObjectBroker::getObjectByName(OId::SETTYPEOID, typeName));
     }
     catch   (r_Error)
     {
@@ -316,15 +316,15 @@ TypeFactory::addMDDType(const MDDType* type)
             break;
         case MDDType::MDDBASETYPE:
             RMDBGMIDDLE(7, RMDebug::module_catalogmgr, "TypeFactory", "is MDDBASETYPE");
-            persistentType = new MDDBaseType(type->getTypeName(), addStructType((StructType*)const_cast<BaseType*>(((MDDBaseType*)const_cast<MDDType*>(type))->getBaseType())));
+            persistentType = new MDDBaseType(type->getTypeName(), addStructType(static_cast<StructType*>(const_cast<BaseType*>((static_cast<MDDBaseType*>(const_cast<MDDType*>(type)))->getBaseType()))));
             break;
         case MDDType::MDDDOMAINTYPE:
             RMDBGMIDDLE(7, RMDebug::module_catalogmgr, "TypeFactory", "is MDDDOMAINTYPE");
-            persistentType = new MDDDomainType(type->getTypeName(), addStructType((StructType*)const_cast<BaseType*>(((MDDBaseType*)const_cast<MDDType*>(type))->getBaseType())), *((MDDDomainType*)const_cast<MDDType*>(type))->getDomain());
+            persistentType = new MDDDomainType(type->getTypeName(), addStructType(static_cast<StructType*>(const_cast<BaseType*>((static_cast<MDDBaseType*>(const_cast<MDDType*>(type)))->getBaseType()))), *(static_cast<MDDDomainType*>(const_cast<MDDType*>(type)))->getDomain());
             break;
         case MDDType::MDDDIMENSIONTYPE:
             RMDBGMIDDLE(7, RMDebug::module_catalogmgr, "TypeFactory", "is MDDDIMENSIONTYPE");
-            persistentType = new MDDDimensionType(type->getTypeName(), addStructType((StructType*)const_cast<BaseType*>(((MDDBaseType*)const_cast<MDDType*>(type))->getBaseType())), ((MDDDimensionType*)const_cast<MDDType*>(type))->getDimension());
+            persistentType = new MDDDimensionType(type->getTypeName(), addStructType(static_cast<StructType*>(const_cast<BaseType*>((static_cast<MDDBaseType*>(const_cast<MDDType*>(type)))->getBaseType()))), (static_cast<MDDDimensionType*>(const_cast<MDDType*>(type)))->getDimension());
             break;
         default:
             RMDBGMIDDLE(0, RMDebug::module_catalogmgr, "TypeFactory", "addMDDType(" << type->getName() << ") mddsubtype unknown");
@@ -402,7 +402,7 @@ TypeFactory::deleteStructType(const char* typeName)
         {
             if (miter.get_element()->getSubtype() != MDDType::MDDONLYTYPE)
             {
-                if (((MDDBaseType*)(miter.get_element().ptr()))->getBaseType() == resultType)
+                if ((static_cast<MDDBaseType*>(miter.get_element().ptr()))->getBaseType() == resultType)
                 {
                     RMDBGMIDDLE(5, RMDebug::module_catalogmgr, "TypeFactory", "mdd type " << miter.get_element()->getName() << " contains " << typeName);
                     canDelete = false;
@@ -600,7 +600,7 @@ TypeFactory::ensurePersistence(Type* type)
             ist.advance();
         }
         if (!retval)
-            retval = addStructType((const StructType*)type);
+            retval = addStructType(static_cast<const StructType*>(type));
     }
     break;
     case MDDTYPE:
@@ -617,7 +617,7 @@ TypeFactory::ensurePersistence(Type* type)
             imd.advance();
         }
         if (!retval)
-            retval = addMDDType((const MDDType*)type);
+            retval = addMDDType(static_cast<const MDDType*>(type));
     }
     break;
     case SETTYPE:
@@ -634,41 +634,41 @@ TypeFactory::ensurePersistence(Type* type)
             ise.advance();
         }
         if (!retval)
-            retval = addSetType((const SetType*)type);
+            retval = addSetType(static_cast<const SetType*>(type));
     }
     break;
     case ULONG:
-        retval = (Type*)ObjectBroker::getObjectByOId(OId(ULONG, OId::ATOMICTYPEOID));
+        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(ULONG, OId::ATOMICTYPEOID)));
         break;
     case USHORT:
-        retval = (Type*)ObjectBroker::getObjectByOId(OId(USHORT, OId::ATOMICTYPEOID));
+        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(USHORT, OId::ATOMICTYPEOID)));
         break;
     case CHAR:
-        retval = (Type*)ObjectBroker::getObjectByOId(OId(CHAR, OId::ATOMICTYPEOID));
+        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(CHAR, OId::ATOMICTYPEOID)));
         break;
     case BOOLTYPE:
-        retval = (Type*)ObjectBroker::getObjectByOId(OId(BOOLTYPE, OId::ATOMICTYPEOID));
+        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(BOOLTYPE, OId::ATOMICTYPEOID)));
         break;
     case LONG:
-        retval = (Type*)ObjectBroker::getObjectByOId(OId(LONG, OId::ATOMICTYPEOID));
+        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(LONG, OId::ATOMICTYPEOID)));
         break;
     case SHORT:
-        retval = (Type*)ObjectBroker::getObjectByOId(OId(SHORT, OId::ATOMICTYPEOID));
+        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(SHORT, OId::ATOMICTYPEOID)));
         break;
     case OCTET:
-        retval = (Type*)ObjectBroker::getObjectByOId(OId(OCTET, OId::ATOMICTYPEOID));
+        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(OCTET, OId::ATOMICTYPEOID)));
         break;
     case DOUBLE:
-        retval = (Type*)ObjectBroker::getObjectByOId(OId(DOUBLE, OId::ATOMICTYPEOID));
+        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(DOUBLE, OId::ATOMICTYPEOID)));
         break;
     case FLOAT:
-        retval = (Type*)ObjectBroker::getObjectByOId(OId(FLOAT, OId::ATOMICTYPEOID));
+        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(FLOAT, OId::ATOMICTYPEOID)));
         break;
     case COMPLEXTYPE1:
-        retval = (Type*)ObjectBroker::getObjectByOId(OId(COMPLEXTYPE1, OId::ATOMICTYPEOID));
+        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(COMPLEXTYPE1, OId::ATOMICTYPEOID)));
         break;
     case COMPLEXTYPE2:
-        retval = (Type*)ObjectBroker::getObjectByOId(OId(COMPLEXTYPE2, OId::ATOMICTYPEOID));
+        retval = static_cast<Type*>(ObjectBroker::getObjectByOId(OId(COMPLEXTYPE2, OId::ATOMICTYPEOID)));
         break;
     default:
         RMDBGONCE(0, RMDebug::module_catalogmgr, "TypeFactory", "ensurePersitence() is not a STRUCT/MDDTYPE/SETTYPE/ATOMIC " << type->getName());

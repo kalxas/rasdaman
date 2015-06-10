@@ -88,14 +88,16 @@ QtVariable::equalMeaning( QtNode* node )
     {
         QtVariable* mddVarNode;
 
-        mddVarNode = (QtVariable*) node; // by force
+        mddVarNode = static_cast<QtVariable*>(node); // by force
 
         if( iteratorName.compare ( mddVarNode->getIteratorName()) == 0 )
+        {
             if( ( loadDomain.dimension() == 0 ) ||
                     ( (mddVarNode->getLoadDomain()).dimension() == 0 ) )
                 result = true;
             else if( loadDomain.dimension() == (mddVarNode->getLoadDomain()).dimension() )
                 result = loadDomain.intersects_with( mddVarNode->getLoadDomain() );
+        }
     };
 
     // equalMeaning() depends only on the loadDomain and not on the domainFlag!
@@ -112,7 +114,7 @@ QtVariable::getSpelling()
 
     char tempStr[20];
     ostringstream os;
-    sprintf(tempStr, "%ud", (unsigned long)getNodeType());
+    sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
 
     result.append( iteratorName );
@@ -155,7 +157,7 @@ QtVariable::optimizeLoad( QtTrimList* trimList )
         delete domainFlag; // delete the old array
         domainFlag = new vector<bool>(maxDimension+1);
 
-        for( int j=0; j<loadDomain.dimension(); j++ )
+        for( unsigned int j=0; j<loadDomain.dimension(); j++ )
         {
             loadDomain[j]    = r_Sinterval('*','*');
             (*domainFlag)[j] = true;
@@ -220,7 +222,7 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
         }
         else
             // For performance reasons, take the data element from position determined in the first run.
-            dataObject = (*inputList)[dataIndex];
+            dataObject = (*inputList)[static_cast<size_t>(dataIndex)];
 
         if( !dataObject )
         {
@@ -243,7 +245,7 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
             }
             else
             {
-                QtMDD*  qtMDD         = (QtMDD*)dataObject;
+                QtMDD*  qtMDD         = static_cast<QtMDD*>(dataObject);
                 MDDObj* currentMDDObj = qtMDD->getMDDObject();
 
                 RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtVariable", "  definitionDomain: " << currentMDDObj->getDefinitionDomain() )
@@ -278,18 +280,18 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
 
                     // create a transient MDD object for the query result
                     MDDObj* resultMDD = new MDDObj( mddType, loadDomain );
-                    char* data = (char*)mymalloc( arrayLength );
+                    char* data = static_cast<char*>(mymalloc( arrayLength ));
 
                     // fill with null value
                     memset( data, 0, arrayLength );
 
                     // create transient tile
-                    Tile* resTile = new Tile( loadDomain, mddType->getBaseType(), (char*)data, arrayLength );
+                    Tile* resTile = new Tile( loadDomain, mddType->getBaseType(), data, arrayLength );
                     resTile->setPersistent(false);
 
                     // insert Tile in result mddObj
                     resultMDD->insertTile( resTile );
-                    returnValue = new QtMDD( (MDDObj*)resultMDD );
+                    returnValue = new QtMDD( resultMDD );
 
                     stopTimer();
                     return returnValue;
@@ -318,7 +320,7 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
                     //       is not possible if the iterator variable occurs with different spatial operations.
                     //
 
-                    QtMDD* result = new QtMDD( (MDDObj*)currentMDDObj );
+                    QtMDD* result = new QtMDD( currentMDDObj );
                     result->setLoadDomain( actLoadDomain );
 
                     returnValue = result;
@@ -358,24 +360,24 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
 void
 QtVariable::printTree( int tab, ostream& s, QtChildType /*mode*/ )
 {
-    s << SPACE_STR(tab).c_str() << "QtVariable Object: type " << flush;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtVariable Object: type " << flush;
     dataStreamType.printStatus( s );
     s << " name |" << iteratorName.c_str() << "|" << getEvaluationTime() /* << " pos " << dataIndex */ << endl;
 
     if( loadDomain.dimension() > 0 )
     {
-        s << SPACE_STR(tab).c_str() << "load domain: ";
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "load domain: ";
         loadDomain.print_status( s );
         s << " - Trimflag: ";
 
-        for( int i=0; i<domainFlag->size(); i++)
+        for( unsigned int i=0; i<domainFlag->size(); i++)
             s << (*domainFlag)[i];
         s << endl;
     }
 
     if( oldLoadDomain.dimension() > 0 )
     {
-        s << SPACE_STR(tab).c_str() << "old  domain: ";
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "old  domain: ";
         oldLoadDomain.print_status( s );
         s << endl;
     };

@@ -75,7 +75,7 @@ string
 QtUnaryOperation::getSpelling()
 {
     char tempStr[20];
-    sprintf(tempStr, "%lu", (unsigned long)getNodeType());
+    sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
     result.append( "(" );
     result.append( input->getSpelling() );
@@ -132,7 +132,7 @@ QtUnaryOperation::equalMeaning( QtNode* node )
 
     if( getNodeType() == node->getNodeType() )
     {
-        QtUnaryOperation* unaryNode = (QtUnaryOperation*) node; // by force
+        QtUnaryOperation* unaryNode = static_cast<QtUnaryOperation*>(node); // by force
 
         result = input->equalMeaning( unaryNode->getInput() );
     };
@@ -189,13 +189,15 @@ void
 QtUnaryOperation::printTree( int tab, ostream& s, QtChildType mode )
 {
     if( mode != QtNode::QT_DIRECT_CHILDS )
+    {
         if( input )
         {
-            s << SPACE_STR(tab).c_str() << "input: " << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input: " << endl;
             input->printTree( tab+2, s, mode );
         }
         else
-            s << SPACE_STR(tab).c_str()  << "no input" << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str()  << "no input" << endl;
+    }
 }
 
 

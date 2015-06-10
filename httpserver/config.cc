@@ -308,7 +308,7 @@ rc_t SetString( struct ServerBase *Server, int Type, char *String )
     if( String != NULL )
     {
         BuffSize = strlen( String );
-        if ( ( Buffer = (char*)mymalloc( BuffSize+1 ) ) == NULL )
+        if ( ( Buffer = static_cast<char*>(mymalloc( BuffSize+1 ) )) == NULL )
             ErrorMsg( E_SYS, FAIL, "FAIL:  Buffer allocation for string \"%s\".", String );
         strcpy( Buffer, String );
 
@@ -365,7 +365,7 @@ rc_t ConfigureServer( struct ServerBase *Server )
 
     BuffSize = strlen( rmanhome );
 
-    if ( ( Buffer = (char*)mymalloc( static_cast<size_t>(BuffSize+200) ) ) == NULL )
+    if ( ( Buffer = static_cast<char*>(mymalloc( static_cast<size_t>(BuffSize+200) ) )) == NULL )
         ErrorMsg( E_SYS, FAIL, "FAIL:  Buffer allocation for Server Configuration" );
     if( gethostname( Buffer, 200 ) )
         ErrorMsg( E_SYS, FAIL, "FAIL:  Could not determine my Hostname" );

@@ -129,7 +129,7 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
         }
 #endif
 
-        QtMDD* mdd = (QtMDD*)operand;
+        QtMDD* mdd = static_cast<QtMDD*>(operand);
 
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( opType == Ops::OP_SOME || opType == Ops::OP_ALL || opType == Ops::OP_COUNT )
@@ -151,7 +151,7 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
         const BaseType* resultType = Ops::getResultType( opType, mdd->getCellType() );
 
         // get the MDD object
-        MDDObj* op = ((QtMDD*)operand)->getMDDObject();
+        MDDObj* op = (static_cast<QtMDD*>(operand))->getMDDObject();
         r_Minterval* nullValues = op->getNullValues();
 
         //  get the area, where the operation has to be applied
@@ -191,12 +191,12 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
         else
             returnValue = new QtAtomicData();
         TALK("Clone null values.");
-        returnValue->cloneNullValues((NullValuesHandler*) condOp);
+        returnValue->cloneNullValues(condOp);
 
         TALK( "computeFullCondense-b\n" );
         // allocate buffer for the result
         char* resultBuffer = new char[resultType->getSize()];
-        memcpy( (void*)resultBuffer, (void*)condOp->getAccuVal(), (size_t)resultType->getSize() );
+        memcpy( resultBuffer, condOp->getAccuVal(), resultType->getSize() );
 
         TALK( "computeFullCondense-c\n" );
         returnValue->setValueType  ( resultType );
@@ -250,7 +250,7 @@ QtCondense::checkType( QtTypeTuple* typeTuple )
             throw parseInfo;
         }
 
-        const BaseType* baseType = ((const MDDBaseType*)(inputType.getType()))->getBaseType();
+        const BaseType* baseType = (static_cast<const MDDBaseType*>(inputType.getType()))->getBaseType();
 
         if( opType == Ops::OP_SOME || opType == Ops::OP_ALL )
         {
@@ -296,7 +296,7 @@ QtCondense::checkType( QtTypeTuple* typeTuple )
 void
 QtCondense::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << getClassName() << " object" << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << getClassName() << " object" << getEvaluationTime() << endl;
 
     QtUnaryOperation::printTree( tab, s, mode );
 }
@@ -360,10 +360,10 @@ QtSome::evaluate( QtDataList* inputList )
         }
 #endif
 
-        QtMDD* mdd = (QtMDD*)operand;
+        QtMDD* mdd = static_cast<QtMDD*>(operand);
 
         // get result type
-        BaseType* resultType = (BaseType*)dataStreamType.getType();
+        BaseType* resultType = static_cast<BaseType*>(const_cast<Type*>(dataStreamType.getType()));
 
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( mdd->getCellType()->getType() != BOOLTYPE )
@@ -415,7 +415,7 @@ QtSome::evaluate( QtDataList* inputList )
     allTiles=NULL;
 
     // create QtAtomicData object for the result
-    returnValue = new QtAtomicData( (bool)(dummy) );
+    returnValue = new QtAtomicData( static_cast<bool>(dummy) );
     returnValue->setNullValues(nullValues);
 
     // delete result buffer
@@ -479,10 +479,10 @@ QtAll::evaluate( QtDataList* inputList )
         }
 #endif
 
-        QtMDD* mdd = (QtMDD*)operand;
+        QtMDD* mdd = static_cast<QtMDD*>(operand);
 
         // get result type
-        const BaseType* resultType = (BaseType*)dataStreamType.getType();
+        const BaseType* resultType = static_cast<BaseType*>(const_cast<Type*>(dataStreamType.getType()));
 
 #ifdef QT_RUNTIME_TYPE_CHECK
         if( mdd->getCellType()->getType() != BOOLTYPE )
@@ -497,7 +497,7 @@ QtAll::evaluate( QtDataList* inputList )
 #endif
 
     // get the MDD object
-    MDDObj* op = ((QtMDD*)operand)->getMDDObject();
+    MDDObj* op = (static_cast<QtMDD*>(operand))->getMDDObject();
     r_Minterval* nullValues = op->getNullValues();
 
     //  get the area, where the operation has to be applied
@@ -533,7 +533,7 @@ QtAll::evaluate( QtDataList* inputList )
     allTiles=NULL;
 
     // create QtBoolData object for the result
-    returnValue = new QtAtomicData( (bool)(dummy) );
+    returnValue = new QtAtomicData( static_cast<bool>(dummy) );
     returnValue->setNullValues(nullValues);
 
     // delete result buffer done in delete CondOp
@@ -641,8 +641,8 @@ QtAvgCells::evaluate( QtDataList* inputList )
     //
 
     QtScalarData* scalarDataResult = NULL;
-    QtScalarData* scalarDataCond   = (QtScalarData*)dataCond;
-    BaseType*     resultType       = (BaseType*)dataStreamType.getType();
+    QtScalarData* scalarDataCond   = static_cast<QtScalarData*>(dataCond);
+    BaseType*     resultType       = static_cast<BaseType*>(const_cast<Type*>(dataStreamType.getType()));
 
 
     // allocate memory for the result

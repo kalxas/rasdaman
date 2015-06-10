@@ -63,7 +63,7 @@ const QtNode::QtNodeType QtConversion::nodeType = QtNode::QT_CONVERSION;
 
 QtConversion::QtConversion( QtOperation* newInput, QtConversionType
                             newConversionType, const char* s )
-    : conversionType( newConversionType ), QtUnaryOperation( newInput ), paramStr(s)
+    : QtUnaryOperation( newInput ), conversionType( newConversionType ), paramStr(s)
 {
     RMDBGONCE(2, RMDebug::module_qlparser, "QtConversion", "QtConversion()" )
 }
@@ -139,7 +139,7 @@ QtConversion::equalMeaning( QtNode* node )
     if( nodeType == node->getNodeType() )
     {
         QtConversion* convNode;
-        convNode = (QtConversion*) node; // by force
+        convNode = static_cast<QtConversion*>(node); // by force
 
         result = input->equalMeaning( convNode->getInput() );
 
@@ -165,9 +165,9 @@ constructBaseType( const r_Type *type )
     }
     else if(type->isStructType())
     {
-        r_Structure_Type *stype = (r_Structure_Type *) type;
+        r_Structure_Type *stype = static_cast<r_Structure_Type *>(const_cast<r_Type*>(type));
         StructType *restype = new StructType("tmp_struct_name", stype->count_elements());
-        for (int i = 0; i < stype->count_elements(); ++i)
+        for (unsigned int i = 0; i < stype->count_elements(); ++i)
         {
             try
             {
@@ -214,7 +214,7 @@ QtConversion::evaluate( QtDataList* inputList )
 
         if ( conversionType == QT_TOCSV && operand->isScalarData() )
         {
-            QtScalarData* qtScalar = (QtScalarData*) operand;
+            QtScalarData* qtScalar = static_cast<QtScalarData*>(operand);
             r_Minterval dom = r_Minterval(2);
             dom << r_Sinterval(0LL, 0LL);
             dom << r_Sinterval(0LL, 0LL);
@@ -236,7 +236,7 @@ QtConversion::evaluate( QtDataList* inputList )
             }
 #endif
 
-            QtMDD*  qtMDD         = (QtMDD*) operand;
+            QtMDD*  qtMDD         = static_cast<QtMDD*>(operand);
             MDDObj* currentMDDObj = qtMDD->getMDDObject();
             nullValues = currentMDDObj->getNullValues();
             vector< boost::shared_ptr<Tile> >* tiles = NULL;
@@ -449,7 +449,7 @@ QtConversion::evaluate( QtDataList* inputList )
                 RMInit::logOut << std::endl;)
         }
 
-        long convResultSize = convResult.destInterv.cell_count() * myType->getSize();
+        long convResultSize = static_cast<long>(convResult.destInterv.cell_count()) * static_cast<long>(myType->getSize());
         
         Tile* resultTile = new Tile( convResult.destInterv,
                                      myType,
@@ -465,13 +465,13 @@ QtConversion::evaluate( QtDataList* inputList )
         }
 
         // create a transient MDD object for the query result
-        MDDBaseType* mddBaseType = (MDDBaseType*)dataStreamType.getType();
+        MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(const_cast<Type*>(dataStreamType.getType()));
         MDDObj* resultMDD = new MDDObj( mddBaseType, convResult.destInterv, nullValues );
         resultMDD->insertTile( resultTile );
 
         // create a new QtMDD object as carrier object for the transient MDD object
-        returnValue = new QtMDD( (MDDObj*)resultMDD );
-        ((QtMDD*)returnValue)->setFromConversion(true);
+        returnValue = new QtMDD( static_cast<MDDObj*>(resultMDD) );
+        (static_cast<QtMDD*>(returnValue))->setFromConversion(true);
 
         // delete base type schema
         delete baseSchema;
@@ -492,7 +492,7 @@ QtConversion::evaluate( QtDataList* inputList )
 void
 QtConversion::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtConversion Object: ";
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtConversion Object: ";
 
     switch( conversionType )
     {

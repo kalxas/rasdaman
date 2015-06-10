@@ -180,7 +180,7 @@ QtUpdate::evaluateNullValues(QtNode::QtDataList* nextTupel)
         throwError(nextTupel, target, NULL, 950);
     }
 
-    QtMDD* targetMDD = (QtMDD*) target;
+    QtMDD* targetMDD = static_cast<QtMDD*>(target);
     MDDObj* targetObj = targetMDD->getMDDObject();
 
     // test, if target is a persistent object
@@ -198,7 +198,7 @@ QtUpdate::evaluateNullValues(QtNode::QtDataList* nextTupel)
         throwError(nextTupel, target, NULL, 401);
     }
 
-    r_Minterval domain = ((QtMintervalData*)operand)->getMintervalData();
+    r_Minterval domain = (static_cast<QtMintervalData*>(operand))->getMintervalData();
     targetObj->setUpdateNullValues(&domain);
 }
 
@@ -217,8 +217,8 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
         return;
     }
 
-    QtMDD* targetMDD = (QtMDD*) target;
-    QtMDD* sourceMDD = (QtMDD*) source;
+    QtMDD* targetMDD = static_cast<QtMDD*>(target);
+    QtMDD* sourceMDD = static_cast<QtMDD*>(source);
 
     MDDObj* targetObj = targetMDD->getMDDObject();
     MDDObj* sourceObj = sourceMDD->getMDDObject();
@@ -237,7 +237,7 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
 
     if (targetObj->getStorageLayout())
     {
-        targetObj->getStorageLayout()->setCellSize(targetObj->getCellType()->getSize());
+        targetObj->getStorageLayout()->setCellSize(static_cast<int>(targetObj->getCellType()->getSize()));
     }
 
     if (updateDomain)
@@ -245,7 +245,7 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
         targetDomainData = updateDomain->evaluate(nextTupel);
 
         if (targetDomainData)
-            targetDomain = ((QtMintervalData*) targetDomainData)->getMintervalData();
+            targetDomain = (static_cast<QtMintervalData*>(targetDomainData))->getMintervalData();
     }
 
     RMDBGIF(1, RMDebug::module_qlparser, "QtUpdate", \
@@ -272,10 +272,10 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
     // compute source MDD domain taking into account update domain
     if (targetDomainData)
     {
-        const vector<bool>* trimFlags = ((QtMintervalData*) targetDomainData)->getTrimFlags();
+        const vector<bool>* trimFlags = (static_cast<QtMintervalData*>(targetDomainData))->getTrimFlags();
         r_Minterval newSourceMDDDomain(targetMDD->getLoadDomain().dimension());
 
-        for (int i = 0, j = 0; i < trimFlags->size(); i++)
+        for (unsigned int i = 0, j = 0; i < trimFlags->size(); i++)
             if ((*trimFlags)[i])
                 newSourceMDDDomain << sourceMDDDomain[j++];
             else
@@ -318,7 +318,6 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
     //
     unsigned long targetTileArea = 0;
     unsigned long sourceTileArea = 0;
-    unsigned long targetTileDomain = 0;
     unsigned long updatedArea = 0;
     bool computed = false;
     vector<r_Minterval> insertedDomains;
@@ -392,9 +391,9 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
         if (targetDomainData)
         {
             updateSourceTileDomain = r_Minterval(targetMDD->getLoadDomain().dimension());
-            trimFlags = ((QtMintervalData*) targetDomainData)->getTrimFlags();
+            trimFlags = (static_cast<QtMintervalData*>(targetDomainData))->getTrimFlags();
 
-            for (int i = 0, j = 0; i < trimFlags->size(); i++)
+            for (unsigned int i = 0, j = 0; i < trimFlags->size(); i++)
                 if ((*trimFlags)[i])
                     updateSourceTileDomain << sourceTileDomain[j++];
                 else
@@ -433,9 +432,9 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
                 r_Minterval intersectSourceTileDomain = intersectUpdateSourceTileDomain;
                 if (targetDomainData)
                 {
-                    const vector<bool>* trimFlags = ((QtMintervalData*) targetDomainData)->getTrimFlags();
+                    trimFlags = (static_cast<QtMintervalData*>(targetDomainData))->getTrimFlags();
 
-                    for (int i = 0, j = 0; i < trimFlags->size(); i++)
+                    for (unsigned int i = 0, j = 0; i < trimFlags->size(); i++)
                         if (!((*trimFlags)[i]))
                             intersectSourceTileDomain.delete_dimension(j);
                         else
@@ -479,7 +478,7 @@ QtUpdate::evaluateTupel(QtNode::QtDataList* nextTupel)
 
     for (retvalIt = retval.begin(); retvalIt != retval.end(); retvalIt++)
     {
-        targetObj->insertTile((Tile*) (*retvalIt));
+        targetObj->insertTile(static_cast<Tile*>(*retvalIt));
     }
 
     // delete tile vectors
@@ -545,7 +544,7 @@ QtUpdate::throwError(QtNode::QtDataList* nextTupel, QtData* target, QtData* sour
     if (source) source->deleteRef();
     if (domainData) domainData->deleteRef();
 
-    parseInfo.setErrorNo(errorNumber);
+    parseInfo.setErrorNo(static_cast<unsigned long>(errorNumber));
     throw parseInfo;
 }
 
@@ -558,7 +557,7 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target
     // In case of update domain existence, test for compatibility.
     if (domainData)
     {
-        r_Minterval domain = ((QtMintervalData*) domainData)->getMintervalData();
+        r_Minterval domain = (static_cast<QtMintervalData*>(domainData))->getMintervalData();
         // Dimensionality of the udate domain specification has to be equal to
         // the target MDD dimensionality.
         if (domain.dimension() != targetMDD->getLoadDomain().dimension())
@@ -569,9 +568,9 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target
 
         // The number of interval dimension of the update domain has to be
         // equal to the number of dimensions of the source domain.
-        int updateIntervals = 0;
-        const vector<bool>* trimFlags = ((QtMintervalData*) domainData)->getTrimFlags();
-        for (int i = 0; i < trimFlags->size(); i++)
+        unsigned int updateIntervals = 0;
+        const vector<bool>* trimFlags = (static_cast<QtMintervalData*>(domainData))->getTrimFlags();
+        for (unsigned int i = 0; i < trimFlags->size(); i++)
             if ((*trimFlags)[i])
                 updateIntervals++;
 
@@ -588,7 +587,7 @@ QtUpdate::checkDomainCompatibility(QtNode::QtDataList* nextTupel, QtData* target
 
         // copied from r_Minterval::covers(..), we have to rule out slices here
         const r_Minterval& sourceDomain = sourceMDD->getLoadDomain();
-        int j = 0;
+        unsigned int j = 0;
         for (r_Dimension i = 0; i < domain.dimension(); i++)
         {
             if ((*trimFlags)[i]) // consider only trims
@@ -700,41 +699,41 @@ QtUpdate::getChilds( QtChildType flag )
 void
 QtUpdate::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtUpdate Object" << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtUpdate Object" << getEvaluationTime() << endl;
 
     if( mode != QtNode::QT_DIRECT_CHILDS )
     {
         if( updateTarget )
         {
-            s << SPACE_STR(tab).c_str() << "target: " << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "target: " << endl;
             updateTarget->printTree( tab + 2, s );
 
             if( updateDomain )
             {
-                s << SPACE_STR(tab+2).c_str() << "domain: " << endl;
+                s << SPACE_STR(static_cast<size_t>(tab)+2).c_str() << "domain: " << endl;
                 updateDomain->printTree( tab + 4, s );
             }
             else
-                s << SPACE_STR(tab+2).c_str() << "no domain" << endl;
+                s << SPACE_STR(static_cast<size_t>(tab)+2).c_str() << "no domain" << endl;
         }
         else
-            s << SPACE_STR(tab).c_str() << "no target" << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no target" << endl;
 
         if( updateSource )
         {
-            s << SPACE_STR(tab).c_str() << "source: " << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "source: " << endl;
             updateSource->printTree( tab + 2, s );
         }
         else
-            s << SPACE_STR(tab).c_str() << "no source" << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no source" << endl;
 
         if( input )
         {
-            s << SPACE_STR(tab).c_str() << "input: " << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "input: " << endl;
             input->printTree( tab+2, s, mode );
         }
         else
-            s << SPACE_STR(tab).c_str() << "no input" << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no input" << endl;
 
         s << endl;
     }
@@ -781,7 +780,7 @@ QtUpdate::setStreamInput( QtONCStream* newInput )
 {
     input = newInput;
     input->setParent( this );
-};
+}
 
 QtOperation*
 QtUpdate::getUpdateTarget()
@@ -855,8 +854,8 @@ QtUpdate::checkType()
 
             // test for compatible base types
             bool compatible = false;
-            const BaseType* type1 = ((MDDBaseType*)(targetType.getType()))->getBaseType();
-            const BaseType* type2 = ((MDDBaseType*)(sourceType.getType()))->getBaseType();
+            const BaseType* type1 = (static_cast<MDDBaseType*>(const_cast<Type*>(targetType.getType())))->getBaseType();
+            const BaseType* type2 = (static_cast<MDDBaseType*>(const_cast<Type*>(sourceType.getType())))->getBaseType();
 
             // substituted the string comparison as it fails for composite types:
             // the update base type is usually "struct { char 0, char 1,...}"

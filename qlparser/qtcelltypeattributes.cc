@@ -20,9 +20,9 @@ void QtCellTypeAttributes::checkType()
     // thus there is no need for typeCheck
 }
 
-void QtCellTypeAttributes::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtCellTypeAttributes::printTree(int tab, std::ostream &s, __attribute__ ((unused)) QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtCellTypeAttributes (" << attributeName << " "
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCellTypeAttributes (" << attributeName << " "
       << attributeType << ")" << std::endl;
 }
 

@@ -148,7 +148,7 @@ QtDomainOperation::equalMeaning( QtNode* node )
     if( nodeType == node->getNodeType() )
     {
         QtDomainOperation* domainNode;
-        domainNode = (QtDomainOperation*) node; // by force
+        domainNode = static_cast<QtDomainOperation*>(node); // by force
 
         result = input->equalMeaning( domainNode->getInput() ) &&
                  mintervalOp->equalMeaning( domainNode->getMintervalOp() );
@@ -162,7 +162,7 @@ string
 QtDomainOperation::getSpelling()
 {
     char tempStr[20];
-    sprintf(tempStr, "%lu", (unsigned long)getNodeType());
+    sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result  = string(tempStr);
     result.append( mintervalOp->getSpelling() );
     result.append( "(" );
@@ -185,7 +185,7 @@ QtDomainOperation::setInput( QtOperation* inputOld, QtOperation* inputNew )
         if( inputNew )
             inputNew->setParent( this );
     }
-};
+}
 
 
 
@@ -212,14 +212,14 @@ QtDomainOperation::optimizeLoad( QtTrimList* trimList )
         {
             if( operand->getDataType() == QT_MINTERVAL )
             {
-                r_Minterval   domain    = ((QtMintervalData*)operand)->getMintervalData();
-                vector<bool>* trimFlags = new vector<bool>( *(((QtMintervalData*)operand)->getTrimFlags()) );
+                r_Minterval   domain    = (static_cast<QtMintervalData*>(operand))->getMintervalData();
+                vector<bool>* trimFlags = new vector<bool>( *((static_cast<QtMintervalData*>(operand))->getTrimFlags()) );
 
                 if( trimList && trimList->empty() )
                 {
                     // no previous specification for that dimension
                     trimming = true;
-                    for( int i=0; i!=domain.dimension(); i++ )
+                    for( unsigned int i=0; i!=domain.dimension(); i++ )
                     {
                         // create a new element
                         QtTrimElement* elem = new QtTrimElement;
@@ -315,7 +315,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 
             if( indexData->getDataType() == QT_POINT )
             {
-                projPoint = ((QtPointData*)indexData)->getPointData();
+                projPoint = (static_cast<QtPointData*>(indexData))->getPointData();
             }
             else
             {
@@ -324,9 +324,9 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                 if( indexData->getDataType() == QT_SHORT ||
                         indexData->getDataType() == QT_OCTET ||
                         indexData->getDataType() == QT_LONG     )
-                    projPoint[0] = ((QtAtomicData*)indexData)->getSignedValue();
+                    projPoint[0] = (static_cast<QtAtomicData*>(indexData))->getSignedValue();
                 else
-                    projPoint[0] = ((QtAtomicData*)indexData)->getUnsignedValue();
+                    projPoint[0] = (static_cast<QtAtomicData*>(indexData))->getUnsignedValue();
 
             }
 
@@ -381,7 +381,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             }
 #endif
 
-            QtMDD*  qtMDD         = (QtMDD*) operand;
+            QtMDD*  qtMDD         = static_cast<QtMDD*>(operand);
             MDDObj* currentMDDObj = qtMDD->getMDDObject();
             r_Minterval* nullValues = currentMDDObj->getNullValues();
 
@@ -395,7 +395,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                 //   qtMDD->setLoadDomain( domain.intersection_with( qtMDD->getLoadDomain() ) );
 
                 // get type of cell
-                const BaseType* cellType = ((MDDBaseType*)(currentMDDObj->getMDDBaseType()))->getBaseType();
+                const BaseType* cellType = (const_cast<MDDBaseType*>(currentMDDObj->getMDDBaseType()))->getBaseType();
 
                 RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtDomainOperation", "  point access: " << projPoint )
                 char* resultCell = NULL;
@@ -411,7 +411,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                 char* resultBuffer = new char[ cellType->getSize() ];
 
                 // copy cell content
-                memcpy( (void*)resultBuffer, (void*)resultCell, cellType->getSize() );
+                memcpy( resultBuffer, resultCell, cellType->getSize() );
 
                 // create data object for the cell
                 QtScalarData* scalarDataObj = NULL;
@@ -459,8 +459,8 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 #endif
 
             // get minterval data
-            vector<bool>*  trimFlags = new vector<bool>( *(((QtMintervalData*)indexData)->getTrimFlags()) );
-            r_Minterval    domain    = ((QtMintervalData*)indexData)->getMintervalData();
+            vector<bool>*  trimFlags = new vector<bool>( *((static_cast<QtMintervalData*>(indexData))->getTrimFlags()) );
+            r_Minterval    domain    = (static_cast<QtMintervalData*>(indexData))->getMintervalData();
 
             //
             // In case of dynamic index expressions, load optimization has to
@@ -471,7 +471,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             {
                 QtNode::QtTrimList* trimList = new QtNode::QtTrimList;
 
-                for( int i=0; i!=domain.dimension(); i++ )
+                for( unsigned int i=0; i!=domain.dimension(); i++ )
                 {
                     // create a new element
                     QtTrimElement* elem = new QtTrimElement;
@@ -511,7 +511,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             }
 #endif
 
-            QtMDD*  qtMDD         = (QtMDD*) operand;
+            QtMDD*  qtMDD         = static_cast<QtMDD*>(operand);
             MDDObj* currentMDDObj = qtMDD->getMDDObject();
             r_Minterval* nullValues = currentMDDObj->getNullValues();
 
@@ -530,7 +530,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                 // Test, if a projection has to be made and build the projSet in projection case
                 set< r_Dimension, less<r_Dimension> > projSet;
 
-                for( int i=0; i<trimFlags->size(); i++ )
+                for( unsigned int i=0; i<trimFlags->size(); i++ )
                     if( !(*trimFlags)[i] )
                     {
                         projection = true;
@@ -540,7 +540,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                 r_Minterval projectedDom( domain.dimension() - projSet.size() );
 
                 // build the projected domain
-                for( int i = 0; i < domain.dimension(); i++ )
+                for( unsigned int i = 0; i < domain.dimension(); i++ )
                     // do not include dimensions projected away
                     if(projSet.find(i) == projSet.end())
                         projectedDom << domain[i];
@@ -587,7 +587,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                         }
 
                         // create a new QtMDD object as carrier object for the transient MDD object
-                        returnValue = new QtMDD( (MDDObj*)resultMDD );
+                        returnValue = new QtMDD( static_cast<MDDObj*>(resultMDD) );
                         returnValue->setNullValues(nullValues);
 
                         // delete the tile vector
@@ -607,18 +607,18 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 
                         // create a transient MDD object for the query result
                         MDDObj* resultMDD = new MDDObj( mddType, projectedDom );
-                        char* data = (char*)mymalloc( arrayLength );
+                        char* data = static_cast<char*>(mymalloc( arrayLength ));
 
                         // fill with null value
                         memset( data, 0, arrayLength );
 
                         // create transient tile
-                        Tile* resTile = new Tile( projectedDom, mddType->getBaseType(), (char*)data, arrayLength );
+                        Tile* resTile = new Tile( projectedDom, mddType->getBaseType(), data, arrayLength );
                         resTile->setPersistent(false);
 
                         // insert Tile in result mddObj
                         resultMDD->insertTile( resTile );
-                        returnValue = new QtMDD( (MDDObj*)resultMDD );
+                        returnValue = new QtMDD( static_cast<MDDObj*>(resultMDD) );
 
 //                RMInit::logOut << "Error: QtDomainOperation::evaluate() - the load domain does not intersect with tiles in the current MDD." << endl;
 //                parseInfo.setErrorNo(356);
@@ -665,7 +665,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             }
 #endif
             // get point
-            const r_Minterval& minterval = ((QtMintervalData*)operandData)->getMintervalData();
+            const r_Minterval& minterval = (static_cast<QtMintervalData*>(operandData))->getMintervalData();
 
             // get index
             indexData = mintervalOp->evaluate( inputList );
@@ -685,7 +685,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             case QT_POINT:
             {
                 // get first element as index
-                const r_Point& indexPoint = ((QtPointData*)indexData)->getPointData();
+                const r_Point& indexPoint = (static_cast<QtPointData*>(indexData))->getPointData();
 
                 if( indexPoint.dimension() != 1 )
                 {
@@ -706,20 +706,19 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             case QT_CHAR:
             case QT_USHORT:
             case QT_ULONG:
-                indexValue = ((QtAtomicData*)indexData)->getUnsignedValue();
+                indexValue = (static_cast<QtAtomicData*>(indexData))->getUnsignedValue();
                 break;
 
             case QT_OCTET:
             case QT_SHORT:
             case QT_LONG:
-                indexValue = ((QtAtomicData*)indexData)->getSignedValue();
+                indexValue = static_cast<r_Dimension>((static_cast<QtAtomicData*>(indexData))->getSignedValue());
                 break;
             default:
                 RMDBGONCE(0, RMDebug::module_qlparser, "r_QtDomainOperation", "evaluate() bad type " << indexData->getDataType());
                 break;
             }
-//indexValue is a unsigned type -> there will never be a indexVAlue < 0
-            if( /*indexValue < 0 ||*/ indexValue >= minterval.dimension() )
+            if( indexValue >= minterval.dimension() )
             {
                 RMInit::logOut << "Error: QtDomainOperation::evaluate() - index for minterval selection is out of range." << endl;
                 parseInfo.setErrorNo(398);
@@ -758,7 +757,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             }
 #endif
             // get point
-            const r_Point& pt = ((QtPointData*)operandData)->getPointData();
+            const r_Point& pt = (static_cast<QtPointData*>(operandData))->getPointData();
 
             // get index
             indexData = mintervalOp->evaluate( inputList );
@@ -779,9 +778,9 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             case QT_POINT:
             {
                 // get first element as index
-                const r_Point& indexPoint = ((QtPointData*)indexData)->getPointData();
+                const r_Point& indexPoint = (static_cast<QtPointData*>(indexData))->getPointData();
                 if (indexData != NULL) {
-                  nullValues = ((QtAtomicData*)indexData)->getNullValues();
+                  nullValues = (static_cast<QtAtomicData*>(indexData))->getNullValues();
                 }
 
                 if( indexPoint.dimension() != 1 )
@@ -803,18 +802,18 @@ QtDomainOperation::evaluate( QtDataList* inputList )
             case QT_CHAR:
             case QT_USHORT:
             case QT_ULONG:
-                indexValue = ((QtAtomicData*)indexData)->getUnsignedValue();
+                indexValue = (static_cast<QtAtomicData*>(indexData))->getUnsignedValue();
                 if (indexData != NULL) {
-                  nullValues = ((QtAtomicData*)indexData)->getNullValues();
+                  nullValues = (static_cast<QtAtomicData*>(indexData))->getNullValues();
                 }
                 break;
 
             case QT_OCTET:
             case QT_SHORT:
             case QT_LONG:
-                indexValue = ((QtAtomicData*)indexData)->getSignedValue();
+                indexValue = static_cast<r_Dimension>((static_cast<QtAtomicData*>(indexData))->getSignedValue());
                 if (indexData != NULL) {
-                  nullValues = ((QtAtomicData*)indexData)->getNullValues();
+                  nullValues = (static_cast<QtAtomicData*>(indexData))->getNullValues();
                 }
                 break;
             default:
@@ -822,8 +821,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                 break;
             }
 
-            //indexValue is a unsigned type -> there will never be a indexValue < 0
-            if( /*indexValue < 0 ||*/ indexValue >= pt.dimension() )
+            if( indexValue >= pt.dimension() )
             {
                 RMInit::logOut << "Error: QtDomainOperation::evaluate() - index for point selection is out of range." << endl;
                 parseInfo.setErrorNo(411);
@@ -835,7 +833,7 @@ QtDomainOperation::evaluate( QtDataList* inputList )
                 throw parseInfo;
             }
 
-            returnValue = new QtAtomicData( (r_Long)pt[indexValue], 4 );
+            returnValue = new QtAtomicData( static_cast<r_Long>(pt[indexValue]), 4 );
             returnValue->setNullValues(nullValues);
         }
 
@@ -862,18 +860,18 @@ QtDomainOperation::evaluate( QtDataList* inputList )
 void
 QtDomainOperation::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtDomainOperation Object: type " << flush;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtDomainOperation Object: type " << flush;
     dataStreamType.printStatus( s );
     s << getEvaluationTime();
     s << endl;
 
     if( mintervalOp )
     {
-        s << SPACE_STR(tab).c_str() << "spatial operation: " << endl;
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "spatial operation: " << endl;
         mintervalOp->printTree( tab + 2, s );
     }
     else
-        s << SPACE_STR(tab).c_str() << "no spatial operation" << endl;
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no spatial operation" << endl;
 
     QtUnaryOperation::printTree( tab, s, mode );
 }
@@ -953,7 +951,7 @@ QtDomainOperation::checkType( QtTypeTuple* typeTuple )
                 dataStreamType = inputType;
             else
                 // use MDD cell type
-                dataStreamType.setType( ((MDDBaseType*)inputType.getType())->getBaseType() );
+                dataStreamType.setType( (static_cast<MDDBaseType*>(const_cast<Type*>(inputType.getType())))->getBaseType() );
         }
         else if( inputType.getDataType() == QT_MINTERVAL )
         {

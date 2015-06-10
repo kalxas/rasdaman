@@ -133,7 +133,7 @@ const char *r_Conv_CSV::printValue(std::stringstream &f, const r_Base_Type &type
 
 const char *r_Conv_CSV::printStructValue(std::stringstream &f, const char *val)
 {
-    r_Structure_Type *st = (r_Structure_Type*) const_cast<r_Type*>(desc.srcType);
+    r_Structure_Type *st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(desc.srcType));
     r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
     f << STRUCT_DELIMITER_OPEN;
     while (iter != st->defines_attribute_end())
@@ -149,7 +149,7 @@ const char *r_Conv_CSV::printStructValue(std::stringstream &f, const char *val)
 
 const char *r_Conv_CSV::printComplexValue(std::stringstream &f, const r_Base_Type &type, const char *val)
 {
-    const r_Complex_Type *ptr = (const r_Complex_Type *) &type;
+    const r_Complex_Type *ptr = static_cast<const r_Complex_Type *>(&type);
     ptr->print_value(val, f);
     val += ptr->size();
     return val;
@@ -157,7 +157,7 @@ const char *r_Conv_CSV::printComplexValue(std::stringstream &f, const r_Base_Typ
 
 const char *r_Conv_CSV::printPrimitiveValue(std::stringstream &f, const r_Base_Type &type, const char *val)
 {
-    const r_Primitive_Type *ptr = (const r_Primitive_Type *) &type;
+    const r_Primitive_Type *ptr = static_cast<const r_Primitive_Type *>(&type);
     switch (ptr->type_id())
     {
     case r_Type::ULONG:
@@ -176,19 +176,19 @@ const char *r_Conv_CSV::printPrimitiveValue(std::stringstream &f, const r_Base_T
         f << ptr->get_short(val);
         break;
     case r_Type::OCTET:
-        f << (int) (ptr->get_octet(val));
+        f << static_cast<int>(ptr->get_octet(val));
         break;
     case r_Type::DOUBLE:
-        f << (float) ptr->get_double(val);
+        f << static_cast<float>(ptr->get_double(val));
         break;
     case r_Type::FLOAT:
         f << ptr->get_float(val);
         break;
     case r_Type::CHAR:
-        f << (int) (ptr->get_char(val));
+        f << static_cast<int>(ptr->get_char(val));
         break;
     default:
-        f << (int) (ptr->get_char(val));
+        f << static_cast<int>(ptr->get_char(val));
         break;
     }
     val += ptr->size();
@@ -262,7 +262,7 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
         std::reverse(offsets.begin(), offsets.end());
     }
 
-    const r_Base_Type *base_type = (const r_Base_Type *) desc.srcType;
+    const r_Base_Type *base_type = static_cast<const r_Base_Type *>(desc.srcType);
     try
     {
         if (rank == 1) {
@@ -283,9 +283,9 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
     int stringsize = str.length();
 
     desc.destInterv = r_Minterval(1);
-    desc.destInterv << r_Sinterval((r_Range)0, (r_Range)stringsize - 1);
+    desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(stringsize) - 1);
 
-    if ((desc.dest = (char*)mystore.storage_alloc(static_cast<size_t>(stringsize))) == NULL)
+    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(stringsize)))) == NULL)
     {
         RMInit::logOut << "r_Conv_CSV::convertTo(): out of memory error" << endl;
         LEAVE("r_Conv_CSV::convertTo()");

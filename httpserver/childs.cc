@@ -131,7 +131,7 @@ pid_t NewChild( struct ChildBase *List, struct FDsets *PDSets, struct ClientBase
 {
     struct ChildBase *Child;
 
-    Child = (struct ChildBase*)mymalloc( sizeof( struct ChildBase ) );
+    Child = static_cast<struct ChildBase*>(mymalloc( sizeof( struct ChildBase ) ));
     if( Child == NULL )  // Failure? => QUIT.
         ErrorMsg( E_SYS, FAIL, "FAIL:  NewChild(): malloc() failed!" );
 
@@ -186,7 +186,7 @@ void CleanupChild( struct ChildBase *List, struct FDsets *PDSets, pid_t PId )
 
     if(PDSets == NULL)
         LogMsg( LG_SERVER, DEBUG, "DEBUG: ########### PDSets is NULL!" );
-    if(PId == (pid_t)0)
+    if(PId == static_cast<pid_t>(0))
         LogMsg( LG_SERVER, DEBUG, "DEBUG: ########### ChildPid is NULL!" );
     if(List == NULL)
         LogMsg( LG_SERVER, DEBUG, "DEBUG: ########### ChildBase is NULL!" );

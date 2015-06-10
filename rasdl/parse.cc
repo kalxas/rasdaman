@@ -280,7 +280,7 @@ Parse_struct::getType( const char* /*typeName*/ ) const
 
     RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_struct", "Struct " << name << " has " << noElements << " elements.")
 
-    structType = new StructType( const_cast<char*>(name), noElements );
+    structType = new StructType( name, noElements );
 
     for( scan=elements; scan!=NULL; scan=scan->next)
         if( !scan->type )
@@ -288,7 +288,7 @@ Parse_struct::getType( const char* /*typeName*/ ) const
         else
         {
             RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_struct", "Scan->name " << scan->name)
-            structType->addElement( const_cast<char*>((scan->name)), (BaseType*)const_cast<CType*>(scan->type->getType()) );
+            structType->addElement( (scan->name), (const BaseType*)const_cast<CType*>(scan->type->getType()) );
         }
 
     RMDBGEXIT(4, RMDebug::module_rasdl, "Parse_struct", "getType()" )
@@ -918,11 +918,11 @@ Parse_MDD::getType( const char* typeName ) const
     const MDDType* mddType;
 
     if( domain )
-        mddType = new MDDDomainType( const_cast<char*>(typeName), catBaseType, *domain );
+        mddType = new MDDDomainType( typeName, catBaseType, *domain );
     else if( dimensionality )
-        mddType = new MDDDimensionType( const_cast<char*>(typeName), catBaseType, (r_Dimension)dimensionality );
+        mddType = new MDDDimensionType( typeName, catBaseType, (r_Dimension)dimensionality );
     else
-        mddType = new MDDBaseType( const_cast<char*>(typeName), catBaseType );
+        mddType = new MDDBaseType( typeName, catBaseType );
 
     RMDBGEXIT(4, RMDebug::module_rasdl, "Parse_MDD", "getType()")
 
@@ -993,7 +993,7 @@ Parse_set::getType( const char* typeName ) const
 
     RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_set", "type name " << typeName << ", base type name " << baseTypeName )
 
-    SetType* setType = new SetType( const_cast<char*>(typeName), const_cast<MDDType*>(catBaseType) );
+    SetType* setType = new SetType( typeName, const_cast<MDDType*>(catBaseType) );
     if (nullValues != NULL)
     {
         TALK("Set null values to " << nullValues->get_string_representation());

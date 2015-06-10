@@ -218,7 +218,7 @@ int    TAB_SIZE      =   3;   /* TAB size is always set to 3 */
 %}
 
 [a-zA-Z_][a-zA-Z0-9_]*                 {
-                                            yylval.Entry.name            =(const char*)malloc(static_cast<size_t>(yyleng)+1);
+                                            yylval.Entry.name            =static_cast<const char*>(malloc(static_cast<size_t>(yyleng)+1));
 
                                           SET_WHERE(yylval.Entry.where);
 

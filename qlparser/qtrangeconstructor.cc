@@ -74,7 +74,7 @@ QtRangeConstructor::equalMeaning(QtNode *node)
     if (nodeType == node->getNodeType())
     {
         QtRangeConstructor *condNode;
-        condNode = (QtRangeConstructor *) node; // by force
+        condNode = static_cast<QtRangeConstructor *>(node); // by force
 
         // check domain and cell expression
         result = QtNaryOperation::equalMeaning(condNode);
@@ -89,7 +89,7 @@ QtRangeConstructor::getSpelling()
 {
 
     char tempStr[20];
-    sprintf(tempStr, "%lu", (unsigned long) getNodeType());
+    sprintf(tempStr, "%lu", static_cast<unsigned long>(getNodeType()));
     string result = string(tempStr);
     result.append("{");
     result.append(QtNaryOperation::getSpelling());
@@ -141,7 +141,7 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                 QtDataType operandType = operand->getDataType();
                 if (operandType != QT_TYPE_UNKNOWN && operandType <= QT_COMPLEXTYPE2)
                 {
-                    scalarOperandList->push_back((QtScalarData *) operand);
+                    scalarOperandList->push_back(static_cast<QtScalarData *>(operand));
                 }
                 else
                 {
@@ -162,13 +162,13 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
             unsigned int cellSize = resultMDD->getCellType()->getSize();
             vector<char *> targetTiles;
 
-            short structElemShift = 0;
+            unsigned short structElemShift = 0;
             // iterate over the MDD objects from each band
             for (QtDataList::iterator iter = operandList->begin(); iter != operandList->end(); iter++)
             {
 
                 vector<char *>::iterator targetIt = targetTiles.begin();
-                if ((QtScalarData *) (*iter)->isScalarData())
+                if (static_cast<QtScalarData *>(*iter)->isScalarData())
                 {
 
                     char *ScalarTargetTile = NULL;
@@ -176,7 +176,7 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                     {
                         Tile *scalarTile = new Tile(resultMDD->getDefinitionDomain(), resultMDD->getCellType());
                         resultMDD->insertTile(scalarTile);
-                        ScalarTargetTile = (char *) scalarTile->getContents();
+                        ScalarTargetTile = static_cast<char *>(scalarTile->getContents());
                         targetTiles.push_back(ScalarTargetTile);
                     }
                     else
@@ -186,20 +186,20 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                     }
                     ScalarTargetTile += structElemShift;
                     r_Area scalarCellCount = resultMDD->getDefinitionDomain().cell_count();
-                    int cell = 0;
+                    unsigned int cell = 0;
                     while (cell < scalarCellCount)
                     {
-                        memcpy(ScalarTargetTile, ((QtScalarData *) (*iter))->getValueBuffer(), ((QtScalarData *) (*iter))->getValueType()->getSize());
+                        memcpy(ScalarTargetTile, (static_cast<QtScalarData *>(*iter))->getValueBuffer(), (static_cast<QtScalarData *>(*iter))->getValueType()->getSize());
                         ++cell;
                     }
-                    structElemShift += ((QtScalarData *) (*iter))->getValueType()->getSize();
+                    structElemShift += (static_cast<QtScalarData *>(*iter))->getValueType()->getSize();
 
 
                 }
                 else
                 {
 
-                    QtMDD *qtMDDObj = (QtMDD *) (*iter);
+                    QtMDD *qtMDDObj = static_cast<QtMDD *>(*iter);
                     MDDObj *currentMDDObj = qtMDDObj->getMDDObject();
                     vector< boost::shared_ptr<Tile> > *tiles = currentMDDObj->intersect(qtMDDObj->getLoadDomain());
                     unsigned int bandCellSize = currentMDDObj->getCellType()->getSize();
@@ -217,7 +217,7 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                         {
                             Tile *newTile = new Tile(tileDomain, resultMDD->getCellType());
                             resultMDD->insertTile(newTile);
-                            targetTile = (char *) newTile->getContents();
+                            targetTile = static_cast<char *>(newTile->getContents());
                             targetTiles.push_back(targetTile);
                         }
                         else
@@ -230,7 +230,7 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                         // copy all cells from input band to the output composite MDD,
                         // properly shifted to the right offset
                         r_Area cellCount = tileDomain.cell_count();
-                        int cell = 0;
+                        unsigned int cell = 0;
                         while (cell < cellCount)
                         {
                             memcpy(targetTile, sourceTile, bandCellSize);
@@ -263,18 +263,18 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
 MDDObj *
 QtRangeConstructor::getResultMDD(QtDataList *operandList)
 {
-    int nBands = operandList->size();
+    unsigned int nBands = operandList->size();
     StructType *destinationStructBaseType = new StructType("tmp_str_name", nBands);
-    const BaseType *baseType = (const BaseType *) destinationStructBaseType;
+    const BaseType *baseType = static_cast<const BaseType *>(destinationStructBaseType);
     r_Minterval destinationDomain;
     r_Minterval currDomain;
-    BaseType *cellType;
+    BaseType *cellType = NULL;
     for (QtDataList::iterator iter = operandList->begin(); iter != operandList->end(); iter++)
     {
         if (!(*iter)->isScalarData())
         {
-            destinationDomain = ((QtMDD *) (*iter))->getLoadDomain();
-            cellType = ((QtMDD *) (*iter))->getCellType();
+            destinationDomain = (static_cast<QtMDD *>(*iter))->getLoadDomain();
+            cellType = (static_cast<QtMDD *>(*iter))->getCellType();
             currDomain = destinationDomain;
         }
 
@@ -282,13 +282,13 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
 
     // iterate over the MDDs in each band
     int band = 0;
-    QtMDD *qtMDDObj;
+    QtMDD *qtMDDObj = NULL;
     for (QtDataList::iterator iter = operandList->begin(); iter != operandList->end(); iter++, band++)
     {
 
         if (!(*iter)->isScalarData())
         {
-            qtMDDObj = (QtMDD *) (*iter);
+            qtMDDObj = static_cast<QtMDD *>(*iter);
             r_Minterval currDomain = qtMDDObj->getLoadDomain();
 
         }
@@ -312,14 +312,14 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
         if ((*iter)->isScalarData())
         {
 
-            if (strcmp((((QtScalarData *) (*iter))->getValueType())->getTypeStructure(), cellType->getTypeStructure()) != 0)
+            if (strcmp(((static_cast<QtScalarData *>(*iter))->getValueType())->getTypeStructure(), cellType->getTypeStructure()) != 0)
             {
                 RMInit::logOut << "Error: QtRangeConstructor::evaluate( QtDataList* ) - the operands should have the same type." << endl;
                 parseInfo.setErrorNo(301);
                 throw parseInfo;
             }
 
-            destinationStructBaseType->addElement(bandName, ((QtScalarData *) (*iter))->getValueType());
+            destinationStructBaseType->addElement(bandName, (static_cast<QtScalarData *>(*iter))->getValueType());
 
         }
         else
@@ -342,7 +342,7 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
 void
 QtRangeConstructor::printTree(int tab, ostream &s, QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtRangeConstructor Object " << getNodeType() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtRangeConstructor Object " << static_cast<int>(getNodeType()) << endl;
 
     QtNaryOperation::printTree(tab, s, mode);
 }
@@ -413,7 +413,7 @@ QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
             for (QtOperationList::iterator iter = operationList->begin(); iter != operationList->end(); iter++)
             {
                 QtData *operand = (*iter)->evaluate(NULL);
-                scalarOperandList.push_back((QtScalarData *) operand);
+                scalarOperandList.push_back(static_cast<QtScalarData *>(operand));
             }
 
             structType = new StructType("", scalarOperandList.size());
@@ -481,11 +481,11 @@ const BaseType *QtRangeConstructor::getResultType(const BaseType *op1, const Bas
         // it is signed.
         if (op2->getType() == COMPLEXTYPE1 || op2->getType() == COMPLEXTYPE2 ||
                 op2->getType() == FLOAT || op2->getType() == DOUBLE || op2->getType() == LONG)
-            return (BaseType *) op2;
+            return op2;
         if (op1->getType() == USHORT)
             return TypeFactory::mapType("Short");
         if (op2->getType() == SHORT)
-            return (BaseType *) op2;
+            return op2;
         return TypeFactory::mapType("Octet");
     }
     // return the stronger type
@@ -498,9 +498,9 @@ const BaseType *QtRangeConstructor::getResultType(const BaseType *op1, const Bas
     if (op1->getType() == FLOAT || op2->getType() == FLOAT)
         return TypeFactory::mapType("Float");
     if (op1->getType() <= op2->getType())
-        return (BaseType *) op1;
+        return op1;
     else
-        return (BaseType *) op2;
+        return op2;
 
     return NULL;
 }

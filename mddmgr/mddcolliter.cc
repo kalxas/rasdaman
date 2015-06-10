@@ -72,7 +72,7 @@ MDDCollIter::getElement() const
 
         if (!el.is_null())
         {
-            persEl = persColl->getMDDObj((DBMDDObj*)el);
+            persEl = persColl->getMDDObj(static_cast<DBMDDObj*>(el));
         }
     }
 

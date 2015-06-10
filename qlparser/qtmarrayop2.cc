@@ -85,19 +85,19 @@ bool QtMarrayOp2::concatenateIntervals()
 
     for (ii = iterators.begin(); ii != iterators.end() ; ii++)
     {
-        ddd = ((QtMintervalOp *)(ii->tree))->getInputs();
+        ddd = (static_cast<QtMintervalOp *>(ii->tree))->getInputs();
         for (j = ddd->begin(); j != ddd->end(); j++)
         {
-            if((QtNode *)*j)
+            if(static_cast<QtNode *>(*j))
             {
-                if ((((QtNode *)*j)->getNodeType() == QtNode::QT_INTERVALOP))
+                if (((static_cast<QtNode *>(*j))->getNodeType() == QtNode::QT_INTERVALOP))
                 {
-                    op1 = ((QtBinaryOperation *)*j)->getInput1();
-                    if (((QtNode *)op1)->getNodeType() != QtNode::QT_CONST) eflag=false;
-                    op2 = ((QtBinaryOperation *)*j)->getInput2();
-                    if (((QtNode *)op2)->getNodeType() != QtNode::QT_CONST) eflag=false;
+                    op1 = (static_cast<QtBinaryOperation *>(*j))->getInput1();
+                    if ((static_cast<QtNode *>(op1))->getNodeType() != QtNode::QT_CONST) eflag=false;
+                    op2 = (static_cast<QtBinaryOperation *>(*j))->getInput2();
+                    if ((static_cast<QtNode *>(op2))->getNodeType() != QtNode::QT_CONST) eflag=false;
                 }
-                else if (((QtNode *)*j)->getNodeType() != QtNode::QT_CONST)
+                else if ((static_cast<QtNode *>(*j))->getNodeType() != QtNode::QT_CONST)
                     eflag=false;
             }
         }
@@ -114,7 +114,7 @@ bool QtMarrayOp2::concatenateIntervals()
         {
             // evaluate intervals
             data = (i->tree)->evaluate(0);
-            r_Dimension dimension = ((QtMintervalData*)data)->getMintervalData().dimension();
+            r_Dimension dimension = (static_cast<QtMintervalData*>(data))->getMintervalData().dimension();
             RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", dimension << " | " );
             greatDimension += dimension;
         }
@@ -127,7 +127,7 @@ bool QtMarrayOp2::concatenateIntervals()
         {
             // evaluate intervals
             data = i->tree->evaluate(0);
-            r_Minterval domain    = ((QtMintervalData*)data)->getMintervalData();
+            r_Minterval domain    = (static_cast<QtMintervalData*>(data))->getMintervalData();
             r_Dimension dimension = domain.dimension();
             r_Dimension jj;
             for (jj=0; jj != dimension; jj++)
@@ -153,8 +153,10 @@ bool QtMarrayOp2::concatenateIntervals()
         RMDBGEXIT( 2, RMDebug::module_qlparser, "QtMarrayOp2", " Total: " << greatIterator << endl )
     }
     else
+    {
         RMDBGEXIT( 2, RMDebug::module_qlparser, "QtMarrayOp2", " eflag is false! " << greatIterator << endl )
-        return eflag;
+    }
+    return eflag;
 }
 
 
@@ -189,34 +191,34 @@ void QtMarrayOp2::traverse(QtOperation *&node)
         QtOperation* temp = NULL;
 
 
-        if (((QtNode *)node)->getNodeType() == QtNode::QT_DOMAIN_OPERATION)
+        if ((static_cast<QtNode *>(node))->getNodeType() == QtNode::QT_DOMAIN_OPERATION)
         {
             // syntax: dinput [ dmiop ]
 
             // traverse dmiop
-            QtOperation *dmiop  = ((QtDomainOperation *)node)->getMintervalOp();
-            temp = (QtOperation*)dmiop;
+            QtOperation *dmiop  = (static_cast<QtDomainOperation *>(node))->getMintervalOp();
+            temp = static_cast<QtOperation*>(dmiop);
             traverse(temp);
             dmiop = temp;
-            ((QtDomainOperation *)node)->setMintervalOp(dmiop);
+            (static_cast<QtDomainOperation *>(node))->setMintervalOp(dmiop);
 
             // if dinput == QtVariable then rewrite it
-            QtOperation *dinput = ((QtDomainOperation *)node)->getInput();
+            QtOperation *dinput = (static_cast<QtDomainOperation *>(node))->getInput();
 
             // if not a variable, then recurse
-            if (((QtNode *)dinput)->getNodeType() != QtNode::QT_MDD_VAR)
+            if ((static_cast<QtNode *>(dinput))->getNodeType() != QtNode::QT_MDD_VAR)
             {
                 // traverse dinput
-                temp = (QtOperation *)dinput;
+                temp = static_cast<QtOperation *>(dinput);
                 traverse(temp);
                 dinput = temp;
-                ((QtDomainOperation *)node)->setInput(dinput);
+                (static_cast<QtDomainOperation *>(node))->setInput(dinput);
 
                 // get childs and traverse them
                 QtNode::QtNodeList* childList = node->getChilds(QtNode::QT_DIRECT_CHILDS);
                 for( QtNode::QtNodeList::iterator iter = childList->begin(); iter != childList->end(); iter++ )
                 {
-                    temp = (QtOperation*)*iter;
+                    temp = static_cast<QtOperation*>(*iter);
                     traverse(temp);
                     *iter = temp;
                 };
@@ -229,16 +231,16 @@ void QtMarrayOp2::traverse(QtOperation *&node)
 
             if (node->getNodeType() == QtNode::QT_MDD_VAR)
             {
-                if (QueryTree::symtab.lookupSymbol(((QtVariable *)node)->getIteratorName()))
+                if (QueryTree::symtab.lookupSymbol((static_cast<QtVariable *>(node))->getIteratorName()))
                 {
                     if (!oldMarray)
                     {
                         RMDBGMIDDLE( 2, RMDebug::module_qlparser, "QtMarrayOp2", endl << "marray2 var identifier:" << ((QtVariable *)node)->getIteratorName() << " replacing with " << greatIterator << endl )
-                        ((QtVariable *)node)->setIteratorName(greatIterator);
+                        (static_cast<QtVariable *>(node))->setIteratorName(greatIterator);
                     };
                     // replace with var[0]
-                    QtDomainOperation *dop = new QtDomainOperation( new QtConst (new QtAtomicData((r_Long)0, sizeof(r_Long))) /*new QtPointOp( lop )*/ );
-                    dop->setInput( (QtVariable *)node );
+                    QtDomainOperation *dop = new QtDomainOperation( new QtConst (new QtAtomicData(0, sizeof(r_Long))) /*new QtPointOp( lop )*/ );
+                    dop->setInput( static_cast<QtVariable *>(node) );
                     node = dop;
                     parseQueryTree->addDomainObject( dop );
                 };
@@ -247,7 +249,7 @@ void QtMarrayOp2::traverse(QtOperation *&node)
             {
 
                 // traverse inputs
-                switch (((QtNode *)node)->getNodeType())
+                switch ((static_cast<QtNode *>(node))->getNodeType())
                 {
                     /*
                           // with no input
@@ -301,13 +303,13 @@ void QtMarrayOp2::traverse(QtOperation *&node)
                 case QtNode::QT_ADDCELLS:
                 case QtNode::QT_CSE_ROOT:
                 {
-                    QtOperation *uinput = ((QtUnaryOperation *)node)->getInput();
+                    QtOperation *uinput = (static_cast<QtUnaryOperation *>(node))->getInput();
 
-                    temp = (QtOperation *)uinput;
+                    temp = static_cast<QtOperation *>(uinput);
                     traverse(temp);
                     uinput = temp;
 
-                    ((QtUnaryOperation *)node)->setInput(uinput);
+                    (static_cast<QtUnaryOperation *>(node))->setInput(uinput);
                 };
                 break;
 
@@ -336,20 +338,20 @@ void QtMarrayOp2::traverse(QtOperation *&node)
                 case QtNode::QT_OVERLAY:
                 case QtNode::QT_BIT:
                 {
-                    QtOperation *binput1 = ((QtBinaryOperation *)node)->getInput1();
-                    QtOperation *binput2 = ((QtBinaryOperation *)node)->getInput2();
+                    QtOperation *binput1 = (static_cast<QtBinaryOperation *>(node))->getInput1();
+                    QtOperation *binput2 = (static_cast<QtBinaryOperation *>(node))->getInput2();
 
                     QtOperation* temp1 = 0;
                     QtOperation* temp2 = 0;
-                    temp1 = (QtOperation *)binput1;
-                    temp2 = (QtOperation *)binput2;
+                    temp1 = static_cast<QtOperation *>(binput1);
+                    temp2 = static_cast<QtOperation *>(binput2);
                     traverse(temp1);
                     traverse(temp2);
                     binput1 = temp1;
                     binput2 = temp2;
 
-                    ((QtBinaryOperation *)node)->setInput1(binput1);
-                    ((QtBinaryOperation *)node)->setInput2(binput2);
+                    (static_cast<QtBinaryOperation *>(node))->setInput1(binput1);
+                    (static_cast<QtBinaryOperation *>(node))->setInput2(binput2);
                 };
                 break;
 
@@ -359,16 +361,16 @@ void QtMarrayOp2::traverse(QtOperation *&node)
                 case QtNode::QT_RANGE_CONSTRUCTOR:
                 case QtNode::QT_CONCAT:                
                 {
-                    QtNode::QtOperationList *ninput = ((QtNaryOperation *)node)->getInputs();
+                    QtNode::QtOperationList *ninput = (static_cast<QtNaryOperation *>(node))->getInputs();
 
                     for( QtNode::QtOperationList::iterator iter = ninput->begin(); iter != ninput->end(); iter++ )
                     {
-                        temp = (QtOperation *)*iter;
+                        temp = static_cast<QtOperation *>(*iter);
                         traverse(temp);
                         *iter = temp;
                     };
 
-                    ((QtNaryOperation *)node)->setInputs(ninput);
+                    (static_cast<QtNaryOperation *>(node))->setInputs(ninput);
                 };
                 break;
                 default:
@@ -382,7 +384,7 @@ void QtMarrayOp2::traverse(QtOperation *&node)
                 QtNode::QtNodeList* childList = node->getChilds(QtNode::QT_DIRECT_CHILDS);
                 for( QtNode::QtNodeList::iterator iter = childList->begin(); iter != childList->end(); iter++ )
                 {
-                    temp = (QtOperation*)*iter;
+                    temp = static_cast<QtOperation*>(*iter);
                     traverse(temp);
                     *iter = temp;
                 };

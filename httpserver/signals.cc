@@ -73,7 +73,7 @@ sighandler Signal( int signo, __attribute__ ((unused)) sighandler x)
     struct sigaction SigAction;
     struct sigaction OldAction;
 
-    SigAction.sa_handler = (void(*)(int))SigHandler;
+    SigAction.sa_handler = static_cast<void(*)(int)>(SigHandler);
     sigemptyset( & SigAction.sa_mask );
     SigAction.sa_flags = 0;
 

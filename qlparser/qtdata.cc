@@ -35,10 +35,10 @@ static const char rcsid[] = "@(#)qlparser, QtData: $Id: qtdata.cc,v 1.17 2002/06
 
 
 QtData::QtData()
-    :  referenceCounter(1),
-       persistent( QT_TRANSIENT ),
-       parseInfo(NULL),
-       NullValuesHandler()
+    : NullValuesHandler(),
+      parseInfo(NULL),
+      persistent( QT_TRANSIENT ),
+      referenceCounter(1)
 {
     RMDBGONCE( 10, RMDebug::module_qlparser, "QtData", "QtData::QtData() Obj: " << this )
 }
@@ -46,11 +46,11 @@ QtData::QtData()
 
 
 QtData::QtData( const std::string name )
-    : iteratorName( name ),
-      referenceCounter(1),
-      persistent( QT_TRANSIENT ),
+    : NullValuesHandler(),
       parseInfo(NULL),
-      NullValuesHandler()
+      iteratorName( name ),
+      persistent( QT_TRANSIENT ),
+      referenceCounter(1)
 {
     RMDBGONCE( 10, RMDebug::module_qlparser, "QtData", "QtData::QtData( const std::string ) Obj: " << this )
 }
@@ -58,11 +58,11 @@ QtData::QtData( const std::string name )
 
 
 QtData::QtData( const QtData &obj )
-    : iteratorName( obj.iteratorName ),
-      persistent( obj.persistent ),
-      referenceCounter(1),
+    : NullValuesHandler(),
       parseInfo(NULL),
-      NullValuesHandler()
+      iteratorName( obj.iteratorName ),
+      persistent( obj.persistent ),
+      referenceCounter(1)
 {
     RMDBGONCE( 10, RMDebug::module_qlparser, "QtData", "QtData::QtData( QtData& ) Obj: " << this )
 

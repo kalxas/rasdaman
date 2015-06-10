@@ -2,6 +2,8 @@
 #define _QTCONVERSION_HH___
 
 #include "qlparser/qtunaryoperation.hh"
+#include "raslib/structuretype.hh"
+#include "catalogmgr/typefactory.hh"
 
 /*
 * This file is part of rasdaman community.
@@ -41,6 +43,8 @@ rasdaman GmbH.
   an enumerator.
 
 */
+
+const BaseType* constructBaseType( const r_Type *type );
 
 class QtConversion : public QtUnaryOperation
 {

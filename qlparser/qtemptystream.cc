@@ -32,9 +32,9 @@ QtEmptyStream::QtEmptyStream()
 }
 
 void
-QtEmptyStream::printTree(int tab, std::ostream& s, QtChildType mode)
+QtEmptyStream::printTree(int tab, std::ostream& s, __attribute__ ((unused)) QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtEmptyStream Object: " << std::flush;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtEmptyStream Object: " << std::flush;
     s << getEvaluationTime();
     s << std::endl;
 }

@@ -50,16 +50,16 @@ const QtNode::QtNodeType QtJoinIterator::nodeType = QtNode::QT_JOIN_ITERATOR;
 
 QtJoinIterator::QtJoinIterator()
     : QtIterator(),
-      actualTupel(NULL),
-      outputStreamIsEmpty(false)
+      outputStreamIsEmpty(false),
+      actualTupel(NULL)
 {
 }
 
 
 QtJoinIterator::QtJoinIterator( QtNode* node )
     : QtIterator( node ),
-      actualTupel(NULL),
-      outputStreamIsEmpty(false)
+      outputStreamIsEmpty(false),
+      actualTupel(NULL)
 {
 }
 
@@ -83,7 +83,7 @@ QtJoinIterator::~QtJoinIterator()
 void
 QtJoinIterator::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtJoinIterator Object: type " << flush;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtJoinIterator Object: type " << flush;
     dataStreamType.printStatus( s );
     s << getEvaluationTime();
     s << endl;
@@ -133,7 +133,7 @@ QtJoinIterator::open()
 
         // fill the tupel, except of the first element, with the first elements of the input streams
         //the first element is filled in the ::next() method
-        for( int tupelPos=1; tupelPos<actualTupel->size(); tupelPos++ )
+        for( unsigned int tupelPos=1; tupelPos<actualTupel->size(); tupelPos++ )
         {
             QtDataList* resultList = (*inputs)[tupelPos]->next();
 
@@ -175,7 +175,7 @@ QtJoinIterator::next()
     {
         bool        nextTupelAvailable = true;
         bool        nextTupelValid = false;
-        int         tupelPos;
+        unsigned int         tupelPos;
         QtDataList* resultList = NULL;
         QtONCStreamList::iterator iter;
 
@@ -311,7 +311,7 @@ QtJoinIterator::reset()
             }
 
         // fill the tupel with the first elements of the input streams except of the first element
-        for( int tupelPos=1; tupelPos<actualTupel->size(); tupelPos++ )
+        for( unsigned int tupelPos=1; tupelPos<actualTupel->size(); tupelPos++ )
         {
             QtDataList* resultList = (*inputs)[tupelPos]->next();
 

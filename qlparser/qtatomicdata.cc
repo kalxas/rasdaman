@@ -117,7 +117,7 @@ QtAtomicData::QtAtomicData( r_ULong value, unsigned short byteLength )
 QtAtomicData::QtAtomicData( bool value )
     : QtScalarData()
 {
-    r_ULong valueULong = (r_ULong)value;
+    r_ULong valueULong = static_cast<r_ULong>(value);
 
     valueType   = TypeFactory::mapType("Bool");
     valueBuffer = new char[ valueType->getSize() ];
@@ -224,7 +224,7 @@ QtAtomicData::QtAtomicData(double valRe, double valIm, unsigned short size)
         valueType = TypeFactory::mapType("Complex2");
 
     valueBuffer = new char[valueType->getSize()];
-    valueType->makeFromCDouble(valueBuffer + ((GenericComplexType *)valueType)->getReOffset(), &dummyRe);
-    valueType->makeFromCDouble(valueBuffer + ((GenericComplexType *)valueType)->getImOffset(), &dummyIm);
+    valueType->makeFromCDouble(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType*>(valueType)))->getReOffset(), &dummyRe);
+    valueType->makeFromCDouble(valueBuffer + (static_cast<GenericComplexType *>(const_cast<BaseType*>(valueType)))->getImOffset(), &dummyIm);
 }
 

@@ -114,6 +114,9 @@ private:
     /// one input stream
     QtONCStream* input;
 
+    /// null values
+    QtOperation* nullValues;
+
     /// target expression
     QtOperation* updateTarget;
 
@@ -122,9 +125,6 @@ private:
 
     /// target expression
     QtOperation* updateSource;
-
-    /// null values
-    QtOperation* nullValues;
 
     /// attribute for identification of nodes
     static const QtNodeType nodeType;

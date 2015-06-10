@@ -61,7 +61,7 @@ char* QtMDDConfig::getTypeStructure() const
     return NULL;
 }
 
-bool QtMDDConfig::equal(const QtData* p) const
+bool QtMDDConfig::equal( __attribute__ ((unused)) const QtData* p) const
 {
     bool eq = false;
     return eq;
@@ -72,30 +72,30 @@ string QtMDDConfig::getSpelling() const
     return "";
 }
 
-QtMDDConfig::QtMDDConfig(int tilingType, int tileSize, int borderThreshold,
-                         double interestThreshold, QtOperation* tileCfg, QtNode::QtOperationList* box, std::vector<r_Dir_Decompose>* dDecomp,
-                         int indexType)
+QtMDDConfig::QtMDDConfig(int tilingType2, int tileSize2, int borderThreshold2,
+                         double interestThreshold2, QtOperation* tileCfg2, QtNode::QtOperationList* box2, std::vector<r_Dir_Decompose>* dDecomp2,
+                         int indexType2)
 {
-    this->tilingType = tilingType;
-    this->tileSize = tileSize;
-    this->borderThreshold = borderThreshold;
-    this->interestThreshold = interestThreshold;
-    this->tileCfg = tileCfg;
-    this->box = box;
-    this->dDecomp = dDecomp;
-    this->indexType = indexType;
+    this->tilingType = tilingType2;
+    this->tileSize = tileSize2;
+    this->borderThreshold = borderThreshold2;
+    this->interestThreshold = interestThreshold2;
+    this->tileCfg = tileCfg2;
+    this->box = box2;
+    this->dDecomp = dDecomp2;
+    this->indexType = indexType2;
 }
 
-QtMDDConfig::QtMDDConfig(int tilingType, int tileSize, int borderThreshold,
-                         double interestThreshold, QtOperation* tileCfg, QtNode::QtOperationList* box, std::vector<r_Dir_Decompose>* dDecomp)
+QtMDDConfig::QtMDDConfig(int tilingType2, int tileSize2, int borderThreshold2,
+                         double interestThreshold2, QtOperation* tileCfg2, QtNode::QtOperationList* box2, std::vector<r_Dir_Decompose>* dDecomp2)
 {
-    this->tilingType = tilingType;
-    this->tileSize = tileSize;
-    this->borderThreshold = borderThreshold;
-    this->interestThreshold = interestThreshold;
-    this->tileCfg = tileCfg;
-    this->box = box;
-    this->dDecomp = dDecomp;
+    this->tilingType = tilingType2;
+    this->tileSize = tileSize2;
+    this->borderThreshold = borderThreshold2;
+    this->interestThreshold = interestThreshold2;
+    this->tileCfg = tileCfg2;
+    this->box = box2;
+    this->dDecomp = dDecomp2;
     this->indexType = QtMDDConfig::r_DEFAULT_INDEX;
 }
 

@@ -203,7 +203,7 @@ char *PathAlloc( size_t *size )
         pathmax++;        /* Don't forget the "/" character...  */
     }
 
-    if( ( Ptr = (char*)mymalloc( static_cast<size_t>(pathmax) + 1 ) ) == NULL )
+    if( ( Ptr = static_cast<char*>(mymalloc( static_cast<size_t>(pathmax) + 1 ) )) == NULL )
     {
         if( size != NULL )
             *size = 0;

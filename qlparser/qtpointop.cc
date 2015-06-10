@@ -117,13 +117,13 @@ QtPointOp::evaluate( QtDataList* inputList )
                         (*dataIter)->getDataType() == QT_LONG  ||
                         (*dataIter)->getDataType() == QT_OCTET )
                 {
-                    pt << ((QtAtomicData*)(*dataIter))->getSignedValue();
-                    nullValues = ((QtAtomicData*)(*dataIter))->getNullValues();
+                    pt << (static_cast<QtAtomicData*>(*dataIter))->getSignedValue();
+                    nullValues = (static_cast<QtAtomicData*>(*dataIter))->getNullValues();
                 }
                 else
                 {
-                    pt << ((QtAtomicData*)(*dataIter))->getUnsignedValue();
-                    nullValues = ((QtAtomicData*)(*dataIter))->getNullValues();
+                    pt << (static_cast<QtAtomicData*>(*dataIter))->getUnsignedValue();
+                    nullValues = (static_cast<QtAtomicData*>(*dataIter))->getNullValues();
                 }
             returnValue = new QtPointData( pt );
             returnValue->setNullValues(nullValues);
@@ -150,7 +150,7 @@ QtPointOp::evaluate( QtDataList* inputList )
 void
 QtPointOp::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtPointOp Object " << getNodeType() << getEvaluationTime() << std::endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtPointOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << std::endl;
 
     QtNaryOperation::printTree( tab, s, mode );
 }

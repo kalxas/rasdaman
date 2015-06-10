@@ -424,7 +424,7 @@ r_Conv_DEM::readToSrcStream() throw(r_Error)
 
     //prepare container
     demRows.clear();
-    typeSize=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->size();
+    typeSize=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->size();
     buffer=new char[typeSize];
     if(!buffer)
     {
@@ -450,31 +450,31 @@ r_Conv_DEM::readToSrcStream() throw(r_Error)
             switch(desc.srcType->type_id())
             {
             case r_Type::BOOL:
-                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_boolean(buffer);
+                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_boolean(buffer);
                 break;
             case r_Type::CHAR:
-                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_char(buffer);
+                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_char(buffer);
                 break;
             case r_Type::OCTET:
-                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_octet(buffer);
+                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_octet(buffer);
                 break;
             case r_Type::SHORT:
-                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_short(buffer);
+                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_short(buffer);
                 break;
             case r_Type::USHORT:
-                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_ushort(buffer);
+                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_ushort(buffer);
                 break;
             case r_Type::LONG:
-                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_long(buffer);
+                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_long(buffer);
                 break;
             case r_Type::ULONG:
-                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_ulong(buffer);
+                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_ulong(buffer);
                 break;
             case r_Type::FLOAT:
-                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_float(buffer);
+                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_float(buffer);
                 break;
             case r_Type::DOUBLE:
-                currRow.h=((r_Primitive_Type*)const_cast<r_Type*>(desc.srcType))->get_double(buffer);
+                currRow.h=(static_cast<r_Primitive_Type*>(const_cast<r_Type*>(desc.srcType)))->get_double(buffer);
                 break;
             default:
                 //write message to log
@@ -533,7 +533,7 @@ r_Conv_DEM::writeFromDestStream() throw(r_Error)
     ydim=desc.destInterv[1].get_extent();
     iter=demRows.begin();
     iterEnd=demRows.end();
-    typeSize=((r_Primitive_Type*)desc.destType)->size();
+    typeSize=(static_cast<r_Primitive_Type*>(desc.destType))->size();
 
     //FIXME correction for strange effect of r_Long cast with 1e-6
     while(iter != iterEnd)
@@ -546,7 +546,7 @@ r_Conv_DEM::writeFromDestStream() throw(r_Error)
             currPt[1]=(collBBox.endy - iter->y)/collBBox.resy + 1e-6;
         else
             currPt[1]=(iter->y - collBBox.starty)/collBBox.resy + 1e-6;
-        ((r_Primitive_Type*)desc.destType)->set_double(&desc.dest[desc.destInterv.cell_offset(currPt)*typeSize], iter->h);
+        (static_cast<r_Primitive_Type*>(desc.destType))->set_double(&desc.dest[desc.destInterv.cell_offset(currPt)*typeSize], iter->h);
         ++iter;
     }
 
@@ -644,17 +644,17 @@ r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
 
         //FIXME correction for strange efect of r_Long cast with 1e-6
         if(collBBox.flipx)
-            desc.destInterv << r_Sinterval((r_Range)((collBBox.endx - max.x)/collBBox.resx + 1e-6),
-                                           (r_Range)((collBBox.endx - min.x)/collBBox.resx + 1e-6));
+            desc.destInterv << r_Sinterval(static_cast<r_Range>((collBBox.endx - max.x)/collBBox.resx + 1e-6),
+                                           static_cast<r_Range>((collBBox.endx - min.x)/collBBox.resx + 1e-6));
         else
-            desc.destInterv << r_Sinterval((r_Range)((min.x - collBBox.startx)/collBBox.resx + 1e-6),
-                                           (r_Range)((max.x - collBBox.startx)/collBBox.resx + 1e-6));
+            desc.destInterv << r_Sinterval(static_cast<r_Range>((min.x - collBBox.startx)/collBBox.resx + 1e-6),
+                                           static_cast<r_Range>((max.x - collBBox.startx)/collBBox.resx + 1e-6));
         if(collBBox.flipy)
-            desc.destInterv << r_Sinterval((r_Range)((collBBox.endy - max.y)/collBBox.resy + 1e-6),
-                                           (r_Range)((collBBox.endy - min.y)/collBBox.resy + 1e-6));
+            desc.destInterv << r_Sinterval(static_cast<r_Range>((collBBox.endy - max.y)/collBBox.resy + 1e-6),
+                                           static_cast<r_Range>((collBBox.endy - min.y)/collBBox.resy + 1e-6));
         else
-            desc.destInterv << r_Sinterval((r_Range)((min.y - collBBox.starty)/collBBox.resy + 1e-6),
-                                           (r_Range)((max.y - collBBox.starty)/collBBox.resy + 1e-6));
+            desc.destInterv << r_Sinterval(static_cast<r_Range>((min.y - collBBox.starty)/collBBox.resy + 1e-6),
+                                           static_cast<r_Range>((max.y - collBBox.starty)/collBBox.resy + 1e-6));
 
         RMInit::logOut  << "r_Conv_DEM::convertFrom(...) dest interval=" << desc.destInterv << endl;
 
@@ -663,14 +663,14 @@ r_Conv_DEM::convertFrom(const char* options) throw (r_Error)
         RMInit::logOut  << "r_Conv_DEM::convertFrom(...) dest type=" << desc.destType->type_id() << endl;
 
         //--claim memory for result
-        desc.dest = (char*)mystore.storage_alloc(desc.destInterv.cell_count() * ((r_Primitive_Type*)desc.destType)->size());
+        desc.dest = static_cast<char*>(mystore.storage_alloc(desc.destInterv.cell_count() * (static_cast<r_Primitive_Type*>(desc.destType))->size()));
         if(desc.dest==NULL)
         {
             RMInit::logOut << "r_Conv_DEM::convertFrom(" << (options?options:"NULL")
                            << ") unable to claim memory !" << endl;
             throw  r_Ememory_allocation();
         }
-        memset(desc.dest, 0, desc.destInterv.cell_count() * ((r_Primitive_Type*)desc.destType)->size());
+        memset(desc.dest, 0, desc.destInterv.cell_count() * (static_cast<r_Primitive_Type*>(desc.destType))->size());
 
         //--write parsed data in desc.dest
         writeFromDestStream();
@@ -810,13 +810,13 @@ r_Conv_DEM::convertTo(const char* options) throw (r_Error)
 
         //--computing the marray domain
         desc.destInterv = r_Minterval(srcIntervDim);
-        desc.destInterv << r_Sinterval((r_Range)0, (r_Range)lenFile - 1);
+        desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(lenFile) - 1);
 
         RMInit::logOut  << "r_Conv_DEM::convertTo(...) dest interval=" << desc.destInterv << endl;
         RMInit::logOut  << "r_Conv_DEM::convertTo(...) dest type=" << desc.destType->type_id() << endl;
 
         //--claim memory for desc.dest
-        desc.dest = (char*)mystore.storage_alloc(lenFile);
+        desc.dest = static_cast<char*>(mystore.storage_alloc(lenFile));
         if(desc.dest==NULL)
         {
             RMInit::logOut << "r_Conv_DEM::convertTo(" << (options?options:"NULL")

@@ -41,17 +41,17 @@ using namespace std;
 
 ParseInfo::ParseInfo()
     : errorNo( 0 ),
-      token( "" ),
       lineNo( 0 ),
-      columnNo( 0 )
+      columnNo( 0 ),
+      token( "" )
 {
 }
 
 ParseInfo::ParseInfo(const ParseInfo& old)
     : errorNo( 0 ),
-      token( "" ),
       lineNo( 0 ),
-      columnNo( 0 )
+      columnNo( 0 ),
+      token( "" )
 {
     errorNo=old.errorNo;
     lineNo=old.lineNo;
@@ -61,9 +61,9 @@ ParseInfo::ParseInfo(const ParseInfo& old)
 
 ParseInfo::ParseInfo( const char* initToken, unsigned int initLineNo, unsigned initColumnNo )
     : errorNo( 0 ),
-      token( "" ),
       lineNo( initLineNo ),
-      columnNo( initColumnNo )
+      columnNo( initColumnNo ),
+      token( "" )
 {
     if(initToken)
     {
@@ -75,9 +75,9 @@ ParseInfo::ParseInfo( const char* initToken, unsigned int initLineNo, unsigned i
 
 ParseInfo::ParseInfo( unsigned long initErrorNo, const char* initToken, unsigned int initLineNo, unsigned initColumnNo )
     : errorNo( initErrorNo ),
-      token( "" ),
       lineNo( initLineNo ),
-      columnNo( initColumnNo )
+      columnNo( initColumnNo ),
+      token( "" )
 {
     if(initToken)
     {

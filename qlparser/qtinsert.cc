@@ -76,18 +76,18 @@ extern ServerComm::ClientTblElt* currentClientTblElt;
 const QtNode::QtNodeType QtInsert::nodeType = QtNode::QT_INSERT;
 
 QtInsert::QtInsert(const std::string& initCollectionName, QtOperation* initSource)
-    : QtExecute(), collectionName(initCollectionName), source(initSource), dataToInsert(NULL), stgLayout(NULL) {
+    : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(NULL), collectionName(initCollectionName) {
     source->setParent(this);
 }
 
 QtInsert::QtInsert(const std::string& initCollectionName, QtOperation* initSource, QtOperation* storage)
-    : QtExecute(), collectionName(initCollectionName), source(initSource), stgLayout(storage), dataToInsert(NULL) {
+    : QtExecute(), source(initSource), dataToInsert(NULL), stgLayout(storage), collectionName(initCollectionName) {
     source->setParent(this);
 }
 
 /// constructor getting name of collection and data to insert
 QtInsert::QtInsert (const std::string& initCollectionName, QtData* data )
-    : QtExecute(), collectionName(initCollectionName), dataToInsert(data), source(NULL), stgLayout(NULL) {
+    : QtExecute(), source(NULL), dataToInsert(data), stgLayout(NULL), collectionName(initCollectionName) {
 }
 
 QtInsert::~QtInsert()
@@ -116,7 +116,7 @@ QtInsert::evaluate()
       
     // allocate a new oid within the current db
     OId oid;
-    long long myoid;
+    long long myoid = 0;
     QtMddCfgOp* configOp = NULL;
     QtMDDConfig* mddConfig = NULL;
     QtData* sourceData = NULL;
@@ -134,7 +134,7 @@ QtInsert::evaluate()
         nextTupel = new QtNode::QtDataList(0);
         if (stgLayout)
         {
-            configOp = (QtMddCfgOp*) stgLayout;
+            configOp = static_cast<QtMddCfgOp*>(stgLayout);
             mddConfig = configOp->getMddConfig();
         }
         // get the operands
@@ -143,7 +143,7 @@ QtInsert::evaluate()
 
     if (sourceData)
     {
-        QtMDD* sourceMDD = (QtMDD*) sourceData;
+        QtMDD* sourceMDD = static_cast<QtMDD*>(sourceData);
         MDDObj* sourceObj = sourceMDD->getMDDObject();
 
         MDDColl* persColl = NULL;
@@ -174,7 +174,7 @@ QtInsert::evaluate()
         }
         else
         {
-            persColl = (MDDColl*) almost;
+            persColl = static_cast<MDDColl*>(almost);
         }
 
         //
@@ -192,7 +192,7 @@ QtInsert::evaluate()
                 << "MDD domain................: " << sourceObj->getDefinitionDomain() << std::endl;  \
                 free(collTypeStructure); collTypeStructure = NULL;  \
                 free(mddTypeStructure); mddTypeStructure = NULL;)
-        cellSize = (int)sourceObj->getMDDBaseType()->getBaseType()->getSize();
+        cellSize = static_cast<int>(sourceObj->getMDDBaseType()->getBaseType()->getSize());
         
         // bug fix: "insert into" found claimed non-existing type mismatch -- PB 2003-aug-25, based on fix by K.Hahn
         // if( !persColl->getCollectionType()->compatibleWith( (Type*) sourceObj->getMDDBaseType() ) )
@@ -259,14 +259,14 @@ QtInsert::evaluate()
         OId::allocateOId(oid, OId::MDDOID);
 #endif
         // cast to external format
-        myoid = (long long) oid;
+        myoid = static_cast<long long>(oid);
         RMDBGIF(3, RMDebug::module_qlparser, "QtInsert",  \
             RMInit::logOut << "QtInsert::evaluate() - allocated oid:" << myoid << " counter:" << oid.getCounter() << std::endl;)
             // get all tiles
             vector<boost::shared_ptr<Tile> >* sourceTiles = sourceObj->getTiles();
 
             // get a persistent type pointer
-            MDDBaseType* persMDDType = (MDDBaseType*) TypeFactory::ensurePersistence((Type*) sourceObj->getMDDBaseType());
+            MDDBaseType* persMDDType = static_cast<MDDBaseType*>(const_cast<Type*>(TypeFactory::ensurePersistence(static_cast<Type*>(const_cast<MDDBaseType*>(sourceObj->getMDDBaseType())))));
 
             if (!persMDDType)
             {
@@ -304,12 +304,12 @@ QtInsert::evaluate()
             tempStorageLayout.setTilingScheme(scheme);
             // Base Information has been set
             tempStorageLayout.setTileSize
-            ((mddConfig != NULL && mddConfig->getTileSize() > 0) ? mddConfig->getTileSize() :
+            ((mddConfig != NULL && mddConfig->getTileSize() > 0) ? static_cast<unsigned int>(mddConfig->getTileSize()) :
              StorageLayout::DefaultTileSize);
             if(mddConfig!= NULL)
             {
                 tempStorageLayout.setInterestThreshold(mddConfig->getInterestThreshold());
-                tempStorageLayout.setBorderThreshold(mddConfig->getBorderThreshold());
+                tempStorageLayout.setBorderThreshold(static_cast<unsigned int>(mddConfig->getBorderThreshold()));
                 if(mddConfig->getDirDecomp() != NULL)
                     tempStorageLayout.setDirDecomp(mddConfig->getDirDecomp());
                 vector<r_Minterval>intervals = getIntervals(mddConfig);
@@ -421,7 +421,7 @@ QtInsert::evaluate()
    // return the generated OID
    RMDBGIF(3, RMDebug::module_qlparser, "QtInsert",
      RMInit::logOut << "QtInsert::evaluate() - returning oid:" << myoid << std::endl;)
-   returnValue = new QtAtomicData( (r_Long) myoid, (unsigned short) sizeof(r_Long) );
+   returnValue = new QtAtomicData( static_cast<r_Long>(myoid), static_cast<unsigned short>(sizeof(r_Long)) );
    return returnValue;
 }
 
@@ -435,7 +435,8 @@ QtInsert::getChilds(QtChildType flag)
     if (source)
     {
         // allocate resultList
-        if (flag == QT_DIRECT_CHILDS);
+        if (flag == QT_DIRECT_CHILDS){};
+
         resultList = new QtNodeList();
 
         if (flag == QT_LEAF_NODES || flag == QT_ALL_NODES)
@@ -456,21 +457,21 @@ QtInsert::getChilds(QtChildType flag)
 void
 QtInsert::printTree(int tab, std::ostream& s, QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtInsert Object" << getEvaluationTime() << std::endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtInsert Object" << getEvaluationTime() << std::endl;
 
     if (mode != QtNode::QT_DIRECT_CHILDS)
     {
         if (source)
         {
-            s << SPACE_STR(tab).c_str() << "source : " << std::endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "source : " << std::endl;
             source->printTree(tab + 2, s);
         }
         else if (dataToInsert)
         {
-            s << SPACE_STR(tab) << "data to insert" << std::endl;
+            s << SPACE_STR(static_cast<size_t>(tab)) << "data to insert" << std::endl;
         }
         else
-            s << SPACE_STR(tab).c_str() << "no source" << std::endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no source" << std::endl;
 
         s << std::endl;
     }
@@ -716,7 +717,7 @@ QtInsert::getIntervals(QtMDDConfig* cfg)
     for (iter = oplist->begin(); iter != oplist->end(); iter++)
     {
         QtData* data = (*iter)->evaluate(nextTupel);
-        QtMintervalData* intervalData = (QtMintervalData*) data;
+        QtMintervalData* intervalData = static_cast<QtMintervalData*>(data);
         r_Minterval interval = intervalData->getMintervalData();
         intervals.push_back(interval);
     }
@@ -739,7 +740,7 @@ QtInsert::getTileConfig(QtMDDConfig* cfg, int baseTypeSize, r_Dimension sourceDi
         return tileConfig;
     QtNode::QtDataList* nextTupel = new QtNode::QtDataList(0);
     QtData* data = op->evaluate(nextTupel);
-    QtMintervalData* intervalData = (QtMintervalData*) data;
+    QtMintervalData* intervalData = static_cast<QtMintervalData*>(data);
     tileConfig = intervalData->getMintervalData();
     delete data;
     delete nextTupel;

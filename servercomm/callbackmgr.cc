@@ -95,7 +95,7 @@ int CallBackManager::findCallback(callback_f function, void *context) const
     for (i=0; i<numPending; i++)
     {
         if ((callbacks[i].function == function) && (callbacks[i].context == context))
-            return (int)i;
+            return static_cast<int>(i);
     }
     return -1;
 }
@@ -136,7 +136,7 @@ int CallBackManager::removeCallback(callback_f function, void *context)
     i = findCallback(function, context);
     if (i != -1)
     {
-        if (i < (int)numPending-1)
+        if (i < static_cast<int>(numPending)-1)
             memmove(callbacks+i, callbacks+(i+1), (numPending-static_cast<unsigned int>(i)-1)*sizeof(callback_desc_t));
         numPending--;
         return 0;

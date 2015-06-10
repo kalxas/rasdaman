@@ -51,7 +51,7 @@ QtSimpleCaseOp::~QtSimpleCaseOp() {
     QtOperationList::iterator iter;
     for(iter = conditionList->begin(); iter != conditionList->end(); iter++){
        if(iter != conditionList->begin()){
-            ((QtCaseEquality*) (*iter))->setCommonOperadDeleted(true);
+            (static_cast<QtCaseEquality*>(*iter))->setCommonOperadDeleted(true);
        }
     }
 }

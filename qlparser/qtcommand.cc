@@ -85,12 +85,12 @@ QtCommand::QtCommand( QtCommandType initCommand, const std::string& initCollecti
 {
 }
 
-void QtCommand::dropCollection(string collectionName)
+void QtCommand::dropCollection(string collectionName2)
 {
     if (currentClientTblElt)
     {
         // drop the actual collection
-        if (!MDDColl::dropMDDCollection(collectionName.c_str()))
+        if (!MDDColl::dropMDDCollection(collectionName2.c_str()))
         {
             RMInit::logOut << "Error during query evaluation: collection name not found: " << collectionName.c_str() << std::endl;
             parseInfo.setErrorNo(957);
@@ -98,14 +98,14 @@ void QtCommand::dropCollection(string collectionName)
         }
         
         // if this collection was created using a SELECT INTO statement, then delete the temporary datatypes as well
-        string setName = tmpSetTypePrefix + collectionName;
-        string mddName = tmpMddTypePrefix + collectionName;
+        string setName = tmpSetTypePrefix + collectionName2;
+        string mddName = tmpMddTypePrefix + collectionName2;
         TypeFactory::deleteTmpSetType(setName.c_str());
         TypeFactory::deleteTmpMDDType(mddName.c_str());
     }
 }
 
-OId QtCommand::createCollection(string collectionName, string typeName)
+OId QtCommand::createCollection(string collectionName2, string typeName2)
 {
     // allocate a new oid within the current db
     OId oid = 0;
@@ -113,7 +113,7 @@ OId QtCommand::createCollection(string collectionName, string typeName)
     if (currentClientTblElt)
     {
         // get collection type
-        CollectionType* collType = (CollectionType*) TypeFactory::mapSetType((char*) typeName.c_str());
+        CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType(typeName2.c_str())));
 
         if (collType)
         {
@@ -125,7 +125,7 @@ OId QtCommand::createCollection(string collectionName, string typeName)
 #endif
                 try
                 {
-                    MDDColl* coll = MDDColl::createMDDCollection(collectionName.c_str(), oid, collType);
+                    MDDColl* coll = MDDColl::createMDDCollection(collectionName2.c_str(), oid, collType);
                     delete coll;
                     coll = NULL;
                 }
@@ -146,7 +146,7 @@ OId QtCommand::createCollection(string collectionName, string typeName)
         }
         else
         {
-            RMInit::logOut << "Error during query evaluation: collection type not found: " << (char*) typeName.c_str() << std::endl;
+            RMInit::logOut << "Error during query evaluation: collection type not found: " << typeName2.c_str() << std::endl;
             parseInfo.setErrorNo(956);
             throw parseInfo;
         }
@@ -185,7 +185,7 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
 
     if (firstResult->getDataType() == QT_MDD)
     {
-        QtMDD* mddObj = (QtMDD*) firstResult;
+        QtMDD* mddObj = static_cast<QtMDD*>(firstResult);
         const BaseType* baseType = mddObj->getCellType();
         const r_Minterval domain = mddObj->getLoadDomain();
 
@@ -214,13 +214,13 @@ string QtCommand::getSelectedDataType(vector<QtData*>* data)
     return string(setTypeName);
 }
 
-void QtCommand::insertIntoCollection(vector<QtData*>* data, string collectionName)
+void QtCommand::insertIntoCollection(vector<QtData*>* data, string collectionName2)
 {
     vector<QtData*>::iterator it;
     for (it = data->begin(); it != data->end(); it++)
     {
         QtData *elemToInsert = *it;
-        QtInsert *insertNode = new QtInsert(collectionName, elemToInsert);
+        QtInsert *insertNode = new QtInsert(collectionName2, elemToInsert);
         
         QueryTree *query = new QueryTree(insertNode);
         try
@@ -248,11 +248,11 @@ void QtCommand::insertIntoCollection(vector<QtData*>* data, string collectionNam
     }
 }
 
-bool QtCommand::collectionExists(string collectionName)
+bool QtCommand::collectionExists(string collectionName2)
 {
     try
     {
-        MDDColl *coll = MDDColl::getMDDCollection(collectionName.c_str());
+        MDDColl *coll = MDDColl::getMDDCollection(collectionName2.c_str());
         if (coll)
         {
             delete coll;
@@ -383,6 +383,7 @@ QtCommand::evaluate()
             RMInit::logOut << "Error: caught unknown exception while evaluation SELECT INTO query, re-throwing." << std::endl;
             throw;
         }
+    default: break;
     }
 
     stopTimer();
@@ -395,20 +396,20 @@ QtCommand::evaluate()
 
 
 void
-QtCommand::printTree( int tab, std::ostream& s, QtChildType mode )
+QtCommand::printTree( int tab, std::ostream& s, __attribute__ ((unused)) QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtCommand Object" << std::endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCommand Object" << std::endl;
 
     switch( command )
     {
     case QT_DROP_COLLECTION:
-        s << SPACE_STR(tab).c_str() << "  drop collection("   << collectionName.c_str() << ")";
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  drop collection("   << collectionName.c_str() << ")";
         break;
     case QT_CREATE_COLLECTION:
-        s << SPACE_STR(tab).c_str() << "  create collection(" << collectionName.c_str() << ", " << typeName.c_str() <<")";
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  create collection(" << collectionName.c_str() << ", " << typeName.c_str() <<")";
         break;
     case QT_CREATE_COLLECTION_FROM_QUERY_RESULT:
-        s << SPACE_STR(tab).c_str() << "  select into(" << collectionName.c_str() << ", " << typeName.c_str() <<")";
+        s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  select into(" << collectionName.c_str() << ", " << typeName.c_str() <<")";
         break;
     default:
         s << "<command unknown>";

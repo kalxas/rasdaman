@@ -145,7 +145,7 @@ QtSelectionIterator::getChilds( QtChildType flag )
 void
 QtSelectionIterator::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtSelectionIterator Object: type " << flush;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtSelectionIterator Object: type " << flush;
     dataStreamType.printStatus( s );
     s << getEvaluationTime();
     s << endl;
@@ -154,11 +154,11 @@ QtSelectionIterator::printTree( int tab, ostream& s, QtChildType mode )
     {
         if( conditionTree )
         {
-            s << SPACE_STR(tab).c_str() << "condition : " << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "condition : " << endl;
             conditionTree->printTree( tab + 2, s );
         }
         else
-            s << SPACE_STR(tab).c_str() << "no condition" << endl;
+            s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "no condition" << endl;
     }
 
     QtIterator::printTree( tab, s, mode );
@@ -207,7 +207,7 @@ QtSelectionIterator::next()
                     if( resultData )
                     {
                         if( resultData->getDataType() == QT_BOOL )
-                            nextTupelValid = (bool)((QtAtomicData*)resultData)->getUnsignedValue();
+                            nextTupelValid = static_cast<bool>((static_cast<QtAtomicData*>(resultData))->getUnsignedValue());
                         else
                         {
                             RMInit::logOut << "Error: QtSelectionIterator::next() - result of the WHERE part must be of type Bool." << endl;
@@ -259,7 +259,7 @@ QtSelectionIterator::checkType()
     // type check for condition tree
     if( conditionTree )
     {
-        const QtTypeElement& type = conditionTree->checkType( (QtTypeTuple*)&dataStreamType );
+        const QtTypeElement& type = conditionTree->checkType( static_cast<QtTypeTuple*>(&dataStreamType) );
 
         if( type.getDataType() != QT_BOOL )
         {

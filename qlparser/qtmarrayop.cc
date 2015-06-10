@@ -62,7 +62,7 @@ using namespace std;
 const QtNode::QtNodeType QtMarrayOp::nodeType = QT_MARRAYOP;
 
 QtMarrayOp::QtMarrayOp( const string &initIteratorName, QtOperation* mintervalExp, QtOperation* cellExp )
-    :  iteratorName( initIteratorName ), QtBinaryOperation( mintervalExp, cellExp )
+    :  QtBinaryOperation( mintervalExp, cellExp ), iteratorName( initIteratorName )
 {
 }
 
@@ -116,7 +116,7 @@ QtMarrayOp::evaluate( QtDataList* inputList )
 
             //create one-dimensional minterval from operand1 (operand1 is a sinterval)
             r_Minterval tmpMinterval(r_Dimension(1));
-            tmpMinterval << ((QtIntervalData*)operand1)->getIntervalData();
+            tmpMinterval << (static_cast<QtIntervalData*>(operand1))->getIntervalData();
 
             //save operand1-pointer to oldOp
             QtData* oldOp=operand1;
@@ -137,7 +137,7 @@ QtMarrayOp::evaluate( QtDataList* inputList )
         return 0;
 #endif
 
-        r_Minterval domain = ((QtMintervalData*) operand1)->getMintervalData();
+        r_Minterval domain = (static_cast<QtMintervalData*>(operand1))->getMintervalData();
 
         RMDBGONCE(4, RMDebug::module_qlparser, "QtMarrayOp", "Marray domain " << domain)
 
@@ -160,7 +160,7 @@ QtMarrayOp::evaluate( QtDataList* inputList )
         inputList->push_back(point);
 
         // determine types
-        BaseType* cellType = (BaseType*) input2->getDataStreamType().getType();
+        BaseType* cellType = static_cast<BaseType*>(const_cast<Type*>(input2->getDataStreamType().getType()));
         MDDDimensionType* mddBaseType = new MDDDimensionType("tmp", cellType, domain.dimension());
         TypeFactory::addTempType(mddBaseType);
 
@@ -216,7 +216,7 @@ QtMarrayOp::evaluate( QtDataList* inputList )
         mddres->insertTile(resTile);
 
         // create a new QtMDD object as carrier object for the transient MDD object
-        returnValue = new QtMDD((MDDObj*) mddres);
+        returnValue = new QtMDD(static_cast<MDDObj*>(mddres));
 
         // delete old operands
         if (operand1) operand1->deleteRef();
@@ -232,9 +232,9 @@ QtMarrayOp::evaluate( QtDataList* inputList )
 void
 QtMarrayOp::printTree( int tab, ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtMarrayOp Object " << getNodeType() << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtMarrayOp Object " << static_cast<int>(getNodeType()) << getEvaluationTime() << endl;
 
-    s << SPACE_STR(tab).c_str() << "Iterator Name: " << iteratorName.c_str() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "Iterator Name: " << iteratorName.c_str() << endl;
 
     QtBinaryOperation::printTree( tab, s, mode );
 }
@@ -324,7 +324,7 @@ QtMarrayOp::checkType( QtTypeTuple* typeTuple )
         }
 
         // create MDD type
-        BaseType*    cellType    = (BaseType*)valueExp.getType();
+        BaseType*    cellType    = static_cast<BaseType*>(const_cast<Type*>(valueExp.getType()));
         MDDBaseType* mddBaseType = new MDDBaseType( "tmp", cellType );
         TypeFactory::addTempType( mddBaseType );
 

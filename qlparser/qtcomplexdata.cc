@@ -76,9 +76,9 @@ QtComplexData::QtComplexData( QtComplexData::QtScalarDataList* &scalarDataList )
     // copy data
     for( iter=scalarDataList->begin(), i=0; iter!=scalarDataList->end(); iter++, i++ )
     {
-        char* destination = ((char*)valueBuffer) + structType->getOffset( i );
+        char* destination = (static_cast<char*>(valueBuffer)) + structType->getOffset( i );
 
-        memcpy( (void*)destination, (void*)((*iter)->getValueBuffer()), (*iter)->getValueType()->getSize() );
+        memcpy( destination, (*iter)->getValueBuffer(), (*iter)->getValueType()->getSize() );
     }
 
     // delete the list of type elements

@@ -79,20 +79,20 @@ QtOId::evaluate( QtDataList* inputList )
         }
 #endif
 
-        QtMDD*  qtMDD  = (QtMDD*) operand;
+        QtMDD*  qtMDD  = static_cast<QtMDD*>(operand);
         MDDObj* mddObj = qtMDD->getMDDObject();
 
         if( mddObj->isPersistent() )
         {
-            MDDObj* persMDD = (MDDObj*) mddObj;
+            MDDObj* persMDD = static_cast<MDDObj*>(mddObj);
 
             // get local oid and pass it as double
             OId localOId;
             if( !persMDD->getOId( &localOId ) )
             {
-                RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtOid", "  oid = " << (double)localOId  )
+                RMDBGMIDDLE( 1, RMDebug::module_qlparser, "QtOid", "  oid = " << static_cast<double>(localOId)  )
 
-                returnValue = new QtAtomicData( (double)localOId, (unsigned short)8 );
+                returnValue = new QtAtomicData( static_cast<double>(localOId), static_cast<unsigned short>(8) );
             }
             else
             {
@@ -131,7 +131,7 @@ QtOId::evaluate( QtDataList* inputList )
 void
 QtOId::printTree( int tab, std::ostream& s, QtChildType mode )
 {
-    s << SPACE_STR(tab).c_str() << "QtOId Object: " << getEvaluationTime() << std::endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtOId Object: " << getEvaluationTime() << std::endl;
 
     QtUnaryOperation::printTree( tab, s, mode );
 }
