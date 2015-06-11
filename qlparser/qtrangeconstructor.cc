@@ -427,6 +427,11 @@ QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
             TypeFactory::addTempType(structType);
             dataStreamType.setDataType(QT_COMPLEX);
             dataStreamType.setType(structType);
+            for (std::vector<QtScalarData *>::iterator iterScalar = scalarOperandList.begin(); iterScalar != scalarOperandList.end(); iterScalar++)
+            {
+                (*iterScalar)->deleteRef();
+                *iterScalar = NULL;
+            }
         }
         else
         {

@@ -82,12 +82,8 @@ QtNaryOperation::~QtNaryOperation()
 
         for( iter=operationList->begin(); iter!=operationList->end(); iter++)
         {
-            if( ((*iter)->getDataStreamType()).getDataType() > QT_COMPLEXTYPE2)
-            {
-                delete *iter;
-                *iter=NULL;
-            }
-
+            delete *iter;
+            *iter=NULL;
         }
 
         delete operationList;
