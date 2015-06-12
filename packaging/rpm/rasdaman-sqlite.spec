@@ -9,8 +9,8 @@ License:        GPLv3
 URL:            http://rasdaman.org
 Source0:        %{name}-%{version}.tar.gz
 Source1:        rasdaman.init.in
-%if 0%{?mandriva_version}  
-BuildRoot:      %{_tmppath}/%{name}-%{version}  
+%if 0%{?mandriva_version}
+BuildRoot:      %{_tmppath}/%{name}-%{version}
 %else
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %endif
@@ -37,6 +37,7 @@ BuildRequires: netcdf-devel
 BuildRequires: netcdf-cxx-devel
 BuildRequires: gdal-devel
 BuildRequires: gdal-python
+BuildRequires: sqlite-devel
 BuildRequires: java-1.7.0-openjdk-devel
 
 Requires(pre): /usr/sbin/useradd
@@ -59,6 +60,7 @@ Requires: postgresql-contrib
 Requires: netcdf
 Requires: netcdf-cxx
 Requires: gdal
+Requires: sqlite
 
 Provides: rasserver
 
@@ -91,7 +93,7 @@ database systems with the ability to store and retrieve multi-dimensional raster
 (arrays) of unlimited size through an  SQL-style query language. On such sensor, image,
 or statistics data appearing, e.g., in earth, space, and life science applications
 rasdaman allows to quickly set up array-intensive services which are distinguished by
-their flexibility, speed, and scalability. 
+their flexibility, speed, and scalability.
 
 The petascope component of rasdaman provides service interfaces based
 on the  OGC  WCS,  WCPS,  WCS-T, and  WPS. For several of these, rasdaman
@@ -157,7 +159,7 @@ Requires:       %{name} = %{version}-%{release}
 BuildArch:      noarch
 
 %description raswct
-raswct is a Web Client Toolkit based on JavaScript. The main purpose of this toolkit is to 
+raswct is a Web Client Toolkit based on JavaScript. The main purpose of this toolkit is to
 allow developers to create user interfaces for displaying data from a raster database.
 
 %prep
@@ -178,6 +180,7 @@ CC="gcc -L%{_libdir}/hdf -I/usr/include/netpbm -fpermissive " CXX="g++ -L%{_libd
 		--with-netcdf \
 		--with-pic \
 		--with-docs \
+		--with-default-basedb=sqlite \
 		--with-debug-symbols \
 		--with-filedatadir=%{rasdir}/data \
 %if 0%{?el7}
@@ -216,7 +219,9 @@ rm -f %{buildroot}%{_bindir}/directql
 
 # Create home for our user
 install -d -m 700 %{buildroot}%{rasdir}
+install -d -m 700 %{buildroot}%{rasdir}/data
 cp -a %{buildroot}%{_datadir}/rasdaman/examples/rasdl/basictypes.dl %{buildroot}%{rasdir}
+sed 's|connect RASBASE|connect %{rasdir}/data/RASBASE/|g' -i %{buildroot}%{_sysconfdir}/rasdaman/rasmgr.conf
 
 # Move includes from topdir to subdir
 mkdir %{buildroot}%{_includedir}/rasdaman

@@ -231,7 +231,8 @@ initdb(){
   fi
 
   # insert type definitions
-  $SU -l rasdaman -s "$rasshell" -c "$rasdl -c --connect RASBASE && $rasdl -r $deffile -i --connect RASBASE"
+  mkdir -p $rasdatadir
+  $SU -l rasdaman -s "$rasshell" -c "$rasdl -c --connect $rasdatadir/RASBASE && $rasdl -r $deffile -i --connect $rasdatadir/RASBASE"
   RETVAL=$?
   if [[ $RETVAL != 0 ]]
   then
@@ -298,12 +299,7 @@ dropdb(){
   check_rasdaman_user
 
   echo dropping RASBASE...
-  $SU -l rasdaman -s "$rasshell" -c "dropdb RASBASE"
-  RETVAL=$?
-  if [[ $RETVAL != 0 ]]
-  then
-    echo $"dropdb failed"
-  fi
+  rm -rf $rasdatadir/*
   echo dropping user...
   $SU -l postgres -s "$rasshell" -c "dropuser rasdaman"
   RETVAL=$?
