@@ -127,7 +127,7 @@ BLOBTile::updateInDb() throw (r_Error)
     dataformat = dataFormat;
     indbmyoid = myOId.getCounter();
 
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT Tile FROM RAS_TILES WHERE BlobId = %ld", indbmyoid );
+    (void) snprintf( pgQuery, sizeof(pgQuery), "SELECT Tile FROM RAS_TILES WHERE BlobId = %ld", indbmyoid );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
@@ -193,7 +193,7 @@ BLOBTile::updateInDb() throw (r_Error)
     */
 #endif //NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "UPDATE RAS_TILES SET DataFormat = %d WHERE BlobId = %ld", dataformat, indbmyoid );
+    (void) snprintf( pgQuery, sizeof(pgQuery), "UPDATE RAS_TILES SET DataFormat = %d WHERE BlobId = %ld", dataformat, indbmyoid );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
@@ -288,7 +288,7 @@ BLOBTile::insertInDb() throw (r_Error)
     */
     // alternative solution for now:
     // (2) --- insert tuple into db
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "INSERT INTO RAS_TILES ( BlobId, DataFormat, Tile) VALUES  ( %ld, %d, %d )", indbmyOId2, dataformat2, blobOid );
+    (void) snprintf( pgQuery, sizeof(pgQuery), "INSERT INTO RAS_TILES ( BlobId, DataFormat, Tile) VALUES  ( %ld, %d, %d )", indbmyOId2, dataformat2, blobOid );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
@@ -352,7 +352,7 @@ BLOBTile::deleteFromDb() throw (r_Error)
     #endif NOTYET
     */
     char pgQuery[SQL_QUERY_BUFFER_SIZE];
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT Tile FROM RAS_TILES WHERE BlobId = %ld", blobId );
+    (void) snprintf( pgQuery, sizeof(pgQuery), "SELECT Tile FROM RAS_TILES WHERE BlobId = %ld", blobId );
     TALK( pgQuery );
     PGresult *pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult))
@@ -400,7 +400,7 @@ BLOBTile::deleteFromDb() throw (r_Error)
         }
     #endif NOTYET
     */
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DELETE FROM RAS_TILES WHERE BlobId = %ld", blobId );
+    (void) snprintf( pgQuery, sizeof(pgQuery), "DELETE FROM RAS_TILES WHERE BlobId = %ld", blobId );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
@@ -475,7 +475,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
                 // else there is no tuple - this is inconsistent, but nothing to delete
         #endif NOTYET
         */
-        (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT Tile FROM RAS_TILES WHERE BlobId = %ld", indbmyOId5 );
+        (void) snprintf( pgQuery, sizeof(pgQuery), "SELECT Tile FROM RAS_TILES WHERE BlobId = %ld", indbmyOId5 );
         TALK( pgQuery );
         pgResult = PQexec( pgConn, pgQuery );
         if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
@@ -533,7 +533,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
                 }
         #endif NOTYET
         */
-        (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DELETE FROM RAS_TILES WHERE BlobId = %ld", indbmyOId5 );
+        (void) snprintf( pgQuery, sizeof(pgQuery), "DELETE FROM RAS_TILES WHERE BlobId = %ld", indbmyOId5 );
         TALK( pgQuery );
         pgResult = PQexec( pgConn, pgQuery );
         if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
@@ -563,7 +563,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
         OId end(target.getCounter() + range, target.getType());
         while (it != theEnd)
         {
-            if (target <= (const OId&)(*it).first && (*it).first <= (const OId&)end)
+            if (target <= static_cast<const OId&>((*it).first) && (*it).first <= static_cast<const OId&>(end))
             {
                 (*it).second->setPersistent(false);
             }
@@ -582,7 +582,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
                 }
         #endif NOTYET
         */
-        (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DECLARE DeleteLoop CURSOR FOR SELECT Tile FROM RAS_TILES WHERE %ld <= BlobId AND BlobId <= %ld", indbmyOId5, indbmyOId6 );
+        (void) snprintf( pgQuery, sizeof(pgQuery), "DECLARE DeleteLoop CURSOR FOR SELECT Tile FROM RAS_TILES WHERE %ld <= BlobId AND BlobId <= %ld", indbmyOId5, indbmyOId6 );
         TALK( pgQuery );
         pgResult = PQexec( pgConn, pgQuery );
         if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
@@ -607,7 +607,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
                         }
             #endif NOTYET
             */
-            (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "FETCH NEXT FROM DeleteLoop" );
+            (void) snprintf( pgQuery, sizeof(pgQuery), "FETCH NEXT FROM DeleteLoop" );
             TALK( pgQuery );
             pgResult = PQexec( pgConn, pgQuery );
             if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
@@ -664,7 +664,7 @@ BLOBTile::kill(const OId& target, unsigned int range)
                 }
         #endif NOTYET
         */
-        (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DELETE FROM RAS_TILES WHERE %ld <= BlobId AND BlobId <= %ld", indbmyOId5, indbmyOId6 );
+        (void) snprintf( pgQuery, sizeof(pgQuery), "DELETE FROM RAS_TILES WHERE %ld <= BlobId AND BlobId <= %ld", indbmyOId5, indbmyOId6 );
         TALK( pgQuery );
         pgResult = PQexec( pgConn, pgQuery );
         if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
@@ -733,7 +733,7 @@ BLOBTile::readFromDb() throw (r_Error)
     #endif NOTYET
     */
     char pgQuery[SQL_QUERY_BUFFER_SIZE];
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT Tile, DataFormat FROM RAS_TILES WHERE BlobId = %ld", indbmyOId3 );
+    (void) snprintf( pgQuery, sizeof(pgQuery), "SELECT Tile, DataFormat FROM RAS_TILES WHERE BlobId = %ld", indbmyOId3 );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
@@ -753,8 +753,8 @@ BLOBTile::readFromDb() throw (r_Error)
     PQclear( pgResult );
 
     // we have a tuple, extract data format
-    dataFormat = (r_Data_Format)dataformat3;
-    currentFormat = (r_Data_Format)dataformat3;
+    dataFormat = static_cast<r_Data_Format>(dataformat3);
+    currentFormat = static_cast<r_Data_Format>(dataformat3);
     TALK( "got dataFormat " << dataFormat );
     
     if (TileCache::cacheLimit > 0 && TileCache::contains( myOId ))
@@ -790,7 +790,7 @@ BLOBTile::readFromDb() throw (r_Error)
         }
         TALK( "lo_lseek() start" );
         (void) lo_lseek( pgConn, fd, 0, SEEK_SET );     // rewind for reading
-        cells = (char*) mymalloc( size * sizeof(char) );    // allocate buffer for blob
+        cells = static_cast<char*>(mymalloc( size * sizeof(char) ));    // allocate buffer for blob
         if (cells == NULL)
         {
             RMInit::logOut << "BLOBTile::readFromDb() error: cannot allocate " << size << " bytes " << endl;

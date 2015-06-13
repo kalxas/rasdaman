@@ -4,8 +4,8 @@
 
 const QtNode::QtNodeType QtDropType::nodeType = QtNode::QT_DROP_TYPE;
 
-QtDropType::QtDropType(const std::string &typeName)
-    :typeName(typeName)
+QtDropType::QtDropType(const std::string &typeName2)
+    :typeName(typeName2)
 {
 }
 
@@ -62,10 +62,10 @@ void QtDropType::checkType()
     }
 }
 
-void QtDropType::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtDropType::printTree(int tab, std::ostream &s, __attribute__ ((unused)) QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtDropType Object" << std::endl;
-    s << SPACE_STR(tab).c_str() << "  DROP TYPE " << typeName;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtDropType Object" << std::endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  DROP TYPE " << typeName;
 }
 
 

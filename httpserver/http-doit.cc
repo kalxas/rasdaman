@@ -212,7 +212,7 @@ char *ComposeErrorResponse( int Errno, int ClientType )
     char   *Buff;
     size_t  BuffSize = BUFFSIZE;
 
-    if( ( Msg = (char*)mymalloc( BuffSize ) ) == NULL )
+    if( ( Msg = static_cast<char*>(mymalloc( BuffSize ) )) == NULL )
     {
         ErrorMsg( E_SYS, ERROR,
                   "ERROR: ComposeErrorMsg() - malloc() error for Msg Buffer buffer." );
@@ -273,7 +273,7 @@ rc_t GetHTTPRequest( char *Source, int SourceLen, struct HTTPRequest *RequestInf
     char *Buffer = NULL;
     char *Input;
 
-    Input = (char*)mymalloc( static_cast<size_t>(SourceLen) + 1 );
+    Input = static_cast<char*>(mymalloc( static_cast<size_t>(SourceLen) + 1 ));
     memcpy( Input, Source, static_cast<size_t>(SourceLen) );
     Input[SourceLen] = '\0';
     // Read the message body and check for the post parameters
@@ -403,7 +403,7 @@ void InterpretePOSTRequest ( struct ClientBase *Client )
 
         // the cast should be save, function only called on HTTP requests
         //LogMsg( LG_SERVER, DEBUG, "DEBUG: Vor processRequest ..." );
-        resultLen = ((HttpServer*)scObject)->processRequest(1, RequestInfo.Database, RequestInfo.Command,
+        resultLen = (static_cast<HttpServer*>(scObject))->processRequest(1, RequestInfo.Database, RequestInfo.Command,
                     RequestInfo.QueryString, RequestInfo.BinDataSize,
                     RequestInfo.BinData, RequestInfo.Endianess,
                     queryResult,RequestInfo.Capability);
@@ -451,7 +451,7 @@ void CreateRasResponse( struct HTTPMode *Mode, struct ClientBase *Client )
 
     HTTP_Date( MDate, 30 );
 
-    if( ( Head = (char*)mymalloc( BuffSize ) ) == NULL )
+    if( ( Head = static_cast<char*>(mymalloc( BuffSize ) )) == NULL )
     {
         ErrorMsg( E_SYS, ERROR,
                   "ERROR: CreateRasResponse() - malloc() error for head buffer." );
@@ -511,7 +511,7 @@ void WriteAccessLog( struct ClientBase *Client )
 
     bzero( TimeString, DATE_BUFFSIZE );
 
-    if( (int)Client->Host.IPAddress != -1 )
+    if( static_cast<int>(Client->Host.IPAddress) != -1 )
     {
         Host = gethostbyaddr( (const char *)&Client->Host.IPAddress,
                               sizeof( Client->Host.IPAddress ), AF_INET );

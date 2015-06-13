@@ -44,6 +44,8 @@ using namespace rnp;
   * \ingroup Rnprotocols
   */
 
+void freeGetTileRes(GetTileRes *ptr);
+
 class RnpClientComm : public ClientComm, RnpBaseClientComm
 {
 public:

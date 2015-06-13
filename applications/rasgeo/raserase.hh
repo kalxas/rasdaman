@@ -49,7 +49,7 @@
 /// RasdamanHelper & RasdamanConnector
 #include "RasdamanHelper2.hh"
 #include "RasdamanConnector.hh"
-
+#include "raslib/commonutil.hh"
 //// required variables, if rasdaman is compiled with DEBUG enabled
 //#ifdef RMANDEBUG
 //int indentLevel;
@@ -62,6 +62,6 @@ RasdamanConnector* rasconn;
 void showEraseHelp();
 int erasePSMetaData(RasdamanHelper2& helper);
 int eraseNMMetaData(RasdamanHelper2& helper);
-
+void crash_handler (int sig, siginfo_t* info, void * ucontext);
 
 #endif /* RASERASE_HH_ */

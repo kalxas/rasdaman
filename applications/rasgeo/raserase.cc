@@ -33,7 +33,7 @@
 
 #include "raserase.hh"
 #include "include/globals.hh"
- #include "raslib/commonutil.hh"
+#include "raslib/commonutil.hh"
 
 #define DEBUG_MAIN
 #include "debug-clt.hh"
@@ -66,7 +66,7 @@ void showEraseHelp()
 
 
 void
-crash_handler (int sig, siginfo_t* info, void * ucontext)
+crash_handler (__attribute__ ((unused))int sig, __attribute__ ((unused))siginfo_t* info, void * ucontext)
 {
     ENTER("crash_handler");
 

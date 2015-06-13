@@ -198,7 +198,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
 
     memfs_newfile(handle);
 
-    png_set_write_fn(write_ptr, (void*)handle, png_mem_write_data, png_mem_flush_data);
+    png_set_write_fn(write_ptr, static_cast<void*>(handle), png_mem_write_data, png_mem_flush_data);
 
     // Compression
     compType = PNG_COMPRESSION_TYPE_BASE;
@@ -292,7 +292,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
         RMInit::logOut << "ctype_struct" << endl;
         // check first if it's 4 char bands
         {
-            r_Structure_Type *st = (r_Structure_Type*) const_cast<r_Type*>(desc.srcType);
+            r_Structure_Type *st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(desc.srcType));
             r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
             int bands = 0;
             while (iter != st->defines_attribute_end())
@@ -362,7 +362,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
     png_byte *row=NULL, *rowPtr=NULL;
     const unsigned char *src=NULL, *srcPtr=NULL;
 
-    row = new png_byte[((bps * spp * (int)width + 7) >> 3)];
+    row = new png_byte[((bps * spp * static_cast<int>(width) + 7) >> 3)];
     src = (const unsigned char*)(desc.src);
 
     for (j=0; j<height; j++)
@@ -474,7 +474,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
 
     r_Long pngSize = memfs_size(handle);
 
-    if ((desc.dest = (char*)mystore.storage_alloc(static_cast<size_t>(pngSize))) == NULL)
+    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(pngSize)))) == NULL)
     {
         RMInit::logOut << "Error: " << method_convertTo << ": out of memory." << endl;
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -483,7 +483,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
     memfs_read(handle, desc.dest, pngSize);
 
     desc.destInterv = r_Minterval(1);
-    desc.destInterv << r_Sinterval((r_Range)0, (r_Range)pngSize - 1);
+    desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(pngSize) - 1);
 
     // set result type to char string
     desc.destType = r_Type::get_any_type("char");
@@ -522,11 +522,11 @@ r_convDesc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
         throw r_Error(r_Error::r_Error_General);
     }
 
-    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), (r_Long)(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
+    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), static_cast<r_Long>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
 
     desc.dest = NULL;
 
-    png_set_read_fn(read_ptr, (void*)handle, png_mem_read_data);
+    png_set_read_fn(read_ptr, static_cast<void*>(handle), png_mem_read_data);
 
     png_read_info(read_ptr, info_ptr);
 
@@ -598,7 +598,7 @@ r_convDesc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
 
     png_byte *row = new png_byte[pitch];
 
-    desc.dest = (char*)mystore.storage_alloc(pitch * height);
+    desc.dest = static_cast<char*>(mystore.storage_alloc(pitch * height));
 
     for (pass=0; pass < numPasses; pass++)
     {
@@ -673,8 +673,8 @@ r_convDesc &r_Conv_PNG::convertFrom(const char *options) throw(r_Error)
     else
     {
         desc.destInterv = r_Minterval(2);
-        desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) width - 1)
-                        << r_Sinterval((r_Range) 0, (r_Range) height - 1);
+        desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(width) - 1)
+                        << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(height) - 1);
     }
 
     desc.destType = get_external_type(desc.baseType);

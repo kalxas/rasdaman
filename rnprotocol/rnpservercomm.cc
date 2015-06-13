@@ -540,7 +540,7 @@ void RnpRasDaManComm::executeQueryHttp()
     int      httpParamsLen = decoder.getDataLength();
     // TALK( "httpParamsLen=" << httpParamsLen );
     char *resultBuffer = 0;
-    int resultLen = rasserver.compat_executeQueryHttp((const char*)httpParams, httpParamsLen, resultBuffer);
+    int resultLen = rasserver.compat_executeQueryHttp(static_cast<const char*>(httpParams), httpParamsLen, resultBuffer);
     // TALK( "resultLen=" << resultLen );
 
     encoder.startFragment(Rnp::fgt_OkAnswer, decoder.getCommand());
@@ -566,7 +566,7 @@ void RnpRasDaManComm::executeGetNewOId()
 
     int objType = decoder.getDataAsInteger();
 
-    r_OId oid = rasserver.compat_getNewOId( (unsigned short)objType );
+    r_OId oid = rasserver.compat_getNewOId( static_cast<unsigned short>(objType) );
     const char* cOId = oid.get_string_representation();
 
     TALK("executeGetNewOId objType = "<<objType<<"  oid="<<cOId);
@@ -858,7 +858,7 @@ void RnpRasDaManComm::executeInsertTile()
     const void* buffer = decoder.getData();
     int         length = decoder.getDataLength();
 
-    rpcMarray->data.confarray_val = (char*)mymalloc(static_cast<size_t>(length));
+    rpcMarray->data.confarray_val = static_cast<char*>(mymalloc(static_cast<size_t>(length)));
     memcpy(rpcMarray->data.confarray_val, buffer, static_cast<size_t>(length));
     rpcMarray->data.confarray_len = static_cast<u_int>(length);
 
@@ -975,7 +975,7 @@ void RnpRasDaManComm::executeInsertMDD()
     const void* buffer = decoder.getData();
     int         length = decoder.getDataLength();
 
-    rpcMarray->data.confarray_val = (char*)mymalloc(static_cast<size_t>(length));
+    rpcMarray->data.confarray_val = static_cast<char*>(mymalloc(static_cast<size_t>(length)));
     memcpy(rpcMarray->data.confarray_val, buffer,static_cast<size_t>(length));
     rpcMarray->data.confarray_len = static_cast<u_int>(length);
 
@@ -1100,9 +1100,9 @@ void RnpRasDaManComm::executeGetCollection()
     encoder.addStringParameter(RnpRasserver::pmt_collname, collName);
     encoder.endFragment();
 
-    free((void*)typeName);
-    free((void*)typeStructure);
-    free((void*)collName);
+    free(static_cast<void*>(typeName));
+    free(static_cast<void*>(typeStructure));
+    free(static_cast<void*>(collName));
 
     LEAVE("executeGetCollection - out");
 }
@@ -1148,9 +1148,9 @@ void RnpRasDaManComm::executeGetCollectionOIds()
         }
     encoder.endFragment();
 
-    free((void*)typeName);
-    free((void*)typeStructure);
-    free((void*)collName);
+    free(static_cast<void*>(typeName));
+    free(static_cast<void*>(typeStructure));
+    free(static_cast<void*>(collName));
     free(oidTable);
 
     LEAVE("executeGetCollectionOIds - out");
@@ -1293,7 +1293,7 @@ void RnpRasDaManComm::executeGetTileDomains()
         const char *domain = result[i].get_string_representation();
         encoder.addStringParameter(RnpRasserver::pmt_domain, domain);
 
-        free((void*)const_cast<char*>(domain));
+        free(static_cast<void*>(const_cast<char*>(domain)));
     }
 
     encoder.endFragment();

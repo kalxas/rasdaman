@@ -24,10 +24,11 @@ rasdaman GmbH.
 #define RNPSERVER_HH
 
 
-// This header contains only a function for starting the RNP server
+// This header contains only 2 functions for starting and stopping the RNP server
 // It is done like this to keep the rest of the server as separate as possible from the rnp part
 
 void startRnpServer();
 
+void stopRnpServer();
 
 #endif

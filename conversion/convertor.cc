@@ -211,9 +211,9 @@ void r_Convertor::applyColorScheme()
         float n = (data[i]-min)/(max-min);
         if (n<0.5)
         {
-            *t=(unsigned char)((0.5-n)*500);
+            *t=static_cast<unsigned char>((0.5-n)*500);
             t++;
-            *t=(unsigned char)(n*500);
+            *t=static_cast<unsigned char>(n*500);
             t++;
             *t=0;
             t++;
@@ -222,9 +222,9 @@ void r_Convertor::applyColorScheme()
         {
             *t=0;
             t++;
-            *t=(unsigned char)((1-n)*500);
+            *t=static_cast<unsigned char>((1-n)*500);
             t++;
-            *t=(unsigned char)((n-0.5)*500);
+            *t=static_cast<unsigned char>((n-0.5)*500);
             t++;
         }
     }
@@ -246,7 +246,7 @@ r_Convertor::get_internal_type(const r_Type* tp, bool fullTypes) throw(r_Error)
         // make life easy and always interpret as RGB
         // add case for structs -- DM 2011-nov-10
 //        retval = ctype_rgb;
-        r_Structure_Type *st = (r_Structure_Type*) const_cast<r_Type*>(tp);
+        r_Structure_Type *st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(tp));
         r_Structure_Type::attribute_iterator iter(st->defines_attribute_begin());
         int bands = 0;
         while (iter != st->defines_attribute_end())
@@ -425,7 +425,7 @@ void r_Convert_Memory::initMemory( void ) throw(r_Error)
     memFS = new memFSContext;
     if ( memFS != NULL)
     {
-        handle = (void*)memFS;
+        handle = static_cast<void*>(memFS);
         if (memfs_initfs(handle) >= 0)
             status = 0;
     }

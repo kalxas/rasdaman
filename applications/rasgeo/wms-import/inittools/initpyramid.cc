@@ -430,7 +430,7 @@ void parseParams(int argc, char** argv) throw (InitError, r_Error)
         // evaluate optional parameter tileedge --------------------------------------
         if ( cmlInter.isPresent( PARAM_TILEEDGE ) )
         {
-            tileEdge = cmlInter.getValueAsLong( PARAM_TILEEDGE );
+            tileEdge = static_cast<size_t>(cmlInter.getValueAsLong( PARAM_TILEEDGE ));
             if (tileEdge <= 0)
                 throw InitError( INVALIDTILEEDGE );
         }
@@ -490,7 +490,7 @@ openDatabase() throw (r_Error)
     if (! dbIsOpen)
     {
         cout << "opening database " <<  dbName  << " at " << serverName << ":" << serverPort << "..." << flush;
-        db.set_servername(serverName, serverPort);
+        db.set_servername(serverName, static_cast<int>(serverPort));
         db.set_useridentification( user, passwd);
         TALK( "database was closed, opening database=" <<  dbName  << ", server=" << serverName << ", port=" << serverPort << ", user=" <<  user << ", passwd=" << passwd << "..." );
         db.open( dbName );
@@ -623,7 +623,7 @@ getType( const char* mapType2, const char** mddTypeP, const char** setTypeP, siz
 void extendToFit(long &dim)
 {
     dim ++;
-    dim += (tileEdge - dim % tileEdge) % tileEdge;
+    dim += (static_cast<long>(tileEdge) - dim % static_cast<long>(tileEdge)) % static_cast<long>(tileEdge);
     dim --;
 }
 
@@ -652,8 +652,8 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
 
     // tile domain, equals lower left domain
     r_Minterval tileDomain = r_Minterval( 2 )
-                             << r_Sinterval( (r_Range) currentXmin, (r_Range) (currentXmin+tileEdge-1) )
-                             << r_Sinterval( (r_Range) currentYmin, (r_Range) (currentYmin+tileEdge-1) );
+                             << r_Sinterval( static_cast<r_Range>(currentXmin), static_cast<r_Range>(currentXmin+static_cast<int>(tileEdge)-1) )
+                             << r_Sinterval( static_cast<r_Range>(currentYmin), static_cast<r_Range>(currentYmin+static_cast<int>(tileEdge)-1) );
 
     // query object preparations, including MDD object array
     string queryBuffer;
@@ -667,7 +667,7 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
     for ( int currentLevel = 0;
             // termination criterion:
             // - if auto: look at tile size underflow
-            (  (levels==AUTO_LEVEL && (currentXmax-currentXmin>tileEdge || (currentYmax-currentYmin)>tileEdge) )
+            (  (levels==AUTO_LEVEL && (currentXmax-currentXmin>static_cast<int>(tileEdge) || (currentYmax-currentYmin)>static_cast<int>(tileEdge)) )
                // - if fixed level: count levels
                || (levels!=AUTO_LEVEL && currentLevel < levels ) );
             currentLevel++ )
@@ -675,8 +675,8 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
 
         if (levels != AUTO_LEVEL)
         {
-            currentXmax = (long)ceil(pixXmax2 / levelValues[currentLevel]);
-            currentYmax = (long)ceil(pixYmax2 / levelValues[currentLevel]);
+            currentXmax = static_cast<long>(ceil(pixXmax2 / levelValues[static_cast<size_t>(currentLevel)]));
+            currentYmax = static_cast<long>(ceil(pixYmax2 / levelValues[static_cast<size_t>(currentLevel)]));
             extendToFit(currentXmax);
             extendToFit(currentYmax);
         }
@@ -696,13 +696,13 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
 
         // domain describing complete area of MDD
         r_Minterval definitionDomain  = r_Minterval( 2 )
-                                        << r_Sinterval( (r_Range) currentXmin, (r_Range) currentXmax )
-                                        << r_Sinterval( (r_Range) currentYmin, (r_Range) currentYmax );
+                                        << r_Sinterval( static_cast<r_Range>(currentXmin), static_cast<r_Range>(currentXmax) )
+                                        << r_Sinterval( static_cast<r_Range>(currentYmin), static_cast<r_Range>(currentYmax) );
         const char* definitionDomainString = definitionDomain.get_string_representation();
         // domain describing tile size, also lower left tile
-        r_Minterval tileDomain  = r_Minterval( 2 )
-                                  << r_Sinterval( (r_Range) MAP_ORIGIN_X, (r_Range) (tileEdge-1) )
-                                  << r_Sinterval( (r_Range) MAP_ORIGIN_Y, (r_Range) (tileEdge-1) );
+        tileDomain  = r_Minterval( 2 )
+                                  << r_Sinterval( static_cast<r_Range>(MAP_ORIGIN_X), static_cast<r_Range>(tileEdge-1) )
+                                  << r_Sinterval( static_cast<r_Range>(MAP_ORIGIN_Y), static_cast<r_Range>(tileEdge-1) );
         const char* tileDomainString = tileDomain.get_string_representation();
 
         // report current layer
@@ -722,7 +722,7 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
         // - get internal communication object
         ClientComm *cc = db.getComm();
         // - create MDD with proper index
-        r_OId newOId = ((RnpClientComm*)cc)->createMDD( currentMapName.c_str(), mddTypeName, definitionDomainString, tileDomainString, !useHindex );
+        r_OId newOId = (static_cast<RnpClientComm*>(cc))->createMDD( currentMapName.c_str(), mddTypeName, definitionDomainString, tileDomainString, !useHindex );
         // - perform tiling of new object
         // ((RnpClientComm*)cc)->extendMDD( newOId, tileDomainString, definitionDomainString );
 
@@ -740,8 +740,8 @@ void createPyramids( const char* mddTypeName, const char* setTypeName, size_t ce
 
         if (levels == AUTO_LEVEL)
         {
-            currentXmax = (long)ceil( (double) currentXmax / AUTO_LEVEL_FACTOR);
-            currentYmax = (long)ceil( (double) currentYmax / AUTO_LEVEL_FACTOR);
+            currentXmax = static_cast<long>(ceil( static_cast<double>(currentXmax) / AUTO_LEVEL_FACTOR));
+            currentYmax = static_cast<long>(ceil( static_cast<double>(currentYmax) / AUTO_LEVEL_FACTOR));
             extendToFit(currentXmax);
             extendToFit(currentYmax);
         }

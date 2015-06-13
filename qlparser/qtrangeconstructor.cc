@@ -205,7 +205,7 @@ QtRangeConstructor::evaluate(QtDataList *inputList)
                     unsigned int bandCellSize = currentMDDObj->getCellType()->getSize();
 
                     // iterate over the source tiles of the curent band
-                    vector<char *>::iterator targetIt = targetTiles.begin();
+                    targetIt = targetTiles.begin();
                     for (vector< boost::shared_ptr<Tile> >::iterator tileIter = tiles->begin(); tileIter != tiles->end(); tileIter++)
                     {
                         const char *sourceTile = (*tileIter)->getContents();
@@ -289,7 +289,7 @@ QtRangeConstructor::getResultMDD(QtDataList *operandList)
         if (!(*iter)->isScalarData())
         {
             qtMDDObj = static_cast<QtMDD *>(*iter);
-            r_Minterval currDomain = qtMDDObj->getLoadDomain();
+            currDomain = qtMDDObj->getLoadDomain();
 
         }
 
@@ -410,7 +410,7 @@ QtRangeConstructor::checkType(QtTypeTuple *typeTuple)
             int i = 0;
 
             std::vector<QtScalarData *> scalarOperandList;
-            for (QtOperationList::iterator iter = operationList->begin(); iter != operationList->end(); iter++)
+            for (iter = operationList->begin(); iter != operationList->end(); iter++)
             {
                 QtData *operand = (*iter)->evaluate(NULL);
                 scalarOperandList.push_back(static_cast<QtScalarData *>(operand));

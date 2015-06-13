@@ -438,7 +438,7 @@ parseParams(int argc, char** argv) throw (ImportError, r_Error)
 
         // evaluate optional parameter buffersize --------------------------------------
         if ( cmlInter.isPresent("buffersize") )
-            RasgeoUtil::updateBufferSize = cmlInter.getValueAsLong("buffersize");
+            RasgeoUtil::updateBufferSize = static_cast<size_t>(cmlInter.getValueAsLong("buffersize"));
 
         // evaluate optional parameter verbose --------------------------------------
         RasgeoUtil::verbose = cmlInter.isPresent("verbose");

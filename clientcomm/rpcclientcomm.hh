@@ -60,6 +60,10 @@ extern "C"
 #include "clientcomm/rpcif.h"
 #endif
 
+#ifndef __VISUALC__
+void  aliveSignal( int );
+#endif
+
 
 /* RNP
 template <class T> class r_Set;

@@ -62,7 +62,7 @@ r_Structure::r_Structure( const char* newBuffer, const r_Structure_Type* newType
         numElements = newType->count_elements();
         elements = new r_Scalar*[numElements];
 
-        valueBuffer = (char*)mymalloc(newType->size());
+        valueBuffer = static_cast<char*>(mymalloc(newType->size()));
 
         if(newBuffer)
             memcpy(valueBuffer, newBuffer, newType->size());
@@ -74,7 +74,7 @@ r_Structure::r_Structure( const char* newBuffer, const r_Structure_Type* newType
         for( int i=0; iter != newType->defines_attribute_end(); iter++, i++ )
         {
             if( (*iter).type_of().type_id() == r_Type::STRUCTURETYPE )
-                elements[i] = new r_Structure( valueBuffer + (*iter).offset(), (r_Structure_Type*)const_cast<r_Base_Type*>(&((*iter).type_of())) );
+                elements[i] = new r_Structure( valueBuffer + (*iter).offset(), static_cast<r_Structure_Type*>(const_cast<r_Base_Type*>(&((*iter).type_of()))) );
             else
                 elements[i] = new r_Primitive( valueBuffer + (*iter).offset(), (r_Primitive_Type*)const_cast<r_Base_Type*>(&((*iter).type_of())) );
         }
@@ -97,7 +97,7 @@ r_Structure::r_Structure( const r_Structure& obj )
             elements[i] = obj.elements[i]->clone();
     }
 
-    valueBuffer = (char*) mymalloc(valueType->size());
+    valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
 
     if(obj.valueBuffer)
         memcpy(valueBuffer, obj.valueBuffer, valueType->size());
@@ -159,7 +159,7 @@ r_Structure::operator=( const r_Structure& obj )
         if(valueBuffer)
             free(valueBuffer);
 
-        valueBuffer = (char*) mymalloc(valueType->size());
+        valueBuffer = static_cast<char*>(mymalloc(valueType->size()));
 
         if(obj.valueBuffer)
             memcpy(valueBuffer, obj.valueBuffer, valueType->size());
@@ -184,13 +184,13 @@ r_Structure::get_buffer() const
 {
     memset(valueBuffer, 0, valueType->size());
 
-    r_Structure_Type::attribute_iterator iter( ((r_Structure_Type*)valueType)->defines_attribute_begin() );
+    r_Structure_Type::attribute_iterator iter( (static_cast<r_Structure_Type*>(valueType))->defines_attribute_begin() );
 
-    for( int i=0; iter != ((r_Structure_Type*)valueType)->defines_attribute_end(); iter++, i++ )
+    for( int i=0; iter != (static_cast<r_Structure_Type*>(valueType))->defines_attribute_end(); iter++, i++ )
         if( (*iter).type_of().type_id() == r_Type::STRUCTURETYPE )
-            memcpy( valueBuffer + (*iter).offset(), ((r_Structure*)elements[i])->get_buffer(), elements[i]->get_type()->size());
+            memcpy( valueBuffer + (*iter).offset(), (static_cast<r_Structure*>(elements[i]))->get_buffer(), elements[i]->get_type()->size());
         else
-            memcpy( valueBuffer + (*iter).offset(), ((r_Primitive*)elements[i])->get_buffer(), elements[i]->get_type()->size());
+            memcpy( valueBuffer + (*iter).offset(), (static_cast<r_Primitive*>(elements[i]))->get_buffer(), elements[i]->get_type()->size());
 
     return valueBuffer;
 }
@@ -234,7 +234,7 @@ r_Structure::operator[]( const char* name ) const throw( r_Error )
         throw( err );
     }
 
-    r_Structure_Type* structType = (r_Structure_Type*)valueType;
+    r_Structure_Type* structType = static_cast<r_Structure_Type*>(valueType);
 
     r_Structure_Type::attribute_iterator iter( structType->defines_attribute_begin() );
 

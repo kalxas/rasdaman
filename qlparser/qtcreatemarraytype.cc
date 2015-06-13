@@ -5,22 +5,22 @@
 
 const QtNode::QtNodeType QtCreateMarrayType::nodeType = QtNode::QT_CREATE_MDD_TYPE;
 
-QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName, const std::string cellTypeName, r_Dimension dimensioanlity)
-    :typeName (typeName), dimensioanlity(dimensioanlity), domainNode(NULL)
+QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, const std::string cellTypeName2, r_Dimension dimensioanlity2)
+    :typeName (typeName2), dimensioanlity(dimensioanlity2), domainNode(NULL)
 {
-    this->cellTypeName = TypeFactory::getInternalTypeFromSyntaxType(cellTypeName);
+    this->cellTypeName = TypeFactory::getInternalTypeFromSyntaxType(cellTypeName2);
 }
 
-QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName, const std::string cellTypeName, QtOperation *domainNode)
-    : typeName(typeName), domainNode(domainNode)
+QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, const std::string cellTypeName2, QtOperation *domainNode2)
+    : typeName(typeName2), domainNode(domainNode2)
 {
-    this->cellTypeName = TypeFactory::getInternalTypeFromSyntaxType(cellTypeName);
+    this->cellTypeName = TypeFactory::getInternalTypeFromSyntaxType(cellTypeName2);
 }
 
 QtData* QtCreateMarrayType::evaluate()
 {
     // at this point we know that all values are valid (they are checked in checkType)
-    const BaseType* catBaseType = (BaseType*) TypeFactory::mapType(this->cellTypeName.c_str());
+    const BaseType* catBaseType = TypeFactory::mapType(this->cellTypeName.c_str());
 
     const MDDType* mddType;
     // if no domain is specified then we have a dimension type
@@ -31,7 +31,7 @@ QtData* QtCreateMarrayType::evaluate()
     }
     else
     {
-        QtMintervalData* domain = (QtMintervalData*) this->domainNode->evaluate(NULL);
+        QtMintervalData* domain = static_cast<QtMintervalData*>(this->domainNode->evaluate(NULL));
         mddType = new MDDDomainType(this->typeName.c_str(), catBaseType, domain->getMintervalData());
         delete domain;
     }
@@ -77,10 +77,10 @@ void QtCreateMarrayType::checkType()
 
 }
 
-void QtCreateMarrayType::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtCreateMarrayType::printTree(int tab, std::ostream &s, __attribute__ ((unused)) QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtCreateMarrayType Object" << std::endl;
-    s << SPACE_STR(tab).c_str() << "  CREATE TYPE " << typeName << " UNDER MARRAY { " << cellTypeName << " }, ";
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCreateMarrayType Object" << std::endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  CREATE TYPE " << typeName << " UNDER MARRAY { " << cellTypeName << " }, ";
     if (domainNode == NULL)
     {
         s << dimensioanlity;

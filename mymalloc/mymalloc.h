@@ -26,6 +26,6 @@ rasdaman GmbH.
 
 #include <stdlib.h>
 
-extern void* mymalloc(size_t); // throw(std::bad_alloc);    // FIXME: gcc3 doesn't like it, & can't do this unless other places are fixed as well
+extern void* mymalloc(size_t); /* throw(std::bad_alloc);    // FIXME: gcc3 doesn't like it, & can't do this unless other places are fixed as well*/
 
 #endif

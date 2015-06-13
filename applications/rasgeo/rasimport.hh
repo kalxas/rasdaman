@@ -137,6 +137,7 @@ bool checkCRSOrderSequence(std::vector<double>& sequence, std::vector<int>& orde
 bool checkZCoords(std::vector<double>& coords);
 
 void getMetaURIs(Header& header, RasdamanHelper2& helper, bool b3D);
+void crash_handler ( int sig,  siginfo_t* info, void * ucontext);
 
 /*! parses a colon (':') separated sequence of strings and appends them to the vector 'items';
  *  \param sequence string to be parsed

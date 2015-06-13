@@ -33,6 +33,14 @@ rasdaman GmbH.
 #ifndef _HTTPSERVERC_
 #define _HTTPSERVERC_
 
+#include "servercomm/httpserver.hh"
+
+//function prototypes:
+void getMDDs(int binDataSize, char *binData, int Endianess, vector<HttpServer::MDDEncoding*> &resultVector);
+int encodeAckn(char*&result, int ackCode);
+void cleanExecuteQueryRes(ExecuteQueryRes& res);
+int encodeError(char*&result, const r_ULong  errorNo, const r_ULong lineNo,const r_ULong columnNo, const char *text);
+
 extern int init_httpserver( int argc, char *argv[] );
 
 #endif

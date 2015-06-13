@@ -81,7 +81,7 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
     }
     r_Range x = t[0].high() - t[0].low() + 1;
     r_Range y = t[1].high() - t[1].low() + 1;
-    r_UShort* array = (r_UShort*)mystore.storage_alloc(static_cast<size_t>(x * y) * sizeof(r_UShort));
+    r_UShort* array = static_cast<r_UShort*>(mystore.storage_alloc(static_cast<size_t>(x * y) * sizeof(r_UShort)));
     double max = 0;
     double min = 0;
     r_Char tc;
@@ -131,7 +131,7 @@ r_Conv_TOR::convertFrom(const char* options) throw (r_Error)
     }
     if (swap)
     {
-        r_UShort* temp = (r_UShort*)mystore.storage_alloc(static_cast<size_t>(x * y) * sizeof(r_UShort));
+        r_UShort* temp = static_cast<r_UShort*>(mystore.storage_alloc(static_cast<size_t>(x * y) * sizeof(r_UShort)));
         r_Endian::swap_array(static_cast<size_t>(x * y) * sizeof(r_UShort), array, temp);
         mystore.storage_free(array);
         array = temp;
@@ -158,7 +158,7 @@ r_Conv_TOR::convertTo(const char* options) throw (r_Error)
     }
     r_Range x = desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1;
     r_Range y = desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1;
-    r_UShort* array = (r_UShort*)mystore.storage_alloc(static_cast<size_t>(x * y) * sizeof(r_UShort));
+    r_UShort* array = static_cast<r_UShort*>(mystore.storage_alloc(static_cast<size_t>(x * y) * sizeof(r_UShort)));
     double max = 0;
     double min = 0;
     r_Char tc;
@@ -198,7 +198,7 @@ r_Conv_TOR::convertTo(const char* options) throw (r_Error)
     }
     if (swap)
     {
-        r_UShort* temp =(r_UShort*)mystore.storage_alloc(static_cast<size_t>(x * y) * sizeof(r_UShort));
+        r_UShort* temp =static_cast<r_UShort*>(mystore.storage_alloc(static_cast<size_t>(x * y) * sizeof(r_UShort)));
         r_Endian::swap_array(static_cast<size_t>(x * y) * sizeof(r_UShort), array, temp);
         mystore.storage_free(array);
         array = temp;
@@ -206,7 +206,7 @@ r_Conv_TOR::convertTo(const char* options) throw (r_Error)
 
     desc.dest = (char*)array;
     r_Minterval td(1);
-    td << r_Sinterval((r_Range)0, (r_Range)(desc.srcInterv.cell_count() * sizeof(r_UShort) - 1));
+    td << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(desc.srcInterv.cell_count() * sizeof(r_UShort) - 1));
     desc.destInterv = td;
     desc.destType = new r_Primitive_Type("Char", r_Type::CHAR);
     return desc;

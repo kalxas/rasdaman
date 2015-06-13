@@ -176,7 +176,7 @@ bool RnpReceiver::isHttpCarrier() throw()
 {
     ENTER( "RnpReceiver::isHttpCarrier()" );
 
-    char *data = (char*)headerBuffer.getData();
+    char *data = static_cast<char*>(headerBuffer.getData());
 
     rnpHeader = NULL;
     carrierHeaderLength = -1;
@@ -231,7 +231,7 @@ bool RnpReceiver::isRnpCarrier() throw()
 {
     ENTER( "RnpReceiver::isRnpCarrier()" );
 
-    char *data = (char*)headerBuffer.getData();
+    char *data = static_cast<char*>(headerBuffer.getData());
 
     rnpHeader = NULL;
     carrierHeaderLength = -1;
@@ -263,11 +263,11 @@ bool RnpReceiver::prepareMessageBuffer() throw()
     if(rnpMessageBuffer.allocate(rnpHeader->getTotalLength()) == false)
         return false;
 
-    char *data = (char*)headerBuffer.getData();
+    char *data = static_cast<char*>(headerBuffer.getData());
 
     rnpMessageBuffer.read(data + carrierHeaderLength, headerBuffer.getDataSize() - carrierHeaderLength);
 
-    RnpHeader *nRnpHeader = (RnpHeader*)rnpMessageBuffer.getData();
+    RnpHeader *nRnpHeader = static_cast<RnpHeader*>(rnpMessageBuffer.getData());
 
     return true;
 }
@@ -434,13 +434,13 @@ int HttpRnpCarrier::getAnswerHeaderLength() throw()
 
 void HttpRnpCarrier::putHeader(akg::CommBuffer *messageBuffer) throw()
 {
-    char *data = (char*)messageBuffer->getData();
+    char *data = static_cast<char*>(messageBuffer->getData());
 
     const char *header  = requestHeader ? theRequestHeader : theAnswerHeader;
     int    headerLength = strlen(header);
     int     posOfLength = headerLength - 14;
 
-    strncpy(data,header,posOfLength);
+    strncpy(data,header,static_cast<size_t>(posOfLength));
 
     sprintf(data + posOfLength, "%10d",messageBuffer->getDataSize() - headerLength);
 
@@ -475,7 +475,7 @@ int BadRnpCarrier::getAnswerHeaderLength() throw()
 
 void BadRnpCarrier::putHeader(akg::CommBuffer *messageBuffer) throw()
 {
-    char *data = (char*)messageBuffer->getData();
+    char *data = static_cast<char*>(messageBuffer->getData());
 
     strncpy(data,theHeader,strlen(theHeader));
 }

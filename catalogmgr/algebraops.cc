@@ -70,7 +70,7 @@ QLMarrayOp::operator() ( char *result, const r_Point &p )
 {
     // update point data of input list
     if ( dataList )
-        ((QtPointData *)dataList->back())->setPointData( p );
+        (static_cast<QtPointData*>(dataList->back()))->setPointData( p );
 
     if ( cellExpression )
     {
@@ -80,9 +80,9 @@ QLMarrayOp::operator() ( char *result, const r_Point &p )
         {
             if( resultData->isScalarData() )
             {
-                QtScalarData* scalarResultData = (QtScalarData*)resultData;
-                memcpy( (void*)result,
-                        (void*)const_cast<char*>(scalarResultData->getValueBuffer()),
+                QtScalarData* scalarResultData = static_cast<QtScalarData*>(resultData);
+                memcpy( static_cast<void*>(result),
+                        static_cast<void*>(const_cast<char*>(scalarResultData->getValueBuffer())),
                         scalarResultData->getValueType()->getSize() );
             }
             else
@@ -142,7 +142,7 @@ QLCondenseOp::operator() ( const r_Point& p )
 
     // update point data of input list
     if ( dataList )
-        ((QtPointData*)dataList->back())->setPointData( p );
+        (static_cast<QtPointData*>(dataList->back()))->setPointData( p );
 
     if ( condExpression )
     {
@@ -155,7 +155,7 @@ QLCondenseOp::operator() ( const r_Point& p )
         }
         else
 #endif
-            currentCellValid = ((QtAtomicData*)condData)->getUnsignedValue();
+            currentCellValid = (static_cast<QtAtomicData*>(condData))->getUnsignedValue();
         condData->deleteRef();
     }
 
@@ -172,7 +172,7 @@ QLCondenseOp::operator() ( const r_Point& p )
             else
 #endif
             {
-                QtScalarData* scalarResultData = (QtScalarData*)resultData;
+                QtScalarData* scalarResultData = static_cast<QtScalarData*>(resultData);
                 (*accuOp)( initVal, initVal, scalarResultData->getValueBuffer() );
             }
 
@@ -213,7 +213,7 @@ QLInducedCondenseOp::operator ()(const r_Point& p){
     bool currentCellValid = true;
     // update point data of input list
     if ( dataList )
-        ((QtPointData*)dataList->back())->setPointData( p );
+        (static_cast<QtPointData*>(dataList->back()))->setPointData( p );
     if ( condExpression )
     {
         QtData* condData = condExpression->evaluate( dataList );
@@ -225,12 +225,12 @@ QLInducedCondenseOp::operator ()(const r_Point& p){
         }
         else
 #endif
-            currentCellValid = ((QtAtomicData*)condData)->getUnsignedValue();
+            currentCellValid = (static_cast<QtAtomicData*>(condData))->getUnsignedValue();
         condData->deleteRef();
     }
     if ( currentCellValid )
     {
-        QtMDD* resultData = (QtMDD*) cellExpression->evaluate( dataList );
+        QtMDD* resultData = static_cast<QtMDD*>(cellExpression->evaluate( dataList ));
         //execute binary operation on current tile
         //if accumulatedValue has not been initialized, it actually takes the value of the tile
         if(accumulatedValue == NULL){
@@ -238,7 +238,7 @@ QLInducedCondenseOp::operator ()(const r_Point& p){
         }
         //else, accumulated value becomes the condense op applied to accumulatedValue and currentValue
         else{
-            QtMDD* result = (QtMDD*) QtBinaryInduce::computeBinaryMDDOp(accumulatedValue, resultData, accumulatedValue->getCellType(), myOp);
+            QtMDD* result = static_cast<QtMDD*>(QtBinaryInduce::computeBinaryMDDOp(accumulatedValue, resultData, accumulatedValue->getCellType(), myOp));
             //delete the mdds as they are not used
             accumulatedValue->deleteRef();
             resultData->deleteRef();

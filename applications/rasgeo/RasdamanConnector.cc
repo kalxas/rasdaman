@@ -47,7 +47,7 @@ RasdamanConnector::RasdamanConnector(int rasport, int pgport,
     m_sHostName(hostname), m_RasDbName(RasDbName),
     m_PetaDbName(PetaDbName), m_RasDbUser(RasDbuser),
     m_RasDbPasswd(RasDbPasswd), m_RasUser(RasUser),
-    m_PetaUser(PetaUser), m_RasPasswd(RasPasswd),
+    m_RasPasswd(RasPasswd), m_PetaUser(PetaUser),
     m_PetaPasswd(PetaPasswd)
 {
     m_db.set_servername(hostname.c_str(), rasport);

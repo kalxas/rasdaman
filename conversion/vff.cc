@@ -152,7 +152,7 @@ void r_Conv_VFF::initVFF( void )
 
 void r_Conv_VFF::skip_white( const char *&str )
 {
-    while ((*str != endOfHeader) && (isspace((unsigned int)(*str)))) str++;
+    while ((*str != endOfHeader) && (isspace(static_cast<unsigned int>(*str)))) str++;
 }
 
 void r_Conv_VFF::write_interval( const char *keyname, std::ostream &str, const r_Minterval &iv, const unsigned int *order, r_Range inc )
@@ -205,7 +205,7 @@ const char *r_Conv_VFF::read_string( const char *str, char *dest, bool allowSpac
 
     while (*d != ';')
     {
-        if ((allowSpace == 1) && (isspace((unsigned int)(*d))))
+        if ((allowSpace == 1) && (isspace(static_cast<unsigned int>(*d))))
             break;
         *b++ = *d++;
     }
@@ -391,7 +391,7 @@ r_convDesc &r_Conv_VFF::convertTo( const char *options ) throw(r_Error)
     dataSize = desc.srcInterv.cell_count() * typeSize;
     totalSize = headerSize + dataSize;
 
-    if ((desc.dest = (char*)mystore.storage_alloc(headerSize + dataSize)) == NULL)
+    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(headerSize + dataSize))) == NULL)
     {
         r_Error err(r_Error::r_Error_General);
         throw(err);
@@ -401,7 +401,7 @@ r_convDesc &r_Conv_VFF::convertTo( const char *options ) throw(r_Error)
     // treat all dimensions alike thanks to generic iterators
 
     // source iterator, iterate in user order
-    r_MiterDirect iter((void*)const_cast<char*>(desc.src), desc.srcInterv, desc.srcInterv, typeSize, 1);
+    r_MiterDirect iter(static_cast<void*>(const_cast<char*>(desc.src)), desc.srcInterv, desc.srcInterv, typeSize, 1);
     unsigned int *order, *steps;
 
     order = new unsigned int[dim];
@@ -421,7 +421,7 @@ r_convDesc &r_Conv_VFF::convertTo( const char *options ) throw(r_Error)
     {
         while (iter.isDone() == 0)
         {
-            *dptr = *((const unsigned char*)iter.getData(order));
+            *dptr = *(static_cast<const unsigned char*>(iter.getData(order)));
             iter.iterateUserOrder(order, steps);
             dptr++;
         }
@@ -431,7 +431,7 @@ r_convDesc &r_Conv_VFF::convertTo( const char *options ) throw(r_Error)
     {
         while (iter.isDone() == 0)
         {
-            const unsigned char *sptr = (const unsigned char*)iter.getData(order);
+            const unsigned char *sptr = static_cast<const unsigned char*>(iter.getData(order));
             dptr[0] = sptr[0];
             dptr[1] = sptr[1];
             //cout << iter << ':' << (long)((const char*)sptr-desc.src) << ':' << (unsigned short)((sptr[0] << 8) | (sptr[1])) << ' ';
@@ -444,7 +444,7 @@ r_convDesc &r_Conv_VFF::convertTo( const char *options ) throw(r_Error)
     {
         while (iter.isDone() == 0)
         {
-            const unsigned char *sptr = (const unsigned char*)iter.getData(order);
+            const unsigned char *sptr = static_cast<const unsigned char*>(iter.getData(order));
             dptr[0] = sptr[0];
             dptr[1] = sptr[1];
             dptr[2] = sptr[2];
@@ -463,7 +463,7 @@ r_convDesc &r_Conv_VFF::convertTo( const char *options ) throw(r_Error)
     delete [] dimOrder;
 
     desc.destInterv = r_Minterval(1);
-    desc.destInterv << r_Sinterval((r_Range)0, (r_Range)totalSize-1);
+    desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(totalSize)-1);
     desc.destType = r_Type::get_any_type("char");
 
     return desc;
@@ -512,7 +512,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
             const char *rest;
             double *vecTemp = NULL;
 
-            for (i=0; i<(unsigned int)vffkey_NUMBER; i++)
+            for (i=0; i<static_cast<unsigned int>(vffkey_NUMBER); i++)
             {
                 if (strncmp(header, keywords[i], strlen(keywords[i])) == 0)
                     break;
@@ -542,7 +542,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
                 skip_white(header);
 
                 rest = header;
-                switch ((vff_keyword_e)i)
+                switch (static_cast<vff_keyword_e>(i))
                 {
                 case vffkey_rank:
                     dim = strtol(header, const_cast<char**>(&rest), 10);
@@ -640,7 +640,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
     //cout << "RANK " << dim << ", BANDS " << bands << ", BITS " << bits << endl;
 
     // check whether all mandatory keywords are present
-    for (i=0; i<(unsigned int)vffkey_value; i++)
+    for (i=0; i<static_cast<unsigned int>(vffkey_value); i++)
     {
         if (keysRead[i] == 0)
         {
@@ -682,8 +682,8 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
     {
         // the old method didn't work for high<0 (wrong rounding direction)
         r_Range low, width;
-        low = (r_Range)(vecOrigin[i]);
-        width = (r_Range)(vecSize[i]);
+        low = static_cast<r_Range>(vecOrigin[i]);
+        width = static_cast<r_Range>(vecSize[i]);
         //cout << "SIZE " << dimOrder[i] << ": " << width << ", ORG " << low << endl;
         desc.destInterv[dimOrder[i]] = r_Sinterval(low, low+width-1);
     }
@@ -696,7 +696,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
     unsigned long dataSize = desc.destInterv.cell_count() * typeSize;
     //cout << "Type size " << typeSize << ", dim " << dim << endl;
 
-    if ((desc.dest = (char*)mystore.storage_alloc(dataSize)) == NULL)
+    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(dataSize))) == NULL)
     {
         delete [] keysRead;
 
@@ -727,7 +727,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
     case 1:
         while (iter.isDone() == 0)
         {
-            *((r_Char*)iter.getData(order)) = *sptr;
+            *(static_cast<r_Char*>(iter.getData(order))) = *sptr;
             iter.iterateUserOrder(order, steps);
             sptr++;
         }
@@ -735,7 +735,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
     case 2:
         while (iter.isDone() == 0)
         {
-            unsigned char *dptr = (unsigned char*)iter.getData(order);
+            unsigned char *dptr = static_cast<unsigned char*>(iter.getData(order));
             dptr[0] = sptr[0];
             dptr[1] = sptr[1];
             //cout << iter << ':' << (long)((char*)dptr - desc.dest) << ':' << (long)((char*)sptr - header) << ':' << (unsigned short)((sptr[0] << 8) | sptr[1]) << ' ';
@@ -746,7 +746,7 @@ r_convDesc &r_Conv_VFF::convertFrom( const char *options ) throw(r_Error)
     case 4:
         while (iter.isDone() == 0)
         {
-            unsigned char *dptr = (unsigned char*)iter.getData(order);
+            unsigned char *dptr = static_cast<unsigned char*>(iter.getData(order));
             dptr[0] = sptr[0];
             dptr[1] = sptr[1];
             dptr[2] = sptr[2];

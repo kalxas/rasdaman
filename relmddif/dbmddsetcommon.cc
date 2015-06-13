@@ -159,7 +159,7 @@ DBMDDSetId
 DBMDDSet::getDBMDDSet(const char* name) throw (r_Error)
 {
     RMDBGENTER(4, RMDebug::module_mddif, "DBMDDSet", "getDBMDDSet(" << name << ")");
-    DBMDDSetId set((DBMDDSet*)ObjectBroker::getObjectByName(OId::MDDCOLLOID, name));
+    DBMDDSetId set(static_cast<DBMDDSet*>(ObjectBroker::getObjectByName(OId::MDDCOLLOID, name)));
     RMDBGEXIT(4, RMDebug::module_mddif, "DBMDDSet", "getDBMDDSet(" << name << ")");
     return set;
 }
@@ -168,7 +168,7 @@ DBMDDSetId
 DBMDDSet::getDBMDDSet(const OId& o) throw (r_Error)
 {
     RMDBGENTER(4, RMDebug::module_mddif, "DBMDDSet", "getDBMDDSet(" << o << ")");
-    DBMDDSetId set((DBMDDSet*)ObjectBroker::getObjectByOId(o));
+    DBMDDSetId set(static_cast<DBMDDSet*>(ObjectBroker::getObjectByOId(o)));
     RMDBGEXIT(4, RMDebug::module_mddif, "DBMDDSet", "getDBMDDSet(" << o << ")");
     return set;
 }
@@ -241,7 +241,7 @@ DBMDDSet::setPersistent(bool state) throw (r_Error)
         }
         try
         {
-            set = (DBMDDSet*)ObjectBroker::getObjectByName(OId::MDDCOLLOID, getName());
+            set = static_cast<DBMDDSet*>(ObjectBroker::getObjectByName(OId::MDDCOLLOID, getName()));
         }
         catch   (r_Error& err)
         {

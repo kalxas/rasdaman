@@ -269,7 +269,7 @@ void YSymbolTable::Scope::output(FILE*out)const
                 break;
             }
         }
-        scan=(YSymbol*)scan->next;
+        scan=scan->next;
     }
 
     LEAVE( "YSymbolTable::Scope::output" );
@@ -299,7 +299,7 @@ void YSymbolTable::Scope::insertData() const
                 break;
             }
         }
-        scan=(YSymbol*)scan->next;
+        scan=scan->next;
     }
 
     LEAVE( "YSymbolTable::Scope::insertData" );

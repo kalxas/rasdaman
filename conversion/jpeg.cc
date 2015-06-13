@@ -286,9 +286,9 @@ r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
 
     row = NULL;
     memset(&cinfo, 0, sizeof(my_compress_struct));
-    cinfo.handle = (thandle_t)handle;
-    cptr = (struct jpeg_compress_struct*)&cinfo.pub;
-    jptr = (struct jpeg_error_mgr*)&jerr.pub;
+    cinfo.handle = static_cast<thandle_t>(handle);
+    cptr = static_cast<struct jpeg_compress_struct*>(&cinfo.pub);
+    jptr = static_cast<struct jpeg_error_mgr*>(&jerr.pub);
 
     cptr->err = jpeg_std_error(jptr);
     jptr->error_exit = my_error_exit;
@@ -325,11 +325,11 @@ r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
 
     cptr->dest = &destMgr;
 
-    width  = (int)(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
-    height = (int)(desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1);
+    width  = static_cast<int>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
+    height = static_cast<int>(desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1);
 
-    cptr->image_width = (JDIMENSION)width;
-    cptr->image_height = (JDIMENSION)height;
+    cptr->image_width = static_cast<JDIMENSION>(width);
+    cptr->image_height = static_cast<JDIMENSION>(height);
 
     switch (desc.baseType)
     {
@@ -413,7 +413,7 @@ r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
 
     jpegSize = memfs_size(handle);
 
-    if ((desc.dest = (char*)mystore.storage_alloc(static_cast<size_t>(jpegSize))) == NULL)
+    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(jpegSize)))) == NULL)
     {
         RMInit::logOut << "r_Conv_JPEG::convertTo(" << options << "): out of memory" << endl;
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -422,7 +422,7 @@ r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
     memfs_read(handle, desc.dest, jpegSize);
 
     desc.destInterv = r_Minterval(1);
-    desc.destInterv << r_Sinterval((r_Range)0, (r_Range)jpegSize - 1);
+    desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(jpegSize) - 1);
 
     desc.destType = r_Type::get_any_type("char");
 
@@ -447,9 +447,9 @@ r_convDesc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
     row = NULL;
     desc.dest = NULL;
     memset(&cinfo, 0, sizeof(my_decompress_struct));
-    cinfo.handle = (thandle_t)handle;
-    dptr = (struct jpeg_decompress_struct*)&cinfo.pub;
-    jptr = (struct jpeg_error_mgr*)&jerr.pub;
+    cinfo.handle = static_cast<thandle_t>(handle);
+    dptr = static_cast<struct jpeg_decompress_struct*>(&cinfo.pub);
+    jptr = static_cast<struct jpeg_error_mgr*>(&jerr.pub);
 
     dptr->err = jpeg_std_error(jptr);
     jptr->error_exit = my_error_exit;
@@ -480,7 +480,7 @@ r_convDesc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
 
     jpeg_create_decompress(dptr);
 
-    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), (r_Long)(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
+    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), static_cast<r_Long>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1));
 
     srcMgr.init_source = sm_init_source;
     srcMgr.fill_input_buffer = sm_fill_input_buffer;
@@ -491,8 +491,8 @@ r_convDesc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
     dptr->src = &srcMgr;
 
     jpeg_read_header(dptr, TRUE);
-    width = (int)(dptr->image_width);
-    height = (int)(dptr->image_height);
+    width = static_cast<int>(dptr->image_width);
+    height = static_cast<int>(dptr->image_height);
 
     if (dptr->num_components == 1)
     {
@@ -510,10 +510,10 @@ r_convDesc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
 
     jpeg_start_decompress(dptr);
 
-    spp = (int)(dptr->output_components);
+    spp = static_cast<int>(dptr->output_components);
 
     row = new JSAMPLE[width * spp];
-    desc.dest = (char*)mystore.storage_alloc(static_cast<size_t>(width * height * spp));
+    desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(width * height * spp)));
 
     if ((row == NULL) || (desc.dest == NULL))
     {
@@ -538,15 +538,15 @@ r_convDesc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
         case 1:
             for (i=0; i<width; i++, destPtr += pixelAdd)
             {
-                *destPtr = (char)*rowPtr++;
+                *destPtr = static_cast<char>(*rowPtr++);
             }
             break;
         case 3:
             for (i=0; i<width; i++, destPtr += pixelAdd)
             {
-                destPtr[0] = (char)*rowPtr++;
-                destPtr[1] = (char)*rowPtr++;
-                destPtr[2] = (char)*rowPtr++;
+                destPtr[0] = static_cast<char>(*rowPtr++);
+                destPtr[1] = static_cast<char>(*rowPtr++);
+                destPtr[2] = static_cast<char>(*rowPtr++);
             }
             break;
             default: break;
@@ -566,8 +566,8 @@ r_convDesc &r_Conv_JPEG::convertFrom(const char *options) throw(r_Error)
     else
     {
         desc.destInterv = r_Minterval(2);
-        desc.destInterv << r_Sinterval((r_Range) 0, (r_Range) width - 1)
-                        << r_Sinterval((r_Range) 0, (r_Range) height - 1);
+        desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(width) - 1)
+                        << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(height) - 1);
     }
 
     desc.destType = get_external_type(desc.baseType);

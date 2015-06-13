@@ -172,7 +172,7 @@ RpcClientComm::RpcClientComm( const char* _rasmgrHost, int _rasmgrPort ) throw( 
     clientParams->add("compserver", &serverCompresses, r_Parse_Params::param_type_int);
     clientParams->add("exactformat", &exactFormat, r_Parse_Params::param_type_int);
 
-    endianClient = (int)r_Endian::get_endianness();
+    endianClient = static_cast<int>(r_Endian::get_endianness());
 
     this->rasmgrHost=const_cast<char*>(_rasmgrHost);
     this->rasmgrPort=_rasmgrPort;
@@ -1250,7 +1250,7 @@ throw( r_Error )
         tileSize = RMInit::RMInit::clientTileSize;
     else
         //allowed because the only subclass of tiling without size is no tiling
-        tileSize = ((const r_Size_Tiling*)til)->get_tile_size();
+        tileSize = (static_cast<const r_Size_Tiling*>(til))->get_tile_size();
 
     if( RMInit::tiling && marBytes > tileSize )
     {
@@ -2094,7 +2094,7 @@ RpcClientComm::executeOpenDB( const char* database )
     OpenDBParams* params     = new OpenDBParams;
     OpenDBRes*    thisResult = 0;
     params->dbName   = const_cast<char*>(database);
-    params->userName = (char*)RMInit::userName;
+    params->userName = static_cast<char*>(RMInit::userName);
     params->capability = capability;
     int*          dummyParam = new int(0);// dummy
     int*          endianResult = NULL;
@@ -2104,7 +2104,7 @@ RpcClientComm::executeOpenDB( const char* database )
     versionResult = rpcgetserverversion_1( dummyParam, binding_h );
     RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RpcClientComm", "server version " << versionResult->serverVersionNo << ", rpc version " << versionResult->rpcInterfaceVersionNo)
     // don't forget to add 0.5, otherwise rounding errors!
-    serverRPCversion = (int)(1000.0 * versionResult->rpcInterfaceVersionNo + 0.5);
+    serverRPCversion = static_cast<int>(1000.0 * versionResult->rpcInterfaceVersionNo + 0.5);
     if (serverRPCversion != RPCVERSION)
     {
         RMDBGMIDDLE(2, RMDebug::module_clientcomm, "RpcClientComm", "RPC interface version mismatch: client (" << RPCVERSION/1000.0 << "), server (" << versionResult->rpcInterfaceVersionNo << ")")
@@ -2654,7 +2654,7 @@ RpcClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
     RMDBGENTER(2, RMDebug::module_clientcomm, "RpcClientComm", "getMarRpcRepresentation(...)");
 
     // allocate memory for the RPCMarray data structure and assign its fields
-    rpcMarray                 = (RPCMarray*)mymalloc( sizeof(RPCMarray) );
+    rpcMarray                 = static_cast<RPCMarray*>(mymalloc( sizeof(RPCMarray) ));
     rpcMarray->domain         = mar->spatial_domain().get_string_representation();
     rpcMarray->cellTypeLength = mar->get_type_length();
 
@@ -2687,7 +2687,7 @@ RpcClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
                          << " because compression " << transferFormat << " failed" );
             arrayData = new char[arraySize];
             changeEndianness(mar, arrayData, baseType);
-            rpcMarray->data.confarray_val = (char*)(arrayData);
+            rpcMarray->data.confarray_val = static_cast<char*>(arrayData);
         }
         else
         {
@@ -2702,7 +2702,7 @@ RpcClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
         }
         rpcMarray->currentFormat = transferFormat;
         rpcMarray->data.confarray_len = arraySize;
-        rpcMarray->data.confarray_val = (char*)arrayData;
+        rpcMarray->data.confarray_val = static_cast<char*>(arrayData);
     }
     rpcMarray->storageFormat = storageFormat;
 
@@ -2902,21 +2902,21 @@ throw(r_Error)
         case r_Type::FLOAT:
         case r_Type::DOUBLE:
         {
-            element = new r_Primitive( thisResult->data.confarray_val, (r_Primitive_Type*)const_cast<r_Type*>(elementType));
-            r_Transaction::actual_transaction->add_object_list( r_Transaction::SCALAR, (void*) element );
+            element = new r_Primitive( thisResult->data.confarray_val, static_cast<r_Primitive_Type*>(const_cast<r_Type*>(elementType)) );
+            r_Transaction::actual_transaction->add_object_list( r_Transaction::SCALAR, static_cast<void*>(element) );
         }
         break;
 
         case r_Type::COMPLEXTYPE1:
         case r_Type::COMPLEXTYPE2:
-            element = new r_Complex(thisResult->data.confarray_val, (r_Complex_Type *)const_cast<r_Type*>(elementType));
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, (void *)element);
+            element = new r_Complex(thisResult->data.confarray_val, static_cast<r_Complex_Type *>(const_cast<r_Type*>(elementType)) );
+            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element) );
             break;
 
         case r_Type::STRUCTURETYPE:
         {
-            element = new r_Structure( thisResult->data.confarray_val, (r_Structure_Type*) const_cast<r_Type*>(elementType) );
-            r_Transaction::actual_transaction->add_object_list( r_Transaction::SCALAR, (void*) element );
+            element = new r_Structure( thisResult->data.confarray_val, static_cast<r_Structure_Type*>(const_cast<r_Type*>(elementType)) );
+            r_Transaction::actual_transaction->add_object_list( r_Transaction::SCALAR, static_cast<void*>(element) );
         }
         break;
 
@@ -2928,7 +2928,7 @@ throw(r_Error)
 
             r_Point* typedElement = new r_Point( stringRep );
             element               = typedElement;
-            r_Transaction::actual_transaction->add_object_list( r_Transaction::POINT, (void*) typedElement );
+            r_Transaction::actual_transaction->add_object_list( r_Transaction::POINT, static_cast<void*>(typedElement) );
             delete [] stringRep;
         }
         break;
@@ -2940,7 +2940,7 @@ throw(r_Error)
             stringRep[thisResult->data.confarray_len] = '\0';
             r_Sinterval* typedElement = new r_Sinterval( stringRep );
             element                   = typedElement;
-            r_Transaction::actual_transaction->add_object_list( r_Transaction::SINTERVAL, (void*) typedElement );
+            r_Transaction::actual_transaction->add_object_list( r_Transaction::SINTERVAL, static_cast<void*>(typedElement) );
             delete [] stringRep;
         }
         break;
@@ -2953,7 +2953,7 @@ throw(r_Error)
 
             r_Minterval* typedElement = new r_Minterval( stringRep );
             element                   = typedElement;
-            r_Transaction::actual_transaction->add_object_list( r_Transaction::MINTERVAL, (void*) typedElement );
+            r_Transaction::actual_transaction->add_object_list( r_Transaction::MINTERVAL, static_cast<void*>(typedElement) );
             delete [] stringRep;
         }
         break;
@@ -2966,7 +2966,7 @@ throw(r_Error)
 
             r_OId* typedElement = new r_OId( stringRep );
             element             = typedElement;
-            r_Transaction::actual_transaction->add_object_list( r_Transaction::OID, (void*) typedElement );
+            r_Transaction::actual_transaction->add_object_list( r_Transaction::OID, static_cast<void*>(typedElement) );
             delete [] stringRep;
         }
         break;
@@ -3035,7 +3035,7 @@ throw( r_Error )
     marray->set_type_by_name  ( thisResult->typeName );
     marray->set_type_structure( thisResult->typeStructure );
 
-    r_Data_Format currentFormat = (r_Data_Format)(thisResult->currentFormat);
+    r_Data_Format currentFormat = static_cast<r_Data_Format>(thisResult->currentFormat);
     currentFormat = r_Array;
     marray->set_current_format( currentFormat );
 
@@ -3126,7 +3126,7 @@ throw( r_Error )
         // Variables needed for block transfer of a tile
         unsigned long  blockOffset = 0;
         unsigned short subStatus  = 3;
-        currentFormat = (r_Data_Format)(tileRes->marray->currentFormat);
+        currentFormat = static_cast<r_Data_Format>(tileRes->marray->currentFormat);
 
         switch( tileStatus )
         {
@@ -3234,7 +3234,7 @@ throw( r_Error )
             for( unsigned long blockCtr = 0; blockCtr < blockNo; blockCtr++ )
             {
                 mddBlockPtr = marrayData + marray->get_type_length()*mddDomain.cell_offset( tileDomain.cell_point( blockCtr * blockCells ) );
-                memcpy( (void*)mddBlockPtr, (void*)tileBlockPtr, (size_t)blockSize );
+                memcpy( mddBlockPtr, tileBlockPtr, blockSize );
                 tileBlockPtr += blockSize;
             }
 
@@ -3355,7 +3355,7 @@ int RpcClientComm::setTransferFormat( r_Data_Format format, const char* formatPa
     }
     if (formatParams != NULL)
     {
-        transferFormatParams = (char*)mymalloc(strlen(formatParams)+1);
+        transferFormatParams = static_cast<char*>(mymalloc(strlen(formatParams)+1));
         strcpy(transferFormatParams, formatParams);
 
         // extract ``exactformat'' if present
@@ -3365,9 +3365,9 @@ int RpcClientComm::setTransferFormat( r_Data_Format format, const char* formatPa
     SetServerTransferParams* params = new SetServerTransferParams;
 
     params->clientID = getClientID();
-    params->format = (unsigned short)format;
+    params->format = static_cast<unsigned short>(format);
     if (transferFormatParams == NULL) {
-	params->formatParams = (char*) mymalloc(sizeof(char));
+	params->formatParams = static_cast<char*>(mymalloc(sizeof(char)));
         strcpy(params->formatParams, "");
     }
     else
@@ -3400,7 +3400,7 @@ int RpcClientComm::setTransferFormat( r_Data_Format format, const char* formatPa
 
     delete params;
 
-    return (int)(*rpcStatusPtr);
+    return static_cast<int>(*rpcStatusPtr);
 }
 
 
@@ -3415,7 +3415,7 @@ int RpcClientComm::setStorageFormat( r_Data_Format format, const char *formatPar
     }
     if (formatParams != NULL)
     {
-        storageFormatParams = (char*)mymalloc(strlen(formatParams) + 1);
+        storageFormatParams = static_cast<char*>(mymalloc(strlen(formatParams) + 1));
         strcpy(storageFormatParams, formatParams);
         // extract ``compserver'' if present
         clientParams->process(storageFormatParams);
@@ -3424,9 +3424,9 @@ int RpcClientComm::setStorageFormat( r_Data_Format format, const char *formatPar
     SetServerTransferParams *params = new SetServerTransferParams;
 
     params->clientID = getClientID();
-    params->format = (unsigned short)format;
+    params->format = static_cast<unsigned short>(format);
     if (storageFormatParams == NULL) {
-	params->formatParams = (char*) mymalloc(sizeof(char));
+	params->formatParams = static_cast<char*>(mymalloc(sizeof(char)));
         strcpy(params->formatParams, "");
     }
     else
@@ -3458,7 +3458,7 @@ int RpcClientComm::setStorageFormat( r_Data_Format format, const char *formatPar
 
     delete params;
 
-    return (int)(*rpcStatusPtr);
+    return static_cast<int>(*rpcStatusPtr);
 }
 
 
@@ -3812,9 +3812,9 @@ RpcClientComm::connectToServer(unsigned short readOnly)
 #endif
     RMInit::logOut << "Creating the binding..." << flush;
 #if (defined(__VISUALC__) || defined(CYGWIN))
-    binding_h = client_create( (char *) serverHost, RPCIF_PARA, RPCIFVERS, "tcp" );
+    binding_h = client_create( static_cast<char *>(serverHost), RPCIF_PARA, RPCIFVERS, "tcp" );
 #else
-    binding_h = clnt_create( (char *) serverHost, RPCIF_PARA, RPCIFVERS, "tcp" );
+    binding_h = clnt_create( static_cast<char *>(serverHost)    , RPCIF_PARA, RPCIFVERS, "tcp" );
     if( !binding_h )
     {
         cout << endl;

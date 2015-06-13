@@ -249,7 +249,7 @@ struct MsgHeader *NewMsgHeader( int Key, char *String )
 {
     struct MsgHeader *NewHeader;
 
-    NewHeader = (struct MsgHeader*)mymalloc( sizeof( struct MsgHeader ) );
+    NewHeader = static_cast<struct MsgHeader*>(mymalloc( sizeof( struct MsgHeader ) ));
     if( NewHeader == NULL )
         return( NULL );
     NewHeader->Next    = NULL;

@@ -249,7 +249,7 @@ void Parse_struct::insertData() const throw( r_Equery_execution_failed )
     RMDBGENTER(4, RMDebug::module_rasdl, "Parse_struct", "insertData()")
 
     // get catalog type structure
-    StructType* catType = (StructType*)const_cast<CType*>(getType());
+    StructType* catType = static_cast<StructType*>(const_cast<CType*>(getType()));
     TALK( "got type " << (char*)catType->getTypeName() );
 
     RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_struct", "inserting type " << catType->getTypeName())
@@ -288,7 +288,7 @@ Parse_struct::getType( const char* /*typeName*/ ) const
         else
         {
             RMDBGMIDDLE(4, RMDebug::module_rasdl, "Parse_struct", "Scan->name " << scan->name)
-            structType->addElement( (scan->name), (const BaseType*)const_cast<CType*>(scan->type->getType()) );
+            structType->addElement( (scan->name), static_cast<const BaseType*>(const_cast<CType*>(scan->type->getType())) );
         }
 
     RMDBGEXIT(4, RMDebug::module_rasdl, "Parse_struct", "getType()" )
@@ -563,7 +563,7 @@ void Parse_alias::insertData() const throw( r_Equery_execution_failed )
             throw( r_Equery_execution_failed( 906, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
         }
         TALK( "adding to the database as MDD type" );
-        TypeFactory::addMDDType( (const MDDType*)const_cast<CType*>(catType) );
+        TypeFactory::addMDDType( static_cast<const MDDType*>(const_cast<CType*>(catType) ));
         break;
 
     case SETTYPE:
@@ -574,7 +574,7 @@ void Parse_alias::insertData() const throw( r_Equery_execution_failed )
             throw( r_Equery_execution_failed( 907, static_cast<unsigned int>(symbol->where.line), static_cast<unsigned int>(symbol->where.column), symbol->get_name() ) );
         }
         TALK( "adding to the database as set type" );
-        TypeFactory::addSetType( (const SetType*)const_cast<CType*>(catType) );
+        TypeFactory::addSetType( static_cast<const SetType*>(const_cast<CType*>(catType) ));
         break;
 
     default:
@@ -903,7 +903,7 @@ Parse_MDD::getType( const char* typeName ) const
         return 0;
     }
 
-    const BaseType* catBaseType = (BaseType*)const_cast<CType*>(base_type->getType());
+    const BaseType* catBaseType = static_cast<BaseType*>(const_cast<CType*>(base_type->getType()));
 
     RMDBGIF(4, RMDebug::module_rasdl, "Parse_MDD", \
     {
@@ -920,7 +920,7 @@ Parse_MDD::getType( const char* typeName ) const
     if( domain )
         mddType = new MDDDomainType( typeName, catBaseType, *domain );
     else if( dimensionality )
-        mddType = new MDDDimensionType( typeName, catBaseType, (r_Dimension)dimensionality );
+        mddType = new MDDDimensionType( typeName, catBaseType, dimensionality );
     else
         mddType = new MDDBaseType( typeName, catBaseType );
 
@@ -967,7 +967,7 @@ Parse_set::getType( const char* typeName ) const
         return NULL;
     }
 
-    const char* baseTypeName = ((Parse_typereference*)const_cast<Parse_type*>(base_type))->type->name;
+    const char* baseTypeName = (static_cast<Parse_typereference*>(const_cast<Parse_type*>(base_type)))->type->name;
 
     if( !baseTypeName )
     {

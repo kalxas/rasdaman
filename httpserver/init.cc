@@ -68,7 +68,7 @@ rc_t Initialize( int argc, char *argv[], struct ServerBase *newServer )
     bzero( (char *)newServer, sizeof( *newServer ) );
 
     /*  Create Head of ChildList  */
-    newServer->ChildList = (struct ChildBase*)mymalloc( sizeof( struct ChildBase ) );
+    newServer->ChildList = static_cast<struct ChildBase*>(mymalloc( sizeof( struct ChildBase ) ));
     if( newServer->ChildList == NULL )
         ErrorMsg( E_SYS, FAIL, "FAIL:  Initialize(): malloc() failed!" );
     else
@@ -83,7 +83,7 @@ rc_t Initialize( int argc, char *argv[], struct ServerBase *newServer )
     char* dummy = const_cast<char*>(CONFDIR);
     if( dummy == NULL)
         ErrorMsg( E_SYS, FAIL, "FAIL:  configure error: CONFDIR not provided." );
-    newServer->Directory = (char*)mymalloc(strlen(dummy) + 2);
+    newServer->Directory = static_cast<char*>(mymalloc(strlen(dummy) + 2));
     strcpy(newServer->Directory, dummy);
     if( newServer->Directory[strlen(newServer->Directory)] != '/' )
         strcat( newServer->Directory, "/" );

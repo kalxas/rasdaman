@@ -103,9 +103,9 @@ Tile::Tile(std::vector<Tile*>* tilesVec)
     // initialize type with type of first tile
     type = (*tileIt)->getType();
     if (RMInit::useTileContainer)
-        blobTile = new InlineTile(getSize(), (char)0, (*tileIt)->getDataFormat());
+        blobTile = new InlineTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
     else
-        blobTile = new BLOBTile(getSize(), (char)0, (*tileIt)->getDataFormat());
+        blobTile = new BLOBTile(getSize(), static_cast<char>(0), (*tileIt)->getDataFormat());
     // initialize domain
     domain = (*(tileIt++))->getDomain();
     while (tileIt != tileEnd)
@@ -146,11 +146,11 @@ Tile::Tile(const Tile* projTile, const r_Minterval& projDom, const std::set<r_Di
 
     // init contents
     if (RMInit::useTileContainer)
-        blobTile = new InlineTile(getSize(), (char)0, projTile->getDataFormat());
+        blobTile = new InlineTile(getSize(), static_cast<char>(0), projTile->getDataFormat());
     else
-        blobTile = new BLOBTile(getSize(), (char)0, projTile->getDataFormat());
+        blobTile = new BLOBTile(getSize(), static_cast<char>(0), projTile->getDataFormat());
     // using r_Miter to iterate through tile to be projected and new tile.
-    r_Miter projTileIter(&projDom, &projTile->getDomain(), type->getSize(), (const char*)projTile->getContents());
+    r_Miter projTileIter(&projDom, &projTile->getDomain(), type->getSize(), static_cast<const char*>(projTile->getContents()));
     r_Miter newTileIter(&domain, &domain, type->getSize(), blobTile->getCells());
 
     // identity operation for base type, used for copying
@@ -185,9 +185,9 @@ Tile::Tile(const r_Minterval& newDom, const BaseType* newType, r_Data_Format new
     // note that the size is not correct (usually too big) for compressed
     // tiles. Doesn't matter, because resize is called anyway.
     if (RMInit::useTileContainer)
-        blobTile = new InlineTile(getSize(), (char)0, newFormat);
+        blobTile = new InlineTile(getSize(), static_cast<char>(0), newFormat);
     else
-        blobTile = new BLOBTile(getSize(), (char)0, newFormat);
+        blobTile = new BLOBTile(getSize(), static_cast<char>(0), newFormat);
 }
 
 Tile::Tile(const r_Minterval& newDom, const BaseType* newType, char* newCells, r_Bytes newSize, r_Data_Format newFormat)
@@ -603,28 +603,28 @@ Tile::execScaleOp(const Tile* opTile, const r_Minterval& sourceDomain, __attribu
     switch (getType()->getType())
     {
     case OCTET:
-        tile_scale_core(iterDest, iterSrc, (r_Octet*)0);
+        tile_scale_core(iterDest, iterSrc, static_cast<r_Octet*>(0));
         break;
     case CHAR:
-        tile_scale_core(iterDest, iterSrc, (r_Char*)0);
+        tile_scale_core(iterDest, iterSrc, static_cast<r_Char*>(0));
         break;
     case SHORT:
-        tile_scale_core(iterDest, iterSrc, (r_Short*)0);
+        tile_scale_core(iterDest, iterSrc, static_cast<r_Short*>(0));
         break;
     case USHORT:
-        tile_scale_core(iterDest, iterSrc, (r_UShort*)0);
+        tile_scale_core(iterDest, iterSrc, static_cast<r_UShort*>(0));
         break;
     case LONG:
-        tile_scale_core(iterDest, iterSrc, (r_Long*)0);
+        tile_scale_core(iterDest, iterSrc, static_cast<r_Long*>(0));
         break;
     case ULONG:
-        tile_scale_core(iterDest, iterSrc, (r_ULong*)0);
+        tile_scale_core(iterDest, iterSrc, static_cast<r_ULong*>(0));
         break;
     case FLOAT:
-        tile_scale_core(iterDest, iterSrc, (r_Float*)0);
+        tile_scale_core(iterDest, iterSrc, static_cast<r_Float*>(0));
         break;
     case DOUBLE:
-        tile_scale_core(iterDest, iterSrc, (r_Double*)0);
+        tile_scale_core(iterDest, iterSrc, static_cast<r_Double*>(0));
         break;
     default:
         while (!iterDest.isDone())
@@ -699,8 +699,8 @@ Tile::copyTile(const r_Minterval &areaRes, const Tile *opTile, const r_Minterval
     }
 
     // these iterators iterate last dimension first, i.e. minimal step size
-    r_MiterDirect resTileIter((void*)cellRes, getDomain(), areaRes, tsize);
-    r_MiterDirect opTileIter((void*)const_cast<char*>(cellOp), opTile->getDomain(), areaOp, tsize);
+    r_MiterDirect resTileIter(static_cast<void*>(cellRes), getDomain(), areaRes, tsize);
+    r_MiterDirect opTileIter(static_cast<void*>(const_cast<char*>(cellOp)), opTile->getDomain(), areaOp, tsize);
 
 #ifdef RMANBENCHMARK
     opTimer.resume();

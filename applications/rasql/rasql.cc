@@ -419,7 +419,7 @@ openDatabase() throw (r_Error)
     if (! dbIsOpen)
     {
         LOG( "opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush );
-        db.set_servername(serverName, serverPort);
+        db.set_servername(serverName, static_cast<int>(serverPort));
         db.set_useridentification(user, passwd);
         TALK( "database was closed, opening database=" << baseName << ", server=" << serverName << ", port=" << serverPort << ", user=" << user << ", passwd=" << passwd << "..." );
         db.open(baseName);
@@ -506,51 +506,51 @@ void printScalar( const r_Scalar& scalar )
     switch( scalar.get_type()->type_id() )
     {
     case r_Type::BOOL:
-        LOG( ( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_boolean() ? "t" : "f" ) << flush );
+        LOG( ( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_boolean() ? "t" : "f" ) << flush );
         break;
 
     case r_Type::CHAR:
-        LOG( (int)((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_char() << flush );
+        LOG( static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_char()) << flush );
         break;
 
     case r_Type::OCTET:
-        LOG( (int)((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_octet() << flush );
+        LOG( static_cast<int>((static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_octet()) << flush );
         break;
 
     case r_Type::SHORT:
-        LOG( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_short() << flush );
+        LOG( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_short() << flush );
         break;
 
     case r_Type::USHORT:
-        LOG( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_ushort() << flush );
+        LOG( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ushort() << flush );
         break;
 
     case r_Type::LONG:
-        LOG( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_long() << flush );
+        LOG( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_long() << flush );
         break;
 
     case r_Type::ULONG:
-        LOG( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_ulong() << flush );
+        LOG( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_ulong() << flush );
         break;
 
     case r_Type::FLOAT:
-        LOG( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_float() << flush );
+        LOG( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_float() << flush );
         break;
 
     case r_Type::DOUBLE:
-        LOG( ((r_Primitive*)&const_cast<r_Scalar&>(scalar))->get_double() << flush );
+        LOG( (static_cast<r_Primitive*>(&const_cast<r_Scalar&>(scalar)))->get_double() << flush );
         break;
 
     case r_Type::COMPLEXTYPE1:
     case r_Type::COMPLEXTYPE2:
-        LOG( "(" << ((r_Complex*)&const_cast<r_Scalar&>(scalar))->get_re() << "," << ((r_Complex*)&const_cast<r_Scalar&>(scalar))->get_im() << ")" << flush );
+        LOG( "(" << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_re() << "," << (static_cast<r_Complex*>(&const_cast<r_Scalar&>(scalar)))->get_im() << ")" << flush );
         break;
 
     case r_Type::STRUCTURETYPE:
     {
-        r_Structure* structValue = (r_Structure*)&const_cast<r_Scalar&>(scalar);
+        r_Structure* structValue = static_cast<r_Structure*>(&const_cast<r_Scalar&>(scalar));
         LOG( "{ " << flush );
-        for( int i=0; i<structValue->count_elements(); i++ )
+        for( unsigned int i=0; i<structValue->count_elements(); i++ )
         {
             printScalar( (*structValue)[i] );
             if( i < structValue->count_elements()-1 )
@@ -604,7 +604,7 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
 
     r_Iterator< r_Ref_Any > iter = result_set.create_iterator();
     // iter.not_done() seems to behave wrongly on empty set, therefore this additional check -- PB 2003-aug-16
-    for ( int i=1 ; i<=result_set.cardinality() && iter.not_done(); iter++, i++ )
+    for ( unsigned int i=1 ; i<=result_set.cardinality() && iter.not_done(); iter++, i++ )
     {
         switch( result_set.get_element_type_schema()->type_id() )
         {
@@ -615,22 +615,22 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
                 break;
             case OUT_STRING:
             {
-                int numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
+                size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
                 const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
                 LOG( "  Result object " << i << ": " );
-                for (int cnt = 0; cnt < numCells; cnt++)
+                for (unsigned int cnt = 0; cnt < numCells; cnt++)
                     cout << theStuff[cnt];
                 cout << endl;
             }
             break;
             case OUT_HEX:
             {
-                int numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
+                size_t numCells = r_Ref<r_GMarray>(*iter)->get_array_size();
                 const char* theStuff = r_Ref<r_GMarray>(*iter)->get_array();
                 LOG( "  Result object " << i << ": " );
                 cout << hex;
-                for (int cnt = 0; cnt < numCells; cnt++)
-                    cout << setw(2) << (unsigned short) (0xff & theStuff[cnt]) << " ";
+                for (unsigned int cnt = 0; cnt < numCells; cnt++)
+                    cout << setw(2) << static_cast<unsigned short>(0xff & theStuff[cnt]) << " ";
                 cout << dec << endl;
             }
             break;
@@ -692,7 +692,7 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
                     throw RasqlError(NOFILEWRITEPERMISSION);
                 }
                 size_t count = r_Ref<r_GMarray>(*iter)->get_array_size();
-                if(fwrite((void*)r_Ref<r_GMarray>(*iter)->get_array(), 1, count, tfile ) != count)
+                if(fwrite(static_cast<void*>(r_Ref<r_GMarray>(*iter)->get_array()), 1, count, tfile ) != count)
                 {
                     fclose(tfile);
                     throw RasqlError(UNABLETOWRITETOFILE);
@@ -702,7 +702,7 @@ void printResult( /* r_Set< r_Ref_Any > result_set */ ) throw(RasqlError)
             }
             break;
             default:
-                cerr << "Internal error: unknown output type, ignoring action: " << outputType << endl;
+                cerr << "Internal error: unknown output type, ignoring action: " << static_cast<int>(outputType) << endl;
                 break;
             } // switch(outputType)
             break;
@@ -783,7 +783,7 @@ r_Marray_Type * getTypeFromDatabase( const char *mddTypeName2 ) throw(RasqlError
         TALK( "get_any_type() for this type returns: " << tempType );
         if (tempType->isMarrayType())
         {
-            retval = (r_Marray_Type*)tempType;
+            retval = static_cast<r_Marray_Type*>(tempType);
             tempType = NULL;
             TALK( "found MDD type: " << retval );
         }
@@ -851,7 +851,7 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
         // if no domain specified (this is the case with encoded files), then set to byte stream
         if ( ! mddDomainDef )
         {
-            mddDomain = r_Minterval( 1 ) << r_Sinterval ((r_Range) 0, (r_Range) size-1 );
+            mddDomain = r_Minterval( 1 ) << r_Sinterval (static_cast<r_Range>(0), static_cast<r_Range>(size)-1 );
             TALK( "domain set to " << mddDomain );
 
             // compute tiles
@@ -865,14 +865,14 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
             for (chunkIt = tiles->begin(); chunkIt != tiles->end(); chunkIt++)
             {
                 r_Minterval chunkDom = *chunkIt;
-                long chunkSize = chunkDom.cell_count();
+                r_Area chunkSize = chunkDom.cell_count();
                 char* chunkData = new char[chunkSize];
                 fseek( fileD, offset, SEEK_SET );
                 size_t rsize = fread( chunkData, 1, chunkSize, fileD );
                 r_GMarray* chunkMDD = new r_GMarray(chunkDom, 1, NULL, false);
                 chunkMDD->set_array(chunkData);
                 fileContentsChunked->insert_element(chunkMDD);
-                offset += chunkSize;
+                offset += static_cast<long>(chunkSize);
             }
 
             // cleanup
@@ -887,7 +887,7 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
                 storage_layout = NULL;
             }
         }
-        else if (size != mddDomain.cell_count() * mddType->base_type().size())
+        else if (size != static_cast<long>(mddDomain.cell_count()) * static_cast<long>(mddType->base_type().size()))
         {
             throw RasqlError( FILESIZEMISMATCH );
         }
@@ -897,7 +897,7 @@ void doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused)) char**
             {
                 fileContents = new char[size];
                 fseek( fileD, 0, SEEK_SET );
-                size_t rsize = fread( fileContents, 1, size, fileD );
+                size_t rsize = fread( fileContents, 1, static_cast<size_t>(size), fileD );
             }
             catch(std::bad_alloc)
             {

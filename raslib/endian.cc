@@ -55,53 +55,53 @@ static inline r_Octet eswap( r_Octet val )
 
 static inline void eswap( r_Octet val, void *dest )
 {
-    r_Char *d = (r_Char *)dest;
+    r_Char *d = static_cast<r_Char *>(dest);
     *d = static_cast<r_Char>(val);
 }
 
 static inline r_Short eswap( r_Short val )
 {
-    return (r_Short)(((val & 0xff) << 8) | ((val >> 8) & 0xff));
+    return static_cast<r_Short>(((val & 0xff) << 8) | ((val >> 8) & 0xff));
 }
 
 static inline r_UShort eswap( r_UShort val )
 {
-    return (r_UShort)(((val & 0xff) << 8) | ((val >> 8) & 0xff));
+    return static_cast<r_UShort>(((val & 0xff) << 8) | ((val >> 8) & 0xff));
 }
 
 static inline void eswap( r_Short val, void *dest )
 {
-    r_Short *d = (r_Short *)dest;
+    r_Short *d = static_cast<r_Short *>(dest);
     *d = eswap(val);
 }
 
 static inline void eswap( r_UShort val, void *dest )
 {
-    r_UShort *d = (r_UShort *)dest;
+    r_UShort *d = static_cast<r_UShort *>(dest);
     *d = eswap(val);
 }
 
 static inline r_Long eswap( r_Long val )
 {
-    return (r_Long)(((val & 0xff) << 24) | ((val & 0xff00) << 8) |
+    return static_cast<r_Long>(((val & 0xff) << 24) | ((val & 0xff00) << 8) |
                     ((val >> 8) & 0xff00) | ((val >> 24) & 0xff));
 }
 
 static inline r_ULong eswap( r_ULong val )
 {
-    return (r_ULong)(((val & 0xff) << 24) | ((val & 0xff00) << 8) |
+    return static_cast<r_ULong>(((val & 0xff) << 24) | ((val & 0xff00) << 8) |
                      ((val >> 8) & 0xff00) | ((val >> 24) & 0xff));
 }
 
 static inline void eswap( r_Long val, void *dest )
 {
-    r_Long *d = (r_Long *)dest;
+    r_Long *d = static_cast<r_Long *>(dest);
     *d = eswap(val);
 }
 
 static inline void eswap( r_ULong val, void *dest )
 {
-    r_ULong *d = (r_ULong *)dest;
+    r_ULong *d = static_cast<r_ULong *>(dest);
     *d = eswap(val);
 }
 
@@ -176,7 +176,7 @@ inline
 static void eswap( r_Double val, void *dest )
 {
     r_Long *ptr = (r_Long*)&val;
-    eswap(ptr[0], ((r_Octet*)dest)+sizeof(r_Long));
+    eswap(ptr[0], (static_cast<r_Octet*>(dest))+sizeof(r_Long));
     eswap(ptr[1], dest);
     /*
     #ifndef DECALPHA
@@ -323,7 +323,7 @@ void r_Endian::swap_array( const r_Primitive_Type *type, r_Bytes size, const voi
     case r_Primitive_Type::BOOL:
     case r_Primitive_Type::CHAR:
     case r_Primitive_Type::OCTET:
-        if (src != (const void*)dest)
+        if (src != static_cast<const void*>(dest))
         {
             // change of endianness on 1 byte data is a NULL operation.
             // if src and dest differ, we have to _copy_, though.
@@ -331,24 +331,24 @@ void r_Endian::swap_array( const r_Primitive_Type *type, r_Bytes size, const voi
         }
         break;
     case r_Primitive_Type::SHORT:
-        swap_array_templ(size, (r_Short*)dest, (const r_Short*)src);
+        swap_array_templ(size, static_cast<r_Short*>(dest), static_cast<const r_Short*>(src));
         break;
     case r_Primitive_Type::USHORT:
-        swap_array_templ(size, (r_UShort*)dest, (const r_UShort*)src);
+        swap_array_templ(size, static_cast<r_UShort*>(dest), static_cast<const r_UShort*>(src));
         break;
     case r_Primitive_Type::LONG:
-        swap_array_templ(size, (r_Long*)dest, (const r_Long*)src);
+        swap_array_templ(size, static_cast<r_Long*>(dest), static_cast<const r_Long*>(src));
         break;
     case r_Primitive_Type::ULONG:
-        swap_array_templ(size, (r_ULong*)dest, (const r_ULong*)src);
+        swap_array_templ(size, static_cast<r_ULong*>(dest), static_cast<const r_ULong*>(src));
         break;
     case r_Primitive_Type::FLOAT:
     case r_Primitive_Type::COMPLEXTYPE1:
-        swap_array_templ(size, (r_Float*)dest, (const r_Float*)src);
+        swap_array_templ(size, static_cast<r_Float*>(dest), static_cast<const r_Float*>(src));
         break;
     case r_Primitive_Type::DOUBLE:
     case r_Primitive_Type::COMPLEXTYPE2:
-        swap_array_templ(size, (r_Double*)dest, (const r_Double*)src);
+        swap_array_templ(size, static_cast<r_Double*>(dest), static_cast<const r_Double*>(src));
         break;
     default:
         RMDBGONCE(3, RMDebug::module_raslib, "r_Endian", "swap_array(type, size, src, dest) bad typeId " << type->type_id());
@@ -422,14 +422,14 @@ void r_Endian::swap_array( r_Bytes size, r_Bytes tsize, const void *src, void *d
     switch (tsize)
     {
     case 2:
-        swap_array_templ(size, (r_Short*)dest, (const r_Short*)src);
+        swap_array_templ(size, static_cast<r_Short*>(dest), static_cast<const r_Short*>(src));
         break;
     case 4:
-        swap_array_templ(size, (r_Long*)dest, (const r_Long*)src);
+        swap_array_templ(size, static_cast<r_Long*>(dest), static_cast<const r_Long*>(src));
         break;
     case 8:
     case 16:    // complexd
-        swap_array_templ(size, (r_Double*)dest, (const r_Double*)src);
+        swap_array_templ(size, static_cast<r_Double*>(dest), static_cast<const r_Double*>(src));
         break;
     default:
         break;
@@ -452,37 +452,37 @@ void r_Endian::swap_array( const r_Primitive_Type *type, const r_Minterval &srcD
     }
     else
     {
-        r_Miter iter(&srcIterDom, &srcDom, step, (const char*)src);
+        r_Miter iter(&srcIterDom, &srcDom, step, static_cast<const char*>(src));
 
         switch (type->type_id())
         {
         case r_Primitive_Type::BOOL:
         case r_Primitive_Type::CHAR:
         case r_Primitive_Type::OCTET:
-            if (src != (const void*)dest)
+            if (src != static_cast<const void*>(dest))
             {
-                swap_array_templ(iter, (r_Octet*)dest, (const r_Octet*)src);
+                swap_array_templ(iter, static_cast<r_Octet*>(dest), static_cast<const r_Octet*>(src));
             }
             break;
         case r_Primitive_Type::SHORT:
-            swap_array_templ(iter, (r_Short*)dest, (const r_Short*)src);
+            swap_array_templ(iter, static_cast<r_Short*>(dest), static_cast<const r_Short*>(src));
             break;
         case r_Primitive_Type::USHORT:
-            swap_array_templ(iter, (r_UShort*)dest, (const r_UShort*)src);
+            swap_array_templ(iter, static_cast<r_UShort*>(dest), static_cast<const r_UShort*>(src));
             break;
         case r_Primitive_Type::LONG:
-            swap_array_templ(iter, (r_Long*)dest, (const r_Long*)src);
+            swap_array_templ(iter, static_cast<r_Long*>(dest), static_cast<const r_Long*>(src));
             break;
         case r_Primitive_Type::ULONG:
-            swap_array_templ(iter, (r_ULong*)dest, (const r_ULong*)src);
+            swap_array_templ(iter, static_cast<r_ULong*>(dest), static_cast<const r_ULong*>(src));
             break;
         case r_Primitive_Type::FLOAT:
         case r_Primitive_Type::COMPLEXTYPE1:
-            swap_array_templ(iter, (r_Float*)dest, (const r_Float*)src);
+            swap_array_templ(iter, static_cast<r_Float*>(dest), static_cast<const r_Float*>(src));
             break;
         case r_Primitive_Type::DOUBLE:
         case r_Primitive_Type::COMPLEXTYPE2:
-            swap_array_templ(iter, (r_Double*)dest, (const r_Double*)src);
+            swap_array_templ(iter, static_cast<r_Double*>(dest), static_cast<const r_Double*>(src));
             break;
         default:
             RMDBGONCE(3, RMDebug::module_raslib, "r_Endian", "swap_array(type, srcdom, srciterdom, src,  dest, step) bad typeId " << type->type_id());
@@ -499,12 +499,12 @@ static void swap_array_struct( const r_Structure_Type *structType, const r_Minte
     while (iter != structType->defines_attribute_end())
     {
         r_Type *newType = (*iter).type_of().clone();
-        const void *srcPtr = (const void*)(((const r_Octet*)src) + (*iter).offset());
-        void *destPtr = (void*)(((r_Octet*)dest) + (*iter).offset());
+        const void *srcPtr = static_cast<const void*>((static_cast<const r_Octet*>(src)) + (*iter).offset());
+        void *destPtr = static_cast<void*>((static_cast<r_Octet*>(dest)) + (*iter).offset());
         if (newType->isStructType())
-            swap_array_struct((const r_Structure_Type*)newType, srcDom, srcIterDom, srcPtr, destPtr, step);
+            swap_array_struct(static_cast<const r_Structure_Type*>(newType), srcDom, srcIterDom, srcPtr, destPtr, step);
         else
-            r_Endian::swap_array((const r_Primitive_Type*)newType, srcDom, srcIterDom, srcPtr, destPtr, step);
+            r_Endian::swap_array(static_cast<const r_Primitive_Type*>(newType), srcDom, srcIterDom, srcPtr, destPtr, step);
         delete newType;
         iter++;
     }
@@ -514,9 +514,9 @@ static void swap_array_struct( const r_Structure_Type *structType, const r_Minte
 void r_Endian::swap_array( const r_Base_Type *type, const r_Minterval &srcDom, const r_Minterval &srcIterDom, const void *src, void *dest )
 {
     if (type->isStructType())
-        swap_array_struct((const r_Structure_Type*)type, srcDom, srcIterDom, src, dest, type->size());
+        swap_array_struct(static_cast<const r_Structure_Type*>(type), srcDom, srcIterDom, src, dest, type->size());
     else
-        swap_array((const r_Primitive_Type*)type, srcDom, srcIterDom, src, dest, type->size());
+        swap_array(static_cast<const r_Primitive_Type*>(type), srcDom, srcIterDom, src, dest, type->size());
 }
 
 
@@ -540,38 +540,38 @@ void r_Endian::swap_array( const r_Primitive_Type *type, const r_Minterval &srcD
     /// no, generic code...
     else
     {
-        r_Miter siter(&srcIterDom, &srcDom, step, (const char*)src);
-        r_Miter diter(&destIterDom, &destDom, step, (const char*)dest);
+        r_Miter siter(&srcIterDom, &srcDom, step, static_cast<const char*>(src));
+        r_Miter diter(&destIterDom, &destDom, step, static_cast<const char*>(dest));
 
         switch (type->type_id())
         {
         case r_Primitive_Type::BOOL:
         case r_Primitive_Type::CHAR:
         case r_Primitive_Type::OCTET:
-            if (src != (const void*)dest)
+            if (src != static_cast<const void*>(dest))
             {
-                swap_array_templ(siter, diter, (const r_Octet*)src);
+                swap_array_templ(siter, diter, static_cast<const r_Octet*>(src));
             }
             break;
         case r_Primitive_Type::SHORT:
-            swap_array_templ(siter, diter, (const r_Short*)src);
+            swap_array_templ(siter, diter, static_cast<const r_Short*>(src));
             break;
         case r_Primitive_Type::USHORT:
-            swap_array_templ(siter, diter, (const r_UShort*)src);
+            swap_array_templ(siter, diter, static_cast<const r_UShort*>(src));
             break;
         case r_Primitive_Type::LONG:
-            swap_array_templ(siter, diter, (const r_Long*)src);
+            swap_array_templ(siter, diter, static_cast<const r_Long*>(src));
             break;
         case r_Primitive_Type::ULONG:
-            swap_array_templ(siter, diter, (const r_ULong*)src);
+            swap_array_templ(siter, diter, static_cast<const r_ULong*>(src));
             break;
         case r_Primitive_Type::FLOAT:
         case r_Primitive_Type::COMPLEXTYPE1:
-            swap_array_templ(siter, diter, (const r_Float*)src);
+            swap_array_templ(siter, diter, static_cast<const r_Float*>(src));
             break;
         case r_Primitive_Type::DOUBLE:
         case r_Primitive_Type::COMPLEXTYPE2:
-            swap_array_templ(siter, diter, (const r_Double*)src);
+            swap_array_templ(siter, diter, static_cast<const r_Double*>(src));
             break;
         default:
             RMDBGONCE(3, RMDebug::module_raslib, "r_Endian", "swap_array(type, srcdom, srciterdom, destdom, destiterdom, src,  dest, step) bad typeId " << type->type_id());
@@ -588,12 +588,12 @@ static void swap_array_struct( const r_Structure_Type *structType, const r_Minte
     while (iter != structType->defines_attribute_end())
     {
         r_Type *newType = (*iter).type_of().clone();
-        const void *srcPtr = (const void*)(((const r_Octet*)src) + (*iter).offset());
-        void *destPtr = (void*)(((r_Octet*)dest) + (*iter).offset());
+        const void *srcPtr = static_cast<const void*>((static_cast<const r_Octet*>(src)) + (*iter).offset());
+        void *destPtr = static_cast<void*>((static_cast<r_Octet*>(dest)) + (*iter).offset());
         if (newType->isStructType())
-            swap_array_struct((const r_Structure_Type*)newType, srcDom, srcIterDom, destDom, destIterDom, srcPtr, destPtr, step);
+            swap_array_struct(static_cast<const r_Structure_Type*>(newType), srcDom, srcIterDom, destDom, destIterDom, srcPtr, destPtr, step);
         else
-            r_Endian::swap_array((const r_Primitive_Type*)newType, srcDom, srcIterDom, destDom, destIterDom, srcPtr, destPtr, step);
+            r_Endian::swap_array(static_cast<const r_Primitive_Type*>(newType), srcDom, srcIterDom, destDom, destIterDom, srcPtr, destPtr, step);
         delete newType;
         iter++;
     }
@@ -602,9 +602,9 @@ static void swap_array_struct( const r_Structure_Type *structType, const r_Minte
 void r_Endian::swap_array( const r_Base_Type *type, const r_Minterval &srcDom, const r_Minterval &srcIterDom, const r_Minterval &destDom, const r_Minterval &destIterDom, const void *src, void *dest )
 {
     if (type->isStructType())
-        swap_array_struct((const r_Structure_Type*)type, srcDom, srcIterDom, destDom, destIterDom, src, dest, type->size());
+        swap_array_struct(static_cast<const r_Structure_Type*>(type), srcDom, srcIterDom, destDom, destIterDom, src, dest, type->size());
     else
-        swap_array((const r_Primitive_Type*)type, srcDom, srcIterDom, destDom, destIterDom, src, dest, type->size());
+        swap_array(static_cast<const r_Primitive_Type*>(type), srcDom, srcIterDom, destDom, destIterDom, src, dest, type->size());
 }
 
 std::ostream& operator<<(std::ostream& s, r_Endian::r_Endianness& e)

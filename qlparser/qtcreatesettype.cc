@@ -5,19 +5,19 @@
 
 const QtNode::QtNodeType QtCreateSetType::nodeType = QtNode::QT_CREATE_SET_TYPE;
 
-QtCreateSetType::QtCreateSetType(const std::string &typeName, const std::string &mddTypeName, QtOperation *nullValuesNode)
-    : typeName(typeName), mddTypeName(mddTypeName), nullValuesNode(nullValuesNode)
+QtCreateSetType::QtCreateSetType(const std::string &typeName2, const std::string &mddTypeName2, QtOperation *nullValuesNode2)
+    : typeName(typeName2), mddTypeName(mddTypeName2), nullValuesNode(nullValuesNode2)
 {
 }
 
 QtData* QtCreateSetType::evaluate()
 {
     const MDDType *mddType = TypeFactory::mapMDDType(this->mddTypeName.c_str());
-    SetType *setType = new SetType(this->typeName.c_str(), (MDDType*) mddType);
+    SetType *setType = new SetType(this->typeName.c_str(), const_cast<MDDType*>(mddType));
 
     if (this->nullValuesNode != NULL)
     {
-        QtMintervalData* nullValues = (QtMintervalData*) this->nullValuesNode->evaluate(NULL);
+        QtMintervalData* nullValues = static_cast<QtMintervalData*>(this->nullValuesNode->evaluate(NULL));
         setType->setNullValues(nullValues->getMintervalData());
         delete nullValues;
     }
@@ -50,10 +50,10 @@ void QtCreateSetType::checkType()
     }
 }
 
-void QtCreateSetType::printTree(int tab, std::ostream &s, QtChildType mode)
+void QtCreateSetType::printTree(int tab, std::ostream &s, __attribute__ ((unused)) QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtCreateSetType Object" << std::endl;
-    s << SPACE_STR(tab).c_str() << "  CREATE TYPE " << typeName << " UNDER SET { " << mddTypeName << " }";
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCreateSetType Object" << std::endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "  CREATE TYPE " << typeName << " UNDER SET { " << mddTypeName << " }";
 }
 
 void QtCreateSetType::printAlgebraicExpression(std::ostream &s)

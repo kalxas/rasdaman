@@ -245,7 +245,7 @@ bool RasgeoUtil::verbose = false;
 
 
 // this is not used, we don't write files, but do database updates
-#if NOT_USED__
+#ifdef NOT_USED__
 void
 RasgeoUtil::saveData(const char* fileNamePat, const char* data, r_Bytes length, const r_Minterval& dom) throw (ImportError)
 {
@@ -286,7 +286,7 @@ RasgeoUtil::openDatabase() throw (r_Error)
     if (! dbIsOpen)
     {
         LOG << "opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush;
-        db.set_servername(serverName, serverPort);
+        db.set_servername(serverName, static_cast<int>(serverPort));
         db.set_useridentification(userName, passwd);
         TALK( "database was closed, opening database=" << baseName << ", server=" << serverName << ", port=" << serverPort << ", user=" << userName << ", passwd=" << passwd << "..." );
         db.open(baseName);
@@ -388,7 +388,7 @@ RasgeoUtil::convertFrom(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minter
     ENTER( "convertFrom, fmt=" << fmt << ", size=" << dtaSize << ", interv=" << interv << ", baseType=" << tp << ", options=" << options );
 
     r_Minterval tmpInt(1);
-    tmpInt << r_Sinterval((r_Range)0, (r_Range)dtaSize - 1);
+    tmpInt << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(dtaSize) - 1);
 
     TALK( "convertFrom: domain in: " << tmpInt << ", type in: " );
 #ifdef DEBUG
@@ -448,7 +448,7 @@ RasgeoUtil::convertFrom(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minter
     // set type to what the convertor has recognized
     if (tp != NULL)
         delete tp;
-    tp = (r_Base_Type*)desc.destType;
+    tp = static_cast<r_Base_Type*>(desc.destType);
 
     // record number of bytes processed
     tmpInt = desc.destInterv;
@@ -525,7 +525,7 @@ RasgeoUtil::convertTo(r_Data_Format fmt, char*& src, size_t& dtaSize, r_Minterva
         throw ImportError( CONVERSIONEXCEPTION );
 
     delete tp;
-    tp = (r_Base_Type*)desc.destType;
+    tp = static_cast<r_Base_Type*>(desc.destType);
     dtaSize = desc.destInterv.cell_count() * tp->size(); // desc.destInterv[0].high() - desc.destInterv[0].low() + 1;
     interv=desc.destInterv;
     delete src;
@@ -550,7 +550,7 @@ RasgeoUtil::getFile( const char *inputFile, size_t& dtaSize ) throw (ImportError
 {
     ENTER( "getData, inputFile=" << inputFile );
     char* dta = 0;
-    size_t size = 0;
+    long size = 0;
 
     FILE* fileD = fopen(inputFile, "r");
     if (fileD == NULL)
@@ -570,10 +570,10 @@ RasgeoUtil::getFile( const char *inputFile, size_t& dtaSize ) throw (ImportError
     }
 
     fseek(fileD, 0, SEEK_SET);
-    size_t rsize = fread(dta, 1, size, fileD);
+    size_t rsize = fread(dta, 1, static_cast<size_t>(size), fileD);
     fclose(fileD);
 
-    dtaSize = size;
+    dtaSize = static_cast<size_t>(size);
 
     LEAVE( "getData, size=" << dtaSize );
     return dta;
@@ -604,7 +604,7 @@ RasgeoUtil::readScaleLevels(const char* startPos) throw (ImportError)
             scaleLevels = NULL;
             throw ImportError( SCALELEVELSINCORRECT );
         }
-        length = endPos - startPos;
+        length = static_cast<size_t>(endPos - startPos);
         levelName = new char[length + 1];
         memset(levelName, 0, length + 1);
         strncpy(levelName, startPos, length);
@@ -684,7 +684,7 @@ RasgeoUtil::initGMarray(r_Ref<r_GMarray>& tempMDD, const char *inputFile, r_Data
     }
 
     // got it, this will be our type
-    conversionType = (r_Base_Type*)tempType;
+    conversionType = static_cast<r_Base_Type*>(tempType);
     TALK( "determined conversion type; size is " << conversionType->size() );
 
     // --- now start inspecting and processing file ---------------------------
@@ -747,7 +747,7 @@ RasgeoUtil::compareGMarrays(const r_Ref<r_GMarray>& baseMDD, r_Ref<r_GMarray>& t
         if (memcmp(&(baseMDDCells[elemNum * typeLen]), &(topMDDCells[elemNum * typeLen]), typeLen) != 0)
             wrongBytes++;
     }
-    wrongBytes*=typeLen;
+    wrongBytes*=static_cast<int>(typeLen);
 
     if (wrongBytes != 0)
         throw ImportError( GMARRAYSARENOTEQUAL );
@@ -770,7 +770,7 @@ RasgeoUtil::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>&
     // aux var: ptr to pixel array
     char* foregroundMDDCells = const_cast<char*>(foregroundMDD->get_array());
     char* backgroundMDDCells = const_cast<char*>(backgroundMDD->get_array());
-    char* targetMDDCells     = (char*)targetMDD->get_array();
+    char* targetMDDCells     = static_cast<char*>(targetMDD->get_array());
 
     TALK( "background MDD domain: " << backgroundMDD->spatial_domain() << " type length: " << backgroundMDD->get_type_length() );
     TALK( "foreground MDD domain: " << foregroundMDD->spatial_domain() << " type length: " << foregroundMDD->get_type_length() );
@@ -807,15 +807,15 @@ RasgeoUtil::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>&
             for (size_t elemNum = 0; elemNum < backgroundDomain.cell_count(); elemNum++)
             {
                 // is fg pixel transparent?
-                if (memcmp( (void*)reference,  (void*)currentForegroundCell, typeLen) == 0)
+                if (memcmp( reference,  currentForegroundCell, typeLen) == 0)
                 {
                     // yes -> background shines through, copy it
-                    memcpy( (void*)currentTargetCell,  (void*)currentBackgroundCell, typeLen);
+                    memcpy( currentTargetCell,  currentBackgroundCell, typeLen);
                 }
                 else
                 {
                     // no -> background covered, take foreground pixel
-                    memcpy( (void*)currentTargetCell,  (void*)currentForegroundCell, typeLen);
+                    memcpy( currentTargetCell,  currentForegroundCell, typeLen);
                 }
                 currentForegroundCell   += typeLen;
                 currentBackgroundCell   += typeLen;
@@ -845,19 +845,19 @@ RasgeoUtil::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>&
             // looks a little complicated to have a double loop over x and y -- PB
             r_Dimension dim = targetDomain.dimension();
             r_Range width = overlayOn[dim - 1].get_extent();
-            r_MiterDirect foregroundIter((char*)foregroundMDDCells, foregroundDomain, overlayOn, typeLen);
-            r_MiterDirect targetIter((char*)targetMDDCells, targetDomain, overlayOn, typeLen);
+            r_MiterDirect foregroundIter(static_cast<char*>(foregroundMDDCells), foregroundDomain, overlayOn, typeLen);
+            r_MiterDirect targetIter(static_cast<char*>(targetMDDCells), targetDomain, overlayOn, typeLen);
             while (!foregroundIter.isDone())
             {
-                char *currentForegroundCell = (char*)foregroundIter.getData();
-                char *currentTargetCell = (char*)targetIter.getData();
-                for (size_t elemNum = 0; elemNum < width; elemNum++)
+                char *currentForegroundCell = static_cast<char*>(foregroundIter.getData());
+                char *currentTargetCell = static_cast<char*>(targetIter.getData());
+                for (size_t elemNum = 0; elemNum < static_cast<size_t>(width); elemNum++)
                 {
                     // fg transparent?
-                    if (memcmp( (void*) reference, (void*) currentForegroundCell, typeLen) != 0)
+                    if (memcmp( reference, currentForegroundCell, typeLen) != 0)
                     {
                         // no -> set target pixel to fg
-                        memcpy( (void*) currentTargetCell, (void*) currentForegroundCell, typeLen);
+                        memcpy( currentTargetCell, currentForegroundCell, typeLen);
                     }
                     currentForegroundCell += typeLen;
                     currentTargetCell += typeLen;
@@ -891,16 +891,16 @@ RasgeoUtil::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>&
         r_Minterval copyBackgroundDomain = targetDomain.create_intersection(backgroundDomain);
         r_Dimension dim = copyBackgroundDomain.dimension();
         r_Range backgroundWidth = copyBackgroundDomain[dim - 1].get_extent();
-        r_MiterDirect backgroundIter((char*)backgroundMDDCells, backgroundDomain, overlayOn, typeLen);
-        r_MiterDirect targetIter((char*)targetMDDCells, targetDomain, overlayOn, typeLen);
+        r_MiterDirect backgroundIter(static_cast<char*>(backgroundMDDCells), backgroundDomain, overlayOn, typeLen);
+        r_MiterDirect targetIter(static_cast<char*>(targetMDDCells), targetDomain, overlayOn, typeLen);
         unsigned int cellSize = typeLen * backgroundWidth;
         while (!targetIter.isDone())
         {
-            backgroundMDDCells = (char*)backgroundIter.getData();
-            targetMDDCells     = (char*)targetIter.getData();
+            backgroundMDDCells = static_cast<char*>(backgroundIter.getData());
+            targetMDDCells     = static_cast<char*>(targetIter.getData());
 
             // set target pixel to background value
-            memcpy( (void*)targetMDDCells,  (void*)backgroundMDDCells, cellSize);
+            memcpy( targetMDDCells, backgroundMDDCells, cellSize);
 
             backgroundIter.id[dim-1].pos += backgroundWidth;
             targetIter.id[dim-1].pos += backgroundWidth;
@@ -913,13 +913,13 @@ RasgeoUtil::overlayGMarrays(r_Ref<r_GMarray>& targetMDD, const r_Ref<r_GMarray>&
 
         // then overlay transparent over target
         r_Range width = overlayOn[dim - 1].get_extent();
-        r_MiterDirect foregroundIter((char*)foregroundMDDCells, foregroundDomain, overlayOn, typeLen);
-        r_MiterDirect targetIter2((char*)targetMDDCells, targetDomain, overlayOn, typeLen);
+        r_MiterDirect foregroundIter(static_cast<char*>(foregroundMDDCells), foregroundDomain, overlayOn, typeLen);
+        r_MiterDirect targetIter2(static_cast<char*>(targetMDDCells), targetDomain, overlayOn, typeLen);
         while (!foregroundIter.isDone())
         {
-            foregroundMDDCells = (char*)foregroundIter.getData();
-            targetMDDCells     = (char*)targetIter2.getData();
-            for (size_t elemNum = 0; elemNum < width; elemNum++)
+            foregroundMDDCells = static_cast<char*>(foregroundIter.getData());
+            targetMDDCells     = static_cast<char*>(targetIter2.getData());
+            for (size_t elemNum = 0; elemNum < static_cast<size_t>(width); elemNum++)
             {
                 // FIXME: this body can be optimised -- PB
                 // is foreground pixel transparent?
@@ -974,11 +974,11 @@ RasgeoUtil::scaleDomain(const r_Minterval& baseDomain, const r_Point& origin, do
             originVal = origin[i];
 
             // simple trafo of low coordinate
-            low = (r_Range)(originVal + floor((baseSinterval.low() - originVal) * factor));
+            low = static_cast<r_Range>(originVal + floor((baseSinterval.low() - originVal) * factor));
 
             // for the high coordinate use the low coordinate of the _next_ tile
             // ( = baseDomain[i].high() + 1 ) and subtract 1 ==> seamless tilingfactor
-            high = (r_Range)(originVal + floor((baseSinterval.high() + 1 - originVal) * factor) - 1);
+            high = static_cast<r_Range>(originVal + floor((baseSinterval.high() + 1 - originVal) * factor) - 1);
 
             // number of steps in base interval
             baseSteps = floorl((baseSinterval.high() - baseSinterval.low() + length) / length);
@@ -1010,7 +1010,7 @@ RasgeoUtil::scaleDomain(const r_Minterval& baseDomain, const r_Point& origin, do
                 // the scale is too small -> shrink the clip interval
                 TALK( "WARNING: " << baseDomain << " * " << factor << " : clipping the base interval" );
                 scaledDomain << r_Sinterval(low, high);
-                clipDomain << r_Sinterval(baseSinterval.low(), (r_Range)(baseSinterval.low() + scaleSteps * length - 1));
+                clipDomain << r_Sinterval(baseSinterval.low(), static_cast<r_Range>(baseSinterval.low() + scaleSteps * length - 1));
             }
         }
     }
@@ -1043,12 +1043,12 @@ RasgeoUtil::updateScaledMDD(const r_Ref<r_GMarray>& baseMDD, const r_Minterval& 
     if (type->isPrimitiveType())        // scalar cell type
     {
         TALK( "processing primitive type" );
-        RasgeoUtil::fast_scale_process_primitive_type((const r_Primitive_Type*)type, scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
+        RasgeoUtil::fast_scale_process_primitive_type(static_cast<const r_Primitive_Type*>(type), scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
     }
     else if ( type->isStructType())
     {
         TALK( "processing struct type" );
-        RasgeoUtil::fast_scale_process_structured_type((const r_Structure_Type*)type, scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
+        RasgeoUtil::fast_scale_process_structured_type(static_cast<const r_Structure_Type*>(type), scaledMDD->get_array(), baseMDD->get_array(), downScaleDomain, baseDomain, clipDomain, tlen, length, scaleFunction);
     }
     else                    // something invalid, we can't process that
     {
@@ -1177,12 +1177,12 @@ RasgeoUtil::fast_scale_process_structured_type(const r_Structure_Type *structTyp
         // is component a struct itself?
         if (newType->isStructType())    // ...then recurse into (composite) struct component
         {
-            r_Structure_Type *newStructType = (r_Structure_Type*)newType;
+            r_Structure_Type *newStructType = static_cast<r_Structure_Type*>(newType);
             RasgeoUtil::fast_scale_process_structured_type(newStructType, dest + offset, src + offset, destIv, srcIv, srcIter, type_len, length, func);
         }
         else                // is basic type
         {
-            r_Primitive_Type *newPrimType = (r_Primitive_Type*)newType;
+            r_Primitive_Type *newPrimType = static_cast<r_Primitive_Type*>(newType);
             RasgeoUtil::fast_scale_process_primitive_type(newPrimType, dest + offset, src + offset, destIv, srcIv, srcIter, type_len, length, func);
         }
         delete newType;
@@ -1203,10 +1203,10 @@ void RasgeoUtil::fast_scale_resample_array(T *dest, const T *src, const r_Minter
            << ", iterDom=" << MINTERVAL_STREAM(iterDom)
            << ", type_len=" << (int) type_len << ", length=" << (int) length << ", round=" << (int) round );
 
-    r_MiterDirect destIter((void*)dest, destIv, destIv, type_len, 1);
-    r_MiterDirect subIter((void*)const_cast<T*>(src), srcIv, iterDom, type_len, 1);
-    r_MiterDirect srcIter((void*)const_cast<T*>(src), srcIv, iterDom, type_len, length);
-    unsigned int dim = (unsigned int)srcIv.dimension();
+    r_MiterDirect destIter(static_cast<void*>(dest), destIv, destIv, type_len, 1);
+    r_MiterDirect subIter(static_cast<void*>(const_cast<T*>(src)), srcIv, iterDom, type_len, 1);
+    r_MiterDirect srcIter(static_cast<void*>(const_cast<T*>(src)), srcIv, iterDom, type_len, length);
+    unsigned int dim = static_cast<unsigned int>(srcIv.dimension());
     unsigned int i;
 
     // set low bound all zero
@@ -1230,8 +1230,8 @@ void RasgeoUtil::fast_scale_resample_array(T *dest, const T *src, const r_Minter
             subIter.id[i].pos = 0;
             subIter.id[i].data = srcIter.getData();
             rest = srcIter.id[i].high - srcIter.id[i].pos;
-            if (rest >= (long)length)
-                rest = (long)length-1;
+            if (rest >= static_cast<long>(length))
+                rest = static_cast<long>(length)-1;
             subIter.id[i].high = rest;
             count *= rest+1;
         }
@@ -1239,16 +1239,16 @@ void RasgeoUtil::fast_scale_resample_array(T *dest, const T *src, const r_Minter
         // sum data
         while (subIter.done == 0)
         {
-            sum += *((const T*)(subIter.getData()));
+            sum += *(static_cast<const T*>(subIter.getData()));
             ++subIter;
         }
 
         // average data
         // use round to nearest for averaging
         if (round)
-            *((T*)(destIter.getData())) = (T)(sum / count + 0.5);
+            *(static_cast<T*>(destIter.getData())) = static_cast<T>(sum / count + 0.5);
         else
-            *((T*)(destIter.getData())) = (T)(sum / count);
+            *(static_cast<T*>(destIter.getData())) = static_cast<T>(sum / count);
         // TALK( "current value: " << (long)(((const T*)(srcIter.getData())) - src) << " , " << (long)(((T*)(destIter.getData())) - dest) );
         ++srcIter;
         ++destIter;
@@ -1265,10 +1265,10 @@ void RasgeoUtil::fast_scale_aggregate_array(T *dest, const T *src, const r_Minte
 {
     ENTER( string( "fast_scale_aggregate_array, destIv=" ) << destIv << ", srcIv=" << srcIv << ", iterDom=" << iterDom << ", type_len=" << type_len << ", length=" << length );
 
-    r_MiterDirect destIter((void*)dest, destIv, destIv, type_len, 1);
-    r_MiterDirect subIter((void*)const_cast<T*>(src), srcIv, iterDom, type_len);
-    r_MiterDirect srcIter((void*)const_cast<T*>(src), srcIv, iterDom, type_len, length);
-    unsigned int dim = (unsigned int)srcIv.dimension();
+    r_MiterDirect destIter(static_cast<void*>(dest), destIv, destIv, type_len, 1);
+    r_MiterDirect subIter(static_cast<void*>(const_cast<T*>(src)), srcIv, iterDom, type_len);
+    r_MiterDirect srcIter(static_cast<void*>(const_cast<T*>(src)), srcIv, iterDom, type_len, length);
+    unsigned int dim = static_cast<unsigned int>(srcIv.dimension());
     unsigned int i;
 
     for (i=0; i<dim; i++)
@@ -1289,17 +1289,17 @@ void RasgeoUtil::fast_scale_aggregate_array(T *dest, const T *src, const r_Minte
             subIter.id[i].pos = 0;
             subIter.id[i].data = srcIter.getData();
             rest = srcIter.id[i].high - srcIter.id[i].pos;
-            if (rest >= (long)length)
-                rest = (long)length-1;
+            if (rest >= static_cast<long>(length))
+                rest = static_cast<long>(length)-1;
             subIter.id[i].high = rest;
             count *= rest+1;
         }
         while (subIter.done == 0)
         {
-            sum |= *((const T*)(subIter.getData()));
+            sum |= *(static_cast<const T*>(subIter.getData()));
             ++subIter;
         }
-        *((T*)(destIter.getData())) = sum;
+        *(static_cast<T*>(destIter.getData())) = sum;
         //cout << (long)(((const T*)(srcIter.getData())) - src) << " , " << (long)(((T*)(destIter.getData())) - dest) << endl;
         ++srcIter;
         ++destIter;
@@ -1364,7 +1364,7 @@ RasgeoUtil::allowedCollNameChar( const char* collName )
     char testChar;
     bool allowedChar = true;
 
-    for (int strPos = 0; strPos < strlen( collName) && allowedChar; strPos++)
+    for (unsigned int strPos = 0; strPos < strlen( collName) && allowedChar; strPos++)
     {
         testChar = collName[strPos];
         allowedChar = (testChar >= 'a' && testChar <= 'z') || (testChar >= 'A' && testChar <= 'Z')
@@ -1421,7 +1421,7 @@ r_Marray_Type * RasgeoUtil::getTypeFromDatabase( const char *mddTypeName ) throw
         TALK( "get_any_type() for this type returns: " << tempType );
         if (tempType->isMarrayType())
         {
-            retval = (r_Marray_Type*)tempType;
+            retval = static_cast<r_Marray_Type*>(tempType);
             tempType = NULL;
             TALK( "found MDD type: " << retval );
         }
@@ -1719,12 +1719,12 @@ RasgeoUtil::doStuff( __attribute__ ((unused)) int argc, __attribute__ ((unused))
         else                // no -> use buffer size to determine chunk size
         {
             // sqrt(bufsize/pixsize) gives max edge length
-            edgeLength = (r_Range)std::max(
-                             (r_Range)floor(pow(updateBufferSize / mddType->base_type().size(), 1/(double)2.0) ),
-                             (r_Range)1);
+            edgeLength = static_cast<r_Range>(std::max(
+                             static_cast<r_Range>(floor(pow(updateBufferSize / mddType->base_type().size(), 1/static_cast<double>(2.0)) )),
+                             static_cast<r_Range>(1)));
         }
         // window is 0..n-1 x 0..n-1
-        tileDom = r_Minterval(2) << r_Sinterval((r_Range)0, edgeLength - 1) << r_Sinterval((r_Range) 0, edgeLength - 1);
+        tileDom = r_Minterval(2) << r_Sinterval(static_cast<r_Range>(0), edgeLength - 1) << r_Sinterval(static_cast<r_Range>(0), edgeLength - 1);
         iter = new r_MiterArea(&tileDom, &tempDom);
 #endif
         TALK( "Tiling domain " << tempDom << ", into tiles " << tileDom );

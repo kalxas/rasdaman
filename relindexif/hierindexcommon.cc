@@ -248,7 +248,7 @@ DBHierIndex::getTotalStorageSize() const
 
     for (KeyObjectVector::const_iterator i = myKeyObjects.begin(); i != myKeyObjects.end(); i++)
     {
-        sz = sz + ((DBObject*)ObjectBroker::getObjectByOId(i->getObject().getOId()))->getTotalStorageSize();
+        sz = sz + (static_cast<DBObject*>(ObjectBroker::getObjectByOId(i->getObject().getOId())))->getTotalStorageSize();
     }
 
     LEAVE( "DBHierIndex::getTotalStorageSize( " << myOId << " ) for " << myKeyObjects.size() << " objects -> sz=" << sz );
@@ -456,7 +456,7 @@ DBHierIndex::getOptimalSize(r_Dimension dim)
     //remove mydomain size
     useablespace = useablespace - dim * (sizeof(r_Range) * 2 + sizeof(char) * 2);
     //minimum size is 8-lucky guess(good for 1,2,3,4 dimensions)
-    retval = std::max((unsigned int)8, useablespace / oneentry);
+    retval = std::max(static_cast<unsigned int>(8), useablespace / oneentry);
     if (StorageLayout::DefaultIndexSize != 0)
         retval = StorageLayout::DefaultIndexSize;
 
@@ -511,7 +511,7 @@ DBHierIndex::setParent(const HierIndexDS* newPa)
     RMDBGENTER(7, RMDebug::module_indexif, "DBHierIndex", "setParent(" << OId(newPa->getIdentifier()) << ") " << myOId);
     ENTER( "DBHierIndex::setParent() - newPa=" << newPa << ", myOId=" << myOId );
 
-    if ((OId::OIdPrimitive)parent != newPa->getIdentifier())
+    if (static_cast<OId::OIdPrimitive>(parent) != newPa->getIdentifier())
     {
         parent = newPa->getIdentifier();
         setModified();
@@ -530,7 +530,7 @@ DBHierIndex::getParent() const
     DBHierIndexId t(parent);
 
     LEAVE( "DBHierIndex::getParent() - t=" << t );
-    return (HierIndexDS*)t;
+    return static_cast<HierIndexDS*>(t);
 }
 
 bool
@@ -648,7 +648,7 @@ DBHierIndex::getHeightToRoot() const
     else
     {
         DBHierIndexId t(parent);
-        const DBHierIndex* tp = (DBHierIndex*)t.ptr();
+        const DBHierIndex* tp = static_cast<DBHierIndex*>(t.ptr());
         retval = tp->getHeightToRoot() + 1;
     }
 
@@ -668,7 +668,7 @@ DBHierIndex::getHeightToLeaf() const
     else
     {
         DBHierIndexId t(parent);
-        const DBHierIndex* tp = (DBHierIndex*)t.ptr();
+        const DBHierIndex* tp = static_cast<DBHierIndex*>(t.ptr());
         retval = tp->getHeightToLeaf() + 1;
     }
 
@@ -874,7 +874,7 @@ DBHierIndex::getBinaryRepresentation() const throw (r_Error)
         indom = (*it).getDomain();
         indom.insertInDb(&(lowerboundsbuf[(i+1)*dimension2]), &(upperboundsbuf[(i+1)*dimension2]), &(lowerfixedbuf[(i+1)*dimension2]), &(upperfixedbuf[(i+1)*dimension2]));
         entryidsbuf[i] = (*it).getObject().getOId().getCounter();
-        entrytypesbuf[i] = (char)(*it).getObject().getOId().getType();
+        entrytypesbuf[i] = static_cast<char>((*it).getObject().getOId().getType());
         RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension2, &(lowerboundsbuf[(i+1)*dimension2]), &(upperboundsbuf[(i+1)*dimension2]), &(lowerfixedbuf[(i+1)*dimension2]), &(upperfixedbuf[(i+1)*dimension2])));
     }
 
@@ -950,7 +950,7 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
     }
     if (brp.binaryData[5] != 1)
     {
-        RMInit::logOut << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not unknown export version " << (int)brp.binaryData[5] << endl;
+        RMInit::logOut << "DBHierIndex::setBinaryRepresentation(brp:" << brp.binaryName << ") not unknown export version " << static_cast<int>(brp.binaryData[5]) << endl;
         throw r_Error();
     }
     if (brp.binaryData[6] != (r_Endian::get_endianness() == r_Endian::r_Endian_Little))
@@ -1032,7 +1032,7 @@ DBHierIndex::setBinaryRepresentation(const BinaryRepresentation& brp) throw (r_E
     for (i = 0; i < size1; i++)
     {
         theKey.setDomain(InlineMinterval(dimension1, &(lowerboundsbuf[(i+1)*dimension1]), &(upperboundsbuf[(i+1)*dimension1]), &(lowerfixedbuf[(i+1)*dimension1]), &(upperfixedbuf[(i+1)*dimension1])));
-        theKey.setObject(OId(entryidsbuf[i], (OId::OIdType)entrytypesbuf[i]));
+        theKey.setObject(OId(entryidsbuf[i], static_cast<OId::OIdType>(entrytypesbuf[i])));
         myKeyObjects.push_back(theKey);
         RMDBGMIDDLE(5, RMDebug::module_indexif, "DBHierIndex", "entry " << entryidsbuf[i] << " " << (OId::OIdType)entrytypesbuf[i] << " at " << InlineMinterval(dimension1, &(lowerboundsbuf[(i+1)*dimension1]), &(upperboundsbuf[(i+1)*dimension1]), &(lowerfixedbuf[(i+1)*dimension1]), &(upperfixedbuf[(i+1)*dimension1])));
     }

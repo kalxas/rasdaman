@@ -145,8 +145,8 @@ HexCodec::convertFrom(const string& hexaStr) throw(ImportError)
         figStr[idxFigStr++] = hexFig[hexStr[idxHexStr] / hexBase];
         figStr[idxFigStr++] = hexFig[hexStr[idxHexStr] % hexBase];
 #else
-        figStr[idxFigStr++] = hexFig[hexStr[idxHexStr] % hexBase];
-        figStr[idxFigStr++] = hexFig[hexStr[idxHexStr] / hexBase];
+        figStr[idxFigStr++] = hexFig[static_cast<long unsigned int>(hexStr[idxHexStr]) % hexBase];
+        figStr[idxFigStr++] = hexFig[static_cast<long unsigned int>(hexStr[idxHexStr]) / hexBase];
 #endif
     }
 

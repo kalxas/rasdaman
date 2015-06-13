@@ -100,14 +100,14 @@ DBRCIndexDS::insertInDb() throw (r_Error)
                            + sizeof(OId::OIdCounter) + sizeof(OId::OIdCounter) 
                            + boundssize * 2 + fixessize * 2;
 
-    char* completebuffer = (char*)mymalloc(completesize);
+    char* completebuffer = static_cast<char*>(mymalloc(completesize));
     // At a later stage get rid of all the unnecessary mallocs and memcpys, 
     // but first make sure that everything works as expected
 
-    r_Range* upperboundsbuf = (r_Range*)mymalloc(boundssize);
-    r_Range* lowerboundsbuf = (r_Range*)mymalloc(boundssize);
-    char* upperfixedbuf = (char*)mymalloc(fixessize);
-    char* lowerfixedbuf = (char*)mymalloc(fixessize);
+    r_Range* upperboundsbuf = static_cast<r_Range*>(mymalloc(boundssize));
+    r_Range* lowerboundsbuf = static_cast<r_Range*>(mymalloc(boundssize));
+    char* upperfixedbuf = static_cast<char*>(mymalloc(fixessize));
+    char* lowerfixedbuf = static_cast<char*>(mymalloc(fixessize));
 
     RMDBGMIDDLE(8, RMDebug::module_indexif, "DBRCIndexDS", "complete " << completesize << " bounds " << boundssize << " fixes " << fixessize);
     TALK( "DBRCIndexDS: complete " << completesize << " bounds " << boundssize << " fixes " << fixessize);
@@ -234,7 +234,7 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "INSERT INTO RAS_RCINDEXDYN ( Id, Count, DynData ) VALUES ( %lld, %d, %d )", id2, count2, blobOid );
+    (void) snprintf( pgQuery, sizeof(pgQuery), "INSERT INTO RAS_RCINDEXDYN ( Id, Count, DynData ) VALUES ( %lld, %d, %d )", id2, count2, blobOid );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)
@@ -299,7 +299,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = %lld", id1 );
+    (void) snprintf( pgQuery, sizeof(pgQuery), "SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = %lld", id1 );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
@@ -387,7 +387,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
         // this is needed for correct assignment
         short tmpBaseOIdType;
         memcpy(&tmpBaseOIdType, &(completebuffer[bytesdone]), sizeof(short));
-        myBaseOIdType = (OId::OIdType) tmpBaseOIdType;
+        myBaseOIdType = static_cast<OId::OIdType>(tmpBaseOIdType);
         bytesdone += sizeof(short);
 
         int tmpBaseCounter;
@@ -422,7 +422,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
         // this is needed for correct assignment
         long long tmpBaseOIdType;
         memcpy(&tmpBaseOIdType, &(completebuffer[bytesdone]), sizeof(long long));
-        myBaseOIdType = (OId::OIdType) tmpBaseOIdType;
+        myBaseOIdType = static_cast<OId::OIdType>(tmpBaseOIdType);
         bytesdone += sizeof(long long);
 
         long long tmpBaseCounter;
@@ -454,26 +454,26 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     r_Range* lowerboundsbuf;
 
     if (blobformat == 8 || blobformat == 9) {
-        oldupperboundsbuf = (int*) mymalloc(boundssize);
-        oldlowerboundsbuf = (int*) mymalloc(boundssize);
+        oldupperboundsbuf = static_cast<int*>(mymalloc(boundssize));
+        oldlowerboundsbuf = static_cast<int*>(mymalloc(boundssize));
         memcpy(oldlowerboundsbuf, dynamicBuffer, boundssize);
         memcpy(oldupperboundsbuf, &dynamicBuffer[boundssize], boundssize);
-        upperboundsbuf = (r_Range*)mymalloc(newboundssize);
-        lowerboundsbuf = (r_Range*)mymalloc(newboundssize);
+        upperboundsbuf = static_cast<r_Range*>(mymalloc(newboundssize));
+        lowerboundsbuf = static_cast<r_Range*>(mymalloc(newboundssize));
         // we need to copy all values to new variables 
         for (long i = 0; i < dimension; i++) {
-            upperboundsbuf[i] = (r_Range) oldupperboundsbuf[i];
-            lowerboundsbuf[i] = (r_Range) oldlowerboundsbuf[i];
+            upperboundsbuf[i] = static_cast<r_Range>(oldupperboundsbuf[i]);
+            lowerboundsbuf[i] = static_cast<r_Range>(oldlowerboundsbuf[i]);
         }
     } else {
-        upperboundsbuf = (r_Range*)mymalloc(boundssize);
-        lowerboundsbuf = (r_Range*)mymalloc(boundssize);
+        upperboundsbuf = static_cast<r_Range*>(mymalloc(boundssize));
+        lowerboundsbuf = static_cast<r_Range*>(mymalloc(boundssize));
         memcpy(lowerboundsbuf, dynamicBuffer, boundssize);
         memcpy(upperboundsbuf, &dynamicBuffer[boundssize], boundssize);
     }
 
-    char* upperfixedbuf = (char*)mymalloc(fixessize);
-    char* lowerfixedbuf = (char*)mymalloc(fixessize);
+    char* upperfixedbuf = static_cast<char*>(mymalloc(fixessize));
+    char* lowerfixedbuf = static_cast<char*>(mymalloc(fixessize));
 
     // HST at later stage remove unnecessary copying
     // all dynamic data is in dynamicBuffer
@@ -548,7 +548,7 @@ DBRCIndexDS::deleteFromDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = %lld", id3 );
+    (void) snprintf( pgQuery, sizeof(pgQuery), "SELECT DynData FROM RAS_RCINDEXDYN WHERE Id = %lld", id3 );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
@@ -582,7 +582,7 @@ DBRCIndexDS::deleteFromDb() throw (r_Error)
     */
 #endif // NOTYET
     // alternative solution for now:
-    (void) snprintf( pgQuery, (size_t) sizeof(pgQuery), "DELETE FROM RAS_RCINDEXDYN WHERE Id = %lld", id3 );
+    (void) snprintf( pgQuery, sizeof(pgQuery), "DELETE FROM RAS_RCINDEXDYN WHERE Id = %lld", id3 );
     TALK( pgQuery );
     pgResult = PQexec( pgConn, pgQuery );
     if (PQresultStatus(pgResult) != PGRES_COMMAND_OK)

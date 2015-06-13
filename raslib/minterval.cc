@@ -183,7 +183,7 @@ r_Minterval::r_Minterval(const char* mIntStr) throw(r_Eno_interval)
         streamInitCnt(0)
 {
     RMDBGONCE(20,   RMDebug::module_raslib, "r_Minterval", "r_Minterval(char*), this=" << (long)this)
-    char* temp = (char*)mymalloc((1 + strlen(mIntStr)) * sizeof(char));
+    char* temp = static_cast<char*>(mymalloc((1 + strlen(mIntStr)) * sizeof(char)));
     strcpy(temp, mIntStr);
 
     try
@@ -536,7 +536,7 @@ r_Minterval::scale(const vector<double>& scaleVec) throw(r_Eno_interval)
 //      if((r_Range)high != (r_Range)low)
 //        high--; // substract 1 which was added to high()
 
-        intervals[i].set_interval((r_Range)low, (r_Range)high);
+        intervals[i].set_interval(static_cast<r_Range>(low), static_cast<r_Range>(high));
     }
 
     RMDBGEXIT(1, RMDebug::module_raslib, "r_Minterval", "scale(" << scaleVec << ") after " << *this );
@@ -905,7 +905,7 @@ r_Minterval::cell_offset(const r_Point& point) const throw(r_Eindex_violation, r
             throw(r_Eindex_violation(point[i], intervals[i].low(), intervals[i].high()));
         }
 
-        offset = (offset + point[i] - intervals[i].low()) * ptExt[i+1];
+        offset = (offset + static_cast<long long unsigned int>(point[i] - intervals[i].low())) * static_cast<long long unsigned int>(ptExt[i+1]);
     }
 
     // now i = dimensionality - 1
@@ -914,7 +914,7 @@ r_Minterval::cell_offset(const r_Point& point) const throw(r_Eindex_violation, r
         RMInit::logOut << "r_Minterval::cell_offset(" << point << ") point is out of range (" << *this << ")" << endl;
         throw(r_Eindex_violation(point[i], intervals[i].low(), intervals[i].high()));
     }
-    offset += point[i] - intervals[i].low();
+    offset += static_cast<long long unsigned int>(point[i] - intervals[i].low());
 
     return offset;
 }
@@ -943,7 +943,7 @@ r_Minterval::cell_point(r_Area offset) const throw(r_Eno_cell, r_Error)
     for (i=0; i<dimensionality; i++)
     {
         factor /= ptExt[i];
-        pt[i]   = intervals[i].low() + (offset - (offset%factor))/factor;
+        pt[i]   = intervals[i].low() + static_cast<r_Range>((offset - (offset%factor))/factor);
         offset %= factor;
     }
 

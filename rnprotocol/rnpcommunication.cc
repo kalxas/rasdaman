@@ -223,7 +223,7 @@ RnpBaseClientComm::RnpBaseClientComm(const char* theServerHost, int theServerPor
     assert(theServerPort > 0);
 
     serverHost = theServerHost;
-    serverPort = theServerPort;
+    serverPort = static_cast<unsigned int>(theServerPort);
     serverType = theServerType;
     carrierProtocol =  theProtocol;
 
@@ -253,7 +253,7 @@ void RnpBaseClientComm::setConnectionParameters(const char* theServerHost, int t
     assert(theServerPort > 0);
 
     serverHost = theServerHost;
-    serverPort = theServerPort;
+    serverPort = static_cast<unsigned int>(theServerPort);
 
     LEAVE( "RnpBaseClientComm::setConnectionParameters()" );
 }
@@ -329,9 +329,9 @@ bool RnpBaseClientComm::sendRequestGetAnswer()
     encoder.endMessage();
 
     bool connected = false;
-    for (int retry = 0; retry < maxRetry+1 && !connected; retry++)  // NB: first attempt + RE-tries! -- PB 2005-aug-31
+    for (unsigned int retry = 0; retry < maxRetry+1 && !connected; retry++)  // NB: first attempt + RE-tries! -- PB 2005-aug-31
     {
-        connected = clientJob.connectToServer(serverHost,serverPort);
+        connected = clientJob.connectToServer(serverHost,static_cast<int>(serverPort));
     }
 
     if(connected == false)
@@ -530,7 +530,7 @@ void RnpBaseServerComm::connectToCommunicator(NbCommunicator &theCommunicator)
 
     communicator = &theCommunicator;
 
-    for(int i=0; i<nrServerJobs; i++)
+    for(int i=0; i < nrServerJobs; i++)
     {
         RnpServerJob* job = createJob();
 
@@ -546,7 +546,7 @@ bool RnpBaseServerComm::disconnectFromCommunicator() throw()
 {
     if(communicator == NULL) return false;
 
-    for(int i=0; i<nrServerJobs; i++)
+    for(unsigned int i=0; i < static_cast<unsigned int>(nrServerJobs); i++)
     {
         communicator->deattachJob(*(serverJob[i]));
 
@@ -577,7 +577,7 @@ int RnpBaseServerComm::getTransmitterBufferSize() throw()
 }
 
 
-void RnpBaseServerComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *transmiterBuffer, RnpTransport::CarrierProtocol protocol, RnpServerJob *callingJob) throw()
+void RnpBaseServerComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *transmiterBuffer, RnpTransport::CarrierProtocol protocol, __attribute__ ((unused)) RnpServerJob *callingJob) throw()
 {
     // use 'callingJob' to get info about the client (hostaddress, etc)
 
@@ -619,35 +619,35 @@ void RnpBaseServerComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *t
     encoder.endMessage();
 }
 
-const char* RnpBaseServerComm::getNextAsString(RnpQuark parameterType) const
+const char* RnpBaseServerComm::getNextAsString(__attribute__ ((unused)) RnpQuark parameterType) const
 {
     decoder.getNextParameter();
     //if(decoder.getParameterType != parameterType) throw something
     return decoder.getDataAsString();
 }
 
-int RnpBaseServerComm::getNextAsInteger(RnpQuark parameterType) const
+int RnpBaseServerComm::getNextAsInteger(__attribute__ ((unused)) RnpQuark parameterType) const
 {
     decoder.getNextParameter();
     //if(decoder.getParameterType != parameterType) throw something
     return decoder.getDataAsInteger();
 }
 
-float RnpBaseServerComm::getNextAsFloat(RnpQuark parameterType) const
+float RnpBaseServerComm::getNextAsFloat(__attribute__ ((unused)) RnpQuark parameterType) const
 {
     decoder.getNextParameter();
     //if(decoder.getParameterType != parameterType) throw something
     return decoder.getDataAsFloat();
 }
 
-double RnpBaseServerComm::getNextAsDouble(RnpQuark parameterType) const
+double RnpBaseServerComm::getNextAsDouble(__attribute__ ((unused)) RnpQuark parameterType) const
 {
     decoder.getNextParameter();
     //if(decoder.getParameterType != parameterType) throw something
     return decoder.getDataAsDouble();
 }
 
-const void* RnpBaseServerComm::getNextAsOpaque(RnpQuark parameterType) const
+const void* RnpBaseServerComm::getNextAsOpaque(__attribute__ ((unused)) RnpQuark parameterType) const
 {
     decoder.getNextParameter();
     //if(decoder.getParameterType != parameterType) throw something

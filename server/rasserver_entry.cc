@@ -229,7 +229,7 @@ int RasServerEntry::compat_executeQueryHttp(const char* httpParams, int httpPara
     RequestInfo.Capability = NULL;
 
     int resultLen = 0;
-    if(GetHTTPRequestTemp( (char*)httpParams, httpParamsLen, &RequestInfo) == 0)
+    if(GetHTTPRequestTemp( const_cast<char*>(httpParams), httpParamsLen, &RequestInfo) == 0)
     {
         // we need to add the log information which otherwise is provided in ServerComm (servercomm/servercomm2.cc)
         // logged now in rnprotocol modules -- PB 2005-sep-05
@@ -315,7 +315,7 @@ int RasServerEntry::compat_InitUpdate()
 int RasServerEntry::compat_StartInsertTransMDD(const char *domain, int typeLength, const char *typeName)
 {
     r_Minterval mddDomain(domain);
-    return ServerComm::startInsertTransMDD(currentClientIdx, mddDomain, typeLength, typeName);
+    return ServerComm::startInsertTransMDD(currentClientIdx, mddDomain, static_cast<unsigned int>(typeLength), typeName);
 }
 
 int RasServerEntry::compat_InsertTile(int persistent, RPCMarray *rpcMarray)
@@ -335,7 +335,7 @@ int RasServerEntry::compat_GetTypeStructure(const char *typeName, int typeType, 
 
 int RasServerEntry::compat_StartInsertPersMDD(const char *collName, r_Minterval &mddDomain, int typeLength, const char *typeName, r_OId &oid)
 {
-    return ServerComm::startInsertPersMDD( currentClientIdx, collName, mddDomain, typeLength, typeName, oid );
+    return ServerComm::startInsertPersMDD( currentClientIdx, collName, mddDomain, static_cast<unsigned int>(typeLength), typeName, oid );
 }
 
 int RasServerEntry::compat_InsertMDD(const char *collName, RPCMarray *rpcMarray, const char *typeName, r_OId &oid)
@@ -413,7 +413,7 @@ int GetHTTPRequestTemp( char *Source, int SourceLen, struct HTTPRequest *Request
     char *Input = NULL; // local copy of Source
 
     Input = new char[ SourceLen + 1 ];
-    memcpy( Input, Source, SourceLen );
+    memcpy( Input, Source, static_cast<size_t>(SourceLen) );
     Input[SourceLen] = '\0';
     // Read the message body and check for the post parameters
     Buffer = strtok( Input, "=" );
@@ -471,7 +471,7 @@ int GetHTTPRequestTemp( char *Source, int SourceLen, struct HTTPRequest *Request
         {
             // This parameter has to be the last one!
             RequestInfo->BinData = new char[RequestInfo->BinDataSize ];
-            memcpy(RequestInfo->BinData, Source + (SourceLen-RequestInfo->BinDataSize), RequestInfo->BinDataSize );
+            memcpy(RequestInfo->BinData, Source + (SourceLen-RequestInfo->BinDataSize), static_cast<unsigned int>(RequestInfo->BinDataSize) );
             //set Buffer to NULL => exit this while block
             Buffer = NULL;
         }
