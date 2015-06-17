@@ -44,7 +44,7 @@ static const char rcsid[] = "@(#)rasgeo, InitError: $Id: rasgeo_error.cc,v 1.1 2
 #include "debug/debug.hh"
 
 /// error object, carrying int error code
-InitError::InitError( unsigned int e )
+InitError::InitError( int e )
 {
     TALK( "Exception: " << e << " for this=" << this );
     errorCode = e;

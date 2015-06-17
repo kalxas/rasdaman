@@ -65,7 +65,7 @@ class RasqlError // : public std::exception
 public:
 
     /// constructor receiving an error number
-    RasqlError( unsigned int e );
+    RasqlError( int e );
 
     /// destructor
     virtual ~RasqlError();
@@ -75,7 +75,8 @@ public:
 
 private:
     /// error information
-    unsigned int error_code;
+    int error_code;
+
 };
 
 #endif // _RASQL_ERROR_HH_

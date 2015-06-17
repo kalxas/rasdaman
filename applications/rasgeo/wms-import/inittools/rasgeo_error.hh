@@ -59,7 +59,7 @@ class InitError // : public std::exception
 public:
 
     /// constructor receiving an error number
-    InitError( unsigned int e );
+    InitError( int e );
 
     /// destructor
     virtual ~InitError();
@@ -69,7 +69,7 @@ public:
 
 private:
     /// error information
-    unsigned int errorCode;
+    int errorCode;
 };
 
 #endif // _RASGEO_ERROR_HH_

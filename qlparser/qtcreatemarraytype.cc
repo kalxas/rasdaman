@@ -19,6 +19,7 @@ QtCreateMarrayType::QtCreateMarrayType(const std::string &typeName2, const std::
 
 QtData* QtCreateMarrayType::evaluate()
 {
+    QtData* returnValue = NULL;
     // at this point we know that all values are valid (they are checked in checkType)
     const BaseType* catBaseType = TypeFactory::mapType(this->cellTypeName.c_str());
 
@@ -37,6 +38,7 @@ QtData* QtCreateMarrayType::evaluate()
     }
 
     TypeFactory::addMDDType(mddType);
+    return returnValue;
 }
 
 

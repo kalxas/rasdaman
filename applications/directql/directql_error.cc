@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 
 /**
 *   SOURCE:     rasql_error.cc
@@ -48,7 +48,7 @@ static const char rcsid[] = "@(#)raslib, RasqlError: $Id: rasql_error.cc,v 1.1 2
 #include "debug-clt.hh"
 
 /// error object, carrying int error code
-RasqlError::RasqlError( unsigned int e )
+RasqlError::RasqlError( int e )
 {
     TALK( "Exception: " << e );
     error_code = e;
@@ -68,41 +68,41 @@ RasqlError::what()
     switch (error_code)
     {
     case  NOQUERY:
-        errorMsg = "Mandatory parameter '--query' missing.";
+        errorMsg = const_cast<char*>("Mandatory parameter '--query' missing.");
         break;
     case  ERRORPARSINGCOMMANDLINE:
-        errorMsg = "Command line syntax error.";
+        errorMsg = const_cast<char*>("Command line syntax error.");
         break;
     case  ILLEGALOUTPUTTYPE:
-        errorMsg = "Illegal output type specifier, must be one of none, file, formatted, string, hex.";
+        errorMsg = const_cast<char*>("Illegal output type specifier, must be one of none, file, formatted, string, hex.");
         break;
     case  FILEINACCESSIBLE:
-        errorMsg = "Cannot read input file.";
+        errorMsg = const_cast<char*>("Cannot read input file.");
         break;
     case  UNABLETOCLAIMRESOURCEFORFILE:
-        errorMsg = "Cannot allocate memory for file read.";
+        errorMsg = const_cast<char*>("Cannot allocate memory for file read.");
         break;
     case  NOVALIDDOMAIN:
-        errorMsg = "Syntax error in mdddomain specification, must be [x0:x1,y0:y1] (forgot to quote or escape?)";
+        errorMsg = const_cast<char*>("Syntax error in mdddomain specification, must be [x0:x1,y0:y1] (forgot to quote or escape?)");
         break;
     case  MDDTYPEINVALID:
-        errorMsg = "MDD type invalid.";
+        errorMsg = const_cast<char*>("MDD type invalid.");
         break;
     case  FILESIZEMISMATCH:
-        errorMsg = "Input file size does not correspond with MDD domain specified.";
+        errorMsg = const_cast<char*>("Input file size does not correspond with MDD domain specified.");
         break;
     case NOFILEWRITEPERMISSION:
-        errorMsg = "No file write permission.";
+        errorMsg = const_cast<char*>("No file write permission.");
         break;
     case UNABLETOWRITETOFILE:
-        errorMsg = "Cannot write to file.";
+        errorMsg = const_cast<char*>("Cannot write to file.");
         break;
     default :
-        errorMsg = "Unknown error code.";
+        errorMsg = const_cast<char*>("Unknown error code.");
         break;
     case  ALLDONE:
     case 0:
-        errorMsg = "No errors.";
+        errorMsg = const_cast<char*>("No errors.");
     }
 
 // size of error text buffer below

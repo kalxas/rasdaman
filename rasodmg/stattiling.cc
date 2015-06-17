@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: stattiling.cc
  *
@@ -112,12 +112,6 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
         delete[] pToConvert;
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
-    if (tileD < 0)
-    {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pToConvert << "\", is negative." << endl;
-        delete[] pToConvert;
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
 
 //skip COLON && free buffer
     delete[] pToConvert;
@@ -205,13 +199,6 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
             delete[] pToConvert;
             throw r_Error(TILINGPARAMETERNOTCORRECT);
         }
-        if(accessTimes<0)
-        {
-            RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding access times \"" << pInRes << "\" from acess information \"" << pToConvert << "\", negative number." << endl;
-            delete[] pInToConvert;
-            delete[] pToConvert;
-            throw r_Error(TILINGPARAMETERNOTCORRECT);
-        }
 
         accessInfo=new r_Access(*accessInterv, accessTimes);
         vectAccessInfo.push_back(*accessInfo);
@@ -246,14 +233,8 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
     memcpy(pToConvert, pTemp, lenToConvert);
     pToConvert[lenToConvert]='\0';
 
-    borderTH=strtol(pToConvert, (char**)NULL, DefaultBase);
+    borderTH = static_cast<r_Area>(strtol(pToConvert, (char**)NULL, DefaultBase));
     if (!borderTH)
-    {
-        RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding border threshold \"" << pToConvert << "\"." << endl;
-        delete[] pToConvert;
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
-    if (borderTH < 0)
     {
         RMInit::logOut << "r_Stat_Tiling::r_Stat_Tiling(" << encoded << "): Error decoding border threshold \"" << pToConvert << "\"." << endl;
         delete[] pToConvert;
@@ -340,9 +321,9 @@ r_Stat_Tiling::r_Stat_Tiling(const char* encoded) throw (r_Error)
 
 r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access>& stat_info2, r_Bytes ts, r_Area border_threshold, r_Double interesting_threshold) throw (r_Error)
     :   r_Dimension_Tiling(dim, ts),
+        interesting_thr(interesting_threshold),
         border_thr(border_threshold),
-        stat_info(stat_info2),
-        interesting_thr(interesting_threshold)
+        stat_info(stat_info2)
 {
     RMDBGENTER(1, RMDebug::module_rasodmg, "r_Stat_Tiling", "Filtering accesses... ");
     // Filter accesses all areas have the same dimension if successfull else exception
@@ -370,7 +351,7 @@ r_Stat_Tiling::r_Stat_Tiling(r_Dimension dim, const std::vector<r_Access>& stat_
     RMDBGMIDDLE(1, RMDebug::module_rasodmg, "r_Stat_Tiling", "Defining interest areas... ");
 
     // Mininum number of accesses for being interesting
-    r_ULong critical_accesses = (r_ULong)(interesting_thr*total_accesses);
+    r_ULong critical_accesses = static_cast<r_ULong>(interesting_thr*total_accesses);
 
     iareas.clear();
     for (areas_it = stat_info.begin(); areas_it != stat_info.end(); areas_it++)

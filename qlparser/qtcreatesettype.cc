@@ -12,6 +12,7 @@ QtCreateSetType::QtCreateSetType(const std::string &typeName2, const std::string
 
 QtData* QtCreateSetType::evaluate()
 {
+    QtData* returnValue = NULL;
     const MDDType *mddType = TypeFactory::mapMDDType(this->mddTypeName.c_str());
     SetType *setType = new SetType(this->typeName.c_str(), const_cast<MDDType*>(mddType));
 
@@ -23,6 +24,7 @@ QtData* QtCreateSetType::evaluate()
     }
 
     TypeFactory::addSetType(setType);
+    return returnValue;
 }
 
 void QtCreateSetType::checkType()

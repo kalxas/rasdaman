@@ -133,7 +133,7 @@ class ImportError // : public std::exception
 public:
 
     /// constructor receiving an error number
-    ImportError( unsigned int e );
+    ImportError( int e );
 
     /// destructor
     virtual ~ImportError();
@@ -143,7 +143,7 @@ public:
 
 private:
     /// error information
-    unsigned int importErrno;
+    int importErrno;
 };
 
 #endif // _IMPORT_ERROR_HH_

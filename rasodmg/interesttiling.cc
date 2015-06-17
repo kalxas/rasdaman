@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: interesttiling.cc
  *
@@ -110,23 +110,23 @@ r_Interest_Tiling::get_tilesize_limit_from_name(const char* name)
         return r_Interest_Tiling::NUMBER;
     }
 
-    unsigned int i=r_Interest_Tiling::NUMBER;
+    unsigned int i = r_Interest_Tiling::NUMBER;
 
-    for (i=0; i<(unsigned int)r_Interest_Tiling::NUMBER; i++)
+    for (i = 0; i < static_cast<unsigned int>(r_Interest_Tiling::NUMBER); i++)
     {
         if (strcasecmp(name, all_tilesizelimit_names[i]) == 0)
             break;
     }
-    return (r_Interest_Tiling::Tilesize_Limit)i;
+    return static_cast<r_Interest_Tiling::Tilesize_Limit>(i);
 }
 
 const char*
 r_Interest_Tiling::get_name_from_tilesize_limit(Tilesize_Limit tsl)
 {
     static const char* unknown="UNKNOWN";
-    unsigned int idx = (unsigned int)tsl;
+    unsigned int idx = static_cast<unsigned int>(tsl);
 
-    if (idx >= (unsigned int)r_Interest_Tiling::NUMBER)
+    if (idx >= static_cast<unsigned int>(r_Interest_Tiling::NUMBER))
         return unknown;
 
     return all_tilesizelimit_names[idx];
@@ -170,12 +170,6 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded) throw (r_Error)
     if (!tileD)
     {
         RMInit::logOut << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pToConvert << "\"." << endl;
-        delete[] pToConvert;
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
-    if (tileD < 0)
-    {
-        RMInit::logOut << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile dimension from \"" << pToConvert << "\", is negative." << endl;
         delete[] pToConvert;
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
@@ -260,12 +254,6 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded) throw (r_Error)
         delete[] pToConvert;
         throw r_Error(TILINGPARAMETERNOTCORRECT);
     }
-    if (tileS < 0)
-    {
-        RMInit::logOut << "r_Interest_Tiling::r_Interest_Tiling(" << encoded << "): Error decoding tile size from \"" << pToConvert << "\", is negative." << endl;
-        delete[] pToConvert;
-        throw r_Error(TILINGPARAMETERNOTCORRECT);
-    }
 
 //skip COLON && free buffer
     delete[] pToConvert;
@@ -294,13 +282,13 @@ r_Interest_Tiling::r_Interest_Tiling(const char* encoded) throw (r_Error)
 
 r_Interest_Tiling::r_Interest_Tiling(r_Dimension dim, const std::vector<r_Minterval>& interest_areas, r_Bytes ts, Tilesize_Limit strat) throw (r_Error)
     :   r_Dimension_Tiling(dim, ts),
-        iareas(interest_areas),
-        ts_strat(strat)
+        ts_strat(strat),
+        iareas(interest_areas)
 {
     for (std::vector<r_Minterval>::iterator it = iareas.begin(); it != iareas.end(); it++)
         if (it->dimension() != dimension)
         {
-            RMInit::logOut << "r_Interest_Tiling::r_Interest_Tiling(" << dim << ", " << interest_areas << ", " << ts << ", " << strat << ") the interest area domain " << *it << " does not match the dimension of this tiling scheme (" << dimension << ")" << endl;
+            RMInit::logOut << "r_Interest_Tiling::r_Interest_Tiling(" << dim << ", " << interest_areas << ", " << ts << ", " << static_cast<int>(strat) << ") the interest area domain " << *it << " does not match the dimension of this tiling scheme (" << dimension << ")" << endl;
             throw r_Edim_mismatch(dimension, it->dimension());
         }
 }
@@ -319,7 +307,7 @@ void r_Interest_Tiling::print_status(std::ostream& os) const
 {
     os << "r_Interest_Tiling[ ";
     r_Dimension_Tiling::print_status(os);
-    os << " interest areas = " << iareas << ", tiling strategy = " << ts_strat << " ]";
+    os << " interest areas = " << iareas << ", tiling strategy = " << static_cast<int>(ts_strat) << " ]";
 }
 
 r_Tiling_Scheme
@@ -330,8 +318,8 @@ r_Interest_Tiling::get_tiling_scheme() const
 
 static int r_Range_comp(const void *elem1, const void *elem2)
 {
-    r_Range e1 = *((r_Range*) elem1);
-    r_Range e2 = *((r_Range*) elem2);
+    r_Range e1 = *(static_cast<r_Range*>(const_cast<void*>(elem1)));
+    r_Range e2 = *(static_cast<r_Range*>(const_cast<void*>(elem2)));
 
     if (e1 == e2)
         return 0;
@@ -346,7 +334,7 @@ std::vector<r_Dir_Decompose>*
 r_Interest_Tiling::make_partition(const r_Minterval& domain) const
 {
     r_Dimension dim = domain.dimension();
-    int total = 2 * iareas.size();
+    unsigned int total = 2 * iareas.size();
 
     // We need one decomp from each dimension
     std::vector<r_Dir_Decompose>* part = new std::vector<r_Dir_Decompose>(dim);
@@ -367,7 +355,7 @@ r_Interest_Tiling::make_partition(const r_Minterval& domain) const
         intervals[total+1] = domain[i].high();        // Input higher domain limit
 
 
-        for (int j = 1; j < total + 1; j += 2, ++it)          // For all possible intervals
+        for (unsigned int j = 1; j < total + 1; j += 2, ++it)          // For all possible intervals
         {
             if ((*it)[i].low()-1 <= domain[i].low())    // Input low iarea limit
                 intervals[j] = domain[i].low();
@@ -378,10 +366,10 @@ r_Interest_Tiling::make_partition(const r_Minterval& domain) const
         }
 
         // Sort the table
-        qsort((void*) intervals, total+2, sizeof(r_Range), r_Range_comp);
+        qsort(static_cast<void*>(intervals), total+2, sizeof(r_Range), r_Range_comp);
 
         // Create partition using the limits table
-        for (int k=0; k<total+2; k++)               // all limits must be checked
+        for (unsigned int k=0; k<total+2; k++)               // all limits must be checked
         {
             if (k == total+1)                         // if on the last limit...
                 ((*part)[i]) << intervals[k];                //   input it
@@ -494,6 +482,7 @@ r_Interest_Tiling::group(std::vector<r_Minterval>& blocks, r_Bytes typelen, Bloc
                         group_blocks = true;
 
                     break;
+                default: break;
                 }
             }
 
@@ -680,7 +669,7 @@ r_Interest_Tiling::compute_tiles(const r_Minterval& domain, r_Bytes typelen) con
                     r_Minterval specs(num_dims);
                     for (r_Dimension i=0; i<num_dims; i++)
                     {
-                        specs << r_Sinterval((r_Range)0, (**blocks_it[j])[i].high() - (**blocks_it[j])[i].low());
+                        specs << r_Sinterval(static_cast<r_Range>(0), (**blocks_it[j])[i].high() - (**blocks_it[j])[i].low());
                     }
 
                     // Class for performing sub-tiling

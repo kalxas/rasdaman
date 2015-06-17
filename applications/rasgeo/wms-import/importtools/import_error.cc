@@ -44,7 +44,7 @@ static const char rcsid[] = "@(#)raslib, ImportError: $Id: import_error.cc,v 1.3
 #include "debug.hh"
 
 /// error object, carrying int error code
-ImportError::ImportError( unsigned int e )
+ImportError::ImportError( int e )
 {
     TALK( "Exception: " << e );
     importErrno = e;

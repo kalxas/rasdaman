@@ -12,7 +12,7 @@ QtCreateCellType::QtCreateCellType(const std::string &typeName2, QtNode::QtOpera
 
 QtData* QtCreateCellType::evaluate()
 {
-
+    QtData* returnValue = NULL;
     StructType* structType = new StructType(this->typeName.c_str(), this->typeAttributes->size());
     for (std::vector<QtOperation*>::iterator it = typeAttributes->begin(); it != typeAttributes->end(); ++it)
     {
@@ -24,6 +24,7 @@ QtData* QtCreateCellType::evaluate()
     }
 
     TypeFactory::addStructType(structType);
+    return returnValue;
 }
 
 void QtCreateCellType::checkType()

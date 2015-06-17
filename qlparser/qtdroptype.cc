@@ -11,6 +11,7 @@ QtDropType::QtDropType(const std::string &typeName2)
 
 QtData* QtDropType::evaluate()
 {
+    QtData* returnValue = NULL;
     // here we are sure that the type exists in the database (checkType passed)
     switch (dropType)
     {
@@ -36,6 +37,7 @@ QtData* QtDropType::evaluate()
             throw parseInfo;
         }
     }
+    return returnValue;
 }
 
 void QtDropType::checkType()

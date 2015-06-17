@@ -48,7 +48,7 @@ static const char rcsid[] = "@(#)raslib, RasqlError: $Id: rasql_error.cc,v 1.1 2
 #include "debug-clt.hh"
 
 /// error object, carrying int error code
-RasqlError::RasqlError( unsigned int e )
+RasqlError::RasqlError( int e )
 {
     TALK( "Exception: " << e );
     error_code = e;
