@@ -1,4 +1,9 @@
 %global rasdir %{_sharedstatedir}/rasdaman
+%if 0%{?el7}
+%global tomcat tomcat
+%else
+%global tomcat tomcat6
+%endif
 Name:           rasdaman
 Version:        9.1.0
 Release:        0%{?dist}
@@ -125,11 +130,7 @@ The rasdaman-examples package includes examples for rasdaman.
 Summary:        Petascope is an add-in to the rasdaman
 Group:          Applications/Databases
 Requires:       %{name} = %{version}-%{release}
-%if 0%{?el7}
-Requires: tomcat
-%else
-Requires: tomcat6
-%endif
+Requires:       %{tomcat}
 Requires:       java-1.7.0-openjdk
 BuildArch:      noarch
 
@@ -183,11 +184,7 @@ CC="gcc -L%{_libdir}/hdf -I/usr/include/netpbm -fpermissive " CXX="g++ -L%{_libd
 		--with-default-basedb=sqlite \
 		--with-debug-symbols \
 		--with-filedatadir=%{rasdir}/data \
-%if 0%{?el7}
-		--with-wardir=%{_sharedstatedir}/tomcat/webapps
-%else
-		--with-wardir=%{_sharedstatedir}/tomcat6/webapps
-%endif
+		--with-wardir=%{_sharedstatedir}/%{tomcat}/webapps
 sed -i 's/^metadata_user=.\+/metadata_user=inituser/' applications/petascope/src/main/resources/petascope.properties
 sed -i 's/^metadata_pass=.\+/metadata_pass=initpass/' applications/petascope/src/main/resources/petascope.properties
 sed -i 's/^rasuser=rasdaman/rasuser=petauser/' applications/rasgeo/rasconnect
@@ -334,8 +331,8 @@ fi
 %files petascope
 %defattr(-,root,root,-)
 %{_datadir}/rasdaman/petascope/*
-%{_sharedstatedir}/tomcat6/webapps/rasdaman.war
-%{_sharedstatedir}/tomcat6/webapps/def.war
+%{_sharedstatedir}/%{tomcat}/webapps/rasdaman.war
+%{_sharedstatedir}/%{tomcat}/webapps/def.war
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/petascope.properties
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/log4j.properties
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/wms_service.properties
@@ -365,12 +362,12 @@ fi
 
 %changelog
 
-* Fri Jun 10 2015 Dimitar Misev <misev@rasdaman.com> - 9.1.0
+* Fri Jun 10  2015 Dimitar Misev <misev@rasdaman.com> - 9.1.0
 
  - Add wcst_import
  - Adapt for EL7
 
-* Thurs July 10 2014 Bidesh Thapaliya <b.thapaliya@jacobs-university.de> - 9.0.0
+* Thu Jul 10  2014 Bidesh Thapaliya <b.thapaliya@jacobs-university.de> - 9.0.0
 
  - Removed libsigsegv-devel dependency
 
