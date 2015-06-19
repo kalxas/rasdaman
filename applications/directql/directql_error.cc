@@ -64,45 +64,45 @@ RasqlError::~RasqlError()
 const char*
 RasqlError::what()
 {
-    char *errorMsg;
+    const char *errorMsg;
     switch (error_code)
     {
     case  NOQUERY:
-        errorMsg = const_cast<char*>("Mandatory parameter '--query' missing.");
+        errorMsg = "Mandatory parameter '--query' missing.";
         break;
     case  ERRORPARSINGCOMMANDLINE:
-        errorMsg = const_cast<char*>("Command line syntax error.");
+        errorMsg = "Command line syntax error.";
         break;
     case  ILLEGALOUTPUTTYPE:
-        errorMsg = const_cast<char*>("Illegal output type specifier, must be one of none, file, formatted, string, hex.");
+        errorMsg = "Illegal output type specifier, must be one of none, file, formatted, string, hex.";
         break;
     case  FILEINACCESSIBLE:
-        errorMsg = const_cast<char*>("Cannot read input file.");
+        errorMsg = "Cannot read input file.";
         break;
     case  UNABLETOCLAIMRESOURCEFORFILE:
-        errorMsg = const_cast<char*>("Cannot allocate memory for file read.");
+        errorMsg = "Cannot allocate memory for file read.";
         break;
     case  NOVALIDDOMAIN:
-        errorMsg = const_cast<char*>("Syntax error in mdddomain specification, must be [x0:x1,y0:y1] (forgot to quote or escape?)");
+        errorMsg = "Syntax error in mdddomain specification, must be [x0:x1,y0:y1] (forgot to quote or escape?)";
         break;
     case  MDDTYPEINVALID:
-        errorMsg = const_cast<char*>("MDD type invalid.");
+        errorMsg = "MDD type invalid.";
         break;
     case  FILESIZEMISMATCH:
-        errorMsg = const_cast<char*>("Input file size does not correspond with MDD domain specified.");
+        errorMsg = "Input file size does not correspond with MDD domain specified.";
         break;
     case NOFILEWRITEPERMISSION:
-        errorMsg = const_cast<char*>("No file write permission.");
+        errorMsg = "No file write permission.";
         break;
     case UNABLETOWRITETOFILE:
-        errorMsg = const_cast<char*>("Cannot write to file.");
+        errorMsg = "Cannot write to file.";
         break;
     default :
-        errorMsg = const_cast<char*>("Unknown error code.");
+        errorMsg = "Unknown error code.";
         break;
     case  ALLDONE:
     case 0:
-        errorMsg = const_cast<char*>("No errors.");
+        errorMsg = "No errors.";
     }
 
 // size of error text buffer below

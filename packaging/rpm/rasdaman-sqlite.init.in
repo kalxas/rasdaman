@@ -282,7 +282,7 @@ host    all         all         ::1/128               trust
 EOF
 
       sed '1,/# TYPE/d' $PGDATA/pg_hba.conf.bak >> $PGDATA/pg_hba.conf
-      service postgresql reload > /dev/null 2>&1
+      service postgresql restart > /dev/null 2>&1
     fi
   fi
 

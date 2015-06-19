@@ -355,7 +355,7 @@ BLOBTile::deleteFromDb() throw (r_Error)
     (void) snprintf( pgQuery, sizeof(pgQuery), "SELECT Tile FROM RAS_TILES WHERE BlobId = %ld", blobId );
     TALK( pgQuery );
     PGresult *pgResult = PQexec( pgConn, pgQuery );
-    if (PQresultStatus(pgResult))
+    if (PQresultStatus(pgResult) != PGRES_TUPLES_OK)
     {
         LEAVE( "BLOBTile::deleteFromDb() libpq 'select tile' error: " << PQerrorMessage(pgConn) );
         PQclear( pgResult );

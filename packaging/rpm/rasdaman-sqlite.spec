@@ -215,22 +215,15 @@ rm -f %{buildroot}%{_bindir}/stop_rasdaman.sh
 rm -f %{buildroot}%{_bindir}/directql
 
 # Create home for our user
-install -d -m 700 %{buildroot}%{rasdir}
-install -d -m 700 %{buildroot}%{rasdir}/data
+install -d -m 755 %{buildroot}%{rasdir}
+install -d -m 755 %{buildroot}%{rasdir}/data
 cp -a %{buildroot}%{_datadir}/rasdaman/examples/rasdl/basictypes.dl %{buildroot}%{rasdir}
 sed 's|connect RASBASE|connect %{rasdir}/data/RASBASE/|g' -i %{buildroot}%{_sysconfdir}/rasdaman/rasmgr.conf
 
 # Move includes from topdir to subdir
-mkdir %{buildroot}%{_includedir}/rasdaman
-mv %{buildroot}%{_includedir}/basictypes.hh %{buildroot}%{_includedir}/rasdaman
-mv %{buildroot}%{_includedir}/bool.h %{buildroot}%{_includedir}/rasdaman
-mv %{buildroot}%{_includedir}/clientcomm %{buildroot}%{_includedir}/rasdaman
-mv %{buildroot}%{_includedir}/commline %{buildroot}%{_includedir}/rasdaman
-mv %{buildroot}%{_includedir}/conversion %{buildroot}%{_includedir}/rasdaman
-mv %{buildroot}%{_includedir}/globals.hh %{buildroot}%{_includedir}/rasdaman
-mv %{buildroot}%{_includedir}/rasdaman.hh %{buildroot}%{_includedir}/rasdaman
-mv %{buildroot}%{_includedir}/stdexcept.h %{buildroot}%{_includedir}/rasdaman
-mv %{buildroot}%{_includedir}/debug %{buildroot}%{_includedir}/rasdaman
+mkdir %{buildroot}/rasdaman
+mv %{buildroot}%{_includedir}/* %{buildroot}/rasdaman
+mv %{buildroot}/rasdaman %{buildroot}%{_includedir}
 
 # Move rview pieces from bin
 mkdir -p %{buildroot}%{_libdir}/rasdaview/bin
@@ -295,15 +288,13 @@ fi
 %files devel
 %defattr(-,root,root,-)
 %{_includedir}/rasdaman
-%{_includedir}/raslib
-%{_includedir}/rasodmg
-%{_includedir}/config.h
 %{_libdir}/libcatalogmgr.a
 %{_libdir}/libclientcomm.a
 %{_libdir}/libcommline.a
 %{_libdir}/libconversion.a
 %{_libdir}/libhttpserver.a
 %{_libdir}/libindexmgr.a
+%{_libdir}/liblockmanager.a
 %{_libdir}/libmddmgr.a
 %{_libdir}/libnetwork.a
 %{_libdir}/libqlparser.a
@@ -318,7 +309,6 @@ fi
 %{_libdir}/libservercomm.a
 %{_libdir}/libstoragemgr.a
 %{_libdir}/libtilemgr.a
-%{_libdir}/liblockmanager.a
 
 %files docs
 %defattr(-,root,root,-)

@@ -227,7 +227,7 @@ QtVariable::evaluate( QtDataList* inputList ) throw (ParseInfo)
         if( !dataObject )
         {
             RMInit::logOut << "Error: QtVariable::evaluate() - collection iterator " <<
-                           iteratorName.c_str() << " is unknwon." << endl;
+                           iteratorName.c_str() << " is unknown." << endl;
             parseInfo.setErrorNo(357);
             throw parseInfo;
         }

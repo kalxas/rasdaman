@@ -230,7 +230,7 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
                             throw parseInfo;
                         }
                         cachedDefaultTiles->push_back(aTile);
-                        defaultIter->push_back(new r_Miter(&(aTile->getDomain()), &(aTile->getDomain()), aTile->getType()->getSize(), aTile->getContents()));
+                        defaultIter->push_back(new r_Miter(&(condTile->getDomain()), &(aTile->getDomain()), aTile->getType()->getSize(), aTile->getContents()));
                     }
                 }
             }
@@ -238,8 +238,8 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
             //if there are cached tiles, iterate through them at the same time
             if (cachedTiles->size()) {
                 for (std::vector<Tile*>::iterator i = cachedTiles->begin(); i != cachedTiles->end(); i++) {
-                    cacheIterators->push_back(new r_Miter(&((*i)->getDomain()), &((*i)->getDomain()), (*i)->getType()->getSize(), (*i)->getContents()));
-                    if (condTile->getDomain() != (*i)->getDomain()) {
+                    cacheIterators->push_back(new r_Miter(&(condTile->getDomain()), &((*i)->getDomain()), (*i)->getType()->getSize(), (*i)->getContents()));
+                    if (!(*i)->getDomain().covers(condTile->getDomain())) {
                         RMInit::logOut << "Error: QtCaseOp::inducedEvaluate() - The condition and result mdds don't have the same definition domain." << endl;
                         parseInfo.setErrorNo(426);
                         throw parseInfo;
@@ -801,7 +801,7 @@ void QtCaseOp::restoreTree() {
  boost::shared_ptr<Tile> QtCaseOp::getCorrespondingTile(std::vector< boost::shared_ptr<Tile> >* tiles, const r_Minterval& domain) {
     boost::shared_ptr<Tile> returnValue;
     for (std::vector< boost::shared_ptr<Tile> >::iterator i = tiles->begin(); i != tiles->end(); i++) {
-        if ((*i)->getDomain() == domain) {
+        if ((*i)->getDomain().covers(domain)) {
             returnValue = (*i);
             break;
         }
