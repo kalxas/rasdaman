@@ -156,6 +156,7 @@ installSigSegvHandler(void (*cleanUpHandler)(int, siginfo_t* , void* ) ){
 
 
     sigact.sa_flags = SA_RESTART | SA_SIGINFO;
+    sigemptyset(&sigact.sa_mask);
 
 
     int retVal = sigaction(SIGSEGV , &sigact, (struct sigaction *)NULL);

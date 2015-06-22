@@ -70,7 +70,7 @@ unsigned int        StorageLayout::DefaultIndexSize = 0;
 
 r_Index_Type        StorageLayout::DefaultIndexType = r_RPlus_Tree_Index; // DirTilesIx; // AutoIx;
 
-r_Tiling_Scheme     StorageLayout::DefaultTilingScheme = r_DirectionalTiling;
+r_Tiling_Scheme     StorageLayout::DefaultTilingScheme = r_AlignedTiling;
 
 r_Minterval     StorageLayout::DefaultTileConfiguration("[0:511,0:511]");
 
@@ -248,6 +248,12 @@ StorageLayout::setDirDecomp(vector<r_Dir_Decompose>* dir)
         dec.push_back(dir->at(i));
     }
     extraFeatures->setDirDecompose(dec);
+}
+
+void
+StorageLayout::setExtraFeatures(StgMddConfig* newExtraFeatures)
+{
+    extraFeatures = newExtraFeatures;
 }
 
 //uadhikari
@@ -459,16 +465,19 @@ std::vector< r_Minterval >
 StorageLayout::calcAlignedLayout(const r_Minterval& tileDomain)
 {
     RMDBGENTER(4, RMDebug::module_storagemgr, "StorageLayout", "Entering CalcAligned Layout");
-    r_Aligned_Tiling* tiling = new r_Aligned_Tiling
-    (myLayout->getTileConfiguration(),myLayout->getTileSize());
+    r_Aligned_Tiling* tiling = new r_Aligned_Tiling(myLayout->getTileConfiguration(),myLayout->getTileSize());
     std::vector<r_Minterval> ret;
     std::vector<r_Minterval>* ret1 = tiling->compute_tiles
                                      (tileDomain, static_cast<r_Bytes>(extraFeatures->getCellSize()));
+    delete tiling;
+    tiling = NULL;
     RMDBGMIDDLE(4, RMDebug::module_storagemgr, "StorageLayout", "CalcAligned Layout: tile number: " << ret1->size());
     for (unsigned int i = 0; i < ret1->size(); i++)
     {
         ret.push_back(ret1->at(i));
     }
+    delete ret1;
+    ret1 = NULL;
     RMDBGEXIT(4, RMDebug::module_storagemgr, "StorageLayout", "CalcAligned Layout: tile number2: " << ret.size());
     return ret;
 }

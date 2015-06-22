@@ -3364,7 +3364,7 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                 case QT_STRING:
                 {
                     QtStringData* stringDataObj       = (QtStringData*)dataObj;
-                    bufferSize = stringDataObj->getStringData().length();
+                    bufferSize = stringDataObj->getStringData().length() + 1;
                     buffer     = (char*)mymalloc( bufferSize );
                     memcpy( (void*)buffer, (void*)stringDataObj->getStringData().c_str(), bufferSize );
                 }
@@ -3373,7 +3373,7 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                 {
                     QtIntervalData*  intervalDataObj  = (QtIntervalData*)dataObj;
                     char*            stringData       = intervalDataObj->getIntervalData().get_string_representation();
-                    bufferSize = strlen( stringData );
+                    bufferSize = strlen( stringData ) + 1;
                     buffer     = (char*)mymalloc( bufferSize );
                     memcpy( (void*)buffer, (void*)stringData, bufferSize );
                     free( stringData );
@@ -3383,7 +3383,7 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                 {
                     QtMintervalData* mintervalDataObj = (QtMintervalData*)dataObj;
                     char*            stringData       = mintervalDataObj->getMintervalData().get_string_representation();
-                    bufferSize = strlen( stringData );
+                    bufferSize = strlen( stringData ) + 1;
                     buffer     = (char*)mymalloc( bufferSize );
                     memcpy( (void*)buffer, (void*)stringData, bufferSize );
                     free( stringData );
@@ -3393,7 +3393,7 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                 {
                     QtPointData* pointDataObj         = (QtPointData*)dataObj;
                     char*            stringData       = pointDataObj->getPointData().get_string_representation();
-                    bufferSize = strlen( stringData );
+                    bufferSize = strlen( stringData ) + 1;
                     buffer     = (char*)mymalloc( bufferSize );
                     memcpy( (void*)buffer, (void*)stringData, bufferSize );
 

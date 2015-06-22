@@ -249,6 +249,7 @@ public:
     void setBorderThreshold(unsigned int b);
     void setCellSize(int size);
     void setDirDecomp(vector<r_Dir_Decompose>*);
+    void setExtraFeatures(StgMddConfig* extraFeatures);
 
     //Added by uadhikari
     void setTilingSizeStrategy_AOI(r_Interest_Tiling::Tilesize_Limit input);
