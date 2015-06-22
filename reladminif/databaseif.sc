@@ -52,6 +52,8 @@ using namespace std;
 #include "oidif.hh"
 #include "adminif.hh"
 
+extern char globalConnectId[256];
+
 extern sqlite3 *sqliteConn;
 
 // size of ARCHITECTURE attribute in RAS_ADMIN:
@@ -60,21 +62,36 @@ extern sqlite3 *sqliteConn;
 void
 DatabaseIf::disconnect() throw (r_Error)
 {
-//    if (sqliteConn != NULL)
-//    {
-//        int error = sqlite3_close(sqliteConn);
-//        if (error != SQLITE_OK)
-//        {
-//          TALK( "Error while disconnecting;");
-//          RMDBGMIDDLE(4, RMDebug::module_adminif, "DatabaseIf", "error occured while disconnecting;");
-//        }
-//        sqliteConn = NULL;
-//    }
+    if (sqliteConn != NULL)
+    {
+        int error = sqlite3_close(sqliteConn);
+        if (error != SQLITE_OK)
+        {
+          TALK( "Error while disconnecting;");
+          RMDBGMIDDLE(4, RMDebug::module_adminif, "DatabaseIf", "error occured while disconnecting;");
+        }
+        sqliteConn = NULL;
+    }
 }
 
 void
 DatabaseIf::connect() throw (r_Error)
 {
+    if (sqliteConn == NULL)
+    {
+        int error = sqlite3_open(globalConnectId, &sqliteConn);
+        RMInit::logOut << "Connecting to " << globalConnectId << endl;
+        if (error != SQLITE_OK)
+        {
+            TALK( "connect unsuccessful; wrong connect string?" );
+            cout << "Error: connect unsuccessful; wrong connect string '" << globalConnectId << "'?" << endl;
+            throw r_Error( 830 );
+        }
+        else
+        {
+            TALK( "connect ok" );
+        }
+    }
 }
 
 void

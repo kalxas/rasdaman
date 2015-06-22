@@ -146,7 +146,7 @@ sqlite3* SQLiteQuery::getConnection()
 
 int SQLiteQuery::isTransactionActive()
 {
-    return sqlite3_get_autocommit(sqliteConn) == 0;
+    return sqliteConn != NULL && sqlite3_get_autocommit(sqliteConn) == 0;
 }
 
 int SQLiteQuery::nextRow()
