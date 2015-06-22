@@ -20,6 +20,13 @@ class GMLDataPair:
         """
         return self.gml
 
+    def get_gml_url(self):
+        """
+        Returns the gml path
+        :rtype str
+        """
+        return self.get_url_method() + self.gml
+
     def get_data_path(self):
         """
         Returns the data path
@@ -27,9 +34,19 @@ class GMLDataPair:
         """
         return self.data
 
+    def get_data_url(self):
+        """
+        Returns the data path
+        :rtype str
+        """
+        return self.get_url_method() + self.data
+
     def delete_record_files(self):
         """
-        Deletes both the data and gml file
+        Deletes the gml file
         """
         os.remove(self.gml)
-        os.remove(self.data)
+
+    @staticmethod
+    def get_url_method():
+        return "file://"

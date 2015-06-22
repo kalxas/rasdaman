@@ -41,7 +41,7 @@ class WMSTRequest:
         pass
 
 
-class WMSTFromWCSInsertRequest():
+class WMSTFromWCSInsertRequest(WMSTRequest):
     def __init__(self, wcs_coverage_id, with_pyramids):
         """
         Class to insert a wcs coverage into wms. This is not a standard way in OGC but a custom method in the
@@ -76,7 +76,7 @@ class WMSTFromWCSInsertRequest():
     __WITH_PYRAMIDS_PARAMETER = "withPyramids"
 
 
-class WMSFromWCSDeleteRequest():
+class WMSTFromWCSDeleteRequest(WMSTRequest):
     """
     Class to delete a wcs coverage into wms. This is not a standard way in OGC but a custom method in the
     WMS service offered by rasdaman to allow for automatic insertion

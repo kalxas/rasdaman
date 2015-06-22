@@ -17,6 +17,7 @@ class Recipe(BaseRecipe):
         """
         super(Recipe, self).__init__(session)
         self.options = session.get_recipe()['options']
+        self.importer = None
 
     def validate(self):
         super(Recipe, self).validate()
@@ -49,16 +50,26 @@ class Recipe(BaseRecipe):
         Implementation of the base recipe insert method
         """
         import_tuples = self._generate_timeseries_tuples()
-        importer = self._get_importer(import_tuples, False)
-        importer.ingest()
+        self.importer = self._get_importer(import_tuples, False)
+        self.importer.ingest()
 
     def update(self):
         """
         Implementation of the base recipe update method
         """
         import_tuples = self._generate_timeseries_tuples()
-        importer = self._get_importer(import_tuples, True)
-        importer.ingest()
+        self.importer = self._get_importer(import_tuples, True)
+        self.importer.ingest()
+
+    def status(self):
+        """
+        Implementation of the status method
+        :rtype (int, int)
+        """
+        if self.importer is None:
+            return 0, 0
+        else:
+            return self.importer.get_processed_slices(), len(self.importer.timeseries)
 
     def _generate_timeseries_tuples(self, limit=None):
         """

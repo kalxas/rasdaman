@@ -10,6 +10,7 @@ from recipes.shared.recipe_registry import RecipeRegistry
 from recipes.shared.runtime_exception import RuntimeException
 from recipes.shared.validate_exception import RecipeValidationException
 from session import Session
+from util.fileutil import FileUtil
 from util.log import log
 from wcst.wcst import WCSTException
 
@@ -95,7 +96,8 @@ def main():
     validate()
     try:
         ingredients = decode_ingredients(read_ingredients())
-        session = Session(ingredients['config'], ingredients['input'], ingredients['recipe'])
+        session = Session(ingredients['config'], ingredients['input'], ingredients['recipe'],
+                          FileUtil.get_directory_path(sys.argv[1]))
         reg.run_recipe(session)
     except RecipeValidationException as re:
         log.error(str(re))

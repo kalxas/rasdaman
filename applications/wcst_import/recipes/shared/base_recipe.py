@@ -2,7 +2,6 @@ from abc import ABCMeta, abstractmethod
 import os
 
 from recipes.shared.validate_exception import RecipeValidationException
-from session import Session
 from util.coverage_util import CoverageUtil
 from util.log import log
 
@@ -58,6 +57,15 @@ class BaseRecipe:
         log.info("The recipe has been validated and is ready to run.")
         log.info("The following recipe has been chosen: " + self.session.get_recipe()['name'])
         log.info("The following operation type has been deduced: " + operation_type)
+        pass
+
+    @abstractmethod
+    def status(self):
+        """
+        This method is called continuously to find out the status of the recipe. Use it to print information only
+        when necessary and always return a tuple of form (numberOfItemsProcessed, numberOfTotalItems)
+        :rtype (int, int)
+        """
         pass
 
     def run(self):

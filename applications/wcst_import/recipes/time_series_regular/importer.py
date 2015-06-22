@@ -6,7 +6,7 @@ from util.gml_datapair import GMLDataPair
 from wcst.wcst import WCSTExecutor, WCSTInsertRequest
 from wcst.wcst import WCSTUpdateRequest, WCSTSubset
 from util.time_gdal_tuple import TimeGdalTuple
-from util.util import Util
+from util.fileutil import FileUtil
 
 
 class Importer:
@@ -20,7 +20,7 @@ class Importer:
         :param str time_crs: the crs to be used for time
         :param str crs_resolver: the crs resolver for the session
         :param str default_crs: the default_crs to be used if one is not given
-        :param Util util: the utility object
+        :param FileUtil util: the utility object
         :param str tiling: the tiling to use in rasdaman
         :param WCSTExecutor executor: the executor of wcst objects
         :param bool update: flag to indicate if the operation is an update (i.e. the coverage was already created)
@@ -35,6 +35,7 @@ class Importer:
         self.executor = executor
         self.time_step = time_step
         self.update = update
+        self.processed_slices = 0
 
     def ingest(self):
         """
@@ -74,7 +75,8 @@ class Importer:
             request = WCSTUpdateRequest(self.coverage_id, "file://" + gml_pair.get_gml_path(),
                                         [subset_time, subset_east, subset_north])
             self.executor.execute(request)
-            # gml_pair.delete_record_files()
+            gml_pair.delete_record_files()
+            self.processed_slices += 1
 
     def create_init_gml_file(self, time_tuple):
         """
@@ -96,3 +98,10 @@ class Importer:
         gmlfile_path = GDALImageGmlGenerator(self.util, self.crs_resolver, self.default_crs, datafile_path,
                                              self.coverage_id, "file://" + datafile_path).to_file()
         return GMLDataPair(gmlfile_path, datafile_path)
+
+    def get_processed_slices(self):
+        """
+        Returns the number of processed slices so far
+        :rtype: int
+        """
+        return self.processed_slices

@@ -23,6 +23,8 @@ class GDALGmlUtil:
         self.default_crs = default_crs
         self.gdal_file_path = gdal_file_path
         self.gdal_dataset = gdal.Open(self.gdal_file_path)
+        if self.gdal_dataset is None:
+            raise RuntimeException("The file at path " + gdal_file_path + " is not a valid GDAL decodable file.")
 
     def get_offset_vectors(self):
         """
@@ -65,6 +67,22 @@ class GDALGmlUtil:
             "y": (miny, maxy)
         }
 
+    def get_resolution_x(self):
+        """
+        Returns the resolution of the coverage calculated from the dataset
+        :rtype float
+        """
+        geo_transform = self.gdal_dataset.GetGeoTransform()
+        return geo_transform[1]
+
+    def get_resolution_y(self):
+        """
+        Returns the resolution of the coverage calculated from the dataset
+        :rtype float
+        """
+        geo_transform = self.gdal_dataset.GetGeoTransform()
+        return geo_transform[5]
+
     def get_fields_range_type(self):
         """
         Returns the range type fields from a gdal dataset
@@ -75,10 +93,10 @@ class GDALGmlUtil:
         fields = []
         for i in range(1, self.gdal_dataset.RasterCount + 1):
             band = self.gdal_dataset.GetRasterBand(i)
-            nill_value = band.GetNoDataValue() if band.GetNoDataValue() is not None else ""
+            nill_value = band.GetNoDataValue() if band.GetNoDataValue() is not None else "0.0"
             field_name = gdal.GetColorInterpretationName(
                 band.GetColorInterpretation()) if band.GetColorInterpretation() else "field" + str(i)
-            uom = band.GetUnitType() if band.GetUnitType() else ""
+            uom = band.GetUnitType() if band.GetUnitType() else "10^0"
             fields.append(GMLField(field_name, uom, nill_value))
         return fields
 
@@ -106,6 +124,18 @@ class GDALGmlUtil:
             crs = CRSUtil.get_crs_url(self.crs_resolver, spatial_ref.GetAuthorityName(None),
                                       spatial_ref.GetAuthorityCode(None))
         return crs
+
+    def get_crs_code(self):
+        """
+        Returns the CRS code associated with this dataset. If none is found the default for the session is returned
+        :rtype str
+        """
+        import osgeo.osr as osr
+
+        wkt = self.gdal_dataset.GetProjection()
+        spatial_ref = osr.SpatialReference()
+        spatial_ref.ImportFromWkt(wkt)
+        return spatial_ref.GetAuthorityCode(None)
 
     def get_raster_x_size(self):
         """

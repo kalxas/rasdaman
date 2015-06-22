@@ -1,27 +1,27 @@
 from recipes.shared.image.gdal_image_gml_generator import GDALImageGmlGenerator
-from recipes.time_series_regular.generator.generator import Generator
-from util.crs_util import CRSGeoUtil, CRSTimeUtil
+from util.crs_util import CRSGeoUtil
 from util.gdal_util import GDALGmlUtil
 from util.gml_datapair import GMLDataPair
 from wcst.wcst import WCSTExecutor, WCSTInsertRequest
 from wcst.wcst import WCSTUpdateRequest, WCSTSubset
-from util.time_gdal_tuple import TimeGdalTuple
-from util.util import Util
+from util.fileutil import FileUtil
+from wcst.wmst import WMSTFromWCSInsertRequest
 
 
 class Importer:
     def __init__(self, files, coverage_id, crs_resolver, default_crs, util,
-                 tiling, executor, update=False):
+                 tiling, executor, update=False, import_in_wms=False):
         """
         This class can be used to import time series as a referenceable coverage
         :param list[str] files: the files to be imported
         :param str coverage_id: the id of the coverage to be created
         :param str crs_resolver: the crs resolver for the session
         :param str default_crs: the default_crs to be used if one is not given
-        :param Util util: the utility object
+        :param FileUtil util: the utility object
         :param str tiling: the tiling to use in rasdaman
         :param WCSTExecutor executor: the executor of wcst objects
         :param bool update: flag to indicate if the operation is an update (i.e. the coverage was already created)
+        :param bool import_in_wms: imports the data in wms as well
         """
         self.files = files
         self.coverage_id = coverage_id
@@ -31,6 +31,9 @@ class Importer:
         self.tiling = tiling
         self.executor = executor
         self.update = update
+        self.import_in_wms = import_in_wms
+        self.processed_slices = 0
+        self.total = len(self.files)
 
     def ingest(self):
         """
@@ -39,6 +42,11 @@ class Importer:
         if not self.update:
             self.initiate_coverage()
         self.insert_slices()
+        if self.import_in_wms and not self.update:
+            try:
+                self.insert_into_wms()
+            except Exception:
+                pass
 
     def initiate_coverage(self):
         """
@@ -51,6 +59,7 @@ class Importer:
         request = WCSTInsertRequest(gml_url, False, gdal_util.get_band_gdal_type(), self.tiling)
         self.executor.execute(request)
         gml_pair.delete_record_files()
+        self.processed_slices += 1
 
     def insert_slices(self):
         """
@@ -58,6 +67,7 @@ class Importer:
         """
         gdal_record = GDALGmlUtil(self.crs_resolver, self.default_crs, self.files[0])
         crs_util = CRSGeoUtil(gdal_record.get_crs())
+        self.files.pop(0)
         for record in self.files:
             gml_pair = self.create_slice_gml_file(record)
             gdal_record = GDALGmlUtil(self.crs_resolver, self.default_crs, record)
@@ -69,6 +79,14 @@ class Importer:
                                         [subset_east, subset_north])
             self.executor.execute(request)
             gml_pair.delete_record_files()
+            self.processed_slices += 1
+
+    def get_processed_slices(self):
+        """
+        Returns the number of processed slices so far
+        :rtype: int
+        """
+        return self.processed_slices
 
     def create_slice_gml_file(self, gdal_file_path):
         """
@@ -80,3 +98,10 @@ class Importer:
         gmlfile_path = GDALImageGmlGenerator(self.util, self.crs_resolver, self.default_crs, datafile_path,
                                              self.coverage_id, "file://" + datafile_path).to_file()
         return GMLDataPair(gmlfile_path, datafile_path)
+
+    def insert_into_wms(self):
+        """
+        Inserts the new coverage into WMS
+        """
+        wms_req = WMSTFromWCSInsertRequest(self.coverage_id, False)
+        self.executor.execute(wms_req)

@@ -18,6 +18,12 @@ class CRSUtil:
         Returns the axis abbreviation based on the direction of the axis
         :return: str
         """
+        #This should be handled in some other way, seems index2d is non-standard
+        if "OGC/0/Index2D" in self.crs_url:
+            if axis_direction == "north":
+                return "j"
+            else:
+                return "i"
         try:
             contents = str(urllib.urlopen(self.crs_url).read())
             ret = re.search(

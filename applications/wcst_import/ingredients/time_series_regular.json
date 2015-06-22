@@ -4,7 +4,7 @@
     "tmp_directory": "/tmp/",
     "crs_resolver": "http://opengis.net/def/",
     "default_crs": "http://opengis.net/def/def/crs/OGC/0/Index2D",
-    "mock": true,
+    "mock": false,
     "automated": false
   },
   "input": {

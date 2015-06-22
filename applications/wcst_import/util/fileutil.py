@@ -1,8 +1,9 @@
 import shutil
+import os
 import uuid
 
 
-class Util:
+class FileUtil:
     def __init__(self, tmp_path):
         """
         A utility function to do most of the repetitive work
@@ -30,6 +31,7 @@ class Util:
         parts = file_path.split(".")
         ret_path = self.generate_tmp_path(parts[-1])
         shutil.copy(file_path, ret_path)
+        os.chmod(ret_path, 0777)
         return ret_path
 
     def write_to_tmp_file(self, contents, ftype="gml"):
@@ -43,4 +45,9 @@ class Util:
         wfile = open(ret_path, "w")
         wfile.write(contents)
         wfile.close()
+        os.chmod(ret_path, 0777)
         return ret_path
+
+    @staticmethod
+    def get_directory_path(file_path):
+        return os.path.dirname(os.path.abspath(file_path))

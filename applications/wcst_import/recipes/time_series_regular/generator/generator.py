@@ -9,7 +9,7 @@ class Generator:
     def __init__(self, util, coverage_id, gdal_file_path, crs_resolver, default_crs, time_crs, time_start, time_step):
         """
         Generates the initial WCST Insert gml template for a timeseries coverage
-        :param util.util.Util util: the utility object
+        :param util.fileutil.FileUtil util: the utility object
         :param str coverage_id: the id of the coverage to be generated
         :param str gdal_file_path: the gdal_file_path of one of the slices
         :param str crs_resolver: the crs resolver

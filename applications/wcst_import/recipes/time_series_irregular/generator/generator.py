@@ -9,7 +9,7 @@ class Generator:
     def __init__(self, util, coverage_id, gdal_file_path, crs_resolver, default_crs, time_crs, time_start):
         """
         Generates the initial WCST Insert gml template for a timeseries coverage
-        :param util.util.Util util: the utility object
+        :param util.fileutil.FileUtil util: the utility object
         :param str coverage_id: the id of the coverage to be generated
         :param str gdal_file_path: the gdal_file_path of one of the slices
         :param str crs_resolver: the crs resolver
@@ -38,7 +38,7 @@ class Generator:
         Petascope calculates it automatically from the first inserted slice so we ignore it
         :rtype list[float]
         """
-        grid_envelope_high = [0, 0, 0]
+        grid_envelope_high = [self.gdal_util.get_raster_x_size()-1, self.gdal_util.get_raster_y_size()-1, 0]
         return grid_envelope_high
 
     def get_offset_vectors(self):
@@ -77,6 +77,9 @@ class Generator:
         """
         return self.crs_resolver + "crs-compound?1=" + self.gdal_util.get_crs() + "&amp;2=" + self.time_crs
 
+    def get_coverage_data_url(self):
+        return "file://" + self.gdal_util.gdal_file_path
+
     def to_gml(self):
         """
         Returns the generated gml string
@@ -90,7 +93,7 @@ class Generator:
             .grid_envelope_high(self.get_grid_envelope_high()) \
             .offset_vectors(self.get_offset_vectors(), self.get_coefficients()) \
             .origin(self.get_origin()) \
-            .coverage_data_url("") \
+            .coverage_data_url(self.get_coverage_data_url()) \
             .coverage_data_url_mimetype("") \
             .generate()
         return gml

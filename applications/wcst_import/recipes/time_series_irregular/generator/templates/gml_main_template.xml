@@ -36,13 +36,14 @@
         </gmlrgrid:ReferenceableGridByVectors>
     </domainSet>
 
-  <rangeSet>
-       <gml:DataBlock>
-		<gml:rangeParameters/>
-		<gml:tupleList>0
-		</gml:tupleList>
-	</gml:DataBlock>
-  </rangeSet>
+    <gml:rangeSet>
+        <gml:File>
+            <gml:fileReference><![CDATA[
+                $VarFileName
+            ]]></gml:fileReference>
+            <gml:fileStructure>$VarMimeType</gml:fileStructure>
+        </gml:File>
+    </gml:rangeSet>
 
     <gmlcov:rangeType>
         <swe:DataRecord>

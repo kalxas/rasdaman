@@ -1,4 +1,4 @@
-from abc import ABCMeta, abstractmethod
+from abc import abstractmethod
 import urllib as url_lib
 import xml.etree.ElementTree as XMLProcessor
 
@@ -34,24 +34,36 @@ class WCSTRequest:
     """
     Generic class for WCST requests
     """
-    __metaclass__ = ABCMeta
     SERVICE_PARAMETER = "service"
     SERVICE_VALUE = "WCS"
     VERSION_PARAMETER = "version"
     VERSION_VALUE = "2.0.1"
     REQUEST_PARAMETER = "request"
 
+    def __init__(self):
+        self.global_params = {}
+
     def get_query_string(self):
         """
         Returns the query string that defines the WCST requests (the get parameters in string format)
         :rtype str
         """
+        params = self._get_request_type_parameters().copy()
+        params.update(self.global_params)
         extra_params = ""
-        for key, value in self._get_request_type_parameters().iteritems():
-            extra_params += "&" + key + "=" + value
+        for key, value in params.iteritems():
+            extra_params += "&" + str(key) + "=" + str(value)
         return self.SERVICE_PARAMETER + "=" + self.SERVICE_VALUE + "&" + \
                self.VERSION_PARAMETER + "=" + self.VERSION_VALUE + "&" + \
                self.REQUEST_PARAMETER + "=" + self._get_request_type() + extra_params
+
+    def add_global_param(self, key, value):
+        """
+        Adds extra parameters to the request, usually through the executor
+        :param str key: the name of the parameter
+        :param str value: the value of the parameter
+        """
+        self.global_params[key] = value
 
     @abstractmethod
     def _get_request_type_parameters(self):
@@ -71,7 +83,7 @@ class WCSTRequest:
 
 
 class WCSTInsertRequest(WCSTRequest):
-    def __init__(self, coverage_ref, generate_id=False, pixel_data_type=None, tiling=None):
+    def __init__(self, coverage_ref, generate_id=False, pixel_data_type=None, tiling=None, insitu=None):
         """
         Class to represent WCST insert requests
 
@@ -80,10 +92,12 @@ class WCSTInsertRequest(WCSTRequest):
         :param str pixel_data_type: the data type for each pixel in one band in GDAL format (e.g. Byte / Float32)
         :param str tiling: the tiling schema to be used for the coverage storage (e.g. regular [0:100, 0:100] )
         """
+        WCSTRequest.__init__(self)
         self.coverage_ref = coverage_ref
         self.generate_id = generate_id
         self.pixel_data_type = pixel_data_type
         self.tiling = tiling
+        self.insitu = insitu
 
     def _get_request_type(self):
         """
@@ -121,7 +135,7 @@ class WCSTUpdateRequest(WCSTRequest):
     Class to perform WCST insert requests
     """
 
-    def __init__(self, coverage_id, input_coverage_ref, subsets):
+    def __init__(self, coverage_id, input_coverage_ref, subsets, insitu=None):
         """
         Constructor for the class
 
@@ -129,9 +143,11 @@ class WCSTUpdateRequest(WCSTRequest):
         :param input_coverage_ref: string - a link to the gml coverage
         :param subsets: list[CoverageSubset] - a list of coverage subsets objects
         """
+        WCSTRequest.__init__(self)
         self.coverage_id = coverage_id
         self.input_coverage_ref = input_coverage_ref
         self.subsets = subsets
+        self.insitu = insitu
 
     def _get_request_type(self):
         return self.__REQUEST_TYPE
@@ -165,6 +181,7 @@ class WCSTDeleteRequest(WCSTRequest):
 
         :param str coverage_ref: the name of the coverage in string format
         """
+        WCSTRequest.__init__(self)
         self.coverage_ref = coverage_ref
         pass
 
@@ -202,12 +219,26 @@ class WCSTException(Exception):
                "\nError Text: " + self.exception_text
 
 
-class WCSTExecutor():
-    def __init__(self, base_url):
+class WCSTBaseExecutor():
+    __INSITU_PARAMETER = "insitu"
+
+    def __init__(self, base_url, insitu=None):
+        self.base_url = base_url
+        self.insitu = insitu
+
+    def prepare_request(self, request):
+        if self.insitu is not None:
+            request.add_global_param(self.__INSITU_PARAMETER, self.insitu)
+        return request
+
+
+class WCSTExecutor(WCSTBaseExecutor):
+    def __init__(self, base_url, insitu=None):
         """
         This class can be used to execute WCST requests and retrieve the result
         :param str base_url: the base url to the service that supports WCST
         """
+        WCSTBaseExecutor.__init__(self, base_url, insitu)
         self.base_url = base_url
 
     @staticmethod
@@ -229,13 +260,14 @@ class WCSTExecutor():
 
             raise WCSTException(error_code, error_text, service_call)
 
-    def execute(self, request, output=True):
+    def execute(self, request, output=False):
         """
         Executes a WCST request and returns the response to it
 
         :param WCSTRequest request: the request to be executed
         :rtype str
         """
+        request = self.prepare_request(request)
         service_call = self.base_url + "?" + request.get_query_string()
         if output:
             log.info(service_call)
@@ -252,19 +284,22 @@ class WCSTExecutor():
             raise WCSTException(0, "General exception while executing the request: " + str(ex), service_call)
 
 
-class WCSTMockExecutor():
-    def __init__(self, base_url):
+class WCSTMockExecutor(WCSTBaseExecutor):
+    def __init__(self, base_url, insitu=None):
         """
         A mock executor that only prints the service calls instead of executing them
         :param str base_url: the base url to the service that supports WCST
         """
+        WCSTBaseExecutor.__init__(self, base_url, insitu)
         self.base_url = base_url
+        self.insitu=insitu
 
     def execute(self, request):
         """
         Prints the service call that would be executed if a real executor would be used
-        :param str request: WCSTRequest - the request to be executed
+        :param WCSTRequest request: the request to be executed
         :rtype str
         """
+        request = self.prepare_request(request)
         service_call = self.base_url + "?" + request.get_query_string()
-        print service_call
+        log.info("\n" + service_call + "\n")
