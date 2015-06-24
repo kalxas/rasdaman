@@ -714,7 +714,7 @@ RPCFUNCTIONDEF( rpcexecutequery_1, ExecuteQueryParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    returnValue = sc->executeQuery( callingClientId, (const char*) query, rpcExecuteQueryRes );
+    returnValue = sc->executeQuery( callingClientId, static_cast<const char*>(query), rpcExecuteQueryRes );
 
     // if no exception was thrown we are here, first check if the pointers have changed
     if( rpcExecuteQueryRes.token         != prev1 ) free(prev1);
@@ -919,7 +919,7 @@ RPCFUNCTIONDEF( rpcgetnexttile_1, unsigned long* callingClientId )
     freeDynamicRPCData();
 
     // fake data for security
-    RPCMarray *secureRpcMarray = (RPCMarray*)mymalloc(sizeof(RPCMarray));
+    RPCMarray *secureRpcMarray = static_cast<RPCMarray*>(mymalloc(sizeof(RPCMarray)));
     secureRpcMarray->domain = strdup("");
     secureRpcMarray->cellTypeLength = 1;
     secureRpcMarray->currentFormat = 1;
@@ -1044,7 +1044,7 @@ RPCFUNCTIONDEF( rpcexecuteupdate_1, ExecuteQueryParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    returnValue = sc->executeUpdate( callingClientId, (const char*) query, rpcExecuteUpdateRes );
+    returnValue = sc->executeUpdate( callingClientId, static_cast<const char*>(query), rpcExecuteUpdateRes );
 
     // set missing parts of return structure
     rpcExecuteUpdateRes.status     = returnValue;
@@ -1082,7 +1082,7 @@ RPCFUNCTIONDEF( rpcexecuteinsert_1, ExecuteQueryParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    returnValue = sc->executeInsert( callingClientId, (const char*) query, rpcExecuteQueryRes );
+    returnValue = sc->executeInsert( callingClientId, static_cast<const char*>(query), rpcExecuteQueryRes );
 
     // if no exception was thrown we are here, first check if the pointers have changed
     if( rpcExecuteQueryRes.token         != prev1 ) free(prev1);
@@ -1162,7 +1162,7 @@ RPCFUNCTIONDEF( rpcstartinsertpersmdd_1, InsertPersMDDParams* params )
     ServerComm* sc = ServerComm::actual_servercomm;
 
     // Call the corresponding method.
-    rpcDummy = sc->startInsertPersMDD( callingClientId, (const char*) collName, mddDomain, typeLength, typeName, oid );
+    rpcDummy = sc->startInsertPersMDD( callingClientId, static_cast<const char*>(collName), mddDomain, typeLength, typeName, oid );
 
     // Return the result
     return &rpcDummy;
@@ -1743,7 +1743,7 @@ RPCFUNCTIONDEF( rpcgetnewoid_1, NewOIdParams* params )
 // garbageCollection() )
 static void callback_garbage_collection(void *context)
 {
-    ServerComm *sc = (ServerComm*)context;
+    ServerComm *sc = static_cast<ServerComm*>(context);
 
     if( sc && !sc->clientTbl.empty() )
     {
@@ -1806,13 +1806,13 @@ garbageCollection( int )
      *  mallocs or prints in the alarm handler environment. The pending
      *  callbacks will be executed whenever there's RPC activity.
      */
-    sc->callback_mgr.registerUniqueCallback(callback_garbage_collection, (void*)sc);
+    sc->callback_mgr.registerUniqueCallback(callback_garbage_collection, static_cast<void*>(sc));
 
     // Re-initialize the signal handler to point to this function
     signal( SIGALRM, garbageCollection);
 
     // Reset the alarm
-    alarm( (unsigned int)sc->garbageCollectionInterval );
+    alarm( static_cast<unsigned int>(sc->garbageCollectionInterval) );
 }
 
 
@@ -1825,7 +1825,7 @@ garbageCollectionDummy( int )
     /* Dummy garbage collection function for avoiding reentrance of the callback manager.
        Does nothing but reinstall the signal. */
     signal( SIGALRM, garbageCollection);
-    alarm( (unsigned int)(ServerComm::actual_servercomm->garbageCollectionInterval) );
+    alarm( static_cast<unsigned int>(ServerComm::actual_servercomm->garbageCollectionInterval) );
 }
 
 
@@ -1893,7 +1893,7 @@ RPCFUNCTIONDEF( rpcsetservertransfer_1, SetServerTransferParams* params )
 
     ServerComm* sc = ServerComm::actual_servercomm;
 
-    rpcDummy = (unsigned short)(sc->setTransferMode( params->clientID, params->format, params->formatParams ));
+    rpcDummy = static_cast<unsigned short>(sc->setTransferMode( params->clientID, params->format, params->formatParams ));
 
     return &rpcDummy;
 }
@@ -1926,7 +1926,7 @@ RPCFUNCTIONDEF( rpcsetserverstorage_1, SetServerTransferParams* params )
 
     ServerComm* sc = ServerComm::actual_servercomm;
 
-    rpcDummy = (unsigned short)(sc->setStorageMode(params->clientID, params->format, params->formatParams ));
+    rpcDummy = static_cast<unsigned short>(sc->setStorageMode(params->clientID, params->format, params->formatParams ));
 
     return &rpcDummy;
 }

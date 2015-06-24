@@ -71,7 +71,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 
 #include<iostream>
 
-RMINITGLOBALS('C');
+RMINITGLOBALS('C')
 
 // from some unknown location the debug-srv.hh guard seems to be defined already, so get rid of it -- PB 2005-jan-10
 #undef DEBUG_HH
@@ -122,6 +122,10 @@ int         rasmgrPort = DEFAULT_PORT;
 const char* serverName  = 0;
 int         serverListenPort = 0;
 ServerComm* server = NULL;
+
+void
+crash_handler( int sig, siginfo_t* info, void * ucontext);
+
 
 
 void
@@ -215,7 +219,7 @@ int main ( int argc, char** argv )
         else if(configuration.isHttpServer())
         {
             TALK( "initializing HttpServer()..." );
-            server = new HttpServer( clientTimeOut, managementInterval, serverListenPort, (char*)rasmgrHost, rasmgrPort,(char*)serverName);
+            server = new HttpServer( clientTimeOut, managementInterval, static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost), static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
         }
 #ifdef RMANRASNET
         else if(configuration.isRasnetServer())
@@ -228,7 +232,7 @@ int main ( int argc, char** argv )
         else
         {
             TALK( "initializing ServerComm() (ie: RPC)..." );
-            server = new ServerComm( clientTimeOut, managementInterval, serverListenPort, (char*)rasmgrHost, rasmgrPort,(char*)serverName);
+            server = new ServerComm( clientTimeOut, managementInterval, static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost), static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
         }
 
         // in case of HTTP or RPC server: launch previously generated object
@@ -305,28 +309,28 @@ bool initialization()
     }
     RMInit::logOut << "ok" << endl;
 
-    maxTransferBufferSize = configuration.getMaxTransferBufferSize();
+    maxTransferBufferSize = static_cast<unsigned int>(configuration.getMaxTransferBufferSize());
 
-    clientTimeOut = configuration.getTimeout();
+    clientTimeOut = static_cast<unsigned int>(configuration.getTimeout());
     if(clientTimeOut == 0)
         noTimeOut = 1;
 
     managementInterval = clientTimeOut/4;
 
     //tilesize
-    StorageLayout::DefaultTileSize = configuration.getDefaultTileSize();
+    StorageLayout::DefaultTileSize = static_cast<unsigned int>(configuration.getDefaultTileSize());
     RMInit::logOut << "Tile size set to : " << StorageLayout::DefaultTileSize << endl;
 
     //pctmin
-    StorageLayout::DefaultMinimalTileSize = configuration.getDefaultPCTMin();
+    StorageLayout::DefaultMinimalTileSize = static_cast<unsigned int>(configuration.getDefaultPCTMin());
     RMInit::logOut << "PCTMin set to     : " << StorageLayout::DefaultMinimalTileSize << endl;
 
     //pctmax
-    StorageLayout::DefaultPCTMax = configuration.getDefaultPCTMax();
+    StorageLayout::DefaultPCTMax = static_cast<unsigned int>(configuration.getDefaultPCTMax());
     RMInit::logOut << "PCTMax set to     : " << StorageLayout::DefaultPCTMax << endl;
 
     //indexsize
-    StorageLayout::DefaultIndexSize = configuration.getDefaultIndexSize();
+    StorageLayout::DefaultIndexSize = static_cast<unsigned int>(configuration.getDefaultIndexSize());
     RMInit::logOut << "IndexSize set to : " << StorageLayout::DefaultIndexSize << endl;
 
 #ifdef RMANDEBUG

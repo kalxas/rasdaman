@@ -7,19 +7,6 @@ QtCellTypeAttributes::QtCellTypeAttributes(const std::string &name, const std::s
 {
 }
 
-QtData* QtCellTypeAttributes::evaluate()
-{
-    // this tree node is just a container for the attribute type and attribute name
-    // thus there is no need for evaluate
-    return NULL;
-}
-
-void QtCellTypeAttributes::checkType()
-{
-    // this tree node is just a container for the attribute type and attribute name
-    // thus there is no need for typeCheck
-}
-
 void QtCellTypeAttributes::printTree(int tab, std::ostream &s, __attribute__ ((unused)) QtChildType mode)
 {
     s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtCellTypeAttributes (" << attributeName << " "

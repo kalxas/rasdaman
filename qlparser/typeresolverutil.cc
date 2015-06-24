@@ -84,12 +84,12 @@ BaseType* TypeResolverUtil::getBaseType(GDALDataset* poDataSet)
 	if (nBands == 1)
 	{//base type
 		GDALDataType dataType = poDataSet->GetRasterBand(1)->GetRasterDataType();
-		baseType = (BaseType*) TypeFactory::mapType(getLiteralTypeFromGDAL(dataType));
+		baseType = const_cast<BaseType*>(TypeFactory::mapType(getLiteralTypeFromGDAL(dataType)));
 	} else if (nBands > 1)
 	{//struct type
-		StructType* tmpStructType = new StructType("tmp_str_name", nBands);
+		StructType* tmpStructType = new StructType("tmp_str_name", static_cast<unsigned int>(nBands));
 
-		for (int band = 1; band < nBands + 1; ++band)
+		for (int band = 1; band <= nBands; ++band)
 		{
 			GDALDataType dataType = poDataSet->GetRasterBand(band)->GetRasterDataType();
 			const char* literalType = getLiteralTypeFromGDAL(dataType);

@@ -37,7 +37,7 @@ rasdaman GmbH.
 *
 *   @ingroup Debug
 */
-
+#undef OSTREAM
 #define OSTREAM cout
 #include "debug.hh"
 

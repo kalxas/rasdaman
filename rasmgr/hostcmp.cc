@@ -40,6 +40,9 @@ rasdaman GmbH.
 #include "raslib/rminit.hh"
 #include <cstring>
 
+bool
+hostCmp( const char *h1, const char *h2);
+
 bool hostCmp( const char *h1, const char *h2)
 {
     ENTER( "hostCmp( " << h1 << ", " << h2 << " )" );

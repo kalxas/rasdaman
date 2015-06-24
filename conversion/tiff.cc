@@ -267,8 +267,8 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
         tiffcomp=get_compression_from_name(compType);
 
     // Set dimensions
-    width  = (uint32)(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
-    height = (uint32)(desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1);
+    width  = static_cast<uint32>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
+    height = static_cast<uint32>(desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1);
 
     switch (desc.baseType)
     {
@@ -319,7 +319,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
         break;
     case ctype_struct:
     {
-        r_Structure_Type *st = (r_Structure_Type*) const_cast<r_Type*>(desc.srcType);
+        r_Structure_Type *st = static_cast<r_Structure_Type*>(const_cast<r_Type*>(desc.srcType));
         spp = st->count_elements();
 
         unsigned int structSize = 0;
@@ -332,7 +332,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
 
             if ((*iter).type_of().isPrimitiveType())
             {
-                r_Primitive_Type *pt = (r_Primitive_Type*) const_cast<r_Base_Type*>(&(*iter).type_of());
+                r_Primitive_Type *pt = static_cast<r_Primitive_Type*>(const_cast<r_Base_Type*>(&(*iter).type_of()));
                 structSize += pt->size();
 
                 if (bandType == r_Type::UNKNOWNTYPE)
@@ -388,7 +388,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
     // Memory). Make dummy file unique for each object by using the
     // address of its memFSContext (kind of a hack, I know...). That
     // should ensure re-entrancy.
-    sprintf(dummyFile, dummyFileFmt, (void*)handle);
+    sprintf(dummyFile, dummyFileFmt, static_cast<void*>(handle));
     tif = TIFFClientOpen(dummyFile, "w", handle,
                          memfs_read, memfs_write, memfs_seek, memfs_close, memfs_size,
                          memfs_map, memfs_unmap);
@@ -408,22 +408,22 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
     TIFFSetField(tif, TIFFTAG_BITSPERSAMPLE, bps);
     // UNIX doesn't mind which fill-order. NT only understands this one.
     TIFFSetField(tif, TIFFTAG_FILLORDER, FILLORDER_MSB2LSB);
-    TIFFSetField(tif, TIFFTAG_COMPRESSION, (uint16)tiffcomp);
+    TIFFSetField(tif, TIFFTAG_COMPRESSION, static_cast<uint16>(tiffcomp));
     TIFFSetField(tif, TIFFTAG_ORIENTATION, (uint16)ORIENTATION_TOPLEFT);
     // Format-dependent tags
     if (desc.baseType == ctype_rgb)
     {
         TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, (uint16)PHOTOMETRIC_RGB);
-        TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, (uint16)3);
+        TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, static_cast<uint16>(3));
     }
     else
     {
         if (desc.baseType == ctype_char)
-            TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, (uint16)1);
+            TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, static_cast<uint16>(1));
         else if (desc.baseType == ctype_struct)
             TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, spp);
         else
-            TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, (uint16)1);
+            TIFFSetField(tif, TIFFTAG_SAMPLESPERPIXEL, static_cast<uint16>(1));
         TIFFSetField(tif, TIFFTAG_PHOTOMETRIC, (uint16)PHOTOMETRIC_MINISBLACK);
 
         // set sample format tag
@@ -453,14 +453,14 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
         }
     }
     TIFFSetField(tif, TIFFTAG_PLANARCONFIG, (uint16)PLANARCONFIG_CONTIG);
-    TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tif, (uint32)-1));
+    TIFFSetField(tif, TIFFTAG_ROWSPERSTRIP, TIFFDefaultStripSize(tif, static_cast<uint32>(-1)));
     //TIFFSetField(tif, TIFFTAG_MINSAMPLEVALUE, (uint16)0);
     //TIFFSetField(tif, TIFFTAG_MAXSAMPLEVALUE, (uint16)255);
     TIFFSetField(tif, TIFFTAG_RESOLUTIONUNIT, (uint16)RESUNIT_INCH);
-    TIFFSetField(tif, TIFFTAG_XRESOLUTION, (float)90.0);
-    TIFFSetField(tif, TIFFTAG_YRESOLUTION, (float)90.0);
-    TIFFSetField(tif, TIFFTAG_XPOSITION, (float)0.0);
-    TIFFSetField(tif, TIFFTAG_YPOSITION, (float)0.0);
+    TIFFSetField(tif, TIFFTAG_XRESOLUTION, static_cast<float>(90.0));
+    TIFFSetField(tif, TIFFTAG_YRESOLUTION, static_cast<float>(90.0));
+    TIFFSetField(tif, TIFFTAG_XPOSITION, static_cast<float>(0.0));
+    TIFFSetField(tif, TIFFTAG_YPOSITION, static_cast<float>(0.0));
     if ((tiffcomp == COMPRESSION_JPEG) || (tiffcomp == COMPRESSION_OJPEG))
     {
         if (quality == 100)
@@ -478,7 +478,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
     if (desc.baseType == ctype_rgb)
     {
         for (i=0; i<256; i++)
-            cmap[i] = (uint16)(i*((1L << 16) - 1)/255);
+            cmap[i] = static_cast<uint16>(i*((1L << 16) - 1)/255);
         TIFFSetField(tif, TIFFTAG_COLORMAP, cmap, cmap, cmap);
     }
 
@@ -489,7 +489,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
     uint8 *normal=NULL;  // normalised source data
     uint32 row=0;
 
-    if ((tbuff = (uint32*) mymalloc(((width * height * bpp) >> 5) * sizeof(uint32))) != NULL)
+    if ((tbuff = static_cast<uint32*>(mymalloc(((width * height * bpp) >> 5) * sizeof(uint32)))) != NULL)
     {
         int error = 0; // indicates if writing succeeded
         // now go line by line
@@ -532,7 +532,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
                 }
             }
             }
-            if (TIFFWriteScanline(tif, (tdata_t)tbuff, row, 0) < 0)
+            if (TIFFWriteScanline(tif, static_cast<tdata_t>(tbuff), row, 0) < 0)
                 break;
         }
 
@@ -556,7 +556,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
     r_Long tifSize = memfs_size(handle);
 
     // Allocate an array of just the right size and "load" object there
-    if ((desc.dest = (char*)mystore.storage_alloc(sizeof(char) * static_cast<unsigned long>(tifSize))) == NULL)
+    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(sizeof(char) * static_cast<unsigned long>(tifSize)))) == NULL)
     {
         TALK( "r_Conv_TIFF::convertTo(): out of memory." );
         RMInit::logOut << "Error: out of memory." << endl;
@@ -593,11 +593,11 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
     uint16 *reds=NULL, *greens=NULL, *blues=NULL;
 
     // Init simple (chunky) memFS
-    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), (r_Long)(desc.srcInterv.cell_count())); //==> CHECK THIS
+    memfs_chunk_initfs(handle, const_cast<char*>(desc.src), static_cast<r_Long>(desc.srcInterv.cell_count())); //==> CHECK THIS
     desc.dest = NULL;
 
     // Create dummy file for use in the TIFF open function
-    sprintf(dummyFile, dummyFileFmt, (void*)handle);
+    sprintf(dummyFile, dummyFileFmt, static_cast<void*>(handle));
     fclose(fopen(dummyFile, "wb"));
 
     // Open and force memory mapping mode
@@ -794,7 +794,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
         }
 
 
-        if ((desc.dest = (char*)mystore.storage_alloc(width*height*typeSize*sizeof(char))) == NULL)
+        if ((desc.dest = static_cast<char*>(mystore.storage_alloc(width*height*typeSize*sizeof(char)))) == NULL)
         {
             RMInit::logOut << "r_Conv_TIFF::convertFrom(): out of memory error!" << endl;
         }
@@ -811,7 +811,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
                 {
                     if (desc.baseType != ctype_struct)
                     {
-                        if (TIFFReadScanline(tif, (tdata_t)tbuff, row, 0) < 0)
+                        if (TIFFReadScanline(tif, static_cast<tdata_t>(tbuff), row, 0) < 0)
                             break;
                         normal = (uint8 *)tbuff;
                         l = line;
@@ -880,7 +880,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
                     {
                         for (int j=0; j < spp; j++)
                         {
-                            TIFFReadScanline(tif, (tdata_t)tbuff, row, j); // read the j-th band
+                            TIFFReadScanline(tif, static_cast<tdata_t>(tbuff), row, j); // read the j-th band
 
                             int offset = j*Bps; // an offset to the j-th band
                             l = line + offset;

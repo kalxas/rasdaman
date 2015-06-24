@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: servercomm.cc
  *
@@ -171,7 +171,7 @@ ServerComm::ServerComm()
     actual_servercomm = this;
 }
 
-ServerComm::ServerComm( unsigned long timeOut, unsigned long managementInterval , unsigned long listenPort, char* rasmgrHost, unsigned int rasmgrPort,char* serverName)
+ServerComm::ServerComm( unsigned long timeOut, unsigned long managementInterval , unsigned long newListenPort, char* newRasmgrHost, unsigned int newRasmgrPort,char* newServerName)
     : clientTimeout( timeOut ),
       garbageCollectionInterval( managementInterval ),
       transactionActive( 0 ),
@@ -186,10 +186,10 @@ ServerComm::ServerComm( unsigned long timeOut, unsigned long managementInterval 
     }
 
     actual_servercomm = this;
-    this->listenPort  = listenPort;
-    this->rasmgrHost  = rasmgrHost;
-    this->rasmgrPort  = rasmgrPort;
-    this->serverName  = serverName;
+    this->listenPort  = newListenPort;
+    this->rasmgrHost  = newRasmgrHost;
+    this->rasmgrPort  = newRasmgrPort;
+    this->serverName  = newServerName;
 
     isHttpServer        = false;
     //uniqueClientContext = NULL;
@@ -282,7 +282,7 @@ throw( r_Error )
     RMInit::logOut << "Setting alarm clock for next garbage collection to " << garbageCollectionInterval
                    << " secs...";
     RMInit::logOut.flush();
-    alarm( (unsigned int)garbageCollectionInterval );
+    alarm( static_cast<unsigned int>(garbageCollectionInterval) );
     RMInit::logOut << MSG_OK << endl;
 
     signal (SIGTERM, rpcSignalHandler);
@@ -299,7 +299,6 @@ throw( r_Error )
 }
 
 extern "C" {
-    void garbageCollection( int );
     void garbageCollectionDummy ( int );
 }
 
@@ -387,10 +386,10 @@ ServerComm::stopRpcServer()
 {
     RMInit::logOut << "Shutdown request received." << endl;
     // Determine when next garbage collection would have occurred
-    unsigned long nextGarbColl = time( NULL );
+    unsigned long nextGarbColl = static_cast<unsigned long>(time( NULL ));
     struct itimerval rttimer;
     getitimer( ITIMER_REAL, &rttimer );
-    nextGarbColl += rttimer.it_value.tv_sec;
+    nextGarbColl += static_cast<unsigned long>(rttimer.it_value.tv_sec);
     RMInit::logOut << "Next garbage collection would have been in " << rttimer.it_value.tv_sec << " sec, at "
                    << ctime((time_t*)&nextGarbColl);
 
@@ -458,6 +457,7 @@ void rpcif_1_caller(struct svc_req *rqstp, SVCXPRT *transp)
     case RPCGETERRORINFO:
         isGetExtendedError = true;
         break;
+    default: break;
     }
 
     if(isGetExtendedError == false) ServerComm::actual_servercomm->clearExtendedErrorInfo();
@@ -642,7 +642,7 @@ void ServerComm::informRasMGR( int what )
 
     // create HTTP message
     char message[200];
-    sprintf(message,"%s%d\r\n\r\n%s %d %ld ","POST rasservernewstatus HTTP/1.1\r\nUserAgent: RasServer/1.0\r\nContent-length: ",strlen(serverName)+3,serverName,what,infCount++);
+    sprintf(message,"%s%lu\r\n\r\n%s %d %ld ","POST rasservernewstatus HTTP/1.1\r\nUserAgent: RasServer/1.0\r\nContent-length: ",strlen(serverName)+3,serverName,what,infCount++);
 
     // writing message;
     if(writeWholeMessage(sock,message,strlen(message)+1)<0)
@@ -690,7 +690,7 @@ ServerComm::getClientContext( unsigned long clientId )
             // reset the client's lastActionTime to now.
 
             (*iter)->currentUsers++;
-            (*iter)->lastActionTime = time( NULL );
+            (*iter)->lastActionTime = static_cast<long unsigned int>(time( NULL ));
             TALK( "valid entry found, current users now: " << (*iter)->currentUsers );
         }
     }
@@ -734,7 +734,7 @@ void
 ServerComm::printServerStatus( ostream& s )
 {
     return; // clutters the logs way too much.. -- DM 22-nov-2011
-    unsigned long currentTime = time(NULL);
+    unsigned long currentTime = static_cast<long unsigned int>(time( NULL ));
 
     s << "Server state information at " << endl; // << ctime((time_t*)&currentTime) << endl;
     s << "  Inactivity time out of clients.: " << clientTimeout << " sec" << endl;
@@ -820,7 +820,7 @@ ServerComm::getServerStatus( ServerStatRes& returnStruct )
         int i;
 
         returnStruct.clientTable.clientTable_len = clientTbl.size();
-        returnStruct.clientTable.clientTable_val = (RPCClientEntry*) mymalloc( sizeof(RPCClientEntry) * clientTbl.size() );
+        returnStruct.clientTable.clientTable_val = static_cast<RPCClientEntry*>(mymalloc( sizeof(RPCClientEntry) * clientTbl.size() ));
 
         for( iter = clientTbl.begin(), i=0; iter != clientTbl.end(); iter++, i++ )
         {
@@ -843,11 +843,11 @@ ServerComm::getServerStatus( ServerStatRes& returnStruct )
 #ifndef __APPLE__
     struct mallinfo meminfo = mallinfo();
 
-    returnStruct.memArena    = meminfo.arena;
-    returnStruct.memSmblks   = meminfo.smblks;
-    returnStruct.memOrdblks  = meminfo.ordblks;
-    returnStruct.memFordblks = meminfo.fordblks;
-    returnStruct.memUordblks = meminfo.uordblks;
+    returnStruct.memArena    = static_cast<u_long>(meminfo.arena);
+    returnStruct.memSmblks   = static_cast<u_long>(meminfo.smblks);
+    returnStruct.memOrdblks  = static_cast<u_long>(meminfo.ordblks);
+    returnStruct.memFordblks = static_cast<u_long>(meminfo.fordblks);
+    returnStruct.memUordblks = static_cast<u_long>(meminfo.uordblks);
 #endif
 }
 
@@ -1031,7 +1031,7 @@ ServerComm::ClientTblElt::ClientTblElt( const char* clientText, unsigned long cl
 {
     ENTER( "ServerComm::ClientTblElt::ClientTblElt( clientText=" << (clientText?clientText:"(null)") << ", client=0x" << hex << client << dec << " )" );
 
-    creationTime = time( NULL );
+    creationTime = static_cast<long unsigned int>(time( NULL ));
 
     clientIdText = new char[strlen(clientText)+1];
     strcpy( clientIdText, clientText );
@@ -1078,7 +1078,7 @@ ServerComm::ClientTblElt::release()
         RMInit::logOut << "Warning: releasing a non-active client." << endl;
 
     currentUsers--;
-    lastActionTime = time( NULL );
+    lastActionTime = static_cast<long unsigned int>(time( NULL ));
 }
 
 void
@@ -1088,7 +1088,7 @@ ServerComm::ClientTblElt::endRequest()
         RMInit::logOut << "Warning: Client ended request without releasing context. Forcing release now." << endl;
 
     currentUsers=0;
-    lastActionTime = time( NULL );
+    lastActionTime = static_cast<long unsigned int>(time( NULL ));
 }
 
 void
@@ -1270,9 +1270,9 @@ AccessControl::~AccessControl()
 {
 }
 
-void AccessControl::setServerName(const char *serverName)
+void AccessControl::setServerName(const char *newServerName)
 {
-    strcpy(this->serverName,serverName);
+    strcpy(this->serverName,newServerName);
 }
 
 void AccessControl::initSyncro(const char *syncroString)

@@ -71,7 +71,7 @@ public:
     virtual void printAlgebraicExpression(std::ostream& s = std::cout);
 
     /// method for identification of nodes
-    inline virtual QtNodeType getNodeType() const;
+    virtual QtNodeType getNodeType() const;
 
     /// type checking of the subtree
     virtual const QtTypeElement& checkType(QtTypeTuple* typeTuple = NULL);

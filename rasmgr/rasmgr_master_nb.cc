@@ -53,8 +53,6 @@ using namespace std;
 #include "raslib/rmdebug.hh"
 
 
-// from rasmgr_localsrv.cc; should go to a central location -- PB 2003-nov-25
-extern char *now();
 
 extern bool hostCmp( const char *h1, const char *h2);
 
@@ -92,7 +90,7 @@ MasterComm::MasterComm()
 {
     commit=false;
     allowMultipleWriteTransactions = false;
-    currentPosition = (int)config.outpeers.size() - 1;
+    currentPosition = static_cast<int>(config.outpeers.size()) - 1;
 }
 
 MasterComm::~MasterComm()
@@ -715,7 +713,7 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
                 if(r.isAvailable()) // server is free?
                 {
                     // part A: we have what you want
-                    int cbs = clientQueue.canBeServed(clientID, (const char*)databaseName, sType, fake);
+                    int cbs = clientQueue.canBeServed(clientID, static_cast<const char*>(databaseName), sType, fake);
                     // returns: 0=OK, otherwise rasdaman errors 801, 805 -- PB 2003-nov-20
                     if(cbs != 0)
                     {
@@ -785,7 +783,7 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
             char newbody[MAXMSG];
             if (!frompeer) {
                 sprintf(newbody,"%s %s", config.getPublicHostName(), body); // adding the hostname of the current rasmgr to identify ourselves
-                char* myheader = (char*)malloc(strlen(header) + 1);
+                char* myheader = static_cast<char*>(malloc(strlen(header) + 1));
                 strcpy(myheader,header);
                 char *auth = strstr(myheader,"Authorization:"); // should be present, otherwise the client wouldn't have been accepted
                 char *value = strtok(auth+strlen("Authorization:"),"\r\n");
@@ -794,9 +792,9 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
                 free(myheader);
                 myheader = NULL;
                 int peer = currentPosition + 1; // going round-robin over outpeers, starting with the one after the last successful one   
-                if (peer > ((int)config.outpeers.size() - 1)) {
+                if (peer >= static_cast<int>(config.outpeers.size())) {
                     peer = 0;
-                    currentPosition = (int)config.outpeers.size() - 1; // maybe some got deleted in the meantime, so to keep it correct
+                    currentPosition = static_cast<int>(config.outpeers.size()) - 1; // maybe some got deleted in the meantime, so to keep it correct
                 }           
                 if (config.outpeers.size() > 0)  
                 {
@@ -809,9 +807,9 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
                             goon = false;
                         }                 
                         peer++;
-                        if (peer == currentPosition + 1)
+                        if (peer == (currentPosition + 1))
                             goon = false;                    
-                        if (peer > ((int)config.outpeers.size() - 1))
+                        if (peer >= static_cast<int>(config.outpeers.size()))
                             peer = 0;
                     }
                 }
@@ -857,7 +855,7 @@ int MasterComm::getFreeServer(bool fake, bool frompeer)
     else
     {
         sprintf(outBuffer,"HTTP/1.1 %d %s\r\nContent-type: text/plain\r\nContent-length: %lu\r\n\r\n%d %s",400,"Error",strlen(answText)+1,answCode,answText);
-        clientQueue.put(clientID, (const char*)databaseName, sType, answCode);
+        clientQueue.put(clientID, static_cast<const char*>(databaseName), sType, answCode);
     }
 
     // creates too large log files, so omit in production:

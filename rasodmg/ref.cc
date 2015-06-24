@@ -81,7 +81,7 @@ r_Ref_Any::r_Ref_Any( const r_OId& initOId )
 
 
 r_Ref_Any::r_Ref_Any( r_Object* ptr )
-    : oid(), memptr( ptr )
+    : memptr( ptr ), oid()
 {
     RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "r_Ref_Any( r_Object* )")
 }
@@ -89,14 +89,14 @@ r_Ref_Any::r_Ref_Any( r_Object* ptr )
 
 
 r_Ref_Any::r_Ref_Any( void* ptr )
-    : oid(), memptr( ptr )
+    : memptr( ptr ), oid()
 {
     RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "r_Ref_Any( void* )")
 }
 
 
 r_Ref_Any::r_Ref_Any( const r_OId &initOId, r_Object* ptr )
-    : oid( initOId ), memptr( ptr )
+    : memptr( ptr ), oid( initOId )
 {
     RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "r_Ref_Any( const r_OId &oid, const r_Object* )")
 }
@@ -145,7 +145,7 @@ r_Ref_Any::destroy()
 
     if( memptr && !oid.is_valid() )
     {
-        delete memptr;
+        delete static_cast<r_Object*>(memptr);
         memptr = 0;
     }
 }
@@ -158,7 +158,7 @@ r_Ref_Any::delete_object()
 
     if( memptr )
     {
-        delete memptr;
+        delete static_cast<r_Object*>(memptr);
         memptr = 0;
     }
 }
@@ -181,49 +181,49 @@ r_Ref_Any::operator void*()
 
 r_Ref_Any::operator r_Point*()
 {
-    return (r_Point*)memptr;
+    return static_cast<r_Point*>(memptr);
 }
 
 
 
 r_Ref_Any::operator r_Sinterval*()
 {
-    return (r_Sinterval*)memptr;
+    return static_cast<r_Sinterval*>(memptr);
 }
 
 
 
 r_Ref_Any::operator r_Minterval*()
 {
-    return (r_Minterval*)memptr;
+    return static_cast<r_Minterval*>(memptr);
 }
 
 
 
 r_Ref_Any::operator r_OId*()
 {
-    return (r_OId*)memptr;
+    return static_cast<r_OId*>(memptr);
 }
 
 
 
 r_Ref_Any::operator r_Scalar*()
 {
-    return (r_Scalar*)memptr;
+    return static_cast<r_Scalar*>(memptr);
 }
 
 
 
 r_Ref_Any::operator r_Primitive*()
 {
-    return (r_Primitive*)memptr;
+    return static_cast<r_Primitive*>(memptr);
 }
 
 
 
 r_Ref_Any::operator r_Structure*()
 {
-    return (r_Structure*)memptr;
+    return static_cast<r_Structure*>(memptr);
 }
 
 
@@ -271,7 +271,7 @@ int
 r_Ref_Any::operator==( const r_Object* ptr ) const
 {
     RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref_Any", "operator==( const r_Object* )")
-    return memptr == (void*)ptr;
+    return memptr == static_cast<void*>(const_cast<r_Object*>(ptr));
 }
 
 
@@ -330,15 +330,15 @@ r_Ref<T>::r_Ref( const r_Ref_Any& obj )
 {
     RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "r_Ref( const r_Ref_Any& )")
 
-    memptr    = (T*)obj.get_memory_ptr();
+    memptr    = static_cast<T*>(obj.get_memory_ptr());
     oid       = obj.get_oid();
 }
 
 
 
 template<class T>
-r_Ref<T>::r_Ref( T* ptr )
-    : oid(), memptr( ptr )
+r_Ref<T>::r_Ref( T* newPtr )
+    : memptr( newPtr ), oid()
 {
     RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "r_Ref( const T* )")
 }
@@ -346,8 +346,8 @@ r_Ref<T>::r_Ref( T* ptr )
 
 
 template<class T>
-r_Ref<T>::r_Ref( const r_OId &initOId, T* ptr )
-    : oid( initOId ), memptr( ptr )
+r_Ref<T>::r_Ref( const r_OId &initOId, T* newPtr )
+    : memptr( newPtr ), oid( initOId )
 {
     RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "r_Ref( const r_OId &oid, const T* )")
 }
@@ -387,10 +387,10 @@ r_Ref<T>::operator const r_Ref_Any() const
 
 template<class T>
 r_Ref<T>&
-r_Ref<T>::operator=( const r_Ref_Any& ptr )
+r_Ref<T>::operator=( const r_Ref_Any& newPtr )
 {
-    memptr    = (T*)ptr.get_memory_ptr();
-    oid       = ptr.get_oid();
+    memptr    = static_cast<T*>(newPtr.get_memory_ptr());
+    oid       = newPtr.get_oid();
 
     return *this;
 }
@@ -399,9 +399,9 @@ r_Ref<T>::operator=( const r_Ref_Any& ptr )
 
 template<class T>
 r_Ref<T>&
-r_Ref<T>::operator=( T* ptr )
+r_Ref<T>::operator=( T* newPtr )
 {
-    memptr    = ptr;
+    memptr    = newPtr;
     oid       = r_OId();
 
     return *this;
@@ -577,20 +577,20 @@ r_Ref<T>::operator!=( const r_Ref<T>& refR ) const
 
 template<class T>
 int
-r_Ref<T>::operator==( const T* ptr ) const
+r_Ref<T>::operator==( const T* newPtr ) const
 {
     RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "operator==( const T* )")
-    return memptr == ptr;
+    return memptr == newPtr;
 }
 
 
 
 template<class T>
 int
-r_Ref<T>::operator!=( const T* ptr ) const
+r_Ref<T>::operator!=( const T* newPtr ) const
 {
     RMDBGONCE(4, RMDebug::module_rasodmg, "r_Ref", "operator!=( const T* )")
-    return !operator==( ptr );
+    return !operator==( newPtr );
 }
 
 

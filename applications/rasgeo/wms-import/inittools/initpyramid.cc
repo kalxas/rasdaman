@@ -259,6 +259,36 @@ bool useHindex = false;
 // debug output wanted?
 bool debug = false;
 
+//function prototypes:
+
+void
+parseParams(int argc, char** argv) throw (InitError, r_Error);
+
+void
+openDatabase() throw (r_Error);
+
+void
+closeDatabase() throw (r_Error);
+
+void
+openTransaction(bool readwrite) throw (r_Error);
+
+void
+closeTransaction( bool doCommit ) throw (r_Error);
+
+void
+getType( const char* mapType2, const char** mddTypeP, const char** setTypeP, size_t* cellSizeP ) throw (InitError);
+
+void
+extendToFit(long &dim);
+
+void
+normalize ( long& pixXminP, long& pixXmaxP,  long& pixYminP,  long& pixYmaxP );
+
+void
+createPyramids( const char* mddTypeName, const char* setTypeName, size_t cellSize, long pixXmin2, long pixXmax2, long pixYmin2, long pixYmax2 ) throw (r_Error, InitError);
+
+
 void parseParams(int argc, char** argv) throw (InitError, r_Error)
 {
     ENTER( "parseParams" );

@@ -184,7 +184,7 @@ throw( r_Eindex_violation )
     unsigned long byteCount    = ( newDomain.dimension() ? newDomain.cell_count() : 1 ) * type_length;
     T*            dataPtr      = (T*)data;  // typed pointer to the data
 
-    memcpy( newMDD.data, &(dataPtr[(cordnt-domain[0].low())*newCellCount]), (unsigned int)byteCount );
+    memcpy( newMDD.data, &(dataPtr[(cordnt-domain[0].low())*newCellCount]), static_cast<unsigned int>(byteCount) );
 
     return newMDD;
 }

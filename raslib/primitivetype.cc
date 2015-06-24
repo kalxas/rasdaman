@@ -336,31 +336,31 @@ r_Primitive_Type::set_value( char* storage, r_Double val ) throw(r_Error)
     switch( typeId )
     {
     case r_Type::ULONG:
-        set_ulong( storage, (r_ULong)val );
+        set_ulong( storage, static_cast<r_ULong>(val) );
         break;
     case r_Type::USHORT:
-        set_ushort( storage, (r_UShort)val );
+        set_ushort( storage, static_cast<r_UShort>(val) );
         break;
     case r_Type::BOOL:
-        set_boolean( storage, (r_Boolean)val );
+        set_boolean( storage, static_cast<r_Boolean>(val) );
         break;
     case r_Type::LONG:
-        set_long( storage, (r_Long)val );
+        set_long( storage, static_cast<r_Long>(val) );
         break;
     case r_Type::SHORT:
-        set_short( storage, (r_Short)val );
+        set_short( storage, static_cast<r_Short>(val) );
         break;
     case r_Type::OCTET:
-        set_octet( storage, (r_Octet)val );
+        set_octet( storage, static_cast<r_Octet>(val) );
         break;
     case r_Type::DOUBLE:
-        set_double( storage, (r_Double)val);
+        set_double( storage, static_cast<r_Double>(val) );
         break;
     case r_Type::FLOAT:
-        set_float( storage, (r_Float)val );
+        set_float( storage, static_cast<r_Float>(val) );
         break;
     case r_Type::CHAR:
-        set_char( storage, (r_Char)val );
+        set_char( storage, static_cast<r_Char>(val) );
         break;
     default:
     {

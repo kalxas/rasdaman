@@ -714,7 +714,7 @@ void Authorization::initcrypt(int seed)
 }
 void Authorization::crypt(void *vbuffer,int length)
 {
-    unsigned char *buff=(unsigned char*)vbuffer;
+    unsigned char *buff=static_cast<unsigned char*>(vbuffer);
     // RMInit::logOut<<" crypt length="<<length<<flush;
     for(int i=0; i<length; i++) buff[i]^=randomGenerator(); //rand();
 }

@@ -68,6 +68,20 @@ class MDDCollIter;
 class MDDColl;
 class r_Parse_Params;
 
+// function prototypes:
+
+void
+ppreset();
+
+int
+ppparse();
+
+int
+writeWholeMessage(int socket,char *destBuffer,int buffSize);
+
+void
+freeDynamicRPCData();
+
 //@ManMemo: Module: {\bf servercomm}
 
 /*@Doc:

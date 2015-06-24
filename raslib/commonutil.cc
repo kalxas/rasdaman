@@ -51,7 +51,7 @@ void print_stacktrace(void *ucontext) {
   // http://stackoverflow.com/questions/77005/how-to-generate-a-stacktrace-when-my-gcc-c-app-crashes/2526298#2526298
   void* fault_address;
   sig_ucontext_t* uc;
-  uc = (sig_ucontext_t*) ucontext;
+  uc = static_cast<sig_ucontext_t*>(ucontext);
   fault_address = getFaultAddress(uc);
   void * addresses[BACKTRACE_TRUNC];
   int size = backtrace(addresses, BACKTRACE_TRUNC);

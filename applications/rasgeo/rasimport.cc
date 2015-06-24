@@ -348,7 +348,7 @@ getRmanDataType(GDALDataType type)
 bool readTileInformation(string filename, Header& header)
 {
     ENTER(ctx << "readTileInformation()");
-    GDALDataset* pDs = (GDALDataset*)GDALOpen(filename.c_str(), GA_ReadOnly);
+    GDALDataset* pDs = static_cast<GDALDataset*>(GDALOpen(filename.c_str(), GA_ReadOnly));
 
     if (pDs == 0)
         return false;
@@ -490,7 +490,7 @@ bool checkCRSOrderSequence(vector<double>& sequence, vector<int>& order)
 
     // temp copy for maintaining user specified axis order
     vector<double> vtmp;
-    for (int i=0; i < sequence.size(); ++i)
+    for (unsigned int i=0; i < sequence.size(); ++i)
         vtmp.push_back(sequence[i]);
 
     // check for proper sequence
@@ -498,7 +498,7 @@ bool checkCRSOrderSequence(vector<double>& sequence, vector<int>& order)
 
     // sequence has to be zero-based
     bool bsound = vtmp[0] == 0 ? true : false;
-    int pos = 0;
+    unsigned int pos = 0;
     while (pos < vtmp.size()-1 && bsound)
     {
         if (vtmp[pos] + 1 != vtmp[pos+1])
@@ -510,7 +510,7 @@ bool checkCRSOrderSequence(vector<double>& sequence, vector<int>& order)
         return false;
 
     order.clear();
-    for (int t=0; t < sequence.size(); ++t)
+    for (unsigned int t=0; t < sequence.size(); ++t)
         order.push_back(static_cast<int>(sequence[t]));
 
     return true;
@@ -519,7 +519,7 @@ bool checkCRSOrderSequence(vector<double>& sequence, vector<int>& order)
 bool checkZCoords(std::vector<double>& coords)
 {
     bool inorder = true;
-    int pos = 0;
+    unsigned int pos = 0;
     while (pos < coords.size()-1 && inorder)
     {
         if (coords[pos+1] <= coords[pos])
@@ -572,7 +572,7 @@ processImageFiles(vector<string>& filenames, const string& collname,
     {
         bool bUpdate = oids.size() == 0 ? false : true;
 
-        GDALDataset* pDs = (GDALDataset*)GDALOpen((*iter).c_str(), GA_ReadOnly);
+        GDALDataset* pDs = static_cast<GDALDataset*>(GDALOpen((*iter).c_str(), GA_ReadOnly));
         if (pDs == 0)
         {
             cerr << ctx << "processImageFiles(): "
@@ -615,8 +615,8 @@ processImageFiles(vector<string>& filenames, const string& collname,
         r_Range read_scol = ((insertGeoRegion.xmin - srcGeoRegion.xmin) / srcGeoRegion.cellsize.x) + 0.5;
         r_Range read_srow = ((srcGeoRegion.ymax - insertGeoRegion.ymax) / srcGeoRegion.cellsize.y) + 0.5;
         r_Minterval readGDALImgDOM(2);
-        readGDALImgDOM  << r_Sinterval(read_scol, (r_Range)(read_scol + insertGeoRegion.ncols - 1))
-                        << r_Sinterval(read_srow, (r_Range)(read_srow + insertGeoRegion.nrows - 1));
+        readGDALImgDOM  << r_Sinterval(read_scol, (read_scol + insertGeoRegion.ncols - 1))
+                        << r_Sinterval(read_srow, (read_srow + insertGeoRegion.nrows - 1));
 
         // when we fall back to indexed crs, we have to make sure
         // to operate in pixel space (0:ncols-1,0:nrows-1,0)
@@ -734,7 +734,7 @@ processImageFiles(vector<string>& filenames, const string& collname,
                 if (!processRegion.isRegular && zcoords.size() > 0)
                 {
                     long idx = -1;
-                    if (tilecounter >=1 && tilecounter <= zcoords.size())
+                    if (tilecounter >=1 && tilecounter <= static_cast<int>(zcoords.size()))
                     {
 						std::vector<double> vcsz = helper.getMetaCellSize(oids[0], true);
 						if (vcsz.size() < 2)
@@ -745,7 +745,7 @@ processImageFiles(vector<string>& filenames, const string& collname,
 							LEAVE(ctx << "processImageFiles()");
 							return 0;
 						}
-                        zCoeff = (zcoords[tilecounter-1]-isdom[4]) / vcsz[2];
+                        zCoeff = (zcoords[static_cast<size_t>(tilecounter)-1]-isdom[4]) / vcsz[2];
                         idx = helper.canAppendReferencedZCoeff(oids[0], zCoeff);
 
                         TALK("z-coeff=(" << zcoords[tilecounter-1] << " - " << isdom[4] << ") / " << vcsz[2]
@@ -768,7 +768,7 @@ processImageFiles(vector<string>& filenames, const string& collname,
                     else
                     {
                         cerr << ctx << "processImageFiles(): "
-                        << "cannot append z-coordinate: " << zcoords[tilecounter-1] << " !"
+                        << "cannot append z-coordinate: " << zcoords[static_cast<size_t>(tilecounter)-1] << " !"
                         << endl;
                         LEAVE(ctx << "processImageFiles()");
                         return 0;
@@ -886,10 +886,10 @@ processImageFiles(vector<string>& filenames, const string& collname,
 				}
 				else
 				{
-					if (zcoords.size() > 0 && tilecounter-1 <= zcoords.size())
+					if (zcoords.size() > 0 && tilecounter-1 <= static_cast<long>(zcoords.size()))
 					{
 						minZ = isdom[4];
-						maxZ = zcoords[tilecounter-1];
+						maxZ = zcoords[static_cast<size_t>(tilecounter)-1];
 					}
 				}
 			}
@@ -964,9 +964,9 @@ processImageFiles(vector<string>& filenames, const string& collname,
             // one image per band -> oids index = band index -1
             if (oids.size() > 1)
             {
-                for (int v=0; v < oids.size(); ++v)
+                for (unsigned int v=0; v < oids.size(); ++v)
                 {
-                    helper.writeRAT(*iter, oids[v], v+1);
+                    helper.writeRAT(*iter, oids[v], static_cast<int>(v)+1);
                 }
             }
             // one image, possibly multiple bands ...
@@ -1000,18 +1000,18 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
     // if we've got a struct type specified, we adjust the pixelsize, because we're going
     // to process all bands at the same time
     if (!marraytypename.empty())
-        pixelsize *= newGeoRegion.nbands;
+        pixelsize *= static_cast<unsigned int>(newGeoRegion.nbands);
 
     // determine parameters for sequential processing
-    unsigned long chunksize = helper.getMaxImgSize() /
-                              (readGDALImgDOM[0].get_extent() * pixelsize);
-    if (chunksize > readGDALImgDOM[1].get_extent())
-        chunksize = readGDALImgDOM[1].get_extent();
+    unsigned long chunksize = static_cast<unsigned long>(helper.getMaxImgSize()) /
+                              (static_cast<unsigned long>(readGDALImgDOM[0].get_extent()) * pixelsize);
+    if (chunksize > static_cast<unsigned long>(readGDALImgDOM[1].get_extent()))
+        chunksize = static_cast<unsigned long>(readGDALImgDOM[1].get_extent());
 
     // prepare sequential processing variables
-    unsigned long niter = chunksize == 0 ? readGDALImgDOM[1].get_extent() : readGDALImgDOM[1].get_extent() / chunksize;
-    unsigned long rest = readGDALImgDOM[1].get_extent() - (niter * chunksize);
-    unsigned long imgsize_bytes = pixelsize * readGDALImgDOM[0].get_extent() * readGDALImgDOM[1].get_extent();
+    unsigned long niter = chunksize == 0 ? static_cast<unsigned long>(readGDALImgDOM[1].get_extent()) : static_cast<unsigned long>(readGDALImgDOM[1].get_extent()) / chunksize;
+    unsigned long rest = static_cast<unsigned long>(readGDALImgDOM[1].get_extent()) - (niter * chunksize);
+    unsigned long imgsize_bytes = pixelsize * static_cast<unsigned long>(readGDALImgDOM[0].get_extent()) * static_cast<unsigned long>(readGDALImgDOM[1].get_extent());
     double imgsize_mib = (imgsize_bytes /  (1024.0 * 1024.0));
 
     // some debug output
@@ -1021,7 +1021,7 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
                << " rows");
 
     // process individual bands
-    for (unsigned int b=1; b <= newGeoRegion.nbands; ++b)
+    for (unsigned int b=1; b <= static_cast<unsigned int>(newGeoRegion.nbands); ++b)
     {
         // prepare a sequentially updated writeShift vector accounting for row-wise input
         r_Point seqWriteShift = r_Point(writeShift);
@@ -1029,10 +1029,10 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
         // calc the sequential read variables
         r_Range startcolumn = readGDALImgDOM[0].low();
         r_Range startrow = readGDALImgDOM[1].low();
-        r_Range endrow = startrow + chunksize -1;
-        r_Range rowstoread = chunksize;
+        r_Range endrow = startrow + static_cast<r_Range>(chunksize) -1;
+        r_Range rowstoread = static_cast<r_Range>(chunksize);
 
-        for (r_Range iter=0; iter <= niter; iter++)
+        for (unsigned int iter=0; iter <= niter; iter++)
         {
             TALK("importing chunk " << iter+1 << " of " << (rest > 0 ? niter+1 : niter)
                  << ": row " << seqWriteShift[1] << " to " << seqWriteShift[1] + rowstoread-1 << endl);
@@ -1041,18 +1041,18 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
             r_Minterval rint;
             if (asCube)
             {
-                rint = r_Minterval(3) << r_Sinterval((r_Range)0, (r_Range)readGDALImgDOM[0].get_extent()-1)
-                       << r_Sinterval((r_Range)0, (r_Range)rowstoread-1)
-                       << r_Sinterval((r_Range)0, (r_Range)0);
+                rint = r_Minterval(3) << r_Sinterval(static_cast<r_Range>(0), readGDALImgDOM[0].get_extent()-1)
+                       << r_Sinterval(static_cast<r_Range>(0), rowstoread-1)
+                       << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(0));
             }
             else
             {
-                rint = r_Minterval(2) << r_Sinterval((r_Range)0, (r_Range)readGDALImgDOM[0].get_extent()-1)
-                       << r_Sinterval((r_Range)0, (r_Range)rowstoread-1);
+                rint = r_Minterval(2) << r_Sinterval(static_cast<r_Range>(0), readGDALImgDOM[0].get_extent()-1)
+                       << r_Sinterval(static_cast<r_Range>(0), rowstoread-1);
             }
 
             // allocate the memory for the 'transfer buffer'
-            void* gdalbuf = CPLMalloc(pixelsize * readGDALImgDOM[0].get_extent() * rowstoread);
+            void* gdalbuf = CPLMalloc(pixelsize * static_cast<size_t>(readGDALImgDOM[0].get_extent()) * static_cast<size_t>(rowstoread));
             if (gdalbuf == NULL)
             {
                 cerr << ctx << "importImage(): "
@@ -1068,7 +1068,7 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
             if (marraytypename.empty())
             {
                 // read image buffer from file
-                GDALRasterBand* pBand = pDs->GetRasterBand(b);
+                GDALRasterBand* pBand = pDs->GetRasterBand(static_cast<int>(b));
                 pBand->RasterIO(GF_Read, startcolumn, startrow, readGDALImgDOM[0].get_extent(), rowstoread,
                                 gdalbuf, readGDALImgDOM[0].get_extent(), rowstoread, newGeoRegion.gdaltype, 0, 0);
 
@@ -1084,25 +1084,25 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
             {
                 // calc offset parameters to match interleave type
                 int linesize = readGDALImgDOM[0].get_extent() * pixelsize;
-                int bandoffset = pixelsize / newGeoRegion.nbands; // -> INTERLEAVE_PIXEL
+                int bandoffset = static_cast<int>(pixelsize) / newGeoRegion.nbands; // -> INTERLEAVE_PIXEL
                 // read image buffer from file
                 pDs->RasterIO(GF_Read, startcolumn, startrow, readGDALImgDOM[0].get_extent(), rowstoread,
                               gdalbuf, readGDALImgDOM[0].get_extent(), rowstoread, newGeoRegion.gdaltype,
-                              newGeoRegion.nbands, NULL, pixelsize, linesize, bandoffset);
+                              newGeoRegion.nbands, NULL, static_cast<int>(pixelsize), linesize, bandoffset);
 
                 if (iter == 0 && oids.size() == 0)
                 {
-                    oids.push_back(helper.insertImage(collname, (char*)gdalbuf, seqWriteShift, rint, true,
+                    oids.push_back(helper.insertImage(collname, static_cast<char*>(gdalbuf), seqWriteShift, rint, true,
                                                       marraytypename, tiling));
                 }
                 else
                 {
-                    helper.updateImage(collname, oids.at(0), (char*)gdalbuf, seqWriteShift, rint, true,
+                    helper.updateImage(collname, oids.at(0), static_cast<char*>(gdalbuf), seqWriteShift, rint, true,
                                        marraytypename);
                 }
 
                 // we don't need to iterate over any bands more, 'cause we've processed them all at once
-                b = newGeoRegion.nbands + 1;
+                b = static_cast<unsigned int>(newGeoRegion.nbands) + 1;
             }
 
             // release memory of the reading buffer
@@ -1118,14 +1118,14 @@ int importImage(RasdamanHelper2& helper, GDALDataset* pDs,
             {
                 if (rest > 0)
                 {
-                    endrow += rest;
-                    rowstoread = rest;
+                    endrow += static_cast<r_Range>(rest);
+                    rowstoread = static_cast<r_Range>(rest);
                 }
                 else
                     break;
             }
             else
-                endrow += chunksize;
+                endrow += static_cast<r_Range>(chunksize);
 
         } // end sequential processing
 
@@ -1330,7 +1330,7 @@ bool parseStringSequence(const string& sequence,
 	startpos = sequence.size();
     }
 
-    for (int s=0; s < vsep.size(); ++s)
+    for (unsigned int s=0; s < vsep.size(); ++s)
     {
         size_t st = string::npos;
 		if ((st = sequence.find(vsep[s])) != string::npos)
@@ -1354,9 +1354,9 @@ bool parseStringSequence(const string& sequence,
 
         string tmp = sequence.substr(endpos+1, sequence.size() - (endpos+1));
 
-        for (int s=0; s < vsep.size(); ++s)
+        for (unsigned int s=0; s < vsep.size(); ++s)
         {
-		    if (tmp.find(vsep[s]) == (size_t)0)
+		    if (tmp.find(vsep[s]) == static_cast<size_t>(0))
 		    {
 			sub = sequence.substr(itemstart, endpos-itemstart);
 			if (!sub.empty())
@@ -1399,7 +1399,7 @@ bool parseStringSequence(const string& sequence,
 
     // if nelem is meaningful, we evaluate, otherwise we just
     // claim everything was fine unless we've found at least one matching substring
-    return nelem > 0 ? (items.size() == nelem ? true : false) : (items.size() > 0 ? true : false);
+    return nelem > 0 ? (static_cast<int>(items.size()) == nelem ? true : false) : (items.size() > 0 ? true : false);
 }
 
 void getMetaURIs(Header& header, RasdamanHelper2& helper, bool b3D)
@@ -1441,7 +1441,7 @@ void getMetaURIs(Header& header, RasdamanHelper2& helper, bool b3D)
 
 
 void
-crash_handler (int sig, siginfo_t* info, void * ucontext)
+crash_handler ( __attribute__ ((unused)) int sig,  __attribute__ ((unused)) siginfo_t* info, void * ucontext)
 {
 
     ENTER( "crash_handler");
@@ -1718,7 +1718,7 @@ main(int argc, char** argv)
             }
 
             // copy valid oids into final vector
-            for (int t=0; t < tmpoids.size(); ++t)
+            for (unsigned int t=0; t < tmpoids.size(); ++t)
             {
                 if (tmpoids[t] > 0)
                     oids.push_back(tmpoids[t]);
@@ -1801,43 +1801,43 @@ main(int argc, char** argv)
 
     stringstream debugstr;
     debugstr << "bnd: ";
-    for (int i=0; i < bnd.size(); i++)
+    for (unsigned int i=0; i < bnd.size(); i++)
         debugstr<< bnd[i] << " ";
     TALK(debugstr.str());
     debugstr.str("");
 
     debugstr << "oid: ";
-    for (int v=0; v < oids.size(); v++)
+    for (unsigned int v=0; v < oids.size(); v++)
         debugstr<< oids[v] << " ";
     TALK(debugstr.str());
     debugstr.str("");
 
     debugstr << "shift: ";
-    for (int s=0; s < shift.size(); s++)
+    for (unsigned int s=0; s < shift.size(); s++)
         debugstr<< shift[s] << " ";
     TALK(debugstr.str());
     debugstr.str("");
 
     debugstr << "data types: ";
-    for (int t=0; t < usertype.size(); t++)
+    for (unsigned int t=0; t < usertype.size(); t++)
         debugstr<< usertype.at(t) << " ";
     TALK(debugstr.str());
     debugstr.str("");
 
     debugstr << "geo-bbox: ";
-    for (int i=0; i < geobbox.size(); i++)
+    for (unsigned int i=0; i < geobbox.size(); i++)
         debugstr<< geobbox[i] << " ";
     TALK(debugstr.str());
     debugstr.str("");
 
     debugstr << "CRS order: ";
-    for (int i=0; i < header.crs_order.size(); i++)
+    for (unsigned int i=0; i < header.crs_order.size(); i++)
         debugstr<< header.crs_order[i] << " ";
     TALK(debugstr.str());
     debugstr.str("");
 
     debugstr << "CRS URIs: ";
-    for (int i=0; i < crsuri.size(); i++)
+    for (unsigned int i=0; i < crsuri.size(); i++)
         debugstr<< crsuri[i] << "\n          ";
     TALK(debugstr.str());
     debugstr.str("");
@@ -1846,7 +1846,7 @@ main(int argc, char** argv)
     TALK("metadata: " << metadata);
 
     debugstr << "z-axis coordinates: ";
-    for (int i=0; i < zcoords.size(); i++)
+    for (unsigned int i=0; i < zcoords.size(); i++)
         debugstr<< zcoords[i] << " ";
     TALK(debugstr.str());
     debugstr.str("");
@@ -2009,7 +2009,7 @@ main(int argc, char** argv)
         else
         {
 		    crsHeader.crs_uris.clear();
-            for (int c=0; c < crsuri.size(); ++c)
+            for (unsigned int c=0; c < crsuri.size(); ++c)
                 crsHeader.crs_uris.push_back(crsuri[c]);
         }
 
@@ -2041,7 +2041,7 @@ main(int argc, char** argv)
 		    uris = crsHeader.crs_uris;
         }
 
-		for (int d=0; d < uris.size(); ++d)
+		for (unsigned int d=0; d < uris.size(); ++d)
 		{
 			string u = uris[d];
 			if (u.rfind("Index2D") != std::string::npos)
@@ -2118,8 +2118,8 @@ main(int argc, char** argv)
             yshift = shift[1] / header.cellsize.y;
             yshift = yshift > 0 ? yshift + 0.5 : yshift - 0.5;
 
-            shiftPt = r_Point(2) << (r_Range)xshift
-                      << (r_Range)yshift;
+            shiftPt = r_Point(2) << static_cast<r_Range>(xshift)
+                      << static_cast<r_Range>(yshift);
         }
         else if (shift.size() == 3)
         {
@@ -2141,9 +2141,9 @@ main(int argc, char** argv)
 		zshift = idom[2].low() + relshift;
             }
 
-            shiftPt = r_Point(3) << (r_Range)xshift
-                      << (r_Range)yshift
-                      << (r_Range)zshift;
+            shiftPt = r_Point(3) << static_cast<r_Range>(xshift)
+                      << static_cast<r_Range>(yshift)
+                      << static_cast<r_Range>(zshift);
 
             // note: this is only gonna be used upon insertion of
             // the first slice, afterwards, the petascope
@@ -2203,7 +2203,7 @@ main(int argc, char** argv)
             }
         }
 
-        for (int q=0; q < oids.size(); ++q)
+        for (unsigned int q=0; q < oids.size(); ++q)
         {
             if (bDomvalid)
             {

@@ -262,6 +262,40 @@ r_Set< r_Ref_Any > result_set;
 
 // end of globals
 
+//function prototypes:
+
+void
+parseParams(int argc, char** argv) throw (RasqlError, r_Error);
+
+void
+openDatabase() throw (r_Error);
+
+void
+closeDatabase() throw (r_Error);
+
+void
+openTransaction(bool readwrite) throw (r_Error);
+
+void
+closeTransaction( bool doCommit ) throw (r_Error);
+
+void
+printScalar( const r_Scalar& scalar );
+
+void
+printResult() throw(RasqlError);
+
+r_Marray_Type*
+getTypeFromDatabase( const char *mddTypeName2 ) throw(RasqlError, r_Error);
+
+void
+doStuff( int argc, char** argv ) throw (RasqlError, r_Error);
+
+void
+crash_handler (int sig, siginfo_t* info, void * ucontext);
+
+
+
 void
 parseParams(int argc, char** argv) throw (RasqlError, r_Error)
 {

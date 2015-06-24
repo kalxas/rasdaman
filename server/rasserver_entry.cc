@@ -137,7 +137,7 @@ void RasServerEntry::compat_disconnectClient()
     // DM 2012-nov-10
 #if 1 // 
     deleteClientTblEntry( currentClientIdx );
-    currentClientIdx = -1;
+    currentClientIdx = static_cast<unsigned long>(-1);
 #else
     // disable client list, use 1 constant element (see above) -- PB 2005-sep-01
     currentClientIdx = SINGLETON_CLIENTID;

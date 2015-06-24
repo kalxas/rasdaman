@@ -40,6 +40,12 @@ rasdaman GmbH.
 
 using namespace rnp;
 
+//function prototypes:
+size_t
+my_strftime(char *s, size_t max, const char *fmt, const struct tm *tm);
+
+const char*
+now();
 
 /**
   * \ingroup Rnprotocols

@@ -99,7 +99,7 @@ void GDALDataConverter::resolveTileCellsByType(GDALDataset* poDataset, /* out */
         CPLErr error = poDataset->GetRasterBand(band + 1)->RasterIO(GF_Read, startCoordX, startCoordY, width, height, gdalBand, width, height, gdalType, 0, 0);
 		if (error != CE_None)
 		{
-			CPLError(error, 0, "");
+			CPLError(error, 0, "Error copying band to rasdaman.");
 			GDALClose(poDataset);
 			free(gdalBand);
 			throw r_Error(r_Error::r_Error_FeatureNotSupported);

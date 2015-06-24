@@ -43,9 +43,7 @@ class QtCellTypeAttributes : public QtOperation
 public:
     QtCellTypeAttributes(const std::string& attributeName, const std::string& attributeType);
 
-    virtual QtData* evaluate();
     virtual void printTree( int tab, std::ostream& s = std::cout, QtChildType mode = QT_ALL_NODES );
-    virtual void checkType();
 
     std::string getAttributeName();
     std::string getAttributeType();

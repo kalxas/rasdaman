@@ -518,7 +518,7 @@ template <class T>
 OId DBRef<T>::getOId(void) const
 {
     if (object && pointerCaching)
-        ((DBRef<T>)*this).objId = object->getOId();
+        (static_cast<DBRef<T> >(*this)).objId = object->getOId();
     return objId;
 }
 
@@ -782,7 +782,7 @@ DBRef<T>::operator HierIndexDS*() const throw (r_Error)
         {
             RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator IndexDS*() DBHierIndexId" << objId);
             DBRef<DBHierIndex> t(objId);
-            return (HierIndexDS*)t.ptr();
+            return static_cast<HierIndexDS*>(t.ptr());
         }
         else
         {
@@ -790,7 +790,7 @@ DBRef<T>::operator HierIndexDS*() const throw (r_Error)
             {
                 RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator IndexDS*() DBTCIndexId" << objId);
                 DBRef<DBTCIndex> t(objId);
-                return (HierIndexDS*)t.ptr();
+                return static_cast<HierIndexDS*>(t.ptr());
             }
         }
     }
@@ -826,7 +826,7 @@ DBRef<T>::operator IndexDS*() const throw (r_Error)
             {
                 RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator IndexDS*() DBTCIndexId" << objId);
                 DBRef<DBTCIndex> t(objId);
-                return (IndexDS*)t.ptr();
+                return static_cast<IndexDS*>(t.ptr());
             }
             else
             {
@@ -834,7 +834,7 @@ DBRef<T>::operator IndexDS*() const throw (r_Error)
                 {
                     RMDBGEXIT(11, RMDebug::module_adminif, "DBRef", "operator IndexDS*() DBRCIndexId" << objId);
                     DBRef<DBRCIndexDS> t(objId);
-                    return (IndexDS*)t.ptr();
+                    return static_cast<IndexDS*>(t.ptr());
                 }
             }
         }
@@ -861,7 +861,7 @@ bool DBRef<T>::is_null(void) const
         {
             try
             {
-                t = (T*)ObjectBroker::getObjectByOId(objId);
+                t = static_cast<T*>(ObjectBroker::getObjectByOId(objId));
                 RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "found object");
                 t->incrementReferenceCount();
                 (const_cast<DBRef<T>*>(this))->object = t;
@@ -884,7 +884,7 @@ bool DBRef<T>::is_null(void) const
             {
                 try
                 {
-                    t = (T*)ObjectBroker::getObjectByOId(objId);
+                    t = static_cast<T*>(ObjectBroker::getObjectByOId(objId));
                     RMDBGMIDDLE(11, RMDebug::module_adminif, "DBRef", "found object");
                     t->incrementReferenceCount();
                     (const_cast<DBRef<T>*>(this))->object = t;

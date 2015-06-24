@@ -19,7 +19,7 @@ rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 
 /**
  * directql
@@ -58,11 +58,11 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include "raslib/template_inst.hh"
 #endif
 
-extern char* myExecArgv0 = "";
-extern int tiling = 1;
-extern unsigned long maxTransferBufferSize = 4000000;
-extern char* dbSchema = 0;
-extern int noTimeOut = 0;
+const char* myExecArgv0 = "";
+int tiling = 1;
+unsigned long maxTransferBufferSize = 4000000;
+char* dbSchema = 0;
+int noTimeOut = 0;
 bool udfEnabled = true;
 
 #ifdef __VISUALC__
@@ -298,6 +298,53 @@ r_Set< r_Ref_Any > result_set;
 
 // end of globals
 
+//function prototypes:
+
+void
+parseParams(int argc, char** argv) throw(RasqlError, r_Error);
+
+void
+openDatabase() throw(r_Error);
+
+void
+closeDatabase() throw(r_Error);
+
+void
+openTransaction(bool readwrite) throw(r_Error);
+
+void
+closeTransaction(bool doCommit) throw(r_Error);
+
+void
+printScalar(char* buffer, QtData* data, unsigned int resultIndex);
+
+
+void
+printResult(Tile* tile, int resultIndex) throw(RasqlError);
+
+void
+printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlError);
+
+r_Marray_Type*
+getTypeFromDatabase(const char *mddTypeName) throw(RasqlError, r_Error);
+
+void
+freeResult(ExecuteQueryRes *result);
+
+void
+printError(unsigned short status, ExecuteQueryRes *result);
+
+void
+printError(unsigned short status, ExecuteUpdateRes *result);
+
+void
+doStuff(int argc, char** argv) throw(RasqlError, r_Error);
+
+void
+crash_handler(int sig, siginfo_t* info, void * ucontext);
+
+
+
 void
 parseParams(int argc, char** argv) throw(RasqlError, r_Error)
 {
@@ -454,7 +501,7 @@ openDatabase() throw(r_Error)
         sprintf(globalConnectId, "%s", baseName);
         LOG("opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush);
 
-        server = new ServerComm(DQ_TIMEOUT, DQ_MANAGEMENT_INTERVAL, DQ_LISTEN_PORT, (char*) serverName, serverPort, DQ_SERVER_NAME);
+        server = new ServerComm(DQ_TIMEOUT, DQ_MANAGEMENT_INTERVAL, DQ_LISTEN_PORT, const_cast<char*>(serverName), serverPort, const_cast<char*>(DQ_SERVER_NAME));
         r = new ServerComm::ClientTblElt(user, DQ_CLIENT_ID);
         server->addClientTblEntry(r);
         accessControl.setServerName(DQ_SERVER_NAME);
@@ -588,12 +635,12 @@ void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
 
     case QT_COMPLEX:
     {
-        QtScalarData* scalarDataObj = (QtScalarData*) data;
-        StructType* st = (StructType*) scalarDataObj->getValueType();
+        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);
+        StructType* st = static_cast<StructType*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
         LOG("{ ");
         for (unsigned int i = 0; i < st->getNumElems(); i++)
         {
-            BaseType* bt = (BaseType*) st->getElemType(i);
+            BaseType* bt = const_cast<BaseType*>(st->getElemType(i));
             if (i > 0)
             {
                 LOG(", ");
@@ -703,7 +750,7 @@ void printResult(Tile* tile, int resultIndex) throw(RasqlError)
         {
             throw RasqlError(NOFILEWRITEPERMISSION);
         }
-        if (fwrite((void*) theStuff, 1, numCells, tfile) != numCells)
+        if (fwrite(static_cast<void*>(const_cast<char*>(theStuff)), 1, numCells, tfile) != numCells)
         {
             fclose(tfile);
             throw RasqlError(UNABLETOWRITETOFILE);
@@ -713,7 +760,7 @@ void printResult(Tile* tile, int resultIndex) throw(RasqlError)
     }
         break;
     default:
-        cerr << "Internal error: unknown output type, ignoring action: " << outputType << endl;
+        cerr << "Internal error: unknown output type, ignoring action: " << static_cast<int>(outputType) << endl;
         break;
     } // switch(outputType)
 
@@ -735,6 +782,7 @@ void printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlErro
     case STATUS_EMPTY:
         LOG("holds no elements" << endl);
         break;
+    default: break;
     };
 
     if (result)
@@ -746,7 +794,6 @@ void printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlErro
             {
                 LOG("Getting MDD objects..." << endl << flush);
 
-                r_Minterval mddDomain;
                 char* typeName = NULL;
                 char* typeStructure = NULL;
                 r_OId oid;
@@ -777,7 +824,7 @@ void printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlErro
                 unsigned int resultIndex = 0;
                 char* buffer;
                 unsigned int bufferSize;
-                unsigned short status = STATUS_MORE_ELEMS;
+                status = STATUS_MORE_ELEMS;
                 while (status == STATUS_MORE_ELEMS)
                 {
                     QtData* data = (**(r->transferDataIter));
@@ -802,15 +849,15 @@ void printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlErro
  * throws r_Error upon general database comm error
  * needs an open transaction
  */
-r_Marray_Type * getTypeFromDatabase(const char *mddTypeName) throw(RasqlError, r_Error)
+r_Marray_Type * getTypeFromDatabase(const char *mddTypeName2) throw(RasqlError, r_Error)
 {
-    ENTER("getTypeFromDatabase, mddTypeName=" << mddTypeName);
+    ENTER("getTypeFromDatabase, mddTypeName=" << mddTypeName2);
     r_Marray_Type *retval = NULL;
     char* typeStructure = NULL;
 
     // first, try to get type structure from database using a separate r/o transaction
     try{
-        server->getTypeStructure(DQ_CLIENT_ID, mddTypeName, ClientComm::r_MDDType_Type, typeStructure);
+        server->getTypeStructure(DQ_CLIENT_ID, mddTypeName2, ClientComm::r_MDDType_Type, typeStructure);
 
         // above doesn't seem to work, so at least make it work with inv_* functions -- DM 2013-may-19
         if (!typeStructure)
@@ -825,9 +872,9 @@ r_Marray_Type * getTypeFromDatabase(const char *mddTypeName) throw(RasqlError, r
         if (err.get_kind() == r_Error::r_Error_DatabaseClassUndefined)
         {
             TALK("Type is not a well known type: " << typeStructure);
-            typeStructure = new char[strlen(mddTypeName) + 1];
+            typeStructure = new char[strlen(mddTypeName2) + 1];
             // earlier code tried this one below, but I feel we better are strict -- PB 2003-jul-06
-            // strcpy(typeStructure, mddTypeName);
+            // strcpy(typeStructure, mddTypeName2);
             // TALK( "using instead: " << typeStructure );
             throw RasqlError(MDDTYPEINVALID);
         }
@@ -937,15 +984,15 @@ void doStuff(int argc, char** argv) throw(RasqlError, r_Error)
                 mddDomain = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(size) - 1);
                 TALK("domain set to " << mddDomain);
             }
-            else if (size != mddDomain.cell_count() * mddType->base_type().size())
+            else if (size != static_cast<long>(mddDomain.cell_count() * mddType->base_type().size()))
             {
                 throw RasqlError(FILESIZEMISMATCH);
             }
 
             try{
-                fileContents = (char*) mymalloc(size);
+                fileContents = static_cast<char*>(mymalloc(static_cast<size_t>(size)));
                 fseek(fileD, 0, SEEK_SET);
-                fread(fileContents, 1, size, fileD);
+                size_t rsize = fread(fileContents, 1, static_cast<size_t>(size), fileD);
 
                 baseTypeSize = mddType->base_type().size();
                 r_GMarray *fileMDD = new r_GMarray(mddDomain, baseTypeSize, 0, false);

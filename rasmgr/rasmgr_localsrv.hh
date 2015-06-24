@@ -42,6 +42,7 @@ rasdaman GmbH.
 
 size_t my_strftime(char *s, size_t max, const char *fmt, const struct tm *tm);
 void catch_SIGCHLD(int);
+const char* now();
 
 /**
   * \ingroup Rasmgrs

@@ -359,7 +359,7 @@ int RnpClientComm::executeStartInsertPersMDD( const char* collName, r_GMarray* m
     char *domain = mar->spatial_domain().get_string_representation();
     encoder.addStringParameter(RnpRasserver::pmt_domain, domain);
 
-    encoder.addInt32Parameter(RnpRasserver::pmt_typelength, mar->get_type_length());
+    encoder.addInt32Parameter(RnpRasserver::pmt_typelength, static_cast<int>(mar->get_type_length()));
     encoder.addStringParameter(RnpRasserver::pmt_typename,  mar->get_type_name());
     encoder.addStringParameter(RnpRasserver::pmt_oidstring, mar->get_oid().get_string_representation());
 
@@ -410,7 +410,7 @@ int RnpClientComm::executeExecuteQuery( const char* query, r_Set< r_Ref_Any >& r
 
     if( status == 4 || status == 5 )
     {
-        r_Equery_execution_failed err( errNo, lineNo, colNo, token );
+        r_Equery_execution_failed err( static_cast<unsigned int>(errNo), static_cast<unsigned int>(lineNo), static_cast<unsigned int>(colNo), token );
         clearAnswer();
         LEAVE( "RnpClientComm::executeExecuteQuery() exception: status=" << status );
         throw err;
@@ -453,10 +453,10 @@ GetElementRes* RnpClientComm::executeGetNextElement()
     if(decoder.countParameters() == 2)
     {
         decoder.getNextParameter();
-        result->data.confarray_len = decoder.getDataLength();
+        result->data.confarray_len = static_cast<u_int>(decoder.getDataLength());
         result->data.confarray_val = new char[decoder.getDataLength()];
 
-        memcpy(result->data.confarray_val, decoder.getData(), decoder.getDataLength());
+        memcpy(result->data.confarray_val, decoder.getData(), static_cast<size_t>(decoder.getDataLength()));
 
     }
 
@@ -471,7 +471,7 @@ int RnpClientComm::executeInsertMDD(const char* collName, r_GMarray* mar, RPCMar
 {
     ENTER( "RnpClientComm::executeInsertMDD( collName=" << (collName?collName:"(null)") << ", mar=" << ((unsigned long) mar) << ", rpcMarray=" << ((unsigned long) rpcMarray) << " )" );
 
-    int size = rpcMarray->data.confarray_len;
+    int size = static_cast<int>(rpcMarray->data.confarray_len);
     startRequest(RnpRasserver::cmd_insertmdd, RNP_DEFAULTBUFFERSIZE + size);
     encoder.addInt32Parameter(  RnpRasserver::pmt_clientid,      clientID);
     encoder.addStringParameter( RnpRasserver::pmt_collname,      collName);
@@ -696,15 +696,15 @@ GetTileRes* RnpClientComm::executeGetNextTile()
     {
         result->marray->domain = strdup(decoder.getDataAsString());
         decoder.getNextParameter();
-        result->marray->cellTypeLength =  decoder.getDataAsInteger();
+        result->marray->cellTypeLength =  static_cast<u_long>(decoder.getDataAsInteger());
         decoder.getNextParameter();
         result->marray->currentFormat  =  decoder.getDataAsInteger();
         decoder.getNextParameter();
         result->marray->storageFormat  =  decoder.getDataAsInteger();
         decoder.getNextParameter();
-        int length = decoder.getDataLength();
+        unsigned int length = static_cast<unsigned int>(decoder.getDataLength());
         result->marray->data.confarray_len = length;
-        result->marray->data.confarray_val = (char*)mymalloc(length);
+        result->marray->data.confarray_val = static_cast<char*>(mymalloc(length));
         memcpy(result->marray->data.confarray_val, decoder.getData(), length);
     }
     else
@@ -738,7 +738,7 @@ int RnpClientComm::executeStartInsertTransMDD(r_GMarray* mdd)
     startRequest(RnpRasserver::cmd_startinsTmdd);
     encoder.addInt32Parameter(  RnpRasserver::pmt_clientid,   clientID);
     encoder.addStringParameter( RnpRasserver::pmt_domain,     mdd->spatial_domain().get_string_representation());
-    encoder.addInt32Parameter(  RnpRasserver::pmt_typelength, mdd->get_type_length());
+    encoder.addInt32Parameter(  RnpRasserver::pmt_typelength, static_cast<int>(mdd->get_type_length()));
     encoder.addStringParameter( RnpRasserver::pmt_typename,   mdd->get_type_name());
     TALK( "request RnpRasserver::cmd_startinsTmdd with ..., clientID 0x" << hex << clientID << dec );
 
@@ -751,7 +751,7 @@ int RnpClientComm::executeInsertTile(bool persistent, RPCMarray *tile)
 {
     ENTER( "RnpClientComm::executeInsertTile( persistent=" << persistent << ", tile=" << ((unsigned long) tile) << " )" );
 
-    int size = tile->data.confarray_len;
+    int size = static_cast<int>(tile->data.confarray_len);
     startRequest(RnpRasserver::cmd_inserttile, RNP_DEFAULTBUFFERSIZE + size);
     encoder.addInt32Parameter(  RnpRasserver::pmt_clientid,      clientID);
     encoder.addInt32Parameter(  RnpRasserver::pmt_ispersistent,  persistent ? 1:0);
@@ -810,7 +810,7 @@ int  RnpClientComm::executeExecuteUpdateQuery(const char *query) throw(r_Error)
     if( status == 2 || status == 3 )
     {
         LEAVE( "RnpClientComm::executeExecuteUpdateQuery(): exception, status = " << status );
-        throw r_Equery_execution_failed( errNo, lineNo, colNo, token.c_str() );
+        throw r_Equery_execution_failed( static_cast<unsigned int>(errNo), static_cast<unsigned int>(lineNo), static_cast<unsigned int>(colNo), token.c_str() );
     }
 
     if( status == 1 )
@@ -866,7 +866,7 @@ int  RnpClientComm::executeExecuteUpdateQuery(const char *query, r_Set< r_Ref_An
     if( status == 4 || status == 5 )
     {
         LEAVE( "RnpClientComm::executeExecuteUpdateQuery(_,_): exception, status = " << status );
-        throw r_Equery_execution_failed( errNo, lineNo, colNo, token.c_str() );
+        throw r_Equery_execution_failed( static_cast<unsigned int>(errNo), static_cast<unsigned int>(lineNo), static_cast<unsigned int>(colNo), token.c_str() );
     }
 
     clearAnswer();
@@ -1077,7 +1077,7 @@ void RnpClientComm::reassemble_r_Error() throw (r_Error)
 
     decoder.getNextParameter();
 
-    r_Error *temp = r_Error::getAnyError((char*)decoder.getDataAsString());
+    r_Error *temp = r_Error::getAnyError(const_cast<char*>(decoder.getDataAsString()));
 
     r_Error err = *temp;
 

@@ -72,11 +72,11 @@ QtDecode::QtDecode(QtOperation* newInput) throw (r_Error)
 	gdalParams = NULL;
 }
 
-QtDecode::QtDecode(QtOperation* newInput, char* format, char* gdalParams) throw (r_Error) :
-QtUnaryOperation(newInput), format(format)
+QtDecode::QtDecode(QtOperation* newInput, char* formatArg, char* gdalParamsArg) throw (r_Error) :
+QtUnaryOperation(newInput), format(formatArg)
 {
 	GDALAllRegister();
-	initGdalParamas(gdalParams);
+	initGdalParamas(gdalParamsArg);
 }
 
 QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
@@ -94,7 +94,7 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 		Tile* sourceTile = NULL;
 
 		// Perform the actual evaluation
-		QtMDD* qtMDD = (QtMDD*) operand;
+		QtMDD* qtMDD = static_cast<QtMDD*>(operand);
 		MDDObj* currentMDDObj = qtMDD->getMDDObject();
 		vector< boost::shared_ptr<Tile> >* tiles = NULL;
 		if (qtMDD->getLoadDomain().is_origin_fixed() && qtMDD->getLoadDomain().is_high_fixed())
@@ -127,7 +127,7 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 		createTemporaryImageFile(tmpFileName, sourceTile);
 
 		GDALDataset *poDataset;
-		poDataset = (GDALDataset*) GDALOpen(tmpFileName, GA_ReadOnly);
+		poDataset = static_cast<GDALDataset*>(GDALOpen(tmpFileName, GA_ReadOnly));
 
 		if (poDataset == NULL)
 		{
@@ -161,8 +161,8 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 		unlink(tmpFileName);
 
 		//TODO-GM: Add support for 1D and 3D files
-		r_Minterval mddDomain = r_Minterval(2) << r_Sinterval((r_Range) 0, (r_Range) width - 1)
-				<< r_Sinterval((r_Range) 0, (r_Range) height - 1);
+		r_Minterval mddDomain = r_Minterval(2) << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(width) - 1)
+				<< r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(height) - 1);
 
         Tile* resultTile = new Tile(mddDomain, baseType, fileContents, dataSize, r_Array);
 		MDDDimensionType* mddDimensionType = new MDDDimensionType("tmp_dim_type_name", baseType, 2);
@@ -171,7 +171,7 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 		MDDObj* resultMDD = new MDDObj(mddDimensionType, resultTile->getDomain());
 		resultMDD->insertTile(resultTile);
 
-		QtMDD* returnValue = new QtMDD((MDDObj*) resultMDD);
+		QtMDD* returnValue = new QtMDD(static_cast<MDDObj*>(resultMDD));
         returnValue->setFromConversion(true);
 
 		if (operand)
@@ -187,6 +187,7 @@ QtData* QtDecode::evaluate(QtDataList* inputList) throw (r_Error)
 
 	stopTimer();
 	LEAVE("QtDecode::evaluate( QtDataList* )");
+	return NULL;
 }
 
 void QtDecode::createTemporaryImageFile(char* tmpFileName, Tile* sourceTile)
@@ -208,7 +209,7 @@ void QtDecode::createTemporaryImageFile(char* tmpFileName, Tile* sourceTile)
 	{
 		lg += write(fd, buff + lg, DATA_CHUNK_SIZE);
 	}
-	write(fd, buff + lg, fileSize - lg);
+	ssize_t wsize = write(fd, buff + lg, fileSize - lg);
 	close(fd);
 }
 
@@ -260,7 +261,7 @@ const QtTypeElement& QtDecode::checkType(QtTypeTuple* typeTuple)
 
 void QtDecode::printTree(int tab, std::ostream& s, QtChildType mode)
 {
-	s << SPACE_STR(tab).c_str() << "QtDecode Object: " << getEvaluationTime() << endl;
+	s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtDecode Object: " << getEvaluationTime() << endl;
 
 	QtUnaryOperation::printTree(tab, s, mode);
 }

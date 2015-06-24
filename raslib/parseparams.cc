@@ -39,7 +39,6 @@ rasdaman GmbH.
 #include <cstring>
 #include <cerrno>
 
-extern int errno;
 
 #include "raslib/rminit.hh"
 #include "raslib/rmdebug.hh"
@@ -62,7 +61,7 @@ r_Parse_Params::r_Parse_Params( unsigned int num )
 {
     number = 0;
     maxnum = num;
-    params = (parse_params_t*)mymalloc(maxnum * sizeof(parse_params_t));
+    params = static_cast<parse_params_t*>(mymalloc(maxnum * sizeof(parse_params_t)));
 }
 
 
@@ -85,9 +84,9 @@ int r_Parse_Params::add( const char *key, void *store, parse_param_type type )
     {
         maxnum += granularity;
         if (params == NULL)
-            params = (parse_params_t*)mymalloc(maxnum * sizeof(parse_params_t));
+            params = static_cast<parse_params_t*>(mymalloc(maxnum * sizeof(parse_params_t)));
         else
-            params = (parse_params_t*)realloc(params, maxnum * sizeof(parse_params_t));
+            params = static_cast<parse_params_t*>(realloc(params, maxnum * sizeof(parse_params_t)));
 
         if (params == NULL)
         {
@@ -123,16 +122,16 @@ int r_Parse_Params::process( const char *str ) const
     while (*b != '\0')
     {
         //cout << numkeys << '(' << b << ')' << std::endl;
-        while ((isspace((unsigned int)(*b))) || (*b == ',')) b++;
+        while ((isspace(static_cast<unsigned int>(*b))) || (*b == ',')) b++;
         if (*b == '\0') break;
-        if (isalpha((unsigned int)(*b)))
+        if (isalpha(static_cast<unsigned int>(*b)))
         {
             const char *key = b;
             unsigned int klen;
             unsigned int knum;
             int inquotes;
 
-            while (isalnum((unsigned int)(*b))) b++;
+            while (isalnum(static_cast<unsigned int>(*b))) b++;
 
             //store current item
             klen = (b - key);
@@ -148,11 +147,11 @@ int r_Parse_Params::process( const char *str ) const
             {
                 int statval = 0;    // status: -1 error, 0 not found, 1 OK
 
-                while (isspace((unsigned int)(*b))) b++;
+                while (isspace(static_cast<unsigned int>(*b))) b++;
                 if (*b == '=')
                 {
                     b++;
-                    while (isspace((unsigned int)(*b))) b++;
+                    while (isspace(static_cast<unsigned int>(*b))) b++;
                     if ((*b != ',') && (*b != '\0'))
                     {
                         const char *aux=b;
@@ -169,7 +168,7 @@ int r_Parse_Params::process( const char *str ) const
                                 statval = -1;
                             else
                             {
-                                int *vptr = (int*)(params[knum].store);
+                                int *vptr = static_cast<int*>(params[knum].store);
                                 *vptr = val;
                                 b = aux;
                                 statval = 1;
@@ -186,7 +185,7 @@ int r_Parse_Params::process( const char *str ) const
                                 statval = -1;
                             else
                             {
-                                double *vptr = (double*)(params[knum].store);
+                                double *vptr = static_cast<double*>(params[knum].store);
                                 *vptr = val;
                                 b = aux;
                                 statval = 1;
@@ -213,13 +212,13 @@ int r_Parse_Params::process( const char *str ) const
                             else
                             {
                                 aux = b;
-                                while ((!isspace((unsigned int)(*b))) && (*b != '\0') && (*b != ',')) b++;
+                                while ((!isspace(static_cast<unsigned int>(*b))) && (*b != '\0') && (*b != ',')) b++;
                                 vlen = (b - aux);
                                 statval = 1;
                             }
                             if (vlen > 0)
                             {
-                                char **vptr = (char**)(params[knum].store);
+                                char **vptr = static_cast<char**>(params[knum].store);
                                 if (*vptr != NULL)
                                     delete [] *vptr;
                                 *vptr = new char[vlen+1];

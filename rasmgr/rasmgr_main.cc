@@ -64,7 +64,7 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #undef DEBUG_HH
 #include "debug-srv.hh"
 
-RMINITGLOBALS('S');
+RMINITGLOBALS('S')
 
 Configuration config;
 

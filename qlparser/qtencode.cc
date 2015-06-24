@@ -138,7 +138,7 @@ QtData* QtEncode::evaluate(QtDataList* inputList) throw (r_Error)
 #endif
 
             // Perform the actual evaluation
-            QtMDD* qtMDD = (QtMDD*) operand;
+            QtMDD* qtMDD = static_cast<QtMDD*>(operand);
             returnValue = evaluateMDD(qtMDD);
 
             // delete old operand
@@ -205,7 +205,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     }
     else if (baseSchema->isStructType()) // = multiple bands
     {
-        r_Structure_Type *myStruct = (r_Structure_Type*) baseSchema;
+        r_Structure_Type *myStruct = static_cast<r_Structure_Type*>(baseSchema);
         r_Structure_Type::attribute_iterator iter(myStruct->defines_attribute_begin());
         while (iter != myStruct->defines_attribute_end())
         {
@@ -214,7 +214,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
             // check the band types, they have to be of the same type
             if ((*iter).type_of().isPrimitiveType())
             {
-                r_Primitive_Type pt = (r_Primitive_Type&) (*iter).type_of();
+                r_Primitive_Type pt = static_cast<r_Primitive_Type&>(const_cast<r_Base_Type&>((*iter).type_of()));
                 if (bandType != NULL)
                 {
                     if (bandType->type_id() != pt.type_id())
@@ -306,12 +306,12 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     }
 
     fseek(fileD, 0, SEEK_SET);
-    fread(fileContents, 1, size, fileD);
+    size_t rsize = fread(fileContents, 1, static_cast<size_t>(size), fileD);
     fclose(fileD);
     unlink(tmpFileName);
 
     // result domain: it is now format encoded so we just consider it as a char array
-    r_Minterval mddDomain = r_Minterval(1) << r_Sinterval((r_Range) 0, (r_Range) size - 1);
+    r_Minterval mddDomain = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(size) - 1);
     r_Type* type = r_Type::get_any_type("char");
     const BaseType* baseType = TypeFactory::mapType(type->name());
     
@@ -326,8 +326,8 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "evaluateMDD() - Created transient MDD object")
 
     // create a new QtMDD object as carrier object for the transient MDD object
-    returnValue = new QtMDD((MDDObj*) resultMDD);
-    ((QtMDD *) returnValue)->setFromConversion(true);
+    returnValue = new QtMDD(resultMDD);
+    (static_cast<QtMDD *>(returnValue))->setFromConversion(true);
 
     return returnValue;
 }
@@ -335,7 +335,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
 void
 QtEncode::printTree(int tab, ostream& s, QtChildType mode)
 {
-    s << SPACE_STR(tab).c_str() << "QtEncode Object: to " << format << getEvaluationTime() << endl;
+    s << SPACE_STR(static_cast<size_t>(tab)).c_str() << "QtEncode Object: to " << format << getEvaluationTime() << endl;
 
     QtUnaryOperation::printTree(tab, s, mode);
 }
@@ -344,8 +344,8 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
 {
     RMDBCLASS("QtEncode", "convertTileToDataset( Tile*, int, r_Type*  )", "qlparser", __FILE__, __LINE__)
 
-    r_Bytes   typeSize = ((r_Primitive_Type*) bandType)->size();
-    bool  isNotBoolean = ((r_Primitive_Type*) bandType)->type_id() != r_Type::BOOL;
+    r_Bytes   typeSize = (static_cast<r_Primitive_Type*>(bandType))->size();
+    bool  isNotBoolean = (static_cast<r_Primitive_Type*>(bandType))->type_id() != r_Type::BOOL;
     r_Minterval domain = tile->getDomain();
     if (domain.dimension() != 2)
     {
@@ -360,7 +360,7 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
             << width << " x " << height << " x " << typeSize)
 
     /* Create a in-memory dataset */
-    GDALDriver *hMemDriver = (GDALDriver*) GDALGetDriverByName("MEM");
+    GDALDriver *hMemDriver = static_cast<GDALDriver*>(GDALGetDriverByName("MEM"));
     if (hMemDriver == NULL)
     {
         RMInit::logOut << "QtEncode::convertTileToDataset - Error: Could not init GDAL driver. " << endl;
@@ -374,7 +374,7 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
     RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "convertTileToDataset() - Created in-memory GDAL dataset")
 
     char* tileCells = tile->getContents();
-    char* datasetCells = (char*) malloc(typeSize * height * width);
+    char* datasetCells = static_cast<char*>(malloc(typeSize * static_cast<size_t>(height * width)));
     char* dst;
     char* src;
     int col_offset, band_offset;
@@ -389,13 +389,13 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
     // and then write the data to GDAL datasets
     for (int band = 0; band < nBands; band++)
     {
-        dst = (char*) datasetCells;
-        band_offset = band * typeSize;
+        dst = static_cast<char*>(datasetCells);
+        band_offset = band * static_cast<int>(typeSize);
         
         for (int row = 0; row < height; row++)
             for (int col = 0; col < width; col++, dst+=typeSize)
             {
-                col_offset = ((row + height * col) * nBands * typeSize + band_offset);
+                col_offset = ((row + height * col) * nBands * static_cast<int>(typeSize) + band_offset);
                 src = tileCells + col_offset;
                 if (isNotBoolean)
                 {
@@ -478,17 +478,17 @@ QtEncode::getGdalType(r_Type* rasType)
 #endif
 
 r_Data_Format
-QtEncode::getDataFormat(char* format)
+QtEncode::getDataFormat(char* formatArg)
 {
 	r_Data_Format ret = r_Array;
 
-	if (format)
+	if (formatArg)
 	{
-		char* f = strdup(format);
-		for (int i = 0; format[i]; i++)
+		char* f = strdup(formatArg);
+		for (int i = 0; formatArg[i]; i++)
 		{
-			if (isalpha(format[i]))
-				f[i] = tolower(format[i]);
+			if (isalpha(formatArg[i]))
+				f[i] = tolower(formatArg[i]);
 		}
 
 		if (STR_EQUAL(f, "png"))
@@ -610,8 +610,8 @@ QtEncode::initParams(char* paramsIn)
                char** kvPairList =  CSLTokenizeString2(kvPair, " ",
 			CSLT_STRIPLEADSPACES |
 			CSLT_STRIPENDSPACES);
-               CPLString* keyString = new CPLString((const char*)(kvPairList[0]));
-               CPLString* valueString = new CPLString((const char*)(kvPairList[1]));
+               CPLString* keyString = new CPLString(static_cast<const char*>(kvPairList[0]));
+               CPLString* valueString = new CPLString(static_cast<const char*>(kvPairList[1]));
                const char* confKey = keyString->c_str();
                const char* confValue = valueString->c_str();
                RMInit::logOut << " KEY = '" << confKey << "' VALUE ='" << confValue << "'" << endl;
@@ -624,7 +624,7 @@ QtEncode::initParams(char* paramsIn)
 
 	if (!nodata.empty())
 	{
-		char* pch = (char*) nodata.c_str();
+		char* pch = const_cast<char*>(nodata.c_str());
 		pch = strtok(pch, NODATA_VALUE_SEPARATOR);
 		while (pch != NULL)
 		{
@@ -706,9 +706,9 @@ QtEncode::setGDALParameters(GDALDataset *gdalDataSet, int width, int height, int
 			if (gParams.nodata.size() == 1)
 			{
 				rasterBand->SetNoDataValue(gParams.nodata.at(0));
-			} else if (gParams.nodata.size() == nBands)
+			} else if (static_cast<int>(gParams.nodata.size()) == nBands)
 			{
-				rasterBand->SetNoDataValue(gParams.nodata.at(band));
+				rasterBand->SetNoDataValue(gParams.nodata.at(static_cast<size_t>(band)));
 			} else
 			{
 				// warning, nodata value no != band no -- DM 2012-dec-10

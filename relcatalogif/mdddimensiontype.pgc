@@ -118,7 +118,7 @@ MDDDimensionType::readFromDb() throw (r_Error)
         else
             generateException();
     }
-    myDimension = dimension1;
+    myDimension = static_cast<r_Dimension>(dimension1);
     setName(mddtypename1);
     myBaseType = (BaseType*)ObjectBroker::getObjectByOId(OId(mddbasetypeid1));
 #ifdef RMANBENCHMARK
