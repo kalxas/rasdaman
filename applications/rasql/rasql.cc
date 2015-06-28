@@ -55,12 +55,6 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include "raslib/template_inst.hh"
 #endif
 
-#ifdef __VISUALC__
-#include <strstrea.h>
-#else
-#include <strstream>
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <sstream>

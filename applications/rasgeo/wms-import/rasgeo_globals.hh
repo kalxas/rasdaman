@@ -185,7 +185,6 @@ const string help_input = string( "inputformat, one of " )
 #define HELP_TRANSP "transparent update flag. If specified, black (0x0) data are treated as transparent during overlaying"
 
 #define PARAM_POLYGON   "polygon"
-#define HELP_POLYGON    "<polygon-path> counter clockwise polygon path to clip away outside area. Needs insidepattern and/or outsidepattern"
 
 #define PARAM_SHRINK    "shrink"
 #define DEFAULT_SHRINK      0

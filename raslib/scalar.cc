@@ -31,11 +31,7 @@
 */
 
 #include "config.h"
-#ifdef __VISUALC__
-#include <strstrea.h>
-#else
-#include <strstream>
-#endif
+#include <sstream>
 #include <string.h>
 #include <fstream>
 #include <stdlib.h>

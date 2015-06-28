@@ -34,11 +34,7 @@ rasdaman GmbH.
 #include "config.h"
 // Because of NT port
 #include <string.h>
-#ifdef __VISUALC__
-#include <strstrea.h>
-#else
-#include <strstream>
-#endif
+#include <sstream>
 #include <math.h>
 #include <vector>
 

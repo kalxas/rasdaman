@@ -65,12 +65,6 @@ char* dbSchema = 0;
 int noTimeOut = 0;
 bool udfEnabled = true;
 
-#ifdef __VISUALC__
-#include <strstrea.h>
-#else
-#include <strstream>
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <sstream>
