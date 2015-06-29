@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: servercomm2.cc
  *
@@ -620,7 +620,7 @@ ServerComm::insertColl( unsigned long callingClientId,
         //
 
         // get collection type
-        CollectionType* collType = (CollectionType*)TypeFactory::mapSetType( typeName );
+        CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType( typeName )));
 
         if( collType )
         {
@@ -935,7 +935,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 {
                     almost = MDDColl::getMDDCollection( collName );
                     if (almost->isPersistent())
-                        collection = (MDDColl*)almost;
+                        collection = static_cast<MDDColl*>(almost);
                     else
                     {
                         RMInit::logOut << "Error: inserting into system collection is illegal." << std::endl;
@@ -1014,7 +1014,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 // create persistent MDD object
                 //
 
-                MDDBaseType*  mddBaseType = (MDDBaseType*)mddType;
+                MDDBaseType*  mddBaseType = static_cast<MDDBaseType*>(const_cast<MDDType*>(mddType));
                 char*         dataPtr  = rpcMarray->data.confarray_val;
                 unsigned long dataSize = rpcMarray->data.confarray_len;
                 // reset data area from rpc structure so that it is not deleted
@@ -1061,8 +1061,8 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                     return returnValue;
                 }
 
-                myDataFmt = (r_Data_Format)(rpcMarray->storageFormat);
-                myCurrentFmt = (r_Data_Format)(rpcMarray->currentFormat);
+                myDataFmt = static_cast<r_Data_Format>(rpcMarray->storageFormat);
+                myCurrentFmt = static_cast<r_Data_Format>(rpcMarray->currentFormat);
                 RMInit::dbgOut  << "oid " << oid
                                 << ", domain " << domain
                                 << ", cell length " << rpcMarray->cellTypeLength
@@ -1092,19 +1092,19 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 // This should check the compressed size rather than the raw data size
                 if( RMInit::tiling && dataSize > StorageLayout::DefaultTileSize )
                 {
-                    r_Range edgeLength = (r_Range)floor(exp((1/(r_Double)domain.dimension())*
-                                                            log((r_Double)StorageLayout::DefaultTileSize/rpcMarray->cellTypeLength)));
+                    r_Range edgeLength = static_cast<r_Range>(floor(exp((1/static_cast<r_Double>(domain.dimension()))*
+                                                            log(static_cast<r_Double>(StorageLayout::DefaultTileSize)/rpcMarray->cellTypeLength))));
 
                     if (edgeLength <1)
                         edgeLength=1;
 
                     r_Minterval tileDom( domain.dimension() );
-                    for( int i=0; i<tileDom.dimension(); i++ )
-                        tileDom << r_Sinterval( (r_Range)0, (r_Range)(edgeLength-1) );
+                    for( unsigned int i=0; i<tileDom.dimension(); i++ )
+                        tileDom << r_Sinterval( static_cast<r_Range>(0), static_cast<r_Range>(edgeLength-1) );
 
                     Tile* entireTile = 0;
                     myCurrentFmt = r_Array;
-                    entireTile = new Tile( domain, baseType, dataPtr, getMDDData, myDataFmt );
+                    entireTile = new Tile( domain, baseType, dataPtr, getMDDData, static_cast<r_Bytes>(myDataFmt) );
 
                     vector< Tile *>* tileSet = entireTile->splitTile( tileDom );
                     if (entireTile->isPersistent())
@@ -1123,7 +1123,7 @@ ServerComm::insertMDD( unsigned long  callingClientId,
                 {
                     Tile* tile = 0;
 
-                    tile = new Tile( domain, baseType, dataPtr, getMDDData, myDataFmt );
+                    tile = new Tile( domain, baseType, dataPtr, getMDDData, static_cast<r_Bytes>(myDataFmt) );
                     RMInit::dbgOut << "insertTile created new TransTile (" << myDataFmt << "), ";
 
                     RMInit::dbgOut << "one tile..." << std::flush;
@@ -1186,9 +1186,9 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
         BaseType* baseType = NULL;
 
         if( isPersistent )
-            baseType = (BaseType*)context->assembleMDD->getCellType();
+            baseType = const_cast<BaseType*>(context->assembleMDD->getCellType());
         else
-            baseType = (BaseType*)context->transferMDD->getCellType();
+            baseType = const_cast<BaseType*>(context->transferMDD->getCellType());
 
         // The type of the tile has to be the one of the MDD.
         // type check missing
@@ -1203,8 +1203,8 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
             rpcMarray->data.confarray_len = 0;
             rpcMarray->data.confarray_val = 0;
             int           getMDDData    = 0;
-            r_Data_Format myDataFmt = (r_Data_Format)(rpcMarray->storageFormat);
-            r_Data_Format myCurrentFmt = (r_Data_Format)(rpcMarray->currentFormat);
+            r_Data_Format myDataFmt = static_cast<r_Data_Format>(rpcMarray->storageFormat);
+            r_Data_Format myCurrentFmt = static_cast<r_Data_Format>(rpcMarray->currentFormat);
             RMDBGMIDDLE( 2, RMDebug::module_server, "ServerComm", "insertTileSplitted - rpc storage  format : " << myDataFmt)
             RMDBGMIDDLE( 2, RMDebug::module_server, "ServerComm", "insertTileSplitted - rpc transfer format : " << myCurrentFmt)
             // store in specified storage format; use (new) current format afterwards
@@ -1228,7 +1228,7 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
 
             RMInit::dbgOut << "insertTile created new TransTile (" << myDataFmt << "), ";
             myDataFmt = r_Array;
-            tile = new Tile( domain, baseType, dataPtr, getMDDData, myDataFmt );
+            tile = new Tile( domain, baseType, dataPtr, getMDDData, static_cast<r_Bytes>(myDataFmt) );
 
             // for java clients only: check endianness and split tile if necessary
             if(strcmp(context->clientIdText, ServerComm::HTTPCLIENT) == 0)
@@ -1243,9 +1243,9 @@ ServerComm::insertTileSplitted( unsigned long  callingClientId,
                     char *tpstruct;
                     r_Base_Type *useType;
                     tpstruct = baseType->getTypeStructure();
-                    useType = (r_Base_Type*)(r_Type::get_any_type(tpstruct));
+                    useType = static_cast<r_Base_Type*>(r_Type::get_any_type(tpstruct));
 
-                    char* tempT = (char*)mymalloc(sizeof(char) * tile->getSize());
+                    char* tempT = static_cast<char*>(mymalloc(sizeof(char) * tile->getSize()));
 
                     // change the endianness of the entire tile for identical domains for src and dest
                     r_Endian::swap_array(useType, domain, domain, tile->getContents(), tempT);
@@ -1345,7 +1345,7 @@ ServerComm::startInsertPersMDD( unsigned long  callingClientId,
         {
             if( mddType->getSubtype() != MDDType::MDDONLYTYPE )
             {
-                MDDBaseType* mddBaseType = (MDDBaseType*)mddType;
+                MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(const_cast<MDDType*>(mddType));
 
                 try
                 {
@@ -1550,7 +1550,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
             // preprocess
             //
             RMInit::logOut << "preprocessing..." << std::flush;
-            ppInBuf = (char *)query;
+            ppInBuf = const_cast<char*>(query);
             ppreset();
             ppRet = ppparse();
 
@@ -1562,8 +1562,8 @@ ServerComm::executeQuery( unsigned long callingClientId,
         }
         else
         {
-            beginParseString = (char*)query;
-            iterParseString  = (char*)query;
+            beginParseString = const_cast<char*>(query);
+            iterParseString  = const_cast<char*>(query);
         }
 
         yyreset();
@@ -1718,11 +1718,11 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
                         if( firstElement->getDataType() == QT_MDD )
                         {
-                            QtMDD* mddObj = (QtMDD*)firstElement;
+                            QtMDD* mddObj = static_cast<QtMDD*>(firstElement);
                             const BaseType* baseType = mddObj->getMDDObject()->getCellType();
                             r_Minterval     domain   = mddObj->getLoadDomain();
 
-                            MDDType* mddType = new MDDDomainType( "tmp", (BaseType*)baseType, domain );
+                            MDDType* mddType = new MDDDomainType( "tmp", const_cast<BaseType*>(baseType), domain );
                             SetType* setType = new SetType( "tmp", mddType );
 
                             returnStructure.typeName      = strdup( setType->getTypeName() );
@@ -1739,7 +1739,7 @@ ServerComm::executeQuery( unsigned long callingClientId,
 
                             // hack set type
                             char* elementType = firstElement->getTypeStructure();
-                            returnStructure.typeStructure = (char*)mymalloc( strlen(elementType) + 6 );
+                            returnStructure.typeStructure = static_cast<char*>(mymalloc( strlen(elementType) + 6 ));
                             sprintf( returnStructure.typeStructure, "set<%s>", elementType );
                             free( elementType );
                         }
@@ -1930,7 +1930,7 @@ ServerComm::startInsertTransMDD( unsigned long callingClientId,
         {
             if( mddType->getSubtype() != MDDType::MDDONLYTYPE )
             {
-                MDDBaseType* mddBaseType = (MDDBaseType*)mddType;
+                MDDBaseType* mddBaseType = static_cast<MDDBaseType*>(const_cast<MDDType*>(mddType));
 
                 if( !mddType->compatibleWithDomain( &domain ) )
                 {
@@ -2073,7 +2073,7 @@ ServerComm::executeUpdate( unsigned long callingClientId,
             // preprocess
             //
             RMInit::logOut << "preprocessing..." << std::flush;
-            ppInBuf = (char *)query;
+            ppInBuf = const_cast<char*>(query);
             ppreset();
             ppRet = ppparse();
 
@@ -2088,8 +2088,8 @@ ServerComm::executeUpdate( unsigned long callingClientId,
         }
         else
         {
-            beginParseString = (char*)query;
-            iterParseString  = (char*)query;
+            beginParseString = const_cast<char*>(query);
+            iterParseString  = const_cast<char*>(query);
         }
 
         yyreset();
@@ -2264,7 +2264,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
             // preprocess
             //
             RMInit::logOut << "preprocessing..." << std::flush;
-            ppInBuf = (char *)query;
+            ppInBuf = const_cast<char*>(query);
             ppreset();
             ppRet = ppparse();
 
@@ -2279,8 +2279,8 @@ ServerComm::executeInsert ( unsigned long callingClientId,
         }
         else
         {
-            beginParseString = (char*)query;
-            iterParseString  = (char*)query;
+            beginParseString = const_cast<char*>(query);
+            iterParseString  = const_cast<char*>(query);
         }
 
         yyreset();
@@ -2356,11 +2356,11 @@ ServerComm::executeInsert ( unsigned long callingClientId,
 
                         if( firstElement->getDataType() == QT_MDD )
                         {
-                            QtMDD* mddObj = (QtMDD*)firstElement;
+                            QtMDD* mddObj = static_cast<QtMDD*>(firstElement);
                             const BaseType* baseType = mddObj->getMDDObject()->getCellType();
                             r_Minterval     domain   = mddObj->getLoadDomain();
 
-                            MDDType* mddType = new MDDDomainType( "tmp", (BaseType*)baseType, domain );
+                            MDDType* mddType = new MDDDomainType( "tmp", const_cast<BaseType*>(baseType), domain );
                             SetType* setType = new SetType( "tmp", mddType );
 
                             returnStructure.typeName      = strdup( setType->getTypeName() );
@@ -2377,7 +2377,7 @@ ServerComm::executeInsert ( unsigned long callingClientId,
 
                             // hack set type
                             char* elementType = firstElement->getTypeStructure();
-                            returnStructure.typeStructure = (char*)mymalloc( strlen(elementType) + 6 );
+                            returnStructure.typeStructure = static_cast<char*>(mymalloc( strlen(elementType) + 6 ));
                             sprintf( returnStructure.typeStructure, "set<%s>", elementType );
                             free( elementType );
                         }
@@ -2538,7 +2538,7 @@ ServerComm::getCollByName( unsigned long callingClientId,
             context->transferCollIter->reset();
 
             // set typeName and typeStructure
-            CollectionType* collectionType = (CollectionType*) context->transferColl->getCollectionType();
+            CollectionType* collectionType = const_cast<CollectionType*>(context->transferColl->getCollectionType());
 
             if( collectionType )
             {
@@ -2661,7 +2661,7 @@ ServerComm::getCollByOId( unsigned long callingClientId,
                 context->transferCollIter->reset();
 
                 // set typeName and typeStructure
-                CollectionType* collectionType = (CollectionType*) context->transferColl->getCollectionType();
+                CollectionType* collectionType = const_cast<CollectionType*>(context->transferColl->getCollectionType());
 
                 if( collectionType )
                 {
@@ -2761,7 +2761,7 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
             else
             {
                 RMDBGMIDDLE( 4, RMDebug::module_server, "ServerComm", "retrieved persistent collection")
-                coll = (MDDColl*)almost;
+                coll = static_cast<MDDColl*>(almost);
             }
         }
         catch(std::bad_alloc)
@@ -2787,7 +2787,7 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
         if( returnValue == 0 )
         {
             // set typeName and typeStructure
-            CollectionType* collectionType = (CollectionType*) coll->getCollectionType();
+            CollectionType* collectionType = const_cast<CollectionType*>(coll->getCollectionType());
 
             if( collectionType )
             {
@@ -2814,7 +2814,7 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
                 int          i;
 
                 oidTableSize = coll->getCardinality();
-                oidTable     = (RPCOIdEntry*) mymalloc( sizeof(RPCOIdEntry) * oidTableSize );
+                oidTable     = static_cast<RPCOIdEntry*>(mymalloc( sizeof(RPCOIdEntry) * oidTableSize ));
 
                 TALK( oidTableSize << " elements..." );
 
@@ -2826,7 +2826,7 @@ ServerComm::getCollOIdsByName( unsigned long callingClientId,
                     {
                         EOId eOId;
 
-                        if( ((MDDObj*)mddObj)->getEOId( &eOId ) == 0 )
+                        if( (static_cast<MDDObj*>(mddObj))->getEOId( &eOId ) == 0 )
                             oidTable[i].oid = strdup( r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() ).get_string_representation() );
                         else
                             oidTable[i].oid = strdup("");
@@ -2929,7 +2929,7 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
                 collName = strdup(coll->getName());
 
                 // set typeName and typeStructure
-                CollectionType* collectionType = (CollectionType*) coll->getCollectionType();
+                CollectionType* collectionType = const_cast<CollectionType*>(coll->getCollectionType());
 
                 if( collectionType )
                 {
@@ -2956,7 +2956,7 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
                     int          i;
 
                     oidTableSize = coll->getCardinality();
-                    oidTable     = (RPCOIdEntry*) mymalloc( sizeof(RPCOIdEntry) * oidTableSize );
+                    oidTable     = static_cast<RPCOIdEntry*>(mymalloc( sizeof(RPCOIdEntry) * oidTableSize ));
 
                     TALK( oidTableSize << " elements..." );
 
@@ -2968,7 +2968,7 @@ ServerComm::getCollOIdsByOId( unsigned long callingClientId,
                         {
                             EOId eOId;
 
-                            if( ((MDDObj*)mddObj)->getEOId( &eOId ) == 0 )
+                            if( (static_cast<MDDObj*>(mddObj))->getEOId( &eOId ) == 0 )
                                 oidTable[i].oid = strdup( r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() ).get_string_representation() );
                             else
                                 oidTable[i].oid = strdup("");
@@ -3043,7 +3043,7 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                 //
 
                 // get the MDD object to be transfered
-                QtMDD*  mddData = (QtMDD*) **(context->transferDataIter);
+                QtMDD*  mddData = static_cast<QtMDD*>(**(context->transferDataIter));
                 MDDObj* mddObj  = mddData->getMDDObject();
 
                 // initialize mddDomain to give it back
@@ -3145,7 +3145,7 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
 
                 // create a temporary mdd type for the moment being
                 r_Minterval typeDomain( mddData->getLoadDomain() );
-                MDDType* mddType = new MDDDomainType( "tmp", (BaseType*)baseType, typeDomain );
+                MDDType* mddType = new MDDDomainType( "tmp", const_cast<BaseType*>(baseType), typeDomain );
                 TypeFactory::addTempType( mddType );
 
                 typeStructure = mddType->getTypeStructure();  // no copy !!!
@@ -3169,7 +3169,7 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
                 {
                     EOId eOId;
 
-                    if( ((MDDObj*)mddObj)->getEOId( &eOId ) == 0 )
+                    if( (static_cast<MDDObj*>(mddObj))->getEOId( &eOId ) == 0 )
                         oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
                 }
 
@@ -3215,7 +3215,7 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
         }
         catch( r_Ebase_dbms& myErr )
         {
-            RMInit::logOut << "Error: base DBMS exception (kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what() << std::endl;
+            RMInit::logOut << "Error: base DBMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what() << std::endl;
             returnValue = 42;
             throw;
         }
@@ -3304,12 +3304,12 @@ ServerComm::getNextStructElement( char*     &buffer,
 
     case STRUCT:
     {
-        StructType* st = (StructType*) baseType;
-        int numElems = st->getNumElems();
-        int i;
+        StructType* st = static_cast<StructType*>(baseType);
+        unsigned int numElems = st->getNumElems();
+        unsigned int i;
         for (i = 0; i < numElems; i++)
         {
-            BaseType* bt = (BaseType*) st->getElemType(i);
+            BaseType* bt = const_cast<BaseType*>(st->getElemType(i));
             unsigned int elemTypeSize = bt->getSize();
             getNextStructElement(buffer, elemTypeSize, bt);
             buffer += elemTypeSize;
@@ -3363,39 +3363,39 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                 {
                 case QT_STRING:
                 {
-                    QtStringData* stringDataObj       = (QtStringData*)dataObj;
+                    QtStringData* stringDataObj       = static_cast<QtStringData*>(dataObj);
                     bufferSize = stringDataObj->getStringData().length() + 1;
-                    buffer     = (char*)mymalloc( bufferSize );
-                    memcpy( (void*)buffer, (void*)stringDataObj->getStringData().c_str(), bufferSize );
+                    buffer     = static_cast<char*>(mymalloc( bufferSize ));
+                    memcpy( buffer, stringDataObj->getStringData().c_str(), bufferSize );
                 }
                 break;
                 case QT_INTERVAL:
                 {
-                    QtIntervalData*  intervalDataObj  = (QtIntervalData*)dataObj;
+                    QtIntervalData*  intervalDataObj  = static_cast<QtIntervalData*>(dataObj);
                     char*            stringData       = intervalDataObj->getIntervalData().get_string_representation();
                     bufferSize = strlen( stringData ) + 1;
-                    buffer     = (char*)mymalloc( bufferSize );
-                    memcpy( (void*)buffer, (void*)stringData, bufferSize );
+                    buffer     = static_cast<char*>(mymalloc( bufferSize ));
+                    memcpy( buffer, stringData, bufferSize );
                     free( stringData );
                 }
                 break;
                 case QT_MINTERVAL:
                 {
-                    QtMintervalData* mintervalDataObj = (QtMintervalData*)dataObj;
+                    QtMintervalData* mintervalDataObj = static_cast<QtMintervalData*>(dataObj);
                     char*            stringData       = mintervalDataObj->getMintervalData().get_string_representation();
                     bufferSize = strlen( stringData ) + 1;
-                    buffer     = (char*)mymalloc( bufferSize );
-                    memcpy( (void*)buffer, (void*)stringData, bufferSize );
+                    buffer     = static_cast<char*>(mymalloc( bufferSize ));
+                    memcpy( buffer, stringData, bufferSize );
                     free( stringData );
                 }
                 break;
                 case QT_POINT:
                 {
-                    QtPointData* pointDataObj         = (QtPointData*)dataObj;
+                    QtPointData* pointDataObj         = static_cast<QtPointData*>(dataObj);
                     char*            stringData       = pointDataObj->getPointData().get_string_representation();
                     bufferSize = strlen( stringData ) + 1;
-                    buffer     = (char*)mymalloc( bufferSize );
-                    memcpy( (void*)buffer, (void*)stringData, bufferSize );
+                    buffer     = static_cast<char*>(mymalloc( bufferSize ));
+                    memcpy( buffer, stringData, bufferSize );
 
                     free( stringData );
                 }
@@ -3403,10 +3403,10 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                 default:
                     if( dataObj->isScalarData() )
                     {
-                        QtScalarData* scalarDataObj = (QtScalarData*)dataObj;
+                        QtScalarData* scalarDataObj = static_cast<QtScalarData*>(dataObj);
                         bufferSize = scalarDataObj->getValueType()->getSize();
-                        buffer     = (char*)mymalloc( bufferSize );
-                        memcpy( (void*)buffer, (void*)scalarDataObj->getValueBuffer(), bufferSize );
+                        buffer     = static_cast<char*>(mymalloc( bufferSize ));
+                        memcpy( buffer, scalarDataObj->getValueBuffer(), bufferSize );
                         // server endianess
                         r_Endian::r_Endianness serverEndian = r_Endian::get_endianness();
 
@@ -3467,13 +3467,13 @@ ServerComm::getNextElement( unsigned long   callingClientId,
 
                             case QT_COMPLEX:
                             {
-                                StructType* st = (StructType*) scalarDataObj->getValueType();
-                                int numElems = st->getNumElems();
-                                int i;
+                                StructType* st = static_cast<StructType*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
+                                unsigned int numElems = st->getNumElems();
+                                unsigned int i;
                                 char* tmp = buffer;
                                 for (i = 0; i < numElems; i++)
                                 {
-                                    BaseType* bt = (BaseType*) st->getElemType(i);
+                                    BaseType* bt = const_cast<BaseType*>(st->getElemType(i));
                                     unsigned int elemTypeSize = bt->getSize();
                                     getNextStructElement(buffer, elemTypeSize, bt);
                                     buffer += elemTypeSize;
@@ -3495,7 +3495,7 @@ ServerComm::getNextElement( unsigned long   callingClientId,
             }
             catch( r_Ebase_dbms& myErr)
             {
-                RMInit::logOut << "Error: base BMS exception (kind " << myErr.get_kind() << ", errno " << myErr.get_errorno() << ") " << myErr.what() << std::endl;
+                RMInit::logOut << "Error: base BMS exception (kind " << static_cast<unsigned int>(myErr.get_kind()) << ", errno " << myErr.get_errorno() << ") " << myErr.what() << std::endl;
                 throw;
             }
             catch (r_Error& err)
@@ -3638,7 +3638,7 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
                 typeName      = strdup("");
 
                 // create a temporary mdd type for the moment being
-                MDDType* mddType = new MDDDomainType( "tmp", (BaseType*)baseType, context->transferMDD->getCurrentDomain() );
+                MDDType* mddType = new MDDDomainType( "tmp", const_cast<BaseType*>(baseType), context->transferMDD->getCurrentDomain() );
                 TypeFactory::addTempType( mddType );
 
                 typeStructure = mddType->getTypeStructure();  // no copy !!!
@@ -3662,7 +3662,7 @@ ServerComm::getMDDByOId( unsigned long   callingClientId,
                 {
                     EOId eOId;
 
-                    if( ((MDDObj*)(context->transferMDD))->getEOId( &eOId ) == 0 )
+                    if( (static_cast<MDDObj*>(context->transferMDD))->getEOId( &eOId ) == 0 )
                         oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
                 }
 
@@ -3739,7 +3739,7 @@ ServerComm::getNextTile( unsigned long   callingClientId,
             unsigned long totalSize;
 
             // allocate memory for the output parameter rpcMarray
-            *rpcMarray = (RPCMarray*)mymalloc( sizeof( RPCMarray ) );
+            *rpcMarray = static_cast<RPCMarray*>(mymalloc( sizeof( RPCMarray ) ));
 
             if ( context->bytesToTransfer == 0 )
             {
@@ -3757,7 +3757,7 @@ ServerComm::getNextTile( unsigned long   callingClientId,
             {
                 totalSize = resultTile->getCompressedSize();
                 //this is bad because useTransData is char* although it is not modified
-                useTransData = (char*)resultTile->getContents();
+                useTransData = static_cast<char*>(resultTile->getContents());
                 (*rpcMarray)->currentFormat = resultTile->getDataFormat();
                 RMDBGMIDDLE(4, RMDebug::module_servercomm, "ServerComm", "using tile format " << (r_Data_Format)(*rpcMarray)->currentFormat)
             }
@@ -3816,8 +3816,8 @@ ServerComm::getNextTile( unsigned long   callingClientId,
             TALK( " domain " << mddDomain << ", " << transSize << " bytes" );
 
             // allocate memory for the output parameter data and assign its fields
-            (*rpcMarray)->data.confarray_len = (unsigned int)transSize;
-            (*rpcMarray)->data.confarray_val = ((char*)useTransData) + transOffset;
+            (*rpcMarray)->data.confarray_len = static_cast<unsigned int>(transSize);
+            (*rpcMarray)->data.confarray_val = (static_cast<char*>(useTransData)) + transOffset;
 
             // 3. store cell type length
             (*rpcMarray)->cellTypeLength = resultTile->getType()->getSize();
@@ -3983,7 +3983,7 @@ ServerComm::aliveSignal( unsigned long client )
     if( context )
     {
         // set the time of the client's last action to now
-        context->lastActionTime = time( NULL );
+        context->lastActionTime = static_cast<unsigned long>(time( NULL ));
 
         returnValue = 1;
 
@@ -4114,7 +4114,7 @@ ServerComm::getTypeStructure( unsigned long  callingClientId,
         if( typeType == 1 )
         {
             // get collection type
-            CollectionType* collType = (CollectionType*)TypeFactory::mapSetType( (char*)typeName );
+            CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType( const_cast<char*>(typeName) )));
 
             if( collType )
                 typeStructure = collType->getTypeStructure(); // no copy
@@ -4165,7 +4165,7 @@ ServerComm::setTransferMode( unsigned long callingClientId,
 
     if (context != 0)
     {
-        r_Data_Format fmt = (r_Data_Format)format;
+        r_Data_Format fmt = static_cast<r_Data_Format>(format);
         if (context->transferFormatParams != NULL)
         {
             delete [] context->transferFormatParams;

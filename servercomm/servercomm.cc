@@ -520,7 +520,7 @@ int writeWholeMessage(int socket,char *destBuffer,int buffSize)
     int writeNow;
     while(1)
     {
-        writeNow = write(socket,destBuffer+totalLength,buffSize-totalLength);
+        writeNow = write(socket,destBuffer+totalLength,static_cast<size_t>(buffSize-totalLength));
         if(writeNow == -1)
         {
             TALK( "writeWholeMessage: bad socket write returned " << writeNow << ", errno=" << errno );

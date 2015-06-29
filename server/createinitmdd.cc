@@ -41,7 +41,9 @@ using namespace std;
 
 // #undef DEBUG_HH
 // #include "debug.hh"
+#undef ENTER
 #define ENTER(a)    RMInit::logOut << "ENTER " << a << endl << flush;
+#undef LEAVE
 #define LEAVE(a)    RMInit::logOut << "LEAVE " << a << endl << flush;
 
 //#include <akgtime.hh>
@@ -68,7 +70,7 @@ r_OId FastCollectionCreator::createCollection()
     EOId::allocateEOId( eOId, OId::MDDCOLLOID );
     r_OId oid = r_OId( eOId.getSystemName(), eOId.getBaseName(), eOId.getOId() );
 
-    CollectionType* collType = (CollectionType*)TypeFactory::mapSetType( collectionTypeName );
+    CollectionType* collType = static_cast<CollectionType*>(const_cast<SetType*>(TypeFactory::mapSetType( collectionTypeName )));
 
     RMInit::logOut<<"Creating collection "<<collectionName<<" with type "<<collectionTypeName<<"...";
     if( collType )
@@ -233,7 +235,7 @@ r_OId FastMDDCreator::createMDD(const char *domain)
     verifyCompatibility(collection);
 
     const MDDType* mddType    = TypeFactory::mapMDDType( mddTypeName.c_str() );
-    MDDBaseType*  mddBaseType = (MDDBaseType*)mddType;
+    MDDBaseType*  mddBaseType = static_cast<MDDBaseType*>(const_cast<MDDType*>(mddType));
 
     //allocate oid-ul;
     EOId eOId;
@@ -250,7 +252,7 @@ r_OId FastMDDCreator::createMDD(const char *domain)
 
     mymdd = new MDDObj(mddBaseType, definitionInterval, eOId.getOId(), ms);
 
-    cellSize = mymdd->getCellType()->getSize();
+    cellSize = static_cast<int>(mymdd->getCellType()->getSize());
 
     collection->insert( mymdd );
 
@@ -274,7 +276,7 @@ r_OId FastMDDCreator::createRCxMDD(const char *domain, const char *tileDomain)
     verifyCompatibility(collection);
 
     const MDDType* mddType    = TypeFactory::mapMDDType( mddTypeName.c_str() );
-    MDDBaseType*  mddBaseType = (MDDBaseType*)mddType;
+    MDDBaseType*  mddBaseType = static_cast<MDDBaseType*>(const_cast<MDDType*>(mddType));
 
     //allocate oid-ul;
     EOId eOId;
@@ -291,7 +293,7 @@ r_OId FastMDDCreator::createRCxMDD(const char *domain, const char *tileDomain)
     mymdd = new MDDObj(mddBaseType, definitionInterval, eOId.getOId(), ms);
 
 
-    cellSize = mymdd->getCellType()->getSize();
+    cellSize = static_cast<int>(mymdd->getCellType()->getSize());
 
     collection->insert( mymdd );
 
@@ -303,11 +305,11 @@ r_OId FastMDDCreator::createRCxMDD(const char *domain, const char *tileDomain)
     return mddOId;
 }
 
-vector<r_Minterval> FastMDDCreator::getTileDomains(r_OId mddOId, const char *stripeDomain)
+vector<r_Minterval> FastMDDCreator::getTileDomains(r_OId mddOId2, const char *stripeDomain)
 {
-    ENTER( "FastMDDCreator::getTileDomains(" << mddOId << "," << stripeDomain << ")" );
+    ENTER( "FastMDDCreator::getTileDomains(" << mddOId2 << "," << stripeDomain << ")" );
 
-    mymdd = new MDDObj( OId(mddOId.get_local_oid()) );
+    mymdd = new MDDObj( OId(mddOId2.get_local_oid()) );
 
     r_Minterval stripeInterval(stripeDomain);
 
@@ -315,7 +317,7 @@ vector<r_Minterval> FastMDDCreator::getTileDomains(r_OId mddOId, const char *str
 
     vector<r_Minterval> result;
 
-    for(int i=0; i < tiles->size(); i++)
+    for(unsigned int i=0; i < tiles->size(); i++)
     {
         result.push_back( (*tiles)[i]->getDomain());
     }
@@ -337,7 +339,7 @@ void FastMDDCreator::addStripe(r_OId _mddOId, const char *stripeDomain, const ch
 
 
     mymdd = new MDDObj( OId(mddOId.get_local_oid()) );
-    cellSize = mymdd->getCellType()->getSize();
+    cellSize = static_cast<int>(mymdd->getCellType()->getSize());
     const BaseType* baseType = mymdd->getMDDBaseType()->getBaseType();
 
 
@@ -351,7 +353,7 @@ void FastMDDCreator::addStripe(r_OId _mddOId, const char *stripeDomain, const ch
 
         createCompressedTileData(currentSlInterval, baseType);
 
-        Tile* tile = new Tile( currentSlInterval, baseType, comprData, true, comprDataSize, storageFormat);
+        Tile* tile = new Tile( currentSlInterval, baseType, comprData, true, static_cast<r_Bytes>(comprDataSize), storageFormat);
         tile->setPersistent(true);
 
         mymdd->insertTile( tile );
@@ -367,8 +369,8 @@ void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, const B
 {
     ENTER( "FastMDDCreator::createCompressedTileData(" << tileInterval << "," << baseType << ")" );
 
-    static int lastSize = 0;
-    int uncompressedSize = tileInterval.cell_count() * cellSize;
+    static unsigned int lastSize = 0;
+    unsigned int uncompressedSize = tileInterval.cell_count() * static_cast<unsigned int>(cellSize);
 
     if(comprData)
     {
@@ -386,12 +388,12 @@ void FastMDDCreator::createCompressedTileData(r_Minterval& tileInterval, const B
 
     r_Data_Format comprMode = storageFormat; ;
 
-    char* dataPtr = (char*)mymalloc(uncompressedSize);
+    char* dataPtr = static_cast<char*>(mymalloc(uncompressedSize));
     memset(dataPtr,0,uncompressedSize);
 
     r_ULong newSize = uncompressedSize;
     comprData = dataPtr;
-    comprDataSize = newSize;
+    comprDataSize = static_cast<int>(newSize);
 
     lastSize= uncompressedSize;
 

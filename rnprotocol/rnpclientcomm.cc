@@ -59,9 +59,9 @@ RnpClientComm::RnpClientComm( const char* nRasmgrHost, int nRasmgrPort) throw( r
     clientParams->add("compserver", &serverCompresses, r_Parse_Params::param_type_int);
     clientParams->add("exactformat", &exactFormat, r_Parse_Params::param_type_int);
 
-    endianClient = (int)r_Endian::get_endianness();
+    endianClient = static_cast<int>(r_Endian::get_endianness());
 
-    rasmgrHost=(char*)nRasmgrHost;
+    rasmgrHost=const_cast<char*>(nRasmgrHost);
     rasmgrPort=nRasmgrPort;
     serverHost[0]=0;
     capability[0]=0;
@@ -273,7 +273,7 @@ void RnpClientComm::insertMDD( const char* collName, r_GMarray* mar ) throw( r_E
         tileSize = RMInit::RMInit::clientTileSize;
     else
         //allowed because the only subclass of tiling without size is no tiling
-        tileSize = ((const r_Size_Tiling*)til)->get_tile_size();
+        tileSize = (static_cast<const r_Size_Tiling*>(til))->get_tile_size();
 
     if( RMInit::tiling && marBytes > tileSize )
     {
@@ -646,7 +646,7 @@ RnpClientComm::getMDDCore( r_Ref< r_GMarray > &mdd, GetMDDRes *thisResult, unsig
     marray->set_type_by_name  ( thisResult->typeName );
     marray->set_type_structure( thisResult->typeStructure );
 
-    r_Data_Format currentFormat = (r_Data_Format)(thisResult->currentFormat);
+    r_Data_Format currentFormat = static_cast<r_Data_Format>(thisResult->currentFormat);
 //    currentFormat = r_Array;
     marray->set_current_format( currentFormat );
 
@@ -701,7 +701,7 @@ RnpClientComm::getMDDCore( r_Ref< r_GMarray > &mdd, GetMDDRes *thisResult, unsig
         // Variables needed for block transfer of a tile
         unsigned long  blockOffset = 0;
         unsigned short subStatus  = 3;
-        currentFormat = (r_Data_Format)(tileRes->marray->currentFormat);
+        currentFormat = static_cast<r_Data_Format>(tileRes->marray->currentFormat);
 
         switch( tileStatus )
         {
@@ -769,14 +769,14 @@ RnpClientComm::getMDDCore( r_Ref< r_GMarray > &mdd, GetMDDRes *thisResult, unsig
             // copy tile data into MDD data space (optimized, relying on the internal representation of an MDD )
             char*         mddBlockPtr;
             char*         tileBlockPtr = tile->get_array();
-            unsigned long blockCells   = tileDomain[tileDomain.dimension()-1].high()-tileDomain[tileDomain.dimension()-1].low()+1;
+            unsigned long blockCells   = static_cast<unsigned long>(tileDomain[tileDomain.dimension()-1].high()-tileDomain[tileDomain.dimension()-1].low()+1);
             unsigned long blockSize    = blockCells * marray->get_type_length();
             unsigned long blockNo      = tileDomain.cell_count() / blockCells;
 
             for( unsigned long blockCtr = 0; blockCtr < blockNo; blockCtr++ )
             {
                 mddBlockPtr = marrayData + marray->get_type_length()*mddDomain.cell_offset( tileDomain.cell_point( blockCtr * blockCells ) );
-                memcpy( (void*)mddBlockPtr, (void*)tileBlockPtr, (size_t)blockSize );
+                memcpy( mddBlockPtr, tileBlockPtr, blockSize );
                 tileBlockPtr += blockSize;
             }
 
@@ -885,19 +885,19 @@ void RnpClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) throw
         case r_Type::ULONG:
         case r_Type::FLOAT:
         case r_Type::DOUBLE:
-            element = new r_Primitive( thisResult->data.confarray_val, (r_Primitive_Type*) elementType );
-            r_Transaction::actual_transaction->add_object_list( r_Transaction::SCALAR, (void*) element );
+            element = new r_Primitive( thisResult->data.confarray_val, static_cast<r_Primitive_Type*>(const_cast<r_Type*>(elementType)) );
+            r_Transaction::actual_transaction->add_object_list( r_Transaction::SCALAR, static_cast<void*>(element) );
             break;
 
         case r_Type::COMPLEXTYPE1:
         case r_Type::COMPLEXTYPE2:
-            element = new r_Complex(thisResult->data.confarray_val, (r_Complex_Type *)elementType);
-            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, (void *)element);
+            element = new r_Complex(thisResult->data.confarray_val, static_cast<r_Complex_Type *>(const_cast<r_Type*>(elementType)) );
+            r_Transaction::actual_transaction->add_object_list(r_Transaction::SCALAR, static_cast<void*>(element) );
             break;
 
         case r_Type::STRUCTURETYPE:
-            element = new r_Structure( thisResult->data.confarray_val, (r_Structure_Type*) elementType );
-            r_Transaction::actual_transaction->add_object_list( r_Transaction::SCALAR, (void*) element );
+            element = new r_Structure( thisResult->data.confarray_val, static_cast<r_Structure_Type*>(const_cast<r_Type*>(elementType)) );
+            r_Transaction::actual_transaction->add_object_list( r_Transaction::SCALAR, static_cast<void*>(element) );
             break;
 
         case r_Type::POINTTYPE:
@@ -908,7 +908,7 @@ void RnpClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) throw
 
             r_Point* typedElement = new r_Point( stringRep );
             element               = typedElement;
-            r_Transaction::actual_transaction->add_object_list( r_Transaction::POINT, (void*) typedElement );
+            r_Transaction::actual_transaction->add_object_list( r_Transaction::POINT, static_cast<void*>(typedElement) );
             delete [] stringRep;
         }
         break;
@@ -921,7 +921,7 @@ void RnpClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) throw
 
             r_Sinterval* typedElement = new r_Sinterval( stringRep );
             element                   = typedElement;
-            r_Transaction::actual_transaction->add_object_list( r_Transaction::SINTERVAL, (void*) typedElement );
+            r_Transaction::actual_transaction->add_object_list( r_Transaction::SINTERVAL, static_cast<void*>(typedElement) );
             delete [] stringRep;
         }
         break;
@@ -934,7 +934,7 @@ void RnpClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) throw
 
             r_Minterval* typedElement = new r_Minterval( stringRep );
             element                   = typedElement;
-            r_Transaction::actual_transaction->add_object_list( r_Transaction::MINTERVAL, (void*) typedElement );
+            r_Transaction::actual_transaction->add_object_list( r_Transaction::MINTERVAL, static_cast<void*>(typedElement) );
             delete [] stringRep;
         }
         break;
@@ -947,7 +947,7 @@ void RnpClientComm::getElementCollection( r_Set< r_Ref_Any >& resultColl ) throw
 
             r_OId* typedElement = new r_OId( stringRep );
             element             = typedElement;
-            r_Transaction::actual_transaction->add_object_list( r_Transaction::OID, (void*) typedElement );
+            r_Transaction::actual_transaction->add_object_list( r_Transaction::OID, static_cast<void*>(typedElement) );
             delete [] stringRep;
         }
         break;
@@ -977,7 +977,7 @@ void RnpClientComm::sendMDDConstants( const r_OQL_Query& query ) throw( r_Error 
 
     if( query.get_constants() )
     {
-        r_Set< r_GMarray* >* mddConstants = (r_Set< r_GMarray* >*)query.get_constants();
+        r_Set< r_GMarray* >* mddConstants = const_cast<r_Set< r_GMarray* >*>(query.get_constants());
 
         // in fact executeInitUpdate prepares server structures for MDD transfer
         if(executeInitUpdate() != 0)
@@ -1117,7 +1117,7 @@ RnpClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
     RMDBGENTER(2, RMDebug::module_clientcomm, "RnpClientComm", "getMarRpcRepresentation(...)");
 
     // allocate memory for the RPCMarray data structure and assign its fields
-    rpcMarray                 = (RPCMarray*)mymalloc( sizeof(RPCMarray) );
+    rpcMarray                 = static_cast<RPCMarray*>(mymalloc( sizeof(RPCMarray) ));
     rpcMarray->domain         = mar->spatial_domain().get_string_representation();
     rpcMarray->cellTypeLength = mar->get_type_length();
 
@@ -1150,11 +1150,11 @@ RnpClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
                          << " because compression " << transferFormat << " failed" );
             arrayData = new char[arraySize];
             changeEndianness(mar, arrayData, baseType);
-            rpcMarray->data.confarray_val = (char*)(arrayData);
+            rpcMarray->data.confarray_val = static_cast<char*>(arrayData);
         }
         else
         {
-            rpcMarray->data.confarray_val = (char*)(mar->get_array());
+            rpcMarray->data.confarray_val = const_cast<char*>(mar->get_array());
         }
     }
     else
@@ -1165,7 +1165,7 @@ RnpClientComm::getMarRpcRepresentation( const r_GMarray* mar, RPCMarray*& rpcMar
         }
         rpcMarray->currentFormat = transferFormat;
         rpcMarray->data.confarray_len = arraySize;
-        rpcMarray->data.confarray_val = (char*)arrayData;
+        rpcMarray->data.confarray_val = static_cast<char*>(arrayData);
     }
     rpcMarray->storageFormat = storageFormat;
 
@@ -1179,7 +1179,7 @@ RnpClientComm::freeMarRpcRepresentation( const r_GMarray* mar, RPCMarray* rpcMar
 {
     ENTER( "RnpClientComm::freeMarRpcRepresentation(_,_)" );
 
-    if (rpcMarray->data.confarray_val != ((r_GMarray*)mar)->get_array())
+    if (rpcMarray->data.confarray_val != (const_cast<r_GMarray*>(mar))->get_array())
     {
         delete[] rpcMarray->data.confarray_val;
     }
@@ -1219,7 +1219,7 @@ int RnpClientComm::setStorageFormat( r_Data_Format format, const char *formatPar
     }
     if (formatParams != NULL)
     {
-        storageFormatParams = (char*)mymalloc(strlen(formatParams) + 1);
+        storageFormatParams = static_cast<char*>(mymalloc(strlen(formatParams) + 1));
         strcpy(storageFormatParams, formatParams);
         // extract ``compserver'' if present
         clientParams->process(storageFormatParams);
@@ -1244,7 +1244,7 @@ int RnpClientComm::setTransferFormat( r_Data_Format format, const char* formatPa
     }
     if (formatParams != NULL)
     {
-        transferFormatParams = (char*)mymalloc(strlen(formatParams)+1);
+        transferFormatParams = static_cast<char*>(mymalloc(strlen(formatParams)+1));
         strcpy(transferFormatParams, formatParams);
         // extract ``exactformat'' if present
         clientParams->process(transferFormatParams);
@@ -1282,7 +1282,7 @@ void RnpClientComm::setUserIdentification(const char *userName, const char *plai
 
 unsigned long RnpClientComm::getClientID() const
 {
-    return clientID;
+    return static_cast<unsigned long>(clientID);
 }
 
 void RnpClientComm::triggerAliveSignal() {}
@@ -1331,7 +1331,7 @@ static void pause(int retryCount)
 {
     // changed PB 2005-sep-09
     // was: unsigned int millisec = 50 + retryCount * 50;
-    unsigned int millisec = RNP_PAUSE_INCREMENT * (retryCount + 1);
+    unsigned int millisec = RNP_PAUSE_INCREMENT * (static_cast<unsigned int>(retryCount) + 1);
     // if(millisec > 1000)
     //  millisec = 1000;
 
@@ -1341,30 +1341,30 @@ static void pause(int retryCount)
     select(0,NULL,NULL,NULL,&tv);
 }
 
-int RnpClientComm::getFreeServer(bool readwrite, bool openDB)
+int RnpClientComm::getFreeServer(bool readwrite, bool newOpenDB)
 {
-    ENTER( "RnpClientComm::getFreeServer( readwrite=" << readwrite << ", openDB=" << openDB << " )" );
+    ENTER( "RnpClientComm::getFreeServer( readwrite=" << readwrite << ", openDB=" << newOpenDB << " )" );
 
     // to avoid nested retries, only this loop is kept,
     // the one in executeGetFreeServer() has been removed -- PB 2005-aug-31
-    for ( int retryCount=0; ; retryCount++ )
+    for ( unsigned int retryCount=0; ; retryCount++ )
     {
         try
         {
-            executeGetFreeServer(readwrite, openDB);
+            executeGetFreeServer(readwrite, newOpenDB);
 
             // if no error, we have the server, so break
             break;
         }
         catch(r_Error &e)
         {
-            int errorno = e.get_errorno();
+            unsigned int errorno = e.get_errorno();
             RMInit::logOut << "Error: Connection to rasdaman server failed with " << errorno << ": " << e.what() << endl;
             // for these errors a retry makes sense, as long as we haven't reached the retry limit:
             if ( ( errorno==801 || errorno==805 || errorno==806 ) && retryCount < RMInit::clientcommMaxRetry )
             {
                 TALK( "  retry="<<retryCount );
-                pause(retryCount);  // waiting with incremental delays
+                pause(static_cast<int>(retryCount));  // waiting with incremental delays
             }
             else
             {
@@ -1379,27 +1379,27 @@ int RnpClientComm::getFreeServer(bool readwrite, bool openDB)
 }
 
 #define MAXMSG 512
-int RnpClientComm::executeGetFreeServer(bool readwrite, bool openDB)
+int RnpClientComm::executeGetFreeServer(bool readwrite, bool newOpenDB)
 {
-    ENTER( "RnpClientComm::executeGetFreeServer( readwrite=" << readwrite << ", openDB=" << openDB << " )" );
+    ENTER( "RnpClientComm::executeGetFreeServer( readwrite=" << readwrite << ", openDB=" << newOpenDB << " )" );
 
     static char myRasmgrID[100]="";
     if(myRasmgrID[0]==0)
     {
         unsigned int hostid = gethostid();
-        unsigned int pid    = getpid();
+        unsigned int pid    = static_cast<unsigned int>(getpid());
         sprintf(myRasmgrID,"%u:%u",hostid,pid);
     }
     char message[MAXMSG];
     char header[MAXMSG];
     char body[MAXMSG];
 
-    if (openDB)
+    if (newOpenDB)
         sprintf(header,"POST getfreeserver2 HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasClient/1.0\r\nAuthorization: ras %s\r\nContent-length:",identificationString);
     else
         sprintf(header,"POST getfreeserver HTTP/1.1\r\nAccept: text/plain\r\nUserAgent: RasClient/1.0\r\nAuthorization: ras %s\r\nContent-length:",identificationString);
     sprintf(body,"%s RNP %s %s",databaseName,(readwrite ? "rw":"ro"), myRasmgrID);
-    sprintf(message,"%s %d\r\n\r\n%s",header,strlen(body)+1,body);
+    sprintf(message,"%s %lu\r\n\r\n%s",header,strlen(body)+1,body);
 
     struct protoent* getprotoptr = getprotobyname("tcp");
 
@@ -1539,17 +1539,17 @@ int RnpClientComm::executeGetFreeServer(bool readwrite, bool openDB)
         case 803:
         case 804:
             LEAVE( "RnpClientComm::executeGetFreeServer(): exception, errorCode = " << errorCode );
-            throw r_Error( r_Error::r_Error_AccesDenied,errorCode);
+            throw r_Error( r_Error::r_Error_AccesDenied,static_cast<unsigned int>(errorCode));
             break;
         case 801:
         case 805:
         case 806:
             LEAVE( "RnpClientComm::executeGetFreeServer(): exception, errorCode = " << errorCode );
-            throw r_Error( r_Error::r_Error_SystemOverloaded,errorCode);
+            throw r_Error( r_Error::r_Error_SystemOverloaded,static_cast<unsigned int>(errorCode));
             break;
         case 807:
             LEAVE( "RnpClientComm::executeGetFreeServer(): exception, errorCode = " << errorCode );
-            throw r_Error( r_Error::r_Error_DatabaseUnknown,errorCode);
+            throw r_Error( r_Error::r_Error_DatabaseUnknown,static_cast<unsigned int>(errorCode));
             break;
         default :
             LEAVE( "RnpClientComm::executeGetFreeServer(): exception, errorCode = " << errorCode );
@@ -1570,7 +1570,7 @@ int RnpClientComm::readWholeMessage(int socket,char *destBuffer,int buffSize)
     int redNow;
     while(1)
     {
-        redNow = read(socket,destBuffer+totalLength,buffSize-totalLength);
+        redNow = read(socket,destBuffer+totalLength,static_cast<size_t>(buffSize-totalLength));
         if(redNow == -1)
         {
             if(errno == EINTR)
@@ -1595,7 +1595,7 @@ int RnpClientComm::writeWholeMessage(int socket,char *destBuffer,int buffSize)
     int writeNow;
     while(1)
     {
-        writeNow = write(socket,destBuffer+totalLength,buffSize-totalLength);
+        writeNow = write(socket,destBuffer+totalLength,static_cast<size_t>(buffSize-totalLength));
         if(writeNow == -1)
         {
             if(errno == EINTR)

@@ -911,7 +911,7 @@ const char* MasterComm::askOutpeer(int peer, char* outmsg) {
     int rwNow;
     while(1)
     {
-        rwNow = write(sock,outmsg+nbytes,buffSize-nbytes);
+        rwNow = write(sock,outmsg+nbytes,static_cast<size_t>(buffSize-nbytes));
         if(rwNow == -1)
         {
             if(errno == EINTR) continue; // write was interrupted by signal
@@ -934,7 +934,7 @@ const char* MasterComm::askOutpeer(int peer, char* outmsg) {
     nbytes = 0;
     while(1)
     {
-        rwNow = read(sock,answer+nbytes,MAXMSG-nbytes);
+        rwNow = read(sock,answer+nbytes,static_cast<size_t>(MAXMSG-nbytes));
         if(rwNow == -1)
         {
             if(errno == EINTR) continue; // read was interrupted by signal

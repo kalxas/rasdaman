@@ -149,7 +149,7 @@ RasdamanHelper2::getCRSURIfromWKT(const std::string& crsWKT,
 
     if (failed)
     {
-        crsURI << crsURIprefix << "OGC/0/Index" << (int)dim << "D";
+        crsURI << crsURIprefix << "OGC/0/Index" << static_cast<int>(dim) << "D";
     }
 
     LEAVE(ctx << "getCRSURIfromWKT()");
@@ -286,7 +286,7 @@ RasdamanHelper2::dropCollection(const std::string& collname)
     std::vector<double> oids = this->getImageOIDs(collname);
 
     // drop the RATs first (as long as the collname is still valid)
-    for (int t=0; t < oids.size(); ++t)
+    for (unsigned int t=0; t < oids.size(); ++t)
         this->dropRAT(collname, oids[t]);
 
     this->m_transaction.begin(r_Transaction::read_write);
@@ -350,7 +350,7 @@ RasdamanHelper2::dropImage(const std::string& collname,
 
     std::string qstr = "delete from $1 as m where oid(m) = $2";
     r_OQL_Query quer(qstr.c_str());
-    quer << collname.c_str() << (r_Long)localImgOID;
+    quer << collname.c_str() << static_cast<r_Long>(localImgOID);
 
     r_oql_execute(quer);
 
@@ -462,7 +462,7 @@ RasdamanHelper2::getImageOIDs(const std::string& collname)
 
         for (iter.reset(); iter.not_done(); iter++)
         {
-            r_Primitive* id = (r_Primitive*)(*iter);
+            r_Primitive* id = static_cast<r_Primitive*>(*iter);
             soids.push_back(id->get_double());
             TALK(id->get_double() << " ");
         }
@@ -481,14 +481,14 @@ RasdamanHelper2::getImageSdom(const std::string& collname,
 
     std::string qstr = "select sdom(m) from $1 as m where oid(m) = $2";
     r_OQL_Query q(qstr.c_str());
-    q << collname.c_str() << (r_Long)localImgOID;
+    q << collname.c_str() << static_cast<r_Long>(localImgOID);
 
     r_Set< r_Ref_Any > resSet;
     r_oql_execute(q, resSet);
 
     if (!resSet.is_empty())
     {
-        r_Minterval* mval = (r_Minterval*)(*resSet.create_iterator());
+        r_Minterval* mval = static_cast<r_Minterval*>(*resSet.create_iterator());
         r_Minterval mint(*mval);
         this->m_transaction.commit();
         return mint;
@@ -510,10 +510,10 @@ RasdamanHelper2::getMarrayType(const std::string& collname)
     r_Ref_Any any = this->m_pRasconn->getDatabase().lookup_object(
                         collname.c_str());
 
-    r_Set<r_GMarray>* coll((r_Set<r_GMarray>*)any.get_memory_ptr());
+    r_Set<r_GMarray>* coll(static_cast<r_Set<r_GMarray>*>(any.get_memory_ptr()));
 
-    r_Collection_Type* colltype = (r_Collection_Type*)coll->get_type_schema();
-    martype = (r_Marray_Type*)colltype->element_type().clone();
+    r_Collection_Type* colltype = static_cast<r_Collection_Type*>(const_cast<r_Type*>(coll->get_type_schema()));
+    martype = static_cast<r_Marray_Type*>(colltype->element_type().clone());
 
     this->m_transaction.abort();
 
@@ -534,22 +534,22 @@ RasdamanHelper2::getBaseTypeId(const std::string& collname,
     r_Ref_Any any = this->m_pRasconn->getDatabase().lookup_object(
                         collname.c_str());
 
-    r_Set<r_GMarray>* coll((r_Set<r_GMarray>*)any.get_memory_ptr());
+    r_Set<r_GMarray>* coll(static_cast<r_Set<r_GMarray>*>(any.get_memory_ptr()));
 
-    r_Collection_Type* colltype = (r_Collection_Type*)coll->get_type_schema();
-    r_Marray_Type *martype = (r_Marray_Type*)&colltype->element_type();
+    r_Collection_Type* colltype = static_cast<r_Collection_Type*>(const_cast<r_Type*>(coll->get_type_schema()));
+    r_Marray_Type *martype = static_cast<r_Marray_Type*>(const_cast<r_Type*>(&colltype->element_type()));
     r_Base_Type* basetype = const_cast<r_Base_Type*>(&martype->base_type());
     if (basetype->isPrimitiveType())
     {
-        rtype = ((r_Primitive_Type*)basetype)->type_id();
+        rtype = (static_cast<r_Primitive_Type*>(basetype))->type_id();
     }
     else if (basetype->isStructType())
     {
-        r_Structure_Type* stype = ((r_Structure_Type*)basetype);
+        r_Structure_Type* stype = (static_cast<r_Structure_Type*>(basetype));
 
         if (band < stype->count_elements())
         {
-            rtype = stype->resolve_attribute((unsigned int)band).type_of().type_id();
+            rtype = stype->resolve_attribute(static_cast<unsigned int>(band)).type_of().type_id();
         }
         else
         {
@@ -577,16 +577,16 @@ RasdamanHelper2::getImageBuffer(const std::string& collname,
 
     std::string qstr = "select m$1 from $2 as m where oid(m) = $3";
     r_OQL_Query quer(qstr.c_str());
-    quer << sdom << collname.c_str() << (r_Long)localImgOID;
+    quer << sdom << collname.c_str() << static_cast<r_Long>(localImgOID);
 
     r_Set< r_Ref_Any > resSet;
     r_oql_execute(quer, resSet);
 
     if (!resSet.is_empty())
     {
-        r_GMarray* ar = (r_GMarray*)(*resSet.create_iterator()).get_memory_ptr();
+        r_GMarray* ar = static_cast<r_GMarray*>((*resSet.create_iterator()).get_memory_ptr());
         r_Bytes size = ar->get_array_size();
-        memcpy((void*)buf, (const void*)ar->get_array(), size);
+        memcpy(buf, ar->get_array(), size);
     }
 
     this->m_transaction.commit();
@@ -603,10 +603,10 @@ RasdamanHelper2::getBaseTypeName(const std::string& collname)
     r_Ref_Any any = this->m_pRasconn->getDatabase().lookup_object(
                         collname.c_str());
 
-    r_Set<r_GMarray>* coll((r_Set<r_GMarray>*)any.get_memory_ptr());
+    r_Set<r_GMarray>* coll(static_cast<r_Set<r_GMarray>*>(any.get_memory_ptr()));
 
-    r_Collection_Type* colltype = (r_Collection_Type*)coll->get_type_schema();
-    r_Marray_Type *martype = (r_Marray_Type*)&colltype->element_type();
+    r_Collection_Type* colltype = static_cast<r_Collection_Type*>(const_cast<r_Type*>(coll->get_type_schema()));
+    r_Marray_Type *martype = static_cast<r_Marray_Type*>(const_cast<r_Type*>(&colltype->element_type()));
     r_Base_Type* basetype = const_cast<r_Base_Type*>(&martype->base_type());
     rstr = basetype->name();
 
@@ -627,13 +627,13 @@ RasdamanHelper2::getBaseTypeElementCount(const std::string& collname)
     r_Ref_Any any = this->m_pRasconn->getDatabase().lookup_object(
                         collname.c_str());
 
-    r_Set<r_GMarray>* coll((r_Set<r_GMarray>*)any.get_memory_ptr());
+    r_Set<r_GMarray>* coll(static_cast<r_Set<r_GMarray>*>(any.get_memory_ptr()));
 
-    r_Collection_Type* colltype = (r_Collection_Type*)coll->get_type_schema();
-    r_Marray_Type *martype = (r_Marray_Type*)&colltype->element_type();
+    r_Collection_Type* colltype = static_cast<r_Collection_Type*>(const_cast<r_Type*>(coll->get_type_schema()));
+    r_Marray_Type *martype = static_cast<r_Marray_Type*>(const_cast<r_Type*>(&colltype->element_type()));
     r_Base_Type *basetype = const_cast<r_Base_Type*>(&martype->base_type());
     if (basetype->isStructType())
-        ret = ((r_Structure_Type*)basetype)->count_elements();
+        ret = (static_cast<r_Structure_Type*>(basetype))->count_elements();
 
     this->m_transaction.abort();
 
@@ -653,10 +653,10 @@ RasdamanHelper2::getBaseTypeSize(const std::string& collname)
     r_Ref_Any any = this->m_pRasconn->getDatabase().lookup_object(
                         collname.c_str());
 
-    r_Set<r_GMarray>* coll((r_Set<r_GMarray>*)any.get_memory_ptr());
+    r_Set<r_GMarray>* coll(static_cast<r_Set<r_GMarray>*>(any.get_memory_ptr()));
 
-    r_Collection_Type* colltype = (r_Collection_Type*)coll->get_type_schema();
-    r_Marray_Type *martype = (r_Marray_Type*)&colltype->element_type();
+    r_Collection_Type* colltype = static_cast<r_Collection_Type*>(const_cast<r_Type*>(coll->get_type_schema()));
+    r_Marray_Type *martype = static_cast<r_Marray_Type*>(const_cast<r_Type*>(&colltype->element_type()));
     r_Base_Type* basetype = const_cast<r_Base_Type*>(&martype->base_type());
     len = basetype->size();
     this->m_transaction.abort();
@@ -690,7 +690,7 @@ RasdamanHelper2::insertImage(const std::string& collname,
 
     // format the spatial domain string
     std::stringstream sdomstr;
-    for (int d = 0; d < sdom.dimension(); d++)
+    for (unsigned int d = 0; d < sdom.dimension(); d++)
     {
         sdomstr << shift[d] << ":" << shift[d];
         if (d == sdom.dimension()-1)
@@ -711,7 +711,7 @@ RasdamanHelper2::insertImage(const std::string& collname,
     else // struct type
     {
         qstr += " values {";
-        for (int e=0; e < nelem; ++e)
+        for (unsigned int e=0; e < nelem; ++e)
         {
             qstr += "0" + numconst;
             if (e < nelem -1)
@@ -792,18 +792,18 @@ RasdamanHelper2::updateImage(const std::string& collname,
     const r_Base_Type &basetype = (*martype).base_type();
     unsigned nelem = 1;
     unsigned int elemsize = 0;
-    r_Type::r_Type_Id tid;
+    r_Type::r_Type_Id tid = (static_cast<r_Primitive_Type&>(const_cast<r_Base_Type&>(basetype))).type_id();;
     if (basetype.isPrimitiveType())
     {
-        tid = ((r_Primitive_Type&)basetype).type_id();
+        tid = (static_cast<r_Primitive_Type&>(const_cast<r_Base_Type&>(basetype))).type_id();
         elemsize = basetype.size();
     }
     else if (basetype.isStructType())
     {
-        r_Structure_Type *stype = ((r_Structure_Type*)&basetype);
+        r_Structure_Type *stype = (static_cast<r_Structure_Type*>(const_cast<r_Base_Type*>(&basetype)));
         nelem = stype->count_elements();
-        tid = stype->resolve_attribute((unsigned int)0).type_of().type_id();
-        elemsize = stype->resolve_attribute((unsigned int)0).type_of().size();
+        tid = stype->resolve_attribute(static_cast<unsigned int>(0)).type_of().type_id();
+        elemsize = stype->resolve_attribute(static_cast<unsigned int>(0)).type_of().size();
     }
     unsigned int pixelsize = elemsize * nelem;
     delete martype;
@@ -849,13 +849,13 @@ RasdamanHelper2::updateImage(const std::string& collname,
         }
         else
         {
-            memcpy((void*)img->get_array(), (const void*)buf, sdom.cell_count() * pixelsize);
+            memcpy(img->get_array(), buf, sdom.cell_count() * pixelsize);
         }
 
         // update initially created image
         std::string qstr = "update $1 as m set m assign shift($2, $3) where oid(m) = $4";
         r_OQL_Query qo(qstr.c_str());
-        qo << collname.c_str() << *img << shift << (r_Long)imgid;
+        qo << collname.c_str() << *img << shift << static_cast<r_Long>(imgid);
 
         this->m_transaction.begin(r_Transaction::read_write);
         TALK(qo.get_query() << "...");
@@ -1003,7 +1003,7 @@ RasdamanHelper2::colBuf2RowBuf(char* colbuf,
     cmdims.resize(sdom.dimension());
 
     int npix = 1;
-    for (int d=0; d < sdom.dimension(); ++d)
+    for (unsigned int d=0; d < sdom.dimension(); ++d)
     {
         cmdims[d] = sdom[d].get_extent();
         npix *= sdom[d].get_extent();
@@ -1027,8 +1027,8 @@ RasdamanHelper2::colBuf2RowBuf(char* colbuf,
         rmidx[1] = cmidx[0];
         rmpix = this->index2offset(sdom, rmidx);
 
-        memcpy((void*)(rowbuf + rmpix * pixelsize),
-               (const void*)(colbuf + pix * pixelsize), pixelsize);
+        memcpy((rowbuf + static_cast<unsigned int>(rmpix) * pixelsize),
+               (colbuf + static_cast<unsigned int>(pix) * pixelsize), pixelsize);
     }
 }
 
@@ -1042,7 +1042,7 @@ RasdamanHelper2::rowBuf2ColBuf(char* rowbuf,
     cmdims.resize(sdom.dimension());
 
     int npix = 1;
-    for (int d=0; d < sdom.dimension(); ++d)
+    for (unsigned int d=0; d < sdom.dimension(); ++d)
     {
         cmdims[d] = sdom[d].get_extent();
         npix *= sdom[d].get_extent();
@@ -1066,8 +1066,8 @@ RasdamanHelper2::rowBuf2ColBuf(char* rowbuf,
         cmidx[1] = rmidx[0];
         cmpix = this->index2offset(cmdims, cmidx);
 
-        memcpy((void*)(colbuf + cmpix * pixelsize),
-               (const void*)(rowbuf + pix * pixelsize), pixelsize);
+        memcpy((colbuf + static_cast<unsigned int>(cmpix) * pixelsize),
+               (rowbuf + static_cast<unsigned int>(pix) * pixelsize), pixelsize);
     }
 }
 
@@ -1080,8 +1080,8 @@ RasdamanHelper2::rowBuf2ColBuf(char* rowbuf,
                                int nrows,
                                int nlayers)
 {
-    int elemsize = pixelsize / nelem;
-    int elemoffsize = elemsize;
+    unsigned int elemsize = pixelsize / nelem;
+    unsigned int elemoffsize = elemsize;
 
     if (nelem == 1)
     {
@@ -1097,12 +1097,12 @@ RasdamanHelper2::rowBuf2ColBuf(char* rowbuf,
             for (layer = 0; layer < nlayers; ++layer)
             {
                 for (elem = 0, elemoff = 0;
-                        elem < nelem;
-                        ++elem, elemoff += elemoffsize)
+                        static_cast<unsigned int>(elem) < nelem;
+                        ++elem, elemoff += static_cast<int>(elemoffsize))
                 {
-                    memcpy((void*)(colbuf +  (col * nrows + row + layer*ncols*nrows)
+                    memcpy((colbuf +  static_cast<unsigned int>(col * nrows + row + layer*ncols*nrows)
                                    * pixelsize + elemoff),
-                           (const void*)(rowbuf + (row * ncols + col + layer*ncols*nrows)
+                           (rowbuf + static_cast<unsigned int>(row * ncols + col + layer*ncols*nrows)
                                          * pixelsize + elemoff),
                            elemsize);
                 }
@@ -1120,8 +1120,8 @@ RasdamanHelper2::colBuf2RowBuf(char* colbuf,
                                int nrows,
                                int nlayers)
 {
-    int elemsize = pixelsize / nelem;
-    int elemoffsize = elemsize;
+    unsigned int elemsize = pixelsize / nelem;
+    unsigned int elemoffsize = elemsize;
 
     if (nelem == 1)
     {
@@ -1137,12 +1137,12 @@ RasdamanHelper2::colBuf2RowBuf(char* colbuf,
             for (layer = 0; layer < nlayers; ++layer)
             {
                 for (elem = 0, elemoff = 0;
-                        elem < nelem;
-                        ++elem, elemoff += elemoffsize)
+                        static_cast<unsigned int>(elem) < nelem;
+                        ++elem, elemoff += static_cast<int>(elemoffsize))
                 {
-                    memcpy((void*)(rowbuf + (row * ncols + col + layer*ncols*nrows)
+                    memcpy((rowbuf + static_cast<unsigned int>(row * ncols + col + layer*ncols*nrows)
                                    * pixelsize + elemoff),
-                           (const void*)(colbuf +  (col * nrows + row + layer*ncols*nrows)
+                           (colbuf +  static_cast<unsigned int>(col * nrows + row + layer*ncols*nrows)
                                          * pixelsize + elemoff),
                            elemsize);
                 }
@@ -1220,7 +1220,7 @@ RasdamanHelper2::offset2index(int offset,
     std::vector<int> idx;
     idx.resize(sdom.size());
 
-    for (int d=0; d < sdom.size(); ++d)
+    for (unsigned int d=0; d < sdom.size(); ++d)
     {
         idx[d] = offset % sdom[d];
         offset /= sdom[d];
@@ -1236,7 +1236,7 @@ RasdamanHelper2::offset2index(int offset,
     std::vector<int> idx;
     idx.resize(sdom.dimension());
 
-    for (int d=0; d < sdom.dimension(); ++d)
+    for (unsigned int d=0; d < sdom.dimension(); ++d)
     {
         idx[d] = offset % sdom[d].get_extent();
         offset /= sdom[d].get_extent();
@@ -1251,14 +1251,14 @@ RasdamanHelper2::index2offset(r_Minterval& sdom,
 {
     int offset = 0;
     int mult = 1;
-    for (int d=sdom.dimension()-1; d >=0; --d)
+    for (int d=static_cast<int>(sdom.dimension())-1; d >=0; --d)
     {
         for (int r=d; r >=0; --r)
         {
             if (r == d)
-                mult = index[d];
+                mult = index[static_cast<size_t>(d)];
             else
-                mult *= sdom[r].get_extent();
+                mult *= sdom[static_cast<r_Dimension>(r)].get_extent();
         }
         offset += mult;
     }
@@ -1277,9 +1277,9 @@ RasdamanHelper2::index2offset(std::vector<int>& sdom,
         for (int r=d; r >=0; --r)
         {
             if (r == d)
-                mult = index[d];
+                mult = index[static_cast<size_t>(d)];
             else
-                mult *= sdom[r];
+                mult *= sdom[static_cast<size_t>(r)];
         }
         offset += mult;
     }
@@ -1531,7 +1531,7 @@ RasdamanHelper2::writeExtraMetadata(long oid,
 
     // iterate over the key-value-pairs and add them to the data base
     int ret = 1;
-    for (int k=0; k < keys.size(); ++k)
+    for (unsigned int k=0; k < keys.size(); ++k)
     {
         query << "select id from " << PSPREFIX << "_extra_metadata_type where type = '"
               << keys[k] << "'";
@@ -1594,7 +1594,7 @@ RasdamanHelper2::writeExtraMetadata(long oid,
                     << std::endl << PQresultErrorMessage(res));
             ret = 0;
         }
-        PQfreemem((void*)litstr);
+        PQfreemem(static_cast<void*>(litstr));
         query.str("");
         PQclear(res);
     }
@@ -1682,7 +1682,7 @@ RasdamanHelper2::queryImageOIDs(const std::string& kvp)
 
     std::vector<std::string> availkeys;
     std::vector<std::string> availvals;
-    for (int k=0; k < keys.size(); ++k)
+    for (unsigned int k=0; k < keys.size(); ++k)
     {
         for (int t=0; t < numtypes; ++t)
         {
@@ -1738,7 +1738,7 @@ RasdamanHelper2::queryImageOIDs(const std::string& kvp)
     // and now query the allmetadata view for each kvp and join
     // (inner) individual results (= logical and betwen kvps
     query << "select distinct k0.oid from ";
-    for (int k=0; k < availkeys.size(); ++k)
+    for (unsigned int k=0; k < availkeys.size(); ++k)
     {
         char* key = escapeLiteral(conn, availkeys[k].c_str(), availkeys[k].size());
         char* val = escapeLiteral(conn, availvals[k].c_str(), availvals[k].size());
@@ -1756,8 +1756,8 @@ RasdamanHelper2::queryImageOIDs(const std::string& kvp)
         {
             query << " on k" << k-1 << ".oid = k" << k << ".oid";
         }
-        PQfreemem((void*)key);
-        PQfreemem((void*)val);
+        PQfreemem(static_cast<void*>(key));
+        PQfreemem(static_cast<void*>(val));
     }
     TALK("selection query ...\n" << query.str());
 
@@ -1834,9 +1834,9 @@ RasdamanHelper2::getCRSURIsfromCoverageId(long covid)
     }
 
     // we maintain crs order
-    for (int c=0; c < crsids.size(); ++c)
+    for (unsigned int c=0; c < crsids.size(); ++c)
     {
-	query << "select uri from " << PSPREFIX << "_crs where id = " << (int)crsids[0];
+	query << "select uri from " << PSPREFIX << "_crs where id = " << static_cast<int>(crsids[0]);
         TALK("'" << query.str() << "' ...");
         res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
         if (PQntuples(res) < 1)
@@ -1871,7 +1871,7 @@ RasdamanHelper2::getMetaGeoDomain(double oid, bool defaultOrder)
     double dmin = std::numeric_limits<double>::max() * -1;
     for (int e=0; e < 4; ++e)
     {
-        if (std::fmod((float)e, (float)2) == 0)
+        if (std::fmod(static_cast<float>(e), static_cast<float>(2)) == 0)
             dom.push_back(dmax);
         else
             dom.push_back(dmin);
@@ -1943,16 +1943,16 @@ RasdamanHelper2::getMetaGeoDomain(double oid, bool defaultOrder)
     // return in default xyz oder
     if (crsorder.size() > 0 && crsorder.size() == vll.size())
     {
-        for (int d=0; d < vll.size(); ++d)
+        for (unsigned int d=0; d < vll.size(); ++d)
         {
-            dom[crsorder[d]*2]   = vll[d];
-            dom[crsorder[d]*2+1] = vur[d];
+            dom[static_cast<size_t>(crsorder[d])*2]   = vll[d];
+            dom[static_cast<size_t>(crsorder[d])*2+1] = vur[d];
         }
     }
     // return in recorded petascope order
     else
     {
-        for (int d=0; d < vll.size(); ++d)
+        for (unsigned int d=0; d < vll.size(); ++d)
         {
             dom[d*2]   = vll[d];
             dom[d*2+1] = vur[d];
@@ -2010,8 +2010,8 @@ RasdamanHelper2::getCRSOrder(double oid)
 
 
     // iterate over the offset tuples and determine the index of the non-zero offset per axis
-    order.resize(PQntuples(res));
-    for (int i=0; i < order.size(); ++i)
+    order.resize(static_cast<size_t>(PQntuples(res)));
+    for (int i=0; i < static_cast<int>(order.size()); ++i)
     {
         long id = atol(PQgetvalue(res, i, 0));
 
@@ -2027,7 +2027,7 @@ RasdamanHelper2::getCRSOrder(double oid)
             return std::vector<int>();
         }
 
-        for (int v=0; v < offval.size(); ++v)
+        for (unsigned int v=0; v < offval.size(); ++v)
         {
             if (offval[v] != 0)
                 order[v] = i;
@@ -2140,8 +2140,8 @@ RasdamanHelper2::getMetaCellSize(double oid, bool defaultOrder)
 
     // initiate cellsize vector with negatives, indicating
     // no valid value (e.g. for irregular axes)
-    cellsize.resize(PQntuples(res));
-    for (int i=0; i < cellsize.size(); ++i)
+    cellsize.resize(static_cast<size_t>(PQntuples(res)));
+    for (unsigned int i=0; i < cellsize.size(); ++i)
         cellsize[i] = -1;
 
     // fill cellsize vector (xyz axis order) with valid cell sizes;
@@ -2169,12 +2169,12 @@ RasdamanHelper2::getMetaCellSize(double oid, bool defaultOrder)
 
         // record cellsize either in the specified crs order
         // or, if crs_order was specified, in default xyz order
-        for (int v=0; v < offsets.size(); ++v)
+        for (unsigned int v=0; v < offsets.size(); ++v)
         {
             if (offsets[v] != 0)
             {
                 if (crsorder.size() > 0 && crsorder.size() == cellsize.size())
-                    cellsize[crsorder[v]] = offsets[v];
+                    cellsize[static_cast<unsigned int>(crsorder[v])] = offsets[v];
                 else
                     cellsize[v] = offsets[v];
             }
@@ -2196,7 +2196,7 @@ RasdamanHelper2::writeRAT(const std::string& filename,
     // -------------------------------------------------------------
     // let's check whether we've got everything
 
-    GDALDataset* pDs = (GDALDataset*)GDALOpen(filename.c_str(), GA_ReadOnly);
+    GDALDataset* pDs = static_cast<GDALDataset*>(GDALOpen(filename.c_str(), GA_ReadOnly));
     if (pDs == 0)
     {
         std::cerr << ctx << "writeRat(): "
@@ -2269,7 +2269,7 @@ RasdamanHelper2::writeRAT(const std::string& filename,
         coltypes.push_back(pRAT->GetTypeOfCol(c));
 
         string typestr = "";
-        switch (coltypes[c])
+        switch (coltypes[static_cast<unsigned int>(c)])
         {
         case GFT_Integer:
             typestr = "integer";
@@ -2280,11 +2280,12 @@ RasdamanHelper2::writeRAT(const std::string& filename,
         case GFT_String:
             typestr = "text";
             break;
+        default: break;
         }
 
         query << colname << s << typestr << k;
 
-        PQfreemem((void*)colname);
+        PQfreemem(static_cast<void*>(colname));
     }
 
     query << "constraint rat" << band << "_" << oid << "_pkey primary key (rowidx))";
@@ -2311,7 +2312,7 @@ RasdamanHelper2::writeRAT(const std::string& filename,
         query << "insert into rat" << band << "_" << oid << " values (" << r << k;
         for (c=0; c < ncols; c++)
         {
-            switch (coltypes[c])
+            switch (coltypes[static_cast<unsigned int>(c)])
             {
             case GFT_Integer:
 			query << pRAT->GetValueAsInt(r, c);
@@ -2335,9 +2336,10 @@ RasdamanHelper2::writeRAT(const std::string& filename,
                     char* litstr = escapeLiteral(const_cast<PGconn*>(conn),
                                 valstr.c_str(), valstr.size());
                     query << litstr;
-                    PQfreemem((void*)litstr);
+                    PQfreemem(static_cast<void*>(litstr));
                 }
                 break;
+            default: break;
             }
 
             if (c < ncols -1)
@@ -2718,13 +2720,13 @@ RasdamanHelper2::getRas2CrsMapping(const std::vector<int>& crsorder)
 {
     std::vector<int> ras2crs (crsorder.size(), -1);
 
-    for (int d=0; d < crsorder.size(); ++d)
+    for (unsigned int d=0; d < crsorder.size(); ++d)
     {
-        for (int g=0; g < crsorder.size(); ++g)
+        for (unsigned int g=0; g < crsorder.size(); ++g)
         {
-            if (crsorder[g] == d)
+            if (crsorder[g] == static_cast<int>(d))
             {
-                ras2crs[d] = g;
+                ras2crs[d] = static_cast<int>(g);
                 break;
             }
         }
@@ -2917,7 +2919,7 @@ RasdamanHelper2::writePSMetadata(
     // iterate over the given crs_uris and determine their respective id from the table
     // if the respective crs-uri is missing, try to add it
     std::vector<long> crs_ids;// = -1;
-    for (int c=0; c < crs.size(); ++c)
+    for (unsigned int c=0; c < crs.size(); ++c)
     {
 		query << "select id from " << PSPREFIX << "_crs where uri = '" << crs[c] << "'";
 		TALK("'" << query.str() << "' ... ");
@@ -2966,7 +2968,7 @@ RasdamanHelper2::writePSMetadata(
     columns << "(coverage_id, native_crs_ids)";
     values.str("");
     stringstream crss;
-    for (int c=0; c < crs_ids.size(); ++c)
+    for (unsigned int c=0; c < crs_ids.size(); ++c)
     {
         crss << crs_ids[c];
         if (c < crs_ids.size()-1)
@@ -3016,7 +3018,7 @@ RasdamanHelper2::writePSMetadata(
     double csordered[3];
     double centreoff[3];
 
-    for (int d=0; d < crs_order.size(); ++d)
+    for (unsigned int d=0; d < crs_order.size(); ++d)
     {
         if (crs_order[d] == 0)
         {
@@ -3053,7 +3055,7 @@ RasdamanHelper2::writePSMetadata(
                        crs_order[2] == 1 ? (axisIndexed[2] ? ypix-1 : minmax[5]+centreoff[2]) : minmax[4]+centreoff[2] //(axisIndexed[2] ? 0 : minmax[4]+centreoff[2])
                       };
     values << "(" << covid << ", '{";// << crs_id << "}')";
-    for (int d=0; d < ndims; ++d)
+    for (unsigned int d=0; d < ndims; ++d)
     {
 		values << origin[d];
         if (d < ndims-1)
@@ -3281,7 +3283,7 @@ RasdamanHelper2::writePSMetadata(
         columns.str("");
         columns << "(gridded_coverage_id, rasdaman_order)";
         // create a mapping index to insure we insert axis in the right order (dim-0 first)
-        for (int d = 0; d < ndims; ++d)
+        for (unsigned int d = 0; d < ndims; ++d)
         {
             query.str("");
             query << "insert into " << PSPREFIX << "_grid_axis " << columns.str()
@@ -3311,9 +3313,9 @@ RasdamanHelper2::writePSMetadata(
     // get axis ids and order them according to crs_order
     long axisids[3];
     long aid;
-    for (int d = 0; d < ndims; ++d)
+    for (unsigned int d = 0; d < ndims; ++d)
     {
-        aid = atol(PQgetvalue(res, d, 0));
+        aid = atol(PQgetvalue(res, static_cast<int>(d), 0));
         axisids[ras2crs[d]] = aid;
     }
     PQclear(res);
@@ -3325,13 +3327,13 @@ RasdamanHelper2::writePSMetadata(
 
         columns.str("");
         columns << "(grid_axis_id, offset_vector)";
-        for (int d = 0; d < ndims; ++d)
+        for (unsigned int d = 0; d < ndims; ++d)
         {
             columns.str("");
             columns << "(grid_axis_id, offset_vector)";
 
             query << "insert into " << PSPREFIX << "_rectilinear_axis " << columns.str()
-                      << " values (" << axisids[ras2crs[d]] << "," << voffsets[ras2crs[d]] << ")";
+                      << " values (" << axisids[ras2crs[d]] << "," << voffsets[static_cast<size_t>(ras2crs[d])] << ")";
             TALK("'" << query.str() << "' ...");
             res = PQexec(const_cast<PGconn*>(conn), query.str().c_str());
             if (PGFAILED("writePSMetdata()", "failed to insert info into ps_rectilinear_axis!", res))
@@ -3351,7 +3353,7 @@ RasdamanHelper2::writePSMetadata(
 	// we can only have the z-axis being irregular, so we look for the ordered axis index = 2
 	columns.str("");
 	columns << "(grid_axis_id, coefficient, coefficient_order)";
-	for (int d = 0; d < ndims; ++d)
+	for (unsigned int d = 0; d < ndims; ++d)
 	{
 		// only irregular axes
 		if (!isRegular && crs_order[d] == 2)
@@ -3533,7 +3535,7 @@ RasdamanHelper2::deletePSMetadata(const std::string& collname,
     PGresult* res;
 
 
-    for (int i=0; i < oids.size(); ++i)
+    for (unsigned int i=0; i < oids.size(); ++i)
     {
         oid = oids[i];
 
@@ -3691,7 +3693,7 @@ RasdamanHelper2::escapeLiteral(PGconn* conn, const char* str, size_t strsize) th
 #if PG_VERSION_NUM >= 90000
     return PQescapeLiteral(conn, str, strsize);
 #elif PG_VERSION_NUM >= 80000
-    char* to = (char*) malloc(strsize * 2 + 1);
+    char* to = static_cast<char*>(malloc(strsize * 2 + 1));
     if (to)
     {
         int error;
@@ -3719,4 +3721,5 @@ RasdamanHelper2::escapeIdentifier(PGconn* conn, const char* str, size_t strsize)
 #elif PG_VERSION_NUM >= 80000
     return escapeLiteral(conn, str, strsize);
 #endif
+    return NULL;
 }

@@ -50,25 +50,25 @@ rasdaman GmbH.
 typedef struct
 {
     unsigned short type;
-    r_ULong size;
+    r_Long size;
     unsigned short res0;
     unsigned short res1;
-    r_ULong offset;
+    r_Long offset;
 } bitmap_file_header_t;
 
 typedef struct
 {
-    r_ULong size;
+    r_Long size;
     r_Long width;
     r_Long height;
     unsigned short planes;
     unsigned short bitCount;
-    r_ULong compression;
-    r_ULong sizeImage;
+    r_Long compression;
+    r_Long sizeImage;
     r_Long xpels;
     r_Long ypels;
-    r_ULong clrUsed;
-    r_ULong clrImportant;
+    r_Long clrUsed;
+    r_Long clrImportant;
 } bitmap_info_header_t;
 
 typedef struct
@@ -135,7 +135,7 @@ r_Conv_BMP::~r_Conv_BMP(void)
 {
     if (memFS != NULL)
     {
-        memfs_killfs((void*)memFS);
+        memfs_killfs(static_cast<void*>(memFS));
         delete memFS;
         memFS=NULL;
     }
@@ -167,7 +167,7 @@ unsigned char *r_Conv_BMP::flushLiterals(int numLit, int pixelAdd, unsigned char
             litLength = numLit;
             if (litLength > 255) litLength = 255;
             *destPtr++ = 0x00;
-            *destPtr++ = (unsigned char)litLength;
+            *destPtr++ = static_cast<unsigned char>(litLength);
             numLit -= litLength;
             while (litLength > 0)
             {
@@ -201,7 +201,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
     unsigned char mapColours[256];
 
     memFS = new memFSContext;
-    handle = (void*)memFS;
+    handle = static_cast<void*>(memFS);
     if ((memFS == NULL) || (memfs_initfs(handle) < 0))
     {
         RMInit::logOut << "r_Conv_BMP::convertTo(): couldn't initialize memfs!" << endl;
@@ -209,14 +209,14 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
     }
     memfs_newfile(handle);
 
-    width  = (int)(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
-    height = (int)(desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1);
+    width  = static_cast<int>(desc.srcInterv[0].high() - desc.srcInterv[0].low() + 1);
+    height = static_cast<int>(desc.srcInterv[1].high() - desc.srcInterv[1].low() + 1);
 
     params->process(options);
 
     ihead.size = BMPINFOHEADERSIZE;
-    ihead.width = (r_Long)width;
-    ihead.height = (r_Long)height;
+    ihead.width = static_cast<r_Long>(width);
+    ihead.height = static_cast<r_Long>(height);
     ihead.planes = 1;
     ihead.compression = COMPRESS_NONE;
     ihead.xpels = 0;
@@ -262,9 +262,9 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
         {
             if (mapColours[i] != 0)
             {
-                palette[paletteSize].red = (unsigned char)i;
-                palette[paletteSize].green = (unsigned char)i;
-                palette[paletteSize].blue = (unsigned char)i;
+                palette[paletteSize].red = static_cast<unsigned char>(i);
+                palette[paletteSize].green = static_cast<unsigned char>(i);
+                palette[paletteSize].blue = static_cast<unsigned char>(i);
                 palette[paletteSize].null = 0;
                 paletteSize++;
             }
@@ -275,7 +275,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
         {
             if (mapColours[i] != 0) mapColours[i] = paletteSize++;
         }
-        ihead.clrUsed = paletteSize;
+        ihead.clrUsed = static_cast<r_Long>(paletteSize);
         ihead.clrImportant = 0;  // for simplicity's sake
         break;
     }
@@ -447,7 +447,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
     RMDBGONCE( 3, RMDebug::module_conversion, "r_Conv_BMP", "convertTo(): size: " << fileSize );
     offset = BMPHEADERSIZE + paletteSize * static_cast<tsize_t>(sizeof(rgb_quad_t));
     dest = bmpHeaders;
-    ihead.sizeImage = fileSize - offset;
+    ihead.sizeImage = static_cast<r_Long>(fileSize - offset);
 
     WRITE_LE_SHORT(dest, BMP_IDENTIFIER);
     WRITE_LE_LONG(dest, fileSize);
@@ -470,7 +470,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
     memfs_seek(handle, 0, SEEK_SET);
     memfs_write(handle, bmpHeaders, BMPHEADERSIZE);
 
-    if ((desc.dest = (char*)mystore.storage_alloc(fileSize)) == NULL)
+    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(fileSize))) == NULL)
     {
         RMInit::logOut << "r_Conv_BMP::convertTo(): out of memory!" << endl;
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -483,7 +483,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
     memFS = NULL;
 
     desc.destInterv = r_Minterval(1);
-    desc.destInterv << r_Sinterval((r_Range)0, (r_Range)fileSize-1);
+    desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(fileSize)-1);
 
     desc.destType = r_Type::get_any_type("char");
 
@@ -537,8 +537,8 @@ r_convDesc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options
     READ_LE_LONG(bmp, ihead.clrUsed);
     READ_LE_LONG(bmp, ihead.clrImportant);
 
-    width = (int)ihead.width;
-    height = (int)ihead.height;
+    width = ihead.width;
+    height = ihead.height;
 
     RMDBGIF(4, RMDebug::module_conversion, "r_Conv_BMP", \
             RMInit::dbgOut << "File: type " << std::hex << fhead.type << ", size " << std::dec << fhead.size; \
@@ -644,7 +644,7 @@ r_convDesc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options
 
     imgLine = (const unsigned char *)(palette + paletteSize);
 
-    if ((dest = (unsigned char*)mystore.storage_alloc(static_cast<size_t>(width * height * pixelSize))) == NULL)
+    if ((dest = static_cast<unsigned char*>(mystore.storage_alloc(static_cast<size_t>(width * height * pixelSize)))) == NULL)
     {
         RMInit::logOut << "r_Conv_BMP::convertFrom(): out of memory" << endl;
         throw r_Error(MEMMORYALLOCATIONERROR);
@@ -1076,8 +1076,8 @@ r_convDesc &r_Conv_BMP::convertFrom(__attribute__ ((unused)) const char *options
     else
     {
         desc.destInterv = r_Minterval(2);
-        desc.destInterv << r_Sinterval((r_Range)0, (r_Range)width-1)
-                        << r_Sinterval((r_Range)0, (r_Range)height-1);
+        desc.destInterv << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(width)-1)
+                        << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(height)-1);
     }
 
     desc.destType = get_external_type(desc.baseType);

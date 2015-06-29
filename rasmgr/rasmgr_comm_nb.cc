@@ -512,7 +512,7 @@ bool NbJob::readPartialMessage()
     ENTER("NbJob::readPartialMessage: enter." );
     markAction();
     errno = 0;
-    int nbytes = read(socket,inputBuffer + nextReadPos,maxInputLength - nextReadPos);
+    int nbytes = read(socket,inputBuffer + nextReadPos, static_cast<size_t>(maxInputLength - nextReadPos));
     TALK("NbJob::readPartialMessage: read() with socket=" << socket << " returned " << nbytes );
 
     if(nbytes)  // wrote some bytes
@@ -604,7 +604,7 @@ bool NbJob::writePartialMessage()
 
     markAction();
     errno = 0;
-    int nbytes = write(socket,outputBuffer + nextWritePos,answerLength - nextWritePos);
+    int nbytes = write(socket,outputBuffer + nextWritePos,static_cast<size_t>(answerLength - nextWritePos));
     TALK("NbJob::writePartialMessage: write() with socket=" << socket << " returned " << nbytes );
 
     if(nbytes)
