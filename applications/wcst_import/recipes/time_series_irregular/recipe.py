@@ -102,7 +102,7 @@ class Recipe(BaseRecipe):
                 if len(ret) == limit:
                     break
                 gdal_file = GDALGmlUtil(self.session.get_crs_resolver(), self.session.get_default_crs(), tfile)
-                dtutil = DateTimeUtil(gdal_file.get_datetime(mtag), time_format)
+                dtutil = DateTimeUtil(gdal_file.get_datetime(mtag), time_format, self.options['time_crs'])
                 ret.append(TimeGdalTuple(dtutil, tfile))
         elif 'filename' in self.options['time_parameter'] and len(ret) < limit:
             regex = self.options['time_parameter']['filename']['regex']
@@ -110,7 +110,7 @@ class Recipe(BaseRecipe):
             for tfile in self.session.get_files():
                 if len(ret) == limit:
                     break
-                dtutil = DateTimeUtil(re.search(regex, tfile).group(group), time_format)
+                dtutil = DateTimeUtil(re.search(regex, tfile).group(group), time_format, self.options['time_crs'])
                 ret.append(TimeGdalTuple(dtutil, tfile))
         else:
             raise RecipeValidationException("No method to get the time parameter, you should either choose "

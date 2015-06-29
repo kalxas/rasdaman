@@ -82,7 +82,7 @@ class Recipe(BaseRecipe):
 
         time_offset = 0
         time_format = self.options['time_format'] if self.options['time_format'] != "auto" else None
-        time_start = DateTimeUtil(self.options['time_start'], time_format)
+        time_start = DateTimeUtil(self.options['time_start'], time_format, self.options['time_crs'])
         for tfile in self.session.get_files():
             if len(ret) == limit:
                 break
@@ -100,7 +100,7 @@ class Recipe(BaseRecipe):
         """
         days, hours, minutes, seconds = tuple([offset * item for item in self._get_real_step()])
         return DateTimeUtil(current.datetime.replace(days=+days, hours=+hours, minutes=+minutes,
-                                                     seconds=+seconds).isoformat())
+                                                     seconds=+seconds).isoformat(), None, self.options['time_crs'])
 
     def _get_real_step(self):
         res = re.search(

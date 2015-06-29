@@ -33,6 +33,13 @@ class CRSUtil:
         except Exception:
             raise RuntimeException("Could not retrieve the axis definitions from the crs at url: " + self.crs_url)
 
+    def get_crs_code(self):
+        """
+        Returns the code part of a CRS URI
+        :return: str
+        """
+        return self.crs_url.rpartition("/")[-1]
+
     @staticmethod
     def get_crs_url(crs_resolver, authority, code):
         """

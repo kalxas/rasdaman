@@ -67,7 +67,7 @@ class Generator:
         :rtype: list[float]
         """
         origin = self.gdal_util.get_origin()
-        origin.append('"' + self.time_start.to_ansi() + '"')
+        origin.append(self.time_start.to_string())
         return origin
 
     def get_crs(self):
