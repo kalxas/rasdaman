@@ -46,11 +46,9 @@ using namespace std;
 #include <math.h>
 #include <string.h>
 #include <stdlib.h>
-#ifdef __VISUALC__
-#include <strstrea.h>
-#else
-#include <strstream>
-#endif
+
+#include <sstream>
+
 
 r_Minterval::r_Minterval(r_Dimension dim)
     : intervals(NULL),
@@ -73,7 +71,7 @@ r_Minterval::constructorinit(char* mIntStr) throw(r_Eno_interval)
 
     char* p = NULL; // for counting ','
     // for parsing the string
-    std::istrstream str(mIntStr, static_cast<std::streamsize>(strlen(mIntStr)) + 1);
+    std::istringstream str(mIntStr);
     char c = 0;
     r_Sinterval sint;
     r_Range b = 0; // bound for Sinterval
@@ -849,20 +847,13 @@ r_Minterval::print_status(std::ostream& s) const
 char*
 r_Minterval::get_string_representation() const
 {
-    unsigned int bufferSize = dimensionality*25+3;  // should be enough
-
-    // allocate buffer and initialize string stream
-    char* buffer = new char[bufferSize];
-    std::ostrstream domainStream(buffer, static_cast<int>(bufferSize));
-
+    // initialize string stream
+    std::ostringstream domainStream;
     // write into string stream
-    domainStream << (*this) << std::ends;
+    domainStream << (*this);
 
     // allocate memory taking the final string
-    char* returnString = strdup(buffer);
-
-    // delete buffer
-    delete[] buffer;
+    char* returnString = strdup(domainStream.str().c_str());
 
     return returnString;
 }

@@ -104,9 +104,6 @@ protected:
     r_Transaction myta;
     /// do we have to do an insert or an update?
     int doUpdate;
-    /// format strings for queries
-    static const char *format_create;
-    static const char *format_update;
 };
 
 #endif

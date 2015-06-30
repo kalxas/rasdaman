@@ -38,11 +38,7 @@ static const char rcsid[] = "@(#)rasodmg, r_OQL_Query and r_oql_execute(): $Id: 
 
 #include <string.h>
 #include <ctype.h>     // isdigit()
-#ifdef __VISUALC__
-#include <strstrea.h>
-#else
-#include <strstream>
-#endif
+#include <sstream>
 
 #ifdef __VISUALC__
 #ifndef __EXECUTABLE__
@@ -215,11 +211,11 @@ r_OQL_Query::operator<<( r_Char c ) throw( r_Error )
 r_OQL_Query&
 r_OQL_Query::operator<<( r_Short s ) throw( r_Error )
 {
-    char valueString[256];
 
-    std::ostrstream valueStream( valueString, 256 );
+    std::ostringstream valueStream;
 
-    valueStream << s << std::ends;
+    valueStream << s;
+	char* valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -237,11 +233,11 @@ r_OQL_Query::operator<<( r_Short s ) throw( r_Error )
 r_OQL_Query&
 r_OQL_Query::operator<<( r_UShort us ) throw( r_Error )
 {
-    char valueString[256];
 
-    std::ostrstream valueStream( valueString, 256 );
+    std::ostringstream valueStream;
 
-    valueStream << us << std::ends;
+    valueStream << us;
+    char* valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -259,11 +255,10 @@ r_OQL_Query::operator<<( r_UShort us ) throw( r_Error )
 r_OQL_Query&
 r_OQL_Query::operator<<( r_Long l ) throw( r_Error )
 {
-    char valueString[256];
+    std::ostringstream valueStream;
 
-    std::ostrstream valueStream( valueString, 256 );
-
-    valueStream << l << std::ends;
+    valueStream << l;
+    char* valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -281,12 +276,10 @@ r_OQL_Query::operator<<( r_Long l ) throw( r_Error )
 r_OQL_Query&
 r_OQL_Query::operator<<( r_ULong ul ) throw( r_Error )
 {
-    char valueString[256];
+    std::ostringstream valueStream;
 
-    std::ostrstream valueStream( valueString, 256 );
-
-    valueStream << ul << std::ends;
-
+    valueStream << ul;
+	char* valueString = strdup(valueStream.str().c_str());
     try
     {
         replaceNextArgument( valueString );
@@ -303,11 +296,10 @@ r_OQL_Query::operator<<( r_ULong ul ) throw( r_Error )
 r_OQL_Query&
 r_OQL_Query::operator<<( r_Point pt ) throw( r_Error )
 {
-    char valueString[256];
+    std::ostringstream valueStream;
 
-    std::ostrstream valueStream( valueString, 256 );
-
-    valueStream << pt << std::ends;
+    valueStream << pt;
+    char* valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -325,11 +317,10 @@ r_OQL_Query::operator<<( r_Point pt ) throw( r_Error )
 r_OQL_Query&
 r_OQL_Query::operator<<( r_Sinterval in ) throw( r_Error )
 {
-    char valueString[256];
+    std::ostringstream valueStream;
 
-    std::ostrstream valueStream( valueString, 256 );
-
-    valueStream << in << std::ends;
+    valueStream << in;
+    char* valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -347,11 +338,10 @@ r_OQL_Query::operator<<( r_Sinterval in ) throw( r_Error )
 r_OQL_Query&
 r_OQL_Query::operator<<( r_Minterval in ) throw( r_Error )
 {
-    char valueString[256];
+    std::ostringstream valueStream;
 
-    std::ostrstream valueStream( valueString, 256 );
-
-    valueStream << in << std::ends;
+    valueStream << in;
+    char* valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -374,9 +364,9 @@ r_OQL_Query::operator<<( r_GMarray& in ) throw( r_Error )
     if( mddConstants )
         mddNo = mddConstants->cardinality();
 
-    char valueString[256];
-    std::ostrstream valueStream( valueString, 256 );
-    valueStream << "#MDD" << mddNo << "#" << std::ends;
+    std::ostringstream valueStream;
+    valueStream << "#MDD" << mddNo << "#";
+    char* valueString = strdup(valueStream.str().c_str());
 
     try
     {
@@ -469,7 +459,6 @@ throw( r_Error )
     char* argumentEnd=NULL;
     char* argumentVal=NULL;
     int   argumentLength=0;
-    char* tmpString=NULL;
     int   length=0;
 
     // locate the next argument in the query string
@@ -499,21 +488,17 @@ throw( r_Error )
 
     while(true)
     {
+		length = strlen(queryString);
         // allocate a new query string and fill it
-        tmpString   = queryString;
-        length      = static_cast<int>(strlen(queryString)) - argumentLength + static_cast<int>(strlen(valueString));
-        queryString = new char[ length + 1 ];
-
         *argumentBegin = '\0';
-        std::ostrstream queryStream( queryString, length + 1 );
+        std::ostringstream queryStream;
 
-        queryStream << tmpString << valueString << argumentEnd << std::ends;
+        queryStream << queryString << valueString << argumentEnd;
+		delete[] queryString;
+        queryString = strdup(queryStream.str().c_str());
 
         //update the reference
-        argumentEnd=queryString+strlen(tmpString)+strlen(valueString);
-
-        //remove buffer
-        delete[] tmpString;
+        argumentEnd=queryString+length+strlen(valueString);
 
         //search again for this parameter
         argumentEnd = argumentBegin = strstr( argumentEnd, argumentVal );

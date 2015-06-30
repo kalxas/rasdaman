@@ -45,11 +45,7 @@ using namespace std;
 
 
 #include <string.h>
-#ifdef __VISUALC__
-#include <strstrea.h>
-#else
-#include <strstream>
-#endif
+#include <sstream>
 
 #include <fstream>
 #include <string>
@@ -62,7 +58,7 @@ using namespace std;
 using std::endl;
 using std::ends;
 using std::ios;
-using std::ostrstream;
+using std::ostringstream;
 
 r_Error::errorInfo* r_Error::textList = NULL;
 /// has error text file been loaded, i.e., is table filled?
@@ -518,11 +514,10 @@ void
 r_Error::setTextParameter(const char* parameterName, int value)
 {
     // convert long value to string
-    char valueString[256];
-    ostrstream valueStream(valueString, sizeof(valueString) );
-    valueStream << value << ends;
+    ostringstream valueStream;
+    valueStream << value;
 
-    setTextParameter(parameterName, valueString);
+    setTextParameter(parameterName, valueStream.str().c_str());
 }
 
 
@@ -540,21 +535,18 @@ r_Error::setTextParameter(const char* parameterName, const char* value)
             // allocate a new query string and fill it
             char* paramEnd = NULL;
             int  paramLength = 0;
-            char* tmpText = NULL;
             int  newLength = 0;
 
-            tmpText      = errorText;
             paramLength = strlen(parameterName);
-            paramEnd        = paramStart + paramLength;
-            newLength    = static_cast<int>(strlen(tmpText)) - paramLength + static_cast<int>(strlen(value)) + 1;
-            errorText    = new char[newLength];
+            paramEnd    = paramStart + paramLength;
 
             *paramStart = '\0';
 
-            ostrstream queryStream(errorText, newLength);
-            queryStream << tmpText << value << paramEnd << ends;
+            ostringstream queryStream;
+            queryStream << errorText << value << paramEnd;
+            delete[] errorText;
+            errorText = strdup(queryStream.str().c_str());
 
-            delete[] tmpText;
         }
     }
 }

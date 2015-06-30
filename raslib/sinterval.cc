@@ -38,11 +38,7 @@ static const char rcsid[] = "@(#)raslib, r_Sinterval: $Id: sinterval.cc,v 1.29 2
 #include <string>
 #include <cstring>
 
-#ifdef __VISUALC__
-#include <strstrea.h>
-#else
-#include <strstream>
-#endif
+#include <sstream>
 
 // for min and max
 #include <algorithm>
@@ -78,7 +74,7 @@ r_Sinterval::r_Sinterval( char* stringRep ) throw(r_Eno_interval)
     r_Range valueToken = 0;
 
     // for parsing the string
-    std::istrstream str(stringRep, static_cast<std::streamsize>(strlen(stringRep)) + 1);
+    std::istringstream str(stringRep);
 
     str >> charToken;
     if(charToken == '*')
@@ -992,21 +988,13 @@ r_Sinterval::classify( const r_Sinterval& a, const r_Sinterval& b ) const
 char*
 r_Sinterval::get_string_representation() const
 {
-    int bufferSize = 128;  // should be enough
-
-    // allocate buffer and initialize string stream
-    char* buffer = new char[bufferSize];
-    std::ostrstream domainStream( buffer, bufferSize );
+    std::ostringstream domainStream;
 
     // write into string stream
-    domainStream << (*this) << ends;
+    domainStream << (*this);
 
     // allocate memory taking the final string
-    char* returnString = strdup(buffer);
-
-    // delete buffer
-    delete[] buffer;
-
+    char* returnString = strdup(domainStream.str().c_str());
     return returnString;
 }
 

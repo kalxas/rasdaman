@@ -33,11 +33,7 @@ rasdaman GmbH.
 #include "config.h"
 #include "raslib/oid.hh"
 
-#ifdef __VISUALC__
-#include <strstrea.h>
-#else
-#include <strstream>
-#endif
+#include <sstream>
 #include <fstream>
 #include <iomanip>
 #include <string.h>
@@ -126,12 +122,7 @@ r_OId::r_OId( const char* initSystemName, const char* initBaseName, double initL
         strcpy( baseName, initBaseName );
     }
 
-    // allocate buffer which is big enough
-    int bufferSize = ( systemName ? strlen( systemName ) : 0 ) +
-                     ( baseName   ? strlen( baseName   ) : 0 ) +
-                     1024;
-    char* buffer = new char[bufferSize];
-    std::ostrstream oidStream( buffer, bufferSize );
+    std::ostringstream oidStream;
 
     // write into the string stream
     if( systemName )
@@ -144,16 +135,10 @@ r_OId::r_OId( const char* initSystemName, const char* initBaseName, double initL
     else
         oidStream << "|";
 
-    oidStream << std::setprecision(50) << localOId << std::ends;
+    oidStream << std::setprecision(50) << localOId;
 
     // allocate memory taking the final string
-    oidString = new char[strlen(buffer)+1];
-
-    // copy string
-    strcpy( oidString, buffer );
-
-    // delete buffer
-    delete[] buffer;
+    oidString = strdup(oidStream.str().c_str());
 }
 
 r_OId::r_OId( const r_OId& obj )

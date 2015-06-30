@@ -49,9 +49,9 @@ rasdaman GmbH.
 
 
 // format string for creating collections; parameters: collection name, set type
-const char *r_Partial_Insert::format_create = "CREATE COLLECTION %s %s";
+#define FORMAT_CREATE "CREATE COLLECTION %s %s"
 // format string for updating the MDD; parameters: collection name, local oid
-const char *r_Partial_Insert::format_update = "UPDATE %s AS x SET x ASSIGN $1 WHERE OID(x) = %f";
+#define FORMAT_UPDATE "UPDATE %s AS x SET x ASSIGN $1 WHERE OID(x) = %f"
 
 
 r_Partial_Insert::r_Partial_Insert( r_Database &usedb, const char *collname, const char *mddtype, const char *settype, const r_Storage_Layout &stl ) : mydb(usedb)
@@ -122,8 +122,8 @@ int r_Partial_Insert::update( r_GMarray *mddPtr,
 
     if (doUpdate == 0)
     {
-        char *queryBuffer = new char[strlen(format_create) + strlen(collName) + strlen(setType)];
-        sprintf(queryBuffer, format_create, collName, setType);
+        char *queryBuffer = new char[strlen(FORMAT_CREATE) + strlen(collName) + strlen(setType) + 1];
+        sprintf(queryBuffer, FORMAT_CREATE, collName, setType);
         // first try creating the collection
         try
         {
@@ -169,8 +169,8 @@ int r_Partial_Insert::update( r_GMarray *mddPtr,
     }
     else
     {
-        char *queryBuffer = new char[strlen(format_update) + strlen(collName) + 32];
-        sprintf(queryBuffer, format_update, collName, myOId.get_local_oid());
+        char *queryBuffer = new char[strlen(FORMAT_UPDATE) + strlen(collName) + 32];
+        sprintf(queryBuffer, FORMAT_UPDATE, collName, myOId.get_local_oid());
 
         // try the update
         try
