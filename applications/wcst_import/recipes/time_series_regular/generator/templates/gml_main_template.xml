@@ -35,11 +35,12 @@
     </domainSet>
 
   <rangeSet>
-       <gml:DataBlock>
-		<gml:rangeParameters/>
-		<gml:tupleList>0
-		</gml:tupleList>
-	</gml:DataBlock>
+        <gml:File>
+            <gml:fileReference><![CDATA[
+                $VarFileName
+            ]]></gml:fileReference>
+            <gml:fileStructure>$VarMimeType</gml:fileStructure>
+        </gml:File>
   </rangeSet>
 
     <gmlcov:rangeType>

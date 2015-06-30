@@ -15,23 +15,19 @@ class GDALImageGmlGenerator:
     </code>
     """
 
-    def __init__(self, util, crs_resolver, default_crs, gdal_file_path, coverage_id, url_to_coverage_data):
+    def __init__(self, session, gdal_file_path, url_to_coverage_data):
         """
         Constructor for the class
-
-        :param Util util: the utility object for this import
-        :param str crs_resolver: the crs resolver
-        :param str default_crs: the default 2d crs
+        :param Session session: the session for this import
         :param str gdal_file_path: path to the file to be converted
-        :param str coverage_id: an id for this coverage
         :param str url_to_coverage_data: an url pointing to a file that contains the coverage data;
         usually this is the same as the gdal_file_path. Please note that an url format is required
-        (i.e. local files should be file://path)
+        (i.e. local files should be file:///path)
         """
-        self.util = util
-        self.coverage_id = coverage_id
+        self.util = session.get_util()
+        self.coverage_id = session.get_coverage_id()
         self.url_to_coverage_data = url_to_coverage_data
-        self.gdal_util = GDALGmlUtil(crs_resolver, default_crs, gdal_file_path)
+        self.gdal_util = GDALGmlUtil(session, gdal_file_path)
 
     def to_gml(self):
         """

@@ -43,7 +43,7 @@ class GMLDataPair:
 
     def delete_record_files(self):
         """
-        Deletes the gml file
+        Deletes the gml file, the data file should stay in place
         """
         os.remove(self.gml)
 

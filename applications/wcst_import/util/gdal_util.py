@@ -6,21 +6,22 @@ import magic
 from gml_field import GMLField
 from recipes.shared.runtime_exception import RuntimeException
 from crs_util import CRSUtil
+from session import Session
 
 
 class GDALGmlUtil:
-    def __init__(self, crs_resolver, default_crs, gdal_file_path):
+    def __init__(self, session, gdal_file_path):
         """
         Utility class to extract information from a gdal file. Best to isolate all gdal fuctionality to one class
         as gdallib is known to be problematic in imports
-        :param str crs_resolver: the crs resolver for the session
-        :param str default_crs: the default_crs to be used if one is not given
+        :param Session session: the session of the current import
         :param str gdal_file_path: the file path to the gdal supported file
         """
         import osgeo.gdal as gdal
 
-        self.crs_resolver = crs_resolver
-        self.default_crs = default_crs
+        self.crs_resolver = session.get_crs_resolver()
+        self.default_crs = session.get_default_crs()
+        self.default_null_values = session.get_default_null_values()
         self.gdal_file_path = gdal_file_path
         self.gdal_dataset = gdal.Open(self.gdal_file_path)
         if self.gdal_dataset is None:
@@ -93,11 +94,16 @@ class GDALGmlUtil:
         fields = []
         for i in range(1, self.gdal_dataset.RasterCount + 1):
             band = self.gdal_dataset.GetRasterBand(i)
-            nill_value = band.GetNoDataValue() if band.GetNoDataValue() is not None else "0.0"
+            nill_value = band.GetNoDataValue() if band.GetNoDataValue() is not None else None
+            if nill_value is None:
+                if len(self.default_null_values) > i-1:
+                    nill_value = str(self.default_null_values[i-1])
+                else:
+                    nill_value = ""
             field_name = gdal.GetColorInterpretationName(
                 band.GetColorInterpretation()) if band.GetColorInterpretation() else "field" + str(i)
             uom = band.GetUnitType() if band.GetUnitType() else "10^0"
-            fields.append(GMLField(field_name, uom, nill_value))
+            fields.append(GMLField(field_name, uom, str(nill_value)))
         return fields
 
     def get_band_gdal_type(self):

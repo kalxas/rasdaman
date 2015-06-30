@@ -101,7 +101,7 @@ class Recipe(BaseRecipe):
             for tfile in self.session.get_files():
                 if len(ret) == limit:
                     break
-                gdal_file = GDALGmlUtil(self.session.get_crs_resolver(), self.session.get_default_crs(), tfile)
+                gdal_file = GDALGmlUtil(self.session, tfile)
                 dtutil = DateTimeUtil(gdal_file.get_datetime(mtag), time_format, self.options['time_crs'])
                 ret.append(TimeGdalTuple(dtutil, tfile))
         elif 'filename' in self.options['time_parameter'] and len(ret) < limit:
@@ -121,9 +121,7 @@ class Recipe(BaseRecipe):
         """
         Returns the correct importer for the import job
         """
-        importer = Importer(import_tuples, self.session.get_coverage_id(), self.options['time_crs'],
-                            self.session.get_crs_resolver(), self.session.get_default_crs(), self.session.get_util(),
-                            self.options['tiling'], self.session.get_executor(), update)
+        importer = Importer(self.session, import_tuples, self.options['time_crs'], self.options['tiling'], update)
         return importer
 
     @staticmethod

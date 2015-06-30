@@ -60,9 +60,7 @@ class Recipe(BaseRecipe):
         Returns the correct importer for the import job
         :param bool update: true if this is an update operation false otherwise
         """
-        importer = Importer(files, self.session.get_coverage_id(),
-                            self.session.get_crs_resolver(), self.session.get_default_crs(), self.session.get_util(),
-                            self.options['tiling'], self.session.get_executor(), update, import_in_wms)
+        importer = Importer(self.session, files, self.options['tiling'], update, import_in_wms)
         return importer
 
     @staticmethod

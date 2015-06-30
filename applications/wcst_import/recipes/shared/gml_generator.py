@@ -87,11 +87,16 @@ class GMLGenerator:
             template = self.field_template
             if field.nill_values:
                 template = template.replace("$VarNillReason", "None")
-                template = template.replace("$VarNillValues", """<swe:nilValues>
-                        <swe:NilValues>
-                            <swe:nilValue reason="">""" + str(field.nill_values) + """</swe:nilValue>
-                        </swe:NilValues>
-                    </swe:nilValues>""")
+
+                nills = ""
+                for nill_val in field.nill_values.split(","):
+                    nills += '<swe:nilValue reason="">' + str(nill_val) + '</swe:nilValue>\n'
+
+                template = template.replace("$VarNillValues", """
+                        <swe:nilValues><swe:NilValues>
+                            """ + nills + """
+                        </swe:NilValues></swe:nilValues>
+                """)
             else:
                 template = template.replace("$VarNillValues", "")
             template = template.replace("$VarFieldName", field.field_name)

@@ -6,26 +6,24 @@ from util.time_util import DateTimeUtil
 
 
 class Generator:
-    def __init__(self, util, coverage_id, gdal_file_path, crs_resolver, default_crs, time_crs, time_start, time_step):
+    def __init__(self, session, gdal_file_path, time_crs, time_start, time_step, coverage_data_url):
         """
         Generates the initial WCST Insert gml template for a timeseries coverage
-        :param util.fileutil.FileUtil util: the utility object
-        :param str coverage_id: the id of the coverage to be generated
+        :param Session session: the session for this import
         :param str gdal_file_path: the gdal_file_path of one of the slices
-        :param str crs_resolver: the crs resolver
-        :param str default_crs: the default crs for gdal datasets
         :param str time_crs: the crs for the time axis
         :param DateTimeUtil time_start: the datetime value for the start
         :param float time_step: the time step for each slice
         """
-        self.util = util
-        self.crs_resolver = crs_resolver
-        self.default_crs = default_crs
-        self.coverage_id = coverage_id
+        self.util = session.get_util()
+        self.crs_resolver = session.get_crs_resolver()
+        self.default_crs = session.get_default_crs()
+        self.coverage_id = session.get_coverage_id()
         self.time_crs = time_crs
         self.time_start = time_start
         self.time_step = time_step
-        self.gdal_util = GDALGmlUtil(crs_resolver, default_crs, gdal_file_path)
+        self.gdal_util = GDALGmlUtil(session, gdal_file_path)
+        self.coverage_data_url = coverage_data_url
 
     def get_grid_envelope_low(self):
         """
@@ -90,7 +88,7 @@ class Generator:
             .grid_envelope_high(self.get_grid_envelope_high()) \
             .offset_vectors(self.get_offset_vectors(), self.get_coefficients()) \
             .origin(self.get_origin()) \
-            .coverage_data_url("") \
+            .coverage_data_url(self.coverage_data_url) \
             .coverage_data_url_mimetype("") \
             .generate()
         return gml

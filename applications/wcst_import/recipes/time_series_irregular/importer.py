@@ -10,28 +10,19 @@ from util.fileutil import FileUtil
 
 
 class Importer:
-    def __init__(self, timeseries, coverage_id, time_crs, crs_resolver, default_crs, util, tiling, executor,
-                 update=False):
+    def __init__(self, session, timeseries, time_crs, tiling, update=False):
         """
         This class can be used to import time series as a referenceable coverage
+        :param Session session: the import session
         :param list[TimeGdalTuple] timeseries: a map of form "datetime_value" => "/gdal/file/path"
-        :param str coverage_id: the id of the coverage to be created
         :param str time_crs: the crs to be used for time
-        :param str crs_resolver: the crs resolver for the session
-        :param str default_crs: the default_crs to be used if one is not given
-        :param FileUtil util: the utility object
         :param str tiling: the tiling to use in rasdaman
-        :param WCSTExecutor executor: the executor of wcst objects
         :param bool update: flag to indicate if the operation is an update (i.e. the coverage was already created)
         """
         self.timeseries = timeseries
-        self.coverage_id = coverage_id
+        self.session = session
         self.time_crs = time_crs
-        self.crs_resolver = crs_resolver
-        self.default_crs = default_crs
-        self.util = util
         self.tiling = tiling
-        self.executor = executor
         self.update = update
         self.processed_slices = 0
 
@@ -48,10 +39,10 @@ class Importer:
         Creates and submits the initial 3d gml coverage to WCST
         """
         first_record = self.timeseries[0]
-        gdal_util = GDALGmlUtil(self.crs_resolver, self.default_crs, first_record.filepath)
+        gdal_util = GDALGmlUtil(self.session, first_record.filepath)
         gml_pair = self.create_init_gml_file(first_record)
         request = WCSTInsertRequest(gml_pair.get_gml_url(), False, gdal_util.get_band_gdal_type(), self.tiling)
-        self.executor.execute(request)
+        self.session.get_executor().execute(request)
         self.processed_slices += 1
         gml_pair.delete_record_files()
         self.timeseries.pop()
@@ -61,12 +52,12 @@ class Importer:
         Inserts the slices from the gdal files once the coverage was initiated
         """
         if len(self.timeseries) > 0:
-            gdal_record = GDALGmlUtil(self.crs_resolver, self.default_crs, self.timeseries[0].filepath)
+            gdal_record = GDALGmlUtil(self.session, self.timeseries[0].filepath)
             crs_util = CRSGeoUtil(gdal_record.get_crs())
             crs_util_time = CRSTimeUtil(self.time_crs)
             for record in self.timeseries:
                 gml_pair = self.create_slice_gml_file(record.filepath)
-                gdal_record = GDALGmlUtil(self.crs_resolver, self.default_crs, record.filepath)
+                gdal_record = GDALGmlUtil(self.session, record.filepath)
 
                 subset_east = WCSTSubset(crs_util.get_east_axis(), gdal_record.get_extents()['x'][0],
                     gdal_record.get_extents()['x'][1])
@@ -74,9 +65,9 @@ class Importer:
                     gdal_record.get_extents()['y'][1])
                 subset_time = WCSTSubset(crs_util_time.get_future_axis(), '"' + record.time.to_ansi() + '"')
 
-                request = WCSTUpdateRequest(self.coverage_id, gml_pair.get_gml_url(),
+                request = WCSTUpdateRequest(self.session.get_coverage_id(), gml_pair.get_gml_url(),
                                             [subset_time, subset_east, subset_north])
-                self.executor.execute(request)
+                self.session.get_executor().execute(request)
                 gml_pair.delete_record_files()
                 self.processed_slices += 1
 
@@ -84,10 +75,9 @@ class Importer:
         """
         Creates the initial gml file for the insert
         :param TimeGdalTuple time_tuple: the time tuple record
-        :rtype str
+        :rtype GMLDataPair
         """
-        insert_gml = Generator(self.util, self.coverage_id, time_tuple.filepath, self.crs_resolver, self.default_crs,
-                               self.time_crs, time_tuple.time).to_file()
+        insert_gml = Generator(self.session, time_tuple.filepath, self.time_crs, time_tuple.time).to_file()
         return GMLDataPair(insert_gml, time_tuple.filepath)
 
     def create_slice_gml_file(self, gdal_file_path):
@@ -97,8 +87,8 @@ class Importer:
         :rtype GMLDataPair
         """
         datafile_path = gdal_file_path
-        gmlfile_path = GDALImageGmlGenerator(self.util, self.crs_resolver, self.default_crs, datafile_path,
-                                             self.coverage_id, GMLDataPair.get_url_method() + datafile_path).to_file()
+        gmlfile_path = GDALImageGmlGenerator(self.session, datafile_path,
+                                             GMLDataPair.get_url_method() + datafile_path).to_file()
         return GMLDataPair(gmlfile_path, datafile_path)
 
     def get_processed_slices(self):

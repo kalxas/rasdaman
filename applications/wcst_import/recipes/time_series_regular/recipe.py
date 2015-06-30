@@ -133,9 +133,8 @@ class Recipe(BaseRecipe):
         """
         days, hours, minutes, seconds = self._get_real_step()
         number_of_days = days + hours / float(24) + minutes / float(60 * 24) + seconds / float(60 * 60 * 24)
-        importer = Importer(import_tuples, number_of_days, self.session.get_coverage_id(), self.options['time_crs'],
-                            self.session.get_crs_resolver(), self.session.get_default_crs(), self.session.get_util(),
-                            self.options['tiling'], self.session.get_executor(), update)
+        importer = Importer(self.session, import_tuples, number_of_days, self.options['tiling'],
+                            self.options['time_crs'], update)
         return importer
 
     @staticmethod
