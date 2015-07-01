@@ -43,12 +43,10 @@ static const char rcsid[] = "@(#)conversion,r_Conv_DEM: $Id: dem.cc,v 1.10 2005/
 #include <float.h>
 #include <string>
 #include <cstring>
-#include <strstream>
 #include <sstream>
 #include <algorithm>
 
 using std::istringstream;
-using std::istrstream;
 using std::string;
 using namespace std;
 
@@ -272,7 +270,7 @@ r_Conv_DEM::checkLimits() throw(r_Error)
 void
 r_Conv_DEM::readFromSrcStream() throw(r_Error)
 {
-    istrstream iFile(desc.src, desc.srcInterv[0].get_extent());
+    istringstream iFile(desc.src);
     string currStrRow;
     r_Long rowNo=0;
     r_Double noResx, noResy;

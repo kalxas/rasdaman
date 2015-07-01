@@ -305,7 +305,7 @@ AC_ARG_ENABLE([benchmark],
 AC_ARG_ENABLE([strict],
               [AS_HELP_STRING([--enable-strict],
                               [enable compiling in strict mode: warnings terminate compilation.])],
-              [CXXFLAGS+=" -pedantic -Werror -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Werror -Wno-unused -Wno-long-long "],
+              [CXXFLAGS+=" -pedantic -Werror -Wall -Wextra -Wcast-align -Wcast-qual -Wctor-dtor-privacy -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-declarations -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-conversion -Wsign-promo -Wstrict-null-sentinel -Wstrict-overflow=5 -Wswitch-default -Wundef -Werror -Wno-unused -Wno-long-long -Wno-format-nonliteral "],
               [])
 
 AC_ARG_WITH([test-server],
@@ -573,7 +573,7 @@ BASEDBCXXFLAGS+=" $DBIF_INC "
 COMPDATE=`date +"%d.%m.%Y %H:%M:%S"`
 AC_DEFINE_UNQUOTED([COMPDATE], ["$COMPDATE"])
 
-CXXFLAGS+=" -fno-stack-protector $GCC_OPTIMIZATION_FLAG "
+CXXFLAGS+=" -fno-stack-protector -fno-strict-overflow $GCC_OPTIMIZATION_FLAG "
 CXXFLAGS+=" -I$abs_top_srcdir -I$abs_top_srcdir/debug -I$abs_top_srcdir/include $USER_CXXFLAGS"
 CFLAGS+=" $GCC_OPTIMIZATION_FLAG "
 CFLAGS+=" $USER_CFLAGS"

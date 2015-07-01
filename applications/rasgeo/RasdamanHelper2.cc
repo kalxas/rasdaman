@@ -45,7 +45,19 @@
 #include "gdal_priv.h"
 #include "gdal_rat.h"
 
-#include <pg_config.h>
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_URL
+#undef PACKAGE_VERSION
+ #include <pg_config.h>
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_URL
+#undef PACKAGE_VERSION
 
 // some string constants
 #define PSPREFIX "ps"
@@ -128,21 +140,21 @@ RasdamanHelper2::getCRSURIfromWKT(const std::string& crsWKT,
     std::string code;
     if (firstpos > 0)
     {
-        firstpos = wkt.find("\"", firstpos)+1;
+        firstpos = wkt.find("\"", static_cast<size_t>(firstpos))+1;
         failed = firstpos > 0 ? false : true;
         //TALK("end \" of epsg at: " << firstpos);
-        firstpos = wkt.find("\"", firstpos)+1;
+        firstpos = wkt.find("\"", static_cast<size_t>(firstpos))+1;
         failed = firstpos > 0 ? false : true;
         //TALK("start of \" code at: " << firstpos);
-        endpos = wkt.find("\"", firstpos+1);
+        endpos = wkt.find("\"", static_cast<size_t>(firstpos)+1);
         failed = firstpos > 0 ? false : true;
         //TALK("end of \" code at: " << firstpos);
-        code = wkt.substr(firstpos, endpos-firstpos);
+        code = wkt.substr(static_cast<size_t>(firstpos), static_cast<size_t>(endpos-firstpos));
         failed = ::atol(code.c_str()) == 0 ? true : false;
 
         if (!failed)
         {
-		epsg = code;
+            epsg = code;
             crsURI << crsURIprefix << "EPSG/0/" << code;
         }
     }
@@ -645,7 +657,7 @@ RasdamanHelper2::getBaseTypeElementCount(const std::string& collname)
 unsigned int
 RasdamanHelper2::getBaseTypeSize(const std::string& collname)
 {
-    unsigned int len = -1;
+    unsigned int len = 0;
 
     //this->m_pRasconn->connect();
     this->m_transaction.begin(r_Transaction::read_only);
@@ -1416,7 +1428,7 @@ RasdamanHelper2::parseKVPString(const std::string& kvp,
     values.clear();
     size_t startpos = 0;
     size_t endpos = 0;
-    size_t eqpos = -1;
+    size_t eqpos = 0;
     std::string sub;
     std::string key;
     std::string value;

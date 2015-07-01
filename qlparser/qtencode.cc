@@ -404,7 +404,7 @@ GDALDataset* QtEncode::convertTileToDataset(Tile* tile, int nBands, r_Type* band
                 else
                 {
                     if (src[0] == 1)
-                        dst[0] = 255;
+                        dst[0] = static_cast<char>(255);
                     else
                         dst[0] = 0;
                 }

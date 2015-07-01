@@ -182,12 +182,12 @@ double SQLiteQuery::nextColumnDouble()
 
 char* SQLiteQuery::nextColumnString()
 {
-    return (char*) sqlite3_column_text(stmt, columnCounter++);
+    return (char*)(const_cast<unsigned char*>(sqlite3_column_text(stmt, columnCounter++)));
 }
 
 char* SQLiteQuery::nextColumnBlob()
 {
-    return (char*) sqlite3_column_blob(stmt, columnCounter++);
+    return static_cast<char*>(const_cast<void*>(sqlite3_column_blob(stmt, columnCounter++)));
 }
 
 int SQLiteQuery::currColumnBytes()

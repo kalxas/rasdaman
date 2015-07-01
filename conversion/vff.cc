@@ -40,7 +40,7 @@ rasdaman GmbH.
 #include <ctype.h>
 
 #include <iostream>
-#include <strstream>
+#include <sstream>
 
 #include "raslib/rminit.hh"
 #include "raslib/endian.hh"
@@ -308,7 +308,6 @@ r_convDesc &r_Conv_VFF::convertTo( const char *options ) throw(r_Error)
     r_Dimension dim;
     int bits;
     unsigned int typeSize;
-    char header[1024]; // and ``640k should be enough for everyone''...
     char dataOrder[8];
 
     dim = desc.srcInterv.dimension();
@@ -352,7 +351,7 @@ r_convDesc &r_Conv_VFF::convertTo( const char *options ) throw(r_Error)
     else
         strcpy(dataOrder, get_default_order(dim));
 
-    std::ostrstream memstr(header, 1024);
+    std::ostringstream memstr;
 
     // order of dimensions in vectors
     unsigned int *dimOrder = get_dimension_order(dim);
@@ -383,11 +382,11 @@ r_convDesc &r_Conv_VFF::convertTo( const char *options ) throw(r_Error)
     memstr << keywords[vffkey_bits] << '=' << bits << ";\n";
     memstr << keywords[vffkey_endian] << '=' << get_endian_id() << ";\n";
     memstr << keywords[vffkey_dorder] << '=' << dataOrder << ";\n";
-    memstr << '\n' << endOfHeader << '\n' << '\0';
+    memstr << '\n' << endOfHeader << '\n';
 
     unsigned long headerSize, dataSize, totalSize;
 
-    headerSize = strlen(header);
+    headerSize = strlen(memstr.str().c_str());
     dataSize = desc.srcInterv.cell_count() * typeSize;
     totalSize = headerSize + dataSize;
 
@@ -396,7 +395,7 @@ r_convDesc &r_Conv_VFF::convertTo( const char *options ) throw(r_Error)
         r_Error err(r_Error::r_Error_General);
         throw(err);
     }
-    memcpy(desc.dest, header, headerSize);
+    memcpy(desc.dest, memstr.str().c_str(), headerSize);
 
     // treat all dimensions alike thanks to generic iterators
 

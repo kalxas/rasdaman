@@ -535,7 +535,6 @@ r_Error::setTextParameter(const char* parameterName, const char* value)
             // allocate a new query string and fill it
             char* paramEnd = NULL;
             int  paramLength = 0;
-            int  newLength = 0;
 
             paramLength = strlen(parameterName);
             paramEnd    = paramStart + paramLength;

@@ -19,7 +19,7 @@ rasdaman GmbH.
 *
 * For more information please see <http://www.rasdaman.org>
 * or contact Peter Baumann via <baumann@rasdaman.com>.
-/
+*/
 /**
  * SOURCE: rasmgr_srv.hh
  *
@@ -44,13 +44,13 @@ rasdaman GmbH.
 #define MAXREGULARCOUNTER 3
 
 /// return codes
-const unsigned int RASSERVER_OK             =  0;
-const unsigned int RASSERVER_NODATABASEHOST = -1;
-const unsigned int RASSERVER_CANNOTSTARTSRV = -2;
-const unsigned int RASSERVER_NOREMOTERASMGR = -3;
-const unsigned int RASSERVER_INCOMPLETESEND = -4;
-const unsigned int RASSERVER_SRVNOTUP       = -5;
-const unsigned int RASSERVER_CMDLINEOFLO    = -6;
+const int RASSERVER_OK             =  0;
+const int RASSERVER_NODATABASEHOST = -1;
+const int RASSERVER_CANNOTSTARTSRV = -2;
+const int RASSERVER_NOREMOTERASMGR = -3;
+const int RASSERVER_INCOMPLETESEND = -4;
+const int RASSERVER_SRVNOTUP       = -5;
+const int RASSERVER_CMDLINEOFLO    = -6;
 
 
 /**
