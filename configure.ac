@@ -272,7 +272,7 @@ AC_ARG_WITH([default-basedb],
             [AS_HELP_STRING([--with-default-basedb],
                             [change the default Base DBMS])],
             [with_default_basedb=$withval],
-            [with_default_basedb=postgresql])
+            [with_default_basedb=sqlite])
 AC_ARG_ENABLE([debug],
               [AS_HELP_STRING([--enable-debug],
                               [this feature enables generation of binaries that contain extra code for debug output. The output is usually very verbose. It is not recommended for production use.])],

@@ -42,7 +42,6 @@ BuildRequires: doxygen
 BuildRequires: netcdf-devel
 BuildRequires: gdal-devel
 BuildRequires: gdal-python
-BuildRequires: sqlite-devel
 BuildRequires: boost-devel
 BuildRequires: java-1.7.0-openjdk-devel
 
@@ -66,7 +65,6 @@ Requires: postgresql-server
 Requires: postgresql-contrib
 Requires: netcdf
 Requires: gdal
-Requires: sqlite
 Requires: boost
 Requires: gdal-python python-magic python-dateutil
 
@@ -184,7 +182,6 @@ CC="gcc -L%{_libdir}/hdf -I/usr/include/netpbm -fpermissive " CXX="g++ -L%{_libd
 		--with-netcdf \
 		--with-pic \
 		--with-docs \
-		--with-default-basedb=sqlite \
 		--with-debug-symbols \
 		--with-filedatadir=%{rasdir}/data \
 		--with-wardir=%{_sharedstatedir}/%{tomcat}/webapps
@@ -218,10 +215,8 @@ rm -f %{buildroot}%{_bindir}/stop_rasdaman.sh
 rm -f %{buildroot}%{_bindir}/directql
 
 # Create home for our user
-install -d -m 755 %{buildroot}%{rasdir}
-install -d -m 755 %{buildroot}%{rasdir}/data
+install -d -m 700 %{buildroot}%{rasdir}
 cp -a %{buildroot}%{_datadir}/rasdaman/examples/rasdl/basictypes.dl %{buildroot}%{rasdir}
-sed 's|connect RASBASE|connect %{rasdir}/data/RASBASE/|g' -i %{buildroot}%{_sysconfdir}/rasdaman/rasmgr.conf
 
 # Move includes from topdir to subdir
 mkdir %{buildroot}/rasdaman
