@@ -49,7 +49,11 @@ struct QtUpdateSpecElement
   QtOperation* domain;
 };
 
-#include "oql.h"
+#if defined(BISON_USE_PARSER_H_EXTENSION)
+#   include "oql.h"
+#else
+#   include "oql.hh"
+#endif
 
 QueryTree* parseQueryTree = NULL;
 char* beginParseString = NULL;

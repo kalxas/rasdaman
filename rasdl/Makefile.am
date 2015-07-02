@@ -47,8 +47,8 @@ rasdl_LDADD = ../reladminif/libreladminif.a ../relmddif/librelmddif.a \
               ../commline/libcommline.a ../raslib/libraslib.a \
               ../conversion/libconversion.a ../rasodmg/librasodmg.a @BASEDBLDFLAGS@
 
-BUILT_SOURCES=lex.cc odl.cc odl.h              
-CLEANFILES=lex.cc odl.cc odl.h
+BUILT_SOURCES=lex.cc odl.cc
+CLEANFILES=lex.cc odl.cc
 
 SUBDIRS=../reladminif ../relmddif ../relstorageif ../relindexif ../relcatalogif \
         ../relblobif ../indexmgr ../catalogmgr ../storagemgr ../tilemgr \
@@ -56,21 +56,4 @@ SUBDIRS=../reladminif ../relmddif ../relstorageif ../relindexif ../relcatalogif 
 
 $(RECURSIVE_CLEAN_TARGETS):
 	@$(MAKE) $(AM_MAKEFLAGS) `echo $@ | sed s/-recursive/-am/`
-
-odl.h: correct_odl_h
-
-.PHONY: correct_odl_h
-
-correct_odl_h:
-	if [ -e odl.hh ]; then mv odl.hh odl.h ; fi
-
-#.PHONY : doc
-#doc:
-#	-rm $(DOCDIR)/*
-#	gawk -f rasdl.awk odl.y > odl.grammar
-#	head -n 16 rasdlgrammar.html >  $(DOCDIR)/rasdlgrammar.html
-#	cat  odl.grammar             >> $(DOCDIR)/rasdlgrammar.html
-#	tail -n  8 rasdlgrammar.html >> $(DOCDIR)/rasdlgrammar.html
-#	$(DOCXX) -d $(DOCDIR) *.hh
-#	chmod 664 $(DOCDIR)/* $(DOCDIR)/.??*
 

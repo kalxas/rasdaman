@@ -30,6 +30,7 @@ AC_CHECK_PROGS(YACC, ['bison -y' byacc yacc], no)
 if test "$YACC" = "no" ; then
    AC_MSG_ERROR([could not find bison, byacc or yacc. Please install.])
 fi
+AC_PROG_BISON
 
 # Checks for libraries.
 # FIXME: Replace `main' with a function in `-lcrypt':

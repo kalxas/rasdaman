@@ -41,7 +41,11 @@ rasdaman GmbH.
 #include "parse.hh"
 #include "yparse.hh"
 
-#include "odl.h"    
+#if defined(BISON_USE_PARSER_H_EXTENSION)
+#   include "odl.h"
+#else
+#   include "odl.hh"
+#endif
 
 /*   for error output */
 long   lineNumber   =   1;   /* number of line in current file   */

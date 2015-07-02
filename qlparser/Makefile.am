@@ -107,12 +107,6 @@ libqlparser_a_SOURCES=oql.yy lex.ll alloca.c\
 
 EXTRA_libqlparser_a_SOURCES = autogen_qtui.hh autogen_qtui.icc autogen_qtui.cc
 
-BUILT_SOURCES=lex.cc oql.cc oql.h
-CLEANFILES=lex.cc oql.cc oql.h
+BUILT_SOURCES=lex.cc oql.cc
+CLEANFILES=lex.cc oql.cc
 
-oql.h: correct_oql_h
-
-.PHONY: correct_oql_h
-
-correct_oql_h:
-	if [ -e oql.hh ]; then mv oql.hh oql.h ; fi
