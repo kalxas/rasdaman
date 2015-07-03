@@ -27,7 +27,7 @@ class Session:
         self.crs_resolver = config['crs_resolver'] if "crs_resolver" in config else None
         self.default_crs = config['default_crs'] if "default_crs" in config else None
         self.insitu = config['insitu'] if "insitu" in config else None
-        self.default_null_values = config['default_null_values'] if "default_null_values" in config else None
+        self.default_null_values = config['default_null_values'] if "default_null_values" in config else []
 
     def parse_input(self, paths):
         """

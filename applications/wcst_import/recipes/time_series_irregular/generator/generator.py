@@ -11,8 +11,6 @@ class Generator:
         Generates the initial WCST Insert gml template for a timeseries coverage
         :param Session session: the session of the import
         :param str gdal_file_path: the gdal_file_path of one of the slices
-        :param str crs_resolver: the crs resolver
-        :param str default_crs: the default crs for gdal datasets
         :param str time_crs: the crs for the time axis
         :param DateTimeUtil time_start: the datetime value for the start
         """
@@ -26,7 +24,7 @@ class Generator:
 
     def get_grid_envelope_low(self):
         """
-        Petascope calculates it automatically from the first inserted slice so we ignore it
+        Returns the envelope low values
         :rtype list[float]
         """
         grid_envelope_low = [0, 0, 0]
@@ -34,7 +32,7 @@ class Generator:
 
     def get_grid_envelope_high(self):
         """
-        Petascope calculates it automatically from the first inserted slice so we ignore it
+        Returns the envelope high values
         :rtype list[float]
         """
         grid_envelope_high = [self.gdal_util.get_raster_x_size()-1, self.gdal_util.get_raster_y_size()-1, 0]

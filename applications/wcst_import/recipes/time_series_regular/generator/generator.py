@@ -38,7 +38,7 @@ class Generator:
         Petascope calculates it automatically from the first inserted slice so we ignore it
         :rtype list[float]
         """
-        grid_envelope_high = [0, 0, 0]
+        grid_envelope_high = [self.gdal_util.get_raster_x_size()-1, self.gdal_util.get_raster_y_size()-1, 0]
         return grid_envelope_high
 
     def get_offset_vectors(self):

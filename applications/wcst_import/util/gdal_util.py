@@ -40,7 +40,7 @@ class GDALGmlUtil:
         """
         Returns the origin of the dataset. This is calculated using the origin from the dataset + 0.5 of an offset
                 vector, as petascope requires it so.
-        :rtype list[float]
+        :rtype list[str]
         """
         geo = self.gdal_dataset.GetGeoTransform()
         return [str(geo[0] + 0.5 * self.gdal_dataset.GetGeoTransform()[1]),
