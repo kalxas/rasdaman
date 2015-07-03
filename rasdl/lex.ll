@@ -35,6 +35,9 @@ rasdaman GmbH.
 //
 //==============================================================================
 
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wswitch-default"
+
 #include <string.h>
 #include <stdlib.h>
 
@@ -243,3 +246,7 @@ int    TAB_SIZE      =   3;   /* TAB size is always set to 3 */
 " "                                    {
                                           columnNumber++;
                                        }
+
+%%
+#pragma GCC diagnostic warning "-Wsign-conversion"
+#pragma GCC diagnostic warning "-Wswitch-default"

@@ -29,6 +29,9 @@ rasdaman GmbH.
 //
 //==============================================================================
 
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wstrict-overflow"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <iostream>
@@ -637,3 +640,5 @@ void yyerror(const char* s)
    exit(-2);
 }
 
+#pragma GCC diagnostic warning "-Wsign-conversion"
+#pragma GCC diagnostic warning "-Wstrict-overflow"

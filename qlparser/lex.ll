@@ -27,7 +27,8 @@ rasdaman GmbH.
  * - token BY seems unused
  *
  ************************************************************/
-
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wswitch-default"
 static const char rcsid[] = "@(#)qlparser, lexer: $Id: oql.l,v 1.64 2005/07/06 22:48:34 rasdev Exp $";
 
 #include "config.h"
@@ -64,6 +65,7 @@ unsigned int lineNo   = 1;
 unsigned int columnNo = 1;
 void llerror(const char* s);
 int  yyparse( );
+int string_yyinput( char* buf, int max_size );
 
 int string_yyinput( char* buf, int max_size )
 {
@@ -71,7 +73,7 @@ int string_yyinput( char* buf, int max_size )
   int bufLength = max_size < lenParseString ? max_size : lenParseString;
   if( bufLength > 0 )
   {
-    memcpy( buf, iterParseString, bufLength );
+    memcpy( buf, iterParseString, static_cast<unsigned int>(bufLength) );
     iterParseString += bufLength;
   }
   return bufLength;
@@ -90,7 +92,7 @@ int string_yyinput( char* buf, int max_size )
 	  currInfo = new ParseInfo( yytext, lineNo, columnNo ); 			\
   }																		\
   yylval.TYPE.info = currInfo; 											\
-  columnNo += yyleng;                                             		\
+  columnNo += static_cast<unsigned int>(yyleng);                                             		\
   parseQueryTree->addDynamicObject( yylval.TYPE.info );           		\
   return TOKEN;
 
@@ -107,7 +109,7 @@ int string_yyinput( char* buf, int max_size )
 	  currInfo = new ParseInfo( yytext, lineNo, columnNo ); 			\
   }																		\
   yylval.TYPE.info = currInfo; 											\
-  columnNo += yyleng;                                             		\
+  columnNo += static_cast<unsigned int>(yyleng);                                             		\
   parseQueryTree->addDynamicObject( yylval.TYPE.info );           		\
   return TOKEN;
   
@@ -127,7 +129,7 @@ int string_yyinput( char* buf, int max_size )
 	  currInfo = new ParseInfo( yytext, lineNo, columnNo ); 			\
   }																		\
   yylval.integerToken.info = currInfo; 									\
-  columnNo += yyleng;                                                   \
+  columnNo += static_cast<unsigned int>(yyleng);                                                   \
   parseQueryTree->addDynamicObject( yylval.integerToken.info );         \
   return IntegerLit;
 
@@ -143,7 +145,7 @@ int string_yyinput( char* buf, int max_size )
    	  currInfo = new ParseInfo(yytext, lineNo, columnNo);				\
   }																		\
   yylval.floatToken.info = currInfo; 									\
-  columnNo += yyleng;                                                   \
+  columnNo += static_cast<unsigned int>(yyleng);                                                   \
   parseQueryTree->addDynamicObject( yylval.floatToken.info );           \
   return FloatLit;
 
@@ -153,8 +155,8 @@ int string_yyinput( char* buf, int max_size )
 
 %%
 
-"//".*					 { columnNo += yyleng; }
-"--".*                                   { columnNo += yyleng; }
+"//".*					 { columnNo += static_cast<unsigned int>(yyleng); }
+"--".*                                   { columnNo += static_cast<unsigned int>(yyleng); }
 
 "complex"                                { SETTOKEN( COMPLEX, commandToken, COMPLEX ) }
 "re"                                     { SETTOKEN( RE, commandToken, RE ) }
@@ -369,7 +371,7 @@ $[0-9]+                                  { llerror("unresolved query parameter")
 ([0-9]+|([0-9]+(\.[0-9]+)?)([eE][-+]?[0-9]+)?)[dD]  { SETFLTTOKEN( strtod( yytext, (char**)NULL ), 8 ) }
 ([0-9]+|([0-9]+(\.[0-9]+)?)([eE][-+]?[0-9]+)?)[fF]? { SETFLTTOKEN( strtod( yytext, (char**)NULL ), 4 ) }
 
-[ ]+		                         { columnNo += yyleng;                       }
+[ ]+		                         { columnNo += static_cast<unsigned int>(yyleng);                       }
 \t                                       { columnNo += 3;                            }
 \r                                       { 	                                     }
 \n                                       { columnNo  = 1; lineNo++;                  }
@@ -394,3 +396,5 @@ void llerror(const char* s)
 {
    RMInit::logOut << "Lex error: line " << lineNo << ", " << s << " at " << yytext << std::endl;
 }
+#pragma GCC diagnostic warning "-Wsign-conversion"
+#pragma GCC diagnostic warning "-Wswitch-default"

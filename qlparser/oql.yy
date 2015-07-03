@@ -28,6 +28,9 @@ rasdaman GmbH.
  * 
  ************************************************************/
 
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wstrict-overflow"
+
 static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CVS-repository/rasdaman/qlparser/oql.y,v 1.95 2006/01/03 00:21:40 rasdev Exp $";
 
 #include "config.h"
@@ -74,6 +77,9 @@ static const char rcsid[] = "@(#)qlparser, yacc parser: $Header: /home/rasdev/CV
 #include "qlparser/qtdroptype.hh"
 #include "qlparser/qtcelltypeattributes.hh"
 #include "relcatalogif/syntaxtypes.hh"
+
+#undef EQUAL
+#undef ABS
 
 extern ServerComm::ClientTblElt* currentClientTblElt;
 extern ParseInfo *currInfo;
@@ -2718,7 +2724,7 @@ intLitExp: IntegerLit
         $$.svalue = -$$.svalue;
       } else {
         $$.negative = 1;
-        $$.svalue = -$$.uvalue;
+        $$.svalue = -static_cast<r_Long>($$.uvalue);
       }
     };
 
@@ -3199,86 +3205,86 @@ tilingAttributes: TILING tileTypes
 
 tileTypes: REGULAR tileCfg
 	{
-	  $$.tilingType=QtMDDConfig::r_REGULAR_TLG;
-	  $$.tileCfg=$2.tileCfg;
-	  $$.tileSize = StorageLayout::DefaultTileSize;
+	  $$.tilingType = QtMDDConfig::r_REGULAR_TLG;
+	  $$.tileCfg = $2.tileCfg;
+	  $$.tileSize = static_cast<int>(StorageLayout::DefaultTileSize);
 	}
 	| REGULAR tileCfg tilingSize
 	{
-	  $$.tilingType=QtMDDConfig::r_REGULAR_TLG;
-	  $$.tileCfg=$2.tileCfg;
+	  $$.tilingType = QtMDDConfig::r_REGULAR_TLG;
+	  $$.tileCfg = $2.tileCfg;
 	  $$.tileSize = $3.tileSize;
 	}
 	| ALIGNED tileCfg
 	{
-	  $$.tilingType=QtMDDConfig::r_ALIGNED_TLG;
-	  $$.tileCfg=$2.tileCfg;
-	  $$.tileSize = StorageLayout::DefaultTileSize;
+	  $$.tilingType = QtMDDConfig::r_ALIGNED_TLG;
+	  $$.tileCfg = $2.tileCfg;
+	  $$.tileSize = static_cast<int>(StorageLayout::DefaultTileSize);
 	}
 	| ALIGNED tileCfg tilingSize
 	{
-	  $$.tilingType=QtMDDConfig::r_ALIGNED_TLG;
-	  $$.tileCfg=$2.tileCfg;
+	  $$.tilingType = QtMDDConfig::r_ALIGNED_TLG;
+	  $$.tileCfg = $2.tileCfg;
 	  $$.tileSize = $3.tileSize;
 	}
 	| DIRECTIONAL dirdecompArray
 	{
-	  $$.tilingType=QtMDDConfig::r_DRLDECOMP_TLG;
-	  $$.tileSize = StorageLayout::DefaultTileSize;
-	  $$.dirDecomp=$2.dirDecomp;
+	  $$.tilingType = QtMDDConfig::r_DRLDECOMP_TLG;
+	  $$.tileSize = static_cast<int>(StorageLayout::DefaultTileSize);
+	  $$.dirDecomp = $2.dirDecomp;
 	}
 	| DIRECTIONAL dirdecompArray WITH SUBTILING
 	{
-	  $$.tilingType=QtMDDConfig::r_DRLDECOMPSUBTILE_TLG;
-	  $$.tileSize = StorageLayout::DefaultTileSize;
-	  $$.dirDecomp=$2.dirDecomp;
+	  $$.tilingType = QtMDDConfig::r_DRLDECOMPSUBTILE_TLG;
+	  $$.tileSize = static_cast<int>(StorageLayout::DefaultTileSize);
+	  $$.dirDecomp = $2.dirDecomp;
 	}
 	| DIRECTIONAL dirdecompArray tilingSize
 	{
-	  $$.tilingType=QtMDDConfig::r_DRLDECOMP_TLG;
+	  $$.tilingType = QtMDDConfig::r_DRLDECOMP_TLG;
 	  $$.tileSize = $3.tileSize;
-	  $$.dirDecomp=$2.dirDecomp;
+	  $$.dirDecomp = $2.dirDecomp;
 	}
 	| DIRECTIONAL dirdecompArray WITH SUBTILING tilingSize
 	{
-	  $$.tilingType=QtMDDConfig::r_DRLDECOMPSUBTILE_TLG;
+	  $$.tilingType = QtMDDConfig::r_DRLDECOMPSUBTILE_TLG;
 	  $$.tileSize = $5.tileSize;
-	  $$.dirDecomp=$2.dirDecomp;
+	  $$.dirDecomp = $2.dirDecomp;
 	}
 	| AREA OF INTEREST bboxList
 	{
-	  $$.tilingType=QtMDDConfig::r_AREAOFINTEREST_TLG;
-	  $$.bboxList=$4;
-	  $$.tileSize = StorageLayout::DefaultTileSize;
+	  $$.tilingType = QtMDDConfig::r_AREAOFINTEREST_TLG;
+	  $$.bboxList = $4;
+	  $$.tileSize = static_cast<int>(StorageLayout::DefaultTileSize);
 	}
 	| AREA OF INTEREST bboxList tilingSize
 	{
-	  $$.tilingType=QtMDDConfig::r_AREAOFINTEREST_TLG;
-	  $$.bboxList=$4;
+	  $$.tilingType = QtMDDConfig::r_AREAOFINTEREST_TLG;
+	  $$.bboxList = $4;
 	  $$.tileSize = $5.tileSize;
 	}
 	| AREA OF INTEREST bboxList WITH tileSizeControl
   {
-    $$.tilingType=$6;
-    $$.bboxList=$4;
-    $$.tileSize=StorageLayout::DefaultTileSize;
+    $$.tilingType = $6;
+    $$.bboxList = $4;
+    $$.tileSize = static_cast<int>(StorageLayout::DefaultTileSize);
   }
   | AREA OF INTEREST bboxList WITH tileSizeControl tilingSize
   {
-    $$.tilingType= $6;
-    $$.bboxList=$4;
+    $$.tilingType = $6;
+    $$.bboxList = $4;
     $$.tileSize = $7.tileSize;
   }
 	| STATISTIC bboxList statisticParameters
 	{
-	  $$=$3;
-	  $$.bboxList=$2;
+	  $$ = $3;
+	  $$.bboxList = $2;
 	}
 	| STATISTIC bboxList
 	{
-	  $$.tilingType=QtMDDConfig::r_STATISTICS_TLG;
-	  $$.bboxList=$2;
-	  $$.tileSize = StorageLayout::DefaultTileSize;
+	  $$.tilingType = QtMDDConfig::r_STATISTICS_TLG;
+	  $$.bboxList = $2;
+	  $$.tileSize = static_cast<int>(StorageLayout::DefaultTileSize);
 	}
 ;
 	
@@ -3345,7 +3351,7 @@ statisticParameters: tilingSize borderCfg interestThreshold
 	  $$=$1;
 	  $$.interestThreshold = $2.interestThreshold;
 	  $$.tilingType = QtMDDConfig::r_STATISTICSPARAM_TLG;
-	  $$.tileSize = StorageLayout::DefaultTileSize;
+	  $$.tileSize = static_cast<int>(StorageLayout::DefaultTileSize);
 	}
 	| tilingSize
 	{
@@ -3358,14 +3364,14 @@ statisticParameters: tilingSize borderCfg interestThreshold
 	{
 	  $$=$1;
 	  $$.borderThreshold = -1;
-	  $$.tileSize = StorageLayout::DefaultTileSize;
+	  $$.tileSize = static_cast<int>(StorageLayout::DefaultTileSize);
 	  $$.tilingType = QtMDDConfig::r_STATISTICSPARAM_TLG;
 	}
 	| borderCfg
 	{
 	  $$=$1;
 	  $$.interestThreshold = -1;
-	  $$.tileSize = StorageLayout::DefaultTileSize;
+	  $$.tileSize = static_cast<int>(StorageLayout::DefaultTileSize);
 	  $$.tilingType = QtMDDConfig::r_STATISTICSPARAM_TLG;
 	}
 ;
@@ -3395,7 +3401,7 @@ dirdecompArray : dirdecomp
 	| dirdecomp COMMA dirdecompArray
 	{
 	  $$ = $1;
-	  for(int i = 0 ; i < $3.dirDecomp->size() ; ++i)
+	  for(unsigned int i = 0 ; i < $3.dirDecomp->size() ; ++i)
 	  {
 	    $$.dirDecomp->push_back($3.dirDecomp->at(i));
 	  }
@@ -3469,4 +3475,5 @@ void yyerror(void* /*mflag*/, const char* /*s*/ )
    }
   }
 }
-
+#pragma GCC diagnostic warning "-Wsign-conversion"
+#pragma GCC diagnostic warning "-Wstrict-overflow"
