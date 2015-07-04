@@ -1827,7 +1827,6 @@ ServerComm::executeQuery( unsigned long callingClientId,
 #ifdef RMANBENCHMARK
             Tile::opTimer.stop();
             Tile::relTimer.stop();
-            Tile::opTimer.stop();
             if( context->evaluationTimer )
                 delete context->evaluationTimer;
             context->evaluationTimer = 0;

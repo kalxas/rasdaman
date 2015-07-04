@@ -20,6 +20,8 @@ rasdaman GmbH.
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
+#include "qlparser/gdalincludes.hh"
+#include "relcatalogif/structtype.hh"
 #include "config.h"
 #include "debug.hh"
 #include <float.h>
@@ -39,20 +41,12 @@ rasdaman GmbH.
 #include "tilemgr/tile.hh"
 #include "mddmgr/mddobj.hh"
 
-// GDAL headers
-#include "ogr_spatialref.h"
-#include "cpl_conv.h"
-#include "cpl_string.h"
-#include "vrtdataset.h"
-#include "relcatalogif/structtype.hh"
-
 #include "qlparser/qtoncstream.hh"
 #include "qlparser/qtexecute.hh"
 
 #include <iostream>
 #ifndef CPPSTDLIB
 #include <ospace/string.h>
-#include <gdal/gdal_priv.h> // STL<ToolKit>
 #else
 #include <string>
 using namespace std;

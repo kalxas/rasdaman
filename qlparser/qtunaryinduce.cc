@@ -151,35 +151,35 @@ QtUnaryInduce::computeUnaryMDDOp( QtMDD* operand, const BaseType* resultBaseType
     vector< boost::shared_ptr<Tile> >* allTiles = op->intersect(areaOp);
     std::vector< boost::shared_ptr<Tile> >::iterator tileIt = allTiles->begin();
     UnaryOp* myOp = NULL;
+
+    if (operation == Ops::OP_IDENTITY)
+    {
+        myOp = Ops::getUnaryOp(operation, resultBaseType, resultBaseType, 0, operandOffset);
+        myOp->setNullValues(nullValues);
+    }
+    else
+    {
+        myOp = Ops::getUnaryOp(operation, resultBaseType, op->getCellType(), 0, 0);
+        myOp->setNullValues(nullValues);
+    }
+    if (myOp == NULL)
+    {
+            RMInit::logOut << "QtUnaryInduce::computeUnaryMDDOp(...) could not get operation for result type " << resultBaseType->getName() << " argument type " << (*tileIt)->getType() << " operation " << static_cast<int>(operation) << endl;
+        delete allTiles;
+        allTiles = NULL;
+        //contents of allTiles are deleted when index is deleted
+        delete mddres;
+        mddres = NULL;
+        delete mddres;
+        mddres = NULL;
+        // i am not sure about that error number...
+        parseInfo.setErrorNo(366);
+        throw parseInfo;
+    }
+
     if (tileIt != allTiles->end())
     {
         Tile* resTile = NULL;
-        if (operation == Ops::OP_IDENTITY)
-        {
-            myOp = Ops::getUnaryOp(operation, resultBaseType, resultBaseType, 0, operandOffset);
-            myOp->setNullValues(nullValues);
-        }
-        else
-        {
-            myOp = Ops::getUnaryOp(operation, resultBaseType, (*tileIt)->getType(), 0, 0);
-            myOp->setNullValues(nullValues);
-        }
-        if (myOp == NULL)
-        {
-            RMInit::logOut << "QtUnaryInduce::computeUnaryMDDOp(...) could not get operation for result type " << resultBaseType->getName() << " argument type " << (*tileIt)->getType() << " operation " << static_cast<int>(operation) << endl;
-            delete allTiles;
-            allTiles = NULL;
-            //contents of allTiles are deleted when index is deleted
-            delete mddres;
-            mddres = NULL;
-            delete resTile;
-            resTile = NULL;
-            delete mddres;
-            mddres = NULL;
-            // i am not sure about that error number...
-            parseInfo.setErrorNo(366);
-            throw parseInfo;
-        }
         // set exponent for pow operations
         if (operation == Ops::OP_POW)
         {

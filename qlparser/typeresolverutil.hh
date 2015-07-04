@@ -25,8 +25,7 @@ rasdaman GmbH.
 #define	TYPERESOLVERUTIL_HH
 
 #include "relcatalogif/basetype.hh"
-// GDAL headers
-#include "gdal_priv.h"
+#include "qlparser/gdalincludes.hh"
 
 /**
  * Helper class transforming the provided types into rasdaman types.

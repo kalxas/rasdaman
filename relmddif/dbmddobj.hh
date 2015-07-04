@@ -132,7 +132,7 @@ public:
             getPhysicalStorageSize
     */
 
-    virtual void printStatus(unsigned int level = 0, std::ostream& stream = cout) const;
+    virtual void printStatus(unsigned int level = 0, std::ostream& stream = std::cout) const;
     /*@Doc:
         Prints the status of the object:
         the name of the cell type

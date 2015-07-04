@@ -21,14 +21,10 @@ rasdaman GmbH.
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
 
+#include "qlparser/gdalincludes.hh"
 #include "qlparser/gdaldataconverter.hh"
 #include "mymalloc/mymalloc.h"
 
-// GDAL headers
-#include "ogr_spatialref.h"
-#include "cpl_conv.h"
-#include "cpl_string.h"
-#include "vrtdataset.h"
 
 GDALDataConverter::GDALDataConverter()
 {

@@ -1115,6 +1115,7 @@ void doStuff(int argc, char** argv) throw(RasqlError, r_Error)
             SECURE_FREE_PTR(marray->domain);
             SECURE_FREE_PTR(marray);
         }
+        ObjectBroker::clearBroker();
         throw err;
     }
     if (marray)
@@ -1122,6 +1123,7 @@ void doStuff(int argc, char** argv) throw(RasqlError, r_Error)
         SECURE_FREE_PTR(marray->domain);
         SECURE_FREE_PTR(marray);
     }
+    ObjectBroker::clearBroker();
 
     LOG("ok." << endl << flush);
     LEAVE("doStuff");
@@ -1135,6 +1137,7 @@ crash_handler(int sig, siginfo_t* info, void * ucontext)
     print_stacktrace(ucontext);
     // clean up connection in case of segfault
     closeTransaction(false);
+    ObjectBroker::clearBroker();
     LEAVE("crash_handler");
     exit(SEGFAULT_EXIT_CODE);
 }

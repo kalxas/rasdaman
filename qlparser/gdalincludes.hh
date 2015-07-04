@@ -15,45 +15,48 @@
  * along with rasdaman community.  If not, see <http://www.gnu.org/licenses/>.
  *
  * Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann /
-rasdaman GmbH.
+ rasdaman GmbH.
  *
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
-
 /*************************************************************
  *
- *
  * PURPOSE:
- *      Class implementation. For further information see qlparser/qtsimplecaseop.hh
+ *  This class contains all the includes needed for gdal
  *
- * COMMENTS:
+ * BUGS:
+ *
+ * AUTHORS:
+ * 	Alex Dumitru <alex@flanche.net>
+ * 	Vlad Mericariu <vlad@flanche.net>
  *
  ************************************************************/
+#ifndef GDALINCLUDES_H
+#define	GDALINCLUDES_H
 
-#include "qlparser/qtsimplecaseop.hh"
-#include "qlparser/qtcaseequality.hh"
+// fix redefinition of macros in the GDAL config
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_URL
+#undef PACKAGE_VERSION
+#include <cpl_conv.h>
+#include <gdal_priv.h>
+#include <gdal_rat.h>
+#include <cpl_string.h>
+#include <ogr_spatialref.h>
+#include <gdal.h>
+#include <vrtdataset.h>
+#include <gdalwarper.h>
+// fix redefinition of macros in the GDAL config
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_URL
+#undef PACKAGE_VERSION
 
-/**
- * Constructor taking the operation list.
- *
- * @param opList the arguments of the operation.
- */
-QtSimpleCaseOp::QtSimpleCaseOp(QtOperationList* opList): QtCaseOp(opList) {}
 
-/**
- * Destructor override.
- */
-QtSimpleCaseOp::~QtSimpleCaseOp() {
-    //iterate through the operation list and mark the common
-    //operand for the equality operation as deleted in all but the first
-    //equality.
-    // the conditions are on even positions in the operation list, except for the last operation
-    for(size_t i = 0; i < operationList->size(); ++i)
-    {
-        if (i > 0 && i % 2 == 0 && i != operationList->size() - 1)
-        {
-            ((QtCaseEquality*) operationList->at(i))->setCommonOperadDeleted(true);
-       }
-    }
-}
+#endif	/* GDALINCLUDES_H */

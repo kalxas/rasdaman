@@ -43,7 +43,6 @@ using namespace std;
 #include "raslib/rmdebug.hh"
 #include "debug.hh"
 
-
 #include <string.h>
 #include <sstream>
 

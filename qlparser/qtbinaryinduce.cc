@@ -169,22 +169,16 @@ QtBinaryInduce::computeUnaryMDDOp( QtMDD* operand1, QtScalarData* operand2, cons
     // get all tiles in relevant area
     allTiles = op->intersect(areaOp);
     tileIt = allTiles->begin();
-    //auto_ptr<BinaryOp> myOp(NULL);
     BinaryOp* myOp = NULL;
-    if (tileIt != allTiles->end())
+    if (scalarPos == 1)
     {
-        if (scalarPos == 1)
-        {
-            //myOp.reset(Ops::getBinaryOp(opType, resultBaseType, constBaseType, (*tileIt)->getType()));
-            myOp = (Ops::getBinaryOp(opType, resultBaseType, constBaseType, (*tileIt)->getType()));
-            myOp->setNullValues(nullValues);
-        }
-        else
-        {
-            //myOp.reset(Ops::getBinaryOp(opType, resultBaseType, (*tileIt)->getType(), constBaseType));
-            myOp = (Ops::getBinaryOp(opType, resultBaseType, (*tileIt)->getType(), constBaseType));
-            myOp->setNullValues(nullValues);
-        }
+        myOp = (Ops::getBinaryOp(opType, resultBaseType, constBaseType, op->getCellType()));
+        myOp->setNullValues(nullValues);
+    }
+    else
+    {
+        myOp = (Ops::getBinaryOp(opType, resultBaseType, op->getCellType(), constBaseType));
+        myOp->setNullValues(nullValues);
     }
     // and iterate over them
     for( ; tileIt != allTiles->end(); tileIt++ )

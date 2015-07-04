@@ -2,8 +2,8 @@
   "config": {
     "service_url": "http://localhost:8080/rasdaman/ows",
     "tmp_directory": "/tmp/",
-    "crs_resolver": "http://opengis.net/def/",
-    "default_crs": "http://opengis.net/def/def/crs/OGC/0/Index2D",
+    "crs_resolver": "http://localhost:8080/def/",
+    "default_crs": "http://localhost:8080/def/def/crs/OGC/0/Index2D",
     "mock": false,
     "automated": false
   },
@@ -18,7 +18,7 @@
     "options": {
       "time_start": "2012-12-02T20:12:02",
       "time_format": "auto",
-      "time_crs": "http://opengis.net/def/crs/OGC/0/AnsiDate",
+      "time_crs": "http://localhost:8080/def/crs/OGC/0/AnsiDate",
       "time_step": "2 days 10 minutes 3 seconds",
       "tiling": "ALIGNED [0:1000, 0:1000, 0:2]"
     }

@@ -47,6 +47,7 @@
 #define __rasimport_hh
 
 #include <cstring>
+#include "qlparser/gdalincludes.hh"
 
 /// RASDAMAN includes
 #ifdef EARLY_TEMPLATE
@@ -56,10 +57,6 @@
 #include "rasgeo_template_inst.hh"
 #endif
 #endif
-
-/// gdal
-#include "gdal_priv.h"
-#include "gdal_rat.h"
 
 /// postgresql
 #include "libpq-fe.h"

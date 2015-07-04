@@ -24,14 +24,14 @@ rasdaman GmbH.
 #ifndef _QTENCODE__
 #define _QTENCODE__
 
+// GDAL headers
+#include "qlparser/gdalincludes.hh"
 #include "raslib/error.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtunaryoperation.hh"
 #include "tilemgr/tile.hh"
 #include "raslib/type.hh"
 
-// GDAL headers
-#include "gdal_priv.h"
 
 
 class GDALDataset;

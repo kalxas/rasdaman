@@ -142,7 +142,7 @@ char
 DBTile::getCell(r_Bytes index) const
 {
     RMDBGONCE(3, RMDebug::module_blobif, "DBTile", "getCell(" << index << ") const " << myOId);
-    return cells[index];
+    return getCells()[index];
 }
 
 r_Bytes
@@ -157,7 +157,7 @@ DBTile::setCell(r_Bytes index, char newCell)
 {
     RMDBGONCE(3, RMDebug::module_blobif, "DBTile", "setCell(" << index << ", " << (int)newCell << ") " << myOId);
     setModified();
-    cells[index] = newCell;
+    getCells()[index] = newCell;
 }
 
 DBTile::DBTile(r_Data_Format dataformat)

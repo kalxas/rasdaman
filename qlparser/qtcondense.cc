@@ -209,7 +209,7 @@ QtCondense::computeFullCondense( QtDataList* inputList, r_Minterval& areaOp )
 
         TALK( "computeFullCondense-e\n" );
         // delete old operand
-        if( operand ) operand->deleteRef();
+        operand->deleteRef();
 
     RMDBGIF(3, RMDebug::module_qlparser, "QtCondense", \
             RMInit::dbgOut << endl << "opType of QtCondense::computeFullCondense(): " << opType << endl; \
@@ -669,8 +669,8 @@ QtAvgCells::evaluate( QtDataList* inputList )
 
     delete[] constBuffer;
     constBuffer=NULL;
-    delete dataCond;
-    dataCond=NULL;
+    if (dataCond)
+        dataCond->deleteRef();
 
     if( resultType->getType() == STRUCT )
         scalarDataResult = new QtComplexData();

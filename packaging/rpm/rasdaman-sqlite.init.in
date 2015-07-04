@@ -221,15 +221,6 @@ initdb(){
   # create rasdaman user in postgres
   create_rasdaman_role
 
-  # create database
-  $SU -l rasdaman -s "$rasshell" -c "createdb RASBASE"
-  RETVAL=$?
-  if [[ $RETVAL != 0 ]]
-  then
-    echo $"creating RASBASE in postgres failed."
-    exit $!
-  fi
-
   # insert type definitions
   mkdir -p $rasdatadir
   $SU -l rasdaman -s "$rasshell" -c "$rasdl -c --connect $rasdatadir/RASBASE && $rasdl -r $deffile -i --connect $rasdatadir/RASBASE"

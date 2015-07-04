@@ -55,7 +55,7 @@ class Recipe(BaseRecipe):
         timeseries = self._generate_timeseries_tuples(5)  # look at the first 5 records only and show them to the user
         log.info(str(len(timeseries)) + " files have been analyzed. Check that the timestamps are correct for each.")
         for slice in timeseries:
-            log.info("File: " + slice.filepath + " | " + "Timestamp: " + slice.time.to_ansi())
+            log.info("File: " + slice.filepath + " | " + "Timestamp: " + slice.time.to_string())
 
     def insert(self):
         """

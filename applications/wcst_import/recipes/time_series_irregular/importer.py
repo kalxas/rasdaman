@@ -63,7 +63,7 @@ class Importer:
                     gdal_record.get_extents()['x'][1])
                 subset_north = WCSTSubset(crs_util.get_north_axis(), gdal_record.get_extents()['y'][0],
                     gdal_record.get_extents()['y'][1])
-                subset_time = WCSTSubset(crs_util_time.get_future_axis(), '"' + record.time.to_ansi() + '"')
+                subset_time = WCSTSubset(crs_util_time.get_future_axis(), record.time.to_string())
 
                 request = WCSTUpdateRequest(self.session.get_coverage_id(), gml_pair.get_gml_url(),
                                             [subset_time, subset_east, subset_north])

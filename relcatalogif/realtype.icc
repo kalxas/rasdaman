@@ -30,7 +30,7 @@ rasdaman GmbH.
 inline r_ULong* 
 RealType::convertToCULong(const char* cell, r_ULong* value) const {
 	double tmp;
-    *value = static_cast<r_ULong>(*this->convertToCDouble(cell, &tmp));
+    *value = (r_ULong) *this->convertToCDouble(cell, &tmp);
     return value;
 }
 

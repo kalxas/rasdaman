@@ -180,6 +180,8 @@ QtCaseOp::evaluateInducedOp(QtDataList* inputList) {
     //add tiles
     std::vector< boost::shared_ptr<Tile> >* tiles = new std::vector< boost::shared_ptr<Tile> >;
     std::vector< boost::shared_ptr<Tile> >* focusCondTiles = focusCondMdd->getTiles();
+    if (focusCondTiles == NULL)
+        focusCondTiles = new std::vector< boost::shared_ptr<Tile> >;
     std::vector< boost::shared_ptr<Tile> >::iterator tileIter;
     for (tileIter = focusCondTiles->begin(); tileIter != focusCondTiles->end(); tileIter++) {
         tiles->push_back(boost::shared_ptr<Tile>(new Tile((*tileIter)->getDomain(), this->baseType)));

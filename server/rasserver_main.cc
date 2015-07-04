@@ -69,8 +69,6 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #include "raslib/commonutil.hh"
 #include <signal.h>
 
-#include<iostream>
-
 RMINITGLOBALS('C')
 
 // from some unknown location the debug-srv.hh guard seems to be defined already, so get rid of it -- PB 2005-jan-10

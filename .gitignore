@@ -20,11 +20,13 @@ lockmgr/ecpg_lockmanager.cc
 qlparser/lex.cc
 qlparser/oql.cc
 qlparser/oql.h
+qlparser/oql.hh
 rascontrol/rascontrol
 rascontrol/raspasswd
 rasdl/lex.cc
 rasdl/odl.cc
 rasdl/odl.h
+rasdl/odl.hh
 rasdl/rasdl
 rasmgr/rasmgr
 reladminif/adminif.cc
@@ -78,6 +80,7 @@ web.xml
 fillpyramid
 initpyramid
 config.h
+*~
 stamp-h1
 version.h
 lex.yy.c
@@ -141,3 +144,10 @@ rasdaman2.includes
 java/src/rasj/RasImplementation.java
 applications/petascope/lib/rasj.jar
 applications/wcst_import/wcst_import.sh
+
+.clang_complete
+*.trs
+
+# protocol buffers generated files
+*.pb.cc
+*.pb.h

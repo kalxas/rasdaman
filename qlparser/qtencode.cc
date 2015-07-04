@@ -20,6 +20,8 @@ rasdaman GmbH.
  * For more information please see <http://www.rasdaman.org>
  * or contact Peter Baumann via <baumann@rasdaman.com>.
  */
+#include "qlparser/gdalincludes.hh"
+
 #include "config.h"
 #include "raslib/rmdebug.hh"
 #include "debug.hh"
@@ -37,12 +39,7 @@ rasdaman GmbH.
 #include "relcatalogif/basetype.hh"
 #include "tilemgr/tile.hh"
 #include "mddmgr/mddobj.hh"
-
-// GDAL headers
-#include "ogr_spatialref.h"
-#include "cpl_conv.h"
-#include "cpl_string.h"
-#include "vrtdataset.h"
+#include "mymalloc/mymalloc.h"
 
 #include <iostream>
 #ifndef CPPSTDLIB
@@ -75,6 +72,7 @@ QtEncode::QtEncode(QtOperation *mddOp, char* formatIn) throw (r_Error)
 : QtUnaryOperation(mddOp), format(formatIn), fParams(NULL), builtinConvertor(NULL)
 {
     GDALAllRegister();
+    initParams(NULL);
 
     // If the format is not supported by GDAL, try to use builtin convertors
     r_Data_Format dataFormat = getDataFormat(format);
@@ -84,7 +82,7 @@ QtEncode::QtEncode(QtOperation *mddOp, char* formatIn) throw (r_Error)
 }
 
 QtEncode::QtEncode(QtOperation *mddOp, char* formatIn, char* paramsIn) throw (r_Error)
-: QtUnaryOperation(mddOp), format(formatIn), builtinConvertor(NULL)
+: QtUnaryOperation(mddOp), format(formatIn), builtinConvertor(NULL), fParams(NULL)
 {
     GDALAllRegister();
     initParams(paramsIn);
@@ -239,6 +237,8 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
 
     // Convert rasdaman tile to GDAL format
     GDALDataset* gdalSource = convertTileToDataset(sourceTile, numBands, bandType);
+    delete sourceTile;
+    sourceTile = NULL;
     
     // delete base type schema
     delete baseSchema;
@@ -294,12 +294,8 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
 
     fseek(fileD, 0, SEEK_END);
     long size = ftell(fileD);
-    r_Char* fileContents = NULL;
-    try
-    {
-        fileContents = new r_Char[size];
-    }
-    catch (std::bad_alloc)
+    r_Char* fileContents = (r_Char*) mymalloc(size);
+    if (!fileContents)
     {
         RMInit::logOut << "QtEncode::evaluateMDD - Error: Unable to claim memory: " << size << " Bytes" << endl;
         throw r_Error(r_Error::r_Error_MemoryAllocation);
@@ -314,6 +310,8 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
     r_Minterval mddDomain = r_Minterval(1) << r_Sinterval(static_cast<r_Range>(0), static_cast<r_Range>(size) - 1);
     r_Type* type = r_Type::get_any_type("char");
     const BaseType* baseType = TypeFactory::mapType(type->name());
+    delete type;
+    type = NULL;
     
     Tile *resultTile = new Tile(mddDomain, baseType, (char*) fileContents, size, getDataFormat(format));
     RMDBGMIDDLE(2, RMDebug::module_qlparser, "QtEncode", "evaluateMDD() - Created result tile of size " << size)
@@ -567,72 +565,74 @@ QtEncode::getNodeType() const
 void
 QtEncode::initParams(char* paramsIn)
 {
-	// replace escaped characters
-	string params("");
-	int i = 0;
-	while (paramsIn[i] != '\0')
-	{
-		char curr = paramsIn[i];
-		char next = paramsIn[i + 1];
-		++i;
-
-		if (curr == '\\' && (next == '"' || next == '\'' || next == '\\'))
-			continue;
-		params += curr;
-	}
-
-	fParams = CSLTokenizeString2(params.c_str(), ";",
-			CSLT_STRIPLEADSPACES |
-			CSLT_STRIPENDSPACES);
-
-	setDouble(PARAM_XMIN, &gParams.xmin);
-	setDouble(PARAM_XMAX, &gParams.xmax);
-	setDouble(PARAM_YMIN, &gParams.ymin);
-	setDouble(PARAM_YMAX, &gParams.ymax);
-	setString(PARAM_CRS, &gParams.crs);
-	setString(PARAM_METADATA, &gParams.metadata);
-
-        // GDAL configuration options (config="key1 value1, key2 value2, ...")
-        int ind;
-        if ((ind = CSLFindName(fParams, PARAM_CONFIG)) != -1)
+    if (paramsIn)
+    {
+        // replace escaped characters
+        string params("");
+        int i = 0;
+        while (paramsIn[i] != '\0')
         {
-            RMInit::logOut << "Found GDAL configuration parameters." << endl;
-            // parse the KV-pairs and set them to GDAL environment
-            const char* kvPairs = CSLFetchNameValue(fParams, PARAM_CONFIG);
-            RMInit::logOut << " KV-PAIRS = '" << kvPairs << "'" << endl;
-            char** kvPairsList =  CSLTokenizeString2(kvPairs, ",",
-			CSLT_STRIPLEADSPACES |
-			CSLT_STRIPENDSPACES);
-            for (int iKvPair = 0; iKvPair < CSLCount(kvPairsList); iKvPair++)
-            {
-               // foreach KV pair in confParamList DO CPLSetConfigOption
-               const char* kvPair = kvPairsList[iKvPair];
-               char** kvPairList =  CSLTokenizeString2(kvPair, " ",
-			CSLT_STRIPLEADSPACES |
-			CSLT_STRIPENDSPACES);
-               CPLString* keyString = new CPLString(static_cast<const char*>(kvPairList[0]));
-               CPLString* valueString = new CPLString(static_cast<const char*>(kvPairList[1]));
-               const char* confKey = keyString->c_str();
-               const char* confValue = valueString->c_str();
-               RMInit::logOut << " KEY = '" << confKey << "' VALUE ='" << confValue << "'" << endl;
-               CPLSetConfigOption(confKey, confValue); // this option is then read by the CreateCopy() method of the GDAL format
-            }
+            char curr = paramsIn[i];
+            char next = paramsIn[i + 1];
+            ++i;
+
+            if (curr == '\\' && (next == '"' || next == '\'' || next == '\\'))
+                continue;
+            params += curr;
         }
 
-	string nodata;
-	setString(PARAM_NODATA, &nodata);
+        fParams = CSLTokenizeString2(params.c_str(), ";",
+                                     CSLT_STRIPLEADSPACES |
+                                     CSLT_STRIPENDSPACES);
+    }
+    setDouble(PARAM_XMIN, &gParams.xmin);
+    setDouble(PARAM_XMAX, &gParams.xmax);
+    setDouble(PARAM_YMIN, &gParams.ymin);
+    setDouble(PARAM_YMAX, &gParams.ymax);
+    setString(PARAM_CRS, &gParams.crs);
+    setString(PARAM_METADATA, &gParams.metadata);
 
-	if (!nodata.empty())
-	{
+    // GDAL configuration options (config="key1 value1, key2 value2, ...")
+    int ind;
+    if ((ind = CSLFindName(fParams, PARAM_CONFIG)) != -1)
+    {
+        RMInit::logOut << "Found GDAL configuration parameters." << endl;
+        // parse the KV-pairs and set them to GDAL environment
+        const char* kvPairs = CSLFetchNameValue(fParams, PARAM_CONFIG);
+        RMInit::logOut << " KV-PAIRS = '" << kvPairs << "'" << endl;
+        char** kvPairsList = CSLTokenizeString2(kvPairs, ",",
+                                                CSLT_STRIPLEADSPACES |
+                                                CSLT_STRIPENDSPACES);
+        for (int iKvPair = 0; iKvPair < CSLCount(kvPairsList); iKvPair++)
+        {
+            // foreach KV pair in confParamList DO CPLSetConfigOption
+            const char* kvPair = kvPairsList[iKvPair];
+            char** kvPairList = CSLTokenizeString2(kvPair, " ",
+                                                   CSLT_STRIPLEADSPACES |
+                                                   CSLT_STRIPENDSPACES);
+               CPLString* keyString = new CPLString(static_cast<const char*>(kvPairList[0]));
+               CPLString* valueString = new CPLString(static_cast<const char*>(kvPairList[1]));
+            const char* confKey = keyString->c_str();
+            const char* confValue = valueString->c_str();
+            RMInit::logOut << " KEY = '" << confKey << "' VALUE ='" << confValue << "'" << endl;
+            CPLSetConfigOption(confKey, confValue); // this option is then read by the CreateCopy() method of the GDAL format
+        }
+    }
+
+    string nodata("");
+    setString(PARAM_NODATA, &nodata);
+
+    if (!nodata.empty())
+    {
 		char* pch = const_cast<char*>(nodata.c_str());
-		pch = strtok(pch, NODATA_VALUE_SEPARATOR);
-		while (pch != NULL)
-		{
-			double value = strtod(pch, NULL);
-			gParams.nodata.push_back(value);
-			pch = strtok(NULL, NODATA_VALUE_SEPARATOR);
-		}
-	}
+        pch = strtok(pch, NODATA_VALUE_SEPARATOR);
+        while (pch != NULL)
+        {
+            double value = strtod(pch, NULL);
+            gParams.nodata.push_back(value);
+            pch = strtok(NULL, NODATA_VALUE_SEPARATOR);
+        }
+    }
 }
 
 void

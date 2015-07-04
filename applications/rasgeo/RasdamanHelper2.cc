@@ -23,6 +23,7 @@
 /*
  * Contributed to rasdaman by Alexander Herzig, Landcare Research New Zealand
  */
+#include "qlparser/gdalincludes.hh"
 #include "config.h"
 #include "RasdamanHelper2.hh"
 
@@ -41,9 +42,6 @@
 // postgresql
 #include "libpq-fe.h"
 
-// gdal
-#include "gdal_priv.h"
-#include "gdal_rat.h"
 
 #undef PACKAGE_BUGREPORT
 #undef PACKAGE_NAME

@@ -24,15 +24,11 @@ rasdaman GmbH.
 #ifndef GDALDATACONVERTER_HH
 #define	GDALDATACONVERTER_HH
 
+#include "qlparser/gdalincludes.hh"
 #include "raslib/error.hh"
 #include "raslib/primitivetype.hh"
 #include "raslib/structuretype.hh"
 
-// GDAL headers
-#include "ogr_spatialref.h"
-#include "cpl_conv.h"
-#include "cpl_string.h"
-#include "vrtdataset.h"
 
 /**
  * Helper class which converts data from GDAL to rasdaman format.

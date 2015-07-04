@@ -24,6 +24,8 @@ rasdaman GmbH.
 #ifndef _QTDECODE_
 #define	_QTDECODE_
 
+#include "qlparser/gdalincludes.hh"
+
 #include "raslib/error.hh"
 #include "qlparser/qtmdd.hh"
 #include "qlparser/qtunaryoperation.hh"
@@ -31,8 +33,6 @@ rasdaman GmbH.
 #include "raslib/type.hh"
 #include "relcatalogif/mdddimensiontype.hh"
 
-// GDAL headers
-#include "gdal_priv.h"
 
 #ifndef PARAM_SEPARATOR
 #define PARAM_SEPARATOR ";"

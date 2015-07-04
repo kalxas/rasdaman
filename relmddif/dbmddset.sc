@@ -37,6 +37,7 @@ rasdaman GmbH.
 #include "config.h"
 #include "debug-srv.hh"
 
+#include <cstdlib>
 #include "dbmddset.hh"
 #include "raslib/rmdebug.hh"
 #include "reladminif/sqlerror.hh"
@@ -167,7 +168,7 @@ DBMDDSet::readFromDb() throw (r_Error)
     long long mddoid2;
     long long mddcolloid2;
     long long colltypeoid2;
-    char *collname2;
+    char *collname2 = NULL;
 
     mddcolloid2 = myOId.getCounter();
 
@@ -182,10 +183,20 @@ DBMDDSet::readFromDb() throw (r_Error)
     {
         RMInit::logOut << "DBMDDSet::readFromDb() - set object: "
                 << mddcolloid2 << " not found in the database." << endl;
+        if (collname2)
+        {
+            free(collname2);
+            collname2 = NULL;
+        }
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "set object not found in the database.");
     }
 
     setName(collname2);
+    if (collname2)
+    {
+        free(collname2);
+        collname2 = NULL;
+    }
     collType = (const CollectionType*) ObjectBroker::getObjectByOId(OId(colltypeoid2, OId::SETTYPEOID));
 
     SQLiteQuery cquery("SELECT MDDId FROM RAS_MDDCOLLECTIONS WHERE MDDCollId = %lld ORDER BY MDDId", mddcolloid2);

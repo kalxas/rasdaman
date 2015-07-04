@@ -61,7 +61,7 @@ public:
     //@Man: read methods
     //@{
     /// get contents as array of chars for read access.
-    char* getCells();
+    virtual char* getCells();
     /*@Doc:
       Returns a pointer to the contents of the DBTile. This pointer
       can be used as a char array with getSize() elements.
@@ -69,7 +69,7 @@ public:
     */
 
     /// get contents as array of chars for read access.
-    const char* getCells() const;
+    virtual const char* getCells() const;
     /*@Doc:
       Returns a pointer to the contents of the DBTile. This pointer
       can be used as a char array with getSize() elements.
