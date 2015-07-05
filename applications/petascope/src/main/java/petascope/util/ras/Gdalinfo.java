@@ -23,11 +23,13 @@ package petascope.util.ras;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import petascope.exceptions.wcst.WCSTNoReadPermissionException;
 
 /**
  * Utility for getting gdalinfo output
@@ -42,10 +44,15 @@ public class Gdalinfo {
      * @return
      * @throws IOException
      */
-    public static Pair<Integer, ArrayList<String>> getDimensionAndTypes(String filePath) throws IOException {
-        log.trace("Reading gdal info output");
+    public static Pair<Integer, ArrayList<String>> getDimensionAndTypes(String filePath) throws IOException, WCSTNoReadPermissionException {
+        log.trace("Reading gdal info output for " + filePath);
         Integer dimensions = 0;
         ArrayList<String> bandTypes = new ArrayList<String>();
+        File f = new File(filePath);
+        if(!f.canRead()) {
+            log.error("Failed retrieving gdalinfo for file: " + filePath);
+            throw new WCSTNoReadPermissionException(filePath);
+        }
         try {
             Process process = Runtime.getRuntime().exec(GDAL_INFO + filePath);
             BufferedReader stdOutReader = new BufferedReader(new InputStreamReader(process.getInputStream()));

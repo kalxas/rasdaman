@@ -43,6 +43,7 @@ import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
 import petascope.ows.Description;
 import petascope.swe.datamodel.AbstractSimpleComponent;
+import petascope.swe.datamodel.NilValue;
 import petascope.swe.datamodel.Quantity;
 import petascope.util.*;
 
@@ -553,6 +554,28 @@ public class CoverageMetadata implements Cloneable {
 
     public Iterator<DomainElement> getDomainIterator() {
         return domain.iterator();
+    }
+
+    /**
+     * Gets an array list containing all null values, on all bands and removes the duplicates.
+     * This is used for passing the values further to rasdaman (rasdaman doesn't have nil values per band, but per mdd set).
+     * @return
+     */
+    public ArrayList<String> getAllUniqueNullValues(){
+        ArrayList<String> result = new ArrayList<String>();
+        //iterate over the swe quantities
+        Iterator<AbstractSimpleComponent> sweIterator = this.getSweComponentsIterator();
+        while (sweIterator.hasNext()){
+            Iterator<NilValue> nilIterator = sweIterator.next().getNilValuesIterator();
+            while (nilIterator.hasNext()){
+                String currentNull = nilIterator.next().getValue();
+                //add it if it is not in already
+                if(!result.contains(currentNull) && !currentNull.isEmpty()){
+                    result.add(currentNull);
+                }
+            }
+        }
+        return result;
     }
 
     /**

@@ -24,33 +24,37 @@ package petascope.wcs2.handlers.wcst;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import nu.xom.Document;
 import nu.xom.Element;
 import nu.xom.ParsingException;
 import org.slf4j.LoggerFactory;
-import petascope.ConfigManager;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
-import petascope.exceptions.RasdamanException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCSException;
 import petascope.util.GMLParserUtil;
 import petascope.util.Pair;
 import petascope.util.XMLSymbols;
 import petascope.util.XMLUtil;
-import petascope.util.ras.RasUtil;
 import petascope.util.ras.TypeResolverUtil;
+import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcs2.extensions.FormatExtension;
 import petascope.wcs2.handlers.AbstractRequestHandler;
 import petascope.wcs2.handlers.Response;
+import petascope.wcs2.handlers.wcst.helpers.insert.RasdamanCollectionCreator;
+import petascope.wcs2.handlers.wcst.helpers.insert.RasdamanDefaultCollectionCreator;
+import petascope.wcs2.handlers.wcst.helpers.insert.RasdamanInserter;
+import petascope.wcs2.handlers.wcst.helpers.insert.RasdamanValuesInserter;
+import petascope.wcs2.handlers.wcst.helpers.insert.RasdamanFileInserter;
 import petascope.wcs2.helpers.wcst.RemoteCoverageUtil;
 import petascope.wcs2.parsers.wcst.InsertCoverageRequest;
 import petascope.wcs2.templates.Templates;
-import rasj.RasResultIsNoIntervalException;
+
 /**
  * Handles the insertion of coverages into petascope, according to the WCS-T
  * specs.
@@ -64,7 +68,7 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
     /**
      * Class constructor
      *
-     * @param meta
+     * @param meta the dbmetadata source
      */
     public InsertCoverageHandler(DbMetadataSource meta) {
         super(meta);
@@ -80,7 +84,8 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
      * @throws WCSException
      * @throws SecoreException
      */
-    public Response handle(InsertCoverageRequest request) throws PetascopeException, WCSException, SecoreException {
+    public Response handle(InsertCoverageRequest request) throws PetascopeException, SecoreException {
+        log.info("Handling coverage insertion...");
         if (request.getGMLCoverage() != null) {
             return handleGMLCoverageInsert(request);
         } else {
@@ -88,27 +93,24 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
         }
     }
 
-    private Response handleGMLCoverageInsert(InsertCoverageRequest request) throws WCSException, PetascopeException, SecoreException {
-        return new Response(null, insertGMLCoverage(request.getGMLCoverage(), request.isUseNewId(),
-                request.getPixelDataType(), request.getTiling()), FormatExtension.MIME_XML);
+    private Response handleGMLCoverageInsert(InsertCoverageRequest request) throws PetascopeException, SecoreException {
+        return new Response(null, insertGMLCoverage(request.getGMLCoverage(), request), FormatExtension.MIME_XML);
     }
 
     /**
      * Only works with GML remote coverages for now
      *
-     * @param request
-     * @return
+     * @param request the insertCoverage request.
+     * @return InsertCoverage response.
      */
     private Response handleRemoteCoverageIsert(InsertCoverageRequest request) throws PetascopeException, SecoreException {
         //get the remote coverage
         String coverage = RemoteCoverageUtil.getRemoteGMLCoverage(request.getCoverageURL());
         //if it is not GML, make it GML
         //for now assuming only GML
-        if (false) {
 
-        }
         //finally process it
-        return new Response(null, insertGMLCoverage(coverage, request.isUseNewId(), request.getPixelDataType(), request.getTiling()), FormatExtension.MIME_XML);
+        return new Response(null, insertGMLCoverage(coverage, request), FormatExtension.MIME_XML);
     }
 
     /**
@@ -121,22 +123,27 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
      * @throws PetascopeException
      * @throws SecoreException
      */
-    private String insertGMLCoverage(String GMLCoverage, Boolean generateId, String pixelDataType, String tiling) throws PetascopeException, SecoreException {
+    private String insertGMLCoverage(String GMLCoverage, InsertCoverageRequest request) throws PetascopeException, SecoreException {
+        Boolean generateId = request.isUseNewId();
+        String pixelDataType = request.getPixelDataType();
+        String tiling = request.getTiling();
         Document xmlCoverage;
         CoverageMetadata coverage;
-        String result = null;
-        String outputA = "";
+        String result;
         try {
             xmlCoverage = XMLUtil.buildDocument(null, GMLCoverage);
             //parse the gml
             coverage = CoverageMetadata.fromGML(xmlCoverage);
+            ArrayList<String> nullValues = coverage.getAllUniqueNullValues();
             //add coverage id
             if (generateId) {
                 coverage.setCoverageName(generateCoverageName());
             }
-            //use a generated collection name to avoid conflicts
-            String collectionName =  generateCollectionName();
+            //use the same collection name as the coverage name
+            String collectionName =  coverage.getCoverageName();
             BigInteger oid;
+            RasdamanInserter rasdamanInserter;
+            RasdamanCollectionCreator rasdamanCollectionCreator;
             Element rangeSet = GMLParserUtil.parseRangeSet(xmlCoverage.getRootElement());
             String rasCollectionType;
             if (rangeSet.getChildElements(XMLSymbols.LABEL_DATABLOCK,
@@ -144,23 +151,44 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
                 //tuple list given explicitly
                 //get the pixel values as rasdaman constant
                 Element dataBlock = GMLParserUtil.parseDataBlock(rangeSet);
-                org.apache.commons.lang3.tuple.Pair<String, Character> collectionType =
-                        TypeResolverUtil.guessCollectionType(coverage.getNumberOfBands(), coverage.getDimension(), pixelDataType);
+                org.apache.commons.lang3.tuple.Pair<String, String> collectionType =
+                        TypeResolverUtil.guessCollectionType(coverage.getNumberOfBands(), coverage.getDimension(), nullValues, pixelDataType);
                 rasCollectionType = collectionType.getKey();
-                String rasdamanValues = GMLParserUtil.parseGMLTupleList(dataBlock, coverage.getCellDomainList(), collectionType.getValue().toString());
-                oid = insertValuesIntoRasdaman(collectionName, rasCollectionType, rasdamanValues, tiling);
+                String rasdamanValues = GMLParserUtil.parseGMLTupleList(dataBlock, coverage.getCellDomainList(), collectionType.getValue());
+                rasdamanCollectionCreator = new RasdamanDefaultCollectionCreator(collectionName, rasCollectionType);
+                rasdamanInserter = new RasdamanValuesInserter(collectionName, rasCollectionType, rasdamanValues, tiling);
+                rasdamanCollectionCreator.createCollection();
+                oid = rasdamanInserter.insert();
             } else {
                 //tuple list given as file
                 String fileUrl = GMLParserUtil.parseFilePath(rangeSet);
+                if(fileUrl.startsWith("file://")){
+                    fileUrl = fileUrl.replace("file://", "");
+                }
+                File tmpFile;
+                boolean fileIsLocal;
+                if(fileUrl.startsWith("/")){
+                    //local file
+                    tmpFile = new File(fileUrl);
+                    fileIsLocal = true;
+                }
+                else{
+                    tmpFile = RemoteCoverageUtil.copyFileLocally(fileUrl);
+                    fileIsLocal = false;
+                }
                 String mimetype = GMLParserUtil.parseMimeType(rangeSet);
-                //save in a temporary file to pass to gdal and rasdaman
-                File tmpFile = RemoteCoverageUtil.copyFileLocally(fileUrl);
                 //pass it to gdal to get the collection type
-                rasCollectionType = TypeResolverUtil.guessCollectionTypeFromFile(tmpFile.getAbsolutePath(), coverage.getDimension());
+                rasCollectionType = TypeResolverUtil.guessCollectionTypeFromFile(tmpFile.getAbsolutePath(), coverage.getDimension(), nullValues);
                 //insert it into rasdaman
-                oid = insertFileIntoRasdaman(collectionName, rasCollectionType, tmpFile.getAbsolutePath(), mimetype, tiling);
+                rasdamanCollectionCreator = new RasdamanDefaultCollectionCreator(collectionName, rasCollectionType);
+                rasdamanInserter = new RasdamanFileInserter(collectionName, tmpFile.getAbsolutePath(), mimetype, tiling);
+
+                rasdamanCollectionCreator.createCollection();
+                oid = rasdamanInserter.insert();
                 //delete the temporary file
-                tmpFile.delete();
+                if(!fileIsLocal) {
+                    tmpFile.delete();
+                }
             }
 
             coverage.setRasdamanCollection(new Pair<BigInteger, String>(oid, collectionName));
@@ -180,59 +208,14 @@ public class InsertCoverageHandler extends AbstractRequestHandler<InsertCoverage
         return result;
     }
 
+
     /**
      * Generates a unique coverage name.
-     * @return
+     * @return a unique coverage name.
      */
     private String generateCoverageName() {
         return (WCST_AUTOGENERATED_PREFIX + java.util.UUID.randomUUID().toString()).replace("-", "_");
     }
 
-    /**
-     * Generates a unique collection name.
-     * @return
-     */
-    private String generateCollectionName() {
-        return (DEFAULT_COL_PREFIX + java.util.UUID.randomUUID().toString()).replace("-", "_");
-    }
-
-    private BigInteger insertFileIntoRasdaman(String collectionName, String collectionType, String filePath, String mimetype, String tiling) throws PetascopeException, IOException {
-        log.info("Creating rasdaman collection " + collectionName + ".");
-        //create the collection
-        RasUtil.createRasdamanCollection(collectionName, collectionType);
-        log.info("Collection created.");
-        BigInteger oid = RasUtil.executeInsertFileStatement(collectionName, filePath,mimetype,
-                ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, tiling);
-
-        return oid;
-    }
-
-    /**
-     * Creates the rasdaman collection, if necessary, and inserts the coverage
-     * pixels.
-     *
-     * @param collectionName
-     * @param collectionType
-     * @param values
-     * @return the oid of the newly inserted object
-     */
-    private BigInteger insertValuesIntoRasdaman(String collectionName, String collectionType, String values, String tiling) throws PetascopeException {
-        BigInteger oid = null;
-        log.info("Creating rasdaman collection " + collectionName + ".");
-        //create the collection
-        RasUtil.createRasdamanCollection(collectionName, collectionType);
-        log.info("Collection created.");
-
-        try {
-            //insert the values
-            oid = RasUtil.executeInsertValuesStatement(collectionName, values, tiling);
-        } catch (RasdamanException ex) {
-            log.error("Rasdaman error when inserting into collection " + collectionName + ". Error message: " + ex.getMessage());
-            throw ex;
-        }
-        return oid;
-    }
-
     private static final String WCST_AUTOGENERATED_PREFIX = "WCST_";
-    private static final String DEFAULT_COL_PREFIX = "WCST_";
 }

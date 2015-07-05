@@ -133,7 +133,7 @@ public class CrsComputer {
     private Interval<Long> getNumericPixelIndices(Interval<Double> numericSubset, boolean ignoreOutOfBoundsValidityCheck) {
         DomainElement dom = coverage.getCoverageInfo().getDomainByName(axisName);
 
-        this.checkNumericSubsetValidity(numericSubset);
+        this.checkNumericSubsetValidity(numericSubset, ignoreOutOfBoundsValidityCheck);
 
         final Interval<Long> result;
         if (dom.isIrregular()) {

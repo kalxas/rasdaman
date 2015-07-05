@@ -21,14 +21,9 @@
  */
 package petascope.util.ras;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.text.MessageFormat;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.logging.Level;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -40,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.PetascopeException;
+import petascope.exceptions.RasdamanException;
 
 /**
  * Keeps track of the types that exist in the tracked rasdaman instance.
@@ -87,40 +83,77 @@ public class TypeRegistry {
         return typeRegistry;
     }
 
-    public String createNewType(Integer numberOfDimensions, ArrayList<String> bandBaseTypes) throws PetascopeException {
+    private String generateStructStructure(ArrayList<String> bandBaseTypes){
         String output = "";
-        String result;
+        int count = 0;
+        for(String i : bandBaseTypes){
+            output += getRandomTypeName() + " " + i + " ";
+            if(count < bandBaseTypes.size() - 1){
+                output += ",";
+            }
+            count++;
+        }
+        return output;
+    }
+
+    private String generateNullValuesRepresentation(ArrayList<String> nullValues){
+        String result = "";
+        if(!nullValues.isEmpty()){
+            String values = "";
+            int count = 0;
+            for(String i: nullValues){
+                //check if i is an interval, if not (and is a single value), make it an interval, as there is a bug in
+                // rasdaman which prevents adding single values as null values
+                if(i.contains(":")){
+                    values += i;
+                }
+                else {
+                    values += i + ":" + i;
+                }
+                //add "," on all but last dim
+                if(count < nullValues.size() - 1){
+                    values += ",";
+                }
+                count++;
+            }
+            result = NULL_VALUES_TEMPLATE.replace("$values", values);
+        }
+        return result;
+    }
+
+    public String createNewType(Integer numberOfDimensions, ArrayList<String> bandBaseTypes, ArrayList<String> nullValues) throws PetascopeException {
+        log.info("Creating new type.");
+        String marrayName = getRandomTypeName();
+        String setName = getRandomTypeName();
         if (bandBaseTypes.size() == 1) {
             //simple types
-            String marrayName = getRandomTypeName();
-            output = MARRAY_TEMPLATE.replace(MARRAY_BASE_TYPE_KEY, bandBaseTypes.get(0))
-                    .replace(MARRAY_DIM_KEY, numberOfDimensions.toString())
-                    .replace(MARRAY_TYPE_NAME_KEY, marrayName) + "\n";
-            String setName = getRandomTypeName();
-            output += SET_TEMPLATE.replace(SET_BASE_TYPE_KEY, marrayName)
-                    .replace(SET_TYPE_NAME, setName);
-            result = setName;
+            String queryMarray = QUERY_CREATE_MARRAY_TYPE.replace("$typeName", marrayName)
+                    .replace("$typeStructure", bandBaseTypes.get(0))
+                    .replace("$dimensions", numberOfDimensions.toString());
+            //create the marray type
+            RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         } else {
             //struct types
             String structName = getRandomTypeName();
-            output = STRUCT_TEMPLATE.replace(STRUCT_NAME_KEY, structName)
-                    .replace(STRUCT_CONTENTS_KEY, generateStructContents(bandBaseTypes)) + "\n";
-            String marrayName = getRandomTypeName();
-            output += MARRAY_TEMPLATE.replace(MARRAY_BASE_TYPE_KEY, structName)
-                    .replace(MARRAY_DIM_KEY, numberOfDimensions.toString())
-                    .replace(MARRAY_TYPE_NAME_KEY, marrayName) + "\n";
-            String setName = getRandomTypeName();
-            output += SET_TEMPLATE.replace(SET_BASE_TYPE_KEY, marrayName)
-                    .replace(SET_TYPE_NAME, setName);
-            result = setName;
+            String queryStruct = QUERY_CREATE_STRUCT_TYPE.replace("$structTypeName", structName)
+                    .replace("$structStructure", generateStructStructure(bandBaseTypes));
+            //create the struct type
+            RasUtil.executeRasqlQuery(queryStruct, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+            //marray type
+            String queryMarray = QUERY_CREATE_MARRAY_TYPE.replace("$typeName", marrayName)
+                    .replace("$typeStructure", structName)
+                    .replace("$dimensions", numberOfDimensions.toString());
+            //create it
+            RasUtil.executeRasqlQuery(queryMarray, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
         }
-        try {
-            //save the type
-            saveType(output);
-        } catch (IOException ex) {
-            throw new PetascopeException(ExceptionCode.WCSTTypeRegistryNotFound);
-        }
-        return result;
+
+        String querySet = QUERY_CREATE_SET_TYPE.replace("$typeName", setName)
+                .replace("$marrayTypeName", marrayName)
+                .replace("$nullValues", generateNullValuesRepresentation(nullValues));
+        //create it
+        RasUtil.executeRasqlQuery(querySet, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+        this.reinitialize();
+        return setName;
     }
 
     /**
@@ -140,37 +173,6 @@ public class TypeRegistry {
     }
 
     /**
-     * Saves a type into rasdl.
-     *
-     * @param contents
-     * @throws IOException
-     */
-    private static void saveType(String contents) throws IOException {
-        //generate the file path
-        String filePath = GENERATED_TYPE_FILE_PREFIX + java.util.UUID.randomUUID().toString();
-        File tmpTypeFile = new File(filePath);
-        FileUtils.writeStringToFile(new File(filePath), contents);
-        //add to rasdl
-        Runtime.getRuntime().exec(ConfigManager.RASDAMAN_BIN_PATH + "rasdl -r " + filePath + " -i");
-        //delete file
-        tmpTypeFile.delete();
-    }
-
-    /**
-     * Writes struct contents in asdl language.
-     *
-     * @param bandBaseTypes
-     * @return
-     */
-    private static String generateStructContents(ArrayList<String> bandBaseTypes) {
-        String output = "";
-        for (String i : bandBaseTypes) {
-            output += i + " " + getRandomTypeName() + "; ";
-        }
-        return output;
-    }
-
-    /**
      * Generates a random alphabetic string
      *
      * @return
@@ -185,21 +187,136 @@ public class TypeRegistry {
     private void initializeRegistry() throws PetascopeException {
         try {
             log.trace("Initializing the type registry");
-            Process process = Runtime.getRuntime().exec(ConfigManager.RASDAMAN_BIN_PATH + "rasdl -p");
-            BufferedReader stdOutReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String currentLine;
-            while ((currentLine = stdOutReader.readLine()) != null) {
-                this.parseRasdlLine(currentLine);
-            }
+            initializeStructRegistry();
+            initializeMarrayTypes();
+            initializeSetTypes();
             this.buildRegistry();
             log.info("Succesfully initiated the type registry. Contents: {}", typeRegistry.toString());
-        } catch (IOException e) {
-            log.error(MessageFormat.format("Could not read the rasdaman type registry. Tried with {0}rasdl -p", ConfigManager.RASDAMAN_BIN_PATH));
-            throw new PetascopeException(ExceptionCode.WCSTTypeRegistryNotFound);
+        } catch (RasdamanException e) {
+            //log.error(MessageFormat.format("Could not read the rasdaman type registry. Tried with {0}rasdl -p", ConfigManager.RASDAMAN_BIN_PATH));
+            throw e;
+        }
+    }
+
+    private void initializeSetTypes() throws RasdamanException {
+        Object result = RasUtil.executeRasqlQuery(QUERY_SET_TYPES);
+        RasQueryResult queryResult = new RasQueryResult(result);
+        String[] fullStringResult = queryResult.toString().split("\0");
+        for(String setLine : fullStringResult){
+            String setName = parseSetName(setLine);
+            String marrayName = parseSetMarrayName(setLine);
+            String nilValues = parseSetNullValues(setLine);
+            setTypeDefinitions.add(Pair.of(setName, marrayName));
+            setTypeNullValues.put(setName, nilValues);
+        }
+    }
+
+    private String parseSetNullValues(String setLine){
+        String[] parts = setLine.split("NULL VALUES \\[");
+        if(parts.length < 2){ //no nil values
+            return "";
+        }
+        String[] nilParts = parts[1].split("]");
+        if(nilParts.length < 1){ //invalid line
+            return "";
+        }
+        return nilParts[0].trim();
+    }
+
+    private String parseSetName(String setLine){
+        String[] parts = setLine.split("CREATE TYPE ");
+        if(parts.length < 2){ //invalid line
+            return "";
+        }
+        String[] setNameParts = parts[1].split(" ");
+        if(setNameParts.length < 1){ //invalid line
+            return "";
+        }
+        return setNameParts[0].trim();
+    }
+
+    private String parseSetMarrayName(String setLine){
+        String[] parts = setLine.split("UNDER SET \\{ ");
+        if(parts.length < 2){ //invalid line
+            return "";
+        }
+        String[] marrayNameParts = parts[1].split(" }");
+        if(parts.length < 1){ //invalid line
+            return "";
+        }
+        return marrayNameParts[0].trim();
+    }
+
+    private void initializeMarrayTypes() throws RasdamanException {
+        Object result = RasUtil.executeRasqlQuery(QUERY_MARRAY_TYPES);
+        RasQueryResult queryResult = new RasQueryResult(result);
+        String[] fullStringResult = queryResult.toString().split("\0");
+        for(String marrayLine: fullStringResult){
+            String marrayName = parseMarrayName(marrayLine);
+            String marrayStructure = parseMarrayStructure(marrayLine);
+            marrayTypeDefinitions.put(marrayName, marrayStructure);
+        }
+    }
+
+    private void initializeStructRegistry() throws RasdamanException {
+        Object result = RasUtil.executeRasqlQuery(QUERY_STRUCT_TYPES);
+        RasQueryResult queryResult = new RasQueryResult(result);
+        String[] fullStringResult = queryResult.toString().split("\0");
+        for(String i: fullStringResult){
+            String[] parts = i.split("CREATE TYPE ");
+            String typeName = "";
+            String typeStructure = "";
+            if(parts.length > 1){
+                String[] nameParts = parts[1].split(" ");
+                if(nameParts.length > 0){
+                    typeName = nameParts[0].trim();
+                }
+            }
+            String[] structParts = i.split("UNDER STRUCT");
+            if(structParts.length > 1){
+                typeStructure = "struct " + structParts[1].trim();
+            }
+            structTypeDefinitions.put(typeName, typeStructure);
+        }
+    }
+
+    private String parseMarrayName(String marrayLine){
+        String[] parts = marrayLine.split("CREATE TYPE ");
+        if(parts.length < 2){ //invalid line
+            return "";
+        }
+        String[] marrayParts = parts[1].split(" ");
+        if(marrayParts.length < 1){ //invalid line
+            return "";
+        }
+        return marrayParts[0];
+    }
+
+    private String parseMarrayStructure(String marrayLine) throws RasdamanException {
+        String[] parts = marrayLine.split("UNDER MARRAY");
+        if(parts.length < 2){ //invalid line
+            return "";
+        }
+        String marrayStructure = parts[1].replace(" { ", "").replace(" } ", "").trim();
+        String[] marrayStructureParts = marrayStructure.split(",");
+        if(marrayStructureParts.length < 2){ //invalid line
+            return "";
+        }
+        //marrayStructureParts[0] is the type or structure name, marrayStructureParts[1] is the dimensionality
+        return (expandStructureType(marrayStructureParts[0]) + "," + marrayStructureParts[1]);
+    }
+
+    private String expandStructureType(String typeName) throws RasdamanException {
+        if(structTypeDefinitions.keySet().contains(typeName)){
+            return structTypeDefinitions.get(typeName);
+        }
+        else {
+            return typeName;
         }
     }
 
     /**
+     * @deprectaed
      * Parses one rasdl line retrieving the base type and the domain type. We differentiate each line based on its contents
      * into two cases:
      * Marray definition: typedef marray <struct { char red, char green, char blue }, 2> RGBImage;
@@ -228,6 +345,14 @@ public class TypeRegistry {
         }
     }
 
+    private void reinitialize() throws PetascopeException {
+        structTypeDefinitions.clear();
+        setTypeDefinitions.clear();
+        marrayTypeDefinitions.clear();
+        typeRegistry.clear();
+        initializeRegistry();
+    }
+
     /**
      * Builds the registry from the collected types gathered by parsing the rasdl output
      */
@@ -239,7 +364,24 @@ public class TypeRegistry {
                 if (domainTypeParts.length >= 2) {
                     String[] baseTypeParts = ArrayUtils.remove(domainTypeParts, domainTypeParts.length - 1);
                     String baseType = StringUtils.join(baseTypeParts, "");
-                    typeRegistry.put(entry.getKey(), new TypeRegistryEntry(baseType, domainType));
+                    String[] nullParts = setTypeNullValues.get(entry.getKey()).split(",");
+                    ArrayList<String> nullValues = new ArrayList<String>();
+                    for(String i: nullParts){
+                        if(!i.isEmpty()) {
+                            //if the value that is parsed is an interval with the same limits (e.g. 5:5), add only 1
+                            //value. This is needed because currently there is a bug when creating types via rasql,
+                            //which doesn't allow single values to be specified. However, petascope needs to display single
+                            //values when presenting the output to the user.
+                            if(i.contains(":")){
+                                String[] parts = i.split(":");
+                                if(parts.length == 2 & parts[0].equals(parts[1])){
+                                    i = parts[0];
+                                }
+                            }
+                            nullValues.add(i);
+                        }
+                    }
+                    typeRegistry.put(entry.getKey(), new TypeRegistryEntry(baseType, domainType, nullValues));
                 }
             }
         }
@@ -251,9 +393,10 @@ public class TypeRegistry {
      */
     public class TypeRegistryEntry {
 
-        private TypeRegistryEntry(String baseType, String domainType) {
+        private TypeRegistryEntry(String baseType, String domainType, ArrayList<String> nullValues) {
             this.baseType = baseType;
             this.domainType = domainType;
+            this.nullValues = nullValues;
         }
 
         /**
@@ -279,6 +422,7 @@ public class TypeRegistry {
             return "TypeRegistryEntry{" +
                     "baseType='" + baseType + '\'' +
                     ", domainType='" + domainType + '\'' +
+                    ", nullValues='" + nullValues.toString() + "'" +
                     '}';
         }
 
@@ -287,27 +431,30 @@ public class TypeRegistry {
                     another.getDomainType().equals(this.domainType);
         }
 
+        public ArrayList<String> getNullValues() {
+            return nullValues;
+        }
+
         private String baseType;
         private String domainType;
+        private ArrayList<String> nullValues;
     }
 
     private final HashMap<String, TypeRegistryEntry> typeRegistry = new HashMap<String, TypeRegistryEntry>();
     private final HashMap<String, String> marrayTypeDefinitions = new HashMap<String, String>();
     private final ArrayList<Pair<String, String>> setTypeDefinitions = new ArrayList<Pair<String, String>>();
+    private HashMap<String, String> setTypeNullValues = new HashMap<String, String>();
+    private HashMap<String, String> structTypeDefinitions = new HashMap<String, String>();
     private final String RASDL_MARRAY_IDENTIFIER = "typedef marray";
     private final String RASDL_SET_IDENTIFIER = "typedef set";
     private final Logger log = LoggerFactory.getLogger(TypeRegistry.class);
     private static boolean initialized = false;
-    private static final String STRUCT_NAME_KEY = "$struct_name";
-    private static final String STRUCT_CONTENTS_KEY = "$struct_contents";
-    private final static String STRUCT_TEMPLATE = "struct " + STRUCT_NAME_KEY + "{" + STRUCT_CONTENTS_KEY + "};";
-    private final static String MARRAY_BASE_TYPE_KEY = "$marray_base_type";
-    private final static String MARRAY_DIM_KEY = "$marray_dim";
-    private final static String MARRAY_TYPE_NAME_KEY = "$marray_type_name";
-    private final static String MARRAY_TEMPLATE = "typedef marray <" + MARRAY_BASE_TYPE_KEY + "," + MARRAY_DIM_KEY + "> " + MARRAY_TYPE_NAME_KEY + ";";
-    private final static String SET_BASE_TYPE_KEY = "$set_base_type";
-    private final static String SET_TYPE_NAME = "$set_type_name";
-    private final static String SET_TEMPLATE = "typedef set <" + SET_BASE_TYPE_KEY + "> " + SET_TYPE_NAME + ";";
-    private final static String GENERATED_TYPE_FILE_PREFIX = "/tmp/WCSTType";
     private final static Integer GENERATED_TYPE_NAME_LENGTH = 30;
+    private final static String QUERY_MARRAY_TYPES = "SELECT a FROM RAS_MARRAY_TYPES a";
+    private final static String QUERY_STRUCT_TYPES = "SELECT a FROM RAS_STRUCT_TYPES a";
+    private final static String QUERY_SET_TYPES = "SELECT a FROM RAS_SET_TYPES a";
+    private final static String QUERY_CREATE_MARRAY_TYPE = "CREATE TYPE $typeName UNDER MARRAY { $typeStructure } , $dimensions";
+    private final static String QUERY_CREATE_SET_TYPE = "CREATE TYPE $typeName UNDER SET { $marrayTypeName } $nullValues";
+    private final static String NULL_VALUES_TEMPLATE = "NULL VALUES [$values]";
+    private final static String QUERY_CREATE_STRUCT_TYPE = "CREATE TYPE $structTypeName UNDER STRUCT { $structStructure }";
 }

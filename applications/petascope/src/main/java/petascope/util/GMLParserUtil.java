@@ -22,7 +22,6 @@
 package petascope.util;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,6 +29,7 @@ import java.util.TreeMap;
 
 import nu.xom.Element;
 import nu.xom.Elements;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import petascope.core.CrsDefinition;
 import petascope.exceptions.ExceptionCode;
@@ -37,6 +37,7 @@ import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
 import petascope.exceptions.WCPSException;
 import petascope.exceptions.WCSException;
+import petascope.exceptions.wcst.WCSTInvalidNilValueException;
 import petascope.exceptions.wcst.WCSTUnsupportedCoverageTypeException;
 import petascope.swe.datamodel.AllowedValues;
 import petascope.swe.datamodel.NilValue;
@@ -362,6 +363,7 @@ public class GMLParserUtil {
                 if (actualNilValues.size() != 0) {
                     for (int i = 0; i < actualNilValues.size(); i++) {
                         String value = actualNilValues.get(i).getValue().trim();
+                        validateNilValue(value);
                         String reason = actualNilValues.get(i).getAttributeValue(XMLSymbols.ATT_REASON);
                         nils.add(new NilValue(value, reason));
                     }
@@ -405,6 +407,20 @@ public class GMLParserUtil {
                 uomCode,
                 allowedValues
         );
+    }
+
+    /**
+     * Rasdaman supports only integers or intervals formed of integers as nil values.
+     */
+    private static void validateNilValue(String nilValue) throws WCSTInvalidNilValueException {
+        //for intervals, split after :
+        String[] parts = nilValue.split(":");
+        //each part has to be an integer
+        for(String i : parts){
+            if(!StringUtils.isNumeric(i)){
+                throw new WCSTInvalidNilValueException(nilValue);
+            }
+        }
     }
 
     /**

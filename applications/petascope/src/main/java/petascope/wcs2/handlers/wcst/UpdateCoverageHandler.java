@@ -32,14 +32,12 @@ import nu.xom.Element;
 import nu.xom.ParsingException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.LoggerFactory;
-import petascope.ConfigManager;
 import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.*;
 import petascope.exceptions.wcst.WCSTInvalidTrimSubsetOnIrregularAxisException;
 import petascope.exceptions.wcst.WCSTInvalidUpdateOnIrregularAxisException;
 import petascope.util.*;
-import petascope.util.ras.RasUtil;
 import petascope.util.ras.TypeResolverUtil;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.CoverageInfo;
@@ -50,6 +48,9 @@ import petascope.wcps2.metadata.Interval;
 import petascope.wcps2.util.CrsComputer;
 import petascope.wcs2.handlers.AbstractRequestHandler;
 import petascope.wcs2.handlers.Response;
+import petascope.wcs2.handlers.wcst.helpers.update.RasdamanFileUpdater;
+import petascope.wcs2.handlers.wcst.helpers.update.RasdamanUpdater;
+import petascope.wcs2.handlers.wcst.helpers.update.RasdamanValuesUpdater;
 import petascope.wcs2.helpers.wcst.RemoteCoverageUtil;
 import petascope.wcs2.parsers.subsets.DimensionSlice;
 import petascope.wcs2.parsers.subsets.DimensionSubset;
@@ -64,6 +65,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverageRequest> {
 
     private static final org.slf4j.Logger log = LoggerFactory.getLogger(UpdateCoverageHandler.class);
@@ -74,6 +76,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
 
     /**
      * Handles the update of an existing WCS coverage.
+     *
      * @param request the update coverage request.
      * @return empty response.
      * @throws PetascopeException
@@ -81,12 +84,13 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
      * @throws SecoreException
      */
     @Override
-    public Response handle(UpdateCoverageRequest request) throws PetascopeException, WCSException, SecoreException {
+    public Response handle(UpdateCoverageRequest request) throws PetascopeException, SecoreException {
+        log.info("Handling coverage update...");
         CoverageMetadata currentCoverage = this.meta.read(request.getCoverageId());
         String affectedCollectionName = getCurrentCollectionName(currentCoverage);
         String affectedCollectionOid = getCurrentCollectionOid(currentCoverage);
 
-        CoverageMetadata inputCoverage = null;
+        CoverageMetadata inputCoverage;
         String gmlInputCoverage = getGmlCoverageFromRequest(request);
 
         try {
@@ -106,20 +110,37 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
             Map<Integer, Interval<Long>> pixelIndices = getPixelIndicesByCoordinate(currentCoverage, request.getSubsets());
             String affectedDomain = getAffectedDomain(currentCoverage, request.getSubsets(), pixelIndices);
             String shiftDomain = getShiftDomain(inputCoverage, pixelIndices);
+            RasdamanUpdater updater;
 
             if (rangeSet.getChildElements(XMLSymbols.LABEL_DATABLOCK,
                     XMLSymbols.NAMESPACE_GML).size() != 0) {
                 //tuple list given explicitly
                 String values = getReplacementValuesFromTupleList(inputCoverage, rangeSet, request.getPixelDataType());
-                handleUpdateWithValuesFromTupleList(affectedCollectionName, affectedCollectionOid, affectedDomain, values, shiftDomain);
+                updater = new RasdamanValuesUpdater(affectedCollectionName, affectedCollectionOid, affectedDomain, values, shiftDomain);
+                updater.update();
             } else {
                 //tuple list given as file
-                //retrieve the file
-                File valuesFile = getReplacementValuesFromFile(rangeSet);
+                //retrieve the file, if needed
+                boolean isLocal = false;
+                File valuesFile;
+                String fileUrl = GMLParserUtil.parseFilePath(rangeSet);
+                if (fileUrl.startsWith("file://")) {
+                    fileUrl = fileUrl.replace("file://", "");
+                }
+                if (fileUrl.startsWith("/")) {
+                    isLocal = true;
+                    valuesFile = new File(fileUrl);
+                } else {
+                    //remote file, get it
+                    valuesFile = getReplacementValuesFromFile(rangeSet);
+                }
                 String mimetype = GMLParserUtil.parseMimeType(rangeSet);
-                handleUpdateWithValuesFromFile(affectedCollectionName, affectedCollectionOid, affectedDomain, valuesFile, mimetype, shiftDomain);
+                updater = new RasdamanFileUpdater(affectedCollectionName, affectedCollectionOid, affectedDomain, valuesFile, mimetype, shiftDomain);
+                updater.update();
                 //delete the file
-                valuesFile.delete();
+                if (!isLocal) {
+                    valuesFile.delete();
+                }
             }
         } catch (IOException e) {
             Logger.getLogger(UpdateCoverageHandler.class.getName()).log(Level.SEVERE, null, e);
@@ -132,50 +153,10 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
         return new Response("");
     }
 
-    /**
-     * Handles the update when the values are given as tuple list.
-     * @param affectedCollectionName the name of the rasdaman collection corresponding to the coverage.
-     * @param affectedCollectionOid the oid of the rasdaman array corresponding to the coverage.
-     * @param affectedDomain the rasdaman domain over which the update is executed.
-     * @param values the values clause in the rasdaman update operation.
-     * @param shiftDomain the domain with which the rasdaman array in the values clause must be shifted.
-     * @throws RasdamanException
-     */
-    private void handleUpdateWithValuesFromTupleList(String affectedCollectionName, String affectedCollectionOid, String affectedDomain,
-                                                     String values, String shiftDomain) throws RasdamanException {
-        String queryString = UPDATE_TEMPLATE_VALUES.replace("$collection", affectedCollectionName)
-                .replace("$domain", affectedDomain)
-                .replace("$oid", affectedCollectionOid)
-                .replace("$values", values)
-                .replace("$shiftDomain", shiftDomain);
-        RasUtil.executeRasqlQuery(queryString, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
-    }
-
-    /**
-     * Handles the update when the values are given as file.
-     * @param affectedCollectionName the name of the rasdaman collection corresponding to the coverage.
-     * @param affectedCollectionOid the oid of the rasdaman array corresponding to the coverage.
-     * @param affectedDomain the rasdaman domain over which the update is executed.
-     * @param valuesFile the file where the cell values are stored.
-     * @param mimetype the mime type of the file.
-     * @param shiftDomain the domain with which the array stored in the file must be shifted.
-     * @throws IOException
-     * @throws RasdamanException
-     */
-    private void handleUpdateWithValuesFromFile(String affectedCollectionName, String affectedCollectionOid, String affectedDomain,
-                                                File valuesFile, String mimetype, String shiftDomain) throws IOException, RasdamanException {
-        String queryString = UPDATE_TEMPLATE_FILE.replace("$collection", affectedCollectionName)
-                .replace("$domain", affectedDomain)
-                .replace("$oid", affectedCollectionOid)
-                .replace("$shiftDomain", shiftDomain);
-        RasUtil.executeUpdateFileStatement(queryString, valuesFile.getAbsolutePath(), mimetype,
-                ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS);
-    }
-
     private void handleSubsetCoefficients(CoverageMetadata currentCoverageMetadata, List<DimensionSubset> subsets) throws PetascopeException {
-        for(DimensionSubset subset : subsets){
+        for (DimensionSubset subset : subsets) {
             //check if axis is irregular is irregular
-            if(currentCoverageMetadata.getDomainByName(subset.getDimension()).isIrregular()){
+            if (currentCoverageMetadata.getDomainByName(subset.getDimension()).isIrregular()) {
                 //update coefficient corresponding to this slice
                 DomainElement currentDom = currentCoverageMetadata.getDomainByName(subset.getDimension());
                 int axisId;
@@ -186,7 +167,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
                     throw new PetascopeException(ExceptionCode.InternalSqlError);
                 }
                 BigDecimal currentCoefficient = computeSubsetCoefficient(currentDom, subset);
-                int coefficientOrder = computeCoefficientOrder(currentCoverageMetadata, currentDom, currentCoefficient, (DimensionSlice)subset);
+                int coefficientOrder = computeCoefficientOrder(currentCoverageMetadata, currentDom, currentCoefficient, (DimensionSlice) subset);
                 try {
                     meta.updateAxisCoefficient(axisId, currentCoefficient, coefficientOrder);
                 } catch (SQLException e) {
@@ -201,22 +182,20 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
         List<BigDecimal> allCoefficients = meta.getAllCoefficients(currentCoverageMetadata.getCoverageName(), currentDomain.getOrder());
         int currentPosition = BigDecimalUtil.listContains(allCoefficients, coefficient);
         //for now, we only support adding slices on top or updating existing slices
-        if(currentPosition == -1 && (coefficient.compareTo(allCoefficients.get(allCoefficients.size() - 1)) == -1)){
+        if (currentPosition == -1 && (coefficient.compareTo(allCoefficients.get(allCoefficients.size() - 1)) == -1)) {
             //it means that the coefficient is not in the list and is smaller than the largest one
             //this would mean adding a slice in between 2 other slices, not supported
             throw new WCSTInvalidUpdateOnIrregularAxisException();
-        }
-        else if (currentPosition != -1){
+        } else if (currentPosition != -1) {
             //coefficient already exist
             return currentPosition;
-        }
-        else {
+        } else {
             //increase the cell domain of the coverage by 1
             int currentDomainHi = currentCoverageMetadata.getCellDomainByOrder(currentDomain.getOrder()).getHiInt();
             currentDomainHi++;
             currentCoverageMetadata.getCellDomain(currentDomain.getOrder()).setHi(String.valueOf(currentDomainHi));
             //increase the pixel domain
-            if(subset.isNumeric()){
+            if (subset.isNumeric()) {
                 currentDomain.setMaxValue(new BigDecimal(subset.getSlicePoint()));
             }
             //coefficient is corresponding to a new slice, added on top
@@ -225,13 +204,12 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
     }
 
     private BigDecimal computeSubsetCoefficient(DomainElement currentDom, DimensionSubset subset) throws PetascopeException {
-        if(subset instanceof DimensionSlice){
+        if (subset instanceof DimensionSlice) {
             String point = ((DimensionSlice) subset).getSlicePoint();
             BigDecimal normalizedSlicePoint;
-            if(subset.isNumeric()){
+            if (subset.isNumeric()) {
                 normalizedSlicePoint = BigDecimalUtil.divide(new BigDecimal(point), currentDom.getScalarResolution());
-            }
-            else {
+            } else {
                 //time
                 String datumOrigin = currentDom.getCrsDef().getDatumOrigin();
                 String axisUoM = currentDom.getUom();
@@ -248,9 +226,10 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
 
     /**
      * Computes the rasdaman domain that is affected by the update operation.
+     *
      * @param currentCoverage the coverage targeted by the update operation.
-     * @param subsets the list of subsets given as parameters to the update operation.
-     * @param pixelIndices the pixel indices corresponding to each subset.
+     * @param subsets         the list of subsets given as parameters to the update operation.
+     * @param pixelIndices    the pixel indices corresponding to each subset.
      * @return the string representation of the rasdaman domain affected by the update op.
      * @throws PetascopeException
      */
@@ -265,7 +244,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
                 if (pixelIndices.containsKey(i)) {
                     ret += pixelIndices.get(i).getLowerLimit().toString();
                     //only add upper bound if not equal lower
-                    if(!pixelIndices.get(i).getUpperLimit().equals(pixelIndices.get(i).getLowerLimit())){
+                    if (!pixelIndices.get(i).getUpperLimit().equals(pixelIndices.get(i).getLowerLimit())) {
                         ret += ":" + pixelIndices.get(i).getUpperLimit().toString();
                     }
                 }
@@ -273,7 +252,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
                 else {
                     ret += currentCellDomain.getLo();
                     //only add upper bound if not equal lower
-                    if(currentCellDomain.getHiInt() != currentCellDomain.getLoInt()) {
+                    if (currentCellDomain.getHiInt() != currentCellDomain.getLoInt()) {
                         ret += ":" + currentCellDomain.getHi();
                     }
                 }
@@ -289,14 +268,15 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
 
     /**
      * Computes the domain with which the array in the values clause must be shifted.
+     *
      * @param inputCoverage the coverage providing the cell values for replacement.
-     * @param pixelIndices the list of pixel indices corresponding to each subset indicated in the request.
+     * @param pixelIndices  the list of pixel indices corresponding to each subset indicated in the request.
      * @return the string representation of the rasdaman domain with which the array must be shifted.
      */
     private String getShiftDomain(CoverageMetadata inputCoverage, Map<Integer, Interval<Long>> pixelIndices) {
         String shiftDomain = "[";
         for (int i = 0; i < inputCoverage.getDimension(); i++) {
-            Long shift = Long.valueOf(0);
+            Long shift = (long) 0;
             if (pixelIndices.containsKey(i)) {
                 shift = pixelIndices.get(i).getLowerLimit();
             }
@@ -311,8 +291,9 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
 
     /**
      * Computes the pixel indices corresponding to each subset given as parameter to the request.
+     *
      * @param currentCoverage the coverage targeted by the update operation.
-     * @param subsets the list of subsets indicated in the update coverage request.
+     * @param subsets         the list of subsets indicated in the update coverage request.
      * @return map indicating the pixel indices for each dimension.
      */
     private Map<Integer, Interval<Long>> getPixelIndicesByCoordinate(CoverageMetadata currentCoverage, List<DimensionSubset> subsets) {
@@ -341,6 +322,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
 
     /**
      * Gets the GML coverage representation from an update request.
+     *
      * @param request the request object.
      * @return the GML coverage representation.
      * @throws WCSException
@@ -357,6 +339,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
 
     /**
      * Gets the rasdaman collection name for the coverage targeted by the update operation.
+     *
      * @param currentCoverage the coverage targeted by the update operation.
      * @return rasdaman collection name.
      */
@@ -366,6 +349,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
 
     /**
      * Gets the oid of the array corresponding to the coverage targeted by the update operation.
+     *
      * @param currentCoverage the coverage targeted by the update operation.
      * @return the string representation of the oid.
      */
@@ -375,6 +359,7 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
 
     /**
      * Gets the array in the values clause to be used in a rasdaman update query, when values are given as tuple list.
+     *
      * @param coverage the coverage providing the values.
      * @param rangeSet the rangeSet element.
      * @return string representations of the values clause, as rasdaman array constant.
@@ -382,13 +367,14 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
      */
     private String getReplacementValuesFromTupleList(CoverageMetadata coverage, Element rangeSet, String pixelDataType) throws PetascopeException {
         Element dataBlock = GMLParserUtil.parseDataBlock(rangeSet);
-        Pair<String, Character> collectionType = TypeResolverUtil.guessCollectionType(coverage.getNumberOfBands(), coverage.getDimension(), pixelDataType);
-        String values = GMLParserUtil.parseGMLTupleList(dataBlock, coverage.getCellDomainList(), collectionType.getValue().toString());
+        Pair<String, String> collectionType = TypeResolverUtil.guessCollectionType(coverage.getNumberOfBands(), coverage.getDimension(), coverage.getAllUniqueNullValues(), pixelDataType);
+        String values = GMLParserUtil.parseGMLTupleList(dataBlock, coverage.getCellDomainList(), collectionType.getValue());
         return values;
     }
 
     /**
      * Gets the file to be used in the values clause of the rasdaman update query, when the values are given as file ref.
+     *
      * @param rangeSet the rangeSet element.
      * @return file containing values for update.
      * @throws IOException
@@ -397,13 +383,8 @@ public class UpdateCoverageHandler extends AbstractRequestHandler<UpdateCoverage
     private File getReplacementValuesFromFile(Element rangeSet) throws IOException, WCSException {
         //tuple list given as file
         String fileUrl = GMLParserUtil.parseFilePath(rangeSet);
-        String mimetype = GMLParserUtil.parseMimeType(rangeSet);
         //save in a temporary file to pass to gdal and rasdaman
         File tmpFile = RemoteCoverageUtil.copyFileLocally(fileUrl);
         return tmpFile;
     }
-
-    private static final String UPDATE_TEMPLATE_VALUES = "UPDATE $collection SET $collection$domain ASSIGN shift($values, $shiftDomain) WHERE oid($collection) = $oid";
-    private static final String UPDATE_TEMPLATE_FILE = "UPDATE $collection SET $collection$domain ASSIGN shift(decode($1), $shiftDomain) WHERE oid($collection) = $oid";
-
 }

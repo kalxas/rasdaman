@@ -37,6 +37,7 @@ import petascope.exceptions.ExceptionCode;
 import petascope.exceptions.WCSException;
 import petascope.exceptions.wcst.WCSTInvalidRequestException;
 import petascope.util.RequestUtil;
+import petascope.wcps2.parser.wcpsParser;
 import petascope.wcs2.handlers.RequestHandler;
 import petascope.wcs2.parsers.*;
 import petascope.wcs2.parsers.subsets.DimensionSubset;
@@ -69,12 +70,13 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
             if(params.get(USE_ID) != null){
                 useId = params.get(USE_ID);
             }
-            return new InsertCoverageRequest(
+            InsertCoverageRequest insertCoverageRequest = new InsertCoverageRequest(
                     params.get(COVERAGE),
                     parseCoverageRefUrl(params.get(COVERAGE_REF)),
                     useId.equals(USE_NEW_ID),
                     params.get(PIXEL_DATA_TYPE),
                     params.get(TILING));
+            return insertCoverageRequest;
         }
         else if(params.get(REQUEST).equals(RequestHandler.DELETE_COVERAGE)){
             return new DeleteCoverageRequest(params.get(COVERAGE_ID));
@@ -89,8 +91,9 @@ public class KVPWCSTParser extends KVPParser<WCSTRequest> {
             List<DimensionSubset> subsets = SubsetParser.parseSubsets(request.getRequestString());
             List<Pair<String, String>> rangeComponents = new ArrayList<Pair<String, String>>();
             String tiling = params.get(TILING);
-            return new UpdateCoverageRequest(coverageId, inputCoverage, inputCoverageRef,
+            UpdateCoverageRequest updateCoverageRequest = new UpdateCoverageRequest(coverageId, inputCoverage, inputCoverageRef,
                      maskGrid, maskGridRef, subsets, rangeComponents, null, tiling);
+            return updateCoverageRequest;
         }
         //not a request that this parser can parse, but canParse returned true
         //should never happen

@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import org.apache.commons.lang3.tuple.Pair;
 import petascope.exceptions.PetascopeException;
@@ -45,9 +43,9 @@ public class TypeResolverUtil {
      * @return the rasdaman collection type
      * @throws IOException
      */
-    public static String guessCollectionTypeFromFile(String filePath, int dimension) throws IOException, PetascopeException {
+    public static String guessCollectionTypeFromFile(String filePath, int dimension, ArrayList<String> nullValues) throws IOException, PetascopeException {
         Pair<Integer, ArrayList<String>> dimTypes = Gdalinfo.getDimensionAndTypes(filePath);
-        return guessCollectionType(dimension, dimTypes.getValue());
+        return guessCollectionType(dimension, dimTypes.getValue(), nullValues);
     }
 
     /**
@@ -59,7 +57,7 @@ public class TypeResolverUtil {
      * @param pixelDataType      the pixel data type, if not given assumed byte
      * @return pair containing the collection type and cell type (e.g. <"GreySet", "c">)
      */
-    public static Pair<String, Character> guessCollectionType(Integer numberOfBands, Integer numberOfDimensions, String pixelDataType) throws PetascopeException {
+    public static Pair<String, String> guessCollectionType(Integer numberOfBands, Integer numberOfDimensions, ArrayList<String> nullValues, String pixelDataType) throws PetascopeException {
         if(pixelDataType == null){
             pixelDataType = GDT_Byte;
         }
@@ -71,7 +69,7 @@ public class TypeResolverUtil {
         for (Integer i = 0; i < numberOfBands; i++) {
             bandTypes.add(pixelDataType);
         }
-        return Pair.of(guessCollectionType(numberOfDimensions, bandTypes), GDAL_TYPES_TO_RAS_TYPES.get(pixelDataType).charAt(0));
+        return Pair.of(guessCollectionType(numberOfDimensions, bandTypes, nullValues), RAS_TYPES_TO_ABBREVIATION.get(GDAL_TYPES_TO_RAS_TYPES.get(pixelDataType)));
     }
 
     /**
@@ -95,7 +93,7 @@ public class TypeResolverUtil {
      * @param gdalBandTypes
      * @return
      */
-    private static String guessCollectionType(Integer numberOfDimensions, ArrayList<String> gdalBandTypes) throws PetascopeException {
+    private static String guessCollectionType(Integer numberOfDimensions, ArrayList<String> gdalBandTypes, ArrayList<String> nullValues) throws PetascopeException {
         String result = "";
 
         //get the type registry
@@ -117,26 +115,38 @@ public class TypeResolverUtil {
                         Boolean allBandsMatch = true;
                         //compare band by band
                         for (Integer j = 0; j < baseTypeByBand.length; j++) {
+                            //fix rasdaman type bug, where ushort and ulong are printed by rasdl, but not accepted as input.
+                            // Instead rasdl wants "unsigned short" or "unsigned long"
+                            if(baseTypeByBand[j].contains("ushort")){
+                                baseTypeByBand[j] = "unsigned short";
+                            }
+                            if(baseTypeByBand[j].contains("ulong")){
+                                baseTypeByBand[j] = "unsigned long";
+                            }
                             if (!baseTypeByBand[j].contains(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(j)))) {
                                 allBandsMatch = false;
                             }
                         }
-                        //if all good return result
+                        //if all good check for nils
                         if (allBandsMatch) {
-                            return i.getKey();
+                            if(nullValues.containsAll(i.getValue().getNullValues()) && i.getValue().getNullValues().containsAll(nullValues)) {
+                                return i.getKey();
+                            }
                         }
                     }
                 } else {
                     //1 band
                     baseType = i.getValue().getBaseType();
                     if (gdalBandTypes.size() == 1 && baseType.equals(GDAL_TYPES_TO_RAS_TYPES.get(gdalBandTypes.get(0)))) {
-                        return i.getKey();
+                        if(nullValues.containsAll(i.getValue().getNullValues()) && i.getValue().getNullValues().containsAll(nullValues)) {
+                            return i.getKey();
+                        }
                     }
                 }
             }
         }
         //nothing has been found, so the type must be created
-        result = typeRegistry.createNewType(numberOfDimensions, translateTypes(gdalBandTypes));
+        result = typeRegistry.createNewType(numberOfDimensions, translateTypes(gdalBandTypes), nullValues);
         return result;
     }
 
@@ -156,12 +166,21 @@ public class TypeResolverUtil {
 
     //rasdaman base types
     private static final String R_Char = "char";
-    private static final String R_UShort = "ushort";
+    private static final String R_UShort = "unsigned short";
     private static final String R_Short = "short";
-    private static final String R_ULong = "ulong";
+    private static final String R_ULong = "unsigned long";
     private static final String R_Long = "long";
     private static final String R_Float = "float";
     private static final String R_Double = "double";
+
+    //rasdaman abbreviations
+    private static final String R_Abb_Char = "c";
+    private static final String R_Abb_UShort = "us";
+    private static final String R_Abb_Short = "s";
+    private static final String R_Abb_ULong = "ul";
+    private static final String R_Abb_Long = "l";
+    private static final String R_Abb_Float = "f";
+    private static final String R_Abb_Double = "d";
 
     //gdal base types
     private static final String GDT_Byte = "Byte";
@@ -173,14 +192,23 @@ public class TypeResolverUtil {
     private static final String GDT_Float64 = "Float64";
 
     private static final HashMap<String, String> GDAL_TYPES_TO_RAS_TYPES = new HashMap<String, String>();
+    private static final HashMap<String, String> RAS_TYPES_TO_ABBREVIATION = new HashMap<String, String>();
 
     static {
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Byte, R_Char);
-        GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt16, R_Char);
+        GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt16, R_UShort);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Int16, R_Short);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_UInt32, R_ULong);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Int32, R_Long);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Float32, R_Float);
         GDAL_TYPES_TO_RAS_TYPES.put(GDT_Float64, R_Double);
+
+        RAS_TYPES_TO_ABBREVIATION.put(R_Char, R_Abb_Char);
+        RAS_TYPES_TO_ABBREVIATION.put(R_UShort, R_Abb_UShort);
+        RAS_TYPES_TO_ABBREVIATION.put(R_Short, R_Abb_Short);
+        RAS_TYPES_TO_ABBREVIATION.put(R_ULong, R_Abb_ULong);
+        RAS_TYPES_TO_ABBREVIATION.put(R_Long, R_Abb_Long);
+        RAS_TYPES_TO_ABBREVIATION.put(R_Float, R_Abb_Float);
+        RAS_TYPES_TO_ABBREVIATION.put(R_Double, R_Abb_Double);
     }
 }
