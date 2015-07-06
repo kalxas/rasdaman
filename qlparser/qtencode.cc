@@ -82,7 +82,7 @@ QtEncode::QtEncode(QtOperation *mddOp, char* formatIn) throw (r_Error)
 }
 
 QtEncode::QtEncode(QtOperation *mddOp, char* formatIn, char* paramsIn) throw (r_Error)
-: QtUnaryOperation(mddOp), format(formatIn), builtinConvertor(NULL), fParams(NULL)
+: QtUnaryOperation(mddOp), format(formatIn), fParams(NULL), builtinConvertor(NULL)
 {
     GDALAllRegister();
     initParams(paramsIn);
@@ -294,7 +294,7 @@ QtData* QtEncode::evaluateMDD(QtMDD* qtMDD) throw (r_Error)
 
     fseek(fileD, 0, SEEK_END);
     long size = ftell(fileD);
-    r_Char* fileContents = (r_Char*) mymalloc(size);
+    r_Char* fileContents = static_cast<r_Char*>(mymalloc(static_cast<size_t>(size)));
     if (!fileContents)
     {
         RMInit::logOut << "QtEncode::evaluateMDD - Error: Unable to claim memory: " << size << " Bytes" << endl;

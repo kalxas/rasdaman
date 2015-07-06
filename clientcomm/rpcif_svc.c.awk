@@ -1,5 +1,6 @@
 BEGIN			{
 			print "//patched by awk 1";
+                        print"#pragma GCC diagnostic ignored \"-Wmissing-declarations\"";
 			print "#include \"config.h\""
 			print "#include \"raslib/error.hh\""
 			print "#include \"servercomm/servercomm.hh\""
@@ -58,3 +59,6 @@ BEGIN			{
 			{
 			print $0;
 			}
+END                     {
+                        print"#pragma GCC diagnostic warning \"-Wmissing-declarations\"";
+                        }

@@ -1,4 +1,6 @@
 BEGIN                 { nodebug = 0;
+                        print"#pragma GCC diagnostic ignored \"-Wsign-compare\"";
+                        print"#pragma GCC diagnostic ignored \"-Wstrict-aliasing\"";
 			print"#include \"config.h\"";
 			print"#include <stdio.h>";
 			print"#include \"raslib/error.hh\"";
@@ -45,3 +47,8 @@ nodebug==1            { print $0; next; }
 			}
 
                       { print $0; }
+
+END                     {
+                        print"#pragma GCC diagnostic warning \"-Wsign-compare\"";
+                        print"#pragma GCC diagnostic warning \"-Wstrict-aliasing\"";
+                        }
