@@ -50,7 +50,7 @@ MDDType::insertInDb() throw (r_Error)
     char mddtypename[VARCHAR_MAXLEN];
 
     mddtypeid = 0;
-    (void) strncpy(mddtypename, (char*) getName(), (size_t) sizeof (mddtypename));
+    (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof (mddtypename));
     mddtypeid = myOId.getCounter();
     SQLiteQuery::executeWithParams("INSERT INTO RAS_MDDTYPES ( MDDTypeOId, MDDTypeName ) VALUES (%lld, '%s')",
                                    mddtypeid, mddtypename);

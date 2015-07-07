@@ -67,7 +67,7 @@ int memfs_ensure(thandle_t handle, toff_t off)
     }
 #endif
     /* Do we have to allocate a bigger mam? */
-    mamSize2 = (off >> MEMFS_LD_BLOCKSIZE);
+    mamSize2 = static_cast<int>(off >> MEMFS_LD_BLOCKSIZE);
     if (mamSize2 >= memFS->mamSize)
     {
         /* Always allocate mam in powers of 2. That ensures that if we run out
@@ -102,7 +102,7 @@ int memfs_ensure(thandle_t handle, toff_t off)
     }
     /* Calculate again because its value might have been changed by the
        above block */
-    mamSize2 = (off >> MEMFS_LD_BLOCKSIZE);
+    mamSize2 = static_cast<int>(off >> MEMFS_LD_BLOCKSIZE);
     if ((memFS->mam)[mamSize2] == NULL)
     {
         /* We don't just have to allocate this one new block but all the
@@ -264,7 +264,7 @@ toff_t memfs_seek(thandle_t handle, toff_t offset, int mode)
     switch (mode)
     {
     case SEEK_SET:
-        memFS->pos = offset;
+        memFS->pos = static_cast<int>(offset);
         break;
     case SEEK_CUR:
         memFS->pos += static_cast<int>(offset);
@@ -393,7 +393,7 @@ toff_t memfs_chunk_seek(thandle_t handle, toff_t offset, int mode)
     switch (mode)
     {
     case SEEK_SET:
-        memFS->pos = offset;
+        memFS->pos = static_cast<int>(offset);
         break;
     case SEEK_CUR:
         memFS->pos += static_cast<int>(offset);

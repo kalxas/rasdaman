@@ -161,7 +161,7 @@ DBRCIndexDS::insertInDb() throw (r_Error)
     count2 = 0; // we only have one entry
     SQLiteQuery query("INSERT INTO RAS_RCINDEXDYN ( Id, Count, DynData ) VALUES ( %lld, %d, ? )",
                       id2, count2);
-    query.bindBlob(completebuffer, completesize);
+    query.bindBlob(completebuffer, static_cast<int>(completesize));
     query.execute();
 
     free(completebuffer); // free main buffer
@@ -185,8 +185,8 @@ DBRCIndexDS::readFromDb() throw (r_Error)
 
     char* completebuffer;
     int blobformat;
-    int blobsize = 0;
-    int headersize = 0;
+    unsigned int blobsize = 0;
+    unsigned int headersize = 0;
     int header = 0;
 
     long long id1;
@@ -200,8 +200,8 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     {
         // read blob
         char* tmpblobbuffer = query.nextColumnBlob();
-        blobsize = query.currColumnBytes();
-        completebuffer = (char*) mymalloc(blobsize);
+        blobsize = static_cast<unsigned int>(query.currColumnBytes());
+        completebuffer = static_cast<char*>(mymalloc(blobsize));
         memcpy(completebuffer, tmpblobbuffer, blobsize);
     }
     else
@@ -230,7 +230,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
     r_Dimension dimension = 0;
 
     r_Bytes boundssize;
-    r_Bytes newboundssize;
+    r_Bytes newboundssize = 0;
 
     (void) memcpy(&header, &completebuffer[0], sizeof (int));
     // if header >=1009 then this is considered to be a real header,
@@ -246,7 +246,7 @@ DBRCIndexDS::readFromDb() throw (r_Error)
         blobformat = 8;
         // no header, first 4 bytes are actually the dimension;
         headersize = 0;
-        dimension = header;
+        dimension =  static_cast<r_Dimension>(header);
         bytesdone = headersize + sizeof (r_Dimension);
 
         // this is needed for correct assignment
@@ -319,20 +319,20 @@ DBRCIndexDS::readFromDb() throw (r_Error)
 
     RMDBGMIDDLE(7, RMDebug::module_indexif, "DBRCIndexDS", "dimension " << dimension << ", base oid type " << myBaseOIdType << ", base counter " << myBaseCounter << ", size " << mySize << ", complete data size " << completesize);
 
-    int* oldupperboundsbuf;
-    int* oldlowerboundsbuf;
+    int* oldupperboundsbuf = NULL;
+    int* oldlowerboundsbuf = NULL;
 
     r_Range* upperboundsbuf;
     r_Range* lowerboundsbuf;
 
     if (blobformat == 8 || blobformat == 9)
     {
-        oldupperboundsbuf = (int*) mymalloc(boundssize);
-        oldlowerboundsbuf = (int*) mymalloc(boundssize);
+        oldupperboundsbuf = static_cast<int*>(mymalloc(boundssize));
+        oldlowerboundsbuf = static_cast<int*>(mymalloc(boundssize));
         memcpy(oldlowerboundsbuf, dynamicBuffer, boundssize);
         memcpy(oldupperboundsbuf, &dynamicBuffer[boundssize], boundssize);
-        upperboundsbuf = (r_Range*) mymalloc(newboundssize);
-        lowerboundsbuf = (r_Range*) mymalloc(newboundssize);
+        upperboundsbuf = static_cast<r_Range*>(mymalloc(newboundssize));
+        lowerboundsbuf = static_cast<r_Range*>(mymalloc(newboundssize));
         // we need to copy all values to new variables
         for (long i = 0; i < dimension; i++)
         {

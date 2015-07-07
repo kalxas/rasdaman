@@ -80,7 +80,7 @@ is_error(sqlite3 *sqliteConn) throw (r_Error)
     if (error)
     {
         error_code = sqlite_err_code;
-        error_message = (char*) sqlite3_errmsg(sqliteConn);
+        error_message = const_cast<char*>(sqlite3_errmsg(sqliteConn));
     }
     return error;
 }

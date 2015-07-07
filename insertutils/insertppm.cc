@@ -278,6 +278,7 @@ void readImage(char* contents, const char *fName,__attribute__ ((unused))  bool 
     int colsP=0;        // number of columns
     int rowsP=0;        // number of rows
     pixval maxvalP;     // maximum pixel value (-> pixel depth)
+    pixval newMaxvalP = 255;
     pixel** pixelsP=NULL;   // all pixels in the image
     pixel aPixel;       // one pixel
     pixel scaledPixel;  // pixel scaled to 0 to 255
@@ -302,13 +303,13 @@ void readImage(char* contents, const char *fName,__attribute__ ((unused))  bool 
         {
             // read pixel
             aPixel = pixelsP[i][j];
-
+#pragma GCC diagnostic ignored "-Wsign-conversion"
             // scale pixel to 0-255
             if(rescale)
-                PPM_DEPTH( scaledPixel, aPixel, maxvalP, 255 );
+                PPM_DEPTH( scaledPixel, aPixel, maxvalP, newMaxvalP );
             else
                 scaledPixel = aPixel;
-
+#pragma GCC diagnostic warning "-Wsign-conversion"
             pos = static_cast<unsigned long long>(slicepos*colsP*rowsP + j*rowsP + i);
 
             switch (pixType)

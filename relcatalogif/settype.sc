@@ -56,7 +56,7 @@ SetType::insertInDb() throw (r_Error)
     long long settypeid;
     long long nullvalueoid;
 
-    (void) strncpy(settypename, (char*) getTypeName(), (size_t) sizeof (settypename));
+    (void) strncpy(settypename, const_cast<char*>(getTypeName()), (size_t) sizeof (settypename));
     settypeid = myOId.getCounter();
     mddtypeid = getMDDType()->getOId();
 

@@ -35,6 +35,9 @@
 #ifndef GDALINCLUDES_H
 #define	GDALINCLUDES_H
 
+#pragma GCC diagnostic ignored "-Wredundant-decls"
+#pragma GCC diagnostic ignored "-Wshadow"
+
 // fix redefinition of macros in the GDAL config
 #undef PACKAGE_BUGREPORT
 #undef PACKAGE_NAME
@@ -58,5 +61,7 @@
 #undef PACKAGE_URL
 #undef PACKAGE_VERSION
 
+#pragma GCC diagnostic warning "-Wredundant-decls"
+#pragma GCC diagnostic warning "-Wshadow"
 
 #endif	/* GDALINCLUDES_H */

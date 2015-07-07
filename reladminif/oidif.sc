@@ -52,7 +52,7 @@ OId::initialize()
 
     SQLiteQuery query("SELECT NextValue FROM RAS_COUNTERS ORDER BY CounterId");
     long long nextoid;
-    int i = 1;
+    unsigned int i = 1;
     while (query.nextRow() && i < OId::maxCounter)
     {
         nextoid = query.nextColumnLong();
@@ -92,7 +92,7 @@ OId::deinitialize()
 
         else
         {
-            for (int i = 1; i < maxCounter; i++)
+            for (unsigned int i = 1; i < maxCounter; i++)
             {
                 SQLiteQuery::executeWithParams("UPDATE RAS_COUNTERS SET NextValue = %lld WHERE CounterName = '%s'",
                                                *counterIds[i], counterNames[i]);

@@ -57,8 +57,8 @@ DBHierIndex::insertInDb() throw (r_Error)
     long long header = 1010;
 
     long long id2;
-    long dimension2;
-    long size2;
+    r_Dimension dimension2;
+    r_Bytes size2;
     long long parentid2;
     int indexsubtype2;
 
@@ -179,7 +179,7 @@ DBHierIndex::insertInDb() throw (r_Error)
     // (3) --- insert HIERIX tuple into db
     SQLiteQuery query("INSERT INTO RAS_HIERIX ( MDDObjIxOId, NumEntries, Dimension, ParentOId, IndexSubType, DynData ) VALUES ( %lld, %ld, %ld, %lld, %d, ? )",
                       id2, size2, dimension2, parentid2, indexsubtype2);
-    query.bindBlob(completebuffer, completesize);
+    query.bindBlob(completebuffer, static_cast<int>(completesize));
     query.execute();
 
     free(completebuffer); // free main buffer
@@ -200,16 +200,16 @@ DBHierIndex::readFromDb() throw (r_Error)
 #ifdef RMANBENCHMARK
     DBObject::readTimer.resume();
 #endif
-    int headersize;
+    r_Bytes headersize;
     long long header;
     int blobformat;
 
     long long id1;
     long long parentid1;
-    long dimension1;
-    long size1;
+    r_Bytes dimension1;
+    r_Bytes size1;
     int indexsubtype1;
-    int blobsize = 0;
+    r_Bytes blobsize = 0;
     char* blobbuffer = NULL;
 
     // (0) --- prepare variables
@@ -219,14 +219,14 @@ DBHierIndex::readFromDb() throw (r_Error)
     SQLiteQuery query("SELECT NumEntries, Dimension, ParentOId, IndexSubType, DynData FROM RAS_HIERIX WHERE MDDObjIxOId = %lld", id1);
     if (query.nextRow())
     {
-        size1 = query.nextColumnInt();
-        dimension1 = query.nextColumnInt();
+        size1 = static_cast<r_Bytes>(query.nextColumnInt());
+        dimension1 = static_cast<r_Bytes>(query.nextColumnInt());
         parentid1 = query.nextColumnLong();
         indexsubtype1 = query.nextColumnInt();
 
         // read blob
         char* tmpblobbuffer = query.nextColumnBlob();
-        blobsize = query.currColumnBytes();
+        blobsize = static_cast<r_Bytes>(query.currColumnBytes());
         blobbuffer = (char*) mymalloc(blobsize);
         memcpy(blobbuffer, tmpblobbuffer, blobsize);
     }
@@ -300,15 +300,15 @@ DBHierIndex::readFromDb() throw (r_Error)
 
     char* completebuffer = blobbuffer;
 
-    OId::OIdCounter* entryidsbuf;
-    r_Range* upperboundsbuf;
-    r_Range* lowerboundsbuf;
-    char* upperfixedbuf;
-    char* lowerfixedbuf;
+    OId::OIdCounter* entryidsbuf = NULL;
+    r_Range* upperboundsbuf = NULL;
+    r_Range* lowerboundsbuf = NULL;
+    char* upperfixedbuf = NULL;
+    char* lowerfixedbuf = NULL;
 
-    int* oldupperboundsbuf;
-    int* oldlowerboundsbuf;
-    unsigned int* oldentryidsbuf;
+    int* oldupperboundsbuf = NULL;
+    int* oldlowerboundsbuf = NULL;
+    unsigned int* oldentryidsbuf = NULL;
 
     if (blobformat == 8)
     {
@@ -434,8 +434,8 @@ DBHierIndex::updateInDb() throw (r_Error)
     long long header = 1010;
 
     long long id4;
-    long dimension4;
-    long size4;
+    r_Bytes dimension4;
+    r_Bytes size4;
     long long parentid4;
     int indexsubtype4;
 
@@ -509,7 +509,7 @@ DBHierIndex::updateInDb() throw (r_Error)
     // (3) -- update HierIx entry
     SQLiteQuery query("UPDATE RAS_HIERIX SET NumEntries = %ld, Dimension = %ld, ParentOId = %lld, IndexSubType = %d, DynData = ? WHERE MDDObjIxOId = %lld",
                       size4, dimension4, parentid4, indexsubtype4, id4);
-    query.bindBlob(completebuffer, completesize);
+    query.bindBlob(completebuffer, static_cast<int>(completesize));
     query.execute();
 
     free(completebuffer);

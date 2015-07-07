@@ -411,7 +411,7 @@ r_convDesc &r_Conv_JPEG::convertTo( const char *options) throw(r_Error)
 
     jpeg_destroy_compress(cptr);
 
-    jpegSize = memfs_size(handle);
+    jpegSize = static_cast<r_Long>(memfs_size(handle));
 
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(jpegSize)))) == NULL)
     {

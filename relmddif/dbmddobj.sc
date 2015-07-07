@@ -55,12 +55,12 @@ rasdaman GmbH.
 
 DBMDDObj::DBMDDObj()
 : DBObject(),
-myDomain(NULL),
-objIxId(),
-mddType(NULL),
 persistentRefCount(0),
-nullValues(NULL),
-storageLayoutId(new DBStorageLayout())
+mddType(NULL),
+myDomain(NULL),
+storageLayoutId(new DBStorageLayout()),
+objIxId(),
+nullValues(NULL)
 {
     RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj()");
     ENTER("DBMDDObj::DBMDDObj");
@@ -76,12 +76,12 @@ storageLayoutId(new DBStorageLayout())
 
 DBMDDObj::DBMDDObj(const OId& id) throw (r_Error)
 : DBObject(id),
-myDomain(NULL),
-objIxId(),
 persistentRefCount(0),
 mddType(NULL),
-nullValues(NULL),
-storageLayoutId(0LL)
+myDomain(NULL),
+storageLayoutId(0LL),
+objIxId(),
+nullValues(NULL)
 {
     RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(" << myOId << ")");
     ENTER("DBMDDObj::DBMDDObj, id=" << id);
@@ -99,12 +99,12 @@ DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType,
                    const DBStorageLayoutId& newSL,
                    const OId& newOId) throw (r_Error)
 : DBObject(),
-objIxId(newObjIx.getOId()),
-mddType(newMDDType),
 persistentRefCount(0),
+mddType(newMDDType),
+myDomain(NULL),
 storageLayoutId(newSL),
-nullValues(NULL),
-myDomain(NULL)
+objIxId(newObjIx.getOId()),
+nullValues(NULL)
 {
     RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(" << newMDDType->getName() << ", " << domain << ", Ix " << newObjIx.getOId() << ", Sl " << newSL.getOId() << ", " << newOId << ")");
     ENTER("DBMDDObj::DBMDDObj");
@@ -119,7 +119,7 @@ myDomain(NULL)
     if (query.nextRow())
     {
         ((DBObjectId) newObjIx)->setPersistent(false);
-        ((DBObject*) newSL.ptr())->setPersistent(false);
+        ((DBObject*) const_cast<DBStorageLayout*>(newSL.ptr()))->setPersistent(false);
         RMInit::logOut << "DBMDDObj::DBMDDObj() - mdd object: "
                 << testoid1 << " already exists in the database." << endl;
         throw r_Ebase_dbms(SQLITE_NOTFOUND, "mdd object already exists in the database.");
@@ -141,12 +141,12 @@ myDomain(NULL)
 
 DBMDDObj::DBMDDObj(const DBMDDObj& old)
 : DBObject(old),
-objIxId(),
-mddType(NULL),
 persistentRefCount(0),
+mddType(NULL),
+myDomain(NULL),
 storageLayoutId(),
-nullValues(NULL),
-myDomain(NULL)
+objIxId(),
+nullValues(NULL)
 {
     RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(const DBMDDObj&" << old.getOId() << ")");
     ENTER("DBMDDObj::DBMDDObj");
@@ -179,12 +179,12 @@ myDomain(NULL)
 
 DBMDDObj::DBMDDObj(const MDDBaseType* newMDDType, const r_Minterval& domain, const DBObjectId& newObjIx, const DBStorageLayoutId& newSL)
 : DBObject(),
-objIxId(newObjIx),
-mddType(NULL),
 persistentRefCount(0),
+mddType(NULL),
+myDomain(NULL),
 storageLayoutId(newSL),
-nullValues(NULL),
-myDomain(NULL)
+objIxId(newObjIx),
+nullValues(NULL)
 {
     RMDBGENTER(7, RMDebug::module_mddif, "DBMDDObj", "DBMDDObj(" << newMDDType->getName() << ", " << domain << ", Ix " << newObjIx.getOId() << ", Sl " << newSL.getOId() << ")");
     ENTER("DBMDDObj::DBMDDObj");

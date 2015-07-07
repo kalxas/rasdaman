@@ -51,8 +51,8 @@ MDDBaseType::insertInDb() throw (r_Error)
     long long mddbasetypeid;
     char mddtypename[STRING_MAXLEN];
 
-    (void) strncpy(mddtypename, (char*) getName(), (size_t) sizeof (mddtypename));
-    DBObject* obj = (DBObject*) getBaseType();
+    (void) strncpy(mddtypename, const_cast<char*>(getName()), (size_t) sizeof (mddtypename));
+    DBObject* obj = (DBObject*)const_cast<BaseType*>(getBaseType());
     mddbasetypeid = obj->getOId();
     mddtypeid = myOId.getCounter();
 

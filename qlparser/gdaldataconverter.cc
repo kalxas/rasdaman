@@ -76,12 +76,12 @@ void GDALDataConverter::resolveTileCellsByType(GDALDataset* poDataset, /* out */
 	int startCoordX = 0, startCoordY = 0, width = poDataset->GetRasterXSize(), height = poDataset->GetRasterYSize();
     GDALDataType gdalType = poDataset->GetRasterBand(1)->GetRasterDataType();
 
-    size = width * height * noOfBands * sizeof(T);
+    size = static_cast<r_Bytes>(width) * static_cast<r_Bytes>(height) * static_cast<r_Bytes>(noOfBands) * sizeof(T);
 
     T *tileCells = (T*) mymalloc(size);
     contents = (char *) tileCells;
 
-    T *gdalBand = (T*) mymalloc(width * height * sizeof(T));
+    T *gdalBand = (T*) mymalloc(static_cast<r_Bytes>(width) * static_cast<r_Bytes>(height) * sizeof(T));
 
 	if (gdalBand == NULL || tileCells == NULL)
 	{

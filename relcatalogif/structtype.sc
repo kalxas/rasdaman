@@ -52,18 +52,18 @@ StructType::insertInDb() throw (r_Error)
     char structtypename[VARCHAR_MAXLEN];
     long long elementtype;
     char elementname[VARCHAR_MAXLEN];
-    short count;
+    unsigned int count;
 
-    (void) strncpy(structtypename, (char*) getTypeName(), (size_t) sizeof (structtypename));
+    (void) strncpy(structtypename, const_cast<char*>(getTypeName()), (size_t) sizeof (structtypename));
     structtypeid = myOId.getCounter();
 
     SQLiteQuery::executeWithParams("INSERT INTO RAS_BASETYPENAMES (BaseTypeId, BaseTypeName) VALUES (%lld, '%s')",
                                    structtypeid, structtypename);
     for (count = 0; count < getNumElems(); count++)
     {
-        (void) strncpy(elementname, (char*) getElemName(count), (size_t) sizeof (elementname));
+        (void) strncpy(elementname, const_cast<char*>(getElemName(count)), (size_t) sizeof (elementname));
         //should not be necessary because of TypeFactory::addType()
-        DBObject* obj = (DBObject*) getElemType(count);
+        DBObject* obj = (DBObject*)const_cast<BaseType*>(getElemType(count));
 
         elementtype = obj->getOId();
         RMDBGMIDDLE(6, RMDebug::module_catalogif, "StructType", "element " << count << ". id\t:" << elementtype);

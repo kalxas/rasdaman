@@ -140,7 +140,7 @@ DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* vol
                      "CounterName VARCHAR(20) NOT NULL);")
 
         // initialising RAS_COUNTERS
-        for (int i = 1; i < OId::maxCounter; i++)
+        for (unsigned int i = 1; i < OId::maxCounter; i++)
         {
             SQLiteQuery::executeWithParams("INSERT INTO RAS_COUNTERS (CounterName, NextValue) VALUES ('%s', 1)",
                                            OId::counterNames[i]);

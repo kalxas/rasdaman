@@ -147,3 +147,5 @@ void disp_sqlstate_err(char* msgbuf, size_t length);
 void disp_error(const char* stmt, char* msgbuf, size_t length);
 
 char* disp_exception(const char* stmt, int sqlerr_code);
+
+bool is_error_code(int return_code);

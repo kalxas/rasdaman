@@ -78,6 +78,10 @@ const int SYSTEMNAME_MAXLEN=256;
   * \ingroup Reladminifs
   */
 
+void
+checkCounter(const char* counterName, const char* column,
+                  const char* table, const char* tableDescr, bool& retval);
+
 class AdminIf
 {
 public:

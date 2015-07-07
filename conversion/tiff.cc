@@ -553,7 +553,7 @@ r_convDesc &r_Conv_TIFF::convertTo( const char *options ) throw(r_Error)
     // Now delete the dummy file
     remove(dummyFile);
 
-    r_Long tifSize = memfs_size(handle);
+    r_Long tifSize = static_cast<r_Long>(memfs_size(handle));
 
     // Allocate an array of just the right size and "load" object there
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(sizeof(char) * static_cast<unsigned long>(tifSize)))) == NULL)

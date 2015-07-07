@@ -44,32 +44,6 @@ rasdaman GmbH.
 ECPG_LockManager * ECPG_LockManager::ECPG_LM_Instance = NULL;
 
 /**
- * Private copy constructor such that it cannot be called from the outside.
- *
- * This constructor calls the default constructor which does not do anything.
- *
- * @param mgr
- *     object of the class as parameter of the copy constructor
- */
-ECPG_LockManager::ECPG_LockManager(ECPG_LockManager const& mgr)
-{
-    ECPG_LockManager();
-}
-
-/**
- * Private = operator such that it cannot be called from the outside.
- *
- * The overloading of this operator calls the default constructor which does not do anything.
- *
- * @param mgr
- *     object of the class as parameter of the = operator
- */
-ECPG_LockManager& ECPG_LockManager::operator=(ECPG_LockManager const& mgr)
-{
-    ECPG_LockManager();
-}
-
-/**
  * Private default constructor such that it cannot be called from the outside.
  *
  * The constructor itself is empty, i.e., it does not do anything.

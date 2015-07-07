@@ -472,7 +472,7 @@ r_convDesc &r_Conv_PNG::convertTo( const char *options ) throw(r_Error)
     delete [] infotext[0].text;
     infotext[0].text=NULL;
 
-    r_Long pngSize = memfs_size(handle);
+    r_Long pngSize = static_cast<r_Long>(memfs_size(handle));
 
     if ((desc.dest = static_cast<char*>(mystore.storage_alloc(static_cast<size_t>(pngSize)))) == NULL)
     {

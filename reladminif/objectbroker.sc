@@ -120,7 +120,7 @@ ObjectBroker::getOIdOfSetType(const char* name) throw (r_Error)
     long long setoid;
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         throw r_Error(TYPENAMEISTOOLONG);
@@ -175,7 +175,7 @@ ObjectBroker::getMDDTypeByName(const char* name) throw (r_Error)
 
     if (retval == 0)
     {
-        int len = strlen(name);
+        unsigned int len = strlen(name);
         if (len > DBNamedObject::MAXNAMELENGTH)
         {
             LEAVE("ObjectBroker::getMDDTypeByName(): type name exceeding max length: " << name);
@@ -210,13 +210,13 @@ ObjectBroker::getOIdOfMDDType(const char* name) throw (r_Error)
     long long mddtoid;
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         LEAVE("ObjectBroker::getOIdOfMDDType(): name exceeds max length:" << name);
         throw r_Error(TYPENAMEISTOOLONG);
     }
-    (void) strncpy(mddtname, (char*) name, (size_t) sizeof (mddtname));
+    (void) strncpy(mddtname, const_cast<char*>(name), (size_t) sizeof (mddtname));
 
     SQLiteQuery query("SELECT MDDTypeOId FROM RAS_MDDTYPES WHERE MDDTypeName = '%s'", name);
     if (query.nextRow())
@@ -242,7 +242,7 @@ ObjectBroker::getOIdOfMDDBaseType(const char* name) throw (r_Error)
     ENTER("ObjectBroker::getOIdOfMDDBaseType, name=" << name);
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         LEAVE("ObjectBroker::getOIdOfMDDBaseType(): name exceeds max length:" << name);
@@ -273,7 +273,7 @@ ObjectBroker::getOIdOfMDDDimensionType(const char* name) throw (r_Error)
     ENTER( "ObjectBroker::getOIdOfMDDDimensionType, name=" << name );
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         LEAVE( "ObjectBroker::getOIdOfMDDDimensionType(): name exceeds max length:" << name );
@@ -304,7 +304,7 @@ ObjectBroker::getOIdOfMDDDomainType(const char* name) throw (r_Error)
     ENTER( "ObjectBroker::getOIdOfMDDDomainType, name=" << name );
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         LEAVE( "ObjectBroker::getOIdOfMDDDomainType(): name exceeds max length:" << name );
@@ -335,7 +335,7 @@ ObjectBroker::getOIdOfStructType(const char* name) throw (r_Error)
     ENTER( "ObjectBroker::getOIdOfStructType, name=" << name );
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         LEAVE( "ObjectBroker::getOIdOfStructType(): name exceeds max length:" << name );
@@ -366,7 +366,7 @@ ObjectBroker::getOIdOfMDDSet(const char* name) throw (r_Error)
     ENTER( "ObjectBroker::getOIdOfMDDSet, name=" << name );
 
     OId retval;
-    int len = strlen(name);
+    unsigned int len = strlen(name);
     if (len > DBNamedObject::MAXNAMELENGTH)
     {
         LEAVE( "ObjectBroker::getOIdOfMDDSet(): name exceeds max length:" << name );

@@ -174,7 +174,7 @@ r_Polygon::r_Polygon(const char* init) throw (r_Error)
             throw r_Error(POLYGONWRONGINITSTRING);
         }
         pointLen = static_cast<size_t>(endPos - startPos);
-        if (pointLen >= POINTBUFFERLEN)
+        if (static_cast<int>(pointLen) >= POINTBUFFERLEN)
         {
             TALK( "r_Polygon::r_Polygon(" << init << ") the definition of one r_Point is too long, only 2 dimensions are allowed" );
             RMInit::logOut << "r_Polygon::r_Polygon(" << init << ") the definition of one r_Point is too long, only 2 dimensions are allowed" << std::endl;

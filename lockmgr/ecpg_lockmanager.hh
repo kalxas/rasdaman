@@ -44,12 +44,6 @@ private:
     // constructor private so that it cannot be called
     ECPG_LockManager();
 
-    // copy constructor is private such that it cannot be called
-    ECPG_LockManager(ECPG_LockManager const&);
-
-    // assignment operator is private as above
-    ECPG_LockManager& operator=(ECPG_LockManager const&);
-
     // a static lock manager object used to call the function of the lock manager
     static ECPG_LockManager *ECPG_LM_Instance;
 

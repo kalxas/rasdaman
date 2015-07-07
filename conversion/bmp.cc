@@ -299,7 +299,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
     memfs_write(handle, bmpHeaders, BMPHEADERSIZE);
     if (paletteSize != 0)
     {
-        memfs_write(handle, palette, paletteSize * static_cast<tsize_t>(sizeof(rgb_quad_t)));
+        memfs_write(handle, palette,  static_cast<tsize_t>(paletteSize) * static_cast<tsize_t>(sizeof(rgb_quad_t)));
         delete [] palette;
         palette = NULL;
     }
@@ -443,7 +443,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
         dest = NULL;
     }
 
-    fileSize = memfs_size(handle);
+    fileSize = static_cast<r_ULong>(memfs_size(handle));
     RMDBGONCE( 3, RMDebug::module_conversion, "r_Conv_BMP", "convertTo(): size: " << fileSize );
     offset = BMPHEADERSIZE + paletteSize * static_cast<tsize_t>(sizeof(rgb_quad_t));
     dest = bmpHeaders;
@@ -476,7 +476,7 @@ r_convDesc &r_Conv_BMP::convertTo( const char *options) throw(r_Error)
         throw r_Error(MEMMORYALLOCATIONERROR);
     }
     memfs_seek(handle, 0, SEEK_SET);
-    memfs_read(handle, desc.dest, fileSize);
+    memfs_read(handle, desc.dest, static_cast<tsize_t>(fileSize));
 
     memfs_killfs(handle);
     delete memFS;

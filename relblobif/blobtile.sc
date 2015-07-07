@@ -224,7 +224,6 @@ BLOBTile::kill(const OId& target, unsigned int range)
         fileStorage = initFileStorage();
 
     long indbmyOId5;
-    long indbmyOId6;
     long blobOid;    // blob oid "ptr"
 
     DBObject* targetobj = NULL;
@@ -283,7 +282,11 @@ BLOBTile::kill(const OId& target, unsigned int range)
             }
         }
 
-        // (2) --- iterate over db and remove
+        // (2) --- delete tuples in db
+        indbmyOId5 = target.getCounter();
+        long indbmyOId6 = end.getCounter();
+
+        // (3) --- iterate over db and remove
         SQLiteQuery query("SELECT BlobId FROM RAS_TILES WHERE %lld <= BlobId AND BlobId <= %lld", indbmyOId5, indbmyOId6);
 
         // loop over elements & delete each one
@@ -300,10 +303,6 @@ BLOBTile::kill(const OId& target, unsigned int range)
                 TileCache::removeKey(blobOid);
             }
         }
-
-        // (3) --- delete tuples in db
-        indbmyOId5 = target.getCounter();
-        indbmyOId6 = end.getCounter();
         SQLiteQuery::executeWithParams("DELETE FROM RAS_TILES WHERE %lld <= BlobId AND BlobId <= %lld", indbmyOId5, indbmyOId6);
     }
 

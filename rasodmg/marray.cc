@@ -184,7 +184,7 @@ throw( r_Eindex_violation )
     unsigned long byteCount    = ( newDomain.dimension() ? newDomain.cell_count() : 1 ) * type_length;
     T*            dataPtr      = (T*)data;  // typed pointer to the data
 
-    memcpy( newMDD.data, &(dataPtr[(cordnt-domain[0].low())*newCellCount]), static_cast<unsigned int>(byteCount) );
+    memcpy( newMDD.data, &(dataPtr[(cordnt-static_cast<long>(domain[0].low()))*static_cast<long>(newCellCount)]), static_cast<unsigned int>(byteCount) );
 
     return newMDD;
 }
@@ -216,7 +216,7 @@ throw( r_Edim_mismatch )
         // Test if pt is a valid index in the spatial domain of the
         // self object.
         pt_valid = 1;
-        for( int dim=0; dim<domain.dimension() && pt_valid; dim++ )
+        for( unsigned int dim=0; dim<domain.dimension() && pt_valid; dim++ )
             pt_valid &= pt[dim] >= domain[dim].low() && pt[dim] <= domain[dim].high();
 
         if( pt_valid )
