@@ -54,7 +54,9 @@ RasdamanConnector::RasdamanConnector(int rasport, int pgport,
     m_db.set_useridentification(RasUser.c_str(), RasPasswd.c_str());
 
     this->m_petaconn = 0;
+#ifdef BASEDB_PGSQL
     this->m_rasconn = 0;
+#endif
 }
 
 RasdamanConnector::RasdamanConnector(std::string configfile)
@@ -64,13 +66,17 @@ RasdamanConnector::RasdamanConnector(std::string configfile)
     m_db.set_useridentification(this->m_RasUser.c_str(), this->m_RasPasswd.c_str());
 
     this->m_petaconn = 0;
+#ifdef BASEDB_PGSQL
     this->m_rasconn = 0;
+#endif
 }
 
 RasdamanConnector::~RasdamanConnector()
 {
     PQfinish(this->m_petaconn);
+#ifdef BASEDB_PGSQL
     PQfinish(this->m_rasconn);
+#endif
 
     if (m_db.get_status() == r_Database::not_open)
         return;
@@ -180,6 +186,7 @@ void RasdamanConnector::connect()
 
     // get a direct connection to the rasdaman data base (in PostgreSQL), but, before
     // we do anything, check, whether there is already a connection alive
+#ifdef BASEDB_PGSQL
     if (PQstatus(this->m_rasconn) != CONNECTION_OK)
     {
         this->m_rasconn = PQconnectdb(this->getRasPGConnectString().c_str());
@@ -189,6 +196,7 @@ void RasdamanConnector::connect()
             << "connection with '" << this->getRasDbName() << "' failed!" << std::endl;
         }
     }
+#endif
 }
 
 void RasdamanConnector::disconnect()
@@ -197,7 +205,9 @@ void RasdamanConnector::disconnect()
         m_db.close();
 
     PQfinish(this->m_petaconn);
+#ifdef BASEDB_PGSQL
     PQfinish(this->m_rasconn);
+#endif
 }
 
 const PGconn* RasdamanConnector::getPetaConnection()
@@ -210,10 +220,15 @@ const PGconn* RasdamanConnector::getPetaConnection()
 
 const PGconn* RasdamanConnector::getRasConnection()
 {
+#ifdef BASEDB_PGSQL
     if (PQstatus(this->m_rasconn) != CONNECTION_OK)
         return 0;
     else
         return this->m_rasconn;
+#else
+    // store rat table in petascopedb, rather than RASBASE in case SQLite backend is used
+    return this->m_petaconn;
+#endif
 }
 
 std::string RasdamanConnector::getPetaPGConnectString(void)
@@ -231,11 +246,20 @@ std::string RasdamanConnector::getPetaPGConnectString(void)
 std::string RasdamanConnector::getRasPGConnectString(void)
 {
     std::stringstream connstr;
+#ifdef BASEDB_PGSQL
     connstr << "host=" << this->m_sHostName <<
             " port=" << this->m_iPgPort <<
             " dbname=" << this->m_RasDbName <<
             " user=" << this->m_RasDbUser <<
             " password=" << this->m_RasDbPasswd;
+#else
+    // use petascopedb rather than RASBASE
+    connstr << "host=" << this->m_sHostName <<
+            " port=" << this->m_iPgPort <<
+            " dbname=" << this->m_PetaDbName <<
+            " user=" << this->m_PetaUser <<
+            " password=" << this->m_PetaPasswd;
+#endif
 
     return connstr.str();
 }

@@ -200,7 +200,9 @@ protected:
     /*! pointer to a petascope data base connection */
     PGconn* m_petaconn;
     /*! pointer to a rasdaman data base connection */
+#ifdef BASEDB_PGSQL
     PGconn* m_rasconn;
+#endif
 
 private:
     /*! string constant defining class context for debug output */
