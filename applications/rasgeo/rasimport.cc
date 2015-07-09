@@ -1237,7 +1237,7 @@ bool parseCoordinateString(string bndstr, vector<double>& bnd)
 }
 
 
-void printRegion(Header& reg, string descr)
+void printRegion(__attribute__ ((unused)) Header& reg, __attribute__ ((unused)) string descr)
 {
 #ifdef DEBUG
     if (debugOutput)
@@ -1254,7 +1254,7 @@ void printRegion(Header& reg, string descr)
 #endif
 }
 
-void printRegion(vector<double>& sdom, string descr)
+void printRegion(__attribute__ ((unused)) vector<double>& sdom, __attribute__ ((unused)) string descr)
 {
 #ifdef DEBUG
     if (debugOutput)

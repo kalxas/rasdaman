@@ -332,7 +332,7 @@ void
 printError(unsigned short status, ExecuteUpdateRes *result);
 
 void
-doStuff(int argc, char** argv) throw(RasqlError, r_Error);
+doStuff() throw(RasqlError, r_Error);
 
 void
 crash_handler(int sig, siginfo_t* info, void * ucontext);
@@ -932,7 +932,7 @@ void printError(unsigned short status, ExecuteUpdateRes *result)
             "' Line: " << result->lineNo << " Column: " << result->columnNo << " (status: " << status << ")" << endl << flush;
 }
 
-void doStuff(int argc, char** argv) throw(RasqlError, r_Error)
+void doStuff() throw(RasqlError, r_Error)
 {
     char *fileContents = NULL; // contents of file satisfying "$1" parameter in query
     r_Marray_Type *mddType = NULL; // this MDD's type
@@ -1130,7 +1130,7 @@ void doStuff(int argc, char** argv) throw(RasqlError, r_Error)
 }
 
 void
-crash_handler(int sig, siginfo_t* info, void * ucontext)
+crash_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext)
 {
     ENTER("crash_handler");
 
@@ -1176,7 +1176,7 @@ int main(int argc, char** argv)
         LOG(argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << endl);
 
         openDatabase();
-        doStuff(argc, argv);
+        doStuff();
         closeDatabase();
         retval = EXIT_SUCCESS;
     }

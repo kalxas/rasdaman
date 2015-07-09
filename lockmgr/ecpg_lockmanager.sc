@@ -119,7 +119,7 @@ bool ECPG_LockManager::connect(const char * pDatabaseTarget, const char * pConne
  *     the string corresponding to the connection name of the lockmanager
  * @return a bool value corresponding to the success of disconnecting from the database
  */
-bool ECPG_LockManager::disconnect(const char *pConnectionName)
+bool ECPG_LockManager::disconnect(__attribute__ ((unused)) const char *pConnectionName)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -135,7 +135,7 @@ bool ECPG_LockManager::disconnect(const char *pConnectionName)
  * @param pConnectionName
  *     the string corresponding to the connection name of the lockmanager
  */
-void ECPG_LockManager::beginTransaction(const char * pConnectionName)
+void ECPG_LockManager::beginTransaction(__attribute__ ((unused)) const char * pConnectionName)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -149,7 +149,7 @@ void ECPG_LockManager::beginTransaction(const char * pConnectionName)
  * @param pConnectionName
  *     the string corresponding to the connection name of the lockmanager
  */
-void ECPG_LockManager::endTransaction(const char * pConnectionName)
+void ECPG_LockManager::endTransaction(__attribute__ ((unused)) const char * pConnectionName)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -167,7 +167,7 @@ void ECPG_LockManager::endTransaction(const char * pConnectionName)
  * @param pTileId
  *     the id corresponding to the tile to be locked
  */
-void ECPG_LockManager::lockTileShared(const char * pConnectionName, const char * pRasServerId, long long pTileId)
+void ECPG_LockManager::lockTileShared(__attribute__ ((unused)) const char * pConnectionName, __attribute__ ((unused)) const char * pRasServerId, __attribute__ ((unused)) long long pTileId)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -189,7 +189,7 @@ void ECPG_LockManager::lockTileShared(const char * pConnectionName, const char *
  * @param pEndId
  *     the id corresponding to the last tile to be locked (upper bound of interval)
 */
-void ECPG_LockManager::lockTilesShared(const char * pConnectionName, const char * pRasServerId, long long pBeginId, long long pEndId)
+void ECPG_LockManager::lockTilesShared(__attribute__ ((unused)) const char * pConnectionName, __attribute__ ((unused)) const char * pRasServerId, __attribute__ ((unused)) long long pBeginId, __attribute__ ((unused)) long long pEndId)
 {
 /*    if ((pBeginId <= pEndId) && (pRasServerId) && (!areTilesLockedShared(pConnectionName, pRasServerId, pBeginId, pEndId)))*/
 /*    {*/
@@ -218,7 +218,7 @@ void ECPG_LockManager::lockTilesShared(const char * pConnectionName, const char 
  * @param pTileId
  *     the id corresponding to the tile to be locked
  */
-void ECPG_LockManager::lockTileExclusive(const char * pConnectionName, const char * pRasServerId, long long pTileId)
+void ECPG_LockManager::lockTileExclusive(__attribute__ ((unused)) const char * pConnectionName, __attribute__ ((unused)) const char * pRasServerId, __attribute__ ((unused)) long long pTileId)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -240,7 +240,7 @@ void ECPG_LockManager::lockTileExclusive(const char * pConnectionName, const cha
  * @param pEndId
  *     the id corresponding to the last tile to be locked (upper bound of interval)
 */
-void ECPG_LockManager::lockTilesExclusive(const char * pConnectionName, const char * pRasServerId, long long pBeginId, long long pEndId)
+void ECPG_LockManager::lockTilesExclusive(__attribute__ ((unused)) const char * pConnectionName, __attribute__ ((unused)) const char * pRasServerId, __attribute__ ((unused)) long long pBeginId, __attribute__ ((unused)) long long pEndId)
 {
 //    if ((pBeginId <= pEndId) && (pRasServerId) && (!areTilesLockedExclusive(pConnectionName, pRasServerId, pBeginId, pEndId)))
 //    {
@@ -269,7 +269,7 @@ void ECPG_LockManager::lockTilesExclusive(const char * pConnectionName, const ch
  * @param pTileId
  *     the id corresponding to the tile to be unlocked
  */
-void ECPG_LockManager::unlockTile(const char * pConnectionName, const char * pRasServerId, long long pTileId)
+void ECPG_LockManager::unlockTile(__attribute__ ((unused)) const char * pConnectionName, __attribute__ ((unused)) const char * pRasServerId, __attribute__ ((unused)) long long pTileId)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;
@@ -288,7 +288,7 @@ void ECPG_LockManager::unlockTile(const char * pConnectionName, const char * pRa
  * @param pRasServerId
  *     the string corresponding to the id of the current rasserver
  */
-void ECPG_LockManager::unlockAllTiles(const char * pConnectionName, const char * pRasServerId)
+void ECPG_LockManager::unlockAllTiles(__attribute__ ((unused)) const char * pConnectionName, __attribute__ ((unused)) const char * pRasServerId)
 {
 //    EXEC SQL BEGIN DECLARE SECTION;
 //    const char *connectionName = pConnectionName;

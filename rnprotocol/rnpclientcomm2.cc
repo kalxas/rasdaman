@@ -1036,7 +1036,7 @@ void RnpClientComm::sendRequestGetAnswer() throw (r_Error)
     LEAVE( "RnpClientComm::sendRequestGetAnswer()" );
 }
 
-void RnpClientComm::helper012d(const char* caller) throw (r_Error)
+void RnpClientComm::helper012d(__attribute__ ((unused)) const char* caller) throw (r_Error)
 {
     int status = sendAndReturnStatus();
 

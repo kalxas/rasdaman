@@ -108,7 +108,7 @@ DatabaseIf::isConsistent() throw (r_Error)
 }
 
 void
-DatabaseIf::createDB(const char* dbName, const char* schemaName, const char* volumeName) throw (r_Error)
+DatabaseIf::createDB(__attribute__ ((unused)) const char* dbName, __attribute__ ((unused)) const char* schemaName, __attribute__ ((unused)) const char* volumeName) throw (r_Error)
 {
     RMDBGENTER(4, RMDebug::module_adminif, "DatabaseIf", "create(" << dbName << ", " << schemaName << ", " << volumeName << ");");
     ENTER("DatabaseIf::createDB, dbName=" << dbName << ", schemaName=" << schemaName << ", volumeName=" << volumeName);

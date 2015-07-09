@@ -143,7 +143,7 @@ int RnpClientComm::closeDB()
     return retval;
 }
 
-int RnpClientComm::createDB( const char* name ) throw(r_Error)
+int RnpClientComm::createDB( __attribute__ ((unused)) const char* name ) throw(r_Error)
 {
     int retval = -1;
     ENTER( "RnpClientComm::createDB( " << (name?name:"(null)") << " )"  );
@@ -153,7 +153,7 @@ int RnpClientComm::createDB( const char* name ) throw(r_Error)
     return retval;
 }
 
-int RnpClientComm::destroyDB( const char* name ) throw(r_Error)
+int RnpClientComm::destroyDB( __attribute__ ((unused)) const char* name ) throw(r_Error)
 {
     int retval = -1;
     ENTER( "RnpClientComm::destroyDB( " << (name?name:"(null)") << " )"  );
@@ -382,7 +382,7 @@ void RnpClientComm::insertMDD( const char* collName, r_GMarray* mar ) throw( r_E
 
 //################################################################
 
-r_Ref_Any RnpClientComm::getMDDByOId( const r_OId& oid ) throw( r_Error )
+r_Ref_Any RnpClientComm::getMDDByOId( __attribute__ ((unused)) const r_OId& oid ) throw( r_Error )
 {
     ENTER( "RnpClientComm::getMDDByOId(" << oid << ")"  );
     RMDBGENTER( 2, RMDebug::module_clientcomm, "RnpClientComm", "getMDDByOId(" << oid << ")"  );
@@ -1078,7 +1078,7 @@ void RnpClientComm::executeQuery( const r_OQL_Query& query ) throw( r_Error )
 }
 
 // insert query (>=v9.1)
-void RnpClientComm::executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result, int i) throw( r_Error )
+void RnpClientComm::executeQuery( const r_OQL_Query& query, r_Set< r_Ref_Any >& result, __attribute__ ((unused)) int i) throw( r_Error )
 {
     ENTER( "RnpClientComm::executeQuery(_,_,_)" );
 

@@ -64,7 +64,7 @@ DBTCIndex::insertBlob()
 }
 
 void
-DBTCIndex::writeInlineTiles(char* theblob, r_Bytes blobSize) throw (r_Error)
+DBTCIndex::writeInlineTiles(__attribute__ ((unused)) char* theblob, __attribute__ ((unused)) r_Bytes blobSize) throw (r_Error)
 {
     RMDBGENTER(3, RMDebug::module_indexif, "DBTCIndex", "writeInlineTiles() " << myOId);
     throw r_Error( r_Error::r_Error_BaseDBMSFailed );

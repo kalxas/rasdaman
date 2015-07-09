@@ -366,7 +366,7 @@ QtNode::SetMinMax()
 
 
 void
-QtNode::startTimer(const char* name)
+QtNode::startTimer(__attribute__ ((unused)) const char* name)
 {
 #ifdef RMANBENCHMARK
     if (!evaluationTimer)

@@ -204,7 +204,7 @@ QtMDD::QtMDD( QtOperation* mintervalOp, list<QtScalarData*>* literalList )
 
 
 
-QtMDD::QtMDD( int constantNo )
+QtMDD::QtMDD( __attribute__ ((unused)) int constantNo )
     : QtData(),
       mddObject( NULL ),
       fromConversion( false )

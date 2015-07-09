@@ -439,7 +439,7 @@ throw( r_Error )
 
 }
 
-void termSignalHandler(int sig)
+void termSignalHandler(__attribute__ ((unused)) int sig)
 {
     static int in_progress=0;
 
@@ -479,7 +479,7 @@ HttpServer::stopRpcServer()
 }
 
 HttpServer::ClientTblElt*
-HttpServer::getClientContext( unsigned long clientId )
+HttpServer::getClientContext( __attribute__ ((unused)) unsigned long clientId )
 {
     // this is a simplification and only works for one client
     globalClientContext.currentUsers++;

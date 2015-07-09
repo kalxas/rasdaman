@@ -127,7 +127,7 @@ crash_handler( int sig, siginfo_t* info, void * ucontext);
 
 
 void
-crash_handler(int sig, siginfo_t* info, void * ucontext) {
+crash_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext) {
   ENTER( "crash_handler");
 
   print_stacktrace(ucontext);

@@ -554,7 +554,7 @@ int RasServer::killServer()
     return RASSERVER_OK;
 }
 
-void RasServer::changeStatus(int newStatus,long infCount)
+void RasServer::changeStatus(int newStatus, __attribute__ ((unused)) long infCount)
 {
     ENTER( "RasServer::changeStatus: enter. servername="<<serverName<<", newStatus="<<newStatus<<", c="<<infCount );
 

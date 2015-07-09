@@ -316,7 +316,7 @@ toff_t memfs_size(thandle_t handle)
 }
 
 
-int memfs_map(__attribute__ ((unused)) thandle_t handle, tdata_t *memp, toff_t *top)
+int memfs_map(__attribute__ ((unused)) thandle_t handle, __attribute__ ((unused)) tdata_t *memp, __attribute__ ((unused)) toff_t *top)
 {
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
@@ -329,7 +329,7 @@ int memfs_map(__attribute__ ((unused)) thandle_t handle, tdata_t *memp, toff_t *
 }
 
 
-void memfs_unmap(__attribute__ ((unused)) thandle_t handle, tdata_t mem, toff_t to)
+void memfs_unmap(__attribute__ ((unused)) thandle_t handle, __attribute__ ((unused)) tdata_t mem, __attribute__ ((unused)) toff_t to)
 {
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)
@@ -462,7 +462,7 @@ int memfs_chunk_map(thandle_t handle, tdata_t *memp, toff_t *top)
     return 1; /* Success? */
 }
 
-void memfs_chunk_unmap(__attribute__ ((unused)) thandle_t handle, tdata_t mem, toff_t to)
+void memfs_chunk_unmap(__attribute__ ((unused)) thandle_t handle, __attribute__ ((unused)) tdata_t mem, __attribute__ ((unused)) toff_t to)
 {
 #ifdef RMANDEBUG
     if (RManDebug >= MEMFSDBGLEVEL)

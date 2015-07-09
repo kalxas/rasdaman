@@ -2049,7 +2049,7 @@ RasdamanHelper2::getCRSOrder(double oid)
 }
 
 std::vector<std::string>
-RasdamanHelper2::getMetaCrsUris(double oid)
+RasdamanHelper2::getMetaCrsUris(__attribute__ ((unused)) double oid)
 {
     ENTER(ctx << "getMetaCrsUris()");
     std::vector<std::string> uris;
@@ -3601,7 +3601,7 @@ RasdamanHelper2::deletePSMetadata(const std::string& collname,
 // OLD SCHEMA
 /////////////////////////////////////////////////////////////////////////
 std::string
-RasdamanHelper2::getMetaCrsName(double oid)
+RasdamanHelper2::getMetaCrsName(__attribute__ ((unused)) double oid)
 {
     ENTER(ctx << "getMetaCrsName()");
 

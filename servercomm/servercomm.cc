@@ -360,7 +360,7 @@ void our_svc_run()
 }
 
 
-void rpcSignalHandler(int sig)
+void rpcSignalHandler(__attribute__ ((unused)) int sig)
 {
     static int in_progress=0;   // our sema to prevent signal-in-signal
 

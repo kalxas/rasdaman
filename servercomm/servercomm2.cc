@@ -579,7 +579,7 @@ ServerComm::abortTA( unsigned long callingClientId )
  *  true    iff a transaction is open
  ************************************************************************/
 bool
-ServerComm::isTAOpen( unsigned long callingClientId )
+ServerComm::isTAOpen( __attribute__ ((unused)) unsigned long callingClientId )
 {
     RMDBGENTER( 4, RMDebug::module_servercomm, "ServerComm",  "isTAOpen" )
 
@@ -3248,7 +3248,6 @@ ServerComm::getNextMDD( unsigned long   callingClientId,
 
 void
 ServerComm::getNextStructElement( char*     &buffer,
-                            unsigned int    &bufferSize,
                             BaseType*       baseType)
 {
     RMDBGENTER(1, RMDebug::module_servercomm, "ServerComm", "getNextStructElement(...)")
@@ -3310,7 +3309,7 @@ ServerComm::getNextStructElement( char*     &buffer,
         {
             BaseType* bt = const_cast<BaseType*>(st->getElemType(i));
             unsigned int elemTypeSize = bt->getSize();
-            getNextStructElement(buffer, elemTypeSize, bt);
+            getNextStructElement(buffer, bt);
             buffer += elemTypeSize;
         }
     }
@@ -3474,7 +3473,7 @@ ServerComm::getNextElement( unsigned long   callingClientId,
                                 {
                                     BaseType* bt = const_cast<BaseType*>(st->getElemType(i));
                                     unsigned int elemTypeSize = bt->getSize();
-                                    getNextStructElement(buffer, elemTypeSize, bt);
+                                    getNextStructElement(buffer, bt);
                                     buffer += elemTypeSize;
                                 }
                                 buffer = tmp;
@@ -4200,7 +4199,7 @@ ServerComm::setTransferMode( unsigned long callingClientId,
 
 unsigned short
 ServerComm::setStorageMode( unsigned long callingClientId,
-                            unsigned short format,
+                            __attribute__ ((unused)) unsigned short format,
                             const char* formatParams )
 {
     RMDBGENTER(4, RMDebug::module_servercomm, "ServerComm", "setStorageMode(" << callingClientId << ", " << format << ", " << formatParams)
@@ -4246,15 +4245,15 @@ ServerComm::setStorageMode( unsigned long callingClientId,
 }
 
 int
-ServerComm::ensureTileFormat( r_Data_Format &hasFmt,
-                              r_Data_Format needFmt,
-                              const r_Minterval &dom,
-                              const BaseType *type,
-                              char *&data,
-                              unsigned long &size,
-                              int repack,
-                              int owner,
-                              const char *params )
+ServerComm::ensureTileFormat( __attribute__ ((unused)) r_Data_Format &hasFmt,
+                              __attribute__ ((unused)) r_Data_Format needFmt,
+                              __attribute__ ((unused)) const r_Minterval &dom,
+                              __attribute__ ((unused)) const BaseType *type,
+                              __attribute__ ((unused)) char *&data,
+                              __attribute__ ((unused)) unsigned long &size,
+                              __attribute__ ((unused)) int repack,
+                              __attribute__ ((unused)) int owner,
+                              __attribute__ ((unused)) const char *params )
 {
     RMDBGENTER(2, RMDebug::module_servercomm, "ServerComm", "ensureTileFormat(" << hasFmt << ", " << needFmt << ", " << dom << ", " << type->getName() << ", data, " << size << ", repack " << repack << ", owner " << owner << ", params " << params << ")")
     int status = ENSURE_TILE_FORMAT_OK;

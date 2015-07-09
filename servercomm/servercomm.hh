@@ -468,7 +468,6 @@ public:
      */
     virtual void getNextStructElement(
                                            char*         &buffer,
-                                           unsigned int  &bufferSize,
                                            BaseType*     baseType);
     /**
       The Method gets the next non-MDD element in the actual transfer collection.

@@ -473,7 +473,7 @@ void QueryTree::releaseDomainObjects()
     }
 }
 
-void QueryTree::rewriteDomainObjects(r_Minterval *greatDomain, string *greatIterator, QtMarrayOp2::mddIntervalListType *greatList)
+void QueryTree::rewriteDomainObjects(__attribute__ ((unused)) r_Minterval *greatDomain, string *greatIterator, QtMarrayOp2::mddIntervalListType *greatList)
 {
 
     RMDBGENTER( 2, RMDebug::module_qlparser, "QueryTree", endl << "QueryTree: Iterator: <" << *greatIterator << "> Domain: " << *greatDomain << endl )

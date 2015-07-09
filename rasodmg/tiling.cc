@@ -91,7 +91,7 @@ r_No_Tiling::is_compatible(__attribute__ ((unused)) const r_Minterval& obj_domai
 }
 
 std::vector<r_Minterval>*
-r_No_Tiling::compute_tiles(const r_Minterval& obj_domain, r_Bytes cellTypeSize) const throw (r_Error)
+r_No_Tiling::compute_tiles(const r_Minterval& obj_domain, __attribute__ ((unused)) r_Bytes cellTypeSize) const throw (r_Error)
 {
     RMDBGENTER(4, RMDebug::module_rasodmg, "r_No_Tiling", "compute_tiles(" << obj_domain << ", " << cellTypeSize << ")")
     std::vector<r_Minterval>* result = new std::vector<r_Minterval>;

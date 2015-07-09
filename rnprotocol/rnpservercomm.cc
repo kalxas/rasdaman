@@ -99,7 +99,7 @@ RnpRasDaManComm::~RnpRasDaManComm() throw()
 }
 
 // we need our implementation because of r_Error, but we will go for the default when r_Error is AkgException
-void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *transmiterBuffer, RnpTransport::CarrierProtocol protocol, RnpServerJob *callingJob) throw()
+void RnpRasDaManComm::processRequest(CommBuffer *receiverBuffer, CommBuffer *transmiterBuffer, RnpTransport::CarrierProtocol protocol, __attribute__ ((unused)) RnpServerJob *callingJob) throw()
 {
     RMTimer requestTime("RnpRasDaManComm","request");
 
