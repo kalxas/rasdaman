@@ -22,4 +22,4 @@
 #
 ###################################################################
 
-bin_SCRIPTS = add_wms_service.sh drop_wms.sh fill_pyramid.sh init_wms.sh
+noinst_SCRIPTS = add_wms_service.sh drop_wms.sh fill_pyramid.sh init_wms.sh

@@ -687,16 +687,6 @@ function import_mst()
   # START
   #
   run_query import_mst_query || exit $RC_ERROR
-
-  # initialize WMS
-  "$INITWMS" australia_wms $c EPSG:4326 -l '2:4:8:16' -h localhost -p $WCPS_PORT > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    log "Warning: WMS initialization for $c failed."
-  fi
-  "$FILLPYR" $c --tasplit > /dev/null 2>&1
-  if [ $? -ne 0 ]; then
-    log "Warning: WMS pyramid creation for $c failed."
-  fi
 }
 
 # ------------------------------------------------------------------------------

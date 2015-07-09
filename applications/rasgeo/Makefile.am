@@ -55,8 +55,7 @@ if RMANRASNET
 endif
 
 SUBDIRS= ../../rasodmg ../../clientcomm \
-         ../../raslib ../../conversion ../../commline ../../network \
-	 wms-import/importtools wms-import/inittools wms-import/utilities
+         ../../raslib ../../conversion ../../commline ../../network
          
 connectfile:
 	if [ ! -d $(HOME)/.rasdaman ]; then \

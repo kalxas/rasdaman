@@ -30,7 +30,7 @@
 AM_CXXFLAGS=@CLIENTCXXFLAGS@ -I../../../../include -I../../../../commline -I../
 AM_LDFLAGS=@CLIENTLDFLAGS@
 
-bin_PROGRAMS=fillpyramid
+noinst_PROGRAMS=fillpyramid
 
 fillpyramid_SOURCES = fillpyramid.cc rasgeo_util.cc import_error.cc \
                       rasgeo_signal.cc hexcodec.cc

@@ -30,7 +30,7 @@
 AM_CXXFLAGS=@CLIENTCXXFLAGS@ -I../../../../include -I../../../../commline -I../../../../network -I../
 AM_LDFLAGS=@CLIENTLDFLAGS@
 
-bin_PROGRAMS=initpyramid
+noinst_PROGRAMS=initpyramid
 
 initpyramid_SOURCES = initpyramid.cc rasgeo_error.cc rasgeo_signal.cc
 initpyramid_LDADD = ../../../../rasodmg/librasodmg.a ../../../../clientcomm/libclientcomm.a \

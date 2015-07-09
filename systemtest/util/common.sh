@@ -88,11 +88,6 @@ export WGET="wget"
 export WGET_CODE_SERVER_ERROR=8 # See https://www.gnu.org/software/wget/manual/html_node/Exit-Status.html
 export GDALINFO="gdalinfo -noct -checksum"
 
-export WMS_IMPORT_DIR="$UTIL_SCRIPT_DIR"/../../applications/rasgeo/wms-import
-export INITWMS="$WMS_IMPORT_DIR/utilities/init_wms.sh"
-export FILLPYR="$WMS_IMPORT_DIR/utilities/fill_pyramid.sh"
-export DROPWMS="$WMS_IMPORT_DIR/utilities/drop_wms.sh"
-
 
 # ------------------------------------------------------------------------------
 # logging
