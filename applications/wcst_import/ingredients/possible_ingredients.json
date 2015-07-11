@@ -23,7 +23,9 @@
     "__comment__": "[OPTIONAL] This parameter adds default null values for bands that *DO NOT* have a null value provided by the file itself. The value for this parameter should be an array containing the desired null value in rasdaman format for each band. E.g. for a coverage with 3 bands:",
     "default_null_values" : ["9995:9999", "-9, -10, -87", "4"],
     "__comment__" : "[OPTIONAL] In case the files are exposed via a web-server and not locally, you can add the root url here, otherwise the default is listed below",
-    "url_root" : "file://"
+    "url_root" : "file://",
+    "__comment__" : "[OPTIONAL] In some cases the resolution is small enough to affect the precision of the transformation from domain coordinates to grid coordinates. To allow for corrections that will make the import possible, set this parameter to true.",
+    "subset_correction" : false
 
   },
   "input": {

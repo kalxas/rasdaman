@@ -39,10 +39,11 @@ class BaseRecipe:
         cov = CoverageUtil(self.session.get_coverage_id())
         operation_type = "UPDATE" if cov.exists() else "INSERT"
         log.info("The recipe has been validated and is ready to run.")
-        log.info("Recipe: " + self.session.get_recipe()['name'])
-        log.info("Coverage: " + self.session.get_coverage_id())
-        log.info("Operation: " + operation_type)
-        log.info("Mocked: " + str(ConfigManager.mock))
+        log.info("\033[1mRecipe:\x1b[0m " + self.session.get_recipe()['name'])
+        log.info("\033[1mCoverage:\x1b[0m " + self.session.get_coverage_id())
+        log.info("\033[1mOperation:\x1b[0m " + operation_type)
+        log.info("\033[1mSubset Correction:\x1b[0m " + str(ConfigManager.subset_correction))
+        log.info("\033[1mMocked:\x1b[0m " + str(ConfigManager.mock))
         pass
 
     @abstractmethod

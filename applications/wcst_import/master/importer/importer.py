@@ -67,7 +67,12 @@ class Importer:
     def _get_update_subsets_for_slice(self, slice):
         subsets = []
         for axis_subset in slice.axis_subsets:
-            subsets.append(WCSTSubset(axis_subset.axis.label, axis_subset.interval.low, axis_subset.interval.high))
+            low = axis_subset.interval.low
+            high = axis_subset.interval.high
+            if ConfigManager.subset_correction and high is not None and low != high:
+                low += axis_subset.grid_axis.resolution / 2
+                high -= axis_subset.grid_axis.resolution / 2
+            subsets.append(WCSTSubset(axis_subset.axis.label, low, high))
         return subsets
 
     def _generate_slice(self, slice):

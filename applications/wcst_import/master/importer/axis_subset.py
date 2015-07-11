@@ -1,3 +1,4 @@
+from master.importer.interval import Interval
 from master.provider.metadata.axis import Axis
 from master.provider.metadata.grid_axis import GridAxis
 

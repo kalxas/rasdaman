@@ -19,3 +19,4 @@ class ConfigManager:
     executor = WCSTExecutor(wcs_service)
     default_field_name_prefix = "field_"
     default_unit_of_measure = "10^0"
+    subset_correction = False

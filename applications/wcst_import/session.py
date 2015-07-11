@@ -31,6 +31,7 @@ class Session:
         self.default_null_values = config['default_null_values'] if "default_null_values" in config else []
         self.mock = False if "mock" not in config else bool(self.config["mock"])
         self.root_url = self.config["root_url"] if "root_url" in self.config else "file://"
+        self.subset_correction = bool(self.config['subset_correction']) if "subset_correction" in self.config else False
         self.setup_config_manager()
 
     def setup_config_manager(self):
@@ -44,6 +45,7 @@ class Session:
         ConfigManager.root_url = self.root_url
         ConfigManager.wcs_service = self.wcs_service
         ConfigManager.executor = self.get_executor()
+        ConfigManager.subset_correction = self.subset_correction
 
     def parse_input(self, paths):
         """
