@@ -864,10 +864,14 @@ QtUpdate::checkType()
 
             // If the source MDD comes from an inv_* function we consider it's compatible
             // at this point, as we can't determine the type until the data is decoded -- DM 2012-mar-12
+            // The same applies to QT_DECODE functions
 
             QtNodeList* convChildren = updateSource->getChild(QT_CONVERSION, QT_ALL_NODES);
+            QtNodeList* decodeChildren = updateSource->getChild(QT_DECODE, QT_ALL_NODES);
             compatible = updateSource->getNodeType() == QT_CONVERSION ||
+                         updateSource->getNodeType() == QT_DECODE ||
                          (convChildren != NULL && !convChildren->empty()) ||
+                         (decodeChildren != NULL && !decodeChildren->empty()) ||
                          type1->compatibleWith(type2); //(strcmp(type1, type2) == 0);
             if (convChildren)
             {
