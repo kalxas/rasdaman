@@ -243,13 +243,12 @@ public class GMLParserUtil {
             throw new WCSException(ExceptionCode.WCSTWrongNumberOfOffsetVectors);
         }
         //for each axis, add its vector
-        TreeMap<Integer, Pair<List<BigDecimal>, BigDecimal>> preliminaryResult = new TreeMap<Integer, Pair<List<BigDecimal>, BigDecimal>>();
         LinkedHashMap<List<BigDecimal>, BigDecimal> result = new LinkedHashMap<List<BigDecimal>, BigDecimal>(dimensionality);
         for (int i = 0; i < dimensionality; i++) {
             //decompose the vector into elements
             String[] offsetVector = offsetVectors.get(i).fst.getValue().trim().split(" ");
             //check if the list is not empty
-            if (offsetVector.length == 0) {
+            if (offsetVector.length == 0 || offsetVector[0].isEmpty()) {
                 throw new PetascopeException(ExceptionCode.InvalidCoverageConfiguration,
                         "At least one offsetVector is empty");
             }
@@ -270,13 +269,10 @@ public class GMLParserUtil {
                         "Incompatible dimensionality of grid origin (" + gridOriginSize
                         + ") and offset vector (" + vector.size() + ")");
             }
-            //add them to the preliminary result, which will automatically sort by order
-            preliminaryResult.put(orderList.get(0), Pair.<List<BigDecimal>, BigDecimal>of(vector, offsetVectors.get(i).snd));
+
+            result.put(vector, offsetVectors.get(i).snd);
         }
-        //copy preliminary result into result
-        for(Pair<List<BigDecimal>, BigDecimal> vector : preliminaryResult.values()){
-            result.put(vector.fst, vector.snd);
-        }
+
         return result;
     }
 
