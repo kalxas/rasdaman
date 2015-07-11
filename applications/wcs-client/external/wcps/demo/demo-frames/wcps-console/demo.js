@@ -33,9 +33,6 @@
  * @version 3.0.0
  */
 
-var Alex={};
-Alex.backupEndpoint = "http://kahlua.eecs.jacobs-university.de:8080/petascope_earthlook";
-Alex.realEndpoint = Rj.util.ConfigManager.getWCPSService().url;
 FlancheJs.defineClass("Rj.query.WCPSQuery", {
 
   /**
@@ -75,7 +72,7 @@ FlancheJs.defineClass("Rj.query.WCPSQuery", {
      */
     transport: function () {
       var queryParameter = _.exists(this.getWCPSService()) ? this.getWCPSService().queryParameter : Rj.util.ConfigManager.getWCPSService().queryParameter;
-      var serviceUrl = _.exists(this.getWCPSService()) ? this.getWCPSService().url : Rj.util.ConfigManager.getWCPSService().url;
+      var serviceUrl = window.location.protocol + "//" + window.location.host + "/rasdaman/ows"
       var params = {};
 
       params["query"] = this.getQuery();
@@ -106,27 +103,15 @@ FlancheJs.defineClass("Demo.wcps.Console", {
       })
       $("#query-populate").change(function () {
         var val = $(this).val();
-        //if (val == 1) {
-        //  self._editor.setValue('diagram>>for t1 in ( NN3_1 ) return encode( t1[t(0:49)], "csv" )')
-        //}
-        //else if (val == 2) {
-        //  self._editor.setValue('diagram(type=area,width=300,height=150)>>\nfor t1 in ( NN3_1 )\nreturn encode(\n\tt1[t(0:49)]]\n, "csv" )');
-        //}
-        //else
         if (val == 1) {
-          Rj.util.ConfigManager.getWCPSService().url= Alex.realEndpoint;
           self._editor.setValue('image>>for t1 in ( lena ) return encode( t1, "png" )');
         }
         else if (val == 2) {
-          Rj.util.ConfigManager.getWCPSService().url= Alex.realEndpoint;
 	  self._editor.setValue('for t1 in ( NN3_1 ) return encode( t1[t(0:49)], "csv" )');
-        }else if(val == 3){
-          Rj.util.ConfigManager.getWCPSService().url= Alex.backupEndpoint;
+        }
+        else if(val == 3){
           self._editor.setValue('diagram>>for t1 in ( NN3_1 ) return encode( t1[t(0:49)], "csv" )');
         }
-        //else if (val == 5) {
-        //  self._editor.setValue('image>>for c in (gpcc), p in (gpcc_p) \nreturn encode(\n\t((char) (coverage average over $x x(150:290), $y y(450:600) values avg(c[year(59),month(6:7),x($x),y($y)]) * { red: 1; green: 1; blue: 1 } ) )\n\t\toverlay\n\t((char) (coverage average over $x x(150:290), $y y(450:600) values avg(c[year(59),month(6:7),x($x),y($y)]) > p[t(98),x(150:290),y(450:600)] / 2000 ) * { red: 255; green: 0; blue: 0 } )\n, "png")')
-        //}
       })
     },
 

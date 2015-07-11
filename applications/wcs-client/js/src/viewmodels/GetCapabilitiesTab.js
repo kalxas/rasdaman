@@ -30,7 +30,7 @@ define(["src/viewmodels/SupportedExtensions", "src/models/WCS", "src/models/Capa
         this.mainViewModel = mainViewModel;
         var pathToClient = "static/wcs-client/html/index.html";
         var pathToRasdaman = "ows";
-        var fullPathToRasdaman = "http://kahlua.eecs.jacobs-university.de:8080/petascope_earthlook9";//window.location.href.replace(pathToClient, pathToRasdaman)
+        var fullPathToRasdaman = window.location.href.replace(pathToClient, pathToRasdaman)
         self.wcsEndpoint = ko.observable(fullPathToRasdaman);
 
         self.serverCapabilities = ko.observable(null);
@@ -49,6 +49,8 @@ define(["src/viewmodels/SupportedExtensions", "src/models/WCS", "src/models/Capa
             if (address.charAt(address.length - 1) != "?") {
                 address = address.concat("?");
             }
+
+            window.wcpsEndpoint = address.substring(0, address.length - 1)
 
             self.wcsEndpoint(address);
 
