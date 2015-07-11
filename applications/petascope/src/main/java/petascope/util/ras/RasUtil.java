@@ -426,6 +426,15 @@ public class RasUtil {
     public static void deleteFromRasdaman(BigInteger oid, String collectionName) throws RasdamanException {
         String query = TEMPLATE_DELETE.replaceAll(TOKEN_COLLECTION_NAME, collectionName).replace(TOKEN_OID, oid.toString());
         executeRasqlQuery(query, ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+       //check if there are other objects left in the collection
+        log.info("Checking the number of objects left in collection " + collectionName);
+        RasBag result = (RasBag) executeRasqlQuery(TEMPLATE_SDOM.replace(TOKEN_COLLECTION_NAME, collectionName));
+        log.info("Result size is: " + String.valueOf(result.size()));
+        if(result.size() == 0){
+            //no object left, delete the collection so that the name can be reused in the future
+            log.info("No objects left in the collection, dropping the collection so the name can be reused in the future.");
+            executeRasqlQuery(TEMPLATE_DROP_COLLECTION.replace(TOKEN_COLLECTION_NAME, collectionName), ConfigManager.RASDAMAN_ADMIN_USER, ConfigManager.RASDAMAN_ADMIN_PASS, true);
+        }
     }
 
     /**
@@ -549,4 +558,6 @@ public class RasUtil {
     private static final String RASQL = "rasql";
     private static final String TIFF_MIMETYPE = "tif";
     private static final String RASDAMAN_ERROR = "rasdaman error";
+    private static final String TEMPLATE_SDOM = "SELECT sdom(m) FROM " + TOKEN_COLLECTION_NAME + " m";
+    private static final String TEMPLATE_DROP_COLLECTION = "DROP COLLECTION " + TOKEN_COLLECTION_NAME;
 }
