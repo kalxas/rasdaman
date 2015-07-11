@@ -1,7 +1,0 @@
-<swe:field xmlns:swe="http://www.opengis.net/swe/2.0" name="$VarFieldName">
-    <swe:Quantity definition="">
-        <swe:description></swe:description>
-        $VarNillValues
-        <swe:uom code="$VarUomCode"/>
-    </swe:Quantity>
-</swe:field>
