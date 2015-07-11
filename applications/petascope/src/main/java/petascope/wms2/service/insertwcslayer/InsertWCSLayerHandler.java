@@ -27,7 +27,6 @@ import petascope.core.CoverageMetadata;
 import petascope.core.DbMetadataSource;
 import petascope.exceptions.PetascopeException;
 import petascope.exceptions.SecoreException;
-import petascope.util.Vectors;
 import petascope.wcps.metadata.Bbox;
 import petascope.wcps.metadata.CellDomainElement;
 import petascope.wcps.metadata.DomainElement;
@@ -37,11 +36,8 @@ import petascope.wms2.service.base.Handler;
 import petascope.wms2.service.exception.error.*;
 import petascope.wms2.util.CrsComputer;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Handler for the InsertWCSLayer requests. It will use an existing WCS coverage and it will make it available to WMS.
@@ -50,6 +46,10 @@ import java.util.Map;
  */
 public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, InsertWCSLayerResponse> {
 
+    private final PersistentMetadataObjectProvider persistentMetadataObjectProvider;
+    private final String STYLE_DEFAULT_TITLE = "Default Raster Style";
+    private final String STYLE_DEFAULT_ABSTRACT = "A default style that returns the layer exactly as it is stored";
+
     /**
      * Class constructor.
      *
@@ -57,6 +57,21 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
      */
     public InsertWCSLayerHandler(PersistentMetadataObjectProvider persistentMetadataObjectProvider) {
         this.persistentMetadataObjectProvider = persistentMetadataObjectProvider;
+    }
+
+    /**
+     * Creates a bounding box from a wcs coverage. In wcs the bounding box is considered shifted , in wms we need it
+     * aligned.
+     *
+     * @param persistentCrs      the crs of the bbox that has already been persisted.
+     * @param persistentWmsLayer the layer of the bbox that has aready been persisted.
+     * @param wcsCoverage        the wcs coverage.
+     * @return the wms bbox.
+     * @throws WMSInvalidBbox
+     */
+    private static BoundingBox create2DBboxFromWcs(Crs persistentCrs, Layer persistentWmsLayer, CoverageMetadata wcsCoverage) throws WMSInvalidBbox {
+        Bbox bbox = wcsCoverage.getBbox();
+        return new BoundingBox(persistentCrs, bbox.getMinX(), bbox.getMinY(), bbox.getMaxX(), bbox.getMaxY(), persistentWmsLayer);
     }
 
     /**
@@ -95,7 +110,7 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
                 try {
                     persistentMetadataObjectProvider.getLayer().delete(persistentWmsLayer);
                 } catch (SQLException e1) {
-                    throw new WMSInternalException(e);
+                    throw new WMSInternalException(e1);
                 }
             }
             throw e;
@@ -132,8 +147,8 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
         Integer width = cellDomainList.get(0).getHiInt() - cellDomainList.get(1).getLoInt() + 1;
         Integer height = cellDomainList.get(1).getHiInt() - cellDomainList.get(1).getLoInt() + 1;
         RasdamanLayer rasdamanLayer = new RasdamanLayer(coverageMetadata.getRasdamanCollection().snd,
-                coverageMetadata.getRasdamanCollection().fst,
-                1, xOrder, yOrder, width, height, persistentWmsLayer);
+            coverageMetadata.getRasdamanCollection().fst,
+            1, xOrder, yOrder, width, height, persistentWmsLayer);
         //persist the layer
         persistentMetadataObjectProvider.getRasdamanLayer().create(rasdamanLayer);
     }
@@ -157,58 +172,6 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
     }
 
     /**
-     * Creates a bounding box from a wcs coverage. In wcs the bounding box is considered shifted , in wms we need it
-     * aligned.
-     * @param persistentCrs the crs of the bbox that has already been persisted.
-     * @param persistentWmsLayer the layer of the bbox that has aready been persisted.
-     * @param wcsCoverage the wcs coverage.
-     * @return the wms bbox.
-     * @throws WMSInvalidBbox
-     */
-    private static BoundingBox create2DBboxFromWcs(Crs persistentCrs, Layer persistentWmsLayer, CoverageMetadata wcsCoverage) throws WMSInvalidBbox {
-        List<BigDecimal> origin = wcsCoverage.getGridOrigin();
-        BigDecimal offsetX = null;
-        BigDecimal offsetY = null;
-
-        Integer xSize = wcsCoverage.getCellDomain(0).getHiInt() - wcsCoverage.getCellDomain(0).getLoInt() + 1;
-        Integer ySize = wcsCoverage.getCellDomain(1).getHiInt() - wcsCoverage.getCellDomain(0).getLoInt() + 1;
-
-        //compute the offsets on the first 2 axes
-        for (Map.Entry<List<BigDecimal>,BigDecimal> axis : wcsCoverage.getGridAxes().entrySet()) {
-            List<Integer> axisNonZeroIndices = Vectors.nonZeroComponentsIndices(
-                axis.getKey().toArray(new BigDecimal[axis.getKey().size()])
-            );
-            //first axis offset vector if not set already
-            if(offsetX == null){
-                offsetX = axis.getKey().get(axisNonZeroIndices.get(0));
-            }
-            else {
-                if(offsetY == null) {
-                    //second axis offset vector
-                    offsetY = axis.getKey().get(axisNonZeroIndices.get(0));
-                }
-            }
-        }
-        //compute the origin
-        Double minX = Double.valueOf(origin.get(0).toString());
-        Double maxY = Double.valueOf(origin.get(1).toString());
-        Double maxX = minX + Double.valueOf((new BigDecimal(xSize)).multiply(offsetX).toString());
-        Double minY = maxY - Double.valueOf((new BigDecimal(ySize)).multiply(offsetY).toString());
-        //check that the mins are actually smaller since some times axis are inverted
-        if(minX > maxX){
-            Double aux = minX;
-            minX = maxX;
-            maxX = aux;
-        }
-        if(minY > maxY){
-            Double aux = minY;
-            minY = maxY;
-            maxY = aux;
-        }
-        return new BoundingBox(persistentCrs, minX, minY, maxX, maxY, persistentWmsLayer);
-    }
-
-    /**
      * Adds and persists extra dimensions to a wms layer.
      *
      * @param wcsDimensions      the dimensions list of the wcs coverage.
@@ -221,8 +184,8 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
             for (Integer i = dimensionOffset; i < wcsDimensions.size(); i++) {
                 DomainElement wcsDimension = wcsDimensions.get(i);
                 Dimension wmsDimension = new Dimension(wcsDimension.getLabel(), wcsDimension.getUom(), null,
-                        wcsDimension.getMinValue().toString(), true, false, false,
-                        wcsDimension.getMinValue() + "/" + wcsDimension.getMaxValue(), wcsDimension.getOrder(), persistentWmsLayer);
+                    wcsDimension.getMinValue().toString(), true, false, false,
+                    wcsDimension.getMinValue() + "/" + wcsDimension.getMaxValue(), wcsDimension.getOrder(), persistentWmsLayer);
                 //persist it
                 persistentMetadataObjectProvider.getDimension().create(wmsDimension);
             }
@@ -242,15 +205,10 @@ public class InsertWCSLayerHandler implements Handler<InsertWCSLayerRequest, Ins
     private CoverageMetadata getCoverageMetadata(String wcsCoverageId) throws SecoreException, PetascopeException {
         //init metadata source
         DbMetadataSource metadataSource = new DbMetadataSource(petascope.ConfigManager.METADATA_DRIVER,
-                petascope.ConfigManager.METADATA_URL,
-                petascope.ConfigManager.METADATA_USER,
-                petascope.ConfigManager.METADATA_PASS, false);
+            petascope.ConfigManager.METADATA_URL,
+            petascope.ConfigManager.METADATA_USER,
+            petascope.ConfigManager.METADATA_PASS, false);
         //get the coverage that is needed
         return metadataSource.read(wcsCoverageId);
     }
-
-    private final PersistentMetadataObjectProvider persistentMetadataObjectProvider;
-    private final String STYLE_DEFAULT_NAME = "default_raster_style";
-    private final String STYLE_DEFAULT_TITLE = "Default Raster Style";
-    private final String STYLE_DEFAULT_ABSTRACT = "A default style that returns the layer exactly as it is stored";
 }

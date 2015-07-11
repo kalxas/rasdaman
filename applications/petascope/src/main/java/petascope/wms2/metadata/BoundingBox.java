@@ -53,6 +53,22 @@ import java.util.Map;
 @DatabaseTable(tableName = IPersistentMetadataObject.TABLE_PREFIX + "bounding_box")
 public class BoundingBox implements ISerializableMetadataObject, IPersistentMetadataObject {
 
+    @DatabaseField(generatedId = true)
+    private int id;
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, foreignAutoCreate = true, canBeNull = false)
+    private Crs crs;
+    @DatabaseField(canBeNull = false)
+    private double minx;
+    @DatabaseField(canBeNull = false)
+    private double miny;
+    @DatabaseField(canBeNull = false)
+    private double maxx;
+    @DatabaseField(canBeNull = false)
+    private double maxy;
+    @Nullable
+    @DatabaseField(foreign = true, canBeNull = false)
+    private Layer layer;
+
     /**
      * Constructor for the class
      *
@@ -64,7 +80,7 @@ public class BoundingBox implements ISerializableMetadataObject, IPersistentMeta
      */
     public BoundingBox(@NotNull Crs crs, double minx, double miny, double maxx, double maxy, @Nullable Layer layer) throws WMSInvalidBbox {
         if (minx > maxx || miny > maxy) {
-            throw new WMSInvalidBbox(MessageFormat.format("{0}, {1}, {2}, {3}", minx, maxx, miny, maxy));
+            throw new WMSInvalidBbox(MessageFormat.format("{0}, {1}, {2}, {3}", minx, miny, maxx, maxy));
         }
         this.crs = crs;
         this.minx = minx;
@@ -171,26 +187,4 @@ public class BoundingBox implements ISerializableMetadataObject, IPersistentMeta
     public String toString() {
         return "[" + "" + minx + "," + miny + "," + maxx + "," + maxy + "," + crs + ']';
     }
-
-    @DatabaseField(generatedId = true)
-    private int id;
-
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, foreignAutoCreate = true, canBeNull = false)
-    private Crs crs;
-
-    @DatabaseField(canBeNull = false)
-    private double minx;
-
-    @DatabaseField(canBeNull = false)
-    private double miny;
-
-    @DatabaseField(canBeNull = false)
-    private double maxx;
-
-    @DatabaseField(canBeNull = false)
-    private double maxy;
-
-    @Nullable
-    @DatabaseField(foreign = true, canBeNull = false)
-    private Layer layer;
 }

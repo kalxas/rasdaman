@@ -84,7 +84,7 @@ public class PetascopeInterfaceAdapter {
         if (serviceRequested != null && serviceRequested.equalsIgnoreCase(SERVICE_PARAM_VALUE)) {
             //The WMS 1.3.0 states that we should respond even if the version is not presented
             //No version => latest version of the standard
-            if (versionRequested == null || versionRequested.equalsIgnoreCase(VERSION13_PARAM_VALUE)) {
+            if (versionRequested == null || !versionRequested.equalsIgnoreCase(VERSION11_PARAM_VALUE)) {
                 servlet13.doGet(httpRequest, httpResponse);
             } else if (versionRequested.equalsIgnoreCase(VERSION11_PARAM_VALUE)) {
                 servlet11.doGet(httpRequest, httpResponse);
