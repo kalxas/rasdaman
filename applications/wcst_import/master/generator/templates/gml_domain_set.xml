@@ -1,0 +1,20 @@
+<domainSet>
+    <gml:{{gridType}} dimension="{{numberOfDimensions}}" gml:id="grid">
+        <limits>
+            <GridEnvelope>
+                <low>{{gridEnvelopeLow}}</low>
+                <high>{{gridEnvelopeHigh}}</high>
+            </GridEnvelope>
+        </limits>
+        <axisLabels>{{axisLabelsGrid}}</axisLabels>
+        <gml:origin>
+            <Point gml:id="origin" srsName="{{crs}}"
+                   axisLabels="{{axisLabels}}" uomLabels="{{uomLabels}}" srsDimension="{{numberOfDimensions}}">
+                <pos>{{origin}}</pos>
+            </Point>
+        </gml:origin>
+
+{{offsetVectors}}
+
+    </gml:{{gridType}}>
+</domainSet>

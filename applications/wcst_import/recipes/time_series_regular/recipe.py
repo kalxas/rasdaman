@@ -1,11 +1,19 @@
 import re
+from master.error.runtime_exception import RuntimeException
+from master.helper.gdal_axis_filler import GdalAxisFiller
+from master.helper.gdal_range_fields_generator import GdalRangeFieldsGenerator
+from master.importer.coverage import Coverage
 
-from recipes.shared.base_recipe import BaseRecipe
-from recipes.shared.runtime_exception import RuntimeException
-from recipes.shared.validate_exception import RecipeValidationException
-from recipes.time_series_regular.importer import Importer
+from master.importer.importer import Importer
+from master.importer.slice import Slice
+from master.provider.data.file_data_provider import FileDataProvider
+from master.provider.metadata.regular_axis import RegularAxis
+from master.recipe.base_recipe import BaseRecipe
+from master.error.validate_exception import RecipeValidationException
+from util.crs_util import CRSUtil
+from util.gdal_util import GDALGmlUtil
 from util.log import log
-from util.time_gdal_tuple import TimeGdalTuple
+from master.helper.time_gdal_tuple import TimeFileTuple
 from util.time_util import DateTimeUtil
 
 
@@ -41,24 +49,16 @@ class Recipe(BaseRecipe):
         """
         super(Recipe, self).describe()
         timeseries = self._generate_timeseries_tuples(5)  # look at the first 5 records only and show them to the user
-        log.info(str(len(timeseries)) + " files have been analyzed. Check that the timestamps are correct for each.")
+        log.info(
+            "\n" + str(len(timeseries)) + " files have been analyzed. Check that the timestamps are correct for each.")
         for slice in timeseries:
-            log.info("File: " + slice.filepath + " | " + "Timestamp: " + slice.time.to_string())
+            log.info("File: " + slice.file.get_filepath() + " | " + "Timestamp: " + slice.time.to_string())
 
-    def insert(self):
+    def ingest(self):
         """
-        Implementation of the base recipe insert method
+        Ingests the input files
         """
-        import_tuples = self._generate_timeseries_tuples()
-        self.importer = self._get_importer(import_tuples, False)
-        self.importer.ingest()
-
-    def update(self):
-        """
-        Implementation of the base recipe update method
-        """
-        import_tuples = self._generate_timeseries_tuples()
-        self.importer = self._get_importer(import_tuples, True)
+        self.importer = Importer(self._get_coverage())
         self.importer.ingest()
 
     def status(self):
@@ -69,16 +69,16 @@ class Recipe(BaseRecipe):
         if self.importer is None:
             return 0, 0
         else:
-            return self.importer.get_processed_slices(), len(self.importer.timeseries)
+            return self.importer.get_progress()
 
     def _generate_timeseries_tuples(self, limit=None):
         """
         Generate the timeseries tuples from the original files based on the recipe
-        :rtype: list[TimeGdalTuple]
+        :rtype: list[TimeFileTuple]
         """
         ret = []
         if limit is None:
-            limit = len(self.session.get_files()) + 1
+            limit = len(self.session.get_files())
 
         time_offset = 0
         time_format = self.options['time_format'] if self.options['time_format'] != "auto" else None
@@ -86,7 +86,7 @@ class Recipe(BaseRecipe):
         for tfile in self.session.get_files():
             if len(ret) == limit:
                 break
-            time_tuple = TimeGdalTuple(self._get_datetime_with_step(time_start, time_offset), tfile)
+            time_tuple = TimeFileTuple(self._get_datetime_with_step(time_start, time_offset), tfile)
             ret.append(time_tuple)
             time_offset += 1
 
@@ -125,17 +125,46 @@ class Recipe(BaseRecipe):
         seconds = (int(seconds_s.replace("seconds", "").strip()) if seconds_s is not None else 0)
         return days, hours, minutes, seconds
 
-    def _get_importer(self, import_tuples, update=False):
+    def _get_slices(self, crs):
         """
-        Returns the correct importer for the import job
-        :param list[TimeGdalTuple] import_tuples: the tuples to be imported
-        :param bool update: true if this is an update operation false otherwise
+        Returns the slices for the collection of files given
+        """
+        crs_axes = CRSUtil(crs).get_axes()
+        slices = []
+        timeseries = self._generate_timeseries_tuples()
+        for tpair in timeseries:
+            subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(tpair.file.get_filepath())).fill()
+            subsets = self._fill_time_axis(tpair, subsets)
+            slices.append(Slice(subsets, FileDataProvider(tpair.file)))
+        return slices
+
+    def _fill_time_axis(self, tpair, subsets):
+        """
+        Fills the time axis parameters
+        :param TimeFileTuple tpair: the input pair
+        :param list[AxisMetadata] subsets: the axis subsets for the tpair
         """
         days, hours, minutes, seconds = self._get_real_step()
         number_of_days = days + hours / float(24) + minutes / float(60 * 24) + seconds / float(60 * 60 * 24)
-        importer = Importer(self.session, import_tuples, number_of_days, self.options['tiling'],
-                            self.options['time_crs'], update)
-        return importer
+        for i in range(0, len(subsets)):
+            if subsets[i].axis.crs_axis is not None and subsets[i].axis.crs_axis.is_future():
+                subsets[i].axis = RegularAxis(subsets[i].axis.label, subsets[i].axis.uomLabel, subsets[i].axis.low,
+                                              subsets[i].axis.high, tpair.time.to_string(), subsets[i].axis.crs_axis)
+                subsets[i].grid_axis.resolution = number_of_days
+                subsets[i].interval.low = tpair.time.to_string()
+        return subsets
+
+    def _get_coverage(self):
+        """
+        Returns the coverage to be used for the importer
+        """
+        gdal_dataset = GDALGmlUtil(self.session.get_files()[0].get_filepath())
+        crs = CRSUtil.get_compound_crs([gdal_dataset.get_crs(), self.options['time_crs']])
+        slices = self._get_slices(crs)
+        fields = GdalRangeFieldsGenerator(gdal_dataset).get_range_fields()
+        coverage = Coverage(self.session.get_coverage_id(), slices, fields, crs,
+            gdal_dataset.get_band_gdal_type(), self.options['tiling'])
+        return coverage
 
     @staticmethod
     def get_name():

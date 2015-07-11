@@ -1,0 +1,8 @@
+<gml:rangeSet>
+    <gml:DataBlock>
+        <gml:rangeParameters/>
+        <gml:tupleList>
+            {{tupleList}}
+        </gml:tupleList>
+    </gml:DataBlock>
+</gml:rangeSet>

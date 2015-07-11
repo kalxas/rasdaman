@@ -6,11 +6,12 @@ import json
 import sys
 import traceback
 
-from recipes.shared.recipe_registry import RecipeRegistry
-from recipes.shared.runtime_exception import RuntimeException
-from recipes.shared.validate_exception import RecipeValidationException
+from master.error.runtime_exception import RuntimeException
+
+from master.recipe.recipe_registry import RecipeRegistry
+from master.error.validate_exception import RecipeValidationException
 from session import Session
-from util.fileutil import FileUtil
+from util.file_util import FileUtil
 from util.log import log
 from wcst.wcst import WCSTException
 

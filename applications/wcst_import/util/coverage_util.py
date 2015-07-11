@@ -1,16 +1,17 @@
 import urllib
-from recipes.shared.runtime_exception import RuntimeException
+
+from config_manager import ConfigManager
+from master.error.runtime_exception import RuntimeException
 from session import Session
 
 
 class CoverageUtil:
-    def __init__(self, wcs_service, coverage_id):
+    def __init__(self, coverage_id):
         """
         Class to retrieve axis labels from an already existing coverage id
-        :param str wcs_service:  the wcs service where the coverage was ingested
         :param str coverage_id: the coverage id
         """
-        self.wcs_service = wcs_service
+        self.wcs_service = ConfigManager.wcs_service
         self.coverage_id = coverage_id
 
     def exists(self):

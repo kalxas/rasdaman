@@ -1,0 +1,3 @@
+<swe:nilValue reason="{{reason}}">
+    {{value}}
+</swe:nilValue>

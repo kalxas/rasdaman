@@ -16,12 +16,15 @@
     "crs_resolver": "http://opengis.net/def/",
     "__comment__": "The default crs to be used for gdal files that do not have it",
     "default_crs": "http://opengis.net/def/def/crs/OGC/0/Index2D",
-    "__comment__": "If mock parameter is true then the wcst requests are printed to stdout and not executed",
+    "__comment__": "[OPTIONAL] If mock parameter is true then the wcst requests are printed to stdout and not executed",
     "mock": false,
-    "__comment__": "Set to true if no human input should be requested and everything should be completely automated",
+    "__comment__": "[OPTIONAL] Set to true if no human input should be requested and everything should be completely automated",
     "automated": false,
-    "__comment__": "This parameter adds default null values for bands that *DO NOT* have a null value provided by the file itself. The value for this parameter should be an array containing the desired null value in rasdaman format for each band. E.g. for a coverage with 3 bands:",
-    "default_null_values" : ["9995:9999", "-9, -10, -87", "4"]
+    "__comment__": "[OPTIONAL] This parameter adds default null values for bands that *DO NOT* have a null value provided by the file itself. The value for this parameter should be an array containing the desired null value in rasdaman format for each band. E.g. for a coverage with 3 bands:",
+    "default_null_values" : ["9995:9999", "-9, -10, -87", "4"],
+    "__comment__" : "[OPTIONAL] In case the files are exposed via a web-server and not locally, you can add the root url here, otherwise the default is listed below",
+    "url_root" : "file://"
+
   },
   "input": {
     "__comment__": "The id of the coverage. If it already exists, we will consider this operation an update",
@@ -38,7 +41,9 @@
     "__comment__": "A list of options required by the recipe",
     "options": {
       "__comment__": "[OPTIONAL]The tiling of the coverage in rasql format",
-      "tiling": "ALIGNED [0:500, 0:500]"
+      "tiling": "ALIGNED [0:500, 0:500]",
+      "__comment__": "[OPTIONAL] If you want to import in wms as well set this variable to true",
+      "wms_import": true
     }
   },
   "recipe": {

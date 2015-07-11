@@ -1,7 +1,7 @@
 from lib.arrow import api as arrow
 from lib.arrow.parser import ParserError
 from util.crs_util import CRSUtil
-from recipes.shared.runtime_exception import RuntimeException
+from master.error.runtime_exception import RuntimeException
 
 
 class DateTimeUtil:

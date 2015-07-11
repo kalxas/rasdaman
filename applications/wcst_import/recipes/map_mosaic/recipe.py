@@ -1,12 +1,21 @@
-from recipes.shared.base_recipe import BaseRecipe
-from recipes.map_mosaic.importer import Importer
+from master.helper.gdal_axis_filler import GdalAxisFiller
+from master.helper.gdal_range_fields_generator import GdalRangeFieldsGenerator
+from master.importer.coverage import Coverage
+from master.importer.importer import Importer
+from master.importer.slice import Slice
+from master.provider.data.file_data_provider import FileDataProvider
+from master.recipe.base_recipe import BaseRecipe
+from session import Session
+from util.crs_util import CRSUtil
+from util.gdal_util import GDALGmlUtil
 
 
 class Recipe(BaseRecipe):
     def __init__(self, session):
         """
-        The recipe class for regular timeseries. To get an overview of the ingredients needed for this
-        recipe check ingredients/time_series_regular
+        The recipe class for map_mosaic. To get an overview of the ingredients needed for this
+        recipe check ingredients/map_mosaic
+        :param Session session: the session for this import
         """
         super(Recipe, self).__init__(session)
         self.options = session.get_recipe()['options']
@@ -31,18 +40,11 @@ class Recipe(BaseRecipe):
         """
         super(Recipe, self).describe()
 
-    def insert(self):
+    def ingest(self):
         """
-        Implementation of the base recipe insert method
+        Starts the ingesting process
         """
-        self.importer = self._get_importer(self.session.get_files(), False, self.options['wms_import'])
-        self.importer.ingest()
-
-    def update(self):
-        """
-        Implementation of the base recipe update method
-        """
-        self.importer = self._get_importer(self.session.get_files(), True, False)
+        self.importer = Importer(self._get_coverage(), self.options['wms_import'])
         self.importer.ingest()
 
     def status(self):
@@ -53,15 +55,32 @@ class Recipe(BaseRecipe):
         if self.importer is None:
             return 0, 0
         else:
-            return self.importer.get_processed_slices(), self.importer.total
+            return self.importer.get_progress()
 
-    def _get_importer(self, files, update=False, import_in_wms=False):
+    def _get_slices(self, gdal_dataset):
         """
-        Returns the correct importer for the import job
-        :param bool update: true if this is an update operation false otherwise
+        Returns the slices for the collection of files given
         """
-        importer = Importer(self.session, files, self.options['tiling'], update, import_in_wms)
-        return importer
+        files = self.session.get_files()
+        crs = gdal_dataset.get_crs()
+        crs_axes = CRSUtil(crs).get_axes()
+        slices = []
+        for file in files:
+            subsets = GdalAxisFiller(crs_axes, GDALGmlUtil(file.get_filepath())).fill()
+            slices.append(Slice(subsets, FileDataProvider(file)))
+        return slices
+
+    def _get_coverage(self):
+        """
+        Returns the coverage to be used for the importer
+        """
+        gdal_dataset = GDALGmlUtil(self.session.get_files()[0].get_filepath())
+        slices = self._get_slices(gdal_dataset)
+        fields = GdalRangeFieldsGenerator(gdal_dataset).get_range_fields()
+
+        coverage = Coverage(self.session.get_coverage_id(), slices, fields, gdal_dataset.get_crs(),
+            gdal_dataset.get_band_gdal_type(), self.options['tiling'])
+        return coverage
 
     @staticmethod
     def get_name():

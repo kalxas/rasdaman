@@ -1,0 +1,8 @@
+<gml:rangeSet>
+    <gml:File>
+        <gml:fileReference><![CDATA[
+                {{fileReference}}
+            ]]></gml:fileReference>
+        <gml:fileStructure>{{mimetype}}</gml:fileStructure>
+    </gml:File>
+</gml:rangeSet>

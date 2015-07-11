@@ -1,0 +1,10 @@
+        <gmlrgrid:generalGridAxis>
+            <gmlrgrid:GeneralGridAxis>
+                <gmlrgrid:offsetVector srsName="{{crs}}" axisLabels="{{axisLabels}}" uomLabels="{{uomLabels}}" srsDimension="{{noOfDimensions}}">
+                    {{offset}}
+                </gmlrgrid:offsetVector>
+                <gmlrgrid:coefficients>{{coefficient}}</gmlrgrid:coefficients>
+                <gmlrgrid:gridAxesSpanned>None</gmlrgrid:gridAxesSpanned>
+                <gmlrgrid:sequenceRule axisOrder="+1">None</gmlrgrid:sequenceRule>
+            </gmlrgrid:GeneralGridAxis>
+        </gmlrgrid:generalGridAxis>

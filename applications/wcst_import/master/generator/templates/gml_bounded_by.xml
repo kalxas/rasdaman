@@ -1,0 +1,6 @@
+<boundedBy>
+    <Envelope srsName="{{crs}}" axisLabels="{{axisLabels}}" uomLabels="{{uomLabels}}" srsDimension="{{noOfDimensions}}">
+        <lowerCorner>{{lowerCorner}}</lowerCorner>
+        <upperCorner>{{upperCorner}}</upperCorner>
+    </Envelope>
+</boundedBy>

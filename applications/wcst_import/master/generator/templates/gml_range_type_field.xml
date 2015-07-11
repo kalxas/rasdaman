@@ -1,0 +1,11 @@
+        <swe:field name="{{name}}">
+            <swe:Quantity definition="{{definition}}">
+                <swe:description>{{description}}</swe:description>
+                <swe:nilValues>
+                    <swe:NilValues>
+                        {{nilValues}}
+                    </swe:NilValues>
+                </swe:nilValues>
+                <swe:uom code="{{uom}}"/>
+            </swe:Quantity>
+        </swe:field>
