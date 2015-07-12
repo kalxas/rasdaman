@@ -341,7 +341,7 @@ DatabaseIf::createDB(__attribute__ ((unused)) const char* dbName, __attribute__ 
         UPDATE_QUERY("CREATE TABLE IF NOT EXISTS RAS_DBUPDATES ("
                      "UpdateType VARCHAR(5) PRIMARY KEY,"
                      "UpdateNumber INTEGER)");
-        UPDATE_QUERY("INSERT INTO RAS_DBUPDATES values ('rc', 6)");
+        UPDATE_QUERY("INSERT INTO RAS_DBUPDATES values ('rc', 1)");
 
         disconnect();
     }
@@ -407,7 +407,7 @@ DatabaseIf::destroyDB(const char* dbName) throw (r_Error)
 }
 
 #ifndef RMANVERSION
-#define RMANVERSION "v9.0.0-unknown"
+#define RMANVERSION "v9.1.0-unknown"
 #endif
 #define LONGVER 9000
 
