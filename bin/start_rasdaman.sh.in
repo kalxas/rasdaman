@@ -64,6 +64,12 @@ MYNAME=`basename $0`
 # error messages:
 ERROR_PARAM="ERS001 Error: illegal parameter: $1"
 
+# base DBMS used by petascope
+PETASCOPEDB=@petascopedb@
+PETASCOPEDB_PGSQL=postgresql
+PETASCOPEDB_HSQLDB=hsqldb
+PETASCOPEDB_SQLITE=sqlite
+
 # --- END CONSTANTS -------------------------------------------------
 
 # --- ACTION --------------------------------------------------------
@@ -115,6 +121,20 @@ if [ "$SERVERS" ]; then
 else
 	echo $MYNAME: starting all rasdaman servers...
 	@bindir@rascontrol -e -q -x up srv -all || exit $!
+fi
+
+# if HSQLDB is used for petascope, start HSQLDB server here
+if [ "$PETASCOPEDB" == "$PETASCOPEDB_HSQLDB" ]; then
+  metadata_url=$(grep metadata_url @sysconfdir@/petascope.properties | awk -F "=" '{print $2}' | tr -d '\n')
+  db_name=$(basename "$metadata_url")
+  db_file=$(echo "$metadata_url" | awk -F ":" '{ print $NF; }')
+  echo -n $MYNAME: starting petascope...
+  nohup java -cp @libdir@/hsqldb.jar org.hsqldb.server.Server --database.0 file:$db_file --dbname.0 $db_name > @logdir@/hsqldb.log 2>&1 &
+  if [ $? -eq 0 ]; then
+    echo done.
+  else
+    echo failed, see @logdir@/hsqldb.log for more details.
+  fi
 fi
 
 echo $MYNAME: done.

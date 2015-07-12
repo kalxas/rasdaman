@@ -197,6 +197,10 @@ AH_TEMPLATE([HAVE_HDF], [Checks whether HDF4 is installed])
 AH_TEMPLATE([HAVE_NETCDF], [Checks whether NetCDF is installed])
 AH_TEMPLATE([BASEDB_PGSQL], [If defined we are compiling over PostgreSQL])
 AH_TEMPLATE([BASEDB_SQLITE], [If defined we are compiling over SQLite])
+AH_TEMPLATE([PETASCOPEDB_PGSQL], [If defined we are compiling petascope over PostgreSQL])
+AH_TEMPLATE([PETASCOPEDB_SQLITE], [If defined we are compiling petascope over SQLite])
+AH_TEMPLATE([PETASCOPEDB_HSQLDB], [If defined we are compiling petascope over HSQLDB])
+AH_TEMPLATE([PETASCOPEDB], [Name of the database used in petascope])
 AH_TEMPLATE([__NO_MATH_INLINES], [Used by some performance implementaion of math libraries.])   
 AH_TEMPLATE([EARLY_TEMPLATE], [When set allows templates to be instantiated earlier.])    
 AH_TEMPLATE([IS_BIG_ENDIAN], [The host system uses big endian encoding.])    
@@ -268,9 +272,16 @@ AC_ARG_WITH([pic],
 # postgres is automatically defined in m4/ct_check_postgres_db.m4
 AC_ARG_WITH([default-basedb],
             [AS_HELP_STRING([--with-default-basedb],
-                            [change the default Base DBMS])],
+                            [change the default Base DBMS (sqlite, postgresql)])],
             [with_default_basedb=$withval],
             [with_default_basedb=sqlite])
+
+AC_ARG_WITH([petascopedb],
+            [AS_HELP_STRING([--with-petascopedb],
+                            [change the default DBMS used by petascope (postgresql, hsqldb, sqlite)])],
+            [with_petascopedb=$withval],
+            [with_petascopedb=postgresql])
+
 AC_ARG_ENABLE([debug],
               [AS_HELP_STRING([--enable-debug],
                               [this feature enables generation of binaries that contain extra code for debug output. The output is usually very verbose. It is not recommended for production use.])],
@@ -427,9 +438,12 @@ fi
 ####################################################################
 
 AS_IF([test "x$with_default_basedb" == x],
-      [with_default_basedb=postgresql])
+      [with_default_basedb=sqlite])
+AS_IF([test "x$with_petascopedb" == x],
+      [with_petascopedb=postgresql])
 
 AC_MSG_NOTICE([Using database $with_default_basedb.])
+AC_MSG_NOTICE([Using petascope database $with_petascopedb.])
 
 if test "$with_default_basedb" == sqlite; then
     SQLITE3_REQ_VERSION="3.0.0"
@@ -499,6 +513,12 @@ AS_IF([test "$enable_rasnet" == yes],
 
 AM_CONDITIONAL([BASEDB_PGSQL], [test "$BASEDBSTRING" = pgsql])
 AM_CONDITIONAL([BASEDB_SQLITE], [test "$BASEDBSTRING" = sqlite])
+
+PETASCOPEDB=$with_petascopedb
+AM_CONDITIONAL([PETASCOPEDB_PGSQL], [test "$with_petascopedb" = postgresql])
+AM_CONDITIONAL([PETASCOPEDB_HSQLDB], [test "$with_petascopedb" = hsqldb])
+AM_CONDITIONAL([PETASCOPEDB_SQLITE], [test "$with_petascopedb" = sqlite])
+AC_DEFINE_UNQUOTED([PETASCOPEDB], ["$PETASCOPEDB"])
 
 # --------------- General Configuration ----------------------------
 ####################################################################
@@ -609,6 +629,7 @@ AC_SUBST(logdir)
 AC_SUBST(wardir) 
 AC_SUBST(wpswar)
 AC_SUBST(filedatadir)
+AC_SUBST(PETASCOPEDB)
 
 #Directories used in the source-code
 CXXFLAGS="$CXXFLAGS -DSHARE_DATA_DIR=\\\"\$(pkgdatadir)/\\\""

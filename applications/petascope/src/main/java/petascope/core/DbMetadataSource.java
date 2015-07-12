@@ -23,7 +23,14 @@ package petascope.core;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.*;
+import java.sql.Array;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Savepoint;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,14 +42,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import com.sun.tools.xjc.generator.bean.ImplStructureStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
 import static petascope.ConfigManager.DESCRIPTION_IN_COVSUMMARY;
-import static petascope.ConfigManager.METADATA_IN_COVSUMMARY;
 import static petascope.ConfigManager.KEY_METADATA_IN_COVSUMMARY;
+import static petascope.ConfigManager.METADATA_IN_COVSUMMARY;
 import static petascope.ConfigManager.METADATA_URL;
 import static petascope.ConfigManager.SECORE_URLS;
 import static petascope.ConfigManager.SECORE_URL_KEYWORD;
@@ -65,11 +70,16 @@ import petascope.util.Pair;
 import petascope.util.Vectors;
 import petascope.util.WcsUtil;
 import petascope.util.XMLSymbols;
-import static petascope.util.ras.RasConstants.*;
+import static petascope.util.ras.RasConstants.RASQL_AS;
+import static petascope.util.ras.RasConstants.RASQL_FROM;
+import static petascope.util.ras.RasConstants.RASQL_OID;
+import static petascope.util.ras.RasConstants.RASQL_SDOM;
+import static petascope.util.ras.RasConstants.RASQL_SELECT;
+import static petascope.util.ras.RasConstants.RASQL_WHERE;
 import petascope.util.ras.RasQueryResult;
 import petascope.util.ras.RasUtil;
 import petascope.wcps.metadata.CellDomainElement;
-import petascope.wcps.server.core.*;
+import petascope.wcps.server.core.RangeElement;
 import petascope.wcs2.parsers.BaseRequest;
 
 /**
@@ -440,17 +450,29 @@ public class DbMetadataSource implements IMetadataSource {
             }
 
             /* TABLE_SERVICE_IDENTIFICATION */
-            sqlQuery =
-                    " SELECT " + SERVICE_IDENTIFICATION_ID             + ", "
-                               + SERVICE_IDENTIFICATION_TYPE           + ", "
-                               + SERVICE_IDENTIFICATION_TYPE_CODESPACE + ", "
-                               + SERVICE_IDENTIFICATION_TYPE_VERSIONS  + ", "
-                               + SERVICE_IDENTIFICATION_DESCRIPTION_ID + ", "
-                               + SERVICE_IDENTIFICATION_FEES           + ", "
-                               + SERVICE_IDENTIFICATION_CONSTRAINTS    +
-                    " FROM "   + TABLE_SERVICE_IDENTIFICATION          +
-                    " WHERE "  + SERVICE_IDENTIFICATION_TYPE + " " + CASE_INSENSITIVE_LIKE + " '%" + BaseRequest.SERVICE + "%';"
-                    ;
+            if (ConfigManager.METADATA_HSQLDB) {
+                sqlQuery
+                        = " SELECT " + SERVICE_IDENTIFICATION_ID + ", "
+                        + SERVICE_IDENTIFICATION_TYPE + ", "
+                        + SERVICE_IDENTIFICATION_TYPE_CODESPACE + ", "
+                        + SERVICE_IDENTIFICATION_TYPE_VERSIONS + ", "
+                        + SERVICE_IDENTIFICATION_DESCRIPTION_ID + ", "
+                        + SERVICE_IDENTIFICATION_FEES + ", "
+                        + SERVICE_IDENTIFICATION_CONSTRAINTS
+                        + " FROM " + TABLE_SERVICE_IDENTIFICATION
+                        + " WHERE LCASE(" + SERVICE_IDENTIFICATION_TYPE + ") LIKE '%" + BaseRequest.SERVICE.toLowerCase() + "%';";
+            } else {
+                sqlQuery
+                        = " SELECT " + SERVICE_IDENTIFICATION_ID + ", "
+                        + SERVICE_IDENTIFICATION_TYPE + ", "
+                        + SERVICE_IDENTIFICATION_TYPE_CODESPACE + ", "
+                        + SERVICE_IDENTIFICATION_TYPE_VERSIONS + ", "
+                        + SERVICE_IDENTIFICATION_DESCRIPTION_ID + ", "
+                        + SERVICE_IDENTIFICATION_FEES + ", "
+                        + SERVICE_IDENTIFICATION_CONSTRAINTS
+                        + " FROM " + TABLE_SERVICE_IDENTIFICATION
+                        + " WHERE " + SERVICE_IDENTIFICATION_TYPE + " " + CASE_INSENSITIVE_LIKE + " '%" + BaseRequest.SERVICE + "%';";
+            }
             log.debug("SQL query: " + sqlQuery);
             ResultSet r = s.executeQuery(sqlQuery);
             if (!r.next()) {
@@ -464,7 +486,7 @@ public class DbMetadataSource implements IMetadataSource {
                 String serviceType        = r.getString(SERVICE_IDENTIFICATION_TYPE);
                 String typeCodespace      = r.getString(SERVICE_IDENTIFICATION_TYPE_CODESPACE);
                 List<String> typeVersions = null;
-                if (ConfigManager.METADATA_SQLITE) {
+                if (ConfigManager.METADATA_SQLITE || ConfigManager.METADATA_HSQLDB) {
                     typeVersions = ListUtil.toList(r.getString(SERVICE_IDENTIFICATION_TYPE_VERSIONS));
                 } else {
                     typeVersions = sqlArray2StringList(r.getArray(SERVICE_IDENTIFICATION_TYPE_VERSIONS));
@@ -475,7 +497,7 @@ public class DbMetadataSource implements IMetadataSource {
                 Integer descriptionId  = r.getInt(SERVICE_IDENTIFICATION_DESCRIPTION_ID);
                 String fees            = r.getString(SERVICE_IDENTIFICATION_FEES);
                 Array constraints      = null;
-                if (!ConfigManager.METADATA_SQLITE) {
+                if (!ConfigManager.METADATA_SQLITE && !ConfigManager.METADATA_HSQLDB) {
                     constraints        = r.getArray(SERVICE_IDENTIFICATION_CONSTRAINTS);
                 }
                 // Add to ServiceMetadata
@@ -558,11 +580,14 @@ public class DbMetadataSource implements IMetadataSource {
                     }
                 }
                 //
-                Array deliveries =  r.getArray(SERVICE_PROVIDER_CONTACT_DELIVERY);
-                if (null != deliveries) {
-                    ResultSet deliveriesRs = deliveries.getResultSet();
-                    while (deliveriesRs.next()) {
-                        sProvider.getContact().getContactInfo().getAddress().addDeliveryPoint(deliveriesRs.getString(2));
+
+                if (!ConfigManager.METADATA_SQLITE && !ConfigManager.METADATA_HSQLDB) {
+                    Array deliveries = r.getArray(SERVICE_PROVIDER_CONTACT_DELIVERY);
+                    if (null != deliveries) {
+                        ResultSet deliveriesRs = deliveries.getResultSet();
+                        while (deliveriesRs.next()) {
+                            sProvider.getContact().getContactInfo().getAddress().addDeliveryPoint(deliveriesRs.getString(2));
+                        }
                     }
                 }
                 //
@@ -586,7 +611,7 @@ public class DbMetadataSource implements IMetadataSource {
                     sProvider.getContact().getContactInfo().getAddress().setCountry(contactCountry);
                 }
                 //
-                if (!ConfigManager.METADATA_SQLITE) {
+                if (!ConfigManager.METADATA_SQLITE && !ConfigManager.METADATA_HSQLDB) {
                     Array emails = r.getArray(SERVICE_PROVIDER_CONTACT_EMAIL);
                     if (null != emails) {
                         ResultSet emailsRs = emails.getResultSet();
@@ -2597,8 +2622,10 @@ public class DbMetadataSource implements IMetadataSource {
         if (ConfigManager.METADATA_SQLITE) {
             sqlQuery =
                     " SELECT COUNT(*) FROM sqlite_master" +
-                    " WHERE type = 'table' AND name " + CASE_INSENSITIVE_LIKE + " \'" + iPattern + "\'"
-                    ;
+                    " WHERE type = 'table' AND name " + CASE_INSENSITIVE_LIKE + " \'" + iPattern + "\'";
+        } else if (ConfigManager.METADATA_HSQLDB) {
+            sqlQuery
+                    = " SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES";
         } else {
             sqlQuery =
                     " SELECT COUNT(*) FROM " + TABLE_TABLES_CATALOG +

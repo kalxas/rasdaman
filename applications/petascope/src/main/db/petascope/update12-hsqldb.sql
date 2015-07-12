@@ -25,14 +25,13 @@
 -- Service provider's phone is a composition of N voice and M facsimile numbers (ticket #718) --
 ------------------------------------------------------------------------------------------------
 CREATE TABLE ps_telephone (
-    id             serial  PRIMARY KEY,
-    voice      text ARRAY NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Phone/ows:Voice
-    facsimile  text ARRAY NULL -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Phone/ows:Facsimile
+    id             int IDENTITY,
+    voice      longvarchar ARRAY NULL, -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Phone/ows:Voice
+    facsimile  longvarchar ARRAY NULL -- //ows:ServiceProvider/ows:ServiceContact/ows:ContactInfo/ows:Phone/ows:Facsimile
     -- Constraints and FKs
-    -- uses PG-specific array_lower fsunction
     --CONSTRAINT no_both_empty CHECK (NOT (array_lower(voice, 1) IS NULL AND array_lower(facsimile, 1) IS NULL)) -- Contains at least 1 number
 );
 UPDATE ps_service_provider SET contact_phone=NULL;
-ALTER TABLE ps_service_provider ALTER COLUMN contact_phone SET DATA TYPE integer USING contact_phone::integer;
-ALTER TABLE ps_service_provider RENAME COLUMN contact_phone TO contact_phone_id;
+ALTER TABLE ps_service_provider ALTER COLUMN contact_phone SET DATA TYPE integer;
+ALTER TABLE ps_service_provider ALTER COLUMN contact_phone RENAME TO contact_phone_id;
 ALTER TABLE ps_service_provider ADD FOREIGN KEY (contact_phone_id) REFERENCES ps_telephone (id) ON DELETE RESTRICT;

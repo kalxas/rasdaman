@@ -83,10 +83,12 @@ public class ConfigManager {
     // petascope metadata (stored in postgres)
     public static String METADATA_DRIVER = "org.postgresql.Driver";
     public static final String METADATA_SQLITE_DRIVER = "org.sqlite.JDBC";
+    public static final String METADATA_HSQLDB_DRIVER = "org.hsqldb.jdbcDriver";
     public static String METADATA_URL = "jdbc:postgresql://localhost:5432/petascopedb";
     public static String METADATA_USER = "petauser";
     public static String METADATA_PASS = "petapasswd";
     public static boolean METADATA_SQLITE = false;
+    public static boolean METADATA_HSQLDB = false;
 
     // rasdaman connection settings
     public static String RASDAMAN_SERVER = "'localhost";
@@ -301,8 +303,10 @@ public class ConfigManager {
         METADATA_DRIVER         = get(KEY_METADATA_DRIVER);
         if (METADATA_SQLITE_DRIVER.equals(METADATA_DRIVER)) {
             METADATA_SQLITE = true;
+        } else if (METADATA_HSQLDB_DRIVER.equals(METADATA_DRIVER)) {
+            METADATA_HSQLDB = true;
         }
-        METADATA_URL            = get(KEY_METADATA_URL);
+        METADATA_URL = fileToHsqlConnectionUri(get(KEY_METADATA_URL));
         METADATA_USER           = get(KEY_METADATA_USER);
         METADATA_PASS           = get(KEY_METADATA_PASS);
         RASDAMAN_RETRY_TIMEOUT  = get(KEY_RASDAMAN_RETRY_TIMEOUT);
@@ -393,5 +397,23 @@ public class ConfigManager {
         log.info("WMS Versions  : " + WMS_VERSIONS);
         log.info("");
         log.info("------------------------------------");
+    }
+
+    /**
+     * Change an HSQLDB connection URI pointing to a local file database to
+     * point to a localhost hsql URI.
+     *
+     * @param fileUri the file URL
+     * @return if it's not matched to be an HSQLDB file URI the original
+     * argument is returned, otherwise jdbc:hsqldb:hsql://localhost/dbName is
+     * returned, where dbName is the last part of the fileUri
+     */
+    public static String fileToHsqlConnectionUri(String fileUri) {
+        if (fileUri != null && fileUri.startsWith("jdbc:hsqldb:file:")) {
+            String[] parts = fileUri.split("/");
+            String dbName = parts[parts.length - 1];
+            fileUri = "jdbc:hsqldb:hsql://localhost/" + dbName;
+        }
+        return fileUri;
     }
 }

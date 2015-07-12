@@ -51,6 +51,12 @@ MYNAME=`basename $0`
 # sleep time to let rasmgr shutdown servers first
 WAIT_FOR_CHILDREN=5
 
+# base DBMS used by petascope
+PETASCOPEDB=@petascopedb@
+PETASCOPEDB_PGSQL=postgresql
+PETASCOPEDB_HSQLDB=hsqldb
+PETASCOPEDB_SQLITE=sqlite
+
 # --- END CONSTANTS -------------------------------------------------
 
 # --- ACTION --------------------------------------------------------
@@ -83,6 +89,16 @@ sleep $WAIT_FOR_CHILDREN
 echo -n "terminating rasdaman server manager(s)..."
 @bindir@rascontrol -e -q -x down host -all
 echo "done."
+
+# if HSQLDB is used for petascope, stop HSQLDB server here
+if [ "$PETASCOPEDB" == "$PETASCOPEDB_HSQLDB" ]; then
+  metadata_url=$(grep metadata_url @sysconfdir@/petascope.properties | awk -F "=" '{print $2}' | tr -d '\n')
+  db_name=$(basename "$metadata_url")
+  db_file=$(echo "$metadata_url" | awk -F ":" '{ print $NF; }')
+  echo -n "$MYNAME: terminating petascope database..."
+  kill $(pgrep -f org.hsqldb.server.Server)
+  echo "done."
+fi
 
 # --- END ACTION ----------------------------------------------------
 

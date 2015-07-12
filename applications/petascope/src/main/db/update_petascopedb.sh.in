@@ -77,6 +77,14 @@ SETTINGS=@sysconfdir@/petascope.properties
 # petascope updateN.* scripts
 export SCRIPT_DIR=@pkgdatadir@/petascope
 
+export LIB_DIR=@libdir@
+
+# base DBMS used by petascope
+PETASCOPEDB=@petascopedb@
+PETASCOPEDB_PGSQL=postgresql
+PETASCOPEDB_HSQLDB=hsqldb
+PETASCOPEDB_SQLITE=sqlite
+
 # petascopedb tables and fields
 PS_DBUPDATES=ps_dbupdates
 DBUPDATES_ID=id
@@ -126,13 +134,6 @@ feedback() {
 #
 # checks
 #
-check_postgres() {
-  which psql > /dev/null || error "PostgreSQL missing, please add psql to the PATH."
-  pgrep postgres > /dev/null
-  if [ $? -ne 0 ]; then
-    pgrep postmaster > /dev/null || error "The PostgreSQL service is not started."
-  fi
-}
 check_paths() {
   if [ ! -f "$SETTINGS" ]; then
     error "petascope settings not found: $SETTINGS"
@@ -145,13 +146,22 @@ check_args_number() {
   if [ $1 -lt $MIN_ARGS -o $1 -gt $MAX_ARGS ]
   then
     error "$USAGE"
-fi
+  fi
 }
 check_ret() {
   if [ "$1" -ne 0 ]; then
     error "FAILED (return value $1)."
   fi
 }
+
+
+# ------------------------------------------------------------------------------
+#
+# PostgreSQL
+#
+# ------------------------------------------------------------------------------
+
+if [ "$PETASCOPEDB" == "$PETASCOPEDB_PGSQL" ]; then
 
 #
 # PostgreSQL utilities
@@ -205,6 +215,13 @@ set_dbupdate() {
   counter="$1"
   $PSQL -c "UPDATE $PS_DBUPDATES SET $DBUPDATES_UPDATE = $counter" > /dev/null 2>&1
   log "updated database to update $(( $counter-1 ))"
+}
+check_postgres() {
+  which psql > /dev/null || error "PostgreSQL missing, please add psql to the PATH."
+  pgrep postgres > /dev/null
+  if [ $? -ne 0 ]; then
+    pgrep postmaster > /dev/null || error "The PostgreSQL service is not started."
+  fi
 }
 
 #
@@ -453,6 +470,57 @@ else
         log "database updated: no further update was found in ${SCRIPT_DIR}."
     fi
 fi
+
+
+# ------------------------------------------------------------------------------
+#
+# HSQLDB
+#
+# ------------------------------------------------------------------------------
+
+elif [ "$PETASCOPEDB" == "$PETASCOPEDB_HSQLDB" ]; then
+
+# TODO: support updates, this just sets up the initial database
+
+check_paths
+
+PS_USER=$(grep metadata_user "$SETTINGS" | awk -F "=" '{print $2}' | tr -d '\n')
+PS_PASS=$(grep metadata_pass "$SETTINGS" | awk -F "=" '{print $2}' | tr -d '\n')
+PS_URL=$(grep metadata_url "$SETTINGS" | awk -F "=" '{print $2}' | tr -d '\n')
+INLINE_RC="--inlineRc=url=$PS_URL,user=$PS_USER,password="
+SQLTOOL="java -cp $LIB_DIR/hsqldb.jar -jar $LIB_DIR/sqltool.jar $INLINE_RC"
+sql_query()
+{
+  $SQLTOOL "$SCRIPT_DIR/$1"
+}
+
+echo "initializing HSQLDB petascope database"
+echo " setting up schema"
+sql_query update8-hsqldb/schema.sql
+echo " inserting global constants"
+sql_query update8-hsqldb/global_const.sql
+echo " north_first_crss init"
+sql_query update8-hsqldb/north_first_crss.sql
+echo " populating database"
+sql_query update8-hsqldb/populate.sql
+
+echo " update 5"
+sql_query update5-hsqldb.sql
+echo " update 9"
+sql_query update9-hsqldb.sql
+echo " update 10"
+sql_query update10.sql
+echo " update 11"
+sql_query update11-hsqldb.sql
+echo " update 12"
+sql_query update12-hsqldb.sql
+echo " update 13"
+sql_query update13-hsqldb.sql
+echo " update 14"
+sql_query update14-hsqldb.sql
+
+fi
+
 
 #
 # done

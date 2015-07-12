@@ -22,12 +22,14 @@
 #
 ###################################################################
 
-if BASEDB_PGSQL
+if PETASCOPEDB_PGSQL
   UPDATE_SCRIPT = update_petascopedb.sh.in
 endif
-if BASEDB_SQLITE
-#UPDATE_SCRIPT = update_petascopedb-sqlite.sh.in
+if PETASCOPEDB_HSQLDB
   UPDATE_SCRIPT = update_petascopedb.sh.in
+endif
+if PETASCOPEDB_SQLITE
+  UPDATE_SCRIPT = update_petascopedb-sqlite.sh.in
 endif
 
 
@@ -39,7 +41,9 @@ CLEANFILES = update_petascopedb.sh petascope_insertdemo.sh
 script_edit = $(SED) \
      -e 's|@sysconfdir[@]|$(sysconfdir)|g' \
      -e 's|@pkgdatadir[@]|$(pkgdatadir)|g' \
-     -e 's|@bindir[@]|$(bindir)|g'
+     -e 's|@bindir[@]|$(bindir)|g' \
+     -e 's|@libdir[@]|$(libdir)|g' \
+     -e 's|@petascopedb[@]|$(PETASCOPEDB)|g'
 
 petascope_insertdemo.sh:
 	rm -f $@
@@ -49,7 +53,7 @@ petascope_insertdemo.sh:
 
 update_petascopedb.sh:
 	rm -f $@
-	$(script_edit) $(UPDATE_SCRIPT) >$@
+	$(script_edit) $(UPDATE_SCRIPT) > $@
 	chmod +x $@
 	chmod a-w $@
 

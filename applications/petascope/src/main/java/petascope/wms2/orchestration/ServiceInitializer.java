@@ -23,6 +23,12 @@
 package petascope.wms2.orchestration;
 
 import com.sun.istack.Nullable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.util.Properties;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.PropertyConfigurator;
 import org.jetbrains.annotations.NotNull;
@@ -36,13 +42,6 @@ import petascope.wms2.rasdaman.RasdamanService;
 import petascope.wms2.rasdaman.RasdamanServiceConfig;
 import petascope.wms2.service.base.RequestCacheEngine;
 import petascope.wms2.util.ConfigManager;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.Properties;
 
 /**
  * Class to initialize all the instances needed by the service orchestrator. This will initialize the following:
@@ -195,7 +194,7 @@ class ServiceInitializer {
     private void initializePersistenceConfiguration() throws IOException, SQLException {
         Properties properties = filePathToPropertiesObject(pathToConfigurationFile);
         persistenceConfig = new PersistenceConfig(
-            properties.getProperty(KEY_METADATA_URL, "NONE").trim(),
+            petascope.ConfigManager.fileToHsqlConnectionUri(properties.getProperty(KEY_METADATA_URL, "NONE").trim()),
             properties.getProperty(KEY_METADATA_USER, "NONE").trim(),
             properties.getProperty(KEY_METADATA_PASS, "NONE").trim()
         );

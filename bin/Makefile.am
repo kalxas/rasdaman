@@ -43,7 +43,10 @@ script_edit = $(SED) \
      -e 's|@bindir[@]|$(bindir)/|g' \
      -e 's|@basedbms[@]|$(BASEDBSTRING)|g' \
      -e 's|@dbconn[@]|$(DBCONN)|g' \
-     -e 's|@pkgdatadir[@]|$(pkgdatadir)/|g'
+     -e 's|@pkgdatadir[@]|$(pkgdatadir)/|g' \
+     -e 's|@sysconfdir[@]|$(sysconfdir)|g' \
+     -e 's|@libdir[@]|$(libdir)|g' \
+     -e 's|@petascopedb[@]|$(PETASCOPEDB)|g'
 
 start_rasdaman.sh stop_rasdaman.sh create_db.sh update_db.sh: Makefile
 	rm -f $@
