@@ -341,12 +341,6 @@ fi
 %defattr(-,root,root,-)
 %{_bindir}/rasimport
 %{_bindir}/raserase
-%{_bindir}/fillpyramid
-%{_bindir}/initpyramid
-%{_bindir}/add_wms_service.sh
-%{_bindir}/drop_wms.sh
-%{_bindir}/fill_pyramid.sh
-%{_bindir}/init_wms.sh
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/rasdaman/rasconnect
 
 %files raswct
@@ -354,6 +348,10 @@ fi
 %{_datadir}/rasdaman/raswct
 
 %changelog
+
+* Fri Jul 13  2015 Dimitar Misev <misev@rasdaman.com> - 9.1.0-2
+
+ - Remove deprecated wms-tools
 
 * Fri Jun 10  2015 Dimitar Misev <misev@rasdaman.com> - 9.1.0
 
