@@ -272,6 +272,7 @@ r_Minterval readHeader( const char *fName, bool mdd3d, unsigned int numSlices )
  * preconditions:
  * - fname!=NULL, \0 terminated
  */
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 void readImage(char* contents, const char *fName,__attribute__ ((unused))  bool mdd3d, PixelType pixType, bool rescale, __attribute__ ((unused)) r_Range slicenum = 0, r_Range slicepos = 0 ) throw (r_Error)
 {
     FILE* fp=NULL;      // input image file
@@ -303,13 +304,11 @@ void readImage(char* contents, const char *fName,__attribute__ ((unused))  bool 
         {
             // read pixel
             aPixel = pixelsP[i][j];
-#pragma GCC diagnostic ignored "-Wsign-conversion"
             // scale pixel to 0-255
             if(rescale)
                 PPM_DEPTH( scaledPixel, aPixel, maxvalP, newMaxvalP );
             else
                 scaledPixel = aPixel;
-#pragma GCC diagnostic warning "-Wsign-conversion"
             pos = static_cast<unsigned long long>(slicepos*colsP*rowsP + j*rowsP + i);
 
             switch (pixType)
@@ -340,6 +339,7 @@ void readImage(char* contents, const char *fName,__attribute__ ((unused))  bool 
     pm_close(fp);
     ppm_freearray( pixelsP, rowsP );
 }
+#pragma GCC diagnostic warning "-Wsign-conversion"
 
 /*
  * open the image file; no reading is done
