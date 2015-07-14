@@ -36,6 +36,7 @@ rasdaman GmbH.
 #ifndef _R_CONV_CSV_HH_
 #define _R_CONV_CSV_HH_
 
+#include "raslib/minterval.hh"
 #include "conversion/convertor.hh"
 #include <ostream>
 #include <sstream>
@@ -93,6 +94,9 @@ private:
         INNER_OUTER
     };
 
+    /// init CSV class
+    void initCSV(void);
+
     /// logic for displaying values
     //    each method has argument "val" - pointer to the beginning of the record
     //    and returns pointer to the end of the read record
@@ -108,7 +112,50 @@ private:
         const r_Base_Type &type);
 
     void processOptions(const char *options);
+
+    void addStructElem(char** dest, r_Structure_Type &st, std::istringstream &str );
+
+    /// Description of constructStruct - Construct desc.dest when the type of the array
+    // is a struct type.
+    //      @param numElem - number of struct elements
+    //      that will be read from the csv file.
+    void constructStruct(unsigned int numElem);
+
+    /// Description of constructDest - Construct desc.dest
+    //      @param type - type of the elements in the csv file.
+    //      @param numElem - number of values that will be read from the csv file.
+    void constructDest(const r_Base_Type& type, unsigned int numElem);
+
     Order order;
+    char* basetype;
+    char* domain;
 };
+
+/// Description of constructPrimitive - Construct desc.dest when the type of the array
+// is a primitive type.
+//      @param dest - points to desc.dest.
+//      @param src - the content of the csv file.
+//      @param numElem - number of elements that will be read from the csv file.
+template<class T>
+void constructPrimitive(char* dest, const char* src, unsigned int numElem);
+
+/// Description of addElem - Add a value for an attribute of the structure type
+// in desc.dest. Exception: if the type of the attribute is char, addCharElem function is used.
+//      @param str - the istringstream used to read the values.
+//      @param dest - points to desc.dest.
+template<class T>
+void addElem(std::istringstream &str, char* dest);
+
+/// Description of addCharElem - Add a value for a char attribute of the structure type
+// in desc.dest.
+//       @param str - the istringstream used to read the values.
+//      @param dest - points to desc.dest.
+// Special case for when the current attribute of the structure is char.
+// The template function addElem can't be used because in this case it reads the value
+// from the file as a character and it should be interpreted as the ASCII value of
+// a character.
+void addCharElem(std::istringstream &str, char** dest);
+
+bool isValidCharacter(char c);
 
 #endif

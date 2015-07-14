@@ -76,6 +76,7 @@ check_type GreySet
 check_type RGBSet
 check_type Gauss2Set
 check_user_type TestSet
+check_user_type_file TestFLSet csv_types.dl
 
 
 
@@ -148,6 +149,37 @@ NUM_TOTAL=$(($NUM_TOTAL + 1))
 drop_colls test_tmp
 rm -f $f*
 }
+
+
+function run_csv_test()
+{
+local colltype=$1
+local f=$2
+local decodeopts=$3   # used on data insertion
+
+log ----- $fun and $inv_fun $colltype conversion ------
+
+create_coll test_tmp $colltype
+insert_into test_tmp "$TESTDATA_PATH/$f.csv" "$decodeopts" "inv_csv"
+export_to_file test_tmp "$f" "csv"
+
+logn "comparing images: "
+cmp $ORACLE_PATH/$f.csv $f.csv > /dev/null
+
+if [ $? != "0" ]
+then
+  echo input and output do not match
+  NUM_FAIL=$(($NUM_FAIL + 1))
+else
+  echo input and output match
+  NUM_SUC=$(($NUM_SUC + 1))
+fi
+NUM_TOTAL=$(($NUM_TOTAL + 1))
+
+drop_colls test_tmp
+rm -f $f*
+}
+
 
 ################## test nodata ###############################
 
@@ -308,6 +340,19 @@ run_test csv decode csv png RGBSet
 run_test encode inv_png csv png GreySet '' ', "csv"'
 
 run_test csv "" csv binary Gauss2Set "" "" "--mddtype Gauss2Image --mdddomain [0:1,-1:1]"
+
+run_csv_test FloatSet1 csv_float1 ",\"domain=[0:5];basetype=float\""
+run_csv_test FloatSet csv_float2 ",\"domain=[0:2,1:3];basetype=float\""
+run_csv_test GreySet3 csv_char3 ",\"domain=[0:1,1:2,2:3];basetype=char\""
+run_csv_test FloatSet3 csv_float3 ",\"domain=[0:2,1:2,4:6];basetype=float\""
+run_csv_test ShortSet3 csv_short3 ",\"domain=[-1:1,0:0,4:7];basetype=short\""
+run_csv_test ULongSet3 csv_ulong3 ",\"domain=[1:3,2:3,-3:-2];basetype=ulong\""
+run_csv_test DoubleSet3 csv_double3 ",\"domain=[100:102,105:106,-100:-99];basetype=double\""
+run_csv_test UShortSet3 csv_ushort3 ",\"domain=[1:3,0:2,4:6];basetype=ushort\""
+run_csv_test LongSet3 csv_long3 ",\"domain=[0:0,1:1,2:2];basetype=long\""
+run_csv_test RGBSet csv_rgb2 ",\"domain=[0:0,0:1];basetype=struct{char red, char green, char blue}\""
+run_csv_test RGBSet3 csv_rgb3 ",\"domain=[0:1,0:1,0:1];basetype=struct{char red, char green, char blue}\""
+run_csv_test TestFLSet csv_testfl2 ",\"domain=[0:1,0:2];basetype=struct{ float f, long l }\""
 
 ############## csv(order=inner_outer) #######
 log ----- csv with inner_outer order conversion ------

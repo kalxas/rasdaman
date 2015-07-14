@@ -80,11 +80,28 @@ using namespace std;
 const char *r_Conv_CSV::FALSE = "f";
 const char *r_Conv_CSV::TRUE = "t";
 
+/// internal initialization, common to all constructors
+void r_Conv_CSV::initCSV( void )
+{
+    ENTER( "r_Conv_CSV::initCSV()" );
+
+    basetype = NULL;
+    domain = NULL;
+
+    if (params == NULL)
+        params = new r_Parse_Params();
+
+    params->add("domain", &domain, r_Parse_Params::param_type_string);
+    params->add("basetype", &basetype, r_Parse_Params::param_type_string);
+
+    LEAVE( "r_Conv_CSV::initCSV()" );
+}
+
+
 r_Conv_CSV::r_Conv_CSV(const char *src, const r_Minterval &interv, const r_Type *tp) throw(r_Error)
     : r_Convertor(src, interv, tp, true)
 {
-    if (params == NULL)
-        params = new r_Parse_Params();
+    initCSV();
 }
 
 
@@ -92,8 +109,7 @@ r_Conv_CSV::r_Conv_CSV(const char *src, const r_Minterval &interv, const r_Type 
 r_Conv_CSV::r_Conv_CSV(const char *src, const r_Minterval &interv, int tp) throw(r_Error)
     : r_Convertor(src, interv, tp)
 {
-    if (params == NULL)
-        params = new r_Parse_Params();
+    initCSV();
 }
 
 r_Conv_CSV::~r_Conv_CSV(void)
@@ -239,6 +255,224 @@ void r_Conv_CSV::processOptions(const char *options)
     }
 }
 
+bool isValidCharacter(char c)
+{
+    if( c == '{' || c == '}' || c == ',' || c == '"' || c == '\'' ||
+        c == '(' || c == ')' || c == '[' || c == ']' || isspace(c) || !isprint(c) )
+        return false;
+    else
+        return true;
+}
+
+template<class T>
+void addElem(std::istringstream &str, char** dest)
+{
+    T* tmpDest = (T*)(*dest);
+    T value;
+    char charToken = ' ';
+
+    while(!isValidCharacter(charToken))
+    {
+        str >>charToken;
+    }
+    str.putback(charToken);
+    str >> value;
+    *tmpDest = value;
+    *dest += sizeof(value);
+}
+
+void addCharElem(std::istringstream &str, char** dest)
+{
+    char* tmpDest = (char*)(*dest);
+    short value;
+    char charToken = ' ';
+
+    while(!isValidCharacter(charToken))
+    {
+        str >>charToken;
+    }
+    str.putback(charToken);
+    str >> value;
+    *tmpDest = value;
+    *dest += sizeof(char);
+}
+
+void r_Conv_CSV::addStructElem(char** dest, r_Structure_Type &st, std::istringstream &str )
+{
+    r_Structure_Type::attribute_iterator iter(st.defines_attribute_begin());
+    while (iter != st.defines_attribute_end())
+    {
+        if(((*iter).type_of()).isStructType())
+        {
+            addStructElem(dest, (r_Structure_Type&)const_cast<r_Base_Type&>((*iter).type_of()), str);
+        }
+        else
+        {
+            if(((*iter).type_of()).isPrimitiveType())
+            {
+                switch (((*iter).type_of()).type_id())
+                {
+                case r_Type::ULONG:
+                    addElem<r_ULong>(str, dest);
+                    break;
+                case r_Type::USHORT:
+                    addElem<r_UShort>(str, dest);
+                    break;
+                case r_Type::BOOL:
+                    RMInit::logOut << "r_Conv_CSV::convertFrom: unsupported primitive type " << ((*iter).type_of()).type_id() << endl;
+                    LEAVE("r_Conv_CSV::convertFrom()");
+                    throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
+                    break;
+                case r_Type::LONG:
+                    addElem<r_Long>(str, dest);
+                    break;
+                case r_Type::SHORT:
+                    addElem<r_Short>(str, dest);
+                    break;
+                case r_Type::OCTET:
+                    addElem<r_Octet>(str, dest);
+                    break;
+                case r_Type::DOUBLE:
+                    addElem<r_Double>(str, dest);
+                    break;
+                case r_Type::FLOAT:
+                    addElem<r_Float>(str, dest);
+                    break;
+                case r_Type::CHAR:
+                    addCharElem(str, dest);
+                    break;
+                default:
+                    RMInit::logOut << "r_Conv_CSV::convertFrom: unsupported primitive type for structure attribute " << ((*iter).type_of()).type_id() << endl;
+                    LEAVE("r_Conv_CSV::convertFrom()");
+                    throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
+                }
+            }
+            else
+            {
+                RMInit::logOut << "r_Conv_CSV::convertFrom: unsupported attribute type " << ((*iter).type_of()).type_id() << endl;
+                LEAVE("r_Conv_CSV::convertFrom()");
+                throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
+            }
+        }
+        iter++;
+    }
+}
+
+void r_Conv_CSV::constructStruct(unsigned int numElem)
+{
+    r_Structure_Type *st = static_cast<r_Structure_Type*>(desc.destType);
+
+    std::string s(desc.src);
+    istringstream str(s);
+
+    char charToken;
+    unsigned int countVal = 0;
+    char *tmpDest = desc.dest;
+
+    while( str >> charToken && countVal < numElem)
+    {
+        if(isValidCharacter(charToken))
+        {
+            str.putback(charToken);
+            addStructElem(&tmpDest, *st, str);
+            countVal++;
+        }
+    }
+    if(countVal != numElem)
+    {
+        RMInit::logOut << "r_Conv_CSV::convertFrom(): wrong number of values!" << endl;
+        LEAVE("r_Conv_CSV::convertFrom()");
+        throw r_Error(r_Error::r_Error_General);
+    }
+}
+
+template<class T>
+void constructPrimitive(char* dest, const char* src, unsigned int numElem)
+{
+    T* tmpDest;
+    char charToken;
+    T value;
+    tmpDest = (T*)dest;
+
+    //istringstream used to read the csv values ignoring all other characters
+    std::string srcString(src);
+    istringstream str(srcString);
+    unsigned int countVal = 0;
+
+    while( str >> charToken && countVal < numElem)
+    {
+        if(isValidCharacter(charToken))
+        {
+            str.putback(charToken);
+            str >> value;
+            countVal++;
+            *tmpDest = value;
+            tmpDest++;
+        }
+    }
+
+    if(countVal != numElem)
+    {
+        RMInit::logOut << "r_Conv_CSV::convertFrom(): wrong number of values!" << endl;
+        LEAVE("r_Conv_CSV::convertFrom()");
+        throw r_Error(r_Error::r_Error_General);
+    }
+}
+
+void r_Conv_CSV::constructDest(const r_Base_Type& type, unsigned int numElem)
+{
+    if(type.isPrimitiveType())
+    {
+        switch (type.type_id())
+                {
+                case r_Type::ULONG:
+                    constructPrimitive<r_ULong>(desc.dest, desc.src, numElem);
+                    break;
+                case r_Type::USHORT:
+                    constructPrimitive<r_UShort>(desc.dest, desc.src, numElem);
+                    break;
+                case r_Type::BOOL:
+                    RMInit::logOut << "r_Conv_CSV::convertFrom: unsupported primitive type " << type.type_id() << endl;
+                    LEAVE("r_Conv_CSV::convertFrom()");
+                    throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
+                    break;
+                case r_Type::LONG:
+                    constructPrimitive<r_Long>(desc.dest, desc.src, numElem);
+                    break;
+                case r_Type::SHORT:
+                    constructPrimitive<r_Short>(desc.dest, desc.src, numElem);
+                    break;
+                case r_Type::OCTET:
+                    constructPrimitive<r_Octet>(desc.dest, desc.src, numElem);
+                    break;
+                case r_Type::DOUBLE:
+                    constructPrimitive<r_Double>(desc.dest, desc.src, numElem);
+                    break;
+                case r_Type::FLOAT:
+                    constructPrimitive<r_Float>(desc.dest, desc.src, numElem);
+                    break;
+                case r_Type::CHAR:
+                    constructPrimitive<r_Char>(desc.dest, desc.src, numElem);
+                    break;
+                default:
+                    RMInit::logOut << "r_Conv_CSV::convertFrom: unsupported primitive type " << type.type_id() << endl;
+                    LEAVE("r_Conv_CSV::convertFrom()");
+                    throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
+        }
+    }
+    else
+        if(type.isStructType())
+        {
+            constructStruct(numElem);
+        }
+        else
+        {
+            RMInit::logOut << "r_Conv_CSV::convertFrom: unsupported type " << type.type_id() << endl;
+            LEAVE("r_Conv_CSV::convertFrom()");
+            throw r_Error(BASETYPENOTSUPPORTEDBYOPERATION);
+        }
+}
+
 r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
 {
     ENTER("r_Conv_CSV::convertTo()");
@@ -300,12 +534,40 @@ r_convDesc &r_Conv_CSV::convertTo( const char *options ) throw(r_Error)
     return desc;
 }
 
-
-
-r_convDesc &r_Conv_CSV::convertFrom(__attribute__ ((unused)) const char *options) throw(r_Error)
+r_convDesc &r_Conv_CSV::convertFrom(const char *options) throw(r_Error)
 {
-    RMInit::logOut << "importing CSV data not yet implemented" << endl;
-    throw new r_Error(CONVERSIONFORMATNOTSUPPORTED);
+    ENTER("r_Conv_CSV::convertFrom()");
+
+    // process the arguments domain and basetype
+    params->process(options, ';', true);
+    if(domain == NULL || basetype == NULL)
+    {
+        RMInit::logOut << "r_Conv_CSV::convertFrom(): NULL parameters error!" << endl;
+        LEAVE("r_Conv_CSV::convertFrom()");
+        throw r_Error(r_Error::r_Error_General);
+    }
+
+    desc.destInterv = r_Minterval(domain);
+    desc.destType = r_Type::get_any_type(basetype);
+    desc.dest = NULL;
+
+    unsigned int totalSize = 0;
+    unsigned int typeSize = ((r_Base_Type*)desc.destType)->size();
+    unsigned int numElem = desc.destInterv.cell_count();
+    const r_Base_Type *type = static_cast<const r_Base_Type *>(desc.destType);
+
+    totalSize = numElem * typeSize;
+
+    if ((desc.dest = static_cast<char*>(mystore.storage_alloc(totalSize))) == NULL)
+    {
+        RMInit::logOut << "r_Conv_CSV::convertFrom(): out of memory error!" << endl;
+        LEAVE("r_Conv_CSV::convertFrom()");
+        throw r_Error(MEMMORYALLOCATIONERROR);
+    }
+
+    constructDest(*type, numElem);
+
+    LEAVE("r_Conv_CSV::convertFrom()");
     return desc;
 }
 

@@ -97,6 +97,21 @@ function check_user_type()
 
 
 # ------------------------------------------------------------------------------
+# check user-defined types, if not present testdata/types.dl is read by rasdl.
+# arg 1: set type name
+#
+function check_user_type_file()
+{
+  local SET_TYPE="$1"
+  local TYPES_FILE="$2"
+  $RASDL -p | egrep --quiet  "\b$SET_TYPE\b"
+  if [ $? -ne 0 ]; then
+    $RASDL -r $TESTDATA_PATH/$TYPES_FILE -i > /dev/null
+  fi
+}
+
+
+# ------------------------------------------------------------------------------
 # check built-in types, if not present error is thrown
 # arg 1: set type name
 #

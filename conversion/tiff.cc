@@ -797,6 +797,7 @@ r_convDesc &r_Conv_TIFF::convertFrom(const char *options) throw(r_Error) // CONV
         if ((desc.dest = static_cast<char*>(mystore.storage_alloc(width*height*typeSize*sizeof(char)))) == NULL)
         {
             RMInit::logOut << "r_Conv_TIFF::convertFrom(): out of memory error!" << endl;
+            throw r_Error(MEMMORYALLOCATIONERROR);
         }
         else
         {

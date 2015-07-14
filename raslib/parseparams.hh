@@ -82,6 +82,7 @@ public:
      */
     /// process parameter string
     int process( const char *str ) const;
+    int process( const char *str, char separator, bool withWhiteSpaces ) const;
     /**
        process the parameter string. Returns the number of keywords found
        or -1 for error.

@@ -105,6 +105,12 @@ int r_Parse_Params::add( const char *key, void *store, parse_param_type type )
 
 int r_Parse_Params::process( const char *str ) const
 {
+    return this->process(str, ',', false);
+}
+
+
+int r_Parse_Params::process( const char *str, char separator, bool withWhiteSpaces ) const
+{
     static const int lenBuff=256;
     static char buff[lenBuff];
     int numkeys = 0;
@@ -122,7 +128,7 @@ int r_Parse_Params::process( const char *str ) const
     while (*b != '\0')
     {
         //cout << numkeys << '(' << b << ')' << std::endl;
-        while ((isspace(static_cast<unsigned int>(*b))) || (*b == ',')) b++;
+        while ((isspace(static_cast<unsigned int>(*b))) || (*b == separator)) b++;
         if (*b == '\0') break;
         if (isalpha(static_cast<unsigned int>(*b)))
         {
@@ -152,7 +158,7 @@ int r_Parse_Params::process( const char *str ) const
                 {
                     b++;
                     while (isspace(static_cast<unsigned int>(*b))) b++;
-                    if ((*b != ',') && (*b != '\0'))
+                    if ((*b != separator) && (*b != '\0'))
                     {
                         const char *aux=b;
 
@@ -212,7 +218,10 @@ int r_Parse_Params::process( const char *str ) const
                             else
                             {
                                 aux = b;
-                                while ((!isspace(static_cast<unsigned int>(*b))) && (*b != '\0') && (*b != ',')) b++;
+                                if(withWhiteSpaces == false)
+                                    while ((!isspace(static_cast<unsigned int>(*b))) && (*b != '\0') && (*b != separator)) b++;
+                                else
+                                    while ((*b != '\0') && (*b != separator)) b++;
                                 vlen = (b - aux);
                                 statval = 1;
                             }
@@ -247,7 +256,7 @@ int r_Parse_Params::process( const char *str ) const
                 }
             }
             inquotes = 0;
-            while (((*b != ',') || (inquotes != 0)) && (*b != '\0'))
+            while (((*b != separator) || (inquotes != 0)) && (*b != '\0'))
             {
                 if (*b == '\"')
                     inquotes ^= 1;
