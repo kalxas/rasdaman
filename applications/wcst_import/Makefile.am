@@ -5,7 +5,7 @@ CP = cp -r
 RM = rm -rf
 MKDIR = mkdir
 INSTALL_DIR = $(DESTDIR)$(datadir)/rasdaman/wcst_import
-PYTHON_SCRIPT = $(datadir)/wcst_import.py
+PYTHON_SCRIPT = $(datadir)/rasdaman/wcst_import/wcst_import.py
 BIN_DIR = $(DESTDIR)$(bindir)
 
 all:
