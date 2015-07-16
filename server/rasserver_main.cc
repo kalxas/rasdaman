@@ -85,8 +85,9 @@ RMINITGLOBALS('C')
 
 #ifdef RMANRASNET
 #include "rasserver_x/src/rasnetserver.hh"
-#include "common/src/logging/easylogging++.hh"
 #endif
+
+#include "../common/src/logging/easylogging++.hh"
 
 // return codes
 #define RC_OK       0
@@ -128,7 +129,6 @@ crash_handler( int sig, siginfo_t* info, void * ucontext);
 
 void
 crash_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo_t* info, void * ucontext) {
-  ENTER( "crash_handler");
 
   print_stacktrace(ucontext);
   if (TileCache::cacheLimit > 0)
@@ -138,60 +138,44 @@ crash_handler(__attribute__ ((unused)) int sig, __attribute__ ((unused)) siginfo
   if (server != NULL)
     delete server;
   server = NULL;
-  RMInit::logOut << endl << "rasserver terminated." << endl;
+  LINFO << "rasserver terminated.";
 
-  LEAVE("crash_handler");
   exit(SEGFAULT_EXIT_CODE);
 }
 
-#ifdef RMANRASNET
-    _INITIALIZE_EASYLOGGINGPP
-#endif
+_INITIALIZE_EASYLOGGINGPP
 
 int main ( int argc, char** argv )
 {
-
-#ifdef RMANRASNET
-    easyloggingpp::Configurations defaultConf;
-    defaultConf.setToDefault();
-    defaultConf.set(easyloggingpp::Level::Error,
-                    easyloggingpp::ConfigurationType::Format,
-                    "%datetime %level %loc %log %func ");
-    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
-#endif
-
     installSigSegvHandler(crash_handler);
 
     SET_OUTPUT( true );     // enable debug output, if compiled so
-    ENTER( "rasserver.main()" );
 
     //print startup text (this line will still go into forking rasmgr's log!)
     cout << "Spawned rasserver " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << " -- generated on " << COMPDATE << "." << endl;
 
     if(configuration.parseCommandLine(argc, argv) == false)
     {
-        RMInit::logOut << "Error: cannot parse command line." << endl;
-        LEAVE( "rasserver.main(): Error parsing command line." );
+        LERROR << "Error: cannot parse command line.";
         return RC_ERROR;
     }
 
-    RMInit::logOut << "rasserver: rasdaman server " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << " -- generated on " << COMPDATE << "." << endl;
-    RMInit::logOut << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH." << std::endl
-                   << "Rasdaman community is free software: you can redistribute it and/or modify "
-                   << "it under the terms of the GNU General Public License as published by "
-                   << "the Free Software Foundation, either version 3 of the License, or "
-                   << "(at your option) any later version. \n"
-                   << "Rasdaman community is distributed in the hope that it will be useful, "
-                   << "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-                   << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
-                   << "GNU General Public License for more details. \n\n";
+    LINFO << "rasserver: rasdaman server " << RMANVERSION << " on base DBMS "  << BASEDBSTRING  << " -- generated on " << COMPDATE << ".";
+    LINFO << " Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann rasdaman GmbH. \n"
+          << "Rasdaman community is free software: you can redistribute it and/or modify "
+          << "it under the terms of the GNU General Public License as published by "
+          << "the Free Software Foundation, either version 3 of the License, or "
+          << "(at your option) any later version. \n"
+          << "Rasdaman community is distributed in the hope that it will be useful, "
+          << "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+          << "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
+          << "GNU General Public License for more details. \n";
 
-    RMInit::logOut << "To obtain a list of external packages used, please visit www.rasdaman.org." << endl;
+    LINFO << "To obtain a list of external packages used, please visit www.rasdaman.org.";
 
     if(initialization() == false )
     {
-        RMInit::logOut << "Error during initialization. aborted." << endl;
-        LEAVE( "rasserver.main(): Error during initialization." );
+        LERROR << "Error during initialization. aborted.";
         return RC_ERROR;
     }
 
@@ -199,24 +183,24 @@ int main ( int argc, char** argv )
     // body rasserver
     //
 
-    RMInit::logOut << "Installing signal handler for ignoring broken pipe signal..." << flush;
+    LINFO << "Installing signal handler for ignoring broken pipe signal...";
     signal( SIGPIPE, SIG_IGN );
-    RMInit::logOut << "ok" << endl;
+    LINFO << "ok";
 
     int returnCode = 0;
     try
     {
-        TALK( "selecting server type..." );
+        LDEBUG << "selecting server type...";
 
         if(configuration.isRnpServer())
         {
-            TALK( "startRnpServer()..." );
+            LDEBUG << "startRnpServer()...";
             startRnpServer();
-            TALK( "startRnpServer() done." );
+            LDEBUG << "startRnpServer() done.";
         }
         else if(configuration.isHttpServer())
         {
-            TALK( "initializing HttpServer()..." );
+            LDEBUG << "initializing HttpServer()...";
             server = new HttpServer( clientTimeOut, managementInterval, static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost), static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
         }
 #ifdef RMANRASNET
@@ -229,28 +213,28 @@ int main ( int argc, char** argv )
 #endif
         else
         {
-            TALK( "initializing ServerComm() (ie: RPC)..." );
+            LDEBUG << "initializing ServerComm() (ie: RPC)..." ;
             server = new ServerComm( clientTimeOut, managementInterval, static_cast<unsigned int>(serverListenPort), const_cast<char*>(rasmgrHost), static_cast<unsigned int>(rasmgrPort), const_cast<char*>(serverName));
         }
 
         // in case of HTTP or RPC server: launch previously generated object
         if(server)
         {
-            TALK( "server->startRpcServer()..." );
+            LDEBUG << "server->startRpcServer()..." ;
             server->startRpcServer();
-            TALK( "server->startRpcServer() done." );
+            LDEBUG << "server->startRpcServer() done." ;
         }
     }
     catch ( r_Error& errorObj )
     {
-        TALK( "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what() );
-        RMInit::logOut << "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what() << endl;
+        LDEBUG << "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what() ;
+        LERROR << "Error: encountered " << errorObj.get_errorno() << ": " << errorObj.what();
         returnCode = RC_ERROR;
     }
     catch(...)
     {
-        TALK( "rasserver: general exception" );
-        RMInit::logOut << "rasserver: general exception" << endl;
+        LDEBUG << "rasserver: general exception" ;
+        LERROR << "rasserver: general exception";
         returnCode = RC_ERROR;
     }
 
@@ -262,8 +246,7 @@ int main ( int argc, char** argv )
         free( dbSchema );
     dbSchema = NULL;
 
-    LEAVE( "rasserver.main(): -> " << returnCode );
-    RMInit::logOut << "rasserver terminated." << std::endl;
+    LINFO << "rasserver terminated.";
     return returnCode;
 }
 
@@ -274,38 +257,38 @@ bool initialization()
 
     serverListenPort = globalHTTPPort = configuration.getListenPort();
 
-    RMInit::logOut<<"Server "<< serverName << " of type ";
+    LINFO << "Server " << serverName << " of type ";
 
     if(configuration.isRnpServer())
-        RMInit::logOut << "RNP, listening on port " << serverListenPort << flush;
+        LINFO << "RNP, listening on port " << serverListenPort;
     else if(configuration.isHttpServer())
-        RMInit::logOut << "HTTP, listening on port " << serverListenPort << flush;
+        LINFO << "HTTP, listening on port " << serverListenPort;
     else
-        RMInit::logOut << "RPC, registered with prognum 0x" << hex <<serverListenPort << dec << flush;
+        LINFO << "RPC, registered with prognum 0x" << hex <<serverListenPort << dec;
 
     //  globalConnectId         = configuration.getDbConnectionID();
     strcpy(globalConnectId,configuration.getDbConnectionID());
-    RMInit::logOut << ", connecting to " << BASEDBSTRING << " as '" << globalConnectId <<  "'";
+    LINFO << ", connecting to " << BASEDBSTRING << " as '" << globalConnectId <<  "'";
 
     strcpy(globalDbUser,configuration.getDbUser());
     if (strlen(configuration.getDbUser()) > 0)
     {
-        RMInit::logOut << ", user " << globalDbUser;
+        LINFO << ", user " << globalDbUser;
     }
-    RMInit::logOut << ".";
+    LINFO << ".";
     strcpy(globalDbPasswd,configuration.getDbPasswd());
 
     rasmgrHost = configuration.getRasmgrHost();
     rasmgrPort = configuration.getRasmgrPort();
 
-    RMInit::logOut << "Verifying rasmgr host name: " << rasmgrHost << "...";
+    LINFO << "Verifying rasmgr host name: " << rasmgrHost << "...";
     if(!gethostbyname(rasmgrHost))
     {
-        RMInit::logOut << "failed" << endl;
-        if(!configuration.isLogToStdOut())  RMInit::logOut << "failed" << endl;
+        LINFO << "failed";
+        if(!configuration.isLogToStdOut())  LINFO << "failed";
         return false;
     }
-    RMInit::logOut << "ok" << endl;
+    LINFO << "ok";
 
     maxTransferBufferSize = static_cast<unsigned int>(configuration.getMaxTransferBufferSize());
 
@@ -317,23 +300,23 @@ bool initialization()
 
     //tilesize
     StorageLayout::DefaultTileSize = static_cast<unsigned int>(configuration.getDefaultTileSize());
-    RMInit::logOut << "Tile size set to : " << StorageLayout::DefaultTileSize << endl;
+    LINFO << "Tile size set to : " << StorageLayout::DefaultTileSize;
 
     //pctmin
     StorageLayout::DefaultMinimalTileSize = static_cast<unsigned int>(configuration.getDefaultPCTMin());
-    RMInit::logOut << "PCTMin set to     : " << StorageLayout::DefaultMinimalTileSize << endl;
+    LINFO << "PCTMin set to     : " << StorageLayout::DefaultMinimalTileSize;
 
     //pctmax
     StorageLayout::DefaultPCTMax = static_cast<unsigned int>(configuration.getDefaultPCTMax());
-    RMInit::logOut << "PCTMax set to     : " << StorageLayout::DefaultPCTMax << endl;
+    LINFO << "PCTMax set to     : " << StorageLayout::DefaultPCTMax;
 
     //indexsize
     StorageLayout::DefaultIndexSize = static_cast<unsigned int>(configuration.getDefaultIndexSize());
-    RMInit::logOut << "IndexSize set to : " << StorageLayout::DefaultIndexSize << endl;
+    LINFO << "IndexSize set to : " << StorageLayout::DefaultIndexSize;
 
 #ifdef RMANDEBUG
     RManDebug = configuration.getDebugLevel();
-    RMInit::logOut<<"Debug level: " << RManDebug << endl;
+    LINFO<<"Debug level: " << RManDebug;
 #endif
 
     try
@@ -342,16 +325,16 @@ bool initialization()
     }
     catch(r_Error& err)
     {
-        RMInit::logOut << "Error converting " << configuration.getDefaultTileConfig() << " to r_Minterval" << endl;
-        RMInit::logOut << "Error " << err.get_errorno() << " : " << err.what() << endl;
+        LERROR << "Error converting " << configuration.getDefaultTileConfig() << " to r_Minterval";
+        LERROR << "Error " << err.get_errorno() << " : " << err.what();
         if(!configuration.isLogToStdOut())
         {
-            RMInit::logOut << "Error converting " << configuration.getDefaultTileConfig() << " to r_Minterval" << endl;
-            RMInit::logOut << "Error " << err.get_errorno() << " : " << err.what() << endl;
+            LERROR << "Error converting " << configuration.getDefaultTileConfig() << " to r_Minterval";
+            LERROR << "Error " << err.get_errorno() << " : " << err.what();
         }
         return false;
     }
-    RMInit::logOut << "Default Tile Conf: " << StorageLayout::DefaultTileConfiguration << endl;
+    LINFO << "Default Tile Conf: " << StorageLayout::DefaultTileConfiguration;
 
     // Tiling
     r_Tiling_Scheme tmpTS=get_tiling_scheme_from_name(configuration.getTilingScheme());
@@ -361,31 +344,31 @@ bool initialization()
 
     if((tmpTS != r_NoTiling) && (tmpTS != r_RegularTiling) && (tmpTS != r_AlignedTiling))
     {
-        RMInit::logOut << "Error: unsupported tiling strategy: " << configuration.getTilingScheme() << endl;
+        LERROR << "Error: unsupported tiling strategy: " << configuration.getTilingScheme();
         if(configuration.isLogToStdOut())
         {
-            RMInit::logOut << "Error: unsupported tiling strategy: " << configuration.getTilingScheme() << endl;
+            LERROR << "Error: unsupported tiling strategy: " << configuration.getTilingScheme();
         }
         return false;
     }
 
     //retiling enabled only if tiling scheme is regular tiling
     RMInit::tiling = (tmpTS == r_RegularTiling);
-    RMInit::logOut << "Default Tiling   : " << StorageLayout::DefaultTilingScheme << endl;
+    LINFO << "Default Tiling   : " << StorageLayout::DefaultTilingScheme;
 
     // Index
     r_Index_Type tmpIT = get_index_type_from_name(configuration.getIndexType());
     if ( tmpIT != r_Index_Type_NUMBER)
         StorageLayout::DefaultIndexType = tmpIT;
-    RMInit::logOut << "Default Index    : " << StorageLayout::DefaultIndexType << endl;
+    LINFO << "Default Index    : " << StorageLayout::DefaultIndexType;
 
     //use tilecontainer
     RMInit::useTileContainer = configuration.useTileContainer();
-    RMInit::logOut << "Use Tile Container: " << RMInit::useTileContainer << endl;
+    LINFO << "Use Tile Container: " << RMInit::useTileContainer;
     
     //set cache size limit
     TileCache::cacheLimit = configuration.getCacheLimit();
-    RMInit::logOut << "Cache size limit  : " << TileCache::cacheLimit << endl;
+    LINFO << "Cache size limit  : " << TileCache::cacheLimit;
 
     return true;
 }

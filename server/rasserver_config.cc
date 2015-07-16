@@ -38,6 +38,8 @@ using namespace std;
 #include "storagemgr/sstoragelayout.hh"
 #include "servercomm/httpserver.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 Configuration configuration;
 
 Configuration::Configuration()
@@ -71,7 +73,7 @@ bool Configuration::parseCommandLine(int argc, char** argv)
 
         if(!logToStdOut)
         {
-            RMInit::logOut<<"Error: " << ex.what()<<endl;
+            LERROR << "Error: " << ex.what();
         }
         return false;
     }
@@ -146,8 +148,6 @@ void Configuration::initParameters()
 
 void Configuration::checkParameters()
 {
-    ENTER( "Configuration::checkParameters()" );
-
     serverName = cmlRsn->getValueAsString();
 
     initLogFiles();
@@ -156,7 +156,7 @@ void Configuration::checkParameters()
 
     rasmgrHost = cmlMgr->getValueAsString();
     rasmgrPort = cmlMgrPort->getValueAsLong();
-    TALK( "rasmgrHost = " << rasmgrHost << ", rasmgrPort = " << rasmgrPort );
+    LDEBUG << "rasmgrHost = " << rasmgrHost << ", rasmgrPort = " << rasmgrPort;
 
     deprecated(cmlMgrSync);
 
@@ -196,7 +196,6 @@ void Configuration::checkParameters()
     dbgLevel   = 4;
 #endif
 
-    LEAVE( "Configuration::checkParameters()" );
 }
 
 void Configuration::printHelp()
@@ -214,6 +213,17 @@ void Configuration::printHelp()
 void
 Configuration::initLogFiles()
 {
+    //Default logging configuration
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::Format, "%datetime %level %log");
+    defaultConf.set(easyloggingpp::Level::Debug,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    easyloggingpp::Loggers::reconfigureAllLoggers ( defaultConf );
+
     if( cmlLog->isPresent())
     {
         if( strcasecmp(cmlLog->getValueAsString(), "stdout") != 0)
@@ -234,6 +244,9 @@ Configuration::initLogFiles()
         logToStdOut = false;
     }
 
+    defaultConf.set(easyloggingpp::Level::All ,easyloggingpp::ConfigurationType::Filename, logFileName);
+    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+
     if( logToStdOut == true)
     {
         RMInit::logOut.rdbuf(cout.rdbuf());
@@ -245,7 +258,7 @@ Configuration::initLogFiles()
         if (RMInit::logFileOut.is_open())
             RMInit::logFileOut.close();
 
-        RMInit::logFileOut.open(logFileName, ios::out | ios::ate);
+        RMInit::logFileOut.open(logFileName, ios::out | ios::app);
         RMInit::logOut.rdbuf(RMInit::logFileOut.rdbuf());
         RMInit::dbgOut.rdbuf(RMInit::logFileOut.rdbuf());
         RMInit::bmOut.rdbuf(RMInit::logFileOut.rdbuf());

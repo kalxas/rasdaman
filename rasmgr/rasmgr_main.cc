@@ -51,6 +51,8 @@ rasdaman GmbH.
 #include "rasmgr_error.hh"
 #include "raslib/rminit.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 #ifndef COMPDATE
 #error "Please specify the COMPDATE variable!"
 /*
@@ -63,6 +65,8 @@ and -DCOMPDATE="\"$(COMPDATE)\"" when compiling
 #define DEBUG_MAIN
 #undef DEBUG_HH
 #include "debug-srv.hh"
+
+_INITIALIZE_EASYLOGGINGPP
 
 RMINITGLOBALS('S')
 
@@ -87,11 +91,9 @@ int main(int argc, char** argv, char** envp)
 {
     SET_OUTPUT( true ); // enable debugging trace, if compiled so
 
-    ENTER( "main." );
-
     if(testIsMessageDigestAvailable("MD5")==false)
     {
-        RMInit::logOut<<"Error: Message Digest MD5 not available."<<std::endl;
+        LERROR << "Error: Message Digest MD5 not available.";
         return RASMGR_RESULT_NO_MD5;
     }
 
@@ -101,84 +103,80 @@ int main(int argc, char** argv, char** envp)
     if (result == false)
         return RASMGR_RESULT_ILL_ARGS;
 
-    RMInit::logOut << "rasmgr: rasdaman server manager tool. rasdaman "
-         << RMANVERSION << " -- generated on " << COMPDATE << "." << std::endl
-         << "Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann, rasdaman GmbH.\n"
-         << "Rasdaman community is free software: you can redistribute it and/or modify "
-         "it under the terms of the GNU General Public License as published by "
-         "the Free Software Foundation, either version 3 of the License, or "
-         "(at your option) any later version. \n"
-         "Rasdaman community is distributed in the hope that it will be useful, "
-         "but WITHOUT ANY WARRANTY; without even the implied warranty of "
-         "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
-         "GNU General Public License for more details. \n\n";
+    LINFO << "rasmgr: rasdaman server manager tool. rasdaman "
+          << RMANVERSION << " -- generated on " << COMPDATE << ".\n"
+          << "Copyright 2003, 2004, 2005, 2006, 2007, 2008, 2009 Peter Baumann, rasdaman GmbH.\n"
+          << "Rasdaman community is free software: you can redistribute it and/or modify "
+          "it under the terms of the GNU General Public License as published by "
+          "the Free Software Foundation, either version 3 of the License, or "
+          "(at your option) any later version. \n"
+          "Rasdaman community is distributed in the hope that it will be useful, "
+          "but WITHOUT ANY WARRANTY; without even the implied warranty of "
+          "MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the "
+          "GNU General Public License for more details. \n";
 
     if(config.isTestModus())
     {
-        RMInit::logOut<<"rasmgr running in test modus ";
-        VLOG <<", listening on port=" << config.getListenPort() << std::endl;
+        LINFO << "rasmgr running in test modus ";
+        LDEBUG <<", listening on port=" << config.getListenPort();
     }
     else
     {
-        VLOG << " rasmgr running on " << config.getHostName() << ", listening on port " << config.getListenPort();
-        VLOG << " with poll timeout " << config.getPollFrequency() << " seconds. ";
+        LDEBUG << " rasmgr running on " << config.getHostName() << ", listening on port " << config.getListenPort();
+        LDEBUG << " with poll timeout " << config.getPollFrequency() << " seconds. ";
     }
 
     if(config.isTestModus()==false)
     {
-        TALK( "hostname=" << config.getHostName() << ", publicHostname=" << config.getPublicHostName() );
+        LDEBUG <<  "hostname=" << config.getHostName() << ", publicHostname=" << config.getPublicHostName();
         if(strcmp(config.getHostName(),config.getPublicHostName()) != 0)
         {
-            VLOG <<"Advertised host name is "<<config.getPublicHostName()<<std::endl;
+            LDEBUG <<"Advertised host name is "<<config.getPublicHostName();
         }
 
         bool resultConfig = config.readConfigFile();
-        TALK( "rasmgr::main: resultConfig=" << resultConfig );
+        LDEBUG << "rasmgr::main: resultConfig=" << resultConfig;
         rascontrol.setConfigDirty( false );        // all changes to config up to now come from config file, do not require save
 
         int resultAuth = authorization.readAuthFile();
-        TALK( "rasmgr::main: resultAuth=" << resultAuth );
+        LDEBUG << "rasmgr::main: resultAuth=" << resultAuth ;
         switch( resultAuth )
         {
         case RC_OK:
-            TALK( "rasmgr::main: auth file ok, set state to not dirty." );
+            LDEBUG << "rasmgr::main: auth file ok, set state to not dirty.";
             rascontrol.setAuthDirty( false );   // auth file ok, so clean init state
             break;
         case ERRAUTHFNOTF:
-            TALK( "rasmgr::main: auth file not found, loading defaults." );
+            LDEBUG << "rasmgr::main: auth file not found, loading defaults.";
             userManager.loadDefaults();
             // disabled because otherwise tons of new auth files are generated -- PB 2005-jul-02
             // rascontrol.setAuthDirty( true ); // auth file not present, write default
             break;
         case ERRAUTHFCORR:
-            LEAVE( "rasmgr::main: auth file corrupt." );
             return RASMGR_RESULT_AUTH_CORRUPT;
             break;
         case ERRAUTHFWRHOST:
-            LEAVE( "rasmgr::main: auth file for another host." );
             return RASMGR_RESULT_AUTH_OTHERHOST;
             break;
         case ERRAUTHFVERS:
-            LEAVE( "rasmgr::main: auth file version mismatch." );
             return RASMGR_RESULT_AUTH_INCOMPAT;
             break;
         default:                // should not occur, internal enum mismatch
-            LEAVE( "rasmgr::main: illegal auth file result code " << resultAuth << ", internal error." );
             return RASMGR_RESULT_INTERNAL;
             break;
         }
 
         try
         {
-            TALK( "launching masterCommunicator.Run()..." );
+            LDEBUG << "launching masterCommunicator.Run()...";
             masterCommunicator.Run();       // central request handling loop
-            TALK( "masterCommunicator.Run() done." );
+            LDEBUG << "masterCommunicator.Run() done.";
         }
         catch(RCError& e)
         {
             char *errorMsg = NULL;
             e.getString(errorMsg);
-            RMInit::logOut<<"Error: "<<errorMsg<<std::endl;
+            LERROR << "Error: " << errorMsg;
         }
 
 // write the config file only on explicit rascontrol request "save"
@@ -186,12 +184,12 @@ int main(int argc, char** argv, char** envp)
 #ifdef NEVER_AGAIN
         if(!config.saveConfigFile())
         {
-            RMInit::logOut<<"Error saving configuration file."<<std::endl;
+            LERROR << "Error saving configuration file.";
         }
 
         if(!authorization.saveAuthFile())
         {
-            RMInit::logOut<<"Error saving user authorization file."<<std::endl;
+            LERROR << "Error saving user authorization file.";
         }
 #endif
     }
@@ -203,10 +201,9 @@ int main(int argc, char** argv, char** envp)
         masterCommunicator.Run();
     }
 
-    RMInit::logOut <<"rasmgr terminated."<<std::endl;
+    LINFO <<"rasmgr terminated.";
 
     int retval = RASMGR_RESULT_OK;
-    LEAVE( "main: leave. retval=" << retval );
     return retval;
 } // main()
 
@@ -214,7 +211,7 @@ int main(int argc, char** argv, char** envp)
 // handler for SIGINT and SIGTERM = call for exit
 void SigIntHandler(__attribute__ ((unused)) int sig)
 {
-    RMInit::logOut<<"rasmgr received terminate signal...";
+    LINFO << "rasmgr received terminate signal...";
     masterCommunicator.shouldExit();
 }
 

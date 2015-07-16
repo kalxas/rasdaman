@@ -62,6 +62,8 @@ using namespace std;
 #include "debug-srv.hh"
 #include "raslib/rminit.hh"
 
+#include "../common/src/logging/easylogging++.hh"
+
 extern bool hostCmp( const char *h1, const char *h2);
 
 
@@ -82,14 +84,12 @@ Configuration::Configuration():
 #endif          // RMANDEBUG
     cmlLog        (cmlInter.addStringParameter('l', "log", "<log-file> log is printed to <log-file>\n\t\tif <log-file> is stdout , log output is printed to standard out", "log/rasmgr.<pid>.log"))
 {
-    ENTER( "Configuration::Configuration: enter." );
-
 
     int ghnResult = gethostname(hostName, sizeof(hostName) );
     if (ghnResult != 0) // cannot get hostname?
     {
         int ghnErrno = errno;
-        RMInit::logOut << "Error: cannot get hostname of my machine: error " << ghnErrno << "; will use '" << DEFAULT_HOSTNAME << "' as heuristic." << endl;
+        LERROR << "Error: cannot get hostname of my machine: error " << ghnErrno << "; will use '" << DEFAULT_HOSTNAME << "' as heuristic.";
         strcpy( hostName, DEFAULT_HOSTNAME );
     }
     strcpy(publicHostName,hostName);
@@ -101,8 +101,7 @@ Configuration::Configuration():
 
     if (sizeof(configFileName) < strlen(CONFDIR) + strlen(RASMGR_CONF_FILE) + 2)
     {
-        RMInit::logOut << "Error: configuration path length exceeds system limits: '" << CONFDIR << "/" << RASMGR_CONF_FILE << "'" << endl;
-        LEAVE( "Configuration::Configuration: leave." );
+        LERROR << "Error: configuration path length exceeds system limits: '" << CONFDIR << "/" << RASMGR_CONF_FILE << "'";
         return;
     }
     sprintf( configFileName, "%s/%s", CONFDIR, RASMGR_CONF_FILE );
@@ -113,7 +112,6 @@ Configuration::Configuration():
     rtHlTest     = true;  // by default RasMgr tests at runtime if it's the only one
     allowMultiWT = false; // rasmgr allow multiple write transactions for a db as default
 
-    LEAVE( "Configuration::Configuration: leave." );
 }
 
 bool Configuration::readConfigFile()
@@ -126,9 +124,7 @@ bool Configuration::readConfigFile()
     bool result = true;
     bool fileIsOpen = false;
 
-    ENTER( "Configuration::readConfigFile: enter. Looking for config file " << configFileName );
-
-    VLOG << "Inspecting config file " << configFileName << "...";
+    LDEBUG << "Inspecting config file " << configFileName << "...";
 
     std::ifstream ifs(configFileName);      // open config file
 
@@ -136,8 +132,8 @@ bool Configuration::readConfigFile()
         fileIsOpen = true;
     else
     {
-        TALK( "Configuration::readConfigFile: cannot open config file." );
-        RMInit::logOut << "Warning: cannot open config file " << configFileName << endl;
+        LDEBUG << "Configuration::readConfigFile: cannot open config file." ;
+        LWARNING << "Warning: cannot open config file " << configFileName;
         fileIsOpen = false;
     }
     result = true;              // was: false, but I want to allow a missing file
@@ -152,11 +148,11 @@ bool Configuration::readConfigFile()
             ifs.getline(inBuffer,MAXMSG);
             // if(!strlen(inBuffer) && ifs.eof())   // FIXME: what happens if last line in file is empty?
             // {
-            // TALK( "Configuration::readConfigFile: strlen(inBuffer)=" << strlen(inBuffer) << ", eof=" << ifs.eof());
+            // LDEBUG << "Configuration::readConfigFile: strlen(inBuffer)=" << strlen(inBuffer) << ", eof=" << ifs.eof();
             // break;
             // }
 
-            TALK( "Configuration::readConfigFile: processing line: " << inBuffer );
+            LDEBUG << "Configuration::readConfigFile: processing line: " << inBuffer ;
             rascontrol.processRequest(inBuffer,outBuffer);
         }
 
@@ -166,9 +162,8 @@ bool Configuration::readConfigFile()
     }
 
     if (result == true && fileIsOpen)
-        VLOG << "ok" << endl;
+        LDEBUG << "ok";
 
-    LEAVE( "Configuration::readConfigFile: leave. result=" << result );
     return true;
 }
 
@@ -182,12 +177,9 @@ const char *Configuration::getAltConfigFileName()
 // in future this is not used directly, but through saveOrigConfigFile() and saveAltConfigFile() wrappers below
 bool Configuration::saveConfigFile()
 {
-    ENTER( "Configuration::saveConfigFile: enter." );
-
     std::ofstream ofs(configFileName);
     if(!ofs)
     {
-        LEAVE( "Configuration::saveConfigFile: leave. cannot open config file " << configFileName << " for writing." );
         return false;
     }
 
@@ -266,7 +258,6 @@ bool Configuration::saveConfigFile()
     }
 
     ofs.close();        // this was missing, therefore sometimes the config file was cleared -- PB 2003-jun-06
-    LEAVE( "Configuration::saveConfigFile: leave." );
 
     return true;
 } // saveConfigFile()
@@ -274,19 +265,14 @@ bool Configuration::saveConfigFile()
 // save config file at original place, i.e., under the name of configFile
 bool Configuration::saveOrigConfigFile()
 {
-    ENTER( "Configuration::saveOrigConfigFile: enter." );
-
     bool result = saveConfigFile();
 
-    LEAVE( "Configuration::saveOrigAltConfigFile: leave. result=" << result );
     return result;
 }
 
 // save configuration file in another file, same dir as config file
 bool Configuration::saveAltConfigFile()
 {
-    ENTER( "Configuration::saveAltConfigFile()" );
-
     bool result = true;
     char origFileName[ sizeof(configFileName) ];        // temp copy of origFileName
 
@@ -301,7 +287,7 @@ bool Configuration::saveAltConfigFile()
     if (altFile < 0)                                    // error in creating file name
     {
         int tempError = errno;
-        TALK( "Configuration::saveAltConfigFile: error creating alternate file name: " << strerror(tempError) );
+        LDEBUG << "Configuration::saveAltConfigFile: error creating alternate file name: " << strerror(tempError);
         result = false;
     }
 
@@ -311,7 +297,7 @@ bool Configuration::saveAltConfigFile()
         // so close it again, being happy that we have a valid file name. bad hack, though.
         int closeResult = close( altFile );
         if (closeResult != 0)
-            TALK( "Configuration::saveAltConfigFile: error in temporary closing file, ignoring that." );
+            LDEBUG << "Configuration::saveAltConfigFile: error in temporary closing file, ignoring that.";
     }
 
     if (result == true)
@@ -321,14 +307,11 @@ bool Configuration::saveAltConfigFile()
         (void) strcpy( configFileName, origFileName );  // restore original config file name
     }
 
-    LEAVE( "Configuration::saveAltConfigFile: leave. result=" << result );
     return result;
 }
 
 bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((unused)) char **envp)
 {
-    ENTER( "Configuration::interpretArguments: enter." );
-
     bool result = true;
     //errorCode=0;
 
@@ -339,7 +322,7 @@ bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((un
     }
     catch(CmlException& err)
     {
-        RMInit::logOut << "Error parsing command line: " << err.what() << std::endl;
+        LERROR << "Error parsing command line: " << err.what();
         printHelp();
         result = false;
     }
@@ -368,7 +351,7 @@ bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((un
             strcpy(publicHostName,cmlHostName.getValueAsString());
         else
         {
-            VLOG << "Error: host name exceeds length limit of " << sizeof(hostName) << " characters." << std::endl;
+            LDEBUG << "Error: host name exceeds length limit of " << sizeof(hostName) << " characters.";
             result = false;
         }
     }
@@ -381,7 +364,7 @@ bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((un
         }
         catch(CmlException& err)
         {
-            VLOG << "Error converting port parameter " << cmlPort.getLongName() << " to integer: " << err.what() << std::endl;
+            LDEBUG << "Error converting port parameter " << cmlPort.getLongName() << " to integer: " << err.what();
             result = false;
         }
     }
@@ -394,12 +377,12 @@ bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((un
         }
         catch(CmlException& err)
         {
-            VLOG << "Error converting " << cmlPollFrequ.getLongName() << " to integer: " << err.what() << std::endl;
+            LDEBUG << "Error converting " << cmlPollFrequ.getLongName() << " to integer: " << err.what();
             result = false;
         }
         if (result == true && pollFrequency <= 0)
         {
-            VLOG << "Error: poll frequency must be a positive integer." << std::endl;
+            LDEBUG << "Error: poll frequency must be a positive integer.";
             result = false;
         }
     }
@@ -411,7 +394,7 @@ bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((un
 
     if( (result==true) && cmlRandTest.isPresent() )
     {
-        RMInit::logOut<<"Random generator test..."<<(randomGenerator.insideTest() ? "PASSED":"FAILED" )<<std::endl;
+        LINFO << "Random generator test..." << (randomGenerator.insideTest() ? "PASSED":"FAILED" );
         result = false;
     }
 
@@ -419,7 +402,6 @@ bool Configuration::interpretArguments(int argc, char **argv, __attribute__ ((un
 
 #endif       // RMANDEBUG
 
-    LEAVE( "Configuration::interpretArguments: leave. result=" << result );
     return result;
 }
 
@@ -470,27 +452,37 @@ int Configuration::getPollFrequency()
 
 void Configuration::printHelp()
 {
-    RMInit::logOut << "Usage: rasmgr [options]" << std::endl;
-    RMInit::logOut << "Options:" << std::endl;
+    LINFO << "Usage: rasmgr [options]";
+    LINFO << "Options:";
     cmlInter.printHelp();
-    RMInit::logOut << std::endl;
     return;
 }
 
 void Configuration::printStatus()
 {
-    RMInit::logOut << "rasmgr configuration parameter settings:" << std::endl;
-    RMInit::logOut << "   symb name   = " << publicHostName << std::endl;
-    RMInit::logOut << "   hostname    = " << publicHostName << std::endl;
-    RMInit::logOut << "   port        = " << listenPort     << std::endl;
-    RMInit::logOut << "   poll        = " << pollFrequency  << std::endl;
-    RMInit::logOut << "   quiet     = "   << (!verbose) << std::endl;
-    RMInit::logOut << "   log file  = "   << logFileName << std::endl;
+    LINFO << "rasmgr configuration parameter settings:";
+    LINFO << "   symb name   = " << publicHostName;
+    LINFO << "   hostname    = " << publicHostName;
+    LINFO << "   port        = " << listenPort    ;
+    LINFO << "   poll        = " << pollFrequency ;
+    LINFO << "   quiet     = "   << (!verbose);
+    LINFO << "   log file  = "   << logFileName;
     return;
 }
 
 void Configuration::initLogFiles()
 {
+    //Default logging configuration
+    easyloggingpp::Configurations defaultConf;
+    defaultConf.setToDefault();
+    defaultConf.set(easyloggingpp::Level::All,
+            easyloggingpp::ConfigurationType::Format, "%datetime %level %log");
+    defaultConf.set(easyloggingpp::Level::Debug,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    defaultConf.set(easyloggingpp::Level::Trace,
+            easyloggingpp::ConfigurationType::Enabled, "false");
+    easyloggingpp::Loggers::reconfigureAllLoggers ( defaultConf );
+
     if (cmlLog.isPresent())
     {
         if (strcasecmp(cmlLog.getValueAsString(), "stdout") != 0)
@@ -509,6 +501,10 @@ void Configuration::initLogFiles()
         logFileName = makeLogFileName(LOG_SUFFIX);
         logToStdOut = false;
     }
+
+    defaultConf.set(easyloggingpp::Level::All ,easyloggingpp::ConfigurationType::Filename, logFileName);
+    easyloggingpp::Loggers::reconfigureAllLoggers(defaultConf);
+
     cout << "rasmgr log file is: " << logFileName << endl;
 
     if (logToStdOut == true)
@@ -522,7 +518,7 @@ void Configuration::initLogFiles()
         if (RMInit::logFileOut.is_open())
             RMInit::logFileOut.close();
 
-        RMInit::logFileOut.open(logFileName, ios::out | ios::ate);
+        RMInit::logFileOut.open(logFileName, ios::out | ios::app);
         RMInit::logOut.rdbuf(RMInit::logFileOut.rdbuf());
         RMInit::dbgOut.rdbuf(RMInit::logFileOut.rdbuf());
         RMInit::bmOut.rdbuf(RMInit::logFileOut.rdbuf());

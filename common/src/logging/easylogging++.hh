@@ -35,6 +35,12 @@
 //                                                                               //
 ///////////////////////////////////////////////////////////////////////////////////
 
+#pragma GCC diagnostic ignored "-Wundef"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wshadow"
+#pragma GCC diagnostic ignored "-Wswitch-default"
+#pragma GCC diagnostic ignored "-Wctor-dtor-privacy"
+
 #ifndef EASYLOGGINGPP_H
 #define EASYLOGGINGPP_H
 //
@@ -69,9 +75,13 @@
 #   define _ELPP_GCC_VERSION (__GNUC__ * 10000 \
                                + __GNUC_MINOR__ * 100 \
                                + __GNUC_PATCHLEVEL__)
+#define _ELPP_CXX0X 0
+#define _ELPP_CXX11 0
 #   if defined(__GXX_EXPERIMENTAL_CXX0X__)
+#      undef _ELPP_CXX0X
 #      define _ELPP_CXX0X 0
 #   elif (_ELPP_GCC_VERSION >= 40801)
+#      undef _ELPP_CXX11
 #      define _ELPP_CXX11 0
 #   endif // defined(__GXX_EXPERIMENTAL_CXX0X__)
 #endif // defined(__GNUC__)
@@ -83,8 +93,10 @@
 #      define _ELPP_CRT_DBG_WARNINGS 0
 #   endif // (_MSC_VER >= 1400)
 #   if (_MSC_VER == 1600)
+#      undef _ELPP_CXX0X
 #      define _ELPP_CXX0X 1
 #   elif (_MSC_VER == 1700)
+#      undef _ELPP_CXX11
 #      define _ELPP_CXX11 1
 #   endif // (_MSC_VER == 1600)
 #else
@@ -96,6 +108,7 @@
                                 + __clang_minor__ * 100 \
                                 + __clang_patchlevel__)
 #   if (_ELPP_CLANG_VERSION >= 30300)
+#      undef _ELPP_CXX11
 #      define _ELPP_CXX11 1
 #   endif // (_ELPP_CLANG_VERSION >= 30300)
 #endif // defined(__clang__) && (__clang__ == 1)
@@ -4001,3 +4014,9 @@ private:
 #define _ELPP_COUNTER_POSITION (_ELPP_COUNTER == NULL ? 0 : _ELPP_COUNTER->position())
 } // easyloggingpp
 #endif // EASYLOGGINGPP_H
+
+#pragma GCC diagnostic ignored "-Wundef"
+#pragma GCC diagnostic warning "-Wsign-conversion"
+#pragma GCC diagnostic warning "-Wshadow"
+#pragma GCC diagnostic warning "-Wswitch-default"
+#pragma GCC diagnostic warning "-Wctor-dtor-privacy"
