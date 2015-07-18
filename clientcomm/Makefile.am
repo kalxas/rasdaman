@@ -63,20 +63,20 @@ CLEANFILES=rpcif_clnt.cc rpcif_xdr.c rpcif.h rpcif.h.tmp rpcif_clnt.c.tmp \
 rpcif.h: rpcif.x	
 	$(RPCGEN) -h -o rpcif.h.tmp rpcif.x
 	$(AWK) -f rpcif.h.awk rpcif.h.tmp > rpcif.h
-	rm rpcif.h.tmp
+	rm -f rpcif.h.tmp
 
 rpcif_clnt.cc: rpcif.x
 	$(RPCGEN) -l -o rpcif_clnt.cc.tmp rpcif.x
 	$(AWK) -f rpcif_clnt.c.awk rpcif_clnt.cc.tmp > rpcif_clnt.cc
-	rm rpcif_clnt.cc.tmp    
+	rm -f rpcif_clnt.cc.tmp
 
 rpcif_xdr.c: rpcif.x
-	-rm rpcif_xdr.c
+	-rm -f rpcif_xdr.c
 	$(RPCGEN) -c -o rpcif_xdr.c rpcif.x
 
 rpcif_svc.cc: rpcif.x
 	$(RPCGEN) -m -o rpcif_svc.cc.tmp rpcif.x
 	$(AWK) -f rpcif_svc.c.awk rpcif_svc.cc.tmp > rpcif_svc.cc
-	rm rpcif_svc.cc.tmp
+	rm -f rpcif_svc.cc.tmp
 
 EXTRA_DIST = rpcif*

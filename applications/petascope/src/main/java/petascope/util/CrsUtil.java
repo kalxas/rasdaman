@@ -29,12 +29,22 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import com.sun.tools.jxc.gen.config.Config;
-import nu.xom.*;
+import nu.xom.Attribute;
+import nu.xom.Document;
+import nu.xom.Element;
+import nu.xom.ParsingException;
+import nu.xom.ValidityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import petascope.ConfigManager;
@@ -289,15 +299,8 @@ public class CrsUtil {
                         } else {
                             // Need to parse a new XML definition
                             uomUrl = new URL(uomAtt.getValue());
-                            try {
-                                URLConnection uomCon = uomUrl.openConnection();
-                                uomCon.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
-                                uomCon.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
-                                InputStream uomInStream = uomCon.getInputStream();
-
-                                // Build the document
-                                Document uomDoc =   XMLUtil.buildDocument(null, uomInStream);
-                                Element uomRoot = uomDoc.getRootElement();
+                            Element uomRoot = crsDefUrlToXml(uomAtt.getValue());
+                            if (uomRoot != null) {
 
                                 // Catch some exception in the GML
                                 Element uomExEl = XMLUtil.firstChildRecursive(uomRoot, XMLSymbols.LABEL_EXCEPTION_TEXT);
@@ -313,12 +316,9 @@ public class CrsUtil {
                                     throw new PetascopeException(ExceptionCode.InvalidMetadata, "Invalid UoM definition: " + uom);
                                 }
                                 uomName = uomNameEl.getValue().split(" ")[0]; // Some UoM might have further comments after actual UoM (eg EPSG:4326)
-                            } catch (ParsingException pEx) {
+                            } else {
                                 uomName = extractUomNameFromUri(uomUrl);
-                            } catch (IOException ioEx) {
-                                // The UoM is not a resolvable URI: use its last field as name (FS='/')
-                                uomName = extractUomNameFromUri(uomUrl);
-                            } // NOTE: with Java 7 you can put exception types in OR in a single catch clause.
+                            }
                         }
                     }
 
@@ -401,6 +401,36 @@ public class CrsUtil {
         return crs;
     }
 
+    public static Element crsDefUrlToXml(final String url) throws MalformedURLException, IOException, ParsingException {
+        Element ret = crsDefUrlToDocument(url);
+        if (ret == null) {
+            for (String configuredResolver : ConfigManager.SECORE_URLS) {
+                String newUrl = CrsUri.replaceResolverInUrl(url, configuredResolver);
+                ret = crsDefUrlToDocument(newUrl);
+                if (ret != null) {
+                    break;
+                }
+            }
+        }
+        return ret;
+    }
+
+    private static Element crsDefUrlToDocument(final String url) throws MalformedURLException {
+        Element ret = null;
+        URL uomUrl = new URL(url);
+        try {
+            URLConnection uomCon = uomUrl.openConnection();
+            uomCon.setConnectTimeout(ConfigManager.CRSRESOLVER_CONN_TIMEOUT);
+            uomCon.setReadTimeout(ConfigManager.CRSRESOLVER_READ_TIMEOUT);
+            InputStream is = uomCon.getInputStream();
+            Document doc = XMLUtil.buildDocument(null, is);
+            ret = doc.getRootElement();
+        } catch (Exception ex) {
+            ret = null;
+        }
+        return ret;
+    }
+
     /**
      * Extracts the UoM name from the URI as last field in the RESTful .
      * 10^0 as UoM for pure numbers is otherwise returned.
@@ -427,29 +457,6 @@ public class CrsUtil {
             }
         }
         return uomName;
-    }
-    /**
-     * In case northing is first, force easting/northing axis order.
-     * @param axesMetadata The axis metadata as parsed from GML definition (Dir, Abbrev, UoM).
-     */
-    private static void forceXYorder(CrsDefinition crs, List<List<String>> axesMetadata) {
-        int Xind = -1;
-        int Yind = -1;
-
-        for (int i = 0; i < axesMetadata.size(); i++) {
-            if (crs.X_ALIASES.contains(axesMetadata.get(i).get(1))) {
-                Xind = i;
-            } else if (crs.Y_ALIASES.contains(axesMetadata.get(i).get(1))) {
-                Yind = i;
-            }
-        }
-
-        if ((Xind > 0) && (Yind >= 0) && (Yind < Xind)) {
-            // Northing is first in the CRS definition: swap metadata.
-            List<String> tmp = axesMetadata.get(Yind);
-            axesMetadata.set(Yind, axesMetadata.get(Xind));
-            axesMetadata.set(Xind, tmp);
-        }
     }
 
     /**
@@ -1073,6 +1080,8 @@ public class CrsUtil {
         private static final String REST_CRS_PATTERN = "^" +
                 HTTP_URL_PATTERN + KEY_RESOLVER_CRS + "/[^/]+/.+/.+$";
 
+        public static final String RESOLVER_PREFIX_END = "/def";
+
         // In case the URI represents a CCRS, it return the list of atomic CRS it represents.
         // NOTE: consistency of the URI should be first evaluated with isValid().
         /**
@@ -1105,6 +1114,16 @@ public class CrsUtil {
             }
 
             return crss;
+        }
+
+        private static String replaceResolverInUrl(String url, String newResolver) {
+            String ret = url;
+            int resolverPrefixEndIndex = url.indexOf(RESOLVER_PREFIX_END);
+            if (resolverPrefixEndIndex >= 0) {
+                String oldResolver = url.substring(0, resolverPrefixEndIndex + RESOLVER_PREFIX_END.length());
+                ret = url.replaceAll(oldResolver, newResolver);
+            }
+            return ret;
         }
 
         /**

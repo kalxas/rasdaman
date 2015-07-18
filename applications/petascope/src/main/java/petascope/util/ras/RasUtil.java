@@ -113,14 +113,16 @@ public class RasUtil {
             timeout = Integer.parseInt(ConfigManager.RASDAMAN_RETRY_TIMEOUT) * 1000;
         } catch (NumberFormatException ex) {
             timeout = DEFAULT_TIMEOUT * 1000;
-            log.info("The setting " + ConfigManager.RASDAMAN_RETRY_TIMEOUT + " is not defined. Assuming " + DEFAULT_TIMEOUT + " seconds between re-connect attemtps to a rasdaman server.");
+            log.warn("The setting " + ConfigManager.RASDAMAN_RETRY_TIMEOUT + " is ill-defined. Assuming " + DEFAULT_TIMEOUT + " seconds between re-connect attemtps to a rasdaman server.");
+            ConfigManager.RASDAMAN_RETRY_TIMEOUT = String.valueOf(DEFAULT_TIMEOUT);
         }
 
         try {
             maxAttempts = Integer.parseInt(ConfigManager.RASDAMAN_RETRY_ATTEMPTS);
         } catch (NumberFormatException ex) {
             maxAttempts = DEFAULT_RECONNECT_ATTEMPTS;
-            log.info("The setting " + ConfigManager.RASDAMAN_RETRY_ATTEMPTS + " is not defined. Assuming " + DEFAULT_RECONNECT_ATTEMPTS + " attempts to connect to a rasdaman server.");
+            log.warn("The setting " + ConfigManager.RASDAMAN_RETRY_ATTEMPTS + " is ill-defined. Assuming " + DEFAULT_RECONNECT_ATTEMPTS + " attempts to connect to a rasdaman server.");
+            ConfigManager.RASDAMAN_RETRY_ATTEMPTS = String.valueOf(DEFAULT_RECONNECT_ATTEMPTS);
         }
 
         Transaction tr;
@@ -164,7 +166,7 @@ public class RasUtil {
                     try {
                         db.close();
                     } catch (ODMGException ex) {
-                        log.info("Error closing database connection: ", ex);
+                        log.warn("Error closing database connection: ", ex);
                     }
                 }
             } catch (RasConnectionFailedException ex) {
@@ -177,7 +179,7 @@ public class RasUtil {
                     try {
                         db.close();
                     } catch (ODMGException e) {
-                        log.info("Error closing database connection: ", e);
+                        log.warn("Error closing database connection: ", e);
                     }
                 }
                 dbOpened = false;
@@ -201,7 +203,7 @@ public class RasUtil {
                 //The maximum ammount of connection attempts was exceded
                 //and a connection could not be established. Return
                 //an exception indicating Rasdaman is unavailable.
-                log.info("A Rasdaman request could not be fullfilled since no "
+                log.error("A Rasdaman request could not be fullfilled since no "
                         + "free Rasdaman server were available. Consider adjusting "
                         + "the values of rasdaman_retry_attempts and rasdaman_retry_timeout "
                         + "or adding more Rasdaman servers.", ex);
@@ -278,7 +280,7 @@ public class RasUtil {
             wcpsParser.wcpsRequest_return rrequest = parser.wcpsRequest();
             request = rrequest.value;
         } catch (RecognitionException ex) {
-            throw new WCPSException(ExceptionCode.InternalComponentError,
+            throw new WCPSException(ExceptionCode.SyntaxError,
                     "Error parsing abstract WCPS query.", ex);
         }
 
@@ -287,7 +289,7 @@ public class RasUtil {
             ret = request.toXML();
             log.debug("Done, xml query: " + ret);
         } catch (Exception ex) {
-            throw new WCPSException(ExceptionCode.InternalComponentError,
+            throw new WCPSException(ExceptionCode.SyntaxError,
                     "Error translating parsed abstract WCPS query to XML format.", ex);
         }
         return ret;

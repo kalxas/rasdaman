@@ -72,17 +72,14 @@ import nu.xom.ParsingException;
 import nu.xom.Text;
 import nu.xom.XPathContext;
 import nu.xom.converters.DOMConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.EntityResolver;
+import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.ErrorHandler;
-import petascope.util.traverse.DFSTraversor;
-import petascope.util.traverse.Filter;
-import petascope.util.traverse.TraversableXOM;
 
 /**
  * Common utility methods for working with XML.
@@ -649,64 +646,6 @@ public class XMLUtil {
                 }
             }
             return ret;
-        }
-    }
-
-    /**
-     * Collect all children of <code>e</code> for which xml:id=id.
-     *
-     * @return a list of the collected elements
-     */
-    public static List<Element> collectAllWithID(Element e, final String id) {
-        DFSTraversor traversor = new DFSTraversor(new Filter() {
-
-            public boolean evaluate(Object node, int depth) {
-                if (node instanceof Element) {
-                    Element x = (Element) node;
-                    String value = getXMLID(x);
-                    if (value == null) {
-                        value = x.getAttributeValue("name");
-                    }
-                    if (value != null && value.equals(id)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-
-        List<Object> res = traversor.traverse(new TraversableXOM(e));
-        return ListUtil.<Element, Object>cast(res);
-    }
-
-    /**
-     * Collect all children of <code>e</code> for which xml:id=id.
-     *
-     * @return a list of the collected elements
-     */
-    public static Element collectFirstWithID(Element e, final String id) {
-        DFSTraversor traversor = new DFSTraversor(new Filter() {
-
-            public boolean evaluate(Object node, int depth) {
-                if (node instanceof Element) {
-                    Element x = (Element) node;
-                    String value = getXMLID(x);
-                    if (value == null) {
-                        value = x.getAttributeValue("name");
-                    }
-                    if (value != null && value.equals(id)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        }, 1);
-
-        List<Object> res = traversor.traverse(new TraversableXOM(e));
-        if (res.isEmpty()) {
-            return null;
-        } else {
-            return (Element) res.get(0);
         }
     }
 
