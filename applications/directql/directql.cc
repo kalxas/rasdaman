@@ -259,6 +259,8 @@ bool taIsOpen = false;
 
 // suppress regular messages in log? (cmd line parameter '--quiet')
 bool quietLog = false;
+// logging mechanism that respects 'quiet' flag:
+#define INFO(a) { if (!quietLog) std::cout << a; }
 
 int optionValueIndex = 0;
 
@@ -493,8 +495,7 @@ openDatabase() throw(r_Error)
     if (!dbIsOpen)
     {
         sprintf(globalConnectId, "%s", baseName);
-        LINFO << "opening database " << baseName << " at " << serverName << ":" << serverPort << "...";
-
+        INFO("opening database " << baseName << " at " << serverName << ":" << serverPort << "..." << flush);
         server = new ServerComm(DQ_TIMEOUT, DQ_MANAGEMENT_INTERVAL, DQ_LISTEN_PORT, const_cast<char*>(serverName), serverPort, const_cast<char*>(DQ_SERVER_NAME));
         r = new ServerComm::ClientTblElt(user, DQ_CLIENT_ID);
         server->addClientTblEntry(r);
@@ -504,7 +505,7 @@ openDatabase() throw(r_Error)
         myAdmin = AdminIf::instance();
 
         dbIsOpen = true;
-        LINFO << " ok";
+        INFO(" ok" << endl << flush);
     }
 
     LEAVE("openDatabase");
@@ -587,63 +588,63 @@ void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
 {
     ENTER("printScalar");
 
-    LINFO << "  Result object " << resultIndex << ": ";
+    INFO("  Result object " << resultIndex << ": ");
 
     switch (data->getDataType())
     {
     case QT_BOOL:
-        LINFO << *((bool*) buffer);
+        INFO(*((bool*) buffer) << flush);
         break;
 
     case QT_CHAR:
-        LINFO << *((r_Char*) buffer);
+        INFO(*((r_Char*) buffer) << flush);
         break;
 
     case QT_OCTET:
-        LINFO << *((r_Octet*) buffer);
+        INFO(*((r_Octet*) buffer) << flush);
         break;
 
     case QT_SHORT:
-        LINFO << *((r_Short*) buffer);
+        INFO(*((r_Short*) buffer) << flush);
         break;
 
     case QT_USHORT:
-        LINFO << *((r_UShort*) buffer);
+        INFO(*((r_UShort*) buffer) << flush);
         break;
 
     case QT_LONG:
-        LINFO << *((r_Long*) buffer);
+        INFO(*((r_Long*) buffer) << flush);
         break;
 
     case QT_ULONG:
-        LINFO << *((r_ULong*) buffer);
+        INFO(*((r_ULong*) buffer) << flush);
         break;
 
     case QT_FLOAT:
-        LINFO << *((r_Float*) buffer);
+        INFO(*((r_Float*) buffer) << flush);
         break;
 
     case QT_DOUBLE:
-        LINFO << *((r_Double*) buffer);
+        INFO(*((r_Double*) buffer) << flush);
         break;
 
     case QT_COMPLEX:
     {
         QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);
         StructType* st = static_cast<StructType*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
-        LINFO << "{ ";
+        INFO("{ ");;
         for (unsigned int i = 0; i < st->getNumElems(); i++)
         {
             BaseType* bt = const_cast<BaseType*>(st->getElemType(i));
             if (i > 0)
             {
-                LINFO << ", ";
+                INFO(", ");
             }
             bt->printCell(cout, buffer);
 
             buffer += bt->getSize();
         }
-        LINFO << " }";
+        INFO(" }");
     }
         break;
 
@@ -651,12 +652,13 @@ void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
     case QT_INTERVAL:
     case QT_MINTERVAL:
     case QT_POINT:
-        LINFO << buffer;
+        INFO(buffer << flush);
         break;
     default:
-        LINFO << "scalar type not supported!";
+        INFO("scalar type not supported!" << endl);
         break;
     }
+    INFO(endl << flush);
 
     LEAVE("printScalar");
 } // printScalar()
@@ -677,7 +679,7 @@ void printResult(Tile* tile, int resultIndex) throw(RasqlError)
         break;
     case OUT_STRING:
     {
-        LINFO << "  Result object " << resultIndex << ": ";
+        INFO("  Result object " << resultIndex << ": ");
         for (r_Bytes cnt = 0; cnt < numCells; cnt++)
             cout << theStuff[cnt];
         cout << endl;
@@ -685,7 +687,7 @@ void printResult(Tile* tile, int resultIndex) throw(RasqlError)
         break;
     case OUT_HEX:
     {
-        LINFO << "  Result object " << resultIndex << ": ";
+        INFO("  Result object " << resultIndex << ": ");
         cout << hex;
         for (r_Bytes cnt = 0; cnt < numCells; cnt++)
             cout << setw(2) << (unsigned short) (0xff & theStuff[cnt]) << " ";
@@ -737,7 +739,7 @@ void printResult(Tile* tile, int resultIndex) throw(RasqlError)
             break;
         }
 
-        LINFO << "  Result object " << resultIndex << ": going into file " << defFileName << "...";
+        INFO("  Result object " << resultIndex << ": going into file " << defFileName << "..." << flush);
         FILE *tfile = fopen(defFileName, "wb");
         if (tfile == NULL)
         {
@@ -749,7 +751,7 @@ void printResult(Tile* tile, int resultIndex) throw(RasqlError)
             throw RasqlError(UNABLETOWRITETOFILE);
         };
         fclose(tfile);
-        LINFO << "ok.";
+        INFO("ok." << endl);
     }
         break;
     default:
@@ -767,13 +769,13 @@ void printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlErro
     switch (status)
     {
     case STATUS_MDD:
-        LINFO << "holds MDD elements";
+        INFO("holds MDD elements" << endl);
         break;
     case STATUS_SCALAR:
-        LINFO << "holds non-MDD elements";
+        INFO("holds non-MDD elements" << endl);
         break;
     case STATUS_EMPTY:
-        LINFO << "holds no elements";
+        INFO("holds no elements" << endl);
         break;
     default: break;
     };
@@ -782,10 +784,10 @@ void printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlErro
     {
         if (output)
         {
-            LINFO << "Getting result...";
+            INFO("Getting result..." << flush);
             if (status == STATUS_MDD)
             {
-                LINFO << "Getting MDD objects...";
+                INFO("Getting MDD objects..." << endl << flush);
 
                 char* typeName = NULL;
                 char* typeStructure = NULL;
@@ -812,7 +814,7 @@ void printOutput(unsigned short status, ExecuteQueryRes* result) throw(RasqlErro
             }
             else if (status == STATUS_SCALAR)
             {
-                LINFO << "Getting scalars...";
+                INFO("Getting scalars..." << endl << flush);
 
                 unsigned int resultIndex = 0;
                 char* buffer;
@@ -952,12 +954,11 @@ void doStuff() throw(RasqlError, r_Error)
             if (!mddTypeNameDef)
                 mddTypeName = MDD_STRINGTYPE;
 
-            LINFO << "fetching type information for " << mddTypeName << " from database, using readonly transaction...";
-            mddType = getTypeFromDatabase(mddTypeName);
+            INFO("fetching type information for " << mddTypeName << " from database, using readonly transaction..." << flush);            mddType = getTypeFromDatabase(mddTypeName);
             closeTransaction(true);
-            LINFO << "ok";
+            INFO("ok" << endl);
 
-            LINFO << "reading file " << fileName << "...";
+            INFO("reading file " << fileName << "..." << flush);
             FILE* fileD = fopen(fileName, "r");
             if (fileD == NULL)
                 throw RasqlError(FILEINACCESSIBLE);
@@ -1011,12 +1012,12 @@ void doStuff() throw(RasqlError, r_Error)
 
             fclose(fileD);
 
-            LINFO << "ok";
+            INFO("ok" << endl);
         }
 
         if (query.is_insert_query())
         {
-            LINFO << "Executing insert query...";
+            INFO("Executing insert query..." << flush);
 
             openTransaction(true);
 
@@ -1055,7 +1056,7 @@ void doStuff() throw(RasqlError, r_Error)
         }
         else if (query.is_update_query())
         {
-            LINFO << "Executing update query...";
+            INFO("Executing update query..." << flush);
 
             openTransaction(true);
 
@@ -1088,7 +1089,7 @@ void doStuff() throw(RasqlError, r_Error)
         }
         else // retrieval query
         {
-            LINFO << "Executing retrieval query...";
+            INFO("Executing retrieval query..." << flush);
 
             openTransaction(false);
 
@@ -1124,7 +1125,7 @@ void doStuff() throw(RasqlError, r_Error)
     }
     ObjectBroker::clearBroker();
 
-    LINFO << "ok.";
+    INFO("ok." << endl << flush);
     LEAVE("doStuff");
 }
 
@@ -1168,8 +1169,8 @@ int main(int argc, char** argv)
     try{
         parseParams(argc, argv);
 
-        // put LOG after parsing parameters to respect a '--quiet'
-        LINFO << argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << ".";
+        // put INFO after parsing parameters to respect a '--quiet'
+        INFO(argv[0] << ": rasdaman query tool v1.0, rasdaman " << RMANVERSION << " -- generated on " << COMPDATE << "." << endl);
 
         openDatabase();
         doStuff();
@@ -1203,13 +1204,13 @@ int main(int argc, char** argv)
 
     if (retval != EXIT_SUCCESS && (dbIsOpen || taIsOpen))
     {
-        LINFO << "aborting transaction...";
+        INFO("aborting transaction..." << flush);
         closeTransaction(false); // abort transaction and close database, ignore any further exceptions
-        LINFO << "ok";
+        INFO("ok" << endl);
         closeDatabase();
     }
 
-    LINFO << argv[0] << " done.";
+    INFO(argv[0] << " done." << endl);
     return retval;
 } // main()
 
