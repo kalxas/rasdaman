@@ -632,7 +632,7 @@ void printScalar(char* buffer, QtData* data, unsigned int resultIndex)
     {
         QtScalarData* scalarDataObj = static_cast<QtScalarData*>(data);
         StructType* st = static_cast<StructType*>(const_cast<BaseType*>(scalarDataObj->getValueType()));
-        INFO("{ ");;
+        INFO("{ ");
         for (unsigned int i = 0; i < st->getNumElems(); i++)
         {
             BaseType* bt = const_cast<BaseType*>(st->getElemType(i));
@@ -954,7 +954,8 @@ void doStuff() throw(RasqlError, r_Error)
             if (!mddTypeNameDef)
                 mddTypeName = MDD_STRINGTYPE;
 
-            INFO("fetching type information for " << mddTypeName << " from database, using readonly transaction..." << flush);            mddType = getTypeFromDatabase(mddTypeName);
+            INFO("fetching type information for " << mddTypeName << " from database, using readonly transaction..." << flush);
+            mddType = getTypeFromDatabase(mddTypeName);
             closeTransaction(true);
             INFO("ok" << endl);
 
@@ -1149,7 +1150,7 @@ _INITIALIZE_EASYLOGGINGPP
  */
 int main(int argc, char** argv)
 {
-    //TODO-GM: find a better way to do thiss
+    //TODO-GM: find a better way to do this
 #ifdef RMANRASNET
     easyloggingpp::Configurations defaultConf;
     defaultConf.setToDefault();
